@@ -33,6 +33,7 @@ end function choose-one;
 
 define function report-and-flush-error(error :: <error>)
  => ();
+  force-output(*standard-output*);
   report-condition(error, *standard-error*);
   new-line(*standard-error*);
   force-output(*standard-error*);
