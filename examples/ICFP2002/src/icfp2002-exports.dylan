@@ -24,7 +24,7 @@ define module board
     send-board, receive-board,
     width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,
-    <package>, id, weight, location, dest, at-destination?,
+    <package>, id, weight, location, dest, at-destination?, free-packages,
     <robot>, id, capacity, inventory, location, capacity-left,
     add-robot,
     add-package;
