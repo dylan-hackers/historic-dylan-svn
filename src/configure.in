@@ -1,4 +1,4 @@
-dnl	$Header: /scm/cvs/src/configure.in,v 1.126.2.7 2003/08/10 23:50:07 gabor Exp $
+dnl	$Header: /scm/cvs/src/configure.in,v 1.126.2.8 2003/10/18 22:13:36 andreas Exp $
 dnl
 dnl	The new and improved configure file for Gwydion Dylan!
 dnl	This is based on the old configure file, but rewritten to
@@ -28,14 +28,11 @@ AC_PREREQ(2.50)
 AC_CONFIG_HEADER(config.h)
 
 #--------------------------------------------------------------------
-# Version/package information, eventually to be used by automake, but
-# used by gwydion-dylan.spec.in for now.
+# Version/package information.
 #--------------------------------------------------------------------
 
 PACKAGE="gwydion-dylan"
 
-# VERSION="SNAP_`date +%y-%m-%d`"
-# Use this line instead before packaging up a release:
 VERSION="`cat $srcdir/version`"
 
 AC_SUBST(PACKAGE)
@@ -44,8 +41,9 @@ AC_SUBST(VERSION)
 #--------------------------------------------------------------------
 # This is used in conjunction with the output of 'd2c --compiler-info'
 # to decide when d2c needs a full bootstrap.  Increment the value here
-# whenever the dump format or the
-# interaction between the runtime and the compiler changes.
+# whenever the dump format or the interaction between the runtime and
+# the compiler changes.  (Please also increment the "preX" part of
+# $srcdir/version when incrementing this value.)
 #--------------------------------------------------------------------
 
 CURRENT_BOOTSTRAP_COUNTER=1002
@@ -117,9 +115,15 @@ case $1 in
     i*86-*-solaris*) $2=x86-solaris-gcc ;;
     i*86-*-l4*) $2=x86-l4-gcc ;;
     i*86-*-freebsd2.*) $2=x86-freebsd-aout-gcc ;;
-    i*86-*-freebsd*) $2=x86-freebsd-elf-gcc ;;
+    i*86-*-freebsd*)
+        case `gcc -dumpversion` in
+	     3.3*) $2=x86-freebsd-elf-gcc33 ;;
+	     3.2*) $2=x86-freebsd-elf-gcc32 ;;
+	     *)    $2=x86-freebsd-elf-gcc ;;
+        esac ;;
     i*86-pc-cygwin*)
         case `$CC -dumpversion` in
+	     3.3*) $2=x86-cygnus-gcc33 ;;
 	     3.2*) $2=x86-cygnus-gcc32 ;;
 	     *)    $2=x86-cygnus-gcc ;;
         esac ;;
@@ -163,15 +167,12 @@ AC_SUBST(d2c_target)
 AC_MSG_CHECKING(executable endings)
 exe_ext=""
 cygnus_line_hack=""
-if test "$d2c_build" = "x86-cygnus-gcc32"; then
-  exe_ext=".exe"
-  cygnus_line_hack="\$_ =~ s/\r//;"
-else
-  if test "$d2c_build" = "x86-mingw32-gcc"; then
-    exe_ext=".exe"
-    cygnus_line_hack="\$_ =~ s/\r//;"
-  fi
-fi
+case $d2c_build in
+    x86-cygnus*|x86-mingw*)
+    	exe_ext=".exe"
+        cygnus_line_hack="\$_ =~ s/\r//;"
+	;;
+esac
 AC_MSG_RESULT($exe_ext)
 AC_SUBST(exe_ext)
 AC_SUBST(cygnus_line_hack)
@@ -491,6 +492,9 @@ You may need to specify the --with-existing-runtime option to configure; see
     else	
 	existing_runtime_header="$prefix/include/runtime.h"
     fi
+	if test ! -f "$existing_runtime_header"; then
+	AC_MSG_ERROR([Cannot locate runtime.h for the installed d2c. ($existing_runtime_header)])
+	fi
     ln -s "$existing_runtime_header" "$LOCAL_RUNTIME"
 fi
 

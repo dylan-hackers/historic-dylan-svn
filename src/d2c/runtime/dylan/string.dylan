@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/string.dylan,v 1.4 2003/02/03 12:32:45 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/string.dylan,v 1.4.2.1 2003/10/18 22:13:42 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -335,6 +335,8 @@ define method copy-sequence
     = if (last & last < src-sz) last else src-sz end if;
   let start :: <integer> = if (start < 0) 0 else start end if;
   let sz :: <integer> = last - start;
+  
+  if(start > last) sz := 0 end;
 
   let result :: <byte-string> = make(<byte-string>, size: sz);
   for (from-index :: <integer> from start below last,

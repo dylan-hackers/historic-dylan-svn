@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.4 2003/08/10 23:50:15 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.5 2003/10/18 22:13:42 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -596,8 +596,8 @@ define method build-ar-file (state :: <lid-mode-state>) => ();
 				       ar-name, objects);
 		    end;
 
-  if(state.unit-embedded?)
-    if(state.unit-shared?)
+  if (state.unit-embedded?)
+    if (state.unit-shared?)
       link-string := concatenate(link-string, link-arguments(state));
     else
       let link-string-file = make(<file-stream>,
@@ -608,6 +608,13 @@ define method build-ar-file (state :: <lid-mode-state>) => ();
                                   direction: #"output");
       format(link-string-file, "%s", link-arguments(state));
       close(link-string-file);
+    end if;
+  elseif (state.unit-shared?)
+    if(state.unit-profile? & target.link-profile-flags)
+      link-string := concatenate(link-string, " ", target.link-profile-flags);
+    end if;
+    if(state.unit-debug? & target.link-debug-flags)
+      link-string := concatenate(link-string, " ", target.link-debug-flags);
     end if;
   end if;
 

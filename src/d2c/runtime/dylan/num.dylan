@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/num.dylan,v 1.8.2.2 2003/06/10 10:04:42 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/num.dylan,v 1.8.2.3 2003/10/18 22:13:42 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -646,7 +646,7 @@ end;
 define sealed domain as (singleton(<double-integer>), <integer>);
 
 define inline method as (class == <double-integer>, num :: <integer>)
-    => res :: <integer>;
+    => res :: <double-integer>;
   %%primitive(fixed-as-dblfix, num);
 end;
 

@@ -1,12 +1,12 @@
 Module: ctype
 Description: compile-time type system
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.8.4.1 2003/08/10 23:50:10 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.8.4.2 2003/10/18 22:13:39 andreas Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -1045,14 +1045,20 @@ define method make-canonical-limited-integer
       high-bound := max-int;
     end;
     if (high-bound < low-bound)
-      empty-ctype();
+      empty-ctype()
+//  elseif (high-bound = low-bound)
+//    /* FIXME */
+//    make(<singleton-ctype>, value: as(<ct-value>, as(<integer>, low-bound)))
     else
       make(<limited-integer-ctype>, base-class: base-class,
-	   low-bound: low-bound, high-bound: high-bound);
+	   low-bound: low-bound, high-bound: high-bound)
     end;
   else
     if (high-bound & low-bound & high-bound < low-bound)
       empty-ctype();
+//  elseif (high-bound & low-bound & high-bound = low-bound)
+//    /* FIXME */
+//    make(<singleton-ctype>, value: as(<ct-value>, low-bound))
     else
       make(<limited-integer-ctype>, base-class: base-class,
 	   low-bound: low-bound, high-bound: high-bound);

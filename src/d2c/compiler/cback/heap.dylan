@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.37 2002/12/02 11:17:43 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.37.2.1 2003/10/18 22:13:39 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -705,7 +705,8 @@ end method defer-for-global-heap?;
 // when originally defined must be deferred because we *must* not ever dump
 // more than one copy.
 // 
-// New: dump all the classes to global heap.
+// New: dump all the classes to global heap, until we compute type inclusion 
+// matrix at program startup time.
 define method defer-for-global-heap?
     (object :: <cclass>, state :: <local-heap-file-state>)
     => defer? :: <boolean>;
@@ -916,6 +917,7 @@ define method spew-object
 	end select;
     end select;
   end for;
+  format(state.file-body-stream, "const ");
   spew-layout(class, state, size: str.size);
   format(state.file-body-stream, " %s = {\n", name);
   write(state.file-body-stream, get-string(state.file-guts-stream));
@@ -1311,8 +1313,12 @@ define method callback-signature-key (type :: <values-ctype>)
       *double-rep* => 'd';
       *long-double-rep* => 'D';
       otherwise =>
-	error("Couldn't find a callback signature key for representation %=",
-	      rep);
+        if(rep.representation-name == #"ptr")
+          'p'
+        else
+          error("Couldn't find a callback signature key for representation %=",
+                rep);
+        end if;
     end;
   end;
 end;
@@ -1531,6 +1537,9 @@ define method spew-heap-prototype
     let stream = state.file-body-stream;
     let cclass = defn.layouter-cclass;
     format(stream, "extern ");
+    if(instance?(defn, <literal-string>))
+      format(stream, "const ");
+    end;
     spew-layout(cclass, state, size: literal-vector-size(defn));
     format(stream, " %s;\n\n", name);
     state.file-prototypes-exist-for[name] := #t;

@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/char.dylan,v 1.2 2000/01/24 04:56:43 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/char.dylan,v 1.2.10.1 2003/10/18 22:13:42 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -84,11 +84,22 @@ define sealed inline method as (class == <character>, code :: <integer>)
   make(<character>, code: code);
 end;
 
+define sealed inline method as
+    (type :: <byte-character-type>, code :: <integer>)
+    => res :: <byte-character>;
+  make(<character>, code: code);
+end;
+
 // as{singleton(<integer>),<character>} -- exported GF method.
 //
 // Convert the character into an integer.
 // 
 define sealed inline method as (class == <integer>, char :: <character>)
+    => res :: <integer>;
+  char.value;
+end;
+
+define sealed inline method as (type :: <limited-integer>, char :: <character>)
     => res :: <integer>;
   char.value;
 end;

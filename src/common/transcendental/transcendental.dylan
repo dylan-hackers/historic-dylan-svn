@@ -1,7 +1,7 @@
 module: Transcendental
 author: Ben Folk-Williams
 synopsis: Transcendentals.
-RCS-header: $Header: /scm/cvs/src/common/transcendental/transcendental.dylan,v 1.5.2.4 2003/07/05 03:56:01 prom Exp $
+RCS-header: $Header: /scm/cvs/src/common/transcendental/transcendental.dylan,v 1.5.2.5 2003/10/18 22:13:39 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -75,8 +75,7 @@ define generic isqrt (x :: <integer>) => y :: <integer>;
 // Already have methods on \^ for <real>, <integer>
 // (see runtime/dylan/num.dylan)
 
-/*
-define sealed inline method \^ (b :: <integer>, x :: <real>)
+define sealed inline method \^ (b :: <integer>, x :: <float>)
  => y :: <single-float>;
   if (b.zero? & ~x.positive?)
     error("Exponent must be positive if base is zero"); 
@@ -85,10 +84,12 @@ define sealed inline method \^ (b :: <integer>, x :: <real>)
     error("Exponent must be an integer if base is negative.");
   end;
   c-include("math.h");
-  call-out("powf", float:, float: as(<single-float>, b), float: x);
+  call-out("powf", float:,
+           float: as(<single-float>, b),
+           float: as(<single-float>, x));
 end method;
 
-define sealed inline method \^ (b :: <single-float>, x :: <real>)
+define sealed inline method \^ (b :: <single-float>, x :: <float>)
  => y :: <single-float>;
   if (b.zero? & ~x.positive?)
     error("Exponent must be positive if base is zero"); 
@@ -97,10 +98,12 @@ define sealed inline method \^ (b :: <single-float>, x :: <real>)
     error("Exponent must be an integer if base is negative.");
   end;
   c-include("math.h");
-  call-out("powf", float:, float: b, float: x);
+  call-out("powf", float:,
+           float: b,
+           float: as(<single-float>, x));
 end method;
 
-define sealed inline method \^ (b :: <double-float>, x :: <real>)
+define sealed inline method \^ (b :: <double-float>, x :: <float>)
  => y :: <double-float>;
   if (b.zero? & ~x.positive?)
     error("Exponent must be positive if base is zero"); 
@@ -109,9 +112,8 @@ define sealed inline method \^ (b :: <double-float>, x :: <real>)
     error("Exponent must be an integer if base is negative.");
   end;
   c-include("math.h");
-  call-out("pow", double:, double: b, double: x);
+  call-out("pow", double:, double: b, double: as(<double-float>, x));
 end method;
-*/
 
 define sealed inline method log
     (x :: <extended-float>, #key base :: <real> = $extended-e)

@@ -1,11 +1,11 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/type.dylan,v 1.9.2.1 2003/08/10 23:50:20 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/type.dylan,v 1.9.2.2 2003/10/18 22:13:42 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -389,10 +389,13 @@ define method limited (class == <integer>, #key min, max)
 	      end;
     if (max < min)
       // Empty range.
-      type-union();
+      type-union()
+    elseif (max = min)
+      // Singleton range.
+      singleton(min)
     else
       // Otherwise, make the limited integer.
-      make(<limited-integer>, base-class: <integer>, min: min, max: max);
+      make(<limited-integer>, base-class: <integer>, min: min, max: max)
     end;
   end;
 end;

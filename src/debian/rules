@@ -3,21 +3,31 @@
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
-export CC=gcc-3.2
 
 STYLE=$(shell if [ -f "/usr/bin/d2c" ]; then echo "normal"; 	\
 	else echo "bootstrap";					\
 	fi)
-VERSION=2.3.11pre1
+VERSION=$(shell cat version)
 MACHINE=$(shell uname -m)
+GCCVER=$(shell gcc -dumpversion | sed "s/\([0-9]\.[0-9]\).*/\1/")
+
 ifeq ("$(MACHINE)", "sparc64")
 	MACHINE=sparc
 else
 	ifeq ("$(MACHINE)", "i686")
 		MACHINE=x86
+		# x86 had lots of annoying gcc optimizer bugs.
+		ifeq ("$(GCCVER)", "3.3")
+			GCCVER=gcc33
+		else
+			ifeq ("$(GCCVER)", "3.2")
+				GCCVER=gcc32
+			else
+				GCCVER=gcc
+			endif
+		endif
 	endif
 endif
-
 bootstrap-stage1:  bootstrap-stage1-stamp
 bootstrap-stage1-stamp:
 	# Following is needed for bootstrapping
@@ -46,13 +56,13 @@ bootstrap-stage2:	bootstrap-stage2-stamp
 bootstrap-stage2-stamp:  bootstrap-stage1-stamp
 ifeq ("$(STYLE)", "bootstrap")
 		PATH=`pwd`/debian/bootstrap/usr/bin:$(PATH); \
-		    LD_LIBRARY_PATH=`pwd`/debian/bootstrap/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-gcc:$(LD_LIBRARY_PATH); \
+		    LD_LIBRARY_PATH=`pwd`/debian/bootstrap/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-$(GCCVER):$(LD_LIBRARY_PATH); \
 		    ./configure --with-readline \
 				--prefix=/usr \
 				--enable-duim=no \
 				--with-site-dylan-prefix=/usr \
 				--with-gnu-ld \
-				--with-existing-runtime=`pwd`/debian/bootstrap/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-gcc
+				--with-existing-runtime=`pwd`/debian/bootstrap/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-$(GCCVER)
 		# End Bootstrapping portion
 
 		touch bootstrap-stage2-stamp
@@ -60,14 +70,14 @@ ifeq ("$(STYLE)", "bootstrap")
 		# Add here commands to compile the package.
 
 		export PATH=`pwd`/debian/bootstrap/usr/bin:$(PATH); \
-		    export LD_LIBRARY_PATH=`pwd`/debian/bootstrap/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-gcc:$(LD_LIBRARY_PATH); \
+		    export LD_LIBRARY_PATH=`pwd`/debian/bootstrap/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-$(GCCVER):$(LD_LIBRARY_PATH); \
 		    $(MAKE)
 endif
 
 	touch bootstrap-stage2-stamp
 
 autogen-stamp:
-	`pwd`/autogen.sh
+	`pwd`/autogen.sh --prefix=/usr
 	touch autogen-stamp
 
 build: autogen-stamp config build-stamp
@@ -182,7 +192,7 @@ install-stamp: build-stamp
 	rm -rf `pwd`/debian/gwydion-dylan-dev/share/man/man4
 
 	# Fix screwy permissions in Data Object Stores
-	chmod ago-x `pwd`/debian/tmp/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-gcc32/*.lib.du
+	chmod ago-x `pwd`/debian/tmp/usr/lib/dylan/$(VERSION)/$(MACHINE)-linux-$(GCCVER)/*.lib.du
 
 	touch install-stamp
 
@@ -198,7 +208,7 @@ binary-arch: build install
 	dh_installdocs
 	dh_installexamples
 	dh_installmenu
-	dh_installemacsen
+	dh_installemacsen -pgwydion-dylan-dev
 #	dh_installinit
 	dh_installcron
 #	dh_installmanpages

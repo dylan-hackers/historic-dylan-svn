@@ -1,5 +1,5 @@
 module: variables
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/variables.dylan,v 1.6.4.5 2003/10/02 10:19:29 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/variables.dylan,v 1.6.4.6 2003/10/18 22:13:39 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -1081,10 +1081,13 @@ end method note-variable-definition;
 //
 define method note-variable-referencing-macro
     (variable :: <variable>, macro-name :: <basic-name>) => ();
-  unless (variable.variable-referencing-macro-names)
-    variable.variable-referencing-macro-names := make(<stretchy-vector>);
+  unless (variable.variable-name == macro-name.name-symbol
+           & variable.variable-home == macro-name.name-module)
+    unless (variable.variable-referencing-macro-names)
+      variable.variable-referencing-macro-names := make(<stretchy-vector>);
+    end unless;
+    add-new!(variable.variable-referencing-macro-names, macro-name);
   end unless;
-  add-new!(variable.variable-referencing-macro-names, macro-name);
 end method;
 
 

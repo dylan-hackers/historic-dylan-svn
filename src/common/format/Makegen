@@ -1,6 +1,7 @@
 &makegen_include("../common-Makegen");
 
 $D2CFLAGS         # added by update-libdirs
+#    = $d2c_runtime . ' -f format-buf.c -F "$(LIBTOOL) --mode=compile gcc -I. -gstabs1 -O -I/home/andreas/gd/src/d2c/runtime -DGD_PLATFORM_LINUX -c %s -o %s"'
     = $d2c_runtime
     . ' -L../streams'
     . ' -L../print';

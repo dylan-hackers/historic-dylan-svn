@@ -1,6 +1,6 @@
 // A description of all target platforms we support. We use this in d2c as well as in the build scripts.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.9 2003/08/28 10:54:24 gabor Exp $
+// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.10 2003/10/18 22:13:39 andreas Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -480,8 +480,8 @@ link-library-command:           ar qc %s %s
 link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
 link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
 link-executable-flags:          $(GC_LIBS) -lm
-link-debug-flags:               -gstabs1
-link-profile-flags:		-pg -gstabs1
+link-debug-flags:               -g
+link-profile-flags:		-pg -g
 path-separator:        		/
 supports-asm-stabs-hack?:	#t
 
@@ -672,6 +672,12 @@ link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 long-long-size:			8
 long-long-alignment:		4
 
+platform-name:			x86-freebsd-elf-gcc32
+inherit-from:			freebsd x86-gcc32
+
+platform-name:			x86-freebsd-elf-gcc33
+inherit-from:			freebsd x86-gcc33
+
 platform-name:			alpha-linux-gcc
 inherit-from:			gcc linux alpha
 big-endian?:			#f
@@ -783,13 +789,15 @@ maximum-long-double-float-exponent: 1024
 
 // Bruce Hoult made this work on HP/UX 10.20
 // HP/UX 11 not tried yet
+// Shared libraries disabled for now so we can get 2.3.11 out.
+// The problem is the -lm, which is required by recent FP routine changes
 platform-name:				hppa-hpux-gcc
 inherit-from:				gcc hpux hppa
 default-features:               	compiled-for-hpux compiled-for-hppa C-compiler-is-GCC
 library-filename-suffix:        	.a .sl
 link-library-command:           	/bin/ar qc %s %s
-link-executable-command:        	gcc -static -o %s %s %s
-link-shared-library-command:    	$(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+link-executable-command:        	$(LIBTOOL) --mode=link gcc -o %s %s %s
+//link-shared-library-command:    	$(LIBTOOL) --mode=link gcc -o %s %s -L/lib/pa1.1 -lm -rpath %s
 link-executable-flags:          	$(GC_LIBS) -L/lib/pa1.1 -lm
 double-alignment:                       8
 long-long-size:                         8

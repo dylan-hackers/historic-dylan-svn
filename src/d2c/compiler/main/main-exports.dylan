@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.7 2003/08/31 22:00:17 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.8 2003/10/18 22:13:42 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -47,7 +47,7 @@ end;
 
 define module main
   use common;
-  use Extensions, exclude: {element-type};
+  use Extensions, exclude: {element-type, value};
 #if (mindy)
   use System, import: {system, copy-bytes, getenv, collect-garbage};
 #else
