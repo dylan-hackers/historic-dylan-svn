@@ -3605,9 +3605,9 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       The Transcendental library contains functions on numbers.  It
       includes commonly used numbers, such as pi and e, and the
       transcendental functions, including sine, cosine, and tangent,
-      and their arc, h, and arc-h counterparts.  Also included are the
-      logarithmic family of functions (the various log functions and
-      exp), and the square-root and power (^) functions.
+      and their inverse (arc) and hyperbolic counterparts.  Also
+      included are the logarithmic family of functions (the various
+      log functions and exp), and the square-root and power (^) functions.
     </para>
 
     <sect1 id="libs-transcendental-sincostan">
@@ -4149,7 +4149,495 @@ log(100000, base: 10) => 5.0
   <CHAPTER ID="libs-time">
     <TITLE>The Time Library</TITLE>
 
-    <PARA></PARA>
+    <PARA>
+      Time is a library of routines for working with time and dates.
+    </PARA>
+
+    <sect1 id="libs-time-timemodule">
+      <title>The Time Module</title>
+      <para>
+        This module contains the basic time classes, encoding and
+        decoding helper classes, functions to
+        convert between times, and functions to get the current time. 
+      </para>
+
+      <dylanconstantdef>
+        <defname>&lt;universal-time&gt;</defname>
+	<defsummary>
+	  A simple
+	  <classname>&lt;general-integer&gt;</classname> representation
+	  of the number of seconds since 00:00:00 1 January 1970,
+	  UTC. 
+	</defsummary>
+	<deftype>&lt;integer&gt; or &lt;extended-integer&gt;</deftype>
+	<defdescription>
+	  <para>
+	    Using <classname>&lt;extended-integer&gt;</classname>s
+	    guarantees that you can represent any date after 1 Jan
+	    1970.  Using <classname>&lt;integer&gt;</classname>s will
+	    break for dates after a certain date (depending on
+	    <constant>$maximum-integer</constant>) and can sometimes
+	    cause unpredictable behavior. 
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;seconds&gt;</defname>
+	<defsummary>
+	  An <classname>&lt;integer&gt;</classname> between 0 and 59
+	  inclusive.
+	</defsummary>
+	<deftype>limited(&lt;integer&gt;, min: 0, max: 59)</deftype>
+	<defdescription>
+	  <para>
+	    Ensures the seconds slot of
+	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;minutes&gt;</defname>
+	<defsummary>
+	  An <classname>&lt;integer&gt;</classname> between 0 and 59
+	  inclusive.
+	</defsummary>
+	<deftype>limited(&lt;integer&gt;, min: 0, max: 59)</deftype>
+	<defdescription>
+	  <para>
+	    Ensures the minutes slot of
+	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;hours&gt;</defname>
+	<defsummary>
+	  An <classname>&lt;integer&gt;</classname> between 0 and 23
+	  inclusive.
+	</defsummary>
+	<deftype>limited(&lt;integer&gt;, min: 0, max: 23)</deftype>
+	<defdescription>
+	  <para>
+	    Ensures the hours slot of
+	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;day-of-week&gt;</defname>
+	<defsummary>
+	  An <classname>&lt;integer&gt;</classname> between 0 and 6
+	  inclusive.
+	</defsummary>
+	<deftype>limited(&lt;integer&gt;, min: 0, max: 6)</deftype>
+	<defdescription>
+	  <para>
+	    Ensures the day-of-week slot of
+	    <classname>&lt;decoded-time&gt;</classname> is valid.  The
+	    first day of the week (or 0) is Monday.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;day-of-month&gt;</defname>
+	<defsummary>
+	  An <classname>&lt;integer&gt;</classname> between 1 and 31
+	  inclusive.
+	</defsummary>
+	<deftype>limited(&lt;integer&gt;, min: 1, max: 31)</deftype>
+	<defdescription>
+	  <para>
+	    Ensures the day-of-month slot of
+	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;month&gt;</defname>
+	<defsummary>
+	  An <classname>&lt;integer&gt;</classname> between 1 and 12
+	  inclusive.
+	</defsummary>
+	<deftype>limited(&lt;integer&gt;, min: 1, max: 12)</deftype>
+	<defdescription>
+	  <para>
+	    Ensures the month slot of
+	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;timezone&gt;</defname>
+	<defsummary>
+	  An <classname>&lt;integer&gt;</classname> between -86400 and
+	  86400 inclusive.
+	</defsummary>
+	<deftype>limited(&lt;integer&gt;, min: -86400, max: 86400)</deftype>
+	<defdescription>
+	  <para>
+	    Ensures the timezone slot of
+	    <classname>&lt;decoded-time&gt;</classname> is valid.  A
+	    <classname>&lt;timezone&gt;</classname> is the seconds
+	    west of UTC.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>&lt;year&gt;</defname>
+	<defsummary>
+	  A named <classname>&lt;integer&gt;</classname>
+	</defsummary>
+	<deftype>&lt;integer&gt;</deftype>
+	<defdescription>
+	  <para>
+	    Since every other slot in
+	    <classname>&lt;decoded-time&gt;</classname> has a named
+	    type, we didn't want the year slot to be lonely.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanclassdef>
+        <defname>&lt;decoded-time&gt;</defname>
+	<defadjectives>sealed</defadjectives>
+	<defsummary>
+	  Decoded time is for representing absolute times in
+	  a nice human readable way. 
+	</defsummary>
+	<defsupers>
+  	  <defsuper>
+  	    &lt;object&gt;
+  	  </defsuper>
+  	</defsupers>
+  	<definitkeywords>
+	  <keyparam>
+	    <paramname>seconds</paramname>
+	    <paramtype>&lt;seconds></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>0 to 59</paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>minutes</paramname>
+	    <paramtype>&lt;minutes></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>0 to 59</paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>hours</paramname>
+	    <paramtype>&lt;hours></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>0 to 23</paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>day-of-week</paramname>
+	    <paramtype>&lt;day-of-week></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>0 to 6</paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>day-of-month</paramname>
+	    <paramtype>&lt;day-of-month></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>1 to 31</paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>month</paramname>
+	    <paramtype>&lt;month></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>1 to 12</paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>year</paramname>
+	    <paramtype>&lt;year></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>
+	      Year can be any integer (even negative ones); however,
+	      <classname>&lt;decoded-time&gt;</classname> starts from 1970.
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>daylight-savings-time?</paramname>
+	    <paramtype>&lt;boolean></paramtype>
+	    <paramdefault>(uninitialized)</paramdefault>
+	    <paramsummary>
+	      Is this decoded time adjusted for daylight savings time
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>timezone</paramname>
+	    <paramtype>&lt;timezone></paramtype>
+	    <paramdefault>#f</paramdefault>
+	    <paramsummary>
+	      -86400 to 86400.  If this keyword specified, the
+	      functions in the time library assume that it is the
+	      correct timezone and ignore the
+	      daylight-savings-time? flag. Therefore if you
+	      encode a <classname>&lt;decoded-time&gt;</classname> with
+	      the timezone representing EST and the daylight-savings-time?
+	      flag set to &true;, it will convert the time assuming
+	      the local timezone is EST, not EDT.
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>default-from</paramname>
+	    <paramtype>&lt;decoded-time></paramtype>
+	    <paramdefault>$null-decoded-time</paramdefault>
+	    <paramsummary>
+	      Allows initialization from another
+	      <classname>&lt;decoded-time&gt;</classname> instance.
+	      If default-from: is specified, any slot that isn't
+	      specified via an init-keyword will take its value of the
+	      this slot's object.  If this keyword is not
+	      specified, any slot not specified via an init-keyword
+	      will have a value of &false;.
+	    </paramsummary>
+	  </keyparam>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+	    Note that there's no point in not defining a print-object
+	    method, since the parse-time stuff already uses streams.
+	    Might as well use print and format, too. 
+	  </para>
+	  <para>
+	    We don't write "hh:mm:ss mm/dd/yy" or anything clever like
+	    that because it might not look so hot with undefined
+	    slots.  (Besides, mm/dd/yy is rather ambiguous)
+	  </para>
+	</defdescription>
+      </dylanclassdef>
+
+      <dylanconstantdef>
+        <defname>$null-decoded-time</defname>
+	<defsummary>
+	  A <classname>&lt;decoded-time&gt;</classname> where all the
+	  slots are initialized to &false;
+	</defsummary>
+	<deftype>&lt;decoded-time&gt;</deftype>
+	<defdescription>
+	  <para>
+	    This is an internal constant used to default the
+	    <classname>&lt;decoded-time&gt;</classname> when the
+	    default-from: keyword is used.
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanconstantdef>
+        <defname>$default-time</defname>
+	<defsummary>
+	  A <classname>&lt;decoded-time&gt;</classname> where all the
+	  slots are initialized to 0 or 1 (or, in the case of
+	  daylight-savings-time?, &false;)
+	</defsummary>
+	<deftype>&lt;decoded-time&gt;</deftype>
+	<defdescription>
+	  <para>
+	    This constant gives a "0"
+	    <classname>&lt;decoded-time&gt;</classname>.  Of note here
+	    is that the year slot is initialized to 0, not 1970.  Is
+	    this an error?
+	  </para>
+	</defdescription>
+      </dylanconstantdef>
+
+      <dylanmethoddef>
+  	<defname>get-universal-time</defname>
+  	<defsummary>
+	  Return the current time as a
+	  <classname>&lt;universal-time&gt;</classname>. 
+  	</defsummary>
+  	<defparameters>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname>current-time</paramname>
+  	    <paramtype>&lt;universal-time&gt;</paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    Recall that <classname>&lt;universal-time&gt;</classname>
+	    is an <classname>&lt;integer&gt;</classname> (seconds)
+	    from 01 Jan 00:00:00Z 1970.  Use other functions to decode
+	    this value. 
+  	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+  	<defname>get-decoded-time</defname>
+  	<defsummary>
+	  Return the current time as a
+	  <classname>&lt;decoded-time&gt;</classname>. 
+  	</defsummary>
+  	<defparameters>
+  	  <keyparam>
+  	    <paramname>timezone</paramname>
+  	    <paramtype>false-or(&lt;timezone&gt;)</paramtype>
+  	    <paramsummary>
+	      If supplied, uses the timezone to convert the current
+	      universal time.
+  	    </paramsummary>
+  	  </keyparam>
+	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname>current-time</paramname>
+  	    <paramtype>&lt;decoded-time&gt;</paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    This gives the current time, this time decoded into the
+	    appropriate slots.  If timezone is supplied, then that
+	    time is converted to the time in that timezone.
+  	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+  	<defname>decode-time</defname>
+  	<defsummary>
+	  Decode a <classname>&lt;universal-time&gt;</classname>
+  	</defsummary>
+  	<defparameters>
+	  <param>
+	    <paramname>universal-time</paramname>
+	    <paramtype>&lt;universal-time&gt;</paramtype>
+	    <paramsummary>The time to be decoded</paramsummary>
+	  </param>
+  	  <keyparam>
+  	    <paramname>timezone</paramname>
+  	    <paramtype>&lt;timezone&gt;</paramtype>
+  	    <paramsummary>
+	      If supplied, uses the timezone to convert the current
+	      universal time.
+  	    </paramsummary>
+  	  </keyparam>
+	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname>decoded-time</paramname>
+  	    <paramtype>&lt;decoded-time&gt;</paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    Decode a <classname>&lt;universal-time&gt;</classname> into
+	    a <classname>&lt;decoded-time&gt;</classname> using the
+	    supplied timezone. 	  
+	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+  	<defname>encode-time</defname>
+  	<defsummary>
+	  Encode a <classname>&lt;decoded-time&gt;</classname>
+  	</defsummary>
+  	<defparameters>
+	  <param>
+	    <paramname>decoded-time</paramname>
+	    <paramtype>&lt;decoded-time&gt;</paramtype>
+	    <paramsummary>The time to be encoded</paramsummary>
+	  </param>
+	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname>universal-time</paramname>
+  	    <paramtype>&lt;universal-time&gt;</paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    Encode a <classname>&lt;decoded-time&gt;</classname> into
+	    the universal time format.
+	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+  	<defname>encodable-time?</defname>
+  	<defsummary>
+	  Sees if time can be encoded.
+  	</defsummary>
+  	<defparameters>
+	  <param>
+	    <paramname>time</paramname>
+	    <paramtype>&lt;decoded-time&gt;</paramtype>
+	    <paramsummary>The time to be tested</paramsummary>
+	  </param>
+	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname>result</paramname>
+  	    <paramtype>&lt;boolean&gt;</paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    Returns &true; if time may be encoded.  A
+	    <classname>&lt;decoded-time&gt;</classname> is encodable
+	    if all of its slots are specified, except possibly day-of-week.
+	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+  	<defname>as</defname>
+  	<defsummary>
+	  Provides the <function>as</function> interface to get a
+	  <classname>&lt;decoded-time&gt;</classname>.
+  	</defsummary>
+  	<defparameters>
+	  <param>
+	    <paramname>cls</paramname>
+	    <paramtype>singleton(&lt;decoded-time&gt;)</paramtype>
+	    <paramsummary>The type of the instance returned</paramsummary>
+	  </param>
+	  <param>
+	    <paramname>universal-time</paramname>
+	    <paramtype>&lt;universal-time&gt;</paramtype>
+	    <paramsummary>the instance to decode</paramsummary
+	  </param>
+	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname>decoded-time</paramname>
+  	    <paramtype>&lt;decoded-time&gt;</paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    Decode a <classname>&lt;universal-time&gt;</classname> into
+	    a <classname>&lt;decoded-time&gt;</classname> the
+	    timezone is 0 for this method.
+	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+
+
+    </sect1>
+    <sect1 id="libs-time-timeio">
+      <title>The Time-IO Module</title>
+      <para>
+        This module contains functions for basic time input and output.
+      </para>
+    </sect1>
+    <sect1 id="libs-time-parse">
+      <title>Parse-Time Directives</title>
+      <para>
+      </para>
+    </sect1>
   </CHAPTER>
 
   <CHAPTER ID="libs-random">
