@@ -64,6 +64,16 @@
 </affiliation>
 ">
 
+<!ENTITY person.rmaclachlan "
+<firstname>Rob</firstname>
+<surname>MacLachlan</surname>
+<affiliation>
+  <orgname>Carnegie Mellon University</orgname>
+  <orgdiv>School of Computer Science</orgdiv>
+  <address>Pittsburgh PA 15213</address>
+</affiliation>
+">
+
 <!-- ===== Dylan Snippets ===== -->
 
 <!ENTITY true '<dlit>#t</dlit>'>
@@ -108,6 +118,7 @@
 <!ENTITY ld  "<command>ld</command>">
 <!ENTITY lid "<acronym>LID</acronym>">
 <!ENTITY make "<command>make</command>">
+<!ENTITY melange "<command>melange</command>">
 <!ENTITY mindy "<command>mindy</command>">
 <!ENTITY perl "<command>perl</command>">
 
