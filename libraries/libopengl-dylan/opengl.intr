@@ -3,6 +3,7 @@ synopsis: Dylan bindings for OpenGL functions
 author: Jeff Dubrule <igor@pobox.com>
 copyright: (C) Jefferson Dubrule.  See COPYING.LIB for license details.
 
+
 /****************************************************************************
  * with-glBegin(primitive type)
  *   <code>
@@ -20,6 +21,7 @@ define macro with-glBegin
 	   glEnd();
          end block };
 end macro; 
+
 
 /****************************************************************************
  * with-glNewList(display list, primitive type)
@@ -39,6 +41,7 @@ define macro with-glNewList
          end block };
 end macro; 
 
+
 /****************************************************************************
  * with-glPushMatrix ()
  *   <code>
@@ -57,6 +60,7 @@ define macro with-glPushMatrix
          end block };
 end macro; 
 
+  
 /*****************************************************************************
  * glAccum(op :: <Glenum>, val :: <single-float>)
  *
@@ -67,6 +71,7 @@ define inline function glAccum
      val :: <single-float>) => ();
   glAccum-internal(op, val);
 end function;
+
 
 /*****************************************************************************
  * glAlphaFunc(func :: <Glenum>, val :: <single-float>)
@@ -82,6 +87,7 @@ define inline function glAlphaFunc
   glAlphaFunc-internal(func, ref);
 end function;
 
+
 /*****************************************************************************
  * glBegin(mode :: <Glenum>)
  *
@@ -96,6 +102,7 @@ define inline function glBegin
   glBegin-internal(mode);
 end function;
 
+
 /*****************************************************************************
  * glBindTexture(target :: <Glenum>)
  *
@@ -107,6 +114,7 @@ define inline function glBindTexture
  => () 
   glBindTExture-internal(target, texture);
 end function;
+
 
 /*****************************************************************************
  * glBlendFunc(sfactor :: <Glenum>, dfactor :: <GLenum>)
@@ -126,6 +134,7 @@ define inline function glBlendFunc
  => () 
   glBlendFunc-internal(sfactor, dfactor);
 end function;
+
 
 /*****************************************************************************
  * glColor(r, g, b[, a])
@@ -147,11 +156,13 @@ define function-family-3 glColor3
   <integer>      => glColor3i;
 end function-family-3;
 
+
 define function-family-4 glColor4
   <double-float> => glColor4d;
   <single-float> => glColor4f;
   <integer>      => glColor4i;
 end function-family-4;
+
 
 /*****************************************************************************
  * glColorMaterial(face :: <GLenum>, mode :: <Glenum>)
@@ -166,6 +177,7 @@ define inline function glColorMaterial
  => () 
   glColorMaterial-internal(face, mode);
 end function;
+
 
 /*****************************************************************************
  * glCopyPixels(x :: <integer>, y :: <integer>, 
@@ -182,6 +194,7 @@ define inline function glCopyPixels
  => () 
   glCopyPixels-internal(x, y, width, height, type);
 end function;
+
 
 /*****************************************************************************
  * glCopyTexImage1D(target :: <GLenum>, level :: <integer>, 
@@ -216,6 +229,7 @@ define inline function glCopyTexImage1D
  => ()
   glCopyTexImage1D-internal(target, level, internalFormat, x,y, width,border);
 end function;
+
 
 /*****************************************************************************
  * glCopyTexImage2D(target :: <GLenum>, level :: <integer>, 
@@ -255,6 +269,7 @@ define inline function glCopyTexImage2D
 			    x, y, width, height, border);
 end function;
 
+
 /*****************************************************************************
  * glCopyTexSubImage1D(target :: <GLenum>, level :: <integer>, 
  *		    xoffset :: <integer>, x :: <integer>, y :: <integer>, 
@@ -272,6 +287,7 @@ define inline function glCopyTexSubImage1D
  => ()
   glCopyTexSubImage1D-internal(target, level, xoffset, x, y, width);
 end function;
+
 
 /*****************************************************************************
  * glCopyTexSubImage2D(target :: <GLenum>, level :: <integer>, 
@@ -314,10 +330,12 @@ define function-family-1 glEvalCoord1
   <single-float> => glEvalCoord1f;
 end function-family-1;
 
+
 define function-family-2 glEvalCoord2
   <double-float> => glEvalCoord2d;
   <single-float> => glEvalCoord2f;
 end function-family-2;
+
 
 /*****************************************************************************
  * glFog(pname, param)
@@ -327,6 +345,7 @@ end function-family-2;
 
 define sealed generic glFog(pname :: <GLenum>, 
 			    arg1 :: <number>, #rest rest);
+
 
 define method glFog(pname :: <GLenum>,
 		    arg1 :: <integer>, #rest rest) => ()
@@ -347,6 +366,7 @@ define method glFog(pname :: <GLenum>,
   end if;
 end method glFog;
 
+
 define method glFog(pname :: <GLenum>,
 		    arg1 :: <float>, #rest rest) => ()
   // FIXME: add arg check in debug mode here....
@@ -366,6 +386,7 @@ define method glFog(pname :: <GLenum>,
   end if;
 end method glFog;
 
+
 /*****************************************************************************
  * glIndex({<integer>|<float>} color...)
  * 
@@ -377,6 +398,7 @@ define function-family-1 glIndex
   <single-float> => glIndexf;
   <integer>      => glIndexi;
 end function-family-1;
+
 
 /*****************************************************************************
  * glLight(<integer> light, <GLenum> pname, {<integer>|<float>} arg...)
@@ -390,12 +412,14 @@ define sealed generic glLight(light :: limited(<integer>,
 			      pname :: <GLenum>, 
 			      arg1 :: <number>, #rest rest);
 
+
 define method glLight(light :: limited(<integer>, 
 			       min: $GLenum$GL-LIGHT0, 
 			       max: $GLenum$GL-LIGHT0 + $GLenum$GL-MAX-LIGHTS),
 		      pname :: <GLenum>,
 		      arg1 :: <integer>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glLighti(light, pname, arg1);
   else
@@ -412,12 +436,14 @@ define method glLight(light :: limited(<integer>,
   end if;
 end method glLight;
 
+
 define method glLight(light :: limited(<integer>, 
 			       min: $GLenum$GL-LIGHT0, 
 			       max: $GLenum$GL-LIGHT0 + $GLenum$GL-MAX-LIGHTS),
 		      pname :: <GLenum>,
 		      arg1 :: <float>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glLightf($GLenum$GL-LIGHT0 + light, pname, arg1);
   else
@@ -434,6 +460,7 @@ define method glLight(light :: limited(<integer>,
   end if;
 end method glLight;
 
+
 /*****************************************************************************
  * glLightModel(pname, param)
  *
@@ -443,9 +470,11 @@ end method glLight;
 define sealed generic glLightModel(pname :: <GLenum>, 
 				   arg1 :: <number>, #rest rest);
 
+
 define method glLightModel(pname :: <GLenum>,
 			   arg1 :: <integer>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glLightModeli(pname, arg1);
   else
@@ -462,9 +491,11 @@ define method glLightModel(pname :: <GLenum>,
   end if;
 end method glLightModel;
 
+
 define method glLightModel(pname :: <GLenum>,
 			   arg1 :: <float>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glLightModelf(pname, arg1);
   else
@@ -481,6 +512,7 @@ define method glLightModel(pname :: <GLenum>,
   end if;
 end method glLightModel;
 
+
 /*****************************************************************************
  * glMaterial(pname, param, ...)
  *
@@ -490,9 +522,11 @@ end method glLightModel;
 define sealed generic glMaterial(face :: <GLenum>, pname :: <GLenum>, 
 				 arg1 :: <number>, #rest rest);
 
+
 define method glMaterial(face :: <GLenum>, pname :: <GLenum>,
 			 arg1 :: <integer>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glMateriali(face, pname, arg1);
   else
@@ -509,9 +543,11 @@ define method glMaterial(face :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glMaterial;
 
+
 define method glMaterial(face :: <GLenum>, pname :: <GLenum>,
 			 arg1 :: <float>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glMaterialf(face, pname, arg1);
   else
@@ -527,6 +563,7 @@ define method glMaterial(face :: <GLenum>, pname :: <GLenum>,
      glMaterialfv(face, pname, paramlist);
   end if;
 end method glMaterial;
+
 
 /****************************************************************************
  * glMultMatrix(matrix) => ()
@@ -552,6 +589,7 @@ define method glMultMatrix(m :: <collection>) => ();
   end if;
 end method glMultMatrix;
 
+
 /****************************************************************************
  * glNormal(x, y, z) => ()
  * 
@@ -564,6 +602,7 @@ define function-family-3 glNormal
   <integer>      => glNormal3i;
 end function-family-3;
 
+
 /****************************************************************************
  * glPixelStore(pname, param) => ()
  * 
@@ -573,16 +612,19 @@ end function-family-3;
 define sealed generic glPixelStore
     (pname :: <GLenum>, param :: <number>) => ();
 
+
 define inline method glPixelStore
     (pname :: <GLenum>, param :: <single-float>) => ()
   glPixelStoref(pname, param);
 end glPixelStore;
 
+  
 define inline method glPixelStore
     (pname :: <GLenum>, param :: <integer>) => ()
   glPixelStorei(pname, param);
 end glPixelStore;
 
+  
 /****************************************************************************
  * glPixelTransfer(pname, param) => ()
  * 
@@ -592,16 +634,19 @@ end glPixelStore;
 define sealed generic glPixelTransfer
     (pname :: <GLenum>, param :: <number>) => ();
 
+
 define inline method glPixelTransfer
     (pname :: <GLenum>, param :: <single-float>) => ()
   glPixelTransferf(pname, param);
 end glPixelTransfer;
 
+  
 define inline method glPixelTransfer
     (pname :: <GLenum>, param :: <integer>) => ()
   glPixelTransferi(pname, param);
 end glPixelTransfer;
 
+  
 /****************************************************************************
  * glRasterPos(x, y[, z[, w]]) => ()
  * 
@@ -617,11 +662,13 @@ define macro glRasterPos
     => { glRasterPos4(?x, ?y, ?z, ?w) }
 end macro;
 
+
 define function-family-2 glRasterPos2
   <integer>      => glRasterPos2i;
   <single-float> => glRasterPos2f;
   <double-float> => glRasterPos2d;
 end function-family-2;
+
 
 define function-family-3 glRasterPos3
   <integer>      => glRasterPos3i;
@@ -629,11 +676,13 @@ define function-family-3 glRasterPos3
   <double-float> => glRasterPos3d;
 end function-family-3;
 
+
 define function-family-4 glRasterPos4
   <integer>      => glRasterPos4i;
   <single-float> => glRasterPos4f;
   <double-float> => glRasterPos4d;
 end function-family-4;
+
 
 /****************************************************************************
  * glRect(x1, y1, x2, y2) => ()
@@ -647,6 +696,7 @@ define function-family-4 glRect
   <double-float> => glRectd;
 end function-family-4;
 
+
 /****************************************************************************
  * glRotate(angle, x, y, z]) => ()
  * 
@@ -658,6 +708,7 @@ define function-family-4 glRotate
   <double-float> => glRotated;
 end function-family-4;
 
+
 /****************************************************************************
  * glScale(x, y, z) => ()
  * 
@@ -668,6 +719,7 @@ define function-family-3 glScale
   <single-float> => glScalef;
   <double-float> => glScaled;
 end function-family-3;
+
 
 /****************************************************************************
  * glTexCoord(s[, t[, r[, q]]]) => ()
@@ -686,11 +738,13 @@ define macro glTexCoord
     => { glTexCoord4(?s, ?t, ?r, ?q) }
 end macro;
 
+
 define function-family-1 glTexCoord1
   <single-float> => glTexCoord1f;
   <double-float> => glTexCoord1d;
   <integer>      => glTexCoord1i;
 end function-family-1;
+
 
 define function-family-2 glTexCoord2
   <single-float> => glTexCoord2f;
@@ -698,17 +752,20 @@ define function-family-2 glTexCoord2
   <integer>      => glTexCoord2i;
 end function-family-2;
 
+
 define function-family-3 glTexCoord3
   <single-float> => glTexCoord3f;
   <double-float> => glTexCoord3d;
   <integer>      => glTexCoord3i;
 end function-family-3;
 
+
 define function-family-4 glTexCoord4
   <single-float> => glTexCoord4f;
   <double-float> => glTexCoord4d;
   <integer>      => glTexCoord4i;
 end function-family-4;
+
 
 /*****************************************************************************
  * glTexEnv(target, pname, param)
@@ -719,9 +776,11 @@ end function-family-4;
 define sealed generic glTexEnv(target :: <GLenum>, pname :: <GLenum>, 
 				 arg1 :: <number>, #rest rest);
 
+
 define method glTexEnv(target :: <GLenum>, pname :: <GLenum>,
 			 arg1 :: <integer>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glTexEnvi(target, pname, arg1);
   else
@@ -738,9 +797,11 @@ define method glTexEnv(target :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glTexEnv;
 
+
 define method glTexEnv(target :: <GLenum>, pname :: <GLenum>,
 			 arg1 :: <float>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glTexEnvf(target, pname, arg1);
   else
@@ -757,6 +818,7 @@ define method glTexEnv(target :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glTexEnv;
 
+
 /*****************************************************************************
  * glTexGen(coord, pname, param)
  *
@@ -766,9 +828,11 @@ end method glTexEnv;
 define sealed generic glTexGen(coord :: <GLenum>, pname :: <GLenum>, 
 			       arg1 :: <number>, #rest rest);
 
+
 define method glTexGen(coord :: <GLenum>, pname :: <GLenum>,
 		       arg1 :: <integer>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glTexGeni(coord, pname, arg1);
   else
@@ -785,9 +849,11 @@ define method glTexGen(coord :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glTexGen;
 
+
 define method glTexGen(coord :: <GLenum>, pname :: <GLenum>,
 		       arg1 :: <single-float>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glTexGenf(coord, pname, arg1);
   else
@@ -804,9 +870,11 @@ define method glTexGen(coord :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glTexGen;
 
+
 define method glTexGen(coord :: <GLenum>, pname :: <GLenum>,
 		       arg1 :: <double-float>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glTexGend(coord, pname, arg1);
   else
@@ -823,6 +891,7 @@ define method glTexGen(coord :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glTexGen;
 
+
 /*****************************************************************************
  * glTexParameter(target, pname, param)
  *
@@ -832,9 +901,11 @@ end method glTexGen;
 define sealed generic glTexParameter(target :: <GLenum>, pname :: <GLenum>, 
 				 arg1 :: <number>, #rest rest);
 
+
 define method glTexParameter(target :: <GLenum>, pname :: <GLenum>,
 			 arg1 :: <integer>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glTexParameteri(target, pname, arg1);
   else
@@ -851,9 +922,11 @@ define method glTexParameter(target :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glTexParameter;
 
+
 define method glTexParameter(target :: <GLenum>, pname :: <GLenum>,
 			 arg1 :: <float>, #rest rest) => ()
-  // FIXME: add arg check in debug mode here....
+
+  // FIXME Add arg check in debug mode here.
   if (empty?(rest))
     glTexParameterf(target, pname, arg1);
   else
@@ -882,6 +955,7 @@ define function-family-3 glTranslate
   <double-float> => glTranslated;
 end function-family-3;
 
+
 /****************************************************************************
  * glVertex(x, y[, z[, w]]) => ()
  * 
@@ -897,11 +971,13 @@ define macro glVertex
     => { glVertex4(?x, ?y, ?z, ?w) }
 end macro;
 
+
 define function-family-2 glVertex2
   <integer>      => glVertex2i;
   <single-float> => glVertex2f;
   <double-float> => glVertex2d;
 end function-family-2;
+
 
 define function-family-3 glVertex3
   <integer>      => glVertex3i;
@@ -909,19 +985,20 @@ define function-family-3 glVertex3
   <double-float> => glVertex3d;
 end function-family-3;
 
+
 define function-family-4 glVertex4
   <integer>      => glVertex4i;
   <single-float> => glVertex4f;
   <double-float> => glVertex4d;
 end function-family-4;
 
+
 /****************************************************************************
  * Now, suck in the system OpenGL header...
  ***************************************************************************/
 
-
 define interface
-  #include "GL/gl.h",
+    #include "GL/gl.h",
     name-mapper: minimal-name-mapping,
     exclude: {"GLvoid"},
     map: {"GLubyte*" => <byte-string>},
@@ -930,6 +1007,7 @@ define interface
 
     // Exclude stupid & annoying functions:
     exclude: {"glEdgeFlagv"},
+
     // Exclude all the extensions:
     exclude: {"GL_CONSTANT_COLOR_EXT",
 	      "GL_ONE_MINUS_CONSTANT_COLOR_EXT",
@@ -992,14 +1070,6 @@ define interface
 	      "GL_MAX_3D_TEXTURE_SIZE_EXT",
 	      "GL_TEXTURE_3D_BINDING_EXT",
 	      "GL_TABLE_TOO_LARGE_EXT",
-	      "GL_COLOR_TABLE_FORMAT_EXT",
-	      "GL_COLOR_TABLE_WIDTH_EXT",
-	      "GL_COLOR_TABLE_RED_SIZE_EXT",
-	      "GL_COLOR_TABLE_GREEN_SIZE_EXT",
-	      "GL_COLOR_TABLE_BLUE_SIZE_EXT",
-	      "GL_COLOR_TABLE_ALPHA_SIZE_EXT",
-	      "GL_COLOR_TABLE_LUMINANCE_SIZE_EXT",
-	      "GL_COLOR_TABLE_INTENSITY_SIZE_EXT",
 	      "GL_TEXTURE_INDEX_SIZE_EXT",
 	      "GL_COLOR_INDEX1_EXT",
 	      "GL_COLOR_INDEX2_EXT",
@@ -1014,7 +1084,16 @@ define interface
 	      "GL_DISTANCE_ATTENUATION_EXT",
 	      "GL_RESCALE_NORMAL_EXT",
 	      "GL_ABGR_EXT",
+	      "GL_CLAMP_TO_EDGE_SGIS",
 
+	      // "GL_COLOR_TABLE_FORMAT_EXT",
+	      // "GL_COLOR_TABLE_WIDTH_EXT",
+	      // "GL_COLOR_TABLE_RED_SIZE_EXT",
+	      // "GL_COLOR_TABLE_GREEN_SIZE_EXT",
+	      // "GL_COLOR_TABLE_BLUE_SIZE_EXT",
+	      // "GL_COLOR_TABLE_ALPHA_SIZE_EXT",
+	      // "GL_COLOR_TABLE_LUMINANCE_SIZE_EXT",
+	      // "GL_COLOR_TABLE_INTENSITY_SIZE_EXT",
 	      // "GL_SELECTED_TEXTURE_SGIS",
 	      // "GL_SELECTED_TEXTURE_COORD_SET_SGIS",
 	      // "GL_MAX_TEXTURES_SGIS",
@@ -1023,35 +1102,32 @@ define interface
 	      // "GL_TEXTURE2_SGIS",
 	      // "GL_TEXTURE3_SGIS",
 	      // "GL_TEXTURE_COORD_SET_SOURCE_SGIS",
-
-	      "GL_CLAMP_TO_EDGE_SGIS",
-	      "glBlendEquationEXT",
-	      "glBlendColorEXT",
-	      "glPolygonOffsetEXT",
-	      "glVertexPointerEXT",
-	      "glNormalPointerEXT",
-	      "glColorPointerEXT",
-	      "glIndexPointerEXT",
-	      "glTexCoordPointerEXT",
-	      "glEdgeFlagPointerEXT",
-	      "glGetPointervEXT",
-	      "glArrayElementEXT",
-	      "glDrawArraysEXT",
-	      "glGenTexturesEXT",
-	      "glDeleteTexturesEXT",
-	      "glBindTextureEXT",
-	      "glPrioritizeTexturesEXT",
-	      "glAreTexturesResidentEXT",
-	      "glIsTextureEXT",
-	      "glTexImage3DEXT",
-	      "glTexSubImage3DEXT",
-	      "glCopyTexSubImage3DEXT",
-	      "glColorTableEXT",
-	      "glColorSubTableEXT",
-	      "glGetColorTableEXT",
-	      "glGetColorTableParameterfvEXT",
-	      "glGetColorTableParameterivEXT",
-
+	      // "glBlendEquationEXT",
+	      // "glBlendColorEXT",
+	      // "glPolygonOffsetEXT",
+	      // "glVertexPointerEXT",
+	      // "glNormalPointerEXT",
+	      // "glColorPointerEXT",
+	      // "glIndexPointerEXT",
+	      // "glTexCoordPointerEXT",
+	      // "glEdgeFlagPointerEXT",
+	      // "glGetPointervEXT",
+	      // "glArrayElementEXT",
+	      // "glDrawArraysEXT",
+	      // "glGenTexturesEXT",
+	      // "glDeleteTexturesEXT",
+	      // "glBindTextureEXT",
+	      // "glPrioritizeTexturesEXT",
+	      // "glAreTexturesResidentEXT",
+	      // "glIsTextureEXT",
+	      // "glTexImage3DEXT",
+	      // "glTexSubImage3DEXT",
+	      // "glCopyTexSubImage3DEXT",
+	      // "glColorTableEXT",
+	      // "glColorSubTableEXT",
+	      // "glGetColorTableEXT",
+	      // "glGetColorTableParameterfvEXT",
+	      // "glGetColorTableParameterivEXT",
 	      // "glMultiTexCoord1dSGIS",
 	      // "glMultiTexCoord1dvSGIS",
 	      // "glMultiTexCoord1fSGIS",
@@ -1087,36 +1163,36 @@ define interface
 	      // "glMultiTexCoordPointerSGIS",
 	      // "glSelectTextureSGIS",
 	      // "glSelectTextureCoordSetSGIS",
+	      // "glPointParameterfEXT",
+	      // "glPointParameterfvEXT",
+	      // "glWindowPos2iMESA",
+	      // "glWindowPos2sMESA",
+	      // "glWindowPos2fMESA",
+	      // "glWindowPos2dMESA",
+	      // "glWindowPos2ivMESA",
+	      // "glWindowPos2svMESA",
+	      // "glWindowPos2fvMESA",
+	      // "glWindowPos2dvMESA",
+	      // "glWindowPos3iMESA",
+	      // "glWindowPos3sMESA",
+	      // "glWindowPos3fMESA",
+	      // "glWindowPos3dMESA",
+	      // "glWindowPos3ivMESA",
+	      // "glWindowPos3svMESA",
+	      // "glWindowPos3fvMESA",
+	      // "glWindowPos3dvMESA",
+	      // "glWindowPos4iMESA",
+	      // "glWindowPos4sMESA",
+	      // "glWindowPos4fMESA",
+	      // "glWindowPos4dMESA",
+	      // "glWindowPos4ivMESA",
+	      // "glWindowPos4svMESA",
+	      // "glWindowPos4fvMESA",
+	      // "glWindowPos4dvMESA",
+	      // "glResizeBuffersMESA",
+	      // "GL_SGIS_multitexture",
+	      // "GL_SGIS_texture_edge_clamp",
 
-	      "glPointParameterfEXT",
-	      "glPointParameterfvEXT",
-	      "glWindowPos2iMESA",
-	      "glWindowPos2sMESA",
-	      "glWindowPos2fMESA",
-	      "glWindowPos2dMESA",
-	      "glWindowPos2ivMESA",
-	      "glWindowPos2svMESA",
-	      "glWindowPos2fvMESA",
-	      "glWindowPos2dvMESA",
-	      "glWindowPos3iMESA",
-	      "glWindowPos3sMESA",
-	      "glWindowPos3fMESA",
-	      "glWindowPos3dMESA",
-	      "glWindowPos3ivMESA",
-	      "glWindowPos3svMESA",
-	      "glWindowPos3fvMESA",
-	      "glWindowPos3dvMESA",
-	      "glWindowPos4iMESA",
-	      "glWindowPos4sMESA",
-	      "glWindowPos4fMESA",
-	      "glWindowPos4dMESA",
-	      "glWindowPos4ivMESA",
-	      "glWindowPos4svMESA",
-	      "glWindowPos4fvMESA",
-	      "glWindowPos4dvMESA",
-
-	      // New functions in gl.h to ignore
-	      "glResizeBuffersMESA",
 	      "glNewTraceMESA",
 	      "glTraceTextureMESA",
 	      "glDisableTraceMESA",
@@ -1127,10 +1203,6 @@ define interface
 	      "glTraceListMESA",
 	      "glTracePointerMESA",
 	      "glTraceAssertAttribMESA",
-
-	      // "GL_SGIS_multitexture",
-	      // "GL_SGIS_texture_edge_clamp",
-
 	      "GL_EXT_blend_color",
 	      "GL_EXT_blend_logic_op",
 	      "GL_EXT_blend_minmax",
