@@ -25,113 +25,87 @@ function short_header ($title) {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Gwydion Dylan: <?php echo $title?></TITLE>
+    <LINK REL="stylesheet" TYPE="text/css" HREF="sinorca-grey.css" TITLE="Grey boxes stylesheet" />
+    <LINK rel="stylesheet alternative" TYPE="text/css" HREF="sinorca-white.css" title="White boxes stylesheet" />
+    <LINK rel="stylesheet" TYPE="text/css" HREF="color-scheme.css" />
+    <TITLE>Gwydion Dylan: <?php echo $title?></TITLE>
 </HEAD>
-<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#000099" ALINK="#FF0000"
-      VLINK="#990000">
-<H1 ALIGN=CENTER>
-<?php echo "<IMG SRC=\"gwydion.png\" " .
-           "ALT=\"Gwydion Dylan\">" ?>
-</H1>
+<BODY>
+    <DIV ID="top"></DIV>
 
-<P ALIGN=CENTER><STRONG>Advanced Free Software Development Tools</STRONG></P>
+    <div id="upperMenuBar">
+      <div class="LHS">
+        <a href="index.phtml" class="highlight">Home</a>
+      </div>
+      <div class="RHS">
+        <a href="about-dylan.phtml">About Dylan</a>|
+        <a href="downloading.phtml">Downloads</a>|
+        <a href="gdref.phtml">Documentation</a>|
+        <a href="lists.phtml">Mailing Lists</a>|
+        <a href="http://monday.sourceforge.net/wiki/">Wiki</a>
+      </div>
+    </div>
 
-<TABLE BORDER=0 WIDTH="100%" CELLPADDING=0 CELLSPACING=10>
+    <DIV ID="header"><img src="gwydion-8caae6.png"></DIV>
 
-<TR>
-<TD WIDTH="20%" VALIGN=TOP>
+    <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
+      <div>
+        <input type="text" class="text" value="Search..." />
+      
+        <!-- ###### Dynamic text box version:
+        <input class="text" type="text" value="Search..."
+               onFocus="if (this.value == 'Search...') this.value=''; else this.select();"
+               onBlur="if (this.value == '') this.value='Search...';" />
+             ###### -->
 
-<TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
-<TR><TD WIDTH="100%">
+        <input type="submit" class="submit" value="GO" />
+      </div>
+    </form>
 
-<form METHOD=GET ACTION="/cgi-bin/search.cgi">
-<TABLE BORDER=0>
-<TR><TD>
-   <input TYPE="text" NAME="q" SIZE=20>
-   </TD><TD>
-<input TYPE="submit" VALUE="Search">
-</TD></TR></TABLE>
-</form>
+    <div class="sideMenuBox">
+      <div>About Dylan &amp; Gwydion</div>
+      <A HREF="about-dylan.phtml">&rsaquo; What is Dylan?</A>
+      <A HREF="about-gwydion.phtml">&rsaquo; Who was Gwydion?</A>
+      <A HREF="goals.phtml">&rsaquo; Our Goals</A>
+      <A HREF="contests.phtml">&rsaquo; Dylan Competes</A>
+      <A HREF="ports.phtml">&rsaquo; Supported Platforms</A>
+      <A HREF="maintainers.phtml">&rsaquo; Gwydion Maintainers</A>
+      <A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">&rsaquo; Gwydion at CMU</A>
+      <A HREF="http://www.fun-o.com">&rsaquo; Functional Developer</a>
+      <A HREF="news.phtml">&rsaquo; Older News</A>
+    </div>
 
-<P><STRONG>About Dylan & Gwydion</STRONG></P>
-<UL>
-<LI><A HREF="./">Overview</A>
-<LI><A HREF="about-dylan.phtml">What is Dylan?</A>
-<LI><A HREF="about-gwydion.phtml">Who was Gwydion?</A>
-<LI><A HREF="goals.phtml">Our Goals</A>
-<LI><A HREF="contests.phtml">How does Dylan Stack Up?</A>
-<LI><A HREF="ports.phtml">Supported Platforms</A>
-<LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
-<LI><A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">Gwydion at CMU</A>
-<LI><A HREF="http://www.fun-o.com">Functional Developer</a>, the commercial Dylan implementation
-<LI><A HREF="news.phtml">Older News</A>
-</UL>
+    <div class="sideMenuBox lighterBG">
+      <div>User Resources</div>
+      <A HREF="downloading.phtml">&rsaquo; Downloading Software</A>
+      <A HREF="gdref.phtml">&rsaquo; Documentation</A>
+      <A HREF="lists.phtml">&rsaquo; Mailing Lists</A>
+      <A HREF="/cgi-bin/gd">&rsaquo; Bug Tracker</A>
+      <A HREF="http://monday.sourceforge.net/wiki/">&rsaquo; Wiki</A>
+      <A HREF="learning.phtml">&rsaquo; Learning Dylan</A>
+      <A HREF="users.phtml">&rsaquo; Projects Using Dylan</A>
+      <A HREF="screenshots.phtml">&rsaquo; Screenshots</A>
+      <A HREF="limitations.phtml">&rsaquo; Current Limitations</A>
+    </div>
 
-<P><STRONG>User Resources</STRONG></P>
-<UL>
-<LI><A HREF="downloading.phtml">Downloading Software</A>
-<LI><A HREF="gdref.phtml">Documentation</A>
-<LI><A HREF="lists.phtml">Mailing Lists</A>
-<LI><A HREF="http://monday.sourceforge.net/wiki/">Wiki</A>
-<LI><A HREF="learning.phtml">Learning Dylan</A>
-<LI><A HREF="users.phtml">Projects Using Dylan</A>
-<LI><A HREF="screenshots.phtml">Screenshots</A>
-<LI><A HREF="limitations.phtml">Current Limitations</A>
-</UL>
-
-<P><STRONG>Developer Resources</STRONG></P>
-<UL>
-<LI><A HREF="/cgi-bin/viewcvs.cgi">Browse CVS</A>
-<LI><A HREF="/cgi-bin/gd">Bug Tracker</A>
-<LI><A HREF="/cgi-bin/gd.private">Private Bug Tracker</A>
-<LI><A HREF="projects.phtml">Current Projects</A>
-<LI><A HREF="submit-news.phtml">Submit News</A>
-</UL>
-
-<P><STRONG>Wishlist</STRONG></P>
-<UL>
-<LI><A HREF="browser.phtml">Code Browser/IDE</A>
-</UL>
-</TD>
-</TR>
-
-<TD>
-<TABLE>
-<P><STRONG>CVS Activity</STRONG></P>
+    <div class="sideMenuBox">
+      <div>Developer Resources</div>
+      <A HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse CVS</A>
+      <A HREF="/cgi-bin/gd.private">&rsaquo; Private Bug Tracker</A>
+      <A HREF="projects.phtml">&rsaquo; Current Projects</A>
+      <A HREF="submit-news.phtml">&rsaquo; Submit News</A>
+    </div>
+<!--
+    <div class="sideTextBox">
+      <div>CVS Activity</div>
 <P><SMALL>&nbsp;&nbsp;&nbsp;&nbsp;Count of lines recently <font color="#0000FF">added</font> and <font color="#FF0000">removed</font></SMALL></P>
 <TR>
 <A HREF="/cgi-bin/viewcvs.cgi">
-<IMG SRC="cvsact.png" BORDER=0 ALT="CGI Activity" HEIGHT=220 WIDTH=238></A>
-</TR></TABLE></TD>
+<IMG SRC="/cvsact.png" BORDER=0 ALT="CGI Activity" HEIGHT=220 WIDTH=238></A>
+    </div>
+-->
 
-<TR>
-<TD>
-   <DIV CLASS=footer>
-
-<P><SMALL>Copyright &copy; 1998-2003 Gwydion Dylan Maintainers. All rights
-reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
-HREF="http://www.apache.org/">Apache</A> on a machine running <A
-HREF="http://www.debian.org/">Debian Linux</A>. Graphics by the <A
-HREF="http://www.gimp.org/">GIMP</A>. [<A
-HREF="mailto:gd-hackers@gwydiondylan.org">Feedback</A>]</SMALL></P>
-
-</DIV>
-</TD></TR>
-<tr><td><p style="font-size: 3pt; color: #cccccc">Spamtrap, please ignore:
-<a style="color: #cccccc" href="http://homes.hinet.de/ohne_keys.htm">x</a>
-<a style="color: #cccccc" href="http://homes.hinet.de/business_keys.htm">x</a>
-<a style="color: #cccccc" href="http://homes.hinet.de/love_keys.htm">x</a>
-<a style="color: #cccccc" href="http://homes.hinet.de/geld_keys.htm">x</a>
-<a style="color: #cccccc" href="http://homes.hinet.de/privat_keys.htm">x</a>
-</td></tr>
-</TABLE>
-
-
-
-<TD WIDTH="80%" VALIGN=TOP>
-
-<TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
-<TR><TD WIDTH="100%">
+    <div id="bodyText">
 <?php
 }
 
@@ -142,12 +116,30 @@ function standard_header ($title) {
 
 function standard_footer () {
 ?>
-</TD></TR>
-</TABLE>
-</TABLE>
+    </div>
+    
+    <!-- ###### Footer ###### -->
 
-</BODY>
-</HTML>
+    <div id="footer">
+      <div>
+        <span class="footerLHS">
+          [<a href="mailto:gd-hackers@gwydiondylan.org">Feedback</a>]
+        </span>
+      </div>
+
+      <div>
+Copyright &copy;1998&ndash;2003 Gwydion Dylan Maintainers. All rights
+reserved.
+      </div>
+
+      <div>  Created using <A HREF="http://www.php.net/">PHP</A>, <A
+HREF="http://www.apache.org/">Apache</A> on a machine running <A
+HREF="http://www.debian.org/">Debian Linux</A>. Graphics by the <A
+HREF="http://www.gimp.org/">GIMP</A>.
+      </div>
+    </div>
+  </body>
+</html>
 <?php
 }
 ?>
