@@ -92,6 +92,13 @@ function short_header ($title) {
 </TD>
 </TR>
 
+<TD>
+<TABLE>
+<P><STRONG>CVS Activity</STRONG></P>
+<TR>
+<IMG SRC="inline_cvs_img.php">
+</TR></TABLE></TD>
+
 <TR>
 <TD>
    <DIV CLASS=footer>
@@ -104,7 +111,6 @@ HREF="http://www.gimp.org/">GIMP</A>. [<A
 HREF="mailto:gd-hackers@gwydiondylan.org">Feedback</A>]</SMALL></P>
 
 </DIV>
-
 </TD></TR>
 </TABLE>
 
