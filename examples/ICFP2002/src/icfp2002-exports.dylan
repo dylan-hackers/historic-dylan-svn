@@ -119,6 +119,7 @@ define module client
 
   export
     <robot-agent>,
+    robot,
     <dumbot>, <dumber-bot>,
     <dumber-bot>,
     generate-next-move;
