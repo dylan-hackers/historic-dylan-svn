@@ -3,19 +3,19 @@ synopsis:
 author: 
 copyright: 
 
-define functional class <color> (<object>)
+define functional class <gl-color> (<object>)
     constant slot r :: <float>, required-init-keyword: red:;
     constant slot g :: <float>, required-init-keyword: green:;
     constant slot b :: <float>, required-init-keyword: blue:;
     constant slot a :: <float> = 1.0, init-keyword: alpha:;
 end;
 
-define function set-color(color :: <color>) => ()
+define function set-gl-color(color :: <gl-color>) => ()
     glColor(color.r, color.g, color.b, color.a);
 end;
 
-define function make-color(red, green, blue) => (result)
-    make(<color>, red: red, green: green, blue: blue)
+define function make-gl-color(red, green, blue) => (result)
+    make(<gl-color>, red: red, green: green, blue: blue)
 end;
 
 define constant $PI = 3.141592654;
@@ -24,16 +24,16 @@ define constant $180-OVER-PI = 180.0 / $PI;
 
 define constant $ROOT-3-OVER-2 = sqrt(3.0) * 0.5;
 
-define constant $ROCK-COLOR = make-color(0.5, 0.5, 0.5);
-define constant $GROUND-COLOR = make-color(1.0, 1.0, 0.8);
-define constant $RED-ANTHILL-COLOR = make-color(1.0, 0.8, 0.8);
-define constant $BLACK-ANTHILL-COLOR = make-color(0.8, 0.8, 0.8);
-define constant $FOOD-COLOR = make-color(0.0, 1.0, 0.0);
+define constant $ROCK-COLOR = make-gl-color(0.5, 0.5, 0.5);
+define constant $GROUND-COLOR = make-gl-color(1.0, 1.0, 0.8);
+define constant $RED-ANTHILL-COLOR = make-gl-color(1.0, 0.8, 0.8);
+define constant $BLACK-ANTHILL-COLOR = make-gl-color(0.8, 0.8, 0.8);
+define constant $FOOD-COLOR = make-gl-color(0.0, 1.0, 0.0);
 
-define constant $RED-ANT-COLOR = make-color(1.0, 0.0, 0.0);
-define constant $BLACk-ANT-COLOR = make-color(0.0, 0.0, 0.0);
+define constant $RED-ANT-COLOR = make-gl-color(1.0, 0.0, 0.0);
+define constant $BLACk-ANT-COLOR = make-gl-color(0.0, 0.0, 0.0);
 
-define constant $WHITE = make-color(1.0, 1.0, 1.0);
+define constant $WHITE = make-gl-color(1.0, 1.0, 1.0);
 
 define function draw-hex(x, y) => ()
     glBegin($GL-TRIANGLE-FAN);
@@ -88,22 +88,22 @@ define function draw-world(width, height) => ()
             let (x, y) = cell-position(x-index, y-index);
             
             if (modulo(y-index, 2) == 0)
-                set-color($GROUND-COLOR);
+                set-gl-color($GROUND-COLOR);
                 draw-hex(x, y);
             else
-                set-color($RED-ANTHILL-COLOR);
+                set-gl-color($RED-ANTHILL-COLOR);
                 draw-hex(x, y);
             end;
         end;
     end;
     
-    set-color($RED-ANT-COLOR);
+    set-gl-color($RED-ANT-COLOR);
     draw-ant(0, 0, 0);
     
-    set-color($BLACK-ANT-COLOR);
+    set-gl-color($BLACK-ANT-COLOR);
     draw-ant(1, 1, 2);
     
-    set-color($WHITE);
+    set-gl-color($WHITE);
 end;
 
 define variable draw :: <function> =

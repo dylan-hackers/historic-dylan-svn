@@ -9,6 +9,7 @@ define library ant-visualizer
     use garbage-collection;
     use transcendental;
     use opengl;
+    use ants;
 end library;
 
 define module ant-visualizer
@@ -25,4 +26,5 @@ define module ant-visualizer
     use opengl;
     use opengl-glu;
     use opengl-glut;
+    use ants;
 end module;
