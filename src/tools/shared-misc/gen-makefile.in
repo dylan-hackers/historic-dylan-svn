@@ -1,7 +1,7 @@
 #!@PERL@
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.7.2.1 1999/06/21 17:18:41 housel Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.7.2.2 1999/07/11 03:54:38 housel Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -791,8 +791,16 @@ sub emit_library_rule {
 	if ($shared_library) {
 	    print "\t\$(D2C) -M \$(D2CFLAGS) --rpath=$libdir $extraflags ",
 	    	"$srcdir/$lidfilename.lid\n";
+	    if ($static && !$executable) {
+		local ($dot_lib)
+		    = split(/\s+/,
+			    $target_platform{'library_filename_suffix'});
+		print "\trm -f $lib_prefix$unit_prefix$dot_lib\n";
+		print "\tln -s .libs/$lib_prefix$unit_prefix$dot_lib",
+		    " $lib_prefix$unit_prefix$dot_lib\n";
+	    }
 	} else {
-	    print "\t\$(D2C) -M \$(D2CFLAGS) $extraflags ",
+	    print "\t\$(D2C) -M \$(D2CFLAGS) --static $extraflags ",
 	    	"$srcdir/$lidfilename.lid\n";
 	}
 	local ($make_name) = $host_platform{'make_command'};
@@ -848,6 +856,65 @@ sub emit_c_file_rule {
 	print "\n\t\$(CC) \$(CFLAGS) \$(CPPFLAGS) -I\$(SRCDIR)";
     }
     print " -c \$(SRCDIR)/$basefile.c -o $objfile\n\n";
+    if ($target_name eq $host_name) {
+      push(@compile_dependencies, $objfile);
+    } else {
+      push(@cc_files_dependencies, $objfile);
+    };
+
+    push(@files_to_clean, $objfile);
+}
+
+#
+# Emit the rule to compile an assembly file into an object file.  Dependencies
+# will be the source file and all @header_files.
+#
+sub emit_asm_file_rule {
+    local ($basefile, @headers) = @_;
+    local ($objfile) = "$basefile$dot_obj";
+
+    do maybe_emit_d2c_defines();
+
+    print "$objfile: \$(SRCDIR)/$basefile.s -o $objfile\n\n";
+    foreach $header (@headers) {
+	print " \$(SRCDIR)/$header";
+    }
+    if ($shared) {
+	print "\n\t\$(LIBTOOL) \$(CC) \$(CFLAGS) \$(CPPFLAGS) -I\$(SRCDIR)";
+    } else {
+	print "\n\t\$(CC) \$(CFLAGS) \$(CPPFLAGS) -I\$(SRCDIR)";
+    }
+    print " -c \$(SRCDIR)/$basefile.s -o $objfile\n\n";
+    if ($target_name eq $host_name) {
+      push(@compile_dependencies, $objfile);
+    } else {
+      push(@cc_files_dependencies, $objfile);
+    };
+
+    push(@files_to_clean, $objfile);
+}
+
+#
+# Emit the rule to compile an assembly file (that requires
+# preprocessing) into an object file.  Dependencies will be the source
+# file and all @header_files.
+#
+sub emit_cppasm_file_rule {
+    local ($basefile, @headers) = @_;
+    local ($objfile) = "$basefile$dot_obj";
+
+    do maybe_emit_d2c_defines();
+
+    print "$objfile: \$(SRCDIR)/$basefile.S -o $objfile\n\n";
+    foreach $header (@headers) {
+	print " \$(SRCDIR)/$header";
+    }
+    if ($shared) {
+	print "\n\t\$(LIBTOOL) \$(CC) \$(CFLAGS) \$(CPPFLAGS) -I\$(SRCDIR)";
+    } else {
+	print "\n\t\$(CC) \$(CFLAGS) \$(CPPFLAGS) -I\$(SRCDIR)";
+    }
+    print " -c \$(SRCDIR)/$basefile.S -o $objfile\n\n";
     if ($target_name eq $host_name) {
       push(@compile_dependencies, $objfile);
     } else {
