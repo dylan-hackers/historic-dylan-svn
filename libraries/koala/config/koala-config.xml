@@ -99,7 +99,7 @@
 
 
 <!-- If AUTO-REGISTER is on then URLs may be automatically registered if
-     if they match certain patterns.  e.g., .dsp files will automatically
+     they match certain patterns.  e.g., .dsp files will automatically
      be registered as Dylan Server Pages.  The default is off.
   -->
 <auto-register enabled="no" />
@@ -137,15 +137,11 @@
 
 
 <!-- VIRTUAL-HOST defines a new named virtual host with its own settings.
-     By default there is a single virtual host which is accessed via these
-     urls:
-        http://localhost....  
-        http://127.0.0.1....
-        http://<host-name>....          (not yet implemented)
-        http://<host-name.domain>....   (not yet implemented)
      Top-level settings apply to the default virtual host.  Here we define
-     a new vhost for the 127.0.0.1 with a different document root.  Try
-     accessing, for example, http://127.0.0.1:8001/README 
+     a new vhost for '127.0.0.1' with a different document root.  With this
+     definition in place you will get different document root when you
+     access Koala with http://127.0.0.1/ than when you access it via any
+     other name (e.g. 'localhost').
   -->
 
 <virtual-host name="127.0.0.1">

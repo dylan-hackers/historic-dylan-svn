@@ -158,14 +158,17 @@ end;
 define constant $default-virtual-host :: <virtual-host>
   = make(<virtual-host>, name: "default");
 
-define table $virtual-hosts :: <string-table>
-  = {
-      // These may be overwritten by config file entries.
-      // The local host's real IP address will be added as a host name alias for
-      // the default virtual host as well.
-      "localhost" => $default-virtual-host,
-      "127.0.0.1" => $default-virtual-host
-      };
+// If this is true, then requests directed at hosts that don't match any
+// explicitly named virtual host (i.e., something created with <virtual-host>
+// in the config file) will use the default vhost.  If this is #f when such a
+// request is received, a Bad Request (400) response will be returned.
+//
+define variable *fall-back-to-default-virtual-host?* :: <boolean> = #t;
+
+// Maps host names to virtual hosts.  Any host name not found in this
+// table maps to $default-virtual-host (contingent on the value of
+// *fall-back-to-default-virtual-host?*).
+define constant $virtual-hosts :: <string-table> = make(<string-table>);
 
 define thread variable *virtual-host* :: <virtual-host> = $default-virtual-host;
 
@@ -182,10 +185,11 @@ end;
 define method virtual-host
     (request :: <request>) => (vhost :: false-or(<virtual-host>))
   let host-spec = request-host(request);
+  local method die ()
+          bad-request(message: format-to-string("Unknown virtual host: %s",
+                                                host-spec));
+        end;
   if (host-spec)
-    local method die ()
-            bad-request(message: format-to-string("Unknown host: %s", host-spec));
-          end;
     let colon = char-position(':', host-spec, 0, size(host-spec));
     let host = iff(colon, substring(host-spec, 0, colon), host-spec);
     let port = colon &
@@ -195,16 +199,21 @@ define method virtual-host
                    log-debug("error parsing port in host spec");
                    die();
                  end;
-    let vhost = virtual-host(host);
+    let vhost = virtual-host(host) | (*fall-back-to-default-virtual-host?*
+                                        & $default-virtual-host);
     log-debug("host = %=, port = %=, vhost = %=, vport = %=",
               host, port, vhost, vhost & vhost-port(vhost));
-    log-debug("local host name = %=",
-              host-name($local-host));
-    iff(vhost & (~port | port == vhost-port(vhost)),
-        vhost,
-        die())
+    // TODO: If this is an HTTPS request and no port is specified, make sure
+    //       vhost-port(vhost) == 443
+    if (vhost & ((~port & vhost-port(vhost) == 80)
+                   | port == vhost-port(vhost)))
+      vhost
+    else
+      die();
+    end;
   else
-    $default-virtual-host
+    (*fall-back-to-default-virtual-host?* & $default-virtual-host)
+      | die()
   end
 end;
 

@@ -29,17 +29,6 @@ the document root directory.  i.e., the dynamic URL takes precedence.
 
 */
 
-// UNCOMMENT THIS IF YOU WANT TO RUN THE EXAMPLE AS AN EXECUTABLE
-// Also make sure it is being linked as an exe, under Project -> Settings in FunDev.
-//
-// Start the Koala server early because it sets configuration variables like
-// *document-root* that are used by the example code.
-/*
-begin
-  start-server();
-end;
-*/
-
 
 //// Responders -- the lowest level API for responding to a URL
 
@@ -381,16 +370,16 @@ end;
 
 /// Main
 
-// Starts up the web server with the specified port.  Loop sleeping forever so the application
-// doesn't exit.  (---TODO: Need to figure out how to make this unnecessary.)
+// Starts up the web server.
 define function main () => ()
-  while (#t)
-    sleep(1);
-  end;
+  // This is only necessary when running this example in FunDev/Linux
+  // because it doesn't have load-library.  In Windows the koala-basics
+  // library can be loaded at startup time by putting a
+  //     <module name="koala-basics"/>
+  // directive in the config file and commenting out this call to start-server.
+  start-server();
 end;
 
 begin
   main();
 end;
-
-
