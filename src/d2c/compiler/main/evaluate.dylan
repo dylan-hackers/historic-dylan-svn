@@ -77,13 +77,6 @@ define method fer-evaluate(compound :: <compound-region>, environment :: <object
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
 
-define method fer-evaluate /* -call ##### */(func :: <fer-function-region>, environment :: <object>)
-  => ct-value :: <ct-value>; // multivalues???
-  
-  // add the vars in the prolog... to a fresh environment ###### TODO
-  fer-evaluate(func.body, environment)
-end;
-
 define method fer-evaluate(the-if :: <if-region>, environment :: <object>)
   => ct-value :: <ct-value>; // multivalues???
   let test-value
@@ -244,6 +237,25 @@ define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression
   environment
 end;
 
+// ########## fer-evaluate-call ##########
+
+// for now....
+define method fer-evaluate /* -call ##### */(func :: <fer-function-region>, environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  
+  // add the vars in the prolog... to a fresh environment ###### TODO
+  fer-evaluate(func.body, environment)
+end;
+
+
+
+define generic fer-evaluate-call(func :: <abstract-function-literal>, operands :: false-or(<dependency>))
+ => result :: <ct-value>;
+
+define method fer-evaluate-call(func :: <method-literal>, operands :: false-or(<dependency>))
+ => result :: <ct-value>;
+  fer-evaluate(func.main-entry, curry(error, "no, there is no variable %= in environment")) // #####  func.main-entry.body
+end;
 
 // ########## fer-evaluate-expression ##########
 define generic fer-evaluate-expression(expr :: <expression>, environment :: <object>)
@@ -261,12 +273,11 @@ end;
 
 define method fer-evaluate-expression(expr :: <known-call>, environment :: <object>)
  => result :: <ct-value>;
-//      let func :: <method-literal> = fer-evaluate-expression(expr.depends-on.source-exp, environment);
       let func :: <method-literal> = expr.depends-on.source-exp;
-      let arg = fer-evaluate-expression(expr.depends-on.dependent-next.source-exp, environment);
+//      let arg = fer-evaluate-expression(expr.depends-on.dependent-next.source-exp, environment);
+      let args = expr.depends-on.dependent-next;
       
-      fer-evaluate(func.main-entry, environment /* NEEDED??? ### */);
-      
+      fer-evaluate-call(func, args);
 end;
 
 define method fer-evaluate-expression(var :: <abstract-variable>, environment :: <object>)
