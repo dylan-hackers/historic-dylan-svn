@@ -4,6 +4,7 @@ authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
 define function main(name, arguments)
+  /*
   let mat2 = identity-matrix(dimensions: #[4,4]);
   let mat = matrix(#[1.0, 0.0, 0.0, 0.0],
 		    #[0.0, 1.0, 0.0, 0.25],
@@ -42,16 +43,35 @@ define function main(name, arguments)
   end for;
   close-ppm(file);
 
+  */
+
   let o = make(<obj>);
   o.model := make(<sphere>);
 
   uniform-scale!(o, 0.5);
   translate!(o, 0.0, 0.25, 0.0);
 
+/*
+  let ray = make(<ray>, direction: vector(0.0, 0.0, 1.0, 0.0), position: vector(0.0, 0.0, -1.0, 1.0));
+
+  if(intersection-before(o, ray, 1.0/0.0))
+    format-out("Intersection correct\n");
+  else
+    format-out("Intersection incorrect\n");
+  end if;
+
+  let ray = make(<ray>, direction: vector(1.0, 0.0, 1.0, 0.0), position: vector(0.0, 0.0, -1.0, 1.0));
+
+  if(intersection-before(o, ray, 1.0/0.0))
+    format-out("Non-Intersection incorrect\n");
+  else
+    format-out("Non-Intersection correct\n");
+  end if;
+*/
+
   render-image(o, 1, "render.ppm", 
 	       make(<color>, red: 1.0, green: 1.0, blue:1.0),
 	       make(<stretchy-vector>), 128, 128, $double-pi / 2.0);
-
 
   exit-application(0);
 end function main;

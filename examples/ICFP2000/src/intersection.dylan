@@ -63,7 +63,8 @@ define method intersection-before(m :: <sphere>, ray, distance)
   */
 
   let t_ca = -ray.ray-position * ray.ray-direction;
-  let l_oc_2 = ray.ray-direction * ray.ray-position;
+  let foo = ray.ray-position - $origin;
+  let l_oc_2 = foo * foo;
 
   if (t_ca < 0.0)
     // Pointing away from sphere, no intersection
