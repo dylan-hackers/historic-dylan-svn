@@ -23,6 +23,7 @@ end;
 
 define class <http-error> (<koala-error>)
   constant slot http-error-code :: <integer>, required-init-keyword: code:;
+  constant slot http-error-header :: false-or(<header-table>) = #f, init-keyword: header:;
 end;
 
 define constant $application-error-code = 599;
@@ -66,6 +67,10 @@ define method condition-to-string
                    http-error-message-no-code(e))
 end;
 
+// Error codes 3xx
+define class <http-redirect-error> (<http-error>)
+end;
+
 // Error codes 4xx.  Some 4xx error codes (e.g., 404) aren't really client errors,
 // but we'll stick with the RFC definition.
 define class <http-client-error> (<http-error>)
@@ -77,9 +82,10 @@ end;
 
 define macro http-error-definer
  { define http-error ?:name (?class) ?code:token ?string:token, ?args:* }
-  => { define function ?name (#key ?args)
+  => { define function ?name (#key headers :: false-or(<header-table>) = #f, ?args)
          signal(make(?class,
                      code: ?code,
+                     header: headers,
                      format-string: ?string, format-arguments: vector(?args)))
        end }
  class:
@@ -89,6 +95,9 @@ end;
 
 define class <http-parse-error> (<http-client-error>)
 end;
+
+define http-error moved-permanently-redirect (<http-redirect-error>)
+    301 "Moved Permanently";
 
 define http-error header-too-large-error (<http-client-error>)
     400 "Request header size exceeded limit of %d bytes", max-size;

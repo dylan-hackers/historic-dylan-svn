@@ -61,7 +61,13 @@ define method maybe-serve-static-file
   when (document)
     select (file-type(document))
       #"directory" => if (*allow-directory-listings*)
-                        directory-responder(request, response, document);
+                        if (url[size(url) - 1] = '/')
+                          directory-responder(request, response, document);
+                        else
+                          let header = make(<header-table>);
+                          add-header(header, "Location", concatenate(url, "/"));
+                          moved-permanently-redirect(headers: header);  // 301
+                        end if;
                       else
                         access-forbidden-error();  // 403
                       end if;
