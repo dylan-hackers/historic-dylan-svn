@@ -346,6 +346,7 @@ define function receive-package-information(s :: <stream>)
     let package-y = receive-integer(s);
     receive-space(s);
     let package-weight = receive-integer(s);
+    values(package-id, package-x, package-y, package-weight);
 end function receive-package-information;
 
 // Return #t if more package information is available on the line
