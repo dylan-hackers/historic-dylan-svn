@@ -140,6 +140,9 @@ define method static-file-responder
                  element-type: <byte>)
     let mime-type = get-mime-type(locator);
     add-header(response, "Content-Type", mime-type);
+    let props = file-properties(locator);
+    add-header(response, "Last-Modified",
+               as-rfc-1123-date(props[#"modification-date"]));
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
   end;
@@ -155,6 +158,9 @@ define method directory-responder
     = iff(instance?(locator, <directory-locator>),
           locator,
           subdirectory-locator(locator-directory(locator), locator-name(locator)));
+  let directory-properties = file-properties(locator);
+  add-header(response, "Last-Modified",
+             as-rfc-1123-date(directory-properties[#"modification-date"]));
   let stream = output-stream(response);
   local
     method show-file-link (directory, name, type)
@@ -178,7 +184,7 @@ define method directory-responder
                         end;
         format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
         for (key in #[#"size", #"modification-date", #"author"])
-          let prop = element(props, key, default: "&nbsp;");
+          let prop = element(props, key, default: #f);
           format(stream, "\t\t\t\t<td class=\"%s\">", as(<string>, key) );
           if (prop)
             display-file-property(stream, key, prop, type);
