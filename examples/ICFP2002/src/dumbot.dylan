@@ -30,7 +30,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     let direction
       = if (~target)
 	  debug("Sorry, can't find anywhere to go!\n");
-	  make(<drop>, bid: 1, id: robot.id, package-ids: #());
+	  return(make(<drop>, bid: 1, id: robot.id, package-ids: #()));
 	else
 	  points-to-direction(robot.location, path.first);
 	end if;
