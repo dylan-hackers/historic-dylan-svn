@@ -29,4 +29,4 @@ ALL /usr/local/share/cvssupport/logmsg.archive ${USER} %{sVv}
 ALL $CVSROOT/CVSROOT/syncmail -u %{sVv} gd-chatter@gwydiondylan.org
 ALL $CVSROOT/CVSROOT/ciabot %{sVv}
 ^www touch /usr/local/www/data/.needs-rebuild
-^ref touch usr/local/www/gdref/.needs-rebuild
+^ref touch /usr/local/www/gdref/.needs-rebuild
