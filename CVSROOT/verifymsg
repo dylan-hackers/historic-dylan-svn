@@ -20,5 +20,5 @@
 # supported.  There can be only one entry that matches a given
 # repository.
 #
-# run the cvszilla checks
+# run the cvszilla checks on checkin comment contents
 DEFAULT /usr/share/cvssupport/logmsg.verify
