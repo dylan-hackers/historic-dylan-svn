@@ -2,7 +2,7 @@ Module:   dylan-user
 Synopsis: Brwose FD environment objects
 Author:   Andreas Bogk
 
-define library koala-basics
+define library code-browser
   use dylan;
   use common-dylan,
     import: { common-extensions };
