@@ -9,6 +9,10 @@ libpng-intr.dylan: libpng-intr.intr
 	mv libpng-internal-exports.dylan, libpng-internal-exports.dylan
 
 install: libpng.lib.du 
-	libtool --mode=install /usr/bin/install -c liblibpng-dylan.la /usr/lib/dylan/$(INSTALLPATH)/liblibpng-dylan.la
-	libtool --finish /usr/lib/dylan/$(INSTALLPATH)/dylan-user
-	/usr/bin/install -c libpng.lib.du /usr/lib/dylan/$(INSTALLPATH)/libpng.lib.du
+	libtool --mode=install /usr/bin/install -c liblibpng-dylan.la $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)/liblibpng-dylan.la
+	libtool --finish $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)/dylan-user
+	/usr/bin/install -c libpng.lib.du $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)/libpng.lib.du
+
+clean:
+	-rm -f *.mak *.lib.du *.o *.lo *.la *.a *.s *.c ,* *~ libpng-intr.dylan
+	-rm -rf .libs
