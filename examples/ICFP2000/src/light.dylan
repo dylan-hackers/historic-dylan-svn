@@ -15,6 +15,14 @@ define class <firefly> (<light>)
   slot location :: <3D-point>, required-init-keyword: #"location";
 end class <firefly>;
 
+define class <flashlight> (<light>)
+  slot location :: <3D-point>, required-init-keyword: #"location";
+  slot direction :: <3D-vector>, required-init-keyword: #"direction";
+  slot cutoff :: <fp>, required-init-keyword: #"cutoff";
+  slot exponent :: <fp>, required-init-keyword: #"exponent";
+end class <flashlight>;
+
+// Star stuff:
 define method initialize(s :: <star>, #key, #all-keys)
   s.direction :=  normalize(s.direction);
 end method initialize;
@@ -45,7 +53,7 @@ define method phong-intensity-on
   end if;
 end method phong-intensity-on;
 
-
+// Fireflies:
 define method intensity-on
     (light :: <firefly>, point :: <3D-point>, normal :: <3D-vector>)
  => (color :: <color>)
@@ -75,6 +83,50 @@ define method phong-intensity-on
   end if;
 end method phong-intensity-on;
 
+// Flashlights:
+define method intensity-on
+    (light :: <flashlight>, point :: <3D-point>, normal :: <3D-vector>)
+ => (color :: <color>)
+
+  let ray = light.location - point;
+  if (abs(normalize(ray) * normalize(-light.direction)) <
+	cos(light.cutoff))
+    make-black();
+  else
+    let angle-factor = normalize(ray) * normal;
+    if (angle-factor < 0.0)
+      make-black();
+    else
+      light.light-color * angle-factor * 
+	abs(light.direction * normalize(-ray)) ^ light.exponent *
+	(100.0 / (99.0 + magnitude(ray) ^ 2));
+    end if;
+  end if;
+end method intensity-on;
+
+define method phong-intensity-on
+    (light :: <flashlight>, point :: <3D-point>, viewer :: <3D-point>,
+     normal :: <3D-vector>, phong-exp :: <fp>)
+ => (color :: <color>)
+  
+  let ray-to-viewer = normalize(viewer - point);
+  let ray-to-light = light.location - point;
+  if (abs(normalize(ray-to-light) * normalize(-light.direction)) >
+	cos(light.cutoff))
+    make-black();
+  else
+    let angle-factor = ((ray-to-viewer - normalize(ray-to-light)) * 0.5) * normal;
+    if (angle-factor < 0.0)
+      make-black();
+    else
+      light.light-color * angle-factor ^ phong-exp * 
+	abs(light.direction * normalize(-ray-to-light)) ^ light.exponent * 
+	(100.0 / (99.0 + magnitude(ray-to-light) ^ 2));
+    end if;
+  end if;
+end method phong-intensity-on;
+
+
 /* Shadow stuff */
 
 define method can-see(o :: <obj>, point :: <3D-point>, l :: <star>)
@@ -94,6 +146,21 @@ define method can-see(o :: <obj>, point :: <3D-point>, l :: <firefly>)
 			      $surface-acne-prevention-offset * ray-to-light,
 			    direction: ray-to-light), 
 		       1.0/0.0, shadow-test: #t);
+end method can-see;
+
+define method can-see(o :: <obj>, point :: <3D-point>, l :: <flashlight>)
+ => (unblocked :: <boolean>)
+  let ray-to-light = normalize(l.location - point);
+  if (abs(normalize(ray-to-light) * normalize(-l.direction)) <
+	cos(l.cutoff))
+    #f;
+  else
+    ~intersection-before(o, 
+			 make(<ray>, position: point +
+				$surface-acne-prevention-offset * ray-to-light,
+			      direction: ray-to-light), 
+			 1.0/0.0, shadow-test: #t);
+  end if;
 end method can-see;
 
 

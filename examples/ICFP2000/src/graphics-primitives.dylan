@@ -131,7 +131,19 @@ define graphics-primitive pointlight(loc :: <point> => color ::
        
 end;
 
-define graphics-primitive spotlight() error("No spotlights yet") end;
+define graphics-primitive spotlight(loc :: <point> => at :: <point> =>
+				      color :: <point> => cutoff ::
+				      <fp> => exp :: <fp>)
+
+  let pos :: <3D-point> = point3D(loc.point-x, loc.point-y,
+				  loc.point-z, 1.0);
+  let dir :: <3D-vector> = pos - point3D(at.point-x, at.point-y,
+				  at.point-z, 1.0);
+
+  make(<flashlight>, location: pos, direction: dir, cutoff: cutoff *
+	 $pi / 180.0, exponent: exp,
+       color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z));
+end;
 
 // CSG:
 define graphics-primitive union(o1 :: <obj> => o2 :: <obj>) 
