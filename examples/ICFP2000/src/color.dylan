@@ -70,6 +70,7 @@ define method \+ (c1 :: <color>, c2 :: <color>)
        blue:  clamp(c1.blue  + c2.blue));
 end method;
 
+// Surface stuff:
 
 define class <surface> (<object>)
   slot color, init-keyword: color:, init-value: make(<color>, red: 1.0, green: 1.0, blue: 1.0);
@@ -85,9 +86,10 @@ define method make-surface-closure(surface-id, u, v, interpreter-entry)
     if(surface)
       surface;
     else
-      let (color, diffusion, specular, phong) = interpreter-entry(surface-id, u, v);
-      surface := make(<surface>, color: color, diffusion: diffusion, specular: specular, phong: phong);
-      surface;
+      let (phong, specular, diffusion, color) = apply(values, interpreter-entry(list(v, u, surface-id)));
+      
+      surface := make(<surface>, color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z),
+	   diffusion: diffusion, specular: specular, phong: phong);
     end if;
   end method return-color;
   return-color;

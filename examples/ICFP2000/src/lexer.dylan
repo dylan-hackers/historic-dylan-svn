@@ -423,7 +423,7 @@ end method get-token;
 
 
 define method lex-gml(src :: <stream>) => (tokens :: <list>);
-  let lexer = make(<lexer>, source: *standard-input*);
+  let lexer = make(<lexer>, source: src);
   getChar(lexer);
   let lexed = #();
   while(get-token(lexer, method(tok) lexed := pair(tok, lexed) end))

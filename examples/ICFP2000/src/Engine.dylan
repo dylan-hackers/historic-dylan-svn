@@ -164,12 +164,6 @@ end;
 
 // Points
 
-define sealed class <point>(<object>)
-     slot x :: <fp>, required-init-keyword: x:;
-     slot y :: <fp>, required-init-keyword: y:;
-     slot z :: <fp>, required-init-keyword: z:;
-end class <point>;
-
 define method compile-one(token == #"point", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
   let (cont, remaining) = more-tokens.compile-GML;
   values(
@@ -187,7 +181,7 @@ define method compile-one(token == #"getx", more-tokens :: <list>) => (closure :
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (p :: <point>, rest :: <list>) = values(stack.head, stack.tail);
-           cont(pair(p.x, rest), env)
+           cont(pair(p.point-x, rest), env)
          end method,
          remaining)
 end;
@@ -197,7 +191,7 @@ define method compile-one(token == #"gety", more-tokens :: <list>) => (closure :
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (p :: <point>, rest :: <list>) = values(stack.head, stack.tail);
-           cont(pair(p.y, rest), env)
+           cont(pair(p.point-y, rest), env)
          end method,
          remaining)
 end;
@@ -207,7 +201,7 @@ define method compile-one(token == #"getz", more-tokens :: <list>) => (closure :
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (p :: <point>, rest :: <list>) = values(stack.head, stack.tail);
-           cont(pair(p.z, rest), env)
+           cont(pair(p.point-z, rest), env)
          end method,
          remaining)
 end;

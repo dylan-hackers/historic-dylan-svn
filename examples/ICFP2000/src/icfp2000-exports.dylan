@@ -10,7 +10,8 @@ define module types
   use dylan;
   use transcendental;
   
-  export <fp>, $pi;
+  export <fp>, $pi,
+     <point>, point-x, point-y, point-z; //XXX
 end module types;
 
 define module our-matrix
@@ -46,13 +47,19 @@ define module ray-tracer
   use dylan;
   use transcendental;
 
+  // Debug:
+  use streams;
+  use format;
+  use format-out;
+  use standard-io;
+  // End debug...
+
   use types;
   use our-matrix;
 
-  export <obj>, <sphere>, <color>,
-    surface-interpreter-entry-setter,
-    red-texture, // XXX
+  export <obj>, <sphere>, <plane>, <csg-union>, <color>, <star>,
     export-with-depth, 
+    uniform-scale, scale, x-rotate, y-rotate, z-rotate, translate,
     render-image;
 
   create <ppm-image>, close-ppm, write-pixel;
@@ -65,6 +72,7 @@ define module gml-compiler
 
   use types;
   use ray-tracer;
+  use our-matrix;
 
   export compile-gml, run-gml;
 end module gml-compiler;

@@ -4,7 +4,7 @@ SOURCES=icfp2000.dylan icfp2000-exports.dylan matrix.dylan obj.dylan \
 	light.dylan graphics-primitives.dylan types.dylan
 
 icfp2000: icfp2000.lid $(SOURCES)
-	d2c -s icfp2000.lid
+	d2c -g -s icfp2000.lid
 
 clean:
 	rm -f *.o *.s *.a *.c *.mak *~ icfp2000
