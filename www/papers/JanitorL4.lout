@@ -153,6 +153,7 @@ Armed with the definitions of the previous section
 we can begin a thought experiment how a client-server
 interaction could look like at an intuitive level.
 
+@PP
 For the purpose of this experiment we reduce our
 pretension to handle small, uniform objects, as
 known from the Scheme @Cite { $r5rs }
@@ -180,7 +181,76 @@ restrictions (say, they can only point to even memory
 locations) we can represent integers as @I {Ênon-proper
 pointers } where the least significant bit is set.
 
+@PP
+How will an application program (a client) obtain any
+any memory from the garbage server for @I { consing }?
+Before we evaluate an answer let's consider a specific
+layout for the (object-)data and the data holding
+supplementary information about its properties which
+we call @I { metadata }. Let there be a fixed relation of
+pointers that assigns a metadata pointer to each
+object data pointer. This relation will determine
+how much metadata will be associated with each
+object pointer or a range of object pointers.
+Figure XXXX illustrates a possible relation, 
+we obtain the metadata pointer @Eq { P'' } for an object
+pointer @Eq { P } by rounding downward to a @Eq { 2 up n }
+boundary (giving @Eq { P' }) and offsetting by
+@Eq { P - P' div 2 up m }. Naturally, such a relation
+assigns the same metadata pointer to a range of object
+pointers, which might be beneficial when that range
+of objects is intended to be supported by identical
+metadata anyway. Another consequence of such a relation
+is that the size of the flexpages imply certain values
+for @Eq { m } and @Eq { n }. A discussion of the meaningful
+values can be found in the appendix. Furthermore
+the relation also determines which flexpages can serve
+as metadata for flexpages containing object data.
 
+@PP
+Now that we have defined a @I { metadata relation }, we
+can try to give meaning to the metadata associated with
+object data. Since we discuss exact garbage collection,
+we unsurprisingly utilize (a part of) the metadata for
+storing @I { layout information } in it, that is interpreted
+by the garbage server. Other conceivable use for the metadata
+might be @I { type information } that is common for all objects
+in the pointer range @Footnote
+    { The @I { Gwydion Dylan } implementation of the
+    @I { Dylan } programming language @Cite { $DRM }
+    always stores a @I { class pointer } at offset zero
+    of each object. These could be moved to the metadata,
+    reducing the size of each individual object. }.
+
+@PP
+How can the garbage server be helpful to any client in
+this scheme? First the client has to acquire a metadata
+flexpage from the server by invoking its @F metallocate
+interface specifying its size and the metadata relation.
+But metadata flexpages are not intended for storing
+objects @Footnote
+    { Metadata flexpages may still store metaobjects
+    which may be governed by another metadata relation
+    and meta-metadata. },
+so another invocation of a server interface (@ { allocate })
+is required to obtain a number of object flexpages all
+sharing a specified metadata flexpage (@I metapage for short).
+This invocation takes the net size of desired objects, the
+metadata relation and passes back object flexpages
+(@I objectpages for short) to the client. The metadata
+corresponding to the objectpages gets cleared out in the
+process, effectively marking the objectpages as garbage.
+The garbage server is allowed to not fully satisfy the
+request and in an extreme case not to pass back any
+objectpages. This can be a necessity to enforce the
+client's quotas and prevent thrashing.
+
+@PP
+When the client has consumed all the garbage in the objectpages
+it obtained earlier, it invokes the @F collect interface of the
+server, which initiates a garbage collection.
+
+>>>>> Draining, Marking, etc.
 
 @End @Section
 
@@ -351,6 +421,14 @@ effects on cache utilization and runtime overhead.
 UnMap events could be used to notify clients about the fact that
 a flexpage is about to be withdrawn. This could trigger a compaction
 or precollection of all outgoing references.
+@PP
+Pre-reservations of a range of pointers, spanning many potentially
+initialized objects, the reservation gets renewed on collection
+(to a hopefully less initialized range) ranging over the remaining
+allocation size.
+@PP
+On multiprocessors use a scheme involving processor numbers to avoid
+range or allocation collisions.
 @End @Section
 
 
