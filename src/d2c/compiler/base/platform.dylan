@@ -1,6 +1,6 @@
 module: platform
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.4.6.1 1998/12/21 11:52:59 igor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.4.6.2 1999/01/06 06:30:04 igor Exp $
 copyright: Copyright (c) 1995, 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -74,6 +74,20 @@ define sealed /* exported */ class <platform> (<object>)
 
   constant /* exported */ slot platform-integer-length :: <integer>,
     required-init-keyword: #"integer-length";
+  constant /* exported */ slot pointer-size :: <integer>,
+    required-init-keyword: #"pointer-size";
+  constant /* exported */ slot short-size :: <integer>,
+    required-init-keyword: #"short-size";
+  constant /* exported */ slot integer-size :: <integer>,
+    required-init-keyword: #"integer-size";
+  constant /* exported */ slot long-size :: <integer>,
+    required-init-keyword: #"long-size";
+  constant /* exported */ slot double-size :: <integer>,
+    required-init-keyword: #"double-size";
+  constant /* exported */ slot single-size :: <integer>,
+    required-init-keyword: #"single-size";
+  constant /* exported */ slot long-double-size :: <integer>,
+    required-init-keyword: #"long-double-size";
 
   constant /* exported */ slot heap-preamble :: <byte-string>,
     required-init-keyword: #"heap-preamble";
@@ -173,7 +187,7 @@ define sealed /* exported */ class <platform> (<object>)
 
   // used for debugging
   constant /* exported */ slot descriptor-type-string :: <byte-string>,
-    init-keyword: #"descriptor-type-string";
+    required-init-keyword: #"descriptor-type-string";
   constant /* exported */ slot descriptor-reference-string :: <byte-string>,
     init-keyword: #"descriptor-reference-string";
   constant /* exported */ slot object-size-string :: false-or(<byte-string>)
@@ -196,6 +210,13 @@ define variable *valid-properties* = make(<table>);
 *valid-properties*[#"platform-name"] := #t;
 *valid-properties*[#"default-features"] := #t;
 *valid-properties*[#"integer-length"] := #t;
+*valid-properties*[#"integer-size"] := #t;
+*valid-properties*[#"pointer-size"] := #t;
+*valid-properties*[#"short-size"] := #t;
+*valid-properties*[#"long-size"] := #t;
+*valid-properties*[#"single-size"] := #t;
+*valid-properties*[#"double-size"] := #t;
+*valid-properties*[#"long-double-size"] := #t;
 *valid-properties*[#"heap-preamble"] := #t;
 *valid-properties*[#"align-directive"] := #t;
 *valid-properties*[#"export-directive"] := #t;
@@ -233,7 +254,7 @@ define variable *valid-properties* = make(<table>);
 *valid-properties*[#"link-doesnt-search-for-libs?"] := #f;
 *valid-properties*[#"import-directive-required?"] := #f;
 *valid-properties*[#"supports-debugging?"] := #f;
-*valid-properties*[#"descriptor-type-string"] := #f;
+*valid-properties*[#"descriptor-type-string"] := #t;
 *valid-properties*[#"descriptor-reference-string"] := #f;
 *valid-properties*[#"object-size-string"] := #f;
 *valid-properties*[#"omit-colon-after-label-declarations?"] := #f;
@@ -379,7 +400,8 @@ define function add-platform! (header :: <header>)
 	#"big-endian?", #"omit-colon-after-label-declarations?",
 	#"align-arg-is-power-of-two?"  =>
 	  local-platform-info[key] := string-to-boolean(val);
-	#"integer-length" =>
+	#"integer-length", #"integer-size", #"long-size", #"pointer-size", 
+	#"single-size", #"double-size", #"long-double-size", #"short-size" =>
 	  local-platform-info[key] := string-to-integer(val);
 	#"path-separator" =>
           local-platform-info[key] := string-to-character(val);
