@@ -13,64 +13,9 @@ define class <char> (<object>)
 end class <char>;
 
 
-define macro attribute-slot-definer
-  {define attribute-slot ?bit:expression ?:name end} =>
-    {define inline method ?name(a :: <attribute>) => res :: <boolean>;
-       logand(a.value, ?bit) ~= 0;
-     end method ?name;
-
-     define inline method "set-" ## ?name(a :: <attribute>)
-      => newObj :: <attribute>;
-	 make(<attribute>, value: logior(a.value, ?bit));
-     end method "set-" ## ?name;
-
-     define inline method "clear-" ## ?name(a :: <attribute>)
-      => newObj :: <attribute>;
-	 make(<attribute>, value: logand(a.value, lognot(?bit)));
-     end method "clear-" ## ?name;}
-end macro attribute-slot-definer;
-
-define functional class <attribute> (<object>)
-  slot value :: <integer> = 0,
-    init-keyword: value:;
-/*
-  slot underline  :: limited(<integer>, min:0, max: 3) = 0;
-  slot size       :: false-or(limited(<integer>, min:0, max: 9)) = #f;
-  slot color      :: false-or(<color>) = #f;
-*/
-end class <attribute>;
-
-define attribute-slot #x01 bold end;
-define attribute-slot #x02 emphasis end;
-define attribute-slot #x04 italic end;
-define attribute-slot #x08 strong end;
-define attribute-slot #x10 typewriter end;
-
-
-define sealed domain make(singleton(<attribute>));
-define sealed domain initialize(<attribute>);
-
-define function dump(name :: <byte-string>, val :: <attribute>) => ()
-  format-out("%=.bold = %=\n", name, val.bold);
-end function dump;
-
-
-define function test-attributes()
-  let a = make(<attribute>, value: 8);
-  dump("a", a);
-  let b = make(<attribute>, value: 9);
-  dump("b", b);
-  let c = a.set-bold;
-  dump("c", c);
-  let d = c.clear-bold;
-  dump("d", d);
-end test-attributes;
 
 
 
-define constant <color> = one-of(#"red", #"green", #"blue", 
-                                 #"cyan", #"magenta", #"yellow",
-                                 #"black", #"white");
 
 define function debug(#rest args)
   apply(format, *standard-error*, args);
