@@ -1,4 +1,4 @@
-RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.4 2000/06/25 10:54:55 bruce Exp $
+RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.5 2000/06/25 13:02:54 bruce Exp $
 Module: dylan-viscera
 Copyright: See below.
 Synopsis: Runtime support for limited collections.
@@ -131,18 +131,27 @@ define method make-limited-collection
      element-type == <integer>,
      collection-type :: <limited-collection>,
      #rest supplied-keys,
-     #key fill, size = 0, #all-keys)
+     #key fill, size = $not-supplied, #all-keys)
  => (instance :: <simple-integer-vector>)
+
   let size-restriction = collection-type.limited-size-restriction;
+  let size-supplied = size ~== $not-supplied;
+
+  let size-int :: <integer> = if (size-supplied) size else 0 end;
+  let size-restriction-int :: <integer> = if (size-restriction) size-restriction else 0 end;
+
   // XXX - These may not be the right errors to signal. Oh, well.
-  if (size-restriction & size ~= size-restriction)
-    error("Requested vector size does not match size of %=", collection-type);
+  if (size-supplied & size-restriction & size-int ~= size-restriction-int)
+    error("Requested vector size %= does not match size of %=", size, collection-type);
   end if;
-  if (size > 0 & ~instance?(fill, <integer>))
+
+  let actual-size = if (size-restriction) size-restriction-int else size-int end;
+  if (actual-size > 0 & ~instance?(fill, <integer>))
     error("Cannot fill %= with %=", collection-type, fill);
   end if;
+
   apply(make, <simple-integer-vector>,
 	collection-type: collection-type,
-	size: size, fill: fill,
+	size: actual-size, fill: fill,
 	supplied-keys);
 end method make-limited-collection;
