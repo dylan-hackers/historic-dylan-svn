@@ -1187,6 +1187,7 @@ define variable foo :: run-time-expression() = #f;
         <filename>fer-od.dylan</filename> and
         <filename>base/od-format.dylan</filename>. If you miss any of these
 	spots, things will break in various entertaining ways.
+        </para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-front-fer-od">
