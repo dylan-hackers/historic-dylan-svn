@@ -103,7 +103,7 @@ define inline method set-emphasis(a :: <attribute>)
   if (a.strong)
     a;
   else
-    make(<attribute>, value: logxor(a.value, #x02));
+    make(<attribute>, value: logior(a.value, #x02));
   end;
 end method set-emphasis;
 

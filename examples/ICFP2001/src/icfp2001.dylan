@@ -311,7 +311,7 @@ define function main(name, arguments)
     end;
 
   let optimized-output = apply(concatenate, generate-output(parse-tree));
-  format-out("%=\n", optimized-output);
+//  format-out("%=\n", optimized-output);
 
   if (optimized-output.size < original-input.size)
     best-transformation := optimized-output;
