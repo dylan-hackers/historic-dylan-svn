@@ -70,6 +70,9 @@ end module ray-tracer;
 define module gml-compiler
   use Dylan;
   use Transcendental;
+  use Extensions,
+    import: {false-or};
+  use format-out, rename: {format-out => debug-print};
 
   use types;
   use ray-tracer;

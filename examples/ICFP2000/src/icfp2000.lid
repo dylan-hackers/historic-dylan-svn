@@ -6,7 +6,7 @@ files: icfp2000-exports
   matrix
   obj
   intersection
-  Engine Math-Primitives lexer
+  Engine Math-Primitives lexer Optimizer
   color
   ppm
   light
