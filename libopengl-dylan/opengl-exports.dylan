@@ -18,7 +18,7 @@ define module opengl
   
   // Helpful macros:
   export
-    with-glBegin;
+    with-glBegin, with-glNewList;
 
   // Massaged functions:
   export
