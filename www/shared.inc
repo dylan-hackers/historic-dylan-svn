@@ -69,7 +69,7 @@ function short_header ($title) {
 
 <P><STRONG>Developer Resources</STRONG></P>
 <UL>
-<LI><A HREF="/cgi-bin/cvsweb/">Browse CVS</A>
+<LI><A HREF="/cgi-bin/viewcvs.cgi">Browse CVS</A>
 <LI><A HREF="/cgi-bin/gd">Bug Tracker</A>
 <LI><A HREF="/cgi-bin/gd.private">Private Bug Tracker</A>
 <LI><A HREF="projects.phtml">Current Projects</A>
