@@ -13,6 +13,26 @@ define library vrml-viewer
 //  use melange-support // for null-pointer
 end library;
 
+define module vrml-model
+  use dylan;
+  
+  export
+    <node>,
+    <container-node>, children,
+    <indexed-face-set>, ccw, points, polygon-indices,
+    <transform>, scale, translation,
+    <line-grid>,
+    <sphere>,
+    preorder-traversal;
+end;
+
+define module vrml-parser
+  use dylan;
+  use vrml-model;
+  
+  export parse-vrml;
+end;
+
 define module gettimeofday
   use dylan;
   use melange-support;
@@ -37,6 +57,8 @@ define module vrml-viewer
   use opengl-glu;
   use opengl-glut;
   use gettimeofday;
-
+  use vrml-model;
+  use vrml-parser;
+  
 //  use melange-support // for null-pointer
 end module;

@@ -1,4 +1,4 @@
-module: vrml-viewer
+module: vrml-model
 
 define abstract class <node> (<object>)
 end class <node>;

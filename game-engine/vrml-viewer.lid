@@ -4,6 +4,7 @@ author: Andreas Bogk <andreas@andreas.org>
 copyright: (C) Andreas Bogk, under LGPL
 
 vrml-viewer-exports.dylan
+vrml-parser.dylan
 node.dylan
 indexed-face-set.dylan
 vrml-viewer.dylan

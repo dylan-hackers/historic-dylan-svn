@@ -126,7 +126,7 @@ define variable reshape-func :: <function> = callback-method(x :: <integer>, y :
   post-event(make(<reshape-event>, location: make(<point>, x: x, y: y)));
 end;
 
-define constant *scene-graph* = 
+define variable *scene-graph* = 
   make(<container-node>, children: 
          vector(make(<line-grid>),
                 make(<transform>, scale: #[0.1, 0.1, 0.1], 
@@ -196,6 +196,8 @@ define variable display-func :: <function> = callback-method() => ();
 end;
 
 define method main(progname, #rest arguments)
+  *scene-graph* := parse-vrml("ampel2.wrl");
+  
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
   glutInitWindowSize(500, 500);
 //  glutWarpPointer(250, 250);

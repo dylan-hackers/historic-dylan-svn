@@ -8,3 +8,9 @@ indexed-face-set.c
 heap.c
 cc-vrml-viewer-files.mak
 .libs
+errno.dylan
+gettimeofday.dylan
+node.c
+errno.c
+gettimeofday.c
+vrml-parser.c
