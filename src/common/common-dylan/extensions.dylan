@@ -57,7 +57,7 @@ end function;
 //=========================================================================
 //  Finding yourself and your arguments; exiting.
 
-define function get-argc () => (argc :: <integer>)
+define function get-argc() => (argc :: <integer>)
   let argc = application-argc();
   if (argc < 1)
     error("Runtime is corrupted: application_argc = %d", argc());
@@ -109,34 +109,15 @@ end;
 
 define constant $digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-// Don't inline this. We are essentially doing manual copy-down.
 define method integer-to-string
     (integer :: <general-integer>,
      #key base :: type-union(limited(<integer>, min: 2, max: 36)) = 10,
           size: desired-size :: false-or(<integer>),
           fill :: <character> = '0')
  => (string :: <byte-string>);
-  integer-to-string-aux(<general-integer>, integer, base, desired-size, fill)
-end method;
-
-// Don't inline this. We are essentially doing manual copy-down.
-define method integer-to-string
-    (integer :: <integer>,
-     #key base :: type-union(limited(<integer>, min: 2, max: 36)) = 10,
-          size: desired-size :: false-or(<integer>),
-          fill :: <character> = '0')
- => (string :: <byte-string>);
-  integer-to-string-aux(<integer>, integer, base, desired-size, fill)
-end method;
-
-// The body of the manual copy-down. There's not much point in 
-// specifying the argument types.
-define inline-only method integer-to-string-aux
-    (integer-class :: subclass(<general-integer>), integer, base, desired-size, fill)
- => (string :: <byte-string>);
   local
     method collect
-        (value :: integer-class, digits :: <list>, count :: <integer>)
+        (value :: <general-integer>, digits :: <list>, count :: <integer>)
      => (digits :: <list>, count :: <integer>);
       let (quotient, remainder) = floor/(value, base);
       let digits = pair($digits[as(<integer>, remainder)], digits);
@@ -170,12 +151,11 @@ define inline-only method integer-to-string-aux
     returned-string[0] := '-';
   end if;
 
-  // iterate over the list in reverse so we don't have to reverse it
   for(digit in digits, index from string-size - count)
     returned-string[index] := digit;
   end for;
   returned-string;
-end method integer-to-string-aux;
+end method integer-to-string;
 
 #if (~bootstrap)
 define constant $minimum-normalized-single-significand :: <extended-integer>
@@ -185,7 +165,6 @@ define constant $minimum-normalized-double-significand :: <extended-integer>
 define constant $minimum-normalized-extended-significand :: <extended-integer>
   = ash(#e1, float-digits(1.0x0) - 1);
 
-// Don't inline this. We are essentially doing manual copy-down.
 define method float-to-string 
     (v :: <single-float>)
  => (string :: <byte-string>);
@@ -193,7 +172,6 @@ define method float-to-string
                       $minimum-normalized-single-significand);
 end method;
 
-// Don't inline this. We are essentially doing manual copy-down.
 define method float-to-string 
     (v :: <double-float>)
  => (string :: <byte-string>);
@@ -201,7 +179,6 @@ define method float-to-string
                       $minimum-normalized-double-significand);
 end method;
 
-// Don't inline this. We are essentially doing manual copy-down.
 define method float-to-string 
     (v :: <extended-float>)
  => (string :: <byte-string>);
@@ -209,7 +186,6 @@ define method float-to-string
                       $minimum-normalized-extended-significand);
 end method;
 
-// The body of the manual copy-down.
 define inline-only method float-to-string-aux
     (v :: <float>,
      minimum-exponent :: <integer>,
@@ -364,24 +340,22 @@ define inline-only method float-to-string-aux
     end if;
   end if;
   as(<byte-string>, s);
-end method float-to-string-aux;
+end method;
 #endif
 
 define open generic number-to-string
     (number :: <number>) => (string :: <string>);
 
-define sealed inline method number-to-string (integer :: <general-integer>) => (string :: <string>);
+define method number-to-string (integer :: <general-integer>) => (string :: <string>);
   integer-to-string(integer, base: 10);
 end method number-to-string;
 
 #if (~bootstrap)
-define sealed inline method number-to-string (float :: <float>) => (string :: <string>);
+define method number-to-string (float :: <float>) => (string :: <string>);
   float-to-string(float);
 end method number-to-string;
 #endif
 
-// To do: Perhaps we should implement string-to-general-integer too
-// or make this one more general
 define method string-to-integer
     (string :: <byte-string>,
      #key base :: <integer> = 10, 
