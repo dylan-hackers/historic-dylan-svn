@@ -14,4 +14,20 @@ define function force-format(s :: <stream>, fmt :: <string>, #rest args) => ()
   force-output(s);
 end function force-format;
 
+define method choose-one (pred? :: <function>, s :: <sequence>,
+                          #key default = $unsupplied) => <object>;
+  block(return)
+    for (x in s)
+      when (x.pred?)
+        return(x)
+      end when;
+    finally
+      if (default.unsupplied?)
+        error("choose-one: no key satisfies the predicate!")
+      else
+        default
+      end if;
+    end for;
+  end block;
+end method choose-one;
 
