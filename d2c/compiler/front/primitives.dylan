@@ -351,83 +351,140 @@ define-primitive
   (#"throw", #(#"<raw-pointer>", #"cluster"), #(union:));
 
 
-// Fixnum operations.
+// Number operation macros
 
-for (name in #[#"fixnum-=", #"fixnum-<"])
-  define-primitive
-    (name, #(#"<integer>", #"<integer>"), #"<boolean>",
-     cseable: #t);
-end;
+define macro number-primitives-definer
+  { define number-primitives ?:name
+      ?operand-class:expression end }
+    => { 
+        for (primitive in #[?#"name" ## "-=", ?#"name" ## "-<"])
+          define-primitive
+            (primitive, #(?#"operand-class", ?#"operand-class"),
+             #"<boolean>", cseable: #t);
+        end;
 
-for (name in #[#"fixnum-+", #"fixnum-*", #"fixnum--", #"fixnum-logior",
-		 #"fixnum-logxor", #"fixnum-logand", #"fixnum-shift-left",
-		 #"fixnum-shift-right", #"fixnum-logical-shift-right",
-                 #"fixnum-/"])
-  define-primitive
-    (name, #(#"<integer>", #"<integer>"), #"<integer>",
-     cseable: #t);
-end;
+        for (primitive in #[?#"name" ## "-+",
+                            ?#"name" ## "-*",
+                            ?#"name" ## "--"])
+          define-primitive
+            (primitive, #(?#"operand-class", ?#"operand-class"),
+             ?#"operand-class", cseable: #t);
+        end;
 
-for (name in #[#"fixnum-negative", #"fixnum-lognot"])
-  define-primitive
-    (name, #(#"<integer>"), #"<integer>",
-     cseable: #t);
-end;
+        for (primitive in #[?#"name" ## "-negative", ?#"name" ## "-lognot"])
+          define-primitive
+            (primitive, #(?#"operand-class"), ?#"operand-class",
+             cseable: #t);
+        end;
   
-define-primitive
-  (#"fixnum-divide", #(#"<integer>", #"<integer>"),
-   #(values:, #"<integer>", #"<integer>"),
-   cseable: #t);
+        define-primitive
+          (?#"name" ## "-divide", #(?#"operand-class", ?#"operand-class"),
+           #(values:, ?#"operand-class", ?#"operand-class"),
+           cseable: #t); }
+end macro;
+
+define macro integer-primitives-definer
+  { define integer-primitives ?:name
+  ?operand-class:expression end }
+    => {
+        define number-primitives ?name ?operand-class end;
+
+        for (primitive in #[?#"name" ## "-logior",
+                            ?#"name" ## "-logxor",
+                            ?#"name" ## "-logand"])
+          define-primitive
+            (primitive, #(?#"operand-class", ?#"operand-class"),
+             ?#"operand-class", cseable: #t);
+        end;
+        }
+end macro;
+
+define macro float-primitives-definer
+  { define float-primitives ?:name
+    ?operand-class:expression end }
+    => {
+        define number-primitives ?name ?operand-class end;
+
+        define-primitive
+          ("fixed-as-" ## ?#"name", #(#"<integer>"),
+           ?#"operand-class", cseable: #t);
+
+        define-primitive
+          ("dblfix-as-" ## ?#"name", #(#"<double-integer>"),
+           ?#"operand-class", cseable: #t);
+
+        for (primitive in #[?#"name" ## "-<=",
+                            ?#"name" ## "-~="])
+          define-primitive
+            (primitive, #(?#"operand-class", ?#"operand-class"),
+             #"<boolean>", cseable: #t);
+        end;
+
+        define-primitive
+           (?#"name" ## "-/", #(?#"operand-class", ?#"operand-class"),
+            ?#"operand-class", cseable: #t);
+
+        for (primitive in #[?#"name" ## "-abs", ?#"name" ## "-negative"])
+          define-primitive
+            (primitive, #(?#"operand-class"), ?#"operand-class",
+             cseable: #t);
+        end;
+
+        for (primitive in #[?#"name" ## "-floor",
+                            ?#"name" ## "-ceiling",
+                            ?#"name" ## "-round"])
+          define-primitive
+            (primitive, #(?#"operand-class"),
+             #(values:, #"<integer>", ?#"operand-class"),
+             cseable: #t);
+        end;
+        
+        define-primitive
+          (?#"name" ## "-decode", #(?#"operand-class"),
+           #(values:, ?#"operand-class", #"<integer>"), cseable: #t);
+        
+        define-primitive
+          (?#"name" ## "-scale", #(?#"operand-class", #"<integer>"),
+           ?#"operand-class", cseable: #t); }
+end macro;
+
+
+
+// Fixnum operations
+
+for (primitive in #[#"fixnum-shift-left", #"fixnum-shift-right",
+                    #"fixnum-logical-shift-right"])
+  define-primitive
+    (primitive, #(#"<integer>", #"<integer>"), #"<integer>",
+     cseable: #t);
+end;
+
+define integer-primitives fixnum <integer> end;
 
 define-primitive
   (#"dblfix-as-fixed", #(#"<double-integer>"), #"<integer>", cseable: #t);
+
    
 
 // Double-wide fixnum operations.
 
-for (name in #[#"dblfix-=", #"dblfix-<"])
-  define-primitive
-    (name, #(#"<double-integer>", #"<double-integer>"), #"<boolean>",
-     cseable: #t);
-end;
+define integer-primitives dblfix <double-integer> end;
 
-for (name in #[#"dblfix-+", #"dblfix-*", #"dblfix--", #"dblfix-logior",
-		 #"dblfix-logxor", #"dblfix-logand", #"dblfix-/"])
+for (primitive in #[#"dblfix-shift-left", #"dblfix-shift-right"])
   define-primitive
-    (name, #(#"<double-integer>", #"<double-integer>"), #"<double-integer>",
+    (primitive, #(#"<double-integer>", #"<integer>"), #"<double-integer>",
      cseable: #t);
 end;
-
-for (name in #[#"dblfix-shift-left", #"dblfix-shift-right"])
-  define-primitive
-    (name, #(#"<double-integer>", #"<integer>"), #"<double-integer>",
-     cseable: #t);
-end;
-
-for (name in #[#"dblfix-negative", #"dblfix-lognot"])
-  define-primitive
-    (name, #(#"<double-integer>"), #"<double-integer>",
-     cseable: #t);
-end;
-  
-define-primitive
-  (#"dblfix-divide", #(#"<double-integer>", #"<double-integer>"),
-   #(values:, #"<double-integer>", #"<double-integer>"),
-   cseable: #t);
 
 define-primitive
   (#"fixed-as-dblfix", #(#"<integer>"), #"<double-integer>", cseable: #t);
+
    
 
 // Single float operations.
 
-define-primitive
-  (#"fixed-as-single", #(#"<integer>"), #"<single-float>", cseable: #t);
-   
-define-primitive
-  (#"dblfix-as-single", #(#"<double-integer>"), #"<single-float>",
-   cseable: #t);
-   
+define float-primitives single <single-float> end;
+
 define-primitive
   (#"double-as-single", #(#"<double-float>"), #"<single-float>", cseable: #t);
    
@@ -435,51 +492,12 @@ define-primitive
   (#"extended-as-single", #(#"<extended-float>"), #"<single-float>",
    cseable: #t);
 
-for (name in #[#"single-<", #"single-<=", #"single-=", #"single-~="])
-  define-primitive
-    (name, #(#"<single-float>", #"<single-float>"), #"<boolean>",
-     cseable: #t);
-end;
-
-for (name in #[#"single-+", #"single-*", #"single--"])
-  define-primitive
-    (name, #(#"<single-float>", #"<single-float>"), #"<single-float>",
-     cseable: #t);
-end;
-
-define-primitive
-  (#"single-/", #(#"<single-float>", #"<single-float>"), #"<single-float>");
-
-for (name in #[#"single-abs", #"single-negative"])
-  define-primitive
-    (name, #(#"<single-float>"), #"<single-float>", cseable: #t);
-end;
-
-for (name in #[#"single-floor", #"single-ceiling", #"single-round"])
-  define-primitive
-    (name, #(#"<single-float>"),
-     #(values:, #"<integer>", #"<single-float>"),
-     cseable: #t);
-end;
-
-define-primitive
-  (#"single-decode", #(#"<single-float>"),
-   #(values:, #"<single-float>", #"<integer>"), cseable: #t);
-
-define-primitive
-  (#"single-scale", #(#"<single-float>", #"<integer>"), #"<single-float>",
-   cseable: #t);
 
 
 // Double float operations.
 
-define-primitive
-  (#"fixed-as-double", #(#"<integer>"), #"<double-float>", cseable: #t);
-   
-define-primitive
-  (#"dblfix-as-double", #(#"<double-integer>"), #"<double-float>",
-   cseable: #t);
-   
+define float-primitives double <double-float> end;
+
 define-primitive
   (#"single-as-double", #(#"<single-float>"), #"<double-float>", cseable: #t);
    
@@ -487,53 +505,12 @@ define-primitive
   (#"extended-as-double", #(#"<extended-float>"), #"<double-float>",
    cseable: #t);
 
-for (name in #[#"double-<", #"double-<=", #"double-=",
-		 #"double-~="])
-  define-primitive
-    (name, #(#"<double-float>", #"<double-float>"), #"<boolean>",
-     cseable: #t);
-end;
-
-for (name in #[#"double-+", #"double-*", #"double--"])
-  define-primitive
-    (name, #(#"<double-float>", #"<double-float>"), #"<double-float>",
-     cseable: #t);
-end;
-
-define-primitive
-  (#"double-/", #(#"<double-float>", #"<double-float>"), #"<double-float>");
-
-for (name in #[#"double-abs", #"double-negative"])
-  define-primitive
-    (name, #(#"<double-float>"), #"<double-float>", cseable: #t);
-end;
-
-for (name in #[#"double-floor", #"double-ceiling", #"double-round"])
-  define-primitive
-    (name, #(#"<double-float>"),
-     #(values:, #"<integer>", #"<double-float>"),
-     cseable: #t);
-end;
-
-define-primitive
-  (#"double-decode", #(#"<double-float>"),
-   #(values:, #"<double-float>", #"<integer>"),
-   cseable: #t);
-
-define-primitive
-  (#"double-scale", #(#"<double-float>", #"<integer>"), #"<double-float>",
-   cseable: #t);
 
 
 // Extended float operations.
 
-define-primitive
-  (#"fixed-as-extended", #(#"<integer>"), #"<extended-float>", cseable: #t);
-   
-define-primitive
-  (#"dblfix-as-extended", #(#"<double-integer>"), #"<extended-float>",
-   cseable: #t);
-   
+define float-primitives extended <extended-float> end;
+
 define-primitive
   (#"single-as-extended", #(#"<single-float>"), #"<extended-float>",
    cseable: #t);
@@ -542,42 +519,6 @@ define-primitive
   (#"double-as-extended", #(#"<double-float>"), #"<extended-float>",
    cseable: #t);
 
-for (name in #[#"extended-<", #"extended-<=", #"extended-=",
-		 #"extended-~="])
-  define-primitive
-    (name, #(#"<extended-float>", #"<extended-float>"), #"<boolean>",
-     cseable: #t);
-end;
-
-for (name in #[#"extended-+", #"extended-*", #"extended--"])
-  define-primitive
-    (name, #(#"<extended-float>", #"<extended-float>"), #"<extended-float>",
-     cseable: #t);
-end;
-
-define-primitive
-  (#"extended-/", #(#"<extended-float>", #"<extended-float>"),
-   #"<extended-float>");
-
-for (name in #[#"extended-abs", #"extended-negative"])
-  define-primitive
-    (name, #(#"<extended-float>"), #"<extended-float>", cseable: #t);
-end;
-
-for (name in #[#"extended-floor", #"extended-ceiling", #"extended-round"])
-  define-primitive
-    (name, #(#"<extended-float>"),
-     #(values:, #"<integer>", #"<extended-float>"),
-     cseable: #t);
-end;
-
-define-primitive
-  (#"extended-decode", #(#"<extended-float>"),
-   #(values:, #"<extended-float>", #"<integer>"), cseable: #t);
-
-define-primitive
-  (#"extended-scale", #(#"<extended-float>", #"<integer>"),
-   #"<extended-float>", cseable: #t);
 
 
 // raw pointer operations.

@@ -954,7 +954,6 @@ define-primitive-emitter
 
 //primitive macros
 
-
 define macro binary-primitive-emitter-definer
   { define binary-primitive-emitter ?:name
       operand-representation ?operand-representation:expression
@@ -1073,6 +1072,8 @@ end;
 define macro integer-primitives-emitter-definer
   { define integer-primitives-emitter ?:name ?operand-representation:expression end }
     => {
+        define c-type-primitives-emitter ?name ?operand-representation end;
+
         define binary-operator-emitter ?name ## "-logior"
           c-operator "|"
           operand-representation ?operand-representation
@@ -1123,43 +1124,11 @@ define macro integer-primitives-emitter-definer
         end); }
 end;
 
-
-// Fixnum primitives.
-
-define c-type-primitives-emitter fixnum *long-rep* end;
-define integer-primitives-emitter fixnum *long-rep* end;
-
-define binary-primitive-emitter fixnum-logical-shift-right
-  operand-representation *long-rep*
-  result-representation *long-rep*
-  operation stringify("((unsigned long)", arguments[0], " >> ",
-                      arguments[1], ')')
-end;
-
-
-// Double-width Fixnum primitives.
-
-define c-type-primitives-emitter dblfix *long-long-rep* end;
-define integer-primitives-emitter dblfix *long-long-rep* end;
-
-define unary-primitive-emitter fixed-as-dblfix
-  operand-representation *long-rep*
-  result-representation *long-long-rep*
-  operation stringify("((long long)", arguments[0], ')')
-end;
-
-define unary-primitive-emitter dblfix-as-fixed
-  operand-representation *long-long-rep*
-  result-representation *long-rep*
-  operation stringify("((long)", arguments[0], ')')
-end;
-
-
-
-// Single float primitives.
 define macro float-primitives-emitter-definer
   { define float-primitives-emitter ?:name ?operand-representation:expression end }
     => {
+        define c-type-primitives-emitter ?name ?operand-representation end;
+
         define binary-operator-emitter ?name ## "-/"
           c-operator "/"
           operand-representation ?operand-representation
@@ -1196,6 +1165,42 @@ define macro float-primitives-emitter-definer
 end;
 
 
+
+// Fixnum primitives.
+
+define integer-primitives-emitter fixnum *long-rep* end;
+
+define binary-primitive-emitter fixnum-logical-shift-right
+  operand-representation *long-rep*
+  result-representation *long-rep*
+  operation stringify("((unsigned long)", arguments[0], " >> ",
+                      arguments[1], ')')
+end;
+
+
+
+// Double-width Fixnum primitives.
+
+define integer-primitives-emitter dblfix *long-long-rep* end;
+
+define unary-primitive-emitter fixed-as-dblfix
+  operand-representation *long-rep*
+  result-representation *long-long-rep*
+  operation stringify("((long long)", arguments[0], ')')
+end;
+
+define unary-primitive-emitter dblfix-as-fixed
+  operand-representation *long-long-rep*
+  result-representation *long-rep*
+  operation stringify("((long)", arguments[0], ')')
+end;
+
+
+
+// Single float primitives.
+
+define float-primitives-emitter single *float-rep* end;
+
 define unary-primitive-emitter fixed-as-single
   operand-representation *long-rep*
   result-representation *float-rep*
@@ -1213,9 +1218,6 @@ define unary-primitive-emitter extended-as-single
   result-representation *float-rep*
   operation stringify("((float)", arguments[0], ')')
 end;
-
-define c-type-primitives-emitter single *float-rep* end;
-define float-primitives-emitter single *float-rep* end;
 
 define unary-primitive-emitter single-abs
   operand-representation *float-rep*
@@ -1255,8 +1257,11 @@ define-primitive-emitter
                     *float-rep*, #f, file);
    end);
 
+
 
 // Double float primitives.
+
+define float-primitives-emitter double *double-rep* end;
 
 define unary-primitive-emitter fixed-as-double
   operand-representation *long-rep*
@@ -1275,9 +1280,6 @@ define unary-primitive-emitter extended-as-double
   result-representation *double-rep*
   operation stringify("((double)", arguments[0], ')')
 end;
-
-define c-type-primitives-emitter double *double-rep* end;
-define float-primitives-emitter double *double-rep* end;
 
 define unary-primitive-emitter double-abs
   operand-representation *double-rep*
@@ -1316,8 +1318,12 @@ define-primitive-emitter
      deliver-result(results, stringify("ldexp(", x, ",", y, ")"),
                     *double-rep*, #f, file);
    end);
+
+
 
 // Extended float primitives.
+
+define float-primitives-emitter extended *long-double-rep* end;
 
 define unary-primitive-emitter fixed-as-extended
   operand-representation *long-rep*
@@ -1336,9 +1342,6 @@ define unary-primitive-emitter double-as-extended
   result-representation *long-double-rep*
   operation stringify("((long double)", arguments[0], ')')
 end;
-
-define c-type-primitives-emitter extended *long-double-rep* end;
-define float-primitives-emitter extended *long-double-rep* end;
 
 define unary-primitive-emitter extended-abs
   operand-representation *long-double-rep*
@@ -1377,6 +1380,8 @@ define-primitive-emitter
      deliver-result(results, stringify("ldexpl(", x, ",", y, ")"),
                     *long-double-rep*, #f, file);
    end);
+
+
 
 // raw pointer operations.
 
