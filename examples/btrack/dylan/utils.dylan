@@ -10,3 +10,11 @@ define method as
 end;
 
 
+define class <btrack-exception> (<simple-error>)
+end;
+
+// Thrown when a field in a web form fails to validate.
+//
+define class <invalid-form-field-exception> (<btrack-exception>)
+end;
+

@@ -10,6 +10,8 @@ files:	library
 	bugs
 	main
 subprojects:	..\..\..\koala\sources\koala\koala.hdp
+	..\..\..\koala\sources\dylan-basics\dylan-basics.hdp
+	..\..\..\koala\sources\xml-rpc-common\xml-rpc-common.hdp
 base-address:	0x63FE0000
 start-function:	main
 linker-options:	$(guilflags)

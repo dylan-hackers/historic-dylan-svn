@@ -3,28 +3,62 @@ Author: Carl Gay
 Synopsis: Database record read/write/cache code.
 
 
-// Sadly, since the SQL-ODBC library doesn't allow for accessing column
-// data by name, only by position, we have to keep a mapping that 
-// duplicates the information in the schema file (btrack.sql) here.
-
 // ---TODO: slot initializers (e.g., "slot foo = 0") don't work.
 //          use the init-value: workaround for now.
 // ---TODO: Make column-name default to slot name with any dashes converted
 //          to underscores.
 // ---TODO: Figure a convenient way to allow subclasses to override the
 //          column name/index for slots defined in superclasses.
+// ---TODO: Allow non-database slots.  Right now the save-record method
+//          assumes all slots are stored in the database.
 
 
 // -------------------base record machinery--------------------------
 
+// ---TODO: required?: #t, max-length: 30, etc.
+// ---TODO: pretty-name: "Foo", for use in displaying error messages about
+//          a specific field.
+
 define macro record-definer
   { define ?modifiers:* record ?:name (?superclasses) ?slots:* end }
   => { define ?modifiers record-class ?name (?superclasses) ?slots end;
-       define record-slots ?name (?superclasses) ?slots end }
+       define record-slots ?name (?superclasses) ?slots end;
+       define record-extras ?name (?superclasses) ?slots end; }
 superclasses:
   { } => { }
   { ?superclass:expression, ... } => { ?superclass, ... }
 end;
+
+// This is for any extra non-slot slots like "table-name: foo".
+//
+define macro record-extras-definer
+  { define record-extras ?:name (?superclasses:*) end }  // stop recursion
+  => { }
+  { define record-extras ?:name (?superclasses:*) 
+      table-name: ?table-name:expression;
+      ?more-slots:*
+    end }
+  => { define method record-table-name (record :: ?name) => (table-name :: <string>)
+         ?table-name
+       end;
+       define record-extras ?name (?superclasses) ?more-slots end;  // recurse
+     }
+  { define record-extras ?:name (?superclasses:*) 
+      ?slot-spec:*;
+      ?more-slots:*
+    end }
+  => { define record-extras ?name (?superclasses) ?more-slots end; }  // recurse
+end;
+
+/*
+define record <account> (<named-record>)
+  table-name: "tbl_account";
+  database slot password :: <string>,
+    init-keyword: #"password",
+    column-number: 5,
+    column-name: "password";
+end;
+*/
 
 // This basically strips out everything that "define class" doesn't handle.
 //
@@ -35,6 +69,7 @@ slots:
   { } => { }
   { ?slot ; ... } => { ?slot ... }
 slot:
+  { table-name: ?foo:expression } => { }             // strip
   { ?modifiers slot ?slot-name:variable }
   => { ?modifiers slot ?slot-name ; }
   { ?modifiers slot ?slot-name:variable , ?keys-and-vals }
@@ -61,25 +96,24 @@ slots:
   { } => { }
   { ?slot ; ... } => { ?slot ... }
 slot:
-  { ?modifiers slot ?slot-name , ?keys-and-vals }
+  { table-name: ?foo:expression } => { }             // strip
+  { ?modifiers:* slot ?slot-name:variable , ?keys-and-vals }
   => { begin
-         //let _database? = ?modifiers;
-         let (_name, _type) = ?slot-name;
+         //let _modifiers = list(?modifiers);
+         // There's got to be a better way to do this...
+         let (_getter, _setter, _type) = decode-slot-name(?modifiers ?slot-name);
          let _args = list(?keys-and-vals);
          add-slot-descriptor(_record-name,
                              apply(make, <slot-descriptor>,
-                                   getter: _name,
+                                   getter: _getter,
+                                   setter: _setter,
                                    type: _type,
-                                   //database?: _database,
                                    _args));
        end ; }
 modifiers:
-  { } => { #f } // didn't find the 'database' modifier
-  { database ... } => { #t }
-  { ?modifier:name ... } => { ?modifier ... }
-slot-name:
-  { ?:name } => { values(?name, <object>) }
-  { ?:name :: ?type:expression } => { values(?name, ?type) }
+  { } => { }
+  { constant ... } => { constant }
+  { ?other:name ... } => { ... }
 keys-and-vals:
   { } => { }
   { column-name:  ?x:expression, ... } => { column-name: ?x, ... }
@@ -91,6 +125,12 @@ keys-and-vals:
   { ?key:token ?x:expression, ... } => { ... }  // remove everything else
 end macro record-slots-definer;
 
+define macro decode-slot-name
+  { decode-slot-name(?:name) } => { values(?name, ?name ## "-setter", <object>) }
+  { decode-slot-name(constant ?:name) } => { values(?name, #f, <object>) }
+  { decode-slot-name(?:name :: ?type:expression) } => { values(?name, ?name ## "-setter", ?type) }
+  { decode-slot-name(constant ?:name :: ?type:expression) } => { values(?name, #f, ?type) }
+end;
 
 // Maps classes to sequences of slot descriptors.
 //
@@ -99,20 +139,43 @@ define constant $slot-descriptor-table = make(<table>);
 // Describes attributes of a slot that relate to database records.
 //
 define class <slot-descriptor> (<object>)
-  // The descriptor is found via its getter.
   constant slot slot-getter :: <function>,
     required-init-keyword: #"getter";
+  constant slot slot-setter :: false-or(<function>) = #f,
+    init-keyword: #"setter";
+
+  // Sadly, since the SQL-ODBC library doesn't allow for accessing column
+  // data by name, only by position, we have to keep track of the database
+  // column here.
   constant slot slot-column-number :: <integer>,
     required-init-keyword: #"column-number";
+
+  // Must match the name of the column in the database schema where this
+  // record is stored.  Is also used as the input field name in the web
+  // page where this record is edited, since Dylan identifiers won't always
+  // play well with web tools like Javascript.  (i.e., underscore vs dash).
   constant slot slot-column-name :: false-or(<string>) = #f,
     init-keyword: #"column-name";
+
+  // The dylan type for values stored in the dylan record object.
   constant slot slot-type :: <type> = <object>,
     init-keyword: #"type";
+
   constant slot slot-init-keyword :: false-or(<symbol>) = #f,
     init-keyword: #"init-keyword";
+
+  // A symbol representing a database type, e.g. #"varchar".  This is just
+  // used for method dispatch in a few cases where the dylan type isn't specific
+  // enough.  e.g., <string> maps to both VARCHAR and CHAR(n).
   constant slot slot-database-type :: false-or(<symbol>) = #f,
     init-keyword: #"database-type";
-end;
+
+  // Whether a value must be specified for this slot/input field in the web <form>.
+  constant slot slot-required? :: <boolean> = #f,
+    init-keyword: #"required?";
+
+end class <slot-descriptor>;
+
 
 define method add-slot-descriptor
     (class :: <class>, desc :: <slot-descriptor>)
@@ -132,6 +195,7 @@ define method slot-descriptors
   descriptors
 end;
 
+
 // Base class of all record types (account, bug-reports, etc).
 //
 define primary record <database-record> (<object>)
@@ -140,6 +204,11 @@ define primary record <database-record> (<object>)
     required-init-keyword: #"id",
     column-name: "account_id",   // ---TODO: change to record_id
     column-number: 0;
+end;
+
+define method new?
+    (record :: <database-record>) => (new? :: <boolean>)
+  record-id(record) = 0
 end;
 
 define primary record <modifiable-record> (<database-record>)
@@ -355,6 +424,7 @@ create table tbl_account (
 */
 
 define record <account> (<named-record>)
+  table-name: "tbl_account";
   database slot password :: <string>,
     init-keyword: #"password",
     column-number: 5,
@@ -376,6 +446,7 @@ define record <account> (<named-record>)
     column-number: 9,
     column-name: "role";
 end;
+
 
 // This needs to come after <account>.
 //
@@ -413,6 +484,53 @@ end;
 define method load-all-accounts
     () => (accounts :: <sequence>)
   load-records(<account>, "select * from tbl_account");
+end;
+
+
+
+define method save-record
+    (record :: <database-record>)
+  // ---TODO: build the SQL string once and cache it in an each-subclass slot.
+  //          (unless we're only going to write changed fields.)
+  let slots = slot-descriptors(object-class(record));
+  local method updater-string (slot)
+          format-to-string("%s = ?", slot-column-name(slot))
+        end;
+  let query
+    = if (new?(record))
+        format-to-string("insert into %s (%s) values (%s) where account_id = %d", // ---TODO
+                         record-table-name(record),
+                         join(slots, ",", key: slot-column-name),
+                         join(slots, ",", key: method (x) "?" end),
+                         record-id(record))
+      else
+        format-to-string("update %s set %s where account_id = %d", //---TODO
+                         record-table-name(record),
+                         join(slots, ",", key: updater-string),
+                         record-id(record))
+      end;
+  with-database-connection (conn)
+    let statement = make(sql$<sql-statement>, text: query);
+    local method database-slot-values (record)
+            let slot-values = make(<stretchy-vector>);
+            // ---TODO: This assumes that all slots get stored in the database.
+            //          Need to allow for non-database slots.
+            map-into(slot-values, method (slot) slot-getter(slot)(record) end, slots);
+          end;
+    sql$execute(statement, parameters: database-slot-values(record));
+  end;
+end;
+
+// Subclasses must implement this for each "top-level" record type.
+// This can be done with the table-name argument to "define record".
+//
+define generic record-table-name
+    (record :: <database-record>) => (table-name :: <string>);
+
+define method record-table-name
+    (record :: <database-record>) => (table-name :: <string>)
+  error("No record-table-name method is defined for this record's class. (%=)",
+        record);
 end;
 
 
