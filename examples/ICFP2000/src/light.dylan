@@ -151,7 +151,7 @@ end method can-see;
 define method can-see(o :: <obj>, point :: <3D-point>, l :: <flashlight>)
  => (unblocked :: <boolean>)
   let ray-to-light = normalize(l.location - point);
-  if (abs(normalize(ray-to-light) * normalize(-l.direction)) <
+  if (abs(ray-to-light * normalize(-l.direction)) <
 	cos(l.cutoff))
     #f;
   else
