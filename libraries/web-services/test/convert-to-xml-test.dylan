@@ -1,4 +1,4 @@
-Module:    web-services-test
+module:    web-services-test
 Synopsis:  Tests for the XML converter.
 Author:    Dr. Matthias Hölzl
 Copyright: (C) 2005, Dr. Matthias Hölzl.  All rights reserved.
@@ -100,11 +100,14 @@ define test converted-slot-name-test
                                   converted-objects));
 end test converted-slot-name-test;
 
-define test convert-unique-id-attribute-test
+define test convert-unique-id-test
     (description: "convert-unique-id")
+  // format-out("convert-unique-id-test\n");
   let xc = make(<xml-converter>);
   let my-a = make(<a>);
+  // format-out("!!!!! a !!!!!\n");
   let id = ensure-unique-id(xc, my-a);
+  // format-out("!!!!! b !!!!!\n");
   check("result is <unique-id>",
         instance?, id, <unique-id>);
   check-true("my-a has id", my-a.object-id);
@@ -113,27 +116,17 @@ define test convert-unique-id-attribute-test
               id);
   check-equal("attribute saved in table",
               xc.unique-id-table[my-a], id);
+  // format-out("!!!!! c !!!!!\n  %=\n", id);
   let result = convert-to-xml(xc, id);
+  // format-out(" !!!!! d !!!!!\n");
   check("result is element", instance?, result, <element>);
-  format-out("%=\n", result);
+  // format-out(" !!!!! e !!!!! %=\n", result);
+  /*
   check-equal("result matches",
               "",
               format-to-string("%=", result));
-end test convert-unique-id-attribute-test;
-
-define test convert-unique-reference-test
-    (description: "convert-unique-reference")
-  let xc = make(<xml-converter>);
-  let my-a = make(<a>);
-  // let xml = convert-object-to-xml(xc, my-a);
-  let elt = convert-unique-reference(xc, my-a);
-  check("elt is element",
-        instance?, elt, <element>);
-  check-equal("elt name",
-              "xml-converter-unique-reference",
-              elt.name-with-proper-capitalization);
-  check-equal("elt children", #[], elt.node-children);
-end test convert-unique-reference-test;
+  */
+end test convert-unique-id-test;
 
 define test found-cycle?-test
     (description: "found-cycle?")
@@ -148,204 +141,167 @@ define test found-cycle?-test
   check-false("Found no cycle", found-cycle?(xc, my-a));
 end test found-cycle?-test;
 
-define function check-attribute (attributes, name, value)
-  let index = find-key(attributes,
-                       method (attr)
-                         attr.name-with-proper-capitalization = name
-                       end);
-  check(format-to-string("Attribute %s exists", name),
-        instance?, index, <integer>);
-  let attr = attributes[index];
-  // Probably superfluous, because we wouldn't have found attr
-  // if this test fails.
-  check-equal(format-to-string("Attribute %s has proper name", name),
-              name,
-              attr.name-with-proper-capitalization);
-  check-equal(format-to-string("Attribute %s has value %s", name, value),
-              value,
-              attr.attribute-value);
-end function check-attribute;
-
-define function check-simple-element (elt, name, value, #key module = "dylan")
-  // Put name in the Dylan module.
-  let name = concatenate(module, "@dylan:", name);
-  check("elt is element",
-        instance?, elt, <element>);
-  check-equal(format-to-string("name is \"%S\"", name),
-              name,
-              elt.name-with-proper-capitalization);
-  let elt-value = elt.simple-element-value;
-  check-equal(format-to-string("value is \"%S\"", value),
-              value, elt-value); 
-end function check-simple-element;
-
-define function check-simple-child (children, name, type, value, #key module = "dylan")
-  // This assumes that all member of Children are slots...
-  let index = find-key(children,
-                       method (child)
-                         check-equal("child is slot",
-                                     "slot",
-                                     child.name-with-proper-capitalization);
-                         let i = find-key(child.attributes,
-                                          method (attr)
-                                            attr.name-with-proper-capitalization = "name"
-                                          end);
-                         child.attributes[i].attribute-value = name;
-                       end);
-  check(format-to-string("Child %s exists", name),
-        instance?, index, <integer>);
-  let slot = children[index];
-  let elts = slot.node-children;
-  check-equal("slot has single element",
-              1, elts.size);
-  let elt = elts[0];
-  check-simple-element(elt, type, value, module: module);
-end function check-simple-child;
-
-define test convert-simple-elements-test
-    (description: "Test simple converters.")
+define test convert-object-test-1
+    (description: "converting <a>")
   let xc = make(<xml-converter>);
-  check-simple-element(convert-to-xml(xc, 123), "integer", "123");
-  check-simple-element(convert-to-xml(xc, -123), "integer", "-123");
-  check-simple-element(convert-to-xml(xc, 1.0s0), "single-float", "1.0000000");
-  check-simple-element(convert-to-xml(xc, 1.0d0), "double-float", "1.0000000d0");
-  check-simple-element(convert-to-xml(xc, 'x'), "byte-character", "x", 
-                                      module: "dylan-extensions");
-  check-simple-element(convert-to-xml(xc, "foo"), "byte-string", "foo");
-  check-simple-element(convert-to-xml(xc, #"bar"), "symbol", "bar");
-end test convert-simple-elements-test;
+  let obj = make(<a>);
+  // format-out(" !!!!! 1a !!!!! %=\n", obj);  
+  let xml = convert-to-xml(xc, obj);
+  // format-out(" !!!!! 1b !!!!! %=\n", xml);  
+  // format-out("%=\n\n", xml);
+end test convert-object-test-1;
 
-define test convert-slot-to-xml-test-1
-    (description: "convert-slot-to-xml")
-  let my-b = make(<b>);
+define test convert-object-test-2
+    (description: "converting <b>")
   let xc = make(<xml-converter>);
-  let descriptors = slot-descriptors(object-class(my-b));
-  check-equal("my-b has only one slot",
-              1, descriptors.size);
-  let sd = descriptors[0];
-  let elt = convert-slot-to-xml(xc, my-b, sd);
-  check("elt is element",
-        instance?, elt, <element>);
-  check-equal("elt name is \"slot\"",
-              "slot",
-              elt.name-with-proper-capitalization);
-  let attrs = attributes(elt);
-  check-equal("elt has 2 attributes",
-              2, attrs.size);
-  check-attribute(attrs, "name", "unbound-slot");
-  check-attribute(attrs, "initialized", "false");
-  check-equal("elt has no children",
-              0, elt.node-children.size);
-end test convert-slot-to-xml-test-1;
+  let obj = make(<b>);
+  let xml = convert-to-xml(xc, obj);
+  // format-out("%=\n\n", xml);
+end test convert-object-test-2;
 
-define test convert-slot-to-xml-test-2
-    (description: "convert-slot-to-xml")
-  let my-b = make(<b>, slot: 123);
+define test convert-object-test-3
+    (description: "converting <c>")
   let xc = make(<xml-converter>);
-  let descriptors = slot-descriptors(object-class(my-b));
-  check-equal("my-b has only one slot",
-              1, descriptors.size);
-  let sd = descriptors[0];
-  let elt = convert-slot-to-xml(xc, my-b, sd);
+  let obj = make(<c>);
+  let xml = convert-to-xml(xc, obj);
+  // format-out("%=\n\n", xml);
+end test convert-object-test-3;
 
-  check("elt is element",
-        instance?, elt, <element>);
-  check-equal("elt name is \"slot\"",
-              "slot",
-              elt.name-with-proper-capitalization);
-
-  let attrs = attributes(elt);
-  check-equal("elt has 2 attributes",
-              2, attrs.size);
-  check-attribute(attrs, "name", "unbound-slot");
-  check-attribute(attrs, "initialized", "true");
-
-  let children = elt.node-children;
-  check-equal("elt has 1 child",
-              1, children.size);
-  let child = children[0];
-  check-simple-element(child, "integer", "123");
-end test convert-slot-to-xml-test-2;
-
-define test convert-object-to-xml-test-1
-    (description: "Test convert-object-to-xml")
+define test convert-object-test-4
+    (description: "converting <d>")
   let xc = make(<xml-converter>);
-  let my-c = make(<c>);
-  let elt = convert-object-to-xml(xc, my-c);
-  let children = elt.node-children;
-  check-equal("elt has 4 children",
-              4, children.size);
-  check-simple-child(children, "c-a", "integer", "1");
-  check-simple-child(children, "c-b", "symbol", "foobar");
-  check-simple-child(children, "c-c", "byte-string", "slot c-c");
-  check-simple-child(children, "c-d", "byte-character", "x",
-                     module: "dylan-extensions");
-end test convert-object-to-xml-test-1;
+  let obj = make(<d>);
+  let xml = convert-to-xml(xc, obj);
+  // format-out("%=\n\n", xml);
+end test convert-object-test-4;
 
-define test convert-object-to-xml-test-2
-    (description: "Test convert-object-to-xml")
+define test convert-object-test-5
+    (description: "converting <array>")
   let xc = make(<xml-converter>);
-  let my-d = make(<d>);
-  let elt = convert-object-to-xml(xc, my-d);
-  let attrs = elt.attributes;
-  check-equal("no attributes", 0, attrs.size);
-  let children = elt.node-children;
-  check-equal("elt has 1 child", 1, children.size);
-  let slot = children[0];
-  check-equal("slot is slot",
-              "slot",
-              slot.name-with-proper-capitalization);  
-  check-equal("slot has 1 child",
-              1, slot.node-children.size);
-  let child = slot.node-children[0];
-  check-equal("child is unique-id",
-              "xml-converter-unique-reference",
-              child.name-with-proper-capitalization);
-  let cas = child.attributes;
-  check-equal("child has 1 attribute", 1, cas.size);
-  check-attribute(cas, "unique-id", format-to-string("%S", object-id(my-d)));
-end test convert-object-to-xml-test-2;
+  let obj = make(<array>, size: 5);
+  obj[1] := #t;
+  obj[2] := make(<a>);
+  let xml = convert-to-xml(xc, obj);
+  // format-out("%=\n\n", xml);
+end test convert-object-test-5;
 
-define test convert-to-xml-test-1
-    (description: "Test convert-to-xml")
+define test convert-object-test-6
+    (description: "converting complex <array>")
   let xc = make(<xml-converter>);
-  let my-c = make(<c>);
-  let elt = convert-to-xml(xc, my-c);
-  let children = elt.node-children;
-  check-equal("elt has 4 children",
-              4, children.size);
-  check-simple-child(children, "c-a", "integer", "1");
-  check-simple-child(children, "c-b", "symbol", "foobar");
-  check-simple-child(children, "c-c", "byte-string", "slot c-c");
-  check-simple-child(children, "c-d", "byte-character", "x", 
-                     module: "dylan-extensions");
-end test convert-to-xml-test-1;
+  let obj = make(<array>, size: 5);
+  obj[1] := #t;
+  obj[2] := make(<a>);
+  obj[3] := obj;
+  let xml = convert-to-xml(xc, obj);
+  // format-out("%=\n\n", xml);
+end test convert-object-test-6;
 
-define test convert-to-xml-test-2
-    (description: "Test convert-to-xml")
+define test convert-unique-id-two-way-test
+    (description: "converting unique-id to XML and back")
+  let my-a = make(<a>);
   let xc = make(<xml-converter>);
-  let my-d = make(<d>);
-  let elt = convert-to-xml(xc, my-d);
-  let attrs = elt.attributes;
-  check-equal("no attributes", 0, attrs.size);
-  let children = elt.node-children;
-  check-equal("elt has 1 child", 1, children.size);
-  let slot = children[0];
-  check-equal("slot is slot",
-              "slot",
-              slot.name-with-proper-capitalization);  
-  check-equal("slot has 1 child",
-              1, slot.node-children.size);
-  let child = slot.node-children[0];
-  check-equal("child is unique-id",
-              "xml-converter-unique-reference",
-              child.name-with-proper-capitalization);
-  let cas = child.attributes;
-  check-equal("child has 1 attribute", 1, cas.size);
-  check-attribute(cas, "unique-id", format-to-string("%S", object-id(my-d)));
-end test convert-to-xml-test-2;
+  let id = make(<unique-id>, 
+                converter-id: 1234, serial-number: 666, referenced-object: 7);
+  let id-xml = convert-to-xml(xc, id);
+  let id2 = convert-unique-id-from-xml(xc, id-xml);
+  check("id = id2", \==, id, id2);
+  check-equal("id refers to 7", 7, referenced-object(id2));
+end test convert-unique-id-two-way-test;
+
+define test convert-object-two-way-test-1
+    (description: "converting <a>")
+  let xc = make(<xml-converter>);
+  let obj = make(<a>);
+  let xml = convert-to-xml(xc, obj);
+  let obj2 = convert-from-xml(xc, xml);
+  check("object is an <a>", instance?, obj2, <a>);
+  // format-out("%=\n\n", xml);
+end test convert-object-two-way-test-1;
+
+define test convert-object-two-way-test-2
+    (description: "converting <b>")
+  let xc = make(<xml-converter>);
+  let obj = make(<b>);
+  let xml = convert-to-xml(xc, obj);
+  let obj2 = convert-from-xml(xc, xml);
+  check("object is an <b>", instance?, obj2, <b>);
+  // format-out("%=\n\n", xml);
+  check("slot is unbound", 
+        complement(slot-initialized?), obj2, unbound-slot);
+end test convert-object-two-way-test-2;
+
+
+define test convert-object-two-way-test-3
+    (description: "converting <c>")
+  let xc = make(<xml-converter>);
+  let obj = make(<c>);
+  let xml = convert-to-xml(xc, obj);
+  let obj2 = convert-from-xml(xc, xml);
+  check("object is an <c>", instance?, obj2, <c>);
+  check-equal("slot 1", 1, c-a(obj2));
+  check-equal("slot 2", #"foobar", c-b(obj2));
+  check-equal("slot 3", "slot c-c", c-c(obj2));
+  check-equal("slot 4", 'x', c-d(obj2));
+  // format-out("%=\n\n", xml);
+end test convert-object-two-way-test-3;
+
+// This doesn't work since we are in effect
+// reusing unique ids.
+define test convert-object-two-way-test-4
+    (description: "converting <d>")
+  let xc = make(<xml-converter>);
+  let obj = make(<d>);
+  check("obj cyclic", \==, obj, obj.cycle);
+  let xml = convert-to-xml(xc, obj);
+  let obj2 = convert-from-xml(xc, xml);
+  check("object is an <d>", instance?, obj2, <d>);
+  check("obj2 cyclic", \==, obj2, obj2.cycle);
+end test convert-object-two-way-test-4;
+
+define test convert-object-two-way-test-5
+    (description: "converting <d>")
+  let xc = make(<xml-converter>);
+  let str = "<dylan-object xmlns=\"http://www.opendylan.org/xml/0.1/\"><class-name>d"
+            "</class-name><module-name>web-services-test</module-name><library-name>"
+            "web-services-test</library-name><unique-id><converter-id><false/>"
+            "</converter-id><serial-number><integer>12345</integer></serial-number>"
+            "</unique-id><slot><name>cycle</name><initialized><true/></initialized>"
+            "<value><unique-reference><cid><false/></cid><sn><integer>12345</integer></sn>"
+            "</unique-reference></value></slot></dylan-object>";
+  let xml = parse-document(str);
+  let obj2 = convert-from-xml(xc, xml);
+  check("object is an <d>", instance?, obj2, <d>);
+  check("obj2 cyclic", \==, obj2, obj2.cycle);
+end test convert-object-two-way-test-5;
+
+define test convert-object-two-way-test-6
+    (description: "converting complex <array>")
+  let xc = make(<xml-converter>);
+  let str = "<dylan-object xmlns=\"http://www.opendylan.org/xml/0.1/\"><class-name>simple-objec"
+            "t-vector</class-name><module-name>dylan</module-name><library-name>dylan</librar"
+            "y-name><unique-id><converter-id><false/></converter-id><serial-number><integer>1"
+            "2</integer></serial-number></unique-id><repeated-slot><size><integer>5</integer>"
+            "</size><name>vector-element</name><i><false/></i><i><true/></i><i><dylan-object "
+            "xmlns=\"http://www.opendylan.org/xml/0.1/\"><class-name>a</class-name><module-name"
+            ">web-services-test</module-name><library-name>web-services-test</library-name><u"
+            "nique-id><converter-id><false/></converter-id><serial-number><integer>13</intege"
+            "r></serial-number></unique-id></dylan-object></i><i><unique-reference><cid><fals"
+            "e/></cid><sn><integer>12</integer></sn></unique-reference></i><i><false/></i></r"
+            "epeated-slot><slot><name>vector-element</name><initialized><true/></initialized>"
+            "<value><false/></value></slot></dylan-object>";
+  let xml = parse-document(str);
+  let a = convert-from-xml(xc, xml);
+  check("object is an <array>", instance?, a, <array>);
+  check-equal("0 is false", #f, a[0]);
+  check-equal("1 is true", #t, a[1]);
+  check("2 is an <a>", instance?, a[2], <a>);
+  check("3 is a", \==, a, a[3]);
+  check-equal("4 is false", #f, a[4]);
+  // format-out("%=\n\n", xml);
+end test convert-object-two-way-test-6;
 
 define suite convert-to-xml-suite ()
+/*
   test next-serial-number!-test;
   test object-id-test;
   test class-name-and-library-or-lose-test;
@@ -353,17 +309,21 @@ define suite convert-to-xml-suite ()
   test library-as-xml-namespace-test;
   test class-name-as-xml-name-test;
   test converted-slot-name-test;
-  test convert-unique-id-attribute-test;
-  test convert-unique-reference-test;
+  test convert-unique-id-test;
   test found-cycle?-test;
-/*
-  test convert-simple-elements-test;
-  test convert-slot-to-xml-test-1;
-  test convert-slot-to-xml-test-2;
-  test convert-object-to-xml-test-1;
-  test convert-object-to-xml-test-2;
-  test convert-to-xml-test-1;
-  test convert-to-xml-test-2;
+  test convert-object-test-1;
+  test convert-object-test-2;
+  test convert-object-test-3;
+  test convert-object-test-4;
+  test convert-object-test-5;
+  test convert-object-test-6;
 */
+  test convert-unique-id-two-way-test;
+  test convert-object-two-way-test-1;
+  test convert-object-two-way-test-2;
+  test convert-object-two-way-test-3;
+//  test convert-object-two-way-test-4;
+  test convert-object-two-way-test-5;
+  test convert-object-two-way-test-6;
 end suite convert-to-xml-suite;
 

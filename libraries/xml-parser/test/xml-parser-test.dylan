@@ -5,6 +5,7 @@ Copyright: (C) 2005, Dr. Matthias Hölzl.  All rights reserved.
 
 define suite xml-parser-suite ()
   suite namespace-suite;
+  suite macros-suite;
 end suite xml-parser-suite;
 
 define method main () => ()
