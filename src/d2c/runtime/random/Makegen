@@ -1,6 +1,0 @@
-do emit_library_rule(
-    'Random',
-    '../dylan/dylan.lib.du',
-    '-L../dylan',
-    'compile', 'install'
-);

@@ -1,7 +1,0 @@
-do compile_subdirs(
-    'base',
-    'front',
-    'parser',
-    'cback',
-    'main'
-);
