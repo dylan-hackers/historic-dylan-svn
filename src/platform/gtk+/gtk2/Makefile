@@ -6,4 +6,7 @@ gtk.dylan: gtk.intr gtk-includes.h
 	mv gtk.dylan, gtk.dylan
 
 gtk-2.lib.du: gtk.lid gtk-library.dylan gtk-module.dylan gtk.dylan gtk-more-module.dylan gtk-support.dylan
-	CCOPTS=" `pkg-config --cflags gtk+-2.0`" d2c gtk.lid
+	CCOPTS=" `pkg-config --cflags gtk+-2.0`" d2c -g gtk.lid
+
+hello-world: hello-world.dylan gtk-2.lib.du
+	CCOPTS=" `pkg-config --cflags gtk+-2.0`" d2c -g hello-world.dylan

@@ -9,16 +9,46 @@ define constant generic-dylan-marshaller = callback-method
 end;
 */
     
+define constant generic-dylan-marshaller = 
+    callback-method(stub-closure         :: <raw-pointer>,
+                    stub-return-value    :: <raw-pointer>,
+                    stub-n-param-values  :: <integer>,
+                    stub-param-values    :: <raw-pointer>,
+                    stub-invocation-hint :: <raw-pointer>,
+                    stub-marshal-data    :: <raw-pointer>) => ();
+      import-value(<object>, make(<gpointer>, pointer: stub-marshal-data))();
+//      run-command-processor();
+    end;
+
+define function g-signal-connect(instance :: <GObject>, 
+                                  signal :: <byte-string>,
+                                  function :: <function>,
+                                  #key run-after? :: <boolean>)
+//  c-include("gtk/gth.h");
+  let closure = g-closure-new-simple(100, //c-expr(int:, "sizeof(struct GClosure)"),
+                                     #f);
+  g-closure-set-meta-marshal
+    (closure, function, 
+     make(<GClosureMarshal>, 
+          pointer: generic-dylan-marshaller.callback-entry));
+  g-signal-connect-closure(instance, 
+                           signal, 
+                           closure, 
+                           if(run-after?) 1 else 0 end)
+end function g-signal-connect;
+
+/*
 define function g-signal-connect(instance, detailed-signal, c-handler, data)
   g-signal-connect-data (instance, detailed-signal, 
-                         c-handler, as(<gpointer>, data | $null-pointer),
+                         c-handler, data,
                          as(<GClosureNotify>, $null-pointer), 0)
 end function g-signal-connect;
+*/
 
 define function g-signal-connect-swapped
     (instance, detailed-signal, c-handler, data)
   g-signal-connect-data (instance, detailed-signal, 
-                         c-handler, as(<gpointer>, data | $null-pointer),
+                         c-handler, data,
                          as(<GClosureNotify>, $null-pointer), 
                          $G-CONNECT-SWAPPED)
 end function g-signal-connect-swapped;
@@ -31,16 +61,18 @@ define method import-value(cls == <function>, value :: <GCallback>) => (result :
   error("Is this possible?");
 end method import-value;
 
-define method export-value(cls == <gpointer>, the-value :: <object>) 
+define sealed method export-value(cls == <gpointer>, the-value :: <object>) 
  => (result :: <gpointer>);
   make(<gpointer>, 
        pointer: object-address(make(<value-cell>, value: the-value)));
 end method export-value;
 
-define method import-value(cls == <object>, the-value :: <gpointer>) 
- => (result :: <gpointer>);
+define sealed method import-value(cls == <object>, the-value :: <gpointer>) 
+ => (result :: <object>);
   value(heap-object-at(the-value.raw-value));
 end method import-value;
+
+define sealed domain make (singleton(<gpointer>));
 
 define function all-subclasses(x :: <class>)
   => (subclasses :: <collection>)
@@ -61,21 +93,53 @@ define function find-gtype-by-name(name :: <byte-string>)
     end for;
   end block;
 end function find-gtype-by-name;
+
+define function find-gtype(g-type :: <GType>)
+ => (type :: <class>);
+  let dylan-type = element($gtype-table, g-type, default: #f);
+  unless(dylan-type)
+    let type-name = g-type-name(g-type);
+    dylan-type := find-gtype-by-name(type-name);
+    $gtype-table[g-type] := dylan-type;
+  end unless;
+  dylan-type
+end function find-gtype;
   
+// map GTK type IDs to Dylan classes
+define table $gtype-table = {
+                             $G-TYPE-CHAR    => <gchar>,
+                             $G-TYPE-UCHAR   => <guchar>,
+                             $G-TYPE-INT     => <gint>,
+                             $G-TYPE-UINT    => <guint>,
+                             $G-TYPE-LONG    => <glong>,
+                             $G-TYPE-ULONG   => <gulong>,
+                             $G-TYPE-INT64   => <gint64>,
+                             $G-TYPE-UINT64  => <guint64>,
+                             $G-TYPE-FLOAT   => <gfloat>,
+                             $G-TYPE-DOUBLE  => <gdouble>,
+                             $G-TYPE-STRING  => <gstring>,
+                             $G-TYPE-POINTER => <gpointer>,
+                             };
 
 define method make(type :: subclass(<GTypeInstance>), #rest args, 
                    #key pointer, #all-keys)
  => (result :: <GTypeInstance>)
   if(pointer)
     let instance = next-method(<GTypeInstance>, pointer: pointer);
-    let type-name = g-type-name-from-instance(instance);
-    next-method(find-gtype-by-name(type-name), pointer: pointer);
+    let g-type = g-type-from-instance(instance);
+    let dylan-type = find-gtype(g-type);
+    next-method(dylan-type, pointer: pointer);
   else
     next-method();
   end if;
 end method make;
   
-  
+define method g-type-from-instance(instance :: <GTypeInstance>)
+ => (type :: <GType>);
+  c-include("gtk/gtk.h");
+  c-decl("GType g_type_from_instance(gpointer instance) { return G_TYPE_FROM_INSTANCE(instance); }");
+  call-out("g_type_from_instance", int:, ptr: instance.raw-value);
+end method g-type-from-instance;
 
 // Another stupid workaround. Sometimes we need to access mapped types
 // as pointers, and Melange doesn't provide any way to do so. Or does it?

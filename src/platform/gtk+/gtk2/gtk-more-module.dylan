@@ -2,7 +2,9 @@ module: dylan-user
 
 define module gtk-support
   use dylan;
+  use common-dylan;
   use extensions;
+  use common-extensions;
   use introspection;
   use system;
   use format-out;
