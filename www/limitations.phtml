@@ -7,7 +7,7 @@ standard_header("Current Limitations");
 perfect. Each has a number of known problems which make it impractical
 for a range of applications. We're making both available anyways so
 people can get a feel for the language. In more traditional terms,
-Gwydion Dylan <?php current_version();?> corresponds to version 0.5 of
+Gwydion Dylan <?php current_version();?> corresponds to version 0.9 of
 most free software projects: the architecture is sound, but you'd have
 to be a little bit adventurous to use it.</P>
 
@@ -20,14 +20,15 @@ to be a little bit adventurous to use it.</P>
 this problem: they support incremental compilation and match Visual C++ in
 code quality. We'd like to do as well, but it will take a while.
 
-<LI>The Dylan-to-C interface is good, but a little bit flaky.
+<LI>The Dylan-to-C interface is good, but sometimes has problems with
+unusual constructs in system headers.
 
 <LI><STRONG>Debugging is uncomfortable</STRONG>. Although there's now
-support on all platforms for dybug, a gdb wrapper that understands
+support on most platforms for dybug, a gdb wrapper that understands
 Dylan, this can hardly called elegant. But at least it's there.
 
-<LI>d2c doesn't support a few obscure bits of the Dylan language. This
-generally isn't a problem, and is gradually fixed.
+<LI>d2c doesn't support a few obscure bits of the Dylan language,
+though there are fewer and fewer of these left.
 
 <LI>Did we mention debugging is cumbersome?
 
@@ -37,14 +38,16 @@ generally isn't a problem, and is gradually fixed.
 
 <UL>
 
-<LI><STRONG>Mindy generates slow code quickly.</STRONG> You can compile an
-enormous program into bytecodes in a blink of an eye, but it won't run as
-fast as the average Perl script--it certainly won't compete with
-GCC. Because Mindy has such a short turn around time (and a built-in
-debugger), many developers use it to prototype programs.
+<LI><STRONG>Mindy generates slow code quickly.</STRONG> You can
+compile an enormous program into bytecodes in a blink of an eye, but
+it won't run as fast as the average Perl script&mdash;it certainly
+won't compete with GCC. Because Mindy has such a short turn-around
+time (and a built-in debugger), some developers use it to prototype
+programs, or just to make sure source files will compile before
+subjecting them to a (relatively slow) d2c compile.
 
-<LI><STRONG>Mindy doesn't support Dylan macros</STRONG> and a number of other useful
-features.
+<LI><STRONG>Mindy doesn't support Dylan macros</STRONG> and a number
+of other useful features.
 
 <LI>Not much work will be done on Mindy in the future.
 
