@@ -184,7 +184,7 @@ end function find-path;
 
 define constant $not-memoized = #"Not memoized";
 
-define constant $cache = make(<equal-table>);
+/* 
 
 define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
  => (len :: false-or(<integer>))
@@ -196,25 +196,21 @@ define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
   end if;
 end function path-length;
 
-/**** There is a compiler error in trying to refer to $cache.
+*/
 
 define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
  => (len :: false-or(<integer>))
-  debug("path-length(%=, %=, {board})\n", p1, p2);
   let a = cons(p1, p2);
-  let dist = element($cache, a, default: $not-memoized);
-  debug("path-length: dist = %=\n", dist);
+  let dist = element(b.path-length-cache, a, default: $not-memoized);
   when (dist = $not-memoized)
     let path = find-path(p1, p2, b);
-    debug("path-length: path = %=\n", path);
     if (path)
-      $cache[a] := path.size;
+      b.path-length-cache[a] := path.size;
     else
-      $cache[a] := #f;
+      b.path-length-cache[a] := #f;
     end if;
   end when;
   //
-  $cache[a];
+  b.path-length-cache[a];
 end function path-length;
 
-*/
