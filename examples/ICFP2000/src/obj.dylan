@@ -16,6 +16,15 @@ end class <primitive>;
 define class <sphere> (<primitive>)
 end class <sphere>;
 
+define class <plane> (<primitive>)
+end class <plane>;
+
+define class <cube> (<primitive>)
+end class <cube>;
+
+define class <cone> (<primitive>)
+end class <cone>;
+
 /* --------------------- Methods ---------------------------- */
 
 // Translation:
