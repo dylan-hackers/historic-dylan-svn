@@ -3,7 +3,7 @@
  %entities;
 ]>
 <book>
-  <title>&d2c; API documentation</title>
+  <title>&d2c; API Reference</title>
   <bookinfo>
     <copyright>
       <year>2000</year>
@@ -20,7 +20,7 @@
     <para>This document is a companion to the Gwydion Dylan
 Maintainer's Manual. The Maintainer's Manual contains an overview of
 the compiler's overall design, and information about its use. This
-document, the Compiler Internals manual, is simply a catalog and
+document, the &d2c; API Reference Manual, is simply a catalog and
 description of all the methods, classes and variables in d2c. In
 addition to the signature and overview, each method definition
 contains information about which variables and parameters are mutated.
@@ -39,6 +39,9 @@ people that work on this, the faster that it will get done.</para>
     <title>Library compiler-base</title>
     <sect1>
       <title>Module c-representation</title>
+      <para>This module contains classes that represent the various C
+representations of Dylan objects, along with various methods to
+manipulate them.</para>
       <sect2>
 	<title>File compiler/base/c-rep.dylan</title>
 	<dylanconstantdef>
@@ -930,6 +933,210 @@ at compile time.</defsummary>
 	  </defreturns>
 	  <defdescription>
 	    <para>This method mutates none of its arguments.</para>
+	  </defdescription>
+	</dylanmethoddef>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Module utils</title>
+	<para>Unsurprisingly, this module is a grab-bag of various
+useful functions and methods the used by modules in the rest of the
+compiler. Some of this stuff is actually quite useful in contexts
+beyond writing a compiler, and should probably be moved into some of
+the common libraries rather than living in compiler base.</para>
+      <sect2>
+	<title>File compiler/base/utils.dylan</title>
+	<dylanmethoddef>
+	  <defname>pretty-format</defname>
+	  <defsummary>Pretty-print error messages.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>stream</paramname>
+	      <paramtype>&lt;stream&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>string</paramname>
+	      <paramtype>&lt;byte-string&gt;</paramtype>
+	    </param>
+	    <restparam>
+	      <paramname>args</paramname>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>Used for error message printing. Turns each space in
+the control string into a conditional newline, and turns literal
+newlines into a mandatory newline and 2 space indent.</para>
+	  </defdescription>
+	</dylanmethoddef>
+	<dylanmethoddef>
+	  <defname>condition-format</defname>
+	  <defsummary> A method that uses
+<dname>pretty-format</dname>. </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>stream</paramname>
+	      <paramtype>&lt;stream&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>control-string</paramname>
+	      <paramtype>&lt;byte-string&gt;</paramtype>
+	    </param>
+	    <restparam>
+	      <paramname>args</paramname>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>This method prints error messages using
+<dname>pretty-format</dname>. It works by shadowing the
+<dname>condition-format</dname> method defined on
+<dlit>(&lt;stream&gt;, &lt;string&gt;)</dlit>. </para>
+	  </defdescription>
+	</dylanmethoddef>
+	<dylanmethoddef>
+	  <defname>write-class-name</defname>
+	  <defsummary>Print an object's classname to a stream.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>thing</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>stream</paramname>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>This print's <dname>thing</dname>'s
+<dlit>object-class</dlit>'s name to the stream. If the class is
+anonymous, the default representation of classes is printed to the
+stream. (This should never happen until &d2c; learns how to make
+anonymous classes.)</para>
+	  </defdescription>
+	</dylanmethoddef>
+	<dylanmethoddef>
+	  <defname>write-address</defname>
+	  <defsummary>Prints the address of an object</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>thing</paramname>
+	    </param>
+	    <param>
+	      <paramname>stream</paramname>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>Prints the hexadecimal address of <dname>object</dname>
+to the stream <dname>stream</dname>.</para>
+	  </defdescription>
+	</dylanmethoddef>
+	<dylanmethoddef>
+	  <defname>pprint-fields</defname>
+	  <defsummary>Used to print an object and its fields</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>thing</paramname>
+	    </param>
+	    <param>
+	      <paramname>stream</paramname>
+	    </param>
+	    <restparam>
+	      <paramname>fields</paramname>
+	      <paramsummary>Plist of fieldnames and values.</paramsummary>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>This method is a tool used to print the constituents
+of an object. The <dlit>#rest</dlit> argument is a list of symbols
+alternating with values -- the symbols are used as the field names for
+the values.</para>
+	  </defdescription>
+	</dylanmethoddef>
+	<dylanvariabledef>
+	  <defname>$thousand-cardinals</defname>
+	  <defsummary>Vector of English names for numbers.</defsummary>
+	  <deftype>&lt;vector&gt;</deftype>
+	  <defdescription>
+	    <para>This vector contains the names that are prefixed
+by numbers less than a hundred -- "thousand", "million", etc. It is
+used in the method <dname>integer-to-english</dname>.</para>
+	  </defdescription>
+	</dylanvariabledef>
+	<dylanvariabledef>
+	  <defname>$ten-cardinals</defname>
+	  <defsummary>Vector of the English tens units.</defsummary>
+	  <deftype>&lt;vector&gt;</deftype>
+	  <defdescription>
+	    <para>This vector contains the names of multiples of
+ten -- "twenty", "thirty", etc. It is used in the method
+<dname>integer-to-english</dname>.</para>
+	  </defdescription>
+	</dylanvariabledef>
+	<dylanvariabledef>
+	  <defname>$unit-cardinals</defname>
+	  <defsummary>Vector of English words for 0 to 20.</defsummary>
+	  <deftype>&lt;vector&gt;</deftype>
+	  <defdescription>
+	    <para>This vector contains strings naming the integers from
+0 to 20. It is used in the method <dname>integer-to-english</dname>.</para>
+	  </defdescription>
+	</dylanvariabledef>
+	<dylanvariabledef>
+	  <defname>$thousand-ordinals</defname>
+	  <defsummary>Like <dname>$thousand-cardinals</dname>, except
+to name positions.</defsummary>
+	  <deftype>&lt;vector&gt;</deftype>
+	  <defdescription>
+	    <para>This vector lists the ordinals for numbers bigger
+than 1000 -- "millionth", "billionth" and so on. It is used in the
+method <dname>integer-to-english</dname>.</para>
+	  </defdescription>
+	</dylanvariabledef>
+	<dylanvariabledef>
+	  <defname>$ten-ordinals</defname>
+	  <defsummary>Like <dname>$ten-cardinals</dname>, except to
+name positions.</defsummary>
+	  <deftype>&lt;vector&gt;</deftype>
+	  <defdescription>
+	    <para>This vector lists the ordinals for small integers from
+0 to 20 -- "zeroth", "first", etc. It is used in the method
+<dname>integer-to-english</dname>.</para>
+	  </defdescription>
+	</dylanvariabledef>
+	<dylanmethoddef>
+	  <defname>integer-to-english</defname>
+	  <defsummary>Convert an integer to an English string.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>int</paramname>
+	      <paramtype>&lt;integer&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>as</paramname>
+	      <paramtype>one-of(#"cardinal", #"ordinal")</paramtype>
+	      <paramdefault>#"cardinal"</paramdefault>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>res</paramname>
+	      <paramtype>&lt;byte-string&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>This method converts an <dname>&lt;integer&gt;</dname>
+object into the English string for the number it represents. If the
+keyword <dlit>as:</dlit> is set to <dlit>#"ordinal"</dlit>, then the
+English string is the name of the n-th position; otherwise it is just
+the name of the number.</para>
 	  </defdescription>
 	</dylanmethoddef>
       </sect2>
