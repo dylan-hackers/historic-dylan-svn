@@ -974,6 +974,9 @@ end;
 // ####################################
 // Parser combinators
 
+// juxtapose -- run two parsers sequentially
+// the second consuming what the first left back
+//
 define function juxtapose(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
  => juxtaposition :: <function>;
   method(inp :: <byte-string>, matched :: <list>, more) // => no-result :: <never-returns>;
@@ -1024,6 +1027,9 @@ begin
   end block;
 end begin;
 
+// juxtapose -- run two parsers side-by-side
+// both consuming the same input
+//
 define function parallel(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
  => parallel :: <function>;
 
@@ -1040,7 +1046,7 @@ define function parallel(p1 :: <function>, p2 :: <function>, #key connective :: 
 	let (rest2, product2) = ~matched.tail.empty? & matched.tail.head();
 	more.head(inp,
 		  pair(method()
-			   values(rest1 | rest2, connective(product1, product2))
+			   values(rest2 | rest1, connective(product2, product1))
 		       end,
 		       matched),
 		  more.tail)
@@ -1048,3 +1054,14 @@ define function parallel(p1 :: <function>, p2 :: <function>, #key connective :: 
   end method
 end function parallel;
 
+
+
+// epsilon -- the parser that always succeeds
+// consuming nothing and producing #f
+//
+define function epsilon(inp :: <byte-string>, matched :: <list>, more)
+  more.head(inp,
+	    pair(inp.always,
+		 matched),
+	    more.tail)
+end;
