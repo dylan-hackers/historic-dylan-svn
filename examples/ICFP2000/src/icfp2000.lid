@@ -4,4 +4,5 @@ linker-options: -Xlinker -Bstatic
 files: icfp2000-exports
   matrix
   obj
+  lexer
   icfp2000

@@ -1,4 +1,5 @@
-SOURCES=icfp2000.dylan icfp2000-exports.dylan matrix.dylan obj.dylan 
+SOURCES=icfp2000.dylan icfp2000-exports.dylan matrix.dylan obj.dylan \
+	lexer.dylan
 
 icfp2000: icfp2000.lid $(SOURCES)
 	d2c -s icfp2000.lid
