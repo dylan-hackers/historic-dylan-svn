@@ -17,7 +17,7 @@ end class;
 // Some day, might support big substrings with non-integer range...
 define constant <substring> = <small-substring>;
 
-define constant $substring-overhead :: <integer> = 8;
+//define constant $substring-overhead :: <integer> = 8;
 define constant $substring-bits :: <integer> = 14;
 define constant $substring-end-mask :: <integer> = ash(1, $substring-bits) - 1;
 define constant $substring-start-shift :: <integer> = (- $substring-bits);
@@ -44,6 +44,7 @@ define open method copy-bytes
 end method;
 */
 
+/*
 define inline function make-substring-range
     (begp :: <integer>, endp :: <integer>) => (range :: false-or(<integer>))
   let len = endp - begp;
@@ -53,6 +54,7 @@ define inline function make-substring-range
     ash(begp, $substring-bits) + endp
   end;
 end;
+*/
 
 define inline function substring-start (ss :: <substring>) => (start :: <integer>)
   ash(ss.substring-range, $substring-start-shift)

@@ -1,7 +1,7 @@
 Module:    httpi
 Synopsis:  Library initialization code
 Author:    Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
@@ -22,7 +22,7 @@ define function init-koala ()
     test-koala();
   end;
 
-  init-server();
+  //init-server();
 end;
 
 begin

@@ -22,9 +22,6 @@ define variable *server-root* :: false-or(<directory-locator>) = #f;
 
 define function ensure-server-root ()
   when (~*server-root*)
-    // This works, in both Windows and unix, but logging is less informative...
-    // *server-root* := as(<directory-locator>, "..");
-    // ...so use application-filename instead.
     let exe-dir = locator-directory(as(<file-locator>, application-filename()));
     *server-root* := parent-directory(exe-dir);
   end;
