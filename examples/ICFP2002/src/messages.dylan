@@ -292,7 +292,7 @@ define function more-packages?(s :: <stream>)
   => (r :: <boolean>)
   // Does this need to check for spaces before the new line?
   s.peek ~= '\n';
-end function more-packages;
+end function more-packages?;
 
 // Receive server package information
 define function receive-server-packages(s :: <stream>, state :: <state>) => (state :: <state>)
