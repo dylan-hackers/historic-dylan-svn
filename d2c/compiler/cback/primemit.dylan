@@ -1140,7 +1140,7 @@ end;
 // Double-width Fixnum primitives.
 
 define c-type-primitives-emitter dblfix *long-long-rep* end;
-define integer-primitives-emitter fixnum *long-rep* end;
+define integer-primitives-emitter dblfix *long-long-rep* end;
 
 define unary-primitive-emitter fixed-as-dblfix
   operand-representation *long-rep*
@@ -1380,29 +1380,17 @@ define-primitive-emitter
 
 // raw pointer operations.
 
-define-primitive-emitter
-  (#"make-raw-pointer",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify("((void *)", x, ')'),
-		    *ptr-rep*, #f, file);
-   end);
+define unary-primitive-emitter make-raw-pointer
+  operand-representation *long-rep*
+  result-representation *ptr-rep*
+  operation stringify("((void *)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"raw-pointer-address",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *ptr-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify("((long)", x, ')'),
-		    *long-rep*, #f, file);
-   end);
+define unary-primitive-emitter raw-pointer-address
+  operand-representation *ptr-rep*
+  result-representation *long-rep*
+  operation stringify("((long)", arguments[0], ')')
+end;
 
 define-primitive-emitter
   (#"pointer-+",
@@ -1417,43 +1405,23 @@ define-primitive-emitter
 		    *ptr-rep*, #f, file);
    end);
 
-define-primitive-emitter
-  (#"pointer--",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file, *ptr-rep*, *ptr-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results,
-		    stringify("((char *)", x, " - (char *)", y, ')'),
-		    *long-rep*, #f, file);
-   end);
+define binary-primitive-emitter pointer--
+  operand-representation *ptr-rep*
+  result-representation *long-rep*
+  operation stringify("((char *)", arguments[0], " - (char *)", arguments[1], ')')
+end;
 
-define-primitive-emitter
-  (#"pointer-<",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file, *ptr-rep*, *ptr-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results,
-		    stringify("((char *)", x, " < (char *)", y, ')'),
-		    *boolean-rep*, #f, file);
-   end);
+define binary-primitive-emitter pointer-<
+  operand-representation *ptr-rep*
+  result-representation *boolean-rep*
+  operation stringify("((char *)", arguments[0], " < (char *)", arguments[1], ')')
+end;
 
-define-primitive-emitter
-  (#"pointer-=",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file, *ptr-rep*, *ptr-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " == ", y, ')'),
-		    *boolean-rep*, #f, file);
-   end);
+define binary-primitive-emitter pointer-=
+  operand-representation *ptr-rep*
+  result-representation *boolean-rep*
+  operation stringify('(', arguments[0], " == ", arguments[1], ')')
+end;
 
 define-primitive-emitter
   (#"pointer-deref",
@@ -1527,44 +1495,24 @@ define-primitive-emitter
 	*ptr-rep*, #f, file);
    end);
 
-define-primitive-emitter
-  (#"object-address",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, object) = extract-operands(operation, file, *heap-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results,
-		    stringify("((void *)", object, ')'),
-		    *ptr-rep*, #f, file);
-   end);
+define unary-primitive-emitter object-address
+  operand-representation *heap-rep*
+  result-representation *ptr-rep*
+  operation stringify("((void *)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"heap-object-at",
-   method (results :: false-or(<definition-site-variable>),
-           operation :: <primitive>,
-           file :: <file-state>)
-    => ();
-     let (temps, ptr) = extract-operands(operation, file, *ptr-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results,
-                    stringify("((heapptr_t)", ptr, ')'),
-                    *heap-rep*, #f, file);
-   end);
+define unary-primitive-emitter heap-object-at
+  operand-representation *ptr-rep*
+  result-representation *heap-rep*
+  operation stringify("((heapptr_t)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"general-object-at",
-   method (results :: false-or(<definition-site-variable>),
-           operation :: <primitive>,
-           file :: <file-state>)
-    => ();
-     let (temps, ptr) = extract-operands(operation, file, *ptr-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results,
-                    stringify("(*((descriptor_t*)", ptr, "))"),
-                    *general-rep*, #f, file);
-   end);
+define unary-primitive-emitter general-object-at
+  operand-representation *ptr-rep*
+  result-representation *general-rep*
+  operation stringify("(*((descriptor_t *)", arguments[0], "))")
+end;
+
 
 // Code moveability
 
