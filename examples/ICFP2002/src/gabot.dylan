@@ -55,6 +55,9 @@ define method create-command(s :: <strategy>) => command :: <command>;
   make(<move>, bid: 1, direction: $north); // HACK ### FIXME
 end;
 
+/*
+// ---> Error   : Internal compiler error: Trying to get some values back from a function that doesn't return?
+
 define generic find-safest(me :: <gabot>, coll :: <sequence>, location :: <function>, s :: <state>, #key weighting :: <function> = identity)
   => (thing, way :: <path>.false-or);
 
@@ -63,17 +66,20 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <functi
 
   let position = find-robot(s, me.agent-id).location;
 
-    local find-near-safe-place(best-thing :: false-or(<point>), distance :: <path-cost>)
-         => (better-thing :: false-or(<point>), distance :: <path-cost>);
+    local find-near-safe-place(best-thing, best-path :: <path>)
+         => (better-thing, better-path :: <path>);
+         
+         let distance = distance-cost(position, best-path.last);
+
           block (found)
             for (thing in coll)
               let path = find-path(position, thing, s.board, cutoff: best-thing & distance);
               if (path)
                 if (~best-thing
-                    | distance-cost(position, thing) < distance) // # FISHY TODO we should compare paths
-                  let (better-thing, nearer-distance)
-                    = find-near-safe-place(thing, distance-cost(position, thing));
-                  found(better-thing, nearer-distance)
+                    | distance-cost(position, thing.location) < distance) // # FISHY TODO we should compare paths
+                  let (better-thing, nearer-path)
+                    = find-near-safe-place(thing, path);
+                  found(better-thing, nearer-path)
                 end if;
               end if;
             end for;
@@ -82,10 +88,42 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <functi
         end method;
   
   
-  find-near-safe-place(#f, 0);
+  find-near-safe-place(#f, #());
 end method find-safest;
+*/
 
+define generic find-safest(me :: <gabot>, coll :: <sequence>, location :: <function>, s :: <state>, #key weighting :: <function> = identity)
+  => (thing, way :: <path>.false-or);
 
+define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <function>, s :: <state>, #key weighting :: <function> = identity)
+  => (thing, way :: <path>.false-or);
+
+  let position = find-robot(s, me.agent-id).location;
+
+    local find-near-safe-place(best-thing, best-path :: <path>)
+         => (better-thing, better-path :: <path>);
+         
+         let distance = distance-cost(position, best-path.last);
+
+          block (found)
+            for (thing in coll)
+              let path = find-path(position, thing, s.board, cutoff: best-thing & distance);
+              if (path)
+                if (~best-thing
+                    | distance-cost(position, thing.location) < distance) // # FISHY TODO we should compare paths
+                  let (better-thing, nearer-path)
+                    = values(thing, path); //find-near-safe-place(thing, path); ICE#### HACK!
+                  found(better-thing, nearer-path)
+                end if;
+              end if;
+            end for;
+            values(best-thing, distance)
+          end block;
+        end method;
+  
+  
+  find-near-safe-place(#f, #());
+end method find-safest;
 
 
 
@@ -94,7 +132,7 @@ end method find-safest;
 // if we have an already cooked-up strategy, try to follow that if still safe 
 // (possibly find a better strategy instead?)
 // look for safe destinations where I can drop packets
-// look for safe bases
+// look for safe bases to pick up packets, or safe forgotten packets in the space
 // look for vulnerable robots and I am not vulnerable then attack
 // try escape from attackers
 
@@ -108,7 +146,8 @@ block (return)
           strategy.create-command.return;
         end;
 
-  me.decided.valid?
+  me.decided
+    & me.decided.valid?
     & safe?(me.decided, me, s)
     & me.decided.follow;
 
