@@ -96,8 +96,12 @@ end;
 
 define method compile-one(token == '/', more-tokens :: <pair>) => (closure :: <function>, remaining :: <list>);
   let binding :: <symbol> = more-tokens.head;
+  
+  local method count-specializations(s :: <symbol>) => specs :: <integer>;
+  				sorted-applicable-methods(compile-one, s, more-tokens.tail).size
+  			end method;
 
-  if (sorted-applicable-methods(compile-one, binding, more-tokens.tail).size > 2)
+  if (binding.count-specializations == count-specializations(#"apply"))
   	error("cannot rebind reserved word '%s'", as(<byte-string>, binding));
   end if;
 
