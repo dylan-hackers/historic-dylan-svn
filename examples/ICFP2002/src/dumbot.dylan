@@ -76,7 +76,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	if (pkg.weight <= me.robot.capacity
 	      & find-path(me.robot.location, pkg.location, s.board))
 	  left := left - pkg.weight;
-	  take-these = add!(take-these, x);
+	  take-these := add!(take-these, x);
 	end if;
       end for;
       return(make(<pick>, bid: 1, package-ids: map(id, take-these)));
@@ -100,13 +100,13 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     let direction = $North;
 
     if (new-loc = point(x: new-loc.x, y: new-loc.y + 1))
-      direction = #"north";
+      direction := #"north";
     elseif (new-loc = point(x: new-loc.x + 1, y: new-loc.y))
-      direction = #"east";
+      direction := #"east";
     elseif (new-loc = point(x: new-loc.x, y: new-loc.y - 1))
-      direction = #"south";
+      direction := #"south";
     elseif (new-loc = point(x: new-loc.x - 1, y: new-loc.y))
-      direction = #"west";
+      direction := #"west";
     else
       error("Can't happen");
     end if;
