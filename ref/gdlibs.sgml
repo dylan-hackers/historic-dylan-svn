@@ -3696,7 +3696,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   </sect1>
 
   <sect1 id="lib-transcendental-pi">
-    <title>Pi</title>
+    <title>The pi Constants</title>
     <para>
       So, perhaps you are used to thinking in degrees, not radians.
       How do you convert between the two when you use the above
@@ -3745,7 +3745,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <deftype>&lt;single-float&gt;</deftype>
       <defdescription>
         <para>
-	  This pi is a truncated value of $double-pi.
+	  This pi is a truncated value of <dlit>$double-pi</dlit>.
 	</para>
       </defdescription>
     </dylanconstantdef>
@@ -3757,7 +3757,12 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     <para>
       The next question that comes up is if you have two sides of the
       right triangle, and you need to know the angle.  The arc
-      functions of sine, cosine and tangent resolve this issue.  The
+      functions of sine, cosine and tangent resolve this issue.  Let's
+      use the same reference diagram for the following discussion.
+    </para>
+    <triangle>
+    <para>
+      The
       arc sine function (<function>asin</function>, also known as the 
       inverse sine) gives
       the angle (in radians, again) from the height (AB) over the
@@ -3769,7 +3774,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     </sect1>
 
     <sect1 id="lib-transcendental-e">
-    <title>The Constant e</title>
+    <title>The e Constants</title>
     <para>
       I will leave aside the temptation to find mathematical similarities
       between pi and e, with the exception of stating that both can use
@@ -3802,7 +3807,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <deftype>&lt;single-float&gt;</deftype>
       <defdescription>
         <para>
-	  This e is a truncated value of $double-e.
+	  This e is a truncated value of <dlit>$double-e</dlit>.
 	</para>
       </defdescription>
     </dylanconstantdef>
