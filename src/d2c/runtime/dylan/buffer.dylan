@@ -132,8 +132,8 @@ define method copy-bytes
      src :: <byte-vector>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memmove", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -142,8 +142,8 @@ define method copy-bytes
      src :: <byte-vector>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memcpy", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -152,8 +152,8 @@ define method copy-bytes
      src :: <byte-string>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memcpy", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -162,8 +162,8 @@ define method copy-bytes
      src :: <byte-string>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memmove", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -172,8 +172,8 @@ define method copy-bytes
      src :: <buffer>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memmove", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -182,8 +182,8 @@ define method copy-bytes
      src :: <buffer>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memcpy", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -192,8 +192,8 @@ define method copy-bytes
      src :: <byte-string>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memcpy", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -202,8 +202,8 @@ define method copy-bytes
      src :: <buffer>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memcpy", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -212,8 +212,8 @@ define method copy-bytes
      src :: <byte-vector>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memcpy", void:,
-	   ptr: %%primitive(vector-elements, dest) + dstart,
-	   ptr: %%primitive(vector-elements, src) + sstart,
+	   ptr: vector-elements-address(dest) + dstart,
+	   ptr: vector-elements-address(src) + sstart,
 	   int: count);
 end method;
 
@@ -222,12 +222,12 @@ define method copy-bytes
      src :: <unicode-string>, sstart :: <integer>, count :: <integer>)
  => ();
   call-out("memmove", void:,
-	   ptr: %%primitive(vector-elements, dest) + (2 * dstart),
-	   ptr: %%primitive(vector-elements, src) + (2 * sstart),
+	   ptr: vector-elements-address(dest) + (2 * dstart),
+	   ptr: vector-elements-address(src) + (2 * sstart),
 	   int: (2 * count));
 end method;
 
-define /* exported */ method buffer-address (x :: <buffer>)
+define /* exported */ inline-only method buffer-elements-address (buffer :: <buffer>)
  => res :: <raw-pointer>;
-  %%primitive(vector-elements, x);
+  vector-elements-address(buffer);
 end method;
