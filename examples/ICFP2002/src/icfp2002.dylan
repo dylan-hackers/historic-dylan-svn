@@ -20,10 +20,17 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
   let current-bot = bot;
   let running = #t;
   let last-bot = find-robot(state, agent.agent-id);
+  let j :: <integer> = 0;
   while(running)
     debug("Robot state: %=\n", last-bot);
-    *debug* | always-print("Where: %=, Score: %d, Money: %=\n",
-                           last-bot.location,  last-bot.score, last-bot.money);
+    unless (*debug*)
+      if (modulo(j, 8) = 0)
+        always-print("Where: %=, Score: %d, Money: %=\n",
+                     last-bot.location,  last-bot.score, last-bot.money);
+      end if;
+    end unless;
+    j := j + 1;
+    //
     state := receive-server-packages(input, state, last-bot.location);
     let move = #f;
     let not-crashed = #f;
@@ -176,7 +183,7 @@ define function main(name, arguments)
     = tcp-client-connection(arguments[0], string-to-integer(arguments[1]));
   let bot-type = arguments.size > 2
                  & arguments[2]
-                 | "dumber-bot";
+                 | "gabot";
   when (arguments.size > 3 & arguments[3] = "-nodebug")
     *debug* := #f;
   end when;
