@@ -22,6 +22,13 @@ and non-commercial projects.
 xml-test/ converts an XML doc to an HTML-readable one with links to entities
 (if they have not be expanded-out in the resulting document).
 
+REQUIRED LIBRARIES
+==================
+
+To compile the xml-parser sources and to create an executable using the
+xml-parser library, you need the following libraries also available from 
+gd/examples:  anaphora, multimap, and meta.
+
 HISTORY
 =======
 Chris Double started this effort, and he developed an initial, working, parser
