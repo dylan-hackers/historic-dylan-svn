@@ -27,11 +27,11 @@ define interface
     input-output-argument: 2;
 end;
 
-define method export-value(cls == <function-pointer>, value :: <function>) => (result :: <function-pointer>);
+define method export-value(cls == <GtkSignalFunc>, value :: <function>) => (result :: <function-pointer>);
   make(<function-pointer>, pointer: value.callback-entry); 
 end method export-value;
 
-define method import-value(cls == <function>, value :: <function-pointer>) => (result :: <function>);
+define method import-value(cls == <function>, value :: <GtkSignalFunc>) => (result :: <function>);
   error("Is this possible?");
 end method import-value;
 
