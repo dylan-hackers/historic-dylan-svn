@@ -100,7 +100,7 @@ define function ws(str :: <byte-string>, #key start: start :: <integer>, end: st
   else
     let ch = str[pos];
     if (ch < ' ' | ch == '\<7f>'
-          | ch == '[' | ch == '{' | ch == ']' | ch == ']'
+          | ch == '[' | ch == '{' | ch == ']' | ch == ']' // this looks weird to me --andreas
           | ch == '"' | ch == '\''
           | ch == '#' | ch == '.' | ch == '\\')
       newpos
@@ -134,7 +134,9 @@ define meta statements(c, statement, statements)
   => (as(<simple-object-vector>, statements))
   do(statements := make(<stretchy-vector>)),
   ws?(c),
-  loop({[scan-nodeStatement(statement), do(add!(statements, statement))],[finish()]})
+  loop({[scan-nodeStatement(statement), 
+         do(add!(statements, statement))],
+        finish()})
 end statements;
 
 // 
@@ -261,7 +263,7 @@ end CoordinateNode;
 
 define meta TextureCoordinateNode (c, point) => (point)
   ws?(c),
-  "point", ws(c), scan-MFVec3f(point)
+  "point", ws(c), scan-MFVec2f(point)
 end TextureCoordinateNode;
 
 //aaaaaaaaarrrrrrrrrggggghhhh ... we absolutely need to get backtracking working!!
@@ -281,6 +283,8 @@ define meta IndexedFaceSetNode
             do(add!(args, normal-per-vertex:); add!(args, NormalPerVertex))],
            ["normal",          ws(c), scan-SFNode(normal),
             do(add!(args, normal:);            add!(args, Normal))],
+           ["texCoordIndex",   ws(c), scan-MFInt32(texCoordIndex),
+            do(add!(args, tex-coord-index:);   add!(args, texCoordIndex))],
            ["texCoord",        ws(c), scan-SFNode(texCoord),
             do(add!(args, tex-coord:);         add!(args, texCoord))],
            ["ccw",             ws(c), scan-SFBool(ccw),
@@ -296,9 +300,7 @@ define meta IndexedFaceSetNode
            ["creaseAngle",     ws(c), scan-SFFloat(creaseAngle),
             do(add!(args, crease-angle:);      add!(args, creaseAngle))],
            ["solid",           ws(c), scan-SFBool(solid),
-            do(add!(args, solid:);             add!(args, solid))],
-           ["texCoordIndex",   ws(c), scan-MFInt32(texCoordIndex),
-            do(add!(args, tex-coord-index:);   add!(args, texCoordIndex))]
+            do(add!(args, solid:);             add!(args, solid))]
          }]),
   do(dd("leaving IndexedFaceSet\n"))
 end IndexedFaceSetNode;
@@ -588,6 +590,11 @@ end SFString;
 // sfvec3fValue ::=
 //     float float float ;
 
+define meta SFVec2f (c, x, y) => (vector(x, y))
+  ws?(c), scan-single-float(x),
+  ws(c), scan-single-float(y),
+end SFVec2f;
+
 define meta SFVec3f (c, x, y, z) => (3d-vector(x, y, z))
   ws?(c), scan-single-float(x),
   ws(c), scan-single-float(y),
@@ -706,6 +713,19 @@ end MFString;
 // sfvec3fValues ::=
 //     sfvec3fValue |
 //     sfvec3fValue sfvec3fValues ;
+
+define meta MFVec2f (c, val, vals) => (as(<simple-object-vector>, vals))
+  do(vals := make(<stretchy-vector>)),
+  ws?(c),
+  {[scan-SFVec2f(val), do(add!(vals, val))],
+   
+   ["[", ws?(c),
+    {"]",
+     [scan-SFVec2f(val), do(add!(vals, val)),
+      loop([ws(c), scan-SFVec2f(val), do(add!(vals, val))]),
+      ws?(c), "]"]}]},
+  ws?(c)
+end MFVec2f;
 
 define meta MFVec3f (c, val, vals) => (as(<simple-object-vector>, vals))
   do(vals := make(<stretchy-vector>)),
