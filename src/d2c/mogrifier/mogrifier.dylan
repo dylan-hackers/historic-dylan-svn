@@ -14,7 +14,7 @@ define method compile-function(f :: <function>)
   
   // get hold of the function entry point
   // and follow it
-  follow(100,
+  follow(1000,
          as(<statically-typed-pointer>,
               call-out("GENERAL_ENTRY", ptr:, ptr:, f.object-address)));
   
@@ -41,15 +41,15 @@ end;
 
 define method powerpc-disassemble-primary(primary :: <integer>, secondary :: <integer>)
  => mnemonics :: <string>;
-  format-out("unknown primary: %d\n", primary);
+  format-out("unknown primary: %d, key: %d\n", primary, instruction-mask(secondary, 21, 30));
   "???"
 end;
 
-define method powerpc-disassemble-primary(primary == 31, secondary :: <integer>)
+define method powerpc-disassemble-primary(primary :: one-of(19, 31), secondary :: <integer>)
  => mnemonics :: <string>;
-  format-out("key: %d\n", logand(ash(secondary, -1), #x3FF));
+  format-out("key: %d\n", instruction-mask(secondary, 21, 30));
  
-  powerpc-disassemble-subcode(primary, logand(ash(secondary, -1), #x3FF), secondary)
+  powerpc-disassemble-subcode(primary, instruction-mask(secondary, 21, 30), secondary)
 end;
 
 define macro instruction-definer
@@ -74,11 +74,17 @@ define macro instruction-definer
   { 
     define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
-      powerpc-disassemble-DAB(?primary, ?key, secondary)
-    end;
-    define method powerpc-disassemble-DAB(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
       format-out("D: %d, A: %d, B: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F));
+      ?"name"
+    end;
+  }
+
+  { define instruction ?:name(?primary:expression; D; RESERVE; RESERVE; ?key:expression; RESERVE) end }
+  =>
+  { 
+    define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
+     => mnemonics :: <string>;
+      format-out("D: %d\n", instruction-mask(secondary, 6, 10));
       ?"name"
     end;
   }
@@ -87,10 +93,6 @@ define macro instruction-definer
   =>
   { 
     define method powerpc-disassemble-subcode(primary == ?primary, subcode :: one-of(?key, ?key + 0x100), secondary :: <integer>)
-     => mnemonics :: <string>;
-      powerpc-disassemble-DABOERc(?primary, ?key, secondary)
-    end;
-    define method powerpc-disassemble-DABOERc(primary == ?primary, subcode :: one-of(?key, ?key + 0x100), secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("D: %d, A: %d, B: %d, OE: %d, Rc: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F), logand(ash(secondary, -10), #x1), secondary.instruction-Rc);
       ?"name"
@@ -101,10 +103,6 @@ define macro instruction-definer
   =>
   { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
-      powerpc-disassemble-SABRc(?primary, ?key, secondary)
-    end;
-    define method powerpc-disassemble-SABRc(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
       format-out("S: %d, A: %d, B: %d, Rc: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F), secondary.instruction-Rc);
       ?"name"
     end;
@@ -113,10 +111,6 @@ define macro instruction-definer
   { define instruction ?:name(?primary:expression; S, A, SH; ?key:expression; Rc) end }
   =>
   { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
-      powerpc-disassemble-SASHRc(?primary, ?key, secondary)
-    end;
-    define method powerpc-disassemble-SASHRc(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("S: %d, A: %d, SH: %d, Rc: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F), secondary.instruction-Rc);
       concatenate(?"name", secondary.instruction-Rc-suffix);
@@ -187,11 +181,7 @@ define macro instruction-definer
 
   { define instruction ?:name(?primary:expression; BO, BI; RESERVE; ?key:expression; LK) end }
   =>
-  { define method powerpc-disassemble-primary(subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
-      powerpc-disassemble-BOBILK(?primary, logand(ash(secondary, -1), #x3FF), secondary)
-    end;
-    define method powerpc-disassemble-BOBILK(primary == ?primary, subcode == ?key, secondary :: <integer>)
+  { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("BO: %d, BI: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), secondary.instruction-LK);
       concatenate(?"name", secondary.instruction-LK-suffix)
@@ -245,7 +235,7 @@ end;
 define constant instruction-position = limited(<integer>, min: 0, max: 31);
 define inline function instruction-mask(secondary :: <integer>, start :: instruction-position, stop :: instruction-position)
  => masked :: <integer>;
-  logand(ash(secondary, 31 - stop), ash(1, stop - start + 1) - 1)
+  logand(ash(secondary, stop - 31), ash(1, stop - start + 1) - 1)
 end;
 
 define instruction addis(15; D, A, SIMM) end;
@@ -258,6 +248,7 @@ define instruction mulli(7; D, A, SIMM) end;
 //define instruction (; D, A, UIMM) end;
 
 define instruction or(31; S, A, B; 444; Rc) end;
+define instruction xor(31; S, A, B; 316; Rc) end;
 define instruction lwarx(31; D, A, B; 20; RESERVE) end;
 
 define instruction subf(31; D, A, B, OE; 40; Rc) end;
@@ -280,6 +271,8 @@ define instruction (31; D, A, B, OE; RESERVE; Rc) end;
 define instruction (; D, A, B, OE; ; Rc) end;
 define instruction (; D, A, B, OE; ; Rc) end;
 define instruction (; D, A, B, OE; ; Rc) end;*/
+
+define instruction mfcr(31; D; RESERVE; RESERVE; 19; RESERVE) end;
 
 define instruction bc(16; BO, BI, BD, AA, LK) end;
 define instruction b(18; LI, AA, LK) end;
