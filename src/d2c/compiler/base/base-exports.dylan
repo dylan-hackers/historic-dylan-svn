@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.15 2000/04/01 12:08:25 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.15.2.1 2000/07/06 20:15:42 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -705,6 +705,10 @@ define module classes
     class-heap-fields, class-heap-fields-setter,
     <defined-cclass>, class-defn, class-defn-setter, bucket, row,
 
+    <cdclass>, size-of, alignment-of, designated-representation,
+    referenced-type, pointer-type, pointer-type-setter, import-type,
+    export-type, struct-slot-infos, <defined-cdclass>,
+
     <slot-allocation>, <slot-info>, slot-introduced-by,
     slot-type, slot-type-setter, slot-getter, slot-read-only?,
     slot-guaranteed-initialized?, slot-init-value, slot-init-value-setter,
@@ -727,6 +731,11 @@ define module classes
     override-init-function, override-init-function-setter,
 
     <keyword-info>,
+
+    <struct-slot-info>, struct-slot-c-type, struct-slot-c-name,
+    struct-slot-offset, struct-slot-getter, struct-slot-setter,
+    struct-slot-address-getter, struct-slot-dimensions,
+    struct-slot-bitfield-width, 
 
     <layout-table>, layout-length, layout-holes,
 
@@ -765,7 +774,7 @@ define module c-representation
   use compile-time-values;
   use platform;
   export
-    seed-representations,
+    seed-representations, c-rep,
 
     <c-representation>, more-general-representation, representation-depth,
     representation-to-more-general, representation-from-more-general,
