@@ -7,10 +7,6 @@ define method main(progname, #rest arguments)
   let (argc, argv) = c-arguments(progname, arguments);
   gtk-hello-world(argc, argv);
 
-  // XXX - This is temporary, and only here because of bugs in
-  // the compiler and runtime environment.
-  force-output(*standard-error*);
-  force-output(*standard-output*);
   exit(exit-code: 0);
 end method main;
 
@@ -42,7 +38,7 @@ define constant *null* :: <machine-pointer> = as(<machine-pointer>, 0);
 
 define method gtk-hello-world(argc, argv) => ()
   let (new-argc, new-argv) = gtk-init(argc, argv);
-  let window = gtk-window-new($GTK-WINDOW-TOPLEVEL);
+  let window = gtk-window-new($GtkWindowType$GTK-WINDOW-TOPLEVEL);
   gtk-container-border-width(window, 10);
   let label = gtk-label-new("Hello, world!");
   gtk-container-add(window, label);
