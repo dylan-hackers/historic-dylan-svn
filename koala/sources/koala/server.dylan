@@ -9,7 +9,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
-define constant $server-version = "0.1 alpha";
+define constant $server-version = "0.2";
 
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
