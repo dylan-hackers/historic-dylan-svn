@@ -10,8 +10,8 @@ koala_dir=$1
 
 mkdir -p registry/Sources/registry/x86-linux
 cd registry/Sources/
-echo "abstract://dylan/../../$koala_dir/lib/anaphora/anaphora.lid" > registry/x86-linux/anaphora
-echo "abstract://dylan/../../$koala_dir/lib/meta/meta.lid" > registry/x86-linux/meta
+echo "abstract://dylan/../../$koala_dir/../anaphora/anaphora.lid" > registry/x86-linux/anaphora
+echo "abstract://dylan/../../$koala_dir/../meta/meta.lid" > registry/x86-linux/meta
 echo "abstract://dylan/../../$koala_dir/lib/multimap/multimap.lid" > registry/x86-linux/multimap
 echo "abstract://dylan/../../$koala_dir/lib/xml-parser/xml-parser.lid" > registry/x86-linux/xml-parser
 echo "abstract://dylan/../../$koala_dir/sources/xml-rpc-common/xml-rpc-common.hdp" > registry/x86-linux/xml-rpc-common
