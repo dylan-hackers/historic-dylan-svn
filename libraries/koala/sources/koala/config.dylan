@@ -268,6 +268,10 @@ define method process-config-element (node :: xml$<element>, name == #"logfile")
                                                           name)),
                                       *server-root*));
   *logfile* := logfile-loc;
+  let type = get-attribute-value(node, #"type");
+  if (type & as(<string>, type) = "extended")
+    *logfile-type* := #"extended";
+  end if;
   log-info("Set logfile to %s", logfile-loc);
 end method;
 
