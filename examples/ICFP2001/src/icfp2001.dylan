@@ -43,21 +43,21 @@ define function is-textchar?(c)
   c ~= '<' & c ~= '>';
 end function is-textchar?;
 
-define method parse-textstring(input)
+define method parse-textstring(input, #key start = 0)
  => (string, bytes-consumed);
   let bytes-consumed =
     block(return)
-      for(i in input, index from 0)
+      for(i in input, index from start)
         if(~ is-textchar?(i))
-          format-out("%=\n", index);
+          return(index);
         end if;
       end for;
     end block;
   values(copy-sequence(input, end: bytes-consumed), bytes-consumed);
 end method parse-textstring;
 
-define method parse(input)
-  let (string, bytes-consumed) = parse-textstring(input);
+define method parse(input, #key start = 0)
+  let (string, bytes-consumed) = parse-textstring(input, start: start);
   string;
 end method parse;
 
