@@ -88,7 +88,16 @@ define function draw-cell(cell, position) => ()
     draw-hex(position);
 end;
 
-define function draw-ant(position, direction) => ()
+define function ant-color(ant) => (color)
+    if (ant.color == #"red")
+        $RED-ANT-COLOR
+    else
+        $BLACK-ANT-COLOR
+    end;
+end;
+
+define function draw-ant(ant, position) => ()
+    let direction = ant.direction;
     let angle = $PI-OVER-3 * direction;
     let angle-degrees = $180-OVER-PI * angle;
     let (x, y) = cell-position(position);
@@ -97,6 +106,7 @@ define function draw-ant(position, direction) => ()
         glTranslate(x, y, 0.0);
         glRotate(angle-degrees, 0.0, 0.0, 1.0);
         
+        set-gl-color(ant-color(ant));
         glBegin($GL-TRIANGLES);
             glVertex($ROOT-3-OVER-2, 0.0);
             glVertex(-sin($PI-OVER-3), -cos($PI-OVER-3));
@@ -129,13 +139,20 @@ end;
 define function draw-world() => ()
     glCallList(*world-display-list*);
     
-    set-gl-color($RED-ANT-COLOR);
-    draw-ant(make-position(0, 0), 0);
-    
-    set-gl-color($BLACK-ANT-COLOR);
-    draw-ant(make-position(1, 1), 2);
-    
-    set-gl-color($WHITE);
+    let world-size = dimensions(*world*);
+    let width = world-size[0];
+    let height = world-size[1];
+
+    for (y-index from 0 below height)
+        for (x-index from 0 below width)
+            let this-ant = *world*[x-index, y-index].ant;
+            let position = make-position(x-index, y-index);
+        
+            if (this-ant)
+                draw-ant(this-ant, position);
+            end;
+        end;
+    end;
 end;
 
 define variable *scale* = 5.0;
