@@ -33,10 +33,10 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
 	always-print("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
 	always-print("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
 	always-print("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
-	if(instance?(current-bot, <gabot>))
+	if(current-bot = <gabot>)
 	  always-print("changing to pushbot\n");
 	  current-bot := <pushbot>;
-	elseif(instance?(current-bot, <pushbot>))
+	elseif(current-bot = <pushbot>)
 	  always-print("changing to thomas\n");
 	  current-bot := <thomas>;
 	else
