@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.80.2.1 2003/11/20 20:04:13 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.80.2.2 2004/02/22 18:36:56 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -483,8 +483,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
         block()
           evaluate(line, $empty-environment);
         exception(condition :: <condition>)
-          report-condition(condition, *standard-output*);
-          format(*standard-output*, "\n");
+          format(*standard-output*, "%s\n", condition);
         end block;
       else
         finished? := #t;
