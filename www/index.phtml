@@ -33,10 +33,12 @@ following resources:</P>
 
 <?php
 
-$db = db_connect();
+$link = mysql_connect("localhost");
+mysql_select_db("gwydion");
 
 $query = "select * from news order by time desc";
-$res = mysql_query($query, $db);
+$res = mysql_query($query);
+
 $err = mysql_error();
 if($err) {
     echo "MySQL error occurred. Please notify <a href=andreas@andreas.org>Andreas</a>.";
