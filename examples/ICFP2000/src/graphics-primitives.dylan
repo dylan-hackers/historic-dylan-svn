@@ -128,16 +128,6 @@ define graphics-primitive uscale(o :: <obj> => factor :: <fp>)
 end;
 
 
-/*
-define method optimizable-two(token1 :: <fp>, token2 == #"uscale", more :: <list>, suppress-closure == #f, #key orig :: <pair>)
-                                => (tokens :: <list>, closure);
-
-  debug-print("optimizing uscale");
-  
-end;
-
-*/
-
 define macro unary-optimization-definer
   { define unary-optimization ?:name(?type:expression, ?operator:expression) end }
   =>
