@@ -322,6 +322,25 @@ define method fill!
   vec;
 end method;
 
+// author: PDH
+// This is essentially a specialized clone of the general method for sequences
+define method remove
+    (vec :: <simple-object-vector>, value,
+     #key test :: <function> = \==, count :: false-or(<integer>))
+ => (result :: <simple-object-vector>);
+  for (elem in vec,
+       result = #() then if ((count & (count <= 0))
+                             | ~compare-using-default-==(test, elem, value))
+                            pair(elem, result);
+                         else
+                           if (count) count := count - 1 end;
+                           result;
+                         end if)
+  finally
+    as(<simple-object-vector>, reverse!(result));
+  end for;
+end method remove;
+
 // author: PDH, 5x speed-up
 define sealed method reverse (vec :: <simple-object-vector>)
  => (result :: <simple-object-vector>)
