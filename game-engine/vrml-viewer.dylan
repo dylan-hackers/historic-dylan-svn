@@ -97,23 +97,25 @@ define variable reshape-func :: <function> = callback-method(x :: <integer>, y :
 end;
 
 define constant *scene-graph* = 
-  make(<transform>, scale: #[0.01, 0.01, 0.01],
-       children: vector(make(<indexed-face-set>,
-                             points: #[#[-15.0, 0.0, 0.000001],
-                                       #[-4.635254, 0.0, -14.265848],
-                                       #[12.135255, 0.0, -8.816778],
-                                       #[12.135253, 0.0, 8.816781],
-                                       #[-4.635254, 0.0, 14.265848],
-                                       #[-12.0, 65.0, 0.000001],
-                                       #[-3.708204, 65.0, -11.412679],
-                                       #[9.708204, 65.0, -7.053422],
-                                       #[9.708202, 65.0, 7.053425],
-                                       #[-3.708204, 65.0, 11.412679]],
-                             indices: #[#[0,1,6,5],
-                                        #[1,2,7,6],
-                                        #[2,3,8,7],
-                                        #[3,4,9,8],
-                                        #[4,0,5,9]])));
+  make(<container-node>, 
+       children: vector(make(<line-grid>),
+                        make(<transform>, scale: #[0.01, 0.01, 0.01],
+                             children: vector(make(<indexed-face-set>,
+                                                   points: #[#[-15.0, 0.0, 0.000001],
+                                                             #[-4.635254, 0.0, -14.265848],
+                                                             #[12.135255, 0.0, -8.816778],
+                                                             #[12.135253, 0.0, 8.816781],
+                                                             #[-4.635254, 0.0, 14.265848],
+                                                             #[-12.0, 65.0, 0.000001],
+                                                             #[-3.708204, 65.0, -11.412679],
+                                                             #[9.708204, 65.0, -7.053422],
+                                                             #[9.708202, 65.0, 7.053425],
+                                                             #[-3.708204, 65.0, 11.412679]],
+                                                   indices: #[#[0,1,6,5],
+                                                              #[1,2,7,6],
+                                                              #[2,3,8,7],
+                                                              #[3,4,9,8],
+                                                              #[4,0,5,9]])))));
 
 /*
 define constant *scene-graph* = make(<indexed-face-set>,
@@ -169,7 +171,7 @@ define method main(progname, #rest arguments)
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
   glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
-  gluLookAt(0.0,  1.8, -1.0, // eye position
+  gluLookAt(0.0,  1.8, -3.0, // eye position
 	    0.0,  0.0, 0.0,  // looking at
 	    0.0,  1.0, 0.0); // up direction
 

@@ -16,6 +16,9 @@ define class <transform> (<container-node>)
   slot scale = #f, init-keyword: scale:;
 end class <transform>;
 
+define class <line-grid> (<node>)
+end class <line-grid>;
+
 define generic preorder-traversal(node :: <node>, function :: <function>);
 
 define method preorder-traversal(node :: <node>, function :: <function>)
