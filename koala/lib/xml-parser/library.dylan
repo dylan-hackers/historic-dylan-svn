@@ -98,7 +98,7 @@ define module %productions
   use format;
   use multimap;
   use print;
-  use file-system;
+  use file-system, import: { with-open-file };
 
   use meta;
   use interface;
