@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.3 2003/08/22 19:31:27 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.4 2003/08/26 13:05:12 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -452,15 +452,30 @@ let format-out = ignore;
 	    find-relevant(from.parent, common)
 	  end;
 	end;
-  let relevant-region2 = find-relevant(region2, first-common);
   let (common :: <region>, relevant-region1)
     = if (remnant-size = 0)
 	values(first-common, region1)
       else
-	values(remnant.head, if (remnant-size > 1) remnant[1] else region2 end)
+//	values(remnant.head, if (remnant-size > 1) remnant[1] else region2 end)
+	values(first-common, remnant.head)
       end;
+  let relevant-region2 = find-relevant(region2, first-common);
 
-  let assertion :: #t.singleton = common == relevant-region1.parent & common == relevant-region1.parent;
+unless (common == relevant-region1.parent & common == relevant-region2.parent)
+compiler-warning("-----#### firstOK: %=, 2ndOK: %=,\n parents1: %=,\n parents2: %=,\n region1: %=, region2: %=,\n relevant-region1: %=, relevant-region2: %=,\n common: %=,\n first-common: %=\n",
+		 common == relevant-region1.parent,
+		 common == relevant-region2.parent,
+		 parents1,
+		 parent-list(parent2.parent, list(parent2)),
+		 region1,
+		 region2,
+		 relevant-region1,
+		 relevant-region2,
+		 common,
+		 first-common);
+end;
+
+  let assertion :: #t.singleton = common == relevant-region1.parent & common == relevant-region2.parent;
 
   if (instance?(common, <compound-region>))
 	      format-out("### BOTH ARE COMPOUND\n");
@@ -725,6 +740,8 @@ about the argument types, so none will be restricted?
 	postfacto-type-inference(applicable, positional-arg-types, call, component);
       exception (<error>)
 	compiler-warning("\n\n\n\n\n\nTrouble with postfacto-type-inference\n\n\n\n\n");
+	// hehe once more!
+	postfacto-type-inference(applicable, positional-arg-types, call, component);
       end block;
       return();
     end unless;
