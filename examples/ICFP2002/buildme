@@ -1,4 +1,4 @@
 #!/bin/sh
 cd src
-make icfp2002
+#make icfp2002
 exit 0
