@@ -58,21 +58,6 @@ module: dylan-viscera
 
 //// Simple Sorting Algorithms
 
-// swap-elements! -- internal
-//
-// Swaps two elements in a vector.
-//
-define inline function swap-elements! (vector :: <vector>,
-                                     key1 :: <integer>,
-                                     key2 :: <integer>)
- => ();
-  let element1 = vector[key1];
-  let element2 = vector[key2];
-  vector[key1] := element2;
-  vector[key2] := element1;
-end function swap-elements!;
-
-
 // insertion-sort! -- internal
 //
 // Insertion sort also maintains the invariant that the vector is sorted

@@ -655,23 +655,23 @@ define inline method add-new!
   end if;
 end method add-new!;
 
+// author: PDH
 define method remove
     (sequence :: <sequence>, value,
      #key test :: <function> = \==, count :: false-or(<integer>))
  => (result :: <sequence>);
-  for (result = #() then if (count = 0)
-			   pair(elem, result);
-			 elseif (~test(elem, value))
-			   pair(elem, result);
-			 else
-			   if (count) count := count - 1 end if;
-			   result;
-			 end if,
-       elem in sequence)
+  for (elem in sequence,
+       result = #() then if ((count & (count <= 0))
+                             | ~compare-using-default-==(test, elem, value))
+                            pair(elem, result);
+                         else
+                           if (count) count := count - 1 end;
+                           result;
+                         end if)
   finally
     as(type-for-copy(sequence), reverse!(result));
   end for;
-end remove;
+end method remove;
 
 define inline method remove!
     (sequence :: <sequence>, value,
@@ -1228,3 +1228,88 @@ define method key-exists? (coll :: <collection>, key :: <object>)
   values(value ~= undefined, value);
 end method key-exists?;
 
+// author: PDH
+// A utility function for sequence operations which take start: and end: 
+// keyword parameters
+//
+define inline function check-start-end-bounds
+     (method-name :: <string>, sequence :: <sequence>, start :: <integer>, last :: false-or(<integer>))
+  => (seq-size :: <integer>, last :: <integer>)
+  // This type check will fail for unbounded sequences.
+  let seq-size :: <integer> = sequence.size;
+  let last :: <integer> = last | seq-size;
+  if ((last > seq-size) | (start < 0) | (start > last))
+    check-start-end-bounds-error(method-name, sequence, start, last);
+  end if;
+  values(seq-size, last);
+end function;
+
+// out-of-line error function to minimize calling code size
+// used throughout the runtime library
+//
+define not-inline function element-error (collection :: <collection>, index :: <integer>)
+ => res :: <never-returns>;
+  error("No element with index %d in %=", index, collection);
+end function;
+
+// author: PDH
+// The out-of-line error function for the check-start-end-bounds function
+//
+define not-inline function check-start-end-bounds-error
+     (method-name :: <string>, sequence :: <sequence>, start :: <integer>, last :: <integer>)
+  => (result)
+  let seq-size :: <integer> = sequence.size;
+  case
+    (last > seq-size)
+      => error("%s called on %= with end: (%=) index greater than sequence size (%=).", method-name, sequence, last, seq-size);
+    (start < 0)
+      => error("%s called on %= with start: (%=) index less than 0.", method-name, sequence, start);
+    (start > last)
+      => error("%s called on %= with start: (%=) > end: (%=).", method-name, sequence, start, last);
+     otherwise
+      => error("We should have never made it to here.");
+  end case;
+end function;
+
+// author: PDH
+// This is an optimization for functions who take a function parameter
+// which defaults to \==. It eliminates a general entry for the case 
+// where the comparison function is \== and does not hurt speed 
+// measurably for cases where another comparison function is specified.
+//
+define inline-only function compare-using-default-==
+    (test :: <function>, a, b)
+ => (res :: <boolean>)
+  if (test == \==)
+    a == b;
+  else
+    test(a, b);
+  end;
+end;
+
+// %swap-elements! -- internal
+//
+// Swaps two elements in a vector without doing a bounds
+// check of the indices.
+//
+define inline function %swap-elements!
+    (vec :: <vector>, key1 :: <integer>, key2 :: <integer>)
+ => ();
+    let element1 = %element(vec, key1);
+    let element2 = %element(vec, key2);
+    %element(vec, key1) := element2;
+    %element(vec, key2) := element1;
+end function %swap-elements!;
+
+// swap-elements! -- internal
+//
+// Swaps two elements in a vector.
+//
+define inline function swap-elements!
+    (vec :: <vector>, key1 :: <integer>, key2 :: <integer>)
+ => ();
+  let element1 = vec[key1];
+  let element2 = vec[key2];
+  vec[key1] := element2;
+  vec[key2] := element1;
+end function swap-elements!;

@@ -59,20 +59,14 @@ define sealed inline method as
 end;
 
 
-// out of line error functions, to minimize calling code size
-// element-error is actually used throughout the runtime library
+// out-of-line error functions to minimize calling code size
 
-define function element-error (coll :: <collection>, index :: <integer>)
- => res :: <never-returns>;
-  error("No element %d in %=", index, coll);
-end function;
-
-define function row-major-index-error (index :: <integer>)
+define not-inline function row-major-index-error (index :: <integer>)
  => res :: <never-returns>;
   error("Vector index out of bounds: %=", index);
 end function;
 
-define function vector-rank-error (indices)
+define not-inline function vector-rank-error (indices)
  => res :: <never-returns>;
   error("Number of indices not equal to rank. Got %=, wanted one index",
 	indices);
@@ -124,6 +118,23 @@ define sealed inline method as
     => res :: <simple-vector>;
   vector;
 end;
+
+// TO DO: implement reverse, reverse!, copy-sequence, shallow-copy, 
+// and most other methods for limited vectors.  They (and fill! below) 
+// should probably be implemented in the limited vector macros, 
+// specialized for each type, to get maximum speed.
+
+// author: PDH
+define method fill!
+    (vec :: <simple-vector>, value :: <object>,
+     #key start :: <integer> = 0, end: last :: false-or(<integer>))
+ => (vec :: <simple-vector>);
+  let (seq-size, last) = check-start-end-bounds("fill!", vec, start, last);
+  for (index from start below last)
+    element(vec, index) := value;
+  end;
+  vec;
+end method;
 
 
 // <simple-object-vector>s
@@ -211,16 +222,6 @@ define sealed inline method forward-iteration-protocol
 	 end);
 end;
 
-define sealed inline method fill!
-    (vec :: <simple-vector>, value :: <object>,
-     #key start :: <integer> = 0, end: end-index :: <integer> = vec.size)
- => (vec :: <simple-vector>);
-  for (index :: <integer> from start below end-index)
-    vec[index] := value;
-  end for;
-  vec;
-end method fill!;
-
 define sealed inline method as
     (class == <simple-object-vector>, vec :: <simple-object-vector>)
     => res :: <simple-object-vector>;
@@ -277,9 +278,92 @@ define sealed method as
   res;
 end;
 
+// Not strictly necessary, but produces slightly more optimal code
+define inline method type-for-copy (object :: <simple-object-vector>)
+ => (res :: <class>)
+  <simple-object-vector>;
+end;
+
+// author: PDH, 1.2x speed increase
+define method fill!
+    (vec :: <simple-object-vector>, value :: <object>,
+     #key start :: <integer> = 0, end: last :: false-or(<integer>))
+ => (vec :: <simple-object-vector>);
+  let (seq-size, last) = check-start-end-bounds("fill!", vec, start, last);
+  for (index from start below last)
+    %element(vec, index) := value;
+  end;
+  vec;
+end method;
+
+// author: PDH, 5x speed-up
+define sealed method reverse (vec :: <simple-object-vector>)
+ => (result :: <simple-object-vector>)
+  let sz = vec.size;
+  let result = make(<simple-object-vector>, size: sz);
+  for (elt in vec, reverse-index from (sz - 1) by -1)
+    %element(result, reverse-index) := elt;
+  end;
+  result;
+end method;
+
+// author: PDH, 50x speed-up
+define sealed method reverse! (vec :: <simple-object-vector>)
+ => (result :: <simple-object-vector>)
+  let sz = vec.size;
+  let mid = ash(sz, -1);
+  for (left from 0 below mid, right from (sz - 1) by -1)
+    %swap-elements!(vec, left, right);
+  end;
+  vec;
+end method;
+
+define constant $memcpy-switchover-point = 50;
+
+// author: PDH, 4x speed-up
+define method copy-sequence
+    (src :: <simple-object-vector>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
+ => (result :: <simple-object-vector>);
+  let (src-size, last) = check-start-end-bounds("copy-sequence", src, start, last);
+  let dst-size = last - start;
+  let dst = make(<simple-object-vector>, size: dst-size);
+  // use an empirically determined cut-off point to switch to memcpy
+  if (dst-size < $memcpy-switchover-point)
+    for (dst-index from 0 below dst-size, src-index from start)
+      %element(dst, dst-index) := %element(src, src-index);
+    end;
+  else
+    call-out("memcpy", void:,
+       ptr: vector-elements-address(dst),
+       ptr: vector-elements-address(src) + start * c-expr(int: "sizeof(descriptor_t)"),
+       int: dst-size * c-expr(int: "sizeof(descriptor_t)"));  
+  end if;
+  dst;
+end method;
+
+// author: PDH, 5x speed-up
+define sealed inline method shallow-copy (vec :: <simple-object-vector>)
+ => (result :: <simple-object-vector>)
+  let sz :: <integer> = vec.size;
+  let result = make(<simple-object-vector>, size: sz);
+  // use an empirically determined cut-off point to switch to memcpy
+  if (sz < $memcpy-switchover-point)
+    for (elt keyed-by index in vec)
+      %element(result, index) := elt;
+    end;
+  else
+    call-out("memcpy", void:,
+       ptr: vector-elements-address(result),
+       ptr: vector-elements-address(vec),
+       int: sz * c-expr(int: "sizeof(descriptor_t)"));
+  end if;
+  result;
+end method;
+
 
 define open generic %elem (vec :: <vector>, index :: <integer>) 
  => (result :: <object>);
+
 define open generic %elem-setter
     (value :: <object>, vec :: <vector>, index :: <integer>) 
  => (result :: <object>);
