@@ -8,7 +8,7 @@ define brain test-brain1
 
   [choose:]
          Flip 9, (turn-left, turn-right);
-
+         Drop, (choose);
 
 
   [turn-right:]
@@ -18,6 +18,7 @@ define brain test-brain1
          Move start  => problem;
 
   [problem:]
+         Drop;
          Flip 1, (start, start);
  end;
  

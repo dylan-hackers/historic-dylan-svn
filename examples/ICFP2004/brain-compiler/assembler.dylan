@@ -19,6 +19,19 @@ define macro brain-definer
   { ?state; ... } => { let counter = counter + 1; ?state; ... }
 
  state:
+
+  { Drop } => { push-thunk(instrs, label, counter,
+                           method()
+                             make(<drop>, state: lookup(instrs, label, counter + 1))
+                           end);
+                     }
+
+  { Drop, (?label:name) } => { push-thunk(instrs, label, counter,
+                                          method()
+                                            make(<drop>, state: lookup(instrs, ?#"label", 0))
+                                          end);
+                     }
+
   { Turn ?:name } => { push-thunk(instrs, label, counter,
                                   method()
                                     make(<turn>, left-or-right: ?#"name", state: lookup(instrs, label, counter + 1))
@@ -62,6 +75,15 @@ define macro brain-definer
                                                                                         state-true: lookup(instrs, ?#"yes", 0),
                                                                                         state-false: lookup(instrs, ?#"no", 0))
                                                                           end)
+                        }
+
+  { Sense ?what:name, (?yes:name, ?no:name) } => { push-thunk(instrs, label, counter,
+                                                              method() make(<flip>,
+                                                                            direction: #"Here",
+                                                                            condition: ?#"what",
+                                                                            state-true: lookup(instrs, ?#"yes", 0),
+                                                                            state-false: lookup(instrs, ?#"no", 0))
+                                                                        end)
                         }
 
 end;
