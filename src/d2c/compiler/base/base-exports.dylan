@@ -561,6 +561,7 @@ define module variables
     variable-transformers, variable-transformers-setter,
     variable-ct-evaluator, variable-ct-evaluator-setter,
     variable-fragment-expander, variable-fragment-expander-setter,
+    variable-tlf, variable-tlf-setter,
     note-variable-definition, note-variable-referencing-macro,
     <use>, <all-marker>, <renaming>, renaming-orig-name, renaming-new-name,
 
@@ -857,6 +858,7 @@ define module flow
     reoptimize-queue, reoptimize-queue-setter,
     add-to-queue, all-function-regions,
 
+    <general-dependency>,
     <expression>, <dependency>, <queueable-mixin>, <dependent-mixin>,
     <leaf>, <variable-info>, <definition-site-variable>,
     <ssa-variable>, <initial-definition>, <multi-definition-variable>,
