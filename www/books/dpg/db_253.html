@@ -19,8 +19,20 @@
 <div class="content" id="heading253-0">
 <h1>16.1.1   <a name="marker-9-692"></a>A new collection class</h1>
 <table><tr><th><p>The <code>sorted-sequence.dylan</code> file.</p></th></tr><tr>
-<td><p>module: sorted-sequence</p></td></tr><tr>
-<td><p>define class &lt;sorted-sequence&gt; (&lt;sequence&gt;)<br /><em>  // The vector that stores the elements of the sorted sequence, in order<br /></em>  slot data :: &lt;stretchy-vector&gt; = make(&lt;stretchy-vector&gt;, size: 0);<br /><em>  // The function used to extract the comparison value from an element<br /></em>  constant slot value-function :: &lt;function&gt; = identity,<br />    init-keyword: value-function:;<br /><em>  // The function used to determine whether one comparison value is <br />  // smaller than another comparison value<br /></em>  constant slot comparison-function :: &lt;function&gt; = \&lt;,<br />    init-keyword: comparison-function:;<br />end class &lt;sorted-sequence&gt;; </p></td></tr></table>
+<td><pre>
+module: sorted-sequence
+
+define class &lt;sorted-sequence&gt; (&lt;sequence&gt;)
+<em>  // The vector that stores the elements of the sorted sequence, in order</em>
+  slot data :: &lt;stretchy-vector&gt; = make(&lt;stretchy-vector&gt;, size: 0);
+<em>  // The function used to extract the comparison value from an element</em>
+  constant slot value-function :: &lt;function&gt; = identity,
+    init-keyword: value-function:;
+<em>  // The function used to determine whether one comparison value is 
+  // smaller than another comparison value</em>
+  constant slot comparison-function :: &lt;function&gt; = \&lt;,
+    init-keyword: comparison-function:;
+    end class &lt;sorted-sequence&gt;; </pre></td></tr></table>
 <p>Because is there is a well-defined ordering of the elements of sorted sequences, we choose <code>&lt;sequence&gt;</code> to be the superclass of <code>&lt;sorted-sequence&gt;</code>. We use the built-in collection class called <code>&lt;stretchy-vector&gt;</code> to store the elements of our sorted sequence, because we want to be able to have the sorted sequence grow to any size in a convenient way.</p>
 <p>The slots <code>comparison-function</code> and <code>value-function</code> are constant slots, because we intend to have clients specify these functions only when they create the sorted sequence. If we had decided to let clients change the value of these slots, we would have made the slots virtual, so that we could reorder the data vector after either function had changed. </p>
 <p>Now that we have covered the structure and initialization of the sorted sequence data structure, we can define basic collection methods.</p>
