@@ -1,5 +1,5 @@
 module: utils
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/utils.dylan,v 1.8 2003/03/15 06:23:03 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/utils.dylan,v 1.8.6.1 2003/11/20 19:29:28 housel Exp $
 copyright: see below
 
 
@@ -32,7 +32,7 @@ copyright: see below
 
 // Turn on pretty printing.
 //
-*print-pretty* := #t;
+*print-pretty?* := #t;
 
 
 // Pretty format.
@@ -154,20 +154,9 @@ define method write-class-name (thing, stream) => ();
 end;
 
 define method write-address (thing, stream) => ();
-  write(stream, "0x");
-#if (mindy)
-  let address = thing.object-address;
-#else
-  let address = as(<integer>, thing.object-address);
-#endif
-  for (shift from -28 below 1 by 4)
-    let digit = as(<integer>, logand(ash(address, shift), #xf));
-    if (digit < 10)
-      write-element(stream, digit + 48);
-    else
-      write-element(stream, digit + 87);
-    end;
-  end;
+  write(stream, "#x");
+  write(stream, integer-to-string(as(<integer>, thing.object-address),
+                                  base: 16));
 end;
 
 define method pprint-fields (thing, stream, #rest fields) => ();
@@ -325,7 +314,7 @@ define method integer-to-english
   let result = make(<byte-string>, size: length + pieces.size - 1, fill: ' ');
   for (piece :: <byte-string> in pieces,
        index = 0 then index + piece.size + 1)
-    copy-bytes(result, index, piece, 0, piece.size);
+    copy-bytes(piece, 0, result, index, piece.size);
   end for;
   result;
 end method integer-to-english;
@@ -363,6 +352,7 @@ end method fresh-line;
 
 
 
+/*
 // Flush-happy stream
 
 define class <flush-happy-stream> (<buffered-stream>)
@@ -528,6 +518,10 @@ define variable *debug-output* :: <stream>
   = make(<flush-happy-stream>, target: *standard-output*);
 
 #endif
+*/
+
+define variable *error-output* :: <stream> = *standard-error*;
+define variable *debug-output* :: <stream> = *standard-output*;
 
 
 // Debugger hooks
@@ -698,7 +692,7 @@ define method append
     (res :: <byte-string>, offset :: <integer>, what :: <byte-string>)
     => new-offset :: <integer>;
   let len = what.size;
-  copy-bytes(res, offset, what, 0, len);
+  copy-bytes(what, 0, res, offset, len);
   offset + len;
 end method append;
 
@@ -768,6 +762,10 @@ end method log-target;
 
 define method log-dependency (dependency :: <byte-string>) => ();
   add!($dependencies, dependency);
+end method log-dependency;
+
+define method log-dependency (dependency :: <physical-locator>) => ();
+  add!($dependencies, as(<byte-string>, dependency));
 end method log-dependency;
 
 define method spew-dependency-log (file :: <byte-string>) => ();
