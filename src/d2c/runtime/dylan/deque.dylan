@@ -87,6 +87,8 @@ end method size;
 //   2. elements [deq-current-offset .. deq-current-offset + deq-current-size-1]
 //      modulo deq-data.size contain user-supplied data
 //   3. all other elements contain #f (forced so deleted elements can be GC'd)
+//      Any method reducing deq-current-size must set the elements of
+//      the unused data area to #f.
 //
 define sealed class <object-deque> (<builtin-deque>)
   //
@@ -97,13 +99,14 @@ end class <object-deque>;
 
 define sealed domain make(singleton(<object-deque>));
 
+define constant $default-initial-deque-capacity = 4;
 
-define function calc-deque-size(new :: <integer>)
+define function calc-deque-size (new :: <integer>)
  => new :: <integer>;
   if (new < 0)
     error("size: can't be negative.");
   end;
-  for (new-len = 4 then new-len * 2,
+  for (new-len = $default-initial-deque-capacity then new-len * 2,
        until: new <= new-len)
   finally
     // *must* be a power of two so that we can use masking
@@ -157,18 +160,9 @@ define method size-setter
       for (i from 0 below current)
 	%element(new-data, i) := %element(data, logand(i + offset, mask));
       end for;
-      for (i from current below new-len)
-        %element(new-data, i) := #f;
-      end;
       deq.deq-data := new-data;
       deq.deq-current-offset := 0;
       deq.deq-data-mask := new-len - 1;
-    else
-      let offset = deq.deq-current-offset;
-      let mask = deq.deq-data-mask;
-      for (i from len below new)
-        %element(data, logand(i + offset, mask)) := #f;
-      end;
     end if;
   else
     let offset = deq.deq-current-offset;
@@ -415,7 +409,7 @@ define method remove! (deq :: <object-deque>, elem,
                        #key test :: false-or(<function>) = \==,
                        count :: false-or(<integer>))
  => deq :: <object-deque>;
-  unless (count & (count == 0))
+  unless (count & (count <= 0))
     let data = deq.deq-data;
     let sz = deq.size;
     let offset = deq.deq-current-offset;
@@ -470,6 +464,7 @@ define method remove! (deq :: <object-deque>, elem,
 	end unless;
       end method search;
     search(0);
+    fill!(data, #f, start: deq.size, end: sz);
   end unless;
   deq;
 end method remove!;

@@ -71,6 +71,8 @@ end method size;
 // Invariants:
 //   1. ssv-current-size <= ssv-data.size
 //   2. elements [ssv-current-size..ssv-data.size] are always set to #f.  
+//      Any method reducing ssv-current-size must set the elements of
+//      the unused data area to #f.
 //   3. Elements [0..ssv-current-size] contain user supplied data.
 //
 define sealed class <stretchy-object-vector> (<builtin-stretchy-vector>)
@@ -82,24 +84,27 @@ end class <stretchy-object-vector>;
 
 define sealed domain make(singleton(<stretchy-object-vector>));
 
-define function calc-size(new :: <integer>)
- => new :: <integer>;
-  if (new < 0)
+define constant $default-initial-ssv-capacity = 4;
+
+// Returns an appropriate size for the new ssv data vector
+define function calc-size (needed-size :: <integer>)
+ => new-data-size :: <integer>;
+  if (needed-size < 0)
     error("size: can't be negative.");
   end;
-  for (new-len = 4 then new-len * 2,
-       until: new <= new-len)
+  for (new-data-size = $default-initial-ssv-capacity then new-data-size * 2,
+       until: new-data-size >= needed-size)
   finally
     // earlier code considered doubling to be too wastefull for large
     // vectors and increased by no more than 1024 elements, but if you
     // don't increase it geometrically you lose the important property
     // of O(N) amortised time.  So we now take two steps to double...
     //
-    let three-quarters = new-len - ash(new-len, -2);
-    if (new <= three-quarters)
+    let three-quarters = new-data-size - ash(new-data-size, -2);
+    if (needed-size < three-quarters)
       three-quarters
     else
-      new-len
+      new-data-size
     end;
   end for;
 end calc-size;
@@ -120,24 +125,25 @@ define sealed method initialize
 end method initialize;
 
 define method size-setter
-    (new :: <integer>, ssv :: <stretchy-object-vector>)
-    => new :: <integer>;
-  let current = ssv.ssv-current-size;
+    (new-size :: <integer>, ssv :: <stretchy-object-vector>)
+    => new-size :: <integer>;
+  let current-size = ssv.size;
   let data = ssv.ssv-data;
-  if (new > current)
-    let len = data.size;
-    if (new > len)
-      let new-len = calc-size(new);
-      let new-data = make(<simple-object-vector>, size: new-len);
-      for (index :: <integer> from 0 below current)
-	new-data[index] := data[index];
+  if (new-size > current-size)
+    let current-data-size = data.size;
+    if (new-size > current-data-size)
+      let new-data-size = calc-size(new-size);
+      let new-data = make(<simple-object-vector>, size: new-data-size);
+      // Only copy the used region of the old data vector to the new data vector
+      for (index :: <integer> from 0 below current-size)
+        %element(new-data, index) := %element(data, index);
       end for;
-      ssv.ssv-data := fill!(new-data, #f, start: current);
+      ssv.ssv-data := new-data;
     end if;
   else
-    fill!(data, #f, start: new, end: current);
+    fill!(data, #f, start: new-size, end: current-size);
   end if;
-  ssv.ssv-current-size := new;
+  ssv.ssv-current-size := new-size;
 end method size-setter;
 
 
@@ -180,11 +186,11 @@ define inline method %element
 end;
 
 define inline method %element-setter
-    (newVal,
+    (new-value :: <object>,
      v :: <stretchy-object-vector>,
      i :: <integer>)
- => (obj :: <object>);
-  %element(v.ssv-data, i) := newVal;
+ => (new-value :: <object>);
+  %element(v.ssv-data, i) := new-value;
 end;
 
 // This method is identical to the one in "array.dylan", except that it
@@ -242,26 +248,30 @@ end method;
 define method add! (ssv :: <stretchy-object-vector>, new-element)
     => ssv :: <stretchy-object-vector>;
   let data = ssv.ssv-data;
-  let current = ssv.size;
-  if (current == data.size)
-    let data-size = current * 2;
-    let new-data = replace-subsequence!(make(<simple-object-vector>,
-					     size: data-size),
-					data, end: current);
+  let current-size = ssv.size;
+  if (current-size == data.size)
+    let new-data-size = current-size * 2;
+    let new-data = make(<simple-object-vector>, size: new-data-size);
+    // simce the old data vector is full copy all of it to the new data vector
+    for (elt keyed-by index in data)
+      %element(new-data, index) := elt; 
+    end;
     ssv.ssv-data := new-data;
-    new-data[current] := new-element;
-  else 
-    data[current] := new-element;
+    %element(new-data, current-size) := new-element;
+  else
+    %element(data, current-size) := new-element;
   end if;
-  ssv.ssv-current-size := current + 1;
+  ssv.ssv-current-size := current-size + 1;
   ssv;
 end method add!;
 
+// This method has not been optimized yet by changing element to 
+// %element.
 define method remove! (ssv :: <stretchy-object-vector>, elem,
 		       #key test :: false-or(<function>) = \==,
 		            count :: false-or(<integer>))
     => ssv :: <stretchy-object-vector>;
-  unless (count & (count == 0))
+  unless (count & (count <= 0))
     let data = ssv.ssv-data;
     let sz = ssv.size;
     local
@@ -312,6 +322,7 @@ define method remove! (ssv :: <stretchy-object-vector>, elem,
 	end unless;
       end method search;
     search(0);
+    fill!(data, #f, start: ssv.size, end: sz);
   end unless;
   ssv;
 end method remove!;
@@ -319,42 +330,59 @@ end method remove!;
 define sealed method concatenate!
     (ssv :: <stretchy-object-vector>, #rest more-sequences)
  => (ssv :: <stretchy-object-vector>)
-  let current = ssv.size;
+  let current-size = ssv.size;
 
-  let new-size
-    = for(sequence in more-sequences,
-          new-size = current then new-size + sequence.size)
+  let needed-size
+    = for (sequence in more-sequences,
+          needed-size = current-size then needed-size + sequence.size)
       finally
-        new-size;
+        needed-size;
       end;
     
-  if (new-size >= ssv.ssv-data.size)
-    let data-size = if(current * 2 > new-size) current * 2 else new-size end;
-    ssv.ssv-data := replace-subsequence!(make(<simple-object-vector>,
-                                              size: data-size),
-                                         ssv.ssv-data, end: current);
+  if (needed-size >= ssv.ssv-data.size)
+    let data = ssv.ssv-data;
+    let new-data-size = calc-size(needed-size);
+    let new-data = make(<simple-object-vector>, size: new-data-size);
+    // Only copy the used region of the old data vector to the new data vector
+    for (index :: <integer> from 0 below current-size)
+      %element(new-data, index) := %element(data, index);
+    end for;
+    ssv.ssv-data := new-data;
   end if;
 
+  // We won't blindly trust that size(collection) returns a 
+  // value consistent with the forward-iteration-protocol for 
+  // the collections so let's be sure not to iterate past needed-size.
+  // (It's possible that a user-implemented collection class 
+  // could be incorrect.)
   let data = ssv.ssv-data;
-  for(sequence in more-sequences,
-      outer-index = current
-        then for(item in sequence, index from outer-index)
-               data[index] := item;
+  for (sequence in more-sequences,
+      outer-index = current-size
+        then for (index from outer-index below needed-size, elt in sequence)
+               %element(data, index) := elt;
              finally
                index;
              end)
   end;
   
-  ssv.ssv-current-size := new-size;
+  ssv.ssv-current-size := needed-size;
   ssv;
 end method concatenate!;
 
 define sealed method as
     (class == <stretchy-vector>, collection :: <collection>)
  => (res :: <stretchy-object-vector>);
-  let res = make(<stretchy-object-vector>, size: collection.size);
-  for (index :: <integer> from 0, element in collection)
-    res[index] := element;
+  // We won't blindly trust that size(collection) returns a 
+  // value consistent with the forward-iteration-protocol for 
+  // the collection so let's be sure not to iterate past sz.
+  // (It's possible that a user-implemented collection class 
+  // could be incorrect.)
+  // Also don't used the key-by clause here because it may be
+  // slow for collection.
+  let sz = collection.size;
+  let res = make(<stretchy-object-vector>, size: sz);
+  for (index :: <integer> from 0 below sz, elt in collection)
+    %element(res, index) := elt;
   end;
   res;
 end;
@@ -376,9 +404,16 @@ define method map-into (destination :: <stretchy-object-vector>,
     elseif (sz > size(destination))
       size(destination) := sz
     end if;
+    // We won't blindly trust that size(collection) returns a 
+    // value consistent with the forward-iteration-protocol for 
+    // the collection so let's be sure not to iterate past sz.
+    // (It's possible that a user-implemented collection class 
+    // could be incorrect.)
+    // Also don't used the keyed-by clause here because it may be
+    // slow for collection.
     let data = ssv-data(destination);
-    for (key :: <integer> from 0, elem in sequence)
-      data[key] := proc(elem);
+    for (key :: <integer> from 0 below sz, elt in sequence)
+      %element(data, key) := proc(elt);
     end for;
     destination;
   else
@@ -537,35 +572,35 @@ define sealed method initialize
 end method initialize;
 
 define sealed method size-setter
-    (new :: <integer>, ssv :: <limited-stretchy-vector>)
- => new :: <integer>;
-  let current = ssv.ssv-current-size;
+    (new-size :: <integer>, ssv :: <limited-stretchy-vector>)
+ => new-size :: <integer>;
+  let current-size = ssv.ssv-current-size;
   let data = ssv.ssv-data;
-  if (new > current)
-    let len = data.size;
-    if (new > len)
-      let new-len = calc-size(new);
-      let new-data = make(ssv.lsv-data-type, size: new-len);
+  if (new-size > current-size)
+    let current-data-size = data.size;
+    if (new-size > current-data-size)
+      let new-data-size = calc-size(new-size);
+      let new-data = make(ssv.lsv-data-type, size: new-data-size);
       let (init, limit, next, done?, key, elem, elem-setter, copy)
 	= forward-iteration-protocol(new-data);
       for (old-elem in data,
-	   index :: <integer> from 0 below current,
+	   index :: <integer> from 0 below current-size,
 	   state = init then next(new-data, state))
 	elem(new-data, state) := old-elem;
       end for;
       ssv.ssv-data := new-data;
     end if;
   else
-    fill!(data, #f, start: new, end: current);
+    fill!(data, #f, start: new-size, end: current-size);
   end if;
-  ssv.ssv-current-size := new;
+  ssv.ssv-current-size := new-size;
 end method size-setter;
 
 define sealed method remove! (ssv :: <limited-stretchy-vector>, elem,
 			       #key test :: false-or(<function>) = \==,
 			            count :: false-or(<integer>))
  => ssv :: <limited-stretchy-vector>;
-  unless (count & (count == 0))
+  unless (count & (count <= 0))
     let data = ssv.ssv-data;
     let sz = ssv.size;
     local

@@ -233,9 +233,17 @@ end;
 define sealed method as
     (class == <simple-object-vector>, collection :: <collection>)
     => res :: <simple-object-vector>;
-  let res = make(<simple-object-vector>, size: collection.size);
-  for (index :: <integer> from 0, elt in collection)
-    res[index] := elt;
+  let sz :: <integer> = collection.size;
+  let res = make(<simple-object-vector>, size: sz);
+  // We won't blindly trust that size(collection) returns a 
+  // value consistent with the forward-iteration-protocol for 
+  // the collection so let's be sure not to iterate past sz.
+  // (It's possible that a user-implemented collection class 
+  // could be incorrect.)
+  // Also don't used the key-by clause here because it may be
+  // slow for collection.
+  for (index :: <integer> from 0 below sz, elt in collection)
+    %element(res, index) := elt;
   end;
   res;
 end method as;
@@ -244,11 +252,11 @@ end method as;
 // generate this case whenever you "apply" a function to a list
 //
 define sealed inline method as
-    (class == <simple-object-vector>, collection :: <list>)
+    (class == <simple-object-vector>, list :: <list>)
     => res :: <simple-object-vector>;
-  let res = make(<simple-object-vector>, size: collection.size);
-  for (index :: <integer> from 0, elt in collection)
-    res[index] := elt;
+  let res = make(<simple-object-vector>, size: list.size);
+  for (index :: <integer> from 0, elt in list)
+    %element(res, index) := elt;
   end;
   res;
 end method as;
@@ -259,12 +267,12 @@ end method as;
 // tickles a bug in stack analysis
 //
 define sealed method as
-    (class == <simple-object-vector>, collection :: <stretchy-object-vector>)
+    (class == <simple-object-vector>, ssv :: <stretchy-object-vector>)
  => (res :: <simple-object-vector>);
-  let sz = collection.size;
+  let sz = ssv.size;
   let res = make(<simple-object-vector>, size: sz);
   for (index :: <integer> from 0 below sz)
-    res[index] := collection[index];
+    %element(res, index) := %element(ssv, index);
   end;
   res;
 end;
