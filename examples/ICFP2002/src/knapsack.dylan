@@ -42,7 +42,7 @@ define method try-pickup-many2(robot :: <robot>, s :: <state>, #key
     elseif (w = 0 | i = 0)
 //      debug("0\n");
       values(0, #());
-    elseif (packages[i - 1].weight > capacity)
+    elseif (packages[i - 1].weight > w)
 //      debug("too heavy\n");
       /*
         let good-keys = choose(method (a :: <pair>)
@@ -56,7 +56,7 @@ define method try-pickup-many2(robot :: <robot>, s :: <state>, #key
                                       end method).last];                       
         end if;
       */
-      lookup(capacity, i - 1);
+      lookup(w, i - 1);
     else
 //      debug("Evaluating...\n");
       if (value-function(robot, s, packages[i - 1]) + lookup(w - packages[i - 1].weight, i - 1)
