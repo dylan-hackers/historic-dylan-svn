@@ -13,15 +13,6 @@ define open generic transform(elt :: <xml>, tag-name :: <symbol>,
                               state :: <symbol>, str :: <string>)
  => (xform :: <string>);
 
-/*** Let's try this later, shall we?
-// the holders for the standard transformation functions
-define variable *doc-xform* =
-    method(i, n, s, str)
-      let elt = i.node-children[0];
-      transform(elt, elt.element-tag-name, s, str);
-    end;
-define variable *elt-xform* =  ****/
-
 //  the standard (default) transformation functions
 define method transform(nodes :: <node>, tag-name :: <symbol>,
                         state :: <symbol>, str :: <string>)
@@ -45,14 +36,6 @@ define method transform(in :: <element>, tag-name :: <symbol>,
 end method transform;
 
 // N.B. no default xforms for attributes
-
-/****
-define method transform(in :: <text-node>, tag-name == #"text",
-                        state :: <symbol>, str :: <string>)
- => (xform :: <string>)
-  next-method();
-end method transform;
-*****/
 
 define method transform(in :: <char-string>, tag-name :: <symbol>,
                         state :: <symbol>, str :: <string>)
