@@ -3,7 +3,7 @@ if [ -f /usr/local/www/gdref/.needs-rebuild ]; then
 	date
 	rm -f /usr/local/www/gdref/.needs-rebuild
 	cd /usr/local/www/ref
-	svn update
+	/usr/local/bin/svn update
 	/usr/local/bin/gmake
 	/usr/local/bin/gmake html-unchunked
 	cp -r gdlibs gdapi gdmaint gduser tutorial *.html *.png /usr/local/www/gdref/
