@@ -9,7 +9,7 @@ def @Project left union right n { union{@Sym bar} @Sub n }
 
 # some convenience definitions inside @Eq
 #
-import @Eq
+extend @Eq
 def set
   precedence 100
   right x
@@ -27,11 +27,14 @@ def ta left index { tau sub index }
 import @Eq
 def taus
   left maxindex
-  named prime {}
-  named preset {}
-  named inset {2 prime}
-{ {1 prime} ta, preset inset ta, ..., {maxindex prime} ta }
-# { {1 prime} ta, {2 prime} ta, ..., {maxindex prime} ta }
+  named prim {""}
+  named preset {""}
+  named inset {2}
+{
+  def primed left x { x prim }
+  def insetp {inset primed}
+  {1 primed} ta, preset insetp ta, ..., {maxindex primed} ta
+}
 
 import @Eq
 def proj
@@ -395,15 +398,31 @@ the union over the full cartesian product: @Eq {big union from {j=1, "j'"=1} to 
 
 For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we are to derive @Eq { set {1 sig, 2 sig, ..., m sig} proj i cap set {1' sig, 2' sig, ..., m' sig} proj i} now.
 First we reduce our task by considering signature sets with just one element:
-@Eq { set {1 sigp {n taus}} proj i cap set {1' sigp {n taus prime {'} preset {... ,} inset {i}}} proj i}.
+@Eq { set {1 sigp {n taus}} proj i cap set {1' sigp {n taus prim {'} preset {... ,} inset {i}}} proj i}.
+An argument at position @I i can only be passed to both signatures if it is an instance of the type intersection of @Eq {i ta} and @Eq {i' ta}.
+
+Now we reintroduce several signatures at the left hand side:
+clearly we have to construct the union of each
+@Eq { i ta sup j cap i' ta }.
+Here @I j is denoting the index in the left signature set.
+Additionally considering several signatures on the right hand side, we arrive at
+the union over the full cartesian product:
+@Eq {big bcup from {j=1, j'=1} to {m, m'} tau sub i sup j cap tau sub i sup j'}.
 
 @End @SubSubSection
 
 #-----------------
 @SubSubSection @Title { Type Difference }
 @Begin
-# @LP
-# We are to derive "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Char backslash "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i} now.
+@LP
+
+We have to examine several cases when computing type intersections involving
+tuple union projections. This is a consequence of the noncummutativity of
+set difference, which is closely related to type difference.
+We start out with substracting conventional types and proceed to the other
+cases as we gradually get bolder.
+@LP
+@Eq { set {1 sigp {n taus}, 2 sigp {n taus}, ..., m sigp {n taus}} proj i setminus tau }
 @LP
 
 We are to derive
@@ -411,7 +430,7 @@ We are to derive
 now.
 
 Again we consider one element sets first:
-@Eq { set {1 sigp {n taus}} proj i setminus set {1' sigp {n taus prime {'}}} proj i}
+@Eq { set {1 sigp {n taus}} proj i setminus set {1' sigp {n taus prim {'}}} proj i}
 @End @SubSubSection
 @EndSubSubSections
 
