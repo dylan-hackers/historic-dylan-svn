@@ -42,9 +42,23 @@ define class <char-reference> (<xml>)
   constant slot char :: <character>, required-init-keyword: char:;
 end class <char-reference>;
 
-define method text(elt :: <element>) => (s :: <string>)
+define method unfiltered-text(elt :: <element>) => (s :: <string>)
   apply(concatenate, map(text, choose(rcurry(instance?, <char-string>), 
                                       elt.node-children)));
+end method unfiltered-text;
+
+define function is-space?(ch :: <character>) => (b :: <boolean>)
+  ch == ' ' | ch == '\r' | ch == '\t' | ch == '\n';
+end function is-space?;
+
+// removes leading and trailing blanks
+define method text(elt :: <element>) => (s :: <string>)
+  let ans = elt.unfiltered-text;
+  let start = 0;
+  let stop = ans.size;
+  while(ans[start].is-space?) start := start + 1; end;
+  while(ans[stop - 1].is-space?) stop := stop - 1; end;
+  copy-sequence(ans, start: start, end: stop);
 end method text;
 
 // and constants as classes
