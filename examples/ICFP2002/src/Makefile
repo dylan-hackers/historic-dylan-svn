@@ -90,6 +90,31 @@ test-all-22106: icfp2002
 	./icfp2002 icfp1.cse.ogi.edu 22106 pushbot > pushbot-22106.log 2>&1 &
 	./icfp2002 icfp1.cse.ogi.edu 22106 gabot > gabot-22106.log 2>&1 &
 
+test-all-22107: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22107 dumbot > dumbot-22107.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22107 thomas > thomas-22107.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22107 pushbot > pushbot-22107.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22107 gabot > gabot-22107.log 2>&1 &
+
+test-all-22108: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22108 dumbot > dumbot-22108.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22108 thomas > thomas-22108.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22108 pushbot > pushbot-22108.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22108 gabot > gabot-22108.log 2>&1 &
+
+test-all-22109: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22109 dumbot > dumbot-22109.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22109 thomas > thomas-22109.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22109 pushbot > pushbot-22109.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22109 gabot > gabot-22109.log 2>&1 &
+
+test-all-22110: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22110 dumbot > dumbot-22110.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22110 thomas > thomas-22110.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22110 pushbot > pushbot-22110.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22110 gabot > gabot-22110.log 2>&1 &
+
+
 # This doesn't work. Probably I don't understand shell quoting rules.
 #kill-all-bots:
 #	ps -C icfp2002 | grep '[i]cfp' | awk '{print $1}' | xargs kill
