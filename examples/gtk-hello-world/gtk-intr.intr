@@ -84,8 +84,6 @@ define interface
     superclasses: {<gtk-window>};
   struct "struct _GtkInputDialog" => <gtk-input-dialog>,
     superclasses: {<gtk-dialog>};
-  struct "struct _GtkDrawWindow" => <gtk-draw-window>,
-    superclasses: {<gtk-window>};
   struct "struct _GtkFileSelection" => <gtk-file-selection>,
     superclasses: {<gtk-window>};
   struct "struct _GtkFontSelectionDialog" => <gtk-font-selection-dialog>,
