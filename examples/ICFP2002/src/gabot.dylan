@@ -20,7 +20,7 @@ define generic create-command(s :: <strategy>) => command :: <command>;
 define generic create-terminal-command(s :: <strategy>, state :: <state>) => command :: <command>;
 
 
-define method safe?(dropping :: <drop-strategy>, me :: <gabot>, s :: <state>)
+define method safe?(dropping :: <path-strategy>, me :: <gabot>, s :: <state>)
  => safe :: <boolean>;
 // TODO: any other robots around?
   let position = find-robot(s, me.agent-id).location;
