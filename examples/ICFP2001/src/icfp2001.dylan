@@ -20,72 +20,56 @@ define class <tag> (<object>)
     required-init-keyword: name:;
   slot open-tag :: <byte-string> = "";
   slot close-tag :: <byte-string> = "";
+  slot operation, required-init-keyword: op:;
 end;
+
+define constant !all-tags = make(<table>);
 
 define sealed method initialize(t :: <tag>, #key name)
   t.open-tag := concatenate("<", name, ">");
   t.close-tag := concatenate("</", name, ">");
+  !all-tags[name[0]] := t;
 end;
 
 define sealed domain make(singleton(<tag>));
 
-define constant tag-BB = make(<tag>, name: "B");
-define constant tag-EM = make(<tag>, name: "EM");
-define constant tag-I  = make(<tag>, name: "I");
-define constant tag-PL = make(<tag>, name: "PL");
-define constant tag-S  = make(<tag>, name: "S");
-define constant tag-TT = make(<tag>, name: "TT");
-define constant tag-U  = make(<tag>, name: "U");
-define constant tag-0  = make(<tag>, name: "0");
-define constant tag-1  = make(<tag>, name: "1");
-define constant tag-2  = make(<tag>, name: "2");
-define constant tag-3  = make(<tag>, name: "3");
-define constant tag-4  = make(<tag>, name: "4");
-define constant tag-5  = make(<tag>, name: "5");
-define constant tag-6  = make(<tag>, name: "6");
-define constant tag-7  = make(<tag>, name: "7");
-define constant tag-8  = make(<tag>, name: "8");
-define constant tag-9  = make(<tag>, name: "9");
-define constant tag-r  = make(<tag>, name: "r");
-define constant tag-g  = make(<tag>, name: "g");
-define constant tag-b  = make(<tag>, name: "b");
-define constant tag-c  = make(<tag>, name: "c");
-define constant tag-m  = make(<tag>, name: "m");
-define constant tag-y  = make(<tag>, name: "y");
-define constant tag-k  = make(<tag>, name: "k");
-define constant tag-w  = make(<tag>, name: "w");
+define method apply-op(attribute :: <attribute>, tag :: <tag>)
+ => (<attribute>)
+  tag.operation(attribute);
+end method apply-op;
+       
+
+define constant tag-BB = make(<tag>, name: "B",  op: set-bold);
+define constant tag-EM = make(<tag>, name: "EM", op: set-emphasis);
+define constant tag-I  = make(<tag>, name: "I",  op: set-italic);
+define constant tag-PL = make(<tag>, name: "PL", op: set-plain);
+define constant tag-S  = make(<tag>, name: "S",  op: set-strong);
+define constant tag-TT = make(<tag>, name: "TT", op: set-typewriter);
+define constant tag-U  = make(<tag>, name: "U",  op: set-underline);
+define constant tag-0  = make(<tag>, name: "0",  op: rcurry(set-font-size, 0));
+define constant tag-1  = make(<tag>, name: "1",  op: rcurry(set-font-size, 1));
+define constant tag-2  = make(<tag>, name: "2",  op: rcurry(set-font-size, 2));
+define constant tag-3  = make(<tag>, name: "3",  op: rcurry(set-font-size, 3));
+define constant tag-4  = make(<tag>, name: "4",  op: rcurry(set-font-size, 4));
+define constant tag-5  = make(<tag>, name: "5",  op: rcurry(set-font-size, 5));
+define constant tag-6  = make(<tag>, name: "6",  op: rcurry(set-font-size, 6));
+define constant tag-7  = make(<tag>, name: "7",  op: rcurry(set-font-size, 7));
+define constant tag-8  = make(<tag>, name: "8",  op: rcurry(set-font-size, 8));
+define constant tag-9  = make(<tag>, name: "9",  op: rcurry(set-font-size, 9));
+define constant tag-r  = make(<tag>, name: "r",  op: rcurry(set-color, #"red"));
+define constant tag-g  = make(<tag>, name: "g",  op: rcurry(set-color, #"green"));
+define constant tag-b  = make(<tag>, name: "b",  op: rcurry(set-color, #"blue"));
+define constant tag-c  = make(<tag>, name: "c",  op: rcurry(set-color, #"cyan"));
+define constant tag-m  = make(<tag>, name: "m",  op: rcurry(set-color, #"magenta"));
+define constant tag-y  = make(<tag>, name: "y",  op: rcurry(set-color, #"yellow"));
+define constant tag-k  = make(<tag>, name: "k",  op: rcurry(set-color, #"black"));
+define constant tag-w  = make(<tag>, name: "w",  op: rcurry(set-color, #"white"));
 
 define function parse-tag
     (s :: <byte-string>, p :: <integer>, state :: <attribute>)
  => (t :: <tag>, new-p :: <integer>, new-state :: <attribute>);
-  let (t :: <tag>, new-state :: <attribute>) =
-    select (s[p])
-      'B' => values(tag-BB, state.set-bold);
-      'E' => values(tag-EM, state.set-emphasis);
-      'I' => values(tag-I,  state.set-italic);
-      'P' => values(tag-PL, state.set-plain);
-      'S' => values(tag-S,  state.set-strong);
-      'T' => values(tag-TT, state.set-typewriter);
-      'U' => values(tag-U,  state.set-underline);
-      '0' => values(tag-0,  set-font-size(state, 0));
-      '1' => values(tag-1,  set-font-size(state, 1));
-      '2' => values(tag-2,  set-font-size(state, 2));
-      '3' => values(tag-3,  set-font-size(state, 3));
-      '4' => values(tag-4,  set-font-size(state, 4));
-      '5' => values(tag-5,  set-font-size(state, 5));
-      '6' => values(tag-6,  set-font-size(state, 6));
-      '7' => values(tag-7,  set-font-size(state, 7));
-      '8' => values(tag-8,  set-font-size(state, 8));
-      '9' => values(tag-9,  set-font-size(state, 9));
-      'r' => values(tag-r,  set-color(state, #"red"));
-      'g' => values(tag-g,  set-color(state, #"green"));
-      'b' => values(tag-b,  set-color(state, #"blue"));
-      'c' => values(tag-c,  set-color(state, #"cyan"));
-      'm' => values(tag-m,  set-color(state, #"magenta"));
-      'y' => values(tag-y,  set-color(state, #"yellow"));
-      'k' => values(tag-k,  set-color(state, #"black"));
-      'w' => values(tag-w,  set-color(state, #"white"));
-    end;
+  let t :: <tag> = !all-tags[s[p]];
+  let new-state :: <attribute> = apply-op(state, t);
   for (i from 1 below t.name.size)
     if (t.name[i] ~= s[p + i])
       error("unknown tag");
