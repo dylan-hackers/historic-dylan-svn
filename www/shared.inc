@@ -21,9 +21,9 @@ function end_progress_table () {
 }
 
 function short_header ($title) {
-    readfile("header.html");
+    readfile("/usr/local/www/data/header.html");
     echo "<TITLE>Gwydion Dylan: " . $title . "</TITLE><BODY>";
-    readfile("menu.html");
+    readfile("/usr/local/www/data/menu.html");
 }
 
 function standard_header ($title) {
@@ -32,6 +32,6 @@ function standard_header ($title) {
 }
 
 function standard_footer () {
-    readfile("footer.html");
+    readfile("/usr/local/www/data/footer.html");
 }
 ?>
