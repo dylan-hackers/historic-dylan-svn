@@ -356,13 +356,14 @@ define function more-packages?(s :: <stream>)
 end function more-packages?;
 
 // Receive server package information
-define function receive-server-packages(s :: <stream>, state :: <state>) => (state :: <state>)
+define function receive-server-packages(s :: <stream>, state :: <state>, location :: <point>) 
+  => (state :: <state>)
   while(more-packages?(s))
     receive-spaces(s);
     let (id, x, y, weight) = receive-package-information(s);
     state := add-package(state, make(<package>,
                                      id: id,
-                                     location: point(x: 0, y: 0),
+                                     location: location,
                                      dest: point(x: x, y: y),
                                      weight: weight));
     debug("receive-server-packages: %d %d %d %d\n", id, x, y, weight);
