@@ -5,16 +5,16 @@ copyright: (c) 2001, Cotillion Group, Inc.
 
 // all this needs to go into the META library
 define macro meta-definer
-{ define meta ?:name ( ?meta-vars:* ) => (?results:*) ?meta:* end } 
- => { scan-helper(?name, (?meta-vars), (?results), (?meta)) }
-{ define meta ?:name (?meta-vars:*) ?meta:* end }
- => { scan-helper(?name, (?meta-vars), (#t), (?meta)) }
+{ define meta ?:name ( ?vars:* ) => (?results:*) ?meta:* end } 
+ => { scan-helper(?name, (?vars), (?results), (?meta)) }
+{ define meta ?:name (?vars:*) ?meta:* end }
+ => { scan-helper(?name, (?vars), (#t), (?meta)) }
 end macro meta-definer;
 
 define macro scan-helper
-{ scan-helper(?:name, (?meta-vars:*), (?results:*), (?meta:*)) }
+{ scan-helper(?:name, (?vars:*), (?results:*), (?meta:*)) }
  => { scanner-builder(?name, ( meta-builder(?=string, ?=start, 
-                                         (?meta-vars), 
+                                         (?vars), 
                                          (?results), (?meta)))) }
 end macro scan-helper;
 
@@ -46,3 +46,4 @@ define macro collector-definer
           meta-builder(?=string, ?=start, (?vars), (as(<string>, str)), (?meta));
         end with-collector)) }
 end macro collector-definer;
+

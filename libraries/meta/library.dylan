@@ -1,5 +1,5 @@
-library: meta
 module: dylan-user
+library: meta
 author: David Lichteblau (david.lichteblau@snafu.de)
 copyright: Copyright (c) 1999 David Lichteblau
 
@@ -26,6 +26,9 @@ define module meta-syntax
   use common-dylan;
   use meta-base;
   export \meta-definer, \collector-definer;
+
+// some exports for gwydion stuff
+  export \scan-helper, \scanner-builder, \meta-builder;
 end module meta-syntax;
 
 define module meta-types

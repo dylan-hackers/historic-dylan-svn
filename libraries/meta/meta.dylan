@@ -3,10 +3,6 @@ synopsis: exports other modules and provides common scan functions
 author:  Douglas M. Auclair
 copyright: (c) 2001, LGPL
 
-define meta s(c)
-  type(<space>, c), loop(type(<space>, c))
-end meta s;
-
 // a word is delimited by spaces, <>, {}, ',' or []
 define collector word(w)
   loop([type(<any-char>, w), do(collect(w))])
@@ -19,6 +15,10 @@ end collector int;
 define collector number(n) => (as(<string>, str).string-to-number)
   loop([type(<num-char>, n), do(collect(n))])
 end collector number;
+
+define meta s(c)
+  type(<space>, c), loop(type(<space>, c))
+end meta s;
 
 define function string-to-number(s :: <string>) => (n :: <number>)
   let(num, idx) = s.string-to-integer;
