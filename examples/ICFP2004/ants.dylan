@@ -439,8 +439,10 @@ define function read-state-machine(s :: <stream>)
   let line-number = 0;
   while(~stream-at-end?(s))
     let line = read-line(s);
-    v[line-number] := parse-instruction(line);
-    line-number := line-number + 1;
+    unless(line = "")
+      v[line-number] := parse-instruction(line);
+      line-number := line-number + 1;
+    end unless;
   end while;
   v
 end function read-state-machine;

@@ -23,16 +23,10 @@ end;
 define function clone-brain(b :: <brain>)
  => (b* :: <brain>)
   let (match-begin, match-end) 
-    = regexp-position(b.name, "\\.clone\\.(\\d+)$");
-  let clone-count = 
-    if(match-begin)
-      string-to-integer(b.name, start: match-begin, end: match-end)
-    else
-      0
-    end if;
+    = regexp-position(b.name, "\\.clone\\.(.+)$");
   let new-name = "";
   iterate loop()
-    clone-count := random(65536);
+    let clone-count = random(65536);
     new-name := concatenate(copy-sequence(b.name, end: match-begin),
                             ".clone.",
                             integer-to-string(clone-count, base: 16, size: 4));
@@ -101,7 +95,8 @@ define function win-percent(brain) => (percentage)
 end;
 
 define function run-single-tournament(brains, worlds)
-  let brain1 = brains[random(brains.size)];
+  let brain1 = 
+    sort(brains, test: method(x, y) x.played < y.played end)[0];
   let brain2 = brains[random(brains.size)];
   while(brain1 == brain2)
     brain2 := brains[random(brains.size)];
@@ -167,47 +162,76 @@ define function read-lines(s :: <stream>)
   result;
 end function read-lines;
 
+define constant breed-factor = 3;
+
 define function run-breeding()
-  let b = make(<brain>, name: application-arguments()[0]);
-  load-brain(b);
-
-  let brains = make(<stretchy-vector>);
-  add!(brains, b);
-
-  for(i from 0 below 20)
-    let b* = clone-brain(b);
-    mutate-brain(b*);
-    save-brain(b*);
-    add!(brains, b*);
-  end for;
+  let brains =
+    with-open-file(brain-stream = "contestants")
+      map(method(name) make(<brain>, name: name) end, 
+          read-lines(brain-stream));
+    end with-open-file;
+  do(load-brain, brains);
 
   let worlds = 
     with-open-file(worlds-stream = "world-list")
       read-lines(worlds-stream)
     end with-open-file;
+    
+  while(#t)
+    let clone-brains = make(<stretchy-vector>);
 
-  for(i from 0 below 100)
-    run-single-tournament(brains, worlds);
-    do(method(x) 
-           format-out("%=\ttotal rounds: %=\twin %%: %=\n", 
-                      x.name, x.played, win-percent(x))
-       end method, sort(brains, 
-                        test: method(x, y) 
-                                  let xx = win-percent(x);
-                                  let yy = win-percent(y);
-                                  if(xx = "n/a")
-                                    #f
-                                  else
-                                    if(yy = "n/a")
-                                      #t
-                                    else
-                                      xx > yy
-                                    end if;
-                                  end if;
-                              end));
-    force-output(*standard-output*);
-  end for;
+    for(b in brains)
+      for(i from 0 below breed-factor)
+        let b* = clone-brain(b);
+        mutate-brain(b*);
+        save-brain(b*);
+        add!(clone-brains, b*);
+      end for;
+    end for;
+
+    let all-brains = concatenate(brains, clone-brains);
+    
+    for(i from 0 below all-brains.size * 8)
+      run-single-tournament(all-brains, worlds);
+      report-sorted-score(all-brains);
+    end for;
+    brains := copy-sequence(sort-by-score(all-brains), 
+                            end: truncate/(all-brains.size, breed-factor + 1));
+    with-open-file(working-on = "working-on", direction: #"output")
+      for(b in brains)
+        b.played := 0;
+        b.score := 0;
+        b.food := 0;
+        write-line(working-on, b.name);
+      end for;
+    end with-open-file;
+  end while;
 end function run-breeding;
+
+define function report-sorted-score(brains)
+  do(method(x) 
+         format-out("%=\ttotal rounds: %=\twin %%: %=\n", 
+                    x.name, x.played, win-percent(x))
+     end method, sort-by-score(brains));
+  force-output(*standard-output*);
+end function report-sorted-score;
+
+define method sort-by-score(brains)
+  sort(brains, 
+       test: method(x, y) 
+                 let xx = win-percent(x);
+                 let yy = win-percent(y);
+                 if(xx = "n/a")
+                   #f
+                 else
+                   if(yy = "n/a")
+                     #t
+                   else
+                     xx > yy
+                   end if;
+                 end if;
+             end)
+end method sort-by-score;
 
 /*
 begin
