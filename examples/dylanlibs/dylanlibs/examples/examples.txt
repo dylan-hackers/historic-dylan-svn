@@ -69,6 +69,10 @@ Dylan Implementations:
 Demonstrates using the xml-rpc library to call an xml-rpc server that
 is running the various interop tests methods.
 
+9) base64-example
+=================
+Demonstrates using the double-base64 library..
+
 -- 
 Chris Double.  
 04 May 2001.
