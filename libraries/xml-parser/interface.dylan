@@ -26,6 +26,12 @@ define open abstract class <element> (<node>, <sequence>)
   constant virtual slot text;
 end class <element>;
 
+// We want <element> to behave as <sequence> for indexing, but not
+// for equivalence comparisons
+define method \=(e1 :: <element>, e2 :: <element>) => (ans :: <boolean>)
+  e1 == e2;  // compare identity, do not do a deep compare.
+end method \=;
+
 define class <document> (<node>)
 end class <document>;
 
