@@ -9,6 +9,7 @@ define interface
               "read" => %read,
               "write" => %write,
               "fsync" => unix-fsync,
+              "off_t",
               "lseek" => %lseek,
               "SEEK_CUR" => $seek_cur,
               "SEEK_SET" => $seek_set,
