@@ -65,8 +65,9 @@ end;
 define macro http-error-definer
  { define http-error ?:name (?class) ?code:token ?string:token, ?args:* }
   => { define function ?name (#key ?args)
-         error(make(?class, code: ?code,
-                    format-string: ?string, format-arguments: vector(?args)))
+         signal(make(?class,
+                     code: ?code,
+                     format-string: ?string, format-arguments: vector(?args)))
        end }
  class:
   { } => { <http-error> }
@@ -154,7 +155,6 @@ define http-error unsupported-http-version-error (<http-server-error>)
 define class <internal-server-error> (<http-server-error>)
 end;
 
-//---TODO: I put 500 from memory.  Is it correct?
 define http-error internal-server-error (<internal-server-error>)
     500 "Internal server error";
 

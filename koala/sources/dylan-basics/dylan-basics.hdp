@@ -1,8 +1,8 @@
 comment:	This file is generated, please don't edit
 format-version:	2
-library:	dysuki
+library:	dylan-basics
 files:	library
-	dysuki
+	dylan-basics
 base-address:	0x63F00000
 linker-options:	$(guilflags)
 major-version:	1

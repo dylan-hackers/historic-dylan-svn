@@ -10,7 +10,7 @@ define library xml-rpc-common
   use io;
   use system;         // for date module
   use xml-parser;
-  use dysuki;
+  use dylan-basics;
   export xml-rpc-common;
 end;
 
@@ -23,7 +23,7 @@ define module xml-rpc-common
     import: { <date>, as-iso8601-string };
   use xml-parser,
     prefix: "xml$";
-  use dysuki;
+  use dylan-basics;
 
   export
     <xml-rpc-error>,
@@ -35,9 +35,7 @@ define module xml-rpc-common
     *debugging-xml-rpc*,
     set-strict-mode,
     base64-encode,
-    base64-decode,
-    quote-html;            // needed by xml-rpc-client lib
-                           // should move to a common-utils lib
+    base64-decode;
 end;
 
 

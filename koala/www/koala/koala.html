@@ -27,8 +27,12 @@ Pages.
 <ol>
   <li><a href="#getting-started">Getting Started</a></li>
   <li><a href="#users-guide">User's Guide</a></li>
+  <li><a href="dsp.html">Dylan Server Pages</a></li>
 </ol>
+<p>
 
+<!-- ============================== Getting Started =============================== -->
+<hr>
 <a name="getting-started"></a>
 <h2>Getting Started</h3>
 
@@ -69,11 +73,12 @@ has many comments explaining configuration settings.
 If you have a source distribution then you can build Koala using <a
 href="http://www.functionalobjects.com">Functional Developer</a> (free
 evaluation versions available).  Just open
-sources/example/koala-example.hdp and build the project.  You may want
-to put a copy of config/koala-config.xml into
-sources/example/config/koala-config.xml and set DEBUG-SERVER to "on".
+sources/example/koala-example.hdp in FunDev and choose Project / Build
+from the menu.  You may want to put a copy of config/koala-config.xml
+into sources/example/config/koala-config.xml and set DEBUG-SERVER to
+&quot;on&quot;.
 
-If you want to make a new distribution of Koala, build the koala-example
+<p>If you want to make a new distribution of Koala, build the koala-example
 project, then use the Build Release command in Functional Developer,
 then cd to koala/build and type "ant dist".  This should create a
 directory called koala/dist containing the distribution, which you can
@@ -85,7 +90,23 @@ of other Ant targets.  I use Ant 1.4.1.
 
 Any and all feedback appreciated.
 <br>carlgay [at] attbi [dot] com
+<p>
 
+<!-- ============================== User's Guide =============================== -->
+<hr>
+<a name="users-guide"></a>
+<h2>User's Guide</h2>
+
+--TO BE DOCUMENTED--
+
+<p>To access the XML-RPC server, POST to <a href="http://localhost/RPC2">http://localhost/RPC2</a>.
+(Going to that URI when Koala is running will result in a valid XML-RPC fault response, since
+there's no request document to parse.)
+
+<p>The XML-RPC client is available as the xml-rpc-client library in
+&lt;<i>koala-root</i>&gt;/sources/xml-rpc-client.  The main interfaces
+are the xml-rpc-call and xml-rpc-call-2 methods.  The latter takes a
+port number and URL in addition to the method name and arguments.
 
 </body>
 </html>

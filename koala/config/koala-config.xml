@@ -12,7 +12,29 @@
      inside a <virtual-host> element will override the global environment for
      that virtual host.  Ideas for what to put in here, and sometimes how to
      name them, were stolen from Apache's httpd.conf.
+
 -->
+
+
+<!-- LOG tells Koala what kind of log messages to display.  There are four
+     possible settings, in order of importance, each of which includes the
+     settings above it:
+       error   - highest importance
+       warning - includes errors (you can't display warnings without seeing errors too)
+       info    - includes warnings and errors.  this is the default value.
+       debug   - includes all log messages
+       headers - show all incoming/outgoing headers.  this is so verbose it needs
+                 its own level.
+
+     A bit more granularity may be added in the future.  If the "clear"
+     attribute is false then the previous setting will not be cleared
+     before the new log level is added.
+
+     The log levels should be added near the beginning so debugging statements
+     emitted during config file parsing can be displayed.
+-->
+
+<log level="info" />
 
 
 <!-- Port on which to listen for HTTP requests. -->
@@ -31,43 +53,33 @@
      merged against this one, so if they're relative they will be
      relative to this.  The server-root pathname is relative to the
      koala executable.  NOTE: This should be near the top of the config
-     file since later elements will be merged against it.  -->
+     file since later elements will be merged against it.
+  -->
 <!-- During development I usually run the koala-example project.
      Setting server-root here points it to the main koala directory.
      Once Koala runs on its own and web-apps are loaded from DLLs this
-     should be changed. -->
+     should be changed.
+  -->
 <server-root location="." />
 
 
-<!-- DOCUMENT-ROOT is the root of the web document hierarchy. -->
+<!-- DOCUMENT-ROOT is the root of the web document hierarchy.
+     It is relative to SERVER-ROOT.
+  -->
 <document-root location="www" />
-
-
-<!-- LOG tells Koala what kind of log messages to display.  There are four
-     possible settings, in order of importance, each of which includes the
-     settings above it:
-       error   - highest importance
-       warning - includes errors (you can't display warnings without seeing errors too)
-       info    - includes warnings and errors.  this is the default value.
-       debug   - includes all log messages
-       headers - show all incoming/outgoing headers.  this is so verbose it needs
-                 its own level.
-
-     A bit more granularity may be added in the future.  If the "clear"
-     attribute is false then the previous setting will not be cleared
-     before the new log level is added.  -->
-<log level="info" />
 
 
 <!-- If DEBUG-SERVER is on then errors thrown during the execution of
      a server request will not be caught.  Only turn this on when running
-     inside a development environment, or the server will crash hard. -->
+     inside a development environment, or the server will crash hard.
+  -->
 <debug-server value="off" />
 
 
 <!-- If AUTO-REGISTER is on then URLs may be automatically registered if
-     if they match certain patterns.  e.g., .dsp files will be automatically
-     registered as Dylan Server Pages.  The default is off.  -->
+     if they match certain patterns.  e.g., .dsp files will automatically
+     be registered as Dylan Server Pages.  The default is off.
+  -->
 <auto-register enabled="no" />
 
 
@@ -76,7 +88,8 @@
      Set url to the URL on which the server should listen for XML-RPC requests.
      Set internal-error-fault-code to the fault code that should be returned for
      any unhandled errors that are thrown during the execution of an XML-RPC
-     request.  e.g., a badly formed request, or unhandled errors in user code. -->
+     request.  e.g., a badly formed request, or unhandled errors in user code.
+  -->
 <xml-rpc
   url="/RPC2"
   enable="yes"

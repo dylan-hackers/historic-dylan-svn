@@ -50,7 +50,6 @@ define function ensure-server-root ()
   when (~*server-root*)
     let exe-dir = locator-directory(as(<file-locator>, application-filename()));
     *server-root* := parent-directory(exe-dir);
-    log-debug("Setting *server-root* to %s", as(<string>, *server-root*));
   end;
 end;
 
@@ -58,7 +57,6 @@ define function init-server-root (#key location)
   ensure-server-root();
   when (location)
     *server-root* := merge-locators(as(<directory-locator>, location), *server-root*);
-    log-debug("Setting *server-root* to %s", as(<string>, *server-root*));
   end;
 end;
 
@@ -67,7 +65,6 @@ define function init-document-root (#key location)
   *document-root*
     := merge-locators(as(<directory-locator>, location | $default-document-root),
                       *server-root*);
-  log-debug("Setting *document-root* to %s", as(<string>, *document-root*));
 end;
 
 define method log-config-warning
@@ -139,10 +136,14 @@ define method process-config-element (node :: xml$<element>, name == #"port")
   if (attr)
     block ()
       let port = string-to-integer(attr);
-      (port & positive?(port) & (*server-port* := port) | error(""));
-      log-debug("Setting server port to %d", port);
+      if (port & positive?(port))
+        *server-port* := port;
+        log-info("Setting server port to %d", port);
+      else
+        error("jump to the exception clause :-)");
+      end;
     exception (<error>)
-      log-warning("Invalid port number, %=, in configuration file.", attr);
+      log-warning("Invalid port number in configuration file: %=", attr);
     end;
   else
     log-warning("Malformed <port> setting.  'value' must be specified.");
@@ -193,7 +194,7 @@ define method process-config-element (node :: xml$<element>, name == #"log")
                   otherwise => <log-info>;
                 end;
     add-log-level(class);
-    log-debug("Added log level %=", level);
+    log-info("Added log level %=", level);
   end;
 end;
 

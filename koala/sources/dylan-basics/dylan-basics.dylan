@@ -1,5 +1,5 @@
-Module:   dysuki
-Synopsis: Dylan Survival Kit -- Basic dylan utilities
+Module:   dylan-basics
+Synopsis: Basic dylan utilities
 Author:   Carl Gay
 
 
@@ -42,14 +42,6 @@ end macro with-simple-restart;
 
 
 // ----------------------------------------------------------------------
-// define class <my-class> (<sealed-constructor>) ... end
-//
-define class <sealed-constructor> (<object>) end;
-define sealed domain make (subclass(<sealed-constructor>));
-define sealed domain initialize (<sealed-constructor>);
-
-
-// ----------------------------------------------------------------------
 // define class <my-class> (<singleton-object>) ... end
 //
 define open abstract class <singleton-object> (<object>)
@@ -84,6 +76,7 @@ define macro dec!
 end macro dec!;
 
 
+// ----------------------------------------------------------------------
 // Convert a string to a floating point number.
 // This version is from Chris Double's dylanlibs project, and
 // seems to be the most precise of the three.  I renamed it
@@ -202,4 +195,6 @@ define method float-to-formatted-string
                                    end)
               end if);
 end method float-to-formatted-string;
+
+
 

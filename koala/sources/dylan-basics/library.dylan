@@ -1,20 +1,19 @@
 Module:   dylan-user
-Synopsis: Dylan Survival Kit -- Basic dylan utilities
+Synopsis: Dylan utilities I can't live without
 Author:   Carl Gay
 
-define library dysuki
+define library dylan-basics
   use common-dylan;
-  export dysuki;
+  export dylan-basics;
 end;
 
-define module dysuki
+define module dylan-basics
   use common-dylan;
 
   export
     \iff,
     \with-restart,
     \with-simple-restart,
-    <sealed-constructor>,
     <singleton-object>,
     \inc!,
     \dec!,

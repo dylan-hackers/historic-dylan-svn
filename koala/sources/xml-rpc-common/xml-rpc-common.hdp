@@ -4,7 +4,7 @@ library:	xml-rpc-common
 files:	library
 	xml-rpc-common
 	base64
-subprojects:	..\dysuki\dysuki.hdp
+subprojects:	..\dylan-basics\dylan-basics.hdp
 base-address:	0x63B20000
 linker-options:	$(guilflags)
 major-version:	1

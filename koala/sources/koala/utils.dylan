@@ -7,83 +7,16 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-
-define macro iff
-  { iff(?test:expression, ?true:expression, ?false:expression) }
-    => { if (?test) ?true else ?false end }
-  { iff(?test:expression, ?true:expression) }
-    => { if (?test) ?true end }
-end;
-
-
-
-define macro with-restart
-  { with-restart (?condition:expression, #rest ?initargs:*)
-      ?:body
-    end }
-    => { block ()
-	   ?body
-	 exception (?condition, init-arguments: vector(?initargs))
-	   values(#f, #t)
-	 end }
-end macro with-restart;
-
-define macro with-simple-restart
-  { with-simple-restart (?format-string:expression, ?format-args:*)
-      ?:body
-    end }
-    => { with-restart (<simple-restart>,
-		       format-string: ?format-string,
-		       format-arguments: vector(?format-args))
-	   ?body
-         end }
-end macro with-simple-restart;
-
-
-
 define class <sealed-constructor> (<object>) end;
 define sealed domain make (subclass(<sealed-constructor>));
 define sealed domain initialize (<sealed-constructor>);
 
-
-
-define open abstract class <singleton-object> (<object>)
-end;
-
-// Maps classes to their singleton instances.
-define constant $singletons :: <table> = make(<table>);
-
-define method make
-    (class :: subclass(<singleton-object>), #rest args, #key)
- => (object :: <singleton-object>)
-  element($singletons, class, default: #f)
-  | begin
-      $singletons[class] := next-method()
-    end
-end;
-
-
-
-define macro inc!
-  { inc! (?place:expression, ?dx:expression) }
-    => { ?place := ?place + ?dx; }
-  { inc! (?place:expression) }
-    => { ?place := ?place + 1; }
-end macro inc!;
 
 define macro wrapping-inc!
   { wrapping-inc! (?place:expression) }
     => { let n :: <integer> = ?place;
 	 ?place := if (n == $maximum-integer) 0 else n + 1 end; }
 end;
-
-define macro dec!
-  { dec! (?place:expression, ?dx:expression) }
-    => { ?place := ?place - ?dx; }
-  { dec! (?place:expression) }
-    => { ?place := ?place - 1; }
-end macro dec!;
-
 
 
 // Things that expire.
@@ -194,12 +127,12 @@ define class <attributes-mixin> (<object>)
 end;
 
 define method reinitialize-resource
-    (resource :: <attributes-mixin>)
+    (resource :: <attributes-mixin>, #rest init-args, #key)
   remove-all-keys!(resource.attributes);
 end;
 
 define method resource-size
-    (resource :: <attributes-mixin>)
+    (resource :: <attributes-mixin>) => (size :: <integer>)
   size(attributes(resource));
 end;
 

@@ -7,14 +7,22 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define /*exported*/ open primary class <response> (<object>)
-  constant slot get-request :: <request>, required-init-keyword: #"request";
+// Exported
+// If you add a slot to this class you may need to reset that slot to
+// its initial value in the reinitialize-resource method below.
+//
+define open primary class <response> (<object>)
+  slot get-request :: <request>, required-init-keyword: #"request";
 
   // The output stream is created lazily so that the user has the opportunity to
   // set the output stream type (e.g., binary or text).  See output-stream.
-  slot response-output-stream :: false-or(<stream>) = #f;
+  slot %output-stream :: false-or(<stream>) = #f;
 
-  constant slot response-headers :: <header-table>, required-init-keyword: #"headers";
+  slot response-headers :: <header-table>, required-init-keyword: #"headers";
+
+  // Whether or not the headers were allocated with allocate-resource, in which
+  // case they need to be deallocated with deallocate-resource.
+  slot headers-resourced? :: <boolean> = #f, init-keyword: #"headers-resourced?";
   slot headers-sent? :: <boolean> = #f;
   slot buffered? :: <boolean> = #t;
 end;
@@ -27,8 +35,9 @@ define method initialize
   end;
 end;
 
-
-define /*exported*/ method add-header
+// Exported
+//
+define method add-header
     (response :: <response>, header :: <string>, value :: <object>, #key if-exists? = #"append")
   if (headers-sent?(response))
     //---TODO: define a <api-error> class or something, and signal it here.
@@ -38,20 +47,65 @@ define /*exported*/ method add-header
   end;
 end;
 
-define /*exported*/ method output-stream
+// Exported
+//
+define method output-stream
     (response :: <response>) => (stream :: <stream>)
-  response.response-output-stream
-  | (response.response-output-stream := allocate-resource(<string-stream>));
+  response.%output-stream
+  | begin
+      response.%output-stream := allocate-resource(<string-stream>);
+    end
 end;
 
-// This is guaranteed to be called as soon as the response is no longer in use.
-// @see invoke-handler
-define method deallocate-resources
-    (response :: <response>) => ()
-  let stream = response-output-stream(response);
+// Implements part of the resource protocol.
+//
+define method new-resource
+    (resource-class == <response>,
+     #rest initargs,
+     #key request :: <request>, headers :: false-or(<header-table>))
+ => (response :: <response>)
+  make(<response>,
+       request: request,
+       headers: headers | allocate-resource(<header-table>),
+       headers-resourced?: ~headers);
+end;
+  
+
+// Implements part of the resource protocol.
+//
+define method reinitialize-resource
+    (response :: <response>,
+     #rest init-args,
+     #key request :: <request>, headers)
+  get-request(response) := request;
+  response-headers(response) := (headers | allocate-resource(<header-table>));
+  headers-resourced?(response) := ~headers;
+  // Note some reinitialization is done in the resource-deallocated method below.
+end;
+
+// Implements part of the resource protocol.
+//
+define method resource-deallocated
+    (response :: <response>)
+  let stream = %output-stream(response);
   when (stream)
     deallocate-resource(<string-stream>, stream);
+    response.%output-stream := #f;
+    response.headers-sent? := #f;
+    iff (response.headers-resourced?,
+         deallocate-resource(<header-table>, response.response-headers));
   end;
+  next-method();
+end;
+
+// Implements part of the resource protocol.
+//
+define method resource-size
+    (response :: <response>) => (size :: <integer>)
+  let stream = response.%output-stream;
+  iff (stream,
+       stream-size(stream),
+       0)
 end;
 
 // The caller is telling us that either the request is complete or it's OK to
@@ -92,8 +146,11 @@ define method send-response
   let stream :: <tcp-socket> = request-socket(get-request(response));
   unless (headers-sent?(response))
     // Send the response line
-    format(stream, "%s %d %s\r\n",
-           $http-version, response-code | 200, response-message | "OK");
+    let response-line
+      = format-to-string("%s %d %s\r\n",
+                         $http-version, response-code | 200, response-message | "OK");
+    log-header("-->%s", response-line);
+    write(stream, response-line);
 
     // Add required headers
     add-header(response, "Content-length", integer-to-string(stream-size(output-stream(response))));
@@ -104,25 +161,25 @@ define method send-response
   end unless;
 
   // Send the body (or what there is of it so far).
-  // Note that it's important for this to use clear-contents?: #f so that the
-  // allocate-resource code can tell how big the underlying sequence is when it
-  // tries to re-use the stream.
-  let contents = stream-contents(output-stream(response), clear-contents?: #f);
+  let contents = stream-contents(output-stream(response), clear-contents?: #t);
   write(stream, contents);
 end;
 
+// Exported
 // Convenience.  Seems common to want to add a numeric cookie value.
 //
-define /*exported*/ method add-cookie
-    (response :: <response>, name :: <string>, value :: <integer>, #rest args, #key)
+define method add-cookie
+    (response :: <response>, name :: <string>, value :: <integer>, #rest args,
+     #key max-age, path, domain, comment)
   apply(add-cookie, response, name, integer-to-string(value), args)
 end;
 
+// Exported
 // This isn't the right way to handle cookies, but it's simple for now.
 // ---TODO: Verify that comment is a TOKEN or QUOTED-STRING, and that other values are TOKENs.
 //          See RFC 2109.
 //
-define /*exported*/ method add-cookie
+define method add-cookie
     (response :: <response>, name :: <string>, value :: <string>,
      #key max-age, path, domain, comment)
   add-header(response, "Set-cookie",

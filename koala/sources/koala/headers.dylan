@@ -14,7 +14,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define class <log-headers> (<log-level>)
 end;
 
-define constant $log-headers = make(<log-headers>, name: "HDR");
+define constant $log-headers = make(<log-headers>, name: "HDR ");
 
 define method log-header
     (format-string, #rest format-args) => ()
@@ -209,7 +209,7 @@ define function request-header-value (request :: <request>, key :: <symbol>)
   else
     let raw-data = element(request.request-headers, as(<string>, key),
                            default: #f);
-    cache[key] := raw-data & parse-header-value(key, raw-data)
+    cache[key] := (raw-data & parse-header-value(key, raw-data))
   end
 end request-header-value;
 
@@ -526,6 +526,4 @@ define method parse-header-value
   end;
   cookies
 end;
-
-
 

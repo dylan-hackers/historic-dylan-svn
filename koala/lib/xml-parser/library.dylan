@@ -37,15 +37,15 @@ define module xml-parser
 end module xml-parser;
 
 define module interface
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
 
   use meta;
-  use xml-parser;
+  use xml-parser, export: { <node-mixin> };
 
   export
-    <reference>, <attributes>, <node-mixin>, <external-mixin>, *entities*,
+    <reference>, <attributes>, <external-mixin>, *entities*,
     after-open, before-close, $hex-digit, $version-number, trim-string;
 end module interface;
 
@@ -57,7 +57,7 @@ define module latin1-entities
 end module latin1-entities;
 
 define module transform
-  use common-dylan, exclude: {format-to-string };
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
   use standard-io;
@@ -66,7 +66,7 @@ define module transform
 end module transform;
 
 define module printing
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
   use print;
@@ -79,17 +79,17 @@ define module printing
 end module printing;
 
 define module collect
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
   use anaphora;
   use xml-parser, rename: { attribute-value => value,
-                           attribute-value-setter => value-setter };
+                            attribute-value-setter => value-setter };
   use interface;
 end module collect;
 
 define module %productions
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use latin1-entities;
   use standard-io;
   use format-out;

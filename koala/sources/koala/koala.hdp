@@ -23,6 +23,7 @@ files:	library
 	dsp-taglib
 	xml-rpc-server
 	config
+	responders
 	utils-main
 	koala-main
 	dsp-main
