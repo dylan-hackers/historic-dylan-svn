@@ -1,0 +1,499 @@
+<!DOCTYPE Book PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
+ <!ENTITY % entities SYSTEM "entities.sgml">
+ %entities;
+]>
+<BOOK>
+  <TITLE>Gwydion Dylan Porting and Maintenance Guide</TITLE>
+
+  <bookinfo>
+    <COPYRIGHT>
+      <YEAR>1998</YEAR>
+      <HOLDER>Carnegie Mellon University</HOLDER>
+      <HOLDER>Gwydion Dylan Maintainers</HOLDER>
+    </COPYRIGHT>
+    <LEGALNOTICE>
+      <PARA>Use and copying of this software and preparation of
+      derivative works based on this software are permitted, including
+      commercial use, provided that the following conditions are
+      observed: </PARA>
+      
+      <ITEMIZEDLIST>
+	<LISTITEM>
+	  <PARA>This copyright notice must be retained in full on any
+          copies and on appropriate parts of any derivative
+          works. </PARA>
+	</LISTITEM>
+	
+	<LISTITEM>
+	  <PARA>Documentation (paper or online) accompanying any
+          system that incorporates this software, or any part of it,
+          must acknowledge the contribution of the Gwydion Project at
+          Carnegie Mellon University.</PARA>
+	</LISTITEM>
+      </ITEMIZEDLIST>
+      
+      <PARA>This software is made available "as is". Neither the
+      authors nor Carnegie Mellon University make any warranty about
+      the software, its performance, or its conformity to any
+      specification. </PARA>
+      
+      <PARA>Bug reports, questions, comments, and suggestions should
+      be sent by E-mail to the Internet address
+      <EMAIL>gd-bugs@randomhacks.com</EMAIL>.</PARA>
+    </LEGALNOTICE>
+    <bookbiblio>
+      <title>Gwydion Dylan Porting and Maintenance Guide</title>
+      <titleabbrev>Maintenance Guide</titleabbrev>
+      <date>09 September 1998</date>
+      &editor.housel;
+    </bookbiblio>
+  </bookinfo>
+
+  <CHAPTER>
+    <TITLE>Introduction</TITLE>
+
+    <PARA>This manual serves as a guide to porting and maintaining
+    Gywdion &dylan;.  It includes:</PARA>
+
+    <ITEMIZEDLIST>
+      <LISTITEM>
+	<PARA>Guidelines for porting &mindy; and &d2c; to new platforms</PARA>
+      </LISTITEM>
+
+      <LISTITEM>
+	<PARA>An overview of the &mindy; interpreter</PARA>
+      </LISTITEM>
+
+      <LISTITEM>
+	<PARA>A detailed guide to the internals of the &d2c; compiler</PARA>
+      </LISTITEM>
+
+      <LISTITEM>
+	<PARA>A guide to the internals of the
+	<COMMAND>melange</COMMAND> interface generator</PARA>
+      </LISTITEM>
+
+      <LISTITEM>
+	<PARA>An appendix containing the Gwydion Project coding
+	guidelines.</PARA>
+      </LISTITEM>
+    </ITEMIZEDLIST>
+
+  </CHAPTER>
+
+  <CHAPTER>
+    <TITLE>Porting Gwydion Dylan to a New Platform</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER>
+    <TITLE>Mindy Internals Guide</TITLE>
+
+    <PARA>FIXME: to be supplied later.</PARA>
+  </CHAPTER>
+
+  <CHAPTER>
+    <TITLE>D2c Internals Guide</TITLE>
+
+    <PARA>FIXME: to be supplied later</PARA>
+  </CHAPTER>
+
+  <CHAPTER>
+    <TITLE>Melange Internals Guide</TITLE>
+
+    <PARA>FIXME: to be supplied later</PARA>
+  </CHAPTER>
+
+  <APPENDIX>
+    <TITLE>Gwydion Project Coding Style Guide</TITLE>
+
+    <NOTE>
+      <PARA>This appendix lists the Dylan language coding style
+      guidelines formerly used by the Gwydion Project.</PARA>
+    </NOTE>
+    
+    <PARA>This file lists two broad categories of style issues for
+    Dylan.  One category, called "Recommended", contains style points
+    to which Gwydion programmers should adhere, as opposed to "must
+    adhere".  If someone sometimes, or even always, breaks a
+    recommended style point, then others must to be tolerant of that
+    deviation.  You must not modify the original author's code purely
+    to satisfy an urge to convert the original author's style to your
+    own.  The second category, called "Mandated", contains style
+    points to which Gwydion programmers must adhere.  If you find
+    someone has deviated from a mandated style point, then you may
+    convert the code to be the mandated style.</PARA>
+
+    <SECT1>
+      <TITLE>Recommended</TITLE>
+
+      <SECT2>
+	<TITLE>Indent level</TITLE>
+
+	<PARA> You should use a two-space indentation.  Each time code
+	needs to be further indented, you should use one indent level,
+	which is two spaces.</PARA>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Indent wrapping slot descriptions</TITLE>
+
+	<PARA>When a slot description wraps to a new line in a "define
+        class" form, the extra lines should be indented one extra
+        indent level.</PARA>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Using <LITERAL>///</LITERAL> comments</TITLE>
+
+	<PARA>If you use <LITERAL>///</LITERAL> comments, they should
+        only be used between top-level declarations.
+        <LITERAL>///</LITERAL> comments can be used for logical page
+        headers, inter-function comments, code section introductions
+        (logical page headers), etc., for example:</PARA>
+
+	<PROGRAMLISTING>
+...
+end method;
+
+/// order-espresso -- Method for Exported GF.
+///
+/// This method orders espresso at carts on the corner when it is
+/// raining.  If it is not raining, this method delegates to
+/// next-method. 
+///
+define method order-espresso (vendor :: &lt;outdoor-espresso-cart&gt;,
+                              #next next-method)
+  => ();
+  ...
+end method;</PROGRAMLISTING>
+	
+	<PARA>Many programmers do not like others to use
+        <LITERAL>///</LITERAL> comments.  Rob noted that if these are
+        only used between top-level declarations, where the
+        <LITERAL>///</LITERAL> indicates a comment of wider scope (as
+        over a whole definition or logical page), then the Gwydion
+        environment should be able to display such comments however
+        any particular user wants to see them.</PARA>
+      </SECT2>
+      <SECT2>
+	<TITLE>Using <LITERAL>/* ... */</LITERAL></TITLE>
+	
+	<PARA>If you use <LITERAL>/* ... */</LITERAL> comments, they
+        should only be used at the beginning of a file or the
+        beginning of a logical page so that their use is highly
+        localized.  This prevents them from showing up surprisingly in
+        random places throughout a file of code.  Using
+        <LITERAL>/*...*/</LITERAL> comments should go away once the
+        Gwydion environment has a means for linking general commentary
+        to logical units of code.  This issue has absolutely nothing
+        to do with using <LITERAL>/*...*/</LITERAL> to temporarily
+        exclude code fragments.</PARA>
+      </SECT2>
+      <SECT2>
+	<TITLE>Wrapping function definition headers</TITLE>
+
+	<PARA>When a function header wraps (that is, a <LITERAL>define
+	generic</LITERAL> or a <LITERAL>define module</LITERAL>
+	declaration), you should either break the line within the
+	parameter list or between the name and the parameter list.  If
+	you break the line between the name and parameter list, or
+	perhaps after the parameter list, then you should indent any
+	extra lines one extra indent level.  There is one exception:
+	the first line of the return values specification may be
+	indented only one space.  The following are examples of
+	recommended style:</PARA>
+
+	<PROGRAMLISTING>
+define method some-longer-name-for-effect
+    (one :: &lt;class-1&gt;, two :: &lt;class-2&gt;, ...)
+    => (result1 :: &lt;type1&gt;, result2 :: &lt;type2&gt;);
+  statement1;
+  statement2;
+  ...;
+end method;
+
+define method some-longer-name-for-effect
+    (one :: &lt;class-1&gt;, two :: &lt;class-2&gt;, ...)
+ => (result1 :: &lt;type1&gt;, result2 :: &lt;type2&gt;);
+  statement1;
+  statement2;
+  ...;
+end method;</PROGRAMLISTING>
+      </SECT2>
+      <SECT2>
+	<TITLE>Indent keyword parameters beyond
+	<LITERAL>#key</LITERAL> token</TITLE>
+
+	<PARA> If there is more than one keyword parameter specified
+	in a function declaration, then all keyword parameter
+	specifications should line up with the first specification.
+	The following is an example:</PARA>
+	
+	<PROGRAMLISTING>
+define method foo (foo :: &lt;simple-object-vector&gt;,
+                   #key start :: &lt;fixed-integer&gt; = 0,
+		        stop :: &lt;fixed-integer&gt; = foo.size)
+  ...</PROGRAMLISTING>
+	
+	<PARA>If a parameter list that contains a
+        <LITERAL>#key</LITERAL> wraps, then you should wrap the
+        parameter list before the <LITERAL>#key</LITERAL>
+        token.</PARA>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Wrapping variable and constant definitions</TITLE>
+	
+	<PARA>When a variable or constant definition wraps, you should
+        break the line before the <LITERAL>=</LITERAL> token:</PARA>
+	
+	<PROGRAMLISTING>
+define constant western-culture :: &lt;integer&gt;
+  = north-america-mask | south-america-mask | europe-mask;</PROGRAMLISTING>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Using <LITERAL>end <PARAMETER>mumble</PARAMETER></LITERAL>
+        to terminate statements</TITLE>
+	
+	<PARA>You should use <LITERAL>end
+	<PARAMETER>mumble</PARAMETER></LITERAL>, rather than just
+	<LITERAL>end</LITERAL>, whenever there is sufficient vertical
+	space between the beginning and the end of the statement to
+	hinder readability.  Some programmers like to use <LITERAL>end
+	<PARAMETER>mumble</PARAMETER></LITERAL> religiously, but those
+	same programmers only use "end" when using <LITERAL>end
+	<PARAMETER>mumble</PARAMETER></LITERAL> would make a
+	single-line statement wrap onto a new line.  Programmers may
+	add the <LITERAL><PARAMETER>mumble</PARAMETER></LITERAL> to an
+	<LITERAL>end</LITERAL> if they feel the code was hard to
+	visually scan, but programmers should not add
+	<LITERAL><PARAMETER>mumble</PARAMETER></LITERAL>s to all
+	<LITERAL>end</LITERAL>s in someone else's code just because
+	they like that style.  This policy is consistent with adding
+	additional comments to someone else's code to help
+	readability.</PARA>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Horizontal space for columnization or other visual
+	effects</TITLE>
+
+	<PARA>You should NOT use horizontal spacing to columnize
+	aspects of Dylan code, or to present other visual effects
+	within the program.  If you do this, you should do it rarely.
+	The one exception to this rule is the "Indent keyword
+	parameters beyond #key token" recommendation.</PARA>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Keyword syntax</TITLE>
+	
+	<PARA> You should only use keyword notation for symbols in
+        function calls and function declarations.  You can also use
+        keyword notation in slot descriptions within <LITERAL>define
+        class</LITERAL>, where you are supplying a symbol to be the
+        key for an initialization argument.  When a symbol is a value,
+        such as a default value in a declaration or an argument value
+        in a call, you should use symbol notation, not keyword
+        notation.  The following are examples of recommended
+        style:</PARA>
+
+	<PROGRAMLISTING>
+define method reposition (stream :: &lt;stream&gt;, offset :: &lt;integer&gt;,
+                          #key from: = #"start")
+
+
+define method foo ()
+  ...
+  bar(x, y, color: #"red");
+  ...
+end method;
+
+// In this example, required-init-keyword: would always be in
+// keyword notation, and "foo:" is the item to which this style
+// recommendation speaks.
+//
+define class &lt;frob&gt;
+  slot gag, required-init-keyword: foo:;
+end;
+//
+// Or ...
+//
+define class &lt;frob&gt;
+  slot gag, required-init-keyword: #"foo";
+end;</PROGRAMLISTING>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Blank comment line between introductory comments and
+	definitions</TITLE>
+	
+	<PARA> You should include a blank comment line between the
+        introductory comments for a function and the function
+        definition.  This applies to any top-level declaration for
+        which you supply an introductory comment.  The following is an
+        example:</PARA>
+	
+	<PROGRAMLISTING>
+// Blah blah blah GINGER blah blah blah.
+//
+define ...</PROGRAMLISTING>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Wrapping <LITERAL>case</LITERAL> statements (applies to
+	<LITERAL>select</LITERAL> too)</TITLE>
+	
+	<PARA>If any single branch of a <LITERAL>case</LITERAL>
+        statement wraps, then you should wrap every branch.  In
+        practice, there are common exceptions to this
+        recommendation.</PARA>
+
+	<PARA> When wrapping a case statement, you should wrap it
+        after the <LITERAL>=></LITERAL> token.  There should be no
+        exceptions to this recommendation.</PARA>
+
+	<PARA>	The following exhibit the recommended style:</PARA>
+
+	<PROGRAMLISTING>
+case
+  test1 => expression1;
+  test2 => expression2;
+end;
+
+case
+  test1 =>
+    statement1;
+    statement2;
+  test2 =>
+    statement1;
+    statement2;
+end;</PROGRAMLISTING>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Using <LITERAL>#t</LITERAL> for
+	<LITERAL>otherwise</LITERAL> in <LITERAL>case</LITERAL>
+	statements</TITLE>
+	
+	<PARA> You should not use <LITERAL>#t</LITERAL> for
+	<LITERAL>otherwise</LITERAL> in <LITERAL>case</LITERAL>
+	statements.</PARA>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Wrapping <LITERAL>for</LITERAL> clauses</TITLE>
+	
+	<PARA>When an <LITERAL>=</LITERAL>/<LITERAL>then</LITERAL>
+        clause needs to wrap, you should wrap before the
+        <LITERAL>=</LITERAL> and before the 'then'.  Both the '=' and
+        the 'then' should be indented one extra indent level:</PARA>
+
+	<PROGRAMLISTING>
+// Correct.
+//
+... nested levels ...
+                 for (some-index
+			= initialization-expression(x, y, z)
+			then stepper(u, v, w))
+	           stuff(some-index);
+		 end;
+
+// Incorrect.
+//
+... nested levels ...
+                 for (some-index = initialization-expression(x, y, z)
+			then stepper(u, v, w))
+		   stuff(some-index);
+		 end;</PROGRAMLISTING>
+      </SECT2>
+    </SECT1>
+    
+    <SECT1>
+      <TITLE>Mandated</TITLE>
+      
+      <SECT2>
+	<TITLE>Function name and open paren</TITLE>
+	
+	<PARA> The <LITERAL>define generic</LITERAL> or
+        <LITERAL>define method</LITERAL> declarations must have a
+        space or newline between the name of the definition and the
+        parameter list.  At any function call site, the name and open
+        paren must be adjacent, with no intervening characters.</PARA>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Wrapping <LITERAL>let</LITERAL> statements</TITLE>
+
+	<PARA>If a <LITERAL>let</LITERAL> statement wraps, you must
+	put the equal sign on a new line and indent it one extra
+	indent level.</PARA>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Terminate statements with semicolons</TITLE>
+
+	<PARA>Semicolons are terminators and must appear wherever they
+	are optional, except as covered by the "Single-line
+	statements" mandate.</PARA>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Single-line statements</TITLE>
+	
+	<PARA> Single-line statement, such as if-else, must not have
+        any internal semicolons.  If a single-line statement requires
+        an internal semicolon, then you must break the statement into
+        multiple lines.  For example, the following would be illegal
+        in Gwydion style:</PARA>
+	<PROGRAMLISTING>
+let x = if (some-test) foo(); 3; else 5; end;
+let x = if (some-test) foo(); 3 else 5 end;
+let f = method (a, b) foo(); #f; end;</PROGRAMLISTING>
+	
+	<PARA>These should be formatted as follows (ignoring the
+	<LITERAL>end if</LITERAL> issue):</PARA>
+
+	<PROGRAMLISTING>
+let x = if (some-test)
+   foo();
+   3;
+ else
+   5;
+ end;
+let f = method (a, b)
+   foo();
+   #f;
+ end;</PROGRAMLISTING>
+	
+	<PARA> Most programmers felt this rule, by its nature of
+        eliminating multiple statements within a block on a single
+        line, made code much more readable.</PARA>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Wrapping arithmetic/boolean expressions</TITLE>
+	
+	<PARA> You must wrap long expressions before operators and
+        indent the operators with one extra indent level from the
+        beginning of the expression.  Note, assignments are considered
+        to be "statements", and the "expression" that wraps is the
+        code on the right-hand side of the assignment operator.
+        Therefore, the first two examples below are considered to be
+        approved style, but the third is not:</PARA>
+	
+	<PROGRAMLISTING>
+my-local := big-computation(arg1, arg2)
+       + another-hairy-long-calculation(arg3, arg4, arg5)
+my-local := (big-computation(arg1, arg2)
+        + another-hairy-long-calculation(arg3, arg4, arg5))
+my-local := big-computation(arg1, arg2)
+  + another-hairy-long-calculation(arg3, arg4, arg5)</PROGRAMLISTING>
+      </SECT2>
+    </SECT1>
+  </APPENDIX>
+</BOOK>
+

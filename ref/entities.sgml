@@ -11,6 +11,24 @@
 </author>
 ">
 
+<!ENTITY author.housel "
+<author>
+  <firstname>Peter</firstname><surname>Housel</surname>
+  <affiliation>
+    <address><email>housel@acm.org</email></address>
+  </affiliation>
+</author>
+">
+
+<!ENTITY editor.housel "
+<editor>
+  <firstname>Peter</firstname><surname>Housel</surname>
+  <affiliation>
+    <address><email>housel@acm.org</email></address>
+  </affiliation>
+</editor>
+">
+
 <!-- Original Gwydion People -->
 
 <!ENTITY author.rstockton "
@@ -36,20 +54,16 @@
 <ulink url="http://legend.gwydion.cs.cmu.edu/">Gwydion Project</>
 '>
 
-<!ENTITY mindy '
-<ulink url="http://legend.gwydion.cs.cmu.edu/gwydion/mindy/">Mindy</>
-'>
-
 <!ENTITY drm '
 <ulink url="http://www.cambridge.apple.com/dylan/drm/drm-1.html">
 <CiteTitle>Dylan Reference Manual</></>
 '>
 
-<!ENTITY ftpdir 'ftp://ftp.foo.com/pub/gd/'>
+<!ENTITY ftpdir 'ftp://berlin.ccc.de/pub/gd/'>
 
 <!ENTITY gdmp 'Gwydion Dylan Maintenance Project'>
-<!ENTITY gdc "<Command>gdc</>">
 <!ENTITY gcc "<Command>gcc</>">
 <!ENTITY mindy "<Command>mindy</>">
+<!ENTITY d2c "<Command>d2c</>">
 <!ENTITY cpp "<Acronym>C++</>">
 
