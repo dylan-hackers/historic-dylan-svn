@@ -146,11 +146,12 @@ define class <resource-pool> (<object>)
   slot active-count   :: <integer> = 0;
   slot inactive-count :: <integer> = 0;
   constant slot resource-lock :: <lock> = make(<lock>);
-  slot %resource-notification :: <notification>;
+  //slot %resource-notification :: <notification>;
   // for debugging
   constant slot resource-class :: <class>, required-init-keyword: #"class";
 end;
 
+/*
 define method resource-notification
     (pool :: <resource-pool>) => (notif :: <notification>)
   if (slot-initialized?(pool, %resource-notification))
@@ -159,6 +160,7 @@ define method resource-notification
     %resource-notification(pool) := make(<notification>, lock: resource-lock(pool))
   end
 end;
+*/
 
 define function get-resource-pool
     (class :: <class>, #key max-size :: <integer> = $default-pool-max-size)

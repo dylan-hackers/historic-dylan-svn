@@ -122,7 +122,6 @@ define module utilities
     <log-error>, <log-warning>, <log-info>, <log-debug>, <log-verbose>, <log-copious>,
     log-error, log-warning, log-info, log-debug, log-debug-if, log-verbose, log-copious,
     log, log-raw,
-    log-date,
     log-level, log-level-setter,
     as-common-logfile-date, as-rfc-1123-date;
     
@@ -178,6 +177,16 @@ define module koala
     add-header,
     add-cookie,
     get-request;
+
+  // Cookies
+  create
+    cookie-name,
+    cookie-value,
+    cookie-domain,
+    cookie-path,
+    cookie-max-age,
+    cookie-comment,
+    cookie-version;
 
   // Sessions
   create

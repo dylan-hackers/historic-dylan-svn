@@ -31,7 +31,7 @@ define open primary class <response> (<object>)
 
   // Whether or not this is a buffered response.
   // @see output-stream
-  slot buffered? :: <boolean> = #t;
+  constant slot buffered? :: <boolean> = #t;
 end;
 
 // Exported

@@ -188,17 +188,17 @@ end;
 // A simple error reporting mechanism.  Store errors in the page context
 // so they can be displayed when the next page is generated.  The idea is
 // that pages should use the <dsp:show-errors/> tag if they can be
-// the target of a POST that might generate errors.
+// the target of a GET or POST that might generate errors.
 
 define abstract class <form-note> (<object>)
-  slot format-string :: <string>,
+  constant slot format-string :: <string>,
     required-init-keyword: #"format-string";
-  slot format-arguments :: <sequence>,
+  constant slot format-arguments :: <sequence>,
     required-init-keyword: #"format-arguments";
 end;
 
 define class <form-error> (<form-note>)
-  slot form-field-name :: false-or(<string>) = #f,
+  constant slot form-field-name :: false-or(<string>) = #f,
     init-keyword: #"form-field-name";
 end;
 

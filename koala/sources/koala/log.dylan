@@ -288,12 +288,12 @@ define class <rolling-file-log-target> (<file-log-target>)
 
   // TODO: not yet implemented
   // If this is #f then all versions are kept.
-  constant slot keep-versions :: false-or(<integer>) = #f,
-    init-keyword: #"keep-versions";
+  //constant slot keep-versions :: false-or(<integer>) = #f,
+  //  init-keyword: #"keep-versions";
 
   // TODO: not yet implemented
-  constant slot compress-on-close? :: <boolean> = #t,
-    init-keyword: #"compress?";
+  //constant slot compress-on-close? :: <boolean> = #t,
+  //  init-keyword: #"compress?";
 
   // Date when the underlying file was created.  When it gets closed
   // it will be renamed with this date in the name.

@@ -14,7 +14,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // (3) Use "define page", specifying <dylan-server-page> as a superclass and define any "tags"
 //     you need with "define tag".  Create a .dsp file that calls the tags with <dsp:my-tag .../>
 //
-// See ../example/*.dylan for usage examples.
+// See .../koala/sources/examples/koala-basics/ for example DSP usage.
 
 
 define variable *debugging-dsp* :: <boolean> = #f;
@@ -489,7 +489,6 @@ define class <tag-call> (<object>)
   constant slot name :: <string>, required-init-keyword: #"name";
   constant slot prefix :: <string>, required-init-keyword: #"prefix";
   constant slot tag :: false-or(<tag>), init-keyword: #"tag";
-  constant slot taglib :: <taglib>, init-keyword: #"taglib";
   // @see extract-tag-args
   slot arguments :: <sequence> = #[], init-keyword: #"arguments";
   slot body :: false-or(<dsp-template>) = #f, init-keyword: #"body";
@@ -615,11 +614,10 @@ define class <dsp-template> (<object>)
   constant slot content-start :: <integer>, required-init-keyword: #"content-start";
            slot content-end   :: <integer>, required-init-keyword: #"content-end";
   constant slot entries :: <stretchy-vector> = make(<stretchy-vector>);
-  constant slot parent  :: false-or(<dsp-template>) = #f, init-keyword: #"parent";
   // This is as-yet unused.
   // Pretty sure it was originally put here for error reporting purposes.
   constant slot source :: false-or(<locator>) = #f, init-keyword: #"source";
-           slot mod-date; // ---*** TODO
+  //         slot mod-date;  ---*** TODO
 end;
 
 define method add-entry!
@@ -633,8 +631,8 @@ end;
 //
 
 define open primary class <dylan-server-page> (<expiring-mixin>, <file-page-mixin>, <page>)
-  // A sequence of strings and functions.  Strings are output directly to the network stream.
-  // Functions are tags that are passed the network stream as their only argument.
+  // A sequence of strings and functions.  Strings are output directly
+  // to the network stream.  The functions are created by 'define tag'.
   slot page-template :: <dsp-template>;
 end;
 
@@ -843,7 +841,6 @@ define method parse-page
     page.contents := string;
     page.mod-time := current-date();
     let tmplt = make(<dsp-template>,
-                     parent: #f,
                      contents: string,
                      content-start: 0,
                      content-end: size(string),
@@ -912,7 +909,6 @@ define function parse-include-directive
   if (contents)
     let subtemplate = make(<dsp-template>,
                            source: source,
-                           parent: tmplt,
                            contents: contents,
                            content-start: 0,
                            content-end: size(contents));
@@ -1068,7 +1064,6 @@ define method parse-template (page :: <dylan-server-page>,
                         add-entry!(tmplt, call);
                         if (has-body?)
                           call.body := make(<dsp-template>,
-                                            parent: tmplt,
                                             contents: tmplt.contents,
                                             content-start: body-start,
                                             content-end: epos);
@@ -1114,7 +1109,6 @@ define function parse-start-tag (page :: <dylan-server-page>,
                         name: name,
                         prefix: prefix,
                         tag: tag,
-                        taglib: taglib,
                         taglibs: copy-sequence(taglibs))
                  else
                    log-warning("In template %=, the tag %= was not found.",
