@@ -19,3 +19,4 @@ files:
   thomas
   gabot
   tour
+  appraise-state
