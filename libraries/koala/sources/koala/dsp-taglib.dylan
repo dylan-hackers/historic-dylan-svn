@@ -184,3 +184,91 @@ end;
 //// XML tags
 
 
+
+// A simple error reporting mechanism.  Store errors in the page context
+// so they can be displayed when the next page is generated.  The idea is
+// that pages should use the <dsp:show-errors/> tag if they can be
+// the target of a POST that might generate errors.
+
+define abstract class <form-note> (<object>)
+  slot format-string :: <string>,
+    required-init-keyword: #"format-string";
+  slot format-arguments :: <sequence>,
+    required-init-keyword: #"format-arguments";
+end;
+
+define class <form-error> (<form-note>)
+  slot form-field-name :: false-or(<string>) = #f,
+    init-keyword: #"form-field-name";
+end;
+
+define class <form-message> (<form-note>)
+end;
+
+define method note-form-error
+    (message :: <string>, #rest args, #key field)
+  add-form-note(make(<form-error>,
+                     format-string: message,
+                     format-arguments: remove-keys(args, #"field"),
+                     form-field-name: field))
+end;
+
+define method note-form-message
+    (message :: <string>, #rest args)
+  add-form-note(make(<form-message>,
+                     format-string: message,
+                     format-arguments: copy-sequence(args)));
+end;
+
+define constant $form-notes-key = #"form-notes";
+
+// This shows the use of <page-context> to store the form errors since they
+// only need to be accessible during the processing of one page.
+//
+define method add-form-note
+    (note :: <form-note>)
+  let context :: <page-context> = page-context();
+  let notes = get-attribute(context, $form-notes-key) | make(<stretchy-vector>);
+  add!(notes, note);
+  set-attribute(context, $form-notes-key, notes);
+end;
+
+define method display-form-note
+    (out :: <stream>, note :: <form-error>)
+  write(out, "<LI>");
+  // Should I call quote-html on this output?
+  apply(format, out, format-string(note), format-arguments(note));
+  write(out, "\n");
+end;
+
+define method display-form-note
+    (out :: <stream>, note :: <form-message>)
+  write(out, "<P>");
+  // Should I call quote-html on this output?
+  apply(format, out, format-string(note), format-arguments(note));
+  write(out, "\n");
+end;
+  
+define tag show-form-notes in dsp
+    (page :: <dylan-server-page>, response :: <response>)
+    ()
+  let notes = get-attribute(page-context(), $form-notes-key);
+  when (notes)
+    let messages = choose(rcurry(instance?, <form-message>), notes);
+    let errors = choose(rcurry(instance?, <form-error>), notes);
+    let out = output-stream(response);
+    unless(empty?(messages))
+      write(out, "<FONT color='green'>\n");
+      do(curry(display-form-note, out), messages);
+      write(out, "</FONT>\n<P>\n");
+    end;
+    unless(empty?(errors))
+      format(out, "<FONT color='red'>Please fix the following errors:<P>\n<UL>\n");
+      do(curry(display-form-note, out), errors);
+      format(out, "</UL></FONT>\n");
+    end;
+  end;
+end;
+
+
+
