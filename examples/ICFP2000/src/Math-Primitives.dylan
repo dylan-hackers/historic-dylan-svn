@@ -126,7 +126,11 @@ end;
 define binary-primitive divf(<fp>, \/) end;
 
 // modi
-define binary-primitive modi(<integer>, modulo) end;
+define binary-primitive modi(<integer>,
+			     method(a :: <integer>, b :: <integer>) => (mod :: <integer>);
+				 a - truncate/(a, b) * b
+			     end)
+ end;
 
 define method optimizable-three(token1 :: <integer>, token2 == 0, token3 == #"modi", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   orig
