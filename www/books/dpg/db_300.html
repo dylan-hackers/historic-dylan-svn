@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading300"></a>
-
-<div>
-<p><a href="db_301.html"><img src="next.gif" alt="next" /></a> <a href="db_299.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_301.html"><img src="next.gif" alt="next" /></a> <a href="db_299.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading300-0"></a>
+
+<div class="content" id="heading300-0">
 <h1>19.5   <a name="marker-9-773"></a>Enu<a name="marker-2-774"></a>merations</h1>
 <p>Many languages provide enumeration types both to enforce program correctness and to provide more compact representation of multiple-choice values. Dylan does not have a built-in enumeration type, but you can easily construct enumerations using the <a name="marker-2-775"></a><code>type-union</code> and <a name="marker-2-776"></a><code>singleton</code> type constructors.</p>
 <p>For example, consider the <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> classes, where there are only two valid values for the <code>direction</code> slot in each class. Rather than enforcing the restrictions programmatically, as we did in <a href="db_134.html#marker-9-352">Section 10.6, page 128</a>, we can create types that do the job for us:</p>
@@ -55,15 +52,13 @@ define constant &lt;longitude-direction&gt; = one-of(#&quot;east&quot;, #&quot;w
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_301.html"><img src="next.gif" alt="next" /></a> <a href="db_299.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

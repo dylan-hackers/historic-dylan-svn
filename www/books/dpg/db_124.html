@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading124"></a>
-
-<div>
-<p><a href="db_125.html"><img src="next.gif" alt="next" /></a> <a href="db_123.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_125.html"><img src="next.gif" alt="next" /></a> <a href="db_123.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading124-0"></a>
+
+<div class="content" id="heading124-0">
 <h1>10.2.2   <a name="marker-9-327"></a>Setter methods</h1>
 <p>In most cases, the getter and setter methods that Dylan defines for each slot are perfectly adequate. In certain cases, however, you might want to change the way a getter or setter works. </p>
 <p>For example, we can define a setter method to solve a problem in our time library. The class <code>&lt;time-of-day&gt;</code> inherits the <code>total-seconds</code> slot from the class <code>&lt;sixty-unit&gt;</code>. The type of the slot is <code>&lt;integer&gt;</code>. However, the semantics of <code>&lt;time-of-day&gt;</code> state that the <code>total-seconds</code> should not be less than 0. We can define a setter method for <code>&lt;time-of-day&gt;</code> to ensure that the new value for the total-seconds slot is 0 or greater. </p>
@@ -53,15 +50,13 @@ end method total-seconds-setter;
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_125.html"><img src="next.gif" alt="next" /></a> <a href="db_123.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading176"></a>
-
-<div>
-<p><a href="db_177.html"><img src="next.gif" alt="next" /></a> <a href="db_175.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_177.html"><img src="next.gif" alt="next" /></a> <a href="db_175.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading176-0"></a>
+
+<div class="content" id="heading176-0">
 <h1>12.2.2   Return and reception of multiple values</h1>
 <p>A Dylan function call -- and, in general, a Dylan expression -- can return any number of values, including none. The <code>values<a name="marker-2-509"></a></code> function is the means of returning multiple values<a name="marker-2-510"></a>. This function takes zero or more arguments, and returns them as separate values.</p>
 <p>Multiple values can be received as the initial values of local variables in a <code>let<a name="marker-2-511"></a></code> declaration. If a <code>let</code> declaration contains multiple variables, they are matched with the values returned by the initialization expression, and each variable is bound to the corresponding value. The following example initializes <code>a</code> to <code>1</code> and <code>b</code> to <code>2:</code></p>
@@ -35,15 +32,13 @@ let (ans, rem) = truncate/(5, 2);
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_177.html"><img src="next.gif" alt="next" /></a> <a href="db_175.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading102"></a>
-
-<div>
-<p><a href="db_103.html"><img src="next.gif" alt="next" /></a> <a href="db_101.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_103.html"><img src="next.gif" alt="next" /></a> <a href="db_101.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading102-0"></a>
+
+<div class="content" id="heading102-0">
 <h1>7.8   Summary</h1>
 <p>In this chapter, we covered the following:</p>
 <ul>
@@ -30,19 +27,17 @@
 <li><p>In proper modularity, a method on a particular class should not depend on information that is private to second class. If someone changes the representation of the second class, the method could break. We showed an <br />example of breaking this rule when one version of the <code>say</code> method on <code>&lt;absolute-position&gt;</code> printed "latitude" and "longitude" after calling <code>say</code> on the directed angles stored in its two slots. The method on <code>&lt;absolute-position&gt;</code> acted on the knowledge that the method on <code>&lt;directed-angle&gt;</code> does not print "latitude" or "longitude." </p></li>
 </ul>
 <p>One of the challenges of modular design is for you to decide which attributes to generalize (by moving them up to higher, or more general, classes in the inheritance graph), and which attributes to specialize (by moving them down the inheritance graph into more specific classes). Another challenge is deciding when to split a class into multiple behaviors, and when to introduce more abstract classes to hold shared behavior. No computer language can make these decisions for you, but dynamic languages typically allow more freedom to explore these relationships. Generic functions and multimethods allow more freedom in defining behavior than does attac<a name="marker-2-275"></a>hing a method to a single class. </p>
-<a name="link-pos-lastpage"></a><a name="link-time-code-firstpage"></a><!-- FM pgf ignored -->
+<!-- FM pgf ignored -->
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_103.html"><img src="next.gif" alt="next" /></a> <a href="db_101.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading346"></a>
-
-<div>
-<p><a href="db_347.html"><img src="next.gif" alt="next" /></a> <a href="db_345.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_347.html"><img src="next.gif" alt="next" /></a> <a href="db_345.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading346-0"></a>
+
+<div class="content" id="heading346-0">
 <h1>B.1   The concept of <a name="marker-2-928"></a>pointers</h1>
 <p>If you are familiar with a language with explicit pointers, such as C, you may be confused initially by Dylan's object model. Although there is no "pointer-to" operation in Dylan, there are pointers in the implementation. If you are trying to imagine how Dylan objects are implemented, it is better to think in terms of always manipulating a pointer to the object: A Dylan variable (or slot) stores a pointer to an object, rather than a copy of the object's slots. Similarly, assignment, argument passing, and identity comparison are in terms of pointers to objects.</p>
 <p>Even characters and numbers can be <em>considered</em> as objects that are pointed to (objects with an unmodifiable value slot), making the object model uniform. But compilers optimize away the indirection for these built-in classes.</p>
@@ -173,15 +170,13 @@ end method make;
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_347.html"><img src="next.gif" alt="next" /></a> <a href="db_345.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

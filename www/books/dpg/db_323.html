@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading323"></a>
-
-<div>
-<p><a href="db_324.html"><img src="next.gif" alt="next" /></a> <a href="db_322.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_324.html"><img src="next.gif" alt="next" /></a> <a href="db_322.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading323-0"></a>
+
+<div class="content" id="heading323-0">
 <h1>20.2.3   <a name="marker-9-835"></a>Definition of a recovery protocol</h1>
 <p>With the new definition of our <code>+</code> method on <code>&lt;time-offset&gt;</code> and <code>&lt;time-of-day&gt;</code>, if we add 5 hours to 10:00 P.M., a condition instance is signaled. The <code>say-corrected-time</code> method handles that condition, and prints a suitable error message. By the time the handler in <code>say-corrected-time</code> takes control, the addition that we were performing has been aborted. In fact, we are no longer even executing within the <code>correct-arrival-time</code> method. We have ceased executing there because handlers established using the <code>exception</code> clause of <code>block</code> perform nonlocal exits out of the current computation back to the block where the handler was established. Suppose that we, instead of aborting the addition, wanted to continue with the addition, perhaps modifying the value returned by the <code>+</code> method such that it would still be within the correct 24-hour range for <code>&lt;time-of-day&gt;</code> instances. In this section, we modify <code>say-corrected-time</code> to use a different technique for establishing a handler that does not abort the computation in progress, and we modify the <code>+</code> method for <code>&lt;time-offset&gt;</code> and <code>&lt;time-of-day&gt;</code> to offer and implement a way to modify the value returned to be a legal time of day.</p>
 <p>First, we must find a way to execute a handler in the context of the signaler, instead of at the point where the handler was established. Then, we must find a way to activate special code in the <code>+</code> method to return a legal <code>&lt;time-of-day&gt;</code> instance as a way of recovering from the time-boundary exception.</p>
@@ -109,15 +106,13 @@ end method say-corrected-time;
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_324.html"><img src="next.gif" alt="next" /></a> <a href="db_322.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading314"></a>
-
-<div>
-<p><a href="db_315.html"><img src="next.gif" alt="next" /></a> <a href="db_313.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_315.html"><img src="next.gif" alt="next" /></a> <a href="db_313.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading314-0"></a>
+
+<div class="content" id="heading314-0">
 <h1>19.14.5   Type inference</h1>
 <p>The quality of type inference can vary greatly among Dylan compilers. Type inference -- like most forms of program analysis -- works best with simple, straightforward code. Some constructs that are typically difficult for type inference are assignment and calling of block exit functions outside of the method that defines the block exit functions.</p>
 <p>One other way in which type constraints can be helpful is that they permit the compiler to choose efficient representations for objects. Most Dylan objects contain enough information for Dylan to determine their class -- this one is an important feature for the dynamic aspects of the language. But, suppose we have a 1000 x 1000 <code>limited(&lt;array&gt;, of: &lt;single-float&gt;)</code>. There is no reason that each of the numbers in that array should also contain a reference to the <code>&lt;single-float&gt;</code> class; the one reference in the limited type is sufficient. (Note that, if we had used <code>of: &lt;real&gt;</code> or <code>of: &lt;float&gt;</code>, we would have needed more information, since multiple classes would have been possible.)</p>
@@ -28,15 +25,13 @@
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_315.html"><img src="next.gif" alt="next" /></a> <a href="db_313.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

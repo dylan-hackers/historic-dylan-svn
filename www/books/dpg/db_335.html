@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading335"></a>
-
-<div>
-<p><a href="db_336.html"><img src="next.gif" alt="next" /></a> <a href="db_334.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_336.html"><img src="next.gif" alt="next" /></a> <a href="db_334.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading335-0"></a>
+
+<div class="content" id="heading335-0">
 <h1>21.6   More <a name="marker-2-879"></a>hygiene</h1>
 <p>We shall make one more note about hygiene: In a textual substitution macro, there is a chance that the global variables that the macro uses (in this case, the helper function <code>define-aircraft</code>) could be confused with a surrounding local variable of the same name where the macro is called. This confusion does not happen in a Dylan macro. The global variables used in a Dylan macro always denote what they denoted at the time that the macro was defined, rather than at the time that the macro is called. It is as though the variables were automatically renamed so that conflicts will be avoided.</p>
 <p>You will also notice this feature if you export a macro from a module. Only the macro needs to be exported. Its global references still refer to the proper (module-private) values that they had at the time the macro was defined, just as occurs when a function exported from a module calls module-private subroutines.</p>
@@ -64,15 +61,13 @@ end;
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_336.html"><img src="next.gif" alt="next" /></a> <a href="db_334.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

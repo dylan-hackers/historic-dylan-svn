@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading134"></a>
-
-<div>
-<p><a href="db_135.html"><img src="next.gif" alt="next" /></a> <a href="db_133.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_135.html"><img src="next.gif" alt="next" /></a> <a href="db_133.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading134-0"></a>
+
+<div class="content" id="heading134-0">
 <h1>10.6   <a name="marker-9-352"></a>Virt<a name="marker-2-353"></a>ual slots</h1>
 <p>Virtual slots are useful when there is information conceptually associated with an object that is better computed than stored in an ordinary slot. By using a virtual slot instead of writing a method, you make the information appear like a slot to the callers of the getter. The information appears like a slot because the caller cannot distinguish the getter of a virtual slot from a getter of an ordinary slot. In both cases, the getter takes a single required argument -- the instance -- and returns a single value. </p>
 <p>A virtual slot does not occupy storage; instead, its value is computed. When you define a virtual slot, Dylan defines a generic function for the getter and setter. You must define a getter method to return the value of the virtual slot. Unlike those of other slots, the value of a virtual slot can change without a setter being called, because that value is computed, rather than stored. You can optionally define a setter method. If you want to initialize a virtual slot when you create an instance, you can define an <code>initialize</code> method. </p>
@@ -40,9 +37,7 @@ end class &lt;directed-angle&gt;;
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 <ul>
@@ -54,7 +49,7 @@ end class &lt;directed-angle&gt;;
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_135.html"><img src="next.gif" alt="next" /></a> <a href="db_133.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

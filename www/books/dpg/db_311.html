@@ -12,29 +12,24 @@
 	</head>
 <body>
 
-<div>
-<a name="heading311"></a>
-
-<div>
-<p><a href="db_312.html"><img src="next.gif" alt="next" /></a> <a href="db_310.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_312.html"><img src="next.gif" alt="next" /></a> <a href="db_310.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading311-0"></a>
+
+<div class="content" id="heading311-0">
 <h1>19.14.2   Efficiency of keyword arguments and of multiple values</h1>
 <p>Keyword arguments are a powerful and flexible, but potentially expensive, feature of Dylan. The processing of keywords and values at run time can be an expensive operation, especially if many keywords are used. A Dylan compiler can pass keyword arguments as efficiently as it can required arguments, if the called function is known at compilation time.</p>
 <p>Returning multiple values again raises performance issues. In some implementations of Dylan, there is an extra cost for returning more than one value; in others, the cost is associated with calling a function that does not declare how many values it returns. When the compiler knows what function is being called, these costs usually can be eliminated, but certain costs may still exist -- for example, certain implementations may not optimize tail calls between functions that return different numbers of arguments.</p>
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_312.html"><img src="next.gif" alt="next" /></a> <a href="db_310.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading283"></a>
-
-<div>
-<p><a href="db_284.html"><img src="next.gif" alt="next" /></a> <a href="db_282.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_284.html"><img src="next.gif" alt="next" /></a> <a href="db_282.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading283-0"></a>
+
+<div class="content" id="heading283-0">
 <h1>18.1.2   Aircraft classes and multiple inheritance</h1>
 <p>It is obvious that an aircraft is a flying vehicle. In our airport model, however, we have to take account of an aircraft's behavior on taxiways and runways and at gates. In these situations, the aircraft is acting as a ground vehicle. Perhaps it makes sense to define our aircraft classes as subclasses of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>.</p>
 <p>What could we gain by doing so? Consider cruising speed. When an aircraft is in the air, we need to take into account its flying cruising speed when estimating its time of arrival at its destination. When the aircraft is on the ground, we need to take into account the ground cruising speed when estimating how much time the aircraft will spend on a taxiway or runway. It makes sense to have both flying and ground cruising speeds. It also makes sense for flying cruising speed to be a property of flying vehicles -- more specifically, aircraft -- and for ground cruising speed to be a property of ground vehicles. After all, the notion of cruising speed can be useful in estimating how long a fuel truck will take to arrive at a given gate.</p>
@@ -59,15 +56,13 @@ end class &lt;B707&gt;;
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_284.html"><img src="next.gif" alt="next" /></a> <a href="db_282.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

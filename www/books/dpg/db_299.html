@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading299"></a>
-
-<div>
-<p><a href="db_300.html"><img src="next.gif" alt="next" /></a> <a href="db_298.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_300.html"><img src="next.gif" alt="next" /></a> <a href="db_298.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading299-0"></a>
+
+<div class="content" id="heading299-0">
 <h1>19.4   <a name="marker-9-771"></a>Lim<a name="marker-2-772"></a>ited types</h1>
 <p>Some of Dylan's built-in types are extremely general. When these types are used, the compiler's type inferencing is thwarted, and less efficient code will be generated. The place where this situation is most obvious is in the <code>&lt;collection&gt;</code> types, where the elements of a collection are essentially like multiple slots, all with the same type constraint. For the built-in collections, elements typically have a general default type (often simply <code>&lt;object&gt;</code>), and there can be an arbitrary number of them. The <code>limited</code> mechanism is a way to specify that you expect to store objects of a particular type in the collection, and to specify how many elements will be in the collection.</p>
 <p>As an example, in <a href="db_262.html#marker-9-709">Section 17.2</a>, page <a href="db_264.html#marker-9-701">259</a>, the <code>generate-gates</code> method returns a <code>&lt;vector&gt;</code>. Without further information, the compiler must assume that that vector might contain objects of any types. As a result, the following code in the <code>build-simple-airport</code> method from <a href="db_271.html#marker-9-712">Section 17.5</a>, page <a href="db_271.html#marker-9-703">277</a>, will be <br />inefficient:</p>
@@ -61,15 +58,13 @@ define constant &lt;signed-byte-vector&gt;
 </td></tr></table>
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_300.html"><img src="next.gif" alt="next" /></a> <a href="db_298.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

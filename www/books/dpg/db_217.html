@@ -12,23 +12,18 @@
 	</head>
 <body>
 
-<div>
-<a name="heading217"></a>
-
-<div>
-<p><a href="db_218.html"><img src="next.gif" alt="next" /></a> <a href="db_216.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_218.html"><img src="next.gif" alt="next" /></a> <a href="db_216.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading217-0"></a>
+
+<div class="content" id="heading217-0">
 <h1>13.9   <a name="marker-9-657"></a>Protocol design</h1>
 <p>We can now define the <code>angle</code> library as another client of the <code>sixty-unit</code> library. The interface of the <code>angle</code> library consists of the classes <code>&lt;angle&gt;</code> and <code>&lt;directed-angle&gt;</code>, and the <code>say</code> method. Uh-oh! We want that <code>say</code> method to be another method on the <code>say</code> generic function defined by the <code>time</code> library, so that a client of the <code>time</code> <em>and</em> <code>angle</code> libraries sees a single generic function, <code>say</code>, that applies to either times or angles. This situation illustrates the value of putting a lot of thought into designing our protocols before we get too deep into an implementation. The <code>say</code> generic function is a separate protocol that could apply to many classes in our system. To permit separate libraries to add methods to a Dylan generic function, the module defining the protocol (that is, the module defining the generic function) needs to be defined first, in a separate, common library. Other libraries then use this component library to define their particular implementation of the protocol.</p>
 <p>To create the <code>say</code> protocol, we define a library and implementation file as shown in Sections <a href="db_218.html#marker-9-658">13.9.1</a> through <a href="db_221.html#marker-9-659">13.9.4</a>.</p>
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 <ul>
@@ -41,7 +36,7 @@
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_218.html"><img src="next.gif" alt="next" /></a> <a href="db_216.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

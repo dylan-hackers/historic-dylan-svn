@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading303"></a>
-
-<div>
-<p><a href="db_304.html"><img src="next.gif" alt="next" /></a> <a href="db_302.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_304.html"><img src="next.gif" alt="next" /></a> <a href="db_302.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading303-0"></a>
+
+<div class="content" id="heading303-0">
 <h1>19.8   Typ<a name="marker-2-780"></a>ed generic functions</h1>
 <p>In addition to specifying the types of the parameters and return values of methods, you can specify the types of the parameters and return values of a generic function. You usually restrict the parameter types of a generic function to establish the <strong>contract</strong> of the generic function -- that is, to define the domain of arguments that the generic function is intended to handle, and the domain of the values that it will return.</p>
 <p>If we define a method without also defining a generic function, Dylan creates an <a name="marker-2-781"></a>implicit generic function with the most general types for each parameter and return value that are compatible with the method. For example, assume that we defined a method for <code>next-landing-step</code>, and did not explicitly create a generic function for it. The method is as follows:</p>
@@ -52,15 +49,13 @@ define generic next-landing-step
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_304.html"><img src="next.gif" alt="next" /></a> <a href="db_302.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading296"></a>
-
-<div>
-<p><a href="db_297.html"><img src="next.gif" alt="next" /></a> <a href="db_295.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_297.html"><img src="next.gif" alt="next" /></a> <a href="db_295.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading296-0"></a>
+
+<div class="content" id="heading296-0">
 <h1>19.1   Execution <a name="marker-2-763"></a>model</h1>
 <p>Dylan is a dynamic language -- everything in Dylan is defined in terms of a dynamic <strong>execution model</strong>. As we saw in <a href="db_75.html#marker-9-224">Section 5.5, page 63</a>, the execution model of how a method is chosen when a generic function is called with a particular set of arguments is highly dynamic: the arguments are evaluated; the types of the arguments are determined; the applicable methods are found and sorted according to specificity; and, finally, the most specific, applicable method is called. This model implies that values and types can change, and that methods can be added right up until the generic function is called, and any of these changes still have an effect on which method is ultimately chosen. This dynamism -- the model that value, number, and type of arguments; return values; applicable method; and method choice and execution are all determined at the last possible moment -- is what gives the Dylan language its power. </p>
 <p>You might think that this dynamism also means that Dylan must perform poorly, because the only way to obey its execution model is to do a lot of extra computation at run time. But not every program makes use of dynamic features. Most functions accept and return a fixed number of values (often they return only one), and those values are often of a fixed or constrained type. Even programs that do use dynamism will not require it everywhere. So, a good Dylan compiler will identify the static parts of a program, and will compile them statically (that is, in a manner that is competitive with what a compiler of any good static language would do). To do that, the compiler uses a technique called <strong><a name="marker-2-764"></a>partial evaluation</strong> -- operations that can be evaluated at compile time (that the compiler knows can have only one outcome), will be done at compile time. Thus, even though the programmer can continue to think and program in terms of Dylan's dynamic execution model, the compiler will generate efficient code when it can show that it can obtain the same return value without carrying out the full process at run time.</p>
@@ -27,15 +24,13 @@
 
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_297.html"><img src="next.gif" alt="next" /></a> <a href="db_295.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>

@@ -12,14 +12,11 @@
 	</head>
 <body>
 
-<div>
-<a name="heading347"></a>
-
-<div>
-<p><a href="db_348.html"><img src="next.gif" alt="next" /></a> <a href="db_346.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-
+<div class="navigation">
+	<p><a href="db_348.html"><img src="next.gif" alt="next" /></a> <a href="db_346.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 </div>
-<a name="heading347-0"></a>
+
+<div class="content" id="heading347-0">
 <h1>B.2   <a name="marker-9-930"></a>The concept of <a name="marker-2-931"></a>classes</h1>
 <p>If you are familiar with the class concepts of C++, you may be confused by Dylan's class model. In Dylan, all base classes are effectively virtual base classes, with "virtual" data members. When a class inherits another class more than once (because of multiple inheritance), only a single copy of that base class is included. Each of the multiple-inheritance paths can contribute to the implementation of the derived class. The Dylan class model favors this mix-in style of programming.</p>
 <p>Here is an example of such a program, followed by the equivalent C++:</p>
@@ -109,18 +106,15 @@ public:
 </ul>
 <p>Note that the C++ equivalent of the mix-in example is incomplete. It is intended only as a guide to how you can think of Dylan classes. In particular, we have not modeled the slot setter virtual functions that Dylan classes define automatically, and we have not gone into how instances of the classes are constructed. In Dylan, we would simply give init-keywords for each of the slots, and the automatically generated constructor would fill them in for any of the derived classes. In contrast, constructors for virtual base classes are a particularly difficult aspect of C++: They make it hard to model what is done in Dylan accurately. In general, the mix-in style of programming is more difficult to do in C++, because that language's support for it is quite limited.</p>
 <p>Note also that the C++ code is provided only as a model of Dylan execution, so that you can understand the semantics of Dylan classes in C++ terms. Good Dylan compilers use library compilation, type inferencing, and partial evaluation to optimize out the overhead normally associated with virtual classes and virtual functions, while preserving the dynamic execution semantics.</p>
-<a name="link-c-comparisons-lastpage"></a>
 </div>
 
-<div>
-
-<div>
+<div class="toc">
 
 <!-- TOC -->
 
 </div>
 
-<hr />
+<div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
 <p><a href="db_348.html"><img src="next.gif" alt="next" /></a> <a href="db_346.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
 <p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
