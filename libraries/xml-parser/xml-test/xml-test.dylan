@@ -35,9 +35,10 @@ define function main(program-name, arguments)
   else
     let *substitute?* = arguments[0] ~= "-n"
       & arguments[0] ~= "--no-entity-substitution";
-    with-open-file(in = arguments[if(*substitute?*) 0 else 1 end])
+    with-open-file(in = arguments[if(*substitute?*) 0 else 1 end], 
+		   direction: #"input-output")
 //      let start = current-date();
-      let doc = parse-document(in.stream-contents, 
+      let doc = parse-document(stream-contents(in, clear-contents?: #f),
                                substitute-entities?: *substitute?*);
 /**
       let stop = current-date();

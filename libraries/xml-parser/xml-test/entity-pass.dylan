@@ -5,7 +5,7 @@ Copyright: (c) 2001, LGPL
 Version:   1.0
 
 define variable *ent* = make(<table>);
-define class <1st-pass> (<xform-state>) end;
+define class <1st-pass> (<object>) end;
 
 define function collect-entity-defs(in :: <document>)
   *ent* := make(<table>);
@@ -16,7 +16,7 @@ end function collect-entity-defs;
 
 define function referenced-entities(namei :: <string>, 
                                     str :: <stream>,
-                                    state :: <xform-state>)
+                                    state)
   unless(*ent*.empty?)
   format(str, "<HTML>\n<BODY BGCOLOR='white'>\n<P>\n<FONT COLOR='"
               "orange'>&lt;!-- %s.dtd parsed by xml-parser, "
