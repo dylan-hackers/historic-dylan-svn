@@ -21,7 +21,7 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
   find-robot(state, my-id).capacity := my-capacity;
 
   debug("board is %=", state.board);
-  test-path-finding(state.board);
+//  test-path-finding(state.board);
 
   let running = #t;
   while(running)

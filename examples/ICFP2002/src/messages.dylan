@@ -91,8 +91,8 @@ define function send-package-ids (s :: <stream>,
   let n = package-ids.size;
   for (i from 0 below n)
     force-format(s, " %d", package-ids[i]);
-//    force-format(s, if (i < n - 1) " " else "\n" end);
   end for;
+  force-format(s, "\n");
 end function send-package-ids;
 
 define method send-command (s :: <stream>, command :: <pick>) => ()

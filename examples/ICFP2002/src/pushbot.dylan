@@ -72,6 +72,7 @@ end method;
 
 define method generate-next-move(me :: <pushbot>, s :: <state>)
   => (c :: <command>)
+  debug("finding me\n");
   let robot = find-robot(s, me.agent-id);
   block(return)
     debug("getting adjacent robots...");
@@ -85,7 +86,9 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
 	if(~empty?(killable-dir))
 	  // TODOsort the list of robots by some metric, eg who has delivered the most
 	  let targ-direction = first(killable-dir);
-	  return(make(<move>, bid: 50 /*(robot.money / 10) + 1*/, direction: targ-direction));
+	  debug("..trying to kill\n");
+	  return(make(<move>, bid: 50 /*(robot.money / 10) + 1*/,
+		      direction: targ-direction, id: robot.id));
 	end;
 	debug("...no-one to kill\n");
 	// if enemy robot has packages, bid a bit more and push
@@ -99,7 +102,9 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
 	  if(me.push-count > 4)
 	    me.push-count-dir := #"down";
 	  end;
-	  return(make(<move>, bid: 20 /*(robot.money / 50) + 1*/, direction: d));
+	  debug("...but trying to push\n");
+	  return(make(<move>, bid: 20 /*(robot.money / 50) + 1*/,
+		      direction: d, id: robot.id));
 	end;
 	debug("...no-one to push\n");
       end;
@@ -121,7 +126,7 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     debug("DB: drop-these = %=\n", drop-these);
     
     if (~drop-these.empty?)
-      return(make(<drop>, bid: 1, package-ids: map(id, drop-these)));
+      return(make(<drop>, bid: 1, package-ids: map(id, drop-these), id: robot.id));
     else 
       format-out("DB: Nothing to deliver here.\n");
       force-output(*standard-output*);
@@ -134,14 +139,14 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     debug("DB: Packages here: %=\n", packages-here);
     if (packages-here ~= #f & ~packages-here.empty?)
       let take-these = make(<vector>);
-      let left = robot.capacity;
+      let left = robot.capacity-left;
       // Greedy algorithm to get as much as we can:
       for (pkg in sort(packages-here, 
 		       test: method (a :: <package>, b :: <package>)
 			       a.weight > b.weight;
 			     end method))
-	if (pkg.weight <= robot.capacity
-	      & find-path(robot.location, pkg.location, s.board))
+	if (pkg.weight <= left /* robot.capacity */
+	      & find-path(robot.location, pkg.location, s.board, cutoff: 50))
 	  left := left - pkg.weight;
 	  take-these := add!(take-these, pkg);
 	end if;
@@ -149,7 +154,8 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
       if (~take-these.empty?)
 	return(make(<pick>, 
 		    bid: 1, 
-		    package-ids: map(id, take-these)));
+		    package-ids: map(id, take-these),
+		    id: robot.id));
       else 
 	debug("DB: Can't pick up or deliver anything from here.\n");
       end if;
@@ -160,22 +166,30 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     // is there another robot nearby? if so move to attack it
     if(me.push-count-dir = #"up")
       block(exit)
+	debug("looing for another robot nearby...\n");
+	let attack-threshold = 2;
 	let robo-locations = remove(map(location, s.robots), robot.location, test: \=);
 	if(empty?(robo-locations))
 	  exit();
 	end;
-	let robo-paths = map(curry(rcurry(find-path, s.board), robot.location),
+	debug("doing robo-paths\n");
+	let robo-paths = map(curry(rcurry(find-path, s.board, cutoff: attack-threshold),
+				   robot.location),
 			     robo-locations);
+	debug("removing #f's\n");
 	robo-paths := choose(curry(\~=, #f), robo-paths);
+	debug("sorting\n");
 	robo-paths := sort!(robo-paths, stable: #t, 
 			    test: method (a :: <list>, b :: <list>) 
 				    a.size < b.size;
 				  end method);
+	debug("choosing\n");
 	robo-paths := choose(method(a) => (r)
-			       a.size <= 2; //atack within foo steps
+			       a.size <= attack-threshold;
 			     end method,
 			     robo-paths);
 	if(empty?(robo-paths))
+	  debug("...none\n");
 	  exit();
 	end;
 	debug("Moving towards another robot\n");
@@ -183,13 +197,15 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
 	  if(me.push-count > 4)
 	    me.push-count-dir := #"down";
 	  end;
+	debug("...moving towards it\n");
 	return(make-move-from-paths(robo-paths, robot));
       end;
-    else
-      me.push-count := me.push-count - 1;
-      if(me.push-count <= 0)
-	me.push-count-dir := #"up";
-      end;
+// commenting this out may fix a double count down problem
+//    else
+//      me.push-count := me.push-count - 1;
+//      if(me.push-count <= 0)
+//	me.push-count-dir := #"up";
+//      end;
     end;
 
     maybe-mark-base-visited(me, s, robot.location);
@@ -202,7 +218,7 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     format-out("DB: Targets: %=\n", targets);
     force-output(*standard-output*);
 
-    let paths = map(curry(rcurry(find-path, s.board), robot.location),
+    let paths = map(curry(rcurry(find-path, s.board, cutoff: 50), robot.location),
 		    targets);
 
     format-out("DB: Paths: %=\n", paths);
@@ -241,5 +257,5 @@ define method make-move-from-paths(paths, robot) => (command)
 	  => error("Can't happen");
       end case;
     end if;
-  make(<move>, bid: 1, direction: direction);
+  make(<move>, bid: 1, direction: direction, id: robot.id);
 end method;
