@@ -5,7 +5,11 @@ define brain alex-gatherer
 
   [start:]
     Mark 0;
-    Flip 4, (kill-other-hill, get-out-of-home);
+    Mark 3;
+    Flip 4, (kill-other-hill, start-2);
+
+  [start-2:]
+    Flip 7, (mark-around, get-out-of-home);
 
   [drop-and-get-out-of-home:]
     Turn Right;
@@ -43,6 +47,9 @@ define brain alex-gatherer
     Turn Left;
     Turn Left;
     Turn Left;
+    PickUp deliver-food => search-food-in-empty;
+
+  [pick-up-food-no-turn:]
     PickUp deliver-food => search-food-in-empty;
 
   [search-food-in-empty:]
@@ -100,7 +107,7 @@ define brain alex-gatherer
     Move search-food => move-at-random-in-empty;
 
   [move-at-random-in-empty:]
-    Flip 5, (move-back, move-other-five);
+    Flip 15, (move-back, move-other-five);
 
   [move-back:]
     Turn Left;
@@ -110,7 +117,7 @@ define brain alex-gatherer
     Move search-food => move-at-random-in-empty;
 
   [move-other-five:]
-    Flip 4, (try-forward, try-else);
+    Flip 2, (try-forward, try-else);
 
 
   // The following set of macros makes it possible to deliver food,
@@ -122,6 +129,7 @@ define brain alex-gatherer
     Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
 
   [deliver-move-forward:]
+    // Unmark 0;
     Move deliver-food => deliver-try-other-four;
 
   [deliver-try-left-1:]
@@ -177,12 +185,40 @@ define brain alex-gatherer
 
   // Perform marking algorithm.
   [mark-around:]
-    Drop, (get-out-of-home);
+    Sense Home, (mark-out-of-home, kill-other-hill);
 
+  [mark-out-of-home:]
+    Sense Home, (mark-move-forward-in-home, do-mark-l-1-home);
+
+  [mark-move-forward-in-home:]
+    Move mark-out-of-home => mark-turn-right-in-home;
+
+  [mark-turn-right-in-home:]
+    Turn Right, (mark-move-forward-in-home);
+
+  [do-mark-l-1-home:]
+    Mark 4;
+    Move do-mark-l-2-home => kill-other-hill;
+
+  [do-mark-l-2-home:]
+    Mark 5;
+    Move do-mark-l-3-home => kill-other-hill;
+
+  [do-mark-l-3-home:]
+    Mark 3;
+    Move do-mark-l-1-home => kill-other-hill;
+  
 
   // Perform agression of another hill.
   [kill-other-hill:]
-    Sense FoeHome, (kill-other-hill, kill-try-forward);
+    Sense FoeHome, (kill-other-hill-check-food, kill-try-forward);
+
+  [kill-other-hill-check-food:]
+    Turn Right;
+    Sense Ahead Food, (kill-try-to-eat, kill-other-hill-check-food);
+
+  [kill-try-to-eat:]
+    Move pick-up-food-no-turn => kill-other-hill-check-food;
 
   [kill-try-forward:]
     Sense Ahead FoeHome, (kill-move-forward, kill-try-unmarked);
