@@ -131,9 +131,12 @@
       
       <PARA>In the process of working with Dylan, the Gwydion Project
       has come up with numerous extensions to the Dylan language. Some
-      of them form entire libraries, like the Collection-Extensions
-      and String-Extensions libraries. Others have been added to the
-      Dylan library, in such modules as Extensions and System.</PARA>
+      of them form entire libraries, like the
+      <dlibrary>Collection-Extensions</dlibrary> and
+      <dlibrary>String-Extensions</dlibrary> libraries. Others have
+      been added to the <dlibrary>Dylan</dlibrary> library, in such
+      modules as <dmodule>Extensions</dmodule> and
+      <dmodule>System</dmodule>.</PARA>
       
       <PARA>We continue to make no claims about future support for our
       extensions. However, some extensions are more likely than others
