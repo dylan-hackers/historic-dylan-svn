@@ -1,12 +1,17 @@
 module: ants
 
+define class <world> (<object>)
+  constant slot world-x :: <integer>, required-init-keyword: x:;
+  constant slot world-y :: <integer>, required-init-keyword: y:;
+  constant slot cells :: <simple-object-vector>, required-init-keyword: cells:;
+end;
 
-define variable *world* :: <array> = make(<array>, dimensions: #[0, 0]);
+define variable *world* :: <world> = make(<world>, x:0, y:0, cells: #[]);
 
 
-define function dump-world-state(world :: <array>) => ()
-  for(yy from 0 below *world*.dimensions[1])
-    for(xx from 0 below *world*.dimensions[0])
+define function dump-world-state(world :: <world>) => ()
+  for(yy from 0 below *world*.world-y)
+    for(xx from 0 below *world*.world-x)
       let p = make-position(xx, yy);
       let ss = format-to-string("cell (%d, %d): ", xx, yy);
 

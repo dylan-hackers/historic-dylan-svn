@@ -16,9 +16,9 @@ define function play-game(red-brain :: <string>,
 
   // Produce a dump.
   format-out("random seed: %d\n", *initial-random-seed*);
-  for(round from 0 below 10001)
-    format-out("\nAfter round %d...\n", round);
-    dump-world-state(*world*);
+  for(round from 0 to 10000)
+    //format-out("\nAfter round %d...\n", round);
+    //dump-world-state(*world*);
     for(i from 0 below *ants*.size)
       step(i);
     end for;

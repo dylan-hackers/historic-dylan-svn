@@ -15,16 +15,16 @@ end function make-position;
 define constant <position> = <integer>;
 
 define inline-only function x (p :: <position>) => (x :: <integer>);
-  logand(p, #xFFFF)
+  logand(p, #x7F)
 end function;
 
 define inline-only function y (p :: <position>) => (y :: <integer>);
-  ash(p, -16)
+  ash(p, -7)
 end function;
 
 define inline-only function make-position(x :: <integer>, y :: <integer>)
  => (p :: <position>)
-  logior(x, ash(y, 16))
+  logior(x, ash(y, 7))
 end function make-position;
 
 define constant <direction> = limited(<integer>, min: 0, max: 5);
@@ -117,7 +117,7 @@ end class <cell>;
 
 define function cell-at(p :: <position>)
   => (c :: <cell>)
-  *world*[p.x, p.y]
+  *world*.cells[p]
 end function cell-at;
 
 define function is-rocky(p :: <position>)
@@ -192,11 +192,18 @@ define function anthill-at(p :: <position>, c :: <color>)
   cell-at(p).anthill == c;
 end function anthill-at;
 
-define function read-map(s :: <stream>) => (result :: <array>);
+define function read-map(s :: <stream>) => (result :: <world>);
   let x-size :: <integer> = string-to-integer(read-line(s));
   let y-size :: <integer> = string-to-integer(read-line(s));
+
+  if (x-size > 127)
+    format-out("ERROR: X size can't be more than 127\n");
+  end;
+  if (y-size > 127)
+    format-out("ERROR: Y size can't be more than 127\n");
+  end;
   
-  let result = make(<array>, dimensions: vector(x-size, y-size));
+  let result = make(<world>, x: x-size, y: y-size, cells: make(<vector>, size: 16384));
   let ant-count = 0;
 
 
@@ -230,7 +237,7 @@ define function read-map(s :: <stream>) => (result :: <array>);
         cell.ant := ant;
         add!(*ants*, ant);
       end if;
-      result[xx, yy] := cell;
+      result.cells[make-position(xx, yy)] := cell;
     end for;
   end for;
   result;
