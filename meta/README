@@ -24,6 +24,10 @@ adapted syntax) for Dylan.  It is functional, but not yet optimized.
 History
 =======
 
+current cvs version, to be called 0.6
+  - dauclair puts former module meta into meta-base; adds meta-syntax
+    sugar, meta-types, license is LGPL
+
 initial cvs version
   - ported to FD by <chris@cnd.co.nz> and <dauclair@hotmail.com>.
     Thanks.
