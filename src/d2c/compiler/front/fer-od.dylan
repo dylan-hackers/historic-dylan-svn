@@ -318,7 +318,10 @@ define method fer-dump-od
 	  defs.head;
 	end if;
     end for,
-    obj.depends-list.head
+    begin
+      let source-exp :: <expression> = obj.depends-list;
+      source-exp
+    end
   );
 end method;
 
@@ -331,7 +334,7 @@ for (name in #(#"set-assignment", #"let-assignment"),
       let policy = load-object-dispatch(state);
       let source = load-object-dispatch(state);
       let target-vars = load-object-dispatch(state);
-      let source-exp = load-object-dispatch(state);
+      let source-exp :: <expression> = load-object-dispatch(state);
       assert-end-object(state);
       buildfn(builder, policy, source, target-vars, source-exp);
     end method
