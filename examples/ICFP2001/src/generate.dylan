@@ -14,8 +14,9 @@ define method initialize(obj :: <generator-state>, #key clone, output, #all-keys
     obj.current-output   := copy-sequence(clone.current-output);
     obj.remaining-output := clone.remaining-output;
   else
-    obj.open-tags        := #();
-    obj.attribute-stack  := list(make(<attribute>));
+    obj.open-tags        := make(<deque>);
+    obj.attribute-stack  := make(<deque>);
+    push(obj.attribute-stack, make(<attribute>));
     obj.current-output   := make(<stretchy-vector>);
     obj.remaining-output := output;
   end;
@@ -24,13 +25,15 @@ end method;
 define method generate-output(input)
   let state = make(<generator-state>, output: input);
 
-  while(state.remaining-output.size)
+  while(state.remaining-output.size > 0)
+    debug("%=\n", state.current-output);
+    debug("%=\n", state.remaining-output);
     let from = state.attribute-stack.first;
     let to   = state.remaining-output[0].attributes;
-    if(from = to)
+    if(from.value = to.value)
       add!(state.current-output, state.remaining-output[0].string);
       state.remaining-output := subsequence(state.remaining-output, start: 1);
-    elseif(state.attribute-stack.size > 1 & to = state.attribute-stack.second)
+    elseif(state.attribute-stack.size > 1 & to.value = state.attribute-stack.second.value)
       add!(state.current-output, state.open-tags.first.close-tag);
       pop(state.open-tags);
       pop(state.attribute-stack);
@@ -45,7 +48,27 @@ define method generate-output(input)
       if(~from.emphasis & to.emphasis)
         add!(state.current-output, tag-EM.open-tag);
         push(state.open-tags, tag-EM);
-        push(state.attribute-stack, from.set-bold);
+        push(state.attribute-stack, from.set-emphasis);
+      end if;
+      if(~from.italic & to.italic)
+        add!(state.current-output, tag-I.open-tag);
+        push(state.open-tags, tag-I);
+        push(state.attribute-stack, from.set-italic);
+      end if;
+      if(~from.strong & to.strong)
+        add!(state.current-output, tag-S.open-tag);
+        push(state.open-tags, tag-S);
+        push(state.attribute-stack, from.set-strong);
+      end if;
+      if(~from.typewriter & to.typewriter)
+        add!(state.current-output, tag-TT.open-tag);
+        push(state.open-tags, tag-TT);
+        push(state.attribute-stack, from.set-typewriter);
+      end if;
+      if(from.underline < to.underline)
+        add!(state.current-output, tag-U.open-tag);
+        push(state.open-tags, tag-U);
+        push(state.attribute-stack, from.set-underline);
       end if;
     end if;
   end while;
