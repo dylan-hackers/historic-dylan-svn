@@ -1,0 +1,41 @@
+<?php
+require "shared.inc";
+standard_header("Gwydion Dylan Software Map");
+?>
+
+<p>Lest you think that we have this nice compiler, but nobody uses it,
+we have a nifty index of software which is written in Dylan and
+can be built with Gwydion Dylan.</p>
+
+<center><a href=register-new-project.phtml>Submit a new project</a></center>
+
+<table width=100% cellpadding=5>
+  <tr>
+    <th align=left>Name</th>
+    <th align=left>Updated</th>
+    <th>Description</th>
+    <th align=right>Version</th>
+  </tr>
+<?
+  $db = db_connect();
+  mysql_select_db("gwydion", $db);
+  $query = "select id,name,version,DATE_FORMAT(update_time, '%m-%d-%Y*%h:%m:%s') AS update_time,description from softmap order by update_time ";
+  $res = mysql_query($query, $db);
+  $err = mysql_error();
+  if ($err) {
+    echo "MySQL error occurred. Please notify <a href=mailto:igor@pobox.com>Jeff Dubrule</a>.";
+  } else {
+    while ($row = mysql_fetch_row($res)) {
+# id, name, version, update_time, description
+      echo "  <tr>\n";
+      echo "    <td>" . $row[1] . "</td>\n";
+      echo "    <td>" . str_replace("*", "<br>", $row[3]) . "</td>\n";
+      echo "    <td>" . $row[4] . "</td>\n";
+      echo "    <td align=right>" . $row[2] . "</td>\n";
+      echo "  </tr>\n";
+    }
+  }
+?>
+</table>
+
+<?php standard_footer(); ?>
