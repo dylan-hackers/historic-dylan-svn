@@ -1,5 +1,5 @@
 Module: od-format
-RCS-header: $Header: /scm/cvs/src/d2c/compiler/base/od-format.dylan,v 1.19.4.2 2004/02/04 07:13:23 andreas Exp $
+RCS-header: $Header: /scm/cvs/src/d2c/compiler/base/od-format.dylan,v 1.19.4.3 2004/02/12 01:31:54 andreas Exp $
 
 //======================================================================
 //
@@ -863,6 +863,9 @@ define /* exported */ class <dump-state> (<dump-buffer>)
   //
   // Next extern ID to be allocated.
   slot next-extern-id :: <integer>, init-value: 0;
+  //
+  // Hash of data unit
+  slot dump-hash :: <word>;
 end class;
 
 define sealed domain make (singleton(<dump-state>));
@@ -937,6 +940,7 @@ define method compute-unit-hash (state :: <dump-state>)
 		    buffer-word(buf, hash-idx));
     end for;
   end for;
+  state.dump-hash := res;
   res;
 end method;
 
@@ -1751,7 +1755,7 @@ end if;
 	 unless (instance?(res, <identity-preserving-mixin>)
 	           & instance?(res.handle, <extern-handle>))
            error("Externally referencing an object that wasn't loaded with\n"
-	         "load-external-definition.",
+	         "load-external-definition. %=",
 		 wot);
 	 end unless;
 	 res;
@@ -2041,6 +2045,18 @@ end class;
 
 define sealed domain make (singleton(<extern-handle>));
 
+// Handle on object defined locally, but dumped to another data unit.
+define class <pseudo-extern-handle> (<basic-handle>)
+  //
+  // Data unit that defines this object.
+  slot defining-state :: <dump-state>, required-init-keyword: defining-state:;
+  //
+  // Local ID in the defining unit.
+  slot local-id :: <integer>, required-init-keyword: local-id:;
+end class;
+
+define sealed domain make (singleton(<pseudo-extern-handle>));
+
 // Represents an object created in this current program.  Note that the object
 // may actually have external reference semantics in the case where we are
 // currently defining the dumping unit.  The external-handle is only used when
@@ -2148,19 +2164,60 @@ define method maybe-dump-reference-dispatch
 end method;
 
 
-// If an object has a local handle, then it has already been defined in this
-// dump, so we just reference it.
-//
 define method maybe-dump-reference-dispatch
-    (obj :: <identity-preserving-mixin>, handle :: <local-handle>,
+    (obj :: <identity-preserving-mixin>, handle :: <pseudo-extern-handle>,
      buf :: <dump-state>)
  => res :: <false>;
 
   ignore(obj);
   let d-state = handle.dump-state;
   let d-id = handle.dump-id;
-  assert(d-state == buf);
-  dump-local-reference(d-id, buf);
+  if (d-state)
+    assert(d-state == buf);
+  else
+    let xbuf = buf.extern-buf;
+    let unit = handle.defining-state;
+    let cpos = xbuf.current-pos;
+    dump-definition-header(#"extern-handle", xbuf, subobjects: #t,
+    			   raw-data: $odf-word-raw-data-format);
+    dump-word(3, xbuf);
+    dump-word(unit.dump-hash, xbuf);
+    dump-word(unit.dump-type, xbuf);
+    dump-word(handle.local-id, xbuf);
+    dump-od(unit.dump-name, xbuf);
+    dump-od(#f, xbuf); // location-hint
+    dump-end-entry(cpos, xbuf);
+    d-id := buf.next-extern-id;
+    handle.dump-id := d-id;
+    buf.next-extern-id := d-id + 1;
+    handle.dump-state := buf;
+  end if;
+
+  dump-header-word($odf-external-reference-etype, d-id, buf);
+  #f;
+end method;
+
+
+// If an object has a local handle, then it has already been defined in this
+// dump, so we just reference it.
+//
+// If this is a local handle from another dump, pretend it were an external
+// handle.
+define method maybe-dump-reference-dispatch
+    (obj :: <identity-preserving-mixin>, handl :: <local-handle>,
+     buf :: <dump-state>)
+ => res :: <false>;
+
+  ignore(obj);
+  let d-state = handl.dump-state;
+  let d-id = handl.dump-id;
+  if(d-state == buf)
+    dump-local-reference(d-id, buf);
+  else
+    obj.handle := make(<pseudo-extern-handle>, defining-state: d-state, 
+                       local-id: d-id);
+    maybe-dump-reference-dispatch(obj, obj.handle, buf);
+  end;
   #f;
 end method;
 
