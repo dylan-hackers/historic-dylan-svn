@@ -962,8 +962,39 @@ define function match-c-string(in :: <byte-string>)
   end;
 end;
 
+
+//###### can be removed
 begin
  let (a,b) = match-c-string("\"sd\\\\s\\\"dg\"123");
  format-out("remainer: %=\nc-string: %=\n", a, b);
 end;
+
+
+// ####################################
+// Parser combinators
+
+define function juxtapose(p1 :: <function>, p2 :: <function>)
+ => juxtaposition :: <function>;
+  method(inp :: <byte-string>, matched :: <list>, more) // => no-result :: <never-returns>;
+    let (ign1, matched-by-p1)
+      = block (done-first)
+          p1(inp, #(), list(done-first));
+        end block;
+    if (matched-by-p1.empty?)
+      more.head(inp, matched, more.tail)
+    else
+      let (rest, creator1) = matched-by-p1.head();
+      let (ign2, matched-by-p2)
+        = block (done-second)
+            p1(rest, #(), list(done-second));
+          end block;
+      if (matched-by-p2.empty?)
+        more.head(inp, matched, more.tail)
+      else
+        let match = matched-by-p2.head;
+        more.head(inp, pair(method() let (rest, creator2) = match(); values(rest, method() list(creator1(), creator2()) end) end, matched), more.tail)
+      end if;
+    end if;
+  end method
+end function;
 
