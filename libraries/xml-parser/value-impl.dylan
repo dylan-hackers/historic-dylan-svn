@@ -49,30 +49,34 @@ define constant <pub-id-char-without-quotes> =
 
 define constant <pub-id-char> =
   type-union(<pub-id-char-without-quotes>, singleton('\''));
-//    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
-//
+
 define constant <version-number> =
   type-union(<ascii-letter>, <digit>, one-of('_', '.', ':', '-'));
 
-define method parse-s(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    [type(<space>, c), loop(type(<space>, c))];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-s;
 
+// macro added by Doug to simplify writing parser fns
+define macro parse-definer
+{ define parse ?:name [ ?meta-vars:* ]
+     (#key ?result:expression = #t)
+   ?meta
+  end } 
+ => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
+        with-meta-syntax parse-string (string, start: start, pos: index)
+          variables(?meta-vars);
+          [ ?meta ];
+          values(index, ?result);
+        end with-meta-syntax;
+      end; }
+end macro parse-definer;
+
+define parse s[c] () type(<space>, c), loop(type(<space>, c)) end;
 
 //    [25]    Eq             ::=    S? '=' S?
 //
-define method parse-eq(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, space);
-    [loop(parse-s(space)), '=', loop(parse-s(space))];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-eq;
+define parse eq[sp] () loop(parse-s(sp)), '=', loop(parse-s(sp)) end;
 
+//    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
+//
 define method parse-version-num(string, #key start = 0, end: stop)
   with-collector into-vector version-string, collect: collect;
     with-meta-syntax parse-string (string, start: start, pos: index)
@@ -119,15 +123,10 @@ end method parse-xml-decl;
 // Comments
 
 //    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
-//    
-define method parse-comment(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    ["<!--", loop({["-->", finish()], type(<char>, c)})];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-comment;
-
+//
+define parse comment[c] ()
+  "<!--", loop({["-->", finish()], type(<char>, c)})
+end;
 
 // Processing Instructions
 
@@ -445,31 +444,16 @@ end method parse-xml-attribute;
 //    [41]    Attribute    ::=    Name Eq AttValue               [VC: Attribute Value Type]
 //                                                               [WFC: No External Entity References]
 //                                                               [WFC: No < in Attribute Values]
-//    
-define method parse-attribute(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, name, eq, attribute-value);
-    [parse-name(name),
-     parse-eq(eq),
-     parse-xml-attribute(attribute-value)
-    ];
-    values(index, pair(name, attribute-value));
-  end with-meta-syntax;
-end method parse-attribute;
+//
+define parse attribute[name, eq, value] (result: pair(name, value))
+  parse-name(name), parse-eq(eq), parse-xml-attribute(value)
+end parse attribute;
 
 // helper method for parsing opening tags
-define method parse-beginning-of-tag(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, element-name, attributes, s);
-    ["<",
-     parse-name(element-name),
-     loop(parse-s(s)),
-     parse-xml-attributes(attributes)];
-    values(index, 
-           make(<xml-element>, name: element-name, 
-                               attributes: attributes));
-  end with-meta-syntax;
-end method parse-beginning-of-tag;
+define parse beginning-of-tag[elt, attribs, s]
+ (result: make(<xml-element>, name: elt, attributes: attribs))
+  "<", parse-name(elt), loop(parse-s(s)), parse-xml-attributes(attribs)
+end parse beginning-of-tag;
 
 // Tags for Empty Elements
 // 
@@ -477,56 +461,25 @@ end method parse-beginning-of-tag;
 //
 // This is not optimal because we parse the whole tag data twice if it
 // is not an empty-elem-tag. Need to unify this with [39].
-define method parse-empty-elem-tag(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, elt);
-    [parse-beginning-of-tag(elt), "/>"];
-    values(index, elt);
-//    variables(c, element-name, attributes, s);
-  //  ["<",
-    // parse-name(element-name),
-//     loop(parse-s(s)),
-  //   parse-xml-attributes(attributes),
-    // "/>"];
-//    values(index, 
-  //         make(<xml-element>, name: element-name, 
-    //                           attributes: attributes));
-  end with-meta-syntax;
-end method parse-empty-elem-tag;
+define parse empty-elem-tag[elt] (result: elt)
+  parse-beginning-of-tag(elt), "/>"
+end parse empty-elem-tag;
 
 // Start-tag
 // 
 //    [40]    STag         ::=    '<' Name (S Attribute)* S? '>' [WFC: Unique Att Spec]
 //
-define method parse-stag(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, elt);
-    [parse-beginning-of-tag(elt), ">"];
-    values(index, elt);
-//    variables(c, element-name, attributes, s);
-  //  ["<",
-    // parse-name(element-name),
-//     loop(parse-s(s)),
-  //   parse-xml-attributes(attributes),
-    // ">"];
-//    values(index, 
-  //         make(<xml-element>, name: element-name, 
-    //                           attributes: attributes));
-  end with-meta-syntax;
-end method parse-stag;
+define parse stag[elt] (result: elt)
+  parse-beginning-of-tag(elt), ">"
+end parse stag;
 
 // End-tag
 // 
 //    [42]    ETag    ::=    '</' Name S? '>'
 //    
-define method parse-etag(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, s, name, eq, attribute-value);
-    ["</", parse-name(name), {parse-s(s), []}, ">"];
-    values(index, name);
-  end with-meta-syntax;
-end method parse-etag;
-
+define parse etag[name, s] (result: name)
+  "</", parse-name(name), {parse-s(s), []}, ">"
+end parse etag;
 
 // Content of Elements
 // 
@@ -599,18 +552,26 @@ define constant <space> =
 //
 define constant <name-char> = type-union(<letter>, <digit>, one-of('.', '-', '_', ':')); // , <combining-char>, <extender>));
 
+// Doug wrote this macro for collecting strings
+define macro collector-definer
+{ define collector ?:name (?vars:*) ?meta end }
+ => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
+        with-collector into-vector str, collect: ?=collect;
+          with-meta-syntax parse-string(string, start: start, pos: index)
+            variables(?vars);
+            [ ?meta ];
+            values(index, as(<string>, str));
+          end with-meta-syntax;
+        end with-collector;
+      end; }
+end macro collector-definer;
+
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
-define method parse-name(string, #key start = 0, end: stop)
-  with-collector into-vector name, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c);
-      [[{type(<letter>, c), '_', ':'}, do(collect(c))],
-       loop([type(<name-char>, c), do(collect(c))])];
-      values(index, as(<string>, name));
-    end with-meta-syntax;
-  end with-collector;
-end method parse-name;
+define collector name(c)
+  [{type(<letter>, c), '_', ':'}, do(collect(c))],
+  loop([type(<name-char>, c), do(collect(c))])
+end collector name;
 
 //    [6]    Names       ::=    Name (S Name)*
 //

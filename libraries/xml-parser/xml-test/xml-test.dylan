@@ -45,8 +45,9 @@ begin
   $testable-fns[#"parse-stag"] := parse-stag;
   $testable-fns[#"parse-empty-elem-tag"] := parse-empty-elem-tag;
   $testable-fns[#"parse-element"] := parse-element;
-  
-  
+  $testable-fns[#"parse-comment"] := parse-comment;
+  $testable-fns[#"parse-etag"] := parse-etag;
+
   main(application-name(), application-arguments());
 end;
 

@@ -20,7 +20,7 @@ define module xml-parser
   create parse-xml-element-start;
   create parse-element, parse-attribute, 
          parse-stag, parse-content, parse-etag, parse-empty-elem-tag,
-         parse-char-data;
+         parse-char-data, parse-comment;
 
 // all the above parse-foos will be replaced with:
   create parse-document;
