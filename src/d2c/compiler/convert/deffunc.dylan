@@ -6,7 +6,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -327,6 +327,7 @@ define method process-top-level-form (form :: <define-generic-parse>) => ();
 		 source-location: defn.source-location,
 		 parse: form);
   defn.function-defn-signature := curry(compute-define-generic-signature, tlf);
+  find-variable(defn.defn-name).variable-tlf := tlf;
   add!(*Top-Level-Forms*, tlf);
 end;
 
@@ -395,6 +396,7 @@ define method process-top-level-form (form :: <define-method-parse>) => ();
 		 movable: movable?,
 		 flushable: flushable? | movable?,
 		 parse: parse);
+  find-variable(base-name).variable-tlf := tlf;
   add!(*Top-Level-Forms*, tlf);
 end;
 

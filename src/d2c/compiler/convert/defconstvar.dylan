@@ -264,6 +264,7 @@ define method process-aux(form :: <define-binding-parse>,
 		 required-defns: required-defns,
 		 rest-defn: rest-defn,
 		 source-location: source);
+  do(curry(variable-tlf-setter, tlf), map(compose(find-variable, defn-name), required-defns));
   add!(*Top-Level-Forms*, tlf);
 end;
 
@@ -307,6 +308,7 @@ define method process-aux(form :: <define-binding-parse>,
 		 required-defns: required-defns,
 		 rest-defn: rest-defn,
 		 source-location: source);
+  do(curry(variable-tlf-setter, tlf), map(compose(find-variable, defn-name), required-defns));
   add!(*Top-Level-Forms*, tlf);
 end;
 

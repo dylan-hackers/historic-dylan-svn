@@ -5,7 +5,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -55,6 +55,8 @@ define module lexenv
   use tokens;
   use source;
   use top-level-forms;
+  use flow;
+  use variables, import: {variable-tlf};
 
   export
     <lexenv>, lexenv-policy,

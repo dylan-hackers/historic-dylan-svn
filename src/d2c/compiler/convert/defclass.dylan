@@ -443,7 +443,9 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
     keyword.keyword-defn-class := defn;
   end for;
   note-variable-definition(defn);
-  add!(*Top-Level-Forms*, make(<define-class-tlf>, defn: defn));
+  let tlf = make(<define-class-tlf>, defn: defn);
+  find-variable(defn.defn-name).variable-tlf := tlf;
+  add!(*Top-Level-Forms*, tlf);
 end method process-top-level-form;
 
 
