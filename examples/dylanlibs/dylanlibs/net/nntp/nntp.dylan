@@ -37,7 +37,7 @@ end function tidy-article-id;
 define class <nntp-client-response> (<object>)
   slot code :: <integer>, init-keyword: code:;
   slot response :: <string>, init-keyword: response:;
-  slot data :: <object>, init-keyword: data:;
+  slot data :: <object> = #f, init-keyword: data:;
 end class <nntp-client-response>;
 
 // Take text response and create a populated instance of a <nntp-client-response>
@@ -136,9 +136,9 @@ end function parse-xhdr-details;
 
 // NNTP client class
 define class <nntp-client> (<object>)
-  slot host :: <string> = $default-nntp-host, init-keyword: host:;
-  slot port :: <integer> = $default-nntp-port, init-keyword: port:;
-  slot socket :: false-or(<tcp-socket>) = #f, init-keyword: socket:;
+  slot nntp-host :: <string> = $default-nntp-host, init-keyword: host:;
+  slot nntp-port :: <integer> = $default-nntp-port, init-keyword: port:;
+  slot nntp-socket :: false-or(<tcp-socket>) = #f, init-keyword: socket:;
 end class <nntp-client>;
 
 // Create an NNTP client
@@ -149,7 +149,7 @@ end function make-nntp-client;
 
 // Is NNTP-CLIENT connected to an NNTP server?
 define method connected? (nntp-client :: <nntp-client>) => (r :: <boolean>)
-  nntp-client.socket ~= #f
+  nntp-client.nntp-socket ~= #f
 end method connected?;
 
 // Check that NNTP-CLIENT is connected to a server, error if not
@@ -163,35 +163,35 @@ end method connected-check;
 define method nntp-connect (nntp-client :: <nntp-client>) => (r :: <nntp-client-response>)
   when(connected?(nntp-client))
     error(format-to-string("Already connected to host %s on port %d",
-                           nntp-client.host, nntp-client.port))
+                           nntp-client.nntp-host, nntp-client.nntp-port))
   end when;
 
-  nntp-client.socket := make(<tcp-socket>, host: nntp-client.host, port: nntp-client.port);
+  nntp-client.nntp-socket := make(<tcp-socket>, host: nntp-client.nntp-host, port: nntp-client.nntp-port);
   get-short-response(nntp-client);
 end method nntp-connect;
 
 // Read a line from the NNTP server
-define method get-line (nntp-client :: <nntp-client>) => (r :: <string>)
+define method nntp-get-line (nntp-client :: <nntp-client>) => (r :: <string>)
   connected-check(nntp-client);
 
-  let line = read-line(nntp-client.socket);
+  let line = read-line(nntp-client.nntp-socket);
   let length = line.size;
   if (length > 0 & line.last == as(<character>, 13))
     copy-sequence(line, end: length - 1)
   else
     line
   end if;
-end method get-line;
+end method nntp-get-line;
 
 define method put-line(nntp-client :: <nntp-client>, line :: <string>) => ()
   connected-check(nntp-client);
 
-  format(nntp-client.socket, "%s%c%c", line, as(<character>, 13), as(<character>, 10));
+  format(nntp-client.nntp-socket, "%s%c%c", line, as(<character>, 13), as(<character>, 10));
 end method put-line;
 
 // Get a short (one line) response from the NNTP server
 define method get-short-response(nntp-client :: <nntp-client>) => (r :: <nntp-client-response>)
-  make-nntp-client-response(get-line(nntp-client));
+  make-nntp-client-response(nntp-get-line(nntp-client));
 end method get-short-response;
 
 // Get a long (multi line) response from the NNTP server
@@ -199,7 +199,7 @@ define method get-long-response(nntp-client :: <nntp-client>) => (r :: <nntp-cli
   let response = get-short-response(nntp-client);
   unless(error?(response))
     let response-data = make(<stretchy-vector>);
-    for(line = get-line(nntp-client) then get-line(nntp-client),
+    for(line = nntp-get-line(nntp-client) then nntp-get-line(nntp-client),
         until: line = ".")
       response-data := add!(response-data, line);
     end for;
@@ -335,18 +335,18 @@ define method nntp-body(nntp-client :: <nntp-client>, article :: <nntp-article-i
 end method nntp-body;
                            
 // Return the header and body of an article as a list of lines.
-define method nntp-article (nntp-client :: <nntp-client>, id :: <string>) => (r :: <nntp-client-response>)
+define method nntp-article (nntp-client :: <nntp-client>, id :: <string>) => (r :: <sequence>)
   concatenate(data(nntp-head(nntp-client, id)), list(""), data(nntp-body(nntp-client, id)));
 end method nntp-article;
 
 // Return the header and body of an article as a list of lines.
-define method nntp-article (nntp-client :: <nntp-client>, number :: <integer>) => (r :: <nntp-client-response>)
+define method nntp-article (nntp-client :: <nntp-client>, number :: <integer>) => (r :: <sequence>)
   concatenate(data(nntp-head(nntp-client, number)), list(""), data(nntp-body(nntp-client, number)));
 end method nntp-article;
 
 // Return the header and body of an article as a list of lines.
-define method nntp-article (nntp-client :: <nntp-client>, article :: <nntp-article-id>) => (r :: <nntp-client-response>)
-  article(nntp-client, article-id(article));
+define method nntp-article (nntp-client :: <nntp-client>, a :: <nntp-article-id>) => (r :: <sequence>)
+  nntp-article(nntp-client, article-id(a));
 end method nntp-article;
 
 // Get header HEADER for a rance of articles.
@@ -385,8 +385,8 @@ end method nntp-xhdr;
 define method nntp-disconnect(nntp-client :: <nntp-client>) => (r :: <nntp-client-response>)
   let result = short-command(nntp-client, "quit");
   unless(error?(result))
-    close(socket(nntp-client));
-    nntp-client.socket := #f;
+    close(nntp-socket(nntp-client));
+    nntp-client.nntp-socket := #f;
   end unless;
   result;
 end method nntp-disconnect;

@@ -82,6 +82,10 @@ rgsoftware.txt file in that directory for more details.
 Examples of using the dynamic-loader-protocol library to dynamically
 load Dylan code at runtime.
 
+12) nntp-get-message
+====================
+Example of NNTP library that retrieves a message from an NNTP server.
+
 -- 
 Chris Double.  
 27 May 2001.
