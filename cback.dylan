@@ -101,21 +101,27 @@ define method make (f == <llvm-function-type>, #rest rest,
 end;
 
 
-define macro llvm-accessors-definer
-  { define llvm-accessors ?class-name:name (?C++-name:token) end }
+define macro llvm-glue-definer
+  { define llvm-glue ?class-name:name () ?rest:* end }
+  => { define llvm-glue ?class-name (?class-name) ?rest end }
+
+
+
+
+  { define llvm-glue ?class-name:name (?name-as-C++:name) end }
   => { }
 
-  { define llvm-accessors ?class-name:name (?C++-name:token) ?accessor; ?rest:* end }
-  => { define single llvm-accessors [?class-name, ?C++-name, ?accessor] end; define llvm-accessors ?class-name (?C++-name) ?rest end }
+  { define llvm-glue ?class-name:name (?name-as-C++:name) ?accessor; ?rest:* end }
+  => { define single llvm-glue [?class-name, ?name-as-C++, ?accessor] end; define llvm-glue ?class-name (?class-name) ?rest end }
 
-  { define single llvm-accessors [?class-name:name, ?C++-name:token, [make; (?keyword-args:*); (?pass-args:*)]] end }
+  { define single llvm-glue [?class-name:name, ?C++-name:token, [make; (?keyword-args:*); (?pass-args:*)]] end }
   => {
        define method make(c == ?class-name, #next next-method, #rest rest, #key ?keyword-args) => result :: ?class-name;
 	 next-method(c, pointer: call-out("make_llvm_" ?C++-name, ptr:, ?pass-args));
        end
      }
 
-  { define single llvm-accessors [?class-name:name, ?C++-name:token, [?:name; (); (?results:variable-list)]] end }
+  { define single llvm-glue [?class-name:name, ?C++-name:token, [?:name; (); (?results:variable-list)]] end }
   => {
        define method ?name(o :: ?class-name) => (?results);
 	 call-out(?"name" "_llvm_" ?C++-name, void:, ptr: o.raw-value)
@@ -128,13 +134,16 @@ define macro llvm-accessors-definer
   { ?:name, () => () } => { [ ?name; (); () ] }
   
   
-//  C++-name:
-//  { <llvm-type> } => { "Type" }
+ name-as-C++:
+   { <llvm-module> } => { "Module" }
+   { <llvm-value> } => { "Value" }
+   { <llvm-type> } => { "Type" }
+   { <llvm-return-instruction> } => { "ReturnInst" }
 // etc...
 end;
 
 
-define llvm-accessors <llvm-type> ("Type")
+define llvm-glue <llvm-type> ()
   dump, () => ();
 //  dump2, (i :: <integer>) => ();
 end;
@@ -160,7 +169,7 @@ define /*abstract*/ functional class <llvm-global-value>(<llvm-constant>)
 end;
 
 
-define llvm-accessors <llvm-value> ("Value")
+define llvm-glue <llvm-value> ()
   delete, () => ();
   dump, () => ();
 end;
@@ -200,7 +209,7 @@ end;
 */
 
 
-define llvm-accessors <llvm-return-instruction> ("ReturnInst")
+define llvm-glue <llvm-return-instruction> ()
   make, (atEnd :: <llvm-basic-block>), ptr: atEnd.raw-value;
 end;
 
@@ -270,7 +279,7 @@ define method make (m == <llvm-module>, #rest rest, #key name :: <byte-string> =
   next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: name.object-address));
 end;
 
-define llvm-accessors <llvm-module> ("Module")
+define llvm-glue <llvm-module> ()
   delete, () => ();
   dump, () => ();
 end;
