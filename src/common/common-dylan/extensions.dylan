@@ -165,32 +165,92 @@ define constant $minimum-normalized-double-significand :: <extended-integer>
 define constant $minimum-normalized-extended-significand :: <extended-integer>
   = ash(#e1, float-digits(1.0x0) - 1);
 
-define method float-to-string 
+define method float-to-string
+    (v :: <float>)
+ => (string :: <byte-string>);
+  let s :: <stretchy-vector> = make(<stretchy-vector>);
+  let adds = curry(add!, s);
+  
+  let v = if (negative?(v)) add!(s, '-'); -v; else v end;
+
+  if (zero?(v))
+    do(adds, "0.0");
+  elseif (v ~= v)
+    do(adds, "{NaN}");
+  elseif (v + v = v)
+    do(adds, "{infinity}");
+  else
+    let (exponent :: <integer>, digits :: <list>) = float-decimal-digits(v);
+    
+    if (-3 <= exponent & exponent <= 0)
+      do(adds, "0.");
+      for (i from exponent below 0)
+        add!(s, '0');
+      end for;
+      for (digit in digits)
+        add!(s, $digits[as(<integer>, digit)]);
+      end for;
+    elseif (0 < exponent & exponent < 8)
+      for (digit in digits, place from exponent by -1)
+        if (place = 0)
+          add!(s, '.');
+        end;
+        add!(s, $digits[as(<integer>, digit)]);
+      finally
+        for (i from place above 0 by -1)
+          add!(s, '0');
+        end;
+        if (place >= 0)
+          do(adds, ".0");
+        end;
+      end for;
+    else
+      for (digit in digits, first? = #t then #f)
+        add!(s, $digits[as(<integer>, digit)]);
+        if (first?)
+          add!(s, '.')
+        end;
+      end;
+      if (digits.size = 1)
+        add!(s, '0');
+      end;
+      add!(s, 'e');
+      do(adds, integer-to-string(exponent - 1));
+    end if;
+  end if;
+  as(<byte-string>, s)
+end method;
+
+// Don't inline this. We are essentially doing manual copy-down.
+define method float-decimal-digits
     (v :: <single-float>)
- => (string :: <byte-string>);
-  float-to-string-aux(v, $minimum-single-float-exponent,
-                      $minimum-normalized-single-significand);
+ => (exponent :: <integer>, digits :: <list>);
+  float-decimal-digits-aux(v, $minimum-single-float-exponent,
+                           $minimum-normalized-single-significand)
 end method;
 
-define method float-to-string 
+// Don't inline this. We are essentially doing manual copy-down.
+define method float-decimal-digits
     (v :: <double-float>)
- => (string :: <byte-string>);
-  float-to-string-aux(v, $minimum-double-float-exponent,
-                      $minimum-normalized-double-significand);
+ => (exponent :: <integer>, digits :: <list>);
+  float-decimal-digits-aux(v, $minimum-double-float-exponent,
+                           $minimum-normalized-double-significand)
 end method;
 
-define method float-to-string 
+// Don't inline this. We are essentially doing manual copy-down.
+define method float-decimal-digits
     (v :: <extended-float>)
- => (string :: <byte-string>);
-  float-to-string-aux(v, $minimum-extended-float-exponent,
-                      $minimum-normalized-extended-significand);
+ => (exponent :: <integer>, digits :: <list>);
+  float-decimal-digits-aux(v, $minimum-extended-float-exponent,
+                           $minimum-normalized-extended-significand)
 end method;
 
-define inline-only method float-to-string-aux
+// The body of the manual copy-down.
+define inline-only method float-decimal-digits-aux
     (v :: <float>,
      minimum-exponent :: <integer>,
      minimum-normalized-significand :: <extended-integer>)
- => (string :: <byte-string>);
+ => (exponent :: <integer>, digits :: <list>);
   local
     // The following methods implement the free-format conversion
     // algorithm by Burger and Dybvig, as described in "Printing
@@ -284,63 +344,12 @@ define inline-only method float-to-string-aux
         end if;
       end if;
     end;
-  
-  let s :: <stretchy-vector> = make(<stretchy-vector>);
-  let adds = curry(add!, s);
-  
-  let v = if (negative?(v)) add!(s, '-'); -v; else v end;
 
-  if (zero?(v))
-    do(adds, "0.0");
-  elseif (v ~= v)
-    do(adds, "{NaN}");
-  elseif (v + v = v)
-    do(adds, "{infinity}");
-  else
-    let (f :: <extended-integer>, e :: <integer>, sign :: <integer>)
-      = integer-decode-float(v);
+  let (f :: <extended-integer>, e :: <integer>, sign :: <integer>)
+    = integer-decode-float(v);
 
-    let (exponent :: <integer>, digits :: <list>)
-      = initial(v, f, e);
-    
-    if (-3 <= exponent & exponent <= 0)
-      do(adds, "0.");
-      for (i from exponent below 0)
-        add!(s, '0');
-      end for;
-      for (digit in digits)
-        add!(s, $digits[as(<integer>, digit)]);
-      end for;
-    elseif (0 < exponent & exponent < 8)
-      for (digit in digits, place from exponent by -1)
-        if (place = 0)
-          add!(s, '.');
-        end;
-        add!(s, $digits[as(<integer>, digit)]);
-      finally
-        for (i from place above 0 by -1)
-          add!(s, '0');
-        end;
-        if (place >= 0)
-          do(adds, ".0");
-        end;
-      end for;
-    else
-      for (digit in digits, first? = #t then #f)
-        add!(s, $digits[as(<integer>, digit)]);
-        if (first?)
-          add!(s, '.')
-        end;
-      end;
-      if (digits.size = 1)
-        add!(s, '0');
-      end;
-      add!(s, 'e');
-      do(adds, integer-to-string(exponent - 1));
-    end if;
-  end if;
-  as(<byte-string>, s);
-end method;
+  initial(v, f, e)
+end method float-decimal-digits-aux;
 #endif
 
 define open generic number-to-string

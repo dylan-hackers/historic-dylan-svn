@@ -24,8 +24,14 @@ define library common-dylan
     simple-io,
     byte-vector,
     functional-objects-extras,
-    functional-extensions;
+    functional-extensions,
+    gwydion-extensions;
 end library;
+
+define module gwydion-extensions
+  create
+    float-decimal-digits;
+end module;
 
 define module functional-extensions
   use dylan;
@@ -138,6 +144,7 @@ define module common-extensions
   use simple-profiling,
     export: { \profiling, 
 	      profiling-type-result };
+  use gwydion-extensions;
 
   create
     <closable-object>,
