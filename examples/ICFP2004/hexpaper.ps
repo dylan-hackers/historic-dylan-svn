@@ -1,0 +1,36 @@
+%%!PS-Adobe-3.0
+%%BoundingBox: 0 0 595 842
+
+/xdf {exch def} def
+
+a4
+clippath pathbbox
+2 div /height xdf
+2 div /width xdf
+pop
+pop
+
+/h 20 def
+/w h 0.866 div def
+
+width height translate
+0 setlinewidth
+
+3 {
+    /off 0 def
+    -1000 h 1000 {
+	/y xdf
+	w -49 off 1.5 mul add mul
+	w 3 mul
+	w 50 mul {
+	    /x xdf
+	    x y moveto
+	    w 0 rlineto stroke	    
+	} for
+	/off 1 off sub def
+    } for
+    120 rotate
+    
+} repeat
+
+showpage
