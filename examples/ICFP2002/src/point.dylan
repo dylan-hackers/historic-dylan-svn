@@ -12,7 +12,7 @@ define inline function x(p :: <point>) => (x :: <coordinate>);
 end;
 
 define inline function y(p :: <point>) => (y :: <coordinate>);
-  logand(ash(p.val, 16), #xffff);
+  logand(ash(p.val, -16), #xffff);
 end;
 
 define sealed method point(#key x :: <coordinate> = 0, y :: <coordinate> = 0)
