@@ -9,7 +9,7 @@ define class <generator-state> (<object>)
   slot output-tokens       :: <list> = #();
   slot remaining-text-runs :: <subsequence>;
   slot maximum-cost        :: <integer> = 0;
-  slot output-state        :: one-of(#"closing", #"opening", #"pl-emitted") = #"opening";
+  slot output-state        :: one-of(#"closing", #"opening", #"emit-pl") = #"opening";
 end class <generator-state>;
 
 define sealed domain make(singleton(<generator-state>));
@@ -38,15 +38,15 @@ end method;
 
 define method print-state(state :: <generator-state>)
  => ();
-  debug("%=\n", state.output-tokens);
-  debug("%=\n", state.remaining-text-runs);
-  debug("%=\n", state.attribute-stack);
-  debug("%=\n", state.open-tag-stack);
-  debug("%=\n", state.maximum-cost);
-  debug("%=\n", state.output-state);
-  describe-attributes(state.from, *standard-error*);
-  describe-attributes(state.to, *standard-error*);
-  debug("\n");
+  debug("%= %=\n", state.output-tokens, state.output-state);
+//  debug("%=\n", state.remaining-text-runs);
+//  debug("%=\n", state.attribute-stack);
+//  debug("%=\n", state.open-tag-stack);
+//  debug("%=\n", state.maximum-cost);
+//  debug("%=\n", state.output-state);
+//  describe-attributes(state.from, *standard-error*);
+//  describe-attributes(state.to, *standard-error*);
+//  debug("\n");
   force-output(*standard-error*);
 end method print-state;
 
@@ -111,6 +111,19 @@ define method push-empty-tag!(state :: <generator-state>)
   state;
 end method push-empty-tag!;
 
+define method pop-done(old-state :: <generator-state>)
+ => new-state :: <generator-state>;
+  let state = make(<generator-state>, clone: old-state);
+  state := pop-done!(state);
+  state;
+end method pop-done;
+
+define method pop-done!(state :: <generator-state>)
+ => new-state :: <generator-state>;
+  state.output-state := #"emit-pl";
+  state;
+end method pop-done!;
+
 define method emit-text(old-state :: <generator-state>)
  => new-state :: <generator-state>;
   let state = make(<generator-state>, clone: old-state);
@@ -150,7 +163,7 @@ define method applicable-tags(state :: <generator-state>)
     collect-case
       ~from.bold & to.bold              => tag-BB;
       ~from.emphasis & to.emphasis      => tag-EM;
-      from.emphasis & ~to.emphasis      => tag-EM;
+//      from.emphasis & ~to.emphasis      => tag-EM;
       ~from.italic & to.italic          => tag-I;
       ~from.strong & to.strong          => tag-S;
       ~from.typewriter & to.typewriter  => tag-TT;

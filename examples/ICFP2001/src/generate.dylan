@@ -68,10 +68,8 @@ define method generate-optimized-output(input :: <stretchy-object-vector>)
       apply(concatenate, map(generate-next-run, x));
     end method successor-states;
               
-  let result-states = beam-search(state, successor-states, maximum-cost, finished?, beam-width: 100);
-  for(i in result-states)
-    print-state(i);
-  end for;
+  let result-states = beam-search(state, successor-states, maximum-cost, finished?, beam-width: 400);
+
   reverse!(result-states.head.output-tokens);
 end method generate-optimized-output;
 
@@ -89,10 +87,10 @@ define method generate-pops(state :: <generator-state>)
             (~state.to.color & state.from.color))
       state := pop-tag(state);
     end while;
-    let pops = list(state);
+    let pops = list(pop-done(state));
     while(state.open-tag-stack.head ~== #())
       state := pop-tag(state);
-      pops := pair(state, pops);
+      pops := pair(pop-done(state), pops);
     end while;
     pops;
   end;
@@ -104,19 +102,16 @@ define method generate-pl(state :: <generator-state>)
   let from :: <attribute> = state.from;
   let to   :: <attribute> = state.to;
 
-/*
-  if(((from.strong       & ~to.strong) |
+  if((from.strong       & ~to.strong) |
        (from.typewriter & ~to.typewriter) |
        (from.emphasis   & ~to.emphasis) |
        (from.italic     & ~to.italic) |
        (from.bold       & ~to.bold) |
-       (from.underline > 0 & to.underline = 0)) &
-       state.remaining-text-runs.size > 0)
-    list(push-tag(state, tag-PL), state);
+       (from.underline > 0 & to.underline = 0))
+    list(push-tag(state, tag-PL), push-empty-tag(state));
   else
-*/
     list(push-empty-tag(state));
-//  end if;
+  end if;
 end method generate-pl;
 
 // returns all states that lead to actual emission of text
@@ -138,9 +133,9 @@ end method generate-pushes;
 define method generate-next-run(state :: <generator-state>)
  => successor-states :: <list>;
   if(state.output-state == #"closing")
-    let new-states = generate-pops(state);
-    new-states := apply(concatenate, #(), map(generate-pl, new-states));
-    new-states;
+    generate-pops(state);
+  elseif(state.output-state == #"emit-pl")
+    generate-pl(state);
   else
     generate-pushes(state);
   end if;
