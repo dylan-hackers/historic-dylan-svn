@@ -1,5 +1,5 @@
 vrml-viewer: vrml-viewer.lid
-	d2c $<
+	d2c -L../examples/gdgl $<
 
 vrml-viewer.lid: vrml-viewer-exports.dylan vrml-viewer.dylan indexed-face-set.dylan node.dylan gettimeofday.dylan errno.dylan
 	touch $@
