@@ -104,40 +104,10 @@ private:
   const desc* d;
 };
 
-// desc_iterator
-template <typename T>
-struct desc_iterator
-{
-  desc_iterator(const desc* d)
-  : d(d)
-  {}
-  
-  T operator * (void) const { return extract(*d, static_cast<T*>(0)); }
-  std::ptrdiff_t operator - (const desc_iterator<T>& rhs) const { return d - rhs.d; }
-  desc_iterator<T>& operator ++ (void) { ++d; return *this; }
-
-private:
-  static inline long extract(const desc& d, long*)
-  { return d.dataword.l; }
-  
-  static inline T extract(const desc& d, T*)
-  { return static_cast<T>(d.dataword.ptr); }
-  
-  const desc* d;
-};
-
 // iterator_traits
 namespace std {
   template <typename T>
   struct iterator_traits< desc_const_iterator<T> >
-  {
-    typedef typename iterator_traits<T*>::iterator_category iterator_category;
-    typedef T value_type;
-    typedef ptrdiff_t difference_type;
-  };
-
-  template <typename T>
-  struct iterator_traits< desc_iterator<T> >
   {
     typedef typename iterator_traits<T*>::iterator_category iterator_category;
     typedef T value_type;
@@ -153,10 +123,14 @@ LLVM_MAKE(FunctionType, (const Type* result, const SimpleObjectVector* argtypes,
   return FunctionType::get(result, params, isVarArg);
 }
 
+LLVM_MAKE(PointerType, (const Type* base))
+{
+  return PointerType::get(base);
+}
 
 LLVM_MAKE(GetElementPtrInst, (Value* ptr, const SimpleObjectVector* indices, const ByteString* name, BasicBlock* atEnd, Instruction* before))
 {
-  typedef desc_iterator<Value*> extr;
+  typedef desc_const_iterator<Value*> extr;
   const extr first(indices->begin());
   if (2 == indices->size())
   {
@@ -175,6 +149,20 @@ LLVM_MAKE(GetElementPtrInst, (Value* ptr, const SimpleObjectVector* indices, con
   }
 }
 
+
+LLVM_MAKE(StoreInst, (Value* val, Value* ptr, BasicBlock* atEnd, Instruction* before))
+{
+  return before
+    ? new StoreInst(val, ptr, before)
+    : new StoreInst(val, ptr, atEnd);
+}
+
+LLVM_MAKE(LoadInst, (Value* ptr, const ByteString* name, BasicBlock* atEnd, Instruction* before))
+{
+  return before
+    ? new LoadInst(ptr, *name, before)
+    : new LoadInst(ptr, *name, atEnd);
+}
 
 LLVM_MAKE_SIMPLE(Argument, (const Type* ty, const ByteString* name, Function* fun), (ty, *name, fun))
 /*
@@ -195,30 +183,11 @@ LLVM_MAKE(BinaryOperator, (Instruction::BinaryOps op, Value* v1, Value* v2, cons
   { return make_llvm_BinaryOperator(Instruction::OP, v1, v2, name, atEnd, before); }
 
 
-/*
-LLVM_MAKE_BINARY(Add)
-LLVM_MAKE_BINARY(Sub)
-LLVM_MAKE_BINARY(Mul)
-LLVM_MAKE_BINARY(Div)
-LLVM_MAKE_BINARY(Rem)
-LLVM_MAKE_BINARY(And)
-LLVM_MAKE_BINARY(Or)
-LLVM_MAKE_BINARY(Xor)
-LLVM_MAKE_BINARY(SetEQ)
-LLVM_MAKE_BINARY(SetNE)
-LLVM_MAKE_BINARY(SetLE)
-LLVM_MAKE_BINARY(SetGE)
-LLVM_MAKE_BINARY(SetLT)
-LLVM_MAKE_BINARY(SetGT)
-*/
-
+// generate a LLVM_MAKE_BINARY for each binary instruction
 #define HANDLE_BINARY_INST(num, opcode, Class) \
   LLVM_MAKE_BINARY(opcode)
-
-
-#include "/usr/local/include/llvm/Instruction.def"
-//#include "llvm/Instructions.def"
-
+#include <llvm/Instruction.def>
+#undef HANDLE_BINARY_INST
 
 /*
 // Memory operators...
@@ -277,3 +246,9 @@ LLVM_TYPEID2TYPE(LabelTyID)
 
 
 
+// iterator stuff
+
+extern "C" void* get_llvm_Iterator_Function_abegin(Function* f)
+{
+  return f->abegin();
+}
