@@ -3,6 +3,9 @@ module: progress-indicator
 define abstract class <progress-indicator> (<object>)
   constant slot total :: <integer>, required-init-keyword: total:;
   slot done :: <integer> = 0;
+#if (~mindy)
+  slot last-time-flushed :: <integer> = 0;
+#endif
 end class <progress-indicator>;
 
 define method increment-progress(indicator :: <progress-indicator>) => ()
@@ -14,7 +17,15 @@ define generic report-progress(indicator :: <progress-indicator>) => ();
 define method increment-and-report-progress
     (indicator :: <progress-indicator>) => ();
   increment-progress(indicator);
+#if (mindy)
   report-progress(indicator);
+#else
+  let now :: <integer> = get-time-of-day();
+  if (now ~= indicator.last-time-flushed)
+    report-progress(indicator);
+    indicator.last-time-flushed := now;
+  end;
+#endif
 end method increment-and-report-progress;
 
 define method increment-and-report-progress(f == #f) => ();

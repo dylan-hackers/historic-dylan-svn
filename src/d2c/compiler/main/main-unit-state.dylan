@@ -142,10 +142,6 @@ end method find-library-archive;
 // The actual meat of compilation.  Does FER conversion, optimizes and emits
 // output code.
 //
-#if (~mindy)
-define variable *last-time-flushed* :: <integer> = 0;
-#endif
-
 define method compile-1-tlf
     (tlf :: <top-level-form>, file :: <file-state>, state :: <main-unit-state>) 
  => ();

@@ -49,6 +49,8 @@ define module progress-indicator
   use streams;
   use format;
   use utils;
+  use System, 
+     import: {get-time-of-day};
   
   export <progress-indicator>, increment-progress, report-progress,
     increment-and-report-progress, 
@@ -65,8 +67,7 @@ define module main
   use System, 
      import: {system, copy-bytes, getenv, <raw-pointer>, import-string, 
               export-string, no-core-dumps,
-              c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out,
-              get-time-of-day};
+              c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out};
 #endif
   use string-conversions, import: {string-to-integer};
   use substring-search;
