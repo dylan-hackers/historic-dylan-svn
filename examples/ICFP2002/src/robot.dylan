@@ -17,7 +17,7 @@ end;
 define method capacity-left(r :: <robot>)
  => (w :: <integer>)
   if (r.capacity | ~every?(identity, r.inventory))
-    r.capacity - reduce1(\+, map(weight, r.inventory));
+    r.capacity - reduce(\+, 0, map(weight, r.inventory));
   else
     #f
   end if;
