@@ -13,6 +13,17 @@ define library icfp2002
   use network;
 end library;
 
+define module utils
+  use common-dylan;
+  use streams;
+  use format;
+  use format-out;
+  use standard-io;
+
+  export
+    *debug*, debug, force-format;
+end module utils;
+
 define module fd-compat
   use common-dylan;
   use sequence-utilities;
@@ -30,7 +41,7 @@ define module board
   use print, import: {print-object};
   
   export
-    <state>, board, robots, packages, packages-at,
+    <state>, board, robots, packages, packages-at, bases, bases-setter,
     <board>,
     <coordinate>, <point>, x, y, point,
     send-board, receive-board,
@@ -45,9 +56,14 @@ end module board;
 
 define module path
   use common-dylan;
+  use io;
+  use standard-io;
+  use streams;
+  use format;
   use board;
+  use utils;
 
-  export find-path;
+  export <point-list>, distance-cost, find-path;
 end module path;
 
 define module command
@@ -76,6 +92,7 @@ define module messages
 //  use character-type, import: {digit?};
   use board;
   use command;
+  use utils;
 
   export
 //    <message-error>,
@@ -104,8 +121,13 @@ define module client
   use board;
   use command;
   use path;
+  use utils;
 
-  export <robot-agent>, <dumbot>;
+  export
+    <robot-agent>,
+    <dumbot>, <dumber-bot>,
+    <dumber-bot>,
+    generate-next-move;
 end module client;
 
 
@@ -131,5 +153,7 @@ define module icfp2002
   use board;
   use command;
   use client;
+  use path;
+  use utils;
 
 end module;
