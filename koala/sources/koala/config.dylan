@@ -1,4 +1,4 @@
-Module:    http-server-internals
+Module:    httpi
 Synopsis:  For processing the configuration init file, server.xml
 Author:    Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
@@ -39,7 +39,6 @@ define method configure-server ()
     process-config-node(xml);
   exception (err :: <error>)
     log-error("Error loading configuration: %=", err);
-    break("error = %=", err);
   end;
 end configure-server;
 
@@ -76,7 +75,7 @@ end;
 
 define method process-config-node (node :: <element>) => ()
   let name = node-name(node);
-  log-info("Processing configuration element %=", name);
+  log-debug("Processing configuration element %=", name);
   process-config-element(node, as(<symbol>, name))
 end;
 

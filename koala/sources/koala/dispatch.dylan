@@ -1,4 +1,4 @@
-Module:    http-server-internals
+Module:    httpi
 Synopsis:  Given a URL, dispatch to the appropriate responder
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.

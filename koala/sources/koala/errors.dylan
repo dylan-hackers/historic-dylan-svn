@@ -1,4 +1,4 @@
-Module:    http-server-internals
+Module:    httpi
 Synopsis:  HTTP errors
 Author:    Gail Zacharias, Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.

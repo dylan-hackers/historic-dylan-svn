@@ -1,4 +1,4 @@
-Module:    http-server-internals
+Module:    httpi
 Synopsis:  Some globals that don't belong anywhere else in particular.
            Most are configurable in the koala-config.xml file.
 Author:    Carl Gay

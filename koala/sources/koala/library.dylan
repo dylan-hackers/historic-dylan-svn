@@ -15,8 +15,8 @@ define library koala
   use xml;
   use dom;
 
-  export http-server;
-  export http-server-extender;
+  export koala;
+  export koala-extender;
   export dsp;
 end library koala;
 
@@ -115,7 +115,7 @@ define module utilities
 end module utilities;
     
 
-define module http-server
+define module koala
 
   // Headers
   // Do these really need to be exported?
@@ -186,17 +186,17 @@ define module http-server
   create
     print-object;
 
-end module http-server;
+end module koala;
 
 // Additional interface for extending the server
-define module http-server-extender
+define module koala-extender
   create parse-header-value;
 end;
 
-define module http-server-internals
+define module httpi
   use utilities;
-  use http-server;
-  use http-server-extender;
+  use koala;
+  use koala-extender;
 
   use functional-dylan;
   use locators, rename: {<http-server> => <http-server-url>,
@@ -223,10 +223,10 @@ define module http-server-internals
   //use ssl-sockets;
   use xml;
   use dom;
-end module http-server-internals;
+end module httpi;
 
 define module dsp
-  use http-server, export: all;
+  use koala, export: all;
   use utilities, export: all;
 
   use functional-dylan;

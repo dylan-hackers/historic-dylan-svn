@@ -189,14 +189,12 @@ define method allocate-resource
                          find-inactive-resource (pool, sz, pool-full?)
                        end;
         if (resource)
-          describe-pool(pool);
           return (resource);
         elseif (~pool-full?)
           log-debug ("No %= resource found.  Allocating a new one.", resource-class);
           let resource = apply (new-resource, resource-class, init-args);
           add! (pool.active-resources, resource);
           inc! (pool.active-count);
-          describe-pool(pool);
           return (resource);
         else
           // The pool is at its maximum size, so wait for a resource to be deallocated.
@@ -220,7 +218,6 @@ define inline method find-inactive-resource
   // Might want to have a way to short-circuit the loop if a reasonable match is found.
   for (item in inactives,
        index from 0)
-    format(*standard-output*, "FIR: resource size = %d\n", resource-size(item));
     let diff :: <integer> = resource-size(item) - sz;
     if (diff >= 0 & diff < min-diff)
       // always prefer a resource that's bigger than the requested size
@@ -268,12 +265,6 @@ define method describe-pool
          pool.active-resources.size, pool.active-count,
          pool.inactive-resources.size, pool.inactive-count,
          pool.resource-class);
-  for (resource in pool.active-resources)
-    format(*standard-output*, "    active size: %d\n", resource-size(resource));
-  end;
-  for (resource in pool.inactive-resources)
-    format(*standard-output*, "  inactive size: %d\n", resource-size(resource));
-  end;
 end;
 
 define method test-resource-pools
@@ -286,6 +277,7 @@ define method test-resource-pools
     end;
     describe-pool(pool);
   end;
+  log-debug("*** Testing resource pools");
   for (i from 1 to 6)
     doit(<string-table>);
     //doit(<string-stream>);
