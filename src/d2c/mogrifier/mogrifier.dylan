@@ -141,20 +141,72 @@ define macro instruction-definer
     end;
   }
 
-//  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) ?simplifications end }
-  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) ?metainformation end }
+
+
+
+/*
+--------------
+
+    { branch ?branches; ... }
+    =>
+    {
+      define method make-instruction(primary == 30/* ##### ?primary*/, instruction-word :: <integer>)
+       => instruction :: <powerpc-branch-instruction>;
+        make(<powerpc-branch-instruction>, instruction-word: instruction-word)
+      end;
+      define method branch-target(instruction-counter :: <integer>, primary == 30/* ##### ?primary*/, secondary :: <integer>)
+       => location :: <object>;
+        case
+          ?branches;
+//          otherwise
+//            => next-method();
+        end case
+      end;
+
+    { simplify ?simplifications; ... }
+    => 
+    {
+      define method powerpc-disassemble-primary(simplify == #t, primary == 30/* ##### ?primary*/, secondary :: <integer>, #next next-method)
+       => mnemonics :: <string>;
+        case
+          ?simplifications;
+          otherwise
+            => next-method();
+        end case
+      end;
+
+
+--------------
+*/
+
+  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) branch ?branches; ?more:* end }
   =>
   {
-    define instruction ?name(?primary; ?key; ?rest) end;
-    ?metainformation
-/*    define method powerpc-disassemble-subcode(simplify == #t, primary == ?primary, subcode == ?key, secondary :: <integer>, #next next-method)
+    define instruction ?name(?primary; ?key; ?rest) ?more end;
+      define method make-instruction-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>, instruction-word :: <integer>)
+       => instruction :: <powerpc-branch-instruction>;
+        make(<powerpc-branch-instruction>, instruction-word: instruction-word)
+      end;
+      define method branch-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode == ?key, secondary :: <integer>, secondary :: <integer>)
+       => location :: <object>;
+        case
+          ?branches;
+        end case
+      end;
+  }
+
+  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) simplify ?simplifications; ?more:* end }
+  =>
+  {
+    define instruction ?name(?primary; ?key; ?rest) ?more end;
+    define method powerpc-disassemble-subcode(simplify == #t, primary == ?primary, subcode == ?key, secondary :: <integer>, #next next-method)
      => mnemonics :: <string>;
       case
         ?simplifications;
         otherwise
           => next-method();
       end case
-    end;*/
+    end;
   }
 
   { define instruction ?:name(?primary:expression; ?rest:*) ?simp:* end }
@@ -169,26 +221,39 @@ define macro instruction-definer
     end;
   }
   
-//  { define instruction ?:expression(?primary:expression; ?rest:*) ?simplifications end }
-  { define instruction ?:expression(?primary:expression; ?rest:*) ?metainformation end }
+  { define instruction ?:expression(?primary:expression; ?rest:*) branch ?branches; ?more:* end }
   =>
   {
-    define instruction ?expression(?primary; ?rest) end;
-    ?metainformation
-/*    define method powerpc-disassemble-primary(simplify == #t, primary == ?primary, secondary :: <integer>, #next next-method)
+    define instruction ?expression(?primary; ?rest) ?more end;
+      define method make-instruction-primary(primary == ?primary, instruction-word :: <integer>)
+       => instruction :: <powerpc-branch-instruction>;
+        make(<powerpc-branch-instruction>, instruction-word: instruction-word)
+      end;
+      define method branch-target-primary(instruction-counter :: <integer>, primary == ?primary, secondary :: <integer>)
+       => location :: <object>;
+        case
+          ?branches;
+        end case
+      end;
+  }
+  
+  { define instruction ?:expression(?primary:expression; ?rest:*) simplify ?simplifications; ?more:* end }
+  =>
+  {
+    define instruction ?expression(?primary; ?rest) ?more end;
+    define method powerpc-disassemble-primary(simplify == #t, primary == ?primary, secondary :: <integer>, #next next-method)
      => mnemonics :: <string>;
       case
         ?simplifications;
         otherwise
           => next-method();
       end case
-    end;*/
+    end;
   }
   
   form:
     { BO, BI, LK } => { secondary.instruction-field-LK, " ", secondary.instruction-field-BO, ",", secondary.instruction-field-BI }
     { BO, BI, BD, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-field-BO, ",", secondary.instruction-field-BI, ",", secondary.instruction-BD-suffix }
-//    { LI, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-LI-suffix }
     { LI, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-field-LI }
     { S, A, d } => { " ", secondary.instruction-field-S, ",", secondary.instruction-field-SIMM, "(", secondary.instruction-field-A, ")" }
     { crfD, L, A, SIMM } => { " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-L, ",", secondary.instruction-field-A, ",", secondary.instruction-field-SIMM }
@@ -221,8 +286,9 @@ define macro instruction-definer
   absolute-type-branch:
     { AA, LK } => { secondary.instruction-field-LK, secondary.instruction-field-AA }
 
+/*
 //  simplifications:
-  metainformation:
+  metainformation2:
     { branch ?branches; ... }
     =>
     {
@@ -256,7 +322,9 @@ define macro instruction-definer
     }
 
     { } => { }
-
+    */
+    
+    
   branches:
     { } => { }
     { ?branch, ... } => { ?branch; ... }
@@ -314,6 +382,7 @@ define macro instruction-definer
     { crfD } => { secondary.instruction-mask-crfD }
     { BO } => { secondary.instruction-mask-BO }
     { BI } => { secondary.instruction-mask-BI }
+    { BD } => { secondary.instruction-mask-BD }
     { UIMM } => { secondary.instruction-mask-UIMM }
     { LI } => { secondary.instruction-mask-LI }
 
@@ -355,11 +424,6 @@ define macro instruction-field-definer
      => ?name :: <string>;
       format-to-string(?formatter, instruction-mask(secondary, ?from, ?to))
     end;
-
-/*    define inline function "instruction-mask-" ## ?name(secondary :: <integer>)
-     => ?name :: <integer>;
-      instruction-mask(secondary, ?from, ?to);
-    end;*/
   }
 
   { define ?adjectives:* instruction-field ?:name(?formatter:expression; ?bit:expression) end }
@@ -411,7 +475,8 @@ define instruction-field SH(16, 20) end;
 define instruction-field MB(21, 25) end;
 define instruction-field ME(26, 30) end;
 define instruction-field UIMM(16, 31) end;
-define mask-only instruction-field LI(6, 29) end;
+define mask-only instruction-field LI(6, 29) end; // SIGNED!!! ######
+define mask-only instruction-field BD(16, 29) end; // SIGNED!!!
 //define mask-only instruction-field AA(30) end;
 
 // BO flags:
@@ -555,6 +620,10 @@ define instruction mfcr(31; 19; D) end;
 define instruction bc(16; BO, BI, BD, AA, LK)
   simplify [(field BI = 0) & [(field BO = #b01100) | (field BO = #b01101)]]
     => bt(AA, LK);
+  branch flagged AA
+    => BD,
+   unflagged AA
+    => PC + BD
 end;
 
 define instruction b(18; LI, AA, LK)
