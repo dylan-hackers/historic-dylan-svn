@@ -182,8 +182,11 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
     $going-to-dropoff =>
       begin
         if (tom.moves-remaining.empty?) // we are at the destination.
+          debug("We are at the drop point!\n");
           let ps = packages-with-dest(agent-packages(tom, state),
                                       agent-pos(tom, state));
+          // debug("all packages: %=\n", agent-packages(tom, state));
+          debug("packages to drop: %=\n", ps);
           tom.goal := $ready;
           make(<drop>, id: tom.agent-id, bid: 1, package-ids: map(id, ps));
         else
