@@ -35,36 +35,6 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
 end function play-the-game;
 
 
-define function main(name, arguments)
-
-  if(arguments.size < 2)
-    format-out("Wrong number of arguments passed.\n");
-  end if;
-  let (input-stream, output-stream) 
-    = tcp-client-connection(arguments[0], string-to-integer(arguments[1]));
-
-  play-the-game(input-stream, output-stream);
-
-  /*
-  let running = #t;
-  while(running)
-    let line = read-line(input-stream, on-end-of-stream: #f);
-    if(line)
-      write-line(output-stream, line);
-      force-output(output-stream);
-    else
-      running := #f;
-    end if;
-  end while;
-  */
-
-  close(output-stream);
-  exit-application(0);
-end function main;
-
-
-main(application-name(), application-arguments());
-
 
 // Testing path finding.
 define method test-path-finding(board :: <board>)
@@ -98,3 +68,34 @@ define method test-path-finding(board :: <board>)
     end for;
   end if;
 end method test-path-finding;
+
+
+define function main(name, arguments)
+
+  if(arguments.size < 2)
+    format-out("Wrong number of arguments passed.\n");
+  end if;
+  let (input-stream, output-stream) 
+    = tcp-client-connection(arguments[0], string-to-integer(arguments[1]));
+
+  play-the-game(input-stream, output-stream);
+
+  /*
+  let running = #t;
+  while(running)
+    let line = read-line(input-stream, on-end-of-stream: #f);
+    if(line)
+      write-line(output-stream, line);
+      force-output(output-stream);
+    else
+      running := #f;
+    end if;
+  end while;
+  */
+
+  close(output-stream);
+  exit-application(0);
+end function main;
+
+
+main(application-name(), application-arguments());
