@@ -69,7 +69,7 @@ define module command
     $east,
     $west,
     <direction>,
-    <command>, bid,
+    <command>, bid, robot-id,
     <move>, direction,
     <pick>, package-ids,
     <drop>,
