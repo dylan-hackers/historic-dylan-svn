@@ -50,7 +50,7 @@ function short_header ($title) {
 
     <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
       <div>
-        <input type="text" class="text" value="Search..." />
+        <input type="text" class="text" name="q" value="Search..." />
       
         <!-- ###### Dynamic text box version:
         <input class="text" type="text" value="Search..."
@@ -70,8 +70,8 @@ function short_header ($title) {
       <A HREF="contests.phtml">&rsaquo; Dylan Competes</A>
       <A HREF="ports.phtml">&rsaquo; Supported Platforms</A>
       <A HREF="maintainers.phtml">&rsaquo; Gwydion Maintainers</A>
-      <A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">&rsaquo; Gwydion at CMU</A>
-      <A HREF="http://www.fun-o.com">&rsaquo; Functional Developer</a>
+      <A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">&raquo; Gwydion at CMU</A>
+      <A HREF="http://www.fun-o.com">&raquo; Functional Developer</a>
       <A HREF="news.phtml">&rsaquo; Older News</A>
     </div>
 
@@ -81,7 +81,7 @@ function short_header ($title) {
       <A HREF="gdref.phtml">&rsaquo; Documentation</A>
       <A HREF="lists.phtml">&rsaquo; Mailing Lists</A>
       <A HREF="/cgi-bin/gd">&rsaquo; Bug Tracker</A>
-      <A HREF="http://monday.sourceforge.net/wiki/">&rsaquo; Wiki</A>
+      <A HREF="http://monday.sourceforge.net/wiki/">&raquo; Wiki</A>
       <A HREF="learning.phtml">&rsaquo; Learning Dylan</A>
       <A HREF="users.phtml">&rsaquo; Projects Using Dylan</A>
       <A HREF="screenshots.phtml">&rsaquo; Screenshots</A>
