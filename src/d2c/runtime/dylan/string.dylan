@@ -333,6 +333,79 @@ define method \= (str1 :: <byte-string>, str2 :: <byte-string>)
   end;
 end;
 
+define method concatenate-as (type == <byte-string>, sequence :: <byte-string>,
+                              #rest more-sequences)
+ => result :: <byte-string>;
+  let needed-size :: <integer> = sequence.size;
+
+  local method applicable? () => answer :: <boolean>;
+    block (break)
+      for (seq in more-sequences)
+        if (instance?(seq, <byte-string>))
+          needed-size := needed-size + seq.size;
+        else
+          break(#f);
+        end;
+      end for;
+      #t;
+    end block;
+  end;
+
+  if (~applicable?())
+    next-method();
+  else
+    let result = make(<byte-string>, size: needed-size);
+    let sequence-size = sequence.size;
+    copy-bytes(result, 0, sequence, 0, sequence-size);
+    let result-position = sequence-size;
+    for (seq :: <byte-string> in more-sequences)
+      let seq-size = seq.size;
+      copy-bytes(result, result-position, seq, 0, seq-size);
+      result-position := result-position + seq-size;
+    end;
+    result;
+  end if;
+end method concatenate-as;
+
+/*
+  The concatenate method below can be deleted when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+*/
+define method concatenate (sequence :: <byte-string>,
+                           #rest more-sequences)
+ => result :: <byte-string>;
+  let needed-size :: <integer> = sequence.size;
+
+  local method applicable? () => answer :: <boolean>;
+    block (break)
+      for (seq in more-sequences)
+        if (instance?(seq, <byte-string>))
+          needed-size := needed-size + seq.size;
+        else
+          break(#f);
+        end;
+      end for;
+      #t;
+    end block;
+  end;
+
+  if (~applicable?())
+    next-method();
+  else
+    let result = make(<byte-string>, size: needed-size);
+    let sequence-size = sequence.size;
+    copy-bytes(result, 0, sequence, 0, sequence-size);
+    let result-position = sequence-size;
+    for (seq :: <byte-string> in more-sequences)
+      let seq-size = seq.size;
+      copy-bytes(result, result-position, seq, 0, seq-size);
+      result-position := result-position + seq-size;
+    end;
+    result;
+  end if;
+end method concatenate;
+
 define method copy-sequence
     (vector :: <byte-string>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <byte-string>);
