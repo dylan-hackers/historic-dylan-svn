@@ -9,6 +9,7 @@ define library icfp2001
   use collection-extensions;
   use string-extensions;
   use time;
+  use garbage-collection;
 end library;
 
 define module icfp2001
@@ -21,4 +22,5 @@ define module icfp2001
   use string-conversions, import: {string-to-integer};
   use extensions, import: {report-condition};
   use time;
+  use garbage-collection;
 end module;

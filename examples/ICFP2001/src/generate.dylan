@@ -61,14 +61,14 @@ define method generate-optimized-output(input :: <stretchy-object-vector>)
   let state = make(<generator-state>, text-runs: input);
   local
     method finished? (x :: <generator-state>) => result :: <boolean>;
-      x.remaining-text-runs.size = 0;
+      x.remaining-text-runs.size = 0 & x.open-tag-stack = #();
     end method finished?;
   local
     method successor-states (x) => states;
       apply(concatenate, map(generate-next-run, x));
     end method successor-states;
               
-  let result-states = beam-search(state, successor-states, maximum-cost, finished?);
+  let result-states = beam-search(state, successor-states, maximum-cost, finished?, beam-width: 100);
   for(i in result-states)
     print-state(i);
   end for;
@@ -104,16 +104,19 @@ define method generate-pl(state :: <generator-state>)
   let from :: <attribute> = state.from;
   let to   :: <attribute> = state.to;
 
-  if((from.strong       & ~to.strong) |
+/*
+  if(((from.strong       & ~to.strong) |
        (from.typewriter & ~to.typewriter) |
        (from.emphasis   & ~to.emphasis) |
        (from.italic     & ~to.italic) |
        (from.bold       & ~to.bold) |
-       (from.underline > 0 & to.underline = 0))
+       (from.underline > 0 & to.underline = 0)) &
+       state.remaining-text-runs.size > 0)
     list(push-tag(state, tag-PL), state);
   else
-    list(state);
-  end if;
+*/
+    list(push-empty-tag(state));
+//  end if;
 end method generate-pl;
 
 // returns all states that lead to actual emission of text
@@ -127,18 +130,18 @@ define method generate-pushes(state :: <generator-state>)
       return(list(emit-text(state)));
     end;
 
-    let tags :: <list>      = applicable-tags(state);
-
-    apply(concatenate, #(), map(generate-pushes, map(curry(push-tag, state), tags)));
+    map(curry(push-tag, state), applicable-tags(state));
   end;
 end method generate-pushes;
 
 // applies PL, pushes and pops and returns all result states
 define method generate-next-run(state :: <generator-state>)
  => successor-states :: <list>;
-  let new-states = generate-pl(state);
-
-  new-states := apply(concatenate, #(), map(generate-pushes, new-states));
-  new-states := apply(concatenate, #(), map(generate-pops, new-states));
-  new-states;
+  if(state.output-state == #"closing")
+    let new-states = generate-pops(state);
+    new-states := apply(concatenate, #(), map(generate-pl, new-states));
+    new-states;
+  else
+    generate-pushes(state);
+  end if;
 end method generate-next-run;

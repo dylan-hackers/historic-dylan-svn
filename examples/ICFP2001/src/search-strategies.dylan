@@ -40,7 +40,7 @@ define method beam-search(initial-state, make-successors, cost-function, finishe
 
   while(states ~= #())
     check-timeout();
-    let new-states = #();
+    GC-gcollect();
     let new-states = #();
     for(i in make-successors(states))
       if(finished?(i))
@@ -49,6 +49,7 @@ define method beam-search(initial-state, make-successors, cost-function, finishe
         new-states := pair(i, new-states);
       end if;
     end for;
+    debug("%= states generated.\n", new-states.size);
     states := subsequence(sort(new-states, test: cost-order), end: beam-width);
   end while;
 

@@ -9,6 +9,7 @@ define class <generator-state> (<object>)
   slot output-tokens       :: <list> = #();
   slot remaining-text-runs :: <subsequence>;
   slot maximum-cost        :: <integer> = 0;
+  slot output-state        :: one-of(#"closing", #"opening", #"pl-emitted") = #"opening";
 end class <generator-state>;
 
 define sealed domain make(singleton(<generator-state>));
@@ -23,6 +24,7 @@ define sealed method initialize
     obj.output-tokens       := clone.output-tokens;
     obj.remaining-text-runs := clone.remaining-text-runs;
     obj.maximum-cost        := clone.maximum-cost;
+    obj.output-state        := clone.output-state; 
   else
     obj.attribute-stack     := list(make(<attribute>));
     obj.remaining-text-runs := subsequence(text-runs);
@@ -41,6 +43,7 @@ define method print-state(state :: <generator-state>)
   debug("%=\n", state.attribute-stack);
   debug("%=\n", state.open-tag-stack);
   debug("%=\n", state.maximum-cost);
+  debug("%=\n", state.output-state);
   describe-attributes(state.from, *standard-error*);
   describe-attributes(state.to, *standard-error*);
   debug("\n");
@@ -91,8 +94,22 @@ define method push-tag!(state :: <generator-state>, tag :: <tag>)
   state.attribute-stack :=
     pair(apply-op(state.attribute-stack.head, tag), state.attribute-stack);
   state.maximum-cost := state.maximum-cost + tag.cost;
+  state.output-state := #"opening";
   state;
 end method push-tag!;
+
+define method push-empty-tag(old-state :: <generator-state>)
+ => new-state :: <generator-state>;
+  let state = make(<generator-state>, clone: old-state);
+  state := push-empty-tag!(state);
+  state;
+end method push-empty-tag;
+
+define method push-empty-tag!(state :: <generator-state>)
+ => new-state :: <generator-state>;
+  state.output-state := #"opening";
+  state;
+end method push-empty-tag!;
 
 define method emit-text(old-state :: <generator-state>)
  => new-state :: <generator-state>;
@@ -109,6 +126,7 @@ define method emit-text!(state :: <generator-state>)
   state.maximum-cost := state.maximum-cost - output.attributes.maximum-cost;
   state.remaining-text-runs :=
     subsequence(state.remaining-text-runs, start: 1);
+  state.output-state := #"closing";
   state;
 end method emit-text!;
 

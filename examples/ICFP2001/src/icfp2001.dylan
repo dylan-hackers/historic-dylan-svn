@@ -295,10 +295,13 @@ define function main(name, arguments)
 //    dump-parse-tree(parse-tree);
 
     debug("Generating output.\n");
+    generate-output(parse-tree).concatenate-strings.see-if-best;
+    debug("Generating optimized output.\n");
     generate-optimized-output(parse-tree).concatenate-strings.see-if-best;
 //    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)
+    debug("Out of time!\n");
   end;
 
   if(best-transformation.size > 0 &
