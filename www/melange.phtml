@@ -13,15 +13,20 @@ Melange. It parses C header files and automatically generates interfaces in
 Dylan. We've been slowly enhancing this to handle more complicated header
 files, and stomping all the bugs which we find along the way.</P>
 
-<P>Our next goal is to make callbacks from C to Dylan work correctly. This
-will require modifications to the compiler, the runtime, and Melange.
-Peter Housel already went a long way, there's just some cleaning up
-before we are where we want to go to.</P>
+<p>On the way de decided to rewrite parts of melange, and a new
+project, called pidgin, was started. It has a working C header
+parser. but it's missing the code generation part. Adding that is not
+that difficult, if you're looking for a way to help our project,
+that's your chance. Contact us on the <a href=lists.phtml>gd-hackers
+mailing list</a>for details.</p>
+
+<p>We already have working callbacks from C to Dylan code, on x86 and
+PPC even with callbacks to closures.</p>
 
 <?php
 begin_progress_table();
 progress("Improve parser", 9);
-progress("Implement callbacks", 8);
+progress("Write interface generation code", 0);
 end_progress_table();
 ?>
 
