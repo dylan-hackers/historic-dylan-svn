@@ -29,7 +29,7 @@ int gUnixSocket;
 unsigned int gID;
 unsigned int gMaxWeight;
 unsigned int gMoney;
-unsigned int gBid;
+int gBid;
 
 void readMyConfiguration(void)
 {
@@ -336,12 +336,12 @@ void sendAction(void)
     
     if (gMoveChar != '\0')
     {
-        sprintf(action, "%u Move %c\n", gBid, gMoveChar);
+        sprintf(action, "%d Move %c\n", gBid, gMoveChar);
         gMoveChar = '\0';
     }
     else
     {
-        sprintf(action, "%u Pick 1\n", gBid);
+        sprintf(action, "%d Pick 1\n", gBid);
     }
 
     send(gUnixSocket, action, strlen(action), 0);
@@ -468,17 +468,20 @@ void key(unsigned char key, int mouseX, int mouseY)
 {
     switch (key)
     {
-        case '1': gBid =   1; break;
-        case '2': gBid =   2; break;
-        case '3': gBid =   4; break;
-        case '4': gBid =   8; break;
-        case '5': gBid =  16; break;
-        case '6': gBid =  32; break;
-        case '7': gBid =  64; break;
-        case '8': gBid = 128; break;
-        case '9': gBid = 256; break;
-        case '0': gBid = 512; break;
+        case '1': gBid = (gBid < 0 ?   -1 :    1); break;
+        case '2': gBid = (gBid < 0 ?   -2 :    2); break;
+        case '3': gBid = (gBid < 0 ?   -4 :    4); break;
+        case '4': gBid = (gBid < 0 ?   -8 :    8); break;
+        case '5': gBid = (gBid < 0 ?  -16 :   16); break;
+        case '6': gBid = (gBid < 0 ?  -32 :   32); break;
+        case '7': gBid = (gBid < 0 ?  -64 :   64); break;
+        case '8': gBid = (gBid < 0 ? -128 :  128); break;
+        case '9': gBid = (gBid < 0 ? -256 :  256); break;
+        case '0': gBid = (gBid < 0 ? -512 :  512); break;
+        case '-': gBid *= -1; break;
     }
+
+    printf("Now bidding %d per move\n", gBid);
 }
 
 int main(int argc, char *argv[])
