@@ -1,5 +1,5 @@
 module: gdb-access
-synopsis: 
+synopsis:
 author: gabor@mac.com
 copyright: see below
 qoute-of-the-day: Intelligence is the ability to avoid work, yet getting work done. -- Linus Torvalds
@@ -9,24 +9,24 @@ qoute-of-the-day: Intelligence is the ability to avoid work, yet getting work do
 //
 // Copyright (c) 2004  Gwydion Dylan Maintainers
 // All rights reserved.
-// 
+//
 // Use and copying of this software and preparation of derivative
 // works based on this software are permitted, including commercial
 // use, provided that the following conditions are observed:
-// 
+//
 // 1. This copyright notice must be retained in full on any copies
 //    and on appropriate parts of any derivative works.
 // 2. Documentation (paper or online) accompanying any system that
 //    incorporates this software, or any part of it, must acknowledge
 //    the contribution of the Gwydion Dylan Maintainers.
-// 
+//
 // This software is made available "as is".  Neither the authors nor
 // the Gwydion Dylan Maintainers make any warranty about the software,
 // its performance, or its conformity to any specification.
-// 
+//
 // Bug reports should be sent to <gd-bugs@gwydiondylan.org>; questions,
 // comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
-// Also, see http://www.gwydiondylan.org/ for updates and documentation. 
+// Also, see http://www.gwydiondylan.org/ for updates and documentation.
 //
 //======================================================================
 
@@ -37,8 +37,8 @@ qoute-of-the-day: Intelligence is the ability to avoid work, yet getting work do
 
 define constant test-transcript
   = #[
-  
-  
+
+
 #[
        "34-eee"
        "34^error,msg=\"Undefined MI command: eee\""
@@ -95,7 +95,7 @@ define constant test-transcript
 //
 
 define class <gdb-mi-session>(<object>)
-  // 
+  //
   // pending: associating sent (but not yet answered) tokens with commands
   //
   slot session-pending :: <deque> = make(<deque>);// ###bug### when writing <dequeue>
@@ -105,11 +105,11 @@ define class <gdb-mi-session>(<object>)
   slot session-history :: <stretchy-vector> = make(<stretchy-vector>);
   //
   // results: associating results with tokens
-  // 
+  //
   slot session-results :: <table> = make(<table>);
   //
   // commands: associating commands with tokens
-  // 
+  //
   slot session-commands :: <table> = make(<table>);
 end;
 
@@ -125,6 +125,7 @@ end;
 
 define constant <operation> = <symbol>;
 define constant <positive> = <integer>; // for now... ####
+define constant <parser> = <function>;
 
 
 define abstract class <mi-command>(<command>)
@@ -147,8 +148,8 @@ define macro mi-operation-definer
       ?sequence-slot;
     end;
   }
-  
-  
+
+
   { define class-for-regular mi-operation ?:name(?regular-class-options) end }
   =>
   {
@@ -187,7 +188,7 @@ define macro mi-operation-definer
                 let got :: singleton(1) = matched.size;
                 return(matched.head(?name ## "-<result>"));
               end;
-         
+
          let parsers = list(?p-sequence, finish);
          parsers.head(mi-reply, #(), parsers.tail);
       end block;
@@ -261,7 +262,7 @@ define macro mi-operation-definer
   parse-sequence:
     {} => {}
     { ?parse-directive; ... } => { ?parse-directive, ... }
-  
+
   parse-directive:
     { resulting ?:name } => { method(inp, matched, more) => (); let m = match(inp, "^" ?"name"); more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
     { resulting ?:name => ?parser:expression } => { method(inp, matched, more) => (); let m = match(inp, "^" ?"name"); more.head(inp, pair(if (m) rcurry(?parser, m) else #f.always end if, matched), more.tail) end method }
@@ -276,7 +277,7 @@ define macro mi-operation-definer
     { ?flag:name ?:name } => { ?flag ?name :: <boolean>;(init-keyword: ?#"flag", init-value: #f) }
     { ?flag:name ?:name :: ?:expression } => { ?flag ?name :: ?expression;(required-init-keyword: ?#"flag") }
     { ?:name :: ?:expression } => { ?name ?name :: ?expression;(required-init-keyword: ?#"name") }
-    
+
   alternate:
     { } => { }
     { ?option; ... } => { [ ?option ] ... }
@@ -408,7 +409,7 @@ define macro mi-parser-definer
                 more.tail)
     end
   }
-  
+
   { define class-for-tuple mi-parser ?:name(?tag:name) {?tuple-slots} end }
    =>
   {
@@ -425,11 +426,11 @@ define macro mi-parser-definer
     define tuple-value mi-parser ?name(?tag) {?fields} {?fields} end;
     define class-for-tuple mi-parser ?name(?tag) {?fields} end
   }
-  
+
   fields:
     { } => { }
     { ?field; ... } => { ?field; ... }
-  
+
   field:
 // optional field   { [ ?:name :: ?:expression ] } => { ?name false-or(?expression) }
     { ?:name :: ?:expression } => { ?name ?expression }
@@ -453,7 +454,7 @@ define macro mi-parser-definer
   tuple-slots:
     { } => { }
 
-    { ?tag:name ?type:expression; ... } 
+    { ?tag:name ?type:expression; ... }
      =>
     { slot /* ?=?"name" ## */ ?tag :: ?type, required-init-keyword: ?#"tag" }
 end;
@@ -474,7 +475,7 @@ end;
 begin
 
   let inp = "bkpt={number=\"1\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}1234";
-  
+
   block (outta-here)
     local method final(rest, matches, more)
             let igno :: singleton(1) = matches.size;
@@ -702,55 +703,55 @@ define mi-operation interpreter-exec(interpreter, command)
 end;
 
 /*
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 
-define mi-operation 
+define mi-operation
 
 end;
 */
@@ -977,8 +978,8 @@ end;
 // juxtapose -- run two parsers sequentially
 // the second consuming what the first left back
 //
-define function juxtapose(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
- => juxtaposition :: <function>;
+define function juxtapose(p1 :: <parser>, p2 :: <parser>, #key connective :: <function> = list)
+ => juxtaposition :: <parser>;
   method(inp :: <byte-string>, matched :: <list>, more) // => no-result :: <never-returns>;
       let (ign1, matched-by-p1)
       = block (done-first)
@@ -1013,7 +1014,7 @@ end function juxtapose;
 begin
 
   let inp = "bkpt={number=\"1\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}bkpt={number=\"2\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}zzzzz";
-  
+
   block (outta-here)
     local method final(rest, matches, more)
             let igno :: singleton(1) = matches.size;
@@ -1030,8 +1031,8 @@ end begin;
 // parallel -- run two parsers side-by-side
 // both consuming the same input
 //
-define function parallel(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
- => parallel :: <function>;
+define function parallel(p1 :: <parser>, p2 :: <parser>, #key connective :: <function> = list)
+ => parallel :: <parser>;
 
   method(inp :: <byte-string>, matched :: <list>, more) // => no-result :: <never-returns>;
       let (ign1, matched)
@@ -1044,6 +1045,11 @@ define function parallel(p1 :: <function>, p2 :: <function>, #key connective :: 
       else
 	let (rest1, product1) = matched.head();
 	let (rest2, product2) = ~matched.tail.empty? & matched.tail.head();
+
+	rest1 & rest2 & product1 & product2
+	  & signal("a parallel parser matched both alternatives (%s, %s) and delivered two results (%=, %=)",
+		    rest2, rest1, product2, product1);
+
 	more.head(inp,
 		  pair(method()
 			   values(rest2 | rest1, connective(product2, product1))
@@ -1072,7 +1078,7 @@ end;
 // producing something when input has been
 // consumed, #f otherwise
 //
-define function optional(p :: <function>)
- => optional :: <function>;
+define function optional(p :: <parser>)
+ => optional :: <parser>;
   parallel(p, epsilon, connective: identity)
 end;
