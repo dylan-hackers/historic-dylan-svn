@@ -129,8 +129,11 @@ end;
 define method main(progname, #rest arguments)
 //  let (argc, argv) = c-arguments(progname, arguments);
 //  glutInit(argc, argv);
+  // MacOS X window manager gets very upset if we don't call this
+  glut-init();
 
-  GC-enable-incremental();
+  // This hangs MacOS X 10.2 at present
+  //GC-enable-incremental();
   glutInitDisplayMode($GLUT-RGBA + $GLUT-DEPTH + $GLUT-DOUBLE);
 
   let win :: <integer> = glutCreateWindow("Foo");
