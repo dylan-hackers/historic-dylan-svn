@@ -22,6 +22,8 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
   let last-bot = find-robot(state, agent.agent-id);
   while(running)
     debug("Robot state: %=\n", last-bot);
+    *debug* | always-print("Where: %=, Score: %d, Money: %=\n",
+                           last-bot.location,  last-bot.score, last-bot.money);
     state := receive-server-packages(input, state, last-bot.location);
     let move = #f;
     let not-crashed = #f;
@@ -177,6 +179,9 @@ define function main(name, arguments)
                  | "dumber-bot";
   when (arguments.size > 3 & arguments[3] = "-nodebug")
     *debug* := #f;
+  end when;
+  when (arguments.size > 3 & arguments[3] = "-debug")
+    *debug* := #t;
   end when;
   block ()
     if (bot-type = "tour-test")
