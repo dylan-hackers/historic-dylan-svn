@@ -263,7 +263,7 @@ define sealed domain make(singleton(<generic-function>));
 //
 // Make a generic function after massaging the arguments.
 // 
-define method make (class == <generic-function>, #next next-method,
+define method make (class == <generic-function>,
 		    #key name :: <byte-string> = "Anonymous Generic Function",
 		         required :: type-union(<integer>, <sequence>),
 		         rest? :: <boolean>, key :: false-or(<collection>),
@@ -801,7 +801,7 @@ end function general-call;
 // These two functions must be kept in sync with the calls to them from
 // compiler/cback/cback.dylan.
 // 
-define function gf-call-lookup 
+define function gf-call-lookup
     (self :: <generic-function>, 
      nargs :: <integer>, 
      source-location :: <source-location>)
@@ -838,8 +838,8 @@ define function gf-call-lookup
         for (index :: <integer> from nfixed below nargs by 2)
           let key :: <symbol> = %%primitive(extract-arg, arg-ptr, index);
           block (found)
-            for (i :: <integer> from 0 below valid-keywords.size)
-              if (%element(valid-keywords, i) == key) found() end if;
+            for (valid-keyword in valid-keywords)
+              if (key == valid-keyword) found() end if;
             end for;
             error("Unrecognized keyword: %=", key);
           end block;
@@ -849,11 +849,10 @@ define function gf-call-lookup
   if (meth)
     values(meth, next-info);
   elseif (next-info.empty?)
-    for (index :: <integer> from 0 below nfixed)
-      let specializer :: <type> = %element(specializers, index);
+    for (specializer :: <type> keyed-by index in specializers)
       let arg = %%primitive(extract-arg, arg-ptr, index);
       %check-type(arg, specializer, source-location);
-    end;
+    end for;
     no-applicable-methods-error
       (self, mv-call(vector, %%primitive(pop-args, arg-ptr)),
        source-location: source-location);
