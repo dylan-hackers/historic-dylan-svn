@@ -8,6 +8,7 @@ MKF ?= dylanmakefile.mkf ;
 
 SUFOBJ ?= .o ;			# object files suffix
 SUFASM ?= .s ;			# assembly source files suffix
+SUFLIB ?= .a ;			# static library suffix
 SUFDLL ?= .so ;			# shared library suffix
 
 # SYSTEM_ROOT is set by the build-system
@@ -68,14 +69,14 @@ rule DylanLibrary image : version {
   # We'll use the library name as the grist to identify referenced
   # source and object files.
   
-  SOURCE_GRIST = $(image[1]) ;
+  SOURCE_GRIST = $(image[1]:L) ;
 
   local _dll = [ FDLLName $(image) ] ;
   local _exe = [ FEXEName $(image) ] ;
 
   # Here we save the name of the DLL for this library.
   
-  _dll_$(image[1]) = $(_dll) ;
+  _dll_$(image[1]:L) = $(_dll) ;
 
   # Shared libraries and executable images
 
@@ -89,7 +90,7 @@ rule DylanLibrary image : version {
   SEARCH on $(_obj) $(_asm) = $(SEARCH_SOURCE) ;
 
   Depends $(_exe) : $(_dll) ;
-  LINKLIBS on $(_exe) += -l$(image[1]) ;
+  LINKLIBS on $(_exe) += -l$(image[1]:L) ;
   LinkEXE $(_exe) : $(_obj) ;
 
   # If this is the top-level project, make the dll, exe, and clean
@@ -228,12 +229,12 @@ rule DylanLibraryUses image : library : dir {
   
   local _dll = [ FDLLName $(image) ] ;
 
-  LINKLIBS on $(_dll) += -l$(library) ;
+  LINKLIBS on $(_dll) += -l$(library:L) ;
 
   if $(_dll_$(library)) {
     # We already know the DLL name; add the dependency.
     
-    Depends $(_dll) : $(_dll_$(library)) ;
+    Depends $(_dll) : $(_dll_$(library:L)) ;
   } else if $(dir) = system {
     # This is a system library; guess at the DLL name.
     # TODO: read $(SYSTEM_LIBDIR)/$(library).mkf
@@ -244,18 +245,18 @@ rule DylanLibraryUses image : library : dir {
   } else {
     # Another personal library; read its mkf.
     
-    local PARENT = $(image[1]) ;
+    local PARENT = $(image[1]:L) ;
 
     local SEARCH_SOURCE LOCATE_SOURCE LOCATE_TARGET = $(dir) ;
     local SOURCE_GRIST ;
 
-    local _mkf = $(MKF:G=$(library)) ;
+    local _mkf = $(MKF:G=$(library:L)) ;
     SEARCH on $(_mkf) ?= $(SEARCH_SOURCE) ;
     IncludeMKF $(_mkf) ;
 
     # Now that we know the DLL name of $(library), add the dependency.
 
-    Depends $(_dll) : $(_dll_$(library)) ;
+    Depends $(_dll) : $(_dll_$(library:L)) ;
   }
 }
 
@@ -284,9 +285,9 @@ actions LinkEXE bind NEEDLIBS {
 #
 
 rule FDLLName {
-  return lib$(<[1]:S=$(SUFDLL)) ;
+  return lib$(<[1]:LS=$(SUFDLL)) ;
 }
 
 rule FEXEName {
-  return $(<[1]) ;
+  return $(<[1]:L) ;
 }
