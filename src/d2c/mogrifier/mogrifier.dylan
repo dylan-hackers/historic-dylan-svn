@@ -31,40 +31,48 @@ define function follow(instructions :: <integer>, p :: <statically-typed-pointer
 end;
 
 
-define function powerpc-disassemble(instruction :: <integer>)
+define function powerpc-disassemble(instruction :: <integer>, #key simplify :: <boolean> = #t)
  => mnemonics :: <string>;
   let primary = ash(instruction, -26);
   let primary = primary >= 0 & primary | primary + #x40;
-  powerpc-disassemble-primary(primary, logand(instruction, #x3FFFFFF));
-end;
-
-
-define method powerpc-disassemble-primary(primary :: limited(<integer>, min: 0, max: 64), secondary :: <integer>)
- => mnemonics :: <string>;
-  format-out("unknown primary: %d, key: %d\n", primary, instruction-mask(secondary, 21, 30));
-  "???"
+  powerpc-disassemble-primary(simplify, primary, logand(instruction, #x3FFFFFF));
 end;
 
 
 //
 // Disassembler generics
 //
-define generic powerpc-disassemble-primary(primary :: limited(<integer>, min: 0, max: 64), secondary :: <integer>)
+define generic powerpc-disassemble-primary
+  (simplify :: <boolean>,
+   primary :: limited(<integer>, min: 0, max: 64),
+   secondary :: <integer>)
  => mnemo :: <string>;
 
 define generic powerpc-disassemble-subcode
-  (primary :: limited(<integer>, min: 0, max: 64),
+  (simplify :: <boolean>,
+   primary :: limited(<integer>, min: 0, max: 64),
    subcode :: limited(<integer>, min: 0, max: 1023),
    secondary :: <integer>)
  => mnemo :: <string>;
 
 
 
-define method powerpc-disassemble-primary(primary :: one-of(19, 31), secondary :: <integer>)
+define method powerpc-disassemble-primary
+  (simplify :: <boolean>,
+   primary :: limited(<integer>, min: 0, max: 64),
+   secondary :: <integer>)
  => mnemonics :: <string>;
-  format-out("key: %d\n", instruction-mask(secondary, 21, 30));
- 
-  powerpc-disassemble-subcode(primary, instruction-mask(secondary, 21, 30), secondary)
+  format-out("unknown primary: %d, key: %d\n", primary, instruction-mask(secondary, 21, 30));
+  "???"
+end;
+
+
+define method powerpc-disassemble-primary
+  (simplify :: <boolean>,
+   primary :: one-of(19, 31, 63 /* or separate? */),
+   secondary :: <integer>)
+ => mnemonics :: <string>;
+  powerpc-disassemble-subcode(simplify, primary, instruction-mask(secondary, 21, 30), secondary)
 end;
 
 define macro instruction-definer
@@ -76,9 +84,17 @@ define macro instruction-definer
     define instruction ?name ## "u"(?primary + 1; S, A, d) end
   }
 
+  { define instruction ?:name(?primary:expression; ?key:expression; OE; ?form) end }
+  =>
+  { define method powerpc-disassemble-subcode(simplify :: <boolean>, primary == ?primary, subcode :: one-of(?key, ?key + 512), secondary :: <integer>)
+     => mnemonics :: <string>;
+      concatenate(?"name", ?form)
+    end;
+  }
+
   { define instruction ?:name(?primary:expression; ?key:expression; ?form) end }
   =>
-  { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
+  { define method powerpc-disassemble-subcode(simplify :: <boolean>, primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
       concatenate(?"name", ?form)
     end;
@@ -90,7 +106,7 @@ define macro instruction-definer
 
   { define instruction ?:expression(?primary:expression; ?form) end }
   =>
-  { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
+  { define method powerpc-disassemble-primary(simplify :: <boolean>, primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
       concatenate(?expression, ?form)
     end;
@@ -104,13 +120,13 @@ define macro instruction-definer
     { crfD, L, A, SIMM } => { " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-L, ",", secondary.instruction-field-A, ",", secondary.instruction-field-SIMM }
     { crfD, L, A, B } => { " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-L, ",", secondary.instruction-field-A, ",", secondary.instruction-field-B }
     { crbD, crbA, crbB } => { " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-crbA, ",", instruction-field-crbB }
-    { S, A, B, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-S, ",", secondary.instruction-field-A, ",", secondary.instruction-field-B }
+    { S, A, B, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-A, ",", secondary.instruction-field-S, ",", secondary.instruction-field-B }
     { D, A, SIMM } => { " ", secondary.instruction-field-D, ",", secondary.instruction-field-A, ",", secondary.instruction-field-SIMM }
     { D, A, B } => { " ", secondary.instruction-field-D, ",", secondary.instruction-field-A, ",", secondary.instruction-field-B }
-    { D, A, B, OE, Rc } => { secondary.instruction-field-OE, secondary.instruction-field-Rc, " ", secondary.instruction-field-D, ",", secondary.instruction-field-A, ",", secondary.instruction-field-B }
+    { D, A, B, Rc } => { secondary.instruction-field-OE, secondary.instruction-field-Rc, " ", secondary.instruction-field-D, ",", secondary.instruction-field-A, ",", secondary.instruction-field-B }
     { D } => { " ", secondary.instruction-field-D }
-    { S, A, SH, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-S, ",#########", secondary.instruction-field-A, ",", secondary.instruction-field-SH }
-    { S, A, SH, MB, ME, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-D, ",########", secondary.instruction-field-A, ",", secondary.instruction-field-B }
+    { S, A, SH, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-A, ",", secondary.instruction-field-S, ",", secondary.instruction-field-SH }
+    { S, A, SH, MB, ME, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-A, ",", secondary.instruction-field-S, ",", secondary.instruction-field-SH, ",", secondary.instruction-field-MB, ",", secondary.instruction-field-ME }
     { S, spr } => { " ", secondary.instruction-field-spr, ",", secondary.instruction-field-S }
     { D, spr } => { " ", secondary.instruction-field-D, ",", secondary.instruction-field-spr }
   absolute-type-branch:
@@ -127,6 +143,11 @@ define macro instruction-field-definer
     define function "instruction-field-" ## ?name(secondary :: <integer>)
      => ?name :: <string>;
       format-to-string(?formatter, instruction-mask(secondary, ?from, ?to))
+    end;
+
+    define inline function "instruction-mask-" ## ?name(secondary :: <integer>)
+     => ?name :: <integer>;
+      instruction-mask(secondary, ?from, ?to);
     end;
   }
 
@@ -174,6 +195,8 @@ define instruction-field crbD(6, 8) end;
 define instruction-field crbA(11, 15) end;
 define instruction-field crbB(16, 20) end;
 define instruction-field SH(16, 20) end;
+define instruction-field MB(21, 25) end;
+define instruction-field ME(26, 30) end;
 
 
 define inline function instruction-field-spr(secondary :: <integer>)
@@ -251,6 +274,44 @@ define inline function instruction-mask(secondary :: <integer>, start :: instruc
   logand(ash(secondary, stop - 31), ash(1, stop - start + 1) - 1)
 end;
 
+
+
+//
+// Simplification
+//
+define method powerpc-disassemble-subcode
+  (simplify == #t,
+   primary == 31,
+   subcode == 444,
+   secondary :: <integer>)
+ => mnemo :: <string>;
+  case
+    secondary.instruction-field-S = secondary.instruction-field-B
+      => concatenate("mr", " ", secondary.instruction-field-A, ",", secondary.instruction-field-S);
+    otherwise
+      => next-method();
+  end case;
+end;
+
+
+
+define method powerpc-disassemble-primary
+  (simplify == #t,
+   primary == 11,
+   secondary :: <integer>)
+ => mnemo :: <string>;
+  case
+    secondary.instruction-mask-crfD = 0
+    & secondary.instruction-mask-L = 0
+      => concatenate("cmpwi", " ", secondary.instruction-field-A, ",", secondary.instruction-field-SIMM);
+    secondary.instruction-mask-L = 0
+      => concatenate("cmpwi", " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-A, ",", secondary.instruction-field-SIMM);
+    otherwise
+      => next-method();
+  end case;
+end;
+
+
 define instruction addis(15; D, A, SIMM) end;
 define instruction addi(14; D, A, SIMM) end;
 define instruction addic(12; D, A, SIMM) end;
@@ -265,20 +326,20 @@ define instruction xor(31; 316; S, A, B, Rc) end;
 define instruction lwarx(31; 20; D, A, B) end;
 
 define instruction subfic(8; D, A, SIMM) end;
-define instruction subf(31; 40; D, A, B, OE, Rc) end;
-define instruction subfc(31; 8; D, A, B, OE, Rc) end;
-define instruction subfe(31; 136; D, A, B, OE, Rc) end;
+define instruction subf(31; 40; OE; D, A, B, Rc) end;
+define instruction subfc(31; 8; OE; D, A, B, Rc) end;
+define instruction subfe(31; 136; OE; D, A, B, Rc) end;
 
 
-define instruction mulld(31; 233; D, A, B, OE, Rc) end;
-define instruction mullw(31; 235; D, A, B, OE, Rc) end;
-define instruction divd(31; 489; D, A, B, OE, Rc) end;
-define instruction divdu(31; 457; D, A, B, OE, Rc) end;
-define instruction divw(31; 491; D, A, B, OE, Rc) end;
-define instruction divwu(31; 459; D, A, B, OE, Rc) end;
-define instruction add(31; 266; D, A, B, OE, Rc) end;
-define instruction addc(31; 10; D, A, B, OE, Rc) end;
-define instruction adde(31; 138; D, A, B, OE, Rc) end;
+define instruction mulld(31; 233; OE; D, A, B, Rc) end;
+define instruction mullw(31; 235; OE; D, A, B, Rc) end;
+define instruction divd(31; 489; OE; D, A, B, Rc) end;
+define instruction divdu(31; 457; OE; D, A, B, Rc) end;
+define instruction divw(31; 491; OE; D, A, B, Rc) end;
+define instruction divwu(31; 459; OE; D, A, B, Rc) end;
+define instruction add(31; 266; OE; D, A, B, Rc) end;
+define instruction addc(31; 10; OE; D, A, B, Rc) end;
+define instruction adde(31; 138; OE; D, A, B, Rc) end;
 
 define instruction mfcr(31; 19; D) end;
 
