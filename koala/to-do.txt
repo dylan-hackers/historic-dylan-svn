@@ -5,6 +5,8 @@ koala
 
 * Documentation.  Probably write it in DSP.
 
+* mod_dylan for Apache
+
 * A facility to generate .html files from .dsp files.  e.g., a way to
   flatten all the .dsp doc files into .html.
 
@@ -44,16 +46,11 @@ koala
 * Miscellaneous
   - Replace some uses of copy-sequence with substring.  They are probably
     hold-overs from when <substring> was causing problems.
+  - Fix resource allocation.  It's never been debugged, as you can see from
+    the log output.
   - Look carefully at which classes and methods should be opened before
     initial release.  Best way to do this might be to try and define a
     subclass of <dylan-server-page> outside the Koala library.
   - Actually, DSP should probably be defined to use the Koala library
     rather than being part of it.  It only needs public interfaces.
 
-=========================================================================
-
-koala-example
--------------
-
-* Rearrange examples into a series of pages that show one thing per page
-  and has a table of contents.
