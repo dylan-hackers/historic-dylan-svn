@@ -78,13 +78,141 @@ define method parse(input, #key start = 0)
   end;
 end method parse;
 
-define function bgh-parse(s :: <byte-string>)
-  let v = make(<stretchy-vector>);
-  for (c keyed-by i in s)
-    //format-out("char %= is %=\n", i, c);
-    
+
+define class <tag> (<object>)
+  slot name :: <byte-string>,
+    required-init-keyword: name:;
+  slot open-tag :: <byte-string> = "";
+  slot close-tag :: <byte-string> = "";
+end;
+
+define sealed method initialize(t :: <tag>, #key name)
+  t.open-tag := concatenate("<", name, ">");
+  t.close-tag := concatenate("</", name, ">");
+end;
+
+define sealed domain make(singleton(<tag>));
+
+define constant tag-BB = make(<tag>, name: "B");
+define constant tag-EM = make(<tag>, name: "EM");
+define constant tag-I  = make(<tag>, name: "I");
+define constant tag-PL = make(<tag>, name: "PL");
+define constant tag-S  = make(<tag>, name: "S");
+define constant tag-TT = make(<tag>, name: "TT");
+define constant tag-U  = make(<tag>, name: "U");
+define constant tag-0  = make(<tag>, name: "0");
+define constant tag-1  = make(<tag>, name: "1");
+define constant tag-2  = make(<tag>, name: "2");
+define constant tag-3  = make(<tag>, name: "3");
+define constant tag-4  = make(<tag>, name: "4");
+define constant tag-5  = make(<tag>, name: "5");
+define constant tag-6  = make(<tag>, name: "6");
+define constant tag-7  = make(<tag>, name: "7");
+define constant tag-8  = make(<tag>, name: "8");
+define constant tag-9  = make(<tag>, name: "9");
+define constant tag-r  = make(<tag>, name: "r");
+define constant tag-g  = make(<tag>, name: "g");
+define constant tag-b  = make(<tag>, name: "b");
+define constant tag-c  = make(<tag>, name: "c");
+define constant tag-m  = make(<tag>, name: "m");
+define constant tag-y  = make(<tag>, name: "y");
+define constant tag-k  = make(<tag>, name: "k");
+define constant tag-w  = make(<tag>, name: "w");
+
+define function parse-tag
+    (s :: <byte-string>, p :: <integer>, state :: <attribute>)
+ => (t :: <tag>, new-p :: <integer>, new-state :: <attribute>);
+  let (t :: <tag>, new-state :: <attribute>) =
+    select (s[p])
+      'B' => values(tag-BB, state.set-bold);
+      'E' => values(tag-EM, state.set-bold);
+      'I' => values(tag-I,  state.set-bold);
+      'P' => values(tag-PL, state.set-bold);
+      'S' => values(tag-S,  state.set-bold);
+      'T' => values(tag-TT, state.set-bold);
+      'U' => values(tag-U,  state.set-bold);
+      '0' => values(tag-0,  set-font-size(state, 0));
+      '1' => values(tag-1,  set-font-size(state, 1));
+      '2' => values(tag-2,  set-font-size(state, 2));
+      '3' => values(tag-3,  set-font-size(state, 3));
+      '4' => values(tag-4,  set-font-size(state, 4));
+      '5' => values(tag-5,  set-font-size(state, 5));
+      '6' => values(tag-6,  set-font-size(state, 6));
+      '7' => values(tag-7,  set-font-size(state, 7));
+      '8' => values(tag-8,  set-font-size(state, 8));
+      '9' => values(tag-9,  set-font-size(state, 9));
+      'r' => values(tag-r,  set-color(state, #"red"));
+      'g' => values(tag-g,  set-color(state, #"green"));
+      'b' => values(tag-b,  set-color(state, #"blue"));
+      'c' => values(tag-c,  set-color(state, #"cyan"));
+      'm' => values(tag-m,  set-color(state, #"magenta"));
+      'y' => values(tag-y,  set-color(state, #"yellow"));
+      'k' => values(tag-k,  set-color(state, #"black"));
+      'w' => values(tag-w,  set-color(state, #"white"));
+    end;
+  for (i from 1 below t.name.size)
+    if (t.name[i] ~= s[p + i])
+      error("unknown tag");
+    end;
   end;
-  v;
+  if (s[p + t.name.size] ~= '>')
+    error("close tag expected");
+  end;
+  values(t, p + t.name.size + 1, new-state);
+end;
+
+define function bgh-parse(s :: <byte-string>)
+  let runs = make(<stretchy-vector>);
+  let fragments = make(<stretchy-vector>);
+  let first-char = 0;
+
+  let state-stack = make(<stretchy-vector>);
+  let tag-stack = make(<stretchy-vector>);
+  let current-attributes = make(<attribute>);
+  let p = 0;
+  while (p < s.size)
+    //format-out("char %= is %=\n", i, c);
+    case
+      s[p] ~= '<' =>
+	p := p + 1;
+
+      s[p + 1] ~= '/' =>
+	add!(fragments, copy-sequence(s, start: first-char, end: p));
+	let (tag, new-p, new-state) = parse-tag(s, p + 1, current-attributes);
+	add!(tag-stack, tag);
+	add!(state-stack, current-attributes);
+
+	if (new-state.value ~= current-attributes.value)
+	  add!(runs, pair(current-attributes, apply(concatenate, fragments)));
+	  fragments.size := 0;
+	  current-attributes := new-state;
+	end;
+
+	p := new-p;
+	first-char := p;
+
+      otherwise =>
+	add!(fragments, copy-sequence(s, start: first-char, end: p));
+	let (tag, new-p) = parse-tag(s, p + 2, current-attributes);
+
+	if (tag-stack.last ~== tag)
+	  error("mis-balanced tags");
+	end;
+	let new-state = state-stack.last;
+	if (new-state.value ~= current-attributes.value)
+	  add!(runs, pair(current-attributes, apply(concatenate, fragments)));
+	  fragments.size := 0;
+	  current-attributes := new-state;
+	end;
+
+	tag-stack.size := tag-stack.size - 1;
+	state-stack.size := state-stack.size - 1;
+	p := new-p;
+	first-char := p;
+
+    end case;
+  end;
+  runs;
 end function bgh-parse;
 
 define function time-is-not-up?()
@@ -116,13 +244,11 @@ end method slurp-input;
 define function main(name, arguments)
   let input-stream = *standard-input*;
 
-  test-attributes();
-
   block ()
 
     let original-input      = slurp-input(input-stream);
     let best-transformation = original-input;
-    let parse-tree          = parse(original-input);
+    let parse-tree          = bgh-parse(original-input);
 
     format-out("%=\n", parse-tree);
 
