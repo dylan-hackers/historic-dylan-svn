@@ -1,6 +1,0 @@
-<Files submit-news.phtml>
-  AuthName "Submit News"
-  AuthType Basic
-  require valid-user
-  AuthUserFile /usr/local/www/data/.htpasswd
-</Files>

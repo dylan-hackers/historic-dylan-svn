@@ -1,3 +1,0 @@
-mkdir $FUNCTIONAL_DEVELOPER_USER_SOURCES/test-registry$1
-mkdir $FUNCTIONAL_DEVELOPER_USER_SOURCES/test-registry$1/generic
-mkdir $FUNCTIONAL_DEVELOPER_USER_SOURCES/test-registry$1/ppc-linux

@@ -1,2 +1,0 @@
-#!/bin/sh
-./src/icfp2002 $1 $2 gabot -nodebug 2>/dev/null
