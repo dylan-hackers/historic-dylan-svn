@@ -6,10 +6,10 @@ copyright:  public domain
 
 define function test-lists (number-of-elements :: <integer>) => result :: <integer>;
   // first create a list (L1) of integers from 1 through SIZE.
-  let L1 = map-as(<deque>, identity, range(from: 1, to: number-of-elements));
+  let L1 = make(<deque>, size: number-of-elements, data: range(from: 1, to: number-of-elements));
 
   // copy L1 to L2 (can use any builtin list copy function, if available)
-  let L2 = shallow-copy(L1);
+  let L2 = make(<deque>, data: L1);
 
   // remove each individual item from left side (head) of L2 and append to right side (tail) of L3 (preserving order).
   // (L2 should be emptied by one item at a time as that item is appended to L3).
@@ -28,7 +28,7 @@ define function test-lists (number-of-elements :: <integer>) => result :: <integ
   L1 := reverse!(L1);
 
   // check that first item of L1 is now == SIZE.
-  unless (L1[0] = number-of-elements)
+  unless (L1[0] == number-of-elements)
     error("Error: bad first element in L1. Exiting...\n");
   end;
 
