@@ -309,7 +309,7 @@ end function receive-sharp;
 // string if it is.
 
 define function receive-string (stream :: <stream>, str :: <string>) => ();
-  let str* = fd-read(stream, str.size);
+  let str* = read(stream, str.size);
   unless (str = str*)
     message-error("receive-string: expected '%s', got '%s'\n", str, str*);
   end unless;
@@ -486,7 +486,7 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
 
   // For this bot, work through all the packages it carries and
   // update it's location.
-  let ps = choose(method(p) p.id = bot.id end, state.packages);
+  let ps = choose(method(p) p.carrier.id = bot.id end, state.packages);
   for(p in ps)
 	state := add-package(state, copy-package(find-package(state, p.id), 
 	         	                             new-location: location));
