@@ -4,7 +4,7 @@ bin:
 lib:
 	d2c ants-library.lid
 
-vis:
+vis:	lib
 	cd Visualizer; make; cd ..
 
 run:

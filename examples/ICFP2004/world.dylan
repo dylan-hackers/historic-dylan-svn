@@ -5,8 +5,8 @@ define variable *world* :: <array> = make(<array>, dimensions: #[0, 0]);
 
 
 define function dump-world-state(world :: <array>) => ()
-  for(xx from 0 below *world*.dimensions[0])
-    for(yy from 0 below *world*.dimensions[1])
+  for(yy from 0 below *world*.dimensions[1])
+    for(xx from 0 below *world*.dimensions[0])
       let p = make-position(xx, yy);
       let ss = format-to-string("cell (%d, %d): ", xx, yy);
 
