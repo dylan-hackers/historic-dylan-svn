@@ -136,7 +136,7 @@ define open abstract class <general-dependency> (<object>)
   //
   // Thread running through all the edges with this source-exp (uses of this
   // expression) in no particular order.
-  slot source-next :: false-or(<dependency>), init-value: #f,
+  slot source-next :: false-or(<general-dependency>), init-value: #f,
     init-keyword: source-next:;
   //
   // The thing that depends on the value of this expression.  Since the type is
@@ -147,7 +147,7 @@ define open abstract class <general-dependency> (<object>)
   // Thread running through all incoming edges at a given Dependent object.
   // This list is ordered according to the needs of the dependent (e.g. the
   // argument ordering in an <operation>.)
-  slot dependent-next :: false-or(<dependency>), init-value: #f,
+  slot dependent-next :: false-or(<general-dependency>), init-value: #f,
     init-keyword: dependent-next:;
 end class;
 
