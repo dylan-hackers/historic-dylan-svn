@@ -1,6 +1,6 @@
 <!--
 
-$Id: build.xml,v 1.9 2004/03/23 14:07:59 cgay Exp $
+$Id: build.xml,v 1.10 2004/03/29 22:48:33 hannes Exp $
 
 Ant build file for the Koala HTTP server and associated libraries.
 
@@ -84,7 +84,7 @@ koala-x.y
 
     <copy todir="${dist}/www/koala">
       <fileset dir="${basedir}"
-               includes="change-log.txt, config/koala-config.xml" />
+	      includes="change-log.txt, config/koala-config.xml, config/mime-type-map.xml" />
     </copy>
   </target>
 
