@@ -130,6 +130,20 @@ define method add-robot (state :: <state>, robot :: <robot>) => <state>;
   make(<state>, board: state.board, robots: robots*, packages: state.packages);
 end method add-robot;
 
+define method find-robot (state :: <state>, robot-id :: <integer>)
+ => <robot>;
+  // When icfp-utils exists:
+  // debug("find-robot: {id: %d, robots: %=}\n",
+  //       robot-id, map(id, state.robots));
+  iterate loop (lst = state.robots)
+    case
+      lst.empty?             => error("find-robot: id does not exist");
+      lst.head.id = robot-id => lst.head;
+      otherwise              => loop(lst.tail);
+    end case;
+  end iterate;
+end method find-robot;
+
 /* Package functions: */
 define method add-package (state :: <state>, package :: <package>) => <state>;
   // Add a package to the <state>'s list of robots. If a package with the
