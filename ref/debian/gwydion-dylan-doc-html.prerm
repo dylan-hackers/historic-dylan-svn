@@ -1,0 +1,19 @@
+#! /bin/sh
+# prerm script for Gwydion Dylan
+#
+# see: dh_installdeb(1)
+
+if [ "$1" = remove -o "$1" = upgrade ]; then
+  if command -v install-docs > /dev/null 2>&1; then
+    install-docs -r gdapi-doc
+    install-docs -r gdlibs-doc
+    install-docs -r gdmaint-doc
+    install-docs -r gduser-doc
+    install-docs -r tutorial-doc
+  fi
+fi
+
+#DEBHELPER#
+
+
+
