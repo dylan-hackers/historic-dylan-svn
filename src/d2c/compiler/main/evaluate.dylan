@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.3 2003/06/01 16:53:06 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.4 2003/08/31 22:00:17 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -385,16 +385,18 @@ define method evaluate(expr :: <ct-value>,
   expr;
 end;
 
+/*
 define method evaluate(expr :: <literal>,
                        environment :: <interpreter-environment>)
  => result :: <object>;
   expr.literal-value;
 end method evaluate;
+*/
 
 define method evaluate(expr :: <literal-constant>, 
                        environment :: <interpreter-environment>)
  => result :: <object>;
-  expr.value.literal-value;
+  expr.value;
 end;
 
 // .info.const-info-heap-labels[0].find-runtime-object-from-heap-label

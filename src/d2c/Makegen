@@ -1,5 +1,5 @@
 if (!$enable_bootstrap) {
-    do compile_subdirs('runtime', 'compiler', 'dig', 'debugger');
+    do compile_subdirs('runtime', 'debugger', 'compiler', 'dig');
 } else {
     if ($enable_mindy_bootstrap) {
 	do compile_subdirs('compiler', 'runtime', 'dig', 'debugger');
@@ -14,6 +14,6 @@ d2c-install: install
 
 EOF
     } else {
-	do compile_subdirs('runtime', 'compiler', 'debugger');
+	do compile_subdirs('runtime', 'debugger', 'compiler');
     }
 }

@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.5 2003/08/10 23:50:18 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.6 2003/08/31 22:00:17 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -472,15 +472,17 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     enable-sanity-checks();
   end if;
 
+  let args = regular-arguments(argp);
+
 #if(~mindy)
-  if (option-value-by-long-name(argp, "interactive"))
+  if (option-value-by-long-name(argp, "interactive")
+        | args.size = 0)
     run-command-processor();
     exit();
   end if;
 #endif
 
   // Process our regular arguments
-  let args = regular-arguments(argp);
   unless (args.size = 1)
     show-usage-and-exit();
   end unless;

@@ -40,18 +40,17 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/table-ext'
     . ' -L../../../common/string-ext'
     . ' -L../../runtime/random'
+    . ' -L../../../common/threads'
     . ' -L../../../common/streams'
+    . ' -L../../../common/common-dylan'
     . ' -L../../../common/print'
     . ' -L../../../common/format'
     . ' -L../../../common/standard-io'
     . ' -L../../../common/format-out'
-    . ' -L../../../common/regular-expressions'
-    . ' -L../../../common/common-dylan'
-    . ' -L../../../common/threads'
     . ' -L../../../common/io'
     . ' -L../../../common/command-processor'
-    . ' -L../../debugger'
     . ' -L../../../common/getopt'
+    . ' -L../../../common/regular-expressions'
     . ' -L../../../common/base-file-system'
     . ' -L../base'
     . ' -L../front'
@@ -60,7 +59,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../parser'
     . ' -L../../../common/stream-ext'
     . ' -L../convert'
-    . ' -L../cback';
+    . ' -L../cback'
+    . ' -L../../debugger';
 
 @potential_targets = &d2c_library('Main', '');
 

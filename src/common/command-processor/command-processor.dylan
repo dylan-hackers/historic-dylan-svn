@@ -132,8 +132,12 @@ define method run-command(c)
     format-out("Ambiguous command. Try Help.\r\n");
   else
     to-cooked();
-    commands[0].command(copy-sequence(*command-line*, 
-                                      start: commands[0].name.size + 1));
+    let parameter = copy-sequence(*command-line*, 
+                                  start: commands[0].name.size + 1);
+    if(parameter.size < 0) // XXX evil bug in copy-sequence, fix there!
+      parameter := "";
+    end if;
+    commands[0].command(parameter);
     to-raw();
   end if;
 
@@ -261,9 +265,7 @@ define function run-command-processor()
   tcgetattr(*standard-input*.file-descriptor, old-termios);
 
   let new-termios = make(<termios>);
-  #if (compiled-for-linux | compiled-for-freebsd | compiled-for-hpux)
   cfmakeraw(new-termios);
-  #endif
 
   to-raw    := curry(tcsetattr, *standard-input*.file-descriptor, 
                      $TCSANOW, new-termios);
