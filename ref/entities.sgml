@@ -52,13 +52,16 @@
 '>
 
 <!ENTITY drm '
-<ulink url="http://www.cambridge.apple.com/dylan/drm/drm-1.html">
+<ulink url="http://www.gwydiondylan.org/drm/drm_1.htm">
 <CiteTitle>Dylan Reference Manual</></>
 '>
 
 <!ENTITY ftpdir 'ftp://berlin.ccc.de/pub/gd/'>
 
-<!ENTITY gdmp 'Gwydion Dylan Maintenance Project'>
+<!ENTITY gdmp 'Gwydion Dylan Maintenance Project
+<ulink url="http://www.gwydiondylan.org/">
+'>
+
 <!ENTITY gcc "<Command>gcc</>">
 <!ENTITY mindy "<Command>mindy</>">
 <!ENTITY d2c "<Command>d2c</>">
