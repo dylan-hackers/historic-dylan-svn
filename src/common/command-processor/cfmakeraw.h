@@ -3,6 +3,6 @@
 
 #include <termios.h>
 
-extern void cfmakeraw (struct termios *);
+extern int cfmakeraw (struct termios *);
 
 #endif // __CFMAKERAW__
