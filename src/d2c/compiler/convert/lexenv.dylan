@@ -192,13 +192,13 @@ define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-to
       	let variable-tlf = var.variable-tlf;
       	let lexenv-tlf = lexenv.lexenv-tlf;
       	if (variable-tlf
-      	    & variable-tlf != lexenv-tlf)
+      	    & variable-tlf ~= lexenv-tlf)
       	  block (return)
       	    for (dep = lexenv-tlf.depends-on then dep.dependent-next, while: dep)
       	      dep.source-tlf == variable-tlf
       	        & return();
       	    end for;
-      	    compiler-warning("### tlf %= depends on %=", lexenv-tlf, var.variable-name);
+//      	    compiler-warning("### tlf %= depends on %=", lexenv-tlf, var.variable-name);
       	    lexenv-tlf.depends-on
       	      := make(<tlf-dependency>, source: variable-tlf, dependent: lexenv-tlf,
       	             dependent-next: lexenv-tlf.depends-on, source-next: variable-tlf.tlf-dependents);

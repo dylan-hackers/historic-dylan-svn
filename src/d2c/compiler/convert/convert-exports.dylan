@@ -57,6 +57,8 @@ define module lexenv
   use top-level-forms;
   use flow;
   use variables, import: {variable-tlf};
+  use errors; // DEBUG
+  use variables; // DEBUG
 
   export
     <lexenv>, lexenv-policy, <top-level-lexenv>,
