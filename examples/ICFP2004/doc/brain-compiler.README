@@ -17,6 +17,10 @@ can be referenced by a Sub directive from
 a regular (sub)brain. The statements need
 to be semicolon separated (but this may
 be relaxed later).
+Update: Early versions did not allow
+  returning, but I hacked it in.
+  It is also possible now to transit to
+  labels in the caller brain.
 
 brain-definer is a full fledged assembler
 that performs dead code removal and also
