@@ -114,3 +114,56 @@ define method split-string(string, chars, #rest options)
   apply(split-sequence, string, method(x) member?(x, chars) end, options);
 end method split-string;
 
+// Return the count of the number of items in the sequence where
+// PREDICATE(item) returns true.
+define method count-if(sequence :: <sequence>, predicate :: <function>) => (r :: <integer>)
+  let count :: <integer> = 0;
+  for(item in sequence)
+    when(predicate(item))
+      count := count + 1;
+    end when;
+  end for;
+  count
+end method count-if;
+
+// Return the count of the number of items in the sequence where
+// PREDICATE(item) returns false.
+define method count-if-not(sequence :: <sequence>, predicate :: <function>) => (r :: <integer>)
+  let count :: <integer> = 0;
+  for(item in sequence)
+    unless(predicate(item))
+      count := count + 1;
+    end unless;
+  end for;
+  count
+end method count-if-not;
+
+// Return the indexes of a substring bounded by START-SEQUENCE and
+// END-SEQUENCE in the string IN-SEQUENCE.
+define method find-between(in-sequence :: <string>,
+                           start-sequence :: <string>,
+                           end-sequence :: <string>,
+                           #key start = 0)
+ => (start-index, end-index)
+  let in-sequence = copy-sequence(in-sequence, start: start);
+  let found-start = subsequence-position(in-sequence, start-sequence);
+  when(found-start)
+    let found-start = found-start + start-sequence.size;
+    let the-end = subsequence-position(copy-sequence(in-sequence, start: found-start), end-sequence);
+    when(the-end)
+      values(found-start + start, the-end + found-start + start);
+    end when;
+  end when;
+end method find-between;
+
+// Search for a substring in another string
+define method search(in-sequence :: <string>, 
+                     pattern :: <string>, 
+                     #key start: the-start :: <integer> = 0,
+                          end: the-end :: <integer> = in-sequence.size)
+ => (r :: false-or(<integer>))
+  let find-in = copy-sequence(in-sequence, start: the-start, end: the-end);
+  let found = subsequence-position(find-in, pattern);
+  found & found + the-start;
+end method search;
+

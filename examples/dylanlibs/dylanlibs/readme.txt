@@ -108,9 +108,15 @@ Not yet fully implemented!
 8) net
 ======
 
-Various net and internet protocols, socket extensions, xml-rpc,
-etc. Sett the net.txt file in the net directory for details.
+Various net and internet protocols, socket extensions, xml-rpc, http,
+etc. See the net.txt file in the net directory for details.
+
+9) bin
+======
+
+Contains DLL's and third party libraries used by some of the
+projects. See the bin.txt file in that directory for details.
 
 Chris Double.
-01 May 2001.
+10 June 2001.
 

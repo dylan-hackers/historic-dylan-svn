@@ -6,7 +6,10 @@ Copyright: Copyright (c) 2001, Chris Double.  All rights reserved.
 // The following NNTP code was based on NNTP dot Lisp, a Common Lisp
 // NNTP library, obtained from http://www.davep.org/misc/#nntp.lisp.
 //
-// With some changes for Dylan...
+// Dave Pearson has kindly given permission to allow me to provide this
+// Dylan port of nntp.lisp in the dylanlibs collection. Thank you very
+// much Dave! Visit Dave's website for some neat Common Lisp tools and
+// other things: http://www.davep.org
 
 // Host name to use when a default host is required
 define constant $default-nntp-host :: <string> = "localhost";

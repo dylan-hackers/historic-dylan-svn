@@ -86,7 +86,17 @@ load Dylan code at runtime.
 ====================
 Example of NNTP library that retrieves a message from an NNTP server.
 
+13) http-client-example
+=======================
+
+An example of using the http-client library. It allows sending SMS
+messages to a cellphone via http://www.mtnsms.com. The DUIM window
+allows entry of the mtnsms user id and password, phone number and
+message. Pressing send results in the various mtnsms forms begin sent
+automatically by the application. Requires the various DLL's and
+librarys in the bin subdirectory of Dylanlibs to be installed.
+
 -- 
 Chris Double.  
-27 May 2001.
+9 June 2001.
 

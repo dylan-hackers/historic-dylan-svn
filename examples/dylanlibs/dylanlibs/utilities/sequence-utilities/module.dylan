@@ -11,5 +11,9 @@ define module sequence-utilities
     sequence-position-if,
     sequence-position-if-not,
     split-sequence,
-    split-string;
+    split-string,
+    count-if,
+    count-if-not,
+    find-between,
+    search;    
 end module sequence-utilities;
