@@ -68,6 +68,7 @@ Dylan Websites</A>
 
 <P><STRONG>User Resources</STRONG></P>
 <UL>
+<LI><A HREF="screenshots.phtml">Screenshots</A>
 <LI><A HREF="limitations.phtml">Current Limitations</A>
 <LI><A HREF="downloading.phtml">Downloading Software</A>
 <LI><A HREF="lists.phtml">Mailing Lists</A>
