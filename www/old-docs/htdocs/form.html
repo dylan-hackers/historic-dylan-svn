@@ -1,0 +1,107 @@
+<HTML>
+<HEAD>
+<TITLE>Dylan Change Proposal Format</TITLE> 
+<!-- Changed by: Kim Barrett, 9-Jan-1997 -->
+<!-- Changed by: Peter Norvig, 14-Mar-1996 -->
+</HEAD> 
+<BODY BGCOLOR="#FFFFFF"> 
+<H1><IMG SRC="small-dylan-logo.gif"> Dylan Change Proposal Format</H1>
+
+Proposals for changes to the Dylan Reference Manual or the Standard
+Libraries should be submitted to the <I>dylan-partners@camellia.org</I>
+mailing list.  You can view a <A
+HREF="proposals-accepted/proposal-define-function.txt">sample proposal</A>.  Each
+proposal should either be in plain ASCII format, limited to 72 columns (so
+that the text fits without horizontal scrolling in popular web
+browsers), or in HTML format.  Include text for the following seven fields
+(feel free to copy and paste from here).  The fields are defined below.
+
+<PRE>
+PROPOSAL NAME: 
+
+PROBLEM DESCRIPTION:
+
+PROPOSAL: 
+
+RATIONALE: 
+
+EXAMPLES: 
+
+COST TO IMPLEMENTORS:
+
+RELATED PROPOSALS: 
+
+REVISION HISTORY: 
+</PRE>
+
+
+<HR>
+<P><B>PROPOSAL NAME: </B>
+<blockquote><I>
+A one-line descriptive title, e.g. "Make the \^ operator right-associative."
+</I></blockquote>
+
+<P><B>PROBLEM DESCRIPTION: </B>
+<blockquote><I>A description of the problem to be solved.  This is distinct
+from and should not be confused with the proposal section, which describes an
+approach to solving the problem described here.
+</I></blockquote>
+
+<P><B>PROPOSAL: </B>
+<blockquote><I>Wording of proposed change/addition.  
+This should be in the format and style of the DRM 
+library document.  Whenever possible, supply page or section number, 
+and exact wording of changes, deletions, or additions, and specify if this is
+a typo fix, clarification, compatible addition, or incompatible change.
+</I></blockquote>
+
+<P><B>RATIONALE: </B>
+<blockquote><I>
+Arguments for and against the proposal. 
+Will the proposal make things easier to use? 
+Faster? Safer? What about for programs that do not use the feature?
+If its an incompatible change, what problems will that cause? 
+Include a description of the current situation/problem.
+Include alternatives that were considered, and explain why
+the current situation is not good enough.
+</I></blockquote>
+
+<P><B>EXAMPLES: </B>
+<blockquote><I>
+Example Dylan code using the proposal.
+If relevant, show what code would be like without the proposal,
+and why that would be slower, harder to code, less safe, etc.
+</I></blockquote>
+
+<P><B>COST TO IMPLEMENTORS:</B>
+  
+<blockquote><I>
+How hard is it to implement this change?  While the <B>RATIONALE</B> section
+describes the benefits, this section describes the costs.
+Mention any performance problems.
+Consider costs to tool implementors: will this make it harder/easier to
+write a browser, editor, etc. It will help the cause of your proposal 
+if you can show an implementation: a definition for a function or macro 
+you propose; or if it is a language syntax extension, show a grammar.
+In either case, verify that it works by running your function/macro/grammar
+in an existing implementation whenever possible.
+</I></blockquote>
+
+<P><B>RELATED PROPOSAL: </B>
+<blockquote><I>
+Names of <B>PROPOSAL</B>s that bear on this one.
+</I></blockquote>
+
+<P><B>REVISION HISTORY: </B>
+<blockquote><I>
+Dates and authors of original  proposal and any revisions.
+</I></blockquote>
+
+<P><B>STATUS: </B>
+<blockquote><I>
+One of: open until dd-mon-yy, withdrawn, rejected, accepted.
+Don't include this field in your proposal; it will be added by the moderator.
+</I></blockquote>
+<HR>
+</BODY> 
+</HTML>
