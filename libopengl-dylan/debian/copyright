@@ -1,0 +1,16 @@
+These OpenGL wrappers for Gwydion Dylan are copyright (C) by 
+Jefferson Dubrule.  Redistribution is granted under a modified GNU
+Library General Public License.
+
+The modification is that a work that links to this library is no
+longer required to be able to link to a modified version of the
+library.  Because of a lack of robustness in preserving binary
+compatibility in current versions of d2c, this is simply not possible.
+
+-igor
+
+Some patches are (C) Andreas Bogk, and are under the LGPL as well.
+
+------------------------------------------------------------------------------
+See the text of the LGPL in /usr/share/common-licenses/LGPL-2
+

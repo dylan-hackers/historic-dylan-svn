@@ -30,11 +30,12 @@ opengl-osmesa-intr.dylan: opengl-osmesa.intr
 	$(MELANGE) $< ,$@ && mv ,$@ $@
 
 clean:
-	-rm -f *.mak *.lib.du *.o *.a *.s *.c ,* *~ \
+	-rm -f *.mak *.lib.du *.o *.lo *.la *.a *.s *.c ,* *~ \
 	opengl-intr.dylan opengl-glu-intr.dylan opengl-glut-intr.dylan \
 	opengl-osmesa-intr.dylan
+	-rm -rf .libs
 
 install: opengl.lib.du 
-	libtool --mode=install /usr/bin/install -c libopengl-dylan.la /usr/lib/dylan/$(INSTALLPATH)/libopengl-dylan.la
-	libtool --finish /usr/lib/dylan/$(INSTALLPATH)/dylan-user
-	/usr/bin/install -c opengl.lib.du /usr/lib/dylan/$(INSTALLPATH)/opengl.lib.du
+	libtool --mode=install /usr/bin/install -c libopengl-dylan.la $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)/libopengl-dylan.la
+	libtool --finish $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)
+	/usr/bin/install -c opengl.lib.du $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)/opengl.lib.du
