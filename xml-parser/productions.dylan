@@ -61,9 +61,8 @@ end method entity-value;
 define method do-expand(obj :: <xml>) list(obj); end;
 define method do-expand(elt :: <element>)
 // I'll ignore entities in the element attributes for now
-  list(make(<element>, name: elt.name, 
-            attributes: elt.element-attributes,
-            children: elt.node-children.expand-entity));
+  list(make-element(elt.node-children.expand-entity, elt.name, 
+                    elt.element-attributes, #f));
 end method do-expand;
 
 define method do-expand(ent :: <entity-reference>) 
@@ -251,7 +250,7 @@ define constant <pub-id-char> =
 define macro collect-data-definer
 { define collect-data ?:name(?except:expression) end }
  => {  define collector ?name ## "-data" (c)
-        => (make(<char-string>, text: trim-string(?=str)))
+        => (make(<char-string>, text: as(<string>, ?=str)))
          [test(rcurry(not-in-set?, ?except), c), do(?=collect(c))],
          loop([test(rcurry(not-in-set?, ?except), c), do(?=collect(c))])
        end collector }
@@ -298,7 +297,7 @@ define constant scan-pi-target = scan-name;
 // loop operator here.                        --andreas
 //
 define collector cd-sect(c)
- => (make(<char-string>, text: trim-string(str)))
+ => (make(<char-string>, text: str))
   "<![CDATA[",
   loop({["]]>", finish()], [type(<char>, c), do(collect(c))]})
 end collector cd-sect;
