@@ -3,10 +3,10 @@ module: dylan-user
 define library xml-parser
   use common-dylan;
   use anaphora;
-  use multimap;
-  use system;
+  //use multimap;
   use meta;
   use io;
+  use system, import: { file-system };
 
   export xml-parser;
 end library;
@@ -14,7 +14,7 @@ end library;
 define module xml-parser
   create parse-document;
 
-  create <document>, <element>, <attribute>, <xml>, <processing-instruction>,
+  create <document>, <element>, <node-mixin>, <attribute>, <xml>, <processing-instruction>,
     <entity-reference>, <add-parents>, <char-reference>, <comment>, <tag>,
     <char-string>, <dtd>, <internal-entity>, <external-entity>,
     text, text-setter, name, name-setter, name-with-proper-capitalization,
@@ -38,15 +38,15 @@ define module xml-parser
 end module xml-parser;
 
 define module interface
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
 
   use meta;
-  use xml-parser;
+  use xml-parser, export: { <node-mixin> };
 
   export
-    <reference>, <attributes>, <node-mixin>, <external-mixin>, *entities*,
+    <reference>, <attributes>, <external-mixin>, *entities*,
     after-open, before-close, $hex-digit, $version-number, trim-string;
 end module interface;
 
@@ -67,7 +67,7 @@ define module transform
 end module transform;
 
 define module printing
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
   use print;
@@ -80,7 +80,7 @@ define module printing
 end module printing;
 
 define module collect
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
   use anaphora;
@@ -90,18 +90,19 @@ define module collect
 end module collect;
 
 define module %productions
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use latin1-entities;
   use standard-io;
   use format-out;
   use streams;
   use format;
-  use multimap;
+  //use multimap;
   use anaphora;
-  use file-system;
+  use file-system, import: { with-open-file, file-exists? };
   use print;
 
   use meta;
   use interface;
   use xml-parser;
 end module %productions;
+
