@@ -19,7 +19,22 @@ end method make-white;
 
 define method export-with-depth(c :: <color>, depth :: <integer>) 
  => (r :: <integer>, g :: <integer>, b :: <integer>)
+  local method clampint(x)
+	  if(x < 0)
+	    0;
+	  else
+	    if(x > depth)
+	      depth;
+	    else
+	      x;
+	    end if;
+	  end if;
+	end method clampint;
+
   let d :: <float> = as(<float>, depth);
-  values(floor(c.red * d), floor(c.green * d),
-	 floor(c.blue * d));
+  let r = floor(c.red * d);
+  let g = floor(c.green * d);
+  let b = floor(c.blue * d);
+
+  values(clampint(r), clampint(g), clampint(b));
 end method export-with-depth;

@@ -134,9 +134,10 @@ define method intersection-before(m :: <plane>, ray, distance, #key shadow-test:
     if (abs(t) > distance)
       #f;
     else
-      let u = 0.5; // XXX
-      let v = 0.5;
-      values(ray.ray-direction * t + $origin, 
+      let point = ray.ray-direction * t + $origin;
+      let u = clamp(point[0]);
+      let v = clamp(point[2]);
+      values(point, 
 	     #[ 0.0, 1.0, 0.0, 0.0 ],
 	     make-surface-closure(0, u, v, m.surface-interpreter-entry));
     end if;

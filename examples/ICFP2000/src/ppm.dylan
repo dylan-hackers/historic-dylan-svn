@@ -23,7 +23,6 @@ end method initialize;
 define method write-pixel(ppm :: <ppm-image>, color :: <color>)
  => ()
   let (r, g, b) = export-with-depth(color, ppm.depth);
-  
   format(ppm.file-handle, "%c%c%c", as(<character>, r),
 	 as(<character>, g), as(<character>, b));
 end method write-pixel;
