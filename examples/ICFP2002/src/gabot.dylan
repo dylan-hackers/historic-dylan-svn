@@ -230,7 +230,7 @@ debug("check\n");
     & safe?(me.decided, me, s)
     & me.decided.follow;
 debug("check1\n");
-  let (safe-drop, drop-path) = find-safest(me, choose(method(p :: <package>) debug("examining %=\n",p); p.carrier == bot end, s.packages), location, s, weighting: weight);
+  let (safe-drop, drop-path) = find-safest(me, choose(method(p :: <package>) debug("examining %=\n",p); p.dest & p.carrier == bot end, s.packages), dest, s, weighting: weight);
 debug("check11\n");
   safe-drop & drop-path.drop-strategy.follow;
   
