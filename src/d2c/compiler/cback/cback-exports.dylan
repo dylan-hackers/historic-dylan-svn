@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.1 1998/05/03 19:55:32 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.4 1998/11/06 17:48:10 andreas Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -34,6 +34,7 @@ define library compiler-cback
   use compiler-base;
   use compiler-front;
   use compiler-convert;
+  use compiler-parser;  // for <macro-source-location>
   export cback;
   export heap;
 end library;
@@ -55,7 +56,7 @@ end;
 
 
 define module cback
-  use system;
+  use system, rename: {callback-entry => callback-function-entry};
   
   use indenting-streams;
   use c-representation;
@@ -86,6 +87,7 @@ define module cback
   use utils;
   use variables;
   use source;
+  use source-utilities; // For <macro-source-location>, which isn't yet handled
   // use cheese;
 
   export
@@ -95,7 +97,7 @@ define module cback
     emit-prologue, emit-tlf-gunk, emit-component,
     get-info-for, const-info-heap-labels, const-info-heap-labels-setter,
     const-info-dumped?, const-info-dumped?-setter,
-    entry-point-c-name, *emit-all-function-objects?*;
+    entry-point-c-name, *emit-all-function-objects?*, string-to-c-name;
 end;
 
 

@@ -175,9 +175,8 @@ end method initialize;
 //
 define class <string-table> (<value-table>) end class;
 
-define method fast-string-hash (string :: <string>)
-  values(string.size * 256 + as(<integer>, string.first),
-	 $permanent-hash-state);
+define method fast-string-hash (string :: <string>, initial-state :: <object>)
+  values(string.size * 256 + as(<integer>, string.first), initial-state);
 end method fast-string-hash;
 
 define method table-protocol (table :: <string-table>)
@@ -189,14 +188,13 @@ end method;
 // Functions to be called from within c-parse
 //----------------------------------------------------------------------
 
-// Another method for the "parse-error" generic.  This one accepts a
+// Another method for the "source-location" generic.  This one accepts a
 // <parse-state> and tries to use it to figure out the error location.
 //
-define method parse-error
-    (state :: <parse-state>, format :: <string>, #rest args)
- => (); // Never returns
-  apply(parse-error, state.tokenizer, format, args);
-end method parse-error;
+define method source-location (state :: <parse-state>)
+ => (srcloc :: <source-location>)
+  source-location(state.tokenizer);
+end method;
 
 // We may have a jumble of type specifiers.  Rationalize them into a
 // predefined type or user defined type.
@@ -233,7 +231,7 @@ define method process-type-list
 		// recognize it, without actually supporting access.
 		select (type)
 		  long-type => longlong-type;
-		  unsigned-long-type => longlong-type;
+		  unsigned-long-type => unsigned-longlong-type;
 		  unknown-type, signed-type => long-type;
 		  unsigned-type => unsigned-long-type;
 		  otherwise => parse-error(state, "Bad type specifier");
@@ -242,6 +240,7 @@ define method process-type-list
 		select (type)
 		  unknown-type, signed-type => int-type;
 		  unsigned-type => unsigned-int-type;
+		  longlong-type, unsigned-longlong-type,
 		  long-type, unsigned-long-type,
 		  short-type, unsigned-short-type => type;
 		  otherwise => parse-error(state, "Bad type specifier");
@@ -332,6 +331,12 @@ define method process-declarator
       // rgs: For now, we simple equate all function types to
       // <function-pointer>.  At some later date, we will actually
       // provide distinct types canonicalized by their signatures.
+      // XXX - this is starting to change... There's a horrible problem
+      // in C with the semantics of 'typedef void (foo)(void)' versus
+      // 'typedef void (*foo)()'. For now, we only allow the latter form,
+      // which dates back to K&R C. When somebody explains the ANSI C
+      // semantics very precisely to me, I'll fix this code to handle all
+      // cases.
       let params = second(declarator);
       let real-params = if (params.size == 1 & first(params).type == void-type)
 			  #();
@@ -342,12 +347,31 @@ define method process-declarator
 	   param in params)
 	param.dylan-name := format-to-string("arg%d", count);
       end for;
+
+      // Force K&R semantics only (see above).
+//      let nested-type = declarator.tail.tail;
+//      unless (instance?(nested-type, <pair>)
+//		& instance?(nested-type.head, <list>)
+//		& nested-type.head.size == 1
+//		& nested-type.head.head == #"pointer"
+//		& instance?(nested-type.tail, <identifier-token>))
+//	parse-error(state, "function types must be of form 'void (*foo)()'");
+//      end unless;
+      
+//      let new-name = nested-type.tail;
+//      let new-type = make(<function-type-declaration>,
+//			  name: new-name.value,
+
       let new-type = make(<function-type-declaration>, name: anonymous-name(),
 			  result: make(<result-declaration>,
 				       name: "result", type: tp),
 			  params: real-params);
-      // See above
-      equate(new-type, "<function-pointer>");
+      // XXX - We used to call process declarator here:
+      // Instead, we handle the terminal case ourselves. If anyone
+      // figures out ANSI C function pointers, we'll need to re-examine
+      // this.
+      // process-declarator(new-type, declarator.tail.tail, state);
+      //values(new-type, new-name);
       process-declarator(new-type, declarator.tail.tail, state);
     otherwise =>
       parse-error(state, "unknown type modifier");
@@ -373,6 +397,11 @@ define method declare-objects
  => ();
   for (name in names)
     let (new-type, name) = process-declarator(new-type, name, state);
+    let (nameloc) = if (instance?(name, <token>))
+			    name;
+			  else
+			    state;
+			  end if;
     if (instance?(name, <typedef-declaration>))
       unless (is-typedef? & new-type == name.type)
 	parse-error(state, "illegal redefinition of typedef.");
@@ -381,6 +410,7 @@ define method declare-objects
       state.objects[name.value] 
 	:= add-declaration(state, make(<typedef-declaration>, name: name.value,
 				       type: new-type));
+      parse-progress-report(nameloc, "Processed typedef %s", name.value);
       add-typedef(state.tokenizer, name);
     else
       let decl-type = if (instance?(new-type, <function-type-declaration>))
@@ -396,6 +426,7 @@ define method declare-objects
 	state.objects[name.value]
 	  := add-declaration(state, make(decl-type, name: name.value,
 					 type: new-type));
+	parse-progress-report(nameloc, "Processed declaration %s", name.value);
       end if;
     end if;
   end for;

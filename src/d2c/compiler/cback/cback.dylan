@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.1 1998/05/03 19:55:31 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.6 1998/11/06 17:48:10 andreas Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 
@@ -140,8 +140,8 @@ end;
 define class <unit-state> (<object>)
   //
   // String prefix for this unit.
-  /* exported */ slot unit-prefix :: <byte-string>,
-    required-init-keyword: prefix:;
+  /* exported */ slot unit-prefix :: <byte-string>;
+  //  required-init-keyword: prefix:;
   //
   // keeps track of names used already.
   slot unit-global-table :: <table>,
@@ -158,6 +158,11 @@ define class <unit-state> (<object>)
   /* exported */ slot unit-eagerly-reference :: <stretchy-vector>,
     init-function: curry(make, <stretchy-vector>);
 end;
+
+define method initialize(obj :: <unit-state>, #next next-method, #key prefix) => ()
+  next-method();
+  obj.unit-prefix := string-to-c-name(prefix);
+end method initialize;
 
 // <root>  --  Exported
 //
@@ -237,6 +242,10 @@ define class <file-state> (<object>)
   // and dump them after the referencing component has compiled, since we are
   // in the middle of generating code when we discover that we need them.
   slot file-deferred-xeps :: <sequence> = make(<deque>);
+  //
+  // we save the last <source-location> emitted to the file to avoid multiple
+  // identical #line tokens.  Used by maybe-emit-source-location.
+  slot file-source-location :: <source-location> = make(<unknown-source-location>);
 end;
 
 
@@ -410,6 +419,7 @@ define method c-name (name :: <derived-name>) => (result :: <byte-string>);
 	      select (name.derived-name-how)
 		#"general-entry" => "_GENERAL";
 		#"generic-entry" => "_GENERIC";
+		#"callback-entry" => "_CALLBACK";
 		#"discriminator" => "_DISCRIM";
 		#"deferred-evaluation" => "_DEFER";
 		#"init-function" => "_INIT";
@@ -435,6 +445,37 @@ define method c-name (name :: <anonymous-name>) => res :: <byte-string>;
     "UNKNOWN";
   end;
 end method;
+
+// Emit a description of the <source-location> in C.  For 
+// <file-source-location>s, this will be a #line directive.  For
+// <unknown-source-location>s, thus will be a comment.
+
+define method maybe-emit-source-location(source-loc :: <file-source-location>,
+				   file :: <file-state>) => ();
+  if (file.file-source-location ~= source-loc)
+    format(file.file-guts-stream, "\n#line %d \"%s\"\n", 
+	   source-loc.end-line, source-loc.source-file.full-file-name);
+    file.file-source-location := source-loc;
+  end if;
+end method;
+
+define method maybe-emit-source-location(source-loc :: <unknown-source-location>,
+				   file :: <file-state>) => ();
+  if (file.file-source-location ~= source-loc)
+    format(file.file-guts-stream, "/* #line <unknown-source-location> */\n");
+    file.file-source-location := source-loc;
+  end if;
+end method;
+
+define method maybe-emit-source-location(source-loc :: <macro-source-location>,
+				   file :: <file-state>) => ();
+  if (file.file-source-location ~= source-loc)
+    format(file.file-guts-stream, "/* #line <macro-source-location> */\n");
+    file.file-source-location := source-loc;
+  end if;
+end method;  
+
+
 
 
 // New-{scope}
@@ -889,6 +930,7 @@ define method entry-point-c-name (entry :: <ct-entry-point>)
 	#"main" => info.function-info-main-entry-c-name;
 	#"general" => info.function-info-general-entry-c-name;
 	#"generic" => info.function-info-generic-entry-c-name;
+	#"callback" => info.function-info-callback-entry-c-name;
       end select;
   unless (name)
     error("Too late to be picking a name for %=", entry);
@@ -943,6 +985,23 @@ define method maybe-emit-general-entry
   name;
 end method maybe-emit-general-entry;
 
+define method maybe-emit-callback-entry
+    (ctv :: <ct-callback-function>, file :: <file-state>)
+ => (name :: <string>);
+  let info = get-info-for(ctv, file);
+  let name = callback-entry-c-name(info, file);
+  if (~ctv.has-callback-entry?)
+    let (entry, component) = build-xep-component(ctv, #f);
+    let entry-info = get-info-for(entry, file);
+    // We've already allocated a meaningful name for this entry, so
+    // we want copy it into the entry's info.
+    entry-info.function-info-callback-entry-c-name := name;
+    ctv.has-callback-entry? := #t;
+    push-last(file.file-deferred-xeps, component);
+  end if;
+  name;
+end method maybe-emit-callback-entry;
+
 
 define method maybe-emit-entries
     (ctv :: <object>, file :: <file-state>) => ();
@@ -951,6 +1010,12 @@ end method maybe-emit-entries;
 
 define method maybe-emit-entries
     (ctv :: <ct-function>, file :: <file-state>) => ();
+  maybe-emit-general-entry(ctv, file);
+end method maybe-emit-entries;
+
+define method maybe-emit-entries
+    (ctv :: <ct-callback-function>, file :: <file-state>) => ();
+  maybe-emit-callback-entry(ctv, file);
   maybe-emit-general-entry(ctv, file);
 end method maybe-emit-entries;
 
@@ -1096,6 +1161,37 @@ define method make-info-for
     (ctv :: <ct-method>, file :: false-or(<file-state>))
     => res :: <constant-function-info>;
   make-function-info(<constant-method-info>, ctv.ct-function-name,
+		     ctv.ct-function-signature,
+		     ctv.ct-function-closure-var-types);
+end;
+
+define class <constant-callback-function-info> (<constant-function-info>)
+  slot function-info-callback-entry-c-name :: false-or(<byte-string>),
+    init-value: #f, init-keyword: callback-entry-c-name:;
+end;
+
+define constant $constant-callback-function-info-slots
+  = concatenate($constant-function-info-slots,
+		list(function-info-callback-entry-c-name,
+		     callback-entry-c-name:,
+		     #f));
+
+add-make-dumper(#"constant-callback-function-info", *compiler-dispatcher*,
+		<constant-callback-function-info>,
+		$constant-callback-function-info-slots);
+
+define method callback-entry-c-name
+    (info :: <constant-callback-function-info>, file :: <file-state>)
+    => res :: <byte-string>;
+  info.function-info-callback-entry-c-name
+    | (info.function-info-callback-entry-c-name
+	 := new-c-global(info.function-info-name, file, modifier: "_CALLBACK"));
+end;
+
+define method make-info-for
+    (ctv :: <ct-callback-function>, file :: false-or(<file-state>))
+    => res :: <constant-callback-function-info>;
+  make-function-info(<constant-callback-function-info>, ctv.ct-function-name,
 		     ctv.ct-function-signature,
 		     ctv.ct-function-closure-var-types);
 end;
@@ -1477,6 +1573,14 @@ define method emit-component
 	gen-info.function-info-main-entry-c-name
 	  := generic-entry-c-name(ctv-info, file);
       end;
+      if (instance?(func-lit, <callback-literal>) & func-lit.callback-entry)
+	let gen-info = get-info-for(func-lit.callback-entry, file);
+	if (gen-info.function-info-main-entry-c-name)
+	  error("%= already has a name?", func-lit.callback-entry);
+	end;
+	gen-info.function-info-main-entry-c-name
+	  := callback-entry-c-name(ctv-info, file);
+      end;
     end;
   end;
 
@@ -1519,10 +1623,17 @@ define method emit-function
 
   let stream = file.file-body-stream;
   format(stream, "/* %s */\n", function.name.clean-for-comment);
+
   format(stream, "%s\n{\n",
 	 compute-function-prototype(function, function-info, file));
+  if(function.calling-convention == #"callback")
+    format(file.file-vars-stream,
+	   "descriptor_t *orig_sp = allocate_stack();\n");
+  end if;
   write(stream, get-string(file.file-vars-stream));
   write(stream, "\n");
+
+  // Actually write out the (already generated) code:
   let overflow = file.file-guts-overflow;
   unless (overflow.empty?)
     for (string in overflow)
@@ -1554,12 +1665,20 @@ define method compute-function-prototype
       end if;
     otherwise => write(stream, result-rep.representation-c-type);
   end;
-  format(stream, " %s(descriptor_t *orig_sp", c-name);
+  format(stream, " %s(", c-name);
+  let sp-arg? = ~function | function.calling-convention == #"standard";
+  if (sp-arg?)
+    write(stream, "descriptor_t *orig_sp");
+  end if;
   for (rep in function-info.function-info-argument-representations,
        index from 0,
+       first-arg = ~sp-arg? then #f,
        var = function & function.prologue.dependents.dependent.defines
 	 then var & var.definer-next)
-    format(stream, ", %s A%d", rep.representation-c-type, index);
+    if(~first-arg)
+      write(stream, ", ");
+    end if;
+    format(stream, "%s A%d", rep.representation-c-type, index);
     if (var)
       let varinfo = var.var-info;
       if (instance?(varinfo, <debug-named-info>))
@@ -1635,11 +1754,15 @@ define method emit-region
     = file.file-guts-stream.inner-stream;
   for (assign = region.first-assign then assign.next-op,
        while: assign)
-    emit-assignment(assign.defines, assign.depends-on.source-exp, file);
+
+    maybe-emit-source-location(assign.source-location, file);
+
+    emit-assignment(assign.defines, assign.depends-on.source-exp, 
+		    assign.source-location, file);
     if (byte-string.stream-size >= 65536)
       add!(file.file-guts-overflow, byte-string.stream-contents);
     end if;
-  end;
+  end for;
 end;
 
 define method emit-region (region :: <compound-region>,
@@ -1885,7 +2008,8 @@ end;
 // Assignments.
 
 define method emit-assignment (defines :: false-or(<definition-site-variable>),
-			       var :: <abstract-variable>,
+			       var :: <abstract-variable>, 
+			       source-location :: <source-location>,
 			       file :: <file-state>)
     => ();
   if (defines)
@@ -1908,6 +2032,7 @@ end;
 
 define method emit-assignment (defines :: false-or(<definition-site-variable>),
 			       expr :: <literal-constant>,
+			       source-location :: <source-location>,
 			       file :: <file-state>)
     => ();
   if (defines)
@@ -1923,6 +2048,7 @@ end;
 
 define method emit-assignment (defines :: false-or(<definition-site-variable>),
 			       leaf :: <function-literal>,
+			       source-location :: <source-location>,
 			       file :: <file-state>)
     => ();
   deliver-result(defines, ref-leaf(*heap-rep*, leaf, file),
@@ -1931,6 +2057,7 @@ end;
 
 define method emit-assignment (defines :: false-or(<definition-site-variable>),
 			       leaf :: <definition-constant-leaf>,
+			       source-location :: <source-location>,
 			       file :: <file-state>)
     => ();
   let defn = leaf.const-defn;
@@ -1945,6 +2072,7 @@ end;
 
 define method emit-assignment (results :: false-or(<definition-site-variable>),
 			       leaf :: <uninitialized-value>,
+                               source-location :: <source-location>,
 			       file :: <file-state>)
     => ();
   if (results)
@@ -1962,6 +2090,7 @@ end;
 
 define method emit-assignment
     (results :: false-or(<definition-site-variable>), call :: <abstract-call>,
+     source-location :: <source-location>,
      file :: <file-state>)
     => ();
   let stream = file.file-guts-stream;
@@ -2068,6 +2197,20 @@ define method xep-expr-and-name
 end;
 
 define method xep-expr-and-name
+    (func :: <callback-literal>, generic-entry? :: <boolean>,
+     file :: <file-state>)
+    => (expr :: <string>, name :: <name>);
+  if (generic-entry?)
+    error("%= doesn't have a generic entry.", func);
+  end;
+  let callback-entry = func.callback-entry;
+  let entry-info = get-info-for(callback-entry, file);
+  let entry-name = main-entry-c-name(entry-info, file);
+  maybe-emit-prototype(entry-name, entry-info, file);
+  values(entry-name, callback-entry.name);
+end;
+
+define method xep-expr-and-name
     (func :: <definition-constant-leaf>, generic-entry? :: <boolean>,
      file :: <file-state>,
      #next next-method)
@@ -2113,6 +2256,18 @@ define method xep-expr-and-name
 end;
 
 define method xep-expr-and-name
+    (ctv :: <ct-callback-function>, generic-entry? :: <boolean>,
+     file :: <file-state>)
+    => (expr :: false-or(<string>), name :: false-or(<name>));
+  if (generic-entry?)
+    error("%= doesn't have a generic entry.", ctv);
+  end;
+  let name = maybe-emit-callback-entry(ctv, file);  
+  maybe-emit-prototype(name, #"callback", file);
+  values(name, ctv.ct-function-name);
+end;
+
+define method xep-expr-and-name
     (ctv :: <ct-generic-function>, generic-entry? :: <boolean>,
      file :: <file-state>)
     => (expr :: false-or(<string>), name :: false-or(<name>));
@@ -2147,6 +2302,7 @@ end;
 
 define method emit-assignment
     (results :: false-or(<definition-site-variable>), call :: <known-call>,
+     source-location :: <source-location>,
      file :: <file-state>)
     => ();
   let function = call.depends-on.source-exp;
@@ -2265,6 +2421,7 @@ end;
 
 define method emit-assignment (defines :: false-or(<definition-site-variable>),
 			       expr :: <primitive>,
+                               source-location :: <source-location>,
 			       file :: <file-state>)
     => ();
   let emitter
@@ -2274,6 +2431,7 @@ end;
 
 define method emit-assignment
     (defines :: false-or(<definition-site-variable>), expr :: <catch>,
+     source-location :: <source-location>,
      file :: <file-state>)
     => ();
   let func = extract-operands(expr, file, *heap-rep*);
@@ -2294,6 +2452,7 @@ end;
 
 define method emit-assignment (defines :: false-or(<definition-site-variable>),
 			       expr :: <prologue>,
+                               source-location :: <source-location>,
 			       file :: <file-state>)
     => ();
   let function-info = get-info-for(expr.function, file);
@@ -2308,7 +2467,9 @@ end;
 
 define method emit-assignment
     (defines :: false-or(<definition-site-variable>),
-     ref :: <module-var-ref>, file :: <file-state>)
+     ref :: <module-var-ref>, 
+     source-location :: <source-location>,
+     file :: <file-state>)
     => ();
   let defn = ref.variable;
   let info = get-info-for(defn, file);
@@ -2332,7 +2493,9 @@ end;
 
 define method emit-assignment
     (defines :: false-or(<definition-site-variable>),
-     set :: <module-var-set>, file :: <file-state>)
+     set :: <module-var-set>, 
+     source-location :: <source-location>,
+     file :: <file-state>)
     => ();
   let defn = set.variable;
   let info = get-info-for(defn, file);
@@ -2352,7 +2515,9 @@ end;
 
 define method emit-assignment
     (results :: false-or(<definition-site-variable>),
-     call :: <self-tail-call>, file :: <file-state>)
+     call :: <self-tail-call>, 
+     source-location :: <source-location>,
+     file :: <file-state>)
     => ();
   spew-pending-defines(file);
   let function = call.self-tail-call-of;
@@ -2383,7 +2548,9 @@ end;
 
 define method emit-assignment
     (results :: false-or(<definition-site-variable>),
-     op :: <heap-slot-ref>, file :: <file-state>)
+     op :: <heap-slot-ref>, 
+     source-location :: <source-location>,
+     file :: <file-state>)
     => ();
   let slot = op.slot-info;
   let slot-rep = slot.slot-representation;
@@ -2421,7 +2588,9 @@ end;
 
 define method emit-assignment
     (results :: false-or(<definition-site-variable>),
-     op :: <data-word-ref>, file :: <file-state>)
+     op :: <data-word-ref>, 
+     source-location :: <source-location>,
+     file :: <file-state>)
     => ();
   let slot = op.slot-info;
   let slot-rep = slot.slot-representation;
@@ -2454,7 +2623,9 @@ end method emit-assignment;
 
 define method emit-assignment
     (results :: false-or(<definition-site-variable>),
-     op :: <heap-slot-set>, file :: <file-state>)
+     op :: <heap-slot-set>, 
+     source-location :: <source-location>,
+     file :: <file-state>)
     => ();
   let slot = op.slot-info;
   let slot-rep = slot.slot-representation;
@@ -2479,7 +2650,9 @@ end;
 
 define method emit-assignment
     (results :: false-or(<definition-site-variable>),
-     op :: <truly-the>, file :: <file-state>)
+     op :: <truly-the>, 
+     source-location :: <source-location>,
+     file :: <file-state>)
     => ();
   if (results)
     let rep = variable-representation(results, file);
@@ -2736,6 +2909,8 @@ define method ref-leaf (target-rep :: <c-representation>,
   if (ctv == #f)
     ctv := make(if (instance?(leaf, <method-literal>))
 		  <ct-method>;
+		elseif (instance?(leaf, <callback-literal>))
+		  <ct-callback-function>;
 		else
 		  <ct-function>;
 		end,
@@ -2751,6 +2926,10 @@ define method ref-leaf (target-rep :: <c-representation>,
     if (instance?(leaf, <method-literal>) & leaf.generic-entry)
       ctv-info.function-info-generic-entry-c-name
 	:= main-entry-c-name(get-info-for(leaf.generic-entry, file), file);
+    end;
+    if (instance?(leaf, <callback-literal>) & leaf.callback-entry)
+      ctv-info.function-info-callback-entry-c-name
+	:= main-entry-c-name(get-info-for(leaf.callback-entry, file), file);
     end;
     leaf.ct-function := ctv;
   end;

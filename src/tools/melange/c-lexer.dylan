@@ -87,8 +87,8 @@ rcs-header: $Header:
 //        the token's value was derived
 //      generator(token) -- returns the tokenizer which generated the
 //        token. 
-//      parse-error(token, format, args) -- invokes the standard "error" with
-//        file and location information prepended to the format string.
+//      source-location(token) -- translate a token into a source location,
+//        for use with error reporting.
 //======================================================================
 
 //------------------------------------------------------------------------
@@ -200,7 +200,7 @@ define /* exported */ token <identifier-token> :: <name-token> = 4;
 define token <type-name-token>  :: <name-token> = 5;
 // literals
 define /* exported */ token <integer-token> :: <literal-token> = 6;
-define token <character-token> :: <literal-token> = 7;
+define /* exported */ token <character-token> :: <literal-token> = 7;
 define token <string-literal-token> :: <literal-token> = 8;
 define token <cpp-token> :: <literal-token> = 9;
 // A whole bunch of reserved words
@@ -562,11 +562,6 @@ define /* exported */ sealed generic string-value
 define /* exported */ sealed generic value
   (token :: <token>) => (result :: <object>);
 
-// parse-error -- exported generic.
-//
-define /* exported */ sealed generic parse-error
-    (token :: <object>, format :: <string>, #rest args) => (); // never returns
-
 // Literal tokens (and those not otherwise modified) evaluate to themselves.
 //
 define method value (token :: <token>) => (result :: <token>);
@@ -660,8 +655,8 @@ end method value;
 // When we have a specific token that triggered an error, this routine can
 // used saved character positions to precisely identify the location.
 //
-define method parse-error (token :: <token>, format :: <string>, #rest args)
- => ();	// never returns
+define method source-location (token :: <token>)
+ => (srcloc :: <source-location>)
   let source-string = token.generator.contents;
   let line-num = 1;
   let last-CR = -1;
@@ -674,9 +669,11 @@ define method parse-error (token :: <token>, format :: <string>, #rest args)
   end for;
 
   let char-num = (token.position | 0) - last-CR;
-  apply(error, concatenate("%s:line %d chararacter %d: ", format),
-	token.generator.file-name, line-num, char-num, args);
-end method parse-error;
+  make(<file-source-location>,
+       file: token.generator.file-name,
+       line: line-num,
+       line-position: char-num);
+end method;
 
 //========================================================================
 // Support type -- <long-byte-string> and <string-table>
@@ -693,9 +690,9 @@ define class <string-table> (<value-table>) end class;
 
 // fst-string-hash -- private function.
 //
-define function fst-string-hash (string :: <byte-string>)
-  values(string.size * 256 + as(<integer>, string.first),
-	 $permanent-hash-state);
+define function fst-string-hash
+    (string :: <byte-string>, initial-state :: <object>)
+  values(string.size * 256 + as(<integer>, string.first), initial-state);
 end function fst-string-hash;
 
 // table-protocol -- method on imported generic.
@@ -918,22 +915,10 @@ define method initialize (value :: <tokenizer>,
     value.cpp-decls := make(<deque>);
   end if;
 
-  if (defines)
-    // We must be able to initialize the cpp-table with user supplied
-    // additions (or subtractions).  If the supplied value is a
-    // string, we need to create a temporary tokenizer to convert it
-    // to a sequence of tokens.  Like all such sequences of "cpp"
-    // tokens, this one will be in reverse order.
-    for (cpp-value keyed-by key in defines)
-      select (cpp-value by instance?)
-	<integer> =>
-	  value.cpp-table[key] := list(make(<integer-token>,
-					    string: cpp-value.integer-to-string,
-					    generator: value));
-	<string> =>
+  local method parse-define-rhs(cpp-value)
 	  if (cpp-value.empty?)
 	    // Work around bug/misfeature in streams
-	    value.cpp-table[key] := #();
+	    #();
 	  else
 	    let sub-tokenizer
 	      = make(<tokenizer>, contents: cpp-value);
@@ -945,10 +930,36 @@ define method initialize (value :: <tokenizer>,
 		parse-error(value, "Error in cpp defines");
 	      end if;
 	    finally
-	      value.cpp-table[key] := list;
+	      list;
 	    end for;
 	  end if;
-      end select;
+	end method parse-define-rhs;
+
+  if (defines)
+    // We must be able to initialize the cpp-table with user supplied
+    // additions (or subtractions).  If the supplied value is a
+    // string, we need to create a temporary tokenizer to convert it
+    // to a sequence of tokens.  Like all such sequences of "cpp"
+    // tokens, this one will be in reverse order.
+    for (cpp-value keyed-by key in defines)
+      value.cpp-table[key] := 
+	select (cpp-value by instance?)
+	  <integer> =>
+	    list(make(<integer-token>,
+		      string: cpp-value.integer-to-string,
+		      generator: value));
+	  <string> =>
+	    parse-define-rhs(cpp-value);
+	  <list> =>
+	    pair(map(method (param)
+		       let tokenizer = make(<tokenizer>, contents: param);
+		       get-token(tokenizer, expand: #f);
+		       // XXX - Should check for end of stream, but this
+		       // data came from foo-portability.dylan.
+		     end,
+		     head(cpp-value)),
+		 parse-define-rhs(head(tail(cpp-value))));
+	end select;
     end for;
   end if;
 end method initialize;
@@ -990,10 +1001,9 @@ end method add-typedef;
 // Internal error messages generated by the lexer.  We have to go through some
 // messy stuff to get to the "current" file name.
 // 
-define method parse-error (generator :: <tokenizer>, format :: <string>,
-			 #rest args)
- => ();	// never returns
-  for (gen = generator then gen.include-tokenizer,
+define method source-location (tokenizer :: <tokenizer>)
+ => (srcloc :: <source-location>)
+  for (gen = tokenizer then gen.include-tokenizer,
        while: gen.include-tokenizer)
   finally 
     let source-string = gen.contents;
@@ -1008,10 +1018,12 @@ define method parse-error (generator :: <tokenizer>, format :: <string>,
     end for;
 
     let char-num = (gen.position | 0) - last-CR;
-    apply(error, concatenate("%s:line %d: ", format),
-	  gen.file-name, line-num, args);
+    make(<file-source-location>,
+	 file: gen.file-name,
+	 line: line-num,
+	 line-position: char-num);
   end for;
-end method parse-error;
+end method;
 
 // Each pair of elements in this vector specifies a literal constant
 // corresponding to a C reserved word and the token class it belongs to.
@@ -1029,6 +1041,8 @@ define constant reserved-words
 //	   "const", <const-token>,
 //	   "volatile", <volatile-token>,
 	   "void", <void-token>,
+	   "inline", <inline-token>,
+	   "__inline__", <inline-token>,
 	   "__inline", <inline-token>,
 	   "extern", <extern-token>,
 	   "static", <static-token>,
@@ -1273,13 +1287,13 @@ end method skip-cpp-whitespace;
 // This matcher is used to match various literals.  Marks will be generated as
 // follows:
 //   [0, 1] and [2, 3] -- start and end of the entire match
-//   [3, 4] -- start and end of character literal contents
-//   [5, 6] -- start and end of string literal contents
-//   [7, 8] -- start and end of integer literal
+//   [4, 5] -- start and end of character literal contents
+//   [6, 7] -- start and end of string literal contents
+//   [10, 11] -- start and end of integer literal
 //
 define constant match-literal
   = make-regexp-positioner("^('(\\\\?.)'|"
-			     "\"([^\"]|\\\\\")*\"|"
+			     "\"(([^\\\\\"]|\\\\.)*)\"|"
 			     "((([1-9][0-9]*)|(0[xX][0-9a-fA-F]+)|(0[0-7]*))[lLuU]*))",
 			   byte-characters-only: #t, case-sensitive: #t);
 
@@ -1300,17 +1314,16 @@ define /* exported */ method get-token
     let sub-tokenizer = state.include-tokenizer;
     if (sub-tokenizer)
       let token = get-token(sub-tokenizer, expand: expand,
-//    if (state.include-tokenizer)
-//      let token = get-token(state.include-tokenizer, expand: expand,
 			    cpp-line: cpp-line, position: init-position);
       if (instance?(token, <eof-token>))
-//	let macros = state.include-tokenizer.cpp-decls;
 	let macros = sub-tokenizer.cpp-decls;
-//	let old-file = state.include-tokenizer.file-name;
 	let old-file = sub-tokenizer.file-name;
 	state.include-tokenizer := #f;
-	return(make(<end-include-token>, position: pos, generator: state,
-		    string: old-file, value: macros));
+	let ei-token = make(<end-include-token>, position: pos,
+			    generator: state, string: old-file,
+			    value: macros);
+	parse-progress-report(ei-token, "<<< exiting header <<<");
+        return(ei-token);
       else
 	return(token);
       end if;
@@ -1382,7 +1395,7 @@ define /* exported */ method get-token
     if (token?) return(token?) end if;
 
     let (start-index, end-index, dummy1, dummy2, char-start, char-end,
-	 string-start, string-end, int-start, int-end)
+	 string-start, string-end, dummy3, dummy4, int-start, int-end)
       = match-literal(contents, start: pos);
 
     if (start-index)
@@ -1399,7 +1412,6 @@ define /* exported */ method get-token
     end if;
 
     // None of our searches matched, so we haven't the foggiest what this is.
-    break();
     parse-error(state, "Major botch in get-token.");
   end block;
 end method get-token;

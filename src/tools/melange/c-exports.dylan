@@ -4,7 +4,7 @@ copyright: Copyright (C) 1994, 1996, Carnegie Mellon University
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: 
+rcs-header: $Header: /scm/cvs/src/tools/melange/c-exports.dylan,v 1.6 1998/10/18 20:16:37 emk Exp $
 
 //======================================================================
 //
@@ -47,8 +47,56 @@ define library melange-c
   use streams;
   use standard-io;
   use format;
-  export multistring-match, c-lexer, c-declarations, portability;
+
+  // General purpose utility modules.
+  export
+    source-locations,
+    parse-conditions,
+    multistring-match;
+
+  // Melange-specific.
+  export
+    c-lexer,
+    c-declarations,
+    portability;
 end library melange-c;
+
+define module source-locations
+  use dylan;
+  use extensions;
+  use streams;
+  use format;
+  use standard-io;
+  export
+    source-location,
+    <source-location>,
+    describe-source-location,
+    <unknown-source-location>,
+    <file-source-location>,
+      source-file,
+      source-line;
+end module source-locations;
+
+define module parse-conditions
+  use dylan;
+  use extensions;
+  use source-locations;
+  use streams;
+  use format;
+  use standard-io;
+  export
+    *show-parse-progress?*,
+    <parse-condition>,
+    <simple-parse-error>,
+    <simple-parse-warning>,
+    <parse-progress-report>,
+    push-default-parse-context,
+    pop-default-parse-context,
+    \with-default-parse-context,
+    parse-error,
+    parse-warning,
+    parse-progress-report;
+end module;
 
 define module multistring-match
   use dylan;
@@ -70,6 +118,12 @@ define module c-lexer
   use substring-search;
   use character-type;
   use streams;
+  use source-locations;
+  use parse-conditions,
+    // XXX - These should probably go away.
+    export: {parse-error,
+	     parse-warning,
+	     parse-progress-report};
   use multistring-match;
   create cpp-parse;
   export
@@ -77,13 +131,13 @@ define module c-lexer
     <tokenizer>, cpp-table, cpp-decls, <token>, token-id, generator,
     <simple-token>, <reserved-word-token>, <punctuation-token>,
     <literal-token>, <ei-token>, <name-token>, <type-specifier-token>,
-    <identifier-token>, <integer-token>, <struct-token>, <short-token>,
-    <long-token>, <int-token>, <char-token>, <signed-token>, <unsigned-token>,
-    <float-token>, <double-token>, <void-token>, <union-token>, <enum-token>,
-    <minus-token>, <tilde-token>, <bang-token>, <alien-name-token>,
-    <macro-parse-token>, <cpp-parse-token>, string-value, value, parse-error,
-    unget-token, add-typedef, get-token, include-path, check-cpp-expansion,
-    open-in-include-path
+    <identifier-token>, <integer-token>, <character-token>, <struct-token>,
+    <short-token>, <long-token>, <int-token>, <char-token>, <signed-token>,
+    <unsigned-token>, <float-token>, <double-token>, <void-token>,
+    <union-token>, <enum-token>, <minus-token>, <tilde-token>, <bang-token>,
+    <alien-name-token>, <macro-parse-token>, <cpp-parse-token>, string-value,
+    value, unget-token, add-typedef, get-token, include-path,
+    check-cpp-expansion, open-in-include-path
 end module c-lexer;
 
 define module portability
@@ -97,6 +151,7 @@ define module portability
     $pointer-size, $function-pointer-size,
     $integer-size, $short-int-size,
     $long-int-size, $char-size,
+    $longlong-int-size,
     $float-size, $double-float-size,
     $long-double-size;
 end module portability;
@@ -116,7 +171,8 @@ define module c-parse
     process-declarator, declare-objects, make-struct-type, c-type-size,
     add-cpp-declaration, unknown-type, <declaration>, <arg-declaration>,
     <varargs-declaration>, <enum-slot-declaration>, constant-value,
-    <integer-type-declaration>, true-type, make-enum-slot;
+    <integer-type-declaration>, canonical-name, true-type, make-enum-slot,
+    referent;
   export
     parse, parse-type, parse-macro;
 end module c-parse;
@@ -134,18 +190,23 @@ define module c-declarations
   // classes are actually defined within this module but are exported
   // from c-parse.
   use c-parse, export: {<declaration>, <parse-state>, parse, parse-type,
-			constant-value, true-type};
+			constant-value, true-type, canonical-name, referent};
 
   use c-lexer;			// Tokens are used in process-type-list and
 				// make-struct-type
   use portability;              // constants for size of C data types
+  use source-locations;         // Used for error and 
+  use parse-conditions;         //   progress reporting.
 
   export
     // Basic type declarations
     <function-declaration>, <structured-type-declaration>,
     <struct-declaration>, <union-declaration>, <variable-declaration>,
     <constant-declaration>, <typedef-declaration>, <pointer-declaration>,
-    <vector-declaration>,
+    <vector-declaration>, <function-type-declaration>,
+    local-name-mapper, local-name-mapper-setter,
+    callback-maker-name, callback-maker-name-setter,
+    callout-function-name, callout-function-name-setter,
 
     // Preliminary "set declaration properties phase"
     ignored?-setter, find-result, find-parameter, find-slot,
@@ -167,6 +228,6 @@ define module c-declarations
 
     // Miscellaneous
     getter, setter, sealed-string, excluded?,
-    canonical-name,declarations,
+    declarations,
     melange-target;
 end module c-declarations;

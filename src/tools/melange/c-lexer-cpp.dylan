@@ -132,9 +132,19 @@ define constant empty-table = make(<self-organizing-list>);
 // cpp-table.  Thus they will have appropriate location information for error
 // reporting. 
 //
+// XXX - added forbidden-expansions to prevent recursive macro
+// expansion. This is insufficient by itself; we're also supposed to tag
+// tokens which we weren't allow to expand to ensure that they never get
+// expanded in any other place. But this should handle the most common
+// problems.
+
+define constant $maximum-cpp-expansion-depth = 32;
+
 define /* exported */ method check-cpp-expansion
     (string :: <string>, tokenizer :: <tokenizer>,
-     #key parameters: parameter-table = empty-table)
+     #key parameters: parameter-table = empty-table,
+     forbidden-expansions = #(),
+     current-depth = 0)
  => (result :: <boolean>);
   let headless-string 
     = if (string.first == '#') copy-sequence(string, start: 1) else string end;
@@ -142,6 +152,11 @@ define /* exported */ method check-cpp-expansion
     = (element(parameter-table, headless-string, default: #f)
 	 | element(tokenizer.cpp-table, string, default: #f));
   case
+    current-depth >= $maximum-cpp-expansion-depth =>
+      parse-error(tokenizer, "Preprocessor macro expansion of ~s too deep",
+		  string);
+    member?(string, forbidden-expansions, test: \=) =>
+      #f;
     string.first == '#' =>
       if (string = "##")
 	// Special case for <pound-pound-token>
@@ -186,9 +201,12 @@ define /* exported */ method check-cpp-expansion
 	for (key in formal-params, value in params)
 	  params-table[key] := value;
 	end for;
+	let forbidden = pair(string, forbidden-expansions);
 	for (token in token-list.tail)
 	  if (~check-cpp-expansion(token.string-value, tokenizer,
-				   parameters: params-table))
+				   parameters: params-table,
+				   current-depth: current-depth + 1,
+				   forbidden-expansions: forbidden))
 	    // Successful call will have already pushed the expanded tokens
 	    push(tokenizer.unget-stack, copy-token(token, tokenizer));
 	  end if;
@@ -199,8 +217,12 @@ define /* exported */ method check-cpp-expansion
     otherwise =>
       // Depends upon the fact that tokens are stored in reverse order in the
       // stored macro expansion.
+      
+      let forbidden = pair(string, forbidden-expansions);
       for (token in token-list)
-	unless (check-cpp-expansion(token.string-value, tokenizer))
+	unless (check-cpp-expansion(token.string-value, tokenizer,
+				    current-depth: current-depth + 1,
+				    forbidden-expansions: forbidden))
 	  // Successful call will have already pushed the expanded tokens
 	  push(tokenizer.unget-stack, copy-token(token, tokenizer));
 	end unless;
@@ -253,23 +275,23 @@ define method cpp-include (state :: <tokenizer>, pos :: <integer>) => ();
   let generator
     = if (~found)
 	parse-error(state, "Ill formed #include directive.");
-      elseif (angle-end)
+      elseif (angle-start & angle-end)
 	// We've got a '<>' name, so we need to successively try each of the
 	// directories in include-path until we find it.  (Of course, if a
 	// full pathname is specified, we just use that.)
 	let name = copy-sequence(contents, start: angle-start + 1,
 				 end: angle-end - 1);
 	let (full-name, stream) = open-in-include-path(name);
-	// This is inefficient, but simplifies our logic.  We may wish to
-	// adjust later.
-	close(stream);
 	if (full-name)
+	  // This is inefficient, but simplifies our logic.  We may wish to
+	  // adjust later.
+	  close(stream);
 	  state.include-tokenizer
 	    := make(<tokenizer>, name: full-name, parent: state);
 	else
 	  parse-error(state, "File not found: %s", name);
 	end if;
-      else
+      elseif (quote-start & quote-end)
 	// We've got a '""' name, so we should look in the same directory as
 	// the current ".h" file.  (Of course, if a full pathname is
 	// specified, we just use that.)
@@ -305,7 +327,13 @@ define method cpp-include (state :: <tokenizer>, pos :: <integer>) => ();
                                            #endif
 					   name));
 	end if;
+      else
+        parse-error(state, "Fatal error handling #include: %= %= %= %= %= %=",
+                    found, match-end,
+                    angle-start, angle-end,
+                    quote-start, quote-end);
       end if;
+  parse-progress-report(generator, ">>> entered header >>>");
   unget-token(generator, make(<begin-include-token>, position: pos,
 			      generator: generator,
 			      string: generator.file-name));
@@ -323,6 +351,7 @@ define method cpp-define (state :: <tokenizer>, pos :: <integer>) => ();
   if (~name)
     parse-error(state, "Ill formed #define directive.");
   end if;
+  parse-progress-report(name, "Processing define %=", name.value);
 
   // Simply read the rest of the line and build a reversed list of tokens.
   local method grab-tokens (list :: <list>)
@@ -374,13 +403,13 @@ end method cpp-define;
 //			   byte-characters-only: #t, case-sensitive: #t);
 #if (~mindy)
 define multistring-checker preprocessor-match
-  ("define", "undef", "include", "ifdef", "ifndef", "if", "else", "elif",
-   "line", "endif", "error", "pragma");
+  ("define", "undef", "include", "include_next", "ifdef", "ifndef", "if",
+   "else", "elif", "line", "endif", "error", "pragma");
 define multistring-positioner do-skip-matcher("#", "/*");
 #else
 define constant preprocessor-match
-  = make-multistring-checker("define", "undef", "include", "ifdef",
-			     "ifndef", "if", "else", "elif", "line",
+  = make-multistring-checker("define", "undef", "include", "include_next",
+			     "ifdef", "ifndef", "if", "else", "elif", "line",
 			     "endif", "error", "pragma");
 define constant do-skip-matcher
   = make-multistring-positioner("#", "/*");
@@ -551,6 +580,11 @@ define method try-cpp
 	    state.position := i;
 	  end for;
 	"include" =>
+	  if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
+	    cpp-include(state, pos);
+	  end if;
+	"include_next" =>
+	  //signal("Warning: doing the wrong thing with #include_next.");
 	  if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
 	    cpp-include(state, pos);
 	  end if;
