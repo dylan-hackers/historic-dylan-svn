@@ -2222,11 +2222,151 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
     </sect1>
   </chapter>
 
-  <CHAPTER ID="libs-format">
-    <TITLE>The Format Library</TITLE>
-
-    <PARA></PARA>
-  </CHAPTER>
+  <chapter id="libs-format">
+    <title> The Format Library </title>
+    <sect1 id="libs-format-format">
+      <title> The Format Module </title>
+  
+      <dylangenericdef>
+        <defname> format </defname>
+        <defsummary> Format a string and write it to a stream.  </defsummary>
+        <defparameters>
+          <param>
+            <paramname> stream </paramname>
+            <paramtype> &lt;stream&gt; </paramtype>
+          </param>
+          <param>
+            <paramname> control-string </paramname>
+            <paramtype> &lt;string&gt; </paramtype>
+          </param>
+          <restparam>
+            <paramname> args </paramname>
+            <paramsummary>
+              The objects to substitute for the format fields.
+            </paramsummary>
+          </restparam>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+          <para>
+            The <function>format</function> function takes a control string,
+            formats according to the format directives embedded in the string,
+            and then writes the result to the <dname>stream</dname> argument.
+          </para>
+          <para>
+            The format codes accepted by <function>format</function> are
+            described on page XXX in Chapter 7 of the Dylan Reference
+            Manual, in the section "Condition Messages."
+          </para>
+        </defdescription>
+      </dylangenericdef>
+      
+      <dylanmethoddef>
+        <defname> format </defname>
+        <defsummary> Format a string and write it to a stream.  </defsummary>
+        <defparameters>
+          <param>
+            <paramname> stream </paramname>
+            <paramtype> &lt;stream&gt; </paramtype>
+          </param>
+          <param>
+            <paramname> control-string </paramname>
+            <paramtype> &lt;string&gt; </paramtype>
+          </param>
+          <restparam>
+            <paramname> args </paramname>
+            <paramsummary>
+              The objects to substitute for the format fields.
+            </paramsummary>
+          </restparam>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+          <para>
+            The default <function>format</function> method, specialized on
+            the <classname>&lt;stream&gt;</classname> class.
+          </para>
+        </defdescription>
+      </dylanmethoddef>
+      
+      <dylanfunctiondef>
+        <defname> format-to-string </defname>
+        <defsummary>
+          Process a format-string and return the result as another string.
+        </defsummary>
+        <defparameters>
+          <param>
+            <paramname> control-string </paramname>
+            <paramtype> &lt;string&gt; </paramtype>
+          </param>
+          <restparam>
+            <paramname> args </paramname>
+            <paramsummary>
+              The objects to substitute for the format fields.
+            </paramsummary>
+          </restparam>
+        </defparameters>
+        <defreturns>
+          <param>
+            <paramname> result </paramname>
+            <paramtype> &lt;string&gt; </paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+            This function effectively calls <function>format</function> and
+            returns the <dname>result</dname> as a string.
+          </para>
+        </defdescription>
+      </dylanfunctiondef>      
+      
+      <dylangenericdef>
+        <defname> print-message </defname>
+        <defadjectives>
+          Open
+        </defadjectives>
+        <defsummary>
+          This method is called to format objects for the <dlit>"%s"</dlit>
+          and <dlit>"%c"</dlit> format operators, in a form suitable for
+          human readers.
+        </defsummary>
+        <defparameters>
+          <param>
+            <paramname> object </paramname>
+            <paramtype> &lt;object&gt; </paramtype>
+          </param>
+          <param>
+            <paramname> stream </paramname>
+            <paramtype> &lt;stream&gt; </paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+          <para>
+            Prints <dname>object</dname> to <dname>stream</dname>. This
+            generic function is intended to define the human-readable
+            printing behavior of a Dylan object, as opposed to their
+            representation as literal syntax. Calling this function on
+	    <classname>&lt;condition&gt;</classname> should result in
+	    a error message, rather than the name of the instance and
+	    its class, for example. (Contrast this behavior with the 
+	    <function> print </function> function in the
+	    <dlibrary>Print</dlibrary> library.)
+          </para>
+          <para>
+            Predefined methods exist for the 
+            <classname> &lt;string&gt; </classname>, 
+            <classname> &lt;character&gt; </classname>, 
+            <classname> &lt;condition&gt; </classname>, and 
+            <classname> &lt;symbol&gt; </classname>  classes.
+          </para>
+        </defdescription>
+      </dylangenericdef>
+    </sect1>
+  </chapter>
 
   <CHAPTER ID="libs-format-out">
     <TITLE>The Format-Out Library</TITLE>
