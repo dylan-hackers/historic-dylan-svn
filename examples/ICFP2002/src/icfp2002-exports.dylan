@@ -49,7 +49,12 @@ define module path
   use utils;
   use board;
 
-  export <point-list>, find-path;
+  // For debugging only. Sorry.
+  //  use format-out;
+  //  use standard-io;
+  //  use streams, export: all;
+
+  export <point-list>, distance-cost, find-path;
 end module path;
 
 define module command
@@ -106,6 +111,11 @@ define module client
   use board;
   use command;
   use path;
+
+  // For debugging only. Sorry.
+  use format-out;
+  use standard-io;
+  use streams, export: all;
 
   export
     <robot-agent>,

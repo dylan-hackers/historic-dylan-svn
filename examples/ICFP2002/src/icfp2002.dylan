@@ -21,15 +21,7 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
 
 
   debug("board is %=", state.board);
-  state := receive-server-packages(input, state);
-  // Send dummy command
-  send-command(output, make(<move>, direction: $west, bid: 1));
-  state := receive-server-command-reply(input, state);
-  state := receive-server-packages(input, state);
-  send-command(output, make(<move>, direction: $west, bid: 1));
-  state := receive-server-command-reply(input, state);
-
-//  test-path-finding(state.board);
+  test-path-finding(state.board);
 
   /*
   let running = #t;
@@ -76,28 +68,33 @@ main(application-name(), application-arguments());
 
 // Testing path finding.
 define method test-path-finding(board :: <board>)
-  debug("Here is the board that I received:\n");
-  debug("Size: width is %=, height is %=.\n",
-             board.width, board.height);
-  for (r from board.height to 1 by -1)
-    for (c from board.width to 1 by -1)
-      debug("%=", board[r, c]);
-    end for;
-    debug("\n");
-  end for;
-
-
-  debug("Trying a simple path finding from (1, 1) to (1, 11).\n");
+  debug("Trying a simple path finding from (1, 1) to (2, 12).\n");
   let path = find-path(point(x: 1, y: 1),
-                       point(x: 1, y: 11),
+                       point(x: 2, y: 12),
                        board);
   if (path = #f)
     debug("Sorry, no path found.\n");
   else
     debug("Resulting path of length: %=.\n", path.size);
 
-    for (elt in path)
-      debug("X = %=, Y = %=\n", elt.x, elt.y);
+    
+    // for (elt in path)
+      // debug("X = %=, Y = %=\n", elt.x, elt.y);
+    // end for;
+
+
+    debug("Here is the board with the path on it:\n");
+    debug("Size: width is %=, height is %=.\n",
+          board.width, board.height);
+    for (r from board.height to 1 by -1)
+      for (c from 1 to board.width)
+        if (member?(point(x: c, y: r), path, test: \=))
+          debug("0");
+        else
+          debug("%=", board[r, c]);
+        end if;
+      end for;
+      debug("\n");
     end for;
   end if;
 end method test-path-finding;
