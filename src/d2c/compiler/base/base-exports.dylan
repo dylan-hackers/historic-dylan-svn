@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.46.2.1 2003/11/20 19:22:05 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.46.2.2 2004/02/22 18:36:06 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -77,7 +77,6 @@ define module common
 	     $maximum-integer, ratio, integer-length,
 	     false-or, one-of, <false>, <true>, ignore,
 	     $minimum-integer, <byte-character>, $not-supplied,
-	     report-condition, condition-format,
              <format-string-condition>, <never-returns>,
              <ratio>, numerator, denominator, key-exists?, \assert,
              <byte>, <byte-vector>,
