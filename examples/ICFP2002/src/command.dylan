@@ -114,10 +114,10 @@ define method process-command(state :: <state>, command :: <pick>) => (state :: 
 					     new-location: loc, 
 					     new-carrier: bot);
     state := add-package(state, package*);
-    let inventory = remove(bot.inventory, pid, test: method(x, y) x.id == y.id end);
-    inventory := add(bot.inventory, package*);
+    let inv = remove(bot.inventory, pid, test: method(x, y) x.id == y end);
+    let inv = add(bot.inventory, package*);
     state := add-robot(state, copy-robot(bot, 
-                                         new-inventory: inventory,
+                                         new-inventory: inv,
                                          new-money: new-money));
   end for;
   state;
