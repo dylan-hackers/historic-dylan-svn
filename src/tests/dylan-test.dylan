@@ -5,7 +5,7 @@ synopsis: A regression test for core Dylan.
 //======================================================================
 //
 // Copyright (c) 1994  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -62,6 +62,8 @@ define method tautology(arg == #"booleans")
   (#T)				| signal("#T is not true!\n");
   (#f)				& signal("#f is not false!\n");
   (#F)				& signal("#F is not false!\n");
+  (~#t)				& signal("~#t is not false!\n");
+  (~#f)				| signal("~#f is not true!\n");
   (#t & #t)			| signal("#t & #t is not true!\n");
   (#t | #t)			| signal("#t | #t is not true!\n");
   (#f & #f)			& signal("#f & #f is not false!\n");
