@@ -68,8 +68,9 @@ define function await-clients(port, num-clients) => ()
 				" 25 1000"));
   end;
 
+  <robot>.capacity = 25;
   let bot = make(<robot>,
-		 id: num-client, capacity: 25,
+		 id: num-client,
 		 money: 1000, location: make(<point>, x: 42, y: 42));
   add-bot(*board*, bot);
 
