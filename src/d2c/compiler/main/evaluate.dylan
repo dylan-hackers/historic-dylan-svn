@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.42 2002/08/11 00:50:42 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.43 2002/08/11 09:49:55 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -396,6 +396,11 @@ define method evaluate(var :: <abstract-variable>, environment :: <interpreter-e
   var.environment
 end;
 
+define method evaluate(catch :: <catch>, environment :: <interpreter-environment>)
+ => result :: <ct-value>;
+  as(<ct-value>, #f) // for now...###
+end;
+
 define method evaluate(primitive :: <primitive>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   evaluate-primitive(primitive.primitive-name, primitive.depends-on, environment);
@@ -424,6 +429,7 @@ define method evaluate(slot-ref :: <heap-slot-ref>, environment :: <interpreter-
     
     let obj-value = evaluate(obj, environment);
     obj-value // for now...
+    
   end;
   
 end;

@@ -13,4 +13,11 @@ begin local fac(n) n == 0 & 1 | n * fac(n - 1) end; fac(5); end
 begin let fac = method(n, fac) n == 0 & 1 | n * fac(n - 1) end; fac(5, fac); end
 ~ (3 + 8 == 11)
 - (2 + 5)
-let a = #f; a := method() 23 end; a()
+"fun".object-class
+"fun".size
+
+// generates enormous FER
+// possibly a bug?
+block(return) let a = #f; a := method() signal("eek") end; a() exception (<error>) return("error") end block
+block(return) let a = #f; a := method() error("eek") end; a() exception (<error>) return("error") end block
+
