@@ -24,9 +24,11 @@ define function main(name, arguments)
   let o = make(<obj>);
   o.model := make(<sphere>);
 
+  uniform-scale!(o, 0.5);
+
   render-image(o, 1, "render.ppm", 
 	       make(<color>, red: 1.0, green: 1.0, blue:1.0),
-	       make(<stretchy-vector>), 256, 256, $double-pi);
+	       make(<stretchy-vector>), 128, 128, $double-pi / 2.0);
 
   exit-application(0);
 end function main;
