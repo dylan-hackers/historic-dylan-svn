@@ -1,4 +1,4 @@
-RCS-Header: $Header: /scm/cvs/src/d2c/compiler/optimize/limopt.dylan,v 1.1.2.1 2000/06/25 06:08:24 emk Exp $
+RCS-Header: $Header: /scm/cvs/src/d2c/compiler/optimize/limopt.dylan,v 1.1.2.2 2000/06/25 20:59:54 emk Exp $
 module: cheese
 Copyright: See below.
 Synopsis: Optimizer support for limited collections.
@@ -34,21 +34,52 @@ Synopsis: Optimizer support for limited collections.
 
 
 //=========================================================================
-//  limited-collection-cclass
+//  find-limited-collection-implementation
 //=========================================================================
 //  Map a limited collection type to the class we'll use to implement it
-//  in the runtime.
+//  in the runtime. The ctype module uses this information to improve the
+//  results of some type operations.
+//
+//  Return #f if there's no implementation class (as in the case of
+//  uninstantiable types), or if you're too lazy to tell the optimizer
+//  about it. But don't supply the *wrong* implementation class, or
+//  Bad Things will happen.
+//
+//  Limited types are memoized, so the result of this function is
+//  effectively cached.
 
-define method limited-collection-cclass
+define method find-limited-collection-implementation
     (type :: <limited-collection-ctype>)
  => (cclass :: false-or(<cclass>))
   select (type.base-class)
+    
+    // limited(<table>, of: ...)
+    // limited(<object-table>, of: ...)
     specifier-type(#"<table>"), specifier-type(#"<object-table>") =>
-      specifier-type(#"<limited-object-table>");
+      if (type.element-type == specifier-type(#"<object>"))
+	specifier-type(#"<simple-object-table>");
+      else
+	specifier-type(#"<limited-object-table>");
+      end if;
+      
+    // limited(<vector>, of: ...)
+    // limited(<simple-vector>, of: ...)
+    specifier-type(#"<vector>"), specifier-type(#"<simple-vector>") =>
+      select (type.element-type)
+	specifier-type(#"<integer>") =>
+	  specifier-type(#"<simple-integer-vector>");
+	otherwise =>
+	  #f
+      end select;
+
     otherwise =>
       #f;
   end select;
-end method limited-collection-cclass;
+end method find-limited-collection-implementation;
+
+// Hang our method on the ctype module's hook.
+*find-limited-collection-implementation* :=
+  find-limited-collection-implementation;
 
 
 //=========================================================================

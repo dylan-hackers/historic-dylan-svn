@@ -1,6 +1,6 @@
 Module: ctype
 Description: compile-time type system
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.4.4.1 2000/06/12 22:19:34 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.4.4.2 2000/06/25 20:59:53 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -1248,10 +1248,23 @@ end;
 
 define constant $limited-collection-table = make(<limited-collection-table>);
 
+// optimize/limopt.dylan uses this hook to supply implementation classes
+// for limited collection types.
+define variable *find-limited-collection-implementation* :: <function>
+  = method (type :: <limited-collection-ctype>)
+     => (cclass :: false-or(<cclass>))
+      error("No function supplied for "
+	      "*find-limited-collection-implementation*");
+    end method;
+
 define class <limited-collection-ctype> (<limited-ctype>, <ct-value>)
   slot element-type :: <ctype>, required-init-keyword: element-type:;
   slot size-or-dimension :: type-union(<false>, <integer>, <sequence>) = #f,
        init-keyword: size:;
+  // The implementation class, if one exists and we know it. All instances
+  // of this type will be instances of this class. (If the type isn't
+  // instantiable, this will be #f.)
+  slot implementation-class :: false-or(<cclass>) = #f;
 end class;
 
 define sealed domain make (singleton(<limited-collection-ctype>));
@@ -1263,6 +1276,12 @@ define method make (class == <limited-collection-ctype>, #next next-method,
   element($limited-collection-table, key, default: #f)
     | (element($limited-collection-table, key) := next-method());
 end;
+
+define method initialize
+    (instance :: <limited-collection-ctype>, #key, #all-keys) => ()
+  instance.implementation-class :=
+    *find-limited-collection-implementation*(instance);
+end method initialize;
 
 define method print-object (limcol :: <limited-collection-ctype>,
 			    stream :: <stream>)
@@ -1319,18 +1338,22 @@ define method ctype-extent-dispatch
           make(<limited-collection-ctype>, base-class: class,
                element-type: type.element-type, size: type.size-or-dimension);
         end method;
-  let base-extent = ctype-extent(type.base-class);
-  if (instance?(base-extent, <union-ctype>))
-    reduce(method (result :: <ctype>, member :: <ctype>)
-	     => result :: <ctype>;
- 	     ctype-union(result, build-limited(member));
-	   end method,
-	   empty-ctype(),
-	   base-extent.members);
+  let implementation = type.implementation-class;
+  if (implementation)
+    build-limited(implementation)
   else
-    build-limited(base-extent);
+    let base-extent = ctype-extent(type.base-class);
+    if (instance?(base-extent, <union-ctype>))
+      reduce(method (result :: <ctype>, member :: <ctype>)
+	      => result :: <ctype>;
+	       ctype-union(result, build-limited(member));
+	     end method,
+	     empty-ctype(),
+	     base-extent.members);
+    else
+      build-limited(base-extent);
+    end if;
   end if;
-//  type;
 end method ctype-extent-dispatch;
 
 // csubtype-dispatch{<limited-collection-ctype>,<limited-collection-ctype>}
@@ -1395,7 +1418,7 @@ define method ctype-intersection-dispatch
     => (result :: <ctype>, precise :: <boolean>);
   let (base, precise) = ctype-intersection(type1.base-class, type2);
   if (base == empty-ctype())
-    values(empty-ctype(), #f);
+    values(empty-ctype(), precise);
   elseif (instance?(base, <cclass>))
     values(make(<limited-collection-ctype>, base-class: base,
 		element-type: type1.element-type,
