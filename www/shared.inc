@@ -114,6 +114,13 @@ HREF="mailto:gd-hackers@gwydiondylan.org">Feedback</A>]</SMALL></P>
 
 </DIV>
 </TD></TR>
+<tr><td><p style="font-size: 3pt; color: #cccccc">Spamtrap, please ignore:
+<a style="color: #cccccc" href="http://homes.hinet.de/ohne_keys.htm">x</a>
+<a style="color: #cccccc" href="http://homes.hinet.de/business_keys.htm">x</a>
+<a style="color: #cccccc" href="http://homes.hinet.de/love_keys.htm">x</a>
+<a style="color: #cccccc" href="http://homes.hinet.de/geld_keys.htm">x</a>
+<a style="color: #cccccc" href="http://homes.hinet.de/privat_keys.htm">x</a>
+</td></tr>
 </TABLE>
 
 
