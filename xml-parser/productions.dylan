@@ -175,13 +175,17 @@ end parse nmtokens;
 //
 define constant not-in-set? = complement(member?);
 
-define collector entity-value(contents) => (str)
+define collector entity-value(contents, s) => (str)
   {["\"",
-    loop([{parse-reference(contents), parse-double-char-data(contents)}, 
-           do(collect(contents))]), "\""],
+    loop([{parse-reference(contents), 
+           [parse-s?(s), parse-element(contents)], 
+           parse-double-char-data(contents)}, 
+          do(collect(contents))]), "\""],
    ["'",
-    loop([{parse-reference(contents), parse-single-char-data(contents)}, 
-           do(collect(contents))]), "'"]}, []
+    loop([{parse-reference(contents),
+           [parse-s?(s), parse-element(contents)],
+           parse-single-char-data(contents)}, 
+          do(collect(contents))]), "'"]}, []
 end collector entity-value;
 
 
@@ -233,12 +237,19 @@ define constant <pub-id-char> =
 // but fails to detect some non-compliancies).
 //                                                --andreas
 //
-define collector char-data(c)
- => (make(<char-string>, text: as(<string>, str)))
-  [test(rcurry(not-in-set?, "<&"), c), do(collect(c))],
-  loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])
-end collector char-data;
+define macro collect-data-definer
+{ define collect-data ?:name(?except:expression) end }
+ => {  define collector ?name ## "-data" (c)
+        => (make(<char-string>, text: as(<string>, ?=str)))
+         [test(rcurry(not-in-set?, ?except), c), do(?=collect(c))],
+         loop([test(rcurry(not-in-set?, ?except), c), do(?=collect(c))])
+       end collector }
+end macro collect-data-definer;
 
+define collect-data char("<&") end;
+define collect-data single-char("'&") end;
+define collect-data double-char("\"&") end;
+/******
 define collector single-char-data(c)
  => (make(<char-string>, text: as(<string>, str)))
   [test(rcurry(not-in-set?, "'&"), c), do(collect(c))],
@@ -250,6 +261,7 @@ define collector double-char-data(c)
   [test(rcurry(not-in-set?, "\"&"), c), do(collect(c))],
   loop([test(rcurry(not-in-set?, "\"&"), c), do(collect(c))])
 end collector double-char-data;
+*****/
 
 // Comments
 
