@@ -11,7 +11,8 @@ Turn Right defense_get_out_of_home:
 
 defense_wait_for_opening:
 Sense Ahead defense_wait_for_opening: . Friend
-Unmark 1 defense_get_out_of_home:
+Unmark 1 .
+Move defense_get_out_of_home: defense_get_out_of_home_panic:
 
 defense_out_of_home:
 Mark 0 .
