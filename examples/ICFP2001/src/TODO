@@ -1,6 +1,9 @@
 TODO list
 
-
+* Convert generator into returning a new state, instead of modifying it.
+* Make generator return all possible moves, instead of one
+* Write modular search strategy.
+* Support for timeout
 
 
 Things to fix in gd after contest:
@@ -8,3 +11,4 @@ Things to fix in gd after contest:
 Fix read-to-end.
 Fix subsequence for strings.
 Implement <stretchy-byte-string>.
+ct-eval of logior.
