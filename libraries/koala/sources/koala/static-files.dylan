@@ -150,13 +150,18 @@ define method directory-responder
                           merge-locators(as(<file-locator>, name),
                                          as(<directory-locator>, directory)));
         let props = file-properties(locator);
+        let link = if (type = #"directory")
+                     concatenate(name, "/");
+                   else
+                     name;
+                   end if;
         write(stream, "   <tr>\n    <td>");
         display-image-link(stream, type, locator);
         format(stream, "</td>\n    <td><a href=\"%s\">%s</a></td>\n",
-               name, name);
+               link, link);
         for (key in #[#"size", #"modification-date", #"author"])
           let prop = element(props, key, default: "&nbsp;");
-          write(stream, "   <td>");
+          write(stream, "    <td>");
           if (prop)
             display-file-property(stream, key, prop, type);
           else
@@ -174,11 +179,11 @@ define method directory-responder
          " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
          "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
          " <head>\n"
-         "  <title>Directory listing of %s</title>\n"
+         "  <title>Index of %s</title>\n"
          " </head>\n", url);
   write(stream, " <body>\n");
   format(stream,
-         "  <h1>Directory listing of %s</h1>\n"
+         "  <h1>Index of %s</h1>\n"
          "  <table>", url);
   unless (loc = *document-root*
           | (instance?(loc, <file-locator>)
@@ -186,7 +191,7 @@ define method directory-responder
     write(stream,
           "  <tr>\n"
           "   <td></td>\n"
-          "   <td><a href=\"..\">..</a></td>\n"
+          "   <td><a href=\"../\">../</a></td>\n"
           "   <td>DIR</td>\n"
           "   <td></td>\n"
           "   <td></td>\n"
