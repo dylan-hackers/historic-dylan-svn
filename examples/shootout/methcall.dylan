@@ -35,7 +35,7 @@ define inline method activate (t :: <nth-toggle>) => t :: <nth-toggle>;
 end method;
 
 
-define function main ()
+begin
   let arg = string-to-integer(element(application-arguments(), 0, default: "1"));
 
   let val = #t;
@@ -55,7 +55,4 @@ define function main ()
   end;
 
   format-out("%s\n", if (val) "true" else "false" end);
-end function main;
-
-
-main();
+end
