@@ -1,8 +1,8 @@
 # common makegen stuff for the "testworks libraries" under d2c.
 # each makegen should &makegen_include("../common-Makegen").
 
-#$D2C = '$(BUILDROOT)/d2c/compiler/main/d2c';
-#$D2C .= ' -p$(SRCROOT)/d2c/compiler/platforms.descr';
+$D2C = '$(BUILDROOT)/d2c/compiler/main/d2c';
+$D2C .= ' -p$(SRCROOT)/d2c/compiler/platforms.descr';
 
 $CPPFLAGS = '-I$(SRCROOT)/d2c/runtime';
 
