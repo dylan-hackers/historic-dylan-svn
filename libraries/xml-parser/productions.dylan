@@ -410,17 +410,21 @@ define meta beginning-of-tag(elt-name, attribs, s) => (elt-name, attribs)
 end meta beginning-of-tag;
 
 define function add-default-attributes(elt-name :: <symbol>, 
-                                       attribs :: <sequence>)
+                                       attribs :: <vector>)
  => (new-attribs :: <vector>)
-  as(<vector>, reduce(method(result, default) 
-                          if(member?(default, attribs, 
-                                     test: method(x, y) x.name == y.name end))
-                            result
-                          else
-                            pair(default, result)
-                          end if
-                      end method, #(), 
-                      element($attrib-defaults, elt-name, default: #())))
+  concatenate(attribs, 
+              as(<vector>, reduce(method(result, default) 
+                                      if(member?(default, attribs, 
+                                                 test: method(x, y)
+                                                           x.name == y.name
+                                                       end))
+                                        result
+                                      else
+                                        pair(default, result)
+                                      end if
+                                  end method, #(), 
+                                  element($attrib-defaults, elt-name, 
+                                          default: #()))))
 end function add-default-attributes;
 
 define function maybe-tag-mismatch(msg :: <string>, hint :: <string>,
