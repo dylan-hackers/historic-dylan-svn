@@ -43,17 +43,6 @@ define function main(program-name, arguments)
     end with-open-file;
   end if;
   exit-application(0);
-/****
-  // we're testing file foo on arguments bar baz quux
-  with-open-file(in = arguments[0])
-    let doc = parse-document(in.stream-contents);
-    let elt = doc.node-children[0];
-    format-out("Top element is %s\n", elt.name);
-    for(x in copy-sequence(arguments, start: 1))
-      format-out("%s[\"%s\"] is %=\n", elt.name, x, elt[x]);
-    end for;
-  end with-open-file;
- ****/
 end function main;
 
 main(application-name(), application-arguments());
