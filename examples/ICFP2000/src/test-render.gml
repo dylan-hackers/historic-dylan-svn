@@ -19,7 +19,7 @@
   0.0
 } /mirror
 
-red sphere 0.3 uscale /s
+red sphere 2.0 uscale 0.3 uscale /s
 blue plane 0.0 -0.5 0.0 translate /p
 
 0.0 -1.0 0.0 point    % straight down

@@ -77,8 +77,10 @@ define method intensity-on
   if (angle-factor < 0.0)
     make-black();
   else
-    light.light-color * angle-factor * 
-      (100.0 / (99.0 + magnitude(ray) ^ 2));
+    let color :: <color> = light.light-color;
+    let ray-magnitude :: <fp> = magnitude(ray);
+    color * angle-factor * 
+      (100.0 / (99.0 + ray-magnitude * ray-magnitude));
   end if;
 end method intensity-on;
 
@@ -93,7 +95,9 @@ define method phong-intensity-on
   if (angle-factor < 0.0)
     make-black();
   else
-    light.light-color * angle-factor ^ phong-exp * (100.0 / (99.0 + magnitude(ray-to-light) ^ 2));
+    let color :: <fp> = light.light-color;
+    let ray-magnitude :: <fp> = magnitude(ray-to-light);
+    color * angle-factor ^ phong-exp * (100.0 / (99.0 + ray-magnitude * ray-magnitude));
   end if;
 end method phong-intensity-on;
 
@@ -111,9 +115,14 @@ define method intensity-on
     if (angle-factor < 0.0)
       make-black();
     else
-      light.light-color * angle-factor * 
-	abs(light.direction * normalize(-ray)) ^ light.exponent *
-	(100.0 / (99.0 + magnitude(ray) ^ 2));
+      let color :: <color> = light.light-color;
+      let direction :: <3D-vector> = light.direction;
+      let norm :: <3D-vector> = normalize(-ray);
+      let exponent :: <fp> = light.exponent;
+      let magnitude :: <fp> = magnitude(ray);
+      color * angle-factor * 
+	abs(direction * norm) ^ exponent *
+	(100.0 / (99.0 + magnitude * magnitude));
     end if;
   end if;
 end method intensity-on;
@@ -125,17 +134,23 @@ define method phong-intensity-on
   
   let ray-to-viewer = normalize(viewer - point);
   let ray-to-light = light.location - point;
-  if (abs(normalize(ray-to-light) * normalize(-light.direction)) >
-	cos(light.cutoff))
+  let direction :: <3D-vector> = light.direction;
+  let cutoff :: <fp> = light.cutoff;
+  if (abs(normalize(ray-to-light) * normalize(-direction)) >
+	cos(cutoff))
     make-black();
   else
     let angle-factor = ((ray-to-viewer - normalize(ray-to-light)) * 0.5) * normal;
     if (angle-factor < 0.0)
       make-black();
     else
-      light.light-color * angle-factor ^ phong-exp * 
-	abs(light.direction * normalize(-ray-to-light)) ^ light.exponent * 
-	(100.0 / (99.0 + magnitude(ray-to-light) ^ 2));
+      let color :: <color> = light.light-color;
+      let direction :: <3D-vector> = light.direction;
+      let exponent :: <fp> = light.exponent;
+      let magnitude = magnitude(ray-to-light);
+      color * angle-factor ^ phong-exp * 
+	abs(direction * normalize(-ray-to-light)) ^ exponent * 
+	(100.0 / (99.0 + magnitude * magnitude));
     end if;
   end if;
 end method phong-intensity-on;
@@ -149,7 +164,7 @@ define method can-see(o :: <obj>, point :: <3D-point>, l :: <star>)
 		       make(<ray>, position: point +
 			      $surface-acne-prevention-offset * -l.direction, 
 			    direction: -l.direction), 
-		       1.0/0.0, shadow-test: #t);
+		       1.0/0.0, #t);
 end method can-see;
 
 define method can-see(o :: <obj>, point :: <3D-point>, l :: <firefly>)
@@ -159,7 +174,7 @@ define method can-see(o :: <obj>, point :: <3D-point>, l :: <firefly>)
 		       make(<ray>, position: point +
 			      $surface-acne-prevention-offset * ray-to-light,
 			    direction: ray-to-light), 
-		       1.0/0.0, shadow-test: #t);
+		       1.0/0.0, #t);
 end method can-see;
 
 define method can-see(o :: <obj>, point :: <3D-point>, l :: <flashlight>)
@@ -173,10 +188,14 @@ define method can-see(o :: <obj>, point :: <3D-point>, l :: <flashlight>)
 			 make(<ray>, position: point +
 				$surface-acne-prevention-offset * ray-to-light,
 			      direction: ray-to-light), 
-			 1.0/0.0, shadow-test: #t);
+			 1.0/0.0, #t);
   end if;
 end method can-see;
 
+
+define sealed domain can-see(<obj>, <3D-point>, <light>);
+define sealed domain phong-intensity-on(<light>, <3D-point>, <3D-point>, <3D-vector>, <fp>);
+define sealed domain intensity-on(<light>, <3D-point>, <3D-vector>);
 
 /* Messy exponent function */
 

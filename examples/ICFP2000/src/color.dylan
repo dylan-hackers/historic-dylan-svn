@@ -44,7 +44,7 @@ define inline method export-with-depth(c :: <color>, depth :: <integer>)
   values(clampint(r), clampint(g), clampint(b));
 end method export-with-depth;
 
-define inline method \* (c :: <color>, x :: <number>)
+define inline method \* (c :: <color>, x :: <fp>)
  => (scaled-color :: <color>)
   make(<color>, 
        red:   clamp(c.red   * x),
@@ -52,7 +52,7 @@ define inline method \* (c :: <color>, x :: <number>)
        blue:  clamp(c.blue  * x));
 end method;
 
-define method \* (x :: <number>, c :: <color>)
+define inline method \* (x :: <fp>, c :: <color>)
  => (scaled-color :: <color>)
   c * x;
 end method;
@@ -73,26 +73,39 @@ define inline method \+ (c1 :: <color>, c2 :: <color>)
        blue:  clamp(c1.blue  + c2.blue));
 end method;
 
+
+define sealed domain \*(<color>, <fp>);
+define sealed domain \*(<fp>, <color>);
+define sealed domain \*(<color>, <color>);
+define sealed domain \+(<color>, <color>);
+
+
 // Surface stuff:
 
 define class <surface> (<object>)
-  slot color, init-keyword: color:, init-value: make(<color>, red: 1.0, green: 1.0, blue: 1.0);
-  slot diffusion-coefficient, init-keyword: diffusion:, init-value: 1.0;
-  slot specular-coefficient, init-keyword: specular:, init-value: 0.0;
-  slot phong-coefficient, init-keyword: phong:, init-value: 0.0;
+  slot color :: <color>,
+    init-keyword: color:,
+    init-value: make(<color>, red: 1.0, green: 1.0, blue: 1.0);
+  slot diffusion-coefficient :: <fp>,
+    init-keyword: diffusion:, init-value: 1.0;
+  slot specular-coefficient :: <fp>,
+    init-keyword: specular:, init-value: 0.0;
+  slot phong-coefficient :: <fp>,
+    init-keyword: phong:, init-value: 0.0;
 end class <surface>;
 
 define sealed domain make(singleton(<surface>));
 define sealed domain initialize(<surface>);
 
-define method make-surface-closure(surface-id, u, v, interpreter-entry)
+define method make-surface-closure(surface-id, u, v, interpreter-entry :: <method>)
   let surface = #f;
 
   local method return-color()
     if(surface)
       surface;
     else
-      let (phong, specular, diffusion, color) = apply(values, interpreter-entry(list(v, u, surface-id)));
+      let (phong, specular, diffusion, color)
+	= apply(values, interpreter-entry(list(v, u, surface-id)));
       
       surface := make(<surface>, color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z),
 	   diffusion: diffusion, specular: specular, phong: phong);
@@ -113,7 +126,7 @@ define inline method clamp(x :: <fp>) => (res :: <fp>);
   end if;
 end method clamp;
 
-define method silly-texture(surface-id, u, v)
+define method silly-texture(surface-id :: <integer>, u :: <fp>, v :: <fp>)
   if(u > 0.1 & u < 0.9 & v > 0.1 & v < 0.9)
     values(make(<color>, red: clamp(u), green: clamp(v), blue: 0.0), 1.0, 0.2, 0.2);
   else
@@ -121,19 +134,19 @@ define method silly-texture(surface-id, u, v)
   end if;
 end method silly-texture;
 
-define inline method red-texture(surface-id, u, v)
+define inline method red-texture(surface-id :: <integer>, u :: <fp>, v :: <fp>)
  => (color :: <color>, diffusion :: <fp>, specular :: <fp>, phong-exp :: <fp>)
   values(make(<color>, red: 1.0, green: 0.0, blue: 0.0), 
 	 1.0, 0.0, 5.0);
 end method red-texture;
 
-define inline method blue-texture(surface-id, u, v)
+define inline method blue-texture(surface-id :: <integer>, u :: <fp>, v :: <fp>)
  => (color :: <color>, diffusion :: <fp>, specular :: <fp>, phong-exp :: <fp>)
   values(make(<color>, red: 0.0, green: 0.0, blue: 1.0), 
 	 1.0, 0.0, 5.0);
 end method blue-texture;
 
-define inline method mirror-texture(surface-id, u, v)
+define inline method mirror-texture(surface-id :: <integer>, u :: <fp>, v :: <fp>)
  => (color :: <color>, diffusion :: <fp>, specular :: <fp>, phong-exp :: <fp>)
   values(make-white(), 0.0, 1.0, 1.0);
 end method mirror-texture;

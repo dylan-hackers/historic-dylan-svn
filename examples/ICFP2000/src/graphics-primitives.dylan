@@ -9,14 +9,14 @@ define macro graphics-primitive-definer
 
   { define graphics-primitive ?:name() end }
   =>
-  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
+  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <method>, remaining :: <list>);
       let (cont, remaining) = more-tokens.compile-GML;
       "GML: graphics primitive '" ?"name" "' not supported".error;
     end; }
 
   { define graphics-primitive ?:name() ?:body end }
   =>
-  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
+  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <method>, remaining :: <list>);
       let (cont, remaining) = more-tokens.compile-GML;
       values(method(stack :: <list>, env :: <function>) => new-stack :: <list>;
                cont(pair(?body, stack), env)
@@ -26,7 +26,7 @@ define macro graphics-primitive-definer
 
   { define graphics-primitive ?:name(?vars) ?:body end }
   =>
-  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
+  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <method>, remaining :: <list>);
       let (cont, remaining) = more-tokens.compile-GML;
       values(method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
                ?vars;
@@ -37,7 +37,7 @@ define macro graphics-primitive-definer
 
   { define graphics-primitive ?:name(?vars) => (); ?:body end }
   =>
-  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
+  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <method>, remaining :: <list>);
       let (cont, remaining) = more-tokens.compile-GML;
       values(method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
                ?vars;
@@ -82,23 +82,23 @@ define graphics-primitive render(     amb :: <point>
 end graphics-primitive render;
 
 // Object creation: 
-define graphics-primitive sphere(surf :: <function>)
+define graphics-primitive sphere(surf :: <method>)
   make(<sphere>, surface-function: surf);
 end graphics-primitive sphere;
 
-define graphics-primitive plane(surf :: <function>)
+define graphics-primitive plane(surf :: <method>)
    make(<plane>, surface-function: surf);
 end graphics-primitive plane;
 
-define graphics-primitive cube(surf :: <function>) 
+define graphics-primitive cube(surf :: <method>) 
   make(<cube>, surface-function: surf);
 end;
 
-define graphics-primitive cone(surf :: <function>)
+define graphics-primitive cone(surf :: <method>)
   make(<cone>, surface-function: surf);
 end;
 
-define graphics-primitive cylinder(surf :: <function>) 
+define graphics-primitive cylinder(surf :: <method>) 
   make(<cylinder>, surface-function: surf);
 end;
 
@@ -138,7 +138,7 @@ define macro unary-optimization-definer
   { define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <pair>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
       let (cont, remaining) = more-tokens.optimize-compile-GML;
       values( remaining,
-              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              method(stack :: <pair>, env :: <method>) => new-stack :: <list>;
               let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
               cont(pair(?operator(left, right), rest), env)
               end method)
@@ -147,7 +147,7 @@ define macro unary-optimization-definer
     define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <list>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
       let (cont, remaining) = more-tokens.optimize-compile-GML;
       values( remaining,
-              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              method(stack :: <pair>, env :: <method>) => new-stack :: <list>;
               let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
               cont(pair(?operator(left, right), rest), env)
               end method)

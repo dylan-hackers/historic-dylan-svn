@@ -29,7 +29,7 @@ define class <cylinder> (<primitive>)
 end class <cylinder>;
 
 define abstract class <csg-object> (<obj>)
-  slot objects :: <collection>, init-keyword: of:;
+  slot objects :: <simple-object-vector>, init-keyword: of:;
 end class <csg-object>;
 
 define class <csg-union> (<csg-object>)
@@ -41,6 +41,8 @@ define sealed domain make(singleton(<plane>));
 define sealed domain make(singleton(<cube>));
 define sealed domain make(singleton(<cone>));
 define sealed domain make(singleton(<cylinder>));
+define sealed domain make(singleton(<csg-union>));
+
 
 /* --------------------- Methods ---------------------------- */
 

@@ -22,22 +22,22 @@ define inline method vector3D(x :: <fp>, y :: <fp>, z :: <fp>) => (vec :: <3D-ve
   make(<3D-vector>, x: x, y: y, z: z);
 end;
 
-define inline method \* (v1 :: <3D-vector>, v2 :: <3D-vector>)
+define inline sealed method \* (v1 :: <3D-vector>, v2 :: <3D-vector>)
  => (dot-product :: <fp>);
   v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 end method;
 
-define inline method \* (v :: <3D-vector>, n :: <fp>)
+define inline sealed method \* (v :: <3D-vector>, n :: <fp>)
  => (scalar-product :: <3D-vector>);
   vector3D(v.x * n, v.y * n, v.z * n);
 end method;
 
-define inline method \* (n :: <fp>, v :: <3D-vector>)
+define inline sealed method \* (n :: <fp>, v :: <3D-vector>)
  => (scalar-product :: <3D-vector>);
   vector3D(v.x * n, v.y * n, v.z * n);
 end method;
 
-define method \* (a :: <transform>, b :: <transform>)
+define sealed method \* (a :: <transform>, b :: <transform>)
  => (product :: <transform>);
   let r = make(<transform>);
   r.v00 := a.v00 * b.v00 + a.v01 * b.v10 + a.v02 * b.v20 + a.v03 * b.v30;
@@ -60,28 +60,28 @@ define method \* (a :: <transform>, b :: <transform>)
 end;
 
 
-define inline method negative(v :: <3D-vector>)
+define inline sealed method negative(v :: <3D-vector>)
  => (negation :: <3D-vector>);
   vector3D(-v.x, -v.y, -v.z);
 end method;
 
-define inline method \+ (v1 :: <3D-vector>, v2 :: <3D-vector>)
+define inline sealed method \+ (v1 :: <3D-vector>, v2 :: <3D-vector>)
  => (sum :: <3D-vector>);
   vector3D(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 end method;
 
-define inline method \- (v1 :: <3D-vector>, v2 :: <3D-vector>)
+define inline sealed method \- (v1 :: <3D-vector>, v2 :: <3D-vector>)
  => (difference :: <3D-vector>);
   vector3D(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
 end method;
 
-define inline method magnitude(v :: <3D-vector>)
+define inline sealed method magnitude(v :: <3D-vector>)
  => (length :: <fp>);
   let (a, b, c) = values(v.x, v.y, v.z);
   sqrt(a * a + b * b + c * c);
 end method magnitude;
 
-define inline method normalize(v :: <3D-vector>)
+define inline sealed method normalize(v :: <3D-vector>)
   => (result :: <3D-vector>);
   let mag = magnitude(v);
   vector3D(v.x / mag, v.y / mag, v.z / mag);
@@ -107,13 +107,13 @@ end;
 
 define constant $origin :: <3D-point> = point3D(0.0, 0.0, 0.0, 1.0);
 
-define inline method homogenize(p :: <3D-point>)
+define inline sealed method homogenize(p :: <3D-point>)
  => (result :: <3D-point>);
   let recip-w = 1.0 / p.w;
   point3D(p.x * recip-w, p.y * recip-w, p.z * recip-w, 1.0);
 end method homogenize;
 
-define inline method \- (p1 :: <3D-point>, p2 :: <3D-point>)
+define inline sealed method \- (p1 :: <3D-point>, p2 :: <3D-point>)
  => (difference :: <3D-vector>);
   let w1 = p1.w;
   let w2 = p2.w;
@@ -128,7 +128,7 @@ define inline method \- (p1 :: <3D-point>, p2 :: <3D-point>)
   end if;
 end method;
 
-define inline method \+ (p :: <3D-point>, v :: <3D-vector>)
+define inline sealed method \+ (p :: <3D-point>, v :: <3D-vector>)
  => (sum :: <3D-point>);
   let w1 = p.w;
   if (w1 = 1.0)
@@ -138,7 +138,7 @@ define inline method \+ (p :: <3D-point>, v :: <3D-vector>)
   end if;
 end method;
 
-define inline method \- (p :: <3D-point>, v :: <3D-vector>)
+define inline sealed method \- (p :: <3D-point>, v :: <3D-vector>)
  => (difference :: <3D-point>);
   let w1 = p.w;
   if (w1 = 1.0)
@@ -187,7 +187,7 @@ define inline method make-identity() => (mat :: <transform>);
   m;
 end;
 
-define inline method \* (m :: <transform>, v :: <3D-point>)
+define inline sealed method \* (m :: <transform>, v :: <3D-point>)
  => mult-point :: <3D-point>;
   point3D(m.v00 * v.x + m.v01 * v.y + m.v02 * v.z + m.v03 * v.w,
 	   m.v10 * v.x + m.v11 * v.y + m.v12 * v.z + m.v13 * v.w,
@@ -195,7 +195,7 @@ define inline method \* (m :: <transform>, v :: <3D-point>)
 	   m.v30 * v.x + m.v31 * v.y + m.v32 * v.z + m.v33 * v.w);
 end method;
 
-define inline method \* (m :: <transform>, v :: <3D-vector>)
+define inline sealed method \* (m :: <transform>, v :: <3D-vector>)
  => mult-vector :: <3D-vector>;
   vector3D(m.v00 * v.x + m.v01 * v.y + m.v02 * v.z,
 	 m.v10 * v.x + m.v11 * v.y + m.v12 * v.z,
