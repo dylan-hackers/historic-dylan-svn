@@ -52,7 +52,7 @@ end method transform;
 
 define method transform(in :: <char-string>, tag-name :: <symbol>,
                         state :: <xform-state>, str :: <stream>)
-//  write(str, in.text);
+//  write(str, in.text);  // uncomment to see only the data
 end method transform;
 
 // these two xforms should not happen when substitute-entities == #t
