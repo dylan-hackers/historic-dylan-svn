@@ -67,10 +67,15 @@ define function debug(fmt :: <string>, #rest args) => ()
   end if;
 end function debug;
 
+define function force-format(s :: <stream>, fmt :: <string>, #rest args) => ()
+  apply(format, s, fmt, args);
+  force-output(s);
+end function force-format;
+
 // Sending functions. 
 
 define function send-player (s :: <stream>) => ()
-  format(s, $player-msg);
+  force-format(s, $player-msg);
   debug("send-player:\n%s", $player-msg);
 end function send-player;
 
@@ -87,7 +92,7 @@ define method send-command (s :: <stream>, command :: <move>) => ();
       $west => $west-string;
       otherwise => error("send-command: Can't happen!")
     end select;
-  format(s, "%d Move %s", command.bid, direction-string);
+  force-format(s, "%d Move %s", command.bid, direction-string);
   debug("send-command(<move>): bid %d and dir %s\n",
         command.bid, direction-string);
 end method send-command;
@@ -98,20 +103,20 @@ define function send-package-ids (s :: <stream>,
                                   package-ids :: <sequence>) => ()
   let n = package-ids.size;
   for (i from 0 below n)
-    format(s, "%d", package-ids[i]);
-    format(s, if (i < n - 1) " " else "\n" end);
+    force-format(s, "%d", package-ids[i]);
+    force-format(s, if (i < n - 1) " " else "\n" end);
   end for;
 end function send-package-ids;
 
 define method send-command (s :: <stream>, command :: <pick>) => ()
-  format(s, "%d Pick ", command.bid);
+  force-format(s, "%d Pick ", command.bid);
   send-package-ids(s, command.package-ids);
   debug("send-command(<pick>): bid %d, ids %=\n",
         command.bid, command.package-ids)
 end method send-command;
 
 define method send-command (s :: <stream>, command :: <drop>) => ()
-  format(s, "%d Drop ", command.bid);
+  force-format(s, "%d Drop ", command.bid);
   send-package-ids(s, command.package-ids);
   debug("send-command(<drop>): bid %d, ids %=\n",
         command.bid, command.package-ids)
@@ -215,9 +220,7 @@ define function receive-board-row (s :: <stream>,
     end select;
   finally
     block ()
-      debug("foo\n");
       receive-newline(s);
-      debug("bar\n");
     exception (e :: <message-error>)
       add-error(e, "receive-board-row -- row did not terminate as expected\n");
     end block;
