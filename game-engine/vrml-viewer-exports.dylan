@@ -46,6 +46,7 @@ define module vrml-parser
   use dylan;
   use streams;
   use vrml-model;
+  use vector-math, import: {color, 3d-rotation, 3d-vector};
   use meta;
   use format-out;
   

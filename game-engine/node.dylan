@@ -1,5 +1,6 @@
 module: vrml-model
 
+
 define abstract class <node> (<object>)
 end class <node>;
 
@@ -67,7 +68,10 @@ define method initialize(ifs :: <indexed-face-set>, #key, #all-keys)
 end method initialize;
 
 define class <transform> (<container-node>)
+  slot center :: false-or(<3d-vector>) = #f, init-keyword: center:;
+  slot rotation :: false-or(<3d-rotation>) = #f, init-keyword: rotation:;
   slot scale :: false-or(<3d-vector>) = #f, init-keyword: scale:;
+  slot scale-orientation :: false-or(<3d-rotation>) = #f, init-keyword: scale-orientation:;
   slot translation :: false-or(<3d-vector>) = #f, init-keyword: translate:;
 end class <transform>;
 

@@ -9,9 +9,8 @@ define method parse-vrml(file-name :: <string>)
     let input-stream = make(<file-stream>, direction: #"input", locator: file-name);
     let input = read-to-end(input-stream);
 
-    scan-vrmlScene(input);
-    
-    make(<line-grid>);
+    let (pos, scene) = scan-vrmlScene(input);
+    scene;
   cleanup
     *debug-meta-functions?* := save-debug;
   end;
@@ -20,6 +19,7 @@ end;
 // possibly skip over white-space, including vrml # comments to EOL
 //
 define function ws?(str :: <byte-string>, #key start: start :: <integer>, end: stop :: <integer>)
+ => (pos :: <integer>);
   let pos = start;
   let in-comment? = #f;
   block (return)
@@ -42,7 +42,9 @@ define function ws?(str :: <byte-string>, #key start: start :: <integer>, end: s
   pos;
 end ws?;
 
+// should peek() to see if there is a {}[] etc if there is no space
 define function ws(str :: <byte-string>, #key start: start :: <integer>, end: stop :: <integer>)
+ => (pos :: <integer>);
   let pos = start;
   let newpos = ws?(str, start: start, end: stop);
   if (newpos ~== pos)
@@ -56,7 +58,7 @@ end ws;
 // vrmlScene ::=
 //     statements ;
 
-define meta vrmlScene (c, node)
+define meta vrmlScene (c, node) => (node)
   "#VRML V2.0 utf8",
 
   // optional comment
@@ -81,7 +83,7 @@ end vrmlScene;
 //     DEF nodeNameId node |
 //     USE nodeNameId ;
 
-define meta nodeStatement (c, name, node)
+define meta nodeStatement (c, name, node) => (node)
   //TODO BGH implement DEF/USE table
   ws?(c),
   {["DEF", ws(c), scan-Id(name), ws(c)], []},  // optional name
@@ -153,7 +155,7 @@ end nodeStatement;
 //     nodeTypeId { nodeBody } |
 //     Script { scriptBody } ;
 
-define meta node (c, node)
+define meta node (c, node) => (node)
   //TODO BGH implement Script
 
   ws?(c),
@@ -173,8 +175,8 @@ end node;
 //     nodeBodyElement nodeBody |
 //     empty ;
 
-
-define meta AppearanceNode (c, material, texture, textureTransform)
+// ignore appearance for now
+define meta AppearanceNode (c, material, texture, textureTransform) => (#f)
   loop([ws?(c),
         {["material",         ws(c), scan-SFNode(material)],
          ["texture",          ws(c), scan-SFNode(texture)],
@@ -182,14 +184,35 @@ define meta AppearanceNode (c, material, texture, textureTransform)
 end AppearanceNode;
 
 
-define meta CoordinateNode (c, point)
+define meta CoordinateNode (c, point) => (point)
   ws?(c),
   "point", ws?(c), scan-MFVec3f(point)
 end CoordinateNode;
 
-
+//aaaaaaaaarrrrrrrrrggggghhhh ... we absolutely need to get backtracking working!!
 define meta IndexedFaceSetNode
   (c, coord, ccw, coordIndex, creaseAngle)
+  => (begin
+        // need to translate polygons from -1 delimited list of points to
+        // list of lists of points
+        format-out("polygons = %=\n", coordIndex);
+        let polys = make(<stretchy-vector>);
+        let start = 0;
+        for(e in coordIndex, i from 0)
+          if (e == -1)
+            let poly = as(<simple-object-vector>, copy-sequence(coordIndex, start: start, end: i));
+            add!(polys, poly);
+            start := i + 1;
+          end;
+        end;
+        format-out("polys = %=\n", polys);
+        make(<indexed-face-set>,
+             ccw: ccw,
+             crease-angle: creaseAngle | 0.0,
+             points: as(<simple-object-vector>, coord),
+             indices: as(<simple-object-vector>, polys))
+      end)
+  
   loop([ws?(c),
         {//["color",         ws(c), scan-SFNode(material)],
          ["coordIndex",     ws?(c), scan-MFInt32(coordIndex)],
@@ -215,6 +238,7 @@ end MaterialNode;
   
 
 define meta ShapeNode (c, appearance, geometry)
+  => (make(<shape>, appearance: appearance, geometry: geometry))
   loop([ws?(c),
         {["appearance", ws(c), scan-SFNode(appearance)],
          ["geometry",   ws(c), scan-SFNode(geometry)]}])
@@ -223,6 +247,13 @@ end ShapeNode;
 
 define meta TransformNode
   (c, name, center, children, rotation, scale, scaleOrientation, translation)
+  => (make(<transform>,
+           center: center,
+           children: as(<simple-object-vector>, children),
+           rotation: rotation,
+           scale: scale,
+           scale-orientation: scaleOrientation,
+           translation: translation))
   loop([ws?(c),
         {["center",           ws(c), scan-SFVec3f(center)],
          ["children",         ws(c), scan-MFNode(children)],
@@ -347,14 +378,14 @@ end Id;
 //     TRUE |
 //     FALSE ;
 
-define meta SFBool (c)
-  {"TRUE", "FALSE"}
+define meta SFBool (c, bool) => (bool)
+  {["TRUE", yes!(bool)], "FALSE"}
 end SFBool;
 
 // sfcolorValue ::=
 //     float float float ;
 
-define meta SFColor (c, r, g, b)
+define meta SFColor (c, r, g, b) => (color(r, g, b))
   ws?(c), scan-number(r),
   ws(c), scan-number(g),
   ws(c), scan-number(b)
@@ -363,7 +394,7 @@ end SFColor;
 // sffloatValue ::=
 //     float ;
 
-define meta SFFloat (num)
+define meta SFFloat (num) => (num)
   scan-number(num)
 end SFFloat;
      
@@ -383,7 +414,7 @@ end SFFloat;
 //     nodeStatement |
 //     NULL ;
 
-define meta SFNode (c, node)
+define meta SFNode (c, node) => (node)
   ws?(c),
   {"NULL",
    scan-nodeStatement(node)}
@@ -392,11 +423,11 @@ end SFNode;
 // sfrotationValue ::=
 //     float float float float ;
 
-define meta SFRotation (c, w, x, y, z)
-  ws?(c), scan-number(w),
-  ws(c), scan-number(x),
+define meta SFRotation (c, x, y, z, r) => (3d-rotation(x, y, z, r))
+  ws?(c), scan-number(x),
   ws(c), scan-number(y),
-  ws(c), scan-number(z)
+  ws(c), scan-number(z),
+  ws(c), scan-number(r)
 end SFRotation;
 
 
@@ -427,7 +458,7 @@ end SFRotation;
 // sfvec3fValue ::=
 //     float float float ;
 
-define meta SFVec3f (c, x, y, z)
+define meta SFVec3f (c, x, y, z) => (3d-vector(x, y, z))
   ws?(c), scan-number(x),
   ws(c), scan-number(y),
   ws(c), scan-number(z)
@@ -460,11 +491,16 @@ end SFVec3f;
 //     sfint32Value |
 //     sfint32Value sfint32Values ;
 
-define meta MFInt32 (c, val)
+define meta MFInt32 (c, val, vals) => (vals)
+  do(vals := make(<stretchy-vector>)),
   ws?(c),
-  {scan-int(val),
-   ["[", ws?(c), {"]",
-                  [scan-int(val), loop([ws?(c), ",", ws?(c), scan-int(val)]), ws?(c), "]"]}]}
+  {[scan-int(val), do(add!(vals, val))],
+   ["[", ws?(c),
+    {"]",
+     [scan-int(val), do(add!(vals, val)),
+      loop([ws?(c), ",", ws?(c),
+            scan-int(val), do(add!(vals, val))]),
+      ws?(c), "]"]}]}
 end MFInt32;
 
 // 
@@ -473,11 +509,11 @@ end MFInt32;
 //     [ ] |
 //     [ nodeStatements ] ;
 
-define meta MFNode (c, nodes)
+define meta MFNode (c, node, nodes) => (nodes | vector(node))
   ws?(c),
   {["[", ws?(c), {"]",
                   [scan-nodeStatements(nodes), ws?(c), "]"]}],
-   scan-nodeStatement(nodes)}   
+   scan-nodeStatement(node)}   
 end MFNode;
 
 
@@ -485,10 +521,11 @@ end MFNode;
 //     nodeStatement |
 //     nodeStatement nodeStatements ;
 
-define meta nodeStatements (c, nodes, node)
+define meta nodeStatements (c, nodes, node) => (if (nodes.size > 0) nodes else #f end)
+  do(nodes := make(<stretchy-vector>)),
   ws?(c),
-  scan-nodeStatement(node),
-  loop(scan-nodeStatement(node))
+  scan-nodeStatement(node), do(add!(nodes, node)),
+  loop([scan-nodeStatement(node), do(add!(nodes, node))])
 end nodeStatements;
 
 // mfrotationValue ::=
@@ -527,12 +564,15 @@ end nodeStatements;
 //     sfvec3fValue |
 //     sfvec3fValue sfvec3fValues ;
 
-define meta MFVec3f (c, val)
+define meta MFVec3f (c, val, vals) => (vals)
+  do(vals := make(<stretchy-vector>)),
   ws?(c),
-  {scan-SFVec3f(val),
-   ["[", ws?(c), {"]",
-                  [scan-SFVec3f(val), ws?(c),
-                   loop([",", ws?(c), scan-SFVec3f(val), ws?(c)]),
-                   "]"]}]},
+  {[scan-SFVec3f(val), do(add!(vals, val))],
+   
+   ["[", ws?(c),
+    {"]",
+     [scan-SFVec3f(val), do(add!(vals, val)), ws?(c),
+      loop([",", ws?(c), scan-SFVec3f(val), do(add!(vals, val)), ws?(c)]),
+      "]"]}]},
   ws?(c)
 end MFVec3f;
