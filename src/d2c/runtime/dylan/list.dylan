@@ -215,8 +215,8 @@ end;
 define flushable method as
     (class == <list>, vec :: <simple-object-vector>)
     => res :: <list>;
-  for (index :: <integer> from vec.size - 1 to 0 by -1,
-       res = #() then pair(vec[index], res))
+  for (index :: <integer> from (vec.size - 1) to 0 by -1,
+       res = #() then pair(%element(vec, index), res))
   finally
     res;
   end;
