@@ -36,7 +36,6 @@ define module registry-projects-internal
   use operating-system, rename: {load-library => os/load-library};
   use file-system;
   use build-system, exclude: {default-linker, default-linker-setter};
-  use path-utilities;
 
   use file-source-records;
   use dfmc-project-compilation;
