@@ -37,6 +37,7 @@ define module http-server
     start-server,
     stop-server,
     register-uri,
+    register-alias-uri,
     <request>,
     request-query-values,        // get the keys/vals from the current GET or POST request
     request-method,              // Returns #"get", #"post", etc
@@ -80,12 +81,16 @@ define module http-server
   create
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class
+    <taglib>,
+    register-taglib,
     tag-definer,                 // Defines a new DSP tag function and registers it with a page
     register-tag,                // This can be used to register tag functions that weren't
                                  //   created by "define tag".
     <page-context>,
     page-context,                // Returns a <page-context> if a page is being processed.
                                  //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
+    register-label,
+    get-label,
     quote-html;                  // Change < to &lt; etc
 
   // Logging

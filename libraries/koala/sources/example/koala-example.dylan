@@ -56,7 +56,8 @@ end;
 // also be a sequence of URIs if you want to associate the page with multiple URIs.
 //
 define page hello-world-page (<page>)
-    (uri: list("/hello", "/hello-world"))
+    (uri: "/hello-world",
+     aliases: "/hello")
 end;
 
 // Respond to a GET for the /hello URI.  Note the use of do-query-values to find all the values
@@ -98,18 +99,8 @@ end;
 define class <example-page> (<dylan-server-page>)
 end;
 
-define variable *tag-predicates* = make(<string-table>);
-
-define function register-tag-predicate
-    (name :: <string>, fun :: <function>)
-  //---*** TODO: give some sort of warning when replacing a name.
-  *tag-predicates*[name] := fun;
-end;
-
-define function tag-predicate
-    (name :: <string>) => (predicate :: false-or(<function>))
-  *tag-predicates*[name]
-end;
+define constant $example-taglib
+  = register-taglib("example", "ex");
 
 define method logged-in?
     (page, request)
@@ -118,17 +109,18 @@ define method logged-in?
 end;
 
 begin
-  register-tag-predicate("logged-in?", logged-in?);
+  register-label("logged-in?", logged-in?);
 end;
 
-define tag iff (page :: <example-page>,
-                request :: <request>,
-                response :: <response>,
-                tag-body :: <function>,
-                #key test)
-  let fun = test & tag-predicate(test);
+// ---*** TODO: Make this real and move into dsp.dylan
+define body tag iff in $example-taglib
+    (page :: <example-page>,
+     response :: <response>,
+     do-body :: <function>,
+     #key test, request)
+  let fun = test & get-label(test);
   when (fun & fun(page, request))
-    tag-body();
+    do-body();
   end;
 end;
 
@@ -151,8 +143,8 @@ define method note-form-error
   set-attribute(context, #"errors", errors);
 end;
 
-define tag show-errors
-    (page :: <example-page>, request :: <request>, response :: <response>)
+define tag show-errors in $example-taglib
+    (page :: <example-page>, response :: <response>, #key)
   let errors = get-attribute(page-context(), #"errors");
   when (errors)
     let out = output-stream(response);
@@ -171,7 +163,8 @@ end;
 // define a page for it since it's not under the *document-root*.
 //
 define page example-home-page (<example-page>)
-    (uri: list("/example/home.dsp", "/example"),
+    (uri: "/example/home.dsp",
+     aliases: "/example",
      source: document-location("example/home.dsp"))
 end;
 
@@ -221,10 +214,12 @@ end;
 
 // Note this tag is defined on <example-page> so it can be accessed from any
 // page in this example web application.
-define tag current-username (page :: <example-page>,
-                             request :: <request>,
-                             response :: <response>)
-  let username = get-attribute(get-session(request), #"username");
+define tag current-username in $example-taglib (page :: <example-page>,
+                                                response :: <response>,
+                                                #key request :: <request>)
+  let username
+    = get-form-value("username")
+      | get-attribute(get-session(request), #"username");
   username & write(output-stream(response), username);
 end;
 
@@ -237,10 +232,8 @@ end;
 
 // Defines a tag that looks like <dsp:hello/> in the DSP source file.  i.e.,
 // it has no body.
-define tag hello (page :: <dsp-test-page>,
-                  request :: <request>,
-                  response :: <response>)
-  ignore(page);
+define tag hello in $example-taglib
+    (page :: <dsp-test-page>, response :: <response>, #key)
   format(output-stream(response), "Hello, cruel world!");
 end;
 
@@ -254,29 +247,24 @@ define thread variable *repetition-number* = 0;
 // variables or object state to communicate with the tags that are executed
 // during the execution of the body part.  See test.dsp for how this tag is
 // invoked.
-define tag repeat (page :: <dsp-test-page>,
-                   request :: <request>,
-                   response :: <response>,
-                   process-body :: <function>)
+define body tag repeat in $example-taglib
+    (page :: <dsp-test-page>, response :: <response>, do-body :: <function>, #key)
   let n-str = get-query-value("n");
   let n = (n-str & string-to-integer(n-str)) | 5;
   for (i from 1 to n)
     dynamic-bind (*repetition-number* = i)
-      process-body();
+      do-body();
     end;
   end;
 end;
 
-define tag display-iteration-number (page :: <dsp-test-page>,
-                                     request :: <request>,
-                                     response :: <response>)
+define tag display-iteration-number in $example-taglib
+    (page :: <dsp-test-page>, response :: <response>, #key)
   format(output-stream(response), "%d", *repetition-number*);
 end;
 
-define tag show-keys (page :: <dsp-test-page>,
-                      request :: <request>,
-                      response :: <response>,
-                      #key arg1, arg2)
+define tag show-keys in $example-taglib
+    (page :: <dsp-test-page>, response :: <response>, #key arg1, arg2)
   format(output-stream(response),
          "The value of arg1 is %=.  The value of arg2 is %=.", arg1, arg2);
 end;
@@ -298,17 +286,17 @@ define variable *iteration-number* :: <integer> = -1;
 define variable *iteration-sequence* :: <sequence> = #[];
 
 // I would call this "iterate" but it conflicts with the existing Dylan iterate macro.
-define tag iterator (page :: <dylan-server-page>,
-                     request :: <request>,
-                     response :: <response>,
-                     process-body :: <function>,
-                     #key name)
+define body tag iterator in $example-taglib
+    (page :: <dylan-server-page>,
+     response :: <response>,
+     do-body :: <function>,
+     #key name)
   let iterations-fun = name & element(*table-name-map*, name, default: #f);
   if (iterations-fun)
     let n-rows :: <integer> = iterations-fun();
     for (i from 1 to n-rows)
       dynamic-bind (*iteration-number* = i)
-        process-body();
+        do-body();
       end;
     end;
   else
@@ -319,16 +307,16 @@ define tag iterator (page :: <dylan-server-page>,
   end;
 end;
 
-define tag no-iterations (page :: <dylan-server-page>,
-                          request :: <request>,
-                          response :: <response>,
-                          process-body :: <function>,
-                          #key name)
+define body tag no-iterations in $example-taglib
+    (page :: <dylan-server-page>,
+     response :: <response>,
+     do-body :: <function>,
+     #key name)
   let iterations-fun = name & element(*table-name-map*, name, default: #f);
   if (iterations-fun)
     let n-rows :: <integer> = iterations-fun();
     when (n-rows == 0)
-      process-body();
+      do-body();
     end;
   else
     format(output-stream(response),
@@ -337,22 +325,19 @@ define tag no-iterations (page :: <dylan-server-page>,
   end;
 end tag no-iterations;
 
-define tag iteration-number (page :: <dylan-server-page>,
-                             request :: <request>,
-                             response :: <response>)
+define tag iteration-number in $example-taglib
+    (page :: <dylan-server-page>, response :: <response>, #key)
   format(output-stream(response), "%d", *iteration-number*);
 end;
 
-define tag row-bgcolor (page :: <dylan-server-page>,
-                        request :: <request>,
-                        response :: <response>)
+define tag row-bgcolor in $example-taglib
+    (page :: <dylan-server-page>, response :: <response>, #key)
   write(output-stream(response),
         if(even?(*iteration-number*)) "#EEEEEE" else "#FFFFFF" end);
 end;
 
-define tag demo-sessions (page :: <dsp-test-page>,
-                          request :: <request>,
-                          response :: <response>)
+define tag demo-sessions in $example-taglib
+    (page :: <dsp-test-page>, response :: <response>, #key request :: <request>)
   let session :: <session> = get-session(request);
   let x = get-attribute(session, #"xxx");
   format(output-stream(response), "The value of session attribute xxx is %=.", x);

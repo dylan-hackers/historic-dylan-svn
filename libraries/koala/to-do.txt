@@ -30,11 +30,7 @@ koala
     This is basically just adding a few methods to the <page> class
     that allow you to set attributes and such.  And clearing the attrs
     after the request is completed?
-  - When the home page is exported as /example the links in the page
-    are relative to /.  I want them to be relative to /example/.  This
-    means the canonical url for the page needs to be /example/ or 
-    /example/home.dsp, and when looked up via /example it needs to do
-    the right thing.
+  - Improve
 
 * Miscellaneous
   - Replace some uses of copy-sequence with substring.  They are probably

@@ -15,7 +15,7 @@ define class <http-error> (<simple-error>)
 end;
 
 define constant $application-error-code = 599;
-define constant $application-error-message = "Web server application error";
+define constant $application-error-message = "Application error";
 
 // Any error caused by non-server code will be reported as a server error.
 // 599 is a non-standard return code, but clients SHOULD display the message
@@ -140,8 +140,15 @@ define http-error unsupported-http-version-error (<http-server-error>)
 define class <internal-server-error> (<http-server-error>)
 end;
 
+//---TODO: I put 500 from memory.  Is it correct?
+define http-error internal-server-error (<internal-server-error>)
+    500 "Internal server error";
+
 // For errors caused by misuse of the API.  i.e., user errors such as registering a page
 // that has already been registered.  Not for errors that will be reported to the client.
 define class <application-error> (<simple-error>)
 end;
+
+define http-error application-error (<application-error>)
+    $application-error-code $application-error-message;
 
