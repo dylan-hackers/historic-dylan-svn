@@ -41,11 +41,11 @@ define variable *document-root* :: false-or(<directory-locator>) = #f;
 define variable *default-document-names* :: <sequence>
   = #["index.html", "index.htm"];
 
-// The value sent in the "Content-type" header for static file responses if no other
+// The value sent in the "Content-Type" header for static file responses if no other
 // value is set.  See *mime-type-map*.
 define variable *default-static-content-type* :: <string> = "application/octet-stream";
 
-// The value sent in the "Content-type" header for dynamic responses if no other value is
+// The value sent in the "Content-Type" header for dynamic responses if no other value is
 // set.
 define variable *default-dynamic-content-type* :: <string> = "text/html";
 
