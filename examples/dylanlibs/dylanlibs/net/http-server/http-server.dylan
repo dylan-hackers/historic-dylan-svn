@@ -3,13 +3,38 @@ Synopsis:  Simple HTTP Server
 Author:    Chris Double
 Copyright: (C) 2001, Chris Double.  All rights reserved.
 
+// The object that holds the header/value mapping.
+// The key is a <symbol> with the name of the header.
+define constant <header-table> = <table>;
+
+// Return the string value of the given header or #f if
+// the header does not exist.
+define method find-header-value(table :: <header-table>, key :: <symbol>)
+ => (result :: false-or(<string>))
+  element(table, key, default: #f);
+end method find-header-value;
+
+// Returns the value of the given header as the specified type
+// or #f if the header does not exist.
+define method find-header-value-as(class :: <class>, table :: <header-table>, key :: <symbol>)
+ => (result :: false-or(<class>))
+  let result = find-header-value(table, key);
+  result & as(class, result);
+end method find-header-value-as;
+
+define method find-header-value-as(class == <integer>, table :: <header-table>, key :: <symbol>)
+ => (result :: false-or(<class>))
+  let result = find-header-value(table, key);
+  result & string-to-integer(result);
+end method find-header-value-as;
+
 // A <request> holds the details contained within an http request
 // so that handlers can act upon them.
 define class <request> (<object>)
   //  #"get", #"post", etc.
   constant slot request-type :: <symbol>, required-init-keyword: request-type:;
   constant slot request-path :: <string>, required-init-keyword: path:;
-  constant slot request-headers :: <string-table>, required-init-keyword: headers:;
+  constant slot request-headers :: <header-table>, required-init-keyword: headers:;
   constant slot request-query :: false-or(<form-query>) = #f, init-keyword: query:;  
   constant slot request-host :: false-or(<string>) = #f, init-keyword: host:;
 
@@ -78,12 +103,11 @@ define method can-handle-request?(handler :: <handler>,
   end;
 
   local method host-matches?() => (r :: <boolean>)
-    ~request.request-host 
+    ~handler.handler-host
               |
-    (handler.handler-host &
-      handler.handler-host = request.request-host)
-                   |
-    ~handler.handler-host;                   
+    (handler.handler-host & 
+      request.request-host &
+      handler.handler-host = request.request-host)             
   end;
 
   request-type-matches?() & host-matches?() & path-matches?();
@@ -214,24 +238,23 @@ define method decode-request(request-line :: <string>)
 end method decode-request;
 
 define method extract-headers-and-body(stream :: <stream>)
- => (r :: false-or(<string-table>), body :: false-or(<string>))
-  let result = make(<string-table>);
+ => (r :: false-or(<header-table>), body :: false-or(<string>))
+  let result = make(<header-table>);
   let body = #f;
   for(line = read-line(stream, on-end-of-stream: #f)
       then read-line(stream, on-end-of-stream: #f),
       until: ~line | empty?(line) )
 	let p = subsequence-position(line, ":");
-	let key = copy-sequence(line, end: p);
+	let key = as(<symbol>, copy-sequence(line, end: p));
 	let value = copy-sequence(line, start: p + 2);
 	result[key] := value;
   finally   
     when(empty?(line))
-      let content-length = element(result, "Content-Length", default: #f);
+      let content-length = find-header-value-as(<integer>, result, #"content-length");
       when(content-length)
         // read(...) and read-into!(...) are returning strange errors when
         // used on sockets. As a result, I'm using read-element content-length times.
         // Email sent to Functional Objects requesting advice on the issue.
-        let content-length = string-to-integer(content-length);
         let temp-body = make(<byte-string>, size: content-length);
         body := 
           block(return)
@@ -302,16 +325,14 @@ end method handler-not-found;
 
 define method handle-request(server :: <simple-http-server>, remote-socket :: <stream>)
   let (request-type, path, query, protocol) = decode-request(read-line(remote-socket));
-  let (headers :: <string-table>, body) = extract-headers-and-body(remote-socket);
+  let (headers :: <header-table>, body) = extract-headers-and-body(remote-socket);
 
-  // Look for 'Host' header.
-  let host = element(headers, "Host", default: #f);
-  let request = make(<request>,
+ let request = make(<request>,
                      request-type: request-type,
                      path: path,
                      headers: headers,
                      query: query,
-                     host: host,
+                     host: find-header-value(headers, #"host"),
                      body: body);
                      
   let handler = find-matching-handler(server, request);
