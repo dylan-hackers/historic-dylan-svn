@@ -88,19 +88,8 @@ end;
 define functional class <llvm-function-type>(<llvm-type>)
 end;
 
-/*
-define method make (f == <llvm-function-type>, #rest rest,
-		    #key return-type :: <llvm-type>,
-		         argument-types :: <simple-object-vector>,
-		         variadic :: <boolean>)
- => result :: <llvm-function-type>;
-
-  next-method(f, pointer: call-out("make_llvm_FunctionType", ptr:,
-				   ptr: return-type.raw-value,
-				   ptr: object-address(argument-types),
-				   int: variadic & 1 | 0 / * %%primitive("as-boolean", variadic)* /));
+define functional class <llvm-struct-type>(<llvm-type>)
 end;
-*/
 
 define macro llvm-glue-definer
   { define llvm-glue ?class-name:name () ?rest:* end }
@@ -145,6 +134,7 @@ define macro llvm-glue-definer
    { <llvm-gep-instruction> } => { "GetElementPtrInst" }
    { <llvm-store-instruction> } => { "StoreInst" }
    { <llvm-load-instruction> } => { "LoadInst" }
+   { <llvm-struct-type> } => { "StructType" }
 end;
 
 
@@ -154,6 +144,10 @@ define llvm-glue <llvm-function-type> ()
 	 variadic :: <boolean>), ptr: return-type.raw-value,
 				 ptr: object-address(argument-types),
 				 int: variadic & 1 | 0;
+end;
+
+define llvm-glue <llvm-struct-type> ()
+  make, (members :: <simple-object-vector> /* of: <llvm-type> */), ptr: members.object-address;
 end;
 
 
@@ -450,26 +444,22 @@ define method emit-region
     => ();
   for (assign = region.first-assign then assign.next-op,
        while: assign)
-///    maybe-emit-source-location(assign.source-location, file);
 
-  let bb = make(<llvm-basic-block>, name: "body", into: llvm-function);
-
+    let bb = make(<llvm-basic-block>, name: "body", into: llvm-function);
     emit-llvm-assignment(assign.defines, assign.depends-on.source-exp, 
 			 assign.source-location, bb);
-///    if (byte-string.stream-size >= 65536)
-///      add!(file.file-guts-overflow, byte-string.stream-contents);
-///    end if;
   end for;
 end;
 
 
 define function representation-llvm-type(rep)
-//  make(<llvm-primitive-type>, id: VoidTyID:); // ### IMPLEMENT!
-
 // very inefficient! ###
   select(rep.representation-c-type by \=)
+  "int" => make(<llvm-primitive-type>, id: IntTyID:);
   "long" => make(<llvm-primitive-type>, id: LongTyID:);
+  "void *" => make(<llvm-pointer-type>, base: make(<llvm-primitive-type>, id: VoidTyID:));
   "heapptr_t" => make(<llvm-pointer-type>, base: make(<llvm-primitive-type>, id: VoidTyID:));
+  "descriptor_t" => make(<llvm-pointer-type>, base: make(<llvm-struct-type>, members: vector(make(<llvm-pointer-type>, base: make(<llvm-primitive-type>, id: VoidTyID:)), make(<llvm-pointer-type>, base: make(<llvm-primitive-type>, id: VoidTyID:)))));
   end;
 end;
 
@@ -545,15 +535,10 @@ define method emit-function
     (function :: <fer-function-region>, backend == llvm:, file :: <file-state>)
     => ();
 
-
-
   let m = make(<llvm-module>, name: "test");
   let inttype = make(<llvm-primitive-type>, id: IntTyID:);
   let argument-types = vector(inttype);
   
-//  let func = make(<llvm-function-type>, return-type: void, argument-types: argument-types, variadic: #t);
-
-
   let function-info = get-info-for(function, file);
   let func = compute-llvm-prototype(function, function-info);
   let f = make(<llvm-function>, name: function.name.clean-for-comment, type: func, module: m);

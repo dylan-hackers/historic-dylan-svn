@@ -128,6 +128,13 @@ LLVM_MAKE(PointerType, (const Type* base))
   return PointerType::get(base);
 }
 
+LLVM_MAKE(StructType, (const SimpleObjectVector* membertypes))
+{
+  typedef desc_const_iterator<const Type*> extr;
+  const std::vector<const Type*> members(extr(membertypes->begin()), extr(membertypes->end()));
+  return StructType::get(members);
+}
+
 LLVM_MAKE(GetElementPtrInst, (Value* ptr, const SimpleObjectVector* indices, const ByteString* name, BasicBlock* atEnd, Instruction* before))
 {
   typedef desc_const_iterator<Value*> extr;
@@ -248,7 +255,7 @@ LLVM_TYPEID2TYPE(LabelTyID)
 
 // iterator stuff
 
-extern "C" void* get_llvm_Iterator_Function_abegin(Function* f)
+extern "C" void* get_llvm_Iterator_Function_arg_begin(Function* f)
 {
-  return f->abegin();
+  return f->arg_begin();
 }
