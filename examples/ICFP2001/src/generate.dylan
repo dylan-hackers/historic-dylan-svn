@@ -85,6 +85,10 @@ define method generate-pops(state :: <generator-state>)
     end while;
     list(state);
   else
+    while((~state.to.font-size & state.from.font-size) |
+            (~state.to.color & state.from.color))
+      state := pop-tag(state);
+    end while;
     let pops = list(state);
     while(state.open-tag-stack.head ~== #())
       state := pop-tag(state);

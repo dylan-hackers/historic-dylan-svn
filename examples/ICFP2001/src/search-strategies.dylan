@@ -14,6 +14,7 @@ define method breadth-first-search(initial-state, make-successors, cost-function
 
   while(states ~= #())
   let new-states = #();
+    check-timeout();
     let new-states = #();
     for(i in make-successors(states))
       if(finished?(i))
@@ -38,7 +39,8 @@ define method beam-search(initial-state, make-successors, cost-function, finishe
     end method cost-order;
 
   while(states ~= #())
-  let new-states = #();
+    check-timeout();
+    let new-states = #();
     let new-states = #();
     for(i in make-successors(states))
       if(finished?(i))
