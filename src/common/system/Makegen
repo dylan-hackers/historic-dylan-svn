@@ -28,8 +28,13 @@ $use_previous_melange=1;
 
 &emit_c_file_rule("$plat-portability");
 
-&emit_library_rule("$plat-system", '$(BUILDROOT)/force.timestamp', '',
-                   'compile', 'no-mindy', 'install');
+if ($enable_bootstrap) {
+    &emit_library_rule("bootstrap-system", '$(BUILDROOT)/force.timestamp', '',
+		       'compile', 'compile-mindy');
+} else {
+    &emit_library_rule("$plat-system", '$(BUILDROOT)/force.timestamp', '',
+		       'compile', 'no-mindy', 'install');
+}
 
 open(CONSTANTS,">architecture.dylan")
     || die "cannot create architecture.dylan";
