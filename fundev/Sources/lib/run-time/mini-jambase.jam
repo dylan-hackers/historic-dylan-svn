@@ -22,8 +22,10 @@
 #
 	AR		?= ar ru ;
 	CC		?= cc ;
+	CP		?= cp -f ;
 	DOT		?= . ;
 	DOTDOT		?= .. ;
+	FILEMODE	?= 644 ;
 	MKDIR		?= mkdir ;
 	RM		?= rm -f ;
 
@@ -33,6 +35,42 @@
 #
 # Rules
 #
+
+rule Cc
+{
+	Depends $(<) : $(>) ;
+
+	# If the compiler's -o flag doesn't work, relocate the .o
+
+	if $(RELOCATE)
+	{
+	    CcMv $(<) : $(>) ;
+	}
+
+	# Just to clarify here: this sets the per-target CCFLAGS to
+	# be the current value of (global) CCFLAGS and SUBDIRCCFLAGS.
+	# CCHDRS and CCDEFS must be reformatted each time for some
+	# compiles (VMS, NT) that malign multiple -D or -I flags.
+
+	CCFLAGS on $(<) += $(CCFLAGS) $(SUBDIRCCFLAGS) $(OPTIM) ;
+
+	CCHDRS on $(<) = [ on $(<) FIncludes $(HDRS) ] ;
+	CCDEFS on $(<) = [ on $(<) FDefines $(DEFINES) ] ;
+}
+
+rule Chmod
+{
+	if $(CHMOD) { Chmod1 $(<) ; }
+}
+
+rule File
+{
+	Depends files : $(<) ;
+	Depends $(<) : $(>) ;
+	SEARCH on $(>) = $(SEARCH_SOURCE) ;
+	MODE on $(<) = $(FILEMODE) ;
+	Chmod $(<) ;
+}
 
 rule LibraryFromObjects
 {
@@ -189,12 +227,35 @@ rule FGristFiles
 }
 
 #
+# Operating system specific utility rules
+# First, the (generic) UNIX versions
+#
+
+rule FDefines { return -D$(<) ; }
+rule FIncludes { return -I$(<) ; }
+
+#
 # Actions
 #
+
+actions Cc
+{
+	$(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+}
+
+actions Chmod1
+{
+	$(CHMOD) $(MODE) $(<)
+}
 
 actions piecemeal together existing Clean
 {
 	$(RM) $(>)
+}
+
+actions File
+{
+	$(CP) $(>) $(<)
 }
 
 actions MkDir1
