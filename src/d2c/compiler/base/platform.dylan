@@ -1,6 +1,6 @@
 module: platform
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.13 2003/07/16 15:03:36 scotek Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.13.2.1 2003/11/20 19:35:15 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -478,8 +478,8 @@ end function add-platform!;
 // Reads the platform information out of the specified file.  Returns
 // a table mapping platform names (as symbols) to <platform>s.
 //
-define /* exported */ function parse-platforms-file (filename :: <byte-string>);
-  let source = make(<source-file>, name: filename);
+define /* exported */ function parse-platforms-file (filename :: <file-locator>);
+  let source = make(<source-file>, locator: filename);
   let result = make(<object-table>);
   let state = make(<object-table>);
 
