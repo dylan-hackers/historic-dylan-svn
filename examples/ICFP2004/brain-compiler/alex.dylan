@@ -202,7 +202,7 @@ define brain alex-keith
   [gatherer:]
     Sub keith-gatherer;
 
-end;
+end brain;
 
 
 alex-keith().dump-brain;
