@@ -1,4 +1,4 @@
-RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.1 2000/06/24 16:19:02 emk Exp $
+RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.2 2000/06/25 00:08:57 emk Exp $
 Module: dylan-viscera
 Copyright: See below.
 Synopsis: Runtime support for limited collections.
@@ -46,7 +46,7 @@ define constant limited-type-base-class = limited-integer-base-class;
 //  To add a new limited collection type, define an appropriate method on
 //  make-limited-collection.
 
-define inline method make
+define sealed inline method make
     (type :: <limited-collection>, #rest supplied-keys, #key, #all-keys)
  => (instance :: <collection>)
   apply(make-limited-collection,
