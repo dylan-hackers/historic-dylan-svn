@@ -368,4 +368,6 @@ end function read-state-machine;
 
 define function parse-instruction(s :: <byte-string>)
   => (i :: <instruction>)
+  let constituents = split-at-whitespace(s);
+
   
