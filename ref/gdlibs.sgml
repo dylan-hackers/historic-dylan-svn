@@ -3891,7 +3891,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     </sect1>
 
     <sect1 id="lib-transcendental-h">
-    <title>The h and arc-h Trig Functions</title>
+    <title>The Hyperbolic Functions</title>
     
     <dylangenericdef>
       <defname>sinh</defname>
@@ -4106,12 +4106,42 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    as the base, but you may change that by supplying a different
 	    value.  For example,
 	  </para>
-	  <PROGRAMLISTING>
+	  <programlisting>
 log(100000, base: 10) => 5.0
-	  </PROGRAMLISTING>
+	  </programlisting>
 	</defdescription>
       </dylangenericdef>
 
+      <dylangenericdef>
+	<defname>exp</defname>
+	<defsummary>Returns the e raised to a number</defsummary>
+        <defparameters>
+    	  <param>
+	    <paramname>x</paramname>
+	    <paramtype>&lt;real&gt;</paramtype>
+	  </param>
+        </defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>y</paramname>
+	    <paramtype>&lt;float&gt;</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    <function>exp</function> returns e raised to the number supplied.
+	    You may be wondering what purpose this function serves, given
+	    <constant>$double-e</constant> and <function>^</function>.  
+	    Actually, <function>exp</function> is a favorite function of mine,
+	    because it is used in the compounding interest formula, which is:
+	    T = Pert (The resulting Total money is Principal multiplied by e 
+	    to the rt power (rate times time)).  So, 10000 USD will be over
+	    33000 USD if held for twelve years in an account earning 10 
+	    percent.  How many years will it take to make 1000000 USD if you
+	    start investing 10000 USD at 21 percent and add 500 USD per month?
+	  </para>
+	</defdescription>
+      </dylangenericdef>
     </sect1>
 
   </CHAPTER>
