@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/Base-cw.lid,v 1.1.4.1 2004/07/21 21:14:04 andreas Exp $
 library: compiler-base
 unit-prefix: base
 unique-id-base: 10000

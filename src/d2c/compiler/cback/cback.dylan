@@ -3764,6 +3764,16 @@ define method emit-copy
   target ~= expr & format(stream, "%s = %s;\n", target, expr);
 end;
 
+define method emit-copy
+    (target :: <string>, target-rep :: <c-data-word-representation>,
+     source :: <string>, source-rep :: <magic-representation>,
+     file :: <file-state>)
+ => ();
+  let stream = file.file-guts-stream;
+  let c-type-string = source-rep.representation-c-type;
+  format(stream, "%s = allocate(sizeof(%s)); *((%s*)%s) = %s;\n",
+         target, c-type-string, c-type-string, target, source);
+end;
 
 
 // conversion-expr

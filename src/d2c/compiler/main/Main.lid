@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/Main.lid,v 1.7.2.2 2004/02/03 05:06:29 andreas Exp $
 library: compiler-main
 unit-prefix: main
 unique-id-base: 12000

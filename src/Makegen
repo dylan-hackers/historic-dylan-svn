@@ -25,8 +25,6 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/Makegen,v 1.24.2.4 2004/07/22 14:05:03 prom Exp $
-##
 ##  This is the makegen file for the entire Dylan tree.
 ##
 

@@ -790,6 +790,7 @@ define module c-representation
     <general-representation>,
     <heap-representation>,
     <immediate-representation>,
+    <magic-representation>,
     <c-data-word-representation>,
 
     representation-class,

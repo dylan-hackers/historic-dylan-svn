@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/Convert.lid,v 1.5.4.1 2004/07/21 21:14:06 andreas Exp $
 library: compiler-convert
 unit-prefix: convert
 unique-id-base: 11000

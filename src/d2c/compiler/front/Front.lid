@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/Front.lid,v 1.5.4.1 2004/07/21 21:14:07 andreas Exp $
 library: compiler-front
 unit-prefix: front
 unique-id-base: 10250

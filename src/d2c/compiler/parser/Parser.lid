@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/Parser.lid,v 1.4.10.1 2004/07/21 21:14:09 andreas Exp $
 library: compiler-parser
 unit-prefix: parser
 unique-id-base: 10500

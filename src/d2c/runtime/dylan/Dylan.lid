@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/Dylan.lid,v 1.5.2.1 2003/12/02 19:41:36 andreas Exp $
 library: Dylan
 unique-id-base: 0
 
