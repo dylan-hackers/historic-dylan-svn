@@ -482,7 +482,7 @@ Flip 2 1 55
 end; // alex-killer2
 
 
-define sub brain alex-killer-fixed
+define sub brain alex-killer-original (leave)
     Sense FoeHome, (attacker-success, a-search-foe-home);
 
   [attacker-success:]
@@ -492,22 +492,29 @@ define sub brain alex-killer-fixed
     Sense Ahead FoeHome, (a-near-hub-ahead);
     Sense LeftAhead FoeHome, (a-near-hub-left);
     Sense RightAhead FoeHome, (a-near-hub-right);
-    Flip 1, (a-move-forward, a-move-lr);
+    Flip 2, (a-move-forward, a-move-lr);
 
 
   // We are near their hill.
   [a-near-hub-ahead:]
-    Move alex-killer-fixed => a-near-hub-ahead-blocked;
+    Move alex-killer-original => a-near-hub-ahead-blocked;
 
   [a-near-hub-left:]
     Turn Left;
-    Move alex-killer-fixed => a-search-foe-home;
+    Move alex-killer-original => a-search-foe-home;
 
   [a-near-hub-right:]
     Turn Right;
-    Move alex-killer-fixed => a-search-foe-home;
+    Move alex-killer-original => a-search-foe-home;
 
   [a-near-hub-ahead-blocked:]
+    Flip 3, (try-r, try-l);
+
+  [try-l:]
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [try-r:]
     Turn Right;
     Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
 
@@ -530,34 +537,42 @@ define sub brain alex-killer-fixed
 
   // We are still searching.
   [a-move-forward:]
-    Move alex-killer-fixed => a-move-lr;
+    Move alex-killer-original => a-move-lr;
 
   [a-move-lr:]
-    Flip 1, (a-move-left, a-move-right);
+    Flip 2, (a-move-left, a-move-right);
 
   [a-move-left:]
     Turn Left;
-    Move alex-killer-fixed => a-move-left;
+    Move alex-killer-original => a-move-left;
 
   [a-move-right:]
     Turn Right;
-    Move alex-killer-fixed => a-move-right;
+    Move alex-killer-original => a-move-right;
 
-end; // alex-killer-fixed
+end; // alex-killer-original
 
 
 // Main brain.
 define brain combo
+  Flip 1, (a-original, a-original);
+
   Flip 7, (protector, gatherer);
 
   [gatherer:]
-    Flip 3, (attacker, gatherer);
+    Flip 3, (attacker);
     Sub bruce-spiral;
 
   [protector:]
     Sub keith-defensant2;
 
   [attacker:]
+    Flip 2, (a-original, a-killer-2);
+
+  [a-original:]
+    Sub alex-killer-original;
+
+  [a-killer-2:]
     Sub alex-killer2;
 
 end; // combo
