@@ -110,12 +110,14 @@ define method process-command(state :: <state>, command :: <pick>) => (state :: 
   let new-money = bot.money & bot.money - abs(command.bid);
   let loc = bot.location;
   for(pid in command.package-ids)
-    state := add-package(state, copy-package(find-package(state, pid, create: #t), 
+    let package* = copy-package(find-package(state, pid, create: #t), 
 					     new-location: loc, 
-					     new-carrier: bot));
+					     new-carrier: bot);
+    state := add-package(state, package*);
+    let inventory = remove(bot.inventory, pid, test: method(x, y) x.id == y.id end);
+    inventory := add(bot.inventory, package*);
     state := add-robot(state, copy-robot(bot, 
-                                         new-inventory: add(bot.inventory, 
-                                                            find-package(state, pid)),
+                                         new-inventory: inventory,
                                          new-money: new-money));
   end for;
   state;
@@ -141,6 +143,7 @@ define method process-command(state :: <state>, command :: <drop>)
     end if;
     let bot = find-robot(state, command.robot-id);
     let new-money = bot.money & bot.money - abs(command.bid);
+//    let new-score = if(p.weight) bot.score else bot.score + p.weight end;
     let new-inventory = remove(bot.inventory, p,
                                test: method (p*, p) p*.id = p.id end method);
     let bot* = copy-robot(bot, new-inventory: new-inventory, new-money: new-money);
