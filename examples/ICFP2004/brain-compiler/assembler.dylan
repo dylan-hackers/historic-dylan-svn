@@ -11,9 +11,10 @@ define macro brain-definer
          end function }
 
   { define sub brain ?:name ?states end }
-    => { define function ?name(instrs, label, current-counter) => ();
-           push-thunk(instrs, return:, 0, curry(lookup, instrs, label, current-counter + 1));
-           push-thunk(instrs, label, current-counter, curry(lookup, instrs, sub-start:, 0));
+    => { define function ?name(outer-instrs, label, current-counter) => ();
+           let instrs = make(<table>);
+           push-thunk(instrs, return:, 0, curry(lookup, outer-instrs, label, current-counter + 1));
+           push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, sub-start:, 0));
            let (label, counter) = values(sub-start:, -1);
            ?states;
          end function }
