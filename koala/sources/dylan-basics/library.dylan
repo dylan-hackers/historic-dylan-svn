@@ -27,8 +27,7 @@ define module dylan-basics
     join-as,
     join,
     remove-keys,        // For removing keywords from #rest arglists.
-    raise,
-    \vec;
+    raise;
 end;
 
 
