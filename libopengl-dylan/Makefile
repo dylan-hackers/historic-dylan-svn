@@ -6,10 +6,10 @@ ifeq ($(shell if [ -d "/System/Library/Frameworks" ]; then echo -n darwin; else 
 else
 ifeq ($(shell uname), NetBSD)
 	LIDFILE=opengl.lid
-	MELANGE=melange -I/usr/pkg/include -I/usr/X11R6/include --d2c
+	MELANGE=melange -v -I/usr/pkg/include -I/usr/X11R6/include --d2c
 else
 	LIDFILE=opengl.lid
-	MELANGE=melange -I/usr/X11R6/include --d2c
+	MELANGE=melange -v -I/usr/X11R6/include --d2c
 endif
 endif
 
