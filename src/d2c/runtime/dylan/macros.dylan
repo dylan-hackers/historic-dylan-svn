@@ -591,8 +591,8 @@ define macro define-generic
 end;
 
 define macro copy-down-method-definer
-    { define ?adjectives:* copy-down-method ?:name ( ?:parameter-list ) ?rest:* }
-      => { define ?adjectives method ?name ( ?parameter-list ) ?rest
+    { define ?adjectives:* copy-down-method ?:name ( ?params:* ) ?rest:* }
+      => { define ?adjectives method ?name ( ?params, #next next-method ) ?rest
              next-method()
          end }
 
