@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.2 2003/04/27 11:04:40 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.3 2003/06/01 16:53:06 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -54,7 +54,7 @@ make(<command>, name: "Evaluate",
 
 
 define generic evaluate(expression, environment :: <interpreter-environment>)
- => val :: <ct-value>;
+ => val :: <object>;
 
 define constant $empty-environment 
   = curry(error, "trying to access %= in an empty environment");
@@ -241,7 +241,7 @@ end;
 
 
 define class <return-condition>(<exit-condition>)
-  constant slot exit-result :: <ct-value>, required-init-keyword: result:;
+  constant slot exit-result :: <object>, required-init-keyword: result:;
 end class <return-condition>;
 
 
@@ -262,10 +262,10 @@ define fer-evaluator if-region(environment)
   let test-value
     = evaluate(if-region.depends-on.source-exp,
                               environment);
-  if(test-value == as(<ct-value>, #f))
-    fer-evaluate(if-region.else-region, environment);
-  else
+  if(test-value)
     fer-evaluate(if-region.then-region, environment);
+  else
+    fer-evaluate(if-region.else-region, environment);
   end if;
 end;
 
@@ -344,10 +344,10 @@ end;
 define generic evaluate-call(func :: <abstract-function-literal>,
                                  operands :: false-or(<dependency>),
                                  callee-environment :: <interpreter-environment>)
- => result :: <ct-value>;
+ => result :: <object>;
 
 define method evaluate-call(func :: <function-literal>, operands :: false-or(<dependency>), callee-environment :: <interpreter-environment>)
- => result :: <ct-value>;
+ => result :: <object>;
 
 //  format(*debug-output*, "\n\n\n####### evaluate-call %= %= \n", func, operands);
 //  force-output(*debug-output*);
@@ -381,15 +381,23 @@ end;
 
 define method evaluate(expr :: <ct-value>, 
                        environment :: <interpreter-environment>)
- => result :: <ct-value>;
+ => result :: <object>;
   expr;
 end;
 
+define method evaluate(expr :: <literal>,
+                       environment :: <interpreter-environment>)
+ => result :: <object>;
+  expr.literal-value;
+end method evaluate;
+
 define method evaluate(expr :: <literal-constant>, 
                        environment :: <interpreter-environment>)
- => result :: <ct-value>;
-  expr.value;
+ => result :: <object>;
+  expr.value.literal-value;
 end;
+
+// .info.const-info-heap-labels[0].find-runtime-object-from-heap-label
 
 define method evaluate(expr :: <definition-constant-leaf>,
                        environment :: <interpreter-environment>)

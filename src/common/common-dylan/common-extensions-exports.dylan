@@ -9,19 +9,14 @@ define library common-extensions
   use table-extensions;
   use format-out;
 
-  // Only import transcendentals if we have them.
-//#if (~compiled-for-solaris)
   use transcendental,
-     import: { transcendental => transcendentals},
-     export: all;
-//#endif
+    import: { transcendental => transcendentals },
+    export: all;
 
-  use random,
-     import: all,
-     export: all;
+  use random;
   use regular-expressions,
-     import: all,
-     export: all;
+    import: all,
+    export: all;
 
   export
     common-extensions,
@@ -53,7 +48,9 @@ define module simple-io
 end module;
 
 define module simple-random
-  // XXX - Needs definition.
+  use random,
+    import: { <random-state> => <random>, random },
+    export: all;
 end module;
 
 define module simple-profiling
@@ -79,7 +76,7 @@ define module common-extensions
   use dylan;
   use system, import: { copy-bytes }, export: { copy-bytes };
   use extensions,
-    rename: {on-exit => register-exit-application-function},
+    rename: {on-exit => register-application-exit-function},
     export: {$unsupplied,
              supplied?,
              unsupplied?,
@@ -91,6 +88,20 @@ define module common-extensions
              \assert,
              \debug-assert,
              integer-length,
+             decode-float,
+             scale-float,
+             float-radix,
+             float-digits,
+             float-precision,
+             $single-float-epsilon,
+             $double-float-epsilon,
+             $extended-float-epsilon,
+             $minimum-single-float-exponent,
+             $maximum-single-float-exponent,
+             $minimum-double-float-exponent,
+             $maximum-double-float-exponent,
+             $minimum-extended-float-exponent,
+             $maximum-extended-float-exponent,
 	     false-or,
 	     one-of,
 	     subclass,
@@ -99,7 +110,7 @@ define module common-extensions
 	     key-exists?,
 	     difference,
              concatenate!,
-	     register-exit-application-function,
+	     register-application-exit-function,
 	     <stretchy-sequence>,
 	     <object-deque>,
 	     <stretchy-object-vector>,
@@ -111,6 +122,7 @@ define module common-extensions
     export: {remove-all-keys!};
   use table-extensions,
     export: {<string-table>};
+  use transcendentals, import: { logn };
   use c-support;
   use format, export: all;
   use streams, import: { new-line, force-output, <stream> },
@@ -163,8 +175,9 @@ define module common-extensions
     /* Converting to and from numbers */
     float-to-string,
     integer-to-string,
+    number-to-string,
     string-to-integer,
-    // Not part of common? number-to-string,
+    string-to-float,
 
     /* Appliation runtime environment */
     application-name,

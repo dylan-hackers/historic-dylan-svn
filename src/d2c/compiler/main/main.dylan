@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.1 2003/04/25 02:59:09 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.2 2003/06/01 16:53:06 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -243,7 +243,6 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   #endif
 
   *random-state* := make(<random-state>, seed: 0);
-  define-bootstrap-module();
  
   // Set up our argument parser with a description of the available options.
   let argp = make(<argument-list-parser>);
@@ -403,6 +402,9 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   end if;
   parse-platforms-file(targets-file);
   *current-target* := get-platform-named(target-machine);
+
+  define-platform-constants(*current-target*);
+  define-bootstrap-module();
 
   // Stuff in DYLANPATH goes after any explicitly listed directories.
   let dylanpath = getenv("DYLANPATH");

@@ -22,6 +22,11 @@ define method find-address(symbol-name :: <string>)
   end if;
 end;
 
+define function find-runtime-object-from-heap-label(symbol-name :: <string>)
+ => (obj :: <object>)
+  heap-object-at(find-address(symbol-name));
+end function find-runtime-object-from-heap-label;
+
 define function inspect-heap-rep(object-address :: <string>)
   block()
     dump-object(heap-object-at(find-address(object-address)));

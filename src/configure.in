@@ -1,4 +1,4 @@
-dnl	$Header: /scm/cvs/src/configure.in,v 1.126.2.1 2003/04/25 02:59:05 andreas Exp $
+dnl	$Header: /scm/cvs/src/configure.in,v 1.126.2.2 2003/06/01 16:53:03 andreas Exp $
 dnl
 dnl	The new and improved configure file for Gwydion Dylan!
 dnl	This is based on the old configure file, but rewritten to
@@ -48,7 +48,7 @@ AC_SUBST(VERSION)
 # interaction between the runtime and the compiler changes.
 #--------------------------------------------------------------------
 
-CURRENT_BOOTSTRAP_COUNTER=1000
+CURRENT_BOOTSTRAP_COUNTER=1001
 AC_SUBST(CURRENT_BOOTSTRAP_COUNTER)
 
 #--------------------------------------------------------------------
@@ -919,10 +919,12 @@ AC_MSG_RESULT(don't need matherr))
 AC_CHECK_LIB(m, sin, LIBS="$LIBS -lm")
 
 #--------------------------------------------------------------------
-#	Check for rint()
+#	Check for rint() and other math library functions
 #--------------------------------------------------------------------
 
 AC_REPLACE_FUNCS(rint)
+AC_CHECK_FUNCS(frexpf frexpl ldexpf ldexpl)
+AC_CHECK_FUNCS(fabsf sinf cosf tanf asinf acosf atanf atan2f expf sqrtf)
 
 #--------------------------------------------------------------------
 #	Check for GNU Readline library

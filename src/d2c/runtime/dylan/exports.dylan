@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.32.2.1 2003/04/25 02:59:10 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.32.2.2 2003/06/01 16:53:10 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -160,6 +160,17 @@ define module Extensions
 
 	     // Ratios.
 	     <ratio>, ratio, numerator, denominator,
+
+             // Floats.
+             decode-float, scale-float, float-radix,
+             float-digits, float-precision,
+             integer-decode-float,
+             $single-float-epsilon, $double-float-epsilon,
+             $extended-float-epsilon,
+             $minimum-single-float-exponent, $maximum-single-float-exponent,
+             $minimum-double-float-exponent, $maximum-double-float-exponent,
+             $minimum-extended-float-exponent,
+             $maximum-extended-float-exponent,
 
 	     // More types.
 	     <byte-character>, <true>, <false>, <stretchy-sequence>,

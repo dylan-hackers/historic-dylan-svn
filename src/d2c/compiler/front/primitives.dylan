@@ -1,5 +1,5 @@
 module: primitives
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/primitives.dylan,v 1.10.2.1 2003/04/25 02:59:07 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/primitives.dylan,v 1.10.2.2 2003/06/01 16:53:06 andreas Exp $
 copyright: see below
 
 
@@ -463,6 +463,14 @@ for (name in #[#"single-floor", #"single-ceiling", #"single-round"])
      cseable: #t);
 end;
 
+define-primitive
+  (#"single-decode", #(#"<single-float>"),
+   #(values:, #"<single-float>", #"<integer>"), cseable: #t);
+
+define-primitive
+  (#"single-scale", #(#"<single-float>", #"<integer>"), #"<single-float>",
+   cseable: #t);
+
 
 // Double float operations.
 
@@ -507,6 +515,15 @@ for (name in #[#"double-floor", #"double-ceiling", #"double-round"])
      #(values:, #"<integer>", #"<double-float>"),
      cseable: #t);
 end;
+
+define-primitive
+  (#"double-decode", #(#"<double-float>"),
+   #(values:, #"<double-float>", #"<integer>"),
+   cseable: #t);
+
+define-primitive
+  (#"double-scale", #(#"<double-float>", #"<integer>"), #"<double-float>",
+   cseable: #t);
 
 
 // Extended float operations.
@@ -554,6 +571,14 @@ for (name in #[#"extended-floor", #"extended-ceiling", #"extended-round"])
      #(values:, #"<integer>", #"<extended-float>"),
      cseable: #t);
 end;
+
+define-primitive
+  (#"extended-decode", #(#"<extended-float>"),
+   #(values:, #"<extended-float>", #"<integer>"), cseable: #t);
+
+define-primitive
+  (#"extended-scale", #(#"<extended-float>", #"<integer>"),
+   #"<extended-float>", cseable: #t);
 
 
 // raw pointer operations.
