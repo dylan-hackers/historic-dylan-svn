@@ -140,7 +140,15 @@ define macro ant-subbrain-definer
                      state-failure: curry(lookup, instrs, label, ?failure)))
   }
   
-  { Drop ?state:expression }
+  { Drop ?state:name } // 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <drop>,
+                     state: "outsider_" ## ?state))
+  }
+  
+  { Drop ?state:expression } // 2
   =>
   {
     push-thunk(instrs, label, counter,
@@ -148,7 +156,16 @@ define macro ant-subbrain-definer
                      state: curry(lookup, instrs, label, ?state)))
   }
   
-  { Turn ?:name ?state:expression }
+  { Turn ?:name ?state:name } // 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <turn>,
+                     left-or-right: ?#"name",
+                     state: "outsider_" ## ?state))
+  }
+  
+  { Turn ?:name ?state:expression } // 2
   =>
   {
     push-thunk(instrs, label, counter,
