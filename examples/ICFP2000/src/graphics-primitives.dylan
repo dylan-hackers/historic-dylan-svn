@@ -34,6 +34,18 @@ define macro graphics-primitive-definer
              remaining)
     end method; }
 
+  { define graphics-primitive ?:name(?vars) => (); ?:body end }
+  =>
+  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
+      let (cont, remaining) = more-tokens.compile-GML;
+      values(method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+               ?vars;
+               ?body;
+               cont(stack, env)
+             end method,
+             remaining)
+    end method; }
+
   vars:
   { ?:variable } => { let (?variable, stack :: <list>) = values(stack.head, stack.tail) }
   { ... => ?:variable } => { let (?variable, stack :: <pair>) = values(stack.head, stack.tail); ... }
@@ -52,6 +64,10 @@ end graphics-primitive slump;
 define graphics-primitive nullary()
   make(<vector>)
 end graphics-primitive nullary;
+
+define graphics-primitive consumer(i :: <integer>) => ();
+  i // gets ignored
+end graphics-primitive consumer;
 
 */
 
