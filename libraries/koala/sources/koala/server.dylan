@@ -215,7 +215,7 @@ define function start-server ()
   // the application exits without waiting for spawned threads to die,
   // so join-listeners keeps the main thread alive until all listeners die.
   join-listeners(*server*);
-end;
+end start-server;
 
 define function join-listeners
     (server :: <server>)
@@ -656,7 +656,7 @@ define function send-error-response (request :: <request>, c :: <condition>)
   block ()
     send-error-response-internal(request, c);
   exception (e :: <error>)
-    log-error("An error occurred while sending error response.");
+    log-error("An error occurred while sending error response. %=", e);
   end;
 end;
 
@@ -686,7 +686,7 @@ define method process-incoming-headers (request :: <request>)
   if (member?("close", conn-values, test: string-equal?))
     request-keep-alive?(request) := #f
   elseif (member?("keep-alive", conn-values, test: string-equal?))
-    request-keep-alive?(request) := #t
+    request-keep-alive?(request) := #t                 // not working in linux version
   end;
   let agent = request-header-value(request, #"user-agent");
   agent
@@ -807,6 +807,7 @@ define method invoke-handler
         else
           let found? = maybe-serve-static-file(request, response);
           when (~found?)
+            log-info("%s not found", url);
             resource-not-found-error(url: request-url(request));  // 404
           end;
         end;
