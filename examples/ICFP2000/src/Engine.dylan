@@ -70,6 +70,7 @@ define constant test-phrase-8 = #(1, '/', a:, '[', a:, 2, addi:, ']');
 
 define constant test-phrase-9 = #(1, '/', a:, '[', 42, negi:, 2, addi:, 2, 2, addi:, addi:, ']');
 
+define constant test-phrase-10 = #(1, '/', a:, '[', ']');
 
 define generic compile-one(token, tokens :: <list>) => (closure :: <function>, remaining :: <list>);
 
