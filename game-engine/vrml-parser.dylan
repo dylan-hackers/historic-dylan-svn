@@ -234,6 +234,7 @@ define meta node (c, node) => (node)
    ["Appearance",       ws(c), "{", scan-AppearanceNode(node),     ws?(c), "}"],
    ["Coordinate",       ws(c), "{", scan-CoordinateNode(node),     ws?(c), "}"],
    ["TextureCoordinate", ws(c), "{", scan-TextureCoordinateNode(node), ws?(c), "}"],
+   ["TextureTransform", ws(c), "{", scan-TextureTransformNode(node), ws?(c), "}"],
    ["IndexedFaceSet",   ws(c), "{", scan-IndexedFaceSetNode(node), ws?(c), "}"],
    ["ImageTexture",     ws(c), "{", scan-ImageTextureNode(node),   ws?(c), "}"],
    ["Material",         ws(c), "{", scan-MaterialNode(node),       ws?(c), "}"],
@@ -270,6 +271,13 @@ define meta TextureCoordinateNode (c, point) => (point)
   ws?(c),
   "point", ws(c), scan-MFVec2f(point)
 end TextureCoordinateNode;
+
+define meta TextureTransformNode (c, center, translation, scale) => (#t)
+  loop([ws?(c),
+        {["center",      ws(c), scan-SFVec2f(center)],
+         ["translation", ws(c), scan-SFVec2f(translation)],
+         ["scale",       ws(c), scan-SFVec2f(scale)]}])
+end TextureTransformNode;
 
 //aaaaaaaaarrrrrrrrrggggghhhh ... we absolutely need to get backtracking working!!
 define meta IndexedFaceSetNode
@@ -450,7 +458,7 @@ end ImageTextureNode;
 //        0x7b, 0x7d, 0x7f ;
 
 //TODO BGH these are not correct
-define constant $IdFirstChar = $letter;
+define constant $IdFirstChar = concatenate($letter, "_");
 define constant $IdRestChars = concatenate($letter, $digit, "+-_");
     
 define collector Id (c)

@@ -11,6 +11,8 @@ define library vrml-viewer
   use melange-support;
   use meta;
   use collection-extensions;
+  use matrix;
+
   
 //  use melange-support // for null-pointer
 end library;
@@ -19,6 +21,7 @@ define module vector-math
   use dylan;
   use transcendentals;
   use subseq;
+  use matrix, export: all;
 
   export <3D-vector>, 3D-vector, <3D-point>, 3D-point, <3D-rotation>, 3D-rotation,
     <color>, color;
@@ -36,7 +39,7 @@ define module vrml-model
     <node>,
     <container-node>, children,
     <my-indexed-face-set>, ccw, points, polygon-indices, vertex-normals, face-normals,
-    <indexed-face-set>, coord, coord-index, normal, normal-index, normal-per-vertex, ifs-id, ifs-id-setter,
+    <indexed-face-set>, coord, coord-index, normal, normal-index, normal-per-vertex, ifs-id, ifs-id-setter, tex-coord, tex-coord-index,
     <transform>, scale, translation, center, rotation, scale-orientation,
     <shape>, appearance, geometry,
     <line-grid>,
@@ -78,7 +81,7 @@ end module gettimeofday;
 
 define module vrml-viewer
   use common-dylan;
-  use extensions, exclude: { assert };
+  use extensions, exclude: { \assert };
   use standard-io;
   use system;
   use streams;

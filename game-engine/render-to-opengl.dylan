@@ -262,9 +262,16 @@ define method render-to-opengl(node :: <texture>)
     glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-MAG-FILTER, $GL-LINEAR);
     glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-MIN-FILTER, $GL-LINEAR);
     glTexEnv($GL-TEXTURE-ENV, $GL-TEXTURE-ENV-MODE, $GL-MODULATE);
-    glTexImage2D($GL-TEXTURE-2D, 0, $GL-RGB, 
-                 node.width, node.height, 0, $GL-RGB, 
-                 $GL-UNSIGNED-BYTE, node.pixel-data);
+    if(#t) // build mipmaps
+      gluBuild2DMipmaps($GL-TEXTURE-2D, $GL-RGB, 
+                        node.width, node.height, $GL-RGB, 
+                        $GL-UNSIGNED-BYTE, 
+                        as(<machine-pointer>, node.pixel-data));
+    else
+      glTexImage2D($GL-TEXTURE-2D, 0, $GL-RGB, 
+                   node.width, node.height, 0, $GL-RGB, 
+                   $GL-UNSIGNED-BYTE, node.pixel-data);
+    end if;
   else
     glBindTexture($GL-TEXTURE-2D, node.texture-id);
   end;

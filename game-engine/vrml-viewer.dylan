@@ -76,10 +76,12 @@ define variable special-func :: <function> = callback-method(key :: <integer>, x
   select(key)
   //    $GLUT-KEY-UP => glutFullScreen();
   //    $GLUT-KEY-DOWN => glutReshapeWindow(500, 500);
-    $GLUT-KEY-UP => *speed* := vector(0.0s0, 0.0s0, -10.0s0);
-    $GLUT-KEY-DOWN => *speed* := vector(0.0s0, 0.0s0, 10.0s0);
+    $GLUT-KEY-UP => *speed* := vector(0.0s0, 0.0s0, -5.0s0);
+    $GLUT-KEY-DOWN => *speed* := vector(0.0s0, 0.0s0, 5.0s0);
     $GLUT-KEY-LEFT => *rotation-speed* := -180.0s0;
     $GLUT-KEY-RIGHT => *rotation-speed* := 180.0s0;
+    $GLUT-KEY-PAGE-UP => *speed* := vector(0.0s0, 5.0s0, 0.0s0);
+    $GLUT-KEY-PAGE-DOWN => *speed* := vector(0.0s0, -5.0s0, 0.0s0);
   end select;
   glutPostRedisplay();
 end;
@@ -88,6 +90,7 @@ define variable special-up-func :: <function> = callback-method(key :: <integer>
 //  post-event(make(<mouse-event>, button: button, state: state, location: make(<point>, x: x, y: y)));
   select(key)
     $GLUT-KEY-UP, $GLUT-KEY-DOWN => *speed* := vector(0.0s0, 0.0s0, 0.0s0);
+    $GLUT-KEY-PAGE-UP, $GLUT-KEY-PAGE-DOWN => *speed* := vector(0.0s0, 0.0s0, 0.0s0);
     $GLUT-KEY-LEFT, $GLUT-KEY-RIGHT => *rotation-speed* := 0.0s0;
   end select;
   glutPostRedisplay();
@@ -142,7 +145,7 @@ define variable display-func :: <function> = callback-method() => ();
   if(modulo(*frame-count*, 50) = 0)
     *fps* := 50.0 / (timestamp - *fps-stamp*);
     *fps-stamp* := timestamp;
-    $fps-text.text := format-to-string("FPS: %=", *fps*);
+    $fps-text.text := format-to-string("FPS: %=", truncate(*fps*));
   end if;
 
   *last-stamp* := timestamp;
@@ -165,6 +168,13 @@ define method main(progname, #rest arguments)
 
   let texture = make(<texture>, pixel-data: image, width: 256, height: 256);
 
+  let scaling = 
+    if(arguments.size > 1)
+      string-to-number(arguments[1]);
+    else
+      1.0;
+    end if;
+
   if(arguments.size > 0)
     *scene-graph* := 
       make(<container-node>, children: 
@@ -181,7 +191,7 @@ define method main(progname, #rest arguments)
                          translation: 3d-vector(3.0, 3.0, -2.0), 
                          children: vector(make(<sphere>))),
 //                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
-                    make(<transform>, scale: 3d-vector(0.001, 0.001, 0.001), 
+                    make(<transform>, scale: 3d-vector(scaling, scaling, scaling), 
                          children: parse-vrml(arguments[0])),
                     make(<on-screen-display>, children:
                            vector(make(<2d-translation>, translation: #[2, 2]),
@@ -222,7 +232,7 @@ define method main(progname, #rest arguments)
 
   glEnable($GL-LIGHTING);
   glEnable($GL-TEXTURE-2D);
-  glColor(0.3, 0.3, 0.3, 1.0);
+  glColor(0.7, 0.7, 0.7, 1.0);
 
 //  glEnable($GL-FOG);
   glFog($GL-FOG-MODE, $GL-EXP);
@@ -238,12 +248,12 @@ define method main(progname, #rest arguments)
   glClearDepth(1.0d0);
 
   glutIgnoreKeyRepeat(1); // ignore auto-repeat
-//  glutSetCursor($GLUT-CURSOR-NONE);
+  glutSetCursor($GLUT-CURSOR-NONE);
   glutDisplayFunc(display-func);
 //  glutTimerFunc(20, timer-func, 0);
 //  glutMouseFunc(mouse-func);
 //  glutMotionFunc(motion-func);
-//  glutPassiveMotionFunc(passive-motion-func);
+  glutPassiveMotionFunc(passive-motion-func);
   glutReshapeFunc(reshape-func);
   glutKeyboardFunc(keyboard-func);
   glutSpecialFunc(special-func);

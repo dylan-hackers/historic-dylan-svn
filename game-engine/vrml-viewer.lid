@@ -11,3 +11,4 @@ vrml-viewer.dylan
 gettimeofday.dylan
 errno.dylan
 vector-math.dylan
+misc.dylan

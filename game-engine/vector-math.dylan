@@ -1,5 +1,18 @@
 module: vector-math
 
+define class <algebraic-vector> (<number>, <vector>)
+  slot data;
+end class <algebraic-vector>;
+
+define inline method element(vector :: <algebraic-vector>, index) => (<number>)
+  vector.data[index]
+end method element;
+
+define inline method element-setter
+    (value, vector :: <algebraic-vector>, index) => (<number>)
+  vector.data[index] := value;
+end method element-setter;
+
 //define constant <3D-vector> = limited(<vector>, of: <float>, size: 3);
 //define constant <3D-point>  = limited(<vector>, of: <float>, size: 4);
 
@@ -102,3 +115,23 @@ define method gram-schmidt-orthogonalization(basis :: <simple-object-vector>)
   end for;
   new-basis
 end method gram-schmidt-orthogonalization;
+
+define method matrix-from-column-vectors(#rest col-vectors) => mat :: <matrix>;
+    matrix(apply(map, vector, col-vectors));
+end method matrix-from-column-vectors;
+
+define method uniform-scale(s :: <float>, #key dimensions = #[3, 3])
+  let mat = make(<matrix>, dimensions: dimensions, fill: 0.0);
+  for(i from 0 below dimensions[0])
+    mat[i][i] := s;
+  end for;
+end method uniform-scale;
+
+define method nonuniform-scale(#rest scales)
+  let mat = make(<matrix>, dimensions: vector(scales.size, scales.size));
+  for(i from 0 below scales.size)
+    mat[i][i] := scales[i];
+  end for;
+end method nonuniform-scale;
+
+
