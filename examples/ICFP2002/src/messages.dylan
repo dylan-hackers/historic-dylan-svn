@@ -148,10 +148,10 @@ define function receive-board-row (s :: <stream>,
   for (j from 0 below cols)
     let c = s.read-element;
     select ()
-      $empty-char => b[row, j] := make-terrain(<space>);
-      $water-char => b[row, j] := make-terrain(<water>);
-      $wall-char  => b[row, j] := make-terrain(<wall>);
-      $base-char  => b[row, j] := make-terrain(<base>);
+      $empty-char => b[row, j] := make(<space>);
+      $water-char => b[row, j] := make(<water>);
+      $wall-char  => b[row, j] := make(<wall>);
+      $base-char  => b[row, j] := make(<base>);
       otherwise =>
         message-error("receive-board-row: bad board element '%c'\n", c);
     end select;
