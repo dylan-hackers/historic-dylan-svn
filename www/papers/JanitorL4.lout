@@ -1,0 +1,320 @@
+@SysInclude { report }
+@SysInclude { eq }
+
+
+@Database @Reference { refs }
+def @GCT { GCT }
+
+@Report
+@DateLine { Yes }
+@Title {
+A Lightweight Garbage Collector for the L4 Microkernel
+}
+@Author { Gabor Greif }
+@Institution { @F gabor@mac.com }
+@AbstractDisplay { Yes }
+@Abstract {
+We present the design of a small and performant
+exact garbage collector for the L4::Pistachio
+microkernel. In its first incarnation the mark-and-sweep
+collection strategy is supported, but
+in principle other strategies like compacting and
+hybrid strategies are also conceivable. This
+flexibility is due to the declarative way how
+the layout of the managed objects is communicated
+to the collector. A dedicated L4 thread is responsible
+for all memory management of client threads but
+it is guaranteed that nonrelated threads cannot obtain
+access to each others objects, ensuring privacy.
+}
+//
+
+##################################
+##################################
+##################################
+@Section
+@Title { Structure of the Document }
+@Begin
+@PP
+In this design document we briefly introduce the
+abstraction concepts provided by the L4::Pistachio
+microkernel, and immediately dvelve into the high
+level ideas behind the garbage collector that builds
+on these abstractions. Later sections dissect each
+aspect of the design down to the finer aspects and
+implementation details. Finally we summarize what
+has been reached.
+@End @Section
+
+##################################
+##################################
+##################################
+@Section
+@Title { Introduction }
+@Begin
+@PP
+We start out by recalling the concepts that allow us
+to regard the L4::Pistachio microkernel as an abstract
+modern CPU. Thereafter we dedicate some room to the
+description of the workings of a simple mark-and-sweep
+garbage collector that has the exact tracing property.
+
+#################
+@BeginSubSections
+
+###########
+@SubSection @Title { L4 Concepts }
+@Begin
+@PP
+The minimalistic microkernels of the L4 family @Cite { $l4whitepaper }
+just try to provide the services that the average modern CPU
+possess, but in a portable, yet efficient way. The L4 reference manual
+{ $l4ref } mentions {@I threads}, {@I scheduling}, @I { address spaces },
+@I { interprocess communication } as the main abstractions and describes
+means of manipulating these, along with standardized ways of how to obtain
+configuration information. We now briefly visit each of these abstractions.
+
+#################
+@BeginSubSubSections
+
+###########
+@SubSubSection @Title { Threads }
+@Begin
+@PP
+L4 threads roughly correspond to the program counter (PC) and
+stack pointer (SP) of the average CPU. An executing thread
+actually possesses one of the computers real processors.
+
+@End @SubSubSection
+
+###########
+@SubSubSection @Title { Scheduling }
+@Begin
+@PP
+Scheduling in L4 is a abstraction to assign real processors
+to L4 threads in a simple timeslice based manner. This
+can be regarded as an analog of a CPUs interrupt mechanism.
+
+@End @SubSubSection
+
+###########
+@SubSubSection @Title { Address Spaces and Mapping }
+@Begin
+@PP
+The MMU (memory management unit) of ordinary processors provides
+the basis for demand paged memory management. In L4 this functionality
+is covered by @I {address spaces}, parts of whose can be @I mapped
+(shared) between them.
+
+@End @SubSubSection
+
+###########
+@SubSubSection @Title { IPC }
+@Begin
+@PP
+L4 IPC is an asyncronous means of invoking functionality in other threads
+an passing information between them.
+
+@End @SubSubSection
+
+@EndSubSubSections
+@End @SubSection
+
+###########
+@SubSection @Title { Garbage Collection Concepts }
+@Begin
+@PP
+mark-and-sweep
+exact
+@End @SubSection
+
+###########
+@SubSection @Title { WHAT??? }
+@Begin
+@PP
+
+
+@End @SubSection
+
+@EndSubSections
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Lightweight Garbage Collector }
+@Begin
+@PP
+After we have obtained some understanding of what
+garbage collection is all about, our task is now to
+build a conceptual model that uses L4 as its foundation.
+
+#################
+@BeginSubSections
+
+###########
+@SubSection @Title { Thread Model }
+@Begin
+@PP
+A single thread per system is responsible for each garbage
+collecting related activity. This thread is called @GCT and
+directly communicates with the L4 memory pool thread
+(@Eq {sigma sub 0} ???) to acquire memory pages. Application
+threads (directly or indirectly) register with @GCT as their
+pager thread. @GCT will accept IPC requests that contain
+a layout descriptor and a memory range. Upon completion
+requested memory range will be ready for populating with
+objects of the specified layout.
+@End @SubSection
+
+###########
+@SubSection @Title { Paging }
+@Begin
+@PP
+However the pages will not
+yet be allocated in this range, only the first write access
+in a page will actually make the page present. An initial read
+access will be treated as an error. This paging activity will be
+the standard L4 one. When the demand paging thread decides to
+page out any populated page(s), it will create a compacted representation
+of all outward pointers in the page(s), so that an eventual
+collection won't require a page-in to follow pointers.
+@End @SubSection
+
+###########
+@SubSection @Title { Layout Declarations }
+@Begin
+@PP
+The secret behind the performance of the collector is the
+fact that the layout of the populated pages is communicated
+to the @GCT. The layout declarations consist of the object
+size and a list of pairs. The first component of a pair is
+an offset that identifies a pointer inside of an object.
+The second component of a pair is a bitfield containing flags
+specifying properties of this pointer (e.g. whether it may be
+a null pointer).
+@End @SubSection
+
+###########
+@SubSection @Title { Object Allocation }
+@Begin
+@PP
+
+interaction with threads
+@End @SubSection
+
+###########
+@SubSection @Title { Roots }
+@Begin
+@PP
+@End @SubSection
+
+###########
+@SubSection @Title { Collection }
+@Begin
+@PP
+
+@End @SubSection
+
+###########
+@SubSection @Title { Starving of Threads }
+@Begin
+@PP
+
+@End @SubSection
+
+
+@EndSubSections
+
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Implementation Details }
+@Begin
+@PP
+Some random issues need to be clarified to
+obtain a system that is generally usable.
+The following issues will focus on specific
+aspects of the design without an obvious
+oder or thematical interconnections.
+
+#################
+@BeginSubSections
+
+###########
+@SubSection @Title { Locks }
+@Begin
+@PP
+@End @SubSection
+
+###########
+@SubSection @Title { Object Visibility }
+@Begin
+@PP
+@End @SubSection
+
+###########
+@SubSection @Title { Layout Hints }
+@Begin
+@PP
+@End @SubSection
+
+###########
+@SubSection @Title { Compiling Layout }
+@Begin
+@PP
+@End @SubSection
+
+###########
+@SubSection @Title { Security }
+@Begin
+@PP
+@End @SubSection
+
+
+
+@EndSubSections
+@End @Section
+
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Summary }
+@Begin
+@PP
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Thanks }
+@Begin
+@PP
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Bibliography }
+@Begin
+@PP
+
+@End @Section
+
+
