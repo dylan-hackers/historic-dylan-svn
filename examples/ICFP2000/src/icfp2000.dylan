@@ -33,20 +33,25 @@ define function main(name, arguments)
 
   let o1 = make(<sphere>);
   let o2 = make(<plane>);
+  let o3 = make(<plane>);
   o1.surface-interpreter-entry := blue-texture;
   o2.surface-interpreter-entry := red-texture;
+  o3.surface-interpreter-entry := blue-texture;
 
   o1 := uniform-scale(o1, 0.3);
 
-
-  let l = make(<star>, direction: #[ 0.0, -1.0, 0.0, 0.0 ],
+  let l = make(<star>, direction: #[ 0.2, -1.0, 0.0, 0.0 ],
 	       color: make-white());
 
 
 //  o2 := x-rotate(o2, $double-pi / 4.0);
   o2 := translate(o2, 0.0, -0.5, 0.0);
 
-  let o = make(<csg-union>, of: vector(o1, o2));
+  o3 := translate(o3, 0.0, 0.5, 0.0);
+
+  
+
+  let o = make(<csg-union>, of: vector(o1, o2, o3));
   
 //  z-rotate!(o, $double-pi / 16.0);
 
@@ -69,7 +74,7 @@ define function main(name, arguments)
   render-image(o, 1, "render.ppm", 
 	       make(<color>, red: 0.0, green: 0.0, blue: 0.0), 
 	       vector(l), 
-	       128, 128, $double-pi / 2.0);
+	       64, 64, $double-pi / 2.0);
 
   exit-application(0);
 end function main;
