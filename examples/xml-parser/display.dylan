@@ -1,8 +1,14 @@
 Module:    display
-Synopsis:  display the nodes once parsed
+Synopsis:  displaying a parsed xml document.
 Author:    Chris Double
 Copyright: (C) 2000, Chris Double.  All rights reserved.
-remodulized-by: Douglas M. Auclair
+synthesis: Douglas M. Auclair
+
+define generic display-node(node);
+
+define method display-node(node :: <string>)
+  format-out("Text: [%s]\n", node);
+end method display-node;
 
 define method display-node(node :: <node>)
   for(n in node.node-children)

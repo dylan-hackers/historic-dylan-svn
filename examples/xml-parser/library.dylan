@@ -14,6 +14,8 @@ define module xml-parser
   create start-element, end-element;
   create name, attributes; // slots for <xml-element>
 
+  create display-node;
+
 // I really don't want the below defs -- parse-document should
 // do everything, but until I get that working, I need to test
 // the system piecemeal.
@@ -47,7 +49,10 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <letter>, <digit>, <hex-digit>, <version-number>;
+  export <letter>, <digit>, <hex-digit>, <version-number>,
+         <node>, <text-node>;
+  export node-children, attribute-name, attribute-value, 
+         element-tag-name, element-attributes, text;
 end module interface;
 
 define module %productions
@@ -76,3 +81,13 @@ define module builder-impl
   use %productions;
   use interface;
 end module builder-impl;
+
+define module display
+  use common-dylan, exclude: {format-to-string };
+  use streams;
+  use format;
+  use format-out;
+  use xml-parser;
+  use interface;
+end module display;
+
