@@ -17,7 +17,7 @@ define module icfp2002
   use format-out;
   use format;
   use subseq;
-  use streams;
+  use streams, export: all;
   use standard-io;
   use string-conversions, import: {string-to-integer};
   use extensions, import: {report-condition};
@@ -30,7 +30,7 @@ end module;
 define module board
   use icfp2002, export: all;
   
-  export <board>, dump-board;
+  export <board>, send-board;
 end module board;
 
 define module client

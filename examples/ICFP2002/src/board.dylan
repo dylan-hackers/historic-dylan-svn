@@ -17,8 +17,23 @@ define method aref(board :: <board>, #rest coords /* :: limited(<integer>, min: 
   board.lines[y][x];
 end;
 
+define method aref-setter(obj, board :: <board>, #rest coords /* :: limited(<integer>, min: 0) */)
+ => object :: <object>;
+  let x :: limited(<integer>, min: 0) = coords.first;
+  let y :: limited(<integer>, min: 0) = coords.second;
+  
+  board.lines[y][x] := obj;
+end;
 
-define function dump-board(board :: <board>)
+
+define function send-board(s :: <stream>)
  => ();
   
 end;
+
+define function receive-board(s :: <stream>, board :: <board>)
+ => ();
+  let line = s.read-line;
+  
+end;
+
