@@ -1,6 +1,6 @@
 /* mpsclo.h: MEMORY POOL SYSTEM CLASS "LO"
  *
- * $Id: mpsclo.h,v 1.1 2004/06/29 19:39:01 andreas Exp $
+ * $Id: mpsclo.h,v 1.1.2.1 2004/06/29 19:45:51 andreas Exp $
  *
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  */
