@@ -113,6 +113,28 @@
 
     <PARA>This chapter gives instructions for installing Gwydion Dylan.</PARA>
 
+    <SECT1 ID="gduser-prerequisites">
+      <TITLE>Prerequisite Software Installation</TITLE>
+
+      <PARA>Gwydion Dylan depends on a C compiler being installed,
+      plus, of course, all the tools and header files the C compiler
+      needs to do his job. Your best bet on most platforms is having
+      <ULINK
+      URL="http://www.gnu.org/gnulist/production/gcc.html">gcc</ULINK>
+      installed, plus the <ULINK
+      URL="http://www.gnu.org/gnulist/production/binutils.html">binutils</ULINK>,
+      and whatever standard C library and headers are
+      appropriate. Installation of <ULINK
+      URL="http://www.gnu.org/gnulist/production/make.html">GNU
+      Make</ULINK> is also required.</PARA>
+
+      <PARA>If you want to use shared libraries (which is the default
+      on most systems), you need to install the <ULINK
+      URL="http://www.gnu.org/gnulist/production/libtool.html">libtool</ULINK>
+      package as well.</PARA>
+    </SECT1>
+
+
     <SECT1 ID="gduser-supported-systems">
       <TITLE>Supported Systems</TITLE>
 
@@ -216,35 +238,56 @@
 	<title>A Sample Program</title>
 
 	<para>Create a new program called <literal/hello/ by running
-	the command <command/make-dylan-app hello/. This will create
-	a new directory named <filename/hello/.</para>
+	the command <command/make-dylan-app hello/. This will create a
+	new directory named <filename/hello/. Go there by typing
+	<literal>cd hello</literal> and take a look at the files.</para>
 
-	<para>Open up the file <filename>hello/hello.dylan</filename> and
-	fill in reasonable values for the <literal/author:/ and
-	<literal/copyright:/ keywords. Add a line to the <literal/main/
-	function to print <quote/Hello world!/ to standard output:</para>
+	<para>Open up the file <filename>hello/hello.dylan</filename>
+	and fill in reasonable values for the <literal/author:/ and
+	<literal/copyright:/ keywords. You will notice that
+	<command>make-dylan-app</command> already filled in a
+	statement printing <quote>Hello, World!</quote> for us, as a
+	placeholder for the code we want to add to the program.</para>
 
 <ProgramListing>
-library: hello
 module: hello
+synopsis: Print the string "Hello, World!"
 author: J. Random Hacker &lt;jrandom@randomhacks.com&gt;
 copyright: Copyright 1998, J. Random Hacker
 
-define method main(appname, #rest arguments)
-  // insert code here ...
-  format(*standard-output*, "Hello world!\n");
+define function main(name, arguments)
+  format-out("Hello world!\n");
+  exit-application(0);
+end function main;
 
-  exit(exit-code: 0);
-end method main;
+// Invoke our main() function.
+main(application-name(), application-arguments());
 </ProgramListing>
 
-	<para>To compile the program, type <command/d2c hello.lid/. This
-	will take slightly too long and create an enormous <command/hello/
-	binary in the current directory. The actual code size for program
-	itself is a few kilobytes; the rest is a statically linked copy of
-	most of the major Dylan libraries included with d2c. Future work on
-	the compiler will implement shared libraries and cut executables
-	down to size.</para>
+	<para>The three other files in this directory are a
+	<filename>Makefile</filename> for compiling your program (it
+	is not strictly needed, as you could call &d2c; directly), an
+	export declaration file named
+	<filename>hello-exports.dylan</filename>, which declares the
+	libraries and modules that are used by your program, and a LID
+	file listing all of your Dylan source files (two in this case)
+	plus the name of the resulting executable.</para>
+
+	<para>To compile the program, simply type
+	<command>make</command>. Alternatively, call &d2c;, passing it
+	the LID file as a parameter, as in <command>d2c
+	hello.lid</command>. You can now run your program by typing
+	<command>./hello</command>.</para>
+
+	<para>Note that, when using shared libraries, the file
+	<filename>hello</filename> is just a script that calls the
+	real program <filename>.libs/hello</filename>. The reason for
+	that is rather intricate and has to do with the rpath to
+	shared libraries which are part of your project. In other
+	words, don't worry about it now, and read the
+	<command>libtool</command> documentation when you need more
+	advanced features.</para>
+
       </sect2>
     </sect1>
 
@@ -368,7 +411,7 @@ end method main;
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.10 1999/10/28 00:49:19 andreas Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.11 2001/01/13 17:32:40 andreas Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
