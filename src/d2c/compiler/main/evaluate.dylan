@@ -209,6 +209,23 @@ define method fer-evaluate-primitive(name == #"fixnum-+", depends-on :: <depende
  as(<ct-value>, lhs.literal-value + rhs.literal-value)
 end;
 
+ define macro primitive-emulator-definer
+  {
+    define primitive-emulator (?prim:name) end
+  }
+  =>
+  {
+    define method fer-evaluate-primitive(name == "fixnum-" ## ?#"prim", depends-on :: <dependency>, environment :: <object>)
+     => result :: <ct-value>;
+      let lhs = fer-evaluate-expression(depends-on.source-exp, environment);
+      let rhs = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
+      as(<ct-value>, ?prim(lhs.literal-value, rhs.literal-value))
+    end;
+  }
+end;
+
+define primitive-emulator (\*) end;
+
 // ########## append-environment ##########
 define function append-environment(prev-env :: <object>, new-binding, new-value) => new-env;
   method(var)
