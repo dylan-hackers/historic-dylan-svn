@@ -155,9 +155,12 @@ define macro mi-operation-definer
     end;
   }
 
-  {define parser-for mi-operation ?:name(?parse-sequence:*) end}
+  {define parser-for-seqential mi-operation ?:name(?parse-sequence, ?sequence-arg) end}
   =>
   {
+    define function ?name(?parse-sequence)
+      make(?name ## "<mi-command>", #"?name", ?sequence-arg)
+    end;
   }
 
 
@@ -168,12 +171,14 @@ define macro mi-operation-definer
   {}
 
   // sequences of something
-  {define mi-operation ?:name((?prim-sequence)) ?parses:* end}
+  {define mi-operation ?:name((?sequence:*)) ?parses:* end}
   =>
   {
-    define class ?name ## "<mi-command>"(<mi-command>)
-      ?prim-sequence;
-    end;
+    define class-for mi-operation ?:name(?sequence) end
+    define creator-for-seqential mi-operation ?:name(?sequence, ?sequence) end
+///    define class ?name ## "<mi-command>"(<mi-command>)
+///      ?prim-sequence;
+///    end;
   }
 
   {define mi-operation ?:name(?:*) ?parses:* end}
@@ -187,6 +192,8 @@ define macro mi-operation-definer
 
   rest-sequence:
     { ?:name :: ?:expression } => { #rest ?name :: ?expression }
+  sequence-arg:
+    { ?:name :: ?:expression } => { ?name }
 end;
 
 define macro mi-parser-definer
