@@ -25,6 +25,7 @@ Changes for version 0.4 (coming soon)
   - Core: Support for custom header-lines in <http-error> (hannes)
   - Core: Improved logging (hannes)
   - Core: Improved directory listings (hannes, tim)
+  - Core: Added basic support for virtual hosts. (cgay)
 
   Bug Fixes:
   - DSP: Tags that pass through their HTML attributes (e.g., dsp:cell) now work (cgay)
