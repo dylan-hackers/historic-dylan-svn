@@ -74,18 +74,8 @@ May 17 15:29:43 <andreas>	Something like a too-new version shouldn't happen. If 
 * Sessions - They should be able to work without cookies enabled, either
   by URL rewriting or ...?
 
-* New config file setting: <directory>
-  <directory
-     name="demo/foo"                    // required
-     follow-symlinks="false"            // opt
-     allow-directory-listing="false"    // opt
-     default-documents="index.html,default.html"
-
 * New config file setting: <server-administrator> (per vhost)
 
-* Logging.  Ability to specify a log file (per vhost), possibly with
-  a separate file for errors and/or 'activity', as in Apache.
-     
 
 Kitchen Sink
 ------------
@@ -134,9 +124,4 @@ Kitchen Sink
   - Use the /*exported*/ convention and the make-exports library from
     Gwydion so it's easier to keep exports up-to-date.  So far only the
     response.dylan file uses it as an experiment to see how it looked.
-
-Gwydion notes:
-  Where do they keep false-or?  In FD it's dylan:dylan-extensions:false-or
-  FD seals element on <object-table>, so <multimap> doesn't work.
-  Gwydion has bogus #if #endif directives in some files, for mindy.
 
