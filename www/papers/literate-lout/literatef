@@ -1,0 +1,86 @@
+
+###############################################################################
+#                                                                             #
+#  Lout @Literate package for literate programming in various languages       #
+#                                                                             #
+#  Version 0.1                                                                #
+#  Gabor Greif                                                                #
+#  18 September 2004                                                          #
+#                                                                             #
+#  This package uses filtered body parameters to convert program source       #
+#  code into Lout source.  The filter programs are standard U*IX tools        #
+#  like sed and the C preprocessor for annotating the source with line        #
+#  numbers.                                                                   #
+#                                                                             #
+###############################################################################
+
+export @Literate
+
+def @LiterateSetup
+#    named pipe					{	}  # pipe through this  SCRATCH
+    named language				{ C	}  # the default language of hunks
+    named suffix				{ ".c"	}  # the default suffix for the weaved file
+#    named prettyprinter				{ @CP	}  # the default suffix for the weaved file
+
+@Begin
+
+    export @Hunk
+    
+    def @Literate
+#	named style        { style         }  # style  SCRATCH
+	named source	   { ""		   }  # the pathname of the literal source file, must be the same
+					      # as the pathname of the file invoking the @Literate definition
+	body @Body			      # 
+    @Begin
+	
+	def @EnsureLiterateSource	      # makes sure source contains "@Literate" and source "source"
+	    body @Body			      # filtered, see below
+	{
+		def @Filter
+		{
+		    grep "source" "<" source "|" grep source "|" sed -e "\"s/source *{ *//\"" "|" sed -e "\"s/ *}.*//\"" "|" grep source "|" wc -l > {@FilterOut}
+#		    false
+		}
+
+		@Body
+	}
+
+	def @IsOne	      # expects one
+	    body @Body			      # 
+	{
+	@Body @Case {
+		"1" @Yield {}
+		else @Yield { "\"to avoid this error invoke @Literate with source on the same line as its argument\"" }
+	    }
+	}
+
+	def @Hunk left marker body @Body
+	@Begin
+
+
+	    def @LocateLineInLiterateSource   # finds line number of marker in source
+		body @Body		      # filtered, see below
+	    {
+
+
+		def @Filter
+		{
+		    cc -E -o - source "|" sed -e "\"s/@Hunk/__LINE__ __FILE__ interesting/g\"" "|" sed -e "\"s/ *}.*//\"" "|" cc -E -o - - "|" grep interesting > {@FilterOut}
+		}
+
+		@Body
+	    }
+	    
+	    @LocateLineInLiterateSource { dummy }
+	    //
+
+	    @Body
+	@End @Hunk
+
+	@IsOne { @EnsureLiterateSource { dummy } }
+	
+	@Body
+	
+    @End @Literate
+
+@End @LiterateSetup
