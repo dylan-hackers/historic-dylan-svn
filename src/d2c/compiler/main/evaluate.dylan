@@ -52,7 +52,7 @@ define method evaluate(expression :: <string>)
         force-output(*standard-output*);
 
         format(*standard-output*, "evaluated expression: %=\n",
-               fer-evaluate(component,
+               fer-evaluate(init-function-region.body,
                             curry(error, "trying to access %= in an empty environment")));
         force-output(*standard-output*);
 
