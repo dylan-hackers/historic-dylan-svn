@@ -56,6 +56,18 @@ define method optimizable-two(right :: <integer>, token2 == #"addi", more-tokens
      /*	 end; */
 end;
 
+define method optimizable-two(right :: <integer>, token2 == #"addi", more-tokens :: <pair>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+/*  define method compile-one(token == ?#"name", more-tokens :: <list>)
+	  => (closure :: <function>, remaining :: <list>); */
+	   let (cont, remaining) = more-tokens.optimize-compile-GML;
+	   values(remaining,
+		  method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+      		      let (left :: /*?front*/ <integer>, rest :: <list>) = values(stack.head, stack.tail);
+		      cont(pair(/*?operator*/ \+(left, right), rest), env)
+		  end method)
+     /*	 end; */
+end;
+
 define method optimizable-two(token1, token2, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   orig
 end;
