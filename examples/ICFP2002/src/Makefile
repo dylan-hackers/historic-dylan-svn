@@ -1,5 +1,5 @@
 SOURCES=icfp2002.dylan icfp2002-exports.dylan \
-	path.dylan
+	path.dylan board.dylan messages.dylan
 
 D2C_FLAGS=-s -g -L.
 
