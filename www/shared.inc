@@ -57,6 +57,7 @@ function short_header ($title) {
 <UL>
 <LI><A HREF="./">Overview</A>
 <LI><A HREF="about-dylan.phtml">What is Dylan?</A>
+<LI><A HREF="about-gwydion.phtml">Who was Gwydion?</A>
 <LI><A HREF="goals.phtml">Our Goals</A>
 <LI><A HREF="ports.phtml">Supported Platforms</A>
 <LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
