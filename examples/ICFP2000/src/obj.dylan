@@ -24,6 +24,9 @@ end class <cube>;
 define sealed class <cone> (<primitive>)
 end class <cone>;
 
+define sealed class <cylinder> (<primitive>)
+end class <cylinder>;
+
 define abstract class <csg-object> (<obj>)
   slot objects :: <collection>, init-keyword: of:;
 end class <csg-object>;
