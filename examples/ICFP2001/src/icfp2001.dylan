@@ -73,7 +73,7 @@ define method slurp-input(stream :: <buffered-stream>)
   let v = make(<stretchy-vector>);
   block ()
     for (buf :: false-or(<buffer>) = get-input-buffer(stream)
-	   then  next-input-buffer(stream),
+	   then next-input-buffer(stream),
 	 while: buf)
       let s = buffer-subsequence(buf, <byte-string>,
 				 buf.buffer-next,
