@@ -179,24 +179,44 @@ define method send-headers
 end;
 
 define method send-response
-    (response :: <response>, #key response-code, response-message) => ()
+    (response :: <response>, #key response-code = 200, response-message) => ()
   let stream :: <stream> = request-socket(get-request(response));
   unless (headers-sent?(response))
     // Send the response line
     let response-line
       = format-to-string("%s %d %s\r\n",
-                         $http-version, response-code | 200, response-message | "OK");
+                         $http-version, response-code, response-message | "OK");
     log-copious("-->%s", response-line);
     write(stream, response-line);
 
+    let content-length :: <string> = integer-to-string(stream-size(output-stream(response)));
     // Add required headers
-    add-header(response, "Content-Length", integer-to-string(stream-size(output-stream(response))));
+    add-header(response, "Content-Length", content-length);
     send-headers(response, stream);
+
+    if (*logfile*)
+      // Log in Common Logfile Format
+      // (http://www.w3.org/Daemon/User/Config/Logging.html)
+      let req :: <request> = get-request(response);
+      let request = concatenate(as(<string>, request-method(req)), " ",
+                                request-url(req), " ",
+                                as(<string>, request-version(req)));
+      let date = as-common-logfile-date(current-date());
+      let remoteaddr = host-address(remote-host(request-socket(req)));
+      log-logfile(*logfile*, concatenate(remoteaddr, " ",
+                                       "-", " ",
+                                       "-", " ",
+                                       "[", date, "] ",
+                                       "\"", request, "\" ",
+                                       integer-to-string(response-code), " ",
+                                       content-length, "\n"));
+    end if;
   end unless;
 
   // Send the body (or what there is of it so far).
   let contents = stream-contents(output-stream(response), clear-contents?: #t);
   write(stream, contents);
+
 end;
 
 // Exported

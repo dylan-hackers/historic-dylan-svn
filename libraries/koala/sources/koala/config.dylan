@@ -259,6 +259,18 @@ define method process-config-element (node :: xml$<element>, name == #"module")
   end;
 end;
 
+define method process-config-element (node :: xml$<element>, name == #"logfile")
+  let name = get-attribute-value(node, #"location");
+  let logfile-loc = as(<string>,
+                       merge-locators(as(<file-locator>,
+                                         format-to-string("%s/%s",
+                                                          $koala-config-dir,
+                                                          name)),
+                                      *server-root*));
+  *logfile* := logfile-loc;
+  log-info("Set logfile to %s", logfile-loc);
+end method;
+
 define class <mime-type> (xml$<printing>)
 end class <mime-type>;
 

@@ -118,7 +118,8 @@ define module utilities
     <log-copious>, log-copious,
     log-message,
     log-date,
-    add-log-level, remove-log-level, clear-log-levels;
+    add-log-level, remove-log-level, clear-log-levels,
+    as-common-logfile-date, log-logfile;
     
 end module utilities;
     

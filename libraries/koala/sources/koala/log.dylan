@@ -119,6 +119,46 @@ define method log-debug-if (test, format-string, #rest format-args)
   end;
 end;
 
+define method as-common-logfile-date (date :: <date>) => (common-logfile-date :: <string>)
+  let $month-names
+    = #["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+  //Common Logfile Format Date: "28/Mar/2004:04:47:19 +0200"
+  //http://www.w3.org/Daemon/User/Config/Logging.html
+  let (iyear, imonth, iday, ihours, iminutes, iseconds, day-of-week, time-zone-offset) = decode-date(date);
+  local method wrap0 (int :: <integer>) => (string :: <string>)
+    if (int < 10)
+      concatenate("0", integer-to-string(int));
+    else
+      integer-to-string(int);
+    end if;
+  end;
+
+  let day = wrap0(iday);
+  let month = substring($month-names[imonth - 1], 0, 3);
+  let year = integer-to-string(iyear);
+  let hours = wrap0(ihours);
+  let minutes = wrap0(iminutes);
+  let seconds = wrap0(iseconds);
+  let prefix = if (positive?(time-zone-offset))
+                 "+";
+               else
+                 "-";
+               end if;
+  let timezone = concatenate(prefix,
+                   wrap0( floor/(time-zone-offset, 60) ),
+                   wrap0( modulo(time-zone-offset, 60) )
+                  );
+  concatenate(day, "/", month, "/", year, ":", hours, ":", minutes,
+              ":", seconds, " ", timezone); 
+end method as-common-logfile-date;
+
+define method log-logfile(file :: <string>, entry :: <string>)
+  with-open-file(logfile = file, direction: #"output", if-exists: #"append",
+                 if-does-not-exist: #"create", element-type: <byte>)
+    write(logfile, entry);
+  end;
+end method;
 
 begin
   add-log-level(<log-info>);
