@@ -14,8 +14,8 @@ define macro brain-definer
     => { define function ?name(outer-instrs, label, current-counter) => ();
            let instrs = make(<table>);
            push-thunk(instrs, ?#"return-name", 0, curry(lookup, outer-instrs, label, current-counter + 1));
-           push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, sub-start:, 0));
-           let (label, counter) = values(sub-start:, -1);
+           push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, ?#"name", 0));
+           let (label, counter) = values(?#"name", -1);
            ?states;
          end function }
 

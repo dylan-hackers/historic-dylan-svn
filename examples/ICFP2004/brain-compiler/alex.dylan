@@ -2,11 +2,8 @@ module: assembler
 
 
 // Attackers attack other ant hills.
-define sub brain alex-attacker-sb (return)
+define sub brain alex-attacker (return)
 
-  Flip 2, (alex-attacker, alex-attacker);
-
-  [alex-attacker:]
     Sense FoeHome, (attacker-success, a-search-foe-home);
 
 
@@ -113,11 +110,8 @@ end brain; // alex-attacker
 
 
 // Gatherers gather food. Based on the best gatherer we had (by Keith Bauer!).
-define sub brain keith-gatherer-sb (return)
+define sub brain keith-gatherer (return)
 
-  Flip 2, (keith-gatherer, keith-gatherer);
-
-  [keith-gatherer:]
     Flip 2, (rightant-search, leftant-search);
 
 
@@ -202,11 +196,11 @@ define brain alex-keith
 
 
   [attacker:]
-    Sub alex-attacker-sb;
+    Sub alex-attacker;
 
 
   [gatherer:]
-    Sub keith-gatherer-sb;
+    Sub keith-gatherer;
 
 end brain;
 
