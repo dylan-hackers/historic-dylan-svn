@@ -3,12 +3,12 @@ synopsis: Object model
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
-define class <obj> (<object>)
+define abstract class <obj> (<object>)
   slot transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
   slot inverse-transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
 end class <obj>;
 
-define class <primitive> (<obj>)
+define abstract class <primitive> (<obj>)
   slot surface-interpreter-entry = silly-texture;
 end class <primitive>;
 
