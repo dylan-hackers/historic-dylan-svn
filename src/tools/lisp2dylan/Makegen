@@ -1,4 +1,0 @@
-&makegen_include("../common-Makegen");
-
-&emit_library_rule('Lisp2dylan', '$(BUILDROOT)/force.timestamp', '', 
-		   'compile', 'install');

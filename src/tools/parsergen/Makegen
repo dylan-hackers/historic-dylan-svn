@@ -1,9 +1,0 @@
-&makegen_include("../common-Makegen");
-$CPPFLAGS = "$CPPFLAGS -I../../d2c/runtime ";
-if ($build_tools_with_d2c) {
-  &emit_library_rule('Parsergen', '$(BUILDROOT)/force.timestamp', '', 
-		     'compile', 'install');
-} else {
-  &emit_library_rule('Parsergen', '$(BUILDROOT)/force.timestamp', '', 
-		     'no-d2c', 'compile-mindy');
-};
