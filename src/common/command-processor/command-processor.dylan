@@ -265,6 +265,7 @@ define function run-command-processor()
   tcgetattr(*standard-input*.file-descriptor, old-termios);
 
   let new-termios = make(<termios>);
+  tcgetattr(*standard-input*.file-descriptor, new-termios);
   cfmakeraw(new-termios);
 
   to-raw    := curry(tcsetattr, *standard-input*.file-descriptor, 
