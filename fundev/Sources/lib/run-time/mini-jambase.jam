@@ -1,0 +1,130 @@
+# The following rules and actions are modified versions of rules
+# included in the Jam 2.5 Jambase file.
+#
+# /+\
+# +\	Copyright 1993-2002 Christopher Seiwald and Perforce Software, Inc.
+# \+/
+#
+#
+# License is hereby granted to use this software and distribute it
+# freely, as long as this copyright notice is retained and modifications 
+# are clearly marked.
+#
+# ALL WARRANTIES ARE HEREBY DISCLAIMED.
+#
+
+#
+# Initialize variables
+#
+
+#
+# General defaults; a lot like UNIX
+#
+	CC		?= cc ;
+	DOT		?= . ;
+	DOTDOT		?= .. ;
+	MKDIR		?= mkdir ;
+	RM		?= rm -f ;
+
+#
+# Rules
+#
+
+rule MakeLocate
+{
+	# MakeLocate targets : directory ;
+
+	# Sets special variable LOCATE on targets, and arranges
+	# with MkDir to create target directory.
+
+	# Note we grist the directory name with 'dir',
+	# so that directory path components and other
+	# targets don't conflict.
+
+	if $(>)
+	{
+	    LOCATE on $(<) = $(>) ;
+	    Depends $(<) : $(>[1]:G=dir) ;
+	    MkDir $(>[1]:G=dir) ;
+	}
+}
+
+rule MkDir
+{
+	# MkDir directory ;
+
+	# Make a directory and all its parent directories.
+
+	# Ignore timestamps on directories: we only care if they 
+	# exist.
+
+	NoUpdate $(<) ;
+
+	# Don't create . or any directory already created.
+
+	if $(<:G=) != $(DOT) && ! $($(<)-mkdir) 
+	{
+	    # Cheesy gate to prevent multiple invocations on same dir
+	    # Arrange for jam dirs
+	    # MkDir1 has the actions 
+
+	    $(<)-mkdir = true ;
+	    Depends dirs : $(<) ;
+	    MkDir1 $(<) ;
+
+	    # Recursively make parent directories.
+	    # $(<:P) = $(<)'s parent, & we recurse until root
+
+	    local s = $(<:P) ;
+
+	    # Don't try to create A: or A:\ on windows
+
+	    if $(NT)
+	    {
+	        switch $(s)
+		{
+		case *:     : s = ;
+		case *:\\\\ : s = ;
+		}
+	    }
+
+	    if $(s) = $(<)
+	    {
+		# The parent is the same as the dir.
+		# We're at the root, which some OS's can't stat, so we mark
+		# it as NotFile.
+
+	        NotFile $(s) ;
+	    }
+	    else if $(s:G=)
+	    {
+		# There's a parent; recurse.
+
+		Depends $(<) : $(s) ;
+		MkDir $(s) ;
+	    }
+	}
+}
+
+#
+# Utility rules; no side effects on these
+#
+rule FGristFiles 
+{
+	return $(<:G=$(SOURCE_GRIST:E)) ;
+}
+
+#
+# Actions
+#
+
+actions piecemeal together existing Clean
+{
+	$(RM) $(>)
+}
+
+actions MkDir1
+{
+	$(MKDIR) $(<)
+}
+
