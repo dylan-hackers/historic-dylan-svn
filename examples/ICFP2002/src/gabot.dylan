@@ -102,17 +102,16 @@ define method valid?(dropping :: <drop-strategy>, s :: <state>) => valid :: <boo
     debug("arrived!\n"); // TODO: if neihbor robots, bid more...
     #f
   else
-  //; TODO: do we still have the package?
-    #t;
+    ~empty?(agent-packages(dropping.strategy-agent, s));
   end;
 end;
 
 // ## create-command{<drop-strategy>}
-define method create-terminal-command(s :: <drop-strategy>, state :: <state>) => command :: <command>;
+define method create-terminal-command(dropping :: <drop-strategy>, state :: <state>) => command :: <command>;
   debug("GB: Dropping in create-terminal-command\n");
 
 // STOPGAP measure until   at-destination? works reliably
-  let pos = agent-pos(s.strategy-agent, state);
+  let pos = agent-pos(dropping.strategy-agent, state);
   
   local method destined?(p :: <package>) => here :: <boolean>;
           p.dest == pos;
@@ -120,9 +119,9 @@ define method create-terminal-command(s :: <drop-strategy>, state :: <state>) =>
 // END STOPGAP
         
         
-  let destined-packages = choose(destined?, agent-packages(s.strategy-agent, state));
-//  let destined-packages = choose(at-destination?, agent-packages(s.strategy-agent, state));
-  make(<drop>, package-ids: map(id, destined-packages), bid: 1, id: s.strategy-robot.id);
+  let destined-packages = choose(destined?, agent-packages(dropping.strategy-agent, state));
+//  let destined-packages = choose(at-destination?, agent-packages(dropping.strategy-agent, state));
+  make(<drop>, package-ids: map(id, destined-packages), bid: 1, id: dropping.strategy-robot.id);
 end;
 
 
