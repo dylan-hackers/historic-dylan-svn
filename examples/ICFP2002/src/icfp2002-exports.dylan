@@ -63,6 +63,7 @@ end module path;
 define module command
   use common-dylan;
   use utils;
+  use print;
   use board, import: { <point> };
 
   export

@@ -27,22 +27,22 @@ define method agent-capacity (tom :: <thomas>, state :: <state>) => <integer>;
   find-robot(state, tom.agent-id).capacity
 end method agent-capacity;
 
-
 define method agent-pos (agent :: <robot-agent>, state :: <state>) => <point>;
   find-robot(state, agent.agent-id).location;
 end method agent-pos;
 
 define method agent-packages (agent :: <robot-agent>, state :: <state>)
- => (package-list :: <list>)
+ => (package-list :: <sequence>)
   find-robot(state, agent.agent-id).inventory;
 end method agent-packages;
 
-define method packages-with-dest (packages :: <list>, loc :: <point>)
- => (lst :: <list>)
+define method packages-with-dest (packages :: <sequence>, loc :: <point>)
+ => (lst :: <sequence>)
   choose(method(p) p.dest = loc end method, packages)
 end method packages-with-dest;
 
 define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
+  debug("choose-next-base\n");
   let tom-pos = agent-pos(tom, state);
   local
     method tom-closer? (base :: <point>, bot :: <robot>) => <boolean>;
@@ -63,8 +63,7 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
                            state.bases);
   // 2. Now, pick the bases for which you are closer than any other
   //    robot.
-  let other-robots = remove(state.robots, tom,
-                            test: method(a, b) a.id = b.id end);
+  let other-robots = remove(state.robots, find-robot(state, tom.agent-id));
   let good-bases = choose(method (base)
                             every?(method(bot) tom-closer?(base, bot) end,
                                    other-robots)
@@ -76,28 +75,30 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
   if (~sorted-bases.empty?)
     tom.goal := $going-to-base;
     tom.moves-remaining := find-path(tom-pos,
-                                     sorted-bases.first.location,
+                                     sorted-bases.first,
                                      state.board);
   else
     tom.goal := $nowhere-to-go; // there's nowhere to go!
   end if;
 end method choose-next-base;
 
-define method make-move-command (p1 :: <point>, p2 :: <point>) => <command>;
+define method make-move-command
+    (p1 :: <point>, p2 :: <point>, id :: <integer>) => <command>;
+  debug("make-move: %= --> %=\n", p1, p2);
   let direction =
     case
-      p1.x = p2.x & p1.y < p2.y => $south;
-      p1.x = p2.x & p1.y > p2.y => $north;
-      p1.x < p2.x & p1.y = p2.y => $west;
-      p1.x > p2.x & p1.y = p2.y => $east;
+      p1.x = p2.x & p1.y < p2.y => $north;
+      p1.x = p2.x & p1.y > p2.y => $south;
+      p1.x < p2.x & p1.y = p2.y => $east;
+      p1.x > p2.x & p1.y = p2.y => $west;
       otherwise => error("make-move-command: Can't happen!")
     end case;
-  make(<move>, bid: 1, direction: direction);
+  make(<move>, id: id, bid: 1, direction: direction);
 end method make-move-command;
 
 define method choose-packages (packages :: <sequence>, tom :: <thomas>,
                                state :: <state>)
- => (ps :: <list>)
+ => (ps :: <sequence>)
   let sorted-packages = sort(packages,
                              test: method(a, b) a.weight > b.weight end);
   let ps = #();
@@ -118,11 +119,13 @@ define method choose-packages (packages :: <sequence>, tom :: <thomas>,
   end block;
 end method choose-packages;
 
-define constant $punt = make(<pick>, bid: 1, package-ids: #(13575));
+define method punt(id :: <integer>) => <command>;
+  make(<pick>, id: id, bid: 1, package-ids: #(13575));
+end method punt;
 
-define method generate-next-move (tom :: <thomas>, state :: <state>)
+define method generate-next-move* (tom :: <thomas>, state :: <state>)
  => (c :: <command>)
-  select (tom.state)
+  select (tom.goal)
     $ready =>
       begin
         let ps = agent-packages(tom, state);
@@ -151,14 +154,14 @@ define method generate-next-move (tom :: <thomas>, state :: <state>)
             generate-next-move(tom, state);
           else
             tom.goal := $going-to-dropoff;
-            tom.moves-remaining := find-path(tom-pos, ps.head.dest,
+            tom.moves-remaining := find-path(tom-pos, ps.first.dest,
                                              state.board);
-            make(<pick>, package-ids: map(id, ps));
+            make(<pick>, id: tom.agent-id, bid: 1, package-ids: map(id, ps));
           end if;
         else
           let next-point = tom.moves-remaining.head;
           tom.moves-remaining := tom.moves-remaining.tail;
-          make-move-command(tom-pos, next-point);
+          make-move-command(tom-pos, next-point, tom.agent-id);
         end if;
       end;
     $nowhere-to-go => 
@@ -167,7 +170,7 @@ define method generate-next-move (tom :: <thomas>, state :: <state>)
         // for a turn.
         choose-next-base(tom, state);
         if (tom.goal = $nowhere-to-go)
-          $punt
+          tom.agent-id.punt
         else
           generate-next-move(tom, state);
         end if;
@@ -178,12 +181,19 @@ define method generate-next-move (tom :: <thomas>, state :: <state>)
           let ps = packages-with-dest(agent-packages(tom, state),
                                       agent-pos(tom, state));
           tom.goal := $ready;
-          make(<drop>, bid: 1, package-ids: map(id, ps));
+          make(<drop>, id: tom.agent-id, bid: 1, package-ids: map(id, ps));
         else
           let next-point = tom.moves-remaining.head;
           tom.moves-remaining := tom.moves-remaining.tail;
-          make-move-command(agent-pos(tom, state), next-point);
+          make-move-command(agent-pos(tom, state), next-point, tom.agent-id);
         end if;
       end;
   end select;
+end method generate-next-move*;
+
+define method generate-next-move (tom :: <thomas>, state :: <state>)
+ => (c :: <command>)
+  let c = generate-next-move*(tom, state);
+  debug("generate-next-move: goal %=, cmd %=\n", tom.goal, c);
+  c
 end method generate-next-move;

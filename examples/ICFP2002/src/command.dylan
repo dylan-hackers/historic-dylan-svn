@@ -35,3 +35,23 @@ end class <transport>;
 
 // TODO: add an initializer to make sure that every element of
 // package-ids is an <integer>
+
+define method print-object (c :: <pick>, s :: <stream>) => ()
+  format(s, "{<pick> id: %d, bid: %d, package-ids: %=}",
+         c.robot-id, c.bid, c.package-ids);
+end method print-object;
+
+define method print-object (c :: <move>, s :: <stream>) => ()
+  format(s, "{<move> id: %d, bid: %d, move: %=}",
+         c.robot-id, c.bid, c.direction);
+end method print-object;
+
+define method print-object (c :: <drop>, s :: <stream>) => ()
+  format(s, "{<drop> id: %d, bid: %d, package-ids: %=}",
+         c.robot-id, c.bid, c.package-ids);
+end method print-object;
+
+define method print-object (c :: <transport>, s :: <stream>) => ()
+  format(s, "{<transport> id: %d, bid: %d, location: %=}",
+         c.robot-id, c.bid, c.location);
+end method print-object;
