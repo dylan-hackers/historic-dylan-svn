@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -30,7 +30,7 @@ copyright: see below
 
 define variable *Top-Level-Forms* = make(<stretchy-vector>);
 
-define open primary abstract class <top-level-form> (<source-location-mixin>)
+define open primary abstract class <top-level-form> (<source-location-mixin>, <dependent-mixin>)
   slot tlf-component :: false-or(<component>) = #f, init-keyword: component:;
   slot tlf-init-function :: false-or(<ct-function>) = #f,
     init-keyword: init-function:;
