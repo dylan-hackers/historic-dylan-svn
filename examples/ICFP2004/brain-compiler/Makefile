@@ -20,4 +20,10 @@ bin-chris2:
 run-chris2:
 	rm -rf ../ant-brains/chris2.ant; ./chris2 > ../ant-brains/chris2.ant
 
+bin-chris1:
+	rm -rf chris1; d2c -M -L.. chris1.lid
+
+run-chris1:
+	rm -rf ../ant-brains/chris1.ant; ./chris1 > ../ant-brains/chris1.ant
+
 -include brain-compiler.deps
