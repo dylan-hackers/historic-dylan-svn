@@ -1,4 +1,4 @@
-meta 0.5--Copyright (c) 1999 David Lichteblau <lichtebl@math.fu-berlin.de>
+meta--Copyright (c) 1999 David Lichteblau <lichtebl@math.fu-berlin.de>
 
 
 This is an implementation of Meta, a technique used to simplify the task
@@ -24,6 +24,11 @@ adapted syntax) for Dylan.  It is functional, but not yet optimized.
 History
 =======
 
+initial cvs version
+  - ported to FD by <chris@cnd.co.nz> and <dauclair@hotmail.com>.
+    Thanks.
+  - added `peeking'
+  
 0.5
   - use libtool
 
@@ -56,15 +61,11 @@ Documentation
 	See Meta.html and With-collector.html.
 
 
-Harlequin Dylan support
-=======================
+Functional Developer support
+============================
 
-meta 0.3 has been reported to compile with Harlequin Dylan, but some
-modifications will be necessary:
-  - SUBSEQUENCE is not supported.  Try to use COPY-SEQUENCE.
-  - meta-library.dylan has to be adapted, because Meta is not
-    COMMON-DYLAN-aware yet.
-Stay tuned for release 0.5.
+Thanks to Chris&Doug, this is supposed to work now.  Else complain to
+<gd-hackers@gwydiondylan.org>, please.
 
 
 Installation using Gwydion Dylan
