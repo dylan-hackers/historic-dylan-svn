@@ -11,7 +11,7 @@ function code_header ($title) {
 <BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#000099" ALINK="#FF0000"
       VLINK="#990000">
 <H1 ALIGN=CENTER>
-<IMG SRC="../images/gwydion-logo.gif" ALT="Gwydion Dylan">
+<IMG SRC="../gwydion.png" ALT="Gwydion Dylan">
 </H1>
 
 <P ALIGN=CENTER>[
