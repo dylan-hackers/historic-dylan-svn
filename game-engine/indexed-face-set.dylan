@@ -1,10 +1,5 @@
 module: vrml-viewer
 
-define class <indexed-face-set> (<object>)
-  slot points, init-keyword: points:;
-  slot polygon-indices, init-keyword: indices:;
-end class <indexed-face-set>;
-
 define method render-to-opengl(ifs :: <indexed-face-set>)
   for(p in ifs.polygon-indices)
     with-glBegin($GL-POLYGON)
@@ -14,4 +9,15 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
       end for;
     end with-glBegin;
   end for;
+end method render-to-opengl;
+
+define method render-to-opengl(transform :: <transform>)
+  glPushMatrix();
+  if(transform.scale)
+    apply(glScale, transform.scale);
+  end if;
+  for(i in transform.children)
+    render-to-opengl(i);
+  end for;
+  glPopMatrix();
 end method render-to-opengl;

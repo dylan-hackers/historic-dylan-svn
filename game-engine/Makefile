@@ -1,7 +1,7 @@
 vrml-viewer: vrml-viewer.lid
 	d2c $<
 
-vrml-viewer.lid: vrml-viewer-exports.dylan vrml-viewer.dylan indexed-face-set.dylan
+vrml-viewer.lid: vrml-viewer-exports.dylan vrml-viewer.dylan indexed-face-set.dylan node.dylan
 	touch $@
 
 clean:
