@@ -29,39 +29,37 @@ copyright: LGPL
 // Macros to simplify the parsing task
 // macro added by Doug to simplify writing parser fns
 define macro parse-definer
-{ define parse ?:name ( ?meta-vars:* ) => (?results)
-   ?meta
-  end } 
- => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
-        with-meta-syntax parse-string (string, start: start, pos: index)
-          variables(?meta-vars);
-          [ ?meta ];
-          values(index, ?results);
-        end with-meta-syntax;
-      end; }
+{ define parse ?:name ( ?meta-vars:* ) => (?results) ?meta end } 
+ => { parse-helper(?name, (?meta-vars), (?results), (?meta)) }
 { define parse ?:name (?meta-vars:*) ?meta end }
- => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
-        with-meta-syntax parse-string (string, start: start, pos: index)
-          variables(?meta-vars);
-          [ ?meta ];
-          values(index, #t);
-        end with-meta-syntax;
-      end; }
+ => { parse-helper(?name, (?meta-vars), (#t), (?meta)) }
 end macro parse-definer;
+
+define macro parse-helper
+{ parse-helper(?:name, (?meta-vars), (?results), (?meta)) }
+ => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
+        meta-builder(string, start, (?meta-vars), (?results), (?meta));
+      end; }
+end macro parse-helper;
 
 // Doug wrote this macro for collecting strings
 define macro collector-definer
 { define collector ?:name (?vars:*) ?meta end }
  => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
         with-collector into-vector str, collect: ?=collect;
-          with-meta-syntax parse-string(string, start: start, pos: index)
-            variables(?vars);
-            [ ?meta ];
-            values(index, as(<string>, str));
-          end with-meta-syntax;
+          meta-builder(string, start, (?vars), (as(<string>, str)), (?meta));
         end with-collector;
       end; }
 end macro collector-definer;
+
+define macro meta-builder
+{ meta-builder(?str:expression, ?start:expression, (?vars), (?results), (?meta)) }
+ => {  with-meta-syntax parse-string (?str, start: ?start, pos: index)
+         variables(?vars);
+         [ ?meta ];
+         values(index, ?results);
+       end with-meta-syntax; }
+end macro meta-builder;
 
 //-------------------------------------------------------
 // Productions
@@ -83,7 +81,6 @@ end parse document;
 // FIXME: we're cheating here, by using UFT8 and just allowing anything.
 //
 define constant <char> = <character>;
-
 
 // White Space
 //
@@ -110,33 +107,53 @@ end collector name;
 
 //    [6]    Names       ::=    Name (S Name)*
 //
-define method parse-names(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(name, s);
-    [parse-name(name), loop([parse-s(s), parse-name(name)])];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-names;
+define parse names(name, s)
+  parse-name(name), loop([parse-s(s), parse-name(name)])
+end parse names;
 
 //    [7]    Nmtoken     ::=    (NameChar)+
 //
-define method parse-nmtoken(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    [type(<name-char>, c), loop(type(<name-char>, c))];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-nmtoken;
+define parse nmtoken(c)
+  type(<name-char>, c), loop(type(<name-char>, c))
+end parse nmtoken;
 
 //    [8]    Nmtokens    ::=    Nmtoken (S Nmtoken)*
 //    
-define method parse-nmtokens(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(token, s);
-    [parse-nmtoken(token), loop([parse-s(s), parse-nmtoken(token)])];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-nmtokens;
+define parse nmtokens(token, s)
+  parse-nmtoken(token), loop([parse-s(s), parse-nmtoken(token)])
+end parse nmtokens;
+
+// [9] - [12] are best described as slightly differing instances of 
+// an algorithm
+define macro parse-value-definer
+{ define parse-value ?:name(?meta-vars:*)
+    ?nix-single-quote-str:expression, ?nix-double-quote-str:expression
+       => ?meta
+  end }
+ => { parse-helper( ?name ## "-value", (c, ?meta-vars), (#t),
+                    ( {['"',
+                        loop({(not-in-set?(c, ?nix-double-quote-str))}), 
+// DOUG                 ?meta, 
+                        '"'],
+                       ['\'',
+                        loop({(not-in-set?(c, ?nix-single-quote-str))}), 
+// DOUG                 ?meta,
+                        '\'']}, [] )) }
+end macro parse-value-definer;
+
+/****
+define macro parse-value-builder
+{ parse-value-builder( ?c:variable, (?meta-vars:*), ?test:expression,
+                      ?not-single:expression, ?not-double:expression,
+                      (?meta) ) }
+ => { ['"', loop({(?test(?c, ?not-double))}),
+// DOUG       ?meta,
+         '"'],
+        ["'", loop({(?test(?c, ?not-single))}),
+// DOUG       ?meta,
+         "'"] }
+end macro parse-value-builder;
+****/
 
 // Literals
 //
@@ -150,70 +167,58 @@ define method not-in-set?(character, set)
   ~ member?(character, set);
 end method not-in-set?;
 
-define method parse-entity-value(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, reference);
-    {['"',
-      loop({(not-in-set?(c, "%&\""))}), 
-// DOUG            parse-pe-reference(reference), 
-// DOUG            parse-reference(reference)}),
-      '"'],
-     ['\'',
-      loop({(not-in-set?(c, "%&'"))}), 
-// DOUG            parse-pe-reference(reference), 
-// DOUG            parse-reference(reference)}),
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-entity-value;
+define parse-value entity(ref)
+  "%&'", "%&\"" => parse-pe-reference(ref), parse-reference(ref)
+end parse-value entity;
 
 //    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
 //                                    |  "'" ([^<&'] | Reference)* "'"
 //
-define method parse-att-value(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, reference);
-    {['"',
-      loop({(not-in-set?(c, "<&\""))}), 
-// DOUG            parse-reference(reference)}),
-      '"'],
-     ['\'',
-      loop({(not-in-set?(c, "<&'"))}),
-// DOUG            parse-reference(reference)}),
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-att-value;
+define parse-value att(ref)
+  "<&'", "<&\"" => parse-reference(ref)
+end parse-value att;
+
+/*****
+// here again we use a macro to simplify parsing literals
+define macro collect-literal-definer
+{ define collect-literal ?:name(?nix-single-quote-str:expression, 
+                                ?nix-double-quote-str:expression,
+                                #key ?test:expression = not-in-set?)
+  end }
+ => { define collector ?name ## "-literal" (c) 
+        {['"',
+          loop({[(apply(?test, list(c, ?nix-double-quote-str))),
+                 do(collect(c))]}), 
+          '"'],
+         ["'",
+          loop({[(apply(?test, list(c, ?nix-single-quote-str))), 
+                 do(collect(c))]}), 
+          "'"]}, []
+      end; }
+end macro collect-literal-definer;
+*****/
 
 //    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
 //
-define method parse-system-literal(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    {['"',
-      loop((not-in-set?(c, "\""))), 
-      '"'],
-     ['\'',
-      loop((not-in-set?(c, "'"))), 
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-system-literal;
+define collector system-literal (c)
+  {['"',
+    loop([test(rcurry(not-in-set?, "\""), c), do(collect(c))]), 
+    '"'],
+   ['\'',
+    loop([test(rcurry(not-in-set?, "'"), c), do(collect(c))]),
+    '\'']}, []
+end;
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
 //
-define method parse-pubid-literal(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    {['"',
-      loop(type(<pub-id-char>, c)), 
-      '"'],
-     ['\'',
-      loop(type(<pub-id-char-without-quotes>, c)), 
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-pubid-literal;
+define collector pubid-literal (c)
+  {['"',
+    loop([type(<pub-id-char>, c), do(collect(c))]), 
+    '"'],
+   ['\'',
+    loop([type(<pub-id-char-without-quotes>, c), do(collect(c))]), 
+    '\'']}, []
+end;
 
 //    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
 //    
@@ -234,15 +239,9 @@ define parse eq(sp) loop(parse-s(sp)), '=', loop(parse-s(sp)) end;
 
 //    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
 //
-define method parse-version-num(string, #key start = 0, end: stop)
-  with-collector into-vector version-string, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c);
-      [loop([type(<version-number>, c), do(collect(c))])];
-      values(index, as(<string>, version-string));
-    end with-meta-syntax;
-  end with-collector;
-end method parse-version-num;
+define collector version-num(c)
+  loop([type(<version-number>, c), do(collect(c))])
+end collector version-num;
 
 //    [24]    VersionInfo    ::=    S 'version' Eq ("'" VersionNum "'" | '"' VersionNum '"')/* */
 //
