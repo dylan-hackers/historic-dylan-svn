@@ -76,7 +76,15 @@ define function main ()
 
   heapsort(N, array);
 
-  format-out("%=\n", array[N]);
+  // this is truly horrid.  Sorry.
+  let (int, frac) = truncate(array[N]);
+  format-out("%d.", int);
+  for (i from 1 below 10)
+    let (int, frac2) = truncate(frac * 10);
+    frac := frac2;
+    format-out("%d", int);
+  end;
+  format-out("%d\n", round(frac * 10));
 end function main;
 
 
