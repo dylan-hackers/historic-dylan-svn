@@ -9,6 +9,22 @@ define function main(name, arguments)
 
   format-out("%=\n%=\n%=\n", mat, vec, homogenize(vec));
   format-out("%=\n%=\n%=\n", mat * vec, vec * mat, vec * vec);
+  
+  format-out("parsing 3.141592654123456789e27 gives %=\n",
+	     atof("3.141592654123456789e27"));
+
+  let lexer = make(<lexer>, source: *standard-input*);
+  getChar(lexer);
+  block (eof)
+    while(1)
+      let tok = internal-get-token(lexer);
+      format-out("token = %=\n\n", tok);
+      if (tok == $EOF-token)
+	eof();
+      end;
+    end;
+  end;
+
 
   let red :: <color> = make(<color>, red: 1.0, blue: 0.0, green: 0.0);
   let green :: <color> = make(<color>, red: 0.0, green: 1.0, blue: 0.0);
@@ -30,6 +46,7 @@ define function main(name, arguments)
   render-image(o, 1, "render.ppm", 
 	       make(<color>, red: 1.0, green: 1.0, blue:1.0),
 	       make(<stretchy-vector>), 128, 128, $double-pi / 2.0);
+
 
   exit-application(0);
 end function main;

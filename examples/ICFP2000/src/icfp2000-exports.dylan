@@ -16,4 +16,6 @@ define module icfp2000
   use standard-io;
   use transcendental;
   use matrix;
+  use Extensions,
+    import: {<extended-integer>, ratio, <false>};
 end module;
