@@ -6,20 +6,27 @@ Version:   1.0
 
 define variable *ent* = make(<table>);
 define class <1st-pass> (<xform-state>) end;
-define constant $entities-first = make(<1st-pass>);
 
 define function collect-entity-defs(in :: <document>)
   *ent* := make(<table>);
   let ignored-stream = make(<string-stream>, contents: "");
-  transform(in, in.name, $entities-first, ignored-stream);
+  transform-document(in, state: make(<1st-pass>),
+                     stream: ignored-stream);
 end function collect-entity-defs;
 
 define function referenced-entities(namei :: <string>, 
                                     str :: <stream>,
                                     state :: <xform-state>)
   unless(*ent*.empty?)
-  format(str, "&lt;!<FONT COLOR='purple'>DOCTYPE </FONT>"
-              "<FONT COLOR='green'>%s</FONT> [", namei);
+  format(str, "<HTML>\n<BODY BGCOLOR='white'>\n<P>\n<FONT COLOR='"
+              "orange'>&lt;!-- %s.dtd parsed by xml-parser, "
+              "written by <A HREF='mailto://doug@cotilliongroup.com'>"
+              "Douglas M. Auclair</A>, <A HREF='mailto://chris@double.co.nz'>"
+              "Chris Double</A>, and <A HREF='mailto://ich@andreas.org'>"
+              "Andreas Bogk</A>.\n<BR>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+              "An LGPL example application available from the <A HREF='"
+              "http://www.gwydiondylan.org'>GwydionDylan</A> web site"
+              " --&gt;</FONT>\n<P>\n", namei);
   let ent = sort(map(curry(as, <string>), *ent*.key-sequence));
   for(x in ent)
     format(str, "\n<BR>&nbsp;&lt;!<FONT COLOR='purple'>"
@@ -28,9 +35,9 @@ define function referenced-entities(namei :: <string>,
     for(y in *ent*[as(<symbol>, x)].entity-value)
       transform(y, y.name, state, str); 
     end;
-    format(str, "'>");
+    format(str, "'&gt;");
   end for;
-  format(str, "\n<BR>]&gt;<BR>");
+  format(str, "\n</BODY>\n</HTML>");
   end unless;
 end function referenced-entities;
 

@@ -1,8 +1,8 @@
 Module:    transform
 Author:    Douglas M. Auclair
 Copyright: (C) 2001, LGPL
-synopsis:  iterates over the DOM; provides the default way to transform XML
-           and a facility to allow user transformations.
+synopsis:  provides the default way to transform XML (just gets the
+           text), and a facility to allow user transformations.
 
 define variable *xml-depth* = 0;
 define open class <xform-state> (<object>) end;

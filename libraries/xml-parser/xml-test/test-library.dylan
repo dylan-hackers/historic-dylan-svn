@@ -8,6 +8,7 @@ define library xml-test
   use common-dylan;
   use io;
   use xml-parser;
+  use system;
 end library xml-test;
 
 define module entity-pass
@@ -23,6 +24,7 @@ define module html-xform
   use common-dylan, exclude: { format-to-string };
   use xml-parser;
   use entity-pass;
+  use format-out;
   use streams;
   use format;
 
@@ -36,5 +38,6 @@ define module xml-test
   use xml-parser;
   use html-xform;
   use streams;
+  use date;
 end module xml-test;
 

@@ -24,16 +24,39 @@ define method print-object(elt :: <element>, str :: <stream>)
   format(str, "{<element>, name: %s}", elt.name);
 end method print-object;
 
+define function string-time(d :: <date>) => (s :: <string>)
+  format-to-string("%d:%d:%=", d.date-hours, d.date-minutes,
+     (d.date-seconds * 1000000.0 + d.date-microseconds) / 1000000.0);
+end function string-time;
+
 define function main(program-name, arguments)
   if(arguments.size = 0 | arguments[0] = "-h" | arguments[0] = "--help")
     show-help();
   else
-    let *substitute?* = arguments[0] ~= "-n" 
+    let *substitute?* = arguments[0] ~= "-n"
       & arguments[0] ~= "--no-entity-substitution";
     with-open-file(in = arguments[if(*substitute?*) 0 else 1 end])
+//      let start = current-date();
       let doc = parse-document(in.stream-contents, 
                                substitute-entities?: *substitute?*);
-      transform-document(doc, state: $html);
+/**
+      let stop = current-date();
+      apply(curry(format-out,"Start: %=, End: %=, elapsed time: %=\n"),
+            map(string-time, list(start, stop,
+                                  make(<date>, year: start.date-year,
+                                       month: start.date-month,
+                                       day: start.date-day,
+                                       hour: stop.date-hours - start.date-hours,
+                                       minutes: stop.date-minutes - start.date-minutes,
+                                       seconds: stop.date-seconds - start.date-seconds,
+                                       microseconds: stop.date-microseconds - 
+                                       start.date-microseconds))));
+ **/
+      let filename = concatenate(as(<string>, doc.name), "-xml.html");
+      with-open-file(file = filename, direction: #"output")
+        transform-document(doc, state: $html, stream: file);
+      end with-open-file;
+      format-out("Wrote out %s\n", filename);
       let match = copy-sequence(arguments, start: if(*substitute?*) 1 else 2 end);
       if(match.size > 0)
         format-out("Found %d elements with shape //%s\n",

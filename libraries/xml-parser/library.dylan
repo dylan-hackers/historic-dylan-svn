@@ -29,8 +29,7 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <letter>, <digit>, <hex-digit>, <version-number>,
-    element-parent-setter;
+  export <hex-digit>, <version-number>, element-parent-setter;
 end module interface;
 
 define module transform
@@ -52,6 +51,7 @@ end module collect;
 
 define module %productions
   use common-dylan, exclude: { format-to-string };
+  use standard-io;
   use streams;
   use format;
   use table-extensions;
