@@ -75,17 +75,31 @@ end method;
 
 
 define variable *cached-build-script* :: false-or(<file-locator>) = #f;
+define variable *cached-build-script-date* :: false-or(<date>) = #f;
 define variable *cached-jam-state* :: false-or(<jam-state>) = #f;
 
 define function make-jam-state
     (build-script :: <file-locator>,
-     #key progress-callback :: <function> = ignore)
+     #key progress-callback :: <function> = ignore,
+          build-directory :: <directory-locator>)
  => (jam :: <jam-state>);
-  // ---*** Need to ensure that the build-script hasn't been modified,
-  //        and that the working directory hasn't changed, and that
-  //        SYSTEM_ROOT and PERSONAL_ROOT are still valid
+  let personal-root
+    = $personal-install
+    | build-directory.locator-directory;
+  
+  // Ensure that the build-script hasn't been modified, and that the
+  // working directory hasn't changed, and that SYSTEM_ROOT and
+  // PERSONAL_ROOT are still valid
   if (build-script = *cached-build-script*
-        & *cached-jam-state*)
+        & file-property(build-script, #"modification-date")
+            = *cached-build-script-date*
+        & *cached-jam-state*
+        & as(<directory-locator>,
+             jam-variable(*cached-jam-state*, "SYSTEM_ROOT")[0])
+            = $system-install
+        & as(<directory-locator>,
+             jam-variable(*cached-jam-state*, "PERSONAL_ROOT")[0])
+            = personal-root)
     jam-state-copy(*cached-jam-state*)
   else
     let state = make(<jam-state>);
@@ -108,27 +122,31 @@ define function make-jam-state
     // Custom built-in functions
     jam-rule(state, "ECHO")
       := jam-rule(state, "Echo")
-      := method(jam :: <jam-state>, #rest lol) => (result :: <sequence>);
-             if(lol.size > 0)
-               for(arg in lol[0])
-                 format(*standard-output*, "%s ", arg);
-               end for;
-               new-line(*standard-output*);
-             end if;
-             #[]
+      := method (jam :: <jam-state>, #rest lol) => (result :: <sequence>);
+           let message = "";
+           if (lol.size > 0)
+             for (arg in lol[0], first? = #t then #f)
+               message
+                 := if (first?) arg else concatenate(message, " ", arg) end;
+             end for;
+           end if;
+           signal("%s", message);
+           #[]
          end;
     jam-rule(state, "EXIT")
       := jam-rule(state, "Exit")
-      := method(jam :: <jam-state>, #rest lol) => (result :: <sequence>);
-             if(lol.size > 0)
-               for(arg in lol[0])
-                 format(*standard-output*, "%s ", arg);
-               end for;
-               new-line(*standard-output*);
-             end if;
-             exit-application(1);
-             #[]
+      := method (jam :: <jam-state>, #rest lol) => (result :: <sequence>);
+           let message = "";
+           if( lol.size > 0)
+             for (arg in lol[0], first? = #t then #f)
+               message
+                 := if (first?) arg else concatenate(message, " ", arg) end;
+             end for;
+           end if;
+           error("%s", message);
+           #[]
          end;
+
     jam-rule(state, "IncludeMKF")
       := method
              (jam :: <jam-state>, includes :: <sequence>)
@@ -149,11 +167,13 @@ define function make-jam-state
     jam-variable(state, "SYSTEM_ROOT")
       := vector(as(<string>, $system-install));
     jam-variable(state, "PERSONAL_ROOT")
-      := vector(as(<string>, $personal-install | working-directory()));
+      := vector(as(<string>, personal-root));
 
     jam-read-file(state, build-script);
 
     *cached-build-script* := build-script;
+    *cached-build-script-date*
+      := file-property(build-script, #"modification-date");
     *cached-jam-state* := state;
     jam-state-copy(state)
   end if
