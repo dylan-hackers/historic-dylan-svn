@@ -33,6 +33,21 @@ define module board
   export <board>, send-board, width, height, <package>, <robot>;
 end module board;
 
+define module command
+  use icfp2002;
+
+  export
+    $north,
+    $south,
+    $east,
+    $west,
+    <direction>,
+    <command>,
+    <move>,
+    <pick>,
+    <drop>;
+end module command;
+
 define module messages
   use icfp2002;
   use standard-io;
