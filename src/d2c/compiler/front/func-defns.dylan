@@ -1,5 +1,5 @@
 module: function-definitions
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/func-defns.dylan,v 1.3 2000/01/24 04:56:19 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/func-defns.dylan,v 1.3.6.1 2000/11/11 18:03:15 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -29,6 +29,18 @@ copyright: see below
 //
 //======================================================================
 
+// $all-generics -- internal.
+//
+// Holds all the generic functions allocated.
+//
+define variable *all-generics* :: <stretchy-vector> = make(<stretchy-vector>);
+
+define function all-generic-defintion-objects ()
+ => (classes :: <stretchy-vector>)
+  *all-generics*;
+end;
+
+
 define method defn-type (defn :: <function-definition>) => res :: <cclass>;
   dylan-value(#"<function>");
 end;
@@ -53,6 +65,12 @@ define class <generic-definition> (<function-definition>)
   slot %generic-defn-discriminator
     :: type-union(<ct-function>, one-of(#f, #"not-computed-yet")),
     init-value: #"not-computed-yet", init-keyword: discriminator:;
+end;
+
+define method initialize
+    (defn :: <generic-definition>, #next next-method, #key, #all-keys) => ();
+  next-method();
+  add!(*all-generics*, defn);
 end;
 
 define open generic generic-defn-discriminator (gf :: <generic-definition>)
@@ -136,6 +154,20 @@ define class <method-definition> (<abstract-method-definition>)
   slot method-defn-congruent? :: <boolean>,
     init-value: #f, init-keyword: congruent:;
 end;
+
+define method method-defn-inline-function-dump
+    (defn :: <method-definition>)
+ => res :: false-or(<function-literal>);
+  let gf = defn.method-defn-of;
+  if (gf & ~gf.defn-name.name-inherited-or-exported?)
+    // We're associated with a private GF, so don't dump anything.
+    // This is to work around some bugs during data collection
+    // for GF analysis.
+    #f;
+  else
+    next-method()
+  end if;
+end method;
 
 // definition-kind{<method-definition>} -- method on exported GF
 //

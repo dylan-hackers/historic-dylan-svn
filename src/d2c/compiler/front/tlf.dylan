@@ -1,5 +1,5 @@
 module: top-level-forms
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/tlf.dylan,v 1.2 2000/01/24 04:56:21 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/tlf.dylan,v 1.2.6.1 2000/11/11 18:03:15 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -118,10 +118,13 @@ end;
 // If name's var isn't visible outside this library, don't bother dumping the
 // definition.
 //
+// We're doing research, so we should also dump <generic-definition> objects.
+//
 define method dump-od
     (tlf :: <simple-define-tlf>, state :: <dump-state>) => ();
   let defn = tlf.tlf-defn;
-  if (name-inherited-or-exported?(defn.defn-name))
+  if (name-inherited-or-exported?(defn.defn-name)
+	| instance?(defn, <generic-definition>))
     dump-simple-object(#"define-binding-tlf", state, defn);
   end if;
 end;

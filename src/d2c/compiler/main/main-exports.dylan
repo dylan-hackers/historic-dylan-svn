@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.7 2000/01/24 04:56:23 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.7.6.1 2000/11/11 18:03:15 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -42,6 +42,20 @@ define library compiler-main
   use compiler-convert;
 end;
 
+define module analyze-generics
+  use common;
+  use extensions;
+  use names;
+  use variables;
+  use signature-interface;
+  use definitions;
+  use classes;
+  use function-definitions;
+
+  export
+    analyze-generics;
+end module;
+
 define module main
   use common;
   use Extensions, exclude: {element-type};
@@ -51,7 +65,8 @@ define module main
   use System, 
      import: {system, copy-bytes, getenv, <raw-pointer>, import-string, 
 	      export-string, no-core-dumps,
-	      c-expr, pointer-deref, pointer-deref-setter};
+	      c-expr, pointer-deref, pointer-deref-setter,
+	      *gdb-output*};
 #endif
   use string-conversions, import: {string-to-integer};
   use character-type;
@@ -98,4 +113,5 @@ define module main
   use platform;
   use file-system;
   use extensions, import: {key-exists?};
+  use analyze-generics;
 end;

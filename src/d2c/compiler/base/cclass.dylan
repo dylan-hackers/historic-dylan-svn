@@ -1,5 +1,5 @@
 module: classes
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/cclass.dylan,v 1.7 2000/01/24 04:55:53 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/cclass.dylan,v 1.7.6.1 2000/11/11 18:03:14 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -35,6 +35,9 @@ copyright: see below
 //
 define variable *All-Classes* :: <stretchy-vector> = make(<stretchy-vector>);
 
+define function all-cclass-objects () => (classes :: <stretchy-vector>)
+  *all-classes*;
+end;
 
 define abstract class <cclass> (<ctype>, <eql-ct-value>)
   //

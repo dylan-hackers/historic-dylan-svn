@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.4 2000/01/24 04:56:19 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.4.6.1 2000/11/11 18:03:15 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -198,6 +198,7 @@ define module function-definitions
   use front;
 
   export
+    all-generic-defintion-objects,
     <generic-definition>, generic-defn-sealed?, generic-defn-sealed?-setter,
     generic-defn-methods, generic-defn-discriminator,
     %generic-defn-discriminator, %generic-defn-discriminator-setter,
@@ -250,6 +251,7 @@ define module top-level-forms
   use compile-time-values;
   use variables;
   use definitions;
+  use function-definitions;
 
   use builder-interface, import: {<fer-builder>};
   use variable-definitions;

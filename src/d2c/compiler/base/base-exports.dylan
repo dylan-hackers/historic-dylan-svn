@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.15 2000/04/01 12:08:25 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.15.6.1 2000/11/11 18:03:14 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -687,6 +687,7 @@ define module classes
   use forwards, import: {<cclass>}, export: all;
 
   export
+    all-cclass-objects,
     cclass-name, loaded?, direct-superclasses,
     closest-primary-superclass, closest-primary-superclass-setter,
     precedence-list, subclasses, direct-subclasses, sealed?,

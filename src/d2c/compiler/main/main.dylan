@@ -1,6 +1,8 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.36 2000/04/01 12:08:26 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.36.6.1 2000/11/11 18:03:16 emk Exp $
 copyright: see below
+
+*gdb-output* := *standard-output*;
 
 //======================================================================
 //
@@ -1166,6 +1168,7 @@ define method compile-library (state :: <main-unit-state>)
     if (state.unit-executable)
       log-target(state.unit-executable);
       calculate-type-inclusion-matrix();
+      analyze-generics();
       build-da-global-heap(state);
       build-inits-dot-c(state);
       build-executable(state);
