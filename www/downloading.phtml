@@ -35,6 +35,7 @@ HREF="mailto:andreas@andreas.org">Andreas Bogk</A>.)</P>
 <LI><A HREF="ftp://ftp.fu-berlin.de/pub/unix/languages/dylan/">FU Berlin</A>, Germany (no packages, just source)
 <LI><A HREF="ftp://ftp.ntua.gr/pub/lang/gwydion">National Technical University of Athens</a>, Greece
 <LI><A HREF="ftp://gd.tuwien.ac.at/languages/gwydiondylan/">Vienna University of Technology</a>, Austria
+<LI><A HREF="ftp://dylan.fortunaty.net/software/gd/">fortunaty.net</a>, Germany
 </UL>
 
 <H3>CVS Source Repository</H3>
@@ -42,8 +43,7 @@ HREF="mailto:andreas@andreas.org">Andreas Bogk</A>.)</P>
 <P><A HREF="http://berlin.ccc.de/cgi-bin/cvsweb/gd/">Browse our CVS tree.</A>
 You can also access the cvs server directly, specify
 <tt>:pserver:anoncvs@berlin.ccc.de:/home/cvsroot</tt> as your CVS root. The
-password is <tt>anoncvs</tt>. The very conservative can find version 2.2 on
-the branch GD_2_2_STABLE, but even though we haven't yet released a newer
+password is <tt>anoncvs</tt>. Even though we haven't yet released a newer
 official "stable" release we think we've made <strong>great</strong> progress
 and improvements since then and generally recommend people to start from the
 most recent tagged version which is currently <?php current_version();?>.
@@ -51,5 +51,10 @@ If that works for you (or you're the type that doesn't read manuals before
 turning on your new VCR) then you can try the HEAD version.  We actually try
 pretty hard to make sure the HEAD version always works but there are certainly
 even fewer guarantees with it than usual :-)</P>
+
+<H3>Debian</H3>
+
+Gwydion Dylan is part of the standard distribution of woody and
+sid. Just type <tt>apt-get install gwydion-dylan-dev</tt>.
 
 <?php standard_footer(); ?>
