@@ -235,18 +235,18 @@ end;
 
 define method display-form-note
     (out :: <stream>, note :: <form-error>)
-  write(out, "<LI>");
+  write(out, "<li>");
   // Should I call quote-html on this output?
   apply(format, out, format-string(note), format-arguments(note));
-  write(out, "\n");
+  write(out, "</li>\n");
 end;
 
 define method display-form-note
     (out :: <stream>, note :: <form-message>)
-  write(out, "<P>");
+  write(out, "<p>");
   // Should I call quote-html on this output?
   apply(format, out, format-string(note), format-arguments(note));
-  write(out, "\n");
+  write(out, "</p>\n");
 end;
   
 define tag show-form-notes in dsp
@@ -258,14 +258,14 @@ define tag show-form-notes in dsp
     let errors = choose(rcurry(instance?, <form-error>), notes);
     let out = output-stream(response);
     unless(empty?(messages))
-      write(out, "<FONT color='green'>\n");
+      write(out, "<div class=\"form-note-message\">\n");
       do(curry(display-form-note, out), messages);
-      write(out, "</FONT>\n<P>\n");
+      write(out, "</div>\n");
     end;
     unless(empty?(errors))
-      format(out, "<FONT color='red'>Please fix the following errors:<P>\n<UL>\n");
+      format(out, "<div class=\"form-note-errors\">Please fix the following errors:\n<ul>\n");
       do(curry(display-form-note, out), errors);
-      format(out, "</UL></FONT>\n");
+      format(out, "</ul></div>\n");
     end;
   end;
 end;

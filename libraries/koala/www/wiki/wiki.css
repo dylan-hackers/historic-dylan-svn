@@ -60,7 +60,7 @@ pre
 #header a.logo { font-family: serif; font-weight: bold; font-size: 150%; border-width: 0px }
 #header a.logo .sub 
 {
-  color: gold;
+  color: #E5794B;
   font-size: 90%; 
   position: relative; top: -0.3em; 
 }
@@ -76,7 +76,7 @@ pre
 #navbar { margin: 1em 0 -0.5em 0 }
 #navbar a 
 {
-  border: 1px solid gold;
+  border: 1px solid #E5794B;
   border-width: 1px 0 1px 0;
   font-size: 90%;
   margin: 0 1em; padding: 0 0.2em 
@@ -89,7 +89,7 @@ pre
 
 .lastedit 
 {
-  color: gold;
+  color: #E5794B;
   float: right;
   text-align: right; 
   text-transform: lowercase;
@@ -116,5 +116,5 @@ pre
   font-family: sans-serif;
   margin-top: 0.5em; padding: 0.01em;
 }
-#footer a[href] { color: gold; text-decoration: none }
-#footer a[href]:hover { background: transparent; color: gold }
+#footer a[href] { color: #E5794B; text-decoration: none }
+#footer a[href]:hover { background: transparent; color: #E5794B }
