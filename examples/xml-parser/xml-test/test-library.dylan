@@ -26,7 +26,7 @@ define module html-xform
   use streams;
   use format;
 
-  export $html;
+  export $html, *substitute?*;
 end module html-xform;
 
 define module xml-test

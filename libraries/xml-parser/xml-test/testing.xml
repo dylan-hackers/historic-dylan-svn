@@ -10,11 +10,12 @@
   <hi-mom best="1"/>
   <txt>This is interesting; I like &foo;&#x20;and&#32;&baz;.</txt>
   <txt>because foo is &foo; and baz is &baz;.</txt>
-<program>
+  <program>
   <![CDATA[
  define method foo(b :: <bar>) => (q :: <quux>)
    make(<quux>);
  end method foo;
 ]]>
-</program>
+  </program>
+  &quux;
  </address >
