@@ -8,7 +8,8 @@
 &emit_dbc_link_rule
     ('d2c.dbc', 
      '../base/compiler-base-lib.dbc ../front/compiler-front-lib.dbc'
-     . ' ../optimize/compiler-optimize-lib.dbc '
+     . ' ../fer-transform/compiler-fer-transform-lib.dbc'
+     . ' ../optimize/compiler-optimize-lib.dbc'
      . ' ../parser/compiler-parser-lib.dbc ../convert/compiler-convert-lib.dbc'
      . ' ../cback/compiler-cback-lib.dbc compiler-main-lib.dbc');
 
