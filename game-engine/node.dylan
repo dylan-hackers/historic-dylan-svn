@@ -57,8 +57,8 @@ define method initialize(ifs :: <indexed-face-set>, #key, #all-keys)
 end method initialize;
 
 define class <transform> (<container-node>)
-  slot scale = #f, init-keyword: scale:;
-  slot translation = #f, init-keyword: translate:;
+  slot scale :: false-or(<3d-vector>) = #f, init-keyword: scale:;
+  slot translation :: false-or(<3d-vector>) = #f, init-keyword: translate:;
 end class <transform>;
 
 define class <line-grid> (<node>)

@@ -16,8 +16,12 @@ define constant 3d-point    = vector;
 define inline method cross-product
     (u :: <vector>, v :: <vector>)
  => (cross-product :: <vector>)
+  let result = make(type-for-copy(u), size: u.size);
   local method cp(i, j) u[i] * v[j] - v[i] * u[j] end;
-  vector(cp(1, 2), cp(2, 0), cp(0, 1))
+  result[0] := cp(1, 2);
+  result[1] := cp(2, 0);
+  result[2] := cp(0, 1);
+  result;
 end method cross-product;
 
 define inline method \+(u :: <vector>, v :: <vector>)
