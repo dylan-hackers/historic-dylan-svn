@@ -1,0 +1,15 @@
+<?php
+require "shared.inc";
+standard_header("Submit News");
+?>
+
+<form method=post action=submit-news.phtml>
+<input name=headline type=text>
+<input name=body type=textarea>
+<input type=submit>
+
+</form>
+
+<?php
+standard_footer();
+?>
