@@ -46,12 +46,31 @@ end function time-is-not-up?;
 define method optimize()
 end method optimize;
 
+define method slurp-input(stream :: <buffered-stream>)
+ => contents :: <byte-string>;
+  let v = make(<stretchy-vector>);
+  block ()
+    for (buf :: false-or(<buffer>) = get-input-buffer(stream)
+	   then  next-input-buffer(stream),
+	 while: buf)
+      let s = buffer-subsequence(buf, <byte-string>,
+				 buf.buffer-next,
+				 buf.buffer-end);
+      add!(v, s);
+      buf.buffer-next := buf.buffer-end;
+    end for;
+  cleanup
+    release-input-buffer(stream);
+  end block;
+  apply(concatenate, v);
+end method slurp-input;
+
 define function main(name, arguments)
   let input-stream = *standard-input*;
 
   block ()
 
-    let original-input      = read-to-end(input-stream);
+    let original-input      = slurp-input(input-stream);
     let best-transformation = original-input;
     let parse-tree          = parse(original-input);
 
