@@ -9,7 +9,8 @@ hacking away at it currently) -- this library neither checks for validity nor
 for well-formedness; perhaps those checks won't be added for a long time to 
 come.
 
-xml-test/ has some examples for use and for points of development.
+xml-test/ converts an XML doc to an HTML-readable one with links to entities
+(if they have not be expanded-out in the resulting document).
 
 Chris Double started this effort, and he developed an initial, working, parser
 using the Dylan META library from David Lichteblau.  He also developed the
