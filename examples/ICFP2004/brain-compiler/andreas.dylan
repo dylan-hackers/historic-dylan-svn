@@ -1,39 +1,26 @@
 module: assembler
 
 
-define brain alex-gatherer
+define brain andreas-gatherer
 
   [start:]
-    Mark 0;
-    Mark 3;
-    Flip 4, (kill-other-hill, start-2);
-
-  [start-2:]
-    Flip 7, (mark-around, get-out-of-home);
+    Flip 1, (search-food, search-food);
 
   [drop-and-get-out-of-home:]
     Turn Right;
     Turn Right;
     Turn Right;
-    Drop;
+    Drop, (get-out-of-home);
 
   // The following set of macros makes the ant get out of home.
   // After that it moves on to search-food.
   [get-out-of-home:]
     Sense Home, (move-forward-in-home, search-food);
 
+
   [move-forward-in-home:]
-    Move get-out-of-home => turn-right-in-home;
-
-//  [turn-left-or-right-in-home:]
-//    Flip 1, (turn-left-in-home, turn-right-in-home);
-
-//  [turn-left-in-home:]
-//    Turn Left, (move-forward-in-home);
-
-  [turn-right-in-home:]
+    Move get-out-of-home;
     Turn Right, (move-forward-in-home);
-
 
   // The following set of macros makes the ant search for food,
   // while avoiding home cells.
@@ -117,13 +104,19 @@ define brain alex-gatherer
   // The following set of macros makes it possible to deliver food,
   // using the trail of marks left using marker 0.
   [deliver-food:]
-    Sense Home, (drop-and-get-out-of-home, deliver-forward);
+    Sense Home, (drop-and-get-out-of-home);
+    Sense Ahead Home, (deliver-move-forward);
+    Sense Left Home, (deliver-move-left);
+    Sense Right Home, (deliver-move-right);
+    Flip 1, (deliver-forward, deliver-forward);
+    
 
   [deliver-forward:]
     Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
 
   [deliver-move-forward:]
-    // Unmark 0;
+    Unmark 0;
+    Mark 1;
     Move deliver-food => deliver-try-other-four;
 
   [deliver-try-left-1:]
@@ -175,95 +168,7 @@ define brain alex-gatherer
   [deliver-move-right-twice:]
     Turn Right;
     Turn Right, (deliver-move-forward);
-
-
-  // Perform marking algorithm.
-  [mark-around:]
-    Sense Home, (mark-out-of-home, kill-other-hill);
-
-  [mark-out-of-home:]
-    Sense Home, (mark-move-forward-in-home, do-mark-l-1-home);
-
-  [mark-move-forward-in-home:]
-    Move mark-out-of-home => mark-turn-right-in-home;
-
-  [mark-turn-right-in-home:]
-    Turn Right, (mark-move-forward-in-home);
-
-  [do-mark-l-1-home:]
-    Mark 4;
-    Move do-mark-l-2-home => kill-other-hill;
-
-  [do-mark-l-2-home:]
-    Mark 5;
-    Move do-mark-l-3-home => kill-other-hill;
-
-  [do-mark-l-3-home:]
-    Mark 3;
-    Move do-mark-l-1-home => kill-other-hill;
-  
-
-  // Perform agression of another hill.
-  [kill-other-hill:]
-    Sense FoeHome, (kill-other-hill-check-food, kill-try-forward);
-
-  [kill-other-hill-check-food:]
-    Turn Right;
-    Sense Ahead Food, (kill-try-to-eat, kill-other-hill-check-food);
-
-  [kill-try-to-eat:]
-    Move pick-up-food-no-turn => kill-other-hill-check-food;
-
-  [kill-try-forward:]
-    Sense Ahead FoeHome, (kill-move-forward, kill-try-unmarked);
-
-  [kill-move-forward:]
-    Mark 1;
-    Move kill-other-hill => kill-try-unmarked;
-
-  [kill-try-unmarked:]
-    Sense Ahead (Marker 1), (kill-try-other-four, kill-move-forward);
-
-  [kill-try-other-four:]
-    Flip 1, (kill-l-or-r, kill-2l-or-2r);
-
-  [kill-l-or-r:]
-    Flip 1, (kill-try-left, kill-try-right);
-
-  [kill-try-left:]
-    Sense LeftAhead FoeHome, (kill-move-left, kill-try-left-M);
-
-  [kill-try-left-M:]
-    Sense LeftAhead (Marker 1), (kill-try-random, kill-move-left);
-
-  [kill-move-left:]
-    Turn Left, (kill-move-forward);
-
-  [kill-try-right:]
-    Sense RightAhead FoeHome, (kill-move-right, kill-try-right-M);
-
-  [kill-try-right-M:]
-    Sense RightAhead (Marker 1), (kill-try-random, kill-move-right);
-
-  [kill-move-right:]
-    Turn Right, (kill-move-forward);
-
-  [kill-2l-or-2r:]
-    Flip 1, (kill-try-2-left, kill-try-2-right);
-
-  [kill-try-2-left:]
-    Turn Left;
-    Turn Left, (kill-move-forward);
-
-  [kill-try-2-right:]
-    Turn Right;
-    Turn Right, (kill-move-forward);
-
-  [kill-try-random:]
-    Turn Left;
-    Flip 4, (kill-move-forward, kill-try-random);
-
 end;
 
 
-alex-gatherer().dump-brain;
+andreas-gatherer().dump-brain;
