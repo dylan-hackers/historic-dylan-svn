@@ -189,6 +189,9 @@ define method send-response
     log-copious("-->%s", response-line);
     write(stream, response-line);
 
+    let now = current-date();
+    add-header(response, "Date", as-rfc-1123-date(now));
+
     let content-length :: <string> = integer-to-string(stream-size(output-stream(response)));
     // Add required headers
     add-header(response, "Content-Length", content-length);
@@ -201,7 +204,7 @@ define method send-response
       let request = concatenate(as(<string>, request-method(req)), " ",
                                 request-url(req), " ",
                                 as(<string>, request-version(req)));
-      let date = as-common-logfile-date(current-date());
+      let date = as-common-logfile-date(now);
       let remoteaddr = host-address(remote-host(request-socket(req)));
       log-logfile(*logfile*, concatenate(remoteaddr, " ",
                                          "-", " ",

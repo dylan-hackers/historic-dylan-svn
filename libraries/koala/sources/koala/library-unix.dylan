@@ -117,7 +117,7 @@ define module utilities
     log-message,
     log-date,
     add-log-level, remove-log-level, clear-log-levels,
-    as-common-logfile-date, log-logfile;
+    as-common-logfile-date, as-rfc-1123-date, log-logfile;
     
 end module utilities;
     

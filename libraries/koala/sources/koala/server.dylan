@@ -673,9 +673,6 @@ end;
 
 define method send-error-response-internal (request :: <request>, err :: <error>)
   let headers = http-error-header(err);
-  if ( ~ headers )
-    headers = make(<header-table>);
-  end if;
   with-resource (response = <response>,
                  request: request,
                  headers: headers)
