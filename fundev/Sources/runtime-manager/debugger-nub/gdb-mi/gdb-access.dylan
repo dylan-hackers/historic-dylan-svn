@@ -29,12 +29,6 @@ copyright: see below
 //
 //======================================================================
 
-define method foo(libname)
-  format-out("Hello, world from gdb-access!\n");
-end method foo;
-
-
-
 //--------------------------------------------------
 // TESTCASES:
 // these should end up in a TestWorks suite
@@ -347,7 +341,7 @@ define mi-operation break-info(breakpoint :: <positive>)
 end;
 
 define constant <mi-expression> = <integer>; // #####
-define constant <mi-address> = <integer>; // #####
+define constant <mi-address> = <symbol>; // #####
 define constant <mi-location> = <integer>; // #####
 
 define mi-operation break-insert
@@ -366,11 +360,32 @@ end;
 
 
 define generic parse-as(inp :: <byte-string>, type :: <type>)
- => (remaining :: <byte-string>, value);
+ => (remaining :: false-or(<byte-string>), value);
 
 define method parse-as(inp :: <byte-string>, type :: <type>)
- => (remaining :: <byte-string>, value);
- "" // #####
+ => (remaining :: false-or(<byte-string>), value);
+ ugh:
+end;
+
+
+define method parse-as(inp :: <byte-string>, type == <integer>)
+ => (remaining :: false-or(<byte-string>), value);
+  let m = match(inp, "\"");
+  let pos = m & subsequence-position(m, "\"");
+  pos & values(copy-sequence(m, start: pos + 1), copy-sequence(m, end: pos).string-to-integer)
+end;
+
+define method parse-as(inp :: <byte-string>, type == <byte-string>)
+ => (remaining :: false-or(<byte-string>), value);
+  let m = match(inp, "\"");
+  let pos = m & subsequence-position(m, "\""); // ## escaped?
+  pos & values(copy-sequence(m, start: pos + 1), copy-sequence(m, end: pos))
+end;
+
+define method parse-as(inp :: <byte-string>, type == <mi-address>)
+ => (remaining :: false-or(<byte-string>), value);
+  let m = match(inp, "\"0x0001072c\"");
+  m & values(m, #"\"0x0001072c\"")
 end;
 
 define macro mi-parser-definer
@@ -408,7 +423,16 @@ define macro mi-parser-definer
 
   tuple-fields:
     { } => { }
-    { ?tag:name ?type:expression; ... } => { let (m, ?tag :: false-or(?type)) = m & parse-as(m, ?type); ... }
+
+    { ?tag:name ?type:expression; ... } 
+     =>
+    {
+      let m = match(m, ",") | m; // hack ###
+      let m = m & match(m, ?"tag" "=");
+      let (m, ?tag :: false-or(?type)) = m & parse-as(m, ?type);
+      format-out("m = %=\n%s = %=\n", m, ?"tag", ?tag); // ###
+      ...
+    }
 
   tuple-keyword/values:
     { } => { }
@@ -422,6 +446,25 @@ define mi-parser breakpoint(bkpt)
   file :: <byte-string>;
   line :: <positive>
 end;
+
+
+// ###
+begin
+
+  let inp = "bkpt={number=\"1\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}";
+  
+  block (outta-here)
+    local method final(rest, matches, more)
+            matches.head();
+            outta-here();
+          end;
+
+
+// format-out(match(inp, "bkpt={"));
+
+    parse-breakpoint(inp, #(), list(final))
+  end block;
+end begin;
 
 
 define mi-operation break-list;
