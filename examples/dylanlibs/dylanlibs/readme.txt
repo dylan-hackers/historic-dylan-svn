@@ -118,5 +118,5 @@ Contains DLL's and third party libraries used by some of the
 projects. See the bin.txt file in that directory for details.
 
 Chris Double.
-10 June 2001.
+18 June 2001.
 
