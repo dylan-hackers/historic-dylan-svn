@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.11.2.1 2003/07/05 03:56:03 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.11.2.2 2004/02/02 00:55:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -254,13 +254,18 @@ define module top-level-forms
   use compile-time-values;
   use variables;
   use definitions;
+  
 
   use builder-interface, import: {<fer-builder>};
   use variable-definitions;
+  use flow, import: {<component>};
+  use compile-time-functions, import: {<ct-function>};
 
   export
     *Top-Level-Forms*,
-    <top-level-form>, finalize-top-level-form, convert-top-level-form,
+    <top-level-form>, tlf-component, tlf-component-setter,
+    tlf-init-function, tlf-init-function-setter,
+    finalize-top-level-form, convert-top-level-form,
 
     <define-tlf>, <simple-define-tlf>, tlf-defn, tlf-defn-setter,
 

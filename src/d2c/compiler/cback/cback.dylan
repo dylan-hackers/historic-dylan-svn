@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.14 2003/11/12 10:48:31 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.15 2004/02/02 00:55:22 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -1346,13 +1346,18 @@ define method merge-ctv-infos
   if (old-info.const-info-dumped?)
     unless (new-info.const-info-dumped?
 	      | new-info.const-info-heap-labels.empty?)
-      error("Merging infos would drop some labels.");
+      error("Merging infos would drop some labels. old: %=, new: %=", 
+            old-info, new-info);
     end unless;
   else
     if (new-info.const-info-dumped?)
       old-info.const-info-dumped? := #t;
-      unless (old-info.const-info-heap-labels.empty?)
-	error("Merging infos would drop some labels.");
+      unless (old-info.const-info-heap-labels.empty?
+                | every?(rcurry(member?, old-info.const-info-heap-labels,
+                                test: \=),
+                         new-info.const-info-heap-labels))
+        error("Merging infos would drop some labels. (2) old: %=, new: %=", 
+              old-info, new-info);
       end unless;
     end if;
   end if;

@@ -1,5 +1,5 @@
 module: top-level-forms
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/tlf.dylan,v 1.3 2003/03/12 21:47:07 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/tlf.dylan,v 1.3.2.1 2004/02/02 00:55:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -32,6 +32,9 @@ copyright: see below
 define variable *Top-Level-Forms* = make(<stretchy-vector>);
 
 define open primary abstract class <top-level-form> (<source-location-mixin>)
+  slot tlf-component :: false-or(<component>) = #f, init-keyword: component:;
+  slot tlf-init-function :: false-or(<ct-function>) = #f,
+    init-keyword: init-function:;
 end;
 
 define open primary abstract class <define-tlf> (<top-level-form>)
@@ -123,6 +126,29 @@ end;
 
 // Dump stuff.
 
+/* In the interest of incremental compilation, we dump everything these
+   days
+
+define method dump-od
+    (tlf :: <top-level-form>, state :: <dump-state>) => ();
+  let start = state.current-pos;
+  dump-definition-header(#"top-level-form", state, subobjects: #t);
+  dump-od(tlf.tlf-component, state);
+  dump-od(tlf.tlf-init-function, state);
+  dump-end-entry(start, state);
+end method dump-od;
+
+add-od-loader(*compiler-dispatcher*, #"top-level-form",
+              method (state :: <load-state>) => res :: <definition>;
+                let component = load-object-dispatch(state);
+                let init-function = load-object-dispatch(state);
+                let tlf = make(<top-level-form>,
+                               component: component,
+                               init-function: init-function);
+                assert-end-object(state);
+              end method
+);
+*/
 // If name's var isn't visible outside this library, don't bother dumping the
 // definition.
 //

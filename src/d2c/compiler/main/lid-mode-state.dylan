@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.5 2003/10/18 22:13:42 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.6 2004/02/02 00:55:30 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -810,10 +810,7 @@ define method dump-library-summary (state :: <lid-mode-state>) => ();
 
   end-dumping(dump-buf);
   unless (state.unit-no-makefile)
-    format(state.unit-makefile, "\nall-at-end-of-file : %s\n",
-	   state.unit-ar-name);
-    format(state.unit-clean-stream, " %s", state.unit-ar-name);
-    format(state.unit-real-clean-stream, " %s %s.lib.du", state.unit-ar-name, 
+    format(state.unit-real-clean-stream, " %s.lib.du",
 	   as-lowercase(state.unit-lib-name));
   end;
 end method;
@@ -894,8 +891,8 @@ define method compile-library (state :: <lid-mode-state>)
       unless (state.unit-no-makefile)
 	build-ar-file(state);
       end;
-      dump-library-summary(state);
     end if;
+    dump-library-summary(state);
 
     if (state.unit-log-dependencies)
       spew-dependency-log(concatenate(state.unit-mprefix, ".dep"));

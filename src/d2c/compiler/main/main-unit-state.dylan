@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5.2.2 2003/09/11 23:17:51 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5.2.3 2004/02/02 00:55:31 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -167,13 +167,14 @@ define method compile-1-tlf
 #endif
   note-context(name);
   let component = make(<fer-component>);
+  tlf.tlf-component := component;
   let builder = make-builder(component);
   convert-top-level-form(builder, tlf);
   let inits = builder-result(builder);
   let name-obj = make(<anonymous-name>, location: tlf.source-location);
   unless (instance?(inits, <empty-region>))
     let result-type = make-values-ctype(#(), #f);
-    let source = make(<source-location>);
+    let source = tlf.source-location;
     let init-function
       = build-function-body
           (builder, $Default-Policy, source, #f,
@@ -188,6 +189,7 @@ define method compile-1-tlf
     make-function-literal(builder, ctv, #"function", #"global",
 			  sig, init-function);
     add!(state.unit-init-functions, ctv);
+    tlf.tlf-init-function := ctv;
   end;
   optimize-component(*current-optimizer*, component);
   emit-tlf-gunk(c: tlf, file);
