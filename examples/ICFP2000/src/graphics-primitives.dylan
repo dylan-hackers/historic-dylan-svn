@@ -74,10 +74,10 @@ define graphics-primitive render(     amb :: <point>
  => ();
   let amb-color = make(<color>, red: amb.point-x, green: amb.point-y, blue: amb.point-z);
 
-  let fov-radians = fov * $double-pi / 180.0;
+  let fov-radians = fov * $pi / 180.0;
 
   render-image(obj, depth, file, amb-color, lights, wid,
-	       ht, fov);
+	       ht, fov-radians);
 end graphics-primitive render;
 
 // Object creation: 
@@ -120,7 +120,7 @@ end;
 
 // Lighting:
 define graphics-primitive light(dir :: <point> => color :: <point>) 
-  make(<star>, direction: vector3D(dir.point-x, dir.point-y, dir.point-z, 0.0), 
+  make(<star>, direction: vector3D(dir.point-x, dir.point-y, dir.point-z), 
                color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z));
 end;
 
