@@ -397,3 +397,35 @@ define method raise
               format-arguments: copy-sequence(args)))
 end;
 
+
+// ----------------------------------------------------------------------
+define macro ignore-errors
+    { ignore-errors(?v:variable, ?body:expression) }
+ => { block () ?body exception (?v) #f end }
+
+    { ignore-errors(?body:expression) }
+ => { block () ?body exception (e :: <error>) #f end }
+end;
+
+
+// ----------------------------------------------------------------------
+define method table-values
+    (table :: <table>) => (collection :: <collection>)
+  let v :: <vector> = make(<vector>, size: table.size);
+  for (val keyed-by key in table,
+       i from 0)
+    v[i] := val;
+  end;
+  v
+end;
+
+define method table-keys
+    (table :: <table>) => (collection :: <collection>)
+  let v :: <vector> = make(<vector>, size: table.size);
+  for (val keyed-by key in table,
+       i from 0)
+    v[i] := key;
+  end;
+  v
+end;
+

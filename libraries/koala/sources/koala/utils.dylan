@@ -80,17 +80,6 @@ end;
 
 
 
-define macro ignore-errors
-  { ignore-errors(?error:expression, ?body:expression) }
-    => { block ()
-           ?body
-         exception (?error)
-           #f
-         end }
-end;
-
-
-
 // Compare two locator-path elements.
 //---*** TODO: portability - This isn't portable.
 define method path-element-equal?

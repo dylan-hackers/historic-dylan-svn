@@ -212,22 +212,21 @@ define method page-directory
   locator-directory(source-location(page))
 end;
 
-define method page-source-modified?
-    (page :: <file-page-mixin>) => (modified? :: <boolean>)
-  #t;   //---TODO: check source file mod date.
-end;
-
 
 //
 // Static pages
 //
 
+// I don't think <expiring-mixin> is really useful.
+// I think it was originally intended to prevent checking the
+// file mod date too often, but that's kind of useless.
+//
 define open primary class <static-page> (<expiring-mixin>, <file-page-mixin>, <page>)
 end;
 
 define method respond-to-get
     (page :: <static-page>, request :: <request>, response :: <response>)
-  if (expired?(page) & page-source-modified?(page))
+  if (page-source-modified?(page))
     page.contents := file-contents(source-location(page));
     page.mod-time := current-date();
   end if;
@@ -636,6 +635,16 @@ define open primary class <dylan-server-page> (<expiring-mixin>, <file-page-mixi
   slot page-template :: <dsp-template>;
 end;
 
+define method page-source-modified?
+    (page :: <dylan-server-page>) => (modified? :: <boolean>)
+  block ()
+    ~page.mod-time
+      | file-property(source-location(page), #"modification-date") > page.mod-time
+  exception (e :: <error>)
+    #t  // i figure we want an error to occur if, say, the file was deleted.
+  end
+end;
+
 // define page my-dsp (<dylan-server-page>) (url: "/hello", source: make-locator(...), ...)
 //   slot foo :: <integer> = bar;
 //   ...
@@ -721,6 +730,7 @@ define macro tag-aux-definer
 end tag-aux-definer;
 
 // snarf-tag-parameter-names(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
+// TODO: accept "keyword: name :: type = default" parameter specs.
 define macro snarf-tag-parameter-names
   { snarf-tag-parameter-names(?params) }
     => { vector(?params) }
@@ -729,17 +739,12 @@ define macro snarf-tag-parameter-names
     { ?param, ... }
       => { ?param, ... }
   param:
-    { ?var:name }
-      => { ?#"var" }
-    { ?var:name = ?default:expression }
-      => { ?#"var" }
-    { ?var:name :: ?type:expression }
-      => { ?#"var" }
-    { ?var:name :: ?type:expression = ?default:expression }
+    { ?var:name ?rest:* }
       => { ?#"var" }
 end;
 
 // snarf-tag-parameter-types(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
+// TODO: accept "keyword: name :: type = default" parameter specs.
 define macro snarf-tag-parameter-types
   { snarf-tag-parameter-types(?params) }
     => { vector(?params) }
@@ -1161,13 +1166,12 @@ define method extract-tag-args
             let key = as(<symbol>, substring(buffer, key-start, key-end));
             let eq-pos = skip-whitespace(buffer, key-end, epos);
             let char = buffer[eq-pos];
-            if (char = '>' | looking-at?("/>", buffer, eq-pos, epos))
+            if (char ~= '=')
               // a key with no value.  e.g., <xx:foo nowrap> where nowrap has no value.
               values(key,
                      #f,
                      skip-whitespace(buffer, key-end, epos))
             else
-              assert(buffer[eq-pos] = '=', "expected '='");
               let val-start = skip-whitespace(buffer, eq-pos + 1, epos);
               let quote-char = buffer[val-start];
               let quote-char? = (quote-char = '\'' | quote-char = '"');

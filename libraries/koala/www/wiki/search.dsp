@@ -11,9 +11,24 @@
 
   <dsp:show-form-notes/>
 
-  <wiki:do-search-results>
-    <br/><a href="/wiki/view.dsp?title=<wiki:search-result-title/>&v=<wiki:search-result-version>"><wiki:search-result-title></a>
-  </wiki:do-search-results>
+  <dsp:table border="0" align="left" cellspacing="2" generator="gen-search-results">
+    <dsp:no-rows>
+      <dsp:cell>No matches found.</dsp:cell>
+    </dsp:no-rows>
+    <dsp:row>
+      <dsp:cell nowrap width="1%"><dsp:row-number/>.</dsp:cell>
+      <dsp:cell nowrap width="10%"><a href="/wiki/view.dsp?title=<wiki:sr-title/>&v=<wiki:sr-version>"><wiki:sr-title> [<wiki:sr-version/>]</a></dsp:cell>
+      <dsp:cell nowrap width="89%">
+        <wiki:do-versions>
+          <a href="/wiki/view.dsp?title=<wiki:sr-title/>&v=<wiki:sr-version>">[<wiki:sr-version/>]</a>
+        </wiki:do-versions>
+      </dsp:cell>
+    </dsp:row>
+    <dsp:row>
+      <dsp:cell>&nbsp;</dsp:cell>
+      <dsp:cell colspan="2"><wiki:sr-summary/></dsp:cell>
+    </dsp:row>
+  </dsp:table>
 
   <%dsp:include url="footer.dsp"/>
 
