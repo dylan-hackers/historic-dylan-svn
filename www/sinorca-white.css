@@ -249,24 +249,24 @@ dd {
 
 /* ###### Footer ###### */
 
-#footer {
+#gd-footer {
   font-size: 90%;
   padding: 1.9ex 2.6mm 2.4ex 2.6mm;
   clear: left;
 }
 
-#footer div {
+#gd-footer div {
   text-align: right;
   line-height: 1.45em;
 }
 
-#footer a {
+#gd-footer a {
   text-decoration: none;
   border-bottom-style: solid;
   border-bottom-width: 1px;
 }
 
-#footer a:hover {
+#gd-footer a:hover {
   border-bottom: none;
 }
 
