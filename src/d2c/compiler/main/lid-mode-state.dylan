@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -675,14 +675,38 @@ define method link-arguments (state :: <lid-mode-state>)
   concatenate(unit-libs, dash-cap-ells, dash-small-ells, " ", linker-args)
 end method link-arguments;
 
+define function library-dependencies (state :: <lid-mode-state>) 
+ => (deps :: <string>)
+  let target = state.unit-target;
+  let unit-libs = "";
+
+  local method add-archive (name :: <byte-string>) => ();
+	  unless (state.unit-no-binaries)
+	    let archive = find-library-archive(name, state);
+	    unit-libs := stringify(' ', archive, unit-libs);
+	  end unless;
+	end method add-archive;
+
+  for (unit in *units*)
+    unless (unit == state.unit-unit-info)
+      add-archive(concatenate(unit.unit-name, "-dylan"));
+    end unless;
+  end;
+
+  add-archive("runtime");
+
+  use-correct-path-separator(unit-libs, state.unit-target);
+end function library-dependencies;
+
+
 define method build-executable (state :: <lid-mode-state>) => ();
   let target = state.unit-target;
   let objects = stream-contents(state.unit-objects-stream);
   state.unit-objects := objects;
 
   // rule to link executable
-  format(state.unit-makefile, "\n%s : %s\n", 
-         state.unit-executable, state.unit-objects);
+  format(state.unit-makefile, "\n%s : %s%s\n", 
+         state.unit-executable, state.unit-objects, state.library-dependencies);
   let link-string
     = format-to-string(if(state.unit-link-static)
                          state.unit-target.link-executable-command
