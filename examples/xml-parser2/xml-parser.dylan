@@ -37,15 +37,17 @@ end method parse-document;
 
 
 // Character Range
-
+//
 //    [2]    Char    ::=    #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] /* any Unicode character, excluding the surrogate blocks,
 //    FFFE, and FFFF. */
 //    
-// define constant <char> == FIXME
+// FIXME: we're cheating here, by using UFT8 and just allowing anything.
+//
+define constant <char> == <character>;
 
 
 // White Space
-
+//
 //    [3]    S    ::=    (#x20 | #x9 | #xD | #xA)+
 //    
 define constant <space> =
@@ -56,13 +58,13 @@ define method parse-s(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c);
     [type(<space>, c), loop(type(<space>, c))];
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-s;
 
 
 // Names and Tokens
- 
+// 
 //    [4]    NameChar    ::=    Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender
 //
 define constant <name-char> = type-union(<letter>, <digit>, one-of('.', '-', '_', ':', <combining-char>, <extender>));
@@ -73,7 +75,7 @@ define method parse-name(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c);
     [{type(<letter>, c), '_', ':'}, loop(type(<name-char>, c))];
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-name;
 
@@ -83,7 +85,7 @@ define method parse-names(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(name, s);
     [parse-name(name), loop([parse-s(s), parse-name(name)])];
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-names;
 
@@ -93,7 +95,7 @@ define method parse-nmtoken(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c);
     [type(<name-char>, c), loop(type(<name-char>, c))];
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-nmtoken;
 
@@ -103,16 +105,18 @@ define method parse-nmtokens(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(token, s);
     [parse-nmtoken(token), loop([parse-s(s), parse-nmtoken(token)])];
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-nmtokens;
 
 
 // Literals
-
+//
 //    [9]     EntityValue      ::=    '"' ([^%&"] | PEReference | Reference)* '"'
 //                                    |  "'" ([^%&'] | PEReference | Reference)* "'"
 //
+
+define constant in-set? = member?;  // just for symmetry
 
 define method not-in-set?(character, set)
   ~ member?(character, set);
@@ -131,7 +135,7 @@ define method parse-entity-value(string, #key start = 0, end: stop)
 	    parse-pe-reference(reference), 
 	    parse-reference(reference)}),
       '\'']};
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-entity-value;
 
@@ -149,7 +153,7 @@ define method parse-att-value(string, #key start = 0, end: stop)
       loop({(not-in-set?(c, "<&'")), 
 	    parse-reference(reference)}),
       '\'']};
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-att-value;
 
@@ -164,13 +168,46 @@ define method parse-system-literal(string, #key start = 0, end: stop)
      ['\'',
       loop((not-in-set?(c, "'")), 
       '\'']};
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-system-literal;
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
+//
+define method parse-pubid-literal(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c);
+    {['"',
+      loop(type(<pub-id-char>, c)), 
+      '"'],
+     ['\'',
+      loop(type(<pub-id-char-without-quotes>, c)), 
+      '\'']};
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-pubid-literal;
+
 //    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
 //    
+// I really wonder if this isn't abuse of the Dylan type system...
+//
+define constant <letter> = 
+    one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+           'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+
+define constant <digit> = 
+    one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+
+define constant <pub-id-char-without-quotes> =
+  type-union(<letter>, <digit>, 
+	     one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
+		    '-', '(', ')', '+', ',', '.', '/', ':', '=',
+		    '?', ';', '!', '*', '#', '@', '$', '_', '%'));
+
+define constant <pub-id-char> =
+  type-union(<pub-id-char-without-quotes>, singleton('\'');
 
 
 // Character Data
@@ -194,22 +231,49 @@ define method parse-char-data(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c);
     [loop((not-in-set?(c, "<&")))];
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-char-data;
 
 
-
-// 
 // Comments
-// 
+
 //    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 //    
+define method parse-comment(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c);
+    ["<!--", loop({["-->", finish()], type(<char>, c)})];
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-comment;
+
+
 // Processing Instructions
-// 
+
 //    [16]    PI          ::=    '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
+//
+define method parse-pi(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, target, space);
+    ["<?", parse-pi-target(target), parse-s(space), 
+     loop({["?>", finish()], type(<char>, c)})];
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-pi;
+
 //    [17]    PITarget    ::=    Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
-//    
+//
+// Doesn't currently check whether the name is not xml. Shouldn't
+// matter (fingers crossed).
+//
+define method parse-pi-target(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name);
+    [parse-name(name)]
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-pi-target;
 
 
 // CDATA Sections
@@ -228,59 +292,257 @@ define method parse-cd-sect(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c);
     ["<![CDATA[", loop({["]]>", finish()], type(<char>, c)})];
-    values(index);
+    values(index, #t);
   end with-meta-syntax;  
 end method parse-cd-sect;
-
 
 
 // Prolog
 // 
 //    [22]    prolog         ::=    XMLDecl? Misc* (doctypedecl Misc*)?
+//
+define method parse-prolog(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, decl, doctype);
+    [{parse-xml-decl(decl), []}, 
+     loop(parse-misc(misc)),
+     {[parse-doctypedecl(doctype),
+       loop(parse-misc(misc))], []}]; 
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-prolog;
+
+
 //    [23]    XMLDecl        ::=    '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
+//
+define method parse-xml-decl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, version-info, encoding-decl, sd-decl, space);
+    ["<?xml",
+     parse-version-info(version-info),     
+     {parse-encoding-decl(encoding-info), []},
+     {parse-sd-decl(sd-decl), []},
+     parse-s(space);
+     "?>"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-xml-decl;
+
 //    [24]    VersionInfo    ::=    S 'version' Eq ("'" VersionNum "'" | '"' VersionNum '"')/* */
+//
+define method parse-version-info(string, #key start = 0, end: stop)
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c, space, eq, version-num);
+      [parse-s(space),
+       "version",
+       parse-eq(eq),
+       {['\'',
+	 parse-version-num(version-num),
+	 '\''],
+	['"',
+	 parse-version-num(version-num),
+	 '"']}];
+      values(index, #t);
+    end with-meta-syntax;
+end method parse-version-info;
+
+
 //    [25]    Eq             ::=    S? '=' S?
+//
+define method parse-eq(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, space);
+    [parse-s(space), 
+     '=',
+     parse-s(space)];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-eq;
+
 //    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
+//
+define constant <version-number> =
+  type-union(<letter>, <digit>, one-of('_', '.', ':', '-'));
+
+define method parse-version-num(string, #key start = 0, end: stop)
+  with-collector into-vector version-string, collect: collect;
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c);
+      [loop([type(<version-number>, c), do(collect(c))])];
+      values(index, as(<string>, version-string));
+    end with-meta-syntax;
+  end with-collector;
+end method parse-version-num;
+
 //    [27]    Misc           ::=    Comment | PI | S
 //    
+define method parse-misc(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, comment, pi, s);
+    {parse-comment(comment),
+     parse-pi(pi),
+     parse-s(s)};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-misc;
+
+
 // Document Type Definition
 // 
 //    [28]     doctypedecl    ::=    '<!DOCTYPE' S Name (S ExternalID)? S? ('[' (markupdecl | DeclSep)* ']' S?)? '>' [VC: Root Element Type]
 //                                                                                                                   [WFC: External Subset]
 //                                                                                                                   /* */
+define method parse-doctypedecl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, s, name, id, markup, decl-sep);
+    ["<!DOCTYPE", parse-s(s), parse-name(name),
+     {[parse-s(s), parse-external-id(id)], []},
+     {parse-s(s), []},
+     {['[', loop({parse-markupdecl(markup), parse-decl-sep(decl-sep)}), {parse-s(s), []}], []},
+     ">"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-doctypedecl;
+
+
 //    [28a]    DeclSep        ::=    PEReference | S                                                                 [WFC: PE Between Declarations]
 //                                                                                                                   /* */
+//
+define method parse-decl-sep(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, pe-reference, s);
+    {parse-pe-reference(pe-reference),
+     parse-s(s)};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-decl-sep;
+
 //    [29]     markupdecl     ::=    elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment            [VC: Proper Declaration/PE Nesting]
 //                                                                                                                   [WFC: PEs in Internal Subset]
 //    
+define method parse-decl-sep(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, decl);
+    {parse-elementdecl(decl),
+     parse-att-list-decl(decl),
+     parse-entity-decl(decl),
+     parse-notation-decl(decl),
+     parse-pi(decl),
+     parse-comment(decl)};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-decl-sep;
+
+
 // External Subset
 // 
 //    [30]    extSubset        ::=    TextDecl? extSubsetDecl
+//
+define method parse-ext-subset(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, text-decl, subset-decl);
+    [{parse-text-decl(text-decl), []},
+     parse-ext-subset-decl(subset-decl)];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-ext-subset;
+
 //    [31]    extSubsetDecl    ::=    ( markupdecl | conditionalSect | DeclSep)* /* */
 //    
+define method parse-ext-subset-decl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, markup-decl, sect, decl-sep);
+    [loop({parse-markupdecl(markup-decl), 
+	   parse-conditional-sect(sect),
+	   parse-decl-sep(decl-sep)})];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-ext-subset-decl;
+
+
 // Standalone Document Declaration
 // 
 //    [32]    SDDecl    ::=    S 'standalone' Eq (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no') '"')) [VC: Standalone Document Declaration]
 //    
+define method parse-sd-decl(string, #key start = 0, end: stop)
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c, space, eq);
+      [parse-s(space),
+       "standalone",
+       parse-eq(eq),
+       {['\'',
+	 {"yes", "no"},
+	 '\''],
+	['"',
+	 {"yes", "no"},
+	 '"']}];
+      values(index, #t);
+    end with-meta-syntax;
+end method parse-sd-decl;
+
+
 //    (Productions 33 through 38 have been removed.)
-//    
+
 // Element
 // 
 //    [39]    element    ::=    EmptyElemTag
 //                              | STag content ETag [WFC: Element Type Match]
 //                                                  [VC: Element Valid]
 //    
+define method parse-element(string, #key start = 0, end: stop)
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c, empty-tag, stag, content, etag);
+      {parse-empty-elem-tag(empty-tag),
+       [parse-stag(stag), parse-content(content), parse-etag(etag)]};
+      values(index, #t);
+    end with-meta-syntax;
+end method parse-element;
+
+
 // Start-tag
 // 
 //    [40]    STag         ::=    '<' Name (S Attribute)* S? '>' [WFC: Unique Att Spec]
+//
+define method parse-stag(string, #key start = 0, end: stop)
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c, name, attribute, s);
+      ["<",
+       loop([parse-s(s), parse-attribute(attribute)]),
+       {parse-s(s), []},
+       ">"];
+      values(index, #t);
+    end with-meta-syntax;
+end method parse-stag;
+
+
 //    [41]    Attribute    ::=    Name Eq AttValue               [VC: Attribute Value Type]
 //                                                               [WFC: No External Entity References]
 //                                                               [WFC: No < in Attribute Values]
 //    
+define method parse-attribute(string, #key start = 0, end: stop)
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c, name, eq, attribute-value);
+      [parse-name(name),
+       parse-eq(eq),
+       parse-attribute-value(attribute-value)];
+      values(index, #t);
+    end with-meta-syntax;
+end method parse-attribute;
+
+
 // End-tag
 // 
 //    [42]    ETag    ::=    '</' Name S? '>'
 //    
+define method parse-etag(string, #key start = 0, end: stop)
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c, name, eq, attribute-value);
+      ["</", parse-name(name), {parse-s(s), []}, ">"];
+      values(index, #t);
+    end with-meta-syntax;
+end method parse-etag;
+
+
 // Content of Elements
 // 
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)* /* */
@@ -447,18 +709,6 @@ end method parse-cd-sect;
 //    
 // 
 
-define constant <letter> = 
-    one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-           'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-
-define constant <digit> = 
-    one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-
-define constant <version-number> =
-  type-union(<letter>, <digit>, one-of('_', '.', ':'));
-
 define method parse-document(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(prolog, elemnt, misc);
@@ -467,19 +717,6 @@ define method parse-document(string, #key start = 0, end: stop)
 end method parse-document;
 
 
-
-define method parse-xml-decl(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, version-info, encoding-info, space);
-    ["<?xml",
-     loop(parse-s(space)),
-     parse-version-info(version-info),     
-     loop(parse-s(space)),
-     { [parse-encoding-info(encoding-info), loop(parse-s(space))], [] },
-     "?>"];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-xml-decl;
 
 define method parse-encoding-info(string, #key start = 0, end: stop)
   local method is-not-single-quote?(char :: <character>)
@@ -503,41 +740,6 @@ define method parse-encoding-info(string, #key start = 0, end: stop)
     values(index, #t);
   end with-meta-syntax;
 end method parse-encoding-info;
-
-define method parse-version-info(string, #key start = 0, end: stop)
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c, space, eq, version-num);
-      ["version",
-       parse-eq(eq),
-       {['\'',
-	 parse-version-num(version-num),
-	 '\''],
-	['"',
-	 parse-version-num(version-num),
-	 '"']}];
-      values(index, #t);
-    end with-meta-syntax;
-end method parse-version-info;
-
-define method parse-eq(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, space1, space2);
-    [loop(parse-s(space1)), 
-     '=',
-     loop(parse-s(space2))];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-eq;
-
-define method parse-version-num(string, #key start = 0, end: stop)
-  with-collector into-vector version-string, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c);
-      [loop([type(<version-number>, c), do(collect(c))])];
-      values(index, as(<string>, version-string));
-    end with-meta-syntax;
-  end with-collector;
-end method parse-version-num;
 
 define method parse-xml-name(string, #key start = 0, end: stop)
   with-collector into-vector name, collect: collect;
