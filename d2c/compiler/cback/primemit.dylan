@@ -1104,7 +1104,7 @@ define macro integer-primitives-emitter-definer
         end;
 
         define-primitive-emitter
-          (as(<symbol>, ?"name" ## "-divide"),
+          (?#"name" ## "-divide",
            method (defines :: false-or(<definition-site-variable>),
                    operation :: <primitive>,
                    file :: <file-state>)
