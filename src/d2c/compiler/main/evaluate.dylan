@@ -111,11 +111,15 @@ define generic fer-gather-bindings(region :: <region>, environment :: <object>)
 
 define method fer-gather-bindings(compound :: <compound-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
+  format(*standard-output*, "fer-gather-bindings{<compound-region>} %=\n", compound);
+  force-output(*standard-output*);
   fer-gather-regions-bindings(compound.regions, environment)
 end;
 
 define method fer-gather-bindings(the-if :: <if-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
+  format(*standard-output*, "fer-gather-bindings{<if-region>} %=\n", the-if);
+  force-output(*standard-output*);
   let test-value
     = fer-evaluate-expression(the-if.depends-on.source-exp,
                               environment);
@@ -128,6 +132,8 @@ end method;
 
 define method fer-gather-bindings(simple :: <simple-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
+  format(*standard-output*, "fer-gather-bindings{<simple>} %=\n", simple);
+  force-output(*standard-output*);
   fer-gather-assigns-bindings(simple.first-assign, environment);
 end;
 
@@ -142,7 +148,7 @@ end;
 
 define method fer-gather-regions-bindings(regions :: <list>, environment :: <object>)
   => (same-env, potential-value :: false-or(<ct-value>));
-  format(*standard-output*, "fer-gather-regions-bindings %=", regions);
+  format(*standard-output*, "fer-gather-regions-bindings %=\n", regions);
   force-output(*standard-output*);
   fer-gather-regions-bindings(regions.tail, fer-gather-bindings(regions.head, environment))
 end;
@@ -167,7 +173,7 @@ define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-vari
 define method fer-gather-assign-bindings(defs :: <definition-site-variable>, expr :: <expression>, environment :: <object>)
  => extended-env;
   let var-value = fer-evaluate-expression(expr, environment);
-  append-environment(environment, defs, var-value)
+  append-environment(environment, defs.definition-of, var-value)
 end;
 
 define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression>, environment :: <object>)
@@ -216,10 +222,21 @@ define macro primitive-emulator-definer
 end;
 
 define primitive-emulator \+ end;
+define primitive-emulator \- end;
 define primitive-emulator \* end;
+define primitive-emulator \< end;
+define primitive-emulator \= end;
+define primitive-emulator logior end;
+define primitive-emulator logxor end;
+define primitive-emulator logand end;
 
 // ########## append-environment ##########
 define function append-environment(prev-env :: <object>, new-binding, new-value) => new-env;
+
+  format(*standard-output*, "append-environment %= %= \n", new-binding, new-value);
+  force-output(*standard-output*);
+
+
   method(var)
     if (var == new-binding)
       new-value
