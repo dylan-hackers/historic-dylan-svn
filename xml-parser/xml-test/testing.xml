@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- ?xml-stylesheet href="testing.xsl" type="test/xsl"? -->
 <!DOCTYPE addresses SYSTEM "testing.dtd">
 
 <!-- in file testing.xml -->
@@ -9,6 +10,7 @@
   <hi-mom/> <!-- tests default attributes -->
   <txt>This is interesting; I like &foo;&#x20;and&#32;&baz;.</txt>
   <txt>because foo is &foo; and baz is &baz;.</txt>
+  <txt>This looks like a &lt;tag&gt;, but it is not</txt>
   <program>
   <![CDATA[
  define method foo(b :: <bar>) => (q :: <quux>)

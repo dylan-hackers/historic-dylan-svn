@@ -10,8 +10,7 @@ define class <1st-pass> (<xform-state>) end;
 define function collect-entity-defs(in :: <document>)
   *ent* := make(<table>);
   let ignored-stream = make(<string-stream>, contents: "");
-  transform-document(in, state: make(<1st-pass>),
-                     stream: ignored-stream);
+  transform-document(in, state: make(<1st-pass>), stream: ignored-stream);
 end function collect-entity-defs;
 
 define function print-in(color :: <string>, xml :: <xml>, stream :: <stream>)
@@ -42,7 +41,7 @@ define method transform(in :: <entity-reference>,
                         tag-name :: <symbol>,
                         state :: <1st-pass>, 
                         str :: <stream>)
-  *ent*[tag-name] := make(<internal-entity>, name: tag-name, 
+  *ent*[tag-name] := make(<internal-entity>, name: as(<string>, tag-name), 
                           expands-to: in.entity-value); // got this one, 
   // now let's see if it refers to any
   do(method(x) transform(x, x.name, state, str) end, in.entity-value);
