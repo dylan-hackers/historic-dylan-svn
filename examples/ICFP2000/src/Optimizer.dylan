@@ -29,8 +29,8 @@ define method optimizable-one(token :: <integer>, more :: <pair>, #key orig :: <
   optimizable-two(token, more.head, more.tail, orig: orig)
 end;
 
-define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <pair>, #next next-method, #key orig :: <pair>) => (tokens :: <list>, closure);
-  next-method()
+define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <pair>, #key orig :: <pair>) => (tokens :: <list>, closure);
+  pair(token1.negative, more)
 end;
 
 define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
