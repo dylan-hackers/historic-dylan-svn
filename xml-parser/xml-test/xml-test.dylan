@@ -20,7 +20,11 @@ Version:   1.0
  *  html-xform.dylan.
  **/
 
-define function main(name, arguments)
+define method print-object(elt :: <element>, str :: <stream>)
+  format(str, "{<element>, name: %s}", elt.name);
+end method print-object;
+
+define function main(program-name, arguments)
   if(arguments.size = 0 | arguments[0] = "-h" | arguments[0] = "--help")
     show-help();
   else
@@ -39,6 +43,17 @@ define function main(name, arguments)
     end with-open-file;
   end if;
   exit-application(0);
+/****
+  // we're testing file foo on arguments bar baz quux
+  with-open-file(in = arguments[0])
+    let doc = parse-document(in.stream-contents);
+    let elt = doc.node-children[0];
+    format-out("Top element is %s\n", elt.name);
+    for(x in copy-sequence(arguments, start: 1))
+      format-out("%s[\"%s\"] is %=\n", elt.name, x, elt[x]);
+    end for;
+  end with-open-file;
+ ****/
 end function main;
 
 main(application-name(), application-arguments());
