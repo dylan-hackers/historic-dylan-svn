@@ -48,20 +48,6 @@ function short_header ($title) {
 
     <DIV ID="header"><a HREF="http://www.gwydiondylan.org"><img src="gwydion-8caae6.png" alt="Gwydion Dylan"></a></DIV>
 
-    <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
-      <div>
-        <input type="text" class="text" name="q" value="Search..." />
-      
-        <!-- ###### Dynamic text box version:
-        <input class="text" type="text" value="Search..."
-               onFocus="if (this.value == 'Search...') this.value=''; else this.select();"
-               onBlur="if (this.value == '') this.value='Search...';" />
-             ###### -->
-
-        <input type="submit" class="submit" value="GO" />
-      </div>
-    </form>
-
     <div class="sideMenuBox">
       <div>About Dylan &amp; Gwydion</div>
       <A HREF="about-dylan.phtml">&rsaquo; What is Dylan?</A>
