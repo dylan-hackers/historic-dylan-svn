@@ -4,6 +4,11 @@ We present a native Dylan XML parser library.  This library needs
 the META library (available from www.gwydiondylan.org) and works on both
 Functional Developer and d2c (the Gwydion Dylan compiler).
 
+This parser comes with additional features.  You may transform the internal 
+representation to any form desired (XML, HTML, text, what-have-you).  You may
+also extract elements that have a certain shape (e.g. "//dvd/title").  Please
+read the code in xml-test/ to see how to do both.
+
 Of course, this XML parser is very much a work in progress (with Doug Auclair
 hacking away at it currently) -- this library neither checks for validity nor 
 for well-formedness; perhaps those checks won't be added for a long time to 
@@ -12,6 +17,8 @@ come.
 xml-test/ converts an XML doc to an HTML-readable one with links to entities
 (if they have not be expanded-out in the resulting document).
 
+HISTORY
+=======
 Chris Double started this effort, and he developed an initial, working, parser
 using the Dylan META library from David Lichteblau.  He also developed the
 Dylan XML class hierarchy (along the lines of the DOM), and had an algorithm
