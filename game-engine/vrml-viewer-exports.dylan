@@ -12,7 +12,7 @@ define library vrml-viewer
   use meta;
   use collection-extensions;
   use matrix;
-
+  use libpng;
   
 //  use melange-support // for null-pointer
 end library;
@@ -34,7 +34,9 @@ define module vrml-model
   use transcendentals;
   use vector-math;
   use format-out;
+  use libpng; // uh, this definitely doesn't belong here
   
+
   export
     <node>,
     <container-node>, children,
@@ -53,7 +55,7 @@ define module vrml-model
     <on-screen-display>,
     <2d-translation>,
     <text>, text, text-setter,
-    <texture>, texture-id, width, height, pixel-data, texture-id-setter,
+    <texture>, texture-id, width, height, pixel-data, texture-id-setter, repeat-s, repeat-t, depth,
     preorder-traversal;
 end;
 

@@ -154,9 +154,24 @@ define class <texture> (<node>)
   slot pixel-data, init-keyword: pixel-data:;
   slot width :: <integer>, init-keyword: width:;
   slot height :: <integer>, init-keyword: height:;
-  slot internal-format, init-keyword: internal-format:;
+  slot depth :: <integer>, init-keyword: depth:;
+  slot repeat-s :: <boolean> = #f, init-keyword: repeat-s:;
+  slot repeat-t :: <boolean> = #f, init-keyword: repeat-t:;
   slot texture-id :: false-or(<integer>) = #f;
 end class <texture>;
+
+define method initialize(t :: <texture>, 
+                         #key file-name :: false-or(<string>), 
+                         #all-keys) => (<texture>);
+  next-method();
+  if(file-name)
+    let (pixel-data, width, height, depth) = read-png(file-name);
+    t.pixel-data := pixel-data;
+    t.width := width; 
+    t.height := height;
+    t.depth := depth;
+  end if;
+end method initialize;
 
 define class <material> (<node>)
   slot ambient-intensity :: <float>, init-keyword: ambient-intensity:;

@@ -252,13 +252,13 @@ end node;
 //     nodeBodyElement nodeBody |
 //     empty ;
 
-define meta AppearanceNode (c, material, texture, textureTransform) 
-  => (make(<appearance>, material: material, texture: texture, 
+define meta AppearanceNode (c, material, the-texture, textureTransform) 
+  => (make(<appearance>, material: material, texture: the-texture, 
            texture-transform: textureTransform))
   loop([ws?(c),
         {["material",         ws(c), scan-SFNode(material)],
          ["textureTransform", ws(c), scan-SFNode(textureTransform)],
-         ["texture",          ws(c), scan-SFNode(texture)]}])
+         ["texture",          ws(c), scan-SFNode(the-texture)]}])
 end AppearanceNode;
 
 
@@ -400,6 +400,8 @@ define meta WorldInfoNode (c, info, title)
 end WorldInfoNode;
 
 define meta ImageTextureNode (c, url, repeat-s, repeat-t)
+  => (make(<texture>, file-name: url, repeat-s: repeat-s, 
+           repeat-t: repeat-t))
   loop([ws?(c),
         {["url",     ws(c), scan-SFString(url)],
          ["repeatS", ws(c), scan-SFBool(repeat-s)],

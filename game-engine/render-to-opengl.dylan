@@ -200,7 +200,7 @@ end method render-to-opengl;
 
 define method render-to-opengl(node :: <appearance>)
   node.material          & render-to-opengl(node.material);
-//  node.texture           & render-to-opengl(node.texture);
+  node.texture           & render-to-opengl(node.texture);
 //  node.texture-transform & render-to-opengl(node.texture-transform);
 end method render-to-opengl;
 
@@ -257,19 +257,36 @@ define method render-to-opengl(node :: <texture>)
     node.texture-id := glGenTextures(1);
     glBindTexture($GL-TEXTURE-2D, node.texture-id);
     glPixelStore($GL-UNPACK-ALIGNMENT, 1);
-    glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-S,     $GL-REPEAT);
-    glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-T,     $GL-REPEAT);
+    if(node.repeat-s)
+      glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-S,     $GL-REPEAT);
+    else
+      glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-S,     $GL-CLAMP);
+    end if;
+    if(node.repeat-t)
+      glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-T,     $GL-REPEAT);
+    else
+      glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-T,     $GL-CLAMP);
+    end if;
     glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-MAG-FILTER, $GL-LINEAR);
     glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-MIN-FILTER, $GL-LINEAR);
     glTexEnv($GL-TEXTURE-ENV, $GL-TEXTURE-ENV-MODE, $GL-MODULATE);
+    let gl-type = 
+      select(node.depth)
+        1 => $GL-LUMINANCE;
+        2 => $GL-LUMINANCE-ALPHA;
+        3 => $GL-RGB;
+        4 => $GL-RGBA
+      end select;
+
+
     if(#t) // build mipmaps
-      gluBuild2DMipmaps($GL-TEXTURE-2D, $GL-RGB, 
-                        node.width, node.height, $GL-RGB, 
+      gluBuild2DMipmaps($GL-TEXTURE-2D, gl-type, 
+                        node.width, node.height, gl-type, 
                         $GL-UNSIGNED-BYTE, 
                         as(<machine-pointer>, node.pixel-data));
     else
-      glTexImage2D($GL-TEXTURE-2D, 0, $GL-RGB, 
-                   node.width, node.height, 0, $GL-RGB, 
+      glTexImage2D($GL-TEXTURE-2D, 0, gl-type, 
+                   node.width, node.height, 0, gl-type, 
                    $GL-UNSIGNED-BYTE, node.pixel-data);
     end if;
   else
