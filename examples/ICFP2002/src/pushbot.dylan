@@ -163,13 +163,6 @@ define method deal-with-adjacent-robots(me :: <pushbot>, robot :: <robot>, s :: 
   end;
 end method;
 
-// try to pick as many as you can to the nearest bases
-// sort by destination and then subsort by weight
-//define method try-pickup-nearest(me :: <pushbot>, robot :: <robot>, s :: <state>)
-// => (c :: false-or(<command>))
-//  block(return)
-    
-//end method;
 
 define method try-chase-robot(me :: <pushbot>, robot :: <robot>, s :: <state>)
  => (c :: false-or(<command>))
@@ -225,11 +218,14 @@ define method move-nearest-useful-place(me :: <pushbot>, robot :: <robot>, s :: 
     let package-weight-list = sort(map(weight, s.free-packages));
     if(~empty?(package-weight-list))
       let lightest-package = first(package-weight-list);
+      debug("about to >= compare\n");
       if(robot.capacity-left >= lightest-package)
+	debug("big target list\n");
 	targets := concatenate(map(dest, robot.inventory),
 			       packages-i-can-carry(robot, s),//map(location,s.free-packages),
 			       unvisited-bases(me, s));
       else
+	debug("small tagret list\n");
 	targets := concatenate(map(dest, robot.inventory));
       end;
     else
@@ -277,7 +273,8 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
       return(poss-comm);
     end;
 
-    poss-comm := try-pickup-many(me, robot, s);
+//    poss-comm := try-pickup-many(me, robot, s);
+    poss-comm := try-pickup-nearest-most(me, robot, s);
     if(poss-comm)
       return(poss-comm);
     end;

@@ -186,6 +186,64 @@ define method try-pickup-many(me :: <robot-agent>, robot :: <robot>,
   end;
 end method;
 
+// try to pick as many as you can to the nearest bases
+// sort by destination and then subsort by weight
+define method try-pickup-nearest-most(me :: <robot-agent>, robot :: <robot>,
+				      s :: <state>, #key return-function)
+ => (c :: false-or(<command>))
+  block(return)
+    debug("building package-destination list\n");
+    let packages-here = packages-at(s, robot.location,
+				    available-only: #t);
+    if(packages-here ~= #f & ~packages-here.empty?)
+      // split the packages into per destination list
+      let dest-table = make(<table>, size: packages-here.size);
+      for(el in packages-here)
+	let lst = element(dest-table, el.location, default: #());
+	lst := add!(lst, el);
+	element-setter(lst, dest-table, el.location);
+      end;
+      debug("sorting packages by path length\n");
+      // now we want to take the nearest destination, sort it's list
+      // and take as many as we can.  Repeat until can't carry more
+      let pair-list = #();
+      for(el :: <list> in dest-table)
+	let len = path-length(robot.location, location(first(el)), s.board);
+	pair-list := add!(pair-list, pair(el, len));
+      end;
+      pair-list := sort!(pair-list, test: method(a,b) => (c)
+					      let a-len = tail(a);
+					      let b-len = tail(b);
+					      a-len < b-len;
+					  end);
+      debug("actually picking up the packages\n");
+      // now we actually pick the things
+      let take-these = make(<vector>);
+      let left = robot.capacity-left;
+      for(plist in pair-list)
+	let cur-pack-list :: <list> = head(plist);
+	for(pkg :: <package> in cur-pack-list)
+	  if(deliverable?(robot, s, pkg, capacity: left)
+	       & find-path(robot.location, pkg.location, s.board))
+	    left := left - pkg.weight;
+	    take-these := add!(take-these, pkg);
+	  end;
+	end for;
+      end for;
+      if(~take-these.empty?)
+	let pick = make(<pick>, bid: 1, package-ids: map(id, take-these), id: robot.id);
+	if(return-function)
+	  return-function(pick);
+	else
+	  return(pick);
+	end;
+      end;
+    else
+      debug("no packages here");
+    end;
+    #f;
+  end block;
+end method;
 
 define generic load-packages (agent :: <robot-agent>,
                               state :: <state>,
