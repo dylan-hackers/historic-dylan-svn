@@ -197,6 +197,8 @@ define method render-to-opengl(node :: <spotlight>)
   if(node.specular)
     apply(glLight, id, $GL-SPECULAR, node.specular);
   end if;
+//  glLight(id, $GL-SPOT-CUTOFF, 30.0s0);
+//  glLight(id, $GL-SPOT-EXPONENT, 30.0s0);
 end method render-to-opengl;
 
 define method render-to-opengl(node :: <appearance>)
@@ -293,6 +295,18 @@ define method render-to-opengl(node :: <texture>)
   else
     glBindTexture($GL-TEXTURE-2D, node.texture-id);
   end;
+end method render-to-opengl;
+
+define method render-to-opengl (node :: <2d-image>)
+  let gl-type = 
+    select(node.depth)
+      1 => $GL-LUMINANCE;
+      2 => $GL-LUMINANCE-ALPHA;
+      3 => $GL-RGB;
+      4 => $GL-RGBA
+    end select;
+  glDrawPixels(node.width, node.height, 
+               gl-type, $GL-UNSIGNED-BYTE, node.pixel-data);
 end method render-to-opengl;
 
 define functional class <c-byte-vector> (<c-vector>, <statically-typed-pointer>) 

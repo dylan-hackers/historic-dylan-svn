@@ -28,7 +28,7 @@ define module vector-math
     <color>, color;
 
   export cross-product, normalize, magnitude;
-  export rotate-x, rotate-y, rotate-z;
+  export rotate-x, rotate-y, rotate-z, rotate;
 end module vector-math;
 
 define module vrml-model
@@ -56,7 +56,7 @@ define module vrml-model
     <material>, ambient-intensity, diffuse-color, emissive-color, 
     shininess, specular-color, transparency,
     <on-screen-display>,
-    <2d-translation>,
+    <2d-translation>, <2d-image>,
     <text>, text, text-setter,
     <texture>, texture-id, width, height, pixel-data, texture-id-setter, repeat-s, repeat-t, depth,
     preorder-traversal;

@@ -108,7 +108,9 @@ define variable passive-motion-func :: <function>
                     location: make(<point>, x: x, y: y), passive?: #t));
     glutWarpPointer(250, 250);
     $camera.looking-at := rotate-y(as(<double-float>, x - 250) / 200.0) 
-      * rotate-x(as(<double-float>, 250 - y) / 200.0) 
+      * rotate(normalize(cross-product(3d-vector(0.0, 1.0, 0.0),
+                                       $camera.looking-at)),
+               as(<double-float>, 250 - y) / 200.0)
       * $camera.looking-at;
   end unless;
 end;
@@ -176,20 +178,21 @@ define method main(progname, #rest arguments)
     end if;
 
   if(arguments.size > 0)
+    let scene-object = make(<transform>, 
+                            scale: 3d-vector(scaling, scaling, scaling), 
+                            children: parse-vrml(arguments[0]));
     *scene-graph* := 
       make(<container-node>, children: 
              vector($camera,
                     $light,
                     make(<line-grid>),
+                    scene-object,
 //                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
 //                         translation: 3d-vector(3.0, 3.0, -2.0), 
 //                         children: vector(make(<sphere>))),
-                    make(<transform>, scale: 3d-vector(scaling, scaling, scaling), 
-                         children: parse-vrml(arguments[0])),
                     make(<on-screen-display>, children:
                            vector(make(<2d-translation>, translation: #[2, 2]),
-                                  $fps-text))
-                      ));
+                                  $fps-text))));
   end if;
   
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
@@ -224,6 +227,8 @@ define method main(progname, #rest arguments)
 //  glEnable($GL-CULL-FACE);
 
   glEnable($GL-LIGHTING);
+  glLightModel($GL-LIGHT-MODEL-TWO-SIDE, $GL-TRUE);
+
   glEnable($GL-TEXTURE-2D);
 //  glColor(0.7, 0.7, 0.7, 1.0);
 
@@ -241,7 +246,7 @@ define method main(progname, #rest arguments)
   glClearColor(s(0.0), s(0.0), s(0.0), s(1.0));
   glClearDepth(1.0d0);
 
-  glutIgnoreKeyRepeat(1); // ignore auto-repeat
+  glutIgnoreKeyRepeat(1);
   glutSetCursor($GLUT-CURSOR-NONE);
   glutDisplayFunc(display-func);
 //  glutTimerFunc(20, timer-func, 0);
@@ -253,7 +258,7 @@ define method main(progname, #rest arguments)
   glutSpecialFunc(special-func);
   glutSpecialUpFunc(special-up-func);
 
-  glutFullScreen();
+  //glutFullScreen();
 
   glutMainLoop();
   glutDestroyWindow(win);

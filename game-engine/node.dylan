@@ -246,6 +246,9 @@ define class <text> (<node>)
   slot text :: <string> = "", init-keyword: text:;
 end class <text>;
 
+define class <2d-image> (<texture>)
+end class <2d-image>;
+
 define generic preorder-traversal(node :: <node>, function :: <function>);
 
 define method preorder-traversal(node :: <node>, function :: <function>)

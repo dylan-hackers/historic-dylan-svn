@@ -4,7 +4,7 @@ define class <algebraic-vector> (<number>, <vector>)
   slot data;
 end class <algebraic-vector>;
 
-define inline method element(vector :: <algebraic-vector>, index) 
+define inline method element(vector :: <algebraic-vector>, index, #key default) 
  => (element :: <number>)
   vector.data[index]
 end method element;
