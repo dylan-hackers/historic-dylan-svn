@@ -262,6 +262,7 @@ define module top-level-forms
   export
     *Top-Level-Forms*,
     <tlf-dependency>, source-tlf, source-tlf-setter,
+    add-tlf-dependency, tlf-depends-list,
     <top-level-form>, tlf-component, tlf-component-setter,
     tlf-init-function, tlf-init-function-setter,
     tlf-dependents, tlf-dependents-setter,

@@ -199,20 +199,17 @@ end;
 
 define generic loaded-tlf (defn :: <definition>) => tlf :: <top-level-form>;
 
-define method loaded-tlf (defn :: <function-definition>) => tlf :: <loaded-define-tlf>;
-/*  let tlf = make(<real-<define-method-tlf>,
-		 base-name: defn.method-defn-of.defn-name,
-		 library: defn.defn-library,
-		 source-location: defn.source-location,
-		 sealed: defn.method-defn-of.generic-defn-sealed?, // GGR: fake, we should examine the seals
-		 inline-type: defn.method-defn-inline-type,
-		 movable: function-defn-movable?,
-		 flushable: function-defn-flushable?,
-		 parse: make(<method-parse>, )); */
-		
+// define method loaded-tlf (defn :: type-union(/* <function-definition>, */ <macro-definition>, <class-definition>)) => tlf :: <loaded-define-tlf>;
+//   let tlf = make(<loaded-define-tlf>,
+//                  source-location: defn.source-location);
+//   find-variable(defn.defn-name).variable-tlf := tlf;
+// end;
+
+define method loaded-tlf (defn :: <definition>) => tlf :: <loaded-define-tlf>;
   let tlf = make(<loaded-define-tlf>,
                  source-location: defn.source-location);
   find-variable(defn.defn-name).variable-tlf := tlf;
+//  compiler-warning("strange definition: %=", defn);
 end;
 
 

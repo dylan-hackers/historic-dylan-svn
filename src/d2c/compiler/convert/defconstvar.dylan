@@ -5,7 +5,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -532,11 +532,13 @@ end;
 
 define method dump-od (tlf :: <define-bindings-tlf>, state :: <dump-state>)
     => ();
+  let depends-list = tlf.tlf-depends-list;
+
   for (defn in tlf.tlf-required-defns)
-    dump-simple-object(#"define-binding-tlf", state, defn);
+    dump-simple-object(#"define-binding-tlf", state, defn, depends-list);
   end;
   if (tlf.tlf-rest-defn)
-    dump-simple-object(#"define-binding-tlf", state, tlf.tlf-rest-defn);
+    dump-simple-object(#"define-binding-tlf", state, tlf.tlf-rest-defn, depends-list);
   end;
 end;
 
