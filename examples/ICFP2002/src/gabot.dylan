@@ -20,20 +20,6 @@ define generic create-command(s :: <strategy>) => command :: <command>;
 define generic create-terminal-command(s :: <strategy>, state :: <state>) => command :: <command>;
 
 
-define method safe?(dropping :: <path-strategy>, me :: <gabot>, s :: <state>)
- => safe :: <boolean>;
-// TODO: any other robots around?
-  let position = find-robot(s, me.agent-id).location;
-      
-      let nearest-bot = s.robots.first; /// HACK
-
-  distance-cost(position, dropping.approach) < distance-cost(position, nearest-bot.location)
-  & distance-cost(position, dropping.approach) < distance-cost(dropping.approach, nearest-bot.location)
- //;/// TODO: all?(s.robots x path piints out-of-reach?)
-
-// #t;
-end method safe?;
-
 // ##################
 // ## <gabot>
 define class <gabot> (<dumbot>)
@@ -58,6 +44,22 @@ define method create-command(s :: <path-strategy>) => command :: <command>;
   let path = s.strategy-path := path;
   make(<move>, direction: turn(robot, path), bid: 1, id: robot.id);
 end;
+
+// ## safe?{<path-strategy>}
+define method safe?(dropping :: <path-strategy>, me :: <gabot>, s :: <state>)
+ => safe :: <boolean>;
+// TODO: any other robots around?
+  let position = find-robot(s, me.agent-id).location;
+      
+      let nearest-bot = s.robots.first; /// HACK
+
+  distance-cost(position, dropping.approach) < distance-cost(position, nearest-bot.location)
+  & distance-cost(position, dropping.approach) < distance-cost(dropping.approach, nearest-bot.location)
+ //;/// TODO: all?(s.robots x path piints out-of-reach?)
+
+// #t;
+end method safe?;
+
 
 // ##################
 // ## <drop-strategy>
@@ -139,7 +141,6 @@ end;
 // ## create-command{<pick-strategy>}
 define method create-terminal-command(s :: <pick-strategy>, state :: <state>) => command :: <command>;
   debug("GB: Picking in create-terminal-command\n");
-//  make(<pick>, package-ids: /* map(id, choose() */ #(), bid: 1, id: s.strategy-robot.id);
   make(<pick>, package-ids: map(id, load-packages(s.strategy-agent, state, compare: pick-compare)), bid: 1, id: s.strategy-robot.id);
 end;
 
@@ -202,6 +203,7 @@ end method find-safest;
 // look for safe bases to pick up packets, or safe forgotten packets in the space
 // look for vulnerable robots and I am not vulnerable then attack
 // try escape from attackers
+// unless empty and others run to a base, then push them (but not if there is water behind me)
 
 define method generate-next-move(me :: <gabot>, s :: <state>)
   => c :: <command>;

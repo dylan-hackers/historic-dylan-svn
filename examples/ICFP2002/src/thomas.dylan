@@ -19,12 +19,12 @@ define class <thomas> (<robot-agent>)
     init-value: #f;
 end class <thomas>;
 
-define method agent-money (tom :: <thomas>, state :: <state>) => <integer>;
-  find-robot(state, tom.agent-id).money
+define method agent-money (agent :: <robot-agent>, state :: <state>) => <integer>;
+  find-robot(state, agent.agent-id).money
 end method agent-money;
 
-define method agent-capacity (tom :: <thomas>, state :: <state>) => <integer>;
-  find-robot(state, tom.agent-id).capacity
+define method agent-capacity (agent :: <robot-agent>, state :: <state>) => <integer>;
+  find-robot(state, agent.agent-id).capacity
 end method agent-capacity;
 
 define method agent-pos (agent :: <robot-agent>, state :: <state>) => <point>;
