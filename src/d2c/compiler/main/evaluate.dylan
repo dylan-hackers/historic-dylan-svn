@@ -12,7 +12,7 @@ define method evaluate(expression :: <string>)
   format(*standard-output*, "evaluating %=\n", expression);
   let tokenizer = make(<lexer>, 
                        source: make(<source-buffer>, 
-                                    buffer: expression),
+                                    buffer: as(<byte-vector>, expression)),
                        start-line: 0,
                        start-posn: 0);
   format(*standard-output*, "%=\n", parse-expression(tokenizer));
