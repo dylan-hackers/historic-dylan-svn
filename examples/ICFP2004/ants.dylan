@@ -132,8 +132,8 @@ define class <cell> (<object>)
   constant slot rocky :: <boolean> = #f, init-keyword: rocky:;
   slot ant :: false-or(<ant>) = #f;
   slot food :: <integer> = 0, init-keyword: food:;
-  constant slot red-marker :: <vector> = make(<vector>, size: 6);
-  constant slot black-marker :: <vector> = make(<vector>, size: 6);
+  constant slot red-marker :: <simple-object-vector> = make(<vector>, size: 6);
+  constant slot black-marker :: <simple-object-vector> = make(<vector>, size: 6);
   constant slot anthill :: false-or(<color>) = #f, init-keyword: anthill:;
 end class <cell>;
 
@@ -273,7 +273,7 @@ define function read-map(s :: <stream>) => (result :: <world>);
   result;
 end function read-map;
 
-define constant <marker> = limited(<integer>, min: 0, max: 5);
+define constant <marker> = <integer>;
 
 define function set-marker-at(p :: <position>, c :: <color>, i :: <marker>)
   => ()
