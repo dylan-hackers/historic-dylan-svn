@@ -15,16 +15,10 @@ define macro brain-definer
 
  states:
   {} => {}
-  { [?label:expression] ?state; ... } => { let (label, counter) = (?label, 0); ?state; ... }
+  { [?label:expression] ?state; ... } => { let (label, counter) = values(?label, 0); ?state; ... }
   { ?state; ... } => { let counter = counter + 1; ?state; ... }
 
  state:
-
-  { Drop } => { push-thunk(instrs, label, counter,
-                           method()
-                             make(<drop>, state: lookup(instrs, label, counter + 1))
-                           end);
-                     }
 
   { Drop, (?label:name) } => { push-thunk(instrs, label, counter,
                                           method()
@@ -32,10 +26,10 @@ define macro brain-definer
                                           end);
                      }
 
-  { Turn ?:name } => { push-thunk(instrs, label, counter,
-                                  method()
-                                    make(<turn>, left-or-right: ?#"name", state: lookup(instrs, label, counter + 1))
-                                  end);
+  { Drop } => { push-thunk(instrs, label, counter,
+                           method()
+                             make(<drop>, state: lookup(instrs, label, counter + 1))
+                           end);
                      }
 
   { Turn ?:name, (?label:name) } => { push-thunk(instrs, label, counter,
@@ -45,18 +39,24 @@ define macro brain-definer
                                    }
 
 
-  { Move => ?:name } => { push-thunk(instrs, label, counter,
-                                     method() make(<move>,
-                                                   state-success: lookup(instrs, label, counter + 1),
-                                                   state-failure: lookup(instrs, ?#"name", 0))
-                                     end)
-                        }
+  { Turn ?:name } => { push-thunk(instrs, label, counter,
+                                  method()
+                                    make(<turn>, left-or-right: ?#"name", state: lookup(instrs, label, counter + 1))
+                                  end);
+                     }
 
   { Move ?success:name => ?fail:name } => { push-thunk(instrs, label, counter,
                                                        method() make(<move>,
                                                                       state-success: lookup(instrs, ?#"success", 0),
                                                                       state-failure: lookup(instrs, ?#"fail", 0))
                                                        end)
+                        }
+
+  { Move => ?:name } => { push-thunk(instrs, label, counter,
+                                     method() make(<move>,
+                                                   state-success: lookup(instrs, label, counter + 1),
+                                                   state-failure: lookup(instrs, ?#"name", 0))
+                                     end)
                         }
 
   { Flip ?prob:expression, (?yes:name, ?no:name) } => { push-thunk(instrs, label, counter,
@@ -117,6 +117,9 @@ define function compile-states (instrs :: <table>)
   let pos-table :: <table> = make(<table>);
   put-instruction(start-instr, brain, pos-table);
   
+end;
+
+define function put-instruction(start-instr, brain, pos-table)
 end;
 
 define functional class <instruction-label-count> (<object>)
