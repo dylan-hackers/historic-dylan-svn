@@ -1,2 +1,3 @@
 *.c *.mak .libs icfp2000 *.mak-temp
 
+*.ppm
