@@ -1,12 +1,12 @@
-% spheres2.gml
+% spheres.gml
 %
-% A pair of spheres over a white plane
+% Two matte spheres over a matte plane.
 %
 
 				% a sphere
 { /v /u /face			  % bind arguments
-  0.8 0.2 v point		  % surface color
-  1.0 0.2 1.0			  % kd ks n
+  0.8 0.8 0.2 point		  % surface color
+  1.0 0.0 1.0			  % kd ks n
 } sphere /s
 
 				% a matte white plane
@@ -32,6 +32,6 @@ scene				  % scene to render
 3				  % tracing depth
 90.0				  % field of view
 320 240				  % image wid and height
-"spheres2.ppm"			  % output file
+"spheres.ppm"			  % output file
 render
 
