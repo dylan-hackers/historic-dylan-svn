@@ -363,7 +363,7 @@ end parse sd-decl;
 // This function here parses the attribute value part of the
 // attribute -- so this function will parse "bar" for 
 // <foo name="bar"/> (quotes are included)
-define collect-value xml-attribute(c) () "'", '"' => #t end;
+define collect-value xml-attribute(c) () "'", '"' => [] end;
 
 // Element
 // 
@@ -766,7 +766,7 @@ end parse public-id;
 //    [89]    Extender    ::=    #x00B7 | #x02D0 | #x02D1 | #x0387 | #x0640 | #x0E46 | #x0EC6 | #x3005 | [#x3031-#x3035] | [#x309D-#x309E] | [#x30FC-#x30FE]
 //    
 //
-define collect-value encoding-info(eq, c) () "'", '"' => #t end;
+define collect-value encoding-info(eq, c) () "'", '"' => [] end;
 
 define collector xml-attributes(attr-name, eq, attr-val, sp) => (str)
   loop([parse-name(attr-name), parse-eq(eq),
