@@ -20,18 +20,6 @@ define variable $system-install      :: false-or(<directory-locator>) = #f;
 define variable $system-lib          :: false-or(<directory-locator>) = #f;
 define variable $system-bin          :: false-or(<directory-locator>) = #f;
 define variable $redistributable-bin :: false-or(<directory-locator>) = #f;
-define variable $system-build        :: false-or(<directory-locator>) = #f;
-
-/*
-define constant $executable-name :: false-or(<file-locator>)
-  = begin
-      let filename = application-filename();
-      filename & as(<file-locator>, filename)
-    end;
-
-define constant $release-root :: false-or(<directory-locator>)
-  = $executable-name & locator-directory(locator-directory($executable-name));
-*/
 
 define method configure-build-system () => ()
   local method ensure-subdirectory-exists
@@ -57,16 +45,6 @@ define method configure-build-system () => ()
   $system-bin := subdirectory-locator($system-install, "bin");
   $redistributable-bin
     := subdirectory-locator($system-install, "redistributable");
-  $system-build :=
-    begin
-      let directory
-        = system-build-path() | subdirectory-locator($system-install, "build");
-      if (file-exists?(directory))
-	shorten-pathname(directory)
-      else
-	directory
-      end if;
-    end;
 end method;
 
 configure-build-system();
