@@ -1410,16 +1410,16 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defsupers>
           <definitkeywords>
             <keyparam>
-              <paramname>locator:</paramname>
+              <paramname>locator</paramname>
             </keyparam>
             <keyparam>
-	      <paramname>direction:</paramname>
+	      <paramname>direction</paramname>
             </keyparam>
             <keyparam>
-	      <paramname>if-exists:</paramname>
+	      <paramname>if-exists</paramname>
             </keyparam>
             <keyparam>
-	      <paramname>if-does-not-exist:</paramname>
+	      <paramname>if-does-not-exist</paramname>
             </keyparam>
           </definitkeywords>
           <defdescription>
@@ -1430,51 +1430,20 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylanclassdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;sequence-stream&gt;</REFNAME>
-	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
-
-	    <PARA>The class of streams over sequences. </PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
-	    <PARA><CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Init-keywords</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><dlit>contents:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>direction:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>start:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>end:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
+        <dylanclassdef>
+	  <dEFNAME>&lt;sequence-stream&gt;</dEFNAME>
+	  <defadjectives>Open instantiable</defadjectives>
+	  <defsummary>The class of streams over sequences.</defsummary>
+	  <defsupers>
+            <defsuper>&lt;positionable-stream&gt;</defsuper>
+          </defsupers>
+          <definitkeywords>
+	    <keyparam><paramname>contents</paramname></keyparam>
+	    <keyparam><paramname>direction</paramname></keyparam>
+	    <keyparam><paramname>start</paramname></keyparam>
+	    <keyparam><paramname>end</paramname></keyparam>
+          </definitkeywords>
+          <defdescription>
 
 	    <PARA>The <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>
 	    class can be used for streaming over all sequences, but
@@ -1483,8 +1452,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <CLASSNAME>&lt;byte-string-stream&gt;</CLASSNAME>, and
 	    <CLASSNAME>&lt;unicode-string-stream&gt;</CLASSNAME>,
 	    which are specialized for streaming over strings.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+          </defdescription>
+        </dylanclassdef>
 
 	<REFENTRY>
 	  <REFNAMEDIV>
