@@ -465,41 +465,37 @@ end method remove!;
 define sealed method concatenate!
     (deq :: <object-deque>, #rest more-sequences)
  => (deq :: <object-deque>)
-  let current = deq.size;
+  let current-size = deq.size;
 
-  let new-size = current;
+  let needed-size = current-size;
   for (sequence in more-sequences)
-    let seq-size :: <integer> = sequence.size;
-    new-size := new-size + seq-size;
+    needed-size := needed-size + check-type(sequence.size, <integer>);
   end;
-    
-  if (new-size >= deq.deq-data.size)
-    let new-size = calc-deque-size(new-size);
-    let data = deq.deq-data;
-    let offset = deq.deq-current-offset;
-    let mask = deq.deq-data-mask;
-    let new-data = make(<simple-object-vector>, size: new-size);
-    for (i from 0 below current)
-      %element(new-data, i) := %element(data, logand(i + offset, mask));
-    end;
-    deq.deq-data := new-data;
-    deq.deq-current-offset := 0;
-    deq.deq-data-mask := new-size - 1;
-  end if;
 
   let data = deq.deq-data;
   let offset = deq.deq-current-offset;
   let mask = deq.deq-data-mask;
+  if (needed-size >= data.size)
+    let new-data-size = calc-deque-size(needed-size);
+    let new-data = make(<simple-object-vector>, size: new-data-size);
+    for (i from 0 below current-size)
+      %element(new-data, i) := %element(data, logand(i + offset, mask));
+    end;
+    data := deq.deq-data := new-data;
+    offset := deq.deq-current-offset := 0;
+    mask := deq.deq-data-mask := new-data-size - 1;
+  end if;
+
   for (sequence in more-sequences,
-      outer-index = current
+      outer-index = current-size
         then for (item in sequence, index from outer-index)
                %element(data, logand(index + offset, mask)) := item;
              finally
                index;
              end for)
   end for;
-  
-  deq.deq-current-size := new-size;
+
+  deq.deq-current-size := needed-size;
   deq;
 end method concatenate!;
 
@@ -616,10 +612,12 @@ end method as;
 define sealed method as
     (class == <deque>, ssv :: <stretchy-object-vector>)
     => res :: <object-deque>;
-  let res = make(<object-deque>, size: ssv.size);
+  let sz = ssv.size;
+  let res = make(<object-deque>, size: sz);
   let res-data = res.deq-data;
-  for (elt keyed-by index in ssv)
-    %element(res-data, index) := elt;
+  let data = ssv.ssv-data;
+  for (index from 0 below sz)
+    %element(res-data, index) := %element(data, index);
   end;
   res;
 end method as;
