@@ -8,6 +8,7 @@ vis:
 	cd Visualizer; make; cd ..
 
 run:
+	rm -rf dump.tiny
 	./ants ant-brains/sample.ant ant-brains/sample.ant worlds/tiny.world > dump.tiny
 
 run-vis:

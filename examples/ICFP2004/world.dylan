@@ -8,7 +8,7 @@ define function dump-world-state(world :: <array>) => ()
   for(xx from 0 below *world*.dimensions[0])
     for(yy from 0 below *world*.dimensions[1])
       let p = make-position(xx, yy);
-      let ss = format-to-string("cell (%d, %d): ", yy, xx);
+      let ss = format-to-string("cell (%d, %d): ", xx, yy);
 
       // Add the cell contents.
       if (is-rocky(p))

@@ -179,15 +179,15 @@ define function read-map(s :: <stream>) => (result :: <array>);
   let ant-count = 0;
 
 
-  for(xx from 0 below x-size)
+  for(yy from 0 below y-size)
     let line = read-line(s);
 
-    for(yy from 0 below y-size,
-        yy* from 
-          if(even?(xx)) 0 else 1 end
+    for(xx from 0 below x-size,
+        xx* from 
+          if(even?(yy)) 0 else 1 end
           by 2)
       let options =
-        select(line[yy*])
+        select(line[xx*])
           '#' => #(rocky:, #t);
           '.' => #();
           '+' => #(anthill:, #"red");
