@@ -35,6 +35,6 @@ define module meta
   use meta-syntax, export: all;
   use meta-types, export: all;
 
-  export scan-s, scan-word, scan-int, scan-number;
+  export scan-s, scan-word, scan-int, scan-number, string-to-number;
 end module meta;
 

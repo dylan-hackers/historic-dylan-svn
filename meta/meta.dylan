@@ -22,7 +22,7 @@ end meta s;
 
 define function string-to-number(s :: <string>) => (n :: <number>)
   let(num, idx) = s.string-to-integer;
-  unless(idx >= s.size)
+  unless(idx + 1 >= s.size)
     let fract = copy-sequence(s, start: idx + 1);
     let rem = (fract.string-to-integer * 1.0) / (10.0 ^ fract.size);
     num := num + rem;
