@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.11 2001/11/08 00:28:39 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.11.2.1 2002/07/28 15:15:43 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -64,8 +64,7 @@ define module cback
   use errors;
   use compile-time-functions;
   use compile-time-values;
-  use platform,
-    import: {*current-target*, platform-integer-length};
+  use platform;
   use ctype;
   use definitions;
   use function-definitions;
