@@ -1,10 +1,17 @@
 go: vrml-viewer
 	./vrml-viewer
 
-vrml-viewer: vrml-viewer.lid ../examples/gdgl/opengl.lib.du
-	d2c -L../examples/gdgl $<
+vrml-viewer: vrml-viewer.lid ../examples/gdgl/opengl.lib.du ../examples/meta/meta.lib.du
+	d2c -L../examples/gdgl -L../examples/meta $<
 
-vrml-viewer.lid: vrml-viewer-exports.dylan vrml-viewer.dylan render-to-opengl.dylan node.dylan gettimeofday.dylan errno.dylan
+vrml-viewer.lid: \
+  vrml-viewer-exports.dylan \
+  vrml-viewer.dylan \
+  render-to-opengl.dylan \
+  node.dylan \
+  vrml-parser.dylan \
+  gettimeofday.dylan \
+  errno.dylan
 	touch $@
 
 gettimeofday.dylan: gettimeofday.intr
