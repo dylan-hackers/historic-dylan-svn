@@ -34,6 +34,21 @@ define sealed class <tlf-dependency>(<general-dependency>)
   slot source-tlf :: <top-level-form>, required-init-keyword: source:;
 end;
 
+
+define function add-tlf-dependency (from :: <top-level-form>, to :: <top-level-form>) => ()
+  block (return)
+    for (dep = to.depends-on then dep.dependent-next, while: dep)
+      dep.source-tlf == from
+      	& return();
+    end for;
+    to.depends-on
+      := make(<tlf-dependency>, source: from, dependent: to,
+      	      dependent-next: to.depends-on, source-next: from.tlf-dependents);
+    from.tlf-dependents := to.depends-on;
+  end block;
+end;
+
+
 define open primary abstract class <top-level-form> (<source-location-mixin>, <dependent-mixin>)
   slot tlf-component :: false-or(<component>) = #f, init-keyword: component:;
   slot tlf-init-function :: false-or(<ct-function>) = #f,
@@ -214,8 +229,8 @@ end;
 
 add-od-loader(*compiler-dispatcher*, #"define-binding-tlf",
               method (state :: <load-state>) => res :: <definition>;
-                let defn = load-sole-subobject(state);
-                let deps = load-sole-subobject(state);
+                let defn = load-object-dispatch(state);
+                let deps = load-object-dispatch(state);
                 assert-end-object(state);
                 note-variable-definition(defn);
                 defn.loaded-tlf;
