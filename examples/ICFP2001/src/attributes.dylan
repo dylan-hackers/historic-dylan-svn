@@ -172,6 +172,20 @@ define inline method space-context(a :: <attribute>)
   make(<attribute>, value: new-val);
 end method space-context;
 
+define inline method maximum-cost(a :: <attribute>)
+ => total-cost :: <integer>;
+  let total-cost :: <integer> = 0;
+  if(a.bold) total-cost := total-cost + tag-B.cost end;
+  if(a.italic) total-cost := total-cost + tag-I.cost end;
+  if(a.emphasis) total-cost := total-cost + tag-EM.cost end;
+  if(a.strong) total-cost := total-cost + tag-S.cost end;
+  if(a.typewriter) total-cost := total-cost + tag-TT.cost end;
+  total-cost := total-cost + a.underline * tag-U.cost;
+  if(a.font-size) total-cost := total-cost + tag-0.cost end;
+  if(a.color) total-cost := total-cost + tag-r.cost end;
+  total-cost := total-cost + tag-PL.cost;
+  total-cost;
+end method maximum-cost;
 
 define method print-object(a :: <attribute>, stream :: <stream>)
  => ();
@@ -206,7 +220,7 @@ define method describe-attributes(a :: <attribute>, stream :: <stream>) => ();
   pp(a.strong, "S");
   pp(a.typewriter, "TT");
   comma();
-  format(stream, "%=,%=,%=}", a.underline, a.font-size, a.color);
+  format(stream, "%=,%=,%=}: %=", a.underline, a.font-size, a.color, a.maximum-cost);
 end method describe-attributes;
 
 

@@ -56,6 +56,7 @@ define function optimize-output(input :: <stretchy-object-vector>)
     let text = fragment.string;
     let next-states = make(<stretchy-vector>);
     for (state :: <opt-state> in states)
+      check-timeout();
       emit-transitions(state.attr, desired, text,
 		       state.tag-stack, state.attr-stack,
 		       state.transitions, state.output-size,
@@ -168,6 +169,7 @@ define function emit-transitions
 
     if (stage == 0)
       
+/*
       local
 	method can-pop-to-attr(name)
 	  from.name ~== to.name &
@@ -190,6 +192,8 @@ define function emit-transitions
 	can-pop-to-attr(color);
 
       if (pop)
+*/
+      if (attr-stack ~== #())
 	pop-tag();
 	push-tag(tag-PL);
 //	exit();

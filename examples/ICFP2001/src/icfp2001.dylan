@@ -22,6 +22,7 @@ define class <tag> (<object>)
   slot open-tag :: <byte-string> = "";
   slot close-tag :: <byte-string> = "";
   slot operation, required-init-keyword: op:;
+  slot cost :: <integer> = 0;
 end;
 
 define constant !all-tags = make(<table>);
@@ -29,6 +30,7 @@ define constant !all-tags = make(<table>);
 define sealed method initialize(t :: <tag>, #key name)
   t.open-tag := concatenate("<", name, ">");
   t.close-tag := concatenate("</", name, ">");
+  t.cost := t.open-tag.size + t.close-tag.size;
   !all-tags[name[0]] := t;
 end;
 
@@ -191,13 +193,6 @@ define function bgh-parse(s :: <byte-string>)
   runs;
 end function bgh-parse;
 
-define function time-is-not-up?()
-  #f;
-end function time-is-not-up?;
-
-define method optimize()
-end method optimize;
-
 define macro string-concatenator-definer
   {define string-concatenator ?class:name end} =>
     {define method concatenate-strings(v :: ?class)
@@ -280,6 +275,7 @@ define function main(name, arguments)
 
   let input-stream = *standard-input*;
 
+  debug("Reading input.\n");
   let original-input      = slurp-input(input-stream);
   let best-transformation = original-input;
 
@@ -294,11 +290,13 @@ define function main(name, arguments)
     end method see-if-best;
 
   block()
+    debug("Parsing input.\n");
     let parse-tree          = bgh-parse(original-input);
     dump-parse-tree(parse-tree);
 
+    debug("Generating output.\n");
     generate-output(parse-tree).concatenate-strings.see-if-best;
-    optimize-output(parse-tree).concatenate-strings.see-if-best;
+//    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)
   end;
