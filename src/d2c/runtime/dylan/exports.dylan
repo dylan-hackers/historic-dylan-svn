@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10.4.1 2000/06/22 04:03:52 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10.4.2 2000/06/25 06:16:18 emk Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -283,6 +283,7 @@ define module magic
 	     make-catcher,
 	     make-closure,
 	     make-exit-function,
+	     make-limited-collection,
 	     make-rest-arg,
 	     maybe-do-defered-evaluations,
 	     missing-required-init-keyword-error,
