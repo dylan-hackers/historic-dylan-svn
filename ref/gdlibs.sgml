@@ -3598,8 +3598,8 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       exp), and the square-root and power (^) functions.
     </para>
 
-    <sect1 id="libs-transcendental-transcendental">
-    <title>The Transcendental Module</title>
+    <sect1 id="libs-transcendental-sincostan">
+    <title>Sine, Cosine, and Tangent</title>
     <para>
       To understand the transcendental functions (particularly, sine,
       cosine, and tangent, and their friends), one must know about the
@@ -3636,8 +3636,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	<para>
 	  Returns the sine of a real number.  Using the above right
 	  triangle, the sine of theta is AB / AC.  For example, say AC
-	  is 12 meters and theta is $double-pi / 6 (30 degrees).  You solve
-	  for AB by multiplying AC and sine theta.  AB = 12 * sin($double-pi /
+	  is 12 meters and theta is <dlit>$double-pi</dlit> / 6 (30 degrees).  
+	  You solve
+	  for AB by multiplying AC and sine theta.  AB = 12 * sin(
+	  <dlit>$double-pi</dlit> /
 	  6.0) => 6 meters.
   	</para>
       </defdescription>
@@ -3661,9 +3663,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <defdescription>
   	<para>
 	  Returns the cosine of a real number.  The cosine of theta is
-	  BC / AC.  Problem:  Given theta is $double-pi / 4 and BC is
+	  BC / AC.  Problem:  Given theta is <dlit>$double-pi</dlit> / 4 
+	  and BC is
 	  7 meters, what length is AC?  What is theta in degrees?
-	  (see the entry for $double-pi for help)
+	  (see the entry for <dlit>$double-pi</dlit> for help)
   	</para>
       </defdescription>
     </dylangenericdef>
@@ -3690,13 +3693,17 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	</para>
       </defdescription>
     </dylangenericdef>
+  </sect1>
 
+  <sect1 id="lib-transcendental-pi">
+    <title>Pi</title>
     <para>
       So, perhaps you are used to thinking in degrees, not radians.
       How do you convert between the two when you use the above
       functions?  That's as easy as pi!  If you have the angle in
       degrees and one of side lengths, first multiple that angle by
-      pi / 180.0 (either $double-pi or $single-pi) to get radians, and
+      pi / 180.0 (either <dlit>$double-pi</dlit> or <dlit>$single-pi</dlit>) 
+      to get radians, and
       then use that resulting theta in the appropriate 
       function. 
     </para>
@@ -3742,17 +3749,34 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	</para>
       </defdescription>
     </dylanconstantdef>
+  </sect1>
+
+  <sect1 id="lib-transcendental-arc">
+    <title>The Inverse (Arc) Functions</title>
 
     <para>
       The next question that comes up is if you have two sides of the
       right triangle, and you need to know the angle.  The arc
       functions of sine, cosine and tangent resolve this issue.  The
-      arc sine function (asin, also known as the inverse sine) gives
+      arc sine function (<function>asin</function>, also known as the 
+      inverse sine) gives
       the angle (in radians, again) from the height (AB) over the
-      hypotenuse (AC).  The other arc functions, acos, and atan,
+      hypotenuse (AC).  The other arc functions, <function>acos</function>, 
+      and <function>atan</function>,
       behave as their more-familiar counterparts.  Again, to convert
       from radians to degrees, multiple the result by 180 / pi.
     </para>
+    </sect1>
+
+    <sect1 id="lib-transcendental-e">
+    <title>The Constant e</title>
+    <para>
+      I will leave aside the temptation to find mathematical similarities
+      between pi and e, with the exception of stating that both can use
+      the Fibonacci numbers to find close approximations of their values.
+      e finds use for logarithmic and exponential calculations.
+    </para>
+      
 
     <dylanconstantdef>
       <defname>$double-e</defname>
@@ -3762,7 +3786,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <deftype>&lt;double-float&gt;</deftype>
       <defdescription>
         <para>
-	  The value here is 2.7182818284590452354.
+	  The value here is 2.7182818284590452354.  To compute your
+	  own approximation, use the Fibonacci numbers (1, 1, 2, 3, 5,
+	  8, 13, 21 ...).  e = F(n) / F(n-1); where the larger n is,
+	  the more accurate e is.
 	</para>
       </defdescription>
     </dylanconstantdef>
