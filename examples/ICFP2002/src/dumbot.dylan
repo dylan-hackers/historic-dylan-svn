@@ -24,7 +24,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     force-output(*standard-output*);
     
     if (~drop-these.empty?)
-      return(make(<drop>, bid: 1, package-ids: map(id, drop-these)));
+      return(make(<drop>, bid: 1, package-ids: map(id, drop-these), id: robot.id));
     else 
       format-out("DB: Nothing to deliver here.\n");
       force-output(*standard-output*);
@@ -51,7 +51,8 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
       if (~take-these.empty?)
 	return(make(<pick>, 
 		    bid: 1, 
-		    package-ids: map(id, take-these)));
+		    package-ids: map(id, take-these),
+		    id: robot.id));
       else 
 	format-out("DB: Can't pick up or deliver anything from here.\n");
 	force-output(*standard-output*);
@@ -105,7 +106,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	      => error("Can't happen, robot: %=, path: %=\n", robot, path);
 	  end case;*/
 	end if;
-    return(make(<move>, bid: 1, direction: direction));
+    return(make(<move>, bid: 1, direction: direction, id: robot.id));
   end block;
 end method generate-next-move;
 
