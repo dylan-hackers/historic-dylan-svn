@@ -114,6 +114,6 @@ end method silly-texture;
 define method red-texture(surface-id, u, v)
  => (color, diffusion, specular, phong-exp)
   values(make(<color>, red: 1.0, green: 0.0, blue: 0.0), 
-	 1.0, 0.5, 0.5);
+	 1.0, 1.0, 5.0);
 end method red-texture;
 
