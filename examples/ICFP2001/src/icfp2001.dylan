@@ -109,17 +109,15 @@ define function bgh-parse(s :: <byte-string>)
 
   local
     method save-run()
-      if (run-state.value ~== curr-state.value)
-        let s :: <byte-string> = as(<byte-string>, fragments);
-        if (s.size > 0)
-          add!(runs,
-               make(<attributed-string>, attributes: run-state, string: s));
-        end;
-        fragments.size := 0;
-        non-space-char-in-run := #f;
-        run-state := curr-state;
-        check-timeout();
+      let s :: <byte-string> = as(<byte-string>, fragments);
+      if (s.size > 0)
+	add!(runs,
+	     make(<attributed-string>, attributes: run-state, string: s));
       end;
+      fragments.size := 0;
+      non-space-char-in-run := #f;
+      run-state := curr-state;
+      check-timeout();
     end method save-run;
   
   while (p < s.size)
@@ -141,7 +139,19 @@ define function bgh-parse(s :: <byte-string>)
 	  end;
 	  last-char-was-space := #t;
 	else
-	  save-run();
+	  if (run-state.value ~== curr-state.value)
+	    // if the preceding stuff was just spaces, then it
+	    // may be possible to retroactively make it the same
+	    // format as the current stuff
+	    if (non-space-char-in-run)
+	      save-run();
+	    elseif (run-state.space-context.value ==
+		      curr-state.space-context.value)
+	      run-state := curr-state;
+	    else
+	      save-run();
+	    end;
+	  end;
 	  add!(fragments, ch);
 	  last-char-was-space := #f;
 	  non-space-char-in-run := #t;
@@ -233,6 +243,14 @@ define method slurp-input(stream :: <buffered-stream>)
   v.concatenate-strings;
 end method slurp-input;
 
+
+define method dump-parse-tree(v :: <stretchy-object-vector>) => ();
+  for (run :: <attributed-string> in v)
+    describe-attributes(run.attributes, *standard-error*);
+    format(*standard-error*, "    %=\n", run.string);
+  end;
+end method dump-parse-tree;
+
 define variable check-timeout = identity;
 
 define class <timeout> (<condition>)
@@ -255,6 +273,8 @@ define function main(name, arguments)
 
   block()
     let parse-tree          = bgh-parse(original-input);
+
+    dump-parse-tree(parse-tree);
 
     let optimized-output =
       generate-output(parse-tree).concatenate-strings;
