@@ -122,6 +122,13 @@ end;
 define sealed domain \< (<character>, <object>);
 define sealed domain \< (<object>, <character>);
 
+// The case conversion methods below are quite inefficient. They usually
+// result in three method calls for each character being processed:
+//   one method call for as-uppercase/as-lowercase itself
+//   one method call for the C library function toupper/tolower
+//   one method call for the limited type check to make sure the result
+//     of toupper/tolower is within range
+
 // as-uppercase -- exported GF method.
 //
 // Convert the character to uppercase.  Currently, we only support this for
@@ -129,8 +136,8 @@ define sealed domain \< (<object>, <character>);
 // 
 define sealed method as-uppercase (char :: <character>)
     => res :: <character>;
-  if ('a' <= char & char <= 'z')
-    as(<character>, as(<integer>, char) - 32);
+  if (char <= '\<FF>')
+    as(<character>, call-out("toupper", int:, int: as(<integer>, char)));
   else
     char;
   end;
@@ -143,19 +150,12 @@ end;
 // 
 define sealed method as-lowercase (char :: <character>)
     => res :: <character>;
-  if ('A' <= char & char <= 'Z')
-    as(<character>, as(<integer>, char) + 32);
+  if (char <= '\<FF>')
+    as(<character>, call-out("tolower", int:, int: as(<integer>, char)));
   else
     char;
   end;
 end;
-
-// The methods below call out to C and are dependent on d2c's naming
-// scheme for the method's parameter. The purpose of this is to by-pass
-// the limited integer check that must otherwise occur for the
-// character's value. If d2c's variable naming scheme changes, this
-// method will fail compile by the C compiler, and c-expr code will
-// have to be tweaked to match the new naming scheme.
 
 // as-uppercase -- exported GF method.
 //
@@ -163,8 +163,7 @@ end;
 //
 define sealed method as-uppercase (char :: <byte-character>)
     => res :: <byte-character>;
-  c-expr(void: "A_char = toupper(A_char)");
-  char;
+  as(<byte-character>, call-out("toupper", int:, int: as(<integer>, char)));
 end;
 
 // as-lowercase -- exported GF method.
@@ -172,7 +171,6 @@ end;
 // Convert the byte-character to lowercase.
 //
 define sealed method as-lowercase (char :: <byte-character>)
-    => res :: <byte-character>;
-  c-expr(void: "A_char = tolower(A_char)");
-  char;
+    => res :: <byte-character>;  
+  as(<byte-character>, call-out("tolower", int:, int: as(<integer>, char)));
 end;
