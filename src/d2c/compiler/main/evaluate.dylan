@@ -150,7 +150,19 @@ define method fer-gather-regions-bindings(regions :: <list>, environment :: <obj
   => (same-env, potential-value :: false-or(<ct-value>));
   format(*standard-output*, "fer-gather-regions-bindings %=\n", regions);
   force-output(*standard-output*);
-  fer-gather-regions-bindings(regions.tail, fer-gather-bindings(regions.head, environment))
+  
+  let head = regions.head;
+  if (instance?(head, <compound-region>))
+  
+    let (env, value) = fer-gather-bindings(head, environment);
+    if (value)
+      values(environment, value)
+    else
+      fer-gather-regions-bindings(regions.tail, fer-gather-bindings(head, environment))
+    end
+  else
+    fer-gather-regions-bindings(regions.tail, fer-gather-bindings(head, environment))
+  end
 end;
 
 
@@ -170,7 +182,13 @@ end;
 define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-variable>), expr :: <expression>, environment :: <object>)
  => extended-env;
 
-define method fer-gather-assign-bindings(defs :: <definition-site-variable>, expr :: <expression>, environment :: <object>)
+define method fer-gather-assign-bindings(defs :: <ssa-variable>, expr :: <expression>, environment :: <object>)
+ => extended-env;
+  let var-value = fer-evaluate-expression(expr, environment);
+  append-environment(environment, defs, var-value)
+end;
+
+define method fer-gather-assign-bindings(defs :: <initial-definition>, expr :: <expression>, environment :: <object>)
  => extended-env;
   let var-value = fer-evaluate-expression(expr, environment);
   append-environment(environment, defs.definition-of, var-value)
