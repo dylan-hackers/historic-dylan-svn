@@ -4,10 +4,10 @@ Author:   Carl Gay
 
 define library koala-basics
   use dylan;
-  use common-extensions;
+  use common-dylan;
   use io;
   use network;
-  use locators;
+  use system;
   use koala;
 end;
 
