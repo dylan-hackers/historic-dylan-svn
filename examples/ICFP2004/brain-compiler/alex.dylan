@@ -4,8 +4,10 @@ module: assembler
 define brain alex-gatherer
 
   [start:]
-    Drop, (get-out-of-home);
+    Flip 4, (get-out-of-home, mark-around);
 
+  [drop-and-get-out-of-home:]
+    Drop, (get-out-of-home);
 
   // The following set of macros makes the ant get out of home.
   // After that it moves on to search-food.
@@ -49,6 +51,7 @@ define brain alex-gatherer
     Sense RightAhead Food, (move-right-in-empty, try-forward);
 
   [try-forward:]
+    Mark 0;
     Move search-food => try-else;
 
   [try-else:]
@@ -60,17 +63,20 @@ define brain alex-gatherer
   [move-left-twice-in-empty:]
     Turn Left;
     Turn Left;
+    Mark 0;
     Move search-food => move-at-random-in-empty;
 
   [move-right-twice-in-empty:]
     Turn Right;
     Turn Right;
+    Mark 0;
     Move search-food => move-at-random-in-empty;
 
   [move-left-or-right-or-forward-in-empty:]
     Flip 2, (move-forward-in-empty, move-left-or-right-in-empty);
 
   [move-forward-in-empty:]
+    Mark 0;
     Move search-food => move-at-random-in-empty;
 
   [move-left-or-right-in-empty:]
@@ -78,10 +84,12 @@ define brain alex-gatherer
 
   [move-left-in-empty:]
     Turn Left;
+    Mark 0;
     Move search-food => move-at-random-in-empty;
 
   [move-right-in-empty:]
     Turn Right;
+    Mark 0;
     Move search-food => move-at-random-in-empty;
 
   [move-at-random-in-empty:]
@@ -91,6 +99,7 @@ define brain alex-gatherer
     Turn Left;
     Turn Left;
     Turn Left;
+    Mark 0;
     Move search-food => move-at-random-in-empty;
 
   [move-other-five:]
@@ -100,28 +109,33 @@ define brain alex-gatherer
   // The following set of macros makes it possible to deliver food,
   // using the trail of marks left using marker 0.
   [deliver-food:]
-    Sense Home, (start, deliver-move-forward);
+    Sense Home, (drop-and-get-out-of-home, deliver-back);
+
+  [deliver-back:]
+    Turn Left;
+    Turn Left;
+    Turn Left;
 
   [deliver-forward:]
-    Sense Ahead Mark0, (deliver-move-forward, deliver-try-left-1);
+    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
 
   [deliver-move-forward:]
     Move deliver-food => deliver-at-random;
 
   [deliver-try-left-1:]
-    Sense Ahead Mark0, (deliver-move-forward, deliver-try-left-2);
+    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-2);
 
   [deliver-try-left-2:]
-    Sense Ahead Mark0, (deliver-move-forward, deliver-try-left-3);
+    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-3);
 
   [deliver-try-left-3:]
-    Sense Ahead Mark0, (deliver-move-forward, deliver-try-left-4);
+    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-4);
 
   [deliver-try-left-4:]
-    Sense Ahead Mark0, (deliver-move-forward, deliver-try-left-5);
+    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-5);
 
   [deliver-try-left-5:]
-    Sense Ahead Mark0, (deliver-move-forward, deliver-at-random);
+    Sense Ahead (Marker 0), (deliver-move-forward, deliver-at-random);
 
   // We lost our trail. Try randomly or use mark-up of ant hill kind. :-)
   [deliver-at-random:]
@@ -157,6 +171,11 @@ define brain alex-gatherer
   [deliver-move-right-twice:]
     Turn Right;
     Turn Right, (deliver-move-forward);
+
+
+  // Perform marking algorithm.
+  [mark-around:]
+    Drop, (deliver-at-random);
 
 end;
 
