@@ -98,7 +98,7 @@ end;
 define method print-object(board :: <board>, stream :: <stream>)
  => ();
   format(stream, "board {\n");
-  for (y from 1 to board.height)
+  for (y from board.height to 1 by -1)
     for (x from 1 to board.width)
       print-object(board[y,x], stream);
     end;

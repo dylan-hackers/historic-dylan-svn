@@ -16,6 +16,7 @@ end library;
 define module board
   use common-dylan;
   use streams;
+  use format-out;
   use print, import: {print-object};
   
   export
@@ -96,7 +97,7 @@ define module client
 
   export
     <robot-agent>,
-    <dumbot>,
+    <dumbot>, <dumber-bot>,
     <dumber-bot>,
     generate-next-move;
 end module client;

@@ -22,7 +22,7 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
        my-capacity :: <integer>, 
        my-money :: <integer>, 
        state :: <state>) = receive-initial-setup(input);
-  let agent = make(<dumbot>, id: my-id, 
+  let agent = make(<dumber-bot>, id: my-id, 
                    capacity: my-capacity, money: my-money);
 
 
@@ -42,6 +42,7 @@ end function play-the-game;
 
 
 define function main(name, arguments)
+
   if(arguments.size < 2)
     format-out("Wrong number of arguments passed.\n");
   end if;
