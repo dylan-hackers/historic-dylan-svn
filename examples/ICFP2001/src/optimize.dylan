@@ -46,7 +46,9 @@ define function optimize-output(input :: <stretchy-object-vector>)
   let states = make(<stretchy-vector>);
   add!(states, make(<opt-state>));
 
-  for (fragment :: <attributed-string> in input)
+  let num-steps = input.size;
+  let last-pct = 0;
+  for (fragment :: <attributed-string> keyed-by i in input)
     force-output(*standard-error*);
     format(*standard-error*, "\n--------------------------------\n");
     dump-attributed-string(fragment);
@@ -61,6 +63,12 @@ define function optimize-output(input :: <stretchy-object-vector>)
 		       state.tag-stack, state.attr-stack,
 		       state.transitions, state.output-size,
 		       0, next-states);
+      let pct = truncate/(i * 100, num-steps);
+      if (pct ~== last-pct)
+	format(*standard-error*, "\n%%%% %d%% done %%%%\n", pct);
+	force-output(*standard-error*);
+	last-pct := pct;
+      end;
     end;
     states := next-states;
     force-output(*standard-error*);
