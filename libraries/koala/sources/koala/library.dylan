@@ -99,6 +99,9 @@ define module http-server
     log-error,
     log-warning,
     log-info;
+  // Debugging
+  create
+    print-object;
 end;
 
 // Additional interface for extending the server

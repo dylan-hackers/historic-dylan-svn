@@ -279,7 +279,7 @@ define macro ignore-errors
 end;
 
 // Compare to locator-path elements.
-//---TODO: portability - This isn't portable.
+//---*** TODO: portability - This isn't portable.
 define method path-element-equal?
     (elem1 :: <object>, elem2 :: <object>) => (equal? :: <boolean>)
   elem1 = elem2
@@ -293,6 +293,15 @@ end;
 define sideways method locator-path
     (locator :: <file-locator>) => (path :: <sequence>)
   locator-path(locator-directory(locator))
+end;
+
+define method up-directory
+    (dir :: <locator>, #key levels = 1) => (dir :: <directory-locator>)
+  for (i from 1 to levels)
+    // is there a better way to get the containing directory?
+    dir := simplify-locator(subdirectory-locator(dir, ".."));
+  end;
+  dir
 end;
 
 define method date-to-stream
