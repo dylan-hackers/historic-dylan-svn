@@ -3,7 +3,6 @@ author:  Robert Stockton (rgs@cs.cmu.edu)
 synopsis: Encapsulates the lexical conventions of the C language.
           This file also incorporates most of the functionality of CPP.
 copyright: see below
-rcs-header: $Header: /scm/cvs/src/tools/melange/c-lexer-cpp.dylan,v 1.16.2.4 2004/08/21 02:56:11 phinely Exp $
 
 //======================================================================
 //

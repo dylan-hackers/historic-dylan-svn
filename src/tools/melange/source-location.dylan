@@ -1,5 +1,4 @@
 module: source-locations
-rcs-header: $Header: /scm/cvs/src/tools/melange/source-location.dylan,v 1.3.10.2 2004/07/22 16:36:48 housel Exp $
 copyright: see below
 
 //======================================================================
