@@ -1,5 +1,6 @@
 #!/bin/sh
 if [ -f /usr/local/www/gdref/.needs-rebuild ]; then
+	export PATH=$PATH:/usr/local/bin
 	date
 	rm -f /usr/local/www/gdref/.needs-rebuild
 	cd /usr/local/www/ref
@@ -7,6 +8,6 @@ if [ -f /usr/local/www/gdref/.needs-rebuild ]; then
 	/usr/local/bin/gmake
 	/usr/local/bin/gmake html-unchunked
 	cp -r gdlibs gdapi gdmaint gduser tutorial *.html *.png /usr/local/www/gdref/
-	cp -r /usr/local/www/data/gdref/man /usr/local/www/gdref/
 	cp tri.png streams.png /usr/local/www/gdref/gdlibs/
+	/usr/local/bin/gmake clean
 fi
