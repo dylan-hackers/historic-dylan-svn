@@ -16,6 +16,7 @@
     <bookbiblio>
       <date>09 September 1998</date>
       <editor>&person.housel;</editor>
+      <editor>&person.emk;</editor>
     </bookbiblio>
   </bookinfo>
 
@@ -26,6 +27,10 @@
     Gywdion &dylan;.  It includes:</PARA>
 
     <ITEMIZEDLIST>
+      <LISTITEM>
+	<PARA>Suggestions for working with other Gwydion developers.</PARA>
+      </LISTITEM>
+
       <LISTITEM>
 	<PARA>Guidelines for porting &mindy; and &d2c; to new platforms</PARA>
       </LISTITEM>
@@ -50,6 +55,99 @@
     </ITEMIZEDLIST>
 
   </CHAPTER>
+
+  <chapter id="gdmaint-conventions">
+    <docinfo><author>&person.emk;</author></docinfo>
+    <title>Development Conventions</title>
+    
+    <note>
+      <para>None of the advice contained in this chapter is binding.
+      However, an attempt has been made to accurately represent the working
+      style and informal rules followed by the current developers.</para>
+
+      <para>If you think that this chapter does not represent the way we
+      work, please tell me and I'll fix it. It's a
+      <quote>descriptive</quote> document, not <quote>prescriptive</quote>
+      one.</para>
+    </note>
+
+    <para>Gwydion Dylan was originally developed by the Gwydion Project at
+    CMU. Today, it is maintained by a loose group of volunteers, some of
+    whom have been working on it for over a year. This chapter attempts to
+    summarize the way we do things.</para>
+
+    <sect1 id="gdmaint-conventions-principles">
+      <title>Basic Principles</title>
+
+      <para>We try to follow a few basic principles:</para>
+
+      <itemizedlist>
+	<listitem>
+	  <formalpara>
+	    <title>Decisions are made by consensus</title>
+
+            <para>In general, we make an effort to discuss tricky problems
+	    until all the major contributors agree. This is similar to the
+	    <acronym>IETF</acronym>'s philosophy of <quote>rough consensus
+	    and running code</quote>. If you think a decision is wrong,
+	    explain your viewpoint carefully and be prepared to back it up
+	    with code. Use the magic phrase often: <quote>Does anybody
+	    object to this?</quote></para>
+	  </formalpara>
+	</listitem>
+	<listitem>
+	  <formalpara>
+	    <title>Final rulings are made by the core team</title>
+
+	    <para>The core team consists of the most prolific Gwydion
+      	    developers and those who have been involved the longest. If the
+      	    other contributors would feel guilty about making a decision
+      	    without considering your opinion, you're effectively a member
+      	    of the core team.</para>
+	  </formalpara>
+
+	  <para>Decisions within the core team should be made by unanimous
+	  consent whenever possible. This seems to have worked well enough
+	  historically. If this process ever breaks down in the future, the
+	  core team might choose to vote as measure of last resort.</para>
+	</listitem>
+	<listitem>
+	  <formalpara>
+	    <title>No due dates</title>
+	    
+	    <para>As a matter of policy, we do not promise completion dates
+	    to outside entities. This is because of the volunteer nature of
+	    the project and the traditional unreliablity of software
+	    estimation. Of course, individuals may promise due dates of
+	    their own, but nobody else will take responsibility for meeting
+	    those dates.</para>
+	  </formalpara>
+	</listitem>
+	<listitem>
+	  <formalpara>
+	    <title>Don't bite off more than you can chew</title>
+
+	    <para>Work on one or two projects at a time. Don't commit to
+	    implementing many separate libraries or fixing many separate
+	    bugs. By <quote>reserving</quote> too many areas, you
+	    effectively discourage others from working on them.</para>
+	  </formalpara>
+	</listitem>
+      </itemizedlist>
+    </sect1>
+
+    <sect1 id="gdmaint-conventions-cvs">
+      <title>CVS Suggestions</title>
+
+      <para>The source in CVS should always work correctly. Those who break
+      the build will be tickled with feathers or suffer a similar
+      fate. Always, always, always test your code before committing it. For
+      compiler changes, you should at least run the test suites in
+      <filename>gd/src/tests</filename> as a smoke test. Also, a full
+      bootstrap cycle is strongly recommended before commiting more
+      complicated changes.</para>
+    </sect1>
+  </chapter>
 
   <CHAPTER id="gdmaint-porting">
     <TITLE>Porting Gwydion Dylan to a New Platform</TITLE>
@@ -100,7 +198,9 @@
   <CHAPTER id="gdmaint-mindy-internals">
     <TITLE>Mindy Internals Guide</TITLE>
 
-    <PARA>FIXME: to be supplied later.</PARA>
+    <PARA>Relatively little has been written down about the internal
+    workings of Mindy. Interested parties are encouraged to submit a
+    chapter for this manual.</PARA>
   </CHAPTER>
 
   <chapter id="gdmaint-d2c-internals">
@@ -421,7 +521,7 @@ define variable foo :: run-time-expression() = #f;
 	<glossterm>optimization policy</glossterm>: a set of parameters
 	used for making tradeoffs between speed, safety and code size. A
 	quick inspection of the code shows that a
-	<dname>%lt;policy></dname> object will not survive the dumping and
+	<dname>&lt;policy></dname> object will not survive the dumping and
 	loading processes intact. Do these actually get used?</para>
       </sect2>
 
@@ -497,8 +597,8 @@ define variable foo :: run-time-expression() = #f;
 	<para>This is also where Peter Housel added the support for
 	callback functions. This module includes support for
 	<glossterm>general entries</glossterm> and <glossterm>generic
-	entries</glossterm>, which are presumably the dispatched and
-	type-checked entry points for functions, respectively.</para>
+	entries</glossterm>, which are presumably the type-checked and
+	dispatched entry points for functions, respectively.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-base-flow">
@@ -519,38 +619,122 @@ define variable foo :: run-time-expression() = #f;
 
       <sect2 id="gdmaint-d2c-parser-tokenize">
 	<title>The <dmodule>Tokenize</dmodule> Module</title>
-	<para></para>
+
+	<para>This module provides an abstract class
+	<dname>&lt;tokenizer></dname> supporting <dname>get-token</dname>,
+	<dname>unget-token</dname> and a few other functions.</para>
+
+	<para>For implementations of this interface, see <xref
+        linkend="gdmaint-d2c-parser-lexer"> and <xref
+        linkend="gdmaint-d2c-parser-fragments">.</para>
       </sect2>
       
       <sect2 id="gdmaint-d2c-parser-source-utilities">
 	<title>The <dmodule>Source-Utilities</dmodule> Module</title>
-	<para></para>
+
+	<para>This module implements a number of subclasses of
+	<dname>&lt;source-location></dname> (see <xref
+	linkend="gdmaint-d2c-base-source"> for details) that are used to
+	represent the source of tokens during macro expansion.</para>
+
+	<para>There may be slightly more to this module than is apparent at
+	first glance.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-parser-lexer">
 	<title>The <dmodule>Lexer</dmodule> Module</title>
-	<para></para>
+
+	<para>This module provides <dname>&lt;lexer></dname>, a subclass of
+	<dname>&lt;tokenizer></dname> used to get tokens from a source
+	record.</para>
       </sect2>
       
       <sect2 id="gdmaint-d2c-parser-fragments">
 	<title>The <dmodule>Fragments</dmodule> Module</title>
-	<para></para>
+
+	<para>Fragments are the input to and output from macro
+	expansion. According to the top-of-file comment:</para>
+
+	<blockquote>
+	  <para>The DRM says that:</para>
+
+	  <blockquote>
+	    <para>The input to, and output from, a macro expansion is a
+            fragment, which is a sequence of elementary fragments.  An
+            elementary fragment is one of the following:</para>
+
+	    <itemizedlist>
+	      <listitem>
+		<para>A token: the output of the lexical grammar. ...</para>
+	      </listitem>
+	      <listitem>
+		<para>A bracketed fragment: balanced brackets ( (), [], or
+                {} ) enclosing a fragment.</para>
+	      </listitem>
+	      <listitem>
+		<para>A macro-call fragment: a macro call.</para>
+	      </listitem>
+	      <listitem>
+		<para>A parsed fragment: a single unit that is not
+                decomposable into its component tokens.  It has been fully
+                parsed by the phrase grammar.  A parsed fragment is either
+                an expression, a definition, or a local declaration.</para>
+	      </listitem>
+	    </itemizedlist>
+	  </blockquote>
+
+	  <para>So the parser needs to be able to produce fragments, the
+          macro expander needs to be able to destructure and reconstruct
+          fragments, and then the parser needs to be able to grovel the
+          final results.  This file implements all that.</para>
+	</blockquote>
+
+	<para>This module also provides
+	<dname>&lt;fragment-tokenizer></dname>, a subclass of
+	<dname>&lt;tokenizer></dname> used to get tokens from a macro
+	fragment.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-parser-parse-tree">
 	<title>The <dmodule>Parse-Tree</dmodule> Module</title>
-	<para></para>
+
+	<para>This module defines the tree representation used by the
+	parser and the macro-expander. (It also includes the classes needed
+	to represent the contents of a <dlit>define macro</dlit>
+	form.)</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-parser-parser">
 	<title>The <dmodule>Parser</dmodule> Module</title>
-	<para></para>
+
+	<para>This modules takes input from a <dname>&lt;tokenizer></dname>
+	and generates a parse tree. It looks like the main entry point is
+	<dname>parse-source-record</dname>. There are other entry points
+	which are called recursively by the macro expander; these parse a
+	single production of Dylan's grammar.</para>
+
+	<para>This module defines the generic function
+	<dname>process-top-level-form</dname>. It does not, however, define
+	any methods. When the parser has found a top-level form, it calls
+	<dname>process-top-level-form</dname> and allows other modules to
+	take care of the details. This design may have implications for
+	multi-threading and code reuse&mdash;it looks like the parser can
+	only be used in one way by any given program.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-parser-macros">
 	<title>The <dmodule>Macros</dmodule> Module</title>
-	<para></para>
-      </sect2>      
+
+	<para>This module implements macro expansion as defined in the
+	&drm;. It also provides <dname>&lt;macro-definition></dname> (see
+	<xref linkend="gdmaint-d2c-base-definitions">).</para>
+
+	<para>Note that this module only handles those macros which
+	expand according to the standard rules. More compilicated macros
+	are handled elsewhere by procedural expanders. To define a new
+	procedural expander, register it using
+	<dname>define-procedural-expander</dname>.</para>
+      </sect2>
     </sect1>
 
     <sect1 id="gdmaint-d2c-front">
@@ -704,12 +888,18 @@ define variable foo :: run-time-expression() = #f;
       </sect2>
     </sect1>
 
+    <sect1 id="gdmaint-d2c-dylan">
+      <title>The <dlibrary>Dylan</dlibrary> Runtime Library</title>
+      <para></para>
+    </sect1>
   </chapter>
 
   <CHAPTER id="gdmaint-melange-internals">
     <TITLE>Melange Internals Guide</TITLE>
 
-    <PARA>FIXME: to be supplied later</PARA>
+    <PARA>Melange is scheduled to be replaced by Pidgin in a future version
+    of Gwydion Dylan. Therefore, this section of the guide will eventually
+    contain a description of Pidgin and it's public APIs.</PARA>
   </CHAPTER>
 
   <APPENDIX id="gdmaint-style">
