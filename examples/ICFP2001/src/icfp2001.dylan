@@ -44,47 +44,51 @@ define function is-textchar?(c)
 end function is-textchar?;
 
 define method parse-textstring(input, #key start = 0)
- => (string, bytes-consumed);
-  let bytes-consumed =
+ => (string, end-index);
+  let end-index =
     block(return)
-      for(i in input, index from start)
-        if(~ is-textchar?(i))
+      for(index from start below input.size)
+        if(~ is-textchar?(input[index]))
           return(index);
         end if;
       end for;
+      input.size;
     end block;
-  values(copy-sequence(input, end: bytes-consumed), bytes-consumed);
+  values(copy-sequence(input, start: start, end: end-index), end-index);
 end method parse-textstring;
 
 define method parse-elem(input, #key start = 0)
- => (string, bytes-consumed);
+ => (string, end-index);
   while(input[start] ~= '>')
     start := start + 1;
   end while;
-  let (elem, bytes-consumed) = parse(input, start: start + 1);
-  while(input[bytes-consumed] ~= '>')
-    bytes-consumed := bytes-consumed + 1;
+  let (elem, end-index) = parse(input, start: start + 1);
+  while(input[end-index] ~= '>')
+    end-index := end-index + 1;
   end while;
-  values(elem, bytes-consumed);
+  values(elem, end-index + 1);
 end method parse-elem;
 
 define method parse(input, #key start = 0)
-
-  let (elem, bytes-consumed) =   if(input[start] = '<')
-                                   if(input[start + 1] ~= '/')
-                                     parse-elem(input, start: start);
-                                   else
-                                     values(#(), start);
-                                   end;
-                                 else
-                                   parse-textstring(input, start: start);
-                                 end;
-
-  if (bytes-consumed == input.size)
-    values(elem, bytes-consumed);
-  else
-    let (return-elem, return-consumed) = parse(input, start: bytes-consumed);
-    values(pair(elem, return-elem), return-consumed);
+  block(return)
+    if(start >= input.size)
+      return(#(), start);
+    end;
+    let (elem, end-index) =   if(input[start] = '<')
+                                if(input[start + 1] ~= '/')
+                                  parse-elem(input, start: start);
+                                else
+                                  return(#(), start);
+                                end;
+                              else
+                                parse-textstring(input, start: start);
+                              end;
+    if (end-index == input.size)
+      values(elem, end-index);
+    else
+      let (return-elem, return-consumed) = parse(input, start: end-index);
+      values(pair(elem, return-elem), return-consumed);
+    end;
   end;
 end method parse;
 
@@ -130,9 +134,9 @@ define function main(name, arguments)
 
     let original-input      = slurp-input(input-stream);
     let best-transformation = original-input;
-    let parse-tree          = bgh-parse(original-input);
+    let parse-tree          = parse(original-input);
 
-    write(*standard-output*, parse-tree);
+    format-out("%=\n", parse-tree);
 
     while(time-is-not-up?())
       optimize();
