@@ -7,6 +7,9 @@ lib:
 vis:	lib
 	$(MAKE) -C Visualizer
 
+tournament:
+	d2c tournament.lid
+
 run:
 	rm -rf dump.tiny
 	./ants ant-brains/sample.ant ant-brains/sample.ant worlds/tiny.world > dump.tiny

@@ -92,7 +92,7 @@ define function dump-world-summary(*world* :: <world>,
   format-out("Blacks (%s) scored: %d.\n", black-brain, blacks);
   if(reds > blacks)
     #"red"
-  else
+  elseif(reds < blacks)
     #"black"
   end if;
 end function dump-world-summary;

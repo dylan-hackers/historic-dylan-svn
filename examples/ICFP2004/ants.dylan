@@ -448,7 +448,7 @@ define function read-state-machine(s :: <stream>)
 end function read-state-machine;
 
 define function parse-instruction(s :: <byte-string>)
-  => (i :: <instruction>)
+  => (i :: false-or(<instruction>))
   let constituents = split-at-whitespace(s);
 
   local method sym(x)
@@ -497,6 +497,7 @@ define function parse-instruction(s :: <byte-string>)
                       probability: int(1),
                       state-success: int(2),
                       state-failure: int(3));
+      otherwise => #f;
     end select;
   unless(s = insn.unparse)
     format-out("*** Severe warning! Mismatch between assembly and unassembly! ***\n");

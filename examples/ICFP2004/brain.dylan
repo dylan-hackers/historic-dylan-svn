@@ -124,9 +124,9 @@ define function run-single-tournament(brains, worlds)
 
   if(winner == #"red")
     brain1.score := brain1.score + 1;
-  else
+  elseif(winner == #"black")
     brain2.score := brain2.score + 1;
-  end if;
+  end;
 end function run-single-tournament;
 
 define function run-tournament()
@@ -190,6 +190,7 @@ define function run-breeding()
         add!(clone-brains, b*);
       end for;
     end for;
+    breed-factor := 1;
 
     let all-brains = concatenate(brains, clone-brains);
     
@@ -209,7 +210,6 @@ define function run-breeding()
     end with-open-file;
 
     deviation := deviation * 0.9;
-    breed-factor := 1;
   end while;
 end function run-breeding;
 

@@ -1,173 +1,199 @@
 module: assembler
 
+define brain andreas
 
-define brain andreas-gatherer
+  Flip 1, (get-out, get-out);
 
-  [start:]
-    Flip 1, (search-food, search-food);
+  [get-out:]
+    Move => turn-and-try-again;
+    Sense Home, (get-out, walk-space);
 
-  [drop-and-get-out-of-home:]
+  [turn-and-try-again:]
+    Turn Left, (get-out);
+
+  [walk-space:]
+    Mark 0;
+    Sense Food, (pickup);
+    Sense Ahead Food, (move-forward-and-pickup);
+    Sense LeftAhead Food, (turn-left-and-pickup);
+    Sense RightAhead Food, (turn-right-and-pickup);
+    Sense Ahead (Marker 1), (follow-marker-1);
+
+    Flip 1, (sense-left-first, sense-right-first);
+
+  [sense-left-first:]
+    Sense LeftAhead (Marker 1), (follow-marker-1-left);
+    Sense RightAhead (Marker 1), (follow-marker-1-right, search-on);
+
+  [sense-right-first:]
+    Sense RightAhead (Marker 1), (follow-marker-1-right);
+    Sense LeftAhead (Marker 1), (follow-marker-1-left, search-on);
+
+  [search-on:]
+    Sense Ahead Rock, (turn-left-and-search);
+    Move walk-space => get-out-of-the-way;
+
+  [get-out-of-the-way:]
+    Turn Right;
+    Flip 3, (get-out-of-the-way);
+    Move => get-out-of-the-way;
+    Mark 0;
     Turn Right;
     Turn Right;
+    Turn Right, (walk-space);
+
+  [move-forward-and-pickup:]
+    Move pickup => get-out-of-the-way;
+
+  [turn-left-and-pickup:]
+    Turn Left, (move-forward-and-pickup);
+
+  [turn-right-and-pickup:]
+    Turn Right, (move-forward-and-pickup);
+
+  [turn-left-and-search:]
+    Turn Left;
+    Move walk-space => turn-left-and-search;
+    
+  [follow-marker-1-left:]
+    Turn Left, (follow-marker-1);
+    
+  [follow-marker-1-right:]
+    Turn Right, (follow-marker-1);
+
+  [follow-marker-1:]
+    Move => get-out-of-the-way-marker-1;
+    Sense Food, (pickup);
+    Sense Ahead Food, (move-forward-and-pickup);
+    Sense LeftAhead Food, (turn-left-and-pickup);
+    Sense RightAhead Food, (turn-right-and-pickup);
+    Sense Ahead (Marker 1), (follow-marker-1);
+
+    Flip 1, (sense-left-first-follow, sense-right-first-follow);
+
+  [sense-left-first-follow:]
+    Sense LeftAhead (Marker 1), (follow-marker-1-left);
+    Sense RightAhead (Marker 1), (follow-marker-1-right, follow-on);
+
+  [sense-right-first-follow:]
+    Sense RightAhead (Marker 1), (follow-marker-1-right);
+    Sense LeftAhead (Marker 1), (follow-marker-1-left, follow-on);
+
+  [follow-on:]
+    Sense LeftAhead (Marker 1), (follow-marker-1-left);
+    Sense RightAhead (Marker 1), (follow-marker-1-right);
+    Turn Left, (follow-marker-1);
+
+  [get-out-of-the-way-marker-1:]
     Turn Right;
-    Drop, (get-out-of-home);
-
-  // The following set of macros makes the ant get out of home.
-  // After that it moves on to search-food.
-  [get-out-of-home:]
-    Sense Home, (move-forward-in-home, search-food);
-
-
-  [move-forward-in-home:]
-    Move get-out-of-home;
-    Turn Right, (move-forward-in-home);
-
-  // The following set of macros makes the ant search for food,
-  // while avoiding home cells.
-  [search-food:]
-    Sense Home, (get-out-of-home);
-    Sense Food => search-food-in-empty;
-    Turn Left;
-    Turn Left;
-    Turn Left;
-    PickUp deliver-food => search-food-in-empty;
-
-  [pick-up-food-no-turn:]
-    PickUp deliver-food => search-food-in-empty;
-
-  [search-food-in-empty:]
-    Sense Ahead Food, (move-forward-in-empty);
-    Flip 1, (try-left, try-right);
-
-  [try-left:]
-    Sense LeftAhead Food, (move-left-in-empty, try-forward);
-
-  [try-right:]
-    Sense RightAhead Food, (move-right-in-empty, try-forward);
-
-  [try-forward:]
-    Mark 0;
-    Move search-food => try-else;
-
-  [try-else:]
-    Flip 1, (move-left-or-right-twice-in-empty, move-left-or-right-or-forward-in-empty);
-
-  [move-left-or-right-twice-in-empty:]
-    Flip 1, (move-left-twice-in-empty, move-right-twice-in-empty);
-
-  [move-left-twice-in-empty:]
-    Turn Left;
-    Turn Left;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
-
-  [move-right-twice-in-empty:]
+    Flip 3, (get-out-of-the-way-marker-1);
+    Move => get-out-of-the-way-marker-1;
+    Mark 1;
     Turn Right;
     Turn Right;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
+    Turn Right, (follow-marker-1);
 
-  [move-left-or-right-or-forward-in-empty:]
-    Flip 2, (move-forward-in-empty, move-left-or-right-in-empty);
-
-  [move-forward-in-empty:]
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
-
-  [move-left-or-right-in-empty:]
-    Flip 1, (move-left-in-empty, move-right-in-empty);
-
-  [move-left-in-empty:]
+  [pickup:]
+    Sense Home, (get-out);
+    Pickup => walk-space;
     Turn Left;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
+    Turn Left;
+    Turn Left;
+    Sense Ahead (Marker 1), (deliver-marker-1);
+    Sense LeftAhead (Marker 1), (deliver-marker-1-left);
+    Sense RightAhead (Marker 1), (deliver-marker-1-right, deliver-marker-0);
 
-  [move-right-in-empty:]
+  [deliver-marker-1:]
+    Move => get-out-of-the-way-deliver-marker-1;
+    Sense Home, (drop);
+    Sense Ahead Home, (move-forward-and-drop);
+    Sense LeftAhead Home, (turn-left-and-drop);
+    Sense RightAhead Home, (turn-right-and-drop);
+    Sense Ahead (Marker 1), (deliver-marker-1);
+
+    Flip 1, (deliver-left-first-follow, deliver-right-first-follow);
+
+  [deliver-left-first-follow:]
+    Sense LeftAhead (Marker 1), (deliver-marker-1-left);
+    Sense RightAhead (Marker 1), (deliver-marker-1-right, deliver-on);
+
+  [deliver-right-first-follow:]
+    Sense RightAhead (Marker 1), (deliver-marker-1-right);
+    Sense LeftAhead (Marker 1), (deliver-marker-1-left, deliver-on);
+
+  [deliver-on:]
+    Turn Left, (deliver-marker-1);
+
+  [get-out-of-the-way-deliver-marker-1:]
     Turn Right;
+    Flip 3, (get-out-of-the-way-deliver-marker-1);
+    Move => get-out-of-the-way-deliver-marker-1;
+    Mark 1;
+    Turn Right;
+    Turn Right;
+    Turn Right, (deliver-marker-1);
+
+  [move-forward-and-drop:]
+    Move drop => get-out-of-the-way-deliver-marker-1;
+
+  [turn-left-and-drop:]
+    Turn Left, (move-forward-and-drop);
+    
+  [turn-right-and-drop:]
+    Turn Right, (move-forward-and-drop);
+    
+  [deliver-marker-1-left:]
+    Turn Left, (deliver-marker-1);
+    
+  [deliver-marker-1-right:]
+    Turn Right, (deliver-marker-1);
+    
+  [deliver-marker-0:]
+    Move => get-out-of-the-way-deliver-marker-0;
+    Mark 1;
+    Sense Home, (drop);
+    Sense Ahead Home, (move-forward-and-drop);
+    Sense LeftAhead Home, (turn-left-and-drop);
+    Sense RightAhead Food, (turn-right-and-drop);
+    Sense Ahead (Marker 0), (deliver-marker-0);
+
+    Flip 1, (deliver-0-left-first-follow, deliver-0-right-first-follow);
+
+  [deliver-0-left-first-follow:]
+    Sense LeftAhead (Marker 0), (deliver-marker-0-left);
+    Sense RightAhead (Marker 0), (deliver-marker-0-right, deliver-0-on);
+
+  [deliver-0-right-first-follow:]
+    Sense RightAhead (Marker 0), (deliver-marker-0-right);
+    Sense LeftAhead (Marker 0), (deliver-marker-0-left, deliver-0-on);
+
+  [deliver-0-on:]
+    Turn Right, (deliver-marker-0);
+
+  [get-out-of-the-way-deliver-marker-0:]
+    Turn Right;
+    Flip 3, (get-out-of-the-way-deliver-marker-0);
+    Move => get-out-of-the-way-deliver-marker-0;
     Mark 0;
-    Move search-food => move-at-random-in-empty;
+    Turn Right;
+    Turn Right;
+    Turn Right, (deliver-marker-0);
 
-  [move-at-random-in-empty:]
-    Flip 15, (move-back, move-other-five);
-
-  [move-back:]
-    Turn Left;
-    Turn Left;
-    Turn Left;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
-
-  [move-other-five:]
-    Flip 2, (try-forward, try-else);
-
-
-  // The following set of macros makes it possible to deliver food,
-  // using the trail of marks left using marker 0.
-  [deliver-food:]
-    Sense Home, (drop-and-get-out-of-home);
-    Sense Ahead Home, (deliver-move-forward);
-    Sense LeftAhead Home, (deliver-move-left);
-    Sense RightAhead Home, (deliver-move-right);
-    Flip 1, (deliver-forward, deliver-forward);
+  [deliver-marker-0-left:]
+    Turn Left, (deliver-marker-0);
+    
+  [deliver-marker-0-right:]
+    Turn Right, (deliver-marker-0);
     
 
-  [deliver-forward:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
-
-  [deliver-move-forward:]
-    Mark 1;
-    Move deliver-food => deliver-try-other-four;
-
-  [deliver-try-left-1:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-2);
-
-  [deliver-try-left-2:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-3);
-
-  [deliver-try-left-3:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-4);
-
-  [deliver-try-left-4:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-5);
-
-  [deliver-try-left-5:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-at-random);
-
-  // We lost our trail. Try randomly or use mark-up of ant hill kind. :-)
-  [deliver-at-random:]
-    Flip 5, (deliver-move-forward, deliver-try-other-five);
-
-  [deliver-try-other-five:]
-    Flip 4, (deliver-move-backward, deliver-try-other-four);
-
-  [deliver-move-backward:]
-    Turn Left;
-    Turn Left;
-    Turn Left, (deliver-move-forward);
-
-  [deliver-try-other-four:]
-    Flip 1, (deliver-move-left-or-right, deliver-move-left-or-right-twice);
-
-  [deliver-move-left-or-right:]
-    Flip 1, (deliver-move-left, deliver-move-right);
-
-  [deliver-move-left:]
-    Turn Left, (deliver-move-forward);
-
-  [deliver-move-right:]
-    Turn Right, (deliver-move-forward);   
-
-  [deliver-move-left-or-right-twice:]
-    Flip 1, (deliver-move-left-twice, deliver-move-right-twice);
-
-  [deliver-move-left-twice:]
-    Turn Left;
-    Turn Left, (deliver-move-forward);
-
-  [deliver-move-right-twice:]
-    Turn Right;
-    Turn Right, (deliver-move-forward);
+  [drop:]
+    Drop;
+    Turn Left;  
+    Turn Left;  
+    Turn Left, (get-out);  
 end;
 
+andreas().dump-brain;
 
-andreas-gatherer().dump-brain;
+
+    

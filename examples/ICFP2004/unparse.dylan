@@ -1,6 +1,6 @@
 module: ants
 
-define generic unparse(i :: <instruction>)
+define generic unparse(i :: false-or(<instruction>))
  => text :: <byte-string>;
 
 define function sense-condition-as-string(m)
@@ -33,6 +33,12 @@ define function sense-direction-as-string(d)
     RightAhead: => "RightAhead";
    end;
 end;
+
+// ugly workaround: saving brains sometimes adds invalid lines
+define method unparse(s == #f)
+ => text :: <byte-string>;
+  ""
+end method unparse;
 
 define method unparse(s :: <sense>)
  => text :: <byte-string>;
