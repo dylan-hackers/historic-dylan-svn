@@ -27,7 +27,7 @@
 
 
 SYSTEM "docbook_stylesheets/html/docbook.dsl" "/usr/local/share/sgml/docbook_stylesheets/html/docbook.dsl"
-SYSTEM "docbook/print/docbook.dsl" "/usr/local/share/sgml/docbook_stylesheets/print/docbook.dsl"
+SYSTEM "docbook_stylesheets/print/docbook.dsl" "/usr/local/share/sgml/docbook_stylesheets/print/docbook.dsl"
 
 
 -- Generic Template --
