@@ -9,9 +9,11 @@ define class <obj> (<object>)
   slot model :: type-union(<primitive>, <collection>);
 end class <obj>;
 
-define constant <primitive> = type-union(<sphere>);
+define class <primitive> (<object>)
+  slot surface-interpreter-entry = silly-texture;
+end class <primitive>;
 
-define class <sphere> (<object>)
+define class <sphere> (<primitive>)
 end class <sphere>;
 
 /* --------------------- Methods ---------------------------- */

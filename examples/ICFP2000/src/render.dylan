@@ -7,8 +7,7 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
 			 lights :: <collection>) => (tracer)
   local method tracer(ray, depth)
     if (depth > 0)
-      let (point, normal, surf-color, surf-diffuse, surf-specular,
-	   surf-phong) = intersection-before(o, ray, 1.0/0.0);
+      let (point, normal, surface-method) = intersection-before(o, ray, 1.0/0.0);
       
       if (point)
 	/*	let reflection-color = 0;
@@ -18,7 +17,8 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
 				      ambient, lights);
 	  end if; 
 	*/
-	make-white();
+	surface-method().color;
+	// make-white();
       else
 	make-black();
       end if;    
