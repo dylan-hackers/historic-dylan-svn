@@ -12,14 +12,16 @@
       <YEAR>1997</YEAR>
       <YEAR>1998</YEAR>
       <YEAR>1999</YEAR>
+      <YEAR>2000</YEAR>
       <HOLDER>Carnegie Mellon University</HOLDER>
       <HOLDER>Gwydion Dylan Maintainers</HOLDER>
     </COPYRIGHT>
     &cmu.terms;
     <bookbiblio>
-      <date>09 September 1998</date>
+      <date>21 March 2000</date>
       <editor>&person.housel;</editor>
       <editor>&person.bogk;</editor>
+      <editor>&person.neel;</editor>
     </bookbiblio>
   </bookinfo>
 
