@@ -407,16 +407,14 @@ define method do-receive-server-command(c == 'P', s :: <stream>, id :: <integer>
   => (r :: <command>)
   debug("pick command received\n");
   receive-spaces(s);  
-  let id = receive-integer(s);
-  make(<pick>, bid: 1, id: id, package-ids: list(id));
+  make(<pick>, bid: 1, id: id, package-ids: list(receive-integer(s)));
 end method do-receive-server-command;
 
 define method do-receive-server-command(c == 'D', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("drop command received\n");
   receive-spaces(s);  
-  let id = receive-integer(s);
-  make(<drop>, bid: 1, id: id, package-ids: list(id));
+  make(<drop>, bid: 1, id: id, package-ids: list(receive-integer(s)));
 end method do-receive-server-command;
 
 define method do-receive-server-command(c == 'X', s :: <stream>, id :: <integer>)
@@ -496,6 +494,8 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
 end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <pick>) => (state :: <state>)
+  format(*standard-output*, "a: %d\n", command.robot-id);
+  force-output(*standard-output*);
   let bot = find-robot(state, command.robot-id);
   let loc = bot.location;
   for(pid in command.package-ids)
