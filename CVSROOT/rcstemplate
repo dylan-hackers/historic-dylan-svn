@@ -1,6 +1,4 @@
-
 Bug:
 CVS: Log message must include first line starting with one of:
 CVS:  [J|j]ob: <jobID>
 CVS:  [B|b]ug: <bugnumber>
-
