@@ -8,5 +8,6 @@ files: icfp2000-exports
   Engine Math-Primitives lexer
   color
   ppm
+  light
   render
   icfp2000
