@@ -20,7 +20,7 @@ define module xml-parser
     text, text-setter, name, name-setter, name-with-proper-capitalization,
     root, char;
 
-  create entity-value, attributes, attributes-setter,
+  create entity-value, attributes, attributes-setter, *dtd-paths*,
     attribute-value, attribute-value-setter,
     node-children, node-children-setter, 
     element-parent, element-parent-setter,
@@ -97,8 +97,9 @@ define module %productions
   use streams;
   use format;
   use multimap;
+  use anaphora;
+  use file-system, import: { with-open-file, file-exists? };
   use print;
-  use file-system, import: { with-open-file };
 
   use meta;
   use interface;
