@@ -145,6 +145,11 @@ define method accessor-size
   accessor-size(accessor.fd-file-accessor);
 end method accessor-size;
 
+define method accessor-positionable?
+    (accessor :: <unix-file-accessor>) => (positionable? :: <boolean>)
+  accessor.fd-file-accessor & accessor-positionable?(accessor.fd-file-accessor)
+end method accessor-positionable?;
+
 define inline method accessor-position
     (accessor :: <unix-file-accessor>)
  => (position :: <integer>)
