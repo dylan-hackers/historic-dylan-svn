@@ -252,6 +252,16 @@ define method fer-evaluate-expression(expr :: <method-literal>, environment :: <
   expr.ct-function
 end;
 
+define method fer-evaluate-expression(expr :: <known-call>, environment :: <object>)
+ => result :: <ct-value>;
+//  expr.ct-function
+      let func = fer-evaluate-expression(expr.depends-on.source-exp, environment);
+      let arg = fer-evaluate-expression(expr.depends-on.dependent-next.source-exp, environment);
+      
+      func // for now...
+      
+end;
+
 define method fer-evaluate-expression(var :: <abstract-variable>, environment :: <object>)
  => result :: <ct-value>;
   var.environment
