@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/Attic/exports.dylan,v 1.13 1994/12/17 14:50:49 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/Attic/exports.dylan,v 1.13.1.1 1994/12/19 13:02:31 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -50,8 +50,13 @@ define module source
   use utils;
 
   export
-    <source-location>, source-location-span,
+    <source-location>,
     <source-location-mixin>, source-location,
+
+    <unknown-source-location>,
+
+    <compound-source-location>, compound-source-location,
+    simplify-source-location, join-source-locations,
 
     <source-file>, contents,
     <file-source-location>, source-file,
@@ -206,27 +211,30 @@ define module fragments
   use common;
 
   use utils;
+  use source;
   use tokens;
 
   export
-    <fragment>, fragment-head, fragment-head-setter, fragment-tail,
-    fragment-tail-setter,
+    <fragment>, fragment-start, fragment-start-setter, fragment-end,
+    fragment-end-setter,
     <piece>, piece-prev, piece-prev-setter, piece-next, piece-next-setter,
     piece-token,
     <balanced-piece>, piece-other, piece-other-setter,
-    prepend-piece, postpend-piece, append-fragments,
+    prepend-piece!, postpend-piece!, append-fragments!,
     <fragment-tokenizer>;
 end;
 
 define module parse-tree
   use common;
   use utils;
+  use source;
   use tokens;
   use fragments;
 
   export
     <property>, prop-keyword, prop-value,
     <bindings>, bindings-parameter-list, bindings-expression,
+    <bindings-token>, token-bindings,
     <parameter-list>, paramlist-required-vars, paramlist-required-vars-setter,
     paramlist-rest, paramlist-rest-setter, paramlist-next,
     paramlist-next-setter, paramlist-keys, paramlist-all-keys?,
@@ -236,6 +244,7 @@ define module parse-tree
     method-returns, method-body,
     <case-clause>, case-label, case-body, case-body-setter,
     <property-set>, property-set-members,
+    <property-set-token>, token-property-set,
     <use-clause>, use-name, use-import, use-exclude, use-prefix, use-rename,
     use-export,
     <export-clause>, export-names,
@@ -250,6 +259,7 @@ define module parse-tree
 
     <constituent>,
     <defining-form>, define-modifiers, define-modifiers-setter,
+    <defining-form-token>, token-defining-form,
     <define-class-parse>, defclass-name, defclass-supers, defclass-options,
     <define-constant-parse>, defconst-bindings,
     <define-generic-parse>, defgen-name, defgen-name-setter, defgen-param-list,
@@ -266,10 +276,12 @@ define module parse-tree
     <define-define-macro-parse>, <define-define-bindings-macro-parse>,
     <define-statement-macro-parse>, <define-function-macro-parse>,
     <local-declaration>,
+    <local-declaration-token>, token-local-declaration,
     <let>, let-bindings,
     <let-handler>, handler-type, handler-plist, handler-expression,
     <local>, local-methods,
     <expression>,
+    <expression-token>, token-expression,
     <literal>, lit-value,
     <binop-series>, binop-series-operands, binop-series-operators,
     <funcall>, funcall-function, funcall-arguments,
@@ -415,6 +427,7 @@ end;
 define module expand
   use common;
   use utils;
+  use source;
   use tokens;
   use lexenv;
   use parse-tree;
@@ -429,6 +442,7 @@ define module parser
   use common;
   use self-organizing-list;
   use utils;
+  use source;
   use tokens;
   use variables;
   use fragments;

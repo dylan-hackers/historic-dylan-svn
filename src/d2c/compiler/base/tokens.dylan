@@ -1,5 +1,5 @@
 module: tokens
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/base/tokens.dylan,v 1.2 1994/12/15 17:40:04 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/base/tokens.dylan,v 1.2.1.1 1994/12/19 13:02:48 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -450,7 +450,8 @@ end;
 define primary abstract class <tokenizer> (<object>)
 end;
 
-define generic get-token (tokenizer :: <tokenizer>) => token :: <token>;
+define generic get-token (tokenizer :: <tokenizer>)
+    => (token :: <token>, srcloc :: <source-location>);
 
 define generic unget-token (tokenizer :: <tokenizer>, token :: <token>) => ();
 

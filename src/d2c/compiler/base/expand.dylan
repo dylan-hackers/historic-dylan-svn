@@ -1,5 +1,5 @@
 module: expand
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/base/Attic/expand.dylan,v 1.4 1994/12/17 02:12:47 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/base/Attic/expand.dylan,v 1.4.1.1 1994/12/19 13:02:31 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -115,6 +115,8 @@ define method make-binary-fn-call(operator :: <binary-operator-token>,
 				  right :: <expression>)
     => res :: <expression>;
   make(<funcall>,
+       source-location:
+	 simplify-source-location(compound-source-location(left, right)),
        function: make(<varref>, name: operator),
        arguments: vector(left, right));
 end;
@@ -125,10 +127,11 @@ end;
 
 define method expand (form :: <assignment>, lexenv :: union(<false>, <lexenv>))
     => res :: union(<false>, <simple-object-vector>);
-  expand-assignment(form.assignment-place, form.assignment-value);
+  expand-assignment(form, form.assignment-place, form.assignment-value);
 end;
 
-define generic expand-assignment (place :: <expression>, value :: <expression>)
+define generic expand-assignment
+    (form :: <assignment>, place :: <expression>, value :: <expression>)
     => res :: union(<false>, <simple-object-vector>);
 
 define method make-setter (place :: <identifier-token>)
@@ -139,12 +142,14 @@ define method make-setter (place :: <identifier-token>)
        uniquifier: place.token-uniquifier);
 end;
 
-define method expand-assignment (place :: <varref>, value :: <expression>)
+define method expand-assignment
+    (form :: <assignment>, place :: <varref>, value :: <expression>)
     => res :: union(<false>, <simple-object-vector>);
   #f;
 end;
 
-define method expand-assignment (place :: <funcall>, value :: <expression>)
+define method expand-assignment
+    (form :: <assignment>, place :: <funcall>, value :: <expression>)
     => res :: union(<false>, <simple-object-vector>);
   unless (instance?(place.funcall-function, <varref>))
     error("Bogus place for assignment: %=", place);
@@ -162,27 +167,34 @@ define method expand-assignment (place :: <funcall>, value :: <expression>)
   add!(forms, value-bind-form);
   add!(forms,
        make(<funcall>,
+	    source-location: form.source-location,
 	    function: make(<varref>, name: setter),
 	    arguments: as(<simple-object-vector>, args)));
   add!(forms, make(<varref>, name: value-temp));
   as(<simple-object-vector>, forms);
 end;
 
-define method expand-assignment (place :: <dot>, value :: <expression>)
+define method expand-assignment
+    (form :: <assignment>, place :: <dot>, value :: <expression>)
     => res :: union(<false>, <simple-object-vector>);
   let (value-temp, value-bind-form) = bind-temp(#"value", value);
   let (arg-temp, arg-bind-form) = bind-temp(#"arg", place.dot-operand);
   let function = make(<varref>, name: make-setter(place.dot-name));
   let args = vector(make(<varref>, name: value-temp),
 		    make(<varref>, name: arg-temp));
-  let funcall = make(<funcall>, function: function, arguments: args);
+  let funcall = make(<funcall>,
+		     source-location: form.source-location,
+		     function: function,
+		     arguments: args);
   vector(arg-bind-form, value-bind-form, funcall,
 	 make(<varref>, name: value-temp));
 end;
 
-define method expand-assignment (place :: <expression>, value :: <expression>)
+define method expand-assignment
+    (form :: <assignment>, place :: <expression>, value :: <expression>)
     => res :: union(<false>, <simple-object-vector>);
   error("Bogus place for assignment: %=", place);
+  #f;
 end;
 
 

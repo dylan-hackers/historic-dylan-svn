@@ -1,5 +1,5 @@
 module: lexer
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/lexer.dylan,v 1.3 1994/12/17 01:44:22 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/lexer.dylan,v 1.3.1.1 1994/12/19 13:02:37 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -753,6 +753,10 @@ define class <lexer> (<tokenizer>)
   // The source file we are currently tokenizing.
   slot source :: <source-file>, required-init-keyword: source:;
   //
+  // Boosted up by one each time we read a token.  Used to init the index
+  // slots in the source location.
+  slot index :: <integer>, init-value: 0;
+  //
   // The position we are currently at in the source file.
   slot posn :: <integer>, required-init-keyword: start-posn:;
   //
@@ -879,7 +883,8 @@ end method;
 //
 // Tokenize the next token and return it.
 //
-define method get-token (lexer :: <lexer>) => res :: <token>;
+define method get-token (lexer :: <lexer>)
+    => (token :: <token>, source-location :: <source-location>);
   if (lexer.pushed-tokens ~= #())
     //
     // There are some unread tokens, so extract one of them instead of
@@ -887,7 +892,7 @@ define method get-token (lexer :: <lexer>) => res :: <token>;
     // 
     let result = lexer.pushed-tokens.head;
     lexer.pushed-tokens = lexer.pushed-tokens.tail;
-    result;
+    values(result, result.source-location);
   else
     //
     // There are no pending unread tokens, so extract the next one.
@@ -993,9 +998,11 @@ define method get-token (lexer :: <lexer>) => res :: <token>;
     let source-location
       = make(<file-source-location>,
 	     source: lexer.source,
+	     start-index: lexer.index,
 	     start-posn: result-start,
 	     start-line: lexer.line,
 	     start-column: result-start - lexer.line-start,
+	     end-index: lexer.index := lexer.index + 1,
 	     end-posn: result-end,
 	     end-line: lexer.line,
 	     end-column: result-end - lexer.line-start);
@@ -1004,9 +1011,11 @@ define method get-token (lexer :: <lexer>) => res :: <token>;
     // 
     select(result-class by instance?)
       <class> =>
-	make(result-class, source-location: source-location);
+	values(make(result-class, source-location: source-location),
+	       source-location);
       <function> =>
-	result-class(lexer, source-location);
+	values(result-class(lexer, source-location),
+	       source-location);
       otherwise =>
 	error("oops");
 	#f;

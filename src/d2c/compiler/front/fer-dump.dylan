@@ -136,7 +136,7 @@ define method dump (region :: <exit>, stream :: <stream>) => ();
 end;
 
 define method dump (region :: <call-site>, stream :: <stream>) => ();
-  write("CALL-SITE");
+  write("CALL-SITE", stream);
 end;
 
 

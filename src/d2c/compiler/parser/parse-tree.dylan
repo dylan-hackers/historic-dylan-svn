@@ -1,5 +1,5 @@
 module: parse-tree
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/parse-tree.dylan,v 1.2 1994/12/17 14:50:27 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/parse-tree.dylan,v 1.2.1.1 1994/12/19 13:02:41 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -31,7 +31,7 @@ end;
 // Used whenever we need to represent some kind of parameter bindings.  For
 // example, let and define constant.
 // 
-define class <bindings> (<token>)
+define class <bindings> (<object>)
   //
   // The parameters being bound.
   slot bindings-parameter-list :: <parameter-list>,
@@ -46,6 +46,12 @@ define method print-object (bindings :: <bindings>, stream :: <stream>) => ();
   pprint-fields(bindings, stream,
 		param-list: bindings.bindings-parameter-list,
 		expression: bindings.bindings-expression);
+end;
+
+// <bindings-token> -- exported.
+// 
+define class <bindings-token> (<token>)
+  slot token-bindings, required-init-keyword: bindings:;
 end;
 
 // <parameter-list> -- exported.
@@ -185,13 +191,18 @@ end;
 
 // <property-set> -- exported.
 // 
-define class <property-set> (<token>)
+define class <property-set> (<source-location-mixin>)
   slot property-set-members :: <simple-object-vector>,
     required-init-keyword: members:;
 end;
 
 define method print-object (pset :: <property-set>, stream :: <stream>) => ();
   pprint-fields(pset, stream, members: pset.property-set-members);
+end;
+
+define class <property-set-token> (<token>)
+  slot token-property-set :: <property-set>,
+    required-init-keyword: property-set:;
 end;
 
 // <use-clause> -- exported.
@@ -288,7 +299,7 @@ end;
 //
 // The various different kinds of constituent inherit from this.
 //
-define abstract class <constituent> (<token>)
+define abstract class <constituent> (<source-location-mixin>)
 end;
 
 // <defining-form> -- exported.
@@ -296,6 +307,11 @@ end;
 // Shared by the various defining forms.
 // 
 define abstract class <defining-form> (<constituent>)
+end;
+
+define class <defining-form-token> (<token>)
+  slot token-defining-form :: <defining-form>,
+    required-init-keyword: defining-form:;
 end;
 
 // <modified-defining-form> -- internal.
@@ -528,6 +544,11 @@ end;
 define abstract class <local-declaration> (<constituent>)
 end;
 
+define class <local-declaration-token> (<token>)
+  slot token-local-declaration :: <local-declaration>,
+    required-init-keyword: local-declaration:;
+end;
+
 // <let> -- exported.
 //
 // A let is just a bunch of local bindings.  We don't explicitly represent the
@@ -582,6 +603,11 @@ end;
 // Abstract superclass for all the different kinds of expressions.
 //
 define abstract class <expression> (<constituent>)
+end;
+
+define class <expression-token> (<token>)
+  slot token-expression :: <expression>,
+    required-init-keyword: expression:;
 end;
 
 // <literal> -- exported.

@@ -1,5 +1,5 @@
 module: macros
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/macros.dylan,v 1.4 1994/12/17 14:51:48 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/macros.dylan,v 1.4.1.1 1994/12/19 13:02:38 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -260,8 +260,10 @@ define method expand (form :: <define-bindings-parse>,
   unless (instance?(defn, <define-bindings-macro-definition>))
     error("syntax table and variable table inconsistent.");
   end;
-  let piece = make(<piece>, token: form.define-bindings);
-  let fragment = make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: form.source-location,
+		   token: form.define-bindings);
+  let fragment = make(<fragment>, piece: piece);
   expand-macro-aux(form, fragment, defn);
 end;
 
@@ -300,19 +302,24 @@ define method expand (form :: <funcall>,
 	  for (arg in args,
 	       possible-keyword? = even?(args.size) then ~possible-keyword?)
 	    if (need-comma?)
-	      postpend-piece(fragment,
-			     make(<piece>, token: make(<comma-token>)));
+	      postpend-piece!(fragment,
+			      make(<piece>, token: make(<comma-token>)));
 	    end;
 	    if (possible-keyword?
 		  & instance?(arg, <literal>)
 		  & instance?(arg.lit-value, <symbol>))
-	      postpend-piece(fragment,
-			     make(<piece>,
-				  token: make(<keyword-token>,
-					      literal: arg.lit-value)));
+	      postpend-piece!(fragment,
+			      make(<piece>,
+				   source-location: arg.source-location,
+				   token: make(<keyword-token>,
+					       literal: arg.lit-value)));
 	      need-comma? := #f;
 	    else
-	      postpend-piece(fragment, make(<piece>, token: arg));
+	      postpend-piece!(fragment,
+			      make(<piece>,
+				   source-location: arg.source-location,
+				   token: make(<expression-token>,
+					       expression: arg)));
 	      need-comma? := #t;
 	    end;
 	  end;
@@ -338,7 +345,9 @@ define method expand-macro-aux (form :: <constituent>,
 					  defn.macro-auxiliary-rule-sets,
 					  intermediate-words,
 					  make(<uniquifier>));
-	let tokenizer = make(<fragment-tokenizer>, fragment: replacement);
+	let tokenizer = make(<fragment-tokenizer>,
+			     fragment: replacement,
+			     macro: form);
 	return(parse-body(tokenizer));
       end;
     end;
@@ -714,21 +723,16 @@ define constant <plist-part-type>
 
 
 define method guess-extent-of (fragment :: <fragment>, type :: <type>)
-  let tail = fragment.fragment-tail;
-  for (prev = #f then piece,
-       piece = fragment.fragment-head then piece.piece-next,
-       while: (piece & piece.piece-prev ~= tail
-		 & instance?(piece.piece-token, type)))
+  let start = fragment.fragment-start;
+  let stop = fragment.fragment-end;
+  for (piece = start then piece.piece-next,
+       until: (piece == stop | ~instance?(piece.piece-token, type)))
     if (instance?(piece, <balanced-piece>))
       piece := piece.piece-other;
     end;
   finally
-    if (prev)
-      values(make(<fragment>, head: fragment.fragment-head, tail: prev),
-	     make(<fragment>, head: piece, tail: fragment.fragment-tail));
-    else
-      values(make(<fragment>), fragment);
-    end;
+    values(make(<fragment>, start: start, end: piece),
+	   make(<fragment>, start: piece, end: stop));
   end;
 end;
 
@@ -736,23 +740,19 @@ end;
 define method find-intermediate-word
     (fragment :: <fragment>,
      intermediate-words :: <simple-object-vector>)
-  let tail = fragment.fragment-tail;
-  for (prev = #f then piece,
-       piece = fragment.fragment-head then piece.piece-next,
-       while: (piece & piece.piece-prev ~= tail
-		 & ~(instance?(piece.piece-token, <word-token>)
-		       & member?(piece.piece-token.token-symbol,
-				 intermediate-words))))
+  let start = fragment.fragment-start;
+  let stop = fragment.fragment-end;
+  for (piece = start then piece.piece-next,
+       until: (piece == stop
+		 | (instance?(piece.piece-token, <word-token>)
+		      & member?(piece.piece-token.token-symbol,
+				intermediate-words))))
     if (instance?(piece, <balanced-piece>))
       piece := piece.piece-other;
     end;
   finally
-    if (prev)
-      values(make(<fragment>, head: fragment.fragment-head, tail: prev),
-	     make(<fragment>, head: piece, tail: fragment.fragment-tail));
-    else
-      values(make(<fragment>), fragment);
-    end;
+    values(make(<fragment>, start: start, end: piece),
+	   make(<fragment>, start: piece, end: stop));
   end;
 end;
 
@@ -770,12 +770,12 @@ define method trim-until-parsable (fragment :: <fragment>,
 	return(result, fragment, remaining);
       exception <error>
 	if (more?(fragment))
-	  let prev-piece = fragment.fragment-tail;
+	  let prev-piece = fragment.fragment-end.piece-prev;
 	  if (instance?(prev-piece, <balanced-piece>))
 	    prev-piece := prev-piece.piece-other;
 	  end;
-	  remaining.fragment-head := prev-piece;
-	  fragment.fragment-tail := prev-piece.piece-prev;
+	  remaining.fragment-start := prev-piece;
+	  fragment.fragment-end := prev-piece;
 	else
 	  return(#f, #f, #f);
 	end;
@@ -783,6 +783,19 @@ define method trim-until-parsable (fragment :: <fragment>,
     end;
   end;
 end;
+
+
+
+// Utilities
+
+define method wrap-with-token (expr :: <expression>) => res :: <token>;
+  make(<expression-token>, expression: expr);
+end;
+
+define method wrap-with-token (propset :: <property-set>) => res :: <token>;
+  make(<property-set-token>, property-set: propset);
+end;
+
 
 
 
@@ -806,7 +819,7 @@ define method match-rule (rule :: <abstract-define-rule>,
     => res :: union(<list>, <false>);
   let modifiers-fragment = make(<fragment>);
   for (modifier in form.define-modifiers)
-    postpend-piece(modifiers-fragment,
+    postpend-piece!(modifiers-fragment,
 		   make(<piece>, token: modifier));
   end;
   match(rule.define-rule-modifiers-pattern, modifiers-fragment, #[],
@@ -827,18 +840,17 @@ define method match-rule (rule :: <abstract-define-rule>,
 end;
 
 define method more? (fragment :: <fragment>) => res :: <boolean>;
-  let head = fragment.fragment-head;
-  head & head.piece-prev ~= fragment.fragment-tail;
+  ~(fragment.fragment-start == fragment.fragment-end);
 end;
 
 define method next-token (fragment :: <fragment>) => res;
-  fragment.fragment-head.piece-token;
+  fragment.fragment-start.piece-token;
 end;
 
 define method consume-token (fragment :: <fragment>) => res :: <fragment>;
   make(<fragment>,
-       head: fragment.fragment-head.piece-next,
-       tail: fragment.fragment-tail);
+       start: fragment.fragment-start.piece-next,
+       end: fragment.fragment-end);
 end;
 
 define method add-binding (name :: union(<false>, <symbol>),
@@ -972,9 +984,12 @@ define method match-empty (pattern :: <property-list-pattern>, fail, continue,
     end;
     if (pattern.plistpat-keys)
       for (key in pattern.plistpat-keys)
-	if (key.patkey-default)
-	  let fragment = make(<fragment>);
-	  postpend-piece(fragment, make(<piece>, token: key.patkey-default));
+	let default = key.patkey-default;
+	if (default)
+	  let token = wrap-with-token(default);
+	  let piece = make(<piece>, source-location: default.source-location,
+			   token: token);
+	  let fragment = make(<fragment>, piece: piece);
 	  results := add-binding(key.patkey-name,
 				 if (key.patkey-all?)
 				   vector(fragment);
@@ -1001,18 +1016,18 @@ define method match (pattern :: <details-pattern>, fragment :: <fragment>,
 		     results :: <list>)
     => res :: union(<false>, <list>);
   if (fragment.more? & instance?(fragment.next-token, <left-paren-token>))
-    let left = fragment.fragment-head;
+    let left = fragment.fragment-start;
     let right = left.piece-other;
     match(pattern.pattern-sub-pattern,
-	  make(<fragment>, head: left.piece-next, tail: right.piece-prev),
+	  make(<fragment>, start: left.piece-next, end: right),
 	  intermediate-words, fail,
 	  method (remaining-guts-fragment, fail, results)
 	    if (remaining-guts-fragment.more?)
 	      fail();
 	    else
 	      continue(make(<fragment>,
-			    head: right.piece-next,
-			    tail: fragment.fragment-tail),
+			    start: right.piece-next,
+			    end: fragment.fragment-end),
 		       fail,
 		       results);
 	    end;
@@ -1048,9 +1063,7 @@ define method match (pattern :: <variable-pattern>, fragment :: <fragment>,
     => res :: union(<false>, <list>);
   if (fragment.more? & instance?(fragment.next-token, <name-token>))
     let results = add-binding(pattern.variable-name-pattern,
-			      make(<fragment>,
-				   head: fragment.fragment-head,
-				   tail: fragment.fragment-head),
+			      make(<fragment>, piece: fragment.fragment-start),
 			      results);
     let fragment = consume-token(fragment);
     local method no-type ()
@@ -1060,7 +1073,7 @@ define method match (pattern :: <variable-pattern>, fragment :: <fragment>,
 	    let piece = make(<piece>, token: object-token);
 	    continue(fragment, fail,
 		     add-binding(pattern.variable-type-pattern,
-				 make(<fragment>, head: piece, tail: piece),
+				 make(<fragment>, piece: piece),
 				 results));
 	  end;
     if (fragment.more? & instance?(fragment.next-token, <double-colon-token>))
@@ -1132,9 +1145,7 @@ define method match (pattern :: <pattern-variable>, fragment :: <fragment>,
       if (fragment.more? & instance?(fragment.next-token, <name-token>))
 	continue(consume-token(fragment), fail,
 		 add-binding(pattern,
-			     make(<fragment>,
-				  head: fragment.fragment-head,
-				  tail: fragment.fragment-head),
+			     make(<fragment>, piece: fragment.fragment-start),
 			     results));
       else
 	fail();
@@ -1158,20 +1169,18 @@ define method match (pattern :: <pattern-variable>, fragment :: <fragment>,
 	  match-wildcard(pattern, fragment, fail, continue, results);
 	end;
       elseif (fragment.more?)
-	let head = fragment.fragment-head;
-	if (instance?(head, <balanced-piece>))
-	  let tail = head.piece-other;
-	  continue(make(<fragment>,
-			head: tail.piece-next,
-			tail: fragment.fragment-tail),
+	let start = fragment.fragment-start;
+	if (instance?(start, <balanced-piece>))
+	  let stop = start.piece-other.piece-next;
+	  continue(make(<fragment>, start: stop, end: fragment.fragment-end),
 		   fail,
 		   add-binding(pattern,
-			       make(<fragment>, head: head, tail: tail),
+			       make(<fragment>, start: start, end: stop),
 			       results));
 	else
 	  continue(consume-token(fragment), fail,
 		   add-binding(pattern,
-			       make(<fragment>, head: head, tail: head),
+			       make(<fragment>, piece: start),
 			       results));
 	end;
       else
@@ -1187,27 +1196,29 @@ define method match-variable (pattern :: <pattern-variable>,
     => res :: union(<false>, <list>);
   let fail = if (fragment.more?)
 	       method ()
-		 let prev-piece = fragment.fragment-tail;
+		 let prev-piece = fragment.fragment-end.piece-prev;
 		 if (instance?(prev-piece, <balanced-piece>))
 		   prev-piece := prev-piece.piece-other;
 		 end;
 		 match-variable(pattern,
 				make(<fragment>,
-				     head: fragment.fragment-head,
-				     tail: prev-piece.piece-prev),
+				     start: fragment.fragment-start,
+				     end: prev-piece),
 				make(<fragment>,
-				     head: prev-piece,
-				     tail: remaining.fragment-tail),
+				     start: prev-piece,
+				     end: remaining.fragment-end),
 				parser, fail, continue, results);
 	       end;
 	     else
 	       fail;
 	     end;
-  block ()
-    parser(make(<fragment-tokenizer>, fragment: fragment));
+  block (return)
+    block ()
+      parser(make(<fragment-tokenizer>, fragment: fragment));
+    exception <error>
+      return(fail());
+    end;
     continue(remaining, fail, add-binding(pattern, fragment, results));
-  exception <error>
-    fail();
   end;
 end;
 
@@ -1219,23 +1230,24 @@ define method match-wildcard (pattern :: <pattern-variable>,
 	  if (instance?(split, <balanced-piece>))
 	    split := split.piece-other;
 	  end;
+	  let next = split.piece-next;
 	  let matched-fragment
-	    = make(<fragment>, head: fragment.fragment-head, tail: split);
+	    = make(<fragment>, start: fragment.fragment-start, end: next);
 	  let remaining-fragment
 	    = make(<fragment>,
-		   head: split.piece-next,
-		   tail: fragment.fragment-tail);
+		   start: next,
+		   end: fragment.fragment-end);
 	  continue(remaining-fragment,
-		   if (split == fragment.fragment-tail)
+		   if (next == fragment.fragment-end)
 		     fail;
 		   else
-		     curry(match-wildcard-aux, split.piece-next);
+		     curry(match-wildcard-aux, next);
 		   end,
 		   add-binding(pattern, matched-fragment, results));
 	end;
   continue(fragment,
 	   if (fragment.more?)
-	     curry(match-wildcard-aux, fragment.fragment-head);
+	     curry(match-wildcard-aux, fragment.fragment-start);
 	   else
 	     fail;
 	   end,
@@ -1307,8 +1319,11 @@ define method match (pattern :: <property-list-pattern>,
 	  let this-result = make(<stretchy-vector>);
 	  for (prop in plist)
 	    if (prop.prop-keyword.token-symbol == key.patkey-name)
-	      let piece = make(<piece>, token: prop.prop-value);
-	      let frag = make(<fragment>, head: piece, tail: piece);
+	      let value = prop.prop-value;
+	      let token = wrap-with-token(value);
+	      let piece = make(<piece>, source-location: value.source-location,
+			       token: token);
+	      let frag = make(<fragment>, piece: piece);
 	      add!(this-result, frag);
 	    end;
 	  end;
@@ -1322,15 +1337,23 @@ define method match (pattern :: <property-list-pattern>,
 	  block (found-key)
 	    for (prop in plist)
 	      if (prop.prop-keyword.token-literal == key.patkey-name)
-		let piece = make(<piece>, token: prop.prop-value);
-		let frag = make(<fragment>, head: piece, tail: piece);
+		let value = prop.prop-value;
+		let token = wrap-with-token(value);
+		let piece = make(<piece>,
+				 source-location: value.source-location,
+				 token: token);
+		let frag = make(<fragment>, piece: piece);
 		results := add-binding(key.patkey-name, frag, results);
 		found-key();
 	      end;
 	    end;
-	    if (key.patkey-default)
-	      let piece = make(<piece>, token: key.patkey-default);
-	      let frag = make(<fragment>, head: piece, tail: piece);
+	    let default = key.patkey-default;
+	    if (default)
+	      let token = wrap-with-token(default);
+	      let piece = make(<piece>,
+			       source-location: default.source-location,
+			       token: token);
+	      let frag = make(<fragment>, piece: piece);
 	      results := add-binding(key.patkey-name, frag, results);
 	    else
 	      return(fail());
@@ -1384,32 +1407,38 @@ define method expand-template (template :: <template>,
   result;
 end;
 
-define method expand-template-aux (piece :: <pattern-variable-reference>,
+define method expand-template-aux (template :: <pattern-variable-reference>,
 				   bindings :: <list>,
 				   this-rule-set :: union(<symbol>, <false>),
 				   uniquifier :: <uniquifier>,
 				   result :: <fragment>)
     => ();
   block (return)
-    let name = piece.patvarref-name | this-rule-set;
+    let name = template.patvarref-name | this-rule-set;
     for (binding in bindings)
       if ((binding.head | this-rule-set) == name)
 	local
 	  method append-frag (frag :: <fragment>)
-	    let tail-piece = frag.fragment-tail;
-	    for (new-piece = frag.fragment-head then new-piece.piece-next,
-		 while: (new-piece & new-piece.piece-prev ~= tail-piece))
-	      postpend-piece(result,
-			     make(<piece>, token: new-piece.piece-token));
+	    let stop = frag.fragment-end;
+	    for (piece = frag.fragment-start then piece.piece-next,
+		 until: piece == stop)
+	      postpend-piece!(result,
+			      make(<piece>,
+				   source-location: piece.source-location,
+				   token: piece.piece-token));
 	    end;
 	  end,
 	  method maybe-nuke-separator ()
-	    if (result.fragment-tail)
-	      let prev-token = result.fragment-tail.piece-token;
-	      if (instance?(prev-token, <binary-operator-token>)
-		    | instance?(prev-token, <semicolon-token>)
-		    | instance?(prev-token, <comma-token>))
-		result.fragment-tail := result.fragment-tail.piece-prev;
+	    let stop = result.fragment-end;
+	    let tail = stop.piece-prev;
+	    if (tail)
+	      let tail-token = tail.piece-token;
+	      if (instance?(tail-token, <binary-operator-token>)
+		    | instance?(tail-token, <semicolon-token>)
+		    | instance?(tail-token, <comma-token>))
+		let prev = tail.piece-prev;
+		stop.piece-prev := prev;
+		prev.piece-next := stop;
 	      end;
 	    end;
 	  end;
@@ -1423,12 +1452,12 @@ define method expand-template-aux (piece :: <pattern-variable-reference>,
 	  if (empty?(binding.tail))
 	    maybe-nuke-separator();
 	  else
-	    let separator = piece.patvarref-separator;
+	    let separator = template.patvarref-separator;
 	    for (frag in binding.tail,
 		 first? = #t then #f)
 	      append-frag(frag);
 	      if (separator & ~first?)
-		postpend-piece(result, make(<piece>, token: separator));
+		postpend-piece!(result, make(<piece>, token: separator));
 	      end;
 	    end;
 	  end;
@@ -1440,81 +1469,93 @@ define method expand-template-aux (piece :: <pattern-variable-reference>,
   end;
 end;
 
-define method expand-template-aux (piece :: <paren-template>,
+define method expand-template-aux (template :: <paren-template>,
 				   bindings :: <list>,
 				   this-rule-set :: union(<symbol>, <false>),
 				   uniquifier :: <uniquifier>,
 				   result :: <fragment>)
     => ();
-  let left = make(<balanced-piece>, token: piece.template-left-token);
-  let right = make(<balanced-piece>, token: piece.template-right-token);
+  let left-token = template.template-left-token;
+  let left = make(<balanced-piece>,
+		  source-location: left-token.source-location,
+		  token: left-token);
+  let right-token = template.template-right-token;
+  let right = make(<balanced-piece>,
+		   source-location: right-token.source-location,
+		   token: right-token,
+		   other: left);
   left.piece-other := right;
-  right.piece-other := left;
-  postpend-piece(result, left);
-  for (sub-piece in piece.template-parts)
-    expand-template-aux(sub-piece, bindings, this-rule-set,
+  postpend-piece!(result, left);
+  for (sub-template in template.template-parts)
+    expand-template-aux(sub-template, bindings, this-rule-set,
 			uniquifier, result);
   end;
-  postpend-piece(result, right);
+  postpend-piece!(result, right);
 end;
 
-define method expand-template-aux (piece :: <token>,
+define method expand-template-aux (template :: <token>,
 				   bindings :: <list>,
 				   this-rule-set :: union(<symbol>, <false>),
 				   uniquifier :: <uniquifier>,
 				   result :: <fragment>)
     => ();
-  postpend-piece(result, make(<piece>, token: piece));
+  postpend-piece!(result,
+		  make(<piece>,
+		       source-location: template.source-location,
+		       token: template));
 end;
 
-define method expand-template-aux (piece :: <identifier-token>,
+define method expand-template-aux (template :: <identifier-token>,
 				   bindings :: <list>,
 				   this-rule-set :: union(<symbol>, <false>),
 				   uniquifier :: <uniquifier>,
 				   result :: <fragment>)
     => ();
-  let mod = piece.token-module;
-  postpend-piece(result,
-		 make(<piece>,
-		      token: make(if (mod)
-				    element(mod.module-syntax-table,
-					    piece.token-symbol,
-					    default: <name-token>);
-				  else
-				    object-class(piece);
-				  end,
-				  source-location: piece.source-location,
-				  symbol: piece.token-symbol,
-				  module: mod,
-				  uniquifier: uniquifier)));
+  let mod = template.token-module;
+  postpend-piece!(result,
+		  make(<piece>,
+		       source-location: template.source-location,
+		       token: make(if (mod)
+				     element(mod.module-syntax-table,
+					     template.token-symbol,
+					     default: <name-token>);
+				   else
+				     object-class(template);
+				   end,
+				   source-location: template.source-location,
+				   symbol: template.token-symbol,
+				   module: mod,
+				   uniquifier: uniquifier)));
 end;
 
-define method expand-template-aux (piece :: <quoted-name-token>,
+define method expand-template-aux (template :: <quoted-name-token>,
 				   bindings :: <list>,
 				   this-rule-set :: union(<symbol>, <false>),
 				   uniquifier :: <uniquifier>,
 				   result :: <fragment>)
     => ();
-  postpend-piece(result,
-		 make(<piece>,
-		      token: make(<quoted-name-token>,
-				  source-location: piece.source-location,
-				  symbol: piece.token-symbol,
-				  module: piece.token-module,
-				  uniquifier: uniquifier)));
+  postpend-piece!(result,
+		  make(<piece>,
+		       source-location: template.source-location,
+		       token: make(<quoted-name-token>,
+				   source-location: template.source-location,
+				   symbol: template.token-symbol,
+				   module: template.token-module,
+				   uniquifier: uniquifier)));
 end;
 
-define method expand-template-aux (piece :: <operator-token>,
+define method expand-template-aux (template :: <operator-token>,
 				   bindings :: <list>,
 				   this-rule-set :: union(<symbol>, <false>),
 				   uniquifier :: <uniquifier>,
 				   result :: <fragment>)
     => ();
-  postpend-piece(result,
-		 make(<piece>,
-		      token: make(object-class(piece),
-				  source-location: piece.source-location,
-				  symbol: piece.token-symbol,
-				  module: piece.token-module,
-				  uniquifier: uniquifier)));
+  postpend-piece!(result,
+		  make(<piece>,
+		       source-location: template.source-location,
+		       token: make(object-class(template),
+				   source-location: template.source-location,
+				   symbol: template.token-symbol,
+				   module: template.token-module,
+				   uniquifier: uniquifier)));
 end;

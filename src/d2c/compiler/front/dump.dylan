@@ -1,5 +1,5 @@
 module: dump
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/front/dump.dylan,v 1.3 1994/12/15 17:38:22 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/front/dump.dylan,v 1.3.1.1 1994/12/19 13:02:28 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -439,10 +439,10 @@ define method dump (frag :: <fragment>, stream :: <dump-state-stream>)
     (stream,
      prefix: "fragment {",
      body: method (stream)
-	     let tail = frag.fragment-tail;
-	     for (piece = frag.fragment-head then piece.piece-next,
+	     let stop = frag.fragment-end;
+	     for (piece = frag.fragment-start then piece.piece-next,
 		  first? = #t then #f,
-		  while piece & piece.piece-prev ~= tail)
+		  until: piece == stop)
 	       unless (first?)
 		 write(' ', stream);
 		 pprint-newline(#"fill", stream);

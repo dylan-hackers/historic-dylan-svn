@@ -1,5 +1,5 @@
 module: fragments
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/fragments.dylan,v 1.2 1994/12/17 02:06:41 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/fragments.dylan,v 1.2.1.1 1994/12/19 13:02:36 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -7,10 +7,31 @@ copyright: Copyright (c) 1994  Carnegie Mellon University
 //// Program fragments.
 
 define class <fragment> (<object>)
-  slot fragment-head :: union(<false>, <piece>),
-    init-value: #f, init-keyword: head:;
-  slot fragment-tail :: union(<false>, <piece>),
-    init-value: #f, init-keyword: tail:;
+  slot fragment-start :: <piece>, init-keyword: start:;
+  slot fragment-end :: <piece>,
+    init-keyword: end:,
+    init-function: compose(curry(make, <piece>, (token:)),
+			   curry(make, <eof-token>));
+end;
+
+define method initialize (frag :: <fragment>, #key start, piece, pieces)
+  if (piece)
+    frag.fragment-start := piece;
+    if (piece.piece-next)
+      frag.fragment-end := piece.piece-next;
+    else
+      let eof = frag.fragment-end;
+      piece.piece-next := eof;
+      eof.piece-prev := piece;
+    end;
+  elseif (pieces)
+    frag.fragment-start := frag.fragment-end;
+    for (piece in pieces)
+      postpend-piece!(frag, piece);
+    end;
+  elseif (~start)
+    frag.fragment-start := frag.fragment-end;
+  end;
 end;
 
 define method print-object (frag :: <fragment>, stream :: <stream>) => ();
@@ -22,18 +43,28 @@ define method print-object (frag :: <fragment>, stream :: <stream>) => ();
 	     write(' ', stream);
 	     write-address(frag, stream);
 	     pprint-indent(#"block", 2, stream);
-	     let tail = frag.fragment-tail;
-	     for (piece = frag.fragment-head then piece.piece-next,
-		  while: piece & piece.piece-prev ~= tail)
+	     let head = frag.fragment-start;
+	     let tail = frag.fragment-end;
+	     unless (head == tail)
 	       write(' ', stream);
 	       pprint-newline(#"linear", stream);
-	       print(piece.piece-token, stream);
+	       print(head.piece-token, stream);
+	       let tail-prev = tail.piece-prev;
+	       unless (head == tail-prev)
+		 write(' ', stream);
+		 pprint-newline(#"linear", stream);
+		 unless (head.piece-next == tail-prev)
+		   write("... ", stream);
+		   pprint-newline(#"linear", stream);
+		 end;
+		 print(tail-prev.piece-token, stream);
+	       end;
 	     end;
 	   end,
      suffix: "}");
 end;
 
-define class <piece> (<object>)
+define class <piece> (<source-location-mixin>)
   slot piece-prev :: union(<false>, <piece>),
     init-value: #f, init-keyword: prev:;
   slot piece-next :: union(<false>, <piece>),
@@ -47,84 +78,124 @@ define method print-object (piece :: <piece>, stream :: <stream>) => ();
 end;
 
 define class <balanced-piece> (<piece>)
-  slot piece-other :: union(<false>, <piece>),
-    init-value: #f, init-keyword: other:;
+  slot piece-other :: <balanced-piece>,
+    init-keyword: other:;
 end;
 
-define method prepend-piece (piece :: <piece>, frag :: <fragment>)
-  let cur-head = frag.fragment-head;
-  if (cur-head)
-    cur-head.piece-prev := piece;
-    piece.piece-next := cur-head;
-  else
-    frag.fragment-tail := piece;
-  end;
-  frag.fragment-head := piece;
+define method prepend-piece! (piece :: <piece>, frag :: <fragment>)
+  let start = frag.fragment-start;
+  start.piece-prev := piece;
+  piece.piece-next := start;
+  frag.fragment-start := piece;
   frag;
 end;
 
-define method postpend-piece (frag :: <fragment>, piece :: <piece>)
-  let cur-tail = frag.fragment-tail;
-  if (cur-tail)
-    cur-tail.piece-next := piece;
-    piece.piece-prev := cur-tail;
+define method postpend-piece! (frag :: <fragment>, piece :: <piece>)
+  let stop = frag.fragment-end;
+  let tail = stop.piece-prev;
+  stop.piece-prev := piece;
+  piece.piece-next := stop;
+  piece.piece-prev := tail;
+  if (tail)
+    tail.piece-next := piece;
   else
-    frag.fragment-head := piece;
+    frag.fragment-start := piece;
   end;
-  frag.fragment-tail := piece;
   frag;
 end;
 
-define method append-fragments (frag1 :: <fragment>, frag2 :: <fragment>)
-  if (~frag1.fragment-head)
+define method append-fragments! (frag1 :: <fragment>, frag2 :: <fragment>)
+  if (frag1.fragment-start == frag1.fragment-end)
     frag2;
-  elseif (~frag2.fragment-head)
+  elseif (frag2.fragment-start == frag2.fragment-end)
     frag1;
   else
-    let frag1-tail = frag1.fragment-tail;
-    let frag2-head = frag2.fragment-head;
-    frag1-tail.piece-next := frag2-head;
-    frag2-head.piece-prev := frag1-tail;
-    frag1.fragment-tail := frag2.fragment-tail;
+    let frag1-tail = frag1.fragment-end.piece-prev;
+    let frag2-start = frag2.fragment-start;
+    frag1-tail.piece-next := frag2-start;
+    frag2-start.piece-prev := frag1-tail;
+    frag1.fragment-end := frag2.fragment-end;
     frag1;
   end;
 end;
+
+
+// Fragment source locations.
+
+define class <fragment-source-location> (<fragment>, <source-location>)
+  slot macro, required-init-keyword: macro:;
+  slot origin :: <source-location>, required-init-keyword: origin:;
+end;
+
+define method join-source-locations
+    (start :: <fragment-source-location>, stop :: <fragment-source-location>)
+    => res :: union(<false>, <fragment-source-location>);
+  if (start.macro == stop.macro & start.fragment-end == stop.fragment-start)
+    make(<fragment-source-location>,
+	 start: start.fragment-start,
+	 end: stop.fragment-end,
+	 macro: start.macro,
+	 origin: compound-source-location(start.origin, stop.origin));
+  end;
+end;
+
+define method simplify-source-location (loc :: <fragment-source-location>)
+    => res :: <fragment-source-location>;
+  make(<fragment-source-location>,
+       start: loc.fragment-start,
+       end: loc.fragment-end,
+       macro: loc.macro,
+       origin: simplify-source-location(loc.origin));
+end;
+
+
+// Fragment tokenizer.
 
 define class <fragment-tokenizer> (<tokenizer>)
-  slot current-piece :: union(<piece>, <false>);
-  slot tail-piece :: union(<piece>, <false>);
-end;
+  slot macro, init-value: #f, init-keyword: macro:;
+  slot current-piece :: <piece>;
+  slot end-piece :: <piece>;
+end class;
+
+define method initialize (tokenizer :: <fragment-tokenizer>, #key fragment)
+  tokenizer.current-piece := fragment.fragment-start;
+  tokenizer.end-piece := fragment.fragment-end;
+end method;
 
 define method print-object (tokenizer :: <fragment-tokenizer>,
 			    stream :: <stream>)
     => ();
   pprint-fields(tokenizer, stream, current: tokenizer.current-piece);
-end;
-
-define method initialize (tokenizer :: <fragment-tokenizer>, #key fragment)
-  tokenizer.current-piece := fragment.fragment-head;
-  tokenizer.tail-piece := fragment.fragment-tail;
-end;
+end method;
 
 define method get-token (tokenizer :: <fragment-tokenizer>)
-    => token :: <token>;
+    => (token :: <token>, source-location :: <source-location>);
   let cur = tokenizer.current-piece;
-  if (cur & cur.piece-prev ~= tokenizer.tail-piece)
-    tokenizer.current-piece := cur.piece-next;
-    cur.piece-token;
+  let macro = tokenizer.macro;
+  if (cur == tokenizer.end-piece)
+    values(make(<eof-token>), make(<unknown-source-location>));
   else
-    make(<eof-token>);
+    let next = cur.piece-next;
+    tokenizer.current-piece := next;
+    values(cur.piece-token,
+	   if (macro)
+	     make(<fragment-source-location>,
+		  start: cur, end: next, macro: macro,
+		  origin: cur.source-location);
+	   else
+	     make(<unknown-source-location>);
+	   end);
   end;
-end;
+end method;
 
 define method unget-token (tokenizer :: <fragment-tokenizer>, token :: <token>)
     => ();
   tokenizer.current-piece := tokenizer.current-piece.piece-prev;
-end;
+end method;
 
 define method unget-token (tokenizer :: <fragment-tokenizer>,
 			   token :: <eof-token>)
     => ();
-end;
+end method;
 
 

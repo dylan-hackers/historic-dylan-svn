@@ -1,55 +1,7 @@
 module: parser
-rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/parser.input,v 1.5 1994/12/17 02:32:21 wlott Exp $
+rcs-header: $Header: /home/housel/work/rcs/gd/src/d2c/compiler/parser/parser.input,v 1.5.1.1 1994/12/19 13:02:42 wlott Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
-
-
-define constant stretchy-vector =
-  method (#rest things)
-    as(<stretchy-vector>, things);
-  end;
-
-
-define class <action> (<object>)
-  slot on :: <class>, required-init-keyword: on:, setter: #f;
-  slot next :: union(<action>, <false>), init-value: #f;
-end;
-
-define class <shift> (<action>)
-  slot state :: <integer>, required-init-keyword: state:, setter: #f;
-end;
-
-define method \= (action1 :: <shift>, action2 :: <shift>)
-  action1.state == action2.state;
-end;
-
-define class <reduce> (<action>)
-  slot production :: <integer>, required-init-keyword: production:, setter: #f;
-end;
-
-define method \= (action1 :: <reduce>, action2 :: <reduce>)
-  action1.production == action2.production;
-end;
-
-define class <accept> (<action>)
-end;
-
-define method \= (action1 :: <accept>, action2 :: <accept>)
-  #t;
-end;
-
-define method make-action-table(#rest actions)
-  let length = actions.size;
-  unless (length == 0)
-    let prev = actions[0];
-    for (index from 1 below length)
-      let action = actions[index];
-      prev.next := action;
-      prev := action;
-    end;
-    actions[0];
-  end;
-end;
 
 
 %%
@@ -177,15 +129,19 @@ value (property-set)
 :type property-set <property-set>
 
 property-set (<left-brace-token> <right-brace-token>)
-  make(<property-set>, members: #[]);
+  make(<property-set>,
+       source-location: simplify-source-location(srcloc),
+       members: #[]);
 %
 
 property-set (<left-brace-token> property-set-members <right-brace-token>)
-  make(<property-set>, members: as(<simple-object-vector>, %2));
+  make(<property-set>,
+       source-location: simplify-source-location(srcloc),
+       members: as(<simple-object-vector>, %2));
 %
 
-property-set (<property-set>)
-  %1;
+property-set (<property-set-token>)
+%1.token-property-set;
 %
 
 :type property-set-members <stretchy-vector>
@@ -220,11 +176,14 @@ property-set-item (<word-token>)
 defining-form (<define-token> modifiers-opt <class-token> <name-token>
 	       <left-paren-token> arguments-opt <right-paren-token>
 	       classopts-opt <end-token>)
-  make(<define-class-parse>, modifiers: %2, name: %4, supers: %6, options: %8);
+  make(<define-class-parse>, source-location: simplify-source-location(srcloc),
+       modifiers: %2, name: %4, supers: %6, options: %8);
 %
 
 defining-form (<define-token> <constant-token> bindings)
-  make(<define-constant-parse>, bindings: %3);
+  make(<define-constant-parse>,
+       source-location: simplify-source-location(srcloc),
+       bindings: %3);
 %
 
 defining-form (<define-token> modifiers-opt <generic-token>
@@ -235,27 +194,37 @@ defining-form (<define-token> modifiers-opt <generic-token>
 
 defining-form (<define-token> <library-token> <name-token> clauses-opt
 	       <end-token>)
-  make(<define-library-parse>, name: %3, clauses: %4);
+  make(<define-library-parse>,
+       source-location: simplify-source-location(srcloc),
+       name: %3, clauses: %4);
 %
 
 defining-form (<define-token> modifiers-opt <method-token> <name-token>
 	       method-body <end-token>)
   %5.method-name := %4;
-  make(<define-method-parse>, modifiers: %2, method: %5);
+  make(<define-method-parse>,
+       source-location: simplify-source-location(srcloc),
+       modifiers: %2, method: %5);
 %
 
 defining-form (<define-token> <module-token> <name-token> clauses-opt
 	       <end-token>)
-  make(<define-module-parse>, name: %3, clauses: %4);
+  make(<define-module-parse>,
+       source-location: simplify-source-location(srcloc),
+       name: %3, clauses: %4);
 %
 
 defining-form (<define-token> modifiers-opt <define-bindings-word-token>
 	       bindings)
-  make(<define-bindings-parse>, modifiers: %2, word: %3, bindings: %4);
+  make(<define-bindings-parse>,
+       source-location: simplify-source-location(srcloc),
+       modifiers: %2, word: %3, bindings: %4);
 %
 
 defining-form (<define-token> <variable-token> bindings)
-  make(<define-variable-parse>, bindings: %3);
+  make(<define-variable-parse>,
+       source-location: simplify-source-location(srcloc),
+       bindings: %3);
 %
 
 defining-form (<define-token> modifiers-opt <define-word-token> <name-token>
@@ -268,8 +237,14 @@ defining-form (<define-token> modifiers-opt <define-word-token> <name-token>
     error("Name mismatch: ~= isn't ~=",
 	  %8.token-symbol, %4.token-symbol);
   end;
-  make(<define-parse>, modifiers: %2, word: %3, name: %4,
-       fragment: prepend-piece(make(<piece>, token: %4), %5));
+  make(<define-parse>,
+       source-location: simplify-source-location(srcloc),
+       modifiers: %2, word: %3, name: %4,
+       fragment: prepend-piece!(make(<piece>,
+				     source-location:
+				       simplify-source-location(%4-srcloc),
+				     token: %4),
+				%5));
 %
 
 defining-form (<define-token> modifiers-opt <define-word-token> 
@@ -278,22 +253,34 @@ defining-form (<define-token> modifiers-opt <define-word-token>
     error("Name mismatch: ~= isn't ~=",
 	  %7.token-symbol, %4.token-symbol);
   end;
-  make(<define-parse>, modifiers: %2, word: %3, name: %4,
-       fragment: prepend-piece(make(<piece>, token: %4), %5));
+  make(<define-parse>,
+       source-location: simplify-source-location(srcloc),
+       modifiers: %2, word: %3, name: %4,
+       fragment: prepend-piece!(make(<piece>,
+				     source-location:
+				       simplify-source-location(%4-srcloc),
+				     token: %4),
+				%5));
 %
 
 defining-form (<define-token> modifiers-opt <define-word-token>
 	       <name-token> fragment-opt <end-token>)
-  make(<define-parse>, modifiers: %2, word: %3, name: %4,
-       fragment: prepend-piece(make(<piece>, token: %4), %5));
+  make(<define-parse>,
+       source-location: simplify-source-location(srcloc),
+       modifiers: %2, word: %3, name: %4,
+       fragment: prepend-piece!(make(<piece>,
+				     source-location:
+				       simplify-source-location(%4-srcloc),
+				     token: %4),
+				%5));
 %
 
 defining-form (macro-definition)
   %1;
 %
 
-defining-form (<defining-form>)
-  %1;
+defining-form (<defining-form-token>)
+  %1.token-defining-form;
 %
 
 :type modifiers-opt <simple-object-vector>
@@ -417,19 +404,23 @@ names (names <comma-token> <name-token>)
 :type local-declaration <local-declaration>
 
 local-declaration (<let-token> bindings)
-  make(<let>, bindings: %2);
+  make(<let>, source-location: simplify-source-location(srcloc), bindings: %2);
 %
 
 local-declaration (<let-token> <handler-token> condition <equal-token> handler)
-  make(<let-handler>, type: %3.head, plist: %3.tail, handler: %5);
+  make(<let-handler>,
+       source-location: simplify-source-location(srcloc),
+       type: %3.head, plist: %3.tail, handler: %5);
 %
 
 local-declaration (<local-token> local-methods)
-  make(<local>, methods: as(<simple-object-vector>, %2));
+  make(<local>,
+       source-location: simplify-source-location(srcloc),
+       methods: as(<simple-object-vector>, %2));
 %
 
-local-declaration (<local-declaration>)
-  %1;
+local-declaration (<local-declaration-token>)
+  %1.token-local-declaration;
 %
 
 :type bindings <bindings>
@@ -445,8 +436,8 @@ bindings (<left-paren-token> variable-list <right-paren-token> <equal-token>
   make(<bindings>, parameter-list: %2, expression: %5);
 %
 
-bindings (<bindings>)
-  %1;
+bindings (<bindings-token>)
+  %1.token-bindings;
 %
 
 :type variable-list-opt <parameter-list>
@@ -611,13 +602,16 @@ expression (expression-aux)
     %1[0][0];
   else
     make(<binop-series>,
+	 source-location: simplify-source-location(srcloc),
 	 operands: as(<simple-object-vector>, %1[0]),
 	 operators: as(<simple-object-vector>, %1[1]));
   end;
 %
 
 expression (<keyword-token>)
-  make(<literal>, value: %1.token-literal);
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: %1.token-literal);
 %
 
 :type expression-aux <vector>
@@ -635,7 +629,9 @@ expression-aux (expression-aux binary-operator-token binary-operand)
 :type binary-operand <expression>
 
 binary-operand (<keyword-token>)
-  make(<literal>, value: %1.token-literal);
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: %1.token-literal);
 %
 
 binary-operand (binary-operand-sans-keyword)
@@ -650,7 +646,9 @@ binary-operand-sans-keyword (operand)
 
 binary-operand-sans-keyword (<minus-token> operand)
   make(<funcall>,
+       source-location: simplify-source-location(srcloc),
        function: make(<varref>,
+		      source-location: simplify-source-location(%1-srcloc),
 		      name: make(<name-token>,
 				 symbol: #"negative",
 				 module: %1.token-module,
@@ -660,18 +658,24 @@ binary-operand-sans-keyword (<minus-token> operand)
 
 binary-operand-sans-keyword (<tilde-token> operand)
   make(<funcall>,
-       function: make(<varref>, name: %1),
+       source-location: simplify-source-location(srcloc),
+       function: make(<varref>,
+		      source-location: simplify-source-location(%1-srcloc),
+		      name: %1),
        arguments: vector(%2));
 %
 
 :type operand <expression>
 
 operand (operand <left-paren-token> arguments-opt <right-paren-token>)
-  make(<funcall>, function: %1, arguments: %3);
+  make(<funcall>,
+       source-location: simplify-source-location(srcloc),
+       function: %1, arguments: %3);
 %
 
 operand (operand <left-bracket-token> arguments <right-bracket-token>)
   make(<funcall>,
+       source-location: simplify-source-location(srcloc),
        function: make(<varref>,
 		      name: make(<name-token>,
 				 symbol: if (%3.size == 1)
@@ -685,7 +689,9 @@ operand (operand <left-bracket-token> arguments <right-bracket-token>)
 %
 
 operand (operand <dot-token> <name-token>)
-  make(<dot>, operand: %1, name: %3);
+  make(<dot>,
+       source-location: simplify-source-location(srcloc),
+       operand: %1, name: %3);
 %
 
 operand (leaf)
@@ -709,7 +715,10 @@ arguments (expression)
 %
 
 arguments (<keyword-token> expression)
-  stretchy-vector(make(<literal>, value: %1.token-literal), %2);
+  stretchy-vector(make(<literal>,
+		       source-location: simplify-source-location(%1-srcloc),
+		       value: %1.token-literal),
+		  %2);
 %
 
 arguments (arguments <comma-token> expression)
@@ -717,13 +726,16 @@ arguments (arguments <comma-token> expression)
 %
 
 arguments (arguments <comma-token> <keyword-token> expression)
-  add!(add!(%1, make(<literal>, value: %3.token-literal)), %4);
+  add!(add!(%1, make(<literal>,
+		     source-location: simplify-source-location(%3-srcloc),
+		     value: %3.token-literal)),
+       %4);
 %
 
 :type leaf <expression>
 
-leaf (<expression>)
-  %1;
+leaf (<expression-token>)
+  %1.token-expression;
 %
 
 leaf (literal)
@@ -731,7 +743,7 @@ leaf (literal)
 %
 
 leaf (<name-token>)
-  make(<varref>, name: %1);
+  make(<varref>, source-location: simplify-source-location(srcloc), name: %1);
 %
 
 leaf (<left-paren-token> expression <right-paren-token>)
@@ -745,11 +757,14 @@ leaf (statement)
 :type literal <expression>
 
 literal (<literal-token>)
-  make(<literal>, value: %1.token-literal);
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: %1.token-literal);
 %
 
 literal (strings)
   make(<literal>,
+       source-location: simplify-source-location(srcloc),
        value: if (%1.size == 1)
 		%1[0];
 	      else
@@ -758,11 +773,15 @@ literal (strings)
 %
 
 literal (<true-token>)
-  make(<literal>, value: #t);
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: #t);
 %
 
 literal (<false-token>)
-  make(<literal>, value: #f);
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: #f);
 %
 
 literal (<sharp-paren-token> constants <dot-token> constant
@@ -770,16 +789,22 @@ literal (<sharp-paren-token> constants <dot-token> constant
   for (results = %4 then pair(%2[index], results),
        index from %2.size - 1 above -1)
   finally
-    make(<literal>, value: results);
+    make(<literal>,
+	 source-location: simplify-source-location(srcloc),
+	 value: results);
   end;
 %
 
 literal (<sharp-paren-token> constants-opt <right-paren-token>)
-  make(<literal>, value: as(<list>, %2));
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: as(<list>, %2));
 %
 
 literal (<sharp-bracket-token> constants-opt <right-bracket-token>)
-  make(<literal>, value: as(<simple-object-vector>, %2));
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: as(<simple-object-vector>, %2));
 %
 
 :type strings <stretchy-vector>
@@ -831,21 +856,29 @@ statement (<begin-word-token> fragment-opt end-clause)
   if (%3 & ~same-id?(%1, %3))
     error("Begin-word mismatch: %= isn't %=", %3, %1);
   end;
-  make(<macro-statement>, begin-word: %1, fragment: %2);
+  make(<macro-statement>,
+       source-location: simplify-source-location(srcloc),
+       begin-word: %1, fragment: %2);
 %
 
 statement (<begin-token> body-opt <end-token>)
-  make(<begin>, body: %2);
+  make(<begin>,
+       source-location: simplify-source-location(srcloc),
+       body: %2);
 %
 
 statement (<bind-exit-token> <left-paren-token> <name-token>
 	   <right-paren-token> body-opt <end-token>)
-  make(<bind-exit>, name: %3, body: %5);
+  make(<bind-exit>,
+       source-location: simplify-source-location(srcloc),
+       name: %3, body: %5);
 %
 
 statement (<for-token> <left-paren-token> for-header <right-paren-token>
 	   body-opt <finally-token> body-opt <end-token>)
-  make(<for>, header: %3, body: %5, finally: %7);
+  make(<for>,
+       source-location: simplify-source-location(srcloc),
+       header: %3, body: %5, finally: %7);
 %
 
 :type for-header <simple-object-vector>
@@ -897,24 +930,34 @@ for-clause (<while-token> expression)
 
 statement (<if-token> <left-paren-token> expression <right-paren-token>
 	   body-opt <else-token> body-opt <end-token>)
-  make(<if>, condition: %3, consequent: %5, alternate: %7);
+  make(<if>,
+       source-location: simplify-source-location(srcloc),
+       condition: %3, consequent: %5, alternate: %7);
 %
 
 statement (<method-token> method-body <end-token>)
-  make(<method-ref>, method: %2);
+  make(<method-ref>,
+       source-location: simplify-source-location(srcloc),
+       method: %2);
 %
 
 statement (<mv-call-token> <left-paren-token> arguments <right-paren-token>)
-  make(<mv-call>, operands: as(<simple-object-vector>, %3));
+  make(<mv-call>,
+       source-location: simplify-source-location(srcloc),
+       operands: as(<simple-object-vector>, %3));
 %
 
 statement (<set-token> <left-paren-token> expression <comma-token> expression
 	   <right-paren-token>)
-  make(<assignment>, place: %3, value: %5);
+  make(<assignment>,
+       source-location: simplify-source-location(srcloc),
+       place: %3, value: %5);
 %
 
 statement (<uwp-token> body-opt <cleanup-token> body-opt <end-token>)
-  make(<uwp>, body: %2, cleanup: %4);
+  make(<uwp>,
+       source-location: simplify-source-location(srcloc),
+       body: %2, cleanup: %4);
 %
 
 :type fragment-opt <fragment>
@@ -930,12 +973,19 @@ fragment-opt (fragment)
 :type fragment <fragment>
 
 fragment (statement non-statement-etc)
-  prepend-piece(make(<piece>, token: %1), %2);
+  let token = make(<expression-token>, expression: %1);
+  prepend-piece!(make(<piece>,
+		      source-location: simplify-source-location(%1-srcloc),
+		      token: token),
+		 %2);
 %
 
 fragment (statement)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let token = make(<expression-token>, expression: %1);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: token);
+  make(<fragment>, piece: piece);
 %
 
 fragment (non-statement-etc)
@@ -945,15 +995,23 @@ fragment (non-statement-etc)
 :type non-statement-etc <fragment>
 
 non-statement-etc (defining-form semicolon-etc-opt)
-  prepend-piece(make(<piece>, token: %1), %2);
+  let token = make(<defining-form-token>, defining-form: %1);
+  prepend-piece!(make(<piece>,
+		      source-location: simplify-source-location(%1-srcloc),
+		      token: token),
+		 %2);
 %
 
 non-statement-etc (local-declaration semicolon-etc-opt)
-  prepend-piece(make(<piece>, token: %1), %2);
+  let token = make(<local-declaration-token>, local-declaration: %1);
+  prepend-piece!(make(<piece>,
+		      source-location: simplify-source-location(%1-srcloc),
+		      token: token),
+		 %2);
 %
 
 non-statement-etc (simple-fragment fragment-opt)
-  append-fragments(%1, %2);
+  append-fragments!(%1, %2);
 %
 
 :type semicolon-etc-opt <fragment>
@@ -963,101 +1021,145 @@ semicolon-etc-opt ()
 %
 
 semicolon-etc-opt (<semicolon-token> fragment-opt)
-  prepend-piece(make(<piece>, token: %1), %2);
+  prepend-piece!(make(<piece>,
+		      source-location: simplify-source-location(%1-srcloc),
+		      token: %1),
+		 %2);
 %
 
 :type simple-fragment <fragment>
 
 simple-fragment (<name-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (modified-constant)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (operator-token)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
-simple-fragment (<expression>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+simple-fragment (<expression-token>)
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<left-paren-token> fragment-opt <right-paren-token>)
-  let left = make(<balanced-piece>, token: %1);
-  let right = make(<balanced-piece>, token: %3, other: left);
+  let left = make(<balanced-piece>,
+		  source-location: simplify-source-location(%1-srcloc),
+		  token: %1);
+  let right = make(<balanced-piece>,
+		   source-location: simplify-source-location(%3-srcloc),
+		   token: %3,
+		   other: left);
   left.piece-other := right;
-  postpend-piece(prepend-piece(left, %2), right);
+  postpend-piece!(prepend-piece!(left, %2), right);
 %
 
 simple-fragment (<left-bracket-token> fragment-opt <right-bracket-token>)
-  let left = make(<balanced-piece>, token: %1);
-  let right = make(<balanced-piece>, token: %3, other: left);
+  let left = make(<balanced-piece>,
+		  source-location: simplify-source-location(%1-srcloc),
+		  token: %1);
+  let right = make(<balanced-piece>,
+		   source-location: simplify-source-location(%3-srcloc),
+		   token: %3,
+		   other: left);
   left.piece-other := right;
-  postpend-piece(prepend-piece(left, %2), right);
+  postpend-piece!(prepend-piece!(left, %2), right);
 %
 
 simple-fragment (<dot-token> <name-token>)
-  let dot = make(<piece>, token: %1);
-  let name = make(<piece>, token: %2);
-  dot.piece-next := name;
-  name.piece-prev := dot;
-  make(<fragment>, head: dot, tail: name);
+  let dot = make(<piece>,
+		 source-location: simplify-source-location(%1-srcloc),
+		 token: %1);
+  let name = make(<piece>,
+		  source-location: simplify-source-location(%2-srcloc),
+		  token: %2);
+  make(<fragment>, pieces: vector(dot, name));
 %
 
 simple-fragment (property-set)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let token = make(<property-set-token>, property-set: %1);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: token);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<next-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<rest-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<key-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<all-keys-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<otherwise-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<arrow-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<double-colon-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<comma-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 simple-fragment (<semicolon-token>)
-  let piece = make(<piece>, token: %1);
-  make(<fragment>, head: piece, tail: piece);
+  let piece = make(<piece>,
+		   source-location: simplify-source-location(%1-srcloc),
+		   token: %1);
+  make(<fragment>, piece: piece);
 %
 
 :type modified-constant <token>
@@ -1087,16 +1189,21 @@ modified-constant (<sharp-paren-token> constants <dot-token> constant
   for (results = %4 then pair(%2[index], results),
        index from %2.size - 1 above -1)
   finally
-    make(<literal>, value: results);
+    make(<literal>,
+	 source-location: simplify-source-location(srcloc),
+	 value: results);
   end;
 %
 
 modified-constant (<sharp-paren-token> constants-opt <right-paren-token>)
-  make(<literal>, value: as(<list>, %2));
+  make(<literal>,
+       source-location: simplify-source-location(srcloc),
+       value: as(<list>, %2));
 %
 
 modified-constant (<sharp-bracket-token> constants-opt <right-bracket-token>)
-  make(<literal>, value: as(<simple-object-vector>, %2));
+  make(<literal>, source-location: simplify-source-location(srcloc),
+       value: as(<simple-object-vector>, %2));
 %
 
 :type end-clause |union(<false>, <begin-word-token>)|
@@ -1231,12 +1338,15 @@ case-label (<otherwise-token> arrow-opt)
 
 method-body (<left-paren-token> parameter-list-opt <right-paren-token>
 	     semi-opt body-opt)
-  make(<method-parse>, parameter-list: %2, body: %5);
+  make(<method-parse>,
+       source-location: simplify-source-location(srcloc),
+       parameter-list: %2, body: %5);
 %
 
 method-body (<left-paren-token> parameter-list-opt <right-paren-token>
 	     <arrow-token> variable <semicolon-token> body-opt)
   make(<method-parse>,
+       source-location: simplify-source-location(srcloc), 
        parameter-list: %2,
        returns: make(<parameter-list>, required: vector(%5)),
        body: %7);
@@ -1245,19 +1355,23 @@ method-body (<left-paren-token> parameter-list-opt <right-paren-token>
 method-body (<left-paren-token> parameter-list-opt <right-paren-token>
 	     <arrow-token> <left-paren-token> variable-list-opt
 	     <right-paren-token> semi-opt body-opt)
-  make(<method-parse>, parameter-list: %2, returns: %6, body: %9);
+  make(<method-parse>, source-location: simplify-source-location(srcloc),
+       parameter-list: %2, returns: %6, body: %9);
 %
 
 :type generic-function-body <define-generic-parse>
 
 generic-function-body (<left-paren-token> parameter-list-opt
 		       <right-paren-token>)
-  make(<define-generic-parse>, parameter-list: %2);
+  make(<define-generic-parse>,
+       source-location: simplify-source-location(srcloc),
+       parameter-list: %2);
 %
 
 generic-function-body (<left-paren-token> parameter-list-opt
 		       <right-paren-token> <arrow-token> variable)
   make(<define-generic-parse>,
+       source-location: simplify-source-location(srcloc), 
        parameter-list: %2,
        returns: make(<parameter-list>, required: vector(%5)));
 %
@@ -1265,7 +1379,9 @@ generic-function-body (<left-paren-token> parameter-list-opt
 generic-function-body (<left-paren-token> parameter-list-opt
 		       <right-paren-token> <arrow-token> <left-paren-token>
 		       variable-list-opt <right-paren-token>)
-  make(<define-generic-parse>, parameter-list: %2, returns: %6);
+  make(<define-generic-parse>,
+       source-location: simplify-source-location(srcloc),
+       parameter-list: %2, returns: %6);
 %
 
 :type parameter-list-opt <parameter-list>
@@ -1439,7 +1555,8 @@ default (<equal-token> expression)
 macro-definition (<define-token> <macro-token> name-or-begin-token
 		  define-rule-set auxiliary-rule-sets-opt <end-token>
 		  macro-opt)
-  make(<define-define-macro-parse>, name: %3,
+  make(<define-define-macro-parse>,
+       source-location: simplify-source-location(srcloc), name: %3,
        main-rule-set: as(<simple-object-vector>, %4),
        auxiliary-rule-sets: as(<simple-object-vector>, %5));
 %
@@ -1447,7 +1564,8 @@ macro-definition (<define-token> <macro-token> name-or-begin-token
 macro-definition (<define-token> <macro-token> name-or-begin-token
 		  define-bindings-rule-set auxiliary-rule-sets-opt <end-token>
 		  macro-opt)
-  make(<define-define-bindings-macro-parse>, name: %3,
+  make(<define-define-bindings-macro-parse>,
+       source-location: simplify-source-location(srcloc), name: %3,
        main-rule-set: as(<simple-object-vector>, %4),
        auxiliary-rule-sets: as(<simple-object-vector>, %5));
 %
@@ -1455,7 +1573,8 @@ macro-definition (<define-token> <macro-token> name-or-begin-token
 macro-definition (<define-token> <macro-token> name-or-begin-token
 		  statement-rule-set auxiliary-rule-sets-opt <end-token>
 		  macro-opt)
-  make(<define-statement-macro-parse>, name: %3,
+  make(<define-statement-macro-parse>,
+       source-location: simplify-source-location(srcloc), name: %3,
        main-rule-set: as(<simple-object-vector>, %4),
        auxiliary-rule-sets: as(<simple-object-vector>, %5));
 %
@@ -1463,7 +1582,8 @@ macro-definition (<define-token> <macro-token> name-or-begin-token
 macro-definition (<define-token> <macro-token> name-or-begin-token
 		  function-rule-set auxiliary-rule-sets-opt <end-token>
 		  macro-opt)
-  make(<define-function-macro-parse>, name: %3,
+  make(<define-function-macro-parse>,
+       source-location: simplify-source-location(srcloc), name: %3,
        main-rule-set: as(<simple-object-vector>, %4),
        auxiliary-rule-sets: as(<simple-object-vector>, %5));
 %
@@ -2128,99 +2248,3 @@ macro-opt (<macro-token>)
 
 %%
 
-
-// Driver loop.
-
-define method do-action (action :: <accept>, state-stack :: <list>,
-			 symbol-stack :: <list>, token :: <token>,
-			 tokenizer :: <tokenizer>)
-  unget-token(tokenizer, token);
-  if (symbol-stack.size ~= 1)
-    error("Symbol-stack didn't get reduced all the way?");
-  end;
-  symbol-stack.head;
-end;
-
-define method do-action (action :: <shift>, state-stack :: <list>,
-			 symbol-stack :: <list>, token :: <token>,
-			 tokenizer :: <tokenizer>)
-  parse-loop(pair(action.state, state-stack),
-	     pair(token, symbol-stack),
-	     get-token(tokenizer),
-	     tokenizer);
-end;
-
-define method do-action (action :: <reduce>, state-stack :: <list>,
-			 symbol-stack :: <list>, token :: <token>,
-			 tokenizer :: <tokenizer>)
-  let (new-state-stack, new-symbol-stack)
-    = *production-table*[action.production](state-stack, symbol-stack);
-  parse-loop(new-state-stack, new-symbol-stack, token, tokenizer);
-end;
-
-define method parse-loop (state-stack :: <list>, symbol-stack :: <list>,
-			  token :: <token>, tokenizer :: <tokenizer>)
-  parse-loop-aux(state-stack, symbol-stack, token, tokenizer,
-		 *action-table*[state-stack.head], #f);
-end;
-
-define method parse-loop-aux (state-stack :: <list>, symbol-stack :: <list>,
-			      token :: <token>, tokenizer :: <tokenizer>,
-			      action :: union(<action>, <false>),
-			      prev :: union(<action>, <false>))
-  if (action)
-    if (instance?(token, action.on))
-      if (prev)
-	prev.next := action.next;
-	let state = state-stack.head;
-	action.next := *action-table*[state];
-	*action-table*[state] := action;
-      end;
-      do-action(action, state-stack, symbol-stack, token, tokenizer);
-    else
-      parse-loop-aux(state-stack, symbol-stack, token, tokenizer,
-		     action.next, action);
-    end;
-  else
-    error("Parse error at or before %=", token);
-    #f;
-  end;
-end;
-
-define method parse (tokenizer :: <tokenizer>, start-state :: <integer>)
-  parse-loop(list(start-state), #(), get-token(tokenizer), tokenizer);
-end;
-
-define method parse-program (tokenizer :: <tokenizer>) => ();
-  parse(tokenizer, $program-start-state);
-end;
-
-define method parse-expression (tokenizer :: <tokenizer>)
-    => res :: <expression>;
-  parse(tokenizer, $expression-start-state);
-end;
-
-define method parse-variable (tokenizer :: <tokenizer>)
-    => res :: <parameter>;
-  parse(tokenizer, $variable-start-state);
-end;
-
-define method parse-body (tokenizer :: <tokenizer>)
-    => res :: <simple-object-vector>;
-  parse(tokenizer, $body-opt-start-state);
-end;
-
-define method parse-case-body (tokenizer :: <tokenizer>)
-    => res :: <simple-object-vector>;
-  parse(tokenizer, $case-body-start-state);
-end;
-
-define method parse-property-list (tokenizer :: <tokenizer>)
-    => res :: <simple-object-vector>;
-  parse(tokenizer, $property-list-sans-comma-start-state);
-end;
-
-define method parse-type (tokenizer :: <tokenizer>)
-    => res :: <expression>;
-  parse(tokenizer, $type-start-state);
-end;
