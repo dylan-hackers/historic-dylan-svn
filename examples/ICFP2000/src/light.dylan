@@ -7,13 +7,23 @@ define abstract class <light> (<object>)
   slot light-color :: <color>, required-init-keyword: #"color";
 end class <light>;
 
+define sealed domain make(singleton(<light>));
+define sealed domain initialize(<light>);
+
+
 define class <star> (<light>)
   slot direction :: <3D-vector>, required-init-keyword: #"direction";
 end class <star>;
 
+define sealed domain make(singleton(<star>));
+
+
 define class <firefly> (<light>)
   slot location :: <3D-point>, required-init-keyword: #"location";
 end class <firefly>;
+
+define sealed domain make(singleton(<firefly>));
+
 
 define class <flashlight> (<light>)
   slot location :: <3D-point>, required-init-keyword: #"location";
@@ -21,6 +31,8 @@ define class <flashlight> (<light>)
   slot cutoff :: <fp>, required-init-keyword: #"cutoff";
   slot exponent :: <fp>, required-init-keyword: #"exponent";
 end class <flashlight>;
+
+define sealed domain make(singleton(<flashlight>));
 
 // Star stuff:
 define method initialize(s :: <star>, #key, #all-keys)
@@ -31,7 +43,8 @@ define method intensity-on
     (light :: <star>, point :: <3D-point>, normal :: <3D-vector>)
  => (color :: <color>)
 
-  let angle-factor = -light.direction * normal;
+  let light-dir = light.direction;
+  let angle-factor :: <fp> = -(light-dir * normal);
   if (angle-factor < 0.0)
     make-black();
   else
@@ -44,8 +57,9 @@ define method phong-intensity-on
      normal :: <3D-vector>, phong-exp :: <fp>)
  => (color :: <color>)
   
-  let ray-to-viewer = normalize(viewer - point);
-  let angle-factor = ((ray-to-viewer - light.direction) * 0.5) * normal;
+  let ray-to-viewer :: <3D-vector> = normalize(viewer - point);
+  let light-dir = light.direction;
+  let angle-factor :: <fp> = ((ray-to-viewer - light-dir) * 0.5) * normal;
   if (angle-factor < 0.0)
     make-black();
   else
@@ -58,8 +72,8 @@ define method intensity-on
     (light :: <firefly>, point :: <3D-point>, normal :: <3D-vector>)
  => (color :: <color>)
 
-  let ray = light.location - point;
-  let angle-factor = normalize(ray) * normal;
+  let ray :: <3D-vector> = light.location - point;
+  let angle-factor :: <fp> = normalize(ray) * normal;
   if (angle-factor < 0.0)
     make-black();
   else
@@ -73,9 +87,9 @@ define method phong-intensity-on
      normal :: <3D-vector>, phong-exp :: <fp>)
  => (color :: <color>)
   
-  let ray-to-viewer = normalize(viewer - point);
-  let ray-to-light = light.location - point;
-  let angle-factor = ((ray-to-viewer - normalize(ray-to-light)) * 0.5) * normal;
+  let ray-to-viewer :: <3D-vector> = normalize(viewer - point);
+  let ray-to-light :: <3D-vector> = light.location - point;
+  let angle-factor :: <fp> = ((ray-to-viewer - normalize(ray-to-light)) * 0.5) * normal;
   if (angle-factor < 0.0)
     make-black();
   else
@@ -88,7 +102,7 @@ define method intensity-on
     (light :: <flashlight>, point :: <3D-point>, normal :: <3D-vector>)
  => (color :: <color>)
 
-  let ray = light.location - point;
+  let ray :: <3D-vector> = light.location - point;
   if (abs(normalize(ray) * normalize(-light.direction)) <
 	cos(light.cutoff))
     make-black();
