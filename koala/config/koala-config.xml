@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<koala>
+
+<!-- Koala configuration file
+
+     Anything directly inside the <koala> element in this file affects
+     Koala's global environment.  Later, if virtual hosts are added, anything
+     inside a <virtual-host> element will override the global environment for
+     that virtual host.  Ideas for what to put in here, and sometimes how to
+     name them, were stolen from Apache's httpd.conf.
+
+-->
+
+<!-- The top of the directory tree under which the server's
+     configuration, error, and log files are kept.  Other pathnames
+     are merged against this one, so if they're relative they will
+     be relative to this.  The server-root pathname is relative to
+     the koala executable.  NOTE: This should be near the top of the
+     config file since later elements may be affected by it.  -->
+
+<!-- During development I usually run the koala-example project.
+     Setting server-root here points it to the main koala directory.
+     Once Koala runs on its own and web-apps are loaded from DLLs this
+     should be changed. -->
+
+<server-root location="../.." />
+
+<document-root location="www" />
+
+<log level="debug" />
+
+</koala>
