@@ -225,12 +225,6 @@ block (return)
   let NE = point(x: position.x + 1, y: position.y + 1);
   try(NE);
 
-  let NN = point(x: position.x, y: position.y + 2);
-  try(NN);
-
-  let SS = point(x: position.x, y: position.y - 2);
-  try(SS);
-  
   let SW = point(x: position.x - 1, y: position.y - 1);
   try(SW);
 
@@ -240,8 +234,18 @@ block (return)
   let EE = point(x: position.x + 2, y: position.y);
   try(EE);
 
-  let WW = point(x: position.x - 2, y: position.y);
-  try(WW);
+  let NN = point(x: position.x, y: position.y + 2);
+  try(NN);
+
+  if (position.y > 1)
+    let SS = point(x: position.x, y: position.y - 2);
+    try(SS);
+  end;
+  
+  if (position.x > 1)
+    let WW = point(x: position.x - 2, y: position.y);
+    try(WW);
+  end;
 end block;
 
 end;
