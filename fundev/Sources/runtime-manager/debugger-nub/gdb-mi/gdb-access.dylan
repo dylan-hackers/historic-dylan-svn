@@ -242,25 +242,13 @@ define macro mi-operation-definer
   }
 
   // arguments
-/*  { define mi-operation ?:name(?argument; ?options) ?parses:* end }
-  =>
-  {
-    define class-for-regular mi-operation ?name(?argument ?options) end;
-    // ---- more
-  } */
-
   { define mi-operation ?:name(?argument, ?arguments) ?options; ?parse-sequence end }
   =>
   {
-///////////    define class-for-regular mi-operation ?name(?argument ?arguments) end;
+///////    define class-for-regular mi-operation ?name(?argument ?arguments) end;
     // ---- more
   }
 
-  // ignore all other stuff for now!!!! #####
-//  { define mi-operation ?:name(?:*) ?parses:* end }
-//  =>
-//  {}
-  
   // auxiliary patterns
   //
   sequence-slot:
@@ -269,12 +257,10 @@ define macro mi-operation-definer
 
   rest-sequence:
     { [ ?ignore:name ?:name :: ?:expression;(?blurb:*) ] }
-//    { ?:name :: ?:expression }
     => { #rest ?name :: ?expression }
 
   sequence-arg:
     { [ ?ignore:name ?:name :: ?:expression;(?blurb:*) ] }
-//    { ?:name :: ?:expression }
     => { ?name }
 
   parse-sequence:
@@ -299,7 +285,6 @@ define macro mi-operation-definer
   alternate:
     { } => { }
     { ?option; ... } => { [ ?option ] ... }
-//    { ?option } => { [ ?option ] }
 
   arguments:
     {} => {}
@@ -358,6 +343,7 @@ end;
 
 define mi-operation break-info(breakpoint :: <positive>)
 end;
+
 define constant <mi-expression> = <integer>; // #####
 define constant <mi-address> = <integer>; // #####
 define constant <mi-location> = <integer>; // #####
