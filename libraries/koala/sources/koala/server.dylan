@@ -708,7 +708,7 @@ define method process-incoming-headers (request :: <request>)
   if (member?("close", conn-values, test: string-equal?))
     request-keep-alive?(request) := #f
   elseif (member?("keep-alive", conn-values, test: string-equal?))
-    request-keep-alive?(request) := #t                 // not working in linux version
+    request-keep-alive?(request) := #t
   end;
   let host = get-header(request, "host") | #f;
   if (host & request.request-host = "")
