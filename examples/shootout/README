@@ -1,8 +1,0 @@
-This directory holds the various source files necessary to run
-Doug Bagley's "Great Computer Language Shootout."  You can find
-the required entries and rules at:
-
-http://www.bagley.org/~doug/shootout
-
-In general, we want each example to be one file (if possible).
-
