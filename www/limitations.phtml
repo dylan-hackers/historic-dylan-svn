@@ -1,0 +1,54 @@
+<?php
+require "shared.inc";
+standard_header("Current Limitations");
+?>
+
+<P>Neither the d2c compiler nor the Mindy interpreter are perfect. Each has
+a number of known problems which make it impractical for many users. We're
+making both available as a technology release so people can get a feel for
+the language. In more traditional terms, Gwydion Dylan 2.2 corresponds to
+version 0.5 of most free software projects: the architecture is sound, but
+you'd have to be a little bit adventurous to use it.</P>
+
+<P><STRONG>Limitations of d2c:</STRONG></P>
+
+<UL>
+
+<LI><STRONG>d2c generates fast code slowly.</STRONG> Harlequin has solved
+this problem: they support incremental compilation and match Visual C++ in
+code quality. We'd like to do as well, but it will take a while.
+
+<LI><STRONG>Shared libraries don't work.</STRONG> This means that every
+Dylan application links in several megabytes of standard libraries. (If we
+can fix this, we'll be able to build a 20k "hello world" program.) Even if
+we make shared libraries work, they'll still suffer from an extreme form of
+the "fragile base class" problem.
+
+<LI>The Dylan-to-C interface is good, but a little bit flaky.
+
+<LI><STRONG>Debugging is more or less impossible</STRONG>, unless you like to dig through
+machine-generated C code.
+
+<LI>d2c doesn't support a few obscure bits of the Dylan language. This
+generally isn't a problem, but it should be fixed.
+
+</UL>
+
+<P><STRONG>Limitations of Mindy:</STRONG></P>
+
+<UL>
+
+<LI><STRONG>Mindy generates slow code quickly.</STRONG> You can compile an
+enormous program into bytecodes in a blink of an eye, but it won't run as
+fast as the average Perl script--it certainly won't compete with
+GCC. Because Mindy has such a short turn around time (and a built-in
+debugger), many developers use it to prototype programs.
+
+<LI><STRONG>Mindy doesn't support Dylan macros</STRONG> and a number of other useful
+features.
+
+<LI>Not much work will be done on Mindy in the future.
+
+</UL>
+
+<?php standard_footer(); ?>

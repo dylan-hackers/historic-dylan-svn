@@ -57,9 +57,9 @@ function standard_footer () {
 <LI><A HREF="./">Overview</A>
 <LI><A HREF="about-dylan.phtml">What is Dylan?</A>
 <LI><A HREF="news.phtml">What's New?</A>
+<LI><A HREF="goals.phtml">Our Goals</A>
 <LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
-<LI><A HREF="http://legend.gwydion.cs.cmu.edu/dylan-release/">Gwydion at
-CMU</A>
+<LI><A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">Gwydion at CMU</A>
 <LI><A HREF="http://www.harlequin.com/devtools/dylan">Harlequin Dylan</a>, the
 other implementation
 <LI><A HREF="http://www.harlequin.com/support/dylan/bkshelf/bkshelf.htm">Other
@@ -68,7 +68,7 @@ Dylan Websites</A>
 
 <P><STRONG>User Resources</STRONG></P>
 <UL>
-<LI>Current Limitations
+<LI><A HREF="limitations.phtml">Current Limitations</A>
 <LI><A HREF="downloading.phtml">Downloading Software</A>
 <LI><A HREF="lists.phtml">Mailing Lists</A>
 <LI><A HREF="learning.phtml">Learning Dylan</A>
