@@ -6,11 +6,11 @@ class-hierarchy-rearrangement: Douglas M. Auclair
 // --- CHRIS'S DEF'S --  with additions by Doug
 // now modified to conform a bit to Andreas' XML-syntax fns
 
-define class <xml> (<object>)
+define abstract class <xml> (<object>)
   constant slot name :: <symbol>, required-init-keyword: name:;
 end class <xml>;
 
-define class <node> (<xml>)
+define abstract class <node> (<xml>)
   slot node-children = #[], init-keyword: children:;    
 end class <node>;
 
@@ -18,8 +18,8 @@ define class <attribute> (<xml>)
   constant slot attribute-value :: <string> = "", init-keyword: value:;
 end class <attribute>;
 
-// not sealed for making XML element tags subclasses of <element>
-define open class <element> (<node>, <sequence>)
+// not sealed to allow XML element tags subclasses of <element>
+define open abstract class <element> (<node>, <sequence>)
   slot element-parent :: <node>, init-keyword: parent:;
   constant slot element-attributes :: <vector> = #[], 
     init-keyword: attributes:;
@@ -56,11 +56,15 @@ define constant <version-number> =
 
 // removes leading and trailing blanks
 define method text(elt :: <element>) => (s :: <string>)
+  trim-string(elt.unfiltered-text);
+end method text;
+
+define function trim-string(s :: <sequence>) => (t :: <string>)
   let is-space? = rcurry(instance?, <space>);
-  let ans = elt.unfiltered-text;
+  let ans = as(<string>, s);
   let start = 0;
   let stop = ans.size;
-  while(ans[stop - 1].is-space?) stop := stop - 1; end while;
-  while(ans[start].is-space?) start := start + 1; end while;
+  while(stop > 1 & ans[stop - 1].is-space?) stop := stop - 1; end while;
+  while(start < ans.size & ans[start].is-space?) start := start + 1; end while;
   copy-sequence(ans, start: start, end: stop);
-end method text;
+end function trim-string;
