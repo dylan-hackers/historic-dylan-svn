@@ -43,7 +43,7 @@ define method try-pickup-many2(robot :: <robot>, s :: <state>, #key
 //      debug("0\n");
       values(0, #());
     elseif (packages[i - 1].weight > w)
-//      debug("too heavy\n");
+      debug("too heavy\n");
       /*
         let good-keys = choose(method (a :: <pair>)
                                  a.head = w & a.tail < i;
@@ -56,19 +56,24 @@ define method try-pickup-many2(robot :: <robot>, s :: <state>, #key
                                       end method).last];                       
         end if;
       */
-      lookup(w, i - 1);
+      let (value, pkgs) = lookup(w, i - 1);
+      table[cons(w, i)] := cons(value, pkgs);
+      values(value, pkgs);
     else
-//      debug("Evaluating...\n");
+ //     debug("Evaluating...\n");
       if (value-function(robot, s, packages[i - 1]) + lookup(w - packages[i - 1].weight, i - 1)
             > lookup(w, i - 1))
         // Take it...
         let (rest-value, rest-pkgs) = lookup(w - packages[i - 1].weight, i - 1);
-        let e = table[cons(w, i)] := cons(value-function(robot, s, packages[i - 1]) + rest-value, 
-                                 add(rest-pkgs, packages[i - 1]));
-        values(car(e), cdr(e));
+        let value = value-function(robot, s, packages[i - 1]) + rest-value;
+        let pkgs = add(rest-pkgs, packages[i - 1]);
+        table[cons(w, i)] := cons(value, pkgs);
+        values(value, pkgs);
       else
         // Don't take it...
-        lookup(w, i - 1);
+        let (value, pkgs) = lookup(w, i - 1);
+        table[cons(w, i)] := cons(value, pkgs);
+        values(value, pkgs);
       end if;
     end if;
   end method;
