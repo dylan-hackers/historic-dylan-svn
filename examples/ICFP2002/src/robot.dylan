@@ -9,3 +9,8 @@ define abstract class <robot>(<object>)
   slot money :: <integer>;
   slot inventory :: limited(<vector>, of: <package>);
 end;
+
+define method capacity-left(r :: <robot>)
+ => (w :: <integer>)
+  r.capacity - reduce1(\+, map(weight, r.inventory));
+end method capacity-left;
