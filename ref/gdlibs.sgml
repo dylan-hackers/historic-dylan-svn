@@ -968,6 +968,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
     <DOCINFO>
       <TITLE>The Streams Library</TITLE>
       <DATE>06 Feb 1997</DATE>
+      <!-- Heavily modified structure (and added functions) Douglas M. Auclair,
+       Dec 3, 2000 -->
       <EDITOR>
 	<FIRSTNAME>Andrew</FIRSTNAME><SURNAME>Shires</SURNAME>
       </EDITOR>
@@ -1344,6 +1346,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 
       <sect2 id="libs-streams-ref-general">
         <title>General Stream Classes and Operations</title>
+        <sect3 id="libs-streams-ref-general-classes">
+          <title>General Stream Classes</title>
         <dylanclassdef>
           <defname>&lt;stream&gt;</defname>
           <defadjectives>open abstract</defadjectives>
@@ -1370,7 +1374,24 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </definitkeywords>
           <defdescription>
             <para>Positionable streams allow one to specify from where in
-              the stream to read or to write.
+              the stream to read or to write (see
+              <xref linkend="libs-streams-general-fns-position">).
+            </para>
+          </defdescription>
+        </dylanclassdef>
+
+        <dylanclassdef>
+	  <dEFNAME>&lt;stream-position&gt;</dEFNAME>
+	  <defadjectives>abstract</defadjectives>
+	  <defsummary>Gives the location in a &lt;positionable-stream&gt;.
+          </defsummary>
+	  <defsupers><defsuper>&lt;object&gt;</defsuper></defsupers>
+          <definitkeywords>
+          </definitkeywords>
+          <defdescription>
+            <para>
+              Allows random access to elements in 
+              <dname>&lt;positionable-stream&gt;</dname>s.
             </para>
           </defdescription>
         </dylanclassdef>
@@ -1480,6 +1501,9 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <PARA>Streams over unicode strings</para>
           </defdescription>
         </dylanclassdef>
+       </sect3>
+       <sect3 id="libs-streams-ref-general-fns">
+         <title>General Stream Functions</title>
 
 	  <PARA>There are make methods on
 	  <dname>&lt;sequence-stream&gt;</dname>,
@@ -1540,6 +1564,236 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
             </para>
           </defdescription>
         </dylangenericdef>
+
+        <sect4 id="libs-streams-reg-general-fns-querying">
+         <title>Querying Functions</title>
+         <dylangenericdef>
+           <defname>stream-open?</defname>
+           <defadjectives>open</defadjectives>
+           <defsummary>Checks to see if a stream is open.</defsummary>
+           <defparameters>
+             <param>
+               <paramname>stream</paramname>
+               <paramtype>&lt;stream&gt;</paramtype>
+             </param>
+           </defparameters>
+           <defreturns>
+             <param>
+               <paramname>open?</paramname>
+               <paramtype>&lt;boolean&gt;</paramtype>
+             </param>
+           </defreturns>
+           <defdescription>
+             <para>
+               If there's contents available for the stream, then it's open.
+             </para>
+           </defdescription>
+         </dylangenericdef>
+ 
+         <dylangenericdef>
+           <defname>stream-element-type</defname>
+           <defadjectives>open</defadjectives>
+           <defsummary>Returns the type of elements streamed over.</defsummary>
+           <defparameters>
+             <param>
+               <paramname>stream</paramname>
+               <paramtype>&lt;stream&gt;</paramtype>
+             </param>
+           </defparameters>
+           <defreturns>
+             <param>
+               <paramname>element-type</paramname>
+               <paramtype>&lt;type&gt;</paramtype>
+             </param>
+           </defreturns>
+           <defdescription>
+             <para>
+               For most streams, that are type-declarative (e.g. 
+               <classname>&lt;byte-string-stream&gt;</classname>), this
+               simply returns the underlying <parameter>element-type</parameter>.
+               For generic <classname>&lt;sequence&gt;</classname>s, the method
+               must have at least one element (the first) to return a type.
+             </para>
+           </defdescription>
+         </dylangenericdef>
+ 
+         <dylangenericdef>
+           <defname>stream-at-end?</defname>
+           <defadjectives>open</defadjectives>
+           <defsummary>Sees if the stream is at the end.
+           </defsummary>
+           <defparameters>
+             <param>
+               <paramname>stream</paramname>
+               <paramtype>&lt;stream&gt;</paramtype>
+             </param>
+           </defparameters>
+           <defreturns>
+             <param>
+               <paramname>at-end?</paramname>
+               <paramtype>&lt;boolean&gt;</paramtype>
+             </param>
+           </defreturns>
+           <defdescription>
+             <para>
+               Checks to see if the stream is at the end of its contents.
+             </para>
+             <note><para>
+               It is a bit faster to supply a value to the
+               <dlit>on-end-of-stream</dlit> key for <dname>read</dname>
+               or <dname>write</dname> than to use this function in a loop.
+             </para></note>
+           </defdescription>
+         </dylangenericdef>
+         </sect4>
+ 
+         <sect4 id="libs-streams-general-fns-position">
+           <title>Positioning Functions</title>
+ 
+           <dylangenericdef>
+             <defname>stream-position</defname>
+             <defadjectives>open</defadjectives>
+ 	    <defsummary>Gives the position of a stream.</defsummary>
+             <defparameters>
+               <param>
+                 <paramname>stream</paramname>
+ 		<paramtype>&lt;positionable-stream&gt;</paramtype>
+               </param>
+             </defparameters>
+             <defreturns>
+               <param>
+                 <paramname>position</paramname>
+ 		<paramtype>type-union(&lt;stream-position&gt;, &lt;integer&gt;)
+                 </paramtype>
+               </param>
+             </defreturns>
+             <defdescription>
+               <para>Safely returns the stream's position (even if it's locked).
+               </para>
+             </defdescription>
+           </dylangenericdef>
+ 
+           <dylangenericdef>
+             <defname>stream-position-setter</defname>
+             <defadjectives>open</defadjectives>
+             <defsummary>Sets the position of a stream.</defsummary>
+             <defparameters>
+               <param>
+                 <paramname>pos</paramname>
+                 <paramtype>type-union(&lt;stream-position&gt;, &lt;integer&gt;,
+ 				      one-of(#"start", #"end"))
+                 </paramtype>
+               </param>
+               <param>
+                 <paramname>stream</paramname>
+                 <paramtype>&lt;positionable-stream&gt;</paramtype>
+               </param>
+             </defparameters>
+             <defreturns>
+               <param>
+                 <paramname>new-position</paramname>
+                 <paramtype>type-union(&lt;stream-position&gt;, &lt;integer&gt;)
+                 </paramtype>
+               </param>
+             </defreturns>
+             <defdescription>
+               <para>Sets the stream's position to a new absolute position.  
+                 Allows <dlit>#"start"</dlit>,
+                 <dlit>#"end"</dlit>, or a <classname>&lt;stream-position&gt;
+ 	        </classname> as the position-setter.
+               </para>
+             </defdescription>
+           </dylangenericdef>
+ 
+           <dylangenericdef>
+             <defname>adjust-stream-position</defname>
+             <defadjectives>open</defadjectives>
+             <defsummary>Sets the relative position of a stream.</defsummary>
+             <defparameters>
+               <param>
+                 <paramname>stream</paramname>
+                 <paramtype>&lt;positionable-stream&gt;</paramtype>
+               </param>
+               <param>
+                 <paramname>delta</paramname>
+                 <paramtype>&lt;integer&gt;</paramtype>
+                 <paramsummary>The distance to move.</paramsummary>
+               </param>
+               <keyparam>
+                 <paramname>from</paramname>
+                 <paramtype>one-of(#"current", #"start", #"end")</paramtype>
+                 <paramsummary>The position from where to move.</paramsummary>
+               </keyparam>
+             </defparameters>
+             <defreturns>
+               <param>
+                 <paramname>new-position</paramname>
+                 <paramtype>type-union(&lt;stream-position&gt;, &lt;integer&gt;)
+                 </paramtype>
+                 <paramsummary>The new position in the stream.</paramsummary>
+               </param>
+             </defreturns>
+             <defdescription>
+               <para>Sets the stream's position to a new relative position,
+                 either from the current position or from either end of the
+                 stream.
+               </para>
+             </defdescription>
+           </dylangenericdef>
+ 
+           <dylangenericdef>
+             <defname>stream-size</defname>
+             <defadjectives>open</defadjectives>
+             <defsummary>Returns the stream's size.</defsummary>
+             <defparameters>
+               <param>
+                 <paramname>stream</paramname>
+                 <paramtype>&lt;positionable-stream&gt;</paramtype>
+              </param>
+             </defparameters>
+             <defreturns>
+               <param>
+                 <paramname>size</paramname>
+                 <paramtype>&lt;integer&gt;</paramtype>
+               </param>
+             </defreturns>
+             <defdescription>
+               <para>Returns the size of the stream.
+               </para>
+             </defdescription>
+           </dylangenericdef>
+ 
+           <dylangenericdef>
+             <defname>stream-contents</defname>
+             <defadjectives>open</defadjectives>
+             <defsummary>Returns the stream's contents.</defsummary>
+             <defparameters>
+               <param>
+                 <paramname>stream</paramname>
+                 <paramtype>&lt;positionable-stream&gt;</paramtype>
+               </param>
+               <keyparam>
+                 <paramname>clear-contents?</paramname>
+                 <paramtype>&lt;boolean&gt;</paramtype>
+                 <paramsummary>If &true;, clear the stream after returning
+                   the contents.</paramsummary>
+               </keyparam>
+             </defparameters>
+             <defreturns>
+               <param>
+                 <paramname>contents</paramname>
+                 <paramtype>&lt;sequence&gt;</paramtype>
+               </param>
+             </defreturns>
+             <defdescription>
+               <para>Returns the contents of the stream.
+               </para>
+             </defdescription>
+           </dylangenericdef>
+ 
+         </sect4>
+         </sect3>
+
       </sect2>
 
       <sect2 id="libs-streams-ref-file">
@@ -1768,10 +2022,10 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
             provide more. </PARA>
           </NOTE>
 	</sect3>
-	<sect3 id="libs-streams-ref-file-functions">
+	<sect3 id="libs-streams-ref-file-fns">
             <title>File Stream Functions</title>
             <para>All the operations described in 
-	     <xref linkend="libs-streams-ref-general"> work with file streams.
+	     <xref linkend="libs-streams-ref-general-fns"> work with file streams.
                The following functions are specific to file streams.</para>
 	
 	<dylangenericdef>
@@ -1809,6 +2063,61 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      create an instance.</PARA>
 	  </defdescription>
 	</dylangenericdef>
+
+             <dylanmacrodef>
+               <defname>with-open-file</defname>
+               <defadjectives>Statement</defadjectives>
+ 	      <defsummary>Works on an open file.</defsummary>
+               <defparameters>
+                 <varparam>
+                   <variablename>stream</variablename>
+                   <bindsto>name</bindsto>
+                 </varparam>
+                 <restparam>
+                   <paramname>parameters</paramname>
+                   <paramsummary>Arguments for <function>make</function> to open
+                     the file.</paramsummary>
+                 </restparam>
+               </defparameters>
+ 	      <defdescription>
+                 <para>
+ 		  Opens a file named <parameter>name</parameter>, giving the 
+                   variable <parameter>stream</parameter> to
+                   <parameter>body</parameter> to perform the stream operations.
+                   It then closes the file when <parameter>body</parameter>
+                   finishes.
+                 </para>
+                 <note><para>
+ 		  Only the <parameter>stream</parameter> variable is visible
+ 		  to <parameter>body</parameter>.  
+ 		  <parameter>Body</parameter> sees neither
+ 		  <parameter>name</parameter> nor 
+ 		  <parameter>parameters</parameter>.
+                 </para></note>
+                 <para>
+ 		  For example, the below code snippet looks for someone with
+                   Dylan in their resume:
+                 </para>
+                 <programlisting>
+let line = "";
+let dylan-experience = #f;
+ 
+with-open-file(file = "resume.txt")
+  while(line & ~ dylan-experience)
+    dylan-experience := regexp-position(line, "dylan");
+    line := read-line(file, on-end-of-stream: #f);
+  end while;
+end;
+ 
+format-out(if(dylan-experience) 
+            "Hire this person now!\n" 
+           else 
+            "Try someone else\n"
+           end if);</programlisting>
+ 
+ 	      </defdescription>
+           </dylanmacrodef>
+
           </sect3>
 	</sect2>
 
