@@ -6245,7 +6245,7 @@ sublists.
   	  </para>
   	  <para>
   	    There is a default method is defined on all instances of 
-  	    &obj;, and it returns a valid hash id in all cases. 
+  	    &object;, and it returns a valid hash id in all cases. 
   	    However, performance <em>*will*</em> suck horribly
 	    (algorithmically, even) if you don't define better methods
 	    for your own objects that will live in

@@ -301,11 +301,12 @@
   (element (DefSection Title)
     (process-children)))
 
-(define (dylan-object-type) (make entity-ref name: "obj"))
-;  ($dylan-literal$ (make sequence
-;		     (make entity-ref
-;		       name: "lt")
-;		     (literal "object>"))))
+;(define (dylan-object-type) (make entity-ref name: "object"))
+(define (dylan-object-type) 
+  ($dylan-literal$ (make sequence
+		     (make entity-ref
+		       name: "lt")
+		     (literal "object>"))))
 
 
 ;;;========================================================================

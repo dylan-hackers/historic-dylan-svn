@@ -11,7 +11,7 @@
     <para>This is a sample paragraph referring the <dlibrary>Dylan</dlibrary>
     library and the <dmodule>Dylan</dmodule> module inside that library. And
     then we have some literal code: <dlit>every?(im-schrank?, du.tassen)
-    </dlit></para>
+    </dlit>. And here we have the mother of all objects: &obj;.</para>
 
     <dylanconstantdef>
       <defname>$foo</defname>

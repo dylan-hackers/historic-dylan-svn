@@ -188,7 +188,7 @@
  <DefSupers>
   <DefSuper>&lt;object&gt;</DefSuper>
  </DefSupers>'>
-<!ENTITY obj '<dclass>object</dclass>'>
+<!ENTITY object '<dclass>object</dclass>'>
 
 <!-- =============== Function Definitions ========================
   The following elements are used to define functions, methods
