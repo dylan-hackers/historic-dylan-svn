@@ -133,10 +133,11 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
       end;
     $nowhere-to-go => 
       begin
-        // First, try to choose a new base. If that's also a failure, punt
-        // for a turn.
+        // First, try to choose a new base. If that's also a failure, a)
+        // clear visited-bases, and b) punt for a turn.
         choose-next-base(tom, state);
         if (tom.goal = $nowhere-to-go)
+          tom.visited-bases := #();
           tom.punt
         else
           generate-next-move(tom, state);
