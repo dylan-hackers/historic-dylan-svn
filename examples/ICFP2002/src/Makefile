@@ -46,7 +46,7 @@ test-server: test-server.lid test-server.dylan test-server-exports.dylan Makefil
 	d2c $(D2C_FLAGS) test-server.lid
 
 c-opengl-visualizer:	c-opengl-visualizer.c
-	g++ c-opengl-visualizer.c -lGL -lGLU -lglut -lX11 -lXmu -lXext -lXi -L/usr/X11R6/lib -o c-opengl-visualizer
+	g++ -g c-opengl-visualizer.c -lGL -lGLU -lglut -lX11 -lXmu -lXext -lXi -L/usr/X11R6/lib -o c-opengl-visualizer
 
 c-opengl-visualizer-run:	c-opengl-visualizer
 	./c-opengl-visualizer cantor.gwydiondylan.org 6969
