@@ -143,10 +143,29 @@ define method static-file-responder
     let props = file-properties(locator);
     add-header(response, "Last-Modified",
                as-rfc-1123-date(props[#"modification-date"]));
+    add-header(response, "ETag", etag(locator));
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
   end;
 end;
+
+define method etag (locator :: <locator>) => (etag :: <string>)
+  //generate an etag (use modification date and size)
+  // --TODO: algorithm should be changed (md5?), because a file can
+  //changes more than once per second without changing size.
+  let props = file-properties(locator);
+  let timestamp = props[#"modification-date"];
+  let time = (date-hours(timestamp) * 60 +
+             date-minutes(timestamp)) * 60 +
+             date-seconds(timestamp);
+  let date = (date-year(timestamp) * 1000 +
+             date-month(timestamp)) * 100 +
+             date-day(timestamp);
+  concatenate("\"", integer-to-string(date, base: 16), "-",
+              integer-to-string(time, base: 16), "-",
+              integer-to-string(props[#"size"], base: 16), "\"");
+end method etag;
+
 
 // Serves up a directory listing as HTML.  The caller has already verified that this
 // locator names a directory, even though it may be a <file-locator>, and that the
@@ -161,6 +180,7 @@ define method directory-responder
   let directory-properties = file-properties(locator);
   add-header(response, "Last-Modified",
              as-rfc-1123-date(directory-properties[#"modification-date"]));
+  add-header(response, "ETag", etag(locator));
   let stream = output-stream(response);
   local
     method show-file-link (directory, name, type)
