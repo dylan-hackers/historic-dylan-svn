@@ -24,17 +24,17 @@
       <Abstract>
 	<Title>Abstract</Title>
 	
-	<Para><CiteTitle/Getting Started with Dylan/ introduces <ulink
-	url="http://www.apple.com/">Apple Computer</>'s &dylan programming
+	<Para><CiteTitle>Getting Started with Dylan</CiteTitle> introduces <ulink
+	url="http://www.apple.com/">Apple Computer</ulink>'s &dylan; programming
 	language. Dylan is a object-oriented dynamic language designed for
 	efficient compilation. It uses an algebraic infix syntax similar to
 	Pascal or C, but supports an object model not unlike the Common
-	Lisp Object System (<Acronym/CLOS/).</>
+	Lisp Object System (<Acronym>CLOS</Acronym>).</Para>
 
 	<Para>This tutorial is written primarily for those with solid
 	programming experience in &cpp; or another object-oriented static
 	language. It provides a gentler introduction to Dylan than does the
-	&drm;, although it refers to the latter book frequently.</>
+	&drm;, although it refers to the latter book frequently.</Para>
       </Abstract>
     </BookBiblio>
   </BookInfo>
@@ -51,27 +51,27 @@
 
     <Para>Dylan has an interesting combination of features. It is a dynamic
     language, but is designed to perform nearly as well as a static
-    language. It is a <Link linkend="functional">functional</>
+    language. It is a <Link linkend="functional">functional</Link>
     language&mdash;like Scheme or TCL&mdash;but uses an algebraic infix
     syntax similar to C's. Dylan is object-oriented from the ground up,
     supports multiple inheritence and exceptions, implements <Link
-    linkend="multiple-dispatch">multiple dispatch</>, and <Link
-    linkend="gc">collects garbage</>.</>
+    linkend="multiple-dispatch">multiple dispatch</Link>, and <Link
+    linkend="gc">collects garbage</Link>.</Para>
     
     <Sect1 id="dynamic-vs-static">
       <Title>Dynamic vs. Static Languages</Title>
 
-      <Para><GlossTerm/Static/ languages need to know the type of every
-      variable at compile time. Examples of static languages include C,
-      Pascal and Eiffel. Code written in static languages typically
-      compiles efficiently, and strong type-checking reduces the risk of
-      errors.</>
+      <Para><GlossTerm>Static</GlossTerm> languages need to know the
+	  type of every variable at compile time. Examples of static
+	  languages include C, Pascal and Eiffel. Code written in static
+	  languages typically compiles efficiently, and strong type-checking
+	  reduces the risk of errors.</>
 
-      <Para><GlossTerm/Dynamic/ languages allow the programmer to create
-      variables without explicitly specifying the type of information they
-      contain. This simplifies prototyping and cleans up certain kinds of
-      object oriented code. Typical dynamic languages include LISP, Perl
-      and SmallTalk.</>
+      <Para><GlossTerm>Dynamic</GlossTerm> languages allow the programmer
+	  to create variables without explicitly specifying the type of
+	  information they contain. This simplifies prototyping and cleans up
+	  certain kinds of object oriented code. Typical dynamic languages
+	  include LISP, Perl and SmallTalk.</>
 
       <Para>Dylan provides a good balance between the advantages of static
       and dynamic languages. The programmer may choose to specify or omit
@@ -84,10 +84,11 @@
     <Sect1 id="functional">
       <Title>Functional Languages</Title>
 
-      <Para><GlossTerm/Functional/ languages, such as LISP, Scheme and to a
-      large extent TCL, view an entire program as one large function to be
-      evaluated. Expressions, statements and even control structures all
-      return values, which may in turn be used as arguments elsewhere.</>
+      <Para><GlossTerm>Functional</GlossTerm> languages, such as LISP,
+	  Scheme and to a large extent TCL, view an entire program as one large
+	  function to be evaluated. Expressions, statements and even control
+	  structures all return values, which may in turn be used as arguments
+	  elsewhere.</>
 
       <Para>Dylan is a functional language, permitting programmers to write
       functions like the following:</>
@@ -102,16 +103,17 @@ define method shoe-size(person :: &lt;string&gt;)
 end method;
 </ProgramListing>
       
-      <Para>The function <Function/shoe-size/ has one argument, a string,
-      and an untyped return value. (If this function didn't link against
-      external code, the compiler could easily infer the return type.) If
-      <Literal/person/ equals <Literal/"Joe"/, then the <Literal/if/
-      statement evaluates to 14, otherwise it returns 11. Since no other
-      statements follow the <Literal/if/, its return value is used as the
-      return value of the entire function.</>
+      <Para>The function <Function>shoe-size</Function> has one argument,
+	  a string, and an untyped return value. (If this function didn't link
+	  against external code, the compiler could easily infer the return
+	  type.) If <Literal>person</Literal> equals <Literal>"Joe"</Literal>,
+	  then the <Literal>if</Literal> statement evaluates to 14, otherwise
+	  it returns 11. Since no other statements follow the <Literal>if
+	  </Literal>, its return value is used as the return value of the entire
+	   function.</>
 
       <Para>The same function could also have been written as follows, in a
-      more <GlossTerm/imperative/ idiom:</>
+      more <GlossTerm>imperative</GlossTerm> idiom:</>
 
 <ProgramListing>
 define method shoe-size(person :: &lt;string&gt;)
@@ -129,9 +131,10 @@ end method;
       <TITLE>Algebraic Infix Syntax</TITLE>
 	
       <Para>Languages based on LISP typically use a notation called
-      <GlossTerm/fully-parethesized prefix syntax/. This consists of
-      innumerable nested paretheses, as seen in the following Scheme
-      version of the <Function/shoe-size/ function:</>
+      <GlossTerm>fully-parethesized prefix syntax</GlossTerm>. This
+	  consists of innumerable nested paretheses, as seen in the
+	  following Scheme version of the <Function>shoe-size</Function>
+	  function:</>
 
 <ProgramListing>
 (define (shoe-size person)
@@ -142,7 +145,7 @@ end method;
 
       <Para>This has a certain elegance, but takes some time to learn to
       read. Dylan, as shown in <Link linkend="functional">the previous
-      section</>, uses a syntax similar to those of C and Pascal.</>
+      section</Link>, uses a syntax similar to those of C and Pascal.</>
     </Sect1>
 
     <Sect1 id="object-oriented">
@@ -153,34 +156,35 @@ end method;
       functions and classes themselves.</>
 
       <Para>Dylan's design makes this reasonably efficient. Compile-time
-      analysis and explicit <Link linkend="type-declarations"/type
-      declarations/ allow the compiler to optimize away most of the
+      analysis and explicit <Link linkend="type-declarations">type
+      declarations</Link> allow the compiler to optimize away most of the
       overhead. Other language features permit the programmer to mark
-      certain classes as <GlossTerm/sealed/, that is, inelligible for
-      further subclassing.</>
+      certain classes as <GlossTerm>sealed</GlossTerm>, that is, inelligible
+	  for further subclassing.</>
 
       <Para>Dylan's object model, detailed in the following sections of
       this tutorial, differs from that of &cpp; in several important
       respects. Multiple inheritance may be used freely, without concern
-      for <GlossTerm/object slicing/, erroneous down-casting or a whole
-      host of other gotchas familiar to &cpp; programmers. Methods are
-      separate from class declarations, allowing a programmer to write new
-      polymorphic functions without editing the relevant base
+      for <GlossTerm>object slicing</GlossTerm>, erroneous down-casting or
+	  a whole host of other gotchas familiar to &cpp; programmers. Methods
+	  are separate from class declarations, allowing a programmer to write
+	  new polymorphic functions without editing the relevant base
       class. Methods may also dispatch ploymorphically on more than one
-      parameter, a powerful technique known as <GlossTerm/multiple
-      dispatch/. All of these features will be explained in greater detail
-      later on.</>
+      parameter, a powerful technique known as <GlossTerm>multiple
+      dispatch</GlossTerm>. All of these features will be explained in
+	  greater detail later on.</>
     </Sect1>
 
     <Sect1 id="gc">
       <Title>Garbage Collection</Title>
 	
-      <Para>Languages with <GlossTerm/garbage collection/ have no need of a
-      <Function/free/ or <Function/delete/ operator, because unused heap
-      memory gets reclaimed automatically by the language runtime. This
-      reduces the complexity of source code, eliminates the need of keeping
-      reference counts for shared objects, and prevents most memory
-      allocation bugs and all memory leaks.</>
+      <Para>Languages with <GlossTerm>garbage collection</GlossTerm>
+	  have no need of a <Function>free</Function> or <Function>delete
+	  </Function> operator, because unused heap memory gets reclaimed
+	  automatically by the language runtime. This reduces the complexity
+	  of source code, eliminates the need of keeping reference counts for
+	  shared objects, and prevents most memory allocation bugs and all
+	  memory leaks.</>
 
       <Para>Over the years, garbage collection has gained a reputation for
       inefficiency. A large, object-oriented LISP program performed
@@ -212,9 +216,9 @@ end method;
       <Para>Dylan's greatest weakness is the lack of commercial-quality
       compilers, especially on the Macintosh. Apple has refused to comment
       on the future of their technology release, and <ulink
-      url="http://www.harlequin.com/full/dylan.html">Harlequin</> is
+      url="http://www.harlequin.com/full/dylan.html">Harlequin</ulink> is
       targeting the Windows market with their compiler. The &gwydprj;'s
-      Dylan implementation will support multiple UNIXs when complete.</>
+      Dylan implementation will support multiple UNIXs when complete.</Para>
 
       <Para>Even when good Dylan environments become available, experience
       suggests that Dylan applications will use more RAM than programs
@@ -231,58 +235,59 @@ end method;
     <Para>Dylan identifiers may contain a greater variety of characters
     than those of C or Pascal. Specifically, variable names may contain all
     alphanumeric characters, plus the symbols <Literal>! & * &lt; = &gt; |
-    ^ $ % @ _ - + ~ ? /</>. Identifiers may not begin with the symbols
-    <Literal>- + ~ ? /</>, although identifiers may begin with numbers,
+    ^ $ % @ _ - + ~ ? /</Literal>. Identifiers may not begin with the symbols
+    <Literal>- + ~ ? /</Literal>, although identifiers may begin with numbers,
     provided they contain at least two alphabetic characters in a row. As
-    in Pascal, variable names are not case sensitive. <Comment/Need &drm
-    footnote here./</>
+    in Pascal, variable names are not case sensitive. <Comment>Need &drm;
+    footnote here.</Comment></>
 
-    <Para>This means that <Literal/(a - b)/ subtracts one variable from
-    another, whereas <Literal/(a-b)/ simply returns the value of the
-    hyphenated variable named <Literal/a-b/. Because of this, infix
-    operators, such as addition, subtraction and equality, must be
+    <Para>This means that <Literal>(a - b)</Literal> subtracts one variable
+	from another, whereas <Literal>(a-b)</Literal> simply returns the value
+	of the hyphenated variable named <Literal>a-b</Literal>. Because of this,
+	infix operators, such as addition, subtraction and equality, must be
     surrounded by whitespace.</>
 
     <Para>As in &cpp;, Dylan infix operators may also be refered to as
-    functions. In &cpp;, <Literal/(a + b)/ could also be written as
-    <Literal/operator+(a, b)/. In Dylan, the same expression could be
-    written <Literal/\+(a, b)/. In both languages, programmers can use this
-    flexibility to define operators for custom numeric classes.</>
+    functions. In &cpp;, <Literal>(a + b)</Literal> could also be written
+	as <Literal>operator+(a, b)</Literal>. In Dylan, the same expression
+	could be written <Literal>\+(a, b)</Literal>. In both languages,
+	programmers can use this flexibility to define operators for custom
+	numeric classes.</>
 
     <Sect1 id="naming-conventions">
       <Title>Naming Conventions</Title>
 
       <Para>Dylan uses the extra characters permitted in variable names to
       support a number of standard naming conventions, as shown in <xref
-      linkend="table.naming-conventions">.</>
+      linkend="table.naming-conventions"/>.</>
 
       <Table id="table.naming-conventions">
 	<Title>Naming Conventions</Title>
-	<TGroup cols=2>
+	<TGroup cols="2">
 	  <TBody>
 	    <Row>
-	      <Entry><Literal/&lt;string&gt;/</>
-	      <Entry>a class</>
-	    </>
+	      <Entry><Literal>&lt;string&gt;</Literal></Entry>
+	      <Entry>a class</Entry>
+	    </Row>
 	    <Row>
-	      <Entry><Literal/insert!/</>
+	      <Entry><Literal>insert!</Literal></Entry>
 	      <Entry>mutative function (modifies arguments destructively)</>
 	    </>
 	    <Row>
-	      <Entry><Literal/empty?/</>
+	      <Entry><Literal>empty?</Literal></Entry>
 	      <Entry>predicate function (tests one or more arguments and
 	      returns either true or false)</>
 	    </>
 	    <Row>
-	      <Entry><Literal/write-line/</>
+	      <Entry><Literal>write-line</Literal></>
 	      <Entry>two word name</>
 	    </>
 	    <Row>
-	      <Entry><Literal/$name/</>
+	      <Entry><Literal>$name</Literal></>
 	      <Entry>constant</>
 	    </>
 	    <Row>
-	      <Entry><Literal/*name*/</>
+	      <Entry><Literal>*name*</Literal></>
 	      <Entry>module-level variable</>
 	    </>
 	  </TBody>
@@ -293,13 +298,14 @@ end method;
     <Sect1 id="true-and-false">
       <Title>True and False</Title>
 
-      <Para>Dylan represents true as <Literal/#t/ and false as
-      <Literal/#f/. When evaluated in a Boolean context, all values other
-      than <Literal/#f/ return true. Thus, the number zero&mdash;and other
-      common <Quote/false/ values&mdash;evaluate as true in Dylan.</>
+      <Para>Dylan represents true as <Literal>#t</Literal> and false as
+      <Literal>#f</Literal>. When evaluated in a Boolean context, all values
+	  other than <Literal>#f</Literal> return true. Thus, the number zero
+	  &mdash;and other common <Quote>false</Quote> values&mdash;evaluate as
+	  true in Dylan.</>
     </Sect1>
 
-    <Sect1 id="nature-of-variables"
+    <Sect1 id="nature-of-variables">
       <Title>The Nature of Variables</Title>
 	
       <Para>Dylan variables differ from those found in C and
@@ -312,8 +318,8 @@ end method;
       <Para>Furthermore, there's only one of any given numeric value in a
       Dylan program, at least from the programmer's point of view. All
       variables which refer to the integer 2&mdash;or, in Dylan-speak, are
-      <GlossTerm/bound/ to the integer 2&mdash;point to the exact same
-      thing.</>
+      <GlossTerm>bound</GlossTerm> to the integer 2&mdash;point to the
+	  exact same thing.</>
 
 <ProgramListing>
 let x = 2; // creates x and binds it to 2
@@ -336,12 +342,12 @@ car1.odometer;          // evaluates to 0!
 
       <Para>As long as one or more variables refer to an object, it
       continues to exist. However, as soon as the last reference either
-      goes out of scope or gets rebound, the object becomes
-      <GlossTerm/garbage/. Since there's no way that the program could ever
-      refer to the object again, the <GlossTerm/garbage collector/ feels
-      free to reuse the memory which once held it.</>
+      goes out of scope or gets rebound, the object becomes <GlossTerm>
+	  garbage</GlossTerm>. Since there's no way that the program could ever
+      refer to the object again, the <GlossTerm>garbage collector
+	  </GlossTerm> feels free to reuse the memory which once held it.</>
 
-      <Para>Note that Dylan variables <Emphasis/must/ be bound to a
+      <Para>Note that Dylan variables <Emphasis>must</Emphasis> be bound to a
       particular value when they are declared. In the name of type safety
       and implementation efficiency, every variable must refer to some
       well-defined object.</>
@@ -350,19 +356,19 @@ car1.odometer;          // evaluates to 0!
     <Sect1 id="equals">
       <Title>Assignment, Equality and Identity</Title>
 	
-      <Para>Dylan uses all three of the <Quote/equals/ operators found in C
-      and Pascal, albeit in a different fashion. The Pascal assignment
-      operator, <Literal/:=/, rebinds Dylan variable names to new
-      values. The Pascal equality operator, <Literal/=/, tests for equality
-      in Dylan and also appears in some language constructs such as
-      <Literal/let/. (Two Dylan objects are equal, generally, if they
-      belong to the same class and have equal substructure.)</>
+      <Para>Dylan uses all three of the <Quote>equals</Quote> operators
+	  found in C and Pascal, albeit in a different fashion. The Pascal
+	  assignment operator, <Literal>:=</Literal>, rebinds Dylan variable
+	  names to new values. The Pascal equality operator, <Literal>=</Literal>,
+	  tests for equality in Dylan and also appears in some language constructs
+	  such as <Literal>let</Literal>. (Two Dylan objects are equal, generally,
+	  if they belong to the same class and have equal substructure.)</>
 
-      <Para>The C equality operator, <Literal/==/, acts as the
-      <GlossTerm/identity/ operator in Dylan. Two variables are
-      <GlossTerm/identical/ if and only if they are bound to the exact same
-      object. For example, the following three expressions mean roughly the
-      same thing:</>
+      <Para>The C equality operator, <Literal>==</Literal>, acts as the
+      <GlossTerm>identity</GlossTerm> operator in Dylan. Two variables are
+      <GlossTerm>identical</GlossTerm> if and only if they are bound to the
+	  exact same object. For example, the following three expressions mean
+	  roughly the same thing:</>
 
 <ProgramListing>
 (a == b)   // in Dylan
@@ -394,29 +400,30 @@ x == y;			// #t (only one 2!)
 </ProgramListing>
 
       <Para>Two of the examples merit further explanation. First, we don't
-      know whether <Literal/car1 = car2/, because we don't know if make
-      creates each car with the same serial number, driver and other
+      know whether <Literal>car1 = car2</Literal>, because we don't know if
+	  make creates each car with the same serial number, driver and other
       information as previous cars. If and only if none of those values
-      differ, then <Literal/car1/ equals <Literal/car2/. Second, <Literal/x
-      == y/ because every variable bound to a given number refers to the
-      exact same instance of that number, at least from the programmer's
-      perspective. (The compiler will normally do something more useful and
-      efficient when generating the actual machine code.) Strings behave in
-      a fashion different from numbers&mdash;instances of strings are
-      stored separately, and two equal strings are not necessarily the same
-      string.</>
+      differ, then <Literal>car1</Literal> equals <Literal>car2</Literal>.
+	  Second, <Literal>x == y</Literal> because every variable bound to a
+	  given number refers to the exact same instance of that number, at least
+	  from the programmer's perspective. (The compiler will normally do
+	  something more useful and efficient when generating the actual machine
+	  code.) Strings behave in a fashion different from numbers&mdash;
+	  instances of strings are stored separately, and two equal strings are
+	  not necessarily the same string.</>
     </Sect1>
 
     <Sect1 id="parallel-values">
       <Title>Parallel Values</Title>
 	
       <Para>It's possible to bind more than one variable at a time in
-      Dylan. For example, a single <Literal/let/ statement could bind
-      <Literal/x/ to 2, <Literal/y/ to 3 and <Literal/z/ to 4.</>
+      Dylan. For example, a single <Literal>let</Literal> statement could
+	  bind <Literal>x</Literal> to 2, <Literal>y</Literal> to 3 and
+	  <Literal>z</Literal> to 4.</>
 
 <ProgramListing>
 let (x, y, z) = values (2, 3, 4);
-</>
+</ProgramListing>
 
       <Para>In Perl, the equivalent statement would assign a vector of
       values to a vector of variables. In Dylan, no actual vectors or lists
@@ -429,15 +436,15 @@ let (x, y, z) = values (2, 3, 4);
 	
       <Para>Dylan variables may have explicit types. This allows the
       compiler to generate better code and to catch type-mismatch errors at
-      compile time. To take advantage of this feature, use the <Literal/::/
-      operator:</>
+      compile time. To take advantage of this feature, use the <Literal>::
+	  </Literal> operator:</>
 
 <ProgramListing>
 let x :: &lt;integer&gt; = 2;
 let vehicle :: &lt;vehicle&gt; = make(&lt;car&gt;);
 let y :: &lt;number&gt; = 3; // any numeric class
 let z :: &lt;integer&gt; = vehicle; // error!
-</>
+</ProgramListing>
 
       <Para>As seen in the example, a variable may be bound to values of
       its declared type or to values of subclasses of its declared
@@ -451,18 +458,18 @@ let z :: &lt;integer&gt; = vehicle; // error!
     <Sect1 id="module-variables">
       <Title>Module Variables and Constants</Title>
 	
-      <Para>Dylan supports <GlossTerm/module-level/ variables, which serve
-      roughly the same purpose as C's global variables. Although the
-      <Literal/let/ function may only be used within <GlossTerm/methods/
-      (Dylan-speak for regular functions), the forms <Literal/define
-      variable/ and <Literal/define constant/ may be used at the top
-      level.</>
+      <Para>Dylan supports <GlossTerm>module-level</GlossTerm> variables,
+	  which serve roughly the same purpose as C's global variables. Although
+	  the <Literal>let</Literal> function may only be used within <GlossTerm>
+	  methods</GlossTerm> (Dylan-speak for regular functions), the forms
+	  <Literal>define variable</Literal> and <Literal>define constant
+	  </Literal> may be used at the top level.</>
 
 <ProgramListing>
 define variable *x* :: &lt;integer&gt; = 3;
 define variable *y* = 4;
 define constant $hi = "Hi!";
-</>
+</ProgramListing>
 
       <Para>Note that there's not much point in declaring types for
       constants. Any remotely decent compiler will be able to figure that
@@ -476,16 +483,16 @@ define constant $hi = "Hi!";
   <Chapter id="methods-generic-functions">
     <Title>Methods &amp; Generic Functions</Title>
 
-    <Para>Dylan <GlossTerm/methods/ correspond roughly to the functions
-    found in C and Pascal. They take zero or more named parameters, but
-    also return zero or more named return values. A minimal Dylan method
+    <Para>Dylan <GlossTerm>methods</GlossTerm> correspond roughly to the
+	functions found in C and Pascal. They take zero or more named parameters,
+	but also return zero or more named return values. A minimal Dylan method
     might look like the following:</>
 
 <ProgramListing>
 define method hello-world()
   puts("Hello, world!");
 end;
-</>
+</ProgramListing>
 
     <Para>This method has no parameters and an unspecified return value. It
     could return any number of values of any type. In order to make the
@@ -495,13 +502,14 @@ end;
 define method hello-world() =&gt; ();
   puts("Hello, world!");
 end method;
-</>
+</ProgramListing>
 
     <Para>There have been two changes. The function now officially returns
-    no value whatsoever. Also note that <Literal/end/ has been replaced by
-    <Literal/end method/ which could in turn be rewritten as <Literal/end
-    method hello-world/. In general, Dylan permits all the obvious
-    combinations of keywords and labels to follow an end statement.</>
+    no value whatsoever. Also note that <Literal>end</Literal> has been
+	replaced by <Literal>end method</Literal> which could in turn be
+	rewritten as <Literal>end method hello-world</Literal>. In general,
+	Dylan permits all the obvious combinations of keywords and labels to
+	follow an end statement.</>
 
     <Sect1 id="parameters">
       <Title>Parameters &amp; Parameter Lists</>
@@ -513,18 +521,18 @@ end method;
 <ProgramListing>
 define method foo(x :: &lt;integer&gt;, y) end;
 define method bar(m, s :: &lt;string&gt;) end;
-</>
+</ProgramListing>
 
-      <Para>Both <Function/foo/ and <Function/bar/ have one typed and one
-      untyped parameter, but neither has a well-defined return value (or
-      actually does anything). As in C, each typed parameter must have its
-      own type declaration; there's no syntax for saying <Quote/the last
-      three parameters were all integers/.</>
+      <Para>Both <Function>foo</Function> and <Function>bar</Function> have
+	  one typed and one untyped parameter, but neither has a well-defined
+	  return value (or actually does anything). As in C, each typed parameter
+	  must have its own type declaration; there's no syntax for saying <Quote>
+	  the last three parameters were all integers</Quote>.</>
 
       <Para>Functions with variable numbers of parameters include the
-      <Literal/#rest/ keyword at the end of their parameter lists. Thus,
-      the declaration for C's <Function/printf/ function would appear
-      something like the following in Dylan:</>
+      <Literal>#rest</Literal> keyword at the end of their parameter lists.
+	  Thus, the declaration for C's <Function>printf</Function> function would
+	  appear something like the following in Dylan:</>
 
 <ProgramListing>
 define method printf(format-string :: &lt;string&gt;, #rest arguments) =&gt; ();
@@ -536,20 +544,20 @@ define method printf(format-string :: &lt;string&gt;, #rest arguments) =&gt; ();
   // such as using %d instead of %ld.
   // ...
 end method printf;
-</>
+</ProgramListing>
 
-      <Para>For an actual implementation of a lightweight <Function/printf/
-      function, see Appendix A. <!-- <Link linkend="printf-code"/Appendix
+      <Para>For an actual implementation of a lightweight <Function>printf
+	  </Function>function, see Appendix A. <!-- <Link linkend="printf-code"/Appendix
       A/. --></>
 
       <Para>Note that Dylan makes no provision for passing variables by
       reference in the Pascal sense, or for passing pointers to
       variables. Parameter names are simply bound to whatever values are
       passed, and may be rebound like regular variables. This means that
-      there's no way to write a <Function/swap/ function in Dylan (except
-      by using macros). However, the following function works just fine,
-      because it modifies the <GlossTerm/internal state/ of another
-      object:</>
+      there's no way to write a <Function>swap</Function> function in Dylan
+	  (except by using macros). However, the following function works just
+	  fine, because it modifies the <GlossTerm>internal state</GlossTerm>
+	  of another object:</>
 
 <ProgramListing>
 define method sell(car :: &lt;car&gt;, new-owner :: &lt;string&gt;) =&gt; ();
@@ -559,21 +567,21 @@ define method sell(car :: &lt;car&gt;, new-owner :: &lt;string&gt;) =&gt; ();
     error(&quot;Bad credit!&quot;);
   end;
 end;
-</>
+</ProgramListing>
 
       <Para>If this sounds unclear, reread the chapter on <Link
-      linkend="expressions-variables"/variables and expressions/.</>
+      linkend="expressions-variables">variables and expressions</Link>.</>
     </Sect1>
 
     <Sect1 id="return-values">
-      <Title/Return Values/
+      <Title>Return Values</Title>
       
-      <Para>Because Dylan methods can't have normal <Quote/output/
+      <Para>Because Dylan methods can't have normal <Quote>output</Quote>
       parameters in their parameter lists, they're allowed considerably
       more flexibility when it comes to return values. Methods may return
       more than one value. As with parameters, these values may be typed or
-      untyped. Interestingly enough, all return values <Emphasis/must/ be
-      named.</>
+      untyped. Interestingly enough, all return values <Emphasis>must
+	  </Emphasis> be named.</>
 
       <Para>A Dylan method&mdash;or any other control
       construct&mdash;returns the value of the last expression in its
@@ -600,41 +608,42 @@ end;
 define method baz( ) =&gt; ( );
   let (x,y) = moby( );		// assign both
 end;
-</>
+</ProgramListing>
 
     </Sect1>
 
     <Sect1 id="bare-methods">
-      <Title/Bare Methods/
+      <Title>Bare Methods</Title>
 
-      <Para>Nameless methods may be declared inline. Such <GlossTerm/bare
-      methods/ are typically used as parameters to other methods. For
-      example, the following code fragment squares each element of a list
-      using the built in <Function/map/ function and a bare method:</>
+      <Para>Nameless methods may be declared inline. Such <GlossTerm>bare
+      methods</GlossTerm> are typically used as parameters to other methods.
+	  For example, the following code fragment squares each element of a list
+      using the built in <Function>map</Function> function and a bare method:</>
 
 <ProgramListing>
 define method square-list(in :: &lt;list&gt;)
 	=&gt; out :: &lt;list&gt;
 	map(method(x) x * x end, in);
 end;
-</>
+</ProgramListing>
 
-      <Para>The <Function/map/ function takes each element of the list
-      <Literal/in/ and applies the anonymous method. It then builds a new
-      list using the resulting values and returns it. The method
-      <Function/square-list/ might be invoked as follows:<Comment>Must
-      distinguish return values from code.</></>
+      <Para>The <Function>map</Function> function takes each element of
+	  the list <Literal>in</Literal> and applies the anonymous method. It
+	  then builds a new list using the resulting values and returns it.
+	  The method <Function>square-list</Function> might be invoked as
+	  follows:<Comment>Must distinguish return values from code.
+	  </Comment></>
 
 <ProgramListing>
 square-list( #(1,2,3,4) );
 =&gt; #(1,4,9,16)
-</>
+</ProgramListing>
 
     </Sect1>
 
 
     <Sect1 id="local-methods">
-      <Title/Local Methods/
+      <Title>Local Methods</Title>
 
       <Para>Local methods resemble bare methods but have names. They are
       declared within other methods, often as private utility
@@ -651,7 +660,7 @@ define method sum-squares(in :: &lt;list&gt;) =&gt; sum-of-element-squares :: &l
 			end;
 	sum(map(square, in));
 end;
-</>
+</ProgramListing>
 
       <Para>Local methods can actually outlive the invocation of the
       function which created them. Parameters of the parent function remain
@@ -669,22 +678,22 @@ define method print-hello() =&gt; ();
 	let f = build-put(&quot;Hello!&quot;);
 	f();				// print &quot;Hello1&quot;
 end;
-</>
+</ProgramListing>
 
       <Para>Local functions which contain bound variables in the above
-      fashion are known as <GlossTerm/closures/.</>
+      fashion are known as <GlossTerm>closures</GlossTerm>.</>
     </Sect1>
     
 
     <Sect1 id="generic-functions">
-      <Title/Generic Functions/
+      <Title>Generic Functions</Title>
 	
-      <Para>A <GlossTerm/generic function/ represents zero or more similar
-      methods. Every method created by means of <Literal/define method/ is
-      automatically <GlossTerm/contained/ within the generic function of
-      the same name. For example, a programmer could define three methods
-      named <Function/display/, each of which acted on a different data
-      type:</>
+      <Para>A <GlossTerm>generic function</GlossTerm> represents zero or
+	  more similar methods. Every method created by means of <Literal>
+	  define method</Literal> is automatically <GlossTerm>contained</GlossTerm>
+	  within the generic function of the same name. For example, a
+	  programmer could define three methods named <Function>display</Function>,
+	  each of which acted on a different data type:</>
 
 <ProgramListing>
 define method display(i :: &lt;integer&gt;)
@@ -698,16 +707,17 @@ end;
 define method display(f :: &lt;float&gt;)
 	do-display-float(f);
 end;
-</>
+</ProgramListing>
 
-      <Para>When a program calls <Function/display/, Dylan examines all
-      three methods. Depending on the number and type of arguments to
-      <Function/display/, Dylan invokes one of the above methods. If no
-      methods match the actual parameters, an error occurs.</>
+      <Para>When a program calls <Function>display</Function>, Dylan
+	  examines all three methods. Depending on the number and type of
+	  arguments to <Function>display</Function>, Dylan invokes one of
+	  the above methods. If no methods match the actual parameters,
+	  an error occurs.</>
 
       <Para>In &cpp;, this process occurs only at compile time. (It's
-      called operator overloading.) In Dylan, calls to <Function/display/
-      may be resolved either at compile time or while the program is
+      called operator overloading.) In Dylan, calls to <Function>display
+	  </Function> may be resolved either at compile time or while the program is
       actually executing. This makes it possible to define methods like:</>
 
 <ProgramListing>
@@ -716,11 +726,11 @@ define method display(c :: &lt;collection&gt;)
     display(item); // runtime dispatch
   end;
 end;
-</>
+</ProgramListing>
 
       <Para>This method extracts objects of unknown type from a collection,
-      and attempts to invoke the generic function <Function/display/ on
-      each of them. Since there's no way for the compiler to know what type
+      and attempts to invoke the generic function <Function>display</Function>
+	  on each of them. Since there's no way for the compiler to know what type
       of objects the collection actually contains, it must generate code to
       identify and invoke the proper method at runtime. If no applicable
       method can be found, the Dylan runtime environment throws an
@@ -729,26 +739,26 @@ end;
       <Para>Generic functions may also be declared explicity, allowing the
       programmer to exercise control over what sort of methods get
       added. For example, the following declaration limits all
-      <Function/display/ methods to single parameter and no return
+      <Function>display</Function> methods to single parameter and no return
       value:</>
 
 <ProgramListing>
 define generic display(thing :: &lt;object&gt;) =&gt; ()
-</>
+</ProgramListing>
 
       <Para>Generic functions are explained in greater detail in the
-      chapter on <Link linkend="multiple-dispatch"/multiple dispatch/.</>
+      chapter on <Link linkend="multiple-dispatch">multiple dispatch</Link>.</>
     </Sect1>
 
     <Sect1 id="keyword-arguments">
-      <Title/Keyword Arguments/
+      <Title>Keyword Arguments</Title>
 	
-      <Para>Functions may accept <GlossTerm/keyword arguments/, extra
-      parameters which are identified by a label rather than by their
+      <Para>Functions may accept <GlossTerm>keyword arguments</GlossTerm>,
+	  extra parameters which are identified by a label rather than by their
       postion in the argument list. Keyword arguments are often used in a
-      fashion similar to <GlossTerm/default parameter values/ in &cpp;. For
-      example, the following hypothetical method might print records to an
-      output device:</>
+      fashion similar to <GlossTerm>default parameter values</GlossTerm>
+	  in &cpp;. For example, the following hypothetical method might print
+	  records to an output device:</>
 
 <ProgramListing>
 define method print-records(records :: &lt;collection&gt;,
@@ -757,7 +767,7 @@ define method print-records(records :: &lt;collection&gt;,
 	send-init-codes(init-codes);
 	// ...print the records
 end method;
-</>
+</ProgramListing>
 
       <Para>This method could be invoked in one of several ways. The first
       specifies no keyword arguments, and the latter two specify some
@@ -768,19 +778,19 @@ end method;
 print-records(recs);
 print-records(recs, lines-per-page: 65);
 print-records(recs, lines-per-page: 120, init-codes: &quot;***42\n&quot;);
-</>
+</ProgramListing>
 
       <Para>Programmers have quite a bit of flexibility in specifying
       keyword arguments. They may optionally omit the default value for a
-      keyword (in which case <Literal/#f/ is used). Default value
+      keyword (in which case <Literal>#f</Literal> is used). Default value
       specifiers may be actually be function calls themselves, and may rely
       on regular parameters already being in scope. Variable names may be
       different from keyword names, a handy tool for preventing name
       conflicts.</>
 
       <Para>For more information on keyword arguments, especially their use
-      with <Link linkend="generic-functions"/generic functions/, see the
-      &drm;.</>
+      with <Link linkend="generic-functions">generic functions</Link>,
+	  see the &drm;.</>
     </Sect1>
   </Chapter>
 
@@ -792,11 +802,11 @@ print-records(recs, lines-per-page: 120, init-codes: &quot;***42\n&quot;);
 
     <Para>The feautres of Dylan's object system don't map directly onto the
     features found in &cpp;. Dylan handles access control using
-    <GlossTerm/modules/, not <Literal/private/ declarations within
-    individual objects. Standard Dylan has no destructors, but instead
-    relies upon the garbage collector to recover memory and on exception
-    handling blocks to recover other resources. Dylan objects don't even
-    have real member functions.</>
+    <GlossTerm>modules</GlossTerm>, not <Literal>private</Literal>
+	declarations within individual objects. Standard Dylan has no
+	destructors, but instead relies upon the garbage collector to recover
+	memory and on exception handling blocks to recover other resources.
+	Dylan objects don't even have real member functions.</>
 
     <Para>Despite these oddities, Dylan's object system is at least as
     powerful as that of &cpp;. Multiple inheritance works smoothly,
@@ -810,20 +820,20 @@ print-records(recs, lines-per-page: 120, init-codes: &quot;***42\n&quot;);
     actually interfere with the initial learning process.</>
 
     <Sect1 id="built-in-classes">
-      <Title/Built-In Classes/
+      <Title>Built-In Classes</Title>
 	
       <Para>Dylan has a large variety of built-in classes. Several of these
-      represent primitive data types, such as <Literal/&lt;integer&gt;/ and
-      <Literal/&lt;character&gt;/. A few represent actual language-level
-      entities, such as <Literal/&lt;class&gt;/ and
-      <Literal/&lt;function&gt;/. Most of the others implement collection
-      classes, similar to those found in &cpp;'s Standard Template
-      Library. A few of the most important classes are shown in <Xref
-      linkend="figure.class-tree">.</>
+      represent primitive data types, such as <Literal>&lt;integer&gt;
+	  </Literal> and <Literal>&lt;character&gt;</Literal>. A few represent
+	  actual language-level entities, such as <Literal>&lt;class&gt;
+	  </Literal> and <Literal>&lt;function&gt;</Literal>. Most of the others
+	  implement collection classes, similar to those found in &cpp;'s
+	  Standard Template Library. A few of the most important classes are
+	  shown in <Xref linkend="figure.class-tree"/>.</>
 
       <Figure id="figure.class-tree">
-	<Title/Several Standard Dylan Classes/
-	<Graphic fileref="class-tree.pic" format="PIC"></>
+	<Title>Several Standard Dylan Classes</Title>
+	<Graphic fileref="class-tree.pic" format="PIC"></Graphic>
       </Figure>
 
       <Para>The built-in collection classes include a number of common data
@@ -835,24 +845,24 @@ print-records(recs, lines-per-page: 120, init-codes: &quot;***42\n&quot;);
       <Para>Not all the built-in classes may be subclassed. This allows the
       compiler to heavily optimize code dealing with basic numeric types
       and certain common collections. The programmer may also mark classes
-      as <GlossTerm/sealed/, restricting how and where they may be
+      as <GlossTerm>sealed</GlossTerm>, restricting how and where they may be
       subclassed. See <Xref linkend="modules-libraries"> for details.</>
     </Sect1>
 
     <Sect1 id="slots">
-      <Title/Slots/
+      <Title>Slots</Title>
 	
-      <Para>Objects have <GlossTerm/slots/, which resemble the data members
-      found in most other object-oriented languages. Like variables, slots
-      are bound to values; they don't actually contain their data. A simple
-      Dylan class shows how slots are declared:</>
+      <Para>Objects have <GlossTerm>slots</GlossTerm>, which resemble the
+	  data members found in most other object-oriented languages. Like
+	  variables, slots are bound to values; they don't actually contain
+	  their data. A simple Dylan class shows how slots are declared:</>
 
 <ProgramListing>
 define class &lt;vehicle&gt; (&lt;object&gt;)
 	slot serial-number;
 	slot owner;
 end;
-</>
+</ProgramListing>
 
       <Para>The above code would quick and convenient to write while
       building a prototype, but it could be improved. The slots have no
@@ -868,14 +878,15 @@ define class &lt;vehicle&gt; (&lt;object&gt;)
 		init-keyword: owner:, // optional
 		init-value: &quot;Northern Motors&quot;;
 end class &lt;vehicle&gt;;
-</>
+</ProgramListing>
 
       <Para>The type declarations work just like type declarations anywhere
       else in Dylan; they limit a binding to objects of a given class or of
       one of its subclasses, and they let the compiler optimize. The new
       keywords describe how the slots get their initial values. (The
-      keyword <Literal/init-function/ may also be used; it must be followed
-      by a function with no arguments and the appropriate return type.)</>
+      keyword <Literal>init-function</Literal> may also be used; it must be
+	  followed by a function with no arguments and the appropriate return
+	  type.)</>
 
       <Para>To create a vehicle object using the new class declaration, a
       programmer could write one of the following:</>
@@ -883,50 +894,49 @@ end class &lt;vehicle&gt;;
 <ProgramListing>
 make(&lt;vehicle&gt;, sn: 1000000)
 make(&lt;vehicle&gt;, sn: 2000000, owner: &quot;Sal&quot;)
-</>
+</ProgramListing>
 
-      <Para>In the first example, <Function/make/ returns a vehicle with
-      the specified serial number and the default owner. In the second
-      example, <Function/make/ sets both slots using the keyword
-      arguments.</>
+      <Para>In the first example, <Function>make</Function> returns a
+	  vehicle with the specified serial number and the default owner. In the
+	  second example, <Function>make</Function> sets both slots using the
+	  keyword arguments.</>
 
-      <Para>Only one of <Literal/required-init-keyword/,
-      <Literal/init-value/ and <Literal/init-function/ may be
-      specified. However, <Literal/init-keyword/ may be paired with either
-      of the latter two if desired. More than one slot may be initialized
-      by a given keyword.</>
+      <Para>Only one of <Literal>required-init-keyword</Literal>,
+      <Literal>init-value</Literal> and <Literal>init-function</Literal>
+	  may be specified. However, <Literal>init-keyword</Literal> may be
+	  paired with either of the latter two if desired. More than one slot
+	  may be initialized by a given keyword.</>
 
       <Para>Dylan also provides for the equivalent of &cpp;
-      <Literal/static/ members, plus several other useful allocation
+      <Literal>static</Literal> members, plus several other useful allocation
       schemes. See the &drm; for the full specifications.</>
     </Sect1>
 
     <Sect1 id="getters-setters">
-      <Title/Getters and Setters/
+      <Title>Getters and Setters</Title>
 	
       <Para>An object's slots are accessed using to functions: a getter and
       a setter. By default, the getter function has the same name as the
-      slot, and the setter function appends
-      <Quote><Literal/-setter/</>. These functions may be invoked as
-      follows:</>
+      slot, and the setter function appends <Quote><Literal>-setter</Literal>
+	  </Quote>. These functions may be invoked as follows:</>
 
 <ProgramListing>
 owner(sample-vehicle);	// returns owner
 owner-setter(sample-vehicle, &quot;Faisal&quot;);
-</>
+</ProgramListing>
 
-      <Para>Dylan also provides some convenient <Quote/syntactic sugar/ for
-      these two functions. They may also be written as:</>
+      <Para>Dylan also provides some convenient <Quote>syntactic sugar</Quote>
+	  for these two functions. They may also be written as:</>
 
 <ProgramListing>
 sample-vehicle.owner;		// returns owner
 sample-vehicle.owner := &quot;Faisal&quot;;
-</>
+</ProgramListing>
 
     </Sect1>
 
     <Sect1 id="generic-functions-objects">
-      <Title/Generic Functions and Objects/
+      <Title>Generic Functions and Objects</Title>
 	
       <Para>Generic functions, introduced in <Link
       linkend="methods-generic-functions"/Methods and Generic Functions/,
@@ -965,24 +975,25 @@ define method tax( t :: &lt;truck&gt; )
 	// standard vehicle tax plus $10/ton
 	next-method( ) + t.capacity * 10.00;
 end method;
-</>
+</ProgramListing>
 
-      <Para>The function <Function/tax/ could be invoked as
-      <Literal/tax(v)/ or <Literal/v.tax/, because it only has one
-      argument. Generic functions with two or more arguments must be
-      invoked in the usual Dylan fashion; no syntactic sugar exists to make
-      them look like &cpp; member functions.</>
+      <Para>The function <Function>tax</Function> could be invoked as
+	  <Literal>tax(v)</Literal> or <Literal>v.tax</Literal>, because it
+	  only has one argument. Generic functions with two or more arguments
+	  must be invoked in the usual Dylan fashion; no syntactic sugar exists
+	  to make them look like &cpp; member functions.</>
 
-      <Para>The version of tax for <Literal/&lt;truck&gt;/ objects calls a
-      special function named <Function/next-method/. This function invokes
-      the next most specific method of a generic function; in this case,
-      the method for <Literal/&lt;vehicle&gt;/ objects. Parameters to the
-      current method get passed along automatically.</>
+      <Para>The version of tax for <Literal>&lt;truck&gt;</Literal> objects
+	  calls a special function named <Function>next-method</Function>. This
+	  function invokes the next most specific method of a generic function;
+	  in this case, the method for <Literal>&lt;vehicle&gt;</Literal> objects.
+	  Parameters to the current method get passed along automatically.</>
 
-      <Para>Technically, <Function/next-method/ is a special parameter to a
-      method, and may be passed explicitly using <Literal/#next/. &mindy;,
-      a popular but incomplete bytecode compiler written as part of the
-      &gwydprj;, currently requires the use of <Literal/#next/.</>
+      <Para>Technically, <Function>next-method</Function> is a special
+	  parameter to a method, and may be passed explicitly using <Literal>#next
+	  </Literal>. &mindy;, a popular but incomplete bytecode compiler written
+	  as part of the &gwydprj;, currently requires the use of <Literal>#next
+	  </Literal>.</>
 
 <ProgramListing>
 define method tax(t :: &lt;truck&gt;, #next next-method)
@@ -990,23 +1001,24 @@ define method tax(t :: &lt;truck&gt;, #next next-method)
 	// standard vehicle tax plus $10/ton
 	next-method() + t.capacity * 10.00;
 end method;
-</>
+</ProgramListing>
 
       <Para>Dylan's separation of classes and generic functions provides
       some interesting design ideas. Classes no longer need to
-      <Quote/contain/ their member functions; it's possible to write a new
-      generic function without touching the class definition. For example,
-      a module handling traffic simulations and one handling municipal
-      taxes could each have many generic functions involving vehicles, but
-      both could use the same vehicle class.</>
+      <Quote>contain</Quote> their member functions; it's possible to write
+	  a new generic function without touching the class definition. For
+	  example, a module handling traffic simulations and one handling
+	  municipal taxes could each have many generic functions involving
+	  vehicles, but both could use the same vehicle class.</>
 
       <Para>Slots in Dylan may also be replaced by programmer-defined
       accessor functions, all without modifying existing clients of the
       class. The &drm; describes numerous ways to accomplish the change;
       several should be apparent from the preceding discussion. This
       flexibility frees programmers from creating functions like
-      <Literal/GetOwnerName/ and <Literal/SetOwnerName/, not to mention the
-      corresponding private member variables and constructor code.</>
+      <Literal>GetOwnerName</Literal> and <Literal>SetOwnerName</Literal>,
+	  not to mention the corresponding private member variables and
+	  constructor code.</>
 
       <Para>For even more creative uses of generic functions and the Dylan
       object model, see the chapter on <Link
@@ -1015,13 +1027,13 @@ end method;
 
 
     <Sect1 id="initializers">
-      <Title/Initializers/
+      <Title>Initializers</Title>
 
-      <Para>The <Function/make/ function handles much of the drudgery of
-      object construction. It processes keywords and initializes
+      <Para>The <Function>make</Function> function handles much of the
+	  drudgery of object construction. It processes keywords and initializes
       slots. Programmers may, however, customize this process by adding
-      methods to the generic function <Function/initialize/. For example,
-      if vehicle serial numbers must be at least seven digits:</>
+      methods to the generic function <Function>initialize</Function>. For
+	  example, if vehicle serial numbers must be at least seven digits:</>
 
 <ProgramListing>
 define method initialize(v :: &lt;vehicle&gt;, #all-keys) // accepts all keywords
@@ -1030,42 +1042,42 @@ define method initialize(v :: &lt;vehicle&gt;, #all-keys) // accepts all keyword
 		error(&quot;Bad serial number!&quot;);
 	end if;
 end method;
-</>
+</ProgramListing>
 
-      <Para><Function/Initialize/ methods get called after regular slot
-      initialization. They typically perform error checking or calculate
+      <Para><Function>Initialize</Function> methods get called after regular
+	  slot initialization. They typically perform error checking or calculate
       values for unusual slots. Initialize methods must accept all keywords
-      using <Literal/#all-keys/.</>
+      using <Literal>#all-keys</Literal>.</>
 
       <Para>It's possible to access the values of slot keywords from
-      <Function/initialize/ methods, and even to specify additional
+      <Function>initialize</Function> methods, and even to specify additional
       keywords in the class declaration. See the &drm; for further
       details.</>
     </Sect1>
 
     <Sect1 id="abstract-classes">
-      <Title/Abstract Classes and Overriding Make/
+      <Title>Abstract Classes and Overriding Make</Title>
 	
       <Para>Abstract classes define the interface, not the implementation,
       of an object. There are no direct instances of an abstract
       class. Concrete classes actually implement their interfaces. Every
       abstract class will typically have one or more concrete
       subclasses. For example, if plain vanilla vehicles shouldn't exist,
-      <Literal/&lt;vehicle&gt;/ could be defined as follows:</>
+      <Literal>&lt;vehicle&gt;</Literal> could be defined as follows:</>
 
 <ProgramListing>
 define abstract class &lt;vehicle&gt; (&lt;object&gt;)
 	// ...as before
 end;
-</>
+</ProgramListing>
 
       <Para>The above modification prevents the creation of direct
-      instances of <Literal/&lt;vehicle&gt;/. At the moment, calling
-      <Function/make/ on this class would result in an error. However, a
-      programmer could add a method to make which allowed the intelligent
-      creation of vehicles based on some criteria, thus making
-      <Literal/&lt;vehicle&gt;/ an <GlossTerm/instantiable abstract
-      class/:</>
+      instances of <Literal>&lt;vehicle&gt;</Literal>. At the moment, calling
+      <Function>make</Function> on this class would result in an error.
+	  However, a programmer could add a method to make which allowed the
+	  intelligent creation of vehicles based on some criteria, thus making
+      <Literal>&lt;vehicle&gt;</Literal> an <GlossTerm>instantiable abstract
+      class</GlossTerm>:</>
 
 <ProgramListing>
 define method make(class == &lt;vehicle&gt;,
@@ -1078,32 +1090,33 @@ define method make(class == &lt;vehicle&gt;,
 		make( &lt;car&gt;, keys );
 	end;
 end;
-</>
+</ProgramListing>
 
       <Para>A number of new features appear in the parameter list. The
-      expression <Quote><Literal/class == &lt;vehicle&gt;/</> specifies a
-      <GlossTerm/singleton/, one particular object of a class which gets
-      treated as a special case. Singletons are discussed in the chapter on
-      <Link linkend="multiple-dispatch"/Multiple Dispatch/. The use of
-      <Literal/#rest/, <Literal/#key/ and <Literal/#all-keys/ in the same
+      expression <Quote><Literal>class == &lt;vehicle&gt;</Literal></Quote>
+	  specifies a <GlossTerm>singleton</GlossTerm>, one particular object
+	  of a class which gets treated as a special case. Singletons are
+	  discussed in the chapter on <Link linkend="multiple-dispatch">
+	  Multiple Dispatch</Link>. The use of <Literal>#rest</Literal>,
+	  <Literal>#key</Literal> and <Literal>#all-keys</Literal> in the same
       parameter list accepts any and all keywords, binds one of them to
-      <Literal/big?/ and places all of them into the variable
-      <Literal/keys/. The new make method could be invoked in any of the
-      following fashions:</>
+      <Literal>big?</Literal> and places all of them into the variable
+      <Literal>keys</Literal>. The new make method could be invoked in
+	  any of the following fashions:</>
 
 <ProgramListing>
 let x = 1000000;
 make(&lt;vehicle&gt;, sn: x, big?: #f); =&gt;car
 make(&lt;vehicle&gt;, sn: x, big?: #t); =&gt;truck
 make(&lt;vehicle&gt;, sn: x);           =&gt;car
-</>
+</ProgramListing>
 
-      <Para>Methods added to <Function/make/ don't actually need to create
-      new objects. Dylan officially allows them to return existing
+      <Para>Methods added to <Function>make</Function> don't actually need
+	  to create new objects. Dylan officially allows them to return existing
       objects. This can be used to manage lightweight shared objects, such
-      as the <Quote/flyweights/ described by Gamma, et al., in <ulink
+      as the <Quote>flyweights</Quote> described by Gamma, et al., in <ulink
       url="http://st-www.cs.uiuc.edu/users/patterns/DPBook/DPBook.html">
-      <CiteTitle/Design Patterns/</>.</>
+      <CiteTitle>Design Patterns</CiteTitle></ulink>.</>
     </Sect1>
   </Chapter>
 
@@ -1111,16 +1124,16 @@ make(&lt;vehicle&gt;, sn: x);           =&gt;car
   <!-- ==================== Chapter 5 ==================== -->
   
   <Chapter id="multiple-dispatch">
-    <Title/Multiple Dispatch/
+    <Title>Multiple Dispatch</Title>
 
-    <Para><GlossTerm/Multiple dispatch/ is one of the most powerful and
-    elegant features of Dylan. As explained in the section on <Link
-    linkend="generic-functions-objects"/generic functions and objects/,
-    Dylan methods are declared separately from the classes upon which they
-    act. <GlossTerm/Polymorphism/, the specialization of methods for use
-    with particular classes, can be implemented by declaring several
-    methods with different parameters and attaching them to one generic
-    function:</>
+    <Para><GlossTerm>Multiple dispatch</GlossTerm> is one of the most
+	powerful and elegant features of Dylan. As explained in the section
+	on <Link linkend="generic-functions-objects">generic functions and objects
+	</Link>, Dylan methods are declared separately from the classes upon
+	which they act. <GlossTerm>Polymorphism</GlossTerm>, the specialization
+	of methods for use with particular classes, can be implemented by
+	declaring several methods with different parameters and attaching
+    them to one generic function:</>
 
 <ProgramListing>
 define generic inspect-vehicle(v :: &lt;vehicle&gt;, i :: &lt;inspector&gt;) =&gt; ();
@@ -1138,13 +1151,13 @@ define method inspect-vehicle(truck :: &lt;truck&gt;, i :: &lt;inspector&gt;) =&
 	next-method(); // perform vehicle inspection
 	check-cargo-attachments(truck);
 end;
-</>
+</ProgramListing>
 
     <Para>However, different types of vehicle inspectors may have different
     policies. A state inspector, in addition to the usual procedures, will
     also typically check a car's insurance policy. To implement this, add
     another method to the generic function
-    <Function/inspect­vehicle/:</>
+    <Function>inspect­vehicle</Function>:</>
 
 <ProgramListing>
 define method inspect-vehicle(car :: &lt;car&gt;, i :: &lt;state-inspector&gt;) =&gt; ();
@@ -1155,28 +1168,29 @@ end;
 let inspector = make(&lt;state-inspector&gt;);
 let car = make(&lt;car&gt;);
 inspect-vehicle(car, inspector);
-</>
+</ProgramListing>
 
-    <Para>Calling the generic function <Function/inspect-vehicle/ with
-    these arguments performs three separate tasks:
-    <Function/look-for-rust/, <Function/check-seat-belts/ and
-    <Function/check-insurance/. The most specific method on
-    <Function/inspect-vehicle/&mdash;the one for the classes
-    <Literal/&lt;car&gt;/ and <Literal/&lt;state-inspector&gt;/&mdash;is
-    invoked first and calls <Function/next-method/ to invoke the
-    less-specific methods in turn.</>
+    <Para>Calling the generic function <Function>inspect-vehicle</Function>
+	with these arguments performs three separate tasks:  <Function>
+	look-for-rust</Function>, <Function>check-seat-belts </Function> and
+	<Function>check-insurance</Function>. The most specific method on
+    <Function>inspect-vehicle</Function>&mdash;the one for the classes
+    <Literal>&lt;car&gt;</Literal> and <Literal>&lt;state-inspector&gt;
+	</Literal>&mdash;is invoked first and calls <Function>next-method
+	</Function> to invoke the less-specific methods in turn.</>
     
-    <Para>For an exact definition of <Quote/specific/, see the &drm;.</>
+    <Para>For an exact definition of <Quote>specific</Quote>,
+	see the &drm;.</>
 
 
     <Sect1 id="singleton-dispatch">
-      <Title/Dispatching on Specific Objects/
+      <Title>Dispatching on Specific Objects</Title>
       
       <Para>Dylan also allows functions to dispatch on specific
       objects. For example, state inspectors might pass the governor's car
       without actually looking at it. Dylan expresses this situation using
-      <GlossTerm/singletons/, objects which are treated as though they were
-      in a class of their own. For example:</>
+      <GlossTerm>singletons</GlossTerm>, objects which are treated as though
+	  they were in a class of their own. For example:</>
 
 <ProgramListing>
 define constant $governors-car = make(&lt;car&gt;);
@@ -1185,11 +1199,11 @@ define method inspect-vehicle(car == $governors-car,
 	i :: &lt;state-inspector&gt;) =&gt; ();
 	wave-through(car);
 end;
-</>
+</ProgramListing>
 
       <Para>(In this example, none of the usual inspection methods will be
-      invoked since the above code neglects to call
-      <Function/next-method/.)</>
+      invoked since the above code neglects to call <Function>next-method
+	  </Function>.)</Para>
     </Sect1>
   </Chapter>
 
@@ -1197,7 +1211,7 @@ end;
   <!-- ==================== Chapter 6 ==================== -->
 
   <Chapter id="modules-libraries">
-    <Title/Modules &amp; Libraries/
+    <Title>Modules &amp; Libraries</Title>
 
     <Para>Modules and libraries provide the structure of a Dylan
     program. Modules represent namespaces and control access to objects and
@@ -1205,7 +1219,7 @@ end;
     in a finished Dylan program.</Para>
 
     <Sect1 id="simple-modules">
-      <Title/Simple Modules/
+      <Title>Simple Modules</Title>
 	
       <Para>Modules import the symbols of other modules and export their
       own. The dependencies between modules must form a directed, acyclic
@@ -1229,30 +1243,31 @@ define module Vehicles
     &lt;truck&gt;,
       capacity;
 end module;
-</>
+</ProgramListing>
 
-      <Para>Like all normal modules, this one uses the <Literal/Dylan/
-      module, which contains all of the standard built-in functions and
-      classes. In turn, the <Literal/Vehicles/ module exports all three of
-      the vehicle classes, the generic function <Literal/tax/, several
-      getter functions and a single setter function.</>
+      <Para>Like all normal modules, this one uses the <Literal>Dylan
+	  </Literal> module, which contains all of the standard built-in
+	  functions and classes. In turn, the <Literal>Vehicles</Literal>
+	  module exports all three of the vehicle classes, the generic function
+	  <Literal>tax</Literal>, several getter functions and a single
+	  setter function.</>
 
       <Para>To control access to a slot, export some combination of its
       getter and setter functions. To make a slot public, export both. To
       make it read-only, export just the getter function. To make it
       private, export neither. In the above example, the slot
-      <Literal/serial-number/ is read-only, while the slot <Literal/owner/
-      is public.</>
+      <Literal>serial-number</Literal> is read-only, while the slot
+	  <Literal>owner</Literal> is public.</>
 
       <Para>Note that when some module adds a method to a generic function,
       the change affects all modules using that function. The new method
-      actually gets added <Emphasis/into/ the variable representing the
-      generic function. Since the variable has been previously exported,
+      actually gets added <Emphasis>into</Emphasis> the variable representing
+	  the generic function. Since the variable has been previously exported,
       all clients can access the new value.</>
     </Sect1>
 
     <Sect1 id="import-options">
-      <Title/Import Options/
+      <Title>Import Options</Title>
 
       <Para>Dylan allows very precise control over how symbols are imported
       from other modules. For example, individual symbols may be imported
@@ -1269,26 +1284,27 @@ end module;
     </Sect1>
 
     <Sect1 id="libraries">
-      <Title/Libraries/
+      <Title>Libraries</Title>
 	
-      <Para>Libraries contain modules. For example, the <Literal/Dylan/
-      library contains the <Literal/Dylan/ module described earlier, the
-      <Literal/Extensions/ module, and possibly several other
-      implementation-dependent modules. Note that a library and a module
-      may share a given name. Modules with the same name may also appear in
-      more than one library.</>
+      <Para>Libraries contain modules. For example, the <Literal>Dylan
+	  </Literal> library contains the <Literal>Dylan</Literal> module
+	  described earlier, the <Literal>Extensions</Literal> module, and
+	  possibly several other implementation-dependent modules. Note that
+	  a library and a module may share a given name. Modules with the
+	  same name may also appear in more than one library.</>
 
       <Para>By default, a Dylan environment provides a library called
-      <Literal/Dylan-User/ for the convenience of the programmer. This is
-      typically used for short, single library programs which depend only
-      on modules found in the Dylan library.</>
+      <Literal>Dylan-User</Literal> for the convenience of the programmer.
+	  This is typically used for short, single library programs which
+	  depend only on modules found in the Dylan library.</>
 
       <Para>Additionally, every library contains an implicit module, also
-      known as <Literal/Dylan-User/, which imports all of the modules found
-      in the <Literal/Dylan/ library. This may be used for single module
-      programs. Many Dylan environments, however, use it to bootstrap new
-      library definitions. The vehicle library, for example, might be
-      defined as follows in a <Literal/Dylan-User/ module:</>
+      known as <Literal>Dylan-User</Literal>, which imports all of the
+	  modules found in the <Literal>Dylan</Literal> library. This may be
+	  used for single module programs. Many Dylan environments, however,
+	  use it to bootstrap new library definitions. The vehicle library,
+	  for example, might be defined as follows in a <Literal>Dylan-User
+	  </Literal> module:</>
 
 <ProgramListing>
 define library Vehicles
@@ -1299,7 +1315,7 @@ define library Vehicles
     Crash-Testing,
     Inspection;         // (Hypothetical.)
 end library Vehicles;
-</>
+</ProgramListing>
 
       <Para>This library could in turn be imported by another library:</>
 
@@ -1309,13 +1325,13 @@ define library Vehicle-Application
   use My-GUI-Classes;
   use Vehicles;
 end;
-</>
+</ProgramListing>
 
       <Para>Libraries import other libraries and export modules, whereas
       modules import other modules and export variables. In general, a
       module may import any module found in its own library or exported
       from a library imported by its own library. The following module, for
-      example, could belong to the <Literal/Vehicle-Application/
+      example, could belong to the <Literal>Vehicle-Application</Literal>
       library.</>
 
 <ProgramListing>
@@ -1327,13 +1343,13 @@ define module Sample-Module
   use Vehicles;       // Vehicles
   use Inspection;     // Vehicles
 end module;
-</>
+</ProgramListing>
 
     </Sect1>
 
 
     <Sect1 id="sample-libraries">
-      <Title/A Sample Set of Libraries/
+      <Title>A Sample Set of Libraries</Title>
       
       <Para><Xref linkend="figure.mindy-libraries"> and <Xref
       linkend="table.mindy-libraries-modules"> show the libraries included
@@ -1344,195 +1360,196 @@ end module;
       source code.</>
 
       <Figure id="figure.mindy-libraries">
-	<Title/Dependencies Among the Stanard Mindy Libraries/
-	<Graphic fileref="mindy-libraries.pic" format="PIC"></>
+	<Title>Dependencies Among the Stanard Mindy Libraries</Title>
+	<Graphic fileref="mindy-libraries.pic" format="PIC"></Graphic>
       </Figure>
 
       <Table id="table.mindy-libraries-modules">
 	<Title>Standard Mindy Libraries and Modules</Title>
-	<TGroup cols=3>
+	<TGroup cols="3">
 	  <THead>
 	    <Row role="label">
-	      <Entry/Library/
-	      <Entry/Module/
-	      <Entry/Purpose/
-	    </>
+	      <Entry>Library</Entry>
+	      <Entry>Module</Entry>
+	      <Entry>Purpose</Entry>
+	    </Row>
 	  </THead>
 	  <TBody>
 	    <Row>
-	      <Entry/<Literal/Dylan//
-	      <Entry/<Literal/Dylan//
-	      <Entry/standard Dylan/
-	    </>
+	      <Entry><Literal>Dylan</Literal></Entry>
+	      <Entry><Literal>Dylan</Literal></Entry>
+	      <Entry>standard Dylan</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Extensions//
-	      <Entry/Mindy extensions/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Extensions</Literal></Entry>
+	      <Entry>Mindy extensions</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/System//
-	      <Entry/general functions/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>System</Literal></Entry>
+	      <Entry>general functions</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/File-Descriptors//
-	      <Entry/UNIX-style file support/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>File-Descriptors</Literal></Entry>
+	      <Entry>UNIX-style file support</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Threads//
-	      <Entry/threads and semaphores/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Threads</Literal></Entry>
+	      <Entry>threads and semaphores</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Hash-Tables//
-	      <Entry/additional table support/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Hash-Tables</Literal></Entry>
+	      <Entry>additional table support</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Introspection//
-	      <Entry/program examination/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Introspection</Literal></Entry>
+	      <Entry>program examination</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Cheap-IO//
-	      <Entry>basic, unformatted I/O</>
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Cheap-IO</Literal></Entry>
+	      <Entry>basic, unformatted I/O</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Extern//
-	      <Entry/support for linking to C/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Extern</Literal></Entry>
+	      <Entry>support for linking to C</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Transcendental//
-	      <Entry/trig and other math/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Transcendental</Literal></Entry>
+	      <Entry>trig and other math</Entry>
+	    </Row>
 	    
 	    <Row>
-	      <Entry/<Literal/Collection-Extensions//
-	      <Entry/<Literal/Heap//
-	      <Entry/standard heaps/
-	    </>
+	      <Entry><Literal>Collection-Extensions</Literal></Entry>
+	      <Entry><Literal>Heap</Literal></Entry>
+	      <Entry>standard heaps</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Self-Organizing-List//
-	      <Entry/<Quote/poor man's hash table//
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Self-Organizing-List</Literal></Entry>
+	      <Entry><Quote>poor man's hash table</Quote></Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Vector-Search//
-	      <Entry/search, replace support/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Vector-Search</Literal></Entry>
+	      <Entry>search, replace support</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Subseq//
-	      <Entry/slices of sequences/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Subseq</Literal></Entry>
+	      <Entry>slices of sequences</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Sequence-Diff//
-	      <Entry/<Quote/diff/ for sequences/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Sequence-Diff</Literal></Entry>
+	      <Entry><Quote>diff</Quote> for sequences</Entry>
+	    </Row>
 	    
 	    <Row>
-	      <Entry/<Literal/String-Extensions//
-	      <Entry/<Literal/String-Conversions//
-	      <Entry>strings to/from integers</>
-	    </>
+	      <Entry><Literal>String-Extensions</Literal></Entry>
+	      <Entry><Literal>String-Conversions</Literal></Entry>
+	      <Entry>strings to/from integers</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Character-Type//
-	      <Entry/similar to C's <Quote/<Literal/ctype.h///
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Character-Type</Literal></Entry>
+	      <Entry>similar to C's <Quote><Literal>ctype.h</Literal>
+		    </Quote></Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/String-Hacking//
-	      <Entry/useful string functions/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>String-Hacking</Literal></Entry>
+	      <Entry>useful string functions</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-		<Entry/<Literal/Substring-Search//
-	      <Entry/similar to Perl/
-	    </>
+	      <Entry></Entry>
+          <Entry><Literal>Substring-Search</Literal></Entry>
+	      <Entry>similar to Perl</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Regular-Expressions//
-	      <Entry/similar to Perl/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Regular-Expressions</Literal></Entry>
+	      <Entry>similar to Perl</Entry>
+	    </Row>
 	    
 	    <Row>
-	      <Entry/<Literal/Streams//
-	      <Entry/<Literal/Streams//
+	      <Entry><Literal>Streams</Literal></Entry>
+	      <Entry><Literal>Streams</Literal></Entry>
 	      <Entry>UNIX stream I/O</>
-	    </>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Standard-IO//
-	      <Entry/the 3 standard streams/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Standard-IO</Literal></Entry>
+	      <Entry>the 3 standard streams</Entry>
+	    </Row>
 	    
 	    <Row>
-	      <Entry/<Literal/Print//
-	      <Entry/<Literal/PPrint//
-	      <Entry/Pretty-printing/
-	    </>
+	      <Entry><Literal>Print</Literal></Entry>
+	      <Entry><Literal>PPrint</Literal></Entry>
+	      <Entry>Pretty-printing</Entry>
+	    </Row>
 	    <Row>
-	      <Entry//
-	      <Entry/<Literal/Print//
-	      <Entry/General object output/
-	    </>
+	      <Entry></Entry>
+	      <Entry><Literal>Print</Literal></Entry>
+	      <Entry>General object output</Entry>
+	    </Row>
 	    
 	    <Row>
-	      <Entry/<Literal/Format//
-	      <Entry/<Literal/Format//
-	      <Entry/Formatted output/
-	    </>
+	      <Entry><Literal>Format</Literal></Entry>
+	      <Entry><Literal>Format</Literal></Entry>
+	      <Entry>Formatted output</Entry>
+	    </Row>
 
 	    <Row>
-	      <Entry/<Literal/Random//
-	      <Entry/<Literal/Random//
-	      <Entry/Random distributions/
-	    </>
+	      <Entry><Literal>Random</Literal></Entry>
+	      <Entry><Literal>Random</Literal></Entry>
+	      <Entry>Random distributions</Entry>
+	    </Row>
 	  </TBody>
 	</TGroup>
       </Table>
 
-      <Para>The <Literal/String-Extensions/ library, in particlar, contains
-      a number of useful functions. It provides many of Perl's popular
-      text-manipulation features.</>
+      <Para>The <Literal>String-Extensions</Literal> library, in particlar,
+	  contains a number of useful functions. It provides many of Perl's
+	  popular text-manipulation features.</>
     </Sect1>
 
     <Sect1 id="sealing">
-      <Title/Sealing/
+      <Title>Sealing</Title>
 	
-      <Para>Classes and generic functions may be <GlossTerm/sealed/ using a
-      number of Dylan forms. This prevents code in other libraries from
-      subclassing objects or adding methods to generic functions, and lets
-      the compiler optimize more effectively. Both classes and generic
+      <Para>Classes and generic functions may be <GlossTerm>sealed</GlossTerm>
+	  using a number of Dylan forms. This prevents code in other libraries
+	  from subclassing objects or adding methods to generic functions, and
+	  lets the compiler optimize more effectively. Both classes and generic
       functions are sealed by default.</>
 
       <Para>To allow code in other libraries to subclass a given class,
-      declare it as <Literal/open/:</>
+      declare it as <Literal>open</Literal>:</>
 
 <ProgramListing>
 define open class &lt;sample&gt; (&lt;object&gt;) end;
-</>
+</ProgramListing>
 
       <Para>To allow other libraries to add methods to a generic function,
       use a similar syntax:</>
 
 <ProgramListing>
 define open generic sample-function( o :: &lt;object&gt; ) =&gt; ();
-</>
+</ProgramListing>
 
-      <Para>A third form, <Literal/define inert domain/, partially seals a
-      generic function, disallowing only some additions from outside a
-      library.</>
+      <Para>A third form, <Literal>define inert domain</Literal>,
+	  partially seals a generic function, disallowing only some additions
+	  from outside a library.</>
 
       <Para>For more information on sealing, see the chapter
-      <Quote/Controlling Dynamism/ in the &drm;.</>
+      <Quote>Controlling Dynamism</Quote> in the &drm;.</>
     </Sect1>
   </Chapter>
 
@@ -1540,38 +1557,39 @@ define open generic sample-function( o :: &lt;object&gt; ) =&gt; ();
   <!-- ==================== Chapter 7 ==================== -->
   
   <Chapter id="conditions">
-    <Title/Conditions/
+    <Title>Conditions</Title>
 
     <Para>Dylan offers sophisticated exception handling, allowing programs
     to recover smoothly from error conditions. Like &cpp;, Dylan represents
     errors with objects. Dylan also supports advisory warnings and
     potentially correctable errors.</>
 
-    <Para>When something unusual happens, a program can <GlossTerm/signal/
-    a <GlossTerm/condition/. <GlossTerm/Handlers/ specify how to react to
-    various sorts of conditions.</>
+    <Para>When something unusual happens, a program can <GlossTerm>signal
+	</GlossTerm> a <GlossTerm>condition</GlossTerm>. <GlossTerm>Handlers
+	</GlossTerm> specify how to react to various sorts of conditions.</>
 
     <Sect1 id="blocks">
-      <Title/Blocks/
+      <Title>Blocks</Title>
       
-      <Para>A <GlossTerm/block/ is a group of statements. As with other
-      control structures, it may return a value. A simple block might
-      appear as follows:</>
+      <Para>A <GlossTerm>block</GlossTerm> is a group of statements. As
+	  with other control structures, it may return a value. A simple block
+	  might appear as follows:</>
 
 <ProgramListing>
 block ()
   1 + 1;
 end; // returns 2
-</>
+</ProgramListing>
 
       <Para>Blocks also support non-local exits. These allow a block to
       exit at any time, optionally returning a value. In some ways, they
-      are similar to <Literal/goto/ statements or the <Acronym/POSIX/
-      <Function/longjmp/ function. To use them, specify a name in the
-      parentheses following a <Literal/block/ statement. Dylan binds this
-      name to an <GlossTerm/exit function/ which can be called from
-      anywhere within the block or the functions it calls. The following
-      block returns either <Literal/"Weird!"/ or <Literal/"All's well."/,
+      are similar to <Literal>goto</Literal> statements or the <Acronym>
+	  POSIX</Acronym> <Function>longjmp</Function> function. To use them,
+	  specify a name in the parentheses following a <Literal>block
+	  </Literal> statement. Dylan binds this name to an <GlossTerm>exit 
+	  function</GlossTerm> which can be called from anywhere within the
+	  block or the functions it calls. The following block returns either
+	  <Literal>"Weird!"</Literal> or <Literal>"All's well."</Literal>,
       depending on the color of the sky.</>
 
 <ProgramListing>
@@ -1581,12 +1599,12 @@ block (finished)
 	end;
 	"All's well."
 end block;
-</>
+</ProgramListing>
 
       <Para>Many programs need to dispose of resources or perform other
       cleanup work, regardless of how a block is exited. Blocks may contain
-      an optional <Literal/cleanup/ clause, which doesn't affect the return
-      value of the block and will always be executed.</>
+      an optional <Literal>cleanup</Literal> clause, which doesn't affect
+	  the return value of the block and will always be executed.</>
 
 <ProgramListing>
 let fd = open-input-file();
@@ -1599,7 +1617,7 @@ block (return)
 cleanup
 	close(fd);
 end;
-</>
+</ProgramListing>
 
     </Sect1>
   </Chapter>
