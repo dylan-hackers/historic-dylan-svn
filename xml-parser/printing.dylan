@@ -30,7 +30,9 @@ define method print-object(e :: <element>, s :: <stream>) => ()
   transform(e, e.name, *printer-state*, s);
 end method print-object;
 
-// use before-transform for pretty printing elements
+// use before-transform for pretty printing elements -- see
+// xml-test/html-xform for an example that uses this module as a
+// pretty printer
 define method transform(e :: <element>, tag-name :: <symbol>, 
                         state :: <printing>, s :: <stream>)
   format(s, "%s%s", *open-tag*, xml-name(e, state));
@@ -39,13 +41,6 @@ define method transform(e :: <element>, tag-name :: <symbol>,
     format(s, "/%s", *close-tag*)
   else
     format(s, "%s", *close-tag*);
-/*    increase-spacing(e);
-    for(elt in e.node-children) 
-      print-element-spacing(e, s);
-      format(s, "%=", elt)
-    end for;
-    decrease-spacing(e); 
-    print-element-spacing(e, s); */
     next-method();  // the text is one or several of the children
     before-transform(e, state, *xml-depth*, s);
     format(s, "%s/%s%s", *open-tag*, xml-name(e, state), *close-tag*);
@@ -60,13 +55,6 @@ define method transform(a :: <attribute>, tag-name :: <symbol>,
                         state :: <printing>, s :: <stream>)
   format(s, " %s=\"%s\"", xml-name(a, state), a.attribute-value);
 end method transform;
-
-/*
-// override for pretty printing control
-define method print-element-spacing(e :: <element>, s :: <stream>) => () end;
-define method increase-spacing(e :: <element>) => () end;
-define method decrease-spacing(e :: <element>) => () end;
- */
 
 define method transform(str :: <char-string>, tag-name :: <symbol>,
                         state :: <printing>, s :: <stream>)
