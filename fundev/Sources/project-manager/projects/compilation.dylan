@@ -74,21 +74,16 @@ define method link-library(project :: <project>, #rest keys,
  => (linked? :: <boolean>)
   let type = target-type | project-target-type(project);
   let build-options
-    = concatenate(select (extent)
-		    #"not-recursive" => #["link"];
-		    #"changes"       => #[];
-		    #"all"           => #["force"];
-		  end,
-		  select (type)
+    = concatenate(select (type)
 		    #"exports"    => #["exports"];
 		    #"dll"        =>
 		      select (mode)
-			#"combine" => #["unify-dll", "dll"];
+			#"combine" => #["unify-dll"];
 			otherwise => #["dll"];
 		      end;
 		    #"executable" =>
 		      select (mode)
-			#"combine" => #["unify-exe", "exe"];
+			#"combine" => #["unify-exe"];
 			otherwise => #["exe"];
 		      end;
 		  end,
@@ -98,7 +93,8 @@ define method link-library(project :: <project>, #rest keys,
 	       directory: build-location,
 	       build-script: build-script,
                progress-callback: progress-callback,
-	       project-build-info: project-build-info)
+	       project-build-info: project-build-info,
+               force?: extent == #"all")
 end method;
 
 define method load-library (key)
