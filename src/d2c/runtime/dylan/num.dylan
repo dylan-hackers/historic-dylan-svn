@@ -876,6 +876,20 @@ define inline method binary-logand
   %%primitive(dblfix-logand, a, b);
 end;
 
+define inline method binary-logand
+    (a :: <integer>, b :: <double-integer>)
+ => (res :: <double-integer>);
+  let dbl-a = as(<double-integer>, a);
+  %%primitive(dblfix-logand, dbl-a, b);
+end;
+
+define inline method binary-logand
+    (a :: <double-integer>, b :: <integer>)
+ => (res :: <double-integer>);
+  let dbl-b = as(<double-integer>, b);
+  %%primitive(dblfix-logand, a, dbl-b);
+end;
+
 define inline method lognot (a :: <double-integer>)
     => res :: <double-integer>;
   %%primitive(dblfix-lognot, a);
