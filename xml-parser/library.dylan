@@ -33,7 +33,6 @@ define module xml-parser
     // for iteration
   create node-iterator;
   create transform, transform-document, before-transform, <xform-state>;
- // do I need this? <collect-state>;
 end module xml-parser;
 
 define module interface
