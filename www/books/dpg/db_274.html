@@ -25,7 +25,8 @@ module: dylan-user
 define library airport
   export airport;
   use dylan;
-</pre></td></tr><tr><td><pre>  use transcendentals; 
+
+  use transcendentals; 
   use say;
   use format-out;
   use definitions;
@@ -33,7 +34,8 @@ define library airport
   use angle;
   use time;
 end library airport; 
-</pre></td></tr><tr><td><pre>define module airport
+
+define module airport
   export &lt;size&gt;, length, height, width, current-position, 
     current-position-setter;
   export physical-size, physical-size-setter, $default-capacity;

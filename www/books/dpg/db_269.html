@@ -25,16 +25,20 @@ module: airport
 // interaction between containers and vehicles</em>
 <em>// Returns true if container is available for aircraft in direction
 </em>define generic available? (vehicle, container, direction); 
-</pre></td></tr><tr><td><em>// Moves vehicle into container in the given direction
+// Moves vehicle into container in the given direction
 </em>define generic move-in-vehicle (vehicle, container, direction); 
-</td></tr><tr><td><em>// Moves vehicle out of container in the given direction
+
+<em>// Moves vehicle out of container in the given direction
 </em>define generic move-out-vehicle (vehicle, container, direction); 
-</td></tr><tr><td><em>// Returns the aircraft next in line to move out of container in direction
+
+<em>// Returns the aircraft next in line to move out of container in direction
 </em>define generic next-out (container, direction); 
-</td></tr><tr><td><em>// Returns the class of the next container to move vehicle into, 
+
+<em>// Returns the class of the next container to move vehicle into, 
 // and how long it will take to get there
 </em>define generic next-landing-step (container, vehicle); 
-</td></tr><tr><td><em>// A single storage container is available if the aircraft fits into the
+
+<em>// A single storage container is available if the aircraft fits into the
 // the container, and there is not already a vehicle in the container
 </em>define method available?
     (vehicle :: &lt;aircraft&gt;, container :: &lt;single-storage&gt;,
@@ -43,7 +47,8 @@ module: airport
   object-fits?(vehicle, container)
   &amp; ~ (container.vehicle-currently-occupying);
 end method available?; 
-</td></tr><tr><td><em>// A multiple storage container is available if the aircraft fits into 
+
+<em>// A multiple storage container is available if the aircraft fits into 
 // the container, and there are not too many aircraft already queued in
 // the container for the specified direction
 </em>define method available? 
@@ -54,7 +59,8 @@ end method available?;
   &amp; size(container.vehicles-by-direction[direction])
     &lt; container.maxima-by-direction[direction];
 end method available?; 
-</td></tr><tr><td><em>// Avoids jamming the runway with inbound traffic, which would prevent
+
+<em>// Avoids jamming the runway with inbound traffic, which would prevent
 // outbound aircraft from taking off
 // The runway is clear to inbound traffic only if there is space in the 
 // next container inbound from the runway
@@ -72,7 +78,8 @@ end method available?;
              end if;
       end select;
 end method available?; 
-</td></tr><tr><td><em>// A slot is used to keep track of which aircraft is in a single 
+
+<em>// A slot is used to keep track of which aircraft is in a single 
 // storage container
 </em>define method move-in-vehicle
     (vehicle :: &lt;aircraft&gt;, container :: &lt;single-storage&gt;,
@@ -81,7 +88,8 @@ end method available?;
   container.vehicle-currently-occupying := vehicle;
   values();
 end method move-in-vehicle; 
-</td></tr><tr><td><em>// A deque is used to keep track of which aircraft are traveling in a
+
+<em>// A deque is used to keep track of which aircraft are traveling in a
 // particular direction in a multiple storage container
 </em>define method move-in-vehicle
     (vehicle :: &lt;aircraft&gt;, container :: &lt;multiple-storage&gt;,
@@ -91,7 +99,8 @@ end method move-in-vehicle;
   push-last(vehicles, vehicle);
   values();
 end method move-in-vehicle; 
-</td></tr><tr><td><em>// When an aircraft reaches the gate, it begins its outbound journey
+
+<em>// When an aircraft reaches the gate, it begins its outbound journey
 </em>define method move-in-vehicle
     (vehicle :: &lt;aircraft&gt;, container :: &lt;gate&gt;, 
      direction :: &lt;symbol&gt;)
@@ -100,14 +109,16 @@ end method move-in-vehicle;
   vehicle.direction := #&quot;outbound&quot;;
   values();
 end method move-in-vehicle; 
-</td></tr><tr><td>define method move-out-vehicle
+
+define method move-out-vehicle
     (vehicle :: &lt;aircraft&gt;, container :: &lt;single-storage&gt;,
      direction :: &lt;symbol&gt;)
  =&gt; ()
   container.vehicle-currently-occupying := #f;
   values();
 end method move-out-vehicle; 
-</td></tr><tr><td>define method move-out-vehicle
+
+define method move-out-vehicle
     (vehicle   :: &lt;aircraft&gt;,
      container :: &lt;multiple-storage&gt;, direction :: &lt;symbol&gt;)
  =&gt; ()
@@ -117,7 +128,8 @@ end method move-out-vehicle;
 </em>  pop(vehicles);
   values();
 end method move-out-vehicle; 
-</td></tr><tr><td><em>// Determines what vehicle, if any, could move to the next container
+
+<em>// Determines what vehicle, if any, could move to the next container
 // If there is such a vehicle, then this method returns the vehicle, 
 // the next container in the direction of travel, 
 // and the time that it would take to make that transition
@@ -138,7 +150,8 @@ end method move-out-vehicle;
     end if;
   end if;
 end method next-out; 
-</td></tr><tr><td><em>// This method is just a helper method for the next-out method
+
+<em>// This method is just a helper method for the next-out method
 // We need different methods based on the class of container
 </em>define method next-out-internal
     (container :: &lt;single-storage&gt;, desired-direction :: &lt;symbol&gt;)
@@ -146,13 +159,15 @@ end method next-out;
   let vehicle = container.vehicle-currently-occupying;
   if (vehicle &amp; vehicle.direction == desired-direction) vehicle; end;
 end method next-out-internal; 
-</td></tr><tr><td>define method next-out-internal
+
+define method next-out-internal
     (container :: &lt;multiple-storage&gt;, desired-direction :: &lt;symbol&gt;)
  =&gt; (vehicle :: false-or(&lt;aircraft&gt;))
   let vehicle-queue = container.vehicles-by-direction[desired-direction];
   if (vehicle-queue.size &gt; 0) vehicle-queue[0]; end;
 end method next-out-internal; 
-</td></tr><tr><td><em>// The following methods return the class of the next container to which a
+
+<em>// The following methods return the class of the next container to which a
 // vehicle can move from a particular container
 // They also return an estimate of how long that transition will take
 </em>define method next-landing-step
@@ -162,7 +177,8 @@ end method next-out-internal;
     values(&lt;runway&gt;, flying-time(aircraft, storage.airport-below));
   end if;
 end method next-landing-step; 
-</td></tr><tr><td>define method next-landing-step
+
+define method next-landing-step
     (storage :: &lt;runway&gt;, aircraft :: &lt;aircraft&gt;)
  =&gt; (next-class :: &lt;class&gt;, duration :: &lt;time-offset&gt;)
   select (aircraft.direction)
@@ -170,7 +186,8 @@ end method next-landing-step;
     #&quot;outbound&quot; =&gt; values(&lt;sky&gt;, takeoff-time(aircraft, storage));
   end select;
 end method next-landing-step; 
-</td></tr><tr><td>define method next-landing-step
+
+define method next-landing-step
     (storage :: &lt;taxiway&gt;, aircraft :: &lt;aircraft&gt;)
  =&gt; (next-class :: &lt;class&gt;, duration :: &lt;time-offset&gt;)
   select (aircraft.direction)
@@ -178,7 +195,8 @@ end method next-landing-step;
     #&quot;outbound&quot; =&gt; values(&lt;runway&gt;, runway-time(aircraft, storage));
   end select;
 end method next-landing-step; 
-</td></tr><tr><td><pre>define method next-landing-step
+
+<pre>define method next-landing-step
     (storage :: &lt;gate&gt;, aircraft :: &lt;aircraft&gt;)
  =&gt; (next-class :: &lt;class&gt;, duration :: &lt;time-offset&gt;)
   values(&lt;taxiway&gt;, gate-turnaround(aircraft, storage));

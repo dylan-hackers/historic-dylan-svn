@@ -26,19 +26,26 @@ module: airport-test
 // test data for the flights and aircraft 
 // Ordinarily, this information would be read from a file or database </em>
 define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44]; 
-</pre></td></tr><tr><td>define variable *aircraft-distances* 
+
+define variable *aircraft-distances* 
   = #[3.0, 10.0, 175.0, 450.0, 475.0, 477.0];       <em>// Miles</em>
-</td></tr><tr><td>define variable *aircraft-headings* 
+
+define variable *aircraft-headings* 
   = #[82, 191, 49, 112, 27, 269];       <em>// Degrees </em>
-</td></tr><tr><td>define variable *aircraft-altitudes*
+
+define variable *aircraft-altitudes*
   = #[7000, 15000, 22000, 22500, 22000, 21000];    <em>// Feet </em>
-</td></tr><tr><td>define variable *aircraft-ids*
+
+define variable *aircraft-ids*
   = #[&quot;72914&quot;, &quot;82290&quot;, &quot;18317&quot;, &quot;26630&quot;, &quot;43651&quot;, &quot;40819&quot;]; 
-</td></tr><tr><td>define constant $default-runway-size
+
+define constant $default-runway-size
   = make(&lt;size&gt;, length: 10000, width: 200, height: 100);    <em>// Feet </em>
-</td></tr><tr><td>define constant $default-taxiway-size
+
+define constant $default-taxiway-size
   = make(&lt;size&gt;, length: 900, width: 200, height: 100);    <em>// Feet </em>
-</td></tr><tr><td><em><a name="marker-9-703"></a>// Assumes that there is only one runway, and one taxiway 
+
+<em><a name="marker-9-703"></a>// Assumes that there is only one runway, and one taxiway 
 // The taxiway-count variable will determine how many aircraft can wait 
 // in line for each direction of the taxiway
 </em>define method build-simple-airport
@@ -51,7 +58,8 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
        = make(&lt;time-of-day&gt;, 
            total-seconds: encode-total-seconds(6, 0, 0)))
  =&gt; (airport :: &lt;airport&gt;) 
-</td></tr><tr><td>  let gates = generate-gates(gates-per-terminal, capacity);
+
+  let gates = generate-gates(gates-per-terminal, capacity);
   let taxiway
     = make(&lt;taxiway&gt;, id: &quot;Echo&quot;, directions: #[#&quot;inbound&quot;, #&quot;outbound&quot;],
            maxima: vector(taxiway-count, taxiway-count),
@@ -63,7 +71,8 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
     = map(method (fn) 
           make(&lt;flight&gt;, airline: keystone-air, number: fn) end,
           *flight-numbers*); 
-</td></tr><tr><td>  let aircraft
+
+  let aircraft
     = map(method (aircraft-flight, aircraft-distance, aircraft-heading,
                   aircraft-altitude, aircraft-id)
             make(&lt;b707&gt;, 
@@ -81,9 +90,11 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
                  transition: make(&lt;aircraft-transition&gt;,
                                   arrival: position-report-time));
           end,
-</td></tr><tr><td>          flights, *aircraft-distances*, *aircraft-headings*,
+
+          flights, *aircraft-distances*, *aircraft-headings*,
           *aircraft-altitudes*, *aircraft-ids*); 
-</td></tr><tr><td>  let airport
+
+  let airport
     = make(&lt;airport&gt;,
            name: &quot;Belefonte Airport&quot;,
            code: &quot;BLA&quot;,
@@ -97,7 +108,8 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
                     make(&lt;longitude&gt;,
                          total-seconds: encode-total-seconds(77, 40, 24),
                          direction: #&quot;west&quot;))); 
-</td></tr><tr><td>  let sky = make(&lt;sky&gt;, inbound-aircraft: aircraft, airport: airport,
+
+  let sky = make(&lt;sky&gt;, inbound-aircraft: aircraft, airport: airport,
                  id: concatenate(&quot;over &quot;, airport.code));
   airport.sky-above := sky;
   runway.connected-to := vector(taxiway, sky);
@@ -110,7 +122,8 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
   sky.connected-to := runway-vector;
   airport;
 end method build-simple-airport; 
-</td></tr><tr><td>define method test-airport () =&gt; (last-transition :: &lt;time-of-day&gt;)
+
+define method test-airport () =&gt; (last-transition :: &lt;time-of-day&gt;)
   process-aircraft(build-simple-airport());
 end method test-airport; 
 </td></tr></table>

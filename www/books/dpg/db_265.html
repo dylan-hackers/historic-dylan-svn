@@ -31,34 +31,41 @@
   // while providing a suitable default for each class of aircraft
 </em>  each-subclass slot standard-size :: &lt;size&gt;;
 end class &lt;vehicle&gt;; 
-</pre></td></tr><tr><td><pre>define method initialize (vehicle :: &lt;vehicle&gt;, #key)
+
+define method initialize (vehicle :: &lt;vehicle&gt;, #key)
   next-method();
   unless (slot-initialized?(vehicle, physical-size))
     vehicle.physical-size := vehicle.standard-size;
   end unless;
 end method initialize; 
-</pre></td></tr><tr><td><pre>define method say (object :: &lt;vehicle&gt;) =&gt; ()
+
+define method say (object :: &lt;vehicle&gt;) =&gt; ()
   format-out(&quot;Vehicle %s&quot;, object.vehicle-id);
 end method say; 
-</pre></td></tr><tr><td><pre><em>// This class represents companies that fly commercial aircraft
+
+<em>// This class represents companies that fly commercial aircraft
 </em>define class &lt;airline&gt; (&lt;object&gt;)
   slot name :: &lt;string&gt;, required-init-keyword: name:;
   slot code :: &lt;string&gt;, required-init-keyword: code:;
 end class &lt;airline&gt;; 
-</pre></td></tr><tr><td><pre>define method say (object :: &lt;airline&gt;) =&gt; ()
+
+define method say (object :: &lt;airline&gt;) =&gt; ()
   format-out(&quot;Airline %s&quot;, object.name);
 end method say; 
-</pre></td></tr><tr><td><pre><em>// This class represents a regularly scheduled trip for a commercial 
+
+<em>// This class represents a regularly scheduled trip for a commercial 
 // airline
 </em>define class &lt;flight&gt; (&lt;object&gt;)
   slot airline :: &lt;airline&gt;, required-init-keyword: airline:;
   slot number :: &lt;nonnegative-integer&gt;,
     required-init-keyword: number:;
 end class &lt;flight&gt;; 
-</pre></td></tr><tr><td><pre>define method say (object :: &lt;flight&gt;) =&gt; ()
+
+define method say (object :: &lt;flight&gt;) =&gt; ()
   format-out(&quot;Flight %s %d&quot;, object.airline.code, object.number);
 end method say; 
-</pre></td></tr><tr><td><pre><em>// This class represents vehicles that normally fly for a portion of
+
+<em>// This class represents vehicles that normally fly for a portion of
 // their trip
 </em>define abstract class &lt;aircraft&gt; (&lt;vehicle&gt;)
   slot altitude :: &lt;integer&gt;, init-keyword: altitude:;
@@ -68,7 +75,8 @@ end method say;
 </em>  slot next-transition :: &lt;aircraft-transition&gt;,
     required-init-keyword: transition:, setter: #f;
 end class &lt;aircraft&gt;; 
-</pre></td></tr><tr><td><pre>define method initialize (vehicle :: &lt;aircraft&gt;, #key)
+
+define method initialize (vehicle :: &lt;aircraft&gt;, #key)
   next-method();
 <em>  // There is a one-to-one correspondance between aircraft instances and
   // transition instances
@@ -76,7 +84,8 @@ end class &lt;aircraft&gt;;
   // Connect the aircraft to its transition
 </em>  vehicle.next-transition.transition-aircraft := vehicle;
 end method initialize; 
-</pre></td></tr><tr><td><pre><em>// The next step an aircraft might be able to make
+
+<em>// The next step an aircraft might be able to make
 </em>define class &lt;aircraft-transition&gt; (&lt;object&gt;)
   slot transition-aircraft :: &lt;aircraft&gt;, init-keyword: aircraft:;
   slot from-container :: &lt;vehicle-storage&gt;, init-keyword: from:;
@@ -87,7 +96,8 @@ end method initialize;
   // This flag saves searching the sorted sequence
 </em>  slot pending? :: &lt;boolean&gt; = #f, init-keyword: pending?:;
 end class &lt;aircraft-transition&gt;; 
-</pre></td></tr><tr><td><pre><em>// Describes one step of an aircraft's movements
+
+<em>// Describes one step of an aircraft's movements
 </em>define method say (transition :: &lt;aircraft-transition&gt;) =&gt; ()
   say(transition.earliest-arrival);
   format-out(&quot;: &quot;);
@@ -95,12 +105,14 @@ end class &lt;aircraft-transition&gt;;
   format-out(&quot; at &quot;);
   say(transition.to-container);
 end method say; 
-</pre></td></tr><tr><td><pre><em>// Commercial aircraft are aircraft that may have a flight
+
+<em>// Commercial aircraft are aircraft that may have a flight
 // assigned to them
 </em>define abstract class &lt;commercial-aircraft&gt; (&lt;aircraft&gt;)
   slot aircraft-flight :: false-or(&lt;flight&gt;) = #f, init-keyword: flight:;
 end class &lt;commercial-aircraft&gt;; 
-</pre></td></tr><tr><td><pre>define method say (object :: &lt;commercial-aircraft&gt;) =&gt; ()
+
+define method say (object :: &lt;commercial-aircraft&gt;) =&gt; ()
   let flight = object.aircraft-flight;
   if (flight)
     say(flight);
@@ -108,13 +120,15 @@ end class &lt;commercial-aircraft&gt;;
     format-out(&quot;Unscheduled Aircraft %s&quot;, object.vehicle-id);
   end if;
 end method say; 
-</pre></td></tr><tr><td><pre><em>// The class that represents all commericial Boeing 707 aircraft
+
+<em>// The class that represents all commericial Boeing 707 aircraft
 </em>define class &lt;B707&gt; (&lt;commercial-aircraft&gt;)
   inherited slot cruising-speed, init-value: 368;
   inherited slot standard-size,
     init-value: make(&lt;size&gt;, length: 153, width: 146, height: 42);
 end class &lt;B707&gt;; 
-</pre></td></tr><tr><td><pre>define method say (aircraft :: &lt;B707&gt;) =&gt; ()
+
+define method say (aircraft :: &lt;B707&gt;) =&gt; ()
   if (aircraft.aircraft-flight)
     next-method();
   else

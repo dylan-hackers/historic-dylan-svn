@@ -24,16 +24,23 @@
 module: definitions
 <em>// This file contains constants and other definitions used in common with
 // the other parts of the airport example</em>
-</pre></td></tr><tr><td><pre><em>// The capital letters of the alphabet
+
+<em>// The capital letters of the alphabet
 </em>define constant $letters = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;;
-</pre></td></tr><tr><td><pre><em>// This type represents positive integers
+
+<em>// This type represents positive integers
 </em>define constant &lt;positive-integer&gt; = limited(&lt;integer&gt;, min: 1);
-</pre></td></tr><tr><td><pre>define constant $hours-per-day = 24; 
-</pre></td></tr><tr><td><pre>define constant $minutes-per-hour = 60;
-</pre></td></tr><tr><td><pre>define constant $seconds-per-minute = 60; 
-</pre></td></tr><tr><td><pre>define constant $seconds-per-hour 
+
+define constant $hours-per-day = 24; 
+
+define constant $minutes-per-hour = 60;
+
+define constant $seconds-per-minute = 60; 
+
+define constant $seconds-per-hour 
   = $minutes-per-hour * $seconds-per-minute; 
-</pre></td></tr><tr><td><pre><em>// This method returns the union of the false type and a type you specify,
+
+<em>// This method returns the union of the false type and a type you specify,
 // as a simple shorthand
 // This method may already be provided by your Dylan implementation
 </em>define method false-or (other-type :: &lt;type&gt;) =&gt; (combined-type :: &lt;type&gt;)

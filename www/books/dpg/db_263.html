@@ -30,11 +30,13 @@ module: airport
   slot width :: &lt;positive-integer&gt;, init-keyword: width:;
   slot height :: &lt;positive-integer&gt;, init-keyword: height:;
 end class &lt;size&gt;; 
-</pre></td></tr><tr><td><pre>define abstract class &lt;physical-object&gt; (&lt;object&gt;)
+
+define abstract class &lt;physical-object&gt; (&lt;object&gt;)
   slot current-position :: &lt;position&gt;, init-keyword: current-position:;
   slot physical-size :: &lt;size&gt;, init-keyword: physical-size:;
 end class &lt;physical-object&gt;; 
-</pre></td></tr><tr><td><pre>define method say (physical-object :: &lt;physical-object&gt;) =&gt; ()
+
+define method say (physical-object :: &lt;physical-object&gt;) =&gt; ()
   format-out(&quot;object at &quot;);
   say(physical-object.current-position);
 end method say; 

@@ -36,7 +36,8 @@
     end for;
   end block;
 end method find-available-connection; 
-</pre></td></tr><tr><td><em>// Generate new transitions to be considered for the next move
+
+<em>// Generate new transitions to be considered for the next move
 // The transitions will be placed in the sorted sequence, which will order
 // them by earliest arrival time
 </em>define method generate-new-transitions
@@ -49,7 +50,8 @@ end method find-available-connection;
     // transitions
     // We avoid looping forever by checking each container just once
 </em>    containers-visited[container] := #t; 
-</td></tr><tr><td>    local method consider-transition (direction)
+
+    local method consider-transition (direction)
 <em>      // See whether any vehicle is ready to transition out of a container
 </em>      let (vehicle, next-container, time) 
         = next-out(container, direction);
@@ -60,7 +62,8 @@ end method find-available-connection;
 </em>        let transition = vehicle.next-transition;
         transition.from-container := container;
         transition.to-container := next-container;
-</td></tr><tr><td><em>        // The vehicle may have been waiting
+
+<em>        // The vehicle may have been waiting
         // Take this situation into account when computing the earliest
         // arrival into the next container
 </em>        transition.earliest-arrival := transition.earliest-arrival + time;
@@ -71,7 +74,8 @@ end method find-available-connection;
 </em>        add!(active-transitions, transition);
       end unless;
     end method consider-transition; 
-</td></tr><tr><td><em>    // Consider both inbound and outbound traffic 
+
+<em>    // Consider both inbound and outbound traffic 
 </em>    consider-transition(#&quot;outbound&quot;);
     consider-transition(#&quot;inbound&quot;);
 <em>    // Make sure that every container connected to this one is checked
@@ -80,7 +84,8 @@ end method find-available-connection;
     end for;
   end unless;
 end method generate-new-transitions; 
-</td></tr><tr><td><em>// Main loop of the program
+
+<em>// Main loop of the program
 // See what possible transitions exist, then execute the earliest
 // transitions that can be completed
 // Returns the time of the last transition
@@ -94,7 +99,8 @@ end method generate-new-transitions;
   let containers-visited = make(&lt;object-table&gt;);
   let active-transitions = make(&lt;sorted-sequence&gt;, 
                                value-function: earliest-arrival); 
-</td></tr><tr><td><em>  // We do not have to use return as the name of the exit procedure
+
+<em>  // We do not have to use return as the name of the exit procedure
 </em>  block (done)
     while (#t)
 <em>      // Each time through, start by considering every container
@@ -104,7 +110,8 @@ end method generate-new-transitions;
       // sorted sequence
 </em>      generate-new-transitions(sky, active-transitions, 
                                containers-visited);
-</td></tr><tr><td><em>      // If there are no more transitions, we have completed our task
+
+<em>      // If there are no more transitions, we have completed our task
 </em>      if (empty?(active-transitions)) done(); end;
 <em>      // Find the earliest transition that can complete, because there is 
       // still room available in the destination container
@@ -115,13 +122,15 @@ end method generate-new-transitions;
                                 transition.to-container,
                                 transition.transition-aircraft.direction);
                    end); 
-</td></tr><tr><td><em>      // If none can complete, there is a problem with the simulation
+
+<em>      // If none can complete, there is a problem with the simulation
       // This situation should never occur, but is useful for debugging
       // incorrect container configurations
 </em>      if (transition-index == #f)
         error(&quot;Pending transitions but none can complete.&quot;);
       end if; 
-</td></tr><tr><td><pre><em>      // Otherwise, the earliest transition that can complete has been
+
+<pre><em>      // Otherwise, the earliest transition that can complete has been
       // found: Execute the transition
 </em>      let transition = active-transitions[transition-index];
       let vehicle = transition.transition-aircraft;
@@ -129,10 +138,12 @@ end method generate-new-transitions;
       move-out-vehicle(vehicle, transition.from-container, 
                        vehicle-direction);
       move-in-vehicle(vehicle, transition.to-container, vehicle-direction); 
-</pre></td></tr><tr><td><pre><em>      // This transition is complete; remove it from consideration 
+</pre>
+<pre><em>      // This transition is complete; remove it from consideration 
 </em>      transition.pending? := #f;
       remove!(active-transitions, transition);
-<em>      // Compute the actual time of arrival at the next container, and       // display the message 
+<em>      // Compute the actual time of arrival at the next container, and
+       // display the message 
 </em>      time := (transition.earliest-arrival 
                 := max(time, transition.earliest-arrival));
       say(transition);

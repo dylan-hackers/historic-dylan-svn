@@ -24,7 +24,8 @@
 <em>// The default size for a vehicle container
 </em>define constant $default-capacity
   = make(&lt;size&gt;, length: 350, width: 200, height: 100); 
-</pre></td></tr><tr><td><pre><em>// This class represents a location where an aircraft could be stored
+
+<em>// This class represents a location where an aircraft could be stored
 </em>define abstract class &lt;vehicle-storage&gt; (&lt;physical-object&gt;)
   slot storage-capacity :: &lt;size&gt; = $default-capacity,
     init-keyword: capacity:;
@@ -32,12 +33,14 @@
   slot identifier :: &lt;string&gt;, required-init-keyword: id:;
   slot connected-to :: &lt;simple-object-vector&gt;;
 end class &lt;vehicle-storage&gt;; 
-</pre></td></tr><tr><td><pre><em>// By using the name-prefix each-subclass slot, we share one say method
+
+<em>// By using the name-prefix each-subclass slot, we share one say method
 // for all vehicle containers
 </em>define method say (storage :: &lt;vehicle-storage&gt;) =&gt; ()
   format-out(&quot;%s %s&quot;, storage.name-prefix, storage.identifier);
 end method say; 
-</pre></td></tr><tr><td><pre>define method object-fits?
+
+define method object-fits?
     (object :: &lt;physical-object&gt;, container :: &lt;vehicle-storage&gt;)
  =&gt; (fits? :: &lt;boolean&gt;)
   let object-size = object.physical-size;
@@ -46,12 +49,14 @@ end method say;
     &amp; object-size.height &lt; container-capacity.height
     &amp; object-size.width &lt; container-capacity.width;
 end method object-fits?; 
-</pre></td></tr><tr><td><pre><em>// Vehicle storage that can hold only one aircraft regardless of direction
+
+<em>// Vehicle storage that can hold only one aircraft regardless of direction
 // Direction in this context is either #&quot;inbound&quot; or #&quot;outbound&quot;
 </em>define abstract class &lt;single-storage&gt; (&lt;vehicle-storage&gt;)
   slot vehicle-currently-occupying :: false-or(&lt;aircraft&gt;) = #f;
 end class &lt;single-storage&gt;; 
-</pre></td></tr><tr><td><pre><em>// Vehicle storage that can hold multiple aircraft, with distinct queues
+
+<em>// Vehicle storage that can hold multiple aircraft, with distinct queues
 // for each direction
 </em>define abstract class &lt;multiple-storage&gt; (&lt;vehicle-storage&gt;)
   slot vehicles-by-direction :: &lt;object-table&gt; = make(&lt;object-table&gt;);
@@ -59,7 +64,8 @@ end class &lt;single-storage&gt;;
   keyword directions:;
   keyword maxima:;
 end class &lt;multiple-storage&gt;; 
-</pre></td></tr><tr><td><pre><em>// In a real airport, there would be many paths an aircraft could take
+
+<em>// In a real airport, there would be many paths an aircraft could take
 // For our simple airport example, we define only the #&quot;inbound&quot; and 
 // #&quot;outbound&quot; paths
 // The directions parameter is a sequence of these aircraft path names
@@ -79,19 +85,22 @@ end class &lt;multiple-storage&gt;;
     object.maxima-by-direction[direction] := maximum;
   end for;
 end method initialize; 
-</pre></td></tr><tr><td><pre><em>// From the preceding basic vehicle containers, we can build specific
+
+<em>// From the preceding basic vehicle containers, we can build specific
 // containers for each aircraft-transition location
 </em>define class &lt;gate&gt; (&lt;single-storage&gt;)
   inherited slot name-prefix, init-value: &quot;Gate&quot;;
 end class &lt;gate&gt;; 
-</pre></td></tr><tr><td><pre><em>// Given a zero-based terminal number, and a one-based gate number, create
+
+<em>// Given a zero-based terminal number, and a one-based gate number, create
 // an return a string with a gate letter and a terminal number in it
 </em>define method generate-gate-id 
     (term :: &lt;nonnegative-integer&gt;, gate :: &lt;positive-integer&gt;)
  =&gt; (gate-id :: &lt;string&gt;)
   format-to-string(&quot;%c%d&quot;, $letters[term], gate);
 end method generate-gate-id; 
-</pre></td></tr><tr><td><pre><em><a name="marker-9-701"></a>// Gates-per-terminal is a vector; each element of the vector is the
+
+<em><a name="marker-9-701"></a>// Gates-per-terminal is a vector; each element of the vector is the
 // number of gates to create for the terminal at that index
 // Returns a vector of all the gate instances
 </em>define method generate-gates
@@ -109,14 +118,16 @@ end method generate-gate-id;
   end for;
   result;
 end method generate-gates; 
-</pre></td></tr><tr><td><pre><em>// This class represents the part of the airspace over a given airport
+
+<em>// This class represents the part of the airspace over a given airport
 </em>define class &lt;sky&gt; (&lt;multiple-storage&gt;)
 <em>  // The airport over which this piece of sky is located
 </em>  slot airport-below :: &lt;airport&gt;, required-init-keyword: airport:;
   inherited slot name-prefix, init-value: &quot;Sky&quot;;
   required keyword inbound-aircraft:;
 end class &lt;sky&gt;; 
-</pre></td></tr><tr><td><pre><em><a name="marker-9-702"></a>// When a sky instance is created, a sequence of inbound aircraft is
+
+<em><a name="marker-9-702"></a>// When a sky instance is created, a sequence of inbound aircraft is
 // provided 
 // This method initializes the direction slot of the aircraft to 
 // #&quot;inbound&quot;, and places the aircraft in the inbound queue of the sky
@@ -134,11 +145,13 @@ end class &lt;sky&gt;;
 <em>  // Connect the airport to the sky
 </em>  sky.airport-below.sky-above := sky;
 end method initialize; 
-</pre></td></tr><tr><td><pre><em>// This class represents a strip of land where aircraft land and take off
+
+<em>// This class represents a strip of land where aircraft land and take off
 </em>define class &lt;runway&gt; (&lt;single-storage&gt;)
   inherited slot name-prefix, init-value: &quot;Runway&quot;;
 end class &lt;runway&gt;; 
-</pre></td></tr><tr><td><pre><em>// Taxiways connect runways and gates
+
+<em>// Taxiways connect runways and gates
 </em>define class &lt;taxiway&gt; (&lt;multiple-storage&gt;)
   inherited slot name-prefix, init-value: &quot;Taxiway&quot;;
 end class &lt;taxiway&gt;; 
