@@ -37,6 +37,8 @@ define module messages
   use icfp2002;
   use standard-io;
   use string-conversions;
+  use board;
+  use robot;
 
   export
     <message-error>,

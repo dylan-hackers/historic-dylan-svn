@@ -12,10 +12,10 @@ module: messages
 // This is the board constructor.
 //
 // The things that go inside boards: 
-//   $empty-space
-//   $water-space
-//   $wall-space
-//   $base-space
+//   make(<space>)
+//   make(<water>)
+//   make(<wall>)
+//   make(<base>)
 //
 // Setting board data: aref(space, <board>, row, col) => ()
 // Making robots -- robot(N) should be a hash-consing constructor
@@ -148,10 +148,10 @@ define function receive-board-row (s :: <stream>,
   for (j from 0 below cols)
     let c = s.read-element;
     select ()
-      $empty-char => b[row, j] := $empty-space;
-      $water-char => b[row, j] := $water-space;
-      $wall-char  => b[row, j] := $wall-space;
-      $base-char  => b[row, j] := $base-space;
+      $empty-char => b[row, j] := make(<space>);
+      $water-char => b[row, j] := make(<water>);
+      $wall-char  => b[row, j] := make(<wall>);
+      $base-char  => b[row, j] := make(<base>);
       otherwise =>
         message-error("receive-board-row: bad board element '%c'\n", c);
     end select;
