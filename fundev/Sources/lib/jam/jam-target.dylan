@@ -306,7 +306,7 @@ define method jam-target-bind-aux
   if(target.target-bound-locator)
     target.target-bound-locator
   else
-    let locator = as(<file-locator>, strip-grist(target-name));
+    let locator = as(<file-system-locator>, strip-grist(target-name));
     if (locator.locator-relative?)
       let locate
         = element(target.target-variables, "LOCATE", default: #f)

@@ -243,14 +243,8 @@ define function jam-expand-arg-colon
                          end
             else
               method(name :: <string>) => (extracted :: <string>);
-                let locator = as(<file-locator>, strip-grist(name));
-                if (locator.locator-name & ~locator.locator-name.empty?)
-                  as(<string>, locator.locator-directory | "")
-                elseif (locator.locator-directory.locator-directory)
-                  as(<string>, locator.locator-directory.locator-directory)
-                else
-                  as(<string>, locator.locator-directory)
-                end if
+                let locator = as(<file-system-locator>, strip-grist(name));
+                add-grist(name,as(<string>, locator.locator-directory | ""))
               end
             end if;
 
