@@ -1,9 +1,11 @@
-FILES := test-library \
-	 entity-pass \
-	 html-xform \
-	 xml-test
+FILES := test-library.dylan \
+	 entity-pass.dylan \
+	 html-xform.dylan \
+	 xml-test.dylan \
+	 ../xml-parser.lib.du \
+	 ../../meta/meta.lib.du
 
-xml-test: $(FILES:.dylan)
+xml-test: $(FILES)
 	d2c -L .. -L ../../meta xml-test.lid
 
 clean:

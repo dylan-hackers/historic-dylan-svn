@@ -40,17 +40,18 @@ define class <char-string> (<xml>)
   constant slot text :: <string>, required-init-keyword: text:;
 end class <char-string>;
 
-define class <entity-reference> (<xml>)
+define abstract class <reference> (<xml>) end;
+define class <entity-reference> (<reference>)
   constant virtual slot entity-value;
 end class <entity-reference>;
 
-define class <char-reference> (<xml>)
+define class <char-reference> (<reference>)
   constant slot char :: <character>, required-init-keyword: char:;
 end class <char-reference>;
 
 define method unfiltered-text(elt :: <element>) => (s :: <string>)
-  apply(concatenate, map(text, choose(rcurry(instance?, <char-string>), 
-                                      elt.node-children)));
+  let strs = choose(rcurry(instance?, <char-string>), elt.node-children);
+  if(strs.empty?) "" else apply(concatenate, map(text, strs)) end if;
 end method unfiltered-text;
 
 define constant $hex-digit = "0123456789abcdefABCDEF";

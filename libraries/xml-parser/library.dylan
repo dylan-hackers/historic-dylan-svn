@@ -11,15 +11,22 @@ end library;
 
 define module xml-parser
   create transform, transform-document, before-transform,
-         <xform-state>, <collect-state>, *xml-depth*;
+         <xform-state>, <collect-state>, ;
 
   create parse-document;
 
-  create <document>, <element>, <attribute>, <entity-reference>, <add-parents>,
-    <char-reference>, <char-string>, <xml>, <node>, text, char, name;
+  create <document>, <element>, <attribute>, <xml>, <node>,
+    <entity-reference>, <add-parents>, <char-reference>, <char-string>,
+    text, char, name;
+
   create entity-value, element-attributes, attribute-value, 
     node-children, element-parent, element-parent-setter, 
     collect-elements, make-element;
+
+  // for printing
+  create <printing>, xml-name,
+    // print-element-spacing, increase-spacing, decrease-spacing;
+    *xml-depth*, *open-tag*, *close-tag*, *ampersand*, *printer-state*,
 end module xml-parser;
 
 define module interface
@@ -30,7 +37,7 @@ define module interface
   use meta;
   use xml-parser;
 
-  export $hex-digit, $version-number, trim-string;
+  export $hex-digit, $version-number, trim-string, <reference>;
 end module interface;
 
 define module transform
@@ -41,6 +48,18 @@ define module transform
   use xml-parser;
   use interface;
 end module transform;
+
+define module printing
+  use common-dylan;
+  use streams;
+  use format;
+  use print;
+
+  use xml-parser;
+
+  use interface;
+  use transform;
+end module printing;
 
 define module collect
   use common-dylan;

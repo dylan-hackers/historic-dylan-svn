@@ -7,31 +7,17 @@ Version:   1.0
 //-------------------------------------------------------
 // Here's an example of tranforming XML to XML readable 
 // as HTML
-define class <html> (<xform-state>)
-  /* class */ virtual slot document-name;
+define class <html> (<printing>)
+  class slot document-name;
 end class <html>;
-
-// as class slots do not work for 2.3.6, here's the work-around
-// proposed by Gabor Greif -- ugh!  New release when?
-define variable *html-document-name* = "";
-define method document-name(h :: <html>)
-  *html-document-name*;
-end method document-name;
-define method document-name-setter(n, h :: <html>)
-  *html-document-name* := n;
-  n;
-end method document-name-setter;
 
 define constant $html = make(<html>);
 define variable *substitute?* :: <boolean> = #t;
 
 define method before-transform(node :: <node>, state :: <html>,
-                               times :: <integer>,
-                               str :: <stream>)
+                               times :: <integer>, str :: <stream>)
   format(str, "\n<BR>");
-  for(x from 1 to times)
-    format(str, "&nbsp;");
-  end for;
+  for(x from 1 to times) format(str, "&nbsp;"); end for;
 end method before-transform;
 
 define method transform(in :: <document>, tag-name :: <symbol>,
@@ -39,8 +25,8 @@ define method transform(in :: <document>, tag-name :: <symbol>,
   state.document-name := as(<string>, in.name);
   collect-entity-defs(in);
   let dtd = concatenate(state.document-name, "-entities.html");
-  format(str, "<HTML>\n <TITLE>XML as HTML</TITLE>\n <BODY>\n&lt;?"
-              "<FONT COLOR='green'>xml</FONT> <FONT COLOR='blue'>"
+  format(str, "<HTML>\n <TITLE>XML as HTML</TITLE>\n <BODY BGCOLOR='white'>\n"
+              "&lt;?<FONT COLOR='green'>xml</FONT> <FONT COLOR='blue'>"
               "version</FONT>=\"1.0\"?&gt;\n<BR>\n&lt;!<FONT COLOR="
               "'purple'>DOCTYPE </FONT><FONT COLOR='green'>%s</FONT> "
               "<FONT COLOR='purple'>SYSTEM </FONT>\"<A HREF='%s'>%s.dtd"
@@ -62,6 +48,25 @@ define method transform(in :: <document>, tag-name :: <symbol>,
   format(str, "\n </BODY>\n</HTML>");
 end method transform;
 
+define function name-color(name :: <string>, color :: <string>)
+ => (s :: <string>)
+  format-to-string("<FONT COLOR='%s'>%s</FONT>", color, name);
+end function name-color;
+
+define method xml-name(e :: <element>, state :: <html>) => (s :: <string>)
+  name-color(as(<string>, e.name), "green");
+end method xml-name;
+
+define method xml-name(a :: <attribute>, state :: <html>) => (s :: <string>)
+  name-color(as(<string>, a.name), "blue");
+end method xml-name;
+
+define method xml-name(ch :: <char-reference>, state :: <html>)
+ => (s :: <string>)
+  name-color(next-method(), "red");
+end method xml-name;
+
+/*
 define method transform(in :: <element>, tag-name :: <symbol>,
                         state :: <html>, str :: <stream>)
   let namei = as(<string>, tag-name);
@@ -80,21 +85,28 @@ define method transform(in :: <attribute>, tag-name :: <symbol>,
   format(str, " <FONT COLOR='blue'>%s</FONT>=\"%s\"", 
          as(<string>, tag-name), in.attribute-value);
 end method transform;
+ */
 
 define method transform(in :: <entity-reference>, tag-name :: <symbol>,
                         state :: <html>, str :: <stream>)
-  let name = as(<string>, tag-name);
+/*  let name = as(<string>, tag-name);
   format(str, "<A HREF='%s-entities.html#%s'>&amp;%s;</A>", 
-         state.document-name, name, name);
+         state.document-name, name, name); */
+  format(str, "<A HREF='%s-entities.html#%s'>", state.document-name, tag-name);
+  next-method();
+  format(str, "</A>");
 end method transform;
 
+/*
 define method transform(in :: <char-reference>, tag-name :: <symbol>,
                         state :: <html>, str :: <stream>)
-  format(str, "<font color='red'>&amp;%s;</font>", as(<string>, tag-name));
+//  format(str, "<font color='red'>&amp;%s;</font>", as(<string>, tag-name));
+  format(str, "<FONT COLOR='red'>%=</FONT>", in);
 end method transform;
 
 define method transform(in :: <char-string>, tag-name :: <symbol>,
                         state :: <html>, str :: <stream>)
+  format(str, "%=", in);
   for(ch in in.text)
     format(str, check-char(ch));
   end for;
@@ -109,4 +121,4 @@ define function check-char(ch :: <character>) => (checked :: <string>)
     otherwise => make(<string>, size: 1, fill: ch);
   end select;
 end function check-char;
-
+*/

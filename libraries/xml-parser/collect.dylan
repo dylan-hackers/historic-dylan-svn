@@ -24,11 +24,12 @@ and do the transformation on the match list to map "*" => <wildcard>
 // slot pattern tracks the match during the tree descent.
 define class <collect-state> (<xform-state>)
   constant slot pattern :: <sequence>, required-init-keyword: pattern:;
-  virtual /* class */ slot elements :: <sequence>;
+  class slot elements :: <sequence>;
   slot candidate :: false-or(<element>) = #f;
   slot depth :: <integer> = 0;
 end class <collect-state>;
 
+/*
 // elements is a class slot, but the GwydionDylan compiler currently
 // pukes on class slots, so I'm using the virtual slot work-around
 // that Gabor gave me:
@@ -41,6 +42,7 @@ define method elements-setter(seq :: <sequence>, c :: <collect-state>)
  => (seq1 :: <sequence>)
   *elements* := seq;
 end method elements-setter;
+*/
 
 define variable *original-state* :: false-or(<collect-state>) = #f;
 

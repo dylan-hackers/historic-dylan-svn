@@ -51,13 +51,18 @@ define method transform(in :: <char-string>, tag-name :: <symbol>,
 //  write(str, in.text);  // uncomment to see only the data
 end method transform;
 
-// these two xforms should not happen when substitute-entities == #t
-define method transform(in :: <entity-reference>, tag-name :: <symbol>,
+// this xform should not happen when substitute-entities == #t
+define method transform(in :: <reference>, tag-name :: <symbol>,
                         state :: <xform-state>, str :: <stream>)
-  for(x in in.entity-value) transform(x, x.name, state, str) end;
+  do-reference-xform(in, state, str);
 end method transform;
 
-define method transform(in :: <char-reference>, tag-name :: <symbol>,
-                        state :: <xform-state>, str :: <stream>)
+define method do-reference-xform(in :: <entity-reference>,
+                                 state :: <xform-state>, str :: <stream>)
+  for(x in in.entity-value) transform(x, x.name, state, str) end;
+end method do-reference-xform;
+
+define method do-reference-xform(in :: <char-reference>,
+                                 state :: <xform-state>, str :: <stream>)
 //  write-element(str, in.char);
-end method transform;
+end method do-reference-xform;
