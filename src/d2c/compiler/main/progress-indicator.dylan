@@ -18,15 +18,11 @@ define generic report-progress(indicator :: <progress-indicator>) => ();
 define method increment-and-report-progress
     (indicator :: <progress-indicator>) => ();
   increment-progress(indicator);
-#if (mindy)
-  report-progress(indicator);
-#else
   let now :: <integer> = get-time-of-day();
-  if (now > indicator.last-time-flushed)
+  if (now > indicator.last-time-flushed | indicator.done >= indicator.total)
     report-progress(indicator);
     indicator.last-time-flushed := now;
   end;
-#endif
 end method increment-and-report-progress;
 
 define method increment-and-report-progress(f == #f) => ();
@@ -59,7 +55,16 @@ end class <n-of-k-progress-indicator>;
 
 define method report-progress(indicator :: <n-of-k-progress-indicator>) => ()
   let stream = indicator.output-stream;
-  format(stream, "%=/%= tlfs processed.\r", indicator.done, indicator.total);
+  let string = format-to-string("%=/%= tlfs processed.\r", indicator.done, 
+                                indicator.total);
+  if(indicator.done >= indicator.total)
+    for(i from 0 below string.size)
+      write(stream, " ");
+    end for;
+    write(stream, "\r");
+  else
+    write(stream, string)
+  end if;
   force-output(stream);
 end method report-progress;
 

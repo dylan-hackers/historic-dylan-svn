@@ -140,13 +140,23 @@ define method run-command(c)
   elseif(co.size > 1)
     format-out("Ambiguous command. Try Help.\r\n");
   else
-    to-cooked();
     let parameter = copy-sequence(*command-line*, 
                                   start: commands[0].name.size + 1);
     if(parameter.size < 0) // XXX evil bug in copy-sequence, fix there!
       parameter := "";
     end if;
-    commands[0].command(parameter);
+
+    force-output(*standard-output*);
+    to-cooked();
+
+    block()
+      commands[0].command(parameter);
+    exception (condition :: <condition>)
+      format(*standard-output*, "%s\r\n", condition);
+      #f
+    end block;
+
+    force-output(*standard-output*);
     to-raw();
   end if;
 
@@ -275,22 +285,22 @@ define variable *key-bindings* = make(<simple-vector>,
                                       fill: self-insert-command);
 
 *key-bindings*[as(<integer>, '\r')] := run-command;
-*key-bindings*[68] := backward-char-command;
-*key-bindings*[67] := forward-char-command;
+//*key-bindings*[68] := backward-char-command;
+//*key-bindings*[67] := forward-char-command;
 *key-bindings*[8] := delete-char-backwards;
 *key-bindings*[127] := delete-char-backwards;
 *key-bindings*[9] := complete-command;
 *key-bindings*[as(<integer>, ' ')] := complete-command-and-insert-space;
 *key-bindings*[1] := beginning-of-line;
-*key-bindings*[72] := beginning-of-line;
+//*key-bindings*[72] := beginning-of-line;
 *key-bindings*[5] := end-of-line;
-*key-bindings*[70] := end-of-line;
+//*key-bindings*[70] := end-of-line;
 *key-bindings*[11] := kill-to-end-of-line;
-*key-bindings*[91] := #f.always;
-*key-bindings*[37] := #f.always;
+//*key-bindings*[91] := #f.always;
+//*key-bindings*[37] := #f.always;
 *key-bindings*[27] := #f.always;
-*key-bindings*[65] := #f.always;
-*key-bindings*[66] := #f.always;
+//*key-bindings*[65] := #f.always;
+//*key-bindings*[66] := #f.always;
 
 
 define variable to-raw    = identity;

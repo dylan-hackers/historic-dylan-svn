@@ -523,7 +523,7 @@ define method library-name (lib :: <library>) => name :: <symbol>;
 end method library-name;
 
 define method print-object (lib :: <library>, stream :: <stream>) => ();
-  pprint-fields(lib, stream, name: lib.library-name);
+  pprint-fields(lib, stream, name: lib.library-name, entries: lib.entries);
 end method print-object;
 
 define method namespace-kind (lib :: <library>) => res :: <byte-string>;
@@ -532,7 +532,7 @@ end method namespace-kind;
 
 
 
-// $Libraries -- internal.
+// $Libraries -- exported.
 //
 // Hash table mapping names to <library> structures.
 //

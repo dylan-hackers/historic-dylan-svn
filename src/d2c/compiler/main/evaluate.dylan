@@ -39,51 +39,56 @@ define inline function d(#rest args)
   end if;
 end function d;
 
-#if (~mindy)
-
-define function evaluate-safely(expression :: <string>)
-  block()
-    evaluate(expression, $empty-environment);
-  exception(condition :: <condition>)
-    condition-format(*standard-output*, "%s\r\n", condition);
-    force-output(*standard-output*);
-    #f
-  end block
-end function evaluate-safely;
-
 make(<command>, name: "Evaluate", 
-     command: evaluate-safely, 
+     command: method(expression)
+                  evaluate(expression, $empty-environment)
+              end,
      summary: "Evaluate as Dylan expression.");
 
 make(<command>, name: "Set Library",
      command: method(parameter)
-                  block()
-                    *current-library* := find-library(as(<symbol>, parameter), create: #t);
-                    assure-loaded(*current-library*);
-                    if (*current-library*.broken?)
-                      format(*standard-output*, "Using broken library %s\r\n", parameter);
-                    end if;
-                  exception (condition :: <condition>)
-                    condition-format(*standard-output*, "%s\r\n", condition);
-                    force-output(*standard-output*);
-                    #f
-                  end block
+                  *current-library* := find-library(as(<symbol>, parameter), 
+                                                    create: #t);
+                  assure-loaded(*current-library*);
+                  if (*current-library*.broken?)
+                    format(*standard-output*, "Using broken library %s\r\n", 
+                           parameter);
+                  end if;
               end method,
      summary: "Set current library.");
                                
 make(<command>, name: "Set Module",
      command: method(parameter)
-                  block()
-                    *current-module*
-                      := find-module(*Current-Library* | $Dylan-library, 
-                                     as(<symbol>, parameter));
-                  exception (condition :: <condition>)
-                    condition-format(*standard-output*, "%s\r\n", condition);
-                    force-output(*standard-output*);
-                    #f
-                  end block
+                  *current-module*
+                    := find-module(*Current-Library* | $Dylan-library, 
+                                 as(<symbol>, parameter));
               end method,
      summary: "Set current module.");
+
+make(<command>, name: "Show Library",
+     command: method(parameter)
+                  let lib = find-library(as(<symbol>, parameter));
+                  assure-loaded(lib);
+                  format(*standard-output*, "%=\n", lib.exported-names);
+              end method,
+     summary: "Show modules in specified library.");
+                               
+make(<command>, name: "Show Module",
+     command: method(parameter)
+                  let mod = find-module(*Current-Library* | $Dylan-library, 
+                                        as(<symbol>, parameter));
+                  format(*standard-output*, "%=\n", mod.exported-names);
+              end method,
+     summary: "Show symbols in specified module.");
+                               
+make(<command>, name: "Show Libraries",
+     command: method(parameter)
+                  for(lib in $Libraries)
+                    format(*standard-output*, "%=\n", lib);
+                  end for;
+              end method,
+     summary: "Show all loaded libraries.");
+                               
 
 define generic evaluate(expression, environment :: <interpreter-environment>)
  => val :: <object>;
@@ -602,4 +607,3 @@ define function append-environment(prev-env :: <interpreter-environment>, new-bi
     end if;
   end method;
 end function;
-#endif
