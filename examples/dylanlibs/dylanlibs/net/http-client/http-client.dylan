@@ -121,6 +121,10 @@ define method do-http-request(session :: <http-session>,
             content := concatenate(content, pairs.head, "=", pairs.tail)
           end for;
         end if;
+
+        when(~content | empty?(content))
+          error("Empty content passed to http post request");
+        end when;
         
         let c-content = add-resource(session, as(<c-string>, content));
         curl-easy-setopt(curl, $curlopt-post, 1);
