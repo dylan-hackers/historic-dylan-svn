@@ -124,13 +124,13 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
 end method real-intersection-before;
 
 define method plane-intersection(norm :: <3D-vector>, d :: <fp>, ray :: <ray>)
- => hit :: false-or(<3D-point>);
+ => (hit, distance);
   let t = -(norm * (ray.ray-position - $origin) + d) / (norm * ray.ray-direction);
   
   if (t <= 0.0)
     #f;
   else
-    homogenize(ray.ray-position + ray.ray-direction * t);
+    values(homogenize(ray.ray-position + ray.ray-direction * t), t);
   end if;
 end method plane-intersection;
 
@@ -141,23 +141,29 @@ define constant $cube-planes =  vector(vector(vector3D( 0.0,  0.0, -1.0), 0.0), 
 				       vector(vector3D( 0.0,  1.0,  0.0), -1.0), // Top
 				       vector(vector3D( 0.0, -1.0,  0.0), 0.0)); // Bottom
 
-define constant $u-methods = vector(x, x, z, z, y, y);
+define constant $u-methods = vector(x, x, z, z, x, x);
 define constant $v-methods = vector(y, y, y, y, z, z);
 
 define method real-intersection-before(m :: <cube>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
-  block (outta-here)
-    for (p in $cube-planes, which-one from 0)
-      let hit = plane-intersection(p[0], p[1], ray);
-      if (hit & hit.x <= 1.0 & hit.y <= 1.0 & hit.z <= 1.0
-	    & hit.x >= 0.0 & hit.y >= 0.0 & hit.z >= 0.0)
-	outta-here(hit, p[0], make-surface-closure(which-one, 
-						   $u-methods[which-one](hit), 
-						   $v-methods[which-one](hit), 
-						   m.surface-interpreter-entry));
-      end if;
-    end for;
-  end block;
+  let hits = make(<stretchy-vector>);
+  for (p in $cube-planes, which-one from 0)
+    let (hit, dist) = plane-intersection(p[0], p[1], ray);
+    if (hit & $u-methods[which-one](hit) <= 1.0 & $v-methods[which-one](hit) <= 1.0 &
+	  $u-methods[which-one](hit) >= 0.0 & $v-methods[which-one](hit) >= 0.0)
+      add!(hits, vector(dist, hit, p[0], make-surface-closure(which-one, 
+							      $u-methods[which-one](hit), 
+							      $v-methods[which-one](hit), 
+							      m.surface-interpreter-entry)));
+    end if;
+  end for;
+
+  if (hits.size > 0)
+    sort!(hits, test: method(a, b) a[0] < b[0]  end method);
+    values(hits[0][1], hits[0][2], hits[0][3], ray.ray-position - hits[0][1]);
+  else
+    #f;
+  end if;
 end method real-intersection-before;
 
 
