@@ -12,61 +12,105 @@ define function optimize-compile-GML(tokens :: <list>) => (closure :: <function>
   end if
 end optimize-compile-GML;
 
+define generic optimizable-one(token, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
 
-define generic optimizable-one(token, more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define generic optimizable-two(token1, token2, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
 
-define generic optimizable-two(token1, token2, more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define generic optimizable-three(token1, token2, token3, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
 
-define generic optimizable-three(token1, token2, token3, more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define generic optimize-all(tokens :: <list>, #key suppress-closure) => (tokens :: <list>, closure);
 
-define generic optimize-all(tokens :: <list>) => (tokens :: <list>, closure);
-
-define method optimizable-one(token, more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define method optimizable-one(token, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   orig
 end;
 
-define method optimizable-one(token :: <integer>, more :: <pair>, #key orig :: <pair>) => (tokens :: <list>, closure);
-  optimizable-two(token, more.head, more.tail, orig: orig)
+define method optimizable-one(token :: <symbol>, more :: <list>, suppress-closure == #t, #key orig :: <pair>) => (tokens :: <list>, closure);
+  orig
 end;
 
-define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <pair>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define method optimizable-one(token :: <integer>, more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+  optimizable-two(token, more.head, more.tail, suppress-closure, orig: orig)
+end;
+
+define method optimizable-one(token :: <fp>, more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+  optimizable-two(token, more.head, more.tail, suppress-closure, orig: orig)
+end;
+
+define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   pair(token1.negative, more)
 end;
 
-define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   pair(token1.negative, more)
 end;
 
-define method optimizable-two(token1, token2, more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define method optimizable-two(right :: <integer>, token2 == #"addi", more-tokens :: <list>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+/*  define method compile-one(token == ?#"name", more-tokens :: <list>)
+	  => (closure :: <function>, remaining :: <list>); */
+	   let (cont, remaining) = more-tokens.optimize-compile-GML;
+	   values(remaining,
+		  method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+      		      let (left :: /*?front*/ <integer>, rest :: <list>) = values(stack.head, stack.tail);
+		      cont(pair(/*?operator*/ \+(left, right), rest), env)
+		  end method)
+     /*	 end; */
+end;
+
+define method optimizable-two(token1, token2, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   orig
 end;
 
 
-define method optimizable-two(token1, token2, more :: <pair>, #key orig :: <pair>) => (tokens :: <list>, closure);
-  optimizable-three(token1, token2, more.head, more.tail, orig: orig)
+define method optimizable-two(token1, token2, more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+//  debug-print("ееее1еее %= %= %= %= %= ", token1, token2, more.head, more.tail, suppress-closure);
+  optimizable-three(token1, token2, more.head, more.tail, suppress-closure, orig: orig)
 end;
 
-define method optimizable-three(token1, token2, token3, more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define method optimizable-three(token1, token2, token3, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   orig
 end;
 
-define method optimizable-three(token1 :: <integer>, token2 :: <integer>, token3 == #"addi", more :: <list>, #key orig :: <pair>) => (tokens :: <list>, closure);
+define method optimizable-three(token1 :: <integer>, token2 :: <integer>, token3 == #"addi", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+  pair(token1 + token2, more)
+end;
+
+define method optimizable-three(token1 :: <integer>, token2 :: <integer>, token3 == #"addi", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   pair(token1 + token2, more)
 end;
 
 
-define method optimize-all(tokens == #()) => (tokens :: <list>, closure);
+// optimize #"point"
+
+define method optimizable-three(token1 :: <fp>, token2 :: <fp>, token3 :: <fp>, more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+    debug-print("ееее2еее");
+
+  if (more.head == #"point")
+    pair(make(<point>, x: token1, y: token2, z: token3), more.tail)
+  else
+    orig
+  end if
+end;
+
+define method optimize-all(tokens == #(), #key suppress-closure) => (tokens :: <list>, closure);
   tokens
 end;
 
-define method optimize-all(orig-tokens :: <pair>) => (tokens :: <list>, closure);
+define method optimize-all(orig-tokens :: <pair>, #key suppress-closure) => (tokens :: <list>, closure);
+  debug-print("entering optimize-all: %= suppress: %=", orig-tokens, suppress-closure);
   let tokens-tail = orig-tokens.tail;
-  let (optimized :: <list>, closure) = tokens-tail.optimize-all; // closure not needed?
-  let orig-tokens = tokens-tail == optimized & orig-tokens | pair(orig-tokens.head, optimized);
-  let (tokens :: <list>, closure) = optimizable-one(orig-tokens.head, optimized, orig: orig-tokens);
+  let optimized-tail :: <list> = optimize-all(tokens-tail, suppress-closure: #t);
+///    debug-print("tokens-tail.optimize-all: %=", optimized-tail);
+
+ // let optimized = closure & orig-tokens | optimized-tail; // for now, undo the opt.
+  let orig-tokens = tokens-tail == optimized-tail & orig-tokens | pair(orig-tokens.head, optimized-tail);
+///  debug-print("optimizable-one gets passed: %= %=", orig-tokens.head, orig-tokens.tail, suppress-closure);
+  let (tokens :: <list>, closure) = optimizable-one(orig-tokens.head, orig-tokens.tail, suppress-closure, orig: orig-tokens);
+  debug-print("optimizable-one returned: %= %=", tokens, closure);
   if (closure | tokens == orig-tokens)
+    debug-print("returning them");
     values(tokens, closure)
   else
-    optimize-all(tokens)
+    debug-print("optimizing more");
+    optimize-all(tokens, suppress-closure: suppress-closure)
   end if
 end;
