@@ -57,11 +57,8 @@ define method render-image(o, depth :: <integer>, filename, ambient :: <color>,
   let canvas = make(<ppm-image>, filename: filename, depth: 255,
 		    width: width, height: height);
 
-  format-out("FOV: %=\n", fov);
   let world-width = 2.0 * tan(fov / 2.0);
   let world-height = world-width * as(<fp>, height) / as(<fp>, width);
-
-  format-out("world is %= x %=\n", world-width, world-height);
 
   let trace = get-tracer(o, ambient, lights);
 
@@ -73,10 +70,6 @@ define method render-image(o, depth :: <integer>, filename, ambient :: <color>,
 		     position: $eye-pos,
 		     direction: point3D(world-x, world-y, 0.0, 1.0) -
 		       $eye-pos);
-      format-out("world-x = %=, world-y = %=, ", world-x, world-y);
-      format-out("ray.direction = (%=, %=, %=)\n",
-		 ray.ray-direction.x, ray.ray-direction.y,
-		 ray.ray-direction.z);
       write-pixel(canvas, trace(ray, depth));
     end for;
   end for;
