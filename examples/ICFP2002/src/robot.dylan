@@ -11,9 +11,9 @@ define class <robot> (<object>)
   slot money :: false-or(<integer>),
     init-keyword: money:,
     init-value: #f;
-  slot inventory :: limited(<vector>, of: <package>),
+  slot inventory :: /*limited( */ <vector> /*, of: <package>)*/ ,
     init-keyword: inventory:,
-    init-value: make(limited(<vector>, of: <package>), size: 0);
+    init-value: make(/*limited(*/ <vector> /*, of: <package>)*/ , size: 0);
 end;
 
 define method capacity-left(r :: <robot>)
