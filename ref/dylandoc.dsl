@@ -69,8 +69,8 @@
   ;; Make ID attributes into file names.
   #t)
 
-(define (have-children? #!optional (node (current-node)))
-  (not (node-list-empty? (children node))))
+(define (chunk-skip-first-element-list)
+  '())
 
 
 ;;;========================================================================
@@ -157,6 +157,9 @@
   (empty-sosofo))
 (element DefSummary
   (empty-sosofo))
+
+(define (have-children? #!optional (node (current-node)))
+  (not (node-list-empty? (children node))))
 
 (define (have-child? type #!optional (node (current-node)))
   (not (node-list-empty? (select-elements (children node) (normalize type)))))
