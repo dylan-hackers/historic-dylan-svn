@@ -43,22 +43,8 @@ define function main(program-name, arguments)
       & arguments[0] ~= "--no-entity-substitution";
     with-open-file(in = arguments[if(*substitute?*) 0 else 1 end], 
 		   direction: #"input-output")
-//      let start = current-date();
       let doc = parse-document(stream-contents(in, clear-contents?: #f),
                                substitute-entities?: *substitute?*);
-/**
-      let stop = current-date();
-      apply(curry(format-out,"Start: %=, End: %=, elapsed time: %=\n"),
-            map(string-time, list(start, stop,
-                                  make(<date>, year: start.date-year,
-                                       month: start.date-month,
-                                       day: start.date-day,
-                                       hour: stop.date-hours - start.date-hours,
-                                       minutes: stop.date-minutes - start.date-minutes,
-                                       seconds: stop.date-seconds - start.date-seconds,
-                                       microseconds: stop.date-microseconds - 
-                                       start.date-microseconds))));
- **/
       let filename = concatenate(as(<string>, doc.name), "-xml.html");
       with-open-file(file = filename, direction: #"output")
         transform-document(doc, state: $html, stream: file);
