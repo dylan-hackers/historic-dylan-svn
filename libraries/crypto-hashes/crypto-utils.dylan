@@ -21,8 +21,8 @@ copyright: see below
 
 // ;;; The next four ought to be in SRFI 33 (bitwise).
 
-let bitwise-not = lognot;
-let arithmetic-shift = ash;
+define constant bitwise-not = lognot;
+define constant arithmetic-shift = ash;
 
 define macro scheme-bindings-definer
 
@@ -36,25 +36,35 @@ define macro scheme-bindings-definer
     { define function ?name(?args) ?sexpr end }
 
   bindings:
-    {} => {}
-    { ?binding; ... } => { ?binding, ... }
+    { } => { }
+    { (define-scm (?:name ?args) ?sexpr) ... } => { define function ?name(?args) ?sexpr end; ... }
+///    { ?binding ... } => { ?binding; ... }
 
   args:
-    {} => {}
+    { } => { }
     { ?:name ... } => { ?name, ... }
 
   sexpr:
-    { (?sexpr  ?sexprs) } => { ?sexpr(?sexprs) }
+    { (?:expression ?sexprs) } => { ?expression(?sexprs) }
+///    { (?sexpr ?sexprs) } => { ?sexpr(?sexprs) }
     { ?:expression } => { ?expression }
 
   sexprs:
-    {} => {}
-    { ?sexpr ... } => { ?sexpr, ... }
+    { } => { }
+    { (?:expression ?sexprs2) ... } => { ?expression(?sexprs2), ... }
+    { ?:expression ... } => { ?expression, ... }
+///    { ?sexpr ... } => { ?sexpr, ... }
+
+  sexprs2:
+    { } => { }
+    { (?:expression ?sexprs) ... } => { ?expression(?sexprs), ... }
+    { ?:expression ... } => { ?expression, ... }
+
 end macro;
 
 define scheme-bindings
 
-/// (define-scm (bit-mask size) (bitwise-not (arithmetic-shift -1 size)))
+(define-scm (bit-mask size) (bitwise-not (arithmetic-shift -1 size)))
 
 
 /*
