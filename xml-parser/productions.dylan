@@ -48,7 +48,7 @@ copyright: LGPL
 //    [1]    document    ::=    prolog element Misc*
 //
 define function parse-document (doc :: <string>, 
-                                #key start = 0, end: stop, 
+                                #key start = 0, end: stop = doc.size, 
                                 substitute-entities? = #t,
                                 modify-elements-when-parsing? = #t,
 			        print-warnings? = #f,
@@ -115,9 +115,11 @@ end collector name;
 
 //    [6]    Names       ::=    Name (S Name)*
 //
+/* unused
 define meta names(name, s)
   scan-name(name), loop([scan-s(s), scan-name(name)])
 end meta names;
+*/
 
 //    [7]    Nmtoken     ::=    (NameChar)+
 //
@@ -127,9 +129,11 @@ end meta nmtoken;
 
 //    [8]    Nmtokens    ::=    Nmtoken (S Nmtoken)*
 //    
+/* unused
 define meta nmtokens(token, s)
   scan-nmtoken(token), loop([scan-s(s), scan-nmtoken(token)])
 end meta nmtokens;
+*/
 
 // Literals
 //
@@ -390,9 +394,11 @@ end meta markupdecl;
 // 
 // [30] extSubset ::= TextDecl? extSubsetDecl
 //
+/* unused
 define meta ext-subset(text-decl, subset-decl)
  {scan-text-decl(text-decl), []}, scan-ext-subset-decl(subset-decl)
 end meta ext-subset;
+*/
 
 // [31] extSubsetDecl ::=  ( markupdecl | conditionalSect | DeclSep)* /* */
 //
@@ -484,8 +490,8 @@ define function add-default-attributes(elt :: <symbol>, attrbs :: <vector>)
                                       else
                                         pair(default, result)
                                       end if
-                                 end method, #(), 
-                                 element($attrib-defaults, elt, default: #()))))
+                                  end method, #(), 
+                                  element($attrib-defaults, elt, default: #()))))
 end function add-default-attributes;
 
 define function maybe-tag-mismatch(msg :: <string>, hint :: <string>,
@@ -687,7 +693,7 @@ end meta mixed;
 // ----- Attribute-list Declaration -----
 
 // here we store default values and also do validation storing on attrib vals
-define constant $attrib-defaults = make(<multimap>);
+define constant $attrib-defaults = make(<table>);
 
 // 
 // [52] AttlistDecl ::= '<!ATTLIST' S Name AttDef* S? '>'
@@ -769,11 +775,12 @@ define pattern enumeration("|") scan-nmtoken(expr) end;
 //                                                 [VC: Fixed Attribute Deflt]
 //
 define meta default-decl(s, att-value)
-  {"#REQUIRED", "#IMPLIED", 
-   [{["#FIXED", scan-s(s)], []}, 
-    scan-att-value(att-value), 
-    do($attrib-defaults[*last-tag-name*] 
-         := make(<attribute>, name: *last-attrib*, value: att-value))]}, []
+  {"#REQUIRED", "#IMPLIED",
+   [{["#FIXED", scan-s(s)], []},
+    scan-att-value(att-value),
+    do(let elt = element($attrib-defaults, *last-tag-name*, default: #());
+       $attrib-defaults[*last-tag-name*]
+         := pair(make(<attribute>, name: *last-attrib*, value: att-value), elt))]}, []
 end meta default-decl;
 
 // Conditional Section
@@ -960,18 +967,22 @@ end meta n-data-decl;
 // 
 //    [77]    TextDecl    ::=    '<?xml' VersionInfo? EncodingDecl S? '?>'
 //    
+/* unused
 define meta text-decl(vers, s, decl)
   "<?xml", {scan-version-info(vers), []}, scan-encoding-decl(decl), 
   scan-s?(s), "?>"
 end meta text-decl;
+*/
 
 // Well-Formed External Parsed Entity
 // 
 //    [78]    extParsedEnt    ::=    TextDecl? content
 //
+/* unused
 define meta ext-parsed-ent(decl, content) => (content)
   {scan-text-decl(decl), []}, scan-content(content)
 end meta ext-parsed-ent;
+*/
 
 // Encoding Declaration
 // 
@@ -1116,7 +1127,9 @@ end meta public-id;
 //                   | [#x30FC-#x30FE]
 //    
 // *Ahem* we punt here, allowing anything between quotes.
+/* unused
 define collect-value encoding-info(eq, c) () "'", "\"" => { } end;
+*/
 
 //-------------------------------------------------------
 // assigning parents

@@ -31,9 +31,9 @@ files:	library
 	utils-main
 	koala-main
 	dsp-main
-subprojects:	..\..\lib\xml-parser\xml-parser.hdp
-	..\xml-rpc-common\xml-rpc-common.hdp
+subprojects:	..\xml-rpc-common\xml-rpc-common.hdp
 	..\dylan-basics\dylan-basics.hdp
+	..\..\..\xml-parser\xml-parser.hdp
 base-address:	0x63DA0000
 start-function:	
 major-version:	0
