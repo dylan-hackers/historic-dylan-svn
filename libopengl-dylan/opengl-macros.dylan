@@ -49,7 +49,7 @@ end macro;
 
 
 define macro function-family-1-aux
-  { function-family-2-aux ?:name ?class:name => ?func:name; ?stuff:* end }
+  { function-family-1-aux ?:name ?class:name => ?func:name; ?stuff:* end }
     => { define inline method ?name
              (a :: ?class) => ()
 	   ?func(a);
