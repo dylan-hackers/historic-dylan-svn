@@ -13,10 +13,11 @@ while (<>){
     s/^ (.*)$/$1/;
     s/^(.+) $/$1/;
     if (s/^([a-zA-Z0-9_-]+:)[ ]*(.*)$/$2/){
+	die("label $1 already defined as instruction ". $labels{$1}) if defined($labels{$1});
 	$labels{$1} = $pc;
     }
     /^[\w]*$/ and next;
-    print "error: pc $pc when inst size ", scalar(@inst), "\n" if $pc != scalar(@inst);
+    die("error: pc $pc when inst size ". scalar(@inst)) if $pc != scalar(@inst);
     ++$pc;
     s/\./$pc/g;
     push @inst, $_;
@@ -27,8 +28,10 @@ for my $pc (0..scalar @inst - 1){
     my @words = split(" ",$inst);
 
     for (@words){
+	next unless /:$/;
 	my $target = $labels{$_};
-	$_ = $target if defined($target);
+	die("Label $_ not defined") unless defined($target);
+	$_ = $target;
     }
 
     print join(" ", @words), "\n";
