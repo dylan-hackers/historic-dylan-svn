@@ -59,7 +59,7 @@ define function optimize-output(input :: <stretchy-object-vector>)
       emit-transitions(state.attr, desired, text,
 		       state.tag-stack, state.attr-stack,
 		       state.transitions, state.output-size,
-		       next-states);
+		       0, next-states);
     end;
     states := next-states;
     force-output(*standard-error*);
@@ -101,6 +101,7 @@ define function emit-transitions
      attr-stack :: <list>,
      token-list :: <list>,
      len :: <integer>,
+     stage :: <integer>,
      next-states :: <stretchy-object-vector>)
  => ();
 
@@ -129,7 +130,7 @@ define function emit-transitions
 	 tag-stack.tail, attr-stack.tail,
 	 pair(tag-text, token-list),
 	 len + tag-text.size,
-	 next-states);
+	 0, next-states);
     end pop-tag,
 
     method push-tag(tag :: <tag>)
@@ -141,7 +142,7 @@ define function emit-transitions
 	 pair(tag, tag-stack), pair(from, attr-stack),
 	 pair(tag-text, token-list),
 	 len + tag-text.size,
-	 next-states);
+	 1, next-states);
     end method push-tag;
 
 //  let f = *standard-error*;
@@ -165,50 +166,35 @@ define function emit-transitions
       exit();
     end;
 
-    let either-pop-or-plain =
-      (from.bold & ~to.bold) |
-      (from.italic & ~to.italic) |
-      (from.strong & ~to.strong) |
-      (from.typewriter & ~to.typewriter) |
-      (from.underline > to.underline);
+    if (stage == 0)
+      
+      local
+	method can-pop-to-attr(name)
+	  from.name ~== to.name &
+	    member?(to, attr-stack,
+		    test: method(x :: <attribute>, y :: <attribute>)
+			      x.name == y.name;
+			  end);
+	end method can-pop-to-attr;
+      
+      let pop =
+	(from.bold & ~to.bold) |
+	(from.italic & ~to.italic) |
+	(from.strong & ~to.strong) |
+	(from.typewriter & ~to.typewriter) |
+	(from.underline > to.underline) |
+	(from.font-size & ~to.font-size) |
+	(from.color & ~to.color) |
+	can-pop-to-attr(emphasis) |
+	can-pop-to-attr(font-size) |
+	can-pop-to-attr(color);
 
-    let pop-only =
-      (from.font-size & ~to.font-size) |
-      (from.color & ~to.color);
-
-    local
-      method can-pop-to-attr(name)
-	from.name ~== to.name &
-	  member?(to, attr-stack,
-		  test: method(x :: <attribute>, y :: <attribute>)
-			    x.name == y.name;
-			end);
-      end method can-pop-to-attr;
-
-    let could-pop =
-      block (could-pop)
-	if (pop-only) could-pop(#f) end;
-	if (can-pop-to-attr(emphasis)) could-pop(#t) end;
-	if (can-pop-to-attr(font-size)) could-pop(#t) end;
-	if (can-pop-to-attr(color)) could-pop(#t) end;
+      if (pop)
+	pop-tag();
+      else
+	push-tag(tag-PL);
       end;
-
-//    format(*standard-error*, "either-pop-or-plain=%=\n", either-pop-or-plain);
-//    format(*standard-error*, "pop-only=%=\n", pop-only);
-//    format(*standard-error*, "could-pop=%=\n", could-pop);
-//    force-output(*standard-error*);
-
-    if (either-pop-or-plain | pop-only | could-pop)
-      pop-tag();
-    end;
-
-    if (pop-only)
-//      exit();
-    end;
-
-    if (either-pop-or-plain)
-      push-tag(tag-PL);
-//      exit();
+      exit();
     end;
 
     if (from.emphasis ~== to.emphasis & ~to.strong)
