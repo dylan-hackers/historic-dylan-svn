@@ -518,7 +518,7 @@ define method process-server-command(state :: <state>, command :: <drop>)
                     bases: state.bases,
                     robots: state.robots,
                     packages: packages*);
-    else
+    else // otherwise just put the package on the floor.
       state := add-package(state, copy-package(p,
                                                new-location: loc,
                                                new-carrier: #f));
