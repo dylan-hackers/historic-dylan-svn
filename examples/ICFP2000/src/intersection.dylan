@@ -151,7 +151,11 @@ define method real-intersection-before(m :: <cube>, ray, distance, #key shadow-t
     let (hit, dist) = plane-intersection(p[0], p[1], ray);
     if (hit & $u-methods[which-one](hit) <= 1.0 & $v-methods[which-one](hit) <= 1.0 &
 	  $u-methods[which-one](hit) >= 0.0 & $v-methods[which-one](hit) >= 0.0)
-      add!(hits, vector(dist, hit, p[0], make-surface-closure(which-one, 
+      add!(hits, vector(dist, hit, if (p[0] * ray.ray-direction > 0.0)
+				     p[0];
+				   else
+				     -p[0];
+				   end if, make-surface-closure(which-one, 
 							      $u-methods[which-one](hit), 
 							      $v-methods[which-one](hit), 
 							      m.surface-interpreter-entry)));
@@ -159,8 +163,8 @@ define method real-intersection-before(m :: <cube>, ray, distance, #key shadow-t
   end for;
 
   if (hits.size > 0)
-    sort!(hits, test: method(a, b) a[0] < b[0]  end method);
-    values(hits[0][1], hits[0][2], hits[0][3], ray.ray-position - hits[0][1]);
+    hits := sort!(hits, test: method(a, b) a[0] < b[0]  end method);
+    values(hits[0][1], hits[0][2], hits[0][3], magnitude(ray.ray-position - hits[0][1]));
   else
     #f;
   end if;
