@@ -19,19 +19,19 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
       if (point)
 	let reflection-color = make-black();
 	let surf = surface-method();
-	if (surf.specular-coefficient)
+	if (surf.specular-coefficient > 0.0)
 	  let reflection-vector = 2.0 * normal * 
-	    (normal * ray.ray-direction) - ray.ray-direction;
+	    (normal * -ray.ray-direction) + ray.ray-direction;
 	  let reflected-ray = make(<ray>, direction:
 				     reflection-vector, 
 				   position: point +
 				     $surface-acne-prevention-offset *
-				     reflection-vector);
-	  reflection-color = tracer(reflected-ray, depth - 1);
+				     normalize(reflection-vector));
+	  reflection-color := tracer(reflected-ray, depth - 1);
 	end if; 
 	  
 	let c = surf.color * (surf.diffusion-coefficient * ambient +
-				surf.specular-coefficient * reflection-color);
+			      surf.specular-coefficient * reflection-color);
 	for (l in lights)
 	  if (can-see(o, point, l))
 	    c := c + surf.color * 
