@@ -9,4 +9,5 @@ define module ants
   use common-dylan;
   use streams;
   use standard-io;
+  use format-out;
 end module ants;

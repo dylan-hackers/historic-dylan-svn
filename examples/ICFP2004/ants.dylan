@@ -104,7 +104,7 @@ end function cell-at;
 
 define function some-ant-is-at(p :: <position>)
  => (b :: <boolean>)
-  cell-at(p).ant | #f;
+  (cell-at(p).ant & #t) | #f;
 end function some-ant-is-at;
 
 define function ant-at(p :: <position>)
@@ -280,15 +280,15 @@ define function cell-matches(p :: <position>, cond :: <ant-condition>,
       #"marker0" =>
         check-marker-at(p, c, 0);
       #"marker1" =>
-        check-marker-at(p, c, 0);
+        check-marker-at(p, c, 1);
       #"marker2" =>
-        check-marker-at(p, c, 0);
+        check-marker-at(p, c, 2);
       #"marker3" =>
-        check-marker-at(p, c, 0);
+        check-marker-at(p, c, 3);
       #"marker4" =>
-        check-marker-at(p, c, 0);
+        check-marker-at(p, c, 4);
       #"marker5" =>
-        check-marker-at(p, c, 0);
+        check-marker-at(p, c, 5);
       #"foemarker" =>
         check-any-marker-at(p, other-color(c));
       #"home" =>
@@ -310,13 +310,13 @@ define class <sense> (<instruction>)
 end class <sense>;
 
 define class <mark> (<instruction>)
-  slot marker :: <marker>;
-  slot state :: <integer>;
+  slot marker :: <marker>, required-init-keyword: marker:;
+  slot state :: <integer>, required-init-keyword: state:;
 end class <mark>;
 
 define class <unmark> (<instruction>)
-  slot marker :: <marker>;
-  slot state :: <integer>;
+  slot marker :: <marker>, required-init-keyword: marker:;
+  slot state :: <integer>, required-init-keyword: state:;
 end class <unmark>;
 
 define class <pickup> (<instruction>)
@@ -330,6 +330,7 @@ end class <drop>;
 
 define class <turn> (<instruction>)
   slot left-or-right :: <left-or-right>, required-init-keyword: left-or-right:;
+  slot state :: <integer>, required-init-keyword: state:;
 end class <turn>;
 
 define class <move> (<instruction>)
@@ -363,6 +364,7 @@ define function read-state-machine(s :: <stream>)
   while(~stream-at-end?(s))
     let line = read-line(s);
     v[line-number] := parse-instruction(line);
+    line-number := line-number + 1;
   end while;
   v
 end function read-state-machine;
@@ -382,11 +384,19 @@ define function parse-instruction(s :: <byte-string>)
   let opcode = sym(0);
 
   select(opcode)
-    #"sense" => make(<sense>, 
-                     sense-direction: int(1),
+    #"sense" => 
+      let condition = sym(4);
+      if(condition = #"marker")
+        condition := as(<symbol>, 
+                        concatenate(constituents[4],
+                                    constituents[5]));
+      end if;
+                                    
+      make(<sense>, 
+                     direction: sym(1),
                      state-true: int(2),
                      state-false: int(3),
-                     condition: sym(4));
+                     condition: condition);
     #"mark" => make(<mark>, 
                      marker: int(1),
                      state: int(2));
@@ -399,9 +409,11 @@ define function parse-instruction(s :: <byte-string>)
     #"drop" => make(<drop>,
                     state: int(1));
     #"turn" => make(<turn>,
-                    left-or-right: sym(1));
+                    left-or-right: sym(1),
+                    state: int(2));
     #"move" => make(<move>,
-                    state-success: int(1));
+                    state-success: int(1),
+                    state-failure: int(2));
     #"flip" => make(<flip>,
                     probability: int(1),
                     state-success: int(2),
@@ -446,7 +458,7 @@ define function step(aid :: <integer>)
       a.resting := resting(a) - 1;
     else
       let ins = get-instruction(color(a), state(a)); 
-      select(ins by instance?)
+      select (ins by instance?)
         <sense> =>
           let p* = sensed-cell(p, direction(a), ins.sense-direction);
           let st = if(cell-matches(p*, ins.cond, color(a)))
@@ -525,7 +537,6 @@ begin
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
-
 /*
 define function play-game(red-brain :: <string>,
                           black-brain :: <string>,
@@ -542,3 +553,8 @@ define function play-game(red-brain :: <string>,
   end with-open-file;
 end function play-game;
 */
+begin
+  let test-machine = read-state-machine(*standard-input*);
+  do(method(x) format-out("%s\n", unparse(x)) end, test-machine);
+  force-output(*standard-output*);
+end;

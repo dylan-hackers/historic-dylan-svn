@@ -6,26 +6,31 @@ define generic unparse(i :: <instruction>)
 define function sense-condition-as-string(m)
  => text :: <byte-string>;
   select (m)
-  	Friend: => "Friend"
-        Foe: => "Foe"
-        FriendWithFood: => "FriendWithFood"
-        FoeWithFood: => "FoeWithFood"
-        Food: => "Food"
-        Rock: => "Rock"
-        Marker: => "Marker"
-        FoeMarker: => "FoeMarker"
-        Home: => "Home"
-        FoeHome: => "FoeHome"
-   end;
+    Friend: => "Friend";
+    Foe: => "Foe";
+    FriendWithFood: => "FriendWithFood";
+    FoeWithFood: => "FoeWithFood";
+    Food: => "Food";
+    Rock: => "Rock";
+    Marker0: => "Marker 0";
+    Marker1: => "Marker 1";
+    Marker2: => "Marker 2";
+    Marker3: => "Marker 3";
+    Marker4: => "Marker 4";
+    Marker5: => "Marker 5";
+    FoeMarker: => "FoeMarker";
+    Home: => "Home";
+    FoeHome: => "FoeHome";
+  end;
 end;
 
 define function sense-direction-as-string(d)
  => text :: <byte-string>;
   select (d)
-	Here: => "Here"
-        Ahead: => "Ahead"
-        LeftAhead: => "LeftAhead"
-        RightAhead: => "RightAhead"
+    Here: => "Here";
+    Ahead: => "Ahead";
+    LeftAhead: => "LeftAhead";
+    RightAhead: => "RightAhead";
    end;
 end;
 
