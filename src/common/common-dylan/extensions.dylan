@@ -1,46 +1,54 @@
 module: common-extensions
 
 //=========================================================================
-//  Unsupplied, unfound.
+//  unsupplied, unfound.
 //=========================================================================
 //  Unique objects which can be used as default values for keywords and
 //  passed to 'default:'. These cannot be confused with any other Dylan
 //  values.
 
-define method unsupplied?( object :: <object> )
-=> ( unsupplied? :: <boolean> )
-    object = $unsupplied;
-end method unsupplied?;
+//=========================================================================
+//  unsupplied? related functions.
+//=========================================================================
 
-define method supplied?( object :: <object> )
-=> ( unsupplied? :: <boolean> )
-    ~ unsupplied?( object );
-end method supplied?;
+define inline function unsupplied ()
+    => (unsupplied-marker :: <object>)
+  $unsupplied;
+end function unsupplied;
 
-define method unsupplied()
-=> ( unsupplied-marker :: <object> )
-    $unsupplied;
-end method unsupplied;
+define inline function unsupplied? (object :: <object>)
+    => (unsupplied? :: <boolean>)
+  object == unsupplied();
+end function;
 
-define class <not-found-marker> (<object>)
+define inline function supplied? (object :: <object>)
+    => (unsupplied? :: <boolean>)
+  ~unsupplied?(object);
+end function;
+
+//=========================================================================
+//  unfound? related functions.
+//=========================================================================
+
+define class <unfound-marker> (<object>)
 end;
 
-define constant $unfound = make(<not-found-marker>);
+define constant $unfound = make(<unfound-marker>);
 
-define function found?( object :: <object> )
-=> ( found? :: <boolean> )
-    ~ unfound?( object );
-end function found?;
+define inline function unfound ()
+    => (unfound-marker :: <unfound-marker>)
+  $unfound;
+end function;
 
-define function unfound?( object :: <object> )
-=> ( unfound? :: <boolean> )
-    object = $unfound;
-end function unfound?;
+define inline function unfound? (object :: <object>)
+ => (unfound? :: <boolean>)
+  object == unfound();
+end function;
 
-define function unfound()
-=> ( unfound-marker :: <object> )
-    $unfound;
-end function unfound;
+define inline function found? (object :: <object>)
+    => (found? :: <boolean>)
+  ~unfound?(object);
+end function;
 
 
 #if (~bootstrap)
