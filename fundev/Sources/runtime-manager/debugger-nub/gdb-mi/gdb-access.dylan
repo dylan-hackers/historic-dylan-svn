@@ -145,7 +145,7 @@ define generic parse-result(result-class :: <class>, mi-reply :: <byte-string>) 
 define macro mi-operation-definer
   // low-level definers
 
-  { define class-for-sequential mi-operation ?:name(?sequence-slot:*) end }
+  { define class-for-sequential mi-operation ?:name(?sequence-slot) end }
   =>
   {
     define class ?name ## "-<command>"(<mi-command>)
@@ -167,7 +167,7 @@ define macro mi-operation-definer
   =>
   {
     define function ?name(?rest-sequence)
-      make(?name ## "-<command>", #"?name", ?sequence-arg)
+      make(?name ## "-<command>", ?#"name", ?sequence-arg)
     end;
   }
 
@@ -176,14 +176,14 @@ define macro mi-operation-definer
   {
   }
 
-  { define result-for-sequential mi-operation ?:name(?parse-sequence:*) end }
+  { define result-for-sequential mi-operation ?:name(?p-sequence:*) end }
   =>
   {
     define class ?name ## "-<result>"(<mi-result>)
     end;
   }
 
-  { define parser-for-sequential mi-operation ?:name(?parse-sequence) end }
+  { define parser-for-sequential mi-operation ?:name(?p-sequence:*) end }
   =>
   {
     define method parse-result(result-class == ?name ## "-<result>", mi-reply :: <byte-string>) => result :: <mi-result>;
@@ -193,7 +193,7 @@ define macro mi-operation-definer
                 return(matched.head(?name ## "-<result>"));
               end;
          
-         let parsers = list(?parse-sequence, finish);
+         let parsers = list(?p-sequence, finish);
          parsers.head(mi-reply, #(), parsers.tail);
       end block;
     end method;
@@ -252,7 +252,7 @@ define macro mi-operation-definer
   { define mi-operation ?:name(?argument, ?arguments) ?options; ?parse-sequence end }
   =>
   {
-    define class-for-regular mi-operation ?name(?argument ?arguments) end;
+///////////    define class-for-regular mi-operation ?name(?argument ?arguments) end;
     // ---- more
   }
 
@@ -265,7 +265,7 @@ define macro mi-operation-definer
   //
   sequence-slot:
     { [ ?ignore:name ?:name :: ?:expression;(?blurb:*) ] }
-    => { slot ?name :: limited(<vector>, of: ?expression), required-init-keyword: #"?name" }
+    => { slot ?name :: limited(<vector>, of: ?expression), required-init-keyword: ?#"name" }
 
   rest-sequence:
     { [ ?ignore:name ?:name :: ?:expression;(?blurb:*) ] }
@@ -282,8 +282,8 @@ define macro mi-operation-definer
     { ?parse-directive; ... } => { ?parse-directive, ... }
   
   parse-directive:
-    { resulting ?:name } => { method(inp, matched, more) => (); let m = match(inp, "^" "?name"); more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
-    { resulting ?:name => ?parser:expression } => { method(inp, matched, more) => (); let m = match(inp, "^" "?name"); more.head(inp, pair(if (m) rcurry(?parser, m) else #f.always end if, matched), more.tail) end method }
+    { resulting ?:name } => { method(inp, matched, more) => (); let m = match(inp, "^" ?"name"); more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
+    { resulting ?:name => ?parser:expression } => { method(inp, matched, more) => (); let m = match(inp, "^" ?"name"); more.head(inp, pair(if (m) rcurry(?parser, m) else #f.always end if, matched), more.tail) end method }
 
   options:
     {} => {}
@@ -291,10 +291,10 @@ define macro mi-operation-definer
     { { ?alternate } ... } => { ?alternate ... }
 
   option:
-    { ?:name } => { ?name ?name :: <boolean>;(init-keyword: #"?name", init-value: #f) }
-    { ?flag:name ?:name } => { ?flag ?name :: <boolean>;(init-keyword: #"?flag", init-value: #f) }
-    { ?flag:name ?:name :: ?:expression } => { ?flag ?name :: ?expression;(required-init-keyword: #"?flag") }
-    { ?:name :: ?:expression } => { ?name ?name :: ?expression;(required-init-keyword: #"?name") }
+    { ?:name } => { ?name ?name :: <boolean>;(init-keyword: ?#"name", init-value: #f) }
+    { ?flag:name ?:name } => { ?flag ?name :: <boolean>;(init-keyword: ?#"flag", init-value: #f) }
+    { ?flag:name ?:name :: ?:expression } => { ?flag ?name :: ?expression;(required-init-keyword: ?#"flag") }
+    { ?:name :: ?:expression } => { ?name ?name :: ?expression;(required-init-keyword: ?#"name") }
     
   alternate:
     { } => { }
@@ -306,7 +306,7 @@ define macro mi-operation-definer
     { ?argument, ... } => { ?argument ... }
 
   argument:
-    { ?:name :: ?:expression } => { [ ?name ?name :: ?expression;(required-init-keyword: #"?name") ] }
+    { ?:name :: ?:expression } => { [ ?name ?name :: ?expression;(required-init-keyword: ?#"name") ] }
 
   regular-class-options:
     {} => {}
@@ -325,7 +325,11 @@ end;
 // ####################################
 // GDB/MI Breakpoint table commands
 
+define method parse-breakpoint-table()
+end;
 
+define method placeholder() /// ###
+end;
 
 define mi-operation break-after(number :: <positive>, count :: <positive>);
   resulting error => report;
@@ -333,6 +337,8 @@ define mi-operation break-after(number :: <positive>, count :: <positive>);
 end;
 
 define mi-operation break-condition(number :: <positive>, expr :: <mi-expression>);
+  resulting error => report;
+  resulting done => placeholder; /// ###
 end;
 
 define mi-operation break-delete((breakpoint :: <positive>));
@@ -423,11 +429,12 @@ define mi-operation data-list-changed-registers;
 end;
 
 
-
+define method parse-registers();
+end;
 
 
 define mi-operation data-list-register-names((regno :: <positive>));
-  resulting done => parse-registers // -names=["r1","r2","r3"]
+  resulting done => parse-registers; // -names=["r1","r2","r3"]
 end;
 
 define mi-operation data-list-register-values(fmt :: <character>) ((regno :: <positive>));
