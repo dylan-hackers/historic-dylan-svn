@@ -59,19 +59,27 @@ define method maybe-serve-static-file
   let url :: <string> = request-url(request);
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   when (document)
-    select (file-type(document))
-      #"directory" => if (*allow-directory-listings*)
-                        if (url[size(url) - 1] = '/')
-                          directory-responder(request, response, document);
+    let etag = etag(document);
+    add-header(response, "ETag", etag);
+    let client-etag = get-header(request, "If-None-Match");
+    if (etag = client-etag)
+      request.request-method := #"head";
+      not-modified(headers: response.response-headers);
+    else
+      select (file-type(document))
+        #"directory" => if (*allow-directory-listings*)
+                          if (url[size(url) - 1] = '/')
+                            directory-responder(request, response, document);
+                          else
+                            let header = make(<header-table>);
+                            add-header(header, "Location", concatenate(url, "/"));
+                            moved-permanently-redirect(headers: header);  // 301
+                          end if;
                         else
-                          let header = make(<header-table>);
-                          add-header(header, "Location", concatenate(url, "/"));
-                          moved-permanently-redirect(headers: header);  // 301
+                          access-forbidden-error();  // 403
                         end if;
-                      else
-                        access-forbidden-error();  // 403
-                      end if;
-      otherwise  => static-file-responder(request, response, document);
+        otherwise  => static-file-responder(request, response, document);
+      end;
     end;
     #t
   end;
@@ -143,7 +151,6 @@ define method static-file-responder
     let props = file-properties(locator);
     add-header(response, "Last-Modified",
                as-rfc-1123-date(props[#"modification-date"]));
-    add-header(response, "ETag", etag(locator));
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
   end;
@@ -180,7 +187,6 @@ define method directory-responder
   let directory-properties = file-properties(locator);
   add-header(response, "Last-Modified",
              as-rfc-1123-date(directory-properties[#"modification-date"]));
-  add-header(response, "ETag", etag(locator));
   let stream = output-stream(response);
   local
     method show-file-link (directory, name, type)

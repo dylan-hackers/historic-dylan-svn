@@ -34,14 +34,6 @@ define open primary class <response> (<object>)
   slot buffered? :: <boolean> = #t;
 end;
 
-define method initialize
-    (response :: <response>, #key, #all-keys)
-  next-method();
-  when (*generate-server-header*)
-    add-header(response, "Server", $server-header-value);
-  end;
-end;
-
 // Exported
 //
 define method add-header
@@ -181,6 +173,7 @@ end;
 define method send-response
     (response :: <response>, #key response-code = 200, response-message) => ()
   let stream :: <stream> = request-socket(get-request(response));
+  let req :: <request> = get-request(response);
   unless (headers-sent?(response))
     // Send the response line
     let response-line
@@ -189,17 +182,22 @@ define method send-response
     log-copious("-->%s", response-line);
     write(stream, response-line);
 
+    if (*generate-server-header*)
+      add-header(response, "Server", $server-header-value);
+    end if;
     add-header(response, "Date", as-rfc-1123-date(current-date()));
 
-    let content-length :: <string> = integer-to-string(stream-size(output-stream(response)));
-    // Add required headers
-    add-header(response, "Content-Length", content-length);
+    let content-length :: <string> = "0";
+    unless (response-code == 304)
+      content-length := integer-to-string(stream-size(output-stream(response)));
+      // Add required headers
+      add-header(response, "Content-Length", content-length);
+    end unless;
     send-headers(response, stream);
 
     if (*logfile*)
       // Log in Common Logfile Format
       // (http://www.w3.org/Daemon/User/Config/Logging.html)
-      let req :: <request> = get-request(response);
       let request = concatenate(as(<string>, request-method(req)), " ",
                                 request-url(req), " ",
                                 as(<string>, request-version(req)));
@@ -215,10 +213,11 @@ define method send-response
     end if;
   end unless;
 
-  // Send the body (or what there is of it so far).
   let contents = stream-contents(output-stream(response), clear-contents?: #t);
-  write(stream, contents);
-
+  unless (request-method(req) == #"head")
+    // Send the body (or what there is of it so far).
+    write(stream, contents);
+  end unless;
 end;
 
 // Exported

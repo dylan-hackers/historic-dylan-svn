@@ -99,6 +99,10 @@ end;
 define http-error moved-permanently-redirect (<http-redirect-error>)
     301 "Moved Permanently";
 
+define http-error not-modified (<http-redirect-error>)
+    304 "Not Modified";
+
+
 define http-error header-too-large-error (<http-client-error>)
     400 "Request header size exceeded limit of %d bytes", max-size;
 

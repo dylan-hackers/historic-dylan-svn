@@ -676,11 +676,13 @@ define method send-error-response-internal (request :: <request>, err :: <error>
   with-resource (response = <response>,
                  request: request,
                  headers: headers)
-    let out = output-stream(response);
-    set-content-type(response, "text/plain");
     let one-liner = http-error-message-no-code(err);
-    write(out, condition-to-string(err));
-    write(out, "\r\n");
+    unless (request-method(request) == #"head")
+      let out = output-stream(response);
+      set-content-type(response, "text/plain");
+      write(out, condition-to-string(err));
+      write(out, "\r\n");
+    end unless;
     send-response(response,
                   response-code: http-error-code(err),
                   response-message: one-liner);
