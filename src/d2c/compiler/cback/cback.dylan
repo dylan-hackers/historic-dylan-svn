@@ -1604,11 +1604,12 @@ define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-pl
   begin
     let cclass = specifier-type(#"<double-integer>");
     let c-type = cclass.direct-speed-representation.representation-c-type;
+    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
+
     format(bstream, "heapptr_t make_double_integer(%s value)\n{\n", c-type);
     format(gstream, "heapptr_t res = allocate(%d);\n",
            cclass.instance-slots-layout.layout-length);
 
-    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
     format(gstream, "SLOT(res, heapptr_t, %d) = %s;\n",
            dylan-slot-offset(cclass, #"%object-class"),
@@ -1627,11 +1628,11 @@ define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-pl
 
   unless (instance?(*double-rep*, <c-data-word-representation>))
     let cclass = specifier-type(#"<double-float>");
+    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     format(bstream, "heapptr_t make_double_float(double value)\n{\n");
     format(gstream, "heapptr_t res = allocate(%d);\n",
 	   cclass.instance-slots-layout.layout-length);
 
-    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
     format(gstream, "SLOT(res, heapptr_t, %d) = %s;\n",
 	   dylan-slot-offset(cclass, #"%object-class"),
@@ -1651,11 +1652,11 @@ define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-pl
 
   unless (instance?(*long-double-rep*, <c-data-word-representation>))
     let cclass = specifier-type(#"<extended-float>");
+    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     format(bstream, "heapptr_t make_extended_float(long double value)\n{\n");
     format(gstream, "heapptr_t res = allocate(%d);\n",
 	   cclass.instance-slots-layout.layout-length);
 
-    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
     format(gstream, "SLOT(res, heapptr_t, %d) = %s;\n",
 	   dylan-slot-offset(cclass, #"%object-class"),

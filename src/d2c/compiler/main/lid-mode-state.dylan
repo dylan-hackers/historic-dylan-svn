@@ -45,8 +45,6 @@ define class <lid-mode-state> (<main-unit-state>)
   slot unit-lib :: <library>;
   // unit-prefix already a <unit-state> accessor
   slot unit-mprefix :: <byte-string>;
-  slot unit-tlf-vectors :: <stretchy-vector> = make(<stretchy-vector>);
-  slot unit-modules :: <stretchy-vector> = make(<stretchy-vector>);
   slot unit-cback-unit :: <unit-state>;
   slot unit-other-cback-units :: <simple-object-vector>;
   
@@ -242,14 +240,11 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
     end select;
   end if;
 
+  *Top-Level-Forms* := state.unit-tlfs;
+
   for (file in state.unit-files)
     let extension = file.filename-extension;
     if (extension = state.unit-target.object-filename-suffix)
-      // Add any random crap to the unit-tlf-vectors so that it will
-      // have as many elements as there are files mentioned in the
-      // .lid file
-      add!(state.unit-tlf-vectors, make(<stretchy-vector>));
-      add!(state.unit-modules, #f);
 
       unless (state.unit-no-makefile)
 	let object-file
@@ -277,18 +272,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
 	log-dependency(prefixed-filename);
 	let (tokenizer, mod) = file-tokenizer(state.unit-lib, 
 					      prefixed-filename);
-	block ()
-	  *Current-Library* := state.unit-lib;
-	  *Current-Module* := mod;
-	  let tlfs = make(<stretchy-vector>);
-	  *Top-Level-Forms* := tlfs;
-	  add!(state.unit-tlf-vectors, tlfs);
-	  add!(state.unit-modules, mod);
-	  parse-source-record(tokenizer);
-	cleanup
-	  *Current-Library* := #f;
-	  *Current-Module* := #f;
-	end;
+        parse-source-record(tokenizer);
       exception (<fatal-error-recovery-restart>)
 	format(*debug-output*, "skipping rest of %s\n", file);
       end block;
@@ -297,31 +281,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
 #if (mindy)
   collect-garbage(purify: #t);
 #endif
-  format(*debug-output*, "seeding representations\n");
-  seed-representations();
-  format(*debug-output*, "Finalizing definitions\n");
-  for (tlfs in state.unit-tlf-vectors)
-    *Top-Level-Forms* := tlfs;
-    for (tlf in copy-sequence(tlfs))
-      note-context(tlf);
-      finalize-top-level-form(tlf);
-      end-of-context();
-    end for;
-  end;
-  format(*debug-output*, "inheriting slots\n");
-  inherit-slots();
-  format(*debug-output*, "inheriting overrides\n");
-  inherit-overrides();
-  begin
-    let unique-id-base 
-      = element(state.unit-header, #"unique-id-base", default: #f);
-    if (unique-id-base)
-      format(*debug-output*, "assigning unique ids\n");
-      assign-unique-ids(string-to-integer(unique-id-base));
-    end;
-  end;
-  format(*debug-output*, "laying out instances\n");
-  layout-instance-slots();
+  finalize-library(state);
 end method parse-and-finalize-library;
 
 
@@ -393,9 +353,7 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
 // files and compiling each of them to an output file.
 //
 define method compile-all-files (state :: <lid-mode-state>) => ();
-  for (file in state.unit-files,
-       tlfs in state.unit-tlf-vectors,
-       module in state.unit-modules)
+  for (file in state.unit-files)
     let extension = file.filename-extension;
     if (extension = state.unit-target.object-filename-suffix)
       unless (state.unit-no-makefile)
@@ -410,65 +368,94 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
 	  format(state.unit-objects-stream, " %s", file);
 	end;
       end unless;
-    else  // assumed a Dylan file, with or without a ".dylan" extension
-      block ()
-	format(*debug-output*, "Processing %s\n", file);
-        state.progress-indicator := make(<n-of-k-progress-indicator>,
-                                         total: tlfs.size,
-                                         stream: *debug-output*);
-	let base-name = file.base-filename;
-	let c-name = concatenate(base-name, ".c");
-        #if (macos)
-        let temp-c-name = concatenate(state.unit-lid-file.filename-prefix,
-				      c-name);
-        #else
-        let temp-c-name = concatenate(c-name, "-temp");
-        #endif
-	let body-stream
-	  = make(<file-stream>, locator: temp-c-name, direction: #"output");
-	block ()
-	  *Current-Module* := module;
-	  let file = make(<file-state>, unit: state.unit-cback-unit,
-			  body-stream: body-stream);
-	  emit-prologue(file, state.unit-other-cback-units);
-	  for (tlf in tlfs)
-	    block ()
-	      compile-1-tlf(tlf, file, state);
-	    cleanup
-	      end-of-context();
-	    exception (<fatal-error-recovery-restart>)
-	      #f;
-	    end block;
-	  end for;
-	cleanup
-	  close(body-stream);
-//	  fresh-line(*debug-output*);
-	  *Current-Module* := #f;
-	end block;
-
-	pick-which-file(c-name, temp-c-name, state.unit-target);
-	let o-name
-	  = concatenate(base-name,
-			if (state.unit-shared?)
-			  state.unit-target.shared-object-filename-suffix;
-			else
-			  state.unit-target.object-filename-suffix;
-			end);
-	state.unit-all-generated-files
-	  := add!(state.unit-all-generated-files, c-name);
-	unless (state.unit-no-makefile)
-	     output-c-file-rule(state, c-name, o-name);
-	end;
-
-      exception (<fatal-error-recovery-restart>)
-	format(*debug-output*, "skipping rest of %s\n", file);
-      exception (<simple-restart>,
-		   init-arguments:
-		   vector(format-string: "Blow off compiling this file."))
-	#f;
-      end block;
     end if;
   end for;
+  block ()
+    let tlfs = state.unit-tlfs;
+
+    format(*debug-output*, "Converting top level forms.\n");
+    state.progress-indicator := make(<n-of-k-progress-indicator>,
+                                     total: tlfs.size,
+                                     stream: *debug-output*);
+    for (tlf in tlfs)
+      block ()
+        compile-1-tlf(tlf, state);
+      cleanup
+        end-of-context();
+      exception (<fatal-error-recovery-restart>)
+        #f;
+      end block;
+    end for;
+
+    format(*debug-output*, "Optimizing top level forms.\n");
+    state.progress-indicator := make(<n-of-k-progress-indicator>,
+                                     total: tlfs.size,
+                                     stream: *debug-output*);
+    for (tlf in tlfs)
+      block ()
+        let name = format-to-string("%s", tlf);
+        increment-and-report-progress(state.progress-indicator);
+        note-context(name);
+        optimize-component(*current-optimizer*, tlf.tlf-component);
+      cleanup
+        end-of-context();
+      exception (<fatal-error-recovery-restart>)
+        #f;
+      end block;
+    end for;
+
+    format(*debug-output*, "Emitting C code.\n");
+    state.progress-indicator := make(<n-of-k-progress-indicator>,
+                                     total: tlfs.size,
+                                     stream: *debug-output*);
+
+    let base-name = concatenate(state.unit-mprefix, "-guts");
+    let c-name = concatenate(base-name, ".c");
+    let temp-c-name = concatenate(c-name, "-temp");
+    let body-stream
+      = make(<file-stream>, locator: temp-c-name, direction: #"output");
+    block ()
+      let file = make(<file-state>, unit: state.unit-cback-unit,
+                      body-stream: body-stream);
+      emit-prologue(file, state.unit-other-cback-units);
+      for (tlf in tlfs)
+        block ()
+          let name = format-to-string("%s", tlf);
+          increment-and-report-progress(state.progress-indicator);
+          note-context(name);
+          emit-1-tlf(tlf, file, state);
+        cleanup
+          end-of-context();
+        exception (<fatal-error-recovery-restart>)
+          #f;
+        end block;
+      end for;
+    cleanup
+      close(body-stream);
+      //	  fresh-line(*debug-output*);
+    end block;
+    
+    pick-which-file(c-name, temp-c-name, state.unit-target);
+    let o-name
+      = concatenate(base-name,
+                    if (state.unit-shared?)
+                      state.unit-target.shared-object-filename-suffix;
+                    else
+                      state.unit-target.object-filename-suffix;
+                    end);
+    state.unit-all-generated-files
+      := add!(state.unit-all-generated-files, c-name);
+    unless (state.unit-no-makefile)
+      output-c-file-rule(state, c-name, o-name);
+    end;
+    
+  exception (<fatal-error-recovery-restart>)
+    format(*debug-output*, "skipping rest of library.\n");
+  exception (<simple-restart>,
+               init-arguments:
+               vector(format-string: "Blow off compiling this file."))
+    #f;
+  end block;
 end method compile-all-files;
 
 
@@ -802,10 +789,8 @@ define method dump-library-summary (state :: <lid-mode-state>) => ();
     = begin-dumping(as(<symbol>, state.unit-lib-name),
     		    $library-summary-unit-type);
 
-  for (tlfs in state.unit-tlf-vectors)
-    for (tlf in tlfs)
-      dump-od(tlf, dump-buf);
-    end;
+  for (tlf in state.unit-tlfs)
+    dump-od(tlf, dump-buf);
   end;
   dump-od(state.unit-unit-info, dump-buf);
   dump-queued-methods(dump-buf);

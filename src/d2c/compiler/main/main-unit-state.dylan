@@ -64,6 +64,8 @@ define class <main-unit-state> (<object>)
     init-keyword: thread-count:, init-value: #f;
 
   slot progress-indicator :: false-or(<progress-indicator>) = #f;
+
+  slot unit-tlfs :: <stretchy-vector> = make(<stretchy-vector>);
 end class <main-unit-state>;
 
 // Find the library object file (archive) using the data-unit search path.
@@ -139,11 +141,9 @@ end method find-library-archive;
 #endif
 
 
-// The actual meat of compilation.  Does FER conversion, optimizes and emits
-// output code.
-//
+// FER conversion
 define method compile-1-tlf
-    (tlf :: <top-level-form>, file :: <file-state>, state :: <main-unit-state>) 
+    (tlf :: <top-level-form>, state :: <main-unit-state>) 
  => ();
   let name = format-to-string("%s", tlf);
   increment-and-report-progress(state.progress-indicator);
@@ -173,10 +173,14 @@ define method compile-1-tlf
     add!(state.unit-init-functions, ctv);
     tlf.tlf-init-function := ctv;
   end;
-  optimize-component(*current-optimizer*, component);
-  emit-tlf-gunk(c: tlf, file);
-  emit-component(c: component, file);
 end method compile-1-tlf;
+
+define method emit-1-tlf
+    (tlf :: <top-level-form>, file :: <file-state>, 
+     state :: <main-unit-state>) => ();
+  emit-tlf-gunk(c: tlf, file);
+  emit-component(c: tlf.tlf-component, file);
+end method emit-1-tlf;
 
 define constant $max-inits-per-function = 25;
 
@@ -284,6 +288,26 @@ define method build-command-line-entry
   emit-component(c: component, file);
   ctv;
 end method build-command-line-entry;
+
+define method finalize-library(state :: <main-unit-state>) => ()
+  format(*debug-output*, "Finalizing library.\n");
+  seed-representations();
+  for (tlf in copy-sequence(state.unit-tlfs))
+    note-context(tlf);
+    finalize-top-level-form(tlf);
+    end-of-context();
+  end for;
+  inherit-slots();
+  inherit-overrides();
+  begin
+    let unique-id-base 
+      = element(state.unit-header, #"unique-id-base", default: #f);
+    if (unique-id-base)
+      assign-unique-ids(string-to-integer(unique-id-base));
+    end;
+  end;
+  layout-instance-slots();
+end method finalize-library;
 
 
 define variable *Current-Library* :: false-or(<library>) = #f;

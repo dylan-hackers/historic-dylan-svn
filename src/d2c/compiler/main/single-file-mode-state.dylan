@@ -35,7 +35,6 @@ define class <single-file-mode-state> (<main-unit-state>)
   slot unit-lib :: <library>;
 
   slot unit-mprefix :: <byte-string>;
-  slot unit-tlf-vectors :: <stretchy-vector> = make(<stretchy-vector>);
   slot unit-modules :: <stretchy-vector> = make(<stretchy-vector>);
   slot unit-cback-unit :: <unit-state>;
   slot unit-other-cback-units :: <simple-object-vector>;
@@ -126,10 +125,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
                                       buffer: libmod-declaration),
                          start-line: 0,
                          start-posn: 0);
-    let tlfs = make(<stretchy-vector>);
-    *Top-Level-Forms* := tlfs;
-    add!(state.unit-tlf-vectors, tlfs);
-    add!(state.unit-modules, *Current-Module*);
+    *Top-Level-Forms* := state.unit-tlfs;
     parse-source-record(tokenizer);
   cleanup
     *Current-Library* := #f;
@@ -150,10 +146,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
                          source: source,
                          start-line: start-line,
                          start-posn: start-posn);
-    let tlfs = make(<stretchy-vector>);
-    *Top-Level-Forms* := tlfs;
-    add!(state.unit-tlf-vectors, tlfs);
-    add!(state.unit-modules, mod);
+    *Top-Level-Forms* := state.unit-tlfs;
     parse-source-record(tokenizer);
   cleanup
     *Current-Library* := #f;
@@ -161,31 +154,8 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
   exception (<fatal-error-recovery-restart>)
     format(*debug-output*, "skipping rest of %s\n", state.unit-source-file);
   end block;
-  
-  format(*debug-output*, "seeding representations\n");
-  seed-representations();
-  format(*debug-output*, "Finalizing definitions\n");
-  for(tlfs in state.unit-tlf-vectors)  
-    for (tlf in copy-sequence(tlfs))
-      note-context(tlf);
-      finalize-top-level-form(tlf);
-      end-of-context();
-    end for;
-  end for;
-  format(*debug-output*, "inheriting slots\n");
-  inherit-slots();
-  format(*debug-output*, "inheriting overrides\n");
-  inherit-overrides();
-  begin
-    let unique-id-base 
-      = element(state.unit-header, #"unique-id-base", default: #f);
-    if (unique-id-base)
-      format(*debug-output*, "assigning unique ids\n");
-      assign-unique-ids(string-to-integer(unique-id-base));
-    end;
-  end;
-  format(*debug-output*, "laying out instances\n");
-  layout-instance-slots();
+
+  finalize-library(state);
 end method parse-and-finalize-library;
 
 define method compile-file (state :: <single-file-mode-state>) => ();
@@ -199,20 +169,18 @@ define method compile-file (state :: <single-file-mode-state>) => ();
   state.unit-stream := body-stream;
   emit-prologue(file, state.unit-other-cback-units);
 
-  for (tlfs in state.unit-tlf-vectors,
-       module in state.unit-modules)
-      *Current-Module* := module;
-      for (tlf in tlfs)
-        block ()
-          compile-1-tlf(tlf, file, state);
-        cleanup
-          end-of-context();
-        exception (<fatal-error-recovery-restart>)
-          #f;
-        end block;
-      end for;
+  for (tlf in state.unit-tlfs)
+    block ()
+      compile-1-tlf(tlf, state);
+      optimize-component(*current-optimizer*, tlf.tlf-component);
+      emit-1-tlf(tlf, file, state);
+    cleanup
+      end-of-context();
+    exception (<fatal-error-recovery-restart>)
+      #f;
+    end block;
   end for;
-  format(*debug-output*, "\n", state.unit-source-file);
+  format(*debug-output*, "\n");
 end method compile-file;
 
 
