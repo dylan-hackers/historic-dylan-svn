@@ -223,8 +223,7 @@ define function key-intersection
   let keys = key-sequence(collection);
   for (other-collection :: <collection> in more-collections)
     unless (other-collection.key-test == test)
-      error("Can't do over collections with different "
-	      "key tests");
+      error("Can't do over collections with different key tests");
     end;
     keys := intersection(keys, key-sequence(other-collection), test: test);
   end;
@@ -814,6 +813,13 @@ define method subsequence-position
   end if;
 end method subsequence-position;
 
+// author: PDH
+// 10x speed-up over previous version of this method (not the compiler
+// transform)
+// d2c has a transform for visible calls to do (over sequences) which
+// is much, much faster than the code below when more-collections is
+// not empty.
+//
 define method do
     (proc :: <function>, sequence :: <sequence>,
      #next next-method, #rest more-collections)
@@ -823,49 +829,46 @@ define method do
       proc(element);
     end;
   elseif (every?(rcurry(instance?, <sequence>), more-collections))
-    let sequences = #();
-    let states = #();
-    let limits = #();
-    let next-states = #();
-    let finished-state?s = #();
-    let current-elements = #();
-    for (index :: <integer> from more-collections.size - 1 to 0 by -1)
-      let this-sequence = more-collections[index];
-      let (state, limit, next-state, finished-state?, ignore, current-element)
-	= forward-iteration-protocol(this-sequence);
-      sequences := pair(this-sequence, sequences);
-      states := pair(state, states);
-      limits := pair(limit, limits);
-      next-states := pair(next-state, next-states);
-      finished-state?s := pair(finished-state?, finished-state?s);
-      current-elements := pair(current-element, current-elements);
-    end;
-    begin
-      let (state, limit, next-state, finished-state?, ignore, current-element)
-	= forward-iteration-protocol(sequence);
-      sequences := pair(sequence, sequences);
-      states := pair(state, states);
-      limits := pair(limit, limits);
-      next-states := pair(next-state, next-states);
-      finished-state?s := pair(finished-state?, finished-state?s);
-      current-elements := pair(current-element, current-elements);
-    end;
-    
-    until (any?(method (coll, state, limit, finished-state?)
-		  finished-state?(coll, state, limit);
-		end,
-		sequences, states, limits, finished-state?s))
-      apply(proc,
-            map(method (coll, state, current-element)
-		  current-element(coll, state);
-		end,
-		sequences, states, current-elements));
-      map-into(states, 
-	       method (coll, state, next-state)
-		 next-state(coll, state);
-	       end,
-	       sequences, states, next-states);
-    end;
+    let more-sequences = more-collections;
+    // Stuff all the forward-iteration-protocol info into a bunch of
+    // parallel vectors..
+    //
+    let more-size = more-sequences.size;
+    let states = make(<vector>, size: more-size);
+    let limits = make(<vector>, size: more-size);
+    let next-states = make(<vector>, size: more-size);
+    let finished-state?s = make(<vector>, size: more-size);
+    let current-elements = make(<vector>, size: more-size);
+
+    for (seq keyed-by i in more-sequences)
+      let (init, limit, next-state, finished-state?, ignore, current-element)
+        = forward-iteration-protocol(seq);
+      states[i] := init;
+      limits[i] := limit;
+      next-states[i] := next-state;
+      finished-state?s[i] := finished-state?;
+      current-elements[i] := current-element;
+    end for;
+
+    // To call the mapped function on the n'th elements of the
+    // sequences, we need to collect all the elements.
+    //
+    let more-elts = make(<vector>, size: more-size);
+
+    block (break)
+      for (elt in sequence)
+        for (seq keyed-by i in more-sequences, state in states, limit in limits,
+             next-state in next-states, finished-state? in finished-state?s,
+             current-element in current-elements)
+          if (finished-state?(seq, state, limit))
+            break();
+          end;
+          more-elts[i] := current-element(seq, state);
+          states[i] := next-state(seq, state);
+        end for;
+        apply(proc, elt, more-elts);
+      end for;
+    end block;
     #f;
   else
     next-method();
@@ -927,85 +930,65 @@ define method map-into
 end method map-into;
 
 
+// author: PDH
+// 1.2x speedup
+//
 define function sequence-map-into
     (target :: <mutable-sequence>, proc :: <function>,
      sequence :: <sequence>, more-sequences :: <rest-parameters-sequence>)
     => res :: <mutable-sequence>;
-  let (target-state, target-limit, target-next-state, target-finished-state?,
+  let (target-init, target-limit, target-next-state, target-finished-state?,
        ignore1, ignore2, target-current-element-setter)
     = forward-iteration-protocol(target);
 
   if (empty?(more-sequences))
-    let (seq-state, seq-limit, seq-next-state, seq-finished-state?, ignore,
-	 seq-current-element)
-      = forward-iteration-protocol(sequence);
-    for (target-state = target-state
-	   then target-next-state(target, target-state),
-	 seq-state = seq-state
-	   then seq-next-state(sequence, seq-state),
-	 until: target-finished-state?(target, target-state, target-limit)
-	   | seq-finished-state?(sequence, seq-state, seq-limit))
-      target-current-element(target, target-state)
-	:= proc(seq-current-element(sequence, seq-state));
-    end;
+    for (elt in sequence,
+         target-state = target-init then target-next-state(target, target-state),
+         until: target-finished-state?(target, target-state, target-limit))
+      target-current-element(target, target-state) := proc(elt);
+    end for;
   else
     // Stuff all the forward-iteration-protocol info into a bunch of
     // parallel vectors..
-    let sequences = make(<vector>, size: more-sequences.size + 1);
-    let states = make(<vector>, size: more-sequences.size + 1);
-    let limits = make(<vector>, size: more-sequences.size + 1);
-    let next-states = make(<vector>, size: more-sequences.size + 1);
-    let finished-state?s = make(<vector>, size: more-sequences.size + 1);
-    let current-elements = make(<vector>, size: more-sequences.size + 1);
-    local method remember-fip(this-sequence :: <sequence>, index :: <integer>);
-	    let (state, limit, next-state, finished-state?, 
-		 ignore, current-element)
-	      = forward-iteration-protocol(this-sequence);
-	    sequences[index] := this-sequence;
-	    states[index] := state;
-	    limits[index] := limit;
-	    next-states[index] := next-state;
-	    finished-state?s[index] := finished-state?;
-	    current-elements[index] := current-element;
-	  end method remember-fip;
+    //
+    let more-size = more-sequences.size;
+    let states = make(<vector>, size: more-size);
+    let limits = make(<vector>, size: more-size);
+    let next-states = make(<vector>, size: more-size);
+    let finished-state?s = make(<vector>, size: more-size);
+    let current-elements = make(<vector>, size: more-size);
 
-    remember-fip(sequence, 0);
-    for (i :: <integer> from 0 below more-sequences.size)
-      remember-fip(more-sequences[i], i + 1);
+    for (seq keyed-by i in more-sequences)
+      let (init, limit, next-state, finished-state?, ignore, current-element)
+        = forward-iteration-protocol(seq);
+      states[i] := init;
+      limits[i] := limit;
+      next-states[i] := next-state;
+      finished-state?s[i] := finished-state?;
+      current-elements[i] := current-element;
     end for;
-    
-    until (target-finished-state?(target, target-state, target-limit)
-	     | any?(method (coll, state, limit, finished-state?)
-		      finished-state?(coll, state, limit);
-		    end,
-		    sequences, states, limits, finished-state?s))
 
-      // To call the mapped function on the n'th elements of the
-      // sequences, we need to collect all the elements.
-      //
-      let elt-vector = make(<vector>, size: sequences.size);
-      for (seq in sequences, state in states, cur-elt in current-elements,
-	   i from 0)
-	elt-vector[i] := cur-elt(seq, state);
-      end for;
-      target-current-element(target, target-state) := apply(proc, elt-vector);
-      target-state := target-next-state(target, target-state);
+    // To call the mapped function on the n'th elements of the
+    // sequences, we need to collect all the elements.
+    //
+    let more-elts = make(<vector>, size: more-size);
 
-      // Now we need to update the states of all the sequences we're
-      // iterating over, and we have to do it without using map-into().
-      //
-      for (i from 0 below sequences.size)
-	states[i] := next-states[i](sequences[i], states[i]);
+    block (break)
+      for (elt in sequence,
+           target-state = target-init then target-next-state(target, target-state),
+           until: target-finished-state?(target, target-state, target-limit))
+        for (seq keyed-by i in more-sequences, state in states, limit in limits,
+             next-state in next-states, finished-state? in finished-state?s,
+             current-element in current-elements)
+          if (finished-state?(seq, state, limit))
+            break();
+          end;
+          more-elts[i] := current-element(seq, state);
+          states[i] := next-state(seq, state);
+        end for;
+        target-current-element(target, target-state) := apply(proc, elt, more-elts);
       end for;
-      
-      // With a sufficiently smart compiler, we might instead write
-      //
-      // map-into(states, 
-      //          method (coll, state, next-state)
-      //            next-state(coll, state);
-      //          end,
-      //          sequences, states, next-states);
-    end until;
+    end block;
   end if;
   target;
 end function sequence-map-into;
@@ -1335,6 +1318,12 @@ end function;
 define not-inline function element-error (collection :: <collection>, index :: <integer>)
  => res :: <never-returns>;
   error("No element with index %d in %=", index, collection);
+end function;
+
+define not-inline function unbounded-collection-error
+    (function-name :: <string>, collection :: <collection>)
+ => res :: <never-returns>;
+  error("Function/method %s was not expecting the unbounded collection %=", function-name, collection);
 end function;
 
 // author: PDH
