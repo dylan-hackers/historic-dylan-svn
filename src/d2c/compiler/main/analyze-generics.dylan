@@ -139,20 +139,16 @@ define method initialize
 
     // Assign i-poles to the rest of the classes (skipping <object>).
     let next-pole-id = 1;
-    if (pole-table[0] == -1)
-      pole-table[0] := next-pole-id;
-      next-pole-id := next-pole-id + 1;
-    end if;
-    for (i from 1 below cclass-count())
+    for (i from 0 below cclass-count())
       if (pole-table[i] == -1)
 	// This is a primary i-pole.
 	pole-table[i] := next-pole-id;
 	next-pole-id := next-pole-id + 1;
-      elseif (i)
+      else
 	let supers = superclass-ids(i);
 	pole-table[i] :=
 	  select (supers.size)
-	    0 => error("no superclasses!"); // Shouldn't happen.
+	    0 => 0;                         // Handle <object>.
 	    1 => pole-table[supers.first];  // Copy down i-pole from parent.
 	    otherwise =>
 	      // This may be a secondary i-pole; we need to investigate.
