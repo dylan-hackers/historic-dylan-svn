@@ -100,6 +100,20 @@ define macro instruction-definer
     end;
   }
 
+  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) ?simplifications end }
+  =>
+  {
+    define instruction ?name(?primary; ?key; ?rest) end;
+    define method powerpc-disassemble-subcode(simplify == #t, primary == ?primary, subcode == ?key, secondary :: <integer>, #next next-method)
+     => mnemonics :: <string>;
+      case
+        ?simplifications;
+        otherwise
+          => next-method();
+      end case
+    end;
+  }
+
   { define instruction ?:name(?primary:expression; ?rest:*) end }
   =>
   { define instruction ?"name"(?primary; ?rest) end }
@@ -129,8 +143,32 @@ define macro instruction-definer
     { S, A, SH, MB, ME, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-A, ",", secondary.instruction-field-S, ",", secondary.instruction-field-SH, ",", secondary.instruction-field-MB, ",", secondary.instruction-field-ME }
     { S, spr } => { " ", secondary.instruction-field-spr, ",", secondary.instruction-field-S }
     { D, spr } => { " ", secondary.instruction-field-D, ",", secondary.instruction-field-spr }
+
+    // simplified forms:
+    { S, A, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-A, ",", secondary.instruction-field-S }
+
   absolute-type-branch:
     { AA, LK } => { secondary.instruction-field-LK, secondary.instruction-field-AA }
+
+  simplifications:
+    { simplify ?simplification; ... } => { ?simplification; ... }
+    { } => { }
+
+  simplification:
+//    { ?:expression => ?:name } => { ?expression => ?"name" }
+//    { field ?field-a field ?field-b => ?:name(?form) } => { ?field-a = ?field-b => concatenate(?"name", ?form) }
+    { (field ?field-a field ?field-b) => ?:name(?form) } => { ?field-a = ?field-b => concatenate(?"name", ?form) }
+    { ?:expression => ?:name(?form) } => { ?expression => concatenate(?"name", ?form) }
+
+  field-a:
+    { ?field } => { ?field }
+
+  field-b:
+    { ?field } => { ?field }
+
+  field:
+    { S } => { secondary.instruction-mask-S }
+    { B } => { secondary.instruction-mask-B }
 
 end macro instruction-definer;
 
@@ -279,6 +317,8 @@ end;
 //
 // Simplification
 //
+
+/*
 define method powerpc-disassemble-subcode
   (simplify == #t,
    primary == 31,
@@ -286,13 +326,13 @@ define method powerpc-disassemble-subcode
    secondary :: <integer>)
  => mnemo :: <string>;
   case
-    secondary.instruction-field-S = secondary.instruction-field-B
+    secondary.instruction-mask-S = secondary.instruction-mask-B
       => concatenate("mr", " ", secondary.instruction-field-A, ",", secondary.instruction-field-S);
     otherwise
       => next-method();
   end case;
 end;
-
+*/
 
 
 define method powerpc-disassemble-primary
@@ -321,7 +361,11 @@ define instruction mulli(7; D, A, SIMM) end;
 
 //define instruction (; D, A, UIMM) end;
 
-define instruction or(31; 444; S, A, B, Rc) end;
+define instruction or(31; 444; S, A, B, Rc)
+//  simplify S = B => mr(S, A, Rc)
+  simplify (field S field B) => mr(S, A, Rc);
+//  simplify #t => mr
+end;
 define instruction xor(31; 316; S, A, B, Rc) end;
 define instruction lwarx(31; 20; D, A, B) end;
 
