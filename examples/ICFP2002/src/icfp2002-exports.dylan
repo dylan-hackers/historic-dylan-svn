@@ -19,10 +19,13 @@ define module utils
   use format-out;
   use standard-io;
   use extensions, import: {report-condition};
+  use print;
+  use table-extensions;
 
   export
     *debug*, debug, force-format, choose-one,
-    report-and-flush-error;
+    report-and-flush-error,
+    <cons>, cons, car, cdr;
 end module utils;
 
 define module board
@@ -59,6 +62,7 @@ end module board;
 define module path
   use common-dylan;
   use utils;
+  use table-extensions;
   use board;
 
   // For debugging only. Sorry.
@@ -66,7 +70,12 @@ define module path
   //  use standard-io;
   //  use streams, export: all;
 
-  export <point-list>, distance-cost, find-path, <path-cost>;
+  export
+    <point-list>,
+    distance-cost,
+    find-path,
+    path-length,
+    <path-cost>;
 end module path;
 
 define module tour
@@ -74,19 +83,11 @@ define module tour
   use utils;
   use board;
   use print;
-  use table-extensions;
   use subseq;
   use path;
 
   // While debugging, export basically everything....
   export
-    <cons>,
-    car,
-    cdr,
-    cons,
-    $cache,
-    $not-memoized,
-    path-length,
     <no-path-error>,
     no-path-error,
     path-start,

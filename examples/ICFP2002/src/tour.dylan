@@ -15,77 +15,6 @@ synopsis: Solves the travelling salesman problem so we can find efficient
 // destinations will show up again and again, and we can avoid
 // recomputation.
 
-define class <cons> (<object>)
-  constant slot car :: <object>,
-    required-init-keyword: car:;
-  constant slot cdr :: <object>,
-    required-init-keyword: cdr:;
-end class <cons>;
-
-define method cons (car :: <object>, cdr :: <object>) => <cons>;
-  make(<cons>, car: car, cdr: cdr);
-end method cons;
-
-define method \= (a1 :: <cons>, a2 :: <cons>) => (b :: <boolean>)
-  a1.car = a2.car & a1.cdr = a2.cdr
-end method;
-
-define method equal-hash (a :: <cons>, s :: <hash-state>) =>
-    (i :: <integer>, s* :: <hash-state>)
-  values-hash(equal-hash, s, a.car, a.cdr)
-end method equal-hash;
-
-define class <no-path-error> (<error>)
-  slot path-start :: <point>,
-    required-init-keyword: path-start:;
-  slot path-finish :: <point>,
-    required-init-keyword: path-finish:;
-end class <no-path-error>;
-
-define function no-path-error (start :: <point>, finish :: <point>)
-  debug("no-path-error(%=, %=)\n", start, finish);
-  signal(make(<no-path-error>,
-              path-start: start,
-              path-finish: finish));
-end function no-path-error;
-
-define constant $not-memoized = #"Not memoized";
-
-define constant $cache = make(<equal-table>);
-
-/**** There is a compiler error in trying to refer to $cache.
-
-define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
- => (len :: false-or(<integer>))
-  debug("path-length(%=, %=, {board})\n", p1, p2);
-  let a = cons(p1, p2);
-  let dist = element($cache, a, default: $not-memoized);
-  debug("path-length: dist = %=\n", dist);
-  when (dist = $not-memoized)
-    let path = find-path(p1, p2, b);
-    debug("path-length: path = %=\n", path);
-    if (path)
-      $cache[a] := path.size;
-    else
-      $cache[a] := #f;
-    end if;
-  end when;
-  //
-  $cache[a];
-end function path-length;
-
-*/
-
-define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
- => (len :: false-or(<integer>))
-  let path = find-path(p1, p2, b);
-  if (path)
-    path.size
-  else
-    #f
-  end if;
-end function path-length;
-
 // Now that we have path-length, we will implement Kruskal's algorithm
 // for building minimum spanning trees. 
 
@@ -130,6 +59,20 @@ define method set-union! (s1 :: <disjoint-set>, s2 :: <disjoint-set>) => ()
   link-set(s1.find-set, s2.find-set)
 end method set-union!;
 
+define class <no-path-error> (<error>)
+  slot path-start :: <point>,
+    required-init-keyword: path-start:;
+  slot path-finish :: <point>,
+    required-init-keyword: path-finish:;
+end class <no-path-error>;
+
+define function no-path-error (start :: <point>, finish :: <point>)
+  debug("no-path-error(%=, %=)\n", start, finish);
+  signal(make(<no-path-error>,
+              path-start: start,
+              path-finish: finish));
+end function no-path-error;
+
 define function all-edges (tgts :: <vector>, b :: <board>) => <vector>;
   debug("all-edges(%=, {board})\n", tgts);
   let n :: <integer> = tgts.size;
@@ -142,18 +85,6 @@ define function all-edges (tgts :: <vector>, b :: <board>) => <vector>;
       k := k + 1;
     end for;
   end for;
-/*
-  let vec = make(<vector>, size: n * (n - 1), fill: #f);
-  let i = 0;
-  for (u :: <disjoint-set> in tgts)
-    for (v :: <disjoint-set> in tgts)
-      unless (u.value = v.value)
-        vec[i] := cons(u, v);
-        i := i + 1;
-      end unless;
-    end for;
-  end for;
-*/
   //
   local method cmp (u, v)
           let (us, uf) = values(u.car.find-set.value, u.cdr.find-set.value);
@@ -252,10 +183,6 @@ define method find-tour (start :: <point>, tgts :: <sequence>, b :: <board>)
 end method find-tour;
 
 // Print-object methods
-
-define method print-object (c :: <cons>, s :: <stream>) => ()
-  format(s, "(cons %= . %=)", c.car, c.cdr);
-end method print-object;
 
 define method print-object (set :: <disjoint-set>, s :: <stream>) => ()
   if (set == set.parent)

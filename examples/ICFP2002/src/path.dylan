@@ -178,3 +178,43 @@ unless (cutoff & distance-cost(source, target) >= cutoff)
   end;
 end unless;
 end function find-path;
+
+//
+// Adding memoized path-length to path.dylan
+
+define constant $not-memoized = #"Not memoized";
+
+define constant $cache = make(<equal-table>);
+
+define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
+ => (len :: false-or(<integer>))
+  let path = find-path(p1, p2, b);
+  if (path)
+    path.size
+  else
+    #f
+  end if;
+end function path-length;
+
+/**** There is a compiler error in trying to refer to $cache.
+
+define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
+ => (len :: false-or(<integer>))
+  debug("path-length(%=, %=, {board})\n", p1, p2);
+  let a = cons(p1, p2);
+  let dist = element($cache, a, default: $not-memoized);
+  debug("path-length: dist = %=\n", dist);
+  when (dist = $not-memoized)
+    let path = find-path(p1, p2, b);
+    debug("path-length: path = %=\n", path);
+    if (path)
+      $cache[a] := path.size;
+    else
+      $cache[a] := #f;
+    end if;
+  end when;
+  //
+  $cache[a];
+end function path-length;
+
+*/
