@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.1 1998/05/03 19:55:31 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.6 1998/09/09 13:40:11 andreas Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -443,12 +443,15 @@ define module platform
     object-filename-suffix,
     library-filename-prefix,
     library-filename-suffix,
+    shared-library-filename-suffix,
     executable-filename-suffix,
 
     compile-c-command,
     default-c-compiler-flags,
     assembler-command,
     link-library-command,
+    randomize-library-command,
+    link-shared-library-command,
     link-executable-command,
     link-executable-flags,
     make-command,
@@ -462,9 +465,11 @@ define module platform
     supports-debugging?,
     descriptor-type-string,
     descriptor-reference-string,
+    object-size-string,
 
     big-endian?,
-    omit-colon-after-label-declarations?;
+    omit-colon-after-label-declarations?,
+    align-arg-is-power-of-two?;
 end module platform;
 
 
@@ -731,7 +736,7 @@ define module classes
     <proxy>, proxy-for,
 
     inherit-slots, inherit-overrides, assign-unique-ids,
-    layout-instance-slots, layout-slots-for,
+    layout-instance-slots, layout-slots-for, layout-slots-for-if-possible,
 
     // For dumper...
     <limited-cclass>, each-subclass-slots-count;
@@ -797,6 +802,7 @@ define module compile-time-functions
     ct-function-definition, ct-function-closure-var-types,
     has-general-entry?, has-general-entry?-setter,
 
+    <ct-callback-function>, has-callback-entry?, has-callback-entry?-setter,
     <ct-generic-function>, <ct-open-generic>, <ct-sealed-generic>,
 
     <ct-method>, ct-method-hidden?,
