@@ -4,7 +4,7 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/lisp2dylan/lisp2dylan.dylan,v 1.2 2000/01/24 04:58:46 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/lisp2dylan/lisp2dylan.dylan,v 1.2.14.1 2003/10/25 17:16:55 housel Exp $
 
 //======================================================================
 //
@@ -479,7 +479,7 @@ end method convert-parenthesized;
 
 define method convert-if (input :: <stream>) => converted :: <string>;
   assert(lex(input).id-name = "if");
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   let test-clause = convert(input);
   let then-clause = convert(input);
   if (peek-lex(input) ~== $rparen)
@@ -510,7 +510,7 @@ end method convert-defun;
 // Sticks a ";\n" after each statement in the body
 //
 define method convert-body (input :: <stream>) => converted :: <string>;
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   for (lexeme = peek-lex(input) then peek-lex(input),
        until: lexeme == $rparen)
     format(res-stream, "%s;\n", convert(input));
@@ -541,7 +541,7 @@ end method convert-setf;
 define method convert-let (input :: <stream>) => converted :: <string>;
   let let-word = lex(input).id-name;
   assert(let-word = "let" | let-word = "let*");
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   format(res-stream, "begin\n");
   assert(lex(input) == $lparen);
   // Get the "let foo = bar" part
@@ -563,7 +563,7 @@ end method convert-let;
 //
 define method convert-labels (input :: <stream>) => converted :: <string>;
   assert(lex(input).id-name = "labels");
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   format(res-stream, "begin\n");
   assert(lex(input) == $lparen);
   // Loop through the functions
@@ -626,7 +626,7 @@ define method convert-case (input :: <stream>) => converted :: <string>;
   let macro-name = lex(input).id-name;
   assert(macro-name = "case" | macro-name = "ecase");
   let val = convert(input);
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   format(res-stream, "select (%s)\n", val);
   while (peek-lex(input) ~== $rparen)
     assert(lex(input) == $lparen);
@@ -643,7 +643,7 @@ define method convert-typecase (input :: <stream>) => converted :: <string>;
   let macro-name = lex(input).id-name;
   assert(macro-name = "typecase" | macro-name = "etypecase");
   let val = convert(input);
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   format(res-stream, "select (%s by instance?)\n", val);
   while (peek-lex(input) ~== $rparen)
     assert(lex(input) == $lparen);
@@ -658,7 +658,7 @@ end method convert-typecase;
 
 define method convert-cond (input :: <stream>) => converted :: <string>;
   assert(lex(input).id-name = "cond");
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   format(res-stream, "case\n");
   while (peek-lex(input) ~== $rparen)
     assert(lex(input) == $lparen);
@@ -711,7 +711,7 @@ end method convert-test-with-body;
 
 define method convert-defstruct (input :: <stream>) => converted :: <string>;
   assert(lex(input).id-name = "defstruct");
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   let classname = convert-defstruct-name(input);
   format(res-stream, "define class <%s> (<object>)\n", classname);
   for (lexeme = peek-lex(input) then peek-lex(input), 
@@ -740,7 +740,7 @@ end method convert-defstruct-name;
 //
 define method ignore-up-to-end-paren (input :: <stream>)
  => ignored-text :: <string>;
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   block (break)
     let paren-count = 1;
     while (#t)
@@ -765,7 +765,7 @@ end method ignore-up-to-end-paren;
 
 define method convert-slot (input :: <stream>) => converted :: <string>;
   assert(lex(input) == $lparen);
-  let res-stream = make(<buffered-byte-string-output-stream>);
+  let res-stream = make(<string-stream>, direction: #"output");
   let slotname = lex(input);
   assert(instance?(slotname, <identifier>));
   let default-value = convert(input);
