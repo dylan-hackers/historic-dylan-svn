@@ -37,19 +37,31 @@ end macro parse-definer;
 
 define macro parse-helper
 { parse-helper(?:name, (?meta-vars:*), (?results), (?meta)) }
- => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
-        meta-builder(string, start, (?meta-vars), (?results), (?meta));
-      end; }
+ => { parse-builder(?name, ( meta-builder(?=string, ?=start, 
+                                         (?meta-vars), 
+                                         (?results), (?meta)))) }
 end macro parse-helper;
+
+define macro parse-builder
+{ parse-builder(?:name, (?built-meta)) }
+ => { define method "parse-" ## ?name (?=string, #key ?=start = 0, end: stop)
+        ?built-meta
+      end; }
+end macro parse-builder;
 
 // Doug wrote this macro for collecting strings
 define macro collector-definer
 { define collector ?:name (?vars:*) ?meta end }
+/*****
  => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
         with-collector into-vector str, collect: ?=collect;
           meta-builder(string, start, (?vars), (as(<string>, str)), (?meta));
         end with-collector;
-      end; }
+      end; } ****/
+ => { parse-builder(?name, 
+       (with-collector into-vector str, collect: ?=collect;
+          meta-builder(?=string, ?=start, (?vars), (as(<string>, str)), (?meta));
+        end with-collector)) }
 end macro collector-definer;
 
 define macro collect-value-definer
@@ -57,6 +69,7 @@ define macro collect-value-definer
     (#key ?test:variable = not-in-set?)
     ?single:expression, ?double:expression => ?meta
   end }
+/*****
  => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
         with-collector into-vector str, collect: collect;
           meta-builder(string, start, (c, ?vars), (as(<string>, str)),
@@ -65,27 +78,27 @@ define macro collect-value-definer
                  do(collect(c))]}), 
 // DOUG          ?meta,
           '"'],
-         ["'",
+         ["'",f
           loop({[test(rcurry(?test, ?single), c), 
                  do(collect(c))]}), 
 // DOUG          ?meta,
           "'"]}, []));
         end with-collector;
       end method; }
- /*****  Either I'm missing something or this should work
-  *      FD pukes on this, tho'
+  *****  Either I'm missing something or this should work
+  *      FD pukes on this, tho' ***/
  => { define collector ?name(c, ?vars)
         {['"',
           loop({[test(rcurry(?test, ?double), c),
-                 do(collect(c))]}), 
+                 do(?=collect(c))]}), 
 // DOUG          ?meta,
           '"'],
          ["'",
           loop({[test(rcurry(?test, ?single), c), 
-                 do(collect(c))]}), 
+                 do(?=collect(c))]}), 
 // DOUG          ?meta,
           "'"]}, []
-       end collector; } *****/
+       end collector; }
 end macro collect-value-definer;
 
 define macro meta-builder
@@ -279,6 +292,25 @@ define parse cd-sect(c)
   "<![CDATA[", loop({["]]>", finish()], type(<char>, c)})
 end parse cd-sect;
 
+// Prolog
+// 
+//    [22]    prolog         ::=    XMLDecl? Misc* (doctypedecl Misc*)?
+//
+/**** define method parse-prolog(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, decl, misc, doctype);
+    [{parse-xml-decl(decl), []}, 
+     loop(parse-misc(misc)),
+     {[parse-doctypedecl(doctype),
+       loop(parse-misc(misc))], []}]; 
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-prolog; **/
+define parse prolog(decl, misc, doctype)
+  {parse-xml-decl(decl), []}, loop(parse-misc(misc)),
+  {[parse-doctypedecl(doctype), loop(parse-misc(misc))], []}
+end parse prolog;
+
 //    [23]    XMLDecl        ::=    '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
 //
 define method parse-xml-decl(string, #key start = 0, end: stop)
@@ -296,7 +328,7 @@ end method parse-xml-decl;
 
 //    [24]    VersionInfo    ::=    S 'version' Eq ("'" VersionNum "'" | '"' VersionNum '"')/* */
 //
-define method parse-version-info(string, #key start = 0, end: stop)
+/**** define method parse-version-info(string, #key start = 0, end: stop)
     with-meta-syntax parse-string (string, start: start, pos: index)
       variables(c, space, eq, version-num);
       [parse-s(space),
@@ -310,7 +342,12 @@ define method parse-version-info(string, #key start = 0, end: stop)
          '"']}];
       values(index, #t);
     end with-meta-syntax;
-end method parse-version-info;
+end method parse-version-info; ***/
+define parse version-info(space, eq, version-num)
+  parse-s(space), "version", parse-eq(eq),
+  {['\'', parse-version-num(version-num), '\''],
+   ['"', parse-version-num(version-num), '"']}
+end parse version-info;
 
 //    [25]    Eq             ::=    S? '=' S?
 //
@@ -534,22 +571,6 @@ define method parse-attlist-decl(string, #key start = 0, end: stop)
   end with-meta-syntax;
 end method parse-attlist-decl;
 
-//    [29]     markupdecl     ::=    elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment            [VC: Proper Declaration/PE Nesting]
-//                                                                                                                   [WFC: PEs in Internal Subset]
-//    
-define method parse-markupdecl(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, decl);
-    {parse-elementdecl(decl),
-     parse-attlist-decl(decl),
- // DOUG    parse-entity-decl(decl),
-// DOUG     parse-notation-decl(decl),
-     parse-pi(decl),
-     parse-comment(decl)};
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-markupdecl;
-
 // Document Type Definition
 // 
 //    [28]     doctypedecl    ::=    '<!DOCTYPE' S Name (S ExternalID)? S? ('[' (markupdecl | DeclSep)* ']' S?)? '>' [VC: Root Element Type]
@@ -567,20 +588,70 @@ define method parse-doctypedecl(string, #key start = 0, end: stop)
   end with-meta-syntax;
 end method parse-doctypedecl;
 
-// Prolog
-// 
-//    [22]    prolog         ::=    XMLDecl? Misc* (doctypedecl Misc*)?
-//
-define method parse-prolog(string, #key start = 0, end: stop)
+//    [29]     markupdecl     ::=    elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment            [VC: Proper Declaration/PE Nesting]
+//                                                                                                                   [WFC: PEs in Internal Subset]
+//    
+define method parse-markupdecl(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, decl, misc, doctype);
-    [{parse-xml-decl(decl), []}, 
-     loop(parse-misc(misc)),
-     {[parse-doctypedecl(doctype),
-       loop(parse-misc(misc))], []}]; 
+    variables(c, decl);
+    {parse-elementdecl(decl),
+     parse-attlist-decl(decl),
+ // DOUG    parse-entity-decl(decl),
+// DOUG     parse-notation-decl(decl),
+     parse-pi(decl),
+     parse-comment(decl)};
     values(index, #t);
-  end with-meta-syntax;  
-end method parse-prolog;
+  end with-meta-syntax;
+end method parse-markupdecl;
+
+// External Subset
+// 
+//    [30]    extSubset        ::=    TextDecl? extSubsetDecl
+//
+define method parse-ext-subset(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, text-decl, subset-decl);
+    [
+// DOUG {parse-text-decl(text-decl), []},
+     parse-ext-subset-decl(subset-decl)];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-ext-subset;
+
+//    [31]    extSubsetDecl    ::=    ( markupdecl | conditionalSect | DeclSep)* /* */
+//    
+define method parse-ext-subset-decl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, markup-decl, sect, decl-sep);
+    [loop({parse-markupdecl(markup-decl), 
+           parse-conditional-sect(sect),
+           parse-decl-sep(decl-sep)})];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-ext-subset-decl;
+
+
+// Standalone Document Declaration
+// 
+//    [32]    SDDecl    ::=    S 'standalone' Eq (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no') '"')) [VC: Standalone Document Declaration]
+//    
+define method parse-sd-decl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, space, eq);
+    [parse-s(space),
+     "standalone",
+     parse-eq(eq),
+     {['\'',
+       {"yes", "no"},
+       '\''],
+      ['"',
+       {"yes", "no"},
+       '"']}];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-sd-decl;
+
+//    (Productions 33 through 38 have been removed.)
 
 // This function here parses the attribute value part of the
 // attribute -- so this function will parse "bar" for 
@@ -689,56 +760,6 @@ define parse element(name, attribs, content, etag)
       parse-content(content), 
       parse-etag(etag)]}, []
 end parse element;
-
-// External Subset
-// 
-//    [30]    extSubset        ::=    TextDecl? extSubsetDecl
-//
-define method parse-ext-subset(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, text-decl, subset-decl);
-    [
-// DOUG {parse-text-decl(text-decl), []},
-     parse-ext-subset-decl(subset-decl)];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-ext-subset;
-
-//    [31]    extSubsetDecl    ::=    ( markupdecl | conditionalSect | DeclSep)* /* */
-//    
-define method parse-ext-subset-decl(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, markup-decl, sect, decl-sep);
-    [loop({parse-markupdecl(markup-decl), 
-           parse-conditional-sect(sect),
-           parse-decl-sep(decl-sep)})];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-ext-subset-decl;
-
-
-// Standalone Document Declaration
-// 
-//    [32]    SDDecl    ::=    S 'standalone' Eq (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no') '"')) [VC: Standalone Document Declaration]
-//    
-define method parse-sd-decl(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, space, eq);
-    [parse-s(space),
-     "standalone",
-     parse-eq(eq),
-     {['\'',
-       {"yes", "no"},
-       '\''],
-      ['"',
-       {"yes", "no"},
-       '"']}];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-sd-decl;
-
-
-//    (Productions 33 through 38 have been removed.)
 
 // Enumerated Attribute Types
 // 
