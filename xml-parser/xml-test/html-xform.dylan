@@ -8,8 +8,19 @@ Version:   1.0
 // Here's an example of tranforming XML to XML readable 
 // as HTML
 define class <html> (<xform-state>)
-  class slot document-name;
+  /* class */ virtual slot document-name;
 end class <html>;
+
+// as class slots do not work for 2.3.6, here's the work-around
+// proposed by Gabor Greif -- ugh!  New release when?
+define variable *html-document-name* = "";
+define method document-name(h :: <html>)
+  *html-document-name*;
+end method document-name;
+define method document-name-setter(n, h :: <html>)
+  *html-document-name* := n;
+  n;
+end method document-name-setter;
 
 define constant $html = make(<html>);
 define variable *substitute?* :: <boolean> = #t;
