@@ -8,18 +8,16 @@ end class <dumber-bot>;
 
 define method generate-next-move(me :: <dumber-bot>, s :: <state>)
  => <command>;
-  make(<move>, direction: $north);
+  make(<move>, bid: 1, direction: $north);
 end method generate-next-move;
     
-
-
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
   block(return)
     // Deliver what we can:
     let drop-these = choose(at-destination?, me.robot.inventory);
     if (~drop-these.empty?)
-      return(make(<drop>, package-ids: map(id, drop-these)));
+      return(make(<drop>, bid: 1, package-ids: map(id, drop-these)));
     end if;
     
     // Pick ups:
@@ -35,7 +33,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	  take-these = add!(take-these, x);
 	end if;
       end for;
-      return(make(<pick>, package-ids: map(id, take-these)));
+      return(make(<pick>, bid: 1, package-ids: map(id, take-these)));
     end if;
     
     // Go to the next interesting place:
@@ -67,6 +65,6 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
       error("Can't happen");
     end if;
 
-    return(make(<move>, direction: direction));
+    return(make(<move>, bid: 1, direction: direction));
   end block;
 end method generate-next-move;
