@@ -933,6 +933,7 @@ define module opengl-glut
 
   // Functions:
   export
+  	glut-init,	// Utility wrapper version
     glutInit,
     glutInitDisplayMode,
     glutInitDisplayString,
