@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Module Variables and Constants</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with Dylan"
+HREF="tutorial.html"><LINK
+REL="UP"
+TITLE="Expressions & Variables"
+HREF="expressions-variables.html"><LINK
+REL="PREVIOUS"
+TITLE="Type Declarations"
+HREF="type-declarations.html"><LINK
+REL="NEXT"
+TITLE="Methods & Generic Functions"
+HREF="methods-generic-functions.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with Dylan</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="type-declarations.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Expressions &#38; Variables</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="methods-generic-functions.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="MODULE-VARIABLES"
+>Module Variables and Constants</A
+></H1
+><P
+>Dylan supports <I
+CLASS="GLOSSTERM"
+>module-level</I
+> variables, which serve
+      roughly the same purpose as C's global variables. Although the
+      <TT
+CLASS="LITERAL"
+>let</TT
+> function may only be used within <I
+CLASS="GLOSSTERM"
+>methods</I
+>
+      (Dylan-speak for regular functions), the forms <TT
+CLASS="LITERAL"
+>define
+      variable</TT
+> and <TT
+CLASS="LITERAL"
+>define constant</TT
+> may be used at the top
+      level.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define variable *x* :: &#60;integer&#62; = 3;
+define variable *y* = 4;
+define constant $hi = "Hi!";</PRE
+><P
+>Note that there's not much point in declaring types for
+      constants. Any remotely decent compiler will be able to figure that
+      information out on its own.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="type-declarations.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="methods-generic-functions.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Type Declarations</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="expressions-variables.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Methods &#38; Generic Functions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Parameters &#38; Parameter Lists</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with Dylan"
+HREF="tutorial.html"><LINK
+REL="UP"
+TITLE="Methods & Generic Functions"
+HREF="methods-generic-functions.html"><LINK
+REL="PREVIOUS"
+TITLE="Methods & Generic Functions"
+HREF="methods-generic-functions.html"><LINK
+REL="NEXT"
+TITLE="Return Values"
+HREF="return-values.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with Dylan</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="methods-generic-functions.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Methods &#38; Generic Functions</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="return-values.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="PARAMETERS"
+>Parameters &#38; Parameter Lists</A
+></H1
+><P
+>Dylan methods declare parameters in fashion similar to that of
+      conventional languages, except for the fact that parameters may
+      optionally be untyped. Both of the following methods are legal:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method foo(x :: &#60;integer&#62;, y) end;
+define method bar(m, s :: &#60;string&#62;) end;</PRE
+><P
+>Both <TT
+CLASS="FUNCTION"
+><B
+>foo</B
+></TT
+> and <TT
+CLASS="FUNCTION"
+><B
+>bar</B
+></TT
+> have one typed and one
+      untyped parameter, but neither has a well-defined return value (or
+      actually does anything). As in C, each typed parameter must have its
+      own type declaration; there's no syntax for saying &#8220;the last
+      three parameters were all integers&#8221;.</P
+><P
+>Functions with variable numbers of parameters include the
+      <TT
+CLASS="LITERAL"
+>#rest</TT
+> keyword at the end of their parameter lists. Thus,
+      the declaration for C's <TT
+CLASS="FUNCTION"
+><B
+>printf</B
+></TT
+> function would appear
+      something like the following in Dylan:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method printf(format-string :: &#60;string&#62;, #rest arguments) =&#62; ();
+  // Print the format string, extracting
+  // one at a time from "arguments". Note
+  // that Dylan actually allows us to
+  // verify the types of variables,
+  // preventing those nasty printf errors,
+  // such as using %d instead of %ld.
+  // ...
+end method printf;</PRE
+><P
+>For an actual implementation of a lightweight <TT
+CLASS="FUNCTION"
+><B
+>printf</B
+></TT
+>
+      function, see Appendix A. </P
+><P
+>Note that Dylan makes no provision for passing variables by
+      reference in the Pascal sense, or for passing pointers to
+      variables. Parameter names are simply bound to whatever values are
+      passed, and may be rebound like regular variables. This means that
+      there's no way to write a <TT
+CLASS="FUNCTION"
+><B
+>swap</B
+></TT
+> function in Dylan (except
+      by using macros). However, the following function works just fine,
+      because it modifies the <I
+CLASS="GLOSSTERM"
+>internal state</I
+> of another
+      object:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method sell(car :: &#60;car&#62;, new-owner :: &#60;string&#62;) =&#62; ();
+  if (credit-check(new-owner))
+    car.owner = new-owner;
+  else
+    error("Bad credit!");
+  end;
+end;</PRE
+><P
+>If this sounds unclear, reread the chapter on <A
+HREF="expressions-variables.html"
+>variables and expressions</A
+>.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="methods-generic-functions.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="return-values.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Methods &#38; Generic Functions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="methods-generic-functions.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Return Values</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

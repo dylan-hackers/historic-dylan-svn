@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Objects</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with Dylan"
+HREF="tutorial.html"><LINK
+REL="PREVIOUS"
+TITLE="Keyword Arguments"
+HREF="keyword-arguments.html"><LINK
+REL="NEXT"
+TITLE="Built-In Classes"
+HREF="built-in-classes.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with Dylan</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="keyword-arguments.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="built-in-classes.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="OBJECTS"
+>Chapter 4. Objects</A
+></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="built-in-classes.html"
+>Built-In Classes</A
+></DT
+><DT
+><A
+HREF="slots.html"
+>Slots</A
+></DT
+><DT
+><A
+HREF="getters-setters.html"
+>Getters and Setters</A
+></DT
+><DT
+><A
+HREF="generic-functions-objects.html"
+>Generic Functions and Objects</A
+></DT
+><DT
+><A
+HREF="initializers.html"
+>Initializers</A
+></DT
+><DT
+><A
+HREF="abstract-classes.html"
+>Abstract Classes and Overriding Make</A
+></DT
+></DL
+></DIV
+><P
+>The feautres of Dylan's object system don't map directly onto the
+    features found in <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+>. Dylan handles access control using
+    <I
+CLASS="GLOSSTERM"
+>modules</I
+>, not <TT
+CLASS="LITERAL"
+>private</TT
+> declarations within
+    individual objects. Standard Dylan has no destructors, but instead
+    relies upon the garbage collector to recover memory and on exception
+    handling blocks to recover other resources. Dylan objects don't even
+    have real member functions.</P
+><P
+>Despite these oddities, Dylan's object system is at least as
+    powerful as that of <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+>. Multiple inheritance works smoothly,
+    constructors are rarely needed and there's no such thing as object
+    slicing. Alternate constructs replace the missing <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+> features. Quick
+    and dirty classes can be turned into clean classes with little editing
+    of existing code.</P
+><P
+>Before starting, temporarily set aside any low-level expertise in
+    <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+> or Object Pascal. Dylan differs enough that such knowledge can
+    actually interfere with the initial learning process.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="keyword-arguments.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="built-in-classes.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Keyword Arguments</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Built-In Classes</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

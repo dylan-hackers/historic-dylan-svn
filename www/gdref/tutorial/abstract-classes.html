@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Abstract Classes and Overriding Make</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with Dylan"
+HREF="tutorial.html"><LINK
+REL="UP"
+TITLE="Objects"
+HREF="objects.html"><LINK
+REL="PREVIOUS"
+TITLE="Initializers"
+HREF="initializers.html"><LINK
+REL="NEXT"
+TITLE="Multiple Dispatch"
+HREF="multiple-dispatch.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with Dylan</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="initializers.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 4. Objects</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="multiple-dispatch.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="ABSTRACT-CLASSES"
+>Abstract Classes and Overriding Make</A
+></H1
+><P
+>Abstract classes define the interface, not the implementation,
+      of an object. There are no direct instances of an abstract
+      class. Concrete classes actually implement their interfaces. Every
+      abstract class will typically have one or more concrete
+      subclasses. For example, if plain vanilla vehicles shouldn't exist,
+      <TT
+CLASS="LITERAL"
+>&#60;vehicle&#62;</TT
+> could be defined as follows:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define abstract class &#60;vehicle&#62; (&#60;object&#62;)
+	// ...as before
+end;</PRE
+><P
+>The above modification prevents the creation of direct
+      instances of <TT
+CLASS="LITERAL"
+>&#60;vehicle&#62;</TT
+>. At the moment, calling
+      <TT
+CLASS="FUNCTION"
+><B
+>make</B
+></TT
+> on this class would result in an error. However, a
+      programmer could add a method to make which allowed the intelligent
+      creation of vehicles based on some criteria, thus making
+      <TT
+CLASS="LITERAL"
+>&#60;vehicle&#62;</TT
+> an <I
+CLASS="GLOSSTERM"
+>instantiable abstract
+      class</I
+>:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method make(class == &#60;vehicle&#62;,
+	#rest keys, #key big? (#f), #all-keys)
+	=&#62; &#60;vehicle&#62;;
+	
+	if ( big? )
+		make( &#60;truck&#62;, keys, tons: 2 );
+	else
+		make( &#60;car&#62;, keys );
+	end;
+end;</PRE
+><P
+>A number of new features appear in the parameter list. The
+      expression &#8220;<TT
+CLASS="LITERAL"
+>class == &#60;vehicle&#62;</TT
+>&#8221; specifies a
+      <I
+CLASS="GLOSSTERM"
+>singleton</I
+>, one particular object of a class which gets
+      treated as a special case. Singletons are discussed in the chapter on
+      <A
+HREF="multiple-dispatch.html"
+>Multiple Dispatch</A
+>. The use of
+      <TT
+CLASS="LITERAL"
+>#rest</TT
+>, <TT
+CLASS="LITERAL"
+>#key</TT
+> and <TT
+CLASS="LITERAL"
+>#all-keys</TT
+> in the same
+      parameter list accepts any and all keywords, binds one of them to
+      <TT
+CLASS="LITERAL"
+>big?</TT
+> and places all of them into the variable
+      <TT
+CLASS="LITERAL"
+>keys</TT
+>. The new make method could be invoked in any of the
+      following fashions:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let x = 1000000;
+make(&#60;vehicle&#62;, sn: x, big?: #f); =&#62;car
+make(&#60;vehicle&#62;, sn: x, big?: #t); =&#62;truck
+make(&#60;vehicle&#62;, sn: x);           =&#62;car</PRE
+><P
+>Methods added to <TT
+CLASS="FUNCTION"
+><B
+>make</B
+></TT
+> don't actually need to create
+      new objects. Dylan officially allows them to return existing
+      objects. This can be used to manage lightweight shared objects, such
+      as the &#8220;flyweights&#8221; described by Gamma, et al., in <A
+HREF="http://st-www.cs.uiuc.edu/users/patterns/DPBook/DPBook.html"
+TARGET="_top"
+>      <I
+CLASS="CITETITLE"
+>Design Patterns</I
+></A
+>.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="initializers.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="multiple-dispatch.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Initializers</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="objects.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Multiple Dispatch</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

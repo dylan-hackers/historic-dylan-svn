@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Bare Methods</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with Dylan"
+HREF="tutorial.html"><LINK
+REL="UP"
+TITLE="Methods & Generic Functions"
+HREF="methods-generic-functions.html"><LINK
+REL="PREVIOUS"
+TITLE="Return Values"
+HREF="return-values.html"><LINK
+REL="NEXT"
+TITLE="Local Methods"
+HREF="local-methods.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with Dylan</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="return-values.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Methods &#38; Generic Functions</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="local-methods.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="BARE-METHODS"
+>Bare Methods</A
+></H1
+><P
+>Nameless methods may be declared inline. Such <I
+CLASS="GLOSSTERM"
+>bare
+      methods</I
+> are typically used as parameters to other methods. For
+      example, the following code fragment squares each element of a list
+      using the built in <TT
+CLASS="FUNCTION"
+><B
+>map</B
+></TT
+> function and a bare method:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method square-list(in :: &#60;list&#62;)
+	=&#62; out :: &#60;list&#62;
+	map(method(x) x * x end, in);
+end;</PRE
+><P
+>The <TT
+CLASS="FUNCTION"
+><B
+>map</B
+></TT
+> function takes each element of the list
+      <TT
+CLASS="LITERAL"
+>in</TT
+> and applies the anonymous method. It then builds a new
+      list using the resulting values and returns it. The method
+      <TT
+CLASS="FUNCTION"
+><B
+>square-list</B
+></TT
+> might be invoked as follows:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>square-list( #(1,2,3,4) );
+=&#62; #(1,4,9,16)</PRE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="return-values.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="local-methods.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Return Values</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="methods-generic-functions.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Local Methods</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

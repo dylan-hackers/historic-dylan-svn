@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Garbage Collection</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with Dylan"
+HREF="tutorial.html"><LINK
+REL="UP"
+TITLE="Why Dylan?"
+HREF="why-dylan.html"><LINK
+REL="PREVIOUS"
+TITLE="Object Orientation"
+HREF="object-oriented.html"><LINK
+REL="NEXT"
+TITLE="Why Not Dylan?"
+HREF="why-not.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with Dylan</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="object-oriented.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Why Dylan?</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="why-not.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="GC"
+>Garbage Collection</A
+></H1
+><P
+>Languages with <I
+CLASS="GLOSSTERM"
+>garbage collection</I
+> have no need of a
+      <TT
+CLASS="FUNCTION"
+><B
+>free</B
+></TT
+> or <TT
+CLASS="FUNCTION"
+><B
+>delete</B
+></TT
+> operator, because unused heap
+      memory gets reclaimed automatically by the language runtime. This
+      reduces the complexity of source code, eliminates the need of keeping
+      reference counts for shared objects, and prevents most memory
+      allocation bugs and all memory leaks.</P
+><P
+>Over the years, garbage collection has gained a reputation for
+      inefficiency. A large, object-oriented LISP program performed
+      terribly compared to hand coded, micro-optimized assembly, and a good
+      portion of the blame was placed on garbage collection.</P
+><P
+>Times have changed, however. Garbage collection technology has
+      improved. Processors speed has increased enormously. Most
+      importantly, however, the standard practice of the industry has
+      changed, and large commerical software is now built in <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+>.</P
+><P
+>No good benchmarks exist for the relative performance of large
+      <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+> systems (greater than 15 thousand lines of code or so), and
+      similar systems <I
+CLASS="EMPHASIS"
+>designed from the ground</I
+> up to use garbage
+      collection. The benchmarks which do exist typically test the
+      performance of relatively small pieces of code&#8212;small enough
+      that one programmer can optimize the overall usage of memory&#8212;or
+      have compared a good system without garbage collection to a direct
+      reimplementation of that system using a garbage collector. Overall,
+      no one seems to know just how fast GC is, relative to a typical large
+      <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+> program. It <I
+CLASS="EMPHASIS"
+>is</I
+> known, however, that good GC code
+      uses different designs than non-GC code, and often spends less time
+      needlessly copying data.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="object-oriented.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="why-not.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Object Orientation</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="why-dylan.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Why Not Dylan?</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

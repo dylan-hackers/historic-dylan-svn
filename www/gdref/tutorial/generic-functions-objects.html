@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Generic Functions and Objects</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with Dylan"
+HREF="tutorial.html"><LINK
+REL="UP"
+TITLE="Objects"
+HREF="objects.html"><LINK
+REL="PREVIOUS"
+TITLE="Getters and Setters"
+HREF="getters-setters.html"><LINK
+REL="NEXT"
+TITLE="Initializers"
+HREF="initializers.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with Dylan</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="getters-setters.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 4. Objects</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="initializers.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="GENERIC-FUNCTIONS-OBJECTS"
+>Generic Functions and Objects</A
+></H1
+><P
+>Generic functions, introduced in <A
+HREF="methods-generic-functions.html"
+>Methods and Generic Functions</A
+>,
+      provide the equivalent of <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+> and Object Pascal member
+      functions. In the simplest case, just declare a generic function
+      which dispatches on the first parameter.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define generic tax(v :: &#60;vehicle&#62;)
+	=&#62; tax-in-dollars :: &#60;float&#62;;
+
+define method tax(v :: &#60;vehicle&#62;)
+	=&#62; tax-in-dollars :: &#60;float&#62;;
+	100.00;
+end;
+
+//=== Two new subclasses of vehicle
+
+define class &#60;car&#62; (&#60;vehicle&#62;)
+end;
+
+define class &#60;truck&#62; (&#60;vehicle&#62;)
+	slot capacity,
+		required-init-keyword: tons:;
+end;
+
+//=== Two new "tax" methods
+
+define method tax( c :: &#60;car&#62; )
+	=&#62; tax-in-dollars :: &#60;float&#62;;
+	50.00;
+end method;
+
+define method tax( t :: &#60;truck&#62; )
+	=&#62; tax-in-dollars :: &#60;float&#62;;
+	// standard vehicle tax plus $10/ton
+	next-method( ) + t.capacity * 10.00;
+end method;</PRE
+><P
+>The function <TT
+CLASS="FUNCTION"
+><B
+>tax</B
+></TT
+> could be invoked as
+      <TT
+CLASS="LITERAL"
+>tax(v)</TT
+> or <TT
+CLASS="LITERAL"
+>v.tax</TT
+>, because it only has one
+      argument. Generic functions with two or more arguments must be
+      invoked in the usual Dylan fashion; no syntactic sugar exists to make
+      them look like <SPAN
+CLASS="ACRONYM"
+>C++</SPAN
+> member functions.</P
+><P
+>The version of tax for <TT
+CLASS="LITERAL"
+>&#60;truck&#62;</TT
+> objects calls a
+      special function named <TT
+CLASS="FUNCTION"
+><B
+>next-method</B
+></TT
+>. This function invokes
+      the next most specific method of a generic function; in this case,
+      the method for <TT
+CLASS="LITERAL"
+>&#60;vehicle&#62;</TT
+> objects. Parameters to the
+      current method get passed along automatically.</P
+><P
+>Technically, <TT
+CLASS="FUNCTION"
+><B
+>next-method</B
+></TT
+> is a special parameter to a
+      method, and may be passed explicitly using <TT
+CLASS="LITERAL"
+>#next</TT
+>. <B
+CLASS="COMMAND"
+>mindy</B
+>,
+      a popular but incomplete bytecode compiler written as part of the
+      
+<A
+HREF="http://legend.gwydion.cs.cmu.edu/"
+TARGET="_top"
+>Gwydion Project</A
+>
+, currently requires the use of <TT
+CLASS="LITERAL"
+>#next</TT
+>.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method tax(t :: &#60;truck&#62;, #next next-method)
+	=&#62; tax-in-dollars :: &#60;float&#62;;
+	// standard vehicle tax plus $10/ton
+	next-method() + t.capacity * 10.00;
+end method;</PRE
+><P
+>Dylan's separation of classes and generic functions provides
+      some interesting design ideas. Classes no longer need to
+      &#8220;contain&#8221; their member functions; it's possible to write a new
+      generic function without touching the class definition. For example,
+      a module handling traffic simulations and one handling municipal
+      taxes could each have many generic functions involving vehicles, but
+      both could use the same vehicle class.</P
+><P
+>Slots in Dylan may also be replaced by programmer-defined
+      accessor functions, all without modifying existing clients of the
+      class. The 
+<A
+HREF="http://www.cambridge.apple.com/dylan/drm/drm-1.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>Dylan Reference Manual</I
+></A
+>
+ describes numerous ways to accomplish the change;
+      several should be apparent from the preceding discussion. This
+      flexibility frees programmers from creating functions like
+      <TT
+CLASS="LITERAL"
+>GetOwnerName</TT
+> and <TT
+CLASS="LITERAL"
+>SetOwnerName</TT
+>, not to mention the
+      corresponding private member variables and constructor code.</P
+><P
+>For even more creative uses of generic functions and the Dylan
+      object model, see the chapter on <A
+HREF="multiple-dispatch.html"
+>Multiple Dispatch</A
+>.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="getters-setters.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="initializers.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Getters and Setters</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="objects.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Initializers</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
