@@ -28,3 +28,9 @@ define inline sealed method \=(a :: <point>, b :: <point>)
  => b :: <boolean>;
   a.val == b.val;
 end method;
+
+define method print-object(p :: <point>, stream :: <stream>)
+ => ();
+  format(stream, "<point (%d,%d)>", p.x, p.y);
+end;
+
