@@ -16,9 +16,9 @@ define class <emitter-gene> (<gene>)
     slot gene-emitter-clear-source? :: <boolean> = #f;
     slot gene-emitter-is-inverted? :: <boolean> = #f;
     slot gene-emitter-other-flags :: <byte> = 0;
-    virtual constant slot gene-emitter-organ-description :: <string>;
-    virtual constant slot gene-emitter-tissue-description :: <string>;
-    virtual constant slot gene-emitter-locus-description :: <string>;
+    constant virtual slot gene-emitter-organ-description :: <string>;
+    constant virtual slot gene-emitter-tissue-description :: <string>;
+    constant virtual slot gene-emitter-locus-description :: <string>;
 end class <emitter-gene>;
 
 /* Implement gene protocol */

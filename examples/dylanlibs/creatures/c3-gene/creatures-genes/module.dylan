@@ -7,6 +7,7 @@ License:   See License.txt
 define module creatures-genes
   use common-dylan;
   use streams;
+  use format, import: { format-to-string };
 
   // Add binding exports here.
   export creatures-genes-version,

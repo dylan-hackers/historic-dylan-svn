@@ -7,6 +7,7 @@ License:   See License.txt
 define library creatures-genes
   use common-dylan;
   use streams;
+  use io;
 
   // Add any more module exports here.
   export creatures-genes;

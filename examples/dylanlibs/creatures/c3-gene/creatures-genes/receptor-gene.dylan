@@ -15,9 +15,9 @@ define class <receptor-gene> (<gene>)
     slot gene-receptor-is-digital? :: <boolean> = #f;
     slot gene-receptor-is-inverted? :: <boolean> = #f;
     slot gene-receptor-other-flags :: <byte> = 0;
-    virtual constant slot gene-receptor-organ-description :: <string>;
-    virtual constant slot gene-receptor-tissue-description :: <string>;
-    virtual constant slot gene-receptor-locus-description :: <string>;
+    constant virtual slot gene-receptor-organ-description :: <string>;
+    constant virtual slot gene-receptor-tissue-description :: <string>;
+    constant virtual slot gene-receptor-locus-description :: <string>;
 end class <receptor-gene>;
 
 

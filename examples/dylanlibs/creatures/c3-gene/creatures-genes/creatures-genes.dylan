@@ -7,8 +7,8 @@ License:   See License.txt
 define class <gene> (<object>)
     slot gene-genome-version = #f, init-keyword: version:;
     slot gene-index :: <integer> = 0, init-keyword: index:;
-    virtual constant slot gene-type;
-    virtual constant slot gene-subtype;
+    constant virtual slot gene-type;
+    constant virtual slot gene-subtype;
     slot gene-sequence-number :: <integer> = 0;
     slot gene-duplicate-number :: <integer> = 0;
     slot gene-switch-on-stage :: <switch-on-stage> = #"embryo";
@@ -20,8 +20,8 @@ define class <gene> (<object>)
     slot gene-mutation-percentage :: <integer> = 128;
     slot gene-other-flags :: <integer> = 0;
     slot gene-variant :: <integer> = 0;
-    virtual constant slot gene-type-name :: <string>;
-    virtual constant slot gene-short-description :: <string>;
+    constant virtual slot gene-type-name :: <string>;
+    constant virtual slot gene-short-description :: <string>;
 end class <gene>;
 
 // Add a method to this generic to create the actual type of gene

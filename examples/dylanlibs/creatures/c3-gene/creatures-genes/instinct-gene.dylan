@@ -14,12 +14,12 @@ define class <instinct-gene> (<gene>)
     slot gene-instinct-lobe3 :: <byte> = 0;
     slot gene-instinct-lobe3-cell :: <byte> = 0;
 
-    virtual constant slot gene-instinct-lobe1-description :: <string>;
-    virtual constant slot gene-instinct-lobe1-cell-description :: <string>;
-    virtual constant slot gene-instinct-lobe2-description :: <string>;
-    virtual constant slot gene-instinct-lobe2-cell-description :: <string>;
-    virtual constant slot gene-instinct-lobe3-description :: <string>;
-    virtual constant slot gene-instinct-lobe3-cell-description :: <string>;
+    constant virtual slot gene-instinct-lobe1-description :: <string>;
+    constant virtual slot gene-instinct-lobe1-cell-description :: <string>;
+    constant virtual slot gene-instinct-lobe2-description :: <string>;
+    constant virtual slot gene-instinct-lobe2-cell-description :: <string>;
+    constant virtual slot gene-instinct-lobe3-description :: <string>;
+    constant virtual slot gene-instinct-lobe3-cell-description :: <string>;
 
     slot gene-instinct-decision :: <byte> = 0;
     slot gene-instinct-chemical :: <byte> = 0;
