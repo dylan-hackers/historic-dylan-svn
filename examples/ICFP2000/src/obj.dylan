@@ -11,7 +11,6 @@ end class <obj>;
 define constant <primitive> = type-union(<sphere>);
 
 define class <sphere> (<object>)
-  slot radius;
 end class <sphere>;
 
 /* --------------------- Methods ---------------------------- */
