@@ -32,150 +32,124 @@ states:
 
   { Drop, (?label:name) }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<drop>, state: curry(lookup, instrs, ?#"label", 0))
-                    end) }
+                    curry(make, <drop>, state: curry(lookup, instrs, ?#"label", 0)))
+       }
 
   { Drop }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<drop>, state: curry(lookup, instrs, label, counter + 1))
-                    end) }
+                    curry(make, <drop>, state: curry(lookup, instrs, label, counter + 1)))
+       }
 
   { Mark ?:expression, (?label:name) }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<mark>,
+                    curry(make, <mark>,
                              marker: ?expression,
-                             state: curry(lookup, instrs, ?#"label", 0))
-                    end) }
+                             state: curry(lookup, instrs, ?#"label", 0)))
+       }
 
   { Mark ?:expression }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<mark>,
+                    curry(make, <mark>,
                              marker: ?expression,
-                             state: curry(lookup, instrs, label, counter + 1))
-                    end) }
+                             state: curry(lookup, instrs, label, counter + 1)))
+       }
 
 
   { Unmark ?:expression, (?label:name) }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<unmark>,
+                    curry(make, <unmark>,
                              marker: ?expression,
-                             state: curry(lookup, instrs, ?#"label", 0))
-                    end) }
+                             state: curry(lookup, instrs, ?#"label", 0)))
+       }
 
   { Unmark ?:expression }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<unmark>,
+                    curry(make, <unmark>,
                              marker: ?expression,
-                             state: curry(lookup, instrs, label, counter + 1))
-                    end) }
-
-
-
+                             state: curry(lookup, instrs, label, counter + 1)))
+       }
 
   { Turn ?:name, (?label:name) }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<turn>,
+                    curry(make, <turn>,
                              left-or-right: ?#"name",
-                             state: curry(lookup, instrs, ?#"label", 0))
-                    end) }
+                             state: curry(lookup, instrs, ?#"label", 0)))
+       }
 
   { Turn ?:name }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<turn>,
+                    curry(make, <turn>,
                              left-or-right: ?#"name",
-                             state: curry(lookup, instrs, label, counter + 1))
-                    end) }
+                             state: curry(lookup, instrs, label, counter + 1)))
+       }
 
 
   { PickUp ?success:name => ?fail:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<pickup>,
-                                  state-success:
-                                    curry(lookup, instrs, ?#"success", 0),
-                                  state-failure:
-                                    curry(lookup, instrs, ?#"fail", 0))
+                                  state-success: curry(lookup, instrs, ?#"success", 0),
+                                  state-failure: curry(lookup, instrs, ?#"fail", 0))
                     end) }
 
   { PickUp, (?success:name) }
     => { push-thunk(instrs, label, counter,
                     method() make(<pickup>,
-                                  state-success:
-                                    curry(lookup, instrs, ?#"success", 0),
-                                  state-failure:
-                                    curry(lookup, instrs, label, counter + 1))
+                                  state-success: curry(lookup, instrs, ?#"success", 0),
+                                  state-failure: curry(lookup, instrs, label, counter + 1))
                     end) }
 
   { PickUp => ?:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<pickup>,
-                                  state-success:
-                                    curry(lookup, instrs, label, counter + 1),
-                                  state-failure:
-                                    curry(lookup, instrs, ?#"name", 0))
+                                  state-success: curry(lookup, instrs, label, counter + 1),
+                                  state-failure: curry(lookup, instrs, ?#"name", 0))
                     end) }
 
 
   { Move ?success:name => ?fail:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<move>,
-                                  state-success:
-                                    curry(lookup, instrs, ?#"success", 0),
-                                  state-failure:
-                                    curry(lookup, instrs, ?#"fail", 0))
+                                  state-success: curry(lookup, instrs, ?#"success", 0),
+                                  state-failure: curry(lookup, instrs, ?#"fail", 0))
                     end) }
 
   { Move => ?:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<move>,
-                                  state-success:
-                                    curry(lookup, instrs, label, counter + 1),
-                                  state-failure:
-                                    curry(lookup, instrs, ?#"name", 0))
+                                  state-success: curry(lookup, instrs, label, counter + 1),
+                                  state-failure: curry(lookup, instrs, ?#"name", 0))
                     end) }
 
   { Move ?:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<move>,
-                                  state-success:
-                                    curry(lookup, instrs, ?#"name", 0),
-                                  state-failure:
-                                    curry(lookup, instrs, label, counter + 1))
+                                  state-success: curry(lookup, instrs, ?#"name", 0),
+                                  state-failure: curry(lookup, instrs, label, counter + 1))
                     end) }
 
   { Flip ?prob:expression, (?yes:name, ?no:name) }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<flip>,
+                    curry(make, <flip>,
                              probability: ?prob,
                              state-success: curry(lookup, instrs, ?#"yes", 0),
-                             state-failure: curry(lookup, instrs, ?#"no", 0))
-                    end method) }
+                             state-failure: curry(lookup, instrs, ?#"no", 0)))
+       }
 
   { Flip ?prob:expression, (?yes:name) }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<flip>,
+                    curry(make, <flip>,
                              probability: ?prob,
                              state-success: curry(lookup, instrs, ?#"yes", 0),
-                             state-failure: curry(lookup, instrs, label, counter + 1))
-                    end method) }
+                             state-failure: curry(lookup, instrs, label, counter + 1)))
+       }
 
   { Flip ?prob:expression => ?no:name }
     => { push-thunk(instrs, label, counter,
-                    method()
-                        make(<flip>,
+                    curry(make, <flip>,
                              probability: ?prob,
                              state-success: curry(lookup, instrs, label, counter + 1),
-                             state-failure: curry(lookup, instrs, ?#"no", 0))
-                    end method) }
+                             state-failure: curry(lookup, instrs, ?#"no", 0)))
+       }
 
   { Sense ?where:name (Marker ?what:expression) => ?no:name }
     => { push-thunk(instrs, label, counter,
@@ -230,6 +204,7 @@ states:
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
                                   state-false: curry(lookup, instrs, label, counter + 1))
                     end) }
+
   { Sense ?where:name ?what:name, (?yes:name) }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
