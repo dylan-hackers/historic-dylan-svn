@@ -395,7 +395,6 @@ MINIMAL_WIN32_ENVIRONMENT = $(INSTALL_BIN_DIRECTORY)\minimal-win32-environment.e
 MINIMAL_GTK_ENVIRONMENT = $(INSTALL_BIN_DIRECTORY)\minimal-gtk-environment.exe
 MINIMAL_PENTIUM_DW = $(INSTALL_BIN_DIRECTORY)\minimal-pentium-dw.exe
 BATCH_DEBUG = $(INSTALL_BIN_DIRECTORY)\batch-debug.exe
-BUILD = $(INSTALL_BIN_DIRECTORY)\build.exe
 CONSOLE_COMPILER = $(INSTALL_BIN_DIRECTORY)\console-compiler.exe
 CONSOLE_ENVIRONMENT = $(INSTALL_BIN_DIRECTORY)\console-environment.exe
 CREATE_ID = $(INSTALL_BIN_DIRECTORY)\create-id.exe
@@ -836,7 +835,6 @@ simple-downloader: $(SIMPLE_DOWNLOADER)
 target-application: $(TARGET_APPLICATION)
 
 batch-debug: $(BATCH_DEBUG)
-build: $(BUILD)
 console-debugger: devel-dbg-ui
 create-id: $(CREATE_ID)
 devel-dbg-ui: $(DEVEL_DBG_UI)
@@ -1215,7 +1213,7 @@ internal-environment: console-environment win32-environment with-splash-screen
 internal-libraries: enhanced-libraries midi
 internal-example-projects: enhanced-example-projects
 install-internal-examples: install-enhanced-examples install-midi-examples
-internal-only-tools: build testworks-libraries test-report debugger map-statistics parser-compiler hd2c interpreter
+internal-only-tools: testworks-libraries test-report debugger map-statistics parser-compiler # hd2c interpreter
 internal-tools: enhanced-tools internal-only-tools
 internal-release: internal-release-info console-compiler compiler internal-environment internal-libraries internal-tools install-runtime-dlls install-internal-examples
 
