@@ -151,20 +151,21 @@ end;
 
 define method valid?(picking :: <pick-strategy>, state :: <state>) => valid :: <boolean>;
   // did we arrive?
-  if (picking.strategy-path.size < 2)
+  let still-to-go = picking.strategy-path.size;
+  
+  if (still-to-go < 2)
     debug("GB: arrived!\n");
     #f
   else
-  	// ## efficiency!!!
-    let pos = agent-pos(picking.strategy-agent, state);
     let nonsense
-      = empty?(choose(curry(deliverable?,
-                         agent-robot(picking.strategy-agent, state),
-                         state),
-                   packages-at(state,
-                               pos)));
+      = logand(still-to-go, 8) == 3
+        & empty?(choose(curry(deliverable?,
+                              agent-robot(picking.strategy-agent, state),
+                              state),
+                        packages-at(state,
+                                    picking.approach)));
      
-     nonsense & maybe-mark-base-visited(picking.strategy-agent, state, pos);
+     nonsense & maybe-mark-base-visited(picking.strategy-agent, state, picking.approach);
      ~nonsense
   end;
 end;
