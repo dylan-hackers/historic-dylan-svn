@@ -22,14 +22,16 @@ icfp2002: icfp2002.lid $(SOURCES) network.lib.du
 	d2c $(D2C_FLAGS) icfp2002.lid
 
 clean:
+	mv c-opengl-visualizer.c c-opengl-visualizer.c.x
 	rm -f *.o *.s *.a *.c *.mak *~ icfp2002 *.du
+	mv c-opengl-visualizer.c.x c-opengl-visualizer.c
 	rm -rf .libs
 
 
 install: icfp2002
 	strip icfp2002
 	cd ..; tar czf dylan-hackers.tgz README buildme runme \
-           src/Makefile src/icfp2002.lid src/*.dylan src/icfp2002 src/*.intr src/*.lid src/c-opengl-visualizer.c src/network-internal.h TODO
+           src/Makefile src/icfp2002.lid src/*.dylan src/icfp2002 src/*.intr src/*.lid src/c-opengl-visualizer.c src/network-internal.h src/TODO
 	   md5sum ../dylan-hackers.tgz
 
 test: icfp2002
