@@ -5,7 +5,7 @@ files: icfp2000-exports
   matrix
   obj
   intersection
-  lexer
+  Engine Math-Primitives lexer
   color
   ppm
   render

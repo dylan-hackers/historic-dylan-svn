@@ -45,6 +45,22 @@ define function main(name, arguments)
 
   */
 
+  begin
+    let test-phrase-4
+      = #('{', '/',  self: , '/',  n:, n:, 2, lessi:, '{', 1, '}',
+	  '{', n:, 1, subi:, self:, self:, apply:, n:, muli:, '}',
+	  if:, '}', '/',  fact:,
+	  12, fact:, fact:, apply:);
+    
+    let in = test-phrase-4;
+    let out = in.run-gml;
+    
+    format-out("input : %=\n", in);
+    format-out("output: %=\n", out);
+    force-output(*standard-output*);
+  end;
+
+
   let o1 = make(<sphere>);
   let o2 = make(<plane>);
 
