@@ -3,21 +3,25 @@ synopsis: exports other modules and provides common scan functions
 author:  Douglas M. Auclair
 copyright: (c) 2001, LGPL
 
-// a word is delimited by spaces, <>, {}, ',' or []
+// a word is delimited by non-graphic characters: spaces, <>, {}, [],
+// punctuation, or the single- or double- quotation-mark.
+
 define collector word(w)
-  loop([type(<any-char>, w), do(collect(w))])
+  loop([element-of($any-char, w), do(collect(w))])
 end collector word;
 
+define constant $graphic-digit = concatenate($digit, "+-");
+
 define collector int(i) => (as(<string>, str).string-to-integer)
-  loop([type(<digit>, i), do(collect(i))])
+  loop([element-of($graphic-digit, i), do(collect(i))])
 end collector int;
 
 define collector number(n) => (as(<string>, str).string-to-number)
-  loop([type(<num-char>, n), do(collect(n))])
+  loop([element-of($num-char, n), do(collect(n))])
 end collector number;
 
 define meta s(c)
-  type(<space>, c), loop(type(<space>, c))
+  element-of($space, c), loop(element-of($space, c))
 end meta s;
 
 define function digit?(c :: <character>) => (ans :: <boolean>)
@@ -29,8 +33,9 @@ define function digit(c :: <character>) => (ans :: <integer>)
   as(<integer>, c) - $zero;
 end function digit;
 
-define function string-to-number(s :: <string>, #key base :: <real> = 10.0)
+define function string-to-number(s :: <string>, #key base :: <integer> = 10)
  => (n :: <number>)
+  let the-base :: <real> = base * 1.0;
   let num :: <real> = 0.0;
   let sign :: <integer> = if(s[0] = '-') -1 else 1 end if;
   let exp :: <integer> = 0;
@@ -50,12 +55,12 @@ define function string-to-number(s :: <string>, #key base :: <real> = 10.0)
                      end while;
                  end method;
 
-  iterator(method(x) num := num * base + x end);
+  iterator(method(x) num := num * the-base + x end);
   num := num * sign;
 
   if(non-number = '.')
     let div :: <integer> = 1;
-    iterator(method(x) num := num + (x / (base ^ div)); div := div + 1 end);
+    iterator(method(x) num := num + (x / (the-base ^ div)); div := div + 1 end)
   end if;
 
   if(non-number = 'e')
@@ -64,10 +69,9 @@ define function string-to-number(s :: <string>, #key base :: <real> = 10.0)
               '-' => begin read-element(stream); -1 end;
               otherwise => 1;
             end select;
-    let int-base :: <integer> = floor(base);
-    iterator(method(x) exp := exp * int-base + x end);
+    iterator(method(x) exp := exp * base + x end);
     exp := exp * sign;
   end if;
 
-  num * (base ^ exp)
+  num * (the-base ^ exp)
 end function string-to-number;
