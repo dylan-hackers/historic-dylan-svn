@@ -77,7 +77,7 @@ define function jam-read
                 loop(pos + 1, level);
                 
               '\r' =>
-                unless (pos + 1 < _end & data[pos + 1] ~= '\n')
+                unless (pos + 1 < _end & data[pos + 1] = '\n')
                   *jam-input-state*.jam-input-line-number
                     := *jam-input-state*.jam-input-line-number + 1;
                 end unless;
@@ -140,7 +140,7 @@ define function jam-read
                      accumulated-string);
                 
               '\r' =>
-                unless (pos + 1 < _end & data[pos + 1] ~= '\n')
+                unless (pos + 1 < _end & data[pos + 1] = '\n')
                   *jam-input-state*.jam-input-line-number
                     := *jam-input-state*.jam-input-line-number + 1;
                 end unless;
@@ -184,7 +184,7 @@ define function jam-read
                 end;
                 
               '\r' =>
-                unless (pos + 1 < _end & data[pos + 1] ~= '\n')
+                unless (pos + 1 < _end & data[pos + 1] = '\n')
                   *jam-input-state*.jam-input-line-number
                     := *jam-input-state*.jam-input-line-number + 1;
                 end unless;
