@@ -44,6 +44,11 @@ function short_header ($title) {
 <TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
 <TR><TD WIDTH="100%">
 
+<form METHOD=GET ACTION="/cgi-bin/search.cgi">
+<input TYPE="text" NAME="q" SIZE=50>
+<input TYPE="submit" VALUE="Search">
+</form>
+
 <P><STRONG>About Dylan & Gwydion</STRONG></P>
 <UL>
 <LI><A HREF="./">Overview</A>
