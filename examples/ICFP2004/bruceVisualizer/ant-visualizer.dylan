@@ -137,20 +137,29 @@ define function draw-cell-food(cell, position) => ()
 end;
 
 define constant $ONE-EIGHTH = 0.125;
-define constant $ONE-COLOR = make-gl-color(0.0, 0.0, 0.5);
-define constant $TWO-COLOR = make-gl-color(0.5, 0.0, 0.0);
-define constant $THREE-COLOR = make-gl-color(0.0, 0.5, 0.0);
+define constant $ONE-COLOR = make-gl-color(0.0, 0.0, 0.8);
+define constant $TWO-COLOR = make-gl-color(0.8, 0.0, 0.0);
+define constant $THREE-COLOR = make-gl-color(0.0, 0.8, 0.0);
+define constant $TRAIL-COLOR = make-gl-color(0.3, 0.3, 0.3);
 
 
 define function draw-markers(cell, position) => ()
-    let (x, y) = cell-position(position);
-    
-    glPushMatrix();
-        glTranslate(x, y, 0.0);
-        glBegin($GL-QUADS);
-    let val = 0;
+  let (x, y) = cell-position(position);
+  
+  glPushMatrix();
+  glTranslate(x, y, 0.0);
+  glBegin($GL-QUADS);
+  let val = 0;
   if (cell.black-marker[0]) val := val + 2 end;
   if (cell.black-marker[1]) val := val + 1 end;
+
+  if (cell.black-marker[2])
+    set-gl-color($TRAIL-COLOR);
+    glVertex(-1,1);
+    glVertex(1,1);
+    glVertex(1,-1);
+    glVertex(-1,-1);
+  end;
 
   if (val > 0)
     set-gl-color(select (val)
@@ -164,8 +173,9 @@ define function draw-markers(cell, position) => ()
     glVertex(-0.5,-0.5);
   end;
 
-        glEnd();
-    glPopMatrix();
+
+  glEnd();
+  glPopMatrix();
 end;
 
 
@@ -291,10 +301,16 @@ define variable reshape :: <function> =
     glMatrixMode($GL-MODELVIEW);
 end;
 
+define variable *gen-count* :: <integer> = 0;
+
 define variable idle :: <function> =
         callback-method() => ();
     for(i from 1 to 10)
       step-world();
+      *gen-count* := *gen-count* + 1;
+      if (modulo(*gen-count*, 1000) == 0)
+        format-out("%d generations\n", *gen-count*);
+      end;
     end;
 end;
 

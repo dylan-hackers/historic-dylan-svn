@@ -45,6 +45,9 @@ forage_colour11:					; move onto 01 or blank
 Sense Ahead turn_and_forage: move_and_forage: Marker 0	; not 00 or 01, turn
 
 move_and_forage:
+;Flip 20 . move_and_forage2:				; small probability of turning first to get unstuck
+;Turn Right .
+;move_and_forage2:
 Move forage: .
 ;; bugger -- someone or something there
 Sense Ahead move_and_forage: . Foe			; wait for an enemy to move (blocking is good!)
@@ -53,7 +56,7 @@ Sense Ahead turn_and_forage: move_and_forage: Rock	; huh?  if it's none of the a
 
 ; TODO!! navigate around rock to avoid getting stuck!
 
-turn_and_forage: Turn Left forage: ; maybe the next one isn't blocked
+turn_and_forage: Turn Right forage: ; maybe the next one isn't blocked
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -127,79 +130,215 @@ forage_onblank_1111:	Sense RightAhead forage_onblank_11111: forage_onblank_11110
 forage_onblank_11110:	Sense RightAhead forage_onblank_111101: forage_onblank_111100: Marker 1
 forage_onblank_11111:	Sense RightAhead forage_onblank_111111: forage_onblank_111110: Marker 1
 forage_onblank_000000:	Sense Here turn_and_forage: turn_and_forage: Home
-forage_onblank_000001:	Sense Here turn_and_forage: move_and_forage: Home
-forage_onblank_000010:	Sense Here turn_and_forage: move_and_forage: Home
-forage_onblank_000011:	Sense Here turn_and_forage: move_and_forage: Home
+forage_onblank_000001:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_000010:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_000011:	Sense Here turn_and_forage: turn_and_forage: Home
 forage_onblank_000100:	Sense Here turn_and_forage: turn_and_forage: Home
 forage_onblank_000101:	Sense Here turn_and_forage: forage_onblank_setstate2: Home
-forage_onblank_000110:	Sense Here turn_and_forage: turn_and_forage: Home
-forage_onblank_000111:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_000110:	Sense Here turn_and_forage: forage_onblank_setstate2: Home
+forage_onblank_000111:	Sense Here turn_and_forage: forage_onblank_setstate1: Home
 forage_onblank_001000:	Sense Here turn_and_forage: turn_and_forage: Home
-forage_onblank_001001:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_001001:	Sense Here turn_and_forage: forage_onblank_setstate2: Home
 forage_onblank_001010:	Sense Here turn_and_forage: forage_onblank_setstate3: Home
-forage_onblank_001011:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_001011:	Sense Here turn_and_forage: forage_onblank_setstate3: Home
 forage_onblank_001100:	Sense Here turn_and_forage: turn_and_forage: Home
-forage_onblank_001101:	Sense Here turn_and_forage: turn_and_forage: Home
-forage_onblank_001110:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_001101:	Sense Here turn_and_forage: forage_onblank_setstate1: Home
+forage_onblank_001110:	Sense Here turn_and_forage: forage_onblank_setstate3: Home
 forage_onblank_001111:	Sense Here turn_and_forage: forage_onblank_setstate1: Home
-forage_onblank_010000:	Sense Here turn_and_forage: move_and_forage: Home
+forage_onblank_010000:	Sense Here turn_and_forage: move_turn_left_and_forage: Home
 forage_onblank_010001:	Sense Here turn_and_forage: move_and_forage: Home
 forage_onblank_010010:	Sense Here turn_and_forage: move_and_forage: Home
 forage_onblank_010011:	Sense Here turn_and_forage: move_and_forage: Home
 forage_onblank_010100:	Sense Here turn_and_forage: forage_onblank_setstate2: Home
-forage_onblank_010101:	Sense Here forage_onblank_setstate3: forage_onblank_setstate1: Home
+forage_onblank_010101:	Sense Here forage_onblank_setstate3: forage_onblank_setstate2: Home
 forage_onblank_010110:	Sense Here forage_onblank_setstate2: forage_onblank_setstate2: Home
 forage_onblank_010111:	Sense Here forage_onblank_setstate3: forage_onblank_setstate2: Home
-forage_onblank_011000:	Sense Here turn_and_forage: turn_and_forage: Home
-forage_onblank_011001:	Sense Here forage_onblank_setstate2: forage_onblank_setstate1: Home
+forage_onblank_011000:	Sense Here turn_and_forage: forage_onblank_setstate2: Home
+forage_onblank_011001:	Sense Here forage_onblank_setstate2: forage_onblank_setstate2: Home
 forage_onblank_011010:	Sense Here forage_onblank_setstate1: forage_onblank_setstate3: Home
 forage_onblank_011011:	Sense Here forage_onblank_setstate1: turn_and_forage: Home
-forage_onblank_011100:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_011100:	Sense Here turn_and_forage: forage_onblank_setstate1: Home
 forage_onblank_011101:	Sense Here forage_onblank_setstate3: forage_onblank_setstate1: Home
 forage_onblank_011110:	Sense Here forage_onblank_setstate1: turn_and_forage: Home
 forage_onblank_011111:	Sense Here forage_onblank_setstate1: forage_onblank_setstate1: Home
-forage_onblank_100000:	Sense Here turn_and_forage: move_and_forage: Home
+forage_onblank_100000:	Sense Here turn_and_forage: move_turn_left_and_forage: Home
 forage_onblank_100001:	Sense Here turn_and_forage: move_and_forage: Home
 forage_onblank_100010:	Sense Here turn_and_forage: move_and_forage: Home
 forage_onblank_100011:	Sense Here turn_and_forage: move_and_forage: Home
-forage_onblank_100100:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_100100:	Sense Here turn_and_forage: forage_onblank_setstate2: Home
 forage_onblank_100101:	Sense Here forage_onblank_setstate2: forage_onblank_setstate2: Home
 forage_onblank_100110:	Sense Here forage_onblank_setstate1: forage_onblank_setstate2: Home
 forage_onblank_100111:	Sense Here forage_onblank_setstate1: turn_and_forage: Home
 forage_onblank_101000:	Sense Here turn_and_forage: forage_onblank_setstate3: Home
 forage_onblank_101001:	Sense Here forage_onblank_setstate1: forage_onblank_setstate3: Home
-forage_onblank_101010:	Sense Here forage_onblank_setstate1: forage_onblank_setstate2: Home
+forage_onblank_101010:	Sense Here forage_onblank_setstate1: forage_onblank_setstate3: Home
 forage_onblank_101011:	Sense Here forage_onblank_setstate3: forage_onblank_setstate3: Home
-forage_onblank_101100:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_101100:	Sense Here turn_and_forage: forage_onblank_setstate3: Home
 forage_onblank_101101:	Sense Here forage_onblank_setstate1: turn_and_forage: Home
-forage_onblank_101110:	Sense Here forage_onblank_setstate3: forage_onblank_setstate2: Home
+forage_onblank_101110:	Sense Here forage_onblank_setstate3: forage_onblank_setstate3: Home
 forage_onblank_101111:	Sense Here forage_onblank_setstate2: forage_onblank_setstate1: Home
-forage_onblank_110000:	Sense Here turn_and_forage: move_and_forage: Home
+forage_onblank_110000:	Sense Here turn_and_forage: move_turn_left_and_forage: Home
 forage_onblank_110001:	Sense Here turn_and_forage: move_and_forage: Home
 forage_onblank_110010:	Sense Here turn_and_forage: move_and_forage: Home
 forage_onblank_110011:	Sense Here turn_and_forage: move_and_forage: Home
-forage_onblank_110100:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_110100:	Sense Here turn_and_forage: forage_onblank_setstate1: Home
 forage_onblank_110101:	Sense Here forage_onblank_setstate3: forage_onblank_setstate2: Home
 forage_onblank_110110:	Sense Here forage_onblank_setstate1: turn_and_forage: Home
-forage_onblank_110111:	Sense Here forage_onblank_setstate1: forage_onblank_setstate3: Home
-forage_onblank_111000:	Sense Here turn_and_forage: turn_and_forage: Home
+forage_onblank_110111:	Sense Here forage_onblank_setstate1: forage_onblank_setstate1: Home
+forage_onblank_111000:	Sense Here turn_and_forage: forage_onblank_setstate3: Home
 forage_onblank_111001:	Sense Here forage_onblank_setstate1: turn_and_forage: Home
 forage_onblank_111010:	Sense Here forage_onblank_setstate3: forage_onblank_setstate3: Home
 forage_onblank_111011:	Sense Here forage_onblank_setstate2: forage_onblank_setstate3: Home
 forage_onblank_111100:	Sense Here turn_and_forage: forage_onblank_setstate1: Home
 forage_onblank_111101:	Sense Here forage_onblank_setstate1: forage_onblank_setstate1: Home
 forage_onblank_111110:	Sense Here forage_onblank_setstate2: forage_onblank_setstate1: Home
-forage_onblank_111111:	Sense Here forage_onblank_setstate2: forage_onblank_setstate3: Home
+forage_onblank_111111:	Sense Here forage_onblank_setstate2: forage_onblank_setstate1: Home
 
 forage_onblank_setstate1:
+Turn Left .
+;Turn Left .
 ;Unmark 0 .
-Mark 1 forage:
+Mark 1 just_marked_check_stuck:
 
 forage_onblank_setstate2:
+Turn Left .
+;Turn Left .
 ;Mark 0 .
 ;Unmark 1 forage:
-Mark 0 forage:
+Mark 0 just_marked_check_stuck:
 
 forage_onblank_setstate3:
+Turn Left .
+;Turn Left .
 Mark 0 .
-Mark 1 forage:
+Mark 1 just_marked_check_stuck:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; check that we can see a blank cell somewhere
+; NB -- walls aren't blank :-(
+
+just_marked_check_stuck:	; check six directions for blank cell, change mode if none (stuck)
+Sense LeftAhead just_marked_check_stuck_ahead: . Rock
+Sense LeftAhead just_marked_check_stuck_ahead: . Marker 0
+Sense LeftAhead . forage: Marker 1
+
+just_marked_check_stuck_ahead:
+Sense Ahead just_marked_check_stuck_right: . Rock
+Sense Ahead just_marked_check_stuck_right: . Marker 0
+Sense Ahead . forage: Marker 1
+
+just_marked_check_stuck_right:
+Sense RightAhead just_marked_check_stuck_turnaround: . Rock
+Sense RightAhead just_marked_check_stuck_turnaround: . Marker 0
+Sense RightAhead . forage: Marker 1
+
+just_marked_check_stuck_turnaround:
+Turn Left .
+Turn Left .
+Turn Left .
+
+Sense LeftAhead just_marked_check_stuck_ahead2: . Rock
+Sense LeftAhead just_marked_check_stuck_ahead2: . Marker 0
+Sense LeftAhead . forage: Marker 1
+
+just_marked_check_stuck_ahead2:
+Sense Ahead just_marked_check_stuck_right2: . Rock
+Sense Ahead just_marked_check_stuck_right2: . Marker 0
+Sense Ahead . forage: Marker 1
+
+just_marked_check_stuck_right2:
+Sense RightAhead OSA: . Rock
+Sense RightAhead OSA: . Marker 0
+Sense RightAhead OSA: forage: Marker 1
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+forage_onblank_check_rock_left1:
+Sense LeftAhead forage_onblank_setstate1: turn_and_forage: Rock
+
+forage_onblank_check_rock_left2:
+Sense LeftAhead forage_onblank_setstate2: turn_and_forage: Rock
+
+forage_onblank_check_rock_left3:
+Sense LeftAhead forage_onblank_setstate3: turn_and_forage: Rock
+
+forage_onblank_check_rock_right1:
+Sense RightAhead forage_onblank_setstate1: turn_and_forage: Rock
+
+forage_onblank_check_rock_right2:
+Sense RightAhead forage_onblank_setstate2: turn_and_forage: Rock
+
+forage_onblank_check_rock_right3:
+Sense RightAhead forage_onblank_setstate3: turn_and_forage: Rock
+
+move_turn_left_and_forage:
+Move . turn_and_forage:
+Turn Left forage:
+
+;move_turn_left_and_forage:
+move_turn_right_and_forage:
+Move . turn_and_forage:
+Turn Right forage:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; basically OSA
+
+OSA:
+Sense Here OSA_move: . Marker 0
+Sense Here OSA_move: forage: Marker 1
+
+OSA_move:
+Move . OSA_cant_move:
+Sense Here OSA: . Home
+PickUp got_food: OSA:
+
+OSA_cant_move:
+Turn Right OSA:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; go home with food
+
+got_food:
+Mark 2 .
+Sense Here got_food_home: . Home
+Sense Here got_food_colour1x: . Marker 0
+Sense Here got_food_colour01: . Marker 1			; no existing colour
+
+; got food, but on blank square???  Iconceivable! Just move forward?
+Move got_food: .
+Turn Left got_food:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; move home, depending on what colour we're on now
+
+got_food_colour01: 					; move onto 11
+Sense Ahead . got_food_turn: Marker 0
+Sense Ahead got_food_move: got_food_turn: Marker 1
+
+got_food_colour1x:
+Sense Here got_food_colour11: got_food_colour10: Marker 1
+
+got_food_colour10: 					; move onto 01
+Sense Ahead got_food_turn: . Marker 0
+Sense Ahead got_food_move: got_food_turn: Marker 1
+
+
+got_food_colour11:					; move onto 10
+Sense Ahead . got_food_turn: Marker 0
+Sense Ahead got_food_turn: got_food_move: Marker 1
+
+got_food_move:
+Move got_food: got_food_move:
+
+got_food_turn:
+Flip 2 . got_food_turnRight:
+Turn Left got_food:
+
+got_food_turnRight:
+Turn Right got_food:
+
+got_food_home:
+Drop .
+Turn Left .
+Turn Left .
+Turn Left OSA:
