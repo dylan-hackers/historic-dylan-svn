@@ -22,3 +22,24 @@ Team Members:
 
 
 Language used: Dylan (Gwydion "d2c" 2.3.9)
+
+Also included in our submission is a graphical client, which uses OpenGL.
+To build, go to src, and 'make c-opengl-visualizer', 
+to run ./c-opengl-visualizer <host> <port>
+
+Key bindings:
+ <up-arrow> = Move North
+ <down-arrow> = Move South
+ <left-arrow> = Move East
+ <right-arrow> = Move West
+ - = toggle negative bidding
+ 1 = bid 1
+ 2 = bid 2
+ 3 = bid 4
+ 4 = bid 8
+ 5 = bid 16
+ 6 = bid 32
+ 7 = bid 64
+ 8 = bid 128
+ 9 = bid 256
+ 0 = bid 512
