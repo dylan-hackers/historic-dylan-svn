@@ -1328,6 +1328,9 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       <FIGURE>
 	<TITLE>Streams library classes. </TITLE>
 	<GRAPHIC></GRAPHIC>
+<!-- should be graphic fileref="streams.png" / -->
+<!-- or graphic entityref="streams" / -->
+
       </FIGURE>
 
       <PARA>Except for the classes
@@ -1413,7 +1416,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
               <paramname>locator</paramname>
               <paramtype>&lt;string&gt;</paramtype>
               <paramsummary>
-                The file name.  If the <dlibary>Locators</dlibrary>
+                The file name.  If the <dlibrary>Locators</dlibrary>
                 library is in use, locator should be an instance of
 	        <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
 	        can be coerced to one.
@@ -1731,7 +1734,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  following init-keywords to <FUNCTION>make</FUNCTION> in
 	  addition to the usual direction: </PARA>
 
-
+	  <VARIABLELIST>
 	    <VARLISTENTRY>
 	      <TERM><dlit>element-type:</dlit></TERM>
 	      <LISTITEM>
