@@ -284,9 +284,16 @@ define function main(name, arguments)
       format(*standard-error*, "In see-if-best\n");
       force-output(*standard-error*);
 
-//      if (new-output.size < best-transformation.size)
-	best-transformation := new-output;
-//      end if;
+      let old = best-transformation.size;
+      let new = new-output.size;
+
+      debug("old size = %d, new size = %d", old, new);
+
+      if (new < old)
+	debug("  - using new");
+      end if;
+      best-transformation := new-output;
+      debug("\n");
     end method see-if-best;
 
   block()
