@@ -12,8 +12,14 @@ define function transform-document(doc :: <document>,
     #key state = $no-state,
     stream :: <stream> = *standard-output*)
   *xml-depth* := 0;
+  prepare-document(doc, state, stream);
   transform(doc, doc.name, state, stream);
 end function transform-document;
+
+define open generic prepare-document(doc :: <document>, state :: <xform-state>,
+				     stream :: <stream>) => ();
+define method prepare-document(doc :: <document>, state :: <xform-state>,
+			       stream :: <stream>) => () end;
 
 define function node-iterator(nodes :: <node-mixin>, state :: <xform-state>,
                               stream :: <stream>)
@@ -39,25 +45,15 @@ define method transform(elt :: <element>, tag-name :: <symbol>,
   node-iterator(elt, state, str);
 end method transform;
 
-define open generic before-transform(node :: <node-mixin>,
-                                     state :: <xform-state>, 
+define method transform(tag :: <tag>, tag-name :: <symbol>,
+			state :: <xform-state>, stream :: <stream>)
+  // do nothing
+end method transform;
+
+define open generic before-transform(node :: <xml>, state :: <xform-state>, 
                                      rep :: <integer>, stream :: <stream>);
-define method before-transform(node :: <node-mixin>,
-                               state :: <xform-state>, 
-                               rep :: <integer>, 
-                               stream :: <stream>) end;
-
-/*
-define method transform(in :: <document>, tag-name :: <symbol>, 
-                        state :: <xform-state>, str :: <stream>)
-  next-method();
-end method transform;
-
-define method transform(in :: <element>, tag-name :: <symbol>,
-                        state :: <xform-state>, str :: <stream>)
-  next-method();  // continue iteration over my children
-end method transform;
-*/
+define method before-transform(node :: <xml>, state :: <xform-state>, 
+                               rep :: <integer>, stream :: <stream>) end;
 
 // N.B. no default xforms for attributes
 

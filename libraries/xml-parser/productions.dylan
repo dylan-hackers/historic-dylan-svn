@@ -48,10 +48,12 @@ copyright: LGPL
 define function parse-document(doc :: <string>, 
                                #key start = 0, end: stop, 
                                substitute-entities? = #t,
-                               modify-elements-when-parsing? = #t)
+                               modify-elements-when-parsing? = #t,
+ 			       ignore-comments? = #t)
  => (stripped-tree :: <document>)
   *entities* := make(<table>);
   *defining-entities?* := #f;
+  *ignore-comments?* := ignore-comments?;
   *modify?* := modify-elements-when-parsing?;
   *substitute-entities?* := substitute-entities?;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
@@ -60,10 +62,17 @@ define function parse-document(doc :: <string>,
 end function parse-document;
 
 define variable *modify?* :: <boolean> = #t;
+define variable *ignore-comments?* :: <boolean> = #t;
 
 define meta document-helper(prolog, elemnt, misc) =>
- (make(<document>, name: elemnt.name, children: vector(elemnt)))
-   scan-prolog(prolog), scan-element(elemnt), loop(scan-misc(misc))
+ (make(<document>, name: elemnt.name, 
+       children: if(*ignore-comments?*) 
+                   vector(elemnt)
+                 else
+                   concatenate(prolog, vector(elemnt), misc)
+                 end if))
+   scan-prolog(prolog), 
+   scan-element(elemnt), scan-miscs(misc)
 end meta document-helper;
 
 // Character Range
@@ -217,16 +226,18 @@ define collect-data double-char("\"&") end;
 // Comments
 // [15] Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 //
-define meta comment(c)
-  "<!--", loop({["-->", finish()], accept(c)})
-end;
+define collector comment(c) => (make(<comment>, comment: as(<string>, str)))
+  "<!--", loop({["-->", finish()], [accept(c), do(collect(c))]})
+end collector comment;
 
 // Processing Instructions
 // [16] PI ::= '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
 //
-define meta pi(c, target, space)
-  "<?", scan-pi-target(target), scan-s(space), 
-  loop({["?>", finish()], accept(c)})
+// Doug: but I think processing instructions are, for the most case,
+//       tags with attributes ... are there any exceptions?
+define meta pi(s, target, attribs)
+ => (make(<processing-instruction>, name: target, attributes: attribs))
+  "<?", scan-pi-target(target), scan-s?(s), scan-xml-attributes(attribs), "?>"
 end meta pi;
 
 //    [17]    PITarget    ::=    Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
@@ -258,10 +269,12 @@ end collector cd-sect;
 // 
 //    [22]    prolog         ::=    XMLDecl? Misc* (doctypedecl Misc*)?
 //
-define meta prolog(decl, misc, doctype)
-  {scan-xml-decl(decl), []}, loop(scan-misc(misc)),
-  {[scan-doctypedecl(doctype), loop(scan-misc(misc))], []}
-end meta prolog;
+define collector prolog(decl, misc, doctype) => (str)
+  {scan-xml-decl(decl), []},
+  {[scan-miscs(misc), do(do(collect, misc))], []},
+  {scan-doctypedecl(doctype), []},
+  {[scan-miscs(misc), do(do(collect, misc))], []}, []
+end collector prolog;
 
 // [23] XMLDecl ::= '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
 //
@@ -293,9 +306,13 @@ end collector version-num;
 
 //    [27]    Misc           ::=    Comment | PI | S
 //
-define meta misc(comment, pi, s)
-  {scan-comment(comment), scan-pi(pi), scan-s(s)}, []
+define meta misc(s, tag)
+  {scan-comment(tag), scan-pi(tag), scan-s(s)}, []
 end meta misc;
+
+define collector miscs(misc, s) => (str)
+  loop({[{scan-comment(misc), scan-pi(misc)}, do(collect(misc))], scan-s(s)})
+end collector miscs;
 
 // [28a] DeclSep ::= PEReference | S    [WFC: PE Between Declarations]
 //
@@ -532,14 +549,17 @@ define method collapse-strings(str :: <sequence>, b == #t)
   end if;
 end method collapse-strings;
 
-define collector content(ignor, contents) 
+define collector content(pi, comment, contents) 
  => (collapse-strings(str, *substitute-entities?*))
   {[scan-char-data(contents), 
    do(contents.text.has-content? & collect(contents))], []},
   loop({[{scan-element(contents), scan-cd-sect(contents)}, 
          do(collect(contents))],
         [scan-reference(contents), do(do(collect, contents))],
-        scan-pi(ignor), scan-comment(ignor),
+        [scan-pi(pi), 
+	 do(unless(*ignore-comments?*) collect(pi) end)],
+        [scan-comment(comment),
+	 do(unless(*ignore-comments?*) collect(comment) end)],
         [scan-char-data(contents), 
          do(contents.text.has-content? & collect(contents))]})
 end collector content;

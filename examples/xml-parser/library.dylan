@@ -16,7 +16,7 @@ define module xml-parser
   create <document>, <element>, <attribute>, <xml>, <processing-instruction>,
     <entity-reference>, <add-parents>, <char-reference>, <comment>, <tag>,
     <char-string>, <dtd>, <internal-entity>, <external-entity>,
-    text, text-setter, char, name, name-setter;
+    text, text-setter, char, name, name-setter, root;
 
   create entity-value, attributes, attributes-setter,
     attribute-value, attribute-value-setter,
@@ -31,7 +31,7 @@ define module xml-parser
     *xml-depth*, *open-the-tag*, *close-the-tag*, *ampersand*, *printer-state*;
 
     // for iteration
-  create node-iterator;
+  create node-iterator, prepare-document;
   create transform, transform-document, before-transform, <xform-state>;
 end module xml-parser;
 

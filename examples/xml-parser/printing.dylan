@@ -114,7 +114,8 @@ end method do-transform;
 
 define method do-transform(c :: <comment>, state :: <printing>,
                            stream :: <stream>) => ()
-  format(stream, " %m", curry(print-safe-string, c.comment));
+  format(stream, " ");
+  print-safe-string(c.comment, stream);
 end method do-transform;
 
 // use before-transform for pretty printing elements -- see
@@ -182,15 +183,15 @@ define method print-object(ref :: <reference>, s :: <stream>) => ()
   transform(ref, ref.name, *printer-state*, s);
 end method print-object;
 
-// a document contains one <element>
+// a document contains one <element> and pi's and comments
 define method print-object(doc :: <document>, s :: <stream>) => ()
   transform(doc, doc.name, *printer-state*, s);
 end method print-object;
 
 // the default way for preparing to print a document
-define method before-transform(doc :: <document>, state :: <printing>, 
-                               depth :: <integer>, stream :: <stream>)
+define method prepare-document(doc :: <document>, state :: <printing>, 
+                               stream :: <stream>) => ()
   let version = vector(make(<attribute>, name: #"version", value: "1.0"));
   let xml = make(<processing-instruction>, name: #"xml", attributes: version);
   transform(xml, #"xml", state, stream);
-end method before-transform;
+end method prepare-document;

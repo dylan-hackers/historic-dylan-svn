@@ -14,14 +14,23 @@ end class <html>;
 define constant $html = make(<html>);
 define variable *substitute?* :: <boolean> = #t;
 
-define method before-transform(node :: <element>, state :: <html>,
-                               times :: <integer>, str :: <stream>)
-  format(str, "\n<BR>");
-  for(x from 1 to times) format(str, "&nbsp;"); end for;
+define method before-transform(node :: type-union(<document>, <element>),
+ 			       state :: <html>, times :: <integer>,
+			       stream :: <stream>)
+                               
+  format(stream, "\n<BR>");
+  for(x from 1 to times) format(stream, "&nbsp;"); end for;
 end method before-transform;
 
-define method before-transform(doc :: <document>, state :: <html>,
-                               depth :: <integer>, stream :: <stream>)
+define method transform(c :: <comment>, name :: <symbol>, state :: <html>,
+                        stream :: <stream>)
+  format(stream, "<BR><FONT color='brown'>");
+  next-method();
+  format(stream, "</FONT><BR>");
+end method transform;
+
+define method prepare-document(doc :: <document>, state :: <html>,
+                               stream :: <stream>) => ()
   format(stream, "<HTML>\n <TITLE>XML as HTML</TITLE>\n"
            " <BODY BGCOLOR='white'>\n");
   next-method();
@@ -30,9 +39,10 @@ define method before-transform(doc :: <document>, state :: <html>,
   collect-entity-defs(doc);
   let dtd = make(<dtd>, name: doc.name, 
                  ref: concatenate(dname, "-entities.html"));
+  new-line(stream);
   print-in("purple", dtd, stream);
-  print-in("brown", header-comment(dname), stream);
-end method before-transform;  
+  format(stream, "%=", header-comment(dname));
+end method prepare-document;
 
 define method transform(in :: <document>, tag-name :: <symbol>,
                         state :: <html>, stream :: <stream>)
