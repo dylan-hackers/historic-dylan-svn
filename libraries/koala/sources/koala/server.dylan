@@ -169,6 +169,7 @@ define inline function request-server (request :: <basic-request>)
   request.request-client.client-server
 end;
 
+/*
 define inline function request-thread (request :: <basic-request>)
     => (server :: <thread>)
   request.request-client.client-thread
@@ -178,6 +179,7 @@ define inline function request-port (request :: <basic-request>)
     => (port :: <integer>)
   request.request-client.client-listener.listener-port;
 end;
+*/
 
 define variable *sockets-started?* :: <boolean> = #f;
 
@@ -208,25 +210,28 @@ define variable *next-listener-id* :: <integer> = 0;
 define function init-server
     (#key listeners :: <integer> = 1,
      request-class :: subclass(<basic-request>)
-       = *default-request-class*)
+       = *default-request-class*,
+     config-file)
   let server :: <server> = ensure-server();
   server.max-listeners := listeners;
   server.request-class := request-class;
-  run-init-functions();
-  configure-server();
+  configure-server(config-file);
   log-info("%s HTTP Server starting up", $server-name);
-  ensure-sockets-started();  // Can this be moved into start-server?
+  ensure-sockets-started();  // TODO: Can this be moved into start-server?
   log-info("Server root directory is %s", *server-root*);
   when (*auto-register-pages?*)
     log-info("Auto-register enabled");
   end;
-  init-xml-rpc-server();
+  run-init-functions();
 end init-server;
 
 // API
+// This is what client libraries call to start the server.
 //
 define function start-server
-    () => (started? :: <boolean>)
+    (#key config-file)
+ => (started? :: <boolean>)
+  init-server(config-file: config-file);
   if (*abort-startup?*)
     log-error("Server startup aborted due to the previous errors");
     #f
@@ -235,18 +240,27 @@ define function start-server
     for (vhost keyed-by name in $virtual-hosts)
       ports := add!(ports, vhost-port(vhost))
     end;
-    // temporary code...
-    let port = iff(empty?(ports), 80, ports[0]);
-    log-info("Ready for service on port %d", port);
-    while (start-http-listener(*server*, port))
-      // do nothing
+    if (*fall-back-to-default-virtual-host?*)
+      ports := add!(ports, vhost-port($default-virtual-host));
     end;
-    // Apparently when the main thread dies in a FunDev Dylan application
-    // the application exits without waiting for spawned threads to die,
-    // so join-listeners keeps the main thread alive until all listeners die.
-    join-listeners(*server*);
-    #t
-  end
+    if (empty?(ports))
+      log-error("No ports to listen on!  No virtual hosts were specified "
+                "in the config file and fallback to the default vhost is "
+                "disabled.");
+      #f
+    else
+      // temporary code...
+      let port = ports[0];
+      while (start-http-listener(*server*, port))
+        // do nothing
+      end;
+      // Apparently when the main thread dies in a FunDev Dylan application
+      // the application exits without waiting for spawned threads to die,
+      // so join-listeners keeps the main thread alive until all listeners die.
+      join-listeners(*server*);
+      #t
+    end if
+  end if
 end function start-server;
 
 define function join-listeners
@@ -343,6 +357,7 @@ define function start-http-listener (server :: <server>, port :: <integer>)
           block ()
             listener-top-level(listener);
           cleanup
+            log-info("Listener on port %d shutting down", port);
             close(listener.listener-socket, abort?: #t);
             release-listener(listener);
           end;
@@ -413,7 +428,8 @@ define function do-http-listen (listener :: <listener>)
     listener.listener-listen-start := current-date();
     let socket = block ()
                    unless (listener.listener-exit-requested?)
-                     log-debug("Calling accept(listener.listener-socket)");
+                     log-info("Ready for service on port %d",
+                              listener.listener-port);
 	             // use "element-type: <byte>" here?
                      accept(listener.listener-socket); // blocks
                    end;

@@ -27,7 +27,7 @@ end library koala;
 
 define module utilities
   use dylan;
-  use common-extensions, exclude: { format-to-string };
+  use common-extensions, exclude: { format-to-string, split };
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -217,7 +217,7 @@ end;
 define module httpi                             // http internals
   use dylan;
   use threads;               // from dylan lib
-  use common-extensions, exclude: { format-to-string };
+  use common-extensions, exclude: { format-to-string, split };
   use dylan-basics;
   use utilities;
   use koala;
@@ -254,7 +254,7 @@ end module httpi;
 
 define module dsp
   use dylan;
-  use common-extensions;
+  use common-extensions, exclude: { split };
   use dylan-basics;
   use koala, export: all;
   use utilities, export: all;

@@ -209,6 +209,9 @@ define method send-response
       let date = as-common-logfile-date(current-date());
       let remoteaddr = host-address(remote-host(request-socket(req)));
       let ext :: <string> = "";
+      // TODO: it would be nice to have a configurable logfile format string where
+      // the user can choose what to output.  e.g.,
+      //   "{ip} {hostname} [{date}] '{url}' {user-agent} {referer}"
       if (*logfile-type* == #"extended")
         //for now, add User-Agent and Referer
         ext := concatenate(" \"", as(<string>, get-header(req, "user-agent") | "-"),

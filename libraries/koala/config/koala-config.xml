@@ -24,6 +24,13 @@
   -->
 
 
+<!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
+     any virtual host will fall back to the default vhost instead.  The
+     default is enabled.
+  -->
+<default-virtual-host enabled="yes"/>
+
+
 <!-- LOG tells Koala what kind of log messages to display.  There are six
      possible settings, from least verbose to most verbose:
 
@@ -36,7 +43,6 @@
      so debugging statements emitted during config file parsing can be
      displayed.
   -->
-
 <log level="debug" />
 
 
@@ -46,7 +52,7 @@
      should also be near the beginning of the log file if you want to debug
      config file loading.
   -->
-<debug-server value="off" />
+<debug-server value="on" />
 
 
 <!-- SERVER-ROOT is the top of the directory tree under which the
