@@ -2,23 +2,6 @@ Module:   code-browser
 Synopsis: Brwose FD environment objects
 Author:   Andreas Bogk
 
-// Responds to a single URL.
-define responder responder1 ("/shutdown")
-    (request :: <request>,
-     response :: <response>)
-  select (request-method(request))
-    #"get", #"post"
-      => begin 
-           format(output-stream(response),
-                  "<html><body>Shutting down the server"
-                    "</body></html>");
-           force-output(output-stream(response));
-           stop-server(abort: #t);
-         end;
-    
-  end;
-end;
-
 define class <code-browser-page> (<dylan-server-page>)
   slot project;
 end;
@@ -32,8 +15,8 @@ define page project-page (<code-browser-page>)
 end;
 
 define method respond-to-get (page :: <code-browser-page>,
-                               request :: <request>,
-                               response :: <response>)
+                              request :: <request>,
+                              response :: <response>)
   let project-name = get-query-value("name");
   if(~project-name | project-name = "")
     project-name := "minimal-console-compiler";
