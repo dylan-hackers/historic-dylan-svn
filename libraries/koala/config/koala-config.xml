@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!-- TODO: 
+     * When koala is a bit more prime-time (e.g., when it has at least one
+       production site using it, possibly gwydiondylan.org) everything in
+       this file should default to the most secure setting.
+  -->
+
 <koala>
 
 <!-- Koala configuration file
@@ -15,7 +21,7 @@
 
      (Some ideas were stolen from Apache's httpd.conf.)
 
--->
+  -->
 
 
 <!-- LOG tells Koala what kind of log messages to display.  There are six
@@ -29,7 +35,7 @@
      The log levels should be added near the beginning of this config file
      so debugging statements emitted during config file parsing can be
      displayed.
--->
+  -->
 
 <log level="debug" />
 
@@ -60,6 +66,16 @@
      of the default virtual host is "default".
   -->
 <document-root location="www" />
+
+
+<!-- DIRECTORY elements can be used to grant or deny access to specific directories.
+     For now the pattern is simply an initial-substring match against the requested
+     URL, so "/" matches all documents.  The order of DIRECTORY elements is significant.
+     If two directory patterns match the same URL, the one specified later in the
+     config file will take precedence.  For now allow-directory-listing is the only
+     recognized attribute (defaulting to "no").  -->
+<directory pattern = "/"
+           allow-directory-listing = "yes" />
 
 
 <!-- Port on which to listen for HTTP requests.  Note that at top-level,
@@ -118,5 +134,33 @@
      Dynamic module loading is not supported on FunDev/Linux yet.
   -->
 <module name="koala-basics" />
+
+
+<!-- VIRTUAL-HOST defines a new named virtual host with its own settings.
+     By default there is a single virtual host which is accessed via these
+     urls:
+        http://localhost....  
+        http://127.0.0.1....
+        http://<host-name>....          (not yet implemented)
+        http://<host-name.domain>....   (not yet implemented)
+     Top-level settings apply to the default virtual host.  Here we define
+     a new vhost for the 127.0.0.1 with a different document root.  Try
+     accessing, for example, http://127.0.0.1:8001/README 
+  -->
+
+<virtual-host name="127.0.0.1">
+
+    <document-root location = "www/127.0.0.1" />
+
+    <!-- For now, all virtual hosts must share the same port, so the
+         port here has to match the port for the default vhost.
+         This will eventually be fixed. -->
+
+    <port value="8001" />
+    <directory pattern = "/"
+               allow-directory-listing = "no" />
+
+</virtual-host>
+
 
 </koala>

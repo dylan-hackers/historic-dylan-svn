@@ -7,8 +7,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 define class <directory-spec> (<object>)
-  constant slot dirspec-name :: <string>,
-    required-init-keyword: name:;
+  constant slot dirspec-pattern :: <string>,
+    required-init-keyword: pattern:;
 
   // TODO:
   // If this regular expression is the first to match the request URL
@@ -34,12 +34,12 @@ end;
 
 
 define method initialize
-    (spec :: <directory-spec>, #key name, #all-keys)
+    (spec :: <directory-spec>, #key pattern, #all-keys)
   // TODO:
   // This is temp code, depending on the fact that we only create specs ending
   // in '*' right now.
-  let pos = char-position('*', name, 0, size(name));
-  regular-expression(spec) := iff(pos, substring(name, 0, pos), name);
+  let pos = char-position('*', pattern, 0, size(pattern));
+  regular-expression(spec) := iff(pos, substring(pattern, 0, pos), pattern);
 end;
 
 
@@ -87,7 +87,7 @@ define class <virtual-host> (<object>)
   // See initialize(<virtual-host>).
   constant slot root-directory-spec :: <directory-spec>
     = make(<directory-spec>,
-           name: "/*");
+           pattern: "/*");
 
   // Whether or not to include a Server: header in all responses.  Most people
   // won't care either way, but some might want to hide the server type so as
@@ -134,6 +134,8 @@ end;
 define method initialize
     (vhost :: <virtual-host>, #key name, #all-keys)
   next-method();
+  log-debug("name = %=, vhost-name = %=\n", name, vhost-name(vhost));
+  ensure-server-root();
   // This may be overridden by a <document-root> spec in the config file.
   document-root(vhost) := subdirectory-locator(*server-root*, name);
   // Add a spec that matches all urls.
@@ -145,11 +147,13 @@ define method add-directory-spec
   directory-specs(vhost)
     := pair(spec, remove!(directory-specs(vhost), spec,
                           test: method (s1, s2)
-                                  dirspec-name(s1) = dirspec-name(s2)
+                                  dirspec-pattern(s1) = dirspec-pattern(s2)
                                 end));
 end;
 
 // The vhost used if the request host doesn't match any other virtual host.
+// Note that the document root may be changed when the config file is
+// processed, so don't use it except during request processing.
 //
 define constant $default-virtual-host :: <virtual-host>
   = make(<virtual-host>, name: "default");
@@ -162,6 +166,8 @@ define table $virtual-hosts :: <string-table>
       "localhost" => $default-virtual-host,
       "127.0.0.1" => $default-virtual-host
       };
+
+define thread variable *virtual-host* :: <virtual-host> = $default-virtual-host;
 
 define method add-virtual-host
     (name :: <string>, vhost :: <virtual-host>)
@@ -230,5 +236,3 @@ define method directory-spec-matching
     end;
   end;
 end;
-  
-

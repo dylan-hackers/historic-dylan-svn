@@ -189,3 +189,14 @@ end quote-html;
 
 
 
+// Abuncha functions that get called by init-server.
+
+define variable *init-functions* = make(<stretchy-vector>);
+
+define function register-init-function (f)
+  *init-functions* := add!(*init-functions*, f);
+end;
+
+define function run-init-functions ()
+  do(method (f) f() end, *init-functions*);
+end;
