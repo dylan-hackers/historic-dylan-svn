@@ -31,16 +31,24 @@ define module board
   use icfp2002;
   
   export
-    <state>, robots, packages,
+    <state>, board, robots, packages, packages-at,
     <board>, <coordinate>,
     send-board, receive-board,
     width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,
-    <package>, weight, x, y, dest-x, dest-y,
-    <robot>, capacity, x, y, capacity-left,
+    <package>, id, weight, x, y, dest-x, dest-y, at-destination?,
+    <robot>, id, capacity, inventory, x, y, capacity-left,
     add-robot,
     add-package;
 end module board;
+
+
+define module path
+  use common-dylan;
+  use board;
+
+  export find-path;
+end module path;
 
 define module command
   use icfp2002;
@@ -89,6 +97,7 @@ define module client
   use common-dylan;
   use board;
   use command;
+  use path;
 
   export <robot-agent>
 end module client;
@@ -98,9 +107,3 @@ define module server
   use board;
   
 end module server;
-
-
-define module path
-  use common-dylan;
-  use board;
-end module path;
