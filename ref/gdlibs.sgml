@@ -22,7 +22,7 @@
     </bookbiblio>
   </bookinfo>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-introduction">
     <TITLE>Introduction</TITLE>
 
     <PARA>This manual serves as a guide to the libraries included with
@@ -35,11 +35,95 @@
 	  <PARA></PARA>
 	</LISTITEM>
       </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Streams</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Standard-IO</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Format</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Format-Out</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Print</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Collection-Extensions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Table-Extensions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>String-Extensions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Regular-Expressions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Transcendental</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Time</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Random</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Matrix</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>TK</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
     </VARIABLELIST>
     
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-dylan">
     <TITLE>The Dylan Library and Gwydion Dylan Extensions</TITLE>
 
     <SECT1>
@@ -634,10 +718,413 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	<PARA>The Extensions module exports the following
 	functionality for controlling the exiting of
 	applications:</PARA>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>exit</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>exit</FUNCTION> #key <PARAMETER>exit-code</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Keyword Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>exit-code:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <LITERAL>&lt;integer&gt;</LITERAL>.  The default is
+		  0.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Causes the process to exit with return code
+	    <PARAMETER>exit-code</PARAMETER>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>on-exit</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>on-exit</FUNCTION> <PARAMETER>function</PARAMETER> => <PARAMETER>meaningless</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM>function</TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;function&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM>meaningless</TERM>
+		<LISTITEM>
+		  <PARA>Always equal to <LITERAL>#f</LITERAL>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Arranges for the <FUNCTION>exit</FUNCTION> function
+	    to call the argument function.  The argument function must
+	    take no required arguments.  Users may call
+	    <FUNCTION>on-exit</FUNCTION> multiple times to install
+	    more than one function for <FUNCTION>exit</FUNCTION> to
+	    call, but the order in which exit invokes the functions is
+	    undefined. Calling <FUNCTION>on-exit</FUNCTION> on the
+	    same function repeatedly, installs that function multiple
+	    times.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+      <SECT2>
+	<TITLE>Collections</TITLE>
+
+	<PARA>The Extensions module exports the following
+	<CLASSNAME>&lt;collection&gt;</CLASSNAME>
+	functionality:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>key-exists?</REFNAME>
+	    <REFPURPOSE>Generic Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>key-exists?</FUNCTION> <PARAMETER>collection</PARAMETER> <PARAMETER>key</PARAMETER> => <PARAMETER>win?</PARAMETER> <PARAMETER>elt</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>collection</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;collection&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>key</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>win?</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;boolean&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>elt</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Return whether <PARAMETER>key</PARAMETER> is in
+	    <PARAMETER>collection</PARAMETER>. If the
+	    <PARAMETER>key</PARAMETER> is in the
+	    <PARAMETER>collection</PARAMETER>, then the second value
+	    is the element associated with <PARAMETER>key</PARAMETER>;
+	    otherwise, the second return value is #f.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+      <SECT2>
+	<TITLE>Integers</TITLE>
+
+	<PARA>Gwydion compilers have an abstract class
+	<CLASSNAME>&lt;general-integer&gt;</CLASSNAME> which has two
+	concrete subclasses, <CLASSNAME>&lt;integer&gt;</CLASSNAME>
+	and <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>s have a limited range
+	of values, and <CLASSNAME>&lt;integer&gt;</CLASSNAME>
+	arithmetic uses the computer's underlying integer
+	facilities. <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s
+	can take on any value, and are similar to Common Lisp
+	"bignums."  Expressions involving
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s produce
+	<CLASSNAME>&lt;extendedinteger&gt;</CLASSNAME> results because
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s are
+	contagious. If an expression involving only
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME> values would produce a
+	result that does not fit in an
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>, then the Gwydion
+	compiler will signal an overflow error. You can use the
+	<FUNCTION>as</FUNCTION> function to convert back and forth
+	between <CLASSNAME>&lt;integer&gt;</CLASSNAME>s and
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s. As signals
+	an error when converting an
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME> to a
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>, and the value does not fit in a
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>.</PARA>
+
+	<PARA>The Extension module exports the following integer
+	functionality:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;general-integer&gt;</REFNAME>
+	    <REFPURPOSE>Abstract Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclass</TITLE>
+
+	    <PARA><CLASSNAME>&lt;rational&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>The superclass of
+	    <CLASSNAME>&lt;integer&gt;</CLASSNAME> and
+	    <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;extended-integer&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+
+	    <PARA><CLASSNAME>&lt;general-integer&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>$maximum-integer</REFNAME>
+	    <REFPURPOSE>Constant</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Holds the largest positive
+	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>$minimum-integer</REFNAME>
+	    <REFPURPOSE>Constant</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Holds the smallest negative
+	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Ratios</TITLE>
+
+	<PARA>The  Extensions module exports the following:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;ratio&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+
+	    <PARA><CLASSNAME>&lt;rational&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>A ratio is normalized so that it has a positive
+	    denominator, and the greatest common divisor of the
+	    numerator and the denominator is one. Ratios are never
+	    automatically converted to integers. For example,
+	    <LITERAL>ratio(4, 2)</LITERAL> would return
+	    <LITERAL>2/1</LITERAL>.</PARA>
+
+	    <PARA>A numeric operation involving two ratios produces a
+	    normalized ratio result. A numeric operation involving a
+	    ratio and an integer produced a normalized ratio result. A
+	    numeric operation involving a ratio and a float produces a
+	    float result.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>ratio</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>ratio</FUNCTION> <PARAMETER>numerator</PARAMETER> <PARAMETER>denominator</PARAMETER> => <PARAMETER>ratio</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>numerator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>denominator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>ratio</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function makes a ratio from the two integers.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>numerator</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>numerator</FUNCTION> <PARAMETER>ratio</PARAMETER> => <PARAMETER>the-numerator</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>ratio</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>the-numerator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function returns the numerator part of a ratio.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>denominator</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>denominator</FUNCTION> <PARAMETER>ratio</PARAMETER> => <PARAMETER>the-denominator</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>ratio</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>the-denominator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function returns the denominator part of a ratio.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
       </SECT2>
     </SECT1>
 
-    <SECT1 ID=libs-dylan-system>
+    <SECT1 ID="libs-dylan-system">
       <TITLE>The System Module</TITLE>
 
       <PARA></PARA>
@@ -657,7 +1144,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
     </SECT1>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-streams">
     <DOCINFO>
       <TITLE>The Streams Library</TITLE>
       <DATE>06 Feb 1997</DATE>
@@ -1662,19 +2149,19 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
     </SECT1>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-standard-io">
     <TITLE>The Standard-IO Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-format">
     <TITLE>The Format Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-format-out">
     <TITLE>The Format-Out Library</TITLE>
 
     <PARA>The Format-Out library is designed to provide a simple
@@ -1728,63 +2215,63 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     </REFENTRY>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-print">
     <TITLE>The Print Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-collection-extensions">
     <TITLE>The Collection-Extensions Library</TITLE>
 
     <PARA></PARA>
 
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-table-extensions">
     <TITLE>The Table-Extensions Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-string-extensions">
     <TITLE>The String-Extensions Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
   
-  <CHAPTER>
+  <CHAPTER ID="libs-regular-expressions">
     <TITLE>The Regular-Expressions Library</TITLE>
 
     <PARA></PARA>
 
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-transcendental">
     <TITLE>The Transcendental Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-time">
     <TITLE>The Time Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-random">
     <TITLE>The Random Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-   <CHAPTER>
+   <CHAPTER ID="libs-matrix">
     <TITLE>The Matrix Library</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="libs-dylan-tk">
     <TITLE>The TK Library</TITLE>
 
     <PARA></PARA>
