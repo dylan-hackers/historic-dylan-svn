@@ -48,6 +48,7 @@ clean:
 	opengl-intr.dylan opengl-glu-intr.dylan opengl-glut-intr.dylan \
 	opengl-osmesa-intr.dylan
 	-rm -rf .libs
+	-rm -rf *.stackdump
 
 install: opengl.lib.du 
 	$(LIBTOOL) --mode=install /usr/bin/install -c libopengl-dylan.la $(INSTALLPATH)/libopengl-dylan.la
