@@ -54,29 +54,65 @@ end;
 define /*abstract*/ functional class <llvm-type>(<llvm-object>)
 end;
 
+define /*abstract*/ functional class <llvm-primitive-type>(<llvm-type>)
+end;
+
+define method make (f == <llvm-primitive-type>, #rest rest,
+		    #key id :: <symbol>)
+ => result :: <llvm-primitive-type>;
+
+  next-method(f,
+	      pointer: select (id)
+			 VoidTyID: => call-out("get_llvm_VoidTyID", ptr:);
+		       end);
+/*BoolTyID
+UByteTyID
+SByteTyID
+UShortTyID
+ShortTyID
+UIntTyID
+IntTyID
+ULongTyID
+LongTyID
+FloatTyID
+DoubleTyID
+LabelTyID*/
+end;
 
 define functional class <llvm-function-type>(<llvm-type>)
 end;
 
+define method make (f == <llvm-function-type>, #rest rest,
+		    #key return-type :: <llvm-type>,
+		         argument-types :: <simple-object-vector>,
+		         variadic :: <boolean>)
+ => result :: <llvm-function-type>;
+
+  next-method(f, pointer: call-out("make_llvm_FunctionType", ptr:,
+				   ptr: return-type.raw-value,
+				   ptr: object-address(argument-types),
+				   int: variadic & 1 | 0 /* %%primitive("as-boolean", variadic)*/));
+end;
+
 
 define macro llvm-accessors-definer
-  { define llvm-accessors ?class-name:name (?C++-name:name) end }
+  { define llvm-accessors ?class-name:name (?C++-name:token) end }
   =>
   { }
 
-  { define llvm-accessors ?class-name:name (?C++-name:name) ?accessor; ?rest:* end }
+  { define llvm-accessors ?class-name:name (?C++-name:token) ?accessor; ?rest:* end }
   =>
   { define single llvm-accessors [?class-name, ?C++-name, ?accessor] end; define llvm-accessors ?class-name (?C++-name) ?rest end }
 
-  { define single llvm-accessors [?class-name:name, ?C++-name:name, [?:name; (); (?results:variable-list)]] end }
+  { define single llvm-accessors [?class-name:name, ?C++-name:token, [?:name; (); (?results:variable-list)]] end }
   =>
   { define method ?name(o :: ?class-name) => (?results);
-      call-out(?"name" "_llvm_" ?"C++-name", void:, ptr: o.raw-value)
+      call-out(?"name" "_llvm_" ?C++-name, void:, ptr: o.raw-value)
     end }
 
 /*  { define single llvm-accessors [?class-name:name, ?C++-name:name, [?:name; (?args:variable-list); (?results:variable-list)]] end }
   =>
-  { define method (o :: ?class-name, ?args) => (?results);
+  { define method ?name(o :: ?class-name, ?args) => (?results);
       call-out(?"name" "_llvm_" ?"C++-name", void:, ptr: o.raw-value)
     end } */
 
@@ -85,9 +121,10 @@ define macro llvm-accessors-definer
 end;
 
 
-define llvm-accessors <llvm-type> (Type)
+define llvm-accessors <llvm-type> ("Type")
 //  delete, () => ();
-//  dump, () => ();
+  dump, () => ();
+//  dump2, (i :: <integer>) => ();
 end;
 
 // ##########
@@ -114,17 +151,28 @@ end;
 // delete: give up ownership and destroy
 define generic delete(o :: <llvm-object>) => ();
 
+/*
 define method delete(v :: <llvm-value>) => ();
   call-out("delete_llvm_Value", void:, ptr: v.raw-value)
 end;
+*/
 
 
 // dump: output some textual representation for debugging purposes
 define generic dump(o :: <llvm-object>) => ();
 
+/*
 define method dump(v :: <llvm-value>) => ();
   call-out("dump_llvm_Value", void:, ptr: v.raw-value)
 end;
+*/
+
+define llvm-accessors <llvm-value> ("Value")
+  delete, () => ();
+  dump, () => ();
+end;
+
+
 
 
 // ################
@@ -176,8 +224,8 @@ define method make (f == <llvm-function>, #rest rest, #key type :: <llvm-functio
  => (result :: <llvm-function>);
   next-method(f, pointer: call-out("make_llvm_Function", ptr:,
 				   ptr: type.raw-value,
-				   ptr: object-address(name & name | ""),
-				   ptr: module & module.raw-value | $null-pointer.raw-value));
+				   ptr: object-address(name | ""),
+				   ptr: raw-value(module | $null-pointer)));
 end;
 
 
@@ -199,15 +247,23 @@ end;
 
 define method make (m == <llvm-module>, #rest rest, #key name :: false-or(<byte-string>))
  => (result :: <llvm-module>);
-  next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: object-address(name & name | "")));
+  next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: object-address(name | "")));
 end;
 
+
+/*
 define method delete(m :: <llvm-module>) => ();
   call-out("delete_llvm_Module", void:, ptr: m.raw-value)
 end;
 
 define method dump(m :: <llvm-module>) => ();
   call-out("dump_llvm_Module", void:, ptr: m.raw-value)
+end;
+*/
+
+define llvm-accessors <llvm-module> ("Module")
+  delete, () => ();
+  dump, () => ();
 end;
 
 
@@ -223,6 +279,13 @@ define method emit-tlf-gunk
 //  make(<llvm-basic-block>).dump;
   m.dump;
 
+
+  let void = make (<llvm-primitive-type>, id: VoidTyID:);
+  void.dump;
+  
+  let func = make(<llvm-function-type>, return-type: void, argument-types: #[], variadic: #t);
+  func.dump;
+  
   m.delete;
 end method emit-tlf-gunk;
 
