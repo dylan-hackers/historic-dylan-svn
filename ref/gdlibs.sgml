@@ -2151,11 +2151,76 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
     </SECT1>
   </CHAPTER>
 
-  <CHAPTER ID="libs-standard-io">
-    <TITLE>The Standard-IO Library</TITLE>
-
-    <PARA></PARA>
-  </CHAPTER>
+  <chapter id="libs-standard-io">
+    <title> The Standard-IO Library </title>
+     <sect1 id="libs-standard-io-standard-io">
+      <title> The Standard-IO Library </title>
+      <para>
+        The <dmodule> standard-IO </dmodule> module of the
+        <dlibrary> standard-IO </dlibrary> library exports
+        three names for the standard input, output, and error
+        streams.
+      </para>
+  
+      <dylanconstantdef>
+        <defname> *standard-error* </defname>
+        <defsummary>
+          The <classname>&lt;stream&gt;</classname> instance corresponding
+          to the standard error.
+        </defsummary>
+        <deftype>
+          &lt;stream&gt;
+        </deftype>
+        <defdescription>
+          <para>
+            The standard error <classname>&lt;stream&gt;</classname>.
+            This usually represents the terminal; however most UNIX-like
+            operating systems permit the standard error stream to be
+            redirected at the command line.
+          </para>
+        </defdescription>
+      </dylanconstantdef>
+  
+      <dylanconstantdef>
+        <defname> *standard-input* </defname>
+        <defsummary>
+          The <classname>&lt;stream&gt;</classname> instance corresponding
+          to the standard input.
+        </defsummary>
+        <deftype>
+          &lt;stream&gt;
+        </deftype>
+        <defdescription>
+          <para>
+            The standard input <classname>&lt;stream&gt;</classname>.
+            Usually, this stream reads from the terminal for its data;
+            however most UNIX-like operating systems permit the standard
+            input stream to be redirected at the command line.
+          </para>
+        </defdescription>
+      </dylanconstantdef>
+  
+      <dylanconstantdef>
+        <defname> *standard-output* </defname>
+        <defsummary>
+          The <classname>&lt;stream&gt;</classname> instance corresponding
+          to the standard output.
+        </defsummary>
+        <deftype>
+          &lt;stream&gt;
+        </deftype>
+        <defdescription>
+          <para>
+            The standard output <classname>&lt;stream&gt;</classname>.
+            This usually represents the terminal (just like <dname>
+            *standard-error* </dname>); however most UNIX-like operating
+            systems permit the standard output stream to be redirected
+            at the command line.
+          </para>
+        </defdescription>
+      </dylanconstantdef>
+    </sect1>
+  </chapter>
 
   <CHAPTER ID="libs-format">
     <TITLE>The Format Library</TITLE>
