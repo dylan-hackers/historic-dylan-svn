@@ -920,7 +920,7 @@ define module opengl-glu
     $GLU-INVALID-ENUM,
     $GLU-INVALID-VALUE,
     $GLU-OUT-OF-MEMORY,
-    $GLU-INCOMPATIBLE-GL-VERSION,
+//    $GLU-INCOMPATIBLE-GL-VERSION,
     $GLU-VERSION,
     $GLU-EXTENSIONS;
 end module;
@@ -933,7 +933,7 @@ define module opengl-glut
 
   // Functions:
   export
-  	glut-init,	// Utility wrapper version
+    glut-init,	// Utility wrapper version
     glutInit,
     glutInitDisplayMode,
     glutInitDisplayString,
