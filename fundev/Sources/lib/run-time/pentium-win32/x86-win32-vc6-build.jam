@@ -181,9 +181,9 @@ rule DylanLibraryLinkerOptions image : options {
   # and executable images.
   local _dll = [ FDLLName $(image) ] ;
   local _exe = [ FEXEName $(image) ] ;
-  
-  LINKFLAGS on $(_dll) += $(options) ;
-  LINKFLAGS on $(_exe) += $(options) ;
+
+  LINKFLAGS on $(_dll) $(_exe) ?= $(LINKFLAGS) ;
+  LINKFLAGS on $(_dll) $(_exe) += $(options) ;
 }
 
 rule DylanLibraryBaseAddress image : address {
