@@ -1,4 +1,7 @@
-vrml-viewer: vrml-viewer.lid
+go: vrml-viewer
+	./vrml-viewer
+
+vrml-viewer: vrml-viewer.lid ../examples/gdgl/opengl.lib.du
 	d2c -L../examples/gdgl $<
 
 vrml-viewer.lid: vrml-viewer-exports.dylan vrml-viewer.dylan indexed-face-set.dylan node.dylan gettimeofday.dylan errno.dylan
