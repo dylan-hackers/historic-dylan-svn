@@ -17,18 +17,19 @@ to be a little bit adventurous to use it.</P>
 
 <LI><STRONG>d2c generates fast code slowly.</STRONG>
 <A HREF="http://www.fun-o.com/">Functional Objects</A> has solved
-this problem: they support incremental compilation and match Visual C++ in
-code quality. We'd like to do as well, but it will take a while.
+this problem in their Dylan compiler by supporting incremental 
+compilation. We'd like to do so as well, but it will take a while.
 
 <LI>The Dylan-to-C interface is good, but sometimes has problems with
-unusual constructs in system headers.
+unusual constructs in system header files.
 
 <LI><STRONG>Debugging is uncomfortable</STRONG>. Although there's now
 support on most platforms for dybug, a gdb wrapper that understands
 Dylan, this can hardly called elegant. But at least it's there.
 
-<LI>d2c doesn't support a few obscure bits of the Dylan language,
-though there are fewer and fewer of these left.
+<LI>d2c supports most of the Dylan language as specified in the Dylan 
+Reference Manual (DRM), but is lacking support for some features such
+as limited collections.
 
 <LI>Did we mention debugging is cumbersome?
 
@@ -49,7 +50,8 @@ subjecting them to a (relatively slow) d2c compile.
 <LI><STRONG>Mindy doesn't support Dylan macros</STRONG> and a number
 of other useful features.
 
-<LI>Not much work will be done on Mindy in the future.
+<LI>No further work will be done on Mindy. All current work is 
+focused on d2c.
 
 </UL>
 
