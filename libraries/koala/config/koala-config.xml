@@ -100,12 +100,17 @@
   />
 
 
+<!-- Web Objects (needs a better name) is a way to link web forms to database
+     objects.  The basic mechanism is working but it is pre-pre-alpha still.
+     There is no database support on FunDev/Linux yet.
+  -->
 <web-objects
   database="webobj"
   />
 
 <!-- The MODULE element loads modules out of the SERVER-ROOT/modules/ directory.
-     The following loads koala-example.dll.
+     The following loads koala-basics.dll.
+     Dynamic module loading is not supported on FunDev/Linux yet.
   -->
 <module name="koala-basics" />
 
