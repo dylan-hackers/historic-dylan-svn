@@ -22,8 +22,7 @@ define function init-koala ()
     test-koala();
   end;
 
-  ensure-server();
-  log-info("%s HTTP Server starting up", $server-name);
+  init-server();
 end;
 
 begin

@@ -14,7 +14,7 @@ define macro with-log-output-to
   => { dynamic-bind (*log-stream* = ?stream) ?body end }
 end;
 
-define thread variable *log-stream* = *standard-output*;
+define thread variable *log-stream* = *standard-error*;
 
 // Root of the log level hierarchy.  Logging uses a simple class
 // hierarchy to determine what messages should be logged.
@@ -23,7 +23,15 @@ define open abstract primary class <log-level> (<singleton-object>)
   constant slot name :: <byte-string>, init-keyword: #"name";
 end;
 
-define open class <log-debug> (<log-level>)
+define open class <log-copious> (<log-level>)
+  inherited slot name = "BLAH";
+end;
+
+define open class <log-verbose> (<log-copious>)
+  inherited slot name = "VERB";
+end;
+
+define open class <log-debug> (<log-verbose>)
   inherited slot name = "DBG ";
 end;
 
@@ -39,12 +47,14 @@ define open class <log-error> (<log-warning>)
   inherited slot name = "ERR ";
 end;
 
-define constant $log-info :: <log-info> = make(<log-info>);
-define constant $log-warn :: <log-warning> = make(<log-warning>);
-define constant $log-error :: <log-error> = make(<log-error>);
+define constant $log-copious :: <log-copious> = make(<log-copious>);
+define constant $log-verbose :: <log-verbose> = make(<log-verbose>);
 define constant $log-debug :: <log-debug> = make(<log-debug>);
+define constant $log-info :: <log-info> = make(<log-info>);
+define constant $log-warning :: <log-warning> = make(<log-warning>);
+define constant $log-error :: <log-error> = make(<log-error>);
 
-// Messages will be logged if the specified log level is an instance of any
+// Messages will be logged if the specified log level is a subclass of any
 // of the classes in *log-levels*.  Configuration code should add to this.
 //
 define variable *log-levels* :: <sequence> = make(<stretchy-vector>);
@@ -79,7 +89,7 @@ end;
 define method date-to-stream
     (stream :: <stream>, date :: <date>)
   let (year, month, day, hours, minutes, seconds) = decode-date(date);
-  format(stream, "%d-%s%d-%s%d %s%s:%s%d:%s%d",
+  format(stream, "%d-%s%d-%s%d %s%d:%s%d:%s%d",
          year, iff(month < 10, "0", ""), month, iff(day < 10, "0", ""), day,
          iff(hours < 10, "0", ""), hours, iff(minutes < 10, "0", ""), minutes,
          iff(seconds < 10, "0", ""), seconds);
@@ -93,27 +103,19 @@ define method debug-format (format-string, #rest format-args)
   apply(log-message, $log-debug, format-string, format-args);
 end;
 
-define method log-info (format-string, #rest format-args)
-  apply(log-message, $log-info, format-string, format-args);
-end;
-
-define method log-warning (format-string, #rest format-args)
-  apply(log-message, $log-warn, format-string, format-args);
-end;
-
-define method log-error (format-string, #rest format-args)
-  apply(log-message, $log-error, format-string, format-args);
-end;
-
-define method log-debug (format-string, #rest format-args)
-  apply(log-message, $log-debug, format-string, format-args);
-end;
+define constant log-copious = curry(log-message, $log-copious);
+define constant log-verbose = curry(log-message, $log-verbose);
+define constant log-debug = curry(log-message, $log-debug);
+define constant log-info = curry(log-message, $log-info);
+define constant log-warning = curry(log-message, $log-warning);
+define constant log-error = curry(log-message, $log-error);
 
 define method log-debug-if (test, format-string, #rest format-args)
   if (test)
     apply(log-message, $log-debug, format-string, format-args);
   end;
 end;
+
 
 begin
   add-log-level(<log-info>);

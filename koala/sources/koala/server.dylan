@@ -187,9 +187,10 @@ end;
 
 define variable *next-listener-id* :: <integer> = 0;
 
-define function start-server (#key listeners :: <integer> = 1,
-                                   request-class :: subclass(<basic-request>)
-                                     = *default-request-class*)
+define function init-server (#key listeners :: <integer> = 1,
+                                  request-class :: subclass(<basic-request>)
+                                    = *default-request-class*)
+  log-info("%s HTTP Server starting up", $server-name);
   let server :: <server> = ensure-server();
   server.max-listeners := listeners;
   server.request-class := request-class;
@@ -201,12 +202,36 @@ define function start-server (#key listeners :: <integer> = 1,
     log-info("Auto-register enabled");
   end;
   init-xml-rpc-server();
+end init-server;
+
+// API
+//
+define function start-server ()
   log-info("Ready for service on port %d", *server-port*);
-  while (start-http-listener(server, *server-port*))
+  while (start-http-listener(*server*, *server-port*))
     // do nothing
   end;
-end start-server;
+  // Apparently when the main thread dies in a FunDev Dylan application
+  // the application exits without waiting for spawned threads to die,
+  // so join-listeners keeps the main thread alive until all listeners die.
+  join-listeners(*server*);
+end;
 
+define function join-listeners
+    (server :: <server>)
+  // Don't use join-thread, because no timeouts, so could hang.
+  block (return)
+    while (#t)
+      with-lock (server.server-lock)
+        empty?(server.server-listeners) & return();
+        sleep(0.2);
+      end;
+    end;
+  end;
+end;
+
+// If there's ever a UI, it should have a button to call this.
+//
 define function stop-server (#key abort)
   let server = *server*;
   when (server)
@@ -287,22 +312,23 @@ define function start-http-listener (server :: <server>, port :: <integer>)
             release-listener(listener);
           end;
         end method;
+  let started? = #f;
   with-lock (server-lock)
     let listeners = server.server-listeners;
     when (listeners.size < server.max-listeners)
+      log-debug("Creating a new listener thread.");
       let socket = make(<server-socket>, port: port);
       let thread = make(<thread>,
-                        name: format-to-string("HTTP Listener #%s/%d",
-                                               *next-listener-id*,
-                                               port),
+                        name: format-to-string("HTTP Listener #%s/%d", *next-listener-id*, port),
                         function: run-listener-top-level);
       wrapping-inc!(*next-listener-id*);
       listener := make(<listener>,
                        server: server, port: port, socket: socket, thread: thread);
       add!(server.server-listeners, listener);
-      #t
+      started? := #t
     end;
   end;
+  started?
 end start-http-listener;
 
 define function listener-top-level (listener :: <listener>)
@@ -315,7 +341,8 @@ define function listener-top-level (listener :: <listener>)
   let restart? = with-lock (server.server-lock)
                    let listeners = server.server-listeners;
                    when (*exiting-application*)
-                     server.max-listeners := 0 end;
+                     server.max-listeners := 0
+                   end;
                    when (~*exiting-application* &
                          ~listener.listener-exit-requested? &
                          listeners.size <= server.max-listeners)
@@ -342,6 +369,7 @@ end listener-top-level;
 // catch gracefully..
 //---TODO: need to handle errors.
 // Listen and spawn handlers until listener socket gets broken.
+//
 define function do-http-listen (listener :: <listener>)
   let server = listener.listener-server;
   let server-lock = server.server-lock;
@@ -350,6 +378,7 @@ define function do-http-listen (listener :: <listener>)
     listener.listener-listen-start := current-date();
     let socket = block ()
                    unless (listener.listener-exit-requested?)
+                     log-debug("Calling accept(listener.listener-socket)");
 	             // use "element-type: <byte>" here?
                      accept(listener.listener-socket); // blocks
                    end;
@@ -434,7 +463,7 @@ define thread variable *request-query-values* :: false-or(<string-table>) = #f;
 // Called (in a new thread) each time an HTTP request is received.
 define function handler-top-level
     (client :: <client>)
-  with-log-output-to (*standard-output*)
+  with-log-output-to (*standard-error*)
     dynamic-bind (*request* = #f)
       block (exit-request-handler)
         while (#t)                      // keep alive loop
@@ -493,7 +522,7 @@ define method read-request (request :: <request>) => ()
   let (buffer, len) = read-request-line(socket);
   when (empty-line?(buffer, len))
     // RFC 2616, 4.1 - Servers SHOULD ignore an empty line if received before any headers.
-    pset (buffer, len) <= read-request-line(socket) end;
+    pset (buffer, len) read-request-line(socket) end;
   end;
   read-request-first-line(request, buffer, len, server.allowed-methods);
   log-info("%s %s %s",
@@ -536,7 +565,6 @@ define function read-request-first-line
       if (qpos)
         log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
         let query = decode-url(buffer, qpos + 1, epos);
-        //log-debug("Decoded query string = %s", query);
         extract-query-values(query, 0, size(query), request.request-query-values)
       end;
       let bpos = skip-whitespace(buffer, epos, eol);
@@ -583,13 +611,13 @@ end read-request-content;
 // The following compensates for a bug in read and read-into! in FD 2.0.1
 
 define function kludge-read-into!
-    (socket :: <tcp-socket>, n :: <integer>, buffer :: <byte-string>,
+    (stream :: <stream>, n :: <integer>, buffer :: <byte-string>,
      #key start :: <integer> = 0)
  => (n :: <integer>)
   block (return)
     for (i from start below buffer.size,
          count from 0 below n)
-      let elem = read-element(socket, on-end-of-stream: #f);
+      let elem = read-element(stream, on-end-of-stream: #f);
       buffer[i] := (elem | return(count));
     end;
     n
@@ -632,27 +660,19 @@ define function send-error-response (request :: <request>, c :: <condition>)
   end;
 end;
 
-define method send-error-response-internal (request :: <request>, err :: <http-error>)
-  apply(log-error,
-        condition-format-string(err),
-        condition-format-arguments(err));
-  send-error-response(request,
-                      make(<internal-server-error>,
-                           code: 500,
-                           format-string: "Internal Server Error"));
-end;
-
-define method send-error-response-internal (request :: <request>, err :: <http-error>)
+define function send-error-response-internal (request :: <request>, err :: <koala-error>)
   with-resource (headers = <header-table>)
     with-resource (response = <response>,
                    request: request,
                    headers: headers)
-      let error-code = http-error-code(err);
-      let one-liner = http-error-message(err);
-      format(output-stream(response),
-             "Error %s:\n\n%s", error-code, condition-to-string(err));
-      add-header(response, "Content-type", "text/plain");
-      send-response(response, response-code: error-code, response-message: one-liner);
+      let out = output-stream(response);
+      set-content-type(response, "text/plain");
+      let one-liner = http-error-message-no-code(err);
+      write(out, "An error occurred while processing your request:\n\n");
+      write(out, condition-to-string(err));
+      send-response(response,
+                    response-code: http-error-code(err),
+                    response-message: one-liner);
     end;
   end;
 end;
@@ -668,8 +688,9 @@ define method process-incoming-headers (request :: <request>)
   elseif (member?("keep-alive", conn-values, test: string-equal?))
     request-keep-alive?(request) := #t
   end;
-  note-user-agent(request-server(request),
-                  request-header-value(request, #"user-agent"));
+  let agent = request-header-value(request, #"user-agent");
+  agent
+    & note-user-agent(request-server(request), agent);
 end;
 
 // API
@@ -682,7 +703,7 @@ define method register-url
   let server :: <server> = *server*;
   let (bpos, epos) = trim-whitespace(url, 0, size(url));
   if (bpos = epos)
-    error(make(<application-error>,
+    error(make(<koala-api-error>,
                format-string: "You cannot register an empty URL: %=",
                format-arguments: list(substring(url, bpos, epos))));
   else
@@ -690,7 +711,7 @@ define method register-url
     if (replace? | ~old-target)
       server.url-map[url] := target;
     else
-      error(make(<application-error>,
+      error(make(<koala-api-error>,
                  format-string: "There is already a target registered for URL %=",
                  format-arguments: list(url)));
     end;
@@ -739,6 +760,20 @@ define method find-responder
     | values(maybe-auto-register(url), url)
 end find-responder;
 
+// Register a function that will attempt to register a responder for a URL
+// if the URL matches the file extension.  The function should normally call
+// register-url (or register-page for DSPs) and should return a responder.
+//
+define function register-auto-responder
+    (file-extension :: <string>, f :: <function>, #key replace? :: <boolean>)
+  if (~replace? & element(*auto-register-map*, file-extension, default: #f))
+    cerror("Replace the old auto-responder with the new one and continue.",
+           "An auto-responder is already defined for file extension %=.",
+           file-extension);
+  end;
+  *auto-register-map*[file-extension] := f;
+end;
+
 // define responder test ("/test" /* , secure?: #t */ )
 //     (request, response)
 //   format(output-stream(response), "<html><body>test</body></html>");
@@ -772,7 +807,6 @@ define method invoke-handler
         else
           let found? = maybe-serve-static-file(request, response);
           when (~found?)
-            log-info("%s not found", url);
             resource-not-found-error(url: request-url(request));  // 404
           end;
         end;
@@ -902,4 +936,38 @@ define constant get-form-value :: <function> = get-query-value;
 define constant do-form-values :: <function> = do-query-values;
 define constant count-form-values :: <function> = count-query-values;
 
+
+/// Modules
+
+define constant $module-map :: <table> = make(<string-table>);
+define constant $module-directory :: <string> = "modules";
+
+// Modules are loaded from <server-root>/modules.
+//
+define function module-pathname
+    (module-name :: <string>) => (path :: <string>)
+  as(<string>,
+     merge-locators(as(<file-locator>,
+                       format-to-string("%s/%s", $module-directory, module-name)),
+                    *server-root*))
+end;
+
+define function load-module
+    (module-name :: <string>)
+  let path = module-pathname(module-name);
+  log-info("Loading module '%s' from %s...", module-name, path);
+  let handle = LoadLibrary(path);
+  $module-map[module-name] := handle;
+end;
+
+define function unload-module
+    (module-name :: <string>)
+  let handle = element($module-map, module-name, default: #f);
+  if (handle)
+    log-info("Unloading module %s...", module-name);
+    FreeLibrary(handle);
+  else
+    log-info("Couldn't unload module '%s'.  Module not found.", module-name);
+  end;
+end;
 

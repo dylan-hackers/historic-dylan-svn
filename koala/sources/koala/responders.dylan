@@ -42,9 +42,55 @@ define responder http-error-responder ("/koala/http-error")
   let code = string-to-integer(code-string);
   signal(make(<http-error>,
               code: code,
-              format-string: "Koala status server received a request for error code %=",
+              format-string: "Koala HTTP server received a request for error code %=",
               format-arguments: vector(code-string)));
 end;
 
+/*
+// Shutdown the server.  You definately don't want this active in a 
+// production setting.
+//
+define responder shutdown-responder ("/koala/shutdown")
+    (request, response)
+  let stream = output-stream(response);
+  let server = request.request-server;
+  format(stream, "<html><body>Shutting down...</body></html>");
+  force-output(stream);
+  stop-server(abort: #t);
+end;
+*/
 
+// Load a module
+//
+define responder load-module-responder ("/koala/load-module")
+    (request, response)
+  load/unload-module(request, response, #"load");
+end;
+
+// Unload a module
+//
+define responder unload-module-responder ("/koala/unload-module")
+    (request, response)
+  load/unload-module(request, response, #"unload");
+end;
+
+define function load/unload-module
+    (request, response, op :: one-of(#"load", #"unload"))
+  let stream = output-stream(response);
+  let server = request.request-server;
+  let module-name = get-query-value("name");
+  write(stream, "<html><body>\n");
+  if (~module-name)
+    write(stream, "You must specify the name of a module in the URL.\n");
+  else
+    if (op == #"load")
+      load-module(module-name);
+      format(stream, "Module %s loaded.");
+    else
+      unload-module(module-name);
+      format(stream, "Module %s unloaded.");
+    end;
+  end;
+  write(stream, "</body></html>");
+end;
 

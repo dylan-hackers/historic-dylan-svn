@@ -63,9 +63,9 @@ end file-contents;
 //end macro mset;
 
 define macro pset
-  { pset (?vars:*) <= ?:expression end }
+  { pset (?vars:*) ?:expression end }
     => { do-mset(?expression, ?vars) ?vars end }
-end macro pset;
+end;
 
 define macro do-mset
   { do-mset(?:expression, ?bind-vars) ?sets end }
@@ -76,7 +76,7 @@ bind-vars:
 sets:
   { } => { }
   { ?:name, ... } => { ?name := "bind-" ## ?name ## "" ; ... }
-end macro do-mset;
+end;
 
 
 

@@ -1,3 +1,5 @@
+
+
 * Need a way to define a <page> that's 100% dynamic.  i.e., it requires
   no template.  This would be useful for creating simple default pages
   in the code and avoiding complicated packaging problems.  e.g., see
@@ -26,7 +28,7 @@
   Clearly need to include the tag name in the error message.
 
 * "define page" should expand to some method definition that gets called
-  on startup rather that expanding directly to calls to make.  This
+  on startup rather than expanding directly to calls to make.  This
   would avoid some of the dependency problems, like having to call
   start-server early.  (How will this problem be affected when Koala
   loads DLLs at runtime?)

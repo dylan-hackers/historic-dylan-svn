@@ -6,7 +6,7 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library xml-rpc-common
-  use functional-dylan;
+  use common-dylan;
   use io;
   use system;         // for date module
   use xml-parser;
@@ -15,7 +15,8 @@ define library xml-rpc-common
 end;
 
 define module xml-rpc-common
-  use functional-dylan;
+  use dylan;
+  use common-extensions, exclude: { format-to-string };
   use format;
   use format-out;  // for debugging only
   use streams;

@@ -48,6 +48,9 @@ end configure-server;
 
 define function ensure-server-root ()
   when (~*server-root*)
+    // This works, in both Windows and unix, but logging is less informative...
+    // *server-root* := as(<directory-locator>, "..");
+    // ...so use application-filename instead.
     let exe-dir = locator-directory(as(<file-locator>, application-filename()));
     *server-root* := parent-directory(exe-dir);
   end;
@@ -56,7 +59,8 @@ end;
 define function init-server-root (#key location)
   ensure-server-root();
   when (location)
-    *server-root* := merge-locators(as(<directory-locator>, location), *server-root*);
+    *server-root* := merge-locators(as(<directory-locator>, location),
+                                    *server-root*);
   end;
 end;
 
@@ -185,16 +189,30 @@ define method process-config-element (node :: xml$<element>, name == #"log")
   if (~level)
     log-config-warning("Malformed <log> setting.  'level' must be specified.");
   else
+    let unrecognized = #f;
     let class = select (level by string-equal?)
+                  "copious" => <log-copious>;
+                  "verbose" => <log-verbose>;
                   "debug"   => <log-debug>;
-                  "warning" => <log-warning>;
-                  "error"   => <log-error>;
-                  "header", "headers"  => <log-headers>;
-                  otherwise => <log-info>;
+                  "info"    => <log-info>;
+                  "warning", "warnings" => <log-warning>;
+                  "error", "errors" => <log-error>;
+                  otherwise =>
+                    begin
+                      unrecognized := #t;
+                      <log-info>
+                    end;
                 end;
     add-log-level(class);
+    if (unrecognized)
+      log-warning("Unrecognized log level: %=", level);
+    end;
     log-info("Added log level %=", level);
   end;
+end;
+
+define method process-config-element (node :: xml$<element>, name == #"administrator")
+  // ---TODO
 end;
 
 define method process-config-element (node :: xml$<element>, name == #"debug-server")
@@ -233,6 +251,13 @@ define method process-config-element (node :: xml$<element>, name == #"xml-rpc")
   end;
 end;
 
+define method process-config-element (node :: xml$<element>, name == #"module")
+  bind (name = get-attribute-value(node, #"name"))
+    if (name)
+      load-module(name);
+    end;
+  end;
+end;
 
 //---TODO: Read mime types from a file and set *mime-type-map*.  Get a more complete set of types.
 // ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types

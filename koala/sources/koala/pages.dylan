@@ -20,7 +20,7 @@ end;
 // Not clear what the purpose of this class is yet, but it seemed
 // appropriate to have a layer between <dylan-server-page> and <edit-record-page>.
 //
-define open primary class <record-page> (<dylan-server-page>)
+define primary class <record-page> (<dylan-server-page>)
 end;
 
 // Any page that is for editing a database record should inherit from this.
@@ -59,9 +59,11 @@ define method respond-to-get (page :: <edit-record-page>,
                    let record-class = record-class-from-type-name(record-type);
                    load-record(record-class, as(<integer>, record-id));
                end;
-  // ---TODO: Signal the right kind of error here.
+  // TODO: this call to application-error doesn't work because it doesn't
+  //       accept any keyword arguments.
   record
-    | error("No record was found for editing.  Please report this bug.");
+    | application-error(format-string: "No record was found for editing.  Record id = %=, type = %=",
+                        format-arguments: list(record-id, record-type));
   set-attribute(session, $edit-record-key, record);
   dynamic-bind (*record* = record)
     respond-to-get-edit-record(page, request, response, record);
@@ -279,7 +281,8 @@ end;
 
 
 // Called to validate each input field in an <edit-record-page> HTML form.
-// Methods should throw <invalid-form-field-exception> if the input is invalid.
+// Methods should throw <invalid-form-field-exception> (usually by calling
+// note-field-error) if the input is invalid.
 //
 define open generic validate-record-field
     (page :: <edit-record-page>,
@@ -290,7 +293,7 @@ define open generic validate-record-field
 define method validate-record-field (page :: <edit-record-page>,
                                      record :: <database-record>,
                                      slot :: <slot-descriptor>,
-                                     input)
+                                     input :: <object>)
   // do nothing
 end;
 

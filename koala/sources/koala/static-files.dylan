@@ -18,7 +18,9 @@ end;
 */
 
 // Merges the given URL against the context parameter and ensures that the
-// resulting locator refers to a document below *document-root*.
+// resulting locator refers to a document below *document-root*.  If not,
+// it returns #f to indicate the document location is invalid.
+// ---TODO: Consider signalling a real error instead.
 //
 define method document-location
     (url :: <string>, #key context :: <directory-locator> = *document-root*)
@@ -30,13 +32,15 @@ define method document-location
       if (bpos == epos)
         *document-root*
       else
-        let relative-url = iff(url[bpos] = '/', substring(url, 1, len), url);
+        let relative-url = iff(url[bpos] = '/', substring(url, 1, epos), url);
         if (empty?(relative-url))
           *document-root*
         else
-          let loc = simplify-locator(merge-locators(as(<physical-locator>, relative-url),
-                                                    context));
-          if (instance?(loc, <file-locator>) & locator-name(loc) = "..")
+          let loctype = iff(relative-url[size(relative-url) - 1] == '/',
+                            <directory-locator>,
+                            <file-locator>);
+          let loc = simplify-locator(merge-locators(as(loctype, relative-url), context));
+          if (locator-name(loc) = "..")
             loc := locator-directory(locator-directory(loc));
           end;
           locator-below-document-root?(loc) & loc
@@ -70,12 +74,11 @@ end;
 define function static-file-locator-from-url
     (url :: <string>) => (locator :: false-or(<physical-locator>))
   let locator = document-location(url);
-  when (locator)
-    file-exists?(locator)
+  locator
+    & file-exists?(locator)
     & iff(instance?(locator, <directory-locator>),
           find-default-document(locator) | locator,
           locator)
-  end
 end;
 
 define method find-default-document
@@ -115,9 +118,9 @@ define method static-file-responder
                  element-type: <byte>)
     let extension = locator-extension(locator);
     let sym = extension & ~empty?(extension) & as(<symbol>, extension);
-    add-header(response,
-               "Content-type",
-               element(*mime-type-map*, sym, default: *default-static-content-type*));
+    let mtype = element(*mime-type-map*, sym, default: *default-static-content-type*);
+    log-debug("extension = %=, sym = %=, mtype = %=", extension, sym, mtype);
+    add-header(response, "Content-type", mtype);
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
   end;

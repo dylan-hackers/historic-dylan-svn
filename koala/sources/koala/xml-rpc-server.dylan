@@ -31,8 +31,7 @@ define variable *xml-rpc-internal-error-fault-code* :: <integer> = 0;
 define function respond-to-xml-rpc-request
     (request :: <request>, response :: <response>)
   when (*xml-rpc-enabled?*)
-    add-header(response, "Content-type", "text/xml",
-               if-exists?: #"replace");
+    set-content-type(response, "text/xml");
     // All responses start with a valid XML document header.
     write(output-stream(response),
           "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>");

@@ -21,6 +21,7 @@ Synopsis: Database record read/write/cache code.
 // -------------------base record machinery--------------------------
 
 // ---TODO: required?: #t, max-length: 30, etc.
+// ---TODO: default superclass <modifiable-record> ?
 
 define macro record-definer
   { define ?modifiers:* record ?:name (?superclasses) ?slots:* end }
@@ -251,7 +252,7 @@ end;
 ////
 
 
-// Base class of all record types (account, bug-reports, etc).
+// Base class of all record types
 //
 define open primary record <database-record> (<object>)
   // The record-id is unique across all database objects.

@@ -10,7 +10,18 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // See RFC 2616, 6.1.1
 
 // I make everything a simple error so the stupid debugger can understand it.
-define class <http-error> (<simple-error>)
+//
+define class <koala-error> (<simple-error>)
+end;
+
+// Signalled when a library uses the Koala API incorrectly. i.e., user
+// errors such as registering a page that has already been registered.
+// Not for errors that will be reported to the HTTP client.
+//
+define open class <koala-api-error> (<koala-error>)
+end;
+
+define class <http-error> (<koala-error>)
   constant slot http-error-code :: <integer>, required-init-keyword: code:;
 end;
 
@@ -21,11 +32,13 @@ define constant $application-error-message = "Application error";
 // 599 is a non-standard return code, but clients SHOULD display the message
 // sent back with non-standard return codes in the 4xx and 5xx range.
 // Don't use 500 because that looks like the web server itself is broken.
+// Heh...it might be.
+//
 define method http-error-code (e :: <error>)
   $application-error-code
 end;
 
-// NOTE: It's important that codition-to-string return a string with no CRLF in it
+// NOTE: It's important that condition-to-string return a string with no CRLF in it
 // since this string will be sent directly back to the client in the response line.
 define method http-error-message (e :: <error>)
   $application-error-message
@@ -158,11 +171,17 @@ end;
 define http-error internal-server-error (<internal-server-error>)
     500 "Internal server error";
 
-// For errors caused by misuse of the API.  i.e., user errors such as registering a page
-// that has already been registered.  Not for errors that will be reported to the client.
-define class <application-error> (<simple-error>)
-end;
+//define http-error application-error (<http-server-error>)
+//    $application-error-code $application-error-message,
+//    format-string, format-arguments;
 
-define http-error application-error (<application-error>)
-    $application-error-code $application-error-message;
+define function application-error (#key format-string,
+                                   format-arguments)
+  signal(make(<http-server-error>,
+              code: $application-error-code,
+              format-string: iff(format-string,
+                                 concatenate($application-error-message, " -- ", format-string),
+                                 $application-error-message),
+              format-arguments: format-arguments | #[]));
+end;
 
