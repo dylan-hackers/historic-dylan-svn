@@ -153,7 +153,6 @@ end statements;
 define constant *def-use-table* = make(<string-table>);
 
 define meta nodeStatement (c, name, node) => (node)
-  //TODO BGH implement DEF/USE table
   ws?(c),
   {["DEF", ws(c), scan-Id(name), ws(c), scan-node(node),
     do(*def-use-table*[name] := node)],
@@ -236,6 +235,7 @@ define meta node (c, node) => (node)
    ["Coordinate",       ws(c), "{", scan-CoordinateNode(node),     ws?(c), "}"],
    ["TextureCoordinate", ws(c), "{", scan-TextureCoordinateNode(node), ws?(c), "}"],
    ["IndexedFaceSet",   ws(c), "{", scan-IndexedFaceSetNode(node), ws?(c), "}"],
+   ["ImageTexture",     ws(c), "{", scan-ImageTextureNode(node),   ws?(c), "}"],
    ["Material",         ws(c), "{", scan-MaterialNode(node),       ws?(c), "}"],
    ["Normal",           ws(c), "{", scan-NormalNode(node),         ws?(c), "}"],
    ["Shape",            ws(c), "{", scan-ShapeNode(node),          ws?(c), "}"],
@@ -390,6 +390,13 @@ define meta WorldInfoNode (c, info, title)
         {["info",  ws(c), scan-MFString(info)],
          ["title", ws(c), scan-SFString(title)]}])
 end WorldInfoNode;
+
+define meta ImageTextureNode (c, url, repeat-s, repeat-t)
+  loop([ws?(c),
+        {["url",     ws(c), scan-SFString(url)],
+         ["repeatS", ws(c), scan-SFBool(repeat-s)],
+         ["repeatT", ws(c), scan-SFBool(repeat-t)]}])
+end ImageTextureNode;
 
   
   

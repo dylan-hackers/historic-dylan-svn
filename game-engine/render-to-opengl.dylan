@@ -18,6 +18,9 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
     let face-index :: <integer> = 0;
     let normals :: false-or(<simple-object-vector>) = ifs.normal;
     let coords :: <simple-object-vector> = ifs.coord;
+    local method coord-from-index (i :: <integer>) => (<3d-point>)
+            ifs.coord[ifs.coord-index[i]]
+          end;
 
     for(e :: <integer> keyed-by i :: <integer> in ifs.coord-index)
       if (e == -1)
@@ -30,12 +33,21 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
         unless (inPoly)
           glBegin($GL-POLYGON);
           inPoly := #t;
-          unless(ifs.normal-per-vertex | (~ifs.normal-index & ~ifs.normal))
+          unless(ifs.normal-per-vertex & (ifs.normal | ifs.normal-index))
             let n :: <3d-vector> =
               if(ifs.normal-index)
                 ifs.normal-index[face-index]
-              else
+              elseif(ifs.normal)
                 ifs.normal
+              else
+                let normal = 
+                  cross-product(coord-from-index(i + 1) - coord-from-index(i),
+                                coord-from-index(i + 2) - coord-from-index(i + 1));
+      
+                if(~ifs.ccw)
+                  normal := -1.0s0 * normal;
+                end if;
+                normalize(normal);
               end if;
             let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
               = values(n[0], n[1], n[2]);
