@@ -1805,8 +1805,9 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
                 underlying the stream.  Handles end-of-stream
                 conditions just as <dname>read-element</dname> does.</para>
               <para>
-		The second return value will be false when the end of
-		the stream is discovered before a newline.</para>
+		The second return value will be &false; when the end of
+		the stream is discovered before a newline, and &true; 
+                otherwise.</para>
             </defdescription>
           </dylangenericdef>
 
@@ -1825,7 +1826,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	        <paramname>string</paramname>
 		<paramtype>&lt;string&gt;</paramtype>
 		<paramsummary>Note: this sequence must allow for
-		  changes in its size when grow? is true.
+		  changes in its size when grow? is &true;.
 		</paramsummary>
               </param>
 	      <keyparam>
@@ -1855,7 +1856,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
               </param>
               <param>
                 <paramname>newline?</paramname>
-		<paramsummary>False when end of stream was reached before 
+		<paramsummary>&false; when end of stream was reached before 
                 a newline.</paramsummary>
               </param>
             </defreturns>
@@ -1869,7 +1870,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
                 <parameter>Sequence</parameter> must be mutable to
                 allow it to expand should the
                 streamed in elements be larger than its original size when 
-                grow? is true.
+                <dlit>grow?:</dlit> is &true;.
                 Handles end-of-stream 
                 conditions just as <dname>read-element</dname> does.</para>
             </defdescription>

@@ -62,6 +62,8 @@
 
 <!ENTITY true '<dlit>#t</dlit>'>
 <!ENTITY false '<dlit>#f</dlit>'>
+<!ENTITY obj '<dlit>&lt;object&gt;</dlit>'>
+
 
 <!-- ===== Unsorted ===== -->
 
