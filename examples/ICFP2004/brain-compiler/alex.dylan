@@ -1376,13 +1376,13 @@ define brain alex-keith
 
 //  Flip 2, (c-defender, c-defender);
   
-  Flip 5, (attacker, gatherer);
+  Flip 4, (attacker, gatherer);
 
 
   [attacker:]
-    Flip 3, (attacker-border);
-    Flip 3, (attacker-stop-border);
-    Flip 2, (attacker-food);
+    Flip 5, (attacker-border);
+    Flip 5, (attacker-stop-border);
+    Flip 10, (attacker-food);
     Sub alex-attacker;
 
   [attacker-border:]
@@ -1396,7 +1396,7 @@ define brain alex-keith
 
 
   [gatherer:]
-    Flip 5, (patroller);
+    Flip 10, (patroller);
     Flip 5, (defender);
 //    Sub keith-gatherer;
     Sub keith-defender-2;
@@ -1408,13 +1408,7 @@ define brain alex-keith
 
 
   [defender:]
-    Flip 3, (c-defender, k-defender);
-
-  [c-defender:]
     Sub chris-defender;
-
-  [k-defender:]
-    Sub keith-defender-2;
 
 end brain;
 
