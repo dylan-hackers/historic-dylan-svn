@@ -325,12 +325,18 @@ define llvm-glue <llvm-function> ()
 					     ptr: raw-value(module | $null-pointer);
 end;
 
+define functional class <llvm-argument-sequence>(<sequence>, <llvm-object>)
+end;
+
+define method arguments(of :: <llvm-function>)
+ => args :: <llvm-argument-sequence>;
+  make(<llvm-argument-sequence>, pointer: of.raw-value)
+end method;
 
 // #############
 // ### Arguments
 
 define functional class <llvm-argument>(<llvm-value>)
-  
 end;
 
 define llvm-glue <llvm-argument> ()
@@ -340,6 +346,12 @@ define llvm-glue <llvm-argument> ()
 					     ptr: name.object-address,
 					     ptr: raw-value(func | $null-pointer);
 end;
+
+define method name-setter(new :: <byte-string>, arg :: <llvm-argument>)
+ => new :: <byte-string>;
+  call-out("set_llvm_name", ptr:, ptr: new.object-address, ptr: arg.raw-value);
+  new
+end method;
 
 
 // ###########
@@ -369,32 +381,8 @@ end;
 define method emit-tlf-gunk
     (backend == llvm:, tlf :: <define-method-tlf>, file :: <file-state>)
     => ();
-/*
-  let m = make(<llvm-module>, name: "test");
-  
-  m.dump;
+// obsolete###
 
-
-  let void = make (<llvm-primitive-type>, id: VoidTyID:);
-  void.dump;
-  
-  let inttype = make(<llvm-primitive-type>, id: IntTyID:);
-  let argument-types = vector(inttype);
-  
-  let func = make(<llvm-function-type>, return-type: void, argument-types: argument-types, variadic: #t);
-  func.dump;
-  
-  let f = make(<llvm-function>, name: "main", type: func, module: m);
-  let arg = make(<llvm-argument>, type: inttype, name: "foo", func: f);
-
-  let bb = make(<llvm-basic-block>, name: "body", into: f);
-  let retu = make(<llvm-return-instruction>, atEnd: bb);
-  
-  make(<llvm-add-instruction>, left: arg, right: arg, before: retu);
-  
-  m.dump;
-  m.delete;
-*/
 end method emit-tlf-gunk;
 
 
@@ -467,7 +455,7 @@ end;
 define function compute-llvm-prototype
     (function :: false-or(<fer-function-region>),
      function-info :: <function-info>)
-    => res :: <llvm-function-type>;
+    => (res :: <llvm-function-type>, sp-arg? :: <boolean>);
   let result-rep = function-info.function-info-result-representation;
 
   let result-type =
@@ -492,42 +480,18 @@ define function compute-llvm-prototype
 		  ~instance?(function-info, <constant-callback-function-info>);
 		end if;
 
-  let reversed-types = #();
+  let reversed-types = sp-arg?
+ 			& list(make(<llvm-pointer-type>, base: make(<llvm-struct-type>, members: vector(make(<llvm-pointer-type>, base: make(<llvm-primitive-type>, id: VoidTyID:)), make(<llvm-pointer-type>, base: make(<llvm-primitive-type>, id: VoidTyID:))))))
+ 			| #();
 
-  for (rep in function-info.function-info-argument-representations
-  //,
-//       index from 0,
-//       first-arg = ~sp-arg? then #f,
-//       var = function & function.prologue.dependents.dependent.defines
-//	 then var & var.definer-next
-)
-reversed-types := pair(rep.representation-llvm-type, reversed-types);
-/*    if (~first-arg)
-      write(stream, ", ");
-    end if;
-    format(stream, "%s ", rep.representation-c-type);
-    let preferred-names = function & function.prologue.preferred-names;
-    let preferred-name = preferred-names
-			 & element(preferred-names, index, default: #f);
-    if (preferred-name)
-      format(stream, "%s", preferred-name);
-    else
-      format(stream, "A%d", index);
-    end;
-*/
-/*
-    if (var)
-      let varinfo = var.var-info;
-      if (instance?(varinfo, <debug-named-info>))
-	format(stream, " /* %s */", varinfo.debug-name.clean-for-comment);
-      end;
-    end;
-*/
+  for (rep in function-info.function-info-argument-representations)
+    reversed-types := pair(rep.representation-llvm-type, reversed-types);
   end;
-  
+
   let argument-types = as(<simple-object-vector>, reversed-types.reverse);
-  
-  make(<llvm-function-type>, return-type: result-type, argument-types: argument-types, variadic: #f);
+
+  values(make(<llvm-function-type>, return-type: result-type, argument-types: argument-types, variadic: #f),
+	 sp-arg?);
 end;
 
 
@@ -540,63 +504,33 @@ define method emit-function
   let argument-types = vector(inttype);
   
   let function-info = get-info-for(function, file);
-  let func = compute-llvm-prototype(function, function-info);
-  let f = make(<llvm-function>, name: function.name.clean-for-comment, type: func, module: m);
+  let (func-type, sp-arg?) = compute-llvm-prototype(function, function-info);
+  let f = make(<llvm-function>, name: function.name.clean-for-comment, type: func-type, module: m);
+
+
+  let preferred-names = function.prologue.preferred-names;
+
+  for (rep in function-info.function-info-argument-representations,
+       sp = sp-arg? then #f,
+       arg :: <llvm-argument> in f.arguments,
+       index from 0)
+
+    let preferred-name = preferred-names
+			 & element(preferred-names, index, default: #f);
+    arg.name := preferred-name | format-to-string("A%d", index);
+  end for;
+  
+
   llvm-function := f;
 ///  let arg = make(<llvm-argument>, type: inttype, name: "foo", func: f);
 
 
-/*  file.file-next-block := 0;
-  file.file-local-table := make(<string-table>);
-  file.file-local-vars := make(<string-table>);
-  file.file-freed-locals := #f;
-  assert(file.file-pending-defines == #f);
-
-  let function-info = get-info-for(function, file);
-  let c-name = main-entry-c-name(function-info, file);
-  file.file-prototypes-exist-for[c-name] := #t;
-*/
   let max-depth = analyze-stack-usage(function);
-/*  for (i from 0 below max-depth)
-    format(file.file-vars-stream,
-	   "descriptor_t *cluster_%d_top;\n",
-	   i);
-  end;
-
-  maybe-emit-source-location(function.source-location, file, line-getter: start-line);
-  finish-source-location(file);
-*/
   emit-region(backend, function.body, file);
-/*  finish-source-location(file);
-
-  let stream = file.file-body-stream;
-  format(stream, "/* %s */\n", function.name.clean-for-comment);
-
-  format(stream, "%s\n{\n",
-	 compute-function-prototype(function, function-info, file));
-  if(function.calling-convention == #"callback")
-    format(file.file-vars-stream,
-	   "descriptor_t *orig_sp = allocate_stack();\n");
-  end if;
-  write(stream, get-string(file.file-vars-stream));
-  new-line(stream);
-
-  // Actually write out the (already generated) code:
-  let overflow = file.file-guts-overflow;
-  unless (overflow.empty?)
-    for (string in overflow)
-      write(stream, string);
-    end;
-    overflow.size := 0;
-  end unless;
-  write(stream, get-string(file.file-guts-stream));
-  format(stream, "}\n\n");
-*/
-
 
   m.dump;
   m.delete;
-end;
+end method;
 
 
 // ###################################################

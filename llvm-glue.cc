@@ -259,3 +259,9 @@ extern "C" void* get_llvm_Iterator_Function_arg_begin(Function* f)
 {
   return f->arg_begin();
 }
+
+// accessors
+extern "C" void set_llvm_name(Argument* arg, const ByteString* name)
+{
+  arg->setName(*name);
+}
