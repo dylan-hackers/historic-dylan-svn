@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/trans.dylan,v 1.2.4.1 2000/06/22 04:03:52 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/trans.dylan,v 1.2.4.2 2000/06/26 06:20:40 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -967,7 +967,7 @@ define method build-instance?
     res;
   else
     // Call next-method instead if you don't want to inline checks.
-    if (*inline-instance-checks?*)
+    if (*optimizer*.inline-instance-checks?)
       build-inline-instance?-cclass-check(builder,policy,source, value, class);
     else
       next-method();

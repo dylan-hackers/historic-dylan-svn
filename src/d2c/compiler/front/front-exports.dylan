@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.4.4.2 2000/06/22 04:03:50 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.4.4.3 2000/06/26 06:20:40 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -109,7 +109,7 @@ define module front
     <fer-assignment>, policy,
     <let-assignment>, let-next, <set-assignment>,
 
-    <abstract-call>, <known-call>, <error-call>,
+    <abstract-call>, <known-call>, <error-call>, <delayed-optimization-call>,
     <general-call>, use-generic-entry?, <unknown-call>, <mv-call>,
     <primitive>, primitive-name, primitive-info,
     <prologue>, function, function-setter,

@@ -1,5 +1,5 @@
 Module: fer-od
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-od.dylan,v 1.3 2000/01/24 04:56:18 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-od.dylan,v 1.3.4.1 2000/06/26 06:20:40 emk Exp $
 copyright: see below
 
 
@@ -434,6 +434,8 @@ add-make-dumper(#"mv-call-operation", *compiler-dispatcher*,
 add-make-dumper(#"error-call-operation", *compiler-dispatcher*,
 		<error-call>, $abstract-call-slots);
 
+add-make-dumper(#"delayed-optimization-call-operation", *compiler-dispatcher*,
+		<delayed-optimization-call>, $general-call-slots);
 
 define constant $module-var-access-slots =
   concatenate($operation-slots, list(variable, var:, #f));

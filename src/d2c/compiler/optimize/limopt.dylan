@@ -1,10 +1,10 @@
-RCS-Header: $Header: /scm/cvs/src/d2c/compiler/optimize/limopt.dylan,v 1.1.2.2 2000/06/25 20:59:54 emk Exp $
+RCS-Header: $Header: /scm/cvs/src/d2c/compiler/optimize/limopt.dylan,v 1.1.2.3 2000/06/26 06:20:40 emk Exp $
 module: cheese
 Copyright: See below.
 Synopsis: Optimizer support for limited collections.
 
 //-------------------------------------------------------------------------
-// Copyright (C) 1999 Eric Kidd
+// Copyright (C) 2000 Eric Kidd
 // (Please add your name and the year you released your changes here.)
 //
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -98,13 +98,12 @@ end method find-limited-collection-implementation;
 define method make-limited-collection-transformer
     (component :: <component>, call :: <known-call>)
  => (did-anything? :: <boolean>)
-  dformat("\nWell, we're making a valiant attempt, anyway.\n");
+  //dformat("\nWell, we're making a valiant attempt, anyway.\n");
   block (return)
     local method give-up () return (#f) end;
     
     // Fetch our arguments.
-    let (okay?, type, init-keywords)
-      = extract-args(call, 1, #f, #t, #f);
+    let (okay?, type, init-keywords) = extract-args(call, 1, #f, #t, #f);
     unless (okay?) give-up() end;
     
     // Examine our first argument to see if we can do anything with it.
@@ -113,7 +112,7 @@ define method make-limited-collection-transformer
       give-up();
     end unless;
     
-    dformat("Looks promising!\n");
+    //dformat("Looks promising!\n");
 
     // Fire up our builder.
     let builder = make-builder(component);
@@ -147,3 +146,92 @@ end method make-limited-collection-transformer;
 
 define-transformer(#"make", #(#"<limited-collection>"),
 		   make-limited-collection-transformer);
+
+
+//=========================================================================
+//  Delayed Call Optimizations
+//=========================================================================
+//  We don't want to optimize certain calls during a simplification pass,
+//  because we'll be able to do a better job later.
+//
+//  When convert encounters an inline function, it passes it to the
+//  optimizer for simplification, then stores it for later use. When the
+//  function is inlined, we optimize it again.
+//
+//  This normally works. But in certain cases, it backfires--the
+//  simplifcation pass chooses the wrong optimization, and we can't fix it
+//  later. So we occasionally need to hide things from the optimizer.
+//
+//  Here's how it works:
+//    1) Hide the call during the simplification pass by changing
+//       it from a <unknown-call> to a <delayed-optimization-call> using
+//       a transformer.
+//    2) Unhide the call during a regular pass (using a method on optimize).
+//    3) Transform the call in the usual fashion.
+//
+//  Of course, if there's no simplification pass, we'll go directly to 3.
+
+define method optimize
+    (component :: <component>, call :: <delayed-optimization-call>) => ()
+  unless (*optimizer*.simplification-pass?)
+    // STEP 2: Unhide the call during a real optimization pass.
+    change-call-kind(component, call, <unknown-call>,
+		     use-generic-entry: call.use-generic-entry?);
+  end unless;
+end method optimize;
+
+define method delayed-transformer-wrapper
+    (transformer :: <function>, component :: <component>,
+     call :: <unknown-call>)
+ => (did-anything? :: <boolean>)
+  if (*optimizer*.simplification-pass?)
+    // STEP 1: Hide the call so we can optimize it later, when we know more.
+    change-call-kind(component, call, <delayed-optimization-call>,
+		     use-generic-entry: call.use-generic-entry?);
+    #t;
+  else
+    // STEP 3: OK, it's later. Call the real transformer.
+    transformer(component, call);
+  end if;
+end method delayed-transformer-wrapper;
+
+define method define-delayed-transformer
+    (call :: <symbol>, transformer :: <function>) => ()
+  define-transformer(call, #"gf", curry(delayed-transformer-wrapper,
+					transformer));
+end method define-delayed-transformer;
+
+
+//=========================================================================
+//  size() optimizations
+//=========================================================================
+//  When possible, we want to get a collection's size at compile time.
+//  This allows us to optimize away unnecessary bounds checks.
+//
+//  We can do this if the collection's derived-type is a limited type
+//  with a value for size-or-dimensions.
+
+define method size-transformer
+    (component :: <component>, call :: <unknown-call>)
+ => (did-anything? :: <boolean>)
+  //dformat("We might be able to do something here.\n");
+  block (return)
+    let (okay?, arg) = extract-args(call, 1, #f, #f, #f);
+    if (okay?)
+      let type = arg.derived-type;
+      if (instance?(type, <limited-collection-ctype>))
+	let sz = type.size-or-dimension;
+	if (instance?(sz, <integer>))
+	  //dformat("We should do something here.\n");
+	  replace-expression(component, call.dependents,
+			     make-literal-constant(make-builder(component),
+						   as(<ct-value>, sz)));
+	  return(#t);
+	end if;
+      end if;
+    end if;
+    #f;
+  end block;
+end method size-transformer;
+
+define-delayed-transformer(#"size", size-transformer);

@@ -1,5 +1,5 @@
 module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-dump.dylan,v 1.2.4.1 2000/06/22 04:03:50 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-dump.dylan,v 1.2.4.2 2000/06/26 06:20:40 emk Exp $
 copyright: see below
 
 
@@ -344,6 +344,14 @@ end;
 
 define method kind (op :: <error-call>) => res :: <string>;
   "ERROR-CALL";
+end;
+
+define method kind (op :: <delayed-optimization-call>) => res :: <string>;
+  if (op.use-generic-entry?)
+    "DELAYED-OPT-CALL-W/-NEXT";
+  else
+    "DELAYED-OPT-CALL";
+  end;
 end;
 
 define method kind (op :: <mv-call>) => res :: <string>;

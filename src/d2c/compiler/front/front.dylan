@@ -1,5 +1,5 @@
 Module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.3.4.1 2000/06/12 03:41:09 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.3.4.2 2000/06/26 06:20:40 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -177,6 +177,16 @@ end class;
 define class <error-call> (<abstract-call>)
 end;
 
+// A call that we shouldn't optimize prematurely. Again, this is basically
+// the same as an <unknown-call>, but we don't want to improve it until we
+// have enough information available.
+//
+// We create these when simplifying inline functions, and change them back
+// into unknown calls after the functions have been inlined.
+//
+define class <delayed-optimization-call> (<general-call>)
+end;
+
 // A prologue is used to represent the incomming arguments to a function.
 // 
 define class <prologue> (<operation>)
@@ -270,7 +280,6 @@ define class <instance?> (<operation>)
   inherited slot derived-type, init-function: boolean-ctype;
   slot type :: <ctype>, required-init-keyword: type:;
 end;
-
 
 define class <nlx-operation> (<operation>)
   slot nlx-info :: <nlx-info>, required-init-keyword: nlx-info:;
@@ -623,6 +632,8 @@ define sealed domain make(singleton(<unknown-call>));
 define sealed domain make(singleton(<mv-call>));
 // <error-call> -- subclass of <abstract-call>
 define sealed domain make(singleton(<error-call>));
+// <delayed-optimization-call> -- subclass of <general-call>
+define sealed domain make(singleton(<delayed-optimization-call>));
 // <prologue> -- subclass of <operation>
 define sealed domain make(singleton(<prologue>));
 define sealed domain initialize(<prologue>);

@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5.4.3 2000/06/22 04:03:51 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5.4.4 2000/06/26 06:20:40 emk Exp $
 copyright: see below
 
 
@@ -31,16 +31,22 @@ copyright: see below
 //======================================================================
 
 define class <cmu-optimizer> (<abstract-optimizer>)
+  slot simplification-pass? :: <boolean> = #f;
 end;
+
+define function inline-instance-checks? (optimizer :: <cmu-optimizer>)
+ => (inline? :: <boolean>)
+  element(optimizer.optimizer-options, #"inline-instance-checks", default: #f);
+end function inline-instance-checks?;
+
+// XXX - This global needs to go away eventually. It should probably be
+// refactored into <component> or something like that. We use it to get
+// at rarely-used "global" state.
+define variable *optimizer* :: false-or(<cmu-optimizer>) = #f;
 
 define variable *do-sanity-checks* :: <boolean> = #f;
 define method enable-sanity-checks () => (); *do-sanity-checks* := #t; end;
 define method disable-sanity-checks () => (); *do-sanity-checks* := #f; end;
-
-// XXX - These globals need to go away, but we're refactoring one step at
-// a time.
-define variable *print-shit* :: <boolean> = #f;
-define variable *inline-instance-checks?* :: <boolean> = #f;
 
 define variable *optimize-ncalls* :: <integer> = 0;
 
@@ -51,21 +57,19 @@ define method optimize-component
      component :: <component>,
      #key simplify-only? :: <boolean>) => ();
 
-  // XXX - Set up our gross globals.
-  *print-shit* := debug-optimizer?(optimizer);
-  *inline-instance-checks?* := element(optimizer.optimizer-options,
-				       #"inline-instance-checks",
-				       default: #f);
-  
+  // Set up our globals.
+  optimizer.simplification-pass? := simplify-only?;
+  *optimizer* := optimizer;
+
   reverse-queue(component, #f);
   let done = #f;
   until (done)
     if (*do-sanity-checks*)
       check-sanity(component);
     end;
-    if (*print-shit*) dump-fer(component) end;
+    if (optimizer.debug-optimizer?) dump-fer(component) end;
     if (component.initial-variables)
-      if (*print-shit*)
+      if (optimizer.debug-optimizer?)
 	dformat("\n******** doing trivial ssa conversion\n\n");
       end;
       while (component.initial-variables)
@@ -74,27 +78,27 @@ define method optimize-component
 	init-var.next-initial-variable := #f;
 	maybe-convert-to-ssa(component, init-var);
       end;
-      if (*print-shit*) dump-fer(component) end;
+      if (optimizer.debug-optimizer?) dump-fer(component) end;
     end;
     if (component.reoptimize-queue)
       let queueable = component.reoptimize-queue;
       component.reoptimize-queue := queueable.queue-next;
       queueable.queue-next := #"absent";
-      if (*print-shit*)
+      if (optimizer.debug-optimizer?)
 	dformat("\n******** about to optimize %=\n\n", queueable);
       end;
       optimize(component, queueable);
       *optimize-ncalls* := *optimize-ncalls* + 1;
     else
       local method try (function, what)
-	      if (what & *print-shit*)
+	      if (what & optimizer.debug-optimizer?)
 		dformat("\n******** %s\n\n", what);
 	      end;
 	      function(component);
-	      if (*print-shit*) dump-fer(component) end;
+	      if (optimizer.debug-optimizer?) dump-fer(component) end;
 	      let start-over?
 		= component.initial-variables | component.reoptimize-queue;
-	      if (start-over? & *print-shit*)
+	      if (start-over? & optimizer.debug-optimizer?)
 		dformat("\nstarting over...\n");
 	      end;
 	      start-over?;
@@ -203,7 +207,7 @@ end;
 
 define method reoptimize
     (component :: <component>, dependent :: <queueable-mixin>) => ();
-  if (*print-shit*)
+  if (*optimizer*.debug-optimizer?)
     dformat("queueing %=\n", dependent);
   end if;
   if (dependent.queue-next == #"absent")
