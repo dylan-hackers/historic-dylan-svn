@@ -1,114 +1,252 @@
 <html>
 <head>
-  <title>DSP Preliminary Documentation</title>
+  <title>Dylan Server Pages Documentation</title>
   <link rel="stylesheet" href="styles.css" type="text/css">
 </head>
 
-<body>
+<body text="#000000" bgcolor="#F0F0FF">
 
-<h1>DSP Preliminary Documentation</h1>
+<h1 align="center">Dylan Server Pages Documentation</h1>
 
-<p>See also /koala/www/doc/prelim-doc.html for some partial information on programming
-Koala and DSP.
+<h2>Contents</h2>
 
-<pre>
-Overview
+<ol>
+  <li><a href="#general-overview">Overview</a></li>
+  <li><a href="#content-authoring">DSP Content Authoring</a></li>
+    <ol>
+      <li><a href="#content-overview">Overview (file names, exporting, format, passing tag args, ...)</a></li>
+      <li><a href="#dsp-directives">DSP Directives</a></li>
+      <li><a href="#dsp-taglib">The &quot;dsp&quot; Tag Library</a></li>
+    </ol>
+  <li><a href="#dsp-programming">DSP Programming</a></li>
+    <ol>
+      <li><a href="#programming-overview">Overview  (pointer to Koala doc for sessions, exporting, query args, requests, responses, page life cycle, etc)</a></li>
+      <li><a href="#page-classes">Page Classes</a></li>
+      <li><a href="#taglibs">Tag Libraries</a></li>
+      <li><a href="#tags">Tags</a></li>
+      <li><a href="#http-methods">Handling HTTP Methods (GET, POST, HEAD)</a></li>
+      <li><a href="#forwarding-requests">Forwarding/Redirecting Requests</a></li>
+      <li><a href="#named-methods">Named Methods</a></li>
+    </ol>
+  <li>Example</li>
+</ol>
 
-Dylan Server Pages (DSP) is a template engine for providing dynamic web site content using
-the Dylan language.  They are similar in spirit to JavaServer Pages, but without the
-ability to mix program logic and page content, which everyone agrees is a bad idea anyway.
-All dynamic content is invoked via DSP tag calls such as &lt;xx:show-current-username/&gt;.
+<a name="general-overview"></a>
+<h2>Overview of DSP</h2>
 
-Currently, a DSP application is implemented as a Dylan project that uses the Koala HTTP
-server library.  This effectively means that each DSP application has to run on a
-different Koala server and therefore on a different HTTP port.  (The plan is to eventually
-fix Koala to load DSP application libraries at runtime, based on configuration files, or
+<p>Dylan Server Pages (DSP) is a template engine for providing dynamic
+web site content using the Dylan language.  They are similar in spirit
+to JavaServer Pages, but without the ability to mix program logic and
+page content, which everyone agrees is a bad idea anyway.  All dynamic
+content is invoked via DSP tag calls such as
+&lt;xx:show-current-username/&gt;.
+
+<p>Currently, a DSP application is implemented as a Dylan project that
+uses the Koala HTTP server library.  This effectively means that each
+DSP application has to run on a different Koala server and therefore on
+a different HTTP port.  (The plan is to eventually fix Koala to load DSP
+application libraries at runtime, based on configuration files, or
 better, to implement mod_dylan for Apache.)
 
 
-DSP Directives
+<a name="content-authoring"></a>
+<h2>Content Authoring</h2>
 
-A DSP "directive" is used much like a normal DSP tag, but it couldn't be written as a
-normal tag without special support from the DSP engine. DSP directives are distinguished
-by the "%dsp" tag prefix.  There are three built in DSP directives:
+<a name="content-overview"></a>
+<h3>Authoring Overview</h3>
 
-  %dsp:include
-    Includes another DSP template (or plain HTML file) in the current page.
+<p>DSP templates contain normal HTML plus DSP tag calls.  DSP tag calls
+generate the dynamic content of you web pages.  They use standard XML
+syntax.  For example, &lt;mylib:mytag arg="foo"/&gt; is tag call with no
+body that passes one argument, arg, to mytag when it is invoked.
+&quot;mylib&quot; tells the DSP template engine what tag library (taglib
+for short) &quot;mytag&quot; will be found in.
+
+<p>There are several special tags called <a href="#dsp-directives">
+directives</a> defined that couldn't easily have been defined by the
+user.  DSP directives use the same syntax as other tags, but they use
+the special tag library name <strong>%dsp</strong>.  For example, the <a
+href="#include"><strong>include</strong></a> directive might look like
+this: &lt;%dsp:include url=&quot;foo.dsp&quot;/&gt;.
+
+<p> Each top-level template file must have a corresponding instance
+of &lt;dylan-server-page&gt; associated with it.  This is accomplished
+with the <strong>define page</strong> macro, which also publishes the
+URLs associated with the page.
+
+<p>DSP template files may have any filename extension, but the extension
+&quot;.dsp&quot; may be treated specially in the future.  For example,
+.dsp files may eventually be automatically exported as
+&lt;dylan-server-page&gt;s.
+
+<a name="dsp-directives"></a>
+<h3>DSP Directives</h3>
+
+<p>A DSP <strong>directive</strong> is used much like a normal DSP tag,
+but it couldn't be written as a normal tag without special support from
+the DSP engine. DSP directives are distinguished by the
+<strong>%dsp</strong> tag prefix.  There are two built in DSP
+directives:
+
+<dl>
+  <dt><strong>%dsp:include</strong></dt>
+  <dd>Includes another DSP template (or plain HTML file) in the current page.
     Example usage:
-      &lt;%dsp:include url="header.dsp"/&gt;
+      <pre>&lt;%dsp:include url="header.dsp"/&gt;</pre>
 
     Note that if the url given is absolute (i.e., begins with a slash) then the document
     is looked up relative to the document root directory.  Otherwise it is looked up
     relative to the directory containing the current document.
+    <p>
+  </dd>
 
-  %dsp:taglib
-    Declares another tag library to be in effect for the remainder of the page.  Taglib
+  <dt><strong>%dsp:taglib</strong></dt>
+  <dd>Declares another tag library to be in effect for the remainder of the page.  Taglib
     directives are cumulative.  That is, using two or more %dsp:taglib directives on
     the same page means that tags in either taglib may be used on that page.
     Example usage:
+    <pre>
       &lt;%dsp:taglib name="my-taglib" prefix="xx"/&gt;
       ...
       &lt;xx:my-tag/&gt;
       ...
+    </pre>
+    <p>
+  </dd>
 
-  %dsp:if
-    Conditionally includes its body content if a predicate returns true.  This could be
-    written trivially as a custom tag, except for the fact that it allows a %dsp:else part.
-    This way the test predicate only needs to be executed once.
+</dl>
+
+<a name="dsp-taglib"></a>
+<h3>The &quot;dsp&quot; Tag Library</h3>
+
+The &quot;dsp&quot; taglib defines a few tags that are generally useful
+for any web application.
+
+<dl>
+  <a name="if"></a>
+  <dt><strong>dsp:if</strong></dt>
+  <dd>Conditionally includes its body content if a predicate returns true.  
     Example usage:
-      &lt;%dsp:if test="my-predicate?"&gt;
-        ...true part...
-      &lt;%dsp:else&gt;
-        ...false part...
-      &lt;/%dsp:if&gt;
+    <pre>
+      &lt;dsp:if test="my-predicate?"&gt;
+        &lt;dsp:then&gt;...true part...&lt;/dsp:then&gt;
+        &lt;dsp:else&gt;...false part...&lt;/dsp:else&gt;
+      &lt;/dsp:if&gt;
+    </pre>
+    Note that there may be multiple <strong>dsp:then</strong> and
+    <strong>dsp:else</strong> tags inside the same
+    <strong>dsp:if</strong> tag body.  If there is any plain HTML in the
+    body of the <strong>dsp:if</strong>, and outside of any
+    <strong>dsp:then</strong> or <strong>dsp:else</strong> tags, it will
+    always be displayed.
+    <p>
+  </dd>
+
+  <a name="then"></a>
+  <dt><strong>dsp:then</strong></dt>
+  <dd>
+    Executes its body only if the test predicate of the containing dsp:if tag
+    returned true.  When not contained in the body of a dsp:if tag its body
+    will not be executed.<p>
+  </dd>
+
+  <a name="else"></a>
+  <dt><strong>dsp:else</strong></dt>
+  <dd>
+    Executes its body only if the test predicate of the containing dsp:if tag
+    returned false.  When not contained in the body of a dsp:if tag its body
+    will not be executed.<p>
+  </dd>
+
+  <a name="table"></a>
+  <dt><strong>dsp:table</strong></dt>
+  <dd>
+    TBD.  Haven't quite settled on a design here yet.<p>
+  </dd>
+
+  <a name="table-row-number"></a>
+  <dt><strong>dsp:table-row-number</strong></dt>
+  <dd>
+    Displays the one-based number of the row currently being displayed.<p>
+  </dd>
+
+</dl>  
 
 
-Tag Libraries
+<a name="dsp-programming"></a>
+<h2>DSP Programming</h2>
 
-Tags can be organized into separate tag libraries if needed (e.g., for large web apps).
-Each DSP page may use the %dsp:taglib directive to specify which tag libraries are active
-for that page.  The built-in "dsp" tag library is automatically available to all DSP
-pages, without having to use the %dsp:taglib directive to make it active.  The "dsp"
-taglib includes some tags that are useful for almost all web pages.
+<a name="taglibs"></a>
+<h3>Tag Libraries</h3>
 
-Taglibs are fairly uninteresting as far as programming a DSP application goes.  They
-are only used when defining tags, to specify which taglib the tag belongs to.
-They are defined as follows:
+Tags can be organized into separate tag libraries if needed (e.g., for
+large web apps).  Each DSP page may use the <strong>%dsp:taglib</strong>
+directive to specify which tag libraries are active for that page.  The
+built-in &quot;dsp&quot; tag library is automatically available to all
+DSP pages, without having to use the <strong>%dsp:taglib</strong>
+directive to make it active.  The &quot;dsp&quot; taglib includes some
+tags that are useful for almost all web pages.
 
-  define taglib example ()
+<p>Taglibs are fairly uninteresting as far as programming a DSP
+application goes.  They are only used when defining tags and
+<strong>named methods</strong>, to specify which taglib those objects
+belongs to.  They are defined as follows:
+  <pre>
+  define taglib demo ()
   end;
+  </pre>
 
-The above defines a taglib named "example".  See the Tags section for how the taglib is
-specified when defining a tag.  This taglib would be included in a page with the following
-directive:
+The above defines a taglib named &quot;demo&quot;.  See the <a
+href="#tags">Tags</a> section for how the taglib is specified when
+defining a tag.  This taglib would be included in a page with the
+following directive:
 
-  &lt;%dsp:taglib name="example" prefix="ex"/&gt;
+  <pre>&lt;%dsp:taglib name="demo" prefix="xyz"/&gt;</pre>
+
+and its tags would then be used like this:
+
+  <pre>&lt;xyz:tag-one/&gt;</pre>
 
 
-Tags
+<a name="tags"></a>
+<h3>Tags</h3>
 
 Tags are defined with the "define tag" macro.  The syntax is:
-
-  define tag tag-name [in taglib-name] (method-parameters) (tag-parameters)
-    tag-body
-  end;
+  <pre>
+    define tag tag-name [in taglib-name] (method-parameters) (tag-parameters)
+      tag-body
+    end;
+  </pre>
 
 The following example tag should clear things up a bit:
+  <pre>
+    define tag current-time in demo
+        (page :: &lt;dylan-server-page&gt;, response :: &lt;response&gt;)
+        (style)
+      write(output-stream(response), current-time(style));
+    end;
+  </pre>
 
-  define tag current-time in example
-      (page :: &lt;dylan-server-page&gt;, response :: &lt;response&gt;)
-      (type)
-    write(output-stream(response), current-time(type));
-  end;
+The above defines a tag called &quot;current-time&quot; in the
+&quot;demo&quot; taglib which outputs the current time in the DSP page.
+See <a href="#define-tag">the <strong>define tag</strong> macro</a> for
+a full description tag definition.  The above tag would be called like
+this:
 
-The above defines a tag called "current-time" in the "example" taglib which outputs the
-current time in the DSP page.  parameters-1 specifies the parameter list for when the DSP
-engine invokes the tag.  It must always accept two arguments, page and response.  The
-first argument will be an instance of &lt;dylan-server-page&gt; and the second will be an
-instance of &lt;response&gt;.
+  <pre>
+    &lt;%dsp:taglib name="demo" prefix="xyz"/&gt;
+    &lt;xyz:current-time style="24hr"/&gt;
+  </pre>
 
+Note that <code>style</code> defines a parameter for the tag call
+such that the <code>style</code> variable is bound to the value of
+that parameter in the body of the tag definition.
 
-</pre>
+<p>The tag functon must always accept two arguments, <code>page</code>
+and <code>response</code>.  The first argument will be an instance of
+<code>&lt;dylan-server-page&gt;</code> and the second will be an
+instance of <code>&lt;response&gt;</code>.
+
 
 <h1>DSP Technical Reference</h1>
 
