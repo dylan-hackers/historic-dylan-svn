@@ -150,4 +150,4 @@ define sealed domain \~= (<builtin-collection>, <builtin-collection>);
 define sealed domain empty? (<builtin-collection>);
 define sealed domain size (<builtin-collection>);
 
-define sealed domain key-test (<sequence>, <table>);
+define sealed domain key-test (<sequence>);
