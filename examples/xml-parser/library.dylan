@@ -15,7 +15,7 @@ define module xml-parser
 
   create parse-document;
 
-  create <document>, <element>, <attribute>, <entity-reference>,
+  create <document>, <element>, <attribute>, <entity-reference>, <add-parents>,
     <char-reference>, <char-string>, <xml>, <node>, text, char, name;
   create entity-value, element-attributes, attribute-value, 
     node-children, element-parent, element-parent-setter, 
