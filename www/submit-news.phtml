@@ -3,6 +3,10 @@ require "shared.inc";
 standard_header("Submit News");
 ?>
 
+<?php
+if($REQUEST_METHOD == "GET") {
+?>
+
 <form method=post action=submit-news.phtml>
 Headline:
 <br>
@@ -18,8 +22,24 @@ Message body:
 </form>
 
 <?php
+} else {
+?>
 
-echo $REQUEST_METHOD
+    $db = mysql_connect("localhost","gwydion","");
+    mysql_select_db("gwydion");
+
+    $query = "select * from news order by time desc";
+    $res = mysql_query($query, $db);
+    $err = mysql_error();
+    if($err) {
+      echo "MySQL error occurred. Please notify <a href=andreas@andreas.org>Andreas</a>.";
+    } else {
+        while($row = mysql_fetch_row($res)) {
+            echo "<DT><STRONG>".$row[1]." (".$row[0].")</STRONG></dt>\n";
+            echo "<DD><P>".$row[2]."</P>\n\n";
+       }
+    }
+}
 
 standard_footer();
 ?>
