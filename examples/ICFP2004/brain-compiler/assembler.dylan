@@ -27,13 +27,13 @@ states:
   { Drop, (?label:name) }
     => { push-thunk(instrs, label, counter,
                     method()
-                        make(<drop>, state: lookup(instrs, ?#"label", 0))
+                        make(<drop>, state: curry(lookup, instrs, ?#"label", 0))
                     end) }
 
   { Drop }
     => { push-thunk(instrs, label, counter,
                     method()
-                        make(<drop>, state: lookup(instrs, label, counter + 1))
+                        make(<drop>, state: curry(lookup, instrs, label, counter + 1))
                     end) }
 
   { Turn ?:name, (?label:name) }
@@ -41,7 +41,7 @@ states:
                     method()
                         make(<turn>,
                              left-or-right: ?#"name",
-                             state: lookup(instrs, ?#"label", 0))
+                             state: curry(lookup, instrs, ?#"label", 0))
                     end) }
 
   { Turn ?:name }
@@ -49,7 +49,7 @@ states:
                     method()
                         make(<turn>,
                              left-or-right: ?#"name",
-                             state: lookup(instrs, label, counter + 1))
+                             state: curry(lookup, instrs, label, counter + 1))
                     end) }
 
 
@@ -57,18 +57,18 @@ states:
     => { push-thunk(instrs, label, counter,
                     method() make(<pickup>,
                                   state-success:
-                                    lookup(instrs, ?#"success", 0),
+                                    curry(lookup, instrs, ?#"success", 0),
                                   state-failure:
-                                    lookup(instrs, ?#"fail", 0))
+                                    curry(lookup, instrs, ?#"fail", 0))
                     end) }
 
   { PickUp => ?:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<pickup>,
                                   state-success:
-                                    lookup(instrs, label, counter + 1),
+                                    curry(lookup, instrs, label, counter + 1),
                                   state-failure:
-                                    lookup(instrs, ?#"name", 0))
+                                    curry(lookup, instrs, ?#"name", 0))
                     end) }
 
 
@@ -76,18 +76,18 @@ states:
     => { push-thunk(instrs, label, counter,
                     method() make(<move>,
                                   state-success:
-                                    lookup(instrs, ?#"success", 0),
+                                    curry(lookup, instrs, ?#"success", 0),
                                   state-failure:
-                                    lookup(instrs, ?#"fail", 0))
+                                    curry(lookup, instrs, ?#"fail", 0))
                     end) }
 
   { Move => ?:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<move>,
                                   state-success:
-                                    lookup(instrs, label, counter + 1),
+                                    curry(lookup, instrs, label, counter + 1),
                                   state-failure:
-                                    lookup(instrs, ?#"name", 0))
+                                    curry(lookup, instrs, ?#"name", 0))
                     end) }
 
   { Flip ?prob:expression, (?yes:name, ?no:name) }
@@ -95,8 +95,8 @@ states:
                     method()
                         make(<flip>,
                              probability: ?prob,
-                             state-success: lookup(instrs, ?#"yes", 0),
-                             state-failure: lookup(instrs, ?#"no", 0))
+                             state-success: curry(lookup, instrs, ?#"yes", 0),
+                             state-failure: curry(lookup, instrs, ?#"no", 0))
                     end method) }
 
   { Sense ?where:name ?what:name, (?yes:name, ?no:name) }
@@ -104,8 +104,8 @@ states:
                     method() make(<sense>,
                                   direction: ?#"where",
                                   condition: ?#"what",
-                                  state-true: lookup(instrs, ?#"yes", 0),
-                                  state-false: lookup(instrs, ?#"no", 0))
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
 
   { Sense ?what:name, (?yes:name, ?no:name) }
@@ -113,8 +113,8 @@ states:
                     method() make(<sense>,
                                   direction: #"Here",
                                   condition: ?#"what",
-                                  state-true: lookup(instrs, ?#"yes", 0),
-                                  state-false: lookup(instrs, ?#"no", 0))
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
 end macro;
 
@@ -122,7 +122,8 @@ end macro;
 define function push-thunk (instrs, label, counter, thunk) => ();
  format-out("push-thunk: (%s, %d)\n", label, counter);
 // flush-stream(*standard-output*);
-  let pos = make(<instruction-label-count>, label: label, count: counter);
+///////  let pos = make(<instruction-label-count>, label: label, count: counter);
+  let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
   if (element(instrs, pos, default: #f))
     error("label %s already defined?", label);
   end;
@@ -138,12 +139,15 @@ define function lookup (instrs, label, counter)
  format-out("lookup: (%s, %d)\n", label, counter);
  
  
-  let pos = make(<instruction-label-count>, label: label, count: counter);
+////////  let pos = make(<instruction-label-count>, label: label, count: counter);
+
+  let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
   let instr = instrs[pos];
 
  format-out("found: (%s, %d)\n", label, counter);
   select (instr by instance?)
     <function> =>
+      instrs[pos] := #f; // in progress
       instrs[pos] := instr();
     otherwise =>
       instr;
@@ -159,9 +163,10 @@ define function compile-states (instrs :: <table>)
 
 
   let start-instr = lookup(instrs, start:, 0);
-//  let start-instr = instrs[make(<instruction-label-count>, label: start:, count: 0)];
+///  let start-instr = instrs[as(<symbol>, format-to-string("(%s, %d)", start:, 0))];
   let pos-table :: <table> = make(<table>);
   put-instruction(start-instr, brain, pos-table);
+  brain;
 end;
 
 define generic put-instruction(instr :: <instruction>, brain :: <stretchy-vector>, pos-table :: <table>)
@@ -179,6 +184,9 @@ define macro integrate-state
   {
     let next-state = ?instr.?state;
     select (next-state by instance?)
+      <function> =>
+          ?instr.?state := next-state();
+          put-instruction(?instr, ?brain, ?pos-table);
       <instruction> =>
         let pos = element(?pos-table, next-state, default: #f);
         if (pos)
@@ -284,7 +292,7 @@ end;
 ///////////// KLUDGE
 
 
-define constant <continuation> = type-union(<integer>, <instruction>);
+define constant <continuation> = type-union(<integer>, <instruction>, <function>);
 
 define class <instruction> (<object>)
 end class <instruction>;
