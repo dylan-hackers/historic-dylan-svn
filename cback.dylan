@@ -129,7 +129,7 @@ define macro llvm-glue-definer
    { <llvm-basic-block> } => { "BasicBlock" }
    { <llvm-module> } => { "Module" }
    { <llvm-function> } => { "Function" }
-   { <llvm-argument> } => { "Argument" }
+//   { <llvm-argument> } => { "Argument" }
    { <llvm-add-instruction> } => { "BinaryAdd" }
    { <llvm-gep-instruction> } => { "GetElementPtrInst" }
    { <llvm-store-instruction> } => { "StoreInst" }
@@ -328,6 +328,31 @@ end;
 define functional class <llvm-argument-sequence>(<sequence>, <llvm-object>)
 end;
 
+define sealed inline method forward-iteration-protocol (args :: <llvm-argument-sequence>)
+ => (initial-state /* :: <raw-pointer> */,
+     limit /* :: <raw-pointer> */,
+     next-state :: <function>,
+     finished-state? :: <function>,
+     current-key :: <function>,
+     current-element :: <function>,
+     current-element-setter :: <function>,
+     copy-state :: <function>);
+  values(call-out("get_llvm_Iterator_Function_arg_begin", ptr:, ptr: args.raw-value),
+	 call-out("get_llvm_Iterator_Function_arg_end", ptr:, ptr: args.raw-value),
+	 method (args :: <llvm-argument-sequence>, state /* :: <raw-pointer> */) call-out("get_llvm_Iterator_Function_arg_next", ptr:, ptr: state) end method,
+	 method (args :: <llvm-argument-sequence>, state /* :: <raw-pointer> */, limit /* :: <raw-pointer> */)
+	   state == limit
+	 end method,
+	 method (args, state) state /**####**/ end method,
+	 method (args, state /* :: <raw-pointer> */)
+	   make(<llvm-argument>, pointer: call-out("get_llvm_Iterator_Function_arg_deref", ptr:, ptr: state));
+	 end method,
+	 method (value :: <character>, args, state)
+	   // immutable, error? ###
+	 end method,
+	 method (args, state) state end method);
+end method forward-iteration-protocol;
+
 define method arguments(of :: <llvm-function>)
  => args :: <llvm-argument-sequence>;
   make(<llvm-argument-sequence>, pointer: of.raw-value)
@@ -339,6 +364,7 @@ end method;
 define functional class <llvm-argument>(<llvm-value>)
 end;
 
+/*
 define llvm-glue <llvm-argument> ()
   make, (type :: <llvm-type>,
 	 name :: <byte-string> = "",
@@ -346,6 +372,7 @@ define llvm-glue <llvm-argument> ()
 					     ptr: name.object-address,
 					     ptr: raw-value(func | $null-pointer);
 end;
+*/
 
 define method name-setter(new :: <byte-string>, arg :: <llvm-argument>)
  => new :: <byte-string>;

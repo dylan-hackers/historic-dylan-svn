@@ -171,7 +171,7 @@ LLVM_MAKE(LoadInst, (Value* ptr, const ByteString* name, BasicBlock* atEnd, Inst
     : new LoadInst(ptr, *name, atEnd);
 }
 
-LLVM_MAKE_SIMPLE(Argument, (const Type* ty, const ByteString* name, Function* fun), (ty, *name, fun))
+/// LLVM_MAKE_SIMPLE(Argument, (const Type* ty, const ByteString* name, Function* fun), (ty, *name, fun))
 /*
 LLVM_MAKE_SIMPLE(, , )
 LLVM_MAKE_SIMPLE(, , )
@@ -257,11 +257,28 @@ LLVM_TYPEID2TYPE(LabelTyID)
 
 extern "C" void* get_llvm_Iterator_Function_arg_begin(Function* f)
 {
-  return f->arg_begin();
+  return f->arg_begin().getNodePtrUnchecked();
+}
+
+extern "C" void* get_llvm_Iterator_Function_arg_end(Function* f)
+{
+  return f->arg_end().getNodePtrUnchecked();
+}
+
+extern "C" Argument* get_llvm_Iterator_Function_arg_next(Argument* a)
+{
+  Function::arg_iterator it(a);
+  return ++it;
+}
+
+extern "C" Argument* get_llvm_Iterator_Function_arg_deref(Argument* a)
+{
+  Function::arg_iterator it(a);
+  return &*it;
 }
 
 // accessors
-extern "C" void set_llvm_name(Argument* arg, const ByteString* name)
+extern "C" void set_llvm_name(const ByteString* name, Argument* arg)
 {
   arg->setName(*name);
 }
