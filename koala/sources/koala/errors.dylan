@@ -112,8 +112,8 @@ define http-error invalid-request-line-error (<http-parse-error>)
 //define http-error unauthorized-request-error (<http-client-error>)
 //  401 "Authentication required";
 
-//define http-error access-forbidden-error (<http-client-error>)
-//  403 "Access refused";
+define http-error access-forbidden-error (<http-client-error>)
+    403 "Forbidden";
 
 define http-error resource-not-found-error (<http-client-error>)
     404 "Resource not found: %s",

@@ -43,6 +43,7 @@ define method document-location
           if (locator-name(loc) = "..")
             loc := locator-directory(locator-directory(loc));
           end;
+          log-debug("document-location is %s", as(<string>, loc));
           locator-below-document-root?(loc) & loc
         end if
       end if
@@ -59,7 +60,11 @@ define method maybe-serve-static-file
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   when (document)
     select (file-type(document))
-      #"directory" => directory-responder(request, response, document);
+      #"directory" => if (*allow-directory-listings*)
+                        directory-responder(request, response, document);
+                      else
+                        access-forbidden-error();  // 403
+                      end if;
       otherwise  => static-file-responder(request, response, document);
     end;
     #t
@@ -151,58 +156,87 @@ define method directory-responder
                                           curry(\=, '\\'),
                                           method (x) '/' end));
         let props = file-properties(locator);
-        write(stream, "<tr>\n<td nowrap>");
+        write(stream, "   <tr>\n    <td>");
         display-image-link(stream, type, locator);
-        format(stream, "</td>\n<td nowrap><a href=\"%s\">%s</a></td>\n",
+        format(stream, "</td>\n    <td><a href=\"%s\">%s</a></td>\n",
                link-to, name);
         for (key in #[#"size", #"modification-date", #"author"])
           let prop = element(props, key, default: "&nbsp;");
-          write(stream, "<td nowrap>");
-          display-file-property(stream, key, prop, type);
+          write(stream, "   <td>");
+          if (prop)
+            display-file-property(stream, key, prop, type);
+          else
+            write(stream,"-");
+          end if;
           write(stream, "</td>\n");
         end;
-        write(stream, "</tr>\n");
+        write(stream, "  </tr>\n");
       end;
     end;
   let url = request-url(request);
   format(stream,
-         "<html>\n<head>\n<title>Directory listing of %s</title>\n</head>\n<body>\n"
-         "<h2>Directory listing of %s</h2>\n", url, url);
-  // In FunDev 2.0 SP1 this will never display the "Up to parent directory" because
-  // of a bug in the = method for directory locators.
+         "<?xml version=\"1.0\"?>\n"
+         "<!DOCTYPE html PUBLIC \"-//W3C/DTD XHTML 1.0 Strict//EN\""
+         " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
+         "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+         " <head>\n"
+         "  <title>Directory listing of %s</title>\n"
+         " </head>\n", url);
+  write(stream, " <body>\n");
+  format(stream,
+         "  <h1>Directory listing of %s</h1>\n"
+         "  <table>", url);
   unless (loc = *document-root*
           | (instance?(loc, <file-locator>)
              & locator-directory(loc) = *document-root*))
-    write(stream, "<a href=\"..\">Up to parent directory</a><p>\n");
-    write(stream, "<font face=\"Monospace,Courier\">\n");
-  end;
-  write(stream, "<table border=\"0\" width=\"100%\" cellpadding=\"2\">\n");
-  if (*allow-directory-listings*)
-    do-directory(show-file-link, loc);
-  else
-    write(stream, "<tr><td>Directory listing is disabled on this server.</td></tr>\n");
-  end;
-  write(stream, "</table>\n</font>\n</body>\n</html>\n");
+    write(stream,
+          "  <tr>\n"
+          "   <td></td>\n"
+          "   <td><a href=\"..\">..</a></td>\n"
+          "   <td>DIR</td>\n"
+          "   <td></td>\n"
+          "   <td></td>\n"
+          "  </tr>\n");
+  end unless;
+  do-directory(show-file-link, loc);
+  write(stream,
+        "  </table>\n"
+        " </body>\n"
+        "</html>\n");
 end;
 
 define method display-file-property
-    (stream, key, property, file-type :: <symbol>) => ()
-  write(stream, "&nbsp;");
+    (stream, key, property, file-type :: <file-type>) => ()
 end;
 
 define method display-file-property
-    (stream, key, property :: <date>, file-type :: <symbol>) => ()
+    (stream, key, property :: <date>, file-type :: <file-type>) => ()
   date-to-stream(stream, property);
 end;
 
 define method display-file-property
-    (stream, key == #"size", property, file-type :: <symbol>) => ()
+    (stream, key == #"size", property, file-type :: <file-type>) => ()
   if (file-type == #"file")
-    let kb = ceiling/(property, 1024);
-    format(stream, "%d KB", kb);
+    let kilobyte = round/(property, 1024);
+    let megabyte = round/(kilobyte, 1024);
+    let gigabyte = round/(megabyte, 1024);
+    if (gigabyte > 0)
+      format(stream, "%d GB", gigabyte);
+    elseif (megabyte > 0)
+      format(stream, "%d MB", megabyte);
+    elseif (kilobyte > 0)
+      format(stream, "%d KB", kilobyte);
+    else
+      format(stream, "%d", property);
+    end if;
   else
-    write(stream, "&nbsp;");
-  end;
+    write(stream, "DIR");
+  end if;
+end;
+
+define method display-file-property
+    (stream, key, property :: <string>, file-type :: <file-type>) => ()
+  format(stream, property);
 end;
 
 define open method display-image-link
