@@ -116,16 +116,26 @@ define method locator-below-document-root?
       end
 end;
 
+
+// Get MIME Type for file name
+define method mime-type (locator :: <locator>) => (mime-type :: <string>)
+  let extension = locator-extension(locator);
+  let sym = extension & ~empty?(extension) & as(<symbol>, extension);
+  let mime-type = element(*mime-type-map*, sym, default: *default-static-content-type*);
+  log-debug("extension = %=, sym = %=, mime-type = %=", extension, sym, mime-type);
+  mime-type;
+end method;
+
+
 // Serves up a static file
 define method static-file-responder
     (request :: <request>, response :: <response>, locator :: <locator>)
+
+  mime-type := mime-type(locator);
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)
-    let extension = locator-extension(locator);
-    let sym = extension & ~empty?(extension) & as(<symbol>, extension);
-    let mtype = element(*mime-type-map*, sym, default: *default-static-content-type*);
-    log-debug("extension = %=, sym = %=, mtype = %=", extension, sym, mtype);
-    add-header(response, "Content-Type", mtype);
+
+    add-header(response, "Content-Type", mime-type);
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
   end;
@@ -155,21 +165,20 @@ define method directory-responder
                    else
                      name;
                    end if;
-        write(stream, "   <tr>\n    <td>");
-        display-image-link(stream, type, locator);
-        format(stream, "</td>\n    <td><a href=\"%s\">%s</a></td>\n",
-               link, link);
+        write(stream, "\t\t\t\t<tr>\n");
+        format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n", link, link);
+        format(stream, "\t\t\t\t<td class=\"mime-type\">top-level/sub-type</td>\n");
         for (key in #[#"size", #"modification-date", #"author"])
           let prop = element(props, key, default: "&nbsp;");
-          write(stream, "    <td>");
+          format(stream, "\t\t\t\t<td class=\"%s\">", as(<string>, key) );
           if (prop)
             display-file-property(stream, key, prop, type);
           else
             write(stream,"-");
           end if;
-          write(stream, "</td>\n");
+          write(stream, "\t\t\t\t</td>\n");
         end;
-        write(stream, "  </tr>\n");
+        write(stream, "\t\t\t</tr>\n");
       end;
     end;
   let url = request-url(request);
@@ -178,29 +187,44 @@ define method directory-responder
          "<!DOCTYPE html PUBLIC \"-//W3C/DTD XHTML 1.0 Strict//EN\""
          " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
          "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-         " <head>\n"
-         "  <title>Index of %s</title>\n"
-         " </head>\n", url);
-  write(stream, " <body>\n");
-  format(stream,
-         "  <h1>Index of %s</h1>\n"
-         "  <table>", url);
+         "\t<head>\n"
+         "\t\t<title>Index of %s</title>\n"
+         "\t</head>\n", url);
+  format(stream, "\t<body>\n");
+  format(stream, "\t\t<table>\n");
+  format(stream, "\t\t\t<caption>Index of %s</caption>\n", url);
+  write(stream,  "\t\t\t<col id=\"name\" />\n"
+                 "\t\t\t<col id=\"mime-type\" />\n"
+                 "\t\t\t<col id=\"size\" />\n"
+                 "\t\t\t<col id=\"modification-date\" />\n"
+                 "\t\t\t<col id=\"author\" />\n");
+  write(stream,  "\t\t\t<thead>\n"
+                 "\t\t\t\t<tr>\n"
+                 "\t\t\t\t\t<th>Name</td>\n"
+                 "\t\t\t\t\t<th>MIME Type</td>\n"
+                 "\t\t\t\t\t<th>Size</td>\n"
+                 "\t\t\t\t\t<th>Modification Date</td>\n"
+                 "\t\t\t\t\t<th>Author</td>\n"
+                 "\t\t\t\t</tr>\n"
+                 "\t\t\t</thead>\n");
+  write(stream,  "\t\t\t<tbody>\n");
   unless (loc = *document-root*
           | (instance?(loc, <file-locator>)
              & locator-directory(loc) = *document-root*))
     write(stream,
-          "  <tr>\n"
-          "   <td></td>\n"
-          "   <td><a href=\"../\">../</a></td>\n"
-          "   <td>DIR</td>\n"
-          "   <td></td>\n"
-          "   <td></td>\n"
-          "  </tr>\n");
+          "\t\t\t\t<tr>\n"
+          "\t\t\t\t\t<td class=\"name\"><a href=\"../\">../</a></td>\n"
+          "\t\t\t\t\t<td class=\"type\">DIR</td>\n"
+          "\t\t\t\t\t<td class=\"size\">--</td>\n"
+          "\t\t\t\t\t<td class=\"modification-date\"></td>\n"
+          "\t\t\t\t\t<td class=\"author\" />\n"
+          "\t\t\t\t</tr>\n");
   end unless;
   do-directory(show-file-link, loc);
   write(stream,
-        "  </table>\n"
-        " </body>\n"
+        "\t\t\t</tbody>\n"
+        "\t\t</table>\n"
+        "\t</body>\n"
         "</html>\n");
 end;
 
