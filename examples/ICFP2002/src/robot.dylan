@@ -3,10 +3,8 @@ module: board
 define class <robot> (<object>)
   slot id :: <integer>,
     required-init-keyword: id:;
-  slot x :: <integer>,
-    required-init-keyword: x:;
-  slot y :: <integer>,
-    required-init-keyword: y:;
+  slot location :: <point>,
+    required-init-keyword: location:;
   slot capacity :: false-or(<integer>),
     init-keyword: capacity:,
     init-value: #f;

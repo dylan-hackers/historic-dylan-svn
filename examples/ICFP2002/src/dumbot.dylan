@@ -12,13 +12,13 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
       return(make(<drop>, package-ids: map(id, drop-these)));
     end if;
     
-    let packages-here = packages-at(s, me.robot.x, me.robot.y);
+    let packages-here = packages-at(s, me.robot.location);
     if (~ empty?(packages-here))
       let take-these = make(<vector>);
       let left = me.robot.capacity;
       for (pkg in sort(packages-here))
 	if (pkg.weight <= me.robot.capacity
-	      & find-path(me.robot.x, me.robot.y, pkg.x, pkg.y, s.board))
+	      & find-path(me.robot.location, pkg.location, s.board))
 	  left := left - pkg.weight;
 	  take-these = add!(take-these, x);
 	end if;

@@ -9,8 +9,7 @@ define constant <path-cost> = <integer>;
 // Prioritised location type.
 define sealed class <prioritized-location> (<object>)
   slot p :: <path-cost>, required-init-keyword: p:;
-  slot x :: <coordinate>, required-init-keyword: x:;
-  slot y :: <coordinate>, required-init-keyword: y:;
+  slot point :: <point>, required-init-keyword: point:;
 end;
 
 
@@ -20,7 +19,7 @@ define sealed domain initialize(<prioritized-location>);
 
 define sealed method \= (a :: <prioritized-location>, b :: <prioritized-location>)
  => (res :: <boolean>)
-  (a.p = b.p) & (a.x = b.x) & (a.y = b.y)
+  (a.p = b.p) & (a.point = b.point)
 end;
 
  
@@ -54,34 +53,40 @@ end;
 
 
 // Useful distance-cost function for the board. Manhattan cost to avoid square root.
-define function distance-cost(sX :: <coordinate>, sY :: <coordinate>,
-                              tX :: <coordinate>, tY :: <coordinate>)
+define function distance-cost(source :: <point>,
+                              dest :: <point>)
  => (res :: <path-cost>)
-  abs(sX - tX) + abs(sY - tY);
+  abs(source.x - dest.x) + abs(source.y - dest.y);
 end function distance-cost;
 
 
 // Useful to query around you with nodes not in visited.
-define function get-neighbors(x :: <coordinate>, y :: <coordinate>,
+define function get-neighbors(p :: <point>,
                               board :: <board>, visited :: <list>)
  => (res :: <list>, visited :: <list>)
   let nodes :: <list> = #();
 
-  if (x > 0 & ~member?(pair(x - 1, y), visited, test: \=) & passable?(board, x - 1, y))
-    nodes := add!(nodes, pair(x - 1, y));
+  let north = make(<point>, x: p.x,     y: p.y + 1);
+  if (p.y < board.height & ~member?(north, visited, test: \=) &
+	passable?(board, north))
+    nodes := add!(nodes, north);
   end if;
 
-  if (x < board.width & ~member?(pair(x + 1, y), visited, test: \=) & passable?(board, x + 1, y))
-    nodes := add!(nodes, pair(x + 1, y));
+  let east = make(<point>,  x: p.x + 1, y: p.y);
+  if (p.x < board.width & ~member?(east, visited, test: \=) & passable?(board, east))
+    nodes := add!(nodes, east);
   end if;
 
-  if (y > 0 & ~member?(pair(x, y - 1), visited, test: \=) & passable?(board, x, y + 1))
-    nodes := add!(nodes, pair(x, y - 1));
+  let south = make(<point>, x: p.x,     y: p.y - 1);
+  if (p.y > 0 & ~member?(south, visited, test: \=) & passable?(board, south))
+    nodes := add!(nodes, south);
   end if;
 
-  if (y < board.height & ~member?(pair(x, y + 1), visited, test: \=) & passable?(board, x, y + 1))
-    nodes := add!(nodes, pair(x, y + 1));
+  let west = make(<point>,  x: p.x - 1, y: p.y);
+  if (p.x > 0 & ~member?(west, visited, test: \=) & passable?(board, west))
+    nodes := add!(nodes, west);
   end if;
+
 
   visited := concatenate!(visited, nodes);
 
@@ -90,11 +95,10 @@ end function get-neighbors;
 
 
 // A* path finder.
-define function find-path(sX :: <coordinate>, sY :: <coordinate>,
-                          tX :: <coordinate>, tY :: <coordinate>,
+define function find-path(source :: <point>, dest :: <point>,
                           board :: <board>) => (res :: false-or(<list>))
   let pQ :: <priority-queue> = make(<priority-queue>);
-  add(pQ, make(<prioritized-location>, p: 0, x: sX, y: sY));
+  add(pQ, make(<prioritized-location>, p: 0, point: source));
 
   let path :: <list> = #();
   let pathCost :: <path-cost> = 0;
@@ -103,13 +107,13 @@ define function find-path(sX :: <coordinate>, sY :: <coordinate>,
   block (path-found)
     while (~pQ.empty?)
       let cur :: <prioritized-location> = pQ.get;
-      path = add!(path, pair(cur.x, cur.y) );
+      path = add!(path, cur.point );
       pathCost := pathCost + 1;
 
-      if (cur.x = tX & cur.y = tY)
+      if (cur.point = dest)
         path-found(path);
       else
-        let (nodes, new-visited) = get-neighbors(cur.x, cur.y, board, visited);
+        let (nodes, new-visited) = get-neighbors(cur.point, board, visited);
         visited := new-visited;
         
         if (nodes.empty?)
@@ -122,15 +126,13 @@ define function find-path(sX :: <coordinate>, sY :: <coordinate>,
 
           // The following should put us on the top of the queue, given that we got here.
           add(pQ, make(<prioritized-location>,
-                       p: distance-cost(path.head.x, path.head.y, tX, tY) + pathCost,
-                       x: path.head.x,
-                       y: path.head.y));
+                       p: distance-cost(path.head, dest) + pathCost,
+                       point: path.head));
         else
           for (node in nodes)
             add(pQ, make(<prioritized-location>,
-                         p: distance-cost(node.x, node.y, tX, tY) + pathCost,
-                         x: node.x,
-                         y: node.y));
+                         p: distance-cost(node, dest) + pathCost,
+                         point: node));
           end for;
         end if;
       end if;
