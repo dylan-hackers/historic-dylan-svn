@@ -9,13 +9,14 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define library koala
   use functional-dylan,
     import: { dylan-extensions };
-  use common-dylan;
+  use common-dylan,
+    import: { dylan, common-extensions, threads };
   use io,
     import: { format, standard-io, streams };
   use network,
     import: { sockets };
   use system,
-    import: { date, file-system, locators, operating-system, threads };
+    import: { date, file-system, locators, operating-system };
   //use ssl-sockets;  // until integrated into FD?
   use xml-parser;
   use xml-rpc-common;
@@ -124,7 +125,6 @@ define module utilities
     <log-error>, <log-warning>, <log-info>, <log-debug>, <log-verbose>, <log-copious>,
     log-error, log-warning, log-info, log-debug, log-debug-if, log-verbose, log-copious,
     log, log-raw,
-    log-date,
     log-level, log-level-setter,
     as-common-logfile-date, as-rfc-1123-date;
     
@@ -180,6 +180,16 @@ define module koala
     add-header,
     add-cookie,
     get-request;
+
+  // Cookies
+  create
+    cookie-name,
+    cookie-value,
+    cookie-domain,
+    cookie-path,
+    cookie-max-age,
+    cookie-comment,
+    cookie-version;
 
   // Sessions
   create

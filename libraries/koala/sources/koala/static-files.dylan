@@ -333,7 +333,8 @@ end;
 
 define open method display-image-link
     (stream :: <stream>, file-type :: <symbol>, locator :: <file-locator>)
-  //---TODO: Somehow display the icon that the Windows explorer displays next to each file.
+  //---TODO: Somehow display the icon that the Windows explorer displays
+  //         next to each file.  (On Windows only, of course.)
 end;
 
 

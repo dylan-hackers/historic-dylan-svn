@@ -974,10 +974,6 @@ define inline function empty-line?
   len == 1 & buffer[0] == $cr
 end;
 
-// I just like the way this looks in the logs better than lowercase.
-define inline method uppercase-request-method (meth :: <symbol>) as(<byte-string>, meth) end;
-define inline method uppercase-request-method (meth :: <object>) meth end;
-
 define function extract-request-method (buffer :: <string>,
                                         bpos :: <integer>,
                                         epos :: <integer>,

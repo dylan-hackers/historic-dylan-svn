@@ -275,7 +275,7 @@ define method initialize-record
   record
 end;
 
-define method new?
+define method new-record?
     (record :: <database-record>) => (new? :: <boolean>)
   mod-count(record) = 0
 end;
