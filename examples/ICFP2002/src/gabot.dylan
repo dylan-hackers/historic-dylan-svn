@@ -28,7 +28,9 @@ end class <gabot>;
 
 define method punt(me :: <gabot>)
  => punt :: <drop>;
+  debug("GB: punting...\n");
   me.decided := #f;
+  me.visited-bases := #();
   next-method();
 end;
 
@@ -150,7 +152,7 @@ end;
 define method valid?(picking :: <pick-strategy>, state :: <state>) => valid :: <boolean>;
   // did we arrive?
   if (picking.strategy-path.size < 2)
-    debug("arrived!\n");
+    debug("GB: arrived!\n");
     #f
   else
   	// ## efficiency!!!
