@@ -37,15 +37,15 @@ foreach my $usem (@use_modules) {
     $use_module_clauses .= "  use $usem;\n";
 }
 
-open LID, '>', "$library.lid" || die "Can't create $library.lid: $!";
-print LID <<"__END__";
+open HDP, '>', "$library.hdp" || die "Can't create $library.hdp: $!";
+print HDP <<"__END__";
 Library: $library
 Files: $library-library.dylan
        $source
 
 __END__
 
-close LID;
+close HDP;
 
 open LIB, '>', "$library-library.dylan"
     || die "Can't create $library-library.dylan: $!";
@@ -53,7 +53,7 @@ print LIB <<"__END__";
 Module: Dylan-user
 
 define library $library
-$use_library_clauses;
+$use_library_clauses
 end library;
 
 define module $module
@@ -61,7 +61,7 @@ $use_module_clauses
 end module;
 __END__
 
-exec $fdcompile, '-link-exe', '-build', "$library.lid";
+exec $fdcompile, '-link-exe', '-build', "$library.hdp";
 
 # parse_dylan_header($fh, $file)
 #
