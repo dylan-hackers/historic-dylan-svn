@@ -14,12 +14,20 @@
   DocBook in a very clean fashion.
 
   This DTD should be referred to by the public identifier
-  "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.1//EN", where V3.1 matches the
-  appropriate version of DocBook. More complex version numbers may be used
-  in the future to allow DylanDoc to be revised more often than DocBook.
+  "UNREGISTERED::Gwydion Dylan Maintainers//DTD DylanDoc V4.2//EN",
+  where V4.2 matches the appropriate version of DocBook. More complex version
+  numbers may be used in the future to allow DylanDoc to be revised more often
+  than DocBook.
 
   Eric Kidd
   eric.kidd@pobox.com
+
+  Note:  This DTD has been modified for use with XML DocBook, and
+  the public identifier has been changed to reflect the Gwydion Dylan
+  Maintainers.
+
+  Brent Fulgham
+  brent@gwydiondylan.org
 
 -->
 
@@ -28,15 +36,15 @@
 
 <!ENTITY % local.dylan.def.class "">
 <!ENTITY % dylan.def.class
-           "DylanConstantDef|DylanVariableDef|
-            DylanGenericDef|DylanMethodDef|DylanFunctionDef|
-            DylanClassDef|DylanMacroDef|DylanCharFnDef
-            %local.dylan.def.class;" >
+	   "DylanConstantDef|DylanVariableDef|
+	    DylanGenericDef|DylanMethodDef|DylanFunctionDef|
+	    DylanClassDef|DylanMacroDef|DylanCharFnDef
+	    %local.dylan.def.class;" >
 
 <!ENTITY % local.dylan.tech.char.class "">
 <!ENTITY % dylan.tech.char.class
-           "DLibrary|DModule|DName|DLit|DParam|EM|DClass|DKeyword
-            %local.dylan.tech.char.class;" >
+	   "DLibrary|DModule|DName|DLit|DParam|EM|DClass|DKeyword
+	    %local.dylan.tech.char.class;" >
 
 
 <!-- =============== DocBook Entity Overrides ===================== -->
@@ -47,13 +55,12 @@
 
 <!-- =============== The Real Thing =============================== -->
 
-<!ENTITY % docbook.definition PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
-%docbook.definition;
+<!ENTITY % DocBookDTD PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+ "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+%DocBookDTD;
 
 
-<!-- =============== Local Entities =============================== -->
-
-<!--
+<!-- =============== Local Entities ===============================
   The following entities define collections of attributes which can
   be used to locate a Dylan library, module or definition. These
   represent hyperlinks of a sort, and should only be used someplace
@@ -62,6 +69,7 @@
   Note that these attributes do not refer to the namespace *within*
   a module, but rather the names exported by one.
 -->
+
 <!ENTITY % dlib "DLib CDATA #IMPLIED" >
 <!ENTITY % dmod "DMod CDATA #IMPLIED" >
 <!ENTITY % dloc "%dlib; %dmod;" >
@@ -82,18 +90,18 @@
   LITERAL.
 -->
 
-<!ELEMENT DLibrary - - (#PCDATA) >
+<!ELEMENT dlibrary (#PCDATA) >
 
-<!ELEMENT DModule - - (#PCDATA) >
-<!ATTLIST DModule %dlib; >
+<!ELEMENT dmodule (#PCDATA) >
+<!ATTLIST dmodule %dlib; >
 
-<!ELEMENT DName - - (#PCDATA) >
-<!ATTLIST DName %dloc; >
+<!ELEMENT dname (#PCDATA) >
+<!ATTLIST dname %dloc; >
 
-<!ELEMENT DLit - - (#PCDATA) >
-<!ELEMENT DClass - - (#PCDATA) >
-<!ELEMENT DKeyword - - (#PCDATA) >
-<!ELEMENT DParam - - (#PCDATA) >
+<!ELEMENT dlit (#PCDATA) >
+<!ELEMENT dclass (#PCDATA) >
+<!ELEMENT dkeyword (#PCDATA) >
+<!ELEMENT dparam (#PCDATA) >
 
 
 <!-- =============== Definition Elements ==============================
@@ -101,61 +109,63 @@
   Reference Manual.
 -->
 
-<!ELEMENT DylanConstantDef - - (DefName, DefSummary, DefType?, DefValue?,
-                                DefDescription, DefSection*) >
+<!ELEMENT dylan-constant-def (defname, defsummary, deftype?, defvalue?,
+				defdescription, defsection*) >
 
-<!ELEMENT DylanVariableDef - - (DefName, DefSummary, DefType?, DefValue?,
-                                DefDescription, DefSection*) >
+<!ELEMENT dylan-variable-def (defname, defsummary, deftype?, defvalue?,
+				defdescription, defsection*) >
 
-<!ELEMENT DylanFunctionDef - - (DefName, DefAdjectives?, DefSummary,
-                                DefParameters, DefReturns, DefDescription,
-				DefSection*) >
+<!ELEMENT dylan-function-def (defname, defadjectives?, defsummary,
+				defparameters, defreturns, defdescription,
+				defsection*) >
 
-<!ELEMENT DylanGenericDef - - (DefName, DefAdjectives?, DefSummary,
-                               DefParameters, DefReturns, DefDescription,
-			       DefSection*) >
+<!ELEMENT dylan-generic-def (defname, defadjectives?, defsummary,
+			       defparameters, defreturns, defdescription,
+			       defsection*) >
 
-<!ELEMENT DylanMethodDef - - (DefName, DefAdjectives?, DefSummary,
-                              DefParameters, DefReturns, DefDescription,
-		              DefSection*) >
+<!ELEMENT dylan-method-def (defname, defadjectives?, defsummary,
+			      defparameters, defreturns, defdescription,
+			      defsection*) >
 
-<!-- For now this only processes Statement Macros (of the "with-" variety).
-     If someone else wants to add definer and function macros, be my guest. -->
-<!ELEMENT DylanMacroDef - - (DefName, DefAdjectives?, DefSummary, 
-                             DefParameters, DefDescription,
-                             DefSection*) >
+<!--
+     For now this only processes Statement Macros (of the "with-" variety).
+     If someone else wants to add definer and function macros, be my guest.
+ -->
 
-<!ELEMENT DylanClassDef - - (DefName, DefAdjectives?, DefSummary, DefSupers,
-                             DefInitKeywords, DefDescription, DefSection*) >
+<!ELEMENT dylan-macro-def (defname, defadjectives?, defsummary, 
+			     defparameters, defdescription,
+			     defsection*) >
 
-<!ATTLIST DylanConstantDef DylanDefName CDATA #FIXED "Constant">
-<!ATTLIST DylanVariableDef DylanDefName CDATA #FIXED "Variable">
-<!ATTLIST DylanFunctionDef DylanDefName CDATA #FIXED "Function">
-<!ATTLIST DylanGenericDef  DylanDefName CDATA #FIXED "Generic">
-<!ATTLIST DylanMethodDef   DylanDefName CDATA #FIXED "Method">
-<!ATTLIST DylanMacroDef    DylanDefName CDATA #FIXED "Macro">
-<!ATTLIST DylanClassDef    DylanDefName CDATA #FIXED "Class">
+<!ELEMENT dylan-class-def (defname, defadjectives?, defsummary, defsupers,
+			     def-init-keywords, defdescription, defsection*) >
+
+<!ATTLIST dylan-constant-def dylan-def-name CDATA #FIXED "Constant">
+<!ATTLIST dylan-variable-def dylan-def-name CDATA #FIXED "Variable">
+<!ATTLIST dylan-function-def dylan-def-name CDATA #FIXED "Function">
+<!ATTLIST dylan-generic-def  dylan-def-name CDATA #FIXED "Generic">
+<!ATTLIST dylan-method-def   dylan-def-name CDATA #FIXED "Method">
+<!ATTLIST dylan-macro-def    dylan-def-name CDATA #FIXED "Macro">
+<!ATTLIST dylan-class-def    dylan-def-name CDATA #FIXED "Class">
 
 <!-- =============== Shared Definition Support ========================
   The following elements show up in most types of definitions.
 -->
 
-<!ELEMENT DefName - - (#PCDATA) >
-<!ELEMENT DefAdjectives - - (#PCDATA) >
-<!ELEMENT DefSummary - - (%para.char.mix;)+ >
-<!ELEMENT DefDescription - - (%component.mix;)+ -(synop.class) >
-<!ELEMENT DefSection - - (Title, (%component.mix;)+) -(synop.class) >
-
+<!ELEMENT defname (#PCDATA) >
+<!ELEMENT defadjectives (#PCDATA) >
+<!ELEMENT defsummary (%para.char.mix;)*>
+<!ELEMENT defdescription (%component.mix;)+> <!-- -(synop.class) -->
+<!ELEMENT defsection (title, (%component.mix;)+)> <!-- -(synop.class) > -->
 
 <!-- =============== Variable and Constant Definitions ================
   The following elements show up in variable and constant defintions.
 -->
 
-<!ELEMENT DefType - - (#PCDATA) >
-<!ELEMENT DefValue - - (#PCDATA) >
+<!ELEMENT deftype (#PCDATA) >
+<!ELEMENT defvalue (#PCDATA) >
 
 
-<!-- =============== Parameter Definition Supprt ======================
+<!-- =============== Parameter Definition Support ======================
   The following elements are used to define different kinds of
   parameter lists.
 
@@ -163,31 +173,31 @@
   character. This will be added as appropriate by the style sheets.
 -->
 
-<!ELEMENT VarParam - - (VariableName, BindsTo) >
-<!ELEMENT Param - - (ParamName, (ParamType|ParamSingleton)?, ParamSummary?) >
-<!ELEMENT RestParam - - (ParamName, ParamType?, ParamSummary?)? >
-<!ELEMENT KeyParam - - (ParamName, ParamType?, ParamDefault?, ParamSummary?) >
-<!ELEMENT AllKeys - O EMPTY >
-<!ELEMENT ParamName - - (#PCDATA) >
-<!ELEMENT VariableName - - (#PCDATA) >
-<!ELEMENT BindsTo - - (#PCDATA) >
-<!ELEMENT ParamType - - (#PCDATA) >
-<!ELEMENT ParamDefault - - (#PCDATA) >
-<!ELEMENT ParamSingleton - - (#PCDATA) >
-<!ELEMENT ParamSummary - - ((%para.char.mix; | %para.mix;)+) >
+<!ELEMENT varparam (variable-name, binds-to) >
+<!ELEMENT param (paramName, (param-type|param-singleton)?, param-summary?) >
+<!ELEMENT rest-param (param-name, param-type?, param-summary?)? >
+<!ELEMENT key-param (param-name, param-type?, param-default?, param-summary?) >
+<!ELEMENT all-keys EMPTY >
+<!ELEMENT variable-name (#PCDATA) >
+<!ELEMENT binds-to (#PCDATA) >
+<!ELEMENT param-name (#PCDATA) >
+<!ELEMENT param-type (#PCDATA) >
+<!ELEMENT param-default (#PCDATA) >
+<!ELEMENT param-singleton (#PCDATA) >
+<!ELEMENT param-summary (%para.char.mix; | %para.mix;)*>
 
 <!-- =============== Class Definitions ================================
   The following elements are used to define different kinds of
   parameter lists.
 -->
 
-<!ELEMENT DefSupers - - (DefSuper*) >
-<!ELEMENT DefSuper - - (#PCDATA) >
-<!ELEMENT DefInitKeywords - - (KeyParam*) >
+<!ELEMENT defsupers (defsuper*) >
+<!ELEMENT defsuper (#PCDATA) >
+<!ELEMENT def-init-keywords (keyparam*) >
 <!ENTITY obj-super '
- <DefSupers>
-  <DefSuper>&lt;object&gt;</DefSuper>
- </DefSupers>'>
+ <defsupers>
+  <defsuper>&lt;object&gt;</defsuper>
+ </defsupers>'>
 <!ENTITY object '<dclass>object</dclass>'>
 
 <!-- =============== Function Definitions ========================
@@ -195,10 +205,11 @@
   and generic functions.
 -->
 
-<!ELEMENT DefParameters - - (VarParam?, Param*, RestParam?, 
-                             (KeyParam*, AllKeys?)?) >
-<!ELEMENT DefReturns - - (Param*, RestParam?) -(ParamSingleton)>
+<!ELEMENT defparameters (varparam?, param*, rest-param?, 
+			     (key-param*, all-keys?)?) >
+<!ELEMENT defreturns (param*, rest-param?)> <!-- -(ParamSingleton)> -->
 <!ENTITY no-returns '<defreturns></defreturns>'>
 
 <!-- and a little something for emphasis!  -->
-<!ELEMENT EM - - (#PCDATA)>
+
+<!ELEMENT em (#PCDATA)>

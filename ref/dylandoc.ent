@@ -1,9 +1,15 @@
+<!-- ===== Typographical Help ===== -->
+<!ENTITY colon "&#x003A;"> <!-- COLON -->
+<!ENTITY dollar "&#x0024;"> <!-- DOLLAR SIGN -->
+<!ENTITY mdash "&#x2014;"> <!-- EM DASH -->
+
 <!-- ===== People ===== -->
 
 <!-- Maintainance Project People -->
 
-<!ENTITY person.emk "
-<firstname>Eric</firstname><surname>Kidd</surname>
+<!ENTITY person.emk
+"<firstname>Eric</firstname>
+<surname>Kidd</surname>
 <affiliation>
   <address><email>eric.kidd@pobox.com</email></address>
 </affiliation>
@@ -93,40 +99,48 @@
 <ulink url="http://www.gwydiondylan.org/">Gwydion Dylan Maintenance Project</ulink>
 '>
 
-<!ENTITY gcc "<command>gcc</command>">
-<!ENTITY mindy "<command>mindy</command>">
-<!ENTITY d2c "<command>d2c</command>">
 <!ENTITY cpp "<command>C++</command>">
 
+<!-- ===== Commands ===== -->
+<!ENTITY d2c "<command>d2c</command>">
+<!ENTITY gas "<command>gas</command>">
+<!ENTITY gcc "<command>gcc</command>">
+<!ENTITY ld  "<command>ld</command>">
+<!ENTITY lid "<acronym>LID</acronym>">
+<!ENTITY make "<command>make</command>">
+<!ENTITY mindy "<command>mindy</command>">
+<!ENTITY perl "<command>perl</command>">
+
+<!-- ===== Legal Statements ===== -->
 <!ENTITY cmu.terms '
-    <LEGALNOTICE>
-      <PARA>Use and copying of this software and preparation of
+    <legalnotice>
+      <para>Use and copying of this software and preparation of
       derivative works based on this software are permitted, including
       commercial use, provided that the following conditions are
-      observed: </PARA>
-      
-      <ITEMIZEDLIST>
-	<LISTITEM>
-	  <PARA>This copyright notice must be retained in full on any
+      observed: </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>This copyright notice must be retained in full on any
           copies and on appropriate parts of any derivative
-          works. </PARA>
-	</LISTITEM>
+          works. </para>
+	</listitem>
 	
-	<LISTITEM>
-	  <PARA>Documentation (paper or online) accompanying any
+	<listitem>
+	  <para>Documentation (paper or online) accompanying any
           system that incorporates this software, or any part of it,
           must acknowledge the contribution of the Gwydion Project at
-          Carnegie Mellon University.</PARA>
-	</LISTITEM>
-      </ITEMIZEDLIST>
+          Carnegie Mellon University.</para>
+	</listitem>
+      </itemizedlist>
       
-      <PARA>This software is made available "as is". Neither the
+      <para>This software is made available "as is". Neither the
       authors nor Carnegie Mellon University make any warranty about
       the software, its performance, or its conformity to any
-      specification. </PARA>
+      specification. </para>
       
-      <PARA>Bug reports, questions, comments, and suggestions should
+      <para>Bug reports, questions, comments, and suggestions should
       be sent by E-mail to the Internet address
-      <EMAIL>gd-bugs@gwydiondylan.org</EMAIL>.</PARA>
-    </LEGALNOTICE>
+      <email>gd-bugs@gwydiondylan.org</email>.</para>
+    </legalnotice>
 '>

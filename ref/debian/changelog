@@ -1,6 +1,13 @@
+gwydion-dylan-sgml (0.1-2) unstable; urgency=low
+
+  * Updated upstream.
+  * Correct lintian errors.
+
+ -- Brent A. Fulgham <bfulgham@debian.org>  Tue, 28 Jan 2003 22:55:57 -0800
+
 gwydion-dylan-sgml (0.1-1) unstable; urgency=low
 
   * Initial package.
 
- -- Brent A. Fulgham <bfulgham@debian.org>  Mon, 23 Sep 2002 22:03:47 -0700
+ -- Brent A. Fulgham <bfulgham@debian.org>  Mon, 26 Aug 2002 22:36:26 -0700
 

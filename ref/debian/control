@@ -2,8 +2,8 @@ Source: gwydion-dylan-sgml
 Section: text
 Priority: optional
 Maintainer: Brent A. Fulgham <bfulgham@debian.org>
-Standards-Version: 3.5.4.0
-Build-Depends: docbook, docbook-dsssl | docbook-stylesheets (>= 1.72-0potato2), jade, lynx, perlsgml, debhelper (>> 4)
+Standards-Version: 3.5.8.0
+Build-Depends-Indep: docbook, docbook-dsssl | docbook-stylesheets (>= 1.72-0potato2), jade, lynx, perlsgml, debhelper (>> 4)
 
 Package: gwydion-dylan-sgml
 Architecture: all
