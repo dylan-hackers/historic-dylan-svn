@@ -21,7 +21,7 @@ define module xml-parser
          parse-char-data, parse-comment, parse-system-literal,
          parse-version-num, parse-pubid-literal, parse-cd-sect,
          parse-elementdecl, parse-char-ref, parse-content,
-         parse-entity-decl, parse-def|content;
+         parse-entity-decl; // , parse-def|content;
 
 // all the above parse-foos will be replaced with:
   create parse-document;
@@ -57,6 +57,7 @@ define module %productions
   use xml-parser;
 end module %productions;
 
+/****
 define module display
   use common-dylan, exclude: {format-to-string };
   use streams;
@@ -65,6 +66,7 @@ define module display
   use xml-parser;
   use interface;
 end module display;
+****/
 
 define module transform
   use common-dylan, exclude: {format-to-string };

@@ -94,7 +94,7 @@ define variable *entities* = make(<table>);
 define variable *pe-refs* = make(<table>);
 
 define method entity-value(ent :: <entity-reference>)
- => (val :: <string>)
+ => (val :: <sequence>)
   *entities*[ent.name];
 end method entity-value;
 
@@ -107,6 +107,7 @@ end method entity-value;
 //
 define function parse-document(doc :: <string>, #key start = 0, end: stop)
  => (stripped-tree :: <document>)
+  *entities* := make(<table>);
   let (index, document) = parse-document-helper(doc, start: start, end: stop);
   document;
 end function parse-document;
@@ -173,13 +174,25 @@ end parse nmtokens;
 //                                    |  "'" ([^%&'] | PEReference | Reference)* "'"
 //
 define constant not-in-set? = complement(member?);
-
+/****
+// I'm going to ignore PE refs for the moment
 define collect-value entity-value(ref) ()
   "%&'", "%&\"" => 
    {parse-pe-reference(ref), 
     [parse-char-ref(ref), do(collect(ref.char))],
     [parse-entity-ref(ref), do(do(collect, *entities*[ref.name]))]}
 end collect-value entity-value;
+ ****/
+// DOUG
+define collector entity-value(contents) => (str)
+  {["\"",
+    loop([{parse-reference(contents), parse-double-char-data(contents)}, 
+           do(collect(contents))]), "\""],
+   ["'",
+    loop([{parse-reference(contents), parse-single-char-data(contents)}, 
+           do(collect(contents))]), "'"]}, []
+end collector entity-value;
+
 
 //    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
 //                                    |  "'" ([^<&'] | Reference)* "'"
@@ -234,6 +247,18 @@ define collector char-data(c)
   [test(rcurry(not-in-set?, "<&"), c), do(collect(c))],
   loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])
 end collector char-data;
+
+define collector single-char-data(c)
+ => (make(<char-string>, text: as(<string>, str)))
+  [test(rcurry(not-in-set?, "'&"), c), do(collect(c))],
+  loop([test(rcurry(not-in-set?, "'&"), c), do(collect(c))])
+end collector single-char-data;
+
+define collector double-char-data(c)
+ => (make(<char-string>, text: as(<string>, str)))
+  [test(rcurry(not-in-set?, "\"&"), c), do(collect(c))],
+  loop([test(rcurry(not-in-set?, "\"&"), c), do(collect(c))])
+end collector double-char-data;
 
 // Comments
 
@@ -837,10 +862,4 @@ define collector xml-attributes(attr-name, eq, attr-val, sp) => (str)
         parse-xml-attribute(attr-val), parse-s?(sp),
         do(collect(make(<attribute>, name: attr-name, value: attr-val)))])
 end collector xml-attributes;
-
-//-------------------------------------------------------
-// for testing only
-define parse def|content(val) => (val)
-  {parse-entity-decl(val), parse-content(val)}, []
-end parse def|content;
 

@@ -51,7 +51,7 @@ end method transform;
 
 define method transform(in :: <entity-reference>, tag-name :: <symbol>,
                         state :: <symbol>, str :: <stream>)
-  write(str, in.entity-value);
+  for(x in in.entity-value) transform(x, x.name, state, str) end;
 end method transform;
 
 define method transform(in :: <char-reference>, tag-name :: <symbol>,
