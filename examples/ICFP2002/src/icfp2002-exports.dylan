@@ -31,11 +31,14 @@ define module board
   use icfp2002;
   
   export
+    <state>, robots, packages,
     <board>, <coordinate>,
     send-board, receive-board,
     width, height,
     <terrain>, <wall>, <water>, <base>, <space>,
-    <package>, <robot>;
+    <package>, <robot>,
+    add-robot,
+    add-package;
 end module board;
 
 define module command
@@ -53,11 +56,11 @@ define module command
     <drop>;
 end module command;
 
-/*
 define module messages
   use common-dylan;
   use standard-io;
-  use streams;
+  use character-type, import: {digit?};
+  use string-conversions, import: {string-to-integer};
   use board;
   use command;
 
@@ -77,10 +80,9 @@ define module messages
     receive-string,
     receive-board-layout,  // Reads initial board layout, w/o robot positions.
     receive-client-configuration, // Reads our initial status.
-//    receive-robot-positions,
+    receive-robot-location,
     receive-initial-robot-positions; // Updates board with robot positions.
 end module messages;
-*/
 
 define module client
   use common-dylan;
@@ -94,9 +96,3 @@ define module server
   use board;
   
 end module server;
-
-
-
-
-
-

@@ -51,7 +51,7 @@ end;
 define method initialize(b :: <board>, #key x, y, #all-keys)
   b.lines :=
   map-as(limited(<vector>, of: <line>),
-         method(ignore) make(<line>, size: x, fill: '.') end,
+         method(ignore) make(<line>, size: x, fill: make(<space>)) end,
          range(below: y));
 end;
 
@@ -66,13 +66,57 @@ define method aref(board :: <board>, #rest coords /* :: <coordinate> */)
   board.lines[y][x];
 end;
 
-define method aref-setter(obj :: <object>, board :: <board>, #rest coords /* :: <coordinate> */)
+define method aref-setter(obj :: <terrain>, board :: <board>, #rest coords /* :: <coordinate> */)
  => object :: <object>;
   let x :: <coordinate> = coords.first;
   let y :: <coordinate> = coords.second;
   
   board.lines[y][x] := obj;
 end;
+
+
+define method add-robot (state :: <state>, robot :: <robot>) => <state>;
+  // Add a robot to the <state>'s list of robots. If a robot with the
+  // same id is present, replace it. If not, add it.
+  //
+  let robots* = 
+    block(return)
+      iterate loop (lst = state.robots)
+        if (lst.empty?)
+          return(pair(robot, state.robots))
+        else
+          if (lst.head.id = robot.id)
+            pair(robot, lst.tail)
+          else
+            pair(lst.head, lst.tail.loop)
+          end if;
+        end if;
+      end iterate;
+    end block;
+  make(<state>, board: state.board, robots: robots*, packages: state.packages);
+end method add-robot;
+
+define method add-package (state :: <state>, package :: <package>) => <state>;
+  // Add a package to the <state>'s list of robots. If a package with the
+  // same id is present, replace it. If not, add it.
+  //
+  let packages* = 
+    block(return)
+      iterate loop (lst = state.packages)
+        if (lst.empty?)
+          return(pair(package, state.packages))
+        else
+          if (lst.head.id = package.id)
+            pair(package, lst.tail)
+          else
+            pair(lst.head, lst.tail.loop)
+          end if;
+        end if;
+      end iterate;
+    end block;
+  make(<state>, board: state.board, robots: state.robots, packages: packages*);
+end method add-robot;
+
 
 define method as(class == <character>, obj :: <character>)
  => obj :: <byte-character>;
