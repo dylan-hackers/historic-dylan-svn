@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/fer-edit.dylan,v 1.5.2.1 2003/07/05 03:56:12 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/fer-edit.dylan,v 1.5.2.2 2003/09/18 21:09:56 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -169,7 +169,7 @@ define method insert-return-before
     (component :: <component>, assignment :: <abstract-assignment>,
      target :: <block-region-mixin>, cluster :: <abstract-variable>)
     => ();
-  let exit = make(<return>, block: target, next: target.exits);
+  let exit = make(<return>, block: target, next: target.exits, source-location: assignment.source-location);
   target.exits := exit;
   let dep = make(<dependency>, dependent: exit, source-exp: cluster,
 		 source-next: cluster.dependents);
