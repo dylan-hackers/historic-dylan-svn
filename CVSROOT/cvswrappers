@@ -45,6 +45,7 @@
 *.mpp		-k 'b'
 *.obj		-k 'b'
 *.pdf		-k 'b'
+*.png		-k 'b'
 *.ppt		-k 'b'
 *.res		-k 'b'
 *.so		-k 'b'
