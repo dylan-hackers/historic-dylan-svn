@@ -28,8 +28,7 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <letter>, <digit>, <hex-digit>, <version-number>;
-  export node-children;
+  export <letter>, <digit>, <hex-digit>, <version-number>, node-children;
 end module interface;
 
 define module %productions
