@@ -1,5 +1,14 @@
 SOURCES=icfp2002.dylan icfp2002-exports.dylan \
-	path.dylan board.dylan messages.dylan
+  path.dylan \
+  board.dylan \
+  robot.dylan \
+  package.dylan \
+  command.dylan \
+  robot-agent.dylan \
+  messages.dylan \
+  point.dylan \
+  dumbot.dylan
+
 
 D2C_FLAGS=-s -g -L.
 
