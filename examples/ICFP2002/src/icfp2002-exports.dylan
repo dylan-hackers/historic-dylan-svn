@@ -57,11 +57,11 @@ define module command
     <drop>;
 end module command;
 
+/*
 define module messages
   use common-dylan;
   use standard-io;
   use character-type, import: {digit?};
-  use string-conversions, import: {string-to-integer};
   use board;
   use command;
 
@@ -84,6 +84,7 @@ define module messages
     receive-robot-location,
     receive-initial-robot-positions; // Updates board with robot positions.
 end module messages;
+*/
 
 define module client
   use common-dylan;

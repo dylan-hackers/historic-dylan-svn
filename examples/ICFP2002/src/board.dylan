@@ -115,7 +115,7 @@ define method add-package (state :: <state>, package :: <package>) => <state>;
       end iterate;
     end block;
   make(<state>, board: state.board, robots: state.robots, packages: packages*);
-end method add-robot;
+end method add-package;
 
 
 define method as(class == <character>, obj :: <character>)
