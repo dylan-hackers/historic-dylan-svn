@@ -113,6 +113,8 @@ define method reinitialize-resource
   get-request(response) := request;
   response-headers(response) := (headers | allocate-resource(<header-table>));
   headers-resourced?(response) := ~headers;
+  response-code(response)    := 200;
+  response-message(response) := "OK";
   // Note some reinitialization is done in the resource-deallocated method below.
 end;
 
