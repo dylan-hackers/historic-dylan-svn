@@ -31,7 +31,16 @@ queue, making it look as if those keystrokes had come from the
 keyboard. Allows sending keystrokes to the currently active DOS
 application. Also includes functions for screen scraping console
 windows. I use this library to screen scrape legacy DOS applications.
+
+4) adobe-svg-dispatch
+=====================
+
+Automatically generated COM wrapper for the Adobe SVG Control version
+2.0 available from http://www.adobe.com/svg. To get it to compile I
+had to add some manual vtable-interface definitions as well. Used by
+the adobe-svg-gadget library in the DUIM directory.
+
 -- 
 Chris Double.  
-01 May 2001.
+23 June 2001.
 

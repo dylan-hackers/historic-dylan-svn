@@ -46,7 +46,14 @@ A simple gadget for displaying line charts.
 
 Various miscellaneous functions for helping with DUIM.
 
+6) adobe-svg-gadget
+===================
+
+A DUIM gadget that hosts the Adobe SVG Control. Another example of
+using the <atl-activex-gadget>. See the adobe-svg-example project for
+usage.
+
 -- 
 Chris Double.  
-10 June 2001.
+23 June 2001.
 

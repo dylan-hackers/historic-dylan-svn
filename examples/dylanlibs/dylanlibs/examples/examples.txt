@@ -103,7 +103,14 @@ An example of using the http-server library and the dom-builder HTML
 generation functions to bring up a very simple web site, demonstrating
 static HTML and forms.
 
+15) adobe-svg-example
+=====================
+
+An example of using the <adobe-svg-gadget> to display Scalable Vector
+Graphics files. The example loads the SVGAbout.svg that comes with the
+Adobe SVG Control but can be changed to use any .svg file.
+
 -- 
 Chris Double.  
-14 June 2001.
+23 June 2001.
 
