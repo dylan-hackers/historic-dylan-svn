@@ -10,7 +10,7 @@ define brain alex-gatherer
     Move start => stop;
 
   [stop:]
-    Turn Left;
+    Turn Left, (stop);
   
 end;
 
