@@ -61,22 +61,81 @@ functions }.
 @SubSection @Title { Dynamic Typing }
 @Begin
 @PP
-Type Safeness
-statically known types
-dynamic type
+In dynamically typed languages the compiler needs no
+knowledge of the exact type of an object. Instead, a
+run-time typecheck gets inserted for every assertion
+the compiler makes, so that no object behaviour is
+invoked that has not been specified. This is one way
+to achieve type safeness. A type-safe program cannot
+go wrong as long as enough resources are available.
+For some languages or implementations the compiler
+is able to determine the type of a dynamic object
+by either taking the @I { type annotations } in consideration
+or by @I inferring a more restricted @I subtype of
+the class @DClass object. In this case we talk about @I
+{ statically known } types. But there is no way to
+generally figure out the @I { dynamic type } of an
+object, since classes may be added in other libraries,
+or even at runtime, outside of the compilers know.
 @End @SubSection
 
 ###########
 @SubSection @Title { Multiple Dispatch }
 @Begin
 @PP
+In contrast to the conventional @I { single receiver }
+languages, which allow polymorpic behaviour only on
+the distinguished receiver argument, @I { multiply dispatched }
+languages such as Dylan allow an ordered set of arguments
+determine behaviour in cooperation. The classical example
+of the usefulness of this feature is the output of different
+documents on a range of devices. In Dylan one would declare
+@IndentedDisplay @F @Verbatim
+{
+define generic render (doc :: <document>, dev :: <device>) => ();
+}
+and specialize @F {method}s with either one or both arguments'
+types given more precisely:
+@IndentedDisplay @F @Verbatim
+{
+define method render (doc :: <html-document>, dev :: <laser-printer>) => ();
+}
 @End @SubSection
 
 ###########
 @SubSection @Title { Generic Functions and Sealing }
 @Begin
 @PP
-Specialization
+The mechanism how Dylan manages to find an appropriate
+method that best approximates the dynamic types of
+invocation arguments is accomplished via @I { generic
+functions }. Generic functions (also GFs for brevity)
+hold a set of methods internally, each having a @I signature
+which tells the GF for which dynamic types of the arguments
+each method becomes @I applicable.
+The exact workings of this are rather arcane, but well
+described in the @DRM. For our purposes we simply recognize
+that the applicable methods get determined by the GF and
+sorted by @I { specificity }. In this process the @I ambiguous
+methods (i.e. those that are neither less nor more
+specific than another method) get separated away and not
+considered any more. From the remaining methods the most
+specific gets called to obtain behaviour or a function result.
+To obtain good performance even in multi-dispatched setting
+a compiler will try to resolve to the most-applicable method
+at compile time. Naturally, being able to do this depends
+on the closed world assumption. To aid the compiler in closing
+the small worlds of generic functions, the Dylan language
+specifies the @I library as the unit of compilation and gives
+the library writer a tool called @I sealing. By using
+@IndentedDisplay @F @Verbatim
+{
+define sealed domain render (<document>, <laser-printer>) => ();
+}
+the GF @F render is prohibited from accepting methods specialized
+on subtypes of the given signature that originate outside the
+library being the provider of the seal. Sealed domains also arise
+implicitly by not declaring GFs as @F { open }.
 @End @SubSection
 
 @EndSubSections
