@@ -1,0 +1,7 @@
+*.la
+*.mak
+*.lo
+*.c
+*-intr.dylan
+*.lib.du
+.libs
