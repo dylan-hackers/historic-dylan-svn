@@ -48,6 +48,8 @@ end method make-identifier-or-binder;
 define method parse-integer-literal(token :: <byte-string>, emit) => ();
   let start = 0;
   let finish = token.size;
+  let first = token[start];
+
   local method repeat (posn, result)
 	  if (posn < finish)
 	    let digit = as(<integer>, token[posn]);
@@ -57,12 +59,12 @@ define method parse-integer-literal(token :: <byte-string>, emit) => ();
 	      error("Bogus digit in integer: %=", as(<character>, digit));
 	    end if;
 	  else
-	    emit(result);
+	    emit(if (first == '-') -result else result end);
 	  end if;
 	end method repeat;
-  let first = token[start];
+
   if (first == '-')
-    -repeat(start + 1, 0);
+    repeat(start + 1, 0);
   elseif (first == '+')
     error("Bogus integer: can't start with a '+'");
     repeat(start + 1, 0);
