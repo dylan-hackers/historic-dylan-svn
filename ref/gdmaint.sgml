@@ -1,6 +1,28 @@
 <!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.0//EN" [
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
+
+ <!ENTITY base-lib
+   '<link linkend="gdmaint-d2c-base"><dlibrary>Compiler-Base</dlibrary>
+    library</link>' >
+ <!ENTITY parser-lib
+   '<link linkend="gdmaint-d2c-parser"><dlibrary>Compiler-Parser</dlibrary>
+    library</link>' >
+ <!ENTITY convert-lib
+   '<link linkend="gdmaint-d2c-convert"><dlibrary>Compiler-Convert</dlibrary>
+    library</link>' >
+ <!ENTITY front-lib
+   '<link linkend="gdmaint-d2c-front"><dlibrary>Compiler-Front</dlibrary>
+    library</link>' >
+ <!ENTITY optimize-lib
+   '<link linkend="gdmaint-d2c-optimize"><dlibrary>Compiler-Optimize</dlibrary>
+    library</link>' >
+ <!ENTITY cback-lib
+   '<link linkend="gdmaint-d2c-cback"><dlibrary>Compiler-CBack</dlibrary>
+    library</link>' >
+ <!ENTITY main-lib
+   '<link linkend="gdmaint-d2c-main"><dlibrary>Compiler-Main</dlibrary>
+    library</link>' >
 ]>
 <BOOK id="gdmaint">
   <title>Gwydion Dylan Porting and Maintenance Guide</title>
@@ -24,7 +46,7 @@
     <TITLE>Introduction</TITLE>
 
     <PARA>This manual serves as a guide to porting and maintaining
-    Gywdion &dylan;.  It includes:</PARA>
+    Gywdion &dylan;. It includes:</PARA>
 
     <ITEMIZEDLIST>
       <LISTITEM>
@@ -210,6 +232,172 @@
     <para>The &d2c; compiler was developed by the Gwydion Project at
     CMU. This chapter explains the structure of &d2c; and gives a brief
     overview of how the various components interact.</para>
+
+    <para>&d2c; compiles one library at a time. Each library contains one
+    or more modules. A module may be implemented by one or more files. Each
+    file contains one or more <glossterm>source records</glossterm>, the
+    logical unit of Dylan compilation.</para>
+
+    <para>By compiling many source records at once, &d2c; produces more
+    efficient code at the cost of using more memory. In addition to
+    processing an entire library's worth of source records, &d2c; also
+    performs interlibrary optimizations by looking at certain information
+    from previously compiled libraries.</para>
+
+    <para>In its current configuration, &d2c; is not well-suited to
+    developing new Dylan code. It is, however, well-suited to building
+    production versions of libraries. Obvious future projects include
+    reducing the granularity of compilation and implementing a
+    selectively-incremental compiler that can modify the object code of a
+    running program. The basic architecture was designed with these
+    projects in mind.</para>
+
+    <para>The actual compilation process procedes roughly as
+    follows:</para>
+
+    <itemizedlist>
+      <listitem>
+	<formalpara>
+	  <title>Load any libraries used by the current library</title>
+
+	  <para>The compiler begins by reading in the
+	  <filename>*.lib.du</filename> file for the
+	  <dlibrary>Dylan</dlibrary> library. As other libraries are
+	  <dlit>use</dlit>d, it loads the appropriate
+	  <filename>*.lib.du</filename> files. These contain most of the
+	  compiler data structures from the original versions of those
+	  libraries.</para>
+	</formalpara>
+      </listitem>
+      <listitem>
+	<formalpara>
+	  <title>Parse and macro-expand each of the input files</title>
+
+	  <para>The parser is implemented by the &parser-lib;. As each
+          top-level form gets parsed, it is passed to
+          <dname>process-top-level-form</dname>, which is implemented by
+          the &convert-lib;. At the end of this stage, the input files have
+          been completely parsed and macro-expanded.</para>
+	</formalpara>
+      <listitem>
+	<formalpara>
+	  <title>Finalize the top-level forms</title>
+
+	  <para>Top-level forms may contain forward dependencies within a
+	  module. In most cases, these dependencies aren't necessitated by
+	  the design of the Dylan language, but they are needed for for
+	  efficient compilation. We need to study these dependencies if we
+	  want to make incremental compilation work. The implementation of
+	  <dname>finalize-top-level-form</dname> lives in
+	  &convert-lib;.</para>
+	</formalpara>
+      </listitem>
+      <listitem>
+	<formalpara>
+	  <title>Process the class hierarchy</title>
+
+	  <para>Optimizing Dylan code requires careful attention to the
+	  object model. Unfortunately, &d2c; uses algorithms which require
+	  the entire class hiearchy to be computed before link time. (The
+	  biggest problem here appear to be assigning unique IDs to
+	  individual classes.) The code to analyze the class hierachy lives
+	  in the <link
+	  linkend="gdmaint-d2c-base-classes"><dmodule>Classes</dmodule>
+	  module</link> of the &base-lib;.</para>
+	</formalpara>
+      </listitem>
+      <listitem>
+	<formalpara>
+	  <title>Begin processing top-level definitions
+	  individually</title>
+
+	  <para>Up until this point, &d2c; performed each step on the
+	  entire library before continuing. The next several steps,
+	  however, are completed for each top-level form before moving on
+	  to the next top-level form. This process is controlled by
+	  <dname>compile-1-tlf</dname> in the &main-lib;</para>
+	</formalpara>
+
+	<itemizedlist>
+	  <listitem>
+	    <formalpara>
+	      <title>Convert the parse tree into the front-end
+              representation</title>
+
+	      <para>For various unfortunate reasons, &d2c; uses the term
+	      <glossterm>front-end representation</glossterm>
+	      (<acronym>FER</acronym>) for what other compilers call the
+	      <glossterm>intermediate representation</glossterm>. The
+	      conversion process is controlled by methods on
+	      <dname>convert-top-level-form</dname> provided by the
+	      &convert-lib;. These take the parsed representation of a
+	      top-level form and convert it to the <acronym>FER</acronym>
+	      using the the <link
+	      linkend="gdmaint-d2c-front-builder-interface">
+	      <dmodule>Builder-Interface</dmodule> module</link>.</para>
+	    </formalpara>
+	  </listitem>
+	  <listitem>
+	    <formalpara>
+	      <title>Optimize the FER of each top-level form</title>
+
+	      <para>The compiler performs two kinds of optimizations:
+	      <glossterm>simplications</glossterm> and required
+	      optimizations. The simplications should produce output
+	      equivalent to their input. The required optimizations,
+	      however, clean up certain artifacts in the code and insert
+	      type checks. It is an error to pass a top-level form to the
+	      back end before performing the required optimizations. See
+	      <xref linkend="gdmaint-d2c-optimize"> for more
+	      details.</para>
+	    </formalpara>
+	  </listitem>
+	  <listitem>
+	    <formalpara>
+	      <title>Emit C code for the FER of each top-level form</title>
+
+	      <para>The &cback-lib; emits the actual C code required to
+	      implement each top-level form.</para>
+	    </formalpara>
+	  </listitem>
+	</itemizedlist>
+      </listitem>
+      <listitem>
+	<formalpara>
+	  <title>Dump the local and global heaps</title>
+
+	  <para>Each library has a local heap which gets linked into the
+	  library itself. This contains as much static data as
+	  possible. However, not all data can safely live here; some must
+	  live in the executable application. The per-library heap is
+	  called the <glossterm>local heap</glossterm> and the
+	  per-application heap is called the <glossterm>global
+	  heap</glossterm>. The latter is only dumped if the current
+	  library will become an executable application.</para>
+	</formalpara>
+      </listitem>
+      <listitem>
+	<formalpara>
+	  <title>Save a <filename>*.lib.du</filename> file for the current
+	  library if necessary</title>
+
+	  <para>If &d2c; is not compiling an executable application, it
+	  dumps the data structures used by this library into a
+	  <filename>*.lib.du</filename> file. If another Dylan library
+	  includes this library, the dumped data structures will be used to
+	  perform inter-library optimizations.</para>
+	</formalpara>
+      </listitem>
+      <listitem>
+	<formalpara>
+	  <title>Generate a Makefile and run the C compiler</title>
+
+	  <para>Once everything is in place, &d2c; finishes generating a
+	  Makefile and runs <acronym>GNU</acronym>
+	  <command>make</command>.</para>
+	</formalpara>
+      </listitem>
+    </itemizedlist>
 
     <sect1 id="gdmaint-d2c-base">
       <title>The <dlibrary>Compiler-Base</dlibrary> Library</title>
@@ -615,7 +803,7 @@ define variable foo :: run-time-expression() = #f;
 
       <para>The <dlibrary>Compiler-Parser</dlibrary> library handles
       lexical analysis, parsing and macro expansion. It relies only on the
-      <dlibrary>Compiler-Base</dlibrary> library.</para>
+      &base-lib;.</para>
 
       <sect2 id="gdmaint-d2c-parser-tokenize">
 	<title>The <dmodule>Tokenize</dmodule> Module</title>
@@ -743,12 +931,11 @@ define variable foo :: run-time-expression() = #f;
       <para>The <dlibrary>Compiler-Front</dlibrary> library is repsonsible
       for processing the <glossterm>Front End Representation</glossterm> of
       a Dylan program. It depends only on the
-      <dlibrary>Compiler-Base</dlibrary> library.</para>
+      &base-lib;.</para>
 
-      <para>Data is passed from the <dlibrary>Compiler-Parser</dlibrary>
-      library to the <dlibrary>Compiler-Front</dlibrary> by the
-      <dlibrary>Compiler-Convert</dlibrary> (see <xref
-      linkend="gdmaint-d2c-convert">).</para>
+      <para>Data is passed from the &parser-lib; to the
+      <dlibrary>Compiler-Front</dlibrary> library by the
+      &convert-lib;.</para>
 
       <sect2 id="gdmaint-d2c-front-builder-interface">
 	<title>The <dmodule>Builder-Interface</dmodule> Module</title>
@@ -771,9 +958,8 @@ define variable foo :: run-time-expression() = #f;
 	module</link>.</para>
 
 	<para>The <dname>optimize-component</dname> generic function gets
-	implemented by the <link linkend="gdmaint-d2c-optimize">
-	<dlibrary>Compiler-Optimize</dlibrary> library</link>. We need to
-	figure out why it's defined here instead of there.</para>
+	implemented by the &optimize-lib;. We need to figure out why it's
+	defined here instead of there.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-front-primitives">
@@ -863,11 +1049,9 @@ define variable foo :: run-time-expression() = #f;
 	<title>The <dmodule>Top-Level-Forms</dmodule> Module</title>
 
 	<para>This is not a very meaty module. It doesn't make much sense
-	in the absence of the <link
-	linkend="gdmaint-d2c-convert"><dlibrary>Compiler-Convert</dlibrary>
-	library</link>. It does, however, contain a few classes for
-	describing the things found at the top level of a Dylan file and
-	provides the generic function
+	in the absence of the &convert-lib;. It does, however, contain a
+	few classes for describing the things found at the top level of a
+	Dylan file and provides the generic function
 	<dname>finalize-top-level-form</dname>, which is called by the
 	compilation driver once everything has been parsed.</para>
 
@@ -882,8 +1066,7 @@ define variable foo :: run-time-expression() = #f;
       <title>The <dlibrary>Compiler-Convert</dlibrary> Library</title>
 
       <para>The <dlibrary>Compiler-Convert</dlibrary> library acts as an
-      adaptor between the <dlibrary>Compiler-Parser</dlibrary> and the
-      <dlibrary>Compiler-Front</dlibrary>.</para>
+      adaptor between the &parser-lib; and the &front-lib;.</para>
 
       <para>As a rule of thumb, <dlibrary>Compiler-Convert</dlibrary>
       implements those parts of the front end which know about the
@@ -1094,6 +1277,9 @@ define variable foo :: run-time-expression() = #f;
 
 	<para>The file <filename>cback.dylan</filename> contains more
 	documentation about how things work.</para>
+
+	<para>Right now, the back end assumes that the optimizer has been
+	run. It's unclear which optimizations can be skipped safely.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-cback-heap">
