@@ -14,13 +14,6 @@ copyright: (C) Brent Fulgham.  Terms: Public Domain
 
 // Conversion to GLUT by Mark J. Kilgard
 define constant $PI = 3.14159265;
-define variable *Frames* = 0;
-define variable T0 = 0;
-define variable *gear1* = glGenLists(1);
-define variable *gear2* = glGenLists(1);
-define variable *gear3* = glGenLists(1);
-define variable *angle* :: <double-float> = 0.0;
-
 
 /*
 
@@ -34,10 +27,10 @@ define variable *angle* :: <double-float> = 0.0;
           tooth_depth - depth of tooth
 
  */
-
-define method gear(inner_radius :: <double-float>, outer_radius :: <double-float>, width :: <double-float>,
-  teeth :: <integer>, tooth_depth :: <double-float>) => ()
-  format(*standard-output*, "Building gears...\n");
+define method gear(inner_radius :: <double-float>, outer_radius :: <double-float>,
+                width :: <double-float>, teeth :: <integer>,
+                tooth_depth :: <double-float>) => ();
+  format(*standard-output*, "Building gear...");
   force-output(*standard-output*);
   glShadeModel($GL-FLAT);
 
@@ -114,7 +107,7 @@ define method gear(inner_radius :: <double-float>, outer_radius :: <double-float
       let len :: <double-float> = sqrt(u * u + v * v);
       let u2 :: <double-float> = u / len;
       let v2 :: <double-float> = v / len;
-      glNormal(v2, -u2, 0.0);
+      glNormal(v / len, -u / len, 0.0);
       glVertex3(r2 * cos(angle + da), r2 * sin(angle + da), width * 0.5);
       glVertex3(r2 * cos(angle + da), r2 * sin(angle + da), -width * 0.5);
       glNormal(cos(angle), sin(angle), 0.0);
@@ -143,41 +136,46 @@ define method gear(inner_radius :: <double-float>, outer_radius :: <double-float
       glVertex3(r0 * cos(angle), r0 * sin(angle), width * 0.5);
     end for;
   end;
-  format(*standard-output*, "Built gears.\n");
+  format(*standard-output*, "Built gear.\n");
   force-output(*standard-output*);
 end method gear;
 
 define variable $view-rotx :: <double-float> = 20.0;
 define variable $view-roty :: <double-float> = 30.0;
 define variable $view-rotz :: <double-float> = 0.0;
+define variable *Frames* = 0;
+define variable T0 = 0;
+define variable *gear1* = glGenLists(1);
+define variable *gear2* = glGenLists(1);
+define variable *gear3* = glGenLists(1);
+define variable *angle* :: <double-float> = 0.0;
 
 define variable draw :: <function> = callback-method() => ();
   glClear($GL-COLOR-BUFFER-BIT + $GL-DEPTH-BUFFER-BIT);
 
-  glPushMatrix();
-  glRotate($view-rotx, 1.0, 0.0, 0.0);
-  glRotate($view-roty, 0.0, 1.0, 0.0);
-  glRotate($view-rotz, 0.0, 0.0, 1.0);
+  with-glPushMatrix()
+    glRotate($view-rotx, 1.0, 0.0, 0.0);
+    glRotate($view-roty, 0.0, 1.0, 0.0);
+    glRotate($view-rotz, 0.0, 0.0, 1.0);
 
-  glPushMatrix();
-  glTranslate(-3.0, -2.0, 0.0);
-  glRotate(*angle*, 0.0, 0.0, 1.0);
-  glCallList(*gear1*);
-  glPopMatrix();
+    with-glPushMatrix()
+      glTranslate(-3.0, -2.0, 0.0);
+      glRotate(*angle*, 0.0, 0.0, 1.0);
+      glCallList(*gear1*);
+    end;
 
-  glPushMatrix();
-  glTranslate(3.1, -2.0, 0.0);
-  glRotate(-2.0 * *angle* - 9.0, 0.0, 0.0, 1.0);
-  glCallList(*gear2*);
-  glPopMatrix();
+    with-glPushMatrix()
+      glTranslate(3.1, -2.0, 0.0);
+      glRotate(-2.0 * *angle* - 9.0, 0.0, 0.0, 1.0);
+      glCallList(*gear2*);
+    end;
 
-  glPushMatrix();
-  glTranslate(-3.1, 4.2, 0.0);
-  glRotate(-2.0 * *angle* - 25.0, 0.0, 0.0, 1.0);
-  glCallList(*gear3*);
-  glPopMatrix();
-
-  glPopMatrix();
+    with-glPushMatrix()
+      glTranslate(-3.1, 4.2, 0.0);
+      glRotate(-2.0 * *angle* - 25.0, 0.0, 0.0, 1.0);
+      glCallList(*gear3*);
+    end;
+  end;
 
   glutSwapBuffers();
 
@@ -203,32 +201,29 @@ end;
 
 // change view angle, exit upon ESC 
 define variable key :: <function> =
-  callback-method( k, x, y) => ();
+  callback-method( k :: <integer>, x :: <integer>, y :: <integer>)
+  => ();
   select (k)
-    'z' => $view-rotz = $view-rotz + 5.0;
-    'Z' => $view-rotz = $view-rotz - 5.0;
-    as(<character>, 27) => #f; //exit(0);
+    'z' => $view-rotz := $view-rotz + 5.0;
+    'Z' => $view-rotz := $view-rotz - 5.0;
+    as(<character>, 27) => exit();
     otherwise => #f;
   end select;
   glutPostRedisplay();
-  format(*standard-output*, "Key.\n");
-  force-output(*standard-output*);
 end;
 
 // change view angle
 define variable special :: <function> =
         callback-method(k :: <integer>, x :: <integer>,
-                          y :: <integer> ) => ();
+                          y :: <integer> )
+  => ();
   select (k)
     $GLUT-KEY-UP => $view-rotx := $view-rotx + 5.0;
     $GLUT-KEY-DOWN => $view-rotx := $view-rotx - 5.0;
-    $GLUT-KEY-LEFT => $view-roty = $view-roty + 5.0;
-    $GLUT-KEY-RIGHT => $view-roty = $view-roty - 5.0;
-    otherwise => #f;
+    $GLUT-KEY-LEFT => $view-roty := $view-roty + 5.0;
+    $GLUT-KEY-RIGHT => $view-roty := $view-roty - 5.0;
   end select;
   glutPostRedisplay();
-  format(*standard-output*, "Special.\n");
-  force-output(*standard-output*);
 end;
 
 // new window size or exposure
