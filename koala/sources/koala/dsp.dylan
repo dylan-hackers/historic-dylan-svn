@@ -1,4 +1,4 @@
-Module:    internals
+Module:    dsp
 Author:    Carl Gay
 Synopsis:  Dylan Server Pages
 License:   Functional Objects Library Public License Version 1.0
@@ -17,11 +17,28 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // See ../example/*.dylan for usage examples.
 
 
-//---TODO:
-// * Automatically parse tag keyword arguments into the type (if any) specified.
-//   e.g., "define tag foo (... #key a :: <integer>)" should work.
-// * Use some kind of taglib mechanism rather than a global namespace?  See $tag-map.
-//   Doesn't seem high priority.  Probably adds mostly-needless complexity.
+//// Module variables
+
+define constant $debugging-dsp :: <boolean> = #t;
+
+
+
+//// Logging
+
+define class <log-dsp-warning> (<log-warning>) end;
+define class <log-dsp-error> (<log-error>) end;
+define class <log-dsp-info> (<log-info>) end;
+define class <log-dsp-debug> (<log-debug>) end;
+
+define constant log-dsp-warning = curry(log-message, <log-dsp-warning>);
+define constant log-dsp-error   = curry(log-message, <log-dsp-error>);
+define constant log-dsp-info    = curry(log-message, <log-dsp-info>);
+define constant log-dsp-debug   = curry(log-message, <log-dsp-debug>);
+
+begin
+  // ---TODO: This should be a configuration setting.  Default to <log-dsp-info>.
+  add-log-level(<log-dsp-debug>);
+end;
 
 
 //// Generic pages
@@ -111,13 +128,15 @@ end;
 define method process-page (page :: <page>,
                             request :: <request>,
                             response :: <response>)
-  dynamic-bind (*page-values* = request-query-values(request),
-                *page-context* = allocate-resource(<page-context>))
-    select (request.request-method)
-      #"POST"   => respond-to-post(page, request, response);
-      #"GET"    => respond-to-get(page, request, response);
-      #"HEAD"   => respond-to-head(page, request, response);
-      otherwise => unsupported-request-method-error();
+  with-resource (pc = <page-context>)
+    dynamic-bind (*page-values* = request-query-values(request),
+                  *page-context* = pc)
+      select (request.request-method)
+        #"POST"   => respond-to-post(page, request, response);
+        #"GET"    => respond-to-get (page, request, response);
+        #"HEAD"   => respond-to-head(page, request, response);
+        otherwise => unsupported-request-method-error();
+      end;
     end;
   end;
 end process-page;
@@ -142,12 +161,13 @@ define method register-pages-as
           format-out("name = %=\n", name);
           select (type)
             #"file" =>
-              let file = merge-locators(as(<file-system-locator>, name), directory);
+              let file = merge-locators(as(<physical-locator>, name),
+                                        as(<directory-locator>, directory));
               register-page(name, make(page-class,
                                        source: file,
                                        uri: concatenate(uri-dir, name)));
             #"directory" =>
-              let dir = subdirectory-locator(directory, name);
+              let dir = subdirectory-locator(as(<directory-locator>, directory), name);
               format-out("dir = %=\n", as(<string>, dir));
               when (descend?)
                 do-directory(curry(doer, concatenate(uri-dir, name, "/")), dir);
@@ -172,16 +192,6 @@ define method initialize
   when (~slot-initialized?(page, source-location))
     page.source-location := document-location(page-uri(page));
   end;
-end;
-
-// Return a locator for the given URL under the *document-root*.
-define method document-location
-    (uri :: <string>, #key context :: false-or(<directory-locator>))
- => (source :: <file-locator>)
-  let uri = iff(~empty?(uri) & uri[0] = '/',
-                copy-sequence(uri, start: 1),  // get rid of leading slash
-                uri);
-  merge-locators(as(<file-locator>, uri), context | *document-root*)
 end;
 
 define method page-directory
@@ -236,6 +246,7 @@ end;
 //                 row-generator;
 //end;
 
+// This can probably use #key to only allow true property lists in the callers?
 define macro taglib-definer
   { define taglib ?:name () ?properties:* end }
   => { register-taglib(taglib-aux1(?"name", ?properties),
@@ -252,7 +263,7 @@ props:
   => { #f }
   { name: ?val:expression; ... }
   => { ?val; ... }
-  // ---*** TODO: LHS should only allow a keyword, but I can't remember if :keyword works
+  // ---*** TODO: LHS should only allow a keyword.  Is that doable?
   { ?key:expression ?val:*; ... }
   => { ... }
 end;
@@ -329,17 +340,22 @@ define constant $%dsp-taglib :: <taglib> = find-taglib("%dsp");
 define taglib dsp () end;
 define constant $dsp-taglib :: <taglib> = find-taglib("dsp");
 
+
+//// Named methods
+
 // Functions that can be looked up by name and thus can be used from within DSP tags
-// like <%dsp:if test="my-test">...</%dsp:if>
+// like <dsp:if test="my-predicate">...</dsp:if>
+
+define constant <named-method> = <function>;
 
 define method register-named-method
-    (taglib :: <taglib>, name :: <string>, fun :: <function>)
+    (taglib :: <taglib>, name :: <string>, fun :: <named-method>)
   named-method-map(taglib)[name] := fun;
 end;
 
 define method get-named-method
     (taglib :: <sequence>, name :: <string>)
- => (fun :: false-or(<function>))
+ => (fun :: false-or(<named-method>))
   block (return)
     for (lib in taglib)
       // lib is pair(prefix, taglib)
@@ -351,13 +367,13 @@ end;
 
 define method get-named-method
     (taglib :: <taglib>, name :: <string>)
- => (fun :: false-or(<function>))
+ => (fun :: false-or(<named-method>))
   element(named-method-map(taglib), name, default: #f)
 end;
 
 define method get-named-method
     (taglib :: <string>, name :: <string>)
- => (fun :: false-or(<function>))
+ => (fun :: false-or(<named-method>))
   let tlib = find-taglib(taglib);
   tlib & get-named-method(tlib, name);
 end;
@@ -409,7 +425,43 @@ define method parse-tag-arg
     (arg :: <string>, type :: subclass(<integer>)) => (value :: <integer>)
   string-to-integer(arg)
 end;
-        
+
+define method parse-tag-arg
+    (arg :: <string>, type == <boolean>) => (value :: <boolean>)
+  select (arg by string-equal?)
+    "true", "yes", "#t" => #t;
+    "false", "no", "#f" => #f;
+    otherwise =>
+      log-dsp-warning("Tag call argument %= should be a boolean value such as"
+                      " true/false or yes/no.  false will be used.", arg);
+      #f;
+  end;
+end;
+
+define method parse-tag-arg
+    (arg :: <string>, type == <symbol>) => (value :: <symbol>)
+  as(<symbol>, arg)
+end;
+
+// Users can't define this parser because active-taglibs isn't exported.
+// Think about exporting it or passing its value to parse-tag-arg.
+define method parse-tag-arg
+    (arg :: <string>, type == <named-method>) => (value :: <named-method>)
+  get-named-method(active-taglibs(), arg)
+end;
+
+// So tags can accept parameters of type <date>.
+define method parse-tag-arg
+    (arg :: <string>, type == <date>) => (value :: <date>)
+  select (arg by string-equal?)
+    "now", "current"
+      => current-date();
+    otherwise
+      //---TODO: Parse dates here.
+      => error("Date parsing not yet implemented.");
+  end;
+end;
+
 
 // Represents a specific call to a tag in a DSP template.
 // Also used to represent DSP directives, such as <%dsp:include>,
@@ -417,16 +469,13 @@ end;
 define class <tag-call> (<object>)
   constant slot name :: <string>, required-init-keyword: #"name";
   constant slot prefix :: <string>, required-init-keyword: #"prefix";
-  constant slot tag :: <tag>, init-keyword: #"tag";
+  constant slot tag :: false-or(<tag>), init-keyword: #"tag";
   constant slot taglib :: <taglib>, init-keyword: #"taglib";
-  constant slot arguments :: <sequence> = #[], init-keyword: #"arguments";
+  // @see extract-tag-args
+  slot arguments :: <sequence> = #[], init-keyword: #"arguments";
   slot body :: false-or(<dsp-template>) = #f, init-keyword: #"body";
   // The taglibs in effect at the call site.  Used for looking up named methods.
   constant slot taglibs :: <sequence>, required-init-keyword: #"taglibs";
-end;
-
-define class <if-tag-call> (<tag-call>)
-  slot else-body :: false-or(<dsp-template>) = #f;
 end;
 
 define method get-arg
@@ -441,7 +490,40 @@ define method get-arg
   end;
 end;
 
-define thread variable *active-taglibs* :: <sequence> = #[];
+define thread variable *tag-call* :: false-or(<tag-call>) = #f;
+
+define function active-taglibs
+    () => (taglibs :: <sequence>)
+  iff(*tag-call*, *tag-call*.taglibs, #[])
+end;
+
+define function tag-call-arguments
+    () => (args :: <sequence>)
+  iff(*tag-call*, *tag-call*.arguments, #[])
+end;
+
+// Apply the given function to the name and value of each tag call argument
+// for the current tag, unless the name is in the exclude list.
+define function map-tag-call-arguments
+    (f :: <function>, #key exclude :: <sequence> = #[])
+  let name = #f;
+  for (item in tag-call-arguments(),
+       i from 0)
+    iff(even?(i),
+        name := item,
+        unless (member?(name, exclude))
+          f(name, item)
+        end);
+  end;
+end;
+
+define function show-tag-call-arguments
+    (stream, #key exclude :: <sequence> = #[])
+  map-tag-call-arguments(method (name, value)
+                           format(stream, " %s=%=", name, value);
+                         end,
+                         exclude: exclude);
+end;
 
 define method execute
     (call :: <tag-call>, page, request, response);
@@ -452,23 +534,8 @@ define method execute
     = iff(call.body,
           curry(display-template, call.body, page, request, response),
           method () end);
-  dynamic-bind (*active-taglibs* = call.taglibs)
+  dynamic-bind (*tag-call* = call)
     apply(tag.tag-function, page, response, do-body, call.arguments);
-  end;
-end;
-
-define method execute
-    (call :: <if-tag-call>, page, request, response);
-  let test = get-arg(call, #"test");
-  let predicate = test & get-named-method(call.taglibs, test);
-  iff(~predicate,
-      log-warning("No named-method called %= was found for tag call %=.",
-                  test, as(<string>, call)));
-  let body = iff(predicate & predicate(page, request),
-                 call.body,
-                 call.else-body);
-  when (body)
-    display-template(body, page, request, response);
   end;
 end;
 
@@ -559,7 +626,6 @@ end;
 
 // define tag foo in tlib (page, response) () do-stuff end
 // define body tag foo in tlib (page, response, do-body) (foo, bar :: <integer>) do-stuff end
-// ---*** TODO: Need a way to specify whether each tag parameters is required or not.
 //
 define macro tag-definer
   // There are two syntaxes (one with the "body" modifier and one without) so that
@@ -593,6 +659,7 @@ define macro tag-definer
 
 end tag-definer;
 
+
 define macro tag-aux-definer
   { define tag-aux ?allow-body:expression ?tag:name ?taglib:name
         (?page:variable, ?response:variable, ?do-body:variable)
@@ -601,7 +668,7 @@ define macro tag-aux-definer
     end }
   => { register-tag(make(<tag>,
                          name: ?"tag",
-                         function: method (?page, ?response, ?do-body, #key ?tag-parameters)
+                         function: method (?page, ?response, ?do-body, #key ?tag-parameters, #all-keys)
                                      ?body
                                    end,
                          allow-body?: ?allow-body,
@@ -609,21 +676,9 @@ define macro tag-aux-definer
                          parameter-types: snarf-tag-parameter-types(?tag-parameters)),
                     find-taglib(?"taglib"));
      }
-  tag-parameters:
-    { } => { }
-    { ?tag-param, ... }
-      => { ?tag-param, ... }
-  // This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
-  tag-param:
-    { ?var:name }
-      => { ?var :: <string> }
-    { ?var:variable }
-      => { ?var }
-    { ?var:name = ?type:expression }  // shouldn't this be handled by ?var:variable ?
-      => { ?var :: singleton(?type) }
 end tag-aux-definer;
 
-// snarf-tag-parameter-names(bar :: <integer>, baz :: singleton(<string>))
+// snarf-tag-parameter-names(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
 define macro snarf-tag-parameter-names
   { snarf-tag-parameter-names(?params) }
     => { vector(?params) }
@@ -631,13 +686,18 @@ define macro snarf-tag-parameter-names
     { } => { }
     { ?param, ... }
       => { ?param, ... }
-  // This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
   param:
+    { ?var:name }
+      => { ?#"var" }
+    { ?var:name = ?default:expression }
+      => { ?#"var" }
     { ?var:name :: ?type:expression }
+      => { ?#"var" }
+    { ?var:name :: ?type:expression = ?default:expression }
       => { ?#"var" }
 end;
 
-// snarf-tag-parameter-types(bar :: <integer>, baz :: singleton(<string>))
+// snarf-tag-parameter-types(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
 define macro snarf-tag-parameter-types
   { snarf-tag-parameter-types(?params) }
     => { vector(?params) }
@@ -645,9 +705,14 @@ define macro snarf-tag-parameter-types
     { } => { }
     { ?param, ... }
       => { ?param, ... }
-  // This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
   param:
+    { ?var:name }
+      => { <object> }
+    { ?var:name = ?default:expression }
+      => { <object> }
     { ?var:name :: ?type:expression }
+      => { ?type }
+    { ?var:name :: ?type:expression = ?default:expression }
       => { ?type }
 end;
 
@@ -749,64 +814,19 @@ define function parse-dsp-directive
     "taglib"
       => parse-taglib-directive(page, tmplt, taglibs, call, tag-start,
                                 body-start, has-body?);
-    "if"
-      => parse-if-directive(page, tmplt, taglibs, tag-stack, call,
-                            tag-start, body-start, has-body?);
     otherwise
       => error("Unrecognized DSP directive %= at position %d",
                call.name, tag-start);
   end;
 end;
 
-// Parse a directive of the form
-//   <%dsp:if test="foo">...body...<%dsp:else>...body...</%dsp:if>
-//
-define function parse-if-directive
-    (page, parent-tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
- => (scan-pos :: <integer>)
-  let test = get-arg(call, #"test");
-  if (~test)
-    log-warning("Invalid %dsp:if directive in template %s:%d.",
-                as(<string>, page.source-location), tag-start);
-    log-warning("'test=something' was not specified, so the result will always be false.");
-  elseif (~has-body?)
-    log-warning("Invalid %dsp:if directive IGNORED in template %=.  A body should be specified.",
-                page.source-location);
-    body-start
-  else
-    let buffer = parent-tmplt.contents;
-    local method parse-body (start-pos)
-            let sub = make(<dsp-template>,
-                           parent: parent-tmplt,
-                           contents: buffer,
-                           content-start: start-pos,
-                           content-end: size(buffer));
-            let scan-pos = parse-template(page, sub, taglibs, pair(call, tag-stack));
-            sub.content-end := scan-pos;
-            values(sub, scan-pos)
-          end;
-    pt-debug("about to parse IF body");
-    let (true-body, pos) = parse-body(body-start);
-    call.body := true-body;
-    let else-tag :: <byte-string> = "<%dsp:else>";
-    if (pos > size(else-tag)
-        & looking-at?(else-tag, buffer, pos - size(else-tag), pos))
-      let (false-body, new-pos) = parse-body(pos);
-      call.else-body := false-body;
-      pos := new-pos
-    end;
-    add-entry!(parent-tmplt, call);
-    pos
-  end
-end parse-if-directive;
-
 define function parse-include-directive
     (page, tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
  => (scan-pos :: <integer>)
   when (has-body?)
-    log-warning("Invalid include tag %s in template %s:%d.  ",
-                as(<string>, call), as(<string>, page.source-location), tag-start);
-    log-warning("The include directive doesn't allow a body; it should end in '/>'.");
+    log-dsp-warning("Invalid include tag %s in template %s:%d.  ",
+                    as(<string>, call), as(<string>, page.source-location), tag-start);
+    log-dsp-warning("The include directive doesn't allow a body; it should end in '/>'.");
   end;
   let url = get-arg(call, #"url");
   let source = document-location(url, context: page-directory(page));
@@ -827,11 +847,10 @@ define function parse-include-directive
   body-start
 end;
 
-/** Note that the end of comment string may have whitespace between -- and >.
- @param bpos points directly after the opening comment string "<!--".
- @return the position in buffer directly following of the next end of comment
-         string, or size(buffer) if the comment isn't terminated.
-*/
+// Note that the end of comment string may have whitespace between -- and >.
+// @param bpos points directly after the opening comment string "<!--".
+// @return the position in buffer directly following of the next end of comment
+//         string, or size(buffer) if the comment isn't terminated.
 define function html-comment-end
     (buffer :: <string>, bpos :: <integer>) => (comment-end :: <integer>)
   block (return)
@@ -896,11 +915,13 @@ define function parse-taglib-directive
   body-start
 end;
 
-define variable *debugging-templates* = #f;
+define constant $debugging-templates :: <boolean> = #f;
 
 define function pt-debug
     (format-string, #rest args)
-  apply(log-debug-if, *debugging-templates*, format-string, args);
+  when ($debugging-templates)
+    apply(log-dsp-debug, format-string, args);
+  end;
 end;
 
 // @param page is really only passed so page.source-location can be used in error messages.
@@ -945,16 +966,6 @@ define method parse-template (page :: <dylan-server-page>,
         pt-debug("parse-template: Found end tag %=. Returning %d.",
                   end-tag, tag-start + size(end-tag));
         return(tag-start + size(end-tag))
-      elseif (end-tag
-              & string-equal?(end-tag, "</%dsp:if>")
-              & looking-at?("<%dsp:else>", buffer, tag-start, epos))
-        // special case for %dsp:if, the only tag with a non-standard format.
-        // <%dsp:if>...body...<%dsp:else>...body...</%dsp:if>
-        iff(html-pos < tag-start,
-            add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
-        pt-debug("parse-template: Found <%%dsp:else>, returning %d.",
-                  tag-start + size("<%dsp:else>"));
-        return(tag-start + size("<%dsp:else>"))
       else
         let (tag-prefix, taglib) = parse-tag-prefix(buffer, taglibs, tag-start + 1, epos);
         if (~tag-prefix)
@@ -965,10 +976,6 @@ define method parse-template (page :: <dylan-server-page>,
           let directive? = (taglib = #"directive");
           iff(html-pos < tag-start,
               add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
-//          let (call, after-end-tag-pos)
-//            = parse-dsp-tag(page, buffer, tag-start,
-//                            iff(directive?, $dsp-taglib, taglib),
-//                            tag-prefix, directive?);
           let (call, has-body?, body-start)
             = parse-start-tag(page, buffer, tag-start,
                               iff(directive?, $%dsp-taglib, taglib),
@@ -1019,31 +1026,29 @@ define function parse-start-tag (page :: <dylan-server-page>,
   let name-end = end-of-word(buffer, name-start, epos);
   let name = copy-sequence(buffer, start: name-start, end: name-end);
   let tag = find-tag(taglib, name);
-  let (tag-args, has-body?, end-index)
-    = extract-tag-args(buffer, name-end, epos, tag);
-  local method make-tag-call ()
-          if (directive?)
-            make(iff(string-equal?(name, "if"), <if-tag-call>, <tag-call>),
-                 name: name,
-                 prefix: prefix,
-                 taglib: taglib,
-                 taglibs: copy-sequence(taglibs),
-                 arguments: tag-args)
-          else
-            iff(tag,
-                make(<tag-call>,
-                     name: name,
-                     prefix: prefix,
-                     tag: tag,
-                     taglib: taglib,
-                     taglibs: copy-sequence(taglibs),
-                     arguments: tag-args),
-                error("In template %=, the tag %= was not found.",
-                      as(<string>, page.source-location),
-                      name));
-          end
-        end method;
-  values (make-tag-call(), has-body?, end-index)
+  let tag-call = iff(directive? | tag,
+                     make(<tag-call>,
+                          name: name,
+                          prefix: prefix,
+                          tag: tag,
+                          taglib: taglib,
+                          taglibs: copy-sequence(taglibs)),
+                     error("In template %=, the tag %= was not found.",
+                           as(<string>, page.source-location),
+                           name));
+  // *tag-call* is bound here so that it will be the same during parsing
+  // as it is during execution.  parse-tag-arg needs it.
+  dynamic-bind (*tag-call* = tag-call)
+    let (tag-args, has-body?, end-index) = extract-tag-args(buffer, name-end, epos, tag);
+    tag-call.arguments := tag-args;
+    when (has-body? & ~tag.allow-body?)
+      log-dsp-warning("While parsing template %s, at position %=:"
+                      " The %s:%s tag call should end with \"/>\" since this tag doesn't allow a body."
+                      " The tag body will be processed anyway.",
+                      as(<string>, page.source-location), bpos, prefix, name);
+    end;
+    values (tag-call, has-body?, end-index)
+  end
 end parse-start-tag;
 
 define function end-of-word (buffer :: <string>, bpos :: <integer>, epos :: <integer>)
@@ -1051,12 +1056,14 @@ define function end-of-word (buffer :: <string>, bpos :: <integer>, epos :: <int
           char = '>' | whitespace?(char)
         end;
   min(char-position-if(delim?, buffer, bpos, epos),
-      string-position(buffer, "/>", bpos, epos))
+      string-position(buffer, "/>", bpos, epos) | epos)
 end;
 
 // Parse the key1="val1" key2="val2" arguments from a call to a DSP tag.  Values may be
 // quoted with either single or double quotes (or nothing, but quoting is recommended).
 // There is no way to escape the quote characters.
+// @return a sequence of pairs, each containing a symbol of the argument name and the parsed
+//         argument value.
 define method extract-tag-args
     (buffer :: <byte-string>, bpos :: <integer>, epos :: <integer>, tag :: false-or(<tag>))
  => (args :: <sequence>, has-body? :: <boolean>, body-start :: <integer>)
@@ -1145,63 +1152,10 @@ define function quote-html
 end quote-html;
 
 
-
-//// Tags
-
-// This tag is handled specially by the template parser mechanism.  It is only
-// called on either the true or false part of the %dsp:if directive.
-define body tag \if in %dsp
-    (page :: <dylan-server-page>,
-     response :: <response>,
-     do-body :: <function>)
-    ()
-  do-body();
-end;
-
-define thread variable *table-row-data* :: <object> = #f;
-define thread variable *table-row-number* :: <integer> = -1;
-
-define function current-row () *table-row-data* end;
-define function current-row-number () *table-row-number* end;
-
-define body tag table in dsp
-    (page :: <dylan-server-page>, response :: <response>, do-body :: <function>)
-    (row-generator)
-  let row-gen = get-named-method(*active-taglibs*, row-generator);
-  if (~row-gen)
-    log-warning("DSP: The row generator function %= was not found.  "
-                "No table rows will be generated.", row-generator);
-  else
-    let (rows, start-row-number) = row-gen(page);
-    for (row in rows,
-         i from start-row-number | 0)
-      dynamic-bind (*table-row-data* = row,
-                    *table-row-number* = i)
-        do-body();
-      end;
-    end;
-  end if;
-end;
-
-define tag table-row-number in dsp
-    (page :: <dylan-server-page>, response :: <response>)
-    ()
-  when (*table-row-number* >= 0)
-    format(output-stream(response), "%d", *table-row-number* + 1);
-  end;
-end;
-
-
 //// Configuration
 
 define function auto-register-dylan-server-page
     (uri :: <string>) => (responder :: <function>)
   register-page(uri, make(<dylan-server-page>,
-                          source: safe-locator-from-uri(uri)))
+                          source: document-location(uri)))
 end;
-
-begin
-  *auto-register-map*["dsp"] := auto-register-dylan-server-page;
-end;
-
-

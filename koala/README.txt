@@ -26,10 +26,15 @@ demo application by double clicking on koala-example.exe in the
 koala/sources/example/release/ directory.
 
 If you do have Functional Developer installed, open and run the
-koala-example.hdp project in koala/sources/example/.
+koala-example.hdp project in koala/sources/example/.  This code
+only works in FunDev 2.0.  It does not work in more recent versions
+(i.e., internal development versions) because of recent changes to
+the locators library.
 
 Then point your browser at http://localhost:7020/demo/home.dsp
 
 
 Any and all feedback appreciated.
 carlgay@attbi.com
+
+

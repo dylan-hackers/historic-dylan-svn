@@ -1,9 +1,29 @@
-Module:    internals
+Module:    http-server-internals
 Synopsis:  Request header parsing
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
+
+
+//// Header logging
+
+
+// Logging of headers needs a separate logging class since it's so verbose
+// and will normally be turned off.
+define class <log-headers> (<log-level>)
+end;
+
+define constant $log-headers = make(<log-headers>, name: "HDR");
+
+define method log-header
+    (format-string, #rest format-args) => ()
+  apply(log-message, $log-headers, format-string, format-args);
+end;
+
+
+
+//// Headers
 
 
 // Put a total limit on header size, so don't get wedged reading bogus headers.
@@ -31,7 +51,7 @@ define function read-message-headers (stream :: <stream>,
     else
       let (key, data) = split-header(buffer, bpos, epos);
       add-header(headers, key, data);
-      log-debug("<--%s: %s", key, data);
+      log-header("<--%s: %s", key, data);
       loop(buffer, epos, peek-ch);
     end if;
   end iterate;
@@ -440,24 +460,6 @@ define sealed method parse-header-value (key == #"last-modified", data :: <field
   parse-single-header(data, parse-date-value)
 end;
 
-/*
-2001-08-25 22:18:50 [info] /test.dsp handler found
-2001-08-25 22:18:50 [dbg] -->Content-length: 1908
-2001-08-25 22:18:50 [dbg] -->Server: Koala/0.1 alpha
-2001-08-25 22:18:50 [dbg] -->Set-cookie: sessionid=123
-2001-08-25 22:18:50 [dbg] -->Set-cookie: cuckoo=zoomzoomzoom
-2001-08-25 22:18:50 [dbg] -->Content-type: text/html
-2001-08-25 22:21:28 [info] get /foo http/1.1
-2001-08-25 22:21:28 [dbg] <--User-Agent: Opera/5.11 (Windows 2000; U)  [en]
-2001-08-25 22:21:28 [dbg] <--Host: localhost:7020
-2001-08-25 22:21:28 [dbg] <--Accept: text/html, image/png, image/jpeg, image/gif, image/x-xbitmap
-2001-08-25 22:21:28 [dbg] <--Accept-Language: en
-2001-08-25 22:21:28 [dbg] <--Accept-Encoding: deflate, gzip, x-gzip, identity, *;q=0
-2001-08-25 22:21:28 [dbg] <--Cookie: sessionid=123; cuckoo=zoomzoomzoom
-2001-08-25 22:21:28 [dbg] <--Cookie2: $Version="1"
-2001-08-25 22:21:28 [dbg] <--Connection: Keep-Alive, TE
-2001-08-25 22:21:28 [dbg] <--TE: deflate, gzip, chunked, identity, trailers
-*/
 
 //---TODO: Verify that all strings are valid HTTP/1.1 tokens
 

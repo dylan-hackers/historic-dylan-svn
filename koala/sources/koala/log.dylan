@@ -1,38 +1,87 @@
-Module:    internals
+Module:    utilities
 Author:    Carl Gay
-Synopsis:  Log HTTP server messages
+Synopsis:  Simple logging mechanism
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define constant $log-info :: <symbol> = #"info";
-define constant $log-warn :: <symbol> = #"warn";
-define constant $log-error :: <symbol> = #"error";
-define constant $log-debug :: <symbol> = #"debug";
+// Use this around your top-level loop (for example) to redirect log
+// output somewhere other than *standard-output*.
+//
+define macro with-log-output-to
+  { with-log-output-to (?stream:expression) ?:body end }
+  => { dynamic-bind (*log-stream* = ?stream) ?body end }
+end;
 
-define method log-level-name
-    (level) => (name :: <byte-string>)
-  select (level)
-    $log-info  => "info";
-    $log-warn  => "warn";
-    $log-error => "err ";
-    $log-debug => "dbg ";
-    otherwise  => as(<string>, level);
+define thread variable *log-stream* = *standard-output*;
+
+// Root of the log level hierarchy.  Logging uses a simple class
+// hierarchy to determine what messages should be logged.
+//
+define open abstract primary class <log-level> (<singleton-object>)
+  constant slot name :: <byte-string>, init-keyword: #"name";
+end;
+
+define open class <log-debug> (<log-level>)
+  inherited slot name = "DBG";
+end;
+
+define open class <log-info> (<log-debug>)
+  inherited slot name = "INF";
+end;
+
+define open class <log-warning> (<log-info>)
+  inherited slot name = "WRN"
+end;
+
+define open class <log-error> (<log-warning>)
+  inherited slot name = "ERR";
+end;
+
+define constant $log-info :: <log-info> = make(<log-info>);
+define constant $log-warn :: <log-warning> = make(<log-warning>);
+define constant $log-error :: <log-error> = make(<log-error>);
+define constant $log-debug :: <log-debug> = make(<log-debug>);
+
+// Messages will be logged if the specified log level is an instance of any
+// of the classes in *log-levels*.  Configuration code should add to this.
+//
+define variable *log-levels* :: <sequence> = make(<stretchy-vector>);
+
+define method add-log-level
+    (level :: <class>) => ()
+  *log-levels* := add-new!(*log-levels*, level);
+end;
+
+define method remove-log-level
+    (level :: <class>) => ()
+  *log-levels* := remove!(*log-levels*, level);
+end;
+
+// All log messages should pass through here.
+define method log-message
+    (level :: <log-level>, format-string :: <string>, #rest format-args)
+  when (any?(curry(instance?, level), *log-levels*))
+    log-date();
+    format(*log-stream*, " [%s] ", name(level));
+    apply(format, *log-stream*, format-string, format-args);
+    format(*log-stream*, "\n");
+    force-output(*log-stream*);
   end;
 end;
 
-define method log-message
-    (log-level :: <object>, format-string :: <string>, #rest format-args)
-  log-date();
-  format-out(" [%s] ", log-level-name(log-level));
-  apply(format-out, format-string, format-args);
-  format-out("\n");
-  force-output(*standard-output*);
+define method date-to-stream
+    (stream :: <stream>, date :: <date>)
+  let (year, month, day, hours, minutes, seconds) = decode-date(date);
+  format(stream, "%d-%s%d-%s%d %s%s:%s%d:%s%d",
+         year, iff(month < 10, "0", ""), month, iff(day < 10, "0", ""), day,
+         iff(hours < 10, "0", ""), hours, iff(minutes < 10, "0", ""), minutes,
+         iff(seconds < 10, "0", ""), seconds);
 end;
 
-define function log-date ()
-  date-to-stream(*standard-output*, current-date());
+define function log-date (#key date :: <date> = current-date())
+  date-to-stream(*log-stream*, date);
 end;
 
 define method debug-format (format-string, #rest format-args)
@@ -48,7 +97,7 @@ define method log-warning (format-string, #rest format-args)
 end;
 
 define method log-error (err :: <error>)
-  log-message($log-error, "%d %s", http-error-code(err), condition-to-string(err));
+  log-message($log-error, "%s", condition-to-string(err));
 end;
 
 define method log-debug (format-string, #rest format-args)
@@ -61,4 +110,9 @@ define method log-debug-if (test, format-string, #rest format-args)
   end;
 end;
 
+// init
+begin
+  // ---TODO: This should be a configuration setting.  Default to <log-info>.
+  add-log-level(<log-debug>);
+end;
 

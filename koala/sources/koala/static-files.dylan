@@ -1,44 +1,28 @@
-Module:    internals
+Module:    http-server-internals
 Synopsis:  Serve static files and directory listings
 Author:    Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-
-define method maybe-serve-static-file
-    (request :: <request>, response :: <response>)
- => (found? :: <boolean>)
-  let uri :: <string> = request-uri(request);
-  let document :: false-or(<file-system-locator>) = static-file-locator-from-uri(uri);
-  when (document)
-    log-debug("%s static file found", uri);
-    select (file-type(document))
-      #"directory" => directory-responder(request, response, document);
-      otherwise  => static-file-responder(request, response, document);
-    end;
-    #t
-  end;
+// Return a locator for the given URL under the *document-root*.
+/*
+define method document-location
+    (uri :: <string>, #key context :: false-or(<directory-locator>))
+ => (source :: <file-locator>)
+  let uri = iff(~empty?(uri) & uri[0] = '/',
+                copy-sequence(uri, start: 1),  // get rid of leading slash
+                uri);
+  merge-locators(as(<file-locator>, uri), context | *document-root*)
 end;
+*/
 
-// This returns the appropriate locator for the given URI, or #f if the URI is 
-// invalid (for example it doesn't name an existing file below the *document-root*).
-// If the URI names a directory this checks for an appropriate default document
-// such as index.html and returns a locator for that, if found.
+// Merges the given URL against the context parameter and ensures that the
+// resulting locator refers to a document below *document-root*.
 //
-define function static-file-locator-from-uri
-    (uri :: <string>) => (locator :: false-or(<file-system-locator>))
-  let locator = safe-locator-from-uri(uri);
-  when (locator)
-    file-exists?(locator)
-    & iff(instance?(locator, <directory-locator>),
-          find-default-document(locator) | locator,
-          locator)
-  end
-end;
-
-define function safe-locator-from-uri
-    (uri :: <string>) => (locator :: false-or(<file-system-locator>))
+define method document-location
+    (uri :: <string>, #key context :: <directory-locator> = *document-root*)
+ => (locator :: false-or(<physical-locator>))
   when (*document-root*)
     block ()
       let len :: <integer> = size(uri);
@@ -46,12 +30,12 @@ define function safe-locator-from-uri
       if (bpos == epos)
         *document-root*
       else
-        let relative-uri = iff(len > 0 & uri[0] = '/', substring(uri, 1, len), uri);
+        let relative-uri = iff(uri[bpos] = '/', substring(uri, 1, len), uri);
         if (empty?(relative-uri))
           *document-root*
         else
-          let loc = simplify-locator(merge-locators(as(<file-system-locator>, relative-uri),
-                                                    *document-root*));
+          let loc = simplify-locator(merge-locators(as(<physical-locator>, relative-uri),
+                                                    context));
           if (instance?(loc, <file-locator>) & locator-name(loc) = "..")
             loc := locator-directory(locator-directory(loc));
           end;
@@ -62,15 +46,47 @@ define function safe-locator-from-uri
       #f
     end
   end
-end safe-locator-from-uri;
+end document-location;
+
+define method maybe-serve-static-file
+    (request :: <request>, response :: <response>)
+ => (found? :: <boolean>)
+  let uri :: <string> = request-uri(request);
+  let document :: false-or(<physical-locator>) = static-file-locator-from-uri(uri);
+  when (document)
+    log-debug("%s static file found", uri);
+    select (file-type(document))
+      #"directory" => directory-responder(request, response, document);
+      otherwise  => static-file-responder(request, response, document);
+    end;
+    #t
+  end;
+end;
+
+// @returns the appropriate locator for the given URI, or #f if the URI is 
+// invalid (for example it doesn't name an existing file below the *document-root*).
+// If the URI names a directory this checks for an appropriate default document
+// such as index.html and returns a locator for that, if found.
+//
+define function static-file-locator-from-uri
+    (uri :: <string>) => (locator :: false-or(<physical-locator>))
+  let locator = document-location(uri);
+  when (locator)
+    file-exists?(locator)
+    & iff(instance?(locator, <directory-locator>),
+          find-default-document(locator) | locator,
+          locator)
+  end
+end;
 
 define method find-default-document
-    (locator :: <directory-locator>) => (locator :: <file-system-locator>)
+    (locator :: <directory-locator>) => (locator :: <physical-locator>)
   block (return)
     local method is-default? (directory, name, type)
             // ---TODO: portability - string-equal? is incorrect on Unix systems.
             when (type = #"file" & member?(name, *default-document-names*, test: string-equal?))
-              return(merge-locators(as(<file-locator>, name), directory));
+              return(merge-locators(as(<file-locator>, name),
+                                    as(<directory-locator>, directory)));
             end;
           end;
     do-directory(is-default?, locator);
@@ -79,7 +95,7 @@ define method find-default-document
 end;
 
 define method locator-below-document-root?
-    (locator :: <file-system-locator>) => (below? :: <boolean>)
+    (locator :: <physical-locator>) => (below? :: <boolean>)
   let relative = relative-locator(locator, *document-root*);
   locator-relative?(relative)  // do they at least share a common ancestor?
     & begin
@@ -123,8 +139,9 @@ define method directory-responder
   local method show-file-link (directory, name, type)
           when (name ~= ".." & name ~= ".")
             let locator = iff(type = #"directory",
-                              subdirectory-locator(directory, name),
-                              merge-locators(as(<file-locator>, name), directory));
+                              subdirectory-locator(as(<directory-locator>, directory), name),
+                              merge-locators(as(<file-locator>, name),
+                                             as(<directory-locator>, directory)));
             let props = file-properties(locator);
             write(stream, "<tr>\n<td nowrap>");
             display-image-link(stream, type, locator);

@@ -1,4 +1,4 @@
-Module:    internals
+Module:    http-server-internals
 Synopsis:  Core HTTP server code
 Author:    Gail Zacharias, Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
@@ -391,32 +391,47 @@ define variable *default-request-class* :: subclass(<basic-request>) = <request>
 define thread variable *request* :: false-or(<request>) = #f;
 define thread variable *response* :: false-or(<response>) = #f;
 
-define inline function current-request  () => (request :: <request>) *request* end;
-define inline function current-response () => (response :: <response>) *response* end;
+// Is there ever any need for clients to use these?
+//define inline function current-request  () => (request :: <request>) *request* end;
+//define inline function current-response () => (response :: <response>) *response* end;
 
 
 // Called (in a new thread) each time an HTTP request is received.
 define function handler-top-level
     (client :: <client>)
-  dynamic-bind (*request* = #f)
-    iterate loop ()
-      let request :: <basic-request>
-        = make(client.client-server.request-class, client: client);
-      *request* := request;
-      with-simple-restart("Skip this request and continue with the next")
-        block (return)
-          let handler <error> = method (c :: <error>, next-handler :: <function>)
-                                  iff (*debugging-server*,
-                                       next-handler(),  // decline to handle the error
-                                       return(send-error-response(request, c)));
-                                end;
-          read-request(request);
-          invoke-handler(request);
-        end;
-        when (request.request-keep-alive?)
-          loop()
-        end;
-      end with-simple-restart;
+  with-log-output-to (*standard-output*)
+    dynamic-bind (*request* = #f)
+      iterate loop ()
+        let request :: <basic-request>
+          = make(client.client-server.request-class, client: client);
+        *request* := request;
+        with-simple-restart("Skip this request and continue with the next")
+          block (return)
+            let handler <error> = method (c :: <error>, next-handler :: <function>)
+                                    iff (*debugging-server*,
+                                         next-handler(),  // decline to handle the error
+                                         return(send-error-response(request, c)));
+                                  end;
+            block ()
+              read-request(request);
+            cleanup
+              // ---TODO: This crap should be replaced somehow.  Allocating inside of
+              // read-request and deallocating here is bogus.  Need to work on a better
+              // overall resource strategy, like treating the requests themselves as
+              // resources and doing all the allocation for sub-resources in the
+              // reinitialize-resource(<request>) method?
+              let qv = request-query-values(request);
+              when (qv)
+                deallocate-resource(<string-table>, qv);
+              end;
+            end block;
+            invoke-handler(request);
+          end;
+          when (request.request-keep-alive?)
+            loop()
+          end;
+        end with-simple-restart;
+      end;
     end;
   end;
 end handler-top-level;
@@ -632,21 +647,25 @@ define method invoke-handler
     (request :: <request>) => ()
   let uri :: <string> = request-uri(request);
   with-resource (headers = <header-table>)
-    let response :: <response> = make(<response>, request: request, headers: headers);
-    let (responder, canonical-uri) = find-responder(uri);
-    dynamic-bind (*response* = response)
-      if (responder)
-        log-info("%s handler found", uri);
-        responder(request, response);
-      else
-        let found? = maybe-serve-static-file(request, response);
-        when (~found?)
-          log-info("%s not found", uri);
-          resource-not-found-error(uri: request-uri(request));  // 404
+    let response = make(<response>, request: request, headers: headers);
+    block ()
+      let (responder, canonical-uri) = find-responder(uri);
+      dynamic-bind (*response* = response)
+        if (responder)
+          log-info("%s handler found", uri);
+          responder(request, response);
+        else
+          let found? = maybe-serve-static-file(request, response);
+          when (~found?)
+            log-info("%s not found", uri);
+            resource-not-found-error(uri: request-uri(request));  // 404
+          end;
         end;
       end;
-    end;
-    send-response(response);
+      send-response(response);
+    cleanup
+      deallocate-resources(response);
+    end block;
   end with-resource;
 end;
 

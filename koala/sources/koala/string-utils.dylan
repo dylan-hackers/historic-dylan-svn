@@ -1,4 +1,4 @@
-Module:    internals
+Module:    utilities
 Synopsis:  String utilities
 Author:    Gail Zacharias, Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
@@ -213,58 +213,4 @@ define function string->integer
   string-to-integer(buf, start: bpos, end: epos, default: #f)
 end string->integer;
 
-define function parse-http-date (str :: <byte-string>,
-                                 bpos :: <integer>,
-                                 epos :: <integer>)
-  => (date :: false-or(<date>))
-  // wish could stack-cons this..
-  let v = make(<simple-object-vector>, size: 8);
-  iterate loop (bpos = bpos, i = 0)
-    let pos = token-end-position(str, bpos, epos) | epos;
-    unless (pos == bpos | i == 8)
-      v[i] := string->integer(str, bpos, pos) | substring(str, bpos, pos);
-      let bpos = if (pos == epos | str[pos] == ';') epos
-                 else skip-whitespace(str, pos + 1, epos) end;
-      if (bpos ~== epos)
-        loop(bpos, i + 1)
-      else
-        let (sec, min, hour, day, mon, year)
-          = if (instance?(v[0], <integer>)) // year-month-day hr:min:sec
-              values(v[5], v[4], v[3], v[2], v[1], v[0])
-            elseif (instance?(v[1], <integer>)) // wkday, day month year hr:min:sec GMT
-              values(v[6], v[5], v[4], v[1], v[2], v[3])
-            else // wkday month day hr:min:sec year GMT
-              values(v[5], v[4], v[3], v[2], v[1], v[6])
-            end;
-        let sec = sec | 0;
-        let min = min | 0;
-        let hour = hour | 0;
-        let day = day | 0;
-        let month = find-key(#("Jan" "Feb" "Mar" "Apr" "May" "Jun"
-                               "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"),
-                             curry(string-equal?, mon));
-        when (instance?(sec, <integer>) & sec < 60 &
-              instance?(min, <integer>) & min < 60 &
-              instance?(hour, <integer>) & hour < 24 &
-              instance?(day, <integer>) & 0 < day &
-              month & instance?(year, <integer>))
-          let year = if (year >= 1800) year
-                     elseif (year < 80) year + 2000
-                     else year + 1900 end;
-          // this is getting silly, but the date library validates this
-          // and we don't want to get errors.
-          let max-days = if (month == 1 & modulo(year, 4) == 0
-                              & (modulo(year, 100) ~== 0 | modulo(year, 400) == 0))
-                           29
-                         else
-                           #[31,28,31,30,31,30,31,31,30,31,30,31][month]
-                         end;
-          when (day <= max-days & year < 2200)
-            encode-date(year, month + 1, day, hour, min, sec, time-zone-offset: 0)
-          end;
-        end;
-      end;
-    end;
-  end;
-end;
 

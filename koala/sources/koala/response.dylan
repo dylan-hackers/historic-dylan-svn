@@ -1,4 +1,4 @@
-Module:    internals
+Module:    http-server-internals
 Author:    Carl Gay
 Synopsis:  A response allows users to manipulate certain aspects of the response to the
            client, for example adding headers.
@@ -48,6 +48,16 @@ define method output-stream
   | (response.response-output-stream := allocate-resource(<string-stream>));
 end;
 
+// This is guaranteed to be called as soon as the response is no longer in use.
+// @see invoke-handler
+define method deallocate-resources
+    (response :: <response>) => ()
+  let stream = response-output-stream(response);
+  when (stream)
+    deallocate-resource(<string-stream>, stream);
+  end;
+end;
+
 // API
 // The caller is telling us that either the request is complete or it's OK to
 // send a partial response.  Send the header lines, whatever part of the body
@@ -68,7 +78,7 @@ end;
 define method send-header
     (stream :: <tcp-socket>, name :: <string>, val :: <object>)
   format(stream, "%s: %s\r\n", name, val);
-  log-debug("-->%s: %s", name, val);
+  log-header("-->%s: %s", name, val);
 end;
 
 define method send-headers

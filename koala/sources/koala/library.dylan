@@ -15,8 +15,103 @@ define library koala
 
   export http-server;
   export http-server-extender;
+  export dsp;
 end library koala;
 
+
+define module utilities
+  use functional-dylan;
+  use dylan-extensions,
+    import: {element-no-bounds-check,
+             element-no-bounds-check-setter,
+             element-range-check,
+             element-range-error,
+             // make-symbol,
+             // case-insensitive-equal,
+             // case-insensitive-string-hash
+             };
+  use file-system, import: { with-open-file, <file-does-not-exist-error> };
+  use date;
+  use streams;
+  use locators;
+  use standard-io;
+  use file-system;
+  use format;
+  use threads, import: { dynamic-bind, <lock>, with-lock };
+
+  export
+    // General one-off utilities
+    iff,
+    with-restart,
+    with-simple-restart,
+    <sealed-constructor>,
+    inc!, dec!,
+    wrapping-inc!,
+    file-contents,
+    pset,                // multiple-value-setq
+    ignore-errors,
+    path-element-equal?,
+    parent-directory,
+    date-to-stream,
+    
+    <expiring-mixin>,
+    expired?,
+    mod-time,
+    mod-time-setter,
+
+    // Resource pools
+    allocate-resource,
+    deallocate-resource,
+    new-resource,
+    reinitialize-resource,
+    resource-size,
+    with-resource,
+
+    // Attributes
+    <attributes-mixin>,
+    get-attribute,
+    set-attribute,
+    remove-attribute,
+
+    // Strings
+    $cr,
+    $lf,
+    char-position-if,
+    char-position,
+    char-position-from-end,
+    whitespace?,
+    whitespace-position,
+    skip-whitespace,
+    trim-whitespace,
+    looking-at?,
+    key-match,
+    string-match,
+    string-position,
+    string-equal?,
+    digit-weight,
+    token-end-position,
+
+    // Non-copying substring
+    <substring>,
+    substring,
+    substring-base,
+    substring-start,
+    string-extent,
+    string->integer,
+
+    // Logging
+    with-log-output-to,
+    <log-level>,
+    <log-error>, log-error,
+    <log-warning>, log-warning,
+    <log-info>, log-info,
+    <log-debug>, log-debug, log-debug-if,
+    log-message,
+    log-date,
+    add-log-level, remove-log-level;
+    
+end module utilities;
+    
 
 define module http-server
 
@@ -55,50 +150,17 @@ define module http-server
   create
     <session>,
     get-session,
-    get-attribute,
-    set-attribute,
-    remove-attribute,
+    //get-attribute,
+    //set-attribute,
+    //remove-attribute,
     set-session-max-age;
 
-  // Pages
+  // Documents
   create
-    <page>,                      // Subclass this using the "define page" macro
-    <static-page>,
-    register-page,               // Register a page for a given URI
-    respond-to-get,              // Implement this for your page to handle GET requests
-    respond-to-post,             // Implement this for your page to handle POST requests
-    respond-to-head,             // Implement this for your page to handle HEAD requests
-
-    // Form/query values.  (Is there a good name that covers both of these?)
-    get-query-value,             // Get a query value that was passed in a URI or a form
-    get-form-value,              // A synonym for get-query-value
-    do-query-values,             // Call f(key, val) for each query in the URI or form
-    do-form-values,              // A synonym for do-query-values
-    count-query-values,
-    count-form-values,
     document-location;
 
-  // Dylan Server Pages
-  create
-    <dylan-server-page>,         // Subclass this using the "define page" macro
-    page-definer,                // Defines a new page class
-    <taglib>,
-    taglib-definer,
-    tag-definer,                 // Defines a new DSP tag function and registers it with a page
-    register-tag,                // This can be used to register tag functions that weren't
-                                 //   created by "define tag".
-    <page-context>,
-    page-context,                // Returns a <page-context> if a page is being processed.
-                                 //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
-    named-method-definer,
-    get-named-method,
-    quote-html,                  // Change < to &lt; etc
-
-    // DSP tag definitions
-    current-row,
-    current-row-number;
-
   // Logging
+/*
   create
     log-debug,
     log-debug-if,
@@ -106,18 +168,31 @@ define module http-server
     log-warning,
     log-info,
     log-message;
+*/
+
+  // Not sure if these should really be exported.
+  create
+    http-error-code,
+    unsupported-request-method-error,
+    resource-not-found-error,
+    unimplemented-error,
+    internal-server-error,
+    request-uri,
+    *auto-register-map*;
 
   // Debugging
   create
     print-object;
-end;
+
+end module http-server;
 
 // Additional interface for extending the server
 define module http-server-extender
   create parse-header-value;
 end;
 
-define module internals
+define module http-server-internals
+  use utilities;
   use http-server;
   use http-server-extender;
 
@@ -144,5 +219,63 @@ define module internals
   use file-system;
   use operating-system;
   //use ssl-sockets;
-end;
+end module http-server-internals;
+
+define module dsp
+  use http-server, export: all;
+  use utilities, export: all;
+
+  use functional-dylan;
+  use locators, rename: {<http-server> => <http-server-url>,
+                         <ftp-server> => <ftp-server-url>,
+                         <file-server> => <file-server-url>};
+  use format;
+  use threads;
+  use format-out;
+  use standard-io;
+  use streams;
+  //use sockets, rename: { start-server => start-socket-server };
+  use date;
+  use file-system;
+  use operating-system;
+  //use ssl-sockets;
+
+  export
+    <page>,                      // Subclass this using the "define page" macro
+    <static-page>,
+    register-page,               // Register a page for a given URI
+    respond-to-get,              // Implement this for your page to handle GET requests
+    respond-to-post,             // Implement this for your page to handle POST requests
+    respond-to-head,             // Implement this for your page to handle HEAD requests
+
+    // Form/query values.  (Is there a good name that covers both of these?)
+    get-query-value,             // Get a query value that was passed in a URI or a form
+    get-form-value,              // A synonym for get-query-value
+    do-query-values,             // Call f(key, val) for each query in the URI or form
+    do-form-values,              // A synonym for do-query-values
+    count-query-values,
+    count-form-values,
+
+    <dylan-server-page>,         // Subclass this using the "define page" macro
+    page-definer,                // Defines a new page class
+    <taglib>,
+    taglib-definer,
+    tag-definer,            // Defines a new DSP tag function and registers it with a page
+    register-tag,           // This can be used to register tag functions that weren't created by "define tag".
+    tag-call-arguments,
+    map-tag-call-arguments,
+    show-tag-call-arguments,
+
+    <page-context>,
+    page-context,                // Returns a <page-context> if a page is being processed.
+                                 //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
+    named-method-definer,
+    get-named-method,
+    quote-html,                  // Change < to &lt; etc
+
+    // Utils associated with DSP tag definitions
+    current-row,                 // dsp:table
+    current-row-number;          // dsp:table
+
+end module dsp;
 

@@ -19,7 +19,7 @@ define module koala-example
   use streams;
   use threads;
   use sockets, import: { <tcp-socket> };
-  use http-server;
+  use dsp;
   use locators;
 end;
 

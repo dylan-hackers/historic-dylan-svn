@@ -30,6 +30,11 @@ koala
     it can be used to automatically include the session-id etc.
 
 * DSP
+  - More error checking at template parse time.
+      - Warn when required tag call arguments are not supplied.
+  - Move DSP into its own library (or just module?).
+  - Check that tag arguments with no value (e.g., <dsp:cell nowrap>) work.
+    See extract-tag-args.
   - Provide an API for clearing the output stream contents.  JSP has this
     and it could be useful for error recovery.
   - Provide an analog to JSP's PageContext for a page-level namespace?
