@@ -27,6 +27,7 @@ define module board
   use streams;
   use format-out;
   use print, import: {print-object};
+  use utils;
   
   export
     <state>, board, robots, packages, bases, bases-setter, packages-at, robot-at,
@@ -48,16 +49,12 @@ define module path
   use utils;
   use board;
 
-  // For debugging only. Sorry.
-//  use format-out;
-//  use standard-io;
-//  use streams, export: all;
-
   export <point-list>, find-path;
 end module path;
 
 define module command
   use common-dylan;
+  use utils;
   use board, import: { <point> };
 
   export
@@ -75,7 +72,6 @@ end module command;
 
 define module messages
   use common-dylan;
-//  use standard-io;
   use utils;
   use streams;
   use character-type, import: {digit?};
@@ -104,6 +100,7 @@ end module messages;
 
 define module client
   use common-dylan;
+  use utils;
   use board;
   use command;
   use path;
@@ -118,6 +115,7 @@ end module client;
 
 define module server
   use board;
+  use utils;
   
 end module server;
 
@@ -128,7 +126,6 @@ define module icfp2002
   use subseq;
   use streams, export: all;
   use utils;
-//  use standard-io;
   use string-conversions, import: {string-to-integer};
   use extensions, import: {report-condition};
   // use time;
