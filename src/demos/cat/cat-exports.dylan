@@ -1,10 +1,10 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/demos/cat/cat-exports.dylan,v 1.1 1998/05/03 19:55:59 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/demos/cat/cat-exports.dylan,v 1.1.1.1.26.1 2003/10/23 20:32:45 housel Exp $
 
 define library cat
   use Dylan;
-  use streams;
-  use Standard-IO;
+  use IO;
+  use System;
 end;
 
 define module cat
@@ -12,4 +12,5 @@ define module cat
   use Extensions;
   use streams;
   use Standard-IO;
+  use File-System;
 end;
