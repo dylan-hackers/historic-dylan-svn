@@ -1,0 +1,25 @@
+This is a proof-of-concept XML parser for Dylan.
+
+It is based on the gnome-xml DTD-validating parser written in C.
+You need to install this library before you can use this one. You
+can get gnome-xml, also known as libxml, from
+
+ftp://ftp.gnome.org/pub/GNOME/stable/sources/libxml/
+
+Chances are it's already on your system if you're using GNOME, but
+the version could be outdated. In case of doubt, install the latest
+version from CVS.
+
+To compile the sample application, just type 'make'. Invoke the test
+program as './xml-test sample.xml'. The program should output the
+names of all nodes in the DOM tree in preorder.
+
+If you are interested to flesh this example out into a real world
+library, you'd probably use the SAX interface (callback-based), and
+build your own DOM tree, using a more Dylan-like object structure,
+instead of messing around with the C DOM tree.
+
+Happy hacking!
+
+Andreas Bogk
+<andreas@andreas.org>
