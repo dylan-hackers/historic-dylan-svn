@@ -3,11 +3,10 @@ FILES := library.dylan \
 	 transform.dylan \
 	 printing.dylan \
 	 collect.dylan \
-	 productions.dylan \
-	 ../meta/meta.lib.du
+	 productions.dylan
 
 libxml-parser.a: $(FILES)
-	d2c -L ../meta xml-parser.lid
+	d2c -L ../anaphora -L ../meta xml-parser.lid
 
 clean:
 	rm *.o *.c *~ cc-*.mak *.a *.du
