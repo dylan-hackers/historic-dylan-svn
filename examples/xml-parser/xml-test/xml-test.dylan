@@ -59,7 +59,6 @@ define function main(program-name, arguments)
 
   with-open-file(in = parser.file-and-pattern[0], direction: #"input-output")
     let doc = parse-document(stream-contents(in, clear-contents?: #f),
-			     ignore-comments?: #f,
                              substitute-entities?: ~ parser.no-sub-ents?);
     let filename = concatenate(as(<string>, doc.name), "-xml.html");
     if(parser.xform?) walk-n-change(doc.node-children[0]); end if;
