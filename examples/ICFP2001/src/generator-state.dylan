@@ -93,10 +93,7 @@ define method push-tag!(state :: <generator-state>, tag :: <tag>)
   state.attribute-stack :=
     pair(apply-op(state.attribute-stack.head, tag), state.attribute-stack);
   state.maximum-cost := state.maximum-cost + tag.cost;
-  if(state.output-state ~= #"opening")
-    state.output-state := #"opening";
-    state.maximum-cost := state.maximum-cost - state.to.maximum-cost;
-  end if;
+  state.output-state := #"opening";
   state;
 end method push-tag!;
 
@@ -109,10 +106,7 @@ end method push-empty-tag;
 
 define method push-empty-tag!(state :: <generator-state>)
  => new-state :: <generator-state>;
-  if(state.output-state ~= #"opening")
-    state.output-state := #"opening";
-    state.maximum-cost := state.maximum-cost - state.to.maximum-cost;
-  end if;
+  state.output-state := #"opening";
   state;
 end method push-empty-tag!;
 
@@ -141,6 +135,7 @@ define method emit-text!(state :: <generator-state>)
   let output = state.remaining-text-runs[0]; 
   state.output-tokens :=
     pair(output.string, state.output-tokens);
+  state.maximum-cost := state.maximum-cost - output.attributes.maximum-cost;
   state.remaining-text-runs :=
     subsequence(state.remaining-text-runs, start: 1);
   state.output-state := #"closing";
