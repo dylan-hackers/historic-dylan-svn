@@ -1204,17 +1204,12 @@ end;
 
 define inline method \== (a :: <double-float>, b :: <double-float>)
     => res :: <boolean>;
-  %%primitive(double-==, a, b);
+  %%primitive(double-=, a, b);
 end;
 
 define inline method \== (a :: <double-float>, b :: <object>)
     => res :: <boolean>;
   #f;
-end;
-
-define inline method \= (a :: <double-float>, b :: <double-float>)
-    => res :: <boolean>;
-  %%primitive(double-=, a, b);
 end;
 
 define inline method \= (a :: <double-float>, b :: <integer>)
@@ -1518,17 +1513,12 @@ end;
 
 define inline method \== (a :: <extended-float>, b :: <extended-float>)
     => res :: <boolean>;
-  %%primitive(extended-==, a, b);
+  %%primitive(extended-=, a, b);
 end;
 
 define inline method \== (a :: <extended-float>, b :: <object>)
     => res :: <boolean>;
   #f;
-end;
-
-define inline method \= (a :: <extended-float>, b :: <extended-float>)
-    => res :: <boolean>;
-  %%primitive(extended-=, a, b);
 end;
 
 define inline method \= (a :: <extended-float>, b :: <integer>)

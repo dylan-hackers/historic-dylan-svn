@@ -435,7 +435,7 @@ define-primitive
   (#"extended-as-single", #(#"<extended-float>"), #"<single-float>",
    cseable: #t);
 
-for (name in #[#"single-<", #"single-<=", #"single-==", #"single-~="])
+for (name in #[#"single-<", #"single-<=", #"single-=", #"single-~="])
   define-primitive
     (name, #(#"<single-float>", #"<single-float>"), #"<boolean>",
      cseable: #t);
@@ -488,7 +488,7 @@ define-primitive
    cseable: #t);
 
 for (name in #[#"double-<", #"double-<=", #"double-=",
-		 #"double-==", #"double-~="])
+		 #"double-~="])
   define-primitive
     (name, #(#"<double-float>", #"<double-float>"), #"<boolean>",
      cseable: #t);
@@ -543,7 +543,7 @@ define-primitive
    cseable: #t);
 
 for (name in #[#"extended-<", #"extended-<=", #"extended-=",
-		 #"extended-==", #"extended-~="])
+		 #"extended-~="])
   define-primitive
     (name, #(#"<extended-float>", #"<extended-float>"), #"<boolean>",
      cseable: #t);
