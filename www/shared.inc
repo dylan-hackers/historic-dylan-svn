@@ -47,6 +47,12 @@ function short_header ($title) {
     </div>
 
     <DIV ID="header"><a HREF="http://www.gwydiondylan.org"><img src="/gwydion-8caae6.png" alt="Gwydion Dylan"></a></DIV>
+    <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
+      <div>
+        <input type="text" class="text" name="q" value="Search..." />
+        <input type="submit" class="submit" value="GO" />
+      </div>
+    </form>
 
     <div class="sideMenuBox">
       <div>About Dylan &amp; Gwydion</div>
