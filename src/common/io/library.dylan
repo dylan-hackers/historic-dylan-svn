@@ -20,6 +20,7 @@ define library io
     format,
     format-internals,
     standard-io,
+    io-internals,
     format-out;
 end library io;
 
@@ -182,7 +183,7 @@ define module streams-internals
          writable-file-stream-position-setter,
          <general-file-stream>,
          <byte-char-file-stream>;
-
+ 
   // Multi-buffered streams
   export <buffer-vector>,
          <multi-buffered-stream>,
@@ -341,6 +342,10 @@ define module io-internals
   use format-internals;
   use standard-io;
   use format-out;
+
+  // File descriptors. Hm, need to think about this for different
+  // platforms
+  export file-descriptor;
 end module io-internals;
 
 define module redirect-io
