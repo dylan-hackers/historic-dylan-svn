@@ -84,7 +84,6 @@ function standard_footer () {
 
 <P><STRONG>Wishlist</STRONG></P>
 <UL>
-<LI><A HREF="shared-libs.phtml">Shared Libraries</A>
 <LI><A HREF="browser.phtml">Code Browser/IDE</A>
 </UL>
 
