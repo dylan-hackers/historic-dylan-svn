@@ -497,7 +497,9 @@ define sub brain alex-killer-original (leave)
 
   // We are near their hill.
   [a-near-hub-ahead:]
-    Move alex-killer-original => a-near-hub-ahead-blocked;
+    Move alex-killer-original;
+    Sense RightAhead FoeHome, (try-r);
+    Sense LeftAhead FoeHome, (try-l, a-near-hub-ahead-blocked);
 
   [a-near-hub-left:]
     Turn Left;
@@ -514,6 +516,13 @@ define sub brain alex-killer-original (leave)
     Turn Left;
     Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
 
+  [restart:]
+    Turn Right;
+    Turn Right;
+    Move => restart;
+    Move => a-search-foe-home;
+    Move a-search-foe-home => a-search-foe-home;
+
   [try-r:]
     Turn Right;
     Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
@@ -527,6 +536,7 @@ define sub brain alex-killer-original (leave)
     Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
 
   [a-near-hub-ahead-blocked-try-right-instead:]
+    Flip 2, (restart);
     Turn Right;
     Turn Right;
     Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
@@ -553,24 +563,156 @@ define sub brain alex-killer-original (leave)
 end; // alex-killer-original
 
 
+define sub brain alex-killer-original-stealing (leave)
+  Sense FoeHome, (attacker-success, a-search-foe-home);
+
+//  [attacker-success:]
+//    PickUp attacker-success => attacker-success;
+
+  // Steal food.
+  [attacker-success:]
+    Sense Food, (a-steal-from-under-entry);
+    Flip 4, (attacker-success-right);
+//    Sense Ahead FoeHome, (a-steal-from-in-front);
+    Turn Right, (attacker-success);
+
+  [attacker-success-right:]
+    Flip 10, (attacker-success-left);
+    Turn Right, (attacker-success);
+
+  [attacker-success-left:]
+    Turn Left, (attacker-success);
+
+//  [a-steal-from-in-front:]
+//    Sub detect-two-enemies-and-plug;
+//    Move attacker-success => attacker-success-right;
+
+  [a-steal-from-in-front:]
+    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
+    Move attacker-success => attacker-success-right;
+
+  [a-steal-from-in-front-right:]
+    Sense RightAhead FoeHome, (attacker-success-right);
+    Move attacker-success => attacker-success-right;
+
+
+  // From under is easy on the edge.
+  [a-steal-from-under-entry:]
+    PickUp a-steal-from-under => attacker-success;
+
+  [a-steal-from-under:]
+    Sense Ahead FoeHome => a-steal-do-from-under;
+//    Sub detect-two-enemies-and-plug;
+    Move a-steal-from-under => a-steal-from-under-turn;
+
+  [a-steal-from-under-turn:]
+    Turn Left, (a-steal-from-under);
+
+  [a-steal-do-from-under:]
+    Turn Left;
+    Sense Ahead FoeHome, (a-steal-do-from-under, a-steal-food-out);
+
+  [a-steal-food-out:]
+    Move => a-steal-food-out;
+    Drop;
+    Turn Left;
+    Turn Left;
+    Turn Left, (a-near-hub-ahead);
+
+
+  [a-search-foe-home:]
+    Sense Ahead FoeHome, (a-near-hub-ahead);
+    Sense LeftAhead FoeHome, (a-near-hub-left);
+    Sense RightAhead FoeHome, (a-near-hub-right);
+    Flip 2, (a-move-forward, a-move-lr);
+
+
+  // We are near their hill.
+  [a-near-hub-ahead:]
+    Move alex-killer-original-stealing;
+    Sense RightAhead FoeHome, (try-r);
+    Sense LeftAhead FoeHome, (try-l, a-near-hub-ahead-blocked);
+
+  [a-near-hub-left:]
+    Turn Left;
+    Move alex-killer-original-stealing => a-search-foe-home;
+
+  [a-near-hub-right:]
+    Turn Right;
+    Move alex-killer-original-stealing => a-search-foe-home;
+
+  [a-near-hub-ahead-blocked:]
+    Flip 3, (try-r, try-l);
+
+  [try-l:]
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [restart:]
+    Turn Right;
+    Turn Right;
+    Move => restart;
+    Move => a-search-foe-home;
+    Move a-search-foe-home => a-search-foe-home;
+
+  [try-r:]
+    Turn Right;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-go-around-right:]
+    Turn Left, (a-search-foe-home);
+
+  [a-near-hub-ahead-blocked-try-left-instead:]
+    Turn Left;
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-try-right-instead:]
+    Flip 2, (restart);
+    Turn Right;
+    Turn Right;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-go-around-left:]
+    Turn Right, (a-search-foe-home);
+    
+
+  // We are still searching.
+  [a-move-forward:]
+    Move alex-killer-original-stealing => a-move-lr;
+
+  [a-move-lr:]
+    Flip 2, (a-move-left, a-move-right);
+
+  [a-move-left:]
+    Turn Left;
+    Move alex-killer-original-stealing => a-move-left;
+
+  [a-move-right:]
+    Turn Right;
+    Move alex-killer-original-stealing => a-move-right;
+
+end; // alex-killer-original-stealing
+
+
 // Main brain.
 define brain combo
-  Flip 1, (a-original, a-original);
+//  Flip 1, (a-original, a-original);
 
   Flip 7, (protector, gatherer);
 
   [gatherer:]
-    Flip 3, (attacker);
+    Flip 5, (attacker);
     Sub bruce-spiral;
 
   [protector:]
     Sub keith-defensant2;
 
   [attacker:]
-    Flip 2, (a-original, a-killer-2);
+    Flip 3, (a-original, a-killer-2);
 
   [a-original:]
-    Sub alex-killer-original;
+    Sub alex-killer-original-stealing;
 
   [a-killer-2:]
     Sub alex-killer2;
