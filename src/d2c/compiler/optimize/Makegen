@@ -1,4 +1,0 @@
-
-&makegen_include("../common-Makegen");
-$CPPFLAGS = "$CPPFLAGS -I../../runtime ";
-&d2c_library('Optimize', '-L../base -L../front -L../fer-transform');

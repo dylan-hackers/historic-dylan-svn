@@ -1,6 +1,0 @@
-&makegen_include("../../common-Makegen");
-
-$D2CFLAGS = $D2CFLAGS . '-L../../testworks -L../../../common/common-dylan';
-
-do emit_library_rule(
-    'testworks-test-suite', '$(BUILDROOT)/force.timestamp', '', 'compile', 'install');

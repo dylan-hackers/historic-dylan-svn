@@ -1,4 +1,0 @@
-&makegen_include("../common-Makegen");
-
-do emit_library_rule('Make-exports', '$(BUILDROOT)/force.timestamp', '', 
-		     'compile', 'install');
