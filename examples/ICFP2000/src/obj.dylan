@@ -5,6 +5,7 @@ copyright: this program may be freely used by anyone, for any purpose
 
 define class <obj> (<object>)
   slot transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
+  slot inverse-transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
   slot model :: type-union(<primitive>, <collection>);
 end class <obj>;
 
@@ -25,6 +26,11 @@ define method translate!(o :: <obj>, x, y, z) => (same-obj :: <obj>)
   *translation-matrix*[2, 3] := z;
 
   o.transform := *translation-matrix* * o.transform;
+
+  *translation-matrix*[0, 3] := -x;
+  *translation-matrix*[1, 3] := -y;
+  *translation-matrix*[2, 3] := -z;
+  o.inverse-transform := *translation-matrix* * o.inverse-transform;
   o;
 end method translate!;
 
@@ -38,9 +44,15 @@ define method x-rotate!(o :: <obj>, theta) => (same-obj :: <obj>)
     *x-rotation-matrix*[1, 2] := -sin(theta);
     *x-rotation-matrix*[2, 1] := sin(theta);
     *x-rotation-matrix*[2, 2] := cos(theta);
-    *last-x-rotation-theta* := theta;
   end if;
   o.transform := *x-rotation-matrix* * o.transform;
+
+  // cos(-theta) = cos(theta), sin(-theta) = -sin(theta)
+  *x-rotation-matrix*[1, 2] := -*x-rotation-matrix*[1, 2];
+  *x-rotation-matrix*[2, 1] := -*x-rotation-matrix*[2, 1];
+  o.inverse-transform := *x-rotation-matrix* * o.inverse-transform;
+
+  *last-x-rotation-theta* := -theta;
   o;  
 end method x-rotate!;
 
@@ -53,9 +65,14 @@ define method y-rotate!(o :: <obj>, theta) => (same-obj :: <obj>)
     *y-rotation-matrix*[0, 2] := sin(theta);
     *y-rotation-matrix*[2, 0] := -sin(theta);
     *y-rotation-matrix*[2, 2] := cos(theta);
-    *last-y-rotation-theta* := theta;
   end if;
   o.transform := *y-rotation-matrix* * o.transform;
+
+  *y-rotation-matrix*[0, 2] := -*y-rotation-matrix*[0, 2];
+  *y-rotation-matrix*[2, 0] := -*y-rotation-matrix*[2, 0];
+  o.inverse-transform := *y-rotation-matrix* * o.inverse-transform;
+
+  *last-y-rotation-theta* := -theta;
   o;  
 end method y-rotate!;
 
@@ -68,9 +85,14 @@ define method z-rotate!(o :: <obj>, theta) => (same-obj :: <obj>)
     *z-rotation-matrix*[0, 1] := -sin(theta);
     *z-rotation-matrix*[1, 0] := sin(theta);
     *z-rotation-matrix*[1, 1] := cos(theta);
-    *last-z-rotation-theta* := theta;
   end if;
   o.transform := *z-rotation-matrix* * o.transform;
+
+  *z-rotation-matrix*[0, 1] := -*z-rotation-matrix*[0, 1];
+  *z-rotation-matrix*[1, 0] := -*z-rotation-matrix*[1, 0];
+  o.inverse-transform := *z-rotation-matrix* * o.inverse-transform;
+
+  *last-z-rotation-theta* := -theta;
   o;  
 end method z-rotate!;
 
@@ -84,6 +106,12 @@ define method scale!(o :: <obj>, x, y, z) => (same-obj :: <obj>)
   *scaling-matrix*[2, 2] := z;
 
   o.transform := *scaling-matrix* * o.transform;
+
+  *scaling-matrix*[0, 0] := 1.0/x;
+  *scaling-matrix*[1, 1] := 1.0/y;
+  *scaling-matrix*[2, 2] := 1.0/z;
+
+  o.inverse-transform := *scaling-matrix* * o.inverse-transform;
   o;  
 end method scale!;
 
@@ -96,6 +124,12 @@ define method uniform-scale!(o :: <obj>, factor) => (same-obj :: <obj>)
   *uniform-scaling-matrix*[2, 2] := factor;
 
   o.transform := *uniform-scaling-matrix* * o.transform;
+
+  *uniform-scaling-matrix*[0, 0] := 1.0/factor;
+  *uniform-scaling-matrix*[1, 1] := 1.0/factor;
+  *uniform-scaling-matrix*[2, 2] := 1.0/factor;
+
+  o.inverse-transform := *uniform-scaling-matrix* * o.inverse-transform;
   o;
 end method uniform-scale!;
 
