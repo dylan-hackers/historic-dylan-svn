@@ -47,14 +47,32 @@ define function drop-strategy(drop-path :: <path>)
 end;
 
 define method valid?(dropping :: <drop-strategy>) => valid :: <boolean>;
-// TODO: do we still have the package?
-#t;
+  // did we arrive?
+  if (dropping.strategy-path.size < 2)
+    debug("arrived!\n");
+    #f
+  else
+  //; TODO: do we still have the package?
+    #t;
+  end;
 end;
 
 // ## create-command{<drop-strategy>}
 define method create-command(s :: <strategy>) => command :: <command>;
-  make(<move>, bid: 1, direction: turn(s.strategy-robot, s.strategy-path)); // HACK ### FIXME
+  let path = s.strategy-path;
+  let path = path.head = s.strategy-robot.location
+             & path.tail
+             | path;
+  let path = s.strategy-path := path;
+  make(<move>, bid: 1, direction: turn(s.strategy-robot, path));
 end;
+
+// ## create-command{<drop-strategy>}
+define method create-terminal-command(s :: <strategy>) => command :: <command>;
+debug("Dropping in create-terminal-command");
+  make(<drop>, package-ids: /* map(id, choose() */ #());
+end;
+
 
 
 
@@ -129,8 +147,15 @@ block (return)
           strategy.create-command.return;
         end;
 
+  local method finish(strategy :: <strategy>)
+          me.decided := #f;
+          strategy.strategy-robot := bot;
+          strategy.create-terminal-command.return;
+        end;
+
+debug("check\n");
   me.decided
-    & me.decided.valid?
+    & (me.decided.valid? | me.decided.finish)
     & safe?(me.decided, me, s)
     & me.decided.follow;
 debug("check1\n");
