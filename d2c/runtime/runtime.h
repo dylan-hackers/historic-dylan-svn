@@ -105,6 +105,8 @@ long double (log10l)(long double x);
 
 double (rint)(double x);
 double (log2)(double x);
+double (ceil) (double x);
+double (floor) (double x);
 
 float (fabsf)(float x);
 float (sinf)(float x);
