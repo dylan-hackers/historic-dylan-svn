@@ -17,7 +17,7 @@ end;
 
 define sealed method point(#key x :: <coordinate> = 0, y :: <coordinate> = 0)
  => (res :: <point>);
-  make(<point>, value: ash(y, 16) | x);
+  make(<point>, value: ash(y, 16) | logand(x, #xffff));
 end;
 
 define inline sealed method \=(a :: <point>, b :: <point>)
