@@ -43,6 +43,11 @@ define method render-to-opengl(line-grid :: <line-grid>)
   glEnable($GL-LIGHTING);
 end method render-to-opengl;
 
+define method render-to-opengl(node :: <shape>)
+  // set up node.appearance
+  render-to-opengl(node.geometry);
+end method render-to-opengl;
+
 define method render-to-opengl(node :: <container-node>)
   for(i in node.children)
     render-to-opengl(i);
@@ -52,3 +57,4 @@ end method render-to-opengl;
 define method render-to-opengl(node :: <sphere>)
   glutSolidSphere(1.0, 10, 10);
 end method render-to-opengl;
+

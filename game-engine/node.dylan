@@ -3,8 +3,18 @@ module: vrml-model
 define abstract class <node> (<object>)
 end class <node>;
 
+// <child-vector> can contain any of
+// Anchor, Background, Billboard, Collision, ColorInterpolator, CoordinateInterpolator,
+// CylinderSensor, DirectionalLight, Fog, Group, Inline, LOD, NavigationInfo,
+// NormalInterpolator, OrientationInterpolator, PlaneSensor, PointLight,
+// PositionInterpolator, ProximitySensor, ScalarInterpolator, Script, Shape, Sound,
+// SpotLight, SphereSensor, Switch, TimeSensor, TouchSensor, Transform, Viewpoint,
+// VisibilitySensor, WorldInfo
+
+define constant <child-vector> = <simple-object-vector>;
+
 define class <container-node> (<node>)
-  slot children = #(), init-keyword: children:;
+  slot children :: <simple-object-vector>, required-init-keyword: children:;
 end class <container-node>;
 
 define class <indexed-face-set> (<node>)
@@ -61,6 +71,14 @@ define class <transform> (<container-node>)
   slot translation :: false-or(<3d-vector>) = #f, init-keyword: translate:;
 end class <transform>;
 
+define constant <geometry-node> = <node>;
+// IndexedFaceSet, Box, Cone, Cylinder, ElevationGrid, Extrusion, IndexedLineSet, PointSet, Sphere, Text
+
+define class <shape> (<node>)
+  slot appearance, init-keyword: appearance:;
+  slot geometry :: <geometry-node>, required-init-keyword: geometry:;
+end class <shape>;
+
 define class <line-grid> (<node>)
 end class <line-grid>;
 
@@ -80,4 +98,3 @@ define method preorder-traversal(node :: <container-node>,
     preorder-traversal(i, function);
   end for;
 end method preorder-traversal;
-
