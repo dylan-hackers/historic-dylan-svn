@@ -475,14 +475,17 @@
 	  <sect3 id="gdmaint-d2c-base-od-format-intro">
 	   <title>Introduction</title>
 
-	   <para>The <dmodule>OD-Format</dmodule> module was designed by Rob MacLachlan 
-          and implements the <glossterm>Object Description Format</glossterm>, a 
-	    binary format for storing persistent objects. This is used by the
-	    <filename>*.lib.du</filename> files emitted by &d2c;, though it
-	    might be potentially useful elsewhere.</para>
+	   <para>The <dmodule>OD-Format</dmodule> module was designed by Rob 
+	    MacLachlan and implements the <glossterm>Object
+	    Description Format</glossterm>, a binary format for
+	    storing persistent objects. This is used by the
+	    <filename>*.lib.du</filename> files emitted by &d2c;,
+	    though it might be potentially useful elsewhere.</para>
 
-	   <para>The file <filename>gd/src/d2c/compiler/base/od-format.dylan</filename>
-	    contains an extensive discussion the module's goals and data format.</para>
+	   <para>The file
+	   <filename>gd/src/d2c/compiler/base/od-format.dylan</filename> 
+	   contains an extensive discussion the module's goals and
+	   data format.</para> 
 
          <para>The basic requirement of the "Object Description Format"
           (ODF) is to allow an open-ended variety of objects to be dumped
@@ -525,24 +528,29 @@
 
 	   <dylanconstantdef>
 		<defname>&lt;data-unit-name></defname>
-		<defsummary>Things that can be the name of a data unit.</defsummary>
+		<defsummary>Things that can be the name of a data
+		unit.</defsummary> 
 		<defvalue>&lt;symbol></defvalue>
 		<defdescription>
-		 <para><dname>&lt;data-unit-name></dname> is a <dname>&lt;symbol></dname>
-		   because is must be comparible with <dname>\==</dname>.</para>
+		 <para><dname>&lt;data-unit-name></dname> is a
+		 <dname>&lt;symbol></dname> because is must be
+		 comparible with <dname>\==</dname>.</para> 
 		</defdescription>
 	   </dylanconstantdef>
 
 	   <dylanconstantdef>
-		<defname>$library-summary-unit-type</defname>
-		<defsummary>A constant for <dname>begin-dumping</dname></defsummary>
+ 	    <defname>$library-summary-unit-type</defname>
+	    <defsummary>A constant for
+		<dname>begin-dumping</dname></defsummary> 
 		<defvalue>0</defvalue>
 		<defdescription>
-		 <para>This is currently the only type of OD format allowed.  To build
-		  another format (e.g. DOOD), a new exported constant must be added to 
-		  <dmodule>OD-Format</dmodule> and the file extension must be added to
-		  <dname>$unit-type-strings</dname> (an internal constant to 
-		  <dmodule>OD-Format</dmodule>).</para>
+		 <para>This is currently the only type of OD format
+		 allowed.  To build another format (e.g. DOOD), a new
+		 exported constant must be added to
+		 <dmodule>OD-Format</dmodule> and the file extension
+		 must be added to <dname>$unit-type-strings</dname>
+		 (an internal constant to
+		 <dmodule>OD-Format</dmodule>).</para>
 		</defdescription>
 	   </dylanconstantdef>
 
@@ -630,10 +638,12 @@
 	   <defsupers><defsuper>&lt;dump-buffer></defsuper></defsupers>
 	   <definitkeywords></definitkeywords>
 	   <defdescription>
-	    <para>Contains all information about the current object-dump in progress.
-		It is illegal to use a dump-state after it has been passed to
-		<dname>end-dumping</dname>.  All instances of <dname>&lt;dump-state></dname>
-		are created by calls to <dname>begin-dumping</dname>.
+	    <para>Contains all information about the current
+	    object-dump in progress.  It is illegal to use a
+	    dump-state after it has been passed to
+	    <dname>end-dumping</dname>.  All instances of
+	    <dname>&lt;dump-state></dname> are created by calls to
+	    <dname>begin-dumping</dname>. 
 	    </para>
 	   </defdescription>
 	  </dylanclassdef>
@@ -650,13 +660,13 @@
 	    <keyparam>
 		<paramname>initialize-from</paramname>
 		<paramdefault>*default-dispatcher*</paramdefault>
-		<paramsummary>Unless &false;, initialize instance's dispatch information
-		 from this dispatcher.</paramsummary>
+		<paramsummary>Unless &false;, initialize instance's
+		dispatch information from this dispatcher.</paramsummary>
 	    </keyparam>
 	   </definitkeywords>
 	   <defdescription>
-	    <para>A dispatcher is an object that tells the loader how to convert binary 
-		data into Dylan objects.
+	    <para>A dispatcher is an object that tells the loader how
+	    to convert binary data into Dylan objects. 
 	    </para>
 	   </defdescription>
 	  </dylanclassdef>
@@ -667,8 +677,8 @@
 	   <deftype>&lt;dispatcher></deftype>
 	   <defdescription>
 	    <para><dmodule>Dylan-dump</dmodule> loads this variable
-		with dispatching information for several commonly-used Dylan types
-		(see <xref linkend="gdmaint-d2c-base-dylan-dump">).
+		with dispatching information for several commonly-used
+		Dylan types (see <xref linkend="gdmaint-d2c-base-dylan-dump">).
 	    </para>
 	   </defdescription>
 	  </dylanvariabledef>
@@ -679,8 +689,8 @@
 	   <deftype>&lt;sequence></deftype>
 	   <defvalue>#[]</defvalue>
 	   <defdescription>
-	    <para>This is used by <dname>find-data-unit</dname> to locate the du file
-		to load.
+	    <para>This is used by <dname>find-data-unit</dname> to
+	    locate the du file to load.
 	    </para>
 	   </defdescription>
 	  </dylanvariabledef>
@@ -745,14 +755,16 @@
 	    <param>
 		<paramname>res</paramname>
 		<paramtype>&lt;data-unit></paramtype>
-		<paramsummary>Contains the resulting transformed objects from the du file.
+		<paramsummary>Contains the resulting transformed
+		objects from the du file. 
 		</paramsummary>
 	    </param>
 	   </defreturns>
 	   <defdescription>
-	    <para>Find-data-unit, when given a data unit name and type, returns the
-corresponding data unit.  This is the main entry for causing loading to
-happen.  Also used recursively.</para>
+	    <para>Find-data-unit, when given a data unit name and
+	    type, returns the corresponding data unit.  This is the
+	    main entry for causing loading to happen.  Also used
+	    recursively.</para> 
 	   </defdescription>
 	  </dylanmethoddef>
 	 </sect3>
@@ -760,18 +772,22 @@ happen.  Also used recursively.</para>
        <sect3 id="gdmaint-d2c-base-od-format-defining">
 	  <title>Defining Simple Dumpers and Loaders</title>
 	  
-	  <para>To write a dumper for a class, one needs to think of a name for the
-	   class (usually just take the &lt;>'s off the class name), register the name
-	   with <dname>register-object-id</dname>, and define a dumper.  If your data
-	   structure contains any object sharing or circular usages, also see
-	   <xref linkend="gdmaint-d2c-base-od-format-circular"> and 
-	   <xref linkend="gdmaint-d2c-base-od-format-sharing">.  For automatic generation
-	   of object dumpers and loaders, see 
-	   <xref linkend="gdmaint-d2c-base-od-format-autodump">.</para>
+	  <para>To write a dumper for a class, one needs to think of a
+	  name for the class (usually just take the &lt;>'s off the
+	  class name), register the name with
+	  <dname>register-object-id</dname>, and define a dumper.  If
+	  your data structure contains any object sharing or circular
+	  usages, also see <xref
+	  linkend="gdmaint-d2c-base-od-format-circular"> and <xref
+	  linkend="gdmaint-d2c-base-od-format-sharing">.  For
+	  automatic generation of object dumpers and loaders, see
+	  <xref linkend="gdmaint-d2c-base-od-format-autodump">.</para>
+	  
 
   	   <dylanmethoddef>
 	    <defname>register-object-id</defname>
-	    <defsummary>Associates a number for a type for the OD dumping functions.
+	    <defsummary>Associates a number for a type for the OD
+	    dumping functions.
 	    </defsummary>
 	    <defparameters>
 	      <param>
@@ -788,31 +804,40 @@ happen.  Also used recursively.</para>
 	    <defreturns>
 	    </defreturns>
 	    <defdescription>
-		<para>Equate the <dname>name</dname> with the <dname>id</dname>.  This
-		 function is not exported; rather, all 
-		 <dname>register-object-id</dname> calls must occur in the 
-		 <dmodule>OD-Format</dmodule> module.</para>
-		<para>Of course, this requirement makes it really tough for extending
-		  <dmodule>OD-Format</dmodule> for user defined types ...</para>
+		<para>Equate the <dname>name</dname> with the
+		<dname>id</dname>.  This function is not exported;
+		rather, all  <dname>register-object-id</dname> calls
+		must occur in the <dmodule>OD-Format</dmodule>
+		module.</para>
+		<para>Of course, this requirement makes it really
+		tough for extending <dmodule>OD-Format</dmodule> for
+		user defined types ...</para> 
 	    </defdescription>
 	   </dylanmethoddef>
 
   	   <dylanfunctiondef>
 	    <defname>add-od-loader</defname>
-	    <defsummary>Register a routine for reading a dumped object back
+	    <defsummary>Register a method for reading a dumped object back
 	     into memory.</defsummary>
 	    <defparameters>
 	      <param>
 	        <paramname>dispatcher</paramname>
 	        <paramtype>&lt;dispatcher></paramtype>
+		<paramsummary>When loading .lib.du files, this is the
+		<dname>*default-dispatcher*</dname></paramsummary>
 	      </param>
 	      <param>
 	        <paramname>name</paramname>
 	        <paramtype>&lt;symbol></paramtype>
+		<paramsummary>The method will be activated when the
+		loader encounters the type registered with
+		<dname>register-object-id</dname> in the du
+		file.</paramsummary>
 	      </param>
 	      <param>
 	        <paramname>func</paramname>
 	        <paramtype>&lt;function></paramtype>
+		<paramsummary>The loader method.</paramsummary>
 	      </param>
 	    </defparameters>
 	    <defreturns>
@@ -823,15 +848,17 @@ happen.  Also used recursively.</para>
 	       reloading dumped objects, which has the signature:</para>
 <programlisting>
 method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlisting>
-		<para>If you use <dname>add-od-loader</dname>, you will need to define a
-		  corresponding method on <dname>dump-od</dname> (see
-		  <xref linkend="gdmaint-d2c-base-od-format-dumping">).</para>
+		<para>If you use <dname>add-od-loader</dname>, you
+		will need to define a corresponding method on
+		<dname>dump-od</dname> (see <xref
+		linkend="gdmaint-d2c-base-od-format-dumping">).</para>
 	    </defdescription>
 	   </dylanfunctiondef>
 
 	   <dylanmethoddef>
 	    <defname>add-make-dumper</defname>
-	    <defsummary>Convenience method to add both a loader and dumper.</defsummary>
+	    <defsummary>Convenience method to add both a loader and
+	    dumper.</defsummary> 
 	    <defparameters>
 	     <param>
 		<paramname>name</paramname>
@@ -861,7 +888,8 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
 		<keyparam>
 		 <paramname>dumper-only</paramname>
 		 <paramtype>&lt;boolean></paramtype>
-		 <paramsummary>If &true;, do not create the loader.</paramsummary>
+		 <paramsummary>If &true;, do not create the
+		 loader.</paramsummary> 
 		</keyparam>
 		<keyparam>
 		 <paramname>load-side-effect</paramname>
@@ -874,25 +902,30 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
 	    </defparameters>
 	    <defreturns></defreturns>
 	    <defdescription>
-		<para>A convenient way to define both a loader and a dumper for objects
-		 of class <dname>obj-class</dname>.  <dname>Slots</dname> is a list which
-		 is in this format:</para>
+		<para>A convenient way to define both a loader and a
+		dumper for objects of class <dname>obj-class</dname>.
+		<dname>Slots</dname> is a list which is in this
+		format:</para> 
 <programlisting>
 #(slot-accessor-function-1, init-keyword-1, setter-function-1,
   slot-accessor-function-2, init-keyword-2, setter-function-2,
   ...)
 </programlisting>
-		<para>Note that the stuff is implicitly grouped in clumps of 3.  Either
-		 of the init-keyword or the setter may be &false;, but not both.  The
-		 "make dumper" requests backpatching when it encounters an unresolved 
-		 forward reference (due to circularities).  Any slot which might have a
-		 forward reference must have a setter function (it can also have an
-		 init-keyword, which will be used if possible).</para>
+		<para>Note that the stuff is implicitly grouped in
+		clumps of 3.  Either of the init-keyword or the setter
+		may be &false;, but not both.  The "make dumper"
+		requests backpatching when it encounters an unresolved
+		forward reference (due to circularities).  Any slot
+		which might have a forward reference must have a
+		setter function (it can also have an init-keyword,
+		which will be used if possible).</para> 
 
-		<para>A "make dumper" may be used when an object can be reconstructed from
-		 some accessor values by reinstatiating the object with <dname>make</dname>
-		 and backpatching some slots.  This is pretty general, since the accessor
-		 and setter function are not required to be slot accessors and setters.
+		<para>A "make dumper" may be used when an object can
+		be reconstructed from some accessor values by
+		reinstatiating the object with <dname>make</dname> and
+		backpatching some slots.  This is pretty general,
+		since the accessor and setter function are not
+		required to be slot accessors and setters. 
 		</para>
 	    </defdescription>
 	   </dylanmethoddef>
@@ -907,30 +940,37 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
 	 <sect3 id="gdmaint-d2c-base-od-format-representation">
 	  <title>ODF Representation of Objects</title>
 
-	  <para>In the dump files, objects contain the following parts:  a header, raw
-	   data, sub-objects, and an end-of-object marker.  The header is a single
-	   machine word which contains the class of the object.  (Actually, it contains
-	   the object-id, which is found by registry look-up.)  The header also 
-	   indicates if there is any raw data and sub-objects.  The raw data section is
-	   zero or more machine words which only have meaning to the object's loader.  If
-	   raw data is present, it is preceded by a byte-count (which is a single 
-	   machine word).  If there are sub-objects, they come next.  The last object
-	   in a sub-object list is a magical <dname>$end-object</dname>, which denotes
-	   both the end of the sub-object list and the last word of the current object.
+	  <para>In the dump files, objects contain the following
+	  parts:  a header, raw data, sub-objects, and an
+	  end-of-object marker.  The header is a single machine word
+	  which contains the class of the object.  (Actually, it
+	  contains the object-id, which is found by registry look-up.)
+	  The header also indicates if there is any raw data and
+	  sub-objects.  The raw data section is zero or more machine
+	  words which only have meaning to the object's loader.  If
+	  raw data is present, it is preceded by a byte-count (which
+	  is a single machine word).  If there are sub-objects, they
+	  come next.  The last object in a sub-object list is a
+	  magical <dname>$end-object</dname>, which denotes both the
+	  end of the sub-object list and the last word of the current
+	  object. 
 	  </para>
-	  <para>For more detail on the binary representation and on issues such as 
-	   endian-ness and machine word size, see 
-	   <xref linkend="gdmaint-d2c-base-od-format-binary">.</para>
-	  <para>When an object is loaded, the loading code reads in the header.  The
-	   object class id is extracted from the header.  The dispatcher then provides
-	   a load function based on the class id, which reads the remainder of the data
-	   associated with the object and returns the reconstructed object.</para>
+	  <para>For more detail on the binary representation and on
+	  issues such as endian-ness and machine word size, see <xref
+	  linkend="gdmaint-d2c-base-od-format-binary">.</para>
+
+	  <para>When an object is loaded, the loading code reads in
+	  the header.  The object class id is extracted from the
+	  header.  The dispatcher then provides a load function based
+	  on the class id, which reads the remainder of the data
+	  associated with the object and returns the reconstructed
+	  object.</para> 
 	 </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-dumpers">
 	<title>Functions for Writing Dumpers</title>
-        <para>When adding a method to <dname>dump-od</dname> use these functions
-	 to push out the objects correctly.</para>
+        <para>When adding a method to <dname>dump-od</dname> use the
+	methods described here to push out the objects correctly.</para> 
 
 	<dylanmethoddef>
 	 <defname>dump-definition-header</defname>
@@ -943,8 +983,9 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
 	  <param>
 	   <paramname>buf</paramname>
 	   <paramtype>&lt;dump-buffer></paramtype>
-	   <paramsummary>Probably best to use the <dname>&lt;dump-state></dname>
-		instance passed into <dname>dump-od</dname></paramsummary>
+	   <paramsummary>Probably best to use the
+	   <dname>&lt;dump-state></dname> instance passed into
+	   <dname>dump-od</dname></paramsummary> 
 	  </param>
 	  <keyparam>
 	   <paramname>subobjects</paramname>
@@ -954,20 +995,200 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
 	  <keyparam>
 	   <paramname>raw-data</paramname>
 	   <paramdefault>$odf-no-raw-data-format</paramdefault>
-	   <paramsummary>The Raw-Format field in an object-definition header encodes information needed to byte/word format translation, and in the degenerate case, indicates there is no raw data at all.  Allowable format codes are <dname>$odf-no-raw-data-format</dname>, <dname>$odf-byte-raw-data-format</dname>, <dname>$odf-16bit-raw-data-format</dname>, <dname>$odf-32bit-raw-data-format</dname>, <dname>$odf-64bit-raw-data-format</dname>, <dname>$odf-untranslatable-raw-data-format</dname>, and <dname>$odf-word-raw-data-format</dname> (which is 32 or 64 as appropriate, used for word> in format pseudo-objects).</paramsummary>
+	   <paramsummary>The Raw-Format field in an object-definition
+	   header encodes information needed to byte/word format
+	   translation, and in the degenerate case, indicates there is
+	   no raw data at all.  Allowable format codes are
+	    <dname>$odf-no-raw-data-format</dname>, 
+	    <dname>$odf-byte-raw-data-format</dname>, 
+	    <dname>$odf-16bit-raw-data-format</dname>, 
+	    <dname>$odf-32bit-raw-data-format</dname>, 
+	    <dname>$odf-64bit-raw-data-format</dname>, 
+	    <dname>$odf-untranslatable-raw-data-format</dname>, and 
+	    <dname>$odf-word-raw-data-format</dname> (which is 32 or
+	    64 as appropriate, used for <dname>&lt;word></dname> in
+	    format pseudo-objects).</paramsummary>
 	  </keyparam>
 	 </defparameters>
 	 <defreturns></defreturns>
 	 <defdescription>
-	  <para>The first dump call in <dname>dump-op</dname>, this function dumps the object's header to the buffer</para>
+	  <para>The first dump call in <dname>dump-op</dname> for
+	  simple objects, this function dumps the object's header to
+	  the buffer.  If one is dumping compound objects, first save
+	  the position of the <glossterm>buf</glossterm> before
+	  calling this method with some code like this:</para> 
+<programlisting>
+define method dump-od(obj :: &lt;ratio>, buf :: &lt;dump-state>) => ();
+  let start-pos = buf.current-pos;
+  dump-definition-header(#"ratio", buf, subobjects: #t);
+  dump-od(obj.numerator, buf);
+  dump-od(obj.denominator, buf);
+  dump-end-entry(start-pos, buf);
+end method dump-od;</programlisting>
+	  <para>This is necessary so that
+	  <dname>dump-end-entry</dname> (see the next documented
+	  method) writes out the terminal correctly.</para> 
 	 </defdescription>
 	</dylanmethoddef>
-	   
+
+	<dylanmethoddef>
+	 <defname>dump-end-entry</defname>
+	 <defsummary>Dump an "end of object" marker. This is only
+	 necessary if there are subobjects.</defsummary> 
+	 <defparameters>
+	  <param>
+	   <paramname>start-posn</paramname>
+	   <paramtype>&lt;integer></paramtype>
+	   <paramsummary>Where the object began.</paramsummary>
+	  </param>
+	  <param>
+	   <paramname>buf</paramname>
+	   <paramtype>&lt;dump-buffer></paramtype>
+	   <paramsummary>Usually the <dname>&lt;dump-state></dname> instance
+	    passed into <dname>dump-od</dname>.</paramsummary>
+	  </param>
+	 </defparameters>
+	 <defreturns></defreturns>
+	 <defdescription>
+	  <para>Before dumping the compound object, be sure to save
+	  the buffer's current position (as in the sample code for
+	  <dname>dump-definition-header</dname>) because this method
+	  needs that information.</para> 
+	 </defdescription>
+	</dylanmethoddef>
+
+	<dylanmethoddef>
+	 <defname>dump-simple-object</defname>
+	 <defsummary>Dump an object that has only a constant number of
+	 subobjects (no raw data).</defsummary> 
+	 <defparameters>
+	  <param>
+	   <paramname>name</paramname>
+	   <paramtype>&lt;symbol></paramtype>
+	   <paramsummary>The instance's class name.</paramsummary>
+	  </param>
+	  <param>
+	   <paramname>buf</paramname>
+	   <paramtype>&lt;dump-buffer></paramtype>
+	   <paramsummary>Usually the <dname>&lt;dump-state></dname> instance
+	    passed into <dname>dump-od</dname>.</paramsummary>
+	  </param>
+	  <restparam>
+	   <paramname>slots</paramname>
+	   <paramsummary>The values of the slots of this object.</paramsummary>
+	  </restparam>
+	 </defparameters>
+	 <defreturns></defreturns>
+	 <defdescription>
+	  <para>This method provides a simple way to dump objects of
+	  known size, so using this method, writing
+	  <dname>dump-od</dname> for <dname>&lt;ratio></dname> 
+	   would be:</para>
+<programlisting>
+define method dump-od(obj :: &lt;ratio>, buf :: &lt;dump-state>) => ();
+  dump-simple-object(#"ratio", buf, obj.numerator, obj.denominator);
+end method dump-od;</programlisting>
+	  </defdescription>
+	 </dylanmethoddef>
+
+	 <dylanmethoddef>
+	  <defname>dump-word</defname>
+	  <defsummary>Dump an integer into the buffer as one word.</defsummary>
+	  <defparameters>
+	   <param>
+	    <paramname>obj</paramname>
+	    <paramtype>&lt;word></paramtype>
+	    <paramsummary>The integer to dump.</paramsummary>
+	   </param>
+	   <param>
+	    <paramname>buf</paramname>
+	    <paramtype>&lt;dump-buffer></paramtype>
+	   </param>
+	  </defparameters>
+	  <defreturns></defreturns>
+	  <defdescription>
+	   <para>This dumps an <dname>&lt;integer></dname> as part of
+	   of an object.  If you want to dump an
+	   <dname>&lt;integer></dname> as an
+	   <dname>&lt;integer></dname>, use the <dname>dump-od</dname>
+	   on <dname>&lt;integer></dname> in <xref
+	   linkend="gdmaint-d2c-base-dylan-dump">.</para> 
+	  </defdescription>
+	 </dylanmethoddef>
+
+	 <dylanmethoddef>
+	  <defname>dump-raw-data</defname>
+	  <defsummary>Dumps a collection into the buffer.</defsummary>
+	  <defparameters>
+	   <param>
+	    <paramname>obj</paramname>
+	    <paramtype>&lt;collection></paramtype>
+	    <paramsummary>The collection to dump.</paramsummary>
+	   </param>
+	   <param>
+	    <paramname>bsize</paramname>
+	    <paramtype>&lt;integer></paramtype>
+	    <paramsummary>The number of elements in the
+	    collection.</paramsummary> 
+	   </param>
+	   <param>
+	    <paramname>buf</paramname>
+	    <paramtype>&lt;dump-buffer></paramtype>
+	   </param>
+	  </defparameters>
+	  <defreturns></defreturns>
+	  <defdescription>
+	   <para>This take a collection, <glossterm>obj</glossterm>,
+	   and dumps its contents to <glossterm>buf</glossterm>.  This
+	   method is usually called in connection with dumping a
+	   complex object, for example, <dname>dump-od</dname> for
+	   <dname>&lt;byte-string></dname> in <xref
+	   linkend="gdmaint-d2c-base-dylan-dump"> dumps strings
+	   thusly:</para> 
+<programlisting>
+define method dump-od(obj :: &lt;byte-string>, buf :: &lt;dump-buffer>) => ();
+  dump-definition-header(#"byte-string", buf,
+  			 raw-data: $odf-byte-raw-data-format);
+  dump-raw-data(obj, obj.size, buf);
+end method;</programlisting>
+          </defdescription>
+	 </dylanmethoddef>
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-loaders">
-	  <title>Functions for Writing Loaders</title>
-        <para>TBD</para>
+	<title>Functions for Writing Loaders</title>
+
+        <para>The basic concept of writing a loader is to read in the
+	information you wrote out with the method on
+	<dname>dump-od</dname>.  This process (writing loaders) is a
+	bit different than writing dumpers, though.  Here, you provide
+	a method to <dname>add-od-loader</dname> (described in <xref
+	linkend="gdmaint-d2c-base-od-format-defining">) 
+	that is activated by a <dname>&lt;dispatcher></dname> instance
+	when it encounters the object in the du file to load.</para>
+
+	<para>A loader on <dname>&lt;byte-string></dname>
+	(the corresponding <dname>dump-od</dname> method is found in
+	<xref linkend="gdmaint-d2c-base-od-format-dumpers">) would
+	look like this:</para>
+<programlisting>
+add-od-loader(*default-dispatcher*, #"byte-string", 
+  method (state :: &lt;load-state>)
+   => res :: &lt;byte-string>;
+    let next = state.od-next;
+    let bsize = buffer-word(state.od-buffer, next);
+    state.od-next := next + $word-bytes;
+    let res = make(&lt;byte-string>, size: bsize);
+    load-raw-data(res, bsize, state);
+    res;
+  end method
+);
+</programlisting>
+        <para>(In this case, the call to <dname>add-od-loader</dname>
+	is made at the top-level in
+	<filename>dylan-dump.dylan</filename>.)  The functions used to
+	build the dispatch method are described below.
+	</para>
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-circular">
@@ -983,17 +1204,26 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
        <sect3 id="gdmaint-d2c-base-od-format-binary">
 	<title>Binary Representation</title>
 
-	<para>To allow efficiency as well as potential interchange, objects are described by a word sequence which vaguely resembles the in-core representation.  The word size is implementation defined, and dumper/loader methods dump/load data as
-words having the native byte ordering.  The format is defined so that any
-necessary byte-swapping and word-size adjustment can be done as a pre-pass
-filter to the actual loader.  The format is described in detail at the top of <filename>od-format.dylan</filename>.</para>
+	<para>To allow efficiency as well as potential interchange,
+	objects are described by a word sequence which vaguely
+	resembles the in-core representation.  The word size is
+	implementation defined, and dumper/loader methods dump/load
+	data as words having the native byte ordering.  The format is
+	defined so that any necessary byte-swapping and word-size
+	adjustment can be done as a pre-pass filter to the actual
+	loader.  The format is described in detail at the top of
+	<filename>od-format.dylan</filename>.</para> 
 
-	<para>The implication of the above is that data-unit files produced from
-<dmodule>OD-Format</dmodule> are not portable.</para>
+	<para>The implication of the above is that data-unit files
+	produced from <dmodule>OD-Format</dmodule> are not portable.</para>
 
 	<sect4 id="gdmaint-d2c-base-od-format-binary-examples">
 	 <title>Examples</title>
-	 <para>These examples show the bits for some literals, assuming with 32bit word size and big-endian order (which, by the way i386 is not big-endian), and assigning convenient values for the object class-IDs.  See the actual code for the real definitions and class IDs.</para>
+	 <para>These examples show the bits for some literals,
+	 assuming with 32bit word size and big-endian order (which, by
+	 the way i386 is not big-endian), and assigning convenient
+	 values for the object class-IDs.  See the actual code for the
+	 real definitions and class IDs.</para> 
 
          <para>For example, we could describe a byte-string like this:</para>
 <programlisting>
@@ -1003,13 +1233,16 @@ filter to the actual loader.  The format is described in detail at the top of <f
     2[ceiling(byte-count, word-bytes)]: 
        &lt;string-chars: *></programlisting>
 
-	 <para>Assuming <dname>byte-string-$odf-id</dname> is <dlit>#x666</dlit>, the actual bits for <dname>"Foo"</dname> would be:</para>
+	 <para>Assuming <dname>byte-string-$odf-id</dname> is
+	 <dlit>#x666</dlit>, the actual bits for <dname>"Foo"</dname>
+	 would be:</para> 
 <programlisting>
     #x81000666
     #x00000003
     #x466F6F00</programlisting>
 
-	 <para>A list has subobjects, but no raw data, so it would look like:</para>
+	 <para>A list has subobjects, but no raw data, so it would
+	 look like:</para> 
 <programlisting>
     0: &lt;Header? = #b1, Etype = #b00, Subobjects? = #b1, Raw-Format = #x0,
         Raw-Size = #x00, Class-ID = list-odf-id>
@@ -1019,7 +1252,8 @@ filter to the actual loader.  The format is described in detail at the top of <f
 
     M: &lt;Header? = #b1, Etype = #b01, Start-Offset: * = M></programlisting>
 
-	 <para>If <dname>list-odf-id</dname> were <dlit>#x667</dlit>, then <dlit>#("Foo", "Bar")</dlit> would be:</para>
+	 <para>If <dname>list-odf-id</dname> were <dlit>#x667</dlit>,
+	 then <dlit>#("Foo", "Bar")</dlit> would be:</para> 
 <programlisting>
     0: #x90000667
     1: #x81000666
@@ -1030,16 +1264,21 @@ filter to the actual loader.  The format is described in detail at the top of <f
     9: #x42617200
     7: #xA0000007</programlisting>
 
-	 <para>This demonstrates the nesting of objects, and shows how the end is marked.
-Note that:</para>
+	 <para>This demonstrates the nesting of objects, and shows how
+	 the end is marked.  Note that:</para>
 
 	 <itemizedlist>
-	  <listitem><para><dlit>"Foo"</dlit> is represented by exactly the same bits here (it is position-independent), and that</para></listitem>
-	  <listitem><para>The entire sequence is position-independent, since the end-entry has a relative offset, and that</para></listitem>
-	  <listitem><para>The basic subobject protocol doesn't say in advance how many
-    subobjects there's going to be; you have to wait for the end header.  This
-    could be avoided for e.g. vectors by considering subobject 0 to be the
-    length.</para></listitem>
+	  <listitem><para><dlit>"Foo"</dlit> is represented by exactly
+	  the same bits here (it is position-independent), and
+	  that</para></listitem> 
+	  <listitem><para>The entire sequence is position-independent,
+	  since the end-entry has a relative offset, and
+	  that</para></listitem> 
+	  <listitem><para>The basic subobject protocol doesn't say in
+	  advance how many subobjects there's going to be; you have to
+	  wait for the end header.  This could be avoided for
+	  e.g. vectors by considering subobject 0 to be the
+	  length.</para></listitem> 
 	 </itemizedlist>
 	</sect4>
 
