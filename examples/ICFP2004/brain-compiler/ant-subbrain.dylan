@@ -91,7 +91,34 @@ define macro ant-subbrain-definer
                      state-failure: curry(lookup, instrs, label, ?failure)))
   }
   
-  { PickUp ?success:expression ?failure:expression }
+  { PickUp ?success:name ?failure:name } // 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <pickup>,
+                     state-success: "outsider_" ## ?success,
+                     state-failure: "outsider_" ## ?failure))
+  }
+  
+  { PickUp ?success:name ?failure:expression } // 2
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <pickup>,
+                     state-success: "outsider_" ## ?success,
+                     state-failure: curry(lookup, instrs, label, ?failure)))
+  }
+  
+  { PickUp ?success:expression ?failure:name } // 3
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <pickup>,
+                     state-success: curry(lookup, instrs, label, ?success),
+                     state-failure: "outsider_" ## ?failure))
+  }
+  
+  { PickUp ?success:expression ?failure:expression } // 4
   =>
   {
     push-thunk(instrs, label, counter,
