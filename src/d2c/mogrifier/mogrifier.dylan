@@ -40,6 +40,18 @@ end;
 
 
 //
+// Class <instruction>
+//
+
+
+//
+// Class <powerpc-instruction>
+//
+
+
+
+
+//
 // Disassembler generics
 //
 define generic powerpc-disassemble-primary
@@ -189,10 +201,11 @@ define macro instruction-definer
 
   conditions:
     { (?condition) ?:token ... } => { (?condition) ?token ... }
+    { [?conditions] ?:token ... } => { (?conditions) ?token ... }
     { (?condition) } => { (?condition) }
+    { [?conditions] } => { (?conditions) }
 
   condition:
-    { (?condition-a) ?:token (?condition-b) } => { ((?condition-a) ?token (?condition-b)) }
     { field ?field-a ?equals:token field ?field-b } => { (?field-a ?equals ?field-b) }
     { field ?field ?equals:token ?:expression } => { (?field ?equals ?expression) }
     { flagged ?flag } => { (?flag) }
@@ -434,8 +447,7 @@ define instruction adde(31; 138; OE; D, A, B, Rc) end;
 define instruction mfcr(31; 19; D) end;
 
 define instruction bc(16; BO, BI, BD, AA, LK)
-//  simplify [(unflagged LK) & (unflagged AA) & (field BO = #b10100)]
-  simplify [(field BI = 0) & ((field BO = #b01100) | (field BO = #b01101))]
+  simplify [(field BI = 0) & [(field BO = #b01100) | (field BO = #b01101)]]
     => bt(AA, LK);
 end;
 
