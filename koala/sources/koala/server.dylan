@@ -44,9 +44,9 @@ define class <server> (<sealed-constructor>)
   // RFC 2616, 5.1.1
   constant slot allowed-methods :: <sequence> = #(#"GET", #"POST", #"HEAD");
 
-  // Map from URI string to a response function.  The leading slash is removed
-  // from URIs because it's easier to use merge-locators that way.
-  constant slot uri-map :: <string-table> = make(<string-table>);
+  // Map from URL string to a response function.  The leading slash is removed
+  // from URLs because it's easier to use merge-locators that way.
+  constant slot url-map :: <string-table> = make(<string-table>);
 
   // pathname translations
   //slot pathname-translations :: <sequence> = #();
@@ -179,10 +179,14 @@ define function start-server (#key port :: <integer> = 80,
   let server :: <server> = ensure-server();
   server.max-listeners := listeners;
   server.request-class := request-class;
+  *server-port* := port;
   configure-server();
   ensure-sockets-started();
   log-info("Server root directory is %s", *server-root*);
   log-info("Document root is %s", *document-root*);
+  when (*auto-register-pages?*)
+    log-info("Auto-register enabled");
+  end;
   log-info("Ready for service on port %d", port);
   while (start-http-listener(server, port)) end;
 end start-server;
@@ -370,7 +374,7 @@ end do-http-listen;
 define class <request> (<basic-request>)
   slot request-method :: <symbol> = #"unknown";
   slot request-version :: <symbol> = #"unknown";
-  slot request-uri :: <string> = "";
+  slot request-url :: <string> = "";
   slot request-post-query :: <string> = "";
   slot request-keep-alive? :: <boolean> = #f;
   // The actual headers, mapping string -> raw data
@@ -460,7 +464,7 @@ define method read-request (request :: <request>) => ()
     when (epos > bpos)
       let qpos = char-position('?', buffer, bpos, epos);
       // Should his trim trailing whitespace???
-      request.request-uri := substring(buffer, bpos, qpos | epos);
+      request.request-url := substring(buffer, bpos, qpos | epos);
       request.request-query-values
         := if (qpos)
              log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
@@ -477,7 +481,7 @@ define method read-request (request :: <request>) => ()
   end;
   log-info("%s %s %s",
            uppercase-request-method(request.request-method),
-           request.request-uri, request.request-version);
+           request.request-url, request.request-version);
   unless (request.request-version == #"http/0.9")
     let (headers, nbuffer, nlen)
       = read-message-headers(socket,
@@ -539,7 +543,7 @@ define method read-request (request :: <request>) => ()
       let query = decode-url(buffer, len, len + sz);
       request.request-post-query := query;
       // By the time we get here request-query-values has already been bound to a <string-table>
-      // containing the URI query values.  Now we augment it with any form values.
+      // containing the URL query values.  Now we augment it with any form values.
       request.request-query-values
         := extract-query-values(query, 0, size(query), table: request.request-query-values);
     else
@@ -563,68 +567,70 @@ define method send-error-response (request :: <request>, err :: <error>)
 end;
 
 // API
-// Register a response function (or an alias) for a given URI.
-// The URI mapping directly to a function is considered the canonical URI.
-// See find-responder and register-alias-uri.
-define method register-uri
-    (uri :: <string>, target :: <object>, #rest args, #key replace?)
-  log-info("URI %s registered", uri);
+// Register a response function (or an alias) for a given URL.
+// The URL mapping directly to a function is considered the canonical URL.
+// See find-responder and register-alias-url.
+define method register-url
+    (url :: <string>, target :: <object>, #rest args, #key replace?)
+  log-info("URL %s registered", url);
   let server :: <server> = *server*;
-  let (bpos, epos) = trim-whitespace(uri, 0, size(uri));
+  let (bpos, epos) = trim-whitespace(url, 0, size(url));
   if (bpos = epos)
     error(make(<application-error>,
-               format-string: "You cannot register an empty URI: %=",
-               format-arguments: list(substring(uri, bpos, epos))));
+               format-string: "You cannot register an empty URL: %=",
+               format-arguments: list(substring(url, bpos, epos))));
   else
-    let old-target = element(server.uri-map, uri, default: #f);
+    let old-target = element(server.url-map, url, default: #f);
     if (replace? | ~old-target)
-      server.uri-map[uri] := target;
+      server.url-map[url] := target;
     else
       error(make(<application-error>,
-                 format-string: "There is already a target registered for URI %=",
-                 format-arguments: list(uri)));
+                 format-string: "There is already a target registered for URL %=",
+                 format-arguments: list(url)));
     end;
   end;
-end register-uri;
+end register-url;
 
 // API
 // Just a clearer name for aliasing.
-define method register-alias-uri
+define method register-alias-url
     (alias :: <string>, target :: <string>, #key replace?)
-  register-uri(alias, target, replace?: replace?);
+  register-url(alias, target, replace?: replace?);
 end;
 
 // Find a responder function, following alias links, if any.
 // Perhaps shouldn't have alias links...just put the responder directly on
 // several URLs.
 define method find-responder
-    (uri :: <string>)
- => (responder :: false-or(<function>), canonical-uri)
-  let map = uri-map(*server*);
-  local method find-it (uri :: <string>, seen :: <list>)
-                    => (responder, canonical-uri)
-          let candidate = element(map, uri, default: #f);
+    (url :: <string>)
+ => (responder :: false-or(<function>), canonical-url)
+  let map = url-map(*server*);
+  local method find-it (url :: <string>, seen :: <list>)
+                    => (responder, canonical-url)
+          let candidate = element(map, url, default: #f);
           select (candidate by instance?)
-            <function> => values(candidate, uri);
+            <function> => values(candidate, url);
             <string>   => iff(member?(candidate, seen, test: string-equal?),
                               application-error(),  // ---TODO: "circular URL alias"
-                              find-it(candidate, pair(uri, seen)));
+                              find-it(candidate, pair(url, seen)));
             otherwise  => #f;
           end;
         end;
-  local method maybe-auto-register (uri)
-          // could use safe-locator-from-uri, but it's relatively expensive
-          let len = size(uri);
-          let slash = char-position-from-end('/', uri, 0, len);
-          let dot = char-position-from-end('.', uri, slash | 0, len);
-          when (dot & dot < len - 1)
-            let ext = substring(uri, dot + 1, len);
-            let reg-fun = element(*auto-register-map*, ext, default: #f);
-            reg-fun & reg-fun(uri)
+  local method maybe-auto-register (url)
+          when (*auto-register-pages?*)
+            // could use safe-locator-from-url, but it's relatively expensive
+            let len = size(url);
+            let slash = char-position-from-end('/', url, 0, len);
+            let dot = char-position-from-end('.', url, slash | 0, len);
+            when (dot & dot < len - 1)
+              let ext = substring(url, dot + 1, len);
+              let reg-fun = element(*auto-register-map*, ext, default: #f);
+              reg-fun & reg-fun(url)
+            end
           end
         end;
-  find-it(uri, #())
-    | values(maybe-auto-register(uri), uri)
+  find-it(url, #())
+    | values(maybe-auto-register(url), url)
 end;
 
 // define responder test ("/test", secure?: #t)
@@ -632,13 +638,13 @@ end;
 //   format(output-stream(response), "<html><body>test</body></html>");
 // end;
 define macro responder-definer
-  { define responder ?:name (?uri:expression /* allow args here */ )
+  { define responder ?:name (?url:expression /* allow args here */ )
         (?request:variable, ?response:variable)
       ?:body
     end }
   =>
   { define method ?name (?request, ?response) ?body end;
-    register-uri(?uri, ?name /* pass args here */ ) }
+    register-url(?url, ?name /* pass args here */ ) }
 end;
 
 // Invoke the appropriate handler for the given request URL and method.
@@ -647,20 +653,20 @@ end;
 // and generate the appropriate error response.
 define method invoke-handler
     (request :: <request>) => ()
-  let uri :: <string> = request-uri(request);
+  let url :: <string> = request-url(request);
   with-resource (headers = <header-table>)
     let response = make(<response>, request: request, headers: headers);
     block ()
-      let (responder, canonical-uri) = find-responder(uri);
+      let (responder, canonical-url) = find-responder(url);
       dynamic-bind (*response* = response)
         if (responder)
-          log-debug("%s handler found", uri);
+          log-debug("%s handler found", url);
           responder(request, response);
         else
           let found? = maybe-serve-static-file(request, response);
           when (~found?)
-            log-info("%s not found", uri);
-            resource-not-found-error(uri: request-uri(request));  // 404
+            log-info("%s not found", url);
+            resource-not-found-error(url: request-url(request));  // 404
           end;
         end;
       end;

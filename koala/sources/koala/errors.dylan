@@ -79,11 +79,11 @@ end;
 define http-error header-too-large-error (<http-client-error>)
     400 "Request header size exceeded limit of %d bytes", max-size;
 
-//define http-error request-uri-too-large-error (<http-client-error>)
-//    414 "Request URI exceeded limit of %d bytes", max-size;
+//define http-error request-url-too-large-error (<http-client-error>)
+//    414 "Request URL exceeded limit of %d bytes", max-size;
 
-define http-error invalid-uri-error (<http-parse-error>)
-    400 "Invalid request uri: %=", uri;
+define http-error invalid-url-error (<http-parse-error>)
+    400 "Invalid request url: %=", url;
 
 define http-error invalid-url-encoding-error (<http-parse-error>)
     400 "Invalid digits following %% in urlencoded string";
@@ -103,7 +103,7 @@ define http-error invalid-request-line-error (<http-parse-error>)
 
 define http-error resource-not-found-error (<http-client-error>)
     404 "Resource not found: %s",
-    uri;
+    url;
 
 // This is when can't match Accept headers.
 // Response SHOULD include description of available

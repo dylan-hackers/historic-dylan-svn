@@ -15,6 +15,17 @@
 -->
 
 
+<!-- Port on which to listen for HTTP requests. -->
+<port value="80" />
+
+
+<!-- unused as yet -->
+<administrator
+   email="you@your.domain"
+   name="yourname" />
+
+
+
 <!-- SERVER-ROOT is the top of the directory tree under which the
      server's configuration and log files are kept.  Other pathnames are
      merged against this one, so if they're relative they will be
@@ -50,5 +61,12 @@
      a server request will not be caught.  Only turn this on when running
      inside a development environment, or the server will crash hard. -->
 <debug-server value="off" />
+
+
+<!-- If AUTO-REGISTER is on then URLs may be automatically registered if
+     if they match certain patterns.  e.g., .dsp files will be automatically
+     registered as Dylan Server Pages.  The default is off.  -->
+<auto-register enabled="no" />
+
 
 </koala>

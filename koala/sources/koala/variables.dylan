@@ -7,8 +7,10 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// Whether to show directory contents when a user enter the URI of a directory.
-// For now it's boolean, but could be a list of directories to allow/disallow.
+// The port on which to listen for HTTP requests.
+define variable *server-port* :: <integer> = 80;
+
+// Whether to show directory contents when a user requests a directory URL.
 define variable *allow-directory-listings* = #t;
 
 // Whether the server should run in debug mode or not.  If this is true then errors
@@ -34,7 +36,7 @@ define variable *server-root* :: false-or(<directory-locator>) = #f;
 // *server-root*/www.
 define variable *document-root* :: false-or(<directory-locator>) = #f;
 
-// The set of file names that are searched for when a directory URI is requested.
+// The set of file names that are searched for when a directory URL is requested.
 // They are searched in order, and the first is chosen.
 define variable *default-document-names* :: <sequence>
   = #["index.html", "index.htm"];
@@ -96,9 +98,11 @@ define table *mime-type-map* = {
   #"asf"   => "video/x-msvideo"  // a guess
 };
 
-// If this is set to true and certain URLs are requested, a page will be
-// automatically registered for the URL.  See *auto-register-map*.
-define variable *auto-register-pages?* :: <boolean> = #t;
+// This is the "master switch" for auto-registration of URLs.  If #f then URLs will
+// never be automatically registered based on their file types.  It defaults to #f
+// to be safe.
+// @see *auto-register-map*
+define variable *auto-register-pages?* :: <boolean> = #f;
 
 // Maps from file extensions (e.g., "dsp") to functions that will register a URL
 // responder for a URL.  If a URL matching the file extension is requested, and

@@ -51,9 +51,9 @@ end;
 
 define function page-for-request (client :: <client>)
     => (false-or-page)
-  let full-url = client.client-request-uri;
+  let full-url = client.client-request-url;
   let server = client.client-server;
-  let (full-url, bpos, epos) = string-extent(full-uri);
+  let (full-url, bpos, epos) = string-extent(full-url);
   let qpos = char-position('?', full-url, bpos, epos);
   let url-string = if (qpos) substring(full-url, bpos, qpos) else full-url end;
   //---TODO: should record last reference time, so can gc the page table

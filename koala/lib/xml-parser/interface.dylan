@@ -156,9 +156,9 @@ define class <processing-instruction> (<attributes>)
 end class <processing-instruction>;
 
 define abstract class <external-mixin> (<object>)
-  slot sys-id :: false-or(<string>) = #f, init-keyword: sys-id:;
-  slot pub-id :: false-or(<string>) = #f, init-keyword: pub-id:;
-  slot sys/pub :: one-of(#"system", #"public", #f) = #f, init-keyword: sys/pub:;
+  constant slot sys-id :: false-or(<string>) = #f, init-keyword: sys-id:;
+  constant slot pub-id :: false-or(<string>) = #f, init-keyword: pub-id:;
+  constant slot sys/pub :: one-of(#"system", #"public", #f) = #f, init-keyword: sys/pub:;
 end class <external-mixin>;
 
 define abstract class <entity> (<tag>)
