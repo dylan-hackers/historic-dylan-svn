@@ -1,5 +1,5 @@
-xml-parser: xml-parser.lid library.dylan interface.dylan value-impl.dylan builder-impl.dylan
-	d2c xml-parser.lid
+xml-parser: xml-parser.lid library.dylan interface.dylan productions.dylan transform.dylan collect.dylan
+	d2c -L../meta xml-parser.lid
 
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~
