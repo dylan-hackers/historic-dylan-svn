@@ -1609,9 +1609,9 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
            <defdescription>
              <para>
                For most streams, that are type-declarative (e.g. 
-               <classname>&lt;byte-string-stream&gt;</classname>), this
+               <dname>&lt;byte-string-stream&gt;</dname>), this
                simply returns the underlying <parameter>element-type</parameter>.
-               For generic <classname>&lt;sequence&gt;</classname>s, the method
+               For generic <dname>&lt;sequence&gt;</dname>s, the method
                must have at least one element (the first) to return a type.
              </para>
            </defdescription>
@@ -1699,8 +1699,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
              <defdescription>
                <para>Sets the stream's position to a new absolute position.  
                  Allows <dlit>#"start"</dlit>,
-                 <dlit>#"end"</dlit>, or a <classname>&lt;stream-position&gt;
- 	        </classname> as the position-setter.
+                 <dlit>#"end"</dlit>, or a <dname>&lt;stream-position&gt;
+ 	        </dname> as the position-setter.
                </para>
              </defdescription>
            </dylangenericdef>
@@ -2075,7 +2075,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
                  </varparam>
                  <restparam>
                    <paramname>parameters</paramname>
-                   <paramsummary>Arguments for <function>make</function> to open
+                   <paramsummary>Arguments for <dname>make</dname> to open
                      the file.</paramsummary>
                  </restparam>
                </defparameters>
