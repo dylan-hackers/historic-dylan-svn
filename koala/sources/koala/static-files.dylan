@@ -124,7 +124,7 @@ end;
 
 
 // Get MIME Type for file name
-define method mime-type (locator :: <locator>) => (mime-type :: <string>)
+define method get-mime-type (locator :: <locator>) => (mime-type :: <string>)
   let extension = locator-extension(locator);
   let sym = extension & ~empty?(extension) & as(<symbol>, extension);
   let mime-type = element(*mime-type-map*, sym, default: *default-static-content-type*);
@@ -136,11 +136,9 @@ end method;
 // Serves up a static file
 define method static-file-responder
     (request :: <request>, response :: <response>, locator :: <locator>)
-
-  mime-type := mime-type(locator);
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)
-
+    let mime-type = get-mime-type(locator);
     add-header(response, "Content-Type", mime-type);
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
@@ -173,7 +171,12 @@ define method directory-responder
                    end if;
         write(stream, "\t\t\t\t<tr>\n");
         format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n", link, link);
-        format(stream, "\t\t\t\t<td class=\"mime-type\">top-level/sub-type</td>\n");
+        let mime-type = if (type = #"file")
+                          get-mime-type(locator);
+                        else
+                          "";
+                        end;
+        format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
         for (key in #[#"size", #"modification-date", #"author"])
           let prop = element(props, key, default: "&nbsp;");
           format(stream, "\t\t\t\t<td class=\"%s\">", as(<string>, key) );
@@ -220,8 +223,8 @@ define method directory-responder
     write(stream,
           "\t\t\t\t<tr>\n"
           "\t\t\t\t\t<td class=\"name\"><a href=\"../\">../</a></td>\n"
-          "\t\t\t\t\t<td class=\"type\">DIR</td>\n"
-          "\t\t\t\t\t<td class=\"size\">--</td>\n"
+          "\t\t\t\t\t<td class=\"type\"></td>\n"
+          "\t\t\t\t\t<td class=\"size\"></td>\n"
           "\t\t\t\t\t<td class=\"modification-date\"></td>\n"
           "\t\t\t\t\t<td class=\"author\" />\n"
           "\t\t\t\t</tr>\n");
@@ -256,10 +259,10 @@ define method display-file-property
     elseif (kilobyte > 0)
       format(stream, "%d KB", kilobyte);
     else
-      format(stream, "%d", property);
+      format(stream, "%d B", property);
     end if;
   else
-    write(stream, "DIR");
+    write(stream, "");
   end if;
 end;
 
