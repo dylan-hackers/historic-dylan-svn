@@ -237,6 +237,7 @@ end;
 //                 row-generator;
 //end;
 
+// This can probably use #key to only allow true property lists in the callers?
 define macro taglib-definer
   { define taglib ?:name () ?properties:* end }
   => { register-taglib(taglib-aux1(?"name", ?properties),
@@ -253,7 +254,7 @@ props:
   => { #f }
   { name: ?val:expression; ... }
   => { ?val; ... }
-  // ---*** TODO: LHS should only allow a keyword, but I can't remember if :keyword works
+  // ---*** TODO: LHS should only allow a keyword.  Is that doable?
   { ?key:expression ?val:*; ... }
   => { ... }
 end;
@@ -953,8 +954,6 @@ define method parse-template (page :: <dylan-server-page>,
           let directive? = (taglib = #"directive");
           iff(html-pos < tag-start,
               add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
-          // *tag-call* is bound here so that it will be the same during parsing
-          // as it is during execution.  parse-tag-arg needs it.
           let (call, has-body?, body-start)
             = parse-start-tag(page, buffer, tag-start,
                               iff(directive?, $%dsp-taglib, taglib),
@@ -1015,9 +1014,17 @@ define function parse-start-tag (page :: <dylan-server-page>,
                      error("In template %=, the tag %= was not found.",
                            as(<string>, page.source-location),
                            name));
+  // *tag-call* is bound here so that it will be the same during parsing
+  // as it is during execution.  parse-tag-arg needs it.
   dynamic-bind (*tag-call* = tag-call)
     let (tag-args, has-body?, end-index) = extract-tag-args(buffer, name-end, epos, tag);
     tag-call.arguments := tag-args;
+    when (has-body? & ~tag.allow-body?)
+      log-warning("While parsing template %s, at position %=:"
+                  " The %s:%s tag call should end with \"/>\" since this tag doesn't allow a body."
+                  " The tag body will be processed anyway.",
+                  as(<string>, page.source-location), bpos, prefix, name);
+    end;
     values (tag-call, has-body?, end-index)
   end
 end parse-start-tag;
@@ -1263,5 +1270,3 @@ end;
 begin
   *auto-register-map*["dsp"] := auto-register-dylan-server-page;
 end;
-
-

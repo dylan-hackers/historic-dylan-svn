@@ -1,0 +1,16 @@
+Change log for Koala HTTP server and Dylan Server Pages
+
+
+Changes for version 0.2
+  Bug Fixes:
+
+  New Features:
+  - Lots of documentation added.
+  - Template parser gives more warnings for malformed tags.
+  - Improved tags for generating dynamic HTML tables.  <dsp:table> tag et al.
+  - Added ability to 
+
+
+Changes for version 0.1 (released Feb 4, 2002)
+  - initial version
+

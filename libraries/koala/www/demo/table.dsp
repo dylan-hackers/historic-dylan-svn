@@ -16,7 +16,7 @@
     <h2>Table Generation</h2>
 
     <p>This page demonstrates the use of the dsp:table tag to generate HTML tables from a
-    set of data, using dsp:table and dsp:if.
+    set of data, using dsp:table and other associated tags.
 
     <p>
     A table with a bunch of rows:<br>
