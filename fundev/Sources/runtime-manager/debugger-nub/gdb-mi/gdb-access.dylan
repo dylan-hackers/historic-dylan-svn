@@ -148,7 +148,7 @@ define macro mi-operation-definer
   {define class-for-sequential mi-operation ?:name(?sequence-slot:*) end}
   =>
   {
-    define class ?name ## "<mi-command>"(<mi-command>)
+    define class ?name ## "-<command>"(<mi-command>)
       ?sequence-slot;
     end;
   }
@@ -157,7 +157,7 @@ define macro mi-operation-definer
   =>
   {
     define function ?name(?rest-sequence)
-      make(?name ## "<mi-command>", #"?name", ?sequence-arg)
+      make(?name ## "-<command>", #"?name", ?sequence-arg)
     end;
   }
 
@@ -229,8 +229,8 @@ define macro mi-operation-definer
     { ?parse-directive; ... } => { ?parse-directive, ... }
   
   parse-directive:
-    { resulting ?:name } => { method(inp, matched, more) => resps; let m = match(inp, "^" "?name"); if (m & m.empty?) make.curry else #f.always end if end method }
-    { resulting ?:name => ?parser:expression } => { method(inp, matched, more) => resps; let m = match(inp, "^" "?name"); if (m) rcurry(?parser, m) else #f.always end if end method }
+    { resulting ?:name } => { method(inp, matched, more) => (); let m = match(inp, "^" "?name"); more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
+    { resulting ?:name => ?parser:expression } => { method(inp, matched, more) => (); let m = match(inp, "^" "?name"); more.head(inp, pair(if (m) rcurry(?parser, m) else #f.always end if, matched), more.tail) end method }
 end;
 
 define macro mi-parser-definer
