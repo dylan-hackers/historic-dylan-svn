@@ -424,7 +424,10 @@ object-size-string:		\t.size\t%s%s, %d\n
 
 // FreeBSD on Intel 80386 or higher
 //
-platform-name:			x86-freebsd
+
+// FreeBSD 2.x (a.out format)
+//
+platform-name:			x86-freebsd-aout
 inherit-from:			generic-unix
 default-features:		compiled-for-unix compiled-for-x86
 				compiled-for-FreeBSD C-compiler-is-GCC
@@ -441,6 +444,13 @@ big-endian?:			#f
 descriptor-type-string:         .stabs "<unknown>",100,0,0,.Ltext0\n.text\n.Ltext0:\n.stabs "heapptr_t:t34=*35=xsheapobj:",128,0,6,0\n.stabs "descriptor:T36=s8heapptr:34,0,32;dataword:37=u4l:3,0,32;\\\",128,0,0,0\n.stabs "f:12,0,32;ptr:27,0,32;;,32,32;;",128,0,0,0\n.stabs "descriptor_t:t36",128,0,14,0\n
 descriptor-reference-string:	\t.stabs\t"%s%s:G36",32,0,1,0\n
 object-size-string:		\t.size\t%s%s, %d\n
+
+// FreeBSD 3.x (ELF format)
+//
+platform-name:			x86-freebsd-elf
+inherit-from:			x86-freebsd-aout
+mangled-name-prefix:		
+align-arg-is-power-of-two?:	#f
 
 
 // Consider this a template to be modified for supporting other platforms.
