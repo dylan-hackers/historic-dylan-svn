@@ -1,12 +1,14 @@
 module: client
 
+define constant $ready = #"ready";
+define constant $nowhere-to-go = #"nowhere-to-go";
+define constant $going-to-base = #"going-to-base";
+define constant $going-to-dropoff = #"going-to-dropoff";
+
+define constant <goal> = one-of($ready, $nowhere-to-go, $going-to-base,
+                                $going-to-dropoff);
+
 define class <thomas> (<robot-agent>)
-  slot id :: <integer>,
-    required-init-keyword: id:;
-  slot money :: <integer>,
-    required-init-keyword: money:;
-  slot capacity :: <integer>,
-    required-init-keyword: capacity:;
   slot goal :: <goal>,
     init-value: $ready;
   slot current-package :: <package>.false-or,
@@ -17,22 +19,22 @@ define class <thomas> (<robot-agent>)
     init-value: #f;
 end class <thomas>;
 
-define constant $ready = #"ready";
-define constant $nowhere-to-go = #"nowhere-to-go";
-define constant $going-to-base = #"going-to-base";
-define constant $going-to-dropoff = #"going-to-dropoff";
+define method agent-money (tom :: <thomas>, state :: <state>) => <integer>;
+  find-robot(state, tom.agent-id).money
+end method agent-money;
 
-define constant <goal> = one-of($ready, $nowhere-to-go, $going-to-base,
-                                $going-to-dropoff);
+define method agent-capacity (tom :: <thomas>, state :: <state>) => <integer>;
+  find-robot(state, tom.agent-id).capacity
+end method agent-capacity;
 
 
 define method agent-pos (agent :: <robot-agent>, state :: <state>) => <point>;
-  find-robot(state, agent.id).location;
+  find-robot(state, agent.agent-id).location;
 end method agent-pos;
 
 define method agent-packages (agent :: <robot-agent>, state :: <state>)
  => (package-list :: <list>)
-  find-robot(state, agent.id).inventory;
+  find-robot(state, agent.agent-id).inventory;
 end method agent-packages;
 
 define method packages-with-dest (packages :: <list>, loc :: <point>)
@@ -102,7 +104,7 @@ define method choose-packages (packages :: <sequence>, tom :: <thomas>,
   let tot = 0;
   block(return)
     for (p in sorted-packages)
-      if (tot + p.weight > tom.capacity)
+      if (tot + p.weight > agent-capacity(tom, state))
         return(ps)
       else
         if (find-path(agent-pos(tom, state), p.dest, state.board))
