@@ -18,3 +18,4 @@ files:
   pushbot
   thomas
   gabot
+  tour

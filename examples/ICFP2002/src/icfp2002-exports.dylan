@@ -7,6 +7,7 @@ define library icfp2002
   use io;
   use collection-extensions;
   use string-extensions;
+  use table-extensions;
 //  use time; // gabor does not have this present at the moment
   use garbage-collection;
   use network;
@@ -29,6 +30,7 @@ define module board
   use streams;
   use format-out;
   use print, import: {print-object};
+  use table-extensions;
   use utils;
   
   export
@@ -61,6 +63,15 @@ define module path
 
   export <point-list>, distance-cost, find-path, <path-cost>;
 end module path;
+
+define module tour
+  use common-dylan;
+  use utils;
+  use board;
+  use table-extensions;
+  use path;
+
+end module tour;
 
 define module command
   use common-dylan;

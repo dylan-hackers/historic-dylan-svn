@@ -12,7 +12,8 @@ SOURCES=icfp2002.dylan icfp2002-exports.dylan \
   dumber-bot.dylan \
   pushbot.dylan \
   thomas.dylan \
-  gabot.dylan
+  gabot.dylan \
+  tour.dylan
 
 
 D2C_FLAGS=-s -g -L.
