@@ -330,7 +330,7 @@ end;
 
 
 
-
+/*
 
 ///////////// KLUDGE
 
@@ -484,3 +484,5 @@ define constant <left-or-right> = one-of(#"left", #"right");
 define constant <sense-direction> = one-of(#"Here", #"Ahead", 
                                            #"LeftAhead", #"RightAhead");
 
+
+*/
