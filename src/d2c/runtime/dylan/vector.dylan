@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/vector.dylan,v 1.3.4.1 2003/06/10 10:04:42 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/vector.dylan,v 1.3.4.2 2003/06/14 09:22:22 prom Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -56,7 +56,7 @@ end;
 // out of line error functions, to minimize calling code size
 // element-error is actually used throughout the runtime library
 
-define constant element-error = method (coll :: <sequence>, index :: <integer>)
+define constant element-error = method (coll :: <collection>, index :: <integer>)
  => res :: <never-returns>;
   error("No element %d in %=", index, coll);
 end method;

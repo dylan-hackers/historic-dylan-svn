@@ -2,16 +2,46 @@ module: common-extensions
 
 
 //=========================================================================
-//  Condition string conversion
+//  Unsupplied, unfound.
 //=========================================================================
-//  condition-to-string
+//  Unique objects which can be used as default values for keywords and
+//  passed to 'default:'. These cannot be confused with any other Dylan
+//  values.
 
-define open generic condition-to-string
-    (condition :: <condition>)
- => (string :: <string>);
+define method unsupplied?( object :: <object> )
+=> ( unsupplied? :: <boolean> )
+    object = $unsupplied;
+end method unsupplied?;
 
-// XXX - need method on <format-string-condition>
-// XXX - need method on any conditions defined by Dylan library
+define method supplied?( object :: <object> )
+=> ( unsupplied? :: <boolean> )
+    ~ unsupplied?( object );
+end method supplied?;
+
+define method unsupplied()
+=> ( unsupplied-marker :: <object> )
+    $unsupplied;
+end method unsupplied;
+
+define class <not-found-marker> (<object>)
+end;
+
+define constant $unfound = make(<not-found-marker>);
+
+define function found?( object :: <object> )
+=> ( found? :: <boolean> )
+    ~ unfound?( object );
+end function found?;
+
+define function unfound?( object :: <object> )
+=> ( unfound? :: <boolean> )
+    object = $unfound;
+end function unfound?;
+
+define function unfound()
+=> ( unfound-marker :: <object> )
+    $unfound;
+end function unfound;
 
 
 //=========================================================================
@@ -422,6 +452,79 @@ define method string-to-integer
   end block;
 end method string-to-integer;
 
+//=========================================================================
+//  Macros
+//=========================================================================
+//  Miscellaneous macros exported from common-extensions. These are not
+//  available under Mindy.
+//
+//  XXX - table-definer conses excessively. With more macrology, it could
+//  run much faster.
+//  XXX - can the name bound by 'iterate' return?
+
+#if (~mindy)
+
+define macro table-definer
+  { define table ?:name ?eq:token { ?keys-and-values } }
+    => { define constant ?name :: <table> ?eq make(<table>);
+         fill-table!(?name, list(?keys-and-values)); }
+  { define table ?:name :: ?type:expression ?eq:token { ?keys-and-values } }
+    => { define constant ?name :: ?type ?eq make(?type);
+         fill-table!(?name, list(?keys-and-values)); }
+keys-and-values:
+  { ?key:expression => ?value:expression, ... } => { ?key, ?value, ... }
+  { } => { }
+end macro;
+
+define macro iterate
+  { iterate ?:name (?clauses:*) ?:body end }
+    => { %iterate-aux ?name
+	   %iterate-param-helper(?clauses)
+           %iterate-value-helper(?clauses)
+	   ?body
+         end }
+end;
+
+define macro %iterate-aux
+  { %iterate-aux ?:name
+      ?param-clauses:macro
+      ?value-clauses:macro
+      ?:body
+    end }
+    => { local method ?name (?param-clauses)
+                 ?body
+	       end;
+         ?name(?value-clauses) }
+end macro;
+
+define macro %iterate-param-helper
+  { %iterate-param-helper(?clauses) }
+    => { ?clauses }
+clauses:
+  { ?:name :: ?type:*, ... }
+    => { ?name :: ?type, ... }
+  { ?:name :: ?type:* = ?value:*, ... }
+    => { ?name :: ?type, ... }
+  { } => { }
+end;
+
+define macro %iterate-value-helper
+  { %iterate-value-helper(?clauses) }
+    => { ?clauses }
+clauses:
+  { ?:name :: ?type:*, ... }
+    => { #f, ... }
+  { ?:name :: ?type:* = ?value:*, ... }
+    => { ?value, ... }
+  { } => { }
+end;
+
+define macro when
+  { when (?:expression) ?:body end }
+    => { if (?expression) ?body end }
+end macro;
+
+#endif
 define method string-to-float
     (string :: <byte-string>,
      #key _start :: <integer> = 0, 

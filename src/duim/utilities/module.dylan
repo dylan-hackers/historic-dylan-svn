@@ -9,10 +9,10 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define module duim-imports
   // Export useful functionality that DUIM needs from other libraries
-  /*use functional-extensions,
+  use functional-extensions,
     exclude: { position },
     export: all;
-  use dylan-extensions,
+  /*use dylan-extensions,
     import: { <keyboard-interrupt>,
 	      \without-bounds-checks,
 	      element-no-bounds-check,
@@ -35,11 +35,6 @@ end module duim-imports;
 define module duim-utilities
   use dylan;
   use duim-imports;
-
-  // Gwydion compatibility
-  // common-dylan
-  use common-dylan, export: all, exclude: { position };
-  use format, export: all;
 
   // Debug support
   export *debug-duim-function*,

@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.32.2.3 2003/06/10 10:04:42 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.32.2.4 2003/06/14 09:22:21 prom Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -136,11 +136,7 @@ define module Dylan
 
 	     // Statements
 	     \if, \unless, \case, \select, \while, \until, \for, \begin,
-	     \block, \method, \when, \iterate, 
-
-             // why do we have to export these?
-             \%iterate-aux, \%iterate-param-helper, \%iterate-value-helper,
-
+	     \block, \method,
 
 	     // Function-macro operators
 	     \:=, \&, \|,
@@ -202,15 +198,11 @@ define module Extensions
              <set>, <object-set>,
 
 	     // Misc other stuff.
-	     $not-supplied, $unsupplied, unsupplied?,
-             supplied?, unsupplied, $unfound, unfound?,
-             found?, unfound,
-             ignore, functional-==, key-exists?, assert,
-             debug-assert, \with-bounds-checks, 
-             \fake-without-bounds-checks => \without-bounds-checks, 
-             element-range-error,
-	     exit, on-exit, limited-collection-definer,
+	     $not-supplied, ignore, functional-==, key-exists?, assert,
+             debug-assert,
+             exit, on-exit, limited-collection-definer,
 	     limited-vector-class, element-type, %elem, %elem-setter,
+             element-error => element-range-error,
 	     limited-sv-class, ssv-data, ssv-data-setter, lsv-data-type,
              lsv-fill, %main, main
     },
@@ -308,7 +300,6 @@ define module magic
     import: {%check-type,
              %element,
 	     %element-setter,
-             \without-bounds-checks,
 	     %instance?,
 	     %make-method,
 	     %make-next-method-cookie,

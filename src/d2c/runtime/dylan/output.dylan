@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/output.dylan,v 1.7.2.1 2003/06/10 10:04:42 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/output.dylan,v 1.7.2.2 2003/06/14 09:22:22 prom Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -370,6 +370,7 @@ end function cheap-io-to-stdio;
 
 define function puts(thing :: <object>) => ()
   fputs(thing, #"Cheap-IO");
+  cheap-force-output(#"Cheap-IO");
 end function puts;
 
 define function fputs(thing :: <object>, fake-stream :: <symbol>) => ()
@@ -394,12 +395,13 @@ define inline method fputs-internal
   fputs-internal(as(<integer>, char), c-file);
 end;
 
-define method fputs-internal
+define inline method fputs-internal
     (str :: <byte-string>, c-file :: <raw-pointer>)
  => ()
-  for (char in str)
-    fputs-internal(char, c-file);
-  end;
+  c-system-include("stdio.h");
+  call-out("fwrite", int:,
+           ptr: %%primitive(vector-elements, str), int: 1, int: str.size,
+           ptr: c-file);
 end;
 
 

@@ -6,15 +6,9 @@ define library common-dylan
   use threads, export: { threads };
 
   use melange-support;
-  use format;
   use streams;
   use table-extensions;
-  use format-out;
   use random;
-  use regular-expressions,
-    import: all,
-    export: all;
-
   use transcendental,
      import: { transcendental => transcendentals },
      export: all;
@@ -35,11 +29,14 @@ end library;
 
 define module functional-extensions
   use dylan;
-  use extensions, exclude: { position };
+  use extensions, exclude: { position }, export: { element-range-error };
+  use Magic, import: {%element, %element-setter};
   use common-extensions, import: { find-element };
   export 
-    find-value,
-    \profiling;
+    find-value;
+  export
+    with-bounds-checks,
+    without-bounds-checks;
 end module;
 
 define module c-support
@@ -49,7 +46,8 @@ define module c-support
 
   export
     application-argc,
-    application-argv;
+    application-argv,
+    cpu-time;
 end module c-support;
 
 define module finalization
@@ -57,8 +55,7 @@ define module finalization
 end module;
 
 define module simple-io
-  use format-out,
-    export: {format-out};
+  create format-out;
 end module;
 
 define module simple-random
@@ -68,8 +65,14 @@ define module simple-random
 end module;
 
 define module simple-profiling
-  // XXX - Needs definition.
-end module;
+  create \profiling,
+         \profiling-keywords,   // ###
+         \profiling-results,    // ###
+         <profiling-state>,
+         start-profiling-type,
+         stop-profiling-type,
+         profiling-type-result;
+end module simple-profiling;
 
 define module simple-debugging
   use Extensions,
@@ -87,15 +90,9 @@ define module common-extensions
   use dylan;
   use system, import: { copy-bytes }, export: { copy-bytes };
   use extensions,
-    rename: {on-exit => register-application-exit-function},
+    rename: {$not-supplied => $unsupplied,
+             on-exit => register-application-exit-function},
     export: {$unsupplied,
-             supplied?,
-             unsupplied?,
-             unsupplied,
-             $unfound,
-             found?,
-             unfound?,
-             unfound,
              \assert,
              \debug-assert,
              debug-message,
@@ -127,8 +124,6 @@ define module common-extensions
 	     <object-deque>,
 	     <stretchy-object-vector>,
              <byte-character>,
-             \with-bounds-checks, 
-             \without-bounds-checks,
              element-range-error};
   use %Hash-Tables,
     export: {remove-all-keys!};
@@ -136,15 +131,19 @@ define module common-extensions
     export: {<string-table>};
   use transcendentals, import: { logn };
   use c-support;
-  use format, export: { format-to-string };
   use streams, import: { <stream> },
     export: {<stream>};
-  use random,
-     export: all;
-  use regular-expressions,
-     export: all;
-  use functional-extensions,
-     export: all;
+  use simple-profiling,
+    export: { \profiling, 
+	      profiling-type-result };
+
+  create
+    position,
+    split,
+    fill-table!,
+    find-element,
+    condition-to-string,
+    format-to-string;
 
   export
     /* Numerics */
@@ -152,22 +151,29 @@ define module common-extensions
 
     /* Unsupplied, unfound */
     //$unsupplied,
+    supplied?,
+    unsupplied?,
+    unsupplied,
+    $unfound,
+    found?,
+    unfound?,
+    unfound,
 
     /* Collections */
     //<object-deque>,
     //<stretchy-sequence>,
     //<stretchy-object-vector>,
     //concatenate!,
-    position,
+    //position,
     //remove-all-keys!,
     //difference,
-    fill-table!,
-    find-element,
+    //fill-table!,
+    //find-element,
     //key-exists?,
 
     /* Conditions */
     //<format-string-condition>,
-    condition-to-string,
+    //condition-to-string,
 
     /* Debugging */
     //debug-message,
@@ -180,8 +186,6 @@ define module common-extensions
     /* Ignoring */
     //ignore,
     ignorable,
-
-    \table-definer,
 
     /* Converting to and from numbers */
     float-to-string,
@@ -197,6 +201,17 @@ define module common-extensions
     exit-application;
     //register-exit-application-function,
 
+#if (~mindy)
+  export
+    \table-definer,
+    \iterate,
+    \when;
+
+  export
+    \%iterate-aux,
+    \%iterate-param-helper,
+    \%iterate-value-helper;
+#endif
 end module;
 
 define module common-dylan
@@ -260,6 +275,13 @@ end module streams-protocol;
 
 define module common-dylan-internals
   use common-dylan;
+  use extensions;
+  use cheap-io, import: { puts => write-console };
+  use introspection, rename: { subclass-of => subclass-class };
+  use melange-support;
+  use c-support;
+  use simple-io;
+  use simple-profiling;
   use locators-protocol;
-  use streams-protocol, export: all;
+  use streams-protocol;
 end module common-dylan-internals;
