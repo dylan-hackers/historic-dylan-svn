@@ -286,3 +286,6 @@ define method build-command-line-entry
 end method build-command-line-entry;
 
 
+define variable *Current-Library* :: false-or(<library>) = #f;
+define variable *Current-Module* :: false-or(<module>) = #f;
+

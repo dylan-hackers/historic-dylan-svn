@@ -1700,7 +1700,7 @@ define method layout-slots-for (class :: <cclass>) => ();
     // We are done.
     class.layout-computed? := #t;
   elseif (class.layout-computed? == #"computing")
-    error("Someone left %s.layout-computed? as #\"computing\".", class);
+    error("Someone left %=.layout-computed? as #\"computing\".", class);
   end if;
 end method layout-slots-for;
 

@@ -1,5 +1,5 @@
 module: parser
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/parser.input,v 1.8 2003/03/03 14:18:03 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/parser.input,v 1.8.2.1 2004/02/04 07:13:28 andreas Exp $
 copyright: see below
 
 %%
@@ -928,7 +928,7 @@ operand (operand LEFT-BRACKET arguments-opt RIGHT-BRACKET)
 				       else
 					 #"aref";
 				       end,
-			       module: *Current-Module*)),
+			       module: %2.token-module)),
        arguments: apply(vector, %1, %3));
 %
 

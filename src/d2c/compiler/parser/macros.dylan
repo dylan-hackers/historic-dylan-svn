@@ -2768,7 +2768,7 @@ define method append-element!
          	   source-location: token.source-location,
          	   kind: token.token-kind,
          	   symbol: token.token-symbol,
-         	   module: *Current-Module*);
+         	   module: token.token-module);
   generate-token(generator, token, token.source-location);
 end method append-element!;
 

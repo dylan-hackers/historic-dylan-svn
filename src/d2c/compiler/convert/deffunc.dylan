@@ -146,6 +146,7 @@ define-procedural-expander
 	   method-expr.method-ref-method;
 	 end for;
      method-parse.method-name := extract-name(name-frag);
+     let module = method-parse.method-name.token-module;
      if (*implicitly-define-next-method*)
        let params = method-parse.method-parameters;
        unless (params.paramlist-next)
@@ -153,7 +154,7 @@ define-procedural-expander
 	   := make(<identifier-token>,
 		   kind: $raw-ordinary-word-token,
 		   symbol: #"next-method",
-		   module: *current-module*);
+		   module: module);
        end unless;
      end if;
      generate-fragment
@@ -304,6 +305,7 @@ end method print-type-expr;
 
 define method process-top-level-form (form :: <define-generic-parse>) => ();
   let name = form.defgeneric-name.token-symbol;
+  let module = form.defgeneric-name.token-module;
   let (sealed-frag, movable-frag, flushable-frag)
     = extract-properties(form.defgeneric-options,
 			 #"sealed", #"movable", #"flushable");
@@ -313,9 +315,9 @@ define method process-top-level-form (form :: <define-generic-parse>) => ();
   let defn = make(<generic-definition>,
 		  name: make(<basic-name>,
 			     symbol: name,
-			     module: *Current-Module*),
+			     module: module),
 		  source-location: form.source-location,
-		  library: *Current-Library*,
+		  library: module.module-home,
 		  sealed: sealed?,
 		  movable: movable?,
 		  flushable: flushable? | movable?);
@@ -354,25 +356,28 @@ end;
 
 define method process-top-level-form
     (form :: <define-sealed-domain-parse>) => ();
+  let module = form.sealed-domain-name.token-module;
   add!(*Top-Level-Forms*,
        make(<define-sealed-domain-tlf>,
 	    name: make(<basic-name>,
 		       symbol: form.sealed-domain-name.token-symbol,
-		       module: *Current-Module*),
+		       module: module),
 	    type-exprs: form.sealed-domain-type-exprs,
 	    source-location: form.source-location,
-	    library: *Current-Library*));
+	    library: module.module-home));
 end;
 
 define method process-top-level-form (form :: <define-method-parse>) => ();
   let parse = form.defmethod-method;
   let name = parse.method-name.token-symbol;
+  let module = parse.method-name.token-module;
+  let library = module.module-home;
   let (sealed?-frag, inline-type-frag, movable?-frag, flushable?-frag)
     = extract-properties(form.defmethod-options,
 			 #"sealed", #"inline-type", #"movable", #"flushable");
-  let base-name = make(<basic-name>, symbol: name, module: *Current-Module*);
+  let base-name = make(<basic-name>, symbol: name, module: module);
   let params = parse.method-parameters;
-  implicitly-define-generic(*Current-Library*, base-name,
+  implicitly-define-generic(library, base-name,
 			    params.varlist-fixed.size,
 			    params.varlist-rest & ~params.paramlist-keys,
 			    params.paramlist-keys & #t);
@@ -383,7 +388,7 @@ define method process-top-level-form (form :: <define-method-parse>) => ();
   let flushable? = flushable?-frag & extract-boolean(flushable?-frag);
   let tlf = make(<real-define-method-tlf>,
 		 base-name: base-name,
-		 library: *Current-Library*,
+		 library: library,
 		 source-location: form.source-location,
 		 sealed: sealed?,
 		 inline-type: inline-type | #"default-inline",

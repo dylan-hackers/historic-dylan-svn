@@ -118,23 +118,22 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
   //let libmod-declaration = as(<byte-vector>, format-to-string("define library %s use common-dylan; use io; end; define module %s use common-dylan; use format-out; end;\n\n", lib-name, lib-name));
 
   block ()
-    let tokenizer = make(<lexer>, 
+    *Current-Library* := state.unit-lib;
+    *Current-Module*  := find-module(state.unit-lib, as(<symbol>, "dylan-user"));
+    let tokenizer = make(<lexer>,
+                         module: *Current-Module*,
                          source: make(<source-buffer>, 
                                       buffer: libmod-declaration),
                          start-line: 0,
                          start-posn: 0);
-    block ()
-      *Current-Library* := state.unit-lib;
-      *Current-Module*  := find-module(state.unit-lib, as(<symbol>, "dylan-user"));
-      let tlfs = make(<stretchy-vector>);
-      *Top-Level-Forms* := tlfs;
-      add!(state.unit-tlf-vectors, tlfs);
-      add!(state.unit-modules, *Current-Module*);
-      parse-source-record(tokenizer);
-    cleanup
-      *Current-Library* := #f;
-      *Current-Module* := #f;
-    end;
+    let tlfs = make(<stretchy-vector>);
+    *Top-Level-Forms* := tlfs;
+    add!(state.unit-tlf-vectors, tlfs);
+    add!(state.unit-modules, *Current-Module*);
+    parse-source-record(tokenizer);
+  cleanup
+    *Current-Library* := #f;
+    *Current-Module* := #f;
   exception (<fatal-error-recovery-restart>)
     format(*debug-output*, "skipping rest of built-in init definition\n");
   end block;
@@ -142,27 +141,27 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 
   let mod = find-module(state.unit-lib, as(<symbol>, lib-name));
 
+  format(*debug-output*, "Parsing %s\n", state.unit-source-file);
   block ()
-    format(*debug-output*, "Parsing %s\n", state.unit-source-file);
+    *Current-Library* := state.unit-lib;
+    *Current-Module*  := mod;
     let tokenizer = make(<lexer>, 
+                         module: *Current-Module*,
                          source: source,
                          start-line: start-line,
                          start-posn: start-posn);
-    block ()
-      *Current-Library* := state.unit-lib;
-      *Current-Module*  := mod;
-      let tlfs = make(<stretchy-vector>);
-      *Top-Level-Forms* := tlfs;
-      add!(state.unit-tlf-vectors, tlfs);
-      add!(state.unit-modules, mod);
-      parse-source-record(tokenizer);
-    cleanup
-      *Current-Library* := #f;
-      *Current-Module* := #f;
-    end;
+    let tlfs = make(<stretchy-vector>);
+    *Top-Level-Forms* := tlfs;
+    add!(state.unit-tlf-vectors, tlfs);
+    add!(state.unit-modules, mod);
+    parse-source-record(tokenizer);
+  cleanup
+    *Current-Library* := #f;
+    *Current-Module* := #f;
   exception (<fatal-error-recovery-restart>)
     format(*debug-output*, "skipping rest of %s\n", state.unit-source-file);
   end block;
+  
   format(*debug-output*, "seeding representations\n");
   seed-representations();
   format(*debug-output*, "Finalizing definitions\n");

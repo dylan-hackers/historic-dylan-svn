@@ -248,9 +248,9 @@ define method process-aux(form :: <define-binding-parse>,
 	  let defn = make(defn-class,
 			  name: make(<basic-name>,
 				     symbol: name.token-symbol,
-				     module: *Current-Module*),
+				     module: name.token-module),
 			  source-location: source,
-			  library: *Current-Library*);
+			  library: name.token-module.module-home);
 	  note-variable-definition(defn);
 	  defn;
 	end;
@@ -288,9 +288,9 @@ define method process-aux(form :: <define-binding-parse>,
 	  let defn = make(defn-class,
 			  name: make(<basic-name>,
 				     symbol: name.token-symbol,
-				     module: *Current-Module*),
+				     module: name.token-module),
 			  source-location: source,
-			  library: *Current-Library*,
+			  library: name.token-module.module-home,
                           inline-type: inline-type | #"default-inline",
                           movable: movable?,
                           flushable: flushable? | movable?);

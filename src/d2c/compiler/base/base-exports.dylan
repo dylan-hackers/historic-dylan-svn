@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -365,6 +365,7 @@ define module tokens
 
     <token>, token-kind, 
     <symbol-token>, token-symbol, 
+    <left-bracket-token>,
     <identifier-token>, token-module, token-uniquifier,
     <uniquifier>, same-id?,
     <operator-token>, operator-precedence, operator-associativity,
@@ -549,7 +550,7 @@ define module variables
 
   use forwards, import: {<library>, <module>}, export: all;
   export
-    $Dylan-Library, $Dylan-Module, *Current-Library*, *Current-Module*,
+    $Dylan-Library, $Dylan-Module,
 
     $Bootstrap-Module, add-bootstrap-export, define-bootstrap-module,
 

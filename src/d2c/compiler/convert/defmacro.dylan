@@ -74,8 +74,10 @@ end method process-top-level-form;
 // 
 define method process-top-level-form (defmacro :: <define-macro-parse>)
     => ();
-  let defn = make(<macro-definition>, module: *Current-Module*,
-		  library: *Current-Library*, defmacro: defmacro);
+  let module = defmacro.defmacro-name.token-module;
+  let library = module.module-home;
+  let defn = make(<macro-definition>, module: module,
+		  library: library, defmacro: defmacro);
   note-variable-definition(defn);
   add!(*Top-Level-Forms*, make(<define-macro-tlf>,
                                defn: defn,

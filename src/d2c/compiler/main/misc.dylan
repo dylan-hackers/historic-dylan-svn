@@ -33,59 +33,14 @@ define method file-tokenizer
     => (tokenizer :: <tokenizer>, module :: <module>);
   let source = make(<source-file>, name: name);
   let (header, start-line, start-posn) = parse-header(source);
+  let module = find-module(lib, as(<symbol>, header[#"module"]));
   values(make(<lexer>,
+              module: module,
 	      source: source,
 	      start-posn: start-posn,
 	      start-line: start-line),
-	 find-module(lib, as(<symbol>, header[#"module"])));
+	 module);
 end;
-
-/* This looks like some leftover debugging code
-
-define method test-lexer (file :: <byte-string>) => ();
-  block ()
-    let (tokenizer, module) = file-tokenizer($dylan-library, file);
-    block (return)
-      *Current-Module* := module;
-      while (#t)
-	let token = get-token(tokenizer);
-	if (token.token-kind == $eof-token)
-	  return();
-	else
-	  format(*debug-output*, "%=\n", token);
-	end if;
-      end while;
-    cleanup
-      *Current-Module* := #f;
-    end block;
-  exception (<fatal-error-recovery-restart>)
-    #f;
-  end block;
-end method test-lexer;
-
-
-define method test-parse
-    (parser :: <function>, file :: <byte-string>,
-     #key debug: debug? :: <boolean>)
-    => result :: <object>;
-  block ()
-    let (tokenizer, module) = file-tokenizer($dylan-library, file);
-    let orig-library = *current-library*;
-    let orig-module = *current-module*;
-    block ()
-      *current-library* := $dylan-library;
-      *current-module* := module;
-      parser(tokenizer, debug: debug?);
-    cleanup
-      *current-library* := orig-library;
-      *current-module* := orig-module;
-    end block;
-  exception (<fatal-error-recovery-restart>)
-    #f;
-  end block;
-end method test-parse;
-
-*/
 
 define method set-module (module :: type-union(<false>, <module>)) => ();
   *current-module* := module;

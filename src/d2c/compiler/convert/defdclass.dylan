@@ -141,6 +141,8 @@ define method process-top-level-form
     (form :: <define-designator-class-parse>)
  => ();
   let name = form.defclass-name.token-symbol;
+  let module = form.defclass-name.token-module;
+  let library = module.module-home;
   let (class-functional?-frag, class-sealed?-frag, class-primary?-frag,
        class-abstract?-frag,
        c-name-frag, referenced-type-frag, pack-frag, c-rep-frag,
@@ -217,8 +219,8 @@ define method process-top-level-form
   let defn = make(<local-designator-class-definition>,
 		  name: make(<basic-name>,
 			     symbol: name,
-			     module: *Current-Module*),
-		  library: *Current-Library*,
+			     module: module),
+		  library: library,
 		  supers: form.defclass-superclass-exprs,
 		  functional: class-functional?,
 		  sealed: class-sealed?,
@@ -246,17 +248,17 @@ define method process-top-level-form
     // Implicitly define the accessor generics.
     if (slot.slot-defn-sizer-defn)
       implicitly-define-generic
-	(*Current-Library*, slot.slot-defn-getter-name, 2, #f, #f);
+	(library, slot.slot-defn-getter-name, 2, #f, #f);
       if (slot.slot-defn-setter-name)
 	implicitly-define-generic
-	  (*Current-Library*, slot.slot-defn-setter-name, 3, #f, #f);
+	  (library, slot.slot-defn-setter-name, 3, #f, #f);
       end;
     else
       implicitly-define-generic
-	(*Current-Library*, slot.slot-defn-getter-name, 1, #f, #f);
+	(library, slot.slot-defn-getter-name, 1, #f, #f);
       if (slot.slot-defn-setter-name)
 	implicitly-define-generic
-	  (*Current-Library*, slot.slot-defn-setter-name, 2, #f, #f);
+	  (library, slot.slot-defn-setter-name, 2, #f, #f);
       end;
     end;
   end;

@@ -1,5 +1,5 @@
 Module: od-format
-RCS-header: $Header: /scm/cvs/src/d2c/compiler/base/od-format.dylan,v 1.19.4.1 2003/07/05 03:56:02 prom Exp $
+RCS-header: $Header: /scm/cvs/src/d2c/compiler/base/od-format.dylan,v 1.19.4.2 2004/02/04 07:13:23 andreas Exp $
 
 //======================================================================
 //
@@ -615,6 +615,7 @@ begin
   register-object-id(#"constrained-name-token", #x104);
   register-object-id(#"literal-token", #x105);
   register-object-id(#"pre-parsed-token", #x106);
+  register-object-id(#"left-bracket-token", #x107);
 
   // Macros
   //

@@ -114,8 +114,9 @@ end;
 
 define method process-top-level-form (form :: <define-module-tlf>) => ();
   let name = form.define-module-name;
+  let library = name.token-module.module-home;
   note-context(form);
-  note-module-definition(*Current-Library*, name, form.define-module-uses,
+  note-module-definition(library, name, form.define-module-uses,
 			 form.define-module-exports,
 			 form.define-module-creates);
   end-of-context();
@@ -123,7 +124,7 @@ define method process-top-level-form (form :: <define-module-tlf>) => ();
   // This call to find-module can't fail because note-module-definition
   // creates the module.
   form.define-module-module
-    := find-module(*Current-Library*, name.token-symbol);
+    := find-module(library, name.token-symbol);
   add!(*Top-Level-Forms*, form);
 end;
 
@@ -166,7 +167,8 @@ add-od-loader(*compiler-dispatcher*, #"define-module-tlf",
 		  = load-object-dispatch(state);
 		assert-end-object(state);
 		note-module-definition
-		  (*Current-Library*, name, uses, exports, creates);
+		  (name.token-module.module-home, 
+                   name, uses, exports, creates);
 		name.token-symbol;
 	      end);
 

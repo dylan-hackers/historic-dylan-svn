@@ -111,7 +111,8 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
 */
   *top-level-forms* := make(<stretchy-vector>);
-  let tokenizer = make(<lexer>, 
+  let tokenizer = make(<lexer>,
+                       module: *Current-Module*,
                        source: make(<source-buffer>, 
                                     buffer: as(<byte-vector>, expression)),
                        start-line: 0,

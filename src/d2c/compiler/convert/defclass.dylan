@@ -366,7 +366,10 @@ end class <init-function-definition>;
 // accessors.
 
 define method process-top-level-form (form :: <define-class-parse>) => ();
-  let name = form.defclass-name.token-symbol;
+  let token = form.defclass-name;
+  let name = token.token-symbol;
+  let module = token.token-module;
+  let library = module.module-home;
   let (class-functional?-frag, class-sealed?-frag, class-primary?-frag,
        class-abstract?-frag)
     = extract-properties(form.defclass-options, #"functional", #"sealed",
@@ -402,9 +405,9 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
   let defn = make(<local-class-definition>,
 		  name: make(<basic-name>,
 			     symbol: name,
-			     module: *Current-Module*),
+			     module: module),
 		  source-location: form.source-location,
-		  library: *Current-Library*,
+		  library: library,
 		  supers: form.defclass-superclass-exprs,
 		  functional: class-functional?,
 		  sealed: class-sealed?,
@@ -419,17 +422,17 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
     // Implicity define the accessor generics.
     if (slot.slot-defn-sizer-defn)
       implicitly-define-generic
-	(*Current-Library*, slot.slot-defn-getter-name, 2, #f, #f);
+	(library, slot.slot-defn-getter-name, 2, #f, #f);
       if (slot.slot-defn-setter-name)
 	implicitly-define-generic
-	  (*Current-Library*, slot.slot-defn-setter-name, 3, #f, #f);
+	  (library, slot.slot-defn-setter-name, 3, #f, #f);
       end;
     else
       implicitly-define-generic
-	(*Current-Library*, slot.slot-defn-getter-name, 1, #f, #f);
+	(library, slot.slot-defn-getter-name, 1, #f, #f);
       if (slot.slot-defn-setter-name)
 	implicitly-define-generic
-	  (*Current-Library*, slot.slot-defn-setter-name, 2, #f, #f);
+	  (library, slot.slot-defn-setter-name, 2, #f, #f);
       end;
     end;
   end;
@@ -561,15 +564,16 @@ define method process-slot
        "Can't supply both an init-keyword: and a required-init-keyword:.");
   end;
 
+  let module = slot.slot-parse-name.token-module;
   let getter-name = make(<basic-name>, symbol: getter,
-			 module: *Current-Module*);
+			 module: module);
   let setter-name = setter & make(<basic-name>, symbol: setter,
-				  module: *Current-Module*);
+				  module: module);
 
   let size-defn
     = if (sizer)
 	let sizer-name
-	  = make(<basic-name>, symbol: sizer, module: *Current-Module*);
+	  = make(<basic-name>, symbol: sizer, module: module);
 	
 	unless (allocation == #"instance")
 	  compiler-fatal-error-location
@@ -708,12 +712,13 @@ define method process-slot
     end if;
   end;
 
+  let module = slot.inherited-slot-parse-name.token-module;
   add!(overrides,
        make(<override-defn>,
 	    getter-name:
 	      make(<basic-name>,
 		   symbol: slot.inherited-slot-parse-name.token-symbol,
-		   module: *Current-Module*),
+		   module: module),
 	    init-value: init-value,
 	    init-function: init-function));
 end method process-slot;

@@ -636,7 +636,7 @@ define method note-library-definition
      exports :: <simple-object-vector>)
     => ();
   let name = token.token-symbol;
-  let lib = *Current-Library*;
+  let lib = token.token-module.module-home;
   if (lib.library-name ~== name)
     compiler-error-location
       (token, "Defining strange library: %s isn't %s.",
@@ -1102,10 +1102,8 @@ define method find-data-unit
   if (lib.defined?)
     next-method();
   else
-    let previous-library = *Current-Library*;
     let previous-depth = *load-depth*;
     block ()
-      *Current-Library* := lib;
       *load-depth* := previous-depth + 1;
       unless (zero?(previous-depth))
 	new-line(*debug-output*);
@@ -1133,7 +1131,6 @@ define method find-data-unit
 	new-line(*debug-output*);
       end if;
       force-output(*debug-output*);
-      *Current-Library* := previous-library;
       *load-depth* := previous-depth;
     end block;
   end if;
@@ -1142,14 +1139,6 @@ end method find-data-unit;
 
 
 // Initilization stuff.
-
-// *Current-Library* and *Current-Module* -- exported.
-// 
-// The Current Library and Module during a parse or load, or #f if we arn't
-// parsing or loading at the moment.
-// 
-define variable *Current-Library* :: false-or(<library>) = #f;
-define variable *Current-Module* :: false-or(<module>) = #f;
 
 // $Dylan-Library and $Dylan-Module -- exported.
 //
