@@ -1,6 +1,13 @@
 @SysInclude { report }
+@SysInclude { eq }
 
 def @Class right name { @F {{@Sym angleleft}name{@Sym angleright}} }
+macro @Sigm {@Sym sigma}
+# def @Sig right n { {@Sigm} @Sub @Eq {n} }
+# def @Tau right n { {@Sym tau} @Sub @Eq {n} }
+def @Sig right n { {@Sigm} @Sub n }
+def @Tau right n { {@Sym tau} @Sub n }
+
 
 @Report
 @DateLine { Yes }
@@ -79,7 +86,7 @@ the class {@Class object}. In this case we talk about @I
 { statically known } types. But there is no way to
 generally figure out the @I { dynamic type } of an
 object, since classes may be added in other libraries,
-or even at runtime, outside of the compilers know.
+or even at runtime, outside of the compiler's know.
 @End @SubSection
 
 ###########
@@ -140,7 +147,7 @@ on subtypes of the given signature that originate outside the
 library being the provider of the seal. Sealed domains also arise
 implicitly by not declaring GFs as being @F { open }. In the
 remaining part of this paper we assume all generic functions
-mentioned as sealed.
+mentioned as being sealed.
 
 @End @SubSection
 
@@ -157,8 +164,8 @@ mentioned as sealed.
 @Begin
 @PP
 Our analysis centers around the observation that a successful function
-call automatically implies that all semantics dictated constraints w.r.t.
-the function's call and return preconditions are fulfilled. To stay with
+call automatically implies all semantics dictated constraints w.r.t.
+the function's call and return preconditions being fulfilled. To stay with
 our running example from the introduction, if a call @F { render(a, b) }
 returns, we can safely assume that the constraints @F { instance?(a, <document>) }
 and @F { instance?(b, <device>) } hold true.
@@ -230,11 +237,11 @@ Our optimization tries to turn this vice of multiple dispatch to a virtue, never
 must have been in the type union of the methods in the maybe set at argument position
 {@I n}, if the function call returns @I {without signalling an error}. In the dominance
 domain of this call we can assume that the type constraint holds.
-We introduce some notation to be able to formalize this a bit. Let sigma(tau1, tau2, ..., taun)
+We introduce some notation to be able to formalize this a bit. Let {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n})
 denote the product type of an {@I n}-ary method's argument signature. The maybe set then
-can be described as a set of distinct signatures: "{" sigma1, sigma2, ..., sigmam "}".
-We denote the projection operator to extract the type of argument 1<={@I i}<=n from a
-method signature: sigma(tau1, tau2, ..., taun) "|i" = taui.
+can be described as a set of distinct signatures: "{" {@Sig 1}, {@Sig 2}, ..., @Sig @I m "}".
+We denote the projection operator to extract the type of argument @Eq {1 <= i <= n} from a
+method signature: {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n}) {@Sym bar} @Sub @I i = {@Tau @I i}.
 @PP This allows to formulate our above notion as known-type(i, "{" sigma1, sigma2, ..., sigmam "}") <=
 type-union(sigma1 "|i", ..., sigmam "|i"). One might ask for the reason of the inequality in
 this formula. It simply states that we can do even @I better than the formula suggests!
@@ -323,7 +330,7 @@ approach. The idea is to introduce a new internal type
 primitive, say, {@Class tuple-union-projection}, that is
 able to represent the type of the @I {n}th positional
 argument of a tuple-union or the type of its keyword
-argument {@F m:}. 
+argument {@F m:}.
 
 @End @Section
 
