@@ -81,7 +81,8 @@ define method disassemble(instr :: <powerpc-instruction>)
   powerpc-disassemble(instr.instruction-word);
 end;
 
-define generic class-for-instruction-primary(primary :: <primary-field>)
+//define generic class-for-instruction-primary(primary :: <primary-field>)
+define generic class-for-instruction-primary(primary :: <integer>)
  => class :: subclass(<powerpc-instruction>);
 
 define generic class-for-instruction-subcode(primary :: <primary-field>, key :: <subcode-field>)
@@ -96,7 +97,8 @@ define method branch-target
 => location :: <object>;
 end;
 
-define method class-for-instruction-primary(primary :: <primary-field>)
+//define method class-for-instruction-primary(primary :: <primary-field>)
+define method class-for-instruction-primary(primary :: <integer>)
  => class :: singleton(<powerpc-instruction>);
   <powerpc-instruction>
 end;
