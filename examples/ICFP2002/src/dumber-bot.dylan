@@ -6,11 +6,16 @@ end class <dumber-bot>;
 
 // Bot by Alex and Bruce. We use Keith's visualiser (on CVS) to track our robot's
 // progress on the server with OpenGL visualiser. :-P
+
+define generic generate-next-move(me :: <robot-agent>, s :: <state>)
+ => command :: <command>;
+
+
 define method generate-next-move(me :: <dumber-bot>, s :: <state>)
- => <command>;
+ => command :: <command>;
 
   // Find the closest base.
-  let robot = find-robot(s, me.agent-id);
+  let robot = agent-robot(me, s);
   let myPosition = robot.location;
   
   local find-near-base(best-base :: false-or(<point>), distance :: <path-cost>)
@@ -36,7 +41,7 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
 
   debug("nextBase = %=, baseDistance %=\n", nextBase, baseDistance);
 
-  let direction
+  let direction  // GGR: use points-to-direction TODO
     = if (nextBase = #f)
         debug("Sorry, can't find any accessible bases!\n");
         $north
@@ -56,5 +61,5 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
         end case;
       end if;
 
-  make(<move>, bid: 1, direction: direction, id: find-robot(s, me.agent-id));
+  make(<move>, bid: 1, direction: direction, id: agent-robot(me, s));
 end method generate-next-move;

@@ -13,4 +13,6 @@ Write modules to solve:
 
 - knapsack problem
 - minimax engine
+- we could make agents more fault-tolerant if we caught all errors and just restarted our strategy
 - function to get cpu time
+- debug() as an empty function

@@ -19,6 +19,7 @@ define class <thomas> (<robot-agent>)
     init-value: #f;
 end class <thomas>;
 
+
 define method packages-with-dest (packages :: <sequence>, loc :: <point>)
  => (lst :: <sequence>)
   choose(method(p) p.dest = loc end method, packages)

@@ -15,23 +15,26 @@ end method generate-next-move;
 
 // Some agent-related getters
 
-define method agent-money (agent :: <robot-agent>, state :: <state>) => <integer>;
-  find-robot(state, agent.agent-id).money
+define method agent-robot (agent :: <robot-agent>, state :: <state>) => robot :: <robot>;
+  find-robot(state, agent.agent-id)
+end method agent-robot;
+
+define inline method agent-money (agent :: <robot-agent>, state :: <state>) => money :: <integer>;
+  agent-robot(agent, state).money
 end method agent-money;
 
-define method agent-capacity (agent :: <robot-agent>, state :: <state>) => <integer>;
-  find-robot(state, agent.agent-id).capacity
+define inline method agent-capacity (agent :: <robot-agent>, state :: <state>) => cap :: <integer>;
+  agent-robot(agent, state).capacity
 end method agent-capacity;
 
-define method agent-pos (agent :: <robot-agent>, state :: <state>) => <point>;
-  find-robot(state, agent.agent-id).location;
+define inline method agent-pos (agent :: <robot-agent>, state :: <state>) => pos :: <point>;
+  agent-robot(agent, state).location;
 end method agent-pos;
 
-define method agent-packages (agent :: <robot-agent>, state :: <state>)
+define inline method agent-packages (agent :: <robot-agent>, state :: <state>)
  => (package-list :: <sequence>)
-  find-robot(state, agent.agent-id).inventory;
+  agent-robot(agent, state).inventory;
 end method agent-packages;
-
 
 
 // Unvisited-base stuff: 

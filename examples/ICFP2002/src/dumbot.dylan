@@ -5,7 +5,7 @@ end class <dumbot>;
 
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
-  let robot = find-robot(s, me.agent-id);
+  let robot = agent-robot(me, s);
   block(return)
     format-out("DB: Considering next move (loc: %=)\n", robot.location);
     force-output(*standard-output*);
