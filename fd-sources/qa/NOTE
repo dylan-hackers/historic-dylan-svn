@@ -1,0 +1,3 @@
+These sources have all been ported to Gwydion Dylan, and
+now live in the 'qa' directory under gd/src.  They remain
+here for historical/comparison purposes.
