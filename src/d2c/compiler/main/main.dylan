@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.23 1999/06/09 16:11:58 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.23.2.1 1999/06/11 03:36:44 housel Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -767,21 +767,25 @@ end method build-library-inits;
 
 define method build-local-heap-file (state :: <main-unit-state>) => ();
   format(*debug-output*, "Emitting Library Heap.\n");
-  let s-name = concatenate(state.unit-mprefix, "-heap.s");
-  let temp-s-name = concatenate(s-name, "-temp");
+  let c-name = concatenate(state.unit-mprefix, "-heap.c");
+  let temp-c-name = concatenate(c-name, "-temp");
   let heap-stream = make(<file-stream>, 
-			 locator: temp-s-name, direction: #"output");
+			 locator: temp-c-name, direction: #"output");
+  let prefix = state.unit-cback-unit.unit-prefix;
+  let heap-state = make(<local-heap-file-state>, unit: state.unit-cback-unit,
+			body-stream: heap-stream, target: state.unit-target,
+			id-prefix: stringify(prefix, "_L"));
+
   let (undumped, extra-labels) = build-local-heap(state.unit-cback-unit, 
-						  heap-stream, 
-						  state.unit-target);
+						  heap-state);
   close(heap-stream);
 
-  pick-which-file(s-name, temp-s-name, state.unit-target);
+  pick-which-file(c-name, temp-c-name, state.unit-target);
   let o-name = concatenate(state.unit-mprefix, "-heap", 
 			   state.unit-target.object-filename-suffix);
-  output-s-file-rule(state, s-name, o-name);
+  output-c-file-rule(state, c-name, o-name);
   state.unit-all-generated-files 
-    := add!(state.unit-all-generated-files, s-name);
+    := add!(state.unit-all-generated-files, c-name);
 
   let linker-options = element(state.unit-header, #"linker-options", 
 			       default: #f);
@@ -836,12 +840,14 @@ end method;
 
 
 define method build-da-global-heap (state :: <main-unit-state>) => ();
-    format(*debug-output*, "Emitting Global Heap.\n");
-    let heap-stream 
-      = make(<file-stream>, locator: "heap.s", direction: #"output");
-    build-global-heap(apply(concatenate, map(undumped-objects, *units*)),
-		      heap-stream, state.unit-target);
-    close(heap-stream);
+  format(*debug-output*, "Emitting Global Heap.\n");
+  let heap-stream 
+    = make(<file-stream>, locator: "heap.c", direction: #"output");
+  let heap-state = make(<global-heap-file-state>, unit: state.unit-cback-unit,
+			body-stream: heap-stream, target: state.unit-target);
+  build-global-heap(apply(concatenate, map(undumped-objects, *units*)),
+		    heap-state);
+  close(heap-stream);
 end method;
 
 
@@ -926,7 +932,7 @@ define method build-executable (state :: <main-unit-state>) => ();
   let heap-dot-o
     = concatenate("heap", state.unit-target.object-filename-suffix);
   output-c-file-rule(state, "inits.c", inits-dot-o);
-  output-s-file-rule(state, "heap.s", heap-dot-o);
+  output-c-file-rule(state, "heap.c", heap-dot-o);
 
   let dash-cap-ells = "";
   // If cross-compiling, throw in a bunch of -Ls that will probably help.
