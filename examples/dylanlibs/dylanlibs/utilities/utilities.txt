@@ -10,7 +10,17 @@ Dylan Implementations:
 
 A library that exports a protocol allowing dynamic loading of Dylan
 libraries at runtime. See the dynamic-library examples.
+
+2) sequence-utilities
+=====================
+Dylan Implementations:
+  Common Dylan
+
+A series of functions for manipulating sequences, mostly inspired from
+various Common Lisp libraries. Includes split-string, split-sequence,
+sequence-position-if, etc.
+
 -- 
 Chris Double.  
-27 May 2001.
+30 May 2001.
 
