@@ -16,6 +16,14 @@ define ant-subbrain test-ant-subbrain2
 Flip 6 0 0
 end;
 
+define ant-subbrain test-ant-subbrain3(out, test-brain1)
+ Move 1 1;
+ Move out 1;
+// Move 1 test-brain1;
+ Flip 6 out 1;
+ Sense Ahead out test-brain1  Food;
+end;
+
 /*
 define sub brain test-ant-subbrain(back)
   Flip 6, (back, back);
@@ -24,10 +32,14 @@ end;
 
 define brain test-brain1
          Sub test-ant-subbrain;
-         Sub test-ant-subbrain2;
+//         Sub test-ant-subbrain2;
+         Sub test-ant-subbrain3;
          Move;
          // Drop, (start);
          Drop, (test-brain1);
+         
+         [out:]
+           Drop, (out);
 /*         
   [start:]
          Set V1 = #t, (fonz => fonzT);

@@ -55,7 +55,25 @@ define macro ant-subbrain-definer
 
   ant-state:
 
-  { Move ?success:expression ?failure:expression }
+  { Move ?success:name ?failure:expression } // 2
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <move>,
+                     state-success: "outsider_" ## ?success,
+                     state-failure:  curry(lookup, instrs, label, ?failure)))
+  }
+  
+  { Move ?success:expression ?failure:name } // 3
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <move>,
+                     state-success: curry(lookup, instrs, label, ?success),
+                     state-failure:  "outsider_" ## ?failure))
+  }
+  
+  { Move ?success:expression ?failure:expression } // 4
   =>
   {
     push-thunk(instrs, label, counter,
@@ -185,7 +203,6 @@ define macro ant-subbrain-definer
                      state-true: ?success-cont,
                      state-false: ?failure-cont))
   }
-  */
   
   success-cont:
   { ?:name } => { "outsider_" ## ?name }
@@ -194,6 +211,7 @@ define macro ant-subbrain-definer
   failure-cont:
   { ?:name } => { "outsider_" ## ?name }
   { ?:expression } => { curry(lookup, instrs, label, ?expression) }
+  */
   
 end macro ant-subbrain-definer;
 
