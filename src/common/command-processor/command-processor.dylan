@@ -202,7 +202,8 @@ define function longest-common-prefix(strings :: <collection>)
 end function longest-common-prefix;
   
   
-define method complete-command-aux(commands) => (bool :: <boolean>)
+define method complete-command-aux(commands) 
+ => (could-not-improve :: <boolean>)
   let oldsize = *command-line*.size;
   if(commands.size = 1)
     *command-line* := copy-sequence(commands[0].name);
@@ -213,16 +214,19 @@ define method complete-command-aux(commands) => (bool :: <boolean>)
   end if;
   oldsize = *command-line*.size;
 end method complete-command-aux;
+
+define function maybe-show-possible-completions(commands)
+  if(complete-command-aux(commands))
+    show-possible-completions(commands);
+  end if;
+end function maybe-show-possible-completions;
     
 define method complete-command(c)
   let commands = find-command-by-prefix(*command-line*);
   if(commands.size = 0)
     format-out("\r\nNo completions found.\r\n");
   else
-    let show-possible-completions-needed? = (complete-command-aux(commands));
-    if(show-possible-completions-needed?)
-      show-possible-completions(commands);
-    end if;
+    maybe-show-possible-completions(commands);
   end if;
   if(commands.size = 1)
     self-insert-command(' ');
@@ -232,10 +236,7 @@ end method complete-command;
 
 define method complete-command-and-insert-space(c)
   let commands = find-command-by-prefix(*command-line*);
-  let show-possible-completions-needed? = complete-command-aux(commands);
-  if (show-possible-completions-needed?)
-    show-possible-completions(commands);
-  end if;
+  maybe-show-possible-completions(commands);
   if(*command-line*.size > 0 & *command-line*[*buffer-pointer* - 1] ~= ' ' & commands.size < 2)
     self-insert-command(' ');
   end if;
