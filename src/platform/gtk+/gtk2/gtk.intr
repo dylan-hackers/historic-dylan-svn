@@ -15,7 +15,8 @@ define interface
              "char*" => <c-string>},
     map: {"gchar*" => <byte-string>,
           "char*" => <byte-string>,
-          "GCallback" => <function> },
+          "GCallback" => <function>,
+	  "gpointer" => <object> },
     rename: {"gtk_init" => %gtk-init },
     name-mapper: minimal-name-mapping;
 
@@ -24,6 +25,8 @@ define interface
   function "g_signal_connect_data",
     equate-argument: { 1 => <GObject>},
     equate-argument: { 6 => <integer>};
+  struct "struct _GObject",
+    superclasses: {<GTypeInstance>};
   struct "struct _GtkAccelGroup",
     superclasses: {<GObject>};
   struct "struct _GtkAccelLabel",

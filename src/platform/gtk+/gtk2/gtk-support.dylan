@@ -31,17 +31,51 @@ define method import-value(cls == <function>, value :: <GCallback>) => (result :
   error("Is this possible?");
 end method import-value;
 
-/* uh... later...
 define method export-value(cls == <gpointer>, the-value :: <object>) 
  => (result :: <gpointer>);
-  object-address(make(<value-cell>, value: the-value));
+  make(<gpointer>, 
+       pointer: object-address(make(<value-cell>, value: the-value)));
 end method export-value;
 
 define method import-value(cls == <object>, the-value :: <gpointer>) 
  => (result :: <gpointer>);
-  object-at(the-value).value;
+  value(heap-object-at(the-value.raw-value));
 end method import-value;
-*/
+
+define function all-subclasses(x :: <class>)
+  => (subclasses :: <collection>)
+  apply(concatenate, x.direct-subclasses, 
+        map(all-subclasses, x.direct-subclasses))
+end;
+
+define constant $all-gtype-instances = all-subclasses(<GTypeInstance>);
+
+define function find-gtype-by-name(name :: <byte-string>)
+  block(return)
+    for(i in $all-gtype-instances)
+      if(i.class-name = concatenate("<_", name, ">"))
+        return(i)
+      end if;
+    finally
+      error("Unknown GType %= encountered.", name)
+    end for;
+  end block;
+end function find-gtype-by-name;
+  
+
+define method make(type :: subclass(<GTypeInstance>), #rest args, 
+                   #key pointer, #all-keys)
+ => (result :: <GTypeInstance>)
+  if(pointer)
+    let instance = next-method(<GTypeInstance>, pointer: pointer);
+    let type-name = g-type-name-from-instance(instance);
+    next-method(find-gtype-by-name(type-name), pointer: pointer);
+  else
+    next-method();
+  end if;
+end method make;
+  
+  
 
 // Another stupid workaround. Sometimes we need to access mapped types
 // as pointers, and Melange doesn't provide any way to do so. Or does it?
