@@ -17,7 +17,8 @@ define module xml-parser
 
   create <document>, <element>, <attribute>, <entity-reference>,
     <char-reference>, <char-string>, <xml>, <node>, text, char, name;
-  create entity-value, element-attributes, attribute-value, node-children;
+  create entity-value, element-attributes, attribute-value, 
+    node-children, element-parent;
 end module xml-parser;
 
 define module interface
@@ -28,8 +29,18 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <letter>, <digit>, <hex-digit>, <version-number>;
+  export <letter>, <digit>, <hex-digit>, <version-number>,
+    element-parent-setter;
 end module interface;
+
+define module transform
+  use common-dylan, exclude: {format-to-string };
+  use streams;
+  use format;
+  use standard-io;
+  use xml-parser;
+  use interface;
+end module transform;
 
 define module %productions
   use common-dylan, exclude: { format-to-string };
@@ -42,15 +53,4 @@ define module %productions
   use interface;
   use xml-parser;
 end module %productions;
-
-define module transform
-  use common-dylan, exclude: {format-to-string };
-  use streams;
-  use format;
-  use standard-io;
-  use format-out;
-  use xml-parser;
-  use interface;
-  use %productions;
-end module transform;
 

@@ -128,6 +128,24 @@ define function expand-entity(val :: <sequence>)
 end function expand-entity;
 
 //-------------------------------------------------------
+// assigning parents
+define variable *parent* = #f;
+define class <add-parents> (<xform-state>) end;
+define constant $add-parents = make(<add-parents>);
+
+define method before-transform(node :: <node>, state :: <add-parents>,
+                               rep :: <integer>, str :: <stream>)
+  *parent* := node;
+end method before-transform;
+
+define method transform(elt :: <element>, tag-name :: <symbol>,
+                        state :: <add-parents>, str :: <stream>)
+  elt.element-parent := *parent*;
+  *parent* := elt;
+  next-method();
+end method transform;
+
+//-------------------------------------------------------
 // Productions
 
 // Document
@@ -142,6 +160,7 @@ define function parse-document(doc :: <string>,
   *defining-entities?* := #f;
   *substitute-entities?* := substitute-entities?;
   let (index, document) = parse-document-helper(doc, start: start, end: stop);
+  transform-document(document, state: $add-parents);
   document;
 end function parse-document;
 
@@ -449,7 +468,8 @@ define collect-value xml-attribute(c) () "'", "\"" => { } end;
 // assume that tags usually have content, and, therefore, look
 // for non-empty-element tags first when parsing.
 define parse element(name, attribs, content, etag)
- => (make(<element>, children: content, name: name, attributes: attribs))
+ => (make(<element>, children: content, name: name, 
+     attributes: attribs))
   {[parse-stag(name, attribs), parse-content(content), parse-etag(etag)],
    [parse-empty-elem-tag(name, attribs), set!(content, "")]}, []
 end parse element;
