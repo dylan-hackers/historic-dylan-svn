@@ -1202,6 +1202,21 @@ define module opengl-glut
     $GLUT-CURSOR-NONE,
     $GLUT-CURSOR-FULL-CROSSHAIR;
 
+  export
+    <GLbitfield>,
+    <GLboolean>,
+    <GLbyte>,
+    <GLshort>,
+    <GLint>,
+    <GLubyte>,
+    <GLushort>,
+    <GLuint>,
+    <GLsizei>,
+    <GLfloat>,
+    <GLdouble>,
+    <GLclampf>,
+    <GLclampd>;
+
 end module;
 
 /*

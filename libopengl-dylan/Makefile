@@ -1,6 +1,6 @@
 INSTALLPATH=$(shell d2c --compiler-info | grep _DCI_D2C_DYLAN_USER_DIR | sed 's/_DCI_D2C_DYLAN_USER_DIR=//' | sed 's/\/dylan-user//' | sed s'/ //g')
 
-ifeq ($(OSTYPE), darwin)
+ifeq ($(shell if [ -d "/System/Library/Frameworks" ]; then echo -n darwin; else echo -n not-darwin; fi), darwin)
 	LIDFILE=macosx-opengl.lid
 	MELANGE=melange --framework GLUT --d2c
 else

@@ -1,5 +1,5 @@
 dylan-gears: dylan-gears.lid
-	d2c -g -L/usr/include $<
+	d2c -g -L../../ $<
 
 dylan-gears.lid: dylan-gears-exports.dylan dylan-gears.dylan
 	touch $@
