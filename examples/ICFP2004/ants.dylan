@@ -151,11 +151,7 @@ end function clear-ant-at;
 
 define function ant-is-alive(aid :: <integer>)
  => (yesno :: <boolean>)
-  member?(aid, *world*, test: 
-            method(id* :: <integer>, p :: <cell>)
-             => (yesno :: <boolean>)
-                p.ant & p.ant.id == id*
-            end method);
+  *ants*[aid] ~= #f;
 end function ant-is-alive;
 
 
@@ -174,7 +170,11 @@ define function find-ant(aid :: <integer>)
   end;
 end function find-ant;
 
-define constant kill-ant-at = clear-ant-at;
+define function kill-ant-at(p :: <position>) => ()
+  let id = cell-at(p).ant.id;
+  *ants*[id] := #f;
+  clear-ant-at(p);
+end function kill-ant-at;
 
 define function food-at(p :: <position>)
   => (food :: <integer>)
