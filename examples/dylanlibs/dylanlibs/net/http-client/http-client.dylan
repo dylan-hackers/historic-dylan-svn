@@ -40,15 +40,17 @@ end method add-resource;
 define macro with-http-session                              
 { with-http-session(?:name = ?:expression) ?:body end }
 => { begin
-       let ?name = ?expression;
+       let original-session = ?expression;
+       let ?name = original-session | make-http-session();
        block()
          ?body
        cleanup
-         cleanup-http-session(?name);
+         unless(original-session)
+           cleanup-http-session(?name);
+         end unless;
        end block;
      end begin }
 end macro with-http-session;
-       
 
 // Retrieve the data from the given url.
 define method do-http-request(session :: <http-session>,
