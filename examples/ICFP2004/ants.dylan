@@ -77,17 +77,19 @@ end function other-color;
 
 define constant <state> = limited(<integer>, min: 0, max: 9999);
 
+define variable *ants* = make(<stretchy-vector>);
+
 define class <ant> (<object>)
-  constant slot id :: <integer>, init-keyword: id:;
+  constant slot id :: <integer>, required-init-keyword: id:;
   slot state :: <state> = 0;
-  constant slot color :: <color>, init-keyword: color:;
+  constant slot color :: <color>, required-init-keyword: color:;
   slot resting :: <integer> = 0;
   slot direction :: <direction> = 0;
   slot has-food :: <boolean> = #f;
 end class <ant>;
 
 define class <cell> (<object>)
-  constant slot rocky :: <boolean> = #f;
+  constant slot rocky :: <boolean> = #f, init-keyword: rocky:;
   slot ant :: false-or(<ant>) = #f;
   slot food :: <integer> = 0, init-keyword: food:;
   constant slot red-marker :: <vector> = make(<vector>, size: 5);
@@ -112,6 +114,7 @@ define function ant-at(p :: <position>)
   cell-at(p).ant;
 end function ant-at;
 
+// wrong argument order
 define function ant-at-setter(p :: <position>, a :: false-or(<ant>)) => ()
   cell-at(p).ant := a;
 end function ant-at-setter;
@@ -170,6 +173,8 @@ define function read-map(s :: <stream>) => (result :: <array>);
   let y-size :: <integer> = string-to-integer(read-line(s));
   
   let result = make(<array>, dimensions: vector(x-size, y-size));
+  let ant-count = 0;
+
 
   for(xx from 0 below x-size)
     let line = read-line(s);
@@ -194,7 +199,14 @@ define function read-map(s :: <stream>) => (result :: <array>);
           '8' => #(food:, 8);            
           '9' => #(food:, 9);
         end select;
-      result[xx, yy] := apply(make, <cell>, options);
+      let cell = apply(make, <cell>, options);
+      if(cell.anthill)
+        let ant = make(<ant>, color: cell.anthill, id: ant-count);
+        ant-count := ant-count + 1;
+        cell.ant := ant;
+        add!(*ants*, ant);
+      end if;
+      result[xx, yy] := cell;
     end for;
   end for;
   result;
@@ -551,6 +563,11 @@ define function play-game(red-brain :: <string>,
   with-open-file(world-stream = world)
     *world* := read-map(world-stream)
   end with-open-file;
+  for(round from 0 below 100000)
+    for(i from 0 below *ants*.size)
+      step(i);
+    end for;
+  end for;
 end function play-game;
 
 
@@ -560,7 +577,10 @@ begin
     do(method(x) format-out("%s\n", unparse(x)) end, test-machine);
   force-output(*standard-output*);
   let testmap = read-map(*standard-input*);
-  */
+
+  apply(play-game, application-arguments());
+
+*/
   with-open-file(world-stream = application-arguments()[0])
     *world* := read-map(world-stream)
   end with-open-file;
