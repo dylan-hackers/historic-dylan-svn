@@ -48,8 +48,8 @@ end macro dynamic-bind;
 
 // Dummy multithreading support implementations
 
-define abstract class <synchronization> (<object>) end class;
-define open class <lock> (<synchronization>) end class;
+define open abstract class <synchronization> (<object>) end class;
+define open abstract class <lock> (<synchronization>) end class;
 define class <notification> (<synchronization>) end class;
 define open class <exclusive-lock> (<lock>) end class;
 define primary class <semaphore> (<lock>) end class;
@@ -57,6 +57,11 @@ define primary class <recursive-lock> (<exclusive-lock>) end class;
 define primary class <read-write-lock> (<exclusive-lock>) end class;
 define primary class <simple-lock> ( <exclusive-lock> ) end class;
 
+define method make
+    (class == <lock>, #rest keys, #key, #all-keys)
+ => (lock :: <simple-lock>)
+  apply(make, <simple-lock>, keys)
+end method;
 
 // with-lock
 // do-nothing version
