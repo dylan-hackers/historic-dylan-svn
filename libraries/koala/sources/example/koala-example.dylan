@@ -4,17 +4,24 @@ Author:    Carl Gay
 
 /*
 
-Some XML-RPC methods are defined near the bottom.
+As distributed, the examples in this file should be available starting at
+/demo/home.dsp.  Just start koala-app.exe and this example should be loaded
+as a Koala module.
 
-Start this example project and go to /demo/home.dsp and you can choose from a
-menu of pages that demonstrate the features of Dylan Server Pages.  You should
-be able to find the code corresponding to a particular URL by searching for that
-URL in this file.
+Each page demonstrates a feature of Dylan Server Pages.  You should be able
+to find the code corresponding to a particular URL by searching for that
+URL in this file.  Some XML-RPC methods are defined near the bottom.
 
-You write your web application as an executable that uses the koala HTTP server dll.
-(This will eventually change.  Koala should eventually load your DLL at run-time.)
-Look for the call to "start-server" in this file for an example of how to start up the
-server.  Following are examples of various ways to define static and dynamic handlers
+During development it's much easier to write your web application as an executable
+that uses the koala HTTP server project, since you can run and debug it directly 
+under Functional Developer.  To do this, you'll need to call start-server to get
+the HTTP server started up.  (See "UNCOMMENT THIS" below.)
+
+In production the idea is to run koala-app.exe, build your web app as a DLL, and
+put the DLL in the koala-app "modules" directory.  This way multiple web apps can
+be run on the same server.  Of course, you may not need multiple apps...
+
+Following are examples of various ways to define static and dynamic handlers
 for web URLs.
 
 Note that any URLs registered for dynamic pages hide URLs corresponding to files in
@@ -22,13 +29,16 @@ the document root directory.  i.e., the dynamic URL takes precedence.
 
 */
 
-
+// UNCOMMENT THIS IF YOU WANT TO RUN THE EXAMPLE AS AN EXECUTABLE
+// Also make sure it is being linked as an exe, under Project -> Settings in FunDev.
+//
 // Start the Koala server early because it sets configuration variables like
 // *document-root* that are used by the example code.
+/*
 begin
   start-server();
 end;
-
+*/
 
 
 //// Responders -- the lowest level API for responding to a URL
@@ -109,6 +119,11 @@ end;
 define class <demo-page> (<dylan-server-page>)
 end;
 
+// Define a tag library in which to put all tag definitions.  This isn't
+// strictly necessary; tag defs can go in the existing 'dsp' tag library
+// but then you run the risk of overriding built-in DSP tags or other
+// user-defined tags in the dsp taglib.
+//
 define taglib demo ()
 end;
 
@@ -263,10 +278,10 @@ end;
 define thread variable *repetition-number* = 0;
 
 // An iterating tag.  Note the use of the "body" modifier in "define body tag".
-// When this modifier is used the tag accepts an extra argument, in this case
+// When this modifier is used the tag accepts a third argument, in this case
 // called "do-body".  do-body is a function of zero arguments that will execute
-// the body of the tag.  It may be invoked any number of times.  Use
-// variables or object state to communicate with the tags that are executed
+// the body of the tag.  It may be invoked any number of times.  Use thread
+// variables or object state to communicate with the tags that are invoked
 // during the execution of the body part.  Note the use of get-query-value to
 // get the argument "n" that can be passed in the URL or in the POST.
 // See iterator.dsp for how this tag is invoked.

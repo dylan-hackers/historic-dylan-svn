@@ -5,6 +5,7 @@ define library xml-parser
   use anaphora;
   use multimap;
   use meta;
+  use system, import: { file-system };
   use io;
 
   export xml-parser;
@@ -97,6 +98,7 @@ define module %productions
   use format;
   use multimap;
   use print;
+  use file-system;
 
   use meta;
   use interface;

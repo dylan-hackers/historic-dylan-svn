@@ -228,7 +228,7 @@ define function parse-media-type (str :: <byte-string>,
                         else
                           values(str, #f)
                         end;
-  make(<avalue>, value: pair(type, subtype), params: params)
+  make(<avalue>, value: pair(type, subtype), alist: params)
 end;
 
 // accept-charset, accept-languages, TE
@@ -257,8 +257,9 @@ define function parse-authorization-value (str :: <byte-string>,
     // (userid . password).  or maybe avalue with "userid"=userid, etc.
     trimmed-substring(str, dpos, epos)
   else
-    make(<avalue>, value: substring(str, b, e),
-         params: extract-attribute-value-alist(str, dpos, epos, ','))
+    make(<avalue>,
+         value: substring(str, b, e),
+         alist: extract-attribute-value-alist(str, dpos, epos, ','))
   end;
 end;
 

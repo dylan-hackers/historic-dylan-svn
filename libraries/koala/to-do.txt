@@ -48,7 +48,8 @@ Kitchen Sink
 * mod_dylan for Apache?
 
 * A facility to generate .html files from .dsp files.  e.g., a way to
-  flatten all the .dsp doc files into .html.
+  "play back" all the .dsp doc files into .html.  Will only work for pages
+  that don't require parameters.
 
 * Secure connections.  Have to finish implementing <ssl-tcp-server-socket>.
 

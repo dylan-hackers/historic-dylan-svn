@@ -7,7 +7,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 define library koala
-  use functional-dylan;
+  use functional-dylan, import: { dylan-extensions };
+  use common-dylan;
   use io;
   use network;
   use system;
@@ -16,6 +17,7 @@ define library koala
   use xml-rpc-common;
   use dylan-basics;                             // basic dylan utils
   use sql-odbc;
+  use win32-kernel;
 
   export koala;
   export koala-extender;
@@ -24,7 +26,8 @@ end library koala;
 
 
 define module utilities
-  use functional-dylan;
+  use dylan;
+  use common-extensions, exclude: { format-to-string };
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -111,6 +114,8 @@ define module utilities
     <log-warning>, log-warning,
     <log-info>, log-info,
     <log-debug>, log-debug, log-debug-if,
+    <log-verbose>, log-verbose,
+    <log-copious>, log-copious,
     log-message,
     log-date,
     add-log-level, remove-log-level, clear-log-levels;
@@ -150,12 +155,15 @@ define module koala
     do-query-values,             // Call f(key, val) for each query in the URL or form
     do-form-values,              // A synonym for do-query-values
     count-query-values,
-    count-form-values;
+    count-form-values,
+    application-error;
 
   // Responses
   create
     <response>,
     output-stream,
+    clear-output,
+    set-content-type,
     add-header,
     add-cookie,
     get-request;
@@ -177,16 +185,9 @@ define module koala
   create
     document-location;
 
-  // Logging
-/*
+  // Errors
   create
-    log-debug,
-    log-debug-if,
-    log-error,
-    log-warning,
-    log-info,
-    log-message;
-*/
+    <koala-api-error>;
 
   // Not sure if these should really be exported.
   create
@@ -196,7 +197,7 @@ define module koala
     unimplemented-error,
     internal-server-error,
     request-url,
-    *auto-register-map*;
+    register-auto-responder;
 
   // Debugging
   create
@@ -210,44 +211,50 @@ define module koala-extender
 end;
 
 define module httpi                             // http internals
+  use dylan;
+  use threads;               // from dylan lib
+  use common-extensions, exclude: { format-to-string };
+  use dylan-basics;
   use utilities;
   use koala;
   use koala-extender;
 
-  use functional-dylan;
-  use locators, rename: {<http-server> => <http-server-url>,
-                         <ftp-server> => <ftp-server-url>,
-                         <file-server> => <file-server-url>};
+  use locators,
+    rename: { <http-server> => <http-server-url>,
+              <ftp-server> => <ftp-server-url>,
+              <file-server> => <file-server-url> };
   use dylan-extensions,
-    import: {element-no-bounds-check,
-             element-no-bounds-check-setter,
-             element-range-check,
-             element-range-error,
-             // make-symbol,
-             // case-insensitive-equal,
-             // case-insensitive-string-hash
-             };
-  use threads;
+    import: { element-no-bounds-check,
+              element-no-bounds-check-setter,
+              element-range-check,
+              element-range-error,
+              // make-symbol,
+              // case-insensitive-equal,
+              // case-insensitive-string-hash
+              };
   use format;
   use format-out;
   use standard-io;
   use streams;
-  use sockets, rename: { start-server => start-socket-server };
-  use date;
-  use file-system;
-  use operating-system;
+  use sockets,
+    rename: { start-server => start-socket-server };
+  use date;                    // from system lib
+  use file-system;             // from system lib
+  use operating-system;        // from system lib
   //use ssl-sockets;
   use xml-parser,
     prefix: "xml$";
   use xml-rpc-common;
+  use win32-kernel, import: { LoadLibrary, FreeLibrary };
 end module httpi;
 
 define module dsp
+  use dylan;
+  use common-extensions;
   use dylan-basics;
   use koala, export: all;
   use utilities, export: all;
 
-  use functional-dylan;
   use locators, rename: {<http-server> => <http-server-url>,
                          <ftp-server> => <ftp-server-url>,
                          <file-server> => <file-server-url>};
@@ -321,6 +328,7 @@ define module dsp
     note-form-error,             // for any error encountered while processing a web form
     note-form-message,           // for informative messages in response to processing a web form
     note-field-error,            // for errors related to processing a specific form field
+    validate-record-field,       // define methods on this to validate record page form fields
     display-hidden-field,
     *default-origin-page*,       // Return to this page when a record is submitted, if no origin page
                                  // was specified in the link to the edit-record page.
@@ -334,7 +342,9 @@ define module dsp
     slot-type,
     slot-database-type,
     slot-init-keyword,
-    slot-required?;
+    slot-required?,
+    db-type-to-slot-type,
+    record-table-name,
 
 end module dsp;
 

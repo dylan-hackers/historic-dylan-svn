@@ -1,20 +1,27 @@
 <!--
 
-$Id: build.xml,v 1.8 2002/10/07 13:43:10 sigue Exp $
+$Id: build.xml,v 1.9 2004/03/23 14:07:59 cgay Exp $
 
 Ant build file for the Koala HTTP server and associated libraries.
 
 Since there's no Dylan compiler option for Ant (yet?) this is just
 a way to copy files to the correct places after doing a build in
-Functional Developer.
+Functional Developer.  So to produce a distribution (source and binary)
+do the following:
+
+* Open the koala-app, koala-example, xml-rpc-client, and btrack projects
+  in Functional Developer and do Build Release for each one.
+* In the directory containing this build.xml file, type "ant".
 
 This is what the distributed directory structure is supposed to look like:
 koala-x.y
   README.txt (always)
-  bin        (always)
+  bin        (binary distribution only)
+    koala-app.exe
   build      (source distribution only)
   change-log.txt (always)
   config     (always)
+  modules    (binary distribution only)
   sources    (source distribution only)
   to-do.txt  (source distribution only)
   www        (always)
@@ -109,14 +116,15 @@ koala-x.y
   <target name="binary" depends="common">
 
     <mkdir dir="${dist}/bin" />
+    <mkdir dir="${dist}/modules" />
 
     <copy todir="${dist}/bin">
-      <fileset dir="${sources}/example/release" />
-    </copy>
-
-    <copy todir="${dist}/bin">
+      <fileset dir="${sources}/koala-app/release" />
       <fileset dir="${sources}/xml-rpc-client/release" />
     </copy>
+
+    <copy file="${sources}/example/release/koala-example.dll"
+          todir="${dist}/modules" />
 
   </target>
 

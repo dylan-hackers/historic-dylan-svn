@@ -18,25 +18,23 @@
 -->
 
 
-<!-- LOG tells Koala what kind of log messages to display.  There are four
-     possible settings, in order of importance, each of which includes the
-     settings above it:
-       error   - highest importance
-       warning - includes errors (you can't display warnings without seeing errors too)
-       info    - includes warnings and errors.  this is the default value.
-       debug   - includes all log messages
-       headers - show all incoming/outgoing headers.  this is so verbose it needs
-                 its own level.
+<!-- LOG tells Koala what kind of log messages to display.  There are six
+     possible settings, from least verbose to most verbose:
 
-     A bit more granularity may be added in the future.  If the "clear"
-     attribute is false then the previous setting will not be cleared
-     before the new log level is added.
+       error warning info debug verbose copious
 
-     The log levels should be added near the beginning so debugging statements
-     emitted during config file parsing can be displayed.
+     The 'copious' log level is currently only used by Koala to display 
+     HTTP headers and content.
+
+     If the "clear" attribute is false then the previous setting will
+     not be cleared before the new log level is added.
+
+     The log levels should be added near the beginning of this config file
+     so debugging statements emitted during config file parsing can be
+     displayed.
 -->
 
-<log level="info" />
+<log level="debug" />
 
 
 <!-- Port on which to listen for HTTP requests. -->
@@ -56,11 +54,6 @@
      relative to this.  The server-root pathname is relative to the
      koala executable.  NOTE: This should be near the top of the config
      file since later elements will be merged against it.
-  -->
-<!-- During development I usually run the koala-example project.
-     Setting server-root here points it to the main koala directory.
-     Once Koala runs on its own and web-apps are loaded from DLLs this
-     should be changed.
   -->
 <server-root location="." />
 
@@ -99,5 +92,15 @@
   internal-error-fault-code="0"
   debug="no"
   />
+
+
+<web-objects
+  database="webobj"
+  />
+
+<!-- The MODULE element loads modules out of the SERVER-ROOT/modules/ directory.
+     The following loads koala-example.dll.
+  -->
+<module name="koala-basics" />
 
 </koala>

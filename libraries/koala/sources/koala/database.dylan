@@ -4,7 +4,7 @@ Author: Carl Gay
 
 // ---TODO: Connection pools.
 
-define constant $database-name :: <string> = "dybug";
+define constant $database-name :: false-or(<string>) = #f;
 
 define macro with-database-connection
   { with-database-connection (?conn:name) ?:body end }
@@ -118,7 +118,7 @@ define variable *database-initialized?* :: <boolean> = #f;
 //
 define function maybe-initialize-database
     (conn) => ()
-  if (not(*database-initialized?*))
+  if (~*database-initialized?*)
     initialize-database(conn);
     *database-initialized?* := #t
   end;

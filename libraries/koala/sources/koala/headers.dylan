@@ -6,23 +6,6 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-//// Header logging
-
-
-// Logging of headers needs a separate logging class since it's so verbose
-// and will normally be turned off.
-define class <log-headers> (<log-level>)
-end;
-
-define constant $log-headers = make(<log-headers>, name: "HDR ");
-
-define method log-header
-    (format-string, #rest format-args) => ()
-  apply(log-message, $log-headers, format-string, format-args);
-end;
-
-
-
 //// Headers
 
 
@@ -51,7 +34,7 @@ define function read-message-headers (stream :: <stream>,
     else
       let (key, data) = split-header(buffer, bpos, epos);
       add-header(headers, key, data);
-      log-header("<--%s: %s", key, data);
+      log-copious("<--%s: %s", key, data);
       loop(buffer, epos, peek-ch);
     end if;
   end iterate;
@@ -62,7 +45,7 @@ define method add-header
      #key if-exists? :: <symbol> = #"append")
   let old = element(headers, key, default: #f);
   // typically there is only one header for given key, so favor that.
-  if (old == #f | if-exists? == #"replace")
+  if (~old | if-exists? == #"replace")
     headers[key] := data;
   elseif (if-exists? == #"append")
     headers[key] := iff(instance?(old, <pair>),
@@ -203,7 +186,7 @@ end;
 
 define function request-header-value (request :: <request>, key :: <symbol>)
   let cache = request.request-header-values;
-  let cached = element(cache, key, default: not-found());
+  let cached = element(cache, key, default: $unfound);
   if (found?(cached))
     cached
   else
@@ -487,7 +470,9 @@ define method extract-cookies
                          make(<cookie>,
                               name: name, value: value, path: path, domain: domain,
                               version: version));
-          pset (name, value, path, domain) <= values(#f, #f, #f, #f) end;
+          pset (name, value, path, domain)
+            values(#f, #f, #f, #f)
+          end;
         end;
   iterate loop (bpos = bpos)
     let bpos = skip-whitespace(str, bpos, epos);

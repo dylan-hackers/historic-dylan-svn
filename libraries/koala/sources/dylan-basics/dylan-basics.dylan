@@ -280,10 +280,10 @@ define method as
   string-to-integer(value)
 end;
 
-
-// I find ~ quite easy to miss in code.  'not' is easier to see.
-//
-define inline-only function not (x :: <object>)
-  ~x
+define method throw
+    (class :: subclass(<condition>), format-string, #rest args)
+  signal(make(class,
+              format-string: format-string,
+              format-arguments: copy-sequence(args)))
 end;
 

@@ -6,7 +6,8 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library xml-rpc-client
-  use functional-dylan;
+  use dylan;
+  use common-extensions;
   use io;
   use network;
   use dylan-basics;        // dylan survival kit
@@ -18,7 +19,8 @@ end;
 
 
 define module xml-rpc-client
-  use functional-dylan;
+  use dylan;
+  use common-extensions, exclude: { format-to-string };
   use format;
   use format-out;  // for debugging only
   use sockets;

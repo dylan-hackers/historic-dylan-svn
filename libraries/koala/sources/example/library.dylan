@@ -3,23 +3,24 @@ Synopsis: Koala example code
 Author:   Carl Gay
 
 define library koala-example
-  use functional-dylan;
+  use dylan;
+  use common-extensions;
   use io;
   use network;
-  use system;
+  use locators;
   use koala;
   export koala-example;
-end library koala-example;
+end;
 
 
 define module koala-example
-  use functional-dylan;
-  use format;
-  use format-out;
-  use streams;
-  use threads;
-  use sockets, import: { <tcp-socket> };
-  use dsp;
-  use locators;
+  use dylan;
+  use threads;      // from dylan lib
+  use common-extensions, exclude: { format-to-string };
+  use locators;     // from locators lib
+  use format;       // from IO lib
+  use streams;      // from IO lib
+  use sockets, import: { <tcp-socket> };  // from network lib
+  use dsp;          // from koala lib
 end;
 

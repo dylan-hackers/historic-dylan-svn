@@ -47,8 +47,11 @@ end;
 define method add-header
     (response :: <response>, header :: <string>, value :: <object>, #key if-exists? = #"append")
   if (headers-sent?(response))
-    //---TODO: define a <api-error> class or something, and signal it here.
-    error("Attempt to add a %s header after headers have already been sent.", header);
+    throw(<koala-api-error>,
+          "Attempt to add a %s header after headers have already been sent.",
+          header);
+  elseif (string-equal?(header, "content-type"))
+    set-content-type(response, value)
   else
     add-header(response.response-headers, header, value, if-exists?: if-exists?)
   end;
@@ -56,14 +59,40 @@ end;
 
 // Exported
 //
+// ---TODO: The first time the output stream is requested, check the content
+//          type and create the appropriate type of stream.
 define method output-stream
     (response :: <response>) => (stream :: <stream>)
   response.%output-stream
   | begin
-      response.%output-stream
-        := allocate-resource(<string-stream>);
+      // The user can override this if they do it before writing to the
+      // output stream.
+      set-content-type(response, *default-dynamic-content-type*, if-exists?: #"ignore");
+      response.%output-stream := allocate-resource(<string-stream>);
     end
 end;
+
+// Exported
+//
+define method clear-output
+    (response :: <response>) => ()
+  let out = response.%output-stream;
+  out & stream-contents(out, clear-contents?: #t)
+end;
+
+// Exported
+//
+define method set-content-type
+    (response :: <response>, content-type :: <object>, #key if-exists? = #"replace")
+  let out = response.%output-stream;
+  if (out & stream-size(out) ~= 0)
+    throw(<koala-api-error>,
+          "Attempt to set the content-type header after reply has begun to be sent.");
+  else
+    add-header(response.response-headers, "Content-type", content-type, if-exists?: if-exists?);
+  end;
+end;
+
 
 // Implements part of the resource protocol.
 //
@@ -126,20 +155,20 @@ end;
 //end;
 
 define method send-header
-    (stream :: <tcp-socket>, name :: <string>, val :: <pair>)
+    (stream :: <stream>, name :: <string>, val :: <pair>)
   for (v in val)
     send-header(stream, name, v)
   end;
 end;
 
 define method send-header
-    (stream :: <tcp-socket>, name :: <string>, val :: <object>)
+    (stream :: <stream>, name :: <string>, val :: <object>)
   format(stream, "%s: %s\r\n", name, val);
-  log-header("-->%s: %s", name, val);
+  log-copious("-->%s: %s", name, val);
 end;
 
 define method send-headers
-    (response :: <response>, stream :: <tcp-socket>)
+    (response :: <response>, stream :: <stream>)
   // Send the headers
   let headers :: <header-table> = response-headers(response);
   for (val keyed-by name in headers)
@@ -151,20 +180,17 @@ end;
 
 define method send-response
     (response :: <response>, #key response-code, response-message) => ()
-  let stream :: <tcp-socket> = request-socket(get-request(response));
+  let stream :: <stream> = request-socket(get-request(response));
   unless (headers-sent?(response))
     // Send the response line
     let response-line
       = format-to-string("%s %d %s\r\n",
                          $http-version, response-code | 200, response-message | "OK");
-    log-header("-->%s", response-line);
+    log-copious("-->%s", response-line);
     write(stream, response-line);
 
     // Add required headers
     add-header(response, "Content-length", integer-to-string(stream-size(output-stream(response))));
-    //---TODO: Remove this once set-response-stream-type (or whatever) is implemented.
-    add-header(response, "Content-type", *default-dynamic-content-type*, if-exists?: #"do-nothing");
-
     send-headers(response, stream);
   end unless;
 

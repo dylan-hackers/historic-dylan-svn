@@ -33,23 +33,6 @@ end;
 define class <tag-argument-parse-error> (<dsp-parse-error>) end;
 
 
-//// Logging
-
-define class <log-dsp-warning> (<log-warning>) end;
-define class <log-dsp-error> (<log-error>) end;
-define class <log-dsp-info> (<log-info>) end;
-define class <log-dsp-debug> (<log-debug>) end;
-
-define constant log-dsp-warning = curry(log-message, make(<log-dsp-warning>));
-define constant log-dsp-error   = curry(log-message, make(<log-dsp-error>));
-define constant log-dsp-info    = curry(log-message, make(<log-dsp-info>));
-define constant log-dsp-debug   = curry(log-message, make(<log-dsp-debug>));
-
-begin
-  // ---TODO: This should be a configuration setting.  Default to <log-dsp-info>.
-  add-log-level(<log-dsp-debug>);
-end;
-
 
 //// Generic pages
 
@@ -129,6 +112,7 @@ define function register-page
     (url :: <string>, page :: <page>, #key replace?)
  => (responder :: <function>)
   bind (responder = curry(process-page, page))
+    log-debug("Registering URL %s (source: %s)", url, as(<string>, source-location(page)));
     register-url(url, responder, replace?: replace?);
     *page-to-url-map*[page] := url;
     responder
@@ -148,14 +132,14 @@ end;
 // Register URLs for all files matching the given pathname spec as instances
 // of the given page class.
 define method register-pages-as
-    (path :: <pathname>, page-class :: subclass(<file-page-mixin>),
+    (path :: <locator>, page-class :: subclass(<file-page-mixin>),
      #key descend? = #t, file-type)
   // url-dir always ends in '/'
   local method doer (url-dir, directory, name, type)
           format-out("name = %=\n", name);
           select (type)
             #"file" =>
-              let file = merge-locators(as(<physical-locator>, name),
+              let file = merge-locators(as(<file-locator>, name),
                                         as(<directory-locator>, directory));
               register-page(name, make(page-class,
                                        source: file,
@@ -164,7 +148,8 @@ define method register-pages-as
               let dir = subdirectory-locator(as(<directory-locator>, directory), name);
               format-out("dir = %=\n", as(<string>, dir));
               when (descend?)
-                do-directory(curry(doer, concatenate(url-dir, name, "/")), dir);
+                do-directory(curry(doer, concatenate(url-dir, name, "/")),
+                             dir);
               end;
           end;
         end;
@@ -176,7 +161,7 @@ end;
 //
 
 define free class <file-page-mixin> (<object>)
-  slot source-location :: <pathname>, init-keyword: #"source";
+  slot source-location :: <locator>, init-keyword: #"source";
   slot contents :: false-or(<string>) = #f;
 end;
 
@@ -184,6 +169,7 @@ define method initialize
     (page :: <file-page-mixin>, #key, #all-keys)
   next-method();
   when (~slot-initialized?(page, source-location))
+    // ---TODO: what if document-location returns #f here?
     page.source-location := document-location(page-url(page));
   end;
 end;
@@ -428,8 +414,8 @@ define method parse-tag-arg
     "true", "yes", "#t" => #t;
     "false", "no", "#f" => #f;
     otherwise =>
-      log-dsp-warning("Tag call argument %= should be a boolean value such as"
-                      " true/false or yes/no.  false will be used.", arg);
+      log-warning("Tag call argument %= should be a boolean value such as"
+                  " true/false or yes/no.  false will be used.", arg);
       #f;
   end;
 end;
@@ -645,16 +631,6 @@ define function register-page-urls
   responder
 end;
 
-/* ---TODO:
-  If you leave off the taglib name in a "define tag" form the only way you find out
-  about it is by noticing the a parse error in the log output or by noticing that the
-  tag output is missing from the page.  Two possible fixes:
-  1) Make the "<!-- TAG PARSE ERROR -->" source visible rather than being in a comment.
-     This way it will be seen sooner.
-  2) Require the taglib name in the "define tag" form.
-  3) Make a "parse errors are errors rather than warnings" setting.
-  4) Have a way to set the default taglib rather than it always being dsp?
-*/
 
 // define tag foo in tlib (page, response) () do-stuff end
 // define body tag foo in tlib (page, response, do-body) (foo, bar :: <integer>) do-stuff end
@@ -794,6 +770,7 @@ define method display-template (tmplt :: <dsp-template>,
                                 page :: <dylan-server-page>,
                                 request :: <request>,
                                 response :: <response>)
+  log-debug("Displaying template %=", tmplt);
   let stream = output-stream(response);
   for (item in tmplt.entries)
     select (item by instance?)
@@ -823,6 +800,7 @@ end;
 
 define method parse-page
     (page :: <dylan-server-page>)
+  log-debug("Parsing page %=", source-location(page));
   let string = file-contents(source-location(page));
   if (~string)
     resource-not-found-error(url: page-url(page));
@@ -886,9 +864,9 @@ define function parse-include-directive
     (page, tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
  => (scan-pos :: <integer>)
   when (has-body?)
-    log-dsp-warning("Invalid include tag %s in template %s:%d.  ",
-                    as(<string>, call), as(<string>, page.source-location), tag-start);
-    log-dsp-warning("The include directive doesn't allow a body; it should end in '/>'.");
+    log-warning("Invalid include tag %s in template %s:%d.  ",
+                as(<string>, call), as(<string>, page.source-location), tag-start);
+    log-warning("The include directive doesn't allow a body; it should end in '/>'.");
   end;
   let url = get-arg(call, #"url") | get-arg(call, #"uri") | get-arg(call, #"location");
   if (~url)
@@ -896,7 +874,7 @@ define function parse-include-directive
                 as(<string>, page.source-location));
   end;
   let source = document-location(url, context: page-directory(page));
-  let contents = file-contents(source);
+  let contents = source & file-contents(source);
   if (contents)
     let subtemplate = make(<dsp-template>,
                            source: source,
@@ -982,12 +960,12 @@ define function parse-taglib-directive
   body-start
 end;
 
-define constant $debugging-templates :: <boolean> = #f;
+define constant $debugging-templates :: <boolean> = #t;
 
 define function pt-debug
     (format-string, #rest args)
   when ($debugging-templates)
-    apply(log-dsp-debug, format-string, args);
+    apply(log-debug, format-string, args);
   end;
 end;
 
@@ -1105,9 +1083,9 @@ define function parse-start-tag (page :: <dylan-server-page>,
                         taglib: taglib,
                         taglibs: copy-sequence(taglibs))
                  else
-                   log-dsp-warning("In template %=, the tag %= was not found.",
-                                   as(<string>, page.source-location),
-                                   name);
+                   log-warning("In template %=, the tag %= was not found.",
+                               as(<string>, page.source-location),
+                               name);
                    tag := $placeholder-tag;
                    make-dummy-tag-call(prefix, name);
                  end;
@@ -1117,10 +1095,10 @@ define function parse-start-tag (page :: <dylan-server-page>,
     let (tag-args, has-body?, end-index) = extract-tag-args(buffer, name-end, epos, tag);
     tag-call.arguments := tag-args;
     when (has-body? & ~tag.allow-body?)
-      log-dsp-warning("While parsing template %s, at position %=:"
-                      " The %s:%s tag call should end with \"/>\" since this tag doesn't allow a body."
-                      " No body will be processed for this tag.",
-                      as(<string>, page.source-location), bpos, prefix, name);
+      log-warning("While parsing template %s, at position %=:"
+                  " The %s:%s tag call should end with \"/>\" since this tag doesn't allow a body."
+                  " No body will be processed for this tag.",
+                  as(<string>, page.source-location), bpos, prefix, name);
       has-body? := #f;
     end;
     values (tag-call, has-body?, end-index)
@@ -1205,6 +1183,7 @@ end;
 
 define function auto-register-dylan-server-page
     (url :: <string>) => (responder :: <function>)
+  // ---TODO: what if document-location returns #f here?
   register-page(url, make(<dylan-server-page>,
                           source: document-location(url)))
 end;

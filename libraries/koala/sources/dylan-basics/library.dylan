@@ -8,7 +8,8 @@ define library dylan-basics
 end;
 
 define module dylan-basics
-  use common-dylan;
+  use dylan;
+  use common-extensions;
 
   export
     \bind,              // like LET* in Common Lisp
@@ -25,7 +26,7 @@ define module dylan-basics
     float-to-formatted-string,
     join,
     remove-keys,        // For removing keywords from #rest arglists.
-    not;
+    throw;
 end;
 
 
