@@ -35,9 +35,14 @@ define method configure-server ()
                               return();
                             end;
                           end method;
-    let xml :: <xml-document> = xml$parse-document(file-contents(config-loc));
-    log-info("Loading server configuration from %s.", config-loc);
-    process-config-node(xml);
+    let text = file-contents(config-loc);
+    if (text)
+      let xml :: <xml-document> = xml$parse-document(text);
+      log-info("Loading server configuration from %s.", config-loc);
+      process-config-node(xml);
+    else
+      log-warning("Server configuration file (%s) not found.", config-loc);
+    end;
   end block;
 end configure-server;
 

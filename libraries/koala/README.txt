@@ -8,13 +8,13 @@ Pages.
 Organization
 ------------
 
- koala/bin              -- Binaries for the demo application.
- koala/config/          -- Koala configuration files.
- koala/lib/             -- Third-party libraries.
- koala/sources/koala    -- Koala and Dylan Server Pages sources.
- koala/sources/example  -- A demo application using DSP.
- koala/www              -- Web pages, including the demo application.
- koala/www/koala        -- Some preliminary Koala/DSP documentation.
+koala/bin              -- Binaries for the demo application.
+koala/config/          -- Koala configuration files.
+koala/lib/             -- Third-party libraries.
+koala/sources/koala    -- Koala and Dylan Server Pages sources.
+koala/sources/example  -- A demo application using DSP.
+koala/www              -- Web pages, including the demo application.
+koala/www/koala        -- Some preliminary Koala/DSP documentation.
 
 
 Running Koala
@@ -36,23 +36,17 @@ Building Koala
 --------------
 
 If you have a source distribution then you can build Koala using
-Functional Developer.  Because Koala uses the XML, DOM, and Expat
-libraries from Functional Developer, and those libraries aren't (yet)
-open source, some extra steps are required to build Koala.  Perform
-the following file copy operations:
-
-copy koala/lib/*.ddb to <fundev-root>/Databases/
-copy koala/lib/*.lib to <fundev-root>/Lib/
-copy koala/lib/*.mkf to <fundev-root>/Lib/
-
-Now open koala/sources/example/koala-example.hdp and build the project.
+Functional Developer.  Just open sources/example/koala-example.hdp and
+build the project.  You may want to put a copy of
+config/koala-config.xml into sources/example/config/koala-config.xml and
+set DEBUG-SERVER to "on".
 
 If you want to make a new distribution of Koala, build the koala-example
 project, then use the Build Release command in Functional Developer,
 then cd to koala/build and type "ant dist".  This should create a
 directory called koala/dist containing the distribution, which you can
 then zip up.  See koala/build/build.xml or type "ant help" for details
-of other Ant targets.
+of other Ant targets.  I use Ant 1.4.1.
 
 
 Feedback

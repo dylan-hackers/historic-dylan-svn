@@ -1,6 +1,6 @@
 <!--
 
-$Id: build.xml,v 1.3 2002/05/02 01:07:44 sigue Exp $
+$Id: build.xml,v 1.3.2.1 2002/05/07 20:15:21 sigue Exp $
 
 Ant build file for the Koala HTTP server.
 
@@ -105,7 +105,7 @@ koala-x.y
   </target>
 
 
-  <!-- ********** source ********** -->
+  <!-- ********** source-only ********** -->
 
   <target name="source" depends="basics">
 
@@ -115,12 +115,12 @@ koala-x.y
     
     <copy todir="${dist}/sources"
           overwrite="yes">
-      <fileset dir="${basedir}/sources" includes="**/*.dylan, **/*.txt, **/*.lid, **/*.hdp" />
+      <fileset dir="${basedir}/sources" includes="**/*.dylan, **/*.txt, **/*.lid, **/*.hdp, **/*.htm, **/*.html" />
     </copy>
 
     <copy todir="${dist}/lib"
           overwrite="yes">
-      <fileset dir="${basedir}/lib" includes="**/*.ddb, **/*.lib, **/*.mkf" />
+      <fileset dir="${basedir}/lib" includes="**/*.dylan, **/*.txt, **/*.lid, **/*.hdp, **/*.htm, **/*.html" />
     </copy>
 
     <copy file="${basedir}/build/build.xml"

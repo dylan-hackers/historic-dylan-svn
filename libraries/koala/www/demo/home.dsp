@@ -10,7 +10,6 @@
 
   <h2>Home</h2>
 
-  <dsp:non-existant-tag/>
   Each page of this demo demonstrates at least one different feature of
   Dylan Server Pages.  There's no preset order to the pages; just click
   on one to see what happens and then look at the Dylan source (koala-example.dylan)
