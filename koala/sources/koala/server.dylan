@@ -225,9 +225,11 @@ end init-server;
 
 // API
 //
-define function start-server ()
+define function start-server
+    () => (started? :: <boolean>)
   if (*abort-startup?*)
     log-error("Server startup aborted due to the previous errors");
+    #f
   else
     let ports = #();
     for (vhost keyed-by name in $virtual-hosts)
@@ -243,8 +245,9 @@ define function start-server ()
     // the application exits without waiting for spawned threads to die,
     // so join-listeners keeps the main thread alive until all listeners die.
     join-listeners(*server*);
-  end;
-end start-server;
+    #t
+  end
+end function start-server;
 
 define function join-listeners
     (server :: <server>)
@@ -538,7 +541,7 @@ define function handler-top-level
                     request.request-query-values := query-values;
                     read-request(request);
                     dynamic-bind (*request-query-values* = query-values,
-                                  *virtual-host* = virtual-host(request) | $default-virtual-host)
+                                  *virtual-host* = virtual-host(request))
                       log-debug("Virtual host for request is '%s'", 
                                 vhost-name(*virtual-host*));
                       invoke-handler(request);

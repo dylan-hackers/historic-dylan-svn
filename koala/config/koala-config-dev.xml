@@ -15,13 +15,32 @@
 
 <document-root location="www" />
 
+<directory pattern = "/"
+           allow-directory-listing = "yes" />
+
 <log level="copious" />
 
-<debug-server value="on" />
+<debug-server value="off" />
 
-<auto-register enabled="no" />
+<auto-register enabled="yes" />
 
 <xml-rpc url="/RPC2" enable="yes" internal-error-fault-code="0" />
+
+
+<virtual-host name="127.0.0.1">
+
+    <document-root location = "www/127.0.0.1" />
+
+    <!-- For now, all virtual hosts must share the same port, so the
+         port here has to match the port for the default vhost.
+         This will eventually be fixed. -->
+
+    <port value="8001" />
+    <directory pattern = "/"
+               allow-directory-listing = "no" />
+
+</virtual-host>
+              
 
 
 </koala>
