@@ -3,7 +3,7 @@
 require "db_connect.inc";
 
 function current_version() {
-    echo "2.3.11";
+    echo "2.4.0";
 }
 
 function begin_progress_table () {
