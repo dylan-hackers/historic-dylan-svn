@@ -25,7 +25,7 @@ define module gml-compiler
   use Dylan;
   use Transcendental;
 
-  export compile-gml, run-gml;
+  export compile-gml, run-gml, <fp>;
 end module gml-compiler;
 
 

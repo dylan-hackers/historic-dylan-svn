@@ -14,7 +14,7 @@ define method initialize(ray :: <ray>, #next next-method, #key position: pos, di
   ray.ray-direction := normalize(dir);
 end method initialize;
 
-define method transform-with-matrix(ray :: <ray>, matrix :: <matrix>)
+define method transform-with-matrix(ray :: <ray>, matrix :: <transform>)
   make(<ray>, position: matrix * ray.ray-position, direction: matrix * ray.ray-direction);
 end method transform-with-matrix;
 
@@ -110,7 +110,7 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
       let u = clamp(point[0]);
       let v = clamp(point[2]);
       values(point, 
-	     #[ 0.0, 1.0, 0.0, 0.0 ],
+	     vector3D(0.0, 1.0, 0.0, 0.0),
 	     make-surface-closure(0, u, v, m.surface-interpreter-entry), t);
     end if;
   end if;

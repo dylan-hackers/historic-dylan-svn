@@ -8,7 +8,7 @@ define abstract class <light> (<object>)
 end class <light>;
 
 define class <star> (<light>)
-  slot direction :: <vector>, required-init-keyword: #"direction";
+  slot direction :: <vector3D>, required-init-keyword: #"direction";
 end class <star>;
 
 define method initialize(s :: <star>, #key, #all-keys)
@@ -16,7 +16,7 @@ define method initialize(s :: <star>, #key, #all-keys)
 end method initialize;
 
 define method intensity-on
-    (light :: <star>, point :: <vector>, normal :: <vector>, #key
+    (light :: <star>, point :: <vector3D>, normal :: <vector3D>, #key
        phong: p = 1.0)
  => (color :: <color>)
 
@@ -30,7 +30,7 @@ end method intensity-on;
 
 /* Shadow stuff */
 
-define method can-see(o :: <obj>, point :: <vector>, l :: <star>)
+define method can-see(o :: <obj>, point :: <vector3D>, l :: <star>)
  => (unblocked :: <boolean>)
   ~intersection-before(o, 
 		       make(<ray>, position: point +
@@ -42,7 +42,7 @@ end method can-see;
 
 /* This was commented out of transcendental.dylan.  Why??? */
 
-define method \^ (b :: <double-float>, x :: <real>)
- => (y :: <double-float>)
+define method \^ (b :: <fp>, x :: <fp>)
+ => (y :: <fp>)
   exp(log(b) * x);
 end method;

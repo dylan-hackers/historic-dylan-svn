@@ -50,26 +50,28 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
   tracer;
 end method get-tracer;
 
-define constant $eye-pos :: <vector> = vector(0.0, 0.0, -1.0, 1.0);
+define constant $eye-pos :: <vector3D> = vector3D(0.0, 0.0, -1.0, 1.0);
 
 define method render-image(o, depth :: <integer>, filename, ambient :: <color>, 
 			   lights :: <collection>, width :: <integer>,
-			   height :: <integer>, fov :: <float>)
+			   height :: <integer>, fov :: <fp>)
   let canvas = make(<ppm-image>, filename: filename, depth: 255,
 		    width: width, height: height);
 
   let world-width = 2.0 * tan(fov / 2.0);
-  let world-height = world-width * as(<float>, height) / as(<float>, width);
+  let world-height = world-width * as(<fp>, height) / as(<fp>, width);
 
   let trace = get-tracer(o, ambient, lights);
 
   for (y from height above 0 by -1)
     for (x from 0 below width)
-      let world-x :: <float> = as(<float>, x - truncate/(width, 2)) 
-				  / as(<float>, width) * world-width;
-      let world-y :: <float> = as(<float>, y - truncate/(height, 2))
-				  / as(<float>, height) * world-height;
-      let ray = make(<ray>, position: $eye-pos, direction: vector(world-x, world-y, 0.0, 1.0) - $eye-pos);
+      let world-x :: <fp> = as(<fp>, x - truncate/(width, 2)) 
+	/ as(<fp>, width) * world-width;
+      let world-y :: <fp> = as(<fp>, y - truncate/(height, 2))
+	/ as(<fp>, height) * world-height;
+      let ray = make(<ray>,
+		     position: $eye-pos,
+		     direction: vector3D(world-x, world-y, 0.0, 1.0) - $eye-pos);
       write-pixel(canvas, trace(ray, depth));
     end for;
   end for;

@@ -30,6 +30,8 @@ define function main(name, arguments)
     force-output(*standard-output*);
   end;
 
+  //test-matrix-vs-transform();
+  //exit-application(0);
 
   let o1 = make(<sphere>);
   let o2 = make(<plane>);
@@ -40,7 +42,7 @@ define function main(name, arguments)
 
   o1 := uniform-scale(o1, 0.3);
 
-  let l = make(<star>, direction: #[ 0.2, -1.0, 0.0, 0.0 ],
+  let l = make(<star>, direction: vector3D(0.2, -1.0, 0.0, 0.0),
 	       color: make-white());
 
 
@@ -56,17 +58,17 @@ define function main(name, arguments)
 //  z-rotate!(o, $double-pi / 16.0);
 
   let (p, n) = intersection-before(o, make(<ray>, 
-				  position: #[ 0.0, 0.0, -1.0, 1.0],
-				 direction: #[ 0.0, 0.0,  1.0, 0.0]),
-				 1.0/0.0);
+					   position: vector3D(0.0, 0.0, -1.0, 1.0),
+					   direction: vector3D(0.0, 0.0,  1.0, 0.0)),
+				   1.0/0.0);
 
   format-out("Ray towards origin --  point: %= normal: %=\n", p, n);
 	     
 
   format-out("Ray towards upper-left: %=\n",
 	     intersection-before(o, make(<ray>, 
-				  position: #[ 0.0, 0.0, -1.0, 1.0],
-				 direction: #[ -1.0, 1.0,  1.0, 0.0]),
+					 position: vector3D(0.0, 0.0, -1.0, 1.0),
+					 direction: vector3D(-1.0, 1.0,  1.0, 0.0)),
 				 1.0/0.0));
 
   force-output(*standard-output*);
