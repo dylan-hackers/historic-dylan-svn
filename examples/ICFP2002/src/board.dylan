@@ -87,6 +87,12 @@ define inline function passable?(b :: <board>, p :: <point>)
 //  ch == '.' | ch == '@';
 end;
 
+define inline function deadly?(b :: <board>, p :: <point>)
+ => (deadly :: <boolean>);
+  let ch :: <terrain> = b[p.x, p.y];
+  instance?(ch, <water>);
+end;
+
 define inline function width(b :: <board>) => w :: <coordinate>;
   b.cols;
 end;
@@ -130,6 +136,16 @@ define method add-robot (state :: <state>, robot :: <robot>) => <state>;
   make(<state>, board: state.board, robots: robots*, packages: state.packages);
 end method add-robot;
 
+define method robot-at(state :: <state>, p :: <point>)
+ => (r :: false-or(<robot>))
+  let res = choose-by(curry(\=, p), map(location, state.robots), state.robots);
+  if(empty?(res))
+    #f;
+  else
+    first(res);			// since only 1 robot can be in a square
+  end;
+end method robot-at;
+
 define method find-robot (state :: <state>, robot-id :: <integer>)
  => <robot>;
   // When icfp-utils exists:
@@ -143,6 +159,7 @@ define method find-robot (state :: <state>, robot-id :: <integer>)
     end case;
   end iterate;
 end method find-robot;
+
 
 /* Package functions: */
 define method add-package (state :: <state>, package :: <package>) => <state>;

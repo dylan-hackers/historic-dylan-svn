@@ -7,7 +7,8 @@ SOURCES=icfp2002.dylan icfp2002-exports.dylan \
   robot-agent.dylan \
   messages.dylan \
   point.dylan \
-  dumbot.dylan
+  dumbot.dylan \
+  pushbot.dylan
 
 
 D2C_FLAGS=-s -g -L.

@@ -14,3 +14,4 @@ files:
   messages
   point
   dumbot
+  pushbot

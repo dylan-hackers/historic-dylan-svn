@@ -29,14 +29,14 @@ define module board
   use print, import: {print-object};
   
   export
-    <state>, board, robots, packages, bases, bases-setter, packages-at,
+    <state>, board, robots, packages, bases, bases-setter, packages-at, robot-at,
     <board>,
     <coordinate>, <point>, x, y, point,
     send-board,
-    width, height, passable?,
+    width, height, passable?, deadly?,
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, id, weight, location, dest, at-destination?, free-packages,
-    <robot>, id, capacity, inventory, location, capacity-left,
+    <robot>, id, capacity, inventory, location, capacity-left, money,
     add-robot,
     find-robot,
     add-package;
