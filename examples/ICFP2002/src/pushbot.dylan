@@ -1,8 +1,8 @@
 module: client
 
 define class <pushbot> (<robot-agent>)
-  slot push-count, init-value: 0;
-  slot push-count-dir, init-value: #"up";
+  slot push-count, init-value: 5;
+  slot push-count-dir, init-value: #"down";
 end class;
 
 // return a collection of robots around location
@@ -21,7 +21,8 @@ define method make-move-from-paths(paths, robot) => (command)
   let direction
   = if (empty?(paths))
       debug("Sorry, can't find anywhere to go!\n");
-      $north
+      //$north
+      error("Sorry, can't find anywhere to go! Letting abnother bot try better\n");
     else
       let path = paths.first;
       let new-loc = path.first;
@@ -132,8 +133,10 @@ define method deal-with-adjacent-robots(me :: <pushbot>, robot :: <robot>, s :: 
 	  // TODOsort the list of robots by some metric, eg who has delivered the most
 	  let targ-direction = first(killable-dir);
 	  debug("..trying to kill\n");
-	  return(make(<move>, bid: /* 50 */ truncate/(robot.money, 50) + 1,
-		      direction: targ-direction, id: robot.id));
+	  if(~deadly?(s.board, update-point(robot.location, killable-dir)))
+	    return(make(<move>, bid: /* 50 */ truncate/(robot.money, 50) + 1,
+			direction: targ-direction, id: robot.id));
+	  end;
 	end;
 	debug("...no-one to kill\n");
 	// if enemy robot has packages, bid a bit more and push
@@ -216,7 +219,9 @@ define method move-nearest-useful-place(me :: <pushbot>, robot :: <robot>, s :: 
     debug("looking for next interesting place\n");
     let targets = #[];
     let package-weight-list = sort(map(weight, s.free-packages));
+    debug("getting package-weight-list\n");
     if(~empty?(package-weight-list))
+      debug("package weight list not empty\n");
       let lightest-package = first(package-weight-list);
       debug("about to >= compare\n");
       if(robot.capacity-left >= lightest-package)
