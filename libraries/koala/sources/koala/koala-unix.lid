@@ -1,5 +1,6 @@
 library: koala
 files:	library-unix
+	log
 	utils
 	resources
 	variables
@@ -8,7 +9,6 @@ files:	library-unix
 	avalue
 	string-utils
 	errors
-	log
 	header-values
 	headers
 	urls
