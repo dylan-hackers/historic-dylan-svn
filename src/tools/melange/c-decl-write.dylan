@@ -121,24 +121,40 @@ define class <written-name-record> (<object>)
     = make(<table>);
 end class <written-name-record>;
 
+define class <written-declaration> (<object>)
+  constant slot written-declaration :: <declaration>,
+    required-init-keyword: declaration:;
+  constant slot written-name :: <string>,
+    required-init-keyword: name:;
+end class <written-declaration>;
+
 define function register-written-name
     (rec :: <written-name-record>, name :: <string>,
      decl :: <declaration>, #key subname? = #f)
- => ()
+ => ();
 
   let interned-name = as(<symbol>, name);
   let table = rec.written-name-table;
   let existing = element(table, interned-name, default: #f);
 
-  if (existing)
+  // If there is already a symbol by that name, there is a potential
+  // conflict if the case is different, or if either of the names is
+  // not a structure accessor.  If both are struct slot accessors then
+  // it's probably okay.
+  if (existing
+	& (name ~= existing.written-name
+	     | ~instance?(decl, <structured-type-declaration>)
+	     | ~instance?(existing.written-declaration,
+			 <structured-type-declaration>)))
     // XXX - We should try to extract a source location from each record
     // when printing these error messages. We should also give the C and
     // Dylan forms of each name. But doing so will be a pain.
     signal(make(<simple-warning>,
 		format-string: "melange: %s has multiple definitions",
-		format-arguments: name));
+		format-arguments: list(name)));
   else 
-    element(table, interned-name) := decl;
+    element(table, interned-name)
+      := make(<written-declaration>, declaration: decl, name: name);
   end if;
 end function register-written-name;
 
