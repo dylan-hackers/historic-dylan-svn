@@ -18,48 +18,8 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     format-out("DB: Considering next move (loc: %=)\n", robot.location);
     force-output(*standard-output*);
 
-    // Deliver what we can:
-    let drop-these = choose(at-destination?, inventory);
-    format-out("DB: drop-these = %=\n", drop-these);
-    force-output(*standard-output*);
-    
-    if (~drop-these.empty?)
-      return(make(<drop>, bid: 1, package-ids: map(id, drop-these), id: robot.id));
-    else 
-      format-out("DB: Nothing to deliver here.\n");
-      force-output(*standard-output*);
-    end if;
-    
-    // Pick ups:
-    let packages-here = packages-at(s, robot.location, 
-				    available-only: #t);
-
-    if (packages-here ~= #f & ~packages-here.empty?)
-      let take-these = make(<vector>);
-      let left = robot.capacity-left;
-      // Greedy algorithm to get as much as we can:
-      for (pkg in sort(packages-here, 
-		       test: method (a :: <package>, b :: <package>)
-			       a.weight > b.weight;
-			     end method))
-	if (deliverable?(me, s, pkg, capacity: left))
-	  left := left - pkg.weight;
-	  take-these := add!(take-these, pkg);
-	end if;
-      end for;
-      if (~take-these.empty?)
-	return(make(<pick>, 
-		    bid: 1, 
-		    package-ids: map(id, take-these),
-		    id: robot.id));
-      else 
-	format-out("DB: Can't pick up or deliver anything from here.\n");
-	force-output(*standard-output*);
-      end if;
-    else 
-      format-out("DB: No packages here (or first move)\n");
-      force-output(*standard-output*);
-    end if;
+    try-to-deliver(robot, return-function: return);
+    try-pickup-many(me, robot, s, return-function: return);
 
     maybe-mark-base-visited(me, s, robot.location);
 
@@ -73,7 +33,8 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 
     let direction
       = if (~target)
-	  error("Sorry, can't find anywhere to go!\n");
+	  debug("Sorry, can't find anywhere to go!\n");
+	  make(<drop>, bid: 1, id: robot.id, package-ids: #());
 	else
 	  points-to-direction(robot.location, path.first);
 	end if;
