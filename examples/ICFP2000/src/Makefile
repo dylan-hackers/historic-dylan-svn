@@ -9,5 +9,6 @@ clean:
 	cp icfp2000 ../runme
 	strip ../runme
 
-install: ../runme clean
-	cd ..; tar zcf ../dylan-hackers.tar.gz *
+install: ../runme
+	cd ..; tar czf ../dylan-hackers.tar.gz README buildme runme \
+           src/Makefile src/icfp2000.lid src/*.dylan
