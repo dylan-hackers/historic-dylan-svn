@@ -21,6 +21,23 @@ define macro with-glBegin
          end block };
 end macro; 
 
+/****************************************************************************
+ * with-glNewList(display list, primitive type)
+ *   <code>
+ * end;
+ *
+ * On exit from this block (scheduled or otherwise), calls glEndList() for you.
+ ****************************************************************************/
+
+define macro with-glNewList
+  { with-glNewList(?d:expression, ?p:expression) ?:body end }
+    => { glNewList(?d, ?p);
+         block ()
+           ?body
+         cleanup
+           glEndList();
+         end block };
+end macro; 
 
 /*****************************************************************************
  * glAccum(op :: <Glenum>, val :: <single-float>)
