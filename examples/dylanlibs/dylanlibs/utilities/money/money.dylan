@@ -4,7 +4,7 @@ Author:    Chris Double
 Copyright: (C) 2000, Chris Double.  All rights reserved.
 
 define constant <dollar-type> = <integer>;
-define constant <cent-type> = limited(<integer>, min: 0, max: 99);
+define constant <cent-type> = <integer>;
 define constant <money-sign> = one-of(#"positive", #"negative");
 
 define class <money> (<object>)
@@ -85,38 +85,13 @@ define sealed method normalize(dollars, cents) => (dollars :: <dollar-type>, cen
   values(abs(dollars), abs(real-cents), sign);  
 end method normalize;
 
-define sealed method money-operation(operation == #"add", 
-                                     lhs-sign == #"positive", 
-                                     rhs-sign == #"positive") => (op :: <function>)
-  \+
-end method money-operation;
-
-define sealed method money-operation(operation == #"add", 
-                                     lhs-sign == #"negative", 
-                                     rhs-sign == #"negative") => (op :: <function>)
-  \+
-end method money-operation;
-
-define sealed method money-operation(operation == #"add", 
-                                     lhs-sign == #"positive", 
-                                     rhs-sign == #"negative") => (op :: <function>)
-  \-
-end method money-operation;
-
-define sealed method money-operation(operation == #"add", 
-                                     lhs-sign == #"negative", 
-                                     rhs-sign == #"positive") => (op :: <function>)
-  method(a, b)
-    b - a;
-  end method;
-end method money-operation;
-
 define method \+( lhs :: <money>, rhs :: <money> ) => (m :: <money>)
-  let operation = money-operation(#"add", lhs.money-sign, rhs.money-sign);
-  let cents :: <integer> = operation(lhs.money-cents, rhs.money-cents);
-  let dollars :: <integer> = operation(lhs.money-dollars,  rhs.money-dollars);
+  let result = 
+    (lhs.money-dollars * 100d0 + lhs.money-cents) * sign-multiplier(lhs.money-sign) +
+      (rhs.money-dollars * 100d0 + rhs.money-cents) * sign-multiplier(rhs.money-sign);
+  let (dollars, cents) = truncate/(result, 100);
 
-  let (dollars, cents, sign) = normalize(dollars, cents);
+  let (dollars, cents, sign) = normalize(dollars, round(cents));
   make-money(dollars, cents, sign: sign);
 end method;
 
@@ -129,12 +104,8 @@ define method \+( lhs :: <integer>, rhs :: <money> ) => (m :: <money>)
 end method;
 
 define method \-( lhs :: <money>, rhs :: <money> ) => (m :: <money>)
-  let operation = money-operation(#"add", lhs.money-sign, invert-sign(rhs.money-sign));
-  let cents :: <integer> = operation(lhs.money-cents, rhs.money-cents);
-  let dollars :: <integer> = operation(lhs.money-dollars,  rhs.money-dollars);
-
-  let (dollars, cents, sign) = normalize(dollars, cents);
-  make-money(dollars, cents, sign: if(rhs > lhs) #"negative" else #"positive" end);
+  let new-rhs = make-money(rhs.money-dollars, rhs.money-cents, sign: invert-sign(rhs.money-sign));
+  lhs + new-rhs;
 end method;
 
 define method \-( lhs :: <money>, rhs :: <integer> ) => (m :: <money>)
@@ -263,15 +234,8 @@ define method \=(lhs :: <money>, rhs :: <money>) => (r :: <boolean>)
 end method \=;
 
 define method \<(lhs :: <money>, rhs :: <money>) => (r :: <boolean>)
-  lhs.money-sign == #"negative" & rhs.money-sign == #"positive" |
-    (lhs.money-sign == #"positive" &
-     (lhs.money-dollars < rhs.money-dollars |
-       (lhs.money-dollars = rhs.money-dollars &
-          lhs.money-cents < rhs.money-cents))) |
-    (lhs.money-sign == #"negative" &
-     (lhs.money-dollars > rhs.money-dollars |
-       (lhs.money-dollars = rhs.money-dollars &
-          lhs.money-cents > rhs.money-cents)));     
+  let diff = lhs - rhs;
+  negative?(diff) & ~zero?(diff);
 end method \<;
 
 define method zero?(m :: <money>) => (r :: <boolean>)
