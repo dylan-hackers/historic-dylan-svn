@@ -1,4 +1,4 @@
-RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.3 2000/06/25 06:16:18 emk Exp $
+RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.4 2000/06/25 10:54:55 bruce Exp $
 Module: dylan-viscera
 Copyright: See below.
 Synopsis: Runtime support for limited collections.
@@ -136,10 +136,10 @@ define method make-limited-collection
   let size-restriction = collection-type.limited-size-restriction;
   // XXX - These may not be the right errors to signal. Oh, well.
   if (size-restriction & size ~= size-restriction)
-    error("Requested vector size does not match size of %s", collection-type);
+    error("Requested vector size does not match size of %=", collection-type);
   end if;
   if (size > 0 & ~instance?(fill, <integer>))
-    error("Cannot fill %s with %=", collection-type, fill);
+    error("Cannot fill %= with %=", collection-type, fill);
   end if;
   apply(make, <simple-integer-vector>,
 	collection-type: collection-type,
