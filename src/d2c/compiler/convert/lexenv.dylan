@@ -57,7 +57,7 @@ end;
 define method initialize (lexenv :: <lexenv>, #next next-method, #key inside)
     => ();
   next-method();
-  if (inside)
+  if (inside & instance?(inside, <lexenv>))
     lexenv.lexenv-policy := inside.lexenv-policy;
     lexenv.lexenv-method-name := inside.lexenv-method-name;
   end if;
@@ -192,9 +192,9 @@ define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-to
       	let variable-tlf = var.variable-tlf;
       	let lexenv-tlf = lexenv.lexenv-tlf;
       	if (variable-tlf)
-//      	  compiler-warning("### tlf %= depends on %=", lexenv-tlf, variable-tlf);
+      	  compiler-warning("### tlf %= depends on %=", lexenv-tlf, variable-tlf);
       	  lexenv-tlf.depends-on
-      	    := make(<tlf-dependency>, source: variable-tlf, dependent: lexenv.lexenv-tlf,
+      	    := make(<tlf-dependency>, source: variable-tlf, dependent: lexenv-tlf,
       	           dependent-next: lexenv-tlf.depends-on, source-next: variable-tlf.tlf-dependents);
       	  variable-tlf.tlf-dependents := lexenv-tlf.depends-on;
       	end;
