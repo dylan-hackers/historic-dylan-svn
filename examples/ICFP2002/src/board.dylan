@@ -164,7 +164,7 @@ end method find-robot;
 
 
 /* Package functions: */
-define method add-package (state :: <state>, package :: <package>) => <state>;
+define method add-package (state :: <state>, package :: <package>) => state :: <state>;
   // Add a package to the <state>'s list of robots. If a package with the
   // same id is present, replace it. If not, add it.
   //
@@ -198,11 +198,20 @@ define function packages-at(state :: <state>, p :: <point>, #key available-only)
   
 end function packages-at;
 
-define method find-package (state :: <state>, package-id :: <integer>)
- => <package>;
+define method find-package (state :: <state>, package-id :: <integer>, #key create :: <boolean>)
+ => pack :: <package>;
   iterate loop (lst = state.packages)
     case
-      lst.empty?             => error("find-package: id does not exist");
+      lst.empty?
+         => create | error("find-package: id %d does not exist", package-id);
+            debug("find-package: creating new package with id %d", package-id);
+            let pack = make(<package>,
+                                     id: id,
+                                     location: #f,
+                                     dest: #f,
+                                     weight: #f);
+            add-package(state, pack);
+            pack;
       lst.head.id = package-id => lst.head;
       otherwise                => loop(lst.tail);
     end case;

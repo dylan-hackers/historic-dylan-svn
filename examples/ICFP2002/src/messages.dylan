@@ -509,7 +509,7 @@ define method process-server-command(state :: <state>, command :: <drop>)
  => (state :: <state>)
   let loc = find-robot(state, command.robot-id).location;
   for(pid in command.package-ids)
-    let p = find-package(state, pid);
+    let p = find-package(state, pid, create: #t);
     if (loc = p.dest) // We are at the destination, so kill the package
       let packages* = remove(state.packages, p,
                              test: method (p*, p) p*.id = p.id end method);
