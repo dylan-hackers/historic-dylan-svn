@@ -26,7 +26,7 @@ the layout of the managed objects is communicated
 to the collector. A dedicated L4 thread is responsible
 for all memory management of client threads but
 it is guaranteed that nonrelated threads cannot obtain
-access to each others objects, ensuring privacy.
+access to each other's objects, ensuring privacy.
 }
 //
 
@@ -41,10 +41,11 @@ In this design document we briefly introduce the
 abstraction concepts provided by the @L4
 microkernel, and immediately delve into the high
 level ideas behind the garbage collector that builds
-on these abstractions. Later sections dissect each
-aspect of the design down to the finer aspects and
-implementation details. Finally we summarize what
-has been reached.
+on these abstractions. We thereafter present a typical
+scenario how a client interacts wit the garbage server.
+Later sections dissect each aspect of the design down
+to the finer aspects and implementation details.
+Finally we summarize what has been reached.
 @End @Section
 
 ##################################
@@ -55,8 +56,8 @@ has been reached.
 @Begin
 @PP
 We start out by recalling the concepts that allow us
-to regard the @L4 microkernel as an abstract
-modern CPU. Thereafter we dedicate some room to the
+to regard the @L4 microkernel as a modern abstract
+CPU. Thereafter we dedicate some room to the
 description of the workings of a simple mark-and-sweep
 garbage collector that has the exact tracing property.
 
@@ -141,6 +142,47 @@ exact
 
 @End @Section
 
+##################################
+##################################
+##################################
+@Section
+@Title { A Client-Server Exchange  }
+@Begin
+@PP
+Armed with the definitions of the previous section
+we can begin a thought experiment how a client-server
+interaction could look like at an intuitive level.
+
+For the purpose of this experiment we reduce our
+pretension to handle small, uniform objects, as
+known from the Scheme @Cite { $r5rs }
+and Lisp @Cite { $ansilisp } languages: @I { cons
+cells }. A cons cell is a data stucture that can
+hold two pointers, by convention the first one
+points to some @I payload, the second to another
+cons cell. This construction principle allows the
+building of linked lists, but also arbitrarily
+complex data. Of course the first cons cell ever
+to be created cannot hold other pointers other than
+to itself (let's restrict ourselves to creation one
+cell at a time), we will treat this distinguished
+object @I {Êthe empty list }. At this stage we
+already can construct arbitrarily nested lists,
+for some mildly interesting examples see figure XXXX.
+When we allow setting the head or tail of the cons
+cells (their first resp. second pointer) we can even
+build @I { circular lists } by letting the tail of
+the second cell point to the first cell.
+To make our object zoo less boring we add primitive
+objects to the mix: @I { fixed-bitwidth integers }.
+Assuming machine pointers adher to certain alignment
+restrictions (say, they can only point to even memory
+locations) we can represent integers as @I {Ênon-proper
+pointers } where the least significant bit is set.
+
+
+
+@End @Section
 
 ##################################
 ##################################
