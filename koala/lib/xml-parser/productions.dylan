@@ -362,7 +362,7 @@ define meta doctypedecl(s, name, sys-id, pub-id, which, markup)
       end aif;
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its entities and default attribute values.
-      with-open-file(in = sys-id /* dtd-file */, direction: #"input-output")
+      with-open-file(in = dtd-file, direction: #"input-output")
         scan-dtd-stuff(stream-contents(in, clear-contents?: #f))
       end)], 
    []},
