@@ -3,6 +3,27 @@ Synopsis:  HTTP client routines - for reading web pages from HTTP servers.
 Author:    Chris Double
 Copyright: Copyright (c) 2001, Chris Double.  All rights reserved.
 
+define variable *http-client-started* :: <integer> = 0;
+
+define function http-client-started?() 
+ => (r :: <boolean>)
+  ~zero?(*http-client-started*);
+end function http-client-started?;
+
+define function start-http-client() => ()
+  unless(http-client-started?())
+    start-lib-curl();
+    *http-client-started* := *http-client-started* + 1;
+  end unless;
+end function start-http-client;
+    
+define function stop-http-client() => ()
+  *http-client-started* := *http-client-started* - 1;
+  unless(http-client-started?())
+    stop-lib-curl();
+  end unless;
+end function stop-http-client;
+   
 define class <http-session> (<object>)
   // The curl handle for this session.
   slot http-session-curl :: false-or(<curl>), required-init-keyword: curl:;
@@ -13,6 +34,8 @@ define class <http-session> (<object>)
 end class <http-session>;
 
 define method make-http-session(#key cookies? = #t, user-agent) => (r :: <http-session>)
+  debug-assert(http-client-started?(), "start-http-client() not called");
+
   let session = make(<http-session>, 
                      curl: curl-easy-init());
   when(cookies?)
@@ -93,6 +116,10 @@ define method do-http-request(session :: <http-session>,
       curl-easy-setopt(curl, $curlopt-postfieldsize, c-content.size);        
     end when;
 
+    when(http-method == #"get")
+      curl-easy-setopt(curl, $curlopt-post, 0);    
+    end when;
+
     when(follow-location?)
       curl-easy-setopt(curl, $curlopt-followlocation, 1);
     end when;
@@ -102,12 +129,4 @@ define method do-http-request(session :: <http-session>,
   end dynamic-bind;    
 end method do-http-request;
 
-define function start-http-client() => ()
-  start-lib-curl();
-end function start-http-client;
-    
-define function stop-http-client() => ()
-  stop-lib-curl();
-end function stop-http-client;
-    
 
