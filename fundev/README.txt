@@ -23,11 +23,11 @@ HOW TO BUILD ON WINDOWS
 First build the garbage collector.  See the section on BUILDING THE MPS.
 
 The main build script for FunDev on Windows is
-Dylan/admin/builds/build-release.bat.  See that file for additional notes and a
-list of prerequisites.  Notably, to do the initial build you will need the
-"hacker" edition of Functional Developer installed.  (This should be available
-from www.functionalobjects.com by the time you read this.)  You will also need
-VC++ 6.0.
+fundev/admin/builds/build-release.bat.  See that file for additional
+notes and a list of prerequisites.  Notably, to do the initial build
+you will need the "hacker" edition of Functional Developer installed.
+(This should be available from www.functionalobjects.com by the time
+you read this.)  You will also need VC++ 6.0.
 
 [TODO: verify details here]
 
@@ -35,32 +35,34 @@ VC++ 6.0.
 
 HOW TO BUILD ON LINUX
 
-First build the garbage collector.  See the section on BUILDING THE MPS.
+--- 2004.03.18 ---
+These directions are likely to change soon, but here's how to build as
+of now:
 
-[These are preliminary comments based on several conversations I had today.
- This text should be updated as soon as we know more.  -cgay 2004.03.10]
+Install the FD Linux Alpha and disable its expiration date with this
+command:
 
-Building on (Pentium) Linux has only ever been done by building on Windows in
-the usual way, copying over the assembly (.s) files from the "build"
-directories, and then compiling those by hand.  That's how the Linux Alpha was
-built.
+echo "001ce9c0: 00 00 00 00" | sudo xxd -r - /usr/local/lib/functional-developer/lib/libdylan.so
 
-You might think it would be possible to build on Linux using the Linux alpha
-version of FunDev as the bootstrap compiler but unfortunately the Linux alpha
-expired on January 1, 2004.  Fortunately, there may be a way to get around
-that: http://www.logix.cz/michal/devel/faketime/
+cvs co fundev
+export SRCDIR=`pwd`/fundev        # must be absolute path!
+export BUILDDIR=<your build dir>
+cd $SRCDIR
+./autogen.sh
 
-Once the initial bootstrap process is figured out, a set of makefiles should be
-created to make building follow the usual path of 
+sudo cp Sources/lib/run-time/pentium-linux/dylan-elf-*.script /usr/local/lib/functional-developer/lib
 
-  ./configure
-  make
-  make install
+cd $BUILDDIR
+$SRCDIR/configure            # you must call configure with absolute path!
+make
 
 The goal was ultimately to make it possible to build FunDev in the FunDev IDE,
 but unfortunately we never quite made that happen.  Some work may need to be
 done on the "project manager" first, at a minimum.
 
+If you encounter problems during the build, please refer to the log files
+that are written in the 'logs' directory under each bootstrap stage build
+directory.
 
 BUILDING THE MPS
 
@@ -70,14 +72,17 @@ http://www.ravenbrook.com/project/mps/ and extract it to some directory.  cd to
 the 'code' subdirectory in the MPS sources and build the mmdw.lib target.
 
   Windows:  nmake /k /f w3i3mv.nmk mmdw.lib
-  Linux:    make -f lii4gc.gmk mmdw.lib
+            copy *.h w3i3mv/ti/mmdw.lib %FUNDEV%/Sources/lib/run-time/pentium-win32/
+  Linux:    make -f lii4gc.gmk mmdw.a
+            cp *.h lii4gc/ti/mmdw.a $FUNDEV/Sources/lib/run-time/pentium-linux/
+            [if you don't have a lii4gc/ti directory, choose a different ?i directory.]
 
 The actual makefile you use may differ depending on your platform.  The main
 point to notice here is that you don't just build the default target, as
 described in the MPS documentation.  You must build mmdw.lib instead.
 
 Copy mmdw.lib [TODO: which version?] into the FunDev source tree in
-Dylan/Sources/lib/run-time/pentium-win32/.  This will be picked up by the
+fundev/Sources/lib/run-time/pentium-win32/.  This will be picked up by the
 FunDev build scripts.
 
   [TODO: verify that this is sufficient.]

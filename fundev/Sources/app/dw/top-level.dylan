@@ -505,7 +505,7 @@ define function do-set-personal-root (personal-directory)
 	  as(<string>, subdirectory)
 	end method subdirectory;
   os/environment-variable("FUNCTIONAL_DEVELOPER_USER_ROOT")       := personal-directory;
-  os/environment-variable("FUNCTIONAL_DEVELOPER_USER_BUILD")      := subdirectory("Build");
+  os/environment-variable("FUNCTIONAL_DEVELOPER_USER_BUILD")      := subdirectory("build");
   os/environment-variable("FUNCTIONAL_DEVELOPER_USER_INSTALL")    := personal-directory;
   os/environment-variable("FUNCTIONAL_DEVELOPER_USER_SOURCES")    := subdirectory("Sources");
   os/environment-variable("FUNCTIONAL_DEVELOPER_USER_REGISTRIES") := subdirectory("Sources", 
@@ -543,7 +543,7 @@ define function do-set-system-root (system-directory)
 	  as(<string>, subdirectory)
 	end method subdirectory;
   os/environment-variable("FUNCTIONAL_DEVELOPER_RELEASE_ROOT")       := system-directory;
-  os/environment-variable("FUNCTIONAL_DEVELOPER_RELEASE_BUILD")      := subdirectory("Build");
+  os/environment-variable("FUNCTIONAL_DEVELOPER_RELEASE_BUILD")      := subdirectory("build");
   os/environment-variable("FUNCTIONAL_DEVELOPER_RELEASE_INSTALL")    := system-directory;
   os/environment-variable("FUNCTIONAL_DEVELOPER_RELEASE_SOURCES")    := subdirectory("Sources");
   os/environment-variable("FUNCTIONAL_DEVELOPER_RELEASE_REGISTRIES") := subdirectory("Sources",
@@ -599,7 +599,7 @@ define function do-set-target-platform (target-platform)
     os/environment-variable("FUNCTIONAL_DEVELOPER_USER_INSTALL")
       := subdirectory(user-root, target-platform);
     os/environment-variable("FUNCTIONAL_DEVELOPER_USER_BUILD")
-      := subdirectory(user-root, target-platform, "Build");
+      := subdirectory(user-root, target-platform, "build");
     close-all-projects();	//---*** NOTE: THIS IS OVERKILL, I think!
     target-platform-name() := target-platform;
     #t
@@ -1095,14 +1095,6 @@ end method default-handler;
 
 define function dw()
   *initializing?* := #f;
-  block()
-    validate-license(#t)
-  exception (c :: <license-validation-failure>)
-    format(*standard-error*, "%s\nPlease contact %s for assistance.\n",
-	   c, release-support-address());
-    sleep(2);			// Give the user a few moments to see it...
-    os/exit-application($compiler-error-return-code)
-  end block;
   block()
     apply(run-dw, os/application-arguments());
   exception(<end-of-stream-error>)

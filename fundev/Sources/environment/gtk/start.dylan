@@ -11,14 +11,14 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define constant $personal-directories
   = #(#("FUNCTIONAL_DEVELOPER_USER_ROOT"),
-      #("FUNCTIONAL_DEVELOPER_USER_BUILD",      "Build"),
+      #("FUNCTIONAL_DEVELOPER_USER_BUILD",      "build"),
       #("FUNCTIONAL_DEVELOPER_USER_INSTALL"),
       #("FUNCTIONAL_DEVELOPER_USER_SOURCES",    "Sources"),
       #("FUNCTIONAL_DEVELOPER_USER_REGISTRIES", "Sources", "registry"));
 
 define constant $system-directories
   = #(#("FUNCTIONAL_DEVELOPER_RELEASE_ROOT"),
-      #("FUNCTIONAL_DEVELOPER_RELEASE_BUILD",      "Build"),
+      #("FUNCTIONAL_DEVELOPER_RELEASE_BUILD",      "build"),
       #("FUNCTIONAL_DEVELOPER_RELEASE_INSTALL"),
       #("FUNCTIONAL_DEVELOPER_RELEASE_SOURCES",    "Sources"),
       #("FUNCTIONAL_DEVELOPER_RELEASE_REGISTRIES", "Sources", "registry"));
@@ -99,28 +99,6 @@ define method main
   default-port() := find-port(server-path: #(#"gtk"));
   debug-message("Starting environment: %s with arguments '%='...\n", 
 		name, arguments);
-  let license-validated? :: <boolean> = #f;
-  until (license-validated?)
-    block()
-      validate-license(#f);
-      license-validated? := #t
-    exception (c :: <license-validation-failure>)
-      if (environment-question
-	    (format-to-string
-	       ("%s\nDo you wish to register this copy of %s now?", c, release-product-name()),
-	     owner: #f,
-	     title: "License Validation Failure",
-	     exit-style: #"yes-no"))
-	unless (frame-register-developer(#f))
-	  // User cancelled the registration dialog ...
-	  exit-application(-1)
-	end
-      else
-	// User answered no ...
-	exit-application(-1)
-      end
-    end
-  end;
   initialize-bitmaps();
   initialize-deuce();
   initialize-editors();
