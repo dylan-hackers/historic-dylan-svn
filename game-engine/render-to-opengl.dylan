@@ -1,60 +1,72 @@
 module: vrml-viewer
 
-define method render-to-opengl(ifs :: <indexed-face-set>)
-  if(ifs.ccw)
-    glFrontFace($GL-CCW);
-  else
-    glFrontFace($GL-CW);
-  end if;
-  let inPoly = #f;
-  let face-index :: <integer> = 0;
-  let normals :: false-or(<simple-object-vector>) = ifs.normal;
-  let coords :: <simple-object-vector> = ifs.coord;
+define variable nextid :: <integer> = 1;
 
-  for(e :: <integer> keyed-by i :: <integer> in ifs.coord-index)
-    if (e == -1)
-      if (inPoly)
-        glEnd();
-        inPoly := #f;
-        face-index := face-index + 1;
-      end;
+define method render-to-opengl(ifs :: <indexed-face-set>)
+  if (ifs.ifs-id == 0)
+    format-out("allocating new listid %d\n", nextid);
+    ifs.ifs-id := nextid;
+    nextid := nextid + 1;
+    glNewList(ifs.ifs-id, $GL-COMPILE);
+    
+    if(ifs.ccw)
+      glFrontFace($GL-CCW);
     else
-      unless (inPoly)
-        glBegin($GL-POLYGON);
-        inPoly := #t;
-        unless(ifs.normal-per-vertex | (~ifs.normal-index & ~ifs.normal))
+      glFrontFace($GL-CW);
+    end if;
+    let inPoly = #f;
+    let face-index :: <integer> = 0;
+    let normals :: false-or(<simple-object-vector>) = ifs.normal;
+    let coords :: <simple-object-vector> = ifs.coord;
+
+    for(e :: <integer> keyed-by i :: <integer> in ifs.coord-index)
+      if (e == -1)
+        if (inPoly)
+          glEnd();
+          inPoly := #f;
+          face-index := face-index + 1;
+        end;
+      else
+        unless (inPoly)
+          glBegin($GL-POLYGON);
+          inPoly := #t;
+          unless(ifs.normal-per-vertex | (~ifs.normal-index & ~ifs.normal))
+            let n :: <3d-vector> =
+              if(ifs.normal-index)
+                ifs.normal-index[face-index]
+              else
+                ifs.normal
+              end if;
+            let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
+              = values(n[0], n[1], n[2]);
+            glNormal(x, y, z);
+          end unless;
+        end unless;
+        if(ifs.normal-per-vertex & (ifs.normal-index | ifs.normal))
           let n :: <3d-vector> =
             if(ifs.normal-index)
-              ifs.normal-index[face-index]
+              ifs.normal-index[i]
             else
-              ifs.normal
-            end if;
+              normals[e]
+            end;
           let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
             = values(n[0], n[1], n[2]);
           glNormal(x, y, z);
-        end unless;
-      end unless;
-      if(ifs.normal-per-vertex & (ifs.normal-index | ifs.normal))
-        let n :: <3d-vector> =
-          if(ifs.normal-index)
-            ifs.normal-index[i]
-          else
-            normals[e]
-          end;
+        end if;
+        let v :: <3d-point> = coords[e];
         let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
-          = values(n[0], n[1], n[2]);
-        glNormal(x, y, z);
-      end if;
-      let v :: <3d-point> = coords[e];
-      let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
-        = values(v[0], v[1], v[2]);
-      glVertex(x, y, z);
+          = values(v[0], v[1], v[2]);
+        glVertex(x, y, z);
+      end;
     end;
+    if (inPoly)
+      glEnd();
+      inPoly := #f;
+    end;
+    glEndList();
   end;
-  if (inPoly)
-    glEnd();
-    inPoly := #f;
-  end;
+
+  glCallList(ifs.ifs-id);
 end method render-to-opengl;
 
 define method render-to-opengl(ifs :: <my-indexed-face-set>)

@@ -42,6 +42,7 @@ define class <indexed-face-set> (<node>)
   slot normal-per-vertex :: <boolean> = #t, init-keyword: normal-per-vertex:;
   slot solid :: <boolean> = #t, init-keyword: solid:;
   slot tex-coord-index :: <collection> = #[], init-keyword: tex-coord-index:;
+  slot ifs-id :: <integer> = 0;
 end class <indexed-face-set>;
 
 define class <vertex> (<object>)
