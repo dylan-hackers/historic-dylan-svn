@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Koala Home</title>
+</head>
+
+<body>
+
+<h2>Koala</h2>
+
+Koala is an HTTP server written in Dylan.  It includes Dylan Server Pages, 
+a template engine similar to JSP without scriptlets.  But because it is
+written in Dylan, and can take advantage of Dylan's powerful language
+features, creating web apps in it should be much more concise and
+straightforward than with JSP.
+
+<p>The HTTP server portion of Koala was written mostly by Gail Zacharias.  She
+moved on to other things before it was in a functioning state, so I finished it
+up and added Dylan Server Pages.
+
+<p>The current version is v0.1.  It is provided mostly for the interest and
+amusement of other Dylan programmers and is nowhere near production quality.
+The current version is for Windows only.  I plan to fix this as soon as I can
+by porting to <a href="http://www.gwydiondylan.org/">Gwydion Dylan</a>.  If you
+want to help, let me know!
+
+<h3>Downloading</h2>
+
+<table border="1" width="100%">
+  <tr>
+    <td width="100%">
+      <p>Download the current sources only: <a href="koala.zip">koala.zip</a>
+      <br>Requires the <a href="http://www.functionalobjects.com/">Functional Developer</a>
+      IDE to compile and run.  Open and run the koala-example.hdp project in
+      koala/sources/example/.  Then point your browser at
+      <a href="http://localhost:7020/demo/home.dsp">http://localhost:7020/demo/home.dsp</a>.
+
+      <p>Download the sources and binaries: <a href="koala-0.1b.zip">koala-0.1b.zip</a>
+      <br>For anyone who doesn't have Functional Developer installed but would like to
+      see how Koala/DSP works.  You can start the demo application by double clicking
+      on koala-example.exe in the koala/sources/example/release/ directory.
+      Then point your browser at
+      <a href="http://localhost:7020/demo/home.dsp">http://localhost:7020/demo/home.dsp</a>.
+    </td>
+  </tr>
+</table>
+
+<p>There is a small demo application included, which shows how to use the
+features of Koala and DSP.
+
+<p>Some <b>very</b> preliminary (and far from complete) documentation on Dylan
+Server Pages is <a href="prelim-doc.html">here</a>.
+
+<p>Any and all feedback appreciated.  Send to:
+<br>carlgay [at] attbi [dot] com
+
+</body>
+</html>
