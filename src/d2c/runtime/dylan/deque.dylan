@@ -513,7 +513,7 @@ end method concatenate!;
 
 
 define sealed method copy-sequence
-    (sequence :: <object-deque>, #key start :: <integer> = 0, end: last)
+    (sequence :: <object-deque>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <object-deque>);
   let seq-size :: <integer> = sequence.size;
   let last :: <integer> = last | seq-size;
