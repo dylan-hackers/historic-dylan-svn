@@ -24,4 +24,5 @@
 #DEFAULT (echo ""; id; echo %s; date; cat) >> $CVSROOT/CVSROOT/commitlog
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
-DEFAULT (echo $USER; echo %s; date; cat) |mail -s "CVS: $USER" gd-chatter@gwydiondylan.org
+#DEFAULT (echo $USER; echo %s; date; cat) |mail -s "CVS: $USER" gd-chatter@gwydiondylan.org
+DEFAULT $CVSROOT/CVSROOT/syncmail -u %{sVv} gd-chatter@gwydiondylan.org
