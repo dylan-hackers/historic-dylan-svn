@@ -567,7 +567,7 @@ define open generic remove-duplicates!
     => new-seq :: <sequence>;
 
 define open generic copy-sequence
-    (source :: <sequence>, #key start, end: finis)
+    (source :: <sequence>, #key start, end: last)
     => new-seq :: <sequence>;
 
 define sealed generic concatenate-as
@@ -583,7 +583,7 @@ define open generic concatenate!
  => (result :: <sequence>);
 
 define open generic replace-subsequence!
-    (seq :: <sequence>, insert-seq :: <sequence>, #key start, end: finis)
+    (seq :: <sequence>, insert-seq :: <sequence>, #key start, end: last)
     => result-seq :: <sequence>;
 
 define open generic reverse (seq :: <sequence>) => (new-seq :: <sequence>);
@@ -1112,8 +1112,8 @@ define method concatenate-as (type :: <type>, sequence :: <sequence>,
 end method concatenate-as;
 
 define inline method first
-    (sequence :: <sequence>, #rest keys, #key default) => value :: <object>;
-  apply(element, sequence, 0, keys);
+    (sequence :: <sequence>, #key default) => value :: <object>;
+  element(sequence, 0, default: default);
 end;
 
 define inline method first-setter
@@ -1123,8 +1123,8 @@ define inline method first-setter
 end;
 
 define inline method second
-    (sequence :: <sequence>, #rest keys, #key default) => value :: <object>;
-  apply(element, sequence, 1, keys);
+    (sequence :: <sequence>, #key default) => value :: <object>;
+  element(sequence, 1, default: default);
 end;
 
 define inline method second-setter
@@ -1134,8 +1134,8 @@ define inline method second-setter
 end;
 
 define inline method third
-    (sequence :: <sequence>, #rest keys, #key default) => value :: <object>;
-  apply(element, sequence, 2, keys);
+    (sequence :: <sequence>, #key default) => value :: <object>;
+  element(sequence, 2, default: default);
 end;
 
 define inline method third-setter
@@ -1145,7 +1145,7 @@ define inline method third-setter
 end;
 
 define method copy-sequence
-    (sequence :: <sequence>, #key start :: <integer> = 0, end: last)
+    (sequence :: <sequence>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <sequence>);
   let seq-size :: <integer> = sequence.size;
   let last :: <integer> = last | seq-size;
