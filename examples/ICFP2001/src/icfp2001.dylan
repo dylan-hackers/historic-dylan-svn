@@ -244,44 +244,56 @@ define method slurp-input(stream :: <buffered-stream>)
 end method slurp-input;
 
 
-define method dump-parse-tree(v :: <stretchy-object-vector>) => ();
-  for (run :: <attributed-string> in v)
-    describe-attributes(run.attributes, *standard-error*);
-    format(*standard-error*, "    %=\n", run.string);
-  end;
-end method dump-parse-tree;
+define function dump-attributed-string(run :: <attributed-string>) => ();
+  describe-attributes(run.attributes, *standard-error*);
+  format(*standard-error*, "    %=\n", run.string);
+end function dump-attributed-string;
 
-define variable check-timeout = identity;
+define function dump-parse-tree(v :: <stretchy-object-vector>) => ();
+  for (run :: <attributed-string> in v)
+    dump-attributed-string(run);
+  end;
+end function dump-parse-tree;
+
+
+define variable $end-time$ :: <integer> = 0;
+
+define function timeout() => ();
+  signal(make(<timeout>));
+end timeout;
+
+define inline method check-timeout() => ();
+  if($end-time$ - get-universal-time() < 10)
+    timeout();
+  end if;
+end method check-timeout;
 
 define class <timeout> (<condition>)
 end;
 
 define function main(name, arguments)
-  let start-time = get-universal-time();
-  let end-time   = start-time + string-to-integer(arguments[0]);
-
-  check-timeout := method()
-                       if(end-time - get-universal-time() < 10)
-                         signal(make(<timeout>));
-                       end if;
-                   end method;
+  let start-time :: <integer> = get-universal-time();
+  $end-time$ := start-time + string-to-integer(arguments[0]);
 
   let input-stream = *standard-input*;
 
   let original-input      = slurp-input(input-stream);
   let best-transformation = original-input;
 
+  local
+    method see-if-best(new-output)
+//      if (new-output.size < best-transformation.size)
+	best-transformation := new-output;
+//      end if;
+    end method see-if-best;
+
   block()
     let parse-tree          = bgh-parse(original-input);
-
     dump-parse-tree(parse-tree);
 
-    let optimized-output =
-      generate-output(parse-tree).concatenate-strings;
+    generate-output(parse-tree).concatenate-strings.see-if-best;
+    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
-    if (optimized-output.size < original-input.size)
-      best-transformation := optimized-output;
-    end if;
   exception (<timeout>)
   end;
 
