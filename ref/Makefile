@@ -4,7 +4,7 @@ SGML_BASE_DIR=/usr/local/share/sgml
 SGML_CATALOG_FILES=$(SGML_BASE_DIR)/dsssl/catalog:$(SGML_BASE_DIR)/docbook/docbook.cat:$(SGML_BASE_DIR)/iso/iso.cat:$(SGML_BASE_DIR)/docbook_stylesheets/catalog:$(SGML_BASE_DIR)/dylandoc/dylandoc.cat
 
 DYLANDOC_TOOLS = CATALOG dylandoc.dtd dylandoc.dsl
-STANDARD_DEPS = entities.sgml $(DYLANDOC_TOOLS)
+STANDARD_DEPS = dylandoc.ent $(DYLANDOC_TOOLS)
 JADE = SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c CATALOG
 
 SGML_MANUALS = gduser.sgml gdlibs.sgml gdmaint.sgml tutorial.sgml gdapi.sgml
