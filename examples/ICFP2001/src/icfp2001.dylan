@@ -295,7 +295,19 @@ define function main(name, arguments)
         best-transformation := new-output;
         debug("\n");
       end if;
-    end method see-if-best;
+    end method see-if-best,
+
+    method iterate-generate-optimized-output(parse-tree)
+      let exhausted = #f;
+      let i = 0;
+      while(~exhausted)
+	let (string, done) =
+	  generate-optimized-output(parse-tree, run: i);
+	string.concatenate-strings.see-if-best;
+	exhausted := done;
+	i := i + 1;
+      end while;
+    end method iterate-generate-optimized-output;
 
   block()
     debug("Parsing input.\n");
@@ -305,16 +317,7 @@ define function main(name, arguments)
     debug("Generating output.\n");
     generate-output(parse-tree).concatenate-strings.see-if-best;
     debug("Generating optimized output.\n");
-    let exhausted = #f;
-    let i = 0;
-    while(~exhausted)
-      let (string, done) =
-        generate-optimized-output(parse-tree, run: i);
-      string.concatenate-strings.see-if-best;
-      exhausted := done;
-      i := i + 1;
-    end while;
-      
+    iterate-generate-optimized-output(parse-tree);
 //    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)
