@@ -23,9 +23,20 @@ define sub brain alex-attacker (leave)
 
 
   [a-steal-from-in-front:]
+    Sense LeftAhead Foe, (a-avoid);
     Move attacker-success;
     Sense Ahead Friend, (a-steal-from-in-front-left-avoid);
     Flip 3, (attacker-success-right, attacker-success-left);
+
+  [a-avoid:]
+    Sense RightAhead Foe, (a-avoid-really);
+    Move attacker-success;
+    Sense Ahead Friend, (a-steal-from-in-front-left-avoid);
+    Flip 3, (attacker-success-right, attacker-success-left);
+
+  [a-avoid-really:]
+    Turn Right;
+    Turn Right, (attacker-success);
 
   [a-steal-from-in-front-left-avoid:]
     Turn Left, (attacker-success);
@@ -270,6 +281,7 @@ define sub brain keith-gatherer (leave)
     Sense FoeHome, (rightant-patrol, rightant-search);
 
   [rightant-search-blocked:]
+    Flip 8, (leftant-search);
     Turn Right, (rightant-search);
 
   [rightant-turn-and-return:]
@@ -306,6 +318,7 @@ define sub brain keith-gatherer (leave)
     Sense FoeHome, (leftant-patrol, leftant-search);
 
   [leftant-search-blocked:]
+    Flip 8, (rightant-search);
     Turn Left, (leftant-search);
 
   [leftant-turn-and-return:]
@@ -571,7 +584,8 @@ define sub brain keith-patroller (leave)
 end brain; // keith-patroller
 
 
-define ant-subbrain keith-defence
+/*
+define ant-subbrain keith-defender
 Flip 6 73 1
 ;Sense Here 2 9 Home
 ;Move 1 3
@@ -665,9 +679,110 @@ Flip 6 73 1
 ;Turn Right 91
 ;Turn Right 92
 ;Move 79 92
-end ant-subbrain; // keith-defence
+end ant-subbrain; // keith-defender
+*/
 
-  
+
+define sub brain chris-defender (leave)
+
+  Turn Left;
+  Turn Right, (random_turn);
+
+  [move:]
+	Move => chris-defender;
+	Sense Here (Marker 0), (spin);
+	Sense Ahead (Marker 0), (marker_0_ahead);
+	Sense LeftAhead (Marker 0), (marker_0_left_ahead);
+	Sense RightAhead (Marker 0), (marker_0_right_ahead);
+//	Flip 300, (stake_place, move);
+	Sense Here Home => move;
+	Flip 50, (stake_place, move);
+	
+  [marker_0_ahead:]
+	Move spin => chris-defender;
+
+  [marker_0_left_ahead:]
+	Turn Left, (move);
+
+  [marker_0_right_ahead:]
+	Turn Right, (move);
+	
+  [stake_place:]
+	Mark 0;
+	Turn Right;
+	Turn Right;
+	Move stake_place_2 => sp1_try1;
+
+  [stake_place_2:]
+	Mark 0;
+	Turn Right;
+	Move stake_place_3 => sp2_try1;
+
+  [stake_place_3:]
+	Mark 0;
+	Turn Right;
+	Move stake_place_4 => sp3_try1;
+
+  [stake_place_4:]
+	Mark 0;
+	Turn Right;
+	Move stake_place_5 => sp4_try1;
+
+  [stake_place_5:]
+	Mark 0, (spin);
+
+  [sp1_try1:]
+	Sense Ahead Rock, (chris-defender);	
+	Move stake_place_2 => chris-defender;
+
+  [sp2_try1:]
+	Sense Ahead Rock, (chris-defender);	
+	Move stake_place_3 => chris-defender;
+
+  [sp3_try1:]
+	Sense Ahead Rock, (chris-defender);	
+	Move stake_place_4 => chris-defender;
+
+  [sp4_try1:]
+	Sense Ahead Rock, (chris-defender);	
+	Move stake_place_5 => chris-defender;
+
+  [spin:]
+	Turn Right, (spin);
+
+  [random_turn:]
+	Flip 5, (turn_to_0);
+	Flip 5, (turn_to_1);
+	Flip 5, (turn_to_2);
+	Flip 5, (turn_to_3, turn_to_4);
+
+  [turn_to_0:]
+	Turn Right, (move);
+	
+  [turn_to_1:]
+	Turn Right;
+	Turn Right, (move);
+
+  [turn_to_2:]
+	Turn Right;
+	Turn Right;
+	Turn Right, (move);
+
+  [turn_to_3:]
+	Turn Right;
+	Turn Right;
+	Turn Right;
+	Turn Right, (move);
+
+  [turn_to_4:]
+	Turn Right;
+	Turn Right;
+	Turn Right;
+	Turn Right;
+	Turn Right, (move);
+end; // sub brain chris-defender
+
+
 // Main brain.
 define brain alex-keith
 
@@ -676,7 +791,7 @@ define brain alex-keith
 
 
   [attacker:]
-    Flip 4, (attacker-border);
+    Flip 3, (attacker-border);
     Sub alex-attacker;
 
   [attacker-border:]
@@ -685,15 +800,16 @@ define brain alex-keith
 
   [gatherer:]
     Flip 5, (patroller);
-    Flip 5, (defender);
+    Flip 10, (defender);
     Sub keith-gatherer;
 
   [patroller:]
     Sub keith-patroller;
-//    Sub keith-patroller-hack;
+    Sub keith-patroller-hack;
 
   [defender:]
-    Sub keith-defence;
+    Sub chris-defender;
+//    Sub keith-defender;
 
 end brain;
 
