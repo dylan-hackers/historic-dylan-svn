@@ -214,7 +214,9 @@ define module koala
   create
     process-config-element,
     get-attr;
-  use xml-parser, rename: { <element> => <xml-element> }, export: { <xml-element> };
+  use xml-parser,
+    rename: { <element> => <xml-element> },
+    export: { <xml-element> };
 
   // XML-RPC
   create
