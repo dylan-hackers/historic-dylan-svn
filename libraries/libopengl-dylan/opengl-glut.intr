@@ -4,7 +4,7 @@ author: Jeff Dubrule <igor@pobox.com>
 copyright: (C) Jefferson Dubrule.  See COPYING.LIB for license details.
 
 define interface
-  #include "GLUT/glut.h",
+  #include "GL/glut.h",
     name-mapper: minimal-name-mapping,
     exclude: {"GLenum", "exit"},
   
