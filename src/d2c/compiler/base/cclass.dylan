@@ -1,5 +1,5 @@
 module: classes
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/cclass.dylan,v 1.7.6.1 2000/11/11 18:03:14 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/cclass.dylan,v 1.7.6.2 2000/11/12 05:32:19 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -174,6 +174,10 @@ define abstract class <cclass> (<ctype>, <eql-ct-value>)
   // separate the classes into single-inheritance and
   // multiple-inheritance sets.
   slot inheritance-type :: one-of (#"plain", #"join", #"spine", #f), init-value: #f;
+  // 
+  // Several graph algorithms need to mark each node of the graph.
+  // This field can be used to store arbitrary mark data.
+  slot cclass-mark :: <integer> = 0;
 end class;
 
 define sealed domain make (singleton(<cclass>));

@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.15.6.1 2000/11/11 18:03:14 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.15.6.2 2000/11/12 05:32:19 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -705,6 +705,7 @@ define module classes
     vector-slot-setter, data-word-slot,
     class-heap-fields, class-heap-fields-setter,
     <defined-cclass>, class-defn, class-defn-setter, bucket, row,
+    cclass-mark, cclass-mark-setter,
 
     <slot-allocation>, <slot-info>, slot-introduced-by,
     slot-type, slot-type-setter, slot-getter, slot-read-only?,

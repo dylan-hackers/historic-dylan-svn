@@ -1,6 +1,17 @@
 Module:   analyze-generics
-Synopsis: Research code for improving generic function dispatch.
 Author:   Eric Kidd <eric.kidd@pobox.com>
+Synopsis: Research code for improving generic function dispatch.
+          Heavily based on paper by Dujardin, et al.
+
+/*
+
+TODO - 
+
+/ Assign class IDs using reversed post-order traversal
+/ Assign pole numbers in sequence
+  Calculate minimal pole sets
+
+*/
 
 
 //=========================================================================
@@ -120,23 +131,31 @@ define method initialize
 
     // Prepare to build our dispatch table.
     let pole-table = make(<int-vector>, size: cclass-count(), fill: 0);
-    let next-pole-id = 1;
 
     // Assign a new i-pole to each specializer. 
     for (specializer in specializer-cclasses)
-      pole-table[specializer.cclass-id] := next-pole-id;
-      next-pole-id := next-pole-id + 1;
+      pole-table[specializer.cclass-id] := -1;
     end for;
 
     // Assign i-poles to the rest of the classes (skipping <object>).
+    let next-pole-id = 1;
+    if (pole-table[0] == -1)
+      pole-table[0] := next-pole-id;
+      next-pole-id := next-pole-id + 1;
+    end if;
     for (i from 1 below cclass-count())
-      if (pole-table[i] == 0)
+      if (pole-table[i] == -1)
+	// This is a primary i-pole.
+	pole-table[i] := next-pole-id;
+	next-pole-id := next-pole-id + 1;
+      elseif (i)
 	let supers = superclass-ids(i);
 	pole-table[i] :=
 	  select (supers.size)
 	    0 => error("no superclasses!"); // Shouldn't happen.
 	    1 => pole-table[supers.first];  // Copy down i-pole from parent.
 	    otherwise =>
+	      // This may be a secondary i-pole; we need to investigate.
 	      let maybe-pole = pole-table[supers.first];
 	      let identical? =
 		every?(method (super)
@@ -187,9 +206,9 @@ define function describe-argument-array
     // Print some summary statistics.
     format(out, "    Specializers:       %3d\n",
 	   arginfo.argument-specializer-cclasses.size);
-    format(out, "    Artificial i-poles: %3d\n\n",
+    format(out, "    Artificial i-poles: %3d\n",
 	   arginfo.argument-artificial-i-poles);
-    format(out, "    Total i-poles:      %3d\n",
+    format(out, "    Total i-poles:      %3d\n\n",
 	   arginfo.argument-total-i-poles);
 
     // Print our specializers.
@@ -284,6 +303,60 @@ end function compute-specializer-cclasses;
 
 
 //=========================================================================
+//  topologically-sorted-cclasses
+//=========================================================================
+//  Return all the known cclass objects in topologically sorted order.
+//  This order must conform to several constraints:
+//
+//    * Each class MUST appear before all of its subclasses.
+//      This is used to optimize computation of the set of closest poles,
+//      as per Dujardin, et al.
+//    * Related classes SHOULD be grouped together.
+//      This helps to arrange the argument arrays in a fashion convenient
+//      for compression. The exact definitions of "related" and
+//      "together" are subject to interpretation and refinement.
+
+define constant $UNVISITED_MARK = 0;
+define constant $VISITED_MARK = 1;
+
+define function topologically-sorted-cclasses ()
+ => (cclasses :: <cclass-vector>)
+
+  // Mark each of the cclasses as unvisited.
+  let cclasses :: <stretchy-object-vector> = all-cclass-objects();
+  for (cclass in cclasses)
+    cclass.cclass-mark := $UNVISITED_MARK;
+  end for;
+
+  // Get some useful values.
+  let cclass-count = cclasses.size;
+  let object-cclass = dylan-value(#"<object>");
+
+  // Perform a post-order traversal of the classes.
+  let postorder = make(<stretchy-object-vector>);
+  local method visit (cclass :: <cclass>) => ()
+	  cclass.cclass-mark := $VISITED_MARK;
+	  for (subclass in cclass.direct-subclasses)
+	    if (subclass.cclass-mark == $UNVISITED_MARK)
+	      visit(subclass);
+	    end if;
+	  end for;
+	  add!(postorder, cclass);
+	end method visit;
+  visit(object-cclass);
+
+  // Reverse the order of the list and copy in into a high-performance
+  // vector class.
+  let sorted = make(<cclass-vector>, size: cclass-count,
+		    fill: dylan-value(#"<object>"));
+  for (i from 0 below cclass-count)
+    sorted[i] := postorder[cclass-count - 1 - i];
+  end for;
+  sorted;
+end function topologically-sorted-cclasses;
+
+
+//=========================================================================
 //  Class IDs & Superclass IDs
 //=========================================================================
 //  To build the argument arrays, we'll need to be able to map each cclass
@@ -314,26 +387,15 @@ end function;
 
 define function compute-cclass-information () => ()
   
-  // Assign sequential unique IDs to every class. We do a preorder
-  // traversal through our subclasses' primary direct superclasses.
-  local method assign-ids (cclass :: <cclass>, this-id :: <integer>)
-	 => (next-id :: <integer>)
-	  *cclass-to-id-map*[cclass] := this-id;
-	  *id-to-cclass-map*[this-id] := cclass;
-	  let next-id = this-id + 1;
-	  for (subclass in cclass.direct-subclasses)
-	    if (cclass == subclass.direct-superclasses.first)
-	      next-id := assign-ids(subclass, next-id);
-	    end if;
-	  end for;
-	  next-id;
-	end method;
-  *cclass-count* := all-cclass-objects().size;
+  // Assign sequential unique IDs to every class.
+  let sorted = topologically-sorted-cclasses();
+  *id-to-cclass-map* := sorted;
+  *cclass-count* := sorted.size;
   *cclass-to-id-map* := make(<object-table>);
-  *id-to-cclass-map* := make(<cclass-vector>, size: *cclass-count*,
-			     fill: dylan-value(#"<object>"));
-  assign-ids(dylan-value(#"<object>"), 0);
-  
+  for (i from 0 below *cclass-count*)
+    *cclass-to-id-map*[sorted[i]] := i;
+  end for;
+
   // Build a vector containing superclass IDs.
   let cclasses :: <stretchy-vector> = all-cclass-objects();
   *superclass-ids* := make(<int-vector-vector>, size: cclasses.size);
