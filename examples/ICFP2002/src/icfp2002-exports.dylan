@@ -132,6 +132,7 @@ define module messages
   use utils;
   use character-type, import: {digit?};
   use board;
+  use print;
   use command;
 
   export

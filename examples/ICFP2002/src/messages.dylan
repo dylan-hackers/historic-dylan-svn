@@ -58,6 +58,11 @@ define function add-error (e :: <message-error>, fmt :: <string>, #rest args)
   error(e)
 end function add-error;
 
+define method print-object (e :: <message-error>, s :: <stream>) => ()
+  for (line in e.data)
+    format(s, "message-error: %s", line);
+  end for;
+end method print-object;
 
 // Sending functions. 
 

@@ -19,23 +19,6 @@ define class <thomas> (<robot-agent>)
     init-value: #f;
 end class <thomas>;
 
-define method agent-money (agent :: <robot-agent>, state :: <state>) => <integer>;
-  find-robot(state, agent.agent-id).money
-end method agent-money;
-
-define method agent-capacity (agent :: <robot-agent>, state :: <state>) => <integer>;
-  find-robot(state, agent.agent-id).capacity
-end method agent-capacity;
-
-define method agent-pos (agent :: <robot-agent>, state :: <state>) => <point>;
-  find-robot(state, agent.agent-id).location;
-end method agent-pos;
-
-define method agent-packages (agent :: <robot-agent>, state :: <state>)
- => (package-list :: <sequence>)
-  find-robot(state, agent.agent-id).inventory;
-end method agent-packages;
-
 define method packages-with-dest (packages :: <sequence>, loc :: <point>)
  => (lst :: <sequence>)
   choose(method(p) p.dest = loc end method, packages)
