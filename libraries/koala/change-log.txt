@@ -4,7 +4,6 @@ Change log for Koala HTTP server and Dylan Server Pages
 ***********************************************************************************
 
 Changes for version 0.3
-
   New Features:
   - Koala: XML-RPC server added.  See config/koala-config.xml for settings.
            Start the example and use the "ping" and "echo" methods to test.
@@ -14,6 +13,8 @@ Changes for version 0.3
            other than application/x-www-form-url-encoded.  See request-content(<request>).
   - Koala: Added the "headers" log level, to show incoming/outgoing headers if desired.
            See config/koala-config.xml
+  - Koala: New config file setting: <port value="80" />
+
 
 ***********************************************************************************
 
