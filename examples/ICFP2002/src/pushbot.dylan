@@ -84,7 +84,7 @@ define method update-point(p :: <point>, dir)
 end method;
 
 // does a transitive push check
-define method check-direction(s :: <state>, p :: <point>, dir)
+define method check-direction(s :: <state>, p :: <point>, dir :: <direction>)
  => (res :: <boolean>)
   debug("check-direction: %=\n", p);
   if(robot-at(s, p))
