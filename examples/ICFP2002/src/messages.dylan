@@ -408,7 +408,7 @@ define method do-receive-server-command(c == 'P', s :: <stream>, id :: <integer>
   debug("pick command received\n");
   receive-spaces(s);  
   let id = receive-integer(s);
-  make(<pick>, direction: receive-integer(s), bid: 1, id: id, package-ids: list(id));
+  make(<pick>, bid: 1, id: id, package-ids: list(id));
 end method do-receive-server-command;
 
 define method do-receive-server-command(c == 'D', s :: <stream>, id :: <integer>)
@@ -416,7 +416,7 @@ define method do-receive-server-command(c == 'D', s :: <stream>, id :: <integer>
   debug("drop command received\n");
   receive-spaces(s);  
   let id = receive-integer(s);
-  make(<drop>, direction: receive-integer(s), bid: 1, id: id, package-ids: list(id));
+  make(<drop>, bid: 1, id: id, package-ids: list(id));
 end method do-receive-server-command;
 
 define method do-receive-server-command(c == 'X', s :: <stream>, id :: <integer>)
