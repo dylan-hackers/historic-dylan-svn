@@ -37,6 +37,15 @@
 </affiliation>
 ">
 
+<!ENTITY person.fulgham "
+<firstname>Brent</firstname>
+<surname>Fulgham</surname>
+<affiliation>
+  <orgname>Debian GNU/Linux</orgname>
+  <address><email>bfulgham@debian.org</email></address>
+</affiliation>
+">  
+
 <!-- Original Gwydion People -->
 
 <!ENTITY person.rstockton "
