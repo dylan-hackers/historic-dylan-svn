@@ -671,6 +671,7 @@ end parse element;
 // but fails to detect some non-compliancies).
 //                                                --andreas
 //
+/*****
 define method parse-char-data(string, #key start = 0, end: stop)
   with-collector into-vector chars, collect: collect;
     with-meta-syntax parse-string (string, start: start, pos: index)
@@ -679,7 +680,10 @@ define method parse-char-data(string, #key start = 0, end: stop)
       values(index, as(<string>, chars));
     end with-meta-syntax;
   end with-collector;
-end method parse-char-data;
+end method parse-char-data; *****/
+define collector char-data(c)
+  loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])
+end collector char-data;
 
 // CDATA Sections
 // 
