@@ -27,22 +27,24 @@ Sense Ahead forage_onblank_: forage_onblank_setstate3: Home
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; move further out, depending on what colour we're on now
 
-forage_colour01: 					; move onto 10 or blank
-Sense Ahead turn_and_forage: move_and_forage: Marker 1	; if not 00 or 10, turn
+forage_colour01: 						; move onto 10 or blank
+Sense Ahead OSA: . Rock
+Sense Ahead turn_and_forage_blank: move_and_forage: Marker 1	; if not 00 or 10, turn
 
 forage_colour1x:
+Sense Ahead OSA: . Rock
 Sense Here forage_colour11: forage_colour10: Marker 1
 
-forage_colour10: 					; move onto 11 or blank
-Sense Ahead . forage_colour10a: Marker 0		; if not 1x, check for 00
-Sense Ahead move_and_forage: turn_and_forage: Marker 1	; if not 11 rotate and retry (which is safe)
+forage_colour10: 						; move onto 11 or blank
+Sense Ahead . forage_colour10a: Marker 0			; if not 1x, check for 00
+Sense Ahead move_and_forage: turn_and_forage_blank: Marker 1	; if not 11 rotate and retry (which is safe)
 
-forage_colour10a:					; it's 0x
-Sense Ahead turn_and_forage: move_and_forage: Marker 1	; 00 -> move, 01 to turn and retry
+forage_colour10a:						; it's 0x
+Sense Ahead turn_and_forage_blank: move_and_forage: Marker 1	; 00 -> move, 01 to turn and retry
 
 
-forage_colour11:					; move onto 01 or blank
-Sense Ahead turn_and_forage: move_and_forage: Marker 0	; not 00 or 01, turn
+forage_colour11:						; move onto 01 or blank
+Sense Ahead turn_and_forage_blank: move_and_forage: Marker 0	; not 00 or 01, turn
 
 move_and_forage:
 ;Flip 20 . move_and_forage2:				; small probability of turning first to get unstuck
@@ -56,7 +58,16 @@ Sense Ahead turn_and_forage: move_and_forage: Rock	; huh?  if it's none of the a
 
 ; TODO!! navigate around rock to avoid getting stuck!
 
-turn_and_forage: Turn Right forage: ; maybe the next one isn't blocked
+
+
+turn_and_forage:					 ; maybe the next one isn't blocked
+
+turn_and_forage_blank:					 ; maybe the next one isn't blocked
+Flip 2 . turn_and_forage2:
+Turn Right forage:
+
+turn_and_forage2:
+Turn Left forage:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -220,23 +231,23 @@ Mark 1 just_marked_check_stuck:
 just_marked_check_stuck:	; check six directions for blank cell, change mode if none (stuck)
 
 Sense Here . just_marked_check_stuck1: Food		; but first check for Food!
-PickUp . just_marked_check_stuck:
-Turn Left .
-Turn Left .
-Turn Left got_food:
+PickUp got_food: just_marked_check_stuck:
+;Turn Left .
+;Turn Left .
+;Turn Left got_food:
 
 just_marked_check_stuck1:
-Sense LeftAhead just_marked_check_stuck_ahead: . Rock
+Sense LeftAhead OSA: . Rock
 Sense LeftAhead just_marked_check_stuck_ahead: . Marker 0
 Sense LeftAhead . forage: Marker 1
 
 just_marked_check_stuck_ahead:
-Sense Ahead just_marked_check_stuck_right: . Rock
+Sense Ahead OSA: . Rock
 Sense Ahead just_marked_check_stuck_right: . Marker 0
 Sense Ahead . forage: Marker 1
 
 just_marked_check_stuck_right:
-Sense RightAhead just_marked_check_stuck_turnaround: . Rock
+Sense RightAhead OSA: . Rock
 Sense RightAhead just_marked_check_stuck_turnaround: . Marker 0
 Sense RightAhead . forage: Marker 1
 
@@ -245,12 +256,12 @@ Turn Left .
 Turn Left .
 Turn Left .
 
-Sense LeftAhead just_marked_check_stuck_ahead2: . Rock
+Sense LeftAhead OSA: . Rock
 Sense LeftAhead just_marked_check_stuck_ahead2: . Marker 0
 Sense LeftAhead . forage: Marker 1
 
 just_marked_check_stuck_ahead2:
-Sense Ahead just_marked_check_stuck_right2: . Rock
+Sense Ahead OSA: . Rock
 Sense Ahead just_marked_check_stuck_right2: . Marker 0
 Sense Ahead . forage: Marker 1
 
