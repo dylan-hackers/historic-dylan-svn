@@ -162,6 +162,8 @@ define function read-lines(s :: <stream>)
   result;
 end function read-lines;
 
+define variable breed-factor :: <integer> = 3;
+
 define function run-breeding()
   let deviation = 10.0;
 
@@ -177,8 +179,6 @@ define function run-breeding()
       read-lines(worlds-stream)
     end with-open-file;
 
-  let breed-factor :: <integer> = 3;
-    
   while(#t)
     let clone-brains = make(<stretchy-vector>);
 
