@@ -1,6 +1,6 @@
 module: GML-lexer
 synopsis: Lexer
-authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
+authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult, Gabor Greif
 copyright: this program may be freely used by anyone, for any purpose
 
 // An object holding the current lexer state.
