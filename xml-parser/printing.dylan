@@ -28,14 +28,6 @@ define method xml-name(ref :: <reference>, state :: <printing>)
   concatenate(*ampersand*, next-method(), ";");
 end method xml-name;
 
-/* // this solves the thorny issue of printing <element>s
-// and <processing-instruction>s
-define method xml-name(ae :: <abstract-element>, state :: <printing>)
- => (s :: <string>)
-  xml-name(as(<element>, ae), state);
-end method xml-name;
-*/
-
 // This method follows a common pattern in this module:  print-object
 // calls transform to do its work.  The transform methods, therefore, 
 // exercise more precise control over elements ... print-object is a
@@ -146,24 +138,6 @@ define method transform(e :: <element>, tag-name :: <symbol>,
   end if;
 end method transform;
 
-/*
-define method print-front(e :: <element>, state :: <printing>, 
-                          stream :: <stream>) => () end;
-define method print-front(pi :: <processing-instruction>, state :: <printing>,
-                          stream :: <stream>) => ()
-  format(stream, "?");
-end method print-front;
-
-define method print-back(e :: <element>, state :: <printing>,
-                         stream :: <stream>) => ()
-  format(stream, "/");
-end method print-back;
-define method print-back(pi :: <processing-instruction>, state :: <printing>,
-                         stream :: <stream>) => ()
-  format(stream, "?");
-end method print-back;
-*/
-
 define method print-object(a :: <attribute>, s :: <stream>) => ()
   transform(a, a.name, *printer-state*, s);
 end method print-object;
@@ -213,17 +187,10 @@ define method print-object(doc :: <document>, s :: <stream>) => ()
   transform(doc, doc.name, *printer-state*, s);
 end method print-object;
 
-/* define method transform(doc :: <document>, sym :: <symbol>, 
-                        state :: <printing>, s :: <stream>)
-  before-transform(doc, state, 0, s);
-  next-method();
-end method transform; */
-
 // the default way for preparing to print a document
 define method before-transform(doc :: <document>, state :: <printing>, 
                                depth :: <integer>, stream :: <stream>)
   let version = vector(make(<attribute>, name: #"version", value: "1.0"));
   let xml = make(<processing-instruction>, name: #"xml", attributes: version);
   transform(xml, #"xml", state, stream);
-//  node-iterator(doc, state, stream);
 end method before-transform;
