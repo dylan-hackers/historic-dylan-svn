@@ -1,0 +1,136 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC
+ "UNREGISTERED::Gwydion Dylan Maintainers//DTD DylanDoc V4.2//EN" 
+ "dylandoc.dtd"
+ [
+ <!ENTITY % entities SYSTEM "./dylandoc.ent">
+ %entities;
+]>
+
+<book>
+  <title>This is a book</title>
+  <chapter>
+    <title>This is a sample chapter</title>
+
+    <para>
+      This is a sample paragraph referring the <dlibrary>Dylan</dlibrary>
+      library and the <dmodule>Dylan</dmodule> module inside that library. And
+      then we have some literal code: <dlit>every?(im-schrank?, du.tassen)
+      </dlit>. And here we have the mother of all objects: &object;.
+    </para>
+
+    <dylan-constant-def>
+      <constant>$foo</constant>
+      <defsummary>The foo constant of the universe.</defsummary>
+      <deftype>&lt;integer&gt;</deftype>
+      <defvalue>42</defvalue>
+      <defdescription>
+	<para>This constant specifies the foo quantity of the
+	universe.</para>
+      </defdescription>
+    </dylan-constant-def>
+
+    <dylan-variable-def>
+      <defname>*pi*</defname>
+      <defsummary>A universal constant.</defsummary>
+      <deftype>&lt;float&gt;</deftype>
+      <defdescription>
+	<para>User-settable universal constant controlling the ratio of a
+	circle's diameter to its circumferance.</para>
+      </defdescription>
+    </dylan-variable-def>
+
+    <dylan-function-def>
+      <function>identity</function>
+      <defadjectives>Inline</defadjectives>
+      <defsummary>A very simple function.</defsummary>
+      <defparameters>
+	<param>
+	  <param-name>object</param-name>
+	  <param-summary>Anything at all.</param-summary>
+	</param>
+      </defparameters>
+      <defreturns>
+	<param>
+	  <param-name>object</param-name>
+	  <param-type>&lt;object&gt;</param-type>
+	</param>
+      </defreturns>
+      <defdescription>
+	<para>
+	  <literal>identity</literal> takes a single argument and returns it
+	  unchanged.
+	</para>
+      </defdescription>
+    </dylan-function-def>
+
+    <dylan-function-def>
+      <function>reboot-computer</function>
+      <defsummary>A function with no arguments or results.</defsummary>
+      <defparameters>
+      </defparameters>
+      <defreturns>
+      </defreturns>
+      <defdescription>
+	<para>Reboots your computer.</para>
+      </defdescription>
+    </dylan-function-def>
+
+    <dylan-function-def>
+      <function>exchange</function>
+      <defsummary>A function with multiple return values.</defsummary>
+      <defparameters>
+	<param>
+	  <param-name>object1</param-name>
+	  <param-type>&lt;object&gt;</param-type>
+	</param>
+	<param>
+	  <param-name>object2</param-name>
+	  <param-type>&lt;object&gt;</param-type>
+	</param>
+      </defparameters>
+      <defreturns>
+	<param>
+	  <param-name>object2</param-name>
+	  <param-type>&lt;object&gt;</param-type>
+	</param>
+	<param>
+	  <param-name>object1</param-name>
+	  <param-type>&lt;object&gt;</param-type>
+	</param>
+      </defreturns>
+      <defdescription>
+	<para>Returns two arguments in reverse order.</para>
+      </defdescription>
+    </dylan-function-def>
+
+    <dylan-function-def>
+      <function>weird-args</function>
+      <defsummary>A very complicated function.</defsummary>
+      <defparameters>
+	<param>
+	  <param-name>foo</param-name>
+	  <param-type>&lt;string&gt;</param-type>
+	</param>
+	<key-param>
+	  <param-name>bar</param-name>
+	  <param-type>&lt;number&gt;</param-type>
+	</key-param>
+	<key-param>
+	  <param-name>baz</param-name>
+	  <param-type>&lt;number&gt;</param-type>
+	</key-param>
+      </defparameters>
+      <defreturns>
+	<rest-param>
+	  <param-name>munged</param-name>
+	  <param-type>&lt;object&gt;</param-type>
+	</rest-param>
+      </defreturns>
+      <defdescription>
+	<para>Full argument lists should work fine.</para>
+      </defdescription>
+    </dylan-function-def>
+
+  </chapter>
+</book>

@@ -90,6 +90,30 @@
     <address>Pittsburgh PA 15213</address>
   </affiliation>">
 
+<!-- ===== Functional Objects/Harlequin People ===== -->
+<!ENTITY person.smckay "<firstname>Scott</firstname><surname>McKay</surname>">
+<!ENTITY contact.smckay
+  "&person.smckay;
+  <affiliation>
+    <orgname>Harlequin, Inc.</orgname>
+  </affiliation>">
+
+<!ENTITY person.bchiles "<firstname>Bill</firstname><surname>Chiles</surname>">
+<!ENTITY contact.bchiles
+  "&person.bchiles;">
+
+<!ENTITY person.mferguson "<firstname>Marc</firstname><surname>Ferguson</surname>">
+<!ENTITY contact.mferguson
+  "&person.mferguson;">
+
+<!ENTITY person.emiranda "<firstname>Eliot</firstname><surname>Miranda</surname>">
+<!ENTITY contact.emiranda
+  "&person.emiranda;">
+
+<!ENTITY person.ashires "<firstname>Andrew</firstname><surname>Shires</surname>">
+<!ENTITY contact.ashires
+  "&person.ashires;">
+
 <!-- ===== Dylan Snippets ===== -->
 
 <!ENTITY true '<dlit>#t</dlit>'>

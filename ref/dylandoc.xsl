@@ -44,23 +44,7 @@
     Dylan Literal Tags.  We use mono-spaced sequential text,
     since these are program elements
   -->
-  <xsl:template match="dlibrary" name="dylan.global.dlibrary">
-    <xsl:call-template name="inline.monoseq"/>
-  </xsl:template>
-
-  <xsl:template match="dmodule" name="dylan.global.dmodule">
-    <xsl:call-template name="inline.monoseq"/>
-  </xsl:template>
-
-  <xsl:template match="dname" name="dylan.global.dname">
-    <xsl:call-template name="inline.monoseq"/>
-  </xsl:template>
-
-  <xsl:template match="dlit" name="dylan.global.dlit">
-    <xsl:call-template name="inline.monoseq"/>
-  </xsl:template>
-
-  <xsl:template match="dparam" name="dylan.global.dparam">
+  <xsl:template match="dlibrary|dmodule|dname|dclass|dkeyword|dlit|dparam">
     <xsl:call-template name="inline.monoseq"/>
   </xsl:template>
 
@@ -68,42 +52,53 @@
     <xsl:call-template name="inline.boldseq"/>
   </xsl:template>
 
-  <xsl:template match="key-param">
+  <xsl:template match="varparam|param|key-param|rest-param">
     <table border="0" columnspacing="0">
       <tr>
 	<td valign="top">
-	  <code>
-	    <xsl:apply-templates select="param-name"/>
-	    <xsl:text>:</xsl:text>
-	  </code>
+	  <xsl:choose>
+	    <xsl:when test="self::key-param">
+	       <code>
+		 <xsl:apply-templates select="param-name"/>
+		 <xsl:text>:</xsl:text>
+	      </code>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <em>
+		<xsl:apply-templates select="variable-name"/>
+		<xsl:apply-templates select="param-name"/>
+		<xsl:apply-templates select="binds-to"/>
+	      </em>
+	    </xsl:otherwise>
+	  </xsl:choose>
 	</td>
 	<td>
-	  <xsl:text>An instance of </xsl:text>
-	  <xsl:apply-templates select="param-type"/>
+	  <xsl:choose>
+	    <xsl:when test="param-type">
+	      <xsl:text>An instance of </xsl:text>
+	      <xsl:apply-templates select="param-type"/>
+	    </xsl:when>
+	    <xsl:when test="variable-name">
+	      <xsl:text>Variable</xsl:text>
+	    </xsl:when>
+	    <xsl:when test="binds-to">
+	      <xsl:text>Expression</xsl:text>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:text>An instance of </xsl:text>
+	      <code>
+		<xsl:text>&lt;object&gt;</xsl:text>
+	      </code>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	  <xsl:text>.  </xsl:text>
 	  <xsl:apply-templates select="param-summary"/>
 	</td>
       </tr>
     </table>
   </xsl:template>
 
-  <xsl:template match="param">
-    <table border="0" columnspacing="0">
-      <tr>
-	<td valign="top">
-	  <em>
-	    <xsl:apply-templates select="param-name"/>
-	  </em>
-	</td>
-	<td>
-	  <xsl:text>An instance of </xsl:text>
-	  <xsl:apply-templates select="param-type"/>
-	  <xsl:apply-templates select="param-summary"/>
-	</td>
-      </tr>
-    </table>
-  </xsl:template>
-
-  <xsl:template match="param-name">
+  <xsl:template match="variable-name|binds-to|param-name|param-summary">
     <xsl:apply-templates/>
   </xsl:template>
 
@@ -111,8 +106,50 @@
     <xsl:call-template name="inline.monoseq"/>
   </xsl:template>
 
-  <xsl:template match="param-summary">
-    <xsl:apply-templates/>
+  <!--
+    Dylan Constant/Variable definitions.
+  -->
+  <xsl:template match="dylan-constant-def|dylan-variable-def">
+    <table width="100%" cellpadding="0" border="0">
+      <tr>
+	<xsl:choose>
+	  <xsl:when test="self::dylan-constant-def">
+	    <xsl:apply-templates select="constant"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:apply-templates select="defname"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+	<td align="right">
+	  <strong>
+	    <xsl:text>[</xsl:text>
+	    <xsl:choose>
+	      <xsl:when test="self::dylan-constant-def">
+		<xsl:text>Constant]</xsl:text>
+	      </xsl:when>
+	      <xsl:otherwise>
+		<xsl:text>Variable]</xsl:text>
+	      </xsl:otherwise>
+	    </xsl:choose>
+	  </strong>
+	</td>
+      </tr>
+    </table>
+    <hr/>
+    <xsl:apply-templates select="defsummary"/>
+    <xsl:apply-templates select="deftype"/>
+    <xsl:apply-templates select="defvalue"/>
+    <xsl:apply-templates select="defdescription"/>
+    <xsl:apply-templates select="defsection"/>
+    <br/>
+  </xsl:template>
+
+  <xsl:template match="dylan-constant-def/constant">   
+    <td>
+      <b>
+	<xsl:call-template name="inline.monoseq"/>
+      </b>
+    </td>
   </xsl:template>
 
   <!--
@@ -140,12 +177,8 @@
     <br/>
   </xsl:template>
 
-  <xsl:template match="dylan-class-def/classname">   
-    <td>
-      <b>
-	<xsl:call-template name="inline.monoseq"/>
-      </b>
-    </td>
+  <xsl:template match="defsuper">
+    <xsl:call-template name="inline.monoseq"/>
   </xsl:template>
 
   <xsl:template match="dylan-class-def/defsupers">
@@ -174,15 +207,35 @@
   <!--
     Dylan Function definitions.
   -->
-  <xsl:template match="dylan-function-def">
+  <xsl:template match="dylan-function-def|dylan-generic-def|dylan-method-def|dylan-macro-def">
     <table width="100%" cellpadding="0" border="0">
       <tr>
-	<xsl:apply-templates select="function"/>
+	<xsl:choose>
+	  <xsl:when test="self::dylan-function-def">
+	    <xsl:apply-templates select="function"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:apply-templates select="defname"/>
+	  </xsl:otherwise>
+	</xsl:choose>
 	<td align="right">
 	  <strong>
 	    <xsl:text>[</xsl:text>
 	    <xsl:apply-templates select="defadjectives"/>
-	    <xsl:text>Function]</xsl:text>
+	    <xsl:choose>
+	      <xsl:when test="self::dylan-method-def">
+		<xsl:text>Method]</xsl:text>
+	      </xsl:when>
+	      <xsl:when test="self::dylan-generic-def">
+		<xsl:text>Generic]</xsl:text>
+	      </xsl:when>
+	      <xsl:when test="self::dylan-macro-def">
+		<xsl:text>Macro]</xsl:text>
+	      </xsl:when>
+	      <xsl:otherwise>
+		<xsl:text>Function]</xsl:text>
+	      </xsl:otherwise>
+	    </xsl:choose>
 	  </strong>
 	</td>
       </tr>
@@ -197,7 +250,7 @@
     <br/>
   </xsl:template>
 
-  <xsl:template match="dylan-function-def/function">
+  <xsl:template match="defname|dylan-function-def/function|dylan-class-def/classname">
     <td>
       <b>
 	<xsl:call-template name="inline.monoseq"/>
@@ -210,6 +263,7 @@
   -->
   <xsl:template match="defadjectives">
     <xsl:call-template name="inline.charseq"/>
+    <xsl:text> </xsl:text>
   </xsl:template>
 
   <xsl:template match="defsummary">
@@ -280,20 +334,25 @@
     <p/>
   </xsl:template>
 
+  <xsl:template match="defvalue">
+    <strong>Value</strong>
+    <blockquote>
+      <xsl:apply-templates/>
+    </blockquote>
+    <p/>
+  </xsl:template>
+
+  <xsl:template match="deftype">
+    <strong>Type</strong>
+    <blockquote>
+      <xsl:apply-templates/>
+    </blockquote>
+    <p/>
+  </xsl:template>
+
 </xsl:stylesheet>
 
 <!--
-
-;;;;=======================================================================
-;;;; HTML Stylesheet
-;;;;=======================================================================
-;;;; This stylesheet uses James Clark's extensions for creating HTML from
-;;;; a DSSSL stylesheet.
-
-(define %use-id-as-filename%
-  ;; Make ID attributes into file names.
-  #t)
-
 
 ;;;========================================================================
 ;;; Overrides
@@ -330,439 +389,5 @@
 			 attributes: '(("BORDER" "0")
 				       ("COLUMNSPACING" "0")))
 		       (literal "None."))))
-
-(define (process-param #!optional (type-label "An instance of "))
-  (make element
-    gi: "TR"
-    (make sequence
-      (make element
-	gi: "TD"
-	attributes: '(("VALIGN" "TOP"))
-	(process-first-descendant "param-name"))
-      (make element
-	gi: "TD"
-	(make sequence
-	  (literal type-label)
-	  (if (have-child? "param-type")
-	      (process-first-descendant "param-type")
-	      (dylan-object-type))
-	  (literal ". ")
-	  (if (have-child? "param-summary")
-	      (process-first-descendant "param-summary")
-	      (empty-sosofo))
-	  (if (have-child? "param-default")
-	      (make sequence
-		(literal " defaults to ")
-		(process-first-descendant "param-default")
-		(literal "."))
-	      (empty-sosofo)))))))
-
-(define (process-var #!optional (variable-label "variable.  "))
-  (make sequence
-    (make element
-      gi: "TR"
-      (make sequence
-        (make element
-          gi: "TD"
-          attributes: '(("VALIGN" "TOP"))
-          (process-first-descendant "variable-name"))
-        (make element
-          gi: "TD"
-            (literal variable-label))))
-    (make element gi: "TR"
-      (make sequence
-        (make element gi: "TD" attributes: '(("VALIGN" "TOP"))
-          (process-first-descendant "binds-to"))
-        (make element gi: "TD"
-          (literal "Expression."))))))
-
-(element var-param
-  (with-mode var-param
-    (process-var)))
-
-(element param
-  (process-param))
-
-(element rest-param
-  (process-param "Instances of "))
-
-(element key-param
-  (with-mode keyword-param
-    (process-param)))
-
-(element param-name
-  (make element
-    gi: "EM"))
-
-(element param-type
-  ($dylan-literal$))
-
-(element param-default
-  ($dylan-literal$))
-
-(element param-summary
-  (process-children))
-
-(element dkeyword
-  ($dylan-literal$
-    (make sequence
-	(process-children)
-        (literal ":"))))
-
-(element dclass
-  ($dylan-literal$
-    (make sequence
-      (make entity-ref name: "lt")
-      (process-children)
-      (make entity-ref name: "gt"))))
-
-(mode keyword-param
-  (element param-name
-    ($dylan-literal$ (make sequence
-		       (process-children)
-		       (literal ":")))))
-
-(mode var-param
-  (element variable-name
-    (make element gi: "EM" (process-children)))
-  (element BindsTo (make element gi: "EM" (process-children))))
-
-;;;========================================================================
-;;; Define Constant & Define Variable
-;;;========================================================================
-;;; We group these two forms together because they're similar.
-
-(element dylan-constant-def
-  (process-def))
-
-(element dylan-variable-def
-  (process-def))
-
-(element deftype
-  (process-section "Type" ($dylan-literal$)))
-
-(element defvalue
-  (process-section "Value" ($dylan-literal$)))
-
-
-;;;========================================================================
-;;; Define Function, Method & Generic
-;;;========================================================================
-;;; These all look the same for now.
-
-(define (process-function-def)
-  (make sequence
-    (process-defhead)
-    (process-function-synopsis)
-    (process-children)))
-
-(element dylan-function-def
-  (process-function-def))
-
-(define (char-description title param type)
-  (process-section title
-    (make sequence
-      (make element gi: "EM" (literal param))
-      (literal "An instance of ")
-      ($dylan-literal$
-       (make sequence
-	 (make entity-ref name: "lt")
-	 (literal type)
-	 (make entity-ref name: "gt"))))))
-
-(define (char-summary attrib #!optional (show-false #f))
-    (make sequence
-      (literal "Returns ")
-      ($dylan-literal$ (literal "#t"))
-      (literal " if the character is ")
-      (literal (attribute-string attrib))
-      (if show-false
-	  (make sequence
-	   (literal ", ")
-	   ($dylan-literal$ (literal "#f"))
-	   (literal " otherwise."))
-	(literal "."))))
-
-(element dylan-char-fn-def
- (make sequence
-  (with-mode defhead  ;; for the definition-head
-   (process-defhead-helper
-    (make element gi: "B" 
-	  ($dylan-literal$ (literal (attribute-string "name"))))
-    (literal "") ; adjectives
-    (char-summary "condition")))  ; summary
-  (with-mode function-synopsis ;; for the synopsis
-   (process-section "Synopsis"
-    (make sequence
-     (literal (attribute-string "name"))
-     (literal " (")
-     (make element gi: "EM" (literal "character"))
-     (literal ") => (")
-     (make element gi: "EM" (literal "answer"))
-     (literal ")"))))
-  (char-description "Parameters" "character" "character")
-  (char-description "Returns" "answer" "boolean")
-  (process-section "Description"
-   (char-summary "elaboration" #t))))
-
-(element dylan-generic-def
-  (process-function-def))
-
-(element dylan-method-def
-  (process-function-def))
-
-;; right now a DylanMacroDef is a Statement macro only; ...
-;; I'll re-write this later to include function macros
-;; and definer macros, but if someone else does this first,
-;; I won't complain.  Doug Auclair, Dec 3, 2000, dauclair@hotmail.com
-
-(define (process-macro-def)
-  (make sequence
-    (process-defhead)
-    (process-macro-synopsis)
-    (process-children)))
-
-(element dylan-macro-def
-  (process-macro-def))
-
-(define (process-macro-synopsis #!optional (node (current-node)))
-  (with-mode function-synopsis
-    (process-section "Synopsis"
-                     (make sequence
-                       (process-first-descendant "defname")
-                       (process-first-descendant "defparameters")
-                       (make element gi: "EM" (literal " body"))
-		       (literal " end")))))
-
-;; now back to our regularly scheduled programming ...
-
-(element defparameters
-  (process-parameter-section "Parameters"))
-
-(element defreturns
-  (process-parameter-section "Return Values"))
-
-(define (process-function-synopsis #!optional (node (current-node)))
-  (with-mode function-synopsis
-    (process-section "Synopsis"
-		     (make sequence
-		       (process-first-descendant "defname")
-		       (process-first-descendant "defparameters")
-		       (process-first-descendant "defreturns")))))
-
-(define (maybe-insert-spacer #!optional (spacer (literal ", ")))
-  (if (not (absolute-first-sibling? (current-node)))
-      spacer
-      (empty-sosofo)))
-
-(mode function-synopsis
-
-  (element defname
-    (process-children))
-
-  (element param-name
-    (make element
-      gi: "EM"))
-
-  (element variable-name
-    (make element
-      gi: "EM"))
-
-  (element binds-to
-    (make element
-      gi: "EM"))
-
-  (element defparameters
-    (make sequence
-      (literal " (")
-      (process-children)
-      (literal ")")))
-
-  (element defreturns
-    (make sequence
-      (literal " => (")
-      (process-children)
-      (literal ")")))
-
-  (element varparam
-    (make sequence
-      (maybe-insert-spacer)
-      (process-first-descendant "variable-name")
-      (literal " = ")
-      (process-first-descendant "binds-to")))
-
-  (element Param
-    (make sequence
-      (maybe-insert-spacer)
-      (process-first-descendant "param-name")))
-
-  (element rest-param
-    (make sequence
-      (maybe-insert-spacer)
-      (literal "#rest ")
-      (process-first-descendant "param-name")))
-
-  (element key-param
-    (make sequence
-      (maybe-insert-spacer)
-      (if (first-sibling? (current-node))
-	  (literal "#key ")
-	  (empty-sosofo))
-      (process-first-descendant "param-name")))
-  
-  (element all-keys
-    (make sequence
-      (maybe-insert-spacer)
-      (if (first-sibling? (current-node))
-	  (literal "#key ")
-	  (empty-sosofo))
-      (literal "#all-keys")))
-  )
-
-
-;;;========================================================================
-;;; Cruft
-;;;========================================================================
-;;; To be organized and rewritten...
-
-(define (process-param-list)
-  (if (have-children?)
-       (process-children)
-       (literal "()")))
-
-(define (insert-spacer-unless-last #!optional (node (current-node)))
-;;  (if (not (last-sibling? node))
-;;      (literal " ")
-;;      (empty-sosofo)))
-;; XXX - last-sibling? ignores siblings of other types. For now, hack:
-  (literal " "))
-
-(define (parameter-keyword name)
-  (make element
-    gi: "B"
-    (literal name)))
-
-(mode unused
-  (element defparameters
-    (make sequence
-      (make element
-	gi: "CODE"
-	(literal " "))
-      (process-param-list)))
-  
-  (element defreturns
-    (make sequence
-    (make element
-      gi: "CODE"
-      (literal " => "))
-    (process-param-list)))
-  
-  (element defparam
-    (process-children))
-  
-  (element param-name
-    (make sequence
-      (make element
-	gi: "I")
-      (insert-spacer-unless-last (parent (current-node)))))
-  
-  (element param-type
-    (empty-sosofo))
-
-  (element param-summary
-    (empty-sosofo))
-  
-  (element rest-type
-    (empty-sosofo))
-  
-  (element Rest
-    (make sequence
-      (parameter-keyword "#rest")
-      (literal " ")
-      (process-children)))
-  
-  (element Key
-    (make sequence
-      (parameter-keyword "#key")
-      (if (have-children?)
-	  (literal " ")
-	  (empty-sosofo))
-      (process-children)
-      (insert-spacer-unless-last)))
-  
-  (element AllKeys
-    (parameter-keyword "#all-keys")))
-  
-(define (parameters-longform label)
-  (if (have-children?)
-      (make element
-	gi: "BLOCKQUOTE" 
-	(make sequence
-	  (make element
-	    gi: "P"
-	    (make element
-	      gi: "STRONG"
-	      (literal label)))
-	  (make element
-	    gi: "TABLE"
-	    attributes: '(("BORDER" "0")
-			  ("CELLSPACING" "10"))
-	    (process-children))))
-      (empty-sosofo)))
-
-(mode paramdesc
-  (element param-name
-    (empty-sosofo))
-  (element param-type
-    (make sequence
-      (literal "An instance of type ")
-      (make element
-	gi: "CODE")
-      (literal ". ")))
-  (element rest-type
-    (make sequence
-      (literal "Instances of type ")
-      (make element
-	gi: "CODE")
-      (literal ". ")))
-  (element param-singleton
-    (make sequence
-      (literal "The object ")
-      (make element
-	gi: "CODE")
-      (literal ". ")))
-  (element param-summary
-    (process-children)))
-
-(define (describe-param)
-  (make element
-    gi: "TR"
-    (make sequence
-      (make element
-	gi: "TD"
-	(process-first-descendant "param-name"))
-      (make element
-	gi: "TD"
-	(with-mode paramdesc
-	  (process-children))))))
-
-(mode parameter-summary
-  (element defparameters
-    (parameters-longform "Parameters"))
-  (element defreturns
-    (parameters-longform "Return Values"))
-  (element defparam
-    (describe-param))
-  (element Rest
-    (if (have-children?)
-	(describe-param)
-	(empty-sosofo)))
-  (element Key
-    (process-children))
-  (element AllKeys
-    (empty-sosofo))
-  (element param-name
-    (make element
-      gi: "I")))
 
 -->

@@ -37,7 +37,7 @@
 
 <book id="gdmaint">
   <bookinfo>
-    <title>Gwydion Dylan Porting and Maintenance Guide</title>
+    <title>Gwydion &dylan; Porting and Maintenance Guide</title>
     <titleabbrev>Maintenance Guide</titleabbrev>
     <pubdate>11 July 2001</pubdate>
 
@@ -119,7 +119,7 @@
     </note>
 
     <para>
-      Gwydion Dylan was originally developed by the Gwydion Project at
+      Gwydion &dylan; was originally developed by the Gwydion Project at
       CMU. Today, it is maintained by a loose group of volunteers, some of
       whom have been working on it for several years. This chapter attempts to
       summarize the way we do things.
@@ -212,7 +212,7 @@
   </chapter>
 
   <chapter id="gdmaint-porting">
-    <title>Porting Gwydion Dylan to a New Platform</title>
+    <title>Porting Gwydion &dylan; to a New Platform</title>
 
     <para>
       Here's a rough overview of how to port &d2c;. Take this with a
@@ -300,7 +300,7 @@
       &d2c; compiles one library at a time. Each library contains one
       or more modules. A module may be implemented by one or more files. Each
       file contains one or more <glossterm>source records</glossterm>, the
-      logical unit of Dylan compilation.
+      logical unit of &dylan; compilation.
     </para>
 
     <para>
@@ -313,7 +313,7 @@
 
     <para>
       In its current configuration, &d2c; is not well-suited to
-      developing new Dylan code. It is, however, well-suited to building
+      developing new &dylan; code. It is, however, well-suited to building
       production versions of libraries. Obvious future projects include
       reducing the granularity of compilation and implementing a
       selectively-incremental compiler that can modify the object code of a
@@ -361,7 +361,7 @@
 	  <para>
 	    Top-level forms may contain forward dependencies within a
 	    module. In most cases, these dependencies aren't necessitated by
-	    the design of the Dylan language, but they are needed for for
+	    the design of the &dylan; language, but they are needed for for
 	    efficient compilation. We need to study these dependencies if we
 	    want to make incremental compilation work. The implementation of
 	    <dname>finalize-top-level-form</dname> lives in
@@ -374,7 +374,7 @@
 	  <title>Process the class hierarchy</title>
 
 	  <para>
-	    Optimizing Dylan code requires careful attention to the
+	    Optimizing &dylan; code requires careful attention to the
 	    object model. Unfortunately, &d2c; uses algorithms which require
 	    the entire class hiearchy to be computed before link time. (The
 	    biggest problem here appear to be assigning unique IDs to
@@ -473,7 +473,7 @@
 	  <para>
 	    If &d2c; is not compiling an executable application, it
 	    dumps the data structures used by this library into a
-	    <filename>*.lib.du</filename> file. If another Dylan library
+	    <filename>*.lib.du</filename> file. If another &dylan; library
 	    includes this library, the dumped data structures will be used to
 	    perform inter-library optimizations. The dumped data is stored as
 	    persistent objects in <glossterm>Object Description
@@ -523,7 +523,7 @@
 	      <para>
 		This module imports a number of standard modules and
 		re-exports some or all of their constants. Essentially, this
-		module is used to specify a local Dylan dialect for use by
+		module is used to specify a local &dylan; dialect for use by
 		the rest of the compiler. It includes
 		<dmodule>Dylan</dmodule>, some of
 		<dmodule>Extensions</dmodule>, a few names from
@@ -635,7 +635,7 @@
 	   <title>Dumping Objects</title>
 
 	   <dylan-constant-def>
-	     <defname>&lt;data-unit-name></defname>
+	     <constant>&lt;data-unit-name></constant>
 	     <defsummary>
 	       Things that can be the name of a data unit.
 	     </defsummary> 
@@ -650,7 +650,7 @@
 	   </dylan-constant-def>
 
 	   <dylan-constant-def>
-	     <defname>$library-summary-unit-type</defname>
+	     <constant>$library-summary-unit-type</constant>
 	     <defsummary>A constant for
 	     <dname>begin-dumping</dname></defsummary> 
 	     <defvalue>0</defvalue>
@@ -744,7 +744,7 @@
 	    <defdescription>
 	      <para>
 		This routine is overloaded to dump individual types
-		objects. Methods for primitive Dylan types can be found in
+		objects. Methods for primitive &dylan; types can be found in
 	       <xref linkend="gdmaint-d2c-base-dylan-dump"/>.
 	      </para>
 	    </defdescription>
@@ -787,7 +787,7 @@
 	   <defdescription>
 	    <para>
 	      A dispatcher is an object that tells the loader how to convert
-	      binary data into Dylan objects. 
+	      binary data into &dylan; objects. 
 	    </para>
 	   </defdescription>
 	  </dylan-class-def>
@@ -802,7 +802,7 @@
 	    <para>
 	      <dmodule>Dylan-dump</dmodule> loads this variable with
 	      dispatching information for several commonly-used
-	      Dylan types (see <xref linkend="gdmaint-d2c-base-dylan-dump"/>).
+	      &dylan; types (see <xref linkend="gdmaint-d2c-base-dylan-dump"/>).
 	    </para>
 	   </defdescription>
 	  </dylan-variable-def>
@@ -821,7 +821,7 @@
 	  </dylan-variable-def>
 
 	  <dylan-constant-def>
-	    <defname>&lt;location-hint></defname>
+	    <constant>&lt;location-hint></constant>
 	    <defsummary>A hint of where to find a data unit.</defsummary>
 	    <defvalue>&lt;byte-string></defvalue>
 	    <defdescription>
@@ -832,7 +832,7 @@
 	  </dylan-constant-def>
 
 	  <dylan-constant-def>
-	    <defname>&lt;word></defname>
+	    <constant>&lt;word></constant>
 	    <defsummary>
 	      A portable, full-sized <dname>&lt;integer></dname>.
 	    </defsummary>
@@ -1467,7 +1467,7 @@ add-od-loader(*default-dispatcher*, #"byte-string",
 	 </dylan-class-def>
 
 	 <dylan-constant-def>
-	   <defname>$end-object</defname>
+	   <constant>$end-object</constant>
 	   <defsummary>An end-of-subobjects marker.</defsummary>
 	   <deftype>&lt;end-object></deftype>
 	   <defdescription>
@@ -1907,7 +1907,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	<title>The <dmodule>Header</dmodule> Module</title>
 
 	<para>
-	  Dylan source files have <acronym>RFC</acronym> 822 headers,
+	  &dylan; source files have <acronym>RFC</acronym> 822 headers,
 	  similar to those used by Internet e-mail and many other
 	  protocols. This module provides support for parsing headers at the
 	  top of a file and extracting the values of keywords. White space at
@@ -1945,7 +1945,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	  The <dmodule>Signature-Interface</dmodule> module creates a
 	  group of names which are actually implemented in the
 	  <dmodule>Signature</dmodule> module. These represent the formal
-	  parameter and result lists of a Dylan function.
+	  parameter and result lists of a &dylan; function.
 	</para>
       </sect2>
 
@@ -1955,7 +1955,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	<para>
 	  When reporting errors, &d2c; often needs to provide names for
 	  various functions, anonymous local methods and other things found
-	  in Dylan programs. This module knows about several different kinds
+	  in &dylan; programs. This module knows about several different kinds
 	  of names and how they should be displayed to the user.
 	</para>
 
@@ -2054,7 +2054,7 @@ define variable foo :: run-time-expression() = #f;
 	</para>
 
 	<para>
-	  Most of these types can be represented as Dylan objects.
+	  Most of these types can be represented as &dylan; objects.
 	  Such types also inherit from <dname>&lt;ct-value></dname>, so they
 	  can be represented as compile-time values (see 
 	  <xref linkend="gdmaint-d2c-base-compile-time-values"/>).
@@ -2443,7 +2443,7 @@ define variable foo :: run-time-expression() = #f;
 	  and generates a parse tree. It looks like the main entry point is
 	  <dname>parse-source-record</dname>. There are other entry points
 	  which are called recursively by the macro expander; these parse a
-	  single production of Dylan's grammar.
+	  single production of &dylan;'s grammar.
 	</para>
 
 	<para>
@@ -2459,7 +2459,7 @@ define variable foo :: run-time-expression() = #f;
 
       <sect2 id="gdmaint-d2c-parser-macros">
 	<title>The <dmodule>Macros</dmodule> Module</title>
-<!-- Riff on procedural macros played by &person.auclair; -->
+	<!-- Riff on procedural macros played by &person.auclair; -->
 
 	<para>
 	  This module implements macro expansion as defined in the
@@ -2484,7 +2484,7 @@ define variable foo :: run-time-expression() = #f;
 	    "procedural macro as implemented by &gdmp; on &d2c;".  This special
 	    definition contains an implicit caveat:  procedural macros
 	    are not defined in the &drm; and are not standardized across
-	    &dylan; implementations -- use at your own risk.  Also,
+	    &dylan; implementations &mdash; use at your own risk.  Also,
 	    discussion on the &gdmp; mailing list has noted that macros
 	    defined by the &drm; (hereinafter referred to as "plain macros")
 	    are "Turing-complete" (yes, just as machine language and C are
@@ -2501,15 +2501,15 @@ define variable foo :: run-time-expression() = #f;
 
 	    <para>
 	      First off, a procedural macro is a macro ... a special kind
-	      of macro that (explained simply) uses Dylan expressions evaluated
-	      before expansion time to build a macro-expansion.  Then, like any
-	      plain macro, the expansion substitutes fragments matched by the 
-	      template with the procedural result.  Procedural macros can be
-	      more expressive than the macros defined in the &drm;, but this 
-	      expressiveness comes at the cost of necessarily more work both 
-	      in preparing to write the macro (the bits of support code) and
-	      in  actually writing the macro itself. I will use the 
-	      <dname>make-if</dname>  procedural macro as defined in
+	      of macro that (explained simply) uses &dylan; expressions
+	      evaluated before expansion time to build a macro-expansion.
+	      Then, like any plain macro, the expansion substitutes fragments
+	      matched by the template with the procedural result.  Procedural
+	      macros can be more expressive than the macros defined in the
+	      &drm;, but this expressiveness comes at the cost of necessarily
+	      more work both in preparing to write the macro (the bits of
+	      support code) and in  actually writing the macro itself. I will
+	      use the <dname>make-if</dname>  procedural macro as defined in
 	      <xref linkend="gdmaint-d2c-convert-expanders"/> to show how 
 	      procedural macros work. 
 	    </para>
@@ -2574,7 +2574,7 @@ source code (with a macro pattern) in
 
       <para>
 	The &front-lib; is repsonsible for processing the <glossterm>Front
-	End Representation</glossterm> of a Dylan program. It depends only
+	End Representation</glossterm> of a &dylan; program. It depends only
 	on the &base-lib;.
       </para>
 
@@ -2589,7 +2589,7 @@ source code (with a macro pattern) in
 	<para>
 	  This module defines an interface which can be used to build
 	  the <glossterm>front-end representation</glossterm>
-	  (<acronym>FER</acronym>) of a parsed Dylan program.
+	  (<acronym>FER</acronym>) of a parsed &dylan; program.
 	</para>
 	
 	<para>
@@ -2621,7 +2621,7 @@ source code (with a macro pattern) in
 
 	<para>
 	  This module defines the primitive operations which may appear
-	  in Dylan code.
+	  in &dylan; code.
 	</para>
       </sect2>      
 
@@ -2736,7 +2736,7 @@ source code (with a macro pattern) in
 	  This is not a very meaty module. It doesn't make much sense
 	  in the absence of the &convert-lib;. It does, however, contain a
 	  few classes for describing the things found at the top level of a
-	  Dylan file and provides the generic function
+	  &dylan; file and provides the generic function
 	  <dname>finalize-top-level-form</dname>, which is called by the
 	  compilation driver once everything has been parsed.
 	</para>
@@ -2778,7 +2778,7 @@ source code (with a macro pattern) in
 
 	<para>
 	  This module performs compile-time evaluation of constant
-	  expressions. It operates on the parsed representation of a Dylan
+	  expressions. It operates on the parsed representation of a &dylan;
 	  program, not the front-end representation.
 	</para>
       </sect2>
@@ -3000,7 +3000,7 @@ source code (with a macro pattern) in
 	      <title>The type model</title>
 
 	      <para>
-		Because this is a Dylan compiler, the type model is
+		Because this is a &dylan; compiler, the type model is
 		pretty hairy. See <xref linkend="gdmaint-d2c-base-ctype"/> and
 		<xref linkend="gdmaint-d2c-base-classes"/>.
 	      </para>
@@ -3183,7 +3183,7 @@ source code (with a macro pattern) in
 	<title>Call Optimization &amp; Transformers</title>
 
 	<para>
-	  Dylan, like LISP, uses function calls to represent most
+	  &dylan;, like LISP, uses function calls to represent most
 	  language operations. Arithmetic oprators are functions. Slot
 	  getters and setters are functions. Even array access is done using
 	  functions. Given this, it's clear that the optimizer needs to
@@ -3278,7 +3278,7 @@ source code (with a macro pattern) in
 	  This module has two main entry points:
 	  <dname>emit-tlf-gunk</dname> and <dname>emit-component</dname>. The
 	  former emits arbitrary C code needed by a given top-level form. The
-	  latter translates a Dylan function into actual C code.
+	  latter translates a &dylan; function into actual C code.
 	</para>
 
 	<para>
@@ -3340,7 +3340,7 @@ source code (with a macro pattern) in
 
     <para>
       Melange is scheduled to be replaced by Pidgin in a future version
-      of Gwydion Dylan. Therefore, this section of the guide will eventually
+      of Gwydion &dylan;. Therefore, this section of the guide will eventually
       contain a description of Pidgin and its public APIs.
     </para>
   </chapter>
@@ -3350,14 +3350,14 @@ source code (with a macro pattern) in
 
     <note>
       <para>
-	This appendix lists the Dylan language coding style
+	This appendix lists the &dylan; language coding style
 	guidelines formerly used by the Gwydion Project.
       </para>
     </note>
     
     <para>
       This file lists two broad categories of style issues for
-      Dylan.  One category, called "Recommended", contains style points
+      &dylan;.  One category, called "Recommended", contains style points
       to which Gwydion programmers should adhere, as opposed to "must
       adhere".  If someone sometimes, or even always, breaks a
       recommended style point, then others must to be tolerant of that
@@ -3551,10 +3551,10 @@ define constant western-culture :: &lt;integer&gt;
 
 	<para>
 	  You should NOT use horizontal spacing to columnize
-	  aspects of Dylan code, or to present other visual effects
+	  aspects of &dylan; code, or to present other visual effects
 	  within the program.  If you do this, you should do it rarely.
 	  The one exception to this rule is the "Indent keyword
-	  parameters beyond #key token" recommendation.
+	  parameters beyond <dlit>#key</dlit> token" recommendation.
 	</para>
       </sect2>
 

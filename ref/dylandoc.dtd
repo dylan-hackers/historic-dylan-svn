@@ -51,7 +51,7 @@
 
 <!ENTITY % local.synop.class "|%dylan.def.class;">
 <!ENTITY % local.tech.char.class "|%dylan.tech.char.class;">
-<!ENTITY % local.para.class "|dlibrary|dmodule|dname|dlit|dparam">
+<!ENTITY % local.para.class "|dlibrary|dmodule|dclass|dname|dlit|dparam">
 
 <!-- =============== The Real Thing =============================== -->
 
@@ -109,7 +109,7 @@
   Reference Manual.
 -->
 
-<!ELEMENT dylan-constant-def (defname, defsummary, deftype?, defvalue?,
+<!ELEMENT dylan-constant-def (constant, defsummary, deftype?, defvalue?,
 				defdescription, defsection*) >
 
 <!ELEMENT dylan-variable-def (defname, defsummary, deftype?, defvalue?,
@@ -198,7 +198,7 @@
  <defsupers>
   <defsuper>&lt;object&gt;</defsuper>
  </defsupers>'>
-<!ENTITY object '<dclass>object</dclass>'>
+<!ENTITY object '&lt;object&gt;'>
 
 <!-- =============== Function Definitions ========================
   The following elements are used to define functions, methods
