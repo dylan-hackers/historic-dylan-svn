@@ -1366,18 +1366,22 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           <definitkeywords>
           </definitkeywords>
           <defdescription>
-            <para>All other streams inherit from this class</para>
+            <para>Positionable streams allow one to specify from where in
+              the stream to read or to write.
+            </para>
           </defdescription>
         </dylanclassdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;buffered-stream&gt;</REFNAME>
-	    <REFPURPOSE>Open abstract class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
-
+        <dylanclassdef>
+	  <dEFNAME>&lt;buffered-stream&gt;</dEFNAME>
+	  <defadjectives>Open abstract</defadjectives>
+	  <defsummary>
+          <definitkeywords>
+          </definitkeywords>
+            Streams that can access multiple elements with a single 
+            read/write command.
+          </defsummary>
+          <defdescription>
 	    <PARA>A subclass of <CLASSNAME>&lt;stream&gt;</CLASSNAME>
 	    supporting the Stream Extension Protocol and the Buffer
 	    Access Protocol. It is not instantiable.</PARA>
@@ -1390,8 +1394,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    that uses a specific device's hardware buffer might use a
 	    fixed buffer size regardless of the value passed with the
 	    <dlit>buffer-size:</dlit> init-keyword. </PARA>
-	  </REFSECT1>
-	</REFENTRY>
+          </defdescription>
+        </dylanclassdef>
 
 	<REFENTRY>
 	  <REFNAMEDIV>
