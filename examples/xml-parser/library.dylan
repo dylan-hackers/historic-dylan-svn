@@ -28,7 +28,7 @@ define module xml-parser
 
 // beginning to integrate Chris' parse engine
   create <document>, <element>, <attribute>, <entity-reference>,
-    <char-reference>, <char-string>, <xml>, text, char, value, name;
+    <char-reference>, <char-string>, <xml>, text, char, name;
   create entity-value, element-attributes, attribute-value;
 end module xml-parser;
 
@@ -41,8 +41,8 @@ define module interface
   use xml-parser;
 
   export <letter>, <digit>, <hex-digit>, <version-number>,
-         <node>, <text-node>;
-  export node-children, attribute-value, element-attributes;
+         <node>;
+  export node-children;
 end module interface;
 
 define module %productions
