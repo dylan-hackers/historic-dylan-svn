@@ -10,7 +10,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     debug("DB: Considering next move (loc: %=)\n", robot.location);
 
     try-to-deliver(robot, return-function: return);
-    try-pickup-many(me, robot, s, return-function: return);
+    try-pickup-many2(robot, s, return-function: return);
 
     maybe-mark-base-visited(me, s, robot.location);
 
