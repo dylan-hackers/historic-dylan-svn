@@ -9,7 +9,6 @@ end library;
 
 define module crypto-utils
   use common-dylan;
-  use format-out;
 end module;
 
 define module crypto-hashes
