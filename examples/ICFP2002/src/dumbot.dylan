@@ -27,12 +27,14 @@ end method deliverable?;
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
   let robot = find-robot(s, me.agent-id);
+  let inventory = choose(method (p :: <package>) p.carrier & p.carrier.id = robot.id; end,
+			 s.packages);
   block(return)
     format-out("DB: Considering next move (loc: %=)\n", robot.location);
     force-output(*standard-output*);
 
     // Deliver what we can:
-    let drop-these = choose(at-destination?, robot.inventory);
+    let drop-these = choose(at-destination?, inventory);
     format-out("DB: drop-these = %=\n", drop-these);
     force-output(*standard-output*);
     
@@ -76,11 +78,11 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 
     maybe-mark-base-visited(me, s, robot.location);
 
-    format-out("DB: package destinations: %=\n", map(dest, robot.inventory));
+    format-out("DB: package destinations: %=\n", map(dest, inventory));
     force-output(*standard-output*);
 
     // Go to the next interesting place:
-    let targets = concatenate(map(dest, robot.inventory),
+    let targets = concatenate(map(dest, inventory),
 			      choose(curry(curry(deliverable?, me), s),
 				     map(location, s.free-packages)),
 			      unvisited-bases(me, s));
