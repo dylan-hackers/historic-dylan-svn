@@ -133,7 +133,8 @@ define method add-robot (state :: <state>, robot :: <robot>) => <state>;
         end if;
       end iterate;
     end block;
-  make(<state>, board: state.board, robots: robots*, packages: state.packages);
+  make(<state>, board: state.board, robots: robots*, 
+       packages: state.packages, bases: state.bases);
 end method add-robot;
 
 define method robot-at(state :: <state>, p :: <point>)
@@ -180,7 +181,9 @@ define method add-package (state :: <state>, package :: <package>) => <state>;
         end if;
       end iterate;
     end block;
-  make(<state>, board: state.board, robots: state.robots, packages: packages*);
+  make(<state>, board: state.board, robots: state.robots, 
+                bases: state.bases,
+                packages: packages*);
 end method add-package;
 
 define function packages-at(state :: <state>, p :: <point>)
