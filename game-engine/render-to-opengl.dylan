@@ -58,3 +58,26 @@ define method render-to-opengl(node :: <sphere>)
   glutSolidSphere(1.0, 10, 10);
 end method render-to-opengl;
 
+define method render-to-opengl(node :: <camera>)
+  glMatrixMode($GL-PROJECTION);
+  glLoadIdentity();
+  glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
+  apply(gluLookAt, concatenate(node.eye-position, node.looking-at, node.up));
+  glMatrixMode($GL-MODELVIEW);
+end method render-to-opengl;
+
+define method render-to-opengl(node :: <spotlight>)
+  let id = node.light-id + $GL-LIGHT0;
+  glEnable(id);
+  apply(glLight, id, $GL-POSITION, node.light-position);
+  apply(glLight, id, $GL-SPOT-DIRECTION, node.spot-direction);
+  if(node.ambient)
+    apply(glLight, id, $GL-AMBIENT, node.ambient);
+  end if;
+  if(node.diffuse)
+    apply(glLight, id, $GL-DIFFUSE, node.diffuse);
+  end if;
+  if(node.specular)
+    apply(glLight, id, $GL-SPECULAR, node.specular);
+  end if;
+end method render-to-opengl;

@@ -39,6 +39,8 @@ define module vrml-model
     <shape>, appearance, geometry,
     <line-grid>,
     <sphere>,
+    <camera>, eye-position, looking-at, up,
+    <spotlight>, light-position, ambient, diffuse, specular, spot-direction, light-id,
     preorder-traversal;
 end;
 

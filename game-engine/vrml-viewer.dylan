@@ -128,7 +128,14 @@ end;
 
 define variable *scene-graph* = 
   make(<container-node>, children: 
-         vector(make(<line-grid>),
+         vector(make(<camera>),
+                make(<spotlight>,
+                     position:  3d-point ( 3.0s0, 3.0s0,-2.0s0),
+                     direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
+                     ambient:   vector   ( 0.1,   0.1,   0.1, 1.0),
+                     diffuse:   vector   ( 0.1,   0.1,   0.9, 1.0),
+                     specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
+                make(<line-grid>),
                 make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                      translate: 3d-vector(3.0, 3.0, -2.0), 
                      children: vector(make(<shape>, geometry: make(<sphere>)))),
@@ -199,7 +206,18 @@ end;
 
 define method main(progname, #rest arguments)
   if(arguments.size > 0)
-    *scene-graph* := parse-vrml(arguments[0]);
+    *scene-graph* := 
+      make(<container-node>, children: 
+             vector(make(<camera>),
+                    make(<spotlight>,
+                         position:  3d-point ( 3.0s0, 3.0s0,-2.0s0),
+                         direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
+                         ambient:   vector   ( 0.1,   0.1,   0.1, 1.0),
+                         diffuse:   vector   ( 0.1,   0.1,   0.9, 1.0),
+                         specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
+                    make(<line-grid>),
+                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), children: 
+                           vector(parse-vrml(arguments[0])))));
   end if;
 
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
@@ -226,6 +244,7 @@ define method main(progname, #rest arguments)
   force-output(*standard-output*);
 //  glutFullScreen();
 
+/*
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
   glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
@@ -234,21 +253,22 @@ define method main(progname, #rest arguments)
 	    0.0,  1.0, 0.0); // up direction
 
   glMatrixMode($GL-MODELVIEW);
+*/
 
-  glEnable($GL-AUTO-NORMAL);
-  glEnable($GL-NORMALIZE);
+//  glEnable($GL-AUTO-NORMAL);
+//  glEnable($GL-NORMALIZE);
 
 //  glCullFace($GL-BACK);
 //  glFrontFace($GL-CW);
 //  glEnable($GL-CULL-FACE);
 
   glEnable($GL-LIGHTING);
-  glEnable($GL-LIGHT0);
-  glLight($GL-LIGHT0, $GL-POSITION, 3.0s0, 3.0s0, -2.0s0, 1.0s0);
-  glLight($GL-LIGHT0, $GL-AMBIENT, 0.1, 0.1, 0.1, 1.0);
-  glLight($GL-LIGHT0, $GL-DIFFUSE, 0.5, 0.5, 0.9, 1.0);
-  glLight($GL-LIGHT0, $GL-SPECULAR, 0.5, 0.9, 0.5, 1.0);
-  glLight($GL-LIGHT0, $GL-SPOT-DIRECTION, -3.0s0, -3.0s0, 2.0s0);
+//  glEnable($GL-LIGHT0);
+//  glLight($GL-LIGHT0, $GL-POSITION, 3.0s0, 3.0s0, -2.0s0, 1.0s0);
+//  glLight($GL-LIGHT0, $GL-AMBIENT, 0.1, 0.1, 0.1, 1.0);
+//  glLight($GL-LIGHT0, $GL-DIFFUSE, 0.5, 0.5, 0.9, 1.0);
+//  glLight($GL-LIGHT0, $GL-SPECULAR, 0.5, 0.9, 0.5, 1.0);
+//  glLight($GL-LIGHT0, $GL-SPOT-DIRECTION, -3.0s0, -3.0s0, 2.0s0);
 
 //  glEnable($GL-FOG);
   glFog($GL-FOG-MODE, $GL-EXP);
