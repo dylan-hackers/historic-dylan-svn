@@ -84,9 +84,20 @@ define method build-system
       end method;
 
     block (return)
+      let handler <error>
+        = method (e :: <error>, next :: <function>)
+            wrap-progress-callback(condition-to-string(e), error?: #t);
+            return(#f);
+          end;
+      let handler <warning>
+        = method (w :: <warning>, next :: <function>)
+            wrap-progress-callback(condition-to-string(w), warning?: #t);
+          end;
+
       let jam
         = make-jam-state(build-script,
-                         progress-callback: wrap-progress-callback);
+                         progress-callback: wrap-progress-callback,
+                         build-directory: directory);
       with-build-directory (directory)
         jam-read-mkf(jam, as(<file-locator>, $dylanmakefile));
         
@@ -100,11 +111,6 @@ define method build-system
                          progress-callback: wrap-progress-callback,
                          force?: force?);
       end;
-    exception (e :: <error>)
-      wrap-progress-callback(condition-to-string(e), error?: #t);
-      return(#f);
-    exception (w :: <warning>)
-      wrap-progress-callback(condition-to-string(w), warning?: #t);
     end block;
   end with-open-file;
 end method;
