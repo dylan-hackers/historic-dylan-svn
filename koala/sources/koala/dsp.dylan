@@ -24,9 +24,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 //   Doesn't seem high priority.  Probably adds mostly-needless complexity.
 
 
-///
-/// Generic pages
-///
+//// Generic pages
+
 
 // Holds the map of query keys/vals in the "?x=1&y=2" part of the URI (for GET method)
 // or form keys/vals for the POST method.
@@ -55,7 +54,7 @@ define constant do-form-values :: <function> = do-query-values;
 define constant count-form-values :: <function> = count-query-values;
 
 
-/// <page-context>
+//// <page-context>
 
 // Gives the user a place to store values that will have a lifetime
 // equal to the duration of the page processing (i.e., during process-page).  The
@@ -74,7 +73,7 @@ define method page-context
 end;
 
 
-/// URL mapping
+//// URL mapping
 
 // Maps page objects to their canonical URIs.
 define variable *page-to-uri-map* :: <table> = make(<table>);
@@ -85,7 +84,7 @@ define method page-uri
 end;
 
 
-/// <page>
+//// <page>
 
 define open primary class <page> (<object>)
 end;
@@ -217,6 +216,9 @@ define class <taglib> (<object>)
   constant slot tag-map :: <string-table> = make(<string-table>);
 end;
 
+define constant $dsp-directive-taglib
+  = make(<taglib>, name: "%dsp", prefix: "%dsp");
+
 // This taglib is used if the page doesn't contain a %dsp:taglib directive.
 define constant $default-taglib
   = make(<taglib>, name: "dsp", prefix: "dsp");
@@ -267,6 +269,10 @@ define class <tag-call> (<object>)
   slot body :: false-or(<dsp-template>) = #f, init-keyword: #"body";
 end;
 
+define class <if-tag-call> (<tag-call>)
+  slot else-body :: false-or(<dsp-template>) = #f;
+end;
+
 define method get-arg
     (call :: <tag-call>, arg-name :: <symbol>) => (val :: <object>)
   block (return)
@@ -276,6 +282,32 @@ define method get-arg
         return(arguments[i + 1]);
       end;
     end;
+  end
+end;
+
+define method execute
+    (call :: <tag-call>, page, request, response);
+  let tag :: <tag> = call.tag;
+  if (tag.allow-body?)
+    apply(tag.tag-function, page, response,
+          curry(display-template, call.body, page, request, response),
+          request: request,
+          call.arguments);
+  else
+    apply(tag.tag-function, page, response, request: request,
+          call.arguments);
+  end;
+end;
+
+define method execute
+    (call :: <if-tag-call>, page, request, response);
+  let test = get-arg(call, #"test");
+  let predicate = test & get-label(test);
+  let body = iff(predicate & predicate(page, request),
+                 call.body,
+                 call.else-body);
+  when (body)
+    display-template(body, page, request, response);
   end;
 end;
 
@@ -293,6 +325,20 @@ define method register-tag (tag-name :: <string>,
                                    function: tag-fun,
                                    allow-body?: allow-body?);
 end;
+
+define method as
+    (class :: subclass(<string>), call :: <tag-call>) => (s :: <string>)
+  with-output-to-string(out)
+    format(out, "<%s:%s", call.prefix, call.name);
+    for (arg in call.arguments,
+         i from 1)
+      format(out, iff(odd?(i), " %s=", "%="), arg);
+    end;
+    format(out, ">");
+  end;
+end;
+
+        
 
 // A <dsp-template> represents the items in a parsed .dsp file.
 define class <dsp-template> (<object>)
@@ -428,18 +474,7 @@ define method display-template (tmplt :: <dsp-template>,
       <function>
         => item(page, request, response);
       <tag-call>
-        => begin
-             let tag :: <tag> = item.tag;
-             if (tag.allow-body?)
-               apply(tag.tag-function, page, response,
-                     curry(display-template, item.body, page, request, response),
-                     request: request,
-                     item.arguments);
-             else
-               apply(tag.tag-function, page, response, request: request,
-                     item.arguments);
-             end;
-           end;
+        => execute(item, page, request, response);
       otherwise
         => error("Invalid DSP template element");
     end;
@@ -504,18 +539,63 @@ define function parse-dsp-directive
     "taglib"
       => parse-taglib-directive(page, tmplt, taglibs, call, tag-start,
                                   body-start, has-body?);
+    "if"
+      => parse-if-directive(page, tmplt, taglibs, tag-stack, call,
+                            tag-start, body-start, has-body?);
     otherwise
       => error("Unrecognized DSP directive %= at position %d",
                call.name, tag-start);
   end;
 end;
 
+// Parse a directive of the form
+//   <%dsp:if test="foo">...body...<%dsp:else>...body...</%dsp:if>
+//
+define function parse-if-directive
+    (page, parent-tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
+ => (scan-pos :: <integer>)
+  let test = get-arg(call, #"test");
+  if (~test)
+    log-warning("Invalid %dsp:if directive in template %s:%d.",
+                as(<string>, page.source-location), tag-start);
+    log-warning("'test=something' was not specified, so the result will always be false.");
+  elseif (~has-body?)
+    log-warning("Invalid %dsp:if directive IGNORED in template %=.  A body should be specified.",
+                page.source-location);
+    body-start
+  else
+    let buffer = parent-tmplt.contents;
+    local method parse-body (start-pos)
+            let sub = make(<dsp-template>,
+                           parent: parent-tmplt,
+                           contents: buffer,
+                           content-start: start-pos,
+                           content-end: size(buffer));
+            let scan-pos = parse-template(page, sub, taglibs, pair(call, tag-stack));
+            sub.content-end := scan-pos;
+            values(sub, scan-pos)
+          end;
+    let (true-body, pos) = parse-body(body-start);
+    call.body := true-body;
+    let else-tag :: <byte-string> = "<%dsp:else>";
+    if (pos > size(else-tag)
+        & looking-at?(else-tag, buffer, pos - size(else-tag), pos))
+      let (false-body, new-pos) = parse-body(pos);
+      call.else-body := false-body;
+      pos := new-pos
+    end;
+    add-entry!(parent-tmplt, call);
+    pos
+  end
+end parse-if-directive;
+
 define function parse-include-directive
     (page, tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
  => (scan-pos :: <integer>)
   when (has-body?)
-    error("Invalid include directive in template %=.  "
-          "The include directive can't have a body.", page.source-location);
+    log-warning("Invalid include tag %s in template %s:%d.  "
+                as(<string>, call), as(<string>, page.source-location), tag-start);
+    log-warning("The include directive doesn't allow a body; it should end in '/>'.");
   end;
   let url = get-arg(call, #"url");
   let source = document-location(url, context: page-directory(page));
@@ -560,6 +640,26 @@ define function html-comment-end
   end block
 end;
 
+/**
+This is an ad-hoc recursive descent parser for a Dylan Server Page template.
+It searches for the next recognizable start tag or DSP directive in the given
+template (between tmplt.content-start and tmplt.content-end).  It adds plain
+content (i.e., the text between recognized tags) to the current template. Tags
+are parsed and added to the template as <tag-call>s.  If the tag has a body,
+parse-template calls itself recursively to parse the body, and returns when
+it finds the matching end tag.  (This allows for nesting tags of the same name.)
+
+@param page is the top-level page being parsed.
+@param tmplt is the current (sub)template being side-effected.
+@param taglibs are pairs of the form #(prefix . taglib) created by taglib
+       directives in the page.  The default taglib (dsp) is always present.
+       Since taglib directives apply from where they occur to the bottom of the
+       page, taglibs is a <stretchy-vector> so new items can be added as they're found.
+@param tag-stack is the stack of tags seen so far in the recursive descent parser.
+       i.e., we expect to see closing tags for each one, in order.  It is a list
+       of <tag-call> objects.
+*/
+
 define function parse-taglib-directive
     (page, tmplt, taglibs, call, tag-start, body-start, has-body?)
  => (scan-pos :: <integer>)
@@ -585,25 +685,6 @@ define function parse-taglib-directive
   body-start
 end;
 
-/**
-This is an ad-hoc recursive descent parser for a Dylan Server Page template.
-It searches for the next recognizable start tag or DSP directive in the given
-template (between tmplt.content-start and tmplt.content-end).  It adds plain
-content (i.e., the text between recognized tags) to the current template. Tags
-are parsed and added to the template as <tag-call>s.  If the tag has a body,
-parse-template calls itself recursively to parse the body, and returns when
-it finds the matching end tag.  (This allows for nesting tags of the same name.)
-
-@param page is the top-level page being parsed.
-@param tmplt is the current (sub)template being side-effected.
-@param taglibs are pairs of the form #(prefix . taglib) created by taglib
-       directives in the page.  The default taglib (dsp) is always present.
-       Since taglib directives apply from where they occur to the bottom of the
-       page, taglibs is a <stretchy-vector> so new items can be added as they're found.
-@param tag-stack is the stack of tags seen so far in the recursive descent parser.
-       i.e., we expect to see closing tags for each one, in order.  It is a list
-       of <tag-call> objects.
-*/
 define method parse-template (page :: <dylan-server-page>,
                               tmplt :: <dsp-template>,
                               taglibs :: <stretchy-vector>,
@@ -614,29 +695,32 @@ define method parse-template (page :: <dylan-server-page>,
   let bpos :: <integer> = tmplt.content-start;
   let epos :: <integer> = size(buffer);  // was tmplt.content-end;
   let scan-pos :: <integer> = bpos;
-  let chunk-pos :: <integer> = bpos;          // beginning of current non-tag chunk
+  let html-pos :: <integer> = bpos;          // beginning of current non-tag chunk
   let end-tag = ~empty?(tag-stack)
-                & format-to-string("</%s:%s", head(tag-stack).prefix, head(tag-stack).name);
+                & format-to-string("</%s:%s>", head(tag-stack).prefix, head(tag-stack).name);
   block (return)
     while (scan-pos < epos)
       let tag-start :: false-or(<integer>) = char-position('<', buffer, scan-pos, epos);
       if (~tag-start)
-        // put the remainder of the page in the template as a string.
-        iff(chunk-pos < epos,
-            add-entry!(tmplt, substring(buffer, chunk-pos, epos)));
+        // put the remainder of the buffer in the template as a string.
+        iff(html-pos < epos,
+            add-entry!(tmplt, substring(buffer, html-pos, epos)));
         return(epos);
       elseif (looking-at?("<!--", buffer, tag-start, epos))
         scan-pos := html-comment-end(buffer, tag-start + 4);
       elseif (end-tag & looking-at?(end-tag, buffer, tag-start, epos))
         // done parsing the body of a tag as a subtemplate
-        iff(scan-pos < tag-start,
-            add-entry!(tmplt, substring(buffer, scan-pos, tag-start)));
-        let end-tag-close = skip-whitespace(buffer, tag-start + size(end-tag), epos);
-        let echar = buffer[end-tag-close];
-        log-debug-if (echar ~= '>',
-                     "End tag %= is badly formed.  It should have a closing '>' character."
-                     "(At position %= in %s.)", end-tag, tag-start, page.source-location);
-        return(end-tag-close + iff(echar = '>', 1, 0))
+        iff(html-pos < tag-start,
+            add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
+        return(tag-start + size(end-tag))
+      elseif (end-tag
+              & string-equal?(end-tag, "</%dsp:if>")
+              & looking-at?("<%dsp:else>", buffer, tag-start, epos))
+        // special case for %dsp:if, the only tag with a non-standard format.
+        // <%dsp:if>...body...<%dsp:else>...body...</%dsp:if>
+        iff(html-pos < tag-start,
+            add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
+        return(tag-start + size("<%dsp:else>"))
       else
         let (prefix, taglib) = parse-tag-prefix(buffer, taglibs, tag-start + 1, epos);
         if (~prefix)
@@ -645,8 +729,8 @@ define method parse-template (page :: <dylan-server-page>,
         else
           // ok, found a valid-looking tag prefix like "<%dsp:" in a known taglib.
           let directive? = (taglib = #"directive");
-          iff(chunk-pos ~= tag-start,
-              add-entry!(tmplt, substring(buffer, chunk-pos, tag-start)));
+          iff(html-pos < tag-start,
+              add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
           let (call, has-body?, body-start)
             = parse-start-tag(page, buffer, tag-start,
                               iff(directive?, $default-taglib, taglib),
@@ -668,7 +752,7 @@ define method parse-template (page :: <dylan-server-page>,
                           body-start
                         end if
                       end if;
-          chunk-pos := scan-pos;
+          html-pos := scan-pos;
         end if;
       end if;
     end while;
@@ -694,21 +778,21 @@ define function parse-start-tag (page :: <dylan-server-page>,
   let name = copy-sequence(buffer, start: name-start, end: name-end);
   let (tag-args, has-body?, end-index)
     = extract-tag-args(buffer, name-end, epos);
-  values(if (directive?)
-           make(<tag-call>, name: name, prefix: prefix, arguments: tag-args)
-         else
-           let tag = find-tag(taglib, name);
-           if (tag)
-             make(<tag-call>,
-                  name: name, prefix: prefix, tag: tag, arguments: tag-args)
-           else
-             error("In template %=, the tag %= was not found.",
-                   as(<string>, page.source-location),
-                   name);
-           end
-         end,
-         has-body?,
-         end-index)
+  local method make-tag-call ()
+          if (directive?)
+            make(iff(string-equal?(name, "if"), <if-tag-call>, <tag-call>),
+                 name: name, prefix: prefix, arguments: tag-args)
+          else
+            let tag = find-tag(taglib, name);
+            iff(tag,
+                make(<tag-call>,
+                     name: name, prefix: prefix, tag: tag, arguments: tag-args),
+                error("In template %=, the tag %= was not found.",
+                      as(<string>, page.source-location),
+                      name));
+          end
+        end method;
+  values (make-tag-call(), has-body?, end-index)
 end parse-start-tag;
 
 define function end-of-word (buffer :: <string>, bpos :: <integer>, epos :: <integer>)
@@ -784,7 +868,7 @@ define method respond-to-head
 end;
 
 
-/// Labels             (needs better name)
+//// Labels             (needs better name)
 
 // Functions that can be looked up by name and thus can be used from within DSP tags
 // like <%dsp:if test="my-label">...</%dsp:if>
@@ -805,12 +889,24 @@ define method get-label
 end;
 
 
-/// Utilities
+//// Utilities
 
 //---*** TODO
 define function quote-html
     (text :: <string>) => (quoted-text :: <string>)
   text
+end;
+
+
+//// Tags
+
+define body tag \if in $dsp-directive-taglib
+    (page :: <dylan-server-page>,
+     response :: <response>,
+     do-body :: <function>,
+     #key)
+  // This tag is handled specially by the display-template
+  do-body();
 end;
 
 
