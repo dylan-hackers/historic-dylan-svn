@@ -1,0 +1,162 @@
+Eric:
+
+How are planning to hook the C-FFI into d2c? I don't want to step on your
+toes with my limited collection code.
+
+Peter:
+Don't worry, there shouldn't be any substantive conflicts.  The main
+changes are adding a new subclass of <cclass>, <cdclass>, corresponding
+to a new metaclass <designator-class> in the Dylan library.  The bulk of
+the changes are in the convert pass.
+
+Eric:
+Ah, cool! I'm really looking forward to the C-FFI. Combined with limited
+collections, we'll be able to write all sorts of fun programs.
+
+What are the biggest remaining issues? Is there anything I could help you
+with?
+
+Eric (later):
+What's the status on the C-FFI stuff? Can I lend you a hand in any way?
+
+I'm really curious as to how you're implementing it, espcially the pointer
+types. It seems like a fairly hairy project, and I'm impressed (as always).
+
+Peter:
+I think most of what needs to be in the base module is done already,
+though there will probably be several changes necessary.  The complex
+part is in the convert phase, in the 'make-define-designator-class'
+procedural expander and the associated 'process-top-level-form' and
+'finalize-top-level-form' methods.  Look at convert/defclass.dylan to see
+how much of a mess that is.  I'm about halfway through that.
+
+Eric:
+I don't like that part of the compiler very much. :-(
+
+But I understand how procedural expanders work (and how to use the FER
+builder). So if there's any grunt work I can help you with, just ask.
+
+Peter:
+I had originally intended designator-class-definer to be the only such
+procedural expander, but closer examination of C-variable-definer,
+C-function-definer etc. show that they have some keyword arguments that
+aren't possible to implement using macros alone.  Bleah.
+
+Eric:
+Oh, that's really rude.
+
+Peter:
+Pointers are especially hairy.  Whenever defining a designator class,
+you have to tell the compiler some of the characteristics the
+corresponding pointer designator class will have.  The pointer
+designator class will be defined lazily if it needs to use it as the
+argument type of struct-slot getters and putters.  Otherwise, it gets
+defined explicitly using C-pointer-type-definer:
+
+define macro C-pointer-type-definer
+  { define C-pointer-type ?pointer-class:name => ?designator-class:expression }
+    => { define functional designator-class ?pointer-class
+             (<C-statically-typed-pointer>)
+           referenced-type: ?designator-class,
+           c-rep: #"ptr",
+           pointer-type-superclass: <C-statically-typed-pointer>
+	 end designator-class; }
+end macro;
+
+If it gets defined explicitly in two different libraries then the heap
+dumper will uniqify it down to one heap object using the same method used
+for symbols, open generic functions, classes, and slot-descriptors.
+
+Eric:
+Ah. So we already have support for that. Good. That was the part which
+really confused me.
+
+Ah. So let me see if I understand how dumping works.
+
+ * In general, it may be necessary to defer certain pointer types to the
+   global heap.
+ * If a pointer type's 'referenced-type' is dumped in the local heap,
+   however, we could dump the pointer type in the local heap, too
+   (if no other factors interfered).
+ * Pointer types are full-fledged classes, however, so they obey all
+   the dumping rules for regular classes. Right now, all pointer types
+   will get dumped in the global heap.
+
+Does this pretty much sum up the rules?
+
+Eric:
+* The new code adds compiler support for struct slots, presumably to
+  facilate the in-object storage representation used by C. Will we need to
+  do anything special to handle unions?
+
+Peter:
+I'm going to overload pack: 0 in the type options to indicate a union.  Sort
+of a hack.
+
+Eric:
+* It looks like d2c handles structure alignment internally, and doesn't
+  rely on the back end. Am I correct in this assumption?
+
+Peter:
+True.
+
+Eric:
+* The new code declares pointer representation classes to be 'functional'.
+  We have two conflicting goals here, it seems: (1) source compatibility
+  with FD and (2) efficient representation of pointer types, when possible
+  (see my next question, too). Will we need to make compiler changes to
+  automatically apply 'functional' in the right places?
+
+Peter:
+Hmmm... Adding "functional" hasn't been thought out well enough yet.  It
+might be nice to allow non-functional classes to inherit from functional
+classes, which might solve the problem.
+
+Eric:
+* Do we run into any problems when users attempt to subclass pointer
+  designator classes? This is a cutesy feature in the first place, but it
+  would be nice for us to support it properly.
+
+Peter:
+Keith Playford said (when I asked him) that designator classes can only be
+subclassed with C-subtype-definer.  Shouln't be a problem.  class-definer
+can complain if any of the superclasses is a <designator-class>.
+
+Eric:
+* What's the rationale for making <machine-word> an alias for <integer>?
+  We could make the two classes distinct by declaring another "magic"
+  class similar to the primitive numeric types, and we could force use of
+  the representation of our choice (preferably something unsigned).
+
+Peter:
+Sure, but it seemed like a lot of magic for little concrete benefit.
+
+Eric:
+* What else needs to be added to Compiler-Convert?
+
+Peter:
+The rest of designator-class-definer (process-top-level-form and
+finalize-top-level-form methods), and something to handle the other FFI
+definers that can't be defined using just macros (C-variable-definer due to
+the setter: keyword, C-function-definer due to the generic-function-method:
+and indirect: keywords, etc.).
+
+Eric:
+* Does the code on the FFI branch compile? If so, does any subset (no
+  matter how tiny) work correctly? If not, what needs to be done before
+  can compile the most trivial C-FFI program?
+
+Peter:
+The compiler compiles fine.  IIRC, it's able to compile the C-FFI library as
+it stands right now (with almost nothing exported).  I haven't tried to go
+any further than that.
+
+Eric:
+* If I have a free day or two, how could I be most helpful?
+
+Peter:
+Write designator-class definitions for the numeric types, and methods for
+the C-cast gf.   Since pointer designator-classes are going to be a lot of
+work but I'm fairly confident that the design is sound, I'll ignore pointers
+and struct slots for awhile until I can get designator classes for scalar
+types working with function calls and variables.
