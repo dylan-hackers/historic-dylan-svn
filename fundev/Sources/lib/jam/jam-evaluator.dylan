@@ -159,16 +159,17 @@ define function jam-expand-arg-colon
     let replace?
       = i + 1 < variable.size
       & element(variable, i + 1) == '=';
+    let contents = contents | #[];
 
     if (modifier == 'E')
-      let default = if (replace?)
-                      vector(copy-sequence(variable, start: i + 2))
-                    else
-                      #[""]
-                    end;
-      contents | default
+      if (~empty?(contents))
+        contents
+      elseif (replace?)
+        vector(copy-sequence(variable, start: i + 2))
+      else
+        #[""]
+      end
     elseif (modifier == 'J')
-      let contents = contents | #[];
       let joiner =
         if (replace?) copy-sequence(variable, start: i + 2) else "" end;
       for (component in contents,
@@ -183,7 +184,6 @@ define function jam-expand-arg-colon
         vector(result)
       end for
     else
-      let contents = contents | #[];
       let func =
         select (modifier)
           // B - Filename base
