@@ -58,21 +58,14 @@ define inline sealed method aref
   let (row :: <integer>, col :: <integer>) = apply(values, indices);
   
   case
-  row >= rows
+  row >= board.rows
   | row < 0
-  | col >= cols
+  | col >= board.cols
   | col < 0
     => <wall>.make;
   otherwise
     => board.data[row * board.cols + col];
   end case;
-  /*
-  block () // help the compiler to eliminate \signal
-    board.data[row * board.cols + col];
-  exception (<error>)
-    <wall>.make
-  end block;
-  */
 end;
 
 define inline sealed method aref-setter
@@ -188,22 +181,4 @@ define function send-board(s :: <stream>, board :: <board>)
          end,
          board));
 end;
-
-define function receive-board(s :: <stream>, board :: <board>)
- => ();
-//  let line = s.read-line;
-let landscape =  #("..@...."
-  "......."
-  "##.~~~~"
-  "...~~~~"
-  ".......");
-
-  board
-    := map-as(limited(<vector>, of: <array>),
-              curry(map-as, <array>, terrain-from-character),
-              landscape);
-
-
-end;
-
 

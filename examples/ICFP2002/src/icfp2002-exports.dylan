@@ -22,7 +22,7 @@ define module board
     <state>, board, robots, packages, packages-at,
     <board>,
     <coordinate>, <point>, x, y, point,
-    send-board, receive-board,
+    send-board,
     width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, id, weight, location, dest, at-destination?, free-packages,
