@@ -134,7 +134,7 @@ define method element(elt :: <element>,
   let string = as(<string>, key);
   let ans = #f;
   if(string[0] == '@')
-    ans := attribute(elt, string).value;
+    ans := aif(attribute(elt, string)) it.value else #f end aif;
   else
     let kids = element-children(elt, as(<symbol>, key));
 // let's simplify indexing for unique tags

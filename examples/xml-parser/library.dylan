@@ -75,6 +75,7 @@ define module collect
   use common-dylan;
   use streams;
   use format;
+  use anaphora;
   use xml-parser, rename: { attribute-value => value,
                            attribute-value-setter => value-setter };
   use interface;
@@ -83,6 +84,7 @@ end module collect;
 define module %productions
   use common-dylan, exclude: { format-to-string };
   use standard-io;
+  use format-out;
   use streams;
   use format;
   use table-extensions;
