@@ -1156,12 +1156,25 @@ define function analyze-generics () => ()
     format(analysis, "Secondary i-poles: %d\n", *secondary-i-pole-count*);
     format(analysis, "Single closest: %d\n\n", *single-closest-pole-count*);
 
-    // Do one last little bit of analysis.
-    let (total-arrays, colored-arrays) =
-      compute-coloring-compression-statistics(all-analyzable-gf-info);
-    format(analysis, "  Coloring: %d arrays => %d arrays, saving %d%%\n",
-	   total-arrays, colored-arrays,
-	   100 - round/(100 * colored-arrays, total-arrays));
+    // Calculate sizes using coloring compression.
+    format(*debug-output*, "Analyzing coloring compression.\n");
+    local method has-width? (gf, width) => (hw? :: <boolean>)
+	    gf.gf-argument-array-entry-width == width;
+	  end method has-width?;
+    let 8-bit-gf-info = choose(rcurry(has-width?, 1), all-analyzable-gf-info);
+    let 16-bit-gf-info = choose(rcurry(has-width?, 2), all-analyzable-gf-info);
+    let (total-8-bit-arrays, colored-8-bit-arrays) =
+      compute-coloring-compression-statistics(8-bit-gf-info);
+    let (total-16-bit-arrays, colored-16-bit-arrays) =
+      compute-coloring-compression-statistics(16-bit-gf-info);
+    let uncompressed-size = ((total-8-bit-arrays + total-16-bit-arrays * 2)
+			       * cclass-count());
+    let compressed-size = ((colored-8-bit-arrays + colored-16-bit-arrays * 2)
+			     * cclass-count());
+    format(analysis, "  Coloring: %dKb => %dKb, saving %d%%\n",
+	   round/(uncompressed-size, 1024),
+	   round/(compressed-size, 1024),
+	   100 - round/(100 * compressed-size, uncompressed-size));
 
   cleanup
     close(analysis);
