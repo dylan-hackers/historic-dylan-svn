@@ -417,7 +417,7 @@ define method do-receive-server-command(c == 'D', s :: <stream>, id :: <integer>
   make(<drop>, direction: receive-integer(s), bid: 1, id: id);
 end method do-receive-server-command;
 
-define method do-receive-server-command(c == 'X', s :: <stream>)
+define method do-receive-server-command(c == 'X', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("transform command received\n");
   receive-spaces(s);  
@@ -426,7 +426,7 @@ define method do-receive-server-command(c == 'X', s :: <stream>)
   receive-string(s, "Y");
   receive-spaces(s);
   let y = receive-integer(s);
-  make(<transport>, location: point(x: x, y: y), bid: 1);
+  make(<transport>, location: point(x: x, y: y), bid: 1, id: id);
 end method do-receive-server-command;
 
 define function receive-server-command(stream :: <stream>, id :: <integer>)
