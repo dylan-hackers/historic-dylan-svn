@@ -273,7 +273,7 @@ end collector cd-sect;
 //    [22]    prolog         ::=    XMLDecl? Misc* (doctypedecl Misc*)?
 //
 define collector prolog(decl, misc, doctype) => (str)
-  {scan-xml-decl(decl), []},
+  {[scan-xml-decl(decl), do(collect(decl))], []},
   {[scan-miscs(misc), do(do(collect, misc))], []},
   {scan-doctypedecl(doctype), []},
   {[scan-miscs(misc), do(do(collect, misc))], []}, []
@@ -285,9 +285,9 @@ define meta xml-decl(version-info, enc-decl, sd-decl, c, attribs)
  => (make(<processing-instruction>, name: "xml",
           attributes: as(<vector>, attribs)))
   set!(attribs, make(<deque>)),
-  "<?xml", scan-version-info(version-info), (push-last(attribs, version-info)), 
-  {[scan-encoding-decl(enc-decl), (push-last(attribs, enc-decl))], []},
-  {[scan-sd-decl(sd-decl), (push-last(attribs, sd-decl))], []},
+  "<?xml", scan-version-info(version-info), (push(attribs, version-info)), 
+  {[scan-encoding-decl(enc-decl), (push(attribs, enc-decl))], []},
+  {[scan-sd-decl(sd-decl), (push(attribs, sd-decl))], []},
   scan-s?(c), "?>"
 end meta xml-decl;
 
