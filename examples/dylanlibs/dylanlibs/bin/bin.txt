@@ -14,7 +14,7 @@ up to date versions and source code. The files are:
 Compiled version of the Curl library obtained from
 http://curl.haxx.se. The name has been changed to dylan_curl to not
 affect any other Curl installation on the computer. The version of
-Curl used is curl-7.8. 
+Curl used is curl-7.9. 
 
 The dylan_curl.lib file *MUST* be in a directory contained on the
 library path, which is indicated by the LIB environment variable and
@@ -32,7 +32,7 @@ below.
    slleay32.lib
 ===============
 
-Compiled versions of OpenSSL v0.9.6a. They were compiled with
+Compiled versions of OpenSSL v0.9.6b. They were compiled with
 Microsoft Visual C++ v6.0 without using the optional assembler
 modules. Original source code can be obtained from
 http://www.openssl.org.
@@ -42,4 +42,4 @@ used by the dylan_curl.dll file above.
 
 Chris.
 -- 
-10 June 2001.
+25 October 2001.
