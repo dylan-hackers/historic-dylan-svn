@@ -1,0 +1,27 @@
+<!--
+
+  DylanDoc
+  DocBook extensions for the Dylan programming language
+
+  The following file overrides various parts of DocBook to make it better
+  suited to the Dylan programming language. See the README file for more
+  details.
+
+  In SGML, the first declaration of a given entity silently overrides all
+  subsequent declarations of that entity. DocBook contains a number of
+  empty entities which are meant to be overriden. These are included at
+  strategic points in the DTD, allowing local users to extend most parts of
+  DocBook in a very clean fashion.
+
+  This DTD should be referred to by the public identifier
+  "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.0//EN", where V3.0 matches the
+  appropriate version of DocBook. More complex version numbers may be used
+  in the future to allow DylanDoc to be revised more often than DocBook.
+
+  Eric Kidd
+  eric.kidd@pobox.com
+
+-->
+
+<!ENTITY % docbook.definition PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
+%docbook.definition;
