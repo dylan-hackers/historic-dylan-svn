@@ -21,7 +21,11 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
 
 
   debug("board is %=", state.board);
-  test-path-finding(state.board);
+  state := receive-server-packages(input, state);
+  // Send dummy command
+  send-command(output, make(<move>, direction: $west, bid: 1));
+  state := receive-server-command-reply(input, state);
+//  test-path-finding(state.board);
 
   /*
   let running = #t;
