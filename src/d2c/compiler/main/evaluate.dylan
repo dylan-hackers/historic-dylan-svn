@@ -142,8 +142,9 @@ end;
 
 define method fer-gather-regions-bindings(regions :: <list>, environment :: <object>)
   => (same-env, potential-value :: false-or(<ct-value>));
-  environment // ##### for now...
-  
+  format(*standard-output*, "fer-gather-regions-bindings %=", regions);
+  force-output(*standard-output*);
+  fer-gather-regions-bindings(regions.tail, fer-gather-bindings(regions.head, environment))
 end;
 
 
