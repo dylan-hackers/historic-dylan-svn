@@ -1,23 +1,16 @@
 module: dylan-user
-library: meta
 author: David Lichteblau (david.lichteblau@snafu.de)
 copyright: Copyright (c) 1999 David Lichteblau
 
 define library meta
   use common-dylan;
   use streams;
-  // use collection-extensions;
-
   export meta;
-  export meta-base;
 end library;
 
 define module meta-base
   use common-dylan;
-  // use extensions;
   use streams;
-  // use subseq;
-
   export \with-meta-syntax, \with-collector;
   export \meta-parse-aux, \process-meta, \call-meta-subroutine;
 end module meta-base;
@@ -27,7 +20,7 @@ define module meta-syntax
   use meta-base;
   export \meta-definer, \collector-definer;
 
-// some exports for gwydion stuff
+// internal-macro exports for gwydion d2c
   export \scan-helper, \scanner-builder, \meta-builder;
 end module meta-syntax;
 

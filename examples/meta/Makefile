@@ -1,6 +1,13 @@
-meta: meta.lid meta.dylan library.dylan with-collector.dylan
+FILES := library \
+	 meta-base \
+	 with-collector \
+	 meta-types \
+	 meta-syntax \
+	 meta
+
+libmeta.a: $(FILES:.dylan)
 	d2c meta.lid
 
 clean:
-	-rm -f *.o *.s *.a *.c *.mak *~
-	-rm -rf .libs
+	rm *.o *.c *~ cc-*.mak *.a *.du
+

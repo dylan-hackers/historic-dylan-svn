@@ -7,18 +7,9 @@ Version:   1.0
 //-------------------------------------------------------
 // Here's an example of tranforming XML to XML readable 
 // as HTML
-define class <html> (<object>)
-  virtual slot document-name;
+define class <html> (<xform-state>)
+  class slot document-name;
 end class <html>;
-
-define variable *doc-name* :: <string> = "";
-define method document-name(h :: <html>) => (doc)
-  *doc-name*;
-end method document-name;
-
-define method document-name-setter(str, h :: <html>)
-  *doc-name* := str;
-end method document-name-setter;
 
 define constant $html = make(<html>);
 define variable *substitute?* :: <boolean> = #t;

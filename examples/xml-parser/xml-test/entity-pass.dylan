@@ -5,7 +5,7 @@ Copyright: (c) 2001, LGPL
 Version:   1.0
 
 define variable *ent* = make(<table>);
-define class <1st-pass> (<object>) end;
+define class <1st-pass> (<xform-state>) end;
 
 define function collect-entity-defs(in :: <document>)
   *ent* := make(<table>);
