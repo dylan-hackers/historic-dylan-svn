@@ -18,7 +18,7 @@ define module xml-parser
   create <document>, <element>, <attribute>, <entity-reference>,
     <char-reference>, <char-string>, <xml>, <node>, text, char, name;
   create entity-value, element-attributes, attribute-value, 
-    node-children, element-parent;
+    node-children, element-parent, collect-elements;
 end module xml-parser;
 
 define module interface
@@ -41,6 +41,14 @@ define module transform
   use xml-parser;
   use interface;
 end module transform;
+
+define module collect
+  use common-dylan;
+  use streams;
+  use format;
+  use xml-parser, rename: { attribute-value => value };
+  use interface;
+end module collect;
 
 define module %productions
   use common-dylan, exclude: { format-to-string };

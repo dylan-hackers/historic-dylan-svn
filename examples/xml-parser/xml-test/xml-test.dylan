@@ -24,11 +24,18 @@ define function main(name, arguments)
   if(arguments.size = 0 | arguments[0] = "-h" | arguments[0] = "--help")
     show-help();
   else
-    let *substitute?* = arguments.size = 1;
+    let *substitute?* = arguments[0] ~= "-n" 
+      & arguments[0] ~= "--no-entity-substitution";
     with-open-file(in = arguments[if(*substitute?*) 0 else 1 end])
-      transform-document(parse-document(in.stream-contents, 
-                                        substitute-entities?: *substitute?*),
-                         state: $html);
+      let doc = parse-document(in.stream-contents, 
+                               substitute-entities?: *substitute?*);
+      transform-document(doc, state: $html);
+      let match = copy-sequence(arguments, start: if(*substitute?*) 1 else 2 end);
+      if(match.size > 0)
+        format-out("Found %d elements with shape //%s\n",
+                   collect-elements(doc, match).size, 
+                   reduce1(method(x, y) concatenate(x, "/", y) end, match));
+      end if;
     end with-open-file;
   end if;
   exit-application(0);
