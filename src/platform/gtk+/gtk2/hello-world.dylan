@@ -5,6 +5,20 @@ use-modules: common-dylan, streams, standard-io, format-out, gtk
 define method hello(widget :: <GtkWidget>)
   format-out("Hello, World, %=!\n", widget);
   force-output(*standard-output*);
+  let dialog = 
+    gtk-message-dialog-new(gtk-widget-get-parent(widget), 
+                           $GTK-DIALOG-DESTROY-WITH-PARENT,
+                           $GTK-MESSAGE-WARNING, 
+                           $GTK-BUTTONS-YES-NO,
+                           "foo!");
+  g-signal-connect(dialog, "response", 
+                   method(widget, data)
+                       format-out ("Response event occurred: %= got %=\n", 
+                                   widget, data);
+                       force-output(*standard-output*);
+                       gtk-widget-destroy(widget);
+                   end method);
+  gtk-widget-show(dialog);
 end method hello;
 
 define method delete-event(widget :: <GtkWidget>, event :: <GdkEvent>)
@@ -30,10 +44,11 @@ begin
 
   let button = gtk-button-new-with-label ("Hello, world!");
   g-signal-connect (button, "clicked", hello);
+/*
   g-signal-connect (button, "clicked", method(#rest args) 
                                            gtk-widget-destroy(window);
                                        end method);
-
+*/
   gtk-container-add (window, button);
 
   gtk-widget-show (button);

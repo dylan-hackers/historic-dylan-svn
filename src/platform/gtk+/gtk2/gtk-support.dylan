@@ -124,7 +124,19 @@ define function g-value-to-dylan(instance :: <GValue>)
     if(subtype?(dylan-type, <statically-typed-pointer>))
       make(dylan-type, pointer: instance.g-value-peek-pointer.raw-value)
     else
-      signal("Can't handle fundamental types yet.");
+      select(g-type)
+        $G-TYPE-CHAR    => g-value-get-char;
+        $G-TYPE-UCHAR   => g-value-get-uchar;
+        $G-TYPE-INT     => g-value-get-int;
+        $G-TYPE-UINT    => g-value-get-uint;
+        $G-TYPE-LONG    => g-value-get-long;
+        $G-TYPE-ULONG   => g-value-get-ulong;
+        $G-TYPE-INT64   => g-value-get-int64;
+        $G-TYPE-UINT64  => g-value-get-uint64;
+        $G-TYPE-FLOAT   => g-value-get-float;
+        $G-TYPE-DOUBLE  => g-value-get-double;
+        $G-TYPE-STRING  => g-value-get-string;
+      end select (instance);
     end if;
   end if;
 end function g-value-to-dylan;

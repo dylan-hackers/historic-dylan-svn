@@ -24,7 +24,7 @@ end method import-value;
 define method make(type :: subclass(<GTypeInstance>), #rest args, 
                    #key pointer, #all-keys)
  => (result :: <GTypeInstance>)
-  if(pointer)
+  if(pointer & (as(<integer>, pointer) ~= 0))
     let instance = next-method(<GTypeInstance>, pointer: pointer);
     let g-type = g-type-from-instance(instance);
     let dylan-type = find-gtype(g-type);
