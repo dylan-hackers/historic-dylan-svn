@@ -6,7 +6,7 @@ copyright: this program may be freely used by anyone, for any purpose
 define function main(name, arguments)
  
   let input-stream = *standard-input*;
-  if (arguments & arguments[0] ~= "-")
+  if (arguments.size > 0 & arguments[0] ~= "-")
     input-stream := make(<file-stream>, direction: #"input", locator: arguments[0]);
   end if;
 
