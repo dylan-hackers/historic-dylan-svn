@@ -205,11 +205,11 @@ rule DylanLibraryCLibraries image : libraries {
   local _dll = [ FDLLName $(image) ] ;
   local _exe = [ FDLLName $(image) ] ;
 
-  local _i;
+  local _i ;
   for _i in $(libraries) {
     switch $(_i) {
       case * :      LINKLIBS on $(_dll) $(_exe) += $(_i) ;
-	            if ! $(lib) in $(_clib_$(image[1]:L)) {
+	            if ! $(_i) in $(_clib_$(image[1]:L)) {
 		      _clib_$(image[1]:L) += $(_i) ;
 		    }
     }
@@ -277,7 +277,7 @@ rule DylanLibraryRCFiles image : rcfiles {
     local _lib = [ FLIBName $(image) ] ;
     local _exe = [ FEXEName $(image) ] ;
 
-    local _rc;
+    local _rc ;
     for _rc in [ FGristFiles $(rcfiles) ] {
       SEARCH on $(_rc) = $(SEARCH_SOURCE) ;
       
@@ -336,7 +336,7 @@ rule DylanLibraryUses image : library : dir {
   }
 
   Depends $(_dll) $(_exe) : $(_dll_$(library:L)) ;
-  local _i;
+  local _i ;
   for _i in $(_lib_$(library:L)) {
     if ! $(_i) in $(_lib_$(image[1]:L)) {
       Depends $(_dll) : $(_i) ;
