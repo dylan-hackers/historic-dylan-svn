@@ -15,8 +15,8 @@ define macro brain-definer
 
  states:
   {} => {}
+  { [?label:expression] ?state; ... } => { let (label, counter) = (?label, 0); ?state; ... }
   { ?state; ... } => { let counter = counter + 1; ?state; ... }
-  { ?label:expression ?state; ... } => { let (label, counter) = (?label, 0); ?state; ... }
 
  state:
   { Turn ?:name } => { push-thunk(instrs, label, counter,
@@ -90,6 +90,11 @@ end;
 
 define function compile-states (instrs :: <table>)
  => brain :: <vector>;
+  let brain :: <stretchy-vector> = make(<vector>);
+  let start-instr = instrs[start:];
+  let pos-table :: <table> = make(<table>);
+  put-instruction(start-instr, brain, pos-table);
+  
 end;
 
 define functional class <instruction-label-count> (<object>)
@@ -105,7 +110,3 @@ define method functional-==
 end;
 
 
-
-define brain minimal
-  Flip 9, (start, start);
-end brain;
