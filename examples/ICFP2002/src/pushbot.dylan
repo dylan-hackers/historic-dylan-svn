@@ -1,7 +1,6 @@
 module: client
 
 define class <pushbot> (<robot-agent>)
-  slot visited-bases :: <list>, init-value: #();
   slot push-count, init-value: 0;
   slot push-count-dir, init-value: #"up";
 end class;
@@ -211,7 +210,7 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
       end;
     end;
 
-    maybe-mark-base(me, s, robot.location);
+    maybe-mark-base-visited(me, s, robot.location);
 
     // Go to the next interesting place:
     let targets = concatenate(map(dest, robot.inventory),
@@ -237,18 +236,6 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     return(make-move-from-paths(paths, robot));
   end block;
 end method;
-
-define method unvisited-bases(me :: <pushbot>, s :: <state>)
-  choose(method (b :: <point>)
-	   ~any?(curry(\=, b), me.visited-bases);
-	 end method, s.bases);
-end method unvisited-bases;
-
-define method maybe-mark-base(me :: <pushbot>, s :: <state>, p :: <point>)
-  if (any?(curry(\=, p), s.bases) & ~any?(curry(\=, p), me.visited-bases))
-    me.visited-bases := add!(me.visited-bases, p);
-  end if;
-end method maybe-mark-base;
 
 define method make-move-from-paths(paths, robot) => (command)
   let direction

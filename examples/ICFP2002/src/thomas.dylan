@@ -17,8 +17,6 @@ define class <thomas> (<robot-agent>)
     init-value: $ready;
   slot current-package :: <package>.false-or,
     init-value: #f;
-  slot visited-bases :: <list>,
-    init-value: #();
   slot moves-remaining :: false-or(<list>),
     init-value: #f;
 end class <thomas>;

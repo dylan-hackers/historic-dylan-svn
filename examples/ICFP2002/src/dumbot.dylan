@@ -1,22 +1,7 @@
 module: client
 
 define class <dumbot> (<robot-agent>)
-  slot visited-bases :: <list>,
-    init-value: #();
 end class <dumbot>;
-
-define method unvisited-bases(me :: <dumbot>, s :: <state>)
- => (c :: <collection>);
-  choose(method (b :: <point>) 
-	   ~member?(b, me.visited-bases, test: \=);
-	 end method, s.bases);
-end method unvisited-bases;
-
-define method maybe-mark-base-visited(me :: <dumbot>, s :: <state>, p :: <point>)
-  if (member?(p, s.bases, test: \=))
-    me.visited-bases := add-new!(me.visited-bases, p, test: \=);
-  end if;
-end method maybe-mark-base-visited;
 
 define method deliverable?(me :: <dumbot>, s :: <state>, p :: <package>, 
 			   #key robot = find-robot(s, me.agent-id), 
@@ -52,13 +37,13 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     force-output(*standard-output*);
     if (packages-here ~= #f & ~packages-here.empty?)
       let take-these = make(<vector>);
-      let left = robot.capacity;
+      let left = robot.capacity-left;
       // Greedy algorithm to get as much as we can:
       for (pkg in sort(packages-here, 
 		       test: method (a :: <package>, b :: <package>)
 			       a.weight > b.weight;
 			     end method))
-	if (deliverable?(me, s, pkg))
+	if (deliverable?(me, s, pkg, capacity: left))
 	  left := left - pkg.weight;
 	  take-these := add!(take-these, pkg);
 	end if;
@@ -83,8 +68,8 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 
     // Go to the next interesting place:
     let targets = concatenate(map(dest, inventory),
-			      choose(curry(curry(deliverable?, me), s),
-				     map(location, s.free-packages)),
+			       map(location, choose(curry(curry(deliverable?, me), s),
+				    s.free-packages)),
 			      unvisited-bases(me, s));
     
     format-out("DB: Targets: %=\n", targets);
