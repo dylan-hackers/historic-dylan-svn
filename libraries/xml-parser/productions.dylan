@@ -1,7 +1,7 @@
 module: %productions
 synopsis: Implements a META parser for XML 1.0
 author: Andreas Bogk <andreas@andreas.org>, based on work by Chris Double
-translated-into-a-library-by: Douglas M. Auclair, doug@cotilliongroup.com
+synthesis: Douglas M. Auclair, doug@cotilliongroup.com
 copyright: LGPL
 
 
@@ -184,29 +184,12 @@ end collect-value att-value;
 
 //    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
 //
-/****
-define collector system-literal (c)
-  {['"',
-    loop([test(rcurry(not-in-set?, "\""), c), do(collect(c))]), 
-    '"'],
-   ['\'',
-    loop([test(rcurry(not-in-set?, "'"), c), do(collect(c))]),
-    '\'']}, []
-end; ****/
 define collect-value system-literal() ()
   "'", "\"" => []
 end;
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
 //
-/**** define collector pubid-literal (c)
-  {['"',
-    loop([type(<pub-id-char>, c), do(collect(c))]), 
-    '"'],
-   ['\'',
-    loop([type(<pub-id-char-without-quotes>, c), do(collect(c))]), 
-    '\'']}, []
-end; ****/
 define collect-value pubid-literal() 
   (test: method(x, y) subtype?(singleton(x), y) end)
   <pub-id-char-without-quotes>, <pub-id-char> => []
@@ -225,15 +208,54 @@ define constant <pub-id-char-without-quotes> =
 define constant <pub-id-char> =
   type-union(<pub-id-char-without-quotes>, singleton('\''));
 
-//    [25]    Eq             ::=    S? '=' S?
-//
-define parse eq(sp) loop(parse-s(sp)), '=', loop(parse-s(sp)) end;
+// Comments
 
-//    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
+//    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 //
-define collector version-num(c)
-  loop([type(<version-number>, c), do(collect(c))])
-end collector version-num;
+define parse comment(c)
+  "<!--", loop({["-->", finish()], type(<char>, c)})
+end;
+
+// Processing Instructions
+
+//    [16]    PI          ::=    '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
+//
+define method parse-pi(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, target, space);
+    ["<?", parse-pi-target(target), parse-s(space), 
+     loop({["?>", finish()], type(<char>, c)})];
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-pi;
+
+//    [17]    PITarget    ::=    Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
+//
+// Doesn't currently check whether the name is not xml. Shouldn't
+// matter (fingers crossed).
+//
+define method parse-pi-target(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name);
+    [parse-name(name)];
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-pi-target;
+
+//    [23]    XMLDecl        ::=    '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
+//
+define method parse-xml-decl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, version-info, encoding-decl, sd-decl, space);
+    ["<?xml",
+     parse-version-info(version-info),     
+// DOUG     {parse-encoding-decl(encoding-info), []},
+// DOUG     {parse-sd-decl(sd-decl), []},
+     parse-s(space),
+     "?>"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-xml-decl;
 
 //    [24]    VersionInfo    ::=    S 'version' Eq ("'" VersionNum "'" | '"' VersionNum '"')/* */
 //
@@ -253,54 +275,15 @@ define method parse-version-info(string, #key start = 0, end: stop)
     end with-meta-syntax;
 end method parse-version-info;
 
-//    [23]    XMLDecl        ::=    '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
+//    [25]    Eq             ::=    S? '=' S?
 //
-define method parse-xml-decl(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, version-info, encoding-decl, sd-decl, space);
-    ["<?xml",
-     parse-version-info(version-info),     
-// DOUG     {parse-encoding-decl(encoding-info), []},
-// DOUG     {parse-sd-decl(sd-decl), []},
-     parse-s(space),
-     "?>"];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-xml-decl;
+define parse eq(sp) loop(parse-s(sp)), '=', loop(parse-s(sp)) end;
 
-// Comments
-
-//    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
+//    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
 //
-define parse comment(c)
-  "<!--", loop({["-->", finish()], type(<char>, c)})
-end;
-
-// Processing Instructions
-
-//    [17]    PITarget    ::=    Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
-//
-// Doesn't currently check whether the name is not xml. Shouldn't
-// matter (fingers crossed).
-//
-define method parse-pi-target(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, name);
-    [parse-name(name)];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-pi-target;
-
-//    [16]    PI          ::=    '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
-//
-define method parse-pi(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, target, space);
-    ["<?", parse-pi-target(target), parse-s(space), 
-     loop({["?>", finish()], type(<char>, c)})];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-pi;
+define collector version-num(c)
+  loop([type(<version-number>, c), do(collect(c))])
+end collector version-num;
 
 //    [27]    Misc           ::=    Comment | PI | S
 //    
@@ -313,7 +296,6 @@ define method parse-misc(string, #key start = 0, end: stop)
     values(index, #t);
   end with-meta-syntax;
 end method parse-misc;
-
 
 //    [28a]    DeclSep        ::=    PEReference | S                                                                 [WFC: PE Between Declarations]
 //                                                                                                                   /* */
