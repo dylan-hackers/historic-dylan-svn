@@ -13,6 +13,7 @@ define brain test-brain1
 
 
   [turn-right:]
+         Mark 1;
          Turn Right, (start);
   [turn-left:]
          Turn Left;

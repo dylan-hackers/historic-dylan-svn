@@ -36,6 +36,42 @@ states:
                         make(<drop>, state: curry(lookup, instrs, label, counter + 1))
                     end) }
 
+  { Mark ?:expression, (?label:name) }
+    => { push-thunk(instrs, label, counter,
+                    method()
+                        make(<mark>,
+                             marker: ?expression,
+                             state: curry(lookup, instrs, ?#"label", 0))
+                    end) }
+
+  { Mark ?:expression }
+    => { push-thunk(instrs, label, counter,
+                    method()
+                        make(<mark>,
+                             marker: ?expression,
+                             state: curry(lookup, instrs, label, counter + 1))
+                    end) }
+
+
+  { Unmark ?:expression, (?label:name) }
+    => { push-thunk(instrs, label, counter,
+                    method()
+                        make(<unmark>,
+                             marker: ?expression,
+                             state: curry(lookup, instrs, ?#"label", 0))
+                    end) }
+
+  { Unmark ?:expression }
+    => { push-thunk(instrs, label, counter,
+                    method()
+                        make(<unmark>,
+                             marker: ?expression,
+                             state: curry(lookup, instrs, label, counter + 1))
+                    end) }
+
+
+
+
   { Turn ?:name, (?label:name) }
     => { push-thunk(instrs, label, counter,
                     method()
@@ -120,9 +156,7 @@ end macro;
 
 
 define function push-thunk (instrs, label, counter, thunk) => ();
-  // format-out("push-thunk: (%s, %d)\n", label, counter);
-  // flush-stream(*standard-output*);
-  ///////  let pos = make(<instruction-label-count>, label: label, count: counter);
+///////  let pos = make(<instruction-label-count>, label: label, count: counter);
   let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
   if (element(instrs, pos, default: #f))
     error("label %s already defined?", label);
@@ -133,37 +167,28 @@ end;
 
 define function lookup (instrs, label, counter)
  => instr :: <instruction>;
- 
- 
- 
- // format-out("lookup: (%s, %d)\n", label, counter);
- 
- 
-  ////////  let pos = make(<instruction-label-count>, label: label, count: counter);
+////////  let pos = make(<instruction-label-count>, label: label, count: counter);
 
   let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
-  let instr = instrs[pos];
-
-  // format-out("found: (%s, %d)\n", label, counter);
-  select (instr by instance?)
-    <function> =>
-      instrs[pos] := #f; // in progress
-      instrs[pos] := instr();
-    otherwise =>
-      instr;
-  end;
+  
+//  block
+    let instr = instrs[pos];
+    select (instr by instance?)
+      <function> =>
+        instrs[pos] := #f; // in progress
+        instrs[pos] := instr();
+      otherwise =>
+        instr;
+    end;
+//  exception (<error>)
+//    format-out("lookup: (%s, %d), did you fall off your block?\n", label, counter);
+//  end block;
 end;
 
 define function compile-states (instrs :: <table>)
  => brain :: <vector>;
   let brain :: <stretchy-vector> = make(<stretchy-vector>);
-
-
- // format-out("compile-states: size: %d\n", instrs.size);
-
-
   let start-instr = lookup(instrs, start:, 0);
-  ///  let start-instr = instrs[as(<symbol>, format-to-string("(%s, %d)", start:, 0))];
   let pos-table :: <table> = make(<table>);
   put-instruction(start-instr, brain, pos-table);
   brain;
@@ -256,7 +281,7 @@ end;
   
 
 define function dump-brain(brain :: <vector>)
-  map(compose(format-out, unparse), brain)
+  map(compose(curry(format-out, "%s\n"), unparse), brain)
 end;
 
 define functional class <instruction-label-count> (<object>)
@@ -270,7 +295,7 @@ define sealed domain initialize(<instruction-label-count>);
 define method functional-==
     (c == <instruction-label-count>, l :: <instruction-label-count>, r :: <instruction-label-count>)
  => (same :: <boolean>);
-  // format-out("functional-==: (%s, %d) ==? (%s, %d)\n", l.instruction-label, l.instruction-count, r.instruction-label, r.instruction-count);
+/// format-out("functional-==: (%s, %d) ==? (%s, %d)\n", l.instruction-label, l.instruction-count, r.instruction-label, r.instruction-count);
   l.instruction-label == r.instruction-label
     & l.instruction-count == r.instruction-count
 end;
