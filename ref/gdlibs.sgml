@@ -2225,6 +2225,10 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 
   <chapter id="libs-format">
     <title> The Format Library </title>
+    <para>
+      The Format library provides a way to control output to a stream.
+    </para>
+
     <sect1 id="libs-format-format">
       <title> The Format Module </title>
   
@@ -2234,11 +2238,11 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         <defparameters>
           <param>
             <paramname> stream </paramname>
-            <paramtype> &lt;stream&gt; </paramtype>
+            <paramtype>&lt;stream&gt;</paramtype>
           </param>
           <param>
             <paramname> control-string </paramname>
-            <paramtype> &lt;string&gt; </paramtype>
+            <paramtype>&lt;string&gt;</paramtype>
           </param>
           <restparam>
             <paramname> args </paramname>
@@ -2257,23 +2261,27 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </para>
           <para>
             The format codes accepted by <function>format</function> are
-            described on page XXX in Chapter 7 of the Dylan Reference
-            Manual, in the section "Condition Messages."
+            described in the format directives section. 
+
+<!-- Manuals?  We no need no STINKING manuals! 
+old text: on page 113 in Chapter 7 of the Dylan Reference
+            Manual, in the section "Condition Messages." -->
+	    
           </para>
         </defdescription>
       </dylangenericdef>
       
       <dylanmethoddef>
-        <defname> format </defname>
+        <defname>format</defname>
         <defsummary> Format a string and write it to a stream.  </defsummary>
         <defparameters>
           <param>
             <paramname> stream </paramname>
-            <paramtype> &lt;stream&gt; </paramtype>
+            <paramtype>&lt;stream&gt;</paramtype>
           </param>
           <param>
             <paramname> control-string </paramname>
-            <paramtype> &lt;string&gt; </paramtype>
+            <paramtype>&lt;string&gt;</paramtype>
           </param>
           <restparam>
             <paramname> args </paramname>
@@ -2300,7 +2308,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         <defparameters>
           <param>
             <paramname> control-string </paramname>
-            <paramtype> &lt;string&gt; </paramtype>
+            <paramtype>&lt;string&gt;</paramtype>
           </param>
           <restparam>
             <paramname> args </paramname>
@@ -2312,7 +2320,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         <defreturns>
           <param>
             <paramname> result </paramname>
-            <paramtype> &lt;string&gt; </paramtype>
+            <paramtype>&lt;string&gt;</paramtype>
           </param>
         </defreturns>
         <defdescription>
@@ -2367,6 +2375,83 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         </defdescription>
       </dylangenericdef>
     </sect1>
+
+    <sect1 id="libs-format-directives">
+    <title>Format Directives</title>
+    <para>
+      The below directives are described below:
+    </para>
+
+	  <para>
+	    Directive -- Argument Type -- Textual Format
+	  </para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+	        %d -- <classname>&lt;integer&gt;</classname> --
+	        decimal number
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %b -- <classname>&lt;integer&gt;</classname> --
+	        binary number
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %o -- <classname>&lt;integer&gt;</classname> --
+	        octal number
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %x -- <classname>&lt;integer&gt;</classname> --
+	        hexadecimal number
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %c -- <classname>&lt;character&gt;</classname> --
+	        character (with no quotes)
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %s -- <classname>&lt;string&gt;</classname> --
+	        string (with no quotes)
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %s -- <classname>&lt;condition&gt;</classname> --
+	        condition message (with no quotes)
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %= -- <classname>&lt;object&gt;</classname> --
+	        unspecified, but works with any object
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %% -- none -- literal %
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        %m -- <classname>&lt;function&gt;</classname> --
+	        a function that accepts the stream as an argument and
+	        performs user-defined operations on the stream
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	  <para>
+	    The last format directive (%m) is specific to
+	    GwydionDylan.
+	  </para>
+	</sect1>
   </chapter>
 
   <CHAPTER ID="libs-format-out">
@@ -2375,52 +2460,41 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
     <PARA>The Format-Out library is designed to provide a simple
     interface to the Format library. It exports the module Format-Out
     and re-exports the Format and Standard-IO modules from the Format
-    and Standard-IO libraries respectively. The Format-Out module
-    exports one function <FUNCTION>format-out</FUNCTION>.</PARA>
+    and Standard-IO libraries respectively.</PARA>
     
-
-    <REFENTRY>
-      <REFNAMEDIV>
-	<REFNAME>format-out</REFNAME>
-	<REFPURPOSE>Function</REFPURPOSE>
-      </REFNAMEDIV>
-      <REFSECT1>
-	<TITLE>Summary</TITLE>
-	<PARA>Formats arguments to <dlit>*standard-output*</dlit>.</PARA>
-      </REFSECT1>
-      <REFSECT1>
-	<TITLE>Signature</TITLE>
-	<SYNOPSIS><FUNCTION>format-out</FUNCTION> <PARAMETER>control-string</PARAMETER> <dlit>#key</dlit> <PARAMETER>args</PARAMETER> => </SYNOPSIS>
-      </REFSECT1>
-      <REFSECT1>
-	<TITLE>Arguments</TITLE>
-	<VARIABLELIST>
-	  <VARLISTENTRY>
-	    <TERM><PARAMETER>control-string</PARAMETER></TERM>
-	    <LISTITEM>
-	      <PARA>An instance of
-	      <CLASSNAME>&lt;byte-string&gt;</CLASSNAME>.</PARA>
-	    </LISTITEM>
-	  </VARLISTENTRY>
-	  <VARLISTENTRY>
-	    <TERM><PARAMETER>args</PARAMETER></TERM>
-	    <LISTITEM>
-	      <PARA>Instances of <CLASSNAME>&lt;object&gt;</CLASSNAME></PARA>
-	    </LISTITEM>
-	  </VARLISTENTRY>
-	</VARIABLELIST>
-      </REFSECT1>
-      <REFSECT1>
-	<TITLE>Values</TITLE>
-	<PARA>None</PARA>
-      </REFSECT1>
-      <REFSECT1>
-	<TITLE>Description</TITLE>
-	<PARA>Performs</PARA>
+    <sect1 id="libs-format-out-fn">
+      <title>The Format-Out Module</title>
+      <para>
+        The Format-Out module
+	exports one function <FUNCTION>format-out</FUNCTION>.
+      </para>
+ 
+      <dylanmethoddef>
+        <defname>format-out</defname>
+	<defsummary>
+	  Formats arguments to <dlit>*standard-output*</dlit>.
+	</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>control-string</paramname>
+	    <paramtype>&lt;string&gt;</paramtype>
+	  </param>
+	  <restparam>
+	    <paramname>args</paramname>
+            <paramsummary>
+              The objects to substitute for the format fields.
+            </paramsummary>
+          </restparam>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+          <para>Performs</para>
 	<PROGRAMLISTING>
 apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
-      </REFSECT1>
-    </REFENTRY>
+        </defdescription>
+      </dylanmethoddef>
+    </sect1>
   </CHAPTER>
 
   <CHAPTER ID="libs-print">
@@ -4632,11 +4706,342 @@ log(100000, base: 10) => 5.0
       <para>
         This module contains functions for basic time input and output.
       </para>
+
+
+      <dylanmethoddef>
+  	<defname>format-time</defname>
+  	<defsummary>
+	  Writes a <classname>&lt;decoded-time&gt;</classname> to a
+	  <classname>&lt;stream&gt;</classname> according to a
+	  format-string directive.
+  	</defsummary>
+  	<defparameters>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	    <paramsummary>Where the formatted time is going</paramsummary>
+	  </param>
+	  <param>
+	    <paramname>format</paramname>
+	    <paramtype>&lt;string&gt;</paramtype>
+	    <paramsummary>
+	      The instructions for formatting the time
+	    </paramsummary>
+	  </param>
+	  <param>
+	    <paramname>time</paramname>
+	    <paramtype>&lt;decoded-time&gt;</paramtype>
+	    <paramsummary>The time instance to format</paramsummary>
+	  </param>
+	</defparameters>
+  	<defreturns>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    Format a <classname>&lt;decoded-time&gt;</classname> for
+	    output on a <classname>&lt;stream&gt;</classname>.  The
+	    format arguments are described in the next section.
+	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+
+      <dylanfunctiondef>
+        <defname>parse-time</defname>
+	<defsummary>
+	  Takes data on a stream and applies format arguments to
+	  return a <classname>&lt;decoded-time&gt;</classname>.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname>input</paramname>
+  	    <paramtype>&lt;stream&gt;</paramtype>
+  	    <paramsummary>
+	      Contains input data to be converted	      
+  	    </paramsummary>
+  	  </param>
+  	  <param>
+  	    <paramname>format-string</paramname>
+  	    <paramtype>&lt;string&gt;</paramtype>
+  	    <paramsummary>
+	      Contains formatting directives (described in
+	      <dmodule>Time-IO</dmodule>) to parse the data on the
+	      stream into a
+	      <classname>&lt;decoded-time&gt;</classname> instance.
+  	    </paramsummary>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname>res</paramname>
+  	    <paramtype>&lt;decoded-time&gt;</paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+	    Very useful function for when (e.g.) a user is asked to
+  	    enter time information, or when (e.g.) reading in a text
+  	    file of records which include dates or times.
+  	    <function>Parse-time</function> allows the program to
+  	    convert the input into a
+  	    <classname>&lt;decoded-time&gt;</classname> instance.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+
+      <para>
+        This module contains two internal classes that provide
+        information on the parse process
+      </para>
+
+      <dylanclassdef>
+        <defname>&lt;parse-time-error&gt;</defname>
+	<defadjectives>sealed</defadjectives>
+	<defsummary>
+	  Contains the error in parsing time format directives.
+	</defsummary>
+	<defsupers>
+  	  <defsuper>
+  	    &lt;error&gt;
+  	  </defsuper>
+  	</defsupers>
+  	<definitkeywords>
+	  <keyparam>
+	    <paramname>parse-state</paramname>
+	    <paramtype>&lt;parse-state&gt;</paramtype>
+	    <paramsummary>
+	      The <classname>&lt;parse-state&gt;</classname> class is
+	      described below
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>error-format-string</paramname>
+	    <paramtype>&lt;string&gt;</paramtype>
+	    <paramsummary>
+	      The control string for textual error representation
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>error-format-args</paramname>
+	    <paramtype>&lt;sequence&gt;</paramtype>
+	    <paramsummary>The arguments to the format-string</paramsummary>
+	  </keyparam>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+	    The error we signal when we have trouble parsing
+	    something.  Note that an unknown format directive is *not*
+	    considered a
+	    <classname>&lt;time-parsing-error&gt;</classname>, but a
+	    normal, unnamed (and close to uncatchable) error.
+	  </para>
+	</defdescription>
+      </dylanclassdef>
+
+      <dylanclassdef>
+        <defname>&lt;parse-state&gt;</defname>
+	<defadjectives>sealed</defadjectives>
+	<defsummary>
+	  A parser containing the input stream, the formatting
+	  directives, and information about the status on the parse
+	  process.
+	</defsummary>
+	<defsupers>
+  	  <defsuper>
+  	    &lt;object&gt;
+  	  </defsuper>
+  	</defsupers>
+  	<definitkeywords>
+	  <keyparam>
+	    <paramname>format-string</paramname>
+	    <paramtype>&lt;string&gt;</paramtype>
+	    <paramsummary>
+	      The format-string we are trying to parse the time with
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>format-stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	    <paramsummary>
+	      format-string, as a stream
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>input-stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	    <paramsummary>
+	      The stream we're trying to parse
+	    </paramsummary>
+	  </keyparam>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+	    This class contains several other slots containing
+	    information about the parse state:
+	  </para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+	        <dlit>current-directive</dlit>: The directive we're
+		currently trying to process, or #f if we're not trying
+		to process one.  Used by the error handling stuff to
+		give informative messages. 
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>parsed-hour</dlit>:  slot used when parsing
+	        12-hour hours.  Untouched when parsing 24-hour hours.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>pm?</dlit>: (defaults to &false;), a parsed-hour
+	        helper. 
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>parsed-day-of-year</dlit>: We change this if
+		we're asked to read in a day-of-year.  Since we can't
+		make sense of a day-of-year without knowning if it's a
+		leap-year (and thus, knowing the year), we delay
+		processing of this information
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>parsed-year</dlit>: Used for processing
+		day-of-year.  The
+		<classname>&lt;decoded-time&gt;</classname> doesn't
+		actually get it's year from this slot, it gets that
+		from the init-args.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	</defdescription>
+      </dylanclassdef>
+
     </sect1>
     <sect1 id="libs-time-parse">
       <title>Parse-Time Directives</title>
       <para>
+        The following directives tell how to print or to parse times.
       </para>
+
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    %a -- abbreviated weekday name
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %A -- full weekday name
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %b -- abbreviated month name
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %B -- full month name
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %c -- local date and time representation
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %d -- day of the month (01-31)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %H -- hour (24-hour clock) (00-23)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %I -- hour (12-hour clock) (01-12)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %j -- day of the year (001-366)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %m -- month (01-12)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %M -- minute (00-59)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %p -- local equivalent of AM or PM
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %S -- second (00-59)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %U -- week number of the year (Sunday as 1st day of the
+	    week) (00-53)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %w -- weekday (0-6, Sunday is 0)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %W -- week number of the year (Monday as 1st day of the
+	    week) (00-53)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %x -- local date representation
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %X -- local time representation
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %y -- year without century (00-99)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %Y -- year with century
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %Z -- time zone name, if any
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    %% -- the % character
+	  </para>
+	</listitem>
+      </itemizedlist>
     </sect1>
   </CHAPTER>
 
