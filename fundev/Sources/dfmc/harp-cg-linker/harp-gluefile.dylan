@@ -124,7 +124,7 @@ define method emit-gluefile-internal
                        harp-output?: harp-output?,
                        assembler-output?: assembler-output?,
                        model-object-protocol?: #f,
-                       dynamic-linking-protocol?: *interactive-mode?*,
+                       dynamic-linking-protocol?: #t,
                        download?: downloadable-data?)
     let constant-ref = curry(ins--constant-ref, back-end);
     let imported-ref = curry(make-imported-constant-reference, back-end);
