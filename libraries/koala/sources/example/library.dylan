@@ -7,7 +7,7 @@ define library koala-example
   use common-dylan;
   use io;
   use network;
-  use locators;
+  use system;
   use koala;
   export koala-example;
 end;
