@@ -22,6 +22,7 @@
       <editor>&person.housel;</editor>
       <editor>&person.bogk;</editor>
       <editor>&person.neel;</editor>
+      <editor>&person.auclair;</editor>
     </bookbiblio>
   </bookinfo>
 
@@ -3588,6 +3589,8 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   </CHAPTER>
 
   <CHAPTER ID="libs-transcendental">
+
+    <!-- This is causing problems with Jade, I believe
     <DOCINFO>
       <TITLE>Transcendental Library</TITLE>
       <DATE>November 11, 2000</DATE>
@@ -3595,6 +3598,8 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<AUTHOR>&person.dauclair;</AUTHOR>
       </AUTHORGROUP>
     </DOCINFO>
+    -->
+
     <TITLE>The Transcendental Library</TITLE>
     <para>
       The Transcendental library contains functions on numbers.  It
@@ -3805,7 +3810,80 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <defdescription>
 	<para>
 	  Given the hypotenuse (AC) and the height (AB), the arc-sine
-	  gives theta:  the angle in radians.
+	  gives theta in the diagram:  the angle in radians.
+	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <dylangenericdef>
+      <defname>acos</defname>
+      <defsummary>Returns the arc-cosine of a real number</defsummary>
+      <defparameters>
+	<param>
+	  <paramname>x</paramname>
+	  <paramtype>&lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+	<param>
+	  <paramname>y</paramname>
+	  <paramtype>&lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+	<para>
+	  Given the hypotenuse (AC) and the base (BC), the arc-cosine
+	  gives theta in the diagram:  the angle in radians.
+	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <dylangenericdef>
+      <defname>atan</defname>
+      <defsummary>Returns the arc-tangent of a real number</defsummary>
+      <defparameters>
+	<param>
+	  <paramname>x</paramname>
+	  <paramtype>&lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+	<param>
+	  <paramname>y</paramname>
+	  <paramtype>&lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+	<para>
+	  Given the height (AB) over the base (BC), the arc-tangent
+	  gives theta in the diagram:  the angle in radians.
+	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <dylangenericdef>
+      <defname>atan2</defname>
+      <defsummary>Returns the arc-tangent of a pair of real numbers</defsummary>
+      <defparameters>
+	<param>
+	  <paramname>y</paramname>
+	  <paramtype>&lt;real&gt;</paramtype>
+	</param>
+	<param>
+	  <paramname>x</paramname>
+	  <paramtype>&lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+	<param>
+	  <paramname>z</paramname>
+	  <paramtype>&lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+	<para>
+	  Given the height (AB) as y and the base (BC) as x, 
+	  the arc-tangent gives theta as z:  the angle in radians.
 	</para>
       </defdescription>
     </dylangenericdef>
