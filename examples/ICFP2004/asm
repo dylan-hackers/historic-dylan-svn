@@ -1,0 +1,32 @@
+#!/bin/env perl
+
+use strict;
+
+my $pc = 0;
+my %labels;
+my @inst;
+
+while (<>){
+    /^[\w]*$/ and next;
+    /^;/ and next;
+    if (/^([a-zA-Z0-9_-]+:)$/){
+	$labels{$1} = $pc;
+	next;
+    }
+    print "error: pc $pc when inst size ", scalar(@inst), "\n" if $pc != scalar(@inst);
+    ++$pc;
+    s/\./$pc/g;
+    push @inst, $_;
+}
+
+for my $pc (0..scalar @inst - 1){
+    my $inst = $inst[$pc];
+    my @words = split(" ",$inst);
+
+    for (@words){
+	my $target = $labels{$_};
+	$_ = $target if $target;
+    }
+
+    print join(" ", @words), "\n";
+}
