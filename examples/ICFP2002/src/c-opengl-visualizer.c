@@ -383,12 +383,6 @@ void display(void)
 
     for (playerID = 0; playerID < MAX_ROBOTS; ++playerID)
     {
-        if (!gPlayers[playerID].updatedThisFrame)
-        {
-            gPlayers[playerID].playing = FALSE;
-        }
-        gPlayers[playerID].updatedThisFrame = FALSE;
-        
         if (gPlayers[playerID].playing)
         {
             setOpenGLParametersForPlayer(playerID);
@@ -429,9 +423,20 @@ void reshape(int w, int h)
 
 void idle(void)
 {
+    unsigned int playerID;
+    
     readPackageList();
     sendAction();
     readServerResponse();
+
+    for (playerID = 0; playerID < MAX_ROBOTS; ++playerID)
+    {
+        if (!gPlayers[playerID].updatedThisFrame)
+        {
+            gPlayers[playerID].playing = FALSE;
+        }
+        gPlayers[playerID].updatedThisFrame = FALSE;
+    }
     
     glutPostRedisplay();
 }
