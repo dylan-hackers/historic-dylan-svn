@@ -4,8 +4,13 @@ Author:    Carl Gay
 
 /*
 
+Start this example project and go to /example/home.dsp and you will be led through a 
+series of pages that demonstrate the features of Dylan Server Pages.  You should
+be able to find the code corresponding to a particular URL by searching for that
+URL in this file.
+
 You write your web application as an executable that uses the koala HTTP server dll.
-See the "main" function at the end of this file for an example of how to start up the
+Look for the call to "start-server" in this file for an example of how to start up the
 server.  Following are examples of various ways to define static and dynamic handlers
 for web URIs.
 
@@ -14,18 +19,12 @@ the document root.  The dynamic URI takes precedence.
 
 */
 
-/// A bit of utility code...
-
-define variable *application-directory* :: <locator>
-  = begin
-      let exe-loc = as(<file-locator>, application-filename());
-      let bin-directory = locator-directory(exe-loc);
-      locator-directory(bin-directory)  // actually returns the parent directory
-    end;
-
-define function new-locator
-    (path :: <string>) => (loc :: <locator>)
-  merge-locators(as(<file-locator>, path), *application-directory*)
+// Start the Koala server early because it sets configuration variables like *document-root*.
+begin
+  let args = application-arguments();
+  let port = ((size(args) > 0 & string-to-integer(args[0]))
+              | 7020);
+  start-server(port: port);
 end;
 
 
@@ -33,7 +32,8 @@ end;
 
 // Responds to a single URI.
 define responder test1 ("/test1")
-    (request :: <request>, response :: <response>)
+    (request :: <request>,
+     response :: <response>)
   select (request-method(request))
     #"get", #"post"
       => format(output-stream(response), "<html><body>This is a test.</body></html>");
@@ -55,7 +55,8 @@ end;
 // the URI /hello with the *hello-world-page* instance.  The value for the uri: arg may
 // also be a sequence of URIs if you want to associate the page with multiple URIs.
 //
-define page hello-world-page (<page>) (uri: list("/hello", "/hello-world"))
+define page hello-world-page (<page>)
+    (uri: list("/hello", "/hello-world"))
 end;
 
 // Respond to a GET for the /hello URI.  Note the use of do-query-values to find all the values
@@ -63,7 +64,9 @@ end;
 // specific query value, and count-query-values can be used to find out how many there are.
 // Note that respond-to-post automatically calls respond-to-get, unless you override it.
 //
-define method respond-to-get (page :: <hello-world-page>, request :: <request>, response :: <response>)
+define method respond-to-get (page :: <hello-world-page>,
+                              request :: <request>,
+                              response :: <response>)
   let stream :: <stream> = output-stream(response);
   format(stream, "<html>\n<head><title>Hello World</title></head>\n<body>Hello there.<p>");
   format(stream, "%s<br>", if (count-query-values() > 0)
@@ -80,19 +83,163 @@ end;
 
 /// Dylan Server Pages
 
-// Dylan Server Pages are also defined with the "define page" macro, but you also specify the
-// source: argument which is a file that contains normal HTML plus DSP tags.  The default
-// method for respond-to-get parses the DSP source file and displays it.  Any HTML is output
-// directly to the output stream, and tags invoke the corresponding tag definition code.
+// Dylan Server Pages are also defined with the "define page" macro, but you
+// also specify the source: argument which is a file that contains normal
+// HTML plus DSP tags.  The default method for respond-to-get parses the DSP
+// source file and displays it.  Any HTML is output directly to the output
+// stream, and tags invoke the corresponding tag definition code.
+
+// Note that the .dsp source file isn't necessarily under the *document-root*
+// directory.
+
+// Define a class that will be used for all our example pages.  If we define
+// all our tags to be specialized on this class they can be used in any example page.
+//
+define class <example-page> (<dylan-server-page>)
+end;
+
+define variable *tag-predicates* = make(<string-table>);
+
+define function register-tag-predicate
+    (name :: <string>, fun :: <function>)
+  //---*** TODO: give some sort of warning when replacing a name.
+  *tag-predicates*[name] := fun;
+end;
+
+define function tag-predicate
+    (name :: <string>) => (predicate :: false-or(<function>))
+  *tag-predicates*[name]
+end;
+
+define method logged-in?
+    (page, request)
+  let session = get-session(request);
+  session & get-attribute(session, #"username");
+end;
+
+begin
+  register-tag-predicate("logged-in?", logged-in?);
+end;
+
+define tag iff (page :: <example-page>,
+                request :: <request>,
+                response :: <response>,
+                tag-body :: <function>,
+                #key test)
+  let fun = test & tag-predicate(test);
+  when (fun & fun(page, request))
+    tag-body();
+  end;
+end;
+
+
+// A simple error reporting mechanism.  Store errors in the page context
+// so they can be displayed when the next page is generated.  The idea is
+// that each pages should use the <dsp:show-errors/> tag if they can be
+// the target of a POST that might generate errors.
+
+define method note-form-error
+    (message :: <string>, #rest args)
+  note-form-error(list(message, copy-sequence(args)));
+end;
+
+define method note-form-error
+    (error :: <sequence>, #rest args)
+  let context :: <page-context> = page-context();
+  let errors = get-attribute(context, #"errors") | make(<stretchy-vector>);
+  add!(errors, error);
+  set-attribute(context, #"errors", errors);
+end;
+
+define tag show-errors
+    (page :: <example-page>, request :: <request>, response :: <response>)
+  let errors = get-attribute(page-context(), #"errors");
+  when (errors)
+    let out = output-stream(response);
+    format(out, "<FONT color='red'>Please fix the following errors:<P>\n<UL>\n");
+    for (err in errors)
+      // this is pretty consy
+      format(out, "<LI>%s\n",
+             quote-html(apply(format-to-string, first(err), second(err))));
+    end;
+    format(out, "</UL></FONT>\n");
+  end;
+end;
+
+
+// Even though the home page doesn't use any DSP features we have to
+// define a page for it since it's not under the *document-root*.
+//
+define page example-home-page (<example-page>)
+    (uri: list("/example/home.dsp", "/example"),
+     source: document-location("example/home.dsp"))
+end;
+
+define page example-login-page (<example-page>)
+    (uri: "/example/login.dsp",
+     source: document-location("example/login.dsp"))
+end;
+
+define page example-logout-page (<example-page>)
+    (uri: "/example/logout.dsp",
+     source: document-location("example/logout.dsp"))
+end;
+
+define method respond-to-get (page :: <example-logout-page>,
+                              request :: <request>,
+                              response :: <response>)
+  let session = get-session(request);
+  remove-attribute(session, #"username");
+  remove-attribute(session, #"password");
+  next-method();  // Must call this if you want the DSP template to be processed.
+end;
+
+// The login page POSTs to the welcome page...
+define page example-welcome-page (<example-page>)
+    (uri: "/example/welcome.dsp",
+     source: document-location("example/welcome.dsp"))
+end;
+
+// ...so handle the POST by storing the form values in the session.
+define method respond-to-post (page :: <example-welcome-page>,
+                               request :: <request>,
+                               response :: <response>)
+  let username = get-query-value("username");
+  let password = get-query-value("password");
+  let username-supplied? = username & username ~= "";
+  let password-supplied? = password & password ~= "";
+  if (username-supplied? & password-supplied?)
+    let session = get-session(request);
+    set-attribute(session, #"username", username);
+    set-attribute(session, #"password", password);
+    next-method();  // process the DSP template for the welcome page.
+  else
+    note-form-error("You must supply both a username and password.");
+    respond-to-get(*example-login-page*, request, response);
+  end;
+end;
+
+// Note this tag is defined on <example-page> so it can be accessed from any
+// page in this example web application.
+define tag current-username (page :: <example-page>,
+                             request :: <request>,
+                             response :: <response>)
+  let username = get-attribute(get-session(request), #"username");
+  username & write(output-stream(response), username);
+end;
+
+//--------------old example code--------------------------------------------
 
 define page dsp-test-page (<dylan-server-page>)
     (uri: "/test.dsp",
-     source: new-locator("test.dsp"))
+     source: document-location("example/test.dsp"))
 end;
 
-// Defines a tag that looks like <dsp:hello/> in the DSP source file.  i.e., it has no body.
-define tag hello
-    (page :: <dsp-test-page>, request :: <request>, response :: <response>)
+// Defines a tag that looks like <dsp:hello/> in the DSP source file.  i.e.,
+// it has no body.
+define tag hello (page :: <dsp-test-page>,
+                  request :: <request>,
+                  response :: <response>)
   ignore(page);
   format(output-stream(response), "Hello, cruel world!");
 end;
@@ -100,14 +247,17 @@ end;
 
 define thread variable *repetition-number* = 0;
 
-// An iterating tag.  Note that the only difference from a standard tag definition
-// is that this one accepts a third argument (called "process-body" in this case).
-// process-body is bound to a function that takes no args and will process the body
-// of the iteration tag.  Use variables or object state to communicate with the
-// tags that are executed during the execution of the body part.  See test.dsp
-// for how this tag is invoked.
-define tag repeat
-    (page :: <dsp-test-page>, request :: <request>, response :: <response>, process-body :: <function>)
+// An iterating tag.  Note that the only difference from a standard tag
+// definition is that this one accepts a third argument (called
+// "process-body" in this case).  process-body is bound to a function that
+// takes no args and will process the body of the iteration tag.  Use
+// variables or object state to communicate with the tags that are executed
+// during the execution of the body part.  See test.dsp for how this tag is
+// invoked.
+define tag repeat (page :: <dsp-test-page>,
+                   request :: <request>,
+                   response :: <response>,
+                   process-body :: <function>)
   let n-str = get-query-value("n");
   let n = (n-str & string-to-integer(n-str)) | 5;
   for (i from 1 to n)
@@ -117,13 +267,16 @@ define tag repeat
   end;
 end;
 
-define tag display-iteration-number
-    (page :: <dsp-test-page>, request :: <request>, response :: <response>)
+define tag display-iteration-number (page :: <dsp-test-page>,
+                                     request :: <request>,
+                                     response :: <response>)
   format(output-stream(response), "%d", *repetition-number*);
 end;
 
-define tag show-keys
-    (page :: <dsp-test-page>, request :: <request>, response :: <response>, #key arg1, arg2)
+define tag show-keys (page :: <dsp-test-page>,
+                      request :: <request>,
+                      response :: <response>,
+                      #key arg1, arg2)
   format(output-stream(response),
          "The value of arg1 is %=.  The value of arg2 is %=.", arg1, arg2);
 end;
@@ -145,9 +298,11 @@ define variable *iteration-number* :: <integer> = -1;
 define variable *iteration-sequence* :: <sequence> = #[];
 
 // I would call this "iterate" but it conflicts with the existing Dylan iterate macro.
-define tag iterator
-    (page :: <dylan-server-page>, request :: <request>, response :: <response>,
-     process-body :: <function>, #key name)
+define tag iterator (page :: <dylan-server-page>,
+                     request :: <request>,
+                     response :: <response>,
+                     process-body :: <function>,
+                     #key name)
   let iterations-fun = name & element(*table-name-map*, name, default: #f);
   if (iterations-fun)
     let n-rows :: <integer> = iterations-fun();
@@ -164,9 +319,11 @@ define tag iterator
   end;
 end;
 
-define tag no-iterations
-    (page :: <dylan-server-page>, request :: <request>, response :: <response>,
-     process-body :: <function>, #key name)
+define tag no-iterations (page :: <dylan-server-page>,
+                          request :: <request>,
+                          response :: <response>,
+                          process-body :: <function>,
+                          #key name)
   let iterations-fun = name & element(*table-name-map*, name, default: #f);
   if (iterations-fun)
     let n-rows :: <integer> = iterations-fun();
@@ -180,56 +337,28 @@ define tag no-iterations
   end;
 end tag no-iterations;
 
-define tag iteration-number
-    (page :: <dylan-server-page>, request :: <request>, response :: <response>)
+define tag iteration-number (page :: <dylan-server-page>,
+                             request :: <request>,
+                             response :: <response>)
   format(output-stream(response), "%d", *iteration-number*);
 end;
 
-define tag row-bgcolor
-    (page :: <dylan-server-page>, request :: <request>, response :: <response>)
+define tag row-bgcolor (page :: <dylan-server-page>,
+                        request :: <request>,
+                        response :: <response>)
   write(output-stream(response),
         if(even?(*iteration-number*)) "#EEEEEE" else "#FFFFFF" end);
 end;
 
-define tag demo-sessions
-    (page :: <dsp-test-page>, request :: <request>, response :: <response>)
+define tag demo-sessions (page :: <dsp-test-page>,
+                          request :: <request>,
+                          response :: <response>)
   let session :: <session> = get-session(request);
   let x = get-attribute(session, #"xxx");
   format(output-stream(response), "The value of session attribute xxx is %=.", x);
   set-attribute(session, #"xxx", (x & x + 1) | 0);
 end;
 
-define page login-page (<dylan-server-page>)
-    (uri: "/login.dsp",
-     source: new-locator("login.dsp"))
-end;
-
-define tag current-username
-    (page :: <login-page>, request :: <request>, response :: <response>)
-  let username = get-attribute(get-session(request), #"username");
-  username & write(output-stream(response), username);
-end;
-
-define method respond-to-post
-    (page :: <dsp-test-page>, request :: <request>, response :: <response>)
-  let username = get-query-value("username");
-  let password = get-query-value("password");
-  when (username | password)
-    let session = get-session(request);
-    set-attribute(session, #"username", username);
-    set-attribute(session, #"password", password);
-  end;
-  next-method();  // process the DSP template
-end;
-
-define tag maybe-display-welcome
-    (page :: <dsp-test-page>, request :: <request>, response :: <response>)
-  let username = get-attribute(get-session(request), #"username");
-  when (username)
-    format(output-stream(response), "<h2>Welcome %s!</h2>\n", username);
-  end;
-end;
-  
 
 
 /// Main
@@ -237,10 +366,6 @@ end;
 // Starts up the web server with the specified port.  Loop sleeping forever so the application
 // doesn't exit.  (Need to figure out how to make this unnecessary.)
 define function main () => ()
-  let args = application-arguments();
-  let port = ((size(args) > 0 & string-to-integer(args[0]))
-              | 7020);
-  start-server(port: port);
   while (#t)
     sleep(1);
   end;

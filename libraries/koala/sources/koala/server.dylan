@@ -32,17 +32,22 @@ define class <server> (<sealed-constructor>)
     required-init-keyword: clients-notification:;
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
+
   // Parameters
   slot max-listeners :: <integer> = 1;
   slot request-class :: subclass(<basic-request>) = <basic-request>;
+
   //---TODO: Need to define an API for extending this, and then have a
   // request-method-definer macro..
   //---TODO: response for unsupported-request-method-error MUST include
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
   constant slot allowed-methods :: <sequence> = #(#"GET", #"POST", #"HEAD");
-  // Map from URL string to a response function.
-  constant slot response-function-map :: <string-table> = make(<string-table>);
+
+  // Map from URI string to a response function.  The leading slash is removed
+  // from URIs because it's easier to use merge-locators that way.
+  constant slot uri-map :: <string-table> = make(<string-table>);
+
   // pathname translations
   //slot pathname-translations :: <sequence> = #();
   // Statistics
@@ -147,6 +152,7 @@ define variable *sockets-started?* :: <boolean> = #f;
 define function ensure-sockets-started ()
   unless (*sockets-started?*)
     start-sockets();
+    //start-ssl-sockets();
     *sockets-started?* := #t;
   end;
 end;
@@ -405,8 +411,7 @@ define function handler-top-level
                                        return(send-error-response(request, c)));
                                 end;
           read-request(request);
-          let response :: <response> = invoke-handler(request);
-          send-response(response);
+          invoke-handler(request);
         end;
         when (request.request-keep-alive?)
           loop()
@@ -439,13 +444,15 @@ define method read-request (request :: <request>) => ()
       let qpos = char-position('?', buffer, bpos, epos);
       // Should his trim trailing whitespace???
       request.request-uri := substring(buffer, bpos, qpos | epos);
-      log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
-      let query = decode-url(buffer, qpos + 1, epos);
-      log-debug("Decoded query string = %s", query);
       request.request-query-values
-        := iff(qpos,
-               extract-query-values(query, 0, size(query)),
-               allocate-resource(<string-table>));
+        := if (qpos)
+             log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
+             let query = decode-url(buffer, qpos + 1, epos);
+             log-debug("Decoded query string = %s", query);
+             extract-query-values(query, 0, size(query))
+           else
+             allocate-resource(<string-table>, size: 0)
+           end;
       let bpos = skip-whitespace(buffer, epos, len);
       let vpos = whitespace-position(buffer, bpos, len) | len;
       request.request-version := extract-request-version(buffer, bpos, vpos);
@@ -535,18 +542,25 @@ define method send-error-response (request :: <request>, err :: <error>)
   send-response(response, response-code: error-code, response-message: one-liner);
 end send-error-response;
 
-define method register-response-function
+define method register-uri
     (uri :: <string>, fun :: <function>, #rest args, #key replace?)
   let server :: <server> = *server*;
-  let old-fun = element(server.response-function-map, uri, default: #f);
-  if (replace? | ~old-fun)
-    server.response-function-map[uri] := fun;
-  else
+  let (bpos, epos) = trim-whitespace(uri, 0, size(uri));
+  if (bpos = epos)
     error(make(<application-error>,
-               format-string: "There is already a function registered for URI %=",
-               format-arguments: list(uri)));
+               format-string: "You cannot register an empty URI: %=",
+               format-arguments: list(substring(uri, bpos, epos))));
+  else
+    let old-fun = element(server.uri-map, uri, default: #f);
+    if (replace? | ~old-fun)
+      server.uri-map[uri] := fun;
+    else
+      error(make(<application-error>,
+                 format-string: "There is already a function registered for URI %=",
+                 format-arguments: list(uri)));
+    end;
   end;
-end register-response-function;
+end register-uri;
 
 // define responder test ("/test", secure?: #t)
 //     (request, response)
@@ -559,7 +573,7 @@ define macro responder-definer
     end }
   =>
   { define method ?name (?request, ?response) ?body end;
-    register-response-function(?uri, ?name /* pass args here */ ) }
+    register-uri(?uri, ?name /* pass args here */ ) }
 end;
 
 // Invoke the appropriate handler for the given request URL and method.
@@ -567,23 +581,25 @@ end;
 // set headers, etc.  And if the web app signals an error we need to catch it
 // and generate the appropriate error response.
 define method invoke-handler
-    (request :: <request>) => (response :: <response>)
+    (request :: <request>) => ()
   let uri :: <string> = request-uri(request);
-  let response :: <response> = make(<response>, request: request);
-  let responder = element(response-function-map(*server*), uri, default: #f);
-  dynamic-bind (*response* = response)
-    if (responder)
-      log-info("%s handler found", uri);
-      responder(request, response);
-    else
-      let found? = maybe-serve-static-file(request, response);
-      when (~found?)
-        log-info("%s not found", uri);
-        resource-not-found-error();  // 404
+  with-resource (headers = <header-table>)
+    let response :: <response> = make(<response>, request: request, headers: headers);
+    let responder = element(uri-map(*server*), uri, default: #f);
+    dynamic-bind (*response* = response)
+      if (responder)
+        log-info("%s handler found", uri);
+        responder(request, response);
+      else
+        let found? = maybe-serve-static-file(request, response);
+        when (~found?)
+          log-info("%s not found", uri);
+          resource-not-found-error(uri: request-uri(request));  // 404
+        end;
       end;
     end;
-  end;
-  response
+    send-response(response);
+  end with-resource;
 end;
 
 define function read-request-line
@@ -654,7 +670,7 @@ end extract-request-version;
 //         does the right thing.
 define method extract-query-values
     (buffer :: <string>, bpos :: <integer>, epos :: <integer>,
-     #key queries :: <string-table> = allocate-resource(<string-table>))
+     #key queries :: <string-table> = allocate-resource(<string-table>, size: 10))
  => (queries :: <string-table>)
   local method extract-key/val (beg :: <integer>, fin :: <integer>)
           let eq-pos = char-position('=', buffer, beg, fin);

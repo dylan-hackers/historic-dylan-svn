@@ -65,10 +65,10 @@ define function decode-url
   end iterate;
 end decode-url;
 
-define function parse-request-uri (str, str-beg, str-end)
+define function parse-request-uri (str, bpos, epos)
   => (uri :: <url>) // <http-url>, but that's bogus.
-  parse-uri(str, str-beg, str-end)
-    | invalid-uri-error(uri: substring(str, str-beg, str-end));
+  parse-uri(str, bpos, epos)
+    | invalid-uri-error(uri: substring(str, bpos, epos));
 end;
 
 define function parse-uri (str, str-beg, str-end)
@@ -113,14 +113,15 @@ define function parse-http-server (str :: <byte-string>,
   host & port & make(<http-server-url>, host: host, port: port);
 end parse-http-server;
 
- //---TODO: should intern these, i.e. map the whole thing to its parsed version...
+//---TODO: should intern these, i.e. map the whole thing to its parsed version...
 
 // dir is #f if parse failed.
-define function parse-uri-path (str, str-beg, str-end)
-=> (dir :: false-or(<simple-object-vector>),
-    name :: false-or(<string>),
-    type :: false-or(<string>),
-    query :: false-or(<string>))
+define function parse-uri-path
+    (str, str-beg, str-end)
+ => (dir :: false-or(<simple-object-vector>),
+     name :: false-or(<string>),
+     type :: false-or(<string>),
+     query :: false-or(<string>))
   assert(str[str-beg] == '/');
   let path-end = char-position('?', str, str-beg, str-end) | str-end;
   let segs = make(<stretchy-vector>);
@@ -145,6 +146,7 @@ define function parse-uri-path (str, str-beg, str-end)
     end;
   end iterate;
 end parse-uri-path;
+
 
 /*
 (defun request-search-values (request)
@@ -261,4 +263,5 @@ asdfadsfj
                 (setf (%schar nstring outpos) ch)))))))))
 
 */
+
 

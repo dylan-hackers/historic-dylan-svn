@@ -11,7 +11,7 @@ define library koala
   use io;
   use network;
   use system;
-  use equal-table;
+  //use ssl-sockets;  // until integrated into FD?
 
   export http-server;
   export http-server-extender;
@@ -20,12 +20,6 @@ end library koala;
 
 define module http-server
 
-  // Do these really need to be exported?
-  create
-    <avalue>, //---TODO: need better name.
-    $empty-avalue,
-    avalue-value, avalue-value-setter;
-    
   // Headers
   // Do these really need to be exported?
   create
@@ -42,7 +36,7 @@ define module http-server
     ensure-server,      // Get (or create) the active HTTP server object.
     start-server,
     stop-server,
-    register-response-function,
+    register-uri,
     <request>,
     request-query-values,        // get the keys/vals from the current GET or POST request
     request-method,              // Returns #"get", #"post", etc
@@ -61,11 +55,13 @@ define module http-server
     get-session,
     get-attribute,
     set-attribute,
+    remove-attribute,
     set-session-max-age;
 
-  // Generic pages
+  // Pages
   create
     <page>,                      // Subclass this using the "define page" macro
+    <static-page>,
     register-page,               // Register a page for a given URI
     respond-to-get,              // Implement this for your page to handle GET requests
     respond-to-post,             // Implement this for your page to handle POST requests
@@ -77,15 +73,20 @@ define module http-server
     do-query-values,             // Call f(key, val) for each query in the URI or form
     do-form-values,              // A synonym for do-query-values
     count-query-values,
-    count-form-values;
+    count-form-values,
+    document-location;
 
   // Dylan Server Pages
   create
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class
     tag-definer,                 // Defines a new DSP tag function and registers it with a page
-    register-tag;                // This can be used to register tag functions that weren't
+    register-tag,                // This can be used to register tag functions that weren't
                                  //   created by "define tag".
+    <page-context>,
+    page-context,                // Returns a <page-context> if a page is being processed.
+                                 //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
+    quote-html;                  // Change < to &lt; etc
 
   // Logging
   create
@@ -122,10 +123,10 @@ define module internals
   use format-out;
   use standard-io;
   use streams;
-  use sockets, rename: {start-server => start-socket-server };
+  use sockets, rename: { start-server => start-socket-server };
   use date;
   use file-system;
   use operating-system;
-  use equal-table;
+  //use ssl-sockets;
 end;
 

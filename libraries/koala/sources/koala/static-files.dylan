@@ -10,7 +10,7 @@ define method maybe-serve-static-file
     (request :: <request>, response :: <response>)
  => (found? :: <boolean>)
   let uri :: <string> = request-uri(request);
-  let document :: false-or(<physical-locator>) = static-file-locator-from-uri(uri);
+  let document :: false-or(<file-system-locator>) = static-file-locator-from-uri(uri);
   when (document)
     log-debug("%s static file found", uri);
     select (file-type(document))
@@ -27,7 +27,7 @@ end;
 // such as index.html and returns a locator for that, if found.
 //
 define function static-file-locator-from-uri
-    (uri :: <string>) => (locator :: false-or(<physical-locator>))
+    (uri :: <string>) => (locator :: false-or(<file-system-locator>))
   let locator = safe-locator-from-uri(uri);
   when (locator)
     file-exists?(locator)
@@ -38,7 +38,7 @@ define function static-file-locator-from-uri
 end;
 
 define function safe-locator-from-uri
-    (uri :: <string>) => (locator :: false-or(<physical-locator>))
+    (uri :: <string>) => (locator :: false-or(<file-system-locator>))
   when (*document-root*)
     block ()
       let len :: <integer> = size(uri);
@@ -46,15 +46,11 @@ define function safe-locator-from-uri
       if (bpos == epos)
         *document-root*
       else
-        let relative-uri = iff(uri[bpos] = '/',
-                               substring(uri, bpos + 1, epos),
-                               iff(bpos > 0 | epos < len,        // try to prevent copying
-                                   substring(uri, bpos, epos),
-                                   uri));
+        let relative-uri = iff(len > 0 & uri[0] = '/', substring(uri, 1, len), uri);
         if (empty?(relative-uri))
           *document-root*
         else
-          let loc = simplify-locator(merge-locators(as(<physical-locator>, relative-uri),
+          let loc = simplify-locator(merge-locators(as(<file-system-locator>, relative-uri),
                                                     *document-root*));
           if (instance?(loc, <file-locator>) & locator-name(loc) = "..")
             loc := locator-directory(locator-directory(loc));
@@ -69,12 +65,12 @@ define function safe-locator-from-uri
 end safe-locator-from-uri;
 
 define method find-default-document
-    (locator :: <directory-locator>) => (locator :: <physical-locator>)
+    (locator :: <directory-locator>) => (locator :: <file-system-locator>)
   block (return)
     local method is-default? (directory, name, type)
-            // portability - string-equal? is incorrect on Unix systems.
+            // ---TODO: portability - string-equal? is incorrect on Unix systems.
             when (type = #"file" & member?(name, *default-document-names*, test: string-equal?))
-              return(as(<physical-locator>, concatenate(directory, name)));
+              return(merge-locators(as(<file-locator>, name), directory));
             end;
           end;
     do-directory(is-default?, locator);
@@ -83,12 +79,18 @@ define method find-default-document
 end;
 
 define method locator-below-document-root?
-    (locator :: <physical-locator>) => (below? :: <boolean>)
-  let root-path = locator-path(*document-root*);
-  let loc-path  = locator-path(locator);
-  size(loc-path) >= size(root-path)
-    & locator-server(*document-root*) = locator-server(locator)
-    & every?(path-element-equal?, root-path, loc-path)  // stops when smaller seq empty
+    (locator :: <file-system-locator>) => (below? :: <boolean>)
+  let relative = relative-locator(locator, *document-root*);
+  locator-relative?(relative)  // do they at least share a common ancestor?
+    & begin
+        let relative-parent = locator-directory(relative);
+        ~relative-parent       // is it a file directly in the root dir?
+          | begin
+              let relative-path = locator-path(relative-parent);
+              empty?(relative-path)  // again, is it directly in the root dir?
+                | relative-path[0] ~= #"parent"  // does it start with ".."?
+            end
+      end
 end;
 
 // Serves up a static file
@@ -120,10 +122,12 @@ define method directory-responder
   let uri = request-uri(request);
   local method show-file-link (directory, name, type)
           when (name ~= ".." & name ~= ".")
-            let locator = as(<physical-locator>, concatenate(directory, name));
+            let locator = iff(type = #"directory",
+                              subdirectory-locator(directory, name),
+                              merge-locators(as(<file-locator>, name), directory));
             let props = file-properties(locator);
             write(stream, "<tr>\n<td nowrap>");
-            display-file-image-link(stream, type, locator-extension(locator));
+            display-image-link(stream, type, locator);
             format(stream, "</td>\n<td nowrap><a href=\"%s%s\">%s</a></td>\n",
                    name, iff(type = #"directory", "/", ""), name);
             for (key in #[#"size", #"modification-date", #"author"])
@@ -139,17 +143,19 @@ define method directory-responder
          "<html>\n<head>\n<title>Directory listing of %s</title>\n</head>\n<body>\n"
          "<h2>Directory listing of %s</h2>\n", uri, uri);
   // In FunDev 2.0 SP1 this will never display the "Up to parent directory" because
-  // of a bug in the = method for directory locators.  Just always do it for now.
-  /*
+  // of a bug in the = method for directory locators.
   unless (loc = *document-root*
           | (instance?(loc, <file-locator>)
              & locator-directory(loc) = *document-root*))
-   */
-  write(stream, "<a href=\"..\">Up to parent directory</a><p>\n");
-  write(stream, "<font face=\"Monospace,Courier\">\n");
-  /* end; */
+    write(stream, "<a href=\"..\">Up to parent directory</a><p>\n");
+    write(stream, "<font face=\"Monospace,Courier\">\n");
+  end;
   write(stream, "<table border=\"0\" width=\"100%\" cellpadding=\"2\">\n");
-  do-directory(show-file-link, loc);
+  if (*allow-directory-listings*)
+    do-directory(show-file-link, loc);
+  else
+    write(stream, "<tr><td>Directory listing is disabled on this server.</td></tr>\n");
+  end;
   write(stream, "</table>\n</font>\n</body>\n</html>\n");
 end;
 
@@ -173,27 +179,12 @@ define method display-file-property
   end;
 end;
 
-define open method display-file-image-link
-    (stream :: <stream>, file-type :: <symbol>, extension)
+define open method display-image-link
+    (stream :: <stream>, file-type :: <symbol>, locator :: <directory-locator>)
 end;
 
-define open method display-file-image-link
-    (stream :: <stream>, file-type == #"directory", extension)
-  //---TODO
-end;
-
-define open method display-file-image-link
-    (stream :: <stream>, file-type == #"link", extension)
-  //---TODO
-end;
-
-define open method display-file-image-link
-    (stream :: <stream>, file-type :: <symbol>, extension :: <string>)
-  display-file-image-link(stream, file-type, as(<symbol>, extension));
-end;
-
-define open method display-file-image-link
-    (stream :: <stream>, file-type :: <symbol>, extension :: <symbol>)
+define open method display-image-link
+    (stream :: <stream>, file-type :: <symbol>, locator :: <file-locator>)
   //---TODO: Somehow display the icon that the Windows explorer displays next to each file.
 end;
 
