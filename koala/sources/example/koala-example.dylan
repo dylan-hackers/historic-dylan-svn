@@ -208,15 +208,18 @@ define method respond-to-post (page :: <example-welcome-page>,
     next-method();  // process the DSP template for the welcome page.
   else
     note-form-error("You must supply both a username and password.");
+    // ---*** TODO: Calling respond-to-get probably isn't quite right.
+    // If we're redirecting to another page should the query/form values
+    // be cleared first?  Probably want to call process-page instead,
+    // but with the existing request?
     respond-to-get(*example-login-page*, request, response);
   end;
 end;
 
 // Note this tag is defined on <example-page> so it can be accessed from any
 // page in this example web application.
-define tag current-username in $example-taglib (page :: <example-page>,
-                                                response :: <response>,
-                                                #key request :: <request>)
+define tag current-username in $example-taglib
+    (page :: <example-page>, response :: <response>, #key request :: <request>)
   let username
     = get-form-value("username")
       | get-attribute(get-session(request), #"username");

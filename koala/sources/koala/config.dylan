@@ -21,18 +21,18 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // http-server/config            // config.xml etc
 define method configure-server ()
   let exe-loc = as(<file-locator>, application-filename());
-  let bin-directory = locator-directory(exe-loc);
-  // is there a better way to get the containing directory?
-  let main-directory = simplify-locator(subdirectory-locator(bin-directory, ".."));
+  let bin-dir = locator-directory(exe-loc);
+  let app-dir = up-directory(bin-dir, levels: 3);
 
-  // Default document root is <app-dir>/../www
+  // Default document root is <koala-root>/www (assuming that the example
+  // project is running).
   // This may be changed in config.xml
-  *document-root* := subdirectory-locator(main-directory, "www");
+  *document-root* := subdirectory-locator(app-dir, "www");
   log-info("Document root is %s", *document-root*);
 
   // config.xml is in <app-dir>/../config/config.xml
   let config-loc = merge-locators(as(<file-locator>, "config/config.xml"),
-                                  main-directory);
+                                  app-dir);
   //---TODO
 end configure-server;
 
