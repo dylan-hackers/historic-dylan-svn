@@ -1273,7 +1273,7 @@ end;
 define method copy-sequence
     (sequence :: <sequence>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <sequence>);
-  let last = check-start-end-bounds("copy-sequence", sequence, start, last);
+  let last = check-start-end-bounds(copy-sequence, sequence, start, last);
 
   let sz :: <integer> = last - start;
   let result = make-collection(type-for-copy(sequence), sz);
@@ -1386,16 +1386,16 @@ end method key-exists?;
 
 // author: PDH
 // A utility function for sequence operations which take start: and end: 
-// keyword parameters
+// keyword parameters. If the collection is not bounded, and an end:
+// argument is not supplied, an error will be signalled.
 //
 define inline function check-start-end-bounds
-     (method-name :: <string>, sequence :: <sequence>, start :: <integer>, last :: false-or(<integer>))
-  => last :: <integer>;
-  // This type check will fail for unbounded sequences.
-  let seq-size :: <integer> = sequence.size;
-  let last :: <integer> = last | seq-size;
-  if ((last > seq-size) | (start < 0) | (start > last))
-    check-start-end-bounds-error(method-name, sequence, start, last);
+    (function :: <function>, sequence :: <sequence>, start :: <integer>, last :: false-or(<integer>))
+ => last :: <integer>;
+  let seq-size :: false-or(<integer>) = sequence.size;
+  let last :: false-or(<integer>) = last | seq-size;
+  if (~last | (start < 0) | (start > last) | (if (seq-size) last > seq-size end if))
+    check-start-end-bounds-error(function, sequence, start, last);
   end if;
   last;
 end function;
@@ -1410,23 +1410,25 @@ end function;
 
 define not-inline function unbounded-collection-error (function :: <function>)
  => res :: <never-returns>;
-  error("Function/method %= was expecting at least one bounded collection in its parameter list.", function);
+  error("%= was expecting at least one bounded collection in its parameter list.", function);
 end function;
 
 // author: PDH
 // The out-of-line error function for the check-start-end-bounds function
 //
 define not-inline function check-start-end-bounds-error
-     (method-name :: <string>, sequence :: <sequence>, start :: <integer>, last :: <integer>)
-  => (result :: <never-returns>)
-  let seq-size :: <integer> = sequence.size;
+    (function :: <function>, sequence :: <sequence>, start :: <integer>, last :: false-or(<integer>))
+ => (result :: <never-returns>)
+  let seq-size :: false-or(<integer>) = sequence.size;
   case
-    (last > seq-size)
-      => error("%s called on %= with end: (%=) index greater than sequence size (%=).", method-name, sequence, last, seq-size);
+    (~last)
+      => error("%= called on unbounded sequence %= and no end: argument was supplied.", function, sequence);
     (start < 0)
-      => error("%s called on %= with start: (%=) index less than 0.", method-name, sequence, start);
+      => error("%= called on %= with start: %= less than 0.", function, sequence, start);
     (start > last)
-      => error("%s called on %= with start: (%=) > end: (%=).", method-name, sequence, start, last);
+      => error("%= called on %= with start: %= greater than end: %=.", function, sequence, start, last);
+    (last > seq-size)
+      => error("%= called on %= with end: %= greater than sequence size %=.", function, sequence, last, seq-size);
      otherwise
       => error("We should have never made it to here.");
   end case;
