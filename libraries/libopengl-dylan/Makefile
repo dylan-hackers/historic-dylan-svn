@@ -10,7 +10,8 @@ endif
 
 opengl.lib.du: $(LIDFILE) opengl-exports.dylan opengl-intr.dylan \
                opengl-glut-intr.dylan opengl-glu-intr.dylan \
-	       opengl-macros.dylan opengl-osmesa-intr.dylan
+	       opengl-macros.dylan 
+#              opengl-osmesa-intr.dylan
 	d2c $(LIDFILE)
 
 opengl.lid: opengl-exports.dylan opengl-intr.dylan opengl-glut-intr.dylan

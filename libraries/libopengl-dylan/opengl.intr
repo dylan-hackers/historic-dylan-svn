@@ -1109,7 +1109,20 @@ define interface
 	      "glWindowPos4svMESA",
 	      "glWindowPos4fvMESA",
 	      "glWindowPos4dvMESA",
+
+	      // The following paragraph contains new functions in gl.h to ignore.
 	      "glResizeBuffersMESA",
+	      "glNewTraceMESA",
+	      "glTraceTextureMESA",
+	      "glDisableTraceMESA",
+	      "glTraceCommentMESA",
+	      "glEndTraceMESA",
+	      "glTracePointerRangeMESA",
+	      "glEnableTraceMESA",
+	      "glTraceListMESA",
+	      "glTracePointerMESA",
+	      "glTraceAssertAttribMESA",
+
 	      "GL_EXT_blend_color",
 	      "GL_EXT_blend_logic_op",
 	      "GL_EXT_blend_minmax",
