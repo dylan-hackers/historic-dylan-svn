@@ -1017,10 +1017,11 @@ define function insert-phi-nodes (component :: <component>) => ();
 
 	    let assign = region.last-assign;
 
-	    compiler-warning("###-----> possible candidate: %=, dependencies: %=,\n uses: %=",
+/*	    compiler-warning("###-----> possible candidate: %=, dependencies: %=,\n uses: %=",
 			     assign,
 			     assign.depends-on.listify-dependencies,
 			     assign.defines.users-of-var);
+			     */
 	  end;
 	end;
   
