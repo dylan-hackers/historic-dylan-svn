@@ -2382,76 +2382,233 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
       The below directives are described below:
     </para>
 
-	  <para>
-	    Directive -- Argument Type -- Textual Format
-	  </para>
-	  <itemizedlist>
-	    <listitem>
-	      <para>
-	        %d -- <classname>&lt;integer&gt;</classname> --
-	        decimal number
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %b -- <classname>&lt;integer&gt;</classname> --
-	        binary number
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %o -- <classname>&lt;integer&gt;</classname> --
-	        octal number
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %x -- <classname>&lt;integer&gt;</classname> --
-	        hexadecimal number
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %c -- <classname>&lt;character&gt;</classname> --
-	        character (with no quotes)
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %s -- <classname>&lt;string&gt;</classname> --
-	        string (with no quotes)
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %s -- <classname>&lt;condition&gt;</classname> --
-	        condition message (with no quotes)
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %= -- <classname>&lt;object&gt;</classname> --
-	        unspecified, but works with any object
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %% -- none -- literal %
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-	        %m -- <classname>&lt;function&gt;</classname> --
-	        a function that accepts the stream as an argument and
-	        performs user-defined operations on the stream
-	      </para>
-	    </listitem>
-	  </itemizedlist>
-	  <para>
-	    The last format directive (%m) is specific to
-	    GwydionDylan.
-	  </para>
-	</sect1>
+    <para>
+      Directive -- Argument Type -- Textual Format
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          %d -- <classname>&lt;integer&gt;</classname> --
+          decimal number
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %b -- <classname>&lt;integer&gt;</classname> --
+          binary number
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %o -- <classname>&lt;integer&gt;</classname> --
+          octal number
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %x -- <classname>&lt;integer&gt;</classname> --
+          hexadecimal number
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %c -- <classname>&lt;character&gt;</classname> --
+          character (with no quotes)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %s -- <classname>&lt;string&gt;</classname> --
+          string (with no quotes)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %s -- <classname>&lt;condition&gt;</classname> --
+          condition message (with no quotes)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %= -- <classname>&lt;object&gt;</classname> --
+          unspecified, but works with any object
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %% -- none -- literal %
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          %m -- <classname>&lt;function&gt;</classname> --
+          a function that accepts the stream as an argument and
+          performs user-defined operations on the stream
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      The last format directive (%m) is specific to
+      GwydionDylan.  See the below examples for
+      using some of the format directives.
+    </para>
+    <sect2 id="lib-format-simple-example">
+      <title>Simple Example</title>
+      <para>
+        Here we use three format directives to print the
+        following message:
+      </para>
+      <programlisting>
+Hello, my name is Doug Auclair, and I'm 33 years old.
+      </programlisting>
+      <para>
+        The code to generate the above message is:
+      </para>
+      <programlisting>
+format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%c",
+       "Doug Auclair", 33, '\n');
+      </programlisting>
+      <para>
+        Note: sending the new-line character ('\n') works as expected
+        on supported platforms, but some systems that require a "\r\n"
+        or a "\n\r" pair for a new-line command may have problems.
+        The preferred way to write the above code is:
+      </para>
+      <programlisting>
+format(*standard-output*, "Hello, my name is %s, and I'm %d years old.\n",
+       "Doug Auclair", 33);
+      </programlisting>
+    </sect2>
+    
+    <sect2 id="lib-format-example-using-m">
+      <title>Examples Using the %m Directive</title>
+      <para>
+        Below are two examples that use the %m directive (and others)
+        to format messages for display.
+      </para>
+      
+      <sect3 id="lib-format-example-using-m-simple">
+        <title>Simple Example Using the %m Directive</title>
+	<para>
+	  Instead of feeding the (in some cases, troublesome) '\n'
+	  character to the %c directive, let us explicitly use the
+	  <function>new-line</function> (a function in the
+	  <dlibrary>Streams</dlibrary> library) in concert with the %m
+	  directive, like this:
+	</para>
+	<programlisting>
+format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%m",
+       "Doug Auclair", 33, new-line);
+        </programlisting>
+	<para>
+	  The above code produces the same output as the simple
+	  example given previously.
+	</para>
+	<para>
+	  Interestingly, Dylan automatically
+	  converts '\n' characters in the control string to calls to
+	  <function>new-line</function>.   (So, neither %m => new-line
+	  nor %c => '\n' mappings are necessary ... Dylan takes care
+	  of that).
+	</para>
+      </sect3>
+      
+      <sect3 id="lib-format-example-using-m-complex">
+        <title>Complex Example Using the %m Directive</title>
+        <para>
+          Here we generate almost the same message, this time with a
+	  little more information (the current time in Washington D.C.)
+	  using the %m format directive.  The new message is:
+	</para>
+	<programlisting>
+Hello, my name is Doug Auclair, and as of
+now, November 17, 2000 09:28 PM, I'm 33 years old.
+        </programlisting>
+        <para>
+          To get the above message, we must first create a function that
+	  manipulates a <classname>&lt;decoded-time&gt;</classname> (See
+	  the <dmodule>Time</dmodule> and <dmodule>Time-IO</dmodule>
+	  modules in the <dlibrary>Time</dlibrary> library) as we desire
+	  for the output:
+	</para>
+	<programlisting>
+define function human-readable-time(stream :: &lt;stream&gt;,  
+                                    time :: &lt;decoded-time&gt;)
+ => ()
+    format-time(stream, "%B %d, %Y %H:%M %p", time);
+end function human-readable-time;
+        </programlisting>
+	<para>
+          Then we use that function as an argument to the %m directive
+	  to produce the message:
+	</para>
+	<programlisting>
+format(*standard-output*, "Hello, my name is %s, and as of\n"
+                          "now, %m, I'm %d years old\n",
+       "Doug Auclair", 
+       rcurry(human-readable-time, get-current-time(timezone: 5 * 3600)),
+       33);
+        </programlisting>
+	<para>
+          There are several things of note in the above example.
+	</para>
+	<itemizedlist>
+          <listitem>
+	    <para>
+	      First, a short-hand for <function>format(*standard-output*,
+	      ...</function> is the <function>format-out</function> function
+	      found in the <dlibrary>Format-Out</dlibrary> library.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Second, two strings placed side-by-side (no commas) are
+	      concatenated, so
+	    </para>
+	    <programlisting>
+format(*standard-output*, "%s " "was " "here.\n", "Doug");
+            </programlisting>
+	    <para>
+	      is the same as
+	    </para>
+	    <programlisting>
+format(*standard-output*, "%s was here.\n", "Doug");
+            </programlisting>
+	  </listitem>
+	  <listitem>
+	    <para>
+              Third, <function>rcurry</function> is a function that takes a
+	      function and various arguments to create a new function.  A
+	      description of it is available in the &drm; (page 349).
+	      In this case, <function>rcurry</function> takes the
+	      function we created
+	      (<function>human-readable-time</function>) and the
+	      result of <function>get-current-time</function> (a
+	      function in the <dmodule>Time</dmodule> module, that,
+	      here, sets the timezone to Z+5 (hours), or Eastern
+	      Standard Time) as an argument that creates a new
+	      function that expects a
+	      <classname>&lt;stream&gt;</classname> instance to do its
+	      work. 
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Fourth, note that in the control string I use '\n'
+	      characters.  This is the preferred, and simplest, way to
+	      request a new-line.
+	    </para>
+	  </listitem>
+        </itemizedlist>
+        <para>
+          With the above points in mind, one can use the %m directive to
+	  integrate complex stream manipulation with the
+	  <function>format</function> function.
+	</para>
+      </sect3>
+    </sect2>
+  </sect1>
+	    
   </chapter>
 
   <CHAPTER ID="libs-format-out">
@@ -3664,15 +3821,13 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 
   <CHAPTER ID="libs-transcendental">
 
-    <!-- This is causing problems with Jade, I believe
     <DOCINFO>
       <TITLE>Transcendental Library</TITLE>
       <DATE>November 11, 2000</DATE>
       <AUTHORGROUP>
-	<AUTHOR>&person.dauclair;</AUTHOR>
+	<AUTHOR>&person.auclair;</AUTHOR>
       </AUTHORGROUP>
     </DOCINFO>
-    -->
 
     <TITLE>The Transcendental Library</TITLE>
     <para>
@@ -4221,6 +4376,14 @@ log(100000, base: 10) => 5.0
   </CHAPTER>
 
   <CHAPTER ID="libs-time">
+    <DOCINFO>
+      <TITLE>Time Library</TITLE>
+      <DATE>November 15, 2000</DATE>
+      <AUTHORGROUP>
+	<AUTHOR>&person.auclair;</AUTHOR>
+      </AUTHORGROUP>
+    </DOCINFO>
+
     <TITLE>The Time Library</TITLE>
 
     <PARA>
@@ -4556,7 +4719,7 @@ log(100000, base: 10) => 5.0
   	<defparameters>
   	  <keyparam>
   	    <paramname>timezone</paramname>
-  	    <paramtype>false-or(&lt;timezone&gt;)</paramtype>
+  	    <paramtype>&lt;timezone&gt;</paramtype>
   	    <paramsummary>
 	      If supplied, uses the timezone to convert the current
 	      universal time.
@@ -5046,9 +5209,150 @@ log(100000, base: 10) => 5.0
   </CHAPTER>
 
   <CHAPTER ID="libs-random">
-    <TITLE>The Random Library</TITLE>
+    <docinfo>
+      <title>Random Library</title>
+      <date>November 17, 2000</date>
+      <author>&person.auclair;</author>
+    </docinfo>
 
-    <PARA></PARA>
+    <TITLE>The Random Library</TITLE>
+    <PARA>
+      The Random library provides random number support in several
+      random number distributions.  This is a replacement for David
+      Pierce's Random library.  This one is strongly based on Common
+      Lisp.  Much of the implementation has been translated from
+      CMUCL's rand.lisp, which was written by David Adam.  Code that
+      turns a uniform random distribution into Gaussian and
+      exponential distributions has been adapted from David Pierce's
+      library. 
+    </PARA>
+
+    <sect1 id="libs-random-random">
+      <title>The Random Module</title>
+
+      <dylanmethoddef>
+        <defname>random</defname>
+	<defsummary>
+	  Generates a random integer
+	</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>arg</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	    <paramsummary>Maximum number generated</paramsummary>
+	  </param>
+	  <keyparam>
+	    <paramname>state</paramname>
+	    <paramtype>&lt;random-state&gt;</paramtype>
+	    <paramdefault>*random-state*</paramdefault>
+	    <paramsummary>
+	      The state used to generate the random
+	      number
+	    </paramsummary>
+	  </keyparam>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>random-number</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Return a random integer between 0 (inclusive) and arg
+	    (exclusive).  We return the same kind of integer that arg
+	    is. 
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>random-bits</defname>
+	<defsummary>
+	  Generates a random series of bits
+	</defsummary>
+	<defparameters>
+	  <keyparam>
+	    <paramname>state</paramname>
+	    <paramtype>&lt;random-state&gt;</paramtype>
+	    <paramdefault>*random-state*</paramdefault>
+	    <paramsummary>
+	      The state used to generate the random
+	      bit series.
+	    </paramsummary>
+	  </keyparam>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>bits</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Returns a fixed integer that has
+	    <constant>$random-bits-count</constant >
+	    random bits. This function is the fastest way to get a
+	    random series of bits. 
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+
+      <dylanconstantdef>
+        <defname>$random-bits-count</defname>
+        <defsummary>
+	  Number of bits returned by random-bits.
+        </defsummary>
+        <deftype>
+          &lt;integer&gt;
+        </deftype>
+        <defdescription>
+          <para>
+	    The computation of this constant takes the upper bound
+	    integer (a number larger than 1e+9) bit size and adjusts
+	    to avoid loss of randomness near the limit.
+          </para>
+        </defdescription>
+      </dylanconstantdef>
+
+      <dylanclassdef>
+        <defname>&lt;random-state&gt;</defname>
+	<defadjectives>
+	  sealed
+	  instantiable
+	</defadjectives>
+	<defsummary>
+	  Used to compute a random number
+	</defsummary>
+	<defsupers>
+	  <defsuper>&lt;object&gt;</defsuper>
+	</defsupers>
+  	<definitkeywords>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+	    The <classname>&lt;random-state&gt;</classname> has slots
+	    that maintain a seed state so that a new random number can
+	    be generated.
+	  </para>
+	</defdescription>
+      </dylanclassdef>
+
+      <dylanvariabledef>
+        <defname>*random-state*</defname>
+	<defsummary>
+	  An instance that maintains the random state
+	</defsummary>
+	<deftype>&lt;random-state&gt;</deftype>
+	<defdescription>
+	  <para>
+	    Used, by default, to compute random integers and series of
+	    bits
+	  </para>
+	</defdescription>
+      </dylanvariabledef>
+
+    </sect1>
   </CHAPTER>
   
   <CHAPTER ID="libs-matrix">
