@@ -341,6 +341,17 @@ define function quick-sort!
   end block;
 end function quick-sort!;
 
+define inline-only function sort!-aux
+    (vector :: <simple-object-vector>, sz :: <integer>, test :: <function>, stable :: <object>)
+ => ();
+  if (stable)
+    merge-sort!(vector, test, 0, sz);
+  else
+    quick-sort!(vector, test, 0, sz, sz.qsort-depth-allowed);
+  end if;
+  insertion-sort!(vector, test, 0, sz);
+end function sort!-aux;
+
 
 
 //// Sort for Sequences
@@ -358,61 +369,78 @@ end function quick-sort!;
 // sorted it is coerced to the class for copy of the original sequence.
 //
 define method sort!
-    (sequence :: <sequence>, #key test :: <function> = \<,
-     stable)
- => (new-seq :: <sequence>);
+    (sequence :: <sequence>, #key test :: <function> = \<, stable)
+ => (new-sequence :: <sequence>);
   let vector = as(<simple-object-vector>, sequence);
-  let sz = vector.size;
-  if (stable)
-    merge-sort!(vector, test, 0, sz);
-  else
-    quick-sort!(vector, test, 0, sz, sz.qsort-depth-allowed);
-  end if;
-  insertion-sort!(vector, test, 0, sz);
+  sort!-aux(vector, vector.size, test, stable);
   as(type-for-copy(sequence), vector);
 end method sort!;
 
-
 define method sort!
-    (vector :: <simple-object-vector>, #key test :: <function> = \<,
-     stable)
+    (vector :: <simple-object-vector>, #key test :: <function> = \<, stable)
  => (vector :: <simple-object-vector>);
-  let sz = vector.size;
-  if (stable)
-    merge-sort!(vector, test, 0, sz);
-  else
-    quick-sort!(vector, test, 0, sz, sz.qsort-depth-allowed);
-  end if;
-  insertion-sort!(vector, test, 0, sz);
+  sort!-aux(vector, vector.size, test, stable);
   vector;
 end method sort!;
-
 
 define method sort!
-    (vector :: <stretchy-object-vector>, #key test :: <function> = \<,
-     stable)
- => (vector :: <stretchy-object-vector>);
-  // just sort the contained <simple-object-vector>!
-  // NB sort to size of stretchy NOT size of ssv-data, because of
-  // unused elements
-  let sz = vector.size;
-  if (stable)
-    merge-sort!(vector.ssv-data, test, 0, sz);
-  else
-    quick-sort!(vector.ssv-data, test, 0, sz, sz.qsort-depth-allowed);
-  end if;
-  insertion-sort!(vector.ssv-data, test, 0, sz);
-  vector;
+    (ssv :: <stretchy-object-vector>, #key test :: <function> = \<, stable)
+ => (ssv :: <stretchy-object-vector>);
+  // Just sort the first size elements of the ssv's contained simple object
+  // vector, ssv.ssv-data. There's no need to sort the unused elements, i.e.
+  // the contained simple object vectors elements from ssv.size to
+  // ssv.ssv-data.size
+  sort!-aux(ssv.ssv-data, ssv.size, test, stable);
+  ssv;
 end method sort!;
 
+define method sort!
+    (list :: <list>, #key test :: <function> = \<, stable)
+ => (new-list :: <list>);
+  let vector = as(<simple-object-vector>, list);
+  sort!-aux(vector, vector.size, test, stable);
+  as(<list>, vector);
+end method sort!;
+
+define method sort!
+    (deque :: <deque>, #key test :: <function> = \<, stable)
+ => (new-deque :: <deque>);
+  let vector = as(<simple-object-vector>, deque);
+  sort!-aux(vector, vector.size, test, stable);
+  as(<deque>, vector);
+end method sort!;
+
+define method sort!
+    (byte-string :: <byte-string>, #key test :: <function> = \<, stable)
+ => (new-byte-string :: <byte-string>);
+  let vector = as(<simple-object-vector>, byte-string);
+  sort!-aux(vector, vector.size, test, stable);
+  as(<byte-string>, vector);
+end method sort!;
 
 // sort -- public
 //
-// Returns a new sorted sequence from the original sequence.  Calls SORT!
-// on a copy of the original sequence.
+// Returns a new sorted sequence with the elements of the original sequence
+// by calling sort!. We only need make a copy of the input sequence if it 
+// is a simple object vector or stretchy object vector because the call to
+// as(<simple-object-vector>, sequence) in sort! ensures that we will not
+// modify the original sequence. "as" is sealed over that domain, so
+// relying on that assumption should be safe.
 //
-define method sort
+define inline method sort
     (sequence :: <sequence>, #key test :: <function> = \<, stable)
- => (result :: <sequence>);
-  sort!(copy-sequence(sequence), test: test, stable: stable);
+ => (new-sequence :: <sequence>);
+  sort!(sequence, test: test, stable: stable);
+end method sort;
+
+define method sort
+    (vector :: <simple-object-vector>, #key test :: <function> = \<, stable)
+ => (new-vector :: <simple-object-vector>);
+  sort!(shallow-copy(vector), test: test, stable: stable);
+end method sort;
+
+define method sort
+    (ssv :: <stretchy-object-vector>, #key test :: <function> = \<, stable)
+ => (new-ssv :: <stretchy-object-vector>);
+  sort!(shallow-copy(ssv), test: test, stable: stable);
 end method sort;
