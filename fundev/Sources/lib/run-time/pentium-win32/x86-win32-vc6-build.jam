@@ -203,15 +203,13 @@ rule DylanLibraryCLibraries image : libraries {
   # Link C (or other externally-derived) libraries into the shared library.
   
   local _dll = [ FDLLName $(image) ] ;
-  local _exe = [ FDLLName $(image) ] ;
+  local _exe = [ FEXEName $(image) ] ;
 
   local _i ;
   for _i in $(libraries) {
-    switch $(_i) {
-      case * :      LINKLIBS on $(_dll) $(_exe) += $(_i) ;
-	            if ! $(_i) in $(_clib_$(image[1]:L)) {
-		      _clib_$(image[1]:L) += $(_i) ;
-		    }
+    if ! $(_i) in $(_clib_$(image[1]:L)) {
+      _clib_$(image[1]:L) += $(_i) ;
+      LINKLIBS on $(_dll) $(_exe) += $(_i) ;
     }
   }
 }
@@ -340,8 +338,8 @@ rule DylanLibraryUses image : library : dir {
   for _i in $(_lib_$(library:L)) {
     if ! $(_i) in $(_lib_$(image[1]:L)) {
       Depends $(_dll) : $(_i) ;
-      NEEDLIBS on $(_dll) $(_exe) += $(_i) ;
       _lib_$(image[1]:L) += $(_i) ;
+      NEEDLIBS on $(_dll) $(_exe) += $(_i) ;
     }
   }
   for _i in $(_clib_$(library:L)) {
