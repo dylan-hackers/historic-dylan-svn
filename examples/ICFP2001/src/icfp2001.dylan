@@ -310,7 +310,12 @@ define function main(name, arguments)
       format-out("      '%s'\n", s);
     end;
 
-  format-out("%=\n", generate-output(parse-tree));
+  let optimized-output = apply(concatenate, generate-output(parse-tree));
+  format-out("%=\n", optimized-output);
+
+  if (optimized-output.size < original-input.size)
+    best-transformation := optimized-output;
+  end if;
 
     while(time-is-not-up?())
       optimize();

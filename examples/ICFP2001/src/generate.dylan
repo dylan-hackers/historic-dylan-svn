@@ -28,8 +28,6 @@ define method generate-output(input)
           add!(state.current-output, state.open-tags.first.close-tag);
           pop(state.open-tags);
           pop(state.attribute-stack);
-          add!(state.current-output, state.remaining-output[0].string);
-          state.remaining-output := subsequence(state.remaining-output, start: 1);
         end;
 
   while(state.remaining-output.size > 0)
@@ -37,6 +35,9 @@ define method generate-output(input)
     debug("%=\n", state.remaining-output);
     let from = state.attribute-stack.first;
     let to   = state.remaining-output[0].attributes;
+    describe-attributes(from, *standard-error*);
+    describe-attributes(to, *standard-error*);
+
     if(from.value = to.value)
       add!(state.current-output, state.remaining-output[0].string);
       state.remaining-output := subsequence(state.remaining-output, start: 1);
@@ -75,5 +76,9 @@ define method generate-output(input)
       end if;
     end if;
   end while;
+  while(state.attribute-stack.size > 1)
+    pop-tag();
+  end while;
+  state.current-output;
 end method generate-output;
 
