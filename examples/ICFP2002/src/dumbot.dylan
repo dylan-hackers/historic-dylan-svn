@@ -88,7 +88,8 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     // Pick ups:
     format-out("DB: All packages: %=\n", s.packages);
     force-output(*standard-output*);
-    let packages-here = packages-at(s, robot.location);
+    let packages-here = packages-at(s, robot.location, 
+				    available-only: #t);
     format-out("DB: Packages here: %=\n", packages-here);
     force-output(*standard-output*);
     if (packages-here ~= #f & ~packages-here.empty?)
