@@ -26,6 +26,10 @@ define method xml-name(ref :: <reference>, state :: <printing>)
   concatenate(*ampersand*, next-method(), ";");
 end method xml-name;
 
+// This method follows a common pattern in this module:  print-object
+// calls transform to do its work.  The transform methods, therefore, 
+// exercise more precise control over elements ... print-object is a
+// easy-going approach to viewing elements.
 define method print-object(e :: <element>, s :: <stream>) => ()
   transform(e, e.name, *printer-state*, s);
 end method print-object;
@@ -37,6 +41,8 @@ define method transform(e :: <element>, tag-name :: <symbol>,
                         state :: <printing>, s :: <stream>)
   format(s, "%s%s", *open-tag*, xml-name(e, state));
   for(attr in e.element-attributes) transform(attr, attr.name, state, s) end;
+
+  // this test identifies empty elements when printing (saves a bit of space).
   if(e.text.empty? & e.node-children.empty?)
     format(s, "/%s", *close-tag*)
   else
