@@ -1,2 +1,0 @@
-#!/bin/sh
-./src/icfp2001 $1 2>/dev/null
