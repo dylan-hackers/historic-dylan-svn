@@ -189,7 +189,7 @@ define function bgh-parse(s :: <byte-string>)
   local
     method save-run()
       if (run-state.value ~== curr-state.value)
-	if (non-space-char-in-run)
+//	if (non-space-char-in-run)
 	  let s :: <byte-string> = as(<byte-string>, fragments);
 	  if (s.size > 0)
 	    add!(runs,
@@ -198,9 +198,9 @@ define function bgh-parse(s :: <byte-string>)
 	  fragments.size := 0;
 	  non-space-char-in-run := #f;
 	  run-state := curr-state;
-	else
-	  run-state := curr-state;
-	end;
+//	else
+//	  run-state := curr-state;
+//	end;
       end;
     end method save-run;
   
@@ -305,14 +305,12 @@ define function main(name, arguments)
     let parse-tree          = bgh-parse(original-input);
 
     //format-out("%=\n", parse-tree);
-/*
-    for (e in parse-tree)
-      let a :: <attribute> = e.attributes;
-      let s :: <byte-string> = e.string;
-      describe-attributes(a, *standard-output*);
-      format-out("      '%s'\n", s);
-    end;
-*/
+//    for (e in parse-tree)
+//      let a :: <attribute> = e.attributes;
+//      let s :: <byte-string> = e.string;
+//      describe-attributes(a, *standard-output*);
+//      format-out("      '%s'\n", s);
+//    end;
   let optimized-output = apply(concatenate, generate-output(parse-tree));
 //  format-out("%=\n", optimized-output);
 

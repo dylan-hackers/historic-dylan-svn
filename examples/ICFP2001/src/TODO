@@ -1,6 +1,10 @@
 TODO list
 
-EM should invert!  And only if S not set
-S should clear EM
-implement space context and space compression
 
+
+
+Things to fix in gd after contest:
+
+Fix read-to-end.
+Fix subsequence for strings.
+Implement <stretchy-byte-string>.
