@@ -7,6 +7,9 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
+define constant $dylanmakefile  = "dylanmakefile.mkf";
+define constant $build-log-file = "build.log";
+
 define settings <build-system-settings> (<functional-developer-user-settings>)
   key-name "Build-System";
   slot build-script :: <string>
@@ -66,24 +69,42 @@ define method build-system
 	  project-build-info,
           force?,
 	  configure? = #t)
- => (build-successful? :: <boolean>)
+ => (build-successful? :: <boolean>);
   if (configure?)
     configure-build-system();
   end;
 
-  block (return)
-    let jam
-      = make-jam-state(build-script, progress-callback: progress-callback);
-    with-build-directory (directory)
-      jam-read-mkf(jam, as(<file-locator>, "dylanmakefile.mkf"));
-      jam-target-build(jam, build-targets,
-                       progress-callback: progress-callback,
-                       force?: force?);
-    end;
-  exception (e :: <error>)
-    progress-callback(condition-to-string(e), error?: #t);
-    return(#f);
-  exception (w :: <warning>)
-    progress-callback(condition-to-string(w), warning?: #t);
-  end block;
+  let log-file
+    = make(<file-locator>, directory: directory, name: $build-log-file);
+  with-open-file (stream = log-file, direction: #"output")
+    local
+      method wrap-progress-callback(message-string :: <string>, #rest keys)
+        write-line(stream, message-string);
+        apply(progress-callback, message-string, keys);
+      end method;
+
+    block (return)
+      let jam
+        = make-jam-state(build-script,
+                         progress-callback: wrap-progress-callback);
+      with-build-directory (directory)
+        jam-read-mkf(jam, as(<file-locator>, $dylanmakefile));
+        
+        format(stream, "building targets:");
+        for (target in build-targets)
+          format(stream, " %s", target);
+        end for;
+        new-line(stream);
+        
+        jam-target-build(jam, build-targets,
+                         progress-callback: wrap-progress-callback,
+                         force?: force?);
+      end;
+    exception (e :: <error>)
+      wrap-progress-callback(condition-to-string(e), error?: #t);
+      return(#f);
+    exception (w :: <warning>)
+      wrap-progress-callback(condition-to-string(w), warning?: #t);
+    end block;
+  end with-open-file;
 end method;
