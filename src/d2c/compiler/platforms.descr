@@ -1,6 +1,6 @@
 // A description of all target platforms we support.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.18.2.1 1999/06/19 18:40:52 housel Exp $
+// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.18.2.2 1999/07/11 03:38:18 housel Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -224,7 +224,6 @@ platform-name:				solaris
 inherit-from:				generic-unix
 default-features:			compiled-for-solaris
 make-command:                   	gmake
-comment-token:                  	!
 
 // HP/UX:
 platform-name:				hpux
@@ -354,10 +353,10 @@ link-shared-library-command:
 // FreeBSD 3.x
 platform-name:			x86-freebsd-elf-gcc
 inherit-from:			gcc freebsd x86
-comment-token:			Hurkle
 
 platform-name:			ppc-linux-gcc
 inherit-from:			gcc linux ppc
+link-shared-library-command:	
 
 platform-name:			alpha-linux-gcc
 inherit-from:			gcc linux alpha
