@@ -20,6 +20,9 @@ module: messages
 // Setting board data: aref(space, <board>, row, col) => ()
 // Making robots -- robot(N) should be a hash-consing constructor
 // that returns the same robot if N is repeated (aka Flyweight pattern).
+//
+// For commands:
+// I need the types <north> <south> <east> <west> & <direction>
 
 // Constants and error handling. 
 
@@ -73,41 +76,21 @@ end function send-player;
 
 // This code is kind of yucky. How can I clean it up?
 
-define generic send-move (s :: <stream>,
-                          bid :: <integer>,
-                          direction :: <direction>) => ();
+define generic send-command (s :: <stream>, c :: <command>) => ();
 
-define method send-move (s :: <stream>,
-                         bid :: <integer>,
-                         direction :: <north>) => ();
-  format(s, "%d ", bid);
-  format(s, "%s\n", $north-string);
-  debug("send-move: bid = %d and direction <north>\n")
-end function send-move;
-
-define method send-move (s :: <stream>,
-                         bid :: <integer>,
-                         direction :: <south>) => ();
-  format(s, "%d ", bid);
-  format(s, "%s\n", $south-string);
-  debug("send-move: bid = %d and direction <south> \n")
-end function send-move;
-
-define method send-move (s :: <stream>,
-                         bid :: <integer>,
-                         direction :: <east>) => ();
-  format(s, "%d ", bid);
-  format(s, "%s\n", $east-string);
-  debug("send-move: bid = %d and direction <east>\n")
-end function send-move;
-
-define method send-move (s :: <stream>,
-                         bid :: <integer>,
-                         direction :: <west>) => ();
-  format(s, "%d ", bid);
-  format(s, "%s\n", $west-string);
-  debug("send-move: bid = %d and direction <west>\n")
-end function send-move;
+define method send-command (s :: <stream>, command :: <move>) => ();
+  let direction-string =
+    select (command.direction)
+      $north => $north-string;
+      $south => $south-string;
+      $east => $east-string;
+      $west => $west-string;
+      otherwise => error("send-command: Can't happen!")
+    end select;
+  format(s, "%d Move %s", command.bid, direction-string);
+  debug("send-command(<move>): bid %d and dir %s\n",
+        command.bid, direction-string);
+end function send;
 
 // This sends a message to pick up some objects. 
 
@@ -120,25 +103,21 @@ define function send-package-ids (s :: <stream>,
   end for;
 end function send-package-ids;
 
-define method send-pick (s :: <stream>,
-                         big :: <integer>,
-                         package-ids :: <sequence>) => ();
-  format(s, "%d Pick", bid);
-  debug("send-pick: %d Pick %=\n", package-ids);
-  send-package-ids(s, package-ids);
-end method send-pick;
+define method send-command (s :: <stream>, command :: <pick>) => ()
+  format(s, "%d Pick ", command.bid);
+  send-package-ids(s, command.package-ids);
+  debug("send-command(<pick>): bid %d, ids %=\n",
+        command.bid, command.package-ids)
+end method send-command;
 
-define method send-drop (s :: <stream>,
-                         big :: <integer>,
-                         package-ids :: <sequence>) => ();
-  format(s, "%d Drop", bid);
-  debug("send-drop: %d Pick %=\n", package-ids);
-  send-package-ids(s, package-ids);
-end method send-drop;
+define method send-command (s :: <stream>, command :: <drop>) => ()
+  format(s, "%d Drop ", command.bid);
+  send-package-ids(s, command.package-ids);
+  debug("send-command(<drop>): bid %d, ids %=\n",
+        command.bid, command.package-ids)
+end method send-command;
 
 // 
-
-
 
 // Basic receiver functions. These functions will let you understand the
 // server and send messages to it. 
@@ -329,7 +308,7 @@ end function receive-string;
 // Read an integer from a string. The integer *CANNOT* be prefixed with
 // spaces. It may start with 1 '-'. 
 
-define function receive-integer (stream :: <stream) => int :: <integer>;
+define function receive-integer (stream :: <stream) => <integer>;
   let v = make(<stretchy-vector>);
   when (stream.peek = '-')
     v := add!(v, stream.read-element);

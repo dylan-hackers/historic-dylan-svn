@@ -48,7 +48,9 @@ define module messages
     message-error,
     add-error,
     // send routines
-    send-player,  // This sends the "Player" message to the server.
+    send-player,  // This sends the "Player" message to the server to
+                  //initialize.
+    send-command,
     // receive routines
     receive-initial-setup, // Reads initial board plus self robot, w/ robot
                            // positions. Does it all.
