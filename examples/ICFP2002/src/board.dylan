@@ -1,9 +1,9 @@
 module: board
 
-
+define constant <line> = limited(<vector>, of: <object>);
 
 define class <board>(<array>)
-  slot lines :: limited(<vector>, of: limited(<vector>, of: <object>));
+  slot lines :: limited(<vector>, of: <line>);
 end;
 
 
@@ -25,15 +25,40 @@ define method aref-setter(obj, board :: <board>, #rest coords /* :: limited(<int
   board.lines[y][x] := obj;
 end;
 
+define method as(class == <character>, obj :: <character>)
+ => obj :: <byte-character>;
+  obj
+end;
 
-define function send-board(s :: <stream>)
+define generic object-from-character(c :: <character>)
+ => obj;
+
+
+define function send-board(s :: <stream>, board :: <board>)
  => ();
-  
+  do(curry(write-line, s),
+     map(method (line :: <line>)
+           map-as(<string>, curry(as, <character>), line)
+         end,
+         board.lines));
 end;
 
 define function receive-board(s :: <stream>, board :: <board>)
  => ();
-  let line = s.read-line;
-  
+//  let line = s.read-line;
+let landscape =  #("..@...."
+  "......."
+  "##.~~~~"
+  "...~~~~"
+  ".......");
+
+  board.lines
+    := map-as(limited(<vector>, of: <line>),
+              curry(map-as, <line>, object-from-character),
+              landscape);
+
+
 end;
+
+
 
