@@ -46,7 +46,7 @@ define method get(q :: <priority-queue>)
     #f;
   else
     let result = q.elements.head;
-    q.elements = q.elements.tail;
+    q.elements := q.elements.tail;
     result;
   end if;
 end;
