@@ -177,15 +177,13 @@ end collect-value att-value;
 
 //    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
 //
-define collect-value system-literal() ()
-  "'", "\"" => []
-end;
+define collect-value system-literal() () "'", "\"" => { } end;
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
 //
 define collect-value pubid-literal() 
   (test: method(x, y) subtype?(singleton(x), y) end)
-  <pub-id-char-without-quotes>, <pub-id-char> => []
+  <pub-id-char-without-quotes>, <pub-id-char> => { }
 end;
 
 //    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
@@ -321,7 +319,7 @@ define parse doctypedecl(s, name, id, markup, decl-sep)
   "<!DOCTYPE", parse-s(s), parse-name(name),
   {[parse-s(s), parse-external-id(id)], []},
   parse-s?(s),
-  {['[', loop({parse-markupdecl(markup), parse-decl-sep(decl-sep)}), 
+  {['[', loop({parse-markupdecl(markup), parse-decl-sep(decl-sep)}), ']',
    parse-s?(s)], []}, ">"
 end parse doctypedecl;
 
@@ -365,7 +363,7 @@ end parse sd-decl;
 // This function here parses the attribute value part of the
 // attribute -- so this function will parse "bar" for 
 // <foo name="bar"/> (quotes are included)
-define collect-value xml-attribute(c) () "'", "\"" => [] end;
+define collect-value xml-attribute(c) () "'", "\"" => { } end;
 
 // Element
 // 
@@ -830,7 +828,7 @@ end parse public-id;
 //    [89]    Extender    ::=    #x00B7 | #x02D0 | #x02D1 | #x0387 | #x0640 | #x0E46 | #x0EC6 | #x3005 | [#x3031-#x3035] | [#x309D-#x309E] | [#x30FC-#x30FE]
 //    
 //
-define collect-value encoding-info(eq, c) () "'", "\"" => [] end;
+define collect-value encoding-info(eq, c) () "'", "\"" => { } end;
 
 define collector xml-attributes(attr-name, eq, attr-val, sp) => (str)
   loop([parse-name(attr-name), parse-eq(eq),
