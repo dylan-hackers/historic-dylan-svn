@@ -96,6 +96,11 @@ end;
 
 define method compile-one(token == '/', more-tokens :: <pair>) => (closure :: <function>, remaining :: <list>);
   let binding :: <symbol> = more-tokens.head;
+
+  if (sorted-applicable-methods(compile-one, binding, more-tokens.tail).size > 1)
+  	error("cannot rebind reserved word '%s'", as(<byte-string>, binding));
+  end if;
+
   let (cont, remaining) = compile-GML(more-tokens.tail);
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
