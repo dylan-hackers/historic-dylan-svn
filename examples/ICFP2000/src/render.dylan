@@ -29,7 +29,7 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
   tracer;
 end method get-tracer;
 
-define constant $eye-pos :: <vector> = vector(0.0, 0.0, -1.0);
+define constant $eye-pos :: <vector> = vector(0.0, 0.0, -1.0, 1.0);
 
 define method render-image(o, depth :: <integer>, filename, ambient :: <color>, 
 			   lights :: <collection>, width :: <integer>,
@@ -45,11 +45,11 @@ define method render-image(o, depth :: <integer>, filename, ambient :: <color>,
   
   for (y from 0 below height)
     for (x from 0 below width)
-      let world-x :: <float> = (as(<float>, x - truncate/(width, 2)) 
-				  / as(<float>, width)) * world-width;
-      let world-y :: <float> = (as(<float>, y - truncate/(height, 2))
-				  / as(<float>, height)) * world-height;
-      let ray :: <vector> = $eye-pos - vector(world-x, world-y, 0.0);
+      let world-x :: <float> = as(<float>, x - truncate/(width, 2)) 
+				  / as(<float>, width) * world-width;
+      let world-y :: <float> = as(<float>, y - truncate/(height, 2))
+				  / as(<float>, height) * world-height;
+      let ray :: <vector> = vector(world-x, world-y, 0.0, 2.0) - $eye-pos; // XXX
       write-pixel(canvas, trace($eye-pos, ray, depth));
     end for;
   end for;
