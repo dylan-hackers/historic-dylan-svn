@@ -132,6 +132,11 @@ define http-error header-too-large-error (<http-client-error>)
 //define http-error request-url-too-large-error (<http-client-error>)
 //    414 "Request URL exceeded limit of %d bytes", max-size;
 
+// Generic bad-request error.
+define http-error bad-request (<http-parse-error>)
+    400 "Bad request: %s",
+    message;
+
 define http-error invalid-url-error (<http-parse-error>)
     400 "Invalid request url: %=",
     url;

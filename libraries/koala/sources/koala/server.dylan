@@ -1,7 +1,7 @@
 Module:    httpi
 Synopsis:  Core HTTP server code
 Author:    Gail Zacharias, Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
            Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
@@ -10,6 +10,11 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
 define constant $server-version = "0.4";
+
+
+// This may be set true by config file loading code, in which case
+// start-server will be a no-op.
+define variable *abort-startup?* :: <boolean> = #f;
 
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
@@ -46,6 +51,11 @@ define class <server> (<sealed-constructor>)
   // RFC 2616, 5.1.1
   constant slot allowed-methods :: <sequence> = #(#"GET", #"POST", #"HEAD");
 
+  // TODO: this should be per vhost
+  //       then 'define page' needs to specify vhost until dynamic
+  //       library loading works.  (ick.)  once dynamic library loading
+  //       works we use <module foo> inside <virtual-host> in the config
+  //       and bind *virtual-host* while the library is loading?
   // Map from URL string to a response function.  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
   constant slot url-map :: <string-table> = make(<string-table>);
@@ -125,6 +135,8 @@ end class <listener>;
 define class <client> (<sealed-constructor>)
   constant slot client-server :: <server>,
     required-init-keyword: server:;
+  constant slot client-listener :: <listener>,
+    required-init-keyword: listener:;
   constant slot client-socket :: <tcp-socket>,
     required-init-keyword: socket:;
   constant slot client-thread :: <thread>,
@@ -162,6 +174,11 @@ define inline function request-thread (request :: <basic-request>)
   request.request-client.client-thread
 end;
 
+define inline function request-port (request :: <basic-request>)
+    => (port :: <integer>)
+  request.request-client.client-listener.listener-port;
+end;
+
 define variable *sockets-started?* :: <boolean> = #f;
 
 define function ensure-sockets-started ()
@@ -187,17 +204,18 @@ end;
 
 define variable *next-listener-id* :: <integer> = 0;
 
-define function init-server (#key listeners :: <integer> = 1,
-                                  request-class :: subclass(<basic-request>)
-                                    = *default-request-class*)
-  log-info("%s HTTP Server starting up", $server-name);
+// This is called when the library is loaded (from main.dylan).
+define function init-server
+    (#key listeners :: <integer> = 1,
+     request-class :: subclass(<basic-request>)
+       = *default-request-class*)
   let server :: <server> = ensure-server();
   server.max-listeners := listeners;
   server.request-class := request-class;
   configure-server();
-  ensure-sockets-started();
+  log-info("%s HTTP Server starting up", $server-name);
+  ensure-sockets-started();  // Can this be moved into start-server?
   log-info("Server root directory is %s", *server-root*);
-  log-info("Document root is %s", *document-root*);
   when (*auto-register-pages?*)
     log-info("Auto-register enabled");
   end;
@@ -207,23 +225,36 @@ end init-server;
 // API
 //
 define function start-server ()
-  log-info("Ready for service on port %d", *server-port*);
-  while (start-http-listener(*server*, *server-port*))
-    // do nothing
+  if (*abort-startup?*)
+    log-error("Server startup aborted due to the previous errors");
+  else
+    let ports = #();
+    for (vhost keyed-by name in $virtual-hosts)
+      ports := add!(ports, vhost-port(vhost))
+    end;
+    // temporary code...
+    let port = iff(empty?(ports), 80, ports[0]);
+    log-info("Ready for service on port %d", port);
+    while (start-http-listener(*server*, port))
+      // do nothing
+    end;
+    // Apparently when the main thread dies in a FunDev Dylan application
+    // the application exits without waiting for spawned threads to die,
+    // so join-listeners keeps the main thread alive until all listeners die.
+    join-listeners(*server*);
   end;
-  // Apparently when the main thread dies in a FunDev Dylan application
-  // the application exits without waiting for spawned threads to die,
-  // so join-listeners keeps the main thread alive until all listeners die.
-  join-listeners(*server*);
 end start-server;
 
 define function join-listeners
     (server :: <server>)
   // Don't use join-thread, because no timeouts, so could hang.
+  // eh?
   block (return)
     while (#t)
       with-lock (server.server-lock)
-        empty?(server.server-listeners) & return();
+        if (empty?(server.server-listeners))
+          return();
+        end;
         sleep(0.2);
       end;
     end;
@@ -294,7 +325,7 @@ define function join-clients (server :: <server>, #key timeout)
     server.clients.size := 0;
     n
   end;
-end function;
+end join-clients;
 
 define function start-http-listener (server :: <server>, port :: <integer>)
    => (started? :: <boolean>)
@@ -408,7 +439,11 @@ define function do-http-listen (listener :: <listener>)
         wrapping-inc!(listener.connections-accepted);
         wrapping-inc!(server.connections-accepted);
         let thread = make(<thread>, name: "HTTP Responder", function:  do-respond);
-        client := make(<client>, server: server, socket: socket, thread: thread);
+        client := make(<client>,
+                       server: server,
+                       listener: listener,
+                       socket: socket,
+                       thread: thread);
         add!(server.clients, client);
       end;
       loop();
@@ -421,7 +456,10 @@ define class <request> (<basic-request>)
   slot request-method :: <symbol> = #"unknown";
   slot request-version :: <symbol> = #"unknown";
   slot request-url :: <string> = "";
-  slot request-host :: <string> = "";
+
+  // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
+  slot request-host :: false-or(<string>) = #f;
+
   slot request-keep-alive? :: <boolean> = #f;
 
   // The actual headers, mapping string -> raw data
@@ -454,7 +492,8 @@ define thread variable *response* :: false-or(<response>) = #f;
 
 // Holds the map of query keys/vals in the "?x=1&y=2" part of the URL (for GET method)
 // or form keys/vals for the POST method.
-define thread variable *request-query-values* :: false-or(<string-table>) = #f;
+define thread variable *request-query-values* :: <string-table>
+  = make(<string-table>);
 
 // Is there ever any need for clients to use these?
 //define inline function current-request  () => (request :: <request>) *request* end;
@@ -497,7 +536,10 @@ define function handler-top-level
                   block ()
                     request.request-query-values := query-values;
                     read-request(request);
-                    dynamic-bind (*request-query-values* = query-values)
+                    dynamic-bind (*request-query-values* = query-values,
+                                  *virtual-host* = virtual-host(request) | $default-virtual-host)
+                      log-debug("Virtual host for request is '%s'", 
+                                vhost-name(*virtual-host*));
                       invoke-handler(request);
                     end;
                     force-output(request.request-socket);
@@ -536,11 +578,8 @@ define method read-request (request :: <request>) => ()
     // RFC 2616, 4.1 - Servers SHOULD ignore an empty line if received before any headers.
     pset (buffer, len) read-request-line(socket) end;
   end;
+  log-info("%s", substring(buffer, 0, len));
   read-request-first-line(request, buffer, len, server.allowed-methods);
-  log-info("%s %s%s %s",
-           uppercase-request-method(request.request-method),
-           request.request-host, request.request-url,
-           request.request-version);
   unless (request.request-version == #"http/0.9")
     request.request-headers
       := read-message-headers(socket,
@@ -553,6 +592,7 @@ define method read-request (request :: <request>) => ()
     read-request-content(request);
   end;
 end read-request;
+
 
 // Read first line of the HTTP request.  RFC 2068 Section 5.1
 //
@@ -573,10 +613,13 @@ define function read-request-first-line
     let epos = whitespace-position(buffer, bpos, eol) | eol;
     when (epos > bpos)
       let qpos = char-position('?', buffer, bpos, epos);
+      
       if (looking-at?("http://", buffer, bpos, qpos | epos))
+        // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
+        // Absolute URLs in the request line take precedence over Host header.
         bpos := bpos + 7;
         let host-end = char-position('/', buffer, bpos, qpos | epos);
-        request.request-host := substring(buffer, bpos, host-end);
+        request.request-host := substring(buffer, bpos, host-end | epos);
         bpos := host-end;
       end if;
       if (epos > bpos)
@@ -704,20 +747,31 @@ end method;
 // "User-agent" statistics, etc.
 //
 define method process-incoming-headers (request :: <request>)
-  let conn-values :: <sequence> = request-header-value(request, #"connection") | #();
-  if (member?("close", conn-values, test: string-equal?))
-    request-keep-alive?(request) := #f
-  elseif (member?("keep-alive", conn-values, test: string-equal?))
-    request-keep-alive?(request) := #t
+  bind (conn-values :: <sequence> = request-header-value(request, #"connection") | #())
+    if (member?("Close", conn-values, test: string-equal?))
+      request-keep-alive?(request) := #f
+    elseif (member?("Keep-Alive", conn-values, test: string-equal?))
+      request-keep-alive?(request) := #t
+    end;
   end;
-  let host = get-header(request, "host") | #f;
-  if (host & request.request-host = "")
-    request.request-host := host;
-    log-debug("Request-Host: %s", request.request-host);
-  end if;
-  let agent = request-header-value(request, #"user-agent");
-  agent
-    & note-user-agent(request-server(request), agent);
+  bind (host = get-header(request, "Host"))
+    if (~host & request.request-version == #"HTTP/1.1")
+      // HTTP/1.1 requests MUST include a Host header.
+      // http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.6.1.1
+      bad-request(message: "HTTP/1.1 requests must include a Host header.");
+    end;
+    // If request host is already set then there was an absolute URL in the request
+    // line, which takes precedence, so ignore Host header here.
+    // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
+    if (host & ~request.request-host)
+      request.request-host := host;
+      log-debug("Request host is '%s'", request.request-host);
+    end;
+  end;
+  bind (agent = request-header-value(request, #"user-agent"))
+    agent
+      & note-user-agent(request-server(request), agent);
+  end;
 end;
 
 // API
@@ -941,12 +995,10 @@ end extract-query-values;
 
 define method get-query-value
     (key :: <string>, #key as: as-type :: false-or(<type>)) => (val :: <object>)
-  if (*request-query-values*)
-    let value = element(*request-query-values*, key, default: #f);
-    iff (as-type & value,
-         as(as-type, value),
-         value);
-  end;
+  let value = element(*request-query-values*, key, default: #f);
+  iff (as-type & value,
+       as(as-type, value),
+       value)
 end;
 
 define method count-query-values
@@ -956,7 +1008,7 @@ end;
 
 define method do-query-values
     (f :: <function>)
-  for (val keyed-by key in *request-query-values* | #[])
+  for (val keyed-by key in *request-query-values*)
     f(key, val);
   end;
 end;

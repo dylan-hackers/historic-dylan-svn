@@ -59,7 +59,8 @@ define method output-stream
   | begin
       // The user can override this if they do it before writing to the
       // output stream.
-      set-content-type(response, *default-dynamic-content-type*, if-exists?: #"ignore");
+      set-content-type(response, default-dynamic-content-type(*virtual-host*),
+                       if-exists?: #"ignore");
       response.%output-stream := allocate-resource(<string-stream>);
     end
 end;
@@ -184,7 +185,7 @@ define method send-response
       write(stream, response-line);
     end unless;
 
-    if (*generate-server-header*)
+    if (generate-server-header?(*virtual-host*))
       add-header(response, "Server", $server-header-value);
     end if;
     add-header(response, "Date", as-rfc-1123-date(current-date()));

@@ -77,7 +77,7 @@ define method substring
       copy-sequence(str, start: begp, end: endp))
 end;
 
-/* see comment above
+/* TODO: see comment above
 define sealed method substring
     (str :: <byte-string>, begp :: <integer>, endp :: <integer>)
   if (begp == 0 & endp == str.size)

@@ -1,55 +1,44 @@
 Module:    httpi
 Synopsis:  Serve static files and directory listings
 Author:    Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-// Return a locator for the given URL under the *document-root*.
-/*
-define method document-location
-    (url :: <string>, #key context :: false-or(<directory-locator>))
- => (source :: <file-locator>)
-  let url = iff(~empty?(url) & url[0] = '/',
-                copy-sequence(url, start: 1),  // get rid of leading slash
-                url);
-  merge-locators(as(<file-locator>, url), context | *document-root*)
-end;
-*/
 
 // Merges the given URL against the context parameter and ensures that the
-// resulting locator refers to a document below *document-root*.  If not,
+// resulting locator refers to a document below the document root.  If not,
 // it returns #f to indicate the document location is invalid.
 // ---TODO: Consider signalling a real error instead.
 //
 define method document-location
-    (url :: <string>, #key context :: <directory-locator> = *document-root*)
+    (url :: <string>,
+     #key context :: <directory-locator> = document-root(*virtual-host*))
  => (locator :: false-or(<physical-locator>))
-  when (*document-root*)
-    block ()
-      let len :: <integer> = size(url);
-      let (bpos, epos) = trim-whitespace(url, 0, len);
-      if (bpos == epos)
-        *document-root*
+  block ()
+    let len :: <integer> = size(url);
+    let (bpos, epos) = trim-whitespace(url, 0, len);
+    if (bpos == epos)
+      context
+    else
+      let relative-url = iff(url[bpos] = '/', substring(url, 1, epos), url);
+      if (empty?(relative-url))
+        context
       else
-        let relative-url = iff(url[bpos] = '/', substring(url, 1, epos), url);
-        if (empty?(relative-url))
-          *document-root*
-        else
-          let loctype = iff(relative-url[size(relative-url) - 1] == '/',
-                            <directory-locator>,
-                            <file-locator>);
-          let loc = simplify-locator(merge-locators(as(loctype, relative-url), context));
-          if (locator-name(loc) = "..")
-            loc := locator-directory(locator-directory(loc));
-          end;
-          log-debug("document-location is %s", as(<string>, loc));
-          locator-below-document-root?(loc) & loc
-        end if
+        let loctype = iff(relative-url[size(relative-url) - 1] == '/',
+                          <directory-locator>,
+                          <file-locator>);
+        let loc = simplify-locator(merge-locators(as(loctype, relative-url), context));
+        if (locator-name(loc) = "..")
+          loc := locator-directory(locator-directory(loc));
+        end;
+        log-debug("document-location is %s", as(<string>, loc));
+        locator-below-document-root?(loc) & loc
       end if
-    exception (<locator-error>)
-      #f
-    end
+    end if
+  exception (ex :: <locator-error>)
+    log-debug("Locator error in document-location: %=", ex);
+    #f
   end
 end document-location;
 
@@ -58,6 +47,7 @@ define method maybe-serve-static-file
  => (found? :: <boolean>)
   let url :: <string> = request-url(request);
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+  log-debug("Requested document is %s", document);
   when (document)
     let (etag, weak?) = etag(document);
     if (weak?)
@@ -70,20 +60,39 @@ define method maybe-serve-static-file
       request.request-method := #"head";
       not-modified(headers: response.response-headers);
     else
+      let spec :: <directory-spec> = directory-spec-matching(*virtual-host*, url);
       select (file-type(document))
-        #"directory" => if (*allow-directory-listings*)
-                          if (url[size(url) - 1] = '/')
-                            directory-responder(request, response, document);
-                          else
-                            let new-location = concatenate(url, "/");
-                            moved-permanently-redirect(location: new-location, // 301
-                                                       header-name: "Location",
-                                                       header-value: new-location);
-                          end if;
-                        else
-                          access-forbidden-error();  // 403
-                        end if;
-        otherwise  => static-file-responder(request, response, document);
+        #"directory" =>
+          if (allow-directory-listing?(spec))
+            if (url[size(url) - 1] = '/')
+              directory-responder(request, response, document);
+            else
+              let new-location = concatenate(url, "/");
+              moved-permanently-redirect(location: new-location, // 301
+                                         header-name: "Location",
+                                         header-value: new-location);
+            end if;
+          else
+            access-forbidden-error();  // 403
+          end if;
+        #"link" =>
+          let target = link-target(document);
+          block (exit-loop)
+            while (#t)
+              if (~file-exists?(target)
+                    | (~locator-below-document-root?(target)
+                         & ~follow-symlinks?(spec)))
+                resource-not-found-error(url);
+              elseif (file-type(target) == #"link")
+                target := link-target(target);
+              else
+                exit-loop();
+              end;
+            end;
+          end;
+          static-file-responder(request, response, target);
+        otherwise =>
+          static-file-responder(request, response, document);
       end;
     end;
     #t
@@ -91,7 +100,7 @@ define method maybe-serve-static-file
 end;
 
 // @returns the appropriate locator for the given URL, or #f if the URL is 
-// invalid (for example it doesn't name an existing file below the *document-root*).
+// invalid (for example it doesn't name an existing file below the document root).
 // If the URL names a directory this checks for an appropriate default document
 // such as index.html and returns a locator for that, if found.
 //
@@ -108,11 +117,11 @@ end;
 define method find-default-document
     (locator :: <directory-locator>) => (locator :: <physical-locator>)
   block (return)
+    let default-docs = default-documents(*virtual-host*);
     local method is-default? (directory, name, type)
-            // ---TODO: portability - string-equal? is incorrect on Unix systems.
-            when (type = #"file" & member?(name, *default-document-names*, test: string-equal?))
-              return(merge-locators(as(<file-locator>, name),
-                                    as(<directory-locator>, directory)));
+            let potential :: <file-locator> = as(<file-locator>, name);
+            when (type = #"file" & member?(potential, default-docs, test: \=))
+              return(merge-locators(potential, as(<directory-locator>, directory)));
             end;
           end;
     do-directory(is-default?, locator);
@@ -122,7 +131,7 @@ end;
 
 define method locator-below-document-root?
     (locator :: <physical-locator>) => (below? :: <boolean>)
-  let relative = relative-locator(locator, *document-root*);
+  let relative = relative-locator(locator, document-root(*virtual-host*));
   locator-relative?(relative)  // do they at least share a common ancestor?
     & begin
         let relative-parent = locator-directory(relative);
@@ -140,7 +149,8 @@ end;
 define method get-mime-type (locator :: <locator>) => (mime-type :: <string>)
   let extension = locator-extension(locator);
   let sym = extension & ~empty?(extension) & as(<symbol>, extension);
-  let mime-type = element(*mime-type-map*, sym, default: *default-static-content-type*);
+  let mime-type = ((sym & element(*mime-type-map*, sym, default: #f))
+                     | default-static-content-type(*virtual-host*));
   log-debug("extension = %=, sym = %=, mime-type = %=", extension, sym, mime-type);
   mime-type;
 end method;
@@ -189,7 +199,7 @@ end method etag;
 
 // Serves up a directory listing as HTML.  The caller has already verified that this
 // locator names a directory, even though it may be a <file-locator>, and that the
-// directory it names is under *document-root*.
+// directory it names is under the document root.
 //---TODO: add image links.  deal with access control.
 define method directory-responder
     (request :: <request>, response :: <response>, locator :: <locator>)
@@ -262,9 +272,10 @@ define method directory-responder
                  "\t\t\t\t</tr>\n"
                  "\t\t\t</thead>\n");
   write(stream,  "\t\t\t<tbody>\n");
-  unless (loc = *document-root*
+  let docroot :: <directory-locator> = document-root(*virtual-host*);
+  unless (loc = docroot
           | (instance?(loc, <file-locator>)
-             & locator-directory(loc) = *document-root*))
+             & locator-directory(loc) = docroot))
     write(stream,
           "\t\t\t\t<tr>\n"
           "\t\t\t\t\t<td class=\"name\"><a href=\"../\">../</a></td>\n"
