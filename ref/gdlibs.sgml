@@ -123,13 +123,518 @@
     <SECT1>
       <TITLE>The Dylan Module</TITLE>
 
-      <PARA></PARA>
+      <PARA>Whenever possible, we have tried to keep the Dylan module
+      pristine and unextended, prefering to add our extensions to
+      separate modules or libraries. However, this is not always
+      possible, particularly when it involves extending the behavior
+      of a function or macro that is exported from the Dylan
+      module. Currently, Gwydion compilers support these extensions to
+      the Dylan module as described below:</PARA>
+
+      <ITEMIZEDLIST>
+	<LISTITEM>
+	  <PARA>Gwydion compilers support <LITERAL>keyed-by</LITERAL>
+	  clauses in <LITERAL>for</LITERAL> statements.  The format of
+	  such a clause is</PARA>
+
+	  <SYNOPSIS><PARAMETER>var</PARAMETER> keyed-by <PARAMETER>key</PARAMETER> in <PARAMETER>collection</PARAMETER></SYNOPSIS>
+
+	  <PARA>The <PARAMETER>var</PARAMETER> is bound to each
+	  element in <PARAMETER>collection</PARAMETER>, and
+	  <PARAMETER>key</PARAMETER> is bound to the element's key
+	  value.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Gwydion compilers supports <LITERAL>using</LITERAL>
+	  clauses in <LITERAL>for</LITERAL> statements.  The format of
+	  such a clause is</PARA>
+
+	  <SYNOPSIS><PARAMETER>var</PARAMETER> in <PARAMETER>collection</PARAMETER> using <PARAMETER>protocol</PARAMETER></SYNOPSIS>
+
+	  <PARA>The <PARAMETER>protocol</PARAMETER> will be used
+	  instead of
+	  <FUNCTION>forward-iteration-protocol</FUNCTION>. The
+	  <PARAMETER>protocol</PARAMETER> argument must be a variable
+	  name, not an expression. These <LITERAL>using</LITERAL>
+	  clauses may be used together with
+	  <LITERAL>keyed-by</LITERAL>:</PARA>
+	  
+	  <SYNOPSIS><PARAMETER>var</PARAMETER> keyed-by <PARAMETER>key</PARAMETER> in <PARAMETER>collection</PARAMETER> using <PARAMETER>protocol</PARAMETER></SYNOPSIS>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Gwydion compilers have an additional type of top level
+	  definition, <LITERAL>define function</LITERAL>, which
+	  creates a constant binding in the current module and
+	  initializes it to a new function. The usage of
+	  <LITERAL>define function</LITERAL> usage is similar to that
+	  of <LITERAL>define method</LITERAL>. The following is an
+	  example:</PARA>
+
+	  <PROGRAMLISTING>
+define function cube (x)
+  x * x * x;
+end function cube;
+</PROGRAMLISTING>
+
+	  <PARA>A similar result might be had by writing</PARA>
+
+	  <PROGRAMLISTING>
+define constant cube = method (x)
+                         x * x * x;
+                       end method;
+</PROGRAMLISTING>
+
+	  <PARA>or</PARA>
+
+	  <PROGRAMLISTING>
+define method cube (x)
+  x * x * x;
+end method cube;
+</PROGRAMLISTING>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Gwydion compilers supports subclass specializers via
+	  the <FUNCTION>limited</FUNCTION> function.  A subclass
+	  specializer causes a method to be invoked whenever the
+	  generic function was called on a value that is the specified
+	  class or any subclass of the specified class.  The method is
+	  never invoked on a value that is an instance (direct or
+	  indirect) of the specified class, only when the value is a
+	  subclass of the specified class.  The following is an
+	  example:</PARA>
+
+	  <PROGRAMLISTING>
+define method make
+    (result-class :: limited(&lt;class&gt;, subclass-of: &lt;my-class&gt;));
+  let x = next-method();
+  do-special-logging-or-something(x);
+  x;
+end method;</PROGRAMLISTING>
+	</LISTITEM>
+      </ITEMIZEDLIST>
     </SECT1>
 
     <SECT1 ID=libs-dylan-extensions>
       <TITLE>The Extensions Module</TITLE>
 
-      <PARA></PARA>
+      <PARA>Ultimately, there will be several, more logically separate
+      libraries that extend Dylan or provide an application framework
+      for users.  For now, we put any commonly used utilities in the
+      Extensions module.</PARA>
+
+      <SECT2>
+	<TITLE>Generally Useful Definitions</TITLE>
+
+	<PARA>The Extensions module exports the following generally
+	useful functionality:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;byte-vector&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This class is a subclass of
+	    <CLASSNAME>&lt;vector&gt;</CLASSNAME> that can only hold
+	    integers between 0 and 255 inclusively.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;byte-character&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+
+	    <PARA><CLASSNAME>&lt;character&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Characters of this type represent the ASCII
+	    character set (or extensions to ASCII such as ISO
+	    8859). Note, in Gwydion compilers the
+	    <CLASSNAME>&lt;character&gt;</CLASSNAME> class is
+	    equivalent to Unicode characters.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>assert</REFNAME>
+	    <REFPURPOSE>function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>assert</FUNCTION> <PARAMETER>value</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>value</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function signals an error if
+	    <PARAMETER>value</PARAMETER> is
+	    <LITERAL>#f</LITERAL>. Otherwise, it does nothing. In
+	    future Gwydion compilers, assert may be changed to a
+	    macro, which may or may not evaluate its argument exactly
+	    once.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>one-of</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>one-of</FUNCTION> #rest <PARAMETER>objects</PARAMETER> => <PARAMETER>type</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>objects</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>Instances of <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>type</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function takes any number of objects, and
+	    returns the type that is the type-union of the singletons
+	    of those objects. For example, the expression</PARA>
+
+	    <PROGRAMLISTING>
+one-of(#"foo", #"bar", #"baz")</PROGRAMLISTING>
+
+	    <PARA>is equivalent to</PARA>
+
+	    <PROGRAMLISTING>
+type-union(singleton(#"foo"), singleton(#"bar"), singleton(#"baz"))</PROGRAMLISTING>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>false-or</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>false-or</FUNCTION> <PARAMETER>type</PARAMETER> => <PARAMETER>bigger-type</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>Type</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>bigger-type</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function is useful in type expressions. It
+	    captures the common idiom of returning an instance of a
+	    particular type or the value #f. The expression</PARA>
+
+	    <PROGRAMLISTING>
+false-or(&lt;integer&gt;)</PROGRAMLISTING>
+
+	    <PARA>is equivalent to the expression</PARA>
+
+	    <PROGRAMLISTING>
+type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Debugger Customizations</TITLE>
+
+	<PARA>(A note on terminology: We use the term "debugger" here
+	in the loose, Dylan sense of anything that handles an uncaught
+	error. In Mindy, this debugger is indeed a full fledged
+	debugger, but in other Gwydion compilers it may not be.)</PARA>
+
+	<PARA>The debugger uses the function
+	<FUNCTION>report-condition</FUNCTION> to print conditions as error
+	messages to users; for example, this is the function that
+	implements the <LITERAL>%S</LITERAL> format-string directive
+	for conditions. The debugger also uses the
+	<FUNCTION>format</FUNCTION> function exported from the Cheap-io
+	module to process format strings, and it prints directly to
+	the Unix stdout. If any library that is used itself uses the
+	Debugger-format library, then the debugger uses format from
+	the Format library, which is shipped with Gwydion
+	compilers. You can extend how the debugger prints conditions,
+	change what formatting function it uses, and direct where
+	debugger output goes with the following:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>report-condition</REFNAME>
+	    <REFPURPOSE>Generic Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>report-condition</FUNCTION> <PARAMETER>condition</PARAMETER> <PARAMETER>stream</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>condition</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;condition&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>stream</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;stream&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This is the function that is used to print condition
+	    variables as error messages to users. The internal
+	    <FUNCTION>format</FUNCTION> function used by Mindy uses
+	    report-condition for condition arguments to the
+	    <LITERAL>%S</LITERAL> format directive. The Format
+	    library's <FUNCTION>print-message</FUNCTION> method for
+	    conditions calls
+	    <FUNCTION>report-condition</FUNCTION>.</PARA>
+
+	    <PARA>If you are writing a module that does no output but
+	    still provides report-condition methods, you should use
+	    <FUNCTION>condition-format</FUNCTION> to format
+	    output. Using <FUNCTION>condition-format</FUNCTION> makes
+	    your module more flexible for users of your module. If you
+	    call Cheap-IO's format, you'll be forced to write to only
+	    one destination, <LITERAL>stdout</LITERAL>, ignoring the
+	    <PARAMETER>stream</PARAMETER> argument. If you call the
+	    Format library's <FUNCTION>format</FUNCTION> function,
+	    then your module will require the Format, Print, and
+	    Streams libraries; therefore, users of your module may
+	    ultimately load these other libraries needlessly. Of
+	    course, if you want to make use of the extended
+	    functionality of the Format library's format control
+	    strings, then you only have one choice anyway, and there's
+	    no reason to use <FUNCTION>condition-format</FUNCTION>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME></REFNAME>
+	    <REFPURPOSE></REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>condition-format</FUNCTION> <PARAMETER>stream</PARAMETER> <PARAMETER>control-string</PARAMETER>#rest <PARAMETER>arguments</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>stream</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>control-string</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;string&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>arguments</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>Instances of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function serves as a firewall between the
+	    condition system and the Streams and Format
+	    libraries. Methods on
+	    <FUNCTION>report-condition</FUNCTION> should use
+	    <FUNCTION>condition-format</FUNCTION> to do their
+	    formatting. Users will generally use
+	    <LITERAL>*debug-output*</LITERAL> or
+	    <LITERAL>*warning-output*</LITERAL> for the stream
+	    argument, but this is not required.</PARA>
+
+	    <PARA>Mindy supplies a method for when stream is
+	    <LITERAL>#"Cheap-IO"</LITERAL>. The Gwydion Format library
+	    supplies a method for when stream is a subclass of
+	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
+	    implementing your own streams or format libraries, you
+	    will need to define a method on
+	    <FUNCTION>condition-format</FUNCTION> for your type of
+	    stream.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>condition-force-output</REFNAME>
+	    <REFPURPOSE>Generic Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>condition-force-output</FUNCTION> <PARAMETER>stream</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA><FUNCTION>Condition-force-output</FUNCTION> forces
+	    any pending output from <PARAMETER>stream</PARAMETER>'s
+	    buffer to <PARAMETER>stream</PARAMETER>'s
+	    destination. This function is invoked by the debugger
+	    after a condition has been reported and before it pauses
+	    for user input. Unless you are writing a debugger, you do
+	    not need to call
+	    <FUNCTION>condition-force-output</FUNCTION>
+	    yourself.</PARA>
+
+	    <PARA>Mindy supplies a method for when stream is
+	    <LITERAL>#"Cheap-IO"</LITERAL>. The Gwydion Format library
+	    supplies a method for when stream is a subclass of
+	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
+	    implementing your own streams or format libraries, you
+	    will need to define a method on
+	    <FUNCTION>condition-force-output</FUNCTION> for your type
+	    of stream.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>*warning-output*</REFNAME>
+	    <REFPURPOSE>Variable</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Default-handler for
+	    <CLASSNAME>&lt;warning&gt;</CLASSNAME> uses
+	    <LITERAL>*warning-output*</LITERAL> to print warning
+	    messages. This variable must be either a
+	    <CLASSNAME>&lt;stream&gt;</CLASSNAME> from the Streams
+	    library, or <LITERAL>#"Cheap-IO"</LITERAL> (the
+	    default). When this variable is
+	    <LITERAL>#"Cheap-IO"</LITERAL>, the output goes to
+	    <LITERAL>stderr</LITERAL>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+
+      <SECT2 ID="libs-dylan-exiting-applications">
+	<TITLE>Exiting Applications</TITLE>
+
+	<PARA>The Extensions module exports the following
+	functionality for controlling the exiting of
+	applications:</PARA>
+      </SECT2>
     </SECT1>
 
     <SECT1 ID=libs-dylan-system>
@@ -148,6 +653,7 @@
       <TITLE>The Cheap-IO Module</TITLE>
 
       <PARA></PARA>
+
     </SECT1>
   </CHAPTER>
 
@@ -1137,10 +1643,23 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    provide more. </PARA>
 	  </NOTE>
 	</SECT3>
+	<SECT3>
+	  <TITLE>Sequence streams</TITLE>
+
+	  <PARA>There are make methods on
+	  <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>,
+	  <CLASSNAME>&lt;string-stream&gt;</CLASSNAME>,
+	  <CLASSNAME>&lt;byte-string-stream&gt;</CLASSNAME> and
+	  <CLASSNAME>&lt;unicode-string-stream&gt;</CLASSNAME>. The
+	  <FUNCTION>make</FUNCTION> methods on
+	  <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME> and
+	  <CLASSNAME>&lt;string-stream&gt;</CLASSNAME> might not
+	  create direct instances of those classes, but instead an
+	  instance of a subclass determined by
+	  <FUNCTION>type-for-sequence-stream</FUNCTION>.</PARA>
+	</SECT3>
       </SECT2>
     </SECT1>
-
-
   </CHAPTER>
 
   <CHAPTER>
@@ -1207,22 +1726,6 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       </REFSECT1>
     </REFENTRY>
-
-    
-
-<!--
-    The Format-Out Library
-
-	[Function]
-Arguments
-
-
-Values
-none
-Description
-This function calls format(*standard-output*, control-string, args);
-
--->
   </CHAPTER>
 
   <CHAPTER>
@@ -1235,6 +1738,7 @@ This function calls format(*standard-output*, control-string, args);
     <TITLE>The Collection-Extensions Library</TITLE>
 
     <PARA></PARA>
+
   </CHAPTER>
 
   <CHAPTER>
@@ -1253,6 +1757,7 @@ This function calls format(*standard-output*, control-string, args);
     <TITLE>The Regular-Expressions Library</TITLE>
 
     <PARA></PARA>
+
   </CHAPTER>
 
   <CHAPTER>
@@ -1284,7 +1789,4 @@ This function calls format(*standard-output*, control-string, args);
 
     <PARA></PARA>
   </CHAPTER>
-
- 
-  
 </BOOK>
