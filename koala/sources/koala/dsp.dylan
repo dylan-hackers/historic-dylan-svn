@@ -128,10 +128,11 @@ end process-page;
 define function register-page
     (url :: <string>, page :: <page>, #key replace?)
  => (responder :: <function>)
-  let responder = curry(process-page, page);
-  register-url(url, responder, replace?: replace?);
-  *page-to-url-map*[page] := url;
-  responder
+  bind (responder = curry(process-page, page))
+    register-url(url, responder, replace?: replace?);
+    *page-to-url-map*[page] := url;
+    responder
+  end
 end;
 
 // ---TODO: Test this and export it.
@@ -492,6 +493,7 @@ end;
 
 // Apply the given function to the name and value of each tag call argument
 // for the current tag, unless the name is in the exclude list.
+//
 define function map-tag-call-arguments
     (f :: <function>, #key exclude :: <sequence> = #[])
   let name = #f;

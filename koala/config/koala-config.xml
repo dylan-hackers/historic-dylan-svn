@@ -91,11 +91,13 @@
      Set internal-error-fault-code to the fault code that should be returned for
      any unhandled errors that are thrown during the execution of an XML-RPC
      request.  e.g., a badly formed request, or unhandled errors in user code.
+     Set debug="yes" to log the raw XML received for XML-RPC calls.
   -->
 <xml-rpc
   url="/RPC2"
   enable="yes"
   internal-error-fault-code="0"
+  debug="no"
   />
 
 </koala>

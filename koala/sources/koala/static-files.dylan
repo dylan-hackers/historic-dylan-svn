@@ -54,7 +54,6 @@ define method maybe-serve-static-file
   let url :: <string> = request-url(request);
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   when (document)
-    log-debug("%s static file found", url);
     select (file-type(document))
       #"directory" => directory-responder(request, response, document);
       otherwise  => static-file-responder(request, response, document);
