@@ -5,11 +5,11 @@ define brain test-brain1
   [start:]
 //         Verbatim { Drop(lookup(start:, 0)) };
          Move => problem;
-         Sense LeftAhead (Marker 1), turn-left =>;
+         Sense LeftAhead (Marker 1), (turn-left, choose);
 
   [choose:]
          Flip 3 => turn-right;
-         Flip 9, turn-left => turn-right;
+         Flip 9, (turn-left, turn-right);
          Drop, (choose);
 
 
