@@ -2,6 +2,7 @@ module: gdb-access
 synopsis: 
 author: gabor@mac.com
 copyright: see below
+qoute-of-the-day: Intelligence is the ability to avoid work, yet getting work done. -- Linus Torvalds
 
 
 //======================================================================
@@ -395,7 +396,6 @@ define macro mi-parser-definer
     define function "parse-" ## ?name(mi-tuple :: <byte-string>, matched :: <list>, more) => ();
       let m = match(mi-tuple, ?"tag" "={");
       ?tuple-fields;
-      let m = m & match(m, "}");
       more.head(mi-tuple,
                 pair(if (m & m.empty?)
                        method(cla) apply(make, cla, vector(?tuple-keyword/values)) end method
@@ -407,10 +407,21 @@ define macro mi-parser-definer
     end
   }
   
-  { define mi-parser ?:name(?tag:name) ?fields end }
+  { define class-for-tuple mi-parser ?:name(?tag:name) {?tuple-slots} end }
   =>
   {
-    define tuple-value mi-parser ?name(?tag) {?fields} {?fields} end
+    define class ?name ## "-<tuple>"(<object>)
+      ?tuple-slots
+    end
+  }
+
+  // High-level definers
+  //
+  { define mi-parser ?:name(?tag:name) (?fields) end }
+  =>
+  {
+    define tuple-value mi-parser ?name(?tag) {?fields} {?fields} end;
+    define class-for-tuple mi-parser ?name(?tag) {?fields} end
   }
   
   fields:
@@ -422,7 +433,7 @@ define macro mi-parser-definer
     { ?:name :: ?:expression } => { ?name ?expression }
 
   tuple-fields:
-    { } => { }
+    { } => { let m = m & match(m, "}") }
 
     { ?tag:name ?type:expression; ... } 
      =>
@@ -437,14 +448,23 @@ define macro mi-parser-definer
   tuple-keyword/values:
     { } => { }
     { ?tag:name ?:expression; ... } => { ?#"tag", ?tag, ... }
+
+  tuple-slots:
+    { } => { }
+
+    { ?tag:name ?type:expression; ... } 
+     =>
+    { slot /* ?=?"name" ## */ ?tag :: ?type, required-init-keyword: ?#"tag" }
 end;
 
 
 define mi-parser breakpoint(bkpt)
+(
   number :: <positive>;
   addr :: <mi-address>;
   file :: <byte-string>;
   line :: <positive>
+)
 end;
 
 
@@ -455,7 +475,7 @@ begin
   
   block (outta-here)
     local method final(rest, matches, more)
-            matches.head();
+            format-out("parsed a: %=\n", matches.head(breakpoint-<tuple>));
             outta-here();
           end;
 
