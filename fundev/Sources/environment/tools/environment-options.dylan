@@ -192,32 +192,35 @@ define pane <environment-build-options-page> ()
   sealed slot %upgrade-warnings? :: <boolean>,
     required-init-keyword: upgrade-warnings?:;
 
-  pane %build-script-pane (pane)
+  pane %build-script-field (pane)
     make(<text-field>,
-         );
+         text: as(<string>, pane.%build-script),
+         value-changed-callback:
+           method (field)
+             pane.%build-script := as(<file-locator>, gadget-value(field));
+           end);
 
   pane %build-script-browse-button (pane)
     make(<button>,
 	 label: "Browse...",
 	 activate-callback: 
 	   method (gadget)
-	     let default = pane.%build-script;
 	     let filename
 	       = environment-choose-file
 	           (title:  "Open",
-		    owner:   pane,
-		    default: default,
-		    filters: #[#"common-locate-project", #"build-script", #"jam"]);
+		    owner:   sheet-frame(pane),
+		    default: pane.%build-script,
+		    filters: #[#"build-script", #"all"]);
 	     if (filename)
-	       pane.%filename := filename;
-	       gadget-text(frame.project-pane) := as(<string>, filename)
+	       pane.%build-script := filename;
+	       gadget-text(pane.%build-script-field-pane)
+                 := as(<string>, filename);
 	     end
 	   end);
 
   pane %build-script-pane (pane)
     horizontally (spacing: 4)
-      make(<null-pane>, width: 20, fixed-width?: #t);
-      pane.%build-script-pane;
+      pane.%build-script-field;
       pane.%build-script-browse-button;
     end;
     
