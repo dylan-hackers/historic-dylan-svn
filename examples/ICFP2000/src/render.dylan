@@ -17,8 +17,13 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
 				      ambient, lights);
 	  end if; 
 	*/
-	surface-method().color;
-	// make-white();
+	let surf = surface-method();
+	let c = surf.color * (surf.diffusion-coefficient * ambient);
+	for (l in lights)
+	  c := c + surf.color * 
+	    (intensity-on(l, point, normal) * surf.diffusion-coefficient);
+	end for;  
+	c;
       else
 	make-black();
       end if;    
@@ -42,7 +47,6 @@ define method render-image(o, depth :: <integer>, filename, ambient :: <color>,
 
   let trace = get-tracer(o, ambient, lights);
 
-  
   for (y from height above 0 by -1)
     for (x from 0 below width)
       let world-x :: <float> = as(<float>, x - truncate/(width, 2)) 
