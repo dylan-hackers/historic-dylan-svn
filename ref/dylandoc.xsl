@@ -1,6 +1,9 @@
+<?xml version="1.0" encoding="US-ASCII"?>
 <!--
-    DylanDoc DSSSL Stylesheet - format DylanDoc documents for web or print
-    Copyright (C) 1998 Eric Kidd
+    DylanDoc XSL Stylesheet - format DylanDoc documents for web or print
+    Copyright (C) 2004 Brent Fulgham
+
+    Based on Eric Kidd's original 1998 DSSSL Stylesheet.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,38 +35,260 @@
     Eric Kidd
     eric.kidd@pobox.com
 -->
-<!DOCTYPE style-sheet PUBLIC "-//James Clark//DTD DSSSL Style Sheet//EN"
- [
-<!ENTITY % html "IGNORE">
-<![%html;[
-<!ENTITY % print "IGNORE">
-<!ENTITY docbook.dsl SYSTEM "docbook/stylesheet/dsssl/modular/html/docbook.dsl" CDATA dsssl>
-]]>
-<!ENTITY % print "INCLUDE">
-<![%print;[
-<!ENTITY docbook.dsl SYSTEM "docbook/stylesheets/dsssl/modular/print/docbook.dsl" CDATA dsssl>
-]]>
-]>
-<style-sheet>
-<style-specification id="print" use="docbook">
-<style-specification-body> 
 
-;; customize the print stylesheet
+<xsl:stylesheet  
+       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"  version="1.0"> 
+  <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl"/> 
 
-</style-specification-body>
-</style-specification>
-<style-specification id="html" use="docbook">
-<style-specification-body> 
+  <!--
+    Dylan Literal Tags.  We use mono-spaced sequential text,
+    since these are program elements
+  -->
+  <xsl:template match="dlibrary" name="dylan.global.dlibrary">
+    <xsl:call-template name="inline.monoseq"/>
+  </xsl:template>
+
+  <xsl:template match="dmodule" name="dylan.global.dmodule">
+    <xsl:call-template name="inline.monoseq"/>
+  </xsl:template>
+
+  <xsl:template match="dname" name="dylan.global.dname">
+    <xsl:call-template name="inline.monoseq"/>
+  </xsl:template>
+
+  <xsl:template match="dlit" name="dylan.global.dlit">
+    <xsl:call-template name="inline.monoseq"/>
+  </xsl:template>
+
+  <xsl:template match="dparam" name="dylan.global.dparam">
+    <xsl:call-template name="inline.monoseq"/>
+  </xsl:template>
+
+  <xsl:template match="em">
+    <xsl:call-template name="inline.boldseq"/>
+  </xsl:template>
+
+  <xsl:template match="key-param">
+    <table border="0" columnspacing="0">
+      <tr>
+	<td valign="top">
+	  <code>
+	    <xsl:apply-templates select="param-name"/>
+	    <xsl:text>:</xsl:text>
+	  </code>
+	</td>
+	<td>
+	  <xsl:text>An instance of </xsl:text>
+	  <xsl:apply-templates select="param-type"/>
+	  <xsl:apply-templates select="param-summary"/>
+	</td>
+      </tr>
+    </table>
+  </xsl:template>
+
+  <xsl:template match="param">
+    <table border="0" columnspacing="0">
+      <tr>
+	<td valign="top">
+	  <em>
+	    <xsl:apply-templates select="param-name"/>
+	  </em>
+	</td>
+	<td>
+	  <xsl:text>An instance of </xsl:text>
+	  <xsl:apply-templates select="param-type"/>
+	  <xsl:apply-templates select="param-summary"/>
+	</td>
+      </tr>
+    </table>
+  </xsl:template>
+
+  <xsl:template match="param-name">
+    <xsl:apply-templates/>
+  </xsl:template>
+
+  <xsl:template match="param-type">
+    <xsl:call-template name="inline.monoseq"/>
+  </xsl:template>
+
+  <xsl:template match="param-summary">
+    <xsl:apply-templates/>
+  </xsl:template>
+
+  <!--
+    Dylan Class definitions.
+  -->
+  <xsl:template match="dylan-class-def">
+    <table width="100%" cellpadding="0" border="0">
+      <tr>
+	<xsl:apply-templates select="classname"/>
+	<td align="right">
+	  <strong>
+	    <xsl:text>[</xsl:text>
+	    <xsl:apply-templates select="defadjectives"/>
+	    <xsl:text>Class]</xsl:text>
+	  </strong>
+	</td>
+      </tr>
+    </table>
+    <hr/>
+    <xsl:apply-templates select="defsummary"/>
+    <xsl:apply-templates select="defsupers"/>
+    <xsl:apply-templates select="def-init-keywords"/>
+    <xsl:apply-templates select="defdescription"/>
+    <xsl:apply-templates select="defsection"/>
+    <br/>
+  </xsl:template>
+
+  <xsl:template match="dylan-class-def/classname">   
+    <td>
+      <b>
+	<xsl:call-template name="inline.monoseq"/>
+      </b>
+    </td>
+  </xsl:template>
+
+  <xsl:template match="dylan-class-def/defsupers">
+    <strong>Superclasses</strong><br/>
+    <blockquote>
+      <xsl:apply-templates/>
+    </blockquote>
+    <p/>
+  </xsl:template>
+
+  <xsl:template match="dylan-class-def/def-init-keywords">
+    <strong>Initialization Keywords</strong><br/>
+    <xsl:choose>
+      <xsl:when test="not(normalize-space(.))">
+	<blockquote><xsl:text>None</xsl:text></blockquote>
+      </xsl:when>
+      <xsl:otherwise>
+	<blockquote>
+	  <xsl:apply-templates/>
+	</blockquote>
+      </xsl:otherwise>
+    </xsl:choose>
+    <p/>
+  </xsl:template>
+
+  <!--
+    Dylan Function definitions.
+  -->
+  <xsl:template match="dylan-function-def">
+    <table width="100%" cellpadding="0" border="0">
+      <tr>
+	<xsl:apply-templates select="function"/>
+	<td align="right">
+	  <strong>
+	    <xsl:text>[</xsl:text>
+	    <xsl:apply-templates select="defadjectives"/>
+	    <xsl:text>Function]</xsl:text>
+	  </strong>
+	</td>
+      </tr>
+    </table>
+    <hr/>
+    <xsl:apply-templates select="defsummary"/>
+    <xsl:apply-templates select="defsynopsis"/>
+    <xsl:apply-templates select="defparameters"/>
+    <xsl:apply-templates select="defreturns"/>
+    <xsl:apply-templates select="defdescription"/>
+    <xsl:apply-templates select="defsection"/>
+    <br/>
+  </xsl:template>
+
+  <xsl:template match="dylan-function-def/function">
+    <td>
+      <b>
+	<xsl:call-template name="inline.monoseq"/>
+      </b>
+    </td>
+  </xsl:template>
+
+  <!--
+    Shared Dylan Definition Formatters
+  -->
+  <xsl:template match="defadjectives">
+    <xsl:call-template name="inline.charseq"/>
+  </xsl:template>
+
+  <xsl:template match="defsummary">
+    <blockquote>
+      <xsl:apply-templates/>
+    </blockquote>
+    <p/>
+  </xsl:template>
+
+  <xsl:template match="defreturns">
+    <strong>Return Values</strong><br/>
+    <xsl:choose>
+      <xsl:when test="not(normalize-space(.))">
+	<blockquote><xsl:text>None</xsl:text></blockquote>
+      </xsl:when>
+      <xsl:otherwise>
+	<blockquote>
+	  <xsl:apply-templates/>
+	</blockquote>
+      </xsl:otherwise>
+    </xsl:choose>
+    <p/>
+  </xsl:template>
+
+  <xsl:template match="defparameters">
+    <strong>Parameters</strong><br/>
+    <xsl:choose>
+      <xsl:when test="not(normalize-space(.))">
+	<blockquote><xsl:text>None</xsl:text></blockquote>
+      </xsl:when>
+      <xsl:otherwise>
+	<blockquote>
+	  <xsl:apply-templates/>
+	</blockquote>
+      </xsl:otherwise>
+    </xsl:choose>
+    <p/>
+  </xsl:template>
+
+  <xsl:template match="defdescription">
+    <strong>Description</strong><br/>
+    <xsl:choose>
+      <xsl:when test="not(normalize-space(.))">
+	<blockquote><xsl:text>None</xsl:text></blockquote>
+      </xsl:when>
+      <xsl:otherwise>
+	<blockquote>
+	  <xsl:apply-templates/>
+	</blockquote>
+      </xsl:otherwise>
+    </xsl:choose>
+    <p/>
+  </xsl:template>
+
+  <xsl:template match="defsection">
+    <strong>Section</strong><br/>
+    <blockquote>
+      <xsl:apply-templates/>
+    </blockquote>
+    <p/>
+  </xsl:template>
+
+  <xsl:template match="defsynopsis">
+    <strong>Synopsis</strong>
+    <blockquote>
+      <xsl:apply-templates/>
+    </blockquote>
+    <p/>
+  </xsl:template>
+
+</xsl:stylesheet>
+
+<!--
 
 ;;;;=======================================================================
 ;;;; HTML Stylesheet
 ;;;;=======================================================================
 ;;;; This stylesheet uses James Clark's extensions for creating HTML from
 ;;;; a DSSSL stylesheet.
-
-(define %html-ext%
-  ;; We hate 8.3. Sorry.
-  ".html")
 
 (define %use-id-as-filename%
   ;; Make ID attributes into file names.
@@ -90,225 +315,6 @@
 	(normalize "copyright")
 	(normalize "legalnotice")
 	(normalize "abstract")))
-
-(define ($person-info$ label)
-  (make sequence
-    (if (first-sibling? (current-node))
-	(make element
-	  gi: "P"
-	  (make element
-	    gi: "STRONG"
-	    (literal label)))
-	(empty-sosofo))
-    (make element
-      gi: "P"
-      (make sequence
-	(process-first-descendant "FIRSTNAME")
-	(literal " ")
-	(process-first-descendant "SURNAME")
-	(if (have-child? "AFFILIATION")
-	    (make sequence
-	      (make empty-element gi: "BR")
-	      (process-first-descendant "AFFILIATION"))
-	    (empty-sosofo))))))
-
-(element (docinfo editor)
-  ($person-info$ "Edited by:"))
-
-(element (docinfo author)
-  ($person-info$ "Written by:"))
-
-(element (docinfo authorgroup)
-  (process-children))
-
-(element (docinfo authorgroup author)
-  ($person-info$ "Written by:"))
-
-(element (docinfo firstname)
-  (process-children))
-
-(element (docinfo surname)
-  (process-children))
-
-(element affiliation
-  (process-children))
-
-(define ($affiliation-element$)
-  (make sequence
-    (process-children)
-    (if (not (absolute-last-sibling? (current-node)))
-	(make empty-element gi: "BR")
-	(empty-sosofo))))
-
-(element (affiliation shortaffil) ($affiliation-element$))
-(element (affiliation jobtitle) ($affiliation-element$))
-(element (affiliation orgname) ($affiliation-element$))
-(element (affiliation orgdiv) ($affiliation-element$))
-
-;(element (affiliation address)
-;  ($linespecific-content$))
-
-(element (affiliation address)
-  ($affiliation-element$))
-
-(element holder
-  ;; Copyright holders should be separated by commas.
-  (make sequence
-    ($charseq$)
-    (if (not (last-sibling? (current-node)))
-	(literal ", ")
-	(empty-sosofo))))
-
-
-;;;========================================================================
-;;; Inline Elements
-;;;========================================================================
-;;; Provide formatting for our various inline elements.
-
-(define ($dylan-literal$ #!optional (children (process-children)))
-  (make element
-    gi: "FONT"
-    attributes: '(("COLOR" "GREEN"))
-    (make element
-      gi: "CODE"
-      children)))
-
-(define ($dylan-parameter$ #!optional (children (process-children)))
-  (make element gi: "EM" children))
-
-(element dlibrary ($dylan-literal$))
-(element dmodule ($dylan-literal$))
-(element dname ($dylan-literal$))
-(element dlit ($dylan-literal$))
-(element dparam ($dylan-parameter$))
-
-;;;========================================================================
-;;; Generic Definition Support
-;;;========================================================================
-;;; This code implements the "look" shared by all defintions.
-
-(define (process-def)
-  (make sequence
-    (process-defhead)
-    (process-children)))
-
-(define (process-defhead-helper defname defadjectives defsummary)
-  (make sequence
-    (make empty-element gi: "BR")
-    (make element gi: "TABLE" attributes: '(("WIDTH" "100%")
-					    ("CELLPADDING" "0")
-					    ("BORDER" "0"))
-	(make element gi: "TR"
-	   (make sequence
-	      (make element gi: "TD" defname)
-	      (make element gi: "TD" attributes: '(("ALIGN" "RIGHT"))
-		 (make element gi: "STRONG"
-		    (make sequence
-			  (literal "[")
-			  defadjectives
-			  (literal (attribute-string "dylan-def-name"))
-			  (literal "]")))))))
-    (make empty-element gi: "HR")
-    defsummary))
-
-(define (process-defhead)
-  (with-mode defhead
-    (process-defhead-helper 
-     (process-first-descendant "defname")
-     (process-first-descendant "defadjectives")
-     (process-first-descendant "defsummary"))))
-;    (make sequence
-;     (make element
-;       gi: "TABLE"
-;	attributes: '(("WIDTH" "100%")
-;		      ("CELLPADDING" "0")
-;		      ("BORDER" "0"))
-;	(make element
-;	  gi: "TR"
-;	  (make sequence
-;	    (make element
-;	      gi: "TD"
-;	      (process-first-descendant "DefName"))
-;	    (make element
-;	      gi: "TD"
-;	      attributes: '(("ALIGN" "RIGHT"))
-;	      (make element
-;		gi: "STRONG"
-;		(make sequence
-;		  (literal "[")
-;		  (process-first-descendant "defadjectives")
-;		  (literal (attribute-string "dylan-def-name"))
-;		  (literal "]")))))))
-;      (make empty-element gi: "HR")
-;      (process-first-descendant "defsummary"))))
-
-(mode defhead
-  (element defname
-    (make element
-      gi: "B"
-      ($dylan-literal$)))
-  (element defadjectives
-    (make sequence
-      (process-children)
-      (literal " "))) 
-  (element defsummary
-    (make element
-      gi: "BLOCKQUOTE")))
-
-(element defname
-  (empty-sosofo))
-(element defadjectives
-  (empty-sosofo))
-(element defsummary
-  (empty-sosofo))
-
-(define (have-children? #!optional (node (current-node)))
-  (not (node-list-empty? (children node))))
-
-(define (have-child? type #!optional (node (current-node)))
-  (not (node-list-empty? (select-elements (children node) (normalize type)))))
-
-(define ($raw-definition-section$ title contents)
-  (make sequence
-    (make element
-      gi: "P"
-      (make element
-	gi: "STRONG"
-	title))
-    (make element
-      gi: "BLOCKQUOTE"
-      contents)))
-
-(define (process-children-or-none)
-  (if (have-children?)
-      (process-children)
-      (literal "None.")))
-
-(define (process-section name #!optional (sect (process-children-or-none)))
-  ($raw-definition-section$ (literal name) sect))
-
-(element defdescription
-  (process-section "Description"))
-
-(element defsection
-  ($raw-definition-section$ (with-mode defsection-title
-			      (process-first-descendant "TITLE"))
-			    (process-children)))
-
-(element (defsection title)
-  (empty-sosofo))
-
-(mode defsection-title
-  (element (DefSection Title)
-    (process-children)))
-
-;(define (dylan-object-type) (make entity-ref name: "object"))
-(define (dylan-object-type)
-  ($dylan-literal$ (make sequence
-		     (make entity-ref
-		       name: "lt")
-		     (literal "object>"))))
-
 
 ;;;========================================================================
 ;;; Parameter lists
@@ -422,26 +428,6 @@
   (element BindsTo (make element gi: "EM" (process-children))))
 
 ;;;========================================================================
-;;; Define Class
-;;;========================================================================
-;;; Everything needed to define a class in the standard DRM style.
-
-(element dylan-class-def
-  (process-def))
-
-(element def-supers
-  (process-section "Superclasses"))
-
-(element def-super
-  (make sequence
-    ($dylan-literal$)
-    (literal " ")))
-
-(element def-init-keywords
-  (process-parameter-section "Initialization Keywords"))
-
-
-;;;========================================================================
 ;;; Define Constant & Define Variable
 ;;;========================================================================
 ;;; We group these two forms together because they're similar.
@@ -549,8 +535,6 @@
 		       (literal " end")))))
 
 ;; now back to our regularly scheduled programming ...
-
-(element EM (make element gi: "EM"))
 
 (element defparameters
   (process-parameter-section "Parameters"))
@@ -781,9 +765,4 @@
     (make element
       gi: "I")))
 
-;;; Defining Constants
-
-</style-specification-body>
-</style-specification>
-<external-specification id="docbook" document="docbook.dsl">
-</style-sheet>
+-->

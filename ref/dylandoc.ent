@@ -4,75 +4,91 @@
 <!ENTITY mdash "&#x2014;"> <!-- EM DASH -->
 
 <!-- ===== People ===== -->
-
 <!-- Maintainance Project People -->
+<!ENTITY person.prom "<firstname>Ingo</firstname><surname>Albrecht</surname>">
+<!ENTITY contact.prom
+  "&person.prom;
+  <affiliation>
+    <address><email>prom@gwydiondylan.org</email></address>
+  </affiliation>">
 
-<!ENTITY person.emk
-"<firstname>Eric</firstname>
-<surname>Kidd</surname>
-<affiliation>
-  <address><email>eric.kidd@pobox.com</email></address>
-</affiliation>
-">
+<!ENTITY person.auclair "<firstname>Douglas</firstname><surname>Auclair</surname>">
+<!ENTITY contact.auclair
+  "&person.auclair;
+  <affiliation>
+    <address><email>dauclair@hotmail.com</email></address>
+  </affiliation>">
 
-<!ENTITY person.housel "
-<firstname>Peter</firstname><surname>Housel</surname>
-<affiliation>
-  <address><email>housel@acm.org</email></address>
-</affiliation>
-">
+<!ENTITY person.bogk "<firstname>Andreas</firstname><surname>Bogk</surname>">
+<!ENTITY contact.bogk
+  "&person.bogk;
+  <affiliation>
+    <address><email>andreas@andreas.org</email></address>
+  </affiliation>">
 
-<!ENTITY person.bogk "
-<firstname>Andreas</firstname><surname>Bogk</surname>
-<affiliation>
-  <address><email>andreas@andreas.org</email></address>
-</affiliation>
-">
+<!ENTITY person.fulgham "<firstname>Brent</firstname><surname>Fulgham</surname>">
+<!ENTITY contact.fulgham
+  "&person.fulgham;
+  <affiliation>
+    <orgname>Debian GNU/Linux</orgname>
+    <address><email>bfulgham@debian.org</email></address>
+  </affiliation>">  
 
-<!ENTITY person.neel "
-<firstname>Neel</firstname><surname>Krishnaswami</surname>
-<affiliation>
-  <address><email>neelk@alum.mit.edu</email></address>
-</affiliation>
-">
+<!ENTITY person.cgay "<firstname>Carl</firstname><surname>Gay</surname>">
+<!ENTITY contact.cgay
+  "&person.cgay;
+  <affiliation>
+    <orgname>ITA Software</orgname>
+    <address><email>cgay@itasoftware.com</email></address>
+  </affiliation>">
 
-<!ENTITY person.auclair "
-<firstname>Douglas</firstname><surname>Auclair</surname>
-<affiliation>
-  <address><email>dauclair@hotmail.com</email></address>
-</affiliation>
-">
+<!ENTITY person.housel "<firstname>Peter</firstname><surname>Housel</surname>">
+<!ENTITY contact.housel
+  "&person.housel;
+  <affiliation>
+    <address><email>housel@acm.org</email></address>
+  </affiliation>">
 
-<!ENTITY person.fulgham "
-<firstname>Brent</firstname>
-<surname>Fulgham</surname>
-<affiliation>
-  <orgname>Debian GNU/Linux</orgname>
-  <address><email>bfulgham@debian.org</email></address>
-</affiliation>
-">  
+<!ENTITY person.emk "<firstname>Eric</firstname><surname>Kidd</surname>">
+<!ENTITY contact.emk
+  "&person.emk;
+  <affiliation>
+    <address><email>eric.kidd@pobox.com</email></address>
+  </affiliation>">
+
+<!ENTITY person.neel "<firstname>Neel</firstname><surname>Krishnaswami</surname>">
+<!ENTITY contact.neel
+  "&person.neel;
+  <affiliation>
+    <address><email>neelk@alum.mit.edu</email></address>
+  </affiliation>">
+
+<!ENTITY person.cpage "<firstname>Chris</firstname><surname>Page</surname>">
+<!ENTITY contact.cpage
+  "&person.cpage;
+  <affiliation>
+    <address><email>chris@pacbell.net</email></address>
+  </affiliation>">
 
 <!-- Original Gwydion People -->
 
-<!ENTITY person.rstockton "
-<firstname>Robert</firstname>
-<surname>Stockton</surname>
-<affiliation>
-  <orgname>Carnegie Mellon University</orgname>
-  <orgdiv>School of Computer Science</orgdiv>
-  <address>Pittsburgh PA 15213</address>
-</affiliation>
-">
+<!ENTITY person.rstockton "<firstname>Robert</firstname><surname>Stockton</surname>">
+<!ENTITY contact.rstockton
+  "&person.rstockton;
+  <affiliation>
+    <orgname>Carnegie Mellon University</orgname>
+    <orgdiv>School of Computer Science</orgdiv>
+    <address>Pittsburgh PA 15213</address>
+  </affiliation>">
 
-<!ENTITY person.rmaclachlan "
-<firstname>Rob</firstname>
-<surname>MacLachlan</surname>
-<affiliation>
-  <orgname>Carnegie Mellon University</orgname>
-  <orgdiv>School of Computer Science</orgdiv>
-  <address>Pittsburgh PA 15213</address>
-</affiliation>
-">
+<!ENTITY person.rmaclachlan "<firstname>Rob</firstname><surname>MacLachlan</surname>">
+<!ENTITY contact.rmaclachlan
+  "&person.rmaclachlan;
+  <affiliation>
+    <orgname>Carnegie Mellon University</orgname>
+    <orgdiv>School of Computer Science</orgdiv>
+    <address>Pittsburgh PA 15213</address>
+  </affiliation>">
 
 <!-- ===== Dylan Snippets ===== -->
 

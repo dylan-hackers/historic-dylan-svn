@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <!DOCTYPE book PUBLIC
- "UNREGISTERED::Gwydion Dylan Maintainers//DTD DylanDoc V4.2//EN" 
+ "UNREGISTERED::Gwydion Dylan Maintainers//DTD DylanDoc V4.2//EN"
  "dylandoc.dtd"
  [
  <!ENTITY % entities SYSTEM "./dylandoc.ent">
@@ -13,7 +13,7 @@
     <title>Getting Started with Dylan</title>
     <titleabbrev>Dylan Tutorial</titleabbrev>
     <authorgroup>
-      <author>&person.emk;</author>
+      <author>&contact.emk;</author>
     </authorgroup>
 
     <othercredit role='converter'>
@@ -26,7 +26,7 @@
       <year>1996</year>
       <year>1998</year>
       <year>1999</year>
-      <holder>Eric Kidd</holder>
+      <holder>&person.emk;</holder>
     </copyright>
     <copyright>
       <year>2002</year>
@@ -36,60 +36,72 @@
     </copyright>
 
     <abstract>
-      <para><citetitle>Getting Started with Dylan</citetitle> introduces
-      <ulink url="http://www.apple.com/">Apple Computer</ulink>'s &dylan;
-      programming language. Dylan is a object-oriented dynamic language
-      designed for efficient compilation. It uses an algebraic infix syntax
-      similar to Pascal or C, but supports an object model not unlike the
-      Common Lisp Object System (<acronym>CLOS</acronym>).</para>
+      <para>
+	<citetitle>Getting Started with Dylan</citetitle> introduces
+	<ulink url="http://www.apple.com/">Apple Computer</ulink>'s &dylan;
+	programming language. Dylan is a object-oriented dynamic language
+	designed for efficient compilation. It uses an algebraic infix syntax
+	similar to Pascal or C, but supports an object model not unlike the
+	Common Lisp Object System (<acronym>CLOS</acronym>).
+      </para>
 
-      <para>This tutorial is written primarily for those with solid
-      programming experience in &cpp; or another object-oriented static
-      language. It provides a gentler introduction to Dylan than does the
-      &drm;, although it refers to the latter book frequently.</para>
+      <para>
+	This tutorial is written primarily for those with solid
+	programming experience in &cpp; or another object-oriented static
+	language. It provides a gentler introduction to Dylan than does the
+	&drm;, although it refers to the latter book frequently.
+      </para>
     </abstract>
   </bookinfo>
 
 
   <!-- ==================== Chapter 1 ==================== -->
-  
   <chapter id="why-dylan">
     <title>Why Dylan?</title>
 
-    <para>What earthly reason could there be for learning yet <emphasis>
-    another</emphasis> computer language?  And why should that language be
-    Dylan?</para>
+    <para>
+      What earthly reason could there be for learning yet <emphasis>
+      another</emphasis> computer language?  And why should that language be
+      Dylan?
+    </para>
 
-    <para>Dylan has an interesting combination of features. It is a dynamic
-    language, but is designed to perform nearly as well as a static language.
-    It is a <link linkend="functional">functional</link> language&mdash;like
-    Scheme or TCL&mdash;but uses an algebraic infix syntax similar to C's.
-    Dylan is object-oriented from the ground up, supports multiple 
-    inheritence and exceptions, implements <link linkend="multiple-dispatch">
-    multiple dispatch</link>, and <link linkend="gc">collects garbage</link>.
+    <para>
+      Dylan has an interesting combination of features. It is a dynamic
+      language, but is designed to perform nearly as well as a static language.
+      It is a <link linkend="functional">functional</link> language&mdash;like
+      Scheme or TCL&mdash;but uses an algebraic infix syntax similar to C's.
+      Dylan is object-oriented from the ground up, supports multiple 
+      inheritence and exceptions, implements <link linkend="multiple-dispatch">
+      multiple dispatch</link>, and <link linkend="gc">collects garbage</link>.
     </para>
     
     <sect1 id="dynamic-vs-static">
       <title>Dynamic vs. Static Languages</title>
 
-      <para><glossterm>Static</glossterm> languages need to know the type
-      of every variable at compile time. Examples of static languages include
-      C, Pascal, and Eiffel. Code written in static languages typically
-      compiles efficiently, and strong type-checking at compile-time reduces
-      the risk of errors.</para>
+      <para>
+	<glossterm>Static</glossterm> languages need to know the type
+	of every variable at compile time. Examples of static languages include
+	C, Pascal, and Eiffel. Code written in static languages typically
+	compiles efficiently, and strong type-checking at compile-time reduces
+	the risk of errors.
+      </para>
 
-      <para><glossterm>Dynamic</glossterm> languages allow the programmer to
-      create variables without explicitly specifying the type of information
-      they contain. This simplifies prototyping and cleans up certain kinds
-      of object oriented code. Typical dynamic languages include LISP, Perl,
-      and SmallTalk.</para>
+      <para>
+	<glossterm>Dynamic</glossterm> languages allow the programmer to
+	create variables without explicitly specifying the type of information
+	they contain. This simplifies prototyping and cleans up certain kinds
+	of object oriented code. Typical dynamic languages include LISP, Perl,
+	and SmallTalk.
+      </para>
 
-      <para>Dylan provides a good balance between the advantages of static
-      and dynamic languages. The programmer may choose to specify or omit
-      type declarations as desired. Code using explicit variable types can
-      be compiled very efficiently, and type mismatch errors can be caught
-      at compile time. Code omitting those type declarations gains the
-      flexibility of a dynamic language.</para>
+      <para>
+	Dylan provides a good balance between the advantages of static
+	and dynamic languages. The programmer may choose to specify or omit
+	type declarations as desired. Code using explicit variable types can
+	be compiled very efficiently, and type mismatch errors can be caught
+	at compile time. Code omitting those type declarations gains the
+	flexibility of a dynamic language.
+      </para>
     </sect1>
 
     <sect1 id="functional">

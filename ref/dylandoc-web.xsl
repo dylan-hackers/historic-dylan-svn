@@ -1,6 +1,9 @@
+<?xml version="1.0" encoding="US-ASCII"?> 
 <!--
-    DylanDoc DSSSL Stylesheet - format DylanDoc documents for web or print
-    Copyright (C) 1998 Eric Kidd
+    DylanDoc XSL Stylesheet - format DylanDoc documents for web
+    Copyright (C) 2004 Brent Fulgham
+
+    Based on Eric Kidd's original 1998 DSSSL Stylesheet.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +35,23 @@
     Eric Kidd
     eric.kidd@pobox.com
 -->
+<xsl:stylesheet  
+       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"  version="1.0"> 
+  <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl"/> 
+  <xsl:include href="dylandoc.xsl" />
+
+  <!-- Specify that we will be using a CSS Stylesheet -->
+  <xsl:param name="html.stylesheet.type">text/css</xsl:param>
+  <xsl:param name="html.stylesheet" select="'dylandoc.css'"/>
+
+  <!--
+    Dylan Literal Tags.  We use mono-spaced sequential text,
+    since these are program elements, and they should be green.
+    (Elements are dlibrary, dmodule, dname, dlit, and dparam)
+  -->
+
+</xsl:stylesheet>  
+<!--
 <!DOCTYPE style-sheet PUBLIC "-//James Clark//DTD DSSSL Style Sheet//EN"
  [
 <!ENTITY % html "IGNORE">
@@ -160,27 +180,7 @@
 	(empty-sosofo))))
 
 
-;;;========================================================================
-;;; Inline Elements
-;;;========================================================================
-;;; Provide formatting for our various inline elements.
 
-(define ($dylan-literal$ #!optional (children (process-children)))
-  (make element
-    gi: "FONT"
-    attributes: '(("COLOR" "GREEN"))
-    (make element
-      gi: "CODE"
-      children)))
-
-(define ($dylan-parameter$ #!optional (children (process-children)))
-  (make element gi: "EM" children))
-
-(element dlibrary ($dylan-literal$))
-(element dmodule ($dylan-literal$))
-(element dname ($dylan-literal$))
-(element dlit ($dylan-literal$))
-(element dparam ($dylan-parameter$))
 
 ;;;========================================================================
 ;;; Generic Definition Support
@@ -787,3 +787,5 @@
 </style-specification>
 <external-specification id="docbook" document="docbook.dsl">
 </style-sheet>
+
+-->

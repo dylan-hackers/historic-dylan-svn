@@ -36,14 +36,14 @@
 
 <!ENTITY % local.dylan.def.class "">
 <!ENTITY % dylan.def.class
-	   "DylanConstantDef|DylanVariableDef|
-	    DylanGenericDef|DylanMethodDef|DylanFunctionDef|
-	    DylanClassDef|DylanMacroDef|DylanCharFnDef
+	   "dylan-constant-def|dylan-variable-def|
+	    dylan-generic-def|dylan-method-def|dylan-function-def|
+	    dylan-class-def|dylan-macro-def|dylan-char-fn-def
 	    %local.dylan.def.class;" >
 
 <!ENTITY % local.dylan.tech.char.class "">
 <!ENTITY % dylan.tech.char.class
-	   "DLibrary|DModule|DName|DLit|DParam|EM|DClass|DKeyword
+	   "dlibrary|dmodule|dname|dlit|dparam|em|dclass|dkeyword
 	    %local.dylan.tech.char.class;" >
 
 
@@ -51,7 +51,7 @@
 
 <!ENTITY % local.synop.class "|%dylan.def.class;">
 <!ENTITY % local.tech.char.class "|%dylan.tech.char.class;">
-
+<!ENTITY % local.para.class "|dlibrary|dmodule|dname|dlit|dparam">
 
 <!-- =============== The Real Thing =============================== -->
 
@@ -70,8 +70,8 @@
   a module, but rather the names exported by one.
 -->
 
-<!ENTITY % dlib "DLib CDATA #IMPLIED" >
-<!ENTITY % dmod "DMod CDATA #IMPLIED" >
+<!ENTITY % dlib "dlib CDATA #IMPLIED" >
+<!ENTITY % dmod "dmod CDATA #IMPLIED" >
 <!ENTITY % dloc "%dlib; %dmod;" >
 
 
@@ -115,7 +115,7 @@
 <!ELEMENT dylan-variable-def (defname, defsummary, deftype?, defvalue?,
 				defdescription, defsection*) >
 
-<!ELEMENT dylan-function-def (defname, defadjectives?, defsummary,
+<!ELEMENT dylan-function-def (function, defadjectives?, defsummary,
 				defparameters, defreturns, defdescription,
 				defsection*) >
 
@@ -132,11 +132,11 @@
      If someone else wants to add definer and function macros, be my guest.
  -->
 
-<!ELEMENT dylan-macro-def (defname, defadjectives?, defsummary, 
+<!ELEMENT dylan-macro-def (defname, defadjectives?, defsummary,
 			     defparameters, defdescription,
 			     defsection*) >
 
-<!ELEMENT dylan-class-def (defname, defadjectives?, defsummary, defsupers,
+<!ELEMENT dylan-class-def (classname, defadjectives?, defsummary, defsupers,
 			     def-init-keywords, defdescription, defsection*) >
 
 <!ATTLIST dylan-constant-def dylan-def-name CDATA #FIXED "Constant">
@@ -174,7 +174,6 @@
 -->
 
 <!ELEMENT varparam (variable-name, binds-to) >
-<!ELEMENT param (paramName, (param-type|param-singleton)?, param-summary?) >
 <!ELEMENT rest-param (param-name, param-type?, param-summary?)? >
 <!ELEMENT key-param (param-name, param-type?, param-default?, param-summary?) >
 <!ELEMENT all-keys EMPTY >
@@ -185,6 +184,7 @@
 <!ELEMENT param-default (#PCDATA) >
 <!ELEMENT param-singleton (#PCDATA) >
 <!ELEMENT param-summary (%para.char.mix; | %para.mix;)*>
+<!ELEMENT param (param-name, (param-type|param-singleton)?, param-summary?) >
 
 <!-- =============== Class Definitions ================================
   The following elements are used to define different kinds of
@@ -193,7 +193,7 @@
 
 <!ELEMENT defsupers (defsuper*) >
 <!ELEMENT defsuper (#PCDATA) >
-<!ELEMENT def-init-keywords (keyparam*) >
+<!ELEMENT def-init-keywords (key-param*) >
 <!ENTITY obj-super '
  <defsupers>
   <defsuper>&lt;object&gt;</defsuper>
@@ -205,9 +205,9 @@
   and generic functions.
 -->
 
-<!ELEMENT defparameters (varparam?, param*, rest-param?, 
+<!ELEMENT defparameters (varparam?, param*, rest-param?,
 			     (key-param*, all-keys?)?) >
-<!ELEMENT defreturns (param*, rest-param?)> <!-- -(ParamSingleton)> -->
+<!ELEMENT defreturns (param*, rest-param?)> <!-- -(param-singleton)> -->
 <!ENTITY no-returns '<defreturns></defreturns>'>
 
 <!-- and a little something for emphasis!  -->
