@@ -1,9 +1,15 @@
-MELANGE=melange -I/usr/X11R6/include --d2c
+ifeq ($(OSTYPE), darwin)
+	LIDFILE=macosx-opengl.lid
+        MELANGE=melange --framework GLUT --d2c
+else
+	LIDFILE=opengl.lid
+	MELANGE=melange -I/usr/X11R6/include --d2c
+endif
 
-opengl.lib.du: opengl.lid opengl-exports.dylan opengl-intr.dylan \
+opengl.lib.du: $(LIDFILE) opengl-exports.dylan opengl-intr.dylan \
                opengl-glut-intr.dylan opengl-glu-intr.dylan \
 	       opengl-macros.dylan opengl-osmesa-intr.dylan
-	d2c opengl.lid
+	d2c $(LIDFILE)
 
 opengl.lid: opengl-exports.dylan opengl-intr.dylan opengl-glut-intr.dylan
 	touch $@
