@@ -20,23 +20,65 @@ define method jam-expand-arg
     (jam :: <jam-state>, arg :: <string>,
      #key start :: <integer> = 0, end: _end :: <integer> = arg.size)
  => (result :: <sequence>);
+  let arg-markers
+    = make(<bit-set>,
+           upper-bound-hint: _end,
+           members: range(from: start, below: _end));
+  jam-expand-arg-aux(jam, arg, arg-markers, start, _end);
+end method;
+
+define constant $empty-bit-set = make(<bit-set>);
+
+define method am-extract
+    (arg :: <string>, arg-markers :: <bit-set>,
+     start :: <integer>, _end :: <integer>)
+ => (extracted :: <string>, extracted-markers :: <bit-set>);
+  if(start = _end)
+    values("", $empty-bit-set)
+  else
+    let new-markers = make(<bit-set>, upper-bound-hint: _end - start);
+    for (index from start below _end)
+      if (member?(index, arg-markers))
+        set-add!(new-markers, index - start);
+      end if;
+    end for;
+    values(copy-sequence(arg, start: start, end: _end), new-markers)
+  end if
+end method;
+
+define method jam-expand-arg-aux
+    (jam :: <jam-state>, arg :: <string>, arg-markers :: <bit-set>,
+     start :: <integer>, _end :: <integer>)
+ => (result :: <sequence>, markers :: <sequence>);
   block (return)
     for (index from start below _end - 1)
       if (arg[index] == '$' & arg[index + 1] == '(')
-        let prefix = copy-sequence(arg, start: start, end: index);
+        let (prefix, prefix-markers)
+          = am-extract(arg, arg-markers, start, index);
         iterate loop(var-index :: <integer> = index + 2,
                      parenthesis-depth :: <integer> = 1)
           if (var-index = _end)
-            let vars
-              = jam-expand-arg(jam, arg, start: index + 2, end: var-index);
-            return(jam-expand-arg-aux(jam, prefix, vars, #[""]));
+            let (vars, vars-markers)
+              = jam-expand-arg-aux(jam, arg, arg-markers,
+                                   index + 2, var-index);
+            let (results, markers)
+              = jam-expand-arg-product(jam, prefix, prefix-markers,
+                                       vars, vars-markers,
+                                       #[""], vector($empty-bit-set));
+            return(results, markers);
           elseif (arg[var-index] == ')')
             if (parenthesis-depth = 1)
-              let vars
-                = jam-expand-arg(jam, arg, start: index + 2, end: var-index);
-              let suffix-expansion
-                = jam-expand-arg(jam, arg, start: var-index + 1, end: _end);
-              return(jam-expand-arg-aux(jam, prefix, vars, suffix-expansion));
+              let (vars, vars-markers)
+                = jam-expand-arg-aux(jam, arg, arg-markers,
+                                     index + 2, var-index);
+              let (suffixes, suffixes-markers)
+                = jam-expand-arg-aux(jam, arg, arg-markers,
+                                     var-index + 1,  _end);
+              let (results, markers)
+                = jam-expand-arg-product(jam, prefix, prefix-markers,
+                                         vars, vars-markers,
+                                         suffixes, suffixes-markers);
+              return(results, markers);
             else
               loop(var-index + 1, parenthesis-depth - 1);
             end if;
@@ -49,32 +91,37 @@ define method jam-expand-arg
       end if;
     end for;
     if (start = 0 & _end = arg.size)
-      vector(arg)
+      values(vector(arg), vector(arg-markers))
     else
-      vector(copy-sequence(arg, start: start, end: _end))
+      let (extracted, extracted-markers)
+        = am-extract(arg, arg-markers, start, _end);
+      values(vector(extracted), vector(extracted-markers))
     end
   end block
 end method;
 
-// jam-expand-arg-aux()
+// jam-expand-arg-product()
 //
 // Implement the  variables * values * suffixes product for variable
 // expansions.
 //
-define method jam-expand-arg-aux
+define method jam-expand-arg-product
     (jam :: <jam-state>,
-     prefix :: <string>, vars :: <sequence>, suffixes :: <sequence>)
- => (result :: <sequence>);
+     prefix :: <string>, prefix-markers :: <bit-set>,
+     vars :: <sequence>, vars-markers :: <sequence>,
+     suffixes :: <sequence>, suffixes-markers :: <sequence>)
+ => (result :: <sequence>, markers :: <sequence>);
   let result = make(<stretchy-vector>);
-  for (var in vars)
+  let markers = make(<stretchy-vector>);
+  for (var in vars, var-markers in vars-markers)
     let contents
       = block(return)
           for (c :: <character> in var, i :: <integer> from 0)
-            if (c == ':')
+            if (c == ':' & member?(i, var-markers))
               let var-name = copy-sequence(var, end: i);
               let contents = jam-variable(jam, var-name, default: #f);
               return(jam-expand-arg-colon(contents, var, i + 1));
-            elseif (c == '[')
+            elseif (c == '[' & member?(i, var-markers))
               let var-name = copy-sequence(var, end: i);
               return(jam-expand-arg-bracket(jam-variable(jam, var-name),
                                             var, i + 1));
@@ -83,12 +130,19 @@ define method jam-expand-arg-aux
           jam-variable(jam, var);
         end block;
     for (component in contents)
-      for (suffix in suffixes)
+      for (suffix in suffixes, suffix-markers in suffixes-markers)
         add!(result, concatenate(prefix, component, suffix));
+
+        let result-markers = make(<bit-set>);
+        copy-bit-set!(result-markers, prefix-markers);
+        for (_ keyed-by index in suffix-markers)
+          set-add!(result-markers, prefix.size + component.size + index);
+        end for;
+        add!(markers, result-markers);
       end for;
     end for;
   end for;
-  result
+  values(result, markers)
 end method;
 
 // jam-expand-arg-colon
