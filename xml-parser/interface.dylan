@@ -40,6 +40,8 @@ define class <char-string> (<xml>)
   constant slot text :: <string>, required-init-keyword: text:;
 end class <char-string>;
 
+// added this superclass to share common functionality of references,
+// especially in the printing module.
 define abstract class <reference> (<xml>) end;
 define class <entity-reference> (<reference>)
   constant virtual slot entity-value;
