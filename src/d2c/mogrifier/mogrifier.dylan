@@ -1,5 +1,5 @@
 module: mogrifier
-synopsis: 
+synopsis: customizable machine-code processor/emitter
 author: gabor@mac.com
 copyright: 
 
@@ -68,65 +68,6 @@ define method powerpc-disassemble-primary(primary :: one-of(19, 31), secondary :
 end;
 
 define macro instruction-definer
-
-  { define instruction ?:name(?primary:expression; D, A, B; ?key:expression; RESERVE) end }
-  =>
-  { 
-    define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("D: %d, A: %d, B: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F));
-      ?"name"
-    end;
-  }
-
-/*  { define instruction ?:name(?primary:expression; D; RESERVE; RESERVE; ?key:expression; RESERVE) end }
-  =>
-  { 
-    define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("D: %d\n", instruction-mask(secondary, 6, 10));
-      ?"name"
-    end;
-  }*/
-
-/*  { define instruction ?:name(?primary:expression; D, A, B, OE; ?key:expression; Rc) end }
-  =>
-  { 
-    define method powerpc-disassemble-subcode(primary == ?primary, subcode :: one-of(?key, ?key + 0x100), secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("D: %d, A: %d, B: %d, OE: %d, Rc: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F), logand(ash(secondary, -10), #x1), secondary.instruction-Rc);
-      ?"name"
-    end;
-  }*/
-
-/*  { define instruction ?:name(?primary:expression; S, A, SH; ?key:expression; Rc) end }
-  =>
-  { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("S: %d, A: %d, SH: %d, Rc: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F), secondary.instruction-Rc);
-      concatenate(?"name", secondary.instruction-field-Rc);
-    end;
-  }*/
-  
-/*  { define instruction ?:name(?primary:expression; S, A, SH, MB, ME, Rc) end }
-  =>
-  { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("S: %d, A: %d, SH: %d, MB: %d, ME: %d, Rc: %d\n", instruction-mask(secondary, 6, 10), instruction-mask(secondary, 11, 15),
-                                                                   instruction-mask(secondary, 16, 20), instruction-mask(secondary, 21, 25),
-                                                                   instruction-mask(secondary, 26, 30), secondary.instruction-Rc);
-      concatenate(?"name", secondary.instruction-field-Rc);
-    end;
-  }*/
-    
-/*  { define instruction ?:name(?primary:expression; S, spr; ?key:expression; RESERVE) end }
-  =>
-  { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("spr: %d\n", 32 * instruction-mask(secondary, 16, 20) + instruction-mask(secondary, 11, 15));
-      ?"name"
-    end;
-  }*/
   
   { define updatable instruction ?:name(?primary:expression; S, A, d) end }
   =>
@@ -139,7 +80,6 @@ define macro instruction-definer
   =>
   { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
-//      format-out("BO: %d, BI: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), secondary.instruction-LK);
       concatenate(?"name", ?form)
     end;
   }
@@ -152,7 +92,6 @@ define macro instruction-definer
   =>
   { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
-//      format-out("BO: %d, BI: %d, BD: %d, AA: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -2), #x3FFF), logand(ash(secondary, -1), #x1), secondary.instruction-LK);
       concatenate(?expression, ?form)
     end;
   }
@@ -262,19 +201,9 @@ define inline function instruction-BD-suffix(secondary :: <integer>)
   if (aa = 1)
     format-to-string("%d", bd)
   else
-//    let bd = bd + 4;
     format-to-string("$%s%d", bd < 0 & "" | "+", bd)
   end;
 end;
-
-/*
-define inline function instruction-field-AA(secondary :: <integer>)
- => aa :: <string>;
-  instruction-mask(secondary, 30, 30) == 1
-  & "a"
-  | ""
-end;
-*/
 
 define instruction-field AA(30)
   AA == 1
@@ -292,24 +221,9 @@ define inline function instruction-LI-suffix(secondary :: <integer>)
   if (aa = 1)
     format-to-string("%d", li)
   else
-//    let li = li + 4;
     format-to-string("$%s%d", li < 0 & "" | "+", li)
   end;
 end;
-
-define inline function instruction-LK(secondary :: <integer>)
- => lk :: <integer>;
-  logand(secondary, #x1)
-end;
-
-/*
-define inline function instruction-field-LK(secondary :: <integer>)
- => lk :: <string>;
-  secondary.instruction-LK == 1
-  & "l"
-  | ""
-end;
-*/
 
 define instruction-field LK(31)
   LK == 1
@@ -317,35 +231,11 @@ define instruction-field LK(31)
   | ""
 end;
 
-
-define inline function instruction-Rc(secondary :: <integer>)
- => rc :: <integer>;
-  logand(secondary, #x1)
-end;
-
-/*
-define inline function instruction-field-Rc(secondary :: <integer>)
- => rc :: <string>;
-  secondary.instruction-Rc == 1
-  & "."
-  | ""
-end;
-*/
-
 define instruction-field Rc(31)
   Rc == 1
   & "."
   | ""
 end;
-
-/*
-define inline function instruction-field-OE(secondary :: <integer>)
- => OE :: <string>;
-  instruction-mask(secondary, 21, 21)
-  & "O"
-  | ""
-end;
-*/
 
 define instruction-field OE(21)
   OE == 1
