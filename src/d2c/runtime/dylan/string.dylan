@@ -104,35 +104,27 @@ end;
 
 define method as-lowercase (string :: <byte-string>)
     => result :: <byte-string>;
-  let result = make(<byte-string>, size: string.size);
-  for (character keyed-by index in string)
-    %element(result, index) := as-lowercase(character);
-  end;
-  result;
+  as-lowercase!(shallow-copy(string));
 end;
 
-define method as-lowercase! (string :: <byte-string>)
+define inline method as-lowercase! (string :: <byte-string>)
     => result :: <byte-string>;
-  for (character keyed-by index in string)
-    %element(string, index) := as-lowercase(character);
-  end;
+  call-out("gd_byte_string_as_lowercase", void:,
+           ptr: vector-elements-address(string),
+           int: string.size);
   string;
 end;
 
 define method as-uppercase (string :: <byte-string>)
     => result :: <byte-string>;
-  let result = make(<byte-string>, size: string.size);
-  for (character keyed-by index in string)
-    %element(result, index) := as-uppercase(character);
-  end;
-  result;
+  as-uppercase!(shallow-copy(string));
 end;
 
-define method as-uppercase! (string :: <byte-string>)
+define inline method as-uppercase! (string :: <byte-string>)
     => result :: <byte-string>;
-  for (character keyed-by index in string)
-    %element(string, index) := as-uppercase(character);
-  end;
+  call-out("gd_byte_string_as_uppercase", void:,
+           ptr: vector-elements-address(string),
+           int: string.size);
   string;
 end;
 

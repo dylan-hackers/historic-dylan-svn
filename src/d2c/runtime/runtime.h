@@ -123,3 +123,7 @@ float (powf)(float b, float x);
 float (sinhf)(float x);
 float (coshf)(float x);
 float (tanhf)(float x);
+
+/* string.c */
+extern void gd_byte_string_as_lowercase (char *cptr, int n);
+extern void gd_byte_string_as_uppercase (char *cptr, int n);
