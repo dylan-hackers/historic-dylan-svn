@@ -26,6 +26,7 @@ if ($enable_bootstrap) {
 	&unknown_platform_error();
     }
 
+    $use_previous_melange = 1;
     &emit_melange_rule("$plat-ffi", "$plat-portability.h");
 
     &emit_c_file_rule("$plat-portability");

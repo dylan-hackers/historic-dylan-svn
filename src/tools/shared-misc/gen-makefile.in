@@ -3,7 +3,7 @@
 use Cwd;
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.52 2003/10/22 20:26:16 housel Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.52.2.1 2003/10/24 02:24:52 housel Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -511,6 +511,11 @@ sub maybe_emit_d2c_defines {
             $CFLAGS = $target_platform{'default_c_compiler_flags'};
         }
         $CFLAGS =~ s/-I%s//;
+
+	if($use_previous_melange && $build_tools_with_d2c) {
+	    $MELANGE = $PREVIOUS_MELANGE;
+	}
+
         print <<EOF;
 D2C = $D2C
 D2CFLAGS = $D2CFLAGS
@@ -1053,7 +1058,10 @@ sub emit_melange_rule {
        print " \$(SRCDIR)/$header";
     }
     print "\n";
-    printf("\t$host_platform{'recursive_make_command'}\n", $MELANGE_DIR, "");
+    unless($use_previous_melange && $build_tools_with_d2c) {
+	printf("\t$host_platform{'recursive_make_command'}\n",
+	       $MELANGE_DIR, "");
+    }
     print "\t\$(MELANGE) --d2c \$(CPPFLAGS) -I\$(SRCDIR) ";
     if($EXTRA_INCLUDE_DIR ne "") {
       print "-I$EXTRA_INCLUDE_DIR ";
