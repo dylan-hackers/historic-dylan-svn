@@ -6,6 +6,38 @@ macro @Sigm {@Sym sigma}
 def @Sig right n { {@Sigm} @Sub n }
 def @Tau right n { {@Sym tau} @Sub n }
 def @Project left union right n { union{@Sym bar} @Sub n }
+# import @Eq
+# def set right x { brmatrix { x } }
+import @Eq
+def set
+  precedence 100
+  right x
+{ lbrace ` x ` rbrace }
+
+import @Eq
+def sig left index { sigma sub index }
+
+# import @Eq
+# def sigp left index right x { sigma sub index (x) }
+
+import @Eq
+def sigp left index right x { index sig (x) }
+
+import @Eq
+def ta left index { tau sub index }
+
+import @Eq
+def taus left maxindex { 1 ta, 2 ta, ..., maxindex ta }
+
+import @Eq
+def tausprime left maxindex { 1' ta, 2' ta, ..., maxindex ta }
+
+import @Eq
+def proj
+  precedence 50
+  left coll
+  right index
+{ coll non mid sub index }
 
 
 @Database @Reference { refs }
@@ -362,7 +394,9 @@ the union over the full cartesian product: @Eq {big union from {j=1, "j'"=1} to 
 @LP
 We are to derive "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Char backslash "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i} now.
 
-Since the set of the signatures 
+Again we consider one element sets first:
+# @Eq { set {1 sigp {1 ta, 2 ta, ..., n ta}} }
+@Eq { set {1 sigp {n taus}} proj i setminus set {1' sigp {n' tausprime}} proj i}
 @End @SubSubSection
 @EndSubSubSections
 
@@ -397,7 +431,7 @@ form of types.
 Implementing the tuple-of-unions version of post-facto
 inference turned out to be relatively straightforward,
 since the compiler already supplies the definitive and
-maybe sets needed for the analysis. @I { [a bit more how it is done] }
+maybe sets needed for the analysis. @I { [a bit more on how it is done] }
 The bigger challenge is to implement the union-of-tuples
 approach. The idea is to introduce a new internal type
 primitive, say, {@Class tuple-union-projection}, that is
