@@ -302,8 +302,8 @@ define function main(name, arguments)
       let i = 0;
       while(~exhausted)
 	let (string, done) =
-	  generate-optimized-output(parse-tree, run: i);
-	string.concatenate-strings.see-if-best;
+	  generate-optimized-output(parse-tree, run: i, callback: compose(see-if-best, concatenate-strings));
+//	string.concatenate-strings.see-if-best;
 	exhausted := done;
 	i := i + 1;
       end while;
@@ -317,8 +317,8 @@ define function main(name, arguments)
 //    debug("Generating output.\n");
     generate-output(parse-tree).concatenate-strings.see-if-best;
 //    debug("Generating optimized output.\n");
-//    iterate-generate-optimized-output(parse-tree);
-    optimize-output(parse-tree).concatenate-strings.see-if-best;
+    iterate-generate-optimized-output(parse-tree);
+//    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)
 //    debug("Out of time!\n");

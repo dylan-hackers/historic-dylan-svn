@@ -24,10 +24,11 @@ define method breadth-first-search(initial-state, make-successors, cost-order, f
   values(sort(terminal-states, test: cost-order), #t);
 end method breadth-first-search;
 
-define inline method beam-search(initial-state :: <generator-state>, make-successors :: <function>, cost-order :: <function>, finished? :: <function>, #key beam-width = 12)
+define inline method beam-search(initial-state :: <generator-state>, make-successors :: <function>, cost-order :: <function>, finished? :: <function>, #key beam-width = 12, callback)
   let states :: <subsequence> = subsequence(vector(initial-state));
   let terminal-states :: <list> = #();
   let exhausted :: <boolean>    = #t;
+  let best-match = initial-state.maximum-cost;
 
   while(states.size > 0)
     check-timeout();
@@ -36,10 +37,17 @@ define inline method beam-search(initial-state :: <generator-state>, make-succes
     let new-states :: <stretchy-object-vector> = make(<stretchy-object-vector>);
     for(i in make-successors(states))
 //      print-state(i);
-      if(finished?(i))
-        terminal-states := pair(i, terminal-states);
+      if(i.output-state == #"finished")
+        if(i.maximum-cost < best-match)
+//          print-state(i);
+          terminal-states := pair(i, terminal-states);
+          callback(i);
+          best-match := i.maximum-cost;
+        end if;
       else
-        new-states := add!(new-states, i);
+        if(i.maximum-cost < best-match + 77)
+          new-states := add!(new-states, i);
+        end if;
       end if;
     end for;
 //    debug("%= states generated.\n", new-states.size);

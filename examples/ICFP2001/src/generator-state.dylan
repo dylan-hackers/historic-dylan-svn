@@ -9,7 +9,7 @@ define class <generator-state> (<object>)
   slot output-tokens       :: <list> = #();
   slot remaining-text-runs :: <subsequence>;
   slot maximum-cost        :: <integer> = 0;
-  slot output-state        :: one-of(#"closing", #"opening", #"emit-pl") = #"opening";
+  slot output-state        :: one-of(#"closing", #"opening", #"emit-pl", #"finished") = #"opening";
 end class <generator-state>;
 
 define sealed domain make(singleton(<generator-state>));
@@ -38,7 +38,7 @@ end method;
 
 define method print-state(state :: <generator-state>)
  => ();
-  debug("%= %= %=\n", state.output-tokens, state.maximum-cost, state.secondary-cost);
+  debug("%= %= %= %=\n", state.output-tokens, state.maximum-cost, state.secondary-cost, state.output-state);
 //  debug("%=\n", state.remaining-text-runs);
 //  debug("%=\n", state.attribute-stack);
 //  debug("%=\n", state.open-tag-stack);
@@ -80,6 +80,9 @@ define method pop-tag!(state :: <generator-state>)
     pair(state.open-tag-stack.head.close-tag, state.output-tokens);
   state.open-tag-stack := state.open-tag-stack.tail;
   state.attribute-stack := state.attribute-stack.tail;
+  if(state.open-tag-stack = #() & state.remaining-text-runs.size = 0)
+    state.output-state := #"finished";
+  end if;
   state;
 end method pop-tag!;
 
@@ -142,7 +145,11 @@ define method emit-text!(state :: <generator-state>)
   state.maximum-cost := state.maximum-cost - output.attributes.maximum-cost;
   state.remaining-text-runs :=
     subsequence(state.remaining-text-runs, start: 1);
-  state.output-state := #"closing";
+  if(state.open-tag-stack = #() & state.remaining-text-runs.size = 0)
+    state.output-state := #"finished";
+  else
+    state.output-state := #"closing";
+  end if;
   state;
 end method emit-text!;
 

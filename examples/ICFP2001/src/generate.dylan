@@ -102,7 +102,7 @@ define method concatenate-lists(v :: <sequence>)
 end method concatenate-lists;
 
 
-define method generate-optimized-output(input :: <stretchy-object-vector>, #key run = 0)
+define method generate-optimized-output(input :: <stretchy-object-vector>, #key run = 0, callback)
  => (strings :: <list>, exhausted :: <boolean>);
   let state = make(<generator-state>, text-runs: input);
   local
@@ -122,17 +122,21 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
         x.maximum-cost < y.maximum-cost;
       end if;
     end method cost-order;
-              
-  if(run < 14)
-    let beam-width = #[4, 8, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 512, 1024][run]; // XXX Tweak here
-    //  debug("Beam width: %=\n", beam-width);
-    let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width);
-    //  debug("Search done, exhaustive: %=\n", exhausted);
+  local
+    method see-if-best (x)
+              callback(reverse!(x.output-tokens));
+    end method see-if-best;
+
+  if(run < 8)
+    let beam-width = (run + 1) * 4;
+    debug("Beam width: %=\n", beam-width);
+    let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width, callback: see-if-best);
+    debug("Search done, exhaustive: %=\n", exhausted);
     
     if(result-states == #())
       values(#(), exhausted);
     else
-      values(reverse!(result-states.head.output-tokens), exhausted);
+      values(#() /* reverse!(result-states.head.output-tokens)*/ , exhausted);
     end if;
   else
     values(#(), #t);
