@@ -65,4 +65,5 @@ define variable *auto-register-pages?* :: <boolean> = #f;
 define variable *auto-register-map* :: <string-table>
   = make(<string-table>);
 
+define variable *mime-type-map* :: <table> = make(<table>);
 
