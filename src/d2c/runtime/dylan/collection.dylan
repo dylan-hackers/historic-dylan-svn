@@ -420,7 +420,7 @@ define inline method member?
     => res :: <boolean>;
   block (return)
     for (el in collection)
-      if (test(value, el))
+      if (compare-using-default-==(test, value, el))
 	return(#t);
       end;
     end;
@@ -643,7 +643,7 @@ end method add!;
 define inline method add-new
     (seq :: <sequence>, new-element :: <object>, #key test :: <function> = \==)
  => (new-seq :: <sequence>);
-  if (member?(new-element, seq, test: method (a, b) test(b, a) end method))
+  if (member?(new-element, seq, test: commutate(test)))
     seq;
   else
     add(seq, new-element);
@@ -653,7 +653,7 @@ end method add-new;
 define inline method add-new!
     (seq :: <sequence>, new-element :: <object>, #key test :: <function> = \==)
  => (new-seq :: <sequence>);
-  if (member?(new-element, seq, test: method (a, b) test(b, a) end method))
+  if (member?(new-element, seq, test: commutate(test)))
     seq;
   else
     add!(seq, new-element);
@@ -732,19 +732,19 @@ define method union
      #key test :: <function> = \==)
  => (result :: <sequence>);
   concatenate(sequence1, difference(sequence2, sequence1,
-				    test: method (a, b) test(b, a) end));
+				    test: commutate(test)));
 end method union;
 
 define method remove-duplicates
     (sequence :: <sequence>, #key test :: <function> = \==)
  => (result :: <sequence>);
-  local method true-test (a, b) test(b, a) end method;
-  for (result = #() then if (~member?(element, result, test: true-test))
-			   pair(element, result);
-			 else
-			   result;
-			 end if,
-       element in sequence)
+  let true-test = commutate(test);
+  for (element in sequence,
+       result = #() then if (member?(element, result, test: true-test))
+                           result;
+                         else
+                           pair(element, result);
+                         end if)
   finally
     as(type-for-copy(sequence), reverse!(result));
   end for;
@@ -793,7 +793,7 @@ define method subsequence-position
 	      done?(big, big-state, limit) =>
 		// End of big sequence -- it's not here.
 		#f;
-	      test(current-element(big, big-state),
+	      compare-using-default-==(test, current-element(big, big-state),
 		   pat-current-element(pattern, pat-state)) =>
 		// They match -- try one more.
 		search(index, index-state, next-state(big, big-state),
@@ -1219,6 +1219,12 @@ end method copy-sequence;
 
 // See note above.
 //
+/*
+  Change the method below back to something like the original when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+  The note above regarding $not-supplied can be removed then too.
+*/
 define inline method last
     (sequence :: <sequence>, #key default = $not-supplied)
  => value :: <object>;
@@ -1344,6 +1350,19 @@ define inline-only function compare-using-default-==
     a == b;
   else
     test(a, b);
+  end;
+end;
+
+// Return a method the same as that passed in, but with the first
+// two parameters reversed. However, if the test method is the
+// identity function, just return it.
+//
+define inline-only function commutate (test :: <function>)
+ => (reversed-test :: <function>)
+  if (test == \==)
+    \==;
+  else
+    method (a, b) test(b, a) end method;
   end;
 end;
 
