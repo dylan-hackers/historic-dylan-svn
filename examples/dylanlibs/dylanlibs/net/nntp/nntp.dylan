@@ -4,7 +4,7 @@ Author:    Chris Double
 Copyright: Copyright (c) 2001, Chris Double.  All rights reserved.
 
 // The following NNTP code was based on NNTP dot Lisp, a Common Lisp
-// NNTP library, obtained from http://www.davep.org/misc/#nntp.lisp.
+// NNTP library, obtained from http://www.davep.org/lisp/#nntp.lisp.
 //
 // Dave Pearson has kindly given permission to allow me to provide this
 // Dylan port of nntp.lisp in the dylanlibs collection. Thank you very
