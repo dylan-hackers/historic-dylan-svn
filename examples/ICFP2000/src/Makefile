@@ -1,5 +1,6 @@
 SOURCES=icfp2000.dylan icfp2000-exports.dylan matrix.dylan obj.dylan \
-	lexer.dylan ppm.dylan render.dylan ppm.dylan color.dylan
+	lexer.dylan ppm.dylan render.dylan ppm.dylan color.dylan \
+	intersection.dylan
 
 icfp2000: icfp2000.lid $(SOURCES)
 	d2c -s icfp2000.lid

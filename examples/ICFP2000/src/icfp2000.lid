@@ -4,7 +4,9 @@ linker-options: -Xlinker -Bstatic
 files: icfp2000-exports
   matrix
   obj
+  intersection
   lexer
   color
   ppm
+  render
   icfp2000
