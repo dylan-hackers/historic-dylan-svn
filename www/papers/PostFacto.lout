@@ -25,6 +25,9 @@ extend @Eq
 def ta left index { tau sub index }
 
 extend @Eq
+def stau left singleton { tau sub @F singleton }
+
+extend @Eq
 def taus
   left maxindex
   named prim {}
@@ -149,9 +152,10 @@ and specialize @F {method}s with either one or both arguments'
 types given more precisely:
 @IndentedDisplay @F @F @Verbatim
 {
-define method render (doc :: <html-document>, dev :: <laser-printer>) => (); ...
-define method render (doc :: <pdf-document>, dev :: <dot-matrix-printer>) => (); ...
-}
+define method render
+    (doc :: <html-document>, dev :: <laser-printer>) => (); ...
+define method render
+    (doc :: <pdf-document>, dev :: <dot-matrix-printer>) => (); ...}
 @End @SubSection
 
 ###########
@@ -354,12 +358,15 @@ the @F if statement the typing constraints are
 @F truth @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 1}
 and @F value @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 2}.
 In the second leg of the @F if statement the compiler can infer the type of @F truth being {@Tau @F "#f"}.
-We can now introduce the restriction operator @Sym circlemultiply to combine the two constraints and derive further
+We can now introduce the restriction operator (to be defined later)
+@Sym circlemultiply to combine the two constraints and derive further
 constraints for other variables:
-"{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 1} @Sym circlemultiply {@Tau @F "#f"}
-@Sym arrowdblright "{" {@Tau @F 0}{@Project 2} "}". Here the notation {@Tau @F 0}{@Project 2} conveys the fact that
-the restriction results in a new type constraint for the second factor of the tuple union being the (singleton)
-type {@Tau @F 0}.
+@Eq { set { 1 sigp { "#t" stau, "42" stau }, 2 sigp { "#f" stau, "0" stau } } proj 1
+      otimes { "#f" stau proj 1 } bin dbllongrightarrow set { "0" stau proj 2 } }.
+@LP
+Here the notation @Eq { "0" stau proj 2 } conveys the fact that
+the restriction results in a new type constraint for the second
+factor of the tuple union being of (singleton) type @Eq { "0" stau }.
 @End @SubSection
 
 ###########
@@ -435,6 +442,14 @@ now.
 Again we consider one element sets first:
 @Eq { set {1 sigp {n taus}} proj i setminus set {1' sigp {n taus prim {'}}} proj i}
 @End @SubSubSection
+
+#-----------------
+@SubSubSection @Title { The Restriction Operator @Sym circlemultiply }
+@Begin
+@LP
+
+@End @SubSubSection
+
 @EndSubSubSections
 
 @End @SubSection
