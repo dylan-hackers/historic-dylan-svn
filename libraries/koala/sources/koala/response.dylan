@@ -204,12 +204,12 @@ define method send-response
       let date = as-common-logfile-date(current-date());
       let remoteaddr = host-address(remote-host(request-socket(req)));
       log-logfile(*logfile*, concatenate(remoteaddr, " ",
-                                       "-", " ",
-                                       "-", " ",
-                                       "[", date, "] ",
-                                       "\"", request, "\" ",
-                                       integer-to-string(response-code), " ",
-                                       content-length, "\n"));
+                                         "-", " ",
+                                         "-", " ",
+                                         "[", date, "] ",
+                                         "\"", request, "\" ",
+                                         integer-to-string(response-code), " ",
+                                         content-length, "\n"));
     end if;
   end unless;
 
