@@ -348,7 +348,7 @@ define function listener-top-level (listener :: <listener>)
                          listeners.size <= server.max-listeners)
                      listener.listener-socket
                        := make(<server-socket>, port: listener.listener-port);
-		     inc!(listener.total-restarts);
+                     inc!(listener.total-restarts);
                      #t
                    end;
                  end;
@@ -671,22 +671,24 @@ define function send-error-response (request :: <request>, c :: <condition>)
   end;
 end;
 
-define function send-error-response-internal (request :: <request>, err :: <error>)
-  with-resource (headers = <header-table>)
-    with-resource (response = <response>,
-                   request: request,
-                   headers: headers)
-      let out = output-stream(response);
-      set-content-type(response, "text/plain");
-      let one-liner = http-error-message-no-code(err);
-      write(out, "An error occurred while processing your request:\n\n");
-      write(out, condition-to-string(err));
-      send-response(response,
-                    response-code: http-error-code(err),
-                    response-message: one-liner);
-    end;
+define method send-error-response-internal (request :: <request>, err :: <error>)
+  let headers = http-error-header(err);
+  if ( ~ headers )
+    headers = make(<header-table>);
+  end if;
+  with-resource (response = <response>,
+                 request: request,
+                 headers: headers)
+    let out = output-stream(response);
+    set-content-type(response, "text/plain");
+    let one-liner = http-error-message-no-code(err);
+    write(out, condition-to-string(err));
+    write(out, "\r\n");
+    send-response(response,
+                  response-code: http-error-code(err),
+                  response-message: one-liner);
   end;
-end;
+end method;
 
 // Do whatever we need to do depending on the incoming headers for
 // this request.  e.g., handle "Connection: Keep-alive", store
