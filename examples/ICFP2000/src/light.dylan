@@ -8,7 +8,7 @@ define abstract class <light> (<object>)
 end class <light>;
 
 define class <star> (<light>)
-  slot direction :: <vector3D>, required-init-keyword: #"direction";
+  slot direction :: <3D-vector>, required-init-keyword: #"direction";
 end class <star>;
 
 define method initialize(s :: <star>, #key, #all-keys)
@@ -16,21 +16,34 @@ define method initialize(s :: <star>, #key, #all-keys)
 end method initialize;
 
 define method intensity-on
-    (light :: <star>, point :: <vector3D>, normal :: <vector3D>, #key
-       phong: p = 1.0)
+    (light :: <star>, point :: <3D-point>, normal :: <3D-vector>)
  => (color :: <color>)
 
   let angle-factor = -light.direction * normal;
   if (angle-factor < 0.0)
     make-black();
   else
-    light.light-color * angle-factor ^ p;
+    light.light-color * angle-factor;
   end if;
 end method intensity-on;
 
+define method phong-intensity-on
+    (light :: <star>, point :: <3D-point>, viewer :: <3D-point>,
+     normal :: <3D-vector>, phong-exp :: <fp>)
+ => (color :: <color>)
+  
+  let ray-to-viewer = normalize(viewer - point);
+  let angle-factor = ((ray-to-viewer - light.direction) * 0.5) * normal;
+  if (angle-factor < 0.0)
+    make-black();
+  else
+    light.light-color * angle-factor ^ phong-exp;
+  end if;
+end method phong-intensity-on;
+
 /* Shadow stuff */
 
-define method can-see(o :: <obj>, point :: <vector3D>, l :: <star>)
+define method can-see(o :: <obj>, point :: <3D-point>, l :: <star>)
  => (unblocked :: <boolean>)
   ~intersection-before(o, 
 		       make(<ray>, position: point +
@@ -40,7 +53,7 @@ define method can-see(o :: <obj>, point :: <vector3D>, l :: <star>)
 end method can-see;
 
 
-/* This was commented out of transcendental.dylan.  Why??? */
+/* Messy exponent function */
 
 define method \^ (b :: <fp>, x :: <fp>)
  => (y :: <fp>)
