@@ -53,5 +53,5 @@ end method print-object;
 
 define method print-object (c :: <transport>, s :: <stream>) => ()
   format(s, "{<transport> id: %d, bid: %d, location: %=}",
-         c.robot-id, c.bid, c.location);
+         c.robot-id, c.bid, c.transport-location);
 end method print-object;
