@@ -305,7 +305,7 @@ define method handle-request(server :: <simple-http-server>, remote-socket :: <s
   let (headers :: <string-table>, body) = extract-headers-and-body(remote-socket);
 
   // Look for 'Host' header.
-  let host = element(headers, "host", default: #f);
+  let host = element(headers, "Host", default: #f);
   let request = make(<request>,
                      request-type: request-type,
                      path: path,
