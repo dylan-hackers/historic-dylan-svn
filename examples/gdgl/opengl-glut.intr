@@ -165,3 +165,14 @@ define sealed method content-size (value :: subclass(<c-pointer-vector>))
   $pointer-size;
 end method content-size;
 */
+
+define method glut-init
+    ()
+ => ();
+ c-expr( void: "extern int application_argc;" );
+ c-expr( void: "extern char **application_argv;" );
+  call-out( "glutInit", void:, 
+  	ptr: c-expr( ptr: "&application_argc" ), 
+  	ptr: c-expr( ptr: "application_argv" ) );
+  values();
+end method glut-init;
