@@ -247,6 +247,11 @@ define method fer-evaluate-expression(expr :: <literal-constant>, environment ::
   expr.value
 end;
 
+define method fer-evaluate-expression(expr :: <method-literal>, environment :: <object>)
+ => result :: <ct-value>;
+  expr.ct-function
+end;
+
 define method fer-evaluate-expression(var :: <abstract-variable>, environment :: <object>)
  => result :: <ct-value>;
   var.environment
@@ -289,8 +294,8 @@ define primitive-emulator logand end;
 // ########## append-environment ##########
 define function append-environment(prev-env :: <object>, new-binding, new-value) => new-env;
 
-  format(*standard-output*, "append-environment %= %= \n", new-binding, new-value);
-  force-output(*standard-output*);
+//  format(*standard-output*, "append-environment %= %= \n", new-binding, new-value);
+//  force-output(*standard-output*);
 
 
   method(var)
