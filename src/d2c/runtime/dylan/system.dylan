@@ -1,5 +1,4 @@
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/system.dylan,v 1.4 2000/01/24 04:56:49 andreas Exp $
 copyright: see below
 module: dylan-viscera
 

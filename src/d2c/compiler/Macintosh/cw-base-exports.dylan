@@ -1,5 +1,4 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/cw-base-exports.dylan,v 1.3 2002/03/24 20:05:28 gabor Exp $
 copyright: see below
 
 //======================================================================

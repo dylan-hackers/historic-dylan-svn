@@ -1,5 +1,4 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/tailcall.dylan,v 1.3.4.1 2003/07/05 03:56:12 prom Exp $
 copyright: see below
 
 //======================================================================

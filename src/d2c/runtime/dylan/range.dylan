@@ -1,5 +1,4 @@
 module: Dylan-viscera
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/range.dylan,v 1.3.10.1 2003/06/10 10:04:42 andreas Exp $
 
 //======================================================================
 //

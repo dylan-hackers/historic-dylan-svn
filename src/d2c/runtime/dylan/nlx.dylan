@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/nlx.dylan,v 1.3 2001/05/14 23:31:15 gabor Exp $
 copyright: see below
 module: dylan-viscera
 

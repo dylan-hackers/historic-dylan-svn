@@ -1,7 +1,6 @@
 module: Dylan-User
 author: Nick Kramer (nkramer@cs.cmu.edu), David Watson (dwatson@cmu.edu)
 synopsis: Definition of the Table-Extensions library.
-rcs-header: $Header: /scm/cvs/src/common/table-ext/library.dylan,v 1.2 2000/01/24 04:55:39 andreas Exp $
 
 //======================================================================
 //

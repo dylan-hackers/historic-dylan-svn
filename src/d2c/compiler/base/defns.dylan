@@ -1,5 +1,4 @@
 module: definitions
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/defns.dylan,v 1.3.4.2 2003/06/10 10:04:41 andreas Exp $
 copyright: see below
 
 

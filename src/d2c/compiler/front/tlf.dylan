@@ -1,5 +1,4 @@
 module: top-level-forms
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/tlf.dylan,v 1.3.2.1 2004/02/02 00:55:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -114,11 +113,11 @@ end;
 
 
 
-define class <magic-interal-primitives-placeholder> (<top-level-form>)
+define class <magic-internal-primitives-placeholder> (<top-level-form>)
 end;
 
 define method print-message
-    (tlf :: <magic-interal-primitives-placeholder>, stream :: <stream>) => ();
+    (tlf :: <magic-internal-primitives-placeholder>, stream :: <stream>) => ();
   write(stream, "Magic internal primitives.");
 end;
 
@@ -172,6 +171,6 @@ add-od-loader(*compiler-dispatcher*, #"define-binding-tlf",
 // <define-class-tlf> -- subclass of <simple-define-tlf>
 define sealed domain make(singleton(<define-class-tlf>));
 define sealed domain initialize(<define-class-tlf>);
-// <magic-interal-primitives-placeholder> -- subclass of <top-level-form>
-define sealed domain make(singleton(<magic-interal-primitives-placeholder>));
-define sealed domain initialize(<magic-interal-primitives-placeholder>);
+// <magic-internal-primitives-placeholder> -- subclass of <top-level-form>
+define sealed domain make(singleton(<magic-internal-primitives-placeholder>));
+define sealed domain initialize(<magic-internal-primitives-placeholder>);

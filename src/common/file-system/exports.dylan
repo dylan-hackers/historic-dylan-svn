@@ -1,5 +1,4 @@
 module:      dylan-user
-rcs-header:  $Header: /scm/cvs/src/common/file-system/exports.dylan,v 1.3.2.1 2003/08/10 23:50:09 gabor Exp $
 author:      Douglas M. Auclair, dauclair@hotmail.com
 
 define library file-system

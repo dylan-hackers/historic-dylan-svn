@@ -1,6 +1,5 @@
 Module: ctype
 Description: compile-time type system
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.8.4.2 2003/10/18 22:13:39 andreas Exp $
 copyright: see below
 
 //======================================================================

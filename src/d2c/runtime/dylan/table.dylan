@@ -1,6 +1,5 @@
 module:	    dylan-viscera
 Author:	    Nick Kramer (nkramer@cs.cmu.edu)
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/table.dylan,v 1.14 2002/09/29 07:33:08 bruce Exp $
 Synopsis:   Implements <table>, <object-table>, <equal-table>,
             and <value-table>.
 

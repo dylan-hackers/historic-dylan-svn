@@ -1,5 +1,4 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.15 2004/02/02 00:55:22 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -1570,7 +1569,7 @@ define method emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <fi
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
 end;
 
-define method emit-tlf-gunk (backend == c:, tlf :: <magic-interal-primitives-placeholder>,
+define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-placeholder>,
 			     file :: <file-state>)
     => ();
   let bstream = file.file-body-stream;

@@ -1,5 +1,4 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/parser-exports.dylan,v 1.8.2.1 2003/07/05 03:56:13 prom Exp $
 copyright: see below
 
 //======================================================================

@@ -1,5 +1,4 @@
 module: null-optimizer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/null-optimizer.dylan,v 1.3.4.1 2003/07/05 03:56:03 prom Exp $
 copyright: see below
 
 

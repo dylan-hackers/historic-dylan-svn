@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/rawptr.dylan,v 1.2.10.1 2003/08/10 23:50:20 gabor Exp $
 copyright: see below
 module: dylan-viscera
 

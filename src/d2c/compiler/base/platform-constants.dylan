@@ -1,6 +1,5 @@
 module: platform-constants
 author: Peter Housel
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform-constants.dylan,v 1.1.2.1 2003/06/01 16:53:05 andreas Exp $
 copyright: see below
 
 //======================================================================

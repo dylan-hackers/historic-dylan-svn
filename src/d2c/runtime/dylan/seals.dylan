@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/seals.dylan,v 1.4 2002/08/26 05:24:55 bruce Exp $
 copyright: see below
 module: dylan-viscera
 

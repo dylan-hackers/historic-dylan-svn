@@ -2,7 +2,6 @@ module: dylan-viscera
 author: ram+@cs.cmu.edu
 synopsis: <buffer> and <byte-vector>
 copyright: see below
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/buffer.dylan,v 1.2 2000/01/24 04:56:43 andreas Exp $
 
 
 //======================================================================

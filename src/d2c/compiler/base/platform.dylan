@@ -1,6 +1,5 @@
 module: platform
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.11.2.3 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 //======================================================================

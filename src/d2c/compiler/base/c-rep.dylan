@@ -1,5 +1,4 @@
 module: c-representation
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/c-rep.dylan,v 1.11.2.2 2003/11/12 10:48:29 andreas Exp $
 copyright: see below
 
 //======================================================================

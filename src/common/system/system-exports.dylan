@@ -1,5 +1,4 @@
 module:      dylan-user
-rcs-header:  $Header: /scm/cvs/src/common/system/Attic/system-exports.dylan,v 1.9 2002/10/31 10:17:09 andreas Exp $
 author:      Tom Emerson, tree@tiac.net
              [based on stubs from Eric Kidd]
 copyright: see below

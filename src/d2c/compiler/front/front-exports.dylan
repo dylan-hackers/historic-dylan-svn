@@ -1,5 +1,4 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.11.2.2 2004/02/02 00:55:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -277,7 +276,7 @@ define module top-level-forms
 
     <define-class-tlf>, tlf-init-function-defns,
 
-    <magic-interal-primitives-placeholder>;
+    <magic-internal-primitives-placeholder>;
 end;
 
 define module abstract-optimizer

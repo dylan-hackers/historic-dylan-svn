@@ -2,7 +2,6 @@ module: format
 author: Gwydion Project
 synopsis: This file implements a simple mechanism for formatting output.
 copyright: See below.
-rcs-header: $Header: /scm/cvs/src/common/format/format.dylan,v 1.5.2.2 2003/06/10 10:04:40 andreas Exp $
 
 ///======================================================================
 ///

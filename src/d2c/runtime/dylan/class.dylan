@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/class.dylan,v 1.7 2002/12/02 11:17:43 andreas Exp $
 copyright: see below
 module: dylan-viscera
 

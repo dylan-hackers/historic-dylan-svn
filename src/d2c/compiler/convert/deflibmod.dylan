@@ -1,5 +1,4 @@
 module: define-libraries-and-modules
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/deflibmod.dylan,v 1.3.4.1 2003/08/10 23:50:11 gabor Exp $
 copyright: see below
 
 

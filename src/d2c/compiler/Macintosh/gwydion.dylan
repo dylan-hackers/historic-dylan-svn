@@ -1,5 +1,4 @@
 module: warrior
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/gwydion.dylan,v 1.1 2002/03/16 20:35:20 gabor Exp $
 file: gwydion.dylan
 author: gabor@mac.com
 status: reaaly need some cleanup first.

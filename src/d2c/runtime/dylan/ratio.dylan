@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/ratio.dylan,v 1.3 2001/12/23 04:17:28 bruce Exp $
 copyright: see below
 module: dylan-viscera
 

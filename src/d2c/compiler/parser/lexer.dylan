@@ -1,5 +1,4 @@
 module: lexer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/lexer.dylan,v 1.17.2.2 2003/06/10 10:04:41 andreas Exp $
 copyright: see below
 
 
@@ -621,7 +620,7 @@ define class <state> (<object>)
   slot name :: <symbol>, required-init-keyword: name:;
   //
   // The acceptance result if this state is an accepting state, or #f
-  // if it is not.  Symbols are used for magic interal stuff that never
+  // if it is not.  Symbols are used for magic internal stuff that never
   // makes it out of the lexer (e.g. whitespace), classes for simple
   // tokens that don't need any extra parsing, and functions for more
   // complex tokens.

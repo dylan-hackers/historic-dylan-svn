@@ -1,5 +1,4 @@
 module: define-macros
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defmacro.dylan,v 1.4.4.1 2003/07/05 03:56:03 prom Exp $
 copyright: see below
 
 
@@ -59,7 +58,7 @@ end method process-top-level-form;
 // process-top-level-form{<definition-macro-call-parse>} -- method on imported GF.
 //
 // Parse the expansion as a source-record, which will call
-// process-top-level-from() on each of the resulting parsed forms.
+// process-top-level-form() on each of the resulting parsed forms.
 // 
 //
 define method process-top-level-form

@@ -1,5 +1,4 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/fer-edit.dylan,v 1.5.2.2 2003/09/18 21:09:56 gabor Exp $
 copyright: see below
 
 //======================================================================

@@ -2,7 +2,6 @@ copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
 author: David Pierce (dpierce@cs.cmu.edu)
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/deque.dylan,v 1.7 2000/01/24 04:56:46 andreas Exp $
 
 //======================================================================
 //

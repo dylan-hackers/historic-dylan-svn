@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/designator-class.dylan,v 1.5 2002/01/29 00:53:42 housel Exp $
 copyright: see below
 module: dylan-viscera
 

@@ -1,5 +1,4 @@
 module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/clone.dylan,v 1.9.2.1 2003/07/05 03:56:03 prom Exp $
 copyright: see below
 
 //======================================================================

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.31.2.7 2003/10/16 11:36:56 andreas Exp $
 copyright: see below
 module: bootstrap
 

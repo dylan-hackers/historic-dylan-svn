@@ -1,5 +1,4 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/primemit.dylan,v 1.16.2.4 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 

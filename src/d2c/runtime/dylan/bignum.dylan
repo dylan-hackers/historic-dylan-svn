@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bignum.dylan,v 1.8.2.2 2003/06/10 10:04:42 andreas Exp $
 copyright: see below
 module: dylan-viscera
 

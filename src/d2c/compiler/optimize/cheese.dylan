@@ -1,5 +1,4 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.15.4.1 2003/07/05 03:56:08 prom Exp $
 copyright: see below
 
 

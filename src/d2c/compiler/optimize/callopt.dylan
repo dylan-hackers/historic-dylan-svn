@@ -1,5 +1,4 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.9 2003/10/04 01:19:32 gabor Exp $
 copyright: see below
 
 //======================================================================

@@ -4,7 +4,6 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/exports.dylan,v 1.8.2.1 2003/10/16 11:38:22 andreas Exp $
 
 //======================================================================
 //

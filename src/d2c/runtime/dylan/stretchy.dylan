@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/stretchy.dylan,v 1.10.2.1 2003/05/31 17:39:03 andreas Exp $
 copyright: see below
 module: dylan-viscera
 

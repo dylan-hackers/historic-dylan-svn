@@ -1,5 +1,4 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/primopt.dylan,v 1.7.2.1 2003/10/23 13:21:45 andreas Exp $
 copyright: see below
 
 

@@ -1,5 +1,4 @@
 module: dylan-viscera
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/sort.dylan,v 1.3 2002/12/11 14:38:41 bruce Exp $
 
 //======================================================================
 //

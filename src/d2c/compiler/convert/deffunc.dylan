@@ -1,5 +1,4 @@
 module: define-functions
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/deffunc.dylan,v 1.10 2001/03/17 03:43:32 bruce Exp $
 copyright: see below
 
 

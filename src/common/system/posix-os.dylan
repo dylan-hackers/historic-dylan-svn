@@ -1,5 +1,4 @@
 module:      operating-system
-rcs-header:  $Header: /scm/cvs/src/common/system/Attic/posix-os.dylan,v 1.7.2.1 2003/06/14 09:22:19 prom Exp $
 author:      Tom Emerson, tree@tiac.net
              [based on stubs from Eric Kidd]
 copyright:   Copyright 1999 Thomas R. Emerson

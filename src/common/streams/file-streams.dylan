@@ -2,7 +2,6 @@ module: Streams
 author: Bill Chiles, Ben Folk-Williams
 synopsis: This file implements <file-streams> for the Streams library
 copyright: See below.
-rcs-header: $Header: /scm/cvs/src/common/streams/file-streams.dylan,v 1.11.2.1 2003/06/10 10:04:40 andreas Exp $
 
 //======================================================================
 //

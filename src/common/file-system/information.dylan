@@ -1,5 +1,4 @@
 module:      information
-rcs-header:  $Header: /scm/cvs/src/common/file-system/information.dylan,v 1.3.2.1 2003/08/10 23:50:09 gabor Exp $
 author:      Douglas M. Auclair, dauclair@hotmail.com
 
 // Gets information files ... whether they exist and their properties
