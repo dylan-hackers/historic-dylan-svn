@@ -15,7 +15,7 @@ end library;
 
 define module utils
   use common-dylan;
-  use streams;
+  use streams, export: all;
   use format-out;
   use standard-io;
   use extensions, import: {report-condition};
@@ -30,11 +30,10 @@ end module utils;
 
 define module board
   use common-dylan;
-  use streams;
+  use utils;
   use format-out;
   use print, import: {print-object};
   use table-extensions;
-  use utils;
   use extensions, import: {functional-==}; // from runtime
   
   export
@@ -111,7 +110,6 @@ end module tour;
 define module command
   use common-dylan;
   use utils;
-  use streams;
   use print;
   use board;
 
@@ -132,7 +130,6 @@ end module command;
 define module messages
   use common-dylan;
   use utils;
-  use streams;
   use character-type, import: {digit?};
   use board;
   use command;
@@ -169,7 +166,6 @@ define module client
   // For debugging only. Sorry.
   use format-out;
   use standard-io;
-  use streams, export: all;
 
   export
     <robot-agent>,
@@ -195,7 +191,6 @@ define module icfp2002
   use format-out;
   use format;
   use subseq;
-  use streams, export: all;
   use utils;
   use string-conversions, import: {string-to-integer};
   use subseq, import: {subsequence}; // for test-tour-finding
