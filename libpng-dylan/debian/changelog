@@ -1,3 +1,22 @@
+libpng-dylan (2.3.10-4) unstable; urgency=low
+
+  * Update for current CVS.
+  * Add Andreas' copyright information. (Closes:#238928)
+
+ -- Brent A. Fulgham <bfulgham@debian.org>  Sat, 20 Mar 2004 20:55:18 -0800
+
+libpng-dylan (2.3.10-3) unstable; urgency=low
+
+  * Add build dependency on gwydion-dylan-dev.
+
+ -- Brent A. Fulgham <bfulgham@debian.org>  Fri, 25 Apr 2003 23:18:07 -0700
+
+libpng-dylan (2.3.10-2) unstable; urgency=low
+
+  * Recompile against updated d2c.
+
+ -- Brent A. Fulgham <bfulgham@debian.org>  Sun, 20 Apr 2003 13:40:23 -0700
+
 libpng-dylan (2.3.10-1) unstable; urgency=low
 
   * Initial Release.
