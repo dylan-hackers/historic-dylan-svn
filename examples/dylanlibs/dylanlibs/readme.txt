@@ -19,6 +19,15 @@ Gwydion Dylan[4], an Open Source Dylan implementation.
 [3] http://www.functionalobjects.com
 [4] http://www.gwydiondylan.org
 
+Mailing List
+============
+
+A mailing list exists to enable discussion about Dylanlibs
+projects. CVS activity also goes to this mailing list. Details on
+subscribing and access to the list archives are available at:
+
+  http://lists.sourceforge.net/lists/listinfo/dylanlibs-discuss
+
 Available Libraries
 ===================
 
