@@ -7,23 +7,38 @@ define library icfp2000
   use matrix;
 end library;
 
-define module GML-compiler
+
+define module gml-lexer
+  use Dylan;
+  use common-dylan;
+  use standard-io;
+  use streams;
+  use format;
+  use Extensions,
+    import: {<extended-integer>, ratio, <false>};
+
+  export lex-gml;
+end module gml-lexer;
+
+
+define module gml-compiler
   use Dylan;
   use Transcendental;
-  export compile-GML, run-GML;
-end module GML-compiler;
+
+  export compile-gml, run-gml;
+end module gml-compiler;
 
 
 define module icfp2000
   use common-dylan;
   use format-out;
-  use streams;
   use format;
+  use streams;
   use print;
   use standard-io;
   use transcendental;
   use matrix;
-  use Extensions,
-    import: {<extended-integer>, ratio, <false>};
-  use GML-compiler;
+
+  use gml-lexer;
+  use gml-compiler;
 end module;

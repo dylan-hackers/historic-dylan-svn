@@ -1,10 +1,8 @@
-module: icfp2000
+module: GML-lexer
 synopsis: Lexer
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
-// <lexer> -- exported.
-//
 // An object holding the current lexer state.
 //
 define class <lexer> (<object>)
