@@ -29,7 +29,6 @@ define module xml-parser
 // beginning to integrate Chris' parse engine
   create <document>, <element>, <attribute>, <entity-reference>,
     <char-reference>, <char-string>, <xml>, text, char, value, name;
-//  create *entities*;
   create entity-value;
 end module xml-parser;
 
