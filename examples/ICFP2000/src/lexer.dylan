@@ -203,6 +203,106 @@ define method compile-state-machine (#rest states)
 end method compile-state-machine;
 
 
+// state-machine-definer
+//
+define macro state-machine-definer
+  { define state-machine ?:name ?states end }
+  =>
+  {
+    define constant ?name
+      = compile-state-machine(?states);
+  }
+  
+  states:
+  { } => { }  // workaround
+//  { ?state } => { ?state }  // gd does not like 1+ repetitions...
+  { ?state; ... } => { ?state, ... }
+  
+  state:
+  { state ?:name() ?transitions } => { state(?#"name", #f, ?transitions) }
+  { state ?:name(?to:name) ?transitions } => { state(?#"name", ?#"to", ?transitions) }
+  { state ?:name(?to:expression) ?transitions } => { state(?#"name", ?to, ?transitions) }
+
+  transitions:
+  { } => { }  // workaround
+//  { ?transition } => { ?transition }  // gd does not like 1+ repetitions...
+  { ?transition, ... } => { ?transition, ... }
+
+  transition:
+  { ?regular:expression => ?:name } => { pair(?regular, ?#"name") }
+
+end macro state-machine-definer;
+
+// $Initial-State -- internal.
+//
+// Build the state graph and save the initial state.
+// 
+define state-machine $Initial-State
+  state start()
+    " \t\f\r\n\<b>" => whitespace,
+    '/'             => binder,
+    '['             => lbracket,
+    ']'             => rbracket,
+    '{'             => lbrace,
+    '}'             => rbrace,
+    '%'             => comment,
+    '+'             => plus,
+    '-'             => minus,
+    "A-Za-z"        => symbol,
+    '"'             => double-quote,
+    "0-9"           => decimal;
+  state whitespace(whitespace)
+    " \t\f\r\n\<b>" => whitespace;
+  state comment(end-of-line-comment);
+  state lbracket('[');
+  state rbracket(']');
+  state lbrace('{');
+  state rbrace('}');
+  state minus()
+	  "0-9"           => signed-decimal;
+  state plus()
+    "0-9"           => signed-decimal;
+
+  state symbol((make-identifier-or-binder))
+    "a-zA-Z0-9_"           => symbol,
+    '-'           => symbol;
+
+  state binder()
+    "a-zA-Z"           => symbol;
+
+  state double-quote(string-literal);
+
+  state decimal((parse-integer-literal))
+    "0-9"           => decimal,
+    '.'           => fp-frac,
+    "eE"           => decimal-e;
+
+  state signed-decimal((parse-integer-literal))
+    "0-9"           => signed-decimal,
+    '.'           => fp-frac;
+       
+  state fp-frac((parse-fp-literal))
+    "0-9"           => fp-frac,
+    "eE"           => fp-e;
+  state fp-e()
+    '-'           => fp-e-sign,
+    '+'           => fp-e-sign,
+    "0-9"           => fp-exp;
+  state fp-e-sign()
+    "0-9"           => fp-exp;
+  state fp-exp((parse-fp-literal))
+    "0-9"           => fp-exp;
+       
+  state decimal-e()
+    "0-9"           => decimal-exp,
+    '-'           => decimal-e-sign,
+    '+'           => decimal-e-sign;
+  state decimal-exp((parse-fp-literal))
+    "0-9"           => decimal-exp;
+  state decimal-e-sign()
+    "0-9"           => decimal-exp;
+end state-machine;
+/*
 // $Initial-State -- internal.
 //
 // Build the state graph and save the initial state.
@@ -222,6 +322,7 @@ define constant $Initial-State
 	     pair("A-Za-z", #"symbol"),
 	     pair('"', #"double-quote"),
 	     pair("0-9", #"decimal")),
+
        state(#"whitespace", #"whitespace",
 	     pair(" \t\f\r\n\<b>", #"whitespace")),
        state(#"comment", #"end-of-line-comment"),
@@ -268,7 +369,7 @@ define constant $Initial-State
 	     pair("0-9", #"decimal-exp")),
        state(#"decimal-e-sign", #f,
 	     pair("0-9", #"decimal-exp")));
-
+*/
 
 define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
   let source :: <stream> = lexer.source;
