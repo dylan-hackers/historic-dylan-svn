@@ -105,7 +105,10 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
     mod-string := concatenate(mod-string, format-to-string("use common-dylan; use format-out; end; "));
   end if;
     
-  let libmod-declaration = as(<byte-vector>, format-to-string("%s %s\n\n", lib-string, mod-string));
+  let libmod-declaration
+    = format-to-string("%s %s\n\n", lib-string, mod-string);
+  let libmod-buffer = make(<buffer>, size: libmod-declaration.size);
+  copy-bytes(libmod-declaration, 0, libmod-buffer, 0, libmod-declaration.size);
 
   // XXX these two look suspicious
   // second one is ok, default is now according to DRM
@@ -115,14 +118,12 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 
   state.unit-mprefix := as-lowercase(lib-name);
 
-  //let libmod-declaration = as(<byte-vector>, format-to-string("define library %s use common-dylan; use io; end; define module %s use common-dylan; use format-out; end;\n\n", lib-name, lib-name));
-
   block ()
     let module = find-module(state.unit-lib, as(<symbol>, "dylan-user"));
     let tokenizer = make(<lexer>,
                          module: module,
                          source: make(<source-buffer>, 
-                                      buffer: libmod-declaration),
+                                      buffer: libmod-buffer),
                          start-line: 0,
                          start-posn: 0);
     *Top-Level-Forms* := state.unit-tlfs;
