@@ -7,6 +7,8 @@
 
 <mime-type-map location="mime-type-map.xml" />
 
+<logfile location="koala.log" />
+
 <port value="80" />
 
 <server-root location="../.." />
