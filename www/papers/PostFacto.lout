@@ -224,6 +224,14 @@ Our optimization tries to turn this vice of multiple dispatch to a virtue, never
 must have been in the type union of the methods in the maybe set at argument position
 {@I n}, if the function call returns @I {without signalling an error}. In the dominance
 domain of this call we can assume that the type constraint holds.
+We introduce some notation to be able to formalize this a bit. Let sigma(tau1, tau2, ..., taun)
+denote the product type of an {@I n}-ary method's argument signature. The maybe set then
+can be described as a set of distinct signatures: "{" sigma1, sigma2, ..., sigmam "}".
+We denote the projection operator to extract the type of argument 1<={@I i}<=n from a
+method signature: sigma(tau1, tau2, ..., taun) "|i" = taui.
+@PP This allows to formulate our above notion as known-type(i, "{" sigma1, sigma2, ..., sigmam "}") <=
+type-union(sigma1 "|i", ..., sigmam "|i"). One might ask for the reason of the inequality in
+this formula. It simply states that we can do even @I better than the formula suggests!
 
 
 signature unions, indexed by argument. gives rise to
