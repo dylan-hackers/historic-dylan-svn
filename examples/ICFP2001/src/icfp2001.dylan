@@ -320,7 +320,10 @@ define function main(name, arguments)
   while(time-is-not-up?())
     optimize();
   end while;
-  
+
+  if(best-transformation[best-transformation.size - 1] = ' ')
+    best-transformation := copy-sequence(best-transformation, end: best-transformation.size - 1);
+  end if;
   write(*standard-output*, best-transformation);
   write(*standard-output*, "\n");
   force-output(*standard-output*);
