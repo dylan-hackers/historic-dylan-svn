@@ -277,11 +277,11 @@ define function join-listeners
   // eh?
   block (return)
     while (#t)
+      sleep(1);
       with-lock (server.server-lock)
         if (empty?(server.server-listeners))
           return();
         end;
-        sleep(0.2);
       end;
     end;
   end;
