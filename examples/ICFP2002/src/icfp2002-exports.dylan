@@ -41,7 +41,6 @@ define module board
     <state>, board, robots, packages, bases, bases-setter, packages-at, robot-at,
     <board>,
     path-length-cache,
-    path-cache,
     <coordinate>, <point>, x, y, point,
     send-board,
     width, height, passable?, deadly?,
