@@ -12,7 +12,8 @@ define class <package> (<object>)
     init-value: #f;
 end class <package>;
 
-define method at-destination?(p :: <package>) 
+define method at-destination?(p :: <package>)
+ => dest :: <boolean>;
   debug("Package location: %=, package.carrier: %=\n", p.location, p.carrier);
   p.dest = p.location;
 end method at-destination?;

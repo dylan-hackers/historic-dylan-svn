@@ -49,7 +49,7 @@ end;
 define method safe?(dropping :: <path-strategy>, me :: <gabot>, s :: <state>)
  => safe :: <boolean>;
 // TODO: any other robots around?
-  let position = find-robot(s, me.agent-id).location;
+  let position = agent-pos(me, s);
       
       let nearest-bot = s.robots.first; /// HACK
 
@@ -84,7 +84,14 @@ end;
 // ## create-command{<drop-strategy>}
 define method create-terminal-command(s :: <drop-strategy>, state :: <state>) => command :: <command>;
   debug("GB: Dropping in create-terminal-command\n");
-  make(<drop>, package-ids: /* map(id, choose() */ #(), bid: 1, id: s.strategy-robot.id);
+  
+//  let pos = agent-pos(s.strategy-agent, state);
+  
+/*  local method destined(p :: <package>) => here :: <boolean>;
+          p.dest == pos;
+        end;*/
+  let destined-packages = choose(at-destination?, agent-packages(s.strategy-agent, state));
+  make(<drop>, package-ids: map(id, destined-packages), bid: 1, id: s.strategy-robot.id);
 end;
 
 
@@ -162,7 +169,7 @@ define generic find-safest(me :: <gabot>, coll :: <sequence>, locator :: <functi
 define method find-safest(me :: <gabot>, coll :: <sequence>, locator :: <function>, s :: <state>, #key weighting :: <function> = identity)
   => (thing, way :: <path>.false-or);
 
-  let position = find-robot(s, me.agent-id).location;
+  let position = agent-pos(me, s);
 
     local find-near-safe-place(best-thing, best-path :: <path>)
          => (better-thing, better-path :: <path>);
@@ -230,7 +237,7 @@ debug("check\n");
     & safe?(me.decided, me, s)
     & me.decided.follow;
 debug("check1\n");
-  let (safe-drop, drop-path) = find-safest(me, choose(method(p :: <package>) debug("examining %=\n",p); p.dest & p.carrier == bot end, s.packages), dest, s, weighting: weight);
+  let (safe-drop, drop-path) = find-safest(me, choose(method(p :: <package>) debug("examining %=\n",p); p.dest & p.carrier & p.carrier.id == bot.id end, s.packages), dest, s, weighting: weight);
 debug("check11\n");
   safe-drop & drop-path.drop-strategy.follow;
   
