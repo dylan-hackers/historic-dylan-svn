@@ -135,6 +135,15 @@ states:
                              state-failure: curry(lookup, instrs, ?#"no", 0))
                     end method) }
 
+  { Flip ?prob:expression => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method()
+                        make(<flip>,
+                             probability: ?prob,
+                             state-success: curry(lookup, instrs, label, counter + 1),
+                             state-failure: curry(lookup, instrs, ?#"no", 0))
+                    end method) }
+
   { Sense ?where:name (Marker ?what:expression), (?yes:name, ?no:name) }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,

@@ -8,6 +8,7 @@ define brain test-brain1
          Sense LeftAhead (Marker 1), turn-left =>;
 
   [choose:]
+         Flip 3 => turn-right;
          Flip 9, turn-left => turn-right;
          Drop, (choose);
 
