@@ -974,17 +974,12 @@ end;
 
 define inline method \== (a :: <single-float>, b :: <single-float>)
     => res :: <boolean>;
-  %%primitive(single-==, a, b);
+  %%primitive(single-=, a, b);
 end;
 
 define inline method \== (a :: <single-float>, b :: <object>)
     => res :: <boolean>;
   #f;
-end;
-
-define inline method \= (a :: <single-float>, b :: <single-float>)
-    => res :: <boolean>;
-  %%primitive(single-=, a, b);
 end;
 
 define inline method \= (a :: <single-float>, b :: <integer>)

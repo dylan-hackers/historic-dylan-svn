@@ -950,702 +950,267 @@ define-primitive-emitter
 	    "throw(%s, %s);\n", state-expr, top-name);
    end);
 
+
+
+//primitive macros
+
+
+define macro binary-primitive-emitter-definer
+  { define binary-primitive-emitter ?:name
+      operand-representation ?operand-representation:expression
+      result-representation ?result-representation:expression
+      operation ?operation:expression end }
+    => { define-primitive-emitter
+  (?#"name",
+   method (defines :: false-or(<definition-site-variable>),
+	   operation :: <primitive>,
+	   file :: <file-state>)
+       => ();
+     let (temps, #rest ?=arguments) = 
+       extract-operands(operation,
+                        file,
+                        ?operand-representation,
+                        ?operand-representation);
+     contact-bgh-unless-empty(temps);
+     deliver-result(defines, ?operation,
+                    ?result-representation,
+		    #f, file);
+   end); }
+end;
+
+define macro unary-primitive-emitter-definer
+  { define unary-primitive-emitter ?:name
+      operand-representation ?operand-representation:expression
+      result-representation ?result-representation:expression
+      operation ?operation:expression end }
+    => { define-primitive-emitter
+  (?#"name",
+   method (defines :: false-or(<definition-site-variable>),
+	   operation :: <primitive>,
+	   file :: <file-state>)
+       => ();
+     let (temps, #rest ?=arguments) = 
+       extract-operands(operation,
+                        file,
+                        ?operand-representation);
+     contact-bgh-unless-empty(temps);
+     deliver-result(defines, ?operation,
+                    ?result-representation,
+		    #f, file);
+   end); }
+end;
+
+define macro predicate-emitter-definer
+  { define predicate-emitter ?:name
+      c-operator ?operator:expression
+      operand-representation ?operand-representation:expression end }
+    => { define binary-primitive-emitter ?name
+           operand-representation ?operand-representation
+           result-representation *boolean-rep*
+           operation stringify('(', ?=arguments[0], ' ', ?operator,
+                               ' ', ?=arguments[1], ')')
+         end; }
+end;
+
+define macro binary-operator-emitter-definer
+  { define binary-operator-emitter ?:name
+      c-operator ?operator:expression
+      operand-representation ?operand-representation:expression end }
+    => { define binary-primitive-emitter ?name
+           operand-representation ?operand-representation
+           result-representation ?operand-representation
+           operation stringify('(', ?=arguments[0], ' ', ?operator,
+                               ' ', ?=arguments[1], ')')
+         end; }
+end;
+
+define macro unary-operator-emitter-definer
+  { define unary-operator-emitter ?:name
+      c-operator ?operator:expression
+      operand-representation ?operand-representation:expression end }
+    => { define unary-primitive-emitter ?name
+           operand-representation ?operand-representation
+           result-representation ?operand-representation
+           operation stringify('(', ?operator, ' ', ?=arguments[0], ')')
+         end; }
+end;
+
+define macro c-type-primitives-emitter-definer
+  { define c-type-primitives-emitter ?:name ?operand-representation:expression end }
+    => { 
+        define predicate-emitter ?name ## "-<"
+          c-operator "<"
+          operand-representation ?operand-representation
+        end;
+        
+        define predicate-emitter ?name ## "-="
+          c-operator "=="
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-+"
+          c-operator "+"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-*"
+          c-operator "*"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "--"
+          c-operator "-"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-/"
+          c-operator "/"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-logior"
+          c-operator "|"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-logxor"
+          c-operator "^"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-logand"
+          c-operator "&"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-shift-left"
+          c-operator "<<"
+          operand-representation ?operand-representation
+        end;
+
+        define binary-operator-emitter ?name ## "-shift-right"
+          c-operator ">>"
+          operand-representation ?operand-representation
+        end;
+
+        define unary-operator-emitter ?name ## "-negative"
+          c-operator "-"
+          operand-representation ?operand-representation
+        end;
+
+        define unary-operator-emitter ?name ## "-lognot"
+          c-operator "~"
+          operand-representation ?operand-representation
+        end;
+
+        define-primitive-emitter
+          (as(<symbol>, ?"name" ## "-divide"),
+           method (defines :: false-or(<definition-site-variable>),
+                   operation :: <primitive>,
+                   file :: <file-state>)
+             => ();
+          spew-pending-defines(file);
+          let (temps, x, y) = extract-operands(operation, file,
+                                               ?operand-representation,
+                                               ?operand-representation);
+          contact-bgh-unless-empty(temps);
+          deliver-results(defines,
+                          vector(pair(stringify('(', x, " / ", y, ')'),
+                                      ?operand-representation),
+                                 pair(stringify('(', x, " % ", y, ')'), 
+                                      ?operand-representation)),
+                           #f, file);
+        end); }
+       
+end;
+
+
 
 // Fixnum primitives.
 
-define-primitive-emitter
-  (#"fixnum-=",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " == ", y, ')'),
-		    *boolean-rep*, #f, file);
-   end);
+define c-type-primitives-emitter fixnum *long-rep* end;
 
-define-primitive-emitter
-  (#"fixnum-<",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " < ", y, ')'), *boolean-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-+",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " + ", y, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-*",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " * ", y, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum--",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " - ", y, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-negative",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify("(- ", x, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-divide",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     spew-pending-defines(file);
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-results(defines,
-		     vector(pair(stringify('(', x, " / ", y, ')'), *long-rep*),
-			    pair(stringify('(', x, " % ", y, ')'),
-				 *long-rep*)),
-		     #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-logior",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " | ", y, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-logxor",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " ^ ", y, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-logand",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " & ", y, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-lognot",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify("(~ ", x, ')'), *long-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-shift-left",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " << ", y, ')'),
-		    *long-rep*, #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-shift-right",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-				   *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify('(', x, " >> ", y, ')'),
-		    *long-rep*, #f, file);
-   end);
-
-define-primitive-emitter
-  (#"fixnum-logical-shift-right",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(defines, stringify("((unsigned long)", x, " >> ", y, ')'),
-                    *long-rep*, #f, file);
-   end);
+define binary-primitive-emitter fixnum-logical-shift-right
+  operand-representation *long-rep*
+  result-representation *long-rep*
+  operation stringify("((unsigned long)", arguments[0], " >> ",
+                      arguments[1], ')')
+end;
 
 
 // Double-width Fixnum primitives.
 
-define-primitive-emitter
-  (#"dblfix-=",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " == ", y, ')'),
-                      *boolean-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_eq(", x, ", ", y, ')'),
-                      *boolean-rep*, #f, file);
-     end if;
-   end);
+define c-type-primitives-emitter dblfix *long-long-rep* end;
 
-define-primitive-emitter
-  (#"dblfix-<",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " < ", y, ')'),
-                      *boolean-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_lt(", x, ", ", y, ')'),
-                      *boolean-rep*, #f, file);
-     end if;
-   end);
+define unary-primitive-emitter fixed-as-dblfix
+  operand-representation *long-rep*
+  result-representation *long-long-rep*
+  operation stringify("((long long)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"dblfix-+",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " + ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_add(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
+define unary-primitive-emitter dblfix-as-fixed
+  operand-representation *long-long-rep*
+  result-representation *long-rep*
+  operation stringify("((long)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"dblfix-*",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " * ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_mul(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix--",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " - ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_sub(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-negative",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify("(- ", x, ')'), *long-long-rep*,
-                      #f, file);
-     else
-       deliver-result(defines, stringify("double_integer_neg(", x, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-divide",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     spew-pending-defines(file);
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-results(defines,
-                       vector(pair(stringify('(', x, " / ", y, ')'),
-                                   *long-long-rep*),
-                              pair(stringify('(', x, " % ", y, ')'),
-                                   *long-long-rep*)),
-                       #f, file);
-     else
-       deliver-results(defines,
-                       vector(pair(stringify("double_integer_div(", x, ", ",
-                                             y, ')'),
-                                   *long-long-rep*),
-                              pair(stringify("double_integer_mod(", x, ", ",
-                                             y, ')'),
-                                   *long-long-rep*)),
-                       #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-logior",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " | ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_logior(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-logxor",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " ^ ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_logxor(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-logand",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " & ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_logand(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-lognot",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify("(~ ", x, ')'), *long-long-rep*,
-                      #f, file);
-     else
-       deliver-result(defines, stringify("double_integer_lognot(", x, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-shift-left",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " << ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_shl(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-shift-right",
-   method (defines :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y)
-       = extract-operands(operation, file, *long-long-rep*, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(defines, stringify('(', x, " >> ", y, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(defines,
-                      stringify("double_integer_shr(", x, ", ", y, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"fixed-as-dblfix",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(results, stringify("((long long)", x, ')'),
-                      *long-long-rep*, #f, file);
-     else
-       deliver-result(results, stringify("integer_to_double_integer(", x, ')'),
-                      *long-long-rep*, #f, file);
-     end if;
-   end);
-
-define-primitive-emitter
-  (#"dblfix-as-fixed",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-long-rep*);
-     contact-bgh-unless-empty(temps);
-     if (*current-target*.long-long-size)
-       deliver-result(results, stringify("((long)", x, ')'),
-                      *long-rep*, #f, file);
-     else
-       deliver-result(results, stringify("double_integer_to_integer(", x, ')'),
-                      *long-rep*, #f, file);
-     end if;
-   end);
 
 
 // Single float primitives.
 
-define-primitive-emitter
-  (#"fixed-as-single",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify("((float)", x, ')'),
-		    *float-rep*, #f, file);
-   end);
+define unary-primitive-emitter fixed-as-single
+  operand-representation *long-rep*
+  result-representation *float-rep*
+  operation stringify("((float)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"double-as-single",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *double-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify("((float)", x, ')'),
-		    *float-rep*, #f, file);
-   end);
+define unary-primitive-emitter double-as-single
+  operand-representation *double-rep*
+  result-representation *float-rep*
+  operation stringify("((float)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"extended-as-single",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *long-double-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify("((float)", x, ')'),
-		    *float-rep*, #f, file);
-   end);
+define unary-primitive-emitter extended-as-single
+  operand-representation *long-double-rep*
+  result-representation *float-rep*
+  operation stringify("((float)", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"single-<",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " < ", y, ')'), *boolean-rep*,
-		    #f, file);
-   end);
+define c-type-primitives-emitter single *float-rep* end;
 
-define-primitive-emitter
-  (#"single-<=",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " <= ", y, ')'), *boolean-rep*,
-		    #f, file);
-   end);
+define predicate-emitter single-<=
+  c-operator "<="
+  operand-representation *float-rep*
+end;
 
-define-primitive-emitter
-  (#"single-=",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " == ", y, ')'),
-		    *boolean-rep*, #f, file);
-   end);
+define predicate-emitter single-~=
+  c-operator "!="
+  operand-representation *float-rep*
+end;
 
-define-primitive-emitter
-  (#"single-==",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     // ### This isn't right -- should really be doing a bitwise comparison.
-     deliver-result(results, stringify('(', x, " == ", y, ')'),
-		    *boolean-rep*, #f, file);
-   end);
+define unary-primitive-emitter single-abs
+  operand-representation *float-rep*
+  result-representation *float-rep*
+  operation stringify("fabsf(", arguments[0], ')')
+end;
 
-define-primitive-emitter
-  (#"single-~=",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " != ", y, ')'), *boolean-rep*,
-		    #f, file);
-   end);
+define unary-primitive-emitter single-floor
+  operand-representation *float-rep*
+  result-representation *long-rep*
+  operation stringify("(long)floor(", arguments[0], "))")
+end;
 
-define-primitive-emitter
-  (#"single-+",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " + ", y, ')'), *float-rep*,
-		    #f, file);
-   end);
+define unary-primitive-emitter single-ceiling
+  operand-representation *float-rep*
+  result-representation *long-rep*
+  operation stringify("(long)ceil(", arguments[0], "))")
+end;
 
-define-primitive-emitter
-  (#"single-*",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " * ", y, ')'), *float-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"single--",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " - ", y, ')'), *float-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"single-/",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x, y) = extract-operands(operation, file,
-                                          *float-rep*, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify('(', x, " / ", y, ')'), *float-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"single-abs",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     maybe-emit-include("math.h", file);
-     deliver-result(results, stringify("fabsf(", x, ')'), *float-rep*,
-		    #f, file);
-   end);
-
-define-primitive-emitter
-  (#"single-negative",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     deliver-result(results, stringify("(-", x, ')'), *float-rep*, #f, file);
-   end);
-
-define-primitive-emitter
-  (#"single-floor",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     maybe-emit-include("math.h", file);
-     deliver-result(results, stringify("((long)floor(", x, "))"),
-		    *long-rep*, #f, file);
-   end);
-
-define-primitive-emitter
-  (#"single-ceiling",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     maybe-emit-include("math.h", file);
-     deliver-result(results, stringify("((long)ceil(", x, "))"),
-		    *long-rep*, #f, file);
-   end);
-
-define-primitive-emitter
-  (#"single-round",
-   method (results :: false-or(<definition-site-variable>),
-	   operation :: <primitive>,
-	   file :: <file-state>)
-       => ();
-     let (temps, x) = extract-operands(operation, file, *float-rep*);
-     contact-bgh-unless-empty(temps);
-     maybe-emit-include("math.h", file);
-     deliver-result(results, stringify("((long)rint(", x, "))"),
-		    *long-rep*, #f, file);
-   end);
+define unary-primitive-emitter single-round
+  operand-representation *float-rep*
+  result-representation *long-rep*
+  operation stringify("(long)rint(", arguments[0], "))")
+end;
 
 define-primitive-emitter
   (#"single-decode",
