@@ -90,7 +90,7 @@ define module vrml-viewer
   use standard-io;
   use system;
   use streams;
-  use format;
+  use format, exclude: { format-to-string };
   use format-out;
   use garbage-collection;
   use transcendentals;

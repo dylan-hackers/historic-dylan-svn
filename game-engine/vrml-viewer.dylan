@@ -180,7 +180,7 @@ define method main(progname, #rest arguments)
       make(<container-node>, children: 
              vector($camera,
                     $light,
-//                    make(<line-grid>),
+                    make(<line-grid>),
 //                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
 //                         translation: 3d-vector(3.0, 3.0, -2.0), 
 //                         children: vector(make(<sphere>))),
