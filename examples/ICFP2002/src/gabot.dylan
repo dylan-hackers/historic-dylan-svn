@@ -108,7 +108,7 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, locator :: <functio
               let thing-location = thing.locator;
               let path = find-path(position, thing-location, s.board, cutoff: best-thing & distance);
               debug("find-near-safe-place: thing: %=, path: %=\n", thing, path);
-              if (path)
+              if (path & ~path.empty?)
                 if (~best-thing
                     | distance-cost(position, thing-location) < distance) // # FISHY TODO we should compare paths
                   let (better-thing, nearer-path)
