@@ -12,7 +12,9 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../../common/string-ext'
     . ' -L../../../../common/regular-expressions'
     . ' -L../../../../common/common-dylan'
-    . ' -L../../../../common/threads';
+    . ' -L../../../../common/threads'
+    . ' -L../../../../qa/testworks'
+    . ' -L../../../../qa/testworks-specs';
 $CPPFLAGS = '-I$(SRCROOT)/d2c/runtime';
 
 if ($host_platform{'integer_length'} >= 64) {

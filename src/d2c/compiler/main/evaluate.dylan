@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.1 2003/04/25 02:59:07 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.2 2003/04/27 11:04:40 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -346,7 +346,7 @@ define generic evaluate-call(func :: <abstract-function-literal>,
                                  callee-environment :: <interpreter-environment>)
  => result :: <ct-value>;
 
-define method evaluate-call(func :: <method-literal>, operands :: false-or(<dependency>), callee-environment :: <interpreter-environment>)
+define method evaluate-call(func :: <function-literal>, operands :: false-or(<dependency>), callee-environment :: <interpreter-environment>)
  => result :: <ct-value>;
 
 //  format(*debug-output*, "\n\n\n####### evaluate-call %= %= \n", func, operands);
@@ -379,15 +379,23 @@ define method evaluate-call(func :: <method-literal>, operands :: false-or(<depe
   end block
 end;
 
-define method evaluate(expr :: <literal-constant>, environment :: <interpreter-environment>)
+define method evaluate(expr :: <ct-value>, 
+                       environment :: <interpreter-environment>)
+ => result :: <ct-value>;
+  expr;
+end;
+
+define method evaluate(expr :: <literal-constant>, 
+                       environment :: <interpreter-environment>)
  => result :: <ct-value>;
   expr.value;
 end;
 
-define method evaluate(expr :: <method-literal>, environment :: <interpreter-environment>)
+define method evaluate(expr :: <definition-constant-leaf>,
+                       environment :: <interpreter-environment>)
  => result :: <ct-value>;
-  expr.ct-function
-end;
+  expr.const-defn.ct-value;
+end method evaluate;
 
 define method evaluate(expr :: <truly-the>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
@@ -402,13 +410,16 @@ define method evaluate(expr :: <unknown-call>, environment :: <interpreter-envir
   evaluate-call(leaf, args, environment);
 end;
 
-define method evaluate(expr :: <known-call>, environment :: <interpreter-environment>)
+define method evaluate(expr :: <known-call>, 
+                       environment :: <interpreter-environment>)
  => result :: <ct-value>;
-  let func /* :: <method-literal> */ = expr.depends-on.source-exp;
-  if(instance?(func, <literal-constant>))
-    func := evaluate(func, environment);
-  end if;
+  let func = expr.depends-on.source-exp;
   let args = expr.depends-on.dependent-next;
+  if(~instance?(func, <function-literal>))
+    func := evaluate(func, environment);
+    let info = get-info-for(func, #f);
+    format(*debug-output*, "%=\r\n", info.const-info-heap-labels);
+  end if;
   evaluate-call(func, args, environment);
 end;
 

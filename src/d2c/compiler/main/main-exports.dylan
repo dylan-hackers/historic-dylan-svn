@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.1 2003/04/25 02:59:09 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.2 2003/04/27 11:04:40 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -104,6 +104,7 @@ define module main
   use macros;
   use fragments;
   use parse-tree, exclude: {primitive-name};
+  use definitions;
   use platform;
   use file-system;
   use extensions, import: {key-exists?};
