@@ -1,5 +1,5 @@
 ##
-##  $Header: /scm/cvs/src/common/Makegen,v 1.24 2003/04/24 18:39:00 housel Exp $
+##  $Header: /scm/cvs/src/common/Makegen,v 1.24.2.1 2003/04/29 14:19:19 prom Exp $
 ##
 ##  This is the makegen file for the libraries shared between d2c and mindy.
 ##
@@ -7,21 +7,20 @@
 # the order is significant, since the d2c libraries must be compiled in
 # dependency order. 
 
-# These libraries are needed to compile d2c. They must compile against the
-# runtime that shipped with 2.2.0.
+# These libraries are needed to compile d2c. They must compile against
+# the 2.3/2.4 line of releases for bootstrap reasons.
 @bootstrap_libraries =
     ('streams', 'standard-io', 'print', 'format', 'collection-extensions',
      'table-ext', 'string-ext', 'regular-expressions',
-     'stream-ext', 'transcendental', 'getopt', 'base-file-system');
+     'stream-ext', 'transcendental', 'getopt', 'base-file-system',
+     'threads', 'format-out', 'common-dylan', 'io',
+     'command-processor');
 
-# These libraries have been introduced since 2.2.0. They may not be used by
-# d2c, parsergen or any of the above libraries. Once common-dylan stabilizes,
-# and most users can compile common-dylan programs, we'll drop backwards
-# compatibility with 2.2.0 and port everything to build against these
-# libraries.
+# These libraries are not needed for bootstrapping. Feel free to put some of these
+# into bootstrap_libraries if they compile against 2.3/2.4 and youd like to use
+# them in the compiler.
 @non_bootstrap_libraries =
-    ('threads', 'format-out', 'common-dylan', 'collections', 'io',
-     'file-system', 'time', 'date', 'system', 'locators', 'matrix', 'network');
+    ('collections', 'file-system', 'time', 'date', 'system', 'locators', 'matrix', 'network');
     #'internal-time'
 
 &compile_subdirs(@bootstrap_libraries);
@@ -31,5 +30,3 @@ unless ($enable_bootstrap) {
     &compile_subdirs('command-processor');
   }
 }
-
-

@@ -22,6 +22,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/io'
     . ' -L../../../common/command-processor';
 
+do emit_melange_rule('dlfcn');
 do emit_library_rule(
     'debugger', '$(BUILDROOT)/force.timestamp', '', 'compile', 'install'
 );

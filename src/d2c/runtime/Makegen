@@ -18,5 +18,6 @@ if (!$enable_bootstrap || $enable_mindy_bootstrap) {
 } else {
     do compile_subdirs('../../common/transcendental',
 		       'random',
-		       '../../common');
+		       '../../common',
+		       'debugger');
 }
