@@ -974,7 +974,7 @@ end;
 // ####################################
 // Parser combinators
 
-define function juxtapose(p1 :: <function>, p2 :: <function>)
+define function juxtapose(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
  => juxtaposition :: <function>;
   method(inp :: <byte-string>, matched :: <list>, more) // => no-result :: <never-returns>;
     let (ign1, matched-by-p1)
@@ -996,7 +996,7 @@ define function juxtapose(p1 :: <function>, p2 :: <function>)
         more.head(inp,
                   pair(method()
                          let (rest, product2) = match();
-                         values(rest, list(product1, product2))
+                         values(rest, connective(product1, product2))
                        end,
                        matched),
                   more.tail)
