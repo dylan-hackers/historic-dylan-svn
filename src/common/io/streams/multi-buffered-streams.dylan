@@ -1,7 +1,7 @@
 Module:       streams-internals
 Synopsis:     Implementation of multi-buffered streams for dood.
 Author:       Toby Weinberg
-Copyright:    Original Code is Copyright (c) 1997-2001 Functional Objects, Inc.
+Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
 License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License

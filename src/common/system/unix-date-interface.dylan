@@ -1,7 +1,7 @@
 Module:       system-internals
 Author:       Jonathan Bachrach, Gary Palter, Peter Housel
 Synopsis:     Native UNIX specific portion of the Date library API
-Copyright:    Original Code is Copyright (c) 1998-2001 Functional Objects, Inc.
+Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
 	      Adaptations Copyright 2003 Gwydion Dylan Maintainers
 License:      Functional Objects Library Public License Version 1.0

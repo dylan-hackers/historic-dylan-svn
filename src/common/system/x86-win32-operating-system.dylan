@@ -1,6 +1,6 @@
 Module:       system-internals
 Author:       Jonathan Bachrach, Gary Palter
-Copyright:    Original Code is Copyright (c) 1998-2001 Functional Objects, Inc.
+Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
 License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
@@ -37,14 +37,16 @@ define constant $osversioninfo
     end
     ();
 
+define inline-only function os-platform () => (platform :: <integer>)
+  raw-as-integer(primitive-c-unsigned-long-at
+		   (primitive-cast-raw-as-pointer
+		      (primitive-string-as-raw($osversioninfo)),
+		    integer-as-raw(4), integer-as-raw(0)))
+end function os-platform;
+
 define constant $os-variant 
   = method ()
-      let platform
-	= raw-as-integer(primitive-c-unsigned-long-at
-			   (primitive-cast-raw-as-pointer
-			      (primitive-string-as-raw($osversioninfo)),
-			    integer-as-raw(4), integer-as-raw(0)));
-      select (platform)
+      select (os-platform())
 	$VER_PLATFORM_WIN32s => #"win3.1";
 	$VER_PLATFORM_WIN32_WINDOWS =>
 	  begin
@@ -55,11 +57,32 @@ define constant $os-variant
 				  integer-as-raw(2), integer-as-raw(0)));
 	    if (minorversion = 0)
 	      #"win95"
-	    else
+	    elseif (minorversion = 10)
 	      #"win98"
+            else /* if (minorversion = 90) */
+              #"winme"
 	    end
 	  end;
-	$VER_PLATFORM_WIN32_NT => #"winnt";
+	$VER_PLATFORM_WIN32_NT =>
+	  begin
+	    let majorversion
+	      = raw-as-integer(primitive-c-unsigned-long-at
+				 (primitive-cast-raw-as-pointer
+				    (primitive-string-as-raw($osversioninfo)),
+				  integer-as-raw(1), integer-as-raw(0)));
+	    let minorversion
+	      = raw-as-integer(primitive-c-unsigned-long-at
+				 (primitive-cast-raw-as-pointer
+				    (primitive-string-as-raw($osversioninfo)),
+				  integer-as-raw(2), integer-as-raw(0)));
+            if (majorversion < 5)
+              #"winnt";
+            elseif (minorversion = 0)
+              #"win2000"
+            else /* if (minorversion = 1) */
+              #"winxp"
+            end
+          end
       end
     end
     ();
@@ -81,7 +104,7 @@ define constant $os-version
 			   (primitive-cast-raw-as-pointer
 			      (primitive-string-as-raw($osversioninfo)),
 			    integer-as-raw(3), integer-as-raw(0)));
-      if ($os-variant == #"win95" | $os-variant == #"win98")
+      if (os-platform() == $VER_PLATFORM_WIN32_WINDOWS)
         buildnumber := logand(buildnumber, #xFFFF)
       end;
       let additionalinfo
@@ -148,7 +171,7 @@ define function login-name () => (name :: false-or(<string>))
 end function login-name;
 
 define function login-group () => (group :: false-or(<string>))
-  if ($os-variant == #"winnt")
+  if (os-platform() == $VER_PLATFORM_WIN32_NT)
     let name = login-name();
     if (name)
       let sid-buffer :: <byte-string> = make(<byte-string>, size: 1024, fill: '\0');
@@ -262,7 +285,11 @@ define inline-only function current-version-key (name :: <byte-string>)
 		"Microsoft",
 		method (handle :: <machine-word>) => ()
 		  doit(handle,
-		       if ($os-variant == #"winnt") "Windows NT" else "Windows" end,
+		       if (os-platform() == $VER_PLATFORM_WIN32_NT)
+			 "Windows NT"
+		       else
+			 "Windows"
+		       end,
 		       method (handle :: <machine-word>) => ()
 			 doit(handle,
 			      "CurrentVersion",

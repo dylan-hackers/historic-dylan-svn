@@ -1,7 +1,7 @@
 Module:       system-internals
 Synopsis:     An interface to file-related unix system.
 Author:       Eliot Miranda, Scott McKay, Marc Ferguson
-Copyright:    Original Code is Copyright (c) 1995-2001 Functional Objects, Inc.
+Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
 License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
