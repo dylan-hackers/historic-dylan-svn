@@ -59,18 +59,19 @@ end;
 
 // ## create-command{<drop-strategy>}
 define method create-command(s :: <strategy>) => command :: <command>;
+  let robot = s.strategy-robot;
   let path = s.strategy-path;
-  let path = path.head = s.strategy-robot.location
+  let path = path.head = robot.location
              & path.tail
              | path;
   let path = s.strategy-path := path;
-  make(<move>, bid: 1, direction: turn(s.strategy-robot, path));
+  make(<move>, direction: turn(robot, path), bid: 1, robot-id: robot.id);
 end;
 
 // ## create-command{<drop-strategy>}
 define method create-terminal-command(s :: <strategy>) => command :: <command>;
 debug("Dropping in create-terminal-command");
-  make(<drop>, package-ids: /* map(id, choose() */ #(), robot-id: s.strategy-robot.id, bid: 1);
+  make(<drop>, package-ids: /* map(id, choose() */ #(), bid: 1, robot-id: s.strategy-robot.id);
 end;
 
 
