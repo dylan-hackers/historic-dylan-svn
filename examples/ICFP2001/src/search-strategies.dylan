@@ -24,29 +24,29 @@ define method breadth-first-search(initial-state, make-successors, cost-order, f
   values(sort(terminal-states, test: cost-order), #t);
 end method breadth-first-search;
 
-define method beam-search(initial-state, make-successors, cost-order, finished?, #key beam-width = 12)
-  let states = list(initial-state);
-  let terminal-states = #();
-  let exhausted = #t;
+define inline method beam-search(initial-state :: <generator-state>, make-successors :: <function>, cost-order :: <function>, finished? :: <function>, #key beam-width = 12)
+  let states :: <subsequence> = subsequence(vector(initial-state));
+  let terminal-states :: <list> = #();
+  let exhausted :: <boolean>    = #t;
 
-  while(states ~= #())
+  while(states.size > 0)
     check-timeout();
-    GC-gcollect();
+//    GC-gcollect();
     states := subsequence(sort(states, test: cost-order), end: beam-width);
-    let new-states = #();
+    let new-states :: <stretchy-object-vector> = make(<stretchy-object-vector>);
     for(i in make-successors(states))
 //      print-state(i);
       if(finished?(i))
         terminal-states := pair(i, terminal-states);
       else
-        new-states := pair(i, new-states);
+        new-states := add!(new-states, i);
       end if;
     end for;
-    debug("%= states generated.\n", new-states.size);
-    if (new-states ~= #() & new-states.size > beam-width)
+//    debug("%= states generated.\n", new-states.size);
+    if (new-states.size > beam-width)
       exhausted := #f;
     end;
-    states := new-states;
+    states := subsequence(new-states);
   end while;
 
   if(terminal-states = #())

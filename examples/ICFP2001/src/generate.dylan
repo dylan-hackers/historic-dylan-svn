@@ -55,7 +55,7 @@ define method generate-output(input :: <stretchy-object-vector>)
   reverse!(state.output-tokens);
 end method generate-output;
 
-
+/*
 define method concatenate-lists(v :: <list>)
  => result :: <list>;
   let length = for (total = 0 then total + l.size,
@@ -64,6 +64,29 @@ define method concatenate-lists(v :: <list>)
 	       end for;
   
   let result :: <list> = make(<list>, size: length);
+  let (init-state, limit, next-state, done?, current-key, current-element,
+       current-element-setter) = forward-iteration-protocol(result);
+  
+  for (result-state = init-state
+	 then for (item in lst,
+		   state = result-state then next-state(result, state))
+		current-element(result, state) := item;
+	      finally state;
+	      end for,
+       lst :: <list> in v)
+  end for;
+  result;
+end method concatenate-lists;
+*/
+
+define method concatenate-lists(v :: <sequence>)
+ => result :: <simple-object-vector>;
+  let length = for (total = 0 then total + l.size,
+		    l :: <list> in v)
+	       finally total;
+	       end for;
+  
+  let result :: <simple-object-vector> = make(<simple-object-vector>, size: length);
   let (init-state, limit, next-state, done?, current-key, current-element,
        current-element-setter) = forward-iteration-protocol(result);
   
@@ -100,15 +123,19 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
       end if;
     end method cost-order;
               
-  let beam-width = run; // XXX Tweak here
-  debug("Beam width: %=\n", beam-width);
-  let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width);
-  debug("Search done, exhaustive: %=\n", exhausted);
-  
-  if(result-states == #())
-    values(#(), exhausted);
+  if(run < 14)
+    let beam-width = #[4, 8, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 512, 1024][run]; // XXX Tweak here
+    //  debug("Beam width: %=\n", beam-width);
+    let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width);
+    //  debug("Search done, exhaustive: %=\n", exhausted);
+    
+    if(result-states == #())
+      values(#(), exhausted);
+    else
+      values(reverse!(result-states.head.output-tokens), exhausted);
+    end if;
   else
-    values(reverse!(result-states.head.output-tokens), exhausted);
+    values(#(), #t);
   end if;
 end method generate-optimized-output;
 

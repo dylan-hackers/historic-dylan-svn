@@ -275,24 +275,24 @@ define function main(name, arguments)
 
   let input-stream = *standard-input*;
 
-  debug("Reading input.\n");
+//  debug("Reading input.\n");
   let original-input      = slurp-input(input-stream);
   let best-transformation = original-input;
 
   local
     method see-if-best(new-output)
-      debug("In see-if-best\n");
+//      debug("In see-if-best\n");
 
       let old = best-transformation.size;
       let new = new-output.size;
 
       if(new-output ~= #())
-        debug("old size = %d, new size = %d", old, new);
+        debug("old size = %d, new size = %d, time passed: %d", old, new, get-universal-time() - start-time);
 
         if (new < old)
           debug("  - using new");
+          best-transformation := new-output; //FIXME -- when finished testing
         end if;
-        best-transformation := new-output; //FIXME -- when finished testing
         debug("\n");
       end if;
     end method see-if-best,
@@ -302,26 +302,26 @@ define function main(name, arguments)
       let i = 0;
       while(~exhausted)
 	let (string, done) =
-	  generate-optimized-output(parse-tree, run: string-to-integer(arguments[1]));
+	  generate-optimized-output(parse-tree, run: i);
 	string.concatenate-strings.see-if-best;
-	exhausted := #t;
+	exhausted := done;
 	i := i + 1;
       end while;
     end method iterate-generate-optimized-output;
 
   block()
-    debug("Parsing input.\n");
+//    debug("Parsing input.\n");
     let parse-tree          = bgh-parse(original-input);
 //    dump-parse-tree(parse-tree);
 
-    debug("Generating output.\n");
+//    debug("Generating output.\n");
     generate-output(parse-tree).concatenate-strings.see-if-best;
-    debug("Generating optimized output.\n");
+//    debug("Generating optimized output.\n");
 //    iterate-generate-optimized-output(parse-tree);
     optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)
-    debug("Out of time!\n");
+//    debug("Out of time!\n");
   end;
 
   if(best-transformation.size > 0 &
