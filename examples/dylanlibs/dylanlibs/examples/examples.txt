@@ -116,7 +116,13 @@ Adobe SVG Control but can be changed to use any .svg file.
 An example of using the tidy-com library to print warnings and errors
 caused by incorrect HTML at a web page. 
 
+17) time-change-notification-example
+====================================
+
+Example of using win32-notifications to be notified of when the system
+time changes.
+
 -- 
 Chris Double.  
-03 July 2001.
+24 September 2001.
 

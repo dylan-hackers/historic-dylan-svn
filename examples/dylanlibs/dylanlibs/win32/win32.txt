@@ -51,7 +51,13 @@ application for details of use. You must have installed and registered
 the HTML tidy componenet availble from the following web site:
   http://perso.wanadoo.fr/ablavier/TidyCOM/index.html
 
+6) win32-notifications
+======================
+
+Notification of interesting win32 events. For example, the system time
+changing.
+
 -- 
 Chris Double.  
-3 July 2001.
+24 September 2001.
 
