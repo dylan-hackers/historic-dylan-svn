@@ -116,3 +116,48 @@
     one produces smaller output than the original.
   }
 }
+
+@TechReport{bourdoncle:integration,
+  author = 	 "Fran{\c{c}}ois Bourdoncle and Stephan Merz",
+  title = 	 "On the integration of functional programming, class-based
+                  object-oriented programming, and multi-methods",
+  institution =  "Centre de Math{\'e}matiques Appliqu{\'e}es, 
+                  Ecole des Mines de Paris",
+  year = 	 1996,
+  type =	 "Research Report",
+  number =	 "26",
+  address =	 "Paris",
+  month =	 mar
+  URL = {http://jazz.pst.informatik.uni-muenchen.de/~merz/papers/mlsub.html},
+  abstract = { 
+    We present a new predicative and decidable type system, called
+    ML<, suitable for object-oriented languages with implicit
+    polymorphism in the tradition of ML. Instead of using extensible
+    records as a foundation for object-oriented extensions of
+    functional languages, we propose to reinterpret classical datatype
+    declarations as abstract and concrete class declarations, and to
+    replace pattern-matching on run-time values by dynamic dispatch on
+    run-time types. ML< is based on universally quantified polymorphic
+    constrained types, where constraints are conjunctions of
+    structural inequalities between monotypes built from extensible
+    and partially ordered classes of type constructors. We show how
+    this type system can be used to design programming languages
+    retaining much of the ML spirit while integrating in a seamless
+    fashion higher-order and class-based object-oriented programming,
+    dynamic dispatch on several arguments, and parametric
+    polymorphism. We give type-checking rules for a small, explicitly
+    typed functional language with methods, and show that the
+    resulting system has decidable minimal typing. We discuss type
+    inference for this language. We then define a strict operational
+    semantics, prove subject reduction, and show how abstraction and
+    encapsulation can be achieved by proper use of a module system. We
+    present a prototype implementation of this type system and discuss
+    algorithmic and implementation issues. In particular, we give a
+    type-checking algorithm which is exponential in the worst case but
+    is expected to be polynomial in practice. We conclude by a
+    comparison with other similar type systems in the literature,
+    including ad-hoc polymorphism, dynamics, systems for performing
+    type inference in the presence of primitive subtyping, as well as
+    impredicative systems like F<.
+  }
+}
