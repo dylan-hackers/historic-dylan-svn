@@ -154,11 +154,16 @@ define method valid?(picking :: <pick-strategy>, state :: <state>) => valid :: <
     #f
   else
   	// ## efficiency!!!
-    ~empty?(choose(curry(deliverable?,
+    let pos = agent-pos(picking.strategy-agent, state);
+    let nonsense
+      = empty?(choose(curry(deliverable?,
                          agent-robot(picking.strategy-agent, state),
                          state),
                    packages-at(state,
-                               agent-pos(picking.strategy-agent, state))));
+                               pos)));
+     
+     nonsense & maybe-mark-base-visited(picking.strategy-agent, state, pos);
+     ~nonsense
   end;
 end;
 
@@ -249,7 +254,7 @@ debug("check11\n");
 //  reduce(map(weight, packages), 0, \+)
   
 debug("check111\n");
-  let (safe-pick, pick-path) = find-safest(me, s.bases, identity, s, weighting: weight /* my payload */);
+  let (safe-pick, pick-path) = find-safest(me, unvisited-bases(me, s), identity, s, weighting: weight /* my payload */);
 debug("check1111\n");
   safe-pick & pick-path.pick-strategy.follow;
   
