@@ -11,10 +11,18 @@ if (!$enable_bootstrap || $enable_mindy_bootstrap) {
 		       'garbage-collection',
 		       '../../common/transcendental',
 		       'random',
-		       '../../common');
+		       '../../common/threads',
+		       '../../common/table-ext',
+		       '../../common/common-dylan',
+		       '../../common/collections', # FIXME
+		       '../../common/collection-extensions',
+		       '../../common/string-ext',
+		       '../../common/regular-expressions',
+		       '../../common/io',
+		       '../../common/system',
+		       '../../common/getopt');
 
     do install_from_src($includedir, "runtime.h");
 } else {
-    do compile_subdirs('random',
-		       '../../common');
+    do compile_subdirs('random');
 }
