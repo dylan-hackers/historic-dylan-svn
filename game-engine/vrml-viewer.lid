@@ -7,4 +7,6 @@ vrml-viewer-exports.dylan
 node.dylan
 indexed-face-set.dylan
 vrml-viewer.dylan
+gettimeofday.dylan
+errno.dylan
 
