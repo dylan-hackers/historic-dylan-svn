@@ -64,7 +64,12 @@ define method closest-point(s :: <state>,
   end for;
 
   if (min-path)
-    values(min-path.last, min-path);
+    values(if (empty?(min-path)) 
+	     from;
+	   else
+	     min-path.last;
+	   end if
+	     , min-path);
   else
     values(#f, #f);
   end if;
