@@ -145,9 +145,9 @@ define variable $view-roty :: <double-float> = 30.0;
 define variable $view-rotz :: <double-float> = 0.0;
 define variable *Frames* = 0;
 define variable T0 = 0;
-define variable *gear1* = glGenLists(1);
-define variable *gear2* = glGenLists(1);
-define variable *gear3* = glGenLists(1);
+define variable *gear1* = 0;
+define variable *gear2* = 0;
+define variable *gear3* = 0;
 define variable *angle* :: <double-float> = 0.0;
 
 define variable draw :: <function> = callback-method() => ();
