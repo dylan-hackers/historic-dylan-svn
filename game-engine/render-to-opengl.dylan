@@ -65,6 +65,17 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
             = values(n[0], n[1], n[2]);
           glNormal(x, y, z);
         end if;
+        if(ifs.tex-coord)
+          let t :: <vector> =
+            if(ifs.tex-coord-index)
+              ifs.tex-coord[ifs.tex-coord-index[i]]
+            else
+              ifs.tex-coord[e]
+            end;
+          let (x :: <single-float>, y :: <single-float>)
+            = values(t[0], t[1]);
+          glTexCoord(x, y);
+        end if;
         let v :: <3d-point> = coords[e];
         let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
           = values(v[0], v[1], v[2]);
