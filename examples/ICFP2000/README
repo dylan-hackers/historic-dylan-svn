@@ -19,7 +19,9 @@ Team Members:
 Language used: Dylan (Gwydion "d2c" 2.3.4pre1)
 
 Our submission implements a Tier 1 system, with the additional
-features of cubes and spotlights.
+features of cubes, pointlights, and spotlights.
+
+One of the niftier parts of the system is the GML engine, which...
 
 This program has been implemented entirely in portable Dylan code,
 and consists of a single file ("runme").  We didn't call out to
