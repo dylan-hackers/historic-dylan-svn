@@ -54,9 +54,7 @@ Post-Facto Type Inference
 @Author { Gabor Greif }
 @Institution { @F gabor@mac.com }
 @AbstractDisplay { Yes }
-# @AbstractFormat { @Centre @Title @DP @Body }
 @Abstract {
-
 We explore a novel kind of type inference in
 object-oriented, dynamically dispatched setting.
 The inference is based on the observation that
@@ -594,7 +592,9 @@ e.g. that a catcher will only be entered with complementary type? }
 Certain type combinations would lead to ambiguities, thus
 calls could succeed where a specific method failed (e.g. type error on a keyword arg) }
    @ListItem { using the type of returned objects to
-recognize (constrain) several argument types at the same time }
+recognize (constrain) several argument types at the same time,
+also when return type is a union, and turns out later to be a union contributor,
+we may figure out which exact method must have been called }
    @ListItem { connection to CPS? }
    @ListItem { new entrypoint that checks types (only), no checks at call site? }
    @ListItem { @F apply and argument sequence size, keywords and keyword parameters

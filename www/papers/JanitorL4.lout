@@ -38,7 +38,7 @@ access to each others objects, ensuring privacy.
 @PP
 In this design document we briefly introduce the
 abstraction concepts provided by the L4::Pistachio
-microkernel, and immediately dvelve into the high
+microkernel, and immediately delve into the high
 level ideas behind the garbage collector that builds
 on these abstractions. Later sections dissect each
 aspect of the design down to the finer aspects and
