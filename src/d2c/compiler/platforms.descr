@@ -1,6 +1,6 @@
 // A description of all target platforms we support. We use this in d2c as well as in the build scripts.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.8 2003/08/27 01:32:23 andreas Exp $
+// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.9 2003/08/28 10:54:24 gabor Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -529,16 +529,13 @@ path-separator:        		/
 
 platform-name:                    standalone-gcc
 default-features:                 C-compiler-is-GCC
-compile-c-command:                gcc $(CCFLAGS) -I`gcc --print-file-name=includ
-e` -nostdinc -c %s -o %s
-default-c-compiler-flags:         -I. -I.. -O2 -fomit-frame-pointer -fno-strict-
-aliasing
+compile-c-command:                gcc $(CCFLAGS) -I`gcc --print-file-name=include` -nostdinc -c %s -o %s
+default-c-compiler-flags:         -I. -I.. -O2 -fomit-frame-pointer -fno-strict-aliasing
 default-c-compiler-debug-flags:  -I. -I.. -O2 -g -fno-strict-aliasing
 default-c-compiler-profile-flags:  -I. -I.. -O2 -g -pg -fno-strict-aliasing
 assembler-command:                gcc $(CCFLAGS) -c %s -o %s
 link-library-command:             ar qc %s %s
-link-executable-command:          gcc -o %s %s %s -e_start -N -nostdlib -Ttext=0
-0300000
+link-executable-command:          gcc -o %s %s %s -e_start -N -nostdlib -Ttext=00300000
 link-executable-flags:            -lm `gcc --print-file-name=libgcc.a`
 path-separator:                   /
 
