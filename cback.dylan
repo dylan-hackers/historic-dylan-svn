@@ -138,6 +138,7 @@ define macro llvm-glue-definer
    { <llvm-module> } => { "Module" }
    { <llvm-function> } => { "Function" }
    { <llvm-argument> } => { "Argument" }
+   { <llvm-add-instruction> } => { "BinaryAdd" }
 end;
 
 
@@ -204,6 +205,24 @@ end;
 
 
 
+define functional class <llvm-binary-instruction>(<llvm-instruction>)
+
+end;
+
+define functional class <llvm-add-instruction>(<llvm-binary-instruction>)
+
+end;
+
+define llvm-glue <llvm-add-instruction> ()
+  make, (left :: <llvm-value>, right :: <llvm-value>,
+	 name :: <byte-string> = "",
+	 before :: false-or(<llvm-instruction>),
+	 atEnd :: false-or(<llvm-basic-block>)), ptr: left.raw-value,
+						 ptr: right.raw-value,
+						 ptr: name.object-address,
+						 ptr: (atEnd | $null-pointer).raw-value,
+						 ptr: (before | $null-pointer).raw-value;
+end;
 
 
 // ################
@@ -216,16 +235,6 @@ define functional class <llvm-basic-block>(<llvm-value>)
   virtual slot parent :: <llvm-function>;
   virtual slot terminator :: <llvm-instruction>;
 end;
-
-/*
-define method make (c == <llvm-basic-block>, #rest rest,
-		    #key name :: <byte-string> = "",
-			 into :: false-or(<llvm-function>),
-			 before :: false-or(<llvm-basic-block>))
- => (result :: <llvm-basic-block>);
-  next-method(c, pointer: call-out("make_llvm_BasicBlock", ptr:, ptr: name.object-address, ptr: raw-value(into | $null-pointer), ptr: raw-value(before | $null-pointer)));
-end;
-*/
 
 define llvm-glue <llvm-basic-block> ()
   make, (name :: <byte-string> = "",
@@ -242,16 +251,6 @@ define functional class <llvm-function>(<llvm-global-value>)
   virtual slot previous :: <llvm-function>;
   virtual slot next :: <llvm-function>;
 end;
-
-/*
-define method make (f == <llvm-function>, #rest rest, #key type :: <llvm-function-type>, name :: <byte-string> = "", module :: false-or(<llvm-module>))
- => (result :: <llvm-function>);
-  next-method(f, pointer: call-out("make_llvm_Function", ptr:,
-				   ptr: type.raw-value,
-				   ptr: name.object-address,
-				   ptr: raw-value(module | $null-pointer)));
-end;
-*/
 
 define llvm-glue <llvm-function> ()
   make, (type :: <llvm-function-type>,
@@ -292,13 +291,6 @@ define functional class <llvm-module>(<llvm-object>)
 */
 end;
 
-/*
-define method make (m == <llvm-module>, #rest rest, #key name :: <byte-string> = "")
- => (result :: <llvm-module>);
-  next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: name.object-address));
-end;
-*/
-
 define llvm-glue <llvm-module> ()
   delete, () => ();
   dump, () => ();
@@ -328,10 +320,12 @@ define method emit-tlf-gunk
   func.dump;
   
   let f = make(<llvm-function>, name: "main", type: func, module: m);
-  make(<llvm-argument>, type: inttype, name: "foo", func: f);
+  let arg = make(<llvm-argument>, type: inttype, name: "foo", func: f);
 
   let bb = make(<llvm-basic-block>, name: "body", into: f);
-  make(<llvm-return-instruction>, atEnd: bb);
+  let retu = make(<llvm-return-instruction>, atEnd: bb);
+  
+  make(<llvm-add-instruction>, left: arg, right: arg, before: retu);
   
   m.dump;
   m.delete;

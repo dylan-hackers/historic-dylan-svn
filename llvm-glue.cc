@@ -21,6 +21,7 @@ namespace d2c
     typedef ELEM* iterator;
     typedef const ELEM* const_iterator;
 
+    std::size_t size(void) const { return elems; }
     iterator begin(void) { return arr; }
     iterator end(void) { return arr + elems; }
     const_iterator begin(void) const { return arr; }
@@ -81,8 +82,9 @@ LLVM_MAKE_SIMPLE(Function, (FunctionType* type, const ByteString* name, Module* 
 LLVM_MAKE_SIMPLE(ReturnInst, (/*val, beforeinstr*/ BasicBlock* atEnd), (atEnd))
 
 
+// desc_const_iterator
 template <typename T>
-struct desc_const_iterator // : std::random_access_iterator<T, std::ptrdiff_t>
+struct desc_const_iterator
 {
   desc_const_iterator(const desc* d)
   : d(d)
@@ -102,9 +104,40 @@ private:
   const desc* d;
 };
 
+// desc_iterator
+template <typename T>
+struct desc_iterator
+{
+  desc_iterator(const desc* d)
+  : d(d)
+  {}
+  
+  T operator * (void) const { return extract(*d, static_cast<T*>(0)); }
+  std::ptrdiff_t operator - (const desc_iterator<T>& rhs) const { return d - rhs.d; }
+  desc_iterator<T>& operator ++ (void) { ++d; return *this; }
+
+private:
+  static inline long extract(const desc& d, long*)
+  { return d.dataword.l; }
+  
+  static inline T extract(const desc& d, T*)
+  { return static_cast<T>(d.dataword.ptr); }
+  
+  const desc* d;
+};
+
+// iterator_traits
 namespace std {
   template <typename T>
   struct iterator_traits< desc_const_iterator<T> >
+  {
+    typedef typename iterator_traits<T*>::iterator_category iterator_category;
+    typedef T value_type;
+    typedef ptrdiff_t difference_type;
+  };
+
+  template <typename T>
+  struct iterator_traits< desc_iterator<T> >
   {
     typedef typename iterator_traits<T*>::iterator_category iterator_category;
     typedef T value_type;
@@ -116,9 +149,32 @@ namespace std {
 LLVM_MAKE(FunctionType, (const Type* result, const SimpleObjectVector* argtypes, bool isVarArg))
 {
   typedef desc_const_iterator<const Type*> extr;
-  std::vector<const Type*> params(extr(argtypes->begin()), extr(argtypes->end()));
+  const std::vector<const Type*> params(extr(argtypes->begin()), extr(argtypes->end()));
   return FunctionType::get(result, params, isVarArg);
 }
+
+
+LLVM_MAKE(GetElementPtrInst, (Value* ptr, const SimpleObjectVector* indices, const ByteString* name, BasicBlock* atEnd, Instruction* before))
+{
+  typedef desc_iterator<Value*> extr;
+  const extr first(indices->begin());
+  if (2 == indices->size())
+  {
+    extr second(first);
+    ++second;
+    return before
+      ? new GetElementPtrInst(ptr, *first, *second, *name, before)
+      : new GetElementPtrInst(ptr, *first, *second, *name, atEnd);
+  }
+  else
+  {
+    const std::vector<Value*> inds(first, extr(indices->end()));
+    return before
+      ? new GetElementPtrInst(ptr, inds, *name, before)
+      : new GetElementPtrInst(ptr, inds, *name, atEnd);
+  }
+}
+
 
 LLVM_MAKE_SIMPLE(Argument, (const Type* ty, const ByteString* name, Function* fun), (ty, *name, fun))
 /*
@@ -133,33 +189,13 @@ LLVM_MAKE(BinaryOperator, (Instruction::BinaryOps op, Value* v1, Value* v2, cons
 	 : BinaryOperator::create(op, v1, v2, *name, atEnd);
 }
 
-/*
-BinaryOperator* make_llvm_Add(Value* v1, Value* v2, const ByteString* name, BasicBlock* atEnd, Instruction* before)
-{
-  return make_llvm_BinaryOperator(Instruction::Add, v1, v2, name, atEnd, before);
-}
-*/
-
-typedef BinaryOperator
-  BinaryAdd,
-  BinarySub,
-  BinaryMul,
-  BinaryDiv,
-  BinaryRem,
-  BinaryAnd,
-  BinaryOr,
-  BinaryXor,
-  BinarySetEQ,
-  BinarySetNE,
-  BinarySetLE,
-  BinarySetGE,
-  BinarySetLT,
-  BinarySetGT;
-
 #define LLVM_MAKE_BINARY(OP) \
+  typedef BinaryOperator Binary ## OP; \
   LLVM_MAKE(Binary ## OP, (Value* v1, Value* v2, const ByteString* name, BasicBlock* atEnd, Instruction* before)) \
   { return make_llvm_BinaryOperator(Instruction::OP, v1, v2, name, atEnd, before); }
 
+
+/*
 LLVM_MAKE_BINARY(Add)
 LLVM_MAKE_BINARY(Sub)
 LLVM_MAKE_BINARY(Mul)
@@ -174,6 +210,26 @@ LLVM_MAKE_BINARY(SetLE)
 LLVM_MAKE_BINARY(SetGE)
 LLVM_MAKE_BINARY(SetLT)
 LLVM_MAKE_BINARY(SetGT)
+*/
+
+#define HANDLE_BINARY_INST(num, opcode, Class) \
+  LLVM_MAKE_BINARY(opcode)
+
+
+#include "/usr/local/include/llvm/Instruction.def"
+//#include "llvm/Instructions.def"
+
+
+/*
+// Memory operators...
+ FIRST_MEMORY_INST(21)
+HANDLE_MEMORY_INST(21, Malloc, MallocInst)  // Heap management instructions
+HANDLE_MEMORY_INST(22, Free  , FreeInst  )
+HANDLE_MEMORY_INST(23, Alloca, AllocaInst)  // Stack management
+HANDLE_MEMORY_INST(24, Load  , LoadInst  )  // Memory manipulation instrs
+HANDLE_MEMORY_INST(25, Store , StoreInst )
+HANDLE_MEMORY_INST(26, GetElementPtr, GetElementPtrInst)
+*/
 
 
 #define LLVM_DELETER(CLASS) \
