@@ -295,6 +295,26 @@ define flushable inline function list (#rest args)
   as(<list>, args);
 end;
 
+// author: PDH
+// This method will signal an error for unbounded lists if no end: keyword
+// argument is supplied.
+//
+define method copy-sequence
+    (list :: <list>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
+ => result :: <list>;
+  let last = check-start-end-bounds(copy-sequence, list, start, last);
+  for (index from 0 below start,
+       state :: <list> = list then state.tail)
+  finally
+    for (index from index below last,
+      state :: <list> = state then state.tail,
+      result = #() then pair(state.head, result))
+    finally
+      reverse!(result);
+    end for;
+  end for;
+end method copy-sequence;
+
 // Warning: This method will blow the stack for circular lists
 //
 define method shallow-copy (list :: <list>) => res :: <list>;
