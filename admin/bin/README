@@ -1,0 +1,6 @@
+non-standard binaries used on gauss:
+
+cvsonly - login shell which only provides cvs and subversion access
+updatekoala.sh - used in cron job to udpate /usr/local/www/koala from cvs
+updateref.sh - used in cron job to udpate /usr/local/www/gdref from cvs
+updatewww.sh - used in cron job to udpate /usr/local/www/data from cvs

@@ -1,0 +1,134 @@
+diff -ur global/banner.html.tmpl global/banner.html.tmpl
+--- global/banner.html.tmpl	Tue Jun  4 07:56:34 2002
++++ global/banner.html.tmpl	Sat Aug 28 02:13:46 2004
+@@ -1,34 +1,83 @@
+-<!-- 1.0@bugzilla.org -->
+-[%# The contents of this file are subject to the Mozilla Public
+-  # License Version 1.1 (the "License"); you may not use this file
+-  # except in compliance with the License. You may obtain a copy of
+-  # the License at http://www.mozilla.org/MPL/
+-  #
+-  # Software distributed under the License is distributed on an "AS
+-  # IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+-  # implied. See the License for the specific language governing
+-  # rights and limitations under the License.
+-  #
+-  # The Original Code is the Bugzilla Bug Tracking System.
+-  #
+-  # The Initial Developer of the Original Code is Netscape Communications
+-  # Corporation. Portions created by Netscape are
+-  # Copyright (C) 1998 Netscape Communications Corporation. All
+-  # Rights Reserved.
+-  #
+-  # Contributor(s): Gervase Markham <gerv@gerv.net>
+-  #                 Matthew Tuck <matty@chariot.net.au>
+-  #%]
+-
+-[%# Migration note: this file corresponds to the old Param 'bannerhtml' %]
+-
+-    <table bgcolor="#000000" width="100%" border="0" cellpadding="0"
+-           cellspacing="0">
+-      <tr>
+-        <td>
+-          <font color="#FFFFFF" size="8"><center>
+-            Bugzilla Version [% Param("version") %]
+-          </center></font>
+-        </td>
+-      </tr>
+-    </table>
++
++  <div ID="top"></div>
++  <div id="upperMenuBar">
++    <div class="LHS">
++      <a href="/index.phtml" class="highlight">Home</a>
++    </div>
++
++    <div class="RHS">
++
++      <a href="/about-dylan.phtml">About Dylan</a>|
++      <a href="/downloading.phtml">Downloads</a>|
++      <a href="/gdref.phtml">Documentation</a>|
++      <a href="/lists.phtml">Mailing Lists</a>|
++      <a href="http://monday.sourceforge.net/wiki/">Wiki</a>
++    </div>
++  </div>
++
++  <div ID="header"><a href="http://www.gwydiondylan.org"><img src="/gwydion-8caae6.png" alt="Gwydion Dylan"></a></div>
++
++    <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
++      <div>
++        <input type="text" class="text" name="q" value="Search..." />
++      
++        <!-- ###### Dynamic text box version:
++        <input class="text" type="text" value="Search..."
++               onFocus="if (this.value == 'Search...') this.value=''; else this.select();"
++               onBlur="if (this.value == '') this.value='Search...';" />
++             ###### -->
++
++        <input type="submit" class="submit" value="GO" />
++      </div>
++    </form>
++
++
++  <div class="sideMenuBox">
++     <div>About Dylan &amp; Gwydion</div>
++     <a HREF="/about-dylan.phtml">&rsaquo; What is Dylan?</a>
++
++     <a HREF="/about-gwydion.phtml">&rsaquo; Who was Gwydion?</a>
++     <a HREF="/goals.phtml">&rsaquo; Our Goals</a>
++     <A HREF="/statistics.phtml">&rsaquo; Current Scorecard</A>
++     <a HREF="/contests.phtml">&rsaquo; Dylan Competes</a>
++     <a HREF="/ports.phtml">&rsaquo; Supported Platforms</a>
++     <a HREF="/maintainers.phtml">&rsaquo; Gwydion Maintainers</a>
++     <a HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">&raquo; Gwydion at CMU</a>
++     <a HREF="http://www.fun-o.com">&raquo; Functional Developer</a>
++     <a HREF="/news.phtml">&rsaquo; Older News</a>
++  </div>
++
++  <div class="sideMenuBox lighterBG">
++     <div>User Resources</div>
++     <a HREF="/downloading.phtml">&rsaquo; Downloading Software</a>
++     <a HREF="/tools.phtml">&rsaquo; Working with Other Tools</a>
++     <a HREF="/gdref.phtml">&rsaquo; Documentation</a>
++     <a HREF="/lists.phtml">&rsaquo; Mailing Lists</a>
++     <a HREF="/bugs/">&rsaquo; Bug Tracker</a>
++     <a HREF="http://monday.sourceforge.net/wiki/">&raquo; Wiki</a>
++     <a HREF="/learning.phtml">&rsaquo; Learning Dylan</a>
++     <a HREF="/users.phtml">&rsaquo; Projects Using Dylan</a>
++     <a HREF="/screenshots.phtml">&rsaquo; Screenshots</a>
++     <a HREF="/limitations.phtml">&rsaquo; Current Limitations</a>
++  </div>
++
++  <div class="sideMenuBox">
++     <div>Developer Resources</div>
++     <a HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse CVS</a>
++     <A HREF="/cvszilla/query.cgi">&rsaquo; CVSzilla search</A>
++     <a HREF="/projects.phtml">&rsaquo; Current Projects</a>
++     <a HREF="/submit-news.phtml">&rsaquo; Submit News</a>
++<!--     <A HREF="/cgi-bin/tinderbox/showbuilds.pl?tree=Gwydion">&rsaquo; Tinderbox</A> -->
++  </div>
++
++<!--
++  <div class="sideTextBox">
++    <div>CVS Activity</div>
++    <P><SMALL>&nbsp;&nbsp;&nbsp;&nbsp;Count of lines recently <font color="#0000FF">added</font> and <font color="#FF0000">removed</font></SMALL></P>
++    <TR>
++    <A HREF="/cgi-bin/viewcvs.cgi">
++    <IMG SRC="/cvsact.png" BORDER=0 ALT="CGI Activity" HEIGHT=220 WIDTH=238></A>
++  </div>
++-->
++
++  <div id="bodyText">
+diff -ur ./global/header.html.tmpl /home/hannes/dylan/admin/bugzilla/templates/global/header.html.tmpl
+--- ./global/header.html.tmpl	Thu Jul  4 13:21:00 2002
++++ /home/hannes/dylan/admin/bugzilla/templates/global/header.html.tmpl	Fri Jul 30 13:10:54 2004
+@@ -40,6 +40,9 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+ <html>
+   <head>
++     <link REL="stylesheet" TYPE="text/css" HREF="/sinorca-grey.css" TITLE="Grey boxes stylesheet" />
++    <link REL="stylesheet alternative" TYPE="text/css" HREF="/sinorca-white.css" TITLE="White boxes stylesheet" />
++    <link REL="stylesheet" TYPE="text/css" HREF="/color-scheme.css" />
+     <title>[% title FILTER html %]</title>
+     
+ [%# Migration note: contents of the old Param 'headerhtml' would go here %]

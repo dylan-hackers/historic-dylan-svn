@@ -1,0 +1,26 @@
+diff -ur bug/comments.html.tmpl bug/comments.html.tmpl
+--- bug/comments.html.tmpl.old	Sat Jun 22 23:03:21 2002
++++ bug/comments.html.tmpl	Sat Aug 28 03:20:02 2004
+@@ -36,12 +36,21 @@
+ 
+ [% BLOCK a_comment %]
+   [% IF count > 0 %]
++    [% IF comment.type == "cvsTransaction" %]
+     <br>
++    <i>------- CVS
++      <a href="http://www.gwydiondylan.org/cvszilla/transaction.cgi?id=[% comment.txnNo %]">Transaction 
++      [% comment.txnNo %]</a> From
++      <a href="mailto:[% comment.email FILTER html %]">[% comment.name FILTER html %]</a>
++      [%+ comment.time %] -------
++    </i>
++    [% ELSE %]
+     <i>------- Additional Comment
+       <a name="c[% count %]" href="#c[% count %]">#[% count %]</a> From 
+       <a href="mailto:[% comment.email FILTER html %]">[% comment.name FILTER html %]</a>
+       [%+ comment.time %] -------
+     </i>
++    [% END %]
+   [% END %]
+     
+ [%# Don't indent the <pre> block, since then the spaces are displayed in the
+

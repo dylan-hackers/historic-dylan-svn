@@ -1,0 +1,81 @@
+<body>
+  <div ID="top"></div>
+  <div id="upperMenuBar">
+    <div class="LHS">
+      <a href="http://www.gwydiondylan.org/index.phtml" class="highlight">Home</a>
+    </div>
+
+    <div class="RHS">
+
+      <a href="/about-dylan.phtml">About Dylan</a>|
+      <a href="/downloading.phtml">Downloads</a>|
+      <a href="/gdref.phtml">Documentation</a>|
+      <a href="/lists.phtml">Mailing Lists</a>|
+      <a href="http://monday.sourceforge.net/wiki/">Wiki</a>
+    </div>
+  </div>
+  <div ID="header"><a href="http://www.gwydiondylan.org"><img src="/gwydion-8caae6.png" alt="Gwydion Dylan"></a></div>
+
+    <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
+      <div>
+        <input type="text" class="text" name="q" value="Search..." />
+      
+        <!-- ###### Dynamic text box version:
+        <input class="text" type="text" value="Search..."
+               onFocus="if (this.value == 'Search...') this.value=''; else this.select();"
+               onBlur="if (this.value == '') this.value='Search...';" />
+             ###### -->
+
+        <input type="submit" class="submit" value="GO" />
+      </div>
+    </form>
+
+
+  <div class="sideMenuBox">
+     <div>About Dylan &amp; Gwydion</div>
+     <a HREF="/about-dylan.phtml">&rsaquo; What is Dylan?</a>
+
+     <a HREF="/about-gwydion.phtml">&rsaquo; Who was Gwydion?</a>
+     <a HREF="/goals.phtml">&rsaquo; Our Goals</a>
+     <A HREF="/statistics.phtml">&rsaquo; Current Scorecard</A>
+     <a HREF="/contests.phtml">&rsaquo; Dylan Competes</a>
+     <a HREF="/ports.phtml">&rsaquo; Supported Platforms</a>
+     <a HREF="/maintainers.phtml">&rsaquo; Gwydion Maintainers</a>
+     <a HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">&raquo; Gwydion at CMU</a>
+     <a HREF="http://www.fun-o.com">&raquo; Functional Developer</a>
+     <a HREF="/news.phtml">&rsaquo; Older News</a>
+  </div>
+
+  <div class="sideMenuBox lighterBG">
+     <div>User Resources</div>
+     <a HREF="/downloading.phtml">&rsaquo; Downloading Software</a>
+     <a HREF="/tools.phtml">&rsaquo; Working with Other Tools</a>
+     <a HREF="/gdref.phtml">&rsaquo; Documentation</a>
+     <a HREF="/lists.phtml">&rsaquo; Mailing Lists</a>
+     <a HREF="/bugs/">&rsaquo; Bug Tracker</a>
+     <a HREF="http://monday.sourceforge.net/wiki/">&raquo; Wiki</a>
+     <a HREF="/learning.phtml">&rsaquo; Learning Dylan</a>
+     <a HREF="/users.phtml">&rsaquo; Projects Using Dylan</a>
+     <a HREF="/screenshots.phtml">&rsaquo; Screenshots</a>
+     <a HREF="/limitations.phtml">&rsaquo; Current Limitations</a>
+  </div>
+
+  <div class="sideMenuBox">
+     <div>Developer Resources</div>
+     <a HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse CVS</a>
+     <A HREF="/cvszilla/query.cgi">&rsaquo; CVSzilla search</A>
+     <a HREF="/projects.phtml">&rsaquo; Current Projects</a>
+     <a HREF="/submit-news.phtml">&rsaquo; Submit News</a>
+  </div>
+
+<!--
+  <div class="sideTextBox">
+    <div>CVS Activity</div>
+    <P><SMALL>&nbsp;&nbsp;&nbsp;&nbsp;Count of lines recently <font color="#0000FF">added</font> and <font color="#FF0000">removed</font></SMALL></P>
+    <TR>
+    <A HREF="/cgi-bin/viewcvs.cgi">
+    <IMG SRC="/cvsact.png" BORDER=0 ALT="CGI Activity" HEIGHT=220 WIDTH=238></A>
+  </div>
+-->
+
+  <div id="bodyText">

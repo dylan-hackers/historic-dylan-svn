@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -f /usr/local/www/data/.needs-rebuild ]; then
+	rm -f /usr/local/www/data/.needs-rebuild
+	cd /usr/local/www/data
+	cvs update -dP
+fi

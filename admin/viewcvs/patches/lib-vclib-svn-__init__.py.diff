@@ -1,0 +1,12 @@
+diff -ur lib/vclib/svn/__init__.py lib/vclib/svn/__init__.py
+--- ./lib/vclib/svn/__init__.py	Sat Jul 31 14:38:01 2004
++++ /usr/local/viewcvs-1.0-dev/lib/vclib/svn/__init__.py	Tue Aug 31 21:51:22 2004
+@@ -24,6 +24,8 @@
+ import cStringIO
+ 
+ # Subversion swig libs
++import sys
++sys.path.append('/usr/local/lib/svn-python')
+ from svn import fs, repos, core, delta
+ 
+ # Subversion filesystem paths are '/'-delimited, regardless of OS.

@@ -1,0 +1,22 @@
+diff -ur ./lib/viewcvs.py /usr/local/viewcvs-1.0-dev/lib/viewcvs.py
+--- ./lib/viewcvs.py	Tue Aug 17 19:17:55 2004
++++ /usr/local/viewcvs-1.0-dev/lib/viewcvs.py	Tue Aug 31 18:44:23 2004
+@@ -942,8 +942,8 @@
+     # Unfortunately this option doesn't work with HTML output in enscript
+     # version 1.6.2.
+     enscript_cmd = [os.path.normpath(os.path.join(cfg.options.enscript_path,
+-                                                  'enscript')),
+-                    '--color', '--language=html', '--pretty-print=' + lang,
++                    'enscript')),
++                    '--color', '--language=html', '-E' + lang,
+                     '-o', self.temp_file, '-']
+     try:
+       copy_stream(fp, popen.pipe_cmds([enscript_cmd]))
+@@ -1078,6 +1078,7 @@
+   '.cxx' : 'cpp',
+   '.diff' : 'diffu',
+   '.dpr' : 'delphi',
++  '.dylan' : 'dylan',
+   '.el' : 'elisp',
+   '.eps' : 'postscript',
+   '.f' : 'fortran',

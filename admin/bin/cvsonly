@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ $# = 2 ]; then
+  if [ "$2" = "cvs server" ]; then
+    cvs server
+  fi;
+  if [ "$2" = "svnserve -t" ]; then
+    svnserve -t
+  fi;
+else
+  echo "Access denied!"
+fi;

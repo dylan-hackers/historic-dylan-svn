@@ -1,0 +1,10 @@
+<!doctype html public "-//W3C//DTD HTML 4.0 Transitional//EN"
+ "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<!-- ViewCVS       -- http://viewcvs.sourceforge.net/
+     by Greg Stein -- mailto:gstein@lyra.org
+  -->
+  <link REL="stylesheet" TYPE="text/css" HREF="http://www.gwydiondylan.org/sinorca-grey.css" TITLE="Grey boxes stylesheet" />
+  <link REL="stylesheet alternative" TYPE="text/css" HREF="http://www.gwydiondylan.org/sinorca-white.css" TITLE="White boxes stylesheet" />
+  <link REL="stylesheet" TYPE="text/css" HREF="http://www.gwydiondylan.org/color-scheme.css" />
