@@ -67,16 +67,30 @@ end method generate-next-move;
 
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
+  me.robot := find-robot(s, me.robot.id);
   block(return)
+    format-out("DB: Considering next move\n");
+    force-output(*standard-output*);
+
     // Deliver what we can:
     let drop-these = choose(at-destination?, me.robot.inventory);
+    format-out("DB: drop-these = %=\n", me.robot.inventory);
+    force-output(*standard-output*);
+    
     if (~drop-these.empty?)
       return(make(<drop>, bid: 1, package-ids: map(id, drop-these)));
+    else 
+      format-out("DB: Nothing to deliver here.\n");
+      force-output(*standard-output*);
     end if;
     
     // Pick ups:
+    format-out("DB: All packages: %=\n", s.packages);
+    force-output(*standard-output*);
     let packages-here = packages-at(s, me.robot.location);
-    if (~packages-here.empty?)
+    format-out("DB: Packages here: %=\n", packages-here);
+    force-output(*standard-output*);
+    if (packages-here ~= #f & ~packages-here.empty?)
       let take-these = make(<vector>);
       let left = me.robot.capacity;
       // Greedy algorithm to get as much as we can:
@@ -87,38 +101,60 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	  take-these := add!(take-these, x);
 	end if;
       end for;
-      return(make(<pick>, bid: 1, package-ids: map(id, take-these)));
+      if (~take-these.empty?)
+	return(make(<pick>, 
+		    bid: 1, 
+		    package-ids: map(id, take-these)));
+      else 
+	format-out("DB: Can't pick up or deliver anything from here.\n");
+	force-output(*standard-output*);
+      end if;
+    else 
+      format-out("DB: No packages here (or first move)\n");
+      force-output(*standard-output*);
     end if;
     
     // Go to the next interesting place:
     let targets = concatenate(map(dest, me.robot.inventory),
-			      map(location, s.free-packages)/*,
-			      map(location, choose(unvisted?,
-                                                   s.home-bases) )*/);
+			      map(location, s.free-packages),
+			      s.bases);
+    
+    format-out("DB: Targets: %=\n", targets);
+    force-output(*standard-output*);
 
-    let paths = map(curry(rcurry(find-path, s.board), me.robot,location),
+    let paths = map(curry(rcurry(find-path, s.board), me.robot.location),
 		    targets);
+
+    format-out("DB: Paths: %=\n", paths);
+    force-output(*standard-output*);
+
+    paths := choose(curry(\~=, #f), paths);
 
     paths := sort!(paths, stable: #t, 
 		  test: method (a :: <list>, b :: <list>) 
 			  a.size < b.size;
                         end method);
-    
-    let new-loc = paths.first.first;
-    let direction = $North;
-
-    if (new-loc = point(x: new-loc.x, y: new-loc.y + 1))
-      direction := #"north";
-    elseif (new-loc = point(x: new-loc.x + 1, y: new-loc.y))
-      direction := #"east";
-    elseif (new-loc = point(x: new-loc.x, y: new-loc.y - 1))
-      direction := #"south";
-    elseif (new-loc = point(x: new-loc.x - 1, y: new-loc.y))
-      direction := #"west";
-    else
-      error("Can't happen");
-    end if;
-
+    let direction
+      = if (empty?(paths))
+	  debug("Sorry, can't find anywhere to go!\n");
+	  $north
+	else
+	  let path = paths.first;
+	  let new-loc = path.first;
+	  
+	  case
+	    new-loc = point(x: me.robot.location.x, y: me.robot.location.y + 1)
+	      => $north;
+	    new-loc = point(x: me.robot.location.x + 1, y: me.robot.location.y)
+	      => $east;
+	    new-loc = point(x: me.robot.location.x, y: me.robot.location.y - 1)
+	      => $south;
+	    new-loc = point(x: me.robot.location.x - 1, y: me.robot.location.y)
+	      => $west;
+	    new-loc = point(x: me.robot.location.x, y: me.robot.location.y)
+	      => error("Can't happen");
+	  end case;
+	end if;
     return(make(<move>, bid: 1, direction: direction));
   end block;
 end method generate-next-move;
