@@ -7,7 +7,7 @@ macro @Sigm {@Sym sigma}
 # def @Tau right n { {@Sym tau} @Sub @Eq {n} }
 def @Sig right n { {@Sigm} @Sub n }
 def @Tau right n { {@Sym tau} @Sub n }
-def @Project left union right n { left{@Sym bar} @Sub n }
+def @Project left union right n { union{@Sym bar} @Sub n }
 
 
 @Report
@@ -16,6 +16,7 @@ def @Project left union right n { left{@Sym bar} @Sub n }
 Post-Facto Type Inference
 }
 @Author { Gabor Greif }
+@Institution { @F gabor@mac.com }
 @AbstractDisplay { Yes }
 # @AbstractFormat { @Centre @Title @DP @Body }
 @Abstract {
@@ -60,7 +61,7 @@ and conclude.
 @PP
 We start out by providing a short informal tour
 of dynamic typing in object-oriented languages.
-Folowing that we describe a distinguishing feature of
+Following that we describe a distinguishing feature of
 the Dylan programming language, namely @I { multiple
 dispatch } with its associated concept of @I { generic
 functions }.
@@ -73,17 +74,20 @@ functions }.
 @Begin
 @PP
 In dynamically typed languages the compiler needs no
-knowledge of the exact type of an object. Instead, a
-run-time typecheck gets inserted for every assertion
-the compiler makes, so that no object behaviour is
-invoked that has not been specified. This is one way
-to achieve type safeness. A type-safe program cannot
+static knowledge of the actual type of an object. Instead,
+a run-time typecheck gets inserted for every assertion
+the program or the compiler makes, so that no undefined
+behaviour can accidentally arise. Dynamic typing is just one
+way to achieve type safeness. A type-safe program cannot
 go wrong as long as enough resources are available.
+Naturally, one is interested in compensating the performance
+penalty that occurs due to the lack of exact information.
 For some languages or implementations the compiler
-is able to determine the type of a dynamic object
-by either taking the @I { type annotations } in consideration
-or by @I inferring a more restricted @I subtype of
-the class {@Class object}. In this case we talk about @I
+is able to approximate the type of a dynamic object
+by either propagating the @I { type annotations }
+or by @I inferring a more restricted @I subtype for values
+instead of assuming the default, the root class
+{@Class object}. In this case we talk about @I
 { statically known } types. But there is no way to
 generally figure out the @I { dynamic type } of an
 object, since classes may be added in other libraries,
@@ -107,9 +111,10 @@ define generic render (doc :: <document>, dev :: <device>) => ();
 }
 and specialize @F {method}s with either one or both arguments'
 types given more precisely:
-@IndentedDisplay @F @Verbatim
+@IndentedDisplay @F @F @Verbatim
 {
-define method render (doc :: <html-document>, dev :: <laser-printer>) => ();
+define method render (doc :: <html-document>, dev :: <laser-printer>) => (); ...
+define method render (doc :: <pdf-document>, dev :: <dot-matrix-printer>) => (); ...
 }
 @End @SubSection
 
@@ -132,7 +137,7 @@ methods (i.e. those that are neither less nor more
 specific than another method) get separated away and not
 considered any more. From the remaining methods the most
 specific gets called to obtain behaviour or a function result.
-To obtain good performance even in multi-dispatched setting
+To obtain good performance even in a multi-dispatched setting
 a compiler will try to resolve to the most-applicable method
 at compile time. Naturally, being able to do this depends
 on the closed world assumption. To aid the compiler in closing
@@ -144,7 +149,7 @@ the library writer a tool called @I sealing. By using
 define sealed domain render (<document>, <laser-printer>) => ();
 }
 the GF @F render is prohibited from accepting methods specialized
-on subtypes of the given signature that originate outside the
+on subtypes of the given signature that originate from outside of the
 library being the provider of the seal. Sealed domains also arise
 implicitly by not declaring GFs as being @F { open }. In the
 remaining part of this paper we assume all generic functions
@@ -185,7 +190,7 @@ function's signature conveys two contracts:
 with the number and types of arguments as laid down in the @I { argument
 declaration } of the signature, and }
    @ListItem { the function promises to return the number and types of
-   values as laid down in the @I { return declaration } of the signature. }
+values as laid down in the @I { return declaration } of the signature. }
 @EndList
 In the case that any of these contracts are violated, the function does
 not return, but @I { signals an error }.
@@ -205,7 +210,7 @@ principle in a multiply dispatched setting.
 @Begin
 @PP
 For sealed generic functions (more precisely sealed GF domains) the closed-world
-assumption holds, and the compiler is in the posession of every method that belongs
+assumption holds, and the compiler is in the possession of every method that belongs
 to the GF domain, along with their signatures. This allows the compiler to rule out
 any method as being not applicable where the static types of the arguments are
 provably disjoint to the respective argument type of the method. What remains is the
@@ -214,7 +219,9 @@ the @I { definitive set } of methods that are provably applicable by checking th
 the static types of arguments are subtypes of the respective argument types in the
 signature. Leaving away the definitive set from the applicable set the @I { maybe set }
 remains.
-@PP The Dylan language semantics describes [@I refDRM] that from the set of
+@LP @I { [nice set diagram here] }
+@PP
+The Dylan language semantics describes [@I refDRM] that from the set of
 applicable methods the one with the most specific argument types will be called
 (which in turn may call @F next-method to pass control to the next specific one
 for code reuse purposes).
@@ -231,22 +238,24 @@ be utilized to track the type of the value returned from the function call.
 can be extracted from the call to the GF when it is not exactly known to the compiler
 which method form the maybe set will be invoked at runtime. In the terms of the previous
 section the compiler infers a nonempty fixed applicable set (because of sealig), and an
-empty definitive set (because the knowledge of argument types is not precise enough).
+empty definitive set (because its knowledge of argument types is not precise enough).
 Our optimization tries to turn this vice of multiple dispatch to a virtue, nevertheless.
-@PP We observe that since all methods in the maybe set are applicable, one of them @I
-{ will be called }. This can be stated in terms of typing: the type of argument @I n
-must have been in the type union of the methods in the maybe set at argument position
-{@I n}, if the function call returns @I {without signalling an error}. In the dominance
-domain of this call we can assume that the type constraint holds.
+@PP
+We observe that since all methods in the maybe set are applicable, one of them @I
+{ will have been called } when"/"if the call returns. This can be stated in terms of
+typing: each argument must have been an instance of the union of the
+types at the corresponding position across the signatures in the maybe set, if the
+function call returns @I {without signalling an error}. In the dominance
+domain of this call we can assume that the above type constraint holds.
 We introduce some notation to be able to formalize this a bit. Let {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n})
 denote the product type of an {@I n}-ary method's argument signature. The maybe set then
 can be described as a set of distinct signatures: "{" {@Sig 1}, {@Sig 2}, ..., @Sig @I m "}".
 We denote the projection operator to extract the type of argument @Eq {1 <= i <= n} from a
 method signature: {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n}) {@Sym bar} @Sub @I i = {@Tau @I i}.
-@PP This allows to formulate our above notion as {@F known-type}(i, "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}") @Sym lessequal
+@PP This allows to formulate our above notion as "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym lessequal
 {@F type-union}({@Sig 1} {@Project @I i}, ..., {@Sig @I m} {@Project @I i}). One might ask
 for the reason of the inequality in this formula. It simply states that we can do even @I better
-than the formula suggests!
+than the equality suggests!
 @End @SubSection
 
 ###########
@@ -270,30 +279,45 @@ define method theory-of-everything(t == #f, v == 0) ...
 }
 
 Here the first argument to @F foo selects one of the
-methods @F "foo{#t, 42}" or @F "foo{#f, 0}". In the two
+methods @F "foo{#t, 42}" @FootNote { Dylan allows for
+@I { singleton types }, where the only instance of a type is
+the specified one. These types are introduced by the @F singleton
+function or by the syntax shown in the above snippet. }
+or {@F "foo{#f, 0}"}. In the two
 arms of the @F if statement a similar selection is performed:
-since @F truth can only be @F #t or @F #f the first arm is
+since @F truth can only be @F "#t" or @F "#f" the first arm is
 entered in the former and the second in the latter case.
 Surprisingly knowing the value (or type) of @F truth, we
-can deduce the @F value since @F #t for the first argument
-automatically implies @F 42 for the second and @F #f for
-@F truth implies @F 0 for value.
+can deduce the {@F value}, since @F "#t" for the first argument
+automatically implies @F 42 for the second (and @F "#f" for
+@F truth implies @F 0 for {@F value}).
 
 
 @PP
 @I { [signature unions, indexed by argument. gives rise to
 multiple constraints] }
-
+@PP
+We can formalize this notion as follows. At the condition of
+the @F if statement the typing constraints are
+@F truth @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 1}
+and @F value @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 2}.
+In the second leg of the @F if statement the compiler can infer the type of @F truth being {@Tau @F "#f"}.
+We can now introduce the restriction operator @Sym circlemultiply to combine the two constraints and derive further
+constraints for other variables:
+"{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 1} @Sym circlemultiply {@Tau @F "#f"}
+@Sym arrowdblright "{" {@Tau @F 0}{@Project 2} "}". Here the notation {@Tau @F 0}{@Project 2} conveys the fact that
+the restriction results in a new type constraint for the second factor of the tuple union being the (singleton)
+type {@Tau @F 0}.
 @End @SubSection
 
 ###########
 @SubSection @Title { Type Algebra of Tuple Unions }
 @Begin
 @PP
-Consider the following 
-
-signature unions, indexed by argument. gives rise to
-multiple constraints
+We arrived at a point where it becomes possible to actually
+do computations on the tuple union projections, such as
+intersection, union and set difference.
+@LP @I {[to be expanded]}
 
 @End @SubSection
 
@@ -345,15 +369,15 @@ argument {@F m:}.
 @Begin
 @PP
 
-It is expected that our method is most effective on sparsely
+It is expected that our method is most productive on sparsely
 type-annotated programs. In its first incarnation of the
 algorithm a dozen of optimization candidates were detected
 in the 75 KLOC sourcebase of @F d2c itself. Some of them could
 not effectively be exploited because while the refinement
 appeared in both legs of "\"if\"" nodes and the use in a node
-dominated by the "\"if\"" node, @F d2c unfortuantely has no mechanism
+dominated by the "\"if\"" node, @F d2c unfortunately has no mechanism
 (yet) to coalesce the results of analysis to behind the "\"if\"" node.
-This number appears as extremely low, but we must take into
+The above number appears as disappointingly low, but we must take into
 consideration that @F d2c is a well-annotated program when it
 comes to types. It is expected that after implementing the
 tuple-union based optimization, a whole lot more of opportunities
@@ -371,17 +395,17 @@ for type refinement open up.
 @PP
 @StarList
    @ListItem { using the fact that an error happened? }
-   @ListItem { using the definitive set to add information? }
+   @ListItem { exploiting the absence from other errors (out-of-range etc.)? }
+   @ListItem { using the definitive set to add information? -- possibly not! }
    @ListItem { using the known ambiguities to add information?
-Certain type combinations would lead to ambibuities, thus
+Certain type combinations would lead to ambiguities, thus
 calls could succeed where a specific method failed (e.g. type error on a keyword arg) }
    @ListItem { using the type of returned objects to
-recognize (constrain) several argument
-types at the same time }
+recognize (constrain) several argument types at the same time }
    @ListItem { connection to CPS? }
    @ListItem { new entrypoint that checks types (only), no checks at call site? }
    @ListItem { @F apply and argument sequence size, keywords and keyword parameters
-(every 2nd is <symbol> and oneof(keywords), the following ones are of specific type) }
+(every 2nd is @Class symbol and @F {oneof(}@I keywords{@F )}, the following ones are of specific type) }
    @ListItem { using @F primary to ensure type disjointness (similarly getter return value
 conflicts) }
 @EndList
@@ -396,6 +420,15 @@ conflicts) }
 @Title { Conclusion }
 @Begin
 @PP
+We described a technique of stating constraints on the type of arguments passed to
+multimethods. The analysis is valid only @I post-facto, i.e. after the call to
+the multimethod returns. We also suggest that the analysis delivers even more precise
+results if the union-of-products (polynomial) constraints are maintained throughout the
+algorithm. We gave an implementation sketch of the full optimization and provided
+some (disappointing) results on the effectivity of the simple-minded implementation on
+a well annotated input. It remains to be seen whether the fully implemented algorithm can
+significantly improve the compiler's ability to approximate the dynamic type of expressions
+in Dylan programs written in a scripting-language style by a purely static analysis.
 @End @Section
 
 
@@ -406,7 +439,7 @@ conflicts) }
 @Title { Thanks }
 @Begin
 @PP
-Peter Housel, Kim Barrett
+Peter Housel, Kim Barrett, Bruce Hoult
 @End @Section
 
 
