@@ -291,8 +291,8 @@ define function main(name, arguments)
 
         if (new < old)
           debug("  - using new");
+          best-transformation := new-output;
         end if;
-        best-transformation := new-output;
         debug("\n");
       end if;
     end method see-if-best,
