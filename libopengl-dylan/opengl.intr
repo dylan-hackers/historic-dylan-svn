@@ -332,7 +332,7 @@ define method glFog(pname :: <GLenum>,
 end method glFog;
 
 /*****************************************************************************
- * glIndex(<integer> light, <GLenum> pname, {<integer>|<float>} arg...)
+ * glIndex({<integer>|<float>} color...)
  * 
  * Calls glIndexu?[dfisb]v? as needed.
  ****************************************************************************/
@@ -349,18 +349,20 @@ end function-family-1;
  * Changes a parameter on a light.
  ****************************************************************************/
 
-define sealed generic glLight(light :: limited(<integer>, min: 0, 
-					       max: $GLenum$GL-MAX-LIGHTS), 
+define sealed generic glLight(light :: limited(<integer>, 
+			       min: $GLenum$GL-LIGHT0, 
+			       max: $GLenum$GL-LIGHT0 + $GLenum$GL-MAX-LIGHTS),
 			      pname :: <GLenum>, 
 			      arg1 :: <number>, #rest rest);
 
-define method glLight(light :: limited(<integer>, min: 0, 
-				       max: $GLenum$GL-MAX-LIGHTS),
-			pname :: <GLenum>,
+define method glLight(light :: limited(<integer>, 
+			       min: 0, 
+			       max: $GLenum$GL-LIGHT0 + $GLenum$GL-MAX-LIGHTS),
+		      pname :: <GLenum>,
 		      arg1 :: <integer>, #rest rest) => ()
   // FIXME: add arg check in debug mode here....
   if (empty?(rest))
-    glLighti($GLenum$GL-LIGHT0 + light, pname, arg1);
+    glLighti(light, pname, arg1);
   else
     // stick #rest into array...
     let paramlist :: <c-integer-vector> = make(<c-integer-vector>, 
@@ -371,12 +373,13 @@ define method glLight(light :: limited(<integer>, min: 0,
       paramlist[i] := arg;
     end for;
     
-    glLightiv($GLenum$GL-LIGHT0 + light, pname, paramlist);
+    glLightiv(light, pname, paramlist);
   end if;
 end method glLight;
 
-define method glLight(light :: limited(<integer>, min: 0, 
-				       max: $GLenum$GL-MAX-LIGHTS),
+define method glLight(light :: limited(<integer>, 
+			       min: $GLenum$GL-LIGHT0, 
+			       max: $GLenum$GL-LIGHT0 + $GLenum$GL-MAX-LIGHTS),
 		      pname :: <GLenum>,
 		      arg1 :: <float>, #rest rest) => ()
   // FIXME: add arg check in debug mode here....
@@ -392,7 +395,7 @@ define method glLight(light :: limited(<integer>, min: 0,
       paramlist[i] := as(<single-float>, arg);
     end for;
     
-     glLightfv($GLenum$GL-LIGHT0 + light, pname, paramlist);
+     glLightfv( light, pname, paramlist);
   end if;
 end method glLight;
 
@@ -444,7 +447,7 @@ define method glLightModel(pname :: <GLenum>,
 end method glLightModel;
 
 /*****************************************************************************
- * glMaterial(pname, param)
+ * glMaterial(pname, param, ...)
  *
  * Calls glMaterial[fi] as appropriate
  ****************************************************************************/
@@ -461,10 +464,10 @@ define method glMaterial(face :: <GLenum>, pname :: <GLenum>,
     // stick #rest into array...
     let paramlist :: <c-integer-vector> = make(<c-integer-vector>, 
 					       element-count: size(rest) + 1);
-    paramlist[0] := arg1;
+    paramlist[0] := as(<integer>, arg1);
     for (i from 1 below (size(rest) + 1),
 	 arg in rest)
-      paramlist[i] := arg;
+      paramlist[i] := as(<integer>, arg);
     end for;
     
     glMaterialiv(face, pname, paramlist);
@@ -490,6 +493,29 @@ define method glMaterial(face :: <GLenum>, pname :: <GLenum>,
   end if;
 end method glMaterial;
 
+/****************************************************************************
+ * glMultMatrix(matrix) => ()
+ * 
+ * Calls the appropriate glMultMatrix[df] function.
+ ***************************************************************************/
+
+define method glMultMatrix(m :: <collection>) => ();
+  if (instance?(m[0], <double-float>))
+    let paramlist :: <c-double-vector> =
+      make(<c-double-vector>, element-count: 16);
+    for (i from 0 below 16, arg in m)
+      paramlist[i] := as(<double-float>, arg);
+    end for;
+    glMultMatrixd(paramlist);
+  else
+    let paramlist :: <c-float-vector> =
+      make(<c-float-vector>, element-count: 16);
+    for (i from 0 below 16, arg in m)
+      paramlist[i] := as(<single-float>, arg);
+    end for;
+    glMultMatrixf(paramlist);
+  end if;
+end method glMultMatrix;
 
 /****************************************************************************
  * glNormal(x, y, z) => ()
