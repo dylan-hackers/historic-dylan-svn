@@ -1,4 +1,4 @@
-module: icfp2000
+module: our-matrix
 synopsis: utility functions missing from the matrix library
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
@@ -159,7 +159,3 @@ define method normalize(v :: <vector3D>)
   vector3D(v.x * r, v.y * r, v.z * r, v.w * r);
 end method normalize;
 
-define method print-object(v :: <vector3D>, stream :: <stream>)
- => ();
-  print-object(vector(v.x, v.y, v.z, v.w), stream);
-end method print-object;
