@@ -114,34 +114,6 @@ define method process-config-element (node :: <xml-element>, name :: <object>)
   end;
 end;
 
-
-
-//// koala-config.xml elements.  One method for each element name.
-
-define method process-config-element (node :: <xml-element>, name == #"koala")
-  for (child in xml$node-children(node))
-    process-config-node(child);
-  end;
-end;
-
-define method process-config-element (node :: <xml-element>, name == #"server-root")
-  let loc = get-attribute-value(node, #"location");
-  if (~loc)
-    log-config-warning("Malformed <server-root> element.  No location was specified.");
-  else
-    init-server-root(location: loc);
-  end;
-end;
-
-define method process-config-element (node :: <xml-element>, name == #"document-root")
-  let loc = get-attribute-value(node, #"location");
-  if (~loc)
-    log-config-warning("Malformed <document-root> element.  No location was specified.");
-  else
-    init-document-root(location: loc);
-  end;
-end;
-
 define function true-value?
     (val :: <string>) => (true? :: <boolean>)
   member?(val, #("yes", "true", "on"), test: string-equal?)
@@ -152,6 +124,58 @@ define function false-value?
   ~true-value?(val)
 end;
 
+
+
+//// koala-config.xml elements.  One method for each element name.
+
+define method process-config-element (node :: <xml-element>, name == #"koala")
+  for (child in xml$node-children(node))
+    process-config-node(child);
+  end;
+end;
+
+define method process-config-element (node :: <xml-element>, name == #"port")
+  let attr = get-attribute-value(node, #"value");
+  if (attr)
+    block ()
+      let port = string-to-integer(attr);
+      (port & positive?(port) & (*server-port* := port) | error(""));
+      log-debug("Setting server port to %d", port);
+    exception (<error>)
+      log-warning("Invalid port number, %=, in configuration file.", attr);
+    end;
+  else
+    log-warning("Malformed <port> setting.  'value' must be specified.");
+  end;
+end;
+
+define method process-config-element (node :: <xml-element>, name == #"auto-register")
+  let attr = get-attribute-value(node, #"enabled");
+  if (attr)
+    *auto-register-pages?* := true-value?(attr);
+  else
+    log-warning("Malformed <auto-register> setting.  'enabled' must be specified.");
+  end;
+end;
+
+define method process-config-element (node :: <xml-element>, name == #"server-root")
+  let loc = get-attribute-value(node, #"location");
+  if (~loc)
+    log-config-warning("Malformed <server-root> setting.  'location' must be specified.");
+  else
+    init-server-root(location: loc);
+  end;
+end;
+
+define method process-config-element (node :: <xml-element>, name == #"document-root")
+  let loc = get-attribute-value(node, #"location");
+  if (~loc)
+    log-config-warning("Malformed <document-root> setting.  'location' must be specified.");
+  else
+    init-document-root(location: loc);
+  end;
+end;
+
 define method process-config-element (node :: <xml-element>, name == #"log")
   let level = get-attribute-value(node, #"level");
   let clear = get-attribute-value(node, #"clear");
@@ -159,7 +183,7 @@ define method process-config-element (node :: <xml-element>, name == #"log")
     clear-log-levels();
   end;
   if (~level)
-    log-config-warning("Malformed <log> element.  No level was specified.");
+    log-config-warning("Malformed <log> setting.  'level' must be specified.");
   else
     let class = select (level by string-equal?)
                   "debug"   => <log-debug>;
