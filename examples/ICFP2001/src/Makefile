@@ -19,3 +19,6 @@ install: ../runme
 
 test: icfp2001
 	(time ./icfp2001  30 <tests/test5) && echo **Success**
+
+valid: icfp2001
+	perl runTests.pl
