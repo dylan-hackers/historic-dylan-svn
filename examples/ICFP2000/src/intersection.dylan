@@ -56,7 +56,7 @@ define method silly-texture(surface-id, u, v)
   values(make(<color>, red: clamp(u), green: clamp(v), blue: 0.0), 1.0, 0.2, 0.2);
 end method silly-texture;
 
-define method intersection-before(o :: <obj>, ray, distance)
+define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-function)
 
   // First transform the pos/ray/distance into the coordinates of o,
@@ -64,10 +64,13 @@ define method intersection-before(o :: <obj>, ray, distance)
 
   let local-ray = transform-with-matrix(ray, o.inverse-transform);
 
-  let (our-point, our-normal, surface-method) = intersection-before(o.model, local-ray, distance);
+  let (our-point, our-normal, surface-method) =
+    intersection-before(o.model, local-ray, distance, shadow-test: shadow-test?);
 
   // Now, transform the point & normal back into the caller's coordinates
-  if (our-point)
+  if (shadow-test?)
+    our-point;
+  elseif (our-point)
     let point = o.transform * our-point;
     let normal = o.transform * our-normal;
 
@@ -75,26 +78,67 @@ define method intersection-before(o :: <obj>, ray, distance)
   else
     values(#f, #f, #f);
   end if;
-  end method intersection-before;
+end method intersection-before;
 
-define method intersection-before(m :: <sphere>, ray, distance)
+define method intersection-before(m :: <sphere>, ray, distance, #key
+				    shadow-test: shadow-test?)
  => (point, normal, surface-method)
 
-  // XXX: Assuming, for now that the ray comes from outside the sphere.
 
-  let t_ca = -ray.ray-position * ray.ray-direction;
-  let foo = ray.ray-position - $origin;
-  let l_oc_2 = foo * foo;
-
-  if (t_ca < 0.0)
-    // Pointing away from sphere, no intersection
-    values(#f, #f, #f);
-  elseif (abs(l_oc_2 - (t_ca * t_ca)) > 1.0)
-    values(#f, #f, #f);
-  else 
-    let u = 0.5; // XXX
-    let v = 0.5;
-    values(#[ 1.0, 1.0, 1.0, 1.0 ], #[1.0, 1.0, 1.0, 1.0], make-surface-closure(0, u, v, m.surface-interpreter-entry));
-  end if;
+  block (easy-out)
+    if (magnitude(ray.ray-position - $origin) < 1.0)
+      // We started inside the sphere
+      if (shadow-test?)
+	easy-out(#t);
+      else
+	// XXX Intersection between ray and inside of sphere
+      end if;
+    elseif (magnitude(ray.ray-position - $origin) - 1.0 > distance)
+      easy-out(#f);  // We're out of range.
+    else
+      let t_ca = -ray.ray-position * ray.ray-direction;
+      if (t_ca < 0.0)
+	// Pointing away from sphere, no intersection
+	easy-out(#f);
+      end if;
+    
+      let foo = ray.ray-position - $origin;
+      let l_oc_2 = foo * foo;
+      
+      if (abs(l_oc_2 - (t_ca * t_ca)) > 1.0)
+	easy-out(#f);
+      elseif (shadow-test?)
+	easy-out(#t);
+      else
+	let u = 0.5; // XXX
+	let v = 0.5;
+	values(#[ 1.0, 1.0, 1.0, 1.0 ], #[1.0, 1.0, 1.0, 1.0], make-surface-closure(0, u, v, m.surface-interpreter-entry));
+      end if;
+    end if;
+  end block;
 end method intersection-before;
     
+define method intersection-before(m :: <plane>, ray, distance, #key shadow-test: shadow-test?)
+ => (point, normal, surface-method)
+
+  if (ray.ray-position[1] < 0.0 & ray.ray-direction[1] < 0.0)
+    #f;
+  elseif (ray.ray-position[1] > 0.0 & ray.ray-direction[1] > 0.0)
+    #f;
+  elseif (abs(ray.ray-position[1]) > distance)
+    #f; // Out of range, even going straight towards the plane...
+  elseif (shadow-test?)
+    #t;
+  else
+    let t = -ray.ray-position[1]/ray.ray-direction[1];
+    if (abs(t) > distance)
+      #f;
+    else
+      let u = 0.5; // XXX
+      let v = 0.5;
+      values(ray.ray-direction * t + $origin, 
+	     #[ 0.0, 1.0, 0.0, 0.0 ],
+	     make-surface-closure(0, u, v, m.surface-interpreter-entry));
+    end if;
+  end if;
+end method intersection-before;
