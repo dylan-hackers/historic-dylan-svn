@@ -25,9 +25,9 @@ function short_header ($title) {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-    <LINK REL="stylesheet" TYPE="text/css" HREF="sinorca-grey.css" TITLE="Grey boxes stylesheet" />
-    <LINK rel="stylesheet alternative" TYPE="text/css" HREF="sinorca-white.css" title="White boxes stylesheet" />
-    <LINK rel="stylesheet" TYPE="text/css" HREF="color-scheme.css" />
+    <LINK REL="stylesheet" TYPE="text/css" HREF="sinorca-grey.css" TITLE="Grey boxes stylesheet">
+    <LINK rel="stylesheet alternative" TYPE="text/css" HREF="sinorca-white.css" title="White boxes stylesheet">
+    <LINK rel="stylesheet" TYPE="text/css" HREF="color-scheme.css">
     <TITLE>Gwydion Dylan: <?php echo $title?></TITLE>
 </HEAD>
 <BODY>
@@ -46,7 +46,7 @@ function short_header ($title) {
       </div>
     </div>
 
-    <DIV ID="header"><a HREF="http://www.gwydiondylan.org"><img src="gwydion-8caae6.png"></a></DIV>
+    <DIV ID="header"><a HREF="http://www.gwydiondylan.org"><img src="gwydion-8caae6.png" alt="Gwydion Dylan"></a></DIV>
 
     <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
       <div>
