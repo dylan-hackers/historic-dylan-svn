@@ -161,6 +161,17 @@ define function parse-tag
   values(t, p + t.name.size + 1, new-state);
 end;
 
+define sealed class <attributed-string> (<object>)
+  slot string :: <byte-string>,
+    required-init-keyword: string:;
+  slot attributes :: <attribute>,
+    required-init-keyword: attributes:;
+end;
+
+define sealed domain make(singleton(<attributed-string>));
+define sealed domain initialize(<attributed-string>);
+
+
 define function bgh-parse(s :: <byte-string>)
   let runs = make(<stretchy-vector>);
   let fragments = make(<stretchy-vector>);
@@ -179,7 +190,7 @@ define function bgh-parse(s :: <byte-string>)
 
   local
     method save-fragment()
-      if (first-char ~= p)
+      if (first-char < p)
 	add!(fragments, copy-sequence(s, start: first-char, end: p));
       end;
     end method save-fragment,
@@ -188,7 +199,8 @@ define function bgh-parse(s :: <byte-string>)
       if (run-state.value ~== curr-state.value)
 	let s :: <byte-string> = apply(concatenate, fragments);
 	if (s.size > 0)
-	  add!(runs, pair(run-state, s));
+	  add!(runs,
+	       make(<attributed-string>, attributes: run-state, string: s));
 	end;
 	fragments.size := 1; // keep the empty string
 	run-state := curr-state;
@@ -213,15 +225,19 @@ define function bgh-parse(s :: <byte-string>)
 		p := p + 1;
 	      else
 		save-fragment();
+		first-char := p;
 		save-run();
 	      end;
 	    elseif(last-char-was-space)
 	      if (same-format)
 		save-fragment();
+		first-char := p;
 		p := p + 1;
 	      else
 		save-fragment();
 		save-run();
+		first-char := p;
+		p := p + 1;
 	      end;
 	    elseif (same-format)
 	      p := p + 1;
@@ -304,8 +320,8 @@ define function main(name, arguments)
     //format-out("%=\n", parse-tree);
 
     for (e in parse-tree)
-      let a :: <attribute> = e.head;
-      let s :: <byte-string> = e.tail;
+      let a :: <attribute> = e.attributes;
+      let s :: <byte-string> = e.string;
       describe-attributes(a, *standard-output*);
       format-out("      '%s'\n", s);
     end;
