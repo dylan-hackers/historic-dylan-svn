@@ -1117,6 +1117,12 @@ end method concatenate-as;
 // pass $not-supplied to element, otherwise element may interprete
 // it as the default value.
 //
+/*
+  Change the method below back to something like the original when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+  The note above regarding $not-supplied can be removed then too.
+*/
 define inline method first
     (sequence :: <sequence>, #key default = $not-supplied)
  => value :: <object>;
@@ -1135,6 +1141,12 @@ end;
 
 // See note above.
 //
+/*
+  Change the method below back to something like the original when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+  The note above regarding $not-supplied can be removed then too.
+*/
 define inline method second
     (sequence :: <sequence>, #key default = $not-supplied)
  => value :: <object>;
@@ -1153,6 +1165,12 @@ end;
 
 // See note above.
 //
+/*
+  Change the method below back to something like the original when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+  The note above regarding $not-supplied can be removed then too.
+*/
 define inline method third
     (sequence :: <sequence>, #key default = $not-supplied)
  => value :: <object>;

@@ -210,6 +210,12 @@ define inline method rank (array :: <array>) => rank :: <integer>;
   array.dimensions.size;
 end;
 
+/*
+  Move the body of the internal method below back to 
+  the orginal method and remove this method when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+*/
 define inline method row-major-index-internal
     (array :: <array>, indices :: <rest-parameters-sequence>)
     => index :: <integer>;
@@ -285,6 +291,12 @@ define method dimensions (array :: <simple-object-array>)
   dims;
 end;
 
+/*
+  Move the body of the internal method below back to 
+  the orginal method and remove this method when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+*/
 define inline method row-major-index-internal
     (array :: <simple-object-array>, indices :: <rest-parameters-sequence>)
     => index :: <integer>;

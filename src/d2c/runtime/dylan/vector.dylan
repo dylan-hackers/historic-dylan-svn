@@ -97,6 +97,12 @@ define sealed inline method dimensions (vec :: <vector>) => res :: <simple-objec
   vector(vec.size);
 end;
 
+/*
+  Move the body of the internal method below back to 
+  the orginal method and remove this method when 
+  the following bug affecting "apply" is fixed:
+  https://gauss.gwydiondylan.org/bugs/show_bug.cgi?id=7146
+*/
 define inline method row-major-index-internal (vec :: <vector>, indices :: <rest-parameters-sequence>)
     => index :: <integer>;
   if (indices.size ~== 1)
