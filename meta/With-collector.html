@@ -153,7 +153,7 @@
 
     <pre>
 define function parse-finger-query (query :: &lt;string&gt;)
-  with-collector into-buffer user like query (collect: collect)
+  with-collector into-buffer user like query, collect: collect;
     with-meta-syntax parse-string (query)
       let (whois, at, c);
       [loop(' '), {[{"/W", "/w"}, yes!(whois)], []},        // Whois switch?
