@@ -967,7 +967,7 @@ end method;
 ///---*** the specializer here to <abstract-integer> and rely on
 ///---*** integer-to-string being defined for <big-integer> as well as <integer>
 define sealed method print-object
-    (object :: <integer>, stream :: <stream>) => ()
+    (object :: <abstract-integer>, stream :: <stream>) => ()
   write(stream, integer-to-string(object));
 end method;
 
