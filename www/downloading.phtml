@@ -5,52 +5,57 @@ standard_header("Downloading Software");
 
 <P><EM>Gwydion Dylan <?php current_version();?></EM> is the current release
 version of Gwydion Dylan. It is a development release, not finished software.
-Be sure to review the <A
-HREF="limitations.phtml">limitations</A>.</P>
+Be sure to review the <A HREF="limitations.phtml">limitations</A>.</P>
 
-<H3>Dependencies</H3>
+<H2>Dependencies</H2>
 
-<p>Gwydion Dylan uses a number of other tools which you will need to obtain
-if your system doesn't already have them.  Mindy compiler and interpreter
-binaries are stand-alone, but to use d2c to develop Dylan programs you will of
-course require a C compiler, linker, make and so forth.  Most platforms also
-require GNU libtool, and we supply some utility scripts that use Perl.
+<p>Gwydion Dylan uses a number of other tools which you will need to
+obtain if your system doesn't already have them.  Mindy compiler and
+interpreter binaries are stand-alone, but to use d2c to develop Dylan
+programs you will of course require a C compiler, linker,
+<code>make</code> and so forth.  Most platforms also require GNU
+libtool, and we supply some utility scripts that use Perl.
 
-<p>If you want to build your own d2c from source then you will also need GNU
-autoconf, automake and m4.</p>
+<p>If you want to build your own d2c from source then you will also
+need GNU autoconf, automake and m4.</p>
 
-<p>Using the d2c compiler to build compiled Dylan programs requires the
-<a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc">Boehm-Demers-Weiser
-conservative garbage collector</a>.  Gwydion versions 2.3.9 and
-earlier come with the GC library included but with 2.3.10 and later we have
-decided for a number of reasons that it is better for the user (or OS
-vendor) to supply the GC library.</p>
+<p>Using the d2c compiler to build compiled Dylan programs requires
+the <a
+href="http://www.hpl.hp.com/personal/Hans_Boehm/gc">Boehm-Demers-Weiser
+conservative garbage collector</a>.  (Gwydion versions 2.3.9 and
+earlier come with the GC library included, but starting from 2.3.10
+and later we have decided for a number of reasons that it is better
+for the user (or OS vendor) to supply the GC library.)</p>
 
-<H3>Available Packages</H3>
+<H2>Available Packages</H2>
 
-<P>To use the d2c compiler, you'll normally want to download precompiled
-binaries for your platform (d2c is written in Dylan). Binary tarballs are
-available for a number of different platforms in the <a href="/downloads/binaries/">binaries</a>
-directory on the download server.</P>
+<P>To use the d2c compiler, you'll normally want to download
+precompiled binaries for your platform (d2c is written in
+Dylan). Binary tarballs are available for a number of different
+platforms in the <a href="/downloads/binaries/">binaries</a> directory
+on the download server.</P>
 
-<P>For unixoid systems such as Linux, those are meant to be extracted in /usr/local.
-This means that you extract them via commands such as:
-<p>
-<tt>cd /usr/local</tt><br>
-<tt>tar zxf ~/gwydion-dylan-2.3.11-x86-linux.tar.gz</tt>
-<p>
-If you cannot put them there (for example, because you do not have admin access),
-read the installation instructions in the source tarball.</P>
+<P>For unixoid systems such as Linux, those are meant to be extracted
+in <tt>/usr/local</tt>.  This means that you extract them via commands
+such as:
+<pre>
+# cd /usr/local
+# tar zxf ~/gwydion-dylan-<?php current_version();?>-x86-linux.tar.gz
+</pre>
+
+<p>If you cannot put them there (for example, because you do not have
+admin access), read the installation instructions in the source
+tarball.</p>
 
 <p>The source tree can be downloaded <a
-href="/downloads/src/tar/gwydion-dylan-2.4.0.tar.gz">here</a>. Be warned that it will
-bootstrap the compiler with an interpreter unless a pre-existing binary of d2c is
-found. This will take some hours, but is the most convenient route. Of course, you
-can also use this if you already have an older version of d2c on your platform, as
-available in many distributions.</p>
+href="/downloads/src/tar/gwydion-dylan-<?php current_version();?>.tar.gz">here</a>. Be warned that it will
+bootstrap the compiler with an interpreter unless a pre-existing
+binary of d2c is found. This may take some hours, but is the most
+convenient route. Of course, you can also use this if you already have
+an older version of d2c on your platform.</p>
 
 <p>For Linux on x86, there's a special <a
-href="/downloads/src/tar/gwydion-dylan-2.3.11-x86-linux-src.tar.gz">source
+href="/downloads/src/tar/gwydion-dylan-<?php current_version();?>-x86-linux-src.tar.gz">source
 tarball</a> available that ships with a statically linked d2c
 binary. This will save you the time-consuming bootstrap process, but
 compile everything from source. This is the route to go when you run
@@ -58,37 +63,21 @@ into strange library problems with the binary tarball, or if you want
 to compile everything you install yourself, but save the
 time-consuming bootstrapping process.</P>
 
-<H3>Download Sites</H3>
-
-<UL>
-<LI><A HREF="downloads/">Gwydion Dylan HTTP server</A>
-<LI><A HREF="ftp://ftp.gwydiondylan.org/pub/gd/">Gwydion Dylan FTP Server</A>
-</UL>
-
-<H3>CVS Source Repository</H3>
-
-<P><A HREF="cgi-bin/viewcvs.cgi">Browse our CVS
-tree.</A> You can also access the cvs server directly, specify
-<tt>:ext:anoncvs@anoncvs.gwydiondylan.org:/scm/cvs</tt> as your
-CVS root. Even though we haven't yet released a newer official
-"stable" release we think we've made <strong>great</strong>
-progress and improvements since then and generally recommend
-people to start from the most recent tagged version which is
-currently <?php current_version();?>.  If that works for you
-(or you're the type that doesn't read manuals before turning on
-your new VCR) then you can try the HEAD version.  We actually try
-pretty hard to make sure the HEAD version always works but there are
-certainly even fewer guarantees with it than usual :-)</P>
-
 <H3>Debian</H3>
 
 <p>Gwydion Dylan is part of the standard distribution of woody and
-sid. Just type<br><tt>apt-get install gwydion-dylan-dev</tt>.</p>
+sid. Just type:</p>
+<pre>
+# apt-get install gwydion-dylan-dev
+</pre>
 <p>For more cutting-edge users, you can retrieve daily snapshots of
 the various Gwydion Dylan tools by adding the following lines to
-your /etc/apt/sources.list file:</p>
-<p><tt>deb http://www.gwydiondylan.org/downloads/binaries/linux/x86/DEB snapshot/</tt></p>
-<p><em>Note:  The syntax is important.  You need the trailing / character.</em></p>
+your <tt>/etc/apt/sources.list</tt> file:</p>
+<pre>
+deb http://www.gwydiondylan.org/downloads/binaries/linux/x86/DEB snapshot/
+</pre>
+<p><em>Note:</em>The syntax is important; don't omit the trailing
+<tt>/</tt> character.</p>
 
 <H3>Fink</H3>
 
@@ -105,5 +94,48 @@ Gwydion Dylan is available as the <tt>lang/dylan</tt> port in FreeBSD.
 There are no pre-built binaries available, but Gwydion Dylan can be compiled 
 with Microsoft Visual C++, or alternatively with gcc under Cygwin. Cygwin
 build directions are <A HREF="building-win32-cygwin.phtml">here</A>.
+
+<H2>Download Sites</H2>
+
+<UL>
+<LI><A HREF="downloads/">Gwydion Dylan HTTP server</A>
+<LI><A HREF="ftp://ftp.gwydiondylan.org/pub/gd/">Gwydion Dylan FTP Server</A>
+</UL>
+
+<H2>Subversion Source Repository</H2>
+
+<P><A HREF="cgi-bin/viewcvs.cgi">Browse our Subversion source
+tree.</A> You can also access the Subversion server directly, by
+checking out subdirectories of
+<tt>svn+ssh://anonsvn@anonsvn.gwydiondylan.org/scm/svn/dylan</tt>.
+Currently</p>
+
+<pre>
+svn+ssh://anonsvn@anonsvn.gwydiondylan.org/scm/svn/dylan/branches/GD_2_4/src
+</pre>
+
+<p>contains the stable 2.4 branch of d2c, and<p>
+
+<pre>
+svn+ssh://anonsvn@anonsvn.gwydiondylan.org/scm/svn/dylan/trunk/src
+</pre>
+
+<p>contains the bleeding-edge 2.5 development branch of d2c.</p>
+
+<p>We generally recommend that people start from the most recent
+tagged version under</p>
+
+<pre>
+svn+ssh://anonsvn@anonsvn.gwydiondylan.org/scm/svn/dylan/tags
+</pre>
+
+<p>which is currently <?php current_version();?>.  If that works for
+you (or you're the type that doesn't read manuals before turning on
+your new VCR) then you can try the stable branch or even the trunk
+version.  We actually try pretty hard to make sure the HEAD version
+always works, but there are certainly even fewer guarantees with it
+than usual.</p>
+
+<p>Instructions on Subversion use for developers can be found <a href="repository.phtml">here</a>.</p>
 
 <?php standard_footer(); ?>
