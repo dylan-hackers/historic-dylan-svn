@@ -127,6 +127,9 @@ define function url-to-page
         return(page); end if; end for; end block;
 end;
 
+define method source-location(page :: <page>)
+  "(no source location)"
+end method source-location;
 
 // ---TODO: Test this and export it.
 // Register URLs for all files matching the given pathname spec as instances
