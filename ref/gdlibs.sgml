@@ -1444,7 +1444,6 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <keyparam><paramname>end</paramname></keyparam>
           </definitkeywords>
           <defdescription>
-
 	    <PARA>The <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>
 	    class can be used for streaming over all sequences, but
 	    there are also subclasses
@@ -1455,51 +1454,22 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylanclassdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;string-stream&gt;</REFNAME>
-	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
-
-	    <PARA>The class of streams over strings.</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
-	    <PARA><CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Init-keywords</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><dlit>contents:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>direction:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>start:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>end:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-
-	</REFENTRY>
+        <dylanclassdef>
+	  <defname>&lt;string-stream&gt;</dEFNAME>
+	  <defadjectives>Open instantiable</defadjectives>
+	  <defsummary>The class of streams over strings.</defsummary>
+	  <defsupers><defsuper>&lt;sequence-stream&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	    <keyparam><paramname>contents</paramname></keyparam>
+	    <keyparam><paramname>direction</paramname></keyparam>
+	    <keyparam><paramname>start</paramname></keyparam>
+	    <keyparam><paramname>end</paramname></keyparam>
+	  </definitkeywords>
+          <defdescription>
+	    <PARA>The superclass of the byte and unicode implementation
+              classes.</para>
+          </defdescription>
+        </dylanclassdef>
 
 	<REFENTRY>
 	  <REFNAMEDIV>
