@@ -1,0 +1,16 @@
+*.hdp
+release
+lib
+*-build
+bin
+*~
+.libs
+*.o
+*.lo
+*.c
+*.la
+*.du
+*.mak
+*.stackdump
+*.a
+*.exe
