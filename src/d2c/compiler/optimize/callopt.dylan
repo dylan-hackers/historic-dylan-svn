@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.8 2003/09/24 19:12:39 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.9 2003/10/04 01:19:32 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -392,10 +392,6 @@ define method parent-dominates?
   // FIXME: GGR: optimize the case where parent1 == parent2?
   // then the result is false, since the parent is not a compound
 
-let format-out = compiler-warning;
-let format-out = ignore;
-
-
   // FIXME: this algorithm is not yet verified.
   // this has to be proven for soundness!!
 
@@ -412,25 +408,25 @@ let format-out = ignore;
   let parents1 :: <pair> = parent-list(parent1.parent, list(parent1));
   let parents1-size = parents1.size;
 
-  format-out("parents1: %=\n", parents1);
-  format-out("parents2: %=\n", parent-list(parent2.parent, list(parent2)));
+//  format-out("parents1: %=\n", parents1);
+//  format-out("parents2: %=\n", parent-list(parent2.parent, list(parent2)));
 
   local method compare2(parents1 :: <pair>, parent2 :: <region>, region2 :: <region>)
 	 => (first-common :: <region>, unmatched :: <list>);
-	  format-out("enter: %= %= %=\n", parents1, parent2, region2);
+//	  format-out("enter: %= %= %=\n", parents1, parent2, region2);
 	  if (parents1.head == parent2)
-	    format-out("first if\n");
+//	    format-out("first if\n");
 	    values(parent2, parents1.tail)
 	  else
-	    format-out("first else\n");
+//	    format-out("first else\n");
 	    let (first-common :: <region>, unmatched :: <list>)
 	      = compare2(parents1, parent2.parent, parent2);
-	    format-out("<<= first-common: %=, unmatched: %=\n", first-common, unmatched);
+//	    format-out("<<= first-common: %=, unmatched: %=\n", first-common, unmatched);
 	    if (unmatched.head == parent2)
-	      format-out("second if\n");
+//	      format-out("second if\n");
 	      compare2(unmatched, parent2, region2)
 	    else
-	      format-out("second else\n");
+//	      format-out("second else\n");
 	      values(first-common, unmatched)
 	    end
 	  end if
@@ -438,7 +434,7 @@ let format-out = ignore;
 
   let (first-common, remnants) /*:: false-or(<region>)*/ = compare2(parents1, parent2, region2);
 
-  format-out("common: %s\n", first-common);
+//  format-out("common: %s\n", first-common);
 
   let remnants-size = remnants.size;
 
@@ -466,7 +462,7 @@ let format-out = ignore;
   let assertion :: #t.singleton = common == relevant-region1.parent & common == relevant-region2.parent;
 
   if (any?(rcurry(instance?, <if-region>), remnants))
-    compiler-warning("-----#### encountered an <if-region> in definer nesting %=\n", remnants);
+//    compiler-warning("-----#### encountered an <if-region> in definer nesting %=\n", remnants);
     #f
   elseif (instance?(common, <compound-region>))
     parent-dominates?(common, relevant-region1, common, relevant-region2)
@@ -571,8 +567,8 @@ define function maybe-restrict-uses-after
 	& csubtype?(union-type, exp.derived-type)
 	& ~csubtype?(exp.derived-type, union-type)) // real improvement
 
-compiler-warning("##### union type: %=", union-type);
-compiler-warning("##### exp.derived-type: %=", exp.derived-type);
+// compiler-warning("##### union type: %=", union-type);
+// compiler-warning("##### exp.derived-type: %=", exp.derived-type);
 
     let common-ssa :: false-or(<ssa-variable>)
       = #f;
@@ -583,20 +579,15 @@ compiler-warning("##### exp.derived-type: %=", exp.derived-type);
       let use-dependent = use.dependent;
       if (use-dependent ~== call)
 	let (use-assign-region, use-assign) = use-dependent.dependent-region;
-//	  compiler-warning("##### use-assign: %=", use-assign);
 	let (call-assign-region, call-assign) = call.dependent-region;
 	if (dominates?(call-assign-region, call-assign,
 		       use-assign-region, use-assign))
-	  compiler-warning("##### got it: %=", use-assign);
-if (#t) // change this to #t if you want the results of the analysis applied...
+//	  compiler-warning("##### got it: %=", use-assign);
 	  common-ssa := common-ssa
 	    | restricted-ssa-variable(component, exp, union-type, call-assign);
 
 	  substitute-use(component, use, /*call, */common-ssa);
-	  /*FIXME*/ check-sanity(component); // GGR: can be removed later
-end if;
-	else
-//	  compiler-warning("##### not dominated: %=", /*user-assign*/ use-dependent);
+//	  /*FIXME*/ check-sanity(component); // GGR: can be removed later
 	end if;
       end if;
     end for;
@@ -670,9 +661,6 @@ define method optimize-generic
       return();
     end if;
 
-
-//compiler-warning("definitely: %=", definitely);
-//compiler-warning("maybe: %=", maybe);
 
 /*
 OK, let's describe some thoughts
