@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.7.6.1 2000/11/11 18:03:15 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.7.6.2 2000/11/12 07:08:13 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -49,6 +49,7 @@ define module analyze-generics
   use variables;
   use signature-interface;
   use definitions;
+  use ctype, exclude: {element-type};
   use classes;
   use function-definitions;
 

@@ -147,27 +147,21 @@ define method initialize
       else
 	let supers = superclass-ids(i);
 	pole-table[i] :=
-	  select (supers.size)
-	    0 => 0;                         // Handle <object>.
-	    1 => pole-table[supers.first];  // Copy down i-pole from parent.
-	    otherwise =>
-	      // This may be a secondary i-pole; we need to investigate.
-	      let maybe-pole = pole-table[supers.first];
-	      let identical? =
-		every?(method (super)
-			 pole-table[super] == maybe-pole;
-		       end,
-		       supers);
-	      if (identical?)
-		// All of our superclasses have the same i-pole, so use it.
-		pole-table[i] := maybe-pole;
-	      else
-		// Our superclasses have different i-poles, so assign a
-		// new one.
-		pole-table[i] := next-pole-id;
-		next-pole-id := next-pole-id + 1;
-	      end if;
-	  end select;
+	  if (supers.size == 0)
+	    // We have no i-pole on <object>, so insert an empty one.
+	    0;
+	  else
+	    let closest = single-closet-pole(pole-table, supers);
+	    if (closest)
+	      // Copy down i-pole from parent.
+	      closest;
+	    else
+	      // Our superclasses have different i-poles, so assign a new one.
+	      let this-pole-id = next-pole-id;
+	      next-pole-id := next-pole-id + 1;
+	      this-pole-id;
+	    end if;
+	  end if;
       end if;
     end for;
     
@@ -180,6 +174,72 @@ define method initialize
   end if;
 
 end method;
+
+
+//=========================================================================
+//  single-closet-pole
+//=========================================================================
+//  Determine whether or not we have one i-poll which is closer than all
+//  the others. This will only be true if all of our superclasses have the
+//  the same i-pole, or if one of our i-poles is a subclass of all the
+//  others.
+//
+//  This code is based on the pseudo-closest-polls algorithm from Dujardin,
+//  et al. It's fairly clever, and relies heavily on the fact that our
+//  i-pole numbers are assigned in ascending order over a sorted class
+//  list.
+//
+//  Details:
+//
+//  If we have a single pole closer than all the others, it must be a
+//  subclass of all our other poles. And if it is the subclass of all our
+//  other poles, it will have the largest ID, thanks to the efforts of
+//  topologically-sorted-cclasses and our i-pole assignment algorithm.
+//  So we find the largest i-pole, and *then* do *one* set of subtype
+//  checks.
+
+define function single-closet-pole
+    (pole-table :: <int-vector>, supers :: <int-vector>)
+ => (closest :: false-or(<integer>))
+  if (supers.size == 1)
+    pole-table[supers.first];
+  else
+    block (return)
+      
+      // Scan over our superclasses, checking to see if our i-poles
+      // are identical, and finding our largest i-pole.
+      let first-pole = pole-table[supers.first];
+      let all-identical? = #t;
+      let current-largest = first-pole;
+      for (super in supers)
+	let pole = pole-table[super];
+	if (pole ~= first-pole)
+	  all-identical? := #f;
+	end if;
+	if (pole > current-largest)
+	  current-largest := pole;
+	end if;
+      end for;
+
+      // If all our i-poles are identical, we're OK.
+      if (all-identical?)
+	return(first-pole);
+      end if;
+
+      // Return #f if our largest i-pole doesn't hide all the rest.
+      // XXX - Should we write faster subclass testing code?
+      let candidate = current-largest.id-cclass;
+      for (super in supers)
+	unless (csubtype?(candidate, pole-table[super].id-cclass))
+	  return(#f);
+	end unless;
+      end for;
+
+      // Our largest i-pole hid all the rest.
+      current-largest;
+    end block;
+  end if;
+end function single-closet-pole;
 
 
 //=========================================================================
@@ -200,11 +260,11 @@ define function describe-argument-array
   else
 
     // Print some summary statistics.
-    format(out, "    Specializers:       %3d\n",
+    format(out, "    Specializers:      %3d\n",
 	   arginfo.argument-specializer-cclasses.size);
-    format(out, "    Artificial i-poles: %3d\n",
+    format(out, "    Secondary i-poles: %3d\n",
 	   arginfo.argument-artificial-i-poles);
-    format(out, "    Total i-poles:      %3d\n\n",
+    format(out, "    Total i-poles:     %3d\n\n",
 	   arginfo.argument-total-i-poles);
 
     // Print our specializers.
