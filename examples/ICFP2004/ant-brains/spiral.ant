@@ -1,9 +1,9 @@
 Sense Here 5 1 Marker 0
 Sense Here 4 2 Marker 1
 Sense Here 3 15 Home
-Sense Ahead 15 146 Home
+Sense Ahead 15 144 Home
 Sense Ahead 14 10 Marker 1
-Sense Here 9 6 Marker 0
+Sense Here 9 6 Marker 1
 Sense Ahead 7 8 Marker 0
 Sense Ahead 10 14 Marker 1
 Sense Ahead 14 10 Marker 1
@@ -12,7 +12,7 @@ Move 0 11
 Sense Ahead 10 12 Foe
 Sense Ahead 14 13 Friend
 Sense Ahead 14 10 Rock
-Turn Right 0
+Turn Left 0
 Sense LeftAhead 47 16 Marker 0
 Sense LeftAhead 32 17 Marker 1
 Sense Ahead 25 18 Marker 0
@@ -77,11 +77,11 @@ Sense RightAhead 77 76 Marker 0
 Sense RightAhead 139 138 Marker 1
 Sense RightAhead 141 140 Marker 1
 Sense Here 14 14 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
 Sense Here 14 14 Home
-Sense Here 14 14 Home
-Sense Here 14 14 Home
-Sense Here 14 14 Home
-Sense Here 14 142 Home
+Sense Here 14 143 Home
 Sense Here 14 14 Home
 Sense Here 14 14 Home
 Sense Here 14 14 Home
@@ -91,58 +91,56 @@ Sense Here 14 14 Home
 Sense Here 14 14 Home
 Sense Here 14 14 Home
 Sense Here 14 14 Home
-Sense Here 14 146 Home
-Sense Here 14 10 Home
-Sense Here 14 10 Home
-Sense Here 14 10 Home
-Sense Here 14 10 Home
 Sense Here 14 142 Home
-Sense Here 146 14 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 143 Home
 Sense Here 144 142 Home
-Sense Here 146 142 Home
+Sense Here 143 143 Home
+Sense Here 144 143 Home
 Sense Here 14 14 Home
-Sense Here 144 142 Home
+Sense Here 143 142 Home
 Sense Here 142 144 Home
 Sense Here 142 14 Home
 Sense Here 14 14 Home
-Sense Here 146 142 Home
+Sense Here 144 142 Home
 Sense Here 142 14 Home
-Sense Here 142 146 Home
+Sense Here 142 142 Home
 Sense Here 14 10 Home
 Sense Here 14 10 Home
 Sense Here 14 10 Home
 Sense Here 14 10 Home
 Sense Here 14 14 Home
-Sense Here 144 142 Home
-Sense Here 142 144 Home
+Sense Here 143 143 Home
+Sense Here 142 143 Home
 Sense Here 142 14 Home
 Sense Here 14 144 Home
 Sense Here 142 144 Home
-Sense Here 142 14 Home
-Sense Here 146 144 Home
+Sense Here 142 143 Home
+Sense Here 144 144 Home
 Sense Here 14 14 Home
 Sense Here 142 14 Home
-Sense Here 146 144 Home
-Sense Here 144 146 Home
+Sense Here 144 143 Home
+Sense Here 143 142 Home
 Sense Here 14 10 Home
 Sense Here 14 10 Home
 Sense Here 14 10 Home
 Sense Here 14 10 Home
 Sense Here 14 14 Home
-Sense Here 146 142 Home
+Sense Here 144 143 Home
 Sense Here 142 14 Home
-Sense Here 142 146 Home
+Sense Here 142 144 Home
 Sense Here 14 14 Home
 Sense Here 142 14 Home
-Sense Here 146 144 Home
-Sense Here 144 146 Home
-Sense Here 14 146 Home
-Sense Here 142 146 Home
-Sense Here 144 146 Home
-Sense Here 144 14 Home
-Unmark 0 143
+Sense Here 144 144 Home
+Sense Here 143 144 Home
+Sense Here 14 142 Home
+Sense Here 142 142 Home
+Sense Here 143 142 Home
+Sense Here 143 144 Home
 Mark 1 0
+Mark 0 0
 Mark 0 145
-Unmark 1 0
-Mark 0 147
 Mark 1 0
