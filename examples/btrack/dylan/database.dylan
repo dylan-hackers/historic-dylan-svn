@@ -102,11 +102,7 @@ end;
 define function load-next-record-id
     () => (id :: <integer>)
   with-database-connection (conn)
-    let rows = query-db(conn, "select next_record_id from tbl_config");
-    assert(rows.size == 1,
-           "tbl_config has more than one row.");
-    let row1 = rows[0];
-    let next-id = row1[0];
+    let next-id = query-integer(conn, "select next_record_id from tbl_config");
     let next-batch-start = next-id + $record-id-batch-size;
     update-db(conn, "update tbl_config set next_record_id = ?", next-batch-start);
     // Don't set these until update successful.
@@ -115,6 +111,19 @@ define function load-next-record-id
   end;
 end;
 
+
+define constant $bug-number-lock = make(<lock>);
+
+define function next-bug-number
+    () => (bugnum :: <integer>)
+  with-lock ($bug-number-lock)
+    with-database-connection (conn)
+      let bugnum = query-integer(conn, "select next_bug_number from tbl_config");
+      update-db(conn, "update tbl_config set next_bug_number = next_bug_number + 1");
+      bugnum
+    end
+  end
+end;
 
 define variable *database-initialized?* :: <boolean> = #f;
 

@@ -413,6 +413,7 @@ define primary record <version> (<named-record>)
     column-name: "release_date";
   slot comment :: <string>,
     init-value: " ",
+    init-keyword: #"comment",
     column-number: 8,
     column-name: "comment",
     database-type: #"varchar";
@@ -428,85 +429,105 @@ define primary record <bug-report> (<modifiable-record>)
   table-name: "tbl_bug_report";
   slot bug-number :: <integer>,
     init-value: 0,
+    init-keyword: #"bug-number",
     column-number: 4,
     column-name: "bug_number";
   slot status :: <integer>,
     init-value: $bug-status-new,
+    init-keyword: #"status",
     column-number: 5,
     column-name: "status";
   slot synopsis :: <string>,
     init-value: " ",
+    init-keyword: #"synopsis",
     column-number: 6,
     column-name: "synopsis",
     database-type: #"varchar";
   slot description :: <string>,
     init-value: " ",
+    init-keyword: #"description",
     column-number: 7,
     column-name: "description",
     database-type: #"varchar";
   slot product :: <product>,
     init-function: curry(class-prototype, <product>),
+    init-keyword: #"product",
     column-number: 8,
     column-name: "product";
   slot module :: <module>,
     init-function: curry(class-prototype, <module>),
+    init-keyword: #"module",
     column-number: 9,
     column-name: "module";
   slot version :: <version>,
     init-function: curry(class-prototype, <version>),
+    init-keyword: #"version",
     column-number: 10,
     column-name: "version";
   slot reported-by :: <account>,
     init-function: curry(class-prototype, <account>),
+    init-keyword: #"reported-by",
     column-number: 11,
     column-name: "reported_by";
   slot fixed-by :: <account>,
     init-function: curry(class-prototype, <account>),
+    init-keyword: #"fixed-by",
     column-number: 12,
     column-name: "fixed_by";
   slot fixed-in :: <version>,
     init-function: curry(class-prototype, <version>),
+    init-keyword: #"fixed-in",
     column-number: 13,
     column-name: "fixed_in";
   slot target-version :: <version>,
     init-function: curry(class-prototype, <version>),
+    init-keyword: #"target-version",
     column-number: 14,
     column-name: "target_version";
   slot operating-system :: <operating-system>,
     init-function: curry(class-prototype, <operating-system>),
+    init-keyword: #"operating-system",
     column-number: 15,
     column-name: "operating_system";
   slot platform :: <platform>,
     init-function: curry(class-prototype, <platform>),
+    init-keyword: #"platform",
     column-number: 16,
     column-name: "platform";
   slot browser :: <browser>,
     init-function: curry(class-prototype, <browser>),
+    init-keyword: #"browser",
     column-number: 17,
     column-name: "browser";
   slot location :: <string>,  // a URL
     init-value: " ",
+    init-keyword: #"location",
     column-number: 18,
     column-name: "location";
   slot priority :: <integer>,
     init-value: $bug-priority-none,
+    init-keyword: #"priority",
     column-number: 19,
     column-name: "priority";
   slot severity :: <integer>,
     init-value: $bug-severity-none,
+    init-keyword: #"severity",
     column-number: 20,
     column-name: "severity";
   slot dev-assigned :: <account>,
     init-function: curry(class-prototype, <account>),
+    init-keyword: #"dev-assigned",
     column-number: 21,
     column-name: "dev_assigned";
   slot qa-assigned :: <account>,
     init-function: curry(class-prototype, <account>),
+    init-keyword: #"qa-assigned",
     column-number: 22,
     column-name: "qa_assigned";
   // This creates a circularity if we try to initialize it to a bug report prototype
   slot duplicate-of :: <bug-report>,
     //init-function: curry(class-prototype, <bug-report>),
+    init-keyword: #"duplicate-of",
     column-number: 23,
     column-name: "duplicate_of";
 end record <bug-report>;
@@ -755,9 +776,18 @@ end;
 define method db-type-to-slot-type
     (type :: subclass(<database-record>), init-value :: <integer>)
  => (record :: <database-record>)
-  load-record(type, init-value)
+  iff(zero?(init-value),
+      class-prototype(type),
+      load-record(type, init-value))
 end;
 
+
+define method save-record
+    (record :: <bug-report>)
+  bug-number(record) := next-bug-number();
+  reported-by(record) := current-account(get-session(*request*));
+  next-method();
+end;
 
 define method save-record
     (record :: <modifiable-record>)
