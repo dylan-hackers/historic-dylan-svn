@@ -69,3 +69,70 @@ define method closest-point(s :: <state>,
     values(#f, #f);
   end if;
 end method closest-point;
+
+// Deliver all packages destined for this location...
+define method try-to-deliver(robot :: <robot>, #key return-function)
+ => (c :: false-or(<command>))
+  // Deliver what we can:
+  block(return)
+    let drop-these = choose(method(p)
+				p.dest = robot.location;
+			    end,
+			    robot.inventory);
+    debug("DB: drop-these = %=\n", drop-these);
+    
+    if (~drop-these.empty?)
+      let drop = make(<drop>, bid: 1, package-ids: map(id, drop-these), id: robot.id);
+      if (return-function)
+	return-function(drop);
+      end if;
+      return(drop);
+    else 
+      debug("DB: Nothing to deliver here.\n");
+    end if;
+    #f;
+  end;
+end method;
+
+// Pickup all packages as will fit.
+define method try-pickup-many(me :: <robot-agent>, robot :: <robot>, 
+			      s :: <state>, #key return-function)
+ => (c :: false-or(<command>))
+  block(return)
+    let packages-here = packages-at(s, robot.location,
+				    available-only: #t);
+    
+    debug("DB: Packages here: %=\n", packages-here);
+    if (packages-here ~= #f & ~packages-here.empty?)
+      let take-these = make(<vector>);
+      let left = robot.capacity-left;
+      // Greedy algorithm to get as many as we can:
+      for (pkg in sort(packages-here, 
+		       test: method (a :: <package>, b :: <package>)
+			       a.weight < b.weight;
+			     end method))
+	if (deliverable?(me, s, pkg, capacity: left)
+	      & find-path-repeatedly(robot.location, pkg.location, s.board,
+				     cutoffs: #[50, #f]))
+	  left := left - pkg.weight;
+	  take-these := add!(take-these, pkg);
+	end if;
+      end for;
+      if (~take-these.empty?)
+	let pick = make(<pick>, 
+		    bid: 1, 
+		    package-ids: map(id, take-these),
+		    id: robot.id);
+	if (return-function)
+	  return-function(pick);
+	end if;
+	return(pick);
+      else 
+	debug("DB: Can't pick up or deliver anything from here.\n");
+      end if;
+    else 
+      debug("DB: No packages here (or first move)\n");
+    end if;
+    #f;
+  end;
+end method;
