@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.4 2002/07/28 15:14:29 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.5 2002/07/29 22:37:28 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -403,13 +403,14 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
       let line = read-line(*standard-input*, on-end-of-stream: #f);
       if(line)
         block()
-          evaluate(line);
+          evaluate(line, $empty-environment);
         exception(condition :: <condition>)
           report-condition(condition, *standard-output*);
           format(*standard-output*, "\n");
         end block;
       else
         finished? := #t;
+        format(*standard-output*, "\n");
       end if;
     end while;
     exit();

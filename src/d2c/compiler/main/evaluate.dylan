@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.30 2002/07/29 18:25:30 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.31 2002/07/29 22:37:28 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -34,7 +34,16 @@ copyright: see below
 
 define variable *interpreter-library* = #f;
 
-define method evaluate(expression :: <string>)
+define generic evaluate(expression, environment :: <interpreter-environment>)
+ => (val :: <ct-value>); // new env???
+
+define constant $empty-environment 
+  = curry(error, "trying to access %= in an empty environment");
+
+define constant <interpreter-environment> :: <type> = <object>;
+
+define method evaluate(expression :: <string>, env :: <interpreter-environment> )
+ => (val :: <ct-value>)
   if(~ *interpreter-library*)
     *interpreter-library* := find-library(#"foo", create: #t); // ### FIXME: arbitrary name
     seed-representations();
@@ -45,7 +54,6 @@ define method evaluate(expression :: <string>)
   *Current-Library* := *interpreter-library*;
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
   *top-level-forms* := make(<stretchy-vector>);
-  format(*debug-output*, "evaluating %=\n", expression);
   let tokenizer = make(<lexer>, 
                        source: make(<source-buffer>, 
                                     buffer: as(<byte-vector>, expression)),
@@ -53,13 +61,13 @@ define method evaluate(expression :: <string>)
                        start-posn: 0);
   parse-source-record(tokenizer);
   for(tlf in *top-level-forms*)
+    let expression = tlf.tlf-expression;
+        
+    format(*debug-output*, "got tlf %=, an expression %=\n", tlf, expression);
+    force-output(*debug-output*);
+    
     select(tlf by instance?)
       <expression-tlf> =>
-        let expression = tlf.tlf-expression;
-        
-        format(*debug-output*, "got tlf %=, an expression %=\n", tlf, expression);
-        force-output(*debug-output*);
-        
         let component = make(<fer-component>);
         let builder = make-builder(component);
         let result-type = object-ctype();
@@ -67,7 +75,7 @@ define method evaluate(expression :: <string>)
         fer-convert(builder, expression,
                     lexenv-for-tlf(tlf), #"assignment", result-var);
         let inits = builder-result(builder);
-
+        
         let name-obj = make(<anonymous-name>, location: tlf.source-location);
         let init-function-region
           = build-function-body(builder, $Default-Policy,
@@ -79,69 +87,46 @@ define method evaluate(expression :: <string>)
            init-function-region, result-var);
         
         end-body(builder);
-
+        
         format(*debug-output*, "\n\nBefore optimization:\n");
         dump-fer(component);
         optimize-component(*current-optimizer*, component);
         format(*debug-output*, "\n\nAfter optimization:\n");
         dump-fer(component);
         force-output(*debug-output*);
-
+    
         format(*debug-output*, "\n\nevaluated expression: %=\n",
-               fer-evaluate(init-function-region.body,
-                            curry(error, "trying to access %= in an empty environment")));
+               evaluate(init-function-region.body,
+                            env));
+        format(*debug-output*, "\n\nBinding of return variable: %=\n", result-var);
         force-output(*debug-output*);
-
       otherwise =>
         compiler-error-location(tlf, "only expressions are supported");
     end select;
   end for;
+  as(<ct-value>, #f);
 end method evaluate;
 
-
-define constant <interpreter-environment> :: <type> = <object>;
-
-
-
-
-// ##############################################################################
-// ##############################################################################
-// ###################### fer-evaluate-the-new-generation #######################
-// ##############################################################################
-// ##############################################################################
-
-
-
-// ##############################################################################
-// ##############################################################################
-// ##############################################################################
-// ##############################################################################
-
-
-// ########## fer-evaluate ##########
-define generic fer-evaluate(region :: <region>, environment :: <interpreter-environment>)
+define method evaluate(return :: <return>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
-
-define method fer-evaluate(return :: <return>, environment :: <interpreter-environment>)
-  => ct-value :: <ct-value>; // multivalues???
-  fer-evaluate-expression(return.depends-on.source-exp, environment)
+  evaluate(return.depends-on.source-exp, environment)
 end;
 
-define method fer-evaluate(compound :: <compound-region>, environment :: <interpreter-environment>)
+define method evaluate(compound :: <compound-region>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   let regions = compound.regions;
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
 
-define method fer-evaluate(the-if :: <if-region>, environment :: <interpreter-environment>)
+define method evaluate(the-if :: <if-region>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   let test-value
-    = fer-evaluate-expression(the-if.depends-on.source-exp,
+    = evaluate(the-if.depends-on.source-exp,
                               environment);
   if(test-value == as(<ct-value>, #f))
-    fer-evaluate(the-if.else-region, environment);
+    evaluate(the-if.else-region, environment);
   else
-    fer-evaluate(the-if.then-region, environment);
+    evaluate(the-if.then-region, environment);
   end if;
 end;
 
@@ -158,7 +143,7 @@ end;
 
 define method fer-evaluate-regions(return :: <return>, more-regions == #(), environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
-  fer-evaluate(return, environment)
+  evaluate(return, environment)
 end;
 
 define method fer-evaluate-regions(exit :: <exit>, more-regions == #(), environment :: <interpreter-environment>)
@@ -182,7 +167,7 @@ define method fer-gather-bindings(the-if :: <if-region>, environment :: <interpr
 //  format(*debug-output*, "fer-gather-bindings{<if-region>} %=\n", the-if);
 //  force-output(*debug-output*);
   let test-value
-    = fer-evaluate-expression(the-if.depends-on.source-exp,
+    = evaluate(the-if.depends-on.source-exp,
                               environment);
   if(test-value == as(<ct-value>, #f))
     fer-gather-bindings(the-if.else-region, environment);
@@ -283,13 +268,13 @@ define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-vari
 
 define method fer-gather-assign-bindings(defs :: <ssa-variable>, expr :: <expression>, environment :: <interpreter-environment>)
  => extended-env;
-  let var-value = fer-evaluate-expression(expr, environment);
+  let var-value = evaluate(expr, environment);
   append-environment(environment, defs, var-value)
 end;
 
 define method fer-gather-assign-bindings(defs :: <initial-definition>, expr :: <expression>, environment :: <interpreter-environment>)
  => extended-env;
-  let var-value = fer-evaluate-expression(expr, environment);
+  let var-value = evaluate(expr, environment);
   append-environment(environment, defs.definition-of, var-value) // ### we should perhaps take in account that this var may already have been recorded in the env...
 end;
 
@@ -321,30 +306,26 @@ define method fer-evaluate-call(func :: <method-literal>, operands :: false-or(<
   	    operands | error("too few arguments passed to <method-literal>");
   	    prologue-environment(vars.definer-next, operands.dependent-next,
                                  to-extend: append-environment(to-extend, vars,
-                                                               fer-evaluate-expression(operands.source-exp, callee-environment)));
+                                                               evaluate(operands.source-exp, callee-environment)));
   	  else
   	    to-extend
   	  end if;
         end method;
 
-  fer-evaluate(func.main-entry.body, prologue-environment(vars-to-be-bound, operands))
+  evaluate(func.main-entry.body, prologue-environment(vars-to-be-bound, operands))
 end;
 
-// ########## fer-evaluate-expression ##########
-define generic fer-evaluate-expression(expr :: <expression>, environment :: <interpreter-environment>)
- => result :: <ct-value>;
-
-define method fer-evaluate-expression(expr :: <literal-constant>, environment :: <interpreter-environment>)
+define method evaluate(expr :: <literal-constant>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   expr.value
 end;
 
-define method fer-evaluate-expression(expr :: <method-literal>, environment :: <interpreter-environment>)
+define method evaluate(expr :: <method-literal>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   expr.ct-function
 end;
 
-define method fer-evaluate-expression(expr :: <known-call>, environment :: <interpreter-environment>)
+define method evaluate(expr :: <known-call>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
       let func :: <method-literal> = expr.depends-on.source-exp;
       let args = expr.depends-on.dependent-next;
@@ -352,17 +333,17 @@ define method fer-evaluate-expression(expr :: <known-call>, environment :: <inte
       fer-evaluate-call(func, args, environment);
 end;
 
-define method fer-evaluate-expression(var :: <abstract-variable>, environment :: <interpreter-environment>)
+define method evaluate(var :: <abstract-variable>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   var.environment
 end;
 
-define method fer-evaluate-expression(primitive :: <primitive>, environment :: <interpreter-environment>)
+define method evaluate(primitive :: <primitive>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   fer-evaluate-primitive(primitive.primitive-name, primitive.depends-on, environment);
 end;
 
-define method fer-evaluate-expression(prologue :: <prologue>, environment :: <interpreter-environment>)
+define method evaluate(prologue :: <prologue>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   let prologue-assignment :: <abstract-assignment> = prologue.dependents.dependent;
   let vars-to-be-bound :: false-or(<definition-site-variable>) = prologue-assignment.defines;
@@ -370,7 +351,7 @@ define method fer-evaluate-expression(prologue :: <prologue>, environment :: <in
 end;
 
 
-define method fer-evaluate-expression(slot-ref :: <heap-slot-ref>, environment :: <interpreter-environment>)
+define method evaluate(slot-ref :: <heap-slot-ref>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   let slot-info = slot-ref.slot-info;
   let obj = slot-ref.depends-on.dependent-next.source-exp;
@@ -383,7 +364,7 @@ define method fer-evaluate-expression(slot-ref :: <heap-slot-ref>, environment :
   else
     // we need to eval the init function too??? ### side-effects?
     
-    let obj-value = fer-evaluate-expression(obj, environment);
+    let obj-value = evaluate(obj, environment);
     obj-value // for now...
   end;
   
@@ -402,8 +383,8 @@ define macro primitive-emulator-definer
   {
     define method fer-evaluate-primitive(name == "fixnum-" ## ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
      => result :: <ct-value>;
-      let lhs = fer-evaluate-expression(depends-on.source-exp, environment);
-      let rhs = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
+      let lhs = evaluate(depends-on.source-exp, environment);
+      let rhs = evaluate(depends-on.dependent-next.source-exp, environment);
       as(<ct-value>, ?name(lhs.literal-value, rhs.literal-value))
     end;
   }
@@ -415,8 +396,8 @@ define macro primitive-emulator-definer
   {
     define method fer-evaluate-primitive(name == ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
      => result :: <ct-value>;
-      let lhs :: <eql-ct-value> = fer-evaluate-expression(depends-on.source-exp, environment);
-      let rhs :: <eql-ct-value> = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
+      let lhs :: <eql-ct-value> = evaluate(depends-on.source-exp, environment);
+      let rhs :: <eql-ct-value> = evaluate(depends-on.dependent-next.source-exp, environment);
       as(<ct-value>, ?name(lhs, rhs))
     end;
   }
