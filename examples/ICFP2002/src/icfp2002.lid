@@ -9,3 +9,5 @@ files:
   robot-agent
   package
   messages
+  command
+  

@@ -22,7 +22,7 @@ define class <drop> (<command>)
 end class <drop>;
 
 define class <move> (<command>)
-  constant slot :: <direction>,
+  constant slot direction :: <direction>,
     required-init-keyword: direction:;
 end class <move>;
 

@@ -200,7 +200,7 @@ define function receive-board-row (s :: <stream>,
                                    cols :: <integer>) => ()
   for (j from 0 below cols)
     let c = s.read-element;
-    select ()
+    select (c)
       $empty-char => b[row, j] := make(<space>);
       $water-char => b[row, j] := make(<water>);
       $wall-char  => b[row, j] := make(<wall>);
@@ -218,10 +218,8 @@ define function receive-board-row (s :: <stream>,
   debug("receive-board-row: row %d, %d cols read\n", row, cols);
 end function receive-board-row;
 
-define function 
 
 // Read the dimensions of a board from a stream.
-
 define function receive-board-dimensions (s :: <stream>)
  => (rows :: <integer>, cols :: <integer>)
   block()
@@ -276,7 +274,7 @@ define function receive-space (stream :: <stream>) => ()
     message-error("receive-space: expected space, got '%c'\n", c);
   end unless;
 end function receive-space;
-                           
+
 // Match exactly one newline. 
       
 define function receive-newline (stream :: <stream>) => ()
@@ -323,3 +321,4 @@ define function receive-integer (stream :: <stream>) => int :: <integer>;
                   as(<string>, v));
   end block;
 end function receive-integer;
+

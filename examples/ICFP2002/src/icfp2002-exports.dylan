@@ -36,6 +36,11 @@ define module board
     width, height,
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, <robot>;
+  create
+    $empty-char,
+    $water-char,
+    $wall-char,
+    $base-char;
 end module board;
 
 define module command
@@ -57,12 +62,9 @@ define module messages
   use standard-io;
   use string-conversions;
   use board;
+  use command;
 
   export
-    $empty-char,
-    $water-char,
-    $wall-char,
-    $base-char,
     <message-error>,
     message-error,
     add-error,

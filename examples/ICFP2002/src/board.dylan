@@ -57,18 +57,18 @@ end;
 
 define method aref(board :: <board>, #rest coords /* :: <coordinate> */)
  => object :: <object>;
-  let x :: <coordinate> = coords.first;
-  let y :: <coordinate> = coords.second;
+  let row :: <coordinate> = coords.first;
+  let col :: <coordinate> = coords.second;
   
-  board.lines[y][x];
+  board.lines[row][col];
 end;
 
 define method aref-setter(obj :: <object>, board :: <board>, #rest coords /* :: <coordinate> */)
  => object :: <object>;
-  let x :: <coordinate> = coords.first;
-  let y :: <coordinate> = coords.second;
+  let row :: <coordinate> = coords.first;
+  let col :: <coordinate> = coords.second;
   
-  board.lines[y][x] := obj;
+  board.lines[row][col] := obj;
 end;
 
 define method as(class == <character>, obj :: <character>)
