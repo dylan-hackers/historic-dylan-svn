@@ -18,11 +18,11 @@ define module xml-parser
 // do everything, but until I get that working, I need to test
 // the system piecemeal.
   create parse-xml-element-start;
-  create parse-element, parse-attribute, 
+  create parse-element, parse-attribute, parse-pi,
          parse-stag, parse-content, parse-etag, parse-empty-elem-tag,
          parse-char-data, parse-comment, parse-system-literal,
          parse-version-num, parse-pubid-literal, parse-cd-sect,
-         parse-elementdecl, parse-char-ref;
+         parse-elementdecl, parse-char-ref, parse-content;
 
 // all the above parse-foos will be replaced with:
   create parse-document;

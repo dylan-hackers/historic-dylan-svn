@@ -272,7 +272,7 @@ end parse prolog;
 //
 define parse xml-decl(version-info, encoding-decl, sd-decl, c)
   "<?xml", parse-version-info(version-info),     
-// DOUG     {parse-encoding-decl(encoding-info), []},
+  {parse-encoding-decl(encoding-info), []},
   {parse-sd-decl(sd-decl), []},
   parse-s?(c), "?>"
 end parse xml-decl;
@@ -316,11 +316,10 @@ end parse decl-sep;
 //
 define parse doctypedecl(s, name, id, markup, decl-sep)
   "<!DOCTYPE", parse-s(s), parse-name(name),
- // DOUG    {[parse-s(s), parse-external-id(id)], []},
+  {[parse-s(s), parse-external-id(id)], []},
   parse-s?(s),
   {['[', loop({parse-markupdecl(markup), parse-decl-sep(decl-sep)}), 
-   parse-s?(s)], []},
-  ">"
+   parse-s?(s)], []}, ">"
 end parse doctypedecl;
 
 //    [29]     markupdecl     ::=    elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment            [VC: Proper Declaration/PE Nesting]
@@ -329,8 +328,8 @@ end parse doctypedecl;
 define parse markupdecl(decl)
   {parse-elementdecl(decl), parse-attlist-decl(decl),
 // DOUG    parse-entity-decl(decl),
-// DOUG     parse-notation-decl(decl),
-   parse-pi(decl), parse-comment(decl)}, []
+   parse-notation-decl(decl), parse-pi(decl), parse-comment(decl)},
+  []
 end parse markupdecl;
 
 // External Subset
@@ -338,8 +337,7 @@ end parse markupdecl;
 //    [30]    extSubset        ::=    TextDecl? extSubsetDecl
 //
 define parse ext-subset(text-decl, subset-decl)
-// DOUG {parse-text-decl(text-decl), []},
-   parse-ext-subset-decl(subset-decl)
+ {parse-text-decl(text-decl), []}, parse-ext-subset-decl(subset-decl)
 end parse ext-subset;
 
 //    [31]    extSubsetDecl    ::=    ( markupdecl | conditionalSect | DeclSep)* /* */
@@ -417,11 +415,6 @@ define collector content(ignor, contents) => (str)
          parse-cd-sect(contents)}, do(collect(contents))],
         parse-pi(ignor), parse-comment(ignor),
         [parse-char-data(contents), do(collect(contents))]})
-/***  loop({[{parse-element(contents), 
-// DOUG   parse-reference(contents), 
-          parse-cd-sect(contents)}, do(collect(contents))],
-          parse-pi(ignor), parse-comment(ignor),
-        [parse-char-data(contents), do(collect(contents))]}) ***/
 end parse content;
 
 // helper method for parsing opening tags
@@ -671,26 +664,65 @@ end parse char-ref;
 // 
 //    [75]    ExternalID    ::=    'SYSTEM' S SystemLiteral
 //                                 | 'PUBLIC' S PubidLiteral S SystemLiteral
+//
+define parse external-id(s, sys, pub)
+  { "SYSTEM", parse-public-id(pub) }, parse-s(s),
+  parse-system-literal(sys)
+end parse external-id;
+
 //    [76]    NDataDecl     ::=    S 'NDATA' S Name                          [VC: Notation Declared]
-//    
+//
+define parse n-data-decl(s, name) => (name)
+  parse-s(s), "NDATA", parse-s(s), parse-name(name)
+end parse n-data-decl;
+
 // Text Declaration
 // 
 //    [77]    TextDecl    ::=    '<?xml' VersionInfo? EncodingDecl S? '?>'
 //    
+define parse text-decl(vers, s, decl)
+  "<?xml", {parse-version-info(vers), []}, parse-encoding-decl(decl), 
+  parse-s?(s), "?>"
+end parse text-decl;
+
 // Well-Formed External Parsed Entity
 // 
 //    [78]    extParsedEnt    ::=    TextDecl? content
-//    
+//
+define parse ext-parsed-ent(decl, content) => (content)
+  {parse-text-decl(decl), []}, parse-content(content)
+end parse ext-parsed-ent;
+
 // Encoding Declaration
 // 
 //    [80]    EncodingDecl    ::=    S 'encoding' Eq ('"' EncName '"' | "'" EncName "'" )
 //    [81]    EncName         ::=    [A-Za-z] ([A-Za-z0-9._] | '-')*                      /* Encoding name contains only Latin characters */
-//    
+//
+define parse encoding-decl(s, eq, name) => (name)
+  parse-s(s), "encoding", parse-eq(eq),
+  {['\'', parse-encoding-name(name), '\''],
+   ['"', parse-encoding-name(name), '"']}
+end parse encoding-decl;
+
+// fudging it here -- I say that encname can start with graphics, but
+// that's wrong (esp since enc-name is a subset of version-num
+define constant parse-encoding-name = parse-version-num;
+
 // Notation Declarations
 // 
 //    [82]    NotationDecl    ::=    '<!NOTATION' S Name S (ExternalID | PublicID) S? '>' [VC: Unique Notation Name]
+//
+define parse notation-decl(s, name, ex, pub)
+  "<!NOTATION", parse-s(s), parse-name(name), parse-s(s),
+  { parse-external-id(ex), parse-public-id(pub) }, parse-s?(s), ">"
+end parse notation-decl;
+
 //    [83]    PublicID        ::=    'PUBLIC' S PubidLiteral
-//    
+//
+define parse public-id(s, pub) => (pub)
+  "PUBLIC", parse-s(s), parse-pubid-literal(pub)
+end parse public-id;
+
 // Characters
 // 
 //    [84]    Letter    ::=    BaseChar | Ideographic

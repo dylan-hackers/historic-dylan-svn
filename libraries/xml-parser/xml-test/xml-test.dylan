@@ -53,6 +53,8 @@ begin
   $testable-fns[#"cd-sect"] := parse-cd-sect;
   $testable-fns[#"elementdecl"] := parse-elementdecl;
   $testable-fns[#"char-ref"] := parse-char-ref;
+  $testable-fns[#"content"] := parse-content;
+  $testable-fns[#"pi"] := parse-pi;
 
   main(application-name(), application-arguments());
 end;
