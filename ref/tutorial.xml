@@ -1791,7 +1791,7 @@ define open class &lt;sample&gt; (&object;) end;
       </para>
 
       <programlisting>
-define open generic sample-function( o :: &objectt; ) =&gt; ();
+define open generic sample-function( o :: &object; ) =&gt; ();
       </programlisting>
 
       <para>

@@ -1,16 +1,13 @@
 .PHONY: all snap clean distclean reallyclean html-chunked html-unchunked
 
-SGML_BASE_DIR=/usr/local/share/sgml
-SGML_CATALOG_FILES=$(SGML_BASE_DIR)/dsssl/catalog:$(SGML_BASE_DIR)/docbook/docbook.cat:$(SGML_BASE_DIR)/iso/iso.cat:$(SGML_BASE_DIR)/docbook_stylesheets/catalog:$(SGML_BASE_DIR)/docbook/custom/dylandoc/catalog
-
-DYLANDOC_TOOLS = CATALOG dylandoc.dtd dylandoc.dsl
+DYLANDOC_TOOLS = CATALOG dylandoc.dtd dylandoc.xsl dylandoc-web.xsl dylandoc-unchunked.xsl
 STANDARD_DEPS = dylandoc.ent $(DYLANDOC_TOOLS)
-JADE = SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c ./CATALOG
+XMLTO=/usr/bin/xmlto
 
-SGML_MANUALS = gduser.sgml gdlibs.sgml gdmaint.sgml tutorial.sgml gdapi.sgml
-HTML_CHUNKED_MANUALS = gduser gdlibs gdmaint tutorial gdapi
-HTML_UNCHUNKED_MANUALS = gduser.html gdlibs.html gdmaint.html tutorial.html gdapi.html
-RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf gdapi.rtf
+XML_MANUALS = gduser.xml gdlibs.xml gdmaint.xml tutorial.xml gdapi.xml
+HTML_CHUNKED_MANUALS = gduser gdmaint tutorial gdapi #gdlibs
+HTML_UNCHUNKED_MANUALS = gduser.html gdmaint.html tutorial.html gdapi.html #gdlibs.html
+PDF_MANUALS = gduser.pdf gdmaint.pdf tutorial.pdf gdapi.pdf #gdlibs.pdf
 
 ######################################################################
 #
@@ -18,28 +15,23 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf gdapi.rtf
 #
 
 # Make an HTML directory.
-%: %.sgml $(STANDARD_DEPS)
+%: %.xml $(STANDARD_DEPS)
 	-rm -rf $@
-	-rm -rf ,$@
-	mkdir ,$@
-	ln dylandoc.dsl ,$@/dylandoc.dsl # oh, what a hack...
-	(cd ,$@; \
-	 SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c ../CATALOG -d dylandoc.dsl#html -t sgml -ihtml ../$<)
-	rm ,$@/dylandoc.dsl
-	mv ,$@ $@
+	$(XMLTO) -o $@ -x dylandoc-web.xsl html $<
 
 # Make a single HTML file.
-%.html: %.sgml $(STANDARD_DEPS)
-	$(JADE) -d dylandoc.dsl#html -t sgml -ihtml -V nochunks $< > $@
+%.html: %.xml $(STANDARD_DEPS)
+	$(XMLTO) -x dylandoc-unchunked.xsl html $<
+	mv $*.proc $@
 	rm -f HTML.manifest
 
-# Make an RTF file.
-%.rtf: %.sgml $(STANDARD_DEPS)
-	$(JADE) -d dylandoc.dsl#print -t rtf $<
+# Make an PDF file.
+%.pdf: %.xml $(STANDARD_DEPS)
+	$(XMLTO) dylandoc-pdf.xsl pdf $<
 
 # Make a flow object tree, just for kicks.
-%.fot: %.sgml $(STANDARD_DEPS)
-	$(JADE) -d dylandoc.dsl#print $<
+#%.fot: %.sgml $(STANDARD_DEPS)
+#	$(JADE) -d dylandoc.dsl#print $<
 
 ######################################################################
 #
@@ -49,14 +41,14 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf gdapi.rtf
 all: html-chunked
 html-chunked: $(HTML_CHUNKED_MANUALS)
 html-unchunked: $(HTML_UNCHUNKED_MANUALS)
-rtf: $(RTF_MANUALS)
+pdf: $(PDF_MANUALS)
 
 snap: distclean
 	(cd ..; tar czvf gdref-0.1.`date +%Y%m%d`.tar.gz gdref)
 
 clean:
 	rm -rf $(HTML_CHUNKED_MANUALS)
-	rm -f *.html *.rtf *.fot *.dvi
+	rm -f *.html *.pdf *.fot *.dvi
 	rm -f core
 
 distclean: clean
