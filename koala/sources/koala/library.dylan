@@ -96,6 +96,7 @@ define module http-server
   // Logging
   create
     log-debug,
+    log-debug-if,
     log-error,
     log-warning,
     log-info;
