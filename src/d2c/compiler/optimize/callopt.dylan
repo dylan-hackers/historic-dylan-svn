@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -329,7 +329,6 @@ define method dependent-region
   dependent-region(dependency.dependent, allow-multiple?: allow-multiple?);
 end;
 
-
 define method dependent-region
     (use :: <dependent-mixin>,
      #key allow-multiple? :: <boolean>)
@@ -346,9 +345,12 @@ define method dependent-region
   values(assign.region, assign);
 end;
 
-// For two regions (and optional assignments),
-// is ther
-// that uses it.
+
+// dominates? -- internal
+//
+// For two regions (and optional assignments, if inside of the same simple region),
+// is there a control-flow path leading from the def's pair
+// to the pair that uses it?
 define generic dominates?
     (region1 :: <region>, assign1 :: false-or(<abstract-assignment>),
      region2 :: <region>, assign2 :: false-or(<abstract-assignment>))
@@ -375,6 +377,10 @@ define method dominates?
   end;
 end;
 
+
+
+// parent-dominates? -- internal.
+// 
 define generic parent-dominates?
     (parent1 :: <region>,
      region1 :: <region>,
@@ -412,26 +418,20 @@ define method parent-dominates?
 
   local method compare2(parents1 :: <pair>, parent2 :: <region>, region2 :: <region>)
 	 => (first-common :: <region>, unmatched :: <list>);
-//	  format-out("enter: %= %= %=\n", parents1, parent2, region2);
 	  if (parents1.head == parent2)
-//	    format-out("first if\n");
 	    values(parent2, parents1.tail)
 	  else
-//	    format-out("first else\n");
 	    let (first-common :: <region>, unmatched :: <list>)
 	      = compare2(parents1, parent2.parent, parent2);
-//	    format-out("<<= first-common: %=, unmatched: %=\n", first-common, unmatched);
 	    if (unmatched.head == parent2)
-//	      format-out("second if\n");
 	      compare2(unmatched, parent2, region2)
 	    else
-//	      format-out("second else\n");
 	      values(first-common, unmatched)
 	    end
 	  end if
 	end;
 
-  let (first-common, remnants) /*:: false-or(<region>)*/ = compare2(parents1, parent2, region2);
+  let (first-common, remnants) = compare2(parents1, parent2, region2);
 
 //  format-out("common: %s\n", first-common);
 
@@ -460,7 +460,7 @@ define method parent-dominates?
   // FIXME: use assert ?
   let assertion :: #t.singleton = common == relevant-region1.parent & common == relevant-region2.parent;
 
-  if (any?(rcurry(instance?, <if-region>), remnants))
+  if (any?(rcurry(instance?, <if-region>), remnants)) // FIXME: <join-region> ?
 //    compiler-warning("-----#### encountered an <if-region> in definer nesting %=\n", remnants);
     #f
   elseif (instance?(common, <compound-region>))
@@ -515,7 +515,10 @@ frame. Their sole purpose is to restrict the
 type of the var. They are leaves too.
 
 But for now we build a honest-to-goodness
-<ssa-var> and assign to it.
+<ssa-var> and assign to it...
+
+... and leave to the backend to figure out that both
+refer to the same conceptual thing.
 */
 
 define function restricted-ssa-variable
@@ -553,7 +556,7 @@ end;
 // TODO: use andreas' dependents-walker
 
 
-define function maybe-restrict-uses-after
+define function maybe-restrict-dominated-uses
     (call :: <general-call>,
      dep :: <dependency>,
      union-type :: <ctype>,
@@ -579,21 +582,24 @@ define function maybe-restrict-uses-after
       if (use-dependent ~== call)
 	let (use-assign-region, use-assign) = use-dependent.dependent-region;
 	let (call-assign-region, call-assign) = call.dependent-region;
+
+	// FIXME: dominates? should return region path to the def, since it is always the same
 	if (dominates?(call-assign-region, call-assign,
 		       use-assign-region, use-assign))
-//	  compiler-warning("##### got it: %=", use-assign);
 	  common-ssa := common-ssa
-	    | restricted-ssa-variable(component, exp, union-type, call-assign);
+		        | restricted-ssa-variable(component, exp, union-type, call-assign);
 
-	  substitute-use(component, use, /*call, */common-ssa);
+	  substitute-use(component, use, common-ssa);
 //	  /*FIXME*/ check-sanity(component); // GGR: can be removed later
 	end if;
       end if;
     end for;
   end if;
-end function maybe-restrict-uses-after;
+end function maybe-restrict-dominated-uses;
 
-/// should this go into typeintf.dylan?
+// postfacto-type-inference -- internal
+//
+// 
 define function postfacto-type-inference
     (applicable-methods :: <pair>,
      arg-types,
@@ -616,7 +622,7 @@ define function postfacto-type-inference
 	csubtype?(call-type, spec-extent) & skip();
 	union := ctype-union(union, spec-extent);
       end for;
-      maybe-restrict-uses-after(call, dep, union, component);
+      maybe-restrict-dominated-uses(call, dep, union, component);
     end block;
   end for;
 end;
