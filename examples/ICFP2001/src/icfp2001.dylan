@@ -186,6 +186,35 @@ end function time-is-not-up?;
 define method optimize()
 end method optimize;
 
+define macro string-concatenator-definer
+  {define string-concatenator ?class:name end} =>
+    {define method concatenate-strings(v :: ?class)
+      => result :: <byte-string>;
+       let length = for (total = 0 then total + str.size,
+			 str :: <byte-string> in v)
+		    finally total;
+		    end for;
+       
+       let result :: <byte-string> = make(<byte-string>, size: length);
+       let (init-state, limit, next-state, done?, current-key, current-element,
+	    current-element-setter) = forward-iteration-protocol(result);
+       
+       for (result-state = init-state
+	      then for (char in str,
+			state = result-state then next-state(result, state))
+		     current-element(result, state) := char;
+		   finally state;
+		   end for,
+	    str :: <byte-string> in v)
+       end for;
+       result;
+     end method concatenate-strings;}
+end macro;
+
+define string-concatenator <stretchy-object-vector> end;
+define string-concatenator <list> end;
+
+
 define method slurp-input(stream :: <buffered-stream>)
  => contents :: <byte-string>;
   let v = make(<stretchy-vector>);
@@ -202,8 +231,7 @@ define method slurp-input(stream :: <buffered-stream>)
   cleanup
     release-input-buffer(stream);
   end block;
-//  apply(concatenate, v);
-  reduce1(concatenate, v);
+  v.concatenate-strings;
 end method slurp-input;
 
 define variable check-timeout = identity;
@@ -229,7 +257,8 @@ define function main(name, arguments)
   block()
     let parse-tree          = bgh-parse(original-input);
 
-    let optimized-output = reduce1(concatenate, generate-output(parse-tree));
+    let optimized-output =
+      generate-output(parse-tree).concatenate-strings;
 
     if (optimized-output.size < original-input.size)
       best-transformation := optimized-output;
