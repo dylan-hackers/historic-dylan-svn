@@ -1066,33 +1066,14 @@ define macro c-type-primitives-emitter-definer
         define unary-operator-emitter ?name ## "-negative"
           c-operator "-"
           operand-representation ?operand-representation
-        end;
-
-        define-primitive-emitter
-          (as(<symbol>, ?"name" ## "-divide"),
-           method (defines :: false-or(<definition-site-variable>),
-                   operation :: <primitive>,
-                   file :: <file-state>)
-               => ();
-             spew-pending-defines(file);
-             let (temps, x, y) = extract-operands(operation, file,
-                                                  ?operand-representation,
-                                                  ?operand-representation);
-             contact-bgh-unless-empty(temps);
-             deliver-results(defines,
-                             vector(pair(stringify('(', x, " / ", y, ')'),
-                                         ?operand-representation),
-                                     pair(stringify('(', x, " % ", y, ')'), 
-                                          ?operand-representation)),
-                             #f, file);
-        end); }
+        end; }
        
 end;
 
 define macro integer-primitives-emitter-definer
   { define integer-primitives-emitter ?:name ?operand-representation:expression end }
     => {
-define binary-operator-emitter ?name ## "-logior"
+        define binary-operator-emitter ?name ## "-logior"
           c-operator "|"
           operand-representation ?operand-representation
         end;
@@ -1120,7 +1101,26 @@ define binary-operator-emitter ?name ## "-logior"
         define binary-operator-emitter ?name ## "-shift-right"
           c-operator ">>"
           operand-representation ?operand-representation
-        end; }
+        end;
+
+        define-primitive-emitter
+          (as(<symbol>, ?"name" ## "-divide"),
+           method (defines :: false-or(<definition-site-variable>),
+                   operation :: <primitive>,
+                   file :: <file-state>)
+               => ();
+             spew-pending-defines(file);
+             let (temps, x, y) = extract-operands(operation, file,
+                                                  ?operand-representation,
+                                                  ?operand-representation);
+             contact-bgh-unless-empty(temps);
+             deliver-results(defines,
+                             vector(pair(stringify('(', x, " / ", y, ')'),
+                                         ?operand-representation),
+                                     pair(stringify('(', x, " % ", y, ')'), 
+                                          ?operand-representation)),
+                             #f, file);
+        end); }
 end;
 
 
@@ -1178,19 +1178,19 @@ define macro float-primitives-emitter-definer
        define unary-primitive-emitter ?name ## "-floor"
          operand-representation ?operand-representation
          result-representation *long-rep*
-         operation stringify("(long)floor(", ?=arguments[0], "))")
+         operation stringify("((long)floor(", ?=arguments[0], "))")
        end;
 
        define unary-primitive-emitter ?name ## "-ceiling"
          operand-representation ?operand-representation
          result-representation *long-rep*
-         operation stringify("(long)ceil(", ?=arguments[0], "))")
+         operation stringify("((long)ceil(", ?=arguments[0], "))")
       end;
 
       define unary-primitive-emitter ?name ## "-round"
         operand-representation ?operand-representation
         result-representation *long-rep*
-        operation stringify("(long)rint(", ?=arguments[0], "))")
+        operation stringify("((long)rint(", ?=arguments[0], "))")
       end; }
 
 end;
