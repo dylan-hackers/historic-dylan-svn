@@ -1,0 +1,721 @@
+@SysInclude { report }
+@SysInclude { fig }
+@SysInclude { diag }
+@SysInclude { graph }
+@SysInclude { eq }
+
+# macro @Class { @F < & >{} }
+def @Class right name { @F {{@Sym angleleft}name{@Sym angleright}} }
+def @ClassC right name { @Class name{}, }
+def @ClassP right name { @Class name{}. }
+macro @Integers { { Helvetica Bold } @Font {Z} }
+def @FigureRef right ref {Figure {@NumberOf ref}}
+def @Divides left divisor right dividend {@Eq {divisor}@Sym bar{@Eq {dividend}}}
+def @Ideal right generator {@Eq {generator}@Integers}
+def @ResidueClass left generator right offset {@Ideal generator{+ offset}}
+
+@Database @Reference { refs }
+@Report
+@DateLine { Yes }
+@Title {
+Chinese Dispatch
+}
+@Author { Gabor Greif }
+# @AbstractDisplay { Yes }
+# @AbstractFormat { @Centre @Title @DP @Body }
+@Abstract {
+
+Our aim is to sketch a novel approach to class based (multi)method dispatch
+as used in object oriented languages. To that purpose we facilitate a non-finite
+mathematical object with internal multiplication and addition (ring), and assign
+elements to classes in a way that the class hierarchy"/"heterarchy is compatible with
+the divisibility of the assigned numbers. Starting from this point we develop an
+algorithm based on the chinese remainder theorem to perform fast  method dispatch
+for an arbitrary number of dispatch-participating arguments. We strongly motivate
+our line of thought along the way but provide no feasibility study for current
+computer systems nor performance measurements.
+
+}
+//
+
+@Section
+@Title { Structure of the paper }
+@Begin
+@PP
+We shall introduce the reader to class hierarchies and to the basic mathematical
+framework in the first section before we make an attempt to assign characteristic
+numbers to classes. In the third section we shall derive the dispatch algorithm
+based on the characteristic numbers and discuss its properties. The next section
+compares our approach to well established current techniques. Section five shows
+up possible future directions and summarizes open problems. Section six concludes.
+@End @Section
+
+@Section
+@Title { Introduction }
+@Begin
+@PP
+We first recall the most important aspects of object-orientation that are needed
+for our development. Thereafter we mention the mathematical structures are to the
+extent that the similarities become obvious.
+
+@BeginSubSections
+
+@SubSection
+@Title { Fundamentals of object-orientation }
+@Begin
+@PP
+One of the essential ingredients of the object-oriented paradigm is the
+late-binding of functionality to objects. Functionality is implemented in
+form of instance methods and the sum of the methods determines the objects'
+behavior. Usually objects act as instances of classes and for instances of
+the same class the behavior is identical. The behavior can be augmented by
+subclassing, i.e. definition of classes that derive from one or more superclass.
+The behavior of instances of a subclass can be modified by overriding methods.
+Non-overridden methods inherit the methods from the superclass(es).
+As a running example we shall use a small fraction of classes from the
+Dylan language @Cite { $shalit1996 }. We choose Dylan, because it supports both multiple
+superclasses per subclass, which result in a directed acyclic graph (DAG)
+instead of a class hierarchy (tree). Dylan also features multimethods, a
+way to define behavior for several objects acting together as a group.
+Sealing of classes prevents the subclassing to happen. Similarly, sealing
+of functions with a certain specialization pattern makes further specialization
+under the cover of the seal impossible. These features enable Dylan implementations
+efficient ways to optimize whole libraries, because certain subgraphs of the
+inheritance DAG and parts of behavior domains fulfill the closed-world assumption.
+
+@BeginSubSubSections
+@SubSubSection
+@Title { Classes }
+@Begin
+@PP
+The class every object is instance of is @ClassP object This class is abstract, so no
+direct instances of it can exist. Abstract classes serve the purpose of being a
+derivation point for concrete subclasses and for defining partially implemented
+behavior. @ClassC Collection @Class function and @Class number are derived from @Class object and still
+abstract. @ClassC Complex @ClassC real @Class rational and @Class integer are subclasses of @ClassC number
+each being subclass of the preceding ones.
+@End @SubSubSection
+
+@SubSubSection
+@Title { Class Precedence List }
+@Begin
+@PP
+Every class has an ancestry which is an ordered set consisting of the class itself
+and its superclasses. In Dylan this ancestry is termed @I { class precedence list }
+({@I CPL}) and is computed in a defined way which is basically a topological sorting.
+@I {[A sentence that linearity of CPL is beneficial for method selection and stability?]}
+@End @SubSubSection
+
+@SubSubSection
+@Title { Methods }
+@Begin
+@PP
+In Dylan a strong coupling of classes and methods is impracticable because in the presence
+of multiple dispatch there is no distinguished receiver object. Instead generic functions
+take the role of aggregating specialized methods that have the same name and compatible
+signatures. In this sense the generic function for addition contains the specialized methods
+that are needed in order to perform all kinds of additions of numbers. Method dispatching is
+the task of determining all applicable methods for the dynamic types of the arguments,
+selecting the most specialized one and invoking it. In contrast to single-receiver object
+oriented languages the classes are deprived of their role of determining behavior and just
+serve as a blueprint for manufacturing instances that just contain the instance data.
+@I {"####"A sentence about the class precedence list, sorted-applicable methods???
+"###" A figure about GF method being inside of GFs?}
+@End @SubSubSection
+
+@SubSubSection
+@Title { Sealing }
+@Begin
+@PP
+@End @SubSubSection
+
+@EndSubSubSections
+@End @SubSection
+
+
+@SubSection
+@Title { Mathematical background }
+@Begin
+@PP
+The programming language aspect however is not yet sufficient and in order to
+understand the following sections some mathematical basis needs to be introduced.
+The central notion is that of a lattice. The elements of a lattice that is useful
+for our purposes are elements of an infinite factorial ring, say @Integers (the ring of
+integers). The factorial property is needed to be able to uniquely represent a
+ring element as a product of primes. For the rest of the paper we fix this ring
+to be the integers (@Integers).
+
+@BeginSubSubSections
+@SubSubSection
+@Title { Lattices }
+@Begin
+@PP
+Our lattice is a partially ordered subset of @Integers @I {[these are
+the ideal generators!, we should expand this]}. Two elements of a lattice are either
+comparable or not. If the elements are comparable they either compare equal or
+smaller or greater.
+@End @SubSubSection
+
+@SubSubSection
+@Title { Ideals }
+@Begin
+@PP
+To obtain an example of a lattice we introduce the concept of
+an @I ideal.  An ideal is a subset of a ring that is closed under addition and
+multiplication by every element of the ring. The former property states that the
+sum of two arbitrary ideal elements is again an element of the ideal, and every
+element of the ideal multiplied with an arbitrary element of the ring is again
+an element of the ideal. @FigureRef ideals shows examples of ideals.
+
+
+@PP
+@LLP 1a)  ...__-10__-8__-6__-4__-2__0__2__4__6__8__10__...
+@LLP 1b) ...__-35__-28__-21__-14__-7__0__7__14__21__28__35__...
+@LLP 1c)  ...__-15__-12__-9__-6__-3__0__3__6__9__12__15__...
+@LLP 1d)  ...__-30__-24__-18__-12__-6__0__6__12__18__24__30__...
+@LLP 1e)_________0___________
+@LLP 						Figure 1.
+
+
+@Figure
+@Caption { Examples of ideals }
+@Tag { ideals }
+@Graph
+abovecaption { Fertility rates in some developing countries }
+xextra { 0 cm }
+yextra { 0 cm }
+xmax { 8 }
+yticks {
+1.5 (Turkey) 2.5 (Thailand)
+3.5 (Indonesia) 4.5 (Costa Rica)
+5.5 (Colombia) 6.5 (Cameroon)
+7.5 (Botswana) 8.5 (Bangladesh)
+}
+yticklength { 0 cm }
+{
+@Data
+pairs { filledxhisto }
+{ 0 1 3.2 2 2.2 3 3.0 4 3.5 5 2.8 6 5.9 7 4.8 8 5.3 9 }
+}
+
+# @Diag vstrut { yes } treehsep { 1c } {
+# @HTree { @Box Lout @FirstSub arrow { yes } @Box PostScript }
+# }
+
+
+@LLP 1a) is simply the set of even integers. It is easily proven that the two laws are satisfied.
+@LLP 1b) is the set of numbers that are multiples of seven. Again, adding two integers that are
+divisible by seven results in an integer divisible by seven. Similarly for multiplying with an arbitrary integer.
+@LLP 1c) these are the integers divisible by three.
+@LLP 1d) both 1a) and 1c) are supersets of this set.
+@LLP 1e) the set only containing the zero can be regarded as a limit where
+the element next to zero approaches infinity.
+@PP We can observe a common pattern here. The ideals shown in @FigureRef
+ideals all seem to contain multiples of some smallest positive number
+(with the exception of 1e but this can be regarded as the multiples of zero).
+Indeed, all ideals that are subsets of @Integers can be written as @Ideal n{},
+where @I n is an integer and @Ideal n denotes the set which consists of all
+integers multiplied with @Eq {n}. The number @I n is called the @I generator of the ideal.
+We write @Eq {Ide({@Ideal n}) = n}.
+We can also see that iff @I n divides @I m then @Ideal n is a superset of @Ideal m{}, in symbols:
+n @Divides m @Sym arrowdblboth @Ideal n @Sym reflexsuperset @Ideal m{}. This allows us to
+identify divisibility of ring elements with a superset-subset relation on
+the corresponding ideals. When we intersect @Ideal m and @Ideal n{,} the elements of the
+intersection will be divisible by both @Eq {m} and @Eq {n}, it is easily seen that
+@Ideal m @Sym intersection @Ideal n = @Ideal @Eq {lcm(m,n)}{.}
+@End @SubSubSection
+
+@SubSubSection
+@Title { Residue classes [???] }
+@Begin
+@PP
+Where ideals represent divisibility without a rest, we can construct the sets that
+represent rests different from zero by translating the ideal by an integer amount
+in either direction. It is easy to see that there exist @Eq {n} disjoint @I {residue classes}
+to @Ideal n{.} We denote them with @Ideal n{+ 0} (= @Ideal n{}), @Ideal n{+ 1}, @Ideal n{+ 2},
+..., @Ideal n{+ n-1}. After offseting the original ideal @Eq {n} times by 1 we arrive at
+a residue class that is the very same ideal. @I {[Intersection of arbitrary residue classes! -> appendix]}
+@End @SubSubSection
+
+@SubSubSection
+@Title { The bridge }
+@Begin
+@PP
+We now recognize that both the ideals of @Integers and the classes of Dylan form
+a lattice. The former has set inclusion as a relation while the latter is
+formed by the subtyping relationship (which is a set inclusion on indirect
+instances).
+@End @SubSubSection
+@EndSubSubSections
+
+@End @SubSection
+
+@EndSubSections
+
+@End @Section
+
+@Section
+@Title { Assigning integers to classes }
+@Begin
+@PP
+
+Backed by above knowledge we can try to establish a correspondence between the type lattice and the Dylan class lattice.
+Not to great surprise we assign prime integers to classes as illustrated in @FigureRef assignments.
+
+@LLP
+ideals @Ideal 1 @Sym propersuperset {@Ideal 2}, @Ideal 3 @Sym propersuperset @Ideal 6			"\ "
+	&						>				primes on classes
+classes						"/"
+						Figure 2.
+
+@LLP
+
+@Figure
+@Caption { Possible assignments }
+@Tag { assignments }
+@Graph
+abovecaption { Fertility rates in some developing countries }
+xextra { 0 cm }
+yextra { 0 cm }
+xmax { 8 }
+yticks {
+1.5 (Turkey) 2.5 (Thailand)
+3.5 (Indonesia) 4.5 (Costa Rica)
+5.5 (Colombia) 6.5 (Cameroon)
+7.5 (Botswana) 8.5 (Bangladesh)
+}
+yticklength { 0 cm }
+{
+@Data
+pairs { filledxhisto }
+{ 0 1 3.2 2 2.2 3 3.0 4 3.5 5 2.8 6 5.9 7 4.8 8 5.3 9 }
+}
+
+
+@BeginSubSections
+
+@SubSection
+@Title { Characteristic Number }
+@Begin
+@PP
+Each class gets identified with an ideal. Since ideals are simply generated by an integer
+the ideal assigned to a class must adhere to the following conditions:
+@LLP a) if @ClassC a @ClassC b @ClassC c ... are superclasses of @Class x then
+@Eq {Ide(punct {@Class x})} @Sym propersubset @Eq {Ide({@Class a})}, @Eq {Ide({@Class x})}
+@Sym propersubset Ide({@Class b}), ...
+@LLP b) Ide({@Class object}) is an arbitrary ideal @Sym notequal {@Ideal 0}.
+
+There are several ways to fulfill those conditions. One is to assign a unique prime number
+@I P to each class (@Class object can be assigned the pseudo-prime 1, because it has no superclass)
+and require that @Eq {Ide(punct {@Class x})} is the ideal generated by the smallest integer so that
+@Eq {Ide(punct {@Class x})} @Sym propersuperset @Ideal P and a) is satisfied. In this case the generator will be the product
+of all {@I P}s of the classes in the class precedence list of @ClassP x Since there are an infinite
+number of prime numbers we can assign {@I P}s to arbitrary class hierarchies. In the following
+we will refer to the number @I P of a class as its characteristic number.
+@End @SubSection
+
+
+@SubSection
+@Title { Multiplicative Number }
+@Begin
+@PP
+As a companion to the class{@Char quoteright} characteristic number we can encode its ancestry
+in form of the @I { multiplicative number } as the product of the characteristic
+numbers in thee class precedence list: @Eq { Mul(C) &1m equal big prod from {c in Cpl(C)}
+Gen(c) }. Clearly, the ordering of the CPL is lost in the multiplicative number but this is
+not a serious drawback for most purposes.
+@End @SubSection
+
+@EndSubSections
+
+
+
+@DP
+But naturally we are interested in ideals with a small generator to be able to represent
+generators as machine integers. When subclassing from several superclasses the ideal
+generator can quickly approach the maximum size of the machine integers because of
+multiplicativity, Each class in the class preference list conveys its lb(P) bits of
+information which have to be summed up. In order to not enter bignum (arbitrary precision
+integer) territory (which would result in a mismatch in current microprocessor capabilities
+and thus degrade performance) the generators of ideals should be in the 32 to 64 bit range.
+Intuitively smaller characteristic numbers should be chosen for classes that have a deep
+subgraph below them. Leaf classes (which are always sealed classes) can be assigned greater
+primes if there are enough bits remaining. To determine a conforming mapping from classes
+to characteristic numbers some kind of coloring algorithm may be necessary.
+
+After having assigned ideals to classes that are compatible with subclassing an obvious
+application emerges: using the characteristic number of a class to determine instance?
+test on an arbitrary object. An object o is instance of class <x> iff
+"Gen(Ide(<x>)) |ÊGen(Ide(object-class(o)))".
+Alternatively "P(<x>) | Gen(Ide(object-class(o)))" could be used,
+which may better map to architectures that do not allow for full sized divisors
+as the characteristic numbers are significantly smaller and may fit into a half-word.
+Assuming the characteristic number of <x> is compile-time known only two memory accesses
+(object -> class; class -> generator) and a division followed by a zero test on the rest is needed.
+
+
+@End @Section
+
+
+
+@Section
+@Title { The Dispatch Algorithm }
+@Begin
+@PP
+Generic function dispatch is the process of deciding what to do when a generic function
+is called with a dynamic class vector @Eq {V vec}. If there are no unambiguously applicable
+methods, then an error is signaled, otherwise the most specific method is called first.
+This method may decide to call less specific methods thereafter. To perform the dispatch
+to a predetermined method, we utilize a well known theorem from number theory.
+
+@BeginSubSections
+
+@SubSection
+@Title { Chinese remainder theorem }
+@Begin
+@PP
+The chinese remainder theorem (also known as the theorem of simultaneous congruences) states that
+there exists a number @I M for any number @I i of congruence equations
+with pairwise relative prime @Eq {n sub i} and previously fixed @Eq {lbrace m sub i mid 0 <= m sub i < n sub i rbrace}
+so that
+@Display @Eq {m sub i == M bin mod n sub i}
+for all @Eq {i}. Footnote: For the motivation of "chinese" see appendix A.
+@I {[We need an example how to compute M for a given @Eq {m sub i}]}
+@End @SubSection
+
+@SubSection
+@Title { The single-receiver case }
+@Begin
+@PP
+For now we assume that an applicable method exists for a generic function that is only
+dispatching on one argument. I.e. @Eq {V vec} is only having one component and it is compatible with
+at least one method inside of the generic function. 
+To get somewhat concrete, we name our entities at hand:
+The generic function @F magnitude is defined on @ClassC number but has only methods implemented
+on @Class complex and @ClassP real In Dylan one would write:
+@PP 0.7vx @Break -2p @Font @F {
+define generic magnitude(num :: @Class number{}) => mag :: @Class real{};
+@LLP
+@LLP define method magnitude(num :: @Class complex{}) => mag :: @Class real{};
+@LLP "  "sqrt(num.real.sqr + num.imag.sqr)
+@LLP end;
+@LLP
+@LLP define method magnitude(num :: @Class real{}) => mag :: @Class real{};
+@LLP "  "abs(num)
+@LLP end;
+@LLP
+}
+@PP Now suppose that the class hierarchy below @Class number is restricted to
+@ClassC obscure @ClassC complex @Class real and @ClassC integer with their
+relationship and characteristic numbers shown in @Figu 2.
+Then we can preallocate the actions to be taken for the invocation of @F magnitude
+on the concrete classes in an array: @Tabelle
+@LLP  0: invoke error  <<< @ClassC obscure
+@LLP  1: invoke magnitude <<< @Class complex
+@LLP  2: invoke magnitude <<< @Class real and @ClassC integer
+@Foot: we speak of actions, because they can do more than the literal method definitions.
+@PP We can put this in form of four congruences:
+
+@BeginAlignedDisplays
+@DP
+@RawCentredAlignedDisplay @Eq {0 ^== M bin mod Gen({@Class obscure})}
+@PP
+@RawCentredAlignedDisplay @Eq {1 ^== M bin mod Gen({@Class complex})}
+@PP
+@RawCentredAlignedDisplay @Eq {2 ^== M bin mod Gen({@Class real})}
+@PP
+@RawCentredAlignedDisplay @Eq {2 ^== M bin mod Gen({@Class integer})}
+@DP
+@EndAlignedDisplays
+
+
+With the characteristic numbers from @Figu 2 and the algorithm explained in the previous subsection
+we can compute a minimal @Eq {M = 327??} that solves all four congruencies. We attach this @I M to the
+generic function @F magnitude along with the array of actions from @Tabelle. Obviously the dispatch
+algorithm proceeds in the following way:
+
+@LLP 0) @F { magnitude(num) } called
+@LLP 1) extract @F { num.object-class }
+@LLP 2) extract @F { magnitude }.{@I actions} and @F { magnitude }.{@I M}
+@LLP 3) extract characteristic number from the class object
+@LLP 4) compute remainder of M mod characteristic number
+@LLP 5) fetch action from array position remainder
+@LLP 6) invoke action given num
+@LLP 
+
+@End @SubSection
+
+@SubSection
+@Title { Proper multidispatch }
+@Begin
+@PP
+In the case of two or more dispatch-relevant function arguments the algorithm basically remains
+unchanged. For arity @I k there will be an action tensor of rank @I k (i.e. rectangular for @Eq {k = 2}
+and spacial??? for @Eq {k = 3}), consequently there must be @I k sets of simultaneous congruence equations
+for the indices @Eq {n sub i sup j} to determine the action in the jth dimension of the tensor. Each set
+of congruences will give rise to a solution @Eq {M sup j}, which has to be stored in the generic function.
+@End @SubSection
+
+@SubSection
+@Title { Applicable optimizations }
+@Begin
+@PP
+This subsection is aiming to explore some optimizations and tricks that can be applied to chinese
+dispatch to make it more feasible implementation-wise.
+@LLP only keep the action array of the sealed sublattices?
+@LLP several action arrays on disjoint sealed sublattices?
+@LLP fast subclass tests with multiplicative numbers of classes.
+@LLP Specializing on @Class object @Sym arrowdblright M @Sym equivalence 0 mod 1, so index must be 0,
+but this is not a restriction.
+If characteristic number is @Eq {Gen(C)} then array index must be strictly smaller.
+This imposes some constraints on reorders of the indices. Unconstrained permutations
+not always possible.
+@LLP If the domain of a generic function is restricted by a @F { define generic } form, it is
+better to compute M so that it does not contain all error actions for argument class vectors outside
+of the domain. Otherwise M would grow too big.
+@LLP apply compression of tensor, cleverly scatter actions, linearize it
+@End @SubSection
+
+@EndSubSections
+
+@DP
+@B { Random Thoughts }
+@LLP Subclass tests:
+@LLP - interval based,
+@LLP - bitfield lookup
+
+@LLP Dynamic class creation. Still compatible with chinese dispatch.
+If class is created in a generic functions domain M must be recalculated
+because a new congruence equation arises.
+
+@LLP Dynamic method creation. Expand action array and recompute M.
+
+@LLP Multidimensional dispatch
+
+@LLP Compressed tables. @Cite { $dujardin1996 }
+
+@LLP Fragility.
+
+@LLP Eliminating division by mult
+
+@LLP Eliminating unions
+@LLP Singletons are checked inside of the class arm.
+@LLP Not applicable errors if out of array? is this possible?
+@LLP @F next-method
+
+@LLP Abstract classes need no distinct P? (only for exported classes needed, otherwise if sealed it is basically an union type)
+
+@LLP Splitting to 2 * 16 bits to get deeper trees.
+@LLP Characteristic numbers need not be primes. Products of small primes also do, as long as they never cause common divisors in dispatch.
+
+@LLP The changing @F next-method chain problem.
+
+@LLP Unions of classes.
+
+@LLP Finer grained subtypes
+@LLP - limited
+@LLP - singleton
+
+@LLP Finding M by searching. (Not by computation -- unchinese dispatch)
+
+@LLP Leaving gaps in arrays may lower M? Array dims chosen @Eq { 2 sup n } lets us easily flatten out the tensor.
+
+@LLP Implementing chinese dispatch in silicon?
+@End @Section
+
+@Section
+@Title { Further work }
+@Begin
+@PP
+Gaussian Integers, other factorial rings
+
+@End @Section
+
+@Section
+@Title { Acknowledgements }
+@Begin
+@PP
+Thanks: This article emerged from a talk I held at Dylan Hackers Conference 2002, Berlin [DHC2002].
+My thanks go to the participants who posed challenging questions and made me think harder about
+the issues involved possibly leading to better understanding and a more universal design while
+keeping an eye on theoretical performance. Also Andreas Bogk hardly pressed me to publicize my
+ideas I have been developing in the last years.
+
+
+@End @Section
+
+
+@Section
+@Title { Yadda yadda }
+@Begin
+@PP
+
+
+@End @Section
+
+@Appendix
+@Title { Short history of the chinese remainder theorem }
+@Begin
+@PP
+The first mention of the theorem comes from ancient China and fulfilled a more or less
+real purpose: the counting of army regiments. Instead of linearly counting thousands of
+soldiers, the instructor ordered the formation of @I n columns and noted how may left
+over in the last row. @Figu 7 shows some setups how an <<army>> of 93 soldiers.
+After repeating the process for different pairwise relative prime @I n several times, the
+number of soldiers could be easily computed using the algorithm shown in the next appendix.
+The chinese remainder theorem became a cornerstone of modern number theory and its
+implications were rich enough to fill several books. [vdWaerden?]
+
+@LLP @Eq {93 bin mod 2 == 1}
+@LLP @Eq {93 bin mod 3 == 0}
+@LLP @Eq {93 bin mod 5 == 3}
+@LLP @Eq {93 bin mod 7 == 2}
+@LLP @Eq {93 bin mod 11 == 5}
+@LLP @Eq {93 bin mod 13 == 2}
+
+@End @Appendix
+
+@Appendix
+@Title { The computation algorithm }
+@Begin
+@PP
+The computation of @I M that satisfies a system of @I l simultaneous congruences proceeds
+in a straightforward manner. The first equation supplies the initial seed and the constraints
+given by the successive congruences advance on @I M without disturbing the previous ones.
+
+@BeginAlignedDisplays
+@DP
+@RawCentredAlignedDisplay @Eq {m sub 1 ^== M sub 1 bin mod n sub 1 ==> M sub 1 = n sub 1}
+@PP
+@RawCentredAlignedDisplay @Eq {m sub 2 ^== M sub 2 bin mod n sub 2 ==> M sub 2 = n sub 1}
+@DP
+@EndAlignedDisplays
+Essentially this can be regarded as computation of the set-intersection of residue classes
+resulting in another residue class, in symbols: @Eq {M sub 1} @Sym element @Eq {n sub 1} @ResidueClass @Eq {m sub 1},
+@Eq {M sub 2} @Sym element @Eq {n sub 1} @ResidueClass @Eq {m sub 1} @Sym intersection @Eq {n sub 2} @ResidueClass @Eq {m sub 2}.
+
+
+
+@BeginSubAppendices
+@SubAppendix
+@Title { The euclidean algorithm }
+@Begin
+@PP
+Computing the @I {greatest common divisor} (@Eq {gcd(f, g)}) of two arbitrary positive
+integers @I f and @I g is commonly computed by the euclidean algorithm. Since most of
+the algorithm is reusable for the computation of the solution of simultaneous congruences
+we present it here.
+@BeginAlignedDisplays
+@PP
+First we express @I f as a multiple of @I g with rest:
+@PP
+@RawCentredAlignedNumberedDisplay @Tag { eucl1 } @Eq {f ^= q sub 1 g + r sub 1}
+@PP
+and @I g as a multiple of @Eq {r sub 1} with rest @Eq {r sub 2}:
+@PP
+@RawCentredAlignedDisplay @Eq {g ^= q sub 2 r sub 1 + r sub 2}
+@PP
+@Foot @I {[We note that if @Eq {g > f} the following equation can be regarded as the
+second one and @Eq {(g, r sub 1 )} take the role of the former @Eq {(f, g)} but
+this time @Eq {g > r sub 1}.]}
+@PP
+We commence by splitting up @Eq {r sub 1}, etc.: 
+@PP
+@RawCentredAlignedDisplay @Eq {r sub 1 ^= q sub 3 r sub 2 + r sub 3}
+@PP
+@RawCentredAlignedDisplay @Eq {r sub 2 ^= q sub 4 r sub 3 + r sub 4}
+@PP
+@RawCentredAlignedDisplay @Eq {r sub 3 ^= q sub 5 r sub 4 + r sub 5}
+@PP
+@RawCentredAlignedDisplay @Eq {... ^= ...}
+@PP
+@RawCentredAlignedDisplay @Eq {r sub i-2 ^= q sub i r sub i-1 + r sub i}
+@PP
+We finally define @Eq {gcd(f, g) = r sub i-1} where @I i is the smallest one
+satisfying @Eq {r sub i = 0} (in the case of @Eq {i = 1} we set @Eq {r sub 0 = g} for consistency).
+@PP
+@PP @B {bullshit below}.
+@PP
+Now, rewrite the defining equation
+@PP
+@RawCentredAlignedDisplay @Eq {r sub i-2 ^= q sub i r sub i-1 + r sub i}
+@PP
+to
+@PP
+@RawCentredAlignedDisplay @Eq {r sub i-2 ^= gcd(f,g) r sub i-1}
+@PP
+@I {[and further
+@PP
+@RawCentredAlignedDisplay @Eq {r sub i-1 ^= r sub i-2 over gcd(f,g)}]}
+@PP
+which can be substituted into the equation (the one over the defining equation)
+@PP
+@RawCentredAlignedDisplay @Eq {r sub i-3 ^= q sub i-1 r sub i-2 + r sub i-1}
+@PP
+to get
+@CentredAlignedDisplay @Eq {r sub i-3 ^= q sub i-1 gcd(f,g) r sub i-1 + r sub i-1}
+These in turn can be substituted into
+@CentredAlignedDisplay @Eq {r sub i-4 ^= q sub i-2 r sub i-3 + r sub i-2}
+to obtain
+@CentredAlignedDisplay @Eq {r sub i-4 ^= q sub i-2 ( q sub i-1 gcd(f,g) r sub i-1 + r sub i-1 ) + r sub i-2}
+and so on. Eventually @I g can be expressed in terms of @Eq {gcd(f, g)}, @Eq {q sub 2 , ..., q sub i-1}
+and @Eq {r sub 2 , ..., r sub i-1}. Similarly @I f can be expressed in terms of
+@Eq {gcd(f, g)}, @Eq {q sub 1 , ..., q sub i-1} and @Eq {r sub 1 , ..., r sub i-1}.
+@DP
+
+
+@EndAlignedDisplays
+
+@End @SubAppendix
+
+
+@SubAppendix
+@Title { Intersection of residue classes }
+@Begin
+@PP
+We intend to establish a relation @Eq {c} @ResidueClass @Eq {r} @Sym equal
+@Eq {a} @ResidueClass @Eq {p} @Sym intersection @Eq {b} @ResidueClass @Eq {q}.
+Clearly @Eq {c = lcm(a,b)}, as can be seen from the intersection of ideals.
+But expressing @Eq {r} is a bit involved and requires the application of the
+euclidean algorithm as described in the previous section. We restrict ourselves
+to the case of @Eq {a} and @Eq {b} being relative primes to ensure that the
+intersection exists.
+@BeginAlignedDisplays
+@PP
+Equation @NumberOf eucl1 can be interpreted as
+@PP
+@RawCentredAlignedDisplay @Eq {r sub 1 ^= f + ( -q sub 1 ) g}
+@PP
+i.e. @Eq {r sub 1} is a linear combination of @I f and @I g. Similarly @Eq {r sub 2}
+is expressible by means of @Eq {r sub 1} and @I g as
+@PP
+@RawCentredAlignedDisplay @Eq {r sub 2 ^= g + ( -q sub 2 ) r sub 1 = g + ( -q sub 2 ) (f + ( -q sub 1 ) g)}
+@LLP
+@RawCentredAlignedDisplay @Eq {^= (q sub 2 q sub 1 + 1) g - q sub 2 f}
+@PP
+and so on. Finally we arrive at
+@Eq {r sub i-1 = gcd(f,g)}, and this is still expressible as a linear combination of
+@I f and @I g. Out of the fact that @I f and @I g are relative primes we know that
+@Eq {gcd(f,g) = 1}. So by multiplying the linear combination by ?? we can reach every
+number we want.
+Offset all three residue classes by @Eq {???1???-p} to get @Eq {c} @ResidueClass @Eq {r-p} @Sym equal
+@Eq {a} @ResidueClass @Eq {0} @Sym intersection @Eq {b} @ResidueClass @Eq {q-p}.
+
+@EndAlignedDisplays
+@PP  
+@End @SubAppendix
+
+@EndSubAppendices
+
+
+
+@End @Appendix
+
+#@Appendix
+#@Title { Magnitude considerations }
+#@Begin
+#@PP
+#
+#hhhrhhrhrh
+#
+#@End @Appendix

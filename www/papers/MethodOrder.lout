@@ -1,0 +1,61 @@
+@SysInclude { tbl }
+@SysInclude { diag }
+@SysInclude { doc }
+@Doc @Text @Begin
+{
+@BeginSections
+  @Section
+    @Title { Ordering of Methods }
+  @Begin
+@PP
+The prime numbering scheme of classes can be extended to
+also be of use for the filtering and sorting of applicable methods.
+When a @I n{}-ary generic function is being applied to @I n arguments
+an @I n{}-tuple can be formed from the characteristic numbers of the
+arguments. We extend divisibility to @I n{}-tuples by requiring all components
+being divisible. Then determining the set of applicable methods reduces to
+choosing methods whose signature tuple divides the argument tuple.
+Divisibility on signature tuples then allows the ordering by specificity
+and the partition into the ambiguous and non-ambiguous subsets. Two methods
+are ambiguous if their signature tuples are not divisible either way.
+@PP Instead of using tuples, we could use products from the primary, secondary,
+etc. lattices. The primary lattice could coincide with the class (multiplicative)
+lattice, the secondary lattice with a compatible but disjoint lattice, etc. The
+@I n{}-th argument picks the corresponding multiplicative number from the @I n{}-th
+lattice and these are multiplied. Scalarizing argument and signature numbers this way
+speeds up the costly divisions on the tuples at the cost of the greater number
+magnitudes (thus possibly exceeding machine integer ranges).
+
+[  @CentredDisplay
+  @Diag {
+  A:: @Ellipse { Hello, world }
+  @DP
+  B:: @Square @I x
+  //
+  @Link from { A } to { B }
+  }
+
+You certainly don't want to return to
+his office and report:
+  @IndentedDisplay @I {
+@Char quotedblleft I can{@Char quoteright}t find an efficient algorithm, I
+guess I{@Char quoteright}m just too dumb. @Char quotedblright
+  }
+To avoid serious damage to your
+position in the company, it would
+be better if ...
+]
+  @End @Section
+
+  @Section
+    @Title { Open Issues }
+  @Begin
+@PP How to handle non-class types in specializations (@F limited, @F type-union, @F singleton{})?
+Can we hang it below a class with some special @I predicate-id?
+Or supply a predicate function for each id?
+@PP When comparing predicates for specificity what rules should be applied? I.e. which is more
+specific: a @F {limited(<integer>, from: 1, to: 1)} or a @F singleton(1) specifier?
+  @End @Section
+@EndSections
+}
+@End @Text
