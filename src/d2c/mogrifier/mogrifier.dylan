@@ -155,14 +155,14 @@ define macro instruction-definer
     end;
   }
     
-  { define instruction ?:name(?primary:expression; crfD; RESERVE; L, A, SIMM) end }
+/*  { define instruction ?:name(?primary:expression; crfD; RESERVE; L, A, SIMM) end }
   =>
   { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("crfD: %d, L: %d, A: %d, SIMM: %d\n", instruction-mask(secondary, 6, 8), instruction-mask(secondary, 10, 10), instruction-mask(secondary, 11, 15), instruction-mask(secondary, 16, 31));
       ?"name"
     end;
-  }
+  }*/
     
   { define updatable instruction ?:name(?primary:expression; S, A, d) end }
   =>
@@ -170,61 +170,42 @@ define macro instruction-definer
     define instruction ?name(?primary; S, A, d) end;
     define instruction ?name ## "u"(?primary + 1; S, A, d) end
   }
-  { define instruction ?:name(?primary:expression; S, A, d) end }
+
+/*  { define instruction ?:name(?primary:expression; S, A, d) end }
   =>
   { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("S: %d, A: %d, d: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F), logand(secondary, #xFFFF));
       ?"name"
     end;
-  }
+  }*/
 
-/*  { define instruction ?:name(?primary:expression; LI, AA, LK) end }
-  =>
-  { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("LI: %d, AA: %d, LK: %d\n", instruction-mask(secondary, 6, 29), instruction-mask(secondary, 30, 30), secondary.instruction-LK);
-//      concatenate(?"name", secondary.instruction-LK-suffix)
-      format-to-string(?"name" "%s%s %s", secondary.instruction-LK-suffix, secondary.instruction-AA-suffix, secondary.instruction-LI-suffix)
-    end;
-  }
-*/
-
-//  { define instruction ?:name(?primary:expression; ?key:expression; BO, BI, LK) end }
-  { define instruction ?:name(?primary:expression; ?key:expression; ?branch) end }
+  { define instruction ?:name(?primary:expression; ?key:expression; ?form) end }
   =>
   { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("BO: %d, BI: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), secondary.instruction-LK);
-//      concatenate(?"name", secondary.instruction-LK-suffix)
-      concatenate(?"name", ?branch)
+      concatenate(?"name", ?form)
     end;
   }
 
-//  { define instruction ?:name(?primary:expression; BO, BI, BD, AA, LK) end }
-  { define instruction ?:name(?primary:expression; ?branch) end }
+  { define instruction ?:name(?primary:expression; ?form) end }
   =>
   { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("BO: %d, BI: %d, BD: %d, AA: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -2), #x3FFF), logand(ash(secondary, -1), #x1), secondary.instruction-LK);
-//      concatenate(?"name", secondary.instruction-LK-suffix, instruction-format(?"name", BO, BI, BD, AA, LK))
-      concatenate(?"name", ?branch)
+      concatenate(?"name", ?form)
     end;
   }
   
-  branch:
+  form:
     { BO, BI, LK } => { secondary.instruction-LK-suffix, " ", secondary.instruction-BO-suffix, ",", secondary.instruction-BI-suffix }
     { BO, BI, BD, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-BO-suffix, ",", secondary.instruction-BI-suffix, ",", secondary.instruction-BD-suffix }
     { LI, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-LI-suffix }
-//    { ?bunn:*, LK } => { secondary.instruction-LK-suffix, ?absolute-type-branch }
-//    { ?absolute-type-branch, LK } => { secondary.instruction-LK-suffix, ?absolute-type-branch }
+    { S, A, d } => { " ", secondary.instruction-S-suffix, ",", secondary.instruction-SIMM-suffix, "(", secondary.instruction-A-suffix, ")" }
+    { crfD, L, A, SIMM } => { " ", secondary.instruction-crfD-suffix, ",", secondary.instruction-L-suffix, ",", secondary.instruction-A-suffix, ",", secondary.instruction-SIMM-suffix }
   absolute-type-branch:
     { AA, LK } => { secondary.instruction-LK-suffix, secondary.instruction-AA-suffix }
-//  immediate-type-branch:
-//    { LI } => { secondary.instruction-LI-suffix,  }
-//    { ?condition-type-branch, BD } => { ?condition-type-branch, ",", secondary.instruction-BD-suffix, "," }
-//  condition-type-branch:
-//    { BO, BI } => { secondary.instruction-BO-suffix, secondary.instruction-BI-suffix }
 
 end macro instruction-definer;
 
@@ -242,6 +223,34 @@ end;
 define inline function instruction-BI-suffix(secondary :: <integer>)
  => bi :: <string>;
   format-to-string("%d", instruction-mask(secondary, 11, 15))
+end;
+
+define inline function instruction-L-suffix(secondary :: <integer>)
+ => L :: <string>;
+  format-to-string("%d", instruction-mask(secondary, 10, 10))
+end;
+
+define inline function instruction-S-suffix(secondary :: <integer>)
+ => S :: <string>;
+  format-to-string("r%d", instruction-mask(secondary, 6, 10))
+end;
+
+define inline function instruction-A-suffix(secondary :: <integer>)
+ => A :: <string>;
+  format-to-string("r%d", instruction-mask(secondary, 11, 15))
+end;
+
+define inline function instruction-crfD-suffix(secondary :: <integer>)
+ => crfD :: <string>;
+  format-to-string("cr%d", instruction-mask(secondary, 6, 8))
+end;
+
+define inline function instruction-SIMM-suffix(secondary :: <integer>)
+ => d :: <string>;
+  let sign = instruction-mask(secondary, 16, 16);
+  let d = instruction-mask(secondary, 17, 31);
+  let d = sign == 1 & d - ash(1, 15) | d;
+  format-to-string("%d", d)
 end;
 
 define inline function instruction-BD-suffix(secondary :: <integer>)
@@ -370,7 +379,7 @@ define instruction mtspr(31; S, spr; 467; RESERVE) end;
 define instruction mfspr(31; S, spr; 339; RESERVE) end;
 
 define instruction cmp(31; crfD; RESERVE; L, A, B; 0; RESERVE) end;
-define instruction cmpi(11; crfD; RESERVE; L, A, SIMM) end;
+define instruction cmpi(11; crfD, L, A, SIMM) end;
 define instruction crand(19; crbD, crbA, crbB; 257; RESERVE) end;
 define instruction crandc(19; crbD, crbA, crbB; 129; RESERVE) end;
 define instruction creqv(19; crbD, crbA, crbB; 289; RESERVE) end;
