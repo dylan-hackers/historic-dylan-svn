@@ -10,7 +10,7 @@ define function main () => ()
   let arg = string-to-integer(element(application-arguments(), 0, default: "1"));
 
   let c = 0;
-  let table = make(<case-insensitive-string-table>);
+  let table = make(<byte-string-table>);
 
   for (i from 1 to arg)
     table[integer-to-string(i, base: 16)] := i;
