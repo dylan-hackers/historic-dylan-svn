@@ -10,10 +10,6 @@ define library xml-parser
 end library;
 
 define module xml-parser
- // create <xml-builder>, <xml-element>, <xml-parse-error>;
- // create start-element, end-element;
-//  create name, attributes; // slots for <xml-element>
-
   create display-node, transform, transform-document;
 
 // I really don't want the below defs -- parse-document should
@@ -29,18 +25,11 @@ define module xml-parser
 
 // all the above parse-foos will be replaced with:
   create parse-document;
-// however, parse-document REQUIRES there be the prologue (some
-// mal-formed xml docs skip that, THEN the root element, and 
-// FINALLY, AT LEAST ONE misc (which is a space, comment or 
-// processing instruction).  I feel the [ ] parse ("and" parse)
-// should be replaced with an { } parse ("or").  Thinking on that
-// while I test the rest of the system.
 
 // beginning to integrate Chris' parse engine
   create <document>, <element>, <attribute>, <entity-reference>,
     <char-reference>, <char-string>, <xml>, text, char, value, name;
   create *entities*;
-  //  name, value, attributes;
 end module xml-parser;
 
 define module interface
@@ -53,8 +42,7 @@ define module interface
 
   export <letter>, <digit>, <hex-digit>, <version-number>,
          <node>, <text-node>;
-  export node-children, /** attribute-name, **/ attribute-value, 
-        /** element-tag-name, **/ element-attributes; // , text;
+  export node-children, attribute-value, element-attributes;
 end module interface;
 
 define module %productions
@@ -67,23 +55,7 @@ define module %productions
   use meta;
   use interface;
   use xml-parser;
-
-//  export parse-beginning-of-tag; //, *entities*;
 end module %productions;
-
-/**
-define module builder-impl
-  use common-dylan, exclude: { format-to-string };
-  use streams;
-  use format;
-  use table-extensions;
-  use print;
-
-  use meta;
-  use xml-parser;
-  use %productions;
-  use interface;
-end module builder-impl;**/
 
 define module display
   use common-dylan, exclude: {format-to-string };

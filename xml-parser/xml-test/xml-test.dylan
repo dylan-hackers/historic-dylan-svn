@@ -6,25 +6,6 @@ Version:   1.0
 
 define constant $testable-fns = make(<table>);
 
-/*****
-define class <my-xml-builder> (<xml-builder>)
-end class <my-xml-builder>;
-
-define variable *my-builder* = make(<my-xml-builder>);
-
-define method start-element (builder :: <my-xml-builder>, element :: <xml-element>)
-  format-out("<%s", element.name);
-  for(value keyed-by key in element.attributes)
-    format-out(" %s='%s'", key, value);
-  end for;
-  format-out(">\n");
-end method start-element;
-
-define method end-element (builder :: <my-xml-builder>, element :: <xml-element>)
-  format-out("</%s>\n", element.name);
-end method end-element;
-****/
-
 define method do-the-rest(sym :: <symbol>, str :: <string>)
   let fn = $testable-fns[sym];
   let index = 0;
@@ -54,8 +35,6 @@ end function main;
 // Invoke our main() function.
 begin
   $testable-fns[#"attribute"] := parse-attribute;
-/***  $testable-fns[#"xml-element-start"] 
-    := curry(parse-xml-element-start, *my-builder*); ***/
   $testable-fns[#"char-data"] := parse-char-data;
   $testable-fns[#"stag"] := parse-stag;
   $testable-fns[#"empty-elem-tag"] := parse-empty-elem-tag;

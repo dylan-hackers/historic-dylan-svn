@@ -27,7 +27,6 @@ end method display-node;
 define method display-node(node :: <attribute>)
   format-out("Attribute: [%s] = [%s]\n", node.name,
              node.attribute-value);
-//  next-method();
 end method display-node;
 
 define method display-node(node :: <element>)
@@ -37,13 +36,6 @@ define method display-node(node :: <element>)
   end for;
   next-method();
 end method display-node;
-
-/***
-define method display-node(node :: <text-node>)
-  format-out("Text: [%s]\n", node.text);
-  next-method();
-end method display-node;
-****/
 
 define method display-node(node :: <document>)
   format-out("Document:\n");

@@ -130,7 +130,6 @@ define parse s?(c) loop(parse-s(c)) end;
 //    [4]    NameChar    ::=    Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender
 //
 define constant <name-char> = type-union(<version-number>, singleton('-'));
-// one-of('.', '-', '_', ':')); // , <combining-char>, <extender>));
 
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
@@ -169,7 +168,6 @@ define collect-value entity-value(ref) ()
    {parse-pe-reference(ref), 
     [parse-char-ref(ref), do(collect(ref.char))],
     [parse-entity-ref(ref), do(do(collect, *entities*[ref.name]))]}
-  // parse-reference(ref)}, do(do(collect, ref))]
 end collect-value entity-value;
 
 //    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
@@ -421,32 +419,6 @@ define collector content(ignor, contents) => (str)
         [parse-char-data(contents), do(collect(contents))]})
 end collector content;
 
-/*** actually this is more of the transformer's fn
-// here we compose all adjacent strings into one string
-define function parse-content(string, #key start = 0, end: stop)
-  let (index, vect) = parse-content-collector(string, start: start);
-  let res = make(<deque>);
-  local method str-collector(idx, str)
-    if(idx < vect.size)
-      let elt = vect[idx];
-      if(instance?(elt, <string>))
-        str-collector(idx + 1, concatenate(str, elt));
-      else
-        if(str.size > 0)
-          push-last(res, str);
-        end if;
-        push-last(res, elt);
-        str-collector(idx + 1, "");
-      end if;
-    else
-      if(str.size > 0) push-last(res, str); end if;
-    end if;
-  end method;
-  str-collector(0, "");
-  values(index, as(<vector>, res));
-end function parse-content;
-****/
-
 // helper method for parsing opening tags
 define parse beginning-of-tag(elt, attribs, s) => (elt, attribs)
   "<", parse-name(elt), parse-s?(s), parse-xml-attributes(attribs)
@@ -645,13 +617,9 @@ define parse ignore-sect-contents(ignore, ignore-sect)
 end parse ignore-sect-contents;
 
 //    [65]    Ignore                ::=    Char* - (Char* ('<![' | ']]>') Char*)
-//
+//  like, wow, what a def ... FIXME!
 define method parse-ignore(string, #key start = 0, end: stop)
-//  with-meta-syntax parse-string (string, start: start, pos: index)
-  //  variables(ignore, ignore-sect);
-
-    values(start, #t);  // DOUG changed index to start
-  // end with-meta-syntax;
+  values(start, #t);  // DOUG changed index to start
 end method parse-ignore;
 
 // Character Reference
