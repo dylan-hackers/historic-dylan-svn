@@ -128,7 +128,7 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
     end method see-if-best;
 
   if(run < 8)
-    let beam-width = (run + 1) * 4;
+    let beam-width = (run + 1) * 8;
     debug("Beam width: %=\n", beam-width);
     let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width, callback: see-if-best);
     debug("Search done, exhaustive: %=\n", exhausted);

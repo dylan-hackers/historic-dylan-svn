@@ -45,9 +45,9 @@ define inline method beam-search(initial-state :: <generator-state>, make-succes
           best-match := i.maximum-cost;
         end if;
       else
-        if(i.maximum-cost < best-match + 77)
+//        if(i.maximum-cost < best-match + 77)
           new-states := add!(new-states, i);
-        end if;
+//        end if;
       end if;
     end for;
 //    debug("%= states generated.\n", new-states.size);
