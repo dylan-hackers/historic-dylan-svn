@@ -80,8 +80,8 @@ end;
 
 
 // Useful distance-cost function for the board. Manhattan cost to avoid square root.
-define function distance-cost(source :: <point>,
-                              target :: <point>)
+define inline function distance-cost(source :: <point>,
+                                     target :: <point>)
  => (res :: <path-cost>)
   abs(source.x - target.x) + abs(source.y - target.y);
 end function distance-cost;
@@ -121,8 +121,15 @@ end function get-successors;
 // Simple version of A*.
 define function find-path(source :: <point>,
                           target :: <point>,
-                          board :: <board>)
+                          board :: <board>,
+                          #key cutoff :: false-or(<path-cost>))
  => (res :: false-or(<point-list>))
+
+  if (cutoff & distance-cost(source, target) >= cutoff)
+    debug("### cutting off: source: %=, target: %=, cutoff: %=\n", source, target, cutoff);
+  end;
+
+unless (cutoff & distance-cost(source, target) >= cutoff)
 
   let open :: <priority-queue> = make(<priority-queue>);
   let closed :: <list> = #();
@@ -169,4 +176,5 @@ define function find-path(source :: <point>,
     end while;
     #f;
   end;
+end unless;
 end function find-path;
