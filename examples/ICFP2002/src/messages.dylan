@@ -140,8 +140,23 @@ define function receive-initial-setup (s :: <stream>)
   let board = receive-board-layout(s);
   let (robot-id, carry-max, money) = receive-client-configuration(s);
   let state = receive-initial-robot-positions(s, board);
+  state := search-for-bases(state);
   values(robot-id, carry-max, money, state);
 end function receive-initial-setup;
+
+define function search-for-bases(state :: <state>)
+ => (state :: <state>);
+  for (r from 1 to state.board.height)
+    for (c from 1 to state.board.width)
+      let terrain = state.board[r, c];
+      if (instance?(terrain, <base>))
+        debug("found base at %d,%d\n", c,r);
+        state.bases := add!(state.bases, point(x: c, y: r));
+      end;
+    end;
+  end;
+  state;
+end;
 
 define function receive-board-layout (s :: <stream>) => <board>;
   block()

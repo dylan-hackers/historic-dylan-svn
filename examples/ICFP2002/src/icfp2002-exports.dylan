@@ -20,7 +20,7 @@ define module board
   use print, import: {print-object};
   
   export
-    <state>, board, robots, packages, packages-at,
+    <state>, board, robots, packages, bases, bases-setter, packages-at,
     <board>,
     <coordinate>, <point>, x, y, point,
     send-board,
