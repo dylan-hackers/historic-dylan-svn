@@ -669,7 +669,8 @@ define method link-arguments (state :: <lid-mode-state>)
   // If cross-compiling, throw in a bunch of -Ls that will probably help.
   if (state.unit-no-binaries)
     for (dir in *data-unit-search-path*)
-      dash-cap-ells := concatenate(dash-cap-ells, " -L", dir);
+      dash-cap-ells := concatenate(dash-cap-ells,
+                                   " -L", as(<byte-string>, dir));
     end for;
     dash-cap-ells
       := concatenate(" $(LDFLAGS)",
