@@ -67,7 +67,7 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
       apply(concatenate, map(generate-next-run, x));
     end method successor-states;
   local 
-    method cost-order (x :: <generator-state>, y :: <generator-state>)
+    method cost-order (x :: <generator-state>, y :: <generator-state>) // XXX Tweak here
       if(x.maximum-cost == y.maximum-cost)
         maximum-transition-cost(x.from, x.to) < maximum-transition-cost(y.from, y.to);
       else
@@ -75,11 +75,16 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
       end if;
     end method cost-order;
               
-  let beam-width = 10 * 2 ^ run;
+  let beam-width = 10 * 2 ^ run; // XXX Tweak here
     debug("Beam width: %=\n", beam-width);
   let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width);
-
-  values(reverse!(result-states.head.output-tokens), exhausted);
+  debug("Search done, exhaustive: %=\n", exhausted);
+  
+  if(result-states == #())
+    values(#(), exhausted);
+  else
+    values(reverse!(result-states.head.output-tokens), exhausted);
+  end if;
 end method generate-optimized-output;
 
 // returns all states reachable by popping, including itself (no pop)

@@ -286,13 +286,15 @@ define function main(name, arguments)
       let old = best-transformation.size;
       let new = new-output.size;
 
-      debug("old size = %d, new size = %d", old, new);
+      if(new-output ~= #())
+        debug("old size = %d, new size = %d", old, new);
 
-      if (new < old)
-	debug("  - using new");
+        if (new < old)
+          debug("  - using new");
+        end if;
+        best-transformation := new-output;
+        debug("\n");
       end if;
-      best-transformation := new-output;
-      debug("\n");
     end method see-if-best;
 
   block()

@@ -43,7 +43,7 @@ define method beam-search(initial-state, make-successors, cost-order, finished?,
       end if;
     end for;
     debug("%= states generated.\n", new-states.size);
-    if (new-states.size > beam-width)
+    if (new-states ~= #() & new-states.size > beam-width)
       exhausted := #f;
     end;
     states := new-states;
