@@ -11,29 +11,25 @@ define constant $log-warn :: <symbol> = #"warn";
 define constant $log-error :: <symbol> = #"error";
 define constant $log-debug :: <symbol> = #"debug";
 
-define function log-level-name (level :: <symbol>) => (name :: <byte-string>)
+define method log-level-name
+    (level) => (name :: <byte-string>)
   select (level)
     $log-info  => "info";
     $log-warn  => "warn";
     $log-error => "err ";
     $log-debug => "dbg ";
-    otherwise  => "    ";
+    otherwise  => as(<string>, level);
   end;
 end;
 
-// Log only these types of messages.
-define variable *log-types* :: <simple-object-vector>
-  = vector($log-info, $log-warn, $log-error, $log-debug);
-
-define method log-message (log-level :: <symbol>, format-string :: <string>, #rest format-args)
-  if (member?(log-level, *log-types*))
-    log-date();
-    format-out(" [%s] ", log-level-name(log-level));
-    apply(format-out, format-string, format-args);
-    format-out("\n");
-    force-output(*standard-output*);
-  end;
-end log-message;
+define method log-message
+    (log-level :: <object>, format-string :: <string>, #rest format-args)
+  log-date();
+  format-out(" [%s] ", log-level-name(log-level));
+  apply(format-out, format-string, format-args);
+  format-out("\n");
+  force-output(*standard-output*);
+end;
 
 define function log-date ()
   date-to-stream(*standard-output*, current-date());
@@ -59,7 +55,7 @@ define method log-debug (format-string, #rest format-args)
   apply(log-message, $log-debug, format-string, format-args);
 end;
 
-define method log-debug-if (test,format-string, #rest format-args)
+define method log-debug-if (test, format-string, #rest format-args)
   if (test)
     apply(log-message, $log-debug, format-string, format-args);
   end;

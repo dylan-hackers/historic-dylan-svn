@@ -100,25 +100,23 @@ end;
 // Note that the .dsp source file isn't necessarily under the *document-root*
 // directory.
 
-// Define a class that will be used for all our example pages.  If we define
-// all our tags to be specialized on this class they can be used in any example page.
+// Define a class that will be used for all our example pages.  It must be a
+// subclass of <dylan-server-page> so that all the template parsing will happen.
+//  If we define all our tags to be specialized on this class they can be used
+// in any example page.
 //
 define class <example-page> (<dylan-server-page>)
 end;
 
-define constant $example-taglib
-  = register-taglib("example", "ex");
+define taglib example ()
+  //default-prefix: "ex";
+end;
 
-define method logged-in?
+define named-method logged-in? in $example-taglib
     (page, request)
   let session = get-session(request);
   session & get-attribute(session, #"username");
 end;
-
-begin
-  register-label("logged-in?", logged-in?);
-end;
-
 
 // A simple error reporting mechanism.  Store errors in the page context
 // so they can be displayed when the next page is generated.  The idea is
@@ -139,7 +137,8 @@ define method note-form-error
 end;
 
 define tag show-errors in $example-taglib
-    (page :: <example-page>, response :: <response>, #key)
+    (page :: <example-page>, response :: <response>)
+    ()
   let errors = get-attribute(page-context(), #"errors");
   when (errors)
     let out = output-stream(response);
@@ -202,7 +201,7 @@ define method respond-to-post (page :: <example-welcome-page>,
     set-attribute(session, #"password", password);
     next-method();  // process the DSP template for the welcome page.
   else
-    note-form-error("You must supply both a username and password.");
+    note-form-error("You must supply <both> a username and password.");
     // ---*** TODO: Calling respond-to-get probably isn't quite right.
     // If we're redirecting to another page should the query/form values
     // be cleared first?  Probably want to call process-page instead,
@@ -214,10 +213,11 @@ end;
 // Note this tag is defined on <example-page> so it can be accessed from any
 // page in this example web application.
 define tag current-username in $example-taglib
-    (page :: <example-page>, response :: <response>, #key request :: <request>)
+    (page :: <example-page>, response :: <response>)
+    ()
   let username
     = get-form-value("username")
-      | get-attribute(get-session(request), #"username");
+      | get-attribute(get-session(get-request(response)), #"username");
   username & write(output-stream(response), username);
 end;
 
@@ -241,7 +241,8 @@ define thread variable *repetition-number* = 0;
 // See iterator.dsp for how this tag is invoked.
 //
 define body tag repeat in $example-taglib
-    (page :: <example-page>, response :: <response>, do-body :: <function>, #key)
+    (page :: <example-page>, response :: <response>, do-body :: <function>)
+    ()
   let n-str = get-query-value("n");
   let n = (n-str & string-to-integer(n-str)) | 5;
   for (i from 1 to n)
@@ -252,7 +253,8 @@ define body tag repeat in $example-taglib
 end;
 
 define tag display-iteration-number in $example-taglib
-    (page :: <example-page>, response :: <response>, #key)
+    (page :: <example-page>, response :: <response>)
+    ()
   format(output-stream(response), "%d", *repetition-number*);
 end;
 
@@ -264,56 +266,60 @@ define page table-page (<example-page>)
      source: document-location("example/table.dsp"))
 end;
 
-define thread variable *row* :: <object> = #f;
-define thread variable *row-number* :: <integer> = 0;
-
-define body tag demo-table in $example-taglib
-    (page :: <example-page>, response :: <response>, do-body :: <function>,
-     #key row-generator)
-  let generator = get-label(row-generator);
-  if (~generator)
-    log-warning("DSP: The row generator function %= was not found.", row-generator);
-  else
-    let rows = row-generator(page);
-    for (row in rows,
-         i from 1)
-      dynamic-bind (*row* = row,
-                    *row-number* = i)
-        do-body();
-      end;
-    end;
-  end if;
-end;
-
-define function table-has-rows?
-    (page :: <example-page>, request)
+// This method is used as the test function for a %dsp:if call.
+// In a real web app it would probably do some database test
+// of the form "select count(1) from ..." to see if there are any
+// rows to display.
+define named-method table-has-rows1? in $example-taglib
+    (page :: <table-page>, request)
  => (rows? :: <boolean>)
   #t
 end;
 
-define function demo-row-generator
-    (page :: <example-page>)
+// This method is used as the row-generator function for a dsp:table call.
+// It must return a <sequence>.
+define named-method animal-generator in $example-taglib
+    (page :: <table-page>)
   #[#["dog", "perro"],
     #["cat", "gato"],
     #["cow", "vaca"]]
 end;
 
-begin
-  register-label("table-has-rows?", table-has-rows?);
-  register-label("demo-row-generator", demo-row-generator);
+define named-method table-has-rows2? in $example-taglib
+    (page :: <table-page>, request)
+  #f
+end;
+
+// The row-generator for the table with no rows.  This definition isn't actually
+// ever called, because the
+define named-method no-rows-generator in $example-taglib
+    (page :: <table-page>)
+  #[]
 end;
 
 define tag column1-data in $example-taglib
-    (page :: <example-page>, response :: <response>, #key)
+    (page :: <example-page>, response :: <response>)
+    ()
   let out = output-stream(response);
-  format(out, "%s", *row*[0]);
+  let row = current-row();
+  format(out, "%s", row[0]);
 end;
 
 define tag column2-data in $example-taglib
-    (page :: <example-page>, response :: <response>, #key)
+    (page :: <example-page>, response :: <response>)
+    ()
   let out = output-stream(response);
-  format(out, "%s", *row*[1]);
+  let row = current-row();
+  format(out, "%s", row[1]);
 end;
+
+define tag row-bgcolor in $example-taglib
+    (page :: <example-page>, response :: <response>)
+    ()
+  write(output-stream(response),
+        if(even?(current-row-number())) "#EEEEEE" else "#FFFFFF" end);
+end;
+
 
 
 //--------------old example code--------------------------------------------
@@ -326,87 +332,24 @@ end;
 // Defines a tag that looks like <dsp:hello/> in the DSP source file.  i.e.,
 // it has no body.
 define tag hello in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>, #key)
+    (page :: <dsp-test-page>, response :: <response>)
+    ()
   format(output-stream(response), "Hello, cruel world!");
 end;
 
 
 define tag show-keys in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>, #key arg1, arg2)
+    (page :: <dsp-test-page>, response :: <response>)
+    (arg1, arg2)
   format(output-stream(response),
          "The value of arg1 is %=.  The value of arg2 is %=.", arg1, arg2);
 end;
 
 
-// HTML table generation
-
-// Maps table names (strings) to functions that take no args and return several values:
-// (1) The number of rows in the table. (2) a function to be called to process the body
-// of the table element.  The function will be passed
-define variable *table-name-map* :: <string-table> = make(<string-table>);
-
-begin
-  *table-name-map*["blah-table"] := method () 4 end;
-  *table-name-map*["zero-table"] := method () 0 end;
-end;
-
-define variable *iteration-number* :: <integer> = -1;
-define variable *iteration-sequence* :: <sequence> = #[];
-
-// I would call this "iterate" but it conflicts with the existing Dylan iterate macro.
-define body tag iterator in $example-taglib
-    (page :: <dylan-server-page>,
-     response :: <response>,
-     do-body :: <function>,
-     #key name)
-  let iterations-fun = name & element(*table-name-map*, name, default: #f);
-  if (iterations-fun)
-    let n-rows :: <integer> = iterations-fun();
-    for (i from 1 to n-rows)
-      dynamic-bind (*iteration-number* = i)
-        do-body();
-      end;
-    end;
-  else
-    // For debugging.  Should probably remove this.   
-    format(output-stream(response),
-           "<!-- no iteration function found for %s iterator. -->\n",
-           name);
-  end;
-end;
-
-define body tag no-iterations in $example-taglib
-    (page :: <dylan-server-page>,
-     response :: <response>,
-     do-body :: <function>,
-     #key name)
-  let iterations-fun = name & element(*table-name-map*, name, default: #f);
-  if (iterations-fun)
-    let n-rows :: <integer> = iterations-fun();
-    when (n-rows == 0)
-      do-body();
-    end;
-  else
-    format(output-stream(response),
-           "<!-- no iteration function found for %s iterator. -->\n",
-           name);
-  end;
-end tag no-iterations;
-
-define tag iteration-number in $example-taglib
-    (page :: <dylan-server-page>, response :: <response>, #key)
-  format(output-stream(response), "%d", *iteration-number*);
-end;
-
-define tag row-bgcolor in $example-taglib
-    (page :: <dylan-server-page>, response :: <response>, #key)
-  write(output-stream(response),
-        if(even?(*iteration-number*)) "#EEEEEE" else "#FFFFFF" end);
-end;
-
 define tag demo-sessions in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>, #key request :: <request>)
-  let session :: <session> = get-session(request);
+    (page :: <dsp-test-page>, response :: <response>)
+    ()
+  let session :: <session> = get-session(get-request(response));
   let x = get-attribute(session, #"xxx");
   format(output-stream(response), "The value of session attribute xxx is %=.", x);
   set-attribute(session, #"xxx", (x & x + 1) | 0);

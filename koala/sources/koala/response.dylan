@@ -10,7 +10,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // Definitions marked "API" are exported.
 
 define class <response> (<object>)
-  constant slot response-request :: <request>, required-init-keyword: #"request";
+  constant slot get-request :: <request>, required-init-keyword: #"request";
 
   // The output stream is created lazily so that the user has the opportunity to
   // set the output stream type (e.g., binary or text).  See output-stream.
@@ -28,7 +28,7 @@ define method initialize
     add-header(response, "Server", $server-header-value);
   end;
 end;
-  
+
 
 // API
 define method add-header
@@ -84,7 +84,7 @@ end;
 
 define method send-response
     (response :: <response>, #key response-code, response-message) => ()
-  let stream :: <tcp-socket> = request-socket(response-request(response));
+  let stream :: <tcp-socket> = request-socket(get-request(response));
   unless (headers-sent?(response))
     // Send the response line
     format(stream, "%s %d %s\r\n",

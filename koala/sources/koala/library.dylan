@@ -48,7 +48,8 @@ define module http-server
     <response>,
     output-stream,
     add-header,
-    add-cookie;
+    add-cookie,
+    get-request;
 
   // Sessions
   create
@@ -82,18 +83,22 @@ define module http-server
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class
     <taglib>,
-    register-taglib,
+    taglib-definer,
     tag-definer,                 // Defines a new DSP tag function and registers it with a page
-    $default-taglib,             // ---*** TODO: remove when tag-definer doesn't require the
+    $dsp-taglib,                 // ---*** TODO: remove when tag-definer doesn't require the
                                  //              taglib to be specified.
     register-tag,                // This can be used to register tag functions that weren't
                                  //   created by "define tag".
     <page-context>,
     page-context,                // Returns a <page-context> if a page is being processed.
                                  //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
-    register-label,
-    get-label,
-    quote-html;                  // Change < to &lt; etc
+    named-method-definer,
+    get-named-method,
+    quote-html,                  // Change < to &lt; etc
+
+    // DSP tag definitions
+    current-row,
+    current-row-number;
 
   // Logging
   create
@@ -101,7 +106,9 @@ define module http-server
     log-debug-if,
     log-error,
     log-warning,
-    log-info;
+    log-info,
+    log-message;
+
   // Debugging
   create
     print-object;
