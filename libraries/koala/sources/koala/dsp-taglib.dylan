@@ -86,7 +86,7 @@ define body tag table in dsp
     (generator :: <named-method>)
   let stream = output-stream(response);
   write(stream, "<table");
-  show-tag-call-arguments(stream, exclude: #[#"generator"]);
+  show-tag-call-attributes(stream, exclude: #[#"generator"]);
   write(stream, ">\n");
   let (rows, start-index, row-count) = generator(page);
   let len = size(rows);
@@ -150,7 +150,7 @@ end;
 define function show-table-element
     (stream, element-name :: <string>, do-body :: <function>)
   format(stream, "<%s", element-name);
-  show-tag-call-arguments(stream);
+  show-tag-call-attributes(stream);
   write(stream, ">");
   do-body();
   format(stream, "</%s>", element-name);
@@ -182,3 +182,5 @@ end;
 //// Internationalization tags
 
 //// XML tags
+
+

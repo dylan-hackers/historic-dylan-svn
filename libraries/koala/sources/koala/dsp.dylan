@@ -135,6 +135,15 @@ define function register-page
   end
 end;
 
+define function url-to-page
+    (url :: <string>)
+  block (return)
+    for (uri keyed-by page in *page-to-url-map*)
+      if (uri = url)
+        return(page); end if; end for; end block;
+end;
+
+
 // ---TODO: Test this and export it.
 // Register URLs for all files matching the given pathname spec as instances
 // of the given page class.
@@ -486,18 +495,14 @@ define function active-taglibs
   iff(*tag-call*, *tag-call*.taglibs, #[])
 end;
 
-define function tag-call-arguments
-    () => (args :: <sequence>)
-  iff(*tag-call*, *tag-call*.arguments, #[])
-end;
-
+// API
 // Apply the given function to the name and value of each tag call argument
 // for the current tag, unless the name is in the exclude list.
 //
-define function map-tag-call-arguments
+define function map-tag-call-attributes
     (f :: <function>, #key exclude :: <sequence> = #[])
   let name = #f;
-  for (item in tag-call-arguments(),
+  for (item in iff(*tag-call*, *tag-call*.arguments, #[]),
        i from 0)
     iff(even?(i),
         name := item,
@@ -507,12 +512,28 @@ define function map-tag-call-arguments
   end;
 end;
 
-define function show-tag-call-arguments
+// API
+// This is used by tags that want to be able to accept arbitrary HTML attributes
+// and pass them along in the generated HTML.
+// @see the dsp:table tag.
+//
+define function show-tag-call-attributes
     (stream, #key exclude :: <sequence> = #[])
-  map-tag-call-arguments(method (name, value)
-                           format(stream, " %s=%=", name, value);
-                         end,
-                         exclude: exclude);
+  map-tag-call-attributes(method (name, value)
+                            format(stream, " %s=%=", name, value);
+                          end,
+                          exclude: exclude);
+end;
+
+define function get-tag-call-attribute
+    (attr :: <object>, #key as: type :: <type>, test = \=) => (attribute-value :: <object>)
+  block (return)
+    map-tag-call-attributes(method (name, value)
+                              if (test(name, attr))
+                                return(iff(as, as(type, value), value));
+                              end;
+                            end);
+  end;
 end;
 
 define method execute
@@ -1070,8 +1091,9 @@ define function parse-start-tag (page :: <dylan-server-page>,
     when (has-body? & ~tag.allow-body?)
       log-dsp-warning("While parsing template %s, at position %=:"
                       " The %s:%s tag call should end with \"/>\" since this tag doesn't allow a body."
-                      " The tag body will be processed anyway.",
+                      " No body will be processed for this tag.",
                       as(<string>, page.source-location), bpos, prefix, name);
+      has-body? := #f;
     end;
     values (tag-call, has-body?, end-index)
   end
