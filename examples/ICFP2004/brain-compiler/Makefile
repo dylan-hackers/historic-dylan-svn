@@ -1,3 +1,6 @@
+combo:
+	rm -rf combo; d2c -M -L.. combo.lid; rm -rf ../ant-brains/combo.ant; ./combo > ../ant-brains/combo.ant
+
 bin:
 	d2c -M -L.. brain-compiler.lid
 
