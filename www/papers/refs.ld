@@ -16,7 +16,7 @@
 @Publisher { Addison-Wesley }
 @Edition { First Edition }
 @Year { 1996 }
-@Label { Sha96 }
+@Label { DRM }
 }
 
 { @Reference

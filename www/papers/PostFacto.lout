@@ -3,12 +3,12 @@
 
 def @Class right name { @F {{@Sym angleleft}name{@Sym angleright}} }
 macro @Sigm {@Sym sigma}
-# def @Sig right n { {@Sigm} @Sub @Eq {n} }
-# def @Tau right n { {@Sym tau} @Sub @Eq {n} }
 def @Sig right n { {@Sigm} @Sub n }
 def @Tau right n { {@Sym tau} @Sub n }
 def @Project left union right n { union{@Sym bar} @Sub n }
 
+
+@Database @Reference { refs }
 
 @Report
 @DateLine { Yes }
@@ -130,7 +130,7 @@ hold a set of methods internally, each having a @I signature
 which tells the GF for which dynamic types of the arguments
 each method becomes @I applicable.
 The exact workings of this are rather arcane, but well
-described in the @Ref DRM. For our purposes we simply recognize
+described in the DRM @Cite { $shalit1996 }. For our purposes we simply recognize
 that the applicable methods get determined by the GF and
 sorted by @I { specificity }. In this process the @I ambiguous
 methods (i.e. those that are neither less nor more
@@ -221,7 +221,7 @@ signature. Leaving away the definitive set from the applicable set the @I { mayb
 remains.
 @LP @I { [nice set diagram here] }
 @PP
-The Dylan language semantics describes [@I refDRM] that from the set of
+The Dylan language semantics @Cite { $shalit1996, chapter 6 } describes that from the set of
 applicable methods the one with the most specific argument types will be called
 (which in turn may call @F next-method to pass control to the next specific one
 for code reuse purposes).
@@ -252,10 +252,15 @@ denote the product type of an {@I n}-ary method's argument signature. The maybe 
 can be described as a set of distinct signatures: "{" {@Sig 1}, {@Sig 2}, ..., @Sig @I m "}".
 We denote the projection operator to extract the type of argument @Eq {1 <= i <= n} from a
 method signature: {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n}) {@Sym bar} @Sub @I i = {@Tau @I i}.
-@PP This allows to formulate our above notion as "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym lessequal
-{@F type-union}({@Sig 1} {@Project @I i}, ..., {@Sig @I m} {@Project @I i}). One might ask
-for the reason of the inequality in this formula. It simply states that we can do even @I better
-than the equality suggests!
+@PP This allows to formulate our above notion as
+@CentredNumberedDisplay @Tag { pessim } {
+"{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym lessequal
+{@F type-union}({@Sig 1} {@Project @I i}, ..., {@Sig @I m} {@Project @I i}).
+}
+One might ask
+for the reason of the inequality in this formula. It simply states that
+we can only expect to get an approximation. On the other hand, it gives us
+some hope that we can do even @I better than the equality suggests!
 @End @SubSection
 
 ###########
@@ -322,7 +327,7 @@ intersection, union and set difference.
 When deriving the type algebra of tuple union projections we only take into
 consideration the case where the tuples are of the same length and the projection
 is to the same component. Unless these requirements are met we just fall back
-to the pessimization {@Ref *} and treat the projection as a simple type union.
+to the pessimization (@NumberOf { pessim }) and treat the projection as a simple type union.
 
 For the remaining subsections we assume that the requirements are met.
 
@@ -335,7 +340,7 @@ For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we define "{" {@Sig 1},
 to be "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} {@Sig 1'}, {@Sig 2'}, ..., {@Sig {@I m}'} "}"{@Project @I i}.
 
 Since the set of the signatures can be already viewed as a union of one-element sets of signatures, this
-concatenating definition is rather obvious. It is also compatible with {@Ref (*)}.
+concatenating definition is rather obvious. It is also compatible with (@NumberOf { pessim }).
 @End @SubSubSection
 
 #-----------------
@@ -452,6 +457,7 @@ recognize (constrain) several argument types at the same time }
 conflicts) }
    @ListItem { type algebra for different projectors possible? for different tuple length? }
    @ListItem { exponential blowup on size of type terms possible? by cascaded function calls with partially new variables? }
+   @ListItem { we can do a forward analysis to predicate an almost 100% probability for the postfacto refined ssa-vars (for at least the preceding basic block, infinite loops before that could be pessimized by this) }
 @EndList
 
 @End @Section
