@@ -628,6 +628,16 @@ end;
 
 // Compilation of inline functions.
 
+define method basic-name-from-definition-name(name :: <basic-name>) 
+ => (name :: <basic-name>);
+  name
+end method basic-name-from-definition-name;
+
+define method basic-name-from-definition-name(name :: <method-name>) 
+ => (name :: <basic-name>);
+  name.method-name-generic-function
+end method basic-name-from-definition-name;
+
 define method expand-inline-function
     (defn :: <abstract-method-definition>, meth :: <method-parse>)
     => res :: false-or(<function-literal>);
@@ -635,7 +645,9 @@ define method expand-inline-function
     let name = defn.defn-name;
     let component = make(<fer-component>);
     let builder = make-builder(component);
-    let lexenv = make(<lexenv>, method-name: name, inside: make(<top-level-lexenv>, tlf: name.find-variable.variable-tlf));
+    let lexenv = make(<lexenv>, method-name: name, 
+                      inside: make(<top-level-lexenv>, 
+                                   tlf: name.basic-name-from-definition-name.find-variable.variable-tlf));
     let next-method-info
       = (instance?(defn, <method-definition>)
 	   & static-next-method-info(defn));
