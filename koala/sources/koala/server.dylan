@@ -9,7 +9,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
-define constant $server-version = "0.3.1";
+define constant $server-version = "0.4";
 
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
@@ -202,7 +202,9 @@ define function start-server (#key listeners :: <integer> = 1,
   end;
   init-xml-rpc-server();
   log-info("Ready for service on port %d", *server-port*);
-  while (start-http-listener(server, *server-port*)) end;
+  while (start-http-listener(server, *server-port*))
+    // do nothing
+  end;
 end start-server;
 
 define function stop-server (#key abort)
@@ -873,9 +875,13 @@ define method extract-query-values
 end extract-query-values;
 
 define method get-query-value
-    (key :: <string>) => (val :: false-or(<string>))
-  *request-query-values*
-    & element(*request-query-values*, key, default: #f)
+    (key :: <string>, #key as: as-type :: false-or(<type>)) => (val :: <object>)
+  if (*request-query-values*)
+    let value = element(*request-query-values*, key, default: #f);
+    iff (as-type & value,
+         as(as-type, value),
+         value);
+  end;
 end;
 
 define method count-query-values

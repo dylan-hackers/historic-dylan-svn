@@ -71,9 +71,9 @@
 <document-root location="www" />
 
 
-<!-- If DEBUG-SERVER is on then errors thrown during the execution of
-     a server request will not be caught.  Only turn this on when running
-     inside a development environment, or the server will crash hard.
+<!-- If DEBUG-SERVER is on then Koala will not try to gracefully handle errors
+     thrown during the execution of a server request.  Only turn this on when
+     running inside a development environment, or the server will crash.
   -->
 <debug-server value="off" />
 
@@ -85,13 +85,13 @@
 <auto-register enabled="no" />
 
 
-<!-- XML-RPC server
+<!-- XML-RPC server settings.
      Set enable="yes" to enable, "no" to disable.
      Set url to the URL on which the server should listen for XML-RPC requests.
      Set internal-error-fault-code to the fault code that should be returned for
-     any unhandled errors that are thrown during the execution of an XML-RPC
+     any otherwise unhandled errors that are thrown during the execution of an XML-RPC
      request.  e.g., a badly formed request, or unhandled errors in user code.
-     Set debug="yes" to log the raw XML received for XML-RPC calls.
+     Set debug="yes" to log the raw XML sent/received for XML-RPC calls.
   -->
 <xml-rpc
   url="/RPC2"

@@ -85,6 +85,13 @@ define function create-method-call-xml
 end;
 
 
+// Quick and dirty.  Should import the string utils from Koala instead.
+//
+define function char-equal?
+    (c1 :: <character>, c2 :: <character>) => (b :: <boolean>)
+  as-lowercase(c1) = as-lowercase(c2)
+end;
+
 define function read-response
     (stream :: <tcp-socket>)
  => (response :: <object>)
@@ -96,8 +103,7 @@ define function read-response
     when (*debugging-xml-rpc*)
       format-out("%s\n", line);
     end;
-    // --TODO: Are HTTP headers case-sensitive?  Can't remember...
-    if (subsequence-position(line, cl) == 0)
+    if (subsequence-position(line, cl, test: char-equal?) == 0)
       // ---TODO: robustify this to skip whitespace and handle errors.
       content-length := string-to-integer(line, start: cl.size);
     end;

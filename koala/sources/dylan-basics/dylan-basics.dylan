@@ -228,4 +228,20 @@ define method float-to-formatted-string
 end method float-to-formatted-string;
 
 
+define method join
+    (seq :: <sequence>, separator :: <string>,
+     #key key :: <function> = identity)
+ => (string :: <string>)
+  // ---TODO: this would be more efficient using with-output-to-string, i suspect.
+  let result = "";
+  let n = seq.size;
+  for (i from 1, item in seq)
+    result := concatenate(result, key(item));
+    if (i < n)
+      result := concatenate(result, separator);
+    end;
+  end;
+  result
+end;
+
 

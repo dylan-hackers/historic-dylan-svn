@@ -269,6 +269,8 @@ define module dsp
 
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class
+    process-template,            // Call this (or next-method()) from respond-to-get/post if
+                                 //   you decide you want the DSP template to be processed.
     <taglib>,
     taglib-definer,
     tag-definer,            // Defines a new DSP tag function and registers it with a page
