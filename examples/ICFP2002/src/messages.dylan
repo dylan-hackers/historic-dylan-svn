@@ -497,7 +497,7 @@ define method process-server-command(state :: <state>, command :: <pick>) => (st
   let bot = find-robot(state, command.robot-id);
   let loc = bot.location;
   for(pid in command.package-ids)
-    state := add-package(state, copy-package(find-package(state, pid), 
+    state := add-package(state, copy-package(find-package(state, pid, create: #t), 
 					     new-location: loc, 
 					     new-carrier: bot));
     state := add-robot(state, copy-robot(bot, new-inventory: add(bot.inventory, find-package(state, pid))));
