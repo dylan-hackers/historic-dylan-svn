@@ -4,12 +4,14 @@ Author:   Carl Gay
 
 define library dylan-basics
   use common-dylan;
+  use io;
   export dylan-basics;
 end;
 
 define module dylan-basics
   use dylan;
-  use common-extensions;
+  use common-extensions, exclude: { split };
+  use streams, import: { write, with-output-to-string };
 
   export
     \bind,              // like LET* in Common Lisp
@@ -24,8 +26,8 @@ define module dylan-basics
     // float-to-string, but decided to keep it with a different name.
     // --cgay
     float-to-formatted-string,
-    join-as,
     join,
+    split,
     remove-keys,        // For removing keywords from #rest arglists.
     raise;
 end;
