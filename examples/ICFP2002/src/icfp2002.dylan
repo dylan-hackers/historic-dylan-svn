@@ -76,8 +76,8 @@ define method test-path-finding(board :: <board>)
   debug("Here is the board that I received:\n");
   debug("Size: width is %=, height is %=.\n",
              board.width, board.height);
-  for (r from 1 to board.height)
-    for (c from 1 to board.width)
+  for (r from board.height to 1 by -1)
+    for (c from board.width to 1 by -1)
       debug("%=", board[r, c]);
     end for;
     debug("\n");
