@@ -14,7 +14,7 @@ define function force-format(s :: <stream>, fmt :: <string>, #rest args) => ()
   force-output(s);
 end function force-format;
 
-define method choose-one (pred? :: <function>, s :: <sequence>,
+define function choose-one (pred? :: <function>, s :: <sequence>,
                           #key default = $unsupplied) => <object>;
   block(return)
     for (x in s)
@@ -29,5 +29,12 @@ define method choose-one (pred? :: <function>, s :: <sequence>,
       end if;
     end for;
   end block;
-end method choose-one;
+end function choose-one;
+
+define function report-and-flush-error(error :: <error>)
+ => ();
+  report-condition(error, *standard-error*);
+  force-output(*standard-error*);
+end;
+
 

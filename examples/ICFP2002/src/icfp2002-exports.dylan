@@ -17,9 +17,11 @@ define module utils
   use streams;
   use format-out;
   use standard-io;
+  use extensions, import: {report-condition};
 
   export
-    *debug*, debug, force-format, choose-one;
+    *debug*, debug, force-format, choose-one,
+    report-and-flush-error;
 end module utils;
 
 define module board
@@ -133,12 +135,13 @@ define module client
     generate-next-move;
 end module client;
 
-
+/*
 define module server
   use board;
   use utils;
   
 end module server;
+*/
 
 define module icfp2002
   use common-dylan, exclude: {string-to-integer}, export: all;
@@ -148,7 +151,6 @@ define module icfp2002
   use streams, export: all;
   use utils;
   use string-conversions, import: {string-to-integer};
-  use extensions, import: {report-condition};
   // use time;
   use garbage-collection;
   use network;

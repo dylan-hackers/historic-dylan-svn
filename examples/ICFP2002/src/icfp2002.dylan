@@ -99,7 +99,7 @@ define function main(name, arguments)
   cleanup
     close(output-stream);
   exception (err :: <error>)
-    // format-condition(*standard-error*, err);
+    report-and-flush-error(err);
     exit-application(1);
   end block;
 
