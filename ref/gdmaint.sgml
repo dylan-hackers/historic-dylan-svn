@@ -954,9 +954,9 @@ define variable foo :: run-time-expression() = #f;
 	<dname>&lt;join-assignment></dname> and
 	<dname>&lt;join-region></dname> are currently ignored by the rest
 	of the compiler. In each case the word <quote>join</quote> refers
-	to the Phi function used in traditional SSA form. It's not clear
-	whether these classes are historical artifacts or part of
-	somebody's unfinished attempt to clean up the code.</para>
+	to the Phi function used in traditional SSA form. These classes
+	will be used if anybody ever fixes the optimizer's SSA
+	conversion.</para>
       </sect2>
     </sect1>
 
@@ -1173,10 +1173,20 @@ define variable foo :: run-time-expression() = #f;
 	    <term><filename>clone.dylan</filename></term>
 	    <listitem>
 	      <para>Code to clone the data structures representing a
-	      top-level function. I'm not sure who uses this or why.</para>
+	      top-level function. This seems to be used when inlining
+	      functions.</para>
 	    </listitem>
 	  </varlistentry>
 	</variablelist>
+
+	<para>To add a new class to the <acronym>FER</acronym> hiearchy,
+	you'll need to add code to the following files:
+	<filename>front.dylan</filename>,
+	<filename>fer-dump.dylan</filename>,
+	<filename>clone.dylan</filename>,
+        <filename>fer-od.dylan</filename> and
+        <filename>base/od-format.dylan</filename>. If you miss any of these
+	spots, things will break in various entertaining ways.
       </sect2>
 
       <sect2 id="gdmaint-d2c-front-fer-od">
@@ -1393,8 +1403,7 @@ define variable foo :: run-time-expression() = #f;
       <title>The <dlibrary>Compiler-Optimize</dlibrary> Library</title>
 
       <para>&d2c; was written as a research project. As such, it contains
-      some very sophisticated optimization routines but occasionally omits
-      other, more common optimizations.</para>
+      some very sophisticated optimization routines.</para>
 
       <sect2 id="gdmaint-d2c-optimize-cheese">
 	<title>The <dmodule>Cheese</dmodule> Module</title>
@@ -1409,10 +1418,13 @@ define variable foo :: run-time-expression() = #f;
 	<dmodule>Builder-Interface</dmodule> module</link>. This interface
 	is somewhat less than amusing.</para>
 
+	<para>This entry-point weirdness has been cleaned up on the
+	<literal>OPTIMIZER_HACKING</literal> branch in CVS.</para>
+
 	<para>To study this module, begin by reading the method
 	<dname>optimize-component</dname> in the file
-	<filename>cheese.dylan</filename>. This calls each of the various
-	optimization routines, which are grouped by file.</para>
+	<filename>cheese.dylan</filename>. This routine is described in
+	<xref linkend="gdmaint-d2c-optimize-control-flow">.</para>
       </sect2>
 
       <sect2>
@@ -1440,10 +1452,124 @@ define variable foo :: run-time-expression() = #f;
               linkend="gdmaint-d2c-base-flow"><dmodule>Flow</dmodule>
               module</link> and the <link
               linkend="gdmaint-d2c-front-front"><dmodule>Front</dmodule>
-              module</link>.</para>
+              module</link>. In the code, this is is referred to as
+	      <acronym>FER</acronym>, which is short for <quote>Front End
+	      Representation.</quote></para>
 	    </formalpara>
 	  </listitem>
 	</itemizedlist>
+
+	<para>The optimizer will make a <emphasis>lot</emphasis> more sense
+	if you study the documentation and code for these modules
+	first.</para>
+      </sect2>
+
+      <sect2 id="gdmaint-d2c-optimize-control-flow">
+	<title>Control Flow</title>
+
+	<para>The optimizer has two modes: normal mode, and simplification
+	mode. Normal mode is called from the driver in &main-lib; to
+	optimize top-level functions.  Simplification mode is called from
+	several places in &convert-lib; to tidy up newly-defined inline
+	functions. This means inline functions get optimized twice: once
+	when they're defined, and a second time when they're inlined.</para>
+
+	<para>The optimizer's main entry point is the function
+	<dname>optimize-component</dname>. This function contains a weird
+	driver loop. The goal of the loop is drain two queues:
+	<dlit>component.initial-variables</dlit> and
+	<dlit>component.reoptimize-queue</dlit>.</para>
+
+	<para>The <dname>initial-variables</dname> queue is filled by the
+	FER builder (and by certain routines in optimize). Initially, the
+	queue contains all the variables in the component. The optimizer
+	drains the queue by passing each variable to the function
+	<dname>maybe-convert-to-ssa</dname>.</para>
+
+	<para>The function <dname>maybe-convert-to-ssa</dname> tries to
+	convert each variable to <acronym>SSA</acronym> form.
+	<acronym>SSA</acronym> variables are <quote>static, single
+	assignments</quote>. Each SSA variable is defined by a single
+	assignment, and never changes in value. Because the value of these
+	variables never changes, the optimizer can make lots of useful
+	assumptions about them.</para>
+
+	<para>Unfortunaely, <dname>maybe-convert-to-ssa</dname> isn't very
+	smart. It only does the most trivial kind of conversion&mdash;it
+	changes <dname>&lt;initial-variable></dname>s with one
+	<dname>&lt;initial-definition></dname> into
+	<dname>&lt;ssa-variable></dname>s. (There are good algorithms for
+	SSA conversion which can convert <emphasis>every</emphasis>
+	variable.)</para>
+
+	<para>Once the <dname>initial-variables</dname> queue has been
+	drained, the optimizer starts work on the
+	<dname>reoptimize-queue</dname>. This queue was initially set up
+	during conversion (by the FER builder, I think). It contains
+	everything we currently need to optimize.</para>
+
+	<para>The optimizer pops the first item off the front of the queue
+	and passes it to the generic function <dname>optimize</dname>. This
+	function knows how to do special-purpose optimizations on each
+	subclass of <dname>&lt;queueable-mixin></dname>. These subclasses
+	include expressions, assignments and certain basic blocks.</para>
+
+	<para>The generic function <dname>optimize</dname> is implemented
+	by methods stewn throughout the optimizer. Each of these methods
+	knows how to simplify a particular kind of queueable object. The
+	method for <dname>&lt;if-region></dname>, for example, checks to
+	see if the test condition is a compile-time value, and if so,
+	replaces the <dname>&lt;if-region></dname> with the appropriate
+	branch. Other methods do compile-time evaluation of primitives,
+	dispatch generic functions, and optimize slot access.</para>
+
+	<para>The methods on <dname>optimize</dname> may or may not change
+	a particular queueable object. But if a given method
+	<emphasis>does</emphasis> make a change, it may open up new
+	opportunities to improve various other queueables. So when we
+	modify a queueable, we must generally reoptimize everything that
+	depends on it.</para>
+
+	<para>To reoptimize depedents, we can't use recursive calls to
+	<dname>optimize</dname>. Instead, we must re-insert the dependent
+	into the <dname>reoptimize-queue</dname> (remember that?) using the
+	function <dname>reoptimize</dname>. If the dependent is already in
+	the queue, <dname>reoptimize</dname> does nothing. But if the
+	dependent isn't already in the queue, <dname>reoptimize</dname>
+	adds it to very front.</para>
+	
+	<para>Once we've optimized a single queueable, we return to the
+	top-level driver. At this point, we have to drain the
+	<dname>initial-variables</dname> queue again (which will almost
+	always be empty). Once this is done, we pop the next item off of
+	<dname>reoptimize-queue</dname> and make another call to
+	<dname>optimize</dname>.</para>
+
+	<para>Once both queues are finally empty, the driver can move
+	on. It first applies a number of
+	<quote>simplifications</quote>&mdash;control-flow cleanups,
+	CSE-elimination, and things like that. Any of these simplifications
+	might add something to one of our two queues. If this happens, we
+	need to drain our queues again and reapply our simplifications from
+	the beginning. Fortunately, this <quote>backtracking</quote>
+	happens very rarely, and doesn't trigger any kind of global
+	reoptimization.</para>
+	
+	<para>The next step depends on our <dname>simplify-only?</dname>
+	argument. If this argument is true, we're doing
+	<quote>pre-optimizion</quote> of an inline function, and we should
+	stop at this point. But if <dname>simplify-only?</dname> is false,
+	we're optimizing a regular function and need to get it ready for
+	the back end.</para>
+
+	<para>To prepare a function for the back end, we need to add type
+	checks, replace certain <quote>placeholder</quote> queueables, do
+	environment analysis to find closure variables, and build the
+	external entry points for local functions.</para>
+
+	<para>Each of these stages works like a simplification&mdash;it may
+	add items to our two queues. If it does, we have to go drain those
+	queues, reapply all our simplifications, and so forth.</para>
       </sect2>
     </sect1>
 
