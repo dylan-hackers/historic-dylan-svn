@@ -65,9 +65,10 @@ define method render-image(o, depth :: <integer>, filename, ambient :: <color>,
 
   for (y from height - 1 above -1 by -1)
     for (x from 0 below width)
-      let world-x :: <fp> = as(<fp>, x - truncate/(width, 2)) 
+      // Add 0.5 to get to the middle of the pixel...
+      let world-x :: <fp> = (as(<fp>, x - truncate/(width, 2)) + 0.5) 
         / as(<fp>, width) * world-width;
-      let world-y :: <fp> = as(<fp>, y - truncate/(height, 2))
+      let world-y :: <fp> = (as(<fp>, y - truncate/(height, 2)) + 0.5)
         / as(<fp>, height) * world-height;
       let ray = make(<ray>,
                      position: $eye-pos,
