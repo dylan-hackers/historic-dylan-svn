@@ -2,20 +2,20 @@
 # Configuration variables
 #
 
-CC	?= cl /nologo ;
-CP	?= copy /y ;
-RC	?= rc ;
-LINK	?= link /nologo ;
+CC      ?= cl /nologo ;
+CP      ?= copy /y ;
+RC      ?= rc ;
+LINK    ?= link /nologo ;
 
-MKF	?= dylanmakefile.mkf ;
+MKF     ?= dylanmakefile.mkf ;
 
-SUFOBJ	?= .obj ;		# object files suffix
-SUFRC	?= .rc  ;		# source resource file suffix
-SUFRES	?= .res ;		# compiled resource file suffix
-SUFDLL	?= .dll ;		# shared library suffix
-SUFLIB	?= .lib ;		# import library suffix
-SUFEXE	?= .exe ;		# executable suffix
-SUFMKF	?= .mkf ;		# build-system files
+SUFOBJ  ?= .obj ;               # object files suffix
+SUFRC   ?= .rc  ;               # source resource file suffix
+SUFRES  ?= .res ;               # compiled resource file suffix
+SUFDLL  ?= .dll ;               # shared library suffix
+SUFLIB  ?= .lib ;               # import library suffix
+SUFEXE  ?= .exe ;               # executable suffix
+SUFMKF  ?= .mkf ;               # build-system files
 
 {
   local _bin = bin ;
@@ -30,16 +30,18 @@ SUFMKF	?= .mkf ;		# build-system files
   PERSONAL_BINDIR ?= $(_bin:P=$(PERSONAL_ROOT)) ;
 }
 
-LIBPATH ?= $(PERSONAL_LIBDIR) $(SYSTEM_LIBDIR) ;
+LIBPATH ?= $(PERSONAL_LIBDIR) ;
 
 LINKFLAGS ?= /NODEFAULTLIB 
-	     /INCREMENTAL:NO /DEBUG:FULL /DEBUGTYPE:CV /PDB:NONE ;
+             /INCREMENTAL:NO /DEBUG:FULL /DEBUGTYPE:CV /PDB:NONE ;
 
 #
 # Runtime
 #
 
-rtlibs	?= kernel32.lib mincrt.lib pentium-run-time.lib mmdw.lib mpsplinth.lib ;
+rtlibs  ?= kernel32.lib mincrt.lib pentium-run-time.lib
+	   mmdw.lib mpsplinth.lib ;
+
 libcmt	?= msvcrt.lib ;
 
 guilflags ?= /RELEASE /subsystem:windows,4.0 ;
@@ -85,8 +87,8 @@ rule DylanLibrary image : version {
 
   # Here we save the name of the DLL and import lib for this library.
   
-  _dll_$(image[1]) = $(_dll) ;
-  _lib_$(image[1]) = $(_lib) ;
+  _dll_$(image[1]:L) = $(_dll) ;
+  _lib_$(image[1]:L) = $(_lib) ;
 
   # Shared libraries and executable images
 
@@ -97,7 +99,7 @@ rule DylanLibrary image : version {
   # We'll use the library name as the grist to identify referenced
   # source and object files.
   
-  SOURCE_GRIST = $(image[1]) ;
+  SOURCE_GRIST = $(image[1]:L) ;
 
   # Save the current dylanmakefile.mkf for reference by other libraries
 
@@ -126,13 +128,19 @@ rule DylanLibrary image : version {
   }
   Clean clean-all : $(_dll) $(_lib) $(_mkf) $(_exe) $(_obj) ;
 
+  # Set the initial libraries
+  if $(image[1]:L) != dylan {
+    LINKLIBS on $(_dll) ?= kernel32.lib dylan-support.lib ;
+    LINKLIBS on $(_exe) ?= kernel32.lib dylan-support.lib ;
+  }
+
   # Mark the library version
 
   VERSION on $(_dll) ?= $(version:J=.) ;
   VERSION on $(_exe) ?= $(version:J=.) ;
 
   # Determine the entry points
-  local _mangled = [ DFMCMangle $(image[1]) ] ;
+  local _mangled = [ DFMCMangle $(image[1]:L) ] ;
   ENTRY on $(_dll) ?= $(_mangled)Dll@12 ;
   ENTRY on $(_exe) ?= $(_mangled)Exe ;
 }
@@ -192,12 +200,15 @@ rule DylanLibraryCLibraries image : libraries {
 
   for lib in $(libraries) {
     switch $(lib) {
-      case *.[lL][iI][bB] :
-                    lib = [ FGristFiles $(lib) ] ;
-		    SEARCH on $(lib) = $(SEARCH_SOURCE) ;
-		    Depends $(_dll) : $(lib) ;
-		    NEEDLIBS on $(_dll) += $(lib) ;
-      case * :      Exit Unknown C library $(lib) ;
+#       case *.[lL][iI][bB] :
+#                   lib = [ FGristFiles $(lib) ] ;
+# 		    SEARCH on $(lib) = $(SEARCH_SOURCE) ;
+# 		    Depends $(_dll) : $(lib) ;
+# 		    NEEDLIBS on $(_dll) += $(lib) ;
+      case * :      LINKLIBS on $(_dll) += $(lib) ;
+	            if ! $(lib) in $(_clib_$(image[1]:L)) {
+		      _clib_$(image[1]:L) += $(lib) ;
+		    }
     }
   }
 }
@@ -268,36 +279,53 @@ rule DylanLibraryUses image : library : dir {
   
   local _dll = [ FDLLName $(image) ] ;
 
-  if $(_lib_$(library)) {
+  if $(_lib_$(library:L)) {
     # We already know the import library name; add the dependency.
     
-    Depends $(_dll) : $(_lib_$(library)) $(_dll_$(library)) ;
-    NEEDLIBS on $(_dll) += $(_lib_$(library)) ;
+    Depends $(_dll) : $(_dll_$(library:L)) ;
+    for _i in $(_lib_$(library:L)) {
+      if ! $(_i) in $(_lib_$(image[1]:L)) {
+	Depends $(_dll) : $(_i) ;
+	NEEDLIBS on $(_dll) += $(_i) ;
+	_lib_$(image[1]:L) += $(_i) ;
+      }
+    }
+    _clib_$(image[1]:L) += $(_clib_$(library:L)) ;
+    LINKLIBS on $(_dll) += $(_clib_$(library:L)) ;
   } else if $(dir) = system {
     # This is a system library; guess at the DLL name.
-    # TODO: read $(SYSTEM_LIBDIR)/$(library).mkf
+    # TODO: read $(SYSTEM_LIBDIR)/$(library:L).mkf
     
-    local _system_dll = [ FDLLName $(library) ] ;
-    local _system_lib = [ FLIBName $(library) ] ;
+    local _system_dll = [ FDLLName $(library:L) ] ;
+    local _system_lib = [ FLIBName $(library:L) ] ;
     MakeLocate $(_system_dll) : $(SYSTEM_LIBDIR) ;
     Depends $(_dll) : $(_system_dll) ;
     NEEDLIBS on $(_dll) += $(_system_lib) ;
+    _lib_$(image[1]:L) += $(_system_lib) ;
   } else {
     # Another personal library; read its mkf.
     
-    local PARENT = $(image[1]) ;
+    local PARENT = $(image[1]:L) ;
 
     local SEARCH_SOURCE LOCATE_SOURCE LOCATE_TARGET = $(dir) ;
     local SOURCE_GRIST ;
 
-    local _mkf = $(MKF:G=$(library)) ;
+    local _mkf = $(MKF:G=$(library:L)) ;
     SEARCH on $(_mkf) ?= $(SEARCH_SOURCE) ;
     IncludeMKF $(_mkf) ;
 
-    # Now that we know the import lib name of $(library), add the dependency.
+    # Now that we know the import lib name of $(library:L), add the dependency.
 
-    Depends $(_dll) : $(_lib_$(library)) $(_dll_$(library)) ;
-    NEEDLIBS on $(_dll) += $(_lib_$(library)) ;
+    Depends $(_dll) : $(_dll_$(library:L)) ;
+    for _i in $(_lib_$(library:L)) {
+      if ! $(_i) in $(_lib_$(image[1]:L)) {
+	Depends $(_dll) : $(_i) ;
+	NEEDLIBS on $(_dll) += $(_i) ;
+	_lib_$(image[1]:L) += $(_i) ;
+      }
+    }
+    _clib_$(image[1]:L) += $(_clib_$(library:L)) ;
+    LINKLIBS on $(_dll) += $(_clib_$(library:L)) ;
   }
 }
 
