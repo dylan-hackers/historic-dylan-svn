@@ -147,7 +147,9 @@ define function main(name, arguments)
   let bot-type = arguments.size > 2
                  & arguments[2]
                  | "dumber-bot";
-
+  when (arguments.size > 3 & arguments[3] = "-nodebug")
+    *debug* := #f;
+  end when;
   block ()
     if (bot-type = "tour-test")
       test-the-tour(input-stream, output-stream)
