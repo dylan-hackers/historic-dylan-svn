@@ -15,25 +15,39 @@ define function transform-document(doc :: <document>,
   transform(doc, doc.name, state, stream);
 end function transform-document;
 
+define function node-iterator(nodes :: <node-mixin>, state :: <xform-state>,
+                              stream :: <stream>)
+  *xml-depth* := *xml-depth* + 1;
+  for(node in nodes.node-children)
+    before-transform(nodes, state, *xml-depth*, stream);
+    transform(node, node.name, state, stream);
+  end for;
+  *xml-depth* := *xml-depth* - 1;
+end function node-iterator;
+
 define open generic transform(elt :: <xml>, tag-name :: <symbol>, 
                               state :: <xform-state>, str :: <stream>);
 
 //  the standard (default) transformation functions
-define method transform(nodes :: <node>, tag-name :: <symbol>,
+define method transform(doc :: <document>, tag-name :: <symbol>,
                         state :: <xform-state>, str :: <stream>)
-  *xml-depth* := *xml-depth* + 1;
-  for(node in nodes.node-children)
-    before-transform(nodes, state, *xml-depth*, str);
-    transform(node, node.name, state, str);
-  end for;
-  *xml-depth* := *xml-depth* - 1;
+  node-iterator(doc, state, str);
 end method transform;
 
-define open generic before-transform(node :: <node>, 
-    state :: <xform-state>, rep :: <integer>, str :: <stream>);
-define method before-transform(node :: <node>, 
-    state :: <xform-state>, rep :: <integer>, str :: <stream>) end;
+define method transform(elt :: <element>, tag-name :: <symbol>,
+                        state :: <xform-state>, str :: <stream>)
+  node-iterator(elt, state, str);
+end method transform;
 
+define open generic before-transform(node :: <node-mixin>,
+                                     state :: <xform-state>, 
+                                     rep :: <integer>, stream :: <stream>);
+define method before-transform(node :: <node-mixin>,
+                               state :: <xform-state>, 
+                               rep :: <integer>, 
+                               stream :: <stream>) end;
+
+/*
 define method transform(in :: <document>, tag-name :: <symbol>, 
                         state :: <xform-state>, str :: <stream>)
   next-method();
@@ -43,6 +57,7 @@ define method transform(in :: <element>, tag-name :: <symbol>,
                         state :: <xform-state>, str :: <stream>)
   next-method();  // continue iteration over my children
 end method transform;
+*/
 
 // N.B. no default xforms for attributes
 
