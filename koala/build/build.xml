@@ -1,8 +1,8 @@
 <!--
 
-$Id: build.xml,v 1.4 2002/05/08 13:58:35 sigue Exp $
+$Id: build.xml,v 1.5 2002/07/30 03:06:20 sigue Exp $
 
-Ant build file for the Koala HTTP server.
+Ant build file for the Koala HTTP server and associated libraries.
 
 Since there's no Dylan compiler option for Ant (yet?) this is just
 a way to copy files to the correct places after doing a build in
@@ -27,7 +27,7 @@ koala-x.y
 
   <!-- Set these both to the empty string if distributing a trunk version. -->
   <property name="version-prefix" value="-" />
-  <property name="version" value="0.2" />
+  <property name="version" value="0.3" />
 
   <property name="sources" value="${basedir}/sources" />
   <property name="www"     value="${basedir}/www" />

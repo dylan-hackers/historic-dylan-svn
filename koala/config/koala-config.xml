@@ -50,6 +50,8 @@
        warning - includes errors (you can't display warnings without seeing errors too)
        info    - includes warnings and errors.  this is the default value.
        debug   - includes all log messages
+       headers - show all incoming/outgoing headers.  this is so verbose it needs
+                 its own level.
 
      A bit more granularity may be added in the future.  If the "clear"
      attribute is false then the previous setting will not be cleared
