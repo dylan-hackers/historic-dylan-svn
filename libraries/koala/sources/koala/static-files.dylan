@@ -59,8 +59,12 @@ define method maybe-serve-static-file
   let url :: <string> = request-url(request);
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   when (document)
-    let etag = etag(document);
-    add-header(response, "ETag", etag);
+    let (etag, weak?) = etag(document);
+    if (weak?)
+      add-header(response, "W/ETag", etag);
+    else
+      add-header(response, "ETag", etag);
+    end if;
     let client-etag = get-header(request, "If-None-Match");
     if (etag = client-etag)
       request.request-method := #"head";
@@ -156,11 +160,12 @@ define method static-file-responder
   end;
 end;
 
-define method etag (locator :: <locator>) => (etag :: <string>)
+define method etag (locator :: <locator>) => (etag :: <string>, weak? :: <boolean>)
   //generate an etag (use modification date and size)
   // --TODO: algorithm should be changed (md5?), because a file can
   //changes more than once per second without changing size.
   let props = file-properties(locator);
+  let now = current-date();
   let timestamp = props[#"modification-date"];
   let time = (date-hours(timestamp) * 60 +
              date-minutes(timestamp)) * 60 +
@@ -168,9 +173,16 @@ define method etag (locator :: <locator>) => (etag :: <string>)
   let date = (date-year(timestamp) * 1000 +
              date-month(timestamp)) * 100 +
              date-day(timestamp);
-  concatenate("\"", integer-to-string(date, base: 16), "-",
-              integer-to-string(time, base: 16), "-",
-              integer-to-string(props[#"size"], base: 16), "\"");
+  let weak :: <boolean> = #f;
+  let dur :: <day/time-duration> =
+    make(<day/time-duration>, days: 0, seconds: 1);
+  if (now < timestamp + dur)
+    weak := #t;
+  end if;
+  values(concatenate("\"", integer-to-string(date, base: 16), "-",
+                     integer-to-string(time, base: 16), "-",
+                     integer-to-string(props[#"size"], base: 16), "\""),
+                     weak);
 end method etag;
 
 
