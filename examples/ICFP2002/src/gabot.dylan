@@ -100,7 +100,8 @@ end;
 // ## safe?{<drop-strategy>}
 define method safe?(dropping :: <drop-strategy>, me :: <gabot>, s :: <state>)
  => safe :: <boolean>;
-// TODO: any other robots around?
+  // any bots around?
+  //
   let position = agent-pos(me, s);
   
   local around(other :: <robot>)
@@ -113,12 +114,17 @@ define method safe?(dropping :: <drop-strategy>, me :: <gabot>, s :: <state>)
           distance-cost(position, a.location) < distance-cost(position, b.location);
         end;
 
-  let sorted-other-bots = as(<list>, sort(bots, test: nearer)).tail; // sort, and let me out
-  let nearest-bot = sorted-other-bots.first;
+  let sorted-other-bots = as(<list>, sort!(bots, test: nearer)).tail; // sort, and let me out
 
-  distance-cost(position, dropping.approach) < distance-cost(position, nearest-bot.location)
-  & distance-cost(position, dropping.approach) < distance-cost(dropping.approach, nearest-bot.location)
- //;/// TODO: all?(s.robots x path piints out-of-reach?)
+  if (sorted-other-bots.empty?)
+    #t
+  else
+    let nearest-bot = sorted-other-bots.first;
+
+    distance-cost(position, dropping.approach) < distance-cost(position, nearest-bot.location)
+    & distance-cost(position, dropping.approach) < distance-cost(dropping.approach, nearest-bot.location)
+    //;/// TODO: all?(s.robots x path piints out-of-reach?)
+  end if;
 end method safe?;
 
 // ## create-command{<drop-strategy>}
@@ -184,6 +190,60 @@ define method valid?(picking :: <pick-strategy>, state :: <state>) => valid :: <
      nonsense & maybe-mark-base-visited(picking.strategy-agent, state, picking.approach);
      ~nonsense
   end;
+end;
+
+
+
+define function check-packages-around(me :: <gabot>, s :: <state>)
+  => (thing, way :: <path>.false-or);
+  let position = agent-pos(me, s);
+block (return)
+  local try(near-point :: <point>)
+  	let packs = packages-at(s, near-point);
+  	debug("try: %=, packages: %=\n", near-point, packs);
+  	unless (packs.empty?)
+  	  let path = find-path(position, near-point, s.board, cutoff: 3);
+  	  return(path & packs.first, path)
+  	end unless;
+      end;
+
+  let S = point(x: position.x, y: position.y - 1);
+  try(S);
+
+  let N = point(x: position.x, y: position.y + 1);
+  try(N);
+
+  let W = point(x: position.x - 1, y: position.y);
+  try(W);
+
+  let E = point(x: position.x + 1, y: position.y);
+  try(E);
+
+  let SE = point(x: position.x + 1, y: position.y - 1);
+  try(SE);
+
+  let NE = point(x: position.x + 1, y: position.y + 1);
+  try(NE);
+
+  let NN = point(x: position.x, y: position.y + 2);
+  try(NN);
+
+  let SS = point(x: position.x, y: position.y - 2);
+  try(SS);
+  
+  let SW = point(x: position.x - 1, y: position.y - 1);
+  try(SW);
+
+  let NW = point(x: position.x - 1, y: position.y + 1);
+  try(NW);
+  
+  let EE = point(x: position.x + 2, y: position.y);
+  try(EE);
+
+  let WW = point(x: position.x - 2, y: position.y);
+  try(WW);
+end block;
+
 end;
 
 
@@ -272,9 +332,13 @@ debug("check11\n");
 //  find-robot(state, agent).inventory
 //  reduce(map(weight, packages), 0, \+)
   
-debug("check111\n");
+debug("check111a\n");
+  let (safe-pick, pick-path) = check-packages-around(me, s);
+  safe-pick & pick-path.pick-strategy.follow;
+  
+  
   let (safe-pick, pick-path) = find-safest(me, unvisited-bases(me, s), identity, s, weighting: weight /* my payload */);
-debug("check1111\n");
+debug("check1111b\n");
   safe-pick & pick-path.pick-strategy.follow;
   
 /*  ; not yet
