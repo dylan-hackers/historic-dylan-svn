@@ -227,6 +227,7 @@ define meta node (c, node) => (node)
   {
    ["Appearance",       ws(c), "{", scan-AppearanceNode(node),     ws?(c), "}"],
    ["Coordinate",       ws(c), "{", scan-CoordinateNode(node),     ws?(c), "}"],
+   ["TextureCoordinate", ws(c), "{", scan-TextureCoordinateNode(node), ws?(c), "}"],
    ["IndexedFaceSet",   ws(c), "{", scan-IndexedFaceSetNode(node), ws?(c), "}"],
    ["Material",         ws(c), "{", scan-MaterialNode(node),       ws?(c), "}"],
    ["Normal",           ws(c), "{", scan-NormalNode(node),         ws?(c), "}"],
@@ -257,6 +258,11 @@ define meta CoordinateNode (c, point) => (point)
   ws?(c),
   "point", ws(c), scan-MFVec3f(point)
 end CoordinateNode;
+
+define meta TextureCoordinateNode (c, point) => (point)
+  ws?(c),
+  "point", ws(c), scan-MFVec3f(point)
+end TextureCoordinateNode;
 
 //aaaaaaaaarrrrrrrrrggggghhhh ... we absolutely need to get backtracking working!!
 define meta IndexedFaceSetNode
