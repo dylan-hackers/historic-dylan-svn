@@ -11,7 +11,7 @@ define class <xml> (<object>)
 end class <xml>;
 
 define class <node> (<xml>)
-  constant slot node-children = #[], init-keyword: children:;    
+  slot node-children = #[], init-keyword: children:;    
 end class <node>;
 
 define class <attribute> (<xml>)

@@ -9,7 +9,7 @@ define open class <xform-state> (<object>) end;
 define constant $no-state = make(<xform-state>);
 
 define function transform-document(doc :: <document>, 
-    #key state = $no-state, 
+    #key state = $no-state,
     stream :: <stream> = *standard-output*)
   *xml-depth* := 0;
   transform(doc, doc.name, state, stream);
@@ -25,14 +25,19 @@ define method transform(nodes :: <node>, tag-name :: <symbol>,
   for(node in nodes.node-children)
     before-transform(nodes, state, *xml-depth*, str);
     transform(node, node.name, state, str);
+    after-transform(nodes, state, *xml-depth*, str);
   end for;
   *xml-depth* := *xml-depth* - 1;
 end method transform;
 
 define open generic before-transform(node :: <node>, 
     state :: <xform-state>, rep :: <integer>, str :: <stream>);
+define open generic after-transform(node :: <node>, state :: <xform-state>,
+                                    rep :: <integer>, str :: <stream>);
 define method before-transform(node :: <node>, 
     state :: <xform-state>, rep :: <integer>, str :: <stream>) end;
+define method after-transform(node :: <node>, state :: <xform-state>,
+                              rep :: <integer>, str :: <stream>) end;
 
 define method transform(in :: <document>, tag-name :: <symbol>, 
                         state :: <xform-state>, str :: <stream>)

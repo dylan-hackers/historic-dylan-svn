@@ -96,7 +96,7 @@ end method before-transform;
 define method transform(elt :: <element>, tag-name :: <symbol>,
                         state :: <add-parents>, str :: <stream>)
   elt.element-parent := *parent*;
-  *parent* := elt;  // is this rebind superfluous
+  *parent* := elt;  // is this rebind superfluous?  Seems to work okay
   next-method();
 end method transform;
 
@@ -107,12 +107,17 @@ end method transform;
 // 
 //    [1]    document    ::=    prolog element Misc*
 //
+
+define variable *modify?* :: <boolean> = #t;
+
 define function parse-document(doc :: <string>, 
                                #key start = 0, end: stop, 
-                               substitute-entities? = #t)
+                               substitute-entities? = #t,
+                               modify-elements-when-parsing? = #t)
  => (stripped-tree :: <document>)
   *entities* := make(<table>);
   *defining-entities?* := #f;
+  *modify?* := modify-elements-when-parsing?;
   *substitute-entities?* := substitute-entities?;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
   transform-document(document, state: make(<add-parents>));
@@ -423,11 +428,21 @@ define collect-value xml-attribute(c) () "'", "\"" => { } end;
 // assume that tags usually have content, and, therefore, look
 // for non-empty-element tags first when parsing.
 define meta element(name, attribs, content, etag)
- => (make(<element>, children: content, name: name, 
-     attributes: attribs))
+ => (make-element(content, name, attribs, *modify?*))
   {[scan-stag(name, attribs), scan-content(content), scan-etag(etag)],
    [scan-empty-elem-tag(name, attribs), set!(content, "")]}, []
 end meta element;
+
+// allows users to interpose their own object hierarchies for the elements
+// This is sort of CLOS's change-class limited to compile-time schemes
+define open generic make-element(kids :: <sequence>, name :: <symbol>, 
+                                 attribs :: <sequence>, mod :: <boolean>)
+ => (elt :: <element>);
+define method make-element(k :: <sequence>, n :: <symbol>, 
+                           a :: <sequence>, mod :: <boolean>)
+ => (elt :: <element>)
+  make(<element>, children: k, name: n, attributes: a);
+end method make-element;
 
 // Start-tag
 // 
