@@ -21,7 +21,9 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
 	let c = surf.color * (surf.diffusion-coefficient * ambient);
 	for (l in lights)
 	  c := c + surf.color * 
-	    (intensity-on(l, point, normal) * surf.diffusion-coefficient);
+	    (intensity-on(l, point, normal) * surf.diffusion-coefficient
+	       + intensity-on(l, point, normal, phong: surf.phong-coefficient)
+	         * surf.specular-coefficient);
 	end for;  
 	c;
       else

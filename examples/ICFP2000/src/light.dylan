@@ -11,10 +11,27 @@ define class <star> (<light>)
   slot direction :: <vector>, required-init-keyword: #"direction";
 end class <star>;
 
+define method initialize(s :: <star>, #key, #all-keys)
+  s.direction :=  normalize(s.direction);
+end method initialize;
 
 define method intensity-on
-    (light :: <star>, point :: <vector>, normal :: <vector>)
+    (light :: <star>, point :: <vector>, normal :: <vector>, #key
+       phong: p = 1.0)
  => (color :: <color>)
 
-  light.light-color * (-light.direction * normal);
+  let angle-factor = -light.direction * normal;
+  if (angle-factor < 0.0)
+    make-black();
+  else
+    light.light-color * angle-factor ^ p;
+  end if;
 end method intensity-on;
+
+
+/* This was commented out of transcendental.dylan.  Why??? */
+
+define method \^ (b :: <double-float>, x :: <real>)
+ => (y :: <double-float>)
+  exp(log(b) * x);
+end method;
