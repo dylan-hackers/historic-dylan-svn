@@ -1,6 +1,6 @@
 <!--
 
-$Id: build.xml,v 1.7 2002/08/15 05:26:53 sigue Exp $
+$Id: build.xml,v 1.8 2002/10/07 13:43:10 sigue Exp $
 
 Ant build file for the Koala HTTP server and associated libraries.
 
@@ -27,7 +27,7 @@ koala-x.y
 
   <!-- Set these both to the empty string if distributing a trunk version. -->
   <property name="version-prefix" value="-" />
-  <property name="version" value="0.3.1" />
+  <property name="version" value="0.4" />
 
   <property name="sources" value="${basedir}/sources" />
   <property name="www"     value="${basedir}/www" />
@@ -77,7 +77,7 @@ koala-x.y
 
     <copy todir="${dist}/www/koala">
       <fileset dir="${basedir}"
-               includes="change-log.txt" />
+               includes="change-log.txt, config/koala-config.xml" />
     </copy>
   </target>
 

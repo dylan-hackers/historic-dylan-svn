@@ -723,12 +723,21 @@ define function make-dummy-tag-call
 end;
 
 
+// Default method on respond-to-get processes the DSP template and displays
+// the result.  Subclasses can either call this with next-method() or call
+// process-template explicitly.
+//
 define method respond-to-get
     (page :: <dylan-server-page>, request :: <request>, response :: <response>)
-  display-page(page, request, response);
+  process-template(page, request, response);
 end;
 
-define open method display-page
+// Subclasses of <dylan-server-page> can call this in their respond-to-get/post
+// methods if they decide they want the DSP template to be processed.  (They
+// may also skip template processing by calling some other respond-to-get/post
+// method, throwing an exception, etc.
+//
+define open method process-template
     (page :: <dylan-server-page>, request :: <request>, response :: <response>)
   when (expired?(page) & page-source-modified?(page))
     page.page-template := parse-page(page);

@@ -22,7 +22,8 @@ define module dylan-basics
     // Wasn't sure whether to include this, since FunDev already has
     // float-to-string, but decided to keep it with a different name.
     // --cgay
-    float-to-formatted-string;
+    float-to-formatted-string,
+    join;
 end;
 
 

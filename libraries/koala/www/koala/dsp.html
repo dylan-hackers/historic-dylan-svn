@@ -1,6 +1,11 @@
 <html>
 <head>
-  <title>Dylan Server Pages Documentation</title>
+  <meta name="description" content="Dylan Server Pages (DSP) is a template engine for providing dynamic
+web site content using the Dylan language.  They are similar in spirit
+to JavaServer Pages.  All dynamic content is
+invoked via DSP custom tag calls.">
+
+  <title>Koala -- Dylan Server Pages Documentation</title>
 
   <style><!--
   body        { font-family: Arial,Helvetica,Sans-serif; font-size: 10pt; }
@@ -48,9 +53,18 @@
 <p>Dylan Server Pages (DSP) is a template engine for providing dynamic
 web site content using the Dylan language.  They are similar in spirit
 to JavaServer Pages, but without the ability to mix program logic and
-page content, which everyone agrees is a bad idea anyway.  All dynamic
-content is invoked via DSP tag calls such as
-&lt;xx:show-current-username/&gt;.
+page content, which is a bad idea anyway.  All dynamic content is
+invoked via DSP tag calls such as &lt;xx:show-current-username/&gt;.
+
+<p><font size="-1">(Okay, opinions can vary on the wisdom of closly
+mixing content and implementation, as with JSP scriptlets, but I
+contend that it's only ok for one-off hacks and small one-person
+projects.  This isn't necessary in DSP because with Dylan's powerful
+language features writing custom tags is trivial and concise compared
+to JSP.  And with <a
+href="http://www.functionalobjects.com/">Functional Developer</a>, you
+often don't even need to restart your application to compile new
+custom tags and try them out.)</font>
 
 <p>Currently, a DSP application is implemented as a Dylan project that
 uses the Koala HTTP server library.  This effectively means that each

@@ -166,10 +166,11 @@ define method note-form-error
   note-form-error(list(message, copy-sequence(args)));
 end;
 
-// This shows the use of <page-context> to store the form errors since they
+// This shows the use of <page-context> to store the form errors since
 // they only need to be accessible during the processing of one page.
 define method note-form-error
     (error :: <sequence>, #rest args)
+  ignore(args);
   let context :: <page-context> = page-context();
   let errors = get-attribute(context, #"errors") | make(<stretchy-vector>);
   add!(errors, error);
@@ -191,8 +192,6 @@ define tag show-errors in demo
     format(out, "</UL></FONT>\n");
   end;
 end;
-
-// home.dsp -- note that there is no need to register a page for
 
 define page example-login-page (<demo-page>)
     (url: "/demo/login.dsp",
@@ -311,11 +310,6 @@ end;
 define named-method no-rows-generator in demo
     (page :: <table-page>)
   #[]
-end;
-
-define named-method animal-table-has-rows? in demo
-    (page :: <table-page>, request)
-  #t
 end;
 
 define tag english-word in demo
