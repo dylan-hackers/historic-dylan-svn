@@ -3,11 +3,14 @@
 #
 
 CC	?= cl /nologo ;
+RC	?= rc ;
 LINK	?= link /nologo ;
 
 MKF	?= dylanmakefile.mkf ;
 
 SUFOBJ	?= .obj ;		# object files suffix
+SUFRC	?= .rc  ;		# source resource file suffix
+SUFRES	?= .res ;		# compiled resource file suffix
 SUFDLL	?= .dll ;		# shared library suffix
 SUFLIB	?= .lib ;		# import library suffix
 SUFEXE	?= .exe ;		# executable suffix
@@ -174,13 +177,13 @@ rule DylanLibraryCLibraries image : libraries {
 
   for lib in $(libraries) {
     switch $(lib) {
-      case -L* : LINKLIBS on $(_dll) += $(lib) ;
-      case -l* : LINKLIBS on $(_dll) += $(lib) ;
-      case *.a : lib = [ FGristFiles $(lib) ] ;
-		 SEARCH on $(lib) = $(SEARCH_SOURCE) ;
-		 Depends $(_dll) : $(lib) ;
-		 NEEDLIBS on $(_dll) += $(lib) ;
-      case * :   Exit Unknown C library $(lib) ;
+      case -L* :    LINKLIBS on $(_dll) += $(lib) ;
+      case -l* :    LINKLIBS on $(_dll) += $(lib) ;
+      case *.LIB :  lib = [ FGristFiles $(lib) ] ;
+		    SEARCH on $(lib) = $(SEARCH_SOURCE) ;
+		    Depends $(_dll) : $(lib) ;
+		    NEEDLIBS on $(_dll) += $(lib) ;
+      case * :      Exit Unknown C library $(lib) ;
     }
   }
 }
@@ -220,8 +223,21 @@ rule DylanLibraryRCFiles image : rcfiles {
   #Echo DylanLibraryRCFiles $(image) ":" $(rcfiles) ;
   
   # Link Win32 resource files into the shared library and executable.
-  
-  Echo Ignoring RC file(s) $(rcfiles) ;
+
+  local _dll = [ FDLLName $(image) ] ;
+  local _exe = [ FEXEName $(image) ] ;
+
+  for _rc in $(rcfiles) {
+    SEARCH on $(_rc) = $(SEARCH_SOURCE) ;
+
+    local _res = $(_rc:S=$(SUFRES)) ;
+    MakeLocate $(_res) : $(LOCATE_SOURCE) ;
+
+    Depends $(_dll) $(_exe) : $(_res) ;
+    RES on $(_dll) $(_exe) += $(_res) ;
+
+    RC $(_res) : $(_rc) ;
+  }
 }
 
 rule DylanLibraryJamIncludes image : includes {
@@ -277,16 +293,24 @@ rule LinkDLL {
   Depends $(<) : $(>) ;
 }
 
-actions together LinkDLL bind NEEDLIBS {
-  $(LINK) /DLL /OUT:"$(<[1])" /IMPLIB:"$(<[2])" $(LINKFLAGS) /BASE:$(BASE) /VERSION:$(VERSION) /ENTRY:$(ENTRY) "$(>)" $(NEEDLIBS) $(LINKLIBS)
+actions together LinkDLL bind NEEDLIBS RES {
+  $(LINK) /DLL /OUT:"$(<[1])" /IMPLIB:"$(<[2])" $(LINKFLAGS) /BASE:$(BASE) /VERSION:$(VERSION) /ENTRY:$(ENTRY) "$(>)" $(RES) $(NEEDLIBS) $(LINKLIBS)
 }
 
 rule LinkEXE {
   Depends $(<) : $(>) ;
 }
 
-actions LinkEXE bind NEEDLIBS {
-  $(LINK) /RELEASE /OUT:"$(<[1])" /SUBSYSTEM:CONSOLE,4.0 $(LINKFLAGS) /VERSION:$(VERSION) /ENTRY:$(ENTRY) "$(>)" $(NEEDLIBS) $(LINKLIBS)
+actions LinkEXE bind NEEDLIBS RES {
+  $(LINK) /RELEASE /OUT:"$(<[1])" /SUBSYSTEM:CONSOLE,4.0 $(LINKFLAGS) /VERSION:$(VERSION) /ENTRY:$(ENTRY) "$(>)" $(RES) $(NEEDLIBS) $(LINKLIBS)
+}
+
+rule RC {
+  Depends $(<) : $(>) ;
+}
+
+actions RC {
+  $(RC) /r /dWIN32 /d_WIN32 /dWINVER=0x0400 /FO "$(<)" "$(>)"
 }
 
 #
@@ -296,7 +320,7 @@ actions LinkEXE bind NEEDLIBS {
 rule FDLLName {
   if $(<[2]) {
     return $(<[2]:S=$(SUFDLL)) ;
-  } else
+  } else {
     return $(<[1]:S=$(SUFDLL)) ;
   }
 }
@@ -304,7 +328,7 @@ rule FDLLName {
 rule FLIBName {
   if $(<[2]) {
     return $(<[2]:S=$(SUFLIB)) ;
-  } else
+  } else {
     return $(<[1]:S=$(SUFLIB)) ;
   }
 }
@@ -312,7 +336,7 @@ rule FLIBName {
 rule FEXEName {
   if $(<[2]) {
     return $(<[2]:S=$(SUFEXE)) ;
-  } else
+  } else {
     return $(<[1]:S=$(SUFEXE)) ;
   }
 }
