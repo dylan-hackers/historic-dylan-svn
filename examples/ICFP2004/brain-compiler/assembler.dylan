@@ -175,7 +175,6 @@ define function lookup (instrs, label, counter)
     let instr = instrs[pos];
     select (instr by instance?)
       <function> =>
-        instrs[pos] := #f; // in progress
         instrs[pos] := instr();
       otherwise =>
         instr;
@@ -199,8 +198,10 @@ define generic put-instruction(instr :: <instruction>, brain :: <stretchy-vector
 
 define method put-instruction(instr :: <instruction>, brain :: <stretchy-vector>, pos-table :: <table>)
  => ();
-  pos-table[instr] := brain.size;
-  add!(brain, instr);
+  unless (element(pos-table, instr, default: #f))
+    pos-table[instr] := brain.size;
+    add!(brain, instr);
+  end
 end;
 
 define macro integrate-state
@@ -402,7 +403,7 @@ end;
 
 define method unparse(s :: <sense>)
  => text :: <byte-string>;
-  format-to-string("Sense %s %d %d %s\n",
+  format-to-string("Sense %s %d %d %s",
                    s.sense-direction.sense-direction-as-string,
                    s.state-true,
                    s.state-false,
@@ -412,37 +413,37 @@ end;
 
 define method unparse(m :: <mark>)
  => text :: <byte-string>;
-  format-to-string("Mark %d %d\n", m.marker, m.state);
+  format-to-string("Mark %d %d", m.marker, m.state);
 end;
 
 define method unparse(u :: <unmark>)
  => text :: <byte-string>;
-  format-to-string("Unmark %d %d\n", u.marker, u.state);
+  format-to-string("Unmark %d %d", u.marker, u.state);
 end;
 
 define method unparse(p :: <pickup>)
  => text :: <byte-string>;
-  format-to-string("PickUp %d %d\n", p.state-success, p.state-failure);
+  format-to-string("PickUp %d %d", p.state-success, p.state-failure);
 end;
 
 define method unparse(d :: <drop>)
  => text :: <byte-string>;
-  format-to-string("Drop %d\n", d.state);
+  format-to-string("Drop %d", d.state);
 end;
 
 define method unparse(t :: <turn>)
  => text :: <byte-string>;
-  format-to-string("Turn %s %d\n", if (t.left-or-right == #"left") "Left" else "Right" end, t.state);
+  format-to-string("Turn %s %d", if (t.left-or-right == #"left") "Left" else "Right" end, t.state);
 end;
 
 define method unparse(m :: <move>)
  => text :: <byte-string>;
-  format-to-string("Move %d %d\n", m.state-success, m.state-failure);
+  format-to-string("Move %d %d", m.state-success, m.state-failure);
 end;
 
 define method unparse(f :: <flip>)
  => text :: <byte-string>;
-  format-to-string("Flip %d %d %d\n", f.probability, f.state-success, f.state-failure);
+  format-to-string("Flip %d %d %d", f.probability, f.state-success, f.state-failure);
 end;
 
 
