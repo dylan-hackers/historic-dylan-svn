@@ -37,7 +37,16 @@ end;
 // ## <path-strategy>
 define abstract class <path-strategy>(<strategy>)
   slot approach :: <point>, required-init-keyword: approach:;
-  slot strategy-path :: <path>, required-init-keyword: path:;
+  /* virtual*/ slot strategy-path :: <path>, required-init-keyword: path:;
+end;
+
+/* ### not yet
+define method strategy-path(strategy :: <path-strategy>) => way :: <path>;
+  find-path(agent-pos(strategy.strategy-agent), strategy.approach, state.board)
+end;
+*/
+
+define class <state-query>(<condition>)
 end;
 
 // ## create-command{<path-strategy>}
@@ -48,6 +57,13 @@ define method create-command(s :: <path-strategy>) => command :: <command>;
              & path.tail
              | path;
   let path = s.strategy-path := path;
+  
+  let dir = points-to-direction(robot.location, path.first);
+  let path = dir & path
+                 | begin
+                     let state = <state-query>.make.signal;
+                     s.strategy-path := find-path(agent-pos(s.strategy-agent, state), s.approach, state.board)
+                   end begin;
   
   make(<move>, direction: points-to-direction(robot.location, path.first), 
        bid: 1, id: robot.id);
@@ -199,6 +215,8 @@ define method generate-next-move(me :: <gabot>, s :: <state>)
   let bot = find-robot(s, me.agent-id);
 
 block (return)
+  let handler <state-query> = s.always;
+
   local method follow(strategy :: <strategy>)
           me.decided := strategy;
           strategy.strategy-robot := bot;
