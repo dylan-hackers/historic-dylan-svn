@@ -251,7 +251,7 @@ define constant <pub-id-char> =
 define macro collect-data-definer
 { define collect-data ?:name(?except:expression) end }
  => {  define collector ?name ## "-data" (c)
-        => (make(<char-string>, text: as(<string>, ?=str)))
+        => (make(<char-string>, text: trim-string(?=str)))
          [test(rcurry(not-in-set?, ?except), c), do(?=collect(c))],
          loop([test(rcurry(not-in-set?, ?except), c), do(?=collect(c))])
        end collector }
@@ -298,7 +298,7 @@ define constant scan-pi-target = scan-name;
 // loop operator here.                        --andreas
 //
 define collector cd-sect(c)
- => (make(<char-string>, text: as(<string>, str)))
+ => (make(<char-string>, text: trim-string(str)))
   "<![CDATA[",
   loop({["]]>", finish()], [type(<char>, c), do(collect(c))]})
 end collector cd-sect;
@@ -438,10 +438,13 @@ end meta element;
 define open generic make-element(kids :: <sequence>, name :: <symbol>, 
                                  attribs :: <sequence>, mod :: <boolean>)
  => (elt :: <element>);
+
+define class <element-impl> (<element>) end;
+
 define method make-element(k :: <sequence>, n :: <symbol>, 
                            a :: <sequence>, mod :: <boolean>)
  => (elt :: <element>)
-  make(<element>, children: k, name: n, attributes: a);
+  make(<element-impl>, children: k, name: n, attributes: a);
 end method make-element;
 
 // Start-tag

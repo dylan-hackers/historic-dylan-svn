@@ -10,10 +10,10 @@ define library xml-parser
 end library;
 
 define module xml-parser
-  create transform, transform-document, before-transform, after-transform,
+  create transform, transform-document, before-transform,
          <xform-state>, <collect-state>, *xml-depth*;
 
-  create parse-document, <add-parents>;
+  create parse-document;
 
   create <document>, <element>, <attribute>, <entity-reference>,
     <char-reference>, <char-string>, <xml>, <node>, text, char, name;
@@ -29,7 +29,7 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <hex-digit>, <version-number>, element-parent-setter;
+  export <hex-digit>, <version-number>, element-parent-setter, trim-string;
 end module interface;
 
 define module transform
