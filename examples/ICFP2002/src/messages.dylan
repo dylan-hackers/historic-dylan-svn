@@ -31,6 +31,11 @@ define constant $water-char = '~';
 define constant $wall-char = '#';
 define constant $base-char = '@';
 
+define constant $north-string = "N";
+define constant $south-string = "S";
+define constant $west-string = "W";
+define constant $east-string = "E";
+
 // The <message-error> class is the class that signals an error during
 // sending or receiving a message. The message-error function creates
 // an error message. add-error lets you trap a <message-error>, add
@@ -62,9 +67,78 @@ end function debug;
 // Sending functions. 
 
 define function send-player (s :: <stream>) => ()
-  write(s, $player-msg);
+  format(s, $player-msg);
   debug("send-player:\n%s", $player-msg);
 end function send-player;
+
+// This code is kind of yucky. How can I clean it up?
+
+define generic send-move (s :: <stream>,
+                          bid :: <integer>,
+                          direction :: <direction>) => ();
+
+define method send-move (s :: <stream>,
+                         bid :: <integer>,
+                         direction :: <north>) => ();
+  format(s, "%d ", bid);
+  format(s, "%s\n", $north-string);
+  debug("send-move: bid = %d and direction <north>\n")
+end function send-move;
+
+define method send-move (s :: <stream>,
+                         bid :: <integer>,
+                         direction :: <south>) => ();
+  format(s, "%d ", bid);
+  format(s, "%s\n", $south-string);
+  debug("send-move: bid = %d and direction <south> \n")
+end function send-move;
+
+define method send-move (s :: <stream>,
+                         bid :: <integer>,
+                         direction :: <east>) => ();
+  format(s, "%d ", bid);
+  format(s, "%s\n", $east-string);
+  debug("send-move: bid = %d and direction <east>\n")
+end function send-move;
+
+define method send-move (s :: <stream>,
+                         bid :: <integer>,
+                         direction :: <west>) => ();
+  format(s, "%d ", bid);
+  format(s, "%s\n", $west-string);
+  debug("send-move: bid = %d and direction <west>\n")
+end function send-move;
+
+// This sends a message to pick up some objects. 
+
+define function send-package-ids (s :: <stream>,
+                                  package-ids :: <sequence>) => ()
+  let n = package-ids.size;
+  for (i from 0 below n)
+    format(s, "%d", package-ids[i]);
+    format(s, if (i < n - 1) " " else "\n" end);
+  end for;
+end function send-package-ids;
+
+define method send-pick (s :: <stream>,
+                         big :: <integer>,
+                         package-ids :: <sequence>) => ();
+  format(s, "%d Pick", bid);
+  debug("send-pick: %d Pick %=\n", package-ids);
+  send-package-ids(s, package-ids);
+end method send-pick;
+
+define method send-drop (s :: <stream>,
+                         big :: <integer>,
+                         package-ids :: <sequence>) => ();
+  format(s, "%d Drop", bid);
+  debug("send-drop: %d Pick %=\n", package-ids);
+  send-package-ids(s, package-ids);
+end method send-drop;
+
+// 
+
+
 
 // Basic receiver functions. These functions will let you understand the
 // server and send messages to it. 
