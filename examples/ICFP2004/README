@@ -9,11 +9,24 @@ We have written the following programs:
 - world simulator library as per the task spec                      (Dylan)
 - fast simulator (<2 sec) to evaluate ant brains in competition     (Dylan)
 - slow simulator with OpenGL interface for visualization            (Dylan)
+- slow simulator variation to show concentric marking and trails    (Dylan)
 
 - quick & dirty symbolic assembler for ant brains                   (Perl)
 - high level macro-based compiler library for ant brains            (Dylan)
 
-- various ant brains, hand coded using one of the above
+- various ant brains, hand coded using one of the above, some parts
+  machine generated
+
+
+Our entries consist of hybrid ants, implementing several strategies at
+once.  There is an attempt to defend the nest, and an attempt to raid
+the opponent's nest.
+
+The main intersting point is the algorithm to mark the world with
+scents indicating the direction of the nest, so that ants carrying
+food can return quickly.  They also lay trails which are followed
+outwards to the food.
+
 
 
 New Zealand part of the team:
