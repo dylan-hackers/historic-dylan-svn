@@ -1,4 +1,6 @@
 library: xml-parser
 files: library
   interface
-  xml-parser-implementation
+  value-impl
+  builder-impl
+

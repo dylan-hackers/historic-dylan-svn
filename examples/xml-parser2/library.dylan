@@ -18,8 +18,9 @@ define module xml-parser
 // do everything, but until I get that working, I need to test
 // the system piecemeal.
   create parse-xml-element-start;
-  create parse-element, parse-attribute, parse-stag, parse-content,
-         parse-etag, parse-char-data;
+  create parse-element, parse-attribute, 
+         parse-stag, parse-content, parse-etag, parse-empty-elem-tag,
+         parse-char-data;
 
 // all the above parse-foos will be replaced with:
   create parse-document;
@@ -40,7 +41,7 @@ define module interface
   use xml-parser;
 end module interface;
 
-define module xml-parser-implementation
+define module value-impl
   use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
@@ -49,6 +50,19 @@ define module xml-parser-implementation
 
   use meta;
   use xml-parser;
-  use interface;
-end module xml-parser-implementation;
 
+  export parse-xml-attributes, parse-name, parse-s,
+end module value-impl;
+
+define module builder-impl
+  use common-dylan, exclude: { format-to-string };
+  use streams;
+  use format;
+  use table-extensions;
+  use print;
+
+  use meta;
+  use xml-parser;
+  use value-impl;
+  use interface;
+end module builder-impl;

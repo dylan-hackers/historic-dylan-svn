@@ -42,6 +42,10 @@ begin
   $testable-fns[#"parse-xml-element-start"] 
     := curry(parse-xml-element-start, *my-builder*);
   $testable-fns[#"parse-char-data"] := parse-char-data;
+  $testable-fns[#"parse-stag"] := parse-stag;
+  $testable-fns[#"parse-empty-elem-tag"] := parse-empty-elem-tag;
+  $testable-fns[#"parse-element"] := parse-element;
+  
   
   main(application-name(), application-arguments());
 end;

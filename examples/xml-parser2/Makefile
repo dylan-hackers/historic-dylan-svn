@@ -1,4 +1,4 @@
-xml-parser: xml-parser.lid xml-parser-implementation.dylan library.dylan interface.dylan
+xml-parser: xml-parser.lid library.dylan interface.dylan value-impl.dylan builder-impl.dylan
 	d2c xml-parser.lid
 
 clean:

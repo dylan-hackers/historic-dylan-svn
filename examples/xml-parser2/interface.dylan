@@ -9,9 +9,9 @@ define abstract open class <xml-builder> (<object>)
 end class <xml-builder>;
 
 define class <xml-element> (<object>)
-  slot name, init-keyword: name:;
-  slot attributes, init-keyword: attributes:;
-  slot children;
+  slot name :: <string>, init-keyword: name:;
+  slot attributes :: <table>, init-keyword: attributes:;
+  slot char-data :: <string>;
 end class <xml-element>;
 
 define method print-object(element :: <xml-element>, s :: <stream>) => ()
@@ -28,14 +28,5 @@ define class <xml-parse-error> (<error>)
 end class <xml-parse-error>;
 
 define open generic start-element(bldr :: <xml-builder>, elt :: <xml-element>);
-define method start-element(bldr :: <xml-builder>, elt :: <xml-element>)
-  error("You must subclass <xml-builder> and start-element");
-end method start-element;
-
 define open generic end-element(bldr :: <xml-builder>, elt :: <xml-element>);
-define method end-element(bldr :: <xml-builder>, elt :: <xml-element>)
-  error("You must subclass <xml-builder> and end-element");
-end method end-element;
-
-
 define open generic text (bldr :: <xml-builder>, txt :: <string>);
