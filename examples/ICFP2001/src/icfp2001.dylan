@@ -186,8 +186,6 @@ define function bgh-parse(s :: <byte-string>)
 
   let p = 0;
 
-//  add!(fragments, ""); // stop concatenate puking with no args. ick
-
   local
     method save-run()
       if (run-state.value ~== curr-state.value)
@@ -262,6 +260,7 @@ define function bgh-parse(s :: <byte-string>)
     end case;
   end;
   curr-state := make(<attribute>, value: -1);
+  non-space-char-in-run := #t;
   save-run();
 
   runs;
