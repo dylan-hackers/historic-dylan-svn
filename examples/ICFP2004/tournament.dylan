@@ -3,8 +3,19 @@ module: ants
 define class <brain> (<object>)
   slot name :: <byte-string>, required-init-keyword: name:;
   slot code :: <vector> = #[];
+  slot played :: <integer> = 0;
   slot score :: <integer> = 0;
+  slot food :: <integer> = 0;
 end class <brain>;
+
+define function win-percent(brain) => (percentage)
+    if (brain.played == 0)
+        "n/a";
+    else
+        round(100.0s0 * (as(<single-float>, brain.score) /
+                         as(<single-float>, brain.played)));
+    end;
+end;
 
 define function load-brain(b :: <brain>)
   with-open-file(s = b.name)
@@ -29,6 +40,9 @@ define function run-single-tournament(brains, worlds)
     brain2 := brains[random(brains.size)];
   end while;
   let world = worlds[random(worlds.size)];
+  
+  brain1.played := brain1.played + 1;
+  brain2.played := brain2.played + 1;
 
   *red-brain* := brain1.code;
   *black-brain* := brain2.code;
@@ -69,8 +83,8 @@ begin
   for(i from 0 below 100)
     run-single-tournament(brains, worlds);
     do(method(x) 
-           format-out("%= total score: %=\n", 
-                      x.name, x.score)
+           format-out("%=\ttotal rounds: %=\twin %%: %=\n", 
+                      x.name, x.played, win-percent(x))
        end method, brains);
     force-output(*standard-output*);
   end for;
