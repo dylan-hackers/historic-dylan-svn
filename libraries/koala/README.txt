@@ -40,9 +40,17 @@ DSP demo.
 Building Koala
 --------------
 
-If you have a source distribution (which you should) then you can build
-Koala using Functional Developer.  Just open
-koala/sources/example/koala-example.hdp and build the project.
+If you have a source distribution then you can build Koala using
+Functional Developer.  Because Koala uses the XML, DOM, and Expat
+libraries from Functional Developer, and those libraries aren't (yet)
+open source, some extra steps are required to build Koala.  Perform
+the following file copy operations:
+
+copy koala/lib/*.ddb to <fundev-root>/Databases/
+copy koala/lib/*.lib to <fundev-root>/Lib/
+copy koala/lib/*.mkf to <fundev-root>/Lib/
+
+Now open koala/sources/example/koala-example.hdp and build the project.
 
 If you want to make a new distribution of Koala, build the koala-example
 project, then use the Build Release command in Functional Developer,
