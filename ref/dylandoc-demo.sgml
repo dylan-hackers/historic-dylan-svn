@@ -1,0 +1,123 @@
+<!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.0//EN" [
+ <!ENTITY % entities SYSTEM "entities.sgml">
+ %entities;
+]>
+
+<book>
+  <title>This is a book</title>
+  <chapter>
+    <title>This is a sample chapter</title>
+
+    <dylanconstantdef>
+      <defname>$foo</defname>
+      <deftype>&lt;integer&gt;</deftype>
+      <defvalue>42</defvalue>
+      <defbody>
+	<para>This constant specifies the foo quantity of the
+	universe.</para>
+      </defbody>
+    </dylanconstantdef>
+
+    <dylanvariabledef>
+      <defname>*pi*</defname>
+      <deftype>&lt;float&gt;</deftype>
+      <defbody>
+	<para>User-settable universal constant controlling the ratio of a
+	circle's diameter to its circumferance.</para>
+      </defbody>
+    </dylanvariabledef>
+
+    <dylanfunctiondef>
+      <defname>identity</defname>
+      <defadjectives>Inline</defadjectives>
+      <defparameters>
+	<defparam>
+	  <paramname>object</paramname>
+	  <paramtype>&lt;object&gt;</paramtype>
+	  <paramsynopsis>Anything at all.</paramsynopsis>
+	</defparam>
+      </defparameters>
+      <defreturns>
+	<defparam>
+	  <paramname>object</paramname>
+	  <paramtype>&lt;object&gt;</paramtype>
+	</defparam>
+      </defreturns>
+      <defbody>
+	<para><literal/identity/ takes a single argument and returns it
+	unchanged.</para>
+      </defbody>
+    </dylanfunctiondef>
+
+    <dylanfunctiondef>
+      <defname>reboot-computer</defname>
+      <defparameters>
+      </defparameters>
+      <defreturns>
+      </defreturns>
+      <defbody>
+	<para>Reboots your computer.</para>
+      </defbody>
+    </dylanfunctiondef>
+
+    <dylanfunctiondef>
+      <defname>exchange</defname>
+      <defparameters>
+	<defparam>
+	  <paramname>object1</paramname>
+	  <paramtype>&lt;object&gt;</paramtype>
+	</defparam>
+	<defparam>
+	  <paramname>object2</paramname>
+	  <paramtype>&lt;object&gt;</paramtype>
+	</defparam>
+      </defparameters>
+      <defreturns>
+	<defparam>
+	  <paramname>object2</paramname>
+	  <paramtype>&lt;object&gt;</paramtype>
+	</defparam>
+	<defparam>
+	  <paramname>object1</paramname>
+	  <paramtype>&lt;object&gt;</paramtype>
+	</defparam>
+      </defreturns>
+      <defbody>
+	<para>Returns two arguments in reverse order.</para>
+      </defbody>
+    </dylanfunctiondef>
+
+    <dylanfunctiondef>
+      <defname>weird-args</defname>
+      <defparameters>
+	<defparam>
+	  <paramname>foo</paramname>
+	  <paramtype>&lt;string&gt;</paramtype>
+	</defparam>
+	<rest>
+	</rest>
+	<key>
+	  <defparam>
+	    <paramname>bar</paramname>
+	    <paramtype>&lt;number&gt;</paramtype>
+	  </defparam>
+	  <defparam>
+	    <paramname>baz</paramname>
+	    <paramtype>&lt;number&gt;</paramtype>
+	  </defparam>
+	</key>
+	<allkeys>
+      </defparameters>
+      <defreturns>
+	<rest>
+	  <paramname>munged</paramname>
+	  <resttype>&lt;object&gt;</resttype>
+	</rest>
+      </defreturns>
+      <defbody>
+	<para>Full argument lists should work fine.</para>
+      </defbody>
+    </dylanfunctiondef>
+
+  </chapter>
+</book>

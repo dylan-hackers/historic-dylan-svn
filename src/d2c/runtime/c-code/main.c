@@ -1,4 +1,4 @@
-/* $Header: /scm/cvs/src/d2c/runtime/c-code/main.c,v 1.1 1998/05/03 19:55:41 andreas Exp $ */
+/* $Header: /scm/cvs/src/d2c/runtime/c-code/main.c,v 1.4 1998/11/13 06:51:33 housel Exp $ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,7 +19,7 @@ void not_reached(void)
    */
 void real_main(int argc, char *argv[])
 {
-    descriptor_t *sp = GC_malloc(64*1024);
+    descriptor_t *sp = allocate_stack();
 
     /* Run all the top level initializations. */
     inits(sp, argc, argv);
@@ -27,6 +27,11 @@ void real_main(int argc, char *argv[])
     /* exit(0) -- I would have thought this to be the default, but it
        seems to be neccessary, at least on win32 */
     exit(0);
+}
+
+descriptor_t *allocate_stack(void)
+{
+    return (descriptor_t *) GC_malloc_ignore_off_page(64*1024);
 }
 
 
@@ -219,6 +224,22 @@ float sqrtf (float x)
 double log2 (double x)
 {
   return 0;
+}
+
+#endif
+
+#if !defined(WIN32)
+
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
+void no_core_dumps(void)
+{
+  struct rlimit lim;
+  getrlimit(RLIMIT_CORE, &lim);
+  lim.rlim_cur = 0;
+  setrlimit(RLIMIT_CORE, &lim);
 }
 
 #endif

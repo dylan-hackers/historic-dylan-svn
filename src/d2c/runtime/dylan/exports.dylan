@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.1 1998/05/03 19:55:38 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.4 1998/11/11 15:54:22 housel Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
@@ -101,7 +101,7 @@ define module Dylan
 	     every?, reduce, reduce1, choose, choose-by, member?,
 	     find-key, remove-key!, replace-elements!, fill!,
 	     forward-iteration-protocol, backward-iteration-protocol,
-	     table-protocol, merge-hash-codes, object-hash,
+	     table-protocol, merge-hash-ids, object-hash,
 
 	     // Reflective Operations on Types
 	     instance?, subtype?, object-class, all-superclasses,
@@ -126,9 +126,6 @@ define module Dylan
 	     do-handlers, return-allowed?, return-description,
 	     condition-format-string, condition-format-arguments,
 	     type-error-value, type-error-expected-type,
-
-	     // Other Built-In Objects
-	     $permanent-hash-state,
 
 	     // Definitions
 	     variable-definer, constant-definer, domain-definer,
@@ -173,7 +170,7 @@ define module Extensions
 
 	     // Misc other stuff.
 	     $not-supplied, ignore, functional-==, key-exists?, assert,
-	     exit, limited-collection-definer,
+	     exit, on-exit, limited-collection-definer,
 	     limited-vector-class, element-type, %elem, %elem-setter,
 	     limited-sv-class, ssv-data, ssv-data-setter, lsv-data-type,
              lsv-fill, %main, main
@@ -196,7 +193,8 @@ define module System
     import: {\%%primitive,
 	     
 	     // Foreign interface stuff.
-	     \call-out, \c-include, \c-decl, \c-expr,
+	     \call-out, \c-include, \c-decl, \c-expr, \callback-method,
+	     callback-entry,
 
 	     // Raw pointer stuff.
 	     <raw-pointer>, pointer-deref, pointer-deref-setter,
