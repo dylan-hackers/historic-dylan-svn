@@ -285,9 +285,11 @@ define variable *key-bindings* = make(<simple-vector>,
 *key-bindings*[5] := end-of-line;
 *key-bindings*[70] := end-of-line;
 *key-bindings*[11] := kill-to-end-of-line;
-*key-bindings*[91] := #f;
-*key-bindings*[37] := #f;
-*key-bindings*[27] := #f;
+*key-bindings*[91] := method(x) end;
+*key-bindings*[37] := method(x) end;
+*key-bindings*[27] := method(x) end;
+*key-bindings*[65] := method(x) end;
+*key-bindings*[66] := method(x) end;
 
 
 define variable to-raw    = identity;
