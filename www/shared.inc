@@ -98,7 +98,6 @@ function short_header ($title) {
 <P><SMALL>&nbsp;&nbsp;&nbsp;&nbsp;Count of lines recently <font color="#0000FF">added</font> and <font color="#FF0000">removed</font></SMALL></P>
 <TR>
 <A HREF="/cgi-bin/viewcvs.cgi">
-<!--- IMG SRC="inline_cvs_img.php"></A> -->
 <IMG SRC="cvsact.png"></A>
 </TR></TABLE></TD>
 
