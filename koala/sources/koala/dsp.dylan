@@ -162,7 +162,7 @@ end;
 // Page mixin classes and related methods
 //
 
-define free class <file-page-mixin> (<object>)
+define free class <file-page-mixin> (<expiring-mixin>)
   // page-source may be a relative locator, in which case the full source
   // location is determined when the page is requested, based on the document
   // root of the current virtual host.  This is typed as <pathname> solely
@@ -212,6 +212,16 @@ define method page-directory
   locator-directory(source-location(page))
 end;
 
+define method page-source-modified?
+    (page :: <file-page-mixin>) => (modified? :: <boolean>)
+  block ()
+    ~page.mod-time
+      | file-property(source-location(page), #"modification-date") > page.mod-time
+  exception (e :: <error>)
+    #t  // i figure we want an error to occur if, say, the file was deleted.
+  end
+end;
+
 
 //
 // Static pages
@@ -221,7 +231,7 @@ end;
 // I think it was originally intended to prevent checking the
 // file mod date too often, but that's kind of useless.
 //
-define open primary class <static-page> (<expiring-mixin>, <file-page-mixin>, <page>)
+define open primary class <static-page> (<file-page-mixin>, <page>)
 end;
 
 define method respond-to-get
@@ -629,20 +639,10 @@ end;
 // Dylan Server Pages
 //
 
-define open primary class <dylan-server-page> (<expiring-mixin>, <file-page-mixin>, <page>)
+define open primary class <dylan-server-page> (<file-page-mixin>, <page>)
   // A sequence of strings and functions.  Strings are output directly
   // to the network stream.  The functions are created by 'define tag'.
   slot page-template :: <dsp-template>;
-end;
-
-define method page-source-modified?
-    (page :: <dylan-server-page>) => (modified? :: <boolean>)
-  block ()
-    ~page.mod-time
-      | file-property(source-location(page), #"modification-date") > page.mod-time
-  exception (e :: <error>)
-    #t  // i figure we want an error to occur if, say, the file was deleted.
-  end
 end;
 
 // define page my-dsp (<dylan-server-page>) (url: "/hello", source: make-locator(...), ...)
