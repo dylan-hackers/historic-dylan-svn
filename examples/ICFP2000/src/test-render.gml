@@ -2,14 +2,14 @@
   0.0 0.0 1.0 point   % color
   1.0		      % Full diffusion coef
   0.0		      % No specular
-  0.0		      % No phong, either
+  1.0		      % No phong, either
 } /blue
 
 { /v /u /face         % ignore the args
   1.0 0.0 0.0 point   % color
-  0.5		      % Full diffusion coef
-  1.0		      % No specular
-  3.0		      % No phong, either
+  1.0		      % Full diffusion coef
+  0.0		      % specular
+  1.0		      % phong exp
 } /red
 
 { /v /u /face
@@ -26,10 +26,10 @@ blue plane 0.0 -0.5 0.0 translate /p
 1.0 1.0 1.0 point     % white
 light /sun
 
-0.5 0.5 0.5 point     % dim ambient light
-[ sun ] 		      
+1.0 1.0 1.0 point     % dim ambient light
+[ ] 		      
 s p union
-1 		      % depth
+2 		      % depth
 90.0		      % FOV	
 256		      % width
 256		      % height
