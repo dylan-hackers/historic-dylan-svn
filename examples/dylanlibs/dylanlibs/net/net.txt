@@ -1,0 +1,41 @@
+DylanLibs - Net Libraries
+===========================
+
+Various libraries for accessing networks and/or the internet. Includes
+various socket extensions.
+
+1) proxy-sockets
+================
+Dylan Implementations: 
+  Functional Developer
+
+Extends the Functional Developer socket implementation to work through
+some firewalls. Requires a patch to the Functional Developer sockets
+library which can be obtained from: 
+  http://www.double.co.nz/dylan/projects/make-x-sockets.htm
+
+2) ssl-sockets
+==============
+Dylan Implementations: 
+  Functional Developer
+
+Extends the Functional Developer socket implementation to allow using
+SSL sockets. Requires a patch to the Functional Developer sockets
+library which can be obtained from:
+  http://www.double.co.nz/dylan/projects/make-x-sockets.htm
+
+Also requires the OpenSSL DLL's which can be obtained from:
+  http://www.double.co.nz/dylan/libraries/index.htm#ssl-sockets
+
+3) xml-rpc
+==========
+Dylan Implementations: 
+  Functional Developer
+
+A library providing the ability to call methods on xML-RPC
+servers. Client side support only at the moment.
+
+-- 
+Chris Double.  
+01 May 2001.
+
