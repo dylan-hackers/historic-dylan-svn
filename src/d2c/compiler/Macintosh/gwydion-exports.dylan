@@ -53,7 +53,7 @@ end library;
 define module plugin-api
   use dylan;
   use melange-support;
-  use system, import: {c-system-include /* can be rmoved */, <raw-pointer>, buffer-address};
+  use system, import: {c-system-include /* can be rmoved */, <raw-pointer>, buffer-elements-address};
   use extensions;
   use streams;
   use heap;	// hack!еее
@@ -145,7 +145,7 @@ define module cw-output-streams
   use plugin-api;
   use melange-support;
   use extensions;
-  use system, import: {call-out, <buffer>, copy-bytes, buffer-address};
+  use system, import: {call-out, <buffer>, copy-bytes, buffer-elements-address};
   use format, import: {format-to-string};
   use format-out;	// testing only...
   use standard-io;	// testing only...
@@ -192,7 +192,7 @@ define module warrior
   use extensions;	// For Main, false-or
   use melange-support;
   use system, import: {c-system-include /* can be rmoved */, c-expr, call-out, <buffer>,
-		       copy-bytes, buffer-address};
+		       copy-bytes, buffer-elements-address};
   use format;
   use standard-io;
   use format-out;

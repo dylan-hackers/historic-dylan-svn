@@ -51,7 +51,7 @@ define function export-string (string :: <byte-string>)
   let buffer = make(<buffer>, size: len + 1);
   copy-bytes(buffer, 0, string, 0, len);
   buffer[len] := 0;
-  buffer-address(buffer);
+  buffer-elements-address(buffer);
 end function export-string;
 
 define function getenv (name :: <byte-string>)

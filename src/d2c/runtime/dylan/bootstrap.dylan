@@ -223,7 +223,7 @@ define module dylan-viscera
     object-address, heap-object-at, general-object-at,
     <buffer>, <buffer-index>, $maximum-buffer-size,
     buffer-next, buffer-next-setter, buffer-end, buffer-end-setter,
-    copy-bytes, buffer-address, vector-elements-address,
+    copy-bytes, buffer-elements-address, vector-elements-address,
 
     system, import-string, export-string, getenv, 
     exit, on-exit, no-core-dumps, get-time-of-day,

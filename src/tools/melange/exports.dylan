@@ -161,7 +161,7 @@ define module define-interface
 #if (~mindy)
   use System,
      import: {import-string,
-	      copy-bytes, call-out, c-expr, buffer-address, <raw-pointer>,
+	      copy-bytes, call-out, c-expr, buffer-elements-address, <raw-pointer>,
 	      pointer-deref};
 #endif
 */

@@ -244,7 +244,7 @@ define module System
 	     // Buffers.
 	     <buffer>, <buffer-index>, $maximum-buffer-size,
 	     buffer-next, buffer-next-setter, buffer-end, buffer-end-setter,
-	     copy-bytes, buffer-address},
+	     copy-bytes, buffer-elements-address},
     export: all;
 end;
 

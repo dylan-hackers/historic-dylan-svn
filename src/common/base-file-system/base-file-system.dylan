@@ -268,7 +268,7 @@ define function getcwd () => cwd :: <byte-string>;
   // Something about getdrive() on MS-windows.  include <direct.h>
   let buffer = make(<buffer>, size: 1024);
   if (zero?(call-out("(long)getcwd", #"long",
-		     #"ptr", buffer-address(buffer),
+		     #"ptr", buffer-elements-address(buffer),
 		     #"int", 1024)))
     error("Can't get the current directory.");
   else

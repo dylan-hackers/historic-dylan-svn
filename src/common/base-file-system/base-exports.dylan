@@ -23,7 +23,7 @@ define module base-file-system
   use System, import: {getcwd};
 #else
   use System, 
-     import: {call-out, buffer-address, <buffer>};
+     import: {call-out, buffer-elements-address, <buffer>};
 #endif
 
   export

@@ -254,7 +254,7 @@ define module source
   use common;
   use System, import: {copy-bytes};
 #if (~mindy)
-  use System, import: {buffer-address};
+  use System, import: {buffer-elements-address};
 #endif
   use utils;
   use od-format;

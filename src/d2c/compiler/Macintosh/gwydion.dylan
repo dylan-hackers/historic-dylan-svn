@@ -503,7 +503,7 @@ define function compile-lid-file(plug :: <plugin-callback>, text :: <byte-string
 					show-status(plug, concatenate("Parsing: ", file));
 				
 					let b = make(<buffer>, size: file-data-length, end: file-data-length);
-					call-out("BlockMoveData", void:, ptr: file-data.raw-value, ptr: b.buffer-address, int: file-data-length);
+					call-out("BlockMoveData", void:, ptr: file-data.raw-value, ptr: b.buffer-elements-address, int: file-data-length);
 					b
 				cleanup
 					release-file-text(plug, file-data);

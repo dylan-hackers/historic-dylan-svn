@@ -145,7 +145,7 @@ define method string->c-string (str :: <byte-string>)
     sbuf[i] := as(<integer>, str[i]);
   end for;
   sbuf[ssize] := 0;
-  buffer-address(sbuf);
+  buffer-elements-address(sbuf);
 end method;
 
 
@@ -172,7 +172,7 @@ define inline method fd-read
      max-count :: <integer>)
  => (nbytes :: false-or(<integer>), errno :: false-or(<integer>));
   let res = call-out("fd_read", int:, int: fd, 
-		     ptr: buffer-address(buf) + start,
+		     ptr: buffer-elements-address(buf) + start,
 		     int: max-count);
   results(res, res);
 end method;
@@ -182,7 +182,7 @@ define inline method fd-write
     (fd :: <integer>, buf :: <buffer>, start :: <integer>,
      max-count :: <integer>)
  => (nbytes :: false-or(<integer>), errno :: false-or(<integer>));
-  let res = call-out("write", int:, int: fd, ptr: buffer-address(buf) + start,
+  let res = call-out("write", int:, int: fd, ptr: buffer-elements-address(buf) + start,
 		     int: max-count);
   results(res, res);
 end method;
