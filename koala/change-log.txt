@@ -31,6 +31,7 @@ Changes for version 0.4 (coming soon)
   - Core: Added basic support for virtual hosts. (cgay)
 
   Bug Fixes:
+  - Core: ~100X speedup by moving a sleep() outside with-lock in the main thread.  (andreas)
   - DSP: Tags that pass through their HTML attributes (e.g., dsp:cell) now work (cgay)
     correctly for attributes without values (e.g., <dsp:cell nowrap>). (cgay)
   - DSP: Better error messages for the %dsp:include and %dsp:taglib directives. (cgay)
