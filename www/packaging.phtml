@@ -9,14 +9,16 @@ Gwydion Dylan as quickly as possible.</P>
 
 <?php
 begin_progress_table();
-progress("libc5 x86 tgz", 10);
-progress("libc6 x86 tgz", 10);
-progress("libc5 x86 RPM", 10);
-progress("libc6 x86 RPM", 10);
+progress("Linux x86 libc5 tgz", 10);
+progress("Linux x86 libc6 tgz", 10);
+progress("Linux x86 libc5 RPM", 10);
+progress("Linux x86 libc6 RPM", 10);
+progress("Linux x86 libc6 deb", 7);
 progress("LinuxPPC RPM", 10);
-progress("libc6 x86 deb", 7);
 progress("FreeBSD x86", 7);
 progress("Solaris SPARC tgz", 10);
+progress("MacOS X/Darwin tgz", 10);
+progress("MacOS X/Darwin package", 2);
 end_progress_table();
 ?>
 
@@ -25,7 +27,7 @@ and Debian versions and all other distributions use the libc5 pakcages. We
 currently need a volunteer who can make Debian packages on a semi-regular
 basis.</P>
 
-<P>We'd like to add Linux PPC and IRIX to this list, but we <A
+<P>We'd like to add other operating systems to this list, but we <A
 HREF="ports.phtml">need ports</A> to those platforms first.</P>
 
 <?php standard_footer(); ?>
