@@ -225,7 +225,6 @@ define macro state-machine-definer
 
   transitions:
   { } => { }  // workaround
-//  { ?transition } => { ?transition }  // gd does not like 1+ repetitions...
   { ?transition, ... } => { ?transition, ... }
 
   transition:
