@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.4 2003/08/26 13:05:12 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.5 2003/09/16 16:26:56 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -538,7 +538,6 @@ define function restricted-ssa-variable
     (component :: <component>,
      exp :: <ssa-variable>,
      asserted-type :: <ctype>,
-     /*FIXME: unneeded*/ use,
      assign :: <abstract-assignment>)
  => new-ssa :: <ssa-variable>;
   let builder = component.make-builder;
@@ -567,6 +566,8 @@ define function substitute-use
   reoptimize(component, use.dependent);
 end;
 
+// TODO: use andreas' dependents-walker
+
 
 define function maybe-restrict-uses-after
     (call :: <general-call>,
@@ -575,13 +576,14 @@ define function maybe-restrict-uses-after
      component :: <component> /*,
      limit-for-error :: <boolean>*/)
  => ();
-//	  compiler-warning("##### call is: %=", call.dependents.dependent);
   let exp = dep.source-exp;
-	  compiler-warning("##### union type: %=", union-type);
   if (instance?(exp, <ssa-variable>)
 	& exp.dependents.source-next // more than one use
 	& csubtype?(union-type, exp.derived-type)
 	& ~csubtype?(exp.derived-type, union-type)) // real improvement
+
+compiler-warning("##### union type: %=", union-type);
+compiler-warning("##### exp.derived-type: %=", exp.derived-type);
 
     let common-ssa :: false-or(<ssa-variable>)
       = #f;
@@ -599,7 +601,7 @@ define function maybe-restrict-uses-after
 	  compiler-warning("##### got it: %=", use-assign);
 if (#f) // change this to #t if you want the results of the analysis applied...
 	  common-ssa := common-ssa
-	    | restricted-ssa-variable(component, exp, union-type, use, call-assign);
+	    | restricted-ssa-variable(component, exp, union-type, call-assign);
 
 	  substitute-use(component, use, /*call, */common-ssa);
 	  /*FIXME*/ check-sanity(component); // GGR: can be removed later
