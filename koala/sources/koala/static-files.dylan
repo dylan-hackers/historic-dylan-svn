@@ -149,12 +149,6 @@ define method directory-responder
                           subdirectory-locator(as(<directory-locator>, directory), name),
                           merge-locators(as(<file-locator>, name),
                                          as(<directory-locator>, directory)));
-        let relative-uri = as(<string>, relative-locator(locator, *document-root*));
-        let link-to
-          = concatenate("/",
-                        replace-elements!(relative-uri,
-                                          curry(\=, '\\'),
-                                          method (x) '/' end));
         let props = file-properties(locator);
         write(stream, "   <tr>\n    <td>");
         display-image-link(stream, type, locator);
