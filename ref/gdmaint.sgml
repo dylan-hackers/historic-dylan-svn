@@ -421,17 +421,17 @@
     </itemizedlist>
     
     <sect1 id="gdmaint-d2c-base">
-      <title>The <dlibrary>Compiler-Base</dlibrary> Library</title>
+      <title>The &base-lib;</title>
       
-      <para>The <dlibrary>Compiler-Base</dlibrary> library exports the
+      <para>The &base-lib; exports the
       basic data structures used by the compiler. It also provides a number
       of miscellaneous utility modules. Every other library relies on
-      <dlibrary>Compiler-Base</dlibrary>.</para>
+      &base-lib;.</para>
       
       <sect2 id="gdmaint-d2c-base-miscellaneous">
 	<title>Miscellaneous Utility Modules</title>
 	
-	<para>Several modules in <dlibrary>Compiler-Base</dlibrary> appear
+	<para>Several modules in &base-lib; appear
 	to contain assorted utility routines used elsewhere in the
 	compiler.</para>
 	
@@ -449,7 +449,7 @@
 	      <abbrev>I/O</abbrev>-related modules.  </para>
 	    </listitem>
 	  </varlistentry>
-	  <varlistentry>
+	  <!-- this description no longer applies; DMA varlistentry>
 	    <term><dmodule>File-System</dmodule></term>
 	    <listitem>
 	      <para>This module provides a local implementation of parts of
@@ -458,7 +458,7 @@
 	      breaking the ability to bootstrap &d2c; with existing version
 	      2.2.0 binaries.</para>
 	    </listitem>
-	  </varlistentry>
+	  </varlistentry -->
 	  <varlistentry>
 	    <term><dmodule>Utils</dmodule></term>
 	    <listitem>
@@ -562,7 +562,8 @@
 
   	   <dylanfunctiondef>
 	    <defname>begin-dumping</defname>
-	    <defsummary>Returns a dump state used by other OD functions.</defsummary>
+	    <defsummary>Returns a dump state used by other OD
+	    functions.</defsummary>
 	    <defparameters>
 	      <param>
 	        <paramname>name</paramname>
@@ -589,10 +590,10 @@
 	     </param>
 	    </defreturns>
 	    <defdescription>
-	      <para>Creates a state (which acts very much like a buffer) for other 
-		 dumping functions to use to build the <dlit>du</dlit> file in memory.  
-		 <dname>End-dumping</dname> actually writes the built information to file.
-		</para>
+	      <para>Creates a state (which acts very much like a
+	      buffer) for other dumping functions to use to build the
+	      dump file in memory.  The <dname>end-dumping</dname>
+	      function actually writes the built information to file.</para>
 	    </defdescription>
 	   </dylanfunctiondef>
 	   
@@ -733,7 +734,8 @@
 	    <param>
 		<paramname>type</paramname>
 		<paramtype>&lt;integer></paramtype>
-		<paramsummary>(Currently only <dname>$library-summary-unit-type</dname>
+		<paramsummary>(Currently only
+		<dname>$library-summary-unit-type</dname> 
 		  allowed).</paramsummary>
 	    </param>
 	    <keyparam>
@@ -1328,12 +1330,14 @@ add-od-loader(*default-dispatcher*, #"ratio",
 	    is up to the dispatching method to interpret that loaded
 	    raw data in order to reconstruct the object's
 	    state.</para>
+
 	    <para>Usually a call to <dname>load-raw-data</dname> is to
 	    load a string, so reconstruction is easy (see the example
-	    at the top of this section -- <xref
-	    linkend="gdmaint-d2c-base-od-format-loaders">).  One thing
-	    of note is that this method is NOT functional:
-	    <glossterm>res</glossterm> is NOT returned, but is a
+	    at the top of <link
+	    linkend="gdmaint-d2c-base-od-format-loaders">this
+	    section</link>).  One thing 
+	    of note is that this method is <em>not</em> functional:
+	    <dparam>res</dparam> is <em>not</em> returned, but is a
 	    destructively modified parameter.</para>
 	  </defdescription>
 	 </dylanmethoddef>
@@ -1413,7 +1417,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 
 	   <para>This method seems not to be useful; there appears to
 	   be no users of it in neither this library nor in the
-	   <dlibrary>compiler-front</dlibrary> library.</para>
+	   &front-lib;.</para>
 	  </defdescription>
 	 </dylanmethoddef>
 
@@ -1425,15 +1429,8 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	  <defparameters>&load-state-param;</defparameters>
 	  &no-returns;
 	  <defdescription>
-	   <para>This method, unfortunately, is woefully underused in
-	   this library (it's used only once in the
-	   <dmodule>Dylan-dump</dmodule> module), but the
-	   <dlibrary>Compiler-Front</dlibrary> library seems to have
-	   caught cluons in using this method (it is indeed used
-	   extensively in the <dmodule>FER-OD</dmodule> module).  It
-	   seems, then, that the <dmodule>Dylan-dump</dmodule> and
-	   <dmodule>OD-Format</dmodule> modules need a rewrite in this
-	   regard.</para>
+	   <para>Ensure the subobject list ends with the end-of-object
+	   token.</para>
 	  </defdescription>
 	 </dylanmethoddef>
        </sect3>
@@ -1959,11 +1956,10 @@ define variable foo :: run-time-expression() = #f;
     </sect1>
 
     <sect1 id="gdmaint-d2c-parser">
-      <title>The <dlibrary>Compiler-Parser</dlibrary> Library</title>
+      <title>The &parser-lib;</title>
 
-      <para>The <dlibrary>Compiler-Parser</dlibrary> library handles
-      lexical analysis, parsing and macro expansion. It relies only on the
-      &base-lib;.</para>
+      <para>The &parser-lib; handles lexical analysis, parsing and
+      macro expansion. It relies only on the &base-lib;.</para>
 
       <sect2 id="gdmaint-d2c-parser-tokenize">
 	<title>The <dmodule>Tokenize</dmodule> Module</title>
@@ -2169,16 +2165,15 @@ source code (with a macro pattern) in
     </sect1>
 
     <sect1 id="gdmaint-d2c-front">
-      <title>The <dlibrary>Compiler-Front</dlibrary> Library</title>
+      <title>The &front-lib;</title>
 
-      <para>The <dlibrary>Compiler-Front</dlibrary> library is repsonsible
+      <para>The &front-lib; is repsonsible
       for processing the <glossterm>Front End Representation</glossterm> of
       a Dylan program. It depends only on the
       &base-lib;.</para>
 
       <para>Data is passed from the &parser-lib; to the
-      <dlibrary>Compiler-Front</dlibrary> library by the
-      &convert-lib;.</para>
+      &front-lib; by the &convert-lib;.</para>
 
       <sect2 id="gdmaint-d2c-front-builder-interface">
 	<title>The <dmodule>Builder-Interface</dmodule> Module</title>
@@ -2319,14 +2314,14 @@ source code (with a macro pattern) in
     </sect1>
 
     <sect1 id="gdmaint-d2c-convert">
-      <title>The <dlibrary>Compiler-Convert</dlibrary> Library</title>
+      <title>The &convert-lib;</title>
 
-      <para>The <dlibrary>Compiler-Convert</dlibrary> library acts as an
-      adaptor between the &parser-lib; and the &front-lib;.</para>
+      <para>The &convert-lib; acts as an adaptor between the
+      &parser-lib; and the &front-lib;.</para>
 
-      <para>As a rule of thumb, <dlibrary>Compiler-Convert</dlibrary>
-      implements those parts of the front end which know about the
-      output of the parser.</para>
+      <para>As a rule of thumb, the &convert-lib; implements those
+      parts of the front end which know about the output of the
+      parser.</para>
 
       <sect2 id="gdmaint-d2c-convert-lexenv">
 	<title>The <dmodule>LexEnv</dmodule> Module</title>
@@ -2368,7 +2363,7 @@ source code (with a macro pattern) in
 
 	<para>The code to process top-level definitions is spread across
 	several libraries. Most of the machinery actually lives here in the
-	<dname>Compiler-Convert</dname> library.</para>
+	&convert-lib;.</para>
 
 	<para>Each top-level form must define methods on three generic
 	functions:</para>
