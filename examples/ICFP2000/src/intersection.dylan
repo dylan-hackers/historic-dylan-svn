@@ -173,14 +173,76 @@ end method real-intersection-before;
 define method real-intersection-before(m :: <cone>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
 
+  let hits = make(<stretchy-vector>);
+
+  // check base:
+  let (hit, dist) = plane-intersection(vector3D(0.0, -1.0, 0.0), 0.0,
+				       ray);
+  if (hit & (hit.x * hit.x + hit.z * hit.z) <= 1.0)
+    add!(hits, vector(dist, hit, vector3D(0.0, -1.0, 0.0),
+		      make-surface-closure(1, x / 2.0 + 0.5, y / 2.0 + 0.5, m.surface-interpreter-entry)))
+  end if;
+
+  // Check side
   
+
 end method real-intersection-before;
 
 define method real-intersection-before(m :: <cylinder>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
 
-  
-  
+  let hits = make(<stretchy-vector>);
+  // Check top:
+  let (hit, dist) = plane-intersection(vector3D(0.0, 1.0, 0.0), -1.0,
+				       ray);
+  if (hit & (hit.x * hit.x + hit.z * hit.z) <= 1.0)
+    add!(hits, vector(dist, hit, vector3D(0.0, 1.0, 0.0),
+		      make-surface-closure(1, hit.x / 2.0 + 0.5, hit.z / 2.0 + 0.5, m.surface-interpreter-entry)))
+  end if;
+  // Check bottom:
+  let (hit, dist) = plane-intersection(vector3D(0.0, -1.0, 0.0), 0.0,
+				       ray);
+  if (hit & (hit.x * hit.x + hit.z * hit.z) <= 1.0)
+    add!(hits, vector(dist, hit, vector3D(0.0, -1.0, 0.0),
+		      make-surface-closure(2, hit.x / 2.0 + 0.5, hit.z / 2.0 + 0.5, m.surface-interpreter-entry)))
+  end if;
+
+  // Check side:
+  let ray-to-center = vector3D(ray.ray-position.x, 0.0, ray.ray-position.z);
+  let t_ca = -ray-to-center * vector3D(ray.ray-direction.x, 0.0, ray.ray-direction.z);
+  let l_oc_2 = ray-to-center * ray-to-center;
+  let d_2 = l_oc_2 - (t_ca * t_ca);
+
+  if (d_2 <= 1.0)
+    let t_hc = sqrt(1.0 - d_2);
+
+    let hit = point3D(ray.ray-position.x + ray.ray-direction.x * (t_ca - t_hc),
+		      0.0, 
+		      ray.ray-position.z + ray.ray-direction.z * (t_ca - t_hc),
+		      1.0);
+    
+    let real-hit = #f;
+    if (ray.ray-direction.x ~= 0.0)
+      real-hit := ray.ray-position + (ray.ray-direction * (hit.x /
+								ray.ray-direction.x));
+    elseif(ray.ray-direction.z ~= 0.0)
+      real-hit := ray.ray-position + (ray.ray-direction * (hit.z / ray.ray-direction.z));
+    end if;
+    if (real-hit & real-hit.y >= 0.0 & real-hit.y <= 1.0)
+      add!(hits, vector(magnitude(real-hit - ray.ray-position),
+			real-hit, hit - $origin,
+			make-surface-closure(0,
+					     atan2(real-hit.x, real-hit.z) / (2.0 * $pi), 
+					     real-hit.y, m.surface-interpreter-entry)));
+    end if;
+  end if;
+
+  if (hits.size > 0)
+    let hits = sort!(hits, test: method(a, b) a[0] < b[0]  end method);
+    values(hits[0][1], hits[0][2], hits[0][3], magnitude(ray.ray-position - hits[0][1]));
+  else
+    #f;
+  end if;
 end method real-intersection-before;
 
 // CSG:
