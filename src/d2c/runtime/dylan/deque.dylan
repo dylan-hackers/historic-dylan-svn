@@ -158,13 +158,16 @@ define method size-setter
       let offset = deq.deq-current-offset;
       let mask = deq.deq-data-mask;
       for (i from 0 below current)
-	%element(new-data, i) := %element(data, logand(i + offset, mask));
+        %element(new-data, i) := %element(data, logand(i + offset, mask));
       end for;
       deq.deq-data := new-data;
       deq.deq-current-offset := 0;
       deq.deq-data-mask := new-len - 1;
     end if;
   else
+    if (new < 0)
+      error("Invalid size %d passed to method size-setter on %=", new, deq);
+    end;
     let offset = deq.deq-current-offset;
     let mask = deq.deq-data-mask;
     for (i from new below current)
@@ -435,7 +438,7 @@ define method remove! (deq :: <object-deque>, elem,
 	else 
 	  let this-element = %element(data, logand(src + offset, mask));
 	  case
-	    test(this-element, elem) =>
+	    compare-using-default-==(test, this-element, elem) =>
 	      let deleted = deleted + 1;
 	      if (count & (deleted == count))
 		copy(src + 1, dst, deleted);
@@ -452,7 +455,7 @@ define method remove! (deq :: <object-deque>, elem,
       method search (src :: <integer>) => ();
 	unless (src == sz)
 	  let this-element = %element(data, logand(src + offset, mask));
-	  if (test(this-element, elem))
+	  if (compare-using-default-==(test, this-element, elem))
 	    if (count & (count == 1))
 	      copy(src + 1, src, 1);
 	    else 
