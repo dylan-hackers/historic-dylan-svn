@@ -1,8 +1,8 @@
 library:	http-server
 files:	library
 	module
-	http-server
 	encode-decode
+	http-server
 base-address:	0x63E00000
 linker-options:	$(guilflags)
 major-version:	1
