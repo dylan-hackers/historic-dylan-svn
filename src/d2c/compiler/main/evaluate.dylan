@@ -44,6 +44,8 @@ define method evaluate(expression :: <string>)
         unless (instance?(inits, <empty-region>))
           optimize-component(*current-optimizer*, component);
           dump-fer(inits);
+	  format(*standard-output*, "evaluated expression: %=\n", fer-evaluate(inits, curry(error, "trying to access %= in an empty environment")));
+	  force-output(*standard-output*);
         end unless;
         
       otherwise =>
@@ -51,3 +53,101 @@ define method evaluate(expression :: <string>)
     end select;
   end for;
 end method evaluate;
+
+// ########## fer-evaluate ##########
+define generic fer-evaluate(region :: <region>, environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+
+define method fer-evaluate(return :: <return>, environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  fer-evaluate-expression(return.depends-on.source-exp, environment)
+end;
+
+define method fer-evaluate(compound :: <compound-region>, environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  let regions = compound.regions;
+  fer-evaluate-regions(regions.head, regions.tail, environment)
+end;
+
+// ########## fer-evaluate-regions ##########
+define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  error("Did not encounter a <return> in control flow...");
+end;
+
+define method fer-evaluate-regions(region :: <region>, more-regions :: <list>, environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  fer-evaluate-regions(more-regions.head, more-regions.tail, fer-gather-bindings(region, environment))
+end;
+
+// ########## fer-gather-bindings ##########
+define generic fer-gather-bindings(region :: <region>, environment :: <object>)
+  => (extended-env, potential-value :: false-or(<ct-value>));
+
+define method fer-gather-bindings(compound :: <compound-region>, environment :: <object>)
+  => (extended-env, no-value :: #f.singleton);
+  fer-gather-regions-bindings(compound.regions, environment)
+end;
+
+
+define method fer-gather-bindings(simple :: <simple-region>, environment :: <object>)
+  => (extended-env, no-value :: #f.singleton);
+  fer-gather-assigns-bindings(simple.first-assign, environment);
+end;
+
+// ########## fer-gather-regions-bindings ##########
+define generic fer-gather-regions-bindings(regions :: <list>, environment :: <object>)
+  => (same-env, potential-value :: false-or(<ct-value>));
+
+define method fer-gather-regions-bindings(no-regions == #(), environment :: <object>)
+  => (same-env, no-value :: #f.singleton);
+  environment
+end;
+
+define method fer-gather-regions-bindings(regions :: <list>, environment :: <object>)
+  => (same-env, potential-value :: false-or(<ct-value>));
+  environment // ##### for now...
+  
+end;
+
+
+// ########## fer-gather-assigns-bindings ##########
+define method fer-gather-assigns-bindings(no-assign == #f, environment :: <object>)
+  => extended-env;
+  environment
+end;
+
+define method fer-gather-assigns-bindings(assign :: <abstract-assignment>, environment :: <object>)
+  => extended-env;
+  let extended-env = fer-gather-assign-bindings(assign.defines, assign.depends-on.source-exp, environment);
+  fer-gather-assigns-bindings(assign.next-op, extended-env);
+end;
+
+// ########## fer-gather-assign-bindings ##########
+define method fer-gather-assign-bindings(defs :: <definition-site-variable>, expr :: <expression>, environment :: <object>)
+  => extended-env;
+  let var-value = fer-evaluate-expression(expr, environment);
+  append-env(environment, defs, var-value)
+end;
+
+
+// ########## fer-evaluate-expression ##########
+define generic fer-evaluate-expression(expr :: <expression>, environment :: <object>)
+ => result :: <ct-value>;
+
+define method fer-evaluate-expression(expr :: <literal-constant>, environment :: <object>)
+ => result :: <ct-value>;
+  expr.value
+end;
+
+
+// ########## append-env ##########
+define function append-env(prev-env :: <object>, new-biding, new-value) => new-env;
+  method(var)
+    if (var == new-biding)
+      new-value
+    else
+      prev-env(var)
+    end if;
+  end method;
+end function;
