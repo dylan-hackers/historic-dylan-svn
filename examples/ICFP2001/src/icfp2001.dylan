@@ -321,7 +321,7 @@ define function main(name, arguments)
     optimize();
   end while;
 
-  if(best-transformation[best-transformation.size - 1] = ' ')
+  if(is-space?(best-transformation[best-transformation.size - 1]))
     best-transformation := copy-sequence(best-transformation, end: best-transformation.size - 1);
   end if;
   write(*standard-output*, best-transformation);
