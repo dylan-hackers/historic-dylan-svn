@@ -15,7 +15,7 @@ define macro entities-definer
    { ?data; ... } => { ?data, ... }
 
  data:
-   { <!entity ?ent:name cdata ?charref:expression ?comment-body:* > }
+   { <!entity ?ent:name cdata ?charref:expression ?comment-body:* }
      => { list(?#"ent", make(<char-reference>, char: ?charref.as-char,
 			     name: copy-sequence(?charref, start: 1,
 						 end: ?charref.size - 1))) }

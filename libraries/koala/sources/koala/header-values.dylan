@@ -223,11 +223,11 @@ define function parse-media-type (str :: <byte-string>,
   let (str, bpos, epos) = string-extent(value);
   let spos = char-position('/', str, bpos, epos);
   let (type, subtype) = if (spos)
-                         values(trimmed-substring(str, bpos, spos),
-                                trimmed-substring(str, spos + 1, epos))
-                       else
-                         values(str, #f)
-                       end;
+                          values(trimmed-substring(str, bpos, spos),
+                                 trimmed-substring(str, spos + 1, epos))
+                        else
+                          values(str, #f)
+                        end;
   make(<avalue>, value: pair(type, subtype), params: params)
 end;
 

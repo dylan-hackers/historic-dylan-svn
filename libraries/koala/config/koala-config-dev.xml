@@ -5,7 +5,7 @@
 
 <koala>
 
-<port value="7020" />
+<port value="80" />
 
 <server-root location="../.." />
 
@@ -16,6 +16,8 @@
 <debug-server value="off" />
 
 <auto-register enabled="no" />
+
+<xml-rpc url="/RPC2" enable="yes" internal-error-fault-code="0" />
 
 
 </koala>

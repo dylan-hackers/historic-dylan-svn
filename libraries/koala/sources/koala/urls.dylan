@@ -28,7 +28,8 @@ end make-locator;
 
 define function decode-url
     (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
- => (str :: <string>)
+ => (str :: <byte-string>)
+  // Note: n accumulates how many chars are NOT needed in the copy.
   iterate count (pos :: <integer> = bpos, n :: <integer> = 0)
     let pos = char-position('%', str, pos, epos);
     if (pos)

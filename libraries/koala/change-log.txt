@@ -5,12 +5,9 @@ Change log for Koala HTTP server and Dylan Server Pages
 
 Changes for version 0.3
 
-  Bug Fixes:
-  
-
   New Features:
-  - Koala: New config variable 'auto-register'
-
+  - Koala: XML-RPC server and client added.  See config/koala-config.xml for settings.
+  - Koala: New config variable 'auto-register'.  See config/koala-config.xml
 
 
 ***********************************************************************************

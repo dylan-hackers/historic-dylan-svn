@@ -69,4 +69,16 @@
 <auto-register enabled="no" />
 
 
+<!-- XML-RPC server.
+     Set enable="yes" to enable, "no" to disable.
+     Set url to the URL on which the server should listen for XML-RPC requests.
+     Set internal-error-fault-code to the fault code that should be returned for
+     any unhandled errors that are thrown during the execution of an XML-RPC
+     request.  e.g., a badly formed request, or unhandled errors in user code. -->
+<xml-rpc
+  url="/RPC2"
+  enable="yes"
+  internal-error-fault-code="0"
+  />
+
 </koala>
