@@ -1,0 +1,31 @@
+Move 1 5
+PickUp 10 0
+Drop 0 ;----------
+Drop 0 ;----------
+Drop 0 ;----------
+Turn Right 0
+Drop 0 ;----------
+Drop 0 ;----------
+Drop 0 ;----------
+Drop 0 ;----------
+Turn Right 11
+Turn Right 12
+Turn Right 15
+Drop 0 ;----------
+Drop 0 ;----------
+Move 16 20
+Sense Here 17 15 Home
+Drop 25
+Drop 0 ;----------
+Drop 0 ;----------
+Turn Left 15
+Drop 0 ;----------
+Drop 0 ;----------
+Drop 0 ;----------
+Drop 0 ;----------
+Turn Right 26
+Turn Right 27
+Turn Right 0
+Drop 0 ;----------
+Drop 0 ;----------
+Drop 0 ;----------
