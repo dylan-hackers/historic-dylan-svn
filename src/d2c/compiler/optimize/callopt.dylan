@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.2 2003/08/22 18:22:40 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.3 2003/08/22 19:31:27 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -301,6 +301,10 @@ end method optimize-general-call-ctv;
 
 /// Generic function optimization
 
+
+//
+// Post-Facto Type Inference
+//
 // For a dependency, find the region
 // that uses it.
 define generic dependent-region
@@ -335,21 +339,6 @@ define method dependent-region
   // these are already <region>s
   use
 end;
-/*
-define method dependent-region
-    (use :: <if-region>,
-     #key allow-multiple? :: <boolean>)
- => (region :: <if-region>, assign :: singleton(#f));
-  use
-end;
-
-define method dependent-region
-    (use :: <return>,
-     #key allow-multiple? :: <boolean>)
- => (region :: <if-region>, assign :: singleton(#f));
-  use
-end;
-*/
 
 define method dependent-region
     (assign :: <abstract-assignment>,
@@ -372,13 +361,10 @@ define method dominates?
      #next next-method)
  => dominates :: <boolean>;
   if (region1 == region2)
-//    #t; // for now
     block (return)
       for (pro = assign1.next-op then pro.next-op,
 	   contra = assign2 then contra.prev-op,
 	   while: pro & contra)
-//compiler-warning("pro: %=", pro);
-//compiler-warning("contra: %=", contra);
 	if (pro == contra
 	      | pro.next-op == contra)
 	  return(#t)
@@ -386,95 +372,32 @@ define method dominates?
       end for;
     end block;
   else
-//    dominates?(region1, #f, region2, #f)
     next-method();
   end;
 end;
 
-/*
-define method parent-dominates?
-    (parent1 == #f,
+define generic parent-dominates?
+    (parent1 :: <region>,
      region1 :: <region>,
      parent2 :: <region>,
      region2 :: <region>)
  => dominates :: <boolean>;
-  #f
-end;
 
-define method parent-dominates?
-    (parent1 :: <region>,
-     region1 :: <region>,
-     parent2 == #f,
-     region2 :: <region>)
- => dominates :: <boolean>;
-  #f
-end;
-
-define method parent-dominates?
-    (parent1 == #f,
-     region1 :: <region>,
-     parent2 == #f,
-     region2 :: <region>)
- => dominates :: <boolean>;
-  #f
-end;
-*/
 define method parent-dominates?
     (parent1 :: <region>,
      region1 :: <region>,
      parent2 :: <region>,
      region2 :: <region>)
  => dominates :: <boolean>;
-  // GGR: optimize the case where parent1 == parent2?
-  //
-
-
-/*  let a = dominates?(parent1, #f, parent2, #f);
-  let b = a | dominates?(region1, #f, parent2, #f);
-  let c = b | dominates?(parent1, #f, region2, #f);
-
-  compiler-warning("parent-dominates?: %=, %=, %=, %=, %=, %=, %=", a, b, c, parent1, region1, parent2, region2);
-  c
-
-
-
-    ;
-*/
-
-/*
-  local method parent-list
-	    (region :: false-or(<region>), sofar :: <pair>)
-	 => parents :: <pair>;
-	  if (region)
-	    parent-list(region.parent, pair(region,  sofar));
-	  else
-	    sofar
-	  end;
-	end;
-
-  let parents1 :: <pair> = parent-list(parent1, list(parent1));
-
-  local method compare2(parents1 :: <pair>, parent2 :: <region>, region2 :: <region>)
-	 => (first-common :: <region>, unmatched :: <list>);
-	  if (parents1.head == parent2)
-	    values(parent2, parents1.tail)
-	  else
-	    let (first-common :: <region>, unmatched :: <list>)
-	      = compare2(parents1, parent2.parent, parent2);
-	    if (unmatched.head == region2)
-	      //values(unmatched.tail, region2)
-	      compare2(unmatched, parent2, region2)
-	    else
-	      values(first-common, unmatched)
-	    end
-	  end if
-	end;
-
-  let first-common :: false-or(<region>) = compare2(parents1, parent2, region2);
-  */
+  // FIXME: GGR: optimize the case where parent1 == parent2?
+  // then the result is false, since the parent is not a compound
 
 let format-out = compiler-warning;
 let format-out = ignore;
+
+
+  // FIXME: this algorithm is not yet verified.
+  // this has to be proven for soundness!!
 
   local method parent-list
 	    (region :: false-or(<region>), sofar :: <pair>)
@@ -488,8 +411,6 @@ let format-out = ignore;
 
   let parents1 :: <pair> = parent-list(parent1.parent, list(parent1));
   let parents1-size = parents1.size;
-
-
 
   format-out("parents1: %=\n", parents1);
   format-out("parents2: %=\n", parent-list(parent2.parent, list(parent2)));
@@ -536,7 +457,6 @@ let format-out = ignore;
     = if (remnant-size = 0)
 	values(first-common, region1)
       else
-//	values(parents1[prefix-size], if (remnant-size >= 1) remnant[1] else region2 end)
 	values(remnant.head, if (remnant-size > 1) remnant[1] else region2 end)
       end;
 
@@ -557,10 +477,8 @@ define method parent-dominates?
      #next next-method)
  => dominates :: <boolean>;
   if (parent1 == parent2)
-//    #t; // for now
     local method follows(regions :: <pair>)
 	   => dominates :: <boolean>;
-// compiler-warning("parent-dominates? #2: %=, %=, %=", region1, region2, regions);
 	    if (regions.head == region1)
 	      member?(region2, regions.tail)
 	    elseif (~regions.tail.empty?)
@@ -577,76 +495,18 @@ define method dominates?
     (region1 :: <region>, assign1 :: false-or(<abstract-assignment>),
      region2 :: <region>, assign2 :: false-or(<abstract-assignment>))
  => dominates :: <boolean>;
-//  #t; // for now
-  
   if (region1 == region2)
     #f
   else
     let parent1 = region1.parent;
     let parent2 = region2.parent;
-//    #t; // for now
-    if (parent1 & parent2)
-      if (/*parent1 == parent2*/ parent-dominates?(parent1, region1, parent2, region2))
-	#t; // for now
-      //elseif (parent2)
-//	dominates?(region1, #f, parent2, #f)
-      //end if;
-      end if;
-    end if;
+
+    parent1
+      & parent2
+      & parent-dominates?(parent1, region1, parent2, region2)
   end if;
 end;
 
-// maybe-convert-to-ssa -- external.
-//
-define function maybe-restrict-ssa-variable
-    (component :: <component>, dep :: <dependency>, var :: <ssa-variable>, restricted :: <ctype>, reoptimize :: <function>)
- => (new :: false-or(<ssa-variable>));
-//  let defns = var.definitions;
-/*  if (defns ~== #() & defns.tail == #() // this should be clear ###
-	& csubtype(restricted, var.derived-type))
-    // Single definition -- replace it with an ssa variable.
-    let defn = defns.head;
-    let assign :: <abstract-assignment> = defn.definer;
-    let ssa = make(<ssa-variable>,
-		   dependents: var.dependents,
-		   derived-type: ,
-		   var-info: var.var-info,
-		   definer: assign,
-		   definer-next: defn.definer-next,
-		   needs-type-check: defn.needs-type-check?); ####f
-*/
-/****    // Replace the dependency with the <ssa-variable> in the assignment
-    // defines.
-    for (other = assign.defines then other.definer-next,
-	 prev = #f then other,
-	 until: other == defn)
-    finally
-      if (prev)
-	prev.definer-next := ssa;
-      else
-	assign.defines := ssa;
-      end;
-    end;
-    defn.definer := #f;
-    // Replace each reference of the <initial-var> with the <ssa-var>.
-    for (dep = var.dependents then dep.source-next,
-	 while: dep)
-      unless (dep.source-exp == var)
-	error("The dependent's source-exp wasn't the var we were trying "
-		"to replace?");
-      end;
-      dep.source-exp := ssa;
-      // Reoptimize the dependent in case they can do something now that
-      // they are being given an ssa variable.
-      reoptimize(component, dep.dependent);
-      // Reoptimize the defining assignment in case it can now be
-      // copy-propagated.
-      reoptimize(component, assign);
-    end;****/
-
-//////    ssa
-//////  end;
-end function maybe-restrict-ssa-variable;
 
 
 /* we definitely want
@@ -659,11 +519,17 @@ But for now we build a honest-to-goodness
 <ssa-var> and assign to it.
 */
 
-define function restricted-ssa-variable(component, exp, asserted-type, use, assign)
- => new-ssa;
+define function restricted-ssa-variable
+    (component :: <component>,
+     exp :: <ssa-variable>,
+     asserted-type :: <ctype>,
+     /*FIXME: unneeded*/ use,
+     assign :: <abstract-assignment>)
+ => new-ssa :: <ssa-variable>;
   let builder = component.make-builder;
-  // Make a temp to hold the same value.
-  let same = make-ssa-var(builder, #"same", asserted-type /*, needs-type-check: #f*/);
+  let same = make-ssa-var(builder,
+			  /*FIXME: call it the same as the orig one*/ #"same",
+			  asserted-type);
 
   build-assignment
     (builder, assign.policy, assign.source-location, same,
@@ -674,7 +540,11 @@ define function restricted-ssa-variable(component, exp, asserted-type, use, assi
 end;
 
 
-define function substitute-use(component, use, /*call, */common-ssa)
+define function substitute-use
+    (component :: <component>,
+     use :: <dependency>,
+     common-ssa :: <ssa-variable>)
+ => ();
   remove-dependency-from-source(component, use);
   use.source-exp := common-ssa;
   use.source-next := common-ssa.dependents;
@@ -690,7 +560,7 @@ define function maybe-restrict-uses-after
      component :: <component> /*,
      limit-for-error :: <boolean>*/)
  => ();
-	  compiler-warning("##### call is: %=", call.dependents.dependent);
+//	  compiler-warning("##### call is: %=", call.dependents.dependent);
   let exp = dep.source-exp;
 	  compiler-warning("##### union type: %=", union-type);
   if (instance?(exp, <ssa-variable>)
@@ -706,44 +576,21 @@ define function maybe-restrict-uses-after
 	 while: use)
       let use-dependent = use.dependent;
       if (use-dependent ~== call)
-//	compiler-warning("maybe-restrict-type: %=", use);
-	// maybe-restrict-type(component, /*use*/exp, union-type);
-	/*      let user = use.dependent; // the other call
-	  let user-assign = instance?(user, <abstract-assignment>)
-	  & user
-	  | begin
-	      let dependency = user.dependents;
-	      let no-more :: #f.singleton = dependency.source-next;
-	      dependency.dependent;
-	    end;
-	
-	// visit the calls dependents to find its assignment
-	// must be only one
-	let dependency = call.dependents;
-	let no-more :: #f.singleton = dependency.source-next;
-	let call-assign = dependency.dependent;
-	if (call-assign.region == user-assign.region) end;*/
-	
-	
 	let (use-assign-region, use-assign) = use-dependent.dependent-region;
-	  compiler-warning("##### use-assign: %=", use-assign);
+//	  compiler-warning("##### use-assign: %=", use-assign);
 	let (call-assign-region, call-assign) = call.dependent-region;
-	//if (call-assign-region == use-assign-region
-	//      /* & call-assign.next-op == user-assign*/)
 	if (dominates?(call-assign-region, call-assign,
 		       use-assign-region, use-assign))
-	  compiler-warning("##### got it: %=", /*user-assign*/ use-dependent);
-////	  maybe-restrict-type(component, /*use*/exp, union-type);
-	// remove-dependency-from-source(component, dep, reoptimize);
-	/* now create ssa-var and substitute the dependency
-	    */
+	  compiler-warning("##### got it: %=", use-assign);
+if (#f) // change this to #t if you want the results of the analysis applied...
 	  common-ssa := common-ssa
 	    | restricted-ssa-variable(component, exp, union-type, use, call-assign);
 
 	  substitute-use(component, use, /*call, */common-ssa);
-	  check-sanity(component); // GGR: can be removed later
+	  /*FIXME*/ check-sanity(component); // GGR: can be removed later
+end if;
 	else
-	  compiler-warning("##### not dominated: %=", /*user-assign*/ use-dependent);
+//	  compiler-warning("##### not dominated: %=", /*user-assign*/ use-dependent);
 	end if;
       end if;
     end for;
@@ -751,8 +598,7 @@ define function maybe-restrict-uses-after
 end function maybe-restrict-uses-after;
 
 /// should this go into typeintf.dylan?
-// postfacto-type-inference
-define function magical-argument-inference
+define function postfacto-type-inference
     (applicable-methods :: <pair>,
      arg-types,
      call :: <general-call>,
@@ -769,10 +615,9 @@ define function magical-argument-inference
 	let spec = meth.function-defn-signature.specializers[index];
 	instance?(spec, <unknown-ctype>) & skip();
 	let spec-extent = spec.ctype-extent;
-	compiler-warning("call-type(%d): %=", index, call-type);
-	compiler-warning("spec-extent(%d): %=", index, spec-extent);
+//	compiler-warning("call-type(%d): %=", index, call-type);
+//	compiler-warning("spec-extent(%d): %=", index, spec-extent);
 	csubtype?(call-type, spec-extent) & skip();
-//	compiler-warning("into union: %=", spec-extent);
 	union := ctype-union(union, spec-extent);
       end for;
       maybe-restrict-uses-after(call, dep, union, component);
@@ -876,8 +721,11 @@ about the argument types, so none will be restricted?
     // Blow out of here if we can't tell exactly what methods are (or can
     // be) applicable.
     unless (maybe == #() | (maybe.tail == #() & definitely == #()))
-      // implement PR#1371 here first.
-// not yet      magical-argument-inference(applicable, positional-arg-types, call, component);
+      block () // FIXME: this should not error!
+	postfacto-type-inference(applicable, positional-arg-types, call, component);
+      exception (<error>)
+	compiler-warning("\n\n\n\n\n\nTrouble with postfacto-type-inference\n\n\n\n\n");
+      end block;
       return();
     end unless;
 
