@@ -72,7 +72,11 @@ is running the various interop tests methods.
 =================
 Demonstrates using the double-base64 library..
 
+10) rgsoftware
+==============
+Demonstrates using RG Softwares neural net DLL from Dylan. See the
+rgsoftware.txt file in that directory for more details.
 -- 
 Chris Double.  
-10 May 2001.
+20 May 2001.
 
