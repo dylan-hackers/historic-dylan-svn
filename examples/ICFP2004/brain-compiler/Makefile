@@ -14,6 +14,18 @@ clean:
 	-rm -f *.o *.lo *.s *.a *.c *.mak *~ brain-compiler alex
 	-rm -rf .libs
 
+bin-chris4:
+	rm -rf chris4; d2c -M -L.. chris4.lid
+
+run-chris4:
+	rm -rf ../ant-brains/chris4.ant; ./chris4 > ../ant-brains/chris4.ant
+
+bin-chris3:
+	rm -rf chris3; d2c -M -L.. chris3.lid
+
+run-chris3:
+	rm -rf ../ant-brains/chris3.ant; ./chris3 > ../ant-brains/chris3.ant
+
 bin-chris2:
 	rm -rf chris2; d2c -M -L.. chris2.lid
 
