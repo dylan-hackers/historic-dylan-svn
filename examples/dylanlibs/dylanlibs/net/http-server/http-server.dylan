@@ -129,6 +129,9 @@ define class <simple-http-server> (<object>)
   // Server socket for this HTTP server.
   slot http-server-socket :: false-or(<tcp-server-socket>) = #f;
 
+  // Shut down server on next request if #t
+  slot http-server-perform-shutdown? :: <boolean> = #f;
+
   // A sequence of <handler> objects that handle
   // requests for this server.
   slot http-server-handlers :: <stretchy-vector> = make(<stretchy-vector>);
@@ -329,13 +332,30 @@ end method handle-request;
 
 define method start-http-server(server :: <simple-http-server>, #key port = 80)
  => ()
-  with-server-socket(server-socket, port: port)
-    server.http-server-socket := server-socket;
-    start-server(server-socket, remote-socket)
-      process-client-connection(server, remote-socket);
-    end;
-  end with-server-socket;
+  block(quit-server)    
+    with-server-socket(server-socket, port: port)
+      server.http-server-socket := server-socket;
+
+      start-server(server-socket, remote-socket)
+        process-client-connection(server, remote-socket);
+        when(server.http-server-perform-shutdown?)
+          quit-server();
+        end when;
+      end;
+    end with-server-socket;
+  cleanup
+    server.http-server-socket := #f;
+  end block;
 end method start-http-server;
+
+define method start-http-server-on-thread(server :: <simple-http-server>, #key port = 80)
+ => ()
+  make(<thread>, function: method() start-http-server(server, port: port) end);
+end method start-http-server-on-thread;
+
+define method stop-http-server(server :: <simple-http-server>) => ()
+  server.http-server-perform-shutdown? := #t;
+end method stop-http-server;
 
 define method write-standard-headers(stream :: <stream>, #key content-type = "text/html")
   write(stream, "HTTP/1.0 200 OK\r\n");
@@ -382,11 +402,7 @@ define method quit-handler(server :: <simple-http-server>,
       end with-dom-builder;
     print-html(dom, stream); 
     write(stream, "\r\n");
-    make(<thread>, function: method() 
-                               sleep(1); 
-                               close(server.http-server-socket);
-                               server.http-server-socket := #f;
-                             end);
+    stop-http-server(server);
   end;  
 end method quit-handler;
 

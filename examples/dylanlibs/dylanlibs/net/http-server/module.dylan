@@ -57,6 +57,8 @@ define module http-server
     unpublish-all-handlers,
     process-client-connection,
     start-http-server,    
+    stop-http-server,
+    start-http-server-on-thread,    
     write-standard-headers,
     write-standard-ending,
     with-standard-http-result,
