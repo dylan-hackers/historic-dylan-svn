@@ -8,8 +8,11 @@ define sealed class <ray> (<object>)
   slot ray-direction :: <3D-vector>;
 end class <ray>;
 
-define method initialize(ray :: <ray>, #next next-method, #key position: pos, direction: dir, #all-keys)
+define method initialize(ray :: <ray>, #next next-method, #key
+			   position: pos :: <3D-point>, 
+			   direction: dir :: <3D-vector>, #all-keys)
  => ()
+  next-method();
   ray.ray-position := homogenize(pos);
   ray.ray-direction := normalize(dir);
 end method initialize;
