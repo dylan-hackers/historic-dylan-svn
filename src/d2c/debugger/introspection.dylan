@@ -34,7 +34,7 @@ end;
 
 define function inspect-at-address(object-address :: <string>)
   block()
-    dump-object(object-at(find-address(object-address)));
+    dump-object(heap-object-at(find-address(object-address)));
   exception(condition :: <condition>)
     condition-format(*standard-output*, "%s\r\n", condition);
     force-output(*standard-output*);
@@ -44,7 +44,7 @@ end function inspect-at-address;
 
 define function print-address(object-address :: <string>)
   block()
-    format-out("%=\r\n", (object-at(find-address(object-address))));
+    format-out("%=\r\n", (heap-object-at(find-address(object-address))));
   exception(condition :: <condition>)
     condition-format(*standard-output*, "%s\r\n", condition);
     force-output(*standard-output*);
