@@ -4,6 +4,7 @@ define class <state> (<object>)
   slot board :: <board>, required-init-keyword: board:;
   slot robots :: <collection> = #(), init-keyword: robots:;
   slot packages :: <collection> = #(), init-keyword: packages:;
+  slot bases :: <collection> = #(), init-keyword: bases:;
 end class <state>;
 
 // Terrain types
@@ -95,6 +96,11 @@ define function packages-at(state :: <state>, p :: <point>)
  => (v :: <vector>);
   choose-by(curry(\=, p), map(location, state.packages), state.packages);
 end function packages-at;
+
+define function free-packages(s :: <state>)
+ => (v :: <vector>);
+  choose-by(curry(\=, #f), map(carrier, s.packages), s.packages);
+end function free-packages;
 
 define method as(class == <character>, obj :: <character>)
  => obj :: <byte-character>;
