@@ -85,8 +85,6 @@ define module http-server
     <taglib>,
     taglib-definer,
     tag-definer,                 // Defines a new DSP tag function and registers it with a page
-    $dsp-taglib,                 // ---*** TODO: remove when tag-definer doesn't require the
-                                 //              taglib to be specified.
     register-tag,                // This can be used to register tag functions that weren't
                                  //   created by "define tag".
     <page-context>,

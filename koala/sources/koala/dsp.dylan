@@ -226,11 +226,9 @@ end;
 
 define macro taglib-definer
   { define taglib ?:name () ?properties:* end }
-  => { define constant "$" ## ?name ## "-taglib"
-         = register-taglib(taglib-aux1(?"name", ?properties),
-                           taglib-aux2(?"name", ?properties));
-       taglib-aux3("$" ## ?name ## "-taglib", ?properties);
-       }
+  => { register-taglib(taglib-aux1(?"name", ?properties),
+                       taglib-aux2(?"name", ?properties));
+       taglib-aux3(?"name", ?properties); }
 end;
 
 // This just strips out everything except "name: foo;"
@@ -262,8 +260,8 @@ end;
 
 // This just strips out everything except "named-methods: foo ...;"
 define macro taglib-aux3
-  { taglib-aux3(?taglib:name, ?props) }
-  => { let _taglib = ?taglib;
+  { taglib-aux3(?taglib:expression, ?props) }
+  => { let _taglib = find-taglib(?taglib);
        ?props }
 props:
   { }
@@ -281,8 +279,8 @@ funs:
   => { define named-method ?fun in _taglib = ?val; ... }
 end;
 
-define method find-tag (taglib :: <taglib>, name :: <string>)
-                    => (tag :: false-or(<tag>))
+define method find-tag
+    (taglib :: <taglib>, name :: <string>) => (tag :: false-or(<tag>))
   element(tag-map(taglib), name, default: #f)
 end;
 
@@ -313,11 +311,11 @@ end;
 
 // All pages automatically have access to the following two taglibs.
 // These defs must follow the register-taglib def.
-define taglib %dsp ()
-end;
+define taglib %dsp () end;
+define constant $%dsp-taglib :: <taglib> = find-taglib("%dsp");
 
-define taglib dsp ()
-end;
+define taglib dsp () end;
+define constant $dsp-taglib :: <taglib> = find-taglib("dsp");
 
 // Functions that can be looked up by name and thus can be used from within DSP tags
 // like <%dsp:if test="my-test">...</%dsp:if>
@@ -356,13 +354,11 @@ define macro named-method-definer
   { define ?modifiers:* named-method ?:name ?taglib-spec (?arglist:*)
       ?valspec-and-body:* end }
   => { define ?modifiers method ?name (?arglist) ?valspec-and-body end;
-       register-named-method(?taglib-spec, ?"name", ?name) }
+       register-named-method(find-taglib(?"taglib-spec"), ?"name", ?name) }
 
-taglib-spec:
-  { }
-  => { $dsp-taglib }
-  { in ?taglib:expression }
-  => { ?taglib }
+  taglib-spec:
+    { } => { dsp }
+    { in ?taglib:expression } => { ?taglib }
 end;
 
 
@@ -438,10 +434,14 @@ define thread variable *active-taglibs* :: <sequence> = #[];
 define method execute
     (call :: <tag-call>, page, request, response);
   let tag :: <tag> = call.tag;
-  dynamic-bind (*active-taglibs* = call.taglibs)
-    apply(tag.tag-function, page, response,
+  // Might consider wrapping do-body in a method that logs a warning if the tag
+  // isn't supposed to allow a body but one was supplied.
+  let do-body
+    = iff(call.body,
           curry(display-template, call.body, page, request, response),
-          call.arguments);
+          method () end);
+  dynamic-bind (*active-taglibs* = call.taglibs)
+    apply(tag.tag-function, page, response, do-body, call.arguments);
   end;
 end;
 
@@ -532,74 +532,96 @@ end;
 
 // define tag foo in tlib (page, response) () do-stuff end
 // define body tag foo in tlib (page, response, do-body) (foo, bar :: <integer>) do-stuff end
+// ---*** TODO: Need a way to specify whether each tag parameters is required or not.
 //
 define macro tag-definer
-  { define ?modifiers:* tag ?tag:name ?taglib-spec
-        (?method-parameters)
+  // There are two syntaxes (one with the "body" modifier and one without) so that
+  // we can ensure that if the tag isn't supposed to have a body the body will be
+  // processed once and only once.  It sounds weird, but the alternative is to simply
+  // not display the body (if there is one), which might be very hard to debug, or
+  // to make the user remember to deal with the body in each tag.
+  { define tag ?tag:name ?taglib-spec
+        (?page:variable, ?response:variable) (?tag-parameters:*)
+      ?:body
+    end }
+  => { define tag-aux #f ?tag ?taglib-spec
+           (?page, ?response, _do-body) (?tag-parameters)
+         ?body;       // semicolon is needed even when ?body ends in semicolon.
+         _do-body();  // process the tag body
+       end
+     }
+  { define body tag ?tag:name ?taglib-spec
+        (?page:variable, ?response:variable, ?do-body:variable) (?tag-parameters:*)
+      ?:body
+    end }
+  => { define tag-aux #t ?tag ?taglib-spec
+           (?page, ?response, ?do-body) (?tag-parameters)
+         ?body
+       end
+     }
+
+  taglib-spec:
+    { } => { dsp }
+    { in ?taglib:name } => { ?taglib }
+
+end tag-definer;
+
+define macro tag-aux-definer
+  { define tag-aux ?allow-body:expression ?tag:name ?taglib:name
+        (?page:variable, ?response:variable, ?do-body:variable)
         (?tag-parameters:*)
       ?:body
     end }
   => { register-tag(make(<tag>,
                          name: ?"tag",
-                         function: method (?method-parameters, #key ?tag-parameters)
+                         function: method (?page, ?response, ?do-body, #key ?tag-parameters)
                                      ?body
                                    end,
-                         allow-body?: ?modifiers,
+                         allow-body?: ?allow-body,
                          parameter-names: snarf-tag-parameter-names(?tag-parameters),
                          parameter-types: snarf-tag-parameter-types(?tag-parameters)),
-                    ?taglib-spec);
+                    find-taglib(?"taglib"));
      }
-modifiers:
-  { }      => { #f }
-  { body } => { #t }
-taglib-spec:
-  { } => { $dsp-taglib }
-  { in ?taglib:expression } => { ?taglib }
-method-parameters:
-  { ?page:variable, ?response:variable, ?do-body:variable }
-    => { ?page, ?response, ?do-body }
-  { ?page:variable, ?response:variable }
-    => { ?page, ?response, __do-body }
-tag-parameters:
-  { } => { }
-  { ?tag-param, ... }
-    => { ?tag-param, ... }
-// This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
-tag-param:
-  { ?var:name }
-    => { ?var :: <string> }
-  { ?var:variable }
-    => { ?var }
-  { ?var:name = ?type:expression }  // shouldn't this be handled by ?var:variable ?
-    => { ?var :: singleton(?type) }
-end;
+  tag-parameters:
+    { } => { }
+    { ?tag-param, ... }
+      => { ?tag-param, ... }
+  // This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
+  tag-param:
+    { ?var:name }
+      => { ?var :: <string> }
+    { ?var:variable }
+      => { ?var }
+    { ?var:name = ?type:expression }  // shouldn't this be handled by ?var:variable ?
+      => { ?var :: singleton(?type) }
+end tag-aux-definer;
 
 // snarf-tag-parameter-names(bar :: <integer>, baz :: singleton(<string>))
 define macro snarf-tag-parameter-names
   { snarf-tag-parameter-names(?params) }
     => { vector(?params) }
-params:
-  { } => { }
-  { ?param, ... }
-    => { ?param, ... }
-// This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
-param:
-  { ?var:name :: ?type:expression }
-    => { ?#"var" }
+  params:
+    { } => { }
+    { ?param, ... }
+      => { ?param, ... }
+  // This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
+  param:
+    { ?var:name :: ?type:expression }
+      => { ?#"var" }
 end;
 
 // snarf-tag-parameter-types(bar :: <integer>, baz :: singleton(<string>))
 define macro snarf-tag-parameter-types
   { snarf-tag-parameter-types(?params) }
     => { vector(?params) }
-params:
-  { } => { }
-  { ?param, ... }
-    => { ?param, ... }
-// This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
-param:
-  { ?var:name :: ?type:expression }
-    => { ?type }
+  params:
+    { } => { }
+    { ?param, ... }
+      => { ?param, ... }
+  // This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
+  param:
+    { ?var:name :: ?type:expression }
+      => { ?type }
 end;
 
 define method respond-to-get
@@ -1101,7 +1123,7 @@ end quote-html;
 
 // This tag is handled specially by the template parser mechanism.  It is only
 // called on either the true or false part of the %dsp:if directive.
-define body tag \if in $%dsp-taglib
+define body tag \if in %dsp
     (page :: <dylan-server-page>,
      response :: <response>,
      do-body :: <function>)
@@ -1115,7 +1137,7 @@ define thread variable *table-row-number* :: <integer> = -1;
 define function current-row () *table-row-data* end;
 define function current-row-number () *table-row-number* end;
 
-define body tag table in $dsp-taglib
+define body tag table in dsp
     (page :: <dylan-server-page>, response :: <response>, do-body :: <function>)
     (row-generator)
   let row-gen = get-named-method(*active-taglibs*, row-generator);
@@ -1134,7 +1156,7 @@ define body tag table in $dsp-taglib
   end if;
 end;
 
-define tag table-row-number in $dsp-taglib
+define tag table-row-number in dsp
     (page :: <dylan-server-page>, response :: <response>)
     ()
   when (*table-row-number* >= 0)
