@@ -200,31 +200,23 @@ end;
 define generic fer-evaluate-primitive(name :: <symbol>, depends-on :: false-or(<dependency>), environment :: <object>)
  => result :: <ct-value>;
 
-
-define method fer-evaluate-primitive(name == #"fixnum-+", depends-on :: <dependency>, environment :: <object>)
- => result :: <ct-value>;
- let lhs = fer-evaluate-expression(depends-on.source-exp, environment);
- let rhs = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
- 
- as(<ct-value>, lhs.literal-value + rhs.literal-value)
-end;
-
- define macro primitive-emulator-definer
+define macro primitive-emulator-definer
   {
-    define primitive-emulator (?prim:name) end
+    define primitive-emulator ?:name end
   }
   =>
   {
-    define method fer-evaluate-primitive(name == "fixnum-" ## ?#"prim", depends-on :: <dependency>, environment :: <object>)
+    define method fer-evaluate-primitive(name == "fixnum-" ## ?#"name", depends-on :: <dependency>, environment :: <object>)
      => result :: <ct-value>;
       let lhs = fer-evaluate-expression(depends-on.source-exp, environment);
       let rhs = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
-      as(<ct-value>, ?prim(lhs.literal-value, rhs.literal-value))
+      as(<ct-value>, ?name(lhs.literal-value, rhs.literal-value))
     end;
   }
 end;
 
-define primitive-emulator (\*) end;
+define primitive-emulator \+ end;
+define primitive-emulator \* end;
 
 // ########## append-environment ##########
 define function append-environment(prev-env :: <object>, new-binding, new-value) => new-env;
