@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-browser.dsp?id=0&origin=list-browsers.dsp">Click here to create a new browser.</a>
+<a href="edit-browser.dsp?id=new&type=browser&origin=list-browsers.dsp">Click here to create a new browser.</a>
 <br>Click any browser name to edit that browser.
 
 <p>
@@ -25,9 +25,9 @@
     <dsp:cell colspan="2">There are no browsers to display.</dsp:cell>
   </dsp:no-rows>
   <dsp:row>
-    <dsp:cell><bt:row-number/></dsp:cell>
-    <dsp:cell><a href="edit-browser.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
-  </bt:row>
+    <dsp:cell><dsp:row-number/></dsp:cell>
+    <dsp:cell><a href="edit-browser.dsp?id=<bt:show-id/>&type=browser"><bt:show-name/></a></dsp:cell>
+  </dsp:row>
 </dsp:table>
 
 <p>

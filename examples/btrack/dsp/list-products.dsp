@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-product.dsp?id=0&origin=list-products.dsp">Click here to create a new product.</a>
+<a href="edit-product.dsp?id=new&type=product&origin=list-products.dsp">Click here to create a new product.</a>
 <br>Click any product name to edit that product.
 
 <p>
@@ -26,7 +26,7 @@
     <dsp:cell colspan="3">There are no products yet.</dsp:cell>
   </dsp:no-rows>
   <dsp:row>
-    <dsp:cell><a href="edit-product.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
+    <dsp:cell><a href="edit-product.dsp?id=<bt:show-id/>&type=product"><bt:show-name/></a></dsp:cell>
     <dsp:cell><bt:show-owner/></dsp:cell>
     <dsp:cell><bt:show-modules/></dsp:cell>
   </dsp:row>

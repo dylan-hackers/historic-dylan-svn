@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-bug.dsp?id=0&origin=list-bugs.dsp">Click here to create a new bug report.</a>
+<a href="edit-bug.dsp?id=new&type=bug-report&origin=list-bugs.dsp">Click here to create a new bug report.</a>
 <br>Click any bug report to edit that bug.
 
 <p>
@@ -36,7 +36,7 @@
     <dsp:cell width="5%" align="center"><bt:show-reported-by/></dsp:cell>
     <dsp:cell width="5%" align="center"><bt:show-product/></dsp:cell>
     <dsp:cell width="5%" align="center"><bt:show-module/></dsp:cell>
-    <dsp:cell width="79%"><a href="edit-bug.dsp?id=<bt:show-id/>"><bt:show-synopsis/></a></dsp:cell>
+    <dsp:cell width="79%"><a href="edit-bug.dsp?id=<bt:show-id/>&type=bug-report"><bt:show-synopsis/></a></dsp:cell>
   </dsp:row>
 </dsp:table>
 

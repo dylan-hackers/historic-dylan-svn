@@ -12,12 +12,14 @@ Synopsis: Database record read/write/cache code.
 // ---TODO: Allow non-database slots.  Right now the save-record method
 //          assumes all slots are stored in the database.
 
+// Doc Notes:
+// Record classes must be instantiable with only the id: init argument passed.
+// All slots should have a default value and should be settable if the value
+// isn't reasonable.
 
 // -------------------base record machinery--------------------------
 
 // ---TODO: required?: #t, max-length: 30, etc.
-// ---TODO: pretty-name: "Foo", for use in displaying error messages about
-//          a specific field.
 
 define macro record-definer
   { define ?modifiers:* record ?:name (?superclasses) ?slots:* end }
@@ -32,8 +34,10 @@ end;
 // This is for any extra non-slot slots like "table-name: foo".
 //
 define macro record-extras-definer
-  { define record-extras ?:name (?superclasses:*) end }  // stop recursion
-  => { }
+  // This production stops the recursion.
+  { define record-extras ?:name (?superclasses:*) end } => { }
+
+  // Gives the name of the database table for this record class.
   { define record-extras ?:name (?superclasses:*) 
       table-name: ?table-name:expression;
       ?more-slots:*
@@ -41,12 +45,25 @@ define macro record-extras-definer
   => { define method record-table-name (record :: ?name) => (table-name :: <string>)
          ?table-name
        end;
-       define record-extras ?name (?superclasses) ?more-slots end;  // recurse
-     }
+       define record-extras ?name (?superclasses) ?more-slots end; }  // recurse
+
+  // This gives a way to go from the name of a record to the record class.
   { define record-extras ?:name (?superclasses:*) 
-      ?slot-spec:*;
+      type-name: ?type-name:expression;
       ?more-slots:*
     end }
+  => { $record-type-name-map[?type-name] := ?name;
+       define record-extras ?name (?superclasses) ?more-slots end; }  // recurse
+
+  { define record-extras ?:name (?superclasses:*) 
+      pretty-name: ?pretty-name:expression;
+      ?more-slots:*
+    end }
+  => { $record-pretty-name-map[?name] := ?pretty-name;
+       define record-extras ?name (?superclasses) ?more-slots end; }  // recurse
+
+  // This is to ignore regular slot specs.
+  { define record-extras ?:name (?superclasses:*) ?slot-spec:*; ?more-slots:* end }
   => { define record-extras ?name (?superclasses) ?more-slots end; }  // recurse
 end;
 
@@ -60,7 +77,9 @@ slots:
   { } => { }
   { ?slot ; ... } => { ?slot ... }
 slot:
-  { table-name: ?foo:expression } => { }             // strip
+  { type-name: ?foo:expression } => { }             // strip
+  { pretty-name: ?foo:expression } => { }           // strip
+  { table-name: ?foo:expression } => { }            // strip
   { ?modifiers slot ?slot-name:variable }
   => { ?modifiers slot ?slot-name ; }
   { ?modifiers slot ?slot-name:variable , ?keys-and-vals }
@@ -87,6 +106,8 @@ slots:
   { } => { }
   { ?slot ; ... } => { ?slot ... }
 slot:
+  { type-name: ?foo:expression } => { }              // strip
+  { pretty-name: ?foo:expression } => { }            // strip
   { table-name: ?foo:expression } => { }             // strip
   { ?modifiers:* slot ?slot-name:variable , ?keys-and-vals }
   => { begin
@@ -126,6 +147,25 @@ end;
 // Maps classes to sequences of slot descriptors.
 //
 define constant $slot-descriptor-table = make(<table>);
+
+// Maps record type name (e.g., "operating-system") to record class.
+//
+define constant $record-type-name-map = make(<string-table>);
+
+define method record-class-from-type-name
+    (name :: <string>) => (class :: false-or(<class>))
+  element($record-type-name-map, name, default: #f)
+end;
+
+// Maps record class to its pretty name (e.g., "operating system").
+//
+define constant $record-pretty-name-map = make(<table>);
+
+define method record-pretty-name
+    (record :: <database-record>) => (name :: false-or(<string>))
+  element($record-pretty-name-map, object-class(record), default: #f)
+end;
+
 
 // Describes attributes of a slot that relate to database records.
 //
@@ -169,9 +209,13 @@ end class <slot-descriptor>;
 
 
 define method add-slot-descriptor
-    (class :: <class>, desc :: <slot-descriptor>)
+    (class :: <class>, slot :: <slot-descriptor>)
   let descriptors = element($slot-descriptor-table, class, default: list());
-  $slot-descriptor-table[class] := add-new(descriptors, desc);
+  $slot-descriptor-table[class]
+    := add-new(descriptors, slot,
+               test: method (x, y)
+                       slot-getter(x) == slot-getter(y)
+                     end);
 end;
 
 // Get all slot descriptors for the given class, including those for its supers.
@@ -227,6 +271,7 @@ define primary record <modifiable-record> (<database-record>)
   // mod-count must be incremented.  A mod-count of 0 means the record
   // has never been saved.
   database slot mod-count :: <integer>,
+    init-value: -1,
     init-keyword: #"mod-count",
     column-name: "mod_count",
     column-number: 1;
@@ -244,11 +289,14 @@ end;
 
 define primary record <named-record> (<modifiable-record>)
   database slot name :: <string>,
+    init-value: "",
     init-keyword: #"name",
     column-name: "name",
     column-number: 4;
   // ---TODO: This doesn't really belong here.
+  // 'O' = Obsolete, 'A' = Active
   database slot status :: <character>,
+    init-value: 'A',
     init-keyword: #"status",
     column-name: "status",
     column-number: 5;
@@ -256,24 +304,32 @@ end;
 
 
 define record <account> (<named-record>)
+  type-name: "account";
+  pretty-name: "account";
   table-name: "tbl_account";
   database slot password :: <string>,
+    init-value: "",      //---TODO: what?
     init-keyword: #"password",
     column-number: 6,
     column-name: "password";
   slot email-address :: <string>,
+    init-value: "",      //---TODO: what?
     init-keyword: #"email-address",
     column-number: 7,
     column-name: "email_address";
   slot email-prefs :: <integer>,
+    init-value: 0,       //---TODO: nyi
     init-keyword: #"email-prefs",
     column-number: 8,
     column-name: "email_prefs";
   slot permissions :: <integer>,
+    init-value: 0,       //---TODO: nyi
     init-keyword: #"permissions",
     column-number: 9,
     column-name: "permissions";
+  // 'D' = Developer, 'Q' = QA (should make it a bitmask so can be both)
   slot role :: <character>,
+    init-value: 'D',       //---TODO: nyi
     init-keyword: #"role",
     column-number: 10,
     column-name: "role";
@@ -281,14 +337,20 @@ end;
 
 
 define primary record <browser> (<named-record>)
+    type-name: "browser";
+    pretty-name: "browser";
     table-name: "tbl_browser";
 end;
 
 define primary record <platform> (<named-record>)
+    type-name: "platform";
+    pretty-name: "platform";
     table-name: "tbl_platform";
 end;
 
 define primary record <operating-system> (<named-record>)
+    type-name: "operating-system";
+    pretty-name: "operating system";
     table-name: "tbl_operating_system";
 end;
 
@@ -296,54 +358,71 @@ end;
 //
 define primary record <owned-record> (<named-record>)
   slot description :: <string>,
+    init-value: "",       //---TODO: nyi
     init-keyword: #"description",
     column-number: 6,
     column-name: "description";
   slot owner :: <account>,
+    init-function: curry(class-prototype, <account>),
     init-keyword: #"owner",
     column-number: 7,
     column-name: "owner";
 end;
 
+define primary record <product> (<owned-record>)
+  type-name: "product";
+  pretty-name: "product";
+  table-name: "tbl_product";
+end;
+
 define primary record <module> (<owned-record>)
+  type-name: "module";
+  pretty-name: "module";
   table-name: "tbl_module";
   slot product :: <product>,
+    init-function: curry(class-prototype, <product>),
     init-keyword: #"product",
     column-number: 8,
     column-name: "product_id";
 end;
 
-define primary record <product> (<owned-record>)
-  table-name: "tbl_product";
-end;
-
 define primary record <version> (<named-record>)
+  type-name: "version";
+  pretty-name: "version";
   table-name: "tbl_version";
   slot product :: <product>,
+    init-function: curry(class-prototype, <product>),
     init-keyword: #"product",
     column-number: 6,
     column-name: "product_id";
   slot release-date :: <date>,
+    init-value: current-date(),
     init-keyword: #"release-date",
     column-number: 7,
     column-name: "release_date";
   slot comment :: <string>,
+    init-value: "",
     column-number: 8,
     column-name: "comment",
     database-type: #"varchar";
 end;
 
 define primary record <comment> (<modifiable-record>)
+  type-name: "comment";
+  pretty-name: "comment";
   table-name: "tbl_comment";
   slot bug-report :: <bug-report>,
+    init-function: curry(class-prototype, <bug-report>),
     init-keyword: #"bug-report",
     column-number: 4,
     column-name: "bug_report_id";
   slot account :: <account>,       // not the owner, just the commenter.
+    init-function: curry(class-prototype, <account>),
     init-keyword: #"account",
     column-number: 5,
     column-name: "account_id";
   slot comment :: <string>,
+    init-value: "",
     init-keyword: #"comment",
     column-number: 6,
     column-name: "comment",
@@ -351,20 +430,57 @@ define primary record <comment> (<modifiable-record>)
 end;
 
 define primary record <bug-report> (<modifiable-record>)
+  type-name: "bug-report";
+  pretty-name: "bug report";
   table-name: "tbl_bug_report";
+  slot synopsis :: <string>,
+    column-number: 6,
+    column-name: "synopsis",
+    database-type: #"varchar";
+  slot description :: <string>,
+    column-number: 7,
+    column-name: "description",
+    database-type: #"varchar";
+  slot product :: <product>,
+    column-number: 8,
+    column-name: "product";
+  slot module :: <module>,
+    column-number: 9,
+    column-name: "module";
+  slot version :: <version>,
+    column-number: 10,
+    column-name: "version";
+  slot reported-by :: <account>,
+    column-number: 11,
+    column-name: "reported_by";
+  slot product :: <product>,
+    column-number: 8,
+    column-name: "product";
+  slot product :: <product>,
+    column-number: 8,
+    column-name: "product";
+  slot product :: <product>,
+    column-number: 8,
+    column-name: "product";
+
 end;
 
 define primary record <log-entry> (<database-record>)
+  type-name: "log-entry";
+  pretty-name: "log entry";
   table-name: "tbl_log";
   slot date-entered :: <date>,
+    init-value: current-date(),
     init-keyword: #"date-entered",
     column-number: 1,
     column-name: "date_entered";
   slot modified-by :: <account>,
+    init-function: curry(class-prototype, <account>),
     init-keyword: #"modified-by",
     column-number: 2,
     column-name: "modified_by";
   slot description :: <string>,
+    init-value: "",
     init-keyword: #"description",
     column-number: 3,
     column-name: "description",
@@ -383,7 +499,7 @@ define method load-record
     (class :: <class>, id :: <integer>) => (record :: false-or(<database-record>))
   load-record(class,
               sformat("select * from %s where record_id = %d",
-                      class-prototype(class), id))
+                      record-table-name(class-prototype(class)), id))
 end;
 
 define method load-record
@@ -563,7 +679,7 @@ define method save-record
           format-to-string("%s = ?", slot-column-name(slot))
         end;
   let query
-    = if (mod-count(record) = 1) // not 0, because it has already been inced by <modifiable-record>.
+    = if (zero?(mod-count(record)))
         format-to-string("insert into %s (%s) values (%s)",
                          record-table-name(record),
                          join(slots, ",", key: slot-column-name),
@@ -596,5 +712,4 @@ define method record-table-name
   error("No record-table-name method is defined for this record's class. (%=)",
         record);
 end;
-
 

@@ -1,3 +1,3 @@
 <%dsp:taglib name="btrack" prefix="bt" />
 
-<i><bt:show-username/></i>
+<i><bt:show-current-username/></i>

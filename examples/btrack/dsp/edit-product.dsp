@@ -42,7 +42,7 @@
 
 <p>
 
-<a href="edit-module.dsp?id=0&origin=edit-product.dsp&productid=<bt:show-id/>">Click here to create a new module for this product.</a>
+<a href="edit-module.dsp?id=new&type=module&origin=edit-product.dsp&productid=<bt:show-id/>">Click here to create a new module for this product.</a>
 <br>Click any module name to edit that module.
 
 <p>
@@ -52,7 +52,7 @@
       <dsp:hcell>Name</dsp:hcell>
     </dsp:hrow>
     <dsp:row>
-      <dsp:cell><a href="edit-module.dsp?id=<bt:show-id key="row">&product-id=<bt:show-id></dsp:cell>
+      <dsp:cell><a href="edit-module.dsp?id=<bt:show-id key="row">&type=module&product-id=<bt:show-id></dsp:cell>
     </dsp:row>
     <dsp:no-rows>
       <dsp:cell>This product has no modules yet.</dsp:cell>
@@ -61,7 +61,7 @@
 
 <p>
 
-<a href="edit-version.dsp?id=0&origin=edit-product.dsp&productid=<bt:show-id/>">Click here to create a new version for this product.</a>
+<a href="edit-version.dsp?id=new&type=version&origin=edit-product.dsp&productid=<bt:show-id/>">Click here to create a new version for this product.</a>
 <br>Click any version name to edit that version.
 
 <p>
@@ -71,7 +71,7 @@
       <dsp:hcell>Name</dsp:hcell>
     </dsp:hrow>
     <dsp:row>
-      <dsp:cell><a href="edit-version.dsp?id=<bt:show-id key="row">&product-id=<bt:show-id></dsp:cell>
+      <dsp:cell><a href="edit-version.dsp?id=<bt:show-id key="row">&type=version&product-id=<bt:show-id></dsp:cell>
     </dsp:row>
     <dsp:no-rows>
       <dsp:cell>This product has no versions yet.</dsp:cell>

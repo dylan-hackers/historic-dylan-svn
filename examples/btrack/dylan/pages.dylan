@@ -93,6 +93,11 @@ define method note-form-error
   note-form-error(list(message, copy-sequence(args)));
 end;
 
+define method note-form-message
+    (message :: <string>, #rest args)
+  apply(note-form-error, message, args)
+end;
+
 // This shows the use of <page-context> to store the form errors since they
 // only need to be accessible during the processing of one page.
 //
@@ -122,11 +127,22 @@ end;
 
 
 
-// Called to validate each input field in a web form.  Methods should throw
-// <invalid-form-field-exception> if the input is invalid.
+// Called to validate each input field in an <edit-record-page> HTML form.
+// Methods should throw <invalid-form-field-exception> if the input is invalid.
 //
-define generic validate-form-field
-    (page :: <btrack-page>, slot :: <slot-descriptor>, value :: <object>);
+define generic validate-record-field (page :: <edit-record-page>,
+                                      record :: <database-record>,
+                                      slot :: <slot-descriptor>,
+                                      value :: <object>);
+
+define method validate-record-field (page :: <edit-record-page>,
+                                     record :: <database-record>,
+                                     slot :: <slot-descriptor>,
+                                     input)
+  // do nothing
+end;
+
+
 
 
 // ---TODO:
@@ -237,25 +253,26 @@ define method respond-to-get (page :: <logout-page>,
   respond-to-get(*home-page*, request, response);
 end;
 
-define tag show-username in btrack
-    (page :: <btrack-page>, response :: <response>)
-    ()
-  let account = current-account(get-request(response));
-  let username = account & name(account);
-  username & write(output-stream(response), username);
-end;
-
+// Show the password for the current edit record only.
+//
 define tag show-password in btrack
     (page :: <btrack-page>, response :: <response>)
     ()
-  let account = current-account(get-request(response));
-  let password = account & password(account);
-  password & write(output-stream(response),
-                   make(<string>,
-                        size: size(password),
-                        initial-element: "*"));
+  let account = get-edit-record(get-request(response));
+  let password = instance?(account, <account>) & password(account);
+  password & write(output-stream(response), password);
 end;
 
+// ---TODO: Define a tag to replace the HTML <input> tag, that will automatically take
+//          care of defaulting the value correctly if the form is redisplayed due to
+//          error, and will display the input tag in a different background color.
+//
+define tag show-query-value
+    (page :: <btrack-page>, response :: <response>)
+    (name :: <string>)
+  let qv = get-query-value(name);
+  qv & write(output-stream(response), qv);
+end;
 
 ////
 //// Table row generators for list-*.dsp pages
@@ -300,5 +317,144 @@ define named-method bug-report-generator in btrack
   load-all-records(<bug-report>)
 end;
 
+define class <edit-record-page> (<btrack-page>)
+end;
+
+// This method is called under two different circumstances:
+// (1) As the result of the user clicking a link of the form
+//     <a href="edit-account.dsp&id=n">, in which case there is an 'id'
+//     query parameter, or
+// (2) As the result of a successful login.
+// Therefore, if there is an 'id' query parameter it is used to find the
+// record to edit.  If the user isn't logged in then that record is stored
+// in the session and is redirected to the login page.  If there is no 'id'
+// query parameter, the record to edit is already in the session.
+//
+// ---TODO: abstract this out to a mixin class, <require-login-mixin>
+//
+define method respond-to-get (page :: <edit-record-page>,
+                              request :: <request>,
+                              response :: <response>)
+  let session = get-session(request);
+  let record-id = get-query-value("id");
+  let record-type = get-query-value("type");
+  let record = select (record-id by \=)
+                 "new" =>     // new record being created
+                   let record-class = record-class-from-type-name(record-type);
+                   make(record-class, id: next-record-id());
+                 #f =>        // no record id means record is in session.
+                   get-attribute(session, $edit-record-key);
+                 otherwise =>
+                   let record-class = record-class-from-type-name(record-type);
+                   load-record(record-class, as(<integer>, record-id));
+               end;
+  record
+    | error("No record was found for editing.  Please report this bug.");
+  set-attribute(session, $edit-record-key, record);
+  if (logged-in?(page, request))
+    dynamic-bind (*record* = record)
+      next-method();
+    end;
+  else
+    force-login(page, request, response)
+  end;
+end;
+
+define method respond-to-post (page :: <edit-record-page>,
+                               request :: <request>,
+                               response :: <response>)
+  let record :: <database-record> = get-edit-record(request);
+  let slots = slot-descriptors(object-class(record));
+  let bindings = make(<string-table>); // maps form input name to parsed value
+  let field-name = #f;
+  let field-value = #f;
+  block ()
+    // Update the record with values from the page.
+    for (slot in slots)
+      field-name := slot-column-name(slot);
+      field-value := get-form-value(field-name, as: slot-type(slot));
+      if (field-value)
+        validate-record-field(page, record, slot, field-value);
+        let f = slot-setter(slot);
+        // ---TODO: determine whether any slots changed.  If not, no need to save the record.
+        f & f(field-value, record);
+      else
+        /* ---TODO
+        if (slot-required?(slot))
+          throw(<missing-required-field>, name: field-name)
+        end;
+        */
+      end;
+    end;
+    save-record(record);
+    // ---TODO: capitalize the pretty name.  add methods for capitalizing
+    //          strings to the strings library.
+    note-form-message("%s updated.", record-pretty-name(record));
+    remove-attribute(get-session(request), $edit-record-key);     // clean up session
+    // ---TODO: Figure out how to go to the 'origin' page.
+    respond-to-get(*home-page*, request, response);
+  exception (err :: <invalid-form-field-exception>)
+    note-form-error("Error while processing the %= field.  %=",
+                    field-name, err);
+    next-method();
+  end;
+end;
+
+define page list-browsers-page (<btrack-page>)
+    (url: "/list-browsers.dsp",
+     source: document-location("dsp/list-browsers.dsp"))
+end;
+
+define page edit-browser-page (<edit-record-page>)
+    (url: "/edit-browser.dsp",
+     source: document-location("dsp/edit-browser.dsp"))
+end;
+
+define page list-products-page (<btrack-page>)
+    (url: "/list-products.dsp",
+     source: document-location("dsp/list-products.dsp"))
+end;
+
+define page edit-product-page (<edit-record-page>)
+    (url: "/edit-product.dsp",
+     source: document-location("dsp/edit-product.dsp"))
+end;
+
+define page list-operating-systems-page (<btrack-page>)
+    (url: "/list-operating-systems.dsp",
+     source: document-location("dsp/list-operating-systems.dsp"))
+end;
+
+define page edit-operating-system-page (<edit-record-page>)
+    (url: "/edit-operating-system.dsp",
+     source: document-location("dsp/edit-operating-system.dsp"))
+end;
+
+define page list-platforms-page (<btrack-page>)
+    (url: "/list-platforms.dsp",
+     source: document-location("dsp/list-platforms.dsp"))
+end;
+
+define page edit-platform-page (<edit-record-page>)
+    (url: "/edit-platform.dsp",
+     source: document-location("dsp/edit-platform.dsp"))
+end;
+
+define page list-bugs-page (<btrack-page>)
+    (url: "/list-bugs.dsp",
+     source: document-location("dsp/list-bugs.dsp"))
+end;
+
+define page edit-bug-page (<edit-record-page>)
+    (url: "/edit-bug.dsp",
+     source: document-location("dsp/edit-bug.dsp"))
+end;
+
+define tag show-bug-number in btrack
+    (page :: <btrack-page>, response :: <response>)
+    ()
+  let bug = current-row() | *record*;
+  bug & write(output-stream(response), bug-number(bug));
+end;
 
 

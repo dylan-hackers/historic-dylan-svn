@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-operating-system.dsp?id=0&origin=list-operating-systems.dsp">Click
+<a href="edit-operating-system.dsp?id=new&type=operating-system&origin=list-operating-systems.dsp">Click
  here to create a new operating system.</a>
 <br>Click any operating system name to edit that operating system.
 
@@ -26,8 +26,8 @@
     <dsp:cell colspan="2">There are no operating systems yet.</dsp:cell>
   </dsp:no-rows>
   <dsp:row>
-    <dsp:cell><bt:row-number/></dsp:cell>
-    <dsp:cell><a href="edit-operating-system.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
+    <dsp:cell><dsp:row-number/></dsp:cell>
+    <dsp:cell><a href="edit-operating-system.dsp?id=<bt:show-id/>&type=operating-system"><bt:show-name/></a></dsp:cell>
   </dsp:row>
 </dsp:table>
 

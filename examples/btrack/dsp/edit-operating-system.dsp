@@ -1,5 +1,4 @@
 <%dsp:taglib name="btrack" prefix="bt" />
-<jsp:useBean id="record" class="sigue.btrack.OperatingSystem" scope="session"/>
 
 <html>
 <head><title>Bug Tracker - Admin - Edit Operating System</title></head>
@@ -12,7 +11,7 @@
 
 <center><h1>Edit Operating System</h1></center>
 
-<form name="editOperatingSystemForm" method="post" action="record?action=save">
+<form name="editOperatingSystemForm" method="post" action="edit-operating-system.dsp">
   <input type="hidden" name="type" value="OperatingSystem">
   <table border="0">
     <tr>
@@ -20,7 +19,7 @@
       <td nowrap width="95%" colspan="3">
         <span class="fieldTitle">Operating system name:</span>
         <br><input name="name" type="text" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="name"/>">
+                   value="<bt:show-name/>">
       </td>
     </tr>
     <tr>

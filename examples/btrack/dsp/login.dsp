@@ -15,11 +15,11 @@
   <table border="0">
     <tr>
       <td align="right">Username:</td>
-      <td><input type="text" name="username" value="" size="20"><bt:show-username/></td>
+      <td><input type="text" name="username" value="" size="20"><bt:show-query-value name="username"/></td>
     </tr>
     <tr>
       <td align="right">Password:</td>
-      <td><input type="password" name="password" value="" size="20"><bt:show-password/></td>
+      <td><input type="password" name="password" value="" size="20"></td>
     </tr>
     <tr>
       <td colspan="2" align="right">
