@@ -1,27 +1,19 @@
 module: dylan-user
 
 define library ant-visualizer
-    use dylan;
-    use streams;
-    use format;
-    use print;
-    use standard-io;
+    use common-dylan;
     use garbage-collection;
     use transcendental;
+    use melange-support;
     use opengl;
     use ants;
 end library;
 
 define module ant-visualizer
-    use dylan;
-    use extensions;
-    use system;
-    use streams;
-    use format;
-    use print;
-    use standard-io;
+    use common-dylan;
     use transcendental;
     use garbage-collection;
+    use melange-support;
 
     use opengl;
     use opengl-glu;

@@ -22,6 +22,9 @@ define constant $PI = 3.141592654;
 define constant $PI-OVER-3 = $PI / 3.0;
 define constant $180-OVER-PI = 180.0 / $PI;
 
+define constant $COS-PI-OVER-3 = cos($PI-OVER-3);
+define constant $SIN-PI-OVER-3 = sin($PI-OVER-3);
+
 define constant $ROOT-3-OVER-2 = sqrt(3.0) * 0.5;
 
 define constant $ROCK-COLOR = make-gl-color(0.5, 0.5, 0.5);
@@ -31,7 +34,7 @@ define constant $BLACK-ANTHILL-COLOR = make-gl-color(0.8, 0.8, 0.8);
 define constant $FOOD-COLOR = make-gl-color(0.0, 1.0, 0.0);
 
 define constant $RED-ANT-COLOR = make-gl-color(1.0, 0.0, 0.0);
-define constant $BLACk-ANT-COLOR = make-gl-color(0.0, 0.0, 0.0);
+define constant $BLACK-ANT-COLOR = make-gl-color(0.0, 0.0, 0.0);
 
 define constant $WHITE = make-gl-color(1.0, 1.0, 1.0);
 
@@ -56,22 +59,20 @@ define function draw-hex(position) => ()
     let (x, y) = cell-position(position);
 
     glBegin($GL-TRIANGLE-FAN);
-        glVertex(x                  , y                  );
-        glVertex(x                  , y + 1              );
-        glVertex(x + sin($PI-OVER-3), y + cos($PI-OVER-3));
-        glVertex(x + sin($PI-OVER-3), y - cos($PI-OVER-3));
-        glVertex(x                  , y - 1              );
-        glVertex(x - sin($PI-OVER-3), y - cos($PI-OVER-3));
-        glVertex(x - sin($PI-OVER-3), y + cos($PI-OVER-3));
-        glVertex(x                  , y + 1              );
+        glVertex(x                 , y                 );
+        glVertex(x                 , y + 1             );
+        glVertex(x + $SIN-PI-OVER-3, y + $COS-PI-OVER-3);
+        glVertex(x + $SIN-PI-OVER-3, y - $COS-PI-OVER-3);
+        glVertex(x                 , y - 1             );
+        glVertex(x - $SIN-PI-OVER-3, y - $COS-PI-OVER-3);
+        glVertex(x - $SIN-PI-OVER-3, y + $COS-PI-OVER-3);
+        glVertex(x                 , y + 1             );
     glEnd();
 end;
 
 define function cell-color(cell) => (color)
     if (cell.rocky)
         $ROCK-COLOR
-    elseif (cell.food > 0)
-        $FOOD-COLOR
     elseif (cell.anthill)
         if (cell.anthill == #"red")
             $RED-ANTHILL-COLOR
@@ -86,6 +87,31 @@ end;
 define function draw-cell(cell, position) => ()
     set-gl-color(cell-color(cell));
     draw-hex(position);
+end;
+
+define function draw-cell-food(cell, position) => ()
+    if (cell.food > 0)
+        let (x, y) = cell-position(position);
+        let count-string = integer-to-string(cell.food);
+        
+        let total-width = 0.0;
+        for (character in count-string)
+            total-width := total-width +
+                glutStrokeWidth($GLUT-STROKE-ROMAN,
+                                as(<integer>, character));
+        end;
+    
+        glPushMatrix();
+            glTranslate(x, y, 0.0);
+            glScale(0.01, -0.01, 1.0);
+            glTranslate(-0.5 * total-width, -50.0, 0.0);
+            set-gl-color($FOOD-COLOR);
+            for (character in count-string)
+                glutStrokeCharacter($GLUT-STROKE-ROMAN,
+                                    as(<integer>, character));
+            end;
+        glPopMatrix();
+    end;
 end;
 
 define function ant-color(ant) => (color)
@@ -109,9 +135,19 @@ define function draw-ant(ant, position) => ()
         set-gl-color(ant-color(ant));
         glBegin($GL-TRIANGLES);
             glVertex($ROOT-3-OVER-2, 0.0);
-            glVertex(-sin($PI-OVER-3), -cos($PI-OVER-3));
-            glVertex(-sin($PI-OVER-3),  cos($PI-OVER-3));
+            glVertex(-$SIN-PI-OVER-3, -$COS-PI-OVER-3);
+            glVertex(-$SIN-PI-OVER-3,  $COS-PI-OVER-3);
         glEnd();
+        
+        if (ant.has-food)
+            set-gl-color($FOOD-COLOR);
+            glBegin($GL-QUADS);
+                glVertex(-$SIN-PI-OVER-3,       0.0);
+                glVertex(-0.5 * $SIN-PI-OVER-3, -0.5 * $SIN-PI-OVER-3);
+                glVertex(0.0,                   0.0);
+                glVertex(-0.5 * $SIN-PI-OVER-3, 0.5 * $SIN-PI-OVER-3);
+            glEnd();
+        end;
     glPopMatrix();
 end;
 
@@ -128,8 +164,9 @@ define function cache-world-display-list() => ()
     for (y-index from 0 below height)
         for (x-index from 0 below width)
             let position = make-position(x-index, y-index);
+            let cell = *world*[x-index, y-index];
             
-            draw-cell(*world*[x-index, y-index], position);
+            draw-cell(cell, position);
         end;
     end;
     
@@ -145,9 +182,12 @@ define function draw-world() => ()
 
     for (y-index from 0 below height)
         for (x-index from 0 below width)
-            let this-ant = *world*[x-index, y-index].ant;
             let position = make-position(x-index, y-index);
+            let cell = *world*[x-index, y-index];
+            
+            draw-cell-food(cell, position);
         
+            let this-ant = *world*[x-index, y-index].ant;
             if (this-ant)
                 draw-ant(this-ant, position);
             end;
@@ -157,12 +197,16 @@ end;
 
 define variable *scale* = 5.0;
 
+define variable *x-offset* = 0.0;
+define variable *y-offset* = 0.0;
+
 define variable draw :: <function> =
         callback-method() => ();
     glClear($GL-COLOR-BUFFER-BIT + $GL-DEPTH-BUFFER-BIT);
 
     glPushMatrix();
     glScale(*scale*, *scale*, 1.0);
+    glTranslate(*x-offset*, *y-offset*, 0.0);
     draw-world();
     glPopMatrix();
     
@@ -201,6 +245,42 @@ define variable keyboard :: <function> =
     end if;
 end;
 
+define variable *original-mouse-x* = 0;
+define variable *original-mouse-y* = 0;
+
+define function update-offsets(x, y) => ()
+    let x-distance = x - *original-mouse-x*;
+    let y-distance = y - *original-mouse-y*;
+    
+    let world-x-distance = x-distance / *scale*;
+    let world-y-distance = y-distance / *scale*;
+
+    *x-offset* := *x-offset* + world-x-distance;
+    *y-offset* := *y-offset* + world-y-distance;
+    
+    *original-mouse-x* := x;
+    *original-mouse-y* := y;
+end;
+
+define variable mouse :: <function> =
+        callback-method(button :: <integer>,
+                        state :: <integer>,
+                        x :: <integer>,
+                        y :: <integer>) => ();
+    if (state == $GLUT-DOWN)
+        *original-mouse-x* := x;
+        *original-mouse-y* := y;
+    else
+        update-offsets(x, y);
+    end;
+end;
+
+define variable motion :: <function> =
+        callback-method(x :: <integer>,
+                        y :: <integer>) => ();
+    update-offsets(x, y);
+end;
+
 begin
   load-world();
     glut-init();
@@ -211,11 +291,14 @@ begin
     glutCreateWindow("Marching Dylants");
     
     cache-world-display-list();
+    glLineWidth(3.0s0);
 
     glutDisplayFunc(draw);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
     glutKeyboardFunc(keyboard);
+    glutMouseFunc(mouse);
+    glutMotionFunc(motion);
 
     glutMainLoop();
 end;
