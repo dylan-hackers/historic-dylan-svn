@@ -7,6 +7,7 @@ macro @Sigm {@Sym sigma}
 # def @Tau right n { {@Sym tau} @Sub @Eq {n} }
 def @Sig right n { {@Sigm} @Sub n }
 def @Tau right n { {@Sym tau} @Sub n }
+def @Project left union right n { left{@Sym bar} @Sub n }
 
 
 @Report
@@ -242,9 +243,10 @@ denote the product type of an {@I n}-ary method's argument signature. The maybe 
 can be described as a set of distinct signatures: "{" {@Sig 1}, {@Sig 2}, ..., @Sig @I m "}".
 We denote the projection operator to extract the type of argument @Eq {1 <= i <= n} from a
 method signature: {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n}) {@Sym bar} @Sub @I i = {@Tau @I i}.
-@PP This allows to formulate our above notion as known-type(i, "{" sigma1, sigma2, ..., sigmam "}") <=
-type-union(sigma1 "|i", ..., sigmam "|i"). One might ask for the reason of the inequality in
-this formula. It simply states that we can do even @I better than the formula suggests!
+@PP This allows to formulate our above notion as {@F known-type}(i, "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}") @Sym lessequal
+{@F type-union}({@Sig 1} {@Project @I i}, ..., {@Sig @I m} {@Project @I i}). One might ask
+for the reason of the inequality in this formula. It simply states that we can do even @I better
+than the formula suggests!
 @End @SubSection
 
 ###########
@@ -348,14 +350,15 @@ type-annotated programs. In its first incarnation of the
 algorithm a dozen of optimization candidates were detected
 in the 75 KLOC sourcebase of @F d2c itself. Some of them could
 not effectively be exploited because while the refinement
-appeared in both legs of "if" nodes and the use in a node
-dominated by the "if" node, @F d2c unfortuantely has no mechanism
-(yet) to coalesce the results of analysis to behind the "if" node.
+appeared in both legs of "\"if\"" nodes and the use in a node
+dominated by the "\"if\"" node, @F d2c unfortuantely has no mechanism
+(yet) to coalesce the results of analysis to behind the "\"if\"" node.
 This number appears as extremely low, but we must take into
 consideration that @F d2c is a well-annotated program when it
 comes to types. It is expected that after implementing the
 tuple-union based optimization, a whole lot more of opportunities
 for type refinement open up.
+
 @End @Section
 
 
