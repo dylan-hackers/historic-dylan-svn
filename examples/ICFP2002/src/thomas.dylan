@@ -8,6 +8,10 @@ define constant $going-to-dropoff = #"going-to-dropoff";
 define constant <goal> = one-of($ready, $nowhere-to-go, $going-to-base,
                                 $going-to-dropoff);
 
+// thomas has the obvious pun on Dylan Thomas. There's also the
+// less obvious pun that Dylan Thomas was one of history's great
+// drunks. 
+
 define class <thomas> (<robot-agent>)
   slot goal :: <goal>,
     init-value: $ready;
@@ -177,7 +181,7 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
       end;
     $going-to-dropoff =>
       begin
-        if (tom.moves-remaining.empty?) // we are at the destination. 
+        if (tom.moves-remaining.empty?) // we are at the destination.
           let ps = packages-with-dest(agent-packages(tom, state),
                                       agent-pos(tom, state));
           tom.goal := $ready;
