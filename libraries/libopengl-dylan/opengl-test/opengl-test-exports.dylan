@@ -5,10 +5,8 @@ copyright: (C) Jefferson Dubrule.  See COPYING.LIB for license details.
 
 define library opengl-test
   use dylan;
-  use streams;
-  use format;
-  use print;
-  use standard-io;
+  use common-dylan;
+  use io;
   use garbage-collection;
   use opengl;
 
@@ -16,11 +14,11 @@ define library opengl-test
 end library;
 
 define module opengl-test
-  use dylan;
+  use common-dylan;
   use extensions;
-  use system;
   use streams;
-  use format;
+  use system, import: {callback-method};
+  use format, exclude: {format-to-string};
   use print;
   use standard-io;
   use garbage-collection;

@@ -20,6 +20,22 @@ define module opengl
   export
     with-glBegin, with-glNewList, with-glPushMatrix;
 
+  // Fundamental types
+  export
+    <GLbitfield>,
+    <GLboolean>,
+    <GLbyte>,
+    <GLshort>,
+    <GLint>,
+    <GLubyte>,
+    <GLushort>,
+    <GLuint>,
+    <GLsizei>,
+    <GLfloat>,
+    <GLdouble>,
+    <GLclampf>,
+    <GLclampd>;
+
   // Massaged functions:
   export
     glColor, glColor3, glColor4,
@@ -777,7 +793,7 @@ define module opengl-glu
   use dylan;
   use extensions;
   use melange-support;
-  use opengl;
+//  use opengl;
 
   // Functions:
   export 
@@ -1047,6 +1063,8 @@ define module opengl-glut
     glutReportErrors;
 
   export
+    $GLUT-STROKE-ROMAN,
+    $GLUT-STROKE-MONO-ROMAN,
     $GLUT-BITMAP-8-BY-13,
     $GLUT-BITMAP-9-BY-15,
     $GLUT-BITMAP-8-BY-13,
@@ -1057,8 +1075,16 @@ define module opengl-glut
     $GLUT-BITMAP-HELVETICA-18;
 
   export
-    $GLUT-STROKE-ROMAN,
-    $GLUT-STROKE-MONO-ROMAN;
+    glutStrokeRoman,
+    glutStrokeMonoRoman,
+    glutBitmap9By15,
+    glutBitmap8By13,
+    glutBitmapTimesRoman10,
+    glutBitmapTimesRoman24,
+    glutBitmapHelvetica10,
+    glutBitmapHelvetica12,
+    glutBitmapHelvetica18;
+
 
   // GLUT constants:
   export
@@ -1204,21 +1230,6 @@ define module opengl-glut
     $GLUT-CURSOR-INHERIT,
     $GLUT-CURSOR-NONE,
     $GLUT-CURSOR-FULL-CROSSHAIR;
-
-  export
-    <GLbitfield>,
-    <GLboolean>,
-    <GLbyte>,
-    <GLshort>,
-    <GLint>,
-    <GLubyte>,
-    <GLushort>,
-    <GLuint>,
-    <GLsizei>,
-    <GLfloat>,
-    <GLdouble>,
-    <GLclampf>,
-    <GLclampd>;
 
 end module;
 
