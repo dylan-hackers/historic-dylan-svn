@@ -1,0 +1,834 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0051)http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html -->
+<HTML><HEAD><TITLE>ACM Lisp Pointers 4, 2 (Apr/Jun 1991), 3-15.</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1"><!-- This document was created from RTF source by rtftohtml version 2.7.5 --><LINK 
+rev=made href="mailto:hbaker@netcom.com">
+<META content="MSHTML 5.50.4611.1300" name=GENERATOR></HEAD>
+<BODY>
+<H1>Pragmatic Parsing in Common Lisp</H1>
+<ADDRESS><A href="http://linux.rice.edu/~rahul/hbaker/home.html">Henry G. 
+Baker</A> </ADDRESS>
+<ADDRESS>Nimble Computer Corporation<BR>16231 Meadow Ridge Way<BR>Encino, CA 
+91436<BR>(818) 501-4956 (818) 986-1360 (FAX) </ADDRESS>January, 1991 
+<ADDRESS>This work was supported in part by the U.S. Department of Energy 
+Contract No. DE-AC03-88ER80663<BR>Copyright (c) 1991 by Nimble Computer 
+Corporation </ADDRESS>
+<HR>
+We review META, a classic technique for building recursive descent parsers, that 
+is both simple and efficient. While META does not handle all possible regular or 
+context-free grammars, it handles a surprisingly large fraction of the grammars 
+encountered by Lisp programmers. We show how META can be used to parse streams, 
+strings and lists--including Common Lisp's hairy lambda expression parameter 
+lists. Finally, we compare the execution time of this parsing method to the 
+built-in methods of Common Lisp. 
+<HR>
+
+<H2>A. INTRODUCTION</H2>Lisp has traditionally been a language that eschews 
+complex syntax. According to John McCarthy, the inventor of Lisp: 
+<BLOCKQUOTE>This internal representation of symbolic information gives up the 
+  familiar infix notations in favor of a notation that simplifies the task of 
+  programming the <I>substantive</I> computations, e.g., logical deduction or 
+  algebraic simplification, differentiation or integration. If customary 
+  notations are to be used externally, translation programs must be written. 
+  Thus LISP programs use a prefix notation for algebraic expressions, because 
+  they usually must determine the main connective before deciding what to do 
+  next. In this, LISP differs from almost every other symbolic computation 
+  system. ... This feature probably accounts for LISP's success in competition 
+  with these languages, especially when large programs have to be written. 
+  <I>The advantage is like that of binary computers over decimal--but 
+larger</I>.
+  <P>... Another reason for the initial acceptance of awkwardnesses in the 
+  internal form of LISP is that we still expected to switch to writing programs 
+  as M-expressions [infix format]. <I>The project of defining M-expressions 
+  precisely and compiling them or at least translating them into S-expressions 
+  was neither finalized nor explicitly abandoned. It just receded into the 
+  indefinite future</I>, and a new generation of programmers appeared who 
+  preferred internal notation to any FORTRAN-like or ALGOL-like notation that 
+  could be devised.
+  <P>... One can even conjecture that LISP owes its survival specifically to the 
+  fact that its programs are lists, which everyone, including me, has regarded 
+  as a disadvantage. <I>Proposed replacements for LISP ... abandoned this 
+  feature in favor of an Algol-like syntax, leaving no target language for 
+  higher level systems</I>. [McCarthy78], with emphasis added. 
+</P></BLOCKQUOTE>Accordingly, Lisp users and developers have usually had the 
+luxury of dealing with more "substantive" computations, so that they are often 
+at a loss when they face a <I>parsing</I> task. No matter how hard they try to 
+write clean, efficient code, the Lisp language doesn't seem to provide them with 
+the right linguistic constructs to make an elegant program.
+<P>The programs required to implement a Common Lisp system itself provide some 
+good examples where parsing techniques are required. Parsing the rather hairy 
+parameter lists of Common Lisp lambda-expressions <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,5.2.2]</A> 
+has caused many good programmers to tear their hair out, and ditto for the 
+syntax of many built-in Common Lisp macros (e.g., <TT>defclass</TT> and 
+<TT>defmethod</TT>).<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn1">[1]</A> The 
+parsing of numbers and "potential numbers" in the Lisp reader <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,22.1.2]</A> 
+requires extensive syntax-hacking. <TT>format</TT> control strings <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,22.3.3]</A> 
+require parsing at run-time (or perhaps at compile time <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,27.5],</A> 
+if <TT>format</TT> uses a compiler optimizer). Finally, many networking 
+protocols require extensive (and often excessive) syntax analysis; slow protocol 
+parsing is typically the chief cause of poor network performance.
+<P>Prolog programmers, however, find parsing tasks trivial,<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn2">[2]</A> and the 
+ease of programming parsing tasks has been one of the selling points of Prolog 
+to unsophisticated programmers.
+<P>Lisp has a few tricks up its sleeve, however. Lisp is a language-building 
+language <I>par excellence</I>, and it can therefore easily emulate those Prolog 
+capabilities that make parsing simple. Furthermore, since our emulation will 
+include only those features we need, we will be able to parse much more quickly 
+than a Prolog system. Finally, the technique does not require the splitting of 
+the parsing task into separate lexical and syntactic analyses, futher 
+simplifying the parsers. 
+<H2>B. REGULAR EXPRESSIONS</H2>Every computer scientist knows about <I>regular 
+expressions</I>, which describe <I>regular languages</I>, and the ability of 
+deterministic and non-deterministic <I>finite state machines</I> to recognize 
+these languages. Regular expressions over an <I>alphabet</I> consist of the 
+letters of that alphabet ("symbols"), together with a number of operations: 
+concatenation, union and Kleene star. <I>Concatenation</I> describes how the 
+letters can follow one another to make strings, and <I>union</I> allows one to 
+have different alternative expressions that are equivalent. Finally, Kleene 
+<I>star</I> allows for "zero or more" concatenated occurrences of a particular 
+expression to be another expression. Regular expressions can be a very compact 
+and moderately readable description of a regular language, and they have become 
+a standard as a result.
+<P>Finite state machines consist of an <I>alphabet</I>, a number of 
+<I>states</I>, one of which is designated as an "initial" or "starting" state, 
+and some of which are "final" or "accepting" states, and a <I>relation</I> which 
+maps a combination of a state and an alphabet letter into a "next" state. If the 
+relation is an algebraic <I>function</I>, then the finite state machine is 
+<I>deterministic</I>, otherwise it is <I>non-deterministic</I>. Given any finite 
+state machine, it can be algorithmically converted into a deterministic finite 
+state machine by simulating sets of states starting from the singleton set 
+consisting of the initial state, and tracing out all state combinations, which 
+are necessarily finite. There may be an exponential blowup in the number of 
+states, however.
+<P>Deterministic finite state machines make excellent parsers because they can 
+be implemented very efficiently on serial computers using table-lookup, and 
+their speed is therefore independent of the complexity of the next-state 
+function. Unfortunately, the number of states--and hence the size of the 
+next-state table--is usually quite large for relatively simple languages, and 
+even if it is not, the programming of these tables is extremely tedious and 
+error-prone. Thus, the computation of finite state machines is an excellent job 
+for a compiler.
+<P>The mapping of regular expressions onto non-deterministic finite state 
+machines is trivial; the harder part is the conversion to deterministic form, 
+which can blow up exponentially.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn3">[3]</A> 
+Deterministic conversion has a number of drawbacks, however. The deterministic 
+finite state machine may bear little resemblence to the original regular 
+expression, and more importantly, the conversion to deterministic form will not 
+generalize to context free languages, which we will tackle in the next section.
+<P>We would therefore like to investigate a scheme which keeps the original 
+structure of the regular expression, and also has most of the efficiency of a 
+deterministic finite state machine. This cannot be done in general, but it can 
+be done for most regular expressions that are encountered in practise. It might 
+be asked why one would consider a less powerful and potentially less efficient 
+method, when computer science has already given us a universal and efficient 
+method--deterministic finite state machines. The reason is that we are usually 
+interested in non-regular languages--particularly context free languages--where 
+this particular sledgehammer fails. 
+<H3>1. META Parsing of Common Lisp Streams</H3>The scheme we will describe has 
+been used for at least 27 years, but is relatively unknown today, because 
+computer science departments are rightly more interested in teaching 
+theoretically pretty models like regular and context-free languages, rather than 
+practical methods that may also be elegant and efficient.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn4">[4]</A> The 
+scheme involves building a tiny language on top of Lisp which compiles to 
+extremely efficient code. The tiny language, called META [Schorre64], 
+incorporates the basic operations of regular expressions, and the code is 
+therefore quite perspicuous.
+<P>Let us see the META code for recognizing signed integers. <TT><PRE>(deftype digit () '(member #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9))<A href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn5">[5]</A>
+
+(defun parse-integer (&amp;aux d)
+  (matchit [{#\+ #\- []} @(digit d) $@(digit d)]))
+</PRE></TT>We first define a new Common Lisp type which is a subset of the 
+characters that includes just the digits. We then define our parser for integers 
+as a function with a temporary variable and a body which is a call to the macro 
+<TT>matchit</TT>. <TT>matchit</TT> has an argument which is a META expression 
+which it compiles into Common Lisp when it is expanded. The META expression 
+includes two new kinds of "parentheses": brackets "[]" and braces "{}", as well 
+as operators like "$" and "@". The brackets "[]" enclose <I>sequences</I>, while 
+the braces "{}" enclose <I>alternatives</I>; the use of these additional 
+"parentheses" eliminates the need for prefix or infix operations.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn6">[6]</A>
+<P>The META operators "[]", "{}", and "$" provide the sequence, union and Kleene 
+star operations of regular expressions, so most regular expressions can be 
+converted into META expressions by inspection. Letters stand for themselves in 
+normal Common Lisp syntax, e.g., <TT>#\+</TT>, and @ allows the matching of a 
+number of character possibilities with a single operation. The use of 
+<TT>@(digit d)</TT> in <TT>parse-integer</TT> could logically have been replaced 
+by the expression <TT><PRE>	{#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9},
+</PRE></TT>but it would not have been as clear or efficient.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn7">[7]</A> The META 
+expression for <TT>parse-integer</TT> says that integers should be preceded by a 
+<I>sign</I> of plus or minus or nothing, followed by a <I>digit</I>, and then 
+followed by any number (including none) of additional <I>digits</I>. We note 
+that the regular expression alternative of having a possibly empty digit 
+sequence <I>first</I>, followed by a single digit, will not work in META, 
+however. The reason for this will become clear.
+<P>If all META did was recognize regular expressions, it would not be very 
+useful. It is a programming language, however, and the operations [], {} and $ 
+correspond to the Common Lisp control structures <TT>AND</TT>, <TT>OR</TT>, and 
+<TT>DO</TT>.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn8">[8]</A> 
+Therefore, we can utilize META to not only <I>parse</I>, but also to 
+<I>transform</I>. In this way, META is analogous to "attributed grammars" 
+[Aho86], but it is an order of magnitude simpler and more efficient. Thus, with 
+the addition of the "escape" operation "!", which allows us to incorporate 
+arbitrary Lisp expressions into META, we can not only parse integers, but 
+produce their integral value as a result.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn9">[9]</A>
+<P>Below is a parser for signed integers which returns the integer. <TT><PRE>(defun ctoi (d) (- (char-code d) #.(char-code #\0)))
+
+(defun parse-int (&amp;aux (s +1) d (n 0))
+ (and
+  (matchit
+   [{#\+ [#\- !(setq s -1)] []}
+    @(digit d) !(setq n (ctoi d))
+    $[@(digit d) !(setq n (+ (* n 10) (ctoi d)))]])
+  (* s n)))
+</PRE></TT>Below is the code into which it compiles. <TT><PRE>(defun parse-int (&amp;aux (s +1) d (n 0))
+ (and
+  (and (or (match #\+)
+           (and (match #\-) (setq s -1))
+           (and))
+       (match-type digit d) (setq n (ctoi d))
+       (not (do () ((not (and (match-type digit d)
+                              (setq n (+ (* n 10) (ctoi d)))))))))
+  (* s n)))
+</PRE></TT>Before we can delve further into <TT>match</TT> and 
+<TT>match-type</TT>, we must make clear what it is we are trying to 
+parse--whether it be a Common Lisp character stream, a character string, or a 
+Lisp list. If the source of the text we are trying to parse is an internal 
+source, like a character string or a Lisp list, then we are in a position to be 
+able to back up. If the source is a standard Common Lisp character stream, 
+however, then we can only look ("peek") one character ahead.
+<P>First, consider a standard Common Lisp character stream source: <TT><PRE>(defmacro match (x) `(when (eql<A href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn10">[10]</A> (peek-char) ',x) (read-char)))
+
+(defmacro match-type (x v)
+  `(when (typep (peek-char) ',x) (setq ,v (read-char))))
+</PRE></TT>These macros allow us to match a given character or character type 
+against the input stream, and if the match succeeds, the stream is advanced, 
+while if the match fails, then the stream is left where it was. Unfortunately, 
+once a match succeeds against such a source, we are now committed to that path, 
+because we can no longer back up. This means that the original regular 
+expression must be "deterministic", in the sense that any sequence is determined 
+by its first element.
+<P>While this determinism requirement would seem to substantially limit our 
+technique, one can usually get around the restriction by "factoring out" of an 
+alternative the leftmost character of the alternate sequences. For example, the 
+expression <TT>{[#\: #\@] [#\:]}</TT> can be factored to get <TT>[#\: {#\@ 
+[]}]</TT>. (Of course, one should also put off performing any transformation 
+side-effects until one has arrived at the correct alternative branch.) Using 
+this technique, we can scan an optional sign, digits, and an optional decimal 
+point from the front of a number, even before we know whether the number will be 
+an integer, a ratio, or a floating-point number <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,22.1.2].</A> 
+A ratio will be signalled by a "<TT>/</TT>", a floating-point number will be 
+signalled by additional digits or an exponent, and an integer will have none of 
+these.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn11">[11]</A>
+<P>Below is a parser/transformer for Common Lisp real numbers <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,22.1.2].</A> 
+<TT><PRE>(deftype sign () '(member #\+ #\-))
+
+(deftype expmarker () '(member #\e #\s #\f #\d #\l #\E #\S #\F #\D #\L))
+
+(defun parse-number (&amp;aux x (is #\+) id (i 0) dd (d 0)
+                         fd (f 0) (nf 0) (es #\+) ed (e 0) (m #\e))
+  ;;; Parse CL real number according to <A href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,22.1.2]</A>
+  ;;; Return 2 values: the number and a reversed list of lookahead characters.
+  (matchit
+   [{[@(sign is) !(push is x)] []} ; scan sign.
+    $[@(digit id) !(setq x nil i (+ (* i 10) (ctoi id)))]	; integer digits.
+    {[!id #\/ !(push #\/ x)	; "/" =&gt; ratio.
+      $[@(digit dd) !(setq x nil d (+ (* d 10) (ctoi dd)))]]	; denom. digits.
+     [{[#\. {!id !(push #\. x)}	; decimal point.
+        $[@(digit fd)
+          !(setq x nil nf (1+ nf) f (+ (* f 10) (ctoi fd)))]] ; fract. digits.
+       []}
+      {[{!id !fd} @(expmarker m) !(push m x)	; exp. marker.
+        {[@(sign es) !(push es x)] []}	; exponent sign.
+        $[@(digit ed) !(setq x nil e (+ (* e 10) (ctoi ed)))]] ; exp. digits.
+       []}]}])
+  (let ((sign (if (eql is #\-) -1 1))
+        (ex (if (eql es #\-) (- e) e)))
+    (values (cond ((or fd ed) (make-float m sign i f nf ex))	; see [Clinger90]
+                  (dd (/ (* sign i) d))
+                  (id (* sign i))
+                  (t nil))
+            x)))
+</PRE></TT>We first note that this half-page function is only slightly longer 
+than the grammar for numbers given in <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90,22.1.2],</A> 
+and is only slightly less readable. Second, we note that we have utilized both 
+null tests on local variables in addition to the standard <TT>match</TT> 
+predicates in this program. For example, the test <TT>{!id !fd}</TT>, which 
+checks for the existence of either integer or fraction digits, must succeed 
+before the exponent marker can be scanned. Third, preserving the characters that 
+were looked at but not used requires additional work, because Common Lisp 
+streams support only 1 character lookahead, yet many Common Lisp parsing tasks 
+require up to 3 lookahead characters.
+<P>Below is the actual META compiler. <TT><PRE>(defun compileit (x)
+  (typecase x
+    (meta
+     (ecase (meta-char x)
+       (#\! (meta-form x))
+       (#\[ `(and ,@(mapcar #'compileit (meta-form x))))
+       (#\{ `(or ,@(mapcar #'compileit (meta-form x))))
+       (#\$ `(not (do ()((not ,(compileit (meta-form x)))))))
+       (#\@ (let ((f (meta-form x))) `(match-type ,(car f) ,(cadr f))))))
+    (t `(match ,x))))
+
+(defmacro matchit (x) (compileit x))
+</PRE></TT>We will also need a few macro character definitions for the 
+additional syntax. <TT><PRE>(defstruct (meta
+            (:print-function
+             (lambda (m s d &amp;aux (char (meta-char m)) (form (meta-form m)))
+               (ecase char
+                 ((#\@ #\! #\$) (format s "~A~A" char form))
+                 (#\[ (format s "[~{~A~^ ~}]" form))
+                 (#\{ (format s "{~{~A~^ ~}}" form))))))
+  char
+  form)
+
+(defun meta-reader (s c) (make-meta :char c :form (read s)))
+
+(mapc #'(lambda (c) (set-macro-character c #'meta-reader)) '(#\@ #\$ #\!))
+
+(set-macro-character #\[
+ #'(lambda (s c) (make-meta :char c :form (read-delimited-list #\] s t))))
+
+(set-macro-character #\{
+ #'(lambda (s c) (make-meta :char c :form (read-delimited-list #\} s t))))
+
+(mapc #'(lambda (c) (set-macro-character c (get-macro-character #\) nil)))
+      '(#\] #\}))
+</PRE></TT>
+<H3>2. META Parsing of Common Lisp Strings</H3>In many cases, we want to parse 
+strings rather than streams. While we could use the Common Lisp function 
+<TT>make-string-input-stream</TT> along with our previous code, we will find 
+that matching and especially backing-up will be faster on strings. Since we no 
+longer have to worry about backing up, we will be able to search further forward 
+without having to factor the grammar as described in the previous section. We 
+need not capture the actual characters as a substring is scanned, but need only 
+save their beginning and ending locations, because we still have access to the 
+original string; this feature speeds the parsing of format control strings, in 
+which major portions of the given string are just constant characters.
+<P>Our <TT>matchit</TT> macro will now generate code that implicitly refers to 
+the lexical variables <TT>string</TT>, <TT>index</TT> (the starting index), and 
+<TT>end</TT> (the ending index), which should be defined in the lexically 
+surrounding environment. By utilizing lexical instead of special (dynamic) 
+variables, we can gain substantially in execution speed, and the same techniques 
+will work in other languages--e.g., Scheme--assuming that they have powerful 
+enough macro facilities. <TT><PRE>(defmacro match (x)
+  `(when (and (&lt; index end) (eql (char string index) ',x))
+     (incf index))
+
+(defmacro match-type (x v)
+  `(when (and (&lt; index end) (typep (char string index) ',x))
+     (setq ,v (char string index)) (incf index))
+
+(defun parse-int (string &amp;optional (index 0) (end (length string))
+                         &amp;aux (s +1) d (n 0))
+ ;;; Lexical 'string', 'index', and 'end', as required by matchit.
+ (and
+  (matchit
+   [{#\+ [#\- !(setq s -1)] []}
+    @(digit d) !(setq n (ctoi d))
+    $[@(digit d) !(setq n (+ (* n 10) (ctoi d)))]])
+  (* s n)))
+</PRE></TT>Due to our ability to back up when parsing strings, we can now 
+enhance our META language with a construct to match a constant string--e.g., 
+<TT>"abc"</TT>--instead of having to match the individual letters <TT>[#\a #\b 
+#\c]</TT>. We do this by saving the current string pointer before beginning the 
+match, and backing up to the saved index if the match fails--even after the 
+first character. <TT><PRE>(defmacro match (x)
+  (etypecase x
+   (character
+    `(when (and (&lt; index end) (eql (char string index) ',x))
+       (incf index)))
+   (string
+    `(let ((old-index index)) ; 'old-index' is a lexical variable.
+       (or (and ,@(map 'list #'(lambda (c) `(match ,c)) x))
+           (progn (setq index old-index) nil))))))
+</PRE></TT>
+<H3>3. META Parsing of Lisp Lists</H3>So far, we have only parsed character 
+strings. Common Lisp lambda parameter lists and macros require the ability to 
+parse Lisp lists, however. Below is a parser for lambda parameter lists with 
+only required and optional parameters. We give a parser for full lambda-lists as 
+an appendix.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn12">[12]</A> <TT><PRE>(deftype vname () `(and symbol (not (member ,@lambda-list-keywords))))
+
+(defun lambda-list (ll &amp;aux (index `(,ll)) var initform svar)
+ (matchit
+  ($@(vname var)
+   {[&amp;OPTIONAL	; we use upper case here only for readability.
+     ${@(vname var)
+       (@(vname var)
+        {[@(t initform) {@(vname svar) []}]
+         []})}]
+    []})))
+</PRE></TT>Interestingly enough, we can utilize the same parsing techniques on 
+lists that we used on streams and strings. We need only rewrite <TT>match</TT> 
+and <TT>match-type</TT>. We first show a version that matches only atoms. <TT><PRE>(defmacro match (x)
+  `(when (and (consp index) (eql (car index) ',x))
+     (pop index) t))
+
+(defmacro match-type (x v)
+  `(when (and (consp index) (typep (car index) ',x))
+     (setq ,v (car index)) (pop index) t))
+</PRE></TT>We now extend <TT>match</TT> so that it can recursively match on 
+sublists. <TT><PRE>(defun compilelst (l)
+  (if (atom l) `(eql index ',l)
+      `(and ,(compileit (car l)) ,(compilelst (cdr l)))))
+
+(defmacro match (x)	; sublist uses new lexical index
+ `(when (and (consp index)
+             ,(if (atom x) `(eql (car index) ',x)
+                `(let ((index (car index))) ,(compilelst x))))
+    (pop index) t))
+</PRE></TT>
+<H2>C. CONTEXT-FREE GRAMMARS</H2>So far, we have only considered grammars which 
+were expressed as a single regular expression. Since we have iteration, but not 
+recursion, we cannot leave the domain of finite state languages. By giving 
+portions of our grammars names, however, and then utilizing those names 
+recursively, we immediately gain the possibility of parsing (some) context-free 
+languages.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn13">[13]</A>
+<P>As might be expected, each named expression becomes a "production", which is 
+implemented as a Lisp function. These Lisp functions must return a truth value, 
+because our <TT>AND</TT>/<TT>OR</TT> nests use truth values for navigation. This 
+means that a grammar which performs a transformation cannot communicate its 
+results through a normal Lisp return, but must communicate by means of 
+side-effects. In order for these side-effects to be communicated through lexical 
+instead of special/dynamic variables, we group the "production" functions into a 
+<TT>LABELS</TT> nest which is lexically included within a larger function which 
+provides the lexical variables used for communication. We have already seen the 
+use of lexical variables local to each production for communication within that 
+production; we use lexical variables outside the <TT>LABELS</TT> nest for 
+communication among the productions and for communication of the result outside 
+of the <TT>LABELS</TT> nest. As a mnemonic, we often use a nasty Common Lisp 
+pun, and make the name of the result variable for a function be the same as the 
+name of the function.
+<P>The code below illustrates the use of a <TT>LABELS</TT> nest of productions, 
+although we have already shown how to parse numbers using a single grammar. Note 
+that each production saves the value of the <TT>index</TT> location, so that if 
+the production fails, the program can back up to where it was when the 
+production started. Note also that we utilize the capability of executing 
+arbitrary Lisp code within the "!" escape expression to actually call the 
+production as a function; this capability could be used to parameterize a 
+production by passing arguments.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn14">[14]</A> <TT><PRE>(defun parse-number (&amp;aux (index 0) integer ratio floating-point-number)
+ (labels
+  ((integer (&amp;aux (old-index index) &lt;locals for integer&gt;)
+     (or (matchit &lt;grammar for integer&gt;)
+         (progn (setq index old-index) nil)))
+   (ratio (&amp;aux (old-index index) &lt;locals for ratio&gt;)
+     (or (matchit &lt;grammar for ratio&gt;)
+         (progn (setq index old-index) nil)))
+   (floating-point-number (&amp;aux (old-index index) &lt;locals for f-p-n&gt;)
+     (or (matchit &lt;grammar for floating-point-number&gt;)
+         (progn (setq index old-index) nil))))
+  (matchit {!(integer) !(ratio) !(floating-point-number)})
+  (return (or integer ratio floating-point-number))))
+</PRE></TT>Our compiler for Common Lisp format strings utilizes this technique. 
+<H2>D. EFFICIENCY, OPTIMIZATION AND A CHALLENGE TO SCHEME</H2>We have claimed 
+that META can be efficient, so we must show how META's compilation can produce 
+nearly optimal machine code. The basic tools we will use are declarations, 
+caching, inlining and short-circuiting. 
+<H3>1. Declarations</H3>Through the use of declarations, we aid the compiler and 
+make sure that it knows which variables are characters, which are fixnums and 
+which are more general variables, so that the most efficient code is generated. 
+Of particular importance are the fixnum declarations for string index variables 
+which are incremented/decremented and the cons declarations for variables which 
+must be popped; in both these cases only one or two machine instructions need be 
+generated.
+<P>If parsing a string, we should find the underlying "simple" string and parse 
+that instead, after suitably translating the starting and ending indices. This 
+is because it is cheaper to perform the translation once, rather than performing 
+it on every access to the string. On a byte-addressed machine, access to a 
+"simple" string consists of an index check plus an indexed load; since we are 
+already checking the index in the parser, we can dispense with the redundant 
+index check during the string access.
+<P>If parsing a list, then the parser will already be checking for the end of 
+the list, so that unchecked <TT>CAR</TT> and <TT>CDR</TT> instructions may be 
+safely used in this instance. 
+<H3>2. Caching</H3>In several cases, we "peek" at the same character several 
+times before it finally matches. This problem can easily be corrected by caching 
+the next character in a lexical variable, so that the compiler may possibly keep 
+this lexical variable in a register. The need to cache such a character is not 
+so acute in the C language, where stream accessing functions <TT>getc</TT> and 
+<TT>ungetc</TT> are most likely defined as macros which already manipulate a 
+cached value, but Common Lisp's <TT>peek</TT> and <TT>read-char</TT> are quite 
+heavyweight due to the flexibility of streams and the large variety of options.
+<P>The one potential problem with caching is what value to store in the cache on 
+an end-of-file. For maximum efficiency, one should be able to treat it as just 
+another character, which doesn't match any real character or character type. One 
+does not want to restrict the kinds of characters that can appear in a grammar, 
+however. One is therefore led to the C solution of utilizing a non-character as 
+an EOF value. 
+<H3>3. Inlining</H3>Potentially the most expensive single operation in a META 
+parser is the call to <TT>typep</TT> which is produced by 
+"<TT>@(</TT>&lt;type&gt;<TT> </TT>&lt;variable&gt;<TT>)</TT>". We have used the 
+Common Lisp type system for character class hacking, because it is very flexible 
+and it was already there. In most Common Lisp implementations, however, a 
+<TT>typep</TT> call is likely to be quite slow. If one is lucky, then simply 
+proclaiming <TT>typep</TT> to be <TT>inline</TT> should speed parsing up 
+substantially. If this is still too slow, we have two choices: we can either 
+compile more complex code, or we can fix <TT>typep</TT> to be more efficient. We 
+choose the course of making <TT>typep</TT> more efficient.
+<P>We change our compiler to compile into a macro <TT>my-typep</TT>,<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn15">[15]</A> which 
+recognizes the important special cases, such as a <TT>member</TT> list, which we 
+will compile into a <TT>case</TT> macro. The <TT>case</TT> macro already has 
+enough restrictions and context to compile into a table-driven dispatch, and if 
+a particular implementation does not do this, then we can expand 
+<TT>my-typep</TT> into the macro <TT>my-case</TT>, which will. 
+<H3>4. Short-circuiting</H3>META uses a plethora of <TT>AND</TT>'s and 
+<TT>OR</TT>'s, which can be quite inefficient if not compiled properly. If your 
+compiler compiles these expressions efficiently, then you may skip this 
+section.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn16">[16]</A>
+<P>The proper compiling technique for compiling <TT>AND</TT>/<TT>OR</TT> 
+expressions has been known since the earliest days of Lisp, but is not 
+<I>well</I>-known, and students continually rediscover it.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn17">[17]</A> 
+Short-circuited boolean expressions can be efficiently compiled in a "single" 
+recursive pass which produces nearly optimal code--even in the presence of weak 
+jump instructions which cannot reach all of memory [Baker76a] [Baker76b].
+<P>The trick is to pass two "continuations" (really jump addresses) as arguments 
+to the boolean expression compiler which are the "success" and "failure" 
+continuations of the expression being compiled, and to emit the code 
+<I>backwards</I> in the style of dynamic programming; the compiler returns as a 
+result the address of the compiled expression. Since one already knows the 
+location to which one must jump at the time a branch is emitted, as well as the 
+location of the current instruction, one can easily choose the correct 
+short/long jump sequence.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn18">[18]</A> Our 
+parser also requires the efficient compilation of loops, which require a little 
+more work because the jump-to location is not yet known for backward jumps 
+(which occur at the end of a loop). The simplest solution is to always emit a 
+backwards unconditional long jump, which we will then patch after the first 
+instruction of the loop has been emitted. Since we know at that time the length 
+of the jump, we can patch in a short jump/no-op sequence if short jumps are 
+faster; the no-op's are never executed because the loop never "falls through".
+<P>Even though our technique wastes a little space after loops in the code, the 
+code is otherwise nearly optimal, since the majority of jumps (and all 
+conditional jumps) are forward jumps. Another source of non-optimality comes 
+from early exits from the body of a loop to the end of the loop. One can 
+conceive of these branches also being optimized to jump to the beginning of the 
+loop, but this situation is rare enough not to cause any significant loss of 
+speed. In any case, the advantage of a compiler optimization must be traded 
+against the cost of programming and maintaining it; the optimizations we suggest 
+are extremely simple and quite often advantageous.
+<P>Below is a simple compiler for short-circuited boolean expressions with 
+loops. <TT><PRE>(defvar *program* nil "The reversed list of program steps.")
+
+(defun emit (instruction next &amp;aux (label (gentemp)))
+  (unless (eql (car *program*) next) (push `(go ,next) *program*))
+  (push instruction *program*) (push label *program*)
+  label)
+
+(defun emit-test (test succ fail &amp;aux (label (gentemp)))
+  (push (cond ((eql (car *program*) succ) `(unless ,test (go ,fail)))
+              ((eql (car *program*) fail) `(when ,test (go ,succ)))
+              (t `(if ,test (go ,succ) (go ,fail)))
+        *program*)
+  (push label *program*)
+  label)
+
+(defun compile-seq (x s f)
+  (if (null x) s (compile (car x) (compile-seq (cdr x) s f<A href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn19">[19]</A>) f)))
+
+(defun compile-alt (x s f)
+  (if (null x) f (compile (car x) s (compile-alt (cdr x) s f))))
+
+(defun compile (x succ fail)
+  (typecase x
+   (sequence (compile-seq x) succ fail)
+   (alternative (compile-alt x) succ fail)
+   (loop (let* ((go-back (append '(go nil) nil))
+                (loop (compile (loop-body x) (emit go-back succ) succ)))
+           (setf (cadr go-back) loop)))
+   (execute (emit-test (execute-body x) succ fail))
+   (t (emit-test `(match ,x) succ fail))))
+</PRE></TT>
+<H3>5. Results and a Challenge to Scheme</H3>Through the use of these 
+techniques, we are able to achieve nearly the same machine code that we would 
+have generated ourselves if we were asked to program the parser in assembly 
+language in the first place. We have programmed and optimized a simple integer 
+parser similar to the our first example grammar which operates on simple 
+strings--much like the standard built-in Common Lisp function 
+<TT>parse-integer</TT>. We ran this function repeatedly on a 80,000-character 
+simple string which consisted of 10,000 copies of the sequence "<TT>+123456 
+</TT>". Our META <TT>parse-integer </TT>took about 25.4usec/char., the built-in 
+<TT>parse-integer </TT>took about 222usec/char., and <TT>read-from-string</TT> 
+took about 700usec/char.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn20">[20]</A> 
+(Timings were performed on an Apple Macintosh Plus with a Radius 68020 
+accelerator card, 4Mbytes of memory, and Coral Common Lisp v1.2 set to the 
+highest optimization levels.) Our optimized META <TT>parse-integer</TT> did not 
+call any other functions, not even subprimitives. It therefore appears that no 
+further speed can be gained until Coral utilizes the full 68020 instruction set 
+and does a better job of compiling fixnum arithmetic; e.g., it refuses to keep 
+unboxed fixnums in registers very long.
+<P>The META parsing technique is an interesting challenge to Scheme compiler 
+writers, because a Scheme compiler must itself perform all of the optimizations 
+we have discussed. Of particular interest is the ability of a Scheme compiler to 
+transform the nest of mutually recursive tail-calling functions which are 
+Scheme's equivalent of assembly language "goto" labels into assembly language 
+"goto" labels. This transformation should be possible, because none of these 
+"functions" have arguments. 
+<H2>E. CONCLUSIONS</H2>We have shown a simple technique called META for building 
+very fast parsers/translators in Common Lisp, which is more general than some 
+other techniques--e.g., the <I>CGOL</I> [Pratt76] operator precedence system 
+used in Macsyma. This technique already produces readable code, as we have shown 
+by a number of examples, but some might wish for even more readable code. In 
+such a case, one can easily utilize the META technique to produce a "reader 
+macro" which translates the <I>exact</I> <A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90]</A>-style 
+syntax equations into an efficient parser. Our stomach, still queasy from too 
+much syntax, has so far vetoed these efforts.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn21">[21]</A> Should 
+a grammar require it, the META technique can also be easily extended to handle 
+minimum/maximum numbers of loop iterations in the sequence "$" construct.
+<P>There are several advantages to embedding a special-purpose parsing language 
+into Common Lisp. First, it provides a higher level of abstraction, which allows 
+one to concentrate on recognizing the correct syntax. Second, this abstraction 
+is more compact, allowing the programmer to focus his attention on a smaller 
+body of code.<A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#fn22">[22]</A> Third, 
+this higher level of abstraction allows for a number of different 
+implementations, of which we have exhibited three. Finally, we can get the 
+parser running relatively quickly, and if later additional speed is required, we 
+can change the underlying implementation without changing the code for the 
+grammar.
+<P>We have found one problem in the use of the META system presented here--the 
+inadvertent returning of <TT>NIL</TT> by an escape expression "!", which causes 
+a failure out of a sequence and a possible nasty bug. We considered the 
+possibility of including <I>two</I> execution escape characters--one for 
+<I>predicates</I>, and one for <I>statements</I> like <TT>setq</TT>. This change 
+would avoid the necessity of wrapping <TT>(progn ... t)</TT> around statements. 
+We have not done this, however, because our shyness about using up macro 
+characters has exceeded our fear of bugs.
+<P>We are uncomfortable about the large volume of side-effects present in 
+META-style parsers. Given the nature of a parsing task, however, which is 
+emulating a state machine (with or without a push-down stack), it is unlikely 
+that a parser without side effects could be very efficient without an extremely 
+clever (i.e., very expensive) compiler. The META technique does not seem to 
+easily extend to parsing tasks which must be able to "rub out"--e.g., directly 
+parsing user type-in--because that task seems to require the ability for 
+arbitrary back-up, including backing up over side-effects. The <I>LINGOL</I> 
+parsing system <A 
+href="http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html#pratt">[Pratt73],</A> 
+based on "mostly functional" techniques, handles the "rub out" problem quite 
+elegantly.
+<P>Because META parsers address the backing-up issue directly as they are 
+programmed, META needs no complex run-time system like ATN's [Woods70] or 
+Prolog. We conjecture, therefore, that Prolog would need an extremely clever 
+compiler to deduce the same degree of backing-up optimization that the 
+programmer manually performs in META.
+<P>While we have argued for the use of an embedded special purpose parsing 
+language, we have <I>NOT</I> advocated adding this language to the Common Lisp 
+standard, which is weighted down far too much as it is. A language like META 
+that can be programmed in less than 1 page of code is hardly worth 
+standardizing. Standardization would also inhibit the possibilities of <I>ad 
+hoc</I> optimizations for a particular purpose, in which case the programmer 
+would not use META at all. For these reasons, we have presented META as a 
+technique, rather than as a rigidly-defined language.
+<P>We have with great trepidation reviewed this technique for making parsing 
+tasks easier to program, because we feel that parsing complex syntax is an 
+inherently low-value activity. Unfortunately, any tool that makes these tasks 
+easier is likely to get used, but not necessarily for the good; e.g., it is said 
+that all C programmers ever do is <TT>yacc</TT>, <TT>yacc</TT>, <TT>yacc</TT>! 
+<H2>F. ACKNOWLEDGEMENTS</H2>We appreciate the suggestions of André van 
+Meulebrouck for improving this paper. 
+<H2>G. REFERENCES</H2>Aho, A.V., Sethi, R., and Ullman, J.D. <I>Compilers: 
+Principles, Techniques and Tools</I>. Addison-Wesley, Reading, MA, 1986.
+<P>Baker, Henry. "COMFY--A Comfortable Set of Control Primitives for Machine 
+Language Programming". Unpublished manuscript, 1976.
+<P>Baker, Henry. "COMFY-65--A Medium-Level Machine Language for 6502 
+Programming". Unpublished manuscript, 1976.
+<P><A 
+href="http://linux.rice.edu/~rahul/hbaker/ObjectIdentity.html">[Baker93]</A> 
+Baker, Henry. "Equal Rights for Functional Objects". ACM <I>OOPS Messenger 
+4</I>,4 (Oct. 1993), 2-27.
+<P>Clinger, William D. "How to Read Floating Point Numbers Accurately". <I>ACM 
+PLDI'90, Sigplan Not. 25</I>,6 (June 1990), 92-101.
+<P>Curtis, Pavel. "(algorithms)" column on Scheme macros. Lisp Pointers 1,6 
+(April-June 1988),LPI-6.19-LPI-6.30.
+<P>des Rivières, Jim, and Kiczales, Gregor. <I>The Art of the Metaobject 
+Protocol, Part I.</I> Unpublished manuscript, Xerox PARC, Oct. 1990.
+<P>Harper, R., MacQueen, D., and Milner, R. "Standard ML". ECS-LFCS-86-2, Comp. 
+Sci. Dept., U. of Edinburgh, March 1986,70p.
+<P>Harper, R., Milner, R., Tofte, Mads. "The Definition of Standard ML, Version 
+2". ECS-LFCS-88-62, Comp. Sci. Dept., U. of Edinburgh, Aug. 1988,97p.
+<P>Haynes, Christopher T. "Logic Continuations". <I>J. Logic Progr. 4</I> 
+(1987),157-176.
+<P>Johnson, S.C. and Lesk, M.E. "UNIX Time-Sharing System: Language Development 
+Tools". <I>Bell Sys. Tech. J. 57</I>,6 (July-Aug. 1978),2155-2175.
+<P>Kernighan, B. W., and Ritchie, D. <I>The C Programming Language</I>. 
+Prentice-Hall, Englewood Cliffs, NJ, 1978.
+<P>Maher, M.J. "Logic semantics for a class of committed-choice programs". 
+<I>Proc. 4th Int'l Conf. of Logic Progr</I>., MIT Press, 1987,858-876.
+<P>McCarthy, John. "History of LISP". <I>ACM Sigplan Not. 13</I>,8 (Aug. 
+1978),217-223.
+<P><A name=pratt></A><A 
+href="http://linux.rice.edu/~rahul/hbaker/lingol/Pratt73.ps.Z">[Pratt73]</A> 
+Pratt, V.R. "A Linguistics Oriented Programming Language". <I>Proc. IJCAI 3</I> 
+(Aug. 1973),372-381.
+<P>Pratt, V.R. "CGOL--an Alternative External Representation for LISP users". AI 
+Working Paper 121, MIT AI Lab., March 1976,13p.
+<P>Rulifson, J.F., Derksen, J.A., and Waldinger, R.J. "QA4: A Procedural 
+Calculus for Intuitive Reasoning". SRI AI Ctr. Tech. Note 73, Nov. 1972,363p.
+<P>Schorre, D.V. "META II: A Syntax-Oriented Compiler Writing Language". 
+<I>Proc. 19'th Nat'l. Conf. of the ACM </I>(Aug. 1964),D1.3-1-D1.3-11.
+<P>Schneider, F., Johnson, G.D. "META-3: A Syntax-Directed Compiler Writing 
+Compiler to Generate Efficient Code". <I>Proc. 19'th Nat'l. Conf. of the ACM</I> 
+(1964),D1.5-1-D1.5-8.
+<P>Shapiro, E. "The Family of Concurrent Logic Programming Languages". <I>ACM 
+Comput. Surv. 21</I>,3 (Sept. 1989),412-510.
+<P><A 
+href="http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html">[Steele90]</A> 
+Steele, G.L. <I>Common Lisp, The Language; 2nd Ed.</I> Digital Press, Bedford, 
+MA, 1990, 1029p.
+<P>Woods, W.A. "Transition Network Grammars for Natural Language Analysis". 
+<I>CACM 13</I>,10 (Oct. 1970),591-606. 
+<H2>APPENDIX -- COMMON LISP LAMBDA PARAMETER LISTS</H2><TT><PRE>(defun parse-lambda-exp
+       (x &amp;optional (env nil) &amp;aux
+        body rqds opts rst kwds? kwds okys? auxs fenv senv lenv
+        v i sv k type form d pdecls specials)
+  ;;; Parse a lambda-expression x and return 11 values:
+  ;;; 1-3. body, reqd vars, opts (v i sv)
+  ;;; 4-5. rest variable (or nil), keys? (can be t even when #6 is nil)
+  ;;; 6-8  kwds ((k v) i sv), other keys?, auxs (v i)
+  ;;; 9-11. lcl fn env, special env (except local specials), lcl var env.
+  ;;; This lambda parser is presented for illustration only, and may not
+  ;;; correctly implement ANSI Common Lisp syntax or semantics.
+  (matchit x
+   (LAMBDA	; we use upper case here only for readability.
+     ($[@(vname v) !(push v rqds) !(push (make-vbind v) lenv)]
+      {[&amp;OPTIONAL
+        $[{@(vname v) (@(vname v) {[@(t i) {@(vname sv) []}] []})}
+          !(progn (push `(,v ,i ,sv) opts) (push (make-vbind v) lenv)
+                  (when sv (push (make-vbind sv '(member nil t)) lenv))
+                  (setq i nil sv nil) t)]] []}
+      {[&amp;REST @(vname rst) !(push (make-vbind rst 'list) lenv)] []}
+      {[&amp;KEY !(setq kwds? t)
+        $[{@(vname v)
+           ({@(vname v) (@(symbol k) @(vname v))}
+            {[@(t i) {@(vname sv) []}] []})}
+          !(progn (unless k (setq k (intern (symbol-name v) 'keyword)))
+                  (push `((,k ,v) ,i ,sv) kwds) (push (make-vbind v) lenv)
+                  (when sv (push (make-vbind sv '(member nil t)) lenv))
+                  (setq k nil i nil sv nil) t)]
+        {[&amp;ALLOW-OTHER-KEYS !(setq okys? t)] []}] []}
+      {[&amp;AUX $[{@(vname v) (@(vname v) {@(t i) []})}
+               !(progn (push `(,v ,i) auxs) (push (make-vbind v) lenv)
+                       (setq i nil) t)]] []})
+     ;;; Now process declarations.
+     $[(DECLARE
+        ${(SPECIAL $[@(vname v) !(push v specials)])
+          ({[TYPE @(t type)] @(typename type)}
+           $[@(vname v) !(setf (dtype (lookup v lenv))
+                               `(and ,type ,(dtype (lookup v lenv))))])
+          (IGNORE $[@(vname v) !(progn (setf (dtype (lookup v lenv)) nil) t)])
+          [@(t d) !(progn
+                    (when (eq (car d) 'function)
+                     (setq d `(ftype (function ,@(cddr d)) ,(cadr d))))
+                    (push d pdecls)
+                    t)]})]
+     $[@(t form) !(push form body)])) ; Error if body ends in non-list.
+  ;;; Fix up local environment to correctly handle special variables.
+  (dolist (binding lenv)
+    (let* ((v (vbind-name binding)))
+      (when (or (declared-special-p v env) (member v specials))
+        (setf (vbind-special-p binding) t))))
+  ;;; Create special environment
+  (let* ((nenv (append lenv env)))
+    (dolist (v specials)
+      (unless (declared-special-p v nenv)
+        (setq senv (lx-bind-special v senv)))))
+  (values (reverse body) (reverse rqds) (reverse opts) rst
+          kwds? (reverse kwds) okys? (reverse auxs) fenv senv lenv))
+</PRE></TT>We have shown one scheme for parsing Common Lisp lambda parameter 
+lists ("lambda-lists") which easily generalizes to handle the full complexity of 
+lambda-lists. It has one source of inefficiency which is not easily eliminated, 
+however. Whenever a variable name is to be matched, we first check that the 
+tentative variable name is a symbol, and we then check to see that it is 
+<I>not</I> one of the lambda-list keywords (<TT>&amp;optional</TT>, 
+<TT>&amp;rest</TT>, &amp;cetera). While this check can be open-coded quite 
+efficiently, we find that if a lambda-list keyword does occur, then it will be 
+compared against the list twice--once to determine that it is not a legal 
+variable name, and once to determine which of the lambda-list keywords it is. 
+This inefficiency is due to the definition of variable names as the 
+<I>complement</I> of the set of lambda-list keywords <I>relative</I> to the set 
+of symbols. While this inefficiency could conceivably be eliminated by the use 
+of escape forms like block/return-from, we feel that any additional speedup will 
+be overwhelmed by the additional costs of regularizing the lambda-list for a 
+less-sophisticated consumer.
+<P><A name=fn1>[1]</A> See, e.g., the definition of <I>Closette</I> [des 
+Rivières90]. The inability of <TT>defmacro</TT> to easily parse the syntax of 
+the more complex Common Lisp macros exhibits a significant weakness in Common 
+Lisp. The technique reviewed here can handle complex macros such as 
+<TT>defmethod</TT>.
+<P><A name=fn2>[2]</A> Perhaps too trivial, as some Prolog programmers turn 
+simple grammers into parsers with exponential behavior.
+<P><A name=fn3>[3]</A> The sheer size of these state tables may kill the 
+advantage of instruction and/or data caches.
+<P><A name=fn4>[4]</A> Unfortunately, it is not clear where the <I>art</I> of 
+programming will be taught.
+<P><A name=fn5>[5]</A> A potentially more efficient and general, but perhaps 
+less perspicuous definition would define digit as <TT>(deftype digit () 
+'(satisfies digit-char-p))</TT>.
+<P><A name=fn6>[6]</A> Modern text editors (e.g., EMACS) can be customized to 
+match braces and brackets as easily as parentheses.
+<P><A name=fn7>[7]</A> We show later how to deal with inefficient Common Lisp 
+<TT>typep</TT>'s.
+<P><A name=fn8>[8]</A> More precisely, <TT>$</TT>x is analogous to <TT>(NOT (DO 
+() ((NOT </TT>x<TT>)))</TT>. META control structures thus bear more than a 
+passing resemblance to the TECO text editor control structures (TECO still comes 
+with DEC VMS software).
+<P><A name=fn9>[9]</A> If Kernighan and Ritchie had been aware of META parsing 
+techniques, the C language [Kernighan78] would have had <TT>for</TT> (loop) 
+<I>expressions</I>, rather than <I>statements</I>, and <TT>lex/yacc</TT> 
+[Johnson78] might now be mere curiosities.
+<P><A name=fn10>[10]</A> The use of <TT>eql</TT> keeps <TT>match</TT> and 
+<TT>match-type</TT> consistent; <TT>eql</TT> is required, in general, for 
+comparing characters. See <A 
+href="http://linux.rice.edu/~rahul/hbaker/ObjectIdentity.html">[Baker93]</A> for 
+a lengthy discussion on object equality.
+<P><A name=fn11>[11]</A> The case of Lisp's isolated dot "." is most easily and 
+efficiently handled by initially parsing it as the "integer" zero!
+<P><A name=fn12>[12]</A> An efficient META-based lambda-list parser allows for a 
+code-<I>runner</I> (as opposed to a code-walker).
+<P><A name=fn13>[13]</A> An <I>arbitrary</I> context-free language can be parsed 
+by techniques such as the LINGOL parser [Pratt73], which can parse in time O(n<A 
+name=fn12>[3]</A>); we have also converted this parser to Common Lisp.
+<P><A name=fn14>[14]</A> Woods' <I>Augmented Transition Networks</I> (ATN's) 
+[Woods70] were a rediscovery of the META technique for CF grammars.
+<P><A name=fn15>[15]</A> We could alternatively install a compiler optimizer, in 
+which case <I>every</I> call to <TT>typep</TT> would be speeded up.
+<P><A name=fn16>[16]</A> Apple Coral Common Lisp for the Macintosh appears to 
+handle short-circuits reasonably well.
+<P><A name=fn17>[17]</A> The technique has been described for Lisp and ML 
+[Harper86] [Harper88] pattern matchers, as well as for generic short-circuit 
+evaluation; see references in [Aho86,p.512].
+<P><A name=fn18>[18]</A> The backwards emission technique can also easily handle 
+the "pipelined" jumps found in RISC architectures.
+<P><A name=fn19>[19]</A> This parameter should be an error label once the 
+sequence has committed and can no longer back up; see the literature on 
+post-Prolog "committed choice" languages [Maher87] [Shapiro89].
+<P><A name=fn20>[20]</A> Coral Common Lisp v1.2 <TT>read-from-string</TT> 
+appears to erroneously ignore its <TT>:start</TT> argument.
+<P><A name=fn21>[21]</A> The original META paper [Schorre64] gives such a 
+compiler for "BNF"-style syntax equations, which we previously implemented 
+(1966) in IBM 360 machine code.
+<P><A name=fn22>[22]</A> The code complexity of the resulting code is extremely 
+high when measured by software engineering complexity metrics; "productivity", 
+as measured by these metrics, thus goes off-scale. </P></BODY></HTML>
