@@ -22,7 +22,6 @@ define method vector3D(x :: <fp>, y :: <fp>, z :: <fp>, w :: <fp>) => (vec :: <v
   make(<vector3D>, x: x, y: y, z: z, w: w);
 end;
 
-
 define class <transform> (<object>)
   slot v00 :: <fp>, init-value: 0.0;
   slot v01 :: <fp>, init-value: 0.0;
@@ -67,70 +66,6 @@ define method as(class == <vector3D>, v :: <vector>) => res :: <vector3D>;
   vector3D(as(<fp>, v[0]), as(<fp>, v[1]), as(<fp>, v[2]), as(<fp>, v[3]));
 end;
 
-define method as(class == <vector>, v :: <vector3D>) => res :: <vector>;
-  vector(v.x, v.y, v.z, v.w);
-end;
-
-
-define method as(class == <transform>, m :: <matrix>) => res :: <transform>;
-  let t = make(<transform>);
-  t.v00 := as(<fp>, m[0,0]);
-  t.v01 := as(<fp>, m[0,1]);
-  t.v02 := as(<fp>, m[0,2]);
-  t.v03 := as(<fp>, m[0,3]);
-  t.v10 := as(<fp>, m[1,0]);
-  t.v11 := as(<fp>, m[1,1]);
-  t.v12 := as(<fp>, m[1,2]);
-  t.v13 := as(<fp>, m[1,3]);
-  t.v20 := as(<fp>, m[2,0]);
-  t.v21 := as(<fp>, m[2,1]);
-  t.v22 := as(<fp>, m[2,2]);
-  t.v23 := as(<fp>, m[2,3]);
-  t.v30 := as(<fp>, m[3,0]);
-  t.v31 := as(<fp>, m[3,1]);
-  t.v32 := as(<fp>, m[3,2]);
-  t.v33 := as(<fp>, m[3,3]);
-  t;
-end;
-
-
-define method as(class == <matrix>, t :: <transform>) => res :: <matrix>;
-  let m = make(<matrix>, dimensions: #[4,4]);
-  m[0,0] := t.v00;  m[0,1] := t.v01;  m[0,2] := t.v02;  m[0,3] := t.v03;
-  m[1,0] := t.v10;  m[1,1] := t.v11;  m[1,2] := t.v12;  m[1,3] := t.v13;
-  m[2,0] := t.v20;  m[2,1] := t.v21;  m[2,2] := t.v22;  m[2,3] := t.v23;
-  m[3,0] := t.v30;  m[3,1] := t.v31;  m[3,2] := t.v32;  m[3,3] := t.v33;
-  m;
-end;
-
-define method test-matrix-vs-transform()
-  let m = make(<matrix>, dimensions: #[4,4]);
-  for (i from 0 below 4)
-    for (j from 0 below 4)
-      m[i,j] := 10 * i + j * j + 1.0;
-    end;
-  end;
-
-  let t = as(<transform>, m);
-
-  let v = #[3.0, 2.0, 0.0, 10.0];
-  let v3d = vector3D(3.0, 2.0, 0.0, 10.0);
-
-  format-out("m = %=\n", m);
-  format-out("t = %=\n", t);
-  format-out("v = %=\n", v);
-  format-out("v3d = %=\n\n", v3d);
-
-
-  let a = m * m;
-  let b = t * t;
-
-  format-out("a = %=\n", a);
-  format-out("b = %=\n", b);
-
-end;
-
-
 define method \* (m :: <transform>, v :: <vector3D>)
  => mult-vector :: <vector3D>;
   vector3D(m.v00 * v.x + m.v01 * v.y + m.v02 * v.z + m.v03 * v.w,
@@ -139,12 +74,6 @@ define method \* (m :: <transform>, v :: <vector3D>)
 	   m.v30 * v.x + m.v31 * v.y + m.v32 * v.z + m.v33 * v.w);
 end method;
 
-define method \* (mat :: <matrix>, vector :: <vector>)
- => mult-vector :: <vector>;
-  as(<simple-object-vector>, transpose(mat * transpose(matrix(vector))));
-end method;
-
-
 define method \* (v :: <vector3D>, m :: <transform>)
  => mult-vector :: <vector3D>;
   vector3D(m.v00 * v.x + m.v10 * v.y + m.v20 * v.z + m.v30 * v.w,
@@ -152,12 +81,6 @@ define method \* (v :: <vector3D>, m :: <transform>)
 	   m.v02 * v.x + m.v12 * v.y + m.v22 * v.z + m.v32 * v.w, 
 	   m.v03 * v.x + m.v13 * v.y + m.v23 * v.z + m.v33 * v.w);
 end method;
-
-define method \* (vector :: <vector>, mat :: <matrix>)
- => mult-vector :: <vector>;
-  as(<simple-object-vector>, matrix(vector) * mat);
-end method;
-
 
 define method \* (v1 :: <vector3D>, v2 :: <vector3D>)
  => (dot-product :: <fp>);
@@ -175,22 +98,11 @@ define method \* (v :: <vector3D>, n :: <fp>)
   vector3D(v.x * n, v.y * n, v.z * n, v.w * n);
 end method;
 
-define method \* (v :: <vector>, n :: <number>)
- => (scalar-product :: <vector>);
-  map(rcurry(\*, n), v);
-end method;
-
 
 define method \* (n :: <fp>, v :: <vector3D>)
  => (scalar-product :: <vector3D>);
   vector3D(v.x * n, v.y * n, v.z * n, v.w * n);
 end method;
-
-define method \* (n :: <number>, v :: <vector>)
- => (scalar-product :: <vector>);
-  map(curry(\*, n), v);
-end method;
-
 
 define method \* (a :: <transform>, b :: <transform>)
  => (product :: <transform>);
@@ -247,45 +159,11 @@ define method \- (v1 :: <vector3D>, v2 :: <vector3D>)
 	   0.0);
 end method;
 
-define method \- (v1 :: <vector>, v2 :: <vector>)
- => (difference :: <vector>);
-  map(\-, homogenize(v1), homogenize(v2));
-end method;
-
-
-define method print-object(mat :: <matrix>, stream :: <stream>)
- => ();
-  for(i from 0 below mat.dimensions[0])
-    format(stream, "[");
-    for(j from 0 below mat.dimensions[1])
-      format(stream, "%=, ", mat[i, j]);
-    end for;
-    format(stream, "]\n");
-  end for;
-end method print-object;
-
-define method print-object(mat :: <transform>, stream :: <stream>)
- => ();
-  print-object(as(<matrix>, mat), stream);
-end method print-object;
-
-define method print-object(v :: <vector3D>, stream :: <stream>)
- => ();
-  print-object(as(<vector>, v), stream);
-end method print-object;
-
-
 define method homogenize(v :: <vector3D>)
  => (result :: <vector3D>);
   let w = 1.0 / v.w;
   vector3D(v.x * w, v.y * w, v.z * w, 1.0);
 end method homogenize;
-
-define method homogenize(v :: <vector>)
- => (result :: <vector>);
-  map(rcurry(\/, v[v.size - 1]), v);
-end method homogenize;
-
 
 define method magnitude(v :: <vector3D>)
  => (length :: <fp>);
@@ -293,20 +171,13 @@ define method magnitude(v :: <vector3D>)
   sqrt(a * a + b * b + c * c + d * d);
 end method magnitude;
 
-define method magnitude(v :: <vector>)
- => (length :: <number>);
-  sqrt(reduce(\+, 0.0, map(\*, v, v)));
-end method magnitude;
-
-
 define method normalize(v :: <vector3D>)
   => (result :: <vector3D>);
   let r = 1.0 / v.magnitude;
   vector3D(v.x * r, v.y * r, v.z * r, v.w * r);
 end method normalize;
-  
-define method normalize(v :: <vector>)
-  => (result :: <vector>);
-  map(rcurry(\/, magnitude(v)), v);
-end method normalize;
-  
+
+define method print-object(v :: <vector3D>, stream :: <stream>)
+ => ();
+  print-object(vector(v.x, v.y, v.z, v.w), stream);
+end method print-object;
