@@ -179,8 +179,10 @@ define method send-response
     let response-line
       = format-to-string("%s %d %s\r\n",
                          $http-version, response-code, response-message | "OK");
-    log-copious("-->%s", response-line);
-    write(stream, response-line);
+    unless (req.request-version = #"http/0.9")
+      log-copious("-->%s", response-line);
+      write(stream, response-line);
+    end unless;
 
     if (*generate-server-header*)
       add-header(response, "Server", $server-header-value);
@@ -193,7 +195,9 @@ define method send-response
       // Add required headers
       add-header(response, "Content-Length", content-length);
     end unless;
-    send-headers(response, stream);
+    unless (req.request-version = #"http/0.9")
+      send-headers(response, stream);
+    end unless;
 
     if (*logfile*)
       // Log in Common Logfile Format
