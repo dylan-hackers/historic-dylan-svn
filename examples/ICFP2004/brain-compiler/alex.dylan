@@ -9,25 +9,49 @@ define sub brain alex-attacker (return)
 
   // Steal food.
   [attacker-success:]
-    Sense Food, (a-steal-from-under);
+    Sense Food, (a-steal-from-under-entry);
+    Flip 3, (attacker-success-right);
     Sense Ahead FoeHome, (a-steal-from-in-front);
     Turn Right, (attacker-success);
 
   [attacker-success-right:]
+    Flip 9, (attacker-success-left);
     Turn Right, (attacker-success);
 
+  [attacker-success-left:]
+    Turn Left, (attacker-success);
+
+
   [a-steal-from-in-front:]
-//    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
+    Move attacker-success;
+    Sense Ahead Friend, (a-steal-from-in-front-left-avoid);
+    Flip 3, (a-steal-from-in-front, attacker-success);
+
+  [a-steal-from-in-front-left-avoid:]
+    Turn Left, (attacker-success);
+
+
+/*
+  [a-steal-from-in-front:]
+    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
     Move attacker-success => attacker-success-right;
 
   [a-steal-from-in-front-right:]
-//    Sense RightAhead FoeHome, (attacker-success-right);
+    Sense RightAhead FoeHome, (attacker-success-right);
     Move attacker-success => attacker-success-right;
+*/
 
 
-  // From under is easy.
+  // From under is easy on the edge.
+  [a-steal-from-under-entry:]
+    PickUp a-steal-from-under => attacker-success;
+
   [a-steal-from-under:]
-    PickUp a-steal-do-from-under => attacker-success;
+    Sense Ahead FoeHome => a-steal-do-from-under;
+    Move a-steal-from-under => a-steal-from-under-turn;
+
+  [a-steal-from-under-turn:]
+    Turn Left, (a-steal-from-under);
 
   [a-steal-do-from-under:]
     Turn Left;
@@ -46,7 +70,7 @@ define sub brain alex-attacker (return)
     Sense Ahead FoeHome, (a-near-hub-ahead);
     Sense LeftAhead FoeHome, (a-near-hub-left);
     Sense RightAhead FoeHome, (a-near-hub-right);
-    Flip 2, (a-move-forward, a-move-lr);
+    Flip 4, (a-move-lr, a-move-forward);
 
 
   // We are near their hill.
@@ -119,7 +143,9 @@ define sub brain keith-gatherer (return)
     Move => rightant-search-blocked;
     Sense Home, (rightant-search);
     PickUp rightant-turn-and-return => rightant-search;
-//    Sense FoeHome, (rightant-patrol, rightant-search);
+    Sense Ahead FoeHome, (rightant-patrol);
+    Sense LeftAhead FoeHome, (rightant-patrol);
+    Sense RightAhead FoeHome, (rightant-patrol, rightant-search);
 
   [rightant-search-blocked:]
     Turn Right, (rightant-search);
@@ -142,13 +168,35 @@ define sub brain keith-gatherer (return)
     Turn Right;
     Turn Right, (rightant-search);
 
-//  [rightant-patrol:]
-//    PickUp, (rightant-return);
-//    Sense Ahead FoeHome => rightant-turn-and-patrol;
-//    Move rightant-patrol => rightant-turn-and-patrol;
 
-//  [rightant-turn-and-patrol:]
-//    Turn Right, (rightant-patrol);
+  [rightant-patrol:]
+    Sense Food, (rightant-patrol-pickup);
+    Sense Ahead FoeHome, (rightant-turn-and-patrol);
+    Sense LeftAhead FoeHome, (rightant-patrol-forward-left);
+    Sense RightAhead FoeHome, (rightant-patrol-forward-right, rightant-patrol-turn-and-patrol);
+
+  [rightant-patrol-forward-left:]
+    Move => rightant-patrol-forward-try-left-left;
+    Turn Left, (rightant-patrol);
+
+  [rightant-patrol-forward-right:]
+    Move => rightant-patrol-forward-try-right-right;
+    Turn Right, (rightant-patrol);
+
+  [rightant-patrol-forward-try-left-left:]
+    Turn Left;
+    Turn Left, (rightant-patrol-forward-right);
+
+  [rightant-patrol-forward-try-right-right:]
+    Turn Right;
+    Turn Right, (rightant-patrol-forward-left);
+
+
+  [rightant-patrol-pickup:]
+    PickUp, (rightant-return);
+
+  [rightant-turn-and-patrol:]
+    Turn Right, (rightant-patrol);
 
 
   [leftant-search:]
