@@ -13,6 +13,7 @@ Author:   Eric Kidd <eric.kidd@pobox.com>
 define limited-collection <int-vector> (<vector>) of <integer> = 0;
 define limited-collection <int-vector-vector> (<vector>) of <int-vector> =
   make(<int-vector>, size: 0);
+define limited-collection <cclass-vector> (<vector>) of <cclass>;
 
 
 //=========================================================================
@@ -81,12 +82,16 @@ define class <argument-info> (<object>)
   // (Not defined for hairy arguments.)
   slot argument-may-affect-dispatch? :: <boolean>;
 
-  // Our dispatch table.
+  // Our argument array (part of our dispatch table).
   // (Not defined for hairy arguments.)
-  slot argument-dispatch-table :: <int-vector>;
+  slot argument-array :: <int-vector>;
+
+  // Some summary statistics about our argument array.
+  // (Not defined for hairy arguments.)
+  slot argument-total-i-poles :: <integer>;
+  slot argument-artificial-i-poles :: <integer>;
 
 end class <argument-info>;
-
 
 define method initialize
     (arginfo :: <argument-info>, #key, #all-keys) => ()
@@ -101,6 +106,9 @@ define method initialize
 
   if (specializer-cclasses)
 
+    // Record our specializers.
+    arginfo.argument-specializer-cclasses := specializer-cclasses;
+
     // Set our boolean flags appropriately.
     arginfo.argument-hairy? := #f;
     arginfo.argument-specializers-identical? :=
@@ -110,12 +118,131 @@ define method initialize
 	 | ~gf.generic-defn-sealed?
 	 | gf.function-defn-hairy?);
 
-    // Record our specializers.
-    arginfo.argument-specializer-cclasses := specializer-cclasses;
+    // Prepare to build our dispatch table.
+    let pole-table = make(<int-vector>, size: cclass-count(), fill: 0);
+    let next-pole-id = 1;
+
+    // Assign a new i-pole to each specializer. 
+    for (specializer in specializer-cclasses)
+      pole-table[specializer.cclass-id] := next-pole-id;
+      next-pole-id := next-pole-id + 1;
+    end for;
+
+    // Assign i-poles to the rest of the classes (skipping <object>).
+    for (i from 1 below cclass-count())
+      if (pole-table[i] == 0)
+	let supers = superclass-ids(i);
+	pole-table[i] :=
+	  select (supers.size)
+	    0 => error("no superclasses!"); // Shouldn't happen.
+	    1 => pole-table[supers.first];  // Copy down i-pole from parent.
+	    otherwise =>
+	      let maybe-pole = pole-table[supers.first];
+	      let identical? =
+		every?(method (super)
+			 pole-table[super] == maybe-pole;
+		       end,
+		       supers);
+	      if (identical?)
+		// All of our superclasses have the same i-pole, so use it.
+		pole-table[i] := maybe-pole;
+	      else
+		// Our superclasses have different i-poles, so assign a
+		// new one.
+		pole-table[i] := next-pole-id;
+		next-pole-id := next-pole-id + 1;
+	      end if;
+	  end select;
+      end if;
+    end for;
+    
+    // Record our argument array & relevant statistics.
+    arginfo.argument-array := pole-table;
+    arginfo.argument-total-i-poles := next-pole-id;
+    arginfo.argument-artificial-i-poles :=
+      next-pole-id - specializer-cclasses.size;
 
   end if;
 
 end method;
+
+
+//=========================================================================
+//  describe-argument-array
+//=========================================================================
+//  Describe an argument array in gruesome detail.
+
+define function describe-argument-array
+    (out :: <stream>, arginfo :: <argument-info>)
+ => ()
+  
+  format(out, "  Argument %d of %s\n",
+	 arginfo.argument-position,
+	 arginfo.argument-generic-defn.defn-name);
+
+  if (arginfo.argument-hairy?)
+    format(out, "    Argument is too hairy to optimize.\n");
+  else
+
+    // Print some summary statistics.
+    format(out, "    Specializers:       %3d\n",
+	   arginfo.argument-specializer-cclasses.size);
+    format(out, "    Artificial i-poles: %3d\n\n",
+	   arginfo.argument-artificial-i-poles);
+    format(out, "    Total i-poles:      %3d\n",
+	   arginfo.argument-total-i-poles);
+
+    // Print our specializers.
+    for (specializer in arginfo.argument-specializer-cclasses)
+      format(out, "    %s\n", specializer);
+    end for;
+    format(out, "\n");
+
+    // Dump the argument array itself.
+    dump-argument-array(out, arginfo.argument-array);
+  end if;
+end function describe-argument-array;
+
+define function dump-argument-array
+    (out :: <stream>, array :: <int-vector>)
+ => ()
+
+  // Most classes are associated with the same pole as <object>.
+  // As we print out the argument array, we compress runs of these
+  // classes into a single line.
+  let default-pole = array[0];
+  let skipped-classes :: <integer> = 0;
+  local method flush-skipped-classes () => ()
+	  if (skipped-classes > 0)
+	    format(out, "        ((( %d classes under default pole )))\n",
+		   skipped-classes);
+	    skipped-classes := 0;
+	  end if;
+	end method;
+
+  // Print an entry for <object>.
+  format(out, "    %3d <object>\n", array[0]);
+
+  // Print an entry for each of the other classes.
+  for (id from 1 below cclass-count())
+    let pole = array[id];
+    if (pole == default-pole)
+      skipped-classes := skipped-classes + 1;
+    else
+      flush-skipped-classes();
+      format(out, "    %3d %s :", pole, id.id-cclass.cclass-name);
+      for (super-id in id.superclass-ids)
+	let super-pole = array[super-id];
+	format(out, " %s(%d%s)",
+	       super-id.id-cclass.cclass-name,
+	       super-pole,
+	       if (super-pole == default-pole) "*" else "" end);
+      end for;
+      format(out, "\n");
+    end if;
+  end for;
+  flush-skipped-classes();
+end function dump-argument-array;
 
 
 //=========================================================================
@@ -159,38 +286,87 @@ end function compute-specializer-cclasses;
 //=========================================================================
 //  Class IDs & Superclass IDs
 //=========================================================================
-//  
+//  To build the argument arrays, we'll need to be able to map each cclass
+//  to a unique integer ID, and a given ID to the IDs of its superclasses.
 
+define variable *cclass-count* :: <integer> = 0;
 define variable *cclass-to-id-map* :: <object-table> = make(<object-table>);
+define variable *id-to-cclass-map* :: false-or(<cclass-vector>) = #f;
 define variable *superclass-ids* :: <int-vector-vector> =
   make(<int-vector-vector>, size: 0);
 
-define function compute-cclass-information () => ()
+define inline function cclass-count () => (count :: <integer>)
+  *cclass-count*;
+end function;
 
+define function cclass-id (cclass :: <cclass>) => (id :: <integer>)
+  *cclass-to-id-map*[cclass];
+end function;
+
+define function id-cclass (id :: <integer>) => (cclass :: <cclass>)
+  *id-to-cclass-map*[id];
+end function;
+
+define inline function superclass-ids (cclass-id :: <integer>)
+ => (ids :: <int-vector>)
+  *superclass-ids*[cclass-id];
+end function;
+
+define function compute-cclass-information () => ()
+  
   // Assign sequential unique IDs to every class. We do a preorder
   // traversal through our subclasses' primary direct superclasses.
-  local method assign-ids (class :: <cclass>, this-id :: <integer>)
+  local method assign-ids (cclass :: <cclass>, this-id :: <integer>)
 	 => (next-id :: <integer>)
-	  *cclass-to-id-map*[this-id] := class;
+	  *cclass-to-id-map*[cclass] := this-id;
+	  *id-to-cclass-map*[this-id] := cclass;
 	  let next-id = this-id + 1;
-	  for (subclass in class.direct-subclasses)
-	    if (class == subclass.direct-superclasses.first)
+	  for (subclass in cclass.direct-subclasses)
+	    if (cclass == subclass.direct-superclasses.first)
 	      next-id := assign-ids(subclass, next-id);
 	    end if;
 	  end for;
 	  next-id;
 	end method;
+  *cclass-count* := all-cclass-objects().size;
   *cclass-to-id-map* := make(<object-table>);
+  *id-to-cclass-map* := make(<cclass-vector>, size: *cclass-count*,
+			     fill: dylan-value(#"<object>"));
   assign-ids(dylan-value(#"<object>"), 0);
   
-  let cclasses = all-cclass-objects();
+  // Build a vector containing superclass IDs.
+  let cclasses :: <stretchy-vector> = all-cclass-objects();
   *superclass-ids* := make(<int-vector-vector>, size: cclasses.size);
-
-  for (cclass in sorted-cclasses)
-    *cclass-to-id-map*[cclass] := id;
+  for (cclass :: <cclass> in cclasses)
+    let id = *cclass-to-id-map*[cclass];
+    let supers = cclass.direct-superclasses;
+    let ids = make(<int-vector>, size: supers.size);
+    for (super in supers,
+	 i from 0)
+      ids[i] := *cclass-to-id-map*[super];
+    end for;
+    *superclass-ids*[id] := ids;
   end for;
+  
+end function compute-cclass-information;
 
+
+//=========================================================================
+//  Computing Table Sizes
+//=========================================================================
+//  
+
+/*
+define function compute-argument-array-size
+    (arginfo :: <argument-info>,
+     chunk-size :: <integer>)
+ => (sz :: <integer>)
+
+  let array = arginfo.argument-array;
+  let whole-chunks = array.size / chunk-size;
+  let partial-chunk? = (array.size % chunk-size ~= 0);
 end function;
+*/
 
 
 //=========================================================================
@@ -198,6 +374,9 @@ end function;
 //=========================================================================
 
 define function analyze-generics () => ()
+  format(*debug-output*, "Analyzing <cclass> hierarchy.\n");
+  compute-cclass-information();
+
   format(*debug-output*, "Analyzing generic functions and classes.\n");
 
   // Fetch our raw data.
@@ -252,102 +431,32 @@ define function analyze-generics () => ()
       total-arg-positions := total-arg-positions + arg-position-count;
       total-methods := total-methods + method-count;
 
+      format(analysis, "\n");
       for (arg in args)
+
+	describe-argument-array(analysis, arg);
+	format(analysis, "\n");
+
+	/*
 	unless (arg.argument-hairy?)
 	  format(analysis, "  %d:", arg.argument-position);
-	  for (specializer in arg.argument-specializer-cclasses)
-	    format(analysis, " %s", specializer)
+	  //for (specializer in arg.argument-specializer-cclasses)
+	  //  format(analysis, " %s", specializer)
+	  //end for;
+	  for (i-pole in arg.argument-array)
+	    format(analysis, " %d", i-pole);
 	  end for;
 	  format(analysis, "\n");
 	end unless;
+	*/
+
       end for;
-      format(analysis, "\n");
     end for;
     
     format(analysis, "Found %d argument positions, %d methods.\n",
 	   total-arg-positions, total-methods);
-
+    
   cleanup
     close(analysis);
   end block;
-end;
-
-
-//=========================================================================
-//  Main Program
-//=========================================================================
-
-define function analyze-generics () => ()
-  format(*debug-output*, "Analyzing generic functions and classes.\n");
-
-  // Fetch our raw data.
-  let classes = all-cclass-objects();
-  let generics = all-generic-defintion-objects();
-
-  // Find all generic functions with more than one method. (This step is
-  // necessary because the compiler treats all functions as generics, even
-  // if they only have one method.
-  let real-generics = choose(method (gf)
-			       gf.generic-defn-methods.size > 1
-			     end,
-			     generics);
-
-  // Open up our output file.
-  let analysis = make(<file-stream>,
-		      locator: "gf-analysis.txt",
-		      direction: #"output",
-		      if-exists: #"replace");
-
-  block ()
-
-    format(analysis, "Found %d classes, %d real generics (%d total).\n\n",
-	   classes.size, real-generics.size, generics.size);
-    
-    // Summarize each generic function (and count the total number of
-    // methods and argument positions).
-    let total-arg-positions = 0;
-    let total-methods = 0;
-    for (gf in real-generics)
-
-      let gf-info = compute-generic-info(gf);
-      let args = gf-info.generic-arguments;
-
-      let active-arg-position-count =
-	if (any?(argument-hairy?, args)) 
-	  -1; // Magic value for our output.
-	else
-	  size(choose(argument-may-affect-dispatch?, args));
-	end if;
-
-      let name = gf.defn-name;
-      let arg-position-count = gf.function-defn-signature.specializers.size;
-      let method-count = gf.generic-defn-methods.size;
-      let sealed? = gf.generic-defn-sealed?;
-      let exported? = gf.defn-name.name-inherited-or-exported?;
-      format(analysis, "%-6s %-8s %2d %2d %3d %s\n",
-	     if (sealed?) "sealed" else "open" end,
-	     if (exported?) "exported" else "private" end,
-	     arg-position-count, active-arg-position-count, method-count,
-	     name);
-      total-arg-positions := total-arg-positions + arg-position-count;
-      total-methods := total-methods + method-count;
-
-      for (arg in args)
-	unless (arg.argument-hairy?)
-	  format(analysis, "  %d:", arg.argument-position);
-	  for (specializer in arg.argument-specializer-cclasses)
-	    format(analysis, " %s", specializer)
-	  end for;
-	  format(analysis, "\n");
-	end unless;
-      end for;
-      format(analysis, "\n");
-    end for;
-    
-    format(analysis, "Found %d argument positions, %d methods.\n",
-	   total-arg-positions, total-methods);
-
-  cleanup
-    close(analysis);
-  end block;
-end;
+end function analyze-generics;
