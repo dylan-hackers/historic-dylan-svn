@@ -30,7 +30,7 @@ end module;
 define module board
   use icfp2002, export: all;
   
-  export <board>;
+  export <board>, dump-board;
 end module board;
 
 define module client
