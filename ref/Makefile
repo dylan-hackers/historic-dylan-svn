@@ -22,7 +22,7 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf gdapi.rtf
 	-rm -rf $@
 	-rm -rf ,$@
 	mkdir ,$@
-	(cd $@; \
+	(cd ,$@; \
 	 SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -d ../dylandoc.dsl#html -t sgml -ihtml ../$<)
 	mv ,$@ $@
 
