@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.5 2002/07/29 22:37:28 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.6 2002/08/22 16:16:00 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -198,7 +198,62 @@ define constant $runtime-include-dir
 // Main
 //----------------------------------------------------------------------
 
+define argument-parser <gd-main-argument-parser> ()
+  synopsis print-synopsis,
+    description: 
+      concatenate("d2c (Gwydion Dylan) ",$version,
+                  "\nCompiles Dylan source into C, then compiles that.\n",
+                  "Copyright 1994-1997 Carnegie Mellon University\n",
+                  "Copyright 1998-2002 Gwydion Dylan Maintainers\n"),
+    usage: "d2c [options] -Llibdir... lidfile";
+
+  option show-help?, "Show this help.", long: "help";
+  option show-version?, "Show version number.", long: "version";
+  option show-compiler-info?, "Show bootstrap information.", 
+    long: "compiler-info";
+  option show-dylan-user-location?, "Show location of site-local libraries.",
+    long: "dylan-user-location";
+  option libdir, " <directory>", "Extra directories to search for libraries.",
+    kind: <repeated-parameter-option-parser>, long: "libdir", short: "L";
+  option log-dependencies?, "Log dependencies to a file.", 
+    long: "log-deps", short: "M";
+  option target, " <target>", "Target platform name.", 
+    kind: <parameter-option-parser>, long: "target", short: "T";
+  option platforms, "File containing platform descriptions.",
+    kind: <parameter-option-parser>, long: "platforms", short: "p";
+  option no-binaries?, "Do not compile generated C files.",
+    long: "no-binaries";
+  option debug?, "Generate debugging code.", long: "debug", short: "g";
+  option profile?, "Generate profiling code.", long: "profile";
+  option static?, "Force static linking.", long: "static", short: "s";
+  option break-on-error?, "Debug d2c by breaking on errors.", 
+    long: "break", short: "d";
+  option optimizer-option, " <optimizer-option>", 
+    "Turn on an optimizer option. Prefix option with 'no-' to turn it off.",
+    kind: <repeated-parameter-option-parser>,
+    long: "optimizer-option", short: "o";
+  option debugging-optimizer?, "Display detailed optimizer information.",
+    long: "debug-optimizer";
+  option cc-override-files, " <filename>", 
+    "Files which need special C compiler invocation.",
+    kind: <repeated-parameter-option-parser>,
+    long: "cc-overide-file", short: "f";
+  option cc-override-command, " <cc command line>",
+    "Alternate method of invoking the C compiler. Used on files specified with -f.",
+    kind: <parameter-option-parser>, long: "cc-override-command", short: "F";
+  option interactive?, "Enter interactive command mode.",
+    long: "interactive", short: "i";
+  option rpath, " <path>", "Path to search for shared libraries at runtime.",
+    kind: <parameter-option-parser>, long: "rpath";
+end argument-parser;
+
 define method main (argv0 :: <byte-string>, #rest args) => ();
+/*
+  let options = make(<gd-main-argument-parser>);
+  parse-arguments(options, args);
+  print-synopsis(options, *standard-output*);
+  exit();
+ */
   #if (~mindy)
   no-core-dumps();
   #endif
