@@ -5,10 +5,11 @@ Synopsis: But Tracker
 /// Main
 
 
-define method main () => ()
-  
+define method main
+    () => ()
 end;
 
 begin
   main();
 end;
+

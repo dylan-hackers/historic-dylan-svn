@@ -1,25 +1,25 @@
-<%dsp:taglib name="btrack" prefix="bt" %>
+<%dsp:taglib name="btrack" prefix="bt" />
 
 <html>
 <head><title>Bug Tracker - Login</title></head>
 
 <body bgcolor="#FFFFFF">
 
-<%dsp:include uri="header.dsp"/>
+<%dsp:include url="header.dsp"/>
 
 <bt:show-messages/>
 
 <h1>Please Login:</h1>
 
-<form name="loginForm" method="post" action="login">
+<form name="loginForm" method="post" action="login.dsp">
   <table border="0">
     <tr>
       <td align="right">Username:</td>
-      <td><input type="text" name="username" value="" size="20"></td>
+      <td><input type="text" name="username" value="" size="20"><bt:show-username/></td>
     </tr>
     <tr>
       <td align="right">Password:</td>
-      <td><input type="password" name="password" value="" size="20"></td>
+      <td><input type="password" name="password" value="" size="20"><bt:show-password/></td>
     </tr>
     <tr>
       <td colspan="2" align="right">
@@ -29,7 +29,7 @@
   </table>
 </form>
 
-<%dsp:include uri="footer.dsp"/>
+<%dsp:include url="footer.dsp"/>
 
 </body>
 </html>

@@ -1,4 +1,4 @@
-<%dsp:taglib name="btrack" prefix="bt" %>
+<%dsp:taglib name="btrack" prefix="bt" />
 <jsp:useBean id="record" class="sigue.btrack.Account" scope="session"/>
 
 <html>
@@ -6,21 +6,21 @@
 
 <body bgcolor="#FFFFFF">
 
-<%dsp:include uri="header.dsp"/>
+<%dsp:include url="header.dsp"/>
 
 <bt:show-messages/>
 
 <center><h1>Edit Account</h1></center>
 
-<form name="editAccountForm" method="post" action="record?action=save">
-  <input type="hidden" name="type" value="Account">
+<form name="editAccountForm" method="post" action="edit-account.dsp">
+  <input type="hidden" name="type" value="account">
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>
       <td width="95%" colspan="3">
         <span class="fieldTitle">Username:</span>
         <br><input name="name" type="text" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="name"/>">
+                   value="<bt:show-record-name/>">
       </td>
     </tr>
     <tr>
@@ -28,7 +28,7 @@
       <td width="95%" colspan="3">
         <span class="fieldTitle">Password:</span>
         <br><input name="password" type="password" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="password"/>">
+                   value="<bt:show-password/>">
       </td>
     </tr>
     <tr>
@@ -36,7 +36,7 @@
       <td width="95%" colspan="3">
         <span class="fieldTitle">E-mail address:</span>
         <br><input name="email_address" type="text" size="60" maxlen="100"
-                   value="<jsp:getProperty name="record" property="emailAddress"/>">
+                   value="<bt:show-email-address/>">
       </td>
     </tr>
     <tr>
@@ -49,7 +49,7 @@
 
 </form>
 
-<%dsp:include uri="footer.dsp"/>
+<%dsp:include url="footer.dsp"/>
 
 </body>
 </html>

@@ -5,14 +5,14 @@
 
 <body bgcolor="#FFFFFF">
 
-<%dsp:include uri="header.dsp"/>
+<%dsp:include url="header.dsp"/>
 
 <center> <h1>Welcome to Bug Tracker</h1> </center>
 
 <p> <bt:show-messages/>
 
 <center>
-  <img src="<bt:image name="bug.gif"/>">
+  <bt:show-image name="bug.gif" />
   <p>
   <p>
   <p>
@@ -33,7 +33,7 @@
   </table>
 </center>
 
-<%dsp:include uri="footer.dsp"/>
+<%dsp:include url="footer.dsp"/>
 
 </body>
 </html>

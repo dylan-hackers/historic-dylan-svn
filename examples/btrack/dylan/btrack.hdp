@@ -2,8 +2,10 @@ comment:	This file is generated, please don't edit
 format-version:	2
 library:	btrack
 files:	library
+	utils
 	database
 	records
+	pages
 	accounts
 	bugs
 	main

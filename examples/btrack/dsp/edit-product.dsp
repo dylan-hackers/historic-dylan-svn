@@ -1,4 +1,4 @@
-<%dsp:taglib name="btrack" prefix="bt" %>
+<%dsp:taglib name="btrack" prefix="bt" />
 <jsp:useBean id="record" class="sigue.btrack.Product" scope="session"/>
 
 <html>
@@ -6,7 +6,7 @@
 
 <body bgcolor="#FFFFFF">
 
-<%dsp:include uri="header.dsp"/>
+<%dsp:include url="header.dsp"/>
 
 <bt:show-messages/>
 
@@ -90,7 +90,7 @@
 </table>
 
 
-<%dsp:include uri="footer.dsp"/>
+<%dsp:include url="footer.dsp"/>
 
 </body>
 </html>

@@ -1,11 +1,11 @@
-<%dsp:taglib name="btrack" prefix="bt" %>
+<%dsp:taglib name="btrack" prefix="bt" />
 
 <html>
 <head><title>Bug Tracker - Admin - Browsers</title></head>
 
 <body bgcolor="#FFFFFF">
 
-<%dsp:include uri="header.dsp"/>
+<%dsp:include url="header.dsp"/>
 
 <center><h1>Manage Browsers</h1></center>
 
@@ -37,7 +37,7 @@
 
 <p>
 
-<%dsp:include uri="footer.dsp"/>
+<%dsp:include url="footer.dsp"/>
 
 </body>
 </html>

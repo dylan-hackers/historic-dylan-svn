@@ -15,6 +15,8 @@ Synopsis: Database record read/write/cache code.
 //          column name/index for slots defined in superclasses.
 
 
+// -------------------base record machinery--------------------------
+
 define macro record-definer
   { define ?modifiers:* record ?:name (?superclasses) ?slots:* end }
   => { define ?modifiers record-class ?name (?superclasses) ?slots end;
@@ -184,7 +186,7 @@ end;
 define constant $record-cache = make(<table>);
 
 define method load-record
-    (class :: <class>, query :: <string>)
+    (class :: <class>, query :: <string>) => (record :: false-or(<database-record>))
   with-database-connection (conn)
     let statement = make(sql$<sql-statement>, text: query);
     let result-set = sql$execute(statement);
@@ -200,6 +202,19 @@ define method load-record
   end;
 end;
 
+// Load all records of the given class that are returned by the given query.
+//
+define method load-records
+    (class :: <class>, query :: <string>)
+  with-database-connection (conn)
+    let statement = make(sql$<sql-statement>, text: query);
+    let result-set = sql$execute(statement);
+    map-as(<vector>,
+           curry(create-or-update-record, class),
+           result-set)
+  end;
+end;
+
 define method create-or-update-record
     (class :: <class>, row :: <sequence>)
  => (record :: <database-record>)
@@ -210,6 +225,8 @@ define method create-or-update-record
          class, get-column-name(class, record-id), index);
   let existing-record = element($record-cache, record-id, default: #f);
   if (existing-record)
+    existing-record
+    //---TODO: update-record!
     //update-record(existing-record)
   else
     let new-record :: <database-record>
@@ -316,4 +333,86 @@ define method db-type-to-slot-type
     ""
   end;
 end;
+
+
+
+// --------------------------accounts------------------------------
+
+/*
+create table tbl_account (
+  account_id         INTEGER NOT NULL,
+  mod_count          INTEGER NOT NULL,
+  date_entered       DATETIME NOT NULL,
+  date_modified      DATETIME NOT NULL,
+  name               CHAR(30) NOT NULL,
+  password           CHAR(30) NOT NULL,
+  email_address      CHAR(100) NOT NULL,
+  email_prefs        INTEGER NOT NULL,     -- encoded bits for now
+  permissions        INTEGER NOT NULL,     -- encoded bits for now
+  role               CHAR(1),              -- 'D' = developer, 'Q' = QA
+  status             CHAR NOT NULL         -- 'O' = Obsolete, 'A' = active
+);
+*/
+
+define record <account> (<named-record>)
+  database slot password :: <string>,
+    init-keyword: #"password",
+    column-number: 5,
+    column-name: "password";
+  slot email-address :: <string>,
+    init-keyword: #"email-address",
+    column-number: 6,
+    column-name: "email_address";
+  slot email-prefs :: <integer>,
+    init-keyword: #"email-prefs",
+    column-number: 7,
+    column-name: "email_prefs";
+  slot permissions :: <integer>,
+    init-keyword: #"permissions",
+    column-number: 8,
+    column-name: "permissions";
+  slot role :: <character>,
+    init-keyword: #"role",
+    column-number: 9,
+    column-name: "role";
+end;
+
+// This needs to come after <account>.
+//
+define primary class <owned-record> (<named-record>)
+  slot owner :: <account>,
+    init-keyword: #"account";
+  slot description :: <string>,
+    init-keyword: #"description";
+end;
+
+
+define method load-account
+    (id :: <integer>) => (account :: false-or(<account>))
+  // ---TODO: Caching.
+  load-account(format-to-string("select * from tbl_account where account_id = %d", id));
+end;
+
+define method load-account
+    (query :: <string>) => (account :: false-or(<account>))
+  load-record(<account>, query)
+end;
+
+define method load-account-named
+    (name :: <string>, #key password) => (account :: <account>)
+  assert(size(name) > 0,
+         "Attempt to load an account by name using the empty string as the name.");
+  load-record(<account>,
+              iff(password,
+                  format-to-string("select * from tbl_account where name = '%s' and password = '%s'",
+                                   name, password),
+                  format-to-string("select * from tbl_account where name = '%s'",
+                                   name)))
+end;
+
+define method load-all-accounts
+    () => (accounts :: <sequence>)
+  load-records(<account>, "select * from tbl_account");
+end;
+
 

@@ -1,4 +1,4 @@
-<%dsp:taglib name="btrack" prefix="bt" %>
+<%dsp:taglib name="btrack" prefix="bt" />
 <jsp:useBean id="record" class="sigue.btrack.Bug" scope="session"/>
 
 <html>
@@ -9,7 +9,7 @@
 
 <body bgcolor="#FFFFFF">
 
-<%dsp:include uri="header.dsp"/>
+<%dsp:include url="header.dsp"/>
 
 <center><h1>Edit Bug Report</h1></center>
 
@@ -93,7 +93,7 @@
   </table>
 </form>
 
-<%dsp:include uri="footer.dsp"/>
+<%dsp:include url="footer.dsp"/>
 
 </body>
 </html>
