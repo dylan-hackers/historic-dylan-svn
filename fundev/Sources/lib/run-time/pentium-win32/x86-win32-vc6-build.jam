@@ -34,7 +34,7 @@ SUFMKF  ?= .mkf ;               # build-system files
 LIBDIR = $(PERSONAL_LIBDIR) ;
 BINDIR = $(PERSONAL_BINDIR) ;
 
-LIBPATH ?= $(PERSONAL_LIBDIR) ;
+LIBPATH ?= $(PERSONAL_LIBDIR) $(SYSTEM_LIBDIR) ;
 
 LINKFLAGS ?= /NODEFAULTLIB 
              /INCREMENTAL:NO /DEBUG:FULL /DEBUGTYPE:CV /PDB:NONE ;
@@ -205,13 +205,8 @@ rule DylanLibraryCLibraries image : libraries {
   local _dll = [ FDLLName $(image) ] ;
   local _exe = [ FEXEName $(image) ] ;
 
-  local _i ;
-  for _i in $(libraries) {
-    if ! $(_i) in $(_clib_$(image[1]:L)) {
-      _clib_$(image[1]:L) += $(_i) ;
-      LINKLIBS on $(_dll) $(_exe) += $(_i) ;
-    }
-  }
+  _clib_$(image[1]:L) += $(libraries) ;
+  LINKLIBS on $(_dll) $(_exe) += $(libraries) ;
 }
 
 rule DylanLibraryCObjects image : objects {
@@ -333,19 +328,23 @@ rule DylanLibraryUses image : library : dir {
     }
   }
 
-  Depends $(_dll) $(_exe) : $(_dll_$(library:L)) ;
+  DylanLibraryClosure $(image) : $(library:L) ;
+}
+
+rule DylanLibraryClosure image : libraries {
+  local _dll = [ FDLLName $(image) ] ;
+  local _exe = [ FEXEName $(image) ] ;
+
   local _i ;
-  for _i in $(_lib_$(library:L)) {
-    if ! $(_i) in $(_lib_$(image[1]:L)) {
-      Depends $(_dll) : $(_i) ;
-      _lib_$(image[1]:L) += $(_i) ;
-      NEEDLIBS on $(_dll) $(_exe) += $(_i) ;
-    }
-  }
-  for _i in $(_clib_$(library:L)) {
-    if ! $(_i) in $(_clib_$(image[1]:L)) {
-      _clib_$(image[1]:L) += $(_i) ;
-      LINKLIBS on $(_dll) $(_exe) += $(_i) ;
+  for _i in $(libraries) {
+    if ! $(_i) in $(_use_$(image[1]:L)) {
+      _use_$(image[1]:L) += $(_i) ;
+      Depends $(_dll) $(_exe) : $(_dll_$(_i)) ;
+      Depends $(_dll) : $(_lib_$(_i)) ;
+      NEEDLIBS on $(_dll) $(_exe) += $(_lib_$(_i)) ;
+      LINKLIBS on $(_dll) $(_exe) += $(_clib_$(_i)) ;
+
+      DylanLibraryClosure $(image) : $(_use_$(_i)) ;
     }
   }
 }
