@@ -57,8 +57,7 @@ define constant <version-number> =
 define method parse-s(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c);
-// DOUG   [type(<space>, c), loop(type(<space>, c))];
-    [loop(type(<space>, c))];
+    [type(<space>, c), loop(type(<space>, c))];
     values(index, #t);
   end with-meta-syntax;  
 end method parse-s;
@@ -69,9 +68,7 @@ end method parse-s;
 define method parse-eq(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c, space);
-    [parse-s(space), 
-     '=',
-     parse-s(space)];
+    [loop(parse-s(space)), '=', loop(parse-s(space))];
     values(index, #t);
   end with-meta-syntax;
 end method parse-eq;
@@ -419,6 +416,9 @@ define method parse-prolog(string, #key start = 0, end: stop)
   end with-meta-syntax;  
 end method parse-prolog;
 
+// This function here parses the attribute value part of the
+// attribute -- so this function will parse "bar" for 
+// <foo name="bar"/> (quotes are included)
 define method parse-xml-attribute(string, #key start = 0, end: stop)
   local method is-not-single-quote?(char :: <character>)
       char ~= '\'';
@@ -715,7 +715,6 @@ end method parse-pubid-literal;
 //                                                --andreas
 //
 define method parse-char-data(string, #key start = 0, end: stop)
-// DOUG HERE
   with-collector into-vector chars, collect: collect;
     with-meta-syntax parse-string (string, start: start, pos: index)
       variables(c);
@@ -1058,14 +1057,12 @@ end method parse-xml-attributes;
 
 define method parse-xml-element-start(builder :: <xml-builder>, 
     string, #key start = 0, end: stop)
-  let attributes = make(<table>);
   with-meta-syntax parse-string (string, start: start, pos: index)
- // DOUG   variables(c, element-name, attributes, space, embedded-end-tag);
-    variables(c, element-name, space, embedded-end-tag);
+    variables(c, element-name, attributes, space, embedded-end-tag);
     ["<",
      parse-name(element-name),
- // DOUG   loop(parse-s(space)),
- // DOUG   parse-xml-attributes(attributes),
+     loop(parse-s(space)),
+     parse-xml-attributes(attributes),
      {["/", yes!(embedded-end-tag)], []},
      ">"];
     let tag :: <xml-element> = make(<xml-element>, 
