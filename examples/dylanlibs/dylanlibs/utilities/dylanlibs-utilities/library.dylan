@@ -7,6 +7,5 @@ define library dylanlibs-utilities
   use functional-dylan;
 
   export 
-    dylanlibs-utilities,
-    event-queue;
+    dylanlibs-utilities;
 end library dylanlibs-utilities;

@@ -16,16 +16,4 @@ define module dylanlibs-utilities
     \dec!;
 end module dylanlibs-utilities;
 
-define module event-queue
-  use functional-dylan;
-  use threads;
-
-  // Add binding exports here.
-  export
-    <event-queue>,
-    push-on-queue,
-    get-from-queue,
-    queue-empty?;
-end module event-queue;
-
 
