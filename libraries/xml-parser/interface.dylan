@@ -53,12 +53,8 @@ define method unfiltered-text(elt :: <element>) => (s :: <string>)
                                       elt.node-children)));
 end method unfiltered-text;
 
-define constant <hex-digit> = 
-    one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A',
-           'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F');
-
-define constant <version-number> =
-  type-union(<letter>, <digit>, one-of('_', '.', ':'));
+define constant $hex-digit = "0123456789abcdefABCDEF";
+define constant $version-number = concatenate($letter, $digit, "_.:");
 
 // removes leading and trailing blanks
 define method text(elt :: <element>) => (s :: <string>)
@@ -66,7 +62,7 @@ define method text(elt :: <element>) => (s :: <string>)
 end method text;
 
 define function trim-string(s :: <sequence>) => (t :: <string>)
-  let is-space? = rcurry(instance?, <space>);
+  let is-space? = rcurry(member?, $space);
   let ans = as(<string>, s);
   let start = 0;
   let stop = ans.size;

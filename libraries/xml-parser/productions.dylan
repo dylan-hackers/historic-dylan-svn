@@ -62,7 +62,7 @@ define method do-expand(obj :: <xml>) list(obj); end;
 define method do-expand(elt :: <element>)
 // I'll ignore entities in the element attributes for now
   list(make-element(elt.node-children.expand-entity, elt.name, 
-                    elt.element-attributes, #f));
+                    elt.element-attributes, *modify?*));
 end method do-expand;
 
 define method do-expand(ent :: <entity-reference>) 
@@ -149,14 +149,13 @@ define meta s?(c) loop(scan-s(c)) end;
 //                              | '.' | '-' | '_' | ':' 
 //                              | CombiningChar | Extender
 //
-define constant <name-char> = type-union(<version-number>, 
-                                         singleton('-'));
+define constant $name-char = concatenate($version-number, "-");
 
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
 define collector name(c) => (as(<symbol>, as(<string>, str)))
-  [{type(<letter>, c), '_', ':'}, do(collect(c))],
-  loop([type(<name-char>, c), do(collect(c))])
+  [{element-of($letter, c), '_', ':'}, do(collect(c))],
+  loop([element-of($name-char, c), do(collect(c))])
 end collector name;
 
 //    [6]    Names       ::=    Name (S Name)*
@@ -168,7 +167,7 @@ end meta names;
 //    [7]    Nmtoken     ::=    (NameChar)+
 //
 define meta nmtoken(c)
-  type(<name-char>, c), loop(type(<name-char>, c))
+  element-of($name-char, c), loop(element-of($name-char, c))
 end meta nmtoken;
 
 //    [8]    Nmtokens    ::=    Nmtoken (S Nmtoken)*
@@ -212,23 +211,17 @@ define collect-value system-literal() () "'", "\"" => { } end;
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
 //
-define collect-value pubid-literal() 
-  (test: method(x, y) subtype?(singleton(x), y) end)
-  <pub-id-char-without-quotes>, <pub-id-char> => { }
-end;
+define collect-value pubid-literal() (test: method(x, y) member?(x, y) end)
+  $pub-id-char-without-quotes, $pub-id-char => { }
+end collect-value pubid-literal;
 
 //    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
 //    
-// I really wonder if this isn't abuse of the Dylan type system...
-//
-define constant <pub-id-char-without-quotes> =
-  type-union(<letter>, <digit>, 
-             one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
-                    '-', '(', ')', '+', ',', '.', '/', ':', '=',
-                    '?', ';', '!', '*', '#', '@', '$', '_', '%'));
+define constant $pub-id-char-without-quotes =
+  concatenate($letter, $digit, " \n\t\r-()+,./:=?;!*#@$_%");
 
-define constant <pub-id-char> =
-  type-union(<pub-id-char-without-quotes>, singleton('\''));
+define constant $pub-id-char =
+  concatenate($pub-id-char-without-quotes, "'");
 
 // Character Data
 //
@@ -265,7 +258,7 @@ define collect-data double-char("\"&") end;
 //    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 //
 define meta comment(c)
-  "<!--", loop({["-->", finish()], type(<char>, c)})
+  "<!--", loop({["-->", finish()], accept(c)})
 end;
 
 // Processing Instructions
@@ -274,7 +267,7 @@ end;
 //
 define meta pi(c, target, space)
   "<?", scan-pi-target(target), scan-s(space), 
-  loop({["?>", finish()], type(<char>, c)})
+  loop({["?>", finish()], accept(c)})
 end meta pi;
 
 //    [17]    PITarget    ::=    Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
@@ -297,9 +290,9 @@ define constant scan-pi-target = scan-name;
 // loop operator here.                        --andreas
 //
 define collector cd-sect(c)
- => (make(<char-string>, text: str))
+ => (make(<char-string>, text: trim-string(str)))
   "<![CDATA[",
-  loop({["]]>", finish()], [type(<char>, c), do(collect(c))]})
+  loop({["]]>", finish()], [accept(c), do(collect(c))]})
 end collector cd-sect;
 
 // Prolog
@@ -335,7 +328,7 @@ define meta eq(sp) scan-s?(sp), '=', scan-s?(sp) end;
 //    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
 //
 define collector version-num(c)
-  loop([type(<version-number>, c), do(collect(c))])
+  loop([element-of($version-number, c), do(collect(c))])
 end collector version-num;
 
 //    [27]    Misc           ::=    Comment | PI | S
@@ -490,8 +483,7 @@ end meta etag;
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
 //
 define function empty-string?(str :: <string>) => (b :: <boolean>)
-  (str.size = 0) 
-  | (every?(method(x) subtype?(singleton(x), <space>) end, str));
+  (str.size = 0) | (every?(rcurry(member?, $space), str));
 end function empty-string?;
 
 define constant has-content? = complement(empty-string?);
@@ -770,13 +762,13 @@ end method scan-ignore;
 define collector int-char-ref(c)
  => (as(<character>, as(<string>, str).string-to-integer), 
         concatenate("#", as(<string>, str)))
-  "&#", loop([type(<digit>, c), do(collect(c))]), ";"
+  "&#", loop([element-of($digit, c), do(collect(c))]), ";"
 end collector int-char-ref;
 
 define collector hex-char-ref(c)
  => (as(<character>, string-to-integer(as(<string>, str), base: 16)),
      concatenate("#x", as(<string>, str)))
-  "&#x", loop([type(<hex-digit>, c), do(collect(c))]), ";"
+  "&#x", loop([element-of($hex-digit, c), do(collect(c))]), ";"
 end collector hex-char-ref;
 
 define meta char-ref(char, name)

@@ -24,16 +24,29 @@ and do the transformation on the match list to map "*" => <wildcard>
 // slot pattern tracks the match during the tree descent.
 define class <collect-state> (<xform-state>)
   constant slot pattern :: <sequence>, required-init-keyword: pattern:;
-  class slot elements;
+  virtual /* class */ slot elements :: <sequence>;
   slot candidate :: false-or(<element>) = #f;
   slot depth :: <integer> = 0;
 end class <collect-state>;
 
-define variable *original-state* = #f;
+// elements is a class slot, but the GwydionDylan compiler currently
+// pukes on class slots, so I'm using the virtual slot work-around
+// that Gabor gave me:
+define variable *elements* :: <sequence> = #();
+define method elements(c :: <collect-state>) => (seq :: <sequence>)
+  *elements*;
+end method elements;
+
+define method elements-setter(seq :: <sequence>, c :: <collect-state>)
+ => (seq1 :: <sequence>)
+  *elements* := seq;
+end method elements-setter;
+
+define variable *original-state* :: false-or(<collect-state>) = #f;
 
 define function copy-down(c :: <collect-state>, elt :: <element>)
  => (d :: <collect-state>)
-  let col = make(<collect-state>, pattern: c.pattern.tail);
+  let col :: <collect-state> = make(<collect-state>, pattern: c.pattern.tail);
   unless(c.candidate)
     col.candidate := elt;
     col.depth := *xml-depth*;
@@ -137,4 +150,3 @@ define method element(elt :: <element>,
     if(kids.size == 1 & ~ always-sequence?) kids[0] else kids end if;
   end if;
 end method element;
-

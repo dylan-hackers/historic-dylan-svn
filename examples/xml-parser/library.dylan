@@ -30,7 +30,7 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <hex-digit>, <version-number>, trim-string;
+  export $hex-digit, $version-number, trim-string;
 end module interface;
 
 define module transform
