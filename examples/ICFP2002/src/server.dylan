@@ -70,7 +70,7 @@ define function await-clients(port, num-clients) => ()
 
   let bot = make(<robot>,
 		 id: num-client, capacity: 25,
-		 money: 1000, x: 42, y: 42);
+		 money: 1000, location: make(<point>, x: 42, y: 42));
   add-bot(*board*, bot);
 
   // send initial response to client
