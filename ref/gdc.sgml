@@ -1,0 +1,46 @@
+<!DOCTYPE article PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
+ <!ENTITY % entities SYSTEM "entities.sgml">
+ %entities;
+]>
+
+<Article id="gdc-howto">
+  <artheader>
+    <Title>GDC HOWTO</Title>
+    <AuthorGroup>
+      &author.emk;
+    </AuthorGroup>
+  </artheader>
+  
+  <Para>The &gdc; compiler translates &dylan; programs into C programs,
+  which it then compiles using &gcc;. Although &gdc; runs slowly, it
+  produces fairly efficient code.</para>
+  
+  <Para>&gdc; was originally developed by CMU's &gwydprj;. The &gdmp;
+  releases bugfixes and minor improvements for several platforms, including
+  Linux.</para>
+
+  <Sect1 id="installing-gdc">
+    <Title>Installing GDC</TITLE>
+    
+    <Para>To install &gdc; on a Linux system using RPM, type:</para>
+    
+    <screen>
+      <prompt>$</prompt> <userinput>ncftp &ftpdir;</userinput>
+      <prompt>ncftp></prompt> <userinput>get gwydion-dylan*.rpm</userinput>
+      <prompt>ncftp></prompt> <userinput>quit</userinput>
+      <prompt>$</prompt> <userinput>su</userinput>
+      <prompt>Password:</prompt> <userinput>secret!</userinput>
+      <prompt>%</prompt> <userinput>rpm -Uvh gwydion-dylan*.rpm</userinput>
+      <prompt>%</prompt> <userinput>exit</userinput>
+    </screen>
+
+    <para>On other systems, you can download the tarballs at &ftpdir; and
+    install them in the usual fashion.</para>
+  </sect1>
+  
+  <sect1 id="making-new-gdc-program">
+    <title>Making a New GDC Program</title>
+    
+    <para>We need a Perl script to make a new program.</para>
+  </sect1>
+</article>
