@@ -105,9 +105,6 @@ define macro llvm-glue-definer
   { define llvm-glue ?class-name:name () ?rest:* end }
   => { define llvm-glue ?class-name (?class-name) ?rest end }
 
-
-
-
   { define llvm-glue ?class-name:name (?name-as-C++:name) end }
   => { }
 
@@ -129,17 +126,18 @@ define macro llvm-glue-definer
      }
 
   accessor:
-  { make, (?keyword-args:*), ?pass-args:* } => { [ make; (?keyword-args); (?pass-args) ] }
-
-  { ?:name, () => () } => { [ ?name; (); () ] }
-  
+    { make, (?keyword-args:*), ?pass-args:* } => { [ make; (?keyword-args); (?pass-args) ] }
+    { ?:name, () => () } => { [ ?name; (); () ] }
   
  name-as-C++:
    { <llvm-module> } => { "Module" }
    { <llvm-value> } => { "Value" }
    { <llvm-type> } => { "Type" }
    { <llvm-return-instruction> } => { "ReturnInst" }
-// etc...
+   { <llvm-basic-block> } => { "BasicBlock" }
+   { <llvm-module> } => { "Module" }
+   { <llvm-function> } => { "Function" }
+   { <llvm-argument> } => { "Argument" }
 end;
 
 
@@ -200,15 +198,6 @@ define functional class <llvm-return-instruction>(<llvm-terminator-instruction>)
 end;
 
 
-/*
-define method make (c == <llvm-return-instruction>, #rest rest,
-		    #key atEnd :: <llvm-basic-block>)
- => (result :: <llvm-return-instruction>);
-  next-method(c, pointer: call-out("make_llvm_ReturnInst", ptr:, ptr: atEnd.raw-value));
-end;
-*/
-
-
 define llvm-glue <llvm-return-instruction> ()
   make, (atEnd :: <llvm-basic-block>), ptr: atEnd.raw-value;
 end;
@@ -228,7 +217,7 @@ define functional class <llvm-basic-block>(<llvm-value>)
   virtual slot terminator :: <llvm-instruction>;
 end;
 
-
+/*
 define method make (c == <llvm-basic-block>, #rest rest,
 		    #key name :: <byte-string> = "",
 			 into :: false-or(<llvm-function>),
@@ -236,7 +225,13 @@ define method make (c == <llvm-basic-block>, #rest rest,
  => (result :: <llvm-basic-block>);
   next-method(c, pointer: call-out("make_llvm_BasicBlock", ptr:, ptr: name.object-address, ptr: raw-value(into | $null-pointer), ptr: raw-value(before | $null-pointer)));
 end;
+*/
 
+define llvm-glue <llvm-basic-block> ()
+  make, (name :: <byte-string> = "",
+	 into :: false-or(<llvm-function>),
+	 before :: false-or(<llvm-basic-block>)), ptr: name.object-address, ptr: raw-value(into | $null-pointer), ptr: raw-value(before | $null-pointer);
+end;
 
 // #############
 // ### Functions
@@ -248,7 +243,7 @@ define functional class <llvm-function>(<llvm-global-value>)
   virtual slot next :: <llvm-function>;
 end;
 
-
+/*
 define method make (f == <llvm-function>, #rest rest, #key type :: <llvm-function-type>, name :: <byte-string> = "", module :: false-or(<llvm-module>))
  => (result :: <llvm-function>);
   next-method(f, pointer: call-out("make_llvm_Function", ptr:,
@@ -256,7 +251,31 @@ define method make (f == <llvm-function>, #rest rest, #key type :: <llvm-functio
 				   ptr: name.object-address,
 				   ptr: raw-value(module | $null-pointer)));
 end;
+*/
 
+define llvm-glue <llvm-function> ()
+  make, (type :: <llvm-function-type>,
+	 name :: <byte-string> = "",
+	 module :: false-or(<llvm-module>)), ptr: type.raw-value,
+					     ptr: name.object-address,
+					     ptr: raw-value(module | $null-pointer);
+end;
+
+
+// #############
+// ### Arguments
+
+define functional class <llvm-argument>(<llvm-value>)
+  
+end;
+
+define llvm-glue <llvm-argument> ()
+  make, (type :: <llvm-type>,
+	 name :: <byte-string> = "",
+	 func :: false-or(<llvm-function>)), ptr: type.raw-value,
+					     ptr: name.object-address,
+					     ptr: raw-value(func | $null-pointer);
+end;
 
 
 // ###########
@@ -273,15 +292,17 @@ define functional class <llvm-module>(<llvm-object>)
 */
 end;
 
-
+/*
 define method make (m == <llvm-module>, #rest rest, #key name :: <byte-string> = "")
  => (result :: <llvm-module>);
   next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: name.object-address));
 end;
+*/
 
 define llvm-glue <llvm-module> ()
   delete, () => ();
   dump, () => ();
+  make, (name :: <byte-string> = ""), ptr: name.object-address;
 end;
 
 
@@ -300,10 +321,14 @@ define method emit-tlf-gunk
   let void = make (<llvm-primitive-type>, id: VoidTyID:);
   void.dump;
   
-  let func = make(<llvm-function-type>, return-type: void, argument-types: #[], variadic: #t);
+  let inttype = make(<llvm-primitive-type>, id: IntTyID:);
+  let argument-types = vector(inttype);
+  
+  let func = make(<llvm-function-type>, return-type: void, argument-types: argument-types, variadic: #t);
   func.dump;
   
   let f = make(<llvm-function>, name: "main", type: func, module: m);
+  make(<llvm-argument>, type: inttype, name: "foo", func: f);
 
   let bb = make(<llvm-basic-block>, name: "body", into: f);
   make(<llvm-return-instruction>, atEnd: bb);
