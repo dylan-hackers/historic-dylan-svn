@@ -33,6 +33,7 @@ define method dump-state(s :: <opt-state>, f :: <stream>) => ();
   for (s :: <byte-string> in s.transitions.reverse)
     format(f, "%s", s);
   end;
+  format(f, "\n");
   force-output(f);
 end method dump-state;
 

@@ -126,6 +126,9 @@ define function bgh-parse(s :: <byte-string>)
       ch ~= '<' =>
 	// normal text
 	if (is-space?(ch))
+	  unless (curr-state.typewriter)
+	    ch := ' ';
+	  end;
 	  let run-space-state = run-state.space-context.value;
 	  let space-state = curr-state.space-context.value;
 	  let same-space-context = run-space-state == space-state;
