@@ -16,16 +16,39 @@ copyright: LGPL
  * 
  * The parse-foo clauses contain a numeric reference to the associated
  * production in the specification.
+ *
+ * prerequisit:  the meta library (currently at gd/examples/meta/)
  * 
  * Useful for the understanding of this parser:
  *
  *   http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html
- *   ftp://ftp.gwydiondylan.org/pub/gd/contributions/meta-0.5.tar.gz
  *
  */
 
 // forward declarations
 
+//    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
+//    
+// I really wonder if this isn't abuse of the Dylan type system...
+//
+define constant <ascii-letter> = 
+    one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+           'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+
+define constant <digit> = 
+    one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+define constant <letter> = <ascii-letter>;
+
+define constant <pub-id-char-without-quotes> =
+  type-union(<ascii-letter>, <digit>, 
+             one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
+                    '-', '(', ')', '+', ',', '.', '/', ':', '=',
+                    '?', ';', '!', '*', '#', '@', '$', '_', '%'));
+
+define constant <pub-id-char> =
+  type-union(<pub-id-char-without-quotes>, singleton('\''));
 //    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
 //
 define constant <version-number> =
@@ -655,29 +678,6 @@ define method parse-system-literal(string, #key start = 0, end: stop)
     values(index, #t);
   end with-meta-syntax;  
 end method parse-system-literal;
-
-//    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
-//    
-// I really wonder if this isn't abuse of the Dylan type system...
-//
-define constant <ascii-letter> = 
-    one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-           'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-
-define constant <digit> = 
-    one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-define constant <letter> = <ascii-letter>;
-
-define constant <pub-id-char-without-quotes> =
-  type-union(<ascii-letter>, <digit>, 
-             one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
-                    '-', '(', ')', '+', ',', '.', '/', ':', '=',
-                    '?', ';', '!', '*', '#', '@', '$', '_', '%'));
-
-define constant <pub-id-char> =
-  type-union(<pub-id-char-without-quotes>, singleton('\''));
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
 //
