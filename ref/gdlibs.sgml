@@ -2248,11 +2248,13 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	of covering yourself with glory, hint hint.
       </para>
   
+<!--
       <dylanfunctiondef>
   	<defname> alpha? </defname>
   	<defsummary> Synonym for alphabetic? </defsummary>
+	<defdescription> </defdescription>
       </dylanfunctiondef>
-  
+  -->
       <dylanfunctiondef>
   	<defname> alphabetic? </defname>
   	<defsummary>
@@ -2263,6 +2265,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	    <paramname> character </paramname>
   	    <paramtype> &lt;character&gt; </paramtype>
   	  </param>
+	</defparameters>
   	<defreturns>
   	  <param>
   	    <paramname> answer </paramname>
@@ -2527,7 +2530,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	<defdescription>
   	  <para>
   	    <function> byte-character? </function> will return true if
-  	    <dlit>as(<integer>, character)</dlit> returns less than
+  	    <dlit>as(&lt;integer&gt;, character)</dlit> returns less than
   	    256.  I don't know enough about Unicode and character set
   	    encodings to say what this means.
   	  </para>
@@ -2663,11 +2666,11 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	  </keyparam>
   	</defparameters>
   	<defreturns>
-  	  <paramname> digit </paramname>
-  	  <paramtype> &lt;character&gt; </paramtype>
-  	  <paramsummary>
-  	    The returned digit is an alphanumeric character.
-  	  </paramsummary>
+	  <param>
+	    <paramname> digit </paramname>
+	    <paramtype> &lt;character&gt; </paramtype>
+	    <paramsummary>The returned digit is an alphanumeric character.</paramsummary>
+	  </param>
   	</defreturns>
   	<defdescription>
   	  <para>
@@ -2696,7 +2699,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	    <paramname> base </paramname>
   	    <paramtype> &lt;integer&gt; </paramtype>
   	    <paramsummary>
-  	      <dlit>base</dlit should be between 2 and 36, inclusive,
+  	      <dlit>base</dlit> should be between 2 and 36, inclusive,
   	      and is the radix of the string representation; it
   	      defaults to 10. An error will be signalled for radixes
   	      not in this range.
@@ -2784,6 +2787,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	This module contains some random, possibly-useful functions
   	to munge strings. 
       </para>
+    </sect1>
   
     <sect1 id="libs-string-extensions-substring-search">
       <title>The substring-search Module</title>
@@ -2791,6 +2795,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	This module contains some functions to do fast Boyer-Moore
   	searching on strings.
       </para>
+    </sect1>
   </chapter>
   
   <CHAPTER ID="libs-regular-expressions">
