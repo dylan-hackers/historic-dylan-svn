@@ -1,11 +1,13 @@
 @SysInclude { slides }
 @SysInclude { diag }
+@SysInclude { tbl }
 
 
 
 @OverheadTransparencies
     @Title { The Rocky Horror FER Show }
     @Author { Gabor Greif }
+    @DateLine { Yes }
     @Institution { Gwydion Dylan Maintainers }
     @PageOrientation { Landscape }
 //
@@ -161,8 +163,31 @@ To get to the first @F <dependency> objects, the more intuitive @F "\\dependents
 @Begin
 @IndentedDisplay @Diag
 {
+	10p @Font
+	@Tbl
+	aformat { @Cell A | @Cell B | @Cell C | @Cell D }
+	marginhorizontal { 0.2c }
+	marginvertical { 0.2c }
+	{
+		@Rowa
+		A { F:: @Ellipse { function } }
+		B { DD1:: @Ellipse { other dependency } }
+		@Rowa
+		B { D1:: @Ellipse { dependency 1 } }
+		C { D2:: @Ellipse { dependency 2 } }
+		@Rowa
+		A { CALL:: @Box { <operation: call> } }
+		C { C:: @Square }
+		@Rowa
+		B { D:: @Square }
+	}
 
-
+	12c @High 18c @Wide
+//
+@Arrow from { CALL } to { D1 }
+@Arrow from { D1 } to { D2 }
+@Arrow from { D1 } to { F }
+@Arrow from { F } to { DD1 }
 }
 @End @Overhead
 
