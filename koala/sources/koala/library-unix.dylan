@@ -9,17 +9,20 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define library koala
   use functional-dylan,
     import: { dylan-extensions };
-  use common-dylan;
+  use common-dylan,
+    import: { dylan, common-extensions, threads };
   use io,
     import: { format, standard-io, streams };
   use network,
     import: { sockets };
   use system,
-    import: { date, file-system, locators, operating-system, threads };
+    import: { date, file-system, locators, operating-system };
   //use ssl-sockets;  // until integrated into FD?
   use xml-parser;
   use xml-rpc-common;
   use dylan-basics;                             // basic dylan utils
+//  use sql-odbc;
+//  use win32-kernel;
 
   export koala;
   export koala-extender;
@@ -200,7 +203,20 @@ define module koala
   // Logging
   create
     // These are wrappers for the defs by the same name in the utilities module.
-    log-copious, log-verbose, log-debug, log-info, log-warning, log-error;
+    log-copious,
+    log-verbose,
+    log-debug,
+    log-info,
+    log-warning,
+    log-error;
+
+  // Configuration
+  create
+    process-config-element,
+    get-attr;
+  use xml-parser,
+    rename: { <element> => <xml-element> },
+    export: { <xml-element> };
 
   // XML-RPC
   create
@@ -276,6 +292,7 @@ define module httpi                             // http internals
   use xml-parser,
     prefix: "xml$";
   use xml-rpc-common;
+//  use win32-kernel, import: { LoadLibrary, FreeLibrary };
 end module httpi;
 
 define module dsp
@@ -308,6 +325,8 @@ define module dsp
   use file-system;
   use operating-system;
   //use ssl-sockets;
+//  use sql-odbc,
+//    prefix: "sql$";
 
   export
     <page>,                      // Subclass this using the "define page" macro
@@ -384,7 +403,7 @@ define module dsp
     slot-init-keyword,
     slot-required?,
     db-type-to-slot-type,
-    record-table-name,
+    record-table-name;
 */
 end module dsp;
 
