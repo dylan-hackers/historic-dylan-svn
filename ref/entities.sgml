@@ -30,6 +30,13 @@
 </affiliation>
 ">
 
+<!ENTITY person.auclair "
+<firstname>Douglas</firstname><surname>Auclair</surname>
+<affiliation>
+  <address><email>dauclair@hotmail.com</email></address>
+</affiliation>
+">
+
 <!-- Original Gwydion People -->
 
 <!ENTITY person.rstockton "

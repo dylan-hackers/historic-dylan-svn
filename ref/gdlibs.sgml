@@ -3591,7 +3591,9 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     <DOCINFO>
       <TITLE>Transcendental Library</TITLE>
       <DATE>November 11, 2000</DATE>
-      <EDITOR>&person.dauclair;</EDITOR>
+      <AUTHORGROUP>
+	<AUTHOR>&person.dauclair;</AUTHOR>
+      </AUTHORGROUP>
     </DOCINFO>
     <TITLE>The Transcendental Library</TITLE>
     <para>
