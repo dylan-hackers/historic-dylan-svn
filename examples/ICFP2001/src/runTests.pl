@@ -7,6 +7,7 @@
        tests/test4
        tests/test5
        tests/test6
+       tests/test8
        tests/test7
        tests/example.txt
        tests/big
