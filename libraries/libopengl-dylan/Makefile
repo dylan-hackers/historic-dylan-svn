@@ -1,4 +1,4 @@
-INSTALLPATH=$(shell d2c --compiler-info | grep D2C_RUNTIME_SUBDIR | sed 's/_DCI_D2C_RUNTIME_SUBDIR=//' | sed s'/ //g')
+INSTALLPATH=$(shell d2c --compiler-info | grep _DCI_D2C_DYLAN_USER_DIR | sed 's/_DCI_D2C_DYLAN_USER_DIR=//' | sed 's/\/dylan-user//' | sed s'/ //g')
 
 ifeq ($(OSTYPE), darwin)
 	LIDFILE=macosx-opengl.lid
@@ -36,6 +36,6 @@ clean:
 	-rm -rf .libs
 
 install: opengl.lib.du 
-	libtool --mode=install /usr/bin/install -c libopengl-dylan.la $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)/libopengl-dylan.la
-	libtool --finish $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)
-	/usr/bin/install -c opengl.lib.du $(DESTDIR)/usr/lib/dylan/$(INSTALLPATH)/opengl.lib.du
+	libtool --mode=install /usr/bin/install -c libopengl-dylan.la $(INSTALLPATH)/libopengl-dylan.la
+	libtool --finish $(INSTALLPATH)
+	/usr/bin/install -c opengl.lib.du $(INSTALLPATH)/opengl.lib.du
