@@ -16,3 +16,5 @@ Write modules to solve:
 - we could make agents more fault-tolerant if we caught all errors and just restarted our strategy
 - function to get cpu time
 - debug() as an empty function
+
+- Add a way to clear the path-cache in find-path.
