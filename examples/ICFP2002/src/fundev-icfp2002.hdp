@@ -3,14 +3,18 @@ format-version:	2
 library:	icfp2002
 files:	fd-icfp2002-exports
 	fd-compat
+	utils
 	point
 	board
 	path
 	robot
 	robot-agent
-	dumbot
-	package
 	command
+	dumbot
+	thomas
+	gabot
+	pushbot
+	package
 	messages
 	icfp2002
 base-address:	0x63DC0000

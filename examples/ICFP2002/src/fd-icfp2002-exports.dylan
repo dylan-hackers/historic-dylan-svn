@@ -37,19 +37,25 @@ end module fd-compat;
 define module board
   use common-dylan;
   use streams;
+  use standard-io;
+  use io;
   use format;
   use print, import: {print-object};
   
   export
-    <state>, board, robots, packages, packages-at, bases, bases-setter,
+    <state>, board, robots, packages, bases, bases-setter, packages-at, robot-at,
     <board>,
     <coordinate>, <point>, x, y, point,
-    send-board, receive-board,
-    width, height, passable?,
+    send-board,
+    width, height, passable?, deadly?,
     <terrain>, <wall>, <water>, <base>, <space>,
-    <package>, id, weight, location, dest, at-destination?, free-packages,
-    <robot>, id, capacity, inventory, location, capacity-left,
+    <package>, id, weight, dest, at-destination?, free-packages, carrier,
+    <robot>, id, capacity, capacity-setter, inventory, location, capacity-left, money,
+    copy-package,
     add-robot,
+    find-robot,
+    copy-robot,
+    find-package,
     add-package;
 end module board;
 
@@ -69,6 +75,7 @@ end module path;
 define module command
   use common-dylan;
   use board, import: { <point> };
+  use format;
 
   export
     $north,
@@ -76,11 +83,11 @@ define module command
     $east,
     $west,
     <direction>,
-    <command>, bid,
+    <command>, bid, robot-id,
     <move>, direction,
     <pick>, package-ids,
     <drop>,
-    <transport>;
+    <transport>, transport-location;
 end module command;
 
 define module messages
@@ -93,6 +100,7 @@ define module messages
   use board;
   use command;
   use utils;
+  use client;
 
   export
 //    <message-error>,
@@ -122,11 +130,18 @@ define module client
   use command;
   use path;
   use utils;
+  use format-out;
+  use streams;
+  use standard-io;
 
   export
     <robot-agent>,
+    agent-id,
     <dumbot>, <dumber-bot>,
     <dumber-bot>,
+    <pushbot>,
+    <thomas>,
+    <gabot>,
     generate-next-move;
 end module client;
 
