@@ -1,6 +1,6 @@
 module: ants
 
-define functional class <position> (<object>)
+define /* functional */ class <position> (<object>)
   constant slot x :: <integer> = 0, init-keyword: x:;
   constant slot y :: <integer> = 0, init-keyword: y:;
 end class <position>;
@@ -90,21 +90,21 @@ define class <cell> (<object>)
   slot rocky :: <boolean> = #f;
   slot ant :: false-or(<ant>) = #f;
   slot food :: <integer> = 0, init-keyword: food:;
-  slot red-markers :: <vector> = make(<vector>, size: 5);
-  slot black-markers :: <vector> = make(<vector>, size: 5);
+  slot red-marker :: <vector> = make(<vector>, size: 5);
+  slot black-marker :: <vector> = make(<vector>, size: 5);
   slot anthill :: false-or(<color>) = #f, init-keyword: anthill:;
 end class <cell>;
 
 define variable *world* :: <array> = make(<array>, dimensions: #[8, 8]);
 
 define function cell-at(p :: <position>)
-  => (<cell>)
+  => (c :: <cell>)
   *world*[p.x, p.y]
 end function cell-at;
 
 define function some-ant-is-at(p :: <position>)
  => (b :: <boolean>)
-  cell-at(p).ant | #t;
+  cell-at(p).ant | #f;
 end function some-ant-is-at;
 
 define function ant-at(p :: <position>)
@@ -194,9 +194,10 @@ define function read-map(s :: <stream>) => (result :: <array>);
           '8' => #(food:, 8);            
           '9' => #(food:, 9);
         end select;
-      *world*[xx, yy] := apply(make, <cell>, options);
+      result[xx, yy] := apply(make, <cell>, options);
     end for;
   end for;
+  result;
 end function read-map;
 
 define constant <marker> = limited(<integer>, min: 0, max: 5);
@@ -235,9 +236,9 @@ define function check-any-marker-at(p :: <position>, c :: <color>)
   => (present? :: <boolean>)
   let cell = cell-at(p);
   if(c == #"black") 
-    any?(identity, cell.black-marker[i])
+    any?(identity, cell.black-marker)
   else 
-    any?(identity, cell.red-marker[i])
+    any?(identity, cell.red-marker)
   end;
 end function check-any-marker-at;
 
@@ -260,7 +261,7 @@ define constant <ant-condition> = one-of(#"friend",
 
 define function cell-matches(p :: <position>, cond :: <ant-condition>, 
                              c :: <color>) => (yesno :: <boolean>)
-  if(rocky(p))
+  if(rocky(cell-at(p)))
     if(cond == #"rock") #t else #f end;
   else
     select(cond)
@@ -289,7 +290,7 @@ define function cell-matches(p :: <position>, cond :: <ant-condition>,
       #"marker5" =>
         check-marker-at(p, c, 0);
       #"foemarker" =>
-        check-marker-at(p, other-color(c));
+        check-any-marker-at(p, other-color(c));
       #"home" =>
         anthill-at(p, c);
       #"foehome" =>
@@ -302,7 +303,7 @@ define class <instruction> (<object>)
 end class <instruction>;
 
 define class <sense> (<instruction>)
-  slot sense-direction :: <direction>, required-init-keyword: direction:;
+  slot sense-direction :: <sense-direction>, required-init-keyword: direction:;
   slot state-true :: <integer>, required-init-keyword: state-true:;
   slot state-false :: <integer>, required-init-keyword: state-false:;
   slot cond :: <ant-condition>, required-init-keyword: condition:;
@@ -354,7 +355,7 @@ define function get-instruction(c :: <color>, s :: <integer>)
   end if[s];
 end function get-instruction;
 
-define function read-state-machine(s :: stream)
+define function read-state-machine(s :: <stream>)
   => (v :: <vector>)
   let v = make(<stretchy-vector>);
 
@@ -363,6 +364,7 @@ define function read-state-machine(s :: stream)
     let line = read-line(s);
     v[line-number] := parse-instruction(line);
   end while;
+  v
 end function read-state-machine;
 
 define function parse-instruction(s :: <byte-string>)
@@ -374,7 +376,7 @@ define function parse-instruction(s :: <byte-string>)
         end method sym;
 
   local method int(x)
-          string-to-integer(<symbol>, constituents[x])
+          string-to-integer(constituents[x])
         end method int;
 
   let opcode = sym(0);
@@ -411,7 +413,7 @@ define function adjacent-ants(p :: <position>, c :: <color>)
   => (count :: <integer>)
   let n = 0;
   for(d from 0 below 6)
-    let cel = adjacent_cell(p, d);
+    let cel = adjacent-cell(p, d);
     if(some-ant-is-at(cel) & color(ant-at(cel)) == c)
       n := n + 1;
     end if;
@@ -419,7 +421,7 @@ define function adjacent-ants(p :: <position>, c :: <color>)
   n
 end function adjacent-ants;
 
-define function check_for_surrounded_ant_at(p :: <position>)
+define function check-for-surrounded-ant-at(p :: <position>)
   if(some-ant-is-at(p))
     let a = ant-at(p);
     if(adjacent-ants(p, other-color(color(a))) >= 5)
@@ -427,7 +429,7 @@ define function check_for_surrounded_ant_at(p :: <position>)
       set-food-at(p, food-at(p) + 3 + if(has-food(a)) 1 else 0 end);
     end if;
   end if;
-end function check_for_surrounded_ant_at;
+end function check-for-surrounded-ant-at;
 
 define function check-for-surrounded-ants(p :: <position>)
   check-for-surrounded-ant-at(p);
@@ -441,7 +443,7 @@ define function step(aid :: <integer>)
     let p = find-ant(aid);
     let a = ant-at(p);
     if(resting(a) > 0)
-      set-resting(a, resting(a) - 1);
+      a.resting := resting(a) - 1;
     else
       let ins = get-instruction(color(a), state(a)); 
       select(ins by instance?)
@@ -452,48 +454,48 @@ define function step(aid :: <integer>)
                    else
                      ins.state-false
                    end if;
-          set-state(a, st);
+          a.state := st;
         <mark> =>
           set-marker-at(p, color(a), ins.marker);
-          set-state(a, ins.state);
+          a.state := ins.state;
         <unmark> =>
           clear-marker-at(p, color(a), ins.marker);
-          set-state(a, ins.state);
+          a.state := ins.state;
         <pickup> =>
           if(has-food(a) | food-at(p) = 0)
-            set-state(a, ins.state-failure);
+            a.state := ins.state-failure;
           else
             set-food-at(p, food-at(p) - 1);
-            set-has-food(a, #t);
-            set-state(a, ins.state-success);
+            a.has-food := #t;
+            a.state := ins.state-success;
           end if;
         <drop> =>
           if(has-food(a))
             set-food-at(p, food-at(p) + 1);
-            set-has-food(a, #f);
+            a.has-food := #f;
           end if;
-          set-state(a, ins.state);
+          a.state := ins.state;
         <turn> =>
-          set-direction(a, turn(ins.left-right, direction(a)));
-          set-state(a, ins.state);
+          a.direction := turn(ins.left-or-right, direction(a));
+          a.state := ins.state;
         <move> =>
           let newp = adjacent-cell(p, direction(a));
-          if(rocky(newp) || some-ant-is-at(newp))
-            set-state(a, ins.state-failure);
+          if(rocky(cell-at(newp)) | some-ant-is-at(newp))
+            a.state := ins.state-failure;
           else
             clear-ant-at(p);
             set-ant-at(newp, a);
-            set-state(a, ins.state-success);
+            a.state := ins.state-success;
             a.resting := 14;
-            check_for_surrounded-ants(newp);
+            check-for-surrounded-ants(newp);
           end if;
         <flip> =>
-          let st = if(randomintins.probability == 0)
+          let st = if(randomint(ins.probability) == 0)
                      ins.state-success
                    else
                      ins.state-failure
                    end if;
-          set-state(a, st);
+          a.state := st;
       end select;
     end if;
   end if;
@@ -524,10 +526,11 @@ end;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/*
 define function play-game(red-brain :: <string>,
                           black-brain :: <string>,
                           world :: <string>)
-  => ()
+ => ()
   with-open-file(brain = red-brain)
     *red-brain* := read-state-machine(brain)
   end with-open-file;
@@ -538,3 +541,4 @@ define function play-game(red-brain :: <string>,
     *world* := read-map(world-stream)
   end with-open-file;
 end function play-game;
+*/
