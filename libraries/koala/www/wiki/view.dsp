@@ -8,6 +8,7 @@
 <body>
   <%dsp:include url="header.dsp"/>
   <div id="content">
+    <h1><wiki:show-title v="true" for-url="false"/></h1>
     <wiki:show-content format="html"/>
   </div>
   <%dsp:include url="footer.dsp"/>
