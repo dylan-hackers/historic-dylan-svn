@@ -28,6 +28,7 @@
 	RM		?= rm -f ;
 
 	NOARSCAN	?= true ;
+	NOARUPDATE	?= true ;
 
 #
 # Rules
