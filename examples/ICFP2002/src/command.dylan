@@ -128,6 +128,9 @@ define method process-command(state :: <state>, command :: <drop>)
   let loc = find-robot(state, command.robot-id).location;
   for(pid in command.package-ids)
     let p = find-package(state, pid, create: #t);
+    let bot = find-robot(state, command.robot-id);
+    let new-score = bot.score;
+    
     if (loc = p.dest) // We are at the destination, so kill the package
       let packages* = remove(state.packages, p,
                              test: method (p*, p) p*.id = p.id end method);
@@ -136,17 +139,18 @@ define method process-command(state :: <state>, command :: <drop>)
                     bases: state.bases,
                     robots: state.robots,
                     packages: packages*);
+      if(p.weight)
+        new-score := new-score + p.weight;
+      end if;
     else // otherwise just put the package on the floor.
       state := add-package(state, copy-package(p,
                                                new-location: loc,
                                                new-carrier: #f));
     end if;
-    let bot = find-robot(state, command.robot-id);
     let new-money = bot.money & bot.money - abs(command.bid);
-//    let new-score = if(p.weight) bot.score else bot.score + p.weight end;
     let new-inventory = remove(bot.inventory, p,
                                test: method (p*, p) p*.id = p.id end method);
-    let bot* = copy-robot(bot, new-inventory: new-inventory, new-money: new-money);
+    let bot* = copy-robot(bot, new-inventory: new-inventory, new-money: new-money, new-score: new-score);
     state := add-robot(state, bot*);
   end for;
   state;

@@ -46,7 +46,7 @@ define module board
     width, height, passable?, deadly?,
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, id, weight, location, dest, at-destination?, free-packages, carrier,
-    <robot>, id, capacity, capacity-setter, inventory, capacity-left, money,
+    <robot>, id, capacity, capacity-setter, inventory, capacity-left, money, score,
     terrain-at-point,
     copy-package,
     add-robot,
