@@ -26,7 +26,7 @@ define method configure-server ()
 
   // Default document root is <koala-root>/www (assuming that the example
   // project is running).
-  // This may be changed in config.xml
+  // This may be changed in config.xml (eventually)
   *document-root* := subdirectory-locator(app-dir, "www");
   log-info("Document root is %s", *document-root*);
 
