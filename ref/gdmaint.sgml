@@ -2,7 +2,7 @@
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
 ]>
-<BOOK>
+<BOOK id="gdmaint">
   <title>Gwydion Dylan Porting and Maintenance Guide</title>
   <titleabbrev>Maintenance Guide</titleabbrev>
 
@@ -19,7 +19,7 @@
     </bookbiblio>
   </bookinfo>
 
-  <CHAPTER>
+  <CHAPTER id="gdmaint-introduction">
     <TITLE>Introduction</TITLE>
 
     <PARA>This manual serves as a guide to porting and maintaining
@@ -51,31 +51,31 @@
 
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER id="gdmaint-porting">
     <TITLE>Porting Gwydion Dylan to a New Platform</TITLE>
 
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER id="gdmaint-mindy-internals">
     <TITLE>Mindy Internals Guide</TITLE>
 
     <PARA>FIXME: to be supplied later.</PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER id="gdmaint-d2c-internals">
     <TITLE>D2c Internals Guide</TITLE>
 
     <PARA>FIXME: to be supplied later</PARA>
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER id="gdmaint-melange-internals">
     <TITLE>Melange Internals Guide</TITLE>
 
     <PARA>FIXME: to be supplied later</PARA>
   </CHAPTER>
 
-  <APPENDIX>
+  <APPENDIX id="gdmaint-style">
     <TITLE>Gwydion Project Coding Style Guide</TITLE>
 
     <NOTE>
@@ -95,7 +95,7 @@
     someone has deviated from a mandated style point, then you may
     convert the code to be the mandated style.</PARA>
 
-    <SECT1>
+    <SECT1 id="gdmaint-style-recommended">
       <TITLE>Recommended</TITLE>
 
       <SECT2>
@@ -382,7 +382,7 @@ end;</PROGRAMLISTING>
       </SECT2>
     </SECT1>
     
-    <SECT1>
+    <SECT1 id="gdmaint-style-mandated">
       <TITLE>Mandated</TITLE>
       
       <SECT2>

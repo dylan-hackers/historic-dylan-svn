@@ -19,7 +19,7 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf
 	rm -rf $@
 	mkdir $@
 	(cd $@; \
-	  jade -E 5 -c ../CATALOG -d ../dylandoc.dsl#html -t sgml -ihtml ../$<)
+	 jade -E 5 -c ../CATALOG -d ../dylandoc.dsl#html -t sgml -ihtml ../$<)
 
 # Make a single HTML file.
 %.html: %.sgml $(STANDARD_DEPS)

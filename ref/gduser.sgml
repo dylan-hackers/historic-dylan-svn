@@ -368,7 +368,7 @@ end method main;
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.8 1998/12/14 18:55:50 andreas Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.9 1999/01/22 21:50:08 emk Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
@@ -1817,7 +1817,7 @@ end interface;</programlisting>
       results.</para>
     </SECT1>
 
-    <SECT1 ID="pointer-clauses">
+    <SECT1 ID="melange-pointer-clauses">
       <title>Pointer Clauses</title>
 
       <para>"Pointer clauses" modify the definitions of pointer
