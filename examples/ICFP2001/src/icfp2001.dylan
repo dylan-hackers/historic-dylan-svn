@@ -261,7 +261,7 @@ define function timeout() => ();
 end timeout;
 
 define inline method check-timeout() => ();
-  if($end-time$ - get-universal-time() < 10)
+  if($end-time$ < get-universal-time())
     timeout();
   end if;
 end method check-timeout;
@@ -271,7 +271,7 @@ end;
 
 define function main(name, arguments)
   let start-time :: <integer> = get-universal-time();
-  $end-time$ := start-time + string-to-integer(arguments[0]);
+  $end-time$ := start-time + string-to-integer(arguments[0]) - 30;
 
   let input-stream = *standard-input*;
 
@@ -317,8 +317,8 @@ define function main(name, arguments)
     debug("Generating output.\n");
     generate-output(parse-tree).concatenate-strings.see-if-best;
     debug("Generating optimized output.\n");
-    iterate-generate-optimized-output(parse-tree);
-//    optimize-output(parse-tree).concatenate-strings.see-if-best;
+//    iterate-generate-optimized-output(parse-tree);
+    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)
     debug("Out of time!\n");

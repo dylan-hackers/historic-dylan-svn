@@ -65,10 +65,14 @@ define function compress!(v :: <stretchy-object-vector>) => ();
 end function compress!;
 
 
+define class <too-many-states> (<condition>)
+end;
+
+
 define function optimize-output(input :: <stretchy-object-vector>)
  => strings :: <list>;
 
-  debug("starting optimize-output\n");
+//  debug("starting optimize-output\n");
 
   let states :: <stretchy-object-vector> = make(<stretchy-vector>);
   add!(states, make(<opt-state>));
@@ -76,32 +80,40 @@ define function optimize-output(input :: <stretchy-object-vector>)
   let num-steps = input.size;
   let last-pct = 0;
   for (fragment :: <attributed-string> keyed-by i in input)
-    debug("\n--------------------------------\n");
-    dump-attributed-string(fragment);
-    debug("#starting states %d\n", states.size);
-    dump-states(states);
-    debug("--------------------------------\n");
+    check-timeout();
+    //debug("\n--------------------------------\n");
+    //dump-attributed-string(fragment);
+    //debug("#starting states %d\n", states.size);
+    //dump-states(states);
+    //debug("RAM use = %d\n", GC-get-heap-size());
+    //debug("--------------------------------\n");
 
     let desired = fragment.attributes;
     let text = fragment.string;
     let next-states :: <stretchy-object-vector> = make(<stretchy-vector>);
-    for (state :: <opt-state> in states)
-      check-timeout();
-      emit-transitions(state.attr, desired, text,
-		       state.tag-stack, state.attr-stack,
-		       state.stack-depth, state.stack-cost,
-		       state.transitions, state.output-size,
-		       0, 2, // gratuitous pop limit
-		       #f, next-states);
+    
+    block ()
+      for (state :: <opt-state> in states)
+	check-timeout();
+	emit-transitions(state.attr, desired, text,
+			 state.tag-stack, state.attr-stack,
+			 state.stack-depth, state.stack-cost,
+			 state.transitions, state.output-size,
+			 0, 2, // gratuitous pop limit
+			 #f, next-states);
+      end;
+    exception (<too-many-states>)
+      debug("too many states generated ... continuing\n");
     end;
 
-    dump-states(next-states);
-    debug("\n .. about to prune identical stacks ...\n");
+    //dump-states(next-states);
+    //debug("\n .. about to prune identical stacks ...\n");
 
     next-states :=
       sort!(next-states,
 	    test: method(left :: <opt-state>, right :: <opt-state>)
 		   => left-less :: <boolean>;
+		      check-timeout();
 		      if (left.stack-cost ~= right.stack-cost)
 			left.stack-cost < right.stack-cost
 		      elseif (left.stack-depth ~= right.stack-depth)
@@ -130,8 +142,8 @@ define function optimize-output(input :: <stretchy-object-vector>)
     end for;
     compress!(next-states);
 
-    dump-states(next-states);
-    debug("\n\n .. about to prune states that can be got to more easily ...\n\n");
+    //dump-states(next-states);
+    //debug("\n\n .. about to prune states that can be got to more easily ...\n\n");
 
     // first find what is the shortest if you close all its tags...
     let shortest = 999999999;
@@ -142,7 +154,7 @@ define function optimize-output(input :: <stretchy-object-vector>)
       end;
     end;
 
-    debug("smallest is %d bytes\n", shortest);
+    //debug("smallest is %d bytes\n", shortest);
 
     // ... then delete anything vulnerable to it
     for (elt :: <opt-state> keyed-by i in next-states)
@@ -150,14 +162,14 @@ define function optimize-output(input :: <stretchy-object-vector>)
       if (shortest <= vulnerability &
 	    // be careful not to delete the shortest!
 	    elt.stack-depth ~== 0)
-	debug("deleting item %d\n", i);
+	//debug("deleting item %d\n", i);
 	next-states[i] := #f;
       end;
     end;
     compress!(next-states);
 
-
-    debug("\n\ntrying to do more accurate transition cost estimate\n\n");
+#if (wont)
+    //debug("\n\ntrying to do more accurate transition cost estimate\n\n");
 
     // I don't know what sort order to use here, so try to wing it
     // let's try output-size descending
@@ -167,6 +179,7 @@ define function optimize-output(input :: <stretchy-object-vector>)
 		   => left-less :: <boolean>;
 		      left.output-size > right.output-size;
 		  end);
+
     dump-states(next-states);
 
     local
@@ -246,13 +259,25 @@ define function optimize-output(input :: <stretchy-object-vector>)
     end for;
     compress!(next-states);
 
-    let limit = 100;
+#endif
+
+    next-states :=
+      sort!(next-states,
+	    test: method(left :: <opt-state>, right :: <opt-state>)
+		   => left-less :: <boolean>;
+		      let l = left.output-size + left.stack-cost;
+		      let r = right.output-size + right.stack-cost;
+		      if (l ~== r)
+			l < r;
+		      else
+			left.stack-depth < right.stack-depth;
+		      end;
+		  end);
+
+    let limit = 1000;
     if (next-states.size > limit)
-      debug("\n\nThrowing away all but %d items\n\n", limit);
-      for (i from 0 below next-states.size - limit)
-	next-states[i] := #f;
-      end;
-      compress!(next-states);
+      //debug("\n\nThrowing away all but %d items\n\n", limit);
+      next-states.size := limit;
     end;
 
     states := next-states;
@@ -263,11 +288,11 @@ define function optimize-output(input :: <stretchy-object-vector>)
     //end;
   end;
 
-  debug("\n\nFinal states\n------------------------------\n");
-  debug("#final states = %d\n", states.size);
+  //debug("\n\nFinal states\n------------------------------\n");
+  //debug("#final states = %d\n", states.size);
   let best-state :: false-or(<opt-state>) = #f;
   for (state :: <opt-state> keyed-by i in states)
-    dump-state(i, state);
+    //dump-state(i, state);
     for (e :: <tag> in state.tag-stack)
       let s = e.close-tag;
       state.transitions := pair(s, state.transitions);
@@ -275,7 +300,7 @@ define function optimize-output(input :: <stretchy-object-vector>)
     end;
 
     if (~best-state | state.output-size < best-state.output-size)
-      debug("  ^-- new best\n");
+      //debug("  ^-- new best\n");
       best-state := state;
     end;
   end for;
@@ -336,7 +361,7 @@ define function emit-transitions
     method pop-tag() => ();
       let tag :: <tag> = tag-stack.head;
       let tag-text = tag.close-tag;
-      report(tag-text);
+      //report(tag-text);
       emit-transitions
 	(attr-stack.head, to, text,
 	 tag-stack.tail,
@@ -352,7 +377,7 @@ define function emit-transitions
       if (tag ~== dont-push-tag)
 	let tag-text = tag.open-tag;
 	let new-attr = apply-op(from, tag);
-	report(tag-text);
+	//report(tag-text);
 	emit-transitions
 	  (new-attr, to, text,
 	   pair(tag, tag-stack),
@@ -371,6 +396,8 @@ define function emit-transitions
 //  describe-attributes(to);
 //  debug("\n");
 
+  check-timeout();
+
   block (exit)
     if (from.value = to.value)
       // same attributes .. finally output the new state
@@ -384,6 +411,9 @@ define function emit-transitions
 	     stack-depth: stack-depth,
 	     stack-cost: stack-cost);
       add!(next-states, new-state);
+      if (next-states.size >= 2000)
+	signal(make(<too-many-states>));
+      end;
       exit();
     end;
 
@@ -398,7 +428,7 @@ define function emit-transitions
     if (tags-to-clear > 0)
       // 2 seems a good compromise
       //let then-rebuild = count-tags-to-clear(to, make(<attribute>));
-      if (tags-to-clear > 2)
+      if (tags-to-clear > 1)
 	push-tag(tag-PL);
       end;
 
