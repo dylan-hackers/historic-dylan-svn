@@ -4,40 +4,44 @@ authors: Andreas Bogk, Chris Double, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
 define class <generator-state> (<object>)
-  slot open-tags;
-  slot attribute-stack;
-  slot current-output;
-  slot remaining-output;
+  slot open-tags :: <list> = #();
+  slot attribute-stack :: <list> = #();
+  slot current-output :: <list> = #();
+  slot remaining-output :: <subsequence>;
 end class <generator-state>;
 
-define method initialize(obj :: <generator-state>, #key clone, output, #all-keys)
+define sealed method initialize
+    (obj :: <generator-state>, #key clone, output, #all-keys)
+ => ();
   if(clone)
     obj.open-tags        := clone.open-tags;
     obj.attribute-stack  := clone.attribute-stack;
     obj.current-output   := clone.current-output;
     obj.remaining-output := clone.remaining-output;
   else
-    obj.open-tags        := #();
     obj.attribute-stack  := list(make(<attribute>));
-    obj.current-output   := #();
-    obj.remaining-output := output;
+    obj.remaining-output := subsequence(output);
   end;
 end method;
     
-define method generate-output(input)
+define method generate-output(input :: <stretchy-object-vector>)
+ => strings :: <list>;
   let state = make(<generator-state>, output: input);
   force-output(*standard-error*);
-  local method pop-tag()
-          state.current-output := pair(state.open-tags.head.close-tag, state.current-output);
-          state.open-tags := state.open-tags.tail;
-          state.attribute-stack := state.attribute-stack.tail;
-        end;
-  local method push-tag(tag)
-          state.current-output := pair(tag.open-tag, state.current-output);
-          state.open-tags := pair(tag, state.open-tags);
-          state.attribute-stack := pair(apply-op(state.attribute-stack.head, tag), 
-                                        state.attribute-stack);
-        end;
+  local
+    method pop-tag()
+      state.current-output :=
+	pair(state.open-tags.head.close-tag, state.current-output);
+      state.open-tags := state.open-tags.tail;
+      state.attribute-stack := state.attribute-stack.tail;
+    end,
+  
+    method push-tag(tag)
+      state.current-output := pair(tag.open-tag, state.current-output);
+      state.open-tags := pair(tag, state.open-tags);
+      state.attribute-stack :=
+	pair(apply-op(state.attribute-stack.head, tag), state.attribute-stack);
+    end;
 
 
   while(state.remaining-output.size > 0)
@@ -55,7 +59,8 @@ define method generate-output(input)
 //    force-output(*standard-error*);
 
     if(from.value = to.value)
-      state.current-output := pair(state.remaining-output[0].string, state.current-output);
+      state.current-output :=
+	pair(state.remaining-output[0].string, state.current-output);
       state.remaining-output := subsequence(state.remaining-output, start: 1);
     elseif(state.attribute-stack ~= #() 
              & state.attribute-stack.tail ~= #() 
@@ -78,10 +83,12 @@ define method generate-output(input)
     elseif(from.color & ~to.color)
       pop-tag();
     elseif(from.font-size ~= to.font-size &
-             member?(to, state.attribute-stack, test: method(x, y) x.font-size = y.font-size end))
+             member?(to, state.attribute-stack,
+		       test: method(x, y) x.font-size = y.font-size end))
       pop-tag();
     elseif(from.color ~= to.color &
-             member?(to, state.attribute-stack, test: method(x, y) x.color = y.color end))
+             member?(to, state.attribute-stack,
+		       test: method(x, y) x.color = y.color end))
       pop-tag();
     elseif(~from.bold & to.bold)
       push-tag(tag-BB);
