@@ -1,0 +1,96 @@
+<%@ taglib uri="btrack.tld" prefix="bt" %>
+<jsp:useBean id="record" class="sigue.btrack.Product" scope="session"/>
+
+<html>
+<head><title>Bug Tracker - Admin - Edit Product</title></head>
+
+<body bgcolor="#FFFFFF">
+
+<jsp:include page="header.html" flush="true"/>
+
+<bt:errorsOrMessages/>
+
+<center><h1>Edit Product</h1></center>
+
+<form name="editProductForm" method="post" action="record?action=save">
+  <input type="hidden" name="type" value="Product">
+  <table border="0">
+    <tr>
+      <td width="5%">&nbsp;</td>
+      <td nowrap width="95%" colspan="3">
+        <span class="fieldTitle">Product name:</span>
+        <br><input name="name" type="text" size="30" maxlen="30"
+                   value="<jsp:getProperty name="record" property="name"/>">
+      </td>
+    </tr>
+    <tr>
+      <td width="5%">&nbsp;</td>
+      <td width="95%" colspan="3">
+        <span class="fieldTitle">User with primary responsibility:</span>
+        <br><input name="owner" type="text" size="30" maxlen="30"
+                   value="<jsp:getProperty name="record" property="owner"/>">
+      </td>
+    </tr>
+    <tr>
+      <td width="5%">&nbsp;</td>
+      <td width="95%" colspan="3">
+        <input name="Submit" type="Submit" value="Submit">
+      </td>
+    </tr>
+  </table>
+
+</form>
+
+<p>
+
+<a href="record?id=new&type=Module&origin=edit-product&productid=<jsp:getProperty name="record" property="id"/>">Click here to create a new module for this product.</a>
+<br>Click any module name to edit that module.
+
+<p>
+
+<table border="1" width="95%" align="center">
+  <tr>
+    <th nowrap>Name</th>
+  </tr>
+  <bt:iterate name="all_modules" class="sigue.btrack.Module">
+    <bt:noRowsMessage>
+      <tr><td>This product has no modules to display.</td></tr>
+    </bt:noRowsMessage>
+    <bt:row>
+      <jsp:useBean id="item" scope="page" class="sigue.btrack.Module"/>
+      <tr>
+        <td><a href="record?id=<jsp:getProperty name="item" property="id"/>&type=Module&productid=<jsp:getProperty name="record" property="id"/>"><jsp:getProperty name="item" property="name"/></a></td>
+      </tr>
+    </bt:row>
+  </bt:iterate>
+</table>
+
+<p>
+
+<a href="record?id=new&type=Version&origin=edit-product&productid=<jsp:getProperty name="record" property="id"/>">Click here to create a new version for this product.</a>
+<br>Click any version name to edit that version.
+
+<p>
+
+<table border="1" width="95%" align="center">
+  <tr>
+    <th nowrap>Name</th>
+  </tr>
+  <bt:iterate name="all_versions" class="sigue.btrack.Version">
+    <bt:noRowsMessage>
+      <tr>This product has no versions to display.</td></tr>
+    </bt:noRowsMessage>
+    <bt:row>
+      <jsp:useBean id="item" scope="page" class="sigue.btrack.Version"/>
+      <tr>
+        <td><a href="record?id=<jsp:getProperty name="item" property="id"/>&type=Version&productid=<jsp:getProperty name="record" property="id"/>"><jsp:getProperty name="item" property="name"/></a></td>
+      </tr>
+    </bt:row>
+  </bt:iterate>
+</table>
+
+
+<jsp:include page="footer.html" flush="true"/>
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!-- ======================= Btrack build file ====================== -->
+
+<!--
+ Note: When using the "destdir" attribute in the <javac> task the "srcdir" attribute
+ must be set to the *root* of the source tree (i.e. srcdir="${jhd}") and the includes
+ should specify the path relative to there.  Otherwise Ant does a full recompile each
+ time because it can't find the .class files.
+-->
+
+<project name="btrack" default="dev" basedir="./">
+
+  <!-- set global properties for this build -->
+
+  <property name="build.compiler" value="jikes" />
+
+  <property name="build.compiler.emacs" value="on" />   <!-- make jikes use the +E flag -->
+ 
+  <!-- Tomcat requires class files to be under WEB-INF/classes. Note that the Tomcat
+       server.xml file needs to point to the directory containing the WEB-INF dir. -->
+
+  <property name="tomcat_btrack" value="${TOMCAT_HOME}/webapps/btrack" />
+
+  <property name="build"   value="${basedir}/build" />
+  <property name="web-inf" value="${build}/WEB-INF" />
+  <property name="classes" value="${web-inf}/classes" />
+
+  <property name="version" value="1.0" />
+  <property name="year"    value="2001" />
+
+
+
+  <!-- ============================ help ================================= -->
+
+  <target name="help">
+    <echo message="" />
+    <echo message="./build.bat [target name]" />
+    <echo message="-------------------------------------------------------------" />
+    <echo message="" />
+    <echo message="available targets are:" />
+    <echo message="" />
+    <echo message="dev        --> compiles directly into the TOMCAT directories" />
+    <echo message="dist       --> generates a .jar file" />
+    <echo message="doc        --> generates javadoc" />
+    <echo message="clean      --> cleans up the build directories" />
+    <echo message="help       --> display this help message" />
+    <echo message="" />
+    <echo message="-------------------------------------------------------------" />
+    <echo message="" />
+  </target>
+
+
+  <!-- ========================= basics ================================== -->
+
+  <target name="basics">
+    <mkdir dir="${classes}" />
+
+    <!-- The Tomcat application config file (e.g., servlet mappings) -->
+    <copy file="${basedir}/etc/web.xml" todir="${web-inf}" overwrite="no" />
+
+    <!-- Tomcat automatically adds anything in WEB-INF/lib to the classpath. -->
+<!--
+    <copy todir="${web-inf}/lib" overwrite="no">
+      <fileset dir="${basedir}/lib" includes="**/*.jar" />
+    </copy>
+-->
+
+  </target>
+
+
+
+  <!-- ============================ dev =============================== -->
+  <!-- Compile the .java files directly into the tomcat directory and 
+       copy all the other files over also.
+    -->
+  <target name="dev" depends="basics">
+    <javac srcdir="${basedir}/java" destdir="${tomcat_btrack}/WEB-INF/classes" debug="on">
+      <classpath>
+        <pathelement location="${tomcat_btrack}/WEB-INF/classes" />
+      </classpath>
+      <include name="${basedir}/java/*.java" />
+    </javac>
+  </target>
+
+
+
+  <!-- ============================ common =============================== -->
+
+  <target name="common" depends="taxonomy, basics">
+
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${basedir}" destdir="${classes}" debug="on">
+      <classpath>
+        <pathelement location="${classes}" />
+        <pathelement location="${basedir}/3rd-party/lib/oracle12.jar" />       <!-- Oracle drivers and such -->
+        <pathelement location="${basedir}/3rd-party/lib/xp.jar" />             <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />  <!-- javax.servlet.** -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-mail.jar" />     <!-- javax.mail etc -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-activation.jar" />  <!-- javax.activation.** -->
+      </classpath>
+      <include name="com/hotdispatch/common/**/*.java" />
+    </javac>
+
+    <!-- Tomcat expects any files accessed via URL to be in the top-level directory.
+         (e.g., the directory containing the WEB-INF directory.  -->
+    <copy todir="${dist}/common" overwrite="no">
+      <fileset dir="${basedir}/com/hotdispatch/common" includes="**/*.jsp, **/*.tld" />
+    </copy>
+
+    <!-- Put files that are accessed via getResourceAsStream() in their normal place
+         relative to the class files, so there's no big mystery (I hope).  -->
+    <copy todir="${classes}/com/hotdispatch/common"
+          overwrite="no">
+      <fileset dir="${basedir}/com/hotdispatch/common" includes="**/*.xml, **/*.props" />
+    </copy>
+
+  </target>
+
+
+  <!-- ============================ taxonomy ============================= -->
+
+  <target name="taxonomy" depends="basics">
+
+    <javac srcdir="${basedir}" destdir="${classes}" debug="on">
+      <classpath>
+        <pathelement location="${classes}" />
+        <pathelement location="${basedir}/3rd-party/lib/oracle12.jar" />       <!-- Oracle drivers and such -->
+        <pathelement location="${basedir}/3rd-party/lib/xp.jar" />             <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />  <!-- javax.servlet.** -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-mail.jar" />     <!-- javax.mail etc -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-activation.jar" />  <!-- javax.activation.** -->
+      </classpath>
+      <include name="com/hotdispatch/taxonomy/**/*.java" />
+    </javac>
+
+  </target>
+
+  <!-- =========================== corpaccounts ======================= -->
+
+  <target name="corpaccounts" depends="common, app, basics">
+    <javac srcdir="${basedir}" destdir="${classes}" debug="on">
+      <classpath>
+        <pathelement location="${classes}" />
+        <pathelement location="${basedir}/3rd-party/lib/oracle12.jar" />       <!-- Oracle drivers and such -->
+        <pathelement location="${basedir}/3rd-party/lib/xp.jar" />             <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />  <!-- javax.servlet.** -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-mail.jar" />     <!-- javax.mail etc -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-activation.jar" />  <!-- javax.activation.** -->
+      </classpath>
+      <include name="com/hotdispatch/corpaccounts/**/*.java" />
+    </javac>
+
+    <!-- Tomcat expects any files accessed via URL to be in the top-level directory.
+         (e.g., the directory containing the WEB-INF directory.  -->
+    <copy todir="${dist}/corpaccounts" overwrite="no">
+      <fileset dir="${basedir}/com/hotdispatch/corpaccounts" includes="**/*.jsp, **/*.tld" />
+    </copy>
+
+    <!-- Put files that are accessed via getResourceAsStream() in their normal place
+         relative to the class files, so there's no big mystery (I hope).  -->
+    <copy todir="${classes}/com/hotdispatch/corpaccounts" overwrite="no">
+      <fileset dir="${basedir}/com/hotdispatch/corpaccounts" includes="**/*.xml, **/*.props" />
+    </copy>
+
+  </target>
+
+
+  <!-- =========================== app ======================= -->
+
+  <target name="app" depends="basics">
+    <javac srcdir="${basedir}" destdir="${classes}" debug="on">
+      <classpath>
+        <pathelement location="${classes}" />
+        <pathelement location="${basedir}/3rd-party/lib/oracle12.jar" />       <!-- Oracle drivers and such -->
+        <pathelement location="${basedir}/3rd-party/lib/xp.jar" />             <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />  <!-- javax.servlet.** -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-mail.jar" />     <!-- javax.mail etc -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-activation.jar" />  <!-- javax.activation.** -->
+        <pathelement location="${TOMCAT_HOME}/lib/webserver.jar" />        <!-- Tomcat classes -->
+      </classpath>
+      <include name="com/hotdispatch/HotDispatch.java" />
+    </javac>
+  </target>
+
+
+  <!-- =========================== accounts ======================= -->
+
+  <target name="accounts" depends="basics, taxonomy, common">
+    <javac srcdir="${basedir}" destdir="${classes}" debug="on">
+      <classpath>
+        <pathelement location="${classes}" />
+        <pathelement location="${basedir}/3rd-party/lib/oracle12.jar" />       <!-- Oracle drivers and such -->
+        <pathelement location="${basedir}/3rd-party/lib/xp.jar" />             <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />  <!-- javax.servlet.** -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-mail.jar" />     <!-- javax.mail etc -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-activation.jar" />  <!-- javax.activation.** -->
+      </classpath>
+      <include name="com/hotdispatch/accounts/**/*.java" />
+    </javac>
+
+    <!-- Tomcat expects any files accessed via URL to be in the top-level directory.
+         (e.g., the directory containing the WEB-INF directory.  -->
+    <copy todir="${dist}/accounts" overwrite="no">
+      <fileset dir="${basedir}/com/hotdispatch/accounts" includes="**/*.jsp, **/*.tld" />
+    </copy>
+
+    <!-- Put files that are accessed via getResourceAsStream() in their normal place
+         relative to the class files, so there's no big mystery (I hope).  -->
+    <copy todir="${classes}/com/hotdispatch/accounts"
+          overwrite="no">
+      <fileset dir="${basedir}/com/hotdispatch/accounts" includes="**/*.xml, **/*.props" />
+    </copy>
+
+  </target>
+
+
+
+  <!-- ======================== ubs-script =============================== -->
+
+<!--  bluestone
+  <target name="ubs-script" depends="prepare-lib">
+
+    <copy file="com/hotdispatch/common/scripts/ubs" todir="${dist}" />
+    <copy file="com/hotdispatch/common/scripts/jspcompile" todir="${dist}" />
+
+    <chmod file="${dist}/ubs" perm="u+rwx" />
+    <chmod file="${dist}/jspcompile" perm="u+rwx" />
+
+  </target>
+-->
+
+
+  <!-- ========================== doc =============================== -->
+
+  <target name="doc">
+
+    <mkdir dir="${build}/doc" />
+    <javadoc packagenames="com.hotdispatch.taxonomy.*"
+             sourcepath="${basedir}"
+             destdir="${build}/doc"
+             author="true"
+             version="true"
+             use="true"
+             windowtitle="HotDispatch, Inc Java API"
+             doctitle="HotDispatch API"
+             bottom="Copyright HotDispatch, Inc ${year}. All Rights Reserved." >
+    </javadoc>
+  </target>
+
+
+
+  <!-- ========================== hotdispatch ============================ -->
+  <!-- This just compiles all source files in one go.  -->
+
+  <target name="hotdispatch" depends="basics">
+
+    <javac srcdir="${basedir}" destdir="${classes}" debug="on">
+      <classpath>
+        <pathelement location="${classes}" />
+        <pathelement location="${basedir}/3rd-party/lib/oracle12.jar" />       <!-- Oracle drivers and such -->
+        <pathelement location="${basedir}/3rd-party/lib/xp.jar" />             <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />  <!-- javax.servlet.** -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-mail.jar" />     <!-- javax.mail etc -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-activation.jar" />  <!-- javax.activation.** -->
+      </classpath>
+      <include name="com/hotdispatch/**/*.java" />
+    </javac>
+
+  </target>
+
+
+
+  <!-- ======================== hotdispatch-dist ========================== -->
+  <!-- This is the target to use when creating a standard release.  -->
+
+  <target name="hotdispatch-dist"
+          depends="corpaccounts, app">        <!-- add accounts, software, etc later -->
+
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/lib" />
+
+    <!-- Precompile the common JSPs -->
+    <java classname="SaApi.servlet.jsp.SaJspProcessor" fork="yes" >
+      <jvmarg value="-Djava.protocol.handler.pkgs=com.bluestone.net" />
+      <arg line="-packageName common.jsp -compilePath ${dist}/jspbin -app HotDispatch.class ${basedir}/com/hotdispatch/common/jsp" />
+      <classpath>
+        <fileset file="${dist}/jspbin" />
+        <fileset dir="${basedir}/3rd-party/lib" includes="oracle12.jar" />    <!-- Oracle drivers and such -->
+        <fileset dir="${basedir}/3rd-party/lib" includes="xp.jar" />           <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />       <!-- javax.servlet.** -->
+        <fileset dir="${SAPPHIRE}/jars" includes="ubs.jar" />              <!-- Bluestone stuff -->
+      </classpath>
+    </java>
+
+    <!-- Precompile the corpaccounts JSPs -->
+    <java classname="SaApi.servlet.jsp.SaJspProcessor" fork="yes" >
+      <jvmarg value="-Djava.protocol.handler.pkgs=com.bluestone.net" />
+      <arg line="-packageName corpaccounts.jsp -compilePath ${dist}/jspbin -app HotDispatch.class ${basedir}/com/hotdispatch/corpaccounts/jsp" />
+      <classpath>
+        <fileset dir="${dist}/jspbin" />
+        <fileset dir="${basedir}/3rd-party/lib" includes="oracle12.jar" />    <!-- Oracle drivers and such -->
+        <fileset dir="${basedir}/3rd-party/lib" includes="xp.jar" />           <!-- for SimpleXMLParser -->
+        <pathelement location="${basedir}/3rd-party/lib/javax-servlet.jar" />       <!-- javax.servlet.** -->
+        <fileset dir="${SAPPHIRE}/jars" includes="ubs.jar" />              <!-- Bluestone stuff -->
+      </classpath>
+    </java>
+
+    <jar jarfile="${dist}/lib/hotdispatch.jar" basedir="${basedir}/com" excludes="**/*.java" />
+
+    <copy todir="${dist}">
+      <fileset dir="com/hotdispatch">
+        <include name="**/*.jsp"/>
+        <include name="**/*.tld"/>
+      </fileset>
+    </copy>
+
+  </target>
+
+
+  <!-- ============================= clean =============================== -->
+
+  <target name="clean">
+    <delete dir="${classes}" />
+  </target>
+
+
+  <!-- =========================== real-clean ============================ -->
+
+  <target name="real-clean" depends="clean">
+    <delete dir="${dist}" />
+  </target>
+
+
+  <!-- =========================== clean-source ============================ -->
+  <!-- Remove emacs and CVS turds from source directory. -->
+
+  <target name="clean-source">
+    <delete>
+      <fileset dir="${basedir}/com"
+               defaultexcludes="no"
+               includes="**/*.class, **/*~, **/#*#, **/.#*" />
+    </delete>
+  </target>
+
+
+</project>
+
