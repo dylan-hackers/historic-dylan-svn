@@ -28,14 +28,16 @@ Sense Ahead forage_onblank_: forage_onblank_setstate3: Home
 ; move further out, depending on what colour we're on now
 
 forage_colour01: 						; move onto 10 or blank
+Sense Here follow_trail10: . Marker 2
 Sense Ahead OSA: . Rock
 Sense Ahead turn_and_forage_blank: move_and_forage: Marker 1	; if not 00 or 10, turn
 
 forage_colour1x:
-Sense Ahead OSA: . Rock
 Sense Here forage_colour11: forage_colour10: Marker 1
 
 forage_colour10: 						; move onto 11 or blank
+Sense Here follow_trail11: . Marker 2
+Sense Ahead OSA: . Rock
 Sense Ahead . forage_colour10a: Marker 0			; if not 1x, check for 00
 Sense Ahead move_and_forage: turn_and_forage_blank: Marker 1	; if not 11 rotate and retry (which is safe)
 
@@ -44,6 +46,8 @@ Sense Ahead turn_and_forage_blank: move_and_forage: Marker 1	; 00 -> move, 01 to
 
 
 forage_colour11:						; move onto 01 or blank
+Sense Here follow_trail01: . Marker 2
+Sense Ahead OSA: . Rock
 Sense Ahead turn_and_forage_blank: move_and_forage: Marker 0	; not 00 or 01, turn
 
 move_and_forage:
@@ -58,8 +62,99 @@ Sense Ahead turn_and_forage: move_and_forage: Rock	; huh?  if it's none of the a
 
 ; TODO!! navigate around rock to avoid getting stuck!
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; follow trail to food
+; it *must* be easy to follow .. otherwise nuke it
+
+follow_trail01:
+Sense Ahead . follow_trail01_try_left: Marker 2
+Sense Ahead follow_trail01_try_left: . Marker 0
+Sense Ahead follow_trail_move: follow_trail01_try_left: Marker 1
+
+follow_trail01_try_left:
+Sense LeftAhead . follow_trail01_try_right: Marker 2
+Sense LeftAhead follow_trail01_try_right: . Marker 0
+Sense LeftAhead . follow_trail01_try_right: Marker 1
+Turn Left follow_trail_move:
+
+follow_trail01_try_right:
+Sense RightAhead . nuke_path: Marker 2
+Sense RightAhead nuke_path: . Marker 0
+Sense RightAhead . nuke_path: Marker 1
+Turn Right follow_trail_move:
+
+;;;;;;;;;;
+
+follow_trail10:
+Sense Ahead . follow_trail10_try_left: Marker 2
+Sense Ahead . follow_trail10_try_left: Marker 0
+Sense Ahead follow_trail10_try_left: follow_trail_move: Marker 1
+
+follow_trail10_try_left:
+Sense LeftAhead . follow_trail10_try_right: Marker 2
+Sense LeftAhead . follow_trail10_try_right: Marker 0
+Sense LeftAhead follow_trail10_try_right: . Marker 1
+Turn Left follow_trail_move:
+
+follow_trail10_try_right:
+Sense RightAhead . nuke_path: Marker 2
+Sense RightAhead . nuke_path: Marker 0
+Sense RightAhead nuke_path: . Marker 1
+Turn Right follow_trail_move:
+
+;;;;;;;;;;
+
+follow_trail11:
+Sense Ahead . follow_trail11_try_left: Marker 2
+Sense Ahead . follow_trail11_try_left: Marker 0
+Sense Ahead follow_trail_move: follow_trail11_try_left: Marker 1
+
+follow_trail11_try_left:
+Sense LeftAhead . follow_trail11_try_right: Marker 2
+Sense LeftAhead . follow_trail11_try_right: Marker 0
+Sense LeftAhead . follow_trail11_try_right: Marker 1
+Turn Left follow_trail_move:
+
+follow_trail11_try_right:
+Sense RightAhead . nuke_path: Marker 2
+Sense RightAhead . nuke_path: Marker 0
+Sense RightAhead . nuke_path: Marker 1
+Turn Right follow_trail_move:
 
 
+;;;;;;;;;;;;;;;;
+
+follow_trail_move:	; move onto the cell we just proved is part of the trail
+Move OSA: .
+Sense Ahead follow_trail_move: . FriendWithFood
+Sense Ahead . follow_trail_move: Friend
+Turn Left follow_trail_move:
+
+nuke_path:		; lost the path, go home, deleting
+Sense Ahead grab_food_ahead: . Food
+Sense LeftAhead grab_food_leftahead: . Food
+Sense RightAhead grab_food_rightahead: . Food
+Unmark 2 .
+Turn Left .
+Turn Left .
+Turn Left .
+Move OSA: OSA:
+Sense Ahead follow_trail_move: . FriendWithFood
+Sense Ahead . follow_trail_move: Friend
+Turn Left follow_trail_move:
+
+
+grab_food_leftahead:
+Turn Left grab_food_ahead:
+
+grab_food_rightahead:
+Turn Right grab_food_ahead:
+
+grab_food_ahead:
+Move . OSA:
+PickUp got_food: OSA:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 turn_and_forage:					 ; maybe the next one isn't blocked
 
 turn_and_forage_blank:					 ; maybe the next one isn't blocked
@@ -71,11 +166,6 @@ Turn Left forage:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-try_to_leave_home:
-
-
-
-; got food, and on the way home
 
 forage_onblank_:	Sense LeftAhead forage_onblank_1: forage_onblank_0: Marker 0
 forage_onblank_0:	Sense LeftAhead forage_onblank_01: forage_onblank_00: Marker 1
@@ -327,7 +417,7 @@ Sense Here got_food_colour1x: . Marker 0
 Sense Here got_food_colour01: . Marker 1			; no existing colour
 
 ; got food, but on blank square???  Iconceivable! Just move forward?
-Move got_food: .
+;Move got_food: .
 Drop forage:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -352,7 +442,7 @@ Sense Ahead got_food_turn: got_food_move: Marker 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 got_food_move:
-;Mark 2 .
+Mark 2 .
 Move got_food: .
 ;Flip 2 . got_food_blocked_try_right:
 ;Turn Left got_food_move:
@@ -383,10 +473,12 @@ got_food_turnRight:
 Turn Right got_food:
 
 got_food_home:
+Mark 2 .
 Drop .
 Turn Left .
 Turn Left .
-Turn Left OSA: ;follow_trail_to_food:
+Turn Left .
+Move forage: OSA: ;follow_trail_to_food:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
