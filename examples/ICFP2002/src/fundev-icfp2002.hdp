@@ -13,7 +13,6 @@ files:	fd-icfp2002-exports
 	messages
 	fd-compat
 	icfp2002
-subprojects:	..\..\..\..\dylanlibs\dylanlibs\utilities\sequence-utilities\sequence-utilities.hdp
 base-address:	0x63DC0000
 start-function:	start
 major-version:	1
