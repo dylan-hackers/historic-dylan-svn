@@ -694,20 +694,20 @@ define generic verify-keywords
     (keyword-value-arguments :: <simple-object-vector>,
      valid-keywords :: type-union(singleton(#"all"), <simple-object-vector>))
     => ();
-//
+
 define method verify-keywords
     (args :: <simple-object-vector>, valid-keywords == #"all")
     => ();
   for (index :: <integer> from 0 below args.size by 2)
-    check-type(args[index], <symbol>);
+    check-type(%element(args, index), <symbol>);
   end for;
 end method verify-keywords;
-//
+
 define method verify-keywords
     (args :: <simple-object-vector>, valid-keywords :: <simple-object-vector>)
     => ();
   for (index :: <integer> from 0 below args.size by 2)
-    let key :: <symbol> = args[index];
+    let key :: <symbol> = %element(args, index);
     unless (member?(key, valid-keywords))
       unrecognized-keyword-error(key);
     end;
@@ -721,13 +721,22 @@ end method verify-keywords;
 // itself a sequence of additional arguments.
 //
 define function apply (function :: <function>, #rest arguments)
-  if (empty?(arguments))
-    error("Apply must be given at least one argument.");
+  let last-index :: <integer> = size(arguments) - 1;
+  if (last-index == -1)
+    apply-error();
   end;
-  let len-1 = size(arguments) - 1;
+  let individual-args = make(<simple-object-vector>, size: last-index);
+  // Copy all the elements from the arguments except the last
+  for (index from 0 below last-index)
+    %element(individual-args, index) := %element(arguments, index);
+  end;
   mv-call(function,
-	  values-sequence(copy-sequence(arguments, end: len-1)),
-	  values-sequence(arguments[len-1]));
+	  values-sequence(individual-args),
+	  values-sequence(%element(arguments, last-index)));
+end function;
+
+define not-inline function apply-error () => ();
+  error("Apply must be given at least one argument.");
 end;
 
 
