@@ -47,8 +47,8 @@ define method print-object(event :: <reshape-event>, stream :: <stream>) => ()
 end;
 
 define method post-event(event :: <glut-event>)
-  format(*standard-output*, "Got event: %=\n", event);
-  force-output(*standard-output*);
+//  format(*standard-output*, "Got event: %=\n", event);
+//  force-output(*standard-output*);
 end method post-event;
 
 define variable timer-func :: <function> = callback-method(value :: <integer>) => ();
@@ -196,8 +196,10 @@ define variable display-func :: <function> = callback-method() => ();
 end;
 
 define method main(progname, #rest arguments)
-  *scene-graph* := parse-vrml("ampel2.wrl");
-  
+  if(arguments.size > 0)
+    *scene-graph* := parse-vrml(arguments[0]);
+  end if;
+
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
   glutInitWindowSize(500, 500);
 //  glutWarpPointer(250, 250);
@@ -219,8 +221,6 @@ define method main(progname, #rest arguments)
 	                     glGetString($GL-VERSION));
   format(*standard-output*, "GL_EXTENSIONS: %s\n", 
 	                     glGetString($GL-EXTENSIONS));
-  format(*standard-output*, "Depth test: %=\n", 
-	                     glIsEnabled($GL-DEPTH-TEST));
   force-output(*standard-output*);
 //  glutFullScreen();
 

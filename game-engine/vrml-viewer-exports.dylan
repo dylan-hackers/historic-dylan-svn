@@ -10,12 +10,22 @@ define library vrml-viewer
   use opengl;
   use melange-support;
   use meta;
+  use collection-extensions;
   
 //  use melange-support // for null-pointer
 end library;
 
+define module vector-math
+  use dylan;
+  use transcendentals;
+  use subseq;
+
+  export cross-product, normalize, magnitude;
+end module vector-math;
+
 define module vrml-model
   use dylan;
+  use vector-math;
   
   export
     <node>,
@@ -63,6 +73,7 @@ define module vrml-viewer
   use gettimeofday;
   use vrml-model;
   use vrml-parser;
+  use vector-math;
   
 //  use melange-support // for null-pointer
 end module;

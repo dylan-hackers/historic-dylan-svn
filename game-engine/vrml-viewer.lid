@@ -10,4 +10,4 @@ render-to-opengl.dylan
 vrml-viewer.dylan
 gettimeofday.dylan
 errno.dylan
-
+vector-math.dylan

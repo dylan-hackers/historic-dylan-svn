@@ -11,6 +11,8 @@ define class <indexed-face-set> (<node>)
   slot ccw :: <boolean> = #f, init-keyword: ccw:; // orientation of faces
   slot points, init-keyword: points:;
   slot polygon-indices, init-keyword: indices:;
+  slot face-normals = #f, init-keyword: face-normals:;
+  slot vertex-normals = #f, init-keyword: vertex-normals:;
 end class <indexed-face-set>;
 
 define class <transform> (<container-node>)

@@ -1,26 +1,5 @@
 module: vrml-viewer
 
-define method cross-product(u :: <vector>, v :: <vector>)
- => (cross-product :: <vector>);
-  local method cp(i, j) u[i] * v[j] - v[i] * u[j] end;
-  vector(cp(1, 2), cp(2, 0), cp(0, 1));
-end method cross-product;
-
-define method \-(u :: <vector>, v :: <vector>)
- => (difference :: <vector>);
-  map(\-, u, v);
-end method;
-
-define method \*(u :: <vector>, v :: <number>)
- => (product :: <vector>);
-  map(rcurry(\*, v), u);
-end method;
-
-define method \*(u :: <number>, v :: <vector>)
- => (product :: <vector>);
-  map(curry(\*, u), v);
-end method;
-
 define method render-to-opengl(ifs :: <indexed-face-set>)
   for(p in ifs.polygon-indices)
     let normal = cross-product(ifs.points[p[1]] - ifs.points[p[0]],
