@@ -1,4 +1,4 @@
-module: value-impl
+module: %productions
 synopsis: Implements a META parser for XML 1.0
 author: Andreas Bogk <andreas@andreas.org>, based on work by Chris Double
 translated-into-a-library-by: Douglas M. Auclair, doug@cotilliongroup.com
@@ -502,15 +502,20 @@ end method parse-element;
 // Document
 // 
 //    [1]    document    ::=    prolog element Misc*
-//    
+//
+/****
 define method parse-document(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(prolog, elemnt, misc);
     [parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))];
-    values(index, #t);
+    values(index, make(<document>, children: vector(elemnt)));
   end with-meta-syntax;
 end method parse-document;
-
+****/
+define parse document[prolog, elemnt, misc] 
+ (result: make(<document>, children: vector(elemnt)))
+   parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))
+end parse document;
 
 // Character Range
 //

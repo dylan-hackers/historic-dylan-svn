@@ -11,7 +11,7 @@ end library;
 
 define module xml-parser
   create <xml-builder>, <xml-element>, <xml-parse-error>;
-  create start-element, end-element; // , text;
+  create start-element, end-element;
   create name, attributes; // slots for <xml-element>
 
 // I really don't want the below defs -- parse-document should
@@ -30,6 +30,10 @@ define module xml-parser
 // processing instruction).  I feel the [ ] parse ("and" parse)
 // should be replaced with an { } parse ("or").  Thinking on that
 // while I test the rest of the system.
+
+// beginning to integrate Chris' parse engine
+  create <document>, <element>, children;
+
 end module xml-parser;
 
 define module interface
@@ -43,7 +47,7 @@ define module interface
   export <letter>, <digit>, <version-number>;
 end module interface;
 
-define module value-impl
+define module %productions
   use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
@@ -55,7 +59,7 @@ define module value-impl
   use xml-parser;
 
   export parse-beginning-of-tag;
-end module value-impl;
+end module %productions;
 
 define module builder-impl
   use common-dylan, exclude: { format-to-string };
@@ -66,6 +70,6 @@ define module builder-impl
 
   use meta;
   use xml-parser;
-  use value-impl;
+  use %productions;
   use interface;
 end module builder-impl;
