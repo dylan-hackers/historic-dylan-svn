@@ -224,7 +224,8 @@ define method slurp-input(stream :: <buffered-stream>)
   cleanup
     release-input-buffer(stream);
   end block;
-  apply(concatenate, v);
+//  apply(concatenate, v);
+  reduce1(concatenate, v);
 end method slurp-input;
 
 define function main(name, arguments)
