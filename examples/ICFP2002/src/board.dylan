@@ -1,16 +1,72 @@
 module: board
 
-define constant <line> = limited(<vector>, of: <object>);
 
-define class <board>(<array>)
-  slot lines :: limited(<vector>, of: <line>);
-  keyword rows;
-  keyword cols;
+// Terrain types
+define abstract functional class <terrain>(<object>)
 end;
 
-define method initialize(<board>, #key rows, cols, #all-keys)
+define macro terrain-definer
+  { define terrain ?:name end }
+  =>
+  {
+    define concrete functional class ?name(<terrain>)
+    end;
+    
+/*    define constant "*" ## ?name ## "*" = 
+
+    define method make(t :: ?name)
+      "*" ## ?name ## "*"
+    end; */
+    
+    define sealed domain make(?name.singleton);
+    define sealed domain initialize(?name);
+    
+  }
+end;
+
+define terrain <wall> end;
+define terrain <water> end;
+define terrain <base> end;
+define terrain <empty> end;
+
+
+/*
+define concrete functional class <wall>(<terrain>)
+end;
+
+define concrete functional class <water>(<terrain>)
+end;
+
+define concrete functional class <base>(<terrain>)
+end;
+*/
+
+
+
+// Board
+
+define constant <line> = limited(<vector>, of: <terrain>);
+define constant <coordinate> = limited(<integer>, min: 0);
+
+define concrete class <board>(<array>)
+  slot lines :: limited(<vector>, of: <line>);
+  slot bots;
+//  keyword rows;
+//  keyword cols;
+end;
+
+define function width(b :: <board>) => w :: <coordinate>;
+  b.lines.first.size
+end;
+
+define function height(b :: <board>) => w :: <coordinate>;
+  b.lines.size
+end;
+
+define method initialize(b :: <board>, #key rows, cols, #all-keys)
+  b.lines :=
   map-as(limited(<vector>, of: <line>),
-         method(ignore) make(<line>, size: cols, fill: $empty-space) end,
+         method(ignore) make(<line>, size: cols, fill: $empty-char) end,
          range(below: rows));
 end;
 
@@ -25,7 +81,7 @@ define method aref(board :: <board>, #rest coords /* :: limited(<integer>, min: 
   board.lines[y][x];
 end;
 
-define method aref-setter(obj, board :: <board>, #rest coords /* :: limited(<integer>, min: 0) */)
+define method aref-setter(obj :: <object>, board :: <board>, #rest coords /* :: limited(<integer>, min: 0) */)
  => object :: <object>;
   let x :: limited(<integer>, min: 0) = coords.first;
   let y :: limited(<integer>, min: 0) = coords.second;
@@ -38,29 +94,29 @@ define method as(class == <character>, obj :: <character>)
   obj
 end;
 
-define generic object-from-character(c :: <character>)
- => obj;
+define generic terrain-from-character(c :: <character>)
+ => terra :: <terrain>;
 
-define method object-from-character(c == $empty-char)
- => wall :: <false>;
-  #f
+define method terrain-from-character(c == $empty-char)
+ => empty :: <empty>;
+  <empty>.make
 end;
 
-define constant <wall> = $wall-char.singleton;
+//define constant <wall> = $wall-char.singleton;
 
-define method object-from-character(c == $wall-char)
+define method terrain-from-character(c == $wall-char)
  => wall :: <wall>;
-  c
+  <wall>.make
 end;
 
-define constant <water> = $water-char.singleton;
+//define constant <water> = $water-char.singleton;
 
 define method object-from-character(c == $water-char)
  => water :: <water>;
-  water
+  <water>.make
 end;
 
-define method object-from-character(c == $base-char)
+define method terrain-from-character(c == $base-char)
  => base :: <base>;
   <base>.make
 end;

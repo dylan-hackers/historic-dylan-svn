@@ -30,7 +30,7 @@ end module;
 define module board
   use icfp2002, export: all;
   
-  export <board>, send-board, <package>, <robot>;
+  export <board>, send-board, width, height, <package>, <robot>;
 end module board;
 
 define module messages
@@ -38,7 +38,7 @@ define module messages
   use standard-io;
   use string-conversions;
   use board;
-  use robot;
+//  use robot;
 
   export
     <message-error>,
