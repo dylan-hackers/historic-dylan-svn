@@ -26,28 +26,36 @@ define method evaluate(expression :: <string>)
         
         let component = make(<fer-component>);
         let builder = make-builder(component);
-        let result-var = make-ssa-var(builder, #"result", object-ctype());
-        let result-type = make-values-ctype(#(), #f);
+        let result-type = object-ctype();
+        let result-var = make-ssa-var(builder, #"result", result-type);
+        fer-convert(builder, expression,
+                    lexenv-for-tlf(tlf), #"let", result-var);
+        let inits = builder-result(builder);
+
         let name-obj = make(<anonymous-name>, location: tlf.source-location);
         let init-function-region
-          = build-function-body(builder, $Default-Policy, tlf.source-location, #f,
+          = build-function-body(builder, $Default-Policy,
+                                tlf.source-location, #f,
                                 name-obj, #(), result-type, #t);
-        fer-convert(builder, expression, lexenv-for-tlf(tlf), #"let", result-var);
-        build-return
-          (builder, $Default-Policy, tlf.source-location, init-function-region, result-var);
-        end-body(builder);
-        
-        let inits = builder-result(builder);
         build-region(builder, inits);
+        build-return
+          (builder, $Default-Policy, tlf.source-location,
+           init-function-region, result-var);
+        
         end-body(builder);
-        
-        unless (instance?(inits, <empty-region>))
-          optimize-component(*current-optimizer*, component);
-          dump-fer(inits);
-	  format(*standard-output*, "evaluated expression: %=\n", fer-evaluate(inits, curry(error, "trying to access %= in an empty environment")));
-	  force-output(*standard-output*);
-        end unless;
-        
+
+        format(*standard-output*, "Before optimization:\n");
+        dump-fer(component);
+        optimize-component(*current-optimizer*, component);
+        format(*standard-output*, "After optimization:\n");
+        dump-fer(component);
+        force-output(*standard-output*);
+
+        format(*standard-output*, "evaluated expression: %=\n",
+               fer-evaluate(component,
+                            curry(error, "trying to access %= in an empty environment")));
+        force-output(*standard-output*);
+
       otherwise =>
         compiler-error-location(tlf, "only expressions are supported");
     end select;
