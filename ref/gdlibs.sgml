@@ -1,21 +1,6 @@
 <!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.1//EN" [
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
- <!ENTITY char-param '
-        <defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-	</defparameters>'>
- <!ENTITY char-return '
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param> 
-  	</defreturns>'>
- <!ENTITY char-params-returns '&char-param;&char-return;'>
 
  <!ELEMENT DylanCharFnDef - O EMPTY>
  <!ATTLIST DylanCharFnDef name CDATA #IMPLIED 
@@ -140,12 +125,6 @@
 	  <PARA></PARA>
 	</LISTITEM>
       </VARLISTENTRY>
-      <!-- VARLISTENTRY>
-	<TERM>TK</TERM>
-	<LISTITEM>
-	  <PARA></PARA>
-	</LISTITEM>
-      </VARLISTENTRY -->
     </VARIABLELIST>
     
   </CHAPTER>
@@ -2286,14 +2265,14 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
               <dclass>unicode-character</dclass> are
               likely choices.</PARA>
 
-	  <PARA>The optional <dlit>if-exists:</dlit> init-keyword allows
+	  <PARA>The optional <dkeyword>if-exists</dkeyword> init-keyword allows
 	  you to specify an action to take if the file named by
 	  <PARAMETER>locator</PARAMETER> already exists. The options
 	  are:</PARA>
 
 	  <itemizedlist>
 	      <LISTITEM>
-		<PARA><dlit>#f</dlit> -- No action. This is the 
+		<PARA>&false; -- No action. This is the 
                 default when the stream's
 		direction is <dlit>#"input"</dlit> or
 		<dlit>#"input-output"</dlit>.</PARA>
@@ -2349,7 +2328,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 
 	  <itemizedlist>
 	      <LISTITEM>
-		<PARA><dlit>#f</dlit> -- No action.</PARA>
+		<PARA>&false; -- No action.</PARA>
 	      </LISTITEM>
 	      <LISTITEM>
 		<PARA><dlit>#"signal"</dlit> -- Signal a
@@ -6201,352 +6180,36 @@ sublists.
   	Fixing this so it handles Unicode better would be a good way
   	of covering yourself with glory, hint hint.
       </para>
-  
-<!--
-      <dylanfunctiondef>
-  	<defname> alpha? </defname>
-  	<defsummary> Synonym for alphabetic? </defsummary>
-	<defdescription> </defdescription>
-      </dylanfunctiondef>
-  -->
 
       <dylancharfndef name="alphabetic?" condition="in [a-zA-Z]"
        elaboration="alphabetic">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>alphabetic?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is in [a-zA-Z].
-  	</defsummary>
-	&char-params-returns;
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if the character is alphabetic,
-  	    &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-  -->
-
       <dylancharfndef name="digit?" condition="a numeric digit [0-9]"
        elaboration="a digit">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>digit?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is a numeric digit [0-9].
-  	</defsummary>
-	&char-params-returns;
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if the character is a digit, &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-  -->
-
       <dylancharfndef name="alphanumeric?" condition="alphabetic or a digit"
        elaboration="alphanumeric">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>alphanumeric?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is alphabetic or a
-  	digit.</defsummary>
-	&char-params-returns;
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if the character is alphanumeric,
-  	    &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-  -->
-
       <dylancharfndef name="whitespace?" condition="whitespace"
        elaboration="whitespace (space, tab, linefeed, or newline)">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>whitespace?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is whitespace.
-  	</defsummary>
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if character is whitespace (space,
-  	    tab, linefeed, or newline), and &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-      -->
-
       <dylancharfndef name="lowercase?" condition="in [a-z]"
        elaboration="lowercase (in [a-z])">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>lowercase?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is in [a-z].
-  	</defsummary>
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if character is lowercase (in
-  	    [a-z]), &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
--->
-
       <dylancharfndef name="hex-digit?" condition="a hexadecimal digit"
        elaboration="a hexadecimal digit; that is, if it is in [0-9],
        [a-f] or [A-F]">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>hex-digit?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is a hexadecimal
-  	  digit.
-  	</defsummary>
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if the character is a hexadecimal
-  	    digit; that is, ifit is in [0-9], [a-f] or [A-F]. Return
-  	    &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-      -->
-
       <dylancharfndef name="graphic?" condition="a graphic character"
        elaboration="a printing, non-whitespace character">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>graphic?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is a graphic character.
-	</defsummary>
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if the character is a printing,
-  	    non-whitespace character, &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-  -->
-
       <dylancharfndef name="printable?" condition="printable"
        elaboration="a printing character">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>printable?</defname>
-  	<defsummary>
-  	  Returns &true; if character is printable.
-  	</defsummary>       
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if the character is a printing
-  	    character, &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
--->
-
-
       <dylancharfndef name="punctuation?" condition="punctuation"
        elaboration="a graphic, non-alphanumeric character">
-
-<!--  
-      <dylanfunctiondef>
-  	<defname>punctuation?</defname>
-  	<defsummary>
-  	  Returns &true; if character is punctuation.
-  	</defsummary>       
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if the character is a graphic,
-  	    non-alphanumeric character, &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-  	  -->
-
       <dylancharfndef name="control?" condition="not printable"
        elaboration="a control character">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>control?</defname>
-  	<defsummary>
-  	   Returns &true; if the character is not printable.
-  	</defsummary>
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if character is a control
-  	    character, &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
--->
-
       <dylancharfndef name="byte-character?" 
        condition="an ASCII character.  Could be flaky"
        elaboration="a byte-character (which is if
   	    the integer value of the character returns less than
   	    256.  I don't know enough about Unicode and character set
   	    encodings to say what this means)">
-
-<!--  
-      <dylanfunctiondef>
-  	<defname>byte-character?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is an ASCII
-  	  character. Could be flaky.
-  	</defsummary>
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    <dname>Byte-character?</dname> will return &true; if
-  	    <dlit>as(&lt;integer&gt;, character)</dlit> returns less than
-  	    256.  I don't know enough about Unicode and character set
-  	    encodings to say what this means.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
-  -->
-
       <dylancharfndef name="uppercase?" condition="uppercase"
        elaboration="in [A-Z]">
-
-<!--
-      <dylanfunctiondef>
-  	<defname>uppercase?</defname>
-  	<defsummary>
-  	  Returns &true; if the character is uppercase.
-  	</defsummary>    
-  	<defparameters>
-  	  <param>
-  	    <paramname>character</paramname>
-  	    <paramtype>&lt;character&gt;</paramtype>
-  	  </param>
-  	</defparameters>
-  	<defreturns>
-  	  <param>
-  	    <paramname>answer</paramname>
-  	    <paramtype>&lt;boolean&gt;</paramtype>
-  	  </param>
-  	</defreturns>
-  	<defdescription>
-  	  <para>
-  	    Returns &true; if character is in [A-Z], 
-  	    &false; otherwise.
-  	  </para>
-  	</defdescription>
-      </dylanfunctiondef>
--->
-
     </sect1>
   
     <sect1 id="libs-string-extensions-string-conversions">
