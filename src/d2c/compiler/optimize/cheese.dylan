@@ -127,6 +127,7 @@ define method optimize-component-internal
 	| try(optimistic-type-inference, "optimistic type inference")
 	| (optimizer.simplification-pass? & (done := #t))
 	| try(add-type-checks, "adding type checks")
+	| try(insert-phi-nodes, "inserting phi nodes")
 	| try(replace-placeholders, "replacing placeholders")
 	| try(environment-analysis, "running environment analysis")
 	| try(build-local-xeps, "building external entries for local funs")
@@ -989,6 +990,32 @@ define function add-type-checks (component :: <component>) => ();
   for (function in component.all-function-regions)
     fer-add-type-checks(component, function, reoptimize);
   end;
+end;
+
+
+// Join types at converging control flow edges.
+
+define function insert-phi-nodes (component :: <component>) => ();
+
+//  for (function in component.all-function-regions)
+///    nnn(component, function, reoptimize);
+          compiler-warning("###---######--> component: %=", component);
+
+local method join-multidef-arms(component :: <component>, region :: <simple-region>)
+          compiler-warning("###---#--> region: %=", region);
+        if (instance?(region.parent, <if-region>)
+            & region.last-assign
+            & instance?(region.last-assign, <set-assignment>))
+          compiler-warning("###-----> possible candidate: %=", region.last-assign);
+        end;
+      end;
+
+////// NOT YET traverse-component(component, <simple-region>, join-multidef-arms);
+
+
+
+
+//  end;
 end;
 
 
