@@ -6,14 +6,14 @@ define functional class <position> (<object>)
 end class <position>;
 
 define function make-position(x :: <integer>, y :: <integer>)
- => (<position>)
+ => (p :: <position>)
   make(<position>, x: x, y: y);
 end function make-position;
 
 define constant <direction> = limited(<integer>, min: 0, max: 5);
 
 define function adjacent-cell(p : <position>, d: <direction>)
- => (<position>)
+ => (d* :: <position>)
   select(p)
     0 => make-position(p.x + 1, p.y);
     1 => if(even?(p.y)) 
@@ -39,3 +39,14 @@ define function adjacent-cell(p : <position>, d: <direction>)
          end;
   end select;
 end function adjacent-cell;
+
+define constant <left-or-right> = one-of(#"left", #"right");
+
+define function turn(lr :: <left-or-right>, d :: <direction>)
+  => (d* :: <direction>)
+  if(lr == #"left")
+    modulo(d + 5, 6);
+  else
+    modulo(d + 1, 6);
+  end if;
+
