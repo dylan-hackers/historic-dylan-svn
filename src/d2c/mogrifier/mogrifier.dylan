@@ -179,34 +179,108 @@ define macro instruction-definer
     end;
   }
 
-  { define instruction ?:name(?primary:expression; BO, BI; RESERVE; ?key:expression; LK) end }
-  =>
-  { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("BO: %d, BI: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), secondary.instruction-LK);
-      concatenate(?"name", secondary.instruction-LK-suffix)
-    end;
-  }
-
-  { define instruction ?:name(?primary:expression; BO, BI, BD, AA, LK) end }
-  =>
-  { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
-     => mnemonics :: <string>;
-      format-out("BO: %d, BI: %d, BD: %d, AA: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -2), #x3FFF), logand(ash(secondary, -1), #x1), secondary.instruction-LK);
-      concatenate(?"name", secondary.instruction-LK-suffix)
-    end;
-  }
-
-  { define instruction ?:name(?primary:expression; LI, AA, LK) end }
+/*  { define instruction ?:name(?primary:expression; LI, AA, LK) end }
   =>
   { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("LI: %d, AA: %d, LK: %d\n", instruction-mask(secondary, 6, 29), instruction-mask(secondary, 30, 30), secondary.instruction-LK);
-      concatenate(?"name", secondary.instruction-LK-suffix)
+//      concatenate(?"name", secondary.instruction-LK-suffix)
+      format-to-string(?"name" "%s%s %s", secondary.instruction-LK-suffix, secondary.instruction-AA-suffix, secondary.instruction-LI-suffix)
     end;
   }
+*/
+
+//  { define instruction ?:name(?primary:expression; ?key:expression; BO, BI, LK) end }
+  { define instruction ?:name(?primary:expression; ?key:expression; ?branch) end }
+  =>
+  { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
+     => mnemonics :: <string>;
+      format-out("BO: %d, BI: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), secondary.instruction-LK);
+//      concatenate(?"name", secondary.instruction-LK-suffix)
+      concatenate(?"name", ?branch)
+    end;
+  }
+
+//  { define instruction ?:name(?primary:expression; BO, BI, BD, AA, LK) end }
+  { define instruction ?:name(?primary:expression; ?branch) end }
+  =>
+  { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
+     => mnemonics :: <string>;
+      format-out("BO: %d, BI: %d, BD: %d, AA: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -2), #x3FFF), logand(ash(secondary, -1), #x1), secondary.instruction-LK);
+//      concatenate(?"name", secondary.instruction-LK-suffix, instruction-format(?"name", BO, BI, BD, AA, LK))
+      concatenate(?"name", ?branch)
+    end;
+  }
+  
+  branch:
+    { BO, BI, LK } => { secondary.instruction-LK-suffix, " ", secondary.instruction-BO-suffix, ",", secondary.instruction-BI-suffix }
+    { BO, BI, BD, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-BO-suffix, ",", secondary.instruction-BI-suffix, ",", secondary.instruction-BD-suffix }
+    { LI, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-LI-suffix }
+//    { ?bunn:*, LK } => { secondary.instruction-LK-suffix, ?absolute-type-branch }
+//    { ?absolute-type-branch, LK } => { secondary.instruction-LK-suffix, ?absolute-type-branch }
+  absolute-type-branch:
+    { AA, LK } => { secondary.instruction-LK-suffix, secondary.instruction-AA-suffix }
+//  immediate-type-branch:
+//    { LI } => { secondary.instruction-LI-suffix,  }
+//    { ?condition-type-branch, BD } => { ?condition-type-branch, ",", secondary.instruction-BD-suffix, "," }
+//  condition-type-branch:
+//    { BO, BI } => { secondary.instruction-BO-suffix, secondary.instruction-BI-suffix }
+
 end macro instruction-definer;
 
+define macro instruction-format
+  { instruction-format(?opcode:expression, BO, BI, BD, AA, LK) }
+  =>
+  { ?opcode "%s %s%s" }
+end;
+
+define inline function instruction-BO-suffix(secondary :: <integer>)
+ => bo :: <string>;
+  format-to-string("%d", instruction-mask(secondary, 6, 10))
+end;
+
+define inline function instruction-BI-suffix(secondary :: <integer>)
+ => bi :: <string>;
+  format-to-string("%d", instruction-mask(secondary, 11, 15))
+end;
+
+define inline function instruction-BD-suffix(secondary :: <integer>)
+ => bd :: <string>;
+  let aa = instruction-mask(secondary, 30, 30);
+  let sign = instruction-mask(secondary, 16, 16);
+  let bd = instruction-mask(secondary, 17, 29);
+  let bd = sign == 1 & bd - ash(1, 13) | bd;
+  let bd = 4 * bd;
+
+  if (aa = 1)
+    format-to-string("%d", bd)
+  else
+//    let bd = bd + 4;
+    format-to-string("$%s%d", bd < 0 & "-" | "+", bd)
+  end;
+end;
+
+define inline function instruction-AA-suffix(secondary :: <integer>)
+ => aa :: <string>;
+  instruction-mask(secondary, 30, 30) == 1
+  & "a"
+  | ""
+end;
+
+define inline function instruction-LI-suffix(secondary :: <integer>)
+ => li :: <string>;
+  let aa = instruction-mask(secondary, 30, 30);
+  let sign = instruction-mask(secondary, 6, 6);
+  let li = instruction-mask(secondary, 7, 29);
+  let li = sign == 1 & li - ash(1, 23) | li;
+  let li = 4 * li;
+  if (aa = 1)
+    format-to-string("%d", li)
+  else
+//    let li = li + 4;
+    format-to-string("$%s%d", li < 0 & "-" | "+", li)
+  end;
+end;
 
 define inline function instruction-LK(secondary :: <integer>)
  => lk :: <integer>;
@@ -276,8 +350,8 @@ define instruction mfcr(31; D; RESERVE; RESERVE; 19; RESERVE) end;
 
 define instruction bc(16; BO, BI, BD, AA, LK) end;
 define instruction b(18; LI, AA, LK) end;
-define instruction bclr(19; BO, BI; RESERVE; 16; LK) end;
-define instruction bcctr(19; BO, BI; RESERVE; 528; LK) end;
+define instruction bclr(19; 16; BO, BI, LK) end;
+define instruction bcctr(19; 528; BO, BI, LK) end;
 define instruction stmw(47; S, A, d) end;
 define updatable instruction stw(36; S, A, d) end;
 define updatable instruction sth(44; S, A, d) end;
