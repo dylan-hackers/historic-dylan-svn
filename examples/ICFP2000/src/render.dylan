@@ -14,7 +14,7 @@ define method trace(ray :: <ray>, depth :: <integer>,
 		    lights :: <simple-object-vector>)
  => (color :: <color>);
   if (depth > 0)
-    let (point, normal, surface-method, distance) = 
+    let (point, normal, surface, distance) = 
       intersection-before(o, ray, 1.0/0.0, #f);
     
     if (point)
@@ -23,7 +23,7 @@ define method trace(ray :: <ray>, depth :: <integer>,
       let distance :: <fp> = distance;
       
       let reflection-color :: <color> = make-black();
-      let surf :: <surface> = surface-method();
+      let surf :: <surface> = surface;
       if (surf.specular-coefficient > 0.0)
 	let reflection-vector :: <3D-vector> = 2.0 * normal * 
 	  (normal * -ray.ray-direction) + ray.ray-direction;

@@ -10,6 +10,7 @@ end class <obj>;
 
 
 define abstract class <primitive> (<obj>)
+  slot constant-surface, init-keyword: constant-surface:, init-value: #f;
   slot surface-interpreter-entry, init-keyword: #"surface-function";
 end class <primitive>;
 
@@ -27,6 +28,34 @@ end class <cone>;
 
 define class <cylinder> (<primitive>)
 end class <cylinder>;
+
+
+define method initialize(m :: <primitive>, #key surface-function: surface-function)
+  // let's find out if that surface function is constant -- if so
+  // then it will ignore invalid arguments.
+  // TODO: you could also probe each face independently
+
+  local method probe(u, v, face)
+	  block ()
+	    let v = surface-function(list(v, u, face));
+	    decode-surface-list(v);
+	  exception (e :: <condition>)
+	    #f;
+	  end;
+	end probe;
+    
+    next-method();
+
+  if (surface-function)
+    if (~probe(0.0, 0.0, 0))
+      error("Surface function bombed or returned invalid values");
+    end;
+    
+    let inv = #(); // something not valid in the interpreter
+    m.constant-surface := probe(inv, inv, inv);
+  end;
+end;
+
 
 define abstract class <csg-object> (<obj>)
   slot objects :: <simple-object-vector>, init-keyword: of:;
@@ -60,6 +89,7 @@ define method copy(o :: <primitive>)
  => (new-o :: <primitive>)
   let new-o = next-method();
   new-o.surface-interpreter-entry := o.surface-interpreter-entry;
+  new-o.constant-surface := o.constant-surface;
 
   new-o;
 end method copy;

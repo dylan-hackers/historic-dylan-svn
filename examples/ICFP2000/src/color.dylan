@@ -97,21 +97,29 @@ end class <surface>;
 define sealed domain make(singleton(<surface>));
 define sealed domain initialize(<surface>);
 
-define method make-surface-closure(surface-id, u, v, interpreter-entry :: <method>)
-  let surface = #f;
 
-  local method return-color()
-    if(surface)
-      surface;
-    else
-      let (phong, specular, diffusion, color)
-	= apply(values, interpreter-entry(list(v, u, surface-id)));
-      
-      surface := make(<surface>, color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z),
-	   diffusion: diffusion, specular: specular, phong: phong);
-    end if;
-  end method return-color;
-  return-color;
+define method decode-surface-list(rest :: <pair>)
+ => (surface :: <surface>);
+
+  let (phong     :: <fp>, rest :: <pair>) = values(rest.head, rest.tail);
+  let (specular  :: <fp>, rest :: <pair>) = values(rest.head, rest.tail);
+  let (diffusion :: <fp>, rest :: <pair>) = values(rest.head, rest.tail);
+  let (color :: <point>, rest :: #().singleton) = values(rest.head, rest.tail);
+
+  make(<surface>,
+       color: make(<color>,
+		   red: color.point-x, green: color.point-y, blue: color.point-z),
+       diffusion: diffusion, specular: specular, phong: phong);
+end;
+
+define method make-surface-closure(surface-id, u, v, m :: <primitive>)
+ => (surface :: <surface>);
+
+  if (m.constant-surface)
+    m.constant-surface;
+  else
+    decode-surface-list(m.surface-interpreter-entry(list(v, u, surface-id)));
+  end;
 end method make-surface-closure;
 
 define inline method clamp(x :: <fp>) => (res :: <fp>);

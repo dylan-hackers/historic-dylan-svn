@@ -41,7 +41,7 @@ define method intersection-before(o :: <obj>, ray :: <ray>, distance :: <fp>,
 
   let local-ray :: <ray> = transform-with-matrix(ray, o.inverse-transform);
 
-  let (our-point, our-normal, surface-method, new-distance) =
+  let (our-point, our-normal, surface, new-distance) =
     real-intersection-before(o, local-ray, distance, shadow-test?);
 
   // Now, transform the point & normal back into the caller's coordinates
@@ -58,7 +58,7 @@ define method intersection-before(o :: <obj>, ray :: <ray>, distance :: <fp>,
     // computed it...
     new-distance := magnitude(ray.ray-position - point);
 
-    values(point, normal, surface-method, new-distance);
+    values(point, normal, surface, new-distance);
   else
     values(#f, #f, #f, #f);
   end if;
@@ -67,7 +67,7 @@ end method intersection-before;
 
 define method real-intersection-before(m :: <sphere>, ray :: <ray>, distance :: <fp>,
 				       shadow-test? :: <boolean>)
- => (point, normal, surface-method, new-distance)
+ => (point, normal, surface, new-distance)
 
   block (easy-out)
     let ray-to-center :: <3D-vector> = ray.ray-position - $origin;
@@ -107,7 +107,7 @@ define method real-intersection-before(m :: <sphere>, ray :: <ray>, distance :: 
 	let v :: <fp> = clamp((point.y + 1.0) / 2.0);
 	values(point, 
 	       point - $origin, 
-	       make-surface-closure(0, u, v, m.surface-interpreter-entry), 
+	       make-surface-closure(0, u, v, m), 
 	       t_ca - sqrt(1.0 - d_2));
       end if;
     end if;
@@ -116,7 +116,7 @@ end method real-intersection-before;
     
 define method real-intersection-before(m :: <plane>, ray :: <ray>, distance :: <fp>,
 				       shadow-test? :: <boolean>)
- => (point, normal, surface-method, new-distance)
+ => (point, normal, surface, new-distance)
 
   let pos-y :: <fp> = ray.ray-position.y;
   let dir-y :: <fp> = ray.ray-direction.y;
@@ -142,7 +142,7 @@ define method real-intersection-before(m :: <plane>, ray :: <ray>, distance :: <
 		      else
 			1.0 
 		      end if, 0.0),
-	     make-surface-closure(0, u, v, m.surface-interpreter-entry), t);
+	     make-surface-closure(0, u, v, m), t);
     end if;
   end if;
 end method real-intersection-before;
@@ -182,51 +182,59 @@ define constant $v-methods :: <simple-object-vector> = vector(y, y, y, y, z, z);
 
 define method real-intersection-before(m :: <cube>, ray :: <ray>, distance :: <fp>,
 				       shadow-test? :: <boolean>)
- => (point, normal, surface-method, new-distance)
-  let hits = make(<stretchy-vector>);
-  for (p :: <simple-object-vector> in $cube-planes, which-one from 0)
-    let (norm, displacement) = values(p[0], p[1]);
-    let (hit, dist) = plane-intersection(norm, displacement, ray);
-    if (hit)
-      let hit :: <3D-point> = hit;
-      let u-coord :: one-of(x, y, z) = $u-methods[which-one];
-      let v-coord :: one-of(x, y, z) = $v-methods[which-one];
-      let u :: <fp> = select(u-coord)
-			x => hit.x;
-			y => hit.y;
-			z => hit.z;
-		      end;
-      let v :: <fp> = select(v-coord)
-			x => hit.x;
-			y => hit.y;
-			z => hit.z;
-		      end;
-
-      if (u <= 1.0 & v <= 1.0 &
-	  u >= 0.0 & v >= 0.0)
-	add!(hits,
-	     make(<hit-info>, dist: dist, hit: hit, norm: norm,
-		  surface: make-surface-closure(which-one, u, v,
-						m.surface-interpreter-entry)));
-      end;
+ => (point, normal, surface, new-distance)
+  block (shadow-hit)
+    let hits = #f;
+    for (p :: <simple-object-vector> in $cube-planes, which-one from 0)
+      let (norm, displacement) = values(p[0], p[1]);
+      let (hit, dist) = plane-intersection(norm, displacement, ray);
+      if (hit)
+	let hit :: <3D-point> = hit;
+	let u-coord :: one-of(x, y, z) = $u-methods[which-one];
+	let v-coord :: one-of(x, y, z) = $v-methods[which-one];
+	let u :: <fp> = select(u-coord)
+			  x => hit.x;
+			  y => hit.y;
+			  z => hit.z;
+			end;
+	let v :: <fp> = select(v-coord)
+			  x => hit.x;
+			  y => hit.y;
+			  z => hit.z;
+			end;
+	
+	if (u <= 1.0 & v <= 1.0 &
+	      u >= 0.0 & v >= 0.0)
+	  if (~hits)
+	    if (shadow-test?)
+	      shadow-hit(#f);
+	    end;
+	    hits := make(<stretchy-vector>);
+	  end;
+	  let hits :: <stretchy-object-vector> = hits;
+	  add!(hits,
+	       make(<hit-info>, dist: dist, hit: hit, norm: norm,
+		    surface: make-surface-closure(which-one, u, v, m)));
+	end;
+      end if;
+    end for;
+    
+    if (hits)
+      let hits :: <stretchy-object-vector> 
+	= sort!(hits, test: method(a :: <hit-info>, b :: <hit-info>) => (less :: <boolean>);
+				a.dist < b.dist
+			    end method);
+      let best :: <hit-info> = hits[0];
+      values(best.hit, best.norm, best.surface, magnitude(ray.ray-position - best.hit));
+    else
+      #f;
     end if;
-  end for;
-
-  if (hits.size > 0)
-    let hits :: <stretchy-object-vector> 
-      = sort!(hits, test: method(a :: <hit-info>, b :: <hit-info>) => (less :: <boolean>);
-			      a.dist < b.dist
-			  end method);
-    let best :: <hit-info> = hits[0];
-    values(best.hit, best.norm, best.surface, magnitude(ray.ray-position - best.hit));
-  else
-    #f;
-  end if;
+  end block;
 end method real-intersection-before;
 
 
 define method real-intersection-before(m :: <cone>, ray :: <ray>, distance :: <fp>, shadow-test? :: <boolean>)
- => (point, normal, surface-method, new-distance)
+ => (point, normal, surface, new-distance)
 
   let hits = make(<stretchy-vector>);
 
@@ -235,7 +243,7 @@ define method real-intersection-before(m :: <cone>, ray :: <ray>, distance :: <f
 				       ray);
   if (hit & (hit.x * hit.x + hit.z * hit.z) <= 1.0)
     add!(hits, vector(dist, hit, vector3D(0.0, -1.0, 0.0),
-		      make-surface-closure(1, hit.x / 2.0 + 0.5, hit.y / 2.0 + 0.5, m.surface-interpreter-entry)))
+		      make-surface-closure(1, hit.x / 2.0 + 0.5, hit.y / 2.0 + 0.5, m)))
   end if;
 
   // Check side
@@ -249,7 +257,7 @@ define method real-intersection-before(m :: <cone>, ray :: <ray>, distance :: <f
 end method real-intersection-before;
 
 define method real-intersection-before(m :: <cylinder>, ray :: <ray>, distance :: <fp>, shadow-test? :: <boolean>)
- => (point, normal, surface-method, new-distance)
+ => (point, normal, surface, new-distance)
 
   let hits = make(<stretchy-vector>);
   // Check top:
@@ -257,14 +265,14 @@ define method real-intersection-before(m :: <cylinder>, ray :: <ray>, distance :
 				       ray);
   if (hit & (hit.x * hit.x + hit.z * hit.z) <= 1.0)
     add!(hits, vector(dist, hit, vector3D(0.0, 1.0, 0.0),
-		      make-surface-closure(1, hit.x / 2.0 + 0.5, hit.z / 2.0 + 0.5, m.surface-interpreter-entry)))
+		      make-surface-closure(1, hit.x / 2.0 + 0.5, hit.z / 2.0 + 0.5, m)))
   end if;
   // Check bottom:
   let (hit, dist) = plane-intersection(vector3D(0.0, -1.0, 0.0), 0.0,
 				       ray);
   if (hit & (hit.x * hit.x + hit.z * hit.z) <= 1.0)
     add!(hits, vector(dist, hit, vector3D(0.0, -1.0, 0.0),
-		      make-surface-closure(2, hit.x / 2.0 + 0.5, hit.z / 2.0 + 0.5, m.surface-interpreter-entry)))
+		      make-surface-closure(2, hit.x / 2.0 + 0.5, hit.z / 2.0 + 0.5, m)))
   end if;
 
   // Check side:
@@ -293,7 +301,7 @@ define method real-intersection-before(m :: <cylinder>, ray :: <ray>, distance :
 			real-hit, hit - $origin,
 			make-surface-closure(0,
 					     atan2(real-hit.x, real-hit.z) / (2.0 * $pi), 
-					     real-hit.y, m.surface-interpreter-entry)));
+					     real-hit.y, m)));
     end if;
   end if;
 
@@ -308,7 +316,7 @@ end method real-intersection-before;
 // CSG:
 define method real-intersection-before(m :: <csg-union>, ray :: <ray>, distance :: <fp>,
 				       shadow-test? :: <boolean>)
- => (point, normal, surface-method, new-distance)
+ => (point, normal, surface, new-distance)
 
   block(easy-out)
     let closest = distance;
