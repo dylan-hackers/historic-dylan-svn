@@ -2,7 +2,10 @@
 <HTML
 ><HEAD
 ><TITLE
->D2c Internals Guide</TITLE
+><B
+CLASS="COMMAND"
+>d2c</B
+> Internals Guide</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
@@ -13,8 +16,8 @@ REL="PREVIOUS"
 TITLE="Mindy Internals Guide"
 HREF="gdmaint-mindy-internals.html"><LINK
 REL="NEXT"
-TITLE="Melange Internals Guide"
-HREF="gdmaint-melange-internals.html"></HEAD
+TITLE="The Compiler-Base Library"
+HREF="gdmaint-d2c-base.html"></HEAD
 ><BODY
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
@@ -50,7 +53,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="gdmaint-melange-internals.html"
+HREF="gdmaint-d2c-base.html"
 >Next</A
 ></TD
 ></TR
@@ -61,10 +64,125 @@ WIDTH="100%"></DIV
 ><H1
 ><A
 NAME="GDMAINT-D2C-INTERNALS"
->Chapter 4. D2c Internals Guide</A
+>Chapter 5. <B
+CLASS="COMMAND"
+>d2c</B
+> Internals Guide</A
 ></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Base</CODE
+></FONT
+> Library</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-parser.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+> Library</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-front.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> Library</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> Library</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-optimize.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Optimize</CODE
+></FONT
+> Library</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-cback.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-CBack</CODE
+></FONT
+> Library</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-main.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Main</CODE
+></FONT
+> Library</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-dylan.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Dylan</CODE
+></FONT
+> Runtime Library</A
+></DT
+></DL
+></DIV
 ><P
->FIXME: to be supplied later</P
+><STRONG
+>Written by:</STRONG
+></P
+><P
+><SPAN
+CLASS="FIRSTNAME"
+>Eric</SPAN
+> <SPAN
+CLASS="SURNAME"
+>Kidd</SPAN
+><BR>&#60;<TT
+CLASS="EMAIL"
+>eric.kidd@pobox.com</TT
+>&#62;</P
+><P
+>The <B
+CLASS="COMMAND"
+>d2c</B
+> compiler was developed by the Gwydion Project at
+    CMU. This chapter explains the structure of <B
+CLASS="COMMAND"
+>d2c</B
+> and gives a brief
+    overview of how the various components interact.</P
 ><DIV
 CLASS="NAVFOOTER"
 ><HR
@@ -96,7 +214,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="gdmaint-melange-internals.html"
+HREF="gdmaint-d2c-base.html"
 >Next</A
 ></TD
 ></TR
@@ -115,7 +233,12 @@ VALIGN="top"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Melange Internals Guide</TD
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Base</CODE
+></FONT
+> Library</TD
 ></TR
 ></TABLE
 ></DIV

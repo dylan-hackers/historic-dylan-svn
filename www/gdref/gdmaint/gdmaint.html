@@ -26,6 +26,9 @@ CLASS="EDITEDBY"
 ><H3
 CLASS="EDITOR"
 >Peter Housel</H3
+><H3
+CLASS="EDITOR"
+>Eric Kidd</H3
 ><P
 CLASS="COPYRIGHT"
 >Copyright © 1998 by <SPAN
@@ -90,21 +93,668 @@ HREF="gdmaint-introduction.html"
 ></DT
 ><DT
 >2. <A
+HREF="gdmaint-conventions.html"
+>Development Conventions</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-conventions-principles.html"
+>Basic Principles</A
+></DT
+><DT
+><A
+HREF="gdmaint-conventions-cvs.html"
+>CVS Suggestions</A
+></DT
+></DL
+></DD
+><DT
+>3. <A
 HREF="gdmaint-porting.html"
 >Porting Gwydion Dylan to a New Platform</A
 ></DT
 ><DT
->3. <A
+>4. <A
 HREF="gdmaint-mindy-internals.html"
 >Mindy Internals Guide</A
 ></DT
 ><DT
->4. <A
+>5. <A
 HREF="gdmaint-d2c-internals.html"
->D2c Internals Guide</A
+><B
+CLASS="COMMAND"
+>d2c</B
+> Internals Guide</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-base.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Base</CODE
+></FONT
+> Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-MISCELLANEOUS"
+>Miscellaneous Utility Modules</A
 ></DT
 ><DT
->5. <A
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-OD-FORMAT"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>OD-Format</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-DYLAN-DUMP"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Dylan-Dump</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-COMPILE-TIME-VALUES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compile-Time-Values</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-SOURCE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Source</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-TOKENS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Tokens</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-HEADER"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Header</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-PLATFORM"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Platform</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-ERRORS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Errors</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-SIGNATURE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Signature-Interface</CODE
+></FONT
+> and
+	<FONT
+COLOR="GREEN"
+><CODE
+>Signature</CODE
+></FONT
+> Modules</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-NAMES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Names</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-DEFINITIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Definitions</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-VARIABLES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Variables</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-POLICY"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Policy</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-CTYPE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>CType</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-TRANSFORMERS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Transformers</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-REPRESENTATION"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Representation</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-CLASSES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Classes</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-TYPE-DUMP"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Type-Dump</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-C-REPRESENTATION"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>C-Representation</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-COMPILE-TIME-FUNCTIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compile-Time-Functions</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-FLOW"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Flow</CODE
+></FONT
+> Module</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gdmaint-d2c-parser.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+> Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-TOKENIZE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Tokenize</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-SOURCE-UTILITIES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Source-Utilities</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-LEXER"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Lexer</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-FRAGMENTS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Fragments</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-PARSE-TREE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Parse-Tree</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-PARSER"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Parser</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-MACROS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Macros</CODE
+></FONT
+> Module</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gdmaint-d2c-front.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-BUILDER-INTERFACE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Builder-Interface</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-PRIMITIVES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Primitives</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-FRONT"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Front</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-FER-OD"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>FER-OD</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-FUNCTION-DEFINITIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Function-Definitions</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-VARIABLE-DEFINITIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Variable-Definitions</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-TOP-LEVEL-FORMS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Top-Level-Forms</CODE
+></FONT
+> Module</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gdmaint-d2c-convert.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-LEXENV"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>LexEnv</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-COMPILE-TIME-EVAL"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compile-Time-Eval</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-EXPANDERS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Expanders</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-FER-CONVERT"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>FER-Convert</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-DEFINE-MACROS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Macros</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-DEFINE-LIBRARIES-AND-MODULES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Libraries-and-Modules</CODE
+></FONT
+>
+	Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-DEFINE-FUNCTIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Functions</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-DEFINE-CONSTANTS-AND-VARIABLES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Constants-and-Variables</CODE
+></FONT
+>
+	Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-DEFINE-CLASSES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Classes</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-convert.html#GDMAINT-D2C-CONVERT-TOP-LEVEL-EXPRESSIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Top-Level-Expressions</CODE
+></FONT
+> Module</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gdmaint-d2c-optimize.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Optimize</CODE
+></FONT
+> Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-optimize.html#GDMAINT-D2C-OPTIMIZE-CHEESE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Cheese</CODE
+></FONT
+> Module</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gdmaint-d2c-cback.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-CBack</CODE
+></FONT
+> Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-cback.html#GDMAINT-D2C-CBACK-STACK-ANALYSIS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Stack-Analysis</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-cback.html#GDMAINT-D2C-CBACK-CBACK"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>CBack</CODE
+></FONT
+> Module</A
+></DT
+><DT
+><A
+HREF="gdmaint-d2c-cback.html#GDMAINT-D2C-CBACK-HEAP"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Heap</CODE
+></FONT
+> Module</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gdmaint-d2c-main.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Main</CODE
+></FONT
+> Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gdmaint-d2c-main.html#GDMAINT-D2C-MAIN-MAIN"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Main</CODE
+></FONT
+> Module</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gdmaint-d2c-dylan.html"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Dylan</CODE
+></FONT
+> Runtime Library</A
+></DT
+></DL
+></DD
+><DT
+>6. <A
 HREF="gdmaint-melange-internals.html"
 >Melange Internals Guide</A
 ></DT
@@ -124,17 +774,17 @@ HREF="gdmaint-style-recommended.html"
 ><DL
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN67"
+HREF="gdmaint-style-recommended.html#AEN573"
 >Indent level</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN70"
+HREF="gdmaint-style-recommended.html#AEN576"
 >Indent wrapping slot descriptions</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN73"
+HREF="gdmaint-style-recommended.html#AEN579"
 >Using <TT
 CLASS="LITERAL"
 >///</TT
@@ -142,7 +792,7 @@ CLASS="LITERAL"
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN83"
+HREF="gdmaint-style-recommended.html#AEN589"
 >Using <TT
 CLASS="LITERAL"
 >/* ... */</TT
@@ -150,12 +800,12 @@ CLASS="LITERAL"
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN90"
+HREF="gdmaint-style-recommended.html#AEN596"
 >Wrapping function definition headers</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN96"
+HREF="gdmaint-style-recommended.html#AEN602"
 >Indent keyword parameters beyond
 	<TT
 CLASS="LITERAL"
@@ -164,12 +814,12 @@ CLASS="LITERAL"
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN104"
+HREF="gdmaint-style-recommended.html#AEN610"
 >Wrapping variable and constant definitions</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN109"
+HREF="gdmaint-style-recommended.html#AEN615"
 >Using <TT
 CLASS="LITERAL"
 >end <TT
@@ -183,24 +833,24 @@ CLASS="PARAMETER"
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN127"
+HREF="gdmaint-style-recommended.html#AEN633"
 >Horizontal space for columnization or other visual
 	effects</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN130"
+HREF="gdmaint-style-recommended.html#AEN636"
 >Keyword syntax</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN135"
+HREF="gdmaint-style-recommended.html#AEN641"
 >Blank comment line between introductory comments and
 	definitions</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN139"
+HREF="gdmaint-style-recommended.html#AEN645"
 >Wrapping <TT
 CLASS="LITERAL"
 >case</TT
@@ -212,7 +862,7 @@ CLASS="LITERAL"
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN149"
+HREF="gdmaint-style-recommended.html#AEN655"
 >Using <TT
 CLASS="LITERAL"
 >#t</TT
@@ -228,7 +878,7 @@ CLASS="LITERAL"
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-recommended.html#AEN158"
+HREF="gdmaint-style-recommended.html#AEN664"
 >Wrapping <TT
 CLASS="LITERAL"
 >for</TT
@@ -245,12 +895,12 @@ HREF="gdmaint-style-mandated.html"
 ><DL
 ><DT
 ><A
-HREF="gdmaint-style-mandated.html#AEN168"
+HREF="gdmaint-style-mandated.html#AEN674"
 >Function name and open paren</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-mandated.html#AEN173"
+HREF="gdmaint-style-mandated.html#AEN679"
 >Wrapping <TT
 CLASS="LITERAL"
 >let</TT
@@ -258,17 +908,17 @@ CLASS="LITERAL"
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-mandated.html#AEN178"
+HREF="gdmaint-style-mandated.html#AEN684"
 >Terminate statements with semicolons</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-mandated.html#AEN181"
+HREF="gdmaint-style-mandated.html#AEN687"
 >Single-line statements</A
 ></DT
 ><DT
 ><A
-HREF="gdmaint-style-mandated.html#AEN189"
+HREF="gdmaint-style-mandated.html#AEN695"
 >Wrapping arithmetic/boolean expressions</A
 ></DT
 ></DL

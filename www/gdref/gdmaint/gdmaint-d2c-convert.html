@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> Library</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Porting and Maintenance Guide"
+HREF="gdmaint.html"><LINK
+REL="UP"
+TITLE="d2c Internals Guide"
+HREF="gdmaint-d2c-internals.html"><LINK
+REL="PREVIOUS"
+TITLE="The Compiler-Front Library"
+HREF="gdmaint-d2c-front.html"><LINK
+REL="NEXT"
+TITLE="The Compiler-Optimize Library"
+HREF="gdmaint-d2c-optimize.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Porting and Maintenance Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="gdmaint-d2c-front.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. <B
+CLASS="COMMAND"
+>d2c</B
+> Internals Guide</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="gdmaint-d2c-optimize.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="GDMAINT-D2C-CONVERT"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> Library</A
+></H1
+><P
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> library acts as an
+      adaptor between the <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+> and the
+      <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+>.</P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-LEXENV"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>LexEnv</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-COMPILE-TIME-EVAL"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compile-Time-Eval</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-EXPANDERS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Expanders</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-FER-CONVERT"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>FER-Convert</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-DEFINE-MACROS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Macros</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-DEFINE-LIBRARIES-AND-MODULES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Libraries-and-Modules</CODE
+></FONT
+>
+	Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-DEFINE-FUNCTIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Functions</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-DEFINE-CONSTANTS-AND-VARIABLES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Constants-and-Variables</CODE
+></FONT
+>
+	Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-DEFINE-CLASSES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Define-Classes</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-TOP-LEVEL-EXPRESSIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Top-Level-Expressions</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-front.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-optimize.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> Library</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-internals.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Optimize</CODE
+></FONT
+> Library</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

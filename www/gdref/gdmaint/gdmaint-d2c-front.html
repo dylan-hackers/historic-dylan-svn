@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> Library</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Porting and Maintenance Guide"
+HREF="gdmaint.html"><LINK
+REL="UP"
+TITLE="d2c Internals Guide"
+HREF="gdmaint-d2c-internals.html"><LINK
+REL="PREVIOUS"
+TITLE="The Compiler-Parser Library"
+HREF="gdmaint-d2c-parser.html"><LINK
+REL="NEXT"
+TITLE="The Compiler-Convert Library"
+HREF="gdmaint-d2c-convert.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Porting and Maintenance Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="gdmaint-d2c-parser.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. <B
+CLASS="COMMAND"
+>d2c</B
+> Internals Guide</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="gdmaint-d2c-convert.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="GDMAINT-D2C-FRONT"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> Library</A
+></H1
+><P
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> library is repsonsible
+      for processing the <I
+CLASS="GLOSSTERM"
+>Front End Representation</I
+> of
+      a Dylan program. It depends only on the
+      <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Base</CODE
+></FONT
+> library.</P
+><P
+>Data is passed from the <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+>
+      library to the <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> by the
+      <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> (see <A
+HREF="gdmaint-d2c-convert.html"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> Library</I
+></A
+>).</P
+><H2
+><A
+NAME="GDMAINT-D2C-FRONT-BUILDER-INTERFACE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Builder-Interface</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-FRONT-PRIMITIVES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Primitives</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-FRONT-FRONT"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Front</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-FRONT-FER-OD"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>FER-OD</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-FRONT-FUNCTION-DEFINITIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Function-Definitions</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-FRONT-VARIABLE-DEFINITIONS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Variable-Definitions</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><H2
+><A
+NAME="GDMAINT-D2C-FRONT-TOP-LEVEL-FORMS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Top-Level-Forms</CODE
+></FONT
+> Module</A
+></H2
+><P
+></P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-parser.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-convert.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+> Library</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-internals.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> Library</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+> Library</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Porting and Maintenance Guide"
+HREF="gdmaint.html"><LINK
+REL="UP"
+TITLE="d2c Internals Guide"
+HREF="gdmaint-d2c-internals.html"><LINK
+REL="PREVIOUS"
+TITLE="The Compiler-Base Library"
+HREF="gdmaint-d2c-base.html"><LINK
+REL="NEXT"
+TITLE="The Compiler-Front Library"
+HREF="gdmaint-d2c-front.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Porting and Maintenance Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="gdmaint-d2c-base.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. <B
+CLASS="COMMAND"
+>d2c</B
+> Internals Guide</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="gdmaint-d2c-front.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="GDMAINT-D2C-PARSER"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+> Library</A
+></H1
+><P
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+> library handles
+      lexical analysis, parsing and macro expansion. It relies only on the
+      <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Base</CODE
+></FONT
+> library.</P
+><H2
+><A
+NAME="GDMAINT-D2C-PARSER-TOKENIZE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Tokenize</CODE
+></FONT
+> Module</A
+></H2
+><P
+>This module provides an abstract class
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;tokenizer&#62;</CODE
+></FONT
+> supporting <FONT
+COLOR="GREEN"
+><CODE
+>get-token</CODE
+></FONT
+>,
+	<FONT
+COLOR="GREEN"
+><CODE
+>unget-token</CODE
+></FONT
+> and a few other functions.</P
+><P
+>For implementations of this interface, see <A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-LEXER"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Lexer</CODE
+></FONT
+> Module</I
+></A
+> and <A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-FRAGMENTS"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Fragments</CODE
+></FONT
+> Module</I
+></A
+>.</P
+><H2
+><A
+NAME="GDMAINT-D2C-PARSER-SOURCE-UTILITIES"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Source-Utilities</CODE
+></FONT
+> Module</A
+></H2
+><P
+>This module implements a number of subclasses of
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;source-location&#62;</CODE
+></FONT
+> (see <A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-SOURCE"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Source</CODE
+></FONT
+> Module</I
+></A
+> for details) that are used to
+	represent the source of tokens during macro expansion.</P
+><P
+>There may be slightly more to this module than is apparent at
+	first glance.</P
+><H2
+><A
+NAME="GDMAINT-D2C-PARSER-LEXER"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Lexer</CODE
+></FONT
+> Module</A
+></H2
+><P
+>This module provides <FONT
+COLOR="GREEN"
+><CODE
+>&#60;lexer&#62;</CODE
+></FONT
+>, a subclass of
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;tokenizer&#62;</CODE
+></FONT
+> used to get tokens from a source
+	record.</P
+><H2
+><A
+NAME="GDMAINT-D2C-PARSER-FRAGMENTS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Fragments</CODE
+></FONT
+> Module</A
+></H2
+><P
+>Fragments are the input to and output from macro
+	expansion. According to the top-of-file comment:</P
+><BLOCKQUOTE
+><P
+>The DRM says that:</P
+><BLOCKQUOTE
+><P
+>The input to, and output from, a macro expansion is a
+            fragment, which is a sequence of elementary fragments.  An
+            elementary fragment is one of the following:</P
+><P
+></P
+><UL
+><LI
+><P
+>A token: the output of the lexical grammar. ...</P
+></LI
+><LI
+><P
+>A bracketed fragment: balanced brackets ( (), [], or
+                {} ) enclosing a fragment.</P
+></LI
+><LI
+><P
+>A macro-call fragment: a macro call.</P
+></LI
+><LI
+><P
+>A parsed fragment: a single unit that is not
+                decomposable into its component tokens.  It has been fully
+                parsed by the phrase grammar.  A parsed fragment is either
+                an expression, a definition, or a local declaration.</P
+></LI
+></UL
+></BLOCKQUOTE
+><P
+>So the parser needs to be able to produce fragments, the
+          macro expander needs to be able to destructure and reconstruct
+          fragments, and then the parser needs to be able to grovel the
+          final results.  This file implements all that.</P
+></BLOCKQUOTE
+><P
+>This module also provides
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;fragment-tokenizer&#62;</CODE
+></FONT
+>, a subclass of
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;tokenizer&#62;</CODE
+></FONT
+> used to get tokens from a macro
+	fragment.</P
+><H2
+><A
+NAME="GDMAINT-D2C-PARSER-PARSE-TREE"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Parse-Tree</CODE
+></FONT
+> Module</A
+></H2
+><P
+>This module defines the tree representation used by the
+	parser and the macro-expander. (It also includes the classes needed
+	to represent the contents of a <FONT
+COLOR="GREEN"
+><CODE
+>define macro</CODE
+></FONT
+>
+	form.)</P
+><H2
+><A
+NAME="GDMAINT-D2C-PARSER-PARSER"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Parser</CODE
+></FONT
+> Module</A
+></H2
+><P
+>This modules takes input from a <FONT
+COLOR="GREEN"
+><CODE
+>&#60;tokenizer&#62;</CODE
+></FONT
+>
+	and generates a parse tree. It looks like the main entry point is
+	<FONT
+COLOR="GREEN"
+><CODE
+>parse-source-record</CODE
+></FONT
+>. There are other entry points
+	which are called recursively by the macro expander; these parse a
+	single production of Dylan's grammar.</P
+><P
+>This module defines the generic function
+	<FONT
+COLOR="GREEN"
+><CODE
+>process-top-level-form</CODE
+></FONT
+>. It does not, however, define
+	any methods. When the parser has found a top-level form, it calls
+	<FONT
+COLOR="GREEN"
+><CODE
+>process-top-level-form</CODE
+></FONT
+> and allows other modules to
+	take care of the details. This design may have implications for
+	multi-threading and code reuse&#8212;it looks like the parser can
+	only be used in one way by any given program.</P
+><H2
+><A
+NAME="GDMAINT-D2C-PARSER-MACROS"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Macros</CODE
+></FONT
+> Module</A
+></H2
+><P
+>This module implements macro expansion as defined in the
+	
+<A
+HREF="http://www.cambridge.apple.com/dylan/drm/drm-1.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>Dylan Reference Manual</I
+></A
+>
+. It also provides <FONT
+COLOR="GREEN"
+><CODE
+>&#60;macro-definition&#62;</CODE
+></FONT
+> (see
+	<A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-DEFINITIONS"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Definitions</CODE
+></FONT
+> Module</I
+></A
+>).</P
+><P
+>Note that this module only handles those macros which
+	expand according to the standard rules. More compilicated macros
+	are handled elsewhere by procedural expanders. To define a new
+	procedural expander, register it using
+	<FONT
+COLOR="GREEN"
+><CODE
+>define-procedural-expander</CODE
+></FONT
+>.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-base.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-front.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Base</CODE
+></FONT
+> Library</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint-d2c-internals.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Front</CODE
+></FONT
+> Library</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

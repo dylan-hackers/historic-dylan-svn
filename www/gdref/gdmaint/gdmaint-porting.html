@@ -10,8 +10,8 @@ REL="HOME"
 TITLE="Gwydion Dylan Porting and Maintenance Guide"
 HREF="gdmaint.html"><LINK
 REL="PREVIOUS"
-TITLE="Introduction"
-HREF="gdmaint-introduction.html"><LINK
+TITLE="CVS Suggestions"
+HREF="gdmaint-conventions-cvs.html"><LINK
 REL="NEXT"
 TITLE="Mindy Internals Guide"
 HREF="gdmaint-mindy-internals.html"></HEAD
@@ -37,7 +37,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="gdmaint-introduction.html"
+HREF="gdmaint-conventions-cvs.html"
 >Prev</A
 ></TD
 ><TD
@@ -61,10 +61,83 @@ WIDTH="100%"></DIV
 ><H1
 ><A
 NAME="GDMAINT-PORTING"
->Chapter 2. Porting Gwydion Dylan to a New Platform</A
+>Chapter 3. Porting Gwydion Dylan to a New Platform</A
 ></H1
 ><P
+>Here's a rough overview of how to port <B
+CLASS="COMMAND"
+>d2c</B
+>. Take this with a
+    grain of salt; the rules change occasionally.</P
+><P
 ></P
+><UL
+><LI
+><P
+>Add your platform to the <TT
+CLASS="FILENAME"
+>platforms.descr</TT
+>
+	file and <TT
+CLASS="FILENAME"
+>configure.in</TT
+>. This will require a bit
+	of delibrate research.</P
+></LI
+><LI
+><P
+>Look in other places, such as the various
+	<TT
+CLASS="FILENAME"
+>Makegen</TT
+> files and platform-specific Melange
+	code. Do something intelligent.</P
+></LI
+><LI
+><P
+>Make sure that the Boehm GC runs on your platform. If not,
+	you need to talk to the Boehm list.</P
+></LI
+><LI
+><P
+>Run <B
+CLASS="COMMAND"
+>configure</B
+> with the flag
+	<TT
+CLASS="LITERAL"
+>--enable-mindy-bootstrap</TT
+>, then run
+	<B
+CLASS="COMMAND"
+>make</B
+>. Be prepared to wait, and be ready to fix
+	any bugs you encounter.</P
+></LI
+><LI
+><P
+>Gripe to &#60;<TT
+CLASS="EMAIL"
+>gd-hackers@randomhacks.com</TT
+>&#62; when it
+	breaks. We'll help you sort out the mess.</P
+></LI
+></UL
+><P
+>The more your platform looks like a 32-bit Unix system with the
+    GNU tools, the easier things will be. Supporting 64-bit platforms is a
+    minor project requiring a number of changes to <B
+CLASS="COMMAND"
+>d2c</B
+> (Mindy already
+    works on Alpha Linux, thanks to the efforts of Jeff Dubrule). Windows
+    support has been broken slightly since the 2.0 days, but most of the
+    problems are in the build system, not the source itself.</P
+><P
+>Macintoshes, vendor C compilers and other such oddities are the
+    responsibility of those who use them. We'll be happy to help, but
+    you'll probably need to find a significant number of dedicated
+    volunteers to help you fix any problems you encounter.</P
 ><DIV
 CLASS="NAVFOOTER"
 ><HR
@@ -80,7 +153,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="gdmaint-introduction.html"
+HREF="gdmaint-conventions-cvs.html"
 >Prev</A
 ></TD
 ><TD
@@ -105,7 +178,7 @@ HREF="gdmaint-mindy-internals.html"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Introduction</TD
+>CVS Suggestions</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
