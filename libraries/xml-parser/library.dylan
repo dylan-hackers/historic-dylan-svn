@@ -32,7 +32,8 @@ define module xml-parser
 // while I test the rest of the system.
 
 // beginning to integrate Chris' parse engine
-  create <document>, <element>, children;
+  create <document>, <element>, <attribute>, 
+    name, value, children, tag-name, attributes;
 
 end module xml-parser;
 

@@ -29,17 +29,29 @@ copyright: LGPL
 // Macros to simplify the parsing task
 // macro added by Doug to simplify writing parser fns
 define macro parse-definer
-{ define parse ?:name [ ?meta-vars:* ]
-     (#key ?result:expression = #t)
+{ define parse ?:name ( ?meta-vars:* ) => (?results)
    ?meta
   end } 
  => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
         with-meta-syntax parse-string (string, start: start, pos: index)
           variables(?meta-vars);
           [ ?meta ];
-          values(index, ?result);
+          values(index, ?results);
         end with-meta-syntax;
       end; }
+{ define parse ?:name (?meta-vars:*) ?meta end }
+ => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
+        with-meta-syntax parse-string (string, start: start, pos: index)
+          variables(?meta-vars);
+          [ ?meta ];
+          values(index, #t);
+        end with-meta-syntax;
+      end; }
+/****
+  results:
+   { } => { }
+   { ?:expression, ... } => { ?expression, ... }
+ ***/
 end macro parse-definer;
 
 // Doug wrote this macro for collecting strings
@@ -63,8 +75,8 @@ end macro collector-definer;
 // 
 //    [1]    document    ::=    prolog element Misc*
 //
-define parse document[prolog, elemnt, misc] 
- (result: make(<document>, children: vector(elemnt)))
+define parse document(prolog, elemnt, misc) =>
+ (make(<document>, children: vector(elemnt)))
    parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))
 end parse document;
 
@@ -86,7 +98,7 @@ define constant <space> =
   one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
          as(<character>, #x0a));
 
-define parse s[c] () type(<space>, c), loop(type(<space>, c)) end;
+define parse s(c) type(<space>, c), loop(type(<space>, c)) end;
 
 // Names and Tokens
 // 
@@ -223,7 +235,7 @@ define constant <pub-id-char> =
 
 //    [25]    Eq             ::=    S? '=' S?
 //
-define parse eq[sp] () loop(parse-s(sp)), '=', loop(parse-s(sp)) end;
+define parse eq(sp) loop(parse-s(sp)), '=', loop(parse-s(sp)) end;
 
 //    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
 //
@@ -274,7 +286,7 @@ end method parse-xml-decl;
 
 //    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 //
-define parse comment[c] ()
+define parse comment(c)
   "<!--", loop({["-->", finish()], type(<char>, c)})
 end;
 
@@ -595,13 +607,13 @@ end method parse-xml-attribute;
 //                                                               [WFC: No External Entity References]
 //                                                               [WFC: No < in Attribute Values]
 //
-define parse attribute[name, eq, value] (result: pair(name, value))
+define parse attribute(name, eq, value)
+ => (make(<attribute>, name: name, value: value))
   parse-name(name), parse-eq(eq), parse-xml-attribute(value)
 end parse attribute;
 
 // helper method for parsing opening tags
-define parse beginning-of-tag[elt, attribs, s]
- (result: make(<xml-element>, name: elt, attributes: attribs))
+define parse beginning-of-tag(elt, attribs, s) => (elt, attribs)
   "<", parse-name(elt), loop(parse-s(s)), parse-xml-attributes(attribs)
 end parse beginning-of-tag;
 
@@ -611,23 +623,23 @@ end parse beginning-of-tag;
 //
 // This is not optimal because we parse the whole tag data twice if it
 // is not an empty-elem-tag. Need to unify this with [39].
-define parse empty-elem-tag[elt] (result: elt)
-  parse-beginning-of-tag(elt), "/>"
+define parse empty-elem-tag(elt, attribs) => (elt, attribs)
+  parse-beginning-of-tag(elt, attribs), "/>"
 end parse empty-elem-tag;
 
 // Start-tag
 // 
 //    [40]    STag         ::=    '<' Name (S Attribute)* S? '>' [WFC: Unique Att Spec]
 //
-define parse stag[elt] (result: elt)
-  parse-beginning-of-tag(elt), ">"
+define parse stag(elt, attribs) => (elt, attribs)
+  parse-beginning-of-tag(elt, attribs), ">"
 end parse stag;
 
 // End-tag
 // 
 //    [42]    ETag    ::=    '</' Name S? '>'
 //    
-define parse etag[name, s] (result: name)
+define parse etag(name, s) => (name)
   "</", parse-name(name), {parse-s(s), []}, ">"
 end parse etag;
 
@@ -652,7 +664,8 @@ end method parse-content;
 //    [39]    element    ::=    EmptyElemTag
 //                              | STag content ETag [WFC: Element Type Match]
 //                                                  [VC: Element Valid]
-//    
+//
+/*****
 define method parse-element(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(c, empty-tag, stag, content, etag);
@@ -661,8 +674,16 @@ define method parse-element(string, #key start = 0, end: stop)
     values(index, #t);
   end with-meta-syntax;
 end method parse-element;
-
-
+****/
+define parse element(name, attribs, content, etag)
+ => (make(<element>, children: content, 
+          tag-name: name,
+          attributes: attribs))
+  {[parse-empty-elem-tag(tag-name, attributes), set!(content, "")],
+     [parse-stag(tag-name, attributes), 
+      parse-content(content), 
+      parse-etag(etag)]}, []
+end parse element;
 
 
 // Character Data
@@ -973,17 +994,7 @@ end method parse-ignore;
 //    | [#x0B66-#x0B6F] | [#x0BE7-#x0BEF] | [#x0C66-#x0C6F] | [#x0CE6-#x0CEF] | [#x0D66-#x0D6F] | [#x0E50-#x0E59] | [#x0ED0-#x0ED9] | [#x0F20-#x0F29]
 //    [89]    Extender    ::=    #x00B7 | #x02D0 | #x02D1 | #x0387 | #x0640 | #x0E46 | #x0EC6 | #x3005 | [#x3031-#x3035] | [#x309D-#x309E] | [#x30FC-#x30FE]
 //    
-// 
-/***** DOUG
-define method parse-document(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(prolog, elemnt, misc);
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-document;
-
-*****/
-
+//
 define method parse-encoding-info(string, #key start = 0, end: stop)
   local method is-not-single-quote?(char :: <character>)
       char ~= '\'';
