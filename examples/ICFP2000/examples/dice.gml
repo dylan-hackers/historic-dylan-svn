@@ -48,16 +48,16 @@
   }
 } /const-surface
 
-0.0 3.0 1.0 point 1.0 1.0 1.0 point pointlight /light1
+0.0 4.0 0.0 point 0.9 0.9 0.9 point pointlight /light1
 
 1.0 12.0 divf /one12
 1.0 6.0 divf /one6
 
 white 0.1 1.0 1.0 const-surface apply plane /mirror
 
-magenta 0.6 0.5 1.0 const-surface apply sphere one12 uscale /pip
+magenta 0.5 0.5 2.0 const-surface apply sphere one12 uscale /pip
 
-blue 0.6 0.5 1.0 const-surface apply cube
+blue 0.6 0.5 3.0 const-surface apply cube
 -0.5 -0.5 -0.5 translate			% center cube
 % front is five pips
   pip 0.0 0.0 -0.5 translate difference
@@ -98,7 +98,7 @@ mirror -90.0 rotatex 0.0 0.0 10.0 translate
 
 union /scene
 
-0.5 0.5	0.5 point	% ambient
+0.4 0.4	0.4 point	% ambient
 [light1] 		% lights
 scene			% object
 3			% depth

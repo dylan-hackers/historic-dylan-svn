@@ -49,7 +49,7 @@ white 0.1 1.0 1.0 const-surface apply plane /mirror
   1.0 0.0 1.0			  % kd ks n
 } sphere /s2
 
-s1 0.0 1.0 -1.5 translate	  % behind viewer
+s1 0.0 1.5 -2.0 translate	  % behind and above viewer
 s2 1.4 1.3 2.0 translate	  % in front of viewer
 union
 mirror -90.0 rotatex 0.0 0.0 6.0 translate
