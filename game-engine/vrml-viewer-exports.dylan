@@ -9,7 +9,8 @@ define library vrml-viewer
   use garbage-collection;
   use opengl;
   use melange-support;
-
+  use meta;
+  
 //  use melange-support // for null-pointer
 end library;
 
@@ -28,7 +29,10 @@ end;
 
 define module vrml-parser
   use dylan;
+  use streams;
   use vrml-model;
+  use meta;
+  use format-out;
   
   export parse-vrml;
 end;
