@@ -119,17 +119,17 @@ rule DylanLibrary image : version {
   # in the event that it later becomes a system library.
 
   local _mkf = $(image[1]:LS=$(SUFMKF)) ;
-  MakeLocate $(_mkf) : $(PERSONAL_LIBDIR) ;
+  MakeLocate $(_mkf) : $(LIBDIR) ;
   if ! $(SYSTEM) {
     File $(_mkf) : [ FGristFiles $(MKF) ] ;
-    Depends $(_dll) : $(_mkf) ;
+    Depends $(_lib) : $(_mkf) ;
   }
 
   # If this is the top-level project, make the dll, exe, and clean
   # targets depend on its build products.
   
   if ! $(PARENT) {
-    Depends dll : $(_dll) $(_lib) $(_mkf) ;
+    Depends dll : $(_dll) $(_lib) ;
     Depends lib : $(_lib) ;
     Depends exe : $(_exe) ;
 
