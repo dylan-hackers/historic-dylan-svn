@@ -45,11 +45,11 @@ define function height(b :: <board>) => w :: <coordinate>;
   b.lines.size
 end;
 
-define method initialize(b :: <board>, #key rows, cols, #all-keys)
+define method initialize(b :: <board>, #key x, y, #all-keys)
   b.lines :=
   map-as(limited(<vector>, of: <line>),
-         method(ignore) make(<line>, size: cols, fill: $empty-char) end,
-         range(below: rows));
+         method(ignore) make(<line>, size: x, fill: $empty-char) end,
+         range(below: y));
 end;
 
 

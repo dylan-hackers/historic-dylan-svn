@@ -8,7 +8,7 @@ module: messages
 
 // Expected interface for boards:
 // 
-// make(class == <board>, rows: <integer>, cols: <integer>) => <board>;
+// make(class == <board>, max-x: <integer>, max-y: <integer>) => <board>;
 // This is the board constructor.
 //
 // The things that go inside boards: 
@@ -17,7 +17,7 @@ module: messages
 //   make(<wall>)
 //   make(<base>)
 //
-// Setting board data: aref(space, <board>, row, col) => ()
+// Setting board data: aref(space, <board>, x, y) => ()
 // Making robots -- robot(N) should be a hash-consing constructor
 // that returns the same robot if N is repeated (aka Flyweight pattern).
 //
@@ -140,10 +140,10 @@ end function receive-initial-setup;
 
 define function receive-board-layout (s :: <stream>) => <board>;
   block()
-    let (rows, cols) = receive-board-dimensions(s);
-    let board = make(<board>, rows: rows, cols: cols);
-    for (i from 0 below rows)
-      receive-board-row(s, board, i, cols)
+    let (max-x, max-y) = receive-board-dimensions(s);
+    let board = make(<board>, x: max-x, y: max-y);
+    for (y from 0 below max-y)
+      receive-board-row(s, board, max-x, y)
     end for;
     debug("receive-board\n");
     board
@@ -173,14 +173,14 @@ end function receive-client-configuration;
 
 define function receive-initial-robot-positions
     (s :: <stream>, b :: <board>) => ()
-  let (robot-id, row, col) = receive-robot-positions(s);
-  b[row, col] := robot(robot-id);
+  let (robot-id, x, y) = receive-robot-positions(s);
+  b[x, y] := robot(robot-id);
   iterate loop (c :: <character> = s.read-element)
     select (c)
       ' ' =>
         begin
-          let (robot-id, row, col) = receive-robot-positions(s);
-          b[row, col] := robot(robot-id);
+          let (robot-id, x, y) = receive-robot-positions(s);
+          b[x, y] := robot(robot-id);
           loop(s.read-element);
         end;
       '\n' => #f;
@@ -196,15 +196,15 @@ end function receive-initial-robot-positions;
 
 define function receive-board-row (s :: <stream>,
                                    b :: <board>,
-                                   row :: <integer>,
-                                   cols :: <integer>) => ()
-  for (j from 0 below cols)
+                                   max-x :: <integer>,
+                                   y :: <integer>) => ()
+  for (x from 0 below max-x)
     let c = s.read-element;
     select (c)
-      $empty-char => b[row, j] := make(<space>);
-      $water-char => b[row, j] := make(<water>);
-      $wall-char  => b[row, j] := make(<wall>);
-      $base-char  => b[row, j] := make(<base>);
+      $empty-char => b[x, y] := make(<space>);
+      $water-char => b[x, y] := make(<water>);
+      $wall-char  => b[x, y] := make(<wall>);
+      $base-char  => b[x, y] := make(<base>);
       otherwise =>
         message-error("receive-board-row: bad board element '%c'\n", c);
     end select;
@@ -215,13 +215,13 @@ define function receive-board-row (s :: <stream>,
       add-error("receive-board-row -- row did not terminate as expected\n");
     end block;
   end for;
-  debug("receive-board-row: row %d, %d cols read\n", row, cols);
+  debug("receive-board-row: max-x = %d, y = %d cols read\n", max-x, y);
 end function receive-board-row;
 
 
 // Read the dimensions of a board from a stream.
 define function receive-board-dimensions (s :: <stream>)
- => (rows :: <integer>, cols :: <integer>)
+ => (max-x :: <integer>, max-y :: <integer>)
   block()
     let x = receive-integer(s);
     receive-spaces(s);
@@ -239,17 +239,17 @@ end function receive-board-dimensions;
 // robot ID and location
 
 define function receive-robot-location (s :: <stream>)
- => (robot-id :: <integer>, row :: <integer>, col :: <integer>)
+ => (robot-id :: <integer>, x :: <integer>, y :: <integer>)
   block()
     receive-sharp(s);
     let robot-id = receive-integer(s);
     receive-string(s, " X ");
-    let row = receive-integer(s);
+    let x = receive-integer(s);
     receive-integer(s, " Y ");
-    let col = receive-integer(s);
+    let y = receive-integer(s);
     debug("receive-robot-location: Robot %d at (%d, %d)\n",
-          robot-id, row, col);
-    values(robot-id, row, col);
+          robot-id, x, y);
+    values(robot-id, x, y);
   exception (e :: <message-error>)
     add-error(e, "receive-robot-location\n");
   end block;
