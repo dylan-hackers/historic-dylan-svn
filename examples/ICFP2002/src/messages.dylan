@@ -471,6 +471,7 @@ define method process-server-command(state :: <state>, command :: <command>) => 
 end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <move>) => (state :: <state>)
+/*
   let bot = find-robot(state, command.robot-id);
   let old-location = bot.location;
   let new-location =
@@ -483,5 +484,6 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
   end select;
 
   add-robot(state, copy-robot(bot, location: new-location));
+*/
   state;
 end method process-server-command;
