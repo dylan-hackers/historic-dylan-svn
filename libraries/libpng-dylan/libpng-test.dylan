@@ -16,7 +16,7 @@ define function read-png(filename :: <string>) => (image, width, height, channel
   let info-ptr = png-create-info-struct(png-ptr);
     
   with-open-file(file = filename)
-    let file* = fd-to-file-ptr(file.file-descriptor);
+    let file* = fd-to-file-ptr(file.accessor.file-descriptor);
     png-init-io(png-ptr, file*);
     
     png-read-png(png-ptr, info-ptr, 
