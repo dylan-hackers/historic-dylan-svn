@@ -38,6 +38,7 @@ define constant <coordinate> = limited(<integer>, min: 0);
 define concrete class <board>(<array>)
   slot lines :: limited(<vector>, of: <line>);
   slot bots;
+  slot packages;
 //  keyword rows;
 //  keyword cols;
 end;
