@@ -1,5 +1,5 @@
 go: vrml-viewer
-	./vrml-viewer ampel2.wrl
+	./vrml-viewer
 
 vrml-viewer: vrml-viewer.lid ../examples/gdgl/opengl.lib.du ../examples/meta/meta.lib.du
 	d2c -g -L../examples/gdgl -L../examples/meta $<

@@ -1,18 +1,16 @@
 module: vrml-viewer
 
 define method render-to-opengl(ifs :: <indexed-face-set>)
-  for(p in ifs.polygon-indices)
-    let normal = cross-product(ifs.points[p[1]] - ifs.points[p[0]],
-                               ifs.points[p[2]] - ifs.points[p[1]]);
-
-    if(~ifs.ccw)
-      normal := -1.0 * normal;
-    end if;
-                               
+  if(ifs.ccw)
+    glFrontFace($GL-CCW);
+  else
+    glFrontFace($GL-CW);
+  end if;
+  for(p keyed-by pindex in ifs.polygon-indices)
     with-glBegin($GL-POLYGON)
 //      glColor(0.5, 0.5, 0.6);
-      glNormal(normal[0], normal[1], normal[2]);
-      for(i in p)
+      for(i keyed-by vindex in p)
+        apply(glNormal, ifs.vertex-normals[pindex][vindex]);
         glVertex(ifs.points[i][0], ifs.points[i][1], ifs.points[i][2]);
       end for;
     end with-glBegin;

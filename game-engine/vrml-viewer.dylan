@@ -148,7 +148,8 @@ define variable *scene-graph* =
                                               #[1,2,7,6],
                                               #[2,3,8,7],
                                               #[3,4,9,8],
-                                              #[4,0,5,9]])))));
+                                              #[4,0,5,9]],
+                                   crease-angle: 1.5)))));
 
 /*
 define constant *scene-graph* = make(<indexed-face-set>,

@@ -24,13 +24,14 @@ define module vector-math
 end module vector-math;
 
 define module vrml-model
-  use dylan;
+  use common-dylan;
+  use transcendentals;
   use vector-math;
   
   export
     <node>,
     <container-node>, children,
-    <indexed-face-set>, ccw, points, polygon-indices,
+    <indexed-face-set>, ccw, points, polygon-indices, vertex-normals, face-normals,
     <transform>, scale, translation,
     <line-grid>,
     <sphere>,
