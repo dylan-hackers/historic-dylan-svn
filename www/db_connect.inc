@@ -1,7 +1,9 @@
 <?php
 
 function db_connect() {
-    return mysql_connect("localhost","gwydion","");
+    $db = mysql_connect("localhost","gwydion","");
+    mysql_select_db("gwydion", $db);
+    return $db;
 }
 
 ?>

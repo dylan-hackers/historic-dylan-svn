@@ -34,7 +34,6 @@ following resources:</P>
 <?php
 
 $db = db_connect();
-mysql_select_db("gwydion");
 
 $query = "select * from news order by time desc";
 $res = mysql_query($query, $db);
