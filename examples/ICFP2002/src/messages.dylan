@@ -90,20 +90,20 @@ define function send-package-ids (s :: <stream>,
                                   package-ids :: <sequence>) => ()
   let n = package-ids.size;
   for (i from 0 below n)
-    force-format(s, "%d", package-ids[i]);
-    force-format(s, if (i < n - 1) " " else "\n" end);
+    force-format(s, " %d", package-ids[i]);
+//    force-format(s, if (i < n - 1) " " else "\n" end);
   end for;
 end function send-package-ids;
 
 define method send-command (s :: <stream>, command :: <pick>) => ()
-  force-format(s, "%d Pick ", command.bid);
+  force-format(s, "%d Pick", command.bid);
   send-package-ids(s, command.package-ids);
   debug("send-command(<pick>): bid %d, ids %=\n",
         command.bid, command.package-ids)
 end method send-command;
 
 define method send-command (s :: <stream>, command :: <drop>) => ()
-  force-format(s, "%d Drop ", command.bid);
+  force-format(s, "%d Drop", command.bid);
   send-package-ids(s, command.package-ids);
   debug("send-command(<drop>): bid %d, ids %=\n",
         command.bid, command.package-ids)
