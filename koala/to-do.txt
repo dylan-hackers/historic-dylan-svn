@@ -76,8 +76,6 @@ Kitchen Sink
 
 Gwydion notes:
   Where do they keep false-or?  In FD it's dylan:dylan-extensions:false-or
-  FD doesn't handle the broken .lid file for the anaphora library.  It should
-    have a file spec on the files: line.
   FD seals element on <object-table>, so <multimap> doesn't work.
   Gwydion has bogus #if #endif directives in some files, for mindy.
 
