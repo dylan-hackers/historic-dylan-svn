@@ -163,61 +163,6 @@ define method deal-with-adjacent-robots(me :: <pushbot>, robot :: <robot>, s :: 
   end;
 end method;
 
-define method try-to-deliver(robot :: <robot>)
- => (c :: false-or(<command>))
-  // Deliver what we can:
-  block(return)
-    let drop-these = choose(method(p)
-				p.dest = robot.location;
-			    end,
-			    robot.inventory);
-    debug("DB: drop-these = %=\n", drop-these);
-    
-    if (~drop-these.empty?)
-      return(make(<drop>, bid: 1, package-ids: map(id, drop-these), id: robot.id));
-    else 
-      debug("DB: Nothing to deliver here.\n");
-    end if;
-    #f;
-  end;
-end method;
-
-define method try-pickup-many(me :: <pushbot>, robot :: <robot>, s :: <state>)
- => (c :: false-or(<command>))
-  block(return)
-    let packages-here = packages-at(s, robot.location,
-				    available-only: #t);
-    debug("DB: Packages here: %=\n", packages-here);
-    if (packages-here ~= #f & ~packages-here.empty?)
-      let take-these = make(<vector>);
-      let left = robot.capacity-left;
-      // Greedy algorithm to get as many as we can:
-      for (pkg in sort(packages-here, 
-		       test: method (a :: <package>, b :: <package>)
-			       a.weight < b.weight;
-			     end method))
-	if (pkg.weight <= left
-	      & find-path-repeatedly(robot.location, pkg.location, s.board,
-				     cutoffs: #[#f])) // ie, only if it can be delivered
-	  left := left - pkg.weight;
-	  take-these := add!(take-these, pkg);
-	end if;
-      end for;
-      if (~take-these.empty?)
-	return(make(<pick>, 
-		    bid: 1, 
-		    package-ids: map(id, take-these),
-		    id: robot.id));
-      else 
-	debug("DB: Can't pick up or deliver anything from here.\n");
-      end if;
-    else 
-      debug("DB: No packages here (or first move)\n");
-    end if;
-    #f;
-  end;
-end method;
-
 // try to pick as many as you can to the nearest bases
 // sort by destination and then subsort by weight
 //define method try-pickup-nearest(me :: <pushbot>, robot :: <robot>, s :: <state>)
