@@ -1,0 +1,18 @@
+print <<'EOF';
+debugger: $(SRCDIR)/exports.dylan $(BUILDDIR)/dlfcn.dylan $(SRCDIR)/introspection.dylan $(SRCDIR)/debugger.lid
+	d2c $(SRCDIR)/debugger.lid
+
+$(BUILDDIR)/dlfcn.dylan: $(SRCDIR)/dlfcn.intr
+	melange --d2c -I `$(CC) --print-file-name=include` $(SRCDIR)/dlfcn.intr $(BUILDDIR)/dlfcn.dylan, && mv $(BUILDDIR)/dlfcn.dylan, $(BUILDDIR)/dlfcn.dylan
+
+clean:
+	-rm *.c *.o *.mak debugger dlfcn.dylan *~
+
+.PHONY: d2c-compile
+
+d2c-compile: debugger
+
+d2c-install:
+
+EOF
+
