@@ -4,12 +4,22 @@ standard_header("Submit News");
 ?>
 
 <form method=post action=submit-news.phtml>
+Headline:
+<br>
 <input name=headline type=text>
-<input name=body type=textarea>
+<br>
+<br>
+Message body:
+<br>
+<input name=body type=textarea vsize=80 hsize=24>
+<br>
+<br>
 <input type=submit>
-
 </form>
 
 <?php
+
+echo $REQUEST_METHOD
+
 standard_footer();
 ?>
