@@ -37,7 +37,12 @@ define module path
   use common-dylan;
   use board;
 
-  export find-path;
+  // For debugging only. Sorry.
+  use format-out;
+  use standard-io;
+  use streams, export: all;
+
+  export <point-list>, find-path;
 end module path;
 
 define module command
@@ -64,23 +69,23 @@ define module messages
   use command;
 
   export
-//    <message-error>,
-//    message-error,
-//    add-error,
+    //    <message-error>,
+    //    message-error,
+    //    add-error,
     // send routines
     send-player,  // This sends the "Player" message to the server to
-                  //initialize.
+    //initialize.
     send-command,
     // receive routines
-    receive-initial-setup; // Reads initial board plus self robot, w/ robot
-                           // positions. Does it all.
-    // receive-initial-setup calls:
-//    receive-integer,
-//    receive-string,
-//    receive-board-layout,  // Reads initial board layout, w/o robot positions.
-//    receive-client-configuration, // Reads our initial status.
-//    receive-robot-location,
-//    receive-initial-robot-positions; // Updates board with robot positions.
+    receive-initial-setup; // Reads initial board plus self robot, with robot
+  // positions. Does it all.
+  // receive-initial-setup calls:
+  //    receive-integer,
+  //    receive-string,
+  //    receive-board-layout,  // Reads initial board layout, w/o robot positions.
+  //    receive-client-configuration, // Reads our initial status.
+  //    receive-robot-location,
+  //    receive-initial-robot-positions; // Updates board with robot positions.
 end module messages;
 
 define module client
@@ -111,10 +116,13 @@ define module icfp2002
   use standard-io;
   use string-conversions, import: {string-to-integer};
   use extensions, import: {report-condition};
-//  use time;
+  // use time;
   use garbage-collection;
   use network;
   use messages;
   use board;
   use client;
+
+  // For testing only. Sorry.
+  use path;
 end module;

@@ -2,15 +2,18 @@ module: icfp2002
 synopsis: Dylan Hackers entry in the Fifth Annual (2002) ICFP Programming Contest
 copyright: this program may be freely used by anyone, for any purpose
 
+
 define function debug(#rest args)
   apply(format, *standard-error*, args);
   force-output(*standard-error*);
 end function debug;
 
+
 define function read-configuration(stream :: <stream>)
  => (id :: <integer>, capacity :: <integer>, money :: <integer>);
   values(map(string-to-integer, split(" ", read-line(stream))))
 end function read-configuration;
+
 
 define function play-the-game(input :: <stream>, output :: <stream>) => ();
   send-player(output);
@@ -22,9 +25,11 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
   let agent = make(<dumbot>, id: my-id, 
                    capacity: my-capacity, money: my-money);
 
-  debug("board is %=", state.board);
 
-/*
+  debug("board is %=", state.board);
+  test-path-finding(state.board);
+
+  /*
   let running = #t;
   while(running)
     state := read-packages(input, state);
@@ -35,6 +40,7 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
   */
 end function play-the-game;
 
+
 define function main(name, arguments)
   if(arguments.size < 2)
     format-out("Wrong number of arguments passed.\n");
@@ -44,7 +50,8 @@ define function main(name, arguments)
 
   play-the-game(input-stream, output-stream);
 
-/*  let running = #t;
+  /*
+  let running = #t;
   while(running)
     let line = read-line(input-stream, on-end-of-stream: #f);
     if(line)
@@ -54,9 +61,37 @@ define function main(name, arguments)
       running := #f;
     end if;
   end while;
-*/
+  */
+
   close(output-stream);
   exit-application(0);
 end function main;
 
+
 main(application-name(), application-arguments());
+
+
+// Testing path finding.
+define method test-path-finding(board :: <board>)
+  debug("Here is the board that I received:\n");
+  debug("Size: width is %=, height is %=.\n",
+             board.width, board.height);
+  for (r from 1 to board.height)
+    for (c from 1 to board.width)
+      debug("%=", board[r, c]);
+    end for;
+    debug("\n");
+  end for;
+
+
+  debug("Trying a simple path finding.\n");
+  let path :: <point-list> = find-path(point(x: 1, y: 1),
+                                       point(x: 5, y: 5),
+                                       board);
+  debug("Outta!\n");       
+  debug("Resulting path of length: %=.\n", path.size);
+
+  for (elt in path)
+    debug("X = %=, Y = %=\n", elt.x, elt.y);
+  end for;
+end method test-path-finding;

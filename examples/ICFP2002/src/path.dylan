@@ -1,15 +1,35 @@
 module: path
+ 
+
+// For debugging only.
+define function debug(#rest args)
+  apply(format, *standard-error*, args);
+  force-output(*standard-error*);
+end function debug;
 
 
 // Constants.
-define constant <path-list> = <list>;
+define constant <point-list> = <list>;
 define constant <path-cost> = <integer>;
 
 
-// Prioritised location type.
+// Prioritized location type for the priority queue.
 define sealed class <prioritized-location> (<object>)
-  slot p :: <path-cost>, required-init-keyword: p:;
-  slot pt :: <point>, required-init-keyword: point:;
+  // Priority is the cost-to-here + estimate-to-target.
+  slot p :: <path-cost>,
+    required-init-keyword: p:;
+
+  // The cost-to-here is conventionally denoted as g.
+  slot g :: <path-cost>,
+    required-init-keyword: g:;
+
+  // The parent node is used to restore the path from the result.
+  slot parent :: false-or(<prioritized-location>),
+    required-init-keyword: parent:;
+
+  // The actual point on the board is stored here.
+  slot pt :: <point>,
+    required-init-keyword: pt:;
 end;
 
 
@@ -17,21 +37,16 @@ define sealed domain make(singleton(<prioritized-location>));
 define sealed domain initialize(<prioritized-location>);
 
 
-define sealed method \= (a :: <prioritized-location>, b :: <prioritized-location>)
- => (res :: <boolean>)
-  (a.p = b.p) & (a.pt = b.pt)
-end;
-
- 
 // Priority queue of proprity location elements.
+// Should use more efficient implementation by Andreas shortly. :-)
 define class <priority-queue> (<sequence>)
   slot elements :: <list>, init-value: #();
 end;
 
 
 define method add!(q :: <priority-queue>, pLoc :: <prioritized-location>)
- => (q :: <priority-queue>)
-  q.elements := sort!(add!(q.elements,pLoc),
+ => (res :: <priority-queue>)
+  q.elements := sort!(add!(q.elements, pLoc),
                       test: method(a :: <prioritized-location>,
                                    b :: <prioritized-location>)
                                 a.p < b.p;
@@ -52,91 +67,113 @@ define method get(q :: <priority-queue>)
 end;
 
 
+define method empty?(q :: <priority-queue>) 
+ => (res :: <boolean>)
+  q.elements.empty?;
+end;
+
+
+define method get-given-point(ptmbr :: <point>, q :: <priority-queue>)
+ => (res :: false-or(<prioritized-location>))
+  block(in-there)
+    for (elt in q.elements)
+      if (elt.pt = ptmbr)
+        in-there(elt);
+      end if;
+    end for;
+    #f;
+  end;
+end;
+
+
 // Useful distance-cost function for the board. Manhattan cost to avoid square root.
 define function distance-cost(source :: <point>,
-                              dest :: <point>)
+                              target :: <point>)
  => (res :: <path-cost>)
-  abs(source.x - dest.x) + abs(source.y - dest.y);
+  abs(source.x - target.x) + abs(source.y - target.y);
 end function distance-cost;
 
 
-// Useful to query around you with nodes not in visited.
-define function get-neighbors(p :: <point>,
-                              board :: <board>, visited :: <list>)
- => (res :: <list>, visited :: <list>)
+// Get the points you can move to from where you are at. Possibly
+// already visited.
+define function get-successors(p :: <point>,
+                               board :: <board>)
+ => (res :: <point-list>)
   let nodes :: <list> = #();
 
-  let north = point(x: p.x,     y: p.y + 1);
-  if (p.y < board.height & ~member?(north, visited, test: \=) &
-	passable?(board, north))
+  let north = point(x: p.x, y: p.y + 1);
+  if (passable?(board, north))
     nodes := add!(nodes, north);
   end if;
-
-  let east = point( x: p.x + 1, y: p.y);
-  if (p.x < board.width & ~member?(east, visited, test: \=) & passable?(board, east))
+  
+  let east = point(x: p.x + 1, y: p.y);
+  if (passable?(board, east))
     nodes := add!(nodes, east);
   end if;
-
-  let south = point(x: p.x,     y: p.y - 1);
-  if (p.y > 0 & ~member?(south, visited, test: \=) & passable?(board, south))
+  
+  let south = point(x: p.x, y: p.y - 1);
+  if (passable?(board, south))
     nodes := add!(nodes, south);
   end if;
-
-  let west = point( x: p.x - 1, y: p.y);
-  if (p.x > 0 & ~member?(west, visited, test: \=) & passable?(board, west))
+  
+  let west = point(x: p.x - 1, y: p.y);
+  if (passable?(board, west))
     nodes := add!(nodes, west);
   end if;
-
-
-  visited := concatenate!(visited, nodes);
-
-  values(nodes, visited);
-end function get-neighbors;
-
-
-// A* path finder.
-define function find-path(source :: <point>, dest :: <point>,
-                          board :: <board>) => (res :: false-or(<list>))
-  let pQ :: <priority-queue> = make(<priority-queue>);
-  add(pQ, make(<prioritized-location>, p: 0, point: source));
-
-  let path :: <list> = #();
-  let pathCost :: <path-cost> = 0;
-  let visited :: <list> = #();
   
-  block (path-found)
-    while (~pQ.empty?)
-      let cur :: <prioritized-location> = pQ.get;
-      path = add!(path, cur.pt );
-      pathCost := pathCost + 1;
+  nodes;
+end function get-successors;
 
-      if (cur.pt = dest)
+
+// Simple version of A*.
+define function find-path(source :: <point>,
+                          target :: <point>,
+                          board :: <board>)
+ => (res :: false-or(<point-list>))
+
+  let open :: <priority-queue> = make(<priority-queue>);
+  let closed :: <list> = #();
+  open := add!(open, make(<prioritized-location>,
+                          p: distance-cost(source, target),
+                          g: 0,
+                          parent: #f,
+                          pt: source));
+  block(path-found)
+    while(~open.empty?)
+      let current :: <prioritized-location> = open.get;
+      if (current.pt = target)
+        // Construct path.
+        let path :: <point-list> = #();
+        while (current.parent ~= #f)
+          path := add!(path, current.pt);
+          current := current.parent;
+        end while;
         path-found(path);
       else
-        let (nodes, new-visited) = get-neighbors(cur.pt, board, visited);
-        visited := new-visited;
-        
-        if (nodes.empty?)
-          path := path.tail;
-          pathCost := pathCost - 1;
-
-          if (path.empty?)
-            path-found(#f);
+        let nodes :: <point-list> = get-successors(current.pt, board);
+        for (node in nodes)
+          let newg = current.g + distance-cost(current.pt, node);
+          let nodeLocation = get-given-point(node, open);
+          let nlg :: <path-cost> = current.g + 1;
+          if (nodeLocation ~= #f)
+            nlg := nodeLocation.g;
           end if;
-
-          // The following should put us on the top of the queue, given that we got here.
-          add(pQ, make(<prioritized-location>,
-                       p: distance-cost(path.head, dest) + pathCost,
-                       point: path.head));
-        else
-          for (node in nodes)
-            add(pQ, make(<prioritized-location>,
-                         p: distance-cost(node, dest) + pathCost,
-                         point: node));
-          end for;
-        end if;
+          if ((nlg > newg) | ((nodeLocation = #f) & ~member?(node, closed, test: \=)))
+            if (member?(node, closed, test: \=))
+              closed := remove!(closed, node);
+            end if;
+            if (nodeLocation = #f)
+              open := add!(open, make(<prioritized-location>,
+                                      p: distance-cost(node, target) + newg,
+                                      g: newg,
+                                      parent: current,
+                                      pt: node));
+            end if;
+          end if;
+        end for;
+        closed := add!(closed, current.pt);
       end if;
-    end;
+    end while;
     #f;
   end;
 end function find-path;
