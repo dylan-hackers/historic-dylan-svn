@@ -264,23 +264,15 @@ define constant $digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 /// format-integer -- internal.
 ///
 
-///---*** KLUDGE: Temporary method until division is implemented for <double-integer>
-///---*** Once division is available, remove this method!
-define method format-integer (arg :: <double-integer>,
-			      radix :: limited(<integer>, min: 2, max: 36),
-			      stream :: <stream>) => ()
-  print(arg, stream)
-end method;
-
-define method format-integer (arg :: <integer>,
+define method format-integer (arg :: <abstract-integer>,
                               radix :: limited(<integer>, min: 2, max: 36),
                               stream :: <stream>) => ()
   // Define an iteration that collects the digits for the print
   // representation of arg.
-  local method repeat (arg :: <integer>, digits :: <list>)
-	  let (quotient :: <integer>, remainder :: <integer>)
+  local method repeat (arg :: <abstract-integer>, digits :: <list>)
+	  let (quotient :: <abstract-integer>, remainder :: <abstract-integer>)
 	    = floor/(arg, radix);
-	  let digits = pair($digits[remainder], digits);
+	  let digits = pair($digits[as(<integer>, remainder)], digits);
 	  if (zero?(quotient))
 	    for (digit in digits)
 	      write-element(stream, digit)
@@ -297,12 +289,12 @@ define method format-integer (arg :: <integer>,
     // machine word, and we simply negated it and called repeat, then it
     // would turn into an integer that was one larger than the maximum
     // signed integer.
-    let (quotient :: <integer>, remainder :: <integer>)
+    let (quotient :: <abstract-integer>, remainder :: <abstract-integer>)
       = truncate/(arg, radix);
     if (~ zero?(quotient))
-      repeat(- quotient, list($digits[- remainder]))
+      repeat(- quotient, list($digits[as(<integer>, - remainder)]))
     else
-      write-element(stream, $digits[- remainder])
+      write-element(stream, $digits[as(<integer>, - remainder)])
     end
   else
     repeat(arg, #())

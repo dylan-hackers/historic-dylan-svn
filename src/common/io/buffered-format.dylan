@@ -172,21 +172,13 @@ define method buffered-do-dispatch
   end
 end method buffered-do-dispatch;
 
-///---*** KLUDGE: Temporary method until division is implemented for <double-integer>
-///---*** Once division is available, remove this method!
 define method buffered-format-integer
-    (arg :: <double-integer>, radix :: limited(<integer>, min: 2, max: 36),
+    (arg :: <abstract-integer>, radix :: limited(<integer>, min: 2, max: 36),
      stream :: <buffered-stream>, sb :: <buffer>) => ()
-  print(arg, stream)
-end method buffered-format-integer;
-
-define method buffered-format-integer
-    (arg :: <integer>, radix :: limited(<integer>, min: 2, max: 36),
-     stream :: <buffered-stream>, sb :: <buffer>) => ()
-  local method repeat (arg :: <integer>, digits :: <list>)
-	  let (quotient :: <integer>, remainder :: <integer>)
+  local method repeat (arg :: <abstract-integer>, digits :: <list>)
+	  let (quotient :: <abstract-integer>, remainder :: <abstract-integer>)
 	    = floor/(arg, radix);
-	  let digits = pair($digits[remainder], digits);
+	  let digits = pair($digits[as(<integer>, remainder)], digits);
 	  if (zero?(quotient))
 	    for (digit in digits)
 	      buffered-write-element(stream, sb, digit)
@@ -203,12 +195,12 @@ define method buffered-format-integer
     // machine word, and we simply negated it and called repeat, then it
     // would turn into an integer that was one larger than the maximum
     // signed integer.
-    let (quotient :: <integer>, remainder :: <integer>)
+    let (quotient :: <abstract-integer>, remainder :: <abstract-integer>)
       = truncate/(arg, radix);
     if (~ zero?(quotient))
-      repeat(- quotient, list($digits[- remainder]))
+      repeat(- quotient, list($digits[as(<integer>, - remainder)]))
     else
-      buffered-write-element(stream, sb, $digits[- remainder])
+      buffered-write-element(stream, sb, $digits[as(<integer>, - remainder)])
     end
   else
     repeat(arg, #())
