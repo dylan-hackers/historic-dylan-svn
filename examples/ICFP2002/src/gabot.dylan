@@ -71,26 +71,13 @@ end;
 define method valid?(dropping :: <drop-strategy>) => valid :: <boolean>;
   // did we arrive?
   if (dropping.strategy-path.size < 2)
-    debug("arrived!\n");
+    debug("arrived!\n"); // TODO: if neihbor robots, bid more...
     #f
   else
   //; TODO: do we still have the package?
     #t;
   end;
 end;
-
-/*
-// ## create-command{<drop-strategy>}
-###define method create-command(s :: <strategy>) => command :: <command>;
-  let robot = s.strategy-robot;
-  let path = s.strategy-path;
-  let path = path.head = robot.location
-             & path.tail
-             | path;
-  let path = s.strategy-path := path;
-  make(<move>, direction: turn(robot, path), bid: 1, id: robot.id);
-end;
-*/
 
 // ## create-command{<drop-strategy>}
 define method create-terminal-command(s :: <drop-strategy>, state :: <state>) => command :: <command>;
@@ -154,6 +141,16 @@ define method create-terminal-command(s :: <pick-strategy>, state :: <state>) =>
   debug("GB: Picking in create-terminal-command\n");
 //  make(<pick>, package-ids: /* map(id, choose() */ #(), bid: 1, id: s.strategy-robot.id);
   make(<pick>, package-ids: map(id, load-packages(s.strategy-agent, state, compare: pick-compare)), bid: 1, id: s.strategy-robot.id);
+end;
+
+define method valid?(picking :: <pick-strategy>) => valid :: <boolean>;
+  // did we arrive?
+  if (picking.strategy-path.size < 2)
+    debug("arrived!\n");
+    #f
+  else
+    #t;
+  end;
 end;
 
 
