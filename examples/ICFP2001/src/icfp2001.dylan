@@ -228,7 +228,10 @@ define function bgh-parse(s :: <byte-string>)
 	    end;
 	  elseif (same-format)
 	    add!(fragments, ch);
-	  end;
+	  elseif(~same-format)
+            save-run();
+            add!(fragments, ch);
+          end if;
 	  last-char-was-space := #t;
 	else
 	  save-run();
