@@ -1005,6 +1005,7 @@ define module opengl-glut
     glutSpecialUpFunc,
     glutJoystickFunc,
 
+    glutIgnoreKeyRepeat,
     glutSetColor,
     glutGetColor,
     glutCopyColormap,
