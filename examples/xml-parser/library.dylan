@@ -10,16 +10,16 @@ define library xml-parser
 end library;
 
 define module xml-parser
-  create <xml-builder>, <xml-element>, <xml-parse-error>;
-  create start-element, end-element;
-  create name, attributes; // slots for <xml-element>
+ // create <xml-builder>, <xml-element>, <xml-parse-error>;
+ // create start-element, end-element;
+//  create name, attributes; // slots for <xml-element>
 
-  create display-node;
+  create display-node, transform, transform-document;
 
 // I really don't want the below defs -- parse-document should
 // do everything, but until I get that working, I need to test
 // the system piecemeal.
-  create parse-xml-element-start;
+ // create parse-xml-element-start;
   create parse-element, parse-attribute, parse-pi,
          parse-stag, parse-content, parse-etag, parse-empty-elem-tag,
          parse-char-data, parse-comment, parse-system-literal,
@@ -37,9 +37,10 @@ define module xml-parser
 // while I test the rest of the system.
 
 // beginning to integrate Chris' parse engine
-  create <document>, <element>, <attribute>, 
-    name, value, children, tag-name, attributes;
-
+  create <document>, <element>, <attribute>, <entity-reference>,
+    <char-reference>, <char-string>, <xml>, text, char, value, name;
+  create *entities*;
+  //  name, value, attributes;
 end module xml-parser;
 
 define module interface
@@ -52,8 +53,8 @@ define module interface
 
   export <letter>, <digit>, <hex-digit>, <version-number>,
          <node>, <text-node>;
-  export node-children, attribute-name, attribute-value, 
-         element-tag-name, element-attributes, text;
+  export node-children, /** attribute-name, **/ attribute-value, 
+        /** element-tag-name, **/ element-attributes; // , text;
 end module interface;
 
 define module %productions
@@ -67,9 +68,10 @@ define module %productions
   use interface;
   use xml-parser;
 
-  export parse-beginning-of-tag;
+//  export parse-beginning-of-tag; //, *entities*;
 end module %productions;
 
+/**
 define module builder-impl
   use common-dylan, exclude: { format-to-string };
   use streams;
@@ -81,7 +83,7 @@ define module builder-impl
   use xml-parser;
   use %productions;
   use interface;
-end module builder-impl;
+end module builder-impl;**/
 
 define module display
   use common-dylan, exclude: {format-to-string };
@@ -91,4 +93,14 @@ define module display
   use xml-parser;
   use interface;
 end module display;
+
+define module transform
+  use common-dylan, exclude: {format-to-string };
+  use streams;
+  use format;
+  use format-out;
+  use xml-parser;
+  use interface;
+  use %productions;
+end module transform;
 

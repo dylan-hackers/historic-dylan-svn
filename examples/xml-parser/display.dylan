@@ -6,8 +6,16 @@ synthesis: Douglas M. Auclair
 
 define generic display-node(node);
 
-define method display-node(node :: <string>)
-  format-out("Text: [%s]\n", node);
+define method display-node(node :: <char-string>)
+  format-out("Text: [%s]\n", node.text);
+end method display-node;
+
+define method display-node(node :: <entity-reference>)
+  format-out("Entity: [%s = %s]\n", node.name, *entities*[node.name]);
+end method display-node;
+
+define method display-node(node :: <char-reference>)
+  format-out("Character: [%s = '%c']\n", node.name, node.char);
 end method display-node;
 
 define method display-node(node :: <node>)
@@ -17,22 +25,25 @@ define method display-node(node :: <node>)
 end method display-node;
 
 define method display-node(node :: <attribute>)
-  format-out("Attribute: [%s] = [%s]\n", node.attribute-name, node.attribute-value);
-  next-method();
+  format-out("Attribute: [%s] = [%s]\n", node.name,
+             node.attribute-value);
+//  next-method();
 end method display-node;
 
 define method display-node(node :: <element>)
-  format-out("Element: [%s]\n", node.element-tag-name);
+  format-out("Element: [%s]\n", node.name);
   for(attribute in node.element-attributes)
     display-node(attribute)
   end for;
   next-method();
 end method display-node;
 
+/***
 define method display-node(node :: <text-node>)
   format-out("Text: [%s]\n", node.text);
   next-method();
 end method display-node;
+****/
 
 define method display-node(node :: <document>)
   format-out("Document:\n");
