@@ -87,7 +87,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 
     // Deliver what we can:
     let drop-these = choose(at-destination?, robot.inventory);
-    format-out("DB: drop-these = %=\n", robot.inventory);
+    format-out("DB: drop-these = %=\n", drop-these);
     force-output(*standard-output*);
     
     if (~drop-these.empty?)
