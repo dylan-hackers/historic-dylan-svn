@@ -20,26 +20,26 @@ define sealed domain make(singleton(<opt-state>));
 define sealed domain initialize(<opt-state>);
 
 
-define method dump-state(s :: <opt-state>, f :: <stream>) => ();
-  format(f, "State: ");
-  force-output(f);
-  describe-attributes(s.attr, f);
-  format(f, "     ");
+define method dump-state(s :: <opt-state>) => ();
+  debug("State: ");
+  describe-attributes(s.attr);
+  debug("     ");
   for (e :: <tag> in s.tag-stack)
-    format(f, "%s", e.close-tag);
+    debug("%s", e.close-tag);
   end;
-  format(f, "\n");
-  format(f, "%d: ", s.output-size);
+  debug("\n");
+  debug("%d: ", s.output-size);
   for (s :: <byte-string> in s.transitions.reverse)
-    format(f, "%s", s);
+    debug("%s", s);
   end;
-  format(f, "\n");
-  force-output(f);
+  debug("\n");
 end method dump-state;
 
 
 define function optimize-output(input :: <stretchy-object-vector>)
  => strings :: <list>;
+
+  debug("starting optimize-output\n");
 
   let states = make(<stretchy-vector>);
   add!(states, make(<opt-state>));
