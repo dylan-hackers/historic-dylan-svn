@@ -68,9 +68,9 @@
 <!-- ===== Unsorted ===== -->
 
 <!ENTITY dylan '
-  <Trademark>
+  <trademark>
     <ulink url="http://www.cambridge.apple.com/dylan/dylan.html">Dylan</ulink>
-  </Trademark>
+  </trademark>
 '>
 
 <!ENTITY gwydprj '
@@ -79,12 +79,12 @@
 
 <!ENTITY drm '
 <ulink url="http://www.gwydiondylan.org/drm/drm_1.htm">
-<CiteTitle>Dylan Reference Manual</CiteTitle></ulink>
+<citetitle>Dylan Reference Manual</citetitle></ulink>
 '>
 
 <!ENTITY perl.regexp '
 <ulink url="http://burks.bton.ac.uk/burks/language/perl/perlref.htm#regular">
-<CiteTitle>Perl 5 Desktop Reference</CiteTitle></ulink>
+<citetitle>Perl 5 Desktop Reference</citetitle></ulink>
 '>
 
 <!ENTITY ftpdir 'ftp://berlin.ccc.de/pub/gd/'>
@@ -93,10 +93,10 @@
 <ulink url="http://www.gwydiondylan.org/">Gwydion Dylan Maintenance Project</ulink>
 '>
 
-<!ENTITY gcc "<Command>gcc</Command>">
-<!ENTITY mindy "<Command>mindy</Command>">
-<!ENTITY d2c "<Command>d2c</Command>">
-<!ENTITY cpp "<Command>C++</Command>">
+<!ENTITY gcc "<command>gcc</command>">
+<!ENTITY mindy "<command>mindy</command>">
+<!ENTITY d2c "<command>d2c</command>">
+<!ENTITY cpp "<command>C++</command>">
 
 <!ENTITY cmu.terms '
     <LEGALNOTICE>
