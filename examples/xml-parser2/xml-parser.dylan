@@ -191,7 +191,7 @@ end method parse-pubid-literal;
 //    
 // I really wonder if this isn't abuse of the Dylan type system...
 //
-define constant <letter> = 
+define constant <ascii-letter> = 
     one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -201,7 +201,7 @@ define constant <digit> =
     one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
 define constant <pub-id-char-without-quotes> =
-  type-union(<letter>, <digit>, 
+  type-union(<ascii-letter>, <digit>, 
 	     one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
 		    '-', '(', ')', '+', ',', '.', '/', ':', '=',
 		    '?', ';', '!', '*', '#', '@', '$', '_', '%'));
@@ -362,7 +362,7 @@ end method parse-eq;
 //    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
 //
 define constant <version-number> =
-  type-union(<letter>, <digit>, one-of('_', '.', ':', '-'));
+  type-union(<ascii-letter>, <digit>, one-of('_', '.', ':', '-'));
 
 define method parse-version-num(string, #key start = 0, end: stop)
   with-collector into-vector version-string, collect: collect;
@@ -725,10 +725,38 @@ end method parse-attlist-decl;
 
 //    [53]    AttDef         ::=    S Name S AttType S DefaultDecl
 //    
+define method parse-att-def(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(s, name, att-type, default-decl)
+      [parse-s(s), parse-name(name), 
+       parse-s(s), parse-att-type(att-type), 
+       parse-s(s), parse-default-decl(default-decl)];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-att-def;
+
+
 // Attribute Types
 // 
 //    [54]    AttType          ::=    StringType | TokenizedType | EnumeratedType
+//
+define method parse-att-type(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(string-type. tokenized-type, enumerated-type)
+      {parse-string-type(string-type), parse-tokenized-type(tokenized-type), parse-enumerated-type(enumerated-type)};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-att-type;
+
 //    [55]    StringType       ::=    'CDATA'
+//
+define method parse-string-type(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    ["CDATA"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-att-type;
+
 //    [56]    TokenizedType    ::=    'ID'                                        [VC: ID]
 //                                                                                [VC: One ID per Element Type]
 //                                                                                [VC: ID Attribute Default]
@@ -739,14 +767,57 @@ end method parse-attlist-decl;
 //                                    | 'NMTOKEN'                                 [VC: Name Token]
 //                                    | 'NMTOKENS'                                [VC: Name Token]
 //    
+define method parse-tokenized-type(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    {"ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", "NMTOKENS"};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-tokenized-type;
+
+
 // Enumerated Attribute Types
 // 
 //    [57]    EnumeratedType    ::=    NotationType | Enumeration
+//
+define method parse-enumerated-type(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(notation-type, enumeration);
+    { parse-notation-type(notation-type), parse-enumeration(enumeration) };
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-enumerated-type;
+
+
 //    [58]    NotationType      ::=    'NOTATION' S '(' S? Name (S? '|' S? Name)* S? ')' [VC: Notation Attributes]
 //                                                                                       [VC: One Notation Per Element Type]
 //                                                                                       [VC: No Notation on Empty Element]
+//
+define method parse-notation-type(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(s, name);
+    ["NOTATION", parse-s(s), "(", {parse-s(s),[]},
+     parse-name(name),
+     loop([{parse-s(s),[]}, "|", {parse-s(s),[]}, parse-name(name)]),
+     {parse-s(s),[]}, ")"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-notation-type;
+
+
 //    [59]    Enumeration       ::=    '(' S? Nmtoken (S? '|' S? Nmtoken)* S? ')'        [VC: Enumeration]
 //    
+define method parse-enumeration(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(s, nmtoken);
+    ["(", {parse-s(s),[]},
+     parse-nmtoken(nmtoken),
+     loop([{parse-s(s),[]}, "|", {parse-s(s),[]}, parse-nmtoken(nmtoken)]),
+     {parse-s(s),[]}, ")"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-enumeration;
+
+
 // Attribute Defaults
 // 
 //    [60]    DefaultDecl    ::=    '#REQUIRED' | '#IMPLIED'
@@ -754,17 +825,77 @@ end method parse-attlist-decl;
 //                                                             [VC: Attribute Default Legal]
 //                                                             [WFC: No < in Attribute Values]
 //                                                             [VC: Fixed Attribute Default]
-//    
+//
+define method parse-default-decl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(s, att-value);
+    { "#REQUIRED", "#IMPLIED", 
+     [{["#FIXED", parse-s(s)], []}, parse-att-value(att-value)]};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-default-decl;
+
+    
 // Conditional Section
 // 
 //    [61]    conditionalSect       ::=    includeSect | ignoreSect
+//
+define method parse-conditional-sect(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(include-sect, ignore-sect);
+    {parse-include-sect(include-sect), parse-ignore-sect(ignore-sect)};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-conditional-sect;
+
 //    [62]    includeSect           ::=    '<![' S? 'INCLUDE' S? '[' extSubsetDecl ']]>'      /* */
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
+define method parse-include-sect(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(s, subset-decl);
+    ["<![", {parse-s(s), []}, 
+     "INCLUDE", {parse-s(s), []}, 
+     "[", parse-ext-subset-decl(subset-decl), "]]>"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-include-sect;
+
+
 //    [63]    ignoreSect            ::=    '<![' S? 'IGNORE' S? '[' ignoreSectContents* ']]>' /* */
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
+define method parse-ignore-sect(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(s, ignore-sect);
+    ["<![", {parse-s(s), []}, 
+     "IGNORE", {parse-s(s), []}, 
+     "[", loop(parse-ignore-sect-contents(ignore-sect)), "]]>"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-ignore-sect;
+
+
 //    [64]    ignoreSectContents    ::=    Ignore ('<![' ignoreSectContents ']]>' Ignore)*
 //    [65]    Ignore                ::=    Char* - (Char* ('<![' | ']]>') Char*)
+//
+// They are doing it again.
+define method parse-ignore-sect-contents(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(ignore, ignore-sect);
+    [parse-ignore(ignore),
+     loop(["<![", loop(parse-ignore-sect-contents(ignore-sect)), "]]>", parse-ignore(ignore)])];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-ignore-sect-contents;
+
 //    
+define method parse-ignore(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(ignore, ignore-sect);
+
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-ignore;
+
 // Character Reference
 // 
 //    [66]    CharRef    ::=    '&#' [0-9]+ ';'
