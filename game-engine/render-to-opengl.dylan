@@ -18,6 +18,12 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
         glBegin($GL-POLYGON);
         inPoly := #t;
       end;
+      if(ifs.normal)
+        let n :: <3d-vector> = ifs.normal[e];
+        let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
+          = values(n[0], n[1], n[2]);
+        glNormal(x, y, z);
+      end if;
       let v :: <3d-point> = ifs.coord[e];
       let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
         = values(v[0], v[1], v[2]);

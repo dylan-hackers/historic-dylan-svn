@@ -30,7 +30,7 @@ end class <my-indexed-face-set>;
 define class <indexed-face-set> (<node>)
   slot color :: false-or(<color>) = #f, init-keyword: color:;
   slot coord :: <simple-object-vector> = #[], init-keyword: coord:;
-  slot normal :: false-or(<collection>) = #f, init-keyword: normal:;
+  slot normal :: false-or(<simple-object-vector>) = #f, init-keyword: normal:;
   slot tex-coord :: false-or(<collection>) = #f, init-keyword: normal:;
   slot ccw :: <boolean> = #t, init-keyword: ccw:;
   slot color-index :: <collection> = #[], init-keyword: color-index:;

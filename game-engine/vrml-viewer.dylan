@@ -225,7 +225,8 @@ define method main(progname, #rest arguments)
                     make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                          translation: 3d-vector(3.0, 3.0, -2.0), 
                          children: vector(make(<sphere>))),
-                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
+//                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
+                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                          children: vector(parse-vrml(arguments[0])))));
   end if;
 //  exit(exit-code: 0);
