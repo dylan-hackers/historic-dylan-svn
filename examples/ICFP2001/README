@@ -1,0 +1,24 @@
+This archive contains our entry for the 2001 ICFP
+Programming Contest.
+
+Team name: Dylan Hackers
+
+Team Captain
+  Name: Bruce Hoult
+  Email: bruce@hoult.org
+  Address: 65 Oxford St, Tawa, Wellington 6006, New Zealand
+
+
+Team Members:
+  Andreas Bogk <andreas@andreas.org>, Germany
+  Jeff Dubrule <igor@pobox.com>, USA
+  Gabor Greif <gabor@mac.com>, Germany
+  Bruce Hoult <bruce@hoult.org>, New Zealand
+
+
+Language used: Dylan (Gwydion "d2c" 2.3.6pre1)
+
+Most of us worked on the program using d2c on Linux or LinuxPPC.
+One of us used Apple's 1995 alpha-quality "Dylan Technology
+Release" on his Macintosh PowerBook.
+
