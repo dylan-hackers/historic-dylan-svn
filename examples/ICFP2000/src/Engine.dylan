@@ -153,9 +153,6 @@ define method compile-one(token == #"false", more-tokens :: <list>) => (closure 
 end;
 
 
-// define binary-primitive(addf:, <float>, <float>, \+);
-
-
 // Points
 
 define sealed class <point>(<object>)
@@ -214,7 +211,7 @@ define method compile-one(token == '[', more-tokens :: <pair>) => (closure :: <f
   let (cont, remaining) = remaining.compile-GML;
   values(
          method(stack :: <list>, env :: <function>) => new-stack :: <list>;
-           cont(pair(as(<simple-object-vector>, array-builder(#(), env).reverse), stack), env)
+           cont(pair(as(<simple-object-vector>, array-builder(#(), env)).reverse!, stack), env)
          end method,
          remaining)
 end;
