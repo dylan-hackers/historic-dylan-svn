@@ -65,13 +65,13 @@ define method create-command(s :: <strategy>) => command :: <command>;
              & path.tail
              | path;
   let path = s.strategy-path := path;
-  make(<move>, direction: turn(robot, path), bid: 1, robot-id: robot.id);
+  make(<move>, direction: turn(robot, path), bid: 1, id: robot.id);
 end;
 
 // ## create-command{<drop-strategy>}
 define method create-terminal-command(s :: <strategy>) => command :: <command>;
 debug("Dropping in create-terminal-command");
-  make(<drop>, package-ids: /* map(id, choose() */ #(), bid: 1, robot-id: s.strategy-robot.id);
+  make(<drop>, package-ids: /* map(id, choose() */ #(), bid: 1, id: s.strategy-robot.id);
 end;
 
 
