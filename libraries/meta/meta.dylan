@@ -11,7 +11,6 @@ define collector word(w)
   (str.size > 0)
 end collector word;
 
-define constant $graphic-digit :: <byte-string> = concatenate($digit, "+-");
 
 
 /*
