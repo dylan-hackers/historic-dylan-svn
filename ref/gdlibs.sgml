@@ -291,7 +291,7 @@ end method cube;
 
 	<LISTITEM>
 	  <PARA>Gwydion compilers supports subclass specializers via
-	  the <FUNCTION>limited</FUNCTION> function.  A subclass
+	  the <dname>limited</dname> function.  A subclass
 	  specializer causes a method to be invoked whenever the
 	  generic function was called on a value that is the specified
 	  class or any subclass of the specified class.  The method is
@@ -364,7 +364,7 @@ end method;</PROGRAMLISTING>
 	      Characters of this type represent the ASCII
 	      character set (or extensions to ASCII such as ISO
 	      8859). Note, in Gwydion compilers the
-	      <CLASSNAME>&lt;character&gt;</CLASSNAME> class is
+	      <dname>&lt;character&gt;</dname> class is
 	      equivalent to Unicode characters.
 	    </para>
 	  </defdescription>
@@ -394,9 +394,9 @@ end method;</PROGRAMLISTING>
 	    <note>
 	      <para>
 	        So, it goes to follow that users of
-		<function>assert</function> should not have side-effects
+		<dname>assert</dname> should not have side-effects
 		in the expression that is passed to
-		<function>assert</function> because if we ever turn
+		<dname>assert</dname> because if we ever turn
 		assertions off, that would mean the program runs
 		differently in debug mode than it does in release
 		mode.
@@ -487,11 +487,11 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	debugger, but in other Gwydion compilers it may not be.)</PARA>
 
 	<PARA>The debugger uses the function
-	<FUNCTION>report-condition</FUNCTION> to print conditions as error
+	<dname>report-condition</dname> to print conditions as error
 	messages to users; for example, this is the function that
 	implements the <dlit>%S</dlit> format-string directive
 	for conditions. The debugger also uses the
-	<FUNCTION>format</FUNCTION> function exported from the
+	<dname>format</dname> function exported from the
 	<dmodule>Cheap-io</dmodule> 
 	module to process format strings, and it prints directly to
 	the Unix stdout. If any library that is used itself uses the
@@ -525,25 +525,25 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  <defdescription>
 	    <PARA>This is the function that is used to print condition
 	    variables as error messages to users. The internal
-	    <FUNCTION>format</FUNCTION> function used by Mindy uses
+	    <dname>format</dname> function used by Mindy uses
 	    report-condition for condition arguments to the
 	    <dlit>%S</dlit> format directive. The <dlibrary>Format</dlibrary>
-	    library's <FUNCTION>print-message</FUNCTION> method for
+	    library's <dname>print-message</dname> method for
 	    conditions calls
-	    <FUNCTION>report-condition</FUNCTION>.</PARA>
+	    <dname>report-condition</dname>.</PARA>
 
 	    <PARA>If you are writing a module that does no output but
-	    still provides <function>report-condition</function>
+	    still provides <dname>report-condition</dname>
 	    methods, you should use 
-	    <FUNCTION>condition-format</FUNCTION> to format
-	    output. Using <FUNCTION>condition-format</FUNCTION> makes
+	    <dname>condition-format</dname> to format
+	    output. Using <dname>condition-format</dname> makes
 	    your module more flexible for users of your module. If you
 	    call <dmodule>Cheap-IO</dmodule>'s
-	    <function>format</function>, you'll be forced to write to
+	    <dname>format</dname>, you'll be forced to write to
 	    only one destination, <dlit>stdout</dlit>, ignoring the
 	    <PARAMETER>stream</PARAMETER> argument. If you call the
 	    <dlibrary>Format</dlibrary> library's
-	    <FUNCTION>format</FUNCTION> function, 
+	    <dname>format</dname> function, 
 	    then your module will require the
 	    <dlibrary>Format</dlibrary>, <dlibrary>Print</dlibrary>,
 	    and <dlibrary>Streams</dlibrary> libraries; therefore,
@@ -553,19 +553,19 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    <dlibrary>Format</dlibrary> library's format control 
 	    strings, then you only have one choice anyway, and there's
 	    no reason to use
-	    <FUNCTION>condition-format</FUNCTION>.</PARA>
+	    <dname>condition-format</dname>.</PARA>
 	    <para>
-	      <function>Report-condition</function> has several
+	      <dname>Report-condition</dname> has several
 	      supplied methods.  The default method (on
-	      <classname>&lt;condition&gt;</classname>) simply prints
+	      <dname>&lt;condition&gt;</dname>) simply prints
 	      the condition (not very descriptive).  The
-	      <classname>&lt;format-string-condtion&gt;</classname>
+	      <dname>&lt;format-string-condtion&gt;</dname>
 	      (of which the simple conditions are derived) method uses
 	      the supplied format-string to output information about
 	      the cause of the condition.  The
-	      <classname>&lt;type-error&gt;</classname> method gives
+	      <dname>&lt;type-error&gt;</dname> method gives
 	      the expected and actual types, and the
-	      <classname>&lt;abort&gt;</classname> method just prints
+	      <dname>&lt;abort&gt;</dname> method just prints
 	      the supplied description. 
 	    </para>
 	  </defdescription>
@@ -604,8 +604,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    condition system and the <dlibrary>Streams</dlibrary> and
 	    <dlibrary>Format</dlibrary> 
 	    libraries. Methods on
-	    <FUNCTION>report-condition</FUNCTION> should use
-	    <FUNCTION>condition-format</FUNCTION> to do their
+	    <dname>report-condition</dname> should use
+	    <dname>condition-format</dname> to do their
 	    formatting. Users will generally use
 	    <dlit>*debug-output*</dlit> or
 	    <dlit>*warning-output*</dlit> for the
@@ -617,10 +617,10 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    <dlit>#"Cheap-IO"</dlit>. The Gwydion
 	    <dlibrary>Format</dlibrary> library 
 	    supplies a method for when <parameter>stream</parameter>
-	    is a subclass of <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If
+	    is a subclass of <dname>&lt;stream&gt;</dname>. If
 	    you are implementing your own streams or format libraries,
 	    you will need to define a method on
-	    <FUNCTION>condition-format</FUNCTION> for your type of
+	    <dname>condition-format</dname> for your type of
 	    stream.</PARA> 
 	  </defdescription>
 	</dylangenericdef>
@@ -644,14 +644,14 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  <defreturns>
 	  </defreturns>
 	  <defdescription>
-	    <PARA><FUNCTION>Condition-force-output</FUNCTION> forces
+	    <PARA><dname>Condition-force-output</dname> forces
 	    any pending output from <PARAMETER>stream</PARAMETER>'s
 	    buffer to <PARAMETER>stream</PARAMETER>'s
 	    destination. This function is invoked by the debugger
 	    after a condition has been reported and before it pauses
 	    for user input. Unless you are writing a debugger, you do
 	    not need to call
-	    <FUNCTION>condition-force-output</FUNCTION>
+	    <dname>condition-force-output</dname>
 	    yourself.</PARA>
 
 	    <PARA>Mindy supplies a method for when stream is
@@ -659,10 +659,10 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    <dlibrary>Format</dlibrary> library 
 	    supplies a method for when <parameter>stream</parameter>
 	    is a subclass of 
-	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
+	    <dname>&lt;stream&gt;</dname>. If you are
 	    implementing your own streams or format libraries, you
 	    will need to define a method on
-	    <FUNCTION>condition-force-output</FUNCTION> for your type
+	    <dname>condition-force-output</dname> for your type
 	    of stream.</PARA>
 	  </defdescription>
 	</dylangenericdef>
@@ -675,10 +675,10 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  <deftype>&lt;object&gt;</deftype>
 	  <defdescription>
 	    <PARA>Default-handler for
-	    <CLASSNAME>&lt;warning&gt;</CLASSNAME> uses
+	    <dname>&lt;warning&gt;</dname> uses
 	    <dlit>*warning-output*</dlit> to print warning
 	    messages. This variable must be either a
-	    <CLASSNAME>&lt;stream&gt;</CLASSNAME> from the
+	    <dname>&lt;stream&gt;</dname> from the
 	    <dlibrary>Streams</dlibrary> 
 	    library, or <dlit>#"Cheap-IO"</dlit> (the
 	    default). When this variable is
@@ -733,13 +733,13 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  <defreturns>
 	  </defreturns>
 	  <defdescription>
-	    <PARA>Arranges for the <FUNCTION>exit</FUNCTION> function
+	    <PARA>Arranges for the <dname>exit</dname> function
 	    to call the argument function.  The argument function must
 	    take no required arguments.  Users may call
-	    <FUNCTION>on-exit</FUNCTION> multiple times to install
-	    more than one function for <FUNCTION>exit</FUNCTION> to
+	    <dname>on-exit</dname> multiple times to install
+	    more than one function for <dname>exit</dname> to
 	    call, but the order in which exit invokes the functions is
-	    undefined. Calling <FUNCTION>on-exit</FUNCTION> on the
+	    undefined. Calling <dname>on-exit</dname> on the
 	    same function repeatedly installs that function multiple
 	    times.</PARA>
 	  </defdescription>
@@ -751,7 +751,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	<TITLE>Collections</TITLE>
 
 	<PARA>The Extensions module exports the following
-	<CLASSNAME>&lt;collection&gt;</CLASSNAME>
+	<dname>&lt;collection&gt;</dname>
 	functionality:</PARA>
 
 	<dylanmethoddef>
@@ -794,30 +794,30 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	<TITLE>Integers</TITLE>
 
 	<PARA>Gwydion compilers have an abstract class
-	<CLASSNAME>&lt;general-integer&gt;</CLASSNAME> which has two
-	concrete subclasses, <CLASSNAME>&lt;integer&gt;</CLASSNAME>
-	and <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.
-	<CLASSNAME>&lt;integer&gt;</CLASSNAME>s have a limited range
-	of values, and <CLASSNAME>&lt;integer&gt;</CLASSNAME>
+	<dname>&lt;general-integer&gt;</dname> which has two
+	concrete subclasses, <dname>&lt;integer&gt;</dname>
+	and <dname>&lt;extended-integer&gt;</dname>.
+	<dname>&lt;integer&gt;</dname>s have a limited range
+	of values, and <dname>&lt;integer&gt;</dname>
 	arithmetic uses the computer's underlying integer
-	facilities. <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s
+	facilities. <dname>&lt;extended-integer&gt;</dname>s
 	can take on any value, and are similar to Common Lisp
 	"bignums."  Expressions involving
-	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s produce
-	<CLASSNAME>&lt;extendedinteger&gt;</CLASSNAME> results because
-	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s are
+	<dname>&lt;extended-integer&gt;</dname>s produce
+	<dname>&lt;extendedinteger&gt;</dname> results because
+	<dname>&lt;extended-integer&gt;</dname>s are
 	contagious. If an expression involving only
-	<CLASSNAME>&lt;integer&gt;</CLASSNAME> values would produce a
+	<dname>&lt;integer&gt;</dname> values would produce a
 	result that does not fit in an
-	<CLASSNAME>&lt;integer&gt;</CLASSNAME>, then the Gwydion
+	<dname>&lt;integer&gt;</dname>, then the Gwydion
 	compiler will signal an overflow error. You can use the
-	<FUNCTION>as</FUNCTION> function to convert back and forth
-	between <CLASSNAME>&lt;integer&gt;</CLASSNAME>s and
-	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s. As signals
+	<dname>as</dname> function to convert back and forth
+	between <dname>&lt;integer&gt;</dname>s and
+	<dname>&lt;extended-integer&gt;</dname>s. As signals
 	an error when converting an
-	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME> to a
-	<CLASSNAME>&lt;integer&gt;</CLASSNAME>, and the value does not fit in a
-	<CLASSNAME>&lt;integer&gt;</CLASSNAME>.</PARA>
+	<dname>&lt;extended-integer&gt;</dname> to a
+	<dname>&lt;integer&gt;</dname>, and the value does not fit in a
+	<dname>&lt;integer&gt;</dname>.</PARA>
 
 	<PARA>The Extension module exports the following integer
 	functionality:</PARA>
@@ -831,8 +831,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  </definitkeywords>
 	  <defdescription>
 	    <PARA>The superclass of
-	    <CLASSNAME>&lt;integer&gt;</CLASSNAME> and
-	    <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.</PARA>
+	    <dname>&lt;integer&gt;</dname> and
+	    <dname>&lt;extended-integer&gt;</dname>.</PARA>
 	  </defdescription>
 	</dylanclassdef>
 
@@ -858,7 +858,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  <deftype>&lt;integer&gt;</deftype>
 	  <defdescription>
 	    <PARA>Holds the largest positive
-	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
+	    <dname>&lt;integer&gt</dname>.</PARA>
           </defdescription>
         </dylanconstantdef>
 
@@ -870,7 +870,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  <deftype>&lt;integer&gt;</deftype>
 	  <defdescription>
 	    <PARA>Holds the smallest negative
-	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
+	    <dname>&lt;integer&gt</dname>.</PARA>
           </defdescription>
         </dylanconstantdef>
 
@@ -1016,7 +1016,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       in the case described is undefined:</PARA>
 
       <PARA>It is an error to apply
-      <FUNCTION>unread-element</FUNCTION> to an element that is not
+      <dname>unread-element</dname> to an element that is not
       the element most recently read from the stream.</PARA>
 
       <PARA>Only when we specifically mention signaling do we mean
@@ -1029,7 +1029,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       not say what error must be signaled:</PARA>
 
       <PARA>When position is a
-      <CLASSNAME>&lt;stream-position&gt;</CLASSNAME>, if it is invalid
+      <dname>&lt;stream-position&gt;</dname>, if it is invalid
       for some reason, this function signals an error.</PARA>
 
       <PARA>By contrast, the following text 
@@ -1038,7 +1038,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 
       <PARA>If the end of the stream is encountered and no value was
       supplied for on-end-of-stream, read-element signals an
-      <CLASSNAME>&lt;end-of-stream-error&gt;</CLASSNAME>
+      <dname>&lt;end-of-stream-error&gt;</dname>
       condition. </PARA>
     </SECT1>
 
@@ -1121,7 +1121,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 
       <PARA>Streams are represented as Dylan objects, and all are
       general instances of the class
-      <CLASSNAME>&lt;stream&gt;</CLASSNAME>, which the Streams library
+      <dname>&lt;stream&gt;</dname>, which the Streams library
       defines.</PARA>
 
       <PARA>We say that a stream is established over the data
@@ -1153,7 +1153,7 @@ let stream = make(&lt;string-stream&gt;, contents: "hello world");</PROGRAMLISTI
       character 'h', the next invocation 'e', and so on. Once a stream
       has been used to consume all the elements of the data, the
       stream is said to be at its end. This condition can be tested
-      with the function <FUNCTION>stream-at-end?</FUNCTION>. The
+      with the function <dname>stream-at-end?</dname>. The
       following code fragment applies function to all elements of the
       sequence:</PARA>
 
@@ -1164,8 +1164,8 @@ while (~stream-at-end?(stream))
 end;</PROGRAMLISTING>
 
       <PARA>When all elements of a stream have been read, further
-      calls to <FUNCTION>read-element</FUNCTION> result in the
-      <CLASSNAME>&lt;end-of-stream-error&gt;</CLASSNAME> condition
+      calls to <dname>read-element</dname> result in the
+      <dname>&lt;end-of-stream-error&gt;</dname> condition
       being signalled. An alternative end-of-stream behavior is to
       have a distinguished end-of-stream value returned. You can
       supply such an end-of-stream value as a keyword argument to the
@@ -1179,13 +1179,13 @@ end;</PROGRAMLISTING>
       operate upon input streams, these functions hide the details of
       indexing, growing an underlying sequence, buffering for a file,
       and so on. For instance, the function
-      <FUNCTION>write-element</FUNCTION> writes a single data element
+      <dname>write-element</dname> writes a single data element
       to an output stream. </PARA>
 
       <PARA>The following forms bind stream to an output stream over
       an empty string and create the string <dlit>"I
       see!"</dlit>, using the function
-      <FUNCTION>stream-contents</FUNCTION> to access all of the
+      <dname>stream-contents</dname> to access all of the
       stream's elements.</PARA>
 
       <PROGRAMLISTING>
@@ -1196,11 +1196,11 @@ write(stream, "see");
 write-element(stream, '!');
 stream-contents(stream);</PROGRAMLISTING>
 
-      <PARA>Calling <FUNCTION>write</FUNCTION> on a sequence has the
-      same effect as calling <FUNCTION>write-element</FUNCTION> on all
+      <PARA>Calling <dname>write</dname> on a sequence has the
+      same effect as calling <dname>write-element</dname> on all
       the elements of the sequence. However, it is not required that
-      <FUNCTION>write</FUNCTION> be implemented directly in terms of
-      <FUNCTION>write-element</FUNCTION>; it might be implemented more
+      <dname>write</dname> be implemented directly in terms of
+      <dname>write-element</dname>; it might be implemented more
       efficiently, especially for buffered streams.</PARA>
 
       <PARA>Some streams are positionable; that is, they permit random
@@ -1226,11 +1226,11 @@ stream-contents(stream);</PROGRAMLISTING>
       
       <PARA>You can request a sequence containing all of the elements
       of a positionable stream by calling
-      <FUNCTION>stream-contents</FUNCTION> on it. The sequence
+      <dname>stream-contents</dname> on it. The sequence
       returned never shares structure with any underlying sequence
       that might be used in future by the stream. For instance, the
-      string returned by calling <FUNCTION>stream-contents</FUNCTION>
-      on an output <CLASSNAME>&lt;string-stream&gt;</CLASSNAME> will
+      string returned by calling <dname>stream-contents</dname>
+      on an output <dname>&lt;string-stream&gt;</dname> will
       not be the same string as that being used to represent the
       string stream.</PARA>
 
@@ -1269,9 +1269,9 @@ read-to-end(make(&lt;string-stream&gt;,
       the program. </PARA>
 
       <PARA>To guarantee that alias references to a sequence used in
-      an output <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME> will
+      an output <dname>&lt;sequence-stream&gt;</dname> will
       have access to any elements written to the sequence via the
-      stream, supply a <CLASSNAME>&lt;stretchy-vector&gt;</CLASSNAME>
+      stream, supply a <dname>&lt;stretchy-vector&gt;</dname>
       to make. A stream over a stretchy vector will use the same
       stretchy vector throughout the stream's existence. </PARA>
 
@@ -1331,9 +1331,9 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       </FIGURE>
 
       <PARA>Except for the classes
-      <CLASSNAME>&lt;stream&gt;</CLASSNAME>,
-      <CLASSNAME>&lt;buffered-stream&gt;</CLASSNAME>, and
-      <CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME>, these are
+      <dname>&lt;stream&gt;</dname>,
+      <dname>&lt;buffered-stream&gt;</dname>, and
+      <dname>&lt;positionable-stream&gt;</dname>, these are
       instantiable classes.</PARA>
 
       <para>Streams, in general, have a host of operations for walking over
@@ -1392,7 +1392,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
             </keyparam>
           </definitkeywords>
           <defdescription>
-	    <PARA>A subclass of <CLASSNAME>&lt;stream&gt;</CLASSNAME>
+	    <PARA>A subclass of <dname>&lt;stream&gt;</dname>
 	    supporting the Stream Extension Protocol and the Buffer
 	    Access Protocol. It is not instantiable.</PARA>
 
@@ -1422,12 +1422,12 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <keyparam><paramname>end</paramname></keyparam>
           </definitkeywords>
           <defdescription>
-	    <PARA>The <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>
+	    <PARA>The <dname>&lt;sequence-stream&gt;</dname>
 	    class can be used for streaming over all sequences, but
 	    there are also subclasses
-	    <CLASSNAME>&lt;string-stream&gt;</CLASSNAME>,
-	    <CLASSNAME>&lt;byte-string-stream&gt;</CLASSNAME>, and
-	    <CLASSNAME>&lt;unicode-string-stream&gt;</CLASSNAME>,
+	    <dname>&lt;string-stream&gt;</dname>,
+	    <dname>&lt;byte-string-stream&gt;</dname>, and
+	    <dname>&lt;unicode-string-stream&gt;</dname>,
 	    which are specialized for streaming over strings.</PARA>
           </defdescription>
         </dylanclassdef>
@@ -1482,16 +1482,16 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         </dylanclassdef>
 
 	  <PARA>There are make methods on
-	  <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>,
-	  <CLASSNAME>&lt;string-stream&gt;</CLASSNAME>,
-	  <CLASSNAME>&lt;byte-string-stream&gt;</CLASSNAME> and
-	  <CLASSNAME>&lt;unicode-string-stream&gt;</CLASSNAME>. The
-	  <FUNCTION>make</FUNCTION> methods on
-	  <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME> and
-	  <CLASSNAME>&lt;string-stream&gt;</CLASSNAME> might not
+	  <dname>&lt;sequence-stream&gt;</dname>,
+	  <dname>&lt;string-stream&gt;</dname>,
+	  <dname>&lt;byte-string-stream&gt;</dname> and
+	  <dname>&lt;unicode-string-stream&gt;</dname>. The
+	  <dname>make</dname> methods on
+	  <dname>&lt;sequence-stream&gt;</dname> and
+	  <dname>&lt;string-stream&gt;</dname> might not
 	  create direct instances of those classes, but instead an
 	  instance of a subclass determined by
-	  <FUNCTION>type-for-sequence-stream</FUNCTION>.</PARA>
+	  <dname>type-for-sequence-stream</dname>.</PARA>
 
         <dylangenericdef>
           <defname>type-for-sequence-stream</defname>
@@ -1511,9 +1511,9 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defreturns>
           <defdescription>
             <para>
-              Called by <function>make</function>.  Returns a type for 
+              Called by <dname>make</dname>.  Returns a type for 
               creating a 
-	      <classname>&lt;sequence-stream&gt;</classname>.
+	      <dname>&lt;sequence-stream&gt;</dname>.
             </para>
           </defdescription>
         </dylangenericdef>
@@ -1563,7 +1563,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
               <paramsummary>
                 The file name.  If the <dlibrary>Locators</dlibrary>
                 library is in use, locator should be an instance of
-	        <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
+	        <dname>&lt;locator&gt;</dname> or a string that
 	        can be coerced to one.
               </paramsummary>
             </keyparam>
@@ -1602,7 +1602,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           <defdescription>
 	    <PARA>When you instantiate this class, an
 	    implementation-dependent, indirect instance of it is
-	    created (from a call to <function>type-for-file-stream</function>). 
+	    created (from a call to <dname>type-for-file-stream</dname>). 
              The file being streamed over is opened
 	    immediately upon creating the stream. </PARA>
 
@@ -1618,7 +1618,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  to read a file for which the user has no read permission, or
 	  to write a file for which the user has no write permission,
 	  then an
-	  <CLASSNAME>&lt;invalid-file-permissions-error&gt;</CLASSNAME>
+	  <dname>&lt;invalid-file-permissions-error&gt;</dname>
 	  condition is signalled at the time the file stream is
 	  created.</PARA>
 
@@ -1634,8 +1634,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
               treated as a single database record. This init-keyword
               defaults to something useful, potentially based on the
               properties of the file;
-              <CLASSNAME>&lt;byte-character&gt;</CLASSNAME> and
-              <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME> are
+              <dname>&lt;byte-character&gt;</dname> and
+              <dname>&lt;unicode-character&gt;</dname> are
               likely choices.</PARA>
 
 	  <PARA>The optional <dlit>if-exists:</dlit> init-keyword allows
@@ -1689,7 +1689,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      </LISTITEM>
 	      <LISTITEM>
 		<PARA><dlit>#"signal"</dlit> -- Signal a
-		<CLASSNAME>&lt;file-exists-error&gt;</CLASSNAME>
+		<dname>&lt;file-exists-error&gt;</dname>
 		condition. </PARA>
 	      </LISTITEM>
 	  </itemizedlist>
@@ -1705,7 +1705,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      </LISTITEM>
 	      <LISTITEM>
 		<PARA><dlit>#"signal"</dlit> -- Signal a
-		<CLASSNAME>&lt;file-does-not-exist-error&gt;</CLASSNAME>
+		<dname>&lt;file-does-not-exist-error&gt;</dname>
 		condition. This is the default when the stream's
 		direction is <dlit>#"input"</dlit>.</PARA>
 	      </LISTITEM>
@@ -1730,7 +1730,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
             <PARA>Ideally, element-type could be any valid Dylan type
             such as <dlit>limited(&lt;integer&gt;, min: 0, max:
             255)</dlit> or
-            <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME>. This
+            <dname>&lt;unicode-character&gt;</dname>. This
             approach may make it possible to implement a potentially
             inefficient but general set of file streams. Unfortunately
             the current language definition does not include adequate
@@ -1744,17 +1744,17 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           <PARA>The three possible element types are: </PARA>  
           <itemizedlist>
               <LISTITEM>
-                <PARA><CLASSNAME>&lt;byte-character&gt;</CLASSNAME> -- The 
+                <PARA><dname>&lt;byte-character&gt;</dname> -- The 
                   file is accessed as a sequence of 8-bit
                   characters.</PARA>
               </LISTITEM>
               <LISTITEM>
-                <PARA><CLASSNAME>&lt;unicode-character&gt;</CLASSNAME> -- The 
+                <PARA><dname>&lt;unicode-character&gt;</dname> -- The 
                   file is accessed as a sequence of 16-bit Unicode
                   characters.</PARA>
               </LISTITEM>
               <LISTITEM>
-                <PARA><CLASSNAME>&lt;byte&gt;</CLASSNAME> -- The file is 
+                <PARA><dname>&lt;byte&gt;</dname> -- The file is 
                   accessed as a sequence of unsigned 8-bit
                   integers.</PARA>
               </LISTITEM>
@@ -1803,8 +1803,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    </param>
 	  </defreturns>
 	  <defdescription>
-	      <PARA>The method for <function>make</function> on
-	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME> calls this
+	      <PARA>The method for <dname>make</dname> on
+	      <dname>&lt;file-stream&gt;</dname> calls this
 	      function to determine the class of which it should
 	      create an instance.</PARA>
 	  </defdescription>
@@ -1829,7 +1829,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       <dylanconstantdef>
         <defname> *standard-error* </defname>
         <defsummary>
-          The <classname>&lt;stream&gt;</classname> instance corresponding
+          The <dname>&lt;stream&gt;</dname> instance corresponding
           to the standard error.
         </defsummary>
         <deftype>
@@ -1837,7 +1837,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         </deftype>
         <defdescription>
           <para>
-            The standard error <classname>&lt;stream&gt;</classname>.
+            The standard error <dname>&lt;stream&gt;</dname>.
             This usually represents the terminal; however most UNIX-like
             operating systems permit the standard error stream to be
             redirected at the command line.
@@ -1848,7 +1848,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       <dylanconstantdef>
         <defname> *standard-input* </defname>
         <defsummary>
-          The <classname>&lt;stream&gt;</classname> instance corresponding
+          The <dname>&lt;stream&gt;</dname> instance corresponding
           to the standard input.
         </defsummary>
         <deftype>
@@ -1856,7 +1856,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         </deftype>
         <defdescription>
           <para>
-            The standard input <classname>&lt;stream&gt;</classname>.
+            The standard input <dname>&lt;stream&gt;</dname>.
             Usually, this stream reads from the terminal for its data;
             however most UNIX-like operating systems permit the standard
             input stream to be redirected at the command line.
@@ -1867,7 +1867,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       <dylanconstantdef>
         <defname> *standard-output* </defname>
         <defsummary>
-          The <classname>&lt;stream&gt;</classname> instance corresponding
+          The <dname>&lt;stream&gt;</dname> instance corresponding
           to the standard output.
         </defsummary>
         <deftype>
@@ -1875,7 +1875,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         </deftype>
         <defdescription>
           <para>
-            The standard output <classname>&lt;stream&gt;</classname>.
+            The standard output <dname>&lt;stream&gt;</dname>.
             This usually represents the terminal (just like <dname>
             *standard-error* </dname>); however most UNIX-like operating
             systems permit the standard output stream to be redirected
@@ -1918,12 +1918,12 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         </defreturns>
         <defdescription>
           <para>
-            The <function>format</function> function takes a control string,
+            The <dname>format</dname> function takes a control string,
             formats according to the format directives embedded in the string,
             and then writes the result to the <dname>stream</dname> argument.
           </para>
           <para>
-            The format codes accepted by <function>format</function> are
+            The format codes accepted by <dname>format</dname> are
             described in the format directives section. 
 
 <!-- Manuals?  We no need no STINKING manuals! 
@@ -1957,8 +1957,8 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
         </defreturns>
         <defdescription>
           <para>
-            The default <function>format</function> method, specialized on
-            the <classname>&lt;stream&gt;</classname> class.
+            The default <dname>format</dname> method, specialized on
+            the <dname>&lt;stream&gt;</dname> class.
           </para>
         </defdescription>
       </dylanmethoddef>
@@ -1988,7 +1988,7 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
         </defreturns>
         <defdescription>
           <para>
-            This function effectively calls <function>format</function> and
+            This function effectively calls <dname>format</dname> and
             returns the <dname>result</dname> as a string.
           </para>
         </defdescription>
@@ -2022,18 +2022,18 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
             generic function is intended to define the human-readable
             printing behavior of a Dylan object, as opposed to their
             representation as literal syntax. Calling this function on
-	    <classname>&lt;condition&gt;</classname> should result in
+	    <dname>&lt;condition&gt;</dname> should result in
 	    a error message, rather than the name of the instance and
 	    its class, for example. (Contrast this behavior with the 
-	    <function> print </function> function in the
+	    <dname> print </dname> function in the
 	    <dlibrary>Print</dlibrary> library.)
           </para>
           <para>
             Predefined methods exist for the 
-            <classname> &lt;string&gt; </classname>, 
-            <classname> &lt;character&gt; </classname>, 
-            <classname> &lt;condition&gt; </classname>, and 
-            <classname> &lt;symbol&gt; </classname>  classes.
+            <dname> &lt;string&gt; </dname>, 
+            <dname> &lt;character&gt; </dname>, 
+            <dname> &lt;condition&gt; </dname>, and 
+            <dname> &lt;symbol&gt; </dname>  classes.
           </para>
         </defdescription>
       </dylangenericdef>
@@ -2051,49 +2051,49 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
     <itemizedlist>
       <listitem>
         <para>
-          %d -- <classname>&lt;integer&gt;</classname> --
+          %d -- <dname>&lt;integer&gt;</dname> --
           decimal number
         </para>
       </listitem>
       <listitem>
         <para>
-          %b -- <classname>&lt;integer&gt;</classname> --
+          %b -- <dname>&lt;integer&gt;</dname> --
           binary number
         </para>
       </listitem>
       <listitem>
         <para>
-          %o -- <classname>&lt;integer&gt;</classname> --
+          %o -- <dname>&lt;integer&gt;</dname> --
           octal number
         </para>
       </listitem>
       <listitem>
         <para>
-          %x -- <classname>&lt;integer&gt;</classname> --
+          %x -- <dname>&lt;integer&gt;</dname> --
           hexadecimal number
         </para>
       </listitem>
       <listitem>
         <para>
-          %c -- <classname>&lt;character&gt;</classname> --
+          %c -- <dname>&lt;character&gt;</dname> --
           character (with no quotes)
         </para>
       </listitem>
       <listitem>
         <para>
-          %s -- <classname>&lt;string&gt;</classname> --
+          %s -- <dname>&lt;string&gt;</dname> --
           string (with no quotes)
         </para>
       </listitem>
       <listitem>
         <para>
-          %s -- <classname>&lt;condition&gt;</classname> --
+          %s -- <dname>&lt;condition&gt;</dname> --
           condition message (with no quotes)
         </para>
       </listitem>
       <listitem>
         <para>
-          %= -- <classname>&lt;object&gt;</classname> --
+          %= -- <dname>&lt;object&gt;</dname> --
           unspecified, but works with any object
         </para>
       </listitem>
@@ -2104,7 +2104,7 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
       </listitem>
       <listitem>
         <para>
-          %m -- <classname>&lt;function&gt;</classname> --
+          %m -- <dname>&lt;function&gt;</dname> --
           a function that accepts the stream as an argument and
           performs user-defined operations on the stream
         </para>
@@ -2134,7 +2134,7 @@ format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%c",
       <para>
         Note: sending the new-line character (<dlit>'\n'</dlit>) works as expected
         on supported platforms, but some systems that require a <dlit>"\r\n"</dlit>
-        or a <dlit>"\n\r"</dlit> pair for a <function>new-line</function> command may have problems.
+        or a <dlit>"\n\r"</dlit> pair for a <dname>new-line</dname> command may have problems.
         The preferred way to write the above code is:
       </para>
       <programlisting>
@@ -2155,7 +2155,7 @@ format(*standard-output*, "Hello, my name is %s, and I'm %d years old.\n",
 	<para>
 	  Instead of feeding the (in some cases, troublesome) '\n'
 	  character to the %c directive, let us explicitly use the
-	  <function>new-line</function> (a function in the
+	  <dname>new-line</dname> (a function in the
 	  <dlibrary>Streams</dlibrary> library) in concert with the %m
 	  directive, like this:
 	</para>
@@ -2170,7 +2170,7 @@ format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%m",
 	<para>
 	  Interestingly, Dylan automatically
 	  converts <dlit>'\n'</dlit> characters in the control string to calls to
-	  <function>new-line</function>.   (So, neither <dlit>"%m"</dlit> => <function>new-line</function>
+	  <dname>new-line</dname>.   (So, neither <dlit>"%m"</dlit> => <dname>new-line</dname>
 	  nor <dlit>"%c"</dlit> => <dlit>'\n'</dlit> mappings are necessary ... Dylan takes care
 	  of that).
 	</para>
@@ -2189,7 +2189,7 @@ now, November 17, 2000 09:28 PM, I'm 33 years old.
         </programlisting>
         <para>
           To get the above message, we must first create a function that
-	  manipulates a <classname>&lt;decoded-time&gt;</classname>
+	  manipulates a <dname>&lt;decoded-time&gt;</dname>
 	  (See <xref linkend="libs-time-time"> and <xref
 	  linkend="libs-time-timeio">) as we desire
 	  for the output:
@@ -2218,8 +2218,8 @@ format(*standard-output*, "Hello, my name is %s, and as of\n"
 	<itemizedlist>
           <listitem>
 	    <para>
-	      First, a short-hand for <function>format(*standard-output*,
-	      ...</function> is the <function>format-out</function> function
+	      First, a short-hand for <dname>format(*standard-output*,
+	      ...</dname> is the <dname>format-out</dname> function
 	      found in <xref linkend="libs-format-out-fn">.
 	    </para>
 	  </listitem>
@@ -2240,18 +2240,18 @@ format(*standard-output*, "%s was here.\n", "Doug");
 	  </listitem>
 	  <listitem>
 	    <para>
-              Third, <function>rcurry</function> is a function that takes a
+              Third, <dname>rcurry</dname> is a function that takes a
 	      function and various arguments to create a new function.  A
 	      description of it is available in the &drm; (page 349).
-	      In this case, <function>rcurry</function> takes the
+	      In this case, <dname>rcurry</dname> takes the
 	      function we created
-	      (<function>human-readable-time</function>) and the
-	      result of <function>get-current-time</function> (a
+	      (<dname>human-readable-time</dname>) and the
+	      result of <dname>get-current-time</dname> (a
 	      function in the <dmodule>Time</dmodule> module, that,
 	      here, sets the timezone to Z+5 (hours), or Eastern
 	      Standard Time) as an argument that creates a new
 	      function that expects a
-	      <classname>&lt;stream&gt;</classname> instance to do its
+	      <dname>&lt;stream&gt;</dname> instance to do its
 	      work. 
 	    </para>
 	  </listitem>
@@ -2266,7 +2266,7 @@ format(*standard-output*, "%s was here.\n", "Doug");
         <para>
           With the above points in mind, one can use the %m directive to
 	  integrate complex stream manipulation with the
-	  <function>format</function> function.
+	  <dname>format</dname> function.
 	</para>
       </sect3>
     </sect2>
@@ -2291,7 +2291,7 @@ format(*standard-output*, "%s was here.\n", "Doug");
       <title>The Format-Out Module</title>
       <para>
         The Format-Out module
-	exports one function <FUNCTION>format-out</FUNCTION>.
+	exports one function <dname>format-out</dname>.
       </para>
  
       <dylanmethoddef>
@@ -2336,24 +2336,24 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       syntax if the object can be represented as a Dylan literal, and
       otherwise, outputs the object in an implementation-dependent
       manner. There are essentially two functions,
-      <function>print</function> and
-      <function>print-object</function>. The <function>print</function>
+      <dname>print</dname> and
+      <dname>print-object</dname>. The <dname>print</dname>
       function accepts keyword arguments that form a print request,
       controlling features such as circular printing, how deep within a
       data structure to print, how many elements in long sequences to
       print before using an ellipsis notation, whether pretty printing
       is desired, and so on. Users extend
-      <function>print</function>'s ability to print various objects
-      by adding methods to the <function>print-object</function>
-      function. The <function>print</function> function handles most of
+      <dname>print</dname>'s ability to print various objects
+      by adding methods to the <dname>print-object</dname>
+      function. The <dname>print</dname> function handles most of
       the overhead to satisfy special print requests, outputting any
       special notations required, and it only calls
-      <function>print-object</function> when it is necessary to print
-      objects. Users should always call the <function>print</function>
+      <dname>print-object</dname> when it is necessary to print
+      objects. Users should always call the <dname>print</dname>
       function to output objects, especially recursively from within
-      <function>print-object</function> methods to output an object's
+      <dname>print-object</dname> methods to output an object's
       components. Users should never call
-      <function>print-object</function> directly.
+      <dname>print-object</dname> directly.
     </PARA>
 
     <sect1 id="libs-print-print">
@@ -2417,20 +2417,20 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    Prints <dlit>object</dlit> to <dlit>stream</dlit>
 	    according to the print request 
 	    formed by the keyed arguments. A first call to
-	    <function>print</function> creates a printing stream to
+	    <dname>print</dname> creates a printing stream to
 	    represent the print request, and recursive calls to
-	    <function>print</function> on this printing stream process the
+	    <dname>print</dname> on this printing stream process the
 	    keyed arguments differently (see below). There are inspection
 	    functions for querying the print request (see their
-	    descriptions below). When <function>print</function> actually
+	    descriptions below). When <dname>print</dname> actually
 	    prints an object, it calls
-	    <function>print-object</function>. Though the inspection
+	    <dname>print-object</dname>. Though the inspection
 	    functions for querying the print request allow you to inspect
 	    any parameter of the print request,
-	    <function>print-object</function> methods should only need to
-	    call <function>print-length</function>. All other aspects of
+	    <dname>print-object</dname> methods should only need to
+	    call <dname>print-length</dname>. All other aspects of
 	    the print request are handled by
-	    <function>print</function>. There is one exception which is
+	    <dname>print</dname>. There is one exception which is
 	    described in the <dmodule>PPrint</dmodule> module
 	    (pretty-printing).
 	  </para>
@@ -2439,13 +2439,13 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    structure to print. The value &false; indicates that there
 	    is no limit. The default, <dname>*default-level*</dname>,
 	    has no effect on recursive calls to
-	    <function>print</function>. Recursive calls to
-	    <function>print</function> may change the value of
+	    <dname>print</dname>. Recursive calls to
+	    <dname>print</dname> may change the value of
 	    <dname>print-level</dname> explicitly, but
-	    <function>print</function> always uses a value to ensure
+	    <dname>print</dname> always uses a value to ensure
 	    the print request formed by the first call to
-	    <function>print</function> is never exceeded. For example,
-	    if a first call to <function>print</function> set the
+	    <dname>print</dname> is never exceeded. For example,
+	    if a first call to <dname>print</dname> set the
 	    <dlit>level</dlit> to 5, and while at a depth of 3, a
 	    recursive call specified a <dlit>level</dlit> of 4, the
 	    recursive call would only descend 2 more levels, not 4.
@@ -2456,15 +2456,15 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    (<dlit>...</dlit>). The 
 	    value &false; indicates that there is no limit. The
 	    <dname>print-length</dname> control can be interpreted
-	    loosely by some <function>print-object</function> methods
+	    loosely by some <dname>print-object</dname> methods
 	    to control how many elements of any kind of object to
 	    print; for example, the default
-	    <classname>&lt;object&gt;</classname> method might regard
+	    <dname>&lt;object&gt;</dname> method might regard
 	    <dname>print-length</dname> to determine how many
 	    slot-name/value pairs to print. The default,
 	    <dname>*default-length*</dname>, has no effect on
-	    recursive calls to <function>print</function>. Recursive
-	    calls to <function>print</function> may change the value
+	    recursive calls to <dname>print</dname>. Recursive
+	    calls to <dname>print</dname> may change the value
 	    of <dname>print-length</dname> explicitly, but they may only
 	    decrease the value, never increase it.
 	  </para>
@@ -2476,22 +2476,22 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    than once when they are first printed, and later occurrences
 	    are printed as a reference to the previously emitted tag. The
 	    default, <dname>*default-circle?*</dname>, has no effect on
-	    recursive calls to <function>print</function>. If
+	    recursive calls to <dname>print</dname>. If
 	    <dname>print-circle?</dname> is already &true;, then it remains
 	    &true; throughout all recursive calls. If
 	    <dname>print-circle?</dname> is &false;, then recursive calls to
-	    <function>print</function> can change the value to &true;;
+	    <dname>print</dname> can change the value to &true;;
 	    however, when printing exits the dynamic scope of the call
 	    that changed the value to &true;, the value reverts to
 	    &false;. If the original call to
-	    <function>print</function> specifies <dlit>circle?</dlit>
+	    <dname>print</dname> specifies <dlit>circle?</dlit>
 	    as &false;, and dynamically distinct recursive calls turn
 	    circular printing on and off, all output generated while
 	    circular printing was on shares the same tagging space;
 	    that is, if <dlit>#1#</dlit> is printed twice, once from
 	    each of two distinct recursive calls to
-	    <function>print</function>, then each <dlit>#1#</dlit> is
-	    guaranteed to signify the same <function>\==</function>
+	    <dname>print</dname>, then each <dlit>#1#</dlit> is
+	    guaranteed to signify the same <dname>\==</dname>
 	    object.  
 	  </para>
 	  <para>
@@ -2500,11 +2500,11 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    objects according to how programmers tend to find it easier to
 	    read data. The default, <dname>*default-pretty?*</dname>,
 	    has no effect on recursive calls to
-	    <function>print</function>. If
+	    <dname>print</dname>. If
 	    <dname>print-pretty?</dname> is already &true;, then it
 	    remains &true; throughout all recursive calls. If
 	    <dname>print-pretty?</dname> is &false;, then recursive
-	    calls to <function>print</function> can change the value
+	    calls to <dname>print</dname> can change the value
 	    to &true;; however, when printing exits the dynamic scope
 	    of the call that changed the value to &true;, the value
 	    reverts to &false;.
@@ -2528,49 +2528,49 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
         </defreturns>
         <defdescription>
 	  <para>
-	    Users extend <function>print</function>'s ability to print
+	    Users extend <dname>print</dname>'s ability to print
 	    various objects by adding methods to the
-	    <function>print-object</function> function.  When
-	    <function>print</function> actually prints an object, it calls
-	    <function>print-object</function>. Users should never call
-	    <function>print-object</function>
+	    <dname>print-object</dname> function.  When
+	    <dname>print</dname> actually prints an object, it calls
+	    <dname>print-object</dname>. Users should never call
+	    <dname>print-object</dname>
 	    directly. 
 	  </para>
           <para>
 	    Provides the printed object representation for
-	    <function>print</function> and for the "%=" format
+	    <dname>print</dname> and for the "%=" format
 	    directive (see <xref linkend="libs-format-directives">).
-	    Default <function>print-object</function> methods exist
-	    for instances of <classname>&lt;object&gt;</classname>,
-	    <classname>&lt;character&gt;</classname>,
-	    <classname>&lt;string&gt;</classname>,
-	    <classname>&lt;list&gt;</classname>,
-	    <classname>&lt;vector&gt;</classname>,
-	    <classname>&lt;sequence&gt;</classname>,
-	    <classname>&lt;array&gt;</classname>,
-	    <classname>&lt;table&gt;</classname>,
-	    <classname>&lt;range&gt;</classname>,
-	    <classname>&lt;function&gt;</classname>,
-	    <classname>&lt;singleton&gt;</classname>,
-	    <classname>&lt;limited-integer&gt;</classname>,
-	    <classname>&lt;union&gt;</classname>,
-	    <classname>&lt;symbol&gt;</classname>,
-	    <classname>&lt;general-integer&gt;</classname>, 
-	    <classname>&lt;integer&gt;</classname>, 
-	    <classname>&lt;ratio&gt;</classname>,
-	    <classname>&lt;single-float&gt;</classname>,
-	    <classname>&lt;double-float&gt;</classname>,
-	    <classname>&lt;extended-float&gt;</classname>, 
-	    <classname>&lt;class&gt;</classname>, and for &true; and
+	    Default <dname>print-object</dname> methods exist
+	    for instances of <dname>&lt;object&gt;</dname>,
+	    <dname>&lt;character&gt;</dname>,
+	    <dname>&lt;string&gt;</dname>,
+	    <dname>&lt;list&gt;</dname>,
+	    <dname>&lt;vector&gt;</dname>,
+	    <dname>&lt;sequence&gt;</dname>,
+	    <dname>&lt;array&gt;</dname>,
+	    <dname>&lt;table&gt;</dname>,
+	    <dname>&lt;range&gt;</dname>,
+	    <dname>&lt;function&gt;</dname>,
+	    <dname>&lt;singleton&gt;</dname>,
+	    <dname>&lt;limited-integer&gt;</dname>,
+	    <dname>&lt;union&gt;</dname>,
+	    <dname>&lt;symbol&gt;</dname>,
+	    <dname>&lt;general-integer&gt;</dname>, 
+	    <dname>&lt;integer&gt;</dname>, 
+	    <dname>&lt;ratio&gt;</dname>,
+	    <dname>&lt;single-float&gt;</dname>,
+	    <dname>&lt;double-float&gt;</dname>,
+	    <dname>&lt;extended-float&gt;</dname>, 
+	    <dname>&lt;class&gt;</dname>, and for &true; and
 	    &false;.
 	  </para>
 	  <para>
 	    Users may choose to modify the printed representation in
-	    two ways:  override the <function>print-object</function>
+	    two ways:  override the <dname>print-object</dname>
 	    method for that instance's type, or provide a printing
 	    function to the <dlit>"%m"</dlit> directive for
-	    <function>format</function> or
-	    <function>format-out</function>.
+	    <dname>format</dname> or
+	    <dname>format-out</dname>.
 	  </para>
         </defdescription>
       </dylanmethoddef>
@@ -2628,7 +2628,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
         </defreturns>
         <defdescription>
           <para>
-	    Calls <function>print</function> to produce output
+	    Calls <dname>print</dname> to produce output
 	    according to the print request formed by the keyed arguments
 	    and returns the output as a string. 
 	  </para>
@@ -2636,7 +2636,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       </dylanmethoddef>
 
       <para>
-        The above <function>print</function> functions use or set the
+        The above <dname>print</dname> functions use or set the
         below exported variables to accomplish their work (&false;
         (the default value of all these variables) indicates there is
         no bounds for the variable):
@@ -2650,7 +2650,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<deftype>false-or(&lt;integer&gt;)</deftype>
 	<defdescription>
 	  <para>
-	    If a number is given, <function>print</function> prints a
+	    If a number is given, <dname>print</dname> prints a
 	    <dlit>#</dlit> when it reached the level.
 	  </para>
 	</defdescription>
@@ -2664,7 +2664,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<deftype>false-or(&lt;integer&gt;)</deftype>
 	<defdescription>
 	  <para>
-	    If a number is given, <function>print</function> prints a
+	    If a number is given, <dname>print</dname> prints a
 	    <dlit>...</dlit> to indicate that it reached the maximum
 	    number of printable elements.
 	  </para>
@@ -2694,17 +2694,17 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	  <para>
 	    If on, prints object indented with proper line breaks,
 	    according to the formatting specifications given to
-	    <function>pprint-logical-block</function>. 
+	    <dname>pprint-logical-block</dname>. 
 	  </para>
 	</defdescription>
       </dylanvariabledef>    
 
       <para>
         The below functions give printing information on
-        <classname>&lt;stream&gt;</classname>s. It seems, however,
+        <dname>&lt;stream&gt;</dname>s. It seems, however,
         that these functions are neither used nor implemented, as they
         all give &false; or <dlit>0</dlit> as their response, no matter the
-        <classname>&lt;stream&gt;</classname>.
+        <dname>&lt;stream&gt;</dname>.
       </para>
       
       <dylanmethoddef>
@@ -2725,7 +2725,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<defdescription>
 	  <para>
 	    Returns the current value for the print request. See the
-	    <function>print</function> function for details.
+	    <dname>print</dname> function for details.
 	  </para>
 	</defdescription>
       </dylanmethoddef>
@@ -2748,10 +2748,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<defdescription>
 	  <para>
 	    Returns the current value for the print request. See the
-	    <function>print</function> function for details. Users
+	    <dname>print</dname> function for details. Users
 	    should have little use for this function because
-	    <function>print</function> takes care to call
-	    <function>print-object</function> only when the print
+	    <dname>print</dname> takes care to call
+	    <dname>print-object</dname> only when the print
 	    level has not been exhausted. 
 	  </para>
 	</defdescription>
@@ -2776,8 +2776,8 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	  <para>
 	    Returns the current depth to which printing has descended
 	    into the object on which print was originally called. 
-	    <function>Print</function> takes care to call
-	    <function>print-object</function> only when the print
+	    <dname>Print</dname> takes care to call
+	    <dname>print-object</dname> only when the print
 	    depth has not been exhausted. 
 	  </para>
 	</defdescription>
@@ -2826,7 +2826,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	  <para>
 	    Returns whether circular printing is on. Users should have
 	    little use for this function because
-	    <function>print</function> takes care to detect
+	    <dname>print</dname> takes care to detect
 	    circularities, tag multiply referenced objects, and emit
 	    tags rather than descending into objects to repeatedly
 	    print them.
@@ -2848,17 +2848,17 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	to the Common Lisp manual for more details.  
       </para>
       <para>
-        When writing <function>print-object</function> methods, users
+        When writing <dname>print-object</dname> methods, users
 	can ignore whether pretty printing is in effect. If you write
-	your <function>print-object</function> method using pretty
+	your <dname>print-object</dname> method using pretty
 	printing functions, then when pretty printing is in effect,
 	the output will be pretty printed. When pretty printing is not
 	in effect, your method will produce output as though you had
 	not written it to use pretty printing. All
-	<function>print-object</function> methods that are written to
+	<dname>print-object</dname> methods that are written to
 	do pretty printing must call the pretty printing functions
 	within the dynamic scope of a call to
-	<function>pprint-logical-block</function>; otherwise, the
+	<dname>pprint-logical-block</dname>; otherwise, the
 	pretty printing functions are no-ops.
       </para>
 
@@ -2882,7 +2882,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<defdescription>
 	  <para>
 	    Whenever a logical block (see
-	    <function>pprint-logical-block</function>) begins in a
+	    <dname>pprint-logical-block</dname>) begins in a
 	    column of output that is greater than
 	    <dname>*default-line-length*</dname> -
 	    <dname>*print-miser-width*</dname>, then pretty printing
@@ -2996,15 +2996,15 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	  </para>
 	  <para>
 	    <dlit>Body</dlit> must be a
-	    <classname>&lt;function&gt;</classname> that can take one
+	    <dname>&lt;function&gt;</dname> that can take one
 	    argument, and this argument is a
-	    <classname>&lt;stream&gt;</classname>. The
+	    <dname>&lt;stream&gt;</dname>. The
 	    <dlit>body</dlit> function should use the
 	    <dlit>stream</dlit> argument passed to it; the
 	    <dlit>body</dlit> function should not close over the
 	    <dlit>stream</dlit> argument to
-	    <function>pprint-logical-block</function>.
-	    <function>Pprint-logical-block</function> wraps
+	    <dname>pprint-logical-block</dname>.
+	    <dname>Pprint-logical-block</dname> wraps
 	    <dlit>stream</dlit> with a pretty printing stream when
 	    <dlit>stream</dlit> is any other kind of stream. If
 	    <dlit>stream</dlit> is already a pretty printing stream,
@@ -3012,10 +3012,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    <dlit>stream</dlit>.
 	  </para>
 	  <para>
-	    All <function>print-object</function> methods that are
+	    All <dname>print-object</dname> methods that are
 	    written to do pretty printing must call the other pretty
 	    printing functions within the dynamic scope of a call to
-	    <function>pprint-logical-block</function>; otherwise, the
+	    <dname>pprint-logical-block</dname>; otherwise, the
 	    pretty printing functions are no-ops.
 	  </para>
 	</defdescription>
@@ -3114,11 +3114,11 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    This function specifies the indentation to use within the
 	    current logical block. When <dlit>relative-to</dlit> is
 	    <dlit>#"block"</dlit>, then
-	    <function>pprint-indent</function> sets the indentation to
+	    <dname>pprint-indent</dname> sets the indentation to
 	    the column of the first character of the logical block
 	    plus <dlit>n</dlit>. When <dlit>relative-to</dlit> is
 	    <dlit>#"current"</dlit>, then
-	    <function>pprint-indent</function> sets the indentation to
+	    <dname>pprint-indent</dname> sets the indentation to
 	    the current column plus <dlit>n</dlit>.
 	  </para>
 	</defdescription>
@@ -3242,10 +3242,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    reference to some part of an existing sequence. These are
 	    analogous to slices (in Ada or Perl) or displaced arrays
 	    (in Common Lisp). Subsequences are themselves subclasses
-	    of <classname>&lt;sequence&gt;</classname>, and can
+	    of <dname>&lt;sequence&gt;</dname>, and can
 	    therefore be passed any
-	    <classname>&lt;collection&gt;</classname> or
-	    <classname>&lt;sequence&gt;</classname> operation. 
+	    <dname>&lt;collection&gt;</dname> or
+	    <dname>&lt;sequence&gt;</dname> operation. 
 	  </para>
 	</listitem>
 	<listitem>
@@ -3253,7 +3253,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	    <dmodule>vector-search</dmodule>
 	    Provides a small assortment of specialized operations for
 	    searching and modifying
-	    <classname>&lt;vector&gt;</classname>s. These operations are
+	    <dname>&lt;vector&gt;</dname>s. These operations are
 	    analogous to existing collection operations but provide
 	    keywords and efficiency improvements which are meaningful
 	    only within the more limited domain.  
@@ -3270,7 +3270,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	  <para>
 	    <dmodule>heap</dmodule> was supposed to implement a
 	    priority queue, but because of conflicts with
-	    <classname>&lt;deque&gt;</classname> methods,
+	    <dname>&lt;deque&gt;</dname> methods,
 	    <dmodule>heap</dmodule> is currently empty. 
 	  </para>
 	</listitem>
@@ -3293,10 +3293,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<para>
 	  The "Self Organizing List" is a poor man's hash
 	  table. More precisely,
-	  <classname>&lt;self-organizing-list&gt;</classname> is a
+	  <dname>&lt;self-organizing-list&gt;</dname> is a
 	  subclass of
-	  <classname>&lt;mutable-explicit-key-collection&gt;</classname>
-	  and <classname>&lt;stretchy-collection&gt;</classname> for
+	  <dname>&lt;mutable-explicit-key-collection&gt;</dname>
+	  and <dname>&lt;stretchy-collection&gt;</dname> for
 	  which addition and retrieval are both linear in the worst
 	  case, but which use a probabilistic strategy which yields
 	  nearly constant time in the best case.  
@@ -3310,7 +3310,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	</para>
 	<para>
 	  Instantiate
-	  <classname>&lt;self-organizing-list&gt;</classname>s with  
+	  <dname>&lt;self-organizing-list&gt;</dname>s with  
 	</para>
 <programlisting>
 make(&lt;self-organizing-list&gt;, test: test)
@@ -3320,17 +3320,17 @@ make(&lt;self-organizing-list&gt;, test: test)
 	  particular, it is expected to satisfy the identity and
 	  transitivity requirements as described in the &drm;. If not
 	  specified, <dlit>test</dlit> defaults to
-	  <function>\==</function>.  
+	  <dname>\==</dname>.  
 	</para>
     </sect1>
     <sect1 id="libs-collection-extensions-subseq">
 	<title>Module subseq</title>
 	<para>
-	  <classname>&lt;Subsequence&gt;</classname> is a new subclass
-	  of <classname>&lt;sequence&gt;</classname>. A subsequence
+	  <dname>&lt;Subsequence&gt;</dname> is a new subclass
+	  of <dname>&lt;sequence&gt;</dname>. A subsequence
 	  represents an aliased reference to some part of an existing
 	  sequence. Although they may be created by
-	  <function>make</function> (with required keywords
+	  <dname>make</dname> (with required keywords
 	  <dlit>source:</dlit>, <dlit>start:</dlit> and
 	  <dlit>end:</dlit>) on one of the instantiable subclasses,
 	  they are more often created by calls of the form 
@@ -3344,7 +3344,7 @@ subsequence(sequence, start: 0, end: 3)
 	  respectively, of the source sequence. No other new
 	  operations are defined for subsequences, since all necessary
 	  operations are inherited from
-	  <classname>&lt;sequence&gt;</classname>.  
+	  <dname>&lt;sequence&gt;</dname>.  
 	</para>
 	<para>
 	  Because subsequences are aliased references into other
@@ -3361,8 +3361,8 @@ subsequence(sequence, start: 0, end: 3)
 	    <para>
 	      Destructive operations upon subsequences may be
 	      reflected in the source. The results of
-	      <function>reverse!</function> and
-	      <function>sort!</function> should be expected to affect
+	      <dname>reverse!</dname> and
+	      <dname>sort!</dname> should be expected to affect
 	      the source sequence for vector subsequences.  
 	    </para>
 	  </listitem>
@@ -3370,12 +3370,12 @@ subsequence(sequence, start: 0, end: 3)
 
 	<para>
 	  If the source sequences are instances of
-	  <classname>&lt;vector&gt;</classname> or
-	  <classname>&lt;string</classname>, then the implementation
+	  <dname>&lt;vector&gt;</dname> or
+	  <dname>&lt;string</dname>, then the implementation
 	  will use subclasses of
-	  <classname>&lt;subsequence&gt;</classname> which are also
-	  subclasses of <classname>&lt;vector&gt;</classname> or
-	  <classname>&lt;string&gt;</classname>.  
+	  <dname>&lt;subsequence&gt;</dname> which are also
+	  subclasses of <dname>&lt;vector&gt;</dname> or
+	  <dname>&lt;string&gt;</dname>.  
 	</para>
 	<para>
 	  Efficiency notes: 
@@ -3419,8 +3419,8 @@ subsequence(source, start: 3)
       <para>
 	The vector-search module provides basic search and replace
 	capabilities upon restricted subsets of
-	<classname>&lt;sequence&gt;</classname> -- primarily
-	<classname>&lt;vector&gt;</classname>. Exploiting the known
+	<dname>&lt;sequence&gt;</dname> -- primarily
+	<dname>&lt;vector&gt;</dname>. Exploiting the known
 	properties of these types yields substantially better
 	performance than can be achieved for sequences in general.  
       </para>
@@ -3469,7 +3469,7 @@ subsequence(source, start: 3)
 	    <dlit>start</dlit>, <dlit>end</dlit> and
 	    <dlit>failure</dlit> are, respectively,  0, size(vector),
 	    and &false;.  This function is like
-	    <function>find-key</function>, but accepts
+	    <dname>find-key</dname>, but accepts
 	    <dlit>start:</dlit> and <dlit>end:</dlit> rather than
 	    <dlit>skip:</dlit>. 
 	  </para>
@@ -3515,7 +3515,7 @@ subsequence(source, start: 3)
         <defdescription>
           <para>
 	    See the description for
-	    <function>find-first-key</function>
+	    <dname>find-first-key</dname>
 	  </para> 
         </defdescription>
       </dylanmethoddef>
@@ -3527,7 +3527,7 @@ subsequence(source, start: 3)
       <para>
         <dmodule>Sequence-Utilities</dmodule>, written by Matthias
         Hölzl,  provides common or oft-used operations performed on
-        <classname>&lt;sequence&gt;</classname>s.  The whole module is
+        <dname>&lt;sequence&gt;</dname>s.  The whole module is
         rather Lispy in flavor, and has the feel of an elegant hack by
         the way functions use predicate functions to manipulate lists.
       </para>
@@ -3537,7 +3537,7 @@ subsequence(source, start: 3)
 	<para>
           We start off with a group of generic functions that give
 	  boolean responses to type information requests (e.g. "Are you
-	  a <classname>&lt;list&gt;</classname>?").
+	  a <dname>&lt;list&gt;</dname>?").
 	</para>
       
         <dylangenericdef>
@@ -3560,7 +3560,7 @@ subsequence(source, start: 3)
 	  <defdescription>
 	    <para>
 	      This generic function has two specializers, one that takes
-	      instances of <classname>&lt;pair&gt;</classname> (and
+	      instances of <dname>&lt;pair&gt;</dname> (and
 	      subclasses of it) which returns &true; and one that takes
 	      anything else which returns &false;.
 	    </para>
@@ -3588,7 +3588,7 @@ subsequence(source, start: 3)
 	    <para>
 	      To my mind, this generic function's name is a bit
 	      misleading:  this returns &true; if the instance is an
-	      <classname>&lt;empty-list&gt;</classname>. 
+	      <dname>&lt;empty-list&gt;</dname>. 
 	    </para>
 	  </defdescription>
         </dylangenericdef>
@@ -3613,7 +3613,7 @@ subsequence(source, start: 3)
 	  <defdescription>
 	    <para>
 	      Returns &true; if the instance is a
-	      <classname>&lt;list&gt;</classname>; &false; otherwise.
+	      <dname>&lt;list&gt;</dname>; &false; otherwise.
 	    </para>
 	  </defdescription>
         </dylangenericdef>
@@ -3660,7 +3660,7 @@ subsequence(source, start: 3)
 	    </defreturns>
 	    <defdescription>
 	      <para>
-	        <function>Xpair</function> puts <dlit>elt</dlit> at the
+	        <dname>Xpair</dname> puts <dlit>elt</dlit> at the
 	        head of <dlit>list</dlit>.
 	      </para>
 	    </defdescription>
@@ -3669,7 +3669,7 @@ subsequence(source, start: 3)
           <dylanfunctiondef>
             <defname>list*</defname>
 	    <defsummary>
-	      Like <function>list</function>, but cons the first
+	      Like <dname>list</dname>, but cons the first
 	      elements onto the last element of <dlit>rest</dlit>.
 	    </defsummary>
 	    <defparameters>
@@ -3734,7 +3734,7 @@ reverse-append(#[5, 4, 3, 2, 1], #[6, 7, 8]) => #[1, 2, 3, 4, 5, 6, 7, 8]
 	  <title>Higher-Order Sequence Creational Functions</title>
 	  <para>
 	    The next set of functions creates
-	    <classname>&lt;sequence&gt;</classname>s from functions.
+	    <dname>&lt;sequence&gt;</dname>s from functions.
           </para>
 
           <dylanfunctiondef>
@@ -3752,7 +3752,7 @@ reverse-append(#[5, 4, 3, 2, 1], #[6, 7, 8]) => #[1, 2, 3, 4, 5, 6, 7, 8]
 	        <paramtype>&lt;function&gt;</paramtype>
 	        <paramsummary>
 	          <dlit>Func</dlit> takes one argument: the index (an
-	          <classname>&lt;integer&gt;</classname>).
+	          <dname>&lt;integer&gt;</dname>).
 	        </paramsummary>
 	      </param>
 	      <keyparam>
@@ -3771,7 +3771,7 @@ reverse-append(#[5, 4, 3, 2, 1], #[6, 7, 8]) => #[1, 2, 3, 4, 5, 6, 7, 8]
 	        Make a sequence of type <dlit>type</dlit> whose i-th
 	        element is <dlit>func</dlit>(i) for 0 &lt;= i &lt;
 	        <dlit>length</dlit>.  <dlit>Type</dlit> must be a subtype
-	        of <classname>&lt;mutable-sequence&gt;</classname>.
+	        of <dname>&lt;mutable-sequence&gt;</dname>.
 	      </para>
 	      <para>
 	        For example, I want a vector of the annual worth of an
@@ -4019,7 +4019,7 @@ tails(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) => #(#(5, 10), #(4, 6), #(6, 9))
 	      a value (i.e. not &false;) from <dlit>pred</dlit>, and
 	      returns the index. 
 	      Note, the index is not necessarily an integer
-	      ... <classname>&lt;table&gt;</classname> can use
+	      ... <dname>&lt;table&gt;</dname> can use
 	      non-integer indices.
 	    </para>
 	  </defdescription>
@@ -4062,10 +4062,10 @@ tails(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) => #(#(5, 10), #(4, 6), #(6, 9))
 	  </defreturns>
 	  <defdescription>
 	    <para>
-	      Very much like the <function>satisfies</function>
+	      Very much like the <dname>satisfies</dname>
 	      function.  This allows the user to specify the element
 	      sought, and assumes the <dlit>test</dlit> is
-	      <function>\=</function> by default.
+	      <dname>\=</dname> by default.
 	    </para>
 	  </defdescription>
 	</dylanmethoddef>
@@ -4100,7 +4100,7 @@ tails(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) => #(#(5, 10), #(4, 6), #(6, 9))
 	  </defreturns>
 	  <defdescription>
 	    <para>
-	      The <function>find</function> function locates and
+	      The <dname>find</dname> function locates and
 	      returns an object in a sequence when that object matches
 	      the predicate function passed in as <dlit>pred</dlit>.
 	    </para>
@@ -4139,7 +4139,7 @@ tails(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) => #(#(5, 10), #(4, 6), #(6, 9))
 	  </defreturns>
 	  <defdescription>
 	    <para>
-	      The <function>find-tail</function> function locates an
+	      The <dname>find-tail</dname> function locates an
 	      object in a sequence when that object matches 
 	      the predicate function passed in as <dlit>pred</dlit>.
 	      When that element is found, it, and the rest of the
@@ -4217,7 +4217,7 @@ tails(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) => #(#(5, 10), #(4, 6), #(6, 9))
 	      <paramtype>&lt;function&gt;</paramtype>
 	      <paramsummary>
 	        A function that takes two arguments and returns a
-	        <classname>&lt;pair&gt;</classname>.
+	        <dname>&lt;pair&gt;</dname>.
 	      </paramsummary>
 	    </param>
 	    <param>
@@ -4249,8 +4249,8 @@ foldr(pair, #(), #(1, 2, 3, 4, 5)) => #(1, 2, 3, 4, 5)
 	    </programlisting>
 	    <para>
 	      Exercise: what is the result when you replace
-	      <function>pair</function> with
-	      <function>list</function>?
+	      <dname>pair</dname> with
+	      <dname>list</dname>?
 	    </para>
 	  </defdescription>
 	</dylanfunctiondef>
@@ -4266,7 +4266,7 @@ foldr(pair, #(), #(1, 2, 3, 4, 5)) => #(1, 2, 3, 4, 5)
 	      <paramtype>&lt;function&gt;</paramtype>
 	      <paramsummary>
 	        A function that takes two arguments and returns a
-	        <classname>&lt;pair&gt;</classname>.
+	        <dname>&lt;pair&gt;</dname>.
 	      </paramsummary>
 	    </param>
 	    <param>
@@ -4289,7 +4289,7 @@ foldr(pair, #(), #(1, 2, 3, 4, 5)) => #(1, 2, 3, 4, 5)
 	  </defreturns>
 	  <defdescription>
 	    <para>
-	      <function>Foldr</function> in reverse.  This function
+	      <dname>Foldr</dname> in reverse.  This function
 	      rebuilds a list by recursively applying a function over
 	      the list.  For example:
 	    </para>
@@ -4408,7 +4408,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
 	  </defreturns>
 	  <defdescription>
 	    <para>
-	      This is very much like <function>choose</function> found
+	      This is very much like <dname>choose</dname> found
 	      in the &drm; (page 333), except this function also returns the
 	      elements that did not match the predicate.
             </para>
@@ -4421,10 +4421,10 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
         <title>Associative Lists</title>
 	<para>
 	  Those familiar with Lisp will feel at home here.
-	  Associative lists are <classname>&lt;list&gt;</classname>s
-	  that contain <classname>&lt;pair&gt;</classname>s of entries
+	  Associative lists are <dname>&lt;list&gt;</dname>s
+	  that contain <dname>&lt;pair&gt;</dname>s of entries
 	  (in a <dlit>#(key, value)</dlit> format).  Much like
-	  <classname>&lt;table&gt;</classname>s, one make look up the
+	  <dname>&lt;table&gt;</dname>s, one make look up the
 	  key to obtain the value information.
 	</para>
 	
@@ -4665,7 +4665,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	  instantiable
   	</defadjectives>
   	<defsummary>
-  	  Implements a <classname> &lt;table&gt; </classname> class, keyed by
+  	  Implements a <dname> &lt;table&gt; </dname> class, keyed by
   	  strings keyed without regard for case.
   	</defsummary>
   	<defsupers>
@@ -4677,10 +4677,10 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</definitkeywords>
   	<defdescription>
   	  <para>
-  	    <classname> &lt;case-insensitive-string-table&gt; </classname>
-  	    implements a <classname> &lt;table&gt; </classname> class whose
-  	    keys are instances of <classname> &lt;string&gt; </classname>.
-  	    However, instead of using <function> \= </function> for the
+  	    <dname> &lt;case-insensitive-string-table&gt; </dname>
+  	    implements a <dname> &lt;table&gt; </dname> class whose
+  	    keys are instances of <dname> &lt;string&gt; </dname>.
+  	    However, instead of using <dname> \= </dname> for the
   	    equivalence relation, strings which are the same modulo case are
   	    considered equivalent.
   	  </para>
@@ -4701,7 +4701,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	  instantiable
   	</defadjectives>
   	<defsummary>
-  	  Implements a class which compares keys using <function> \= </function>.
+  	  Implements a class which compares keys using <dname> \= </dname>.
   	</defsummary>
   	<defsupers>
   	  <defsuper>
@@ -4712,13 +4712,13 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</definitkeywords>
   	<defdescription>
   	  <para>
-  	    <classname> &lt;equal-table&gt; </classname> implements a
-  	    <classname> &lt;table&gt; </classname> class whose keys are
-  	    compared with <function> \= </function> rather than <function>
-  	    \== </function>. So for example, two instances of <classname>
-  	    list </classname> that don't have object identity, but did
+  	    <dname> &lt;equal-table&gt; </dname> implements a
+  	    <dname> &lt;table&gt; </dname> class whose keys are
+  	    compared with <dname> \= </dname> rather than <dname>
+  	    \== </dname>. So for example, two instances of <dname>
+  	    list </dname> that don't have object identity, but did
   	    contain references to the same object, would be considered
-  	    equivalent keys by <classname> &lt;equal-table&gt; </classname>.
+  	    equivalent keys by <dname> &lt;equal-table&gt; </dname>.
   	  </para>
   	</defdescription>
       </dylanclassdef>
@@ -4734,10 +4734,10 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</definitkeywords>
   	<defdescription>
   	  <para>
-  	    <classname> &lt;hash-state&gt; </classname> is the type of the
+  	    <dname> &lt;hash-state&gt; </dname> is the type of the
   	    hash state returned as the second value of hash functions.
   	    For example, <dlit>$permanent-hash-state</dlit> is of type
-  	    <classname> &lt;hash-state&gt; </classname>.
+  	    <dname> &lt;hash-state&gt; </dname>.
   	  </para>
   	</defdescription>
       </dylanclassdef>
@@ -4749,7 +4749,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	  instantiable
   	</defadjectives>
   	<defsummary>
-  	  A <classname> &lt;table&gt; </classname> class keyed by strings.
+  	  A <dname> &lt;table&gt; </dname> class keyed by strings.
   	</defsummary>
   	<defsupers>
   	  <defsuper>
@@ -4760,9 +4760,9 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</definitkeywords>
   	<defdescription>
   	  <para>
-  	    This class implements a <classname> &lt;table&gt; </classname>
-  	    class that is keyed by <function> \= </function> equal 
-  	     <classname> &lt;string&gt; </classname> instances.
+  	    This class implements a <dname> &lt;table&gt; </dname>
+  	    class that is keyed by <dname> \= </dname> equal 
+  	     <dname> &lt;string&gt; </dname> instances.
   	  </para>
   	</defdescription>
       </dylanclassdef>
@@ -4786,7 +4786,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defdescription>
   	  <para>
   	    This class is intended to be an abstract superclass of
-  	    <classname> &lt;table&gt; </classname> classes that have
+  	    <dname> &lt;table&gt; </dname> classes that have
   	    user-defined key comparison and hash functions. (NB: The hash
   	    functions cannot involve physical addresses.)
   	  </para>
@@ -4818,8 +4818,8 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defdescription>
   	  <para>
   	    Tests whether two objects have the same string value modulo case.
-  	    Comparisons to non- <classname> &lt;string&gt; </classname> or 
-  	    <classname> &lt;character&gt; </classname> instances return
+  	    Comparisons to non- <dname> &lt;string&gt; </dname> or 
+  	    <dname> &lt;character&gt; </dname> instances return
   	    <dlit>#f</dlit>.
   	  </para>
   	</defdescription>
@@ -4849,9 +4849,9 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    Since at least one of the arguments is not a <classname>
-  	    &lt;character&gt; </classname> or <classname> &lt;string&gt;
-  	    </classname>, this method always returns <dlit>#f</dlit>.
+  	    Since at least one of the arguments is not a <dname>
+  	    &lt;character&gt; </dname> or <dname> &lt;string&gt;
+  	    </dname>, this method always returns <dlit>#f</dlit>.
   	  </para>
   	</defdescription>
       </dylanmethoddef>
@@ -4912,7 +4912,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	  <para>
   	    This method returns true if the two arguments are the same
   	    size, and each component character returns true with a 
-  	    <function> case-insensitive-equal </function>. 
+  	    <dname> case-insensitive-equal </dname>. 
   	  </para>
   	</defdescription>
       </dylanmethoddef>
@@ -4945,9 +4945,9 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defdescription>
   	  <para>
   	    This is a convenient hash function for case-insensitive
-  	    strings. It is returned as the <function>table-protocol</function>
+  	    strings. It is returned as the <dname>table-protocol</dname>
   	    method's second value for
-  	    <classname> &lt;case-insensitive-string-table&gt; </classname>.
+  	    <dname> &lt;case-insensitive-string-table&gt; </dname>.
   	  </para>
   	</defdescription>
       </dylanfunctiondef>
@@ -4964,7 +4964,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	    <paramtype> &lt;function&gt; </paramtype>
   	    <paramsummary>
   	      Computes hash ids for the keys. It takes an object and a
-  	      <classname>&lt;hash-state&gt;</classname> as an argument, and
+  	      <dname>&lt;hash-state&gt;</dname> as an argument, and
   	      returns a hash id and a hash state.
   	    </paramsummary>
   	  </param>
@@ -4973,7 +4973,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	    <paramtype> &lt;function&gt; </paramtype>
   	    <paramsummary>
   	      Computes hash ids for the elements. It takes an object and a
-  	      <classname>&lt;hash-state&gt;</classname> as an argument, and
+  	      <dname>&lt;hash-state&gt;</dname> as an argument, and
   	      returns a hash id and a hash state.
   	    </paramsummary>
   	  </param>
@@ -5019,7 +5019,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defname> equal-hash </defname>
   	<defsummary>
   	  Computes hash ids for objects such that two objects that are
-  	  <function> \= </function> equal have the same hash id.
+  	  <dname> \= </dname> equal have the same hash id.
   	</defsummary>
   	<defparameters>
   	  <param>
@@ -5043,8 +5043,8 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    Methods on <function> equal-hash </function> should return hash
-  	    ids such that the	id for two <function> \= </function> equal 
+  	    Methods on <dname> equal-hash </dname> should return hash
+  	    ids such that the	id for two <dname> \= </dname> equal 
   	    objects are the same.
   	  </para>
   	  <para>
@@ -5052,10 +5052,10 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	    &lt;object&gt;, and it returns a valid hash id in all cases. 
   	    However, performance *will* suck horribly (algorithmically, even) 
   	    if you don't define better methods for your own objects that will 
-  	    live in <classname> &lt;equal-table&gt; </classname> instances.
+  	    live in <dname> &lt;equal-table&gt; </dname> instances.
   	  </para>
   	  <para>
-  	    Good methods for <function>equal-hash</function> are defined for
+  	    Good methods for <dname>equal-hash</dname> are defined for
   	    &lt;integer&gt;, &lt;float&gt;, &lt;symbol&gt;, &lt;type&gt;,
   	    &lt;function&gt;, &lt;boolean&gt;, &lt;condition&gt;, and
   	    &lt;collection&gt;. (Note that &lt;collection&gt; is a supertype
@@ -5084,7 +5084,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defdescription>
   	  <para>
   	    This function iterates through all the keys and calls
-  	    <function> remove-key! </function> on each one.
+  	    <dname> remove-key! </dname> on each one.
   	  </para>
   	</defdescription>
       </dylanfunctiondef>
@@ -5092,7 +5092,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
       <dylanfunctiondef>
   	<defname> sequence-hash </defname>
   	<defsummary>
-  	  Like <function> collection-hash </function>, only a more
+  	  Like <dname> collection-hash </dname>, only a more
   	  efficient version just for sequences.
   	</defsummary>
   	<defparameters>
@@ -5101,7 +5101,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	    <paramtype> &lt;function&gt; </paramtype>
   	    <paramsummary>
   	      Computes hash ids for the elements. It takes an object and a
-  	      <classname>&lt;hash-state&gt;</classname> as an argument, and
+  	      <dname>&lt;hash-state&gt;</dname> as an argument, and
   	      returns a hash id and a hash state.
   	    </paramsummary>
   	  </param>
@@ -5126,12 +5126,12 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    This is similar to an <function> equal-hash </function>, except
+  	    This is similar to an <dname> equal-hash </dname>, except
   	    that it hashes things with <dlit> ordered: #t </dlit> and
   	    ignores the sequence keys. USE WITH CAUTION: This isn't a proper
   	    equal-hash because two collections of different types but
   	    identical key/element pairs won't generate the same hash id,
-  	    even though the two collections are <function> \= </function>.
+  	    even though the two collections are <dname> \= </dname>.
   	  </para>
   	</defdescription>
       </dylanfunctiondef>
@@ -5165,7 +5165,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defdescription>
   	  <para>
   	    A convenient method for hashing strings. Used by
-  	    <classname> &lt;string-table&gt; </classname>.
+  	    <dname> &lt;string-table&gt; </dname>.
   	  </para>
   	</defdescription>
       </dylanfunctiondef>
@@ -5175,7 +5175,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defname> value-hash </defname>
   	<defsummary>
   	  Computes hash ids for objects such that two objects that are
-  	  <function> \= </function> equal have the same hash id.
+  	  <dname> \= </dname> equal have the same hash id.
   	</defsummary>
   	<defparameters>
   	  <param>
@@ -5199,8 +5199,8 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    Methods on <function> equal-hash </function> should return hash
-  	    ids such that the	id for two <function> \= </function> equal 
+  	    Methods on <dname> equal-hash </dname> should return hash
+  	    ids such that the	id for two <dname> \= </dname> equal 
   	    objects are the same.
   	  </para>
   	  <para>
@@ -5208,10 +5208,10 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	    &lt;object&gt;, and it returns a valid hash id in all cases. 
   	    However, performance *will* suck horribly (algorithmically, even) 
   	    if you don't define better methods for your own objects that will 
-  	    live in <classname> &lt;equal-table&gt; </classname> instances.
+  	    live in <dname> &lt;equal-table&gt; </dname> instances.
   	  </para>
   	  <para>
-  	    Good methods for <function>equal-hash</function> are defined for
+  	    Good methods for <dname>equal-hash</dname> are defined for
   	    &lt;integer&gt;, &lt;float&gt;, &lt;symbol&gt;, &lt;type&gt;,
   	    &lt;function&gt;, &lt;boolean&gt;, &lt;condition&gt;, and
   	    &lt;collection&gt;. (Note that &lt;collection&gt; is a supertype
@@ -5236,7 +5236,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   
       <para>
   	This module contains a set of methods for testing various
-  	properties of <classname> &lt;character&gt; </classname> this
+  	properties of <dname> &lt;character&gt; </dname> this
   	will work 100% correctly only with ASCII English characters.
   	Fixing this so it handles Unicode better would be a good way
   	of covering yourself with glory, hint hint.
@@ -5523,7 +5523,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    <function> byte-character? </function> will return true if
+  	    <dname> byte-character? </dname> will return true if
   	    <dlit>as(&lt;integer&gt;, character)</dlit> returns less than
   	    256.  I don't know enough about Unicode and character set
   	    encodings to say what this means.
@@ -5563,9 +5563,9 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	This module contains some handy functions to convert numbers
   	to strings and vice-versa, as well some &lt;character&gt; to
   	&lt;string&gt; conversions. [Note: It might be a good idea to
-  	try making <function>string-to-integer</function> and
-  	<function>integer-to-string</function> methods on
-  	<function>as</function>, which is the usual generic for type
+  	try making <dname>string-to-integer</dname> and
+  	<dname>integer-to-string</dname> methods on
+  	<dname>as</dname>, which is the usual generic for type
   	coercions. Ask about this on the GD mailing list.]
       </para>
   
@@ -5593,7 +5593,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defdescription>
   	  <para>
   	    <dlit> as(&lt;string&gt;, character) </dlit> returns a
-  	    fresh instance of <classname> &lt;string&gt; </classname>
+  	    fresh instance of <dname> &lt;string&gt; </dname>
   	    of size 1, whose only element is the character.
   	  </para>
   	</defdescription>
@@ -5622,7 +5622,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    <function> digit-to-integer </function> converts an
+  	    <dname> digit-to-integer </dname> converts an
   	    alphanumeric character to an integer. '0' through '9'
   	    convert to 0 to 9, and 'a' through 'z' convert to 10 to
   	    35. An error is signalled if the character is not in this
@@ -5668,7 +5668,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    <function> integer-to-digit </function> converts an
+  	    <dname> integer-to-digit </dname> converts an
   	    integer to the corresponding digit in the specified
   	    base. If the integer is outside the range a single digit
   	    in the specified base can represent, an error is
@@ -5717,7 +5717,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    <function> integer-to-string </function> converts an
+  	    <dname> integer-to-string </dname> converts an
   	    integer to a string. String representations for radixes
   	    above 10 use the letters 'a' through 'z' for the digits
   	    from 10 to 35. So hexadecimal numbers would use [0-9] and
@@ -5737,10 +5737,10 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	    <paramname> string </paramname>
   	    <paramtype>&lt;sequence&gt;</paramtype>
   	    <paramsummary>
-  	      Any <classname> &lt;sequence&gt; </classname> of
-  	      <classname> &lt;character&gt; </classname> objects are
+  	      Any <dname> &lt;sequence&gt; </dname> of
+  	      <dname> &lt;character&gt; </dname> objects are
   	      acceptable. This is typically but not necessarily a
-  	      <classname> &lt;string&gt; </classname>.
+  	      <dname> &lt;string&gt; </dname>.
   	    </paramsummary>
   	  </param>
   	  <keyparam>
@@ -5761,8 +5761,8 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	</defreturns>
   	<defdescription>
   	  <para>
-  	    <function>string-to-integer</function> converts a sequence
-  	    of <classname>&lt;character&gt;</classname> objects to an
+  	    <dname>string-to-integer</dname> converts a sequence
+  	    of <dname>&lt;character&gt;</dname> objects to an
   	    integer. The characters are the digits of the string
   	    representation, and must lie between '0' and 'z', with a
   	    maximum depending on the base. For example, octal (base 8)
@@ -5826,7 +5826,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
       may match the empty string. That is, if R is a regexp that can
       match the empty string, then any regexp containing R*, R+, and
       R{n,} is illegal. In this case, the Regular-expressions library
-      will signal an <classname>&lt;illegal-regexp&gt;</classname>
+      will signal an <dname>&lt;illegal-regexp&gt;</dname>
       error when the 
       regexp is parsed. Note: Perl also has this restriction, although
       it isn't mentioned in &perl.regexp;.
@@ -5868,17 +5868,17 @@ is-finder("This is a string");
         <title>Make-Foo vs. Foo Functions</title>
 	<para>
           There are quite a few make-fooer functions hanging around.  Now
-	  that <function>regexp-position</function> does caching, these
+	  that <dname>regexp-position</dname> does caching, these
 	  are basically useless, but we've kept them around for
 	  backwards compatibility.  Unfortunately, internally most of
 	  the functions are implemented in terms of
-	  <function>make-regexp-positioner</function>.  To minimize the
+	  <dname>make-regexp-positioner</dname>.  To minimize the
 	  amount of rewriting, I've liberally applied seals and inline
 	  declarations so that
-	  <function>make-regexp-positioner</function> won't clobber all
+	  <dname>make-regexp-positioner</dname> won't clobber all
 	  type information.  The downside, of course, is that
 	  everything's sealed, but hey, no one ever subclassed [ed:
-	  specialized?] <function>regexp-position</function> anyway.
+	  specialized?] <dname>regexp-position</dname> anyway.
 	</para>
       </sect2>
       <sect2 id="libs-regexp-module-caching">
@@ -5888,21 +5888,21 @@ is-finder("This is a string");
 	  regexps and only parse a string if we haven't seen it
 	  before.  Because in practice almost all regexp strings are
 	  string literals, we're free to choose
-	  <function>\==</function> or <function>\=</function>
+	  <dname>\==</dname> or <dname>\=</dname>
 	  depending on whatever's fastest.  However, because a string
 	  is parsed differently depending on whether the search is
 	  case sensitive or not, we also have to keep track of that
 	  information as well.  (The case dependent parse boils down
 	  to the parse creating a
-	  <classname>&lt;character-set&gt;</classname>, which must be
+	  <dname>&lt;character-set&gt;</dname>, which must be
 	  either case sensitive or case insensitive).
 	</para>
 	<note>
 	  <para>
-	    Currently, only <function>regexp-position</function> uses
+	    Currently, only <dname>regexp-position</dname> uses
 	    this cache, because the other functions are still using
-	    <function>make-regexp-positioner</function>.  With caching,
-	    that <function>make-regexp-whatever</function> stuff should
+	    <dname>make-regexp-positioner</dname>.  With caching,
+	    that <dname>make-regexp-whatever</dname> stuff should
 	    probably go. 
 	  </para>
 	</note>
@@ -5971,7 +5971,7 @@ is-finder("This is a string");
 	      was found; otherwise there is no second value). These
 	      values are called marks, and they come in pairs, a
 	      start-mark and an end-mark. If there are groups in the
-	      regular expression, <function>regexp-position</function>
+	      regular expression, <dname>regexp-position</dname>
 	      will return an additional pair of marks (a start and an end) for
 	      each group.  If the group is matched, these marks will
 	      be integers; if the group is not matched, the marks will
@@ -6146,7 +6146,7 @@ regexp-replace("Hi there", "Hi there(, Bert)?",
 	      This is equivalent to Perl's tr/// construct.
 	      <dname>From-string</dname> is a string specification of a
 	      character set, and <dname>to-string</dname> is another
-	      character set.  <function>Translate</function> converts
+	      character set.  <dname>Translate</dname> converts
 	      <dname>input</dname> character by character, according
 	      to the sets.  For instance, 
 	    </para>
@@ -6166,7 +6166,7 @@ translate("any string", "a-z", "z-a")
 	    </programlisting>
 	    <para>
 	      (This restriction may be removed in future releases)
-	      Unlike Perl's tr///, <function>translate</function> doesn't
+	      Unlike Perl's tr///, <dname>translate</dname> doesn't
 	      return the number of characters translated. 
 	    </para>
 	    <para>
@@ -6197,7 +6197,7 @@ translate("any string", ",./:;[]{}()", " ");
 	    </para>
 	    <note>
 	      <para>
-	        <function>Translate</function> is always case
+	        <dname>Translate</dname> is always case
 		sensitive.
 	      </para>
 	    </note>
@@ -6344,7 +6344,7 @@ split("-", "really-long-dylan-identifier", start: 8)
 	    <para>
 	      This is like Perl's join function.  This is not really
 	      any more efficient than
-	      <function>concatenate-as</function>, but it's more 
+	      <dname>concatenate-as</dname>, but it's more 
 	      convenient.
 	    </para>
 	    <programlisting>
@@ -6665,7 +6665,7 @@ method (big-string, replace-string, #key count, start, end)
 	  is 12 meters and theta is <dlit>$double-pi</dlit> / 6 (30 degrees).  
 	  You solve
 	  for AB by multiplying AC and sine theta.  AB = 12 * 
-	  <function>sin</function>(
+	  <dname>sin</dname>(
 	  <dlit>$double-pi</dlit> /
 	  6.0) => 6 meters.
   	</para>
@@ -6798,11 +6798,11 @@ method (big-string, replace-string, #key count, start, end)
     </FIGURE>
     <para>
       The
-      arc sine function (<function>asin</function>, also known as the 
+      arc sine function (<dname>asin</dname>, also known as the 
       inverse sine) gives
       theta (the angle in radians) from the height (AB) over the
-      hypotenuse (AC).  The other arc functions, <function>acos</function>, 
-      and <function>atan</function>,
+      hypotenuse (AC).  The other arc functions, <dname>acos</dname>, 
+      and <dname>atan</dname>,
       behave as their more-familiar counterparts.  So, the arc-cosine gives
       theta from the base (BC) and the hypotenuse (AC); the arc-tangent,
       from the height(AB) and the base (BC).  Again, to convert
@@ -7091,8 +7091,8 @@ method (big-string, replace-string, #key count, start, end)
     <sect1 id="libs-transcendental-log">
     <title>The Logarithmic Functions</title>
     <para>
-      The logarithmic family of functions (<function>log</function> in its
-      various forms and <function>exp</function>) use e as their foundation.
+      The logarithmic family of functions (<dname>log</dname> in its
+      various forms and <dname>exp</dname>) use e as their foundation.
     </para>
 
       <dylangenericdef>
@@ -7120,9 +7120,9 @@ method (big-string, replace-string, #key count, start, end)
 	</defreturns>
 	<defdescription>
 	  <para>
-	    The <function>log</function> function scales large numbers, so
+	    The <dname>log</dname> function scales large numbers, so
 	    that (e.g.) data points with a very large spread can be viewed
-            together.  <function>log</function> assumes <dlit>$double-e</dlit>
+            together.  <dname>log</dname> assumes <dlit>$double-e</dlit>
 	    as the base, but you may change that by supplying a different
 	    value.  For example,
 	  </para>
@@ -7149,10 +7149,10 @@ log(100000, base: 10) => 5.0
 	</defreturns>
 	<defdescription>
 	  <para>
-	    <function>exp</function> returns e raised to the number supplied.
+	    <dname>exp</dname> returns e raised to the number supplied.
 	    You may be wondering what purpose this function serves, given
-	    <constant>$double-e</constant> and <function>\^</function>.  
-	    Actually, <function>exp</function> is a favorite function of mine,
+	    <constant>$double-e</constant> and <dname>\^</dname>.  
+	    Actually, <dname>exp</dname> is a favorite function of mine,
 	    because it is used in the compounding interest formula, which is:
 	    T = Pert (The resulting Total money is Principal multiplied by e 
 	    to the rt power (rate times time)).  So, 10000 USD will be over
@@ -7197,16 +7197,16 @@ log(100000, base: 10) => 5.0
         <defname>&lt;universal-time&gt;</defname>
 	<defsummary>
 	  A simple
-	  <classname>&lt;general-integer&gt;</classname> representation
+	  <dname>&lt;general-integer&gt;</dname> representation
 	  of the number of seconds since 00:00:00 1 January 1970,
 	  UTC. 
 	</defsummary>
 	<deftype>&lt;integer&gt; or &lt;extended-integer&gt;</deftype>
 	<defdescription>
 	  <para>
-	    Using <classname>&lt;extended-integer&gt;</classname>s
+	    Using <dname>&lt;extended-integer&gt;</dname>s
 	    guarantees that you can represent any date after 1 Jan
-	    1970.  Using <classname>&lt;integer&gt;</classname>s will
+	    1970.  Using <dname>&lt;integer&gt;</dname>s will
 	    break for dates after a certain date (depending on
 	    <constant>$maximum-integer</constant>) and can sometimes
 	    cause unpredictable behavior. 
@@ -7217,14 +7217,14 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;seconds&gt;</defname>
 	<defsummary>
-	  An <classname>&lt;integer&gt;</classname> between 0 and 59
+	  An <dname>&lt;integer&gt;</dname> between 0 and 59
 	  inclusive.
 	</defsummary>
 	<deftype>limited(&lt;integer&gt;, min: 0, max: 59)</deftype>
 	<defdescription>
 	  <para>
 	    Ensures the seconds slot of
-	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	    <dname>&lt;decoded-time&gt;</dname> is valid.
 	  </para>
 	</defdescription>
       </dylanconstantdef>
@@ -7232,14 +7232,14 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;minutes&gt;</defname>
 	<defsummary>
-	  An <classname>&lt;integer&gt;</classname> between 0 and 59
+	  An <dname>&lt;integer&gt;</dname> between 0 and 59
 	  inclusive.
 	</defsummary>
 	<deftype>limited(&lt;integer&gt;, min: 0, max: 59)</deftype>
 	<defdescription>
 	  <para>
 	    Ensures the minutes slot of
-	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	    <dname>&lt;decoded-time&gt;</dname> is valid.
 	  </para>
 	</defdescription>
       </dylanconstantdef>
@@ -7247,14 +7247,14 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;hours&gt;</defname>
 	<defsummary>
-	  An <classname>&lt;integer&gt;</classname> between 0 and 23
+	  An <dname>&lt;integer&gt;</dname> between 0 and 23
 	  inclusive.
 	</defsummary>
 	<deftype>limited(&lt;integer&gt;, min: 0, max: 23)</deftype>
 	<defdescription>
 	  <para>
 	    Ensures the hours slot of
-	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	    <dname>&lt;decoded-time&gt;</dname> is valid.
 	  </para>
 	</defdescription>
       </dylanconstantdef>
@@ -7262,14 +7262,14 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;day-of-week&gt;</defname>
 	<defsummary>
-	  An <classname>&lt;integer&gt;</classname> between 0 and 6
+	  An <dname>&lt;integer&gt;</dname> between 0 and 6
 	  inclusive.
 	</defsummary>
 	<deftype>limited(&lt;integer&gt;, min: 0, max: 6)</deftype>
 	<defdescription>
 	  <para>
 	    Ensures the day-of-week slot of
-	    <classname>&lt;decoded-time&gt;</classname> is valid.  The
+	    <dname>&lt;decoded-time&gt;</dname> is valid.  The
 	    first day of the week (or 0) is Monday.
 	  </para>
 	</defdescription>
@@ -7278,14 +7278,14 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;day-of-month&gt;</defname>
 	<defsummary>
-	  An <classname>&lt;integer&gt;</classname> between 1 and 31
+	  An <dname>&lt;integer&gt;</dname> between 1 and 31
 	  inclusive.
 	</defsummary>
 	<deftype>limited(&lt;integer&gt;, min: 1, max: 31)</deftype>
 	<defdescription>
 	  <para>
 	    Ensures the day-of-month slot of
-	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	    <dname>&lt;decoded-time&gt;</dname> is valid.
 	  </para>
 	</defdescription>
       </dylanconstantdef>
@@ -7293,14 +7293,14 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;month&gt;</defname>
 	<defsummary>
-	  An <classname>&lt;integer&gt;</classname> between 1 and 12
+	  An <dname>&lt;integer&gt;</dname> between 1 and 12
 	  inclusive.
 	</defsummary>
 	<deftype>limited(&lt;integer&gt;, min: 1, max: 12)</deftype>
 	<defdescription>
 	  <para>
 	    Ensures the month slot of
-	    <classname>&lt;decoded-time&gt;</classname> is valid.
+	    <dname>&lt;decoded-time&gt;</dname> is valid.
 	  </para>
 	</defdescription>
       </dylanconstantdef>
@@ -7308,15 +7308,15 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;timezone&gt;</defname>
 	<defsummary>
-	  An <classname>&lt;integer&gt;</classname> between -86400 and
+	  An <dname>&lt;integer&gt;</dname> between -86400 and
 	  86400 inclusive.
 	</defsummary>
 	<deftype>limited(&lt;integer&gt;, min: -86400, max: 86400)</deftype>
 	<defdescription>
 	  <para>
 	    Ensures the timezone slot of
-	    <classname>&lt;decoded-time&gt;</classname> is valid.  A
-	    <classname>&lt;timezone&gt;</classname> is the seconds
+	    <dname>&lt;decoded-time&gt;</dname> is valid.  A
+	    <dname>&lt;timezone&gt;</dname> is the seconds
 	    west of UTC.
 	  </para>
 	</defdescription>
@@ -7325,13 +7325,13 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>&lt;year&gt;</defname>
 	<defsummary>
-	  A named <classname>&lt;integer&gt;</classname>
+	  A named <dname>&lt;integer&gt;</dname>
 	</defsummary>
 	<deftype>&lt;integer&gt;</deftype>
 	<defdescription>
 	  <para>
 	    Since every other slot in
-	    <classname>&lt;decoded-time&gt;</classname> has a named
+	    <dname>&lt;decoded-time&gt;</dname> has a named
 	    type, we didn't want the year slot to be lonely.
 	  </para>
 	</defdescription>
@@ -7392,7 +7392,7 @@ log(100000, base: 10) => 5.0
 	    <paramdefault>#f</paramdefault>
 	    <paramsummary>
 	      Year can be any integer (even negative ones); however,
-	      <classname>&lt;decoded-time&gt;</classname> starts from 1970.
+	      <dname>&lt;decoded-time&gt;</dname> starts from 1970.
 	    </paramsummary>
 	  </keyparam>
 	  <keyparam>
@@ -7412,7 +7412,7 @@ log(100000, base: 10) => 5.0
 	      functions in the time library assume that it is the
 	      correct timezone and ignore the
 	      daylight-savings-time? flag. Therefore if you
-	      encode a <classname>&lt;decoded-time&gt;</classname> with
+	      encode a <dname>&lt;decoded-time&gt;</dname> with
 	      the timezone representing EST and the daylight-savings-time?
 	      flag set to &true;, it will convert the time assuming
 	      the local timezone is EST, not EDT.
@@ -7424,7 +7424,7 @@ log(100000, base: 10) => 5.0
 	    <paramdefault>$null-decoded-time</paramdefault>
 	    <paramsummary>
 	      Allows initialization from another
-	      <classname>&lt;decoded-time&gt;</classname> instance.
+	      <dname>&lt;decoded-time&gt;</dname> instance.
 	      If default-from: is specified, any slot that isn't
 	      specified via an init-keyword will take its value of the
 	      this slot's object.  If this keyword is not
@@ -7435,7 +7435,7 @@ log(100000, base: 10) => 5.0
   	</definitkeywords>
   	<defdescription>
   	  <para>
-	    Note that there's no point in not defining a <function>print-object</function>
+	    Note that there's no point in not defining a <dname>print-object</dname>
 	    method, since the parse-time stuff already uses streams.
 	    Might as well use print and format, too. 
 	  </para>
@@ -7450,14 +7450,14 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>$null-decoded-time</defname>
 	<defsummary>
-	  A <classname>&lt;decoded-time&gt;</classname> where all the
+	  A <dname>&lt;decoded-time&gt;</dname> where all the
 	  slots are initialized to &false;
 	</defsummary>
 	<deftype>&lt;decoded-time&gt;</deftype>
 	<defdescription>
 	  <para>
 	    This is an internal constant used to default the
-	    <classname>&lt;decoded-time&gt;</classname> when the
+	    <dname>&lt;decoded-time&gt;</dname> when the
 	    default-from: keyword is used.
 	  </para>
 	</defdescription>
@@ -7466,7 +7466,7 @@ log(100000, base: 10) => 5.0
       <dylanconstantdef>
         <defname>$default-time</defname>
 	<defsummary>
-	  A <classname>&lt;decoded-time&gt;</classname> where all the
+	  A <dname>&lt;decoded-time&gt;</dname> where all the
 	  slots are initialized to 0 or 1 (or, in the case of
 	  daylight-savings-time?, &false;)
 	</defsummary>
@@ -7474,7 +7474,7 @@ log(100000, base: 10) => 5.0
 	<defdescription>
 	  <para>
 	    This constant gives a "0"
-	    <classname>&lt;decoded-time&gt;</classname>.  Of note here
+	    <dname>&lt;decoded-time&gt;</dname>.  Of note here
 	    is that the year slot is initialized to 0, not 1970.  Is
 	    this an error?
 	  </para>
@@ -7485,7 +7485,7 @@ log(100000, base: 10) => 5.0
   	<defname>get-universal-time</defname>
   	<defsummary>
 	  Return the current time as a
-	  <classname>&lt;universal-time&gt;</classname>. 
+	  <dname>&lt;universal-time&gt;</dname>. 
   	</defsummary>
   	<defparameters>
   	</defparameters>
@@ -7497,8 +7497,8 @@ log(100000, base: 10) => 5.0
   	</defreturns>
   	<defdescription>
   	  <para>
-	    Recall that <classname>&lt;universal-time&gt;</classname>
-	    is an <classname>&lt;integer&gt;</classname> (seconds)
+	    Recall that <dname>&lt;universal-time&gt;</dname>
+	    is an <dname>&lt;integer&gt;</dname> (seconds)
 	    from 01 Jan 00:00:00Z 1970.  Use other functions to decode
 	    this value. 
   	  </para>
@@ -7509,7 +7509,7 @@ log(100000, base: 10) => 5.0
   	<defname>get-decoded-time</defname>
   	<defsummary>
 	  Return the current time as a
-	  <classname>&lt;decoded-time&gt;</classname>. 
+	  <dname>&lt;decoded-time&gt;</dname>. 
   	</defsummary>
   	<defparameters>
   	  <keyparam>
@@ -7539,7 +7539,7 @@ log(100000, base: 10) => 5.0
       <dylanmethoddef>
   	<defname>decode-time</defname>
   	<defsummary>
-	  Decode a <classname>&lt;universal-time&gt;</classname>
+	  Decode a <dname>&lt;universal-time&gt;</dname>
   	</defsummary>
   	<defparameters>
 	  <param>
@@ -7564,8 +7564,8 @@ log(100000, base: 10) => 5.0
   	</defreturns>
   	<defdescription>
   	  <para>
-	    Decode a <classname>&lt;universal-time&gt;</classname> into
-	    a <classname>&lt;decoded-time&gt;</classname> using the
+	    Decode a <dname>&lt;universal-time&gt;</dname> into
+	    a <dname>&lt;decoded-time&gt;</dname> using the
 	    supplied timezone. 	  
 	  </para>
   	</defdescription>
@@ -7574,7 +7574,7 @@ log(100000, base: 10) => 5.0
       <dylanmethoddef>
   	<defname>encode-time</defname>
   	<defsummary>
-	  Encode a <classname>&lt;decoded-time&gt;</classname>
+	  Encode a <dname>&lt;decoded-time&gt;</dname>
   	</defsummary>
   	<defparameters>
 	  <param>
@@ -7591,7 +7591,7 @@ log(100000, base: 10) => 5.0
   	</defreturns>
   	<defdescription>
   	  <para>
-	    Encode a <classname>&lt;decoded-time&gt;</classname> into
+	    Encode a <dname>&lt;decoded-time&gt;</dname> into
 	    the universal time format.
 	  </para>
   	</defdescription>
@@ -7618,7 +7618,7 @@ log(100000, base: 10) => 5.0
   	<defdescription>
   	  <para>
 	    Returns &true; if time may be encoded.  A
-	    <classname>&lt;decoded-time&gt;</classname> is encodable
+	    <dname>&lt;decoded-time&gt;</dname> is encodable
 	    if all of its slots are specified, except possibly day-of-week.
 	  </para>
   	</defdescription>
@@ -7627,8 +7627,8 @@ log(100000, base: 10) => 5.0
       <dylanmethoddef>
   	<defname>as</defname>
   	<defsummary>
-	  Provides the <function>as</function> interface to get a
-	  <classname>&lt;decoded-time&gt;</classname>.
+	  Provides the <dname>as</dname> interface to get a
+	  <dname>&lt;decoded-time&gt;</dname>.
   	</defsummary>
   	<defparameters>
 	  <param>
@@ -7650,8 +7650,8 @@ log(100000, base: 10) => 5.0
   	</defreturns>
   	<defdescription>
   	  <para>
-	    Decode a <classname>&lt;universal-time&gt;</classname> into
-	    a <classname>&lt;decoded-time&gt;</classname> the
+	    Decode a <dname>&lt;universal-time&gt;</dname> into
+	    a <dname>&lt;decoded-time&gt;</dname> the
 	    timezone is 0 for this method.
 	  </para>
   	</defdescription>
@@ -7669,8 +7669,8 @@ log(100000, base: 10) => 5.0
       <dylanmethoddef>
   	<defname>format-time</defname>
   	<defsummary>
-	  Writes a <classname>&lt;decoded-time&gt;</classname> to a
-	  <classname>&lt;stream&gt;</classname> according to a
+	  Writes a <dname>&lt;decoded-time&gt;</dname> to a
+	  <dname>&lt;stream&gt;</dname> according to a
 	  format-string directive.
   	</defsummary>
   	<defparameters>
@@ -7696,8 +7696,8 @@ log(100000, base: 10) => 5.0
   	</defreturns>
   	<defdescription>
   	  <para>
-	    Format a <classname>&lt;decoded-time&gt;</classname> for
-	    output on a <classname>&lt;stream&gt;</classname>.  The
+	    Format a <dname>&lt;decoded-time&gt;</dname> for
+	    output on a <dname>&lt;stream&gt;</dname>.  The
 	    format arguments are described in the next section.
 	  </para>
   	</defdescription>
@@ -7707,7 +7707,7 @@ log(100000, base: 10) => 5.0
         <defname>parse-time</defname>
 	<defsummary>
 	  Takes data on a stream and applies format arguments to
-	  return a <classname>&lt;decoded-time&gt;</classname>.
+	  return a <dname>&lt;decoded-time&gt;</dname>.
   	</defsummary>
   	<defparameters>
   	  <param>
@@ -7724,7 +7724,7 @@ log(100000, base: 10) => 5.0
 	      Contains formatting directives (described in
 	      <dmodule>Time-IO</dmodule>) to parse the data on the
 	      stream into a
-	      <classname>&lt;decoded-time&gt;</classname> instance.
+	      <dname>&lt;decoded-time&gt;</dname> instance.
   	    </paramsummary>
   	  </param>
   	</defparameters>
@@ -7739,9 +7739,9 @@ log(100000, base: 10) => 5.0
 	    Very useful function for when (e.g.) a user is asked to
   	    enter time information, or when (e.g.) reading in a text
   	    file of records which include dates or times.
-  	    <function>Parse-time</function> allows the program to
+  	    <dname>Parse-time</dname> allows the program to
   	    convert the input into a
-  	    <classname>&lt;decoded-time&gt;</classname> instance.
+  	    <dname>&lt;decoded-time&gt;</dname> instance.
   	  </para>
   	</defdescription>
       </dylanfunctiondef>
@@ -7767,7 +7767,7 @@ log(100000, base: 10) => 5.0
 	    <paramname>parse-state</paramname>
 	    <paramtype>&lt;parse-state&gt;</paramtype>
 	    <paramsummary>
-	      The <classname>&lt;parse-state&gt;</classname> class is
+	      The <dname>&lt;parse-state&gt;</dname> class is
 	      described below
 	    </paramsummary>
 	  </keyparam>
@@ -7789,7 +7789,7 @@ log(100000, base: 10) => 5.0
 	    The error we signal when we have trouble parsing
 	    something.  Note that an unknown format directive is *not*
 	    considered a
-	    <classname>&lt;time-parsing-error&gt;</classname>, but a
+	    <dname>&lt;time-parsing-error&gt;</dname>, but a
 	    normal, unnamed (and close to uncatchable) error.
 	  </para>
 	</defdescription>
@@ -7870,7 +7870,7 @@ log(100000, base: 10) => 5.0
 	      <para>
 	        <dlit>parsed-year</dlit>: Used for processing
 		day-of-year.  The
-		<classname>&lt;decoded-time&gt;</classname> doesn't
+		<dname>&lt;decoded-time&gt;</dname> doesn't
 		actually get it's year from this slot, it gets that
 		from the init-args.
 	      </para>
@@ -8132,7 +8132,7 @@ log(100000, base: 10) => 5.0
   	</definitkeywords>
   	<defdescription>
   	  <para>
-	    The <classname>&lt;random-state&gt;</classname> has slots
+	    The <dname>&lt;random-state&gt;</dname> has slots
 	    that maintain a seed state so that a new random number can
 	    be generated.
 	  </para>
@@ -8170,13 +8170,13 @@ log(100000, base: 10) => 5.0
       should be suitable.  
     </para>
     <para>
-      The <classname>&lt;matrix&gt;</classname> class is a subclass of
-      <classname>&lt;array&gt;</classname>, so all operations on
-      <classname>&lt;array&gt;</classname>s and collections in general
+      The <dname>&lt;matrix&gt;</dname> class is a subclass of
+      <dname>&lt;array&gt;</dname>, so all operations on
+      <dname>&lt;array&gt;</dname>s and collections in general
       should work as expected. One important limitation of matrices is
       that they are limited to two dimensions, and trying to use any
       other size results in an error. The
-      <classname>&lt;matrix&gt;</classname> class has two ways to get
+      <dname>&lt;matrix&gt;</dname> class has two ways to get
       instances and several operations for those instances. 
     </PARA>
     <sect1 id="libs-matrix-initialization">
@@ -8190,9 +8190,9 @@ log(100000, base: 10) => 5.0
 	<defdescription>
 	  <para>
 	    This class contains two slots:  dimensions, a
-	    <classname>&lt;sequence&gt;</classname>, which contains
+	    <dname>&lt;sequence&gt;</dname>, which contains
 	    the two values of the size of the matrix, and components,
-	    a <classname>&lt;simple-object-vector&gt;</classname>,
+	    a <dname>&lt;simple-object-vector&gt;</dname>,
 	    that contain the matrix elements.
 	  </para>
 	</defdescription>
@@ -8201,8 +8201,8 @@ log(100000, base: 10) => 5.0
       <dylanmethoddef>
 	<defname>initialize</defname>
 	<defsummary>
-	  Used by <function>make</function> to create instances of a
-	  <classname>&lt;matrix&gt;</classname>
+	  Used by <dname>make</dname> to create instances of a
+	  <dname>&lt;matrix&gt;</dname>
 	</defsummary>
 	<defparameters>
 	  <keyparam>	
@@ -8230,8 +8230,8 @@ log(100000, base: 10) => 5.0
 	</defreturns>
 	<defdescription>
 	  <para>
-	    Use <function>make</function> with the above keywords to
-	    obtain a <classname>&lt;matrix&gt;</classname> instance
+	    Use <dname>make</dname> with the above keywords to
+	    obtain a <dname>&lt;matrix&gt;</dname> instance
 	  </para>
 	</defdescription>
       </dylanmethoddef>
@@ -8239,8 +8239,8 @@ log(100000, base: 10) => 5.0
       <dylanmethoddef>
 	<defname>matrix</defname>
 	<defsummary>
-	  Create instances of a <classname>&lt;matrix&gt;</classname>
-	  from a list of <classname>&lt;vector&gt;</classname>s
+	  Create instances of a <dname>&lt;matrix&gt;</dname>
+	  from a list of <dname>&lt;vector&gt;</dname>s
 	</defsummary>
 	<defparameters>
 	  <restparam>	
@@ -8256,8 +8256,8 @@ log(100000, base: 10) => 5.0
 	<defdescription>
 	  <para>
 	    This method takes a list of
-	    <classname>&lt;vectors&gt;</classname> and creates a
-	    <classname>&lt;matrix&gt;</classname> instance from them,
+	    <dname>&lt;vectors&gt;</dname> and creates a
+	    <dname>&lt;matrix&gt;</dname> instance from them,
 	    for example:
 	  </para>
 	  <programlisting>
@@ -8418,7 +8418,7 @@ let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
         </defreturns>
         <defdescription>
           <para>
-	    Same as the above <function>\*</function>, with the
+	    Same as the above <dname>\*</dname>, with the
 	    opposite order of the parameters. 
           </para>
         </defdescription>
@@ -9363,7 +9363,7 @@ add-option-parser(args-parser, opt-parser);
     <sect1 id="libs-parse-arguments-extending">
       <title>Writing New Option Parser Classes</title>
 
-      <para></para>
+      <para>This section is empty.</para>
     </sect1>
   </chapter>
 
