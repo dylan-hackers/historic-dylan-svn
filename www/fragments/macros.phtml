@@ -34,7 +34,7 @@ define function check-error(errno :: &lt;integer>) => ()
 end function;
 
 define macro with-mutex
-  { with-lock (?mutex:expression) ?code:body end }
+  { with-mutex (?mutex:expression) ?code:body end }
     => { let mutex = ?mutex;
 	 check-error(pthread-mutex-lock(mutex));
 	 block ()
