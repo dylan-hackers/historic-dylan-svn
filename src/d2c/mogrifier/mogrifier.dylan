@@ -233,16 +233,6 @@ define macro instruction-definer
   {
     define instruction ?name(?primary; ?key; ?rest) ?more end;
     define branch instruction (?primary, singleton(?key); ?branch-stuff) end;
-/*    define method class-for-instruction-subcode(primary == ?primary, subcode == ?key)
-     => class :: singleton(<powerpc-branch-instruction>);
-      <powerpc-branch-instruction>
-    end;
-    define method branch-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => location :: <object>;
-      case
-        ?branches;
-      end case
-    end;*/
   }
 
   { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) return ?return-stuff:*; ?more:* end }
@@ -250,12 +240,6 @@ define macro instruction-definer
   {
     define instruction ?name(?primary; ?key; ?rest) ?more end;
     define returnable instruction (?primary, singleton(?key); ?return-stuff) end;
-/*    define method return-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode == ?key, secondary :: <integer>)
-     => (return-storage :: <object>, return-to :: false-or(<integer>));
-      case
-        ?returns;
-      end case
-    end;*/
   }
 
   { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) simplify ?simplification-stuff:*; ?more:* end }
@@ -757,7 +741,7 @@ end;
 define instruction bcctr(19; 528; BO, BI, LK)
   simplify [(flagged ALWAYS) & (flagged KEEP) & (field BI = 0)]
     => bctr(LK);
-  branch CTR
+  branch CTR;
   return flagged LK => LR = PC + 4;
 end;
 
