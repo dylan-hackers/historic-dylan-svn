@@ -163,6 +163,7 @@ define module client
   use board;
   use command;
   use path;
+  use table-extensions;
 
   // For debugging only. Sorry.
   use format-out;
