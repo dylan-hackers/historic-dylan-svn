@@ -1032,13 +1032,15 @@ define method write-declaration
   let raw-value = decl.constant-value;
   let value = select (raw-value by instance?)
 		<declaration> => raw-value.dylan-name;
-		<integer>, <float> => format-to-string("%=", raw-value);
+		<general-integer>, <float> => format-to-string("%=", raw-value);
 		<string> => format-to-string("\"%s\"", raw-value);
 		<token> => raw-value.string-value;
 		<character> => "1"; // for #define FOO\n, suggested by dauclair
 	      end select;
-  format(stream, "define constant %s = %s;\n\n", decl.dylan-name, value);
-  register-written-name(written-names, decl.dylan-name, decl);
+  unless(decl.dylan-name = value)
+    format(stream, "define constant %s = %s;\n\n", decl.dylan-name, value);
+    register-written-name(written-names, decl.dylan-name, decl);
+  end unless;
 end method write-declaration;
 
 // For pointers, we need "dereference" and "content-size" functions.  This is

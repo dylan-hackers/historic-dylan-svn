@@ -10,19 +10,27 @@ define library common-extensions
   use format-out;
 
   // Only import transcendentals if we have them.
-#if (~compiled-for-solaris)
+//#if (~compiled-for-solaris)
   use transcendental,
-     import: { transcendental => transcendentals },
+     import: { transcendental => transcendentals},
      export: all;
-#endif
+//#endif
+
+  use random,
+     import: all,
+     export: all;
+  use regular-expressions,
+     import: all,
+     export: all;
 
   export
     common-extensions,
     finalization,
+    threads,
     simple-io,
     simple-random,
     simple-profiling,
-    byte-vectors,
+    byte-vector,
     functional-extensions;
 end library;
 
@@ -36,8 +44,60 @@ define module c-support
     application-argv;
 end module c-support;
 
+define module finalization
+  // XXX - Needs definition. No-op stubs OK.
+end module;
+
+define module simple-io
+  use format-out,
+    export: {format-out};
+end module;
+
+define module simple-random
+  // XXX - Needs definition.
+end module;
+
+define module simple-profiling
+  // XXX - Needs definition.
+end module;
+
+define module byte-vector
+  use extensions,
+    export: {<byte>,
+	     <byte-vector>};
+end module;
+
+define module functional-extensions
+  use dylan;
+  use extensions, exclude: { position, assert };
+  use common-extensions, import: { find-element };
+  export without-bounds-checks, find-value, // assert already in common-extensions 
+    with-keywords-removed, dynamic-bind,
+    <synchronization>, <exclusive-lock>,
+    <semaphore>, <recursive-lock>,
+    <read-write-lock>,
+    <lock>, <simple-lock>, with-lock,
+    <thread>, atomic-increment!, current-thread,
+    <notification>, wait-for, release-all,
+    put-property!, get-property, \remove-property!,
+    element-range-error, \profiling;
+end module;
+
+define module threads
+  use functional-extensions, 
+    export: { dynamic-bind,
+    <synchronization>, <exclusive-lock>,
+    <semaphore>, <recursive-lock>,
+    <read-write-lock>,
+    <lock>, <simple-lock>, with-lock,
+    <thread>, atomic-increment!, current-thread,
+    <notification>, wait-for };
+end module threads;
+                                      
+
 define module common-extensions
   use dylan;
+  use system, import: { copy-bytes }, export: { copy-bytes };
   use extensions,
     exclude: { assert },
     rename: {$not-supplied => $unsupplied,
@@ -62,8 +122,15 @@ define module common-extensions
     export: {<string-table>};
   use c-support;
   use format, export: all;
-  use streams, import: { new-line, force-output };
+  use streams, import: { new-line, force-output, <stream> },
+    export: {<stream>};
   use standard-io;
+  use random,
+     export: all;
+  use regular-expressions,
+     export: all;
+  use functional-extensions,
+     export: all;
 
   export
     /* Numerics */
@@ -134,57 +201,3 @@ define module common-extensions
     \%iterate-value-helper;
 #endif
 end module;
-
-define module finalization
-  // XXX - Needs definition. No-op stubs OK.
-end module;
-
-define module simple-io
-  use format-out,
-    export: {format-out};
-end module;
-
-define module simple-random
-  // XXX - Needs definition.
-end module;
-
-define module simple-profiling
-  // XXX - Needs definition.
-end module;
-
-define module byte-vector
-  use extensions,
-    export: {<byte>,
-	     <byte-vector>};
-end module;
-
-define module functional-extensions
-  use dylan;
-  use extensions, exclude: { position, assert };
-  use common-extensions, import: { find-element };
-  export without-bounds-checks, find-value, // assert already in common-extensions 
-    with-keywords-removed, dynamic-bind,
-    <synchronization>, <exclusive-lock>,
-    <semaphore>, <recursive-lock>,
-    <read-write-lock>,
-    <lock>, <simple-lock>, with-lock,
-    <thread>, atomic-increment!, current-thread,
-    <notification>, wait-for, release-all,
-    put-property!, get-property, \remove-property!,
-    element-range-error, \profiling;
-end module;
-
-
-/*
-  Stream protocol.
-*/
-
-/*
-  // Locators.
-  export
-    <locator>,
-    supports-open-locator?,
-    open-locator,
-    supports-list-locator?,
-    list-locator;
-*/

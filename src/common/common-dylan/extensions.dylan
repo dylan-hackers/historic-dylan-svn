@@ -2,14 +2,6 @@ module: common-extensions
 
 
 //=========================================================================
-//  Streams protocol (will move elsewhere)
-//=========================================================================
-
-define open abstract class <stream> (<object>)
-end class;
-
-
-//=========================================================================
 //  Unsupplied, unfound.
 //=========================================================================
 //  Unique objects which can be used as default values for keywords and
@@ -50,43 +42,6 @@ define function unfound()
 => ( unfound-marker :: <object> )
     $unfound;
 end function unfound;
-
-
-//=========================================================================
-//  Locators
-//=========================================================================
-//  A very abstract interface to locators.
-
-define open abstract class <locator> (<object>)
-end class;
-
-define open generic supports-open-locator?
-    (locator :: <locator>)
- => (supported? :: <boolean>);
-  
-define method supports-open-locator?
-    (locator :: <locator>)
- => (supported? :: <boolean>)
-  #f;                                                                         
-end method;
-
-define open generic open-locator
-    (locator :: <locator>)
- => (stream :: <stream>);
-
-define open generic supports-list-locator?
-    (locator :: <locator>)
- => (supported? :: <boolean>);
-
-define method supports-list-locator?
-    (locator :: <locator>)
- => (supported? :: <boolean>)
-  #f;                                                                         
-end method;
-
-define open generic list-locator
-    (locator :: <locator>)
- => (listing :: <sequence>);
 
 
 //=========================================================================
@@ -236,31 +191,56 @@ define method float-to-string( float :: <float> )
     string;
 end method float-to-string;
 
-define method integer-to-string(    integer :: <integer>,
-                                    #key base :: type-union(	limited(<integer>, min: 2, max: 36), 
-                                                                object-class( $unsupplied ) ) = $unsupplied,
-                                    size: desired-size :: <integer> = 0,
-                                    fill :: <character> = '0')
- => ( string :: <byte-string> )
-  if( supplied?( base ) )
-    // Convert to base-10
-    let( body :: <integer>, digits :: <integer> ) = floor/( integer, base );
-    integer := (body * 10) + digits;
-  end if;
-  
-  // Format
-  let formatted-string = format-to-string("%d", integer);
-  
-  // Pad if needed
-  if( formatted-string.size < desired-size )
-    let fill-string :: <string> = make( <string>, size: desired-size - formatted-string.size, fill: fill );
-        formatted-string := concatenate!( fill-string, formatted-string );
-  end if;
-  
-  formatted-string;
-end method integer-to-string;
+define constant $digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-// XXX - number-to-string isn't in common-dylan? ASK FUN-O: about this.
+define method integer-to-string
+    (integer :: <integer>,
+     #key base :: type-union(limited(<integer>, min: 2, max: 36)) = 10,
+          size: desired-size :: false-or(<integer>),
+          fill :: <character> = '0')
+ => (string :: <byte-string>);
+  local
+    method collect
+        (value :: <integer>, digits :: <list>, count :: <integer>)
+     => (digits :: <list>, count :: <integer>);
+      let (quotient, remainder) = floor/(value, base);
+      let digits = pair($digits[as(<integer>, remainder)], digits);
+      if(zero?(quotient))
+        values(digits, count + 1);
+      else
+        collect(quotient, digits, count + 1);
+      end if;
+    end method;
+  
+  let (digits, count) =
+    if (integer < 0)
+      // strip off last digit to avoid overflow in $minimum-integer case
+      let (quotient :: <integer>, remainder :: <integer>)
+        = truncate/(integer, base);
+      if (zero?(quotient))
+        values(list($digits[- remainder]), 1);
+      else
+        collect(- quotient, list($digits[- remainder]), 1);
+      end if;
+    else
+      collect(integer, #(), 0);
+    end if;
+
+  let min-size = if(integer < 0) count + 1 else count end;
+  let string-size
+    = if(desired-size) max(desired-size, min-size) else min-size end;
+  let returned-string
+    = make(<byte-string>, size: string-size, fill: fill);
+  
+  if(integer < 0)
+    returned-string[0] := '-';
+  end if;
+
+  for(digit in digits, index from string-size - count)
+    returned-string[index] := digit;
+  end for;
+  returned-string;
+end method integer-to-string;
 
 define method string-to-integer
     (string :: <byte-string>,
@@ -270,8 +250,8 @@ define method string-to-integer
           default = $unsupplied )
  => (result :: <integer>, next-key :: <integer>);
   // Set initial state
+  let valid? :: <boolean> = #f;
   let negative? :: <boolean> = #f;
-  let sign?  :: <boolean> = #f;
   let integer :: <integer> = 0;
   
   block (return)
@@ -280,22 +260,25 @@ define method string-to-integer
       let digit :: false-or(<integer>)
 	= select (char)
 	    '-' =>
-	      if(i = start)
+	      if (i = start)
 		negative? := #t;
-		sign? := #t;
-	      elseif (sign? & i = start + 1)
-		return(default, i);
-	      else
+	      elseif (valid?)
 		return(if (negative?) - integer else integer end, i);
+              elseif (supplied?(default))
+		return(default, i);
+              else
+                error("not a valid integer");
 	      end if;
 	      #f;
 	    '+' =>
-	      if(i = start)
-		sign? := #t;
-	      elseif (sign? & i = start + 1)
-		return(default, i);
-	      else
+	      if (i = start)
+                negative? := #f;
+	      elseif (valid?)
 		return(if (negative?) - integer else integer end, i);
+              elseif (supplied?(default))
+		return(default, i);
+              else
+                error("not a valid integer");
 	      end if;
 	      #f;
 	    '0'      => 0;
@@ -335,27 +318,35 @@ define method string-to-integer
 	    'Y', 'y' => 34;
 	    'Z', 'z' => 35;
 	    otherwise =>
-	      if (i = start)
-		return(default, i);
-	      elseif (sign? & i = start + 1)
-		return(default, i);
-	      else
-		return(if (negative?) - integer else integer end, i);
-	      end if;
+              if (valid?)
+                return(if (negative?) - integer else integer end, i);
+              elseif (supplied?(default))
+                return(default, i);
+              else
+                error("not a valid integer");
+              end if;
 	  end select;
-      if(digit)
+      if (digit)
 	if(digit < base)
 	  integer := integer * base + digit;
-	elseif (i = start)
-	  return(default, i);
-	elseif (sign? & i = start + 1)
-	  return(default, i);
-	else
+          valid? := #t;
+	elseif (valid?)
 	  return(if (negative?) - integer else integer end, i);
+        elseif(supplied?(default))
+          return(default, i);
+        else
+          error("not a valid integer");
 	end if;
       end if;
     end for;
-    values(if (negative?) - integer else integer end, _end);
+
+    if (valid?)
+      values(if (negative?) - integer else integer end, _end);
+    elseif(supplied?(default))
+      return(default, _end);
+    else
+      error("not a valid integer");
+    end if;
   end block;
 end method string-to-integer;
 

@@ -9,11 +9,13 @@ define library common-dylan
   use common-extensions,
     export: { common-extensions,
               finalization,
+              threads,
 	      simple-random,
 	      simple-profiling,
 	      simple-debugging,
 	      simple-io,
 	      byte-vector,
+		  transcendentals,
               functional-extensions };
 
   use transcendental,

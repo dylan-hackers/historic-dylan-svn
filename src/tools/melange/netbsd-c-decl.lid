@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/tools/melange/netbsd-c-decl.lid,v 1.1 2002/08/07 15:16:16 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/netbsd-c-decl.lid,v 1.1.2.1 2002/08/22 23:38:46 andreas Exp $
 library: melange-c
 unit-prefix: cdecl
 unique-id-base: 10000
