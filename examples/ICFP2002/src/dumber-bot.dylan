@@ -15,8 +15,8 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
   let robot = find-robot(s, me.agent-id);
   let myPosition = robot.location;
   
-  local find-near-base(best-base :: false-or(<point>), distance :: <integer>)
-         => (better-base :: false-or(<point>), distance :: <integer>);
+  local find-near-base(best-base :: false-or(<point>), distance :: <path-cost>)
+         => (better-base :: false-or(<point>), distance :: <path-cost>);
           block (found)
             for (base in s.bases)
               let path = find-path(myPosition, base, s.board, cutoff: best-base & distance);
