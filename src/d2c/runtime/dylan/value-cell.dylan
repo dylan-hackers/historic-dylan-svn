@@ -36,12 +36,12 @@ end;
 define class <limited-value-cell-info> (<object>)
   slot lvci-type :: <type>, required-init-keyword: type:;
   slot lvci-class :: <class>, required-init-keyword: class:;
-  slot lvci-next :: type-union(<limited-value-cell-info>, <false>),
+  slot lvci-next :: false-or(<limited-value-cell-info>),
     required-init-keyword: next:;
 end;
 
 define variable *limited-value-cells*
-  :: type-union(<limited-value-cell-info>, <false>)
+  :: false-or(<limited-value-cell-info>)
   = #f;
 
 define method limited (class == <value-cell>, #key type :: <type>)

@@ -26,12 +26,17 @@ module: Dylan-viscera
 // Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 //
 //======================================================================
+
+// Ranges
 //
 // This file contains definitions of classes and functions for the
 // Dylan range collection class.  Ranges represent linear arithmetic
 // sequences, which may be infinitely long.
 //
-
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
 
 
 /* Dylan Range Class Definition
@@ -161,7 +166,7 @@ define sealed domain make (singleton(<bounded-range>));
 // If valid sizes exists the maximum of 0 and the minimum of the valid
 // sizes is returned.
 //
-define method compute-range-size
+define function compute-range-size
     (r-from :: <real>, r-by :: <real>, r-to :: false-or(<real>),
      r-above :: false-or(<real>), r-below :: false-or(<real>),
      r-size :: false-or(<integer>))
@@ -179,7 +184,7 @@ define method compute-range-size
     let min = if (size-size & (size-size < min)) size-size else min end if;
     if (min > 0) min else 0 end if;
   end if;
-end method;
+end function;
 
 
 // compute-to-size -- internal
@@ -333,11 +338,11 @@ end method;
 // 
 //			 (N - FROM) / BY
 //
-define method approximate-range-key
+define inline function approximate-range-key
     (range :: <builtin-range>, element :: <real>)
  => (key :: <integer>);
   round/ (element - range.range-from, range.range-by)
-end method;
+end function;
 
 
 
@@ -357,7 +362,7 @@ end method;
 // If this size is #f an unbounded range is created, otherwise a
 // bounded range is made.
 //
-define sealed method range 
+define function range 
     (#key from: r-from = 0, by: r-by = 1,
           to: r-to = #f, above: r-above = #f, below: r-below = #f,
 	  size: r-size = #f)
@@ -369,7 +374,7 @@ define sealed method range
   else
     make (<unbounded-range>, from: r-from, by: r-by);
   end if;
-end method;
+end function;
 
 
 // make -- public
@@ -379,7 +384,7 @@ end method;
 // of one of the concrete subclasses <bounded-range> or
 // <unbounded-range>.
 //
-define inline method make
+define sealed inline method make
     (class-to-make == <range>, #rest keys, #key, #all-keys)
  => (new-range :: <builtin-range>);
    apply (range, keys);
@@ -888,7 +893,7 @@ end method;
 // ending at the last with the increment of the second - the first is
 // returned.
 //
-define method finite-intersection (range1 :: <builtin-range>, range2 :: <builtin-range>,
+define function finite-intersection (range1 :: <builtin-range>, range2 :: <builtin-range>,
 				   #key test)
       => range :: <bounded-range>;
    let (x-from, x-to) = intersection-interval (range1, range2);
@@ -911,7 +916,7 @@ define method finite-intersection (range1 :: <builtin-range>, range2 :: <builtin
          range (from: intersection.first, to: intersection.last,
 		by: intersection.second - intersection.first);
    end select;
-end method;
+end function;
 
 
 // increasing-intersection -- internal
@@ -929,7 +934,7 @@ end method;
 // of RANGE2 are found, and a new range beginning with the first of
 // these (if any) and with an increment of BY is returned.
 //
-define method increasing-intersection (range1 :: <unbounded-range>,
+define function increasing-intersection (range1 :: <unbounded-range>,
 				       range2 :: <unbounded-range>,
 				       #key test)
       => range :: <unbounded-range>;
@@ -945,7 +950,7 @@ define method increasing-intersection (range1 :: <unbounded-range>,
    else
       range (from: intersection.first, by: x-by);
    end if;
-end method;
+end function;
 
 
 // decreasing-intersection -- internal
@@ -963,7 +968,7 @@ end method;
 // of RANGE2 are found, and a new range beginning with the first of
 // these (if any) and with an increment of BY is returned.
 //
-define method decreasing-intersection (range1 :: <unbounded-range>,
+define function decreasing-intersection (range1 :: <unbounded-range>,
 				       range2 :: <unbounded-range>,
 				       #key test)
       => range :: <unbounded-range>;
@@ -979,7 +984,7 @@ define method decreasing-intersection (range1 :: <unbounded-range>,
    else
       range (from: intersection.first, by: x-by);
    end if;
-end method;
+end function;
 
 
 // range-directions -- internal
@@ -987,7 +992,7 @@ end method;
 // Returns a symbol denoting the respective directions of RANGE1 and
 // RANGE2.
 //
-define method range-directions (range1 :: <builtin-range>, range2 :: <builtin-range>)
+define function range-directions (range1 :: <builtin-range>, range2 :: <builtin-range>)
       => direction :: <symbol>;
    if (range1.range-direction == #"increasing")
       if (range2.range-direction == #"increasing")
@@ -1002,7 +1007,7 @@ define method range-directions (range1 :: <builtin-range>, range2 :: <builtin-ra
 	 #"decreasing-decreasing"
       end if;
    end if;
-end method;
+end function;
 
 
 // intersection-interval -- internal

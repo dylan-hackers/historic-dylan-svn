@@ -29,6 +29,13 @@ module: dylan-viscera
 //
 //======================================================================
 
+// Strings
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
+
 // General string stuff.
 
 define open abstract class <string> (<mutable-sequence>)

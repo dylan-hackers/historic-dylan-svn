@@ -62,7 +62,7 @@ module: dylan-viscera
 //
 // Swaps two elements in a vector.
 //
-define inline method swap-elements! (vector :: <vector>,
+define inline function swap-elements! (vector :: <vector>,
                                      key1 :: <integer>,
                                      key2 :: <integer>)
  => ();
@@ -70,7 +70,7 @@ define inline method swap-elements! (vector :: <vector>,
   let element2 = vector[key2];
   vector[key1] := element2;
   vector[key2] := element1;
-end method swap-elements!;
+end function swap-elements!;
 
 
 // insertion-sort! -- internal
@@ -83,7 +83,7 @@ end method swap-elements!;
 // INSERTION-SORT! accepts the same keys as SELECTION-SORT!  Insertion
 // sort is stable, and this method sorts the vector in place.
 //
-define method insertion-sort!
+define function insertion-sort!
     (vector :: <simple-object-vector>,
      test :: <function>,
      first :: <integer>,
@@ -98,7 +98,7 @@ define method insertion-sort!
       vector[insert-key + 1] := current-element;
     end for;
   end for;
-end method insertion-sort!;
+end function insertion-sort!;
 
 
 
@@ -142,7 +142,7 @@ define constant $small-sort-size$ :: <integer> = 15;
 // Finally the merge vector is copied into the original vector in
 // position.
 //
-define method merge!
+define function merge!
     (vector :: <simple-object-vector>,
      test :: <function>,
      first :: <integer>,
@@ -175,7 +175,7 @@ define method merge!
        copy-key :: <integer> from first)
     vector[copy-key] := merge-vector[merge-key]
   end for;
-end method merge!;
+end function merge!;
 
 
 // merge-sort! -- internal
@@ -195,7 +195,7 @@ end method merge!;
 // Caution: merge-sort! leaves the vector not *quite* sorted, to be
 // cleaned up afterwards by insertion-sort!
 
-define method merge-sort!
+define function merge-sort!
     (vector :: <simple-object-vector>,
      test :: <function>,
      first :: <integer>,
@@ -207,7 +207,7 @@ define method merge-sort!
     merge-sort!(vector, test, middle, last);
     merge!(vector, test, first, middle, last);
   end if;
-end method merge-sort!;
+end function merge-sort!;
 
 
 // Quick Sort
@@ -227,7 +227,7 @@ end method merge-sort!;
 // median(vec[first], vec[middle], vec[last - 1]).  Note: In accordance with
 // convention, "last" is an exclusive bound.
 //
-define inline method median-of-three
+define inline function median-of-three
     (vec :: <simple-object-vector>,
      first :: <integer>,
      last :: <integer>,
@@ -255,7 +255,7 @@ define inline method median-of-three
       middle
     end
   end;
-end method median-of-three;
+end function median-of-three;
 
 
 // partition! -- internal
@@ -270,7 +270,7 @@ end method median-of-three;
 // until the pointers cross each other.  Then the small pointer is
 // returned as the partition position.
 //
-define inline method partition!
+define inline function partition!
     (vector :: <simple-object-vector>,
      test :: <function>,
      first :: <integer>,
@@ -297,7 +297,7 @@ define inline method partition!
     end while;
   end block;
   small-key;
-end method partition!;
+end function partition!;
 
 // quick-sort! -- internal
 //
@@ -317,7 +317,7 @@ end method partition!;
 // only done O(N.log(N)) work ourselves.  Traditionally you use heapsort,
 // but mergesort will do, since we have it already.
 
-define function qsort-depth-allowed(i :: <integer>)
+define function qsort-depth-allowed (i :: <integer>)
  => (depth :: <integer>);
   for (d from 0,
        n = i then ash(n, -1),
@@ -329,7 +329,7 @@ define function qsort-depth-allowed(i :: <integer>)
 end function qsort-depth-allowed;
 
 
-define method quick-sort!
+define function quick-sort!
     (vector :: <simple-object-vector>,
      test :: <function>,
      first :: <integer>,
@@ -354,7 +354,7 @@ define method quick-sort!
       end;
     end while;
   end block;
-end method quick-sort!;
+end function quick-sort!;
 
 
 

@@ -28,7 +28,12 @@ module: dylan-viscera
 //
 //======================================================================
 
-//  This file implements stretchy-vectors.
+// Stretchy-vectors
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
 
 
 // <stretchy-vector>
@@ -49,7 +54,7 @@ define open generic ssv-data (sv :: <builtin-stretchy-vector>);
 define open generic ssv-data-setter
     (value :: <object>, sv :: <builtin-stretchy-vector>);
 
-define sealed method make
+define sealed inline method make
     (class == <stretchy-vector>, #key size :: <integer> = 0, fill = #f)
     => res :: <stretchy-object-vector>;
   make(<stretchy-object-vector>, size: size, fill: fill);
@@ -99,15 +104,15 @@ define function calc-size(new :: <integer>)
   end for;
 end calc-size;
 
-define sealed inline method initialize
+define sealed method initialize
     (object :: <stretchy-object-vector>, #key size :: <integer> = 0, fill = #f)
  => ();
   let data-size = calc-size(size);
-  
+
   // The "fill:" keyword assures that elements above ssv-current-size
   // will be #f...
   let data = make(<simple-object-vector>, size: data-size, fill: #f);
-  
+
   // ...and then we manually fill the other elements if necessary.
   if (fill) fill!(data, fill, end: size) end if;
   object.ssv-data := data;
@@ -236,8 +241,19 @@ end method;
 
 define method add! (ssv :: <stretchy-object-vector>, new-element)
     => ssv :: <stretchy-object-vector>;
-  ssv.size := ssv.size + 1;
-  ssv[ssv.size - 1] := new-element;
+  let data = ssv.ssv-data;
+  let current = ssv.size;
+  if (current == data.size)
+    let data-size = current * 2;
+    let new-data = replace-subsequence!(make(<simple-object-vector>,
+					     size: data-size),
+					data, end: current);
+    ssv.ssv-data := new-data;
+    new-data[current] := new-element;
+  else 
+    data[current] := new-element;
+  end if;
+  ssv.ssv-current-size := current + 1;
   ssv;
 end method add!;
 

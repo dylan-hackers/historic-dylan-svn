@@ -33,6 +33,9 @@ define functional class <machine-word> (<object>)
     init-value: 0, init-keyword: value:;
 end;
 
+define sealed domain make (singleton(<machine-word>));
+define sealed domain initialize (<machine-word>);
+
 define sealed abstract class <invalid-bit-number> (<error>)
   constant slot bit-number :: <integer>,
     required-init-keyword: bit-number:;
@@ -142,7 +145,7 @@ define inline function valid-bit-number? (bit :: <integer>)
   (0 <= bit) & (bit < $machine-word-size);
 end;
 
-define inline function check-bit-index(idx :: <integer>)
+define inline function check-bit-index (idx :: <integer>)
   unless (valid-bit-number?(idx))
     invalid-bit-index(idx);
   end unless;
@@ -270,7 +273,3 @@ define constant $minimum-unsigned-machine-word :: <machine-word>
   = as(<machine-word>, 0);
 define constant $machine-word-zero :: <machine-word>
   = as(<machine-word>, 0);
-
-
-define sealed domain make (singleton(<machine-word>));
-define sealed domain initialize (<machine-word>);

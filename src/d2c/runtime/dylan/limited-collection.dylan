@@ -89,9 +89,9 @@ define generic make-limited-collection
 //  renaming someday--it will require changes to cback and possibly other
 //  parts of the compiler.
 
-define class <limited-collection-mixin> (<collection>)
+define abstract class <limited-collection-mixin> (<collection>)
   // What limited type was used to create this collection?
-  slot %limited-collection-type :: <limited-collection>,
+  constant slot %limited-collection-type :: <limited-collection>,
     required-init-keyword: collection-type:;
 end class;
 
@@ -188,6 +188,7 @@ define class <limited-object-table>
 end class <limited-object-table>;
 
 define sealed domain make (singleton(<limited-object-table>));
+define sealed domain initialize (<limited-object-table>);
 
 // limited(<object-table>, of: ...)
 define method make-limited-collection

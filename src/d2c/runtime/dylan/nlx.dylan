@@ -84,12 +84,12 @@ define function make-exit-function (catcher :: <catcher>) => res :: <function>;
   end;
 end;
 
-define function disable-catcher (catcher :: <catcher>) => ();
+define inline function disable-catcher (catcher :: <catcher>) => ();
   catcher.disabled := #t;
 end;
 
 
-define function catch (saved-state :: <raw-pointer>, thunk :: <function>)
+define inline function catch (saved-state :: <raw-pointer>, thunk :: <function>)
   thunk(saved-state);
 end;
 

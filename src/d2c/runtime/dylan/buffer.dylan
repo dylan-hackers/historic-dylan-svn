@@ -31,6 +31,13 @@ copyright: see below
 //
 //======================================================================
 
+// Byte-vectors and buffers
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
+
 c-include("string.h");
 
 define /* exported */ constant <byte> =
@@ -104,15 +111,15 @@ define sealed inline method element-setter
 end;
 
 
-define constant <byte-like> = type-union(<unicode-string>,
-					 <buffer>, 
-					 <byte-string>, 
-					 <byte-vector>);
+define constant <byte-vector-like> = type-union(<byte-vector>,
+                                           <buffer>,
+                                           <byte-string>,
+                                           <unicode-string>);
 
 // Copy bytes from src to dest (which may overlap.)  
 define /* exported */ generic copy-bytes 
-  (dest :: <byte-like>, dest-start :: <integer>, 
-   src :: <byte-like>, src-start :: <integer>,
+  (dest :: <byte-vector-like>, dest-start :: <integer>, 
+   src :: <byte-vector-like>, src-start :: <integer>,
    count :: <integer>)
  => ();
 

@@ -67,6 +67,9 @@ define variable *debugger* :: <debugger> = make(<null-debugger>);
 define class <null-debugger> (<debugger>)
 end class <null-debugger>;
 
+define sealed domain make (singleton(<null-debugger>));
+define sealed domain initialize (<null-debugger>);
+
 // *warning-output* -- exported from Extensions
 //
 // The ``stream'' to which warnings report when signaled (and not handled).

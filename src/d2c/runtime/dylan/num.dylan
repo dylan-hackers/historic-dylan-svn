@@ -62,8 +62,10 @@ define open generic negative? (num :: <object>) => res :: <boolean>;
 
 define open generic integral? (num :: <object>) => res :: <boolean>;
 
+// odd? is not specified as being open in the DRM, but we will open it up
 define open generic odd? (num :: <object>) => res :: <boolean>;
 
+// even? is not specified as being open in the DRM, but we will open it up 
 define open generic even? (num :: <object>) => res :: <boolean>;
 
 define open generic \+ (num1 :: <object>, num2 :: <object>);
@@ -202,15 +204,17 @@ end;
 
 
 // Integer methods.
+// The source files bignum.dylan and machineword.dylan have other 
+// implementations of some of these methods.
 
 // odd? always punts through to even?
-define inline sealed method odd? (a :: <general-integer>) => res :: <boolean>;
+define sealed inline method odd? (a :: <general-integer>) => res :: <boolean>;
   ~even?(a);
 end;
 
 // even? has an implementation here for <integer>, and in bignum.dylan for
 // <extended-integer>
-define inline sealed method even? (a :: <integer>) => res :: <boolean>;
+define sealed inline method even? (a :: <integer>) => res :: <boolean>;
   zero?(logand(a, 1));
 end;
 
@@ -239,7 +243,7 @@ define inline method truncate (a :: <general-integer>)
   values(a, 0);
 end;
 
-define inline method logior (#rest integers)
+define inline function logior (#rest integers)
     => res :: <general-integer>;
   reduce(binary-logior, 0, integers);
 end;
@@ -248,7 +252,7 @@ define sealed generic binary-logior
     (x :: <general-integer>, y :: <general-integer>)
     => res :: <general-integer>;
 
-define inline method logxor (#rest integers)
+define inline function logxor (#rest integers)
     => res :: <general-integer>;
   reduce(binary-logxor, 0, integers);
 end;
@@ -257,7 +261,7 @@ define sealed generic binary-logxor
     (x :: <general-integer>, y :: <general-integer>)
     => res :: <general-integer>;
 
-define inline method logand (#rest integers)
+define inline function logand (#rest integers)
     => res :: <general-integer>;
   reduce(binary-logand, -1, integers);
 end;
@@ -436,10 +440,10 @@ end method round/;
 // Divide a by b, rounding towards zero.
 //
 
-define constant divide-by-zero-error =
-  method () => res :: <never-returns>;
-    error("Division by zero.");
-  end;
+define function divide-by-zero-error ()
+    => res :: <never-returns>;
+  error("Division by zero.");
+end;
 
 define inline method truncate/
     (a :: <integer>, b :: <integer>)

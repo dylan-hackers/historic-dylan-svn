@@ -35,7 +35,7 @@ module: dylan-viscera
 //
 define open generic main (argv0, #rest more-args);
 //
-define method %main (argc :: <integer>, argv :: <raw-pointer>) => ();
+define function %main (argc :: <integer>, argv :: <raw-pointer>) => ();
   let args = make(<vector>, size: argc);
   for (index :: <integer> from 0 below argc)
     let argptr = pointer-deref(#"ptr", argv,
@@ -43,4 +43,4 @@ define method %main (argc :: <integer>, argv :: <raw-pointer>) => ();
     args[index] := import-string(argptr);
   end for;
   apply(main, args);
-end method %main;
+end function %main;

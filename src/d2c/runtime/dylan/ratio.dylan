@@ -72,7 +72,7 @@ end;
 
 define sealed domain initialize (<ratio>);
 
-define inline method ratio
+define inline function ratio
     (num :: <general-integer>, denom :: <general-integer>)
     => res :: <ratio>;
   make(<ratio>, numerator: num, denominator: denom);

@@ -340,7 +340,7 @@ end method error;
 //
 // Signals and error after first establishing a handler for <simple-error>s.
 //
-define method cerror
+define function cerror
     (restart-description :: <string>,
      condition-or-string :: type-union(<string>, <condition>),
      #rest arguments)
@@ -352,7 +352,7 @@ define method cerror
 				  format-arguments: arguments))
     #f;
   end block;
-end method cerror;
+end function cerror;
 
 // check-type -- exported from Dylan
 //
@@ -388,14 +388,14 @@ end;
 // signal a type-error if not.  Calls to this are inserted by the compiler
 // to type-check #rest result types.
 // 
-define method check-types
+define function check-types
     (objects :: <simple-object-vector>, type :: <type>)
     => checked :: <simple-object-vector>;
   for (object in objects)
     check-type(object, type);
   end for;
   objects;
-end method check-types;
+end function check-types;
 
 // type-error -- internal.
 //
@@ -504,7 +504,7 @@ end method return-allowed?;
 // in order to get a description of what returning will do.
 //
 define open generic return-description (cond :: <condition>)
-    => res :: type-union(<false>, <string>, <restart>);
+    => res :: false-or(type-union(<string>, <restart>));
 
 
 // return-query -- exported from Dylan.
@@ -526,6 +526,8 @@ define open generic return-query (condition :: <condition>);
 define class <breakpoint> (<simple-warning>)
 end class <breakpoint>;
 
+define sealed domain make (singleton(<breakpoint>));
+// initialize is already sealed on superclass
 
 // return-allowed?(<breakpoint>) -- gf method.
 //
@@ -559,13 +561,13 @@ end method return-description;
 // Cause a breakpoint.  Split into two functions so the first argument can be
 // optional and dispatched off of if supplied.
 // 
-define method break (#rest arguments) => res :: <false>;
+define function break (#rest arguments) => res :: <false>;
   if (empty?(arguments))
     %break("Break.");
   else
     apply(%break, arguments);
   end if;
-end method break;
+end function break;
 //
 define method %break (string :: <string>, #rest arguments) => res :: <false>;
   %break(make(<breakpoint>,
@@ -595,7 +597,7 @@ end method %break;
 // actually happen.  But that would be assuming that we don't have any bugs
 // in our code.
 // 
-define method lose
+define function lose
     (str :: <byte-string>, #rest args) => res :: <never-returns>;
   fputs("internal error: ", #"Cheap-Err");
   apply(cheap-format, #"Cheap-Err", str, args);

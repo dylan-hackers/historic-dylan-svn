@@ -43,7 +43,7 @@ end;
 // we don't want people outside the dylan module to be able to name the slot
 // (e.g. add their own override) which would just confuse the compiler.
 //
-define inline method object-class (thing :: <object>)
+define inline function object-class (thing :: <object>)
     => res :: <class>;
   %object-class(thing);
 end;

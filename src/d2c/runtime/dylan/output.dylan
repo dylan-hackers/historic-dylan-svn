@@ -30,7 +30,14 @@ module: dylan-viscera
 
 c-system-include("stdio.h");
 
-define method cheap-format
+// XXX - We export this, instead of cheap-format, for reasons of backwards
+// compatibility. Somebody should find out what Harlequin does, and fix
+// this to work like their implementation.
+define method format (str :: <byte-string>, #rest args) => ();
+  apply(cheap-format, #"Cheap-IO", str, args);
+end;
+
+define function cheap-format
     (fake-stream :: <symbol>, str :: <byte-string>, #rest args)
  => ()
   let c-file = cheap-io-to-stdio(fake-stream);
@@ -87,34 +94,35 @@ define method cheap-format
       end;
     end;
   scan(0, 0);
-end method cheap-format;
+end function cheap-format;
 
 
 
-define function print-message(thing :: <object>) => ()
+define inline function print-message(thing :: <object>) => ()
   cheap-print-message(thing, #"Cheap-IO");
 end function print-message;
 
 define generic cheap-print-message
     (thing :: <object>, fake-stream :: <symbol>) => ();
 
-define method cheap-print-message
+define inline method cheap-print-message
     (str :: <byte-string>, fake-stream :: <symbol>) => ()
   fputs(str, fake-stream);
 end;
 
-define method cheap-print-message
+define inline method cheap-print-message
     (sym :: <symbol>, fake-stream :: <symbol>) => ()
   fputs(as(<string>, sym), fake-stream);
 end;
 
-define method cheap-print-message
+define inline method cheap-print-message
     (cond :: <condition>, fake-stream :: <symbol>) => ()
   report-condition(cond, fake-stream);
 end;
 
 
 
+// Inlining this function causes an assertion in d2c to fail
 define function print (thing :: <object>) => ()
   cheap-print(thing, #"Cheap-IO");
 end function print;
@@ -125,9 +133,11 @@ define generic cheap-print
 define method cheap-print (thing :: <object>, fake-stream :: <symbol>) => ();
   let name = thing.object-class.class-name;
   if (name)
-    cheap-format(fake-stream, "{an instance of %s}", name);
+    cheap-format(fake-stream, "{%s instance at #x%x}",
+                 name, as(<integer>, thing.object-address));
   else
-    fputs("{an instance of something}", fake-stream);
+    cheap-format(fake-stream, "{? instance at #x%x}",
+                 as(<integer>, thing.object-address));
   end if;
 end;
 
@@ -146,7 +156,7 @@ define method cheap-print
   fputs('"', fake-stream);
 end;
 
-define method write-maybe-escaping
+define function write-maybe-escaping
     (fake-stream :: <symbol>, char :: <character>, quote :: <character>)
  => ()
   if (char < ' ')
@@ -235,15 +245,15 @@ define method cheap-print (class :: <class>, fake-stream :: <symbol>) => ();
   end if;
 end;
 
-define method cheap-print (true == #t, fake-stream :: <symbol>) => ();
+define inline method cheap-print (true == #t, fake-stream :: <symbol>) => ();
   fputs("#t", fake-stream);
 end;
 
-define method cheap-print (false == #f, fake-stream :: <symbol>) => ();
+define inline method cheap-print (false == #f, fake-stream :: <symbol>) => ();
   fputs("#f", fake-stream);
 end;
 
-define method cheap-print (int :: <integer>, fake-stream :: <symbol>) => ();
+define inline method cheap-print (int :: <integer>, fake-stream :: <symbol>) => ();
   cheap-write-integer(fake-stream, int, 10);
 end;
 
@@ -313,7 +323,7 @@ define method cheap-write-integer
   else
     repeat(int);
   end;
-end;
+end method cheap-write-integer;
 
 define method cheap-write-integer
     (fake-stream :: <symbol>, int :: <extended-integer>, radix :: <integer>)
@@ -345,7 +355,7 @@ define method cheap-write-integer
   for (digit :: <integer> in digits)
     fputs(digit, fake-stream);
   end;
-end;
+end method cheap-write-integer;
 
 
 define function cheap-io-to-stdio(stream :: <symbol>)
@@ -365,7 +375,7 @@ define function puts(thing :: <object>) => ()
   cheap-force-output(#"Cheap-IO");
 end function puts;
 
-define function fputs(thing :: <object>, fake-stream :: <symbol>) => ()
+define inline function fputs(thing :: <object>, fake-stream :: <symbol>) => ()
   fputs-internal(thing, cheap-io-to-stdio(fake-stream));
 end function fputs;
 
@@ -398,6 +408,6 @@ end;
 
 
 
-define method cheap-force-output(fake-stream :: <symbol>) => ()
+define inline function cheap-force-output(fake-stream :: <symbol>) => ()
   call-out("fflush", int:, ptr: cheap-io-to-stdio(fake-stream));
-end method cheap-force-output;
+end function cheap-force-output;

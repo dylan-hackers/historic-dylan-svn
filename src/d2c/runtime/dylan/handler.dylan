@@ -55,7 +55,7 @@ define class <handler> (<object>)
     required-init-keyword: init-arguments:;
 
   // The previous handler in the chain of handers.
-  constant slot handler-prev :: type-union(<handler>, <false>),
+  constant slot handler-prev :: false-or(<handler>),
     required-init-keyword: prev:;
 end;
 

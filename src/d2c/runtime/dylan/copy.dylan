@@ -34,10 +34,10 @@ define open generic shallow-copy (object :: <object>) => new;
 
 define open generic type-for-copy (object :: <object>) => type :: <type>;
 
-define sealed inline method identity
+define inline function identity
     (object :: <object>) => (object :: <object>);
   object;
-end method identity;
+end function identity;
 
 // Without subtype specializers, we cannot specify a default "as" method for
 // all <collection> types.  Instead, we place support in this catch-all
