@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.40 2002/08/10 23:03:39 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.41 2002/08/11 00:33:11 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -114,6 +114,7 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
                     end block;
                   end method;
               fer-evaluate(init-function-region.body, env)
+              "no <return> encountered in driver function".error;
             exception (ret :: <return-condition>)
               ret.exit-result
             end;
@@ -234,6 +235,10 @@ end;
 
 define fer-evaluator compound-region(environment)
   let regions = compound-region.regions;
+  
+  format(*debug-output*, "\n\n\n####### compound-region %= \n", regions);
+  force-output(*debug-output*);
+  
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
 
@@ -253,14 +258,17 @@ end;
 // ########## fer-evaluate-regions ##########
 define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
-  error("Did not encounter a <return> in control flow... \nregion: %=", region);
+  fer-evaluate(region, environment);
+//  error("Did not encounter a <return> in control flow... \nregion: %=", region);
 end;
 
+/*
 define method fer-evaluate-regions(the-if :: <if-region>, more-regions == #(), environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   fer-evaluate(the-if, environment);
-  error("Did not encounter a <return> in control flow of any of the <if-region>s legs");
+//  error("Did not encounter a <return> in control flow of any of the <if-region>s legs"); ### legal
 end;
+*/
 
 define method fer-evaluate-regions(region :: <region>, more-regions :: <list>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
@@ -353,7 +361,7 @@ define method evaluate-call(func :: <method-literal>, operands :: false-or(<depe
           end method;
 
     fer-evaluate(func.main-entry.body, prologue-environment(vars-to-be-bound, operands));
-    "no <return> encountered".error;
+    "no <return> encountered in function".error;
   exception (return :: <return-condition>)
    /*, test: method(exit :: <exit-condition> leaving the right function????? */
     return.exit-result
