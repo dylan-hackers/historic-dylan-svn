@@ -21,7 +21,7 @@ define variable *printer-state* :: <printing> = make(<printing>);
 define open generic xml-name(xml :: <xml>, state :: <printing>)
  => (s :: <string>);
 define method xml-name(xml :: <xml>, state :: <printing>) => (s :: <string>)
-  as(<string>, xml.name);
+  xml.name-with-proper-capitalization;
 end method xml-name;
 define method xml-name(ref :: <reference>, state :: <printing>)
  => (s :: <string>)
@@ -73,6 +73,14 @@ define function quoted-printer(fn :: <function>, s :: <stream>, #key arg = "")
   end method;
 end function quoted-printer;
 
+define function print-safely-quoted(text :: <string>, arg :: <string>,
+                                    state :: <printing>, stream :: <stream>)
+ => ()
+  quoted-printer(method(string, ignored-state, strm) 
+                   print-safe-string(string, strm);
+                 end, stream, arg: arg) (text, state);
+end function print-safely-quoted;
+
 define function quoted-sequence(seq :: <sequence>, state :: <printing>,
                                 stream :: <stream>)
   for(elt in seq)
@@ -80,15 +88,31 @@ define function quoted-sequence(seq :: <sequence>, state :: <printing>,
   end for;
 end function quoted-sequence;
 
-define function print-system-info(sys :: <system-mixin>, state :: <printing>, 
+define function print-system-info(sys :: <external-mixin>, state :: <printing>, 
                                   stream :: <stream>) => ()
                                   
-  aif(sys.reference)
-    quoted-printer(method(string, ignored-state, s) 
-                       print-safe-string(string, s)
-                   end, stream, arg: " SYSTEM")(sys.reference, state);
-  end aif;
+  do-print-sys-info(sys, state, sys.sys/pub, stream);
 end function print-system-info;
+
+define generic do-print-sys-info(ext :: <external-mixin>, state :: <printing>,
+				 kind :: one-of(#f, #"system", #"public"),
+				 stream :: <stream>) => ();
+
+define method do-print-sys-info(ext :: <external-mixin>, state :: <printing>,
+				kind == #f, stream :: <stream>) => ()
+  // Don't print anything
+end method do-print-sys-info;
+
+define method do-print-sys-info(ext :: <external-mixin>, state :: <printing>,
+				kind == #"system", stream :: <stream>) => ()
+  print-safely-quoted(ext.sys-id, " SYSTEM", state, stream);
+end method do-print-sys-info;
+
+define method do-print-sys-info(ext :: <external-mixin>, state :: <printing>,
+				kind == #"public", stream :: <stream>) => ()
+  print-safely-quoted(ext.pub-id, " PUBLIC", state, stream);
+  print-safely-quoted(ext.sys-id, "", state, stream);
+end method do-print-sys-info;
 
 define method do-transform(ie :: <internal-entity>, state :: <printing>,
                            stream :: <stream>) => ()
@@ -103,9 +127,9 @@ end method do-transform;
 define method do-transform(dtd :: <dtd>, state :: <printing>, 
                            stream :: <stream>) => ()
   print-system-info(dtd, state, stream);
-  unless(dtd.internal-entities.empty?)
+  unless(dtd.internal-declarations.empty?)
     format(stream, " [ ");
-    for(x in dtd.internal-entities)
+    for(x in dtd.internal-declarations)
       transform(x, x.name, state, stream);
     end for;
     format(stream, " ]");
@@ -191,7 +215,4 @@ end method print-object;
 // the default way for preparing to print a document
 define method prepare-document(doc :: <document>, state :: <printing>, 
                                stream :: <stream>) => ()
-  let version = vector(make(<attribute>, name: #"version", value: "1.0"));
-  let xml = make(<processing-instruction>, name: #"xml", attributes: version);
-  transform(xml, #"xml", state, stream);
 end method prepare-document;

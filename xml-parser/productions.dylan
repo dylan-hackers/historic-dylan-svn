@@ -50,12 +50,12 @@ define function parse-document(doc :: <string>,
                                substitute-entities? = #t,
                                modify-elements-when-parsing? = #t,
 			       print-warnings? = #f,
- 			       ignore-comments? = #t)
+ 			       ignore-instructions? = #f)
  => (stripped-tree :: <document>)
   *entities* := make(<table>);
   *show-warnings?* := print-warnings?;
   *defining-entities?* := #f;
-  *ignore-comments?* := ignore-comments?;
+  *ignore-instructions?* := ignore-instructions?;
   *modify?* := modify-elements-when-parsing?;
   *substitute-entities?* := substitute-entities?;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
@@ -65,11 +65,11 @@ end function parse-document;
 
 define variable *modify?* :: <boolean> = #t;
 define variable *show-warnings?* :: <boolean> = #f;
-define variable *ignore-comments?* :: <boolean> = #t;
+define variable *ignore-instructions?* :: <boolean> = #t;
 
 define meta document-helper(prolog, elemnt, misc) =>
- (make(<document>, name: elemnt.name, 
-       children: if(*ignore-comments?*) 
+ (make(<document>,
+       children: if(*ignore-instructions?*) 
                    vector(elemnt)
                  else
                    concatenate(prolog, vector(elemnt), misc)
@@ -103,7 +103,7 @@ define constant $name-char = concatenate($version-number, "-");
 
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
-define collector name(c) => (as(<symbol>, as(<string>, str)))
+define collector name(c)
   [{element-of($letter, c), '_', ':'}, do(collect(c))],
   loop([element-of($name-char, c), do(collect(c))])
 end collector name;
@@ -281,10 +281,13 @@ end collector prolog;
 
 // [23] XMLDecl ::= '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
 //
-define meta xml-decl(version-info, encoding-decl, sd-decl, c)
-  "<?xml", scan-version-info(version-info),     
-  {scan-encoding-decl(encoding-decl), []},
-  {scan-sd-decl(sd-decl), []},
+define meta xml-decl(version-info, enc-decl, sd-decl, c, attribs)
+ => (make(<processing-instruction>, name: "xml",
+          attributes: as(<vector>, attribs)))
+  set!(attribs, make(<deque>)),
+  "<?xml", scan-version-info(version-info), (push-last(attribs, version-info)), 
+  {[scan-encoding-decl(enc-decl), (push-last(attribs, enc-decl))], []},
+  {[scan-sd-decl(sd-decl), (push-last(attribs, sd-decl))], []},
   scan-s?(c), "?>"
 end meta xml-decl;
 
@@ -292,6 +295,7 @@ end meta xml-decl;
 //                                      | '"' VersionNum '"')
 //
 define meta version-info(space, eq, version-num)
+ => (make(<attribute>, name: "version", value: version-num))
   scan-s(space), "version", scan-eq(eq),
   {['\'', scan-version-num(version-num), '\''],
    ['"', scan-version-num(version-num), '"']}
@@ -330,14 +334,16 @@ end meta decl-sep;
 //                                    [VC: Root Element Type]
 //                                    [WFC: External Subset]
 //
-define meta doctypedecl(s, name, id, markup, decl-sep)
+// we'll add a returned dtd after developing the element-decl's etc.
+// => (make(<dtd>, name: name, sys-id: sys-id, pub-id: pub-id, sys/pub: which))
+define meta doctypedecl(s, name, sys-id, pub-id, which, markup)
   yes!(*defining-entities?*),
   "<!DOCTYPE", scan-s(s), scan-name(name), 
-  {[scan-s(s), scan-external-id(id),
+  {[scan-s(s), scan-external-id(sys-id, which, pub-id),
    do(
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its entities and default attribute values.
-      with-open-file(in = id, direction: #"input-output")
+      with-open-file(in = sys-id, direction: #"input-output")
         scan-dtd-stuff(stream-contents(in, clear-contents?: #f))
       end)], 
    []},
@@ -355,7 +361,7 @@ end meta dtd-stuff;
 //                                    [VC: Proper Declaration/PE Nesting]
 //                                    [WFC: PEs in Internal Subset]
 //
-define meta markupdecl(decl)
+define meta markupdecl(decl) => (decl)
   {scan-elementdecl(decl), scan-attlist-decl(decl),
    scan-entity-decl(decl), scan-notation-decl(decl), 
    scan-pi(decl), scan-comment(decl)}, []
@@ -383,10 +389,15 @@ end meta ext-subset-decl;
 //                                    | ('"' ('yes' | 'no') '"'))
 //                                   [VC: Standalone Document Declaration]
 //
-define meta sd-decl(sp, eq)
+define meta sd-decl(sp, eq, ans)
+ => (make(<attribute>, name: "standalone", value: ans))
   scan-s(sp), "standalone", scan-eq(eq),
-  {["'", {"yes", "no"}, "'"], ['"', {"yes", "no"}, '"']}
+  {["'", scan-yesno(ans), "'"], ['"', scan-yesno(ans), '"']}
 end meta sd-decl;
+
+define meta yesno(ans) => (ans)
+  {["yes", set!(ans, "yes")], ["no", set!(ans, "no")]}
+end meta yesno;
 
 //    (Productions 33 through 38 have been removed.)
 
@@ -411,31 +422,42 @@ define meta element(elt-name, attribs, content, etag)
     ["/>", no!(*last-tag-name*), set!(content, "")] }
 end meta element;
 
+// This make-element preserves capitalization of the tag-name
+define method make-element(k :: <sequence>, n :: <symbol>, a :: <sequence>,
+			   mod :: <boolean>) => (elt :: <element>)
+  make(<element>, children: k, attributes: a,
+       name: pop(*tag-name-with-proper-capitalization*))
+end method make-element;
+
 // Production 40 (Stag) has been removed (now handled by 39 (element)).
 
 // a little bit of checking for element-name redundancy:
 define variable *last-tag-name* :: false-or(<symbol>) = #f;
+// ... and proper capitalization for tag names
+define variable *tag-name-with-proper-capitalization* = make(<deque>);
 
 // Helper method for parsing opening tags; also adds attributes with
 // default values if there are ones specified in the DTD for this elt
-define meta beginning-of-tag(elt-name, attribs, s) => (elt-name, attribs)
+define meta beginning-of-tag(elt-name, sym-name, attribs, s)
+ => (sym-name, attribs)
   "<", scan-name(elt-name), scan-s?(s), scan-xml-attributes(attribs),
-  do(attribs := add-default-attributes(elt-name, attribs);
-     if(*last-tag-name* == elt-name)
+  (push(*tag-name-with-proper-capitalization*, elt-name)),
+  set!(sym-name, as(<symbol>, elt-name)),
+  do(attribs := add-default-attributes(sym-name, attribs);
+     if(*last-tag-name* == sym-name)
        maybe-tag-mismatch(format-to-string("Opening same tag (<%s>)", 
                                            *last-tag-name*),
                           "Perhaps you meant to close the tag?",
                           index, string);
      end if;
-     *last-tag-name* := elt-name)
+     *last-tag-name* := sym-name)
 end meta beginning-of-tag;
 
-define function add-default-attributes(elt-name :: <symbol>, 
-                                       attribs :: <vector>)
+define function add-default-attributes(elt :: <symbol>, attrbs :: <vector>)
  => (new-attribs :: <vector>)
-  concatenate(attribs, 
+  concatenate(attrbs, 
               as(<vector>, reduce(method(result, default) 
-                                      if(member?(default, attribs, 
+                                      if(member?(default, attrbs,
                                                  test: method(x, y)
                                                            x.name == y.name
                                                        end))
@@ -443,9 +465,8 @@ define function add-default-attributes(elt-name :: <symbol>,
                                       else
                                         pair(default, result)
                                       end if
-                                  end method, #(), 
-                                  element($attrib-defaults, elt-name, 
-                                          default: #()))))
+                                 end method, #(), 
+                                 element($attrib-defaults, elt, default: #()))))
 end function add-default-attributes;
 
 define function maybe-tag-mismatch(msg :: <string>, hint :: <string>,
@@ -562,9 +583,9 @@ define collector content(pi, comment, contents)
          do(collect(contents))],
         [scan-reference(contents), do(do(collect, contents))],
         [scan-pi(pi), 
-	 do(unless(*ignore-comments?*) collect(pi) end)],
+	 do(unless(*ignore-instructions?*) collect(pi) end)],
         [scan-comment(comment),
-	 do(unless(*ignore-comments?*) collect(comment) end)],
+	 do(unless(*ignore-instructions?*) collect(comment) end)],
         [scan-char-data(contents), 
          do(contents.text.has-content? & collect(contents))]})
 end collector content;
@@ -795,7 +816,7 @@ define meta char-ref(char, name)
  => (list(if(*substitute-entities?*)
             make(<char-string>, text: make(<string>, size: 1, fill: char));
           else
-            make(<char-reference>, name: as(<symbol>, name), char: char)
+            make(<char-reference>, name: name, char: char)
           end if))
   { scan-int-char-ref(char, name), scan-hex-char-ref(char, name) }, []
 end meta char-ref;
@@ -823,6 +844,8 @@ define generic do-expand(obj :: <xml>) => (ans :: <list>);
 define method do-expand(obj :: <xml>) => (ans :: <list>) list(obj); end;
 define method do-expand(elt :: <element>) => (ans :: <list>)
 // I'll ignore entities in the element attributes for now
+  push(*tag-name-with-proper-capitalization*,
+       elt.name-with-proper-capitalization);
   list(make-element(elt.node-children.expand-entity, elt.name, 
                     elt.attributes, *modify?*));
 end method do-expand;
@@ -867,22 +890,21 @@ end meta pe-reference;
 // Entity Declaration
 // 
 //    [70]    EntityDecl    ::=    GEDecl | PEDecl
-define meta entity-decl(name) => (name)
-  { scan-GE-Decl(name), scan-PE-Decl(name) }, []
+define meta entity-decl(s, name) => (name)
+  "<!ENTITY", scan-s(s), { scan-GE-Decl(name), scan-PE-Decl(name) },
+  scan-s?(s), ">"
 end meta entity-decl;
 
 //    [71]    GEDecl        ::=    '<!ENTITY' S Name S EntityDef S? '>'
 define meta ge-decl(name, s, def) => (name)
-  "<!ENTITY", scan-s(s), scan-name(name), scan-s(s), 
-  scan-entity-def(def), scan-s?(s), ">", 
-  do(*entities*[name] := def)
+  scan-name(name), scan-s(s), scan-entity-def(def), scan-s?(s),
+  set!(*entities*[name], def)
 end meta ge-decl;
 
 //    [72]    PEDecl        ::=    '<!ENTITY' S '%' S Name S PEDef S? '>'
 define meta pe-decl(name, s, def) => (name)
-  "<!ENTITY", scan-s(s), "%", scan-s(s), scan-name(name),
-  scan-s(s), scan-pe-def(def), scan-s?(s), ">", 
-  do(*pe-refs*[name] := def)
+  "%", scan-s(s), scan-name(name), scan-s(s), scan-pe-def(def),
+  set!(*pe-refs*[name], def)
 end meta pe-decl;
 
 //    [73]    EntityDef     ::=    EntityValue | (ExternalID NDataDecl?)
@@ -902,9 +924,10 @@ end meta pe-def;
 //    [75]    ExternalID    ::=    'SYSTEM' S SystemLiteral
 //                                 | 'PUBLIC' S PubidLiteral S SystemLiteral
 //
-define meta external-id(s, sys, pub) => (sys)
-  { "SYSTEM", scan-public-id(pub) }, scan-s(s),
-  scan-system-literal(sys)
+define meta external-id(s, sys, pub, which) => (sys, which, pub)
+  set!(which, #"system"),
+  { "SYSTEM", [scan-public-id(pub), set!(which, #"public")] },
+  scan-s(s), scan-system-literal(sys)
 end meta external-id;
 
 //    [76]    NDataDecl     ::=    S 'NDATA' S Name [VC: Notation Declared]
@@ -936,14 +959,15 @@ end meta ext-parsed-ent;
 // [81] EncName      ::=    [A-Za-z] ([A-Za-z0-9._] | '-')*
 // Andreas: Encoding name contains only Latin characters
 //
-define meta encoding-decl(s, eq, name) => (name)
+define meta encoding-decl(s, eq, name)
+ => (make(<attribute>, name: "encoding", value: name))
   scan-s(s), "encoding", scan-eq(eq),
   {['\'', scan-encoding-name(name), '\''],
    ['"', scan-encoding-name(name), '"']}
 end meta encoding-decl;
 
 // fudging it here -- I say that encname can start with graphics, but
-// that's wrong (esp since enc-name is a subset of version-num
+// that's wrong (esp since enc-name is a subset of version-num)
 define constant scan-encoding-name = scan-version-num;
 
 // Notation Declarations
