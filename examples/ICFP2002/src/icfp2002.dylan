@@ -23,6 +23,14 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
   debug("board is %=", state.board);
   test-path-finding(state.board);
 
+  let running = #t;
+  while(running)
+    state := receive-server-packages(input, state);
+    let move = generate-next-move(agent, state);
+    send-command(output, move);
+    state := receive-server-command-reply(input, state);
+  end while;  
+
   /*
   let running = #t;
   while(running)
