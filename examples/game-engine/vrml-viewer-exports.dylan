@@ -5,6 +5,7 @@ copyright: (C) Andreas Bogk, under LGPL
 define library vrml-viewer
   use dylan;
   use common-dylan;
+  use system;
   use io;
   use garbage-collection;
   use opengl;
@@ -65,6 +66,7 @@ end;
 define module vrml-parser
   use common-dylan;
   use streams;
+  use file-system;
   use vrml-model;
   use vector-math, import: {color, 3d-rotation, 3d-vector};
   use meta;
@@ -88,7 +90,9 @@ define module vrml-viewer
   use common-dylan;
   use extensions, exclude: { \assert };
   use standard-io;
-  use system;
+  use system, exclude: { <buffer>, <buffer-index>, 
+                        buffer-end, buffer-end-setter,
+                        buffer-next, buffer-next-setter };
   use streams;
   use format, exclude: { format-to-string };
   use format-out;
