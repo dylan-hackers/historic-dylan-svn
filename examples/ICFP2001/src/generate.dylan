@@ -43,37 +43,42 @@ define method generate-output(input)
       state.remaining-output := subsequence(state.remaining-output, start: 1);
     elseif(state.attribute-stack.size > 1 & to.value = state.attribute-stack.second.value)
       pop-tag();
-    else
-      if(~from.bold & to.bold)
-        add!(state.current-output, tag-BB.open-tag);
-        push(state.open-tags, tag-BB);
-        push(state.attribute-stack, from.set-bold);
-      end if;
-      if(~from.emphasis & to.emphasis)
-        add!(state.current-output, tag-EM.open-tag);
-        push(state.open-tags, tag-EM);
-        push(state.attribute-stack, from.set-emphasis);
-      end if;
-      if(~from.italic & to.italic)
-        add!(state.current-output, tag-I.open-tag);
-        push(state.open-tags, tag-I);
-        push(state.attribute-stack, from.set-italic);
-      end if;
-      if(~from.strong & to.strong)
-        add!(state.current-output, tag-S.open-tag);
-        push(state.open-tags, tag-S);
-        push(state.attribute-stack, from.set-strong);
-      end if;
-      if(~from.typewriter & to.typewriter)
-        add!(state.current-output, tag-TT.open-tag);
-        push(state.open-tags, tag-TT);
-        push(state.attribute-stack, from.set-typewriter);
-      end if;
-      if(from.underline < to.underline)
-        add!(state.current-output, tag-U.open-tag);
-        push(state.open-tags, tag-U);
-        push(state.attribute-stack, from.set-underline);
-      end if;
+    elseif(from.bold & ~to.bold)
+      pop-tag();
+    elseif(from.emphasis & ~to.emphasis)
+      pop-tag();
+    elseif(from.italic & ~to.italic)
+      pop-tag();
+    elseif(from.strong & ~to.strong)
+      pop-tag();
+    elseif(from.typewriter & ~to.typewriter)
+      pop-tag();
+    elseif(from.underline > to.underline)
+      pop-tag();
+    elseif(~from.bold & to.bold)
+      add!(state.current-output, tag-BB.open-tag);
+      push(state.open-tags, tag-BB);
+      push(state.attribute-stack, from.set-bold);
+    elseif(~from.emphasis & to.emphasis)
+      add!(state.current-output, tag-EM.open-tag);
+      push(state.open-tags, tag-EM);
+      push(state.attribute-stack, from.set-emphasis);
+    elseif(~from.italic & to.italic)
+      add!(state.current-output, tag-I.open-tag);
+      push(state.open-tags, tag-I);
+      push(state.attribute-stack, from.set-italic);
+    elseif(~from.strong & to.strong)
+      add!(state.current-output, tag-S.open-tag);
+      push(state.open-tags, tag-S);
+      push(state.attribute-stack, from.set-strong);
+    elseif(~from.typewriter & to.typewriter)
+      add!(state.current-output, tag-TT.open-tag);
+      push(state.open-tags, tag-TT);
+      push(state.attribute-stack, from.set-typewriter);
+    elseif(from.underline < to.underline)
+      add!(state.current-output, tag-U.open-tag);
+      push(state.open-tags, tag-U);
+      push(state.attribute-stack, from.set-underline);
     end if;
   end while;
   while(state.attribute-stack.size > 1)
