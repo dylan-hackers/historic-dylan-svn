@@ -124,6 +124,7 @@ define sealed method initialize
   object.ssv-current-size := size;
 end method initialize;
 
+// If new-size is less than zero, it will be caught by fill!.
 define method size-setter
     (new-size :: <integer>, ssv :: <stretchy-object-vector>)
     => new-size :: <integer>;
@@ -294,7 +295,7 @@ define method remove! (ssv :: <stretchy-object-vector>, elem,
 	else 
 	  let this-element = data[src];
 	  case
-	    test(this-element, elem) =>
+	    compare-using-default-==(test, this-element, elem) =>
 	      let deleted = deleted + 1;
 	      if (count & (deleted == count))
 		copy(src + 1, dst, deleted);
@@ -310,7 +311,7 @@ define method remove! (ssv :: <stretchy-object-vector>, elem,
       method search (src :: <integer>) => ();
 	unless (src == sz)
 	  let this-element = data[src];
-	  if (test(this-element, elem))
+	  if (compare-using-default-==(test, this-element, elem))
 	    if (count & (count == 1))
 	      copy(src + 1, src, 1);
 	    else 
@@ -630,7 +631,7 @@ define sealed method remove! (ssv :: <limited-stretchy-vector>, elem,
 	else 
 	  let this-element = data[src];
 	  case
-	    test(this-element, elem) =>
+	    compare-using-default-==(test, this-element, elem) =>
 	      let deleted = deleted + 1;
 	      if (count & (deleted == count))
 		copy(src + 1, dst, deleted);
@@ -646,7 +647,7 @@ define sealed method remove! (ssv :: <limited-stretchy-vector>, elem,
       method search (src :: <integer>) => ();
 	unless (src == sz)
 	  let this-element = data[src];
-	  if (test(this-element, elem))
+	  if (compare-using-default-==(test, this-element, elem))
 	    if (count & (count == 1))
 	      copy(src + 1, src, 1);
 	    else 
