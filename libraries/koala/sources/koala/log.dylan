@@ -59,4 +59,10 @@ define method log-debug (format-string, #rest format-args)
   apply(log-message, $log-debug, format-string, format-args);
 end;
 
+define method log-debug-if (test,format-string, #rest format-args)
+  if (test)
+    apply(log-message, $log-debug, format-string, format-args);
+  end;
+end;
+
 

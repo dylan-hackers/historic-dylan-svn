@@ -127,7 +127,7 @@ end;
 
 // A simple error reporting mechanism.  Store errors in the page context
 // so they can be displayed when the next page is generated.  The idea is
-// that each pages should use the <dsp:show-errors/> tag if they can be
+// that pages should use the <dsp:show-errors/> tag if they can be
 // the target of a POST that might generate errors.
 
 define method note-form-error
@@ -226,6 +226,41 @@ define tag current-username in $example-taglib
   username & write(output-stream(response), username);
 end;
 
+
+//// iterator
+
+define page iterator-page (<example-page>)
+    (uri: "/example/iterator.dsp",
+     source: document-location("example/iterator.dsp"))
+end;
+
+define thread variable *repetition-number* = 0;
+
+// An iterating tag.  Note the use of the "body" modifier in "define body tag".
+// When this modifier is used the tag accepts an extra argument, in this case
+// called "do-body".  do-body is a function of zero arguments that will execute
+// the body of the tag.  It may be invoked any number of times.  Use
+// variables or object state to communicate with the tags that are executed
+// during the execution of the body part.  Note the use of get-query-value to
+// get the argument "n" that can be passed in the URL or in the POST.
+// See iterator.dsp for how this tag is invoked.
+//
+define body tag repeat in $example-taglib
+    (page :: <example-page>, response :: <response>, do-body :: <function>, #key)
+  let n-str = get-query-value("n");
+  let n = (n-str & string-to-integer(n-str)) | 5;
+  for (i from 1 to n)
+    dynamic-bind (*repetition-number* = i)
+      do-body();
+    end;
+  end;
+end;
+
+define tag display-iteration-number in $example-taglib
+    (page :: <example-page>, response :: <response>, #key)
+  format(output-stream(response), "%d", *repetition-number*);
+end;
+
 //--------------old example code--------------------------------------------
 
 define page dsp-test-page (<dylan-server-page>)
@@ -240,31 +275,6 @@ define tag hello in $example-taglib
   format(output-stream(response), "Hello, cruel world!");
 end;
 
-
-define thread variable *repetition-number* = 0;
-
-// An iterating tag.  Note that the only difference from a standard tag
-// definition is that this one accepts a third argument (called
-// "process-body" in this case).  process-body is bound to a function that
-// takes no args and will process the body of the iteration tag.  Use
-// variables or object state to communicate with the tags that are executed
-// during the execution of the body part.  See test.dsp for how this tag is
-// invoked.
-define body tag repeat in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>, do-body :: <function>, #key)
-  let n-str = get-query-value("n");
-  let n = (n-str & string-to-integer(n-str)) | 5;
-  for (i from 1 to n)
-    dynamic-bind (*repetition-number* = i)
-      do-body();
-    end;
-  end;
-end;
-
-define tag display-iteration-number in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>, #key)
-  format(output-stream(response), "%d", *repetition-number*);
-end;
 
 define tag show-keys in $example-taglib
     (page :: <dsp-test-page>, response :: <response>, #key arg1, arg2)
