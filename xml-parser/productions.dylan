@@ -62,7 +62,7 @@ define method do-expand(obj :: <xml>) list(obj); end;
 define method do-expand(elt :: <element>)
 // I'll ignore entities in the element attributes for now
   list(make-element(elt.node-children.expand-entity, elt.name, 
-                    elt.element-attributes, *modify?*));
+                    elt.attributes, *modify?*));
 end method do-expand;
 
 define method do-expand(ent :: <entity-reference>) 
@@ -87,7 +87,8 @@ end function expand-entity;
 define variable *parent* = #f;
 define class <add-parents> (<xform-state>) end;
 
-define method before-transform(node :: <node>, state :: <add-parents>,
+define method before-transform(node :: type-union(<element>, <document>),
+                               state :: <add-parents>,
                                rep :: <integer>, str :: <stream>)
   *parent* := node;
 end method before-transform;
@@ -424,20 +425,6 @@ define meta element(name, attribs, content, etag)
   {[scan-stag(name, attribs), scan-content(content), scan-etag(etag)],
    [scan-empty-elem-tag(name, attribs), set!(content, "")]}, []
 end meta element;
-
-// allows users to interpose their own object hierarchies for the elements
-// This is sort of CLOS's change-class limited to compile-time schemes
-define open generic make-element(kids :: <sequence>, name :: <symbol>, 
-                                 attribs :: <sequence>, mod :: <boolean>)
- => (elt :: <element>);
-
-define class <element-impl> (<element>) end;
-
-define method make-element(k :: <sequence>, n :: <symbol>, 
-                           a :: <sequence>, mod :: <boolean>)
- => (elt :: <element>)
-  make(<element-impl>, children: k, name: n, attributes: a);
-end method make-element;
 
 // Start-tag
 // 
