@@ -1,4 +1,4 @@
-Change log for Koala HTTP server and Dylan Server Pages
+                        Koala project change log
 
 
 ***********************************************************************************
@@ -14,6 +14,7 @@ Changes for version 0.3.1 (released August 15, 2002)
       e.g., <xml-rpc ... debug="yes">.  Default is "no".
   - dylan-basics: Added "bind" macro, like let* in Common Lisp.
 
+***********************************************************************************
 
 Changes for version 0.3 (released August 7, 2002)
   Bug Fixes:
@@ -37,7 +38,6 @@ Changes for version 0.3 (released August 7, 2002)
   - Koala: New config file setting: <port value="n" />
   - Koala: Some statistics/utilities are now available via built-in URIs:
            /koala/stats, /koala/user-agents, /koala/http-error?code=xxx
-
 
 ***********************************************************************************
 
