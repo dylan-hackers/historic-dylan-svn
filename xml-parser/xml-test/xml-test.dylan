@@ -21,11 +21,27 @@ Version:   1.0
  **/
 
 define function main(name, arguments)
-  with-open-file(in = arguments[0])
-    transform-document(parse-document(in.stream-contents), // substitute-entities?: #f),
-                       state: $html);
-  end;
+  if(arguments.size = 0 | arguments[0] = "-h" | arguments[0] = "--help")
+    show-help();
+  else
+    let *substitute?* = arguments.size = 1;
+    with-open-file(in = arguments[if(*substitute?*) 0 else 1 end])
+      transform-document(parse-document(in.stream-contents, 
+                                        substitute-entities?: *substitute?*),
+                         state: $html);
+    end with-open-file;
+  end if;
   exit-application(0);
 end function main;
 
 main(application-name(), application-arguments());
+
+define function show-help()
+  format-out("\nxml-test [--no-entity-substitution|-n] <file-name>\n\n"
+    "\tParses an XML document (and its associated optional DTD)\n"
+    "\tand outputs the result as an HTML-readable document.\n"
+    "\tIf --no-entity-substitution is present, xml-test will build\n"
+    "\tan internal DTD and leave the entities untouched in the\n"
+    "\tdocument.\n");
+end function show-help;
+
