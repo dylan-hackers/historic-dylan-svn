@@ -1,4 +1,4 @@
-Module:    http-server-internals
+Module:    httpi
 Author:    Carl Gay
 Synopsis:  HTTP sessions
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.

@@ -1,4 +1,4 @@
-Module:    http-server-internals
+Module:    httpi
 Author:    Carl Gay
 Synopsis:  A response allows users to manipulate certain aspects of the response to the
            client, for example adding headers.
