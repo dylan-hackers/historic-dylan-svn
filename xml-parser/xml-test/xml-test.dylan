@@ -51,6 +51,7 @@ begin
   $testable-fns[#"system-literal"] := parse-system-literal;
   $testable-fns[#"pubid-literal"] := parse-pubid-literal;
   $testable-fns[#"cd-sect"] := parse-cd-sect;
+  $testable-fns[#"elementdecl"] := parse-elementdecl;
 
   main(application-name(), application-arguments());
 end;
