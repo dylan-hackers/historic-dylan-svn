@@ -169,7 +169,7 @@ define function figure-out-which-bot(bot-type :: <string>)
       => <thomas>;
     bot-type = "gabot"
       => <gabot>;
-    otherwise => <dumber-bot>;
+    otherwise => <gabot>;
   end case;
 end;
 
