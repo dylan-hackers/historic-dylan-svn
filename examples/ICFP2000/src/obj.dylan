@@ -9,30 +9,56 @@ define abstract class <obj> (<object>)
 end class <obj>;
 
 define abstract class <primitive> (<obj>)
-  slot surface-interpreter-entry = silly-texture;
+  slot surface-interpreter-entry;
 end class <primitive>;
 
-define class <sphere> (<primitive>)
+define sealed class <sphere> (<primitive>)
 end class <sphere>;
 
-define class <plane> (<primitive>)
+define sealed class <plane> (<primitive>)
 end class <plane>;
 
-define class <cube> (<primitive>)
+define sealed class <cube> (<primitive>)
 end class <cube>;
 
-define class <cone> (<primitive>)
+define sealed class <cone> (<primitive>)
 end class <cone>;
 
-define class <csg-object> (<obj>)
+define abstract class <csg-object> (<obj>)
+  slot objects :: <collection>, init-keyword: of:;
 end class <csg-object>;
 
 define class <csg-union> (<csg-object>)
-  slot objects, init-keyword: of:;
 end class <csg-union>;
 
 
 /* --------------------- Methods ---------------------------- */
+
+// Copying:
+define method copy(o :: <obj>)
+ => (new-o :: <obj>)
+  let new-o = make(object-class(o));
+  new-o.transform := o.transform;
+  new-o.transform := o.inverse-transform;
+
+  new-o;
+end method copy;
+
+define method copy(o :: <primitive>)
+ => (new-o :: <primitive>)
+  let new-o = next-method();
+  new-o.surface-interpreter-entry := o.surface-interpreter-entry;
+
+  new-o;
+end method copy;
+
+define method copy(o :: <csg-object>)
+ => (new-o :: <csg-object>)
+  let new-o = next-method();
+  new-o.objects := o.objects;
+
+  new-o;
+end method copy;
 
 // Translation:
 define variable *translation-matrix* = identity-matrix(dimensions:
@@ -168,7 +194,7 @@ define method translate(o :: <obj>, x, y, z) => (same-obj :: <obj>)
   *translation-matrix*[1, 3] := y;
   *translation-matrix*[2, 3] := z;
 
-  let new-object = make(object-class(o));
+  let new-object = copy(o);
 
   new-object.transform := *translation-matrix* * o.transform;
 
@@ -186,7 +212,7 @@ define method x-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
     *x-rotation-matrix*[2, 1] := sin(theta);
     *x-rotation-matrix*[2, 2] := cos(theta);
   end if;
-  let new-object = make(object-class(o));
+  let new-object = copy(o);
 
   new-object.transform := *x-rotation-matrix* * o.transform;
 
@@ -204,7 +230,7 @@ define method uniform-scale(o :: <obj>, factor) => (same-obj :: <obj>)
   *uniform-scaling-matrix*[1, 1] := factor;
   *uniform-scaling-matrix*[2, 2] := factor;
 
-  let new-object = make(object-class(o));
+  let new-object = copy(o);
 
   new-object.transform := *uniform-scaling-matrix* * o.transform;
 
