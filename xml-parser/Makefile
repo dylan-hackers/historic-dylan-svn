@@ -1,8 +1,10 @@
 FILES := library.dylan \
 	 interface.dylan \
 	 transform.dylan \
+	 printing.dylan \
 	 collect.dylan \
-	 productions.dylan
+	 productions.dylan \
+	 ../meta/meta.lib.du
 
 libxml-parser.a: $(FILES)
 	d2c -L ../meta xml-parser.lid
