@@ -150,6 +150,14 @@ define class <appearance> (<node>)
   slot texture-transform = #f, init-keyword: texture-transform:;
 end class <appearance>;
 
+define class <texture> (<node>)
+  slot pixel-data, init-keyword: pixel-data:;
+  slot width :: <integer>, init-keyword: width:;
+  slot height :: <integer>, init-keyword: height:;
+  slot internal-format, init-keyword: internal-format:;
+  slot texture-id :: false-or(<integer>) = #f;
+end class <texture>;
+
 define class <material> (<node>)
   slot ambient-intensity :: <float>, init-keyword: ambient-intensity:;
   slot diffuse-color     :: <color>, init-keyword: diffuse-color:;

@@ -154,6 +154,16 @@ define variable display-func :: <function> = callback-method() => ();
 end;
 
 define method main(progname, #rest arguments)
+  let image = make(<c-byte-vector>, element-count: 256 * 256 * 3);
+  for(j from 0 below 256)
+    for(i from 0 below 256)
+      image[(i + j * 256) * 3]     := i;
+      image[(i + j * 256) * 3 + 1] := 255 - i;
+      image[(i + j * 256) * 3 + 2] := j;
+    end for;
+  end for;
+
+  let texture = make(<texture>, pixel-data: image, width: 256, height: 256);
 
   if(arguments.size > 0)
     *scene-graph* := 
@@ -166,6 +176,7 @@ define method main(progname, #rest arguments)
                          diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
                          specular:  vector   ( 0.3,   0.3,   0.3, 1.0)),
 //                    make(<line-grid>),
+                    texture,
                     make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                          translation: 3d-vector(3.0, 3.0, -2.0), 
                          children: vector(make(<sphere>))),
@@ -210,6 +221,7 @@ define method main(progname, #rest arguments)
 //  glEnable($GL-CULL-FACE);
 
   glEnable($GL-LIGHTING);
+  glEnable($GL-TEXTURE-2D);
   glColor(0.3, 0.3, 0.3, 1.0);
 
 //  glEnable($GL-FOG);

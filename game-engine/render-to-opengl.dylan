@@ -240,3 +240,57 @@ define method render-to-opengl(node :: <text>)
     glutBitmapCharacter($GLUT-BITMAP-8-BY-13, as(<integer>, i));
   end for;
 end method render-to-opengl;
+
+define method render-to-opengl(node :: <texture>)
+  if(~node.texture-id)
+    node.texture-id := glGenTextures(1);
+    glBindTexture($GL-TEXTURE-2D, node.texture-id);
+    glPixelStore($GL-UNPACK-ALIGNMENT, 1);
+    glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-S,     $GL-REPEAT);
+    glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-WRAP-T,     $GL-REPEAT);
+    glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-MAG-FILTER, $GL-LINEAR);
+    glTexParameter($GL-TEXTURE-2D, $GL-TEXTURE-MIN-FILTER, $GL-LINEAR);
+    glTexEnv($GL-TEXTURE-ENV, $GL-TEXTURE-ENV-MODE, $GL-MODULATE);
+    glTexImage2D($GL-TEXTURE-2D, 0, $GL-RGB, 
+                 node.width, node.height, 0, $GL-RGB, 
+                 $GL-UNSIGNED-BYTE, node.pixel-data);
+  else
+    glBindTexture($GL-TEXTURE-2D, node.texture-id);
+  end;
+  with-glBegin($GL-QUADS)
+    glTexCoord(0.0, 0.0);
+    glVertex(-10.0, 0.0,-10.0);
+    glTexCoord(1.0, 0.0);
+    glVertex( 10.0, 0.0,-10.0);
+    glTexCoord(1.0, 1.0);
+    glVertex( 10.0, 0.0, 10.0);
+    glTexCoord(0.0, 1.0);
+    glVertex(-10.0, 0.0, 10.0);
+    glEnd ();
+  end with-glBegin;
+end method render-to-opengl;
+
+define functional class <c-byte-vector> (<c-vector>, <statically-typed-pointer>) 
+end;
+
+define sealed domain make (singleton(<c-byte-vector>));
+
+define method pointer-value
+    (ptr :: <c-byte-vector>, #key index = 0)
+ => (result :: <byte>);
+  signed-byte-at(ptr, offset: index);
+end method pointer-value;
+
+define method pointer-value-setter
+    (value :: <byte>, ptr :: <c-byte-vector>, #key index = 0)
+ => (result :: <byte>);
+  signed-byte-at(ptr, offset: index) := value;
+  value;
+end method pointer-value-setter;
+
+define method content-size (value :: subclass(<c-byte-vector>)) 
+ => (result :: <integer>);
+  1;
+end method content-size;
+
+

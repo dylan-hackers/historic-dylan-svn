@@ -50,6 +50,7 @@ define module vrml-model
     <on-screen-display>,
     <2d-translation>,
     <text>, text, text-setter,
+    <texture>, texture-id, width, height, pixel-data, texture-id-setter,
     preorder-traversal;
 end;
 
@@ -93,6 +94,5 @@ define module vrml-viewer
   use vrml-model;
   use vrml-parser;
   use vector-math;
-  
-//  use melange-support // for null-pointer
+  use melange-support;
 end module;
