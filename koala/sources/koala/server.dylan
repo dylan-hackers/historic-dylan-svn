@@ -536,7 +536,7 @@ define function read-request-first-line
       if (qpos)
         log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
         let query = decode-url(buffer, qpos + 1, epos);
-        log-debug("Decoded query string = %s", query);
+        //log-debug("Decoded query string = %s", query);
         extract-query-values(query, 0, size(query), request.request-query-values)
       end;
       let bpos = skip-whitespace(buffer, epos, eol);

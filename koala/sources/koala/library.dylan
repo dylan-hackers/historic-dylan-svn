@@ -138,6 +138,7 @@ define module koala
     register-url,
     register-alias-url,
     <request>,
+    *request*,                   // Holds the active request, per thread.
     request-query-values,        // get the keys/vals from the current GET or POST request
     request-method,              // Returns #"get", #"post", etc
     responder-definer,
@@ -263,6 +264,7 @@ define module dsp
     <page>,                      // Subclass this using the "define page" macro
     <static-page>,
     register-page,               // Register a page for a given URL
+    url-to-page,
     respond-to-get,              // Implement this for your page to handle GET requests
     respond-to-post,             // Implement this for your page to handle POST requests
     respond-to-head,             // Implement this for your page to handle HEAD requests
@@ -275,9 +277,9 @@ define module dsp
     taglib-definer,
     tag-definer,            // Defines a new DSP tag function and registers it with a page
     register-tag,           // This can be used to register tag functions that weren't created by "define tag".
-    tag-call-arguments,
-    map-tag-call-arguments,
-    show-tag-call-arguments,
+    map-tag-call-attributes,
+    show-tag-call-attributes,
+    get-tag-call-attribute,
 
     <page-context>,
     page-context,                // Returns a <page-context> if a page is being processed.
