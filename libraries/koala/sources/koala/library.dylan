@@ -31,7 +31,8 @@ end library koala;
 
 define module utilities
   use dylan;
-  use common-extensions, exclude: { format-to-string, split };
+  use common-extensions,
+    exclude: { format-to-string, split };
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -41,7 +42,8 @@ define module utilities
               // case-insensitive-equal,
               // case-insensitive-string-hash
               };
-  use file-system, import: { with-open-file, <file-does-not-exist-error> };
+  use file-system,
+    import: { with-open-file, <file-does-not-exist-error> };
   use date;
   use streams;
   use locators;
@@ -49,7 +51,8 @@ define module utilities
   use file-system;
   use format;
   use threads;
-  use dylan-basics, export: all;
+  use dylan-basics,
+    export: all;
 
   export
     // General one-off utilities
@@ -140,7 +143,7 @@ define module koala
     read-message-headers,
     header-value;
 
-  // Server proper
+  // Basic server stuff
   create
     http-server,        // Get the active HTTP server object.
     ensure-server,      // Get (or create) the active HTTP server object.
@@ -162,6 +165,11 @@ define module koala
     count-query-values,
     count-form-values,
     application-error;
+
+  // Virtual hosts
+  create
+    <virtual-host>, *virtual-host*,
+    document-root, locator-below-document-root?;
 
   // Responses
   create
@@ -197,6 +205,7 @@ define module koala
 
   // Errors
   create
+    access-forbidden-error,
     <koala-api-error>;
 
   // Not sure if these should really be exported.
@@ -265,9 +274,11 @@ end module httpi;
 
 define module dsp
   use dylan;
-  use common-extensions, exclude: { split };
+  use common-extensions,
+    exclude: { split };
   use dylan-basics;
-  use koala, export: all;
+  use koala,
+    export: all;
   use utilities,
     rename: { log-copious => %log-copious,
               log-verbose => %log-verbose,
@@ -277,10 +288,12 @@ define module dsp
               log-error => %log-error },
     export: all;
 
-  use locators, rename: {<http-server> => <http-server-url>,
-                         <ftp-server> => <ftp-server-url>,
-                         <file-server> => <file-server-url>};
-  use format, rename: { format-to-string => sformat };
+  use locators,
+    rename: {<http-server> => <http-server-url>,
+             <ftp-server> => <ftp-server-url>,
+             <file-server> => <file-server-url>};
+  use format,
+    rename: { format-to-string => sformat };
   use threads;
   use standard-io;
   use streams;

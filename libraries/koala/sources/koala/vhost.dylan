@@ -203,12 +203,12 @@ end;
 //
 define constant $default-virtual-host :: <virtual-host>
   = begin
-      let stdout-log = make(<null-log-target>, stream: *standard-output*);
+      let stdout-log = make(<stream-log-target>, stream: *standard-output*);
       make(<virtual-host>,
            name: "default",
            activity-log: stdout-log,
            debug-log: stdout-log,
-           error-log: make(<null-log-target>, stream: *standard-error*))
+           error-log: make(<stream-log-target>, stream: *standard-error*))
     end;
 
 // If this is true, then requests directed at hosts that don't match any
