@@ -5356,9 +5356,79 @@ log(100000, base: 10) => 5.0
   </CHAPTER>
   
   <CHAPTER ID="libs-matrix">
+    <docinfo>
+      <title>Matrix Library</title>
+      <date>November 18, 2000</date>
+      <author>&person.auclair;</author>
+    </docinfo>
     <TITLE>The Matrix Library</TITLE>
-    
-    <PARA></PARA>
+    <PARA>This library implements some basic matrix operations. These functions are not guarenteed to be stable or numerically sound, nor are they very optimized, but for smaller applications they should be suitable. 
+The <classname>&lt;matrix&gt;</classname> class is a subclass of <classname>&lt;array&gt;</classname>, so all operations on <classname>&lt;array&gt;</classname>s and collections in general should work as expected. One important limitation of matrices is that they are limited to two dimensions, and trying to use any other size results in an error. The <classname>&lt;matrix&gt;</classname> class has two ways to get instances and several operations for those instances.
+</PARA>
+    <sect1 id="libs-matrix-initialization">
+	<title>Initialization</title>
+
+	<dylanclassdef>
+	  <defname>&lt;matrix&gt;</defname>
+	  <defadjectives>sealed</defadjectives>
+	  <defsummary>Meta-information container</defsummary>
+	  <defsupers><defsuper>&lt;array&gt;</defsuper></defsupers>
+	  <definitkeywords></definitkeywords>
+	  <defdescription>
+	    <para>This class contains two slots:  dimensions, a <classname>&lt;sequence&gt;</classname>, which contains the two values of the size of the matrix, and components, a <classname>&lt;simple-object-vector&gt;</classname>, that contain the matrix elements.</para>
+	  </defdescription>
+	</dylanclassdef>
+
+	<dylanmethoddef>
+	  <defname>initialize</defname>
+	  <defsummary>Used by <function>make</function> to create instances of a <classname>&lt;matrix&gt;</classname></defsummary>
+	  <defparameters>
+	    <keyparam>	
+		<paramname>dimensions</paramname>
+		<paramdefault>#[1, 1]</paramdefault>
+		<paramsummary>A sequence of two elements which represent the rows and column of the matrix respectively </paramsummary>
+	    </keyparam>
+	    <keyparam>
+		<paramname>fill</paramname>
+		<paramdefault>0</paramdefault>
+		<paramsummary>The objects that each element of matrix should be initialized to</paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+		<paramname>mat</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>Use <function>make</function> with the above keywords to  obtain a <classname>&lt;matrix&gt;</classname> instance</para>
+	  </defdescription>
+	</dylanmethoddef>
+
+	<dylanmethoddef>
+	  <defname>matrix</defname>
+	  <defsummary>Create instances of a <classname>&lt;matrix&gt;</classname> from a list of <classname>&lt;vector&gt;</classname>s</defsummary>
+	  <defparameters>
+	    <restparam>	
+		<paramname>row-vectors</paramname>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+		<paramname>mat</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>This method takes a list of <classname>&lt;vectors&gt;</classname> and creates a <classname>&lt;matrix&gt;</classname> instance from them, for example:</para>
+	    <programlisting>
+let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
+	    </programlisting>
+	    <para>creates a 3x3 matrix.</para>
+	    <para>Note: The row-vectors must all be of the same size.</para>
+	  </defdescription>
+	</dylanmethoddef>
+    </sect1>
   </CHAPTER>
 
   <chapter ID="libs-parse-arguments">
