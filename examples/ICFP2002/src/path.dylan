@@ -1,13 +1,6 @@
 module: path
  
 
-// For debugging only.
-//define function debug(#rest args)
-//  apply(format, *standard-error*, args);
-//  force-output(*standard-error*);
-//end function debug;
-
-
 // Constants.
 define constant <point-list> = <list>;
 define constant <path-cost> = <integer>;

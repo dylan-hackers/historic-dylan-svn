@@ -2,11 +2,6 @@ module: icfp2002
 synopsis: Dylan Hackers entry in the Fifth Annual (2002) ICFP Programming Contest
 copyright: this program may be freely used by anyone, for any purpose
 
-//define function debug(#rest args)
-//  apply(format, *standard-error*, args);
-//  force-output(*standard-error*);
-//end function debug;
-
 
 define function read-configuration(stream :: <stream>)
  => (id :: <integer>, capacity :: <integer>, money :: <integer>);

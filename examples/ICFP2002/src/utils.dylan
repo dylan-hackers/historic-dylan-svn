@@ -9,4 +9,9 @@ define function debug(fmt :: <string>, #rest args) => ()
   end if;
 end function debug;
 
+define function force-format(s :: <stream>, fmt :: <string>, #rest args) => ()
+  apply(format, s, fmt, args);
+  force-output(s);
+end function force-format;
+
 
