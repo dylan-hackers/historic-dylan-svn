@@ -38,6 +38,7 @@ define module board
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, id, weight, location, dest, at-destination?, free-packages,
     <robot>, id, capacity, inventory, location, capacity-left, money,
+    copy-package,
     add-robot,
     copy-robot,
     find-robot,
