@@ -837,6 +837,7 @@ define method compute-closure
     if (instance?(decl.type, <structured-type-declaration>)
 	  & decl.type.anonymous?)
       decl.type.simple-name := decl.simple-name;
+      decl.type.c-name := decl.simple-name;
       decl.type.anonymous? := #f;
     end if;
   end if;

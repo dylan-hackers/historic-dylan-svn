@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.7 2003/10/02 10:19:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.8 2003/10/23 13:21:44 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -218,6 +218,21 @@ define constant $runtime-include-dir
   = concatenate($dylan-dir, "/include");
 
 #endif
+
+define class <interactive-debugger> (<debugger>)
+end class <interactive-debugger>;
+
+define method invoke-debugger
+    (debugger :: <interactive-debugger>, condition :: <condition>)
+    => res :: <never-returns>;
+  fresh-line(*debug-output*);
+  format(*debug-output*, "%s\n", condition);
+  force-output(*debug-output*);
+  run-command-processor();
+  call-out("abort", void:);
+end;
+  
+*debugger* := make(<interactive-debugger>);
 
 
 //----------------------------------------------------------------------

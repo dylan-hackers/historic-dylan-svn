@@ -1,5 +1,5 @@
 module: c-representation
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/c-rep.dylan,v 1.11 2002/12/05 21:12:00 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/c-rep.dylan,v 1.11.2.1 2003/10/23 13:21:42 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -109,6 +109,9 @@ define method representation-has-bottom-value?
     => res :: <boolean>;
   #f;
 end method representation-has-bottom-value?;
+
+define class <magic-representation> (<c-representation>)
+end class <magic-representation>;
 
 define class <c-data-word-representation>
     (<immediate-representation>, <data-word-representation>)
@@ -368,7 +371,17 @@ define method c-rep (c-type :: <symbol>) => rep :: false-or(<representation>);
     #"ptr" => *ptr-rep*;
     #"void" => #f;
     otherwise =>
-      error("unknown c-rep %=", c-type);
+      // XXX Magic C type hack
+      let c-type-string = as(<string>, c-type);
+      make(<magic-representation>, name: c-type,
+           more-general: *ptr-rep*,
+           from-more-general: 
+             concatenate("(*((", c-type-string, "*)%s))"),
+           to-more-general:
+             #f,
+           alignment: 0, size: 0,
+           c-type: as(<string>, c-type));
+//      error("unknown c-rep %=", c-type);
   end;
 end method;
 

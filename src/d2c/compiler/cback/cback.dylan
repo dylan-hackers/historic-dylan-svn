@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.12 2003/10/18 22:13:39 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.13 2003/10/23 13:21:43 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -3756,6 +3756,17 @@ define method emit-copy
   let stream = file.file-guts-stream;
   let (expr, temp?) = conversion-expr(target-rep, source, source-rep, file);
   target ~= expr & format(stream, "%s = %s;\n", target, expr);
+end;
+
+define method emit-copy
+    (target :: <string>, target-rep :: <c-data-word-representation>,
+     source :: <string>, source-rep :: <magic-representation>,
+     file :: <file-state>)
+    => ();
+  let stream = file.file-guts-stream;
+  let c-type-string = source-rep.representation-c-type;
+  format(stream, "%s = allocate(sizeof(%s)); *((%s*)%s) = %s;\n", 
+         target, c-type-string, c-type-string, target, source);
 end;
 
 

@@ -428,19 +428,26 @@ define method write-c-accessor-method
 end method write-c-accessor-method;
 
 define method d2c-type-tag
-    (type :: <pointer-rep-types>)
+    (type :: type-union(<vector-declaration>, <function-type-declaration>, 
+                        <pointer-declaration>))
  => (result :: <byte-string>);
   "ptr:";
 end method d2c-type-tag;
 
 define method d2c-type-tag
-    (type :: <enum-declaration>) => (result :: <byte-string>);
-  "int:";
+    (type :: type-union(<struct-declaration>, <union-declaration>))
+ => (result :: <byte-string>);
+  concatenate("#\"", type.canonical-name, "\"");
 end method d2c-type-tag;
 
 define method d2c-type-tag
     (t :: <typedef-declaration>) => (result :: <byte-string>);
   t.type.d2c-type-tag;
+end method d2c-type-tag;
+
+define method d2c-type-tag
+    (type :: <enum-declaration>) => (result :: <byte-string>);
+  "int:";
 end method d2c-type-tag;
 
 define method d2c-type-tag (type :: <predefined-type-declaration>)
@@ -466,13 +473,13 @@ end method d2c-type-tag;
 
 define method d2c-arg
     (type :: <type-declaration>, expr :: <string>) => (result :: <string>);
-  concatenate(type.d2c-type-tag, " ", expr);
+  concatenate(type.d2c-type-tag, ", ", expr);
 end method d2c-arg;
 
 define method d2c-arg
     (type :: <pointer-rep-types>, expr :: <string>)
  => (result :: <string>);
-  concatenate("ptr: (", expr, ").raw-value");
+  concatenate(type.d2c-type-tag, ", (", expr, ").raw-value");
 end method d2c-arg;
 
 define method d2c-arg
