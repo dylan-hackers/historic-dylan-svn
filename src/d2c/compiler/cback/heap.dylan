@@ -1,5 +1,5 @@
 module: heap
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.1 1998/05/03 19:55:32 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.5 1998/09/09 13:40:17 andreas Exp $
 copyright: Copyright (c) 1995, 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -219,7 +219,9 @@ define method build-global-heap
 
   spew-objects-in-queue(state);
 
-  format(stream, "\n\n\t%s\t8\n", target.align-directive);
+  format(stream, "\n\n");
+  align-to-n-bytes(stream, 8, target);
+
   spew-label(state, "initial_symbols", export: #t);
   spew-reference(state.symbols, *heap-rep*, "Initial Symbols", state);
 end;
@@ -257,6 +259,10 @@ define method build-local-heap
     end if;
     if (name)
       spew-label(state, name, export: #t);
+      if (target.object-size-string)
+	format(stream, target.object-size-string,
+	       target.mangled-name-prefix, name, 8);
+      end if;
       if (target.supports-debugging?)
 	format(stream, target.descriptor-reference-string, 
 	       target.mangled-name-prefix, name);
@@ -293,8 +299,9 @@ define method spew-objects-in-queue (state :: <state>) => ();
     let object = pop(state.object-queue);
     let info = get-info-for(object, #f);
 
-    format(stream, "\n%s %s\n\t%s\t8\n", target.comment-token, object,
-	   target.align-directive);
+    format(stream, "\n%s %s\n", target.comment-token, object);
+    align-to-n-bytes(stream, 8, target);
+
     let labels = info.const-info-heap-labels;
     if (labels.empty?)
       error("Trying to spew %=, but it doesn't have any labels.", object);
@@ -304,6 +311,11 @@ define method spew-objects-in-queue (state :: <state>) => ();
 	format(stream, "%s %s\n", target.comment-token, label);
       else
 	spew-label(state, label, export: #t);
+	if (target.object-size-string)
+	  format(stream, target.object-size-string,
+		 target.mangled-name-prefix, label,
+		 logand(object-size(object) + 7, -8));
+	end if;
       end if;
     end for;
 
@@ -370,6 +382,27 @@ define method save-n-bytes
   end while;
 end method save-n-bytes;
 
+//------------------------------------------------------------------------
+//  align-to-n-bytes
+//
+// This method emits an align-directive to make sure we are on an n-byte
+// boundary.  The number of bytes should always be a power of two.
+//------------------------------------------------------------------------
+
+define method align-to-n-bytes
+    (stream :: <stream>, bytes :: <integer>, target :: <platform>) => ();
+  if (target.align-arg-is-power-of-two?)
+    let power-of-two = for (bytes :: <integer> = bytes then ash(bytes, -1),
+			    lg :: <integer> = 0 then lg + 1,
+			    while: bytes > 1)
+		       finally
+			 lg;
+		       end for;
+    format(stream, "\t%s\t%d\n", target.align-directive, power-of-two);
+  else
+    format(stream, "\t%s\t%d\n", target.align-directive, bytes);
+  end if;
+end method align-to-n-bytes;
 
 //------------------------------------------------------------------------
 //  Spew-reference
@@ -1151,6 +1184,63 @@ define method spew-object (object :: <ct-function>, state :: <state>) => ();
   else
     spew-function(object, state);
   end if;
+end;
+
+define method spew-object (object :: <ct-callback-function>, state :: <state>) => ();
+  spew-function(object, state,
+		callback-entry: make(<ct-entry-point>,
+				     for: object, kind: #"callback"),
+		callback-signature: make(<literal-string>,
+					 value: callback-signature(object)));
+end;
+
+define method callback-signature(func :: <ct-callback-function>)
+ => (signature :: <byte-string>);
+  let sig = func.ct-function-signature;
+  let args = sig.specializers;
+  let returns = sig.returns;
+
+  let callback-sig = make(<byte-string>, size: sig.specializers.size + 1);
+
+  callback-sig[0] := callback-signature-key(returns);
+  for(type in args, i = 1 then i + 1)
+    callback-sig[i] := callback-signature-key(type);
+  end;
+    
+  callback-sig;
+end;
+    
+define method callback-signature-key (type :: <values-ctype>)
+ => (key :: <byte-character>);
+  if (type == empty-ctype())
+    'v';
+  elseif (type.min-values ~== 1)
+    'v';
+  else
+    let rep = pick-representation(type, #"speed");
+    select(rep)
+      *general-rep* => 'o';
+      *heap-rep* => 'h';
+      *boolean-rep* => 'B';
+      
+      *long-rep* => 'l';
+      *int-rep* => 'i';
+      *uint-rep* => 'u';
+      *short-rep* => 's';
+      *ushort-rep* => 't';
+      *byte-rep* => 'c';
+      *ubyte-rep* => 'b';
+      
+      *ptr-rep* => 'p';
+      
+      *float-rep* => 'f';
+      *double-rep* => 'd';
+      *long-double-rep* => 'D';
+      otherwise =>
+	error("Couldn't find a callback signature key for representation %=",
+	      rep);
+    end;
+  end;
 end;
 
 define method spew-object

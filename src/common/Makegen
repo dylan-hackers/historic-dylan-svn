@@ -1,5 +1,5 @@
 ##
-##  $Header: /scm/cvs/src/common/Makegen,v 1.1 1998/05/03 19:54:59 andreas Exp $
+##  $Header: /scm/cvs/src/common/Makegen,v 1.4 1998/11/24 07:21:19 emk Exp $
 ##
 ##  This is the makegen file for the libraries shared between d2c and mindy.
 ##
@@ -8,5 +8,6 @@
 # dependency order. 
 
 &compile_subdirs('streams', 'standard-io', 'print', 'format', 'coll-ext',
-		'table-ext', 'string-ext', 'regexp', 'format-out', 'matrix',
-		'time', 'stream-ext', 'transcendental'); # 'internal-time' 
+		 'table-ext', 'string-ext', 'regexp', 'format-out', 'matrix',
+		 'time', 'stream-ext', 'transcendental');
+                 # 'getopt', 'internal-time' 

@@ -1,11 +1,11 @@
-documented: #t
+ocumented: #t
 module: define-interface
 copyright: Copyright (C) 1994, Carnegie Mellon University
 	   All rights reserved.
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/interface.dylan,v 1.1 1998/05/03 19:55:54 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/interface.dylan,v 1.6 1998/12/17 08:05:05 emk Exp $
 
 //======================================================================
 //
@@ -413,6 +413,45 @@ define method process-clause
   end for;
 end method process-clause;
 
+define method process-clause
+    (clause :: <function-type-clause>, state :: <parse-state>,
+     c-state :: <c-parse-state>)
+ => ()
+
+  // Look up our type and make sure it's a function typedef.
+  let decl = parse-type(clause.name, c-state).true-type;
+  if (instance?(decl, <pointer-declaration>))
+    // snap past a single level of indirection if present
+    decl := decl.referent;
+  end if;
+  unless (instance?(decl, <function-type-declaration>))
+    error("melange: %= is not a function type", decl);
+  end unless;
+
+  // Define a proper name mapper.
+  // XXX - This needs to be integrated with the real name-mapper system.
+  // The current implementation is a hack and causes no end of problems.
+  let (mapper, prefix) = merge-container-options(state.container-options);
+  decl.local-name-mapper :=
+    method (alternate-prefix, name)
+      concatenate(alternate-prefix, "-",
+		  mapper(#"function", prefix, name, #()));
+    end;
+  
+  // Process our options.
+  for (option in clause.options)
+    let tag = option.head;
+    let body = option.tail;
+    select (tag)
+      #"callback-maker" =>
+	decl.callback-maker-name := body;
+      #"callout-function" =>
+	decl.callout-function-name := body;
+      otherwise => #f;
+    end select;
+  end for;
+end method process-clause;
+
 //----------------------------------------------------------------------
 // High level processing routines for interface definitions
 //----------------------------------------------------------------------
@@ -481,24 +520,30 @@ define method process-parse-state
     let load-string = write-file-load(full-names,
 				      state.object-files, decls, out-stream);
     write-mindy-includes(state.mindy-include-file, decls);
-    do(rcurry(write-declaration, load-string, out-stream), decls);
+    let written-names = make(<written-name-record>);
+    do(rcurry(write-declaration, written-names, load-string, out-stream),
+       decls);
   else
     write(out-stream, "#if (mindy)\n");
     melange-target := #"mindy";
     let load-string = write-file-load(full-names,
 				      state.object-files, decls, out-stream);
     write-mindy-includes(state.mindy-include-file, decls);
-    do(rcurry(write-declaration, load-string, out-stream), decls);
+    let written-names = make(<written-name-record>);
+    do(rcurry(write-declaration, written-names, load-string, out-stream),
+       decls);
     write(out-stream, "#else\n");
     melange-target := #"d2c";
     let load-string = write-file-load(full-names,
 				      state.object-files, decls, out-stream);
     write-mindy-includes(state.mindy-include-file, decls);
-    do(rcurry(write-declaration, load-string, out-stream), decls);
+    let written-names = make(<written-name-record>);
+    do(rcurry(write-declaration, written-names, load-string, out-stream),
+       decls);
     write(out-stream, "#endif\n");
   end if;
 end method process-parse-state;
-  
+
 // Process-define-interface simply calls the parser in int-parse to decipher
 // the "define interface" and then call "process-parse-state" to annotate and
 // write out the declarations.  It returns the character position of the first
@@ -522,6 +567,28 @@ define method process-define-interface
 end method process-define-interface;
 
 //----------------------------------------------------------------------
+// XXX - Debugging output is broken, unfortunately. This code makes
+// error and warning output go to standard error instead of standard
+// output. We need to overhaul this in the Dylan library itself.
+//----------------------------------------------------------------------
+
+define class <better-debugger> (<debugger>)
+end class <better-debugger>;
+
+define method invoke-debugger
+    (debugger :: <better-debugger>, condition :: <condition>)
+ => res :: <never-returns>;
+  //fresh-line(*warning-output*);
+  condition-format(*warning-output*, "%s\n", condition);
+  force-output(*warning-output*);
+  call-out("abort", void:);
+end method invoke-debugger;
+
+*warning-output* := *standard-error*;
+*debugger* := make(<better-debugger>);
+
+
+//----------------------------------------------------------------------
 // The main program
 //----------------------------------------------------------------------
 
@@ -541,6 +608,7 @@ define method main (program, #rest args)
   for (arg in args)
     if (arg = "-v")
       verbose := #t;
+      *show-parse-progress?* := #t;
     elseif (is-prefix?("-I", arg))
       let include-string = copy-sequence(arg, start: 2);
       #if (compiled-for-win32)

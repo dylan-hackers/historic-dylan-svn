@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/interp/interp.c,v 1.1 1998/05/03 19:55:14 andreas Exp $
+* $Header: /scm/cvs/src/mindy/interp/interp.c,v 1.3 1998/12/17 08:58:45 igor Exp $
 *
 * This file implements the actual byte interpreter.
 *
@@ -51,6 +51,8 @@
 #include "interp.h"
 #include "../comp/byteops.h"
 
+#define OPS_PER_TIME_SLICE 100
+
 obj_t obj_ComponentClass = 0;
 
 static struct variable *plus_var = NULL;
@@ -63,12 +65,12 @@ static struct variable *ne_var = NULL;
 
 /* Various utility routines. */
 
-inline static int decode_byte(struct thread *thread)
+__inline__ static int decode_byte(struct thread *thread)
 {
     return ((unsigned char *)(thread->component))[thread->pc++];
 }
 
-inline static int decode_int4(struct thread *thread)
+__inline__ static int decode_int4(struct thread *thread)
 {
     int byte1 = decode_byte(thread);
     int byte2 = decode_byte(thread);
@@ -78,7 +80,7 @@ inline static int decode_int4(struct thread *thread)
     return byte1 | (byte2 << 8) | (byte3 << 16) | (byte4 << 24);
 }
 
-inline static int decode_arg(struct thread *thread)
+__inline__ static int decode_arg(struct thread *thread)
 {
     int arg = decode_byte(thread);
 
@@ -669,7 +671,7 @@ static void op_gt(int byte, struct thread *thread)
     }
 }
 
-void interpret_byte(int byte, struct thread *thread)
+__inline__ void interpret_byte(int byte, struct thread *thread)
 {
     switch (byte) {
       case op_BREAKPOINT:
@@ -983,6 +985,9 @@ void interpret_byte(int byte, struct thread *thread)
 
 void interpret_next_byte(struct thread *thread)
 {
+  int timer = OPS_PER_TIME_SLICE ;
+
+  while(timer-- > 0) 
     interpret_byte(decode_byte(thread), thread);
 }
 
