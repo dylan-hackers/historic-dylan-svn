@@ -95,15 +95,15 @@ define graphics-primitive cylinder() error("No cylinders yet!") end;
 
 // Transformations: 
 define graphics-primitive rotatex(o :: <obj> => theta :: <fp>)
-  x-rotate(o, theta);
+  x-rotate(o, theta * $pi / 180.0);
 end graphics-primitive rotatex;
 
 define graphics-primitive rotatey(o :: <obj>  => theta :: <fp>)
-  y-rotate(o, theta);
+  y-rotate(o, theta * $pi / 180.0);
 end graphics-primitive rotatey;
 
 define graphics-primitive rotatez(o :: <obj> => theta :: <fp>)
-  z-rotate(o, theta);
+  z-rotate(o, theta * $pi / 180.0);
 end graphics-primitive rotatez;
 
 define graphics-primitive translate(o :: <obj> => x :: <fp> => y :: <fp> => z :: <fp>)
