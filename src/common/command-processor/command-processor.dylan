@@ -219,9 +219,9 @@ define method complete-command(c)
   if(commands.size = 0)
     format-out("\r\nNo completions found.\r\n");
   else
-    let tab-completion-needed? = (complete-command-aux(commands));
-    if(tab-completion-needed?)
-      tab-completion(commands);
+    let show-possible-completions-needed? = (complete-command-aux(commands));
+    if(show-possible-completions-needed?)
+      show-possible-completions(commands);
     end if;
   end if;
   if(commands.size = 1)
@@ -232,9 +232,9 @@ end method complete-command;
 
 define method complete-command-and-insert-space(c)
   let commands = find-command-by-prefix(*command-line*);
-  let tab-completion-needed? = complete-command-aux(commands);
-  if (tab-completion-needed?)
-    tab-completion(commands);
+  let show-possible-completions-needed? = complete-command-aux(commands);
+  if (show-possible-completions-needed?)
+    show-possible-completions(commands);
   end if;
   if(*command-line*.size > 0 & *command-line*[*buffer-pointer* - 1] ~= ' ' & commands.size < 2)
     self-insert-command(' ');
@@ -242,13 +242,13 @@ define method complete-command-and-insert-space(c)
   repaint-line();
 end method complete-command-and-insert-space;
 
-define method tab-completion(commands)
+define method show-possible-completions(commands)
   format-out("\r\n");
   for(i from 0 below commands.size)
     format-out("%s\t", commands[i].name);
   end for;
   format-out("\r\n");
-end method tab-completion;
+end method show-possible-completions;
 
 define method beginning-of-line(c)
   *buffer-pointer* := 0;
