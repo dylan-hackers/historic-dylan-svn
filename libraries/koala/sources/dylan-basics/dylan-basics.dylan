@@ -9,6 +9,9 @@ Author:   many authors
 // and shamelessly stolen by me (Carl Gay).
 
 
+// ---TODO: Add an equal? method, that is like = but does case insensitive
+//          string comparison.  Need string-equal? first.
+
 // ----------------------------------------------------------------------
 // bind introduces new bindings a la "let", but also introduces a new
 // block to limit the variables' scope.
@@ -244,4 +247,43 @@ define method join
   result
 end;
 
+
+// For removing certain keyword/value pairs from argument lists before
+// passing them along with apply or next-method.
+//
+define method remove-keys
+    (arglist :: <sequence>, #rest keys) => (x :: <list>)
+  let result :: <list> = #();
+  let last-pair = #f;
+  for (arg in arglist, i from 0)
+    if (even?(i))
+      if (~ member?(arg, keys))
+        if (last-pair)
+          tail(last-pair) := list(arg);
+        else
+          result := list(arg);
+          last-pair := result;
+        end;
+        tail(last-pair) := list(arglist[i + 1]);
+        last-pair := tail(last-pair);
+      end;
+    end;
+  end;
+  result
+end method remove-keys;
+
+
+// Seems like this should be in dylan or common-dylan.
+//
+define method as
+    (type == <integer>, value :: <string>) => (v :: <integer>)
+  string-to-integer(value)
+end;
+
+
+// I find ~ quite easy to miss in code.  'not' is easier to see.
+//
+define inline-only function not (x :: <object>)
+  ~x
+end;
 

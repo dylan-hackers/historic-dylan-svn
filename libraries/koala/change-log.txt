@@ -8,14 +8,17 @@ Changes for version 0.4 (released xx xx, 2002)
   New Features:
   - DSP: Added a persistence layer which makes it easy to map database objects to
     web pages for editing/saving.
-  - Other: Added a simple proof-of-concept DSP application (a simple bug tracker).
+  - Other: Added a simple proof-of-concept DSP application (a bug tracker).
     This helped uncover a lot of bugs and deficiencies in Koala/DSP, some of which
     have been addressed in this release.
   - Koala: Added variable *request*, bound to the current request in each thread.
-  - 
+  - dylan-basics: remove-keys, not
 
   Bug Fixes:
-  - 
+  - DSP: Tags that pass through their HTML attributes (e.g., dsp:cell) now work
+    correctly for attributes without values (e.g., <dsp:cell nowrap>).
+  - DSP: Better error messages for the %dsp:include and %dsp:taglib directives.
+
 
 ***********************************************************************************
 
