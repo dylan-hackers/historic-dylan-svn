@@ -129,7 +129,7 @@ define method \- (p1 :: <3D-point>, p2 :: <3D-point>)
 end method;
 
 define method \+ (p :: <3D-point>, v :: <3D-vector>)
- => (difference :: <3D-point>);
+ => (sum :: <3D-point>);
   let w1 = p.w;
   if (w1 = 1.0)
     point3D(p.x + v.x, p.y + v.y, p.z + v.z, 1.0);
@@ -197,8 +197,7 @@ end method;
 
 define method \* (m :: <transform>, v :: <3D-vector>)
  => mult-vector :: <3D-vector>;
-  point3D(m.v00 * v.x + m.v01 * v.y + m.v02 * v.z + m.v03,
-	 m.v10 * v.x + m.v11 * v.y + m.v12 * v.z + m.v13,
-	 m.v20 * v.x + m.v21 * v.y + m.v22 * v.z + m.v23,
-	 m.v30 * v.x + m.v31 * v.y + m.v32 * v.z + m.v33) - $origin;
+  vector3D(m.v00 * v.x + m.v01 * v.y + m.v02 * v.z,
+	 m.v10 * v.x + m.v11 * v.y + m.v12 * v.z,
+	 m.v20 * v.x + m.v21 * v.y + m.v22 * v.z);
 end method;
