@@ -255,6 +255,10 @@ char *parseServerResponse(char* string)
     string = parseUnsigned(&playerID, string);
     printf("Player id is %u\n", playerID);
 
+    if (*string == '\n')
+    {
+        return string;
+    }
     ++string;
 
     while (*string != '#' && *string != '\n')
