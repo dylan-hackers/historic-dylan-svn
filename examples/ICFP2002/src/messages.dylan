@@ -263,7 +263,7 @@ end function receive-robot-location;
 // Match zero or more spaces. 
 
 define function receive-spaces (stream :: <stream>) => ()
-  while (stream.peek = ' ')
+  while (stream.peek == ' ')
     stream.read-element; // Discard spaces. Return value deliberately ignored.
   end while;
 end function receive-spaces;
@@ -272,7 +272,7 @@ end function receive-spaces;
 
 define function receive-space (stream :: <stream>) => ()
   let c = stream.read-element;
-  unless (c = ' ')
+  unless (c == ' ')
     message-error("receive-space: expected space, got '%c'\n", c);
   end unless;
 end function receive-space;
@@ -281,7 +281,7 @@ end function receive-space;
       
 define function receive-newline (stream :: <stream>) => ()
   let c = stream.read-element;
-  unless (c = '\n')
+  unless (c == '\n')
     message-error("receive-newline: got '%c' instead of newline\n", c)
   end unless;
 end function receive-newline;
@@ -290,7 +290,7 @@ end function receive-newline;
 
 define function receive-sharp (stream :: <stream>) => ()
   let c = stream.read-element;
-  unless (c = '#')
+  unless (c == '#')
     message-error("receive-sharp: got '%c' instead of newline\n", c)
   end unless;
 end function receive-sharp;
@@ -298,7 +298,7 @@ end function receive-sharp;
 // Test to see if an expected string is on the stream, consuming the
 // string if it is.
 
-define function receive-string (stream :: <stream>, str :: <string>) => ()
+define function receive-string (stream :: <stream>, str :: <string>) => ();
   let str* = read(stream, str.size);
   unless (str = str*)
     message-error("receive-string: expected '%s', got '%s'\n", str, str*);
@@ -308,9 +308,9 @@ end function receive-string;
 // Read an integer from a string. The integer *CANNOT* be prefixed with
 // spaces. It may start with 1 '-'. 
 
-define function receive-integer (stream :: <stream) => <integer>;
+define function receive-integer (stream :: <stream>) => int :: <integer>;
   let v = make(<stretchy-vector>);
-  when (stream.peek = '-')
+  when (stream.peek == '-')
     v := add!(v, stream.read-element);
   end when;
   while (stream.peek.digit?)
@@ -323,4 +323,3 @@ define function receive-integer (stream :: <stream) => <integer>;
                   as(<string>, v));
   end block;
 end function receive-integer;
-
