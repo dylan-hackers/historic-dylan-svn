@@ -4,8 +4,7 @@ standard_header("Downloading Software");
 ?>
 
 <P><EM>Gwydion Dylan <?php current_version();?></EM> is the current release
-version of Gwydion Dylan. It is a development release, not finished software.
-Be sure to review the <A HREF="limitations.phtml">limitations</A>.</P>
+version of Gwydion Dylan. It still has some rough edges in terms of usability, but code generation is extremely stable, and we consider the compiler to be of prduction quality.</P>
 
 <H2>Dependencies</H2>
 
@@ -15,9 +14,6 @@ interpreter binaries are stand-alone, but to use d2c to develop Dylan
 programs you will of course require a C compiler, linker,
 <code>make</code> and so forth.  Most platforms also require GNU
 libtool, and we supply some utility scripts that use Perl.
-
-<p>If you want to build your own d2c from source then you will also
-need GNU autoconf, automake and m4.</p>
 
 <p>Using the d2c compiler to build compiled Dylan programs requires
 the <a
@@ -54,15 +50,6 @@ binary of d2c is found. This may take some hours, but is the most
 convenient route. Of course, you can also use this if you already have
 an older version of d2c on your platform.</p>
 
-<p>For Linux on x86, there's a special <a
-href="/downloads/src/tar/gwydion-dylan-<?php current_version();?>-x86-linux-src.tar.gz">source
-tarball</a> available that ships with a statically linked d2c
-binary. This will save you the time-consuming bootstrap process, but
-compile everything from source. This is the route to go when you run
-into strange library problems with the binary tarball, or if you want
-to compile everything you install yourself, but save the
-time-consuming bootstrapping process.</P>
-
 <H3>Debian</H3>
 
 <p>Gwydion Dylan is part of the standard distribution of woody and
@@ -70,14 +57,6 @@ sid. Just type:</p>
 <pre>
 # apt-get install gwydion-dylan-dev
 </pre>
-<p>For more cutting-edge users, you can retrieve daily snapshots of
-the various Gwydion Dylan tools by adding the following lines to
-your <tt>/etc/apt/sources.list</tt> file:</p>
-<pre>
-deb http://www.gwydiondylan.org/downloads/binaries/linux/x86/DEB snapshot/
-</pre>
-<p><em>Note:</em>The syntax is important; don't omit the trailing
-<tt>/</tt> character.</p>
 
 <H3>Fink</H3>
 
