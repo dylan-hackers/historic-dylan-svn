@@ -5,9 +5,17 @@ define macro brain-definer
   { define brain ?:name ?states end }
     => { define function ?name() => brain :: <vector>;
            let instrs = make(<table>);
-           let (label, counter) = values(start:, 0);
+           let (label, counter) = values(start:, -1);
            ?states;
            compile-states(instrs)
+         end function }
+
+  { define sub brain ?:name ?states end }
+    => { define function ?name(instrs, label, current-counter) => ();
+           push-thunk(instrs, return:, 0, curry(lookup, instrs, label, current-counter + 1));
+           push-thunk(instrs, label, current-counter, curry(lookup, instrs, sub-start:, 0));
+           let (label, counter) = values(sub-start:, -1);
+           ?states;
          end function }
 
 states:
@@ -18,11 +26,8 @@ states:
     => { let counter = counter + 1; ?state; ... }
 
  state:
-  { Verbatim { ?:expression } }
-    => { push-thunk(instrs, label, counter,
-                    method()
-                        ?expression
-                    end) }
+  { Sub ?:expression }
+    => { ?expression(instrs, label, counter) }
 
   { Drop, (?label:name) }
     => { push-thunk(instrs, label, counter,
@@ -295,7 +300,7 @@ define function lookup (instrs, label, counter)
         instr;
     end;
   exception (<error>)
-    format-out("lookup: (%s, %d), did you fall off your block?\n", label, counter);
+    format-out("lookup: (%s, %d), did you fall off your block?\n  keys: %=\n\n", label, counter, instrs.key-sequence);
   end block;
 end;
 

@@ -1,10 +1,18 @@
 module: assembler
 
+define sub brain test-sub
+         Move return => sub-problem;
+
+  [sub-problem:]
+         Drop, (return);
+end brain;
+
 
 define brain test-brain1
-  [start:]
-//         Verbatim { Drop(lookup(start:, 0)) };
-         Move => problem;
+//  [start:]
+         Sub test-sub;
+         Move start  => start;
+ /*        Move => problem;
          Sense LeftAhead (Marker 1) => choose; // no-branching
          Sense (Marker 1) => choose;
          Sense LeftAhead Home => choose;
@@ -35,6 +43,7 @@ define brain test-brain1
   [problem:]
          Drop;
          Flip 1, (start, start);
+*/
 end;
  
  
