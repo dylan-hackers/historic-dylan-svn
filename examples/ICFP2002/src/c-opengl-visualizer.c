@@ -3,9 +3,9 @@
 #include <string.h>
 #include <time.h>
 
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -106,19 +106,22 @@ TileType charToTileType(int character)
 
 void readMap(void)
 {
+    unsigned int row;
+    
     char buffer[4096];
     fgets(buffer, 4096, gSocket);
     sscanf(buffer, "%u %u\n", &gMapWidth, &gMapHeight);
 
     gMap = allocateArray(Tile *, gMapHeight);
-    unsigned int row;
+    
     for (row = 0; row < gMapHeight; ++row)
     {
+        unsigned int col;
+
         gMap[row] = allocateArray(Tile, gMapWidth);
 
         fgets(buffer, 4096, gSocket);
 
-        unsigned int col;
         for (col = 0; col < gMapWidth; ++col)
         {
             gMap[row][col].type = charToTileType(buffer[col]);
@@ -297,11 +300,13 @@ char *parseServerResponse(char* string)
 
 void readServerResponse(void)
 {
+    char *remainder;
+
     char buffer[32768];
     fgets(buffer, 32768, gSocket);
     printf("Received server state update: %s", buffer);
 
-    char* remainder = buffer;
+    remainder = buffer;
     while(*remainder != '\n')
     {
         remainder = parseServerResponse(remainder);
@@ -345,11 +350,13 @@ void setUpGameState(void)
 
 void display(void)
 {
+    unsigned int row;
+    unsigned int playerID;
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBegin(GL_QUADS);
-
-    unsigned int row;
+    
     for (row = 0; row < gMapHeight; ++row)
     {
         unsigned int col;
@@ -374,7 +381,6 @@ void display(void)
         }
     }
 
-    unsigned int playerID;
     for (playerID = 0; playerID < MAX_ROBOTS; ++playerID)
     {
         if (!gPlayers[playerID].updatedThisFrame)
@@ -445,18 +451,21 @@ void specialKey(int key, int mouseX, int mouseY)
 
 int main(int argc, char *argv[])
 {
+    const char *serverHost;
+    unsigned short serverPort;
+    struct sockaddr_in serverAddress;
+    struct hostent *server;
+    int connectionResult;
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 
-    const char* serverHost = argv[1];
-    unsigned short serverPort = atoi(argv[2]);
-
-    struct sockaddr_in serverAddress;
+    serverHost = argv[1];
+    serverPort = atoi(argv[2]);
 
     gUnixSocket = socket(AF_INET, SOCK_STREAM, 0);
 
-    struct hostent *server
-        = gethostbyname(serverHost);
+    server = gethostbyname(serverHost);
     if (server == NULL)
     {
         printf("Can't get host %s by name\n", serverHost);
@@ -471,9 +480,9 @@ int main(int argc, char *argv[])
     serverAddress.sin_addr.s_addr = *(u_int32_t*)(server->h_addr);
     memset(&(serverAddress.sin_zero), '\0', 8);
     
-    int connectionResult = connect(gUnixSocket,
-                                   (struct sockaddr *)&serverAddress,
-                                   sizeof(struct sockaddr));
+    connectionResult = connect(gUnixSocket,
+                               (struct sockaddr *)&serverAddress,
+                               sizeof(struct sockaddr));
     if (connectionResult == -1)
     {
         printf("Can't connect to %s:%u\n", serverHost, serverPort);
