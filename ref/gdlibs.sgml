@@ -2,7 +2,7 @@
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
 ]>
-<BOOK>
+<BOOK id="gdlibs">
   <title>Gwydion Dylan Library Reference Guide</title>
   <titleabbrev>Library Reference Guide</titleabbrev>
 
@@ -2264,6 +2264,12 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   </CHAPTER>
 
   <chapter ID="libs-parse-arguments">
+    <docinfo>
+      <author>
+	&person.emk;
+      </author>
+    </docinfo>
+
     <title>The Parse-Arguments Library</title>
     
     <para>The <dlibrary>Parse-Arguments</dlibrary> library provides a
@@ -2422,7 +2428,7 @@ end;
       variable <dlit>file-names</dlit>.</para>
     </sect1>
 
-    <sect1>
+    <sect1 id="libs-parse-arguments-option-parsers">
       <title>Standard Option Types</title>
 
       <para><dlibrary>Parse-Arguments</dlibrary> supports the most popular

@@ -4,16 +4,24 @@
 ]>
 
 <Book id="tutorial">
-  <Title>Getting Started with &dylan;</Title>
+  <Title>Getting Started with Dylan</Title>
   <TitleAbbrev>Dylan Tutorial</TitleAbbrev>
 
   <BookInfo>
-    <BookBiblio id="about">
+    <copyright>
+      <year>1995</year>
+      <year>1996</year>
+      <year>1998</year>
+      <year>1999</year>
+      <holder>Eric Kidd</holder>
+    </copyright>
+
+    <BookBiblio>
       <AuthorGroup>
 	<Author>&person.emk;</Author>
       </AuthorGroup>
 
-      <Abstract id="abstract">
+      <Abstract>
 	<Title>Abstract</Title>
 	
 	<Para><CiteTitle/Getting Started with Dylan/ introduces <ulink
@@ -35,7 +43,7 @@
   <!-- ==================== Chapter 1 ==================== -->
 
   <Chapter id="why-dylan">
-    <Title>Why &dylan;?</Title>
+    <Title>Why Dylan?</Title>
 
     <Para>What earthly reason could there be for learning yet
     <Emphasis/another/ computer language? And why should that language be

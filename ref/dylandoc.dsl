@@ -69,8 +69,91 @@
   ;; Make ID attributes into file names.
   #t)
 
+
+;;;========================================================================
+;;; Overrides
+;;;========================================================================
+;;; Customize DocBook to work well with our manuals.
+
 (define (chunk-skip-first-element-list)
+  ;; Do not lift the first SECT1 up to CHAPTER level.
   '())
+
+(define (book-titlepage-recto-elements)
+  (list (normalize "title")
+	(normalize "subtitle")
+	(normalize "graphic")
+	(normalize "corpauthor")
+	(normalize "authorgroup")
+	(normalize "author")
+	(normalize "editor")
+	(normalize "copyright")
+	(normalize "legalnotice")
+	(normalize "abstract")))
+
+(define (process-person label)
+  (make sequence
+    (if (first-sibling? (current-node))
+	(make element
+	  gi: "P"
+	  (make element
+	    gi: "STRONG"
+	    (literal label)))
+	(empty-sosofo))
+    (make element
+      gi: "P"
+      (make sequence
+	(process-first-descendant "FIRSTNAME")
+	(literal " ")
+	(process-first-descendant "SURNAME")
+	(if (have-child? "AFFILIATION")
+	    (make sequence
+	      (make empty-element gi: "BR")
+	      (process-first-descendant "AFFILIATION"))
+	    (empty-sosofo))))))
+
+(element (docinfo editor)
+  (process-person "Edited by:"))
+
+(element (docinfo author)
+  (process-person "Written by:"))
+
+(element (docinfo authorgroup)
+  (process-children))
+
+(element (docinfo authorgroup author)
+  (process-person "Written by:"))
+
+(element (docinfo firstname)
+  (process-children))
+
+(element (docinfo surname)
+  (process-children))
+
+(element affiliation
+  (process-children))
+				
+(define ($affiliation-element$)
+  (make sequence
+    (process-children)
+    (if (not (absolute-last-sibling? (current-node)))
+	(make empty-element gi: "BR")
+	(empty-sosofo))))
+
+(element (affiliation shortaffil) ($affiliation-element$))
+(element (affiliation jobtitle) ($affiliation-element$))
+(element (affiliation orgname) ($affiliation-element$))
+(element (affiliation orgdiv) ($affiliation-element$))
+
+(element (affiliation address)
+  ($linespecific-content$))
+
+(element holder
+  (make sequence
+    ($charseq$)
+    (if (not (last-sibling? (current-node)))
+	(literal ", ")
+	(empty-sosofo))))
 
 
 ;;;========================================================================
@@ -81,7 +164,7 @@
 (define (process-dylan-literal #!optional (children (process-children)))
   (make element
     gi: "FONT"
-    attributes: '(("COLOR" "BLUE"))
+    attributes: '(("COLOR" "GREEN"))
     (make element
       gi: "CODE"
       children)))
@@ -133,9 +216,7 @@
 		  (process-first-descendant "DefAdjectives")
 		  (literal (attribute-string "DylanDefName"))
 		  (literal "]")))))))
-      (make element
-	gi: "HR"
-	(empty-sosofo))
+      (make empty-element gi: "HR")
       (process-first-descendant "DefSummary"))))
 
 (mode defhead
@@ -204,8 +285,7 @@
 		   (if (have-children?)
 		       (make element
 			 gi: "TABLE"
-			 attributes: '(("WIDTH" "100%")
-				       ("BORDER" "0")
+			 attributes: '(("BORDER" "0")
 				       ("COLUMNSPACING" "0")))
 		       (literal "None."))))
 
@@ -215,8 +295,7 @@
     (make sequence
       (make element
 	gi: "TD"
-	attributes: '(("VALIGN" "TOP")
-		      ("WIDTH" "10%"))
+	attributes: '(("VALIGN" "TOP"))
 	(process-first-descendant "ParamName"))
       (make element
 	gi: "TD"
