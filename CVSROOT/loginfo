@@ -28,5 +28,5 @@
 ALL /usr/local/share/cvssupport/logmsg.archive ${USER} %{sVv}
 ALL $CVSROOT/CVSROOT/syncmail -u %{sVv} gd-chatter@gwydiondylan.org
 ALL $CVSROOT/CVSROOT/ciabot %{sVv}
-^www sh -c '/usr/local/bin/updatewww'
+^www sh -c '/usr/local/bin/updatewww &'
 #^ref /usr/local/bin/updateref &
