@@ -1,0 +1,2536 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<!-- Created with Sodipodi ("http://www.sodipodi.com/") -->
+<svg
+   id="svg548"
+   sodipodi:version="0.32"
+   width="8.31in"
+   height="3in"
+   sodipodi:docbase="/usr/home/housel/"
+   sodipodi:docname="/usr/home/housel/gd-cup-lr.svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs
+     id="defs550">
+    <title
+       id="title1160">
+G</title>
+    <title
+       id="title7265">
+G</title>
+  </defs>
+  <sodipodi:namedview
+     id="base" />
+  <rect
+     style="font-size:12;fill:#ffffff;fill-rule:evenodd;stroke-width:1pt;fill-opacity:1;"
+     id="rect10135"
+     width="8.31in"
+     height="3.0in"
+     x="0"
+     y="0" />
+  <image
+     xlink:href="gwydion.png"
+     width="356.250000"
+     height="56.250000"
+     id="image3674"
+     x="348.539784"
+     y="193.125000" />
+  <g
+     id="g9304"
+     transform="translate(-137.3983,-304.5427)">
+    <g
+       id="g7428"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7429">
+expression</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="170,511 50,511 50,547 170,547 170,511"
+         id="polygon7430" />
+      <text
+         text-anchor="middle"
+         x="110"
+         y="535"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7431">
+&lt;expression&gt;</text>
+    </g>
+    <g
+       id="g7433"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7434">
+leaf</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="371,342 303,342 303,378 371,378 371,342"
+         id="polygon7435" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="366"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7436">
+&lt;leaf&gt;</text>
+    </g>
+    <g
+       id="g7438"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7439">
+expression-&gt;leaf</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M141,505C188,471 271,409 313,378"
+         id="path7440" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="143,506 134,511 140,503 143,506"
+         id="polygon7441" />
+    </g>
+    <g
+       id="g7442"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7443">
+operation</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="393,679 281,679 281,715 393,715 393,679"
+         id="polygon7444" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="703"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7445">
+&lt;operation&gt;</text>
+    </g>
+    <g
+       id="g7447"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7448">
+expression-&gt;operation</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M142,553C188,587 271,649 313,679"
+         id="path7449" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="141,555 135,547 144,552 141,555"
+         id="polygon7450" />
+    </g>
+    <g
+       id="g7451"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7452">
+abstract_variable</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="663,166 495,166 495,202 663,202 663,166"
+         id="polygon7453" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="190"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7454">
+&lt;abstract-variable&gt;</text>
+    </g>
+    <g
+       id="g7456"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7457">
+leaf-&gt;abstract_variable</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M370,336C419,300 510,234 554,202"
+         id="path7458" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="372,338 362,342 369,334 372,338"
+         id="polygon7459" />
+    </g>
+    <g
+       id="g7460"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7461">
+constant</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="631,301 527,301 527,337 631,337 631,301"
+         id="polygon7462" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="325"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7463">
+&lt;constant&gt;</text>
+    </g>
+    <g
+       id="g7465"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7466">
+leaf-&gt;constant</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M379,353C421,346 483,335 527,328"
+         id="path7467" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="381,355 371,354 381,350 381,355"
+         id="polygon7468" />
+    </g>
+    <g
+       id="g7469"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7470">
+abstract_function_literal</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="690,382 468,382 468,418 690,418 690,382"
+         id="polygon7471" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="406"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7472">
+&lt;abstract-function-literal&gt;</text>
+    </g>
+    <g
+       id="g7474"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7475">
+leaf-&gt;abstract_function_literal</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M379,367C404,371 437,377 469,382"
+         id="path7476" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="381,370 371,366 381,365 381,370"
+         id="polygon7477" />
+    </g>
+    <g
+       id="g7478"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7479">
+definition_site_variable</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="950,112 736,112 736,148 950,148 950,112"
+         id="polygon7480" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="136"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7481">
+&lt;definition-site-variable&gt;</text>
+    </g>
+    <g
+       id="g7483"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7484">
+ssa_variable</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1177,58 1049,58 1049,94 1177,94 1177,58"
+         id="polygon7485" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="82"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7486">
+&lt;ssa-variable&gt;</text>
+    </g>
+    <g
+       id="g7488"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7489">
+definition_site_variable-&gt;ssa_variable</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M941,110C977,103 1016,95 1048,89"
+         id="path7490" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="943,112 933,112 942,107 943,112"
+         id="polygon7491" />
+    </g>
+    <g
+       id="g7492"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7493">
+initial_definition</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1195,112 1031,112 1031,148 1195,148 1195,112"
+         id="polygon7494" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="136"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7495">
+&lt;initial-definition&gt;</text>
+    </g>
+    <g
+       id="g7497"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7498">
+definition_site_variable-&gt;initial_definition</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M958,130C983,130 1008,130 1030,130"
+         id="path7499" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="960,132 950,130 960,127 960,132"
+         id="polygon7500" />
+    </g>
+    <g
+       id="g7501"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7502">
+abstract_variable-&gt;definition_site_variable</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M672,165C699,160 729,153 755,148"
+         id="path7503" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="673,167 663,167 672,162 673,167"
+         id="polygon7504" />
+    </g>
+    <g
+       id="g7505"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7506">
+multi_definition_variable</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="958,166 728,166 728,202 958,202 958,166"
+         id="polygon7507" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="190"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7508">
+&lt;multi-definition-variable&gt;</text>
+    </g>
+    <g
+       id="g7510"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7511">
+abstract_variable-&gt;multi_definition_variable</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M673,184C691,184 709,184 727,184"
+         id="path7512" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="673,186 663,184 673,181 673,186"
+         id="polygon7513" />
+    </g>
+    <g
+       id="g7514"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7515">
+initial_variable</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1188,166 1038,166 1038,202 1188,202 1188,166"
+         id="polygon7516" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="190"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7517">
+&lt;initial-variable&gt;</text>
+    </g>
+    <g
+       id="g7519"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7520">
+multi_definition_variable-&gt;initial_variable</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M968,184C992,184 1016,184 1037,184"
+         id="path7521" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="969,186 959,184 969,181 969,186"
+         id="polygon7522" />
+    </g>
+    <g
+       id="g7523"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7524">
+join_operation</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="653,490 505,490 505,526 653,526 653,490"
+         id="polygon7525" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="514"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7526">
+&lt;join-operation&gt;</text>
+    </g>
+    <g
+       id="g7528"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7529">
+operation-&gt;join_operation</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M351,670C372,634 414,570 467,535 479,528 492,523 505,519"
+         id="path7530" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="353,671 346,679 349,669 353,671"
+         id="polygon7531" />
+    </g>
+    <g
+       id="g7532"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7533">
+abstract_call</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="644,544 514,544 514,580 644,580 644,544"
+         id="polygon7534" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="568"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7535">
+&lt;abstract-call&gt;</text>
+    </g>
+    <g
+       id="g7537"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7538">
+operation-&gt;abstract_call</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M361,672C385,647 425,610 467,589 481,582 498,577 513,573"
+         id="path7539" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="363,674 354,679 359,670 363,674"
+         id="polygon7540" />
+    </g>
+    <g
+       id="g7541"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7542">
+primitive</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="634,598 524,598 524,634 634,634 634,598"
+         id="polygon7543" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="622"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7544">
+&lt;primitive&gt;</text>
+    </g>
+    <g
+       id="g7546"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7547">
+operation-&gt;primitive</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M385,675C409,665 439,652 467,643 485,637 506,632 524,628"
+         id="path7548" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="387,677 377,679 385,672 387,677"
+         id="polygon7549" />
+    </g>
+    <g
+       id="g7550"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7551">
+prologue</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="632,652 526,652 526,688 632,688 632,652"
+         id="polygon7552" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="676"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7553">
+&lt;prologue&gt;</text>
+    </g>
+    <g
+       id="g7555"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7556">
+operation-&gt;prologue</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M402,690C441,686 489,681 525,676"
+         id="path7557" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="403,692 393,691 403,687 403,692"
+         id="polygon7558" />
+    </g>
+    <g
+       id="g7559"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7560">
+module_var_access</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="669,706 489,706 489,742 669,742 669,706"
+         id="polygon7561" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="730"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7562">
+&lt;module-var-access&gt;</text>
+    </g>
+    <g
+       id="g7564"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7565">
+operation-&gt;module_var_access</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M401,704C428,707 459,710 488,714"
+         id="path7566" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="403,707 393,703 403,702 403,707"
+         id="polygon7567" />
+    </g>
+    <g
+       id="g7568"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7569">
+slot_access</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="637,760 521,760 521,796 637,796 637,760"
+         id="polygon7570" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="784"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7571">
+&lt;slot-access&gt;</text>
+    </g>
+    <g
+       id="g7573"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7574">
+operation-&gt;slot_access</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M384,719C408,730 439,742 467,751 484,757 503,762 520,766"
+         id="path7575" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="384,722 376,715 386,717 384,722"
+         id="polygon7576" />
+    </g>
+    <g
+       id="g7577"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7578">
+truly_the</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="632,814 526,814 526,850 632,850 632,814"
+         id="polygon7579" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="838"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7580">
+&lt;truly-the&gt;</text>
+    </g>
+    <g
+       id="g7582"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7583">
+operation-&gt;truly_the</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M360,721C384,747 425,784 467,805 485,814 506,820 525,824"
+         id="path7584" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="359,724 354,715 363,720 359,724"
+         id="polygon7585" />
+    </g>
+    <g
+       id="g7586"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7587">
+instanceP</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="633,868 525,868 525,904 633,904 633,868"
+         id="polygon7588" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="892"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7589">
+&lt;instance?&gt;</text>
+    </g>
+    <g
+       id="g7591"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7592">
+operation-&gt;instanceP</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M350,722C371,758 413,824 467,859 484,870 505,877 524,880"
+         id="path7593" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="349,725 346,715 353,722 349,725"
+         id="polygon7594" />
+    </g>
+    <g
+       id="g7595"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7596">
+nlx_operation</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="650,922 508,922 508,958 650,958 650,922"
+         id="polygon7597" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="946"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7598">
+&lt;nlx-operation&gt;</text>
+    </g>
+    <g
+       id="g7600"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7601">
+operation-&gt;nlx_operation</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M346,723C361,769 400,864 467,913 479,922 493,928 507,932"
+         id="path7602" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="344,725 343,715 349,723 344,725"
+         id="polygon7603" />
+    </g>
+    <g
+       id="g7654"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7655">
+known_call</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="906,490 780,490 780,526 906,526 906,490"
+         id="polygon7656" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="514"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7657">
+&lt;known-call&gt;</text>
+    </g>
+    <g
+       id="g7659"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7660">
+abstract_call-&gt;known_call</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M653,547C693,540 742,529 779,521"
+         id="path7661" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="655,549 645,549 654,544 655,549"
+         id="polygon7662" />
+    </g>
+    <g
+       id="g7663"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7664">
+error_call</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="897,544 789,544 789,580 897,580 897,544"
+         id="polygon7665" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="568"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7666">
+&lt;error-call&gt;</text>
+    </g>
+    <g
+       id="g7668"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7669">
+abstract_call-&gt;error_call</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M655,562C697,562 749,562 788,562"
+         id="path7670" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="655,564 645,562 655,559 655,564"
+         id="polygon7671" />
+    </g>
+    <g
+       id="g7672"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7673">
+general_call</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="907,598 779,598 779,634 907,634 907,598"
+         id="polygon7674" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="622"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7675">
+&lt;general-call&gt;</text>
+    </g>
+    <g
+       id="g7677"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7678">
+abstract_call-&gt;general_call</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M653,577C693,584 741,595 779,603"
+         id="path7679" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="654,580 645,575 655,575 654,580"
+         id="polygon7680" />
+    </g>
+    <g
+       id="g7681"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7682">
+delayed_optimization_call</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1230,544 996,544 996,580 1230,580 1230,544"
+         id="polygon7683" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="568"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7684">
+&lt;delayed-optimization-call&gt;</text>
+    </g>
+    <g
+       id="g7686"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7687">
+general_call-&gt;delayed_optimization_call</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M915,601C948,595 987,587 1022,580"
+         id="path7688" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="917,603 907,603 916,598 917,603"
+         id="polygon7689" />
+    </g>
+    <g
+       id="g7690"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7691">
+unknown_call</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1187,598 1039,598 1039,634 1187,634 1187,598"
+         id="polygon7692" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="622"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7693">
+&lt;unknown-call&gt;</text>
+    </g>
+    <g
+       id="g7695"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7696">
+general_call-&gt;unknown_call</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M917,616C955,616 1000,616 1039,616"
+         id="path7697" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="917,618 907,616 917,613 917,618"
+         id="polygon7698" />
+    </g>
+    <g
+       id="g7699"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7700">
+mv_call</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1161,652 1065,652 1065,688 1161,688 1161,652"
+         id="polygon7701" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="676"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7702">
+&lt;mv-call&gt;</text>
+    </g>
+    <g
+       id="g7704"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7705">
+general_call-&gt;mv_call</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M916,631C963,641 1023,652 1064,660"
+         id="path7706" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="916,634 907,629 917,629 916,634"
+         id="polygon7707" />
+    </g>
+    <g
+       id="g7708"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7709">
+module_var_set</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="920,652 766,652 766,688 920,688 920,652"
+         id="polygon7710" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="676"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7711">
+&lt;module-var-set&gt;</text>
+    </g>
+    <g
+       id="g7713"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7714">
+module_var_access-&gt;module_var_set</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M676,704C705,698 738,691 765,686"
+         id="path7715" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="677,706 667,706 676,701 677,706"
+         id="polygon7716" />
+    </g>
+    <g
+       id="g7717"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7718">
+module_var_ref</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="922,706 764,706 764,742 922,742 922,706"
+         id="polygon7719" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="730"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7720">
+&lt;module-var-ref&gt;</text>
+    </g>
+    <g
+       id="g7722"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7723">
+module_var_access-&gt;module_var_ref</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M679,724C707,724 737,724 763,724"
+         id="path7724" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="680,726 670,724 680,721 680,726"
+         id="polygon7725" />
+    </g>
+    <g
+       id="g7726"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7727">
+slot_ref</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="890,760 796,760 796,796 890,796 890,760"
+         id="polygon7728" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="784"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7729">
+&lt;slot-ref&gt;</text>
+    </g>
+    <g
+       id="g7731"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7732">
+slot_access-&gt;slot_ref</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M647,778C694,778 755,778 796,778"
+         id="path7733" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="648,780 638,778 648,775 648,780"
+         id="polygon7734" />
+    </g>
+    <g
+       id="g7735"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7736">
+heap_slot_set</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="910,814 776,814 776,850 910,850 910,814"
+         id="polygon7737" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="838"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7738">
+&lt;heap-slot-set&gt;</text>
+    </g>
+    <g
+       id="g7740"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7741">
+slot_access-&gt;heap_slot_set</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M647,792C686,800 736,811 776,818"
+         id="path7742" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="647,795 638,790 648,790 647,795"
+         id="polygon7743" />
+    </g>
+    <g
+       id="g7744"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7745">
+heap_slot_ref</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1181,733 1045,733 1045,769 1181,769 1181,733"
+         id="polygon7746" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="757"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7747">
+&lt;heap-slot-ref&gt;</text>
+    </g>
+    <g
+       id="g7749"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7750">
+slot_ref-&gt;heap_slot_ref</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M900,772C941,768 999,763 1044,758"
+         id="path7751" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="900,774 890,773 900,770 900,774"
+         id="polygon7752" />
+    </g>
+    <g
+       id="g7753"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7754">
+data_word_ref</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1187,787 1039,787 1039,823 1187,823 1187,787"
+         id="polygon7755" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="811"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7756">
+&lt;data-word-ref&gt;</text>
+    </g>
+    <g
+       id="g7758"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7759">
+slot_ref-&gt;data_word_ref</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M898,784C939,788 994,793 1039,797"
+         id="path7760" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="900,787 890,783 900,782 900,787"
+         id="polygon7761" />
+    </g>
+    <g
+       id="g7762"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7763">
+catch</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="882,868 804,868 804,904 882,904 882,868"
+         id="polygon7764" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="892"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7765">
+&lt;catch&gt;</text>
+    </g>
+    <g
+       id="g7767"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7768">
+nlx_operation-&gt;catch</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M660,923C707,913 765,902 803,894"
+         id="path7769" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="661,925 651,925 660,920 661,925"
+         id="polygon7770" />
+    </g>
+    <g
+       id="g7771"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7772">
+throw</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="886,922 800,922 800,958 886,958 886,922"
+         id="polygon7773" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="946"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7774">
+&lt;throw&gt;</text>
+    </g>
+    <g
+       id="g7776"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7777">
+nlx_operation-&gt;throw</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M661,940C707,940 762,940 800,940"
+         id="path7778" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="661,942 651,940 661,937 661,942"
+         id="polygon7779" />
+    </g>
+    <g
+       id="g7780"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7781">
+make_catcher</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="915,976 771,976 771,1012 915,1012 915,976"
+         id="polygon7782" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="1000"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7783">
+&lt;make-catcher&gt;</text>
+    </g>
+    <g
+       id="g7785"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7786">
+nlx_operation-&gt;make_catcher</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M659,957C695,964 737,973 771,979"
+         id="path7787" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="660,960 651,955 661,955 660,960"
+         id="polygon7788" />
+    </g>
+    <g
+       id="g7789"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7790">
+disable_catcher</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="919,1030 767,1030 767,1066 919,1066 919,1030"
+         id="polygon7791" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="1054"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7792">
+&lt;disable-catcher&gt;</text>
+    </g>
+    <g
+       id="g7794"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7795">
+nlx_operation-&gt;disable_catcher</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M613,963C643,981 687,1006 727,1021 739,1026 753,1030 766,1033"
+         id="path7796" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="613,966 606,958 616,962 613,966"
+         id="polygon7797" />
+    </g>
+    <g
+       id="g7798"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7799">
+literal_constant</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="919,220 767,220 767,256 919,256 919,220"
+         id="polygon7800" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="244"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7801">
+&lt;literal-constant&gt;</text>
+    </g>
+    <g
+       id="g7803"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7804">
+constant-&gt;literal_constant</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M633,298C661,287 695,274 727,265 740,261 753,258 766,255"
+         id="path7805" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="634,300 624,301 633,295 634,300"
+         id="polygon7806" />
+    </g>
+    <g
+       id="g7807"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7808">
+definition_constant_leaf</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="954,274 732,274 732,310 954,310 954,274"
+         id="polygon7809" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="298"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7810">
+&lt;definition-constant-leaf&gt;</text>
+    </g>
+    <g
+       id="g7812"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7813">
+constant-&gt;definition_constant_leaf</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M640,313C667,310 700,307 732,304"
+         id="path7814" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="641,315 631,314 641,310 641,315"
+         id="polygon7815" />
+    </g>
+    <g
+       id="g7816"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7817">
+uninitialized_value</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="934,328 752,328 752,364 934,364 934,328"
+         id="polygon7818" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="352"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7819">
+&lt;uninitialized-value&gt;</text>
+    </g>
+    <g
+       id="g7821"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7822">
+constant-&gt;uninitialized_value</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M639,325C672,329 714,332 751,336"
+         id="path7823" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="641,328 631,324 641,323 641,328"
+         id="polygon7824" />
+    </g>
+    <g
+       id="g7825"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7826">
+function_literal</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="921,382 765,382 765,418 921,418 921,382"
+         id="polygon7827" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="406"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7828">
+&lt;function-literal&gt;</text>
+    </g>
+    <g
+       id="g7830"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7831">
+abstract_function_literal-&gt;function_literal</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M700,400C722,400 745,400 765,400"
+         id="path7832" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="701,402 691,400 701,397 701,402"
+         id="polygon7833" />
+    </g>
+    <g
+       id="g7834"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7835">
+exit_function</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="913,436 773,436 773,472 913,472 913,436"
+         id="polygon7836" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="460"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7837">
+&lt;exit-function&gt;</text>
+    </g>
+    <g
+       id="g7839"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7840">
+abstract_function_literal-&gt;exit_function</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M675,420C707,426 743,434 772,440"
+         id="path7841" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="676,423 667,418 677,418 676,423"
+         id="polygon7842" />
+    </g>
+    <g
+       id="g7843"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7844">
+method_literal</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1187,355 1039,355 1039,391 1187,391 1187,355"
+         id="polygon7845" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="379"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7846">
+&lt;method-literal&gt;</text>
+    </g>
+    <g
+       id="g7848"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7849">
+function_literal-&gt;method_literal</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M930,391C965,387 1005,384 1039,380"
+         id="path7850" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="931,393 921,392 931,388 931,393"
+         id="polygon7851" />
+    </g>
+    <g
+       id="g7852"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7853">
+callback_literal</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1189,409 1037,409 1037,445 1189,445 1189,409"
+         id="polygon7854" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="433"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7855">
+&lt;callback-literal&gt;</text>
+    </g>
+    <g
+       id="g7857"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7858">
+function_literal-&gt;callback_literal</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M929,409C964,413 1004,416 1037,420"
+         id="path7859" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="931,412 921,408 931,407 931,412"
+         id="polygon7860" />
+    </g>
+  </g>
+  <g
+     id="g9081"
+     transform="translate(191.1719,-288.9614)"
+     style="font-size:12;">
+    <g
+       id="g7604"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7605">
+abstract_assignment</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="206,58 14,58 14,94 206,94 206,58"
+         id="polygon7606" />
+      <text
+         text-anchor="middle"
+         x="110"
+         y="82"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7607">
+&lt;abstract-assignment&gt;</text>
+    </g>
+    <g
+       id="g7609"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7610">
+assignment</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="400,31 274,31 274,67 400,67 400,31"
+         id="polygon7611" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="55"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7612">
+&lt;assignment&gt;</text>
+    </g>
+    <g
+       id="g7614"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7615">
+abstract_assignment-&gt;assignment</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M215,64C235,61 256,59 274,57"
+         id="path7616" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="217,66 207,65 217,61 217,66"
+         id="polygon7617" />
+    </g>
+    <g
+       id="g7618"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7619">
+join_assignment</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="418,85 256,85 256,121 418,121 418,85"
+         id="polygon7620" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="109"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7621">
+&lt;join-assignment&gt;</text>
+    </g>
+    <g
+       id="g7623"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7624">
+abstract_assignment-&gt;join_assignment</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M216,88C229,90 243,91 256,93"
+         id="path7625" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="217,91 207,87 217,86 217,91"
+         id="polygon7626" />
+    </g>
+    <g
+       id="g7627"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7628">
+fer_assignment</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="657,31 501,31 501,67 657,67 657,31"
+         id="polygon7629" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="55"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7630">
+&lt;fer-assignment&gt;</text>
+    </g>
+    <g
+       id="g7632"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7633">
+assignment-&gt;fer_assignment</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M409,49C438,49 471,49 501,49"
+         id="path7634" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="410,51 400,49 410,46 410,51"
+         id="polygon7635" />
+    </g>
+    <g
+       id="g7636"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7637">
+let_assignment</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="918,4 768,4 768,40 918,40 918,4"
+         id="polygon7638" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="28"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7639">
+&lt;let-assignment&gt;</text>
+    </g>
+    <g
+       id="g7641"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7642">
+fer_assignment-&gt;let_assignment</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M666,40C699,36 736,33 768,30"
+         id="path7643" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="667,42 657,41 667,37 667,42"
+         id="polygon7644" />
+    </g>
+    <g
+       id="g7645"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7646">
+set_assignment</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="919,58 767,58 767,94 919,94 919,58"
+         id="polygon7647" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="82"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7648">
+&lt;set-assignment&gt;</text>
+    </g>
+    <g
+       id="g7650"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7651">
+fer_assignment-&gt;set_assignment</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M666,58C698,62 735,65 767,68"
+         id="path7652" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="667,61 657,57 667,56 667,61"
+         id="polygon7653" />
+    </g>
+  </g>
+  <g
+     id="g9132"
+     transform="translate(178.1718,-489.9570)"
+     style="font-size:12;">
+    <g
+       id="g7266"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7267">
+region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="154,1269 66,1269 66,1305 154,1305 154,1269"
+         id="polygon7268" />
+      <text
+         text-anchor="middle"
+         x="110"
+         y="1293"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7269">
+&lt;region&gt;</text>
+    </g>
+    <g
+       id="g7271"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7272">
+linear_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="406,1138 268,1138 268,1174 406,1174 406,1138"
+         id="polygon7273" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="1162"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7274">
+&lt;linear-region&gt;</text>
+    </g>
+    <g
+       id="g7276"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7277">
+region-&gt;linear_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M150,1264C194,1239 266,1198 306,1174"
+         id="path7278" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="152,1266 142,1269 149,1262 152,1266"
+         id="polygon7279" />
+    </g>
+    <g
+       id="g7280"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7281">
+join_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="399,1242 275,1242 275,1278 399,1278 399,1242"
+         id="polygon7282" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="1266"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7283">
+&lt;join-region&gt;</text>
+    </g>
+    <g
+       id="g7285"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7286">
+region-&gt;join_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M163,1281C196,1277 239,1272 275,1267"
+         id="path7287" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="164,1283 154,1282 164,1278 164,1283"
+         id="polygon7288" />
+    </g>
+    <g
+       id="g7289"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7290">
+block_region_mixin</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="431,1296 243,1296 243,1332 431,1332 431,1296"
+         id="polygon7291" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="1320"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7292">
+&lt;block-region-mixin&gt;</text>
+    </g>
+    <g
+       id="g7294"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7295">
+region-&gt;block_region_mixin</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M163,1293C186,1296 215,1299 243,1303"
+         id="path7296" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="164,1296 154,1292 164,1291 164,1296"
+         id="polygon7297" />
+    </g>
+    <g
+       id="g7298"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7299">
+exit</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="370,1373 304,1373 304,1409 370,1409 370,1373"
+         id="polygon7300" />
+      <text
+         text-anchor="middle"
+         x="337"
+         y="1397"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7301">
+&lt;exit&gt;</text>
+    </g>
+    <g
+       id="g7303"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7304">
+region-&gt;exit</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M159,1309C202,1329 265,1358 303,1375"
+         id="path7305" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="158,1311 150,1305 160,1307 158,1311"
+         id="polygon7306" />
+    </g>
+    <g
+       id="g7307"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7308">
+simple_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="651,1138 507,1138 507,1174 651,1174 651,1138"
+         id="polygon7309" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="1162"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7310">
+&lt;simple-region&gt;</text>
+    </g>
+    <g
+       id="g7312"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7313">
+linear_region-&gt;simple_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M416,1156C445,1156 478,1156 507,1156"
+         id="path7314" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="416,1158 406,1156 416,1153 416,1158"
+         id="polygon7315" />
+    </g>
+    <g
+       id="g7316"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7317">
+compound_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="668,1084 490,1084 490,1120 668,1120 668,1084"
+         id="polygon7318" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="1108"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7319">
+&lt;compound-region&gt;</text>
+    </g>
+    <g
+       id="g7321"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7322">
+linear_region-&gt;compound_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M414,1139C441,1133 472,1126 499,1120"
+         id="path7323" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="416,1141 406,1141 415,1136 416,1141"
+         id="polygon7324" />
+    </g>
+    <g
+       id="g7325"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7326">
+empty_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="915,1084 771,1084 771,1120 915,1120 915,1084"
+         id="polygon7327" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="1108"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7328">
+&lt;empty-region&gt;</text>
+    </g>
+    <g
+       id="g7330"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7331">
+compound_region-&gt;empty_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M677,1102C709,1102 742,1102 771,1102"
+         id="path7332" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="678,1104 668,1102 678,1099 678,1104"
+         id="polygon7333" />
+    </g>
+    <g
+       id="g7334"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7335">
+if_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="632,1246 526,1246 526,1282 632,1282 632,1246"
+         id="polygon7336" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="1270"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7337">
+&lt;if-region&gt;</text>
+    </g>
+    <g
+       id="g7339"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7340">
+join_region-&gt;if_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M409,1261C446,1262 491,1262 525,1263"
+         id="path7341" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="409,1263 399,1261 409,1258 409,1263"
+         id="polygon7342" />
+    </g>
+    <g
+       id="g7343"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7344">
+body_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="645,1192 513,1192 513,1228 645,1228 645,1192"
+         id="polygon7345" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="1216"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7346">
+&lt;body-region&gt;</text>
+    </g>
+    <g
+       id="g7348"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7349">
+join_region-&gt;body_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M408,1245C441,1239 480,1230 512,1224"
+         id="path7350" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="409,1247 399,1247 408,1242 409,1247"
+         id="polygon7351" />
+    </g>
+    <g
+       id="g7352"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7353">
+block_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="911,1275 775,1275 775,1311 911,1311 911,1275"
+         id="polygon7354" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="1299"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7355">
+&lt;block-region&gt;</text>
+    </g>
+    <g
+       id="g7357"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7358">
+body_region-&gt;block_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M655,1227C667,1230 680,1233 691,1237 728,1248 769,1263 799,1275"
+         id="path7359" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="655,1230 646,1225 656,1225 655,1230"
+         id="polygon7360" />
+    </g>
+    <g
+       id="g7361"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7362">
+loop_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="906,1202 780,1202 780,1238 906,1238 906,1202"
+         id="polygon7363" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="1226"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7364">
+&lt;loop-region&gt;</text>
+    </g>
+    <g
+       id="g7366"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7367">
+body_region-&gt;loop_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M655,1213C695,1214 742,1216 779,1217"
+         id="path7368" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="656,1215 646,1213 656,1210 656,1215"
+         id="polygon7369" />
+    </g>
+    <g
+       id="g7370"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7371">
+unwind_protect_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="950,1148 736,1148 736,1184 950,1184 950,1148"
+         id="polygon7372" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="1172"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7373">
+&lt;unwind-protect-region&gt;</text>
+    </g>
+    <g
+       id="g7375"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7376">
+body_region-&gt;unwind_protect_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M654,1198C679,1193 708,1189 735,1184"
+         id="path7377" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="656,1200 646,1199 656,1195 656,1200"
+         id="polygon7378" />
+    </g>
+    <g
+       id="g7379"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7380">
+block_region_mixin-&gt;block_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M440,1310C540,1306 689,1299 775,1296"
+         id="path7381" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="441,1312 431,1310 441,1307 441,1312"
+         id="polygon7382" />
+    </g>
+    <g
+       id="g7383"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7384">
+component</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="642,1338 516,1338 516,1374 642,1374 642,1338"
+         id="polygon7385" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="1362"
+         style="font-family:Bitstream Vera Sans;font-style:italic;font-size:16.00;"
+         id="text7386">
+&lt;component&gt;</text>
+    </g>
+    <g
+       id="g7388"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7389">
+block_region_mixin-&gt;component</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M440,1332C465,1336 493,1341 516,1345"
+         id="path7390" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="440,1335 431,1330 441,1330 440,1335"
+         id="polygon7391" />
+    </g>
+    <g
+       id="g7392"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7393">
+function_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1194,1275 1032,1275 1032,1311 1194,1311 1194,1275"
+         id="polygon7394" />
+      <text
+         text-anchor="middle"
+         x="1113"
+         y="1299"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7395">
+&lt;function-region&gt;</text>
+    </g>
+    <g
+       id="g7397"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7398">
+block_region-&gt;function_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M920,1293C955,1293 996,1293 1032,1293"
+         id="path7399" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="921,1295 911,1293 921,1290 921,1295"
+         id="polygon7400" />
+    </g>
+    <g
+       id="g7401"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7402">
+fer_function_region</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1458,1275 1268,1275 1268,1311 1458,1311 1458,1275"
+         id="polygon7403" />
+      <text
+         text-anchor="middle"
+         x="1363"
+         y="1299"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7404">
+&lt;fer-function-region&gt;</text>
+    </g>
+    <g
+       id="g7406"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7407">
+function_region-&gt;fer_function_region</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M1204,1293C1224,1293 1246,1293 1267,1293"
+         id="path7408" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="1204,1295 1194,1293 1204,1290 1204,1295"
+         id="polygon7409" />
+    </g>
+    <g
+       id="g7410"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7411">
+return</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="623,1392 535,1392 535,1428 623,1428 623,1392"
+         id="polygon7412" />
+      <text
+         text-anchor="middle"
+         x="579"
+         y="1416"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7413">
+&lt;return&gt;</text>
+    </g>
+    <g
+       id="g7415"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7416">
+exit-&gt;return</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M381,1395C425,1398 491,1403 535,1407"
+         id="path7417" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="381,1397 371,1394 381,1393 381,1397"
+         id="polygon7418" />
+    </g>
+    <g
+       id="g7419"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7420">
+fer_component</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="921,1338 765,1338 765,1374 921,1374 921,1338"
+         id="polygon7421" />
+      <text
+         text-anchor="middle"
+         x="843"
+         y="1362"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7422">
+&lt;fer-component&gt;</text>
+    </g>
+    <g
+       id="g7424"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7425">
+component-&gt;fer_component</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M651,1356C686,1356 728,1356 765,1356"
+         id="path7426" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="652,1358 642,1356 652,1353 652,1358"
+         id="polygon7427" />
+    </g>
+    <g
+       id="g7861"
+       class="node"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7862">
+lambda</title>
+      <polygon
+         style="fill:none;stroke:black;"
+         points="1592,1275 1496,1275 1496,1311 1592,1311 1592,1275"
+         id="polygon7863" />
+      <text
+         text-anchor="middle"
+         x="1544"
+         y="1299"
+         style="font-family:Bitstream Vera Sans;font-size:16.00;"
+         id="text7864">
+&lt;lambda&gt;</text>
+    </g>
+    <g
+       id="g7866"
+       class="edge"
+       transform="matrix(0.250000,0.000000,0.000000,0.250000,141.2429,299.8277)"
+       style="font-size:14;">
+      <title
+         id="title7867">
+fer_function_region-&gt;lambda</title>
+      <path
+         style="fill:none;stroke:black;"
+         d="M1468,1293C1477,1293 1487,1293 1495,1293"
+         id="path7868" />
+      <polygon
+         style="fill:black;stroke:black;"
+         points="1469,1295 1459,1293 1469,1290 1469,1295"
+         id="polygon7869" />
+    </g>
+  </g>
+</svg>
