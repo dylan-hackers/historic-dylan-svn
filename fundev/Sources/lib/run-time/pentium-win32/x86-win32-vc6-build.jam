@@ -3,6 +3,7 @@
 #
 
 CC      ?= cl /nologo ;
+CCFLAGS ?= -DWIN32 -D_WIN32 -D_MT -D_DLL -MD -Z7 -Od ;
 CP      ?= copy /y ;
 RC      ?= rc ;
 LINK    ?= link /nologo ;
@@ -181,8 +182,8 @@ rule DylanLibraryLinkerOptions image : options {
   local _dll = [ FDLLName $(image) ] ;
   local _exe = [ FEXEName $(image) ] ;
   
-  LINKLIBS on $(_dll) += $(options) ;
-  LINKLIBS on $(_exe) += $(options) ;
+  LINKFLAGS on $(_dll) += $(options) ;
+  LINKFLAGS on $(_exe) += $(options) ;
 }
 
 rule DylanLibraryBaseAddress image : address {
@@ -202,12 +203,14 @@ rule DylanLibraryCLibraries image : libraries {
   # Link C (or other externally-derived) libraries into the shared library.
   
   local _dll = [ FDLLName $(image) ] ;
+  local _exe = [ FDLLName $(image) ] ;
 
-  for lib in $(libraries) {
-    switch $(lib) {
-      case * :      LINKLIBS on $(_dll) $(_exe) += $(lib) ;
+  local _i;
+  for _i in $(libraries) {
+    switch $(_i) {
+      case * :      LINKLIBS on $(_dll) $(_exe) += $(_i) ;
 	            if ! $(lib) in $(_clib_$(image[1]:L)) {
-		      _clib_$(image[1]:L) += $(lib) ;
+		      _clib_$(image[1]:L) += $(_i) ;
 		    }
     }
   }
@@ -235,8 +238,23 @@ rule DylanLibraryCSources image : sources {
   #Echo DylanLibraryCSources $(image) ":" $(sources) ;
 
   # Link C source files into the shared library.
+  if ! $(SYSTEM) {
+    local _dll = [ FDLLName $(image) ] ;
+    local _lib = [ FLIBName $(image) ] ;
+    local _exe = [ FEXEName $(image) ] ;
 
-  Exit DylanLibraryCSources $(image) is not yet implemented ;
+    local _i ;
+    for _i in [ FGristFiles $(sources) ] {
+      SEARCH on $(_i) = $(SEARCH_SOURCE) ;
+      local _obj = [ FGristFiles $(_i:S=$(SUFOBJ)) ] ;
+      MakeLocate $(_obj) : $(LOCATE_TARGET) ;
+      
+      Cc $(_obj) : $(_i) ;
+      
+      LinkDLL $(_dll) $(_lib) : $(_obj) ;
+      LinkEXE $(_exe) : $(_obj) ;
+    }
+  }
 }
 
 rule DylanLibraryCHeaders image : headers {
@@ -258,17 +276,18 @@ rule DylanLibraryRCFiles image : rcfiles {
     local _dll = [ FDLLName $(image) ] ;
     local _lib = [ FLIBName $(image) ] ;
     local _exe = [ FEXEName $(image) ] ;
-    
+
+    local _rc;
     for _rc in [ FGristFiles $(rcfiles) ] {
       SEARCH on $(_rc) = $(SEARCH_SOURCE) ;
       
       local _res = [ FGristFiles $(_rc:S=$(SUFRES)) ] ;
-      MakeLocate $(_res) : $(LOCATE_SOURCE) ;
-      
-      LinkDLL $(_dll) $(_lib) : $(_res) ;
-      LinkEXE $(_exe) : $(_res) ;
+      MakeLocate $(_res) : $(LOCATE_TARGET) ;
       
       RC $(_res) : $(_rc) ;
+
+      LinkDLL $(_dll) $(_lib) : $(_res) ;
+      LinkEXE $(_exe) : $(_res) ;
     }
   }
 }
@@ -317,6 +336,7 @@ rule DylanLibraryUses image : library : dir {
   }
 
   Depends $(_dll) $(_exe) : $(_dll_$(library:L)) ;
+  local _i;
   for _i in $(_lib_$(library:L)) {
     if ! $(_i) in $(_lib_$(image[1]:L)) {
       Depends $(_dll) : $(_i) ;
@@ -335,6 +355,11 @@ rule DylanLibraryUses image : library : dir {
 #
 # Build rules and actions
 #
+
+actions Cc
+{
+  $(CC) /c /Fo$(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+}
 
 rule LinkDLL {
   Depends $(<) : $(>) ;
