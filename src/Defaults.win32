@@ -28,7 +28,6 @@ $includedir = "${prefix}\\include";
 $gen_makefile = "${buildroot}\\gen-makefile";
 $enable_debug = "minimum" eq "yes";
 $enable_profiling = "minimum" eq "profiling";
-$enable_d2c = "yes" eq "yes";
 $cross_compiling = "no" eq "yes";
 $enable_bootstrap = "no" eq "yes";
 $recheck = ".\\configure ";

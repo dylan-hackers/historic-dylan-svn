@@ -15,7 +15,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../cocoa';
 
 
-#&emit_c_file_rule('call-by-value-wrappers') if ($enable_d2c);
+#&emit_c_file_rule('call-by-value-wrappers');
 #
 #&emit_library_rule(
 #    'carbon', '$(BUILDROOT)/force.timestamp', '', 'compile',

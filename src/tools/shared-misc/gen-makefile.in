@@ -3,7 +3,7 @@
 use Cwd;
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.6 2004/07/21 22:02:20 prom Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.7 2004/07/22 14:05:14 prom Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -100,9 +100,6 @@ use Cwd;
 #     $static
 #         True if static libraries will be built.
 #
-# In addition, the d2c Makegens use the following variables:
-#
-#     $enable_d2c
 
 
 # Top level code
@@ -784,83 +781,82 @@ sub emit_library_rule {
 
     local($d2c_target);
 
-    if ($enable_d2c) {
-        local($file);
-        for $file (split(' ', $lidfile{'files'})) {
-            $file =~ s/\.dylan$//;  # chop off ".dylan"
-			if ($&) {				# This was a "something.dylan"
-	            push(@files_to_clean, "$file.c", "$file$dot_obj");
-			} else {
-                # This is a *.o or something that is handled by the
-                # emit_c_file_rule ...
-				next;
-			}
-            if ($shared && $static) {
-                push(@files_to_clean, "$file$dot_static");
-            }
-        }
 
-        push(@files_to_clean,
-             "$unit_prefix-init.c", "$unit_prefix-init$dot_obj");
-        push(@files_to_clean,
-             "$unit_prefix-heap.c", "$unit_prefix-heap$dot_obj");
-        push(@files_to_clean,
-             "$unit_prefix-guts.c", "$unit_prefix-guts$dot_obj");
-
-
-        if($shared && $static) {
-            push(@files_to_clean, "$unit_prefix-init$dot_static");
-            push(@files_to_clean, "$unit_prefix-heap$dot_static");
-            push(@files_to_clean, "$unit_prefix-guts$dot_static"); 
-        }
-
-        if ($executable) {
-            push(@files_to_clean, $executable_filename, "$unit_prefix-global-heap.c", "$unit_prefix-global-inits.c");
-            if($shared && $static) {
-                push(@files_to_clean, "$unit_prefix-global-heap$dot_static", "$unit_prefix-global-inits$dot_static");
-            }
-            push(@files_to_clean, "$unit_prefix-global-heap$dot_obj", "$unit_prefix-global-inits$dot_obj");
-
-            if (grep(/^compile$/, @keywords)) {
-                push(@compile_dependencies, $executable_filename);
-                grep(/^install$/, @keywords)
-                    && do install_executable($bindir, $executable_filename);
-            }
-
-            $d2c_target = $executable_filename;
-        }
-        else {
-            local($foo_lib_du, $libfoo_a);
-
-            $foo_lib_du = "$library.lib.du";
-            $libfoo_a = "$lib_prefix$unit_prefix-dylan$dot_lib";
-
-            push(@files_to_clean, $foo_lib_du, $libfoo_a);
-
-            if($shared && $static) {
-                local($lib_static)
-                    = $target_platform{'library_filename_suffix'};
-                push(@files_to_clean, "$lib_prefix$unit_prefix-dylan$lib_static");
-            }
-
-            if (grep(/^compile$/, @keywords)) {
-                push(@compile_dependencies, $foo_lib_du);
-                if (grep(/^install$/, @keywords)) {
-                    do install($libdir, $foo_lib_du);
-                    do install_library($libdir, $libfoo_a, $shared_library);
-                }
-            }
-
-            $d2c_target = $foo_lib_du;
-        }
+    local($file);
+    for $file (split(' ', $lidfile{'files'})) {
+	$file =~ s/\.dylan$//;  # chop off ".dylan"
+	if ($&) {				# This was a "something.dylan"
+	    push(@files_to_clean, "$file.c", "$file$dot_obj");
+	} else {
+	    # This is a *.o or something that is handled by the
+	    # emit_c_file_rule ...
+	    next;
+	}
+	if ($shared && $static) {
+	    push(@files_to_clean, "$file$dot_static");
+	}
     }
 
+    push(@files_to_clean,
+	 "$unit_prefix-init.c", "$unit_prefix-init$dot_obj");
+    push(@files_to_clean,
+	 "$unit_prefix-heap.c", "$unit_prefix-heap$dot_obj");
+    push(@files_to_clean,
+	 "$unit_prefix-guts.c", "$unit_prefix-guts$dot_obj");
+
+
+    if($shared && $static) {
+	push(@files_to_clean, "$unit_prefix-init$dot_static");
+	push(@files_to_clean, "$unit_prefix-heap$dot_static");
+	push(@files_to_clean, "$unit_prefix-guts$dot_static"); 
+    }
+
+    if ($executable) {
+	push(@files_to_clean, $executable_filename, "$unit_prefix-global-heap.c", "$unit_prefix-global-inits.c");
+	if($shared && $static) {
+	    push(@files_to_clean, "$unit_prefix-global-heap$dot_static", "$unit_prefix-global-inits$dot_static");
+	}
+	push(@files_to_clean, "$unit_prefix-global-heap$dot_obj", "$unit_prefix-global-inits$dot_obj");
+
+	if (grep(/^compile$/, @keywords)) {
+	    push(@compile_dependencies, $executable_filename);
+	    grep(/^install$/, @keywords)
+		&& do install_executable($bindir, $executable_filename);
+	}
+
+	$d2c_target = $executable_filename;
+    }
+    else {
+	local($foo_lib_du, $libfoo_a);
+
+	$foo_lib_du = "$library.lib.du";
+	$libfoo_a = "$lib_prefix$unit_prefix-dylan$dot_lib";
+
+	push(@files_to_clean, $foo_lib_du, $libfoo_a);
+
+	if($shared && $static) {
+	    local($lib_static)
+		= $target_platform{'library_filename_suffix'};
+	    push(@files_to_clean, "$lib_prefix$unit_prefix-dylan$lib_static");
+	}
+
+	if (grep(/^compile$/, @keywords)) {
+	    push(@compile_dependencies, $foo_lib_du);
+	    if (grep(/^install$/, @keywords)) {
+		do install($libdir, $foo_lib_du);
+		do install_library($libdir, $libfoo_a, $shared_library);
+	    }
+	}
+
+	$d2c_target = $foo_lib_du;
+    }
+    
     if($extraflags ne '') {
 	print STDERR "gen-makefile: Makegen file contains extraflags: ";
 	print STDERR "'$extraflags'\n";
     }
 
-    if (! grep(/^no-d2c$/, @keywords) && $enable_d2c) {
+    if (! grep(/^no-d2c$/, @keywords)) {
         print "$d2c_target: $srcdir/$lidfilename.lid $extradeps\n";
         my $profile_flag = $enable_profiling ? "--profile" : "";
         if ($shared_library) {

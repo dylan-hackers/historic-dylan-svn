@@ -30,7 +30,6 @@ $includedir = "@includedir@";
 $gen_makefile = "$buildroot/gen-makefile";
 $enable_debug = "@enable_debug@" eq "yes";
 $enable_profiling = "@enable_debug@" =~ /^profil/;
-$enable_d2c = "@enable_d2c@" eq "yes";
 $cross_compiling = "@d2c_cross_compiling@" eq "yes";
 $enable_bootstrap = "@enable_bootstrap@" eq "yes";
 $recheck = "@recheck@";

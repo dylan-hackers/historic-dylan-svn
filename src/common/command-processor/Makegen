@@ -16,6 +16,6 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../string-ext';
 
 &emit_melange_rule('termios');
-&emit_c_file_rule("cfmakeraw") if ($enable_d2c);
+&emit_c_file_rule("cfmakeraw");
 &emit_library_rule('command-processor', '$(BUILDROOT)/force.timestamp', 
 		   '', 'compile', 'install');

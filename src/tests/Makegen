@@ -19,8 +19,7 @@ $D2CFLAGS         # added by update-libdirs
 
 $shared = 0;
 
-if($enable_d2c) { $deps = $D2C; }
-else { $deps = ''; }
+$deps = $D2C;
 
 $D2C .= ' -p$(SRCROOT)/d2c/compiler/platforms.descr';
 
@@ -81,13 +80,13 @@ sub emit_run_tests_rule {
     local ($test);
     print "run_tests : ";
     foreach $test (@tests) {
-	print "$test$dot_exe " if ($enable_d2c);
+	print "$test$dot_exe ";
     }
     print "\n";
 
     foreach $test (@tests) {
 	local ($test) = &convert_path_separator("./$test");
-	print "\t$test\n" if ($enable_d2c);
+	print "\t$test\n";
     }
     push(@compile_dependencies, "run_tests");
 }

@@ -1,5 +1,5 @@
 ##
-##  $Header: /scm/cvs/src/common/Makegen,v 1.24.2.3 2004/07/21 21:50:35 prom Exp $
+##  $Header: /scm/cvs/src/common/Makegen,v 1.24.2.4 2004/07/22 14:05:04 prom Exp $
 ##
 ##  This is the makegen file for the libraries.
 ##
@@ -24,11 +24,9 @@
      'io', 'file-system', 'time', 'date', 'system', 'locators', 'matrix');
     #'network'
     #'internal-time'
+    #'command-processor'
 
 &compile_subdirs(@bootstrap_libraries);
 unless ($enable_bootstrap) {
   &compile_subdirs(@non_bootstrap_libraries);
-  #if($features{'compiled_for_unix'}) {
-  #  &compile_subdirs('command-processor');
-  #}
 }

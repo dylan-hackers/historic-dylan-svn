@@ -1,6 +1,6 @@
 local($common);
 
-if (!$enable_bootstrap || $enable_mindy_bootstrap) {
+if (!$enable_bootstrap) {
     if ($host_name eq $target_name) {
 	do compile_subdirs('c-code');
     };

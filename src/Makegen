@@ -25,7 +25,7 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/Makegen,v 1.24.2.3 2004/07/21 21:50:33 prom Exp $
+##  $Header: /scm/cvs/src/Makegen,v 1.24.2.4 2004/07/22 14:05:03 prom Exp $
 ##
 ##  This is the makegen file for the entire Dylan tree.
 ##
@@ -75,10 +75,7 @@ if ($enable_bootstrap) {
     &message("Bootstrap complete. After installing, type 'make bootstrap_clean'");
     &message("to perform a regular build.");
 } else {
-    if ($enable_d2c) {
-	&compile_subdirs("d2c");
-    }
-    &compile_subdirs("common", "tools");
+    &compile_subdirs("d2c", "common", "tools");
     if($enable_duim ne 'no') {
 	&compile_subdirs("duim");
     }
