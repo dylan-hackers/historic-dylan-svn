@@ -4,7 +4,7 @@ Author:    Douglas M. Auclair, doug@cotilliongroup.com
 Copyright: (c) 2001, LGPL
 Version:   1.0
 
-define constant $testable-fns = make(<table>);
+/* define constant $testable-fns = make(<table>);
 
 define method do-the-rest(sym :: <symbol>, str :: <string>)
   let fn = $testable-fns[sym];
@@ -22,18 +22,23 @@ define method do-the-rest(sym == #"file", str :: <string>)
   with-open-file(in = str)
     let doc = parse-document(in.stream-contents);
     transform-document(doc, state: #"html");
-   // display-node(doc);
   end;
 end method do-the-rest;
+*/
 
 define function main(name, arguments)
-  let sym = as(<symbol>, arguments[0]);
-  do-the-rest(sym, arguments[1]);
+  with-open-file(in = arguments[0])
+    let doc = parse-document(in.stream-contents);
+    transform-document(doc, state: #"html");
+  end;
+/*  let sym = as(<symbol>, arguments[0]);
+  do-the-rest(sym, arguments[1]); */
   exit-application(0);
 end function main;
 
 // Invoke our main() function.
 begin
+/*
   $testable-fns[#"attribute"] := parse-attribute;
   $testable-fns[#"char-data"] := parse-char-data;
   $testable-fns[#"stag"] := parse-stag;
@@ -50,7 +55,7 @@ begin
   $testable-fns[#"content"] := parse-content;
   $testable-fns[#"pi"] := parse-pi;
 //  $testable-fns[#"ent"] := parse-def|content;
-  
+  */
   main(application-name(), application-arguments());
 end;
 
@@ -74,7 +79,6 @@ define method transform(in :: <document>, tag-name :: <symbol>,
   write(str, "<HTML>\n <TITLE>XML as HTML</TITLE>\n <BODY>\n");
   next-method();
   write(str, "<HR>Referenced entities:<P>\n");
-//  force-output(*standard-output*);
   referenced-entities(str);
   write(str, "\n </BODY>\n</HTML>");
 end method transform;
@@ -138,7 +142,6 @@ define function referenced-entities(str :: <stream>)
     for(y in *ent*[as(<symbol>, x)].entity-value)
       transform(y, y.name, #"html", str); 
     end;
-  //  transform(*ent*[as(<symbol>, x)], *ent*[as(<symbol>, x)].name, #"html", str);
   end for;
 end function referenced-entities;
 

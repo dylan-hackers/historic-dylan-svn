@@ -10,9 +10,10 @@ define library xml-parser
 end library;
 
 define module xml-parser
-  create display-node, transform, transform-document,
+  create transform, transform-document,
          before-transform, *depth*;
 
+/*
 // I really don't want the below defs -- parse-document should
 // do everything, but until I get that working, I need to test
 // the system piecemeal.
@@ -21,7 +22,7 @@ define module xml-parser
          parse-char-data, parse-comment, parse-system-literal,
          parse-version-num, parse-pubid-literal, parse-cd-sect,
          parse-elementdecl, parse-char-ref, parse-content,
-         parse-entity-decl; // , parse-def|content;
+         parse-entity-decl; */
 
 // all the above parse-foos will be replaced with:
   create parse-document;
@@ -56,17 +57,6 @@ define module %productions
   use interface;
   use xml-parser;
 end module %productions;
-
-/****
-define module display
-  use common-dylan, exclude: {format-to-string };
-  use streams;
-  use format;
-  use format-out;
-  use xml-parser;
-  use interface;
-end module display;
-****/
 
 define module transform
   use common-dylan, exclude: {format-to-string };
