@@ -15,11 +15,9 @@ define class <attribute> (<xml>)
   slot attribute-value :: <string> = "", init-keyword: value:;
 end class <attribute>;
 
-// an element is a thing that has attributes and children
 define abstract class <tag> (<xml>)
-// here is where each-subclass would help very much
- /* constant */ slot after-open :: <string> = "";
- /* constant */ slot before-close :: <string> = "";
+ constant each-subclass slot after-open :: <string> = "";
+ constant each-subclass slot before-close :: <string> = "";
 end class <tag>;
 
 define abstract class <attributes> (<tag>)
@@ -31,9 +29,10 @@ define class <document> (<xml>, <node-mixin>)
 // think about putting in pi's, dtds, entities here
 // this'll make <document> and <element> different enough in the class
 // hierarchy to justify keeping them separate
-end;
+end class <document>;
 
-// not sealed to allow XML element tags subclasses of <element>
+// An element is a thing that has attributes and children.
+// Not sealed to allow XML element tags subclasses of <element>
 //
 // N.B. it is (very) preferable to use make-element instead of make
 // when working in conjuction with the xml-parser library
