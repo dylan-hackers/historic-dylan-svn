@@ -67,3 +67,5 @@ define variable *auto-register-map* :: <string-table>
 
 define variable *mime-type-map* :: <table> = make(<table>);
 
+define variable *logfile* :: false-or(<string>) = #f;
+
