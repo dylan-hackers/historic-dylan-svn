@@ -153,18 +153,9 @@ define sub brain simple-search(back)
     Sub bruce-spiral;
     Flip 1, (search, search);
 
-  [turn-and-return:]
-    Turn Right;
-    Turn Right;
-    Turn Right, (return);
-
-  [return:]
-    Move => return-blocked;
-    Sense Here Home, (deliver-food, return);
-
   [patrol:]
     Sub Patrol;
-    Flip 1, (deliver-food, deliver-food);
+    Drop, (search, search);
 
   [deliver-food:]
     Sub deliver-food;
@@ -172,7 +163,7 @@ define sub brain simple-search(back)
 
   [defense-find-guard-post:]
     Sub defense-find-guard-post;
-    Flip 1, (turn-and-return, turn-and-return);    
+    Flip 1, (search, search);    
 end;
 
 // Marks 0 and 1 and 2.
