@@ -9,6 +9,11 @@ define function debug(fmt :: <string>, #rest args) => ()
   end if;
 end function debug;
 
+define function always-print(fmt :: <string>, #rest args) => ()
+  apply(format, *standard-error*, fmt, args);
+  force-output(*standard-error*);
+end function always-print;
+
 define function force-format(s :: <stream>, fmt :: <string>, #rest args) => ()
   apply(format, s, fmt, args);
   force-output(s);

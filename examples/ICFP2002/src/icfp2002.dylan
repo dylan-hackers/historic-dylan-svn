@@ -30,14 +30,17 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
 	move := generate-next-move(agent, state);
 	not-crashed := #t
       exception(cond :: <condition>)
-	debug("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
-	debug("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
-	debug("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
+	always-print("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
+	always-print("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
+	always-print("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
 	if(instance?(current-bot, <gabot>))
+	  always-print("changing to pushbot\n");
 	  current-bot := <pushbot>;
 	elseif(instance?(current-bot, <pushbot>))
+		 always-print("changing to thomas\n");
 	  current-bot := <thomas>;
 	else
+	  always-print("changing to gabot\n");
 	  current-bot := <gabot>;
 	end;
 	agent := make(current-bot, agent-id: my-id,
