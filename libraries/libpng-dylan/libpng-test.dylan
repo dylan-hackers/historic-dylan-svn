@@ -14,13 +14,15 @@ define function read-png(filename :: <string>) => (image, width, height, channel
   let info-ptr = png-create-info-struct(png-ptr);
     
   with-open-file(file = filename)
-    png-init-io(png-ptr, fd-to-file-ptr(file.file-descriptor));
+    let file* = fd-to-file-ptr(file.file-descriptor);
+    png-init-io(png-ptr, file*);
     
     png-read-png(png-ptr, info-ptr, 
                  logior($PNG-TRANSFORM-STRIP-16,
                         $PNG-TRANSFORM-PACKING,
                         $PNG-TRANSFORM-SHIFT), 
                  as(<png-voidp>, 0));
+    call-out("fclose", int:, ptr: file*.raw-value);
   end with-open-file;
 
   let width  = png-get-image-width(png-ptr, info-ptr);
@@ -40,6 +42,12 @@ define function read-png(filename :: <string>) => (image, width, height, channel
       end for;
     end for;
   end for;
+
+  let png-pptr = make(<png-structpp>);
+  pointer-value(png-pptr) := png-ptr;
+  let info-pptr = make(<png-infopp>);
+  pointer-value(info-pptr) := info-ptr;
+  png-destroy-read-struct(png-pptr, info-pptr, as(<png-infopp>, 0));
 
   format-out("(%=x%=), %= bit depth, %= color type, %= channels\n",
              width,
