@@ -1,5 +1,5 @@
 module: Dylan-User
-rcs-header: $Header: /scm/cvs/src/tests/regexp-test-exports.dylan,v 1.2 2000/01/24 04:58:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tests/regexp-test-exports.dylan,v 1.2.14.1 2004/02/23 01:30:06 housel Exp $
 
 //======================================================================
 //
@@ -30,6 +30,7 @@ rcs-header: $Header: /scm/cvs/src/tests/regexp-test-exports.dylan,v 1.2 2000/01/
 
 define library regexp-test
   use dylan;
+  use common-dylan;
   use string-extensions;
   use regular-expressions;
 end library regexp-test;
@@ -40,5 +41,5 @@ define module regexp-test
   use regular-expressions;
   use substring-search;
   use string-hacking;
-  use cheap-io;
+  use simple-io;
 end module regexp-test;

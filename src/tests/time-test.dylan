@@ -2,7 +2,7 @@ module: time-test
 author: David Watson, Nick Kramer
 synopsis: Test for the time library.
 copyright: See below.
-rcs-header: $Header: /scm/cvs/src/tests/time-test.dylan,v 1.2 2000/01/24 04:58:43 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tests/time-test.dylan,v 1.2.14.1 2004/02/23 01:30:06 housel Exp $
 
 //======================================================================
 //
