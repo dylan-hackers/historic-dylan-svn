@@ -38,7 +38,7 @@ end method;
 
 define method print-state(state :: <generator-state>)
  => ();
-  debug("%= %=\n", state.output-tokens, state.maximum-cost);
+  debug("%= %= %=\n", state.output-tokens, state.maximum-cost, state.secondary-cost);
 //  debug("%=\n", state.remaining-text-runs);
 //  debug("%=\n", state.attribute-stack);
 //  debug("%=\n", state.open-tag-stack);
@@ -48,6 +48,10 @@ define method print-state(state :: <generator-state>)
 //  describe-attributes(state.to);
 //  debug("\n");
 end method print-state;
+
+define method secondary-cost(state :: <generator-state>)
+  maximum-transition-cost(state.from, state.to);
+end method secondary-cost;
 
 define inline method from(state :: <generator-state>) 
  => att :: <attribute>;
@@ -159,10 +163,17 @@ define method applicable-tags(state :: <generator-state>)
   let from :: <attribute> = state.from;
   let to   :: <attribute> = state.to;
   let tags =
-    collect-case
-      ~from.bold & to.bold              => tag-BB;
+    block(return)
+      if(from.bold & ~to.bold) return(#()) end;
+      if(from.emphasis & ~to.emphasis) return(#()) end;
+      if(from.italic & ~to.italic) return(#()) end;
+      if(from.strong & ~to.strong) return(#()) end;
+      if(from.typewriter & ~to.typewriter) return(#()) end;
+      
+      collect-case
+        ~from.bold & to.bold              => tag-BB;
       ~from.emphasis & to.emphasis      => tag-EM;
-//      from.emphasis & ~to.emphasis      => tag-EM;
+      //      from.emphasis & ~to.emphasis      => tag-EM;
       ~from.italic & to.italic          => tag-I;
       ~from.strong & to.strong          => tag-S;
       ~from.typewriter & to.typewriter  => tag-TT;
@@ -196,5 +207,6 @@ define method applicable-tags(state :: <generator-state>)
           #"white"   => tag-w;
         end;
     end collect-case;
+  end;
   tags;
 end method;

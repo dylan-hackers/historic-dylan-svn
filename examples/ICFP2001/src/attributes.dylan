@@ -198,9 +198,23 @@ define inline method maximum-transition-cost(a :: <attribute>, b :: <attribute>)
   if(a.underline < b.underline)
     total-cost := total-cost + (b.underline - a.underline) * tag-U.cost;
   end if;
+  if((a.bold & ~ b.bold) |
+     (a.italic & ~ b.italic) |
+     (a.emphasis & ~ b.emphasis) |
+     (a.strong & ~ b.strong) |
+     (a.typewriter & ~ b.typewriter) |
+     (a.underline > b.underline))
+    total-cost := total-cost + tag-PL.cost;
+    if(b.bold) total-cost := total-cost + tag-B.cost end;
+    if(b.italic) total-cost := total-cost + tag-I.cost end;
+    if(b.emphasis) total-cost := total-cost + tag-EM.cost end;
+    if(b.strong) total-cost := total-cost + tag-S.cost end;
+    if(b.typewriter) total-cost := total-cost + tag-TT.cost end;
+    total-cost := total-cost + b.underline * tag-U.cost;
+  end;
+       
   if(a.font-size ~= b.font-size) total-cost := total-cost + tag-0.cost end;
   if(a.color ~= b.color) total-cost := total-cost + tag-r.cost end;
-  total-cost := total-cost + tag-PL.cost;
   total-cost;
 end method maximum-transition-cost;
 

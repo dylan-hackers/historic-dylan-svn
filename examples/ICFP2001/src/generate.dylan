@@ -100,8 +100,8 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
       end if;
     end method cost-order;
               
-  let beam-width = 10 * 2 ^ run; // XXX Tweak here
-    debug("Beam width: %=\n", beam-width);
+  let beam-width = run; // XXX Tweak here
+  debug("Beam width: %=\n", beam-width);
   let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width);
   debug("Search done, exhaustive: %=\n", exhausted);
   
@@ -147,7 +147,7 @@ define method generate-pl(state :: <generator-state>)
        (from.italic     & ~to.italic) |
        (from.bold       & ~to.bold) |
        (from.underline > 0 & to.underline = 0))
-    list(push-tag(state, tag-PL), push-empty-tag(state));
+    list(push-tag(state, tag-PL));
   else
     list(push-empty-tag(state));
   end if;

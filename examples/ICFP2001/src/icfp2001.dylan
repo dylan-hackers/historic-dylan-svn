@@ -302,9 +302,9 @@ define function main(name, arguments)
       let i = 0;
       while(~exhausted)
 	let (string, done) =
-	  generate-optimized-output(parse-tree, run: i);
+	  generate-optimized-output(parse-tree, run: string-to-integer(arguments[1]));
 	string.concatenate-strings.see-if-best;
-	exhausted := done;
+	exhausted := #t;
 	i := i + 1;
       end while;
     end method iterate-generate-optimized-output;
