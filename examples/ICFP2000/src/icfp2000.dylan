@@ -47,23 +47,25 @@ define function main(name, arguments)
 
   let o1 = make(<sphere>);
   let o2 = make(<plane>);
-
-  o1 := uniform-scale(o1, 0.2);
   o1.surface-interpreter-entry := red-texture;
+  o2.surface-interpreter-entry := red-texture;
 
-  let l = make(<star>, direction: #[ 0.0, -1.0, 0.0, 0.0 ],
+  o1 := uniform-scale(o1, 0.3);
+
+
+  let l = make(<star>, direction: #[ 1.0, -1.0, 1.0, 0.0 ],
 	       color: make-white());
 
-/*
-  o2 := x-rotate(o2, ($double-pi / 2.0) * 3);
-  o2 := translate(o2, -0.5, -0.5, 0.0);
-  o2 := uniform-scale(o2, 2.0);
 
-  let o = make(<csg-union>, of: vector(o2, o1));
-*/
+//  o2 := x-rotate(o2, $double-pi / 4.0);
+  o2 := translate(o2, 0.0, -0.5, 0.0);
+
+
+  let o = make(<csg-union>, of: vector(o1, o2));
+  
 //  z-rotate!(o, $double-pi / 16.0);
 
-  let (p, n) = intersection-before(o1, make(<ray>, 
+  let (p, n) = intersection-before(o, make(<ray>, 
 				  position: #[ 0.0, 0.0, -1.0, 1.0],
 				 direction: #[ 0.0, 0.0,  1.0, 0.0]),
 				 1.0/0.0);
@@ -72,15 +74,15 @@ define function main(name, arguments)
 	     
 
   format-out("Ray towards upper-left: %=\n",
-	     intersection-before(o1, make(<ray>, 
+	     intersection-before(o, make(<ray>, 
 				  position: #[ 0.0, 0.0, -1.0, 1.0],
 				 direction: #[ -1.0, 1.0,  1.0, 0.0]),
 				 1.0/0.0));
 
   force-output(*standard-output*);
 
-  render-image(o1, 1, "render.ppm", 
-	       make(<color>, red: 0.2, green: 0.2, blue: 0.2), 
+  render-image(o, 1, "render.ppm", 
+	       make(<color>, red: 1.0, green: 1.0, blue: 1.0), 
 	       vector(l), 
 	       128, 128, $double-pi / 2.0);
 
