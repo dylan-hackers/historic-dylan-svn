@@ -189,7 +189,7 @@ define function jam-expand-arg-colon
           // B - Filename base
           'B' =>
             if (replace?)
-              method(name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <byte-string>) => (modified :: <byte-string>);
                 let locator = as(<file-locator>, strip-grist(name));
                 as(<byte-string>,
                    make(<file-locator>,
@@ -198,7 +198,7 @@ define function jam-expand-arg-colon
                         extension: locator.locator-extension))
               end
             else
-              method(name :: <byte-string>) => (extracted :: <byte-string>);
+              method (name :: <byte-string>) => (extracted :: <byte-string>);
                 as(<file-locator>, strip-grist(name)).locator-base;
               end
             end if;
@@ -206,7 +206,7 @@ define function jam-expand-arg-colon
           // S - Filename suffix
           'S' =>
             if (replace?)
-              method(name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <byte-string>) => (modified :: <byte-string>);
                 let locator = as(<file-locator>, strip-grist(name));
                   
                 as(<byte-string>,
@@ -216,7 +216,7 @@ define function jam-expand-arg-colon
                         extension: copy-sequence(variable, start: i + 3)))
               end
             else
-              method(name :: <byte-string>) => (extracted :: <byte-string>);
+              method (name :: <byte-string>) => (extracted :: <byte-string>);
                 let locator = as(<file-locator>, strip-grist(name));
                 if (locator.locator-extension)
                   concatenate(".",
@@ -231,7 +231,7 @@ define function jam-expand-arg-colon
           // D - Directory path
           'D', 'P' =>
             if (replace?)
-              method(name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <byte-string>) => (modified :: <byte-string>);
                 let locator = as(<file-locator>, strip-grist(name));
                 add-grist(name,
                           as(<byte-string>,
@@ -243,10 +243,24 @@ define function jam-expand-arg-colon
                                   extension: locator.locator-extension)))
                          end
             else
-              method(name :: <byte-string>) => (extracted :: <byte-string>);
+              method (name :: <byte-string>) => (extracted :: <byte-string>);
                 let locator = as(<file-system-locator>, strip-grist(name));
                 add-grist(name,as(<byte-string>, locator.locator-directory | ""))
               end
+            end if;
+
+          // R - Root directory path
+          'R' =>
+            if (replace?)
+              let new-root = as(<directory-locator>,
+                                copy-sequence(variable, start: i + 2));
+              method (name :: <byte-string>) => (modified :: <byte-string>);
+                as(<byte-string>,
+                   merge-locators(as(<file-system-locator>, name),
+                                  new-root))
+              end method;
+            else
+              always("")
             end if;
 
           // G - "Grist"
@@ -264,7 +278,7 @@ define function jam-expand-arg-colon
                   end;
               let grist
                 = copy-sequence(variable, start: new-start, end: new-end);
-              method(name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <byte-string>) => (modified :: <byte-string>);
                   concatenate("<", grist, ">", strip-grist(name))
               end
             else
@@ -740,7 +754,7 @@ define method evaluate-expression
   let arg = jam-expand-arg(jam, statement.leaf-argument);
   if (statement.leaf-list)
     let list = jam-expand-list(jam, statement.leaf-list);
-    if (every?(method(a) member?(a, list, test: \=) end, arg))
+    if (every?(method (a) member?(a, list, test: \=) end, arg))
       $jam-true
     else
       $jam-false
