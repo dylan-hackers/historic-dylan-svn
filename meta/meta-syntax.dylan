@@ -24,10 +24,18 @@ define macro scanner-builder
  => { define function "scan-" ## ?name (?=string, #key ?=start = 0, end: stop)
         let (#rest results) = ?built-meta;
         if(*debug-meta-functions?*)
-          unless(results[0]) // is a number
-           format-out("Meta stopped parsing in %s\n", ?"name");
-           force-output(*standard-output*);
-          end unless;
+          format-out("In meta fn %s, parse ", ?"name");
+          if(results[0]) // is a number
+	    format-out("succeeded\n");
+	  else
+            format-out("failed around \"%s\"\n",
+	 	       choose(method(x) 
+				let y = as(<integer>, x);
+				y > 31 & y < 128
+			      end, copy-sequence(?=string, start: ?=start,
+                                     end: min(?=string.size, ?=start + 10))));
+          end if;
+          force-output(*standard-output*);
         end if;
         apply(values, results);
       end; }
