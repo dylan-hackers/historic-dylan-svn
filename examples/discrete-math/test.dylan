@@ -1,4 +1,5 @@
 module: foo
+author: Hannes Mehnert <hannes@mehnert.org>
 
 begin
   let arg = string-to-integer(element(application-arguments(), 0));
