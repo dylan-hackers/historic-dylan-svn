@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.9 2000/05/09 20:02:18 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.9.2.1 2000/05/18 22:12:42 housel Exp $
 copyright: see below
 module: bootstrap
 
@@ -93,7 +93,7 @@ define module dylan-viscera
     <object>,
 
     // Types
-    <type>, <class>, <singleton>,
+    <type>, <class>, <designator-class>, <singleton>,
 
     // Simple Objects
     <character>, <symbol>, <boolean>,
@@ -174,7 +174,8 @@ define module dylan-viscera
 
     // Definitions
     variable-definer, constant-definer, domain-definer, function-definer,
-    generic-definer, method-definer, class-definer, library-definer,
+    generic-definer, method-definer, class-definer, designator-class-definer,
+    library-definer,
 
     // Statements
     \if, \unless, \case, \select, \while, \until, \for, \begin,
@@ -225,6 +226,7 @@ define module dylan-viscera
     <subclass>, subclass-of,
     <direct-instance>, direct-instance-of,
     <byte-character-type>,
+    size-of, alignment-of, referenced-type,		 
 
     // %Hash-Tables Stuff (Ultimately exported from Table-Extensions
     remove-all-keys!, uppercase?,
