@@ -111,16 +111,20 @@ define method traverse
      what-for :: <class>, payload :: <function>) 
  => ();
 
+  for (assign = region.first-assign then assign.next-op,
+       while: assign)
+    traverse(component, assign, what-for, payload)
+  end for;
+end method traverse;
+
+define method traverse
+    (component :: <component>, region :: <simple-region>, 
+     what-for :: subclass(<region>), payload :: <function>) 
+ => ();
+
   if (instance?(region, what-for))
     payload(component, region);
   end if;
-
-  unless (subtype?(what-for, <region>))
-    for (assign = region.first-assign then assign.next-op,
-	 while: assign)
-      traverse(component, assign, what-for, payload)
-    end for;
-  end unless;
 end method traverse;
 
 // Assignments:
@@ -130,21 +134,24 @@ define method traverse
      what-for :: <class>, payload :: <function>) 
  => ();
 
+  // LHS variables
+  for (defined-var = assignment.defines then defined-var.definer-next,
+       while: defined-var)
+    traverse(component, defined-var, what-for, payload);
+  end for;
+
+  // RHS expression
+  traverse(component, assignment.depends-on.source-exp, what-for, payload);
+end method traverse;
+
+define method traverse
+    (component :: <component>, assignment :: <assignment>, 
+     what-for :: subclass(<abstract-assignment>), payload :: <function>) 
+ => ();
+
   if (instance?(assignment, what-for))
     payload(component, assignment);
   end if;
-
-  unless (subtype?(what-for, <abstract-assignment>))
-    // LHS variables
-    for (defined-var = assignment.defines then defined-var.definer-next,
-	 while: defined-var)
-      traverse(component, defined-var, what-for, payload);
-    end for;
-
-    // RHS expression
-    traverse(component, assignment.depends-on.source-exp, what-for, payload);
-  end unless;
-
 end method traverse;
 
 // Variables:

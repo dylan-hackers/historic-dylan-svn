@@ -4,7 +4,7 @@ copyright: see below
 
 //======================================================================
 //
-// Copyright (c) 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 2000 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -39,6 +39,7 @@ define library compiler-fer-transform
 end library compiler-fer-transform;
 
 define module fer-transform
+  use extensions, import: {subclass};
   use common;
   use utils;
   use compile-time-values;
