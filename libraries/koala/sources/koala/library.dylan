@@ -84,9 +84,12 @@ define module http-server
     page-definer,                // Defines a new page class
     <taglib>,
     taglib-definer,
-    tag-definer,                 // Defines a new DSP tag function and registers it with a page
-    register-tag,                // This can be used to register tag functions that weren't
-                                 //   created by "define tag".
+    tag-definer,            // Defines a new DSP tag function and registers it with a page
+    register-tag,           // This can be used to register tag functions that weren't created by "define tag".
+    tag-call-arguments,
+    map-tag-call-arguments,
+    show-tag-call-arguments,
+
     <page-context>,
     page-context,                // Returns a <page-context> if a page is being processed.
                                  //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
@@ -94,9 +97,9 @@ define module http-server
     get-named-method,
     quote-html,                  // Change < to &lt; etc
 
-    // DSP tag definitions
-    current-row,
-    current-row-number;
+    // Utils associated with DSP tag definitions
+    current-row,                 // dsp:table
+    current-row-number;          // dsp:table
 
   // Logging
   create
