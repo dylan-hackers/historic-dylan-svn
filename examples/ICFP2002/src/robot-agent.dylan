@@ -26,8 +26,7 @@ define method maybe-mark-base-visited(me :: <robot-agent>, s :: <state>, p :: <p
   end if;
 end method maybe-mark-base-visited;
 
-// some direction stuff.
-
+// Find direction of adjacent point
 define method points-to-direction(src :: <point>, dest :: <point>)
  => (dir :: one-of(#"north", #"south", #"west", #"east", #f))
   let xdiff = src.x - dest.x;
@@ -46,3 +45,27 @@ define method points-to-direction(src :: <point>, dest :: <point>)
   end;
 end method points-to-direction;
 
+// Finds the closest from provided list of targets.
+define method closest-point(s :: <state>, 
+			    from :: <point>, 
+			    targets :: <collection>, 
+			    #key find-path-func = find-path,
+			      cutoff = $maximum-integer)
+ => (target :: false-or(<point>), path ::  false-or(<point-list>));
+
+  let min-path = #f;
+
+  for (t in targets)
+    let path = find-path-func(from, t, s.board, cutoff: cutoff);
+    if (path & path.size < cutoff)
+      min-path := path;
+      cutoff := path.size;
+    end if;
+  end for;
+
+  if (min-path)
+    values(min-path.last, min-path);
+  else
+    values(#f, #f);
+  end if;
+end method closest-point;
