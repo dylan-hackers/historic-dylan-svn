@@ -1,4 +1,7 @@
 @SysInclude { report }
+
+def @Class right name { @F {{@Sym angleleft}name{@Sym angleright}} }
+
 @Report
 @DateLine { Yes }
 @Title {
@@ -72,7 +75,7 @@ For some languages or implementations the compiler
 is able to determine the type of a dynamic object
 by either taking the @I { type annotations } in consideration
 or by @I inferring a more restricted @I subtype of
-the class @DClass object. In this case we talk about @I
+the class {@Class object}. In this case we talk about @I
 { statically known } types. But there is no way to
 generally figure out the @I { dynamic type } of an
 object, since classes may be added in other libraries,
@@ -135,7 +138,10 @@ define sealed domain render (<document>, <laser-printer>) => ();
 the GF @F render is prohibited from accepting methods specialized
 on subtypes of the given signature that originate outside the
 library being the provider of the seal. Sealed domains also arise
-implicitly by not declaring GFs as being @F { open }.
+implicitly by not declaring GFs as being @F { open }. In the
+remaining part of this paper we assume all generic functions
+mentioned as sealed.
+
 @End @SubSection
 
 @EndSubSections
@@ -149,13 +155,13 @@ implicitly by not declaring GFs as being @F { open }.
 @Section
 @Title { The Post-Facto Analysis }
 @Begin
+@PP
 Our analysis centers around the observation that a successful function
 call automatically implies that all semantics dictated constraints w.r.t.
 the function's call and return preconditions are fulfilled. To stay with
 our running example from the introduction, if a call @F { render(a, b) }
 returns, we can safely assume that the constraints @F { instance?(a, <document>) }
 and @F { instance?(b, <device>) } hold true.
-@PP
 
 #################
 @BeginSubSections
@@ -165,7 +171,7 @@ and @F { instance?(b, <device>) } hold true.
 @Begin
 @PP
 In Dylan (among other dynamically typed safe languages) a
-functions signature conveys two contracts:
+function's signature conveys two contracts:
 @BulletList
    @ListItem { the caller promises to only invoke the function
 with the number and types of arguments as laid down in the @I { argument
@@ -239,8 +245,8 @@ this formula. It simply states that we can do even @I better than the formula su
 @Begin
 @PP
 Consider the following Dylan snippet:
-
-@Verbatim {
+@LP
+@IndentedDisplay @F @Verbatim {
 
 define method theory-of-everything(t == #t, v == 42) ...
 define method theory-of-everything(t == #f, v == 0) ...
@@ -265,9 +271,9 @@ automatically implies @F 42 for the second and @F #f for
 @F truth implies @F 0 for value.
 
 
-
-signature unions, indexed by argument. gives rise to
-multiple constraints
+@PP
+@I { [signature unions, indexed by argument. gives rise to
+multiple constraints] }
 
 @End @SubSection
 
@@ -308,6 +314,16 @@ form of types.
 @Title { Implementing Polynomial Constraints }
 @Begin
 @PP
+Implementing the tuple-of-unions version of post-facto
+inference turned out to be relatively straightforward,
+since the compiler already supplies the definitive and
+maybe sets needed for the analysis. @I { [a bit more how it is done] }
+The bigger challenge is to implement the union-of-tuples
+approach. The idea is to introduce a new internal type
+primitive, say, {@Class tuple-union-projection}, that is
+able to represent the type of the @I {n}th positional
+argument of a tuple-union or the type of its keyword
+argument {@F m:}. 
 
 @End @Section
 
@@ -321,7 +337,18 @@ form of types.
 @PP
 
 It is expected that our method is most effective on sparsely
-type-annotated programs.
+type-annotated programs. In its first incarnation of the
+algorithm a dozen of optimization candidates were detected
+in the 75 KLOC sourcebase of @F d2c itself. Some of them could
+not effectively be exploited because while the refinement
+appeared in both legs of "if" nodes and the use in a node
+dominated by the "if" node, @F d2c unfortuantely has no mechanism
+(yet) to coalesce the results of analysis to behind the "if" node.
+This number appears as extremely low, but we must take into
+consideration that @F d2c is a well-annotated program when it
+comes to types. It is expected that after implementing the
+tuple-union based optimization, a whole lot more of opportunities
+for type refinement open up.
 @End @Section
 
 
