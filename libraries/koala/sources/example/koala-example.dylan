@@ -4,6 +4,8 @@ Author:    Carl Gay
 
 /*
 
+Some XML-RPC methods are defined near the bottom.
+
 Start this example project and go to /demo/home.dsp and you can choose from a
 menu of pages that demonstrate the features of Dylan Server Pages.  You should
 be able to find the code corresponding to a particular URL by searching for that
@@ -343,6 +345,28 @@ define tag row-bgcolor in demo
   write(output-stream(response),
         if(even?(current-row-number())) "#EEEEEE" else "#FFFFFF" end);
 end;
+
+
+/// XML-RPC (use any XML-RPC client to call these)
+
+begin
+  register-xml-rpc-method("test.zero",
+                          method () end);
+  register-xml-rpc-method("test.one",
+                          method () 1 end);
+  register-xml-rpc-method("test.two",
+                          method () "two" end);
+  register-xml-rpc-method("test.three",
+                          method () vector(1, "two", 3.0) end);
+  register-xml-rpc-method("test.four",
+                          method ()
+                            let result = make(<table>);
+                            result["x"] := vector(vector(7), 8);
+                            result["y"] := "my <dog> has fleas";
+                            result
+                          end);
+end;
+
 
 
 

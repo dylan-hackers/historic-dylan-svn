@@ -23,7 +23,6 @@ end;
 define function xml-rpc-call-2
     (host :: <string>, port :: <integer>, url :: <string>, method-name :: <string>, #rest args)
  => (response :: <object>)
-  format-out("foo\n");
   let xml = apply(create-method-call-xml, method-name, args);
   when (*debugging-xml-rpc*)
     format-out("%s\n\n", xml);
@@ -31,11 +30,11 @@ define function xml-rpc-call-2
   let stream = make(<TCP-socket>, host: host,  port: port);
   format(stream, "POST %s HTTP/1.0\r\n", url);
   format(stream, "Host: %s\r\n", host);
-  format(stream, "User-Agent: Koala\r\n");
-  format(stream, "Content-Type: text/xml\r\n");
-  format(stream, "Content-Length: %d\r\n", size(xml));
-  format(stream, "Pragma: no-cache\r\n");
-  format(stream, "\r\n");
+  write (stream, "User-Agent: Koala XML-RPC client\r\n");
+  write (stream, "Content-Type: text/xml\r\n");
+  format(stream, "Content-Length: %d\r\n", xml.size);
+  write(stream, "Pragma: no-cache\r\n");
+  write(stream, "\r\n");
   write(stream, xml);
   force-output(stream);
   read-response(stream)
@@ -45,16 +44,15 @@ define function create-method-call-xml
     (method-name :: <string>, #rest args)
  => (xml :: <string>)
   with-output-to-string (s)
-    format(s, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><methodCall>");
-    format(s, "<methodName>%s</methodName>", method-name);
-    format(s, "<params>");
+    write(s, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><methodCall><methodName>");
+    quote-html(method-name, stream: s);
+    write(s, "</methodName><params>");
     for (arg in args)
-      format(s, "<param><value>");
+      write(s, "<param><value>");
       to-xml(arg, s);
-      format(s, "</value></param>");
+      write(s, "</value></param>");
     end;
-    format(s, "</params>");
-    format(s, "</methodCall>");
+    write(s, "</params></methodCall>");
   end
 end;
 
@@ -63,10 +61,13 @@ define function read-response
     (stream :: <tcp-socket>)
  => (response :: <object>)
   let content-length :: <integer> = -1;
-  let cl = "Content-Length: ";
+  let cl = "Content-length: ";
   let line :: false-or(<string>) = #f;
   while ((line := read-line(stream, on-end-of-stream: #f))
          & ~zero?(size(line)))
+    when (*debugging-xml-rpc*)
+      format-out("%s\n", line);
+    end;
     // --TODO: Are HTTP headers case-sensitive?  Can't remember...
     if (subsequence-position(line, cl) == 0)
       // ---TODO: robustify this to skip whitespace and handle errors.

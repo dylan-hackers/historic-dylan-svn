@@ -4,7 +4,27 @@ Author:    Carl Gay
 Copyright: (C) 2002, Carl L Gay.  All rights reserved.
 
 
+// ---TODO: The XML parser doesn't seem to handle &lt; etc correctly.
+//          Returning a string like "a <b> c" from a RPC method stripts
+//          the < and > chars.
+
+
+// If true, output useless debugging statements.
+//
 define variable *debugging-xml-rpc* :: <boolean> = #t;
+
+// ---TODO: Parameterize this in the Koala config file.
+// If this is true, err when we receive data that we can't parse,
+// even if there's a way to continue.  Mostly here for debugging 
+// the server/client, but could be used to validate other servers
+// or clients also.  Not used much yet.
+//
+define variable *strict?* :: <boolean> = #t;
+
+define function set-strict-mode
+    (strict? :: <boolean>)
+  *strict?* := strict?
+end;
 
 //// quote-html copied from koala/utils.dylan
 //// Should create a common utilities library for things like this and the iff macro.
@@ -45,7 +65,7 @@ end;
 // is returned.
 //
 define class <xml-rpc-fault> (<xml-rpc-error>)
-  slot fault-code :: <integer>, required-init-keyword: #"fault-code";
+  constant slot fault-code :: <integer>, required-init-keyword: #"fault-code";
 end;
 
 define function xml-rpc-fault
@@ -69,6 +89,11 @@ define method xml-rpc-parse-error
               format-arguments: format-args))
 end;
 
+// Convert a Dylan object to XML-RPC.
+// Note that base64 strings are just <string>s, so the user is responsible
+// for explicitly converting TO base64 via base64-encode-string.  Conversion
+// FROM base64 is done automatically.
+//
 define generic to-xml (arg :: <object>, stream :: <stream>) => ();
 
 // Default method
@@ -88,11 +113,13 @@ define method to-xml (arg :: <integer>, stream :: <stream>) => ()
 end;
 
 define method to-xml (arg :: <boolean>, stream :: <stream>) => ()
-  format(stream, "<boolean>%s</boolean>", arg);
+  format(stream, "<boolean>%s</boolean>",
+         if (arg) "1" else "0" end);
 end;
 
 define method to-xml (arg :: <float>, stream :: <stream>) => ()
-  format(stream, "<double>%=</double>", arg);
+  format(stream, "<double>%s</double>",
+         float-to-formatted-string(arg));
 end;
 
 define method to-xml (arg :: <date>, stream :: <stream>) => ()
@@ -105,19 +132,21 @@ define method to-xml (arg :: <table>, stream :: <stream>) => ()
   for (key in key-sequence(arg))
     write(stream, "<member><name>");
     quote-html(key, stream: stream);
-    write(stream, "</name>");
+    write(stream, "</name><value>");
     to-xml(arg[key], stream);
-    write(stream, "</member>");
+    write(stream, "</value></member>");
   end;
   write(stream, "</struct>");
 end;
 
 define method to-xml (arg :: <sequence>, stream :: <stream>) => ()
-  write(stream, "<array>");
+  write(stream, "<array><data>");
   for (item in arg)
+    write(stream, "<value>");
     to-xml(item, stream);
+    write(stream, "</value>");
   end;
-  write(stream, "</array>");
+  write(stream, "</data></array>");
 end;
 
 define function find-child (node :: xml$<node-mixin>, name :: <symbol>)
@@ -137,7 +166,14 @@ end;
 
 define method from-xml (node :: xml$<element>, name == #"boolean")
   let it = xml$text(node);
-  it = "1"                  // improve vastly
+  if (it = "1")
+    #t
+  elseif (it = "0")
+    #f
+  else
+    *strict?*
+    & xml-rpc-parse-error("Malformed <boolean> element.");
+  end if
 end;
 
 define method from-xml (node :: xml$<element>, name == #"string")
@@ -154,8 +190,7 @@ define method from-xml (node :: xml$<element>, name == #"i4")
 end;
 
 define method from-xml (node :: xml$<element>, name == #"double")
-  let str = xml$text(node);
-  (str)  // TODO
+  string-to-float(xml$text(node));
 end;
 
 define method from-xml (node :: xml$<element>, name == #"datetime.iso8601")
@@ -167,7 +202,7 @@ define method from-xml (node :: xml$<element>, name == #"datetime.iso8601")
 end;
 
 define method from-xml (node :: xml$<element>, name == #"base64")
-  // TODO
+  base64-decode(xml$text(node))
 end;
 
 
@@ -221,6 +256,4 @@ define method from-xml (node :: xml$<element>, name == #"struct")
   tbl
 end;
 
-begin
-  // Library initialization starts here ...
-end;
+

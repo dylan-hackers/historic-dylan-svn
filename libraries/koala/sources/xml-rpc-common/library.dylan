@@ -8,9 +8,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define library xml-rpc-common
   use functional-dylan;
   use io;
-  //use network;
   use system;         // for date module
   use xml-parser;
+  use dysuki;
   export xml-rpc-common;
 end;
 
@@ -18,12 +18,13 @@ define module xml-rpc-common
   use functional-dylan;
   use format;
   use format-out;  // for debugging only
-  //use sockets;
   use streams;
   use date,
     import: { <date>, as-iso8601-string };
   use xml-parser,
     prefix: "xml$";
+  use dysuki;
+
   export
     <xml-rpc-error>,
     <xml-rpc-parse-error>, xml-rpc-parse-error,
@@ -31,7 +32,12 @@ define module xml-rpc-common
     to-xml,
     from-xml,
     find-child,
-    *debugging-xml-rpc*;
+    *debugging-xml-rpc*,
+    set-strict-mode,
+    base64-encode,
+    base64-decode,
+    quote-html;            // needed by xml-rpc-client lib
+                           // should move to a common-utils lib
 end;
 
 
