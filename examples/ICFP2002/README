@@ -1,26 +1,24 @@
 This archive contains our entry for the 2002 ICFP
 Programming Contest.
 
-Team name: Dylan Hackers
+Team name: Dylanoid Phenomenon
 
 Team Captain
-  Name: Bruce Hoult
-  Email: bruce@hoult.org
-  Address: 65 Oxford St, Tawa, Wellington 6006, New Zealand
-
+  Name: Andreas Bogk
+  Email: andreas@andreas.org
+  Address: Mariannenplatz 5
+           10997 Berlin
+	   GERMANY
 
 Team Members:
   Andreas Bogk <andreas@andreas.org>, Germany
   Chris Double <chris@double.co.nz>, New Zealand
-  Bruce Hoult <bruce@hoult.org>, New Zealand
-  Peter Housel, USA
+  Peter Housel <housel@acm.org>, USA
   Gabor Greif <gabor@mac.com>, Germany
   Neel Krishnaswami <neelk@alum.mit.edu>, USA
   Jeff Dubrule <igor@pobox.com>, Canada
-  Alex Potanin <alex@mcs.vuw.ac.nz>, New Zealand
   Keith Bauer <onesadcookie@paradise.net.nz>, New Zealand
   Paul Dempster <paul@scotek.org>, Scotland
 
 
 Language used: Dylan (Gwydion "d2c" 2.3.9)
-
