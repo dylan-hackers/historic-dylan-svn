@@ -179,7 +179,7 @@ define method send-response
     let response-line
       = format-to-string("%s %d %s\r\n",
                          $http-version, response-code, response-message | "OK");
-    unless (req.request-version = #"http/0.9")
+    unless (req.request-version == #"http/0.9")
       log-copious("-->%s", response-line);
       write(stream, response-line);
     end unless;
@@ -195,7 +195,7 @@ define method send-response
       // Add required headers
       add-header(response, "Content-Length", content-length);
     end unless;
-    unless (req.request-version = #"http/0.9")
+    unless (req.request-version == #"http/0.9")
       send-headers(response, stream);
     end unless;
 
