@@ -3,13 +3,13 @@ require "shared.inc";
 standard_header("Downloading Software");
 ?>
 
-<P><EM>Gwydion Dylan 2.3.5</EM> is the current release version of
-Gwydion Dylan. It is a development release, not finished software. Be
-sure the review the <A
+<P><EM>Gwydion Dylan <?php current_version();?></EM> is the current release
+version of Gwydion Dylan. It is a development release, not finished software.
+Be sure to review the <A
 HREF="limitations.phtml">limitations</A>.</P>
 
 <P>To use the d2c compiler, you'll normally want to download precompiled
-binaries for your platform. (d2c is written in Dylan). Binary tarballs are
+binaries for your platform (d2c is written in Dylan). Binary tarballs are
 available for several different platforms, and the following RPMs are
 available:</P>
 
@@ -46,7 +46,14 @@ HREF="mailto:andreas@andreas.org">Andreas Bogk</A>.)</P>
 <P><A HREF="http://www.ccc.de/cgi-bin/cvsweb/gd/">Browse our CVS tree.</A>
 You can also access the cvs server directly, specify
 <tt>:pserver:anoncvs@berlin.ccc.de:/home/cvsroot</tt> as your CVS root. The
-password is <tt>anoncvs</tt>. You can find version 2.2 on the branch
-GD_2_2_STABLE.</P>
+password is <tt>anoncvs</tt>. The very conservative can find version 2.2 on
+the branch GD_2_2_STABLE, but even though we haven't yet released a newer
+official "stable" release we think we've made <strong>great</strong> progress
+and improvements since then and generally recommend people to start from the
+most recent tagged version which is currently <?php current_version();?>.
+If that works for you (or you're the type that doesn't read manuals before
+turning on your new VCR) then you can try the HEAD version.  We actually try
+pretty hard to make sure the HEAD version always works but there are certainly
+even fewer guarantees with it than usual :-)</P>
 
 <?php standard_footer(); ?>
