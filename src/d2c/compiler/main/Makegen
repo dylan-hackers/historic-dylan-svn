@@ -37,24 +37,27 @@ $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../../../common/collection-extensions'
-    . ' -L../../../common/table-ext'
-    . ' -L../../../common/string-ext'
-    . ' -L../../runtime/random'
-    . ' -L../../../common/streams'
-    . ' -L../../../common/print'
+    . ' -L../../../common/common-dylan'
     . ' -L../../../common/format'
+    . ' -L../../../common/format-out'
     . ' -L../../../common/getopt'
+    . ' -L../../../common/io'
+    . ' -L../../../common/print'
     . ' -L../../../common/standard-io'
-    . ' -L../../../common/regular-expressions'
-    . ' -L../../../common/base-file-system'
+    . ' -L../../../common/stream-ext'
+    . ' -L../../../common/streams'
+    . ' -L../../../common/string-ext'
+    . ' -L../../../common/system'
+    . ' -L../../../common/table-ext'
+    . ' -L../../../common/threads'
     . ' -L../base'
-    . ' -L../front'
+    . ' -L../cback'
+    . ' -L../convert'
     . ' -L../fer-transform'
+    . ' -L../front'
     . ' -L../optimize'
     . ' -L../parser'
-    . ' -L../../../common/stream-ext'
-    . ' -L../convert'
-    . ' -L../cback';
+    . ' -L../../runtime/random';
 
 @potential_targets = &d2c_library('Main', '');
 
