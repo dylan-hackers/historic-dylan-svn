@@ -86,8 +86,4 @@ Gwydion notes:
     have a file spec on the files: line.
   FD seals element on <object-table>, so <multimap> doesn't work.
   Gwydion has bogus #if #endif directives in some files, for mindy.
-  
-  http://www.gwydiondylan.org/gdref/gduser.html#GDUSER-WORKING-WITH-LID
-  says that the Files: keyword isn't supported, but make-dylan-app
-  generates this keyword and it works.
 
