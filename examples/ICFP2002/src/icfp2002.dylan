@@ -19,10 +19,10 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
        my-capacity :: <integer>, 
        my-money :: <integer>, 
        state :: <state>) = receive-initial-setup(input);
-/*
-  let agent = make(<robot-agent>, id: my-id, 
+  let agent = make(<dumbot>, id: my-id, 
                    capacity: my-capacity, money: my-money);
 
+/*
   let running = #t;
   while(running)
     state := read-packages(input, state);

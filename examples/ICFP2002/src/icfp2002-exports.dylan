@@ -87,7 +87,8 @@ define module client
   use command;
   use path;
 
-  export <robot-agent>
+  export <robot-agent>,
+    <dumbot>;
 end module client;
 
 
@@ -110,4 +111,5 @@ define module icfp2002
   use network;
   use messages;
   use board;
+  use client;
 end module;
