@@ -182,7 +182,10 @@
 <!ELEMENT DefSupers - - (DefSuper*) >
 <!ELEMENT DefSuper - - (#PCDATA) >
 <!ELEMENT DefInitKeywords - - (KeyParam*) >
-
+<!ENTITY obj-super '
+ <DefSupers>
+  <DefSuper>&lt;object&gt;</DefSuper>
+ </DefSupers>'>
 
 <!-- =============== Function Definitions ========================
   The following elements are used to define functions, methods
@@ -192,3 +195,4 @@
 <!ELEMENT DefParameters - - (VarParam?, Param*, RestParam?, 
                              (KeyParam*, AllKeys?)?) >
 <!ELEMENT DefReturns - - (Param*, RestParam?) -(ParamSingleton)>
+<!ENTITY no-returns '<defreturns></defreturns>'>

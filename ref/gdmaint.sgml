@@ -23,6 +23,12 @@
  <!ENTITY main-lib
    '<link linkend="gdmaint-d2c-main"><dlibrary>Compiler-Main</dlibrary>
     library</link>' >
+
+ <!ENTITY load-state-param '
+  <param>
+   <paramname>state</paramname>
+   <paramtype>&lt;load-state&gt;</paramtype>
+  </param>'>
 ]>
 <BOOK id="gdmaint">
   <title>Gwydion Dylan Porting and Maintenance Guide</title>
@@ -1165,7 +1171,7 @@ end method;</programlisting>
 	a method to <dname>add-od-loader</dname> (described in <xref
 	linkend="gdmaint-d2c-base-od-format-defining">) 
 	that is activated by a <dname>&lt;dispatcher></dname> instance
-	when it encounters the object in the du file to load.</para>
+	when it encounters the object in the dump file to load.</para>
 
 	<para>A loader on <dname>&lt;byte-string></dname>
 	(the corresponding <dname>dump-od</dname> method is found in
@@ -1189,30 +1195,287 @@ add-od-loader(*default-dispatcher*, #"byte-string",
 	<filename>dylan-dump.dylan</filename>.)  The functions used to
 	build the dispatch method are described below.
 	</para>
-	<para>The following descriptions TBD:</para>
-	<itemizedlist>
-	 <listitem><para>&lt;load-state></para></listitem>
-	 <listitem><para>od-stream</para></listitem>
-	 <listitem><para>od-buffer</para></listitem>
-	 <listitem><para>od-next</para></listitem>
-	 <listitem><para>od-next-setter</para></listitem>
-	 <listitem><para>load-object-dispatch</para></listitem>
-	 <listitem><para>load-raw-data</para></listitem>
-	 <listitem><para>load-subobjects-vector</para></listitem>
-	 <listitem><para>load-sole-subobject</para></listitem>
-	 <listitem><para>assert-end-object</para></listitem>
-	 <listitem><para>$end-object</para></listitem>
-	</itemizedlist>
+
+	<dylanclassdef>
+	  <defname>&lt;load-state></defname>
+	  <defsummary>A load-state is an object that describes the
+	  current state of the loading process. Among other things, it
+	  contains an input &lt;stream> and the buffer to the stream.
+	  </defsummary>
+	  &obj-super;
+	  <definitkeywords>
+	   <keyparam>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream></paramtype>
+	    <paramsummary>The stream we're reading from.  Only used
+	    for refilling the buffer.  This slot is accessed via the
+	    <dname>od-stream</dname> method.</paramsummary>
+	   </keyparam>
+	   <keyparam>
+	    <paramname>buffer</paramname>
+	    <paramtype>&lt;buffer></paramtype>
+	    <paramsummary>State of the stream buffer, which we hold
+	    for the duration of the load.  It is accessed via the
+	    <dname>od-buffer</dname> method.</paramsummary>
+	   </keyparam>
+	   <keyparam>
+	    <paramname>next</paramname>
+	    <paramtype>&lt;buffer-index></paramtype>
+	    <paramsummary>The index of the state's stream; it is
+	    accessed via the <dname>od-next</dname> method and 
+	    can be set (changed) using the
+	    <dname>od-next-setter</dname> method.</paramsummary>
+	   </keyparam>
+	   <keyparam>
+	    <paramname>end</paramname>
+	    <paramtype>&lt;buffer-index></paramtype>
+	    <paramsummary>The end-index for the buffer and stream.
+	    This slot is accessed via the <dname>od-end</dname>
+	    method.</paramsummary>
+	   </keyparam>
+	   <keyparam>
+	    <paramname>position-offset</paramname>
+	    <paramtype>&lt;integer></paramtype>
+	    <paramsummary>When added to the od-next pointer, this
+	    offset yields the byte offset of our current position from
+	    the data-unit start.  This must be updated whenever we
+	    refill the buffer.</paramsummary>
+	   </keyparam>
+	   <keyparam>
+	    <paramname>dispatcher</paramname>
+	    <paramtype>&lt;dispatcher></paramtype>
+	   </keyparam>
+	  </definitkeywords>
+	  <defdescription>
+	   <para>A <dname>&lt;load-state></dname> object is passed
+	   into the dispatching method to reconstruct a dumped
+	   object (so, you do not need to <dname>make</dname> a
+	   <dname>&lt;load-state></dname> instance).  Use that object
+	   in conjuction with the functions described below.</para>
+	  </defdescription>
+	 </dylanclassdef>
+
+	 <dylanconstantdef>
+	  <defname>$end-object</defname>
+	  <defsummary>An end-of-subobjects marker.</defsummary>
+	  <deftype>&lt;end-object></deftype>
+	  <defdescription><para>A magical object which is always the last
+	  sub-object in an object.</para></defdescription>
+	 </dylanconstantdef>
+
+	 <dylanmethoddef>
+	  <defname>load-object-dispatch</defname>
+	  <defsummary>Read an object header and invoke the appropriate
+	  loader. Return the object that the loader
+	  returns.</defsummary>
+	  <defparameters>&load-state-param;</defparameters>
+	  <defreturns>
+	   <param>
+	    <paramname>res</paramname>
+	    <paramtype>&lt;object></paramtype>
+	    <paramsummary>The reconstructed object.</paramsummary>
+	   </param>
+	  </defreturns>
+	  <defdescription>
+	   <para>Start loading some objects from a load-state.
+	   Dispatches to an appropriate loader method depending on the
+	   dispatcher and the entry type.  Returns the object.</para>
+	   
+	   <para>For example, to load a <dname>&lt;ratio></dname>
+	   instance, build a dispatching method like this:</para>
+<programlisting>
+add-od-loader(*default-dispatcher*, #"ratio", 
+  method (state :: &lt;load-state>) => res :: &lt;ratio>;
+    
+    let npart = load-object-dispatch(state);
+    let dpart = load-object-dispatch(state);
+    assert-end-object(state);
+    ratio(npart, dpart);
+  end method
+);</programlisting>
+	  </defdescription>
+	 </dylanmethoddef>
+
+	 <dylanmethoddef>
+	  <defname>load-raw-data</defname>
+	  <defsummary>Loads data into a parameter.</defsummary>
+	  <defparameters>
+	   <param>
+	    <paramname>res</paramname>
+	    <paramtype>&lt;byte-string></paramtype>
+	    <paramsummary>A pre-allocated buffer where the raw data
+	    gets loaded.</paramsummary>
+	   </param>
+	   <param>
+	    <paramname>elsize</paramname>
+	    <paramtype>&lt;integer></paramtype>
+	    <paramsummary>Size of the buffer (or the maximum bytes to
+	    load).</paramsummary>
+	   </param>
+	   &load-state-param;
+	  </defparameters>
+	  <defreturns>
+	   <param>
+	    <paramname>nnext</paramname>
+	    <paramtype>&lt;buffer-index></paramtype>
+	    <paramsummary>The position in the
+	    <dname>&lt;load-state></dname>'s buffer after loading the
+	    raw data.</paramsummary>
+	   </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>Loads raw data into <glossterm>res</glossterm>.  It
+	    is up to the dispatching method to interpret that loaded
+	    raw data in order to reconstruct the object's
+	    state.</para>
+	    <para>Usually a call to <dname>load-raw-data</dname> is to
+	    load a string, so reconstruction is easy (see the example
+	    at the top of this section -- <xref
+	    linkend="gdmaint-d2c-base-od-format-loaders">).  One thing
+	    of note is that this method is NOT functional:
+	    <glossterm>res</glossterm> is NOT returned, but is a
+	    destructively modified parameter.</para>
+	  </defdescription>
+	 </dylanmethoddef>
+
+	 <dylanmethoddef>
+	  <defname>load-subobjects-vector</defname>
+	  <defsummary>Returns a vector of an object's
+	  subobjects.</defsummary>
+	  <defparameters>
+	   &load-state-param;
+	   <param>
+	    <paramname>size-hint</paramname>
+	    <paramtype>false-or(&lt;integer>)</paramtype>
+	    <paramsummary>If a number, then the number of subobjects
+	    MUST match.</paramsummary>
+	   </param>
+	  </defparameters>
+	  <defreturns>
+	   <param>
+	    <paramname>res</paramname>
+	    <paramtype>&lt;simple-object-vector></paramtype>
+	    <paramsummary>The subobjects of the object.</paramsummary>
+	   </param>
+	  </defreturns>
+	  <defdescription>
+	   <para>Loads the dumped subobjects into a vector.  Note that
+	   the subobjects may be unresolved when loaded with this
+	   function ... it is the responsibility of the user of this
+	   function to resolve those objects (see <xref
+	   linkend="gdmaint-d2c-base-od-format-circular"> for more
+	   information on functions for object resolution such as
+	   <dname>obj-resolved?</dname>, <dname>actual-obj</dname>, and
+	   <dname>request-backpatch</dname>).</para> 
+
+	   <para>So, getting a <dname>&lt;vector></dname> from this
+	   function still requires programming effort, e.g.:</para>
+<programlisting>
+add-od-loader(*default-dispatcher*, #"simple-object-vector", 
+  method (state :: &lt;load-state>) => res :: &lt;simple-object-vector>;
+    let contents = load-subobjects-vector(state, #f);
+    let rsize = contents.size;
+    let res = make(&lt;simple-object-vector>, size: rsize);
+    for (i from 0 below rsize)
+      let el = contents[i];
+      if (el.obj-resolved?)
+        res[i] := el.actual-obj;
+      else
+        res[i] := el;
+	request-backpatch(el, method (actual) res[i] := actual end);
+      end;
+    end;
+    res;
+  end method
+);</programlisting>
+
+           <para>Fortunately, the <dmodule>Dylan-dump</dmodule> module
+	   provides this dispatching method.  See <xref
+	   linkend="gdmaint-d2c-base-dylan-dump">.</para>
+	  </defdescription>
+	 </dylanmethoddef>
+
+	 <dylanmethoddef>
+	  <defname>load-sole-subobject</defname>
+	  <defsummary>Loads the only subobject of this
+	  object.</defsummary>
+	  <defparameters>&load-state-param;</defparameters>
+	  <defreturns>
+	   <param>
+	    <paramname>res</paramname>
+	    <paramtype>&lt;object></paramtype>
+	    <paramsummary>The resolved subobject.</paramsummary>
+	   </param>
+	  </defreturns>
+	  <defdescription>
+	   <para>Load a one-slot object.  The value is returned, and
+	   we check that there was in fact only one subobject.</para>  
+
+	   <para>This method seems not to be useful; there appears to
+	   be no users of it in neither this library nor in the
+	   <dlibrary>compiler-front</dlibrary> library.</para>
+	  </defdescription>
+	 </dylanmethoddef>
+
+	 <dylanmethoddef>
+	  <defname>assert-end-object</defname>
+	  <defsummary>Reads from the buffer, and signals an error if
+	  the next thing read isn't an end-of-object
+	  marker.</defsummary>
+	  <defparameters>&load-state-param;</defparameters>
+	  &no-returns;
+	  <defdescription>
+	   <para>This method, unfortunately, is woefully underused in
+	   this library (it's used only once in the
+	   <dmodule>Dylan-dump</dmodule> module), but the
+	   <dlibrary>Compiler-Front</dlibrary> library seems to have
+	   caught cluons in using this method (it is indeed used
+	   extensively in the <dmodule>FER-OD</dmodule> module).  It
+	   seems, then, that the <dmodule>Dylan-dump</dmodule> and
+	   <dmodule>OD-Format</dmodule> modules need a rewrite in this
+	   regard.</para>
+	  </defdescription>
+	 </dylanmethoddef>
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-circular">
 	  <title>Circular Usage</title>
-        <para>TBD</para>
+        <para>To deal with circular object usage graphs, several
+	mechanisms are employed. Objects can be dumped as forward
+	references and defined later. The loader for the object
+	containing the forward reference has the option of delaying
+	object creation until the forward referenced object is loaded,
+	or requesting that the object be backpatched when the forward
+	referenced object is finally loaded.</para>
+
+	<para>The following descriptions TBD:</para>
+	<itemizedlist>
+	 <listitem><para>new-local-id</para></listitem>
+	 <listitem><para>label-next-object</para></listitem>
+	 <listitem><para>dump-local-reference</para></listitem>
+	 <listitem><para>&lt;forward-ref></para></listitem>
+	 <listitem><para>obj-resolved?</para></listitem>
+	 <listitem><para>actual-obj</para></listitem>
+	 <listitem><para>request-backpatch</para></listitem>
+	 <listitem><para>resolve-forward-ref</para></listitem>
+	</itemizedlist>
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-sharing">
 	  <title>Object Sharing</title>
-        <para>TBD</para>
+        <para>By default, it is assumed that the object being dumped
+	has no object sharing, i.e., for all sub-objects the ref-count
+	is one. For any object that has a ref-count greater than one,
+	that object must be a sub-class of
+	&lt;identity-preserving-mixin>. (If it is ok to dump the object
+	multiple times and load it back as separate objects, then this
+	superclass may be omitted.)</para> 
+
+	<para>The following descriptions TBD:</para>
+	<itemizedlist>
+	 <listitem><para>&lt;identity-preserving-mixin></para></listitem>
+	 <listitem><para>maybe-dump-reference</para></listitem>
+	</itemizedlist>
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-binary">
@@ -1226,7 +1489,7 @@ add-od-loader(*default-dispatcher*, #"byte-string",
 	defined so that any necessary byte-swapping and word-size
 	adjustment can be done as a pre-pass filter to the actual
 	loader.  The format is described in detail at the top of
-	<filename>od-format.dylan</filename>.</para> 
+	<filename>od-format.dylan</filename>.</para>
 
 	<para>The implication of the above is that data-unit files
 	produced from <dmodule>OD-Format</dmodule> are not portable.</para>
