@@ -268,17 +268,6 @@ define method render-to-opengl(node :: <texture>)
   else
     glBindTexture($GL-TEXTURE-2D, node.texture-id);
   end;
-  with-glBegin($GL-QUADS)
-    glTexCoord(0.0, 0.0);
-    glVertex(-10.0, 0.0,-10.0);
-    glTexCoord(1.0, 0.0);
-    glVertex( 10.0, 0.0,-10.0);
-    glTexCoord(1.0, 1.0);
-    glVertex( 10.0, 0.0, 10.0);
-    glTexCoord(0.0, 1.0);
-    glVertex(-10.0, 0.0, 10.0);
-    glEnd ();
-  end with-glBegin;
 end method render-to-opengl;
 
 define functional class <c-byte-vector> (<c-vector>, <statically-typed-pointer>) 
