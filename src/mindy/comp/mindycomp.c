@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/comp/mindycomp.c,v 1.1 1998/05/03 19:55:08 andreas Exp $
+* $Header: /scm/cvs/src/mindy/comp/mindycomp.c,v 1.3 1998/12/17 11:03:12 igor Exp $
 *
 * This file is the main driver.
 *
@@ -142,7 +142,7 @@ static void set_module(char *value)
 
 static void set_library(char *value)
 {
-    if (LibraryName != NULL && strcasecmp(LibraryName->name, value)) {
+    if (LibraryName != NULL && strcasecmp((char *)LibraryName->name, value)) {
 	fprintf(stderr,
 		"Library name specified on the command line differs from\n"
 		"the library name specified in the file.\n");
@@ -183,7 +183,7 @@ static char *make_output_name(char *source, char *new_extension)
     return output;
 }
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     boolean print_parse = FALSE;
     boolean print_expanded = FALSE;
@@ -382,6 +382,7 @@ void main(int argc, char *argv[])
     fclose(file);
 
     exit(0);
+    return 0;
 }
 
 /* Try to keep this consistent with interp/mindy.c */

@@ -11,7 +11,7 @@ sub d2c_library {
     local (@makefile_targets)
 	= &emit_library_rule($lidfile_name, '$(BUILDROOT)/force.timestamp', 
 			     $more_flags, '');
-    if ($stage2) {
+    if (!$enable_mindy_bootstrap) {
 	push(@compile_dependencies, $makefile_targets[0]);
     } else {
 	push(@compile_dependencies, $makefile_targets[1]);
@@ -30,4 +30,5 @@ $D2CFLAGS = '-L../../runtime/c-code -L../../runtime/gc '
     . '-L../../../common/print -L../../../common/format '
     . '-L../../runtime/random -L../../../common/coll-ext '
     . '-L../../../common/string-ext -L../../../common/table-ext '
-    . '-L../../../common/regexp -L../../runtime/melange';
+    . '-L../../../common/regexp -L../../runtime/melange '
+    . '-L../../../common/getopt';

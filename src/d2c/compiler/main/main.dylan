@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.1 1998/05/03 19:55:33 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.10.4.1 1999/01/21 09:58:22 emk Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -42,6 +42,8 @@ define class <main-unit-state> (<object>)
          required-init-keyword: log-dependencies:;
     slot unit-no-binaries :: <boolean>,
          required-init-keyword: no-binaries:;
+    slot unit-link-static :: <boolean>,
+         required-init-keyword: link-static:;
 
     // A facility for hacking around C compiler bugs by using a different
     // command for particular C compilations.  cc-override is a format string
@@ -323,19 +325,41 @@ end method process-feature;
 // There might be more than one possible object file suffix, so we try them
 // all, but if we find it under more than one suffix, we error.
 //
+// If the platform supports shared libraries (as indicated by the presence
+// of shared-library-filename-suffix in platforms.descr), and if the user
+// didn't specify '-static' on the command line, locate shared library
+// version first. 
 define method find-library-archive
-    (unit-name :: <byte-string>, target :: <platform>)
+    (unit-name :: <byte-string>, state :: <main-unit-state>)
  => path :: <byte-string>;
+  let target = state.unit-target;
   let libname = concatenate(target.library-filename-prefix, unit-name);
   let suffixes = split-at-whitespace(target.library-filename-suffix);
+
   let found = #();
-  for (suffix in suffixes)
-    let suffixed = concatenate(libname, suffix);
-    let path = find-file(suffixed, *data-unit-search-path*);
-    if (path)
-      found := pair(path, found);
+
+  let find = method (suffixes)
+	       let found = #();
+	       for (suffix in suffixes)
+		 let suffixed = concatenate(libname, suffix);
+		 let path = find-file(suffixed, *data-unit-search-path*);
+		 if (path)
+		   found := pair(path, found);
+		 end if;
+	       end for;
+	       found;
+	     end method;
+
+  if (target.shared-library-filename-suffix & ~state.unit-link-static)  
+    let shared-suffixes = split-at-whitespace(target.shared-library-filename-suffix);
+    found := find(shared-suffixes);
+    if (empty?(found))
+      found := find(suffixes);
     end if;
-  end for;
+  else
+    found := find(suffixes);
+  end if;
+
   if (empty?(found))
     error("Can't find object file for library %s.", unit-name);
   elseif (found.tail ~== #())
@@ -610,7 +634,8 @@ define method compile-1-tlf
     end-body(builder);
     let sig = make(<signature>, specializers: #(), returns: result-type);
     let ctv = make(<ct-function>, name: name-obj, signature: sig);
-    make-function-literal(builder, ctv, #f, #"global", sig, init-function);
+    make-function-literal(builder, ctv, #"function", #"global",
+			  sig, init-function);
     add!(state.unit-init-functions, ctv);
   end;
   optimize-component(component);
@@ -747,7 +772,17 @@ end method build-local-heap-file;
 define method build-ar-file (state :: <main-unit-state>) => ();
   let objects = stream-contents(state.unit-objects-stream);
   let target = state.unit-target;
-  let suffix = split-at-whitespace(target.library-filename-suffix).first;
+  let build-shared? =   ~state.unit-link-static 
+                      & ~state.unit-executable
+                      & boolean-header-element(#"shared-library", #f, state)
+                      & target.shared-library-filename-suffix 
+                      & target.link-shared-library-command;
+  let suffix = split-at-whitespace(
+				   if (build-shared?) 
+				     target.shared-library-filename-suffix;
+				   else
+				     target.library-filename-suffix;
+				   end if).first;
   let ar-name = concatenate(target.library-filename-prefix,
   			    state.unit-mprefix,
 			    suffix);
@@ -760,9 +795,20 @@ define method build-ar-file (state :: <main-unit-state>) => ();
   
   let objects = use-correct-path-separator(objects, target);
 
-  let link-string = format-to-string(target.link-library-command, 
+  let link-string = format-to-string(
+				     if (build-shared?)
+				       target.link-shared-library-command;
+				     else
+				       target.link-library-command;
+				     end if, 
 				     ar-name, objects);
   format(state.unit-makefile, "\t%s\n", link-string);
+  
+  if (target.randomize-library-command)
+    let randomize-string = format-to-string(target.randomize-library-command,
+					    ar-name);
+    format(state.unit-makefile, "\t%s\n", randomize-string);
+  end if;
 end method;
 
 
@@ -796,15 +842,17 @@ define method build-inits-dot-c (state :: <main-unit-state>) => ();
   write(stream,
 	"void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
   for (unit in *units*)
-    format(stream, "    %s_Library_init(sp);\n", unit.unit-name);
+    format(stream, "    %s_Library_init(sp);\n", string-to-c-name(unit.unit-name));
   end;
   if (entry-function-name)
     format(stream, "    %s(sp, argc, argv);\n", entry-function-name);
   end if;
   write(stream, "}\n");
   write(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
-  write(stream, "void main(int argc, char *argv[])\n{\n");
-  write(stream, "    real_main(argc, argv);\n}\n");
+  write(stream, "int main(int argc, char *argv[]) {\n");
+  write(stream, "    real_main(argc, argv);\n");
+  write(stream, "    return 0;\n");
+  write(stream, "}\n");
   close(stream);
 end method;
 
@@ -827,7 +875,7 @@ define method build-executable (state :: <main-unit-state>) => ();
 	    // If cross-compiling use -l -L search mechanism.
 	    dash-small-ells := stringify(" -l", name, dash-small-ells);
 	  else
-	    let archive = find-library-archive(name, state.unit-target);
+	    let archive = find-library-archive(name, state);
 	    unit-libs := stringify(' ', archive, unit-libs);
 	  end if;
 	end method add-archive;
@@ -1052,7 +1100,7 @@ define method build-unit-init-function
   // course, on the HP, the linker has separate namespaces for code
   // and data, but most other platforms do not)
   format(stream, "void %s_Library_init(descriptor_t *sp)\n{\n%s}\n",
-	 prefix, init-func-guts);
+	 string-to-c-name(prefix), init-func-guts);
 end;
 
 
@@ -1123,7 +1171,7 @@ define method build-command-line-entry
   let sig = make(<signature>, specializers: list(int-type, rawptr-type),
 		 returns: result-type);
   let ctv = make(<ct-function>, name: name-obj, signature: sig);
-  make-function-literal(builder, ctv, #f, #"global", sig, func);
+  make-function-literal(builder, ctv, #"function", #"global", sig, func);
   optimize-component(component);
   emit-component(component, file);
   ctv;
@@ -1142,6 +1190,8 @@ define method incorrect-usage () => ();
 	 "    -M                  Generate makefile dependencies\n");
   format(*standard-error*, 
 	 "    -no-binaries        Do not compile the generated C code\n");
+  format(*standard-error*, 
+	 "    -static             Don't link against shared libraries\n");
   format(*standard-error*, 
 	 "    -Ttarget            Generate code for the given target machine\n");
   format(*standard-error*, 
@@ -1170,7 +1220,88 @@ define constant $search-path-seperator =
   ':';
 #endif
 
+
+//----------------------------------------------------------------------
+// <feature-option-parser> - handles -D, -U
+//----------------------------------------------------------------------
+// d2c has a delightfully non-standard '-D' flag with a corresponding '-U'
+// flag which allows you to undefine things (well, sort of). We create a
+// new option parser class to handle these using the option-parser-protocol
+// module from the parse-arguments library.
+
+define class <d2c-feature-option-parser> (<negative-option-parser>)
+end class <d2c-feature-option-parser>;
+
+define method reset-option-parser
+    (parser :: <d2c-feature-option-parser>, #next next-method) => ()
+  next-method();
+  parser.option-value := make(<deque> /* of: <string> */);
+end;
+
+define method parse-option
+    (parser :: <d2c-feature-option-parser>,
+     arg-parser :: <argument-list-parser>)
+ => ()
+  let negative? = negative-option?(parser, get-argument-token(arg-parser));
+  let value = get-argument-token(arg-parser).token-value;
+  push-last(parser.option-value,
+	    if (negative?)
+	      concatenate("~", value)
+	    else
+	      value
+	    end if);
+end method parse-option;
+
+    
+//----------------------------------------------------------------------
+// Built-in help.
+//----------------------------------------------------------------------
+
+define method show-copyright(stream :: <stream>) => ()
+  format(stream, "d2c (Gwydion Dylan) 2.2\n");
+  format(stream, "Compiles Dylan source into C, then compiles that.\n");
+  format(stream, "Copyright 1994-1997 Carnegie Mellon University\n");
+  format(stream, "Copyright 1998 Gwydion Dylan Maintainers\n");
+end method show-copyright;
+
+define method show-usage(stream :: <stream>) => ()
+  format(stream,
+"Usage: d2c [options] -Llibdir... lidfile\n");
+end method show-usage;
+
+define method show-usage-and-exit() => ()
+  show-usage(*standard-error*);
+  exit(exit-code: 1);
+end method show-usage-and-exit;
+
+define method show-help(stream :: <stream>) => ()
+  show-copyright(stream);
+  format(stream, "\n");
+  show-usage(stream);
+  format(stream,
+"       -L, --libdir:      Extra directories to search for libraries.\n"
+"       -D, --define:      Define conditional compilation features.\n"
+"       -U, --undefine:    Undefine conditional compilation features.\n"
+"       -M, --log-deps:    Log dependencies to a file.\n"
+"       -T, --target:      Target platform name.\n"
+"       -p, --platforms:   File containing platform descriptions.\n"
+"       --no-binaries:     Do not compile generated C files.\n"
+"       -g, --debug:       Generate debugging code.\n"
+"       -s, --static:      Force static linking.\n"
+"       -d, --break:       Debug d2c by breaking on errors.\n"
+"       --dump-transforms: Display detailed optimizer information.\n"
+"       -F, --cc-overide-command:\n"
+"                          Alternate method of invoking the C compiler.\n"
+"                          Used on files speficied with -f.\n"
+"       -f, --cc-overide-file:\n"
+"                          Files which need special C compiler invocation.\n"
+	   );
+end method show-help;
+
+
+//----------------------------------------------------------------------
 // Where to find various important files.
+//----------------------------------------------------------------------
 
 // $default-dylan-dir and $default-target-name are defined in
 // file-locations.dylan, which is generated by makegen.
@@ -1195,105 +1326,125 @@ define constant $default-dylan-path
 define constant $runtime-include-dir
   = concatenate($dylan-dir, "/include/");
 
+
+//----------------------------------------------------------------------
+// Main
+//----------------------------------------------------------------------
+
 define method main (argv0 :: <byte-string>, #rest args) => ();
   #if (~mindy)
-  no-core-dumps();
+    no-core-dumps();
   #endif
   *random-state* := make(<random-state>, seed: 0);
   define-bootstrap-module();
-  let library-dirs = make(<stretchy-vector>);
-  let lid-file = #f;
-  let features = #();
-  let log-dependencies = #f;
-  let target-machine = $default-target-name;
-  let no-binaries = #f;
-  let targets-file = $default-targets-dot-descr;
-  let cc-override = #f;
-  let override-files = #();
-  for (arg in args)
-    if (arg.size >= 1 & arg[0] == '-')
-      if (arg.size >= 2)
-	select (arg[1])
-	  'L' =>
-	    if (arg.size > 2)
-	      add!(library-dirs, copy-sequence(arg, start: 2));
-	    else
-	      error("Directory not supplied with -L.");
-	    end;
-	  'D' =>
-	    if (arg.size > 2)
-	      features := pair(copy-sequence(arg, start: 2), features);
-	    else
-	      error("Feature to define not supplied with -D.");
-	    end;
-	  'U' =>
-	    if (arg.size > 2)
-	      let feature = copy-sequence(arg, start: 1);
-	      feature[0] := '~';
-	      features := pair(feature, features);
-	    else
-	      error("Feature to undefine not supplied with -U.");
-	    end;
-	  'M' =>
-	    if (arg.size > 2)
-	      error("Bogus switch: %s", arg);
-	    end if;
-	    log-dependencies := #t;
-	  'T' =>
-	    if (arg.size > 2)
-	      target-machine := as(<symbol>, copy-sequence(arg, start: 2));
-	    else
-	      error("Target environment not supplied with -T.");
-	    end if;
-	  'p' =>
-	    if (arg.size > 2)
-	      targets-file := copy-sequence(arg, start: 2);
-	    else
-	      error("Name of targets description file not supplied with -p.");
-	    end if;
-	  'n' =>
-	    if (arg = "-no-binaries")  // We need this switch to keep gmake
-	                               // from deleting dylan.lib.du when 
-	                               // gmake -f cc-dylan-files.mak fails
-	      no-binaries := #t;
-	    else
-	      error("Bogus switch: %s", arg);
-	    end if;
-	  'd' =>
-	    if (arg.size == 2)
-	      *break-on-compiler-errors* := #t;
-	    else
-	      error("Bogus switch: %s", arg);
-	    end if;
-	  'F' =>
-	    cc-override := copy-sequence(arg, start: 2);
-	  'f' =>
-	    if (arg.size > 2)
-	      override-files := pair(copy-sequence(arg, start: 2),
-	      			     override-files);
-	    else
-	      error("Name of override file not supplied with -f.");
-	    end if;
-	  'g' =>
-	    *emit-all-function-objects?* := #t;
-	  otherwise =>
-	    error("Bogus switch: %s", arg);
-	end select;
-      else
-	error("Bogus switch: %s", arg);
-      end;
-    else
-      if (lid-file)
-	error("Multiple LID files: %s and %s", lid-file, arg);
-      else
-	lid-file := arg;
-      end;
-    end;
-  end;
+ 
+  // Set up our argument parser with a description of the available options.
+  let argp = make(<argument-list-parser>);
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("help"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("version"));
+  add-option-parser-by-type(argp,
+			    <repeated-parameter-option-parser>,
+			    long-options: #("libdir"),
+			    short-options: #("L"));
+  add-option-parser-by-type(argp,
+			    <d2c-feature-option-parser>,
+			    long-options: #("define"),
+			    short-options: #("D"),
+			    negative-long-options: #("undefine"),
+			    negative-short-options: #("U"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("log-deps"),
+			    short-options: #("M"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("target"),
+			    short-options: #("T"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("platforms"),
+			    short-options: #("p"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("no-binaries"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("break"),
+			    short-options: #("d"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("cc-override-command"),
+			    short-options: #("F"));
+  add-option-parser-by-type(argp,
+			    <repeated-parameter-option-parser>,
+			    long-options: #("cc-override-file"),
+			    short-options: #("f"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("debug"),
+			    short-options: #("g"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("static"),
+			    short-options: #("s"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("dump-transforms"));
+			    
+  // Parse our command-line arguments.
+  unless(parse-arguments(argp, args))
+    show-usage-and-exit();
+  end unless;
 
-  unless (lid-file)
-    incorrect-usage();
-  end;
+  // Handle our informational options.
+  if (option-value-by-long-name(argp, "help"))
+    show-help(*standard-output*);
+    exit(exit-code: 1);
+  end if;
+  if (option-value-by-long-name(argp, "version"))
+    show-copyright(*standard-output*);
+    exit(exit-code: 1);
+  end if;
+
+  // Get our simple options.
+  let library-dirs = option-value-by-long-name(argp, "libdir");
+  let features = option-value-by-long-name(argp, "define");
+  let log-dependencies = option-value-by-long-name(argp, "log-deps");
+  let no-binaries = option-value-by-long-name(argp, "no-binaries");
+  let cc-override = option-value-by-long-name(argp, "cc-override-command");
+  let override-files = option-value-by-long-name(argp, "cc-override-file");
+  let link-static = option-value-by-long-name(argp, "static");
+  *break-on-compiler-errors* = option-value-by-long-name(argp, "break");
+  *emit-all-function-objects?* = option-value-by-long-name(argp, "debug");
+
+  // Determine our compilation target.
+  let target-machine-name = option-value-by-long-name(argp, "target");
+  let target-machine =
+    if(target-machine-name)
+      as(<symbol>, target-machine-name);
+    else
+      $default-target-name;
+    end if;
+  let targets-file = option-value-by-long-name(argp, "platforms") |
+    $default-targets-dot-descr;
+
+  // For folks who have *way* too much time (or a d2c bug) on their hands.
+  if (option-value-by-long-name(argp, "dump-transforms"))
+    print-debugging-output();
+  end if;
+
+  // Process our regular arguments, too.
+  let args = regular-arguments(argp);
+  unless (args.size = 1)
+    show-usage-and-exit();
+  end unless;
+  let lid-file = args[0];
+
+  // Set up our target.
   if (targets-file == #f)
     error("Can't find platforms.descr");
   end if;
@@ -1311,7 +1462,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 		      end,
 		      dylanpath);
   for (dir in dirs)
-    add!(library-dirs, dir);
+    push-last(library-dirs, dir);
   end for;
   		       
   *Data-Unit-Search-Path* := as(<simple-object-vector>, library-dirs);
@@ -1319,12 +1470,13 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   let state
       = make(<main-unit-state>,
              lid-file: lid-file,
-	     command-line-features: reverse!(features), 
+	     command-line-features: as(<list>, features), 
 	     log-dependencies: log-dependencies,
 	     target: target,
 	     no-binaries: no-binaries,
+	     link-static: link-static,
 	     cc-override: cc-override,
-	     override-files: override-files);
+	     override-files: as(<list>, override-files));
   let worked? = compile-library(state);
   exit(exit-code: if (worked?) 0 else 1 end);
 end method main;
