@@ -19,7 +19,8 @@ define module board
   
   export
     <state>, board, robots, packages, packages-at,
-    <board>, <coordinate>,
+    <board>,
+    <coordinate>, <point>,
     send-board, receive-board,
     width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,
