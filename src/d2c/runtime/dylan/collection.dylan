@@ -1111,9 +1111,20 @@ define method concatenate-as (type :: <type>, sequence :: <sequence>,
   result;
 end method concatenate-as;
 
+// first, second, third, last
+// Note: Since a user library implementing element may be using a
+// different value to indicate "not suppplied", we cannot blindly
+// pass $not-supplied to element, otherwise element may interprete
+// it as the default value.
+//
 define inline method first
-    (sequence :: <sequence>, #key default) => value :: <object>;
-  element(sequence, 0, default: default);
+    (sequence :: <sequence>, #key default = $not-supplied)
+ => value :: <object>;
+  if (default == $not-supplied)
+    sequence[0];
+  else
+    element(sequence, 0, default: default);
+  end;
 end;
 
 define inline method first-setter
@@ -1122,9 +1133,16 @@ define inline method first-setter
   sequence[0] := new-value;
 end;
 
+// See note above.
+//
 define inline method second
-    (sequence :: <sequence>, #key default) => value :: <object>;
-  element(sequence, 1, default: default);
+    (sequence :: <sequence>, #key default = $not-supplied)
+ => value :: <object>;
+  if (default == $not-supplied)
+    sequence[1];
+  else
+    element(sequence, 1, default: default);
+  end;
 end;
 
 define inline method second-setter
@@ -1133,9 +1151,16 @@ define inline method second-setter
   sequence[1] := new-value;
 end;
 
+// See note above.
+//
 define inline method third
-    (sequence :: <sequence>, #key default) => value :: <object>;
-  element(sequence, 2, default: default);
+    (sequence :: <sequence>, #key default = $not-supplied)
+ => value :: <object>;
+  if (default == $not-supplied)
+    sequence[2];
+  else
+    element(sequence, 2, default: default);
+  end;
 end;
 
 define inline method third-setter
@@ -1174,9 +1199,17 @@ define method copy-sequence
   result;
 end method copy-sequence;
 
+// See note above.
+//
 define inline method last
-    (seq :: <sequence>, #rest keys, #key default) => value :: <object>;
-  apply(element, seq, seq.size - 1, keys);
+    (sequence :: <sequence>, #key default = $not-supplied)
+ => value :: <object>;
+  let last-index :: <integer> = sequence.size - 1;
+  if (default == $not-supplied)
+    sequence[last-index];
+  else
+    element(sequence, last-index, default: default);
+  end;
 end method last;
 
 define inline method last-setter
