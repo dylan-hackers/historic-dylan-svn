@@ -215,6 +215,7 @@ define constant <pub-id-char> =
 //                                                --andreas
 //
 define collector char-data(c)
+  [test(rcurry(not-in-set?, "<&"), c), do(collect(c))],
   loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])
 end collector char-data;
 
@@ -254,9 +255,9 @@ define constant parse-pi-target = parse-name;
 // - operator. Basically, we're construcing our own non-greedy
 // loop operator here.                        --andreas
 //
-define parse cd-sect(c)
-  "<![CDATA[", loop({["]]>", finish()], type(<char>, c)})
-end parse cd-sect;
+define collector cd-sect(c)
+  "<![CDATA[", loop({["]]>", finish()], [type(<char>, c), do(collect(c))]})
+end collector cd-sect;
 
 // Prolog
 // 
@@ -272,7 +273,7 @@ end parse prolog;
 define parse xml-decl(version-info, encoding-decl, sd-decl, c)
   "<?xml", parse-version-info(version-info),     
 // DOUG     {parse-encoding-decl(encoding-info), []},
-// DOUG     {parse-sd-decl(sd-decl), []},
+  {parse-sd-decl(sd-decl), []},
   parse-s?(c), "?>"
 end parse xml-decl;
 
@@ -409,12 +410,18 @@ end parse etag;
 // 
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
 //
-define collector content(contents) => (str)
-  loop({[{parse-char-data(contents), 
-          parse-element(contents), 
+define collector content(ignor, contents) => (str)
+  {[parse-char-data(contents), do(collect(contents))], []},
+  loop({[{parse-element(contents), 
+// DOUG  parse-reference(contents),
+         parse-cd-sect(contents)}, do(collect(contents))],
+        parse-pi(ignor), parse-comment(ignor),
+        [parse-char-data(contents), do(collect(contents))]})
+/***  loop({[{parse-element(contents), 
 // DOUG   parse-reference(contents), 
           parse-cd-sect(contents)}, do(collect(contents))],
-          parse-pi(contents), parse-comment(contents)})
+          parse-pi(ignor), parse-comment(ignor),
+        [parse-char-data(contents), do(collect(contents))]}) ***/
 end parse content;
 
 // helper method for parsing opening tags
