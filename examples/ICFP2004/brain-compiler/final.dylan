@@ -144,6 +144,8 @@ Flip 4 10 1
 end;
 
 define sub brain simple-search(back)
+    Flip 1, (guards-init, guards-init);
+
   [guards-init:]
     Sub guards-init;
 
@@ -738,6 +740,7 @@ define brain combo
 
   [protector:]
     Sub simple-search;
+    Flip 1, (protector, protector);
 
   [attacker:]
     Flip 3, (a-original, a-killer-2);
