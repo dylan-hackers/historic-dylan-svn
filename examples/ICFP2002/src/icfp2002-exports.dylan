@@ -33,6 +33,26 @@ define module board
   export <board>, send-board;
 end module board;
 
+define module messages
+  use icfp2002;
+  use standard-io;
+  use string-conversions;
+
+  export
+    <message-error>,
+    message-error,
+    add-error,
+    // send routines
+    send-player,  // This sends the "Player" message to the server.
+    // receive routines
+    receive-initial-setup, // Reads initial board plus self robot, w/ robot
+                           // positions. Does it all.
+    // receive-initial-setup calls: 
+    receive-board-layout,  // Reads initial board layout, w/o robot positions.
+    receive-client-configuration, // Reads our initial status.
+    receive-initial-robot-positions; // Updates board with robot positions.
+end module messages;
+
 define module client
   use board;
   
