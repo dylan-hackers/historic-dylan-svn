@@ -605,28 +605,124 @@ define method parse-contentspec(string, #key start = 0, end: stop)
     {"EMPTY", "ANY", parse-mixed(mixed), parse-children(children)};
     values(index, #t);
   end with-meta-syntax;
-end method parse-empty-elem-tag;
+end method parse-contentspec;
 
 
 // Element-content Models
 // 
 //    [47]    children    ::=    (choice | seq) ('?' | '*' | '+')?
+//
+define method parse-children(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, choice, seq)
+      [{parse-choice(choice), parse-seq(seq)}, 
+       {{"?", "*", "+"}, []}];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-children;
+
 //    [48]    cp          ::=    (Name | choice | seq) ('?' | '*' | '+')?
+//
+define method parse-cp(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name, choice, seq)
+      [{parse-name(name), parse-choice(choice), parse-seq(seq)}, 
+       {{"?", "*", "+"}, []}];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-cp;
+
+
 //    [49]    choice      ::=    '(' S? cp ( S? '|' S? cp )+ S? ')'      /* */
 //                                                                       /* */
 //                                                                       [VC: Proper Group/PE Nesting]
+define method parse-choice(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, s, cp)
+      ["(",
+       {parse-s(s), []},
+       parse-cp(cp),
+       {parse-s(s), []},
+       "|",
+       {parse-s(s), []},
+       parse-cp(cp),
+       loop([{parse-s(s), []},
+	     "|",
+	     {parse-s(s), []},
+	     parse-cp(cp)]),
+       {parse-s(s), []},
+       ")"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-choice;
+
+
 //    [50]    seq         ::=    '(' S? cp ( S? ',' S? cp )* S? ')'      /* */
 //                                                                       [VC: Proper Group/PE Nesting]
 //    
+define method parse-seq(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, s, cp)
+      ["(",
+       {parse-s(s), []},
+       parse-cp(cp),
+       loop([{parse-s(s), []},
+	     ",",
+	     {parse-s(s), []},
+	     parse-cp(cp)]),
+       {parse-s(s), []},
+       ")"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-seq;
+
+
 // Mixed-content Declaration
 // 
 //    [51]    Mixed    ::=    '(' S? '#PCDATA' (S? '|' S? Name)* S? ')*'
 //                            | '(' S? '#PCDATA' S? ')'                  [VC: Proper Group/PE Nesting]
 //                                                                       [VC: No Duplicate Types]
 //    
+define method parse-mixed(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, s, name)
+      {["(",
+	{parse-s(s), []},
+	"#PCDATA",
+	loop([{parse-s(s), []},
+	      "|",
+	      {parse-s(s), []},
+	      parse-name(name)]),
+	{parse-s(s), []},
+	")*"],
+       ["(",
+	{parse-s(s), []},
+	"#PCDATA",
+	{parse-s(s), []},
+	")"]};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-mixed;
+
+
 // Attribute-list Declaration
 // 
 //    [52]    AttlistDecl    ::=    '<!ATTLIST' S Name AttDef* S? '>'
+//
+define method parse-attlist-decl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, s, name, att-def)
+      {["<!ATTLIST",
+	parse-s(s),
+	parse-name(name),
+	loop(parse-att-def(att-def)),
+	{parse-s(s), []},
+	">"]};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-attlist-decl;
+
+
 //    [53]    AttDef         ::=    S Name S AttType S DefaultDecl
 //    
 // Attribute Types
