@@ -4,9 +4,13 @@ module: assembler
 define brain alex-gatherer
 
   [start:]
-    Flip 4, (get-out-of-home, mark-around);
+    Mark 0;
+    Flip 4, (kill-other-hill, get-out-of-home);
 
   [drop-and-get-out-of-home:]
+    Turn Right;
+    Turn Right;
+    Turn Right;
     Drop, (get-out-of-home);
 
   // The following set of macros makes the ant get out of home.
@@ -15,13 +19,13 @@ define brain alex-gatherer
     Sense Home, (move-forward-in-home, search-food);
 
   [move-forward-in-home:]
-    Move get-out-of-home => turn-left-or-right-in-home;
+    Move get-out-of-home => turn-right-in-home;
 
-  [turn-left-or-right-in-home:]
-    Flip 1, (turn-left-in-home, turn-right-in-home);
+//  [turn-left-or-right-in-home:]
+//    Flip 1, (turn-left-in-home, turn-right-in-home);
 
-  [turn-left-in-home:]
-    Turn Left, (move-forward-in-home);
+//  [turn-left-in-home:]
+//    Turn Left, (move-forward-in-home);
 
   [turn-right-in-home:]
     Turn Right, (move-forward-in-home);
@@ -36,6 +40,9 @@ define brain alex-gatherer
     Sense Food, (pick-up-food, search-food-in-empty);
 
   [pick-up-food:]
+    Turn Left;
+    Turn Left;
+    Turn Left;
     PickUp deliver-food => search-food-in-empty;
 
   [search-food-in-empty:]
@@ -109,18 +116,13 @@ define brain alex-gatherer
   // The following set of macros makes it possible to deliver food,
   // using the trail of marks left using marker 0.
   [deliver-food:]
-    Sense Home, (drop-and-get-out-of-home, deliver-back);
-
-  [deliver-back:]
-    Turn Left;
-    Turn Left;
-    Turn Left, (deliver-forward);
+    Sense Home, (drop-and-get-out-of-home, deliver-forward);
 
   [deliver-forward:]
     Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
 
   [deliver-move-forward:]
-    Move deliver-food => deliver-at-random;
+    Move deliver-food => deliver-try-other-four;
 
   [deliver-try-left-1:]
     Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-2);
@@ -175,7 +177,61 @@ define brain alex-gatherer
 
   // Perform marking algorithm.
   [mark-around:]
-    Drop, (deliver-at-random);
+    Drop, (get-out-of-home);
+
+
+  // Perform agression of another hill.
+  [kill-other-hill:]
+    Sense FoeHome, (kill-other-hill, kill-try-forward);
+
+  [kill-try-forward:]
+    Sense Ahead FoeHome, (kill-move-forward, kill-try-unmarked);
+
+  [kill-move-forward:]
+    Mark 1;
+    Move kill-other-hill => kill-try-unmarked;
+
+  [kill-try-unmarked:]
+    Sense Ahead (Marker 1), (kill-try-other-four, kill-move-forward);
+
+  [kill-try-other-four:]
+    Flip 1, (kill-l-or-r, kill-2l-or-2r);
+
+  [kill-l-or-r:]
+    Flip 1, (kill-try-left, kill-try-right);
+
+  [kill-try-left:]
+    Sense LeftAhead FoeHome, (kill-move-left, kill-try-left-M);
+
+  [kill-try-left-M:]
+    Sense LeftAhead (Marker 1), (kill-try-random, kill-move-left);
+
+  [kill-move-left:]
+    Turn Left, (kill-move-forward);
+
+  [kill-try-right:]
+    Sense RightAhead FoeHome, (kill-move-right, kill-try-right-M);
+
+  [kill-try-right-M:]
+    Sense RightAhead (Marker 1), (kill-try-random, kill-move-right);
+
+  [kill-move-right:]
+    Turn Right, (kill-move-forward);
+
+  [kill-2l-or-2r:]
+    Flip 1, (kill-try-2-left, kill-try-2-right);
+
+  [kill-try-2-left:]
+    Turn Left;
+    Turn Left, (kill-move-forward);
+
+  [kill-try-2-right:]
+    Turn Right;
+    Turn Right, (kill-move-forward);
+
+  [kill-try-random:]
+    Turn Left;
+    Flip 4, (kill-move-forward, kill-try-random);
 
 end;
 
