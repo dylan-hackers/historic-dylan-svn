@@ -16,3 +16,4 @@ files:
   dumbot
   pushbot
   thomas
+  gabot

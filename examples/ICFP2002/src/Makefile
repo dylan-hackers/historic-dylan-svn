@@ -29,8 +29,15 @@ install: icfp2002
 
 test: icfp2002
 	./icfp2002 cantor.gwydiondylan.org 6969
+
 test-dumbot: icfp2002
 	./icfp2002 cantor.gwydiondylan.org 6969 dumbot
+
+test-gabot: icfp2002
+	./icfp2002 cantor.gwydiondylan.org 6969 gabot
+
+test-thomas: icfp2002
+	./icfp2002 cantor.gwydiondylan.org 6969 thomas
 
 single: icfp2002
 	./icfp2002 icfp1.cse.ogi.edu 22001

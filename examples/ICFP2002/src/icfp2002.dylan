@@ -69,10 +69,12 @@ define function figure-out-which-bot(bot-type :: <string>)
       => <dumber-bot>;
     bot-type = "dumbot"
       => <dumbot>;
+    bot-type = "pushbot"
+      => <pushbot>;
     bot-type = "thomas"
       => <thomas>;
-//    bot-type = "gabot"
-//      => <gabot>;
+    bot-type = "gabot"
+      => <gabot>;
     otherwise => <dumber-bot>;
   end case;
 end;
