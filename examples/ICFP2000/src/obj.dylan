@@ -8,23 +8,24 @@ define abstract class <obj> (<object>)
   slot inverse-transform :: <transform> = make-identity();
 end class <obj>;
 
+
 define abstract class <primitive> (<obj>)
   slot surface-interpreter-entry, init-keyword: #"surface-function";
 end class <primitive>;
 
-define sealed class <sphere> (<primitive>)
+define class <sphere> (<primitive>)
 end class <sphere>;
 
-define sealed class <plane> (<primitive>)
+define class <plane> (<primitive>)
 end class <plane>;
 
-define sealed class <cube> (<primitive>)
+define class <cube> (<primitive>)
 end class <cube>;
 
-define sealed class <cone> (<primitive>)
+define class <cone> (<primitive>)
 end class <cone>;
 
-define sealed class <cylinder> (<primitive>)
+define class <cylinder> (<primitive>)
 end class <cylinder>;
 
 define abstract class <csg-object> (<obj>)
@@ -34,6 +35,12 @@ end class <csg-object>;
 define class <csg-union> (<csg-object>)
 end class <csg-union>;
 
+define sealed domain initialize(<obj>);
+define sealed domain make(singleton(<sphere>));
+define sealed domain make(singleton(<plane>));
+define sealed domain make(singleton(<cube>));
+define sealed domain make(singleton(<cone>));
+define sealed domain make(singleton(<cylinder>));
 
 /* --------------------- Methods ---------------------------- */
 
