@@ -402,7 +402,7 @@ define inline method fputs-internal
  => ()
   c-system-include("stdio.h");
   call-out("fwrite", int:,
-           ptr: %%primitive(vector-elements, str), int: 1, int: str.size,
+           ptr: vector-elements-address(str), int: 1, int: str.size,
            ptr: c-file);
 end;
 

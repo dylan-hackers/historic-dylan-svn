@@ -96,7 +96,7 @@ define macro pointer-deref-setter
       => { %%primitive(\pointer-deref-setter, ?new-val, ?kind, ?ptr, ?offset) }
 end;
 
-define sealed inline-only method vector-elements-address
+define inline-only method vector-elements-address
     (vec :: <vector>)
  => (res :: <raw-pointer>);
   %%primitive(vector-elements, vec);

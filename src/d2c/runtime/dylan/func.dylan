@@ -142,7 +142,7 @@ define method make-closure
 		ptr: func.callback-entry,
 		object: closure,
 		int: func.callback-signature.size,
-		ptr: %%primitive(vector-elements, func.callback-signature));
+		ptr: vector-elements-address(func.callback-signature));
   closure;
 end;
 
