@@ -410,14 +410,38 @@ end parse etag;
 // 
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
 //
-define collector content(ignor, contents) => (str)
+define collector content-collector(ignor, contents) => (str)
   {[parse-char-data(contents), do(collect(contents))], []},
   loop({[{parse-element(contents), parse-reference(contents),
           parse-cd-sect(contents)}, do(collect(contents))],
         parse-pi(ignor), parse-comment(ignor),
         [parse-char-data(contents), do(collect(contents))]})
-end parse content;
+end parse content-collect;
 
+// here we compose all adjacent strings into one string
+define function parse-content(string, #key start = 0, end: stop)
+  let (index, vect) = parse-content-collector(string, start: start);
+  let res = make(<deque>);
+  local method str-collector(idx, str)
+    if(idx < vect.size)
+      let elt = vect[idx];
+      if(instance?(elt, <string>))
+        str-collector(idx + 1, concatenate(str, elt));
+      else
+        if(str.size > 0)
+          push-last(res, str);
+        end if;
+        push-last(res, elt);
+        str-collector(idx + 1, "");
+      end if;
+    else
+      if(str.size > 0) push-last(res, str); end if;
+    end if;
+  end method;
+  str-collector(0, "");
+  values(index, as(<vector>, res));
+end function parse-content;
+          
 // helper method for parsing opening tags
 define parse beginning-of-tag(elt, attribs, s) => (elt, attribs)
   "<", parse-name(elt), parse-s?(s), parse-xml-attributes(attribs)
