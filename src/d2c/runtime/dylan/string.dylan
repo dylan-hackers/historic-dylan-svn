@@ -60,9 +60,9 @@ define method \< (str1 :: <string>, str2 :: <string>) => res :: <boolean>;
   block (return)
     for (char1 in str1, char2 in str2)
       if (char1 < char2)
-	return(#t);
+        return(#t);
       elseif (char2 < char1)
-	return(#f);
+        return(#f);
       end;
     end;
     str1.size < str2.size;
@@ -73,9 +73,9 @@ define method \< (str1 :: <byte-string>, str2 :: <byte-string>) => res :: <boole
   block (return)
     for (char1 in str1, char2 in str2)
       if (char1 < char2)
-	return(#t);
+        return(#t);
       elseif (char2 < char1)
-	return(#f);
+        return(#f);
       end;
     end;
     str1.size < str2.size;
@@ -102,24 +102,38 @@ define method as-uppercase! (str :: <string>)
   map-into(str, as-uppercase, str);
 end;
 
-define method as-lowercase (str :: <byte-string>)
-    => res :: <byte-string>;
-  map(as-lowercase, str);
+define method as-lowercase (string :: <byte-string>)
+    => result :: <byte-string>;
+  let result = make(<byte-string>, size: string.size);
+  for (character keyed-by index in string)
+    %element(result, index) := as-lowercase(character);
+  end;
+  result;
 end;
 
-define method as-lowercase! (str :: <byte-string>)
-    => res :: <byte-string>;
-  map-into(str, as-lowercase, str);
+define method as-lowercase! (string :: <byte-string>)
+    => result :: <byte-string>;
+  for (character keyed-by index in string)
+    %element(string, index) := as-lowercase(character);
+  end;
+  string;
 end;
 
-define method as-uppercase (str :: <byte-string>)
-    => res :: <byte-string>;
-  map(as-uppercase, str);
+define method as-uppercase (string :: <byte-string>)
+    => result :: <byte-string>;
+  let result = make(<byte-string>, size: string.size);
+  for (character keyed-by index in string)
+    %element(result, index) := as-uppercase(character);
+  end;
+  result;
 end;
 
-define method as-uppercase! (str :: <byte-string>)
-    => res :: <byte-string>;
-  map-into(str, as-uppercase, str);
+define method as-uppercase! (string :: <byte-string>)
+    => result :: <byte-string>;
+  for (character keyed-by index in string)
+    %element(string, index) := as-uppercase(character);
+  end;
+  string;
 end;
 
 
@@ -315,22 +329,28 @@ define inline method forward-iteration-protocol (array :: <byte-string>)
 	 end);
 end;
 
+// author: PDH, 1.5x speed-up
+// For average-length strings, calling out to the C library function
+// memcmp is slower than comparing entirely in Dylan.
+//
 define method \= (str1 :: <byte-string>, str2 :: <byte-string>)
  => (res :: <boolean>);
-  block (return)
-    // the obvious shortcuts
-    if (str1 == str2) return(#t) end if;
-    if (str1.size ~== str2.size) return(#f) end if;
-    //
-    // char-by-char compare
-    for (char1 in str1, char2 in str2)
-      if (char1 ~== char2)
-	return(#f);
-      end if;
-    finally
+  if (str1 == str2)
+    #t;
+  elseif (str1.size ~== str2.size)
+    #f;
+  else
+    // The strings are equal in size.
+    block (return)
+      // Do a character by character compare.
+      for (char1 keyed-by index in str1)
+        if (char1 ~== %element(str2, index))
+          return(#f);
+        end if;
+      end for;
       #t;
-    end for;
-  end;
+    end block;
+  end if;
 end;
 
 define method concatenate-as (type == <byte-string>, sequence :: <byte-string>,
