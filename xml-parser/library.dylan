@@ -10,12 +10,12 @@ define library xml-parser
 end library;
 
 define module xml-parser
-  create display-node, transform, transform-document;
+  create display-node, transform, transform-document,
+         before-transform, *depth*;
 
 // I really don't want the below defs -- parse-document should
 // do everything, but until I get that working, I need to test
 // the system piecemeal.
- // create parse-xml-element-start;
   create parse-element, parse-attribute, parse-pi,
          parse-stag, parse-content, parse-etag, parse-empty-elem-tag,
          parse-char-data, parse-comment, parse-system-literal,
@@ -70,6 +70,7 @@ define module transform
   use common-dylan, exclude: {format-to-string };
   use streams;
   use format;
+  use standard-io;
   use format-out;
   use xml-parser;
   use interface;
