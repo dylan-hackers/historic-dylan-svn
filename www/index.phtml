@@ -33,7 +33,7 @@ following resources:</P>
 
 $db = db_connect();
 
-$query = "select * from news order by time desc";
+$query = "select * from news where time >= subdate(now(), interval 1 year) order by time desc";
 $res = mysql_query($query, $db);
 $err = mysql_error();
 if($err) {

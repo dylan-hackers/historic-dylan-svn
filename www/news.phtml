@@ -4,6 +4,22 @@ standard_header("What Was New");
 ?>
 
 <DL>
+<?php
+
+$db = db_connect();
+
+$query = "select * from news where time < subdate(now(), interval 1 year) order by time desc";
+$res = mysql_query($query, $db);
+$err = mysql_error();
+if($err) {
+    echo "MySQL error occurred. Please notify <a href=andreas@andreas.org>Andreas</a>.";
+} else {
+    while($row = mysql_fetch_row($res)) {
+        echo "<DT><STRONG>".$row[1]." (".$row[0].")</STRONG></dt>\n";
+        echo "<DD><P>".$row[2]."\n\n";
+   }
+}
+?>
 <DT><STRONG>Posting on Dylan's new approach to OO (13 Jan 2000)</strong></dt> 
 
 <dd><p>Michael T. Richter sent a <a href="mtr-on-dylan.txt">posting</a> to the <a
