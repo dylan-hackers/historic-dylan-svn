@@ -469,6 +469,7 @@ define mi-parser breakpoint(bkpt)
 end;
 
 
+//###### can be removed
 // ###
 begin
 
@@ -992,7 +993,13 @@ define function juxtapose(p1 :: <function>, p2 :: <function>)
         more.head(inp, matched, more.tail)
       else
         let match = matched-by-p2.head;
-        more.head(inp, pair(method() let (rest, product2) = match(); values(rest, list(product1, product2)) end, matched), more.tail)
+        more.head(inp,
+                  pair(method()
+                         let (rest, product2) = match();
+                         values(rest, list(product1, product2))
+                       end,
+                       matched),
+                  more.tail)
       end if;
     end if;
   end method
@@ -1007,8 +1014,9 @@ begin
   block (outta-here)
     local method final(rest, matches, more)
             let igno :: singleton(1) = matches.size;
-            let (rem, tup) = matches.head();
-            format-out("parsed: %=\nremainder: %=\n\n", tup, rem);
+            let (rem, both) = matches.head();
+            format-out("parsed: %=\nremainder: %=\n\n", both, rem);
+            format-out("breakpoints: 1st: %= 2nd: %=\n\n", both[0].number, both[1].number);
             outta-here();
           end;
 
