@@ -81,8 +81,8 @@ Dylan Websites</A>
 <P><STRONG>Developer Resources</STRONG></P>
 <UL>
 <LI><A HREF="http://www.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>
-<LI><A HREF="http://www.randomhacks.com/dylan-cgi/bugs">Bug Tracker</A>
-<LI><A HREF="http://www.randomhacks.com/dylan-cgi/bugs.private">Private Bug Tracker</A>
+<LI><A HREF="http://www.randomhacks.com/dylan-cgi/bugs">Bug Tracker (currently broken. Oh the irony...)</A>
+<LI><A HREF="http://www.randomhacks.com/dylan-cgi/bugs.private">Private Bug Tracker (broken too)</A>
 <LI><A HREF="projects.phtml">Current Projects</A>
 </UL>
 
@@ -99,11 +99,10 @@ Dylan Websites</A>
 
 <P><SMALL>Copyright &copy; 1998 Gwydion Dylan Maintainers. All rights
 reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
-HREF="http://www.apache.org/">Apache</A> and <A
-HREF="http://www.postgresql.org/">PostgreSQL</A> on a machine running <A
-HREF="http://www.redhat.com/">RedHat Linux</A>. Graphics by the <A
+HREF="http://www.apache.org/">Apache</A> on a machine running <A
+HREF="http://www.jurix.org/">Jurix Linux</A>. Graphics by the <A
 HREF="http://www.gimp.org/">GIMP</A>. [<A
-HREF="mailto:gd-bugs@randomhacks.com">Feedback</A>]</SMALL></P>
+HREF="mailto:gd-hackers@gwydiondylan.org">Feedback</A>]</SMALL></P>
 
 </DIV>
 
