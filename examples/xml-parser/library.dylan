@@ -16,8 +16,8 @@ define module xml-parser
   create parse-document;
 
   create <document>, <element>, <attribute>, <entity-reference>,
-    <char-reference>, <char-string>, <xml>, text, char, name;
-  create entity-value, element-attributes, attribute-value;
+    <char-reference>, <char-string>, <xml>, <node>, text, char, name;
+  create entity-value, element-attributes, attribute-value, node-children;
 end module xml-parser;
 
 define module interface
@@ -28,8 +28,7 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <letter>, <digit>, <hex-digit>, <version-number>,
-         <node>;
+  export <letter>, <digit>, <hex-digit>, <version-number>;
   export node-children;
 end module interface;
 

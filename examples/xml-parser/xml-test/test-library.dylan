@@ -14,6 +14,7 @@ define module entity-pass
   use common-dylan;
   use xml-parser;
   use streams;
+  use format;
 
   export collect-entity-defs, referenced-entities;
 end module entity-pass;
@@ -23,6 +24,7 @@ define module html-xform
   use xml-parser;
   use entity-pass;
   use streams;
+  use format;
 
   export $html;
 end module html-xform;

@@ -92,11 +92,30 @@ end macro meta-builder;
 // entity tables
 define variable *entities* = make(<table>);
 define variable *pe-refs* = make(<table>);
+define variable *substitute-entities?* :: <boolean> = #t;
+define variable *defining-entities?* :: <boolean> = #f;
 
 define method entity-value(ent :: <entity-reference>)
  => (val :: <sequence>)
   *entities*[ent.name];
 end method entity-value;
+
+define method do-entity(obj :: <object>) list(obj); end;
+define method do-entity(ent :: <entity-reference>) 
+  explode-entity-value(ent.entity-value)
+end method do-entity;
+
+define function explode-entity-value(val :: <sequence>)
+ => (seq :: <sequence>)
+  local method build-seq(blt :: <list>, org :: <list>)
+    if(org.empty?) 
+      blt
+    else
+      build-seq(concatenate(blt, org.head.do-entity), org.tail);
+    end if;
+  end method;
+  as(type-for-copy(val), build-seq(#(), as(<list>, val)));
+end function explode-entity-value;
 
 //-------------------------------------------------------
 // Productions
@@ -105,9 +124,13 @@ end method entity-value;
 // 
 //    [1]    document    ::=    prolog element Misc*
 //
-define function parse-document(doc :: <string>, #key start = 0, end: stop)
+define function parse-document(doc :: <string>, 
+                               #key start = 0, end: stop, 
+                               substitute-entities? = #t)
  => (stripped-tree :: <document>)
   *entities* := make(<table>);
+  *defining-entities?* := #f;
+  *substitute-entities?* := substitute-entities?;
   let (index, document) = parse-document-helper(doc, start: start, end: stop);
   document;
 end function parse-document;
@@ -177,15 +200,16 @@ define constant not-in-set? = complement(member?);
 
 define collector entity-value(contents, s) => (str)
   {["\"",
-    loop([{parse-reference(contents), 
-           [parse-s?(s), parse-element(contents)], 
-           parse-double-char-data(contents)}, 
-          do(collect(contents))]), "\""],
+    loop({[parse-reference(contents), do(do(collect, contents))],
+          [{[parse-s?(s), parse-element(contents)], 
+            parse-double-char-data(contents)}, 
+           do(collect(contents))]}), "\""],
    ["'",
-    loop([{parse-reference(contents),
-           [parse-s?(s), parse-element(contents)],
-           parse-single-char-data(contents)}, 
-          do(collect(contents))]), "'"]}, []
+    loop({[parse-reference(contents), do(do(collect, contents))],
+          [{[parse-s?(s), parse-element(contents)],
+            parse-single-char-data(contents)}, 
+           do(collect(contents))]}), "'"]}, 
+  []
 end collector entity-value;
 
 
@@ -347,17 +371,20 @@ end parse decl-sep;
 //                                                                                                                   [WFC: External Subset]
 //
 define parse doctypedecl(s, name, id, markup, decl-sep)
-  "<!DOCTYPE", parse-s(s), parse-name(name),
+  yes!(*defining-entities?*),
+  "<!DOCTYPE", parse-s(s), parse-name(name), 
   {[parse-s(s), parse-external-id(id),
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its (I hope only) entities
    do(with-open-file(in = id) parse-dtd-stuff(in.stream-contents) end)], 
    []},
-  parse-s?(s), {['[', parse-dtd-stuff(markup) , ']', parse-s?(s)], []}, ">"
+  parse-s?(s), 
+  {['[', parse-dtd-stuff(markup) , ']', parse-s?(s)], []}, ">",
+  no!(*defining-entities?*)
 end parse doctypedecl;
 
-define parse dtd-stuff(markup, decls)
-  loop({parse-markupdecl(markup), parse-decl-sep(decls)})
+define parse dtd-stuff(markup, decls, misc)
+  loop({parse-markupdecl(markup), parse-decl-sep(decls), parse-misc(misc)})
 end parse dtd-stuff;
 
 //    [29]     markupdecl     ::=    elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment            [VC: Proper Declaration/PE Nesting]
@@ -453,12 +480,25 @@ end function empty-string?;
 
 define constant has-content? = complement(empty-string?);
 
-define collector content(ignor, contents) => (str)
+define method collapse-strings(str :: <sequence>, b :: <boolean>)
+  str;
+end method collapse-strings;
+
+// we'll look for adjacent strings and combine them as one
+// element in the new sequence
+define method collapse-strings(str :: <sequence>, b == #t)
+  // DOUG work on this, please!
+end method collapse-strings;
+
+define collector content(ignor, contents) 
+ => (collapse-strings(str, *substitute-entities?*))
   {[parse-char-data(contents), do(contents.text.has-content? & collect(contents))], []},
-  loop({[{parse-element(contents), parse-reference(contents),
-          parse-cd-sect(contents)}, do(collect(contents))],
+  loop({[{parse-element(contents), parse-cd-sect(contents)}, 
+         do(collect(contents))],
+        [parse-reference(contents), do(do(collect, contents))],
         parse-pi(ignor), parse-comment(ignor),
-        [parse-char-data(contents), do(contents.text.has-content? & collect(contents))]})
+        [parse-char-data(contents), 
+         do(contents.text.has-content? & collect(contents))]})
 end collector content;
 
 // helper method for parsing opening tags
@@ -670,7 +710,8 @@ end method parse-ignore;
 //                              | '&#x' [0-9a-fA-F]+ ';' [WFC: Legal Character]
 //
 define collector int-char-ref(c)
- => (as(<character>, as(<string>, str).string-to-integer), concatenate("#", as(<string>, str)))
+ => (as(<character>, as(<string>, str).string-to-integer), 
+        concatenate("#", as(<string>, str)))
   "&#", loop([type(<digit>, c), do(collect(c))]), ";"
 end collector int-char-ref;
 
@@ -681,7 +722,11 @@ define collector hex-char-ref(c)
 end collector hex-char-ref;
 
 define parse char-ref(char, name)
- => (make(<char-reference>, name: as(<symbol>, name), char: char))
+ => (list(if(*substitute-entities?*)
+            make(<char-string>, text: make(<string>, size: 1, fill: char));
+          else
+            make(<char-reference>, name: as(<symbol>, name), char: char)
+          end if))
   { parse-int-char-ref(char, name), parse-hex-char-ref(char, name) }, []
 end parse char-ref;
 
@@ -697,7 +742,11 @@ end parse reference;
 //                                                     [WFC: Parsed Entity]
 //                                                     [WFC: No Recursion]
 define parse entity-ref(name)
- => (make(<entity-reference>, name: name))
+ => (if(*substitute-entities?* & ~ *defining-entities?*)
+      *entities*[name].explode-entity-value;
+     else
+      list(make(<entity-reference>, name: name));
+     end if)
   "&", parse-name(name), ";"
 end parse entity-ref;
 
@@ -732,8 +781,8 @@ end parse pe-decl;
 
 //    [73]    EntityDef     ::=    EntityValue | (ExternalID NDataDecl?)
 define parse entity-def(def, id) => (def)
-  { parse-entity-value(def),
-  [parse-external-id(id), {parse-n-data-decl(def), []}]}, []
+  {parse-entity-value(def),
+   [parse-external-id(id), {parse-n-data-decl(def), []}]}, []
 end parse entity-def;
 
 //    [74]    PEDef         ::=    EntityValue | ExternalID

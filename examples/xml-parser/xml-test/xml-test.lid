@@ -1,6 +1,6 @@
 library: xml-test
 executable: xml-test
-files: library
+files: test-library
   entity-pass
   html-xform
   xml-test

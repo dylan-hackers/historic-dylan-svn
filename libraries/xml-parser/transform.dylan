@@ -5,12 +5,8 @@ synopsis:  provides the default way to transform XML (just gets the
            text), and a facility to allow user transformations.
 
 define variable *xml-depth* = 0;
-
-define open class <xform-state> (<object>)
-  slot xstate :: <symbol>, init-keyword: xstate:;
-end class <xform-state>;
-
-define constant $no-state = make(<xform-state>, xstate: #"none");
+define open class <xform-state> (<object>) end;
+define constant $no-state = make(<xform-state>);
 
 define function transform-document(doc :: <document>, 
     #key state :: <xform-state> = $no-state, 
@@ -27,16 +23,16 @@ define method transform(nodes :: <node>, tag-name :: <symbol>,
                         state :: <xform-state>, str :: <stream>)
   *xml-depth* := *xml-depth* + 1;
   for(node in nodes.node-children)
-    before-transform(state, *xml-depth*, str);
+    before-transform(nodes, state, *xml-depth*, str);
     transform(node, node.name, state, str);
   end for;
   *xml-depth* := *xml-depth* - 1;
 end method transform;
 
-define open generic before-transform(state :: <xform-state>, 
-    rep :: <integer>, str :: <stream>);
-define method before-transform(state :: <xform-state>, rep :: <integer>,
-                               str :: <stream>) end;
+define open generic before-transform(node :: <node>, 
+    state :: <xform-state>, rep :: <integer>, str :: <stream>);
+define method before-transform(node :: <node>, 
+    state :: <xform-state>, rep :: <integer>, str :: <stream>) end;
 
 define method transform(in :: <document>, tag-name :: <symbol>, 
     state :: <xform-state>, str :: <stream>)
