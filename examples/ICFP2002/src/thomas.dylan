@@ -112,9 +112,17 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
           // we are at the base.
           tom.visited-bases := add(tom.visited-bases,
                                    state.board[tom-pos.y, tom-pos.x]);
-          let ps = load-packages(tom,
-                                 state,
-                                 compare: method(a, b) a.weight > b.weight end);
+          let ps =
+            block(return)
+              try-pickup-many2(agent-robot(tom, state),
+                               state,
+                               return-function: return);
+            end block;
+//          let ps = load-packages(tom,
+//                                 state,
+//                                 compare: method(a, b)
+//                                              a.weight > b.weight
+//                                          end);
           if (ps.empty?) // there are no packages we can pick up.
             choose-next-base(tom, state);
             generate-next-move(tom, state);
