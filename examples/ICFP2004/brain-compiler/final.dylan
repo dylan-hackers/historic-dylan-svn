@@ -144,6 +144,9 @@ Flip 4 10 1
 end;
 
 define sub brain simple-search
+  [guards-init:]
+    Sub guards-init;
+
   [search:]
     Move, => search-blocked;
     Sense Here (Marker 3), (search);
@@ -158,12 +161,22 @@ define sub brain simple-search
     Turn Right;
     Turn Right, (return);
 
-  [patrol:]
-    Sub Patrol;
-
   [return:]
     Move => return-blocked;
     Sense Here Home, (deliver-food, return);
+
+  [patrol:]
+    Sub Patrol;
+    Flip 1, (deliver-food, deliver-food);
+
+  [deliver-food:]
+    Sub deliver-food;
+    Flip 1, (search, search);
+
+  [defense-find-guard-post:]
+    Sub defense-find-guard-post;
+    Flip 1, (turn-and-return, turn-and-return);    
+
 end;
 
 // Marks 0 and 1 and 2.
