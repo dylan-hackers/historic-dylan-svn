@@ -24,7 +24,7 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
 
   let running = #t;
   while(running)
-    state := receive-server-packages(input, state, find-robot(state, agent.id).location);
+    state := receive-server-packages(input, state, find-robot(state, agent.agent-id).location);
     let move = generate-next-move(agent, state);
     send-command(output, move);
     state := receive-server-command-reply(input, state);
