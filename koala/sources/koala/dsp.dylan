@@ -112,7 +112,12 @@ define function register-page
     (url :: <string>, page :: <page>, #key replace?)
  => (responder :: <function>)
   bind (responder = curry(process-page, page))
-    log-debug("Registering URL %s (source: %s)", url, as(<string>, source-location(page)));
+    let source = source-location(page);
+    log-debug("Registering URL %s (%s)",
+              url,
+              iff(source,
+                  sformat("source: %s", as(<string>, source)),
+                  "dynamic"));
     register-url(url, responder, replace?: replace?);
     *page-to-url-map*[page] := url;
     responder
@@ -126,10 +131,6 @@ define function url-to-page
       if (uri = url)
         return(page); end if; end for; end block;
 end;
-
-define method source-location(page :: <page>)
-  "(no source location)"
-end method source-location;
 
 // ---TODO: Test this and export it.
 // Register URLs for all files matching the given pathname spec as instances
@@ -162,17 +163,48 @@ end;
 //
 
 define free class <file-page-mixin> (<object>)
-  slot source-location :: <locator>, init-keyword: #"source";
+  // page-source may be a relative locator, in which case the full source
+  // location is determined when the page is requested, based on the document
+  // root of the current virtual host.  This is typed as <pathname> solely
+  // to prevent clients from always having to do as(<file-locator>, ...).
+  // It is converted to <locator> in the initialize method.
+  slot page-source :: <pathname>,
+    required-init-keyword: #"source";
   slot contents :: false-or(<string>) = #f;
 end;
 
 define method initialize
-    (page :: <file-page-mixin>, #key, #all-keys)
+    (page :: <file-page-mixin>, #key source)
   next-method();
-  when (~slot-initialized?(page, source-location))
-    // ---TODO: what if document-location returns #f here?
-    page.source-location := document-location(page-url(page));
+  if (instance?(page.page-source, <string>))
+    page.page-source := as(<file-locator>, source);
   end;
+end;
+
+define generic source-location
+    (x :: <object>) => (location :: false-or(<locator>));
+
+define method source-location
+    (page :: <page>) => (location :: false-or(<locator>))
+  #f
+end;
+
+define method source-location 
+    (page :: <file-page-mixin>) => (location :: false-or(<locator>))
+  let loc :: <locator> = page.page-source;
+  if (locator-relative?(loc))
+    let newloc = simplify-locator(merge-locators(loc, document-root(*virtual-host*)));
+    log-debug("source-location: newloc = %s", as(<string>, newloc));
+    if (locator-below-document-root?(newloc))
+      newloc
+    else
+      log-debug("Attempt to access a document outside the document root: %s",
+                as(<string>, newloc));
+      access-forbidden-error(); // 403
+    end
+  else
+    loc
+  end
 end;
 
 define method page-directory
@@ -575,7 +607,7 @@ end;
 
         
 
-// A <dsp-template> represents the items in a parsed .dsp file.
+// A <dsp-template> represents the items in a parsed .dsp file, or part thereof.
 define class <dsp-template> (<object>)
   constant slot contents :: <string>, required-init-keyword: #"contents";
   // When the the bug that prevents the <substring> class from working
@@ -584,7 +616,9 @@ define class <dsp-template> (<object>)
            slot content-end   :: <integer>, required-init-keyword: #"content-end";
   constant slot entries :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot parent  :: false-or(<dsp-template>) = #f, init-keyword: #"parent";
-  constant slot source-location :: false-or(<locator>) = #f, init-keyword: #"source";
+  // This is as-yet unused.
+  // Pretty sure it was originally put here for error reporting purposes.
+  constant slot source :: false-or(<locator>) = #f, init-keyword: #"source";
            slot mod-date; // ---*** TODO
 end;
 
@@ -801,12 +835,11 @@ end;
 
 define method parse-page
     (page :: <dylan-server-page>)
-  log-debug("Parsing page %=", source-location(page));
+  pt-debug("Parsing page %s", as(<string>, source-location(page)));
   let string = file-contents(source-location(page));
   if (~string)
     resource-not-found-error(url: page-url(page));
   else
-    pt-debug("Parsing page %s", as(<string>, source-location(page)));
     page.contents := string;
     page.mod-time := current-date();
     let tmplt = make(<dsp-template>,

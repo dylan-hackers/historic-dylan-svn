@@ -10,7 +10,7 @@
   <%dsp:include url="header.dsp"/>
   <%dsp:include url="body-wrapper-start.dsp"/>
 
-  <demo:show-errors/>
+  <dsp:show-form-notes/>
 
   <h2>Table Generation</h2>
 

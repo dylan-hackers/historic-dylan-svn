@@ -118,12 +118,12 @@ end;
 
 define page home-page (<demo-page>)
     (url: "/demo/home.dsp",
-     source: document-location("demo/home.dsp"))
+     source: "demo/home.dsp")
 end;
 
 define page hello-page (<demo-page>)
     (url: "/demo/hello.dsp",
-     source: document-location("demo/hello.dsp"))
+     source: "demo/hello.dsp")
 end;
 
 // Defines a tag that looks like <demo:hello/> in the DSP source file.  i.e.,
@@ -136,7 +136,7 @@ end;
 
 define page args-page (<demo-page>)
     (url: "/demo/args.dsp",
-     source: document-location("demo/args.dsp"))
+     source: "demo/args.dsp")
 end;
 
 // This tag demonstrates the use of tag keyword arguments.  The tag call looks
@@ -160,51 +160,14 @@ define named-method logged-in? in demo
   session & get-attribute(session, #"username");
 end;
 
-// A simple error reporting mechanism.  Store errors in the page context
-// so they can be displayed when the next page is generated.  The idea is
-// that pages should use the <dsp:show-errors/> tag if they can be
-// the target of a POST that might generate errors.
-
-define method note-form-error
-    (message :: <string>, #rest args)
-  note-form-error(list(message, copy-sequence(args)));
-end;
-
-// This shows the use of <page-context> to store the form errors since
-// they only need to be accessible during the processing of one page.
-define method note-form-error
-    (error :: <sequence>, #rest args)
-  ignore(args);
-  let context :: <page-context> = page-context();
-  let errors = get-attribute(context, #"errors") | make(<stretchy-vector>);
-  add!(errors, error);
-  set-attribute(context, #"errors", errors);
-end;
-
-define tag show-errors in demo
-    (page :: <demo-page>, response :: <response>)
-    ()
-  let errors = get-attribute(page-context(), #"errors");
-  when (errors)
-    let out = output-stream(response);
-    format(out, "<FONT color='red'>Please fix the following errors:<P>\n<UL>\n");
-    for (err in errors)
-      // this is pretty consy
-      format(out, "<LI>%s\n",
-             apply(format-to-string, first(err), second(err)));
-    end;
-    format(out, "</UL></FONT>\n");
-  end;
-end;
-
 define page example-login-page (<demo-page>)
     (url: "/demo/login.dsp",
-     source: document-location("demo/login.dsp"))
+     source: "demo/login.dsp")
 end;
 
 define page example-logout-page (<demo-page>)
     (url: "/demo/logout.dsp",
-     source: document-location("demo/logout.dsp"))
+     source: "demo/logout.dsp")
 end;
 
 define method respond-to-get (page :: <example-logout-page>,
@@ -219,7 +182,7 @@ end;
 // The login page POSTs to the welcome page...
 define page example-welcome-page (<demo-page>)
     (url: "/demo/welcome.dsp",
-     source: document-location("demo/welcome.dsp"))
+     source: "demo/welcome.dsp")
 end;
 
 // ...so handle the POST by storing the form values in the session.
@@ -261,7 +224,7 @@ end;
 
 define page iterator-page (<demo-page>)
     (url: "/demo/iterator.dsp",
-     source: document-location("demo/iterator.dsp"))
+     source: "demo/iterator.dsp")
 end;
 
 define thread variable *repetition-number* = 0;
@@ -298,7 +261,7 @@ end;
 
 define page table-page (<demo-page>)
     (url: "/demo/table.dsp",
-     source: document-location("demo/table.dsp"))
+     source: "demo/table.dsp")
 end;
 
 // This method is used as the row-generator function for a dsp:table call.
@@ -383,3 +346,4 @@ end;
 begin
   main();
 end;
+

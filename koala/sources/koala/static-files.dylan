@@ -32,7 +32,6 @@ define method document-location
         if (locator-name(loc) = "..")
           loc := locator-directory(locator-directory(loc));
         end;
-        log-debug("document-location is %s", as(<string>, loc));
         locator-below-document-root?(loc) & loc
       end if
     end if
@@ -82,7 +81,7 @@ define method maybe-serve-static-file
               if (~file-exists?(target)
                     | (~locator-below-document-root?(target)
                          & ~follow-symlinks?(spec)))
-                resource-not-found-error(url);
+                resource-not-found-error(url: url);
               elseif (file-type(target) == #"link")
                 target := link-target(target);
               else

@@ -10,7 +10,7 @@
   <%dsp:include url="header.dsp"/>
   <%dsp:include url="body-wrapper-start.dsp"/>
 
-  <demo:show-errors/>
+  <dsp:show-form-notes/>
 
   <form action="welcome.dsp" method="post" enctype="application/x-www-form-urlencoded">
     <h2>Please Login</h2>

@@ -56,9 +56,10 @@ define variable *auto-register-pages?* :: <boolean> = #f;
 define variable *auto-register-map* :: <string-table>
   = make(<string-table>);
 
+// This is #t when the server is listening for requests and #f otherwise.
+define variable *server-running?* :: <boolean> = #f;
+
 // Since logging is done on a per-vhost basis, this hack is needed
 // to make logging work before vhosts are initialized.
 define variable *temp-log-target*
   = make(<stream-log-target>, stream: *standard-output*);
-
-

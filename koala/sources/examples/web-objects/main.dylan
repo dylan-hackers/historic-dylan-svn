@@ -54,5 +54,7 @@ define method main () => ()
   start-server();
 end;
 
-main();
+begin
+  main();
+end;
 
