@@ -314,9 +314,10 @@ define meta doctypedecl(s, name, id, markup, decl-sep)
   yes!(*defining-entities?*),
   "<!DOCTYPE", scan-s(s), scan-name(name), 
   {[scan-s(s), scan-external-id(id),
+   do(
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its entities and default attribute values.
-   do(with-open-file(in = id, direction: #"input-output")
+      with-open-file(in = id, direction: #"input-output")
         scan-dtd-stuff(stream-contents(in, clear-contents?: #f))
       end)], 
    []},
@@ -379,7 +380,7 @@ end meta sd-decl;
 // assume that tags usually have content, and, therefore, look
 // for non-empty-element tags first when parsing.
 define meta element(elt-name, attribs, content, etag)
-  => (make-element(apply(if(*substitute-entities?*) 
+  => (make-element(apply(if(*substitute-entities?* & ~ *defining-entities?*)
                            expand-entity
                          else 
                            identity 
@@ -478,47 +479,57 @@ end function empty-string?;
 
 define constant has-content? = complement(empty-string?);
 
+define generic collapse-strings(str :: <sequence>, b :: <boolean>)
+ => (ans :: <list>);
+
 define method collapse-strings(str :: <sequence>, b :: <boolean>)
-  str;
+ => (ans :: <list>)
+  as(<list>, str);
 end method collapse-strings;
 
 // we'll look for adjacent strings and combine them as one
 // element in the new sequence
 define method collapse-strings(str :: <sequence>, b == #t)
-  let ans = make(<deque>);
-  let quit :: <integer> = str.size;
+ => (ans :: <list>)
+  if(str.empty?)
+    #()
+  else
+    let ans = make(<deque>);
+    let quit :: <integer> = str.size;
 
-  local method find-last-adjacent-char-string(start :: <integer>)
-         => stop :: <integer>;
-    let stop = start;
-    while(stop < quit & instance?(str[stop], <char-string>))
-      stop := stop + 1; 
-    end;
-    stop;
-  end method find-last-adjacent-char-string;
-
-  local method condense-as-in-milk(start :: <integer>) => stop :: <integer>;
-    if(instance?(str[start], <char-string>))
-      let stop = find-last-adjacent-char-string(start);
-      let new-str 
-        = make(<char-string>, 
-               text: reduce(method(x, y) concatenate(x, y.text) end,
-                            str[start].text,
-                            copy-sequence(str, start: start + 1, end: stop)));
-      push-last(ans, new-str);
+    local method find-last-adjacent-char-string(start :: <integer>)
+           => stop :: <integer>;
+      let stop = start;
+      while(stop < quit & instance?(str[stop], <char-string>))
+        stop := stop + 1; 
+      end;
       stop;
-    else
-      push-last(ans, str[start]);
-      start + 1;
-    end if;
-  end method;
+    end method find-last-adjacent-char-string;
 
-  let index :: <integer> = 0;
-  while(index < quit)
-    index := condense-as-in-milk(index);
-  end;
+    local method condense-as-in-milk(start :: <integer>) => stop :: <integer>;
+      if(instance?(str[start], <char-string>))
+        let stop = find-last-adjacent-char-string(start);
+        let new-str 
+          = make(<char-string>, 
+                 text: reduce(method(x, y) concatenate(x, y.text) end,
+                              str[start].text,
+                              copy-sequence(str, start: start + 1, 
+					    end: stop)));
+        push-last(ans, new-str);
+        stop;
+      else
+        push-last(ans, str[start]);
+        start + 1;
+      end if;
+    end method;
 
-  as(type-for-copy(str), ans);
+    let index :: <integer> = 0;
+    while(index < quit)
+      index := condense-as-in-milk(index);
+    end;
+
+    as(<list>, ans);
+  end if;
 end method collapse-strings;
 
 define collector content(ignor, contents) 
@@ -635,7 +646,7 @@ end meta att-def;
 // 
 // [54] AttType ::=    StringType | TokenizedType | EnumeratedType
 //
-define meta att-type(str) 
+define meta att-type(str)
  {scan-string-type(str), scan-tokenized-type(str), 
   scan-enumerated-type(str)}, []
 end meta att-type;
@@ -783,19 +794,19 @@ define method entity-value(ent :: <entity-reference>)
   *entities*[ent.name];
 end method entity-value;
 
-define method do-expand(obj :: <xml>) list(obj); end;
-define method do-expand(elt :: <element>)
+define generic do-expand(obj :: <xml>) => (ans :: <list>);
+define method do-expand(obj :: <xml>) => (ans :: <list>) list(obj); end;
+define method do-expand(elt :: <element>) => (ans :: <list>)
 // I'll ignore entities in the element attributes for now
   list(make-element(elt.node-children.expand-entity, elt.name, 
                     elt.attributes, *modify?*));
 end method do-expand;
 
-define method do-expand(ent :: <entity-reference>) 
+define method do-expand(ent :: <entity-reference>) => (ans :: <list>)
   expand-entity(ent.entity-value)
 end method do-expand;
 
-define function expand-entity(val :: <sequence>)
- => (seq :: <sequence>)
+define function expand-entity(val :: <sequence>) => (ans :: <list>)
   local method build-seq(blt :: <list>, org :: <list>)
     if(org.empty?)
       blt
