@@ -38,15 +38,18 @@ end function main;
 
 // Invoke our main() function.
 begin
-  $testable-fns[#"parse-attribute"] := parse-attribute;
-  $testable-fns[#"parse-xml-element-start"] 
+  $testable-fns[#"attribute"] := parse-attribute;
+  $testable-fns[#"xml-element-start"] 
     := curry(parse-xml-element-start, *my-builder*);
-  $testable-fns[#"parse-char-data"] := parse-char-data;
-  $testable-fns[#"parse-stag"] := parse-stag;
-  $testable-fns[#"parse-empty-elem-tag"] := parse-empty-elem-tag;
-  $testable-fns[#"parse-element"] := parse-element;
-  $testable-fns[#"parse-comment"] := parse-comment;
-  $testable-fns[#"parse-etag"] := parse-etag;
+  $testable-fns[#"char-data"] := parse-char-data;
+  $testable-fns[#"stag"] := parse-stag;
+  $testable-fns[#"empty-elem-tag"] := parse-empty-elem-tag;
+  $testable-fns[#"element"] := parse-element;
+  $testable-fns[#"comment"] := parse-comment;
+  $testable-fns[#"etag"] := parse-etag;
+  $testable-fns[#"version-num"] := parse-version-num;
+  $testable-fns[#"system-literal"] := parse-system-literal;
+  $testable-fns[#"pubid-literal"] := parse-pubid-literal;
 
   main(application-name(), application-arguments());
 end;
