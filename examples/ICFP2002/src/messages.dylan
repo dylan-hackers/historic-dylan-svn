@@ -342,25 +342,28 @@ end function receive-integer;
 
 // Functions for receiving information from the server
 
-// Read package information from the server
-define function receive-package-information(s :: <stream>) 
-  => (id :: <integer>, x :: <integer>, y :: <integer>, weight :: <integer>)
-  if(s.peek ~= 'R')
-    let package-id = receive-integer(s);
-    receive-space(s);
-    let package-x = receive-integer(s);
-    receive-space(s);
-    let package-y = receive-integer(s);
-    receive-space(s);
-    let package-weight = receive-integer(s);
-    values(package-id, package-x, package-y, package-weight);
-  else
+define function maybe-receive-game-over(s :: <stream>)
+  if(s.peek == 'R')
     debug("%s\n", read-line(s));
     debug("%s\n", read-line(s));
     debug("%s\n", read-line(s));
     debug("%s\n", read-line(s));
     message-error("He's dead, Jim!\n");
   end if;
+end function maybe-receive-game-over;
+
+// Read package information from the server
+define function receive-package-information(s :: <stream>) 
+  => (id :: <integer>, x :: <integer>, y :: <integer>, weight :: <integer>)
+  maybe-receive-game-over(s);
+  let package-id = receive-integer(s);
+  receive-space(s);
+  let package-x = receive-integer(s);
+  receive-space(s);
+  let package-y = receive-integer(s);
+  receive-space(s);
+  let package-weight = receive-integer(s);
+  values(package-id, package-x, package-y, package-weight);
 end function receive-package-information;
 
 // Return #t if more package information is available on the line
@@ -460,6 +463,7 @@ end function more-events?;
 
 define function receive-server-command-reply(s :: <stream>, state :: <state>) => (state :: <state>)
   block()
+    maybe-receive-game-over(s);
     while(more-events?(s))
       receive-sharp(s);
       let id = receive-integer(s);    
