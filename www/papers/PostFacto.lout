@@ -1,5 +1,6 @@
 @SysInclude { report }
 @SysInclude { eq }
+@SysInclude { diag }
 
 def @Class right name { @F {{@Sym angleleft}name{@Sym angleright}} }
 
@@ -151,7 +152,14 @@ types given more precisely:
 define method render
     (doc :: <html-document>, dev :: <laser-printer>) => (); ...
 define method render
-    (doc :: <pdf-document>, dev :: <dot-matrix-printer>) => (); ...}
+    (doc :: <pdf-document>, dev :: <dot-matrix-printer>) => (); ...
+}
+If an instance of @Class html-document and a
+@Class laser-printer instance are passed to {@I render},
+the first method will be called. Invoking {@I render}
+with instances of @Class html-document and
+@Class dot-matrix-printer will signal an error under
+certain conditions, as we will see in the next section.
 @End @SubSection
 
 ###########
@@ -255,7 +263,18 @@ the @I { definitive set } of methods that are provably applicable by checking th
 the static types of arguments are subtypes of the respective argument types in the
 signature. Leaving away the definitive set from the applicable set the @I { maybe set }
 remains.
-@LP @I { [nice set diagram here] }
+@LP @I { [nice set diagram here (only .ps)] }
+@CenteredDisplay @Diag {
+# @Box margin { 0c } 10c @Wide 6c @High
+@Ellipse { 10c @Wide 6c @High }
+//
+A:: @Ellipse
+translate { CTR to 0.5, 0.67 }
+{ 4c @High 6c @Wide @I A }
+B:: @Circle
+translate { CTR to 0.8, 0.25 }
+{ 3c @High 3c @Wide @Center { definitive / set } }
+}
 @PP
 The Dylan language semantics @Cite { $shalit1996, chapter 6 } describes that from the set of
 applicable methods the one with the most specific argument types will be called
@@ -287,8 +306,11 @@ We introduce some notation to be able to formalize this a bit.
 First, we adopt the mathematical set theoretic symbols to also apply for types.
 Thus @Eq { 1 ta cup 2 ta } will denote a union type (corresponding to the Dylan function
 {@F type-union}). An object is of intersection type @Eq { 1 ta cap 2 ta }
-if it is an instance of both @Eq { 1 ta } and @Eq { 2 ta } (in Dylan this corresponds to sequentially
-calling two functions which are declared with @Eq { 1 ta } and @Eq { 2 ta }).
+if it is an instance of both @Eq { 1 ta } and @Eq { 2 ta }
+(in Dylan this corresponds to sequentially
+calling two functions which are declared as @Eq { 1 ta } and @Eq { 2 ta },
+or with a single call of a function that has two formal arguments declared
+as @Eq { 1 ta } and @Eq { 2 ta } passing the same object).
 Further let @Eq { sigp { n taus } }
 denote the product type of an {@I n}-ary method's argument signature. The maybe set then
 can be described as a set of distinct signatures:
@@ -527,7 +549,8 @@ for type refinement open up.
 @Begin
 @PP
 @StarList
-   @ListItem { using the fact that an error happened? }
+   @ListItem { using the fact that an error happened?,
+e.g. that a catcher will only be entered with complementary type? }
    @ListItem { exploiting the absence from other errors (out-of-range etc.)? }
    @ListItem { using the definitive set to add information? -- possibly not! }
    @ListItem { using the known ambiguities to add information?
