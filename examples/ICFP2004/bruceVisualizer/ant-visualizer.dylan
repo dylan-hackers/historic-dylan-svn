@@ -247,6 +247,9 @@ define function draw-world() => ()
         for (x-index from 0 below width)
             let position = make-position(x-index, y-index);
             let cell = cell-at(position);
+
+            glLineWidth(1.0s0);
+            draw-markers(cell, position);
             
             glLineWidth(3.0s0);
             draw-cell-food(cell, position);
@@ -256,8 +259,6 @@ define function draw-world() => ()
                 draw-ant(this-ant, position);
             end;
             
-            glLineWidth(1.0s0);
-            draw-markers(cell, position);
         end;
     end;
 end;

@@ -218,6 +218,14 @@ Mark 1 just_marked_check_stuck:
 ; NB -- walls aren't blank :-(
 
 just_marked_check_stuck:	; check six directions for blank cell, change mode if none (stuck)
+
+Sense Here . just_marked_check_stuck1: Food		; but first check for Food!
+PickUp . just_marked_check_stuck:
+Turn Left .
+Turn Left .
+Turn Left got_food:
+
+just_marked_check_stuck1:
 Sense LeftAhead just_marked_check_stuck_ahead: . Rock
 Sense LeftAhead just_marked_check_stuck_ahead: . Marker 0
 Sense LeftAhead . forage: Marker 1
@@ -284,13 +292,17 @@ Turn Right forage:
 ; basically OSA
 
 OSA:
+Sense Here forage: . Marker 2
 Sense Here OSA_move: . Marker 0
 Sense Here OSA_move: forage: Marker 1
 
 OSA_move:
 Move . OSA_cant_move:
 Sense Here OSA: . Home
-PickUp got_food: OSA:
+PickUp . OSA:
+Turn Left .
+Turn Left .
+Turn Left got_food:
 
 OSA_cant_move:
 Turn Right OSA:
@@ -299,14 +311,13 @@ Turn Right OSA:
 ; go home with food
 
 got_food:
-Mark 2 .
 Sense Here got_food_home: . Home
 Sense Here got_food_colour1x: . Marker 0
 Sense Here got_food_colour01: . Marker 1			; no existing colour
 
 ; got food, but on blank square???  Iconceivable! Just move forward?
 Move got_food: .
-Turn Left got_food:
+Drop forage:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; move home, depending on what colour we're on now
@@ -327,8 +338,31 @@ got_food_colour11:					; move onto 10
 Sense Ahead . got_food_turn: Marker 0
 Sense Ahead got_food_turn: got_food_move: Marker 1
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 got_food_move:
-Move got_food: got_food_move:
+Mark 2 .
+Move got_food: .
+;Flip 2 . got_food_blocked_try_right:
+;Turn Left got_food_move:
+
+;got_food_blocked_try_right:
+;Turn Right got_food_move:
+
+Sense Ahead got_food_widen_trail: . FriendWithFood
+Sense Ahead . got_food: Friend
+Drop .
+Turn Left .
+Turn Left .
+Turn Left .
+Move follow_trail_to_food: follow_trail_to_food:
+
+got_food_widen_trail:
+Flip 2 . got_food_widen_trail_turnRight:
+Turn Left got_food_move:
+
+got_food_widen_trail_turnRight:
+Turn Right got_food_move:
 
 got_food_turn:
 Flip 2 . got_food_turnRight:
@@ -341,4 +375,63 @@ got_food_home:
 Drop .
 Turn Left .
 Turn Left .
-Turn Left OSA:
+Turn Left OSA: ;follow_trail_to_food:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+follow_trail_to_food:
+Sense Here follow_trail_to_food2: . Home
+PickUp got_food: .				; check for food all ways in front
+Sense LeftAhead follow_trail_to_food_leftahead: . Food
+Sense Ahead follow_trail_to_food_move: . Food
+Sense RightAhead follow_trail_to_food_rightahead: . Food
+
+follow_trail_to_food2:
+Sense Ahead follow_trail_to_food_move: . Marker 2
+Sense LeftAhead follow_trail_to_food_leftahead: . Marker 2
+Sense RightAhead follow_trail_to_food_rightahead: . Marker 2
+Unmark 2 OSA:
+
+; hmmm .. trail ran out .. random more for now...
+
+;Sense Here follow_trail_to_food_colour1x: . Marker 0
+;Sense Here follow_trail_to_food_colour01: OSA: Marker 1	; punt if no existing colour
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; move away from home, depending on what colour we're on now
+;
+;follow_trail_to_food_colour01: 					; move onto 10
+;Sense Ahead . follow_trail_to_food_turn: Marker 0
+;Sense Ahead follow_trail_to_food_turn: follow_trail_to_food_move: Marker 1
+;
+;follow_trail_to_food_colour1x:
+;Sense Here follow_trail_to_food_colour11: follow_trail_to_food_colour10: Marker 1
+;
+;follow_trail_to_food_colour10: 					; move onto 11
+;Sense Ahead . follow_trail_to_food_turn: Marker 0
+;Sense Ahead follow_trail_to_food_move: follow_trail_to_food_turn: Marker 1
+;
+;follow_trail_to_food_colour11:					; move onto 01
+;Sense Ahead follow_trail_to_food_turn: . Marker 0
+;Sense Ahead follow_trail_to_food_move: follow_trail_to_food_turn: Marker 1
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+
+follow_trail_to_food_leftahead:
+Turn Left follow_trail_to_food_move:
+
+follow_trail_to_food_rightahead:
+Turn Right follow_trail_to_food_move:
+
+follow_trail_to_food_move:
+Move follow_trail_to_food: follow_trail_to_food_move:
+;Turn Right .
+;Move forage: forage:
+
+follow_trail_to_food_turn:
+Flip 2 . follow_trail_to_food_turnRight:
+Turn Left follow_trail_to_food:
+
+follow_trail_to_food_turnRight:
+Turn Right follow_trail_to_food:
