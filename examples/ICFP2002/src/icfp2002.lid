@@ -5,6 +5,7 @@ not-used-files:   dumbot
 files:
   icfp2002-exports
   icfp2002
+  path
   board
   robot
   package

@@ -34,7 +34,7 @@ define module board
     <state>, robots, packages,
     <board>, <coordinate>,
     send-board, receive-board,
-    width, height,
+    width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, weight, x, y, dest-x, dest-y,
     <robot>, capacity, x, y, capacity-left,
@@ -65,24 +65,24 @@ define module messages
   use board;
   use command;
 
-  export
-    <message-error>,
-    message-error,
-    add-error,
+//  export
+//    <message-error>,
+//    message-error,
+//    add-error,
     // send routines
-    send-player,  // This sends the "Player" message to the server to
+//    send-player,  // This sends the "Player" message to the server to
                   //initialize.
-    send-command,
+//    send-command,
     // receive routines
-    receive-initial-setup, // Reads initial board plus self robot, w/ robot
+//    receive-initial-setup, // Reads initial board plus self robot, w/ robot
                            // positions. Does it all.
     // receive-initial-setup calls:
-    receive-integer,
-    receive-string,
-    receive-board-layout,  // Reads initial board layout, w/o robot positions.
-    receive-client-configuration, // Reads our initial status.
-    receive-robot-location,
-    receive-initial-robot-positions; // Updates board with robot positions.
+//    receive-integer,
+//    receive-string,
+//    receive-board-layout,  // Reads initial board layout, w/o robot positions.
+//    receive-client-configuration, // Reads our initial status.
+//    receive-robot-location,
+//    receive-initial-robot-positions; // Updates board with robot positions.
 end module messages;
 
 define module client
@@ -98,3 +98,9 @@ define module server
   use board;
   
 end module server;
+
+
+define module path
+  use common-dylan;
+  use board;
+end module path;

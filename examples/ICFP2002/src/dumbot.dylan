@@ -3,6 +3,7 @@ module: client
 define class <dumbot> (<robot-agent>)
 end class <dumbot>;
 
+/*
 define method generate-next-move(me :: <dumbot>, board :: <state>)
  => (c :: <command>)
   block(return)
@@ -24,13 +25,15 @@ define method generate-next-move(me :: <dumbot>, board :: <state>)
       end for;
       return(make(<pick>, package-ids: map(id, take-these)));
     end if;
-    
+*/  
 /*
    targets := carried package destinations, free packages, unvisited homebases;
    target = closest(targets);
 
    return(make(<move>, find-path(target)[0]));
  */
-    
+
+/*    
   end block;
 end method generate-next-move;
+*/
