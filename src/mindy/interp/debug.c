@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /home/housel/work/rcs/gd/src/mindy/interp/debug.c,v 1.46 1996/02/02 01:52:32 wlott Exp $
+* $Header: /home/housel/work/rcs/gd/src/mindy/interp/debug.c,v 1.46.1.1 1996/02/02 02:09:12 wlott Exp $
 *
 * This file implements the debugger.
 *
@@ -661,6 +661,12 @@ static void gc_cmd(obj_t args)
 {
     should_be_no_args(args);
     collect_garbage(FALSE);
+}
+
+static void snapshot_cmd(obj_t args)
+{
+    should_be_no_args(args);
+    snapshot_heap();
 }
 
 static void error_cmd(obj_t args)
@@ -2354,6 +2360,8 @@ static struct cmd_entry Cmds[] = {
     {"return",
 	 "return\t\tReturn from this call to invoke-debugger (if allowed)",
 	 return_cmd},
+    {"snapshot", "snapshot\tMake a snapshot of the current heap.",
+	 snapshot_cmd},
     {"step", "step\t\tStep the current thread to a different line.", step_cmd},
     {"thread", "thread [name]\tSwitch to given thread or list all threads.",
 	 thread_cmd},

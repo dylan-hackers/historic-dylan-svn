@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /home/housel/work/rcs/gd/src/mindy/interp/gc.h,v 1.6 1996/02/02 01:52:32 wlott Exp $
+* $Header: /home/housel/work/rcs/gd/src/mindy/interp/gc.h,v 1.6.1.1 1996/02/02 02:07:35 wlott Exp $
 *
 \**********************************************************************/
 
@@ -37,6 +37,7 @@ extern void scavenge(obj_t *addr);
 extern obj_t transport(obj_t obj, int bytes, boolean read_only);
 
 extern void collect_garbage(boolean purify);
+extern void snapshot_heap(void);
 
 extern boolean object_collected(obj_t obj);
 extern obj_t pointer_hash_state(obj_t pointer);

@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /home/housel/work/rcs/gd/src/mindy/interp/gc.c,v 1.24 1996/02/02 01:49:03 wlott Exp $
+* $Header: /home/housel/work/rcs/gd/src/mindy/interp/gc.c,v 1.24.1.1 1996/02/02 02:08:38 wlott Exp $
 *
 * This file is the garbage collector.
 *
@@ -96,6 +96,8 @@ struct ref_list {
     int alloc;
     int used;
 };
+
+static void (*scavenge_hook)(obj_t *addr) = NULL;
 
 #define BLOCK_SIZE (128*1024)
 #define DEFAULT_BYTES_CONSED_BETWEEN_GCS (2*1024*1024)
@@ -369,7 +371,7 @@ struct forwarding_pointer {
     obj_t new_value;
 };
 
-void scavenge(obj_t *addr)
+static void gc_scavenge(obj_t *addr)
 {
     obj_t obj = *addr;
 
@@ -384,6 +386,11 @@ void scavenge(obj_t *addr)
 	else
 	    *addr = obj_ptr(struct class *, class)->transport(obj);
     }
+}
+
+void scavenge(obj_t *addr)
+{
+    scavenge_hook(addr);
 }
 
 obj_t transport(obj_t obj, int bytes, boolean read_only)
@@ -494,6 +501,8 @@ void collect_garbage(boolean purify)
     int bytes_at_end;
     boolean print_message = print_messages_var->value != obj_False;
     char strbuf[256];
+
+    scavenge_hook = gc_scavenge;
 
 #if PURIFY
     Purifying = purify;
@@ -667,6 +676,138 @@ obj_t pointer_hash_state(obj_t pointer)
 	space->hash_state = make_hash_state(space->volatility);
 
     return space->hash_state;
+}
+
+
+/* heap snapshot stuff. */
+
+static FILE *snapshot_file = NULL;
+static obj_t null = NULL;
+
+static void write_string_with_null(char *str)
+{
+    fwrite(str, 1, strlen(str)+1, snapshot_file);
+}
+
+static void snapshot_classes(obj_t class)
+{
+    obj_t scan, subclass;
+
+    if (!CLASS(class)->abstract_p) {
+	fwrite(&class, sizeof(class), 1, snapshot_file);
+	write_string_with_null(sym_name(CLASS(class)->debug_name));
+    }
+
+    for (scan=CLASS(class)->direct_subclasses;scan!=obj_Nil;scan=TAIL(scan)) {
+	subclass = HEAD(scan);
+	if (HEAD(CLASS(subclass)->superclasses) == class)
+	    snapshot_classes(subclass);
+    }
+}
+
+static void snapshot_scavenge(obj_t *addr)
+{
+    obj_t obj = *addr;
+
+    if (obj_is_ptr(obj) && object_block(obj)->space == CurrentSpace)
+	fwrite(&obj, sizeof(obj), 1, snapshot_file);
+}
+
+static void snapshot_roots(void)
+{
+    write_string_with_null("thread");
+    scavenge_thread_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("symbol");
+    scavenge_symbol_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("module");
+    scavenge_module_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("debug");
+    scavenge_debug_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("load");
+    scavenge_load_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("driver");
+    scavenge_driver_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("brkpt");
+    scavenge_brkpt_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("c");
+    scavenge_c_roots();
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("constant");
+    scavenge_ref_list(ConstantRoots);
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    write_string_with_null("variable");
+    scavenge_ref_list(VariableRoots);
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    putc('\0', snapshot_file);
+}
+
+static void snapshot_space(struct space *space)
+{
+    struct block *block;
+    void *ptr, *end;
+    int bytes;
+
+    for (block = space->blocks; block != NULL; block = block->next) {
+	ptr = block->base;
+	if (block == space->cur_block)
+	    end = space->cur_fill;
+	else
+	    end = block->fill;
+
+	while (ptr < end) {
+	    obj_t class = *(obj_t *)ptr;
+
+	    if (class != NULL) {
+		obj_t obj = ptr_obj(ptr);
+		fwrite(&obj, sizeof(obj), 1, snapshot_file);
+		fwrite(&class, sizeof(class), 1, snapshot_file);
+		bytes = CLASS(class)->scavenge(ptr);
+		fwrite(&null, sizeof(null), 1, snapshot_file);
+		fwrite(&bytes, sizeof(bytes), 1, snapshot_file);
+		ptr = (char *)ptr + ((bytes + 7) & ~7);
+	    }
+	    else
+		ptr = (char *)ptr + 8;
+	}
+    }
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+}
+
+void snapshot_heap(void)
+{
+    scavenge_hook = snapshot_scavenge;
+    snapshot_file = fopen("heap.snapshot", "w");
+
+    if (!snapshot_file)
+	error("Couldn't open heap.snapshot for writing.");
+
+    snapshot_classes(obj_ObjectClass);
+    fwrite(&null, sizeof(null), 1, snapshot_file);
+
+    snapshot_roots();
+    snapshot_space(ReadOnlySpace);
+    snapshot_space(StaticSpace);
+    snapshot_space(CurrentSpace);
+
+    fclose(snapshot_file);
+    snapshot_file = NULL;
 }
 
 
