@@ -54,6 +54,7 @@ end;
 
 define sealed method make (class == <weak-list>, #key contents = $not-supplied,
 		    size = $not-supplied, fill)
+    => res :: <weak-list>;
   if (contents == $not-supplied)
     next-method(class,
 		contents: if (size == $not-supplied)
@@ -86,30 +87,22 @@ define sealed method add! (weak-list :: <weak-list>, element :: <object>)
 end;
 
 define sealed method remove (weak-list :: <weak-list>, element :: <object>,
-		      #key test = \==, count = $not-supplied)
+          #key test :: <function> = \==, count :: false-or(<integer>))
+    => res :: <weak-list>;
   make(<weak-list>,
-       contents: if (count == $not-supplied)
-		   remove(as(<list>, weak-list), element, test: test);
-		 else
-		   remove(as(<list>, weak-list), element,
-			  test: test, count: count);
-		 end);
+       contents: remove(as(<list>, weak-list), element, test: test, count: count));
 end;
 
 define sealed method remove! (weak-list :: <weak-list>, element :: <object>,
-		       #key test = \==, count = $not-supplied)
+		       #key test :: <function> = \==, count :: false-or(<integer>))
+    => res :: <weak-list>;
   local method new-test (weak-ptr, element)
 	  let (object, broken?) = weak-pointer-object(weak-ptr);
 	  // We can't remove the broken ones because doing so would mess up
 	  // the count.
-	  ~broken? & test(object, element);
+	  ~broken? & compare-using-default-==(test, object, element);
 	end;
-  weak-list.contents
-    := if (count == $not-supplied)
-	 remove!(weak-list.contents, element, test: new-test);
-       else
-	 remove!(weak-list.contents, element, test: new-test, count: count);
-       end;
+  weak-list.contents := remove!(weak-list.contents, element, test: new-test, count: count);
   weak-list;
 end;
 
@@ -119,7 +112,9 @@ define sealed inline method reverse (weak-list :: <weak-list>)
 end;
 
 define sealed inline method reverse! (weak-list :: <weak-list>)
+    => res :: <weak-list>;
   weak-list.contents := reverse!(weak-list.contents);
+  weak-list;
 end;
 
 
