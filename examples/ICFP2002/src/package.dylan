@@ -7,7 +7,9 @@ define class <package> (<object>)
 
   slot dest :: false-or(<point>), init-keyword: dest:;
 
-  slot carrier :: false-or(<robot>), init-keyword: carrier:;
+  slot carrier :: false-or(<robot>), 
+    init-keyword: carrier:,
+    init-value: #f;
 end class <package>;
 
 define method at-destination?(p :: <package>) 
