@@ -18,17 +18,16 @@
 
 <div class="content" id="heading297-0">
 <h1>19.2   Efficiency <a name="marker-2-765"></a>model</h1>
-<p>Dylan is a powerful language: Many of the built-in, or primitive, language operations are high-level operations, such as the method-dispatch mechanism, the collection facility, and the exception mechanism. Because of Dylan's powerful features, it can be hard for the programmer to develop an <strong>efficiency model</strong> -- a model of the absolute or relative cost of different approaches to a problem.</p>
-<p>In contrast, in other languages, such as C, every language construct can be explained directly in terms of a small number of machine instructions. Although it may be easy to understand the performance of a C program in terms of a simple model, programming in C is more work for the programmer -- the higher-level abstractions are not provided, and must often be built from scratch.</p>
+<p>Dylan is a powerful language: Many of the built-in, or primitive, language operations are high-level operations, such as the method-dispatch mechanism, the collection facility, and the exception mechanism. Because of Dylan's powerful features, it can be hard for the programmer to develop an <strong>efficiency model</strong> &mdash; a model of the absolute or relative cost of different approaches to a problem.</p>
+<p>In contrast, in other languages, such as C, every language construct can be explained directly in terms of a small number of machine instructions. Although it may be easy to understand the performance of a C program in terms of a simple model, programming in C is more work for the programmer &mdash; the higher-level abstractions are not provided, and must often be built from scratch.</p>
 <p>For example, a C programmer expects that the run-time cost of calling a function is the cost of possibly saving registers on a stack, passing the arguments, executing a machine instruction for jumping to a subroutine, and then executing a return instruction at the end of the function; if it is a call through a function pointer, or a C++ virtual function, the cost of an indirect jump must be added. In Dylan, the story is more complicated, because Dylan has a more sophisticated execution model: A call to a generic function might be much more expensive in a dynamic situation, because computing the most specific method could take much longer than would execution of the method itself.</p>
-<p>To write efficient programs in Dylan, you have to understand what constructs in the language can be expensive in time or space, and how you can reduce those costs in common cases. This understanding is based on an <strong>efficiency model</strong> -- a conceptual model of how a program in Dylan runs at a low level.</p>
+<p>To write efficient programs in Dylan, you have to understand what constructs in the language can be expensive in time or space, and how you can reduce those costs in common cases. This understanding is based on an <strong>efficiency model</strong> &mdash; a conceptual model of how a program in Dylan runs at a low level.</p>
 <p>One problem with developing an efficiency model is that there is no single way to implement many Dylan operations. Different compilers do things in different ways, and certain compilers have multiple techniques for compiling the same piece of code, depending on circumstances. Nonetheless, we shall try to give an intuitive feel for which features of Dylan are costly, and which features enable the compiler to make optimizations.</p>
 
 </div>
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

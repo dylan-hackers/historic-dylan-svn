@@ -42,7 +42,7 @@ end method g;
 </pre>
 <p>Now, if we call the generic function <code>g</code> with an instance of <code>&lt;float&gt;</code>, we can supply the keyword arguments <code>real-key:</code> and <code>float-key:</code>, because the methods that have those keyword parameters are both applicable. If we call <code>g</code> with an instance of <code>&lt;integer&gt;</code>, we can supply the keyword arguments <code>real-key:</code> and <code>integer-key:</code>.</p>
 <p>Suppose that, in this same example, we call the generic function <code>g</code> with an instance of <code>&lt;float&gt;</code>, and supply the keyword arguments <code>real-key:</code> and <code>float-key:</code>. Method 2 is most specific, and is called as a result of Dylan's method dispatch. But method 2 does not have a <code>real-key:</code> parameter. If we were calling this method directly, Dylan would signal an error. In this case, method 2 simply ignores the <code>real-key:</code> argument, because Dylan checks keyword arguments for a generic function call as a whole, rather than for a particular method chosen as a result of method dispatch.</p>
-<p>There is an important subtlety of keyword-parameter specifications to note in this example. Because of the rules for parameter-list congruence, the generic function and all its methods must accept keyword arguments -- that is, they must all have <code>#k<a name="marker-2-540"></a>ey</code> in their parameter lists. Notice that we terminated the generic function's parameter list with <code>#key</code>. This use indicates that the generic function permits -- but does not require -- individual methods to specify keyword parameters.</p>
+<p>There is an important subtlety of keyword-parameter specifications to note in this example. Because of the rules for parameter-list congruence, the generic function and all its methods must accept keyword arguments &mdash; that is, they must all have <code>#k<a name="marker-2-540"></a>ey</code> in their parameter lists. Notice that we terminated the generic function's parameter list with <code>#key</code>. This use indicates that the generic function permits &mdash; but does not require &mdash; individual methods to specify keyword parameters.</p>
 <p>Suppose that we had instead terminated the generic function's parameter list with <code>#key, #all-k<a name="marker-2-541"></a>eys</code>. This use also would have permitted, but would not have required, individual methods to specify keyword parameters. But it also would have allowed a caller of the generic function to supply <em>any</em> keyword argument. In the earlier example, only a small set of keyword arguments was permitted, and the members of the set varied with the applicable methods.</p>
 <p>In general, when you define a generic function or a method that accepts keyword arguments, it is advisable not to specify <code>#all-keys</code> unnecessarily, because doing so defeats Dylan's keyword-argument checking. If a method needs to accept keyword arguments because of the rules of parameter-list congruence, but does not need to recognize any keywords itself, you should terminate its parameter list with <code>#key</code>.</p>
 
@@ -50,7 +50,6 @@ end method g;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

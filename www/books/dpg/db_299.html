@@ -41,7 +41,7 @@ end method generate-gates;
 <p>With the limited constraint of the return value of <code>generate-gates</code>, the compiler can ensure that only gate objects will ever be stored in the vector; hence, it can be sure that each <code>gate</code> will be a <code>&lt;gate&gt;</code> and will have a <code>connected-to</code> method. </p>
 <p>Note that limited-collection types are instantiable types; that is, you can make an object of a limited type. This capability is different from similar constructs in certain other languages, in which those constructs are only an assertion about the range or type of values to be stored in the collection. Having declared the return value of <code>generate-gates</code> to be a <code>&lt;gate-vector&gt;</code>, it would be an error to return a <code>&lt;vector&gt;</code> instead; hence, we changed the argument to <code>make</code> when constructing <code>result</code> to be <code>&lt;gate-vector&gt;</code> instead of the original <code>&lt;vector&gt;</code>.</p>
 <p>If <code>&lt;gate&gt;</code> and <code>connected-to</code> are not <strong>open</strong> (as described in <a href="db_304.html#marker-9-782">Section 19.9</a> and <a href="db_305.html#marker-9-786">Section 19.10</a>), the compiler can infer that <code>connected-to</code> is used here to set a slot in the gate instance and to further optimize the code generated. We do not delve into the exact details of what the compiler has to know to make this optimization, but it is worth noting that, if either the class or the generic function were open, the optimization could not be made.</p>
-<table><tr><td><p><strong>Comparison <a name="marker-2-748"></a>with C++:</strong> The Dylan limited-collection types provide a capability similar to that offered by the C++ template classes. Unlike in C++, the base type of a limited-collection type (the equivalent of a C++ class template -- in the example above, <code>&lt;vector&gt;</code>) is also a valid type. Dylan's dynamic capabilities mean that Dylan can defer determining the element type of a collection until run time, in effect adapting the class template as it goes along. By using a limited type, the compiler can generate more efficient code.</p>
+<table><tr><td><p><strong>Comparison <a name="marker-2-748"></a>with C++:</strong> The Dylan limited-collection types provide a capability similar to that offered by the C++ template classes. Unlike in C++, the base type of a limited-collection type (the equivalent of a C++ class template &mdash; in the example above, <code>&lt;vector&gt;</code>) is also a valid type. Dylan's dynamic capabilities mean that Dylan can defer determining the element type of a collection until run time, in effect adapting the class template as it goes along. By using a limited type, the compiler can generate more efficient code.</p>
 </td></tr></table><p>Another use of limited types is to allow compact representations. We can use <code>limited</code> with the built-in type <code>&lt;integer&gt;</code> to specify numbers with a limited range that can be stored more compactly than integers. It is especially useful to use a limited range in combination with a limited collection; for example,</p>
 <pre>
 define constant &lt;signed-byte-vector&gt; 
@@ -56,7 +56,6 @@ define constant &lt;signed-byte-vector&gt;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

@@ -31,9 +31,9 @@ end class &lt;time-of-day&gt;;
 </pre>
 <p>There is commonality between the two classes: </p>
 <ul>
-<li><p>Both classes represent a kind of time -- they have a conceptual basis in common. </p></li>
-<li><p>Both classes have a <code>total-seconds</code> slot -- they have structure in common.</p></li>
-<li><p>Both classes need a <code>decode-total-seconds</code> method to convert the <code>total-seconds</code> slot to hours, minutes, and seconds -- they have behavior in <br />common.</p></li>
+<li><p>Both classes represent a kind of time &mdash; they have a conceptual basis in common. </p></li>
+<li><p>Both classes have a <code>total-seconds</code> slot &mdash; they have structure in common.</p></li>
+<li><p>Both classes need a <code>decode-total-seconds</code> method to convert the <code>total-seconds</code> slot to hours, minutes, and seconds &mdash; they have behavior in <br />common.</p></li>
 </ul>
 <p>We can use inheritance to model the shared aspects of these two classes directly. We need to define a new class, such as <code>&lt;time&gt;</code>, and to redefine the two classes to inherit from <code>&lt;time&gt;</code>. The <code>&lt;time&gt;</code> class will contain the slot <code>total-seconds,</code> and the other two classes will inherit that slot. We shall redefine the <code>decode-total-seconds</code> method such that its parameter is of the <code>&lt;time&gt;</code> type, which means that it can be called for instances of <code>&lt;time-of-day&gt;</code> and of <code>&lt;time-offset&gt;</code>.</p>
 
@@ -41,7 +41,6 @@ end class &lt;time-of-day&gt;;
 
 <div class="toc">
 
-<!-- TOC -->
 <ul>
 <li><a href="db_69.html#heading69-0"><strong>5.2.1  </strong> - New definitions of the time classes</a></li>
 <li><a href="db_70.html#heading70-0"><strong>5.2.2  </strong> - Slot inheritance</a></li>

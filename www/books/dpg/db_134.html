@@ -18,7 +18,7 @@
 
 <div class="content" id="heading134-0">
 <h1>10.6   <a name="marker-9-352"></a>Virt<a name="marker-2-353"></a>ual slots</h1>
-<p>Virtual slots are useful when there is information conceptually associated with an object that is better computed than stored in an ordinary slot. By using a virtual slot instead of writing a method, you make the information appear like a slot to the callers of the getter. The information appears like a slot because the caller cannot distinguish the getter of a virtual slot from a getter of an ordinary slot. In both cases, the getter takes a single required argument -- the instance -- and returns a single value. </p>
+<p>Virtual slots are useful when there is information conceptually associated with an object that is better computed than stored in an ordinary slot. By using a virtual slot instead of writing a method, you make the information appear like a slot to the callers of the getter. The information appears like a slot because the caller cannot distinguish the getter of a virtual slot from a getter of an ordinary slot. In both cases, the getter takes a single required argument &mdash; the instance &mdash; and returns a single value. </p>
 <p>A virtual slot does not occupy storage; instead, its value is computed. When you define a virtual slot, Dylan defines a generic function for the getter and setter. You must define a getter method to return the value of the virtual slot. Unlike those of other slots, the value of a virtual slot can change without a setter being called, because that value is computed, rather than stored. You can optionally define a setter method. If you want to initialize a virtual slot when you create an instance, you can define an <code>initialize</code> method. </p>
 <p>We can use virtual slots to control the access to a slot. For example, we want to ensure that the value of the <code>direction</code> slot is north or south for <code>&lt;latitude&gt;</code>, and is east or west for <code>&lt;longitude&gt;</code>. (An alternative technique is to use enumeration types, as shown in <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.) To enforce this restriction, we must</p>
 <ul>
@@ -39,7 +39,6 @@ end class &lt;directed-angle&gt;;
 
 <div class="toc">
 
-<!-- TOC -->
 <ul>
 <li><a href="db_135.html#heading135-0"><strong>10.6.1  </strong> - Symbols</a></li>
 <li><a href="db_136.html#heading136-0"><strong>10.6.2  </strong> - Getter and setter methods for a virtual slot</a></li>

@@ -27,7 +27,7 @@ define method decode-total-seconds
   decode-total-seconds(sixty-unit.total-seconds);
 end method decode-total-seconds; 
 </pre>
-<p>Although the generic function for the slot accessor <code>total-seconds</code> is sealed, and it is trivial for the compiler to infer that its argument is a <code>&lt;sixty-unit&gt;</code> in the call <code>sixty-unit.total-seconds</code>, because <code>&lt;sixty-unit&gt;</code> is declared open, the <br />compiler cannot emit the most efficient code for that call. Because an open class could be mixed with any number of other classes, there is no guarantee that the slots of every object that is a <code>&lt;sixty-unit&gt;</code> will always be stored in the same order --there is no guarantee that <code>total-seconds</code> will always be the first slot in an object that is an indirect instance of <code>&lt;sixty-unit&gt;</code>, for instance. </p>
+<p>Although the generic function for the slot accessor <code>total-seconds</code> is sealed, and it is trivial for the compiler to infer that its argument is a <code>&lt;sixty-unit&gt;</code> in the call <code>sixty-unit.total-seconds</code>, because <code>&lt;sixty-unit&gt;</code> is declared open, the <br />compiler cannot emit the most efficient code for that call. Because an open class could be mixed with any number of other classes, there is no guarantee that the slots of every object that is a <code>&lt;sixty-unit&gt;</code> will always be stored in the same order &mdash; there is no guarantee that <code>total-seconds</code> will always be the first slot in an object that is an indirect instance of <code>&lt;sixty-unit&gt;</code>, for instance. </p>
 <p>Declaring a class <code>primary</code> is essentially making a guarantee that the compiler can always put the primary class's slots in the same place in an instance, <br />and that any other superclasses will have to adjust:</p>
 <pre>
 define abstract open primary class &lt;sixty-unit&gt; (&lt;object&gt;)
@@ -44,7 +44,6 @@ end class &lt;sixty-unit&gt;;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

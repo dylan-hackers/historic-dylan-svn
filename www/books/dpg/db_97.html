@@ -40,7 +40,7 @@ define abstract class &lt;directed-angle&gt; (&lt;angle&gt;)
 end class &lt;directed-angle&gt;;
 </pre><table><tr><td>
 <p><strong>Modularity note:</strong> Why provide both the classes <code>&lt;angle&gt;</code> and <code>&lt;relative-angle&gt;</code>, when the <code>&lt;relative-angle&gt;</code> class has no additional slots? We need a class that has only the <code>total-seconds</code> slot, and no others. We need to use such a class as the type of the <code>angle</code> slot of <code>&lt;relative-angle&gt;</code>. We might consider making the <code>&lt;angle&gt;</code> class concrete, and using that class, which has only the <code>total-seconds</code> slot. However, that approach would not prevent someone from storing a <code>&lt;directed-angle&gt;</code> instance in the <code>angle</code> slot of <code>&lt;relative-angle&gt;</code>, because <code>&lt;directed-angle&gt;</code> instances are also instances of <code>&lt;angle&gt;</code>. </p>
-<p>In Dylan, by defining classes as specifically as possible, you enhance the reliability of your program, because the compiler (or run-time system) can verify that only correct values are used. In contrast, you could write a program in Dylan or C in which you represented everything as an integer -- in that style of program, someone could far too easily introduce a programming error in which a time was stored where a latitude was needed. </p>
+<p>In Dylan, by defining classes as specifically as possible, you enhance the reliability of your program, because the compiler (or run-time system) can verify that only correct values are used. In contrast, you could write a program in Dylan or C in which you represented everything as an integer &mdash; in that style of program, someone could far too easily introduce a programming error in which a time was stored where a latitude was needed. </p>
 </td></tr></table><p>The <code>&lt;angle&gt;</code> class looks remarkably similar to the <code>&lt;time&gt;</code> class defined earlier:</p>
 <pre>
 <em>// Superclass of all angle classes
@@ -58,7 +58,6 @@ end class &lt;time&gt;;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

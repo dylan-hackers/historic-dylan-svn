@@ -51,7 +51,7 @@ end class &lt;border-label-window&gt;;
 </pre></td></tr></table>
 <p>The example is a greatly simplified sketch of a computer-display windowing system, where a window may have a border (outline decoration), or a title (such as the title bar of a window), or both. (We omit any further detail, such as scroll bars.) One chore in such a system is to compute the available display area of a window from that window's overall size and from the sizes of the window's <br />components.</p>
 <p>Note that calling <code>height</code> on an instance of <code>&lt;border-label-window&gt;</code> will automatically perform the actions appropriate for a window with a border and a label. First, the method for <code>&lt;border-window&gt;</code> will be called, subtracting out the border width; when it calls <code>next-method</code>, to get the underlying window width, the method for <code>&lt;label-window&gt;</code> will be called, subtracting out the label height; finally, when it calls <code>next-method</code>, the method for getting the value of the <code>height</code> slot in the underlying window will be called.</p>
-<p>This example is a classic one of the mix-in style -- the full functionality of the <code>&lt;border-label-window&gt;</code> class is the result of the combination of the individual pieces of <code>&lt;border-window&gt;</code> and <code>&lt;label-window&gt;</code> functionality.</p>
+<p>This example is a classic one of the mix-in style &mdash; the full functionality of the <code>&lt;border-label-window&gt;</code> class is the result of the combination of the individual pieces of <code>&lt;border-window&gt;</code> and <code>&lt;label-window&gt;</code> functionality.</p>
 <table><tr><th><p>C++ equivalent of the mix-in example.<em> </em></p>
 </th></tr><tr><td><pre>
 class Window {
@@ -116,7 +116,6 @@ public:
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

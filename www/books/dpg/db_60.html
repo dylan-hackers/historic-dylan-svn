@@ -74,14 +74,13 @@ end method decode-total-seconds;
 </pre>
 <p>1.  The argument is an instance of <code>&lt;time-of-day&gt;</code>, so the method on <code>&lt;time-of-day&gt;</code> is called. </p>
 <p>2.  The body of the method on <code>&lt;time-of-day&gt;</code> calls <code>decode-total-seconds</code> on an instance of <code>&lt;integer&gt;</code>, the value of the <code>total-seconds</code> slot of the <code>&lt;time-of-day&gt;</code> instance. In this call, the argument is an integer, so the method on <code>&lt;integer&gt;</code> is called. </p>
-<p>3.  The method on <code>&lt;integer&gt;</code> returns three values to its caller -- the method on <code>&lt;time-of-day&gt;</code>. The method on <code>&lt;time-of-day&gt;</code> returns those three <br />values. </p>
+<p>3.  The method on <code>&lt;integer&gt;</code> returns three values to its caller &mdash; the method on <code>&lt;time-of-day&gt;</code>. The method on <code>&lt;time-of-day&gt;</code> returns those three <br />values. </p>
 <p>The purpose of the method on <code>&lt;time-of-day&gt;</code> is simply to allow a different kind of argument to be used. The method extracts the integer from the <code>&lt;time-of-day&gt;</code> instance, and calls <code>decode-total-seconds</code> with that integer. </p>
 
 </div>
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

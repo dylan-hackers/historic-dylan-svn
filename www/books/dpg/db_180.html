@@ -20,8 +20,8 @@
 <h1>12.2.6   Return-value congruence</h1>
 <p>Like parameter lists, the value declarations of a generic function and that function's methods must be congruent<a name="marker-2-534"></a>. The rules depend on whether the generic function returns a fixed or a variable number of values:</p>
 <ul>
-<li><p>If the generic function returns a fixed number of values -- that is, it does not have <code>#re<a name="marker-2-535"></a>st</code> in its value declaration -- then its methods cannot have <code>#rest</code>, and must return the same number of required values as the generic function. For each method, the type of each returned value must be a subtype of the same returned value in the generic function.</p></li>
-<li><p>If the generic function returns a variable number of values -- that is, it has <code>#rest</code> in its value declaration -- then its methods can (but are not required to) have <code>#rest</code>, and must return at least as many required values as the generic function. For each method, the type of each returned value must be a subtype of the same returned value in the generic function. If the method has more required returned values than the generic function, their types must all be subtypes of the generic function's <code>#rest</code> value.</p></li>
+<li><p>If the generic function returns a fixed number of values &mdash; that is, it does not have <code>#re<a name="marker-2-535"></a>st</code> in its value declaration &mdash; then its methods cannot have <code>#rest</code>, and must return the same number of required values as the generic function. For each method, the type of each returned value must be a subtype of the same returned value in the generic function.</p></li>
+<li><p>If the generic function returns a variable number of values &mdash; that is, it has <code>#rest</code> in its value declaration &mdash; then its methods can (but are not required to) have <code>#rest</code>, and must return at least as many required values as the generic function. For each method, the type of each returned value must be a subtype of the same returned value in the generic function. If the method has more required returned values than the generic function, their types must all be subtypes of the generic function's <code>#rest</code> value.</p></li>
 </ul>
 <p>The following value declarations are congruent, because the generic function implicitly returns any number of values of any type:</p>
 <pre>
@@ -45,7 +45,6 @@ end method g;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

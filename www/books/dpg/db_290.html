@@ -27,13 +27,12 @@
 <table><tr><td><p><strong>Comparison with <a name="marker-2-720"></a>C++:</strong> Multiple inheritance in C++ is different from multiple inheritance in Dylan. In C++, unless a base class is virtual, it is inherited multiple times if there is more than one path to the base class as a result of multiple inheritance. In Dylan, all base classes are effectively virtual.</p>
 <p>C++ has nothing like Dylan's class precedence list for determining the precedence of two superclasses, neither of which is derived from the other. There is no implicit ordering of virtual members defined for such classes. C++ also has nothing like Dylan's <code>next-method</code> for invoking the next most specific virtual function. A C++ programmer must often explicitly provide the sort of method dispatch and combination that Dylan implements automatically. </p>
 <p>For examples of similar Dylan and C++ programs that use multiple inheritance, see <a href="db_347.html#marker-9-930">Section B.2, page 390</a>.</p>
-</td></tr></table><table><tr><td><p><strong>Comparison with <a name="marker-2-721"></a>Java:</strong> Java formalizes the concept of a <strong>protocol</strong> with its <strong>interfaces</strong>. An interface is like an abstract class and a set of required generic functions. A class that <strong>implements</strong> an interface must define methods for each of the generic functions specified by that interface. In a sense, an interface is like a specification for multiple inheritance, without the implementation. A class that implements an interface is considered to be of the interface type, but it must implement all the behaviors directly, rather than inheriting them from the interface -- which may mean that code has to be duplicated, rather than shared and reused.</p>
+</td></tr></table><table><tr><td><p><strong>Comparison with <a name="marker-2-721"></a>Java:</strong> Java formalizes the concept of a <strong>protocol</strong> with its <strong>interfaces</strong>. An interface is like an abstract class and a set of required generic functions. A class that <strong>implements</strong> an interface must define methods for each of the generic functions specified by that interface. In a sense, an interface is like a specification for multiple inheritance, without the implementation. A class that implements an interface is considered to be of the interface type, but it must implement all the behaviors directly, rather than inheriting them from the interface &mdash; which may mean that code has to be duplicated, rather than shared and reused.</p>
 </td></tr></table>
 </div>
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

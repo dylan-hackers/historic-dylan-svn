@@ -37,7 +37,7 @@ end method \+;
   offset + time-of-day;
 end method \+;
 </pre>
-<p>The method on <code>&lt;time-of-day&gt;</code>, <code>&lt;time-offset&gt;</code> is invoked when the first argument is a time of day and the second argument is a time offset. It simply calls <code>+</code> with the order of the arguments switched -- this call invokes the method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-of-day&gt;</code>.</p>
+<p>The method on <code>&lt;time-of-day&gt;</code>, <code>&lt;time-offset&gt;</code> is invoked when the first argument is a time of day and the second argument is a time offset. It simply calls <code>+</code> with the order of the arguments switched &mdash; this call invokes the method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-of-day&gt;</code>.</p>
 <p>To test these methods, we can use one of the time offsets created in <a href="db_86.html#marker-9-246">Section 6.1.1</a>, and define the <code>*8-30-59*</code> variable, which contains a <code>&lt;time-of-day&gt;</code> instance, which we define as follows:</p>
 <pre>
 define variable *8-30-59* =
@@ -62,7 +62,6 @@ define variable *8-30-59* =
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

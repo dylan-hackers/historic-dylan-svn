@@ -18,12 +18,12 @@
 
 <div class="content" id="heading176-0">
 <h1>12.2.2   Return and reception of multiple values</h1>
-<p>A Dylan function call -- and, in general, a Dylan expression -- can return any number of values, including none. The <code>values<a name="marker-2-509"></a></code> function is the means of returning multiple values<a name="marker-2-510"></a>. This function takes zero or more arguments, and returns them as separate values.</p>
+<p>A Dylan function call &mdash; and, in general, a Dylan expression &mdash; can return any number of values, including none. The <code>values<a name="marker-2-509"></a></code> function is the means of returning multiple values<a name="marker-2-510"></a>. This function takes zero or more arguments, and returns them as separate values.</p>
 <p>Multiple values can be received as the initial values of local variables in a <code>let<a name="marker-2-511"></a></code> declaration. If a <code>let</code> declaration contains multiple variables, they are matched with the values returned by the initialization expression, and each variable is bound to the corresponding value. The following example initializes <code>a</code> to <code>1</code> and <code>b</code> to <code>2:</code></p>
 <pre>
 let (a, b) = values(1, 2);
 </pre>
-<p>The following example initializes <code>ans</code> to <code>2</code> and <code>rem</code> to <code>1</code> -- the two values returned by this call to <code>truncate/</code>:</p>
+<p>The following example initializes <code>ans</code> to <code>2</code> and <code>rem</code> to <code>1</code> &mdash; the two values returned by this call to <code>truncate/</code>:</p>
 <pre>
 let (ans, rem) = truncate/(5, 2);
 </pre>
@@ -34,7 +34,6 @@ let (ans, rem) = truncate/(5, 2);
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

@@ -18,7 +18,7 @@
 
 <div class="content" id="heading186-0">
 <h1>12.3.4   Application of a function to arguments</h1>
-<p>The Dylan function <code>apply<a name="marker-2-563"></a></code> takes as arguments a functio<a name="marker-2-564"></a>n and one or more additional arguments, the final one of which must be a sequence. The <code>apply</code> function calls its first argument -- the function -- and passes that function the remaining arguments to <code>apply</code>. But instead of passing its final argument as a sequence, it passes each element of the sequence as an individual argument.</p>
+<p>The Dylan function <code>apply<a name="marker-2-563"></a></code> takes as arguments a functio<a name="marker-2-564"></a>n and one or more additional arguments, the final one of which must be a sequence. The <code>apply</code> function calls its first argument &mdash; the function &mdash; and passes that function the remaining arguments to <code>apply</code>. But instead of passing its final argument as a sequence, it passes each element of the sequence as an individual argument.</p>
 <p>The <code>apply</code> function is perhaps most useful in the body of a function that receives a variable number of arguments and must pass those arguments to another function that also takes a variable number of arguments. For example, we can use <code>apply</code> to write a recursive version of the <code>sum</code> function that we defined iteratively in <a href="db_177.html#marker-9-514">Section 12.2.3, page 172</a>:</p>
 <pre>
 <em>// Sum one or more values
@@ -37,7 +37,6 @@ end method sum;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

@@ -41,7 +41,7 @@ end macro if-else;
 <em>1</em>
 </pre>
 <p>If we had defined <code>if-else</code> as a function, *x* would have been <code>-1</code>, rather than <code>1</code>, because both assignments to *x* would have been evaluated, before <code>if-else</code> was called. When a macro is used, the assignments are just substituted into the template <code>if</code>, which evaluates the first clause only when the condition is true.</p>
-<p>Looking at the macro definition of <code>if-else</code>, we can infer basic ideas about macros. A macro is introduced by <a name="marker-2-869"></a><code>define macro</code>, followed by the <strong>macro name</strong> --<strong> </strong>in this case, <code>if-else</code>. The definition of the macro is a <strong>rule</strong> that has two parts: a <strong>pattern</strong> enclosed in braces, <code>{}</code>, that mimics the fragment that it is to match, and a <strong>replacement</strong>. Macro parameters, called <a name="marker-2-870"></a><strong>pattern variables</strong>, are introduced in the pattern by <code>?</code>. They match fragments with particular <strong>constraints</strong> -- in this case, <code>:expression</code>. They are delimited by punctuation -- in this case, the open and close parentheses, <code>()</code>, and the comma, <code>,</code>.</p>
+<p>Looking at the macro definition of <code>if-else</code>, we can infer basic ideas about macros. A macro is introduced by <a name="marker-2-869"></a><code>define macro</code>, followed by the <strong>macro name</strong> &mdash; in this case, <code>if-else</code>. The definition of the macro is a <strong>rule</strong> that has two parts: a <strong>pattern</strong> enclosed in braces, <code>{}</code>, that mimics the fragment that it is to match, and a <strong>replacement</strong>. Macro parameters, called <a name="marker-2-870"></a><strong>pattern variables</strong>, are introduced in the pattern by <code>?</code>. They match fragments with particular <strong>constraints</strong> &mdash; in this case, <code>:expression</code>. They are delimited by punctuation &mdash; in this case, the open and close parentheses, <code>()</code>, and the comma, <code>,</code>.</p>
 <p>The replacement part of the rule, the <strong>expansion</strong>, is indicated by <code>=&gt;</code> and is defined by a <strong>template</strong>, also enclosed in braces. The template is in the form of a code fragment, where pattern variables are used to substitute in the fragments they matched in the pattern. Note that matching and replacement are language based, so required and optional whitespace is treated exactly as in Dylan. We have used optional whitespace to improve the legibility of the macro definitions presented here.</p>
 <p>Most Dylan development environments provide a way to view code after all macros have been expanded. This view can be helpful in debugging macros that you write. For example, showing the expanded view of an expression like</p>
 <pre>
@@ -51,8 +51,8 @@ end macro if-else;
 <pre>
 *y*<code> := <em>if (</em></code>*y* == 0<em>)<code> </code></em>*x*<code> := 1 <em>else </em></code>*x*<code> := -1 <em>end;</em></code>
 </pre>
-<p>The exact format of the expanded view of the macro depends on the particular development environment. Here, we show the code that comes from the macro template in <em>underlined italic</em>, whereas the fragments matched by the pattern variables and substituted into the template are presented in our conventional <code>code font</code>. Note that the <code>if-else</code> macro we have defined is just syntactic sugar -- Dylan's built-in <code>if</code> statement is perfectly sufficient for the job.</p>
-<p>Another reason to <a name="marker-2-871"></a>delay evaluation is to change the value of an argument -- for example, to implement an operator similar in spirit to C's <code>++</code> and <code>+=</code> operators:</p>
+<p>The exact format of the expanded view of the macro depends on the particular development environment. Here, we show the code that comes from the macro template in <em>underlined italic</em>, whereas the fragments matched by the pattern variables and substituted into the template are presented in our conventional <code>code font</code>. Note that the <code>if-else</code> macro we have defined is just syntactic sugar &mdash; Dylan's built-in <code>if</code> statement is perfectly sufficient for the job.</p>
+<p>Another reason to <a name="marker-2-871"></a>delay evaluation is to change the value of an argument &mdash; for example, to implement an operator similar in spirit to C's <code>++</code> and <code>+=</code> operators:</p>
 <pre>
 define macro inc!
   { inc! (?place:expression, ?by:expression) }
@@ -80,7 +80,6 @@ end macro inc!;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

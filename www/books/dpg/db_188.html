@@ -18,7 +18,7 @@
 
 <div class="content" id="heading188-0">
 <h1>12.3.6   <a name="marker-9-568"></a>Closures</h1>
-<p>This section describes closures<a name="marker-2-569"></a> -- an advanced concept. If you do not understand or wish to study this section, you can safely skip it. </p>
+<p>This section describes closures<a name="marker-2-569"></a> &mdash; an advanced concept. If you do not understand or wish to study this section, you can safely skip it. </p>
 <p>Consider the following example:</p>
 <pre>
 define method call-and-show (function :: &lt;function&gt;, #rest arguments)
@@ -34,7 +34,7 @@ end method show-next;
 <em>The result is 42.</em>
 </pre>
 <p>But why did we get that result? We created an anonymous method in <code>show-next</code>, and passed that anonymous method into a completely separate method (<code>call-and-show</code>), where <code>x</code> is not bound to anything. And yet, when the <code>call-and-show</code> method executed the anonymous method that we made, somehow the anonymous method could still access the <code>x</code> binding. We got this reasonable result because the <code>method</code> statement can create a special kind of method called a closure.</p>
-<p>Recall that Dylan has two kinds of variable: module variables and local variables. A local variable<a name="marker-2-570"></a> is defined explicitly by a <code>let</code> or <code>local</code> declaration, and implicitly by a function call, when a method's parameters are initialized to that method's arguments. Local variables are defined within a limited <strong>lexical scope<a name="marker-2-571"></a></strong> -- that is, they <strong>bind<a name="marker-2-572"></a></strong> a name to a value only within a particular textual portion of the program. This portion of the program is that part of the innermost body that follows the definition of the local variable.</p>
+<p>Recall that Dylan has two kinds of variable: module variables and local variables. A local variable<a name="marker-2-570"></a> is defined explicitly by a <code>let</code> or <code>local</code> declaration, and implicitly by a function call, when a method's parameters are initialized to that method's arguments. Local variables are defined within a limited <strong>lexical scope<a name="marker-2-571"></a></strong> &mdash; that is, they <strong>bind<a name="marker-2-572"></a></strong> a name to a value only within a particular textual portion of the program. This portion of the program is that part of the innermost body that follows the definition of the local variable.</p>
 <p>A <code>method<a name="marker-2-573"></a></code> statement or a <code>loca<a name="marker-2-574"></a>l</code> declaration can define a method in a portion of a program where local variables are in effect. In the preceding example, we use a <code>method</code> statement to define a method inside the body of the <code>show-next</code> method, where the local variable <code>x</code> (the parameter for the <code>show-next</code> method) is bound to the argument to <code>show-next</code>. The method that we define inside <code>show-next</code> refers to that local variable <code>x</code>.</p>
 <p>In general, when a program exits a body, the local variables defined inside that body cease to be defined, and it is an error for the program to refer to those variables. But there is an exception. If we use <code>method</code> or <code>local</code> to define a method, and if we then execute that method outside the body in which we define it, the method can still refer to the local variables that were in effect when the method was defined. Such a method is called a closure.</p>
 <p>A <strong>closure<a name="marker-2-575"></a></strong> is a method that <strong>closes over</strong> or captures local variables that are in effect when the method is defined and that are referred to in the body of the method. The closure created by the <code>method</code> statement in our example captures the local variable <code>x</code>. So, even though the local variable <code>x</code> is not defined in the lexical scope of the <code>call-and-show</code> method, the closure called by <code>call-and-show</code> can access the captured binding of <code>x</code>.</p>
@@ -44,7 +44,6 @@ end method show-next;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

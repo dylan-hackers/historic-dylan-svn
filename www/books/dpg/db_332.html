@@ -34,7 +34,7 @@ end macro or-int;
 <pre>
 <em>if (<code>x := x + 1 ~= 0) x := x + 1 else y := y - 1 end</code></em>
 </pre>
-<p>We see a common macro error -- the expression <code>x := x + 1</code> will be evaluated twice when the resulting substitution is evaluated, leaving <code>x</code> with an incorrect (or at least unexpected) value. There is no magic technique for avoiding this error -- you just have to be careful about repeating a pattern variable in a template. Most often, if you are repeating a pattern variable, you should be using a local variable instead, so that the fragment that the pattern represents is evaluated only once:</p>
+<p>We see a common macro error &mdash; the expression <code>x := x + 1</code> will be evaluated twice when the resulting substitution is evaluated, leaving <code>x</code> with an incorrect (or at least unexpected) value. There is no magic technique for avoiding this error &mdash; you just have to be careful about repeating a pattern variable in a template. Most often, if you are repeating a pattern variable, you should be using a local variable instead, so that the fragment that the pattern represents is evaluated only once:</p>
 <pre>
 define macro or-int
   { or-int (?arg1:expression, ?arg2:expression) }
@@ -52,7 +52,6 @@ end macro or-int;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

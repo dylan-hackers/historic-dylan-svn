@@ -27,13 +27,12 @@
 <li><p>In proper modularity, a method on a particular class should not depend on information that is private to second class. If someone changes the representation of the second class, the method could break. We showed an <br />example of breaking this rule when one version of the <code>say</code> method on <code>&lt;absolute-position&gt;</code> printed "latitude" and "longitude" after calling <code>say</code> on the directed angles stored in its two slots. The method on <code>&lt;absolute-position&gt;</code> acted on the knowledge that the method on <code>&lt;directed-angle&gt;</code> does not print "latitude" or "longitude." </p></li>
 </ul>
 <p>One of the challenges of modular design is for you to decide which attributes to generalize (by moving them up to higher, or more general, classes in the inheritance graph), and which attributes to specialize (by moving them down the inheritance graph into more specific classes). Another challenge is deciding when to split a class into multiple behaviors, and when to introduce more abstract classes to hold shared behavior. No computer language can make these decisions for you, but dynamic languages typically allow more freedom to explore these relationships. Generic functions and multimethods allow more freedom in defining behavior than does attac<a name="marker-2-275"></a>hing a method to a single class. </p>
-<!-- FM pgf ignored -->
+
 
 </div>
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

@@ -46,7 +46,7 @@ end method say-time-offset;
 <em>minus 6:45</em>
 </pre>
 <p>We have defined two methods: <code>say-time-offset</code> and <code>say-time-of-day</code>. A method defined with <code>define method</code> cannot exist without a <a name="marker-2-230"></a><strong>generic function</strong>. When you define a method, and no generic function of that name exists, Dylan automatically creates a generic function. When we defined these two methods, there were no generic functions with those names defined, so Dylan created module variables named <code>say-time-of-day</code> and <code>say-time-offset</code>, created the generic functions, stored the generic functions in the module variables, and added the methods to the generic functions.</p>
-<p>These two methods are logically related to each other, but have no explicit relationship in the code, other than in the similarity of their names. A cleaner approach is to abstract the concept of what these methods are trying to do -- that is, to describe an object. To introduce this abstraction, we define a new generic function. </p>
+<p>These two methods are logically related to each other, but have no explicit relationship in the code, other than in the similarity of their names. A cleaner approach is to abstract the concept of what these methods are trying to do &mdash; that is, to describe an object. To introduce this abstraction, we define a new generic function. </p>
 <p>We use <a name="marker-2-231"></a><code>define generic</code> to define the generic function explicitly: </p>
 <pre>
 <em>// Given an object, print a description of the object
@@ -87,22 +87,22 @@ end method say-time-offset;
 	</tr>
 	<tr>
 		<td>
-<pre><code>define method say (time :: &lt;time-of-day&gt;) => ()
+<pre><code>define method say (time :: &lt;time-of-day&gt;) =&gt; ()
   let (hours, minutes) = decode-total-seconds(time);
   format-out
-    ("%d:%s%d", hours, if (minutes < 10) "0" else "" end, minutes);
+    ("%d:%s%d", hours, if (minutes &lt; 10) "0" else "" end, minutes);
 end say;
 </code></pre>
 		</td>
 	</tr>
 	<tr>
 		<td>
-<pre><code>define method say (time :: &lt;time-offset&gt;) => ()
+<pre><code>define method say (time :: &lt;time-offset&gt;) =&gt; ()
   let (hours, minutes) = decode-total-seconds(time);
   format-out("%s %d:%s%d",
              if (past?(time)) "minus" else "plus" end,
              hours,
-             if (minutes < 10) "0" else "" end,
+             if (minutes &lt; 10) "0" else "" end,
              minutes);
 end say;
 </code></pre>
@@ -127,7 +127,6 @@ end say;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

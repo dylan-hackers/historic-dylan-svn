@@ -18,16 +18,15 @@
 
 <div class="content" id="heading191-0">
 <h1>13.1   <a name="marker-9-616"></a>Libraries</h1>
-<p>A Dylan library defines a software component -- a separately compilable unit that can be either a stand-alone program or a component (library) of some larger program. The elements of the core Dylan language are in a library called <a name="marker-2-617"></a><code>dylan</code>. The simplest Dylan program consists of at least two libraries: the original program source in the program library, and the <code>dylan</code> library, which supplies the predefined Dylan language elements used by the program library. A simple Dylan component may consist of only a single library -- the component library. The component library will be used by other libraries. The component library will use definitions from the <code>dylan</code> library (and possibly other components). Hence, when combined with other components into a complete program, the program will consist of several libraries.</p>
+<p>A Dylan library defines a software component &mdash; a separately compilable unit that can be either a stand-alone program or a component (library) of some larger program. The elements of the core Dylan language are in a library called <a name="marker-2-617"></a><code>dylan</code>. The simplest Dylan program consists of at least two libraries: the original program source in the program library, and the <code>dylan</code> library, which supplies the predefined Dylan language elements used by the program library. A simple Dylan component may consist of only a single library &mdash; the component library. The component library will be used by other libraries. The component library will use definitions from the <code>dylan</code> library (and possibly other components). Hence, when combined with other components into a complete program, the program will consist of several libraries.</p>
 <p>In each Dylan implementation, a library is associated with implementation-specific export information that is automatically maintained by the compiler. The library export information completely describes whatever implementation-<br />specific information is needed for other software components to use the library. Thus, you can use libraries to deliver components in compiled form, keeping the implementation of the library confidential.</p>
-<table><tr><td><p><strong>Comparison with <a name="marker-9-587"></a>C++ and Modula:</strong> Dylan libraries are similar to C++ libraries in that they both are potentially shared components of many programs. Unlike C++ libraries, Dylan libraries include all the information needed to be used by another Dylan library -- there is no companion header file that must be kept up to date.</p>
-<p>Dylan libraries are analogous to Modula packages -- all the information necessary to use a library is contained in the library.</p>
+<table><tr><td><p><strong>Comparison with <a name="marker-9-587"></a>C++ and Modula:</strong> Dylan libraries are similar to C++ libraries in that they both are potentially shared components of many programs. Unlike C++ libraries, Dylan libraries include all the information needed to be used by another Dylan library &mdash; there is no companion header file that must be kept up to date.</p>
+<p>Dylan libraries are analogous to Modula packages &mdash; all the information necessary to use a library is contained in the library.</p>
 </td></tr></table>
 </div>
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

@@ -68,7 +68,7 @@ void main () {
   whitenessTest(color);
 }
 </pre></td></tr></table>
-<p>The benefit of the Dylan model is that the final two statements are a single pointer assignment and a passing of a single pointer as a parameter. The comparison in whitenessTest is a single pointer comparison. Another possible C implementation -- one more typical of C style, but <em>not</em> equivalent to the Dylan implementation -- is as follows:</p>
+<p>The benefit of the Dylan model is that the final two statements are a single pointer assignment and a passing of a single pointer as a parameter. The comparison in whitenessTest is a single pointer comparison. Another possible C implementation &mdash; one more typical of C style, but <em>not</em> equivalent to the Dylan implementation &mdash; is as follows:</p>
 <table><tr><th><p>C-style example, without pointers. </p>
 </th></tr><tr><td><pre>
 typedef struct _color
@@ -95,7 +95,7 @@ void main () {
 <pre>
 color.blue := 0;
 </pre>
-<p>The preceding call makes <code>white</code> yellow! In the C-style example, without pointers, you would make only <code>color</code> yellow. You can prevent people from changing defined colors to other colors in Dylan by not allowing the slots of <code>&lt;color&gt;</code> objects to be modified once they are initialized -- in other words, by making <code>&lt;color&gt;</code> objects <em>immutable</em>:</p>
+<p>The preceding call makes <code>white</code> yellow! In the C-style example, without pointers, you would make only <code>color</code> yellow. You can prevent people from changing defined colors to other colors in Dylan by not allowing the slots of <code>&lt;color&gt;</code> objects to be modified once they are initialized &mdash; in other words, by making <code>&lt;color&gt;</code> objects <em>immutable</em>:</p>
 <table><tr><th><p>Dylan object example, with immutable objects. </p>
 </th></tr><tr><td><pre>
 define class &lt;color&gt; (&lt;object&gt;)
@@ -174,7 +174,6 @@ end method make;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

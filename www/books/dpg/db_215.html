@@ -25,19 +25,20 @@ define open abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
   slot total-seconds :: &lt;integer&gt;,
     required-init-keyword: total-seconds:;
 end class &lt;sixty-unit&gt;; 
-</pre></td></tr><tr><td><pre>define method encode-total-seconds 
+define method encode-total-seconds 
     (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;) 
  =&gt; (total-seconds :: &lt;integer&gt;)
   ((max-unit * 60) + minutes) * 60 + seconds;
 end method encode-total-seconds; 
-</pre></td></tr><tr><td><pre>define method decode-total-seconds 
+define method decode-total-seconds 
     (sixty-unit :: &lt;sixty-unit&gt;)
  =&gt; (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
   decode-total-seconds(sixty-unit.total-seconds);
 end method decode-total-seconds; 
-</pre></td></tr><tr><td><pre>define method decode-total-seconds
+define method decode-total-seconds
     (total-seconds :: &lt;integer&gt;)
- =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)<em>	</em>  let(total-minutes, seconds) = truncate/(abs(total-seconds), 60);
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  let(total-minutes, seconds) = truncate/(abs(total-seconds), 60);
   let(hours, minutes) = truncate/(total-minutes, 60);
   values(hours, minutes, seconds);
 end method decode-total-seconds; 
@@ -49,7 +50,6 @@ end method decode-total-seconds;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

@@ -25,8 +25,8 @@ module: airport
 // interaction between containers and vehicles</em>
 <em>// Returns true if container is available for aircraft in direction
 </em>define generic available? (vehicle, container, direction); 
-// Moves vehicle into container in the given direction
-</em>define generic move-in-vehicle (vehicle, container, direction); 
+<em>// Moves vehicle into container in the given direction</em>
+define generic move-in-vehicle (vehicle, container, direction); 
 
 <em>// Moves vehicle out of container in the given direction
 </em>define generic move-out-vehicle (vehicle, container, direction); 
@@ -196,7 +196,7 @@ define method next-landing-step
   end select;
 end method next-landing-step; 
 
-<pre>define method next-landing-step
+define method next-landing-step
     (storage :: &lt;gate&gt;, aircraft :: &lt;aircraft&gt;)
  =&gt; (next-class :: &lt;class&gt;, duration :: &lt;time-offset&gt;)
   values(&lt;taxiway&gt;, gate-turnaround(aircraft, storage));
@@ -207,7 +207,6 @@ end method next-landing-step;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

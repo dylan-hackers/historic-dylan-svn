@@ -36,7 +36,7 @@ flight:
    =&gt; { make(&lt;flight&gt;, equipment: ?&quot;type&quot;, id: ?#&quot;id&quot;, ?options) }
 end macro aircraft-definer;
 </pre>
-<p>When we are processing the <code>flight</code> auxiliary rules, we would like to be able to reference the pattern variable <code>?type</code> (coercing it to a string) from the main rules, but it is not <strong>in scope</strong> -- it is inaccessible to the auxiliary rules. We could have <br /><code>register-flights</code> set the <code>equipment</code> slot after the flight is created, but we would prefer to initialize the slot at the time we create the <code>&lt;flight&gt;</code> object. There is a workaround, an <strong>auxiliary macro</strong>:</p>
+<p>When we are processing the <code>flight</code> auxiliary rules, we would like to be able to reference the pattern variable <code>?type</code> (coercing it to a string) from the main rules, but it is not <strong>in scope</strong> &mdash; it is inaccessible to the auxiliary rules. We could have <br /><code>register-flights</code> set the <code>equipment</code> slot after the flight is created, but we would prefer to initialize the slot at the time we create the <code>&lt;flight&gt;</code> object. There is a workaround, an <strong>auxiliary macro</strong>:</p>
 <pre>
 define macro aircraft-definer
   { define aircraft ?identifier:name (?type:name) ?flights:* end }
@@ -83,7 +83,6 @@ register-flights (</em>#&quot;UA4096H&quot;<em>,
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

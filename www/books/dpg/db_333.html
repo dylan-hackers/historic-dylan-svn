@@ -42,7 +42,7 @@ define method say (time :: &lt;time&gt;)
   end;
 end method say;
 </pre>
-<p>A statement macro can appear anywhere that a <code>begin</code>/<code>end;</code> block can appear. A statement macro introduces a new <strong>begin word</strong> -- in this case, <code>with-decoded-seconds</code> -- and is matched against a fragment that extends up to the matching <code>end</code>. </p>
+<p>A statement macro can appear anywhere that a <code>begin</code>/<code>end;</code> block can appear. A statement macro introduces a new <strong>begin word</strong> &mdash; in this case, <code>with-decoded-seconds</code> &mdash; and is matched against a fragment that extends up to the matching <code>end</code>. </p>
 <p>The pattern and the constraints on the pattern variables limit what the macro will match; they define the syntax of this particular statement. In the case of <code>with-decoded-seconds</code>, the syntax of this statement begins with a parenthesized list of</p>
 <ul>
 <li><p>Three <code>variable</code> expressions (that is, <code>name :: &lt;type&gt;</code>, where the type is optional) </p></li>
@@ -76,7 +76,6 @@ times(1 + 3, 2 + 5);
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

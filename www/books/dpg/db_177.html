@@ -55,7 +55,7 @@ end method convert-to-seconds;
 <em>? </em>convert-to-seconds(minutes: 1, hours: 2);
 <em>7260</em>
 </pre>
-<p>Note from the preceding example that we can supply keyword arguments in any order. Note also that all keyword arguments are optional; however, if we try to call a function with a keyword argument that the function does not accept -- such as <code>days:</code>, in this example -- Dylan signals an error. For more information on function calls and keyword arguments, see <a href="db_181.html#marker-9-536">Section 12.2.7, page 178</a>.</p>
+<p>Note from the preceding example that we can supply keyword arguments in any order. Note also that all keyword arguments are optional; however, if we try to call a function with a keyword argument that the function does not accept &mdash; such as <code>days:</code>, in this example &mdash; Dylan signals an error. For more information on function calls and keyword arguments, see <a href="db_181.html#marker-9-536">Section 12.2.7, page 178</a>.</p>
 <p>Following are additional features and restrictions of keyword arguments<a name="marker-2-522"></a>:</p>
 <ul>
 <li><p>If a parameter list ends with <code>#all-keys<a name="marker-2-523"></a></code> following <code>#key</code>, the function accepts (but ignores) any keyword argument. A parameter list can have specific keyword parameters and also end with <code>#all-keys</code>. In this case, the function accepts any keyword argument, and also has local variables whose values are the keyword-argument values (or their defaults) that correspond to the keyword parameters.</p></li>
@@ -68,7 +68,6 @@ end method convert-to-seconds;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

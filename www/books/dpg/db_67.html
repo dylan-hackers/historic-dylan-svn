@@ -88,13 +88,12 @@ define method say-time-offset (time :: &lt;time-offset&gt;) =&gt; ()
 end method say-time-offset;
 </pre>
 <p>This approach works, and it preserves the flexibility of calling <code>decode-total-seconds</code> on instances of <code>&lt;integer&gt;</code>, <code>&lt;time-of-day&gt;</code>, and <code>&lt;time-offset&gt;</code>. However, the body of the method on <code>&lt;time-offset&gt;</code> (defined in this section) is nearly identical to the body of the method on <code>&lt;time-of-day&gt;</code> (defined in <a href="db_60.html#marker-9-187">Section 4.6.5, page 48</a>). The only difference is that we use <code>abs</code> in the method on <code>&lt;time-offset&gt;</code> but not in the method on <code>&lt;time-of-day&gt;</code>. If we used it in the method on <code>&lt;time-of-day&gt;</code>, it would be harmless. Duplication of code is ugly, adds maintenance overhead, and is particularly undesirable when programming in an object-oriented language, where it may indicate a flaw in the overall design.</p>
-<p>The best solution to the problem lies in a third approach -- to rethink the classes and methods in a more object-oriented style, using inheritance. We show this solution in the next section.</p>
+<p>The best solution to the problem lies in a third approach &mdash; to rethink the classes and methods in a more object-oriented style, using inheritance. We show this solution in the next section.</p>
 
 </div>
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

@@ -20,7 +20,7 @@
 <h1>10.2.1   <a name="marker-10-326"></a>Advantages of accessing slots via generic functions</h1>
 <p>A slot is conceptually like a variable, in that it has a value. But the only way to access a slot's value is to call a generic function. Using generic functions and methods to gain access to slot values has three important advantages:</p>
 <ul>
-<li><p>Generic functions provide a public interface to the private implementation of a slot. By making the representation of the slot visible to only the methods of the generic functions, you can change the representation without changing any of the users of the information -- the callers of the generic functions. In most cases, a compiler can optimize slot references to reduce or eliminate the cost of hiding the implementation.</p></li>
+<li><p>Generic functions provide a public interface to the private implementation of a slot. By making the representation of the slot visible to only the methods of the generic functions, you can change the representation without changing any of the users of the information &mdash; the callers of the generic functions. In most cases, a compiler can optimize slot references to reduce or eliminate the cost of hiding the implementation.</p></li>
 <li><p>A subclass can specialize, or filter, references to superclass slots. For example, the classes <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> inherit the <code>direction</code> slot from their superclass <code>&lt;directed-angle&gt;</code>. In <a href="db_134.html#marker-9-352">Section 10.6</a>, we show how to provide a setter method for the direction slot of <code>&lt;latitude&gt;</code> that ensures that the value is north or south, and a setter method for the direction slot of <code>&lt;longitude&gt;</code> that ensures that the value is east or west. </p></li>
 <li><p>A slot access can involve arbitrary computation. For example, a slot can be <strong>virtual</strong>. See <a href="db_134.html#marker-9-352">Section 10.6</a>.</p></li>
 </ul>
@@ -29,7 +29,6 @@
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

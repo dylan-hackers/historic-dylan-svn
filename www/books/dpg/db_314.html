@@ -18,8 +18,8 @@
 
 <div class="content" id="heading314-0">
 <h1>19.14.5   Type inference</h1>
-<p>The quality of type inference can vary greatly among Dylan compilers. Type inference -- like most forms of program analysis -- works best with simple, straightforward code. Some constructs that are typically difficult for type inference are assignment and calling of block exit functions outside of the method that defines the block exit functions.</p>
-<p>One other way in which type constraints can be helpful is that they permit the compiler to choose efficient representations for objects. Most Dylan objects contain enough information for Dylan to determine their class -- this one is an important feature for the dynamic aspects of the language. But, suppose we have a 1000 x 1000 <code>limited(&lt;array&gt;, of: &lt;single-float&gt;)</code>. There is no reason that each of the numbers in that array should also contain a reference to the <code>&lt;single-float&gt;</code> class; the one reference in the limited type is sufficient. (Note that, if we had used <code>of: &lt;real&gt;</code> or <code>of: &lt;float&gt;</code>, we would have needed more information, since multiple classes would have been possible.)</p>
+<p>The quality of type inference can vary greatly among Dylan compilers. Type inference &mdash; like most forms of program analysis &mdash; works best with simple, straightforward code. Some constructs that are typically difficult for type inference are assignment and calling of block exit functions outside of the method that defines the block exit functions.</p>
+<p>One other way in which type constraints can be helpful is that they permit the compiler to choose efficient representations for objects. Most Dylan objects contain enough information for Dylan to determine their class &mdash; this one is an important feature for the dynamic aspects of the language. But, suppose we have a 1000 x 1000 <code>limited(&lt;array&gt;, of: &lt;single-float&gt;)</code>. There is no reason that each of the numbers in that array should also contain a reference to the <code>&lt;single-float&gt;</code> class; the one reference in the limited type is sufficient. (Note that, if we had used <code>of: &lt;real&gt;</code> or <code>of: &lt;float&gt;</code>, we would have needed more information, since multiple classes would have been possible.)</p>
 <p>When an object is represented in such a way, often many of the operations on it can be optimized. For example, the conventional representation of <code>&lt;double-float&gt;</code> will usually require an indirect-memory-reference machine instruction to get at the actual number, so adding two such objects is one floating-point machine instruction and two load-from-memory machine instructions; if a direct representation is used, just the add machine instruction is needed. Further, if the return value is saved in a variable for which type information is not available, it may be necessary to allocate memory dynamically to store the return value.</p>
 <p>Types that may have more efficient representations include certain integer classes, the floating-point classes, characters, and Booleans. Precise declarations about these types, especially in slots and limited collections, can lead to significant improvements in both the time and memory needed to run a program.</p>
 
@@ -27,7 +27,6 @@
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

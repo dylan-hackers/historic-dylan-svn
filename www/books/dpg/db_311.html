@@ -19,13 +19,12 @@
 <div class="content" id="heading311-0">
 <h1>19.14.2   Efficiency of keyword arguments and of multiple values</h1>
 <p>Keyword arguments are a powerful and flexible, but potentially expensive, feature of Dylan. The processing of keywords and values at run time can be an expensive operation, especially if many keywords are used. A Dylan compiler can pass keyword arguments as efficiently as it can required arguments, if the called function is known at compilation time.</p>
-<p>Returning multiple values again raises performance issues. In some implementations of Dylan, there is an extra cost for returning more than one value; in others, the cost is associated with calling a function that does not declare how many values it returns. When the compiler knows what function is being called, these costs usually can be eliminated, but certain costs may still exist -- for example, certain implementations may not optimize tail calls between functions that return different numbers of arguments.</p>
+<p>Returning multiple values again raises performance issues. In some implementations of Dylan, there is an extra cost for returning more than one value; in others, the cost is associated with calling a function that does not declare how many values it returns. When the compiler knows what function is being called, these costs usually can be eliminated, but certain costs may still exist &mdash; for example, certain implementations may not optimize tail calls between functions that return different numbers of arguments.</p>
 
 </div>
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

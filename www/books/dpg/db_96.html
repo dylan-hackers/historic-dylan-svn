@@ -33,7 +33,7 @@ define class &lt;absolute-position&gt; (&lt;position&gt;)
 end class &lt;absolute-position&gt;;
 </pre>
 <table><tr><td><p><strong>Modularity note:</strong> The <code>&lt;directed-angle&gt;</code> class represents the characteristics that latitude and longitude have in common.</p>
-</td></tr></table><table><tr><td><p><strong>Comparison to <a name="marker-2-257"></a>C:</strong> If you are familiar with a language that uses explicit pointers, such as C, you may be confused by Dylan's object model. Although there is no pointer-to operation in Dylan, there are pointers in the implementation. If you are trying to imagine how Dylan objects are implemented, think in terms of always manipulating a pointer to the object -- a Dylan variable (or slot) stores a pointer to an object, rather than a copy of the object's slots. Similarly, assignment, argument passing, and identity comparison are in terms of pointers to objects. See <a href="db_345.html#marker-9-926">Appendix B,  <em>Dylan Object Model for C and C++ Programmers</em></a>. </p>
+</td></tr></table><table><tr><td><p><strong>Comparison to <a name="marker-2-257"></a>C:</strong> If you are familiar with a language that uses explicit pointers, such as C, you may be confused by Dylan's object model. Although there is no pointer-to operation in Dylan, there are pointers in the implementation. If you are trying to imagine how Dylan objects are implemented, think in terms of always manipulating a pointer to the object &mdash; a Dylan variable (or slot) stores a pointer to an object, rather than a copy of the object's slots. Similarly, assignment, argument passing, and identity comparison are in terms of pointers to objects. See <a href="db_345.html#marker-9-926">Appendix B,  <em>Dylan Object Model for C and C++ Programmers</em></a>. </p>
 </td></tr></table><table><tr><td><p><strong>Comparison to <a name="marker-2-258"></a>Java:</strong> Java recognizes that pointers make it extremely difficult to enforce safety and for a compiler to reason about a program for optimization. Java supports an object model similar to that of Dylan, where pointers are used in the implementation of objects, but are not visible to Java programs.</p>
 </td></tr></table><p>We could define the <code>say</code> method as follows: </p>
 <pre>
@@ -100,7 +100,7 @@ end method say;
 <table><tr><td><p><strong>Modularity note:</strong> The approach of defining the classes <br /><code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> provides the following benefits:</p>
 <ul>
 <li><p>Each class is responsible for describing its instances. Each method depends on <code>say</code> working for all the classes. No method on one class must understand the details of a method on another class. </p></li>
-<li><p>We guard against any attempt to store a latitude in a slot designated for a longitude, and vice versa. This type checking will be useful when we introduce more differences between the classes. For example, the direction of a latitude is north or south, and the direction of a longitude is west or east. We can provide methods that ensure that the directions stored in a <code>&lt;latitude&gt;</code> instance are appropriate for latitude -- and we can do the same for longitude. We show two techniques for implementing that type checking: See <a href="db_134.html#marker-9-352">Section 10.6, page 128</a>, and <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.</p></li>
+<li><p>We guard against any attempt to store a latitude in a slot designated for a longitude, and vice versa. This type checking will be useful when we introduce more differences between the classes. For example, the direction of a latitude is north or south, and the direction of a longitude is west or east. We can provide methods that ensure that the directions stored in a <code>&lt;latitude&gt;</code> instance are appropriate for latitude &mdash; and we can do the same for longitude. We show two techniques for implementing that type checking: See <a href="db_134.html#marker-9-352">Section 10.6, page 128</a>, and <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.</p></li>
 <li><p>You can ask an object what its class is by using the <code>object-class</code> function. In this case, you can find out that an object is a latitude or longitude, rather than just a directed angle. The data does not stand alone; it is an instance that carries with it its type, its identity, and the methods appropriate to it. </p></li>
 </ul></td></tr></table>
 
@@ -108,7 +108,6 @@ end method say;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 

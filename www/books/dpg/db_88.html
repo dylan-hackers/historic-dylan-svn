@@ -18,7 +18,7 @@
 
 <div class="content" id="heading88-0">
 <h1>6.1.3   <a name="marker-9-248"></a>Method for adding other kinds of times</h1>
-<p>We have already defined methods for adding the kinds of time that it makes sense to add together. It is not logical to add one time of day to another time of day -- what would three o'clock plus two o'clock mean? Someone could create another concrete subclass of <code>&lt;time&gt;</code>, without providing any methods for adding that time to other times. If someone tries to add times that we do not intend them to add, the result will be a "No applicable method" error. </p>
+<p>We have already defined methods for adding the kinds of time that it makes sense to add together. It is not logical to add one time of day to another time of day &mdash; what would three o'clock plus two o'clock mean? Someone could create another concrete subclass of <code>&lt;time&gt;</code>, without providing any methods for adding that time to other times. If someone tries to add times that we do not intend them to add, the result will be a "No applicable method" error. </p>
 <p>We could provide a method whose sole purpose is to give more information to the user than "No applicable method" when + is called on two times that cannot be added, because there is no applicable method for adding them. We define such a method here:</p>
 <pre>
 <em>// Method on &lt;time&gt;, &lt;time&gt;
@@ -34,7 +34,6 @@ end method \+;
 
 <div class="toc">
 
-<!-- TOC -->
 
 </div>
 
