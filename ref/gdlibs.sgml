@@ -1376,11 +1376,12 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  <dEFNAME>&lt;buffered-stream&gt;</dEFNAME>
 	  <defadjectives>Open abstract</defadjectives>
 	  <defsummary>
-          <definitkeywords>
-          </definitkeywords>
             Streams that can access multiple elements with a single 
             read/write command.
           </defsummary>
+	  <defsupers><defsuper>&lt;stream&gt;</defsuper></defsupers>
+          <definitkeywords>
+          </definitkeywords>
           <defdescription>
 	    <PARA>A subclass of <CLASSNAME>&lt;stream&gt;</CLASSNAME>
 	    supporting the Stream Extension Protocol and the Buffer
@@ -1397,61 +1398,37 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylanclassdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;file-stream&gt;</REFNAME>
-	    <REFPURPOSE>Open abstract class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
-
-	    <PARA>The class of streams over disk files.</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
-
-	    <PARA><CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME>,
-	  <CLASSNAME>&lt;buffered-stream&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Init-keywords</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><dlit>locator:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>direction:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>if-exists:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>if-does-not-exist:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+        <dylanclassdef>
+	  <dEFNAME>&lt;file-stream&gt;</dEFNAME>
+	  <defadjectives>Open abstract</defadjectives>
+	  <defsummary>
+	    The class of streams over disk files.
+	  </defsummary>
+	  <defsupers>
+            <defsuper>&lt;buffered-stream&gt;</defsuper>
+            <defsuper>&lt;positionable-stream&gt;</defsuper>
+          </defsupers>
+          <definitkeywords>
+            <keyparam>
+              <paramname>locator:</paramname>
+            </keyparam>
+            <keyparam>
+	      <paramname>direction:</paramname>
+            </keyparam>
+            <keyparam>
+	      <paramname>if-exists:</paramname>
+            </keyparam>
+            <keyparam>
+	      <paramname>if-does-not-exist:</paramname>
+            </keyparam>
+          </definitkeywords>
+          <defdescription>
 	    <PARA>When you instantiate this class, an
 	    implementation-dependent, indirect instance of it is
 	    created. The file being streamed over is opened
 	    immediately upon creating the stream. </PARA>
-	  </REFSECT1>
-	</REFENTRY>
+          </defdescription>
+        </dylanclassdef>
 
 	<REFENTRY>
 	  <REFNAMEDIV>
