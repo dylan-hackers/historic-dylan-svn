@@ -20,6 +20,8 @@ define module vector-math
   use transcendentals;
   use subseq;
 
+  export <3D-vector>, 3D-vector, <3D-point>, 3D-point;
+
   export cross-product, normalize, magnitude;
 end module vector-math;
 

@@ -1,7 +1,13 @@
 module: vector-math
 
-define constant <3D-vector> = limited(<vector>, of: <float>, size: 3);
-define constant <3D-point>  = limited(<vector>, of: <float>, size: 4);
+//define constant <3D-vector> = limited(<vector>, of: <float>, size: 3);
+//define constant <3D-point>  = limited(<vector>, of: <float>, size: 4);
+
+define constant <3D-vector> = <vector>;
+define constant <3D-point>  = <vector>;
+define constant 3d-vector   = vector;
+define constant 3d-point    = vector;
+
 
 // General vector math
 
