@@ -30,13 +30,11 @@ end method intensity-on;
 
 /* Shadow stuff */
 
-define constant $surface-acne-prevention-offset = 0.000000000001;
-
 define method can-see(o :: <obj>, point :: <vector>, l :: <star>)
  => (unblocked :: <boolean>)
   ~intersection-before(o, 
 		       make(<ray>, position: point +
-			      $surface-acne-prevention-offset *  -l.direction, 
+			      $surface-acne-prevention-offset * -l.direction, 
 			    direction: -l.direction), 
 		       1.0/0.0, shadow-test: #t);
 end method can-see;
