@@ -31,8 +31,6 @@ define constant \$bootstrap-counter = $bootstrap_counter;
 EOF
 close(VERSION);
 
-&makegen_include("../common-Makegen");
-
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
