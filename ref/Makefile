@@ -1,8 +1,11 @@
 .PHONY: all snap clean distclean reallyclean html-chunked html-unchunked
 
+SGML_BASE_DIR=/usr/local/share/sgml
+SGML_CATALOG_FILES=$(SGML_BASE_DIR)/dsssl/catalog:$(SGML_BASE_DIR)/docbook/docbook.cat:$(SGML_BASE_DIR)/iso/iso.cat:$(SGML_BASE_DIR)/docbook_stylesheets/catalog:$(SGML_BASE_DIR)/dylandoc/dylandoc.cat
+
 DYLANDOC_TOOLS = CATALOG dylandoc.dtd dylandoc.dsl
 STANDARD_DEPS = entities.sgml $(DYLANDOC_TOOLS)
-JADE = jade -E 5 -c CATALOG
+JADE = SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c CATALOG
 
 SGML_MANUALS = gduser.sgml gdlibs.sgml gdmaint.sgml tutorial.sgml
 HTML_CHUNKED_MANUALS = gduser gdlibs gdmaint tutorial
@@ -19,7 +22,7 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf
 	rm -rf $@
 	mkdir $@
 	(cd $@; \
-	 jade -E 5 -c ../CATALOG -d ../dylandoc.dsl#html -t sgml -ihtml ../$<)
+	 SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c ../CATALOG -d ../dylandoc.dsl#html -t sgml -ihtml ../$<)
 
 # Make a single HTML file.
 %.html: %.sgml $(STANDARD_DEPS)
