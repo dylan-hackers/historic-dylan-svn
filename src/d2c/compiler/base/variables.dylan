@@ -1266,12 +1266,15 @@ add-od-loader(*compiler-dispatcher*, #"module",
 
 add-make-dumper(#"module-variable", *compiler-dispatcher*, <variable>,
 		list(variable-home, #f, #f,
-		     variable-name, #f, #f),
+		     variable-name, #f, #f,
+		     variable-tlf, #f, #f),
 		dumper-only: #t);
 
 add-od-loader(*compiler-dispatcher*, #"module-variable", 
   method (state :: <load-state>) => res :: <variable>;
-    find-variable(load-basic-name(state), create: #t);
+    let name = load-basic-name(state);
+    let tlf = load-object-dispatch(state);
+    find-variable(name, create: #t, tlf: tlf);
   end method
 );
 

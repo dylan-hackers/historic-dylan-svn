@@ -157,6 +157,50 @@ add-od-loader(*compiler-dispatcher*, #"top-level-form",
               end method
 );
 */
+
+
+// Convert a depends-on thread back into a list of tlf objects, as used by the
+// builder.
+//
+define function tlf-depends-list (x :: <dependent-mixin>)
+ => res :: type-union(<top-level-form>, <list>);
+  let dep-on = x.depends-on;
+  if (~dep-on)
+    #();
+  elseif (~dep-on.dependent-next)
+    dep-on.source-tlf
+  else
+    for (cur = dep-on then cur.dependent-next,
+	 res = #() then pair(cur.source-tlf, res),
+	 while: cur)
+    finally reverse!(res)
+    end for;
+  end if;
+end function;
+
+
+define class <loaded-define-tlf> (<define-tlf>)
+end;
+
+define generic loaded-tlf (defn :: <definition>) => tlf :: <top-level-form>;
+
+define method loaded-tlf (defn :: <function-definition>) => tlf :: <loaded-define-tlf>;
+/*  let tlf = make(<real-<define-method-tlf>,
+		 base-name: defn.method-defn-of.defn-name,
+		 library: defn.defn-library,
+		 source-location: defn.source-location,
+		 sealed: defn.method-defn-of.generic-defn-sealed?, // GGR: fake, we should examine the seals
+		 inline-type: defn.method-defn-inline-type,
+		 movable: function-defn-movable?,
+		 flushable: function-defn-flushable?,
+		 parse: make(<method-parse>, )); */
+		
+  let tlf = make(<loaded-define-tlf>,
+                 source-location: defn.source-location);
+  find-variable(defn.defn-name).variable-tlf := tlf;
+end;
+
+
 // If name's var isn't visible outside this library, don't bother dumping the
 // definition.
 //
@@ -164,16 +208,18 @@ define method dump-od
     (tlf :: <simple-define-tlf>, state :: <dump-state>) => ();
   let defn = tlf.tlf-defn;
   if (name-inherited-or-exported?(defn.defn-name))
-    dump-simple-object(#"define-binding-tlf", state, defn);
+    dump-simple-object(#"define-binding-tlf", state, defn, tlf.tlf-depends-list);
   end if;
 end;
 
 add-od-loader(*compiler-dispatcher*, #"define-binding-tlf",
-	      method (state :: <load-state>) => res :: <definition>;
-		let defn = load-sole-subobject(state);
-		note-variable-definition(defn);
-		defn;
-	      end);
+              method (state :: <load-state>) => res :: <definition>;
+                let defn = load-sole-subobject(state);
+                let deps = load-sole-subobject(state);
+                assert-end-object(state);
+                note-variable-definition(defn);
+                defn.loaded-tlf;
+              end);
 
 // Seals for file tlf.dylan
 

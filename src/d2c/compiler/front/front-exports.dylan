@@ -210,8 +210,8 @@ define module function-definitions
   use variables;
   use signature-interface;
   use transformers;
-
   use front;
+  use top-level-forms, import: {<loaded-define-tlf>};
 
   export
     <generic-definition>, generic-defn-sealed?, generic-defn-sealed?-setter,
@@ -244,7 +244,6 @@ end module function-definitions;
 
 define module top-level-forms
   use common;
-
   use utils;
   use od-format;
   use source;
@@ -254,7 +253,6 @@ define module top-level-forms
   use variables;
   use definitions;
   use flow;
-  
 
   use builder-interface, import: {<fer-builder>};
   use variable-definitions;
@@ -279,7 +277,9 @@ define module top-level-forms
 
     <define-class-tlf>, tlf-init-function-defns,
 
-    <magic-internal-primitives-placeholder>;
+    <magic-internal-primitives-placeholder>,
+    
+    <loaded-define-tlf>;
 end;
 
 define module abstract-optimizer
