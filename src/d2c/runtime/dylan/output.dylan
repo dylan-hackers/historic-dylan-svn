@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/output.dylan,v 1.10 2003/10/22 20:47:22 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/output.dylan,v 1.10.2.1 2004/02/22 05:33:30 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -30,13 +30,6 @@ module: dylan-viscera
 //======================================================================
 
 c-system-include("stdio.h");
-
-// XXX - We export this, instead of cheap-format, for reasons of backwards
-// compatibility. Somebody should find out what Harlequin does, and fix
-// this to work like their implementation.
-define method format (str :: <byte-string>, #rest args) => ();
-  apply(cheap-format, #"Cheap-IO", str, args);
-end;
 
 define method cheap-format
     (fake-stream :: <symbol>, str :: <byte-string>, #rest args)
