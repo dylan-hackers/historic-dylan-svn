@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.6 2003/10/03 01:53:17 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.7 2003/10/03 17:13:02 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -3085,6 +3085,7 @@ define method emit-assignment
         & instance?(op.depends-on.source-exp, <ssa-variable>))
       // make sure the lhs gets the same backend info as the rhs
       let assert-no-info-yet :: #f.singleton = results.info;
+      file.spew-pending-defines;
       results.info := get-info-for(op.depends-on.source-exp, file);
     else
       let rep = variable-representation(results, file);
@@ -3279,7 +3280,7 @@ define method add-pending-define
   end for;
 end method add-pending-define;
 
-define method spew-pending-defines (file :: <file-state>) => ();
+define function spew-pending-defines (file :: <file-state>) => ();
   for (pending = file.file-pending-defines then pending.pending-next,
        while: pending)
     let (target, target-rep) = c-name-and-rep(pending.pending-var, file);
@@ -3287,7 +3288,7 @@ define method spew-pending-defines (file :: <file-state>) => ();
 	      file);
   end for;
   file.file-pending-defines := #f;
-end method spew-pending-defines;
+end function spew-pending-defines;
 
 
 // ref-leaf
