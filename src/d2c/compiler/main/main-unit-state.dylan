@@ -145,9 +145,6 @@ end method find-library-archive;
 define method compile-1-tlf
     (tlf :: <top-level-form>, state :: <main-unit-state>) 
  => ();
-  let name = format-to-string("%s", tlf);
-  increment-and-report-progress(state.progress-indicator);
-  note-context(name);
   let component = make(<fer-component>);
   tlf.tlf-component := component;
   let builder = make-builder(component);
@@ -308,6 +305,26 @@ define method finalize-library(state :: <main-unit-state>) => ()
   end;
   layout-instance-slots();
 end method finalize-library;
+
+define method run-stage(message :: <string>, func :: <function>, 
+                        tlfs :: <collection>) => ()
+  format(*debug-output*, "%s\n", message);
+  let progress-indicator = make(<n-of-k-progress-indicator>,
+                                total: tlfs.size,
+                                stream: *debug-output*);
+  for (tlf in tlfs)
+    block ()
+      let name = format-to-string("%s", tlf);
+      increment-and-report-progress(progress-indicator);
+      note-context(name);
+      func(tlf);
+    cleanup
+      end-of-context();
+    exception (<fatal-error-recovery-restart>)
+      #f;
+    end block;
+  end for;
+end method run-stage;
 
 
 define variable *Current-Library* :: false-or(<library>) = #f;

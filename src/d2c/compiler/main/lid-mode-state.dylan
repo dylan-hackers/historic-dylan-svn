@@ -373,63 +373,30 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
   block ()
     let tlfs = state.unit-tlfs;
 
-    format(*debug-output*, "Converting top level forms.\n");
-    state.progress-indicator := make(<n-of-k-progress-indicator>,
-                                     total: tlfs.size,
-                                     stream: *debug-output*);
-    for (tlf in tlfs)
-      block ()
-        compile-1-tlf(tlf, state);
-      cleanup
-        end-of-context();
-      exception (<fatal-error-recovery-restart>)
-        #f;
-      end block;
-    end for;
-
-    format(*debug-output*, "Optimizing top level forms.\n");
-    state.progress-indicator := make(<n-of-k-progress-indicator>,
-                                     total: tlfs.size,
-                                     stream: *debug-output*);
-    for (tlf in tlfs)
-      block ()
-        let name = format-to-string("%s", tlf);
-        increment-and-report-progress(state.progress-indicator);
-        note-context(name);
-        optimize-component(*current-optimizer*, tlf.tlf-component);
-      cleanup
-        end-of-context();
-      exception (<fatal-error-recovery-restart>)
-        #f;
-      end block;
-    end for;
-
-    format(*debug-output*, "Emitting C code.\n");
-    state.progress-indicator := make(<n-of-k-progress-indicator>,
-                                     total: tlfs.size,
-                                     stream: *debug-output*);
-
+    run-stage("Converting top level forms.",
+              method(tlf)
+                  compile-1-tlf(tlf, state);
+              end method, tlfs);
+                  
+    run-stage("Optimizing top level forms.",
+              method(tlf)
+                  optimize-component(*current-optimizer*, tlf.tlf-component);
+              end method, tlfs);
+                  
     let base-name = concatenate(state.unit-mprefix, "-guts");
     let c-name = concatenate(base-name, ".c");
     let temp-c-name = concatenate(c-name, "-temp");
     let body-stream
       = make(<file-stream>, locator: temp-c-name, direction: #"output");
+    let file = make(<file-state>, unit: state.unit-cback-unit,
+                    body-stream: body-stream);
     block ()
-      let file = make(<file-state>, unit: state.unit-cback-unit,
-                      body-stream: body-stream);
       emit-prologue(file, state.unit-other-cback-units);
-      for (tlf in tlfs)
-        block ()
-          let name = format-to-string("%s", tlf);
-          increment-and-report-progress(state.progress-indicator);
-          note-context(name);
-          emit-1-tlf(tlf, file, state);
-        cleanup
-          end-of-context();
-        exception (<fatal-error-recovery-restart>)
-          #f;
-        end block;
-      end for;
+
+      run-stage("Emitting C code.",
+                method(tlf)
+                    emit-1-tlf(tlf, file, state);
+                end method, tlfs);
     cleanup
       close(body-stream);
       //	  fresh-line(*debug-output*);
@@ -478,12 +445,7 @@ define method build-library-inits (state :: <lid-mode-state>) => ();
 
     begin
       let c-name = concatenate(state.unit-mprefix, "-init.c");
-      #if (macos)
-      let temp-c-name = concatenate(state.unit-lid-file.filename-prefix,
-				    c-name);
-      #else
       let temp-c-name = concatenate(c-name, "-temp");
-      #endif
       let body-stream = make(<file-stream>, 
 			     locator: temp-c-name, direction: #"output");
       let file = make(<file-state>, unit: state.unit-cback-unit,
@@ -517,11 +479,7 @@ end method build-library-inits;
 define method build-local-heap-file (state :: <lid-mode-state>) => ();
   format(*debug-output*, "Emitting Library Heap.\n");
   let c-name = concatenate(state.unit-mprefix, "-heap.c");
-  #if (macos)
-  let temp-c-name = concatenate(state.unit-lid-file.filename-prefix, c-name);
-  #else
   let temp-c-name = concatenate(c-name, "-temp");
-  #endif
   let heap-stream = make(<file-stream>, 
 			 locator: temp-c-name, direction: #"output");
   let prefix = state.unit-cback-unit.unit-prefix;
@@ -682,13 +640,7 @@ define method build-inits-dot-c (state :: <lid-mode-state>) => ();
   format(stream, "}\n");
   if(~state.unit-embedded?)
     format(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
-#if (macos)
-   format(stream, "#include<console.h>\n");
-#endif
    format(stream, "int main(int argc, char *argv[]) {\n");
-#if (macos)
-   format(stream, "    argc = ccommand( &argv );\n");
-#endif
    format(stream, "    real_main(argc, argv);\n");
    format(stream, "    exit(0);\n");
    format(stream, "}\n");

@@ -159,7 +159,18 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 end method parse-and-finalize-library;
 
 define method compile-file (state :: <single-file-mode-state>) => ();
-  format(*debug-output*, "Processing %s\n", state.unit-source-file);
+  let tlfs = state.unit-tlfs;
+
+  run-stage("Converting top level forms.",
+            method(tlf)
+                compile-1-tlf(tlf, state);
+            end method, tlfs);
+  
+  run-stage("Optimizing top level forms.",
+            method(tlf)
+                optimize-component(*current-optimizer*, tlf.tlf-component);
+            end method, tlfs);
+
   let c-name = concatenate(state.unit-name, ".c");
   let body-stream
      = make(<file-stream>, locator: c-name, direction: #"output");
@@ -169,18 +180,10 @@ define method compile-file (state :: <single-file-mode-state>) => ();
   state.unit-stream := body-stream;
   emit-prologue(file, state.unit-other-cback-units);
 
-  for (tlf in state.unit-tlfs)
-    block ()
-      compile-1-tlf(tlf, state);
-      optimize-component(*current-optimizer*, tlf.tlf-component);
-      emit-1-tlf(tlf, file, state);
-    cleanup
-      end-of-context();
-    exception (<fatal-error-recovery-restart>)
-      #f;
-    end block;
-  end for;
-  format(*debug-output*, "\n");
+  run-stage("Emitting C code.",
+            method(tlf)
+                emit-1-tlf(tlf, file, state);
+            end method, tlfs);
 end method compile-file;
 
 
@@ -194,7 +197,6 @@ end method build-library-inits;
 
 define method build-local-heap-file (state :: <single-file-mode-state>) => ();
   format(*debug-output*, "Emitting Library Heap.\n");
-  let heap-stream = state.unit-stream;
   let prefix = state.unit-cback-unit.unit-prefix;
   let (undumped, extra-labels) = build-local-heap(state.unit-cback-unit, 
 						  state.unit-c-file);
@@ -208,7 +210,6 @@ end method build-local-heap-file;
 
 define method build-da-global-heap (state :: <single-file-mode-state>) => ();
   format(*debug-output*, "Emitting Global Heap.\n");
-  let heap-stream = state.unit-stream;
   build-global-heap(apply(concatenate, map(undumped-objects, *units*)),
 		    state.unit-c-file);
 end method;
@@ -224,13 +225,7 @@ define method build-inits-dot-c (state :: <single-file-mode-state>) => ();
   end;
   format(stream, "}\n");
   format(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
-#if (macos)
-  format(stream, "#include<console.h>\n");
-#endif
   format(stream, "int main(int argc, char *argv[]) {\n");
-#if (macos)
-  format(stream, "    argc = ccommand( &argv );\n");
-#endif
   format(stream, "    real_main(argc, argv);\n");
   format(stream, "    exit(0);\n");
   format(stream, "}\n");
