@@ -96,7 +96,14 @@ message. Pressing send results in the various mtnsms forms begin sent
 automatically by the application. Requires the various DLL's and
 librarys in the bin subdirectory of Dylanlibs to be installed.
 
+14) http-server-example
+=======================
+
+An example of using the http-server library and the dom-builder HTML
+generation functions to bring up a very simple web site, demonstrating
+static HTML and forms.
+
 -- 
 Chris Double.  
-9 June 2001.
+14 June 2001.
 
