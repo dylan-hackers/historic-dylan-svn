@@ -6,6 +6,7 @@ CC      ?= cl /nologo ;
 CCFLAGS ?= -DWIN32 -D_WIN32 -D_MT -D_DLL -MD -Z7 -Od ;
 CP      ?= copy /y ;
 RC      ?= rc ;
+RM      ?= del/f/q ;
 LINK    ?= link /nologo ;
 
 MKF     ?= dylanmakefile.mkf ;
@@ -256,8 +257,6 @@ rule DylanLibraryCHeaders image : headers {
 
   # Mark the shared library as depending on the given header files.
   # TODO: The original build-system didn't do anything with this either.
-
-  Echo Ignoring DylanLibraryCHeaders $(image) ":" $(headers) ;
 }
 
 rule DylanLibraryRCFiles image : rcfiles {
