@@ -316,6 +316,11 @@ define macro mi-parser-definer
   {}
 end;
 
+// ####################################
+// GDB/MI Breakpoint table commands
+
+
+
 define mi-operation break-after(number :: <positive>, count :: <positive>)
   resulting error => report;
   resulting done => parse-breakpoint-table;
@@ -387,6 +392,10 @@ end;
 define mi-operation break-watch({a; r})
   resulting done => parse-reason;
 end;
+
+// ####################################
+// GDB/MI Data Manipulation
+
 
 
 /*
@@ -600,6 +609,138 @@ end;
 // ####################################
 // GDB/MI Stack Manipulation Commands
 
+define mi-operation stack-info-frame;
+
+end;
+
+define mi-operation stack-info-depth([ max-depth :: false_or(<integer>) ])
+
+end;
+
+define mi-operation stack-list-arguments show-values([ low-frame high-frame ])
+
+end;
+
+define mi-operation stack-list-frames([ low-frame high-frame ])
+
+end;
+
+define mi-operation stack-list-locals(print-values -- { all-values, simple-values} )
+
+end;
+
+
+// ####################################
+// GDB/MI Symbol Query Commands
+
+define mi-operation symbol-info-address(symbol)
+
+end;
+
+define mi-operation symbol-info-file;
+
+end;
+
+define mi-operation symbol-info-function;
+
+end;
+
+define mi-operation symbol-info-line;
+
+end;
+
+define mi-operation symbol-info-symbol(addr)
+
+end;
+
+define mi-operation symbol-list-functions;
+
+end;
+
+define mi-operation symbol-list-lines(filename)
+
+end;
+
+define mi-operation symbol-list-types;
+
+end;
+
+define mi-operation symbol-list-variables;
+
+end;
+
+define mi-operation symbol-locate;
+
+end;
+
+define mi-operation symbol-type(variable)
+
+end;
+
+
+// ####################################
+// GDB/MI Target Manipulation Commands
+
+
+define mi-operation target-attach({pid; file}
+
+end;
+
+define mi-operation target-compare-sections([ section ])
+
+end;
+
+define mi-operation target-detach;
+
+end;
+
+define mi-operation target-disconnect;
+
+end;
+
+define mi-operation target-download;
+
+end;
+
+define mi-operation target-exec-status;
+
+end;
+
+define mi-operation target-list-available-targets;
+
+end;
+
+define mi-operation target-list-current-targets;
+
+end;
+
+define mi-operation target-list-parameters;
+
+end;
+
+define mi-operation target-select type parameters ...
+
+end;
+
+
+// ####################################
+// GDB/MI Thread Commands
+
+define mi-operation thread-info;
+
+define mi-operation thread-list-all-threads;
+
+define mi-operation thread-list-ids;
+
+define mi-operation thread-select(threadnum)
+
+
+// ####################################
+// GDB/MI Tracepoint Commands
+
+
+// ####################################
+// GDB/MI Variable Objects
 
 
 
