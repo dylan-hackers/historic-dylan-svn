@@ -50,13 +50,13 @@
 
     <a name="syntax-exports"><h2>2.  Exported facilities</h2></a><p>
 
-    The <tt>meta</tt>-library exports the <tt>meta</tt>-module with the
+    The <tt>meta</tt>-library exports the <tt>meta</tt> module with the
       following macros:
     <dl>
       <dt><tt>meta-definer</tt> (or, more clearly, <tt>define meta </tt>
 	<em>&lt;foo></em>)</dt>
       <dd><p>Implements Meta and provides some additional functionality to
-	  defines variables. See <a href="#syntax">below</a>.</p></dd>
+	  define variables. See <a href="#syntax">below</a>.</p></dd>
       <dt><tt>with-meta-syntax</tt>
       <dd><p>The guts of the <tt>meta-definer</tt> form; use when requiring
 	precise control of variables or constructs</p></dd>
@@ -173,7 +173,7 @@
       <dd><pre>define meta public-id(s, pub) => (pub)
   "PUBLIC", scan-s(s), scan-pubid-literal(pub)
 end meta public-id;</pre>
-	<p>This definitions returns <tt>pub</tt> when it successfully
+	<p>This definition returns <tt>pub</tt> when it successfully
 	  scans the tokens "PUBLIC", (some) spaces, and a literal
 	  which <tt>pub</tt> receives.  Note that, hereafter, the meta
 	definition is referred to as <tt>scan-public-id</tt> outside
@@ -184,7 +184,7 @@ end meta public-id;</pre>
       <dd><pre><b>define meta</b> <em>name</em> (<em>variables</em>)
   <em>meta body</em>
 <b>end</b></pre>
-	<p>Same as the above form for <em>results</em> is 
+	<p>Same as the above form except that <em>results</em> is 
 	  <code><font color="green">#t</font></code></p></dd>
     <dt><b>Example</b> (from the meta library itself):</dt>
     <dd><pre>define meta s(c)
@@ -234,9 +234,8 @@ end meta s;</pre>
 
 	  <i>start</i>---Index to start at<p>
 	  <i>end</i>---Index to finish before<p>
-	  <i>pos</i>---A name.  A variable called <i>pos</i> will be
-	  defined which holds the current index during execution of the
-	  <tt>with-meta-syntax</tt> forms.<p>
+	  <i>pos</i>---A name that will be bound to the current index
+          during execution of the <tt>with-meta-syntax</tt> forms.<p>
 
       <dt><b>Special programming aids:</b>
       <dd>
@@ -321,9 +320,9 @@ end meta s;</pre>
     </table>
     <p>
 
-    The same grammar which works for streams will works for strings,
-    too.  When parsing strings, more than just one-character look-ahead
-    is possible, though.  You can therefore not only match against
+    The same grammar which works for streams will works for strings.
+    When parsing strings, more than just one-character look-ahead is
+    possible, though.  You can therefore not only match against
     characters, but also whole substrings.  This does not work when
     reading from a stream.<p>
 
