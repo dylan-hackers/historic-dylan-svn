@@ -15,8 +15,11 @@ define constant <goal> = one-of($ready, $nowhere-to-go, $going-to-base,
 define class <thomas> (<robot-agent>)
   slot goal :: <goal>,
     init-value: $ready;
-  slot moves-remaining :: false-or(<list>),
+  slot goal-point :: false-or(<point>),
     init-value: #f;
+  
+//  slot moves-remaining :: false-or(<list>),
+//    init-value: #f;
 end class <thomas>;
 
 define method packages-with-dest (packages :: <sequence>, loc :: <point>)
@@ -45,21 +48,27 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
   let maybe-visit = choose(method (x) ~member?(x, tom.visited-bases) end,
                            state.bases);
   // 2. Now, pick the bases for which you are closer than any other
-  //    robot.
+  //    robot, just use all of them.
   let other-robots = remove(state.robots, agent-robot(tom, state));
-  let good-bases = choose(method (base)
-                            every?(method(bot) tom-closer?(base, bot) end,
-                                   other-robots)
-                          end method,
-                          maybe-visit);
+  let good-bases =
+    begin
+      let best-bases = 
+        choose(method (base)
+                 every?(method(bot) tom-closer?(base, bot) end,
+                        other-robots)
+               end method,
+               maybe-visit);
+      if (best-bases.empty?) maybe-visit else best-bases end if;
+    end;
   // 3. Sort the bases to find the nearest one.
   let sorted-bases = sort(good-bases, test: base-closer?);
   // 4. Decide on our 
   if (~sorted-bases.empty?)
     tom.goal := $going-to-base;
-    tom.moves-remaining := find-path(tom-pos,
-                                     sorted-bases.first,
-                                     state.board);
+    tom.goal-point := sorted-bases.first;
+//    tom.moves-remaining := find-path(tom-pos,
+//                                     sorted-bases.first,
+//                                     state.board);
   else
     tom.goal := $nowhere-to-go; // there's nowhere to go!
   end if;
@@ -76,16 +85,22 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
           generate-next-move(tom, state)
         else
           tom.goal := $going-to-dropoff;
-          tom.moves-remaining := find-path(agent-pos(tom, state),
-                                           ps.first.dest,
-                                           state.board);
+          tom.goal-point := ps.first.dest;
+//          tom.moves-remaining := find-path(agent-pos(tom, state),
+//                                           ps.first.dest,
+//                                           state.board);
           generate-next-move(tom, state);
         end if;
       end;
     $going-to-base =>
       begin
         let tom-pos = agent-pos(tom, state);
-        if (tom.moves-remaining.empty?) // we are at the base
+        let path = find-path(agent-pos(tom, state),
+                             tom.goal-point,
+                             state.board);
+        assert(path ~= #f, "thomas: going to base");
+        if (path.empty?)
+          // we are at the base.
           tom.visited-bases := add(tom.visited-bases,
                                    state.board[tom-pos.y, tom-pos.x]);
           let ps = load-packages(tom, state, compare: method(a, b) a.weight > b.weight end);
@@ -94,13 +109,13 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
             generate-next-move(tom, state);
           else
             tom.goal := $going-to-dropoff;
-            tom.moves-remaining := find-path(tom-pos, ps.first.dest,
-                                             state.board);
+            tom.goal-point := ps.first.dest;
+//            tom.moves-remaining := find-path(tom-pos, ps.first.dest,
+//                                             state.board);
             make(<pick>, id: tom.agent-id, bid: 1, package-ids: map(id, ps));
           end if;
         else
-          let next-point = tom.moves-remaining.head;
-          tom.moves-remaining := tom.moves-remaining.tail;
+          let next-point = path.first;
           make(<move>,
                id: tom.agent-id,
                bid: 1,
@@ -120,7 +135,11 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
       end;
     $going-to-dropoff =>
       begin
-        if (tom.moves-remaining.empty?) // we are at the destination.
+        let path = find-path(agent-pos(tom, state),
+                             tom.goal-point,
+                             state.board);
+        assert(path ~= #f, "thomas: going to dropoff");
+        if (path.empty?) // we are at the destination.
           debug("We are at the drop point!\n");
           let ps = packages-with-dest(agent-packages(tom, state),
                                       agent-pos(tom, state));
@@ -129,8 +148,7 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
           tom.goal := $ready;
           make(<drop>, id: tom.agent-id, bid: 1, package-ids: map(id, ps));
         else
-          let next-point = tom.moves-remaining.head;
-          tom.moves-remaining := tom.moves-remaining.tail;
+          let next-point = path.first;
           make(<move>,
                id: tom.agent-id,
                bid: 1,
