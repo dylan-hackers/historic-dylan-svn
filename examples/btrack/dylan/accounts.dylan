@@ -2,6 +2,34 @@ Module: btrack
 Author: Carl Gay
 Synopsis:  account-related pages and tags (including login/logout)
 
+define method load-account
+    (id :: <integer>) => (account :: false-or(<account>))
+  load-record(id)
+end;
+
+define method load-account
+    (query :: <string>) => (account :: false-or(<account>))
+  load-record(<account>, query)
+end;
+
+define method load-account-named
+    (name :: <string>, #key password) => (account :: <account>)
+  assert(size(name) > 0,
+         "Attempt to load an account by name using the empty string as the name.");
+  load-record(<account>,
+              iff(password,
+                  format-to-string("select * from tbl_account where name = '%s' and password = '%s'",
+                                   name, password),
+                  format-to-string("select * from tbl_account where name = '%s'",
+                                   name)))
+end;
+
+define method load-all-accounts
+    () => (accounts :: <sequence>)
+  load-records(<account>, "select * from tbl_account");
+end;
+
+
 define page list-accounts-page (<btrack-page>)
     (url: "/list-accounts.dsp",
      source: document-location("dsp/list-accounts.dsp"))

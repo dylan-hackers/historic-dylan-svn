@@ -18,3 +18,8 @@ end;
 define class <invalid-form-field-exception> (<btrack-exception>)
 end;
 
+
+// I use this a lot, so a shorter name is useful.
+//
+define constant sformat :: <function> = format-to-string;
+

@@ -50,15 +50,6 @@ define macro record-extras-definer
   => { define record-extras ?name (?superclasses) ?more-slots end; }  // recurse
 end;
 
-/*
-define record <account> (<named-record>)
-  table-name: "tbl_account";
-  database slot password :: <string>,
-    init-keyword: #"password",
-    column-number: 5,
-    column-name: "password";
-end;
-*/
 
 // This basically strips out everything that "define class" doesn't handle.
 //
@@ -196,13 +187,32 @@ define method slot-descriptors
 end;
 
 
+////
+//// Prototypes for record classes.
+////
+
+define constant $class-prototypes = make(<table>);
+
+define function class-prototype
+    (class :: <class>) => (record :: <object>)
+  element($class-prototypes, class, default: #f)
+    | ($class-prototypes[class] := make(class, id: 0));
+end;
+
+
+
+////
+//// Record class definitions
+////
+
+
 // Base class of all record types (account, bug-reports, etc).
 //
 define primary record <database-record> (<object>)
   // The record-id is unique across all database objects.
   database slot record-id :: <integer>,
     required-init-keyword: #"id",
-    column-name: "account_id",   // ---TODO: change to record_id
+    column-name: "record_id",
     column-number: 0;
 end;
 
@@ -241,9 +251,124 @@ define primary record <named-record> (<modifiable-record>)
   database slot status :: <character>,
     init-keyword: #"status",
     column-name: "status",
-    // ---TODO: Fix this!  This will only work for <account>s.
-    //          Would be nice if not all records had to have the same column layout.
-    column-number: 10;
+    column-number: 5;
+end;
+
+
+define record <account> (<named-record>)
+  table-name: "tbl_account";
+  database slot password :: <string>,
+    init-keyword: #"password",
+    column-number: 6,
+    column-name: "password";
+  slot email-address :: <string>,
+    init-keyword: #"email-address",
+    column-number: 7,
+    column-name: "email_address";
+  slot email-prefs :: <integer>,
+    init-keyword: #"email-prefs",
+    column-number: 8,
+    column-name: "email_prefs";
+  slot permissions :: <integer>,
+    init-keyword: #"permissions",
+    column-number: 9,
+    column-name: "permissions";
+  slot role :: <character>,
+    init-keyword: #"role",
+    column-number: 10,
+    column-name: "role";
+end;
+
+
+define primary record <browser> (<named-record>)
+    table-name: "tbl_browser";
+end;
+
+define primary record <platform> (<named-record>)
+    table-name: "tbl_platform";
+end;
+
+define primary record <operating-system> (<named-record>)
+    table-name: "tbl_operating_system";
+end;
+
+// This needs to come after <account>.
+//
+define primary record <owned-record> (<named-record>)
+  slot description :: <string>,
+    init-keyword: #"description",
+    column-number: 6,
+    column-name: "description";
+  slot owner :: <account>,
+    init-keyword: #"owner",
+    column-number: 7,
+    column-name: "owner";
+end;
+
+define primary record <module> (<owned-record>)
+  table-name: "tbl_module";
+  slot product :: <product>,
+    init-keyword: #"product",
+    column-number: 8,
+    column-name: "product_id";
+end;
+
+define primary record <product> (<owned-record>)
+  table-name: "tbl_product";
+end;
+
+define primary record <version> (<named-record>)
+  table-name: "tbl_version";
+  slot product :: <product>,
+    init-keyword: #"product",
+    column-number: 6,
+    column-name: "product_id";
+  slot release-date :: <date>,
+    init-keyword: #"release-date",
+    column-number: 7,
+    column-name: "release_date";
+  slot comment :: <string>,
+    column-number: 8,
+    column-name: "comment",
+    database-type: #"varchar";
+end;
+
+define primary record <comment> (<modifiable-record>)
+  table-name: "tbl_comment";
+  slot bug-report :: <bug-report>,
+    init-keyword: #"bug-report",
+    column-number: 4,
+    column-name: "bug_report_id";
+  slot account :: <account>,       // not the owner, just the commenter.
+    init-keyword: #"account",
+    column-number: 5,
+    column-name: "account_id";
+  slot comment :: <string>,
+    init-keyword: #"comment",
+    column-number: 6,
+    column-name: "comment",
+    database-type: #"varchar";
+end;
+
+define primary record <bug-report> (<modifiable-record>)
+  table-name: "tbl_bug_report";
+end;
+
+define primary record <log-entry> (<database-record>)
+  table-name: "tbl_log";
+  slot date-entered :: <date>,
+    init-keyword: #"date-entered",
+    column-number: 1,
+    column-name: "date_entered";
+  slot modified-by :: <account>,
+    init-keyword: #"modified-by",
+    column-number: 2,
+    column-name: "modified_by";
+  slot description :: <string>,
+    init-keyword: #"description",
+    column-number: 3,
+    column-name: "description",
+    database-type: #"varchar";
 end;
 
 
@@ -253,6 +378,13 @@ end;
 ////
 
 define constant $record-cache = make(<table>);
+
+define method load-record
+    (class :: <class>, id :: <integer>) => (record :: false-or(<database-record>))
+  load-record(class,
+              sformat("select * from %s where record_id = %d",
+                      class-prototype(class), id))
+end;
 
 define method load-record
     (class :: <class>, query :: <string>) => (record :: false-or(<database-record>))
@@ -345,6 +477,10 @@ end;
 // For converting cell data read from the database to the correct type for record
 // slots.  The obvious one is converting CHAR(1) to type <character>.  There may
 // be a way to do this inside SQL-ODBC before it ever gets turned into a string.
+// ---TODO: This isn't expressive enough.  I think it would work to replace this
+//          database-type stuff with database-descriptor, which would take an instance
+//          of <database-descriptor>.  e.g., make(<varchar>, max-size: 4000);  Then
+//          error checking could be performed as well as conversions.
 //
 define open generic db-type-to-slot-type
     (type :: <object>, cell-data :: <object>) => (data :: <object>);
@@ -404,89 +540,12 @@ define method db-type-to-slot-type
 end;
 
 
-
-// --------------------------accounts------------------------------
-
-/*
-create table tbl_account (
-  account_id         INTEGER NOT NULL,
-  mod_count          INTEGER NOT NULL,
-  date_entered       DATETIME NOT NULL,
-  date_modified      DATETIME NOT NULL,
-  name               CHAR(30) NOT NULL,
-  password           CHAR(30) NOT NULL,
-  email_address      CHAR(100) NOT NULL,
-  email_prefs        INTEGER NOT NULL,     -- encoded bits for now
-  permissions        INTEGER NOT NULL,     -- encoded bits for now
-  role               CHAR(1),              -- 'D' = developer, 'Q' = QA
-  status             CHAR NOT NULL         -- 'O' = Obsolete, 'A' = active
-);
-*/
-
-define record <account> (<named-record>)
-  table-name: "tbl_account";
-  database slot password :: <string>,
-    init-keyword: #"password",
-    column-number: 5,
-    column-name: "password";
-  slot email-address :: <string>,
-    init-keyword: #"email-address",
-    column-number: 6,
-    column-name: "email_address";
-  slot email-prefs :: <integer>,
-    init-keyword: #"email-prefs",
-    column-number: 7,
-    column-name: "email_prefs";
-  slot permissions :: <integer>,
-    init-keyword: #"permissions",
-    column-number: 8,
-    column-name: "permissions";
-  slot role :: <character>,
-    init-keyword: #"role",
-    column-number: 9,
-    column-name: "role";
+define method save-record
+    (record :: <modifiable-record>)
+  inc!(mod-count(record));
+  date-modified(record) := current-date();
+  next-method();
 end;
-
-
-// This needs to come after <account>.
-//
-define primary class <owned-record> (<named-record>)
-  slot owner :: <account>,
-    init-keyword: #"account";
-  slot description :: <string>,
-    init-keyword: #"description";
-end;
-
-
-define method load-account
-    (id :: <integer>) => (account :: false-or(<account>))
-  // ---TODO: Caching.
-  load-account(format-to-string("select * from tbl_account where account_id = %d", id));
-end;
-
-define method load-account
-    (query :: <string>) => (account :: false-or(<account>))
-  load-record(<account>, query)
-end;
-
-define method load-account-named
-    (name :: <string>, #key password) => (account :: <account>)
-  assert(size(name) > 0,
-         "Attempt to load an account by name using the empty string as the name.");
-  load-record(<account>,
-              iff(password,
-                  format-to-string("select * from tbl_account where name = '%s' and password = '%s'",
-                                   name, password),
-                  format-to-string("select * from tbl_account where name = '%s'",
-                                   name)))
-end;
-
-define method load-all-accounts
-    () => (accounts :: <sequence>)
-  load-records(<account>, "select * from tbl_account");
-end;
-
-
 
 define method save-record
     (record :: <database-record>)
@@ -498,26 +557,25 @@ define method save-record
         end;
   let query
     = if (new?(record))
-        format-to-string("insert into %s (%s) values (%s) where account_id = %d", // ---TODO
+        format-to-string("insert into %s (%s) values (%s) where record_id = %d",
                          record-table-name(record),
                          join(slots, ",", key: slot-column-name),
                          join(slots, ",", key: method (x) "?" end),
                          record-id(record))
       else
-        format-to-string("update %s set %s where account_id = %d", //---TODO
+        format-to-string("update %s set %s where record_id = %d",
                          record-table-name(record),
                          join(slots, ",", key: updater-string),
                          record-id(record))
       end;
   with-database-connection (conn)
-    let statement = make(sql$<sql-statement>, text: query);
     local method database-slot-values (record)
             let slot-values = make(<stretchy-vector>);
             // ---TODO: This assumes that all slots get stored in the database.
             //          Need to allow for non-database slots.
             map-into(slot-values, method (slot) slot-getter(slot)(record) end, slots);
           end;
-    sql$execute(statement, parameters: database-slot-values(record));
+    apply(update-db, query, database-slot-values(record));
   end;
 end;
 

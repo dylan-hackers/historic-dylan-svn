@@ -78,7 +78,7 @@ public class Util
         Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                               ResultSet.CONCUR_UPDATABLE);
         ResultSet rs = stmt.executeQuery("select next_unique_id from tbl_config");
-        String config_message = "Configuration error: tbl_config has now rows.";
+        String config_message = "Configuration error: tbl_config has no rows.";
         if (rs.next()) {
             next_uid = rs.getInt("next_unique_id");
             max_uid = next_uid + UID_BATCH_SIZE;
