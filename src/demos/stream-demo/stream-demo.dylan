@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/demos/stream-demo/stream-demo.dylan,v 1.2 2000/01/24 04:57:04 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/demos/stream-demo/stream-demo.dylan,v 1.2.14.1 2003/10/23 21:12:37 housel Exp $
 module: stream-demo
 
 //======================================================================
@@ -29,25 +29,29 @@ module: stream-demo
 //======================================================================
 
 define method main (foo, #rest stuff)
-  
-  write(*standard-output*, "File to type: ");
-  force-output(*standard-output*);
-  let res = read-line(*standard-input*);
-  write(*standard-output*, "You said: ");
-  write-line(*standard-output*, res);
-  force-output(*standard-output*);
-  let stream = make(<file-stream>, locator: res, direction: #"input");
-  block (punt)
-    for (while: #t)
-      let wot = read-line(stream, on-end-of-stream: #f);
-      if (wot)
-        write-line(*standard-output*, wot);
-      else
-        punt();
-      end if;
-    end for;
-  end block;
-  close(stream);
-  force-output(*standard-output*);
-
+  block()
+    write(*standard-output*, "File to type: ");
+    force-output(*standard-output*);
+    let res = read-line(*standard-input*);
+    write(*standard-output*, "You said: ");
+    write-line(*standard-output*, res);
+    force-output(*standard-output*);
+    let stream
+      = make(<file-stream>, locator: res, direction: #"input");
+    block (punt)
+      for (while: #t)
+        let wot = read-line(stream, on-end-of-stream: #f);
+        if (wot)
+          write-line(*standard-output*, wot);
+        else
+          punt();
+        end if;
+      end for;
+    end block;
+    close(stream);
+    force-output(*standard-output*);
+  exception (e :: <error>)
+    format(*standard-error*, "stream-demo: %s\n", e);
+    exit-application(1);
+  end;
 end method;
