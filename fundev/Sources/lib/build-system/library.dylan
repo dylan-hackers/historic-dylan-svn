@@ -13,6 +13,7 @@ define library build-system
   use system;
   use file-source-records;
   use release-info;
+  use dfmc-mangling;
   use jam;
 
   export
@@ -35,6 +36,7 @@ define module build-system
   use locators;
   use settings;
   use release-info;
+  use dfmc-mangling;
 
   export
     build-system,

@@ -57,6 +57,23 @@ end method;
 
 
 
+define thread variable *mangler* = make(<mangler>);
+
+define method jam-mangle
+    (jam :: <jam-state>, names :: <sequence>)
+ => (result :: <sequence>);
+  select (names.size by \=)
+    1 =>
+      vector(mangle-name-raw(*mangler*, names[0]));
+    3 =>
+      vector(mangle-binding-spread(*mangler*, names[0], names[1], names[2]));
+    otherwise =>
+      #[];
+  end select;
+end method;
+
+
+
 define variable *cached-build-script* :: false-or(<file-locator>) = #f;
 define variable *cached-jam-state* :: false-or(<jam-state>) = #f;
 
@@ -126,6 +143,8 @@ define function make-jam-state
            end;
            #[]
          end method;
+    jam-rule(state, "DFMCMangle")
+      := jam-mangle;
 
     jam-variable(state, "SYSTEM_ROOT")
       := vector(as(<string>, $system-install));
