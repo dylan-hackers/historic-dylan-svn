@@ -95,6 +95,11 @@ define attribute-slot #x04 italic end;
 define attribute-slot #x08 strong end;
 define attribute-slot #x10 typewriter end;
 
+define inline method set-plain(a :: <attribute>)
+ => newObj :: <attribute>;
+  make(<attribute>, value: logand(a.value, lognot(127)));
+end method set-plain;
+
 define inline method underline(a :: <attribute>) => res :: <underline>;
   extract-field(a.value, 5, 2);
 end method underline;
@@ -141,6 +146,34 @@ define method print-object(a :: <attribute>, stream :: <stream>)
   format(stream, "U=%=, size=%=, color=%=}",
 	 a.underline, a.font-size, a.color);
 end method print-object;
+
+
+define method describe-attributes(a :: <attribute>, stream :: <stream>) => ();
+  let first = #t;
+  local
+    method comma()
+      if (first)
+	first := #f;
+      else
+	format(stream, ",");
+      end;
+    end,
+    method pp(cond :: <boolean>, desc :: <byte-string>)
+      if (cond)
+	comma();
+	format(stream, desc);
+      end;
+    end;
+
+  format(stream, "{");
+  pp(a.bold, "B");
+  pp(a.emphasis, "EM");
+  pp(a.italic, "I");
+  pp(a.strong, "S");
+  pp(a.typewriter, "TT");
+  comma();
+  format(stream, "%=,%=,%=}", a.underline, a.font-size, a.color);
+end method describe-attributes;
 
 
 define function dump(name :: <byte-string>, val :: <attribute>) => ()

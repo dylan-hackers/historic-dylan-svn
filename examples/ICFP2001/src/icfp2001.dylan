@@ -125,12 +125,12 @@ define function parse-tag
   let (t :: <tag>, new-state :: <attribute>) =
     select (s[p])
       'B' => values(tag-BB, state.set-bold);
-      'E' => values(tag-EM, state.set-bold);
-      'I' => values(tag-I,  state.set-bold);
-      'P' => values(tag-PL, state.set-bold);
-      'S' => values(tag-S,  state.set-bold);
-      'T' => values(tag-TT, state.set-bold);
-      'U' => values(tag-U,  state.set-bold);
+      'E' => values(tag-EM, state.set-emphasis);
+      'I' => values(tag-I,  state.set-italic);
+      'P' => values(tag-PL, state.set-plain);
+      'S' => values(tag-S,  state.set-strong);
+      'T' => values(tag-TT, state.set-typewriter);
+      'U' => values(tag-U,  state.set-underline);
       '0' => values(tag-0,  set-font-size(state, 0));
       '1' => values(tag-1,  set-font-size(state, 1));
       '2' => values(tag-2,  set-font-size(state, 2));
@@ -250,7 +250,14 @@ define function main(name, arguments)
     let best-transformation = original-input;
     let parse-tree          = bgh-parse(original-input);
 
-    format-out("%=\n", parse-tree);
+    //format-out("%=\n", parse-tree);
+
+    for (e in parse-tree)
+      let a :: <attribute> = e.head;
+      let s :: <byte-string> = e.tail;
+      describe-attributes(a, *standard-output*);
+      format-out("      '%s'\n", s);
+    end;
 
     while(time-is-not-up?())
       optimize();
