@@ -212,6 +212,7 @@ define function init-server
   let server :: <server> = ensure-server();
   server.max-listeners := listeners;
   server.request-class := request-class;
+  run-init-functions();
   configure-server();
   log-info("%s HTTP Server starting up", $server-name);
   ensure-sockets-started();  // Can this be moved into start-server?

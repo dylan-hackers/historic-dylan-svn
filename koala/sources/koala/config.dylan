@@ -14,15 +14,10 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $koala-config-dir :: <string> = "config";
 define constant $koala-config-filename :: <string> = "koala-config.xml";
 
-define thread variable *virtual-host* :: <virtual-host> = $default-virtual-host;
-
-// This is bound to the current vhost while config elements are being
-// processed.
+// Holds the current vhost while config elements are being processed.
 define thread variable %vhost = $default-virtual-host;
 
-define constant $root-dir-spec = root-directory-spec($default-virtual-host);
-
-define thread variable %dir = $root-dir-spec;
+define thread variable %dir = root-directory-spec($default-virtual-host);
 
 
 // Process the server config file, config.xml.
@@ -54,11 +49,11 @@ define method configure-server ()
       log-info("Loading server configuration from %s.", config-loc);
       process-config-node(xml);
     else
-      log-warning("Server configuration file (%s) not found.", config-loc);
+      log-error("Server configuration file (%s) not found.", config-loc);
       *abort-startup?* := #t;
-    end;
+    end if;
   end block;
-end configure-server;
+end method configure-server;
 
 define function warn
     (format-string, #rest format-args)
@@ -105,6 +100,10 @@ define method process-config-element
   end;
 end;
 
+define method process-config-element
+    (node :: xml$<comment>, name :: <object>)
+end;
+
 define function true-value?
     (val :: <string>) => (true? :: <boolean>)
   member?(val, #("yes", "true", "on"), test: string-equal?)
@@ -116,6 +115,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"koala")
+  log-debug("Processing element %s", name);
   for (child in xml$node-children(node))
     process-config-node(child);
   end;
@@ -124,6 +124,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"virtual-host")
+  log-debug("Processing element %s", name);
   let name = get-attribute-value(node, #"name");
   if (name)
     log-info("Processing virtual host %s", name);
@@ -145,6 +146,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"alias")
+  log-debug("Processing element %s", name);
   let name = get-attribute-value(node, #"name");
   if (name)
     if ($virtual-hosts[name])
@@ -160,6 +162,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"port")
+  log-debug("Processing element %s", name);
   let attr = get-attribute-value(node, #"value");
   if (attr)
     block ()
@@ -181,6 +184,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"auto-register")
+  log-debug("Processing element %s", name);
   bind (attr = get-attribute-value(node, #"enabled"))
     iff(attr,
         auto-register-pages?(%vhost) := true-value?(attr),
@@ -191,6 +195,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"server-root")
+  log-debug("Processing element %s", name);
   if (%vhost == $default-virtual-host)
     let loc = get-attribute-value(node, #"location");
     if (loc)
@@ -209,6 +214,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"document-root")
+  log-debug("Processing element %s", name);
   bind (loc = get-attribute-value(node, #"location"))
     if(loc)
       document-root(%vhost)
@@ -224,6 +230,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"log")
+  log-debug("Processing element %s", name);
   let level = get-attribute-value(node, #"level");
   bind (clear = get-attribute-value(node, #"clear"))
     // "clear" doesn't really make sense anymore since log levels
@@ -261,11 +268,13 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"administrator")
+  log-debug("Processing element %s", name);
   // ---TODO
 end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"debug-server")
+  log-debug("Processing element %s", name);
   bind (value = get-attribute-value(node, #"value"))
     when (value)
       *debugging-server* := true-value?(value);
@@ -278,6 +287,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"xml-rpc")
+  log-debug("Processing element %s", name);
   bind (url = get-attribute-value(node, #"url"))
     if (url)
       *xml-rpc-server-url* := url;
@@ -304,6 +314,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"module")
+  log-debug("Processing element %s", name);
   bind (name = get-attribute-value(node, #"name"))
     if (name)
       load-module(name);
@@ -313,6 +324,7 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"logfile")
+  log-debug("Processing element %s", name);
   let name = get-attribute-value(node, #"location");
   let logfile-loc = as(<string>,
                        merge-locators(as(<file-locator>,
@@ -335,6 +347,7 @@ define constant $mime-type = make(<mime-type>);
 
 define method process-config-element
     (node :: xml$<element>, name == #"mime-type-map")
+  log-debug("Processing element %s", name);
   let filename = get-attribute-value(node, #"location");
   let mime-type-loc = as(<string>,
                          merge-locators(as(<file-locator>,
@@ -366,12 +379,17 @@ define method xml$transform (node :: xml$<element>, name == #"mime-type",
 end method xml$transform;
 
 
+// <directory  location = "/"
+//             allow-directory-listing = "yes"
+//             follow-symlinks = "yes"
+// />
 define method process-config-element
     (node :: xml$<element>, name == #"directory")
-  let name = get-attribute-value(node, #"name");
-  if (~name)
+  log-debug("Processing element %s", name);
+  let pattern = get-attribute-value(node, #"pattern");
+  if (~pattern)
     warn("Invalid <DIRECTORY> spec.  "
-           "The 'name' attribute must be specified.")
+           "The 'pattern' attribute must be specified.")
   else
     let dirlist? = get-attribute-value(node, #"allow-directory-listing");
     let follow? = get-attribute-value(node, #"follow-symlinks");
@@ -379,7 +397,7 @@ define method process-config-element
     // TODO: the default value for these should really
     //       be taken from the parent dirspec rather than from root-spec.
     let spec = make(<directory-spec>,
-                    name: name,
+                    pattern: pattern,
                     follow-symlinks?: iff(follow?,
                                           true-value?(follow?),
                                           follow-symlinks?(root-spec)),

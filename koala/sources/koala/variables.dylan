@@ -7,17 +7,17 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// Whether the server should run in debug mode or not.  If this is true then errors
-// encountered while servicing HTTP requests will not be handled by the server itself.
-// Normally the server will handle them and return an "internal server error" response.
-// Setting this to true is the recommended way to debug your Dylan Server Pages.
+// Whether the server should run in debug mode or not.  If this is true then
+// errors encountered while servicing HTTP requests will not be handled by the
+// server itself.  Normally the server will handle them and return an "internal
+// server error" response.  Setting this to true is the recommended way to
+// debug your Dylan Server Pages.
 define variable *debugging-server* :: <boolean> = #f;
 
-// The top of the directory tree under which the server's
-// configuration, error, and log files are kept.  Other pathnames
-// are merged against this one, so if they're relative they will
-// be relative to this.  The server-root pathname is relative to
-// the koala executable.
+// The top of the directory tree under which the server's configuration, error,
+// and log files are kept.  Other pathnames are merged against this one, so if
+// they're relative they will be relative to this.  The server-root pathname is
+// relative to the koala executable, unless changed in the config file.
 define variable *server-root* :: false-or(<directory-locator>) = #f;
 
 define function ensure-server-root ()

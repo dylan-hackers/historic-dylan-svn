@@ -39,7 +39,7 @@ define method document-location
   exception (ex :: <locator-error>)
     log-debug("Locator error in document-location: %=", ex);
     #f
-  end
+  end block
 end document-location;
 
 define method maybe-serve-static-file
@@ -93,11 +93,11 @@ define method maybe-serve-static-file
           static-file-responder(request, response, target);
         otherwise =>
           static-file-responder(request, response, document);
-      end;
-    end;
+      end select;
+    end if;
     #t
-  end;
-end;
+  end when;
+end method maybe-serve-static-file;
 
 // @returns the appropriate locator for the given URL, or #f if the URL is 
 // invalid (for example it doesn't name an existing file below the document root).
@@ -107,6 +107,7 @@ end;
 define function static-file-locator-from-url
     (url :: <string>) => (locator :: false-or(<physical-locator>))
   let locator = document-location(url);
+  log-debug("document-location returned %=", as(<string>, locator));
   locator
     & file-exists?(locator)
     & iff(instance?(locator, <directory-locator>),

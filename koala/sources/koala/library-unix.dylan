@@ -57,6 +57,8 @@ define module utilities
     date-to-stream,
     kludge-read-into!,   // work around bug in read-into! in FD 2.0
     quote-html,          // Change < to &lt; etc
+    register-init-function,
+    run-init-functions,
     
     <expiring-mixin>,
     expired?,

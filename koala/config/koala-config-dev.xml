@@ -5,19 +5,19 @@
 
 <koala>
 
+<server-root location="." />
+
 <mime-type-map location="mime-type-map.xml" />
 
 <logfile location="koala.log" />
 
-<port value="80" />
-
-<server-root location="../.." />
+<port value="8001" />
 
 <document-root location="www" />
 
-<log level="debug" />
+<log level="copious" />
 
-<debug-server value="off" />
+<debug-server value="on" />
 
 <auto-register enabled="no" />
 

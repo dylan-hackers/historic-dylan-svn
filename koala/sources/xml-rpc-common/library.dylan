@@ -24,7 +24,7 @@ define module xml-rpc-common
     import: { <date>, as-iso8601-string };
   use xml-parser,
     prefix: "xml$";
-  use dylan-basics;
+  use dylan-basics, exclude: { split };
 
   export
     <xml-rpc-error>,
