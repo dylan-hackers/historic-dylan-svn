@@ -253,60 +253,38 @@ end CoordinateNode;
 //aaaaaaaaarrrrrrrrrggggghhhh ... we absolutely need to get backtracking working!!
 define meta IndexedFaceSetNode
   (c, color, coordIndex, coord, normalIndex, normalPerVertex, normal, texCoord, ccw,
-   colorIndex, colorPerVertex, convex, creaseAngle, solid, texCoordIndex)
-  => (begin
-        // need to translate polygons from -1 delimited list of points to
-        // list of lists of points
-        let polys =
-          begin
-            if (coordIndex)
-              dd("reshaping polygons\n");
-              let coordIndex :: <stretchy-object-vector> = coordIndex;
-              let polys = make(<stretchy-vector>);
-              let start = 0;
-              local
-                method addpoly(from :: <integer>, to :: <integer>)
-                  let poly = make(<vector>, size: to - from);
-                  for (i from from below to)
-                    poly[i - from] := coordIndex[i];
-                  end;
-                  add!(polys, poly);
-                  start := to + 1;
-                end method;                  
-              for(e :: <integer> in coordIndex, i from 0)
-                if (e == -1)
-                  addpoly(start, i);
-                end;
-              end;
-              if (coordIndex.last ~== -1)
-                addpoly(start, coordIndex.size);
-              end;
-              polys;
-            end;
-          end;
-        make(<indexed-face-set>,
-             ccw: ccw,
-             crease-angle:   creaseAngle | 0.0,
-             points:         coord       & as(<simple-object-vector>, coord),
-             indices:        polys       & as(<simple-object-vector>, polys),
-             vertex-normals: normal      & as(<simple-object-vector>, normal))
-      end)
-  
-  loop([ws?(c),
-        {["coordIndex",      ws(c), scan-MFInt32(coordIndex)],
-         ["coord",           ws(c), scan-SFNode(coord)],
-         ["normalIndex",     ws(c), scan-MFInt32(normalIndex)],
-         ["normalPerVertex", ws(c), scan-SFBool(normalPerVertex)],
-         ["normal",          ws(c), scan-SFNode(normal)],
-         ["texCoord",        ws(c), scan-SFNode(texCoord)],
-         ["ccw",             ws(c), scan-SFBool(ccw)],
-         ["colorIndex",      ws(c), scan-MFInt32(colorIndex)],
-         ["colorPerVertex",  ws(c), scan-SFBool(colorPerVertex)],
-         ["color",           ws(c), scan-SFNode(color)],
-         ["convex",          ws(c), scan-SFBool(convex)],
-         ["creaseAngle",     ws(c), scan-SFFloat(creaseAngle)],
-         ["solid",           ws(c), scan-SFBool(solid)],
-         ["texCoordIndex",   ws(c), scan-MFInt32(texCoordIndex)]
+   colorIndex, colorPerVertex, convex, creaseAngle, solid, texCoordIndex, args)
+  => (apply(make, <indexed-face-set>, args))
+  do(args := make(<stretchy-vector>)),
+    loop([ws?(c),
+          {["coordIndex",      ws(c), scan-MFInt32(coordIndex),
+            do(add!(args, coord-index:);       add!(args, coordIndex))],
+           ["coord",           ws(c), scan-SFNode(coord),
+            do(add!(args, coord:);             add!(args, coord))],
+           ["normalIndex",     ws(c), scan-MFInt32(normalIndex),
+            do(add!(args, normal-index:);      add!(args, normalIndex))],
+           ["normalPerVertex", ws(c), scan-SFBool(normalPerVertex),
+            do(add!(args, normal-per-vertex:); add!(args, NormalPerVertex))],
+           ["normal",          ws(c), scan-SFNode(normal),
+            do(add!(args, normal:);            add!(args, Normal))],
+           ["texCoord",        ws(c), scan-SFNode(texCoord),
+            do(add!(args, tex-coord:);         add!(args, texCoord))],
+           ["ccw",             ws(c), scan-SFBool(ccw),
+            do(add!(args, ccw:);               add!(args, ccw))],
+           ["colorIndex",      ws(c), scan-MFInt32(colorIndex),
+            do(add!(args, color-index:);       add!(args, colorIndex))],
+           ["colorPerVertex",  ws(c), scan-SFBool(colorPerVertex),
+            do(add!(args, color-per-vertex:);  add!(args, colorPerVertex))],
+           ["color",           ws(c), scan-SFNode(color),
+            do(add!(args, color:);             add!(args, color))],
+           ["convex",          ws(c), scan-SFBool(convex),
+            do(add!(args, convex:);            add!(args, convex))],
+           ["creaseAngle",     ws(c), scan-SFFloat(creaseAngle),
+            do(add!(args, crease-angle:);      add!(args, creaseAngle))],
+           ["solid",           ws(c), scan-SFBool(solid),
+            do(add!(args, solid:);             add!(args, solid))],
+           ["texCoordIndex",   ws(c), scan-MFInt32(texCoordIndex),
+            do(add!(args, tex-coord-index:);   add!(args, texCoordIndex))]
          }]),
   do(dd("leaving IndexedFaceSet\n"))
 end IndexedFaceSetNode;

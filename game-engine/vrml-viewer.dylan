@@ -262,8 +262,8 @@ define method main(progname, #rest arguments)
 
   glMatrixMode($GL-MODELVIEW);
 
-//  glEnable($GL-AUTO-NORMAL);
-//  glEnable($GL-NORMALIZE);
+  glEnable($GL-AUTO-NORMAL);
+  glEnable($GL-NORMALIZE);
   glEnable($GL-RESCALE-NORMAL);
 
 //  glCullFace($GL-BACK);

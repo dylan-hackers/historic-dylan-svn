@@ -18,18 +18,78 @@ define class <container-node> (<node>)
   slot children :: <simple-object-vector>, required-init-keyword: children:;
 end class <container-node>;
 
-define class <indexed-face-set> (<node>)
+define class <my-indexed-face-set> (<node>)
   slot ccw :: <boolean> = #f, init-keyword: ccw:; // orientation of faces
   slot points, init-keyword: points:;
   slot polygon-indices, init-keyword: indices:;
   slot face-normals :: false-or(<vector>) = #f, init-keyword: face-normals:;
   slot vertex-normals :: false-or(<vector>) = #f, init-keyword: vertex-normals:;
   slot crease-angle :: <float> = 0.0, init-keyword: crease-angle:;
+end class <my-indexed-face-set>;
+
+define class <indexed-face-set> (<node>)
+  slot color :: false-or(<color>) = #f, init-keyword: color:;
+  slot coord :: false-or(<collection>) = #f, init-keyword: coord:;
+  slot normal :: false-or(<collection>) = #f, init-keyword: normal:;
+  slot tex-coord :: false-or(<collection>) = #f, init-keyword: normal:;
+  slot ccw :: <boolean> = #t, init-keyword: ccw:;
+  slot color-index :: <collection> = #[], init-keyword: color-index:;
+  slot color-per-vertex :: <boolean> = #t, init-keyword: color-per-vertex:;
+  slot convex :: <boolean> = #t, init-keyword: convex:;
+  slot coord-index :: <collection> = #[], init-keyword: coord-index:;
+  slot crease-angle :: <float> = 0.0, init-keyword: crease-angle:;
+  slot normal-index :: <collection> = #[], init-keyword: normal-index:;
+  slot normal-per-vertex :: <boolean> = #t, init-keyword: normal-per-vertex:;
+  slot solid :: <boolean> = #t, init-keyword: solid:;
+  slot tex-coord-index :: <collection> = #[], init-keyword: tex-coord-index:;
 end class <indexed-face-set>;
 
-define method initialize(ifs :: <indexed-face-set>, #key, #all-keys)
+define class <vertex> (<object>)
+  slot v :: <3d-point>, required-init-keyword: v:; // position vector
+  slot neighbouring-triangles :: <collection> = #();
+  slot normal :: false-or(<3d-vector>) = #f, init-keyword: normal:; 
+end class <vertex>;
+
+define class <triangle> (<object>)
+  slot vertices :: <collection>, required-init-keyword: vertices:;
+  slot normal :: false-or(<3d-vector>) = #f, init-keyword: normal:;
+end class <triangle>;
+
+define method initialize(ifs :: <my-indexed-face-set>, #key, #all-keys)
  => ()
   next-method();
+/*
+        // need to translate polygons from -1 delimited list of points to
+        // list of lists of points
+        let polys =
+          begin
+            if (coordIndex)
+              dd("reshaping polygons\n");
+              let coordIndex :: <stretchy-object-vector> = coordIndex;
+              let polys = make(<stretchy-vector>,, 
+                               size: truncate/(coordIndex.size, 4));
+              let start = 0;
+              local
+                method addpoly(from :: <integer>, to :: <integer>)
+                  let poly = make(<vector>, size: to - from);
+                  for (i from from below to)
+                    poly[i - from] := coordIndex[i];
+                  end;
+                  add!(polys, poly);
+                  start := to + 1;
+                end method;                  
+              for(e :: <integer> in coordIndex, i from 0)
+                if (e == -1)
+                  addpoly(start, i);
+                end;
+              end;
+              if (coordIndex.last ~== -1)
+                addpoly(start, coordIndex.size);
+              end;
+              polys;
+            end;
+          end;
+*/
   unless(ifs.face-normals)
     ifs.face-normals := make(<vector>, size: ifs.polygon-indices.size);
     for(p keyed-by i in ifs.polygon-indices)

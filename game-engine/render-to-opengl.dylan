@@ -6,6 +6,33 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
   else
     glFrontFace($GL-CW);
   end if;
+  let start = 0;
+  local
+    method addpoly(from :: <integer>, to :: <integer>)
+      with-glBegin($GL-POLYGON)
+        for (i from from below to)
+          let v = ifs.coord[ifs.coord-index[i]];
+          glVertex(v[0], v[1], v[2]);
+        end;
+      end with-glBegin;
+      start := to + 1;
+    end method;                  
+  for(e :: <integer> in ifs.coord-index, i from 0)
+    if (e == -1)
+      addpoly(start, i);
+    end;
+  end;
+  if (ifs.coord-index.last ~== -1)
+    addpoly(start, ifs.coord-index.size);
+  end;
+end method render-to-opengl;
+
+define method render-to-opengl(ifs :: <my-indexed-face-set>)
+  if(ifs.ccw)
+    glFrontFace($GL-CCW);
+  else
+    glFrontFace($GL-CW);
+  end if;
   for(p keyed-by pindex in ifs.polygon-indices)
     with-glBegin($GL-POLYGON)
 //      glColor(0.5, 0.5, 0.6);
@@ -58,7 +85,7 @@ define method render-to-opengl(node :: <shape>)
   if(node.appearance)
     glPushAttrib($GL-ALL-ATTRIB-BITS); // need to find out which ones
                                        // actually need to be saved
-    render-to-opengl(node.appearance);
+//    render-to-opengl(node.appearance);
     render-to-opengl(node.geometry);
     glPopAttrib();
   else
@@ -106,4 +133,7 @@ define method render-to-opengl(node :: <appearance>)
 //  node.texture-transform & render-to-opengl(node.texture-transform);
 //  format-out("Material: %=\n", node.material);
 end method render-to-opengl;
-  
+
+define method render-to-opengl(node :: <true>)
+  format-out("huh?\n");
+end method render-to-opengl;
