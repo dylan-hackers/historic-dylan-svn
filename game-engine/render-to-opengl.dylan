@@ -9,12 +9,14 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
   let start = 0;
   local
     method addpoly(from :: <integer>, to :: <integer>)
-      with-glBegin($GL-POLYGON)
-        for (i from from below to)
-          let v = ifs.coord[ifs.coord-index[i]];
-          glVertex(v[0], v[1], v[2]);
-        end;
-      end with-glBegin;
+      glBegin($GL-POLYGON);
+      for (i from from below to)
+        let v :: <3d-point> = ifs.coord[ifs.coord-index[i]];
+        let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
+          = values(v[0], v[1], v[2]);
+        glVertex(x, y, z);
+      end;
+      glEnd();
       start := to + 1;
     end method;                  
   for(e :: <integer> in ifs.coord-index, i from 0)
@@ -45,11 +47,12 @@ define method render-to-opengl(ifs :: <my-indexed-face-set>)
 end method render-to-opengl;
 
 define constant $PI = atan(1.0) * 4.0;
+define constant rad2deg :: <single-float> = as(<single-float>, 180.0 / $PI);
 
 define method render-to-opengl(transform :: <transform>)
   local 
     method gl-rotate*(v :: <vector>)
-      glRotate(v[3] * 180.0 / $PI, v[0], v[1], v[2]);
+      glRotate(v[3] * rad2deg, v[0], v[1], v[2]);
     end method gl-rotate*;
   glPushMatrix();
   transform.translation & apply(glTranslate, transform.translation);

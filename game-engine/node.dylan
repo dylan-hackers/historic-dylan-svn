@@ -29,14 +29,14 @@ end class <my-indexed-face-set>;
 
 define class <indexed-face-set> (<node>)
   slot color :: false-or(<color>) = #f, init-keyword: color:;
-  slot coord :: false-or(<collection>) = #f, init-keyword: coord:;
+  slot coord :: <simple-object-vector> = #[], init-keyword: coord:;
   slot normal :: false-or(<collection>) = #f, init-keyword: normal:;
   slot tex-coord :: false-or(<collection>) = #f, init-keyword: normal:;
   slot ccw :: <boolean> = #t, init-keyword: ccw:;
   slot color-index :: <collection> = #[], init-keyword: color-index:;
   slot color-per-vertex :: <boolean> = #t, init-keyword: color-per-vertex:;
   slot convex :: <boolean> = #t, init-keyword: convex:;
-  slot coord-index :: <collection> = #[], init-keyword: coord-index:;
+  slot coord-index :: <simple-object-vector> = #[], init-keyword: coord-index:;
   slot crease-angle :: <float> = 0.0, init-keyword: crease-angle:;
   slot normal-index :: <collection> = #[], init-keyword: normal-index:;
   slot normal-per-vertex :: <boolean> = #t, init-keyword: normal-per-vertex:;

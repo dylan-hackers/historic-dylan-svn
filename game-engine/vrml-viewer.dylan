@@ -228,6 +228,7 @@ define method main(progname, #rest arguments)
                     make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
                          children: vector(parse-vrml(arguments[0])))));
   end if;
+//  exit(exit-code: 0);
 
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
   glutInitWindowSize(500, 500);

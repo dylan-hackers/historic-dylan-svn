@@ -486,16 +486,16 @@ end SFBool;
 //     float float float ;
 
 define meta SFColor (c, r, g, b) => (color(r, g, b))
-  ws?(c), scan-number(r),
-  ws(c), scan-number(g),
-  ws(c), scan-number(b)
+  ws?(c), scan-single-float(r),
+  ws(c), scan-single-float(g),
+  ws(c), scan-single-float(b)
 end SFColor;
   
 // sffloatValue ::=
 //     float ;
 
 define meta SFFloat (num) => (num)
-  scan-number(num)
+  scan-single-float(num)
 end SFFloat;
      
 // float ::=
@@ -524,10 +524,10 @@ end SFNode;
 //     float float float float ;
 
 define meta SFRotation (c, x, y, z, r) => (3d-rotation(x, y, z, r))
-  ws?(c), scan-number(x),
-  ws(c), scan-number(y),
-  ws(c), scan-number(z),
-  ws(c), scan-number(r)
+  ws?(c), scan-single-float(x),
+  ws(c), scan-single-float(y),
+  ws(c), scan-single-float(z),
+  ws(c), scan-single-float(r)
 end SFRotation;
 
 
@@ -568,9 +568,9 @@ end SFString;
 //     float float float ;
 
 define meta SFVec3f (c, x, y, z) => (3d-vector(x, y, z))
-  ws?(c), scan-number(x),
-  ws(c), scan-number(y),
-  ws(c), scan-number(z)
+  ws?(c), scan-single-float(x),
+  ws(c), scan-single-float(y),
+  ws(c), scan-single-float(z)
 end SFVec3f;
 
 // mfcolorValue ::=
@@ -600,7 +600,7 @@ end SFVec3f;
 //     sfint32Value |
 //     sfint32Value sfint32Values ;
 
-define meta MFInt32 (c, val, vals) => (vals)
+define meta MFInt32 (c, val, vals) => (as(<simple-object-vector>, vals))
   do(vals := make(<stretchy-vector>)),
   ws?(c),
   {[scan-int(val), do(add!(vals, val))],
@@ -617,7 +617,7 @@ end MFInt32;
 //     [ ] |
 //     [ nodeStatements ] ;
 
-define meta MFNode (c, node, nodes) => (nodes | vector(node))
+define meta MFNode (c, node, nodes) => (as(<simple-object-vector>, nodes) | vector(node))
   ws?(c),
   {["[", ws?(c), {"]",
                   [scan-nodeStatements(nodes), ws?(c), "]"]}],
@@ -654,7 +654,7 @@ end nodeStatements;
 //     sfstringValue |
 //     sfstringValue sfstringValues ;
 
-define meta MFString (c, val, vals) => (vals)
+define meta MFString (c, val, vals) => (as(<simple-object-vector>, vals))
   do(vals := make(<stretchy-vector>)),
   ws?(c),
   {["[", ws?(c),
@@ -686,7 +686,7 @@ end MFString;
 //     sfvec3fValue |
 //     sfvec3fValue sfvec3fValues ;
 
-define meta MFVec3f (c, val, vals) => (vals)
+define meta MFVec3f (c, val, vals) => (as(<simple-object-vector>, vals))
   do(vals := make(<stretchy-vector>)),
   ws?(c),
   {[scan-SFVec3f(val), do(add!(vals, val))],
