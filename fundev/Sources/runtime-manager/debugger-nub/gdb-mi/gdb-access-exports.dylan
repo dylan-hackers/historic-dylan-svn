@@ -39,5 +39,5 @@ define module gdb-access
   use common-dylan;
   use format-out;
 
-  export foo;
+//  export foo;
 end module;

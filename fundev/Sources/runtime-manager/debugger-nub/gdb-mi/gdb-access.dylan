@@ -400,8 +400,8 @@ define macro mi-parser-definer
       ?tuple-field;
       ?tuple-fields;
       more.head(mi-tuple,
-                if (m & m.empty?)
-                  pair(method(cla) apply(make, cla, vector(?tuple-keyword/values)) end method, matched)
+                if (m)
+                  pair(method(cla) values(m, apply(make, cla, vector(?tuple-keyword/values))) end method, matched)
                 else
                   matched
                 end if,
@@ -436,7 +436,7 @@ define macro mi-parser-definer
 
   tuple-fields:
     { } => { let m = m & match(m, "}") }
-    { ?tuple-field; ... } => { let m = match(m, ","); ?tuple-field; ... }
+    { ?tuple-field; ... } => { let m = m & match(m, ","); ?tuple-field; ... }
 
   tuple-field:
     { ?tag:name ?type:expression }
@@ -460,23 +460,25 @@ end;
 
 
 define mi-parser breakpoint(bkpt)
-(
-  number :: <positive>;
-  addr :: <mi-address>;
-  file :: <byte-string>;
-  line :: <positive>
-)
+  (
+    number :: <positive>;
+    addr :: <mi-address>;
+    file :: <byte-string>;
+    line :: <positive>
+  )
 end;
 
 
 // ###
 begin
 
-  let inp = "bkpt={number=\"1\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}";
+  let inp = "bkpt={number=\"1\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}1234";
   
   block (outta-here)
     local method final(rest, matches, more)
-            format-out("parsed: %=\n", matches.head(breakpoint-<tuple>));
+            let igno :: singleton(1) = matches.size;
+            let (rem, tup) = matches.head(breakpoint-<tuple>);
+            format-out("parsed: %=\nremainder: %=\n\n", tup, rem);
             outta-here();
           end;
 
@@ -493,9 +495,44 @@ define mi-operation break-list;
 end;
 
 /*
-define mi-parser breakpoint-table(BreakpointTable)
-
+define mi-parser mi-column
+(
+  width :: <positive>;
+  alignment :: <integer>;
+  col_name :: <byte-string>;
+  colhdr :: <byte-string>;
+)
 end;
+*/
+
+/*
+define mi-parser breakpoint-table(BreakpointTable)
+  (
+    nr_rows :: <positive>;
+    nr_cols :: <positive>;
+    hdr :: [ mi-column-<tuple> ];
+    body :: [ breakpoint-<tuple> ];
+  )
+
+  validate (breakpoint-table.nr_rows = body.size
+            & breakpoint-table.nr_cols = hdr.size)
+end;
+*/
+
+/*
+BreakpointTable={nr_rows="1",nr_cols="6",
+hdr=[
+{width="3",alignment="-1",col_name="number",colhdr="Num"},
+{width="14",alignment="-1",col_name="type",colhdr="Type"},
+{width="4",alignment="-1",col_name="disp",colhdr="Disp"},
+{width="3",alignment="-1",col_name="enabled",colhdr="Enb"},
+{width="10",alignment="-1",col_name="addr",colhdr="Address"},
+{width="40",alignment="2",col_name="what",colhdr="What"}
+],
+body=[bkpt={number="1",type="breakpoint",disp="keep",enabled="y",
+addr="0x000100d0",func="main",file="hello.c",line="5",times="0",
+ignore="3"}]
+}
 */
 
 define mi-operation break-watch{a; r};
