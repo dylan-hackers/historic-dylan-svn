@@ -156,7 +156,7 @@ define method main(progname, #rest arguments)
   glCullFace($GL-BACK);
   glEnable($GL-CULL-FACE);
 
-  glEnable($GL-LIGHTING);
+/*  glEnable($GL-LIGHTING);
   glEnable($GL-LIGHT0);
   glLight(0, $GL-POSITION, 3, 3, -2, 1);
   glLight(0, $GL-AMBIENT, 0.1, 0.1, 0.2, 1.0);
@@ -174,7 +174,7 @@ define method main(progname, #rest arguments)
   glFog($GL-FOG-DENSITY, s(5.0));
   glFog($GL-FOG-START, s(-3.0));
   glFog($GL-FOG-END, s(4.0));
-
+*/
   glClearColor(s(0.5), s(0.5), s(0.5), s(1.0));
 
   
