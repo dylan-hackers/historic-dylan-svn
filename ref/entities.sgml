@@ -70,6 +70,11 @@
 <CiteTitle>Dylan Reference Manual</></>
 '>
 
+<!ENTITY perl.regexp '
+<ulink url="http://burks.bton.ac.uk/burks/language/perl/perlref.htm#regular">
+<CiteTitle>Perl 5 Desktop Reference</></>
+'>
+
 <!ENTITY ftpdir 'ftp://berlin.ccc.de/pub/gd/'>
 
 <!ENTITY gdmp '

@@ -117,12 +117,12 @@
 	  <PARA></PARA>
 	</LISTITEM>
       </VARLISTENTRY>
-      <VARLISTENTRY>
+      <!-- VARLISTENTRY>
 	<TERM>TK</TERM>
 	<LISTITEM>
 	  <PARA></PARA>
 	</LISTITEM>
-      </VARLISTENTRY>
+      </VARLISTENTRY -->
     </VARIABLELIST>
     
   </CHAPTER>
@@ -5105,7 +5105,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
       </dylanclassdef>
       
       <dylanclassdef>
-  	<defname> &lt;value-table&gt; </defname>
+  	<defname>&lt;value-table&gt;</defname>
   	<defadjectives>
   	  open
   	  abstract
@@ -6129,11 +6129,812 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
     </sect1>
   </chapter>
   
-  <CHAPTER ID="libs-regular-expressions">
+  <CHAPTER ID="libs-regexp">
+    <DOCINFO>
+      <TITLE>Regular-Expression Library</TITLE>
+      <DATE>November 29, 2000</DATE>
+      <AUTHOR>&person.auclair;</AUTHOR>
+    </DOCINFO>
+
     <TITLE>The Regular-Expressions Library</TITLE>
 
-    <PARA></PARA>
+    <PARA>
+      The Regular-expressions library exports the
+      <dmodule>Regular-expressions</dmodule> 
+      module, which contains various functions that deal with regular
+      expressions (abbreviated to "regexps").  The module is
+      based on Perl (version 4), and has the same semantics unless
+      otherwise noted.  The syntax for Perl-style regular expressions
+      can be found in &perl.regexp;.
 
+<!-- on page 103 of Programming Perl by Larry Wall and
+      Randal L. Schwartz. -->
+      There are some differences in the way
+      <dmodule>String-extensions</dmodule> handles
+      regular expressions. The biggest difference is that regular
+      expressions in Dylan are case insensitive by default.  Also,
+      when given an unparsable regexp,
+      <dmodule>String-extensions</dmodule> will produce
+      undefined behavior while Perl would give an error message. 
+    </PARA>
+    <para>
+      A regular expression that is grammatically correct may still be
+      illegal if it contains an infinitely quantified sub-regexp that
+      may match the empty string. That is, if R is a regexp that can
+      match the empty string, then any regexp containing R*, R+, and
+      R{n,} is illegal. In this case, the Regular-expressions library
+      will signal an <classname>&lt;illegal-regexp&gt;</classname>
+      error when the 
+      regexp is parsed. Note: Perl also has this restriction, although
+      it isn't mentioned in &perl.regexp;.
+    </para>
+    <para>
+      In previous versions of the
+      <dlibrary>regular-expressions</dlibrary> library, each basic
+      function had a companion function that would pre-compute some
+      information needed to use the regular expression. By using the
+      companion function, one could avoid recomputing the same
+      information. In the present version, the regular-expressions
+      library caches this information, so the companion functions are
+      no longer necessary and should be considered obsolete. However,
+      they have been kept for backwards compatibility. 
+    </para>
+    <para>
+      Companion functions differ in details, but they all essentially
+      return curried versions of their corresponding basic
+      function. For example, the following two pieces of code yield
+      the same result: 
+    </para>
+    <programlisting>
+regexp-position("This is a string", "is");
+    </programlisting>
+    <para>or</para>
+    <programlisting>
+let is-finder = make-regexp-positioner("is");
+is-finder("This is a string");
+    </programlisting>
+    <para>
+      Both pieces of code should have roughly the same performance,
+      even if the code is inside a loop.  The first is the preferred
+      method of using regexps.
+    </para>
+    <sect1 id="libs-regexp-module">
+      <title>Regular-expressions Module</title>
+
+      <sect2 id="libs-regexp-module-make-foo">
+        <title>Make-Foo vs. Foo Functions</title>
+	<para>
+          There are quite a few make-fooer functions hanging around.  Now
+	  that <function>regexp-position</function> does caching, these
+	  are basically useless, but we've kept them around for
+	  backwards compatibility.  Unfortunately, internally most of
+	  the functions are implemented in terms of
+	  <function>make-regexp-positioner</function>.  To minimize the
+	  amount of rewriting, I've liberally applied seals and inline
+	  declarations so that
+	  <function>make-regexp-positioner</function> won't clobber all
+	  type information.  The downside, of course, is that
+	  everything's sealed, but hey, no one ever subclassed [ed:
+	  specialized?] <function>regexp-position</function> anyway.
+	</para>
+      </sect2>
+      <sect2 id="libs-regexp-module-caching">
+        <title>Caching</title>
+	<para>
+	  Parsing a regexp is not cheap, so we cache the parsed
+	  regexps and only parse a string if we haven't seen it
+	  before.  Because in practice almost all regexp strings are
+	  string literals, we're free to choose
+	  <function>\==</function> or <function>\=</function>
+	  depending on whatever's fastest.  However, because a string
+	  is parsed differently depending on whether the search is
+	  case sensitive or not, we also have to keep track of that
+	  information as well.  (The case dependent parse boils down
+	  to the parse creating a
+	  <classname>&lt;character-set&gt;</classname>, which must be
+	  either case sensitive or case insensitive).
+	</para>
+	<note>
+	  <para>
+	    Currently, only <function>regexp-position</function> uses
+	    this cache, because the other functions are still using
+	    <function>make-regexp-positioner</function>.  With caching,
+	    that <function>make-regexp-whatever</function> stuff should
+	    probably go. 
+	  </para>
+	</note>
+      </sect2>
+      <sect2 id="libs-regexp-module-names">
+        <title>Exported Names</title>
+
+	<dylanfunctiondef>
+          <defname>regexp-position</defname>
+	  <defsummary>The index of a regexp in a string</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>big</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>The string to parse.</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>regexp</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>start</paramname>
+	      <paramdefault>0</paramdefault>
+	      <paramsummary>Where to start parsing the string.</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>end</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        If defined, where to stop parsing the string.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>case-sensitive</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>Match case in regexp while parsing.</paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>regexp-start</paramname>
+	      <paramtype>false-or(&lt;integer&gt;)</paramtype>
+	      <paramsummary>If defined, the index of the match.</paramsummary>
+	    </param>
+	    <restparam>
+	      <paramname>marks</paramname>
+	      <paramtype>false-or(&lt;integer&gt;)</paramtype>
+	      <paramsummary>
+	        The position of the end of the matche in the string
+	        (see below).
+              </paramsummary>
+	    </restparam>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Find the position of a regular expression inside a string.
+	      If the regexp is not found, return &false;, otherwise
+	      return a variable number of marks.
+	    </para>
+	    <para>
+	      This function returns the index of the start of the
+	      regular expression in the <dname>big-string</dname>, or
+	      &false; if the regular expression is not found.  As a
+	      second value, it returns the index of the end of the regular
+	      expression in the <dname>big-string </dname> (assuming it
+	      was found; otherwise there is no second value). These
+	      values are called marks, and they come in pairs, a
+	      start-mark and an end-mark. If there are groups in the
+	      regular expression, <function>regexp-position</function>
+	      will return an additional pair of marks (a start and an end) for
+	      each group.  If the group is matched, these marks will
+	      be integers; if the group is not matched, the marks will
+	      be &false;. So 
+	    </para>
+	    <programlisting>
+regexp-position("This is a string", "is");
+	    </programlisting>
+	    <para>
+	      returns <dlit>values(2, 4)</dlit> and
+	    </para>
+	    <programlisting>
+regexp-position("This is a string", "(is)(.*)ing");
+	    </programlisting>
+	    <para>
+	      returns <dlit>values(2, 16, 2, 4, 4, 13)</dlit>, while
+	    </para>
+	    <programlisting>
+regexp-position("This is a string", "(not found)(.*)ing");
+	    </programlisting>
+	    <para>
+	      returns &false;.  Marks are always given relative to the
+	      start of <dname>big-string</dname>, not relative to the
+	      <dlit>start:</dlit> keyword. 
+	    </para>
+	  </defdescription>
+        </dylanfunctiondef>
+
+	<dylanfunctiondef>
+          <defname>regexp-replace</defname>
+	  <defsummary>Replace information in a string.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>input</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>
+	        The string to parse and replace pieces of.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>regexp</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>new-substring</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>
+	        The replacement string.
+	      </paramsummary>
+	    </param>
+	    <keyparam>
+	      <paramname>count</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        If supplied, number of substitutions to make.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>case-sensitive</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>Match case in regexp while parsing.</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>start</paramname>
+	      <paramdefault>0</paramdefault>
+	      <paramsummary>Where to start parsing the string.</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>end</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        If defined, where to stop parsing the string.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>changed-string</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This replaces all occurrences of <dname>regexp</dname> in
+	      <dname>input</dname> with <dname>new-substring</dname>.
+	      If <dlit>count:</dlit> 
+	      is specified, it replaces only the first <dname>count</dname>
+	      occurrences of <dname>regexp</dname>.  (This is different from
+	      Perl, which replaces only the first occurrence unless /g
+	      is specified) <dname>New-substring</dname> can contain
+	      backreferences to the <dname>regexp</dname>.  For instance, 
+	    </para>
+	    <programlisting>
+regexp-replace("The rain in Spain and some other text",
+               "the (.*) in (\\w*\\b)", "\\2 has its \\1")
+	    </programlisting>
+	    <para>
+	      returns "Spain has its rain and some other
+	      text".  If the subgroup referred to by the
+	      backreference was not matched, the reference is
+	      interpreted as the null string.  For instance, 
+	    </para>
+	    <programlisting>
+regexp-replace("Hi there", "Hi there(, Bert)?",
+               "What do you think\\1?")
+	    </programlisting>
+	    <para>
+	      returns "What do you think?" because ", Bert" wasn't found. 
+	    </para>
+	  </defdescription>
+        </dylanfunctiondef>
+
+	<dylanmethoddef>
+          <defname>translate</defname>
+	  <defsummary>
+	    Equivalent to Perl's tr.  Does a character by character
+	    translation.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>input</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>
+	        The string to translate.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>from-set</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>
+	        String specification of a character set.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>to-set</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>
+	        Another character set.
+	      </paramsummary>
+	    </param>
+	    <keyparam>
+	      <paramname>delete</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        If &true;, any characters in the
+	        <dlit>from-string</dlit> that 
+	        don't have matching characters in the
+	        <dlit>to-string</dlit> are deleted.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>start</paramname>
+	      <paramdefault>0</paramdefault>
+	      <paramsummary>Where to start parsing the string.</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>end</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        If defined, where to stop parsing the string.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>output</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This is equivalent to Perl's tr/// construct.
+	      <dname>From-string</dname> is a string specification of a
+	      character set, and <dname>to-string</dname> is another
+	      character set.  <function>Translate</function> converts
+	      <dname>input</dname> character by character, according
+	      to the sets.  For instance, 
+	    </para>
+	    <programlisting>
+translate("any string", "a-z", "A-Z")
+	    </programlisting>
+	    <para>
+	      will convert "any string" to all uppercase: "ANY
+	      STRING".
+	    </para>
+	    <para>
+	      Like Perl, character ranges are not allowed to be
+	      "backwards".  The following is not legal: 
+	    </para>
+	    <programlisting>
+translate("any string", "a-z", "z-a")
+	    </programlisting>
+	    <para>
+	      (This restriction may be removed in future releases)
+	      Unlike Perl's tr///, <function>translate</function> doesn't
+	      return the number of characters translated. 
+	    </para>
+	    <para>
+	      If <dlit>delete:</dlit> is &true;, any characters in the
+	      <dname>from-string</dname> that don't have matching
+	      characters in the <dname>to-string</dname> are deleted.
+	      The following will remove all vowels from a string and
+	      convert periods to commas: 
+	    </para>
+	    <programlisting>
+translate("any string", ".aeiou", ",", delete: #t)
+	    </programlisting>
+	    <para>
+	      <dlit>Delete:</dlit> is &false; by default.  If
+	      <dlit>delete:</dlit> is &false; and there aren't enough
+	      characters in the <dname>to-string</dname>, the last
+	      character in the <dname>to-string</dname> is reused as
+	      many times as necessary.  The following converts several
+	      punctuation characters into spaces:
+	    </para>
+	    <programlisting>
+translate("any string", ",./:;[]{}()", " ");
+	    </programlisting>
+	    <para>
+	      <dlit>Start:</dlit> and <dlit>end:</dlit> indicate which
+	      part of <dname>input</dname> to translate.  They
+	      default to the entire string.
+	    </para>
+	    <note>
+	      <para>
+	        <function>Translate</function> is always case
+		sensitive.
+	      </para>
+	    </note>
+	  </defdescription>
+        </dylanmethoddef>
+
+	<dylanfunctiondef>
+          <defname>split</defname>
+	  <defsummary>
+	    Breaks up a string along boundary characters.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>pattern</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>The regexp to split on.</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>input</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>
+	        The string to parse and replace pieces of.
+	      </paramsummary>
+	    </param>
+	    <keyparam>
+	      <paramname>count</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        If supplied, maximum number of strings to return.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>remove-empty-items</paramname>
+	      <paramdefault>#t</paramdefault>
+	      <paramsummary>
+	        Magically skips empty items when &true;.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>start</paramname>
+	      <paramdefault>0</paramdefault>
+	      <paramsummary>Where to start parsing the string.</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>end</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        If defined, where to stop parsing the string.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <restparam>
+	      <paramname>whole-bunch-of-strings</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	    </restparam>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This is like Perl's split function.  It searches
+	      <dname>input</dname> from occurrences of
+	      <dname>pattern</dname>, and returns substrings that were
+	      delimited by that regexp.  For instance, 
+	    </para>
+	    <programlisting>
+split("-", "long-dylan-identifier")
+	    </programlisting>
+	    <para>
+	      returns <dlit>values("long", "dylan",
+	      "identifier")</dlit>.  Note that what matched the
+	      regexp is left out.  <dname>Remove-empty-items</dname>, which
+	      defaults to true, magically skips over empty items, so
+	      that 
+	    </para>
+	    <programlisting>
+split("-", "long--with--multiple-dashes")
+	    </programlisting>
+	    <para>
+	      returns <dlit>values("long", "with", "multiple",
+	      "dashes")</dlit>.   <dname>Count</dname>
+	      is the maximum number of strings to return.  If there
+	      are <dname>n</dname> strings and <dname>count</dname> is
+	      specified, the 
+	      first <dname>count</dname> - 1 strings are returned as usual,
+	      and the <dname>count</dname>th string is the remainder,
+	      unsplit.  So 
+	    </para>
+	    <programlisting>
+split("-", "really-long-dylan-identifier", count: 3)
+	    </programlisting>
+	    <para>
+	      returns <dlit>values("really", "long",
+	      "dylan-identifier")</dlit>.  If
+	      <dname>remove-empty-items</dname> is &true;, empty items
+	      aren't counted. 
+	    </para>
+	    <para>
+	      <dlit>Start:</dlit> and <dlit>end:</dlit> indicate what
+	      part of <dname>input</dname> should be looked at for
+	      delimiters.  They 
+	      default to the entire string.  For instance, 
+	    </para>
+	    <programlisting>
+split("-", "really-long-dylan-identifier", start: 8)
+	    </programlisting>
+	    <para>
+	      returns <dlit>values("really-long", "dylan",
+	      "identifier")</dlit>.
+	    </para>
+	    <note>
+	      <para>
+	        Unlike Perl, empty regular expressions are never legal
+	        regular expressions, so there is no way to split a
+	        string into a bunch of single character strings. Of
+	        course, in Dylan this is not a useful thing to do (as
+	        one can get each character of the string by iteration
+	        or by indexing), so this is not really a problem.
+	      </para>
+	    </note>
+	  </defdescription>
+        </dylanfunctiondef>
+
+	<dylanfunctiondef>
+          <defname>join</defname>
+	  <defsummary>
+	    Does the opposite of split.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>delimiter</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	    </param>
+	    <restparam>
+	      <paramname>strings</paramname>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>big-string</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This is like Perl's join function.  This is not really
+	      any more efficient than
+	      <function>concatenate-as</function>, but it's more 
+	      convenient.
+	    </para>
+	    <programlisting>
+join(":", word1, word2, word3)
+	    </programlisting>
+	    <para>is equivalent to</para>
+	    <programlisting>
+concatenate(word1, ":", word2, ":", word3)
+	    </programlisting>
+	    <para>
+	      (and no more efficient).
+	    </para>
+	  </defdescription>
+        </dylanfunctiondef>
+
+	<dylanclassdef>
+	  <defname>&lt;illegal-regexp&gt;</defname>
+	  <defadjectives>sealed</defadjectives>
+	  <defsummary>
+	    Signaled when a function receives an illegal regular expression.
+	  </defsummary>
+	  <defsupers><defsuper>&lt;error&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	    <keyparam>
+	      <paramname>regexp</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>The regexp that caused the error</paramsummary>
+	    </keyparam>
+  	  </definitkeywords>
+  	  <defdescription>
+  	    <para>
+	      Signaled when a function receives an illegal regular expression.
+  	    </para>
+  	  </defdescription>
+        </dylanclassdef>
+
+	  <sect3 id="libs-regexp-module-names-deprecated">
+	    <title>Deprecated Functions</title>
+	    <para>
+	      These functions still work, but are deprecated.  Use the
+	      foo functions (described above) instead of these
+	      make-foo functions. 
+	    </para>
+
+	    <dylanfunctiondef>
+              <defname>make-regexp-positioner</defname>
+	      <defsummary>
+	        [Deprecated] Creates a function that finds the index of a
+		regexp in a string.
+	      </defsummary>
+	      <defparameters>
+	        <param>
+		  <paramname>regexp</paramname>
+		  <paramtype>&lt;string&gt;</paramtype>
+	        </param>
+		<keyparam>
+		  <paramname>byte-character-only</paramname>
+		  <paramdefault>#f</paramdefault>
+		  <paramsummary>Ignored.</paramsummary>
+	        </keyparam>
+		<keyparam>
+		  <paramname>needs-marks</paramname>
+		  <paramdefault>#f</paramdefault>
+		  <paramsummary>Ignored.</paramsummary>
+		</keyparam>
+		<keyparam>
+		  <paramname>maximum-compile</paramname>
+		  <paramdefault>#f</paramdefault>
+		  <paramsummary>Ignored.</paramsummary>
+	        </keyparam>
+		<keyparam>
+		  <paramname>case-sensitive</paramname>
+		  <paramdefault>#f</paramdefault>
+		  <paramsummary>
+		    Match case in regexp while parsing.
+		  </paramsummary>
+	        </keyparam>
+	      </defparameters>
+	      <defreturns>
+	        <param>
+		  <paramname>regexp-positioner</paramname>
+		  <paramtype>&lt;function&gt;</paramtype>
+		  <paramsummary>
+		    The function to execute a match on a string.
+	          </paramsummary>
+	        </param>
+	      </defreturns>
+	      <defdescription>
+	        <para>
+	          Once upon a time, this was how you interfaced to the NFA
+		  stuff (<dlit>maximum-compile:</dlit> &true;).  That's
+		  gone.  Now it's just here for backwards compatibility.
+		  All keywords except <dlit>case-sensitive</dlit> are now
+		  ignored. 
+	        </para>
+	      </defdescription>
+            </dylanfunctiondef>
+
+	    <dylanfunctiondef>
+	      <defname>make-regexp-replacer</defname>
+	      <defsummary>
+	        [Deprecated] Creates a function that replaces
+	        information in a string.
+	      </defsummary>
+	      <defparameters>
+		<param>
+		  <paramname>regexp</paramname>
+		  <paramtype>&lt;string&gt;</paramtype>
+		</param>
+		<keyparam>
+		  <paramname>replace-with</paramname>
+		  <paramsummary>
+		    The replacement string.
+	          </paramsummary>
+	        </keyparam>
+		<keyparam>
+		  <paramname>case-sensitive</paramname>
+		  <paramdefault>#f</paramdefault>
+		  <paramsummary>
+		    Match case in regexp while parsing.
+		  </paramsummary>
+	        </keyparam>
+	      </defparameters>
+	      <defreturns>
+	        <param>
+		  <paramname>replacer</paramname>
+		  <paramtype>&lt;function&gt;</paramtype>
+		  <paramsummary>
+		    The function that does the replacement.
+		  </paramsummary>
+		</param>
+	      </defreturns>
+	      <defdescription>
+	        <para>
+		  This returns an anonymous replacer function that is
+		  either
+		</para>
+		<programlisting>
+method (big-string, #key count, start, end)
+		</programlisting>
+		<para>or</para>
+		<programlisting>
+method (big-string, replace-string, #key count, start, end)
+		</programlisting>
+		<para>
+		  The first form is returned if the
+		  <dlit>replace-with:</dlit> keyword isn't supplied,
+		  otherwise the second form is returned. 
+		</para>
+	      </defdescription>
+            </dylanfunctiondef>
+
+	    <dylanmethoddef>
+	      <defname>make-translator</defname>
+	      <defsummary>
+	        [Deprecated] Creates a function that translates a string.
+	      </defsummary>
+	      <defparameters>
+	        <param>
+		  <paramname>from-set</paramname>
+		  <paramtype>&lt;string&gt;</paramtype>
+		  <paramsummary>
+		    String specification of a character set.
+		  </paramsummary>
+		</param>
+		<param>
+		  <paramname>to-set</paramname>
+		  <paramtype>&lt;string&gt;</paramtype>
+		  <paramsummary>
+		    Another character set.
+	          </paramsummary>
+	        </param>
+		<keyparam>
+		  <paramname>delete</paramname>
+		  <paramdefault>#f</paramdefault>
+		  <paramsummary>
+		    If &true;, delete <dlit>from-set</dlit> characters
+		    not in <dlit>to-set</dlit>.
+		  </paramsummary>
+	        </keyparam>
+	      </defparameters>
+	      <defreturns>
+	        <param>
+		  <paramname>translator</paramname>
+		  <paramtype>&lt;function&gt;</paramtype>
+		  <paramsummary>
+		    The function that does the translation.
+		  </paramsummary>
+		</param>
+	      </defreturns>
+	      <defdescription>
+	        <para>
+		  This returns an anonymous translation function.
+		</para>
+	      </defdescription>
+            </dylanmethoddef>
+
+	    <dylanfunctiondef>
+	      <defname>make-splitter</defname>
+	      <defsummary>
+	        [Deprecated] Creates a function that splits a string.
+	      </defsummary>
+	      <defparameters>
+		<param>
+		  <paramname>pattern</paramname>
+		  <paramtype>&lt;string&gt;</paramtype>
+		  <paramsummary>The regexp to split on.</paramsummary>
+		</param>
+	      </defparameters>
+	      <defreturns>
+	        <param>
+		  <paramname>splitter</paramname>
+		  <paramtype>&lt;function&gt;</paramtype>
+		  <paramsummary>
+		    (If you're Brit, don't smile.) The function that
+		    does the split on the string.
+		  </paramsummary>
+		</param>
+	      </defreturns>
+	      <defdescription>
+	        <para>
+		  This returns an anonymous splitter function.
+		</para>
+	      </defdescription>
+            </dylanfunctiondef>
+
+	 </sect3>
+	
+      </sect2>
+      
+    </sect1>
+    <sect1 id="libs-regexp-bugs">
+      <title>Known Bugs</title>
+      <para>
+        The regular expression parser does a very poor job with
+        syntactically invalid regular expressions. Depending on the
+        expression, the parser may signal an error, improperly parse
+        it, or simply crash.
+      </para>
+      <para>
+        A regular expression that matches a large enough substring can
+        produce a stack overflow. This can happen much more easily
+        under d2c than under Mindy -- as few as two dozen lines of 80
+        column text under d2c for Windows.
+      </para>
+      <note>
+        <para>
+	  As the <dlibrary>regular-expressions</dlibrary> library is
+	  used to create d2c, it appears to be stable enough for most
+	  Dylan tasks -- even under Cygnus on Windows.
+	</para>
+      </note>
+    </sect1>
   </CHAPTER>
 
   <CHAPTER ID="libs-transcendental">
@@ -8452,7 +9253,7 @@ end;
 	    option names should be handled by a given parser.</para>
 
 	    <para>An option parser can be connected to an
-	    <dname>&lt;argument-list-parser</dname> for and the values to
+	    <dname>&lt;argument-list-parser&gt;</dname> for and the values to
 	    be found. </para>
 	  </defdescription>
 	</dylanclassdef>
@@ -8888,9 +9689,9 @@ add-option-parser(args-parser, opt-parser);
     </sect1>
   </chapter>
 
-  <CHAPTER ID="libs-dylan-tk">
+  <!-- CHAPTER ID="libs-dylan-tk">
     <TITLE>The TK Library</TITLE>
 
     <PARA></PARA>
-  </CHAPTER>
+  </CHAPTER -->
 </BOOK>
