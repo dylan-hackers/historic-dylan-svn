@@ -30,12 +30,12 @@
 <!ENTITY % dylan.def.class
            "DylanConstantDef|DylanVariableDef|
             DylanGenericDef|DylanMethodDef|DylanFunctionDef|
-            DylanClassDef|DylanMacroDef
+            DylanClassDef|DylanMacroDef|DylanCharFnDef
             %local.dylan.def.class;" >
 
 <!ENTITY % local.dylan.tech.char.class "">
 <!ENTITY % dylan.tech.char.class
-           "DLibrary|DModule|DName|DLit
+           "DLibrary|DModule|DName|DLit|DParam|EM|DClass|DKeyword
             %local.dylan.tech.char.class;" >
 
 
@@ -91,6 +91,9 @@
 <!ATTLIST DName %dloc; >
 
 <!ELEMENT DLit - - (#PCDATA) >
+<!ELEMENT DClass - - (#PCDATA) >
+<!ELEMENT DKeyword - - (#PCDATA) >
+<!ELEMENT DParam - - (#PCDATA) >
 
 
 <!-- =============== Definition Elements ==============================
@@ -132,7 +135,6 @@
 <!ATTLIST DylanMethodDef   DylanDefName CDATA #FIXED "Method">
 <!ATTLIST DylanMacroDef    DylanDefName CDATA #FIXED "Macro">
 <!ATTLIST DylanClassDef    DylanDefName CDATA #FIXED "Class">
-
 
 <!-- =============== Shared Definition Support ========================
   The following elements show up in most types of definitions.
@@ -186,6 +188,7 @@
  <DefSupers>
   <DefSuper>&lt;object&gt;</DefSuper>
  </DefSupers>'>
+<!ENTITY obj '<dclass>object</dclass>'>
 
 <!-- =============== Function Definitions ========================
   The following elements are used to define functions, methods
@@ -196,3 +199,6 @@
                              (KeyParam*, AllKeys?)?) >
 <!ELEMENT DefReturns - - (Param*, RestParam?) -(ParamSingleton)>
 <!ENTITY no-returns '<defreturns></defreturns>'>
+
+<!-- and a little something for emphasis!  -->
+<!ELEMENT EM - - (#PCDATA)>

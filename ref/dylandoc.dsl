@@ -173,11 +173,14 @@
       gi: "CODE"
       children)))
 
+(define ($dylan-parameter$ #!optional (children (process-children)))
+  (make element gi: "EM" children))
+
 (element DLibrary ($dylan-literal$))
 (element DModule ($dylan-literal$))
 (element DName ($dylan-literal$))
 (element DLit ($dylan-literal$))
-
+(element DParam ($dylan-parameter$))
 
 ;;;========================================================================
 ;;; Generic Definition Support
@@ -189,32 +192,54 @@
     (process-defhead)
     (process-children)))
 
+(define (process-defhead-helper defname defadjectives defsummary)
+  (make sequence
+    (make element gi: "TABLE" attributes: '(("WIDTH" "100%")
+					    ("CELLPADDING" "0")
+					    ("BORDER" "0"))
+	(make element gi: "TR"
+	   (make sequence
+	      (make element gi: "TD" defname)
+	      (make element gi: "TD" attributes: '(("ALIGN" "RIGHT"))
+		 (make element gi: "STRONG"
+		    (make sequence
+			  (literal "[")
+			  defadjectives
+			  (literal (attribute-string "DylanDefName"))
+			  (literal "]")))))))
+    (make empty-element gi: "HR")
+    defsummary))
+
 (define (process-defhead)
   (with-mode defhead
-    (make sequence
-      (make element
-	gi: "TABLE"
-	attributes: '(("WIDTH" "100%")
-		      ("CELLPADDING" "0")
-		      ("BORDER" "0"))
-	(make element
-	  gi: "TR"
-	  (make sequence
-	    (make element
-	      gi: "TD"
-	      (process-first-descendant "DefName"))
-	    (make element
-	      gi: "TD"
-	      attributes: '(("ALIGN" "RIGHT"))
-	      (make element
-		gi: "STRONG"
-		(make sequence
-		  (literal "[")
-		  (process-first-descendant "DefAdjectives")
-		  (literal (attribute-string "DylanDefName"))
-		  (literal "]")))))))
-      (make empty-element gi: "HR")
-      (process-first-descendant "DefSummary"))))
+    (process-defhead-helper 
+     (process-first-descendant "DefName")
+     (process-first-descendant "DefAdjectives")
+     (process-first-descendant "DefSummary"))))
+;    (make sequence
+;     (make element
+;       gi: "TABLE"
+;	attributes: '(("WIDTH" "100%")
+;		      ("CELLPADDING" "0")
+;		      ("BORDER" "0"))
+;	(make element
+;	  gi: "TR"
+;	  (make sequence
+;	    (make element
+;	      gi: "TD"
+;	      (process-first-descendant "DefName"))
+;	    (make element
+;	      gi: "TD"
+;	      attributes: '(("ALIGN" "RIGHT"))
+;	      (make element
+;		gi: "STRONG"
+;		(make sequence
+;		  (literal "[")
+;		  (process-first-descendant "DefAdjectives")
+;		  (literal (attribute-string "DylanDefName"))
+;		  (literal "]")))))))
+;      (make empty-element gi: "HR")
+;      (process-first-descendant "DefSummary"))))
 
 (mode defhead
   (element DefName
@@ -224,7 +249,7 @@
   (element DefAdjectives
     (make sequence
       (process-children)
-      (literal " ")))
+      (literal " "))) 
   (element DefSummary
     (make element
       gi: "BLOCKQUOTE")))
@@ -276,11 +301,11 @@
   (element (DefSection Title)
     (process-children)))
 
-(define (dylan-object-type)
-  ($dylan-literal$ (make sequence
-		     (make entity-ref
-		       name: "lt")
-		     (literal "object>"))))
+(define (dylan-object-type) (make entity-ref name: "obj"))
+;  ($dylan-literal$ (make sequence
+;		     (make entity-ref
+;		       name: "lt")
+;		     (literal "object>"))))
 
 
 ;;;========================================================================
@@ -289,7 +314,7 @@
 ;;; Parameter list processing shared between a number of different defining
 ;;; forms. Parts of this are often overridden.
 
-(define (process-parameter-section name)
+(define (process-parameter-section name #!optional (node (current-node)))
   (process-section name
 		   (if (have-children?)
 		       (make element
@@ -370,6 +395,19 @@
 (element ParamSummary
   (process-children))
 
+(element DKeyword
+  ($dylan-literal$ 
+    (make sequence
+	(process-children)
+        (literal ":"))))
+
+(element DClass
+  ($dylan-literal$
+    (make sequence
+      (make entity-ref name: "lt")
+      (process-children)
+      (make entity-ref name: "gt"))))
+
 (mode keyword-param
   (element ParamName
     ($dylan-literal$ (make sequence
@@ -433,6 +471,52 @@
 (element DylanFunctionDef
   (process-function-def))
 
+(define (char-description title param type)
+  (process-section title
+    (make sequence
+      (make element gi: "EM" (literal param))
+      (literal "An instance of ")
+      ($dylan-literal$
+       (make sequence
+	 (make entity-ref name: "lt")
+	 (literal type)
+	 (make entity-ref name: "gt"))))))
+
+(define (char-summary attrib #!optional (show-false #f))
+    (make sequence
+      (literal "Returns ")
+      ($dylan-literal$ (literal "#t"))
+      (literal " if the character is ")
+      (literal (attribute-string attrib))
+      (if show-false
+	  (make sequence
+	   (literal ", ")
+	   ($dylan-literal$ (literal "#f"))
+	   (literal " otherwise."))
+	(literal "."))))
+
+(element DylanCharFnDef
+ (make sequence
+  (with-mode defhead  ;; for the definition-head
+   (process-defhead-helper
+    (make element gi: "B" 
+	  ($dylan-literal$ (literal (attribute-string "name"))))
+    (literal "") ; adjectives
+    (char-summary "condition")))  ; summary
+  (with-mode function-synopsis ;; for the synopsis
+   (process-section "Synopsis"
+    (make sequence
+     (literal (attribute-string "name"))
+     (literal " (")
+     (make element gi: "EM" (literal "character"))
+     (literal ") => (")
+     (make element gi: "EM" (literal "answer"))
+     (literal ")"))))
+  (char-description "Parameters" "character" "character")
+  (char-description "Returns" "answer" "boolean")
+  (process-section "Description"
+   (char-summary "elaboration" #t))))
+
 (element DylanGenericDef
   (process-function-def))
 
@@ -463,6 +547,8 @@
 		       (literal " end")))))
 
 ;; now back to our regularly scheduled programming ...
+
+(element EM (make element gi: "EM"))
 
 (element DefParameters
   (process-parameter-section "Parameters"))
