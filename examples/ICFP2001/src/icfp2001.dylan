@@ -128,16 +128,15 @@ define function bgh-parse(s :: <byte-string>)
       ch ~= '<' =>
 	// normal text
 	if (is-space?(ch))
-	  if (~curr-state.typewriter)
-	    ch := ' ';
-	  end;
 	  let run-space-state = run-state.space-context.value;
 	  let space-state = curr-state.space-context.value;
 	  let same-space-context = run-space-state == space-state;
 	  if (~same-space-context)
 	    save-run();
 	  end;
-	  unless (last-char-was-space & same-space-context)
+	  unless (last-char-was-space &
+		    same-space-context &
+		    ~curr-state.typewriter)
 	    add!(fragments, ch);
 	  end;
 	  last-char-was-space := #t;
