@@ -19,7 +19,7 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
          => (better-base :: false-or(<point>), distance :: <integer>);
           block (found)
             for (base in s.bases)
-              let path = find-path(myPosition, base, s.board);
+              let path = find-path(myPosition, base, s.board, cutoff: best-base & distance);
               if (path)
                 if (~best-base
                     | distance-cost(myPosition, base) < distance)
