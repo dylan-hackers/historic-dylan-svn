@@ -69,7 +69,7 @@ define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: s
   let local-ray = transform-with-matrix(ray, o.inverse-transform);
 
   let (our-point, our-normal, surface-method) =
-    intersection-before(o.model, local-ray, distance, shadow-test: shadow-test?);
+    real-intersection-before(o, local-ray, distance, shadow-test: shadow-test?);
 
   // Now, transform the point & normal back into the caller's coordinates
   if (shadow-test?)
@@ -84,7 +84,7 @@ define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: s
   end if;
 end method intersection-before;
 
-define method intersection-before(m :: <sphere>, ray, distance, #key
+define method real-intersection-before(m :: <sphere>, ray, distance, #key
 				    shadow-test: shadow-test?)
  => (point, normal, surface-method)
 
@@ -120,9 +120,9 @@ define method intersection-before(m :: <sphere>, ray, distance, #key
       end if;
     end if;
   end block;
-end method intersection-before;
+end method real-intersection-before;
     
-define method intersection-before(m :: <plane>, ray, distance, #key shadow-test: shadow-test?)
+define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-method)
 
   if (ray.ray-position[1] < 0.0 & ray.ray-direction[1] < 0.0)
@@ -146,4 +146,4 @@ define method intersection-before(m :: <plane>, ray, distance, #key shadow-test:
 	     make-surface-closure(0, u, v, m.surface-interpreter-entry));
     end if;
   end if;
-end method intersection-before;
+end method real-intersection-before;

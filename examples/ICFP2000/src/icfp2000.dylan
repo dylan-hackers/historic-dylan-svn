@@ -45,13 +45,12 @@ define function main(name, arguments)
 
   */
 
-  let o = make(<obj>);
-  o.model := make(<plane>);
+  let o = make(<plane>);
 
 //  translate!(o, 0.0, -0.25, 0.0);
 
-  translate!(o, 0.5, 0.5, 0.0);
-  x-rotate!(o, $double-pi / 2.0);
+  o := x-rotate(o, ($double-pi / 2.0) * 3);
+  o :=  translate(o, 0.0, -0.5, 0.0);
 
 //  z-rotate!(o, $double-pi / 16.0);
 /*

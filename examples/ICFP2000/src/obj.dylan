@@ -6,10 +6,10 @@ copyright: this program may be freely used by anyone, for any purpose
 define class <obj> (<object>)
   slot transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
   slot inverse-transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
-  slot model :: type-union(<primitive>, <collection>);
+//  slot model :: type-union(<primitive>, <collection>);
 end class <obj>;
 
-define class <primitive> (<object>)
+define class <primitive> (<obj>)
   slot surface-interpreter-entry = silly-texture;
 end class <primitive>;
 
@@ -25,6 +25,14 @@ end class <cube>;
 define class <cone> (<primitive>)
 end class <cone>;
 
+define class <csg-object> (<obj>)
+end class <csg-object>;
+
+define class <csg-union> (<csg-object>)
+  slot objects = vector(#f, #f);
+end class <csg-union>;
+
+
 /* --------------------- Methods ---------------------------- */
 
 // Translation:
@@ -36,7 +44,7 @@ define method translate!(o :: <obj>, x, y, z) => (same-obj :: <obj>)
   *translation-matrix*[1, 3] := y;
   *translation-matrix*[2, 3] := z;
 
-  o.transform := *translation-matrix* * o.transform;
+  o.transform := o.transform * *translation-matrix* ;
 
   *translation-matrix*[0, 3] := -x;
   *translation-matrix*[1, 3] := -y;
@@ -56,7 +64,7 @@ define method x-rotate!(o :: <obj>, theta) => (same-obj :: <obj>)
     *x-rotation-matrix*[2, 1] := sin(theta);
     *x-rotation-matrix*[2, 2] := cos(theta);
   end if;
-  o.transform := *x-rotation-matrix* * o.transform;
+  o.transform := o.transform * *x-rotation-matrix* ;
 
   // cos(-theta) = cos(theta), sin(-theta) = -sin(theta)
   *x-rotation-matrix*[1, 2] := -*x-rotation-matrix*[1, 2];
@@ -77,7 +85,7 @@ define method y-rotate!(o :: <obj>, theta) => (same-obj :: <obj>)
     *y-rotation-matrix*[2, 0] := -sin(theta);
     *y-rotation-matrix*[2, 2] := cos(theta);
   end if;
-  o.transform := *y-rotation-matrix* * o.transform;
+  o.transform := o.transform * *y-rotation-matrix*;
 
   *y-rotation-matrix*[0, 2] := -*y-rotation-matrix*[0, 2];
   *y-rotation-matrix*[2, 0] := -*y-rotation-matrix*[2, 0];
@@ -97,7 +105,7 @@ define method z-rotate!(o :: <obj>, theta) => (same-obj :: <obj>)
     *z-rotation-matrix*[1, 0] := sin(theta);
     *z-rotation-matrix*[1, 1] := cos(theta);
   end if;
-  o.transform := *z-rotation-matrix* * o.transform;
+  o.transform := o.transform * *z-rotation-matrix* ;
 
   *z-rotation-matrix*[0, 1] := -*z-rotation-matrix*[0, 1];
   *z-rotation-matrix*[1, 0] := -*z-rotation-matrix*[1, 0];
@@ -116,7 +124,7 @@ define method scale!(o :: <obj>, x, y, z) => (same-obj :: <obj>)
   *scaling-matrix*[1, 1] := y;
   *scaling-matrix*[2, 2] := z;
 
-  o.transform := *scaling-matrix* * o.transform;
+  o.transform := o.transform * *scaling-matrix*;
 
   *scaling-matrix*[0, 0] := 1.0/x;
   *scaling-matrix*[1, 1] := 1.0/y;
@@ -134,7 +142,7 @@ define method uniform-scale!(o :: <obj>, factor) => (same-obj :: <obj>)
   *uniform-scaling-matrix*[1, 1] := factor;
   *uniform-scaling-matrix*[2, 2] := factor;
 
-  o.transform := *uniform-scaling-matrix* * o.transform;
+  o.transform := o.transform * *uniform-scaling-matrix* ;
 
   *uniform-scaling-matrix*[0, 0] := 1.0/factor;
   *uniform-scaling-matrix*[1, 1] := 1.0/factor;
@@ -155,3 +163,40 @@ define method translated-copy(o :: <obj>, x, y, z)
 end method translated-copy;
 
 */
+
+define method translate(o :: <obj>, x, y, z) => (same-obj :: <obj>)
+  *translation-matrix*[0, 3] := x;
+  *translation-matrix*[1, 3] := y;
+  *translation-matrix*[2, 3] := z;
+
+  let new-object = make(object-class(o));
+
+  new-object.transform := o.transform * *translation-matrix* ;
+
+  *translation-matrix*[0, 3] := -x;
+  *translation-matrix*[1, 3] := -y;
+  *translation-matrix*[2, 3] := -z;
+  new-object.inverse-transform := *translation-matrix* * o.inverse-transform;
+  new-object;
+end method translate;
+
+define method x-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
+  if (theta ~= *last-x-rotation-theta*)
+    *x-rotation-matrix*[1, 1] := cos(theta);
+    *x-rotation-matrix*[1, 2] := -sin(theta);
+    *x-rotation-matrix*[2, 1] := sin(theta);
+    *x-rotation-matrix*[2, 2] := cos(theta);
+  end if;
+  let new-object = make(object-class(o));
+
+  new-object.transform := o.transform * *x-rotation-matrix* ;
+
+  // cos(-theta) = cos(theta), sin(-theta) = -sin(theta)
+  *x-rotation-matrix*[1, 2] := -*x-rotation-matrix*[1, 2];
+  *x-rotation-matrix*[2, 1] := -*x-rotation-matrix*[2, 1];
+  new-object.inverse-transform := *x-rotation-matrix* * o.inverse-transform;
+
+  *last-x-rotation-theta* := -theta;
+  new-object;  
+end method x-rotate;
+
