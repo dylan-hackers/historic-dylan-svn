@@ -58,6 +58,7 @@ end module path;
 
 define module command
   use common-dylan;
+  use board, import: { <point> };
 
   export
     $north,
@@ -68,7 +69,8 @@ define module command
     <command>, bid,
     <move>, direction,
     <pick>, package-ids,
-    <drop>;
+    <drop>,
+    <transport>;
 end module command;
 
 define module messages
