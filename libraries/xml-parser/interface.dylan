@@ -3,6 +3,14 @@ author: Douglas M. Auclair
 inspired-from-the-work-by: Andreas Bogk, Chris Double
 copyright: (c) 2001-2002, LGPL
 
+
+define open generic xml-name
+    (object) => the-name :: false-or(<xml-name>);
+
+define open generic xml-name-setter
+    (new-value :: false-or(<xml-name>), object)
+ => (the-name :: false-or(<xml-name>));
+
 define abstract class <xml> (<object>)
   virtual slot name;
   slot name-with-proper-capitalization :: <string>,

@@ -40,6 +40,9 @@ define module xml-parser
   create node-iterator, prepare-document;
   create transform, transform-document, before-transform, <xform-state>;
 
+  // Macros
+  create $default-xml-parent, make-xml-element;
+
   // Namespaces
   create <xml-namespace-error>,
     <namespace-not-found>, <namespace-has-no-short-name>;
