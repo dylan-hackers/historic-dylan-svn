@@ -95,7 +95,7 @@ function short_header ($title) {
 <TD>
 <TABLE>
 <P><STRONG>CVS Activity</STRONG></P>
-<P><SMALL>&nbsp;&nbsp;&nbsp;&nbsp;Count of lines added recently</SMALL></P>
+<P><SMALL>&nbsp;&nbsp;&nbsp;&nbsp;Count of lines recently <font color="#0000FF">added</font> and <font color="#FF0000">removed</font></SMALL></P>
 <TR>
 <A HREF="/cgi-bin/viewcvs.cgi">
 <IMG SRC="inline_cvs_img.php"></A>

@@ -33,7 +33,7 @@ $graph->SetXLabel("Date");
 
 // Define the Y axis
 
-$graph->SetDataColors( array("blue"), array("gray"));
+$graph->SetDataColors( array("blue","red"), array("black"));
 $graph->SetFileFormat("png");
 $graph->DrawGraph();
 
