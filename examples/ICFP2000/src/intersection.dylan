@@ -96,7 +96,7 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
     if (abs(t) > distance)
       #f;
     else
-      let point = ray.ray-direction * t + $origin;
+      let point = ray.ray-direction * t + ray.ray-position;
       let u = clamp(point[0]);
       let v = clamp(point[2]);
       values(point, 

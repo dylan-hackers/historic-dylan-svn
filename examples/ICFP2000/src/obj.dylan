@@ -176,7 +176,7 @@ define method translate(o :: <obj>, x, y, z) => (same-obj :: <obj>)
   *translation-matrix*[0, 3] := -x;
   *translation-matrix*[1, 3] := -y;
   *translation-matrix*[2, 3] := -z;
-  new-object.inverse-transform := *translation-matrix* * o.inverse-transform;
+  new-object.inverse-transform :=  o.inverse-transform * *translation-matrix*;
   new-object;
 end method translate;
 
@@ -194,7 +194,7 @@ define method x-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
   // cos(-theta) = cos(theta), sin(-theta) = -sin(theta)
   *x-rotation-matrix*[1, 2] := -*x-rotation-matrix*[1, 2];
   *x-rotation-matrix*[2, 1] := -*x-rotation-matrix*[2, 1];
-  new-object.inverse-transform := *x-rotation-matrix* * o.inverse-transform;
+  new-object.inverse-transform := o.inverse-transform * *x-rotation-matrix*;
 
   *last-x-rotation-theta* := -theta;
   new-object;  
