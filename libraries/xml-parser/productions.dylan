@@ -164,7 +164,8 @@ end parse nmtokens;
 define constant not-in-set? = complement(member?);
 
 define collect-value entity-value(ref) ()
-  "%&'", "%&\"" => { parse-pe-reference(ref), parse-reference(ref) }
+  "%&'", "%&\"" => 
+   [{parse-pe-reference(ref), parse-reference(ref)}, do(do(collect, ref))]
 end collect-value entity-value;
 
 //    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
@@ -639,8 +640,8 @@ define collector hex-char-ref(c)
   "&#x", loop([type(<hex-digit>, c), do(collect(c))]), ";"
 end collector int-char-ref;
 
-define parse char-ref(num) => (num)
-  { parse-int-char-ref(num), parse-hex-char-ref(num) }, []
+define parse char-ref(char) => (make(<string>, size: 1, fill: char))
+  { parse-int-char-ref(char), parse-hex-char-ref(char) }, []
 end parse char-ref;
 
 // Entity Reference
