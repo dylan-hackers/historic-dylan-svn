@@ -171,17 +171,22 @@ define function bgh-parse(s :: <byte-string>)
   let current-attributes = make(<attribute>);
   let p = 0;
 
+  add!(fragments, ""); // stop concatenate puking with no args. ick
+
   local
     method save-fragment()
-//      if (first-char ~= p)
+      if (first-char ~= p)
 	add!(fragments, copy-sequence(s, start: first-char, end: p));
-//      end;
+      end;
     end method save-fragment,
     
     method save-run(new-state :: <attribute>)
       if (new-state.value ~= current-attributes.value)
-	add!(runs, pair(current-attributes, apply(concatenate, fragments)));
-	fragments.size := 0;
+	let s :: <byte-string> = apply(concatenate, fragments);
+	if (s.size > 0)
+	  add!(runs, pair(current-attributes, s));
+	end;
+	fragments.size := 1; // keep the empty string
 	current-attributes := new-state;
       end;
     end method save-run;
@@ -217,7 +222,7 @@ define function bgh-parse(s :: <byte-string>)
     end case;
   end;
   save-fragment();
-  add!(runs, pair(current-attributes, apply(concatenate, fragments)));
+  save-run(make(<attribute>, value: -1)); // illegal value
 
   runs;
 end function bgh-parse;
