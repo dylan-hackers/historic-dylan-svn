@@ -314,49 +314,51 @@ define function cell-matches(p :: <position>, cond :: <ant-condition>,
   end if;
 end function cell-matches;
 
+define <continuation> = type-union(<integer>, <instruction>);
+
 define class <instruction> (<object>)
 end class <instruction>;
 
 define class <sense> (<instruction>)
   slot sense-direction :: <sense-direction>, required-init-keyword: direction:;
-  slot state-true :: <integer>, required-init-keyword: state-true:;
-  slot state-false :: <integer>, required-init-keyword: state-false:;
+  slot state-true :: <continuation>, required-init-keyword: state-true:;
+  slot state-false :: <continuation>, required-init-keyword: state-false:;
   slot cond :: <ant-condition>, required-init-keyword: condition:;
 end class <sense>;
 
 define class <mark> (<instruction>)
   slot marker :: <marker>, required-init-keyword: marker:;
-  slot state :: <integer>, required-init-keyword: state:;
+  slot state :: <continuation>, required-init-keyword: state:;
 end class <mark>;
 
 define class <unmark> (<instruction>)
   slot marker :: <marker>, required-init-keyword: marker:;
-  slot state :: <integer>, required-init-keyword: state:;
+  slot state :: <continuation>, required-init-keyword: state:;
 end class <unmark>;
 
 define class <pickup> (<instruction>)
-  slot state-success :: <integer>, required-init-keyword: state-success:;
-  slot state-failure :: <integer>, required-init-keyword: state-failure:;
+  slot state-success :: <continuation>, required-init-keyword: state-success:;
+  slot state-failure :: <continuation>, required-init-keyword: state-failure:;
 end class <pickup>;
 
 define class <drop> (<instruction>)
-  slot state :: <integer>, required-init-keyword: state:;
+  slot state :: <continuation>, required-init-keyword: state:;
 end class <drop>;
 
 define class <turn> (<instruction>)
   slot left-or-right :: <left-or-right>, required-init-keyword: left-or-right:;
-  slot state :: <integer>, required-init-keyword: state:;
+  slot state :: <continuation>, required-init-keyword: state:;
 end class <turn>;
 
 define class <move> (<instruction>)
-  slot state-success :: <integer>, required-init-keyword: state-success:;
-  slot state-failure :: <integer>, required-init-keyword: state-failure:;
+  slot state-success :: <continuation>, required-init-keyword: state-success:;
+  slot state-failure :: <continuation>, required-init-keyword: state-failure:;
 end class <move>;
 
 define class <flip> (<instruction>)
   slot probability :: <integer>, required-init-keyword: probability:;
-  slot state-success :: <integer>, required-init-keyword: state-success:;
-  slot state-failure :: <integer>, required-init-keyword: state-failure:;
+  slot state-success :: <continuation>, required-init-keyword: state-success:;
+  slot state-failure :: <continuation>, required-init-keyword: state-failure:;
 end class <flip>;
 
 define variable *red-brain* = make(<vector>);
