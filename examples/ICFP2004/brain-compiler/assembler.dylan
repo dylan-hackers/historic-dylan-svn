@@ -120,6 +120,8 @@ end macro;
 
 
 define function push-thunk (instrs, label, counter, thunk) => ();
+ format-out("push-thunk: (%s, %d)\n", label, counter);
+// flush-stream(*standard-output*);
   let pos = make(<instruction-label-count>, label: label, count: counter);
   if (element(instrs, pos, default: #f))
     error("label %s already defined?", label);
@@ -151,7 +153,7 @@ end;
 define function compile-states (instrs :: <table>)
  => brain :: <vector>;
   let brain :: <stretchy-vector> = make(<stretchy-vector>);
-  let start-instr = instrs[start:];
+  let start-instr = instrs[make(<instruction-label-count>, label: start:, count: 0)];
   let pos-table :: <table> = make(<table>);
   put-instruction(start-instr, brain, pos-table);
 end;
