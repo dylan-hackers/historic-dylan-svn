@@ -114,7 +114,7 @@ define brain alex-gatherer
   [deliver-back:]
     Turn Left;
     Turn Left;
-    Turn Left;
+    Turn Left, (deliver-forward);
 
   [deliver-forward:]
     Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
