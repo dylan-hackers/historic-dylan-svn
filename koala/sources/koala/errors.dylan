@@ -81,23 +81,35 @@ define class <http-server-error> (<http-error>)
 end;
 
 define macro http-error-definer
- { define http-error ?:name (?class) ?code:token ?string:token, ?args:* }
-  => { define function ?name (#key headers :: false-or(<header-table>) = #f, ?args)
+ { define http-error ?:name (?class) ?code:token ?string:token ?headertype, ?args:* }
+  => { define function ?name (#key value :: false-or(<string>) = #f, ?args)
+         let headers :: false-or(<header-table>) = #f;
+         if (value)
+           headers := make(<header-table>);
+           headers[ ?headertype ] := value;
+         end if;
          signal(make(?class,
                      code: ?code,
                      header: headers,
-                     format-string: ?string, format-arguments: vector(?args)))
+                     format-string: ?string,
+                     format-arguments: vector(?args)
+                    )
+               )
        end }
  class:
   { } => { <http-error> }
   { ?:name } => { ?name }
+
+ headertype:
+  { } => { #f }
+  { type ?htype:token } => { ?htype }
 end;
 
 define class <http-parse-error> (<http-client-error>)
 end;
 
 define http-error moved-permanently-redirect (<http-redirect-error>)
-    301 "Moved Permanently";
+    301 "Moved Permanently" type "Location";
 
 define http-error not-modified (<http-redirect-error>)
     304 "Not Modified";
