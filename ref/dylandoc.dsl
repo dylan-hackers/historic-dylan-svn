@@ -80,8 +80,11 @@
 
 (define (process-dylan-literal #!optional (children (process-children)))
   (make element
-    gi: "CODE"
-    children))
+    gi: "FONT"
+    attributes: '(("COLOR" "BLUE"))
+    (make element
+      gi: "CODE"
+      children)))
 
 (element DLibrary
   (process-dylan-literal))
@@ -138,9 +141,8 @@
 (mode defhead
   (element DefName
     (make element
-      gi: "CODE"
-      (make element
-	gi: "B")))
+      gi: "B"
+      (process-dylan-literal)))
   (element DefAdjectives
     (make sequence
       (process-children)
@@ -180,7 +182,13 @@
 
 (element DefDescription
   (process-section "Description"))
-  
+
+(define (dylan-object-type)
+  (process-dylan-literal (make sequence
+			   (make entity-ref
+			     name: "lt")
+			   (literal "object>"))))
+
 
 ;;;========================================================================
 ;;; Parameter lists
@@ -193,27 +201,27 @@
 		   (if (have-children?)
 		       (make element
 			 gi: "TABLE"
-			 attributes: '(("BORDER" "0")
+			 attributes: '(("WIDTH" "100%")
+				       ("BORDER" "0")
 				       ("COLUMNSPACING" "0")))
 		       (literal "None."))))
 
-(define (process-param)
+(define (process-param #!optional (type-label "An instance of "))
   (make element
     gi: "TR"
     (make sequence
       (make element
 	gi: "TD"
-	attributes: '(("VALIGN" "TOP"))
+	attributes: '(("VALIGN" "TOP")
+		      ("WIDTH" "10%"))
 	(process-first-descendant "ParamName"))
       (make element
 	gi: "TD"
 	(make sequence
-	  (literal "An instance of ")
+	  (literal type-label)
 	  (if (have-child? "ParamType")
 	      (process-first-descendant "ParamType")
-	      (make element
-		gi: "CODE"
-		(literal "object")))
+	      (dylan-object-type))
 	  (literal ". ")
 	  (if (have-child? "ParamSummary")
 	      (process-first-descendant "ParamSummary")
@@ -228,8 +236,12 @@
 (element Param
   (process-param))
 
+(element RestParam
+  (process-param "Instances of "))
+
 (element KeyParam
-  (process-param))
+  (with-mode keyword-param
+    (process-param)))
 
 (element ParamName
   (make element
@@ -243,6 +255,12 @@
 
 (element ParamSummary
   (process-children))
+
+(mode keyword-param
+  (element ParamName
+    (process-dylan-literal (make sequence
+			     (process-children)
+			     (literal ":")))))
 
 
 ;;;========================================================================
@@ -262,34 +280,117 @@
     (literal " ")))
 
 (element DefInitKeywords
-  (with-mode init-keywords
-    (process-parameter-section "Initialization Keywords")))
+  (process-parameter-section "Initialization Keywords"))
 
-(mode init-keywords
+
+;;;========================================================================
+;;; Define Constant & Define Variable
+;;;========================================================================
+;;; We group these two forms together because they're similar.
+
+(element DylanConstantDef
+  (process-def))
+
+(element DylanVariableDef
+  (process-def))
+
+(element DefType
+  (process-section "Type" (process-dylan-literal)))
+
+(element DefValue
+  (process-section "Value" (process-dylan-literal)))
+
+
+;;;========================================================================
+;;; Define Function, Method & Generic
+;;;========================================================================
+;;; These all look the same for now.
+
+(define (process-function-def)
+  (make sequence
+    (process-defhead)
+    (process-function-synopsis)
+    (process-children)))
+
+(element DylanFunctionDef
+  (process-function-def))
+
+(element DylanGenericDef
+  (process-function-def))
+
+(element DylanMethodDef
+  (process-function-def))
+
+(element DefParameters
+  (process-parameter-section "Parameters"))
+
+(element DefReturns
+  (process-parameter-section "Return Values"))
+
+(define (process-function-synopsis #!optional (node (current-node)))
+  (with-mode function-synopsis
+    (process-section "Synopsis"
+		     (make sequence
+		       (process-first-descendant "DefName")
+		       (process-first-descendant "DefParameters")
+		       (process-first-descendant "DefReturns")))))
+
+(define (maybe-insert-spacer #!optional (spacer (literal ", ")))
+  (if (not (absolute-first-sibling? (current-node)))
+      spacer
+      (empty-sosofo)))
+
+(mode function-synopsis
+
+  (element DefName
+    (process-children))
+
   (element ParamName
-    (process-dylan-literal (make sequence
-			     (process-children)
-			     (literal ":")))))
+    (make element
+      gi: "EM"))
+
+  (element DefParameters
+    (make sequence
+      (literal " (")
+      (process-children)
+      (literal ")")))
+
+  (element DefReturns
+    (make sequence
+      (literal " => (")
+      (process-children)
+      (literal ")")))
+
+  (element Param
+    (make sequence
+      (maybe-insert-spacer)
+      (process-first-descendant "ParamName")))
+
+  (element RestParam
+    (make sequence
+      (maybe-insert-spacer)
+      (literal "#rest ")
+      (process-first-descendant "ParamName")))
+
+  (element KeyParam
+    (make sequence
+      (maybe-insert-spacer)
+      (if (first-sibling? (current-node))
+	  (literal "#key ")
+	  (empty-sosofo))
+      (process-first-descendant "ParamName")))
+  
+  (element AllKeys
+    (make sequence
+      (maybe-insert-spacer)
+      (literal "#all-keys")))
+  )
 
 
 ;;;========================================================================
 ;;; Cruft
 ;;;========================================================================
 ;;; To be organized and rewritten...
-
-(element DefType
-  (make element
-    gi: "CODE"
-    (make sequence
-      (literal " :: ")
-      (process-children))))
-
-(element DefValue
-  (make element
-    gi: "CODE"
-    (make sequence
-      (literal " = ")
-      (process-children))))
 
 (define (process-param-list)
   (if (have-children?)
@@ -432,22 +533,6 @@
       gi: "I")))
 
 ;;; Defining Constatants
-
-(element DylanConstantDef
-  (process-def))
-
-(element DylanVariableDef
-  (process-def))
-
-(element DylanFunctionDef
-  (make sequence
-    (process-defhead)
-    (with-mode parameter-summary
-      (make sequence
-	(process-first-descendant "DefParameters")
-	(process-first-descendant "DefReturns")))
-    (process-first-descendant "DefDescription")))
-
 
 </style-specification-body>
 </style-specification>

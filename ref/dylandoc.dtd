@@ -108,12 +108,22 @@
                                 DefParameters, DefReturns, DefDescription,
 				DefSection*) >
 
+<!ELEMENT DylanGenericDef - - (DefName, DefAdjectives?, DefSummary,
+                               DefParameters, DefReturns, DefDescription,
+			       DefSection*) >
+
+<!ELEMENT DylanMethodDef - - (DefName, DefAdjectives?, DefSummary,
+                              DefParameters, DefReturns, DefDescription,
+		              DefSection*) >
+
 <!ELEMENT DylanClassDef - - (DefName, DefAdjectives?, DefSummary, DefSupers,
                              DefInitKeywords, DefDescription, DefSection*) >
 
 <!ATTLIST DylanConstantDef DylanDefName CDATA #FIXED "Constant">
 <!ATTLIST DylanVariableDef DylanDefName CDATA #FIXED "Variable">
 <!ATTLIST DylanFunctionDef DylanDefName CDATA #FIXED "Function">
+<!ATTLIST DylanGenericDef  DylanDefName CDATA #FIXED "Generic">
+<!ATTLIST DylanMethodDef   DylanDefName CDATA #FIXED "Method">
 <!ATTLIST DylanClassDef    DylanDefName CDATA #FIXED "Class">
 
 
@@ -146,8 +156,7 @@
 
 <!ELEMENT Param - - (ParamName, (ParamType|ParamSingleton)?, ParamSummary?) >
 <!ELEMENT KeyParam - - (ParamName, ParamType?, ParamDefault?, ParamSummary?) >
-<!ELEMENT Rest - - (ParamName, RestType?, ParamSummary?)? >
-<!ELEMENT RestType - - (#PCDATA) >
+<!ELEMENT RestParam - - (ParamName, ParamType?, ParamSummary?)? >
 <!ELEMENT AllKeys - O EMPTY >
 <!ELEMENT ParamName - - (#PCDATA) >
 <!ELEMENT ParamType - - (#PCDATA) >
@@ -171,5 +180,5 @@
   and generic functions.
 -->
 
-<!ELEMENT DefParameters - - (Param*, Rest?, (KeyParam+, AllKeys?)?) >
-<!ELEMENT DefReturns - - (Param*, Rest?) -(ParamSingleton)>
+<!ELEMENT DefParameters - - (Param*, RestParam?, (KeyParam+, AllKeys?)?) >
+<!ELEMENT DefReturns - - (Param*, RestParam?) -(ParamSingleton)>

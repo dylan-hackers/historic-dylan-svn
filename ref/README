@@ -19,3 +19,5 @@ directory.  DocBook for other platforms was found in the usual places.
 
 For editing the docs, there is a DocBook tutorial available at
 http://nis-www.lanl.gov/~rosalia/mydocs/docbook-intro.html
+
+We'll be moving to sgml-tools 2.x in the foreseeable future.
