@@ -111,7 +111,11 @@ define variable passive-motion-func :: <function>
 end;
 
 define variable reshape-func :: <function> = callback-method(x :: <integer>, y :: <integer>) => ();
+  let aspect-ratio = as(<double-float>, x) / as(<double-float>, y);
+  format-out("Adjusting viewport: x: %=, y: %=\n", x, y);
   glViewport(0, 0, x, y);
+//  glFrustum(-0.25 * aspect-ratio, 0.25 * aspect-ratio, 
+//            -0.25, 0.25, 0.5, 100.0);
 /*
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
@@ -126,19 +130,20 @@ define variable reshape-func :: <function> = callback-method(x :: <integer>, y :
   post-event(make(<reshape-event>, location: make(<point>, x: x, y: y)));
 end;
 
-define variable *scene-graph* = 
+define variable *scene-graph* = #[];
+/*
   make(<container-node>, children: 
          vector(make(<camera>),
                 make(<spotlight>,
                      position:  3d-point ( 3.0s0, 3.0s0,-2.0s0),
                      direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
                      ambient:   vector   ( 0.1,   0.1,   0.1, 1.0),
-                     diffuse:   vector   ( 0.1,   0.1,   0.9, 1.0),
-                     specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
+                     diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
+                     specular:  vector   ( 0.3,   0.3,   0.3, 1.0)),
                 make(<line-grid>),
                 make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                      translation: 3d-vector(3.0, 3.0, -2.0), 
-                     children: vector(make(<shape>, geometry: make(<sphere>)))),
+                     children: vector(make(<sphere>))),
                 make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), children: 
                        vector(make(<shape>, geometry:
                                      make(<indexed-face-set>,
@@ -158,7 +163,7 @@ define variable *scene-graph* =
                                                      #[3,4,9,8],
                                                      #[4,0,5,9]],
                                           crease-angle: 1.5))))));
-
+*/
 /*
 define constant *scene-graph* = make(<indexed-face-set>,
                                      points: #[#[-0.5, -0.5, -0.5],
@@ -214,14 +219,14 @@ define method main(progname, #rest arguments)
                          position:  3d-point ( 3.0s0, 3.0s0,-2.0s0, 1.0s0),
                          direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
                          ambient:   vector   ( 0.3,   0.3,   0.3, 1.0),
-                         diffuse:   vector   ( 0.1,   0.1,   0.9, 1.0),
-                         specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
+                         diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
+                         specular:  vector   ( 0.3,   0.3,   0.3, 1.0)),
                     make(<line-grid>),
                     make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                          translation: 3d-vector(3.0, 3.0, -2.0), 
-                         children: vector(make(<shape>, geometry: make(<sphere>)))),
-                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), children: 
-                           vector(parse-vrml(arguments[0])))));
+                         children: vector(make(<sphere>))),
+                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
+                         children: vector(parse-vrml(arguments[0])))));
   end if;
 
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
@@ -246,7 +251,6 @@ define method main(progname, #rest arguments)
   format(*standard-output*, "GL_EXTENSIONS: %s\n", 
 	                     glGetString($GL-EXTENSIONS));
   force-output(*standard-output*);
-  glutFullScreen();
 
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
@@ -291,6 +295,9 @@ define method main(progname, #rest arguments)
   glutKeyboardFunc(keyboard-func);
   glutSpecialFunc(special-func);
   glutSpecialUpFunc(special-up-func);
+
+//  glutFullScreen();
+
   glutMainLoop();
   glutDestroyWindow(win);
   exit(exit-code: 0);

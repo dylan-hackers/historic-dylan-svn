@@ -216,8 +216,9 @@ end node;
 //     nodeBodyElement nodeBody |
 //     empty ;
 
-// ignore appearance for now
-define meta AppearanceNode (c, material, texture, textureTransform) => (#f)
+define meta AppearanceNode (c, material, texture, textureTransform) 
+  => (make(<appearance>, material: material, texture: texture, 
+           texture-transform: textureTransform))
   loop([ws?(c),
         {["material",         ws(c), scan-SFNode(material)],
          ["texture",          ws(c), scan-SFNode(texture)],

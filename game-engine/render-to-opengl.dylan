@@ -55,8 +55,15 @@ define method render-to-opengl(line-grid :: <line-grid>)
 end method render-to-opengl;
 
 define method render-to-opengl(node :: <shape>)
-  // set up node.appearance
-  render-to-opengl(node.geometry);
+  if(node.appearance)
+    glPushAttrib($GL-ALL-ATTRIB-BITS); // need to find out which ones
+                                       // actually need to be saved
+    render-to-opengl(node.appearance);
+    render-to-opengl(node.geometry);
+    glPopAttrib();
+  else
+    render-to-opengl(node.geometry);
+  end if;
 end method render-to-opengl;
 
 define method render-to-opengl(node :: <container-node>)
@@ -92,3 +99,11 @@ define method render-to-opengl(node :: <spotlight>)
     apply(glLight, id, $GL-SPECULAR, node.specular);
   end if;
 end method render-to-opengl;
+
+define method render-to-opengl(node :: <appearance>)
+//  node.material          & render-to-opengl(node.material);
+//  node.texture           & render-to-opengl(node.texture);
+//  node.texture-transform & render-to-opengl(node.texture-transform);
+//  format-out("Material: %=\n", node.material);
+end method render-to-opengl;
+  

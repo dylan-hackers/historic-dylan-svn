@@ -44,6 +44,7 @@ define method initialize(ifs :: <indexed-face-set>, #key, #all-keys)
   end unless;
   unless(ifs.vertex-normals)
     ifs.vertex-normals := make(<vector>, size: ifs.polygon-indices.size);
+    let cos-crease-angle = cos(ifs.crease-angle);
     for(p keyed-by i in ifs.polygon-indices)
       ifs.vertex-normals[i] := make(<vector>, size: p.size);
       for(j from 0 below p.size)
@@ -51,7 +52,7 @@ define method initialize(ifs :: <indexed-face-set>, #key, #all-keys)
         for(k from 0 below ifs.polygon-indices.size)
           if((i ~= k) 
                & member?(ifs.polygon-indices[i][j], ifs.polygon-indices[k])
-               & (ifs.face-normals[i] * ifs.face-normals[k] > cos(ifs.crease-angle)))
+               & (ifs.face-normals[i] * ifs.face-normals[k] > cos-crease-angle))
             adjoining-faces := add(adjoining-faces, k);
           end if;
         end for;
@@ -78,9 +79,15 @@ define constant <geometry-node> = <node>;
 // IndexedFaceSet, Box, Cone, Cylinder, ElevationGrid, Extrusion, IndexedLineSet, PointSet, Sphere, Text
 
 define class <shape> (<node>)
-  slot appearance, init-keyword: appearance:;
+  slot appearance :: <appearance>, required-init-keyword: appearance:;
   slot geometry :: <geometry-node>, required-init-keyword: geometry:;
 end class <shape>;
+
+define class <appearance> (<node>)
+  slot material = #f, init-keyword: material:;
+  slot texture = #f, init-keyword: texture:;
+  slot texture-transform = #f, init-keyword: texture-transform:;
+end class <appearance>;
 
 define class <line-grid> (<node>)
 end class <line-grid>;
