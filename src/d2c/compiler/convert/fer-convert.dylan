@@ -1,5 +1,5 @@
 module: fer-convert
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/fer-convert.dylan,v 1.6 2001/10/06 17:08:07 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/fer-convert.dylan,v 1.6.2.1 2002/07/27 16:57:58 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -131,6 +131,7 @@ define method fer-convert
     (builder :: <fer-builder>, form :: <definition-parse>, lexenv :: <lexenv>,
      want :: <result-designator>, datum :: <result-datum>)
     => res :: <result>;
+  format(*debug-output*, "%=\n", form);
   compiler-error-location(form, "definitions are only allowed at top-level");
 end;
 

@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.11 2001/12/11 01:03:19 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.11.2.1 2002/07/27 16:57:58 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -80,6 +80,8 @@ define module main
   // use fer-convert;
   use front;
   // use dump;
+  use fer-convert;
+  use top-level-expressions;
   use classes;
   use c-representation;
   use cback;
