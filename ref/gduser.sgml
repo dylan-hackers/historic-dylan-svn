@@ -32,7 +32,7 @@
 	
 	<LISTITEM>
 	  <PARA>An advanced object model, including headache-free
-	multiple inheritence</PARA> </LISTITEM>
+	multiple inheritance</PARA> </LISTITEM>
 
 	<LISTITEM>
 	  <PARA>Multiple dispatch, which makes complex object-oriented
@@ -234,10 +234,6 @@ define method main(appname, #rest arguments)
   // insert code here ...
   format(*standard-output*, "Hello world!\n");
 
-  // XXX - This is temporary, and only here because of bugs in
-  // the compiler and runtime environment.
-  force-output(*standard-error*);
-  force-output(*standard-output*);
   exit(exit-code: 0);
 end method main;
 </ProgramListing>
@@ -287,10 +283,9 @@ end method main;
 	  <LISTITEM>
 	    <PARA>This prefix is used to make the C translation of
 	    names in this library unique w.r.t. any other libraries
-	    that might be used. This defaults to the library name, so
-	    only needs to be specified if the library name contains
-	    illegal C name characters (such as
-	    "<LITERAL>-</LITERAL>").</PARA>
+	    that might be used. This defaults to the library name,
+            mangled according to the Dylan-to-C name mangling rules.
+	    </PARA>
 	  </LISTITEM>
 	</VARLISTENTRY>
 
@@ -306,6 +301,8 @@ end method main;
 	    library so that class IDs won't overlap. You will get a
 	    compile-time error if overlap occurs. A good base for user
 	    code would be 30000.</PARA>
+	    <para>The Unique ID is used for multimethod dispatch, and it is
+            bound to go away in the near future.</para>
 	  </LISTITEM>
 	</VARLISTENTRY>
 
@@ -371,7 +368,7 @@ end method main;
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.5 1998/09/20 15:33:54 emk Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.6 1998/12/14 11:45:29 andreas Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
@@ -646,7 +643,15 @@ define method main (program, #rest args)
 end method main;</programlisting>
 
       <para>We will then process this file through Melange to produce
-      a file of pure Dylan code. If Melange is contained in the file
+      a file of pure Dylan code. On a system with &d2c; support, there
+      will be an executable named melange, which you can invoke like
+      this:
+
+      <screen>
+      <userinput>melange dirent.intr dirent.dylan</userinput>
+      </screen>
+
+      On a mindy-only system, where melange is contained in a file
       <FILENAME>melange.dbc</FILENAME>, we would use the following
       command line:</para>
 
