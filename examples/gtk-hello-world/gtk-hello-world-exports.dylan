@@ -13,6 +13,7 @@ define module simple-gtk
   use dylan;
   use extensions;
   use melange-support;
+  use system;
   export
     gtk-init,
     gtk-window-new,
@@ -21,6 +22,8 @@ define module simple-gtk
     gtk-container-add,
     gtk-widget-show,
     gtk-main,
+    gtk-signal-connect,
+    gtk-main-quit,
     $GTK-WINDOW-TOPLEVEL,
     <gpointer>,
     <c-pointer-vector>,
@@ -31,6 +34,7 @@ define module gtk-hello-world
   use dylan;
   use extensions;
   use melange-support;
+  use system;
   use streams;
   use format;
   use standard-io;

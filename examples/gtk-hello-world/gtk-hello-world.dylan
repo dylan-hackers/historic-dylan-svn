@@ -30,12 +30,24 @@ define method c-arguments(progname :: <string>, arguments)
   values(argc, argv);
 end method c-arguments;
 
+define variable delete :: <function> = callback-method() => (c :: <integer>);
+  0;
+end;
+
+define variable my-destroy :: <function> = callback-method() => ();
+  gtk-main-quit();
+end;
+
+define constant *null* :: <machine-pointer> = as(<machine-pointer>, 0);
+
 define method gtk-hello-world(argc, argv) => ()
-  let (newargc, newargv) = gtk-init (argc, argv);
+  let (new-argc, new-argv) = gtk-init(argc, argv);
   let window = gtk-window-new($GTK-WINDOW-TOPLEVEL);
   gtk-container-border-width(window, 10);
   let label = gtk-label-new("Hello, world!");
   gtk-container-add(window, label);
+  gtk-signal-connect(window, "delete_event", delete, *null*);
+  gtk-signal-connect(window, "destroy", my-destroy, *null*);
   gtk-widget-show(label);
   gtk-widget-show(window);
   gtk-main();

@@ -9,19 +9,31 @@ define interface
 	     "gtk_container_add",
 	     "gtk_widget_show",
 	     "gtk_main",
+	     "gtk_main_quit",
+	     "gtk_signal_connect",
 	     "GTK_WINDOW_TOPLEVEL"},
     equate: {"GtkWidget *" => <gpointer>,
 	     "GtkContainer *" => <gpointer>,
+	     "GtkObject *" => <gpointer>,
 	     "char*" => <c-string>,
 	     "gchar*" => <c-string>},
     map: {"char*" => <byte-string>,
-	  "gchar*" => <byte-string>};
+	  "gchar*" => <byte-string>,
+	  "GtkSignalFunc" => <function>};
   pointer "char**" => <c-string-vector>,
     superclasses: {<c-vector>};
   function "gtk_init",
     input-output-argument: 1,
     input-output-argument: 2;
 end;
+
+define method export-value(cls == <function-pointer>, value :: <function>) => (result :: <function-pointer>);
+  make(<function-pointer>, pointer: value.callback-entry); 
+end method export-value;
+
+define method import-value(cls == <function>, value :: <function-pointer>) => (result :: <function>);
+  error("Is this possible?");
+end method import-value;
 
 // Stupid workaround for Melange bug which tries to assign to error()
 // whenever it finds a union memeber which is a float.
