@@ -355,16 +355,24 @@ multiple constraints] }
 @PP
 We can formalize this notion as follows. At the condition of
 the @F if statement the typing constraints are
-@F truth @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 1}
-and @F value @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 2}.
-In the second leg of the @F if statement the compiler can infer the type of @F truth being {@Tau @F "#f"}.
-We can now introduce the restriction operator (to be defined later)
-@Sym circlemultiply to combine the two constraints and derive further
+@F truth @F :: @Eq { set { 1 sigp { "#t" stau, "42" stau }, 2 sigp { "#f" stau, "0" stau } } proj 1 }
+# @LP
+# "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 1}
+# @LP
+and @F value @F :: @Eq { set { 1 sigp { "#t" stau, "42" stau }, 2 sigp { "#f" stau, "0" stau } } proj 2 }.
+# @LP
+# and @F value @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 2}.
+# @LP
+# OLD In the second leg of the @F if statement the compiler can infer the type of @F truth being {@Tau @F "#f"}.
+# @LP
+In the second leg of the @F if statement the compiler can easily infer the type of @F truth being @Eq { "#f" stau }.
+We can now introduce the restriction operator @Sym circlemultiply
+(to be defined later) to combine the two constraints and derive further
 constraints for other variables:
 @Eq { set { 1 sigp { "#t" stau, "42" stau }, 2 sigp { "#f" stau, "0" stau } } proj 1
       otimes { "#f" stau proj 1 } bin dbllongrightarrow set { "0" stau proj 2 } }.
 @LP
-Here the notation @Eq { "0" stau proj 2 } conveys the fact that
+Here the (slight abuse of) notation @Eq { "0" stau proj 2 } conveys the fact that
 the restriction results in a new type constraint for the second
 factor of the tuple union being of (singleton) type @Eq { "0" stau }.
 @End @SubSection
@@ -376,7 +384,7 @@ factor of the tuple union being of (singleton) type @Eq { "0" stau }.
 We arrived at a point where it becomes possible to actually
 do computations on the tuple union projections, such as
 intersection, union and set difference. The @F d2c compiler
-uses these connectives, along with the builtin top (@Class object)
+uses these connectives, along with the builtin top ({@Class object})
 and bottom (@F {type-union() }) types, to establish its type algebra.
 @LP @I {[to be expanded]}
 @LP
@@ -408,9 +416,9 @@ concatenating definition is rather obvious. It is also compatible with (@NumberO
 @LP
 For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we are to derive @Eq { set {1 sig, 2 sig, ..., m sig} proj i cap set {1' sig, 2' sig, ..., m' sig} proj i} now.
 First we reduce our task by considering signature sets with just one element:
-@Eq { set {1 sigp {n taus}} proj i cap set {1' sigp {n taus prim {'} preset {... ,} inset {i}}} proj i}.
+# @Eq { set {1 sigp {n taus}} proj i cap set {1' sigp {n taus prim {'} preset {... ,} inset {i}}} proj i}.
+@Eq { set { sigp {n taus}} proj i cap set { sigp {n taus prim {'} preset {... ,} inset {i}}} proj i}.
 An argument at position @I i can only be passed to both signatures if it is an instance of the type intersection of @Eq {i ta} and @Eq {i' ta}.
-
 Now we reintroduce several signatures at the left hand side:
 clearly we have to construct the union of each
 @Eq { i ta sup j cap i' ta }.
@@ -432,7 +440,12 @@ set difference, which is closely related to type difference.
 We start out with substracting conventional types and proceed to the other
 cases as we gradually get bolder.
 @LP
-@Eq { set {1 sigp {n taus}, 2 sigp {n taus}, ..., m sigp {n taus}} proj i setminus tau }
+We consider the easiest case first, where a conventional type is substracted from
+a tuple union projection: @Eq { set {1 sigp {n taus}, 2 sigp {n taus}, ..., m sigp {n taus}} proj i setminus tau proj i }.
+Clearly, the resulting type by definition is not applicable for any argument in position @I i
+that is an instance of @Eq { tau }. This fact leads us to distribute the subtrahend into each
+signature of the set, obtaining the result:
+@Eq { set {1 sigp {n taus inset {} preset { ..., i ta setminus } }, 2 sigp {n taus inset {} preset { ..., i ta setminus } }, ..., m sigp {n taus inset {} preset { ..., i ta setminus } }} proj i }.
 @LP
 
 We are to derive
