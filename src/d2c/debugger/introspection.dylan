@@ -92,30 +92,14 @@ define method dump-object(o)
                                     find-slot-offset(oc, x) <
                                     find-slot-offset(oc, y) end);
   for(slot in sorted-slots)
-    format-out("%= %s :: %s == %= (%=)\r\n", 
+    format-out("%= %s :: %= == %= (%=)\r\n", 
                find-slot-offset(oc, slot), 
                slot.slot-name | "(unnamed)", 
-               slot.slot-type.debug-name,
+               slot.slot-type,
                generic-slot-getter(o, slot),
                slot.slot-representation);
   end for;
 end method dump-object;
-
-define method debug-name(c :: <class>)
-  c.class-name;
-end method debug-name;
-
-define method debug-name(c :: <union>)
-  concatenate("type-union(",
-              reduce1(method(x, y) concatenate(x, ", ", y) end,
-                      map(debug-name, c.union-members)),
-              ")");
-  // XXX: missing the singletons...
-end method debug-name;
-
-define method debug-name(c :: <byte-character-type>)
-  "<byte-character>"
-end method debug-name;
 
 define method generic-slot-getter(o :: <object>, slot)
 //  if(~slot-initialized?(o, slot.slot-getter))
