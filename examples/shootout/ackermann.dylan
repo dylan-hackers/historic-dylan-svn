@@ -1,19 +1,16 @@
 module: ackermann
 
-define function ackermann(M :: <integer>, N :: <integer>) => result :: <integer>;
-	if (M = 0)
-		N + 1;
-	elseif (N = 0)
-		ackermann( (M - 1), 1 );
-	else
-		ackermann ( (M - 1), ackermann (M, (N - 1)));
-	end if;
+define function ackermann(M :: <integer>, N :: <integer>)
+ => result :: <integer>;
+  case 
+    M = 0     => N + 1;
+    N = 0     => ackermann(M - 1, 1);
+    otherwise => ackermann (M - 1, ackermann(M, N - 1));
+  end case;
 end function ackermann;
 
-define function main(name, argument)
-	let arg :: <integer> = string-to-integer(argument[0]);
+begin
+  let arg = application-arguments()[0].string-to-integer;
+  format-out("Ack(3,%d): %d\n", arg, ackermann(3, arg));
+end;
 
-	format-out("Ack(3,%d): %d\n", arg,  ackermann(3, arg));
-end function main;
-
-main(application-name(), application-arguments());
