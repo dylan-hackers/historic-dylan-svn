@@ -83,12 +83,7 @@ define method build-system
         apply(progress-callback, message-string, keys);
       end method;
 
-    block (return)
-      let handler <error>
-        = method (e :: <error>, next :: <function>)
-            wrap-progress-callback(condition-to-string(e), error?: #t);
-            return(#f);
-          end;
+    block ()
       let handler <warning>
         = method (w :: <warning>, next :: <function>)
             wrap-progress-callback(condition-to-string(w), warning?: #t);
@@ -111,6 +106,8 @@ define method build-system
                          progress-callback: wrap-progress-callback,
                          force?: force?);
       end;
+    exception (e :: <error>)
+      wrap-progress-callback(condition-to-string(e), error?: #t);
     end block;
   end with-open-file;
 end method;
