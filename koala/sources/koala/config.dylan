@@ -264,8 +264,6 @@ end class <mime-type>;
 
 define constant $mime-type = make(<mime-type>);
 
-define variable *mime-type-map* = make(<table>);
-
 define method process-config-element (node :: xml$<element>, name == #"mime-type-map")
   let filename = get-attribute-value(node, #"location");
   let mime-type-loc = as(<string>,
