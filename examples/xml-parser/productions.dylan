@@ -132,11 +132,11 @@ define macro parse-value-definer
   end }
  => { parse-helper( ?name ## "-value", (c, ?meta-vars), (#t),
                     ( {['"',
-                        loop({(not-in-set?(c, ?nix-double-quote-str))}), 
+                        loop({test(rcurry(not-in-set?, ?nix-double-quote-str), c)}), 
 // DOUG                 ?meta, 
                         '"'],
                        ['\'',
-                        loop({(not-in-set?(c, ?nix-single-quote-str))}), 
+                        loop({test(rcurry(not-in-set?, ?nix-single-quote-str), c)}), 
 // DOUG                 ?meta,
                         '\'']}, [] )) }
 end macro parse-value-definer;
@@ -178,7 +178,6 @@ define parse-value att(ref)
   "<&'", "<&\"" => parse-reference(ref)
 end parse-value att;
 
-/*****
 // here again we use a macro to simplify parsing literals
 define macro collect-literal-definer
 { define collect-literal ?:name(?nix-single-quote-str:expression, 
@@ -187,16 +186,15 @@ define macro collect-literal-definer
   end }
  => { define collector ?name ## "-literal" (c) 
         {['"',
-          loop({[(apply(?test, list(c, ?nix-double-quote-str))),
+          loop({[test(rcurry(?test, ?nix-double-quote-str), c),
                  do(collect(c))]}), 
           '"'],
          ["'",
-          loop({[(apply(?test, list(c, ?nix-single-quote-str))), 
+          loop({[test(rcurry(?test, ?nix-single-quote-str), c), 
                  do(collect(c))]}), 
           "'"]}, []
       end; }
 end macro collect-literal-definer;
-*****/
 
 //    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
 //
@@ -208,6 +206,7 @@ define collector system-literal (c)
     loop([test(rcurry(not-in-set?, "'"), c), do(collect(c))]),
     '\'']}, []
 end;
+// define collect-literal system("'", "\"") end; this really should work
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
 //
