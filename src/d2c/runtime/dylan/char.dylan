@@ -149,3 +149,30 @@ define sealed method as-lowercase (char :: <character>)
     char;
   end;
 end;
+
+// The methods below call out to C and are dependent on d2c's naming
+// scheme for the method's parameter. The purpose of this is to by-pass
+// the limited integer check that must otherwise occur for the
+// character's value. If d2c's variable naming scheme changes, this
+// method will fail compile by the C compiler, and c-expr code will
+// have to be tweaked to match the new naming scheme.
+
+// as-uppercase -- exported GF method.
+//
+// Convert the byte-character to uppercase.
+//
+define sealed method as-uppercase (char :: <byte-character>)
+    => res :: <byte-character>;
+  c-expr(void: "A_char = toupper(A_char)");
+  char;
+end;
+
+// as-lowercase -- exported GF method.
+//
+// Convert the byte-character to lowercase.
+//
+define sealed method as-lowercase (char :: <byte-character>)
+    => res :: <byte-character>;
+  c-expr(void: "A_char = tolower(A_char)");
+  char;
+end;
