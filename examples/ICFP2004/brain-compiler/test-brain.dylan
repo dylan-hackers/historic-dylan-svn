@@ -1,10 +1,10 @@
 module: assembler
 
-define sub brain test-sub
-         Move return => sub-problem;
+define sub brain test-sub(back)
+         Move back => sub-problem;
 
   [sub-problem:]
-         Drop, (return);
+         Drop, (back);
 end brain;
 
 
