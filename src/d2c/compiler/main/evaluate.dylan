@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.36 2002/08/10 17:16:22 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.37 2002/08/10 18:31:50 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -193,7 +193,6 @@ define method fer-evaluate(simple :: <simple-region>, environment :: <interprete
 end;
 
 define class <return-condition>(<exit-condition>)
-//  constant slot exit-block :: <block-region-mixin>, required-init-keyword: block:;
   constant slot exit-result :: <ct-value>, required-init-keyword: result:;
 end class <return-condition>;
 
@@ -261,36 +260,12 @@ define method fer-evaluate-regions(exit :: <exit>, more-regions == #(), environm
 end;
 
 
-/*
-// ########## fer-gather-regions-bindings ##########
-define generic fer-gather-regions-bindings(regions :: <list>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-
-define method fer-gather-regions-bindings(no-regions == #(), environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  environment
-end;
-
-define method fer-gather-regions-bindings(regions :: <list>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  
-  let head = regions.head;
-  if (instance?(head, <compound-region>))
-  
-    let (env, value) = fer-evaluate(head, environment); /// ####### no two bindings!!!!
-    if (value)
-      compiler-warning("Well, I thought that RETURN[110](result[122]) can only appear just at the end of <function-region>s\n");
-      values(environment, value)
-    else
-      fer-gather-regions-bindings(regions.tail, fer-evaluate(head, environment))
-    end
-  else
-    fer-gather-regions-bindings(regions.tail, fer-evaluate(head, environment))
-  end
-end;
-*/
-
 // ########## fer-gather-assigns-bindings ##########
+// collect the assignment chain with their (of a simple region) newest values into the environment
+//
+define generic fer-gather-assigns-bindings(assigns :: false-or(<abstract-assignment>), environment :: <interpreter-environment>)
+ => environment :: <interpreter-environment>;
+
 define method fer-gather-assigns-bindings(no-assign == #f, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   environment
@@ -303,6 +278,8 @@ define method fer-gather-assigns-bindings(assign :: <abstract-assignment>, envir
 end;
 
 // ########## fer-gather-assign-bindings ##########
+// collect the bindings chain (of one assignment) with their newest values into the environment
+//
 define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-variable>), expr :: <expression>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
 
