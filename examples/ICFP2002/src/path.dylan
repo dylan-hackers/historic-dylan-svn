@@ -4,7 +4,7 @@ module: path
 // Constants.
 define constant <point-list> = <list>;
 define constant <path-cost> = <integer>;
-
+define constant $not-memoized = #"Not memoized";
 
 // Prioritized location type for the priority queue.
 define sealed class <prioritized-location> (<object>)
@@ -182,42 +182,29 @@ define function find-path(source :: <point>,
           source, target, cutoff);
     #f
   else
-    find-path*(source, target, board);
+//    find-path*(source, target, board);
 //
 // Commit this after testing the refactoring.
 //
-//    let maybe-path = element(board.path-cache, cons(source, target),
-//                             default: $not-memoized);
-//    if (path = $not-memoized)
-//      let path = find-path*(source, target, board);
-//      board.path-cache[cons(source, target)] := path;
-//      // TODO -- cache the whole path. Maybe too inefficient.
-//      path;
-//    else
-//      maybe-path
-//    end if;
+    let maybe-path = element(board.path-cache, cons(source, target),
+                             default: $not-memoized);
+    if (maybe-path = $not-memoized)
+      let path = find-path*(source, target, board);
+      board.path-cache[cons(source, target)] := path;
+      // TODO -- cache the whole path. A common case is a robot
+      // following a path, to a destination, with deviations. If
+      // we cache the whole path, then we can often save a lot of
+      // work, I think. 
+      path;
+    else
+      maybe-path
+    end if;
   end if;
 end function find-path;
 
 
 //
 // Adding memoized path-length to path.dylan
-
-define constant $not-memoized = #"Not memoized";
-
-/* 
-
-define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
- => (len :: false-or(<integer>))
-  let path = find-path(p1, p2, b);
-  if (path)
-    path.size
-  else
-    #f
-  end if;
-end function path-length;
-
-*/
 
 define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
  => (len :: false-or(<integer>))
