@@ -1,13 +1,14 @@
 library: icfp2002
 executable: icfp2002
 linker-options: -Xlinker -Bstatic
+not-used-files:   dumbot
 files:
   icfp2002-exports
   icfp2002
   board
   robot
-  robot-agent
   package
   command
-  dumbot
-  
+  robot-agent
+  messages
+

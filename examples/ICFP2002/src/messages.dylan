@@ -45,7 +45,7 @@ define constant $east-string = "E";
 // some supplementary error information to the exception, and reraise.
 
 define class <message-error> (<error>)
-  constant slot data :: <list>,
+  slot data :: <list>,
     required-init-keyword: data:;
 end class <message-error>;
 
@@ -62,7 +62,7 @@ end function add-error;
 
 define function debug(fmt :: <string>, #rest args) => ()
   if (*debug*)
-    apply(format-out, *standard-error*, fmt, args);
+    apply(format, *standard-error*, fmt, args);
     force-output(*standard-error*);
   end if;
 end function debug;
@@ -131,11 +131,11 @@ define function receive-initial-setup (s :: <stream>)
  => (robot-id :: <integer>,
      carry-max :: <integer>,
      money :: <integer>,
-     board :: <board>)
+     state :: <state>)
   let board = receive-board-layout(s);
   let (robot-id, carry-max, money) = receive-client-configuration(s);
-  receive-initial-robot-positions(s, b);
-  values(robot-id, carry-max, money, board);
+  let state = receive-initial-robot-positions(s, board);
+  values(robot-id, carry-max, money, state);
 end function receive-initial-setup;
 
 define function receive-board-layout (s :: <stream>) => <board>;
@@ -172,15 +172,16 @@ end function receive-client-configuration;
 // 
 
 define function receive-initial-robot-positions
-    (s :: <stream>, b :: <board>) => ()
-  let (robot-id, x, y) = receive-robot-positions(s);
-  b[x, y] := robot(robot-id);
+    (s :: <stream>, b :: <board>) => <state>;
+  let state = make(<state>, board: b);
+  let (robot-id, x, y) = receive-robot-location(s);
+  state := add-robot(state, make(<robot>, id: robot-id, x: x, y: y));
   iterate loop (c :: <character> = s.read-element)
     select (c)
       ' ' =>
         begin
-          let (robot-id, x, y) = receive-robot-positions(s);
-          b[x, y] := robot(robot-id);
+          let (robot-id, x, y) = receive-robot-location(s);
+          state := add-robot(state, make(<robot>, id: robot-id, x: x, y: y));
           loop(s.read-element);
         end;
       '\n' => #f;
@@ -188,6 +189,7 @@ define function receive-initial-robot-positions
     end select;
   end iterate;
   debug("receive-initial-robot-positions\n");
+  state;
 end function receive-initial-robot-positions;
 
 // Supporting functions.
@@ -212,7 +214,7 @@ define function receive-board-row (s :: <stream>,
     block ()
       receive-newline(s);
     exception (e :: <message-error>)
-      add-error("receive-board-row -- row did not terminate as expected\n");
+      add-error(e, "receive-board-row -- row did not terminate as expected\n");
     end block;
   end for;
   debug("receive-board-row: max-x = %d, y = %d cols read\n", max-x, y);
@@ -245,7 +247,7 @@ define function receive-robot-location (s :: <stream>)
     let robot-id = receive-integer(s);
     receive-string(s, " X ");
     let x = receive-integer(s);
-    receive-integer(s, " Y ");
+    receive-string(s, " Y ");
     let y = receive-integer(s);
     debug("receive-robot-location: Robot %d at (%d, %d)\n",
           robot-id, x, y);

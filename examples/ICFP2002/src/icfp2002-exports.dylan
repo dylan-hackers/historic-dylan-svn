@@ -57,9 +57,9 @@ define module command
     <drop>;
 end module command;
 
-/*
 define module messages
-  use common-dylan;
+  use icfp2002, exclude: {string-to-integer};
+  use string-conversions, import: {string-to-integer};
   use standard-io;
   use character-type, import: {digit?};
   use board;
@@ -84,7 +84,6 @@ define module messages
     receive-robot-location,
     receive-initial-robot-positions; // Updates board with robot positions.
 end module messages;
-*/
 
 define module client
   use common-dylan;
@@ -93,6 +92,7 @@ define module client
 
   export <robot-agent>
 end module client;
+
 
 define module server
   use board;
