@@ -37,7 +37,7 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
 	  always-print("changing to pushbot\n");
 	  current-bot := <pushbot>;
 	elseif(instance?(current-bot, <pushbot>))
-		 always-print("changing to thomas\n");
+	  always-print("changing to thomas\n");
 	  current-bot := <thomas>;
 	else
 	  always-print("changing to gabot\n");

@@ -23,7 +23,7 @@ define module utils
   use table-extensions;
 
   export
-    *debug*, debug, force-format, choose-one,
+    *debug*, debug, always-print, force-format, choose-one,
     report-and-flush-error,
     <cons>, cons, car, cdr;
 end module utils;
