@@ -373,7 +373,9 @@
 	  called the <glossterm>local heap</glossterm> and the
 	  per-application heap is called the <glossterm>global
 	  heap</glossterm>. The latter is only dumped if the current
-	  library will become an executable application.</para>
+	  library will become an executable application. Both dumpers are
+	  implemented by the <link linkend="gdmaint-d2c-cback-heap">
+          <dmodule>Heap</dmodule> module</link>.</para>
 	</formalpara>
       </listitem>
       <listitem>
@@ -385,35 +387,43 @@
 	  dumps the data structures used by this library into a
 	  <filename>*.lib.du</filename> file. If another Dylan library
 	  includes this library, the dumped data structures will be used to
-	  perform inter-library optimizations.</para>
+	  perform inter-library optimizations. The dumped data is stored as
+	  persistent objects in <glossterm>Object Description
+	  Format</glossterm> (<acronym>ODF</acronym>). The dumping process
+	  is controlled by the &main-lib;. <acronym>ODF</acronym> is
+	  implemented by the <link
+	  linkend="gdmaint-d2c-base-od-format"><dmodule>OD-Format</dmodule>
+	  module</link>.</para>
 	</formalpara>
       </listitem>
       <listitem>
 	<formalpara>
 	  <title>Generate a Makefile and run the C compiler</title>
-
-	  <para>Once everything is in place, &d2c; finishes generating a
-	  Makefile and runs <acronym>GNU</acronym>
-	  <command>make</command>.</para>
+	  
+	  <para>The compilation driver in the &main-lib; creates a Makefile
+	  and C source files as needed during the compilation process. Once
+	  all the necessary code has been generated and the heaps are
+	  built, &d2c; invokes <acronym>GNU</acronym>
+	  <command>make</command> on the Makefile.</para>
 	</formalpara>
       </listitem>
     </itemizedlist>
-
+    
     <sect1 id="gdmaint-d2c-base">
       <title>The <dlibrary>Compiler-Base</dlibrary> Library</title>
-
+      
       <para>The <dlibrary>Compiler-Base</dlibrary> library exports the
       basic data structures used by the compiler. It also provides a number
       of miscellaneous utility modules. Every other library relies on
       <dlibrary>Compiler-Base</dlibrary>.</para>
-
+      
       <sect2 id="gdmaint-d2c-base-miscellaneous">
 	<title>Miscellaneous Utility Modules</title>
-
+	
 	<para>Several modules in <dlibrary>Compiler-Base</dlibrary> appear
 	to contain assorted utility routines used elsewhere in the
 	compiler.</para>
-
+	
 	<variablelist>
 	  <varlistentry>
 	    <term><dmodule>Common</dmodule></term>
