@@ -12,7 +12,7 @@ define function describe-list(my-list :: &lt;list>, #key verbose?) => ()
   format(*standard-output*, "{a &lt;list&gt;, size: %d", my-list.size);
   if (verbose?)
     format(*standard-output*, ", elements:");
-    for (item in list)
+    for (item in my-list)
       format(*standard-output*, " %=", item);
     end for;
   end if;
