@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cse.dylan,v 1.2 1998/09/17 13:05:50 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cse.dylan,v 1.2.2.1 1998/09/23 01:25:55 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -33,12 +33,12 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 //
 // Eliminate all common sub-expressions in component.
 // 
-define method common-subexpression-elimination
+define inline function common-subexpression-elimination
     (component :: <component>) => ();
   for (function in component.all-function-regions)
     cse-region(component, function.body, make(<operation-table>));
   end for;
-end method common-subexpression-elimination;
+end function common-subexpression-elimination;
 
 
 // Operation tables.
@@ -62,7 +62,7 @@ end class <operation-table>;
 //
 // Find an equivalent operation, or return #f if there isn't one.
 // 
-define method find-operation
+define function find-operation
     (table :: <operation-table>, op :: <operation>)
     => old-operation :: false-or(<operation>);
   block (return)
@@ -92,7 +92,7 @@ define method find-operation
     end for;
     table.ot-inherit-from & find-operation(table.ot-inherit-from, op);
   end block;
-end method find-operation;
+end function find-operation;
 
 
 // same-operation? -- internal.
@@ -109,7 +109,7 @@ define generic same-operation?
 //
 // Catch-all that just returns #f.
 // 
-define method same-operation?
+define /* inline */ method same-operation?
     (op1 :: <operation>, op2 :: <operation>)
     => res :: <boolean>;
   #f;
@@ -119,7 +119,7 @@ end method same-operation?;
 //
 // Two primitives are the same if they have the same name.
 // 
-define method same-operation?
+define /* inline */ method same-operation?
     (op1 :: <primitive>, op2 :: <primitive>)
     => res :: <boolean>;
   op1.primitive-name == op2.primitive-name;
@@ -129,7 +129,7 @@ end method same-operation?;
 //
 // Two slot-refs are the same if they are referencing the same slot.
 // 
-define method same-operation?
+define /* inline */ method same-operation?
     (op1 :: <slot-ref>, slot2 :: <slot-ref>)
     => res :: <boolean>;
   op1.slot-info == slot2.slot-info;
@@ -140,7 +140,7 @@ end method same-operation?;
 // Two truly-the operations are the same if they are guaranteeing the same
 // result type.
 // 
-define method same-operation?
+define /* inline */ method same-operation?
     (op1 :: <truly-the>, op2 :: <truly-the>)
     => res :: <boolean>;
   op1.guaranteed-type == op2.guaranteed-type;
@@ -151,7 +151,7 @@ end method same-operation?;
 // Two instance? operations are the same if they are checking for the same
 // type.
 // 
-define method same-operation?
+define /* inline */ method same-operation?
     (op1 :: <instance?>, op2 :: <instance?>)
     => res :: <boolean>;
   op1.type == op2.type;
@@ -173,7 +173,7 @@ define generic same-leaf?
 // In theory there could be leaves that are the same but not ==, hence this
 // function.  But all of the interesting leaves are == when the same.
 // 
-define method same-leaf?
+define /* inline */ method same-leaf?
     (leaf1 :: <leaf>, leaf2 :: <leaf>)
     => res :: <boolean>;
   leaf1 == leaf2;
@@ -183,10 +183,10 @@ end method same-leaf?;
 //
 // Add the operation to the table.
 // 
-define method record-operation
+define inline function record-operation
     (table :: <operation-table>, op :: <operation>) => ();
   add!(table.ot-operations, op);
-end method record-operation;
+end function record-operation;
 
 
 // cse-region -- internal.
@@ -267,7 +267,7 @@ end method cse-region;
 // us dominates all the sub-region, and each sub-region dominates everything
 // following it.  So we can just pass the table on in.
 // 
-define method cse-region
+define /* inline */ method cse-region
     (component :: <component>, region :: <compound-region>,
      table :: <operation-table>)
     => ();
@@ -282,7 +282,7 @@ end method cse-region;
 // tables for each sub-region because neither sub-region dominates the other
 // or dominates anything that follows.
 // 
-define method cse-region
+define /* inline */ method cse-region
     (component :: <component>, region :: <if-region>,
      table :: <operation-table>)
     => ();
@@ -298,7 +298,7 @@ end method cse-region;
 // need to: there is nothing after us, so it doesn't matter what happens to the
 // table.
 // 
-define method cse-region
+define /* inline */ method cse-region
     (component :: <component>, region :: <loop-region>,
      table :: <operation-table>)
     => ();
@@ -310,7 +310,7 @@ end method cse-region;
 // Just call cse-region on the body.  The body dominates whatever follows us,
 // so pass in the same table we were passed.
 // 
-define method cse-region
+define /* inline */ method cse-region
     (component :: <component>, region :: <unwind-protect-region>,
      table :: <operation-table>)
     => ();
@@ -323,7 +323,7 @@ end method cse-region;
 // does not dominate whatever follows: exits might cause some part of the body
 // to be skipped.
 //
-define method cse-region
+define /* inline */ method cse-region
     (component :: <component>, region :: <block-region>,
      table :: <operation-table>)
     => ();
@@ -335,7 +335,7 @@ end method cse-region;
 //
 // Exits contain no operations, so there isn't much to do.
 //
-define method cse-region
+define /* inline */ method cse-region
     (component :: <component>, region :: <exit>, table :: <operation-table>)
     => ();
 end method cse-region;
@@ -347,7 +347,7 @@ end method cse-region;
 // it must be an operation, operation-cseable? must give it the go, and we
 // must be able to relocate references to the operands.
 //
-define method expression-cseable?
+define function expression-cseable?
     (expr :: <expression>) => res :: <boolean>;
   if (instance?(expr, <operation>) & operation-cseable?(expr))
     block (return)
@@ -362,7 +362,7 @@ define method expression-cseable?
   else
     #f;
   end if;
-end method expression-cseable?;
+end function expression-cseable?;
 
 
 // operation-cseable? -- internal.
@@ -387,7 +387,7 @@ end method operation-cseable?;
 //
 // Primitives are explicitly annotated as cseable or not.
 // 
-define method operation-cseable?
+define /* inline */ method operation-cseable?
     (expr :: <primitive>) => res :: <boolean>;
   expr.primitive-info.priminfo-cseable?;
 end method operation-cseable?;
@@ -396,7 +396,7 @@ end method operation-cseable?;
 //
 // Slot references are cseable if the slot is read-only.
 // 
-define method operation-cseable?
+define /* inline */ method operation-cseable?
     (expr :: <slot-ref>) => res :: <boolean>;
   expr.slot-info.slot-read-only?;
 end method operation-cseable?;
@@ -405,7 +405,7 @@ end method operation-cseable?;
 //
 // Truly-the operations are always available for CSE.
 //
-define method operation-cseable?
+define /* inline */ method operation-cseable?
     (expr :: <truly-the>) => res :: <boolean>;
   #t;
 end method operation-cseable?;
@@ -414,7 +414,7 @@ end method operation-cseable?;
 //
 // Instance? operations are always available for CSE.
 //
-define method operation-cseable?
+define /* inline */ method operation-cseable?
     (expr :: <instance?>) => res :: <boolean>;
   #t;
 end method operation-cseable?;
@@ -428,7 +428,7 @@ end method operation-cseable?;
 // operation is producing.  Note: the operation must be producing a fixed
 // number of values, or we shouldn't be considering the operation cseable.
 // 
-define method values-wanted (assign :: <fer-assignment>) => res :: <integer>;
+define function values-wanted (assign :: <fer-assignment>) => res :: <integer>;
   if (assign.defines
 	& instance?(assign.defines.var-info, <values-cluster-info>))
     let type = assign.depends-on.source-exp.derived-type;
@@ -442,5 +442,5 @@ define method values-wanted (assign :: <fer-assignment>) => res :: <integer>;
       count;
     end for;
   end if;
-end method values-wanted;
+end function values-wanted;
 

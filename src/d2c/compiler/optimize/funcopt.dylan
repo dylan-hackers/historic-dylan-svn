@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/funcopt.dylan,v 1.2 1998/09/09 13:40:37 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/funcopt.dylan,v 1.2.2.1 1998/09/23 01:25:56 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -111,8 +111,9 @@ define method optimize
   end unless;
 end method optimize;
 
-define method optimize (component :: <component>, prologue :: <prologue>)
-    => ();
+define /* inline */ method optimize
+    (component :: <component>, prologue :: <prologue>)
+ => ();
   maybe-restrict-type
     (component, prologue,
      make-values-ctype(prologue.function.argument-types, #f).ctype-extent);
@@ -147,7 +148,7 @@ define method optimize (component :: <component>, return :: <return>) => ();
 end;
 
 
-define method let-convert
+define function let-convert
     (component :: <component>, function :: <fer-function-region>,
      call :: <known-call>)
     => ();
@@ -289,7 +290,7 @@ define method let-convert
   // Queue the catchers for blocks in the new home that are exited to from
   // the function's body.
   queue-throws(component, new-home, new-home.body);
-end;
+end function let-convert;
 
 define method queue-throws
     (component :: <component>, home :: <fer-function-region>,
@@ -324,14 +325,14 @@ define method queue-throws
   queue-throws(component, home, region.else-region);
 end;
 
-define method queue-throws
+define /* inline */ method queue-throws
     (component :: <component>, home :: <fer-function-region>,
      region :: <body-region>)
     => ();
   queue-throws(component, home, region.body);
 end;
 
-define method queue-throws
+define /* inline */ method queue-throws
     (component :: <component>, home :: <fer-function-region>,
      region :: <exit>)
     => ();

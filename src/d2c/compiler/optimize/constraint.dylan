@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/constraint.dylan,v 1.1 1998/05/03 19:55:34 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/constraint.dylan,v 1.1.1.1.4.1 1998/09/23 01:25:54 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -40,12 +40,12 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 //
 // Propagate whatever constraints we can.
 // 
-define method propagate-constraints (component :: <component>)
+define inline function propagate-constraints (component :: <component>)
   for (function in component.all-function-regions)
     propagate-constraints-region
       (component, function.body, make(<renaming-set>));
   end for;
-end method propagate-constraints;
+end function propagate-constraints;
 
 // <renaming> -- internal.
 //
@@ -74,14 +74,14 @@ define sealed domain initialize (<renaming>);
 // Wrapper accessor on %renaming-replacement that invokes the function if
 // it is one.
 // 
-define method renaming-replacement (renaming :: <renaming>) => res :: <leaf>;
+define function renaming-replacement (renaming :: <renaming>) => res :: <leaf>;
   let leaf-or-func = renaming.%renaming-replacement;
   if (instance?(leaf-or-func, <function>))
     renaming.%renaming-replacement := leaf-or-func();
   else
     leaf-or-func;
   end if;
-end method renaming-replacement;
+end function renaming-replacement;
 
 // <renaming-set> -- internal.
 //
@@ -106,24 +106,25 @@ define sealed domain initialize (<renaming-set>);
 //
 // Add another renaming to the set.
 // 
-define method add-renaming
+define inline function add-renaming
     (set :: <renaming-set>, original :: <ssa-variable>,
      replacement :: type-union(<leaf>, <function>))
     => ();
   let renaming = make(<renaming>, original: original,
 		      replacement: replacement);
   set.renaming-set-renamings[original] := renaming;
-end method add-renaming;
+end function add-renaming;
 
-define method find-renaming (set :: <renaming-set>, var :: <ssa-variable>)
-    => renaming :: false-or(<renaming>);
+define function find-renaming
+    (set :: <renaming-set>, var :: <ssa-variable>)
+ => renaming :: false-or(<renaming>);
   element(set.renaming-set-renamings, var, default: #f)
     | (set.renaming-set-inherit-from
 	 & find-renaming(set.renaming-set-inherit-from, var));
-end method find-renaming;
+end function find-renaming;
 
 
-define method apply-renamings-to-dependencies
+define inline function apply-renamings-to-dependencies
     (component :: <component>, dependent :: <dependent-mixin>,
      renamings :: <renaming-set>)
     => ();
@@ -131,7 +132,7 @@ define method apply-renamings-to-dependencies
        while: dep)
     apply-renamings(component, dep, dep.source-exp, renamings);
   end for;
-end method apply-renamings-to-dependencies;
+end function apply-renamings-to-dependencies;
 
 
 define generic apply-renamings
@@ -139,7 +140,7 @@ define generic apply-renamings
      renamings :: <renaming-set>)
     => ();
     
-define method apply-renamings
+define /* inline */ method apply-renamings
     (component :: <component>, dep :: <dependency>, expr :: <expression>,
      renamings :: <renaming-set>)
     => ();
@@ -155,20 +156,20 @@ define method apply-renamings
   end if;
 end method apply-renamings;
 
-define method apply-renamings
+define /* inline */ method apply-renamings
     (component :: <component>, dep :: <dependency>, op :: <operation>,
      renamings :: <renaming-set>)
     => ();
   apply-renamings-to-dependencies(component, op, renamings);
 end method apply-renamings;
 
-define method apply-renamings
+define /* inline */ method apply-renamings
     (component :: <component>, dep :: <dependency>, op :: <truly-the>,
      renamings :: <renaming-set>)
     => ();
 end method apply-renamings;
 
-define method apply-renamings
+define /* inline */ method apply-renamings
     (component :: <component>, dep :: <dependency>,
      exit-func :: <exit-function>, renamings :: <renaming-set>)
     => ();
@@ -227,7 +228,7 @@ define method propagate-constraints-region
   propagate-constraints-region(component, region.else-region, else-renamings);
 end;
 
-define method propagate-constraints-region
+define /* inline */ method propagate-constraints-region
     (component :: <component>, region :: <body-region>,
      renamings :: <renaming-set>)
     => ();
@@ -235,13 +236,13 @@ define method propagate-constraints-region
 			       make(<renaming-set>, inherit-from: renamings));
 end;
 
-define method propagate-constraints-region
+define /* inline */ method propagate-constraints-region
     (component :: <component>, region :: <exit>,
      renamings :: <renaming-set>)
     => ();
 end;
 
-define method propagate-constraints-region
+define /* inline */ method propagate-constraints-region
     (component :: <component>, region :: <return>,
      renamings :: <renaming-set>)
     => ();
@@ -255,7 +256,7 @@ define generic extract-if-constraints
      then-renamings :: <renaming-set>, else-renamings :: <renaming-set>)
     => ();
 
-define method extract-if-constraints
+define /* inline */ method extract-if-constraints
     (component :: <component>, region :: <if-region>, cond :: <expression>,
      then-renamings :: <renaming-set>, else-renamings :: <renaming-set>)
     => ();
@@ -329,13 +330,13 @@ end method extract-if-constraints;
 
 
 
-define method constrain-as-identical
+define /* inline */ method constrain-as-identical
     (component :: <component>, inside :: <region>, renamings :: <renaming-set>,
      x :: <leaf>, y :: <leaf>)
     => ();
 end method constrain-as-identical;
 
-define method constrain-as-identical
+define /* inline */ method constrain-as-identical
     (component :: <component>, inside :: <region>, renamings :: <renaming-set>,
      x :: <ssa-variable>, y :: <leaf>)
     => ();
@@ -343,7 +344,7 @@ define method constrain-as-identical
 		       ctype-intersection(x.derived-type, y.derived-type));
 end method constrain-as-identical;
 
-define method constrain-as-identical
+define /* inline */ method constrain-as-identical
     (component :: <component>, inside :: <region>, renamings :: <renaming-set>,
      x :: <ssa-variable>, y :: <literal-constant>)
     => ();
@@ -351,7 +352,7 @@ define method constrain-as-identical
 end method constrain-as-identical;
 
 
-define method constrain-as-different
+define /* inline */ method constrain-as-different
     (component :: <component>, inside :: <region>, renamings :: <renaming-set>,
      x :: <leaf>, y :: <leaf>)
     => ();
@@ -372,7 +373,7 @@ end method constrain-as-different;
 
 
 
-define method maybe-constrain-type
+define /* inline */ method maybe-constrain-type
     (component :: <component>, inside :: <region>, renamings :: <renaming-set>,
      var :: <ssa-variable>, new-type :: <ctype>)
     => ();
@@ -387,7 +388,7 @@ end method maybe-constrain-type;
 
 
 
-define method insert-type-constraint
+define function insert-type-constraint
     (component :: <component>, inside :: <region>,
      var :: <ssa-variable>, new-type :: <ctype>)
     => replacement :: <leaf>;
@@ -403,4 +404,4 @@ define method insert-type-constraint
     (component, inside.parent, inside,
      combine-regions(component, builder-result(builder), inside));
   temp;
-end method insert-type-constraint;
+end function insert-type-constraint;

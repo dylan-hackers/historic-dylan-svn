@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/primopt.dylan,v 1.1 1998/05/03 19:55:34 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/primopt.dylan,v 1.1.1.1.4.1 1998/09/23 01:25:59 anoncvs Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 
@@ -265,12 +265,14 @@ define-primitive-transformer
      end;
    end);
 
-define method consumes-cluster? (expr :: <leaf>) => res :: <boolean>;
+define /* inline */ method consumes-cluster?
+    (expr :: <leaf>) => res :: <boolean>;
   #f;
 end;
 
-define method consumes-cluster? (expr :: <abstract-variable>)
-    => res :: <boolean>;
+define /* inline */ method consumes-cluster?
+    (expr :: <abstract-variable>)
+ => res :: <boolean>;
   instance?(expr.var-info, <values-cluster-info>);
 end;
 

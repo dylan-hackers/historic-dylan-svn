@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/Attic/xep.dylan,v 1.2 1998/09/09 13:40:38 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/Attic/xep.dylan,v 1.2.2.1 1998/09/23 01:26:02 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -31,7 +31,7 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 
 // External entry construction.
 
-define method build-local-xeps (component :: <component>) => ();
+define function build-local-xeps (component :: <component>) => ();
   for (func in component.all-function-literals)
     if (func.general-entry == #f & func.visibility == #"local")
       block (return)
@@ -47,7 +47,7 @@ define method build-local-xeps (component :: <component>) => ();
       end block;
     end if;
   end for;
-end;
+end function build-local-xeps;
 
 define method build-xep-component
     (function :: <ct-function>, generic-entry? :: <boolean>)
@@ -58,7 +58,7 @@ define method build-xep-component
   values(entry, component);
 end method build-xep-component;
 
-define method build-xep-get-ctv (func :: <function-literal>)
+define inline function build-xep-get-ctv (func :: <function-literal>)
   func.ct-function
     | (func.ct-function
 	 := make(if (instance?(func, <method-literal>))
@@ -70,7 +70,7 @@ define method build-xep-get-ctv (func :: <function-literal>)
 		 end,
 		 name: func.main-entry.name,
 		 signature: func.signature));
-end method build-xep-get-ctv;
+end function build-xep-get-ctv;
 
 define method build-external-entries-for
     (component :: <component>, function :: <function-literal>) => ();
@@ -144,7 +144,7 @@ define method build-xep
 		main-entry);
 end;
 
-define method aux-build-xep
+define function aux-build-xep
     (function :: <expression>, signature :: <signature>,
      component :: <component>, entry-name,
      kind :: one-of(#"function", #"method", #"callback"),
@@ -523,9 +523,9 @@ define method aux-build-xep
   end-body(builder);
 
   xep;
-end;
+end function aux-build-xep;
 
-define method build-callback-xep
+define function build-callback-xep
     (function :: <callback-literal>, component :: <component>)
  => (xep :: <fer-function-region>);
   let main-entry = function.main-entry;
@@ -593,7 +593,7 @@ define method build-callback-xep
   build-return(builder, policy, source, xep, cluster);
   end-body(builder);
   xep;
-end method build-callback-xep;
+end function build-callback-xep;
 
 
 

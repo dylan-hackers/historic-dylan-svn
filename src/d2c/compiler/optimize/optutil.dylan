@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/optutil.dylan,v 1.1 1998/05/03 19:55:35 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/optutil.dylan,v 1.1.1.1.4.1 1998/09/23 01:25:58 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -37,7 +37,7 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 //
 // Convert a .depends-on chain into a list.
 // 
-define method listify-dependencies (dependencies :: false-or(<dependency>))
+define function listify-dependencies (dependencies :: false-or(<dependency>))
     => res :: <list>;
   for (res = #() then pair(dep.source-exp, res),
        dep = dependencies then dep.dependent-next,
@@ -45,7 +45,7 @@ define method listify-dependencies (dependencies :: false-or(<dependency>))
   finally
     reverse!(res);
   end;
-end;
+end function listify-dependencies;
 
 
 
@@ -53,7 +53,7 @@ end;
 //
 // Return the closest enclosing loop or function region.
 // 
-define method enclosing-loop-or-function
+define function enclosing-loop-or-function
     (region :: <region>)
     => res :: type-union(<loop-region>, <fer-function-region>);
   if (instance?(region, <loop-region>)
@@ -62,32 +62,32 @@ define method enclosing-loop-or-function
   else
     enclosing-loop-or-function(region.parent);
   end if;
-end method enclosing-loop-or-function;
+end function enclosing-loop-or-function;
 
 
 
-// maybe-copy -- internal.
+// maybe-copy -- internal GF.
 //
 define generic maybe-copy
     (component :: <component>, leaf :: <leaf>, before :: <dependent-mixin>,
      ref-site :: <fer-function-region>)
     => copy :: <leaf>;
 
-define method maybe-copy
+define /* inline */ method maybe-copy
     (component :: <component>, leaf :: <leaf>, before :: <dependent-mixin>,
      ref-site :: <fer-function-region>)
     => copy :: <leaf>;
   leaf;
 end method maybe-copy;
 
-define method maybe-copy
+define /* inline */ method maybe-copy
     (component :: <component>, leaf :: <initial-variable>,
      before :: <dependent-mixin>, ref-site :: <fer-function-region>)
     => copy :: <leaf>;
   make-copy(component, leaf, before, before.home-function-region ~== ref-site);
 end method maybe-copy;
     
-define method maybe-copy
+define /* inline */ method maybe-copy
     (component :: <component>, leaf :: <ssa-variable>,
      before :: <dependent-mixin>, ref-site :: <fer-function-region>)
     => copy :: <leaf>;
@@ -100,7 +100,7 @@ define method maybe-copy
 end method maybe-copy;
     
 
-define method make-copy
+define function make-copy
     (component :: <component>, leaf :: <abstract-variable>,
      before :: <dependent-mixin>, lexical? :: <boolean>)
     => copy :: <leaf>;
@@ -120,19 +120,19 @@ define method make-copy
     insert-before(component, before, builder-result(builder));
     copy;
   end if;
-end method make-copy;
+end function make-copy;
 
 
 
 define generic only-possible-value (type :: <ctype>)
     => res :: false-or(<ct-value>);
 
-define method only-possible-value (type :: <ctype>)
+define /* inline */ method only-possible-value (type :: <ctype>)
     => res :: false-or(<ct-value>);
   #f;
 end method only-possible-value;
 
-define method only-possible-value (type :: <singleton-ctype>)
+define /* inline */ method only-possible-value (type :: <singleton-ctype>)
     => res :: false-or(<ct-value>);
   type.singleton-value;
 end method only-possible-value;

@@ -1,5 +1,5 @@
 module: tokens
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/tokens.dylan,v 1.1 1998/05/03 19:55:30 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/tokens.dylan,v 1.1.1.1.4.1 1998/09/23 01:25:40 anoncvs Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -536,9 +536,9 @@ end method syntax-for-name;
 
 // problem-with-category-merge -- exported.
 //
-// Return the category that would clashe with new category if we were to
-// try to merge them, or #f if the merge is okay.
-// 
+// Return the category that would clash with the new category if we
+// were to try to merge them, or #f if the merge is okay.
+//
 define method problem-with-category-merge
     (table :: <syntax-table>, word :: <symbol>, category :: <word-category>)
     => problem :: false-or(<word-category>);

@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/tailcall.dylan,v 1.1 1998/05/03 19:55:34 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/tailcall.dylan,v 1.1.1.1.4.1 1998/09/23 01:25:59 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -30,7 +30,7 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 
 // Tail call identification.
 
-define method identify-tail-calls (component :: <component>) => ();
+define function identify-tail-calls (component :: <component>) => ();
   for (function in component.all-function-regions)
     for (return = function.exits then return.next-exit,
 	 while: return)
@@ -40,14 +40,14 @@ define method identify-tail-calls (component :: <component>) => ();
 	     while: dep)
 	  unless (instance?(dep.source-exp, <abstract-variable>))
 	    next-return();
-	  end;
-	end;
+	  end unless;
+	end for;
 	identify-tail-calls-before(component, function, results,
 				   return.parent, return);
-      end;
-    end;
-  end;
-end;
+      end block;
+    end for;
+  end for;
+end function identify-tail-calls;
 
 
 define generic identify-tail-calls-before
@@ -55,11 +55,11 @@ define generic identify-tail-calls-before
      results :: false-or(<dependency>), in :: <region>, before :: <region>)
     => ();
 
-define method identify-tail-calls-before
+define /* inline */ method identify-tail-calls-before
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), in :: <region>,
      before :: <region>)
-    => ();
+ => ();
   identify-tail-calls-before(component, home, results, in.parent, in);
 end;
 
@@ -83,18 +83,18 @@ define method identify-tail-calls-before
   end;
 end;
 
-define method identify-tail-calls-before
+define /* inline */ method identify-tail-calls-before
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), in :: <if-region>,
      before :: <region>)
-    => ();
+ => ();
 end;
 
-define method identify-tail-calls-before
+define /* inline */ method identify-tail-calls-before
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), in :: <function-region>,
      before :: <region>)
-    => ();
+ => ();
 end;
 
   
@@ -163,32 +163,32 @@ define method identify-tail-calls-in
   end;
 end;
 
-define method identify-tail-calls-in
+define /* inline */ method identify-tail-calls-in
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), region :: <compound-region>)
-    => ();
+ => ();
   identify-tail-calls-in(component, home, results, region.regions.last);
 end;
 
-define method identify-tail-calls-in
+define /* inline */ method identify-tail-calls-in
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), region :: <empty-region>)
-    => ();
+ => ();
   identify-tail-calls-before(component, home, results, region.parent, region);
 end;
 
-define method identify-tail-calls-in
+define /* inline */ method identify-tail-calls-in
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), region :: <if-region>)
-    => ();
+ => ();
   identify-tail-calls-in(component, home, results, region.then-region);
   identify-tail-calls-in(component, home, results, region.else-region);
 end;
   
-define method identify-tail-calls-in
+define /* inline */ method identify-tail-calls-in
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), region :: <loop-region>)
-    => ();
+ => ();
 end;
 
 define method identify-tail-calls-in
@@ -204,16 +204,16 @@ define method identify-tail-calls-in
   end;
 end;
 
-define method identify-tail-calls-in
+define /* inline */ method identify-tail-calls-in
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), region :: <unwind-protect-region>)
-    => ();
+ => ();
 end;
 
-define method identify-tail-calls-in
+define /* inline */ method identify-tail-calls-in
     (component :: <component>, home :: <fer-function-region>,
      results :: false-or(<dependency>), region :: <exit>)
-    => ();
+ => ();
 end;
 
 
@@ -221,20 +221,20 @@ define generic definition-for?
     (defn :: <definition-site-variable>, var :: <abstract-variable>)
     => res :: <boolean>;
 
-define method definition-for?
+define /* inline */ method definition-for?
     (defn :: <ssa-variable>, var :: <abstract-variable>)
-    => res :: <boolean>;
+ => res :: <boolean>;
   defn == var;
 end;
 
-define method definition-for?
+define /* inline */ method definition-for?
     (defn :: <initial-definition>, var :: <abstract-variable>)
-    => res :: <boolean>;
+ => res :: <boolean>;
   defn.definition-of == var;
 end;
 
 
-define method convert-self-tail-call
+define function convert-self-tail-call
     (component :: <component>, func :: <fer-function-region>,
      call :: <abstract-call>)
     => ();
@@ -274,4 +274,4 @@ define method convert-self-tail-call
   // Queue the assignment and self-tail-call operation.
   reoptimize(component, op);
   reoptimize(component, assign);
-end;
+end function convert-self-tail-call;

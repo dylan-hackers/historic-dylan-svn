@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/trans.dylan,v 1.1 1998/05/03 19:55:34 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/trans.dylan,v 1.1.1.1.4.1 1998/09/23 01:26:01 anoncvs Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 
@@ -47,7 +47,7 @@ copyright: Copyright (c) 1995  Carnegie Mellon University
 //
 // The main entry point to transforming calls.
 // 
-define method maybe-transform-call
+define function maybe-transform-call
     (component :: <component>, call :: <abstract-call>)
     => did-anything? :: <boolean>;
   block (return)
@@ -58,20 +58,33 @@ define method maybe-transform-call
     end;
     #f;
   end;
-end method maybe-transform-call;
+end function maybe-transform-call;
 
 
+// find-transformers-leaf
+//
 define generic find-transformers-leaf (func :: <leaf>) => res :: <list>;
 
-define method find-transformers-leaf (func :: <leaf>) => res :: <list>;
+
+// find-transformers-leaf  -- method on GF.
+//
+define inline method find-transformers-leaf
+    (func :: <leaf>) => res :: <list>;
   #();
 end;
 
-define method find-transformers-leaf (func :: <definition-constant-leaf>)
-    => res :: <list>;
+
+// find-transformers-leaf  -- method on GF.
+//
+define inline method find-transformers-leaf
+    (func :: <definition-constant-leaf>)
+ => res :: <list>;
   find-transformers-defn(func.const-defn);
 end;
 
+
+// find-transformers-leaf  -- method on GF.
+//
 define method find-transformers-leaf (func :: <literal-constant>)
     => res :: <list>;
   let defn = func.value.ct-function-definition;
@@ -83,21 +96,34 @@ define method find-transformers-leaf (func :: <literal-constant>)
 end;
 
 
+// find-transformers-defn
+//
 define generic find-transformers-defn (func :: <definition>)
     => res :: <list>;
 
-define method find-transformers-defn (func :: <definition>)
-    => res :: <list>;
+
+// find-transformers-defn  -- method on GF.
+//
+define inline method find-transformers-defn (func :: <definition>)
+ => res :: <list>;
   #();
 end;
 
-define method find-transformers-defn (defn :: <function-definition>)
-    => res :: <list>;
+
+// find-transformers-defn  -- method on GF.
+//
+define inline method find-transformers-defn
+    (defn :: <function-definition>)
+ => res :: <list>;
   defn.function-defn-transformers;
 end;
-  
-define method find-transformers-defn (defn :: <generic-definition>)
-    => res :: <list>;
+
+
+// find-transformers-defn  -- method on GF.
+//
+define inline method find-transformers-defn
+    (defn :: <generic-definition>)
+ => res :: <list>;
   choose(method (transformer)
 	   let specializers = transformer.transformer-specializers;
 	   specializers == #f | specializers == #"gf";
@@ -109,7 +135,10 @@ end;
 // extract-args
 //
 // Extracts the arguments from a call.
-// 
+//
+
+// extract-args  -- method on GF.
+//
 define method extract-args
     (call :: <known-call>, nfixed :: <integer>, want-next? :: <boolean>,
      rest? :: <boolean>, keys :: false-or(<list>))
@@ -166,6 +195,9 @@ define method extract-args
 end method extract-args;
 
 
+
+// extract-args  -- method on GF.
+//
 define method extract-args
     (call :: <unknown-call>, nfixed :: <integer>, want-next? :: <boolean>,
      rest? :: <boolean>, keys :: false-or(<list>))
@@ -202,36 +234,58 @@ define method extract-args
 end method extract-args;
 
 
-define method find-signature (func :: <leaf>)
-    => res :: <signature>;
+
+// find-signature  -- method on GF.
+//
+define inline method find-signature (func :: <leaf>)
+ => res :: <signature>;
   error("Known call of some random leaf?");
 end;
 
-define method find-signature (func :: <function-literal>)
+
+// find-signature  -- method on GF.
+//
+define inline method find-signature (func :: <function-literal>)
     => res :: <signature>;
   func.signature;
 end;
 
-define method find-signature (func :: <definition-constant-leaf>)
+
+// find-signature  -- method on GF.
+//
+define inline method find-signature (func :: <definition-constant-leaf>)
     => res :: <signature>;
   func.const-defn.function-defn-signature;
 end;
 
-define method find-signature (func :: <literal-constant>)
-    => res :: <signature>;
+
+// find-signature  -- method on GF.
+//
+define inline method find-signature (func :: <literal-constant>)
+ => res :: <signature>;
   func.value.ct-function-signature;
 end;
 
 
-define method extract-rest-arg (expr :: <expression>) => res :: <false>;
+
+// extract-rest-arg  -- method on GF.
+//
+define inline method extract-rest-arg
+    (expr :: <expression>) => res :: <false>;
   #f;
 end;
 
-define method extract-rest-arg (expr :: <ssa-variable>)
-    => res :: false-or(<list>);
+
+// extract-rest-arg  -- method on GF.
+//
+define inline method extract-rest-arg (expr :: <ssa-variable>)
+ => res :: false-or(<list>);
   extract-rest-arg(expr.definer.depends-on.source-exp);
 end;
 
+
+// extract-rest-arg  -- method on GF.
+//
 define method extract-rest-arg (expr :: <primitive>)
     => res :: false-or(<list>);
   if (expr.primitive-name == #"vector")
@@ -246,6 +300,9 @@ define method extract-rest-arg (expr :: <primitive>)
   end;
 end;
 
+
+// extract-rest-arg  -- method on GF.
+//
 define method extract-rest-arg (expr :: <literal-constant>)
     => res :: false-or(<list>);
   if (expr.value = #() | expr.value = #[])
@@ -258,7 +315,7 @@ end;
 
 // == stuff.
 
-define method generic-==-transformer
+define function generic-==-transformer
     (component :: <component>, call :: <unknown-call>)
     => did-anything? :: <boolean>;
   block (return)
@@ -318,12 +375,12 @@ define method generic-==-transformer
       #f;
     end if;
   end block;
-end method generic-==-transformer;
+end function generic-==-transformer;
 
 define-transformer(#"==", #"gf", generic-==-transformer);
 
 
-define method trivial-==-optimization
+define function trivial-==-optimization
     (component :: <component>, operation :: <operation>,
      x :: <leaf>, y :: <leaf>)
     => did-anything? :: <boolean>;
@@ -350,12 +407,19 @@ define method trivial-==-optimization
       #f;
     end;
   end;
-end;
+end function trivial-==-optimization;
 
-define method origin (thing :: <expression>) => origin :: <expression>;
+
+// origin  -- method on GF.
+//
+define inline method origin
+    (thing :: <expression>) => origin :: <expression>;
   thing;
 end method origin;
 
+
+// origin  -- method on GF.
+//
 define method origin (thing :: <ssa-variable>) => origin :: <expression>;
   let assign = thing.definer;
   if (thing == assign.defines)
@@ -371,32 +435,44 @@ define method origin (thing :: <ssa-variable>) => origin :: <expression>;
 end;
 
 
-define method always-the-same?
+
+// always-the-same?  -- method on GF.
+//
+define inline method always-the-same?
     (x :: <expression>, y :: <expression>) => res :: <boolean>;
   x == y;
 end;
 
-define method always-the-same?
+
+// always-the-same?  -- method on GF.
+//
+define inline method always-the-same?
     (x :: <literal-constant>, y :: <literal-constant>)
-    => res :: <boolean>;
+ => res :: <boolean>;
   x.value == y.value;
 end;
 
-define method always-the-same?
+
+// always-the-same?  -- method on GF.
+//
+define inline method always-the-same?
     (x :: <definition-constant-leaf>, y :: <definition-constant-leaf>)
-    => res :: <boolean>;
+ => res :: <boolean>;
   x.const-defn.ct-value == y.const-defn.ct-value;
 end;
 
-define method always-the-same?
+
+// always-the-same?  -- method on GF.
+//
+define inline method always-the-same?
     (x :: <module-var-ref>, y :: <module-var-ref>)
-    => res :: <boolean>;
+ => res :: <boolean>;
   let defn = x.variable;
   instance?(defn, <abstract-constant-definition>) & defn == y.variable;
 end;
 
 
-define method replace-==-with-instance?-then-==
+define function replace-==-with-instance?-then-==
     (component :: <component>, call :: <abstract-call>,
      x :: <leaf>, y :: <leaf>, type :: <ctype>)
     => ();
@@ -428,10 +504,10 @@ define method replace-==-with-instance?-then-==
 
   insert-before(component, assign, builder-result(builder));
   replace-expression(component, call.dependents, result-temp);
-end method replace-==-with-instance?-then-==;
+end function replace-==-with-instance?-then-==;
 
 
-define method object-==-transformer
+define function object-==-transformer
     (component :: <component>, call :: <abstract-call>)
     => did-anything? :: <boolean>;
   block (return)
@@ -468,19 +544,27 @@ define method object-==-transformer
 
     #f;
   end block;
-end method object-==-transformer;
+end function object-==-transformer;
 
 define-transformer(#"==", #(#"<object>", #"<object>"), object-==-transformer);
 
 
+// is-it-functional? -- GF.
+//
 define generic is-it-functional? (type :: <ctype>)
     => res :: one-of(#t, #f, #"maybe");
 
-define method is-it-functional? (type :: <unknown-ctype>)
-    => res :: one-of(#t, #f, #"maybe");
+
+// is-it-functional?  -- method on GF.
+//
+define inline method is-it-functional? (type :: <unknown-ctype>)
+ => res :: one-of(#t, #f, #"maybe");
   #"maybe";
 end;
 
+
+// is-it-functional?  -- method on GF.
+//
 define method is-it-functional? (class :: <cclass>)
     => res :: one-of(#t, #f, #"maybe");
   if (~class.sealed?)
@@ -503,11 +587,17 @@ define method is-it-functional? (class :: <cclass>)
   end if;
 end;
 
+
+// is-it-functional?  -- method on GF.
+//
 define method is-it-functional? (type :: <limited-ctype>)
     => res :: one-of(#t, #f, #"maybe");
   is-it-functional?(type.base-class);
 end;
 
+
+// is-it-functional?  -- method on GF.
+//
 define method is-it-functional? (type :: <union-ctype>)
     => res :: one-of(#t, #f, #"maybe");
   let members = type.members;
@@ -527,7 +617,7 @@ define method is-it-functional? (type :: <union-ctype>)
 end;
 
 
-define method slow-functional-==-transformer
+define function slow-functional-==-transformer
     (component :: <component>, call :: <abstract-call>)
     => did-anything? :: <boolean>;
   let (okay?, x, y) = extract-args(call, 2, #f, #f, #f);
@@ -552,12 +642,12 @@ define method slow-functional-==-transformer
   else
     #f;
   end if;
-end method slow-functional-==-transformer;
+end function slow-functional-==-transformer;
     
 define-transformer(#"slow-functional-==", #f, slow-functional-==-transformer);
 
 
-define method replace-with-functional-==
+define function replace-with-functional-==
     (component :: <component>, call :: <abstract-call>,
      class :: <cclass>, x :: <leaf>, y :: <leaf>)
     => ();
@@ -605,7 +695,7 @@ define method replace-with-functional-==
 
   insert-before(component, assign, builder-result(builder));
   replace-expression(component, call.dependents, result-temp);
-end method replace-with-functional-==;
+end function replace-with-functional-==;
 
 
 
@@ -617,7 +707,7 @@ end method replace-with-functional-==;
 // into assignments with a type assertion so the other parts of the compiler
 // can more easily identify the type restriction.
 // 
-define method check-type-transformer
+define function check-type-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
   let (okay?, object, type) = extract-args(call, 2, #f, #f, #f);
@@ -641,24 +731,33 @@ define method check-type-transformer
   else
     #f;
   end;
-end;
+end function check-type-transformer;
 //
 define-transformer(#"check-type", #f, check-type-transformer);
 
-define method extract-constant-type (leaf :: <leaf>)
-    => res :: false-or(<ctype>);
+
+// extract-constant-type  -- method on GF.
+//
+define inline method extract-constant-type (leaf :: <leaf>)
+ => res :: false-or(<ctype>);
   #f;
 end;
 
-define method extract-constant-type (leaf :: <literal-constant>)
+
+// extract-constant-type  -- method on GF.
+//
+define inline method extract-constant-type (leaf :: <literal-constant>)
   leaf.value;
 end;
 
-define method extract-constant-type (leaf :: <definition-constant-leaf>)
+
+// extract-constant-type  -- method on GF.
+//
+define inline method extract-constant-type (leaf :: <definition-constant-leaf>)
   leaf.const-defn.ct-value;
 end;
 
-define method instance?-transformer
+define function instance?-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
   let (okay?, value-leaf, type-leaf) = extract-args(call, 2, #f, #f, #f);
@@ -681,11 +780,14 @@ define method instance?-transformer
       #t;
     end;
   end;
-end;
+end function instance?-transformer;
 
 define-transformer(#"instance?", #f, instance?-transformer);
 
 
+
+// optimize  -- method on GF.
+//
 define method optimize
     (component :: <component>, op :: <instance?>) => ();
   let value-type = op.depends-on.source-exp.derived-type;
@@ -702,6 +804,9 @@ define method optimize
 end method optimize;
 
 
+
+// replace-placeholder  -- method on GF.
+//
 define method replace-placeholder
     (component :: <component>, dep :: <dependency>, op :: <instance?>)
     => ();
@@ -720,22 +825,31 @@ define method replace-placeholder
 
   insert-before(component, assign, builder-result(builder));
   replace-expression(component, dep, expr);
-end;
+end method replace-placeholder;
 
+
+// build-instance?  -- GF.
+//
 define generic build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, type :: <ctype>)
     => res :: <expression>;
 
-define method build-instance?
+
+// build-instance?  -- method on GF.
+//
+define inline method build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, type :: <ctype>)
-    => res :: <expression>;
+ => res :: <expression>;
   make-unknown-call
     (builder, ref-dylan-defn(builder, policy, source, #"%instance?"),
      #f, list(value, make-literal-constant(builder, type)));
 end;
 
+
+// build-instance?  -- method on GF.
+//
 define method build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, type :: <union-ctype>)
@@ -769,10 +883,13 @@ define method build-instance?
   res;
 end;
 
-define method build-instance?
+
+// build-instance?  -- method on GF.
+//
+define inline method build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, type :: <singleton-ctype>)
-    => res :: <expression>;
+ => res :: <expression>;
   make-unknown-call
     (builder, ref-dylan-defn(builder, policy, source, #"=="),
      #f, list(value, make-literal-constant(builder, type.singleton-value)));
@@ -780,6 +897,9 @@ end;
 
 // ### limited integers?
 
+
+// build-instance?  -- method on GF.
+//
 define method build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, type :: <byte-character-ctype>)
@@ -821,6 +941,9 @@ define method build-instance?
   res;
 end;
 
+
+// build-instance?  -- method on GF.
+//
 define method build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, class :: <cclass>, #next next-method)
@@ -969,6 +1092,9 @@ define method build-instance?
   end;
 end;  
 
+
+// build-instance?  -- method on GF.
+//
 define method build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, type :: <direct-instance-ctype>)
@@ -984,6 +1110,9 @@ define method build-instance?
      #f, list(class-temp, make-literal-constant(builder, type.base-class)));
 end method build-instance?;
 
+
+// build-instance?  -- method on GF.
+//
 define method build-instance?
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      value :: <leaf>, type :: <subclass-ctype>)
@@ -1020,7 +1149,7 @@ end method build-instance?;
 
 // slot initialized and address functions.
 
-define method slot-initialized?-transformer
+define function slot-initialized?-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
   block (done)
@@ -1080,11 +1209,14 @@ define method slot-initialized?-transformer
     insert-before(component, call-assign, builder-result(builder));
     done(#t);
   end block;
-end method slot-initialized?-transformer;
+end function slot-initialized?-transformer;
 	    
 define-transformer(#"slot-initialized?", #f, slot-initialized?-transformer);
 
 
+
+// slot-from-getter  -- method on GF.
+//
 define method slot-from-getter
     (class :: <cclass>, getter :: <literal-constant>)
     => res :: false-or(<slot-info>);
@@ -1103,6 +1235,9 @@ define method slot-from-getter
   end;
 end method slot-from-getter;
 
+
+// slot-from-getter  -- method on GF.
+//
 define method slot-from-getter
     (class :: <cclass>, getter :: <definition-constant-leaf>)
     => res :: false-or(<slot-info>);
@@ -1117,7 +1252,10 @@ define method slot-from-getter
   end;
 end method slot-from-getter;
 
-define method slot-from-getter
+
+// slot-from-getter  -- method on GF.
+//
+define inline method slot-from-getter
     (class :: <cclass>, getter :: <leaf>) => res :: <false>;
   #f;
 end method slot-from-getter;
@@ -1125,7 +1263,7 @@ end method slot-from-getter;
 
 
 
-define method apply-transformer
+define function apply-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
   let (okay?, function, args) = extract-args(call, 1, #f, #t, #f);
@@ -1181,13 +1319,13 @@ define method apply-transformer
     replace-expression(component, assign.depends-on, op);
     #t;
   end;
-end;
+end function apply-transformer;
 
 define-transformer(#"apply", #f, apply-transformer);
 
 
 
-define method list-transformer
+define function list-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
   let (okay?, args) = extract-args(call, 0, #f, #t, #f);
@@ -1212,13 +1350,13 @@ define method list-transformer
   else
     #f;
   end;
-end;
+end function list-transformer;
 
 define-transformer(#"list", #f, list-transformer);
 
 
 
-define method make-transformer
+define function make-transformer
     (component :: <component>, call :: <known-call>)
     => (did-anything? :: <boolean>);
   block (return)
@@ -1271,7 +1409,7 @@ define method make-transformer
     replace-expression(component, assign.depends-on, instance-var);
     #t;
   end;
-end;
+end function make-transformer;
 
 define-transformer(#"make", #(#"<class>"), make-transformer);
 
@@ -1279,7 +1417,7 @@ define-transformer(#"make", #(#"<class>"), make-transformer);
 
 // reduce & reduce1 transformers.
 
-define method reduce-transformer
+define function reduce-transformer
     (component :: <component>, call :: <known-call>)
     => (did-anything? :: <boolean>);
   let (okay?, proc, init-val, collection) = extract-args(call, 3, #f, #f, #f);
@@ -1289,12 +1427,12 @@ define method reduce-transformer
       reduce-transformer-aux(component, call, proc, init-val, elements);
     end;
   end;
-end;
+end function reduce-transformer;
 
 define-transformer(#"reduce", #(#"<function>", #"<object>", #"<collection>"),
 		   reduce-transformer);
 
-define method reduce1-transformer
+define function reduce1-transformer
     (component :: <component>, call :: <known-call>)
     => (did-anything? :: <boolean>);
   let (okay?, proc, collection) = extract-args(call, 3, #f, #f, #f);
@@ -1306,12 +1444,12 @@ define method reduce1-transformer
       
     end;
   end;
-end;
+end function reduce1-transformer;
 
 define-transformer(#"reduce1", #(#"<function>", #"<object>", #"<sequence>"),
 		   reduce1-transformer);
 
-define method reduce-transformer-aux
+define function reduce-transformer-aux
     (component :: <component>, call :: <known-call>, proc :: <leaf>,
      init-value :: <leaf>, elements :: <list>)
     => res :: <true>;
@@ -1330,12 +1468,12 @@ define method reduce-transformer-aux
   insert-before(component, assign, builder-result(builder));
   replace-expression(component, call.dependents, current-value);
   #t;
-end;
+end function reduce-transformer-aux;
 
 
 // mapping transforms.
 
-define method do-transformer
+define function do-transformer
     (component :: <component>, call :: <known-call>)
     => (did-anything? :: <boolean>);
   let (okay?, proc, collection, more-collections)
@@ -1376,7 +1514,7 @@ define method do-transformer
 		       make-literal-constant(builder, as(<ct-value>, #f)));
     #t;
   end;
-end;
+end function do-transformer;
 
 define-transformer(#"do", #(#"<function>", #"<sequence>"), do-transformer);
 
@@ -1402,7 +1540,7 @@ define class <iteration-vars> (<object>)
     required-init-keyword: current-element-setter-func:;
 end;
 
-define method iteration-setup
+define function iteration-setup
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      orig-coll :: <leaf>)
     => res :: <iteration-vars>;
@@ -1432,9 +1570,9 @@ define method iteration-setup
        current-key-func: curkey,
        current-element-func: curel,
        current-element-setter-func: curel-setter);
-end;
+end function iteration-setup;
 
-define method iteration-advance
+define inline function iteration-advance
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      iteration-vars :: <iteration-vars>)
   build-assignment
@@ -1443,9 +1581,9 @@ define method iteration-advance
        (builder, iteration-vars.iteration-next-state-func, #f,
 	list(iteration-vars.iteration-collection-var,
 	     iteration-vars.iteration-state-var)));
-end;
+end function iteration-advance;
 
-define method iteration-done
+define inline function iteration-done
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      iteration-vars :: <iteration-vars>)
     => var :: <leaf>;
@@ -1458,9 +1596,9 @@ define method iteration-done
 	     iteration-vars.iteration-state-var,
 	     iteration-vars.iteration-limit-var)));
   var;
-end;
+end function iteration-done;
 
-define method iteration-current-key
+define inline function iteration-current-key
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      iteration-vars :: <iteration-vars>)
     => var :: <leaf>;
@@ -1472,9 +1610,9 @@ define method iteration-current-key
 	list(iteration-vars.iteration-collection-var,
 	     iteration-vars.iteration-state-var)));
   var;
-end;
+end function iteration-current-key;
 
-define method iteration-current-element
+define inline function iteration-current-element
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      iteration-vars :: <iteration-vars>)
     => var :: <leaf>;
@@ -1486,9 +1624,9 @@ define method iteration-current-element
 	list(iteration-vars.iteration-collection-var,
 	     iteration-vars.iteration-state-var)));
   var;
-end;
+end function iteration-current-element;
 
-define method iteration-current-element-setter
+define inline function iteration-current-element-setter
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
      new-value :: <leaf>, iteration-vars :: <iteration-vars>)
     => ();
@@ -1498,7 +1636,7 @@ define method iteration-current-element-setter
        (builder, iteration-vars.iteration-current-element-setter-func, #f,
 	list(new-value, iteration-vars.iteration-collection-var,
 	     iteration-vars.iteration-state-var)));
-end;
+end function iteration-current-element-setter;
 
 
 // Seals for file trans.dylan

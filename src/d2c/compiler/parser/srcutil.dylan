@@ -1,5 +1,5 @@
 Module: source-utilities
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/srcutil.dylan,v 1.1 1998/05/03 19:55:29 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/srcutil.dylan,v 1.1.1.1.4.1 1998/09/23 01:26:04 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -60,7 +60,7 @@ add-make-dumper(#"macro-source", *compiler-dispatcher*, <macro-source>,
 // a macro-srcloc is part of.  A section is one or more tokens that are
 // copied as a block from one location to another.  This is a useful notion
 // to maintain, because if some range of tokens stays all within one section
-// of the expansion, then they where in that same order wherever they came
+// of the expansion, then they were in that same order wherever they came
 // from.
 // 
 define class <section-marker> (<identity-preserving-mixin>)

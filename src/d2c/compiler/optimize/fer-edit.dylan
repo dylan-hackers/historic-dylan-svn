@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/fer-edit.dylan,v 1.1 1998/05/03 19:55:34 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/fer-edit.dylan,v 1.1.1.1.4.1 1998/09/23 01:25:55 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -33,7 +33,7 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 
 // Deletion routines
 
-define method delete-dependent
+define /* inline */ method delete-dependent
     (component :: <component>, dependent :: <dependent-mixin>) => ();
   //
   // Remove our dependency from whatever we depend on.
@@ -45,13 +45,13 @@ define method delete-dependent
   delete-queueable(component, dependent);
 end;
 
-define method delete-dependent
+define /* inline */ method delete-dependent
     (component :: <component>, op :: <catch>, #next next-method) => ();
   op.nlx-info.nlx-catch := #f;
   next-method();
 end;
 
-define method delete-dependent
+define /* inline */ method delete-dependent
     (component :: <component>, op :: <make-catcher>, #next next-method) => ();
   op.nlx-info.nlx-make-catcher := #f;
   next-method();
@@ -95,7 +95,7 @@ define method delete-dependent
   next-method();
 end;
 
-define method delete-and-unlink-assignment
+define function delete-and-unlink-assignment
     (component :: <component>, assignment :: <assignment>) => ();
 
   // Do everything but the unlinking.
@@ -124,10 +124,10 @@ define method delete-and-unlink-assignment
 
   // Set the region to #f to indicate that we are a gonner.
   assignment.region := #f;
-end;
+end function delete-and-unlink-assignment;
 
 
-define method delete-assignment
+define function delete-assignment
     (component :: <component>, assignment :: <assignment>) => ();
 
   // Clean up the dependent aspects.
@@ -138,9 +138,9 @@ define method delete-assignment
        while: var)
     delete-definition(component, var);
   end;
-end;
+end function delete-assignment;
 
-define method delete-definition
+define /* inline */ method delete-definition
     (component :: <component>, defn :: <ssa-variable>) => ();
   defn.definer := #f;
 end;
@@ -165,7 +165,7 @@ define method delete-definition
 end;
 
 
-define method remove-dependency-from-source
+define function remove-dependency-from-source
     (component :: <component>, dependency :: <dependency>) => ();
   let source = dependency.source-exp;
   for (dep = source.dependents then dep.source-next,
@@ -182,13 +182,13 @@ define method remove-dependency-from-source
   // Note that we dropped a dependent in case doing so will trigger
   // some optimization based on the number of definers.
   dropped-dependent(component, source);
-end;
+end function remove-dependency-from-source;
 
-define method dropped-dependent
+define /* inline */ method dropped-dependent
     (component :: <component>, expr :: <expression>) => ();
 end;
 
-define method dropped-dependent
+define /* inline */ method dropped-dependent
     (component :: <component>, op :: <operation>) => ();
   //
   // If we dropped the last dependent, delete this operation.
@@ -227,7 +227,7 @@ define method dropped-dependent
   end;
 end;
 
-define method dropped-dependent
+define /* inline */ method dropped-dependent
     (component :: <component>, function :: <function-literal>) => ();
   if (function.visibility == #"local")
     // If we dropped a reference to the function literal, we might be
@@ -258,7 +258,7 @@ end;
 // following it in the control flow.  This is the interface to data driven
 // dead code deletion.
 //
-define method insert-exit-after
+define function insert-exit-after
     (component :: <component>, assignment :: <abstract-assignment>,
      target :: <block-region-mixin>)
     => ();
@@ -280,9 +280,9 @@ define method insert-exit-after
     replace-subregion(component, orig-parent, orig-region, new);
     delete-stuff-after(component, exit.parent, exit);
   end;
-end;
+end function insert-exit-after;
 
-define method insert-return-before
+define function insert-return-before
     (component :: <component>, assignment :: <abstract-assignment>,
      target :: <block-region-mixin>, cluster :: <abstract-variable>)
     => ();
@@ -311,7 +311,7 @@ define method insert-return-before
 
   target.result-type := wild-ctype();
   reoptimize(component, target);
-end;
+end function insert-return-before;
 
 
 define generic exit-useless?
@@ -337,25 +337,25 @@ define method exit-useless?
   end;
 end;
 
-define method exit-useless?
+define /* inline */ method exit-useless?
     (from :: <region>, after :: <region>, target :: <block-region-mixin>)
     => res :: <boolean>;
   exit-useless?(from.parent, from, target);
 end;
 
-define method exit-useless?
+define /* inline */ method exit-useless?
     (from :: <loop-region>, after :: <region>, target :: <block-region-mixin>)
     => res :: <boolean>;
   #f;
 end;
 
-define method exit-useless?
+define /* inline */ method exit-useless?
     (from :: <block-region>, after :: <region>, target :: <block-region-mixin>)
     => res :: <boolean>;
   from == target | exit-useless?(from.parent, from, target);
 end;
 
-define method exit-useless?
+define /* inline */ method exit-useless?
     (from :: <function-region>, after :: <region>,
      target :: <block-region-mixin>)
     => res :: <boolean>;
@@ -372,7 +372,7 @@ define method delete-stuff-in
   end;
 end;
 
-define method delete-stuff-in
+define /* inline */ method delete-stuff-in
     (component :: <component>, region :: <compound-region>) => ();
   for (subregion in region.regions)
     delete-stuff-in(component, subregion);
@@ -386,7 +386,7 @@ define method delete-stuff-in
   delete-stuff-in(component, region.else-region);
 end;
 
-define method delete-stuff-in
+define /* inline */ method delete-stuff-in
     (component :: <component>, region :: <body-region>) => ();
   delete-stuff-in(component, region.body);
 end;
@@ -418,7 +418,7 @@ define method delete-stuff-in
   end;
 end;
 
-define method delete-stuff-in
+define /* inline */ method delete-stuff-in
     (component :: <component>, return :: <return>, #next next-method) => ();
   delete-dependent(component, return);
   next-method();
@@ -462,13 +462,13 @@ define method delete-stuff-after
   end;
 end;
 
-define method delete-stuff-after
+define /* inline */ method delete-stuff-after
     (component :: <component>, region :: <loop-region>, after :: <region>)
     => ();
   // There is nothing ``after'' a loop region in the flow of control.
 end;
 
-define method delete-stuff-after
+define /* inline */ method delete-stuff-after
     (component :: <component>, region :: <block-region>, after :: <region>)
     => ();
   unless (region.exits)
@@ -476,14 +476,14 @@ define method delete-stuff-after
   end;
 end;
 
-define method delete-stuff-after
+define /* inline */ method delete-stuff-after
     (component :: <component>, region :: <unwind-protect-region>,
      after :: <region>)
     => ();
   delete-stuff-after(component, region.parent, region);
 end;
 
-define method delete-stuff-after
+define /* inline */ method delete-stuff-after
     (component :: <component>, region :: <function-region>, after :: <region>)
     => ();
   // There is nothing after the function.
@@ -495,27 +495,33 @@ end;
 
 define generic doesnt-return? (region :: <region>) => res :: <boolean>;
 
-define method doesnt-return? (region :: <simple-region>) => res :: <boolean>;
+define /* inline */ method doesnt-return?
+    (region :: <simple-region>) => res :: <boolean>;
   #f;
 end;
 
-define method doesnt-return? (region :: <compound-region>) => res :: <boolean>;
+define /* inline */ method doesnt-return?
+    (region :: <compound-region>) => res :: <boolean>;
   doesnt-return?(region.regions.last);
 end;
 
-define method doesnt-return? (region :: <empty-region>) => res :: <boolean>;
+define /* inline */ method doesnt-return?
+    (region :: <empty-region>) => res :: <boolean>;
   #f;
 end;
 
-define method doesnt-return? (region :: <if-region>) => res :: <boolean>;
+define /* inline */ method doesnt-return?
+    (region :: <if-region>) => res :: <boolean>;
   doesnt-return?(region.then-region) & doesnt-return?(region.else-region);
 end;
 
-define method doesnt-return? (region :: <loop-region>) => res :: <boolean>;
+define /* inline */ method doesnt-return?
+    (region :: <loop-region>) => res :: <boolean>;
   #t;
 end;
 
-define method doesnt-return? (region :: <block-region>) => res :: <boolean>;
+define /* inline */ method doesnt-return?
+    (region :: <block-region>) => res :: <boolean>;
   if (region.exits)
     #f;
   else
@@ -523,12 +529,13 @@ define method doesnt-return? (region :: <block-region>) => res :: <boolean>;
   end;
 end;
 
-define method doesnt-return?
+define /* inline */ method doesnt-return?
     (region :: <unwind-protect-region>) => res :: <boolean>;
   region.body.doesnt-return?;
 end;
 
-define method doesnt-return? (region :: <exit>) => res :: <boolean>;
+define /* inline */ method doesnt-return?
+    (region :: <exit>) => res :: <boolean>;
   #t;
 end;
 
@@ -545,7 +552,7 @@ define generic anything-after? (region :: <region>, after :: <region>)
 //
 // Flame out because something is wrong.
 //
-define method anything-after? (region :: <region>, after :: <region>)
+define /* inline */ method anything-after? (region :: <region>, after :: <region>)
     => res :: <boolean>;
   error("%= doesn't have any subregions.", region);
 end method anything-after?;
@@ -576,8 +583,9 @@ end method anything-after?;
 // Return #f.  We don't look above this region because anything up there has to
 // be after the other branch of the if.
 //
-define method anything-after? (region :: <if-region>, after :: <region>)
-    => res :: <boolean>;
+define /* inline */ method anything-after?
+    (region :: <if-region>, after :: <region>)
+ => res :: <boolean>;
   unless (after == region.then-region | after == region.else-region)
     error("%= isn't a subregion of %=", after, region);
   end unless;
@@ -592,8 +600,9 @@ end method anything-after?;
 //   stuff after block-regions must stay there because of exits.
 //   loop regions have nothing after them.
 // 
-define method anything-after? (region :: <body-region>, after :: <region>)
-    => res :: <boolean>;
+define /* inline */ method anything-after?
+    (region :: <body-region>, after :: <region>)
+ => res :: <boolean>;
   unless (after == region.body)
     error("%= isn't a subregion of %=", after, region);
   end unless;
@@ -609,7 +618,7 @@ end method anything-after?;
 // We also queue dep's dependent for reoptimization because it probably
 // wants to know that one of its operands has changed.
 //
-define method replace-expression
+define function replace-expression
     (component :: <component>, dep :: <dependency>, new-exp :: <expression>)
     => ();
   remove-dependency-from-source(component, dep);
@@ -617,7 +626,7 @@ define method replace-expression
   dep.source-next := new-exp.dependents;
   new-exp.dependents := dep;
   reoptimize(component, dep.dependent);
-end;
+end function replace-expression;
 
 
 // combine-regions -- internal.
@@ -628,7 +637,7 @@ end;
 // first subregion to see if it exits or not (i.e. whether the second subregion
 // is actually reachable.
 // 
-define method combine-regions
+define function combine-regions
     (component :: <component>, #rest stuff) => res :: <region>;
   let results = #();
   local
@@ -659,9 +668,9 @@ define method combine-regions
     end;
     new;
   end;
-end;
+end function combine-regions;
 
-define method merge-simple-regions
+define function merge-simple-regions
     (component :: <component>, first :: <simple-region>,
      second :: <simple-region>)
     => res :: <simple-region>;
@@ -701,7 +710,7 @@ define method merge-simple-regions
   end for;
 
   first;
-end;
+end function merge-simple-regions;
 
 
 // split-after - internal
@@ -711,7 +720,7 @@ end;
 // regions will have correct region links, but the parent link of the two
 // results is undefined.
 // 
-define method split-after (assign :: <abstract-assignment>)
+define function split-after (assign :: <abstract-assignment>)
     => (before :: <linear-region>, after :: <linear-region>);
   let next = assign.next-op;
   let region = assign.region;
@@ -730,8 +739,8 @@ define method split-after (assign :: <abstract-assignment>)
     values(region, new);
   else
     values(region, make(<empty-region>));
-  end;
-end;
+  end if;
+end function split-after;
 
 
 // split-before -- internal
@@ -741,7 +750,7 @@ end;
 // regions will have correct region links, but the parent link of the two
 // results is undefined.
 // 
-define method split-before (assign :: <abstract-assignment>)
+define inline function split-before (assign :: <abstract-assignment>)
     => (before :: <linear-region>, after :: <linear-region>);
   let prev = assign.prev-op;
   if (prev)
@@ -749,7 +758,7 @@ define method split-before (assign :: <abstract-assignment>)
   else
     values(make(<empty-region>), assign.region);
   end;
-end;
+end function split-before;
 
 
 // insert-after -- internal
@@ -838,28 +847,28 @@ define method insert-before
   before.prev-op := insert.last-assign;
 end;
     
-define method insert-before
+define /* inline */ method insert-before
     (component :: <component>, assign :: <abstract-assignment>,
      insert :: <empty-region>)
     => ();
 end;
 
-define method insert-before
+define /* inline */ method insert-before
     (component :: <component>, region :: <if-region>, insert :: <region>)
-    => ();
+ => ();
   // Note: the region.parent must be evaluated first because combine-regions
   // is allowed to dick with the parent links.
   replace-subregion(component, region.parent, region,
 		    combine-regions(component, insert, region));
 end;
 
-define method insert-before
+define /* inline */ method insert-before
     (component :: <component>, op :: <operation>, insert :: <region>)
-    => ();
+ => ();
   insert-before(component, op.dependents.dependent, insert);
 end;
 
-define method insert-before
+define /* inline */ method insert-before
     (component :: <component>, region :: <return>, insert :: <region>)
     => ();
   // Note: the region.parent must be evaluated first because combine-regions
@@ -952,7 +961,7 @@ define generic extract-stuff-after
 //
 // Flame out because something is wrong.
 // 
-define method extract-stuff-after
+define /* inline */ method extract-stuff-after
     (component :: <component>, region :: <region>, after :: <region>)
     => res :: <region>;
   error("%= doesn't have any subregions.", region);
@@ -1019,7 +1028,7 @@ end method extract-stuff-after;
 // return, then the stuff above us will be moved down into the other when
 // *this* if gets optimized.
 // 
-define method extract-stuff-after
+define /* inline */ method extract-stuff-after
     (component :: <component>, region :: <if-region>, after :: <region>)
     => res :: <region>;
   unless (after == region.then-region | after == region.else-region)
@@ -1033,7 +1042,7 @@ end method extract-stuff-after;
 // Just return an empty region because there is nothing extractble following
 // any of the different kinds of body regions.
 //
-define method extract-stuff-after
+define /* inline */ method extract-stuff-after
     (component :: <component>, region :: <body-region>, after :: <region>)
     => res :: <region>;
   unless (after == region.body)

@@ -1,5 +1,5 @@
 module: parser
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/support.dylan,v 1.1 1998/05/03 19:55:29 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/support.dylan,v 1.1.1.1.4.1 1998/09/23 01:26:05 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -55,7 +55,7 @@ define constant stretchy-vector =
 // make-body -- internal.
 //
 // Return a expression-parse for the body containting the supplied parts.
-// If there is only one part at it is already an expression-parse, just
+// If there is only one part and it is already an expression-parse, just
 // return it.  Otherwise, make a body-parse.
 // 
 define method make-body
@@ -693,11 +693,25 @@ end method grow;
 // parse -- internal.
 //
 // The actual parser loop.  Drive the state machine and maintain the stacks
-// until we hit an accept action or until be hit a bogus token.
+// until we hit an accept action or until we hit a bogus token.
 // 
 define method parse
     (tokenizer :: <tokenizer>, start-state :: <integer>, debug? :: <boolean>)
     => result :: <object>;
+  local
+    method check-for-potential-end-point (lookahead, state)
+      unless (lookahead.token-kind == $eof-token)
+	let actions :: <simple-object-vector> = $action-table[state];
+	let action :: <integer> = actions[$eof-token];
+	unless (action == $error-action)
+	  note-potential-end-point(tokenizer);
+	  if (debug?)
+	    dformat("potential end point\n");
+	  end if;
+	end unless;
+      end unless;
+    end method;
+      
   block (return)
     let state-stack = make(<simple-object-vector>, size: $initial-stack-size);
     let symbol-stack = make(<simple-object-vector>, size: $initial-stack-size);
@@ -707,17 +721,8 @@ define method parse
     let top :: <integer> = 1;
     let (lookahead, lookahead-srcloc) = get-token(tokenizer);
 
-    unless (lookahead.token-kind == $eof-token)
-      let actions :: <simple-object-vector> = $action-table[start-state];
-      let action :: <integer> = actions[$eof-token];
-      unless (action == $error-action)
-	note-potential-end-point(tokenizer);
-	if (debug?)
-	  dformat("potential end point\n");
-	end if;
-      end unless;
-    end unless;
-
+    check-for-potential-end-point(lookahead, start-state);
+    
     while (#t)
       let state :: <integer> = state-stack[top - 1];
 
@@ -761,17 +766,7 @@ define method parse
 	  lookahead := new-lookahead;
 	  lookahead-srcloc := new-srcloc;
 
-	  unless (lookahead.token-kind == $eof-token)
-	    let actions :: <simple-object-vector>
-	      = $action-table[action-datum];
-	    let action :: <integer> = actions[$eof-token];
-	    unless (action == $error-action)
-	      note-potential-end-point(tokenizer);
-	      if (debug?)
-		dformat("potential end point\n");
-	      end if;
-	    end unless;
-	  end unless;
+	  check-for-potential-end-point(lookahead, action-datum);
 
 	$reduce-action =>
 	  let semantic-action :: <function>

@@ -1,5 +1,5 @@
 module: cheese
-header: $Header: /scm/cvs/src/d2c/compiler/optimize/typeinf.dylan,v 1.1 1998/05/03 19:55:34 andreas Exp $
+header: $Header: /scm/cvs/src/d2c/compiler/optimize/typeinf.dylan,v 1.1.1.1.4.1 1998/09/23 01:26:02 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -31,7 +31,7 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 // Optimistic type inference.
 // 
 
-define method optimistic-type-inference (component :: <component>) => ();
+define function optimistic-type-inference (component :: <component>) => ();
   //
   // Make an initial guess for each type and queue everything that might
   // be improved.
@@ -53,7 +53,7 @@ define method optimistic-type-inference (component :: <component>) => ();
     record-guessed-type-region(component, function);
   end for;
   reverse-queue(component, #f);
-end method optimistic-type-inference;
+end function optimistic-type-inference;
 
 
 

@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.1 1998/05/03 19:55:33 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.1.1.1.4.1 1998/09/23 01:25:49 anoncvs Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -37,7 +37,7 @@ copyright: Copyright (c) 1996  Carnegie Mellon University
 //
 // Dispatch off the kind of function.
 // 
-define method optimize
+define /* inline */ method optimize
     (component :: <component>, call :: <unknown-call>) => ();
   optimize-general-call-leaf(component, call, call.depends-on.source-exp);
 end;
@@ -87,7 +87,7 @@ define generic optimize-general-call-ctv
 //
 // Just add a type assertion that the function is really a function.
 // 
-define method optimize-general-call-leaf
+define /* inline */ method optimize-general-call-leaf
     (component :: <component>, call :: <general-call>, func :: <leaf>)
     => ();
   assert-function-type(component, call);
@@ -126,7 +126,7 @@ end method optimize-general-call-leaf;
 // Compare the call against function signature and change to a known call if
 // possible and an error call if we can tell that it is invalid.
 // 
-define method optimize-general-call-leaf
+define /* inline */ method optimize-general-call-leaf
     (component :: <component>, call :: <general-call>,
      func :: <function-literal>)
     => ();
@@ -139,7 +139,7 @@ end;
 //
 // Dispatch off the kind of definition.
 // 
-define method optimize-general-call-leaf
+define /* inline */ method optimize-general-call-leaf
     (component :: <component>, call :: <general-call>,
      func :: <definition-constant-leaf>)
     => ();
@@ -150,7 +150,7 @@ end;
 //
 // Dispatch off the kind of ctv.
 // 
-define method optimize-general-call-leaf
+define /* inline */ method optimize-general-call-leaf
     (component :: <component>, call :: <unknown-call>,
      func :: <literal-constant>)
     => ();
@@ -220,7 +220,7 @@ end method optimize-general-call-leaf;
 //
 // Assert that the constant is a function.
 // 
-define method optimize-general-call-defn
+define /* inline */ method optimize-general-call-defn
     (component :: <component>, call :: <general-call>,
      defn :: <abstract-constant-definition>)
     => ();
@@ -231,7 +231,7 @@ end method optimize-general-call-defn;
 //
 // Propagate the result type.
 // 
-define method optimize-general-call-defn
+define /* inline */ method optimize-general-call-defn
     (component :: <component>, call :: <general-call>,
      defn :: <function-definition>)
     => ();
@@ -244,7 +244,7 @@ end method optimize-general-call-defn;
 // Propagate the result type and then defer to optimize-generic to do the
 // rest of the optimization.
 // 
-define method optimize-general-call-defn
+define /* inline */ method optimize-general-call-defn
     (component :: <component>, call :: <general-call>,
      defn :: <generic-definition>)
     => ();
@@ -271,7 +271,7 @@ end method optimize-general-call-defn;
 // Assert that the function is a function.  It isn't, but this is a handy
 // way of generating an error message.
 //
-define method optimize-general-call-ctv
+define /* inline */ method optimize-general-call-ctv
     (component :: <component>, call :: <general-call>, ctv :: <ct-value>)
     => ();
   assert-function-type(component, call);
@@ -513,7 +513,7 @@ end method extract-positional-arg-types;
     
 
 
-define method ambiguous-method-warning
+define function ambiguous-method-warning
     (call :: <abstract-call>, defn :: <generic-definition>,
      ambiguous :: <list>, arg-types :: <list>)
     => ();
@@ -535,9 +535,9 @@ define method ambiguous-method-warning
      "Can't order\n%s\n  when given positional arguments of types:\n%s",
      stream.stream-contents,
      arg-types-string);
-end;
+end function ambiguous-method-warning;
 
-define method no-applicable-methods-warning
+define function no-applicable-methods-warning
     (call :: <abstract-call>, defn :: <generic-definition>,
      arg-types :: <list>)
     => ();
@@ -556,9 +556,9 @@ define method no-applicable-methods-warning
      "No applicable methods for argument types\n%s\n  in call of %s",
      arg-types-string,
      defn.defn-name);
-end;
+end function no-applicable-methods-warning;
 
-define method make-next-method-info-leaf
+define function make-next-method-info-leaf
     (builder :: <fer-builder>, ordered :: <list>, ambiguous :: <list>)
     => res :: <leaf>;
 
@@ -588,14 +588,14 @@ define method make-next-method-info-leaf
     build-assignment(builder, policy, source, var, op);
     var;
     */
-  end;
-end;
+  end if;
+end function make-next-method-info-leaf;
 
 
 
 // Call manipulation utilities.
 
-define method assert-function-type
+define inline function assert-function-type
     (component :: <component>, call :: <general-call>) => ();
   //
   // Assert that the function is a function.
@@ -605,10 +605,10 @@ define method assert-function-type
 	      else
 		function-ctype();
 	      end);
-end method assert-function-type;
+end function assert-function-type;
 
 
-define method maybe-change-to-known-or-error-call
+define function maybe-change-to-known-or-error-call
     (component :: <component>, call :: <general-call>, sig :: <signature>,
      func-name :: <name>,
      inline-function :: false-or(<function-literal>),
@@ -633,8 +633,8 @@ define method maybe-change-to-known-or-error-call
 
     #"can't tell" =>
       #f;
-  end;
-end;
+  end select;
+end function maybe-change-to-known-or-error-call;
 
 
 define generic compare-call-against-signature
@@ -1129,7 +1129,7 @@ end method convert-to-known-call;
     
 
 
-define method change-call-kind
+define function change-call-kind
     (component :: <component>, call :: <abstract-call>, new-kind :: <class>,
      #rest make-keyword-args, #all-keys)
     => ();
@@ -1150,13 +1150,13 @@ define method change-call-kind
   call.depends-on := #f;
   call.dependents := #f;
   delete-dependent(component, call);
-end;
+end function change-call-kind;
 
 
 // Known call optimization.
 
 
-define method optimize
+define /* inline */ method optimize
     (component :: <component>, call :: <known-call>) => ();
   maybe-transform-call(component, call)
     | optimize-known-call-leaf(component, call, call.depends-on.source-exp);
@@ -1168,12 +1168,12 @@ define generic optimize-known-call-leaf
     => ();
 
 
-define method optimize-known-call-leaf
+define /* inline */ method optimize-known-call-leaf
     (component :: <component>, call :: <known-call>, func :: <leaf>)
     => ();
 end;
 
-define method optimize-known-call-leaf
+define /* inline */ method optimize-known-call-leaf
     (component :: <component>, call :: <known-call>,
      func :: <function-literal>)
     => ();
@@ -1214,12 +1214,12 @@ define generic optimize-known-call-defn
     => ();
 
 
-define method optimize-known-call-defn
+define /* inline */ method optimize-known-call-defn
     (component :: <component>, call :: <known-call>, func :: <definition>)
     => ();
 end;
 
-define method optimize-known-call-defn
+define /* inline */ method optimize-known-call-defn
     (component :: <component>, call :: <known-call>,
      defn :: <function-definition>)
     => ();
@@ -1227,7 +1227,7 @@ define method optimize-known-call-defn
   maybe-restrict-type(component, call, sig.returns.ctype-extent);
 end;
 
-define method optimize-known-call-defn
+define /* inline */ method optimize-known-call-defn
     (component :: <component>, call :: <known-call>,
      defn :: <generic-definition>)
     => ();
@@ -1235,7 +1235,7 @@ define method optimize-known-call-defn
   error("known call to a generic function?");
 end method optimize-known-call-defn;
 
-define method optimize-known-call-defn
+define /* inline */ method optimize-known-call-defn
     (component :: <component>, call :: <known-call>,
      func :: <getter-method-definition>)     
     => ();
@@ -1245,7 +1245,7 @@ define method optimize-known-call-defn
 		    listify-dependencies(call.depends-on.dependent-next));
 end;
 
-define method optimize-known-call-defn
+define /* inline */ method optimize-known-call-defn
     (component :: <component>, call :: <known-call>,
      func :: <setter-method-definition>)     
     => ();
@@ -1253,10 +1253,10 @@ define method optimize-known-call-defn
     (component, call, func.function-defn-signature.returns.ctype-extent);
   optimize-slot-set(component, call, func.accessor-method-defn-slot-info,
 		    listify-dependencies(call.depends-on.dependent-next));
-end;
+end method optimize-known-call-defn;
 
 
-define method optimize-slot-ref
+define function optimize-slot-ref
     (component :: <component>, call :: <abstract-call>,
      slot :: <instance-slot-info>, args :: <list>)
     => ();
@@ -1333,9 +1333,9 @@ define method optimize-slot-ref
     let dep = call-assign.depends-on;
     replace-expression(component, dep, value);
   end;
-end;
+end function optimize-slot-ref;
 
-define method optimize-slot-set
+define function optimize-slot-set
     (component :: <component>, call :: <abstract-call>,
      slot :: <instance-slot-info>, args :: <list>)
     => ();
@@ -1378,13 +1378,13 @@ define method optimize-slot-set
 
     let dep = call-assign.depends-on;
     replace-expression(component, dep, new);
-  end;
-end;
+  end if;
+end function optimize-slot-set;
 
 
 // next-method invocation magic.
 
-define method expand-next-method-call-ref
+define function expand-next-method-call-ref
     (component :: <component>, dep :: <dependency>,
      new-args :: type-union(<list>, <abstract-variable>),
      next-method-maker :: <primitive>)
@@ -1553,5 +1553,5 @@ define method expand-next-method-call-ref
 
   insert-before(component, assign, builder-result(builder));
   replace-expression(component, dep, op);
-end method expand-next-method-call-ref;
+end function expand-next-method-call-ref;
 

@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.2 1998/09/09 13:40:36 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.2.2.1 1998/09/23 01:25:53 anoncvs Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 
@@ -30,18 +30,26 @@ copyright: Copyright (c) 1995  Carnegie Mellon University
 //======================================================================
 
 define variable *do-sanity-checks* :: <boolean> = #f;
-define method enable-sanity-checks () => (); *do-sanity-checks* := #t; end;
-define method disable-sanity-checks () => (); *do-sanity-checks* := #f; end;
+define function enable-sanity-checks () => ();
+  *do-sanity-checks* := #t;
+end function enable-sanity-checks;
+define function disable-sanity-checks () => ();
+  *do-sanity-checks* := #f;
+end function disable-sanity-checks;
 
 define variable *print-shit* :: <boolean> = #f;
-define method print-shit () => (); *print-shit* := #t; end;
-define method dont-print-shit () => (); *print-shit* := #f; end;
+define function print-shit () => (); *print-shit* := #t; end;
+define function dont-print-shit () => (); *print-shit* := #f; end;
 
 define variable *optimize-ncalls* :: <integer> = 0;
 
+
+// optimize-component
+//
 // Note: the simplify-only: keyword is used only during inline
 // expansions.  It is not useful in any other situation.
-define method optimize-component
+//
+define function optimize-component
     (component :: <component>, #key simplify-only) => ();
   reverse-queue(component, #f);
   let done = #f;
@@ -99,10 +107,10 @@ define method optimize-component
 	| (done := #t);
     end;
   end;
-end;
+end function optimize-component;
 
 
-define method reverse-queue
+define function reverse-queue
     (component :: <component>, before :: false-or(<queueable-mixin>)) => ();
   if (before)
     unless (before.queue-next == #f
@@ -121,13 +129,13 @@ define method reverse-queue
   finally
     component.reoptimize-queue := result;
   end;
-end;
+end function reverse-queue;
 
 
 
 // SSA conversion.
 
-define method maybe-convert-to-ssa
+define function maybe-convert-to-ssa
     (component :: <component>, var :: <initial-variable>) => ();
   let defns = var.definitions;
   if (defns ~== #() & defns.tail == #())
@@ -172,39 +180,54 @@ define method maybe-convert-to-ssa
       reoptimize(component, assign);
     end;
   end;
-end method maybe-convert-to-ssa;
-
+end function maybe-convert-to-ssa;
 
 // Optimizations.
+// =============
 
+
+// optimize
+//
 define generic optimize
     (component :: <component>, dependent :: <queueable-mixin>)
     => ();
 
-define method optimize
+
+// optimize
+//
+define /* inline */ method optimize
     (component :: <component>, dependent :: <queueable-mixin>) => ();
   // By default, do nothing.
-end;
+end method optimize;
 
-define method reoptimize
+
+// reoptimize
+//
+define function reoptimize
     (component :: <component>, dependent :: <queueable-mixin>) => ();
   if (*print-shit*)
     dformat("queueing %=\n", dependent);
   end if;
   if (dependent.queue-next == #"absent")
     add-to-queue(component, dependent);
-  end;
-end;
+  end if;
+end function reoptimize;
 
-define method queue-dependents
+
+// queue-dependents
+//
+define inline function queue-dependents
     (component :: <component>, expr :: <expression>) => ();
   for (dependency = expr.dependents then dependency.source-next,
        while: dependency)
     reoptimize(component, dependency.dependent);
   end;
-end;
+end function queue-dependents;
 
-define method delete-queueable
+
+// delete-queueable
+//
+define function delete-queueable
     (component :: <component>, queueable :: <queueable-mixin>) => ();
   //
   // If we are queued for reoptimization, belay that.
@@ -221,20 +244,32 @@ define method delete-queueable
     end;
   end;
   queueable.queue-next := #"deleted";
-end;
+end function delete-queueable;
 
 
 // Assignment optimization.
 
-define method expression-flushable? (expr :: <expression>) => res :: <boolean>;
+
+// expression-flushable?  -- method on GF.
+//
+define /* inline */ method expression-flushable?
+    (expr :: <expression>) => res :: <boolean>;
   #f;
 end;
 
-define method expression-flushable? (expr :: <primitive>) => res :: <boolean>;
+
+// expression-flushable?  -- method on GF.
+//
+define /* inline */ method expression-flushable?
+    (expr :: <primitive>) => res :: <boolean>;
   expr.primitive-info.priminfo-side-effect-free?;
 end;
 
-define method expression-flushable? (expr :: <known-call>) => res :: <boolean>;
+
+// expression-flushable?  -- method on GF.
+//
+define method expression-flushable?
+    (expr :: <known-call>) => res :: <boolean>;
   let func = expr.depends-on.source-exp;
   if (instance?(func, <definition-constant-leaf>))
     let defn = func.const-defn;
@@ -243,77 +278,127 @@ define method expression-flushable? (expr :: <known-call>) => res :: <boolean>;
   end;
 end;
 
-define method expression-flushable? (expr :: <slot-ref>) => res :: <boolean>;
-  #t;
-end;
 
-define method expression-flushable? (expr :: <truly-the>) => res :: <boolean>;
-  #t;
-end;
-
-define method expression-flushable? (var :: <leaf>) => res :: <boolean>;
+// expression-flushable?  -- method on GF.
+//
+define /* inline */ method expression-flushable?
+    (expr :: <slot-ref>) => res :: <boolean>;
   #t;
 end;
 
 
+// expression-flushable?  -- method on GF.
+//
+define /* inline */ method expression-flushable?
+    (expr :: <truly-the>) => res :: <boolean>;
+  #t;
+end;
 
-define method expression-movable? (expr :: <expression>)
-    => res :: <boolean>;
+
+// expression-flushable?  -- method on GF.
+//
+define /* inline */ method expression-flushable?
+    (var :: <leaf>) => res :: <boolean>;
+  #t;
+end;
+
+
+
+
+// expression-movable?  -- method on GF.
+//
+define /* inline */ method expression-movable?
+    (expr :: <expression>) => res :: <boolean>;
   #f;
 end;
 
-define method expression-movable? (expr :: <primitive>)
-    => res :: <boolean>;
+
+// expression-movable?  -- method on GF.
+//
+define /* inline */ method expression-movable?
+    (expr :: <primitive>)
+ => res :: <boolean>;
   expr.primitive-info.priminfo-pure?;
 end method expression-movable?;
 
-define method expression-movable? (expr :: <known-call>)
-    => res :: <boolean>;
+
+// expression-movable?  -- method on GF.
+//
+define /* inline */ method expression-movable?
+    (expr :: <known-call>)
+ => res :: <boolean>;
   function-movable?(expr.depends-on.source-exp);
 end method expression-movable?;
 
-define method function-movable? (leaf :: <leaf>) => res :: <boolean>;
+
+// function-movable?  -- method on GF.
+//
+define /* inline */ method function-movable?
+    (leaf :: <leaf>) => res :: <boolean>;
   #f;
 end;
 
-define method function-movable?
+
+// function-movable?  -- method on GF.
+//
+define /* inline */ method function-movable?
     (leaf :: <definition-constant-leaf>) => res :: <boolean>;
   function-movable?(leaf.const-defn);
 end;
 
-define method function-movable?
+
+// function-movable?  -- method on GF.
+//
+define /* inline */ method function-movable?
     (leaf :: <literal-constant>) => res :: <boolean>;
   let defn = leaf.value.ct-function-definition;
   defn & function-movable?(defn);
 end;
 
-define method function-movable?
+
+// function-movable?  -- method on GF.
+//
+define /* inline */ method function-movable?
     (defn :: <definition>) => res :: <boolean>;
   #f;
 end;
 
-define method function-movable?
+
+// function-movable?  -- method on GF.
+//
+define /* inline */ method function-movable?
     (defn :: <function-definition>) => res :: <boolean>;
   defn.function-defn-movable?;
 end;
 
-define method expression-movable? (var :: <leaf>)
+
+// expression-movable?  -- method on GF.
+//
+define /* inline */ method expression-movable? (var :: <leaf>)
     => res :: <boolean>;
   #t;
 end;
 
-define method expression-movable? (var :: <ssa-variable>)
+
+// expression-movable?  -- method on GF.
+//
+define /* inline */ method expression-movable? (var :: <ssa-variable>)
     => res :: <boolean>;
   ~instance?(var.var-info, <values-cluster-info>);
 end;
 
-define method expression-movable? (var :: <initial-variable>)
+
+// expression-movable?  -- method on GF.
+//
+define /* inline */ method expression-movable? (var :: <initial-variable>)
     => res :: <boolean>;
   #f;
 end;
 
 
-define method trim-unneeded-defines
+// trim-unneeded-defines
+//
+define function trim-unneeded-defines
     (component :: <component>, assignment :: <assignment>) => ();
   local
     method unneeded? (defines)
@@ -336,18 +421,29 @@ define method trim-unneeded-defines
   if (unneeded?(assignment.defines))
     assignment.defines := #f;
   end;
-end;
+end function trim-unneeded-defines;
 
-define method define-unneeded? (defn :: <ssa-variable>)
+
+
+// define-unneeded?  -- method on GF.
+//
+define /* inline */ method define-unneeded?
+    (defn :: <ssa-variable>) => res :: <boolean>;
   ~(defn.dependents | defn.needs-type-check?);
 end;
 
-define method define-unneeded? (defn :: <initial-definition>)
+
+// define-unneeded?  -- method on GF.
+//
+define /* inline */ method define-unneeded? (defn :: <initial-definition>)
     => res :: <boolean>;
   ~(defn.definition-of.dependents | defn.needs-type-check?);
 end;
 
 
+
+// optimize  -- method on GF.
+//
 define method optimize
     (component :: <component>, assignment :: <assignment>) => ();
   let dependency = assignment.depends-on;
@@ -513,7 +609,7 @@ define generic maybe-propagate-copy
 // tell which definition the uses of the corresponding initial-variable
 // correspond to.
 //
-define method maybe-propagate-copy
+define /* inline */ method maybe-propagate-copy
     (component :: <component>, var :: <initial-definition>,
      value :: <expression>)
     => no-longer-needed? :: <boolean>;
@@ -619,7 +715,7 @@ end method maybe-propagate-copy;
 
 
 
-define method maybe-expand-cluster
+define function maybe-expand-cluster
     (component :: <component>, cluster :: <abstract-variable>)
     => did-anything? :: <boolean>;
   if (fixed-number-of-values?(cluster.derived-type))
@@ -635,8 +731,11 @@ define method maybe-expand-cluster
   else
     #f;
   end;
-end;
+end function;
 
+
+// expand-cluster  -- method on GF.
+//
 define method expand-cluster 
     (component :: <component>, cluster :: <ssa-variable>,
      number-of-values :: <integer>, names :: <list>)
@@ -682,6 +781,9 @@ define method expand-cluster
   end;
 end;
 
+
+// expand-cluster  -- method on GF.
+//
 define method expand-cluster 
     (component :: <component>, cluster :: <initial-variable>,
      number-of-values :: <integer>, names :: <list>)
@@ -742,6 +844,9 @@ end;
 
 // block/exit related optimizations.
 
+
+// optimize  -- method on GF.
+//
 define method optimize (component :: <component>, catch :: <catch>) => ();
   let nlx-info = catch.nlx-info;
   if (~nlx-info.nlx-hidden-references? & nlx-info.nlx-exit-function == #f
@@ -774,6 +879,9 @@ define method optimize (component :: <component>, catch :: <catch>) => ();
   end;
 end;
 
+
+// optimize  -- method on GF.
+//
 define method optimize (component :: <component>, op :: <throw>) => ();
   let nlx-info = op.nlx-info;
   let body-region = nlx-info.nlx-make-catcher.home-function-region;
@@ -809,6 +917,9 @@ define method optimize (component :: <component>, op :: <throw>) => ();
   end;
 end;
 
+
+// optimize  -- method on GF.
+//
 define method optimize
     (component :: <component>, region :: <block-region>) => ();
   if (region.exits == #f)
@@ -823,6 +934,9 @@ end;
 
 // If optimizations.
 
+
+// optimize  -- method on GF.
+//
 define method optimize (component :: <component>, if-region :: <if-region>)
     => ();
   let condition = if-region.depends-on.source-exp;
@@ -903,7 +1017,7 @@ define method optimize (component :: <component>, if-region :: <if-region>)
   end if;
 end method optimize;
 
-define method replace-if-with
+define function replace-if-with
     (component :: <component>, if-region :: <if-region>, with :: <region>)
     => ();
   let builder = make-builder(component);
@@ -916,7 +1030,10 @@ define method replace-if-with
 end;
 
 
-define method expand-next-method-if-ref
+
+//-if-ref  -- method on GF.
+//
+define function expand-next-method-if-ref
     (component :: <component>, ref-site :: <dependent-mixin>,
      next-method-maker :: <primitive>)
     => no-next-method?-leaf :: <leaf>;
@@ -937,12 +1054,15 @@ define method expand-next-method-if-ref
   insert-before(component, ref-site, builder-result(builder));
 
   empty?-var;
-end method expand-next-method-if-ref;
+end function expand-next-method-if-ref;
 
 
 
 // Type utilities.
 
+
+// optimize  -- method on GF.
+//
 define method optimize (component :: <component>, op :: <truly-the>) => ();
   let guaranteed = op.guaranteed-type.ctype-extent;
   let (intersection, win)
@@ -951,7 +1071,7 @@ define method optimize (component :: <component>, op :: <truly-the>) => ();
     (component, op, if (win) intersection else guaranteed end);
 end;
 
-define method assert-type
+define function assert-type
     (component :: <component>, before :: <assignment>,
      dependent :: <dependency>, type :: <ctype>)
     => ();
@@ -976,8 +1096,11 @@ define method assert-type
     dependent.source-next := #f;
     insert-before(component, before, builder-result(builder));
   end;
-end;
+end function assert-type;
 
+
+// maybe-restrict-type  -- method on GF.
+//
 define method maybe-restrict-type
     (component :: <component>, expr :: <expression>, type :: <values-ctype>)
     => ();
@@ -1011,6 +1134,9 @@ define method maybe-restrict-type
 end method maybe-restrict-type;
 
 
+
+// maybe-restrict-type  -- method on GF.
+//
 define method maybe-restrict-type
     (component :: <component>, var :: <abstract-variable>,
      type :: <values-ctype>, #next next-method)
@@ -1025,6 +1151,9 @@ define method maybe-restrict-type
 	      end);
 end;
 
+
+// maybe-restrict-type  -- method on GF.
+//
 define method maybe-restrict-type
     (component :: <component>, var :: <definition-site-variable>,
      type :: <values-ctype>, #next next-method)
@@ -1041,6 +1170,9 @@ end;
 define generic defaulted-type (ctype :: <values-ctype>, index :: <integer>)
     => res :: <ctype>;
 
+
+// defaulted-type  -- method on GF.
+//
 define method defaulted-type (ctype :: <ctype>, index :: <integer>)
     => res :: <ctype>;
   if (index.zero?)
@@ -1050,6 +1182,9 @@ define method defaulted-type (ctype :: <ctype>, index :: <integer>)
   end if;
 end;
 
+
+// defaulted-type  -- method on GF.
+//
 define method defaulted-type
     (ctype :: <multi-value-ctype>, index :: <integer>)
     => res :: <ctype>;
@@ -1067,11 +1202,18 @@ define method defaulted-type
   end if;
 end method defaulted-type;
 
-define method fixed-number-of-values? (ctype :: <ctype>) => res :: <boolean>;
+
+// fixed-number-of-values?  -- method on GF.
+//
+define /* inline */ method fixed-number-of-values?
+    (ctype :: <ctype>) => res :: <boolean>;
   #t;
 end;
 
-define method fixed-number-of-values?
+
+// fixed-number-of-values?  -- method on GF.
+//
+define /* inline */ method fixed-number-of-values?
     (ctype :: <values-ctype>) => res :: <boolean>;
   ctype.min-values == ctype.positional-types.size
     & ctype.rest-value-type == empty-ctype();
@@ -1080,7 +1222,7 @@ end;
 
 // Control flow cleanup stuff.
 
-define method cleanup-control-flow (component :: <component>) => ();
+define function cleanup-control-flow (component :: <component>) => ();
   let postpass-thunks = make(<stretchy-vector>);
   for (function in component.all-function-regions)
     if (cleanup-control-flow-aux
@@ -1091,15 +1233,21 @@ define method cleanup-control-flow (component :: <component>) => ();
   for (thunk in postpass-thunks)
     thunk();
   end for;
-end;
+end function cleanup-control-flow;
 
-define method cleanup-control-flow-aux
+
+// cleanup-control-flow-aux  -- method on GF.
+//
+define /* inline */ method cleanup-control-flow-aux
     (component :: <component>, region :: <simple-region>,
      surrounding-blocks :: <list>, postpass-thunks :: <stretchy-vector>)
-    => returns? :: <boolean>;
+ => returns? :: <boolean>;
   #t;
 end;
 
+
+// cleanup-control-flow-aux  -- method on GF.
+//
 define method cleanup-control-flow-aux
     (component :: <component>, region :: <compound-region>,
      surrounding-blocks :: <list>, postpass-thunks :: <stretchy-vector>)
@@ -1137,6 +1285,9 @@ define method cleanup-control-flow-aux
   end block;
 end method cleanup-control-flow-aux;
 
+
+// cleanup-control-flow-aux  -- method on GF.
+//
 define method cleanup-control-flow-aux
     (component :: <component>, region :: <if-region>,
      surrounding-blocks :: <list>, postpass-thunks :: <stretchy-vector>)
@@ -1153,6 +1304,9 @@ define method cleanup-control-flow-aux
   then-returns? | else-returns?;
 end method cleanup-control-flow-aux;
 
+
+// cleanup-control-flow-aux  -- method on GF.
+//
 define method cleanup-control-flow-aux
     (component :: <component>, region :: <loop-region>,
      surrounding-blocks :: <list>, postpass-thunks :: <stretchy-vector>)
@@ -1167,6 +1321,9 @@ define method cleanup-control-flow-aux
   #f;
 end;
 
+
+// cleanup-control-flow-aux  -- method on GF.
+//
 define method cleanup-control-flow-aux
     (component :: <component>, region :: <block-region>,
      surrounding-blocks :: <list>, postpass-thunks :: <stretchy-vector>)
@@ -1177,14 +1334,20 @@ define method cleanup-control-flow-aux
   #t;
 end;
 
-define method cleanup-control-flow-aux
+
+// cleanup-control-flow-aux  -- method on GF.
+//
+define /* inline */ method cleanup-control-flow-aux
     (component :: <component>, region :: <unwind-protect-region>,
      surrounding-blocks :: <list>, postpass-thunks :: <stretchy-vector>)
-    => returns? :: <boolean>;
+ => returns? :: <boolean>;
   cleanup-control-flow-aux(component, region.body,
 			   surrounding-blocks, postpass-thunks);
 end;
 
+
+// cleanup-control-flow-aux  -- method on GF.
+//
 define method cleanup-control-flow-aux
     (component :: <component>, region :: <exit>,
      surrounding-blocks :: <list>, postpass-thunks :: <stretchy-vector>)
@@ -1204,12 +1367,15 @@ end;
 
 // Cheesy type check stuff.
 
-define method add-type-checks (component :: <component>) => ();
+define inline function add-type-checks (component :: <component>) => ();
   for (function in component.all-function-regions)
     add-type-checks-aux(component, function);
   end;
 end;
 
+
+// add-type-checks-aux  -- method on GF.
+//
 define method add-type-checks-aux
     (component :: <component>, region :: <simple-region>) => ();
   let next-assign = #f;
@@ -1267,25 +1433,37 @@ define method add-type-checks-aux
   end;
 end;
 
-define method add-type-checks-aux
+
+// add-type-checks-aux  -- method on GF.
+//
+define /* inline */ method add-type-checks-aux
     (component :: <component>, region :: <compound-region>) => ();
   for (subregion in region.regions)
     add-type-checks-aux(component, subregion);
   end;
 end;
 
-define method add-type-checks-aux
+
+// add-type-checks-aux  -- method on GF.
+//
+define /* inline */ method add-type-checks-aux
     (component :: <component>, region :: <if-region>) => ();
   add-type-checks-aux(component, region.then-region);
   add-type-checks-aux(component, region.else-region);
 end;
 
-define method add-type-checks-aux
+
+// add-type-checks-aux  -- method on GF.
+//
+define /* inline */ method add-type-checks-aux
     (component :: <component>, region :: <body-region>) => ();
   add-type-checks-aux(component, region.body);
 end;
 
-define method add-type-checks-aux
+
+// add-type-checks-aux  -- method on GF.
+//
+define /* inline */ method add-type-checks-aux
     (component :: <component>, region :: <exit>) => ();
 end;
 
@@ -1293,12 +1471,15 @@ end;
 
 // Replacement of placeholder
 
-define method replace-placeholders (component :: <component>) => ();
+define inline function replace-placeholders (component :: <component>) => ();
   for (function in component.all-function-regions)
     replace-placeholders-in(component, function);
   end;
-end;
+end function replace-placeholders;
 
+
+// replace-placeholders-in  -- method on GF.
+//
 define method replace-placeholders-in
     (component :: <component>, region :: <simple-region>) => ();
   for (assign = region.first-assign then assign.next-op,
@@ -1308,13 +1489,19 @@ define method replace-placeholders-in
   end;
 end;
 
-define method replace-placeholders-in
+
+// replace-placeholders-in  -- method on GF.
+//
+define /* inline */ method replace-placeholders-in
     (component :: <component>, region :: <compound-region>) => ();
   for (subregion in region.regions)
     replace-placeholders-in(component, subregion);
   end;
 end;
 
+
+// replace-placeholders-in  -- method on GF.
+//
 define method replace-placeholders-in
     (component :: <component>, region :: <if-region>) => ();
   replace-placeholder(component, region.depends-on,
@@ -1323,30 +1510,45 @@ define method replace-placeholders-in
   replace-placeholders-in(component, region.else-region);
 end;
 
-define method replace-placeholders-in
+
+// replace-placeholders-in  -- method on GF.
+//
+define /* inline */ method replace-placeholders-in
     (component :: <component>, region :: <body-region>) => ();
   replace-placeholders-in(component, region.body);
 end;
 
-define method replace-placeholders-in
+
+// replace-placeholders-in  -- method on GF.
+//
+define /* inline */ method replace-placeholders-in
     (component :: <component>, region :: <exit>) => ();
 end;
-  
-define method replace-placeholders-in
+
+
+// replace-placeholders-in  -- method on GF.
+//
+define /* inline */ method replace-placeholders-in
     (component :: <component>, region :: <return>) => ();
   for (dep = region.depends-on then dep.dependent-next,
        while: dep)
     replace-placeholder(component, dep, dep.source-exp);
   end;
 end;
-  
-define method replace-placeholder
+
+
+// replace-placeholder  -- method on GF.
+//
+define /* inline */ method replace-placeholder
     (component :: <component>, dep :: <dependency>,
      placeholder :: <expression>)
     => ();
 end;
 
-define method replace-placeholder
+
+// replace-placeholder  -- method on GF.
+//
+define /* inline */ method replace-placeholder
     (component :: <component>, dep :: <dependency>, op :: <operation>)
     => ();
   for (dep = op.depends-on then dep.dependent-next,
@@ -1355,6 +1557,9 @@ define method replace-placeholder
   end;
 end;
 
+
+// replace-placeholder  -- method on GF.
+//
 define method replace-placeholder
     (component :: <component>, dep :: <dependency>, op :: <primitive>)
     => ();
@@ -1418,6 +1623,9 @@ define method replace-placeholder
   end;
 end;
 
+
+// replace-placeholder  -- method on GF.
+//
 define method replace-placeholder
     (component :: <component>, dep :: <dependency>, leaf :: <exit-function>)
     => ();
@@ -1437,6 +1645,9 @@ define method replace-placeholder
 end;
 
 
+
+// replace-placeholder  -- method on GF.
+//
 define method replace-placeholder
     (component :: <component>, dep :: <dependency>, op :: <make-catcher>)
     => ();
@@ -1450,7 +1661,10 @@ define method replace-placeholder
   replace-expression(component, dep,
 		     make-unknown-call(builder, func, #f, list(catcher)));
 end;
-  
+
+
+// replace-placeholder  -- method on GF.
+//
 define method replace-placeholder
     (component :: <component>, dep :: <dependency>, op :: <disable-catcher>)
     => ();
@@ -1464,7 +1678,10 @@ define method replace-placeholder
   replace-expression(component, dep,
 		     make-unknown-call(builder, func, #f, list(catcher)));
 end;
-  
+
+
+// replace-placeholder  -- method on GF.
+//
 define method replace-placeholder
     (component :: <component>, dep :: <dependency>, op :: <throw>) => ();
   op.nlx-info.nlx-hidden-references? := #t;
@@ -1486,6 +1703,9 @@ define method replace-placeholder
 				       list(op.depends-on.source-exp, temp)));
 end;
 
+
+// replace-placeholder  -- method on GF.
+//
 define method replace-placeholder
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>)
     => ();
@@ -1496,33 +1716,48 @@ define method replace-placeholder
   replace-placeholder-call-leaf(component, dep, op, op.depends-on.source-exp);
 end method replace-placeholder;
 
-define method replace-placeholder-call-leaf
+
+// replace-placeholder-call-leaf  -- method on GF.
+//
+define /* inline */ method replace-placeholder-call-leaf
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>,
      func :: <leaf>)
     => ();
 end method replace-placeholder-call-leaf;
 
-define method replace-placeholder-call-leaf
+
+// replace-placeholder-call-leaf  -- method on GF.
+//
+define /* inline */ method replace-placeholder-call-leaf
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>,
      func :: <literal-constant>)
     => ();
   replace-placeholder-call-ctv(component, dep, op, func.value);
 end method replace-placeholder-call-leaf;
 
-define method replace-placeholder-call-leaf
+
+// replace-placeholder-call-leaf  -- method on GF.
+//
+define /* inline */ method replace-placeholder-call-leaf
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>,
      func :: <definition-constant-leaf>)
     => ();
   replace-placeholder-call-defn(component, dep, op, func.const-defn);
 end method replace-placeholder-call-leaf;
 
-define method replace-placeholder-call-ctv
+
+// replace-placeholder-call-ctv  -- method on GF.
+//
+define /* inline */ method replace-placeholder-call-ctv
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>,
      func :: <ct-value>)
     => ();
 end method replace-placeholder-call-ctv;
 
-define method replace-placeholder-call-ctv
+
+// replace-placeholder-call-ctv  -- method on GF.
+//
+define /* inline */ method replace-placeholder-call-ctv
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>,
      func :: <ct-function>)
     => ();
@@ -1532,12 +1767,18 @@ define method replace-placeholder-call-ctv
   end if;
 end method replace-placeholder-call-ctv;
 
-define method replace-placeholder-call-defn
+
+// replace-placeholder-call-defn  -- method on GF.
+//
+define /* inline */ method replace-placeholder-call-defn
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>,
      func :: <definition>)
     => ();
 end method replace-placeholder-call-defn;
 
+
+// replace-placeholder-call-defn  -- method on GF.
+//
 define method replace-placeholder-call-defn
     (component :: <component>, dep :: <dependency>, op :: <unknown-call>,
      func :: <generic-definition>)
@@ -1553,7 +1794,7 @@ end method replace-placeholder-call-defn;
 
 // Environment analysis
 
-define method environment-analysis (component :: <component>) => ();
+define function environment-analysis (component :: <component>) => ();
   let lets = component.all-lets;
   component.all-lets := #f;
   for (l = lets then l.let-next, while: l)
@@ -1568,28 +1809,43 @@ define method environment-analysis (component :: <component>) => ();
       reoptimize(component, l);
     end;
   end;
-end;
+end function environment-analysis;
 
-define method home-function-region (op :: <operation>)
+
+// home-function-region  -- method on GF.
+//
+define /* inline */ method home-function-region (op :: <operation>)
     => home :: <fer-function-region>;
   home-function-region(op.dependents.dependent);
 end;
 
-define method home-function-region (assign :: <assignment>)
+
+// home-function-region  -- method on GF.
+//
+define /* inline */ method home-function-region (assign :: <assignment>)
     => home :: <fer-function-region>;
   home-function-region(assign.region);
 end;
 
-define method home-function-region (region :: <region>)
+
+// home-function-region  -- method on GF.
+//
+define /* inline */ method home-function-region (region :: <region>)
     => home :: <fer-function-region>;
   home-function-region(region.parent);
 end;
 
-define method home-function-region (function :: <fer-function-region>)
+
+// home-function-region  -- method on GF.
+//
+define /* inline */ method home-function-region (function :: <fer-function-region>)
     => home :: <fer-function-region>;
   function;
 end;
 
+
+// maybe-close-over  -- method on GF.
+//
 define method maybe-close-over
     (component :: <component>, var :: <ssa-variable>,
      home :: <fer-function-region>)
@@ -1609,7 +1865,10 @@ define method maybe-close-over
   end;
 end;
 
-define method find-in-environment
+
+// find-in-environment  -- method on GF.
+//
+define /* inline */ method find-in-environment
     (component :: <component>, function :: <fer-function-region>,
      var :: <ssa-variable>, home :: <fer-function-region>)
     => copy :: <ssa-variable>;
@@ -1619,6 +1878,9 @@ define method find-in-environment
   var;
 end;
 
+
+// find-in-environment  -- method on GF.
+//
 define method find-in-environment
     (component :: <component>, function :: <lambda>,
      var :: <ssa-variable>, home :: <fer-function-region>)
@@ -1687,6 +1949,9 @@ define method find-in-environment
   end;
 end;
 
+
+// maybe-close-over  -- method on GF.
+//
 define method maybe-close-over
     (component :: <component>, defn :: <initial-definition>,
      home :: <fer-function-region>)
@@ -1863,13 +2128,16 @@ define-primitive-transformer
 
 // Sanity checking code.
 
-define method assure-all-done (component :: <component>) => ();
+define inline function assure-all-done (component :: <component>) => ();
   for (function in component.all-function-regions)
     assure-all-done-region(component, function);
   end;
-end;
+end function assure-all-done;
 
-define method assure-all-done-region
+
+// assure-all-done-region  -- method on GF.
+//
+define /* inline */ method assure-all-done-region
     (component :: <component>, region :: <simple-region>) => ();
   for (assign = region.first-assign then assign.next-op,
        while: assign)
@@ -1877,13 +2145,19 @@ define method assure-all-done-region
   end;
 end;
 
-define method assure-all-done-region
+
+// assure-all-done-region  -- method on GF.
+//
+define /* inline */ method assure-all-done-region
     (component :: <component>, region :: <compound-region>) => ();
   for (subregion in region.regions)
     assure-all-done-region(component, subregion);
   end;
 end;
 
+
+// assure-all-done-region  -- method on GF.
+//
 define method assure-all-done-region
     (component :: <component>, region :: <if-region>) => ();
   assure-all-done-dependent(component, region);
@@ -1891,27 +2165,39 @@ define method assure-all-done-region
   assure-all-done-region(component, region.else-region);
 end;
 
-define method assure-all-done-region
+
+// assure-all-done-region  -- method on GF.
+//
+define /* inline */ method assure-all-done-region
     (component :: <component>, region :: <body-region>) => ();
   assure-all-done-region(component, region.body);
 end;
 
-define method assure-all-done-region
+
+// assure-all-done-region  -- method on GF.
+//
+define /* inline */ method assure-all-done-region
     (component :: <component>, region :: <block-region>) => ();
   assure-all-done-queueable(component, region);
   assure-all-done-region(component, region.body);
 end;
 
-define method assure-all-done-region
+
+// assure-all-done-region  -- method on GF.
+//
+define /* inline */ method assure-all-done-region
     (component :: <component>, region :: <exit>) => ();
 end;
 
+
+// assure-all-done-region  -- method on GF.
+//
 define method assure-all-done-region
     (component :: <component>, region :: <return>) => ();
   assure-all-done-dependent(component, region);
 end;
 
-define method assure-all-done-queueable
+define function assure-all-done-queueable
     (component :: <component>, queueable :: <queueable-mixin>) => ();
   optimize(component, queueable);
   if (component.initial-variables | component.reoptimize-queue)
@@ -1919,9 +2205,9 @@ define method assure-all-done-queueable
 	   "optimizing %= did something, but we thought we were done.",
 	   queueable);
   end;
-end;
+end function assure-all-done-queueable;
 
-define method assure-all-done-dependent
+define function assure-all-done-dependent
     (component :: <component>, dependent :: <dependent-mixin>) => ();
   assure-all-done-queueable(component, dependent);
   for (dep = dependent.depends-on then dep.dependent-next,
@@ -1931,9 +2217,12 @@ define method assure-all-done-dependent
       assure-all-done-dependent(component, expr);
     end;
   end;
-end;
+end function assure-all-done-dependent;
 
 
+
+// check-sanity  -- method on GF.
+//
 define method check-sanity (component :: <component>) => ();
   //
   // Make sure the component's parent is #f.
@@ -1948,6 +2237,9 @@ define method check-sanity (component :: <component>) => ();
   end;
 end;
 
+
+// check-sanity  -- method on GF.
+//
 define method check-sanity (reg :: <simple-region>) => ();
   for (assign = reg.first-assign then assign.next-op,
        prev = #f then assign,
@@ -1979,6 +2271,9 @@ define method check-sanity (reg :: <simple-region>) => ();
   end;
 end;
 
+
+// check-sanity  -- method on GF.
+//
 define method check-sanity (region :: <compound-region>) => ();
   for (subregion in region.regions)
     //
@@ -1993,6 +2288,9 @@ define method check-sanity (region :: <compound-region>) => ();
   end;
 end;
 
+
+// check-sanity  -- method on GF.
+//
 define method check-sanity (region :: <if-region>) => ();
   //
   // Check the dependent aspects.
@@ -2013,7 +2311,10 @@ define method check-sanity (region :: <if-region>) => ();
   check-sanity(region.else-region);
 end;
 
-define method check-sanity (region :: <body-region>) => ();
+
+// check-sanity  -- method on GF.
+//
+define /* inline */ method check-sanity (region :: <body-region>) => ();
   unless (region.body.parent == region)
     error("%='s body %= claims %= for its parent.",
 	  region, region.body, region.body.parent);
@@ -2021,6 +2322,9 @@ define method check-sanity (region :: <body-region>) => ();
   check-sanity(region.body);
 end;
 
+
+// check-sanity  -- method on GF.
+//
 define method check-sanity (exit :: <exit>) => ();
   //
   // Make sure the exit exits to some block above us.
@@ -2033,7 +2337,11 @@ define method check-sanity (exit :: <exit>) => ();
   end;
 end;
 
-define method check-sanity (return :: <return>, #next next-method) => ();
+
+// check-sanity  -- method on GF.
+//
+define /* inline */ method check-sanity
+    (return :: <return>, #next next-method) => ();
   //
   // Check the exit aspects.
   next-method();
@@ -2043,6 +2351,9 @@ define method check-sanity (return :: <return>, #next next-method) => ();
 end;
 
 
+
+// check-expression  -- method on GF.
+//
 define method check-expression (expr :: <expression>) => ();
   //
   // Make sure all the dependents refer to this source.
@@ -2065,6 +2376,9 @@ define method check-expression (expr :: <expression>) => ();
   end;
 end;
 
+
+// check-expression -- method on GF.
+//
 define method check-expression (op :: <operation>, #next next-method) => ();
   //
   // Check the expression aspects of an operation.
@@ -2074,7 +2388,10 @@ define method check-expression (op :: <operation>, #next next-method) => ();
   check-dependent(op, <leaf>, #f);
 end;
 
-define method check-expression
+
+// check-expression  -- method on GF.
+//
+define /* inline */ method check-expression
     (op :: <exit-function>, #next next-method) => ();
   //
   // Check the expression aspects of the exit-function.
@@ -2084,7 +2401,7 @@ define method check-expression
   check-dependent(op, <leaf>, #f);
 end;
 
-define method check-dependent
+define function check-dependent
     (dep :: <dependent-mixin>, expr-kind :: <class>, one-only? :: <boolean>)
     => ();
   if (one-only?)
@@ -2122,4 +2439,4 @@ define method check-dependent
       end;
     end;
   end;
-end;
+end function check-dependent;

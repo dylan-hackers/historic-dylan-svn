@@ -1,6 +1,6 @@
 Module: front
 Description: implementation of Front-End-Representation builder
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-builder.dylan,v 1.2 1998/09/09 13:40:29 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-builder.dylan,v 1.2.2.1 1998/09/23 01:25:46 anoncvs Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -510,8 +510,9 @@ define method make-definition-constant
        derived-type: value.ct-value-cclass.ctype-extent, const-defn: defn);
 end method;
 
-
-define method make-initial-var
+// make-initial-var  -- exported.
+//
+define inline function make-initial-var
     (builder :: <fer-builder>, of-type :: <values-ctype>,
      var-info :: <variable-info>)
     => var :: <initial-variable>;
@@ -523,9 +524,12 @@ define method make-initial-var
 		 component: comp);
   comp.initial-variables := var;
   var;
-end;
+end function make-initial-var;
 
-define method make-lexical-var
+
+// make-lexical-var  -- exported.
+//
+define inline function make-lexical-var
     (builder :: <fer-builder>, name :: <symbol>, source :: <source-location>,
      of-type :: <ctype>)
  => res :: <initial-variable>;
@@ -534,54 +538,64 @@ define method make-lexical-var
 			debug-name: name,
 			asserted-type: of-type,
 			source-location: source));
-end method;
+end function make-lexical-var;
 
 
-define method make-local-var
+// make-local-var -- exported.
+//
+define inline function make-local-var
     (builder :: <fer-builder>, name :: <symbol>, of-type :: <ctype>)
  => res :: <initial-variable>;
   make-initial-var(builder, of-type,
 		   make(<local-var-info>,
 			asserted-type: of-type,
 			debug-name: name));
-end method;
+end function make-local-var;
 
-define method make-ssa-var
+
+// make-ssa-var  -- exported.
+//
+define inline function make-ssa-var
     (builder :: <fer-builder>, name :: <symbol>, of-type :: <ctype>)
  => res :: <ssa-variable>;
   make(<ssa-variable>,
        derived-type: of-type.ctype-extent,
        var-info: make(<local-var-info>, asserted-type: of-type,
        		      debug-name: name));
-end method;
+end function make-ssa-var;
 
 
-define method make-values-cluster
+// make-values-cluster  -- exported.
+//
+define inline function make-values-cluster
     (builder :: <fer-builder>, name :: <symbol>, of-type :: <values-ctype>)
  => res :: <initial-variable>;
   make-initial-var(builder, of-type,
 		   make(<values-cluster-info>,
 			asserted-type: of-type,
 			debug-name: name));
-end method;
+end function make-values-cluster;
 
 
-define method copy-variable
+// copy-variable  -- exported.
+//
+define inline function copy-variable
     (builder :: <fer-builder>, var :: <initial-variable>)
  => res :: <initial-variable>;
   make-initial-var(builder, var.var-info.asserted-type, var.var-info);
-end method;
+end function copy-variable;
 
 
-define method make-exit-function
+// make-exit-function  -- exported.
+//
+define inline function make-exit-function
     (builder :: <fer-builder>, nlx-info :: <nlx-info>,
      catcher :: <abstract-variable>)
  => res :: <leaf>;
   make-operand-dependencies(builder,
 			    make(<exit-function>, nlx-info: nlx-info),
 			    list(catcher));
-end;
-
+end function make-exit-function;
 
 
 // Starts building an unwind-protect body.
