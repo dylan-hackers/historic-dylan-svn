@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.6 2003/09/18 07:16:49 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.7 2003/09/24 17:01:48 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -436,13 +436,13 @@ let format-out = ignore;
 	  end if
 	end;
 
-  let (first-common, remnant) /*:: false-or(<region>)*/ = compare2(parents1, parent2, region2);
+  let (first-common, remnants) /*:: false-or(<region>)*/ = compare2(parents1, parent2, region2);
 
   format-out("common: %s\n", first-common);
 
-  let remnant-size = remnant.size;
+  let remnants-size = remnants.size;
 
-  let prefix-size = parents1-size - remnant-size;
+  let prefix-size = parents1-size - remnants-size;
 
   local method find-relevant(from :: <region>, common :: <region>)
 	 => relevant :: <region>;
@@ -453,11 +453,10 @@ let format-out = ignore;
 	  end;
 	end;
   let (common :: <region>, relevant-region1)
-    = if (remnant-size = 0)
+    = if (remnants-size = 0)
 	values(first-common, region1)
       else
-//	values(remnant.head, if (remnant-size > 1) remnant[1] else region2 end)
-	values(first-common, remnant.head)
+	values(first-common, remnants.head)
       end;
   let relevant-region2 = find-relevant(region2, first-common);
 
@@ -477,10 +476,13 @@ end;
 
   let assertion :: #t.singleton = common == relevant-region1.parent & common == relevant-region2.parent;
 
-  if (instance?(common, <compound-region>))
+  if (any?(method(r :: <region>) instance?(r, <if-region>) end, remnants))
+    compiler-warning("-----#### encountered an <if-region> in definer nesting %=\n", remnants);
+    #f
+  elseif (instance?(common, <compound-region>))
 	      format-out("### BOTH ARE COMPOUND\n");
     parent-dominates?(common, relevant-region1, common, relevant-region2)
-  end;
+  end if;
   
 end;
 
@@ -599,7 +601,7 @@ compiler-warning("##### exp.derived-type: %=", exp.derived-type);
 	if (dominates?(call-assign-region, call-assign,
 		       use-assign-region, use-assign))
 	  compiler-warning("##### got it: %=", use-assign);
-if (#f) // change this to #t if you want the results of the analysis applied...
+if (#t) // change this to #t if you want the results of the analysis applied...
 	  common-ssa := common-ssa
 	    | restricted-ssa-variable(component, exp, union-type, call-assign);
 
