@@ -6,6 +6,7 @@ define class <brain> (<object>)
   slot played :: <integer> = 0;
   slot score :: <integer> = 0;
   slot food :: <integer> = 0;
+  slot generation :: <integer> = 0;
 end class <brain>;
 
 define function load-brain(b :: <brain>)
@@ -147,7 +148,7 @@ define function run-tournament()
     do(method(x) 
            format-out("%=\ttotal rounds: %=\twin %%: %=\n", 
                       x.name, x.played, win-percent(x))
-       end method, brains);
+       end method, sort-by-score(brains));
     force-output(*standard-output*);
   end for;
 end;
@@ -162,7 +163,7 @@ define function read-lines(s :: <stream>)
   result;
 end function read-lines;
 
-define variable breed-factor :: <integer> = 3;
+define variable breed-factor :: <integer> = 4;
 
 define function run-breeding()
   let deviation = 10.0;
@@ -205,6 +206,7 @@ define function run-breeding()
         b.played := 0;
         b.score := 0;
         b.food := 0;
+        b.generation := b.generation + 1;
         write-line(working-on, b.name);
       end for;
     end with-open-file;
@@ -215,8 +217,8 @@ end function run-breeding;
 
 define function report-sorted-score(brains)
   do(method(x) 
-         format-out("%=\ttotal rounds: %=\twin %%: %=\n", 
-                    x.name, x.played, win-percent(x))
+         format-out("%=\tage: %=\ttotal rounds: %=\twin %%: %=\n", 
+                    x.generation, x.name, x.played, win-percent(x))
      end method, sort-by-score(brains));
   force-output(*standard-output*);
 end function report-sorted-score;

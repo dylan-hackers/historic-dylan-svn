@@ -500,7 +500,8 @@ define function parse-instruction(s :: <byte-string>)
       otherwise => #f;
     end select;
   unless(s = insn.unparse)
-    format-out("*** Severe warning! Mismatch between assembly and unassembly! ***\n");
+    format-out("*** Severe warning! Mismatch between assembly and unassembly! ***\n"
+               "Read: %=, written: %=\n", s, insn.unparse);
   end unless;
   insn
 end function parse-instruction;
