@@ -25,21 +25,8 @@ copyright: LGPL
  *
  */
 
-// forward declarations
-
-//    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
-//    
-// I really wonder if this isn't abuse of the Dylan type system...
-//
-define constant <pub-id-char-without-quotes> =
-  type-union(<letter>, <digit>, 
-             one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
-                    '-', '(', ')', '+', ',', '.', '/', ':', '=',
-                    '?', ';', '!', '*', '#', '@', '$', '_', '%'));
-
-define constant <pub-id-char> =
-  type-union(<pub-id-char-without-quotes>, singleton('\''));
-
+//-------------------------------------------------------
+// Macros to simplify the parsing task
 // macro added by Doug to simplify writing parser fns
 define macro parse-definer
 { define parse ?:name [ ?meta-vars:* ]
@@ -55,7 +42,184 @@ define macro parse-definer
       end; }
 end macro parse-definer;
 
+// Doug wrote this macro for collecting strings
+define macro collector-definer
+{ define collector ?:name (?vars:*) ?meta end }
+ => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
+        with-collector into-vector str, collect: ?=collect;
+          with-meta-syntax parse-string(string, start: start, pos: index)
+            variables(?vars);
+            [ ?meta ];
+            values(index, as(<string>, str));
+          end with-meta-syntax;
+        end with-collector;
+      end; }
+end macro collector-definer;
+
+//-------------------------------------------------------
+// Productions
+
+// Document
+// 
+//    [1]    document    ::=    prolog element Misc*
+//
+define parse document[prolog, elemnt, misc] 
+ (result: make(<document>, children: vector(elemnt)))
+   parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))
+end parse document;
+
+// Character Range
+//
+//    [2]    Char    ::=    #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] /* any Unicode character, excluding the surrogate blocks,
+//    FFFE, and FFFF. */
+//    
+// FIXME: we're cheating here, by using UFT8 and just allowing anything.
+//
+define constant <char> = <character>;
+
+
+// White Space
+//
+//    [3]    S    ::=    (#x20 | #x9 | #xD | #xA)+
+//    
+define constant <space> =
+  one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
+         as(<character>, #x0a));
+
 define parse s[c] () type(<space>, c), loop(type(<space>, c)) end;
+
+// Names and Tokens
+// 
+//    [4]    NameChar    ::=    Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender
+//
+define constant <name-char> = type-union(<letter>, <digit>, one-of('.', '-', '_', ':')); // , <combining-char>, <extender>));
+
+//    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
+//
+define collector name(c)
+  [{type(<letter>, c), '_', ':'}, do(collect(c))],
+  loop([type(<name-char>, c), do(collect(c))])
+end collector name;
+
+//    [6]    Names       ::=    Name (S Name)*
+//
+define method parse-names(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(name, s);
+    [parse-name(name), loop([parse-s(s), parse-name(name)])];
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-names;
+
+//    [7]    Nmtoken     ::=    (NameChar)+
+//
+define method parse-nmtoken(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c);
+    [type(<name-char>, c), loop(type(<name-char>, c))];
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-nmtoken;
+
+//    [8]    Nmtokens    ::=    Nmtoken (S Nmtoken)*
+//    
+define method parse-nmtokens(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(token, s);
+    [parse-nmtoken(token), loop([parse-s(s), parse-nmtoken(token)])];
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-nmtokens;
+
+// Literals
+//
+//    [9]     EntityValue      ::=    '"' ([^%&"] | PEReference | Reference)* '"'
+//                                    |  "'" ([^%&'] | PEReference | Reference)* "'"
+//
+
+define constant in-set? = member?;  // just for symmetry
+
+define method not-in-set?(character, set)
+  ~ member?(character, set);
+end method not-in-set?;
+
+define method parse-entity-value(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, reference);
+    {['"',
+      loop({(not-in-set?(c, "%&\""))}), 
+// DOUG            parse-pe-reference(reference), 
+// DOUG            parse-reference(reference)}),
+      '"'],
+     ['\'',
+      loop({(not-in-set?(c, "%&'"))}), 
+// DOUG            parse-pe-reference(reference), 
+// DOUG            parse-reference(reference)}),
+      '\'']};
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-entity-value;
+
+//    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
+//                                    |  "'" ([^<&'] | Reference)* "'"
+//
+define method parse-att-value(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, reference);
+    {['"',
+      loop({(not-in-set?(c, "<&\""))}), 
+// DOUG            parse-reference(reference)}),
+      '"'],
+     ['\'',
+      loop({(not-in-set?(c, "<&'"))}),
+// DOUG            parse-reference(reference)}),
+      '\'']};
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-att-value;
+
+//    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
+//
+define method parse-system-literal(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c);
+    {['"',
+      loop((not-in-set?(c, "\""))), 
+      '"'],
+     ['\'',
+      loop((not-in-set?(c, "'"))), 
+      '\'']};
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-system-literal;
+
+//    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
+//
+define method parse-pubid-literal(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c);
+    {['"',
+      loop(type(<pub-id-char>, c)), 
+      '"'],
+     ['\'',
+      loop(type(<pub-id-char-without-quotes>, c)), 
+      '\'']};
+    values(index, #t);
+  end with-meta-syntax;  
+end method parse-pubid-literal;
+
+//    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
+//    
+// I really wonder if this isn't abuse of the Dylan type system...
+//
+define constant <pub-id-char-without-quotes> =
+  type-union(<letter>, <digit>, 
+             one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
+                    '-', '(', ')', '+', ',', '.', '/', ':', '=',
+                    '?', ';', '!', '*', '#', '@', '$', '_', '%'));
+
+define constant <pub-id-char> =
+  type-union(<pub-id-char-without-quotes>, singleton('\''));
 
 //    [25]    Eq             ::=    S? '=' S?
 //
@@ -499,178 +663,7 @@ define method parse-element(string, #key start = 0, end: stop)
 end method parse-element;
 
 
-// Document
-// 
-//    [1]    document    ::=    prolog element Misc*
-//
-/****
-define method parse-document(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(prolog, elemnt, misc);
-    [parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))];
-    values(index, make(<document>, children: vector(elemnt)));
-  end with-meta-syntax;
-end method parse-document;
-****/
-define parse document[prolog, elemnt, misc] 
- (result: make(<document>, children: vector(elemnt)))
-   parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))
-end parse document;
 
-// Character Range
-//
-//    [2]    Char    ::=    #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] /* any Unicode character, excluding the surrogate blocks,
-//    FFFE, and FFFF. */
-//    
-// FIXME: we're cheating here, by using UFT8 and just allowing anything.
-//
-
-define constant <char> = <character>;
-
-
-// White Space
-//
-//    [3]    S    ::=    (#x20 | #x9 | #xD | #xA)+
-//    
-define constant <space> =
-  one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
-         as(<character>, #x0a));
-
-
-// Names and Tokens
-// 
-//    [4]    NameChar    ::=    Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender
-//
-define constant <name-char> = type-union(<letter>, <digit>, one-of('.', '-', '_', ':')); // , <combining-char>, <extender>));
-
-// Doug wrote this macro for collecting strings
-define macro collector-definer
-{ define collector ?:name (?vars:*) ?meta end }
- => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
-        with-collector into-vector str, collect: ?=collect;
-          with-meta-syntax parse-string(string, start: start, pos: index)
-            variables(?vars);
-            [ ?meta ];
-            values(index, as(<string>, str));
-          end with-meta-syntax;
-        end with-collector;
-      end; }
-end macro collector-definer;
-
-//    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
-//
-define collector name(c)
-  [{type(<letter>, c), '_', ':'}, do(collect(c))],
-  loop([type(<name-char>, c), do(collect(c))])
-end collector name;
-
-//    [6]    Names       ::=    Name (S Name)*
-//
-define method parse-names(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(name, s);
-    [parse-name(name), loop([parse-s(s), parse-name(name)])];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-names;
-
-//    [7]    Nmtoken     ::=    (NameChar)+
-//
-define method parse-nmtoken(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    [type(<name-char>, c), loop(type(<name-char>, c))];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-nmtoken;
-
-//    [8]    Nmtokens    ::=    Nmtoken (S Nmtoken)*
-//    
-define method parse-nmtokens(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(token, s);
-    [parse-nmtoken(token), loop([parse-s(s), parse-nmtoken(token)])];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-nmtokens;
-
-
-// Literals
-//
-//    [9]     EntityValue      ::=    '"' ([^%&"] | PEReference | Reference)* '"'
-//                                    |  "'" ([^%&'] | PEReference | Reference)* "'"
-//
-
-define constant in-set? = member?;  // just for symmetry
-
-define method not-in-set?(character, set)
-  ~ member?(character, set);
-end method not-in-set?;
-
-define method parse-entity-value(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, reference);
-    {['"',
-      loop({(not-in-set?(c, "%&\""))}), 
-// DOUG            parse-pe-reference(reference), 
-// DOUG            parse-reference(reference)}),
-      '"'],
-     ['\'',
-      loop({(not-in-set?(c, "%&'"))}), 
-// DOUG            parse-pe-reference(reference), 
-// DOUG            parse-reference(reference)}),
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-entity-value;
-
-//    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
-//                                    |  "'" ([^<&'] | Reference)* "'"
-//
-define method parse-att-value(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, reference);
-    {['"',
-      loop({(not-in-set?(c, "<&\""))}), 
-// DOUG            parse-reference(reference)}),
-      '"'],
-     ['\'',
-      loop({(not-in-set?(c, "<&'"))}),
-// DOUG            parse-reference(reference)}),
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-att-value;
-
-//    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
-//
-define method parse-system-literal(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    {['"',
-      loop((not-in-set?(c, "\""))), 
-      '"'],
-     ['\'',
-      loop((not-in-set?(c, "'"))), 
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-system-literal;
-
-//    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
-//
-define method parse-pubid-literal(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    {['"',
-      loop(type(<pub-id-char>, c)), 
-      '"'],
-     ['\'',
-      loop(type(<pub-id-char-without-quotes>, c)), 
-      '\'']};
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-pubid-literal;
 
 // Character Data
 //
