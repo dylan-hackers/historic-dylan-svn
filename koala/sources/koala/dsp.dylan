@@ -407,11 +407,13 @@ end;
 // The user may add methods to this generic in order to parse tag 
 // arguments automatically for a given type.
 define generic parse-tag-arg
-    (name, arg :: <string>, type :: <object>) => (value :: <object>);
+    (name :: <object>, arg :: <object>, type :: <object>) => (value :: <object>);
 
-// Default method just returns the argument unparsed.
+// Default method just returns the argument unparsed.  Note that arg may be #f
+// for things like 'nowrap' in the <td> element, which take no value.
+//
 define method parse-tag-arg
-    (name, arg :: <string>, type :: <object>) => (value :: <string>)
+    (name, arg :: <object>, type :: <object>) => (value :: <object>)
   arg
 end;
 
@@ -520,7 +522,9 @@ end;
 define function show-tag-call-attributes
     (stream, #key exclude :: <sequence> = #[])
   map-tag-call-attributes(method (name, value)
-                            format(stream, " %s=%=", name, value);
+                            iff(value,
+                                format(stream, " %s=%=", name, value),
+                                format(stream, " %s", name))
                           end,
                           exclude: exclude);
 end;
@@ -548,6 +552,15 @@ define method execute
   dynamic-bind (*tag-call* = call)
     apply(tag.tag-function, page, response, do-body, call.arguments);
   end;
+end;
+
+define method register-tag
+    (tag :: <tag>, taglib :: <string>, #key replace?)
+  let tlib = find-taglib(taglib);
+  iff(~tlib,
+      error("Couldn't find taglib named %s for tag %s.",
+            taglib, name(tag)),
+      register-tag(tag, tlib))
 end;
 
 define method register-tag
@@ -632,6 +645,16 @@ define function register-page-urls
   responder
 end;
 
+/* ---TODO:
+  If you leave off the taglib name in a "define tag" form the only way you find out
+  about it is by noticing the a parse error in the log output or by noticing that the
+  tag output is missing from the page.  Two possible fixes:
+  1) Make the "<!-- TAG PARSE ERROR -->" source visible rather than being in a comment.
+     This way it will be seen sooner.
+  2) Require the taglib name in the "define tag" form.
+  3) Make a "parse errors are errors rather than warnings" setting.
+  4) Have a way to set the default taglib rather than it always being dsp?
+*/
 
 // define tag foo in tlib (page, response) () do-stuff end
 // define body tag foo in tlib (page, response, do-body) (foo, bar :: <integer>) do-stuff end
@@ -663,7 +686,7 @@ define macro tag-definer
      }
 
   taglib-spec:
-    { } => { dsp }
+    /* { } => { dsp } */
     { in ?taglib:name } => { ?taglib }
 
 end tag-definer;
@@ -675,15 +698,16 @@ define macro tag-aux-definer
         (?tag-parameters:*)
       ?:body
     end }
-  => { register-tag(make(<tag>,
+  => { define method ?tag ## "-tag" (?page, ?response, ?do-body, #key ?tag-parameters, #all-keys)
+         ?body
+       end;
+       register-tag(make(<tag>,
                          name: ?"tag",
-                         function: method (?page, ?response, ?do-body, #key ?tag-parameters, #all-keys)
-                                     ?body
-                                   end,
+                         function: ?tag ## "-tag",
                          allow-body?: ?allow-body,
                          parameter-names: snarf-tag-parameter-names(?tag-parameters),
                          parameter-types: snarf-tag-parameter-types(?tag-parameters)),
-                    find-taglib(?"taglib"));
+                    ?"taglib");
      }
 end tag-aux-definer;
 
@@ -728,7 +752,7 @@ end;
 define body tag %%placeholder-for-unparsable-tags in dsp
     (page :: <dylan-server-page>, response :: <response>, process-body :: <function>)
     ()
-  format(output-stream(response), " <!--TAG PARSE ERROR--> ");
+  format(output-stream(response), " TAG PARSE ERROR ");
   process-body();
 end;
 
@@ -866,7 +890,11 @@ define function parse-include-directive
                     as(<string>, call), as(<string>, page.source-location), tag-start);
     log-dsp-warning("The include directive doesn't allow a body; it should end in '/>'.");
   end;
-  let url = get-arg(call, #"url");
+  let url = get-arg(call, #"url") | get-arg(call, #"uri") | get-arg(call, #"location");
+  if (~url)
+    parse-error("In template %=, '%%dsp:include' directive must have a 'url' attribute.",
+                as(<string>, page.source-location));
+  end;
   let source = document-location(url, context: page-directory(page));
   let contents = file-contents(source);
   if (contents)
@@ -880,7 +908,7 @@ define function parse-include-directive
     add-entry!(tmplt, subtemplate);
   else
     parse-error("In template %=, included file %= not found.",
-                page.source-location, url);
+                as(<string>, page.source-location), url);
   end;
   body-start
 end;
@@ -983,7 +1011,7 @@ define method parse-template (page :: <dylan-server-page>,
   let scan-pos :: <integer> = bpos;
   let html-pos :: <integer> = bpos;          // beginning of current non-tag chunk
   let end-tag = ~empty?(tag-stack)
-                & format-to-string("</%s:%s>", head(tag-stack).prefix, head(tag-stack).name);
+                & sformat("</%s:%s>", head(tag-stack).prefix, head(tag-stack).name);
   pt-debug("parse-template: enter.  scan-pos = %d, tag-end = %=",
            scan-pos, end-tag);
   block (return)
