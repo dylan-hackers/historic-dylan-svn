@@ -20,7 +20,7 @@ define method print-html(e :: <node-element>, stream :: <stream>) => ()
     write-element(stream, ' ');
     for(attribute keyed-by index in e.node-element-attributes)
       unless(index = 0)
-        write(stream, ", ");
+        write(stream, " ");
       end unless;
 
       write(stream, as(<string>, attribute.attribute-key));
