@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-platform.dsp?id=new&type=platform&origin=list-platforms.dsp">Click here to create a new platform.</a>
+<a href="edit-platform.dsp?id=new&type=platform&origin=/list-platforms.dsp">Click here to create a new platform.</a>
 <br>Click any platform name to edit that platform.
 
 <p>

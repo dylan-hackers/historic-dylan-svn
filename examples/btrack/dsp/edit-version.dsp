@@ -12,7 +12,7 @@
 <center><h1>Edit Version</h1></center>
 
 <form name="editVersionForm" method="post" action="edit-version.dsp">
-  <input type="hidden" name="type" value="Version">
+  <bt:show-hidden-fields/>
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>

@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-browser.dsp?id=new&type=browser&origin=list-browsers.dsp">Click here to create a new browser.</a>
+<a href="edit-browser.dsp?id=new&type=browser&origin=/list-browsers.dsp">Click here to create a new browser.</a>
 <br>Click any browser name to edit that browser.
 
 <p>

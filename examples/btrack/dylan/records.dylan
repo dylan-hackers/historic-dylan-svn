@@ -260,6 +260,17 @@ define primary record <database-record> (<object>)
     column-number: 0;
 end;
 
+// This is called after the basic dylan initialization sequence.  It's needed
+// because if we try to initialize a slot with a class prototype it can create
+// a circularity.  Subclasses should override it if they want to do any such
+// initialization.  Would be nice to get rid of this.  Maybe rather than using
+// prototypes, use a type-union(<bug-report>, singleton(0))?
+//
+define method initialize-record
+    (record :: <database-record>)
+  record
+end;
+
 define method new?
     (record :: <database-record>) => (new? :: <boolean>)
   mod-count(record) = 0
@@ -289,7 +300,7 @@ end;
 
 define primary record <named-record> (<modifiable-record>)
   database slot name :: <string>,
-    init-value: "",
+    init-value: " ",
     init-keyword: #"name",
     column-name: "name",
     column-number: 4;
@@ -308,12 +319,12 @@ define record <account> (<named-record>)
   pretty-name: "account";
   table-name: "tbl_account";
   database slot password :: <string>,
-    init-value: "",      //---TODO: what?
+    init-value: " ",      //---TODO: what?
     init-keyword: #"password",
     column-number: 6,
     column-name: "password";
   slot email-address :: <string>,
-    init-value: "",      //---TODO: what?
+    init-value: " ",      //---TODO: what?
     init-keyword: #"email-address",
     column-number: 7,
     column-name: "email_address";
@@ -358,7 +369,7 @@ end;
 //
 define primary record <owned-record> (<named-record>)
   slot description :: <string>,
-    init-value: "",       //---TODO: nyi
+    init-value: " ",       //---TODO: nyi
     init-keyword: #"description",
     column-number: 6,
     column-name: "description";
@@ -401,10 +412,109 @@ define primary record <version> (<named-record>)
     column-number: 7,
     column-name: "release_date";
   slot comment :: <string>,
-    init-value: "",
+    init-value: " ",
     column-number: 8,
     column-name: "comment",
     database-type: #"varchar";
+end;
+
+define constant $bug-priority-none = 0;
+define constant $bug-status-new = 0;
+define constant $bug-severity-none = 0;
+
+define primary record <bug-report> (<modifiable-record>)
+  type-name: "bug-report";
+  pretty-name: "bug report";
+  table-name: "tbl_bug_report";
+  slot bug-number :: <integer>,
+    init-value: 0,
+    column-number: 4,
+    column-name: "bug_number";
+  slot status :: <integer>,
+    init-value: $bug-status-new,
+    column-number: 5,
+    column-name: "status";
+  slot synopsis :: <string>,
+    init-value: " ",
+    column-number: 6,
+    column-name: "synopsis",
+    database-type: #"varchar";
+  slot description :: <string>,
+    init-value: " ",
+    column-number: 7,
+    column-name: "description",
+    database-type: #"varchar";
+  slot product :: <product>,
+    init-function: curry(class-prototype, <product>),
+    column-number: 8,
+    column-name: "product";
+  slot module :: <module>,
+    init-function: curry(class-prototype, <module>),
+    column-number: 9,
+    column-name: "module";
+  slot version :: <version>,
+    init-function: curry(class-prototype, <version>),
+    column-number: 10,
+    column-name: "version";
+  slot reported-by :: <account>,
+    init-function: curry(class-prototype, <account>),
+    column-number: 11,
+    column-name: "reported_by";
+  slot fixed-by :: <account>,
+    init-function: curry(class-prototype, <account>),
+    column-number: 12,
+    column-name: "fixed_by";
+  slot fixed-in :: <version>,
+    init-function: curry(class-prototype, <version>),
+    column-number: 13,
+    column-name: "fixed_in";
+  slot target-version :: <version>,
+    init-function: curry(class-prototype, <version>),
+    column-number: 14,
+    column-name: "target_version";
+  slot operating-system :: <operating-system>,
+    init-function: curry(class-prototype, <operating-system>),
+    column-number: 15,
+    column-name: "operating_system";
+  slot platform :: <platform>,
+    init-function: curry(class-prototype, <platform>),
+    column-number: 16,
+    column-name: "platform";
+  slot browser :: <browser>,
+    init-function: curry(class-prototype, <browser>),
+    column-number: 17,
+    column-name: "browser";
+  slot location :: <string>,  // a URL
+    init-value: " ",
+    column-number: 18,
+    column-name: "location";
+  slot priority :: <integer>,
+    init-value: $bug-priority-none,
+    column-number: 19,
+    column-name: "priority";
+  slot severity :: <integer>,
+    init-value: $bug-severity-none,
+    column-number: 20,
+    column-name: "severity";
+  slot dev-assigned :: <account>,
+    init-function: curry(class-prototype, <account>),
+    column-number: 21,
+    column-name: "dev_assigned";
+  slot qa-assigned :: <account>,
+    init-function: curry(class-prototype, <account>),
+    column-number: 22,
+    column-name: "qa_assigned";
+  // This creates a circularity if we try to initialize it to a bug report prototype
+  slot duplicate-of :: <bug-report>,
+    //init-function: curry(class-prototype, <bug-report>),
+    column-number: 23,
+    column-name: "duplicate_of";
+end record <bug-report>;
+
+define method initialize-record
+    (record :: <bug-report>)
+  duplicate-of(record) := class-prototype(<bug-report>);
+  next-method();
 end;
 
 define primary record <comment> (<modifiable-record>)
@@ -422,47 +532,11 @@ define primary record <comment> (<modifiable-record>)
     column-number: 5,
     column-name: "account_id";
   slot comment :: <string>,
-    init-value: "",
+    init-value: " ",
     init-keyword: #"comment",
     column-number: 6,
     column-name: "comment",
     database-type: #"varchar";
-end;
-
-define primary record <bug-report> (<modifiable-record>)
-  type-name: "bug-report";
-  pretty-name: "bug report";
-  table-name: "tbl_bug_report";
-  slot synopsis :: <string>,
-    column-number: 6,
-    column-name: "synopsis",
-    database-type: #"varchar";
-  slot description :: <string>,
-    column-number: 7,
-    column-name: "description",
-    database-type: #"varchar";
-  slot product :: <product>,
-    column-number: 8,
-    column-name: "product";
-  slot module :: <module>,
-    column-number: 9,
-    column-name: "module";
-  slot version :: <version>,
-    column-number: 10,
-    column-name: "version";
-  slot reported-by :: <account>,
-    column-number: 11,
-    column-name: "reported_by";
-  slot product :: <product>,
-    column-number: 8,
-    column-name: "product";
-  slot product :: <product>,
-    column-number: 8,
-    column-name: "product";
-  slot product :: <product>,
-    column-number: 8,
-    column-name: "product";
-
 end;
 
 define primary record <log-entry> (<database-record>)
@@ -480,7 +554,7 @@ define primary record <log-entry> (<database-record>)
     column-number: 2,
     column-name: "modified_by";
   slot description :: <string>,
-    init-value: "",
+    init-value: " ",
     init-keyword: #"description",
     column-number: 3,
     column-name: "description",
@@ -500,6 +574,16 @@ define method load-record
   load-record(class,
               sformat("select * from %s where record_id = %d",
                       record-table-name(class-prototype(class)), id))
+end;
+
+// Load a record that has a 'name' column in its database table.
+// It needn't be a subclass of <named-record>, but it usually will be.
+//
+define method load-named-record
+    (class :: <class>, name :: <string>) => (record :: false-or(<database-record>))
+  load-record(class,
+              sformat("select * from %s where name = '%s'",
+                      record-table-name(class-prototype(class)), name))
 end;
 
 define method load-record
@@ -553,8 +637,8 @@ define method create-or-update-record
     //---TODO: update-record!
     //update-record(existing-record)
   else
-    let new-record :: <database-record>
-      = apply(make, class, compute-init-args(class, row));
+    let new-record :: <database-record> = apply(make, class, compute-init-args(class, row));
+    initialize-record(new-record);
     $record-cache[record-id] := new-record
   end;
 end;
@@ -585,12 +669,12 @@ end;
 define method compute-init-args
     (class :: <class>, row :: <sequence>) => (init-args :: <sequence>)
   let args = make(<stretchy-vector>);
-  for (desc in slot-descriptors(class))
-    let init-keyword = slot-init-keyword(desc);
+  for (slot in slot-descriptors(class))
+    let init-keyword = slot-init-keyword(slot);
     if (init-keyword)
-      let init-value = row[slot-column-number(desc)];
+      let init-value = row[slot-column-number(slot)];
       add!(args, init-keyword);
-      add!(args, db-type-to-slot-type(slot-database-type(desc) | slot-type(desc),
+      add!(args, db-type-to-slot-type(slot-database-type(slot) | slot-type(slot),
                                       init-value));
     end;
   end;
@@ -658,8 +742,20 @@ define method db-type-to-slot-type
       end;
     end;
     // Didn't find any non-blank characters.
-    ""
+    " "
   end;
+end;
+
+// <database-record>s are converted to their record-id when written to the database.
+// This converts them back.  Note that this is called inside load-record, so there
+// had better not be any record circularities.
+// ---TODO: Consider removing this restriction.  It can be worked around by maintaining
+//          the circular reference by hand as the integer record-id, I suppose.
+//
+define method db-type-to-slot-type
+    (type :: subclass(<database-record>), init-value :: <integer>)
+ => (record :: <database-record>)
+  load-record(type, init-value)
 end;
 
 
@@ -673,33 +769,53 @@ end;
 define method save-record
     (record :: <database-record>)
   // ---TODO: build the SQL string once and cache it in an each-subclass slot.
-  //          (unless we're only going to write changed fields.)
   let slots = slot-descriptors(object-class(record));
   local method updater-string (slot)
-          format-to-string("%s = ?", slot-column-name(slot))
+          sformat("%s = ?", slot-column-name(slot))
         end;
   let query
     = if (zero?(mod-count(record)))
-        format-to-string("insert into %s (%s) values (%s)",
-                         record-table-name(record),
-                         join(slots, ",", key: slot-column-name),
-                         join(slots, ",", key: method (x) "?" end))
+        sformat("insert into %s (%s) values (%s)",
+                record-table-name(record),
+                join(slots, ",", key: slot-column-name),
+                join(slots, ",", key: method (x) "?" end))
       else
-        format-to-string("update %s set %s where record_id = %d",
-                         record-table-name(record),
-                         join(slots, ",", key: updater-string),
-                         record-id(record))
+        sformat("update %s set %s where record_id = %d",
+                record-table-name(record),
+                join(slots, ",", key: updater-string),
+                record-id(record))
       end;
   with-database-connection (conn)
     local method database-slot-values (record)
             let slot-values = make(<stretchy-vector>);
             // ---TODO: This assumes that all slots get stored in the database.
             //          Need to allow for non-database slots.
-            map-into(slot-values, method (slot) slot-getter(slot)(record) end, slots);
+            map-into(slot-values,
+                     method (slot)
+                       slot-type-to-db-type(slot-getter(slot)(record))
+                     end,
+                     slots);
           end;
     apply(update-db, conn, query, database-slot-values(record));
   end;
 end;
+
+define method save-record
+    (record :: type-union(<module>, <version>))
+  product(record) := get-query-value("product_id", as: <product>);
+  next-method();
+end;
+
+define method slot-type-to-db-type
+    (object :: <object>) => (object :: <object>)
+  object
+end;
+
+define method slot-type-to-db-type
+    (record :: <database-record>) => (id :: <integer>)
+  record-id(record)
+end;
+
 
 // Subclasses must implement this for each "top-level" record type.
 // This can be done with the table-name argument to "define record".
@@ -711,5 +827,21 @@ define method record-table-name
     (record :: <database-record>) => (table-name :: <string>)
   error("No record-table-name method is defined for this record's class. (%=)",
         record);
+end;
+
+// Convert a string-rep-of-record-id to a <database-record> so that
+// get-query-value("foo", as: slot-type(slot)) works for record types.
+// @see respond-to-post(<edit-record-page>) for how this is called.
+//
+define method as
+    (class :: subclass(<database-record>), input :: <string>)
+ => (record :: <database-record>)
+  let record-id = block ()
+                    string-to-integer(input)
+                  exception (<error>)
+                    // ignore
+                  end;
+  (record-id & load-record(class, record-id))
+    | load-named-record(class, input)
 end;
 

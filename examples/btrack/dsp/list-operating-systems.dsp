@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-operating-system.dsp?id=new&type=operating-system&origin=list-operating-systems.dsp">Click
+<a href="edit-operating-system.dsp?id=new&type=operating-system&origin=/list-operating-systems.dsp">Click
  here to create a new operating system.</a>
 <br>Click any operating system name to edit that operating system.
 

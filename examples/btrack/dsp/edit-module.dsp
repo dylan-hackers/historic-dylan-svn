@@ -1,5 +1,4 @@
 <%dsp:taglib name="btrack" prefix="bt" />
-<jsp:useBean id="record" class="sigue.btrack.Module" scope="session"/>
 
 <html>
 <head><title>Bug Tracker - Admin - Edit Module</title></head>
@@ -13,7 +12,7 @@
 <center><h1>Edit Module</h1></center>
 
 <form name="editModuleForm" method="post" action="edit-module.dsp">
-  <input type="hidden" name="type" value="Module">
+  <bt:show-hidden-fields/>
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>

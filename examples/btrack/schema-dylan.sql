@@ -24,7 +24,7 @@
 -- not a bug     - Development determined it's not a bug.
 drop   table tbl_bug_report;
 create table tbl_bug_report (
-  record_id      INTEGER NOT NULL,
+  record_id          INTEGER NOT NULL,
   mod_count          INTEGER NOT NULL,
   date_entered       DATETIME NOT NULL,
   date_modified      DATETIME NOT NULL,
@@ -44,8 +44,8 @@ create table tbl_bug_report (
   platform           INTEGER NOT NULL,      -- a platform_id or 0
   browser            INTEGER NOT NULL,      -- a browser_id or 0
   location           VARCHAR(400) NULL,     -- e.g., URL
-  priority           INTEGER NOT NULL,      -- 0 = not prioritized, 1 = highest
-  severity           INTEGER NOT NULL,      -- 0 = not severitized, 1 = highest
+  priority           INTEGER NOT NULL,      -- 0 = not prioritized, 1 = highest, 2 = lower, ...
+  severity           INTEGER NOT NULL,      -- 0 = not severitized, 1 = highest, 2 = lower, ...
   dev_assigned       INTEGER NOT NULL,      -- an account_id or 0
   qa_assigned        INTEGER NOT NULL,      -- an account_id or 0
   duplicate_of       INTEGER NOT NULL       -- a bug report record_id or 0

@@ -1,5 +1,4 @@
 <%dsp:taglib name="btrack" prefix="bt" />
-<jsp:useBean id="record" class="sigue.btrack.Account" scope="session"/>
 
 <html>
 <head><title>Bug Tracker - Admin - Edit Account</title></head>
@@ -13,7 +12,7 @@
 <center><h1>Edit Account</h1></center>
 
 <form name="editAccountForm" method="post" action="edit-account.dsp">
-  <input type="hidden" name="type" value="account">
+  <bt:show-hidden-fields/>
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>

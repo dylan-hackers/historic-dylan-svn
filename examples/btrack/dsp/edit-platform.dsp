@@ -1,5 +1,4 @@
 <%dsp:taglib name="btrack" prefix="bt" />
-<jsp:useBean id="record" class="sigue.btrack.Platform" scope="session"/>
 
 <html>
 <head><title>Bug Tracker - Admin - Edit Platform</title></head>

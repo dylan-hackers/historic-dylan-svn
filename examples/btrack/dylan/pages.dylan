@@ -47,14 +47,47 @@ end;
 
 define tag show-name in btrack
     (page :: <btrack-page>, response :: <response>)
-    ()
-  format(output-stream(response), "%s", name(current-row() | *record*));
+    (key)
+  let record = select (key by \=)
+                 "row"     => current-row();
+                 "record"  => *record*;
+                 otherwise => current-row() | *record*;
+               end;
+  format(output-stream(response), "%s", name(record));
 end;
 
 define tag show-id in btrack
     (page :: <btrack-page>, response :: <response>)
+    (key)
+  let record = select (key by \=)
+                 "row"     => current-row();
+                 "record"  => *record*;
+                 otherwise => current-row() | *record*;
+               end;
+  format(output-stream(response), "%s", record-id(record));
+end;
+
+define tag show-hidden-fields in btrack
+    (page :: <btrack-page>, response :: <response>)
     ()
-  format(output-stream(response), "%s", record-id(current-row() | *record*));
+  display-hidden-fields(page, output-stream(response));
+end;
+
+// Methods on display-hidden-fields can call this.
+//
+define function display-hidden-field
+    (stream :: <stream>, name :: <string>, value :: <object>)
+  format(stream, "<input type='hidden' name='%s' value='%s'>", name, value);
+end;
+
+// Pass along the 'origin' query value.
+//
+define method display-hidden-fields
+    (page :: <btrack-page>, stream :: <stream>)
+  bind (origin = get-query-value("origin"))
+    iff(origin,
+        display-hidden-field(stream, "origin", origin));
+  end;
 end;
 
 // This should always end in a slash.
@@ -80,6 +113,11 @@ define tag show-record-id in btrack
 end;  
 
 
+define tag show-owner in btrack
+    (page :: <btrack-page>, response :: <response>)
+    ()
+  format(output-stream(response), "%s", name(owner(current-row() | *record*)));
+end;  
 
 // A simple error reporting mechanism.  Store errors in the page context
 // so they can be displayed when the next page is generated.  The idea is
@@ -267,7 +305,7 @@ end;
 //          care of defaulting the value correctly if the form is redisplayed due to
 //          error, and will display the input tag in a different background color.
 //
-define tag show-query-value
+define tag show-query-value in btrack
     (page :: <btrack-page>, response :: <response>)
     (name :: <string>)
   let qv = get-query-value(name);
@@ -278,13 +316,26 @@ end;
 //// Table row generators for list-*.dsp pages
 ////
 
-//---TODO: It would be easy enough to have "define record" generate a mapping
-//         from a pretty name like "account" to the record class <account>
-//         and then repetitious code like below could be made generic instead.
+//---TODO: Can probably make this code a lot less repetitious by passing the
+//         record type in the dsp:table tag's attributes and retrieving it
+//         here.
 
-define named-method version-generator in btrack
-    (page :: <btrack-page>) => (rows :: <sequence>)
-  load-all-records(<version>)
+// Generate a sequence of all versions related to the current product.
+//
+define named-method gen-product-versions in btrack
+    (page :: <edit-product-page>) => (rows :: <sequence>)
+  load-records(<version>,
+               sformat("select * from tbl_version where product_id = %d",
+                       record-id(*record*)));
+end;
+
+// Generate a sequence of all modules related to the current product.
+//
+define named-method gen-product-modules in btrack
+    (page :: <edit-product-page>) => (rows :: <sequence>)
+  load-records(<module>,
+               sformat("select * from tbl_module where product_id = %d",
+                       record-id(*record*)));
 end;
 
 define named-method product-generator in btrack
@@ -341,7 +392,7 @@ define method respond-to-get (page :: <edit-record-page>,
   let record = select (record-id by \=)
                  "new" =>     // new record being created
                    let record-class = record-class-from-type-name(record-type);
-                   make(record-class, id: next-record-id());
+                   initialize-record(make(record-class, id: next-record-id()));
                  #f =>        // no record id means record is in session.
                    get-attribute(session, $edit-record-key);
                  otherwise =>
@@ -357,6 +408,16 @@ define method respond-to-get (page :: <edit-record-page>,
     end;
   else
     force-login(page, request, response)
+  end;
+end;
+
+define function return-to-origin
+    (request :: <request>, response :: <response>,
+     #key default :: <page> = *home-page*)
+  bind (origin = get-query-value("origin"),
+        // It may be common to forget to use a leading / since it's not required...
+        page = origin & (url-to-page(origin) | url-to-page(concatenate("/", origin))))
+    respond-to-get(page | default, request, response);
   end;
 end;
 
@@ -377,7 +438,12 @@ define method respond-to-post (page :: <edit-record-page>,
         validate-record-field(page, record, slot, field-value);
         let f = slot-setter(slot);
         // ---TODO: determine whether any slots changed.  If not, no need to save the record.
-        f & f(field-value, record);
+        if (f)
+          log-debug("record posted: Setting %= to %=", field-name, field-value);
+          f(field-value, record);
+        else
+          log-debug("record posted: No setter found for %=.  Value was %=.", field-name, field-value);
+        end;
       else
         /* ---TODO
         if (slot-required?(slot))
@@ -391,8 +457,7 @@ define method respond-to-post (page :: <edit-record-page>,
     //          strings to the strings library.
     note-form-message("%s updated.", record-pretty-name(record));
     remove-attribute(get-session(request), $edit-record-key);     // clean up session
-    // ---TODO: Figure out how to go to the 'origin' page.
-    respond-to-get(*home-page*, request, response);
+    return-to-origin(request, response);
   exception (err :: <invalid-form-field-exception>)
     note-form-error("Error while processing the %= field.  %=",
                     field-name, err);
@@ -418,6 +483,21 @@ end;
 define page edit-product-page (<edit-record-page>)
     (url: "/edit-product.dsp",
      source: document-location("dsp/edit-product.dsp"))
+end;
+
+define page edit-module-page (<edit-record-page>)
+    (url: "/edit-module.dsp",
+     source: document-location("dsp/edit-module.dsp"))
+end;
+
+define page edit-version-page (<edit-record-page>)
+    (url: "/edit-version.dsp",
+     source: document-location("dsp/edit-version.dsp"))
+end;
+
+define method display-hidden-fields
+    (page :: type-union(<edit-module-page>, <edit-version-page>), stream :: <stream>)
+  display-hidden-field(stream, "product_id", get-query-value("product_id"))
 end;
 
 define page list-operating-systems-page (<btrack-page>)
@@ -454,7 +534,115 @@ define tag show-bug-number in btrack
     (page :: <btrack-page>, response :: <response>)
     ()
   let bug = current-row() | *record*;
-  bug & write(output-stream(response), bug-number(bug));
+  bug & format(output-stream(response), "%d", bug-number(bug));
+end;
+
+define tag show-synopsis in btrack
+    (page :: <btrack-page>, response :: <response>)
+    ()
+  let bug = current-row() | *record*;
+  bug & write(output-stream(response), synopsis(bug));
+end;
+
+define tag show-description in btrack
+    (page :: <btrack-page>, response :: <response>)
+    ()
+  let record = current-row() | *record*;
+  record & write(output-stream(response), description(record));
+end;
+
+define tag show-priority in btrack
+    (page, response)
+    ()
+  format(output-stream(response), "%d", priority(current-row()));
+end;
+define tag show-severity in btrack
+    (page, response)
+    ()
+  format(output-stream(response), "%d", severity(current-row()));
+end;
+define tag show-product in btrack
+    (page, response)
+    ()
+  format(output-stream(response), "%s", name(product(current-row())));
+end;
+define tag show-module in btrack
+    (page, response)
+    ()
+  format(output-stream(response), "%s", name(module(current-row())));
+end;
+define tag show-reported-by in btrack
+    (page, response)
+    ()
+  format(output-stream(response), "%s", name(reported-by(current-row())));
+end;
+
+
+define macro option-menu-definer
+  { define option-menu ?:name ?menu:expression; ?accessor:expression; end }
+  => {  define tag ?name in btrack
+            (page :: <btrack-page>, response :: <response>)
+            ()
+          let record = current-row() | *record*;
+          let out = output-stream(response);
+          when (record)
+            display(out, ?menu, ?accessor(record));
+          end;
+        end;
+      }
+end;
+
+//---TODO: I think in the vast majority of cases we'll need a value-generator and
+//         then just a function to generate a name from the value.  Should update
+//         the <option-menu> class for that.
+
+define option-menu show-priority-options 
+    make(<option-menu>,
+         generator: method () range(from: 0, to: 5) end);
+    priority;
+end;
+define option-menu show-severity-options 
+    make(<option-menu>,
+         generator: method () range(from: 0, to: 5) end);
+    severity;
+end;
+define option-menu show-version-options
+    btrack-option-menu(curry(load-all-records, <version>));
+    version;
+end;
+define option-menu show-operating-system-options 
+    btrack-option-menu(curry(load-all-records, <operating-system>));
+    operating-system;
+end;
+define option-menu show-platform-options
+    btrack-option-menu(curry(load-all-records, <platform>));
+    platform;
+end;
+define option-menu show-browser-options 
+    btrack-option-menu(curry(load-all-records, <browser>));
+    browser;
+end;
+define option-menu show-product-options 
+    btrack-option-menu(curry(load-all-records, <product>));
+    product;
+end;
+define option-menu show-module-options
+    btrack-option-menu(curry(load-all-records, <module>));
+    module;
+end;
+
+define option-menu show-dev-assigned-options
+    btrack-option-menu(curry(load-all-records, <account>));
+    dev-assigned;
+end;
+define option-menu show-qa-assigned-options
+    btrack-option-menu(curry(load-all-records, <account>));
+    qa-assigned;
+end;
+define option-menu show-status-options
+    make(<option-menu>,
+         generator: method () range(from: 0, to: 5) end);
+    status;
 end;
 
 

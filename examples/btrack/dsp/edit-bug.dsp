@@ -3,7 +3,6 @@
 <html>
 <head>
   <title>Bug Tracker -- Edit Bug Report</title>
-  <bt:stylesheet/>
 </head>
 
 <body bgcolor="#FFFFFF">
@@ -15,7 +14,7 @@
 <bt:show-messages/>
 
 <form name="newBugForm" method="post" action="edit-bug.dsp">
-  <input type="hidden" name="type" value="Bug">
+  <bt:show-hidden-fields/>
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>
@@ -73,11 +72,11 @@
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Assigned Developer:</span></td>
-            <td nowrap><select name="dev_assigned" size="1"><bt:show-developer-options key="assigned"/></select></td>
+            <td nowrap><select name="dev_assigned" size="1"><bt:show-dev-assigned-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Assigned QA:</span></td>
-            <td nowrap><select name="qa_assigned" size="1"><bt:show-qa-options key="assigned"/></select></td>
+            <td nowrap><select name="qa_assigned" size="1"><bt:show-qa-assigned-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Status:</span></td>

@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="edit-bug.dsp?id=new&type=bug-report&origin=list-bugs.dsp">Click here to create a new bug report.</a>
+<a href="edit-bug.dsp?id=new&type=bug-report&origin=/list-bugs.dsp">Click here to create a new bug report.</a>
 <br>Click any bug report to edit that bug.
 
 <p>

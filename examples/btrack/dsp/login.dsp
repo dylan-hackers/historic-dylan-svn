@@ -12,6 +12,7 @@
 <h1>Please Login:</h1>
 
 <form name="loginForm" method="post" action="login.dsp">
+  <bt:show-hidden-fields/>
   <table border="0">
     <tr>
       <td align="right">Username:</td>
