@@ -81,9 +81,19 @@ define method disassemble(instr :: <powerpc-instruction>)
   powerpc-disassemble(instr.instruction-word);
 end;
 
+//
+// class-for-instruction-subcode
+//
+// Given a primary and subcode number, returns a class that can be given to \make
+//
 define generic class-for-instruction-subcode(primary :: <primary-field>, key :: <subcode-field>)
  => class :: subclass(<powerpc-instruction>);
 
+//
+// branch-target
+//
+// Provide information whether the instruction branches away
+//
 define generic branch-target
   (instruction-counter :: <integer>, instruction :: <powerpc-instruction>)
 => location :: <object>;
@@ -93,6 +103,19 @@ define method branch-target
 => location :: <object>;
 end;
 
+//
+// return-target
+//
+// Provide information whether the instruction records a return address
+//
+define generic return-target
+  (instruction-counter :: <integer>, instruction :: <powerpc-instruction>)
+=> (return-storage :: <object>, return-to :: false-or(<integer>));
+
+define method return-target
+  (instruction-counter :: <integer>, instruction :: <powerpc-instruction>)
+=> (return-storage :: <object>, return-to :: false-or(<integer>));
+end;
 
 define method class-for-instruction-subcode(primary :: <primary-field>, key :: <subcode-field>)
  => class :: singleton(<powerpc-instruction>);
@@ -127,6 +150,22 @@ define method branch-target
 => location :: <object>;
   let instruction-word = instruction.instruction-word;
   branch-target-subcode(instruction-counter,
+                        primary-from-instruction-word(instruction-word),
+                        instruction-mask-subcode(instruction-word),
+                        instruction-word)
+end;
+
+
+
+define generic return-target-subcode
+  (instruction-counter :: <integer>, primary :: <primary-field>, subcode :: <subcode-field>, secondary :: <integer>)
+=> (return-storage :: <object>, return-to :: false-or(<integer>));
+
+define method return-target
+  (instruction-counter :: <integer>, instruction :: <powerpc-branch-instruction>)
+=> (return-storage :: <object>, return-to :: false-or(<integer>));
+  let instruction-word = instruction.instruction-word;
+  return-target-subcode(instruction-counter,
                         primary-from-instruction-word(instruction-word),
                         instruction-mask-subcode(instruction-word),
                         instruction-word)
@@ -189,20 +228,34 @@ define macro instruction-definer
     end;
   }
 
-  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) branch ?branches; ?more:* end }
+  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) branch ?branch-stuff:*; ?more:* end }
   =>
   {
     define instruction ?name(?primary; ?key; ?rest) ?more end;
-      define method class-for-instruction-subcode(primary == ?primary, subcode == ?key)
-       => class :: singleton(<powerpc-branch-instruction>);
-        <powerpc-branch-instruction>
-      end;
-      define method branch-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode == ?key, secondary :: <integer>)
-       => location :: <object>;
-        case
-          ?branches;
-        end case
-      end;
+    define branch instruction (?primary, singleton(?key); ?branch-stuff) end;
+/*    define method class-for-instruction-subcode(primary == ?primary, subcode == ?key)
+     => class :: singleton(<powerpc-branch-instruction>);
+      <powerpc-branch-instruction>
+    end;
+    define method branch-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode == ?key, secondary :: <integer>)
+     => location :: <object>;
+      case
+        ?branches;
+      end case
+    end;*/
+  }
+
+  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) return ?return-stuff:*; ?more:* end }
+  =>
+  {
+    define instruction ?name(?primary; ?key; ?rest) ?more end;
+    define returnable instruction (?primary, singleton(?key); ?return-stuff) end;
+/*    define method return-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode == ?key, secondary :: <integer>)
+     => (return-storage :: <object>, return-to :: false-or(<integer>));
+      case
+        ?returns;
+      end case
+    end;*/
   }
 
   { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) simplify ?simplification-stuff:*; ?more:* end }
@@ -239,11 +292,29 @@ define macro instruction-definer
     end;
   }
   
+  { define returnable instruction (?primary:expression, ?key-type:expression; ?returns) end }
+  =>
+  {
+    define method return-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode :: ?key-type, secondary :: <integer>)
+     => (return-storage :: <object>, return-to :: false-or(<integer>));
+      case
+        ?returns;
+      end case
+    end;
+  }
+  
   { define instruction ?:expression(?primary:expression; ?rest:*) branch ?branch-stuff:*; ?more:* end }
   =>
   {
     define instruction ?expression(?primary; ?rest) ?more end;
     define branch instruction (?primary, <subcode-field>; ?branch-stuff) end;
+  }
+  
+  { define instruction ?:expression(?primary:expression; ?rest:*) return ?return-stuff:*; ?more:* end }
+  =>
+  {
+    define instruction ?expression(?primary; ?rest) ?more end;
+    define returnable instruction (?primary, <subcode-field>; ?return-stuff) end;
   }
   
   { define simplifiable instruction (?primary:expression, ?key-type:expression; ?simplifications) end }
@@ -302,6 +373,16 @@ define macro instruction-definer
   absolute-type-branch:
     { AA, LK } => { secondary.instruction-field-LK, secondary.instruction-field-AA }
 
+
+  returns:
+    { } => { }
+    { ?return, ... } => { ?return; ... }
+
+  return:
+    { flagged ?flag => LR ?equals:token ?return-target } => { (?flag) => values(LR: ?return-target) }
+
+  return-target:
+    { PC ?plus:token ?:expression } => { (instruction-counter ?plus ?expression) }
     
   branches:
     { } => { }
@@ -316,7 +397,7 @@ define macro instruction-definer
     { CTR } => { #t => #"CTR" }
 
   target:
-    { PC ?plus:token ?field } => { (instruction-counter ?plus ?field) }
+    { PC ?plus:token ?field } => { (instruction-counter ?plus (?field * 4)) }
     { ?field } => { (?field) }
 
   simplifications:
@@ -650,11 +731,12 @@ define instruction bc(16; BO, BI, BD, AA, LK)
     => beq(cr, BD, AA, LK),
    [(flagged eq) & (flagged KEEP) & (unflagged TRUE)]
     => bne(cr, BD, AA, LK);
-  branch flagged AA
+  branch
+   flagged AA
     => BD,
    unflagged AA
-    => PC + BD
-//  return flagged LK => LR
+    => PC + BD;
+  return flagged LK => LR = PC + 4;
 end;
 
 define instruction b(18; LI, AA, LK)
@@ -662,19 +744,21 @@ define instruction b(18; LI, AA, LK)
     => LI,
    unflagged AA
     => PC + LI;
-//  return flagged LK => LR
+  return flagged LK => LR = PC + 4;
 end;
 
 define instruction bclr(19; 16; BO, BI, LK)
   simplify [(flagged ALWAYS) & (flagged KEEP) & (field BI = 0)]
     => blr(LK);
-  branch LR
+  branch LR;
+  return flagged LK => LR = PC + 4;
 end;
 
 define instruction bcctr(19; 528; BO, BI, LK)
   simplify [(flagged ALWAYS) & (flagged KEEP) & (field BI = 0)]
     => bctr(LK);
   branch CTR
+  return flagged LK => LR = PC + 4;
 end;
 
 define instruction stmw(47; S, A, d) end;
