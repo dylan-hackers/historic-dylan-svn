@@ -15,3 +15,6 @@ clean:
 install: ../runme
 	cd ..; tar czf ../dylan-hackers.tar.gz README buildme runme \
            src/Makefile src/icfp2000.lid src/*.dylan
+
+test: icfp2000
+	./icfp2000 <../examples/spheres.gml
