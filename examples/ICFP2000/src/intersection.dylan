@@ -3,9 +3,9 @@ synopsis: Ray-intersection code
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
-define class <ray> (<object>)
-  slot ray-position;
-  slot ray-direction;
+define sealed class <ray> (<object>)
+  slot ray-position :: <3D-point>;
+  slot ray-direction :: <3D-vector>;
 end class <ray>;
 
 define method initialize(ray :: <ray>, #next next-method, #key position: pos, direction: dir, #all-keys)
@@ -50,24 +50,25 @@ define method real-intersection-before(m :: <sphere>, ray, distance, #key
  => (point, normal, surface-method, new-distance)
 
   block (easy-out)
-    if (magnitude(ray.ray-position - $origin) < 1.0)
+    let ray-to-center = ray.ray-position - $origin;
+
+    if (magnitude(ray-to-center) < 1.0)
       // We started inside the sphere
       if (shadow-test?)
 	easy-out(#t);
       else
 	// XXX Intersection between ray and inside of sphere
       end if;
-    elseif (magnitude(ray.ray-position - $origin) - 1.0 > distance)
+    elseif (magnitude(ray-to-center) - 1.0 > distance)
       easy-out(#f);  // We're out of range.
     else
-      let t_ca = -ray.ray-position * ray.ray-direction;
+      let t_ca = -ray-to-center * ray.ray-direction;
       if (t_ca < 0.0)
 	// Pointing away from sphere, no intersection
 	easy-out(#f);
       end if;
     
-      let foo = ray.ray-position - $origin;
-      let l_oc_2 = foo * foo;
+      let l_oc_2 = ray-to-center * ray-to-center;
       let d_2 = l_oc_2 - (t_ca * t_ca);
       
       if (abs(d_2) > 1.0)
@@ -75,8 +76,7 @@ define method real-intersection-before(m :: <sphere>, ray, distance, #key
       elseif (shadow-test?)
 	easy-out(#t);
       else
-	let point = ray.ray-direction * (t_ca - sqrt(1.0 - d_2)) 
-	  + ray.ray-position;
+	let point = ray.ray-position + ray.ray-direction * (t_ca - sqrt(1.0 - d_2));
 /*	format-out("t_ca = %=, d_2 = %=\n", t_ca, d_2);
 	format-out("  ray.ray-position = %=, ray-ray-direction = %=\n", ray.ray-position, ray.ray-direction);
 	format-out("  point = %=\n", point);
@@ -106,11 +106,11 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
     if (abs(t) > distance)
       #f;
     else
-      let point = ray.ray-direction * t + ray.ray-position;
+      let point = ray.ray-position + ray.ray-direction * t;
       let u = clamp(point.x);
       let v = clamp(point.z);
       values(point, 
-	     vector3D(0.0, 1.0, 0.0, 0.0),
+	     vector3D(0.0, 1.0, 0.0),
 	     make-surface-closure(0, u, v, m.surface-interpreter-entry), t);
     end if;
   end if;

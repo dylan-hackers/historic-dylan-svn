@@ -3,6 +3,7 @@ synopsis: Recursive raytracing renderer
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
+define constant $eye-pos :: <3D-point> = point3D(0.0, 0.0, -1.0, 1.0);
 
 // When recursing, move a tad in the direction of the ray your going
 // for to avoid getting cut off by the surface you're leaving.
@@ -35,7 +36,7 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
 	  if (can-see(o, point, l))
 	    c := c + surf.color * 
 	      (intensity-on(l, point, normal) * surf.diffusion-coefficient
-		+ intensity-on(l, point, normal, phong: surf.phong-coefficient)
+		+ phong-intensity-on(l, point, ray.ray-position, normal, surf.phong-coefficient)
 		 * surf.specular-coefficient);
 	  end if;
 	end for;  
@@ -50,28 +51,32 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
   tracer;
 end method get-tracer;
 
-define constant $eye-pos :: <vector3D> = vector3D(0.0, 0.0, -1.0, 1.0);
-
 define method render-image(o, depth :: <integer>, filename, ambient :: <color>, 
 			   lights :: <collection>, width :: <integer>,
 			   height :: <integer>, fov :: <fp>)
   let canvas = make(<ppm-image>, filename: filename, depth: 255,
 		    width: width, height: height);
 
+  format-out("FOV: %=\n", fov);
   let world-width = 2.0 * tan(fov / 2.0);
   let world-height = world-width * as(<fp>, height) / as(<fp>, width);
 
+  format-out("world is %= x %=\n", world-width, world-height);
+
   let trace = get-tracer(o, ambient, lights);
 
-  for (y from height above 0 by -1)
-    for (x from 0 below width)
-      let world-x :: <fp> = as(<fp>, x - truncate/(width, 2)) 
-	/ as(<fp>, width) * world-width;
-      let world-y :: <fp> = as(<fp>, y - truncate/(height, 2))
-	/ as(<fp>, height) * world-height;
+  for (row from truncate/(height, 2) above truncate/(-height, 2) by -1)
+    for (column from truncate/(-width, 2) below truncate/(width, 2))
+      let world-x :: <fp> = (as(<fp>, column) / as(<fp>, width))  * world-width;
+      let world-y :: <fp> = (as(<fp>, row)    / as(<fp>, height)) * world-height;
       let ray = make(<ray>,
 		     position: $eye-pos,
-		     direction: vector3D(world-x, world-y, 0.0, 1.0) - $eye-pos);
+		     direction: point3D(world-x, world-y, 0.0, 1.0) -
+		       $eye-pos);
+      format-out("world-x = %=, world-y = %=, ", world-x, world-y);
+      format-out("ray.direction = (%=, %=, %=)\n",
+		 ray.ray-direction.x, ray.ray-direction.y,
+		 ray.ray-direction.z);
       write-pixel(canvas, trace(ray, depth));
     end for;
   end for;
