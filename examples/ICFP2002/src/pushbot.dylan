@@ -121,7 +121,10 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     debug("DB: Considering next move (loc: %=)\n", robot.location);
 
     // Deliver what we can:
-    let drop-these = choose(at-destination?, robot.inventory);
+    let drop-these = choose(method(p)
+				p.dest = robot.location;
+			    end,
+			    robot.inventory);
     debug("DB: drop-these = %=\n", drop-these);
     
     if (~drop-these.empty?)
