@@ -64,7 +64,12 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
     end method finished?;
   local
     method successor-states (x) => states;
-      apply(concatenate, map(generate-next-run, x));
+      let lists = map(generate-next-run, x);
+      let res = #();
+      for (e in lists)
+	res := concatenate(e, res);
+      end;
+      res;
     end method successor-states;
   local 
     method cost-order (x :: <generator-state>, y :: <generator-state>) // XXX Tweak here
