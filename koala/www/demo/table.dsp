@@ -1,4 +1,4 @@
-<%dsp:taglib name="example" prefix="demo"/>
+<%dsp:taglib name="demo"/>
 
 <html>
 <head>

@@ -1,8 +1,8 @@
-<%dsp:taglib name="example" prefix="ex"/>
+<%dsp:taglib name="demo"/>
 
 <html>
 <head>
-  <title>DSP Example -- Home</title>
+  <title>DSP Example -- Iterator</title>
 </head>
 
 <body>
@@ -10,7 +10,7 @@
   <%dsp:include url="header.dsp"/>
   <%dsp:include url="body-wrapper-start.dsp"/>
 
-  <ex:show-errors/>
+  <demo:show-errors/>
 
   <h2>Iterator</h2>
 
@@ -19,9 +19,9 @@
 
   <p>Specify a query value of n=xxx in the URL to change the number of iterations.
   <p>
-  <ex:repeat>
-    <br>This is iteration <ex:display-iteration-number/>.
-  </ex:repeat>
+  <demo:repeat>
+    <br>This is iteration <demo:display-iteration-number/>.
+  </demo:repeat>
 
 
   <%dsp:include url="body-wrapper-end.dsp"/>

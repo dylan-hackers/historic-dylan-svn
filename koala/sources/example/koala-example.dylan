@@ -4,7 +4,7 @@ Author:    Carl Gay
 
 /*
 
-Start this example project and go to /example/home.dsp and you can choose from a
+Start this example project and go to /demo/home.dsp and you can choose from a
 menu of pages that demonstrate the features of Dylan Server Pages.  You should
 be able to find the code corresponding to a particular URL by searching for that
 URL in this file.
@@ -63,7 +63,7 @@ end;
 //
 define page hello-world-page (<page>)
     (uri: "/hello-world",
-     aliases: "/hello")
+     alias: "/hello")
 end;
 
 // Respond to a GET for <hello-world-page>.  Note the use of do-query-values to
@@ -97,22 +97,58 @@ end;
 // source file and displays it.  Any HTML is output directly to the output
 // stream, and tags invoke the corresponding tag definition code.
 
-// Note that the .dsp source file isn't necessarily under the *document-root*
+// Note that the .dsp source file doesn't have to be under the *document-root*
 // directory.
 
 // Define a class that will be used for all our example pages.  It must be a
 // subclass of <dylan-server-page> so that all the template parsing will happen.
-//  If we define all our tags to be specialized on this class they can be used
+// If we define all our tags to be specialized on this class they can be used
 // in any example page.
 //
-define class <example-page> (<dylan-server-page>)
+define class <demo-page> (<dylan-server-page>)
 end;
 
-define taglib example ()
-  //default-prefix: "ex";
+define taglib demo ()
 end;
 
-define named-method logged-in? in $example-taglib
+define page home-page (<demo-page>)
+    (uri: "/demo/home.dsp",
+     source: document-location("demo/home.dsp"))
+end;
+
+define page hello-page (<demo-page>)
+    (uri: "/demo/hello.dsp",
+     source: document-location("demo/hello.dsp"))
+end;
+
+// Defines a tag that looks like <demo:hello/> in the DSP source file.  i.e.,
+// it has no body.
+define tag hello in demo
+    (page :: <demo-page>, response :: <response>)
+    ()
+  format(output-stream(response), "Hello, world!");
+end;
+
+define page args-page (<demo-page>)
+    (uri: "/demo/args.dsp",
+     source: document-location("demo/args.dsp"))
+end;
+
+// This tag demonstrates the use of tag keyword arguments.  The tag call looks
+// like this:  <demo:show-keys arg1="100" arg2="foo"/>
+// Note that since arg1 is typed as an <integer> it is automatically parsed to
+// an <integer>.  To define new tag argument types, add methods to the
+// parse-tag-arg generic.
+//
+define tag show-keys in demo
+    (page :: <demo-page>, response :: <response>)
+    (arg1 :: <integer>, arg2)
+  format(output-stream(response),
+         "The value of arg1 + 1 is %=.  The value of arg2 is %=.",
+         arg1 + 1, arg2);
+end;
+
+define named-method logged-in? in demo
     (page, request)
   let session = get-session(request);
   session & get-attribute(session, #"username");
@@ -128,6 +164,8 @@ define method note-form-error
   note-form-error(list(message, copy-sequence(args)));
 end;
 
+// This shows the use of <page-context> to store the form errors since they
+// they only need to be accessible during the processing of one page.
 define method note-form-error
     (error :: <sequence>, #rest args)
   let context :: <page-context> = page-context();
@@ -136,8 +174,8 @@ define method note-form-error
   set-attribute(context, #"errors", errors);
 end;
 
-define tag show-errors in $example-taglib
-    (page :: <example-page>, response :: <response>)
+define tag show-errors in demo
+    (page :: <demo-page>, response :: <response>)
     ()
   let errors = get-attribute(page-context(), #"errors");
   when (errors)
@@ -146,30 +184,22 @@ define tag show-errors in $example-taglib
     for (err in errors)
       // this is pretty consy
       format(out, "<LI>%s\n",
-             quote-html(apply(format-to-string, first(err), second(err))));
+             apply(format-to-string, first(err), second(err)));
     end;
     format(out, "</UL></FONT>\n");
   end;
 end;
 
+// home.dsp -- note that there is no need to register a page for
 
-// Even though the home page doesn't use any DSP features we have to
-// define a page for it since it's not under the *document-root*.
-//
-define page example-home-page (<example-page>)
-    (uri: "/example/home.dsp",
-     aliases: "/example",
-     source: document-location("example/home.dsp"))
+define page example-login-page (<demo-page>)
+    (uri: "/demo/login.dsp",
+     source: document-location("demo/login.dsp"))
 end;
 
-define page example-login-page (<example-page>)
-    (uri: "/example/login.dsp",
-     source: document-location("example/login.dsp"))
-end;
-
-define page example-logout-page (<example-page>)
-    (uri: "/example/logout.dsp",
-     source: document-location("example/logout.dsp"))
+define page example-logout-page (<demo-page>)
+    (uri: "/demo/logout.dsp",
+     source: document-location("demo/logout.dsp"))
 end;
 
 define method respond-to-get (page :: <example-logout-page>,
@@ -182,9 +212,9 @@ define method respond-to-get (page :: <example-logout-page>,
 end;
 
 // The login page POSTs to the welcome page...
-define page example-welcome-page (<example-page>)
-    (uri: "/example/welcome.dsp",
-     source: document-location("example/welcome.dsp"))
+define page example-welcome-page (<demo-page>)
+    (uri: "/demo/welcome.dsp",
+     source: document-location("demo/welcome.dsp"))
 end;
 
 // ...so handle the POST by storing the form values in the session.
@@ -201,7 +231,7 @@ define method respond-to-post (page :: <example-welcome-page>,
     set-attribute(session, #"password", password);
     next-method();  // process the DSP template for the welcome page.
   else
-    note-form-error("You must supply <both> a username and password.");
+    note-form-error("You must supply <b>both</b> a username and password.");
     // ---*** TODO: Calling respond-to-get probably isn't quite right.
     // If we're redirecting to another page should the query/form values
     // be cleared first?  Probably want to call process-page instead,
@@ -210,10 +240,10 @@ define method respond-to-post (page :: <example-welcome-page>,
   end;
 end;
 
-// Note this tag is defined on <example-page> so it can be accessed from any
+// Note this tag is defined on <demo-page> so it can be accessed from any
 // page in this example web application.
-define tag current-username in $example-taglib
-    (page :: <example-page>, response :: <response>)
+define tag current-username in demo
+    (page :: <demo-page>, response :: <response>)
     ()
   let username
     = get-form-value("username")
@@ -224,9 +254,9 @@ end;
 
 //// iterator
 
-define page iterator-page (<example-page>)
-    (uri: "/example/iterator.dsp",
-     source: document-location("example/iterator.dsp"))
+define page iterator-page (<demo-page>)
+    (uri: "/demo/iterator.dsp",
+     source: document-location("demo/iterator.dsp"))
 end;
 
 define thread variable *repetition-number* = 0;
@@ -240,8 +270,8 @@ define thread variable *repetition-number* = 0;
 // get the argument "n" that can be passed in the URL or in the POST.
 // See iterator.dsp for how this tag is invoked.
 //
-define body tag repeat in $example-taglib
-    (page :: <example-page>, response :: <response>, do-body :: <function>)
+define body tag repeat in demo
+    (page :: <demo-page>, response :: <response>, do-body :: <function>)
     ()
   let n-str = get-query-value("n");
   let n = (n-str & string-to-integer(n-str)) | 5;
@@ -252,8 +282,8 @@ define body tag repeat in $example-taglib
   end;
 end;
 
-define tag display-iteration-number in $example-taglib
-    (page :: <example-page>, response :: <response>)
+define tag display-iteration-number in demo
+    (page :: <demo-page>, response :: <response>)
     ()
   format(output-stream(response), "%d", *repetition-number*);
 end;
@@ -261,16 +291,16 @@ end;
 
 //// table generation
 
-define page table-page (<example-page>)
-    (uri: "/example/table.dsp",
-     source: document-location("example/table.dsp"))
+define page table-page (<demo-page>)
+    (uri: "/demo/table.dsp",
+     source: document-location("demo/table.dsp"))
 end;
 
 // This method is used as the test function for a %dsp:if call.
 // In a real web app it would probably do some database test
 // of the form "select count(1) from ..." to see if there are any
 // rows to display.
-define named-method table-has-rows1? in $example-taglib
+define named-method table-has-rows1? in demo
     (page :: <table-page>, request)
  => (rows? :: <boolean>)
   #t
@@ -278,81 +308,44 @@ end;
 
 // This method is used as the row-generator function for a dsp:table call.
 // It must return a <sequence>.
-define named-method animal-generator in $example-taglib
+define named-method animal-generator in demo
     (page :: <table-page>)
   #[#["dog", "perro"],
     #["cat", "gato"],
     #["cow", "vaca"]]
 end;
 
-define named-method table-has-rows2? in $example-taglib
+define named-method table-has-rows2? in demo
     (page :: <table-page>, request)
   #f
 end;
 
 // The row-generator for the table with no rows.  This definition isn't actually
-// ever called, because the
-define named-method no-rows-generator in $example-taglib
+// ever called, because the table-has-rows2? method returns #f.
+define named-method no-rows-generator in demo
     (page :: <table-page>)
   #[]
 end;
 
-define tag column1-data in $example-taglib
-    (page :: <example-page>, response :: <response>)
+define tag column1-data in demo
+    (page :: <demo-page>, response :: <response>)
     ()
-  let out = output-stream(response);
   let row = current-row();
-  format(out, "%s", row[0]);
+  format(output-stream(response), "%s", row[0]);
 end;
 
-define tag column2-data in $example-taglib
-    (page :: <example-page>, response :: <response>)
+define tag column2-data in demo
+    (page :: <demo-page>, response :: <response>)
     ()
-  let out = output-stream(response);
   let row = current-row();
-  format(out, "%s", row[1]);
+  format(output-stream(response), "%s", row[1]);
 end;
 
-define tag row-bgcolor in $example-taglib
-    (page :: <example-page>, response :: <response>)
+define tag row-bgcolor in demo
+    (page :: <demo-page>, response :: <response>)
     ()
   write(output-stream(response),
         if(even?(current-row-number())) "#EEEEEE" else "#FFFFFF" end);
-end;
-
-
-
-//--------------old example code--------------------------------------------
-
-define page dsp-test-page (<dylan-server-page>)
-    (uri: "/test.dsp",
-     source: document-location("example/test.dsp"))
-end;
-
-// Defines a tag that looks like <dsp:hello/> in the DSP source file.  i.e.,
-// it has no body.
-define tag hello in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>)
-    ()
-  format(output-stream(response), "Hello, cruel world!");
-end;
-
-
-define tag show-keys in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>)
-    (arg1, arg2)
-  format(output-stream(response),
-         "The value of arg1 is %=.  The value of arg2 is %=.", arg1, arg2);
-end;
-
-
-define tag demo-sessions in $example-taglib
-    (page :: <dsp-test-page>, response :: <response>)
-    ()
-  let session :: <session> = get-session(get-request(response));
-  let x = get-attribute(session, #"xxx");
-  format(output-stream(response), "The value of session attribute xxx is %=.", x);
-  set-attribute(session, #"xxx", (x & x + 1) | 0);
 end;
 
 

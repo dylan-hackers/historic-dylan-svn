@@ -1,11 +1,11 @@
-<%dsp:taglib name="example" prefix="ex"/>
+<%dsp:taglib name="demo" prefix="demo"/>
 
 <hr noshade width="90%" align="center">
 <table width="90%" align="center">
   <tr>
     <td width="50%">
       <%dsp:if test="logged-in?">
-        <i>You are logged in as <ex:current-username/>.</i>
+        <i>You are logged in as <demo:current-username/>.</i>
       <%dsp:else>
         <i>You are not logged in.</i>
       </%dsp:if>

@@ -34,7 +34,12 @@ koala
     This is basically just adding a few methods to the <page> class
     that allow you to set attributes and such.  And clearing the attrs
     after the request is completed?
-  - Improve
+  - Check what exactly are the rules for using prefix= in the taglib
+    directive.  What happens when two directives use the same prefix?
+    When the same taglib is included twice with different prefixes?
+    Does shadowing work correctly when they use the same prefix?  i.e.,
+    if two taglibs have the same tag and same prefix, is the one in the
+    taglib that was included last used?
 
 * Miscellaneous
   - Replace some uses of copy-sequence with substring.  They are probably
