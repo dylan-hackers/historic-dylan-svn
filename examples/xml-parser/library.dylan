@@ -2,10 +2,10 @@ module: dylan-user
 
 define library xml-parser
   use common-dylan;
-  use table-extensions;
+  use anaphora;
+  use multimap;
   use meta;
   use io;
-  use anaphora;
 
   export xml-parser;
 end library;
@@ -87,7 +87,7 @@ define module %productions
   use format-out;
   use streams;
   use format;
-  use table-extensions;
+  use multimap;
   use print;
 
   use meta;
