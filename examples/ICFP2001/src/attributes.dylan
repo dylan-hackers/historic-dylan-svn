@@ -109,12 +109,12 @@ end method set-emphasis;
 
 
 define inline method strong(a :: <attribute>) => res :: <boolean>;
-  logand(a.value, #x10) ~= 0;
+  logand(a.value, #x08) ~= 0;
 end method strong;
 
 define inline method set-strong(a :: <attribute>)
  => newObj :: <attribute>;
-  make(<attribute>, value: logand(logior(a.value, #x10), lognot(#x02)));
+  make(<attribute>, value: logand(logior(a.value, #x08), lognot(#x02)));
 end method set-strong;
 
 
