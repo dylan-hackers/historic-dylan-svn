@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.16 2003/07/06 03:50:01 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.16.2.1 2003/11/20 20:04:13 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -31,8 +31,10 @@ copyright: see below
 
 define library compiler-main
   use Dylan;
+  use Common-Dylan;
   use String-extensions;
   use Random;
+  use System;
   use parse-arguments;
   use compiler-base;
   use compiler-front;
@@ -45,12 +47,13 @@ end;
 
 define module main
   use common;
+  use byte-vector;
   use Extensions, exclude: {element-type};
 #if (mindy)
-  use System, import: {system, copy-bytes, getenv, collect-garbage};
+  use System, import: {system, getenv, collect-garbage};
 #else
   use System, 
-     import: {system, copy-bytes, getenv, <raw-pointer>, import-string, 
+     import: {system, getenv, <raw-pointer>, import-string, 
               export-string, no-core-dumps,
               c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out,
               get-time-of-day};

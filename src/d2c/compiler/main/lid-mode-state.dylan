@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.25 2003/09/26 03:13:16 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.25.2.1 2003/11/20 20:04:13 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -30,7 +30,7 @@ copyright: see below
 //======================================================================
 
 define class <lid-mode-state> (<main-unit-state>)
-  slot unit-lid-file :: <byte-string>, required-init-keyword: lid-file:;
+  slot unit-lid-locator :: <file-locator>, required-init-keyword: lid-locator:;
   
   // A facility for hacking around C compiler bugs by using a different
   // command for particular C compilations.  cc-override is a format string
@@ -59,9 +59,9 @@ define class <lid-mode-state> (<main-unit-state>)
   slot unit-makefile-name :: <byte-string>;
   slot unit-temp-makefile-name :: <byte-string>;
   slot unit-makefile :: <file-stream>;
-  slot unit-objects-stream :: <buffered-byte-string-output-stream>;
-  slot unit-clean-stream :: <buffered-byte-string-output-stream>;
-  slot unit-real-clean-stream :: <buffered-byte-string-output-stream>;
+  slot unit-objects-stream :: <byte-string-stream>;
+  slot unit-clean-stream :: <byte-string-stream>;
+  slot unit-real-clean-stream :: <byte-string-stream>;
   
   slot unit-entry-function :: false-or(<ct-function>), init-value: #f;
   slot unit-unit-info :: <unit-info>;
@@ -96,7 +96,7 @@ define function escape-pounds (orig :: <string>) => result :: <string>;
 end function escape-pounds;
 
 define method parse-lid (state :: <lid-mode-state>) => ();
-  let source = make(<source-file>, name: state.unit-lid-file);
+  let source = make(<source-file>, locator: state.unit-lid-locator);
   let (header, start-line, start-posn) = parse-header(source);
 
   // We support two types of lid files: old "Gwydion LID" and new
@@ -130,7 +130,7 @@ define method parse-lid (state :: <lid-mode-state>) => ();
 	  let name-end = find-end-of-word(posn);
 	  let len = name-end - posn;
 	  let name = make(<byte-string>, size: len);
-	  copy-bytes(name, 0, contents, posn, len);
+	  copy-bytes(contents, posn, name, 0, len);
 	  add!(files, name);
 	  repeat(name-end);
 	end;
@@ -156,7 +156,8 @@ define method parse-lid (state :: <lid-mode-state>) => ();
   repeat(start-posn);
 
   state.unit-header := header;
-  state.unit-files := concatenate(files, ofiles);
+  state.unit-files := map(curry(as, <file-locator>),
+                          concatenate(files, ofiles));
   state.unit-executable := element(header, #"executable", default: #f);
   state.unit-embedded? := element(header, #"embedded?", default: #f) & #t;
 end method parse-lid;
@@ -244,8 +245,8 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
   end if;
 
   for (file in state.unit-files)
-    let extension = file.filename-extension;
-    if (extension = state.unit-target.object-filename-suffix)
+    let extension = file.locator-extension;
+    if (extension = strip-dot(state.unit-target.object-filename-suffix))
       // Add any random crap to the unit-tlf-vectors so that it will
       // have as many elements as there are files mentioned in the
       // .lid file
@@ -255,13 +256,16 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
       unless (state.unit-no-makefile)
 	let object-file
 	  = if (state.unit-shared?)
-	      concatenate(file.extensionless-filename,
-			  state.unit-target.shared-object-filename-suffix)
+              make(<file-locator>,
+                   base: file.locator-base,
+                   extension: strip-dot(state.unit-target.shared-object-filename-suffix));
 	    else
 	      file
 	    end;
 	let prefixed-filename
-	  = find-file(object-file, vector($this-dir, state.unit-lid-file.filename-prefix));
+	  = find-file(object-file,
+                      vector($this-dir,
+                             state.unit-lid-locator.locator-directory));
 	if (prefixed-filename)
 	  log-dependency(prefixed-filename);
 	else
@@ -281,7 +285,9 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
         // used $this-dir, but that meant .du files contained library-relative
         // filenames, which didn't work when loaded elsewhere (i.e. always)
 	let prefixed-filename
-	  = find-file(file, vector(get-current-directory(), state.unit-lid-file.filename-prefix));
+	  = find-file(file,
+                      vector(working-directory(),
+                             state.unit-lid-locator.locator-directory));
 	if (prefixed-filename == #f)
 	  compiler-fatal-error("Can't find source file %=.", file);
 	end if;
@@ -393,9 +399,12 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
      // real-clean-stream is everything in clean plus *.c, *.s, and
      // cc-lib-files.mak.
      //
-     state.unit-objects-stream := make(<buffered-byte-string-output-stream>);
-     state.unit-clean-stream := make(<buffered-byte-string-output-stream>);
-     state.unit-real-clean-stream := make(<buffered-byte-string-output-stream>);
+     state.unit-objects-stream
+       := make(<byte-string-stream>, direction: #"output");
+     state.unit-clean-stream
+       := make(<byte-string-stream>, direction: #"output");
+     state.unit-real-clean-stream
+       := make(<byte-string-stream>, direction: #"output");
      format(state.unit-real-clean-stream, " %s", makefile-name);
    end;
  end method emit-make-prologue;
@@ -407,13 +416,14 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
   for (file in state.unit-files,
        tlfs in state.unit-tlf-vectors,
        module in state.unit-modules)
-    let extension = file.filename-extension;
-    if (extension = state.unit-target.object-filename-suffix)
+    let extension = file.locator-extension;
+    if (extension = strip-dot(state.unit-target.object-filename-suffix))
       unless (state.unit-no-makefile)
 	if (state.unit-shared?)
 	  let shared-file
-	    = concatenate(file.extensionless-filename,
-			  state.unit-target.shared-object-filename-suffix);
+            = make(<file-locator>,
+                   name: file.locator-base,
+                   extension: strip-dot(state.unit-target.shared-object-filename-suffix));
 	  format(*debug-output*, "Adding %s\n", shared-file);
 	  format(state.unit-objects-stream, " %s", shared-file);
 	else
@@ -424,7 +434,7 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
     else  // assumed a Dylan file, with or without a ".dylan" extension
       block ()
 	format(*debug-output*, "Processing %s\n", file);
-	let base-name = file.base-filename;
+	let base-name = file.locator-base;
 	let c-name = concatenate(base-name, ".c");
         #if (macos)
         let temp-c-name = concatenate(state.unit-lid-file.filename-prefix,

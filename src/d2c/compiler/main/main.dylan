@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.80 2003/07/16 15:03:35 scotek Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.80.2.1 2003/11/20 20:04:13 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -431,7 +431,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   if (targets-file == #f)
     error("Can't find platforms.descr");
   end if;
-  parse-platforms-file(targets-file);
+  parse-platforms-file(as(<file-locator>, targets-file));
   *current-target* := get-platform-named(target-machine);
 
   define-platform-constants(*current-target*);
@@ -455,7 +455,10 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     push-last(library-dirs, dir);
   end for;
   		       
-  *Data-Unit-Search-Path* := as(<simple-object-vector>, library-dirs);
+  *Data-Unit-Search-Path*
+       := map-as(<simple-object-vector>,
+                 curry(as, <directory-locator>),
+                 library-dirs);
 
   if (option-value-by-long-name(argp, "compiler-info"))
     show-compiler-info(*standard-output*);
@@ -498,14 +501,14 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     show-usage-and-exit();
   end unless;
 
-  let lid-file = args[0];
+  let lid-locator = as(<file-locator>, args[0]);
 
   let state
-      = if(lid-file.filename-extension = ".dylan")
+      = if(lid-locator.locator-extension = "dylan")
           format(*standard-output*, "Entering single file mode.\n");
           force-output(*standard-output*);
           make(<single-file-mode-state>,
-               source-file: lid-file,
+               source-locator: lid-locator,
                command-line-features: as(<list>, features), 
                log-dependencies: log-dependencies,
                target: *current-target*,
@@ -517,7 +520,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
                profile?: profile?);
         else
           make(<lid-mode-state>,
-               lid-file: lid-file,
+               lid-locator: lid-locator,
                command-line-features: as(<list>, features), 
                log-dependencies: log-dependencies,
                target: *current-target*,

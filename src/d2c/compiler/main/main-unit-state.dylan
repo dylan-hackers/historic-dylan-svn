@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.7 2003/07/16 15:03:36 scotek Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.7.2.1 2003/11/20 20:04:13 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -102,13 +102,19 @@ define method find-library-archive
 
   let find = method (suffixes)
 	       let found = #();
-	       for (suffix in suffixes)
-		 let suffixed = concatenate(libname, suffix);
-		 let path = find-file(suffixed, *data-unit-search-path*);
-		 if (path)
-		   found := pair(path, found);
-		 end if;
-	       end for;
+               for (suffix in suffixes)
+                 block (done)
+                   for (dir :: <directory-locator> in *Data-Unit-Search-Path*)
+                     let merged = make(<file-locator>,
+                                       directory: dir, base: libname,
+                                       extension: strip-dot(suffix));
+                     if (file-exists?(merged))
+                       found := add-new!(found, merged, test: \=);
+                       done();
+                     end if;
+                   end for;
+                 end block;
+               end for;
 	       found;
 	     end method;
 
@@ -131,7 +137,7 @@ define method find-library-archive
 	  unit-name,
 	  found);
   else
-    found.head;
+    as(<byte-string>, found.first);
   end if;
 end method find-library-archive;
 
@@ -200,7 +206,7 @@ define method emit-init-functions
     (prefix :: <byte-string>, init-functions :: <vector>,
      start :: <integer>, finish :: <integer>, stream :: <stream>)
     => body :: <byte-string>;
-  let string-stream = make(<buffered-byte-string-output-stream>);
+  let string-stream = make(<byte-string-stream>, direction: #"output");
   if (finish - start <= $max-inits-per-function)
     for (index from start below finish)
       let init-function = init-functions[index];

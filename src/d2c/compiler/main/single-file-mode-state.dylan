@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/single-file-mode-state.dylan,v 1.15 2003/10/01 18:05:18 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/single-file-mode-state.dylan,v 1.15.2.1 2003/11/20 20:04:13 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -30,7 +30,8 @@ copyright: see below
 //======================================================================
 
 define class <single-file-mode-state> (<main-unit-state>)
-  slot unit-source-file :: <byte-string>, required-init-keyword: source-file:;
+  slot unit-source-locator :: <file-locator>,
+    required-init-keyword: source-locator:;
   
   slot unit-name :: <byte-string>; // for single files, name == module == library == executable
   slot unit-lib :: <library>;
@@ -48,7 +49,7 @@ define class <single-file-mode-state> (<main-unit-state>)
 end class <single-file-mode-state>;
 
 define method parse-and-finalize-library (state :: <single-file-mode-state>) => ();
-  let source = make(<source-file>, name: state.unit-source-file);
+  let source = make(<source-file>, locator: state.unit-source-locator);
   let (header, start-line, start-posn) = parse-header(source);
 
   state.unit-header := header;
@@ -144,7 +145,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
   let mod = find-module(state.unit-lib, as(<symbol>, lib-name));
 
   block ()
-    format(*debug-output*, "Parsing %s\n", state.unit-source-file);
+    format(*debug-output*, "Parsing %s\n", state.unit-source-locator);
     let tokenizer = make(<lexer>, 
                          source: source,
                          start-line: start-line,
@@ -162,7 +163,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
       *Current-Module* := #f;
     end;
   exception (<fatal-error-recovery-restart>)
-    format(*debug-output*, "skipping rest of %s\n", state.unit-source-file);
+    format(*debug-output*, "skipping rest of %s\n", state.unit-source-locator);
   end block;
   format(*debug-output*, "seeding representations\n");
   seed-representations();
@@ -191,7 +192,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 end method parse-and-finalize-library;
 
 define method compile-file (state :: <single-file-mode-state>) => ();
-  format(*debug-output*, "Processing %s\n", state.unit-source-file);
+  format(*debug-output*, "Processing %s\n", state.unit-source-locator);
   let c-name = concatenate(state.unit-name, ".c");
   let body-stream
      = make(<file-stream>, locator: c-name, direction: #"output");
@@ -214,7 +215,7 @@ define method compile-file (state :: <single-file-mode-state>) => ();
         end block;
       end for;
   end for;
-  format(*debug-output*, "\n", state.unit-source-file);
+  format(*debug-output*, "\n");
 end method compile-file;
 
 
