@@ -281,6 +281,9 @@
 	<mime-type id="image/png">
 		<extension>png</extension>
 	</mime-type>
+	<mime-type id="image/targa">
+		<extension>tga</extension>
+	</mime-type>
 	<mime-type id="image/x-jng">
 		<extension>jng</extension>
 	</mime-type>
