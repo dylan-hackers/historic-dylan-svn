@@ -20,14 +20,14 @@ end;
 
 
 
-define functional class <instruction-label-count>
-  slot instruction-label, required-init-keyword: label:;
-  slot instruction-count, required-init-keyword: count:;
+define functional class <instruction-label-count> (<object>)
+  constant slot instruction-label, required-init-keyword: label:;
+  constant slot instruction-count, required-init-keyword: count:;
 end;
 
-define method functional-== (l :: <instruction-label-count>, r :: <instruction-label-count>)
- => same :: <boolean>;
+define method functional-==
+    (l :: <instruction-label-count>, r :: <instruction-label-count>)
+ => (same :: <boolean>);
   l.instruction-label == r.instruction-label
-  & l.instruction-count == r.instruction-count
+    & l.instruction-count == r.instruction-count
 end;
-
