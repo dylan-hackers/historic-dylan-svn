@@ -123,6 +123,6 @@ define function turn(robot :: <robot>, path :: <point-list>)
 	    new-loc = point(x: robot.location.x - 1, y: robot.location.y)
 	      => $west;
 	    new-loc = point(x: robot.location.x, y: robot.location.y)
-	      => error("Can't happen");
+	      => error("Can't happen, robot: %=, path: %=\n", robot, path);
 	  end case;
 end function turn;
