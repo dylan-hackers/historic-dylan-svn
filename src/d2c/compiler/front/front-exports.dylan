@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.4.4.1 2000/06/12 03:41:09 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.4.4.2 2000/06/22 04:03:50 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -279,7 +279,7 @@ define module abstract-optimizer
 
   export
     <abstract-optimizer>,
-      debug-optimizer?, debug-optimizer?-setter,
+      debug-optimizer?, debug-optimizer?-setter, optimizer-options,
     optimize-component,
     *current-optimizer*;
 end module abstract-optimizer;

@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5.4.2 2000/06/12 19:21:24 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5.4.3 2000/06/22 04:03:51 emk Exp $
 copyright: see below
 
 
@@ -37,9 +37,10 @@ define variable *do-sanity-checks* :: <boolean> = #f;
 define method enable-sanity-checks () => (); *do-sanity-checks* := #t; end;
 define method disable-sanity-checks () => (); *do-sanity-checks* := #f; end;
 
-// XXX - This global needs to go away, but we're refactoring one step at
+// XXX - These globals need to go away, but we're refactoring one step at
 // a time.
 define variable *print-shit* :: <boolean> = #f;
+define variable *inline-instance-checks?* :: <boolean> = #f;
 
 define variable *optimize-ncalls* :: <integer> = 0;
 
@@ -50,9 +51,12 @@ define method optimize-component
      component :: <component>,
      #key simplify-only? :: <boolean>) => ();
 
-  // XXX - This is a gross thing to do.
+  // XXX - Set up our gross globals.
   *print-shit* := debug-optimizer?(optimizer);
-
+  *inline-instance-checks?* := element(optimizer.optimizer-options,
+				       #"inline-instance-checks",
+				       default: #f);
+  
   reverse-queue(component, #f);
   let done = #f;
   until (done)

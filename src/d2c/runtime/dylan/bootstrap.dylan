@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.9 2000/05/09 20:02:18 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.9.4.1 2000/06/22 04:03:52 emk Exp $
 copyright: see below
 module: bootstrap
 
@@ -247,8 +247,10 @@ define module dylan-viscera
     catch,
     check-types,
     class-all-slot-descriptors,
+    class-bucket,
     class-maker-setter,
     class-new-slot-descriptors,
+    class-row,
     closure-var,
     closure-var-setter,
     \define-constant,

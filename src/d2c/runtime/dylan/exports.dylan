@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10 2000/05/09 20:04:42 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10.4.1 2000/06/22 04:03:52 emk Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -260,8 +260,10 @@ define module magic
 	     catch,
 	     check-types,
 	     class-all-slot-descriptors,
+	     class-bucket,
 	     class-maker-setter,
 	     class-new-slot-descriptors,
+	     class-row,
 	     closure-var,
 	     closure-var-setter,
 	     \define-constant,

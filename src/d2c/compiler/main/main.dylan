@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.36.4.1 2000/06/12 03:41:09 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.36.4.2 2000/06/22 04:03:51 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -1433,10 +1433,13 @@ define method show-help(stream :: <stream>) => ()
 "       -g, --debug:       Generate debugging code.\n"
 "       -s, --static:      Force static linking.\n"
 "       -d, --break:       Debug d2c by breaking on errors.\n"
+"       -o, --optimizer-option:\n"
+"                          Turn on an optimizer option. Prefix option with\n"
+"                          'no-' to turn it off.\n"
 "       --debug-optimizer: Display detailed optimizer information.\n"
 "       -F, --cc-overide-command:\n"
 "                          Alternate method of invoking the C compiler.\n"
-"                          Used on files speficied with -f.\n"
+"                          Used on files specified with -f.\n"
 "       -f, --cc-overide-file:\n"
 "                          Files which need special C compiler invocation.\n"
 "       --help:            Show this help text.\n"
@@ -1453,7 +1456,7 @@ define method show-compiler-info(stream :: <stream>) => ()
   // All output must be of the form "KEY=VALUE". All keys must begin with
   // "_DCI_" (for "Dylan compiler info") and either "DYLAN" (which designates
   // a general purpose value) or "D2C" (which should be used for anything
-  // which is necessarily specific to d2c.
+  // which is necessarily specific to d2c).
 
   // This value indicates how much of LID we implement correctly.
   //   0: We only support CMU-style LID files.
@@ -1605,10 +1608,10 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 			    long-options: #("debug-optimizer",
 					    "dump-transforms"));
   add-option-parser-by-type(argp,
-			    <optional-parameter-option-parser>,
-			    long-options: #("optimization-level"),
-			    short-options: #("O"));
-			    
+			    <repeated-parameter-option-parser>,
+			    long-options: #("optimizer-option"),
+			    short-options: #("o"));
+
   // Parse our command-line arguments.
   unless(parse-arguments(argp, args))
     show-usage-and-exit();
@@ -1663,22 +1666,18 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   let targets-file = option-value-by-long-name(argp, "platforms") |
     $default-targets-dot-descr;
 
-  // Figure out which optimizer to use.
-  // XXX - Recognize all integer values before next release.
-  let optimizer-class =
-    select (option-value-by-long-name(argp, "optimization-level") by \=)
-      #f => <cmu-optimizer>;
-      #t => <cmu-optimizer>;
-      "0" =>
-	format(*standard-error*,
-	       "d2c: warning: -O0 produces incorrect code\n");
-	<null-optimizer>;
-      "1" => <cmu-optimizer>;
-      otherwise =>
-	error("Unknown optimization level");
-    end select;
-  *current-optimizer* := make(optimizer-class,
-			      debug-optimizer?: debug-optimizer);
+  // Decide if anyone passed some '-o' flags to our optimizer.
+  let optimizer-options = option-value-by-long-name(argp, "optimizer-option");
+  let optimizer-option-table = make(<table>);
+  for (option :: <string> in optimizer-options)
+    let (key, value) =
+      if (option.size > 3 & copy-sequence(option, end: 3) = "no-")
+	values(copy-sequence(option, start: 3), #f);
+      else
+	values(option, #t);
+      end;
+    optimizer-option-table[as(<symbol>, key)] := value;
+  end for;
 
   // Process our regular arguments, too.
   let args = regular-arguments(argp);
@@ -1686,6 +1685,19 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     show-usage-and-exit();
   end unless;
   let lid-file = args[0];
+
+  // Figure out which optimizer to use.
+  let optimizer-class =
+    if (element(optimizer-option-table, #"null", default: #f))
+      format(*standard-error*,
+	     "d2c: warning: -onull produces incorrect code\n");
+      <null-optimizer>;
+    else
+      <cmu-optimizer>;
+    end;
+  *current-optimizer* := make(optimizer-class,
+			      options: optimizer-option-table,
+			      debug-optimizer?: debug-optimizer);
 
   // Set up our target.
   if (targets-file == #f)
