@@ -91,7 +91,11 @@ define method dump-object(o)
                           test: method(x, y) 
                                     find-slot-offset(oc, x) <
                                     find-slot-offset(oc, y) end);
-  for(slot in sorted-slots)
+  let dataword-slots 
+    = choose(method(x) 
+                 find-slot-offset(oc, x) == #"data-word"
+             end, oc.class-all-slot-descriptors);
+  for(slot in concatenate(dataword-slots, sorted-slots))
     format-out("%= %s :: %= == %= (%=)\r\n", 
                find-slot-offset(oc, slot), 
                slot.slot-name | "(unnamed)", 
@@ -106,18 +110,23 @@ define method generic-slot-getter(o :: <object>, slot)
 //    "<uninitialized-slot>"
 //  else
   let offset = find-slot-offset(o.object-class, slot);
-  select(slot.slot-representation)
-    #"boolean-char" =>   
-      if(pointer-deref(#"unsigned-char", o.object-address, 
-                       offset) = 0)
-        #f
-      else
-        #t
-      end if;
-    otherwise       =>   
-      format-to-string("0x%x", 
-                       pointer-deref(#"long", o.object-address, offset));
+  if(offset == #"data-word")
+    // oh, how we cheat!
+    // format-to-string("0x%x", slot.slot-getter(o));
+    format-to-string("%=", o);
+  else
+    select(slot.slot-representation)
+      #"boolean-char" =>   
+        if(pointer-deref(#"unsigned-char", o.object-address, 
+                         offset) = 0)
+          #f
+        else
+          #t
+        end if;
+      otherwise       =>   
+        format-to-string("0x%x", 
+                         pointer-deref(#"long", o.object-address, offset));
       
-  end;
-  //  end if;
+    end;
+  end if;
 end method generic-slot-getter;

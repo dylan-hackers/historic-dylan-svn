@@ -726,14 +726,12 @@ end method build-executable;
 
 
 define method dump-library-summary (state :: <lid-mode-state>) => ();
-  format(*debug-output*, "Dumping library summary.\n");
   let dump-buf
     = begin-dumping(as(<symbol>, state.unit-lib-name),
     		    $library-summary-unit-type);
 
-  for (tlf in state.unit-tlfs)
-    dump-od(tlf, dump-buf);
-  end;
+  run-stage("Dumping library summary.", rcurry(dump-od, dump-buf),
+            state.unit-tlfs);
   dump-od(state.unit-unit-info, dump-buf);
   dump-queued-methods(dump-buf);
 

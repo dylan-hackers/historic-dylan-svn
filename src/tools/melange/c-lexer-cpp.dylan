@@ -748,6 +748,13 @@ define method try-cpp
 	  if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
 	    parse-error(state, "Encountered #error directive.");
 	  end if;
+        "warning" =>
+          // ignore warning, and kill to end of line
+	  for (i from state.position below contents.size,
+	       until: contents[i] == '\n')
+	  finally
+	    state.position := i;
+	  end for;
 	"line", "pragma" =>
 	  // Kill to end of line
 	  for (i from pos below contents.size, until: contents[i] == '\n')

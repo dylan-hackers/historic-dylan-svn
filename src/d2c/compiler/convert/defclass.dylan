@@ -1730,6 +1730,9 @@ define method class-defn-maker-function
 			  keys: as(<list>, key-infos), all-keys: #t,
 			  returns: make(<direct-instance-ctype>,
 					base-class: cclass));
+
+           // XXX this really doesn't belong here. There should be a central
+           // place in optimize to decide about inlining.
 	   //
 	   // If this is the maker for an immediate representation class,
 	   // set up the maker so that it can be inlined.

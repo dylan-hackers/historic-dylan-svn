@@ -262,7 +262,7 @@ define method optimize-general-call-defn
   let sig = defn.function-defn-signature;
   maybe-restrict-type(component, call, sig.returns.ctype-extent);
   maybe-change-to-known-or-error-call
-    (component, call, sig, defn.defn-name, defn.inlining-candidate?,
+    (component, call, sig, defn.defn-name, inlining-candidate?(defn, call),
      defn.function-defn-hairy?);
 end method optimize-general-call-defn;
 
@@ -1019,7 +1019,7 @@ end;
 // inlined in case it is {may,default}-inline
 //
 define method inlining-candidate?
-    (defn :: <abstract-method-definition>)
+    (defn :: <abstract-method-definition>, call :: <general-call>)
  => potential-inline-function :: false-or(<function-literal>);
   select (defn.method-defn-inline-type)
     #"not-inline" =>
