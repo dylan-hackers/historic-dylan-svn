@@ -68,7 +68,10 @@ define function await-clients(port, num-clients) => ()
 				" 25 1000"));
   end;
 
-  add-bot-randomly(*board*, num-client, 25, 1000);
+  let bot = make(<robot>,
+		 id: num-client, capacity: 25,
+		 money: 1000, x: 42, y: 42);
+  add-bot(*board*, bot);
 
   // send initial response to client
   let fst = #t;
@@ -84,8 +87,8 @@ define function await-clients(port, num-clients) => ()
 	end;
 	concatenate(str,
 		    "#", integer-to-string(num-clients),
-		    " X ", integer-to-string(bot-column(*board*, num-clients)),
-		    " Y ", integer-to-string(bot-row(*board*, num-clients)));
+		    " X ", integer-to-string(bot-column(*board*, num)),
+		    " Y ", integer-to-string(bot-row(*board*, num)));
       end;
     end;
     write-line(*clients*[cli].out-stream, str);
