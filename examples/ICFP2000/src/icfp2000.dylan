@@ -11,7 +11,7 @@ define function main(name, arguments)
 		    #[0.0, 0.0, 1.0, 0.0],
 		    #[0.0, 0.0, 0.0, 1.0]);
 		    
-  let vec = #[1.0, 2.0, 3.0, 4.0];
+  let vec = vector3D(1.0, 2.0, 3.0, 4.0);
 
   format-out("%=\n%=\n%=\n", mat, vec, homogenize(vec));
   format-out("%=\n%=\n%=\n", homogenize(mat * vec), vec * mat, vec * vec);

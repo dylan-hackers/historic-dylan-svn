@@ -81,8 +81,8 @@ define method real-intersection-before(m :: <sphere>, ray, distance, #key
 	format-out("  ray.ray-position = %=, ray-ray-direction = %=\n", ray.ray-position, ray.ray-direction);
 	format-out("  point = %=\n", point);
 	force-output(*standard-output*); */
-	let u = clamp(atan2(point[2], point[0]));
-	let v = clamp((point[1] + 1.0) / 2.0);
+	let u = clamp(atan2(point.z, point.x));
+	let v = clamp((point.y + 1.0) / 2.0);
 	values(point, 
 	       point - $origin, 
 	       make-surface-closure(0, u, v, m.surface-interpreter-entry), 
@@ -95,20 +95,20 @@ end method real-intersection-before;
 define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
 
-  if (ray.ray-position[1] < 0.0 & ray.ray-direction[1] < 0.0)
+  if (ray.ray-position.y < 0.0 & ray.ray-direction.y < 0.0)
     #f;
-  elseif (ray.ray-position[1] > 0.0 & ray.ray-direction[1] > 0.0)
+  elseif (ray.ray-position.y > 0.0 & ray.ray-direction.y > 0.0)
     #f;
   elseif (shadow-test?)
     #t;
   else
-    let t = -ray.ray-position[1]/ray.ray-direction[1];
+    let t = -ray.ray-position.y / ray.ray-direction.y;
     if (abs(t) > distance)
       #f;
     else
       let point = ray.ray-direction * t + ray.ray-position;
-      let u = clamp(point[0]);
-      let v = clamp(point[2]);
+      let u = clamp(point.x);
+      let v = clamp(point.z);
       values(point, 
 	     vector3D(0.0, 1.0, 0.0, 0.0),
 	     make-surface-closure(0, u, v, m.surface-interpreter-entry), t);
