@@ -25,7 +25,7 @@ define function report-scanner-success(name :: <byte-string>, string, start, suc
     if(success)
       format-out("succeeded\n");
     else
-      format-out("failed around \"%s\"\n",
+      format-out("failed around character %d: \"%s\"\n", start,
                  choose(method(x) 
                             let y = as(<integer>, x);
                             y > 31 & y < 128
