@@ -5,7 +5,7 @@ synopsis: Encapsulates the lexical conventions of the C language.  Along with
           c-lexer-cpp.dylan, this file also incorporates most of the
           functionality of CPP.
 copyright: see below
-rcs-header: $Header: /scm/cvs/src/tools/melange/c-lexer.dylan,v 1.14 2003/04/12 23:36:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/c-lexer.dylan,v 1.14.6.1 2003/10/23 07:51:38 housel Exp $
 
 //======================================================================
 //
@@ -883,7 +883,7 @@ define method initialize (value :: <tokenizer>,
 	add!(components, read(source-stream, $long-string-component-size));
       end;
     exception (err :: <incomplete-read-error>)
-      add!(components, err.incomplete-read-sequence);
+      add!(components, err.stream-error-sequence);
     exception (err :: <end-of-stream-error>)
       #t;
     end block;

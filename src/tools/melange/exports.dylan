@@ -4,7 +4,7 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/exports.dylan,v 1.8 2003/03/01 19:13:34 robmyers Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/exports.dylan,v 1.8.6.1 2003/10/23 07:51:38 housel Exp $
 
 //======================================================================
 //
@@ -85,9 +85,8 @@ define library melange
   use string-extensions;
   use collection-extensions;
   use regular-expressions;
-  use streams;
-  use standard-io;
-  use format;
+  use io;
+  use system;
   use parse-arguments;
   use melange-c;
   export
@@ -172,14 +171,17 @@ define module define-interface
   use substring-search;
   use character-type;
 
-  // From streams
+  // From io
   use streams;
   
-  // From format
+  // From io
   use format;
 
-  // From standard-io
+  // From io
   use standard-io;
+
+  // From system
+  use file-system;
 
   // From parse-arguments
   use parse-arguments;

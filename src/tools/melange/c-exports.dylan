@@ -3,7 +3,7 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/c-exports.dylan,v 1.19 2003/04/19 23:52:29 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/c-exports.dylan,v 1.19.6.1 2003/10/23 07:51:38 housel Exp $
 
 //======================================================================
 //
@@ -46,9 +46,8 @@ define library melange-c
   use collection-extensions;
   use regular-expressions;
   use table-extensions;
-  use streams;
-  use standard-io;
-  use format;
+  use system;
+  use io;
 
   // General purpose utility modules.
   export
@@ -120,6 +119,7 @@ define module c-lexer
   use substring-search;
   use character-type;
   use streams;
+  use file-system;
   use source-locations;
   use parse-conditions,
     // XXX - These should probably go away.
@@ -187,6 +187,7 @@ define module c-declarations
   use table-extensions;
   use regular-expressions;
   use streams;
+  use file-system;
   use format;
   use standard-io;
 
