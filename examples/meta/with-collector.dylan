@@ -1,5 +1,4 @@
-library: meta
-module: meta
+module: meta-base
 author: David Lichteblau (david.lichteblau@snafu.de)
 copyright: Copyright (c) 1999 David Lichteblau.  All Rights Reserved.
 
