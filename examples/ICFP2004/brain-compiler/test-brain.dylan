@@ -4,7 +4,7 @@ define sub brain test-sub(back)
          Move back => sub-problem;
 
   [sub-problem:]
-         Drop, (back);
+         Drop, (test-sub);
 end brain;
 
 

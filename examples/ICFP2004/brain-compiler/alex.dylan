@@ -1,15 +1,118 @@
 module: assembler
 
 
-define brain alex
+// Attackers attack other ant hills.
+define sub brain alex-attacker (return)
 
-  [start:]
-    Flip 5, (attacker, gatherer);
+  Sense FoeHome, (attacker-success, a-search-foe-home);
 
 
-  // Gatherers gather food. Based on the best gatherer we had (by Keith Bauer!).
-  [gatherer:]
-    Flip 2, (rightant-search, leftant-search);
+  // Steal food.
+  [attacker-success:]
+    Sense Food, (a-steal-from-under);
+    Sense Ahead FoeHome, (a-steal-from-in-front);
+    Turn Right, (attacker-success);
+
+  [attacker-success-right:]
+    Turn Right, (attacker-success);
+
+  [a-steal-from-in-front:]
+    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
+    Move attacker-success => attacker-success-right;
+
+  [a-steal-from-in-front-right:]
+    Sense RightAhead FoeHome, (attacker-success-right);
+    Move attacker-success => attacker-success-right;
+
+
+  // From under is easy.
+  [a-steal-from-under:]
+    PickUp a-steal-do-from-under => attacker-success;
+
+  [a-steal-do-from-under:]
+    Turn Left;
+    Sense Ahead FoeHome, (a-steal-do-from-under, a-steal-food-out);
+
+  [a-steal-food-out:]
+    Move => a-steal-food-out;
+    Drop;
+    Turn Left;
+    Turn Left;
+    Turn Left, (a-near-hub-ahead);
+
+
+  [a-search-foe-home:]
+    Sense FoeHome, (attacker-success);
+    Sense Ahead FoeHome, (a-near-hub-ahead);
+    Sense LeftAhead FoeHome, (a-near-hub-left);
+    Sense RightAhead FoeHome, (a-near-hub-right);
+    Flip 1, (a-move-forward, a-move-lr);
+
+
+  // We are near their hill.
+  [a-near-hub-ahead:]
+    Move alex-attacker => a-near-hub-ahead-blocked;
+
+  [a-near-hub-left:]
+    Turn Left;
+    Move alex-attacker => a-search-foe-home;
+
+  [a-near-hub-right:]
+    Turn Right;
+    Move alex-attacker => a-search-foe-home;
+
+  [a-near-hub-ahead-blocked:]
+    Flip 3, (a-near-hub-ahead-blocked-right, a-near-hub-ahead-blocked-left);
+
+  [a-near-hub-ahead-blocked-right:]
+    Turn Right;
+    Sense Friend, (a-near-hub-left);
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-left:]
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-go-around-right:]
+    Turn Left, (a-search-foe-home);
+
+  [a-near-hub-ahead-blocked-try-left-instead:]
+    Turn Left;
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-try-right-instead:]
+    Turn Right;
+    Turn Right;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-go-around-left:]
+    Turn Right, (a-search-foe-home);
+    
+
+  // We are still searching.
+  [a-move-forward:]
+    Move alex-attacker => a-move-lr;
+
+  [a-move-lr:]
+    Flip 1, (a-move-left, a-move-right);
+
+  [a-move-left:]
+    Turn Left;
+    Move alex-attacker => a-move-left;
+
+  [a-move-right:]
+    Turn Right;
+    Move alex-attacker => a-move-right;
+
+end brain; // alex-attacker
+
+
+
+// Gatherers gather food. Based on the best gatherer we had (by Keith Bauer!).
+define sub brain keith-gatherer (return)
+
+  Flip 2, (rightant-search, leftant-search);
 
 
   [rightant-search:]
@@ -83,111 +186,23 @@ define brain alex
 //  [leftant-turn-and-patrol:]
 //    Turn Left, (leftant-patrol);
 
+end brain; // keith-gatherer
 
-  // Attackers attack other ant hill.
+
+// Main brain.
+define brain alex-keith
+
+  Flip 5, (attacker, gatherer);
+
+
   [attacker:]
-    Sense FoeHome, (attacker-success, a-search-foe-home);
+    Sub alex-attacker;
 
 
-  // Steal food.
-  [attacker-success:]
-    Sense Food, (a-steal-from-under);
-    Sense Ahead FoeHome, (a-steal-from-in-front);
-    Turn Right, (attacker-success);
-
-  [attacker-success-right:]
-    Turn Right, (attacker-success);
-
-  [a-steal-from-in-front:]
-    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
-    Move attacker-success => attacker-success-right;
-
-  [a-steal-from-in-front-right:]
-    Sense RightAhead FoeHome, (attacker-success-right);
-    Move attacker-success => attacker-success-right;
-
-
-  // From under is easy.
-  [a-steal-from-under:]
-    PickUp a-steal-do-from-under => attacker-success;
-
-  [a-steal-do-from-under:]
-    Turn Left;
-    Sense Ahead FoeHome, (a-steal-do-from-under, a-steal-food-out);
-
-  [a-steal-food-out:]
-    Move => a-steal-food-out;
-    Drop;
-    Turn Left;
-    Turn Left;
-    Turn Left, (a-near-hub-ahead);
-
-
-  [a-search-foe-home:]
-    Sense FoeHome, (attacker-success);
-    Sense Ahead FoeHome, (a-near-hub-ahead);
-    Sense LeftAhead FoeHome, (a-near-hub-left);
-    Sense RightAhead FoeHome, (a-near-hub-right);
-    Flip 1, (a-move-forward, a-move-lr);
-
-
-  // We are near their hill.
-  [a-near-hub-ahead:]
-    Move attacker => a-near-hub-ahead-blocked;
-
-  [a-near-hub-left:]
-    Turn Left;
-    Move attacker => a-search-foe-home;
-
-  [a-near-hub-right:]
-    Turn Right;
-    Move attacker => a-search-foe-home;
-
-  [a-near-hub-ahead-blocked:]
-    Flip 3, (a-near-hub-ahead-blocked-right, a-near-hub-ahead-blocked-left);
-
-  [a-near-hub-ahead-blocked-right:]
-    Turn Right;
-    Sense Friend, (a-near-hub-left);
-    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
-
-  [a-near-hub-ahead-blocked-left:]
-    Turn Left;
-    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
-
-  [a-near-hub-ahead-blocked-go-around-right:]
-    Turn Left, (a-search-foe-home);
-
-  [a-near-hub-ahead-blocked-try-left-instead:]
-    Turn Left;
-    Turn Left;
-    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
-
-  [a-near-hub-ahead-blocked-try-right-instead:]
-    Turn Right;
-    Turn Right;
-    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
-
-  [a-near-hub-ahead-blocked-go-around-left:]
-    Turn Right, (a-search-foe-home);
-    
-
-  // We are still searching.
-  [a-move-forward:]
-    Move attacker => a-move-lr;
-
-  [a-move-lr:]
-    Flip 1, (a-move-left, a-move-right);
-
-  [a-move-left:]
-    Turn Left;
-    Move attacker => a-move-left;
-
-  [a-move-right:]
-    Turn Right;
-    Move attacker => a-move-right;
+  [gatherer:]
+    Sub keith-gatherer;
 
 end;
 
 
-alex().dump-brain;
+alex-keith().dump-brain;
