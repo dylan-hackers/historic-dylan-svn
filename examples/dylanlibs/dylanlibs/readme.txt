@@ -71,6 +71,24 @@ Dylan Implementations:
 
 Exports methods to encode strings and decode strings to/from base64.
 
+3) Examples
+===========
+
+Contains various example programs demonstrating aspects of Dylan. See
+the examples.txt file in the examples directory for details.
+
+4) Duim
+=======
+
+Various libraries that extend or build upon DUIM. See the duim.txt
+file in the duim directory for details.
+
+5) Win32
+========
+
+Libraries that wrap native Win32 functionality using C-FFI. See the
+win32.txt file in the win32 directory for details.
+
 Chris Double.
-30 April 2001.
+01 May 2001.
 

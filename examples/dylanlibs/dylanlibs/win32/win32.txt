@@ -1,0 +1,27 @@
+DylanLibs - Win32 Libraries
+===========================
+
+The projects in the win32 directory are libraries wrap or extend
+native Win32 libraries (usually by providing a C-FFI based interface).
+
+1) win32-common-controls-ex
+===========================
+Dylan Implementations: 
+  Functional Developer
+
+Wraps various Win32 Common Controls functions and constants. Used by
+the date-gadgets library.
+
+2) ms-internet
+==============
+Dylan Implementations: 
+  Functional Developer
+
+Automatically generated COM wrapper for the Microsoft Internet
+Explorer Web Browser ActiveX objects. Used by the simple-web-browser
+example.
+
+-- 
+Chris Double.  
+01 May 2001.
+

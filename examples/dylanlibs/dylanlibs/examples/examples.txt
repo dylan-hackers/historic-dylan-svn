@@ -1,0 +1,52 @@
+DylanLibs - Example Programs
+============================
+
+The projects in the examples directory are buildable programs that
+demonstrate various aspects of Dylan.
+
+1) icon-play
+============
+Dylan Implementations: 
+  Functional Developer
+
+Demonstrates how to load a Win32 icon from a resource file and display
+it in a DUIM application.
+
+2) bitmap-example
+=================
+Dylan Implementations: 
+  Functional Developer
+
+Demonstrates how to subclass <image> to create a <win32-bitmap>
+class. This class can be used to load and display bitmap images loaded
+from files (rather than resources as shown by icon-play).
+
+3) opengl-example1
+==================
+Dylan Implementations: 
+  Functional Developer
+
+Demonstrates how to use OpenGL inside a DUIM <pane>. Includes some
+macros that could make a useful addition to an OpenGL library one day.
+
+4) date-time-play
+=================
+Dylan Implementations: 
+  Functional Developer
+
+Demonstrates using the date-gadgets from the dylanlibs library.
+
+5) simple-web-browser
+=====================
+Dylan Implementations: 
+  Functional Developer
+
+An example of a way of hosting ActiveX controls inside DUIM
+applications using the Microsoft ATL DLL. This demonstration hosts the
+Microsoft Web Browser component to create a very simple web browser by
+creating a new DUIM gadget to host the control.
+
+-- 
+Chris Double.  
+01 May 2001.
+
