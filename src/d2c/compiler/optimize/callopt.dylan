@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.5 2003/09/16 16:26:56 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.6 2003/09/18 07:16:49 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -738,13 +738,11 @@ about the argument types, so none will be restricted?
     // Blow out of here if we can't tell exactly what methods are (or can
     // be) applicable.
     unless (maybe == #() | (maybe.tail == #() & definitely == #()))
-      block () // FIXME: this should not error!
-	postfacto-type-inference(applicable, positional-arg-types, call, component);
-      exception (<error>)
-	compiler-warning("\n\n\n\n\n\nTrouble with postfacto-type-inference\n\n\n\n\n");
-	// hehe once more!
-	postfacto-type-inference(applicable, positional-arg-types, call, component);
-      end block;
+	if (definitely.empty?)
+	  // postfacto only makes sense when there are no definitive methods
+	  // ... or they are always ambiguous (FIXME)
+	  postfacto-type-inference(applicable, positional-arg-types, call, component);
+	end if;
       return();
     end unless;
 
