@@ -309,7 +309,7 @@ end function receive-sharp;
 // string if it is.
 
 define function receive-string (stream :: <stream>, str :: <string>) => ();
-  let str* = read(stream, str.size);
+  let str* = fd-read(stream, str.size);
   unless (str = str*)
     message-error("receive-string: expected '%s', got '%s'\n", str, str*);
   end unless;
@@ -407,14 +407,16 @@ define method do-receive-server-command(c == 'P', s :: <stream>, id :: <integer>
   => (r :: <command>)
   debug("pick command received\n");
   receive-spaces(s);  
-  make(<pick>, direction: receive-integer(s), bid: 1, id: id);
+  let id = receive-integer(s);
+  make(<pick>, direction: receive-integer(s), bid: 1, id: id, package-ids: list(id));
 end method do-receive-server-command;
 
 define method do-receive-server-command(c == 'D', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("drop command received\n");
   receive-spaces(s);  
-  make(<drop>, direction: receive-integer(s), bid: 1, id: id);
+  let id = receive-integer(s);
+  make(<drop>, direction: receive-integer(s), bid: 1, id: id, package-ids: list(id));
 end method do-receive-server-command;
 
 define method do-receive-server-command(c == 'X', s :: <stream>, id :: <integer>)
@@ -482,5 +484,35 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
     otherwise => error("process-server-command: Can't happen!")
   end select;
 
+  // For this bot, work through all the packages it carries and
+  // update it's location.
+  let ps = choose(method(p) p.id = bot.id end, state.packages);
+  for(p in ps)
+	state := add-package(state, copy-package(find-package(state, p.id), 
+	         	                             new-location: location));
+  end for;
+  
   add-robot(state, copy-robot(bot, new-location: new-location));
+end method process-server-command;
+
+define method process-server-command(state :: <state>, command :: <pick>) => (state :: <state>)
+  let bot = find-robot(state, command.robot-id);
+  let loc = bot.location;
+  for(pid in command.package-ids)
+	state := add-package(state, copy-package(find-package(state, pid), 
+	         	                             new-location: loc, 
+                	                         new-carrier: bot));
+  end for;
+  state;
+end method process-server-command;
+
+define method process-server-command(state :: <state>, command :: <drop>) => (state :: <state>)
+  let bot = find-robot(state, command.robot-id);
+  let loc = bot.location;
+  for(pid in command.package-ids)
+	state := add-package(state, copy-package(find-package(state, pid), 
+	         	                             new-location: loc, 
+                	                         new-carrier: #f));
+  end for;
+  state;
 end method process-server-command;
