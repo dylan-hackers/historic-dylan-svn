@@ -64,7 +64,7 @@ on the web at <http://www.gwydiondylan.org/>.
 
 
 %changelog
-* Sat Jan 09 1998 Eric Kidd <eric.kidd@pobox.com>
+* Sat Jan 09 1999 Eric Kidd <eric.kidd@pobox.com>
   - Added a build root.
   - Simplified file list.
   - Edited description.
