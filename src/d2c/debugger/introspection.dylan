@@ -21,6 +21,10 @@ define method find-address(symbol-name :: <string>)
   end if;
 end;
 
+define method find-object-from-c-name-and-rep(c-name, rep)
+  // foo!
+end method find-object-from-c-name-and-rep;
+
 define function inspect-heap-rep(object-address :: <string>)
   block()
     dump-object(heap-object-at(find-address(object-address)));
@@ -61,18 +65,20 @@ define function print-general-rep(object-address :: <string>)
   end block
 end function print-general-rep;
 
-make(<command>, name: "Inspect Heap-Representation", 
+make(<command>, name: "Inspect", 
      command: inspect-heap-rep, 
      summary: "Inspect named C symbol or address.");
-make(<command>, name: "Print Heap-Representation", 
+make(<command>, name: "Print", 
      command: print-heap-rep, 
      summary: "Print named C symbol or address.");
+/*
 make(<command>, name: "Inspect General-Representation", 
      command: inspect-general-rep, 
      summary: "Inspect named C symbol or address.");
 make(<command>, name: "Print General-Representation", 
      command: print-general-rep, 
      summary: "Print named C symbol or address.");
+*/
 
 define method dump-object(o)
   let oc = o.object-class;

@@ -26,4 +26,6 @@ define module debugger
   use command-processor;
   use subseq;
   use string-hacking;
+
+  export find-address;
 end module debugger;

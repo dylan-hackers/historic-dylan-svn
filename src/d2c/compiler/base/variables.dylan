@@ -1,5 +1,5 @@
 module: variables
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/variables.dylan,v 1.6.4.4 2003/08/10 23:50:10 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/variables.dylan,v 1.6.4.5 2003/10/02 10:19:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -921,6 +921,8 @@ define method name-inherited-or-exported? (name :: <basic-name>)
       end for;
     end if;
 
+    // Hm, we export variables here so exported macros see them?
+    // This seems a little unclean to me. --andreas
     if (var.variable-referencing-macro-names
           & any?(name-inherited-or-exported?,
                  var.variable-referencing-macro-names))

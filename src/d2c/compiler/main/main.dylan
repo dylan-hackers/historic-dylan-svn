@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.6 2003/08/31 22:00:17 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.7 2003/10/02 10:19:41 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -225,12 +225,10 @@ define constant $runtime-include-dir
 //----------------------------------------------------------------------
 
 define method main (argv0 :: <byte-string>, #rest args) => ();
-  #if (~mindy)
+#if (~mindy)
   no-core-dumps();
-  #endif
 
-  #if (~mindy)
-  // alter the GC params, if the user wants
+   // alter the GC params, if the user wants
   // This supports three levels:
   //   - small  : small initial heap, frequent GC
   //   - default: initial heap 25 MB
@@ -474,13 +472,55 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 
   let args = regular-arguments(argp);
 
+  local method build-file(filename)
+          let state
+            = if(filename.filename-extension = ".dylan")
+                format(*standard-output*, "Entering single file mode.\n");
+                force-output(*standard-output*);
+                make(<single-file-mode-state>,
+                     source-file: filename,
+                     command-line-features: as(<list>, features), 
+                     log-dependencies: log-dependencies,
+                     target: *current-target*,
+                     no-binaries: no-binaries,
+                     no-makefile: no-makefile,
+                     link-static: link-static,
+                     link-rpath: link-rpath,
+                     debug?: debug?,
+                     profile?: profile?);
+              else
+                make(<lid-mode-state>,
+                     lid-file: filename,
+                     command-line-features: as(<list>, features), 
+                     log-dependencies: log-dependencies,
+                     target: *current-target*,
+                     no-binaries: no-binaries,
+                     no-makefile: no-makefile,
+                     link-static: link-static,
+                     link-rpath: link-rpath,
+                     debug?: debug?,
+                     profile?: profile?,
+                     dump-testworks-spec?: dump-testworks-spec?,
+                     cc-override: cc-override,
+                     override-files: as(<list>, override-files),
+                     thread-count: thread-count);
+              end if;
+          compile-library(state);
+        end method build-file;
+
 #if(~mindy)
   if (option-value-by-long-name(argp, "interactive")
         | args.size = 0)
+    make(<command>, name: "Build",
+         summary: "Build specified library.",
+         command: build-file);
     run-command-processor();
     exit();
   end if;
 #endif
+
+
+  
 
   // Process our regular arguments
   unless (args.size = 1)
@@ -489,39 +529,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 
   let lid-file = args[0];
 
-  let state
-      = if(lid-file.filename-extension = ".dylan")
-          format(*standard-output*, "Entering single file mode.\n");
-          force-output(*standard-output*);
-          make(<single-file-mode-state>,
-               source-file: lid-file,
-               command-line-features: as(<list>, features), 
-               log-dependencies: log-dependencies,
-               target: *current-target*,
-               no-binaries: no-binaries,
-               no-makefile: no-makefile,
-               link-static: link-static,
-               link-rpath: link-rpath,
-               debug?: debug?,
-               profile?: profile?);
-        else
-          make(<lid-mode-state>,
-               lid-file: lid-file,
-               command-line-features: as(<list>, features), 
-               log-dependencies: log-dependencies,
-               target: *current-target*,
-               no-binaries: no-binaries,
-               no-makefile: no-makefile,
-               link-static: link-static,
-               link-rpath: link-rpath,
-               debug?: debug?,
-               profile?: profile?,
-               dump-testworks-spec?: dump-testworks-spec?,
-               cc-override: cc-override,
-               override-files: as(<list>, override-files),
-	       thread-count: thread-count);
-        end if;
-  let worked? = compile-library(state);
+  let worked? = build-file(lid-file);
   exit(exit-code: if (worked?) 0 else 1 end);
 end method main;
 
