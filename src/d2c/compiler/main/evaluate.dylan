@@ -62,22 +62,25 @@ define method evaluate(expression :: <string>)
   end for;
 end method evaluate;
 
+
+define constant <interpreter-environment> :: <type> = <object>;
+
 // ########## fer-evaluate ##########
-define generic fer-evaluate(region :: <region>, environment :: <object>)
+define generic fer-evaluate(region :: <region>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
 
-define method fer-evaluate(return :: <return>, environment :: <object>)
+define method fer-evaluate(return :: <return>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   fer-evaluate-expression(return.depends-on.source-exp, environment)
 end;
 
-define method fer-evaluate(compound :: <compound-region>, environment :: <object>)
+define method fer-evaluate(compound :: <compound-region>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   let regions = compound.regions;
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
 
-define method fer-evaluate(the-if :: <if-region>, environment :: <object>)
+define method fer-evaluate(the-if :: <if-region>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   let test-value
     = fer-evaluate-expression(the-if.depends-on.source-exp,
@@ -90,33 +93,33 @@ define method fer-evaluate(the-if :: <if-region>, environment :: <object>)
 end;
 
 // ########## fer-evaluate-regions ##########
-define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <object>)
+define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   error("Did not encounter a <return> in control flow...");
 end;
 
-define method fer-evaluate-regions(region :: <region>, more-regions :: <list>, environment :: <object>)
+define method fer-evaluate-regions(region :: <region>, more-regions :: <list>, environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   fer-evaluate-regions(more-regions.head, more-regions.tail, fer-gather-bindings(region, environment))
 end;
 
-define method fer-evaluate-regions(return :: <return>, more-regions == #(), environment :: <object>)
+define method fer-evaluate-regions(return :: <return>, more-regions == #(), environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   fer-evaluate(return, environment)
 end;
 
 // ########## fer-gather-bindings ##########
-define generic fer-gather-bindings(region :: <region>, environment :: <object>)
+define generic fer-gather-bindings(region :: <region>, environment :: <interpreter-environment>)
   => (extended-env, potential-value :: false-or(<ct-value>));
 
-define method fer-gather-bindings(compound :: <compound-region>, environment :: <object>)
+define method fer-gather-bindings(compound :: <compound-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
 //  format(*standard-output*, "fer-gather-bindings{<compound-region>} %=\n", compound);
 //  force-output(*standard-output*);
   fer-gather-regions-bindings(compound.regions, environment)
 end;
 
-define method fer-gather-bindings(the-if :: <if-region>, environment :: <object>)
+define method fer-gather-bindings(the-if :: <if-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
 //  format(*standard-output*, "fer-gather-bindings{<if-region>} %=\n", the-if);
 //  force-output(*standard-output*);
@@ -132,10 +135,10 @@ end method;
 
 define class <exit-condition>(<condition>)
   constant slot exit-block :: <block-region-mixin>, required-init-keyword: block:;
-  constant slot exit-environment :: <object>, required-init-keyword: environment:;
+  constant slot exit-environment :: <interpreter-environment>, required-init-keyword: environment:;
 end class <exit-condition>;
 
-define method fer-gather-bindings(block-region :: <block-region>, environment :: <object>)
+define method fer-gather-bindings(block-region :: <block-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
 //  format(*standard-output*, "fer-gather-bindings{<block-region>} %=\n", block-region);
 //  force-output(*standard-output*);
@@ -148,17 +151,17 @@ define method fer-gather-bindings(block-region :: <block-region>, environment ::
   end block
 end;
 
-define method fer-gather-bindings(loop :: <loop-region>, environment :: <object>)
+define method fer-gather-bindings(loop :: <loop-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
 //  format(*standard-output*, "fer-gather-bindings{<loop-region>} %=\n", loop);
 //  force-output(*standard-output*);
-  local method repeat(environment :: <object>)
+  local method repeat(environment :: <interpreter-environment>)
       repeat(fer-gather-bindings(loop.body, environment))
     end method;
   repeat(environment);
 end;
 
-define method fer-gather-bindings(exit :: <exit>, environment :: <object>)
+define method fer-gather-bindings(exit :: <exit>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
 //  format(*standard-output*, "fer-gather-bindings{<exit>} %=\n", exit);
 //  force-output(*standard-output*);
@@ -167,7 +170,7 @@ end;
 
 
 
-define method fer-gather-bindings(simple :: <simple-region>, environment :: <object>)
+define method fer-gather-bindings(simple :: <simple-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
 //  format(*standard-output*, "fer-gather-bindings{<simple>} %=\n", simple);
 //  force-output(*standard-output*);
@@ -175,15 +178,15 @@ define method fer-gather-bindings(simple :: <simple-region>, environment :: <obj
 end;
 
 // ########## fer-gather-regions-bindings ##########
-define generic fer-gather-regions-bindings(regions :: <list>, environment :: <object>)
+define generic fer-gather-regions-bindings(regions :: <list>, environment :: <interpreter-environment>)
   => (same-env, potential-value :: false-or(<ct-value>));
 
-define method fer-gather-regions-bindings(no-regions == #(), environment :: <object>)
+define method fer-gather-regions-bindings(no-regions == #(), environment :: <interpreter-environment>)
   => (same-env, no-value :: #f.singleton);
   environment
 end;
 
-define method fer-gather-regions-bindings(regions :: <list>, environment :: <object>)
+define method fer-gather-regions-bindings(regions :: <list>, environment :: <interpreter-environment>)
   => (same-env, potential-value :: false-or(<ct-value>));
 //  format(*standard-output*, "fer-gather-regions-bindings %=\n", regions);
 //  force-output(*standard-output*);
@@ -205,100 +208,115 @@ end;
 
 
 // ########## fer-gather-assigns-bindings ##########
-define method fer-gather-assigns-bindings(no-assign == #f, environment :: <object>)
+define method fer-gather-assigns-bindings(no-assign == #f, environment :: <interpreter-environment>)
   => extended-env;
   environment
 end;
 
-define method fer-gather-assigns-bindings(assign :: <abstract-assignment>, environment :: <object>)
+define method fer-gather-assigns-bindings(assign :: <abstract-assignment>, environment :: <interpreter-environment>)
   => extended-env;
   let extended-env = fer-gather-assign-bindings(assign.defines, assign.depends-on.source-exp, environment);
   fer-gather-assigns-bindings(assign.next-op, extended-env);
 end;
 
 // ########## fer-gather-assign-bindings ##########
-define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-variable>), expr :: <expression>, environment :: <object>)
+define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-variable>), expr :: <expression>, environment :: <interpreter-environment>)
  => extended-env;
 
-define method fer-gather-assign-bindings(defs :: <ssa-variable>, expr :: <expression>, environment :: <object>)
+define method fer-gather-assign-bindings(defs :: <ssa-variable>, expr :: <expression>, environment :: <interpreter-environment>)
  => extended-env;
   let var-value = fer-evaluate-expression(expr, environment);
   append-environment(environment, defs, var-value)
 end;
 
-define method fer-gather-assign-bindings(defs :: <initial-definition>, expr :: <expression>, environment :: <object>)
+define method fer-gather-assign-bindings(defs :: <initial-definition>, expr :: <expression>, environment :: <interpreter-environment>)
  => extended-env;
   let var-value = fer-evaluate-expression(expr, environment);
   append-environment(environment, defs.definition-of, var-value) // ### we should perhaps take in account that this var may already have been recorded in the env...
 end;
 
-define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression>, environment :: <object>)
+define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression>, environment :: <interpreter-environment>)
  => retained-env;
   environment
 end;
 
 // ########## fer-evaluate-call ##########
-/*
-// for now....
-define method fer-evaluate /* -call ##### */(func :: <fer-function-region>, environment :: <object>)
-  => ct-value :: <ct-value>; // multivalues???
+define generic fer-evaluate-call(func :: <abstract-function-literal>,
+                                 operands :: false-or(<dependency>),
+                                 callee-environment :: <interpreter-environment>)
+ => result :: <ct-value>;
+
+define method fer-evaluate-call(func :: <method-literal>, operands :: false-or(<dependency>), callee-environment :: <interpreter-environment>)
+ => result :: <ct-value>;
+//  fer-evaluate(func.main-entry.body, curry(error, "no, there is no variable %= in environment")) // #####  func.main-entry.body
+
+  let prologue = func.main-entry.prologue;
   
-  // add the vars in the prolog... to a fresh environment ###### TODO
-  fer-evaluate(func.body, environment)
-end;
-*/
+  let prologue-assignment :: <abstract-assignment> = prologue.dependents.dependent;
+  let vars-to-be-bound :: false-or(<definition-site-variable>) = prologue-assignment.defines;
 
+  local method prologue-environment(vars :: false-or(<definition-site-variable>),
+                                    operands :: false-or(<dependency>),
+                                    #key to-extend :: <interpreter-environment> = curry(error, "no, there is no variable %= in environment"))
+  	 => prologue-environment :: <interpreter-environment>;
+  	  if (vars)
+  	    operands | error("too few arguments passed to <method-literal>");
+  	    prologue-environment(vars.definer-next, operands.dependent-next,
+                                 to-extend: append-environment(to-extend, vars,
+                                                               fer-evaluate-expression(operands.source-exp, callee-environment)));
+  	  else
+  	    to-extend
+  	  end if;
+        end method;
 
-define generic fer-evaluate-call(func :: <abstract-function-literal>, operands :: false-or(<dependency>))
- => result :: <ct-value>;
-
-define method fer-evaluate-call(func :: <method-literal>, operands :: false-or(<dependency>))
- => result :: <ct-value>;
-//  fer-evaluate(func.main-entry, curry(error, "no, there is no variable %= in environment")) // #####  func.main-entry.body
-  fer-evaluate(func.main-entry.body, curry(error, "no, there is no variable %= in environment")) // #####  func.main-entry.body
+  fer-evaluate(func.main-entry.body, prologue-environment(vars-to-be-bound, operands))
 end;
 
 // ########## fer-evaluate-expression ##########
-define generic fer-evaluate-expression(expr :: <expression>, environment :: <object>)
+define generic fer-evaluate-expression(expr :: <expression>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
 
-define method fer-evaluate-expression(expr :: <literal-constant>, environment :: <object>)
+define method fer-evaluate-expression(expr :: <literal-constant>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   expr.value
 end;
 
-define method fer-evaluate-expression(expr :: <method-literal>, environment :: <object>)
+define method fer-evaluate-expression(expr :: <method-literal>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   expr.ct-function
 end;
 
-define method fer-evaluate-expression(expr :: <known-call>, environment :: <object>)
+define method fer-evaluate-expression(expr :: <known-call>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
       let func :: <method-literal> = expr.depends-on.source-exp;
 //      let arg = fer-evaluate-expression(expr.depends-on.dependent-next.source-exp, environment);
       let args = expr.depends-on.dependent-next;
       
-      fer-evaluate-call(func, args);
+      fer-evaluate-call(func, args, environment);
 end;
 
-define method fer-evaluate-expression(var :: <abstract-variable>, environment :: <object>)
+define method fer-evaluate-expression(var :: <abstract-variable>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   var.environment
 end;
 
-define method fer-evaluate-expression(primitive :: <primitive>, environment :: <object>)
+define method fer-evaluate-expression(primitive :: <primitive>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   fer-evaluate-primitive(primitive.primitive-name, primitive.depends-on, environment);
 end;
 
-define method fer-evaluate-expression(prologue :: <prologue>, environment :: <object>)
+define method fer-evaluate-expression(prologue :: <prologue>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
- as(<ct-value>, 42); // ### for now...
+// as(<ct-value>, 42); // ### for now...
+//  let result :: <ct-value> = environment(prologue);
+  let prologue-assignment :: <abstract-assignment> = prologue.dependents.dependent;
+  let vars-to-be-bound :: false-or(<definition-site-variable>) = prologue-assignment.defines;
+  environment(vars-to-be-bound); // we only support one variable for now...###
 end;
 
 
 // ########## fer-evaluate-primitive ##########
-define generic fer-evaluate-primitive(name :: <symbol>, depends-on :: false-or(<dependency>), environment :: <object>)
+define generic fer-evaluate-primitive(name :: <symbol>, depends-on :: false-or(<dependency>), environment :: <interpreter-environment>)
  => result :: <ct-value>;
 
 define macro primitive-emulator-definer
@@ -307,7 +325,7 @@ define macro primitive-emulator-definer
   }
   =>
   {
-    define method fer-evaluate-primitive(name == "fixnum-" ## ?#"name", depends-on :: <dependency>, environment :: <object>)
+    define method fer-evaluate-primitive(name == "fixnum-" ## ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
      => result :: <ct-value>;
       let lhs = fer-evaluate-expression(depends-on.source-exp, environment);
       let rhs = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
@@ -326,7 +344,7 @@ define primitive-emulator logxor end;
 define primitive-emulator logand end;
 
 // ########## append-environment ##########
-define function append-environment(prev-env :: <object>, new-binding, new-value) => new-env;
+define function append-environment(prev-env :: <interpreter-environment>, new-binding, new-value) => new-env;
 
 //  format(*standard-output*, "append-environment %= %= \n", new-binding, new-value);
 //  force-output(*standard-output*);

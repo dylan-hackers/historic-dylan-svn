@@ -7,3 +7,5 @@ method() 23 end
 method(x) x(x) end(method(y) y end)
 method(x) x(x) end(method(y) 23 end)
 method(x) x(x) end(identity)
+begin local fac(n :: <integer>) n == 0 & 1 | n * fac(n - 1) end; fac(5); end
+begin local fac(n) n == 0 & 1 | n * fac(n - 1) end; fac(5); end
