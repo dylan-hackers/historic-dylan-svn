@@ -23,7 +23,7 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/Makegen,v 1.3.4.1 1999/01/09 13:40:23 emk Exp $
+##  $Header: /scm/cvs/src/Makegen,v 1.3.4.2 1999/01/09 15:21:13 emk Exp $
 ##
 ##  This is the makegen file for the entire Dylan tree.
 ##
@@ -75,7 +75,9 @@ if ($features{'compiled_for_unix'}) {
 installdirs:
 	$srcdir/mkinstalldirs \${DESTDIR}$bindir \\
 	   \${DESTDIR}$libdir \${DESTDIR}$libdir/elisp \\
-	   \${DESTDIR}$includedir \${DESTDIR}$sysconfdir
+	   \${DESTDIR}$includedir \${DESTDIR}$sysconfdir \\
+           \${DESTDIR}$mandir/man1 \${DESTDIR}$mandir/man4 \\
+           \${DESTDIR}$mandir/man7
 
 EOF
 ;
