@@ -421,6 +421,7 @@ define class <request> (<basic-request>)
   slot request-method :: <symbol> = #"unknown";
   slot request-version :: <symbol> = #"unknown";
   slot request-url :: <string> = "";
+  slot request-host :: <string> = "";
   slot request-keep-alive? :: <boolean> = #f;
 
   // The actual headers, mapping string -> raw data
@@ -536,9 +537,10 @@ define method read-request (request :: <request>) => ()
     pset (buffer, len) read-request-line(socket) end;
   end;
   read-request-first-line(request, buffer, len, server.allowed-methods);
-  log-info("%s %s %s",
+  log-info("%s %s%s %s",
            uppercase-request-method(request.request-method),
-           request.request-url, request.request-version);
+           request.request-host, request.request-url,
+           request.request-version);
   unless (request.request-version == #"http/0.9")
     request.request-headers
       := read-message-headers(socket,
@@ -571,16 +573,24 @@ define function read-request-first-line
     let epos = whitespace-position(buffer, bpos, eol) | eol;
     when (epos > bpos)
       let qpos = char-position('?', buffer, bpos, epos);
-      // Should this trim trailing whitespace???
-      request.request-url := substring(buffer, bpos, qpos | epos);
-      if (qpos)
-        log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
-        let query = decode-url(buffer, qpos + 1, epos);
-        extract-query-values(query, 0, size(query), request.request-query-values)
-      end;
-      let bpos = skip-whitespace(buffer, epos, eol);
-      let vpos = whitespace-position(buffer, bpos, eol) | eol;
-      request.request-version := extract-request-version(buffer, bpos, vpos);
+      if (looking-at?("http://", buffer, bpos, qpos | epos))
+        bpos := bpos + 7;
+        let host-end = char-position('/', buffer, bpos, qpos | epos);
+        request.request-host := substring(buffer, bpos, host-end);
+        bpos := host-end;
+      end if;
+      if (epos > bpos)
+        // Should this trim trailing whitespace???
+        request.request-url := substring(buffer, bpos, qpos | epos);
+        if (qpos)
+          log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
+          let query = decode-url(buffer, qpos + 1, epos);
+          extract-query-values(query, 0, size(query), request.request-query-values)
+        end;
+        let bpos = skip-whitespace(buffer, epos, eol);
+        let vpos = whitespace-position(buffer, bpos, eol) | eol;
+        request.request-version := extract-request-version(buffer, bpos, vpos);
+      end if;
     end;
   end;
 end;
@@ -700,6 +710,11 @@ define method process-incoming-headers (request :: <request>)
   elseif (member?("keep-alive", conn-values, test: string-equal?))
     request-keep-alive?(request) := #t                 // not working in linux version
   end;
+  let host = get-header(request, "host") | #f;
+  if (host & request.request-host = "")
+    request.request-host := host;
+    log-debug("Request-Host: %s", request.request-host);
+  end if;
   let agent = request-header-value(request, #"user-agent");
   agent
     & note-user-agent(request-server(request), agent);
