@@ -17,9 +17,16 @@
 ">
 
 <!ENTITY person.bogk "
-<firstname>Andreas</firstname><surname>bogk</surname>
+<firstname>Andreas</firstname><surname>Bogk</surname>
 <affiliation>
   <address><email>andreas@andreas.org</email></address>
+</affiliation>
+">
+
+<!ENTITY person.neel "
+<firstname>Neel</firstname><surname>Krishnaswami</surname>
+<affiliation>
+  <address><email>neelk@cswcasa.com</email></address>
 </affiliation>
 ">
 
