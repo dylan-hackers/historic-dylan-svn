@@ -47,12 +47,13 @@ copyright: LGPL
 // 
 //    [1]    document    ::=    prolog element Misc*
 //
-define function parse-document(doc :: <string>, 
-                               #key start = 0, end: stop, 
-                               substitute-entities? = #t,
-                               modify-elements-when-parsing? = #t,
-			       print-warnings? = #f,
- 			       ignore-instructions? = #f)
+define function parse-document (doc :: <string>, 
+                                #key start = 0, end: stop, 
+                                substitute-entities? = #t,
+                                modify-elements-when-parsing? = #t,
+			        print-warnings? = #f,
+				dtd-paths = #f,
+ 			        ignore-instructions? = #f)
  => (stripped-tree :: <document>)
   initialize-latin1-entities();
   *show-warnings?* := print-warnings?;
@@ -60,6 +61,7 @@ define function parse-document(doc :: <string>,
   *ignore-instructions?* := ignore-instructions?;
   *modify?* := modify-elements-when-parsing?;
   *substitute-entities?* := substitute-entities?;
+  if(dtd-paths) *dtd-paths* := dtd-paths; end if;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
   transform-document(document, state: make(<add-parents>));
   document;
@@ -68,6 +70,7 @@ end function parse-document;
 define variable *modify?* :: <boolean> = #t;
 define variable *show-warnings?* :: <boolean> = #f;
 define variable *ignore-instructions?* :: <boolean> = #t;
+define variable *dtd-paths* :: <sequence> = #(".");
 
 define meta document-helper(prolog, elemnt, misc) =>
  (make(<document>,
@@ -348,10 +351,18 @@ define meta doctypedecl(s, name, sys-id, pub-id, which, markup)
   yes!(*defining-entities?*),
   "<!DOCTYPE", scan-s(s), scan-name(name), 
   {[scan-s(s), scan-external-id(sys-id, which, pub-id),
-   do(
+   do(let dtd-file = #f;
+      aif(any?( method(dir)
+		       let file = concatenate(dir, "/", sys-id);
+		       file.file-exists? & file
+		end, *dtd-paths*))
+        dtd-file := it;
+      else 
+	error("%s is not on on the dtd search paths of %=", sys-id, *dtd-paths*)
+      end aif;
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its entities and default attribute values.
-      with-open-file(in = sys-id, direction: #"input-output")
+      with-open-file(in = dtd-file, direction: #"input-output")
         scan-dtd-stuff(stream-contents(in, clear-contents?: #f))
       end)], 
    []},
