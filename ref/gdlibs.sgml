@@ -2234,11 +2234,564 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     <PARA></PARA>
   </CHAPTER>
 
-  <CHAPTER ID="libs-string-extensions">
-    <TITLE>The String-Extensions Library</TITLE>
+  <chapter id="libs-string-extensions">
+    <title> The string-extensions Library </title>
+   
+    <sect1 id="libs-string-extensions-character-type">
+      <title>Module character-type</title>
+  
+      <para>
+  	This module contains a set of methods for testing various
+  	properties of <classname> &lt;character&gt; </classname> this
+  	will work 100% correctly only with ASCII English characters.
+  	Fixing this so it handles Unicode better would be a good way
+  	of covering yourself with glory, hint hint.
+      </para>
+  
+      <dylanfunctiondef>
+  	<defname> alpha? </defname>
+  	<defsummary> Synonym for alphabetic? </defsummary>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> alphabetic? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if the character is in [a-zA-Z].
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param> 
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if the character is alphabetic,
+  	    <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  	  
+      <dylanfunctiondef>
+  	<defname> digit? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if the character is a numeric digit
+  	  [0-9].
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if the character is a digit,
+  	    <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> alphanumeric? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if the character is alphabetic or a
+  	digit.  </defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if the character is alphanumeric,
+  	    <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname>  whitespace? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if the character is whitespace.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if character is whitespace (space,
+  	    tab, linefeed,or newline), and #f otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+      
+      <dylanfunctiondef>
+  	<defname> lowercase? </defname>
+  	<defsummary>
+  	  returns <dlit>#t</dlit> if the character is in [a-z].
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if character is lowercase (in
+  	    [a-z]), <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
 
-    <PARA></PARA>
-  </CHAPTER>
+      <dylanfunctiondef>
+  	<defname> hex-digit? </defname>
+  	<defsummary>
+  	  returns <dlit>#t</dlit> if the character is a hexadecimal
+  	  digit.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if the character is a hexadecimal
+  	    digit; that is, ifit is in [0-9], [a-f] or [A-F]. Return
+  	    <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+      
+      <dylanfunctiondef>
+  	<defname> graphic? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if the character is a graphic
+  	  character.
+	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if the character is a printing,
+  	    non-whitespace character, <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> printable? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if character is printable.
+  	</defsummary>       
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if the character is a printing
+  	    character, <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> punctuation? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if character is punctuation.
+  	</defsummary>       
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if the character is a graphic,
+  	    non-alphanumeric character, <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  	  
+      <dylanfunctiondef>
+  	<defname> control? </defname>
+  	<defsummary>
+  	   Returns <dlit>#t</dlit> if the character is not printable.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if character is a control
+  	    character, <dlit>#f</dlit> otherwise.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> byte-character? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if the character is an ASCII
+  	  character. Could be flaky.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    <function> byte-character? </function> will return true if
+  	    <dlit>as(<integer>, character)</dlit> returns less than
+  	    256.  I don't know enough about Unicode and character set
+  	    encodings to say what this means.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> uppercase? </defname>
+  	<defsummary>
+  	  Returns <dlit>#t</dlit> if the character is uppercase.
+  	</defsummary>       
+  	<defparameters>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Returns <dlit>#t</dlit> if character is in [A-Z], 
+  	    <dlit>#f</dlit> otherwise
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+    </sect1>
+  
+    <sect1 id="libs-string-extensions-string-conversions">
+      <title> The string-conversions Module </title>
+      <para>
+  	This module contains some handy functions to convert numbers
+  	to strings and vice-versa, as well some &lt;character&gt; to
+  	&lt;string&gt; conversions. [Note: It might be a good idea to
+  	try making <function>string-to-integer</function> and
+  	<function>integer-to-string</function> methods on
+  	<function>as</function>, which is the usual generic for type
+  	coercions. Ask about this on the GD mailing list.]
+      </para>
+  
+      <dylanfunctiondef>
+  	<defname> as </defname>
+  	<defsummary>
+  	  Convert a character to a string.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> class </paramname>
+  	    <paramtype> singleton(&lt;string&gt;) </paramtype> 
+  	  </param>
+  	  <param>
+  	    <paramname> character </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> string </paramname>
+  	    <paramtype> &lt;string&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    <dlit> as(&lt;string&gt;, character) </dlit> returns a
+  	    fresh instance of <classname> &lt;string&gt; </classname>
+  	    of size 1, whose only element is the character.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> digit-to-integer </defname>
+  	<defsummary>
+  	  Convert a character to the integer it denotes.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname>character</paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	    <paramsummary>
+  	      An error is signalled character it is not alphanumeric.
+  	    </paramsummary>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> integer </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramsummary> Between 0 and 35, inclusive. </paramsummary>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    <function> digit-to-integer </function> converts an
+  	    alphanumeric character to an integer. '0' through '9'
+  	    convert to 0 to 9, and 'a' through 'z' convert to 10 to
+  	    35. An error is signalled if the character is not in this
+  	    range.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> integer-to-digit </defname>
+  	<defsummary>
+  	  Convert an integer to the corresponding digit.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> digit </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	  <keyparam>
+  	    <paramname> base </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramsummary>
+  	      Between 2 and 35, inclusive, representing the radix of
+  	      the digit to return. The default base is 10.
+  	    </paramsummary>
+  	  </keyparam>
+  	  <keyparam>
+  	    <paramname> uppercase </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	    <paramsummary>
+  	      For <dlit>#t</dlit> returns uppercase letters for digits
+  	      greater than 10, and lowercase for <dlit>#f</dlit>. The
+  	      default is <dlit>#f</dlit>.
+  	    </paramsummary>
+  	  </keyparam>
+  	</defparameters>
+  	<defreturns>
+  	  <paramname> digit </paramname>
+  	  <paramtype> &lt;character&gt; </paramtype>
+  	  <paramsummary>
+  	    The returned digit is an alphanumeric character.
+  	  </paramsummary>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    <function> integer-to-digit </function> converts an
+  	    integer to the corresponding digit in the specified
+  	    base. If the integer is outside the range a single digit
+  	    in the specified base can represent, an error is
+  	    signalled. Digits for values of 10 or higher are
+  	    represented with the letters 'a' through 'z', with 'a' for
+  	    10 and 'z' for 35.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> integer-to-string </defname>
+  	<defsummary>
+  	  Converts an integer to a string value. 
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> num </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	  <keyparam>
+  	    <paramname> base </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramsummary>
+  	      <dlit>base</dlit should be between 2 and 36, inclusive,
+  	      and is the radix of the string representation; it
+  	      defaults to 10. An error will be signalled for radixes
+  	      not in this range.
+  	    </paramsummary>
+  	  </keyparam>
+  	  <keyparam>
+  	    <paramname> uppercase </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	    <paramsummary>
+  	      If it is <dlit>#t</dlit>, then uppercase letters will be
+  	      used to represent digits higher than 9, and lowercase
+  	      will be used if <dlit>#f</dlit>.
+  	    </paramsummary>
+  	  </keyparam>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> number </paramname>
+  	    <paramtype> &lt;string&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    <function> integer-to-string </function> converts an
+  	    integer to a string. String representations for radixes
+  	    above 10 use the letters 'a' through 'z' for the digits
+  	    from 10 to 35. So hexadecimal numbers would use [0-9] and
+  	    [a-f], and base 20 would use [0-9] and [a-j], and base 36
+  	    would use all the alphanumeric characters.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  
+      <dylanfunctiondef>
+  	<defname> string-to-integer </defname>
+  	<defsummary>
+  	  Read a sequence of characters as an integer.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> string </paramname>
+  	    <paramtype> &lt;sequence&gt; </paramtype>
+  	    <paramsummary>
+  	      Any <classname> &lt;sequence&gt; </classname> of
+  	      <classname> &lt;character&gt; </classname> objects are
+  	      acceptable. This is typically but not necessarily a
+  	      <classname> &lt;string&gt; </classname>.
+  	    </paramsummary>
+  	  </param>
+  	  <keyparam>
+  	    <paramname> base </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramsummary>
+  	      Between 2 and 36, inclusive, denoting the base to read
+  	      integers in. An error is signalled if base is not in
+  	      this range. The default is 10.
+  	    </paramsummary>
+  	  </keyparam>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> integer </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    <function>string-to-integer</function> converts a sequence
+  	    of <classname>&lt;character&gt;</classname> objects to an
+  	    integer. The characters are the digits of the string
+  	    representation, and must lie between '0' and 'z', with a
+  	    maximum depending on the base. For example, octal (base 8)
+  	    digits must be in [0-7], decimal digits must be in [0-9],
+  	    and hexadecimal digits must be in [0-9] or [a-f]. An error
+  	    is signalled if this constraint is violated. (Start
+  	    negative integers with a '-', so "-36" would become -36.)
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+    </sect1>
+  
+    <sect1 id="libs-string-extensions-string-hacking">
+      <title>The string-hacking Module</title>
+      <para>
+  	This module contains some random, possibly-useful functions
+  	to munge strings. 
+      </para>
+  
+    <sect1 id="libs-string-extensions-substring-search">
+      <title>The substring-search Module</title>
+      <para>
+  	This module contains some functions to do fast Boyer-Moore
+  	searching on strings.
+      </para>
+  </chapter>
   
   <CHAPTER ID="libs-regular-expressions">
     <TITLE>The Regular-Expressions Library</TITLE>
