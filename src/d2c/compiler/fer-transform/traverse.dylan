@@ -4,7 +4,7 @@ copyright: see below
 
 //======================================================================
 //
-// Copyright (c) 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 2000 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -40,6 +40,12 @@ define function traverse-component
     traverse(component, function-region, what-for, payload);
   end for;
 end function traverse-component;
+
+
+define generic traverse 
+    (component :: <component>, aggregate, 
+     what-for :: <class>, payload :: <function>) 
+ => ();
 
 // Handle <body-region>, <block-region>, <function-region>, and <loop-region>
 //
@@ -109,10 +115,12 @@ define method traverse
     payload(component, region);
   end if;
 
-  for (assign = region.first-assign then assign.next-op,
-       while: assign)
-    traverse(component, assign, what-for, payload)
-  end for;
+  unless (subtype?(what-for, <region>))
+    for (assign = region.first-assign then assign.next-op,
+	 while: assign)
+      traverse(component, assign, what-for, payload)
+    end for;
+  end unless;
 end method traverse;
 
 // Assignments:
@@ -126,14 +134,16 @@ define method traverse
     payload(component, assignment);
   end if;
 
-  // LHS variables
-  for (defined-var = assignment.defines then defined-var.definer-next,
+  unless (subtype?(what-for, <abstract-assignment>))
+    // LHS variables
+    for (defined-var = assignment.defines then defined-var.definer-next,
 	 while: defined-var)
-    traverse(component, defined-var, what-for, payload);
-  end for;
+      traverse(component, defined-var, what-for, payload);
+    end for;
 
-  // RHS expression
-  traverse(component, assignment.depends-on.source-exp, what-for, payload);
+    // RHS expression
+    traverse(component, assignment.depends-on.source-exp, what-for, payload);
+  end unless;
 
 end method traverse;
 
@@ -160,10 +170,12 @@ define method traverse
     payload(component, operation);
   end if;
 
-  for (operand = operation.depends-on then operand.dependent-next,
-       while: operand)
-    traverse(component, operand.source-exp, what-for, payload);
-  end for;
+  if (subtype?(what-for, <expression>))
+    for (operand = operation.depends-on then operand.dependent-next,
+	 while: operand)
+      traverse(component, operand.source-exp, what-for, payload);
+    end for;
+  end if;
 end method traverse;
 
 // Unclaimed <leaf>s:
