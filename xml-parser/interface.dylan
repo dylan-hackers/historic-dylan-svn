@@ -20,7 +20,8 @@ end class <attribute>;
 
 // not sealed for making XML element tags subclasses of <element>
 define open class <element> (<node>)
-  constant slot element-attributes :: <vector> = #[], init-keyword: attributes:;
+  constant slot element-attributes :: <vector> = #[], 
+    init-keyword: attributes:;
 end class <element>;
 
 define class <document> (<node>)

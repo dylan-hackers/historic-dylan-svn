@@ -9,6 +9,7 @@ Version:   1.0
 // as HTML
 define class <html> (<xform-state>) end;
 define constant $html = make(<html>);
+define variable *substitute?* :: <boolean> = #t;
 
 define method before-transform(node :: <node>, state :: <html>,
                                times :: <integer>,
@@ -21,13 +22,13 @@ end method before-transform;
 
 define method transform(in :: <document>, tag-name :: <symbol>,
                         state :: <html>, str :: <stream>)
-  collect-entity-defs(in);
+  collect-entity-defs(in); 
   format(str, "<HTML>\n <TITLE>XML as HTML</TITLE>\n <BODY>\n&lt;?"
               "<FONT COLOR='green'>xml</FONT> <FONT COLOR='blue'>"
               "version</FONT>=\"1.0\"?&gt;<BR>\n");
-  referenced-entities(as(<string>, tag-name), str, state);
+  referenced-entities(as(<string>, tag-name), str, state); 
   next-method();
-  write(str, "\n </BODY>\n</HTML>");
+  format(str, "\n </BODY>\n</HTML>");
 end method transform;
 
 define method transform(in :: <element>, tag-name :: <symbol>,

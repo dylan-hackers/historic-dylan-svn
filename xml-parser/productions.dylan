@@ -100,26 +100,30 @@ define method entity-value(ent :: <entity-reference>)
   *entities*[ent.name];
 end method entity-value;
 
-define method do-entity(obj :: <object>) => (seq :: <sequence>)
-  list(obj); 
-end;
+define method do-expand(obj :: <xml>) list(obj); end;
+define method do-expand(elt :: <element>)
+// I'll ignore entities in the element attributes for now
+  list(make(<element>, name: elt.name, 
+            attributes: elt.element-attributes,
+            children: elt.node-children.expand-entity));
+end method do-expand;
 
-define method do-entity(ent :: <entity-reference>)
- => (seq :: <sequence>)
-  explode-entity-value(ent.entity-value)
-end method do-entity;
+define method do-expand(ent :: <entity-reference>) 
+  expand-entity(ent.entity-value)
+end method do-expand;
 
-define function explode-entity-value(val :: <sequence>)
+define function expand-entity(val :: <sequence>)
  => (seq :: <sequence>)
   local method build-seq(blt :: <list>, org :: <list>)
     if(org.empty?) 
       blt
     else
-      build-seq(concatenate(blt, org.head.do-entity), org.tail);
+      build-seq(concatenate(blt, org.head.do-expand), org.tail);
     end if;
   end method;
-  as(type-for-copy(val), build-seq(#(), as(<list>, val)));
-end function explode-entity-value;
+  collapse-strings(as(type-for-copy(val), 
+                      build-seq(#(), as(<list>, val))), #t);
+end function expand-entity;
 
 //-------------------------------------------------------
 // Productions
@@ -491,8 +495,39 @@ end method collapse-strings;
 // we'll look for adjacent strings and combine them as one
 // element in the new sequence
 define method collapse-strings(str :: <sequence>, b == #t)
-  // DOUG work on this, please!
-  str
+  let ans = make(<deque>);
+  let quit :: <integer> = str.size;
+
+  local method find-last-adjacent-char-string(start :: <integer>) => stop :: <integer>;
+    let stop = start;
+    while(stop < quit & instance?(str[stop], <char-string>))
+      stop := stop + 1; 
+    end;
+    stop;
+  end method find-last-adjacent-char-string;
+
+  local method condense-as-in-milk(start :: <integer>) => stop :: <integer>;
+    if(instance?(str[start], <char-string>))
+      let stop = find-last-adjacent-char-string(start);
+      let new-str 
+        = make(<char-string>, 
+               text: reduce(method(x, y) concatenate(x, y.text) end,
+                            str[start].text,
+                            copy-sequence(str, start: start + 1, end: stop)));
+      push-last(ans, new-str);
+      stop;
+    else
+      push-last(ans, str[start]);
+      start + 1;
+    end if;
+  end method;
+
+  let index :: <integer> = 0;
+  while(index < quit)
+    index := condense-as-in-milk(index);
+  end;
+
+  as(type-for-copy(str), ans);
 end method collapse-strings;
 
 define collector content(ignor, contents) 
@@ -597,26 +632,24 @@ end parse mixed;
 //    [52]    AttlistDecl    ::=    '<!ATTLIST' S Name AttDef* S? '>'
 //
 define parse attlist-decl(s, name, att-def)
-  {["<!ATTLIST", parse-s(s), parse-name(name),
-    loop(parse-att-def(att-def)), parse-s?(s), ">"]}, []
+  "<!ATTLIST", parse-s(s), parse-name(name),
+    loop(parse-att-def(att-def)), parse-s?(s), ">"
 end parse attlist-decl;
 
 //    [53]    AttDef         ::=    S Name S AttType S DefaultDecl
 //
-define parse att-def(s, name, att-type, default-decl)
-  parse-s(s), parse-name(name), 
-  parse-s(s), parse-att-type(att-type), 
-  parse-s(s), parse-default-decl(default-decl)
-end parse att-def;
+define parse att-def(s, name, att-type, def)
+  parse-s(s), parse-name(name), parse-s(s), parse-att-type(att-type),
+  parse-s(s), parse-default-decl(def)
+end parse;
 
 // Attribute Types
 // 
 //    [54]    AttType          ::=    StringType | TokenizedType | EnumeratedType
 //
-define parse att-type(string, tokenized, enumerated)
-  {parse-string-type(string), 
-   parse-tokenized-type(tokenized), 
-   parse-enumerated-type(enumerated)}, []
+define parse att-type(str) 
+ {parse-string-type(str), parse-tokenized-type(str), 
+  parse-enumerated-type(str)}, []
 end parse att-type;
 
 //    [55]    StringType       ::=    'CDATA'
@@ -634,7 +667,8 @@ define parse string-type(c) "CDATA" end;
 //                                    | 'NMTOKENS'                                [VC: Name Token]
 //
 define parse tokenized-type(c)
-  {"ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", "NMTOKENS"}, []
+  {"ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", 
+   "NMTOKENS"}, []
 end parse tokenized-type;
 
 // Enumerated Attribute Types
@@ -748,7 +782,7 @@ end parse reference;
 //                                                     [WFC: No Recursion]
 define parse entity-ref(name)
  => (if(*substitute-entities?* & ~ *defining-entities?*)
-      *entities*[name].explode-entity-value;
+      *entities*[name].expand-entity;
      else
       list(make(<entity-reference>, name: name));
      end if)
