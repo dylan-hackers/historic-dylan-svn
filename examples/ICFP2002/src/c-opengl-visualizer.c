@@ -37,6 +37,8 @@ void readMyConfiguration(void)
     sscanf(buffer, "%u %u %u", &gID, &gMaxWeight, &gMoney);
 }
 
+int gMoveChar;
+
 //------------------------------------------------------------------------
 
 void setOpenGLParametersForPackage(void)
@@ -78,7 +80,14 @@ typedef enum
 }
 TileType;
 
-TileType **gMap;
+typedef struct
+{
+    TileType type;
+    unsigned int possiblePackageCount;
+}
+Tile;
+
+Tile **gMap;
 
 TileType charToTileType(int character)
 {
@@ -100,18 +109,20 @@ void readMap(void)
     fgets(buffer, 4096, gSocket);
     sscanf(buffer, "%u %u\n", &gMapWidth, &gMapHeight);
 
-    gMap = allocateArray(TileType *, gMapHeight);
+    gMap = allocateArray(Tile *, gMapHeight);
     unsigned int row;
     for (row = 0; row < gMapHeight; ++row)
     {
-        gMap[row] = allocateArray(TileType, gMapWidth);
+        gMap[row] = allocateArray(Tile, gMapWidth);
 
         fgets(buffer, 4096, gSocket);
 
         unsigned int col;
         for (col = 0; col < gMapWidth; ++col)
         {
-            gMap[row][col] = charToTileType(buffer[col]);
+            gMap[row][col].type = charToTileType(buffer[col]);
+            gMap[row][col].possiblePackageCount
+                = (gMap[row][col].type == BASE ? ~0 : 0);
         }
     }
 }
@@ -138,7 +149,7 @@ void printMap(void)
         unsigned int col;
         for (col = 0; col < gMapWidth; ++col)
         {
-            printTileType(gMap[row][col]);
+            printTileType(gMap[row][col].type);
         }
 
         printf("\n");
@@ -211,6 +222,7 @@ char *parsePlayerAction(unsigned int playerID, char *string)
                    playerID,
                    packageID);
             --gPlayers[playerID].packageCount;
+            ++gMap[gPlayers[playerID].y][gPlayers[playerID].x].possiblePackageCount;
         }
         break;
         
@@ -282,8 +294,19 @@ void readPackageList(void)
 
 void sendAction(void)
 {
-    printf("sending \"1 Pick 1\\n\"\n");
-    send(gUnixSocket, "1 Pick 1\n", 9, 0);
+    char action[4096];
+    
+    if (gMoveChar != '\0')
+    {
+        sprintf(action, "1 Move %c\n", gMoveChar);
+        gMoveChar = '\0';
+    }
+    else
+    {
+        sprintf(action, "1 Pick 1\n");
+    }
+
+    send(gUnixSocket, action, strlen(action), 0);
 }
 
 //------------------------------------------------------------------------
@@ -309,12 +332,22 @@ void display(void)
         unsigned int col;
         for (col = 0; col < gMapWidth; ++col)
         {
-            setOpenGLParametersForTileType(gMap[row][col]);
+            setOpenGLParametersForTileType(gMap[row][col].type);
 
             glVertex2d(col,     row);
             glVertex2d(col + 1, row);
             glVertex2d(col + 1, row + 1);
             glVertex2d(col,     row + 1);
+
+            if (gMap[row][col].possiblePackageCount > 0)
+            {
+                setOpenGLParametersForPackage();
+
+                glVertex2d(col + 0.35, row + 0.35);
+                glVertex2d(col + 0.65, row + 0.35);
+                glVertex2d(col + 0.65, row + 0.65);
+                glVertex2d(col + 0.35, row + 0.65);
+            }
         }
     }
 
@@ -366,6 +399,19 @@ void idle(void)
     readServerResponse();
     
     glutPostRedisplay();
+}
+
+void specialKey(int key, int mouseX, int mouseY)
+{
+    gMoveChar = '\0';
+
+    switch (key)
+    {
+        case GLUT_KEY_UP:    gMoveChar = 'N'; break;
+        case GLUT_KEY_DOWN:  gMoveChar = 'S'; break;
+        case GLUT_KEY_LEFT:  gMoveChar = 'W'; break;
+        case GLUT_KEY_RIGHT: gMoveChar = 'E'; break;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -429,6 +475,7 @@ My Money: %u\n", gID, gMaxWeight, gMoney);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
+    glutSpecialFunc(specialKey);
 
     glutMainLoop();
 
