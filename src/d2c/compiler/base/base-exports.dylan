@@ -552,7 +552,7 @@ define module variables
 
     $Bootstrap-Module, add-bootstrap-export, define-bootstrap-module,
 
-    $Libraries, exported-names,
+    $Libraries, exported-names, namespace-name,
     find-library, library-name, note-library-definition, do-exported-modules,
     find-module, module-name, module-syntax-table,
     note-module-definition, deferred-importers, do-exported-variables,

@@ -88,7 +88,25 @@ make(<command>, name: "Show Libraries",
                   end for;
               end method,
      summary: "Show all loaded libraries.");
-                               
+        
+make(<command>, name: "Find",
+     command: method(symbol)
+                  for(lib in $Libraries)
+                    for(mod in lib.exported-names)
+                      let the-mod = find-module(lib, mod);
+                      let found 
+                        = find-variable(make(<basic-name>, 
+                                             module: the-mod,
+                                             symbol: as(<symbol>, symbol)));
+                      if(found)
+                        format(*standard-output*, "%= => %=\n",
+                               lib, 
+                               mod);
+                      end if;
+                    end for;
+                  end for;
+              end method,
+     summary: "Search for named symbol in all modules.");
 
 define generic evaluate(expression, environment :: <interpreter-environment>)
  => val :: <object>;
