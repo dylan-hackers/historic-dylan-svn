@@ -57,7 +57,7 @@ define module path
   //  use standard-io;
   //  use streams, export: all;
 
-  export <point-list>, distance-cost, find-path;
+  export <point-list>, distance-cost, find-path, <path-cost>;
 end module path;
 
 define module command
