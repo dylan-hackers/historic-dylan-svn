@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
 #endif
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(serverPort);
-    serverAddress.sin_addr.s_addr = *(in_addr_t*)(server->h_addr);
+    serverAddress.sin_addr.s_addr = *(u_int32_t*)(server->h_addr);
     memset(&(serverAddress.sin_zero), '\0', 8);
     
     int connectionResult = connect(gUnixSocket,
