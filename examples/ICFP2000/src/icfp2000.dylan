@@ -45,13 +45,16 @@ define function main(name, arguments)
 
   */
 
-  let o = make(<plane>);
-//  let o = make(<sphere>);
+  let o1 = make(<sphere>);
+  let o2 = make(<plane>);
 
-//  o := translate(o, 0.0, 0.0, 2.0);
+  o1 := uniform-scale(o1, 0.2);
 
-  o := x-rotate(o, ($double-pi / 2.0) * 3);
-  o :=  translate(o, -0.5, -0.5, 0.0);
+  o2 := x-rotate(o2, ($double-pi / 2.0) * 3);
+  o2 := translate(o2, -0.5, -0.5, 0.0);
+  o2 := uniform-scale(o2, 2.0);
+
+  let o = make(<csg-union>, of: vector(o2, o1));
 
 //  z-rotate!(o, $double-pi / 16.0);
 /*

@@ -6,7 +6,6 @@ copyright: this program may be freely used by anyone, for any purpose
 define class <obj> (<object>)
   slot transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
   slot inverse-transform :: <matrix> = identity-matrix(dimensions: #[4,4]);
-//  slot model :: type-union(<primitive>, <collection>);
 end class <obj>;
 
 define class <primitive> (<obj>)
@@ -29,7 +28,7 @@ define class <csg-object> (<obj>)
 end class <csg-object>;
 
 define class <csg-union> (<csg-object>)
-  slot objects = vector(#f, #f);
+  slot objects, init-keyword: of:;
 end class <csg-union>;
 
 
@@ -148,7 +147,7 @@ define method uniform-scale!(o :: <obj>, factor) => (same-obj :: <obj>)
   *uniform-scaling-matrix*[1, 1] := 1.0/factor;
   *uniform-scaling-matrix*[2, 2] := 1.0/factor;
 
-  o.inverse-transform := *uniform-scaling-matrix* * o.inverse-transform;
+  o.inverse-transform := o.inverse-transform * *uniform-scaling-matrix*;
   o;
 end method uniform-scale!;
 
@@ -171,7 +170,7 @@ define method translate(o :: <obj>, x, y, z) => (same-obj :: <obj>)
 
   let new-object = make(object-class(o));
 
-  new-object.transform := o.transform * *translation-matrix* ;
+  new-object.transform := *translation-matrix* * o.transform;
 
   *translation-matrix*[0, 3] := -x;
   *translation-matrix*[1, 3] := -y;
@@ -189,7 +188,7 @@ define method x-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
   end if;
   let new-object = make(object-class(o));
 
-  new-object.transform := o.transform * *x-rotation-matrix* ;
+  new-object.transform := *x-rotation-matrix* * o.transform;
 
   // cos(-theta) = cos(theta), sin(-theta) = -sin(theta)
   *x-rotation-matrix*[1, 2] := -*x-rotation-matrix*[1, 2];
@@ -199,4 +198,21 @@ define method x-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
   *last-x-rotation-theta* := -theta;
   new-object;  
 end method x-rotate;
+
+define method uniform-scale(o :: <obj>, factor) => (same-obj :: <obj>)
+  *uniform-scaling-matrix*[0, 0] := factor;
+  *uniform-scaling-matrix*[1, 1] := factor;
+  *uniform-scaling-matrix*[2, 2] := factor;
+
+  let new-object = make(object-class(o));
+
+  new-object.transform := *uniform-scaling-matrix* * o.transform;
+
+  *uniform-scaling-matrix*[0, 0] := 1.0/factor;
+  *uniform-scaling-matrix*[1, 1] := 1.0/factor;
+  *uniform-scaling-matrix*[2, 2] := 1.0/factor;
+  new-object.inverse-transform := o.inverse-transform * *uniform-scaling-matrix*;
+
+  new-object;  
+end method uniform-scale;
 

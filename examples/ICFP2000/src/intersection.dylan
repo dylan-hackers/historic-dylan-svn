@@ -19,14 +19,14 @@ define method transform-with-matrix(ray :: <ray>, matrix :: <matrix>)
 end method transform-with-matrix;
 
 define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: shadow-test?)
- => (point, normal, surface-function)
+ => (point, normal, surface-function, new-distance)
 
   // First transform the pos/ray/distance into the coordinates of o,
   // using the inverse of o.transform.
 
   let local-ray = transform-with-matrix(ray, o.inverse-transform);
 
-  let (our-point, our-normal, surface-method) =
+  let (our-point, our-normal, surface-method, new-distance) =
     real-intersection-before(o, local-ray, distance, shadow-test: shadow-test?);
 
   // Now, transform the point & normal back into the caller's coordinates
@@ -36,15 +36,15 @@ define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: s
     let point = o.transform * our-point;
     let normal = o.transform * our-normal;
 
-    values(point, normal, surface-method);
+    values(point, normal, surface-method, new-distance);
   else
-    values(#f, #f, #f);
+    values(#f, #f, #f, #f);
   end if;
 end method intersection-before;
 
 define method real-intersection-before(m :: <sphere>, ray, distance, #key
 				    shadow-test: shadow-test?)
- => (point, normal, surface-method)
+ => (point, normal, surface-method, new-distance)
 
 
   block (easy-out)
@@ -74,14 +74,14 @@ define method real-intersection-before(m :: <sphere>, ray, distance, #key
       else
 	let u = 0.5; // XXX
 	let v = 0.5;
-	values(#[ 1.0, 1.0, 1.0, 1.0 ], #[1.0, 1.0, 1.0, 1.0], make-surface-closure(0, u, v, m.surface-interpreter-entry));
+	values(#[ 1.0, 1.0, 1.0, 1.0 ], #[1.0, 1.0, 1.0, 1.0], make-surface-closure(0, u, v, m.surface-interpreter-entry), 0.0);
       end if;
     end if;
   end block;
 end method real-intersection-before;
     
 define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-test: shadow-test?)
- => (point, normal, surface-method)
+ => (point, normal, surface-method, new-distance)
 
   if (ray.ray-position[1] < 0.0 & ray.ray-direction[1] < 0.0)
     #f;
@@ -101,7 +101,39 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
       let v = clamp(point[2]);
       values(point, 
 	     #[ 0.0, 1.0, 0.0, 0.0 ],
-	     make-surface-closure(0, u, v, m.surface-interpreter-entry));
+	     make-surface-closure(0, u, v, m.surface-interpreter-entry), t);
     end if;
   end if;
+end method real-intersection-before;
+
+define method real-intersection-before(m :: <csg-union>, ray, distance, #key shadow-test: shadow-test?)
+ => (point, normal, surface-method, new-distance)
+
+  block(easy-out)
+    let (point1, normal1, surface1, distance1) = intersection-before(m.objects[0], ray, distance, shadow-test: shadow-test?);
+    if(point1 & shadow-test?)
+      easy-out(values(#t, #f, #f, #f));
+    end if;
+    let (point2, normal2, surface2, distance2) = intersection-before(m.objects[0], ray, distance, shadow-test: shadow-test?);
+    if(point2 & shadow-test?)
+      easy-out(values(#t, #f, #f, #f));
+    end if;
+    if(point1 & point2)
+      if(distance1 < distance2)
+	values(point1, normal1, surface1, distance1);
+      else
+	values(point2, normal2, surface2, distance2);
+      end if;
+    else 
+      if(point1)
+	values(point1, normal1, surface1, distance1);
+      else
+	if(point2)
+	  values(point2, normal2, surface2, distance2);
+	else
+	  #f;
+	end if;
+      end if;
+    end if;
+  end block;
 end method real-intersection-before;

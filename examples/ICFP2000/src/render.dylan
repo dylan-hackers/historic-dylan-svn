@@ -7,7 +7,7 @@ define method get-tracer(o :: <obj>, ambient :: <color>,
 			 lights :: <collection>) => (tracer)
   local method tracer(ray, depth)
     if (depth > 0)
-      let (point, normal, surface-method) = intersection-before(o, ray, 1.0/0.0);
+      let (point, normal, surface-method, distance) = intersection-before(o, ray, 1.0/0.0);
       
       if (point)
 	/*	let reflection-color = 0;
