@@ -77,6 +77,13 @@ define method fer-evaluate(compound :: <compound-region>, environment :: <object
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
 
+define method fer-evaluate /* -call ##### */(func :: <fer-function-region>, environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  
+  // add the vars in the prolog... to a fresh environment ###### TODO
+  fer-evaluate(func.body, environment)
+end;
+
 define method fer-evaluate(the-if :: <if-region>, environment :: <object>)
   => ct-value :: <ct-value>; // multivalues???
   let test-value
@@ -254,11 +261,11 @@ end;
 
 define method fer-evaluate-expression(expr :: <known-call>, environment :: <object>)
  => result :: <ct-value>;
-//  expr.ct-function
-      let func = fer-evaluate-expression(expr.depends-on.source-exp, environment);
+//      let func :: <method-literal> = fer-evaluate-expression(expr.depends-on.source-exp, environment);
+      let func :: <method-literal> = expr.depends-on.source-exp;
       let arg = fer-evaluate-expression(expr.depends-on.dependent-next.source-exp, environment);
       
-      func // for now...
+      fer-evaluate(func.main-entry, environment /* NEEDED??? ### */);
       
 end;
 
@@ -270,6 +277,11 @@ end;
 define method fer-evaluate-expression(primitive :: <primitive>, environment :: <object>)
  => result :: <ct-value>;
   fer-evaluate-primitive(primitive.primitive-name, primitive.depends-on, environment);
+end;
+
+define method fer-evaluate-expression(prologue :: <prologue>, environment :: <object>)
+ => result :: <ct-value>;
+ as(<ct-value>, 42); // ### for now...
 end;
 
 
