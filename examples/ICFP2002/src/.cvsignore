@@ -3,3 +3,4 @@
 cc-*-files.mak
 *.lib.du
 icfp2002
+c-opengl-visualizer
