@@ -53,7 +53,6 @@ define function main(name, arguments)
     end if;
   end while;
 */
-  close(input-stream);
   close(output-stream);
   exit-application(0);
 end function main;
