@@ -159,10 +159,11 @@
     <SECT1 id="libs-dylan-modules">
       <TITLE>Modules of the Dylan Library</TITLE>
       
-      <PARA>In addition to containing the Dylan module, the Dylan
-      library contains a variety of modules which provide
-      extensions. Gwydion compilers export the following modules from
-      the Dylan library:</PARA>
+      <PARA>In addition to containing the <dmodule>Dylan</dmodule>
+      module, the <dlibrary>Dylan</dlibrary> library contains a
+      variety of modules which provide extensions. Gwydion compilers
+      export the following modules from the <dlibrary>Dylan</dlibrary>
+      library:</PARA>
 
       <VARIABLELIST>
 	<VARLISTENTRY>
