@@ -54,6 +54,10 @@ define generic limited (type :: <type>, #key) => res :: <type>;
 // 
 // Actually, <union> types are sorta exported because the constructor is
 // exposed, but the <union> class isn't.
+// It would probably be beneficial to implement the union-members slot using
+// a <type-vector>, plus implement as(<type-vector>, list) and a $size-0-type-vector
+// for the default. Unfortunately doing so causes a crash in one of the test
+// suites. Need to investigate.
 //
 define class <union> (<type>)
   //
@@ -71,6 +75,15 @@ end;
 
 define sealed domain make (singleton(<union>));
 define sealed domain initialize (<union>);
+
+// It might be better if <empty-type> was defined as such:
+//   define constant <empty-type> = make(<union>);
+// Then make type-union, when passed zero arguments, always return <empty-type>
+// instead of instantianting a new <union>. Unfortunately the compiler
+// doesn't like that for some reason. Need to investigate.
+//
+
+define constant <empty-type> = type-union();
 
 // type-union -- exported from Dylan.
 //
@@ -91,17 +104,17 @@ define function type-union (#rest types) => (type :: <type>);
   // Now that we have the canonical set of members and singletons, check
   // to see if we actually need to make a union type.
   if (singletons == #())
-    if (~(members == #()) & members.tail == #())
+    if (~empty?(members) & members.tail == #())
       members.head;
     else
       make(<union>, members: as(<simple-object-vector>, members));
     end;
   else
-    if (members == #() & singletons.tail == #())
+    if (empty?(members) & singletons.tail == #())
       make(<singleton>, object: singletons.head);
     else
       make(<union>, members: as(<simple-object-vector>, members),
-	   singletons: as(<simple-object-vector>, singletons));
+           singletons: as(<simple-object-vector>, singletons));
     end;
   end;
 end;
@@ -110,7 +123,30 @@ end;
 //
 // Merge type into the members and singletons lists taking care to combine
 // types wherever possible.
-// 
+//
+
+/*
+// This is a much more concise version of merge-type. It should be
+// functionally equivalent to the much longer one below.
+//
+define method merge-type
+    (members :: <list>, singletons :: <list>, type :: <type>)
+    => (members :: <list>, singletons :: <list>);
+  if (any?(curry(subtype?, type), members))
+    // The new type is a subtype? of an existing type in members.
+    // We don't need to do anything else.
+    values(members, singletons);
+  else
+    // The new type was not a subtype? of any type in members.
+    // Remove all existing members that are a subtype of type and
+    // add the new type. Remove all singletons that are an instance
+    // of the new type.
+    values(add!(remove!(members, type, test: subtype?), type),
+           remove!(singletons, type, test: instance?));
+  end if;
+end;
+*/
+
 define generic merge-type
     (members :: <list>, singletons :: <list>, type :: <type>)
     => (members :: <list>, singletons :: <list>);
@@ -1410,8 +1446,6 @@ end method overlap?;
 //       arguments don't currently carry their types with them. 
 //
 ////////////////////////////////////////////////////////////////////////////
-
-define constant <empty-type> = type-union();
 
 define class <limited-function> (<limited-type>)
   slot lf-specializers :: <simple-object-vector>,

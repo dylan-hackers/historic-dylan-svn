@@ -725,7 +725,7 @@ end method verify-keywords;
 //
 define function apply (function :: <function>, #rest arguments)
   let last-index :: <integer> = size(arguments) - 1;
-  if (last-index == -1)
+  if (last-index < 0)
     apply-error();
   end;
   let individual-args = make(<simple-object-vector>, size: last-index);
