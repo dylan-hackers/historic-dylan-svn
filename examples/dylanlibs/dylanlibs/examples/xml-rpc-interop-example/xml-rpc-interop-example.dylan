@@ -25,6 +25,18 @@ define method echo-float(input :: <float>)
                input);             
 end method echo-float;
 
+define method echo-base64(input :: <base64>)
+  xml-rpc-send(*interop-server*, *interop-port*, *interop-url*,
+               "interopEchoTests.echoBase64",
+               input);             
+end method echo-base64;
+
+define method echo-boolean(input :: <boolean>)
+  xml-rpc-send(*interop-server*, *interop-port*, *interop-url*,
+               "interopEchoTests.echoBoolean",
+               input);             
+end method echo-boolean;
+
 define method make-struct(s :: <string>, i :: <integer>, f :: <float>)
   let struct = make(<string-table>);
   struct["varString"] := s;
@@ -72,7 +84,20 @@ define method echo-struct-array(input :: <struct-vector>)
                  input));             
 end method echo-struct-array;
 
+define method no-in-params()
+    xml-rpc-send(*interop-server*, *interop-port*, *interop-url*,
+                 "interopEchoTests.noInParams");
+end method no-in-params;
+
 define generic make-random(type) => (r :: <object>);
+
+define constant $valid-chars = 
+  #[ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+     '.', '-', '_', ':', ' ', '\t', '\n', '<', '&', '>', '!' ];
 
 define method make-random(s == <string>) => (r :: <string>)
   local method is-white?(n)
@@ -82,9 +107,9 @@ define method make-random(s == <string>) => (r :: <string>)
   let s = make(<string>, size: random(1024));
   for(n from 0 below s.size)
     // temporary workaround for leading/trailing space problem
-    let x = random(128);
+    let x = as(<integer>, $valid-chars[random($valid-chars.size)]);
     while(is-white?(x))
-      x := random(128)
+      x := as(<integer>, $valid-chars[random($valid-chars.size)]);
     end;
     s[n] := as(<character>, x);
   finally
@@ -100,6 +125,10 @@ define method make-random( i == <float>) => (r :: <float>)
   let f1 = as(<double-float>, random(100000) - 50000);
   let f2 = as(<double-float>, random(50000) + 1);
   f1 / f2;
+end method make-random;
+
+define method make-random( i == <boolean>) => (r :: <boolean>)
+  random(2) == 0
 end method make-random;
 
 define method make-random ( i == <string-table>) => (r :: <string-table>)
@@ -163,6 +192,19 @@ define method test-echo-float() => (r :: <boolean>, r1 :: <float>, r2 :: <float>
   let result = echo-float(input); 
   values(abs(input - result) < 0.000001d0, input, result)
 end method test-echo-float;
+
+define method test-echo-base64() => (r :: <boolean>, r1 :: <base64>, r2 :: <base64>)
+  let string = make-random(<string>);
+  let b64 = base64-encode(string);
+  let result = echo-base64(b64);
+  values(b64.base64-string = result.base64-string , b64, result)
+end method test-echo-base64;
+
+define method test-echo-boolean() => (r :: <boolean>, r1 :: <boolean>, r2 :: <boolean>)
+  let input = make-random(<boolean>);
+  let result = echo-boolean(input); 
+  values(input = result, input, result)
+end method test-echo-boolean;
 
 define method struct=(lhs :: <string-table>, rhs :: <string-table>)
   lhs["varInt"] = rhs["varInt"] &
@@ -232,6 +274,10 @@ define method test-echo-struct-array() => (r :: <boolean>, r1 :: <struct-vector>
   values(struct-array=(input, result), input, result)
 end method test-echo-struct-array;
 
+define method test-no-in-params() => (r :: <boolean>)
+  object-class(no-in-params()) == <integer>
+end method test-no-in-params;
+
 define method do-test(s :: <string>, t :: <function>)
   format-out("Running %s: %s\n", s,
              if(t())
@@ -241,16 +287,60 @@ define method do-test(s :: <string>, t :: <function>)
              end);
 end do-test;
 
+define method call-with-server(server, port, url, fun)
+  dynamic-bind(*interop-server* = server,
+               *interop-port* = port,
+               *interop-url* = url)
+    fun();
+  end;
+end method call-with-server;
+
+define method test-server(server, port, url)
+  dynamic-bind(*interop-server* = server,
+               *interop-port* = port,
+               *interop-url* = url)
+    format-out("Testing server %s on port %d at url %s\n", server, port, url);
+
+    do-test("echo-string", test-echo-string);
+    do-test("echo-integer", test-echo-integer);
+    do-test("echo-float", test-echo-float);
+    do-test("echo-base64", test-echo-base64);
+    do-test("echo-boolean", test-echo-boolean);
+    do-test("echo-struct", test-echo-struct);
+    do-test("echo-string-array", test-echo-string-array);
+    do-test("echo-integer-array", test-echo-integer-array);
+    do-test("echo-float-array", test-echo-float-array);
+    do-test("echo-struct-array", test-echo-struct-array);
+    do-test("no-in-params", test-no-in-params);
+    format-out("Test done.\n");
+  end;
+end method test-server;
+
 define method main () => ()
-  do-test("echo-string", test-echo-string);
-  do-test("echo-integer", test-echo-integer);
-  do-test("echo-float", test-echo-float);
-  do-test("echo-struct", test-echo-struct);
-  do-test("echo-string-array", test-echo-string-array);
-  do-test("echo-integer-array", test-echo-integer-array);
-  do-test("echo-float-array", test-echo-float-array);
-  do-test("echo-struct-array", test-echo-struct-array);
-  format-out("Test finished.\n");
+  // all passed
+  test-server( "www.soapware.org", 80, "/RPC2");
+
+// no response
+// test-server("bitsko.slc.ut.us", 80, "/cgi-bin/interop.pl");
+
+// Passed except for base64.
+// test-server("www.wc.cc.va.us", 80, "/dtod/xmlrpc/testing/interop.asp");
+
+// No content-length
+// test-server("xmlrpc.usefulinc.com", 80, "/demo/server.php");
+
+// Passed
+// test-server("aspx.securedomains.com", 80, "/cookcomputing/interopechotests.aspx");
+
+// no content-length
+// test-server("xmlrpc-c.sourceforge.net", 80, "/cgi-bin/interop.cgi");
+
+// no content-length
+// test-server("xmlrpc-epi.sourceforge.net", 80, "/xmlrpc_php/interop_server.php");
+
+// no echo-boolean
+// test-server("xmlrpc.soaplite.com", 80, "/interop.cgi");
+
 end method main;
 
 begin

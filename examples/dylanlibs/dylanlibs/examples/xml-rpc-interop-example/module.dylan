@@ -9,6 +9,7 @@ define module xml-rpc-interop-example
   use threads;
   use simple-random;
   use xml-rpc-client;
+  use base64;
 
   // Add binding exports here.
 

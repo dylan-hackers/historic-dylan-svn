@@ -7,6 +7,7 @@ define library xml-rpc-interop-example
   use functional-dylan;
   use xml-rpc;
   use io;
+  use double-base64;
 
   // Add any more module exports here.
   export xml-rpc-interop-example;
