@@ -32,5 +32,4 @@ Then point your browser at http://localhost:7020/demo/home.dsp
 
 
 Any and all feedback appreciated.
-carlgay@mediaone.net
-
+carlgay@attbi.com
