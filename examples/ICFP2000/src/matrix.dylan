@@ -33,6 +33,11 @@ define method \* (n :: <number>, v :: <vector>)
   map(curry(\*, n), v);
 end method;
 
+define method negative(v :: <vector>)
+ => (negation :: <vector>);
+  map(curry(\*, -1), v);
+end method;
+
 define method \+ (v1 :: <vector>, v2 :: <vector>)
  => (sum :: <vector>);
   map(\+, v1, v2);
