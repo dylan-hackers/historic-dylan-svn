@@ -20,7 +20,7 @@ copyright: see below
 //    the contribution of the Gwydion Dylan Maintainers.
 // 
 // This software is made available "as is".  Neither the authors nor
-// Carnegie Mellon University make any warranty about the software,
+// the Gwydion Dylan Maintainers make any warranty about the software,
 // its performance, or its conformity to any specification.
 // 
 // Bug reports should be sent to <gd-bugs@gwydiondylan.org>; questions,
@@ -103,24 +103,24 @@ define class <gdb-mi-session>(<object>)
   // 
   // pending: associating sent (but not yet answered) tokens with commands
   //
-  slot session-pending :: <deque>; // = make(<dequeue>);
+  slot session-pending :: <deque> = make(<deque>);// ###bug### when writing <dequeue>
   //
   // history: a sequence of tokens, including the pending ones
   //
-  slot session-history :: <stretchy-vector>; // = make(<stretchy-vector>);
+  slot session-history :: <stretchy-vector> = make(<stretchy-vector>);
   //
   // results: associating results with tokens
   // 
-  slot session-results :: <table>; // = make(<table>);
+  slot session-results :: <table> = make(<table>);
   //
   // commands: associating commands with tokens
   // 
-  slot session-commands :: <table>; // = make(<table>);
+  slot session-commands :: <table> = make(<table>);
 end;
 
 define abstract class <command>(<object>)
   slot command-token :: false-or(<integer>), init-keyword: token:, init-value: #f;
-  class slot current-token :: <integer>;// = 0;
+  class slot current-token :: <integer>;//, init-value: 0;// ###bug### = 0;
 end;
 
 define class <cli-command>(<command>)
@@ -129,19 +129,64 @@ end;
 
 
 define constant <operation> = <symbol>;
+define constant <positive> = <integer>; // for now... ####
+
 
 define abstract class <mi-command>(<command>)
 end;
 
 
 define macro mi-operation-definer
-  {define mi-operation ?:name; ?:* end}
+  // low-level definers
+
+  {define class-for mi-operation ?:name(?prim-sequence:*) end}
+  =>
+  {
+    define class ?name ## "<mi-command>"(<mi-command>)
+      ?prim-sequence;
+    end;
+  }
+
+  {define creator-for mi-operation ?:name(?rest-sequence:*) end}
+  =>
+  {
+    define class ?name ## "<mi-command>"(<mi-command>)
+      ?prim-sequence;
+    end;
+  }
+
+  {define parser-for mi-operation ?:name(?parse-sequence:*) end}
+  =>
+  {
+  }
+
+
+  // high-level definers
+
+  {define mi-operation ?:name; ?parses:* end}
   =>
   {}
 
-  {define mi-operation ?:name(?:*) ?:* end}
+  // sequences of something
+  {define mi-operation ?:name((?prim-sequence)) ?parses:* end}
+  =>
+  {
+    define class ?name ## "<mi-command>"(<mi-command>)
+      ?prim-sequence;
+    end;
+  }
+
+  {define mi-operation ?:name(?:*) ?parses:* end}
   =>
   {}
+  
+  prim-sequence:
+//    { ?:name :: ?:expression } => { #next ?name :: ?expression }
+    { ?:name :: ?:expression }
+    => { slot ?name :: limited(<vector>, of: ?expression), required-init-keyword: #"?name" }
+
+  rest-sequence:
+    { ?:name :: ?:expression } => { #rest ?name :: ?expression }
 end;
 
 define macro mi-parser-definer

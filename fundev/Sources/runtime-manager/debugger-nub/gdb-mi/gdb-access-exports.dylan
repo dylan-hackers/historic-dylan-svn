@@ -19,7 +19,7 @@ copyright: see below
 //    the contribution of the Gwydion Dylan Maintainers.
 // 
 // This software is made available "as is".  Neither the authors nor
-// Carnegie Mellon University make any warranty about the software,
+// the Gwydion Dylan Maintainers make any warranty about the software,
 // its performance, or its conformity to any specification.
 // 
 // Bug reports should be sent to <gd-bugs@gwydiondylan.org>; questions,
