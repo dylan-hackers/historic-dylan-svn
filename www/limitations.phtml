@@ -6,7 +6,7 @@ standard_header("Current Limitations");
 <P>Neither the d2c compiler nor the Mindy interpreter are perfect. Each has
 a number of known problems which make it impractical for many users. We're
 making both available as a technology release so people can get a feel for
-the language. In more traditional terms, Gwydion Dylan 2.2 corresponds to
+the language. In more traditional terms, Gwydion Dylan 2.3.4 corresponds to
 version 0.5 of most free software projects: the architecture is sound, but
 you'd have to be a little bit adventurous to use it.</P>
 
@@ -14,14 +14,15 @@ you'd have to be a little bit adventurous to use it.</P>
 
 <UL>
 
-<LI><STRONG>d2c generates fast code slowly.</STRONG> Harlequin has solved
+<LI><STRONG>d2c generates fast code slowly.</STRONG>
+<A HREF="http://www.fun-o.com/">Functional Objects</A> has solved
 this problem: they support incremental compilation and match Visual C++ in
 code quality. We'd like to do as well, but it will take a while.
 
 <LI>The Dylan-to-C interface is good, but a little bit flaky.
 
 <LI><STRONG>Debugging is uncomfortable</STRONG>. Although there's now
-support on all platforms for dig, a gdb wrapper that understands
+support on all platforms for dybug, a gdb wrapper that understands
 Dylan, this can hardly called elegant. But at least it's there.
 
 <LI>d2c doesn't support a few obscure bits of the Dylan language. This
