@@ -454,7 +454,7 @@ define function receive-server-command-reply(s :: <stream>, state :: <state>) =>
       while(more-commands?(s))
         let command = receive-server-command(s, id);
         debug("receive-server-command-reply: %d %=\n", id, command);
-	    state := process-server-command(state, command);
+        state := process-server-command(state, command);
       end while;
     end while;
     receive-newline(s);
@@ -486,8 +486,8 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
   // update it's location.
   let ps = choose(method(p) p.carrier.id = bot.id end, state.packages);
   for(p in ps)
-	state := add-package(state, copy-package(find-package(state, p.id), 
-	         	                             new-location: location));
+    state := add-package(state, copy-package(find-package(state, p.id), 
+                                             new-location: new-location));
   end for;
   
   add-robot(state, copy-robot(bot, new-location: new-location));
