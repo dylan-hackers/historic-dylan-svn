@@ -654,7 +654,7 @@ define method invoke-handler
       let (responder, canonical-uri) = find-responder(uri);
       dynamic-bind (*response* = response)
         if (responder)
-          log-info("%s handler found", uri);
+          log-debug("%s handler found", uri);
           responder(request, response);
         else
           let found? = maybe-serve-static-file(request, response);
@@ -761,4 +761,5 @@ define method extract-query-values
   end;
   queries
 end extract-query-values;
+
 

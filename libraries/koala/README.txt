@@ -8,11 +8,12 @@ Pages.
 Organization
 ------------
 
+ koala/bin              -- Binaries for the demo application.
  koala/config/          -- Koala configuration files.
+ koala/lib/             -- Third-party libraries.
  koala/sources/koala    -- Koala and Dylan Server Pages sources.
  koala/sources/example  -- A demo application using DSP.
- koala/bin              -- Binaries for the demo application.
- koala/www              -- Web pages for the demo application.
+ koala/www              -- Web pages, including the demo application.
  koala/www/koala        -- Some preliminary Koala/DSP documentation.
 
 
@@ -22,19 +23,13 @@ Running Koala
 So far Koala only runs on Windows.  I hope to fix this in the next
 release.
 
-If you don't have Functional Developer installed, you can start the demo
-application by double clicking on koala-example.exe in the koala/bin/
-directory.
+If you're using the binary version, you can start the demo application
+by double clicking on koala-example.exe in the koala/bin/ directory.
 
-If you do have Functional Developer installed, open and run the
-koala-example.hdp project in koala/sources/example/.  This code only
-works in FunDev 2.0.  It does not work in more recent versions (i.e.,
-internal development versions) because of recent changes to the locators
-library.
+If you have the source version, see Building Koala, below.
 
-Then point your browser at http://localhost:7020/ to browse the
-documents in koala/www, or http://localhost:7020/demo/home.dsp for the
-DSP demo.
+Point your browser at http://localhost:7020/ to browse the documents in
+koala/www, or http://localhost:7020/demo/home.dsp for the DSP demo.
 
 
 Building Koala
@@ -59,5 +54,9 @@ directory called koala/dist containing the distribution, which you can
 then zip up.  See koala/build/build.xml or type "ant help" for details
 of other Ant targets.
 
+
+Feedback
+--------
+
 Any and all feedback appreciated.
-carlgay@attbi.com
+carlgay [at] attbi [dot] com

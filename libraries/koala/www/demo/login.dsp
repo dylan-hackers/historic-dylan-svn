@@ -18,6 +18,8 @@
     <p>This page demonstrates posting to a Dylan Server Page (see the respond-to-post
     method), using the DSP session, and use of simple tags.
 
+    <p>Any username and password will do.
+
     <p>Try logging in without specifying both username and password to see the error mechanism.
 
     <p>

@@ -17,10 +17,20 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // See ../example/*.dylan for usage examples.
 
 
-//// Module variables
+define variable *debugging-dsp* :: <boolean> = #f;
 
-define constant $debugging-dsp :: <boolean> = #f;
+define class <dsp-error> (<simple-error>) end;
 
+define class <dsp-parse-error> (<dsp-error>) end;
+
+define function parse-error
+    (format-string :: <string>, #rest format-arguments)
+  signal(make(<dsp-parse-error>,
+              format-string: format-string,
+              format-arguments: apply(vector, format-arguments)))
+end;
+
+define class <tag-argument-parse-error> (<dsp-parse-error>) end;
 
 
 //// Logging
@@ -30,10 +40,10 @@ define class <log-dsp-error> (<log-error>) end;
 define class <log-dsp-info> (<log-info>) end;
 define class <log-dsp-debug> (<log-debug>) end;
 
-define constant log-dsp-warning = curry(log-message, <log-dsp-warning>);
-define constant log-dsp-error   = curry(log-message, <log-dsp-error>);
-define constant log-dsp-info    = curry(log-message, <log-dsp-info>);
-define constant log-dsp-debug   = curry(log-message, <log-dsp-debug>);
+define constant log-dsp-warning = curry(log-message, make(<log-dsp-warning>));
+define constant log-dsp-error   = curry(log-message, make(<log-dsp-error>));
+define constant log-dsp-info    = curry(log-message, make(<log-dsp-info>));
+define constant log-dsp-debug   = curry(log-message, make(<log-dsp-debug>));
 
 begin
   // ---TODO: This should be a configuration setting.  Default to <log-dsp-info>.
@@ -413,21 +423,21 @@ end;
 // The user may add methods to this generic in order to parse tag 
 // arguments automatically for a given type.
 define generic parse-tag-arg
-    (arg :: <string>, type :: <object>) => (value :: <object>);
+    (name, arg :: <string>, type :: <object>) => (value :: <object>);
 
 // Default method just returns the argument unparsed.
 define method parse-tag-arg
-    (arg :: <string>, type :: <object>) => (value :: <string>)
+    (name, arg :: <string>, type :: <object>) => (value :: <string>)
   arg
 end;
 
 define method parse-tag-arg
-    (arg :: <string>, type :: subclass(<integer>)) => (value :: <integer>)
+    (name, arg :: <string>, type :: subclass(<integer>)) => (value :: <integer>)
   string-to-integer(arg)
 end;
 
 define method parse-tag-arg
-    (arg :: <string>, type == <boolean>) => (value :: <boolean>)
+    (name, arg :: <string>, type == <boolean>) => (value :: <boolean>)
   select (arg by string-equal?)
     "true", "yes", "#t" => #t;
     "false", "no", "#f" => #f;
@@ -439,26 +449,30 @@ define method parse-tag-arg
 end;
 
 define method parse-tag-arg
-    (arg :: <string>, type == <symbol>) => (value :: <symbol>)
+    (name, arg :: <string>, type == <symbol>) => (value :: <symbol>)
   as(<symbol>, arg)
 end;
 
 // Users can't define this parser because active-taglibs isn't exported.
 // Think about exporting it or passing its value to parse-tag-arg.
 define method parse-tag-arg
-    (arg :: <string>, type == <named-method>) => (value :: <named-method>)
+    (param, arg :: <string>, type == <named-method>) => (value :: <named-method>)
   get-named-method(active-taglibs(), arg)
+  | signal(make(<tag-argument-parse-error>,
+                format-string: "%= is not a named-method.  While parsing the %= argument in a <%s:%s> tag.",
+                format-arguments: vector(arg, param, *tag-call*.prefix, *tag-call*.name)))
 end;
 
 // So tags can accept parameters of type <date>.
 define method parse-tag-arg
-    (arg :: <string>, type == <date>) => (value :: <date>)
+    (name, arg :: <string>, type == <date>) => (value :: <date>)
   select (arg by string-equal?)
     "now", "current"
       => current-date();
     otherwise
       //---TODO: Parse dates here.
-      => error("Date parsing not yet implemented.");
+      => signal(make(<dsp-error>,
+                     format-string: "Date parsing not yet implemented."));
   end;
 end;
 
@@ -593,8 +607,6 @@ define open primary class <dylan-server-page> (<expiring-mixin>, <file-page-mixi
   slot page-template :: <dsp-template>;
 end;
 
-define class <dsp-error> (<simple-error>) end;
-
 // define page my-dsp (<dylan-server-page>) (uri: "/hello", source: make-locator(...), ...)
 //   slot foo :: <integer> = bar;
 //   ...
@@ -716,6 +728,25 @@ define macro snarf-tag-parameter-types
       => { ?type }
 end;
 
+define body tag %%placeholder-for-unparsable-tags in dsp
+    (page :: <dylan-server-page>, response :: <response>, process-body :: <function>)
+    ()
+  format(output-stream(response), " <!--TAG PARSE ERROR--> ");
+  process-body();
+end;
+
+define constant $placeholder-tag = find-tag($dsp-taglib, "%%placeholder-for-unparsable-tags");
+
+define function make-dummy-tag-call
+    (prefix :: <string>, name :: <string>) => (call :: <tag-call>)
+  make(<tag-call>,
+       name: name,
+       prefix: prefix,
+       tag: $placeholder-tag,
+       taglibs: #[])
+end;
+
+
 define method respond-to-get
     (page :: <dylan-server-page>, request :: <request>, response :: <response>)
   display-page(page, request, response);
@@ -746,7 +777,8 @@ define method display-template (tmplt :: <dsp-template>,
       <tag-call>
         => execute(item, page, request, response);
       otherwise
-        => error("Invalid DSP template element");
+        => signal(make(<dsp-error>,
+                       format-string: "Invalid DSP template element"));
     end;
   end for;
 end display-template;
@@ -815,8 +847,8 @@ define function parse-dsp-directive
       => parse-taglib-directive(page, tmplt, taglibs, call, tag-start,
                                 body-start, has-body?);
     otherwise
-      => error("Unrecognized DSP directive %= at position %d",
-               call.name, tag-start);
+      => parse-error("Unrecognized DSP directive %= at position %d",
+                     call.name, tag-start);
   end;
 end;
 
@@ -841,8 +873,8 @@ define function parse-include-directive
     parse-template(page, subtemplate, initial-taglibs-for-parse-template(), tag-stack);
     add-entry!(tmplt, subtemplate);
   else
-    error("In template %=, included file %= not found.",
-          page.source-location, url);
+    parse-error("In template %=, included file %= not found.",
+                page.source-location, url);
   end;
   body-start
 end;
@@ -895,21 +927,22 @@ define function parse-taglib-directive
  => (scan-pos :: <integer>)
   when (has-body?)
     //---*** TODO: fix this to simply include the body in the parent template.
-    error("Invalid taglib directive in template %=.  "
-          "The taglib directive can't have a body.", page.source-location);
+    parse-error("Invalid taglib directive in template %=.  "
+                "The taglib directive can't have a body.",
+                page.source-location);
   end;
   let tlib-name = get-arg(call, #"name");
   let tlib-prefix = get-arg(call, #"prefix");
   if (~tlib-name)
-    error("Invalid taglib directive in template %=.  "
-          "You must specify a taglib name with name=\"taglib-name\".",
-          page.source-location);
+    parse-error("Invalid taglib directive in template %=.  "
+                "You must specify a taglib name with name=\"taglib-name\".",
+                page.source-location);
   else
     let tlib = find-taglib(tlib-name);
     iff(~tlib,
-        error("Invalid taglib directive in template %=.  "
-              "The tag library named %= was not found.",
-              tlib-name),
+        parse-error("Invalid taglib directive in template %=.  "
+                    "The tag library named %= was not found.",
+                    tlib-name),
         add!(taglibs, pair(tlib-prefix | tlib-name, tlib)));
   end;
   body-start
@@ -1007,6 +1040,10 @@ define method parse-template (page :: <dylan-server-page>,
   end block
 end parse-template;
 
+// Parse an opening DSP tag like <xx:foo arg=blah ...> or <xx:foo .../>
+// If an error occurs during parsing, a dummy tag is returned that will
+// display a placeholder when the DSP page is rendered and a warning will
+// be logged.
 // @param buffer is the string containing the dsp tag.
 // @param bpos is the index of (for example) "<prefix:" in buffer.
 // @param prefix is e.g. "dsp".
@@ -1026,16 +1063,20 @@ define function parse-start-tag (page :: <dylan-server-page>,
   let name-end = end-of-word(buffer, name-start, epos);
   let name = copy-sequence(buffer, start: name-start, end: name-end);
   let tag = find-tag(taglib, name);
-  let tag-call = iff(directive? | tag,
-                     make(<tag-call>,
-                          name: name,
-                          prefix: prefix,
-                          tag: tag,
-                          taglib: taglib,
-                          taglibs: copy-sequence(taglibs)),
-                     error("In template %=, the tag %= was not found.",
-                           as(<string>, page.source-location),
-                           name));
+  let tag-call = if (directive? | tag)
+                   make(<tag-call>,
+                        name: name,
+                        prefix: prefix,
+                        tag: tag,
+                        taglib: taglib,
+                        taglibs: copy-sequence(taglibs))
+                 else
+                   log-dsp-warning("In template %=, the tag %= was not found.",
+                                   as(<string>, page.source-location),
+                                   name);
+                   tag := $placeholder-tag;
+                   make-dummy-tag-call(prefix, name);
+                 end;
   // *tag-call* is bound here so that it will be the same during parsing
   // as it is during execution.  parse-tag-arg needs it.
   dynamic-bind (*tag-call* = tag-call)
@@ -1113,7 +1154,7 @@ define method extract-tag-args
       let ptype = param & tag & get-parameter-type(tag, param);
       loop(skip-whitespace(buffer, key/val-end, epos),
            iff(param,
-               pair(param, pair(parse-tag-arg(val, ptype), args)),
+               pair(param, pair(parse-tag-arg(param, val, ptype), args)),
                args));
     end if
   end iterate
@@ -1159,3 +1200,5 @@ define function auto-register-dylan-server-page
   register-page(uri, make(<dylan-server-page>,
                           source: document-location(uri)))
 end;
+
+

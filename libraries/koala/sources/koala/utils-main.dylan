@@ -5,6 +5,7 @@ Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
+
 //// Testing
 
 define constant $debugging-utils :: <boolean> = #f;
@@ -22,4 +23,5 @@ begin
     test-utilities();
   end;
 end;
+
 

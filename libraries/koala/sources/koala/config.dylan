@@ -26,13 +26,19 @@ define method configure-server ()
                                                          $koala-config-dir,
                                                          $koala-config-filename)),
                                      *server-root*));
-  block ()
-    let xml :: <xml-document> = parse-xml-from-file(config-loc);
+  block (return)
+    let handler <error> = method (c :: <error>, next-handler :: <function>)
+                            if (*debugging-server*)
+                              next-handler();  // decline to handle the error
+                            else
+                              log-error("Error loading Koala configuration file: %=", c);
+                              return();
+                            end;
+                          end method;
+    let xml :: <xml-document> = xml$parse-document(file-contents(config-loc));
     log-info("Loading server configuration from %s.", config-loc);
     process-config-node(xml);
-  exception (err :: <error>)
-    log-error("Error loading configuration: %=", err);
-  end;
+  end block;
 end configure-server;
 
 define function ensure-server-root ()
@@ -66,33 +72,55 @@ define method log-config-warning
               apply(format-to-string, format-string, format-args));
 end;
 
-define method process-config-node (node :: <element>) => ()
-  let name = node-name(node);
-  process-config-element(node, as(<symbol>, name))
+// The xml-parser library doesn't seem to define anything like this.
+define method get-attribute-value
+    (node :: <xml-element>, attrib :: <symbol>)
+ => (value :: false-or(<string>))
+  block (return)
+    for (attr in xml$attributes(node))
+      when (xml$name(attr) = attrib)
+        return(xml$attribute-value(attr));
+      end;
+    end;
+  end
 end;
 
-define method process-config-node (node :: <node>) => ()
-  for (child in child-nodes(node))
+// I think the XML parser's class hierarchy is broken.  It seems <tag>
+// should inherit from <node-mixin> so that one can descend the node
+// hierarchy seemlessly.
+define method process-config-node (node :: <xml-tag>) => ()
+end;
+
+define method process-config-node (node :: <xml-document>) => ()
+  for (child in xml$node-children(node))
     process-config-node(child);
   end;
 end;
 
-define method process-config-element (node :: <element>, name :: <object>)
-  log-config-warning("Unrecognized configuration setting found: %=", name);
+define method process-config-node (node :: <xml-element>) => ()
+  process-config-element(node, xml$name(node));
+end;
+
+define method process-config-element (node :: <xml-element>, name :: <object>)
+  log-config-warning("Unrecognized configuration setting: %=.  Processing child nodes anyway.",
+                     name);
+  for (child in xml$node-children(node))
+    process-config-node(child);
+  end;
 end;
 
 
 
 //// koala-config.xml elements.  One method for each element name.
 
-define method process-config-element (node :: <element>, name == #"koala")
-  for (child in child-nodes(node))
+define method process-config-element (node :: <xml-element>, name == #"koala")
+  for (child in xml$node-children(node))
     process-config-node(child);
   end;
 end;
 
-define method process-config-element (node :: <element>, name == #"server-root")
-  let loc = get-attribute(node, "location");
+define method process-config-element (node :: <xml-element>, name == #"server-root")
+  let loc = get-attribute-value(node, #"location");
   if (~loc)
     log-config-warning("Malformed <server-root> element.  No location was specified.");
   else
@@ -100,8 +128,8 @@ define method process-config-element (node :: <element>, name == #"server-root")
   end;
 end;
 
-define method process-config-element (node :: <element>, name == #"document-root")
-  let loc = get-attribute(node, "location");
+define method process-config-element (node :: <xml-element>, name == #"document-root")
+  let loc = get-attribute-value(node, #"location");
   if (~loc)
     log-config-warning("Malformed <document-root> element.  No location was specified.");
   else
@@ -109,10 +137,20 @@ define method process-config-element (node :: <element>, name == #"document-root
   end;
 end;
 
-define method process-config-element (node :: <element>, name == #"log")
-  let level = get-attribute(node, "level");
-  let clear = get-attribute(node, "clear");
-  when (member?(clear, #("yes", "true", "on"), test: string-equal?))
+define function true-value?
+    (val :: <string>) => (true? :: <boolean>)
+  member?(val, #("yes", "true", "on"), test: string-equal?)
+end;
+
+define function false-value?
+    (val :: <string>) => (true? :: <boolean>)
+  ~true-value?(val)
+end;
+
+define method process-config-element (node :: <xml-element>, name == #"log")
+  let level = get-attribute-value(node, #"level");
+  let clear = get-attribute-value(node, #"clear");
+  when (clear & true-value?(clear))
     clear-log-levels();
   end;
   if (~level)
@@ -129,10 +167,11 @@ define method process-config-element (node :: <element>, name == #"log")
   end;
 end;
 
-define method process-config-element (node :: <element>, name == #"debug-server")
-  let value = get-attribute(node, "value");     // returns "" if not specified
-  *debugging-server*
-    := member?(value, #("true", "on", "yes", ""), test: string-equal?);
+define method process-config-element (node :: <xml-element>, name == #"debug-server")
+  let value = get-attribute-value(node, #"value");
+  when (value)
+    *debugging-server* := true-value?(value);
+  end;
   when (*debugging-server*)
     log-warning("Server debugging is enabled.  Server may crash if not run inside an IDE!");
   end;
@@ -247,4 +286,5 @@ text/plain                               [RFC2646,RFC2046]
 		rtf					    [Lindner]
                 directory
 */
+
 
