@@ -63,3 +63,14 @@ define method homogenize(v :: <vector>)
  => (result :: <vector>);
   map(rcurry(\/, v[v.size - 1]), v);
 end method homogenize;
+
+define method magnitude(v :: <vector>)
+ => (length :: <number>);
+  sqrt(reduce(\+, 0.0, map(\*, v, v)));
+end method magnitude;
+
+define method normalize(v :: <vector>)
+  => (result :: <vector>);
+  map(rcurry(\/, magnitude(v)), v);
+end method normalize;
+  
