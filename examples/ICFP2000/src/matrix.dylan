@@ -122,22 +122,8 @@ define method test-matrix-vs-transform()
   format-out("v3d = %=\n\n", v3d);
 
 
-  let a = v.homogenize;
-  let b = v.homogenize;
-
-  format-out("a = %=\n", a);
-  format-out("b = %=\n", b);
-
-
-  let a = v.magnitude;
-  let b = v.magnitude;
-
-  format-out("a = %=\n", a);
-  format-out("b = %=\n", b);
-
-
-  let a = v.normalize;
-  let b = v.normalize;
+  let a = m * m;
+  let b = t * t;
 
   format-out("a = %=\n", a);
   format-out("b = %=\n", b);
@@ -206,9 +192,32 @@ define method \* (n :: <number>, v :: <vector>)
 end method;
 
 
+define method \* (a :: <transform>, b :: <transform>)
+ => (product :: <transform>);
+  let r = make(<transform>);
+  r.v00 := a.v00 * b.v00 + a.v01 * b.v10 + a.v02 * b.v20 + a.v03 * b.v30;
+  r.v01 := a.v00 * b.v01 + a.v01 * b.v11 + a.v02 * b.v21 + a.v03 * b.v31;
+  r.v02 := a.v00 * b.v02 + a.v01 * b.v12 + a.v02 * b.v22 + a.v03 * b.v32;
+  r.v03 := a.v00 * b.v03 + a.v01 * b.v13 + a.v02 * b.v23 + a.v03 * b.v33;
+  r.v10 := a.v10 * b.v00 + a.v11 * b.v10 + a.v12 * b.v20 + a.v13 * b.v30;
+  r.v11 := a.v10 * b.v01 + a.v11 * b.v11 + a.v12 * b.v21 + a.v13 * b.v31;
+  r.v12 := a.v10 * b.v02 + a.v11 * b.v12 + a.v12 * b.v22 + a.v13 * b.v32;
+  r.v13 := a.v10 * b.v03 + a.v11 * b.v13 + a.v12 * b.v23 + a.v13 * b.v33;
+  r.v20 := a.v20 * b.v00 + a.v21 * b.v10 + a.v22 * b.v20 + a.v23 * b.v30;
+  r.v21 := a.v20 * b.v01 + a.v21 * b.v11 + a.v22 * b.v21 + a.v23 * b.v31;
+  r.v22 := a.v20 * b.v02 + a.v21 * b.v12 + a.v22 * b.v22 + a.v23 * b.v32;
+  r.v23 := a.v20 * b.v03 + a.v21 * b.v13 + a.v22 * b.v23 + a.v23 * b.v33;
+  r.v30 := a.v30 * b.v00 + a.v31 * b.v10 + a.v32 * b.v20 + a.v33 * b.v30;
+  r.v31 := a.v30 * b.v01 + a.v31 * b.v11 + a.v32 * b.v21 + a.v33 * b.v31;
+  r.v32 := a.v30 * b.v02 + a.v31 * b.v12 + a.v32 * b.v22 + a.v33 * b.v32;
+  r.v33 := a.v30 * b.v03 + a.v31 * b.v13 + a.v32 * b.v23 + a.v33 * b.v33;
+  r;
+end;
+
+
 define method negative(v :: <vector3D>)
  => (negation :: <vector3D>);
-  vector(-v.x, -v.y, -v.z, -v.w);
+  vector3D(-v.x, -v.y, -v.z, -v.w);
 end method;
 
 define method negative(v :: <vector>)
@@ -219,7 +228,7 @@ end method;
 
 define method \+ (v1 :: <vector3D>, v2 :: <vector3D>)
  => (sum :: <vector3D>);
-  vector(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
+  vector3D(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
 end method;
 
 define method \+ (v1 :: <vector>, v2 :: <vector>)
@@ -232,10 +241,10 @@ define method \- (v1 :: <vector3D>, v2 :: <vector3D>)
  => (difference :: <vector3D>);
   let w1 = 1.0 / v1.w;
   let w2 = 1.0 / v2.w;
-  vector(v1.x * w1 - v2.x * w2,
-	 v1.y * w1 - v2.y * w2,
-	 v1.z * w1 - v2.z * w2,
-	 0.0);
+  vector3D(v1.x * w1 - v2.x * w2,
+	   v1.y * w1 - v2.y * w2,
+	   v1.z * w1 - v2.z * w2,
+	   0.0);
 end method;
 
 define method \- (v1 :: <vector>, v2 :: <vector>)
