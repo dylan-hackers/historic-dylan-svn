@@ -1,7 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="us-ascii"?>
 <mime-type-map>
 	<mime-type id="application/andrew-inset">
 		<extension>ez</extension>
+	</mime-type>
+	<mime-type id="application/x-bzip2">
+		<extension>bz2</extension>
+	</mime-type>
+	<mime-type id="application/tar">
+		<extension>tar</extension>
+	</mime-type>
+	<mime-type id="application/x-rpm">
+		<extension>rpm</extension>
+	</mime-type>
+	<mime-type id="application/x-deb">
+		<extension>deb</extension>
+	</mime-type>
+	<mime-type id="application/x-gzip">
+		<extension>gz</extension>
+		<extension>tgz</extension>
 	</mime-type>
 	<mime-type id="application/mac-binhex40">
 		<extension>hqx</extension>
@@ -42,6 +58,9 @@
 	</mime-type>
 	<mime-type id="application/rdf+xml">
 		<extension>rdf</extension>
+	</mime-type>
+	<mime-type id="application/rtf">
+		<extension>rtf</extension>
 	</mime-type>
 	<mime-type id="application/smil">
 		<extension>smi</extension>
@@ -204,7 +223,8 @@
 	</mime-type>
 	<mime-type id="audio/mpeg">
 		<extension>mpga</extension>
-		<extension>mp2 mp3</extension>
+		<extension>mp2</extension>
+		<extension>mp3</extension>
 	</mime-type>
 	<mime-type id="audio/x-aiff">
 		<extension>aif</extension>
@@ -260,6 +280,9 @@
 	</mime-type>
 	<mime-type id="image/png">
 		<extension>png</extension>
+	</mime-type>
+	<mime-type id="image/x-jng">
+		<extension>jng</extension>
 	</mime-type>
 	<mime-type id="image/svg+xml">
 		<extension>svg</extension>
@@ -372,9 +395,15 @@
 		<extension>mpg</extension>
 		<extension>mpe</extension>
 	</mime-type>
+	<mime-type id="video/x-mng">
+		<extension>mng</extension>
+	</mime-type>
 	<mime-type id="video/quicktime">
 		<extension>qt</extension>
 		<extension>mov</extension>
+	</mime-type>
+	<mime-type id="video/mp4">
+		<extension>mp4</extension>
 	</mime-type>
 	<mime-type id="video/vnd.mpegurl">
 		<extension>mxu</extension>
