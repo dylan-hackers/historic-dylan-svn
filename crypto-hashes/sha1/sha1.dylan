@@ -88,7 +88,8 @@ define method finalize-state
   end if;
 
   //append size
-  W[$block-size - 1] = as(<double-integer>, length);
+  // XXX: length should be 64 bit, not 32 bit!
+  W[$block-size - 1] = length * 8;
   update-state(state, W);
 end method finalize-state;
 
@@ -112,6 +113,7 @@ define method sha1 (s :: <byte-vector>)
   for (t from 0 to last-block-size)
     W[t] := block-int-vector[block-count * 16 + t];
   end for;
+
   // XXX: size returns an integer (32 bit), sha1 must use a 64-bit size!
   let block-start :: <integer> = block-count * $block-size;
   state := finalize-state(state, 
