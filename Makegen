@@ -1,4 +1,6 @@
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
+$CFLAGS .= ' -I/gd/llvm-build/include -I/gd/llvm/include';
+
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../../../common/collection-extensions'
@@ -15,6 +17,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../runtime/melange'
     . ' -L../../runtime/random'
     . ' -L../../runtime/threads';
+
+&emit_cc_file_rule("llvm-glue");
 
 do emit_library_rule('Cback', '$(BUILDROOT)/force.timestamp', '', 
 		     'compile', 'install');
