@@ -416,7 +416,12 @@ the worker code. Injecting code from the client into the
 server allows executing of marking code inside of the server
 avoiding any context switches mandated by IPC with all positive
 effects on cache utilization and runtime overhead.
-
+@PP
+In case the garbage server cannot trust a client, it may still
+offer collection services. This can be done by invoking a slow,
+interpreted collector in the client's address space by IPC, or
+by submitting executable flexpages containing fast, compiled
+code into the client.
 @PP
 UnMap events could be used to notify clients about the fact that
 a flexpage is about to be withdrawn. This could trigger a compaction
