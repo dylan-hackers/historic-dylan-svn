@@ -386,29 +386,31 @@ end;
 define method parse-as(inp :: <byte-string>, type == <mi-address>)
  => (remaining :: false-or(<byte-string>), value);
   let m = match(inp, "\"0x0001072c\"");
-  m & values(m, #"\"0x0001072c\"")
+  m & values(m, #"\"0x0001072c\"") // #### hack
 end;
 
 define macro mi-parser-definer
-  { define tuple-value mi-parser ?:name(?tag:name) {?tuple-fields} {?tuple-keyword/values} end }
-  =>
+  // Low-level definers
+  //
+  { define tuple-value mi-parser ?:name(?tag:name) {?tuple-field; ?tuple-fields} {?tuple-keyword/values} end }
+   =>
   {
     define function "parse-" ## ?name(mi-tuple :: <byte-string>, matched :: <list>, more) => ();
       let m = match(mi-tuple, ?"tag" "={");
+      ?tuple-field;
       ?tuple-fields;
       more.head(mi-tuple,
-                pair(if (m & m.empty?)
-                       method(cla) apply(make, cla, vector(?tuple-keyword/values)) end method
-                     else
-                       #f.always
-                     end if,
-                     matched),
+                if (m & m.empty?)
+                  pair(method(cla) apply(make, cla, vector(?tuple-keyword/values)) end method, matched)
+                else
+                  matched
+                end if,
                 more.tail)
     end
   }
   
   { define class-for-tuple mi-parser ?:name(?tag:name) {?tuple-slots} end }
-  =>
+   =>
   {
     define class ?name ## "-<tuple>"(<object>)
       ?tuple-slots
@@ -418,7 +420,7 @@ define macro mi-parser-definer
   // High-level definers
   //
   { define mi-parser ?:name(?tag:name) (?fields) end }
-  =>
+   =>
   {
     define tuple-value mi-parser ?name(?tag) {?fields} {?fields} end;
     define class-for-tuple mi-parser ?name(?tag) {?fields} end
@@ -434,15 +436,14 @@ define macro mi-parser-definer
 
   tuple-fields:
     { } => { let m = m & match(m, "}") }
+    { ?tuple-field; ... } => { let m = match(m, ","); ?tuple-field; ... }
 
-    { ?tag:name ?type:expression; ... } 
+  tuple-field:
+    { ?tag:name ?type:expression }
      =>
     {
-      let m = match(m, ",") | m; // hack ###
       let m = m & match(m, ?"tag" "=");
-      let (m, ?tag :: false-or(?type)) = m & parse-as(m, ?type);
-      format-out("m = %=\n%s = %=\n", m, ?"tag", ?tag); // ###
-      ...
+      let (m, ?tag :: false-or(?type)) = m & parse-as(m, ?type)
     }
 
   tuple-keyword/values:
@@ -475,7 +476,7 @@ begin
   
   block (outta-here)
     local method final(rest, matches, more)
-            format-out("parsed a: %=\n", matches.head(breakpoint-<tuple>));
+            format-out("parsed: %=\n", matches.head(breakpoint-<tuple>));
             outta-here();
           end;
 
