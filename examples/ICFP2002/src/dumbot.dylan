@@ -7,8 +7,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
   let robot = agent-robot(me, s);
   block(return)
-    format-out("DB: Considering next move (loc: %=)\n", robot.location);
-    force-output(*standard-output*);
+    debug("DB: Considering next move (loc: %=)\n", robot.location);
 
     try-to-deliver(robot, return-function: return);
     try-pickup-many(me, robot, s, return-function: return);
@@ -30,7 +29,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     let direction
       = if (~target)
 	  debug("Sorry, can't find anywhere to go!\n");
-	  return(make(<drop>, bid: 1, id: robot.id, package-ids: #()));
+	  return(me.punt);
 	else
 	  points-to-direction(robot.location, path.first);
 	end if;

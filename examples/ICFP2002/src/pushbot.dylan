@@ -238,15 +238,13 @@ define method move-nearest-useful-place(me :: <pushbot>, robot :: <robot>, s :: 
 			     unvisited-bases(me, s));
     end;
     
-    format-out("DB: Targets: %=\n", targets);
-    force-output(*standard-output*);
+    debug("DB: Targets: %=\n", targets);
 
     let paths = map(curry(rcurry(find-path-repeatedly, s.board, cutoffs: #[50, #f]),
 			  robot.location),
 		    targets);
 
-    format-out("DB: Paths: %=\n", paths);
-    force-output(*standard-output*);
+    debug("DB: Paths: %=\n", paths);
 
     paths := choose(conjoin(curry(\~=, #f), curry(\~=, #())), paths);
 

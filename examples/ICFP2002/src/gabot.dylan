@@ -120,39 +120,6 @@ end;
 
 
 
-define generic load-packages (agent :: <robot-agent>,
-                              state :: <state>,
-                              #key compare :: <function>,
-                                   cutoff :: false-or(<path-cost>))
- => ps :: <sequence>;
-
-define method load-packages (agent :: <robot-agent>,
-                              state :: <state>,
-                              #key compare :: <function>,
-                                   cutoff :: false-or(<path-cost>))
- => ps :: <sequence>;
-
-  let pos = agent-pos(agent, state);
-    
-  let sorted-packages = sort(as(<vector>, packages-at(state, pos)), test: compare);
-  let ps = #();
-  let tot = 0;
-  block(return)
-    for (p in sorted-packages)
-      if (tot + p.weight > agent-capacity(agent, state))
-        return(ps)
-      else
-        if (find-path(pos, p.dest, state.board, cutoff: cutoff))
-          ps := add(ps, p);
-          tot := tot + p.weight;
-        end if;
-      end if;
-    finally
-      ps
-    end for;
-  end block;
-end;
-
 define function pick-compare(p1 :: <package>, p2 :: <package>)
  => better :: <boolean>;
   p1.weight > p2.weight // for now... TODO
@@ -221,6 +188,7 @@ end method find-safest;
 // (possibly find a better strategy instead?)
 // look for safe destinations where I can drop packets
 // look for safe bases to pick up packets, or safe forgotten packets in the space
+//   accounting for maybe-mark-base-visited
 // look for vulnerable robots and I am not vulnerable then attack
 // try escape from attackers
 // unless empty and others run to a base, then push them (but not if there is water behind me)

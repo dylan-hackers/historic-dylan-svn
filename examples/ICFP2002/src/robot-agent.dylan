@@ -185,3 +185,41 @@ define method try-pickup-many(me :: <robot-agent>, robot :: <robot>,
     #f;
   end;
 end method;
+
+
+define generic load-packages (agent :: <robot-agent>,
+                              state :: <state>,
+                              #key compare :: <function>,
+                                   cutoff :: false-or(<path-cost>))
+ => ps :: <sequence>;
+
+define method load-packages (agent :: <robot-agent>,
+                              state :: <state>,
+                              #key compare :: <function>,
+                                   cutoff :: false-or(<path-cost>))
+ => ps :: <sequence>;
+
+  let pos = agent-pos(agent, state);
+    
+  let sorted-packages = sort(as(<vector>,
+                                choose(curry(deliverable?, agent-robot(agent, state), state),
+                                       packages-at(state, pos))),
+                             test: compare);
+  let ps = #();
+  let tot = 0;
+  block(return)
+    for (p in sorted-packages)
+      if (tot + p.weight > agent-capacity(agent, state))
+        return(ps)
+      else
+        if (find-path(pos, p.dest, state.board, cutoff: cutoff))
+          ps := add(ps, p);
+          tot := tot + p.weight;
+        end if;
+      end if;
+    finally
+      ps
+    end for;
+  end block;
+end;
+
