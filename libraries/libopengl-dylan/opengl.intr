@@ -39,6 +39,24 @@ define macro with-glNewList
          end block };
 end macro; 
 
+/****************************************************************************
+ * with-glPushMatrix ()
+ *   <code>
+ * end;
+ *
+ * On exit from this block (scheduled or otherwise), calls glPopMatrix() for you.
+ ****************************************************************************/
+
+define macro with-glPushMatrix
+  { with-glPushMatrix() ?:body end }
+    => { glPushMatrix();
+         block ()
+           ?body
+         cleanup
+           glPopMatrix();
+         end block };
+end macro; 
+
 /*****************************************************************************
  * glAccum(op :: <Glenum>, val :: <single-float>)
  *
