@@ -1,4 +1,4 @@
-icfp2000: icfp2000.lid icfp2000.dylan icfp2000-exports.dylan
+icfp2000: icfp2000.lid icfp2000.dylan icfp2000-exports.dylan matrix.dylan
 	d2c -s icfp2000.lid
 
 clean:

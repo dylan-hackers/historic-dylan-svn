@@ -4,7 +4,9 @@ authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
 define function main(name, arguments)
-  format-out("Hello, world!\n");
+  let mat = identity-matrix(dimensions: #[4,4]);
+
+  format-out("%=\n", mat);
   exit-application(0);
 end function main;
 
