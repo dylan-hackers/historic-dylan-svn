@@ -41,18 +41,15 @@ end method dump-state;
 define function optimize-output(input :: <stretchy-object-vector>)
  => strings :: <list>;
 
-  force-output(*standard-error*);
-
   let states = make(<stretchy-vector>);
   add!(states, make(<opt-state>));
 
   let num-steps = input.size;
   let last-pct = 0;
   for (fragment :: <attributed-string> keyed-by i in input)
-    force-output(*standard-error*);
-    format(*standard-error*, "\n--------------------------------\n");
+    debug("\n--------------------------------\n");
     dump-attributed-string(fragment);
-    format(*standard-error*, "--------------------------------\n");
+    debug("--------------------------------\n");
 
     let desired = fragment.attributes;
     let text = fragment.string;
@@ -65,16 +62,14 @@ define function optimize-output(input :: <stretchy-object-vector>)
 		       0, next-states);
       let pct = truncate/(i * 100, num-steps);
       if (pct ~== last-pct)
-	format(*standard-error*, "\n%%%% %d%% done %%%%\n", pct);
-	force-output(*standard-error*);
+	debug("\n%%%% %d%% done %%%%\n", pct);
 	last-pct := pct;
       end;
     end;
     states := next-states;
-    force-output(*standard-error*);
   end;
 
-  format(*standard-error*, "\n\nFinal states\n------------------------------\n");
+  debug("\n\nFinal states\n------------------------------\n");
   let best-state :: false-or(<opt-state>) = #f;
   for (state :: <opt-state> in states)
     for (e :: <tag> in state.tag-stack)
@@ -82,16 +77,13 @@ define function optimize-output(input :: <stretchy-object-vector>)
       state.transitions := pair(s, state.transitions);
       state.output-size := state.output-size + s.size;
     end;
-    dump-state(state, *standard-error*);
-    force-output(*standard-error*);
+    dump-state(state);
 
     if (~best-state | state.output-size < best-state.output-size)
-      format(*standard-error*, "  ^-- new best\n");
+      debug("  ^-- new best\n");
       best-state := state;
     end;
   end for;
-
-  force-output(*standard-error*);
 
   if (best-state)
     best-state.transitions.reverse!
@@ -114,23 +106,17 @@ define function emit-transitions
      next-states :: <stretchy-object-vector>)
  => ();
 
-  force-output(*standard-error*);
-
   local
     method report(s :: <byte-string>)
-      let f = *standard-error*;
-      format(f, "emit transition ");
-      describe-attributes(from, f);
-      format(f, " -> ");
-      describe-attributes(to, f);
-      format(f, ": %s\n", s);
-      force-output(f);
+      debug("emit transition ");
+      describe-attributes(from);
+      debug(" -> ");
+      describe-attributes(to);
+      debug(": %s\n", s);
     end report,
 
     method pop-tag() => ();
-      let f = *standard-error*;
-      //format(f, "entering pop-tag\n");
-      //force-output(f);
+      //debug("entering pop-tag\n");
       let tag :: <tag> = tag-stack.head;
       let tag-text = tag.close-tag;
       report(tag-text);
@@ -154,12 +140,11 @@ define function emit-transitions
 	 1, next-states);
     end method push-tag;
 
-//  let f = *standard-error*;
-//  format(f, "In emit transition with ");
-//  describe-attributes(from, f);
-//  format(f, " and  ");
-//  describe-attributes(to, f);
-//  format(f, "\n");
+//  debug("In emit transition with ");
+//  describe-attributes(from);
+//  debug(" and  ");
+//  describe-attributes(to);
+//  debug("\n");
 
   block (exit)
     if (from.value = to.value)

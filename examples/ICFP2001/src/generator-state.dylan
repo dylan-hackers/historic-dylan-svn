@@ -44,10 +44,9 @@ define method print-state(state :: <generator-state>)
 //  debug("%=\n", state.open-tag-stack);
 //  debug("%=\n", state.maximum-cost);
 //  debug("%=\n", state.output-state);
-//  describe-attributes(state.from, *standard-error*);
-//  describe-attributes(state.to, *standard-error*);
+//  describe-attributes(state.from);
+//  describe-attributes(state.to);
 //  debug("\n");
-  force-output(*standard-error*);
 end method print-state;
 
 define inline method from(state :: <generator-state>) 

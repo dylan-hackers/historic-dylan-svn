@@ -6,7 +6,6 @@ copyright: this program may be freely used by anyone, for any purpose
 define method generate-output(input :: <stretchy-object-vector>)
  => strings :: <list>;
   let state = make(<generator-state>, text-runs: input);
-  force-output(*standard-error*);
 
   while(state.remaining-text-runs.size > 0)
     check-timeout();

@@ -243,8 +243,8 @@ end method slurp-input;
 
 
 define function dump-attributed-string(run :: <attributed-string>) => ();
-  describe-attributes(run.attributes, *standard-error*);
-  format(*standard-error*, "    %=\n", run.string);
+  describe-attributes(run.attributes);
+  debug("    %=\n", run.string);
 end function dump-attributed-string;
 
 define function dump-parse-tree(v :: <stretchy-object-vector>) => ();
@@ -281,8 +281,7 @@ define function main(name, arguments)
 
   local
     method see-if-best(new-output)
-      format(*standard-error*, "In see-if-best\n");
-      force-output(*standard-error*);
+      debug("In see-if-best\n");
 
       let old = best-transformation.size;
       let new = new-output.size;

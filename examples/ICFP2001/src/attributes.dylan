@@ -196,31 +196,31 @@ define method print-object(a :: <attribute>, stream :: <stream>)
 end method print-object;
 
 
-define method describe-attributes(a :: <attribute>, stream :: <stream>) => ();
+define method describe-attributes(a :: <attribute>) => ();
   let first = #t;
   local
     method comma()
       if (first)
 	first := #f;
       else
-	format(stream, ",");
+	debug(",");
       end;
     end,
     method pp(cond :: <boolean>, desc :: <byte-string>)
       if (cond)
 	comma();
-	format(stream, desc);
+	debug("%s", desc);
       end;
     end;
 
-  format(stream, "{");
+  debug("{");
   pp(a.bold, "B");
   pp(a.emphasis, "EM");
   pp(a.italic, "I");
   pp(a.strong, "S");
   pp(a.typewriter, "TT");
   comma();
-  format(stream, "%=,%=,%=}: %=", a.underline, a.font-size, a.color, a.maximum-cost);
+  debug("%=,%=,%=}: %=", a.underline, a.font-size, a.color, a.maximum-cost);
 end method describe-attributes;
 
 
