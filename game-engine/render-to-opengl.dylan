@@ -17,11 +17,12 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
   end for;
 end method render-to-opengl;
 
+define constant $PI = atan(1.0) * 4.0;
+
 define method render-to-opengl(transform :: <transform>)
   local 
     method gl-rotate*(v :: <vector>)
-      glRotate(v[3], v[0], v[1], v[2]);
-//      format-out("glRotate(%=);\n", v);
+      glRotate(v[3] * 180.0 / $PI, v[0], v[1], v[2]);
     end method gl-rotate*;
   glPushMatrix();
   transform.translation & apply(glTranslate, transform.translation);
@@ -39,7 +40,8 @@ end method render-to-opengl;
 
 define method render-to-opengl(line-grid :: <line-grid>)
   glDisable($GL-LIGHTING);
-//  glColor(0.3, 0.3, 0.3);
+  glPushAttrib($GL-CURRENT-BIT);
+  glColor(0.3, 0.3, 0.3);
   with-glBegin($GL-LINES)
     for(x from -10 to 10)
       glVertex( 10.0s0, 0.0s0, as(<single-float>, x));
@@ -48,6 +50,7 @@ define method render-to-opengl(line-grid :: <line-grid>)
       glVertex(as(<single-float>, x), 0.0s0, -10.0s0);
     end for;
   end with-glBegin;
+  glPopAttrib();
   glEnable($GL-LIGHTING);
 end method render-to-opengl;
 

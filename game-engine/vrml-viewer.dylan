@@ -213,7 +213,7 @@ define method main(progname, #rest arguments)
                     make(<spotlight>,
                          position:  3d-point ( 3.0s0, 3.0s0,-2.0s0, 1.0s0),
                          direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
-                         ambient:   vector   ( 0.1,   0.1,   0.1, 1.0),
+                         ambient:   vector   ( 0.3,   0.3,   0.3, 1.0),
                          diffuse:   vector   ( 0.1,   0.1,   0.9, 1.0),
                          specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
                     make(<line-grid>),
@@ -267,13 +267,6 @@ define method main(progname, #rest arguments)
 
   glEnable($GL-LIGHTING);
 //  glColor(0.5, 0.5, 0.5);
-
-//  glEnable($GL-LIGHT0);
-//  glLight($GL-LIGHT0, $GL-POSITION, 3.0s0, 3.0s0, -2.0s0, 1.0s0);
-//  glLight($GL-LIGHT0, $GL-AMBIENT, 0.1, 0.1, 0.1, 1.0);
-//  glLight($GL-LIGHT0, $GL-DIFFUSE, 0.5, 0.5, 0.9, 1.0);
-//  glLight($GL-LIGHT0, $GL-SPECULAR, 0.5, 0.9, 0.5, 1.0);
-//  glLight($GL-LIGHT0, $GL-SPOT-DIRECTION, -3.0s0, -3.0s0, 2.0s0);
 
 //  glEnable($GL-FOG);
   glFog($GL-FOG-MODE, $GL-EXP);

@@ -75,6 +75,7 @@ define module vrml-viewer
   use format;
   use format-out;
   use garbage-collection;
+  use transcendentals;
 
   use opengl;
   use opengl-glu;
