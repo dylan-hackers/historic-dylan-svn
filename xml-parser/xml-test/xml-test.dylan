@@ -23,16 +23,28 @@ define method end-element (builder :: <my-xml-builder>, element :: <xml-element>
   format-out("</%s>\n", element.name);
 end method end-element;
 
-define function main(name, arguments)
-  let fn = $testable-fns[as(<symbol>, arguments[0])];
+define method do-the-rest(sym :: <symbol>, str :: <string>)
+  let fn = $testable-fns[sym];
   let index = 0;
-  let xml-string = arguments[1];
-  format-out("Trying %s on [%s]\n", arguments[0], arguments[1]);
+  let xml-string = str;
+  format-out("Trying %s on [%s]\n", sym, str);
   while(index < xml-string.size)
     let (index1, #rest tag) = fn(xml-string, start: index);
     format-out("index: %= value: %=\n", index1, tag);
     index := index1;
   end while;
+end method do-the-rest;
+
+define method do-the-rest(sym == #"file", str :: <string>)
+  with-open-file(in = str)
+    let (index, document) = parse-document(in.stream-contents);
+    display-node(document);
+  end;
+end method do-the-rest;
+
+define function main(name, arguments)
+  let sym = as(<symbol>, arguments[0]);
+  do-the-rest(sym, arguments[1]);
   exit-application(0);
 end function main;
 
