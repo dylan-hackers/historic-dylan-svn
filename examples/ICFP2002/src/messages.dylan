@@ -471,8 +471,11 @@ define method process-server-command(state :: <state>, command :: <command>) => 
 end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <move>) => (state :: <state>)
+  debug("process-server-command: 1\n");
   let bot = find-robot(state, command.robot-id);
+  debug("process-server-command: 2\n");
   let old-location = bot.location;
+  debug("process-server-command: 3\n");
   let new-location =
     select (command.direction)
       $north => point(x: old-location.x,     y: old-location.y + 1);
@@ -481,16 +484,20 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
       $west  => point(x: old-location.x - 1, y: old-location.y);
     otherwise => error("process-server-command: Can't happen!")
   end select;
-
+  debug("process-server-command: 4\n");
   // For this bot, work through all the packages it carries and
   // update it's location.
+  debug("process-server-command: 5\n");
   let ps = choose(method(p) p.carrier.id = bot.id end, state.packages);
+  debug("process-server-command: 6\n");
   for(p in ps)
     state := add-package(state, copy-package(find-package(state, p.id), 
                                              new-location: new-location));
   end for;
-  
-  add-robot(state, copy-robot(bot, new-location: new-location));
+  debug("process-server-command: 7\n");
+  let x = add-robot(state, copy-robot(bot, new-location: new-location));
+  debug("process-server-command: finish\n");
+  x
 end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <pick>) => (state :: <state>)
