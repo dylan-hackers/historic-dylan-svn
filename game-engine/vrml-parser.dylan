@@ -150,11 +150,16 @@ end statements;
 //     DEF nodeNameId node |
 //     USE nodeNameId ;
 
+define constant *def-use-table* = make(<string-table>);
+
 define meta nodeStatement (c, name, node) => (node)
   //TODO BGH implement DEF/USE table
   ws?(c),
-  {["DEF", ws(c), scan-Id(name), ws(c)], []},  // optional name
-  scan-node(node)
+  {["DEF", ws(c), scan-Id(name), ws(c), scan-node(node),
+    do(*def-use-table*[name] := node)],
+   ["USE", ws(c), scan-Id(name),
+    do(node := element(*def-use-table*, name, default: #f))],
+   [scan-node(node)]},  // optional name
 end nodeStatement;
   
 // 
