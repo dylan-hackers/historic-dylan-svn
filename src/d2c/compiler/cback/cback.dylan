@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.7 2003/10/03 17:13:02 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.8 2003/10/04 15:28:47 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -189,11 +189,11 @@ end class <root>;
 define class <file-state> (<object>)
   //
   // The unit info for this output info.
-  slot file-unit :: <unit-state>,
+  constant slot file-unit :: <unit-state>,
     required-init-keyword: unit:;
   //
   // Files we have already included.
-  slot file-includes-exist-for :: <string-table> = make(<string-table>);
+  constant slot file-includes-exist-for :: <string-table> = make(<string-table>);
   //
   // Things we have already spewed defns for.
   slot file-prototypes-exist-for :: <string-table> = make(<string-table>);
@@ -206,15 +206,15 @@ define class <file-state> (<object>)
   slot file-next-mv-result-struct :: <integer>, init-value: 0;
   //
   // The actual underlying output stream where all the output goes eventually.
-  slot file-body-stream :: <stream>,
+  constant slot file-body-stream :: <stream>,
     required-init-keyword: body-stream:;
   //
   // These two streams seperately collect the local variable declarations and
   // the function body so that we can emit variable declarations on the fly
   // during code generation.
-  slot file-vars-stream :: <stream>
+  constant slot file-vars-stream :: <stream>
   	    = make-indenting-string-stream(indentation: $indentation-step);
-  slot file-guts-stream :: <stream>
+  constant slot file-guts-stream :: <stream>
         = make-indenting-string-stream(indentation: $indentation-step);
   //
   // Whenever the guts stream buffer exceeds 64K, we push the contents here and
@@ -238,7 +238,7 @@ define class <file-state> (<object>)
   slot file-local-vars :: <string-table> = make(<string-table>);
   //
   // a list of local variables that are know to not be in use at a
-  // particular time, and therefor available for reuse
+  // particular time, and therefore available for reuse
   slot file-freed-locals :: false-or(<local-var>) = #f;
   //
   // we keep track of the components for all the xeps that we lazily generated
@@ -537,11 +537,13 @@ end method;
 define generic emit-source-location
   (stream :: <stream>,
    source-loc :: <source-location>,
+   line-getter :: <function>,
    file :: <file-state>) => ();
 
 define method emit-source-location
   (stream :: <stream>,
    source-loc :: <source-location>,
+   line-getter :: <function>,
    file :: <file-state>) => ();
 end;
 
@@ -558,36 +560,46 @@ define constant <symbolic-c-preprocessor-stream> = <indenting-stream>;
 define method emit-source-location
   (stream :: <symbolic-c-preprocessor-stream>,
    source-loc :: <known-source-location>,
+   line-getter :: <function>,
    file :: <file-state>) => ();
-//   write-line(stream.inner-stream);
-   format(stream.inner-stream, "\n#line %d \"%s\"\n D__L(",
-          source-loc.start-line, source-loc.source.full-file-name);
+   format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
+          source-loc.line-getter, source-loc.source.full-file-name);
+//          source-loc.end-line, source-loc.source.full-file-name);
 end;
 
-define method maybe-emit-source-location(source-loc :: <known-source-location>,
-				   file :: <file-state>) => ();
 
-  emit-source-location(file.file-guts-stream, source-loc, file);
+define generic maybe-emit-source-location(source-loc :: <source-location>,
+				   file :: <file-state>, #key line-getter) => ();
+
+
+define method maybe-emit-source-location(source-loc :: <known-source-location>,
+				   file :: <file-state>, #key line-getter = end-line) => ();
+
+//  emit-source-location(file.file-guts-stream, source-loc, line-getter, file);
 
   if (file.file-source-location ~= source-loc)
-    format(file.file-guts-stream, "\n/* #line %d \"%s\" */\n",
-	   source-loc.end-line, source-loc.source.full-file-name); // FIXME
+//    format(file.file-guts-stream, "\n/* #line %d \"%s\" */\n",
+//	   source-loc.end-line, source-loc.source.full-file-name); // FIXME
+    finish-source-location(/* source-loc, */ file);
+    emit-source-location(file.file-guts-stream, source-loc, line-getter, file);
     file.file-source-location := source-loc;
   end if;
 end method;
 
 define method maybe-emit-source-location(source-loc :: <source-location>,
-				   file :: <file-state>) => ();
+				   file :: <file-state>, #key line-getter) => ();
   if (file.file-source-location ~= source-loc)
+    finish-source-location(/* source-loc, */ file);
     format(file.file-guts-stream, "/* #line %= */\n", object-class(source-loc));
     file.file-source-location := source-loc;
   end if;
 end method;
 
-define method finish-source-location(source-loc :: <source-location>,
+define method finish-source-location(/* source-loc :: <source-location>, */
 				   file :: <file-state>) => ();
   if (instance?(file.file-source-location, <known-source-location>))
-    format(file.file-guts-stream.inner-stream, ")");
+//    format(file.file-guts-stream.inner-stream, ")");
+    format(file.file-guts-stream, ")");
     file.file-source-location := make(<unknown-source-location>);
   end;
 end;
@@ -1948,9 +1960,10 @@ define method emit-function
 	   i);
   end;
 
-  maybe-emit-source-location(function.source-location, file);
-  finish-source-location(function.source-location, file);
+  maybe-emit-source-location(function.source-location, file, line-getter: start-line);
+  finish-source-location(/* function.source-location, */ file);
   emit-region(function.body, file);
+  finish-source-location(/* assign.source-location, */ file);
 
   let stream = file.file-body-stream;
   format(stream, "/* %s */\n", function.name.clean-for-comment);
@@ -2110,7 +2123,7 @@ define method emit-region
       add!(file.file-guts-overflow, byte-string.stream-contents);
     end if;
 
-    finish-source-location(assign.source-location, file);
+//    finish-source-location(assign.source-location, file);
   end for;
 end;
 
