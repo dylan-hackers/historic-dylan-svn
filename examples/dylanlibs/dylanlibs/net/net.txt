@@ -35,7 +35,14 @@ Dylan Implementations:
 A library providing the ability to call methods on xML-RPC
 servers. Client side support only at the moment.
 
+4) nntp
+=======
+Dylan Implementations: 
+  Functional Developer
+
+A library that implements the NNTP network protocol.
+
 -- 
 Chris Double.  
-01 May 2001.
+30 May 2001.
 
