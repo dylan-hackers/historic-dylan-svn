@@ -26,7 +26,8 @@ define class &lt;window&gt; (&lt;object&gt;)
   slot width :: &lt;integer&gt;;
   slot height :: &lt;integer&gt;;
 end class &lt;window&gt;;
-</pre></td></tr><tr><td><pre>define class &lt;border-window&gt; (&lt;window&gt;)
+
+define class &lt;border-window&gt; (&lt;window&gt;)
   slot border-width :: &lt;integer&gt;;
 end class &lt;border-window&gt;;
 define method width(window :: &lt;border-window&gt;)
@@ -35,14 +36,16 @@ end method width;
 define method height(window :: &lt;border-window&gt;)
   next-method() - 2 * window.border-width;
 end method height;
-</pre></td></tr><tr><td><pre>define class &lt;label-window&gt; (&lt;window&gt;)
+
+define class &lt;label-window&gt; (&lt;window&gt;)
   slot label-height :: &lt;integer&gt;;
   slot label-text :: &lt;string&gt;;
 end class &lt;label-window&gt;;
 define method height(window :: &lt;label-window&gt;)
   next-method() - window.label-height;
 end method height;
-</pre></td></tr><tr><td><pre>define class &lt;border-label-window&gt;
+
+define class &lt;border-label-window&gt;
     (&lt;border-window&gt;, &lt;label-window&gt;, &lt;window&gt;)
 end class &lt;border-label-window&gt;;
 </pre></td></tr></table>
@@ -59,7 +62,8 @@ public:
   virtual int width() { return _width; }
   virtual int height() { return _height; }
 };
-</pre></td></tr><tr><td><pre>class BorderWindow : public virtual Window {
+
+class BorderWindow : public virtual Window {
 private:
   int _border_width;
 public:
@@ -73,7 +77,8 @@ int BorderWindow::width() {
 int BorderWindow::height() {
   return Window::height() - 2 * border_width();
 }
-</pre></td></tr><tr><td><pre>class LabelWindow : public virtual Window {
+
+class LabelWindow : public virtual Window {
 private:
   int _label_height;
   char *_label_text;
@@ -82,10 +87,12 @@ public:
   virtual char* label_text() { return _label_text; }
   virtual int height();
 };
-</pre></td></tr><tr><td><pre>int LabelWindow::height() {
+
+int LabelWindow::height() {
   return Window::height() - label_height();
 }
-</pre></td></tr><tr><td><pre>class BorderLabelWindow : 
+
+class BorderLabelWindow : 
   public virtual BorderWindow, 
   public virtual LabelWindow,
   public virtual Window {

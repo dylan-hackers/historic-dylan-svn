@@ -29,14 +29,19 @@ define class &lt;color&gt; (&lt;object&gt;)
   slot green :: &lt;integer&gt; = 0, init-keyword: green:;
   slot blue :: &lt;integer&gt; = 0, init-keyword: blue:;
 end class &lt;color&gt;;
-</pre></td></tr><tr><td><pre>define constant black = make(&lt;color&gt;);
-</pre></td></tr><tr><td><pre>define constant white
+
+define constant black = make(&lt;color&gt;);
+
+define constant white
   = make(&lt;color&gt;, red: 2 ^ 24 - 1, green: 2 ^ 24 - 1, blue: 2 ^ 24 - 1);
-</pre></td></tr><tr><td><pre>define method whiteness-test(color :: &lt;color&gt;)
+
+define method whiteness-test(color :: &lt;color&gt;)
   if (color = white) format-out(&quot;It's white!\n&quot;) end;
 end method whiteness-test;
-</pre></td></tr><tr><td><pre>define variable color = black;
-</pre></td></tr><tr><td><pre>color := white;
+
+define variable color = black;
+
+color := white;
 whiteness-test(color);
 </pre></td></tr></table>
 <p>The equivalent C code is as follows:</p>
@@ -45,14 +50,18 @@ whiteness-test(color);
 typedef struct _color
   { int red, green, blue; }
 Color;
-</pre></td></tr><tr><td><pre>static Color _black = {0, 0, 0};
+
+static Color _black = {0, 0, 0};
 Color* const black = &amp;_black;
-</pre></td></tr><tr><td><pre>static Color _white = {16777215, 16777215, 16777215};
+
+static Color _white = {16777215, 16777215, 16777215};
 Color* const white = &amp;_white;
-</pre></td></tr><tr><td><pre>void whitenessTest(Color* const color) {
+
+void whitenessTest(Color* const color) {
   if (color == white) { printf(&quot;It's white!\n&quot;); }
 }
-</pre></td></tr><tr><td><pre>void main () {
+
+void main () {
   Color* color = black;
 
   color = white;
@@ -65,7 +74,8 @@ Color* const white = &amp;_white;
 typedef struct _color
   { int red, green, blue; }
 Color;
-</pre></td></tr><tr><td><pre>Color const black = {0, 0, 0};
+
+Color const black = {0, 0, 0};
 Color const white = {16777215, 16777215, 16777215};
 void whitenessTest(Color const color) {
   if (color.red == white.red &amp;&amp;
