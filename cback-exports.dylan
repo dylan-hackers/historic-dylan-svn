@@ -88,6 +88,7 @@ define module cback
   use abstract-optimizer;
   use xep-tools, import: {build-xep-component};
   use melange-support, exclude: {callback-entry}; // for llvm interfacing
+  use introspection, import: {object-address};    // for llvm interfacing
 
   export
     <unit-state>, unit-prefix, unit-init-roots, unit-eagerly-reference,

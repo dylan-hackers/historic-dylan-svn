@@ -42,38 +42,55 @@ copyright: see below
 // Philosophy: declare the absolute minimum for now
 
 
+// ########
+// ### Root
+
+define /*abstract*/ functional class <llvm-object>(<statically-typed-pointer>)
+end;
+
 // #########
 // ### Types
 
-define abstract functional class <llvm-type>(<statically-typed-pointer>)
+define /*abstract*/ functional class <llvm-type>(<llvm-object>)
+end;
+
+
+define functional class <llvm-function-type>(<llvm-type>)
 end;
 
 // ##########
 // ### Values
 
-define abstract functional class <llvm-value>(<statically-typed-pointer>)
+define /*abstract*/ functional class <llvm-value>(<llvm-object>)
   virtual slot type :: <llvm-type>;
   virtual slot name :: <byte-string>;
   virtual slot uses :: <sequence>;
 end;
 
-define abstract functional class <llvm-user>(<llvm-value>)
+define /*abstract*/ functional class <llvm-user>(<llvm-value>)
   virtual slot operands :: <sequence>;
 end;
 
-define abstract functional class <llvm-constant>(<llvm-user>)
+define /*abstract*/ functional class <llvm-constant>(<llvm-user>)
 end;
 
 
-define abstract functional class <llvm-global-value>(<llvm-constant>)
+define /*abstract*/ functional class <llvm-global-value>(<llvm-constant>)
 end;
 
+
+// delete: give up ownership and destroy
+define generic delete(v :: <llvm-object>) => ();
+
+define method delete(v :: <llvm-value>) => ();
+  call-out("delete_llvm_Value", void:, ptr: v.raw-value)
+end;
 
 
 // ################
 // ### Instructions
 
-define abstract functional class <llvm-instruction>(<llvm-user>)
+define /*abstract*/ functional class <llvm-instruction>(<llvm-user>)
   virtual slot parent :: <llvm-basic-block>;
   virtual slot previous :: <llvm-instruction>;
   virtual slot next :: <llvm-instruction>;
@@ -89,7 +106,7 @@ end;
 // ################
 // ### Basic Blocks
 
-define abstract functional class <llvm-basic-block>(<llvm-value>)
+define /*abstract*/ functional class <llvm-basic-block>(<llvm-value>)
   virtual slot instructions :: <sequence>; // ## make BB a <sequence>?
   virtual slot previous :: <llvm-basic-block>;
   virtual slot next :: <llvm-basic-block>;
@@ -100,7 +117,7 @@ end;
 
 define method make (c == <llvm-basic-block>, #rest rest, #key)
  => (result :: <llvm-basic-block>);
-  next-method(c, pointer: call-out("make_llvm_basic_block", ptr:));
+  next-method(c, pointer: call-out("make_llvm_BasicBlock", ptr:));
 end;
 
 
@@ -113,6 +130,56 @@ define functional class <llvm-function>(<llvm-global-value>)
   virtual slot previous :: <llvm-function>;
   virtual slot next :: <llvm-function>;
 end;
+
+
+define method make (f == <llvm-function>, #rest rest, #key type :: <llvm-function-type>, name :: false-or(<byte-string>), module :: false-or(<llvm-module>))
+ => (result :: <llvm-function>);
+  next-method(f, pointer: call-out("make_llvm_Function", ptr:,
+				   ptr: type.raw-value,
+				   ptr: object-address(name & name | ""),
+				   ptr: module & module.raw-value | $null-pointer.raw-value));
+end;
+
+
+
+// ###########
+// ### Modules
+
+define functional class <llvm-module>(<llvm-object>)
+  virtual slot globals :: <sequence>;
+  virtual slot functions :: <sequence>;
+  virtual slot needed-libraries :: <sequence>;
+/*  virtual slot symbol-table :: <???>;
+  virtual slot target-triple :: <???>;
+  virtual slot endianness :: <???>;
+  virtual slot pointer-size :: <???>;
+*/
+end;
+
+
+define method make (m == <llvm-module>, #rest rest, #key name :: false-or(<byte-string>))
+ => (result :: <llvm-module>);
+  next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: object-address(name & name | "")));
+end;
+
+define method delete(m :: <llvm-module>) => ();
+  call-out("delete_llvm_Module", void:, ptr: m.raw-value)
+end;
+
+
+
+// ###################################################
+
+define method emit-tlf-gunk
+    (backend == llvm:, tlf :: <define-method-tlf>, file :: <file-state>)
+    => ();
+
+  let m = make(<llvm-module>, name: "test");
+  
+  
+  m.delete;
+end method emit-tlf-gunk;
+
 
 
 
@@ -1668,7 +1735,7 @@ end;
 //   side-effects upon the current <file-state> -- i.e. adding a new
 //   "root".
 //
-define generic emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>)
+define generic emit-tlf-gunk (backend :: <symbol>, tlf :: <top-level-form>, file :: <file-state>)
     => ();
 
 define method emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>)
@@ -1848,6 +1915,11 @@ define method emit-tlf-gunk
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   check-generic-method-xep(tlf.tlf-defn, file);
+  
+  
+  
+  /// GGR: llvm-branch
+  emit-tlf-gunk(llvm: tlf, file);
 end method emit-tlf-gunk;
       
 define method emit-tlf-gunk (backend == c:, tlf :: <define-class-tlf>, file :: <file-state>)

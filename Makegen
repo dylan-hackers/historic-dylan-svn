@@ -1,5 +1,4 @@
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
-$CFLAGS .= ' -I/gd/llvm-build/include -I/gd/llvm/include';
 
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
