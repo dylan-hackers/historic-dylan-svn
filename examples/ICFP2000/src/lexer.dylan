@@ -238,6 +238,7 @@ end macro state-machine-definer;
 // Build the state graph and save the initial state.
 // 
 define state-machine $Initial-State
+
   state start()
     " \t\f\r\n\<b>" => whitespace,
     '/'             => binder,
@@ -265,28 +266,28 @@ define state-machine $Initial-State
 
   state symbol((make-identifier-or-binder))
     "a-zA-Z0-9_"           => symbol,
-    '-'           => symbol;
+    '-'             => symbol;
 
   state binder()
-    "a-zA-Z"           => symbol;
+    "a-zA-Z"        => symbol;
 
   state double-quote(string-literal);
 
   state decimal((parse-integer-literal))
     "0-9"           => decimal,
-    '.'           => fp-frac,
-    "eE"           => decimal-e;
+    '.'             => fp-frac,
+    "eE"            => decimal-e;
 
   state signed-decimal((parse-integer-literal))
     "0-9"           => signed-decimal,
-    '.'           => fp-frac;
+    '.'             => fp-frac;
        
   state fp-frac((parse-fp-literal))
     "0-9"           => fp-frac,
-    "eE"           => fp-e;
+    "eE"            => fp-e;
   state fp-e()
-    '-'           => fp-e-sign,
-    '+'           => fp-e-sign,
+    '-'             => fp-e-sign,
+    '+'             => fp-e-sign,
     "0-9"           => fp-exp;
   state fp-e-sign()
     "0-9"           => fp-exp;
@@ -295,81 +296,15 @@ define state-machine $Initial-State
        
   state decimal-e()
     "0-9"           => decimal-exp,
-    '-'           => decimal-e-sign,
-    '+'           => decimal-e-sign;
+    '-'             => decimal-e-sign,
+    '+'             => decimal-e-sign;
   state decimal-exp((parse-fp-literal))
     "0-9"           => decimal-exp;
   state decimal-e-sign()
     "0-9"           => decimal-exp;
+
 end state-machine;
-/*
-// $Initial-State -- internal.
-//
-// Build the state graph and save the initial state.
-// 
-define constant $Initial-State
-  = compile-state-machine
-      (state(#"start", #f,
-	     pair(" \t\f\r\n\<b>", #"whitespace"),
-	     pair('/', #"binder"),
-	     pair('[', #"lbracket"),
-	     pair(']', #"rbracket"),
-	     pair('{', #"lbrace"),
-	     pair('}', #"rbrace"),
-	     pair('%', #"comment"),
-	     pair('+', #"plus"),
-	     pair('-', #"minus"),
-	     pair("A-Za-z", #"symbol"),
-	     pair('"', #"double-quote"),
-	     pair("0-9", #"decimal")),
 
-       state(#"whitespace", #"whitespace",
-	     pair(" \t\f\r\n\<b>", #"whitespace")),
-       state(#"comment", #"end-of-line-comment"),
-       state(#"lbracket", '['),
-       state(#"rbracket", ']'),
-       state(#"lbrace", '{'),
-       state(#"rbrace", '}'),
-       state(#"minus", #f,
-	     pair("0-9", #"signed-decimal")),
-       state(#"plus", #f,
-	     pair("0-9", #"signed-decimal")),
-       state(#"symbol", make-identifier-or-binder,
-	     pair("a-zA-Z0-9_", #"symbol"),
-	     pair('-', #"symbol")),
-       state(#"binder", #f,
-	     pair("a-zA-Z", #"symbol")),
-       state(#"double-quote", #"string-literal"), 
-       state(#"decimal", parse-integer-literal,
-	     pair("0-9", #"decimal"),
-	     pair('.', #"fp-frac"),
-	     pair("eE", #"decimal-e")),
-
-       state(#"signed-decimal", parse-integer-literal,
-	     pair("0-9", #"signed-decimal"),
-	     pair('.', #"fp-frac")),
-       
-       state(#"fp-frac", parse-fp-literal,
-	     pair("0-9", #"fp-frac"),
-	     pair("eE", #"fp-e")),
-       state(#"fp-e", #f,
-	     pair('-', #"fp-e-sign"),
-	     pair('+', #"fp-e-sign"),
-	     pair("0-9", #"fp-exp")),
-       state(#"fp-e-sign", #f,
-	     pair("0-9", #"fp-exp")),
-       state(#"fp-exp", parse-fp-literal,
-	     pair("0-9", #"fp-exp")),
-       
-       state(#"decimal-e", #f,
-	     pair("0-9", #"decimal-exp"),
-	     pair('-', #"decimal-e-sign"),
-	     pair('+', #"decimal-e-sign")),
-       state(#"decimal-exp", parse-fp-literal,
-	     pair("0-9", #"decimal-exp")),
-       state(#"decimal-e-sign", #f,
-	     pair("0-9", #"decimal-exp")));
-*/
 
 define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
   let source :: <stream> = lexer.source;
