@@ -1,2 +1,2 @@
 #!/bin/sh
-./src/icfp2002 $1 2>/dev/null
+./src/icfp2002 $1 $2 2>/dev/null
