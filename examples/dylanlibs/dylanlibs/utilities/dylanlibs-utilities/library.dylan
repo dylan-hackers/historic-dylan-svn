@@ -6,5 +6,7 @@ Copyright: Copyright (c) 2001, Chris Double.  All rights reserved.
 define library dylanlibs-utilities
   use functional-dylan;
 
-  export dylanlibs-utilities;
+  export 
+    dylanlibs-utilities,
+    event-queue;
 end library dylanlibs-utilities;

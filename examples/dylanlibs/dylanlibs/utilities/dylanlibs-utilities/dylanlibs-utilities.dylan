@@ -159,3 +159,19 @@ define macro with-restart-block-handler
       end }
 end macro with-restart-block-handler;
 
+// Increment a value by an amount. Equivalent to Common Lisp's incf.
+define macro inc!
+{ inc!(?value:expression, ?change:expression) }
+=> { ?value := ?value + ?change }
+{ inc!(?value:expression) }
+=> { ?value := ?value + 1 }
+end macro inc!;
+
+// Decrement a value by an amount. Equivalent to Common Lisp's decf.
+define macro dec!
+{ dec!(?value:expression, ?change:expression) }
+=> { ?value := ?value - ?change }
+{ dec!(?value:expression) }
+=> { ?value := ?value - 1 }
+end macro dec!;
+

@@ -11,5 +11,21 @@ define module dylanlibs-utilities
     formatted-string-to-float,
     float-to-formatted-string,
     \with-abort-handler,
-    \with-restart-block-handler;
+    \with-restart-block-handler,
+    \inc!,
+    \dec!;
 end module dylanlibs-utilities;
+
+define module event-queue
+  use functional-dylan;
+  use threads;
+
+  // Add binding exports here.
+  export
+    <event-queue>,
+    push-on-queue,
+    get-from-queue,
+    queue-empty?;
+end module event-queue;
+
+
