@@ -803,9 +803,76 @@ define variable foo :: run-time-expression() = #f;
       <sect2 id="gdmaint-d2c-base-flow">
 	<title>The <dmodule>Flow</dmodule> Module</title>
 
-	<para>This module provides classes representing block-level control
-	flow within a function. You should be able to find information on
-	this subject in any good compiler textbook.</para>
+	<para>These classes define the <glossterm>flow model</glossterm>
+	used by the compiler. Together with the classes defined in the
+	<link linkend="gdmaint-d2c-front-front"><dmodule>Front</dmodule>
+	module</link>, they make up the <glossterm>intermediate
+	representation</glossterm> used to communicate between the
+	&convert-lib;, the &front-lib;, the &optimize-lib; and the
+	&cback-lib;.</para>
+
+	<para>Unfortunately, the front-end and the back-end of the compiler
+	use a slightly different version of the intermediate
+	representation. To confuse matters further, both versions are
+	called the <quote>front-end representation</quote> (see <xref
+	linkend="gdmaint-d2c-front-builder-interface"> for more
+	details).</para>
+	
+	<para>The actual flow model is fairly straightforward. Data-flow
+	classes are defined in <filename>data-flow.dylan</filename>, and
+	control-flow classes are defined in
+	<filename>control-flow.dylan</filename>.</para>
+
+	<para>The data-flow classes represent variables, constants,
+	operations and assignments. They use a generalization of the
+	traditional three-address form. Expressions are broken down
+	into a series of step-by-step assignments to temporary
+	variables. The right-hand side of an assignment may contain a
+	constant, a variable or a single operation (nesting is not
+	allowed). The operation may take any number of arguments, each of
+	which must be another variable or a constant.</para>
+
+	<para>When the flow classes are first created, a particular
+	variable may be assigned to more than once. The optimizer, however,
+	converts all variables to <glossterm>single static
+	assignment</glossterm> (<abbrev>SSA</abbrev>) form. In SSA form,
+	each variable is given a value at creation time and never
+	modified. This restriction simplifies many optimization algorithms
+	considerably.</para>
+
+	<para>Prior to SSA conversion, variables are represented by the
+	class <dname>&lt;intial-variable></dname>. Each individual
+	assignment to a variable is represented as an
+	<dname>&lt;initial-definition></dname>. After SSA conversion,
+	variables are represented by the class
+	<dname>&lt;ssa-variable></dname>.</para>
+
+	<para>The control-flow model represents groups of assignments as
+	<glossterm>regions</glossterm>. The simplest kind of region is
+	<dname>&lt;simple-region></dname>, which represents a
+	linear series of assignments. A
+	<dname>&lt;compound-region></dname> holds several regions
+	which are executed in sequence. The various subclasses of
+	<dname>&lt;join-region></dname> represent control constructs with
+	non-linear flow patterns. An <dname>&lt;exit-region></dname>
+	transfers control to an enclosing block; various subclasses are
+	used to return from functions, exit loops and perform other kinds
+	of funky control flow.</para> 
+
+	<para>This part of the compiler is well-commented, so you may want
+	to read the source for further details. You'll also want to look at
+	the classes defined in <link
+	linkend="gdmaint-d2c-front-front"><dmodule>Front</dmodule>
+	module</link>, most of which extend the control- and data-flow
+	model in various useful ways.</para>
+
+	<para>The classes <dname>&lt;join-operation></dname>,
+	<dname>&lt;join-assignment></dname> and
+	<dname>&lt;join-region></dname> are currently ignored by the rest
+	of the compiler. In each case the word <quote>join</quote> refers
+	to the Phi function used in traditional SSA form. It's not clear
+	whether these classes are historical artifacts or part of
+	somebody's unfinished attempt to clean up the code.</para>
       </sect2>
     </sect1>
 
