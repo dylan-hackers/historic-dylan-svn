@@ -20,9 +20,9 @@ define module our-matrix
   
   use types;
   
-  export <vector3D>, <transform>, 
+  export <3D-vector>, <3D-point>, <transform>, 
     $origin,
-    make-identity, $origin, vector3D,
+    make-identity, $origin, vector3D, point3D,
     homogenize, normalize, magnitude,
     v00, v01, v02, v03, v00-setter, v01-setter, v02-setter, v03-setter,
     v10, v11, v12, v13, v10-setter, v11-setter, v12-setter, v13-setter,
