@@ -1,5 +1,5 @@
 module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-dump.dylan,v 1.6 2003/06/24 21:00:08 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-dump.dylan,v 1.6.2.1 2003/11/20 19:54:42 housel Exp $
 copyright: see below
 
 
@@ -325,7 +325,7 @@ define method dump (op :: <operation>, stream :: <stream>) => ();
 end;
 
 define method kind (op :: <operation>) => res :: <string>;
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   write-class-name(op, stream);
   stream.stream-contents;
 end;

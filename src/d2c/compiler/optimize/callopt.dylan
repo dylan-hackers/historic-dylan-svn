@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.11 2003/06/10 06:16:22 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.11.2.1 2003/11/20 19:55:31 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -518,7 +518,7 @@ define method ambiguous-method-warning
     (call :: <abstract-call>, defn :: <generic-definition>,
      ambiguous :: <list>, arg-types :: <list>)
     => ();
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   write(stream, "    (");
   for (arg-type in arg-types, first? = #t then #f)
     unless (first?)
@@ -542,7 +542,7 @@ define method no-applicable-methods-warning
     (call :: <abstract-call>, defn :: <generic-definition>,
      arg-types :: <list>)
     => ();
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   write(stream, "    (");
   for (arg-type in arg-types, first? = #t then #f)
     unless (first?)
