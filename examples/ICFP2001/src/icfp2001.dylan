@@ -7,10 +7,10 @@ define class <document> (<object>)
   slot characters;
 end class <document>;
 
-define class <character> (<object>)
+define class <char> (<object>)
   slot character;
   slot attribute;
-end class <character>;
+end class <char>;
 
 define class <attribute> (<object>)  // make that a flyweight pattern one day
   slot bold       :: <boolean>;
@@ -31,20 +31,27 @@ define constant <space> =
   one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
          as(<character>, #x0a));
 
+define function debug(#rest args)
+  apply(format, *standard-error*, args);
+end function debug;
+
 
 define function main(name, arguments)
   let input-stream = *standard-input*;
-/*
-  if (arguments.size > 0 & arguments[0] ~= "-")
-    input-stream := make(<file-stream>, direction: #"input", locator: arguments[0]);
-  end if;
-*/
 
-/*
+  block ()
+
+    let original-input = read-to-end(input-stream);
+
+    write(*standard-output*, original-input);
+
+    debug("Run successful. Original size: %i. Size after optimization: %i.\n");
+
+  /*
 <bruce> - readin the original text and save it in case we can't do any better
 <bruce> - convert to fully-annotated runs of characters
 <bruce> - do a one-pass simple-minded markup and keep it if it's better than the original in 
-           case we can't do any better
+                                                        case we can't do any better
 <andreas> - generate permutations of the markup until time runs out.
 <bruce> - step through the text.  At each change you have to consider whether to open a new tag
            or close the most recent old one.  If multiple attributes change then you have 
@@ -52,12 +59,8 @@ define function main(name, arguments)
 <bruce> all could be done in parallel, keeping track of the comparitive resulting sizes
 <bruce> (this is the "big risk, big win" approach...)
 <andreas> Some sort of pruning will be required.
-*/
-
-  block ()
-
-
-    format-out("Run sucessful\n");
+                                 */
+                                 
 
   exception (e :: <condition>)
 
