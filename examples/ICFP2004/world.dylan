@@ -9,9 +9,9 @@ end;
 define variable *world* :: <world> = make(<world>, x:0, y:0, cells: #[]);
 
 
-define function dump-world-state(*world* :: <array>) => ()
-  for(yy from 0 below *world*.dimensions[1])
-    for(xx from 0 below *world*.dimensions[0])
+define function dump-world-state(*world* :: <world>) => ()
+  for(yy from 0 below *world*.world-y)
+    for(xx from 0 below *world*.world-x)
       let p = make-position(xx, yy);
       let ss = format-to-string("cell (%d, %d): ", xx, yy);
 
@@ -66,14 +66,14 @@ define function dump-world-state(*world* :: <array>) => ()
 end function dump-world-state;
 
 
-define function dump-world-summary(*world* :: <array>,
+define function dump-world-summary(*world* :: <world>,
                                    red-brain :: <string>,
                                    black-brain :: <string>,
-                                   world-name :: <string>) => ()
+                                   world :: <string>) => ()
   let reds = 0;
   let blacks = 0;
-  for(yy from 0 below *world*.dimensions[1])
-    for(xx from 0 below *world*.dimensions[0])
+  for(yy from 0 below *world*.world-y)
+    for(xx from 0 below *world*.world-x)
       let p = make-position(xx, yy);
 
       if (anthill-at(p, #"red"))
