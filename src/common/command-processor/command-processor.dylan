@@ -141,11 +141,8 @@ define method run-command(c)
     format-out("Ambiguous command. Try Help.\r\n");
   else
     let parameter = copy-sequence(*command-line*, 
-                                  start: commands[0].name.size + 1);
-    if(parameter.size < 0) // XXX evil bug in copy-sequence, fix there!
-      parameter := "";
-    end if;
-
+                                  start: min(*command-line*.size,
+                                             commands[0].name.size + 1));
     force-output(*standard-output*);
     to-cooked();
 

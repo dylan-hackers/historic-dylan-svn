@@ -42,12 +42,12 @@ define open abstract class <string> (<mutable-sequence>)
 end;
 
 define sealed inline method make (class == <string>, #key size = 0, fill = ' ')
-    => res :: <string>;
+    => res :: <byte-string>;
   make(<byte-string>, size: size, fill: fill);
 end;
 
 define sealed inline method as (class == <string>, collection :: <collection>)
-    => res :: <string>;
+    => res :: <byte-string>;
   as(<byte-string>, collection);
 end;
 
@@ -237,20 +237,6 @@ end;
 
 define sealed domain make (singleton(<byte-string>));
 
-define sealed method as (class == <byte-string>, collection :: <collection>)
-    => res :: <byte-string>;
-  let res = make(<byte-string>, size: collection.size);
-  for (index :: <integer> from 0, element in collection)
-    res[index] := element;
-  end;
-  res;
-end;
-
-define inline method as (class == <byte-string>, string :: <byte-string>)
-    => res :: <byte-string>;
-  string;
-end;
-
 define inline method element
     (vec :: <byte-string>, index :: <integer>,
      #key default = $not-supplied)
@@ -320,6 +306,162 @@ define inline method forward-iteration-protocol (array :: <byte-string>)
 	   state;
 	 end);
 end;
+
+define sealed inline method as (class == <byte-string>, string :: <byte-string>)
+    => res :: <byte-string>;
+  string;
+end;
+
+define sealed method as
+    (class == <byte-string>, collection :: <collection>)
+    => res :: <byte-string>;
+  // We won't blindly trust that size(collection) returns a 
+  // value consistent with the forward-iteration-protocol for 
+  // the collection so let's be sure not to iterate past sz.
+  // (It's possible that a user-implemented collection class 
+  // could be incorrect.)
+  // Also don't used the keyed-by clause here because it may be
+  // slow for the collection.
+  let sz :: <integer> = collection.size;
+  let res = make(<byte-string>, size: sz);
+  for (index :: <integer> from 0 below sz, elt :: <byte-character> in collection)
+    %element(res, index) := elt;
+  end;
+  res;
+end method as;
+
+define sealed method as
+    (class == <byte-string>, vec :: <simple-object-vector>)
+    => res :: <byte-string>;
+  let res = make(<byte-string>, size: vec.size);
+  for (elt :: <byte-character> keyed-by index in vec)
+    %element(res, index) := elt;
+  end;
+  res;
+end method as;
+
+define sealed method as
+    (class == <byte-string>, list :: <list>)
+    => res :: <byte-string>;
+  let sz :: <integer> = list.size;
+  let res = make(<byte-string>, size: sz);
+  for (index :: <integer> from 0, elt :: <byte-character> in list)
+    %element(res, index) := elt;
+  end;
+  res;
+end method as;
+
+define sealed method as
+    (class == <byte-string>, ssv :: <stretchy-object-vector>)
+ => (res :: <byte-string>);
+  let sz = ssv.size;
+  let res = make(<byte-string>, size: sz);
+  let data = ssv.ssv-data;
+  for (index :: <integer> from 0 below sz)
+    %element(res, index) := check-type(%element(data, index), <byte-character>);
+  end;
+  res;
+end;
+
+// Not strictly necessary, but produces slightly more optimal code
+//
+define inline method type-for-copy (object :: <byte-string>)
+ => (class :: <class>)
+  <byte-string>;
+end;
+
+// author: PDH
+define method fill!
+    (string :: <byte-string>, value :: <byte-character>,
+     #key start :: <integer> = 0, end: last :: false-or(<integer>))
+ => (string :: <byte-string>);
+  let last = check-start-end-bounds(fill!, string, start, last);
+  for (index from start below last)
+    %element(string, index) := value;
+  end;
+  string;
+end method;
+
+// author: PDH
+// This is essentially a specialized clone of the general method for sequences
+define method remove
+    (string :: <byte-string>, value :: <byte-character>,
+     #key test :: <function> = \==, count :: false-or(<integer>))
+ => (result :: <byte-string>);
+  for (elem in string,
+       result = #() then if ((count & (count <= 0))
+                             | ~compare-using-default-==(test, elem, value))
+                            pair(elem, result);
+                         else
+                           if (count) count := count - 1 end;
+                           result;
+                         end if)
+  finally
+    as(<byte-string>, reverse!(result));
+  end for;
+end method remove;
+
+// author: PDH, 5x speed-up
+define method reverse (string :: <byte-string>)
+ => (result :: <byte-string>)
+  let sz = string.size;
+  let result = make(<byte-string>, size: sz);
+  for (elt in string, reverse-index from (sz - 1) by -1)
+    %element(result, reverse-index) := elt;
+  end;
+  result;
+end method;
+
+// author: PDH, 50x speed-up
+define method reverse! (string :: <byte-string>)
+ => (result :: <byte-string>)
+  let sz = string.size;
+  let mid = ash(sz, -1);
+  for (left from 0 below mid, right from (sz - 1) by -1)
+    %swap-elements!(string, left, right);
+  end;
+  string;
+end method;
+
+// author: PDH, 4x speed-up
+define method copy-sequence
+    (source :: <byte-string>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
+ => (result :: <byte-string>);
+  let last = check-start-end-bounds(copy-sequence, source, start, last);
+  let dest-size = last - start;
+  let dest = make(<byte-string>, size: dest-size);
+  // use an empirically determined cut-off point to switch to memcpy
+  if (dest-size < $memcpy-switchover-point)
+    for (dest-index from 0 below dest-size, source-index from start)
+      %element(dest, dest-index) := %element(source, source-index);
+    end;
+  else
+    call-out("memcpy", void:,
+       ptr: vector-elements-address(dest),
+       ptr: vector-elements-address(source) + start,
+       int: dest-size);  
+  end if;
+  dest;
+end method;
+
+// author: PDH, 5x speed-up
+define inline method shallow-copy (string :: <byte-string>)
+ => (result :: <byte-string>)
+  let sz :: <integer> = string.size;
+  let result = make(<byte-string>, size: sz);
+  // use an empirically determined cut-off point to switch to memcpy
+  if (sz < $memcpy-switchover-point)
+    for (elt keyed-by index in string)
+      %element(result, index) := elt;
+    end;
+  else
+    call-out("memcpy", void:,
+       ptr: vector-elements-address(result),
+       ptr: vector-elements-address(string),
+       int: sz);
+  end if;
+  result;
+end method;
 
 // author: PDH, 1.5x speed-up
 // For average-length strings, calling out to the C library function
@@ -417,22 +559,3 @@ define method concatenate (sequence :: <byte-string>,
     result;
   end if;
 end method concatenate;
-
-define method copy-sequence
-    (vector :: <byte-string>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
- => (result :: <byte-string>);
-  let src-sz :: <integer> = size(vector);
-  let last :: <integer>
-    = if (last & last < src-sz) last else src-sz end if;
-  let start :: <integer> = if (start < 0) 0 else start end if;
-  let sz :: <integer> = last - start;
-  
-  if(start > last) sz := 0 end;
-
-  let result :: <byte-string> = make(<byte-string>, size: sz);
-  for (from-index :: <integer> from start below last,
-       to-index :: <integer> from 0)
-    %element(result, to-index) := %element(vector, from-index);
-  end for;
-  result;
-end method copy-sequence;
