@@ -7,6 +7,8 @@ define library nntp-get-message
   use functional-dylan;
   use io;
   use duim;
+  use deuce;
+  use duim-deuce;
   use nntp;
 
   export nntp-get-message;

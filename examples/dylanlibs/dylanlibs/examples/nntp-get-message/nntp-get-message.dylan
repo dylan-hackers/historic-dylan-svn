@@ -17,7 +17,7 @@ define frame <nntp-get-message-frame> (<simple-frame>)
     make(<push-button>, label: "Get Message", activate-callback: on-get-message);
 
   pane message-pane (frame)
-    make(<text-editor>, read-only?: #t);
+    make(<deuce-gadget>, read-only?: #t);
 
   layout (frame)
     vertically(spacing: 4)
@@ -32,8 +32,9 @@ define frame <nntp-get-message-frame> (<simple-frame>)
         frame.message-id-pane;
         frame.get-message-button;
       end horizontally;
-
-      frame.message-pane;
+      scrolling()
+        frame.message-pane;
+      end scrolling;
     end vertically;      
 
   keyword title: = "Get NNTP Message";

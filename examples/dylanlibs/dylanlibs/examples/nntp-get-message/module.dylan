@@ -7,5 +7,7 @@ define module nntp-get-message
   use functional-dylan;
   use format;
   use duim;
+  use deuce, import: { <deuce-gadget> };
+  use duim-deuce;
   use nntp;
 end module nntp-get-message;
