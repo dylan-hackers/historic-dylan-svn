@@ -19,7 +19,7 @@ define module utils
   use standard-io;
 
   export
-    *debug*, debug, force-format;
+    *debug*, debug, force-format, choose-one;
 end module utils;
 
 define module board

@@ -15,3 +15,4 @@ files:
   point
   dumbot
   pushbot
+  thomas
