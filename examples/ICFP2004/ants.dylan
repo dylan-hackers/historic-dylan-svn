@@ -299,5 +299,73 @@ define function cell-matches(p :: <position>, cond :: <condition>,
   end if;
 end function cell-matches;
 
+define class <instruction> (<object>)
+end class <instruction>;
 
-        
+define class <sense> (<instruction>)
+  slot sense-direction :: <direction>, required-init-keyword: direction:;
+  slot state-true :: <integer>, required-init-keyword: state-true:;
+  slot state-false :: <integer>, required-init-keyword: state-false:;
+  slot cond :: <condition>, required-init-keyword: condition:;
+end class <sense>;
+
+define class <mark> (<instruction>)
+  slot marker :: <marker>;
+  slot state :: <integer>;
+end class <mark>;
+
+define class <unmark> (<instruction>)
+  slot marker :: <marker>;
+  slot state :: <integer>;
+end class <unmark>;
+
+define class <pickup> (<instruction>)
+  slot state-success :: <integer>, required-init-keyword: state-success:;
+  slot state-failure :: <integer>, required-init-keyword: state-failure:;
+end class <sense>;
+
+define class <drop> (<instruction>)
+  slot state :: <integer>, required-init-keyword: state:;
+end class <drop>;
+
+define class <turn> (<integer>)
+  slot left-or-right :: <left-or-right>, required-init-keyword: left-or-right:;
+end class <turn>;
+
+define class <move> (<instruction>)
+  slot state-success :: <integer>, required-init-keyword: state-success:;
+  slot state-failure :: <integer>, required-init-keyword: state-failure:;
+end class <move>;
+
+define class <flip> (<instruction>)
+  slot probability :: <integer>, required-init-keyword: probability:;
+  slot state-success :: <integer>, required-init-keyword: state-success:;
+  slot state-failure :: <integer>, required-init-keyword: state-failure:;
+end class <flip>;
+
+define variable *red-brain* = make(<vector>);
+define variable *black-brain* = make(<vector>);
+
+define function get-instruction(c :: <color>, s :: <integer>)
+  => (i :: <instruction>)
+  if(c == #"red")
+    *red-brain*
+  else
+    *black-brain*
+  end if[s];
+end function get-instruction;
+
+define function read-state-machine(s :: stream)
+  => (v :: <vector>)
+  let v = make(<stretchy-vector>);
+
+  let line-number = 0;
+  while(~stream-at-end?(s))
+    let line = read-line(s);
+    v[line-number] := parse-instruction(line);
+  end while;
+end function read-state-machine;
+
+define function parse-instruction(s :: <byte-string>)
+  => (i :: <instruction>)
+  
