@@ -11,17 +11,20 @@ define class <color> (<object>)
   slot blue :: $color-component-type, required-init-keyword: #"blue";
 end class <color>;
 
-define method make-black() => (black :: <color>)
+define sealed domain make(singleton(<color>));
+define sealed domain initialize(<color>);
+
+define inline method make-black() => (black :: <color>)
   make(<color>, red: 0.0, green: 0.0, blue: 0.0);
 end method make-black;
 
-define method make-white() => (white :: <color>)
+define inline method make-white() => (white :: <color>)
   make(<color>, red: 1.0, green: 1.0, blue: 1.0);
 end method make-white;
 
-define method export-with-depth(c :: <color>, depth :: <integer>) 
+define inline method export-with-depth(c :: <color>, depth :: <integer>) 
  => (r :: <integer>, g :: <integer>, b :: <integer>)
-  local method clampint(x)
+  local method clampint(x :: <integer>) => (clamped :: <integer>);
 	  if(x < 0)
 	    0;
 	  else
@@ -34,14 +37,14 @@ define method export-with-depth(c :: <color>, depth :: <integer>)
 	end method clampint;
 
   let d :: $color-component-type = as($color-component-type, depth);
-  let r = floor(c.red * d);
-  let g = floor(c.green * d);
-  let b = floor(c.blue * d);
+  let r :: <integer> = floor(c.red * d);
+  let g :: <integer> = floor(c.green * d);
+  let b :: <integer> = floor(c.blue * d);
 
   values(clampint(r), clampint(g), clampint(b));
 end method export-with-depth;
 
-define method \* (c :: <color>, x :: <number>)
+define inline method \* (c :: <color>, x :: <number>)
  => (scaled-color :: <color>)
   make(<color>, 
        red:   clamp(c.red   * x),
@@ -54,7 +57,7 @@ define method \* (x :: <number>, c :: <color>)
   c * x;
 end method;
 
-define method \* (c1 :: <color>, c2 :: <color>)
+define inline method \* (c1 :: <color>, c2 :: <color>)
  => (subtractive :: <color>)
   make(<color>,
          red: c1.red * c2.red,
@@ -63,7 +66,7 @@ define method \* (c1 :: <color>, c2 :: <color>)
        );
 end method;
 
-define method \+ (c1 :: <color>, c2 :: <color>)
+define inline method \+ (c1 :: <color>, c2 :: <color>)
     make(<color>, 
        red:   clamp(c1.red   + c2.red),
        green: clamp(c1.green + c2.green),
@@ -78,6 +81,9 @@ define class <surface> (<object>)
   slot specular-coefficient, init-keyword: specular:, init-value: 0.0;
   slot phong-coefficient, init-keyword: phong:, init-value: 0.0;
 end class <surface>;
+
+define sealed domain make(singleton(<surface>));
+define sealed domain initialize(<surface>);
 
 define method make-surface-closure(surface-id, u, v, interpreter-entry)
   let surface = #f;
@@ -95,7 +101,7 @@ define method make-surface-closure(surface-id, u, v, interpreter-entry)
   return-color;
 end method make-surface-closure;
 
-define method clamp(x)
+define inline method clamp(x :: <fp>) => (res :: <fp>);
   if(x < 0.0)
     0.0;
   else 
@@ -115,19 +121,19 @@ define method silly-texture(surface-id, u, v)
   end if;
 end method silly-texture;
 
-define method red-texture(surface-id, u, v)
- => (color, diffusion, specular, phong-exp)
+define inline method red-texture(surface-id, u, v)
+ => (color :: <color>, diffusion :: <fp>, specular :: <fp>, phong-exp :: <fp>)
   values(make(<color>, red: 1.0, green: 0.0, blue: 0.0), 
 	 1.0, 0.0, 5.0);
 end method red-texture;
 
-define method blue-texture(surface-id, u, v)
- => (color, diffusion, specular, phong-exp)
+define inline method blue-texture(surface-id, u, v)
+ => (color :: <color>, diffusion :: <fp>, specular :: <fp>, phong-exp :: <fp>)
   values(make(<color>, red: 0.0, green: 0.0, blue: 1.0), 
 	 1.0, 0.0, 5.0);
 end method blue-texture;
 
-define method mirror-texture(surface-id, u, v)
-  => (color, diffusion, specular, phong-exp)
+define inline method mirror-texture(surface-id, u, v)
+ => (color :: <color>, diffusion :: <fp>, specular :: <fp>, phong-exp :: <fp>)
   values(make-white(), 0.0, 1.0, 1.0);
 end method mirror-texture;
