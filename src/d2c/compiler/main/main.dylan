@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.10 1998/12/30 03:56:03 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.10.4.1 1999/01/21 09:58:22 emk Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -1258,7 +1258,7 @@ end method parse-option;
 //----------------------------------------------------------------------
 
 define method show-copyright(stream :: <stream>) => ()
-  format(stream, "d2c (Gwydion Dylan)\n");
+  format(stream, "d2c (Gwydion Dylan) 2.2\n");
   format(stream, "Compiles Dylan source into C, then compiles that.\n");
   format(stream, "Copyright 1994-1997 Carnegie Mellon University\n");
   format(stream, "Copyright 1998 Gwydion Dylan Maintainers\n");
