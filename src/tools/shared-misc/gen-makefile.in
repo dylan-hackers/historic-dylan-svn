@@ -1,7 +1,7 @@
 #!@PERL@
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.7.2.2 1999/07/11 03:54:38 housel Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.7.2.3 1999/07/14 22:12:58 housel Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -870,12 +870,12 @@ sub emit_c_file_rule {
 # will be the source file and all @header_files.
 #
 sub emit_asm_file_rule {
-    local ($basefile, @headers) = @_;
+    local ($basefile, $srcfile, @headers) = @_;
     local ($objfile) = "$basefile$dot_obj";
 
     do maybe_emit_d2c_defines();
 
-    print "$objfile: \$(SRCDIR)/$basefile.s -o $objfile\n\n";
+    print "$objfile: \$(SRCDIR)/$srcfile.s";
     foreach $header (@headers) {
 	print " \$(SRCDIR)/$header";
     }
@@ -884,7 +884,7 @@ sub emit_asm_file_rule {
     } else {
 	print "\n\t\$(CC) \$(CFLAGS) \$(CPPFLAGS) -I\$(SRCDIR)";
     }
-    print " -c \$(SRCDIR)/$basefile.s -o $objfile\n\n";
+    print " -c \$(SRCDIR)/$srcfile.s -o $objfile\n\n";
     if ($target_name eq $host_name) {
       push(@compile_dependencies, $objfile);
     } else {
@@ -900,12 +900,12 @@ sub emit_asm_file_rule {
 # file and all @header_files.
 #
 sub emit_cppasm_file_rule {
-    local ($basefile, @headers) = @_;
+    local ($basefile, $srcfile, @headers) = @_;
     local ($objfile) = "$basefile$dot_obj";
 
     do maybe_emit_d2c_defines();
 
-    print "$objfile: \$(SRCDIR)/$basefile.S -o $objfile\n\n";
+    print "$objfile: \$(SRCDIR)/$srcfile.S";
     foreach $header (@headers) {
 	print " \$(SRCDIR)/$header";
     }
@@ -914,7 +914,7 @@ sub emit_cppasm_file_rule {
     } else {
 	print "\n\t\$(CC) \$(CFLAGS) \$(CPPFLAGS) -I\$(SRCDIR)";
     }
-    print " -c \$(SRCDIR)/$basefile.S -o $objfile\n\n";
+    print " -c \$(SRCDIR)/$srcfile.S -o $objfile\n\n";
     if ($target_name eq $host_name) {
       push(@compile_dependencies, $objfile);
     } else {
