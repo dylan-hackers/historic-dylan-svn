@@ -353,6 +353,27 @@ define flushable method as
   end;
 end;
 
+define flushable method as
+    (class == <list>, vec :: <byte-string>)
+    => res :: <list>;
+  for (index :: <integer> from (vec.size - 1) to 0 by -1,
+       res = #() then pair(%element(vec, index), res))
+  finally
+    res;
+  end;
+end;
+
+define flushable method as
+    (class == <list>, ssv :: <stretchy-object-vector>)
+    => res :: <list>;
+  let data = ssv.ssv-data;
+  for (index :: <integer> from (ssv.size - 1) to 0 by -1,
+       res = #() then pair(%element(data, index), res))
+  finally
+    res;
+  end;
+end;
+
 // It is important to define this method because the type-for-copy
 // of an <empty-list> is <list>, not <empty-list>.
 //
