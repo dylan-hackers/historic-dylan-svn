@@ -67,6 +67,7 @@ function short_header ($title) {
       <A HREF="about-dylan.phtml">&rsaquo; What is Dylan?</A>
       <A HREF="about-gwydion.phtml">&rsaquo; Who was Gwydion?</A>
       <A HREF="goals.phtml">&rsaquo; Our Goals</A>
+      <A HREF="statistics.phtml">&rsaquo; Current Scorecard</A>
       <A HREF="contests.phtml">&rsaquo; Dylan Competes</A>
       <A HREF="ports.phtml">&rsaquo; Supported Platforms</A>
       <A HREF="maintainers.phtml">&rsaquo; Gwydion Maintainers</A>
