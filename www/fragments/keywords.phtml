@@ -4,8 +4,9 @@ code_header("Keyword Arguments");
 ?>
 
 <P>You can specify the arguments to a function by name. This can be useful
-when you need to add occasionally-used parameters to existing
-functions.</P>
+when you need to add occasionally-used parameters to existing functions,
+similar to the way you can use default parameter values in languages like
+C++.</P>
 
 <BLOCKQUOTE><PRE>
 define function describe-list(my-list :: &lt;list>, #key verbose?) => ()
@@ -18,10 +19,15 @@ define function describe-list(my-list :: &lt;list>, #key verbose?) => ()
   end if;
   format(*standard-output*, "}");
 end function;
+
+<P>This method could be invoked in one of several ways.  The first
+specifies no keyword arguments, and exhibits the default behavior:</P>
     
 describe-list(#(1, 2, 3, 4, 5, 6));
 // prints "{a &lt;list>, size: 6}"
 
+<P>Alternatively, the <STRONG>verbose?</STRONG> keyword argument could
+be used to indicate the 'verbose' behavior was desired:</P>
 describe-list(#(5, 7, 3), verbose?: #t);
 // prints "{a &lt;list>, size: 3, elements: 5 7 3}"
 </PRE></BLOCKQUOTE>
@@ -29,6 +35,5 @@ describe-list(#(5, 7, 3), verbose?: #t);
 <P>Dylan's <CODE>format</CODE> statement works just like
 <CODE>printf</CODE>, except that you can extend it to handle new types of
 objects.</P>
-
 
 <?php code_footer(); ?>
