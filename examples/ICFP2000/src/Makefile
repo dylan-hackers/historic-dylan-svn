@@ -1,6 +1,7 @@
 SOURCES=icfp2000.dylan icfp2000-exports.dylan matrix.dylan obj.dylan \
 	lexer.dylan ppm.dylan render.dylan ppm.dylan color.dylan \
-	intersection.dylan Engine.dylan Math-Primitives.dylan
+	intersection.dylan Engine.dylan Math-Primitives.dylan \
+	light.dylan
 
 icfp2000: icfp2000.lid $(SOURCES)
 	d2c -s icfp2000.lid
@@ -18,4 +19,4 @@ install: ../runme
            src/Makefile src/icfp2000.lid src/*.dylan
 
 test: icfp2000
-	./icfp2000 <../examples/factorial.gml && display render.ppm
+	./icfp2000 <../examples/factorial.gml && xview render.ppm
