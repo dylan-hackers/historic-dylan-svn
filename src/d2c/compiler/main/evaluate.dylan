@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.39 2002/08/10 23:00:45 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.40 2002/08/10 23:03:39 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -374,62 +374,20 @@ define method evaluate(expr :: <truly-the>, environment :: <interpreter-environm
  => result :: <ct-value>;
   evaluate(expr.depends-on.source-exp, environment)
 end;
-/*
-// ######### extract-leaf #########
-// is there a way to arrive from <ct-method> to its literal?
-// OPEN QUESTION
-define method extract-leaf(the :: <truly-the>)
- => leaf :: <leaf>;
-  the.depends-on.source-exp.extract-leaf
-end;
-
-define method extract-leaf(leaf :: <abstract-function-literal>)
- => leaf :: <leaf>;
-  leaf
-end;
-
-define method extract-leaf(var :: <definition-site-variable>)
- => leaf :: <leaf>;
-  var.definer.depends-on.source-exp.extract-leaf
-end;
-
-define method extract-leaf(var :: <multi-definition-variable>)
- => leaf :: <leaf>;
-  var.definitions.first.extract-leaf
-end;
-*/
 
 define method evaluate(expr :: <unknown-call>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
-//  let leaf :: <abstract-function-literal> = expr.depends-on.source-exp.extract-leaf;
-
   let leaf = signal(make(<function-literal-query>,
                          ct-function: evaluate(expr.depends-on.source-exp, environment)));
-
   let args = expr.depends-on.dependent-next;
   evaluate-call(leaf, args, environment);
-//  main-entry
-
-
-
-/**
-      let func :: <ct-function> = evaluate(expr.depends-on.source-exp, environment);
-      select (func by instance?) // ## really need to select???? TODO
-        <ct-method> =>
-          main-entry!!!!!
-          let defn :: <abstract-method-definition> = func.ct-function-definition;
-          let literal :: <function-literal> = defn.method-defn-inline-function;
-          evaluate-call(literal, args, environment);
-      end select;
-      */
 end;
 
 define method evaluate(expr :: <known-call>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
-      let func :: <method-literal> = expr.depends-on.source-exp;
-      let args = expr.depends-on.dependent-next;
-      
-      evaluate-call(func, args, environment);
+  let func :: <method-literal> = expr.depends-on.source-exp;
+  let args = expr.depends-on.dependent-next;
+  evaluate-call(func, args, environment);
 end;
 
 define method evaluate(var :: <abstract-variable>, environment :: <interpreter-environment>)
