@@ -361,6 +361,73 @@ define mi-operation break-insert
 end;
 
 
+
+define macro mi-parser-definer
+  { define tuple-value mi-parser ?:name(?tag:name) {?tuple-fields} {?tuple-keyword/values} end }
+  =>
+  {
+    define function "parse-" ## ?name(mi-tuple :: <byte-string>, matched :: <list>, more) => ();
+      block (return)
+///        local method finish(inp :: <byte-string>, matched :: <list>, more)
+///                let got :: singleton(1) = matched.size;
+///                return(matched.head(?name ## "-<result>"));
+///              end;
+
+        let m = match(mi-tuple, ?"tag"); // more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
+//        if (m)
+          let m = m & match(m, ?"var1");
+          let m = m & match(m, "={");
+          let (m, val) = m & parse-as(m, <integer>);
+            let m = m & match(m, "}");
+            more.head(inp,
+                      pair(if (m & m.empty?)
+                             method(cla) apply(make, cla, ?tuple-keyword/values) end method
+                           else
+                             #f.always
+                           end if,
+                           matched),
+                      more.tail)
+                                
+//        end;
+//        let parsers = list(?p-sequence, finish);
+//        parsers.head(mi-tuple, #(), parsers.tail);
+      end block;
+    end
+  }
+  
+  tuple-fields:
+    { } => {  }
+
+  tuple-keyword/values:
+    { } => { }
+
+  { define mi-parser ?:name(?tag:name) ?fields end }
+  =>
+  {
+    define tuple-value mi-parser ?name(?tag) ?fields end
+/*    define function "parse-" ## ?name(mi-tuple :: <byte-string>, matched :: <list>, more) => ();
+      block (return)
+        local method finish(inp :: <byte-string>, matched :: <list>, more)
+                let got :: singleton(1) = matched.size;
+                return(matched.head(?name ## "-<result>"));
+              end;
+         
+         let parsers = list(?p-sequence, finish);
+         parsers.head(mi-tuple, #(), parsers.tail);
+      end block;
+    end*/
+  }
+  
+  fields:
+    { } => { }
+    { ?field; ... } => { }
+  
+  field:
+// optional field   { [ ?:name :: ?:expression ] } => { }
+    { ?:name :: ?:expression } => { }
+end;
+
+
 define mi-parser breakpoint(bkpt)
   number :: <positive>;
   addr :: <mi-address>;
