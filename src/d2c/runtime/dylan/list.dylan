@@ -130,22 +130,33 @@ define inline method forward-iteration-protocol (list :: <list>)
 	 end);
 end;
 
+// author: PDH, 1.2x speedup
+// This method will work on unbounded lists (though not on lists 
+// terminated with a non-list). It assumes that the tail of the
+// empty list is the empty list. If the index is >= the size of 
+// the list, this method will do some extra work by repeatedly
+// calling tail on the empty list. That is the rare case though
+// and unless the user specifies a default value, an error would 
+// be signalled anyway. If this behavior is undesirable, a block
+// could be added in. Be sure to run the TestWorks QA tests though.
+//
 define sealed method element
     (list :: <list>, index :: <integer>, #key default = $not-supplied)
  => (element :: <object>);
-  // This method should work on unbounded lists.
-  local method find-element (l :: <list>, index :: <integer>)
-	 => (found? :: <boolean>, value);
-	  if (l == #())
-	    values(#f, #f);
-	  elseif (index == 0)
-	    values(#t, l.head);
-	  else
-	    find-element(l.tail, index - 1);
-	  end if;
-	end method find-element;
-  let (found?, value)
-    = if (index < 0) values(#f, #f) else find-element(list, index) end if;
+  let (found?, value) =
+    if (index < 0)
+      values(#f, #f)
+    else
+      for (li :: <list> = list then li.tail,
+           current-index from 0 below index)
+        finally
+          if (empty?(li))
+            values(#f, #f);
+          else
+            values(#t, li.head);
+          end if;
+      end for;
+    end if;
   if (found?)
     value;
   elseif (default == $not-supplied)
@@ -155,20 +166,124 @@ define sealed method element
   end if;
 end method element;
 
+// author: PDH, 1.2x speedup
+// This method will work on unbounded lists (though not on lists 
+// terminated with a non-list). It assumes that the tail of the
+// empty list is the empty list. If the index is >= the size of 
+// the list, this method will do some extra work by repeatedly
+// calling tail on the empty list. That is the rare case though
+// and an error would be signalled anyway. If this behavior is 
+// undesirable, revert to the original code which checks for an
+// empty list initially and checks during each iteration.
+//
 define sealed method element-setter
-    (element :: <object>, list :: <list>, index :: <integer>)
- => (element :: <object>);
-  if (index < 0 | list == #())
-    element-error(list, index);
-  else
-    for (l :: <list> = list then l.tail,
-	 i :: <integer> from 0 below index)
-      if (l == #()) element-error(list, index) end if;
-    finally
-      l.head := element;
-    end for;
-  end if;
+    (new-value :: <object>, list :: <list>, index :: <integer>)
+ => (new-value :: <object>);
+    if (index < 0)
+      element-error(list, index);
+    else
+      for (li :: <list> = list then li.tail,
+           current-index from 0 below index)
+        finally
+          if (empty?(li))
+            element-error(list, index);
+          else
+            li.head := new-value;
+          end if;
+      end for;
+    end if;
 end method element-setter;
+
+// author: PDH
+define sealed inline method first
+    (list :: <list>, #key default = $not-supplied)
+ => (element :: <object>);
+  if (~empty?(list))
+    list.head;
+  elseif (default == $not-supplied)
+    element-error(list, 0);
+  else
+    default;
+  end if;
+end method;
+
+// author: PDH
+define sealed inline method first-setter
+    (new-value :: <object>, list :: <list>)
+ => (new-value :: <object>);
+  if (empty?(list))
+    element-error(list, 0);
+  else
+    list.head := new-value;
+  end if;
+end method;
+
+// author: PDH, 2x speedup
+define sealed method last
+    (list :: <list>, #key default = $not-supplied)
+ => (element :: <object>);
+  if (empty?(list))
+    if (default == $not-supplied)
+      error("list %= has no last because it is empty", list);
+    else
+      default;
+    end if;
+  else
+    let next :: <list> = list.tail;
+    if (empty?(next))
+      list.head;
+    else
+      block (return)
+        for (slow :: <list> = next then slow.tail, 
+             fast :: <list> = next.tail then next.tail)
+            if (slow == fast)
+              error("list %= is circular and has no last", list);
+            elseif (empty?(fast))
+              return(next.head);
+            else
+              next := fast.tail;
+              if (empty?(next))
+                return(fast.head);
+              end if;
+            end if;
+        end for;
+      end block;
+    end if;
+  end if;
+end method last;
+
+// author: PDH, 2x speedup
+define sealed inline method last-setter
+    (new-value :: <object>, list :: <list>)
+ => (new-value :: <object>);
+  if (empty?(list))
+    error("list %= has no last because it is empty", list);
+  else
+    let next :: <list> = list.tail;
+    if (empty?(next))
+      list.head := new-value;
+    else
+      block (return)
+        for (slow :: <list> = next then slow.tail, 
+             fast :: <list> = next.tail then next.tail)
+            if (slow == fast)
+              error("list %= is circular and has no last", list);
+            elseif (empty?(fast))
+              next.head := new-value;
+              return();
+            else
+              next := fast.tail;
+              if (empty?(next))
+                fast.head := new-value;
+                return();
+              end if;
+            end if;
+        end for;
+      end block;
+    end if;
+  end if;
+  new-value;
+end method last-setter;
 
 define flushable inline function pair (head, tail)
     => res :: <pair>;
@@ -240,30 +355,50 @@ define inline method add! (list :: <list>, element)
   pair(element, list);
 end;
 
-define method remove! (list :: <list>, element, #key test :: <function> = \==, count :: false-or(<integer>))
-    => res :: <list>;
-  let prev = #f;
-  let removed = 0;
-  block (return)
-    for (remaining = list then remaining.tail,
-	 until: remaining == #())
-      if (test(remaining.head, element))
-	if (prev)
-	  prev.tail := remaining.tail;
-	else
-	  list := remaining.tail;
-	end;
-	removed := removed + 1;
-	if (removed == count)
-	  return();
-	end;
+// author: PDH
+// This is essentially a specialized clone of the general method for sequences
+define method remove
+    (list :: <list>, value,
+     #key test :: <function> = \==, count :: false-or(<integer>))
+ => (result :: <list>);
+  for (elem in list,
+       result = #() then if ((count & (count <= 0))
+                             | ~compare-using-default-==(test, elem, value))
+                            pair(elem, result);
+                         else
+                           if (count) count := count - 1 end;
+                           result;
+                         end if)
+  finally
+    reverse!(result);
+  end for;
+end method remove;
+
+// author: PDH
+define method remove!
+    (list :: <list>, value,
+     #key test :: <function> = \==, count :: false-or(<integer>))
+ => (result :: <list>);
+  // This is tricky: Use #() to stand for #f
+  let previous :: <list> = #();
+  let next :: <list> = list;
+
+  for (current :: <list> = list then next,
+       until: empty?(current) | (count & (count <= 0)))
+    next := current.tail;
+    if (compare-using-default-==(test, current.head, value))
+      if (previous == #())
+        list := next;
       else
-	prev := remaining;
+        previous.tail := next;
       end;
-    end;
-  end;
+      if (count) count := count - 1 end;
+    else
+      previous := current;
+    end if;
+  end for;
   list;
-end;
+end method remove!;
 
 define sealed method concatenate!
     (pair :: <pair>, #next next-method, #rest more-sequences)
@@ -292,28 +427,35 @@ define sealed method concatenate!
   end if;
 end method concatenate!;
 
+// author: PDH, 1.2x speedup
 define method size (list :: <list>)
     => res :: false-or(<integer>);
-  if (list == #())
+  if (empty?(list))
     0;
-  elseif (list.tail == #())
-    1;
   else
-    block (return)
-      for (slow :: <list> = list.tail then slow.tail,
-	   fast :: <list> = list.tail.tail then fast.tail.tail,
-	   result from 2 by 2)
-	if (slow == fast)
-	  return(#f);
-	elseif (fast == #())
-	  return(result);
-	elseif (fast.tail == #())
-	  return(result + 1);
-	end;
-      end;
-    end;
-  end;
-end;
+    let next :: <list> = list.tail;
+    if (empty?(next))
+      1;
+    else
+      block (return)
+        for (slow :: <list> = next then slow.tail, 
+             fast :: <list> = next.tail then next.tail,
+             result from 2 by 2)
+            if (slow == fast)
+              return(#f);
+            elseif (empty?(fast))
+              return(result);
+            else
+              next := fast.tail;
+              if (empty?(next))
+                return(result + 1);
+              end if;
+            end if;
+        end for;
+      end block;
+    end if;
+  end if;
+end method size;
 
 define flushable method reverse (list :: <list>) => res :: <list>;
   for (results = #() then pair(element, results),
