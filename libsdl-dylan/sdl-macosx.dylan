@@ -3,7 +3,9 @@ author: Rob Myers
 copyright: Copyright (c) 2003 Gwydion Dylan Maintainers
 license: LGPL
 
-// From Peter Housel's gtk ffi compatibility in gtk.dylan
+c-include( "macosx-main/SDLMain.h" );
+
+// Adapted from Peter Housel's gtk ffi compatibility in gtk.dylan
 // This only works if all of the parameters are pointers
 
 define macro C-callable-wrapper-definer
@@ -19,7 +21,7 @@ end macro;
 
 define macro %wrapper-callback
   { %wrapper-callback ( ?params ) ?:body end }
-    => { callback-method(?params) => (value :: <integer>); ?body end }
+    => { callback-method(?params) => (); ?body end }
 params:
   { } => { }
   { parameter ?:name :: ?type:expression ; ... }
@@ -44,9 +46,11 @@ define variable *result* = 0;
 
 // Our callback
 
-define constant sdl-main-callback = callback-method() =>();
+define method sdl-main() =>()
   		*result* := *fun*( *name*, *args* );
 end;
+
+define C-callable-wrapper sdl-main-callback of sdl-main end;
 
 // Main method: saves the variables, installs the callback, runs SDL
 
@@ -56,10 +60,8 @@ define method SDL-Run( fun :: <function>, name, args )
 	*name* := name;
 	*args* := args;
 
-	//ERROR IS HERE: Bus error (core dumped)
 	// Set the callback
-	c-expr( void: "extern void (*SDL_Dylan_main)();" );
-	c-variable-ref( ptr: "SDL_Dylan_main" ) := sdl-main-callback.callback-entry;
+	c-variable-ref( ptr: "&SDL_Dylan_main" ) := sdl-main-callback.raw-value;
 	
 	// Call the main Cocoa entry point, which eventually calls the callback
 	c-expr( void: "extern int application_argc;" );

@@ -33,7 +33,7 @@ extern OSErr	CPSSetFrontProcess( CPSProcessSerNum *psn);
 static int    gArgc;
 static char  **gArgv;
 static BOOL   gFinderLaunch;
-void (*SDL_Dylan_main)();
+void (*SDL_Dylan_main)( void );
 
 #if SDL_USE_NIB_FILE
 /* A helper category for NSString */

@@ -7,6 +7,8 @@ define module sdl
   use dylan;
   use extensions;
   use melange-support;
+	use system, 
+		import: { <raw-pointer> };
 	
 	use sdl-wrappers,
 		export: all;
