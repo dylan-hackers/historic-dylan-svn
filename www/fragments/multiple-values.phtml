@@ -36,7 +36,7 @@ define function print-position-and-velocity
     (rock :: &lt;rock&gt;, time :: &lt;float&gt;)
  =&gt; ()
   let (p, v) = find-position-and-velocity(rock, time);
-  format(*standard-output*, "Position: %dm, Velocity: %dm/s\n", p, v);
+  format-out("Position: %=m, Velocity: %=m/s\n", p, v);
 end function;
 
 define variable *rock* = make(&lt;rock&gt;, position: 10.0, velocity: 0.0);
