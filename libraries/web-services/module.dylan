@@ -26,8 +26,10 @@ define module web-services-imports
     export: all;
   use streams,
     export: all;
+  use simple-random,
+    export: all;
   use xml-parser,
-    rename: { name => xml/name, name-setter => xml/name-setter },
+//    rename: { name => xml/name, name-setter => xml/name-setter },
     export: all;
 end module;
 
@@ -66,7 +68,12 @@ define module xml-schema
       local-name, target-namespace,
       document-valid?, xml-schema-valid?,
       post-schema-validation-infoset,
+      schema-document-as-xml-schema, xml-schema-as-schema-document,
     <xml-schema-component>,
+      annotation, annotation-setter,
+      annotations, annotations-setter,
+    <xml-schema-backpatch-component>,
+      request-backpatch, do-backpatches,
     <xml-schema-definition>,
     <xml-schema-type-definition>, 
       type-definition-valuespace,
@@ -155,10 +162,13 @@ define module xml-converter
     convert-to-xml, convert-from-xml,
     converter-id,
     <unique-id>,
-    serial-number,
+    serial-number, referenced-object,
     object-id, object-id-setter, 
     object-id!, 
-    converted-class-name-and-library, converted-class-name,
+    converted-class-name-and-library, 
+    library-as-xml-namespace,
+    class-name-as-xml-name,
+    $dylan-default-namespace, $dylan-default-namespace-name,
     converted-slot-name,
 
     simple-element-value,
@@ -172,10 +182,25 @@ define module xml-converter
     next-serial-number!,
     convert-object-to-xml,
     convert-slots-to-xml, convert-slot-to-xml,
-    convert-unique-reference,
+    convert-unique-reference-to-xml,
     // has-unique-id-attribute?, 
-    ensure-unique-id, 
-    unique-id-table, object-table;
+    ensure-unique-id, assign-unique-id,
+    unique-id-table, object-table,
+    convert-unique-id-from-xml;
+
+  export <slot-spec>,
+    slot-spec-descriptor,
+    slot-spec-name,
+    slot-spec-bound?,
+    slot-spec-value-element,
+    slot-spec-element,
+    <repeated-slot-spec>,
+    repeated-slot-spec-descriptor,
+    repeated-slot-spec-size-descriptor,
+    repeated-slot-spec-size-init-keyword,
+    repeated-slot-spec-size,
+    repeated-slot-spec-name,
+    repeated-slot-spec-elements;
 end module xml-converter;
 
 define module mailbox
@@ -191,6 +216,7 @@ define module web-services
   use web-services-imports;
   use mailbox;
   use xml-schema;
+  use xml-converter;
 
   export <context>,
     enclosing-context, service-providers,
@@ -200,6 +226,7 @@ define module web-services
 
   export <service-provider>,
     <local-service-provider>,
+    <logging-service-provider>,
     default-service-provider, default-service-provider-setter,
     service-provider-for, 
     service-provider-for-make, service-provider-for-make-setter,

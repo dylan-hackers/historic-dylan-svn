@@ -41,7 +41,9 @@ define module xml-parser
   create transform, transform-document, before-transform, <xform-state>;
 
   // Macros
-  create $default-xml-parent, make-xml-element;
+  create $default-xml-parent, \make-xml-element;
+  // For debugging purposes
+  create \make-xml-element-children, \make-xml-element-attributes;
 
   // Namespaces
   create <xml-namespace-error>,
@@ -66,6 +68,8 @@ define module xml-parser
 
   create find-namespace, find-namespace-setter,
     register-namespace;
+
+  create <convert-namespaces>;
 end module xml-parser;
 
 
@@ -96,6 +100,7 @@ define module interface
   use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
+  use format-out;
 
   use meta;
   use xml-parser, export: { <node-mixin> };
@@ -126,6 +131,7 @@ define module printing
   use streams;
   use format;
   use print;
+  use pprint;
   use anaphora;
 
   use xml-parser;

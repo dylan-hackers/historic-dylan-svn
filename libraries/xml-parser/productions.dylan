@@ -1173,8 +1173,10 @@ define method transform (elt :: <element>, tag-name :: <symbol>,
       // A call to next-method() does not work here!  I think it should
       // call transform{xml}, but it doesn't. Why? Does the left->right
       // resolution override this and dispatch to the default method?
-      let name = elt.name-with-proper-capitalization;
-      xml-name(elt) := string-as-xml-name(name);
+      unless (xml-name(elt))
+        let name = elt.name-with-proper-capitalization;
+        xml-name(elt) := string-as-xml-name(name);
+      end unless;
       next-method();
     end with-local-xml-namespaces;
   end with-default-namespace;

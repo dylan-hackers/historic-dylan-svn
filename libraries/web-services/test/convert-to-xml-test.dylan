@@ -70,6 +70,28 @@ define test converted-class-name-and-library-test
   check-equal("class library of integer", "dylan", library);
 end test converted-class-name-and-library-test;
 
+define test library-as-xml-namespace-test ()
+  let xc = make(<xml-converter>);
+  let ns = library-as-xml-namespace(xc, "foo", "bar");
+  check-equal("namespace url",
+              concatenate($dylan-default-namespace-name, "foo/bar"),
+              namespace-url(ns));
+  check-equal("namespace short-name",
+              "foo-bar",
+              namespace-short-name(ns));
+end test library-as-xml-namespace-test;
+
+define test class-name-as-xml-name-test ()
+  let xc = make(<xml-converter>);
+  let qname = class-name-as-xml-name(xc, 12);
+  check("qname is xml-name", instance?, qname, <xml-name>);
+  check-equal("local-name is integer",
+              "integer", name-local-name(qname));
+  check-equal("namespace is dylan-dylan",
+              $dylan-default-namespace,
+              name-namespace(qname));
+end test class-name-as-xml-name-test;
+
 define test converted-slot-name-test
     (description: "Check converted-slot-name")
   check-equal("converted-slot-name of converted-objects",
@@ -77,19 +99,6 @@ define test converted-slot-name-test
               converted-slot-name(make(<xml-converter>),
                                   converted-objects));
 end test converted-slot-name-test;
-
-/*
-define test converted-unbound-value-test
-    (description: "Check converted-unbound-value")
-  check("$converted-unbound-value is element",
-        instance?, $converted-unbound-value, <element>);
-  check("$converted-unbound-value.name",
-        \=, "unbound-slot", 
-        $converted-unbound-value.name-with-proper-capitalization);
-  check("$converted-unbound-value.node-value",
-        empty?, $converted-unbound-value.node-children);
-end test converted-unbound-value-test;
-*/
 
 define test convert-unique-id-attribute-test
     (description: "convert-unique-id")
@@ -104,6 +113,12 @@ define test convert-unique-id-attribute-test
               id);
   check-equal("attribute saved in table",
               xc.unique-id-table[my-a], id);
+  let result = convert-to-xml(xc, id);
+  check("result is element", instance?, result, <element>);
+  format-out("%=\n", result);
+  check-equal("result matches",
+              "",
+              format-to-string("%=", result));
 end test convert-unique-id-attribute-test;
 
 define test convert-unique-reference-test
@@ -132,6 +147,7 @@ define test found-cycle?-test
              end);
   check-false("Found no cycle", found-cycle?(xc, my-a));
 end test found-cycle?-test;
+
 define function check-attribute (attributes, name, value)
   let index = find-key(attributes,
                        method (attr)
@@ -334,8 +350,9 @@ define suite convert-to-xml-suite ()
   test object-id-test;
   test class-name-and-library-or-lose-test;
   test converted-class-name-and-library-test;
+  test library-as-xml-namespace-test;
+  test class-name-as-xml-name-test;
   test converted-slot-name-test;
-//  test converted-unbound-value-test;
   test convert-unique-id-attribute-test;
   test convert-unique-reference-test;
   test found-cycle?-test;

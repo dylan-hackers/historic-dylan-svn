@@ -66,6 +66,23 @@ define generic post-schema-validation-infoset
     (document :: <xml>, xml-schema :: <xml-schema>)
  => (post-schema-validation-infoset :: <xml>);
 
+// Returns the XML represenation of a Schema. (3.1.3)
+//
+define generic xml-schema-as-schema-document
+    (xml-schema :: <xml-schema>)
+ => (xml-representation :: <xml>);
+
+// Parses an XML representation into a schema component or schema.
+//
+define generic schema-document-as-xml-schema
+    (xml :: <xml>)
+ => (component :: <xml-schema>);
+
+
+
+// Mixins.
+// ======
+
 define abstract open class <xml-name-mixin> (<object>)
   slot xml-name :: <xml-name>,
     required-init-keyword: xml-name:;
@@ -85,6 +102,11 @@ define method local-name
   else
     default;
   end if;
+end method local-name;
+
+define method local-name
+    (object :: <xml-name>, #key default)
+  name-local-name(object);
 end method local-name;
 
 define method target-namespace
@@ -112,7 +134,53 @@ end class <attribute-user-mixin>;
 // Everything that may be part of a schema inherits from <xml-schema-component>.
 
 define abstract class <xml-schema-component> (<object>)
+  // The annotation that is allowed as the first child.
+  slot annotation :: false-or(<xml-schema-annotation>) = #f,
+    init-keyword: annotation:;
+  // Additional annotations, e.g., those from attributes with
+  // non-xs-namespace.
+  slot annotations :: <collection> = #(),
+    init-keyword: annotations:;
 end class <xml-schema-component>;
+
+// Support for Backpatching.
+// ========================
+
+// The spec explicitly allows forward references.  Thus we 
+// need support for Backpatching.
+// Backpatching support should look something like this.
+// Slots should automatically call Do-Backpatches
+// whenever we assign a non-backpatch component to a slot
+// in which a backpatch is currently stored.  And some
+// further magic.
+
+define class <xml-schema-backpatch-component> (<xml-schema-component>)
+  slot backpatchers = #(),
+    init-keyword: backpatchers:;
+end class <xml-schema-backpatch-component>;
+
+define method request-backpatch
+    (f :: <function>, backpatcher :: <xml-schema-backpatch-component>)
+ => ();
+  backpatchers(backpatcher) := pair(f, backpatchers(backpatcher));
+end method request-backpatch;
+
+define method do-backpatches
+    (component :: <xml-schema-component>,
+     new-component :: <xml-schema-component>)
+ => ();
+  // Do nothing.
+end method do-backpatches;
+
+define method do-backpatches
+    (component :: <xml-schema-backpatch-component>,
+     new-component :: <xml-schema-component>)
+ => ();
+  for (f in backpatchers(component))
+    f(new-component);
+  end for;
+end method do-backpatches;
+
 
 // Primary Components.
 // ==================

@@ -8,9 +8,9 @@ define constant $default-xml-parent = make(<document>, name: "default-parent");
 
 define macro make-xml-element-children
   { make-xml-element-children (?result:expression) end }
-  => { ?result }
+  => { reverse(?result) }
   { make-xml-element-children (?accu:expression)
-      attribute ?:name = ?value:expression;
+      attribute ?name:expression => ?value:expression;
       ?more:*
     end }
   => { make-xml-element-children (?accu)
@@ -20,19 +20,39 @@ define macro make-xml-element-children
       content ?value:expression;
       ?more:*
     end }
+  => { make-xml-element-children (pair(make(<char-string>, 
+                                            text: format-to-string("%S", ?value)),
+                                       ?accu))
+         ?more
+       end }
+  { make-xml-element-children (?accu:expression)
+      raw-content ?value:expression;
+      ?more:*
+    end }
   => { make-xml-element-children (pair(?value, ?accu))
          ?more
        end }
   { make-xml-element-children (?accu:expression)
-      element ?:name = ?subelement:expression;
+      element ?name:expression => ?subelement:expression;
       ?more:*
     end }
   => { make-xml-element-children
-           (pair(make-xml-element(?name) content ?subelement end, ?accu))
+           (pair(make-xml-element (?name)
+                   raw-content ?subelement;
+                 end,
+                 ?accu))
          ?more
        end }
   { make-xml-element-children (?accu:expression)
-      element (?:name) { ?subelements:* }
+      element ?name:expression ==> ?subelements:expression;
+      ?more:*
+    end }
+  => { make-xml-element-children
+           (concatenate(?subelements, ?accu))
+         ?more
+       end }
+  { make-xml-element-children (?accu:expression)
+      element (?name:expression) { ?subelements:* }
       ?more:*
     end }
   => { make-xml-element-children
@@ -43,14 +63,14 @@ end macro make-xml-element-children;
 
 define macro make-xml-element-attributes
   { make-xml-element-attributes (?result:expression) end }
-  => { ?result }
+  => { reverse(?result) }
   { make-xml-element-attributes (?accu:expression)
-      attribute ?:name = ?value:expression;
+      attribute ?name:expression => ?value:expression;
       ?more:*
     end }
   => { make-xml-element-attributes
            (pair(make(<attribute>, 
-                      name: ?"name", 
+                      name: ?name, 
                       value: if (instance?(?value, <string>))
                                ?value
                              else
@@ -67,14 +87,28 @@ define macro make-xml-element-attributes
          ?more
        end }
   { make-xml-element-attributes (?accu:expression)
-      element ?:name = ?subelement:expression;
+      raw-content ?:expression;
       ?more:*
     end }
   => { make-xml-element-attributes (?accu)
          ?more
        end }
   { make-xml-element-attributes (?accu:expression)
-      element (?:name) { ?subelements:* }
+      element ?name:expression => ?subelement:expression;
+      ?more:*
+    end }
+  => { make-xml-element-attributes (?accu)
+         ?more
+       end }
+  { make-xml-element-attributes (?accu:expression)
+      element ?name:expression ==> ?subelements:expression;
+      ?more:*
+    end }
+  => { make-xml-element-attributes (?accu)
+         ?more
+       end }
+  { make-xml-element-attributes (?accu:expression)
+      element (?name:expression) { ?subelements:* }
       ?more:*
     end }
   => { make-xml-element-attributes (?accu)
@@ -83,9 +117,9 @@ define macro make-xml-element-attributes
 end macro make-xml-element-attributes;
 
 define macro make-xml-element
-  { make-xml-element (?:name) ?content:* end }
+  { make-xml-element (?name:expression) ?content:* end }
   => { make(<element>, 
-            name: ?"name",
+            name: ?name,
             parent: $default-xml-parent,
             children: as(<stretchy-object-vector>,
                          make-xml-element-children (#()) ?content end),
@@ -95,21 +129,21 @@ end macro make-xml-element;
 /*
 define variable *elt* = 
   make-xml-element (foo)
-    attribute a1 = 123;
-    attribute a2 = 234;
+    attribute a1 => 123;
+    attribute a2 => 234;
     element (bar) {
-      attribute b1 = "x";
-      attribute b2 = 2;
+      attribute b1 => "x";
+      attribute b2 => 2;
       // content #(1, 2, 3);
       element (sub) {
-        attribute x = 7;
+        attribute x => 7;
         // content #"asdf";
       }
-      attribute b3 = 7;
+      attribute b3 => 7;
     }
     // content "x";
     // content #"y";
-    attribute a3 = 123.3;
+    attribute a3 => 123.3;
   end make-xml-element;
 
 format-out("%S\n%=\n", *elt*, *elt*);

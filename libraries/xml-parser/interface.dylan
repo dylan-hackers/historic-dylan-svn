@@ -11,6 +11,11 @@ define open generic xml-name-setter
     (new-value :: false-or(<xml-name>), object)
  => (the-name :: false-or(<xml-name>));
 
+define method name (thing) => (symbol)
+  format-out("Warning: Taking name of %=\n", thing);
+  as(<symbol>, format-to-string("%=", thing));
+end method name;
+
 define abstract class <xml> (<object>)
   virtual slot name;
   slot name-with-proper-capitalization :: <string>,
@@ -80,6 +85,19 @@ define open class <element> (<attributes>, <node-mixin>, <mutable-collection>)
   slot element-parent :: <node-mixin>, init-keyword: parent:;
   virtual slot text;
 end class <element>;
+
+define method forward-iteration-protocol    
+    (collection :: <element>)
+ => (initial-state, 
+     limit, 
+     next-state :: <function>, 
+     finished-state? :: <function>, 
+     current-key :: <function>, 
+     current-element :: <function>, 
+     current-element-setter :: <function>, 
+     copy-state :: <function>);
+  forward-iteration-protocol(node-children(collection));
+end method forward-iteration-protocol;
 
 // We want <element> to behave as <sequence> for indexing, but not
 // for equivalence comparisons

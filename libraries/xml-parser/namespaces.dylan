@@ -35,13 +35,13 @@ define method initialize (self :: <xml-namespace>, #rest args, #key) => ();
   register-namespace(self);
 end method initialize;
 
-define variable *namespaces* = make(<string-table>);
+define variable *xml-namespaces* :: <table> = make(<string-table>);
 
 define method make
     (self == <xml-namespace>, #key url, short-name)
  => (namespace :: <xml-namespace>);
   if (url)
-    let old = element(*namespaces*, url, default: #f);
+    let old = element(*xml-namespaces*, url, default: #f);
     if (old)
       unless (namespace-short-name(old))
         // Maybe we should dynamically bind the short-name?
@@ -87,11 +87,11 @@ define generic find-namespace-setter
 define method find-namespace
     (namespace-url :: <string>, #key default = unsupplied(), create?)
  => (namespace :: false-or(<xml-namespace>));
-  let namespace = element(*namespaces*, namespace-url, default: #f);
+  let namespace = element(*xml-namespaces*, namespace-url, default: #f);
   if (namespace)
     namespace;
   elseif (create?)
-    *namespaces*[namespace-url] := make(<xml-namespace>, url: namespace-url);
+    *xml-namespaces*[namespace-url] := make(<xml-namespace>, url: namespace-url);
   elseif (default.supplied?)
     default;
   else
@@ -103,7 +103,7 @@ end method find-namespace;
 define method find-namespace-setter
     (namespace :: false-or(<xml-namespace>), namespace-url :: <string>)
  => (namespace :: false-or(<xml-namespace>));
-  *namespaces*[namespace-url] := namespace;
+  *xml-namespaces*[namespace-url] := namespace;
 end method find-namespace-setter;
 
 define generic register-namespace
@@ -112,7 +112,7 @@ define generic register-namespace
 define method register-namespace (namespace :: <xml-namespace>, #key)
   let url = namespace.namespace-url;
   if (url)
-    *namespaces*[url] := namespace;
+    *xml-namespaces*[url] := namespace;
   end if;
 end method register-namespace;
 

@@ -248,7 +248,21 @@ define method make-factory-object
      class :: <class>,
      really-make-it :: <function>,
      #rest args)
- => (registerd-object :: <factory-object>);
+ => (factory-object :: <factory-object>);
   really-make-it();
+end method make-factory-object;
+
+define class <logging-service-provider> (<local-service-provider>)
+end class <logging-service-provider>;
+
+define method make-factory-object
+    (service-provider :: <logging-service-provider>,
+     class :: <class>,
+     really-make-it :: <function>,
+     #rest args)
+ => (factory-object :: <factory-object>);
+  let result = next-method();
+  format-out("Creating: %=\n", convert-to-xml(make(<xml-converter>), result));
+  result;
 end method make-factory-object;
 
