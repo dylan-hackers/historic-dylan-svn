@@ -6,14 +6,17 @@ Functional Developer and d2c (the Gwydion Dylan compiler).
 
 This parser comes with additional features.  You may transform the internal 
 representation to any form desired (XML, HTML, text, what-have-you).  You may
-also extract elements that have a certain shape (e.g. "//dvd/title").  And, you
-may index into attributes or immediate child elements using Dylan syntax.  
+also extract elements that have a certain shape (e.g. "//dvd/title").  You
+may index into attributes or immediate child elements using Dylan syntax.  And,
+you may output the XML to a stream, transformed or in its original state.
 Please read the code in collect.dylan and xml-test/ to see how to do both.
 
 Of course, this XML parser is very much a work in progress (with Doug Auclair
 hacking away at it currently) -- this library neither checks for validity nor 
 for well-formedness; perhaps those checks won't be added for a long time to 
-come.
+come.  However, it is currently being used in production-quality commercial
+and non-commercial projects.
+
 
 xml-test/ converts an XML doc to an HTML-readable one with links to entities
 (if they have not be expanded-out in the resulting document).
