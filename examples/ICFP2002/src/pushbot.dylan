@@ -29,6 +29,24 @@ define method update-point(p :: <point>, dir)
   end;
 end method;
 
+define method points-to-direction(src :: <point>, dest :: <point>)
+ => (dir :: one-of(#"north", #"south", #"west", #"east", #f))
+  let xdiff = src.x - dest.x;
+  let ydiff = src.y - dest.y;
+
+  if(xdiff = -1 & ydiff = 0)
+    #"east";
+  elseif(xdiff = 1 & ydiff = 0)
+    #"west";
+  elseif(xdiff = 0 & ydiff = -1)
+    #"north";
+  elseif(xdiff = 0 & ydiff = 1)
+    #"south";
+  else
+    #f;
+  end;
+end method;
+
 // does a transitive push check
 define method check-direction(s :: <state>, p :: <point>, dir)
  => (res :: <boolean>)
@@ -78,15 +96,22 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
       // TODO sort the list of robots by some metric, eg who has delivered the most
 
       // if robot can be killed, bit a lot more and push
-      let killable = choose(curry(\~=, #f), map(curry(robot-killable, s), adj-robots));
-      if(~empty?(killable))
+      let killable-dir = choose(curry(\~=, #f), map(curry(robot-killable, s), adj-robots));
+      if(~empty?(killable-dir))
 	// TODO short this list like above
-	let targ-direction = first(killable);
-	return(make(<move>, bid: me.robot.money / 10, direction: targ-direction));
+	let targ-direction = first(killable-dir);
+	return(make(<move>, bid: (me.robot.money / 10) + 1, direction: targ-direction));
       end;
       
       // if enemy robot has packages, bid a bit more and push
-      // TODO once enemy state tracking is done
+      let rbots = sort(adj-robots, test: method(a, b)=>(c)
+					    a.inventory.size < b.inventory.size
+					end);
+      let targ = first(reverse(rbots));
+      let d = points-to-direction(me.robot.location, targ.location);
+      if(d)
+	return(make(<move>, bid: (me.robot.money / 50) + 1, direction: d));
+      end;
     end;
 
     // Deliver what we can:
@@ -105,7 +130,7 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
 	if (pkg.weight <= me.robot.capacity
 	      & find-path(me.robot.location, pkg.location, s.board))
 	  left := left - pkg.weight;
-	  take-these = add!(take-these, x);
+	  take-these := add!(take-these, x);
 	end if;
       end for;
       return(make(<pick>, bid: 1, package-ids: map(id, take-these)));
@@ -129,13 +154,13 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     let direction = $North;
 
     if (new-loc = point(x: new-loc.x, y: new-loc.y + 1))
-      direction = #"north";
+      direction := #"north";
     elseif (new-loc = point(x: new-loc.x + 1, y: new-loc.y))
-      direction = #"east";
+      direction := #"east";
     elseif (new-loc = point(x: new-loc.x, y: new-loc.y - 1))
-      direction = #"south";
+      direction := #"south";
     elseif (new-loc = point(x: new-loc.x - 1, y: new-loc.y))
-      direction = #"west";
+      direction := #"west";
     else
       error("Can't happen");
     end if;
