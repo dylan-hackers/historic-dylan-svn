@@ -38,7 +38,6 @@ end;
 // Board
 
 define constant <line> = limited(<vector>, of: <terrain>);
-define constant <coordinate> = limited(<integer>, min: 0);
 
 define concrete class <board> (<array>)
   slot lines :: limited(<vector>, of: <line>);
