@@ -375,16 +375,24 @@ define class <request> (<basic-request>)
   slot request-method :: <symbol> = #"unknown";
   slot request-version :: <symbol> = #"unknown";
   slot request-url :: <string> = "";
-  slot request-post-query :: <string> = "";
   slot request-keep-alive? :: <boolean> = #f;
+
   // The actual headers, mapping string -> raw data
   // (The header names are not interned to avoid permanent wedgedness
   //  by invalid headers).
   slot request-headers :: <header-table> = make(<header-table>);
+
   // Cache, mapping keyword (requested by user) -> parsed data
   constant slot request-header-values :: <object-table> = make(<object-table>);
+
+  // Query values from either the URL or the body of the POST, if Content-Type
+  // is application/x-www-form-urlencoded.
   slot request-query-values :: <string-table>;
+
   slot request-session :: false-or(<session>) = #f;
+
+  // The body content of the request.  Only present for POST?
+  slot request-content :: <string> = "";
 end;
 
 define method get-header
@@ -448,22 +456,47 @@ end handler-top-level;
 define method read-request (request :: <request>) => ()
   let socket = request.request-socket;
   let server = request.request-server;
-  let allowed = server.allowed-methods;
   let (buffer, len) = read-request-line(socket);
   when (empty-line?(buffer, len))
     // RFC 2616, 4.1 - Servers SHOULD ignore an empty line if received before any headers.
     pset (buffer, len) <= read-request-line(socket) end;
   end;
-  let epos = whitespace-position(buffer, 0, len) | len;
-  if (epos == 0)
+  read-request-first-line(request, buffer, len, server.allowed-methods);
+  log-info("%s %s %s",
+           uppercase-request-method(request.request-method),
+           request.request-url, request.request-version);
+  unless (request.request-version == #"http/0.9")
+    request.request-headers
+      := read-message-headers(socket,
+                              buffer: buffer,
+                              start: len,
+                              headers: request.request-headers);
+  end;
+  if (request.request-method == #"post")
+    read-request-content(request);
+  end;
+end read-request;
+
+// Read first line of the HTTP request.  RFC 2068 Section 5.1
+//
+//   Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+//
+// ---TODO: this code would be a lot clearer if it used regular expressions.
+//
+define function read-request-first-line
+    (request :: <request>, buffer :: <string>, eol :: <integer>, allowed-methods)
+ => ()
+  let method-end = whitespace-position(buffer, 0, eol) | eol;
+  if (zero?(method-end))
     invalid-request-line-error();
   else
-    request.request-method := extract-request-method(buffer, 0, epos, allowed);
-    let bpos = skip-whitespace(buffer, epos, len);
-    let epos = whitespace-position(buffer, bpos, len) | len;
+    request.request-method
+      := extract-request-method(buffer, 0, method-end, allowed-methods);
+    let bpos = skip-whitespace(buffer, method-end, eol);
+    let epos = whitespace-position(buffer, bpos, eol) | eol;
     when (epos > bpos)
       let qpos = char-position('?', buffer, bpos, epos);
-      // Should his trim trailing whitespace???
+      // Should this trim trailing whitespace???
       request.request-url := substring(buffer, bpos, qpos | epos);
       request.request-query-values
         := if (qpos)
@@ -474,83 +507,91 @@ define method read-request (request :: <request>) => ()
            else
              allocate-resource(<string-table>, size: 0)
            end;
-      let bpos = skip-whitespace(buffer, epos, len);
-      let vpos = whitespace-position(buffer, bpos, len) | len;
+      let bpos = skip-whitespace(buffer, epos, eol);
+      let vpos = whitespace-position(buffer, bpos, eol) | eol;
       request.request-version := extract-request-version(buffer, bpos, vpos);
     end;
   end;
-  log-info("%s %s %s",
-           uppercase-request-method(request.request-method),
-           request.request-url, request.request-version);
-  unless (request.request-version == #"http/0.9")
-    let (headers, nbuffer, nlen)
-      = read-message-headers(socket,
-                             buffer: buffer, start: len,
-	                     headers: request.request-headers);
-    request.request-headers := headers;
-    buffer := nbuffer;
-    len := nlen;
-  end;
-  if (request.request-method == #"post")
-    let type = element(request.request-headers, "content-type", default: "");
-    if (instance?(type, <string>)
-        & string-equal?("application/x-www-form-urlencoded", type))
-      let sz = request-header-value(request, #"content-length")
-               | content-length-required-error();  // Should probably try to continue instead of erring.
-                                                   // Or have a "strict" option.
-      if (*max-post-size* & sz > *max-post-size*)
-        //---TODO: the server MAY close the connection to prevent the client from
-        // continuing the request.
-        request-entity-too-large-error(max-size: *max-post-size*);
-      end;
-      when (len + sz > buffer.size)
-        buffer := make(<byte-string>, size: sz);
-        len := 0;
-      end;
+end;
 
-      // Gary, in the trunk sources (1) below should now be fixed.  (read was passing the
-      // wrong arguments to next-method).
-      // (2) should also be fixed.  It used to cause "Dylan error: 35 is not of type {<class>: <sequence>}"
-      // But, if you pass on-end-of-stream: #"blah" and then arrange to close the stream somehow
-      // you'll get an invalid return type error.
-      // Uncomment either (1) or (2) and comment out the "let n ..." and "assert..." below and
-      // then start koala example, go to http://localhost:7020/foo/bar/form.html and
-      // click the Submit button.  As long as neither of these gets an error in the trunk
-      // build we're better off than before at least, if not 100% fixed.
+define function read-request-content
+    (request :: <request>)
+ => (content :: <byte-string>)
+  // ---TODO: Should probably try to continue here even if Content-Length
+  //          not supplied.  Or have a "strict" option.
+  let content-length
+    = request-header-value(request, #"content-length")
+      | content-length-required-error();
+  if (*max-post-size* & content-length > *max-post-size*)
+    //---TODO: the server MAY close the connection to prevent the client from
+    // continuing the request.
+    request-entity-too-large-error(max-size: *max-post-size*);
+  else
+    let buffer :: <byte-string> = make(<byte-string>, size: content-length);
+    let n = kludge-read-into!(request-socket(request), content-length, buffer);
+    assert(n == content-length, "Unexpected incomplete read");
+    request-content(request)
+      := process-request-content(request, buffer, content-length);
+  end
+end read-request-content;
 
-      //let buffer :: <sequence> = read(socket, sz, on-end-of-stream: #f);  // (1)
-      //let n = read-into!(socket, sz, buffer, start: len);                 // (2)
-      // The following compensates for a bug in read and read-into! in FD 2.0.1
-      let n = block (continue)
-                for (i from len below size(buffer),
-                     count from 0 below sz)
-                  let elem = read-element(socket, on-end-of-stream: #f);
-                  if (elem)
-                    buffer[i] := elem;
-                  else
-                    continue(count);
-                  end;
-                end;
-                sz
-              end;
-      assert(n == sz, "Unexpected incomplete read");
-      log-debug("Form query string = %=", copy-sequence(buffer, start: len, end: len + sz));
-      // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
-      // Must do this before calling decode-url.
-      for (i from len below len + sz)
-        iff(buffer[i] == '+', buffer[i] := ' ');
-      end;
-      let query = decode-url(buffer, len, len + sz);
-      request.request-post-query := query;
-      // By the time we get here request-query-values has already been bound to a <string-table>
-      // containing the URL query values.  Now we augment it with any form values.
-      request.request-query-values
-        := extract-query-values(query, 0, size(query), table: request.request-query-values);
-    else
-      unsupported-media-type-error();
+
+// Gary, in the trunk sources (1) below should now be fixed.  (read was passing the
+// wrong arguments to next-method).
+// (2) should also be fixed.  It used to cause "Dylan error: 35 is not of type {<class>: <sequence>}"
+// But, if you pass on-end-of-stream: #"blah" and then arrange to close the stream somehow
+// you'll get an invalid return type error.
+// Uncomment either (1) or (2) and comment out the "let n ..." and "assert..." below and
+// then start koala example, go to http://localhost:7020/foo/bar/form.html and
+// click the Submit button.  As long as neither of these gets an error in the trunk
+// build we're better off than before at least, if not 100% fixed.
+
+//let buffer :: <sequence> = read-n(socket, sz, on-end-of-stream: #f);  // (1)
+//let n = read-into!(socket, sz, buffer, start: len);                 // (2)
+// The following compensates for a bug in read and read-into! in FD 2.0.1
+
+define function kludge-read-into!
+    (socket :: <tcp-socket>, n :: <integer>, buffer :: <byte-string>,
+     #key start :: <integer> = 0)
+ => (n :: <integer>)
+  block (return)
+    for (i from start below buffer.size,
+         count from 0 below n)
+      let elem = read-element(socket, on-end-of-stream: #f);
+      buffer[i] := (elem | return(count));
     end;
+    n
   end;
-end read-request;
+end;
+
+define function process-request-content
+    (request :: <request>, buffer :: <byte-string>, content-length :: <integer>)
+ => (content :: <string>)
+  let content-type = get-header(request, "content-type");
+  if (instance?(content-type, <string>)
+      & string-equal?("application/x-www-form-urlencoded", content-type))
+    log-debug("Form query string = %=",
+              copy-sequence(buffer, end: content-length));
+    // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
+    // Must do this before calling decode-url.
+    for (i from 0 below buffer.size)
+      iff(buffer[i] == '+',
+          buffer[i] := ' ');
+    end;
+    let content = decode-url(buffer, 0, content-length);
+    // By the time we get here request-query-values has already been bound to a <string-table>
+    // containing the URL query values.  Now we augment it with any form values.
+    request.request-query-values
+      := extract-query-values(content, 0, content.size, queries: request.request-query-values);
+    request-content(request) := content
+  // ---TODO: Deal with content types intelligently.  For now this'll have to do.
+  elseif (member?(content-type, #["text/xml", "text/html", "text/plain"],
+                  test: string-equal?))
+    request-content(request) := buffer
+  else
+    unsupported-media-type-error();
+  end if;
+end;
 
 define method send-error-response (request :: <request>, err :: <error>)
   log-error("%=", err);
@@ -631,7 +672,7 @@ define method find-responder
         end;
   find-it(url, #())
     | values(maybe-auto-register(url), url)
-end;
+end find-responder;
 
 // define responder test ("/test", secure?: #t)
 //     (request, response)
@@ -675,8 +716,10 @@ define method invoke-handler
       deallocate-resources(response);
     end block;
   end with-resource;
-end;
+end invoke-handler;
 
+// Read a line of input from the stream, dealing with CRLF correctly.
+//
 define function read-request-line
     (stream :: <stream>) => (buffer :: <byte-string>, len :: <integer>)
   let buffer = grow-header-buffer("", 0);

@@ -13,6 +13,7 @@ define library koala
   use system;
   //use ssl-sockets;  // until integrated into FD?
   use xml-parser;
+  use xml-rpc-common;
 
   export koala;
   export koala-extender;
@@ -54,6 +55,8 @@ define module utilities
     path-element-equal?,
     parent-directory,
     date-to-stream,
+    kludge-read-into!,   // work around bug in read-into! in FD 2.0
+    quote-html,          // Change < to &lt; etc
     
     <expiring-mixin>,
     expired?,
@@ -221,11 +224,8 @@ define module httpi                             // http internals
   use operating-system;
   //use ssl-sockets;
   use xml-parser,
-    prefix: "xml$",
-    rename: { <element> => <xml-element>,
-              <document> => <xml-document>,
-              <tag> => <xml-tag>,
-              <attribute>  => <xml-attribute> };
+    prefix: "xml$";
+  use xml-rpc-common;
 end module httpi;
 
 define module dsp
@@ -278,7 +278,6 @@ define module dsp
                                  //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
     named-method-definer,
     get-named-method,
-    quote-html,                  // Change < to &lt; etc
 
     // Utils associated with DSP tag definitions
     current-row,                 // dsp:table

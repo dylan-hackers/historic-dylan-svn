@@ -37,7 +37,7 @@ define method configure-server ()
                           end method;
     let text = file-contents(config-loc);
     if (text)
-      let xml :: <xml-document> = xml$parse-document(text);
+      let xml :: xml$<document> = xml$parse-document(text);
       log-info("Loading server configuration from %s.", config-loc);
       process-config-node(xml);
     else
@@ -79,7 +79,7 @@ end;
 
 // The xml-parser library doesn't seem to define anything like this.
 define method get-attribute-value
-    (node :: <xml-element>, attrib :: <symbol>)
+    (node :: xml$<element>, attrib :: <symbol>)
  => (value :: false-or(<string>))
   block (return)
     for (attr in xml$attributes(node))
@@ -93,20 +93,20 @@ end;
 // I think the XML parser's class hierarchy is broken.  It seems <tag>
 // should inherit from <node-mixin> so that one can descend the node
 // hierarchy seemlessly.
-define method process-config-node (node :: <xml-tag>) => ()
+define method process-config-node (node :: xml$<tag>) => ()
 end;
 
-define method process-config-node (node :: <xml-document>) => ()
+define method process-config-node (node :: xml$<document>) => ()
   for (child in xml$node-children(node))
     process-config-node(child);
   end;
 end;
 
-define method process-config-node (node :: <xml-element>) => ()
+define method process-config-node (node :: xml$<element>) => ()
   process-config-element(node, xml$name(node));
 end;
 
-define method process-config-element (node :: <xml-element>, name :: <object>)
+define method process-config-element (node :: xml$<element>, name :: <object>)
   log-config-warning("Unrecognized configuration setting: %=.  Processing child nodes anyway.",
                      name);
   for (child in xml$node-children(node))
@@ -128,13 +128,13 @@ end;
 
 //// koala-config.xml elements.  One method for each element name.
 
-define method process-config-element (node :: <xml-element>, name == #"koala")
+define method process-config-element (node :: xml$<element>, name == #"koala")
   for (child in xml$node-children(node))
     process-config-node(child);
   end;
 end;
 
-define method process-config-element (node :: <xml-element>, name == #"port")
+define method process-config-element (node :: xml$<element>, name == #"port")
   let attr = get-attribute-value(node, #"value");
   if (attr)
     block ()
@@ -149,7 +149,7 @@ define method process-config-element (node :: <xml-element>, name == #"port")
   end;
 end;
 
-define method process-config-element (node :: <xml-element>, name == #"auto-register")
+define method process-config-element (node :: xml$<element>, name == #"auto-register")
   let attr = get-attribute-value(node, #"enabled");
   if (attr)
     *auto-register-pages?* := true-value?(attr);
@@ -158,7 +158,7 @@ define method process-config-element (node :: <xml-element>, name == #"auto-regi
   end;
 end;
 
-define method process-config-element (node :: <xml-element>, name == #"server-root")
+define method process-config-element (node :: xml$<element>, name == #"server-root")
   let loc = get-attribute-value(node, #"location");
   if (~loc)
     log-config-warning("Malformed <server-root> setting.  'location' must be specified.");
@@ -167,7 +167,7 @@ define method process-config-element (node :: <xml-element>, name == #"server-ro
   end;
 end;
 
-define method process-config-element (node :: <xml-element>, name == #"document-root")
+define method process-config-element (node :: xml$<element>, name == #"document-root")
   let loc = get-attribute-value(node, #"location");
   if (~loc)
     log-config-warning("Malformed <document-root> setting.  'location' must be specified.");
@@ -176,7 +176,7 @@ define method process-config-element (node :: <xml-element>, name == #"document-
   end;
 end;
 
-define method process-config-element (node :: <xml-element>, name == #"log")
+define method process-config-element (node :: xml$<element>, name == #"log")
   let level = get-attribute-value(node, #"level");
   let clear = get-attribute-value(node, #"clear");
   when (clear & true-value?(clear))
@@ -196,7 +196,7 @@ define method process-config-element (node :: <xml-element>, name == #"log")
   end;
 end;
 
-define method process-config-element (node :: <xml-element>, name == #"debug-server")
+define method process-config-element (node :: xml$<element>, name == #"debug-server")
   let value = get-attribute-value(node, #"value");
   when (value)
     *debugging-server* := true-value?(value);
@@ -204,7 +204,27 @@ define method process-config-element (node :: <xml-element>, name == #"debug-ser
   when (*debugging-server*)
     log-warning("Server debugging is enabled.  Server may crash if not run inside an IDE!");
   end;
-end;    
+end;
+
+define method process-config-element (node :: xml$<element>, name == #"xml-rpc")
+  let url = get-attribute-value(node, #"url");
+  if (url)
+    *xml-rpc-server-url* := url;
+    log-info("XML-RPC URL set to %s.", url);
+  end;
+
+  let fault-code = get-attribute-value(node, #"internal-error-fault-code");
+  if (fault-code)
+    block ()
+      let int-code = string-to-integer(fault-code);
+      int-code & (*xml-rpc-internal-error-fault-code* := int-code);
+      log-info("XML-RPC internal error fault code set to %d.", int-code);
+    exception (<error>)
+      log-warning("Invalid XML-RPC fault code, %=, specified.  Must be an integer.",
+                  fault-code);
+    end;
+  end if;
+end;
 
 
 //---TODO: Read mime types from a file and set *mime-type-map*.  Get a more complete set of types.

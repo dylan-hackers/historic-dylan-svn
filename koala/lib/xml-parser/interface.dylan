@@ -34,8 +34,13 @@ define class <attribute> (<xml>)
 end class <attribute>;
 
 define abstract class <tag> (<xml>)
- constant each-subclass slot after-open :: <string> = "";
- constant each-subclass slot before-close :: <string> = "";
+
+    // The each-subclass adjective should be commented out for this to
+    // compile in the current Gwydion Dylan release (2.3.9pre1).  The
+    // next release will fix this problem, I believe.  -Carl Gay
+
+  constant each-subclass slot after-open :: <string> = "";
+  constant each-subclass slot before-close :: <string> = "";
 end class <tag>;
 
 define abstract class <attributes> (<tag>)

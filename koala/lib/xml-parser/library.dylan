@@ -13,7 +13,7 @@ end library;
 define module xml-parser
   create parse-document;
 
-  create <document>, <element>, <attribute>, <xml>, <processing-instruction>,
+  create <document>, <element>, <node-mixin>, <attribute>, <xml>, <processing-instruction>,
     <entity-reference>, <add-parents>, <char-reference>, <comment>, <tag>,
     <char-string>, <dtd>, <internal-entity>, <external-entity>,
     text, text-setter, name, name-setter, name-with-proper-capitalization,

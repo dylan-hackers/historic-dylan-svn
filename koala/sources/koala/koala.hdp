@@ -21,6 +21,7 @@ files:	library
 	dispatch
 	dsp
 	dsp-taglib
+	xml-rpc-server
 	config
 	utils-main
 	koala-main

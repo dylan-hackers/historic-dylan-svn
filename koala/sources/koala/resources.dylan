@@ -136,7 +136,7 @@ end;
 
 define method resource-notification
     (pool :: <resource-pool>) => (notif :: <notification>)
-  if (slot-initialized?(%resource-notification, pool))
+  if (slot-initialized?(pool, %resource-notification))
     %resource-notification(pool)
   else
     %resource-notification(pool) := make(<notification>, lock: resource-lock(pool))

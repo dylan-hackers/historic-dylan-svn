@@ -58,7 +58,8 @@ define function read-message-headers (stream :: <stream>,
 end read-message-headers;
 
 define method add-header
-    (headers :: <header-table>, key :: <string>, data, #key if-exists? :: <symbol> = #"append")
+    (headers :: <header-table>, key :: <string>, data,
+     #key if-exists? :: <symbol> = #"append")
   let old = element(headers, key, default: #f);
   // typically there is only one header for given key, so favor that.
   if (old == #f | if-exists? == #"replace")
