@@ -85,9 +85,9 @@ define method test-path-finding(board :: <board>)
   end for;
 
 
-  debug("Trying a simple path finding.\n");
+  debug("Trying a simple path finding from (1, 1) to (1, 11).\n");
   let path = find-path(point(x: 1, y: 1),
-                       point(x: 20, y: 1),
+                       point(x: 1, y: 11),
                        board);
   if (path = #f)
     debug("Sorry, no path found.\n");
