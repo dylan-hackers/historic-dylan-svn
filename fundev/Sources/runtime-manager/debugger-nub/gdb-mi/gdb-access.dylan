@@ -155,6 +155,11 @@ define macro mi-operation-definer
     end;
   }
 
+  {define result-for-sequential mi-operation ?:name(?parse-sequence:*) end}
+  =>
+  {
+  }
+
   {define parser-for-sequential mi-operation ?:name(?parse-sequence:*) end}
   =>
   {
@@ -174,6 +179,8 @@ define macro mi-operation-definer
   {
     define class-for-sequential mi-operation ?name(?sequence) end;
     define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end
+    define result-for-sequential mi-operation ?name(?parses:*) end;
+    define parser-for-sequential mi-operation ?name(?parses:*) end
   }
 
   {define mi-operation ?:name(?:*) ?parses:* end}
