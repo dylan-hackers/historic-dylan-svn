@@ -143,7 +143,7 @@ define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-vari
 define method fer-gather-assign-bindings(defs :: <definition-site-variable>, expr :: <expression>, environment :: <object>)
  => extended-env;
   let var-value = fer-evaluate-expression(expr, environment);
-  append-env(environment, defs, var-value)
+  append-environment(environment, defs, var-value)
 end;
 
 define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression>, environment :: <object>)
@@ -161,11 +161,34 @@ define method fer-evaluate-expression(expr :: <literal-constant>, environment ::
   expr.value
 end;
 
+define method fer-evaluate-expression(var :: <abstract-variable>, environment :: <object>)
+ => result :: <ct-value>;
+  var.environment
+end;
 
-// ########## append-env ##########
-define function append-env(prev-env :: <object>, new-biding, new-value) => new-env;
+define method fer-evaluate-expression(primitive :: <primitive>, environment :: <object>)
+ => result :: <ct-value>;
+  fer-evaluate-primitive(primitive.primitive-name, primitive.depends-on, environment);
+end;
+
+
+// ########## fer-evaluate-primitive ##########
+define generic fer-evaluate-primitive(name :: <symbol>, depends-on :: false-or(<dependency>), environment :: <object>)
+ => result :: <ct-value>;
+
+
+define method fer-evaluate-primitive(name == #"fixnum-+", depends-on :: <dependency>, environment :: <object>)
+ => result :: <ct-value>;
+ let lhs = fer-evaluate-expression(depends-on.source-exp, environment);
+ let rhs = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
+ 
+ as(<ct-value>, lhs.literal-value + rhs.literal-value)
+end;
+
+// ########## append-environment ##########
+define function append-environment(prev-env :: <object>, new-binding, new-value) => new-env;
   method(var)
-    if (var == new-biding)
+    if (var == new-binding)
       new-value
     else
       prev-env(var)
