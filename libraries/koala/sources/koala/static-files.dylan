@@ -75,9 +75,7 @@ define method maybe-serve-static-file
                           if (url[size(url) - 1] = '/')
                             directory-responder(request, response, document);
                           else
-                            let header = make(<header-table>);
-                            add-header(header, "Location", concatenate(url, "/"));
-                            moved-permanently-redirect(headers: header);  // 301
+                            moved-permanently-redirect(value: concatenate(url, "/"));  // 301
                           end if;
                         else
                           access-forbidden-error();  // 403
