@@ -49,13 +49,6 @@ define method \=(e1 :: <element>, e2 :: <element>)
   e1 == e2;  // compare identity, do not do a deep compare.
 end method \=;
 
-/* define method as(c :: subclass(<element>), elt :: <element>) => (ans) elt end;
-define method as(c :: subclass(<element>), pi :: <processing-instruction>)
- => (ans)
-  make(<element>, name: pi.name, attributes: pi.element-attributes,
-       children: #[]);
-end method as; */
-
 // allows users to interpose their own object hierarchies for the elements
 // This is sort of CLOS's change-class limited to compile-time schemes
 define open generic make-element(kids :: <sequence>, name :: <symbol>, 
@@ -67,17 +60,6 @@ define method make-element(k :: <sequence>, n :: <symbol>,
  => (elt :: <element>)
   make(<element>, children: k, name: n, attributes: a);
 end method make-element;
-
-/*
-// and, let's make life easier for those using <element>s (which is
-// most everyone using the xml-parser library:
-define method make(cls :: subclass(<element>), #key parent: p, attributes: a,
-                   name: n, children: k) => (elt :: <element>)
-  let elt = make-element(k, n, a, #t);
-  if(p) elt.element-parent := p end;
-  elt;
-end method make;
- */
 
 define class <char-string> (<xml>)
   inherited slot name, init-value: #"chars";
