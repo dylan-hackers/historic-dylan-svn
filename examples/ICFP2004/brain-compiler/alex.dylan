@@ -584,6 +584,173 @@ define sub brain keith-patroller (leave)
 end brain; // keith-patroller
 
 
+define sub brain keith-defender-bad (leave)
+
+  Flip 5, (defense_get_out_of_home);
+  Flip 4, (defense_get_out_of_home);
+  Flip 4, (kill, search);
+
+  [defense_get_out_of_home:]
+    Sense Home => defense_out_of_home;
+    Move defense_get_out_of_home;
+    Turn Right, (defense_get_out_of_home);
+
+  [defense_out_of_home:]
+    Mark 0;
+    Turn Right;
+    Turn Right;
+    Turn Right, (defense);
+  
+  [defense:]
+    Sense RightAhead Home, (defense_turn_right1, defense_move_right);
+  
+  [defense_turn_right1:]
+    Turn Right, (defense_move_right);
+  
+  [defense_move_right:]
+    Turn Right, (defense_move1);
+  
+  [defense_move1:]
+    Move => defense_move1;
+    Sense RightAhead Food, (defense_take_food);
+    Sense LeftAhead Friend, (defense_step_out, defense_move_right_part_2);
+  
+  [defense_take_food:]
+    Turn Right;
+    Move => defense_move_right_part_2;
+    PickUp next => next;
+
+  [next:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (return_food_move1);
+
+  [return_food_move1:]
+    Move return_food_move2 => return_food_move1;
+
+  [return_food_move2:]
+    Move => return_food_move2;
+    Drop, (defense_get_out_of_home);
+  
+  [defense_step_out:]
+    Turn Right;
+    Move step_out_move2 => defense_move_right_part_2;
+
+  [step_out_move2:]
+    Move => step_out_move2;
+    Turn Right;
+    Turn Right;
+    Turn Right, (step_in_move1);
+
+  [step_in_move1:]
+    Move step_in_move2 => step_in_move1;
+
+  [step_in_move2:]
+    Move => step_in_move2;
+    Turn Right;
+    Turn Right, (defense_move_right_part_2);
+  
+  [defense_move_right_part_2:]
+    Sense LeftAhead Home => defense_corner;
+    Turn Left, (defense);
+    
+  [defense_corner:]
+    Turn Left;
+    Turn Left, (defense);
+    Flip 6, (kill, search);
+  
+  [search:]
+    Move => search_blocked;
+    Sense Home, (search);
+    PickUp, (turn_and_return);
+    Sense Ahead FoeHome, (patrol, search);
+
+  [search_blocked:]
+    Turn Right, (search);
+  
+  [turn_and_return:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (return);
+  
+  [return:]
+    Move => return_blocked;
+    Sense Ahead (Marker 0) => return;
+    Drop, (turn_and_search);
+
+  [return_blocked:]
+    Turn Left, (return);
+  
+  [turn_and_search:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (search);
+  
+  [patrol:]
+    PickUp, (turn_and_return);
+    Sense RightAhead FoeHome, (patrol_turn_right1, patrol_move_right);
+  
+  [patrol_turn_right1:]
+    Turn Right, (patrol_move_right);
+  
+  [patrol_move_right:]
+    Turn Right, (patrol_move1);
+  
+  [patrol_move1:]
+    Move patrol_move_right_part_2 => patrol_move1;
+  
+  [patrol_move_right_part_2:]
+    Sense LeftAhead FoeHome => patrol_corner;
+    Turn Left, (patrol);
+  
+  [patrol_corner:]
+    Turn Left;
+    Turn Left, (patrol);
+  
+  [kill:]
+    Flip 10, (kill_turn);
+    Move => kill_turn;
+    Sense FoeHome, (kill_loop, kill);
+  
+  [kill_turn:]
+    Flip 2, (kill_turn_left, kill_turn_right);
+  
+  [kill_turn_left:]
+    Turn Left, (kill);
+  
+  [kill_turn_right:]
+    Turn Right, (kill);
+  
+  [kill_loop:]
+    PickUp, (kill_dump);
+    Sense Ahead FoeHome => kill_turn_and_loop;
+    Move kill_loop => kill_turn_and_loop;
+  
+  [kill_turn_and_loop:]
+    Turn Right, (kill_loop);
+  
+  [kill_dump:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (kill_exit);
+  
+  [kill_exit:]
+    Sense FoeHome => kill_drop;
+    Move kill_exit => kill_exit;
+  
+  [kill_drop:]
+    Drop;
+    Turn Right;
+    Turn Right;
+    Turn Right, (kill_move1);
+  
+  [kill_move1:]
+    Move kill_loop => kill_move1;
+
+end; // keith-defender-bad
+
+
+/*
 define ant-subbrain keith-defender
   Flip 2, (here, here);
 
@@ -682,7 +849,7 @@ Flip 6 73 1
 ;Turn Right 92
 ;Move 79 92
 end ant-subbrain; // keith-defender
-
+*/
 
 define sub brain chris-defender (leave)
 
@@ -782,6 +949,8 @@ end; // sub brain chris-defender
 // Main brain.
 define brain alex-keith
 
+//  Flip 2, (c-defender, c-defender);
+  
   Flip 5, (attacker, gatherer);
 
 
@@ -795,7 +964,7 @@ define brain alex-keith
 
   [gatherer:]
     Flip 5, (patroller);
-    Flip 3, (defender);
+    Flip 5, (defender);
     Sub keith-gatherer;
 
 
@@ -805,13 +974,13 @@ define brain alex-keith
 
 
   [defender:]
-    Flip 4, (c-defender, k-defender);
+    Flip 5, (c-defender, c-defender);
 
   [c-defender:]
     Sub chris-defender;
 
   [k-defender:]
-    Sub keith-defender;
+    Sub keith-defender-bad;
 
 end brain;
 
