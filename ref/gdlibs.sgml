@@ -142,12 +142,12 @@
       extensions. However, some extensions are more likely than others
       to make it into our future compilers. This file documents those
       extensions which we think will be included in our compiler's
-      Dylan library.</PARA>
+      <dlibrary>Dylan</dlibrary> library.</PARA>
       
       <PARA>Extensions which go in separate libraries are documented
-      in their own files; extensions which are part of the Mindy Dylan
-      library but which have a less certain future are documented in
-      the Mindy documentation.</PARA>
+      in their own files; extensions which are part of the Mindy
+      <dlibrary>Dylan</dlibrary> library but which have a less certain
+      future are documented in the Mindy documentation.</PARA>
 
       <PARA>For the remainder of this chapter, we shall refer to
       "Gwydion compilers" as a shorthand for "Mindy and other
