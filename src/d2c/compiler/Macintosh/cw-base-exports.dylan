@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/cw-base-exports.dylan,v 1.3 2002/03/24 20:05:28 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/cw-base-exports.dylan,v 1.3.10.2 2004/10/05 00:36:40 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -38,9 +38,6 @@ define library compiler-base
   use Standard-IO, export: all;
   use Print, export: all;
   use Format, export: all;
-#if (mindy)
-  use Debugger-Format;
-#endif
   use String-extensions;
   use Table-extensions, export: all;
   use base-file-system,
@@ -69,6 +66,7 @@ define library compiler-base
   export utils;
   export variables;
   export platform;
+  export platform-constants;
 end;
 
 define module common
@@ -82,13 +80,9 @@ define module common
 	     $minimum-integer, <byte-character>, $not-supplied,
 	     report-condition, condition-format,
              <format-string-condition>, <never-returns>,
-             <ratio>, numerator, denominator, key-exists?, assert,
-#if (mindy)
-             *debug-output*, main},
-#else
+             <ratio>, numerator, denominator, key-exists?, \assert,
              *warning-output*,
              <debugger>, *debugger*, invoke-debugger},
-#endif
     export: all;
   use Table-Extensions,
     import: {<equal-table>, <string-table>, equal-hash},
@@ -97,10 +91,9 @@ define module common
   use Print, export: all;
   use PPrint, export: all;
   use Format, export: all;
-#if (~mindy)
   create
+     *error-output*,
      *debug-output*;
-#endif
 end;
 
 define module utils
@@ -108,9 +101,7 @@ define module utils
   use standard-io;
   use Introspection, import: {object-address, class-name};
   use System, import: {copy-bytes};
-#if (~mindy)
   use System, import: {\call-out};
-#endif
 
   // Stuff defined in utils
   export
@@ -127,11 +118,7 @@ end;
 
 define module od-format
   use common;
-#if (mindy)
-  use system, import: {get-time-of-day};
-#else
   use system, import: {\call-out};
-#endif
   use standard-io;
   use introspection, import: {function-name};
   use utils;
@@ -236,6 +223,7 @@ define module compile-time-values
     <ct-value>,
     <eql-ct-value>, ct-value-singleton, ct-value-singleton-setter,
     <literal>, literal-value, <eql-literal>,
+    ct-value-slot,
     <ct-not-supplied-marker>,
     <literal-number>, <literal-real>, <literal-rational>,
     <literal-general-integer>, <literal-integer>, <literal-extended-integer>,
@@ -256,9 +244,7 @@ end;
 define module source
   use common;
   use System, import: {copy-bytes};
-#if (~mindy)
   use System, import: {buffer-address};
-#endif
   use utils;
   use od-format;
   use compile-time-values;
@@ -401,13 +387,20 @@ define module platform
     default-features,
 
     platform-integer-length,
-    pointer-size,
-    integer-size,
-    long-size,
-    short-size,
-    single-size,
-    double-size,
-    long-double-size,
+    pointer-size, pointer-alignment,
+    integer-size, integer-alignment,
+    long-size, long-alignment,
+    long-long-size, long-long-alignment,
+    short-size, short-alignment,
+    single-size, single-alignment,
+    double-size, double-alignment,
+    long-double-size, long-double-alignment,
+
+    single-mantissa-digits, double-mantissa-digits,
+    long-double-mantissa-digits,
+    minimum-single-float-exponent, maximum-single-float-exponent,
+    minimum-double-float-exponent, maximum-double-float-exponent,
+    minimum-long-double-float-exponent, maximum-long-double-float-exponent,
 
     object-filename-suffix,
     library-filename-prefix,
@@ -430,10 +423,12 @@ define module platform
     link-shared-executable-command,
     link-executable-flags,
     link-profile-flags,
+    link-debug-flags,
     make-command,
     delete-file-command,
     compare-file-command,
     move-file-command,
+    make-jobs-flag,
     path-separator,
 
     link-doesnt-search-for-libs?,
@@ -510,8 +505,8 @@ define module definitions
     *defn-dynamic-default*, ct-value,
     install-transformers, $definition-slots,
     definition-syntax-info, definition-kind,
-    <abstract-constant-definition>, <abstract-variable-definition>,
     <implicit-definition>,
+    <abstract-constant-definition>, <abstract-variable-definition>,
     <class-definition>, class-defn-maker-function,
     class-defn-deferred-evaluations-function,
     class-defn-key-defaulter-function,
@@ -522,7 +517,6 @@ define module definitions
     function-defn-ct-value, function-defn-ct-value-setter,
     function-defn-transformers,
     function-defn-movable?, function-defn-flushable?;
-
 end;
 
 define module variables
@@ -543,14 +537,14 @@ define module variables
 
     $Bootstrap-Module, add-bootstrap-export, define-bootstrap-module,
 
-    find-library, library-name, note-library-definition,
+    find-library, library-name, note-library-definition, do-exported-modules,
     find-module, module-name, module-syntax-table,
-    note-module-definition, deferred-importers,
+    note-module-definition, deferred-importers, do-exported-variables,
     <variable>, find-variable, variable-name, variable-definition,
     variable-transformers, variable-transformers-setter,
     variable-ct-evaluator, variable-ct-evaluator-setter,
     variable-fragment-expander, variable-fragment-expander-setter,
-    note-variable-definition,
+    note-variable-definition, note-variable-referencing-macro,
     <use>, <all-marker>, <renaming>, renaming-orig-name, renaming-new-name,
 
     module-home, variable-home,
@@ -777,6 +771,7 @@ define module c-representation
     <general-representation>,
     <heap-representation>,
     <immediate-representation>,
+    <magic-representation>,
     <c-data-word-representation>,
 
     representation-class,
@@ -784,8 +779,8 @@ define module c-representation
     representation-name,
 
     *general-rep*, *heap-rep*, *boolean-rep*,
-    *long-rep*, *int-rep*, *uint-rep*, *short-rep*, *ushort-rep*,
-    *byte-rep*, *ubyte-rep*, *ptr-rep*,
+    *long-long-rep*, *long-rep*, *int-rep*, *uint-rep*,
+    *short-rep*, *ushort-rep*, *byte-rep*, *ubyte-rep*, *ptr-rep*,
     *float-rep*, *double-rep*, *long-double-rep*;
 end;
 
@@ -858,9 +853,9 @@ define module flow
 
     dependents-setter, derived-type-setter, guessed-type-setter,
     source-exp-setter, source-next-setter, dependent-setter,
-    dependent-next-setter, /* var-info-setter,*/ /* asserted-type-setter, */
+    dependent-next-setter,
     definer-setter, definer-next-setter, needs-type-check?-setter,
-    queue-next-setter, /* definition-of-setter,*/ definitions-setter,
+    queue-next-setter, definitions-setter,
     defines-setter, region-setter, next-op-setter, depends-on-setter,
     prev-op-setter;
 
@@ -877,3 +872,15 @@ define module signature
   use od-format;
 end;
 
+define module platform-constants
+  use common;
+  use utils;
+  use compile-time-values;
+  use names;
+  use variables;
+  use ctype;
+  use definitions;
+  use platform;
+
+  export define-platform-constants;
+end module;
