@@ -8,6 +8,27 @@ version of Gwydion Dylan. It is a development release, not finished software.
 Be sure to review the <A
 HREF="limitations.phtml">limitations</A>.</P>
 
+<H3>Dependencies</H3>
+
+<p>Gwydion Dylan uses a number of other tools which you will need to obtain
+if your system doesn't already have them.  Mindy compiler and interpreter
+binaries are stand-alone, but to use d2c to develop Dylan programs you will of
+course require a C compiler, linker, make and so forth.  Most platforms also
+require GNU libtool, and we supply some utility scripts that use Perl.
+
+<p>If you want to build your own d2c from source then you will also need GNU
+autoconf, automake and m4.
+
+<p>Using the d2c compiler to build compiled Dylan programs requires the
+<a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc">Boehm-Demers-Weiser
+conservative garbage collector</a>.  Gwydion versions 2.3.9 and
+earlier come with the GC library included but with 2.3.10 and later we have
+decided for a number of reasons that it is better for the user (or OS
+vendor) to supply the GC library.
+
+
+<H3>Available Packages></H3>
+
 <P>To use the d2c compiler, you'll normally want to download precompiled
 binaries for your platform (d2c is written in Dylan). Binary tarballs are
 available for several different platforms, and the following RPMs are
