@@ -1,2 +1,6 @@
 *.c
 *.mak-temp
+*.du
+*.mak
+*.c-temp
+
