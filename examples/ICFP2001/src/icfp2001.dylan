@@ -18,8 +18,8 @@ define class <attribute> (<object>)  // make that a flyweight pattern one day
   slot italic     :: <boolean>;
   slot strong     :: <boolean>;
   slot typewriter :: <boolean>;
-  slot underline  :: limited(<integer>, min:0, max: 3);
-  slot size       :: limited(<integer>, min:0, max: 9);
+  slot underline  :: false-or(limited(<integer>, min:0, max: 3));
+  slot size       :: false-or(limited(<integer>, min:0, max: 9));
   slot color      :: <color>;
 end class <attribute>;
 
