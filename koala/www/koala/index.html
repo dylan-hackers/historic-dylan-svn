@@ -9,48 +9,68 @@ server/client.">
 
 <body bgcolor="#DEEEFE">
 
-<table border="0" width="95%" cellpadding="4" cellspacing="0" align="center">
+<table border="0" width="96%" cellpadding="4" cellspacing="0" align="center">
   <tr>
     <td width="20%" valign="top">
       <img src="koala.jpg" width="155" height="200">
       <br><br><br>
       <h3>Quick Links</h3>
-      <a href="koala-0.3.1-src.zip">v0.3.1 source only</a>
-      <br><a href="koala-0.3.1-all.zip">v0.3.1 source + binary</a>
-      <br>
       <br><a href="koala.html">Documentation</a>
       <br><a href="change-log.txt">change-log.txt</a>
     </td>
     <td width="80%" valign="top">
-      <h2>Koala HTTP Server and Template Engine</h2> Koala is an HTTP
-server written in Dylan.  It includes Dylan Server Pages (DSP), a
-template engine similar to JSP without scriptlets, and an XML-RPC
-server/client.
+      <h2>Koala HTTP Server and Template Engine</h2>
 
-<p>The actual HTTP server portion of Koala was written mostly by Gail
-Zacharias.  She moved on to other things before it was in a functioning
-state, so I finished it up and added <a href="dsp.html">Dylan Server
-Pages</a> and <a href="http://www.xmlrpc.org">XML-RPC</a>.
+<b>What?</b>
 
-<p>The current version is v0.3.1.  (See the <a
-href="change-log.txt">change log</a> for details on changes in this
-version.)  It is provided mostly for the interest and amusement of other
-Dylan programmers and is nowhere near production quality.  The current
-version is for Windows only.  I plan to fix this as soon as I can by
-porting to <a href="http://www.gwydiondylan.org/">Gwydion Dylan</a>.  If
-you want to help, let me know!
+<br>Koala is an HTTP server written in Dylan.  It includes Dylan Server
+Pages (DSP), a template engine similar to JSP without scriptlets, and an
+XML-RPC server/client.
 
-<p>There is a small demo application included, which shows how to use the
-features of Koala and DSP.
+<p>
+<b>Who?</b>
+
+<br>The actual HTTP server portion of Koala was written mostly by gz.
+She moved on to other things before it was in a functioning state, so
+cgay got it to basic working order and added <a href="dsp.html">Dylan
+Server Pages</a> and <a href="http://www.xmlrpc.org">XML-RPC</a>.  The
+sources were re-hosted at the <a
+href="http://www.gwydiondylan.org">Gwydion Dylan</a> site in early 2004
+and many others have been contributing.
+
+<p>
+<b>Status?</b>
+
+<br>There is currently no &quot;stable&quot; version of Koala, but we
+attempt to keep the sources in working condition.  There has been a lot
+of recent activity and Koala now runs on Linux, modulo problems with the
+GC in FunDev/Linux.  Once those problems are fixed we expect it to be
+quite usable.  There is also no real database support in FunDev/Linux
+yet, so the database support in Koala only works on Windows.
+
+<p>
+<b>How?</b>
+
+<br>There is a small demo application included, which shows how to use
+the features of Koala and DSP.  There is some rudimentary <a
+href="koala.html">documentation</a> included.  See <b>Contact?</b>,
+below, if you have questions!  Any and all feedback appreciated.
 
 <p>A heavily commented Koala configuration file can be found <a
 href="koala-config.xml">here</a>.
 
-<p>Any and all feedback appreciated.
-<br>Send to <i>my-name</i>@attbi.com.  My name appears in the URL for this
-web page.
+<p>
+<b>Contact?</b>
+<ul>
+  <li>Post to comp.lang.dylan and we'll see it!</li>
+  <li>Send mail to <a href="mailto:gd-hackers@gwydiondylan.org">gd-hackers@gwydiondylan.org</a>.</li>
+  <li>Come ask questions on IRC: irc.freenode.net #dylan</li>
+</ul>
 
-<p><font size="-1"><i>Last modified: 2002.10.03</i></font>
+<p>
+<table border="0" width="100%">
+  <tr><td align="right"><font size="-1"><i>Last modified: April, 2004</i></font></td></tr>
+</table>
 
     </td>
   </tr>
