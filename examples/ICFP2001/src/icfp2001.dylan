@@ -40,6 +40,20 @@ define function main(name, arguments)
   end if;
 */
 
+/*
+<bruce> - readin the original text and save it in case we can't do any better
+<bruce> - convert to fully-annotated runs of characters
+<bruce> - do a one-pass simple-minded markup and keep it if it's better than the original in 
+           case we can't do any better
+<andreas> - generate permutations of the markup until time runs out.
+<bruce> - step through the text.  At each change you have to consider whether to open a new tag
+           or close the most recent old one.  If multiple attributes change then you have 
+           multiuple choices for which to open first
+<bruce> all could be done in parallel, keeping track of the comparitive resulting sizes
+<bruce> (this is the "big risk, big win" approach...)
+<andreas> Some sort of pruning will be required.
+*/
+
   block ()
 
 
