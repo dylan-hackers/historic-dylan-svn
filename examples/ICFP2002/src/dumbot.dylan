@@ -3,6 +3,15 @@ module: client
 define class <dumbot> (<robot-agent>)
 end class <dumbot>;
 
+define class <dumber-bot> (<robot-agent>)
+end class <dumber-bot>;
+
+define method generate-next-move(me :: <dumber-bot>, s :: <state>)
+ => <command>;
+  make(<move>, direction: $north);
+end method generate-next-move;
+    
+
 
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)

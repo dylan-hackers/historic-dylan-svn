@@ -88,8 +88,11 @@ define module client
   use command;
   use path;
 
-  export <robot-agent>,
-    <dumbot>;
+  export
+    <robot-agent>,
+    <dumbot>,
+    <dumber-bot>,
+    generate-next-move;
 end module client;
 
 
