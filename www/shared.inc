@@ -2,7 +2,7 @@
 
 require "db_connect.inc";
 
-function current_version(){
+function current_version() {
     echo "2.3.11";
 }
 
@@ -130,7 +130,7 @@ function standard_footer () {
       </div>
 
       <div>
-Copyright &copy;1998&ndash;2003 Gwydion Dylan Maintainers. All rights
+Copyright &copy;1998&ndash;2004 Gwydion Dylan Maintainers. All rights
 reserved.
       </div>
 
