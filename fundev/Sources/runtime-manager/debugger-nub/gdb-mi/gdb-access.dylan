@@ -222,7 +222,17 @@ define macro mi-operation-definer
   { define mi-operation ?:name([ ?option ] ?options) ?parses:* end }
   =>
   {
-    define class-for-regular mi-operation ?name( [ ?option ] ?options) end;
+    define class-for-regular mi-operation ?name([ ?option ] ?options) end;
+//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define result-for-sequential mi-operation ?name(?parses) end;
+//    define parser-for-sequential mi-operation ?name(?parses) end
+  }
+
+  { define mi-operation ?:name({ ?alternate } ?options) ?parses:* end }
+  =>
+  {
+    define class-for-regular mi-operation ?name(?alternate ?options) end;
 //    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
 //    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
 //    define result-for-sequential mi-operation ?name(?parses) end;
@@ -230,14 +240,18 @@ define macro mi-operation-definer
   }
 
   // arguments
+/*  { define mi-operation ?:name(?argument; ?options) ?parses:* end }
+  =>
+  {
+    define class-for-regular mi-operation ?name(?argument ?options) end;
+    // ---- more
+  } */
+
   { define mi-operation ?:name(?argument, ?arguments) ?parses:* end }
   =>
   {
     define class-for-regular mi-operation ?name(?argument ?arguments) end;
-//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define result-for-sequential mi-operation ?name(?parses) end;
-//    define parser-for-sequential mi-operation ?name(?parses) end
+    // ---- more
   }
 
   // ignore all other stuff for now!!!! #####
@@ -268,11 +282,18 @@ define macro mi-operation-definer
   options:
     {} => {}
     { [ ?option ] ... } => { [ ?option ] ... }
+    { { ?alternate } ... } => { ?alternate ... }
 
   option:
     { ?:name } => { ?name ?name :: <boolean>;(init-keyword: #"?name", init-value: #f) }
     { ?flag:name ?:name } => { ?flag ?name :: <boolean>;(init-keyword: #"?flag", init-value: #f) }
     { ?flag:name ?:name :: ?:expression } => { ?flag ?name :: ?expression;(required-init-keyword: #"?flag") }
+    { ?:name :: ?:expression } => { ?name ?name :: ?expression;(required-init-keyword: #"?name") }
+    
+  alternate:
+    { } => { }
+    { ?option; ... } => { [ ?option ] ... }
+//    { ?option } => { [ ?option ] }
 
   arguments:
     {} => {}
@@ -329,7 +350,7 @@ define mi-operation break-insert(
     [ c condition :: <mi-expression> ]
     [ i ignore-count :: <positive> ]
     [ p thread :: <positive> ]
-//    { line :: <positive>; addr :: <mi-address> }
+    { line :: <positive>; addr :: <mi-address> }
 )
   resulting done => parse-breakpoint;// bkpt={number="1",addr="0x0001072c",file="recursive2.c",line="4"}
 end;
@@ -363,14 +384,25 @@ define mi-parser breakpoint-table(BreakpointTable)
 
 end;
 
-define mi-operation break-watch({"-a"; "-r"})
+define mi-operation break-watch({a; r})
   resulting done => parse-reason;
 end;
 
+
+/*
 define mi-operation data-disassemble(
-    [ -s start-addr -e end-addr ]
+    [ s start-addr -e end-addr ]
   | [ -f filename -l linenum [ -n lines ] ]
   -- mode
+  )
+
+  resulting done => parse-instructions; // asm_insns
+end;
+*/
+
+define mi-operation data-disassemble(mode :: one-of(source:, raw:);
+    [ s start-addr /* -e end-addr */ ]
+  [ f filename /* -l linenum [ -n lines ] */]
   )
 
   resulting done => parse-instructions; // asm_insns
