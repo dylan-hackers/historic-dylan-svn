@@ -3,18 +3,20 @@ use-libraries: dylan, common-dylan, io, gtk-2
 use-modules: common-dylan, streams, standard-io, format-out, gtk
 
 define method hello(widget :: <GtkWidget>)
-  format-out("Hello, World, %=\n!\n", args);
+  format-out("Hello, World, %=!\n", widget);
   force-output(*standard-output*);
 end method hello;
 
 define method delete-event(widget :: <GtkWidget>, event :: <GdkEvent>)
   => (deny-deletion? :: <boolean>)
-  format-out ("Delete event occurred: %=\n", args);
+  format-out ("Delete event occurred: %= got %=\n", widget, event);
   force-output(*standard-output*);
   #t
 end method delete-event;
 
 define method destroy-event(widget :: <GtkWidget>) => ()
+  format-out ("Destroy event occurred: %=\n", widget);
+  force-output(*standard-output*);
   gtk-main-quit ()
 end method destroy-event;
 
