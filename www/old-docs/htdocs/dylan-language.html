@@ -1,0 +1,144 @@
+<HTML>
+<HEAD>
+<TITLE>The Dylan Language Standard</TITLE> 
+<!-- Changed by: Kim Barrett, 18-Feb-1998, updated URL for AW books -->
+<!__ Changed by: Kim Barrett, 14-Feb-1998, moved to isr.com -->
+<!-- Changed by: Kim Barrett, 23-Apr-1997, update errata pointer -->
+<!-- Changed by: Kim Barrett, 9-Apr-1997, add threads library proposal -->
+<!-- Changed by: Kim Barrett, 1-Mar-1997, removed all cambridge.apple.com -->
+<!-- Changed by: Kim Barrett, 9-Jan-1997, dylan source character set proposal -->
+<!-- Changed by: Kim Barrett, 2-Jan-1997, adopted suggestions from alms -->
+<!-- Changed by: Kim Barrett, 31-Dec-1996, brought up to date -->
+<!-- Changed by: Peter Norvig, 14-Mar-1996 -->
+</HEAD> 
+<BODY BGCOLOR="#FFFFFF"> 
+<center>
+<IMG SRC="large-dylan-logo.gif" height=187 width=187>
+</center>
+
+<H1><IMG SRC="small-dylan-logo.gif" height=28 width=28> The Dylan Language Standard </H1>
+
+From 1992 to 1995, the Dylan Language was defined and refined by Apple
+Computer, in cooperation with other members of the Dylan community.  The
+culmination of this effort was a draft <I>Dylan Reference Manual</I>
+(or <I>DRM-TR</I> for short), which was released along with the
+"Apple Dylan Technology Release" software, in November 1995.
+<A HREF="mailto:alms@folly.org">Andrew Shalit</A>, the principal author
+of the <I>DRM-TR</I>, has since written an updated version, incorporating
+many corrections and clarifications suggested by the Dylan community.
+This updated <I>Dylan Reference Manual</I> (or <I>DRM</I> for short)
+was published by
+<A HREF="http://www.awl.com/cseng/titles/0-201-44211-6/">Addison-Wesley</A>
+in September 1996.  The book is 470 pages, and its ISBN number is
+0-201-44211-6.
+
+<P>
+The <I>DRM-TR</I> is available in
+<A HREF="http://www.harlequin.com/books/DRM/">html</A> and
+<A
+HREF="http://www.cs.ucla.edu/csd-grads-gs4/egouriou/www/dylan-framed/frameset.html">framed
+html</A> formats.  At present, only the <I>DRM-TR</I> is publicly available
+in electronic form, though efforts are being made to make the <I>DRM</I>
+available.
+
+<P>
+You can see a list of <A HREF="whats-new.html"><B>what's new</B></A>
+on these pages.
+
+<P>
+The <I>Dylan Reference Manual</I> is meant as a reference work for
+programmers and language implementors.  For people who want to start
+learning and using Dylan, the book
+<A HREF="http://www.harlequin.com/books/dylan-book/index.html">
+Dylan Programming</A> is more appropriate.  The authors are Neal Feinberg,
+Sonya E. Keene, Robert O. Mathews, and P. Tucker Withington, all Harlequin
+employees.
+
+<P>
+<I>Dylan Programming</I> is a tutorial on programming in Dylan.  It is full of
+examples, hints, and practical advice.  It starts with the most basic
+use of Dylan (including an object-oriented tutorial), and proceeds to
+more advanced topics such as multiple inheritance, performance,
+exceptions, and macros.  <I>Dylan Programming</I> available
+from
+<A HREF="http://www.awl.com/cseng/titles/0-201-47976-1">Addison-Wesley</A>.
+The book is 412 pages, and its ISBN number is 0-201-47976-1.
+
+<P>
+You can see other introductory material on Dylan at the web sites for
+<A HREF="http://LEGEND.GWYDION.CS.CMU.EDU/gwydion/">CMU Dylan</A> and <A
+HREF="http://www.harlequin.com/full/dylan.html">Harlequin DylanWorks</A>.
+
+
+<H2><IMG SRC="small-dylan-logo.gif" height=28 width=28> The Evolution of the Dylan Language Standard</H2>
+
+There will be an inevitable need to update the Dylan language even now, after
+the <I>DRM</I> has been published.  There is also a need to define
+libraries that are not part of the language but are agreed to be standard.
+
+<P>
+The Dylan community, lead by <A
+HREF="http://www.harlequin.com">Harlequin</A> and <A
+HREF="http://LEGEND.GWYDION.CS.CMU.EDU/gwydion/">CMU</A>, have
+established a procedure whereby change proposals (in a
+<A HREF="form.html">standard format</A>) can be sent to the
+<!-- mailing list is intentionally not a "mailto" the mailing list -->
+<I>dylan-partners@camellia.org</I>
+mailing list (<A HREF="mailto:dylan-partners-request@camellia.org">
+for administrative correspondence</A>).  Proposals will be discussed on that list by
+interested participants.  A moderator will be responsible for setting a
+reasonable cut-off date for comments on each proposal, recording the
+consensus decision in the evolving language standard documents (here
+on these pages), and making decisions when there is a lack of
+consensus. Currently, the moderator is
+<A HREF="mailto:kab@camellia.org">Kim Barrett</A>.
+
+<P>
+In addition, a list of
+<A HREF="http://www.shore.net/~alms/dylan/drm_errata.html"><I>DRM errata</I></A>
+is being maintained by <A HREF="mailto:alms@folly.org">Andrew Shalit</A>.
+
+<H2><IMG SRC="small-dylan-logo.gif" height=28 width=28> Open Proposals</H2>
+
+<!-- No language change proposals are currently open. -->
+<OL>
+<LI> <A HREF="proposals-open/source-character-set.html">Dylan Source Character Set</A>.
+Opened 9 January 1997.
+<LI> <A HREF="proposals-open/threads-library.html">Threads Library</A>.
+Opened 9 April 1997.
+</OL>
+
+<H2><IMG SRC="small-dylan-logo.gif" height=28 width=28> Accepted Proposals</H2>
+
+<OL>
+<LI> <A HREF="proposals-accepted/proposal-define-function.txt">Define Function</A>.
+Accepted 31 December 1996.
+</OL>
+
+<H2><IMG SRC="small-dylan-logo.gif" height=28 width=28> Rejected Proposals</H2>
+
+No language change proposals have been rejected yet.
+
+<H2><IMG SRC="small-dylan-logo.gif" height=28 width=28> List of Standard Libraries</H2>
+
+There are no official standard libraries yet, but there will be soon.
+Libraries that have been worked on include:
+
+<OL>
+<LI> Interface to non-Dylan code (Melange/Collage)
+<LI> Graphical User Interface and Event Handling (Silica/DUIM)
+<LI> Streams
+<LI> Integers (e.g., unlimited precision integers)
+<LI> Print (Print and Pretty-print modules) and Format libraries
+<LI> Format-out and Standard-io Libraries
+<LI> Implementation-interrogation or Platform-query Library
+<LI> Language extensions (e.g., one-of, false-or)
+</OL>
+
+
+<HR>
+<ADDRESS> 
+<A HREF="mailto:kab@camellia.org">Kim Barrett</A> - Updated 14 Feb 1998
+</ADDRESS>
+</BODY> 
+</HTML>
