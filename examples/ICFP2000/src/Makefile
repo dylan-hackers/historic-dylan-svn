@@ -20,4 +20,4 @@ install: ../runme
            src/Makefile src/icfp2000.lid src/*.dylan
 
 test: icfp2000
-	( time ./icfp2000 test-render.gml ) && xview result.ppm
+	( time ./icfp2000 < test-render.gml ) && xview result.ppm
