@@ -16,8 +16,7 @@ copyright: see below
 //    and on appropriate parts of any derivative works.
 // 2. Documentation (paper or online) accompanying any system that
 //    incorporates this software, or any part of it, must acknowledge
-//    the contribution of the Gwydion Project at Carnegie Mellon
-//    University, and the Gwydion Dylan Maintainers.
+//    the contribution of the Gwydion Dylan Maintainers.
 // 
 // This software is made available "as is".  Neither the authors nor
 // Carnegie Mellon University make any warranty about the software,

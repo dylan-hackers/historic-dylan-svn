@@ -17,8 +17,7 @@ copyright: see below
 //    and on appropriate parts of any derivative works.
 // 2. Documentation (paper or online) accompanying any system that
 //    incorporates this software, or any part of it, must acknowledge
-//    the contribution of the Gwydion Project at Carnegie Mellon
-//    University, and the Gwydion Dylan Maintainers.
+//    the contribution of the Gwydion Dylan Maintainers.
 // 
 // This software is made available "as is".  Neither the authors nor
 // Carnegie Mellon University make any warranty about the software,
@@ -38,53 +37,56 @@ end method foo;
 
 //--------------------------------------------------
 // TESTCASES:
-// these should end up in a testworks suite
+// these should end up in a TestWorks suite
 //
 
 define constant test-transcript
   = #[
+  
+  
+#[
        "34-eee"
        "34^error,msg=\"Undefined MI command: eee\""
+],
+#[
+"-break-after 1 7"
+"&\"No breakpoint number 1.\n\""
+"^error,msg=\"No breakpoint number 1.\""
+],
 
 #[
--break-after 1 7
-&"No breakpoint number 1.\n"
-^error,msg="No breakpoint number 1."
-]
+"-break-list"
+"^done,BreakpointTable={}"
+],
 
 #[
--break-list
-^done,BreakpointTable={}
-]
+"-break-info 1"
+"^done,BreakpointTable={}"
+],
 
 #[
--break-info 1
-^done,BreakpointTable={}
-]
+],
 
 #[
-]
+],
 
 #[
-]
+],
 
 #[
-]
+],
 
 #[
-]
+],
 
 #[
-]
+],
 
 #[
-]
+],
 
 #[
-]
-
-#[
-]
+],
 
 #[
 ]
@@ -97,28 +99,28 @@ define constant test-transcript
 // you can have any number of sessions open with gdb
 //
 
-define class <gdb-mi-session>
+define class <gdb-mi-session>(<object>)
   // 
   // pending: associating sent (but not yet answered) tokens with commands
   //
-  slot session-pending :: <dequeue> = make(<dequeue>);
+  slot session-pending :: <deque>; // = make(<dequeue>);
   //
   // history: a sequence of tokens, including the pending ones
   //
-  slot session-history :: <stretchy-vector> = make(<stretchy-vector>);
+  slot session-history :: <stretchy-vector>; // = make(<stretchy-vector>);
   //
   // results: associating results with tokens
   // 
-  slot session-results :: <table> = make(<table>);
+  slot session-results :: <table>; // = make(<table>);
   //
   // commands: associating commands with tokens
   // 
-  slot session-commands :: <table> = make(<table>);
+  slot session-commands :: <table>; // = make(<table>);
 end;
 
 define abstract class <command>(<object>)
-  slot command-token :: <integer>
-  class slot current-token :: <integer> = 0;
+  slot command-token :: false-or(<integer>), init-keyword: token:, init-value: #f;
+  class slot current-token :: <integer>;// = 0;
 end;
 
 define class <cli-command>(<command>)
@@ -128,9 +130,25 @@ end;
 
 define constant <operation> = <symbol>;
 
-define class <mi-command>(<command>)
+define abstract class <mi-command>(<command>)
 end;
 
+
+define macro mi-operation-definer
+  {define mi-operation ?:name; ?:* end}
+  =>
+  {}
+
+  {define mi-operation ?:name(?:*) ?:* end}
+  =>
+  {}
+end;
+
+define macro mi-parser-definer
+  {define mi-parser ?:name(?:*) ?:* end}
+  =>
+  {}
+end;
 
 define mi-operation break-after(number :: <positive>, count :: <positive>)
   resulting error => report;
@@ -149,7 +167,7 @@ end;
 define mi-operation break-enable((breakpoint :: <positive>)) // sequence !! map to #rest
 end;
 
-define mi-operation break-info breakpoint(breakpoint :: <positive>)
+define mi-operation break-info(breakpoint :: <positive>)
 end;
 
 
@@ -172,7 +190,7 @@ define mi-parser breakpoint(bkpt)
 end;
 
 
-define mi-operation break-list
+define mi-operation break-list;
   resulting done => parse-breakpoint-table;
 end;
 
@@ -201,8 +219,8 @@ end;
 
 define mi-operation data-list-changed-registers;
   resulting done => parse- // changed-registers=["0","1","2","4","5","6","7","8","9",
-"10","11","13","14","15","16","17","18","19","20","21","22","23",
-"24","25","26","27","28","30","31","64","65","66","67","69"]
+// "10","11","13","14","15","16","17","18","19","20","21","22","23",
+// "24","25","26","27","28","30","31","64","65","66","67","69"]
 end;
 
 
@@ -210,10 +228,10 @@ end;
 
 
 define mi-operation data-list-register-names([ ( regno :: <positive> ) ])
-done,register-names=["r1","r2","r3"]
+  resulting done => parse-registers // -names=["r1","r2","r3"]
 end;
 
-define mi-operation data-list-register-values(fmt :: <character>, [ ( regno :: <positive> ) ]
+define mi-operation data-list-register-values(fmt :: <character>, [ ( regno :: <positive> ) ])
 end;
 
 
@@ -256,19 +274,15 @@ define mi-operation exec-run;
 
 end;
 
-define mi-operation 
-
-end;
-
 define mi-operation exec-show-arguments;
 
 end;
 
-define mi-operation exec-step
+define mi-operation exec-step;
 
 end;
 
-define mi-operation exec-step-instruction
+define mi-operation exec-step-instruction;
 
 end;
 
@@ -284,38 +298,38 @@ define mi-operation file-exec-file([file :: <byte-string>])
 
 end;
 
-define mi-operation file-list-exec-sections
+define mi-operation file-list-exec-sections;
 
 end;
 
-define mi-operation file-list-exec-source-file
+define mi-operation file-list-exec-source-file;
 
 end;
 
-define mi-operation file-list-exec-source-files
+define mi-operation file-list-exec-source-files;
 
 end;
 
-define mi-operation file-list-shared-libraries
+define mi-operation file-list-shared-libraries;
 
 end;
 
-define mi-operation file-list-symbol-files
+define mi-operation file-list-symbol-files;
 
 end;
 
-define mi-operation file-symbol-file([file :: <byte-string>]}
+define mi-operation file-symbol-file([file :: <byte-string>])
 
 end;
 
 // ####################################
 // Miscellaneous GDB commands in GDB/MI
 
-define mi-operation gdb-exit
+define mi-operation gdb-exit;
 
 end;
 
-define mi-operation gdb-set
+define mi-operation gdb-set;
 
 end;
 
@@ -323,15 +337,15 @@ define mi-operation gdb-show(expr)
 
 end;
 
-define mi-operation gdb-version
+define mi-operation gdb-version;
 
 end;
 
-define mi-operation interpreter-exec interpreter command
+define mi-operation interpreter-exec(interpreter command)
 
 end;
 
-
+/*
 define mi-operation 
 
 end;
@@ -383,12 +397,18 @@ end;
 define mi-operation 
 
 end;
-
+*/
 
 
 // ####################################
 // GDB/MI Stack Manipulation Commands
 
 
+
+
+
+
 define method print-object(s :: <stream>, cli :: <cli-command>)
+
+end;
 
