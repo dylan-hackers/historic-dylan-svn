@@ -2789,8 +2789,85 @@ Non-vector subsequences may take non-constant time to create, but will provide c
     </sect1>
     <sect1 id="libs-collection-extensions-vector-search">
 	<title>Module vector-search</title>
-	<para>
+	<para>The vector-search module provides basic search and replace capabilities upon restricted subsets of <classname>&lt;sequence&gt;</classname> -- primarily <classname>&lt;vector&gt;</classname>. Exploiting the known properties of these types yields substantially better performance than can be achieved for sequences in general. 
 	</para>
+
+	<dylanmethoddef>
+	  <defname>find-first-key</defname>
+	  <defsummary>Find the index of first element of a &lt;vector&gt;
+	  </defsummary>
+        <defparameters>
+          <param>
+            <paramname>seq</paramname>
+            <paramtype>&lt;vector&gt;</paramtype>
+          </param>
+          <param>
+            <paramname>pred?</paramname>
+	 	<paramsummary>A &lt;function&gt; that returns true for a matching condition</paramsummary>
+          </param>
+          <keyparam>
+            <paramname>start</paramname>
+		<paramdefault>0</paramdefault>
+            <paramsummary>From which element to start the search
+            </paramsummary>
+          </keyparam>
+          <keyparam>
+            <paramname>end</paramname>
+            <paramsummary>Where to end the search
+            </paramsummary>
+          </keyparam>
+          <keyparam>
+            <paramname>failure</paramname>
+            <paramsummary>Returned if no match found
+            </paramsummary>
+          </keyparam>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+          <para>Find the index of first element (after <dlit>start</dlit> but before <dlit>end</dlit>) of a vector which satisfies the given predicate.  If no matching element is found, return <dlit>failure</dlit>.  The defaults for <dlit>start</dlit>, <dlit>end</dlit> and <dlit>failure</dlit> are, respectively,  0, size(vector), and &false;.  This function is like <function>find-key</function>, but accepts <dlit>start:</dlit> and <dlit>end:</dlit> rather than <dlit>skip:</dlit>.
+</para>
+        </defdescription>
+      </dylanmethoddef>
+
+	<dylanmethoddef>
+	  <defname>find-last-key</defname>
+	  <defsummary>
+	    This is like find-first-key, but goes backward from end.
+	  </defsummary>
+        <defparameters>
+          <param>
+            <paramname>seq</paramname>
+            <paramtype>&lt;vector&gt;</paramtype>
+          </param>
+          <param>
+            <paramname>pred?</paramname>
+	 	<paramsummary>A &lt;function&gt; that returns true for a matching condition</paramsummary>
+          </param>
+          <keyparam>
+            <paramname>start</paramname>
+		<paramdefault>0</paramdefault>
+            <paramsummary>From which element to start the search
+            </paramsummary>
+          </keyparam>
+          <keyparam>
+            <paramname>end</paramname>
+            <paramsummary>Where to end the search
+            </paramsummary>
+          </keyparam>
+          <keyparam>
+            <paramname>failure</paramname>
+            <paramsummary>Returned if no match found
+            </paramsummary>
+          </keyparam>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+          <para>See the description for <function>find-first-key</function></para>
+        </defdescription>
+      </dylanmethoddef>
+
     </sect1>
   </CHAPTER>
 
