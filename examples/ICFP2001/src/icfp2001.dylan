@@ -170,48 +170,55 @@ define function bgh-parse(s :: <byte-string>)
   let tag-stack = make(<stretchy-vector>);
   let current-attributes = make(<attribute>);
   let p = 0;
+
+  local
+    method save-fragment()
+//      if (first-char ~= p)
+	add!(fragments, copy-sequence(s, start: first-char, end: p));
+//      end;
+    end method save-fragment,
+    
+    method save-run(new-state :: <attribute>)
+      if (new-state.value ~= current-attributes.value)
+	add!(runs, pair(current-attributes, apply(concatenate, fragments)));
+	fragments.size := 0;
+	current-attributes := new-state;
+      end;
+    end method save-run;
+  
   while (p < s.size)
-    //format-out("char %= is %=\n", i, c);
     case
       s[p] ~= '<' =>
 	p := p + 1;
 
       s[p + 1] ~= '/' =>
-	add!(fragments, copy-sequence(s, start: first-char, end: p));
+	save-fragment();
 	let (tag, new-p, new-state) = parse-tag(s, p + 1, current-attributes);
 	add!(tag-stack, tag);
 	add!(state-stack, current-attributes);
-
-	if (new-state.value ~= current-attributes.value)
-	  add!(runs, pair(current-attributes, apply(concatenate, fragments)));
-	  fragments.size := 0;
-	  current-attributes := new-state;
-	end;
-
+	save-run(new-state);
 	p := new-p;
 	first-char := p;
 
       otherwise =>
-	add!(fragments, copy-sequence(s, start: first-char, end: p));
+	save-fragment();
 	let (tag, new-p) = parse-tag(s, p + 2, current-attributes);
 
 	if (tag-stack.last ~== tag)
 	  error("mis-balanced tags");
 	end;
 	let new-state = state-stack.last;
-	if (new-state.value ~= current-attributes.value)
-	  add!(runs, pair(current-attributes, apply(concatenate, fragments)));
-	  fragments.size := 0;
-	  current-attributes := new-state;
-	end;
-
 	tag-stack.size := tag-stack.size - 1;
 	state-stack.size := state-stack.size - 1;
+	save-run(new-state);
 	p := new-p;
 	first-char := p;
 
     end case;
   end;
+  save-fragment();
+  add!(runs, pair(current-attributes, apply(concatenate, fragments)));
+
   runs;
 end function bgh-parse;
 
@@ -244,7 +251,7 @@ end method slurp-input;
 define function main(name, arguments)
   let input-stream = *standard-input*;
 
-  block ()
+//  block ()
 
     let original-input      = slurp-input(input-stream);
     let best-transformation = original-input;
@@ -282,7 +289,7 @@ define function main(name, arguments)
 <andreas> Some sort of pruning will be required.
                                  */
                                  
-
+/*
   exception (e :: <condition>)
 
     format-out("Sorry, Dylan Hacker has detected an error\n");
@@ -293,7 +300,7 @@ define function main(name, arguments)
 
     exit-application(1);
   end;
-
+*/
   exit-application(0);
 end function main;
 
