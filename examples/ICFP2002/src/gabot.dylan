@@ -5,6 +5,7 @@ define constant <path> = <point-list>;
 
 // ## <strategy>
 define abstract class <strategy>(<object>)
+  slot strategy-robot :: <robot>;
 end;
 
 // ## valid?
@@ -52,7 +53,7 @@ end;
 
 // ## create-command{<drop-strategy>}
 define method create-command(s :: <strategy>) => command :: <command>;
-  make(<move>, bid: 1, direction: $north); // HACK ### FIXME
+  make(<move>, bid: 1, direction: turn(s.strategy-robot, s.strategy-path)); // HACK ### FIXME
 end;
 
 
@@ -80,7 +81,7 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, locator :: <functio
          => (better-thing, better-path :: <path>);
          
          let distance = best-path == #()
-                        & s.board.height() + s.board.width() + 1
+                        & s.board.height + s.board.width + 1
                         | distance-cost(position, best-path.last);
 
           block (found)
@@ -122,6 +123,7 @@ define method generate-next-move(me :: <gabot>, s :: <state>)
 block (return)
   local method follow(strategy :: <strategy>)
           me.decided := strategy;
+          strategy.strategy-robot := find-robot(s, me.agent-id);
           strategy.create-command.return;
         end;
 

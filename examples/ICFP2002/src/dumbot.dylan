@@ -88,7 +88,8 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
       = if (empty?(paths))
 	  error("Sorry, can't find anywhere to go!\n");
 	else
-	  let path = paths.first;
+	  turn(robot, paths.first);
+/*	  let path = paths.first;
 	  let new-loc = path.first;
 	  
 	  case
@@ -102,8 +103,26 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	      => $west;
 	    new-loc = point(x: robot.location.x, y: robot.location.y)
 	      => error("Can't happen");
-	  end case;
+	  end case;*/
 	end if;
     return(make(<move>, bid: 1, direction: direction));
   end block;
 end method generate-next-move;
+
+
+define function turn(robot :: <robot>, path :: <point-list>)
+// => what???
+	  let new-loc = path.first;
+	  case
+	    new-loc = point(x: robot.location.x, y: robot.location.y + 1)
+	      => $north;
+	    new-loc = point(x: robot.location.x + 1, y: robot.location.y)
+	      => $east;
+	    new-loc = point(x: robot.location.x, y: robot.location.y - 1)
+	      => $south;
+	    new-loc = point(x: robot.location.x - 1, y: robot.location.y)
+	      => $west;
+	    new-loc = point(x: robot.location.x, y: robot.location.y)
+	      => error("Can't happen");
+	  end case;
+end function turn;

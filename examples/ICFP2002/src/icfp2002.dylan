@@ -92,22 +92,17 @@ define function main(name, arguments)
                  & arguments[2]
                  | "dumber-bot";
 
-  play-the-game(figure-out-which-bot(bot-type), input-stream, output-stream);
+  block ()
+    play-the-game(figure-out-which-bot(bot-type),
+                  input-stream,
+                  output-stream);
+  cleanup
+    close(output-stream);
+  exception (err :: <error>)
+    // format-condition(*standard-error*, err);
+    exit-application(1);
+  end block;
 
-  /*
-  let running = #t;
-  while(running)
-    let line = read-line(input-stream, on-end-of-stream: #f);
-    if(line)
-      write-line(output-stream, line);
-      force-output(output-stream);
-    else
-      running := #f;
-    end if;
-  end while;
-  */
-
-  close(output-stream);
   exit-application(0);
 end function main;
 
