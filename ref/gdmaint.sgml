@@ -820,10 +820,9 @@ happen.  Also used recursively.</para>
 	    <defdescription>
 	      <para>This function is the <quote>other half</quote> of
 	       <dname>dump-od</dname>. It is called to register a function for
-	       reloading dumped objects, which has the signature:
+	       reloading dumped objects, which has the signature:</para>
 <programlisting>
-method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlisting>.
-		</para>
+method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlisting>
 		<para>If you use <dname>add-od-loader</dname>, you will need to define a
 		  corresponding method on <dname>dump-od</dname> (see
 		  <xref linkend="gdmaint-d2c-base-od-format-dumping">).</para>
@@ -929,8 +928,41 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
 	 </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-dumpers">
-	  <title>Functions for Writing Dumpers</title>
-        <para>TBD</para>
+	<title>Functions for Writing Dumpers</title>
+        <para>When adding a method to <dname>dump-od</dname> use these functions
+	 to push out the objects correctly.</para>
+
+	<dylanmethoddef>
+	 <defname>dump-definition-header</defname>
+	 <defsummary>Dump an object definition header.</defsummary>
+	 <defparameters>
+	  <param>
+	   <paramname>name</paramname>
+	   <paramtype>&lt;symbol></paramtype>
+	  </param>
+	  <param>
+	   <paramname>buf</paramname>
+	   <paramtype>&lt;dump-buffer></paramtype>
+	   <paramsummary>Probably best to use the <dname>&lt;dump-state></dname>
+		instance passed into <dname>dump-od</dname></paramsummary>
+	  </param>
+	  <keyparam>
+	   <paramname>subobjects</paramname>
+	   <paramdefault>#f</paramdefault>
+	   <paramsummary>&true; means this object has subobjects</paramsummary>
+	  </keyparam>
+	  <keyparam>
+	   <paramname>raw-data</paramname>
+	   <paramdefault>$odf-no-raw-data-format</paramdefault>
+	   <paramsummary>The Raw-Format field in an object-definition header encodes information needed to byte/word format translation, and in the degenerate case, indicates there is no raw data at all.  Allowable format codes are <dname>$odf-no-raw-data-format</dname>, <dname>$odf-byte-raw-data-format</dname>, <dname>$odf-16bit-raw-data-format</dname>, <dname>$odf-32bit-raw-data-format</dname>, <dname>$odf-64bit-raw-data-format</dname>, <dname>$odf-untranslatable-raw-data-format</dname>, and <dname>$odf-word-raw-data-format</dname> (which is 32 or 64 as appropriate, used for word> in format pseudo-objects).</paramsummary>
+	  </keyparam>
+	 </defparameters>
+	 <defreturns></defreturns>
+	 <defdescription>
+	  <para>The first dump call in <dname>dump-op</dname>, this function dumps the object's header to the buffer</para>
+	 </defdescription>
+	</dylanmethoddef>
+	   
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-loaders">
@@ -949,9 +981,68 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlist
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-binary">
-	  <title>Binary Representation</title>
-        <para>See the first few pages of comments in 
-		<filename>od-format.dylan</filename>.</para>
+	<title>Binary Representation</title>
+
+	<para>To allow efficiency as well as potential interchange, objects are described by a word sequence which vaguely resembles the in-core representation.  The word size is implementation defined, and dumper/loader methods dump/load data as
+words having the native byte ordering.  The format is defined so that any
+necessary byte-swapping and word-size adjustment can be done as a pre-pass
+filter to the actual loader.  The format is described in detail at the top of <filename>od-format.dylan</filename>.</para>
+
+	<para>The implication of the above is that data-unit files produced from
+<dmodule>OD-Format</dmodule> are not portable.</para>
+
+	<sect4 id="gdmaint-d2c-base-od-format-binary-examples">
+	 <title>Examples</title>
+	 <para>These examples show the bits for some literals, assuming with 32bit word size and big-endian order (which, by the way i386 is not big-endian), and assigning convenient values for the object class-IDs.  See the actual code for the real definitions and class IDs.</para>
+
+         <para>For example, we could describe a byte-string like this:</para>
+<programlisting>
+    0: &lt;Header? = #b1, Etype = #b00, Subobjects? = #b0, Raw-Format = #x1,
+	Class-ID = byte-string-odf-id>
+    1: string byte-count
+    2[ceiling(byte-count, word-bytes)]: 
+       &lt;string-chars: *></programlisting>
+
+	 <para>Assuming <dname>byte-string-$odf-id</dname> is <dlit>#x666</dlit>, the actual bits for <dname>"Foo"</dname> would be:</para>
+<programlisting>
+    #x81000666
+    #x00000003
+    #x466F6F00</programlisting>
+
+	 <para>A list has subobjects, but no raw data, so it would look like:</para>
+<programlisting>
+    0: &lt;Header? = #b1, Etype = #b00, Subobjects? = #b1, Raw-Format = #x0,
+        Raw-Size = #x00, Class-ID = list-odf-id>
+
+    1[N]: &lt;header of subobject 0, subobject data>
+       ...
+
+    M: &lt;Header? = #b1, Etype = #b01, Start-Offset: * = M></programlisting>
+
+	 <para>If <dname>list-odf-id</dname> were <dlit>#x667</dlit>, then <dlit>#("Foo", "Bar")</dlit> would be:</para>
+<programlisting>
+    0: #x90000667
+    1: #x81000666
+    2: #x00000003
+    4: #x466F6F00
+    5: #x81000666
+    6: #x00000003
+    9: #x42617200
+    7: #xA0000007</programlisting>
+
+	 <para>This demonstrates the nesting of objects, and shows how the end is marked.
+Note that:</para>
+
+	 <itemizedlist>
+	  <listitem><para><dlit>"Foo"</dlit> is represented by exactly the same bits here (it is position-independent), and that</para></listitem>
+	  <listitem><para>The entire sequence is position-independent, since the end-entry has a relative offset, and that</para></listitem>
+	  <listitem><para>The basic subobject protocol doesn't say in advance how many
+    subobjects there's going to be; you have to wait for the end header.  This
+    could be avoided for e.g. vectors by considering subobject 0 to be the
+    length.</para></listitem>
+	 </itemizedlist>
+	</sect4>
+
        </sect3>
       </sect2>
 
@@ -1465,16 +1556,99 @@ define variable foo :: run-time-expression() = #f;
 
       <sect2 id="gdmaint-d2c-parser-macros">
 	<title>The <dmodule>Macros</dmodule> Module</title>
+<!-- Riff on procedural macros played by &person.auclair; -->
 
 	<para>This module implements macro expansion as defined in the
 	&drm;. It also provides <dname>&lt;macro-definition></dname> (see
 	<xref linkend="gdmaint-d2c-base-definitions">).</para>
 
 	<para>Note that this module only handles those macros which
-	expand according to the standard rules. More compilicated macros
+	expand according to the standard rules. More complicated macros
 	are handled elsewhere by procedural expanders. To define a new
 	procedural expander, register it using
-	<dname>define-procedural-expander</dname>.</para>
+        <dname>define-procedural-expander</dname> (a method defined in
+        this module).  We'll discuss procedural macros as implemented by &d2c;
+	in some detail below.</para>
+        
+
+        <sect3 id="gdmaint-d2c-parser-macros-procedural">
+         <title>Gwydion &dylan; Procedural Macros</title>
+	 <para>In this section, I shall use "procedural macro" to mean 
+	   "procedural
+	   macro as implemented by &gdmp; on &d2c;".  This special definition
+	   contains an implicit caveat:  procedural macros are not defined in
+	   the &drm; and are not standardized across &dylan; implementations --
+	   use at your own risk.  Also, discussion on the &gdmp; mailing list
+	   has noted that macros defined by the &drm; (hereinafter referred to 
+	   as "plain macros") are "Turing-complete"
+	   (yes, just as machine language and C are Turing-complete), 
+	   which means that &drm; macros can do whatever procedural macros can
+	   do; it just may require more effort and creativity on the user of
+	   the plain macro definition to do it.  Procedural macros provide the
+	   macro writer alternatives to an aim, their lack does not disallow any
+	   desired aim.  Those wishing to write &drm;-compliant &dylan; may
+	   safely skip this section.</para>
+
+	 <sect4 id="gdmaint-d2c-parser-macros-procedural-intro">
+	  <title>An Introduction</title>
+
+          <para>First off, a procedural macro is a macro ... a special kind
+           of macro that (explained simply) uses Dylan expressions evaluated
+           before expansion time to build a macro-expansion.  Then, like any
+	   plain macro, the expansion substitutes fragments matched by the 
+           template with the procedural result.  Procedural macros can be more
+	   expressive than the macros defined in the &drm;, but this 
+	   expressiveness comes at the cost of necessarily more work both 
+	   in preparing to write the macro (the bits of support code) and in 
+	   actually writing the macro itself. I will use the 
+	   <dname>make-if</dname>  procedural macro as defined in
+	   <XREF LINKEND="gdmaint-d2c-convert-expanders"> to show how 
+	   procedural macros work. 
+          </para>
+
+	  <para>Second off, plain macros are straightforward (!) in their
+ 	   approach to source-code manipulation as compared to procedural 
+	   macros.  Plain macros match a pattern in the source code and then
+	   substitute that pattern with the (fixed) expansion:  </para>
+
+<programlisting>
+source code (with a macro pattern) in
+ => expanded source code out</programlisting>
+
+	  <para>Procedural macros give the user programmatic control over the 
+	   expansion: </para>
+	  
+<programlisting>
+source code (with a macro pattern) in
+ => generate appropriate expansion (programmatically, of course)
+  => expanded source code out</programlisting>
+
+	  <para>A procedural macro writer must not only manage issues of 
+	   writing plain macros, but must also manage the process of 
+	   writing the expansion.  This additional requirement means
+	   that writing code that creates a macro expansion is writing code 
+	   that manipulates the
+	   <glossterm>Front-End Representation</glossterm> (see
+	   <XREF LINKEND="gdmaint-d2c-front">), and, as such, is quite 
+	   different than writing general-purpose code.  Particularly, the
+	   code (method)  that writes the expander must interact with the code 
+	   generator engine and feed it things it understands:  
+	   <glossterm>fragment</glossterm>s
+	   (see <XREF LINKEND="gdmaint-d2c-parser-fragments">).</para>
+         </sect4>
+         <sect4 id="gdmaint-d2c-parser-macros-procedural-example">
+	  <title>An Example</title>
+	  <para>Section using <dname>make-if</dname> as an illustration TBD.
+	  </para>
+	 </sect4>
+	 <sect4 id="gdmaint-d2c-parser-macros-procedural-develop">
+	  <title>Roll Your Own, With Analysis</title>
+	  <para>TBD: here we'll create <dname>avg</dname> from Paul Graham's
+	   On Lisp book as a regular macro (from Chris Double) and as a 
+	   procedural macro, comparing and contrasting the two styles.</para>
+	 </sect4>
+	</sect3>
+
       </sect2>
     </sect1>
 
