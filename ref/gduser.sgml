@@ -475,12 +475,36 @@ main(application-name(), application-arguments());
 	    is added as a feature.</PARA>
 	  </LISTITEM>
 	</VARLISTENTRY>
+
+	<varlistentry>
+	  <term><literal>Float-precision:</literal></term>
+	  <listitem>
+	    <para>Used to determine the precision of floating-point
+	    constants that are not suffixed with precision markers.
+	    Legal values are <literal>single</literal> (to default to
+	    <type>&lt;single-float&gt;</type>,
+	    <literal>double</literal> (to default to
+	    <type>&lt;double-float&gt;</type>, or
+	    <literal>extended</literal> (to default to
+	    <type>&lt;extended-float&gt;</type>).  Without a
+	    <literal>float-precision:</literal> keyword, unsuffixed
+	    floating-point constants default to
+	    <type>&gt;double-float&gt;</type>.</para>
+
+	    <para>A fourth alternative, <literal>auto</literal>,
+	    indicates that an unsuffixed floating-point constant
+	    should be a <type>&lt;double-float&gt;</type> if it has
+	    eight or more digits after the decimal point, or a
+	    <type>&lt;single-float&gt;</type> otherwise.  This
+	    behavior corresponds to Functional Developer's default
+	    behavior.</para>
+	  </listitem>
+	</varlistentry>
       </VARIABLELIST>
 
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.16 2002/10/30 14:36:11 andreas Exp $
 library: my-program
 unique-id-base: 30000
 executable: mp
