@@ -4,7 +4,6 @@ author: Andreas Bogk <andreas@andreas.org>, based on work by Chris Double
 synthesis: Douglas M. Auclair, doug@cotilliongroup.com
 copyright: LGPL
 
-
 /*
  * 
  * This library implements a parser for XML 1.0, using the META parser
@@ -484,22 +483,11 @@ end macro pattern-definer;
 //    [49]    choice      ::=   '(' S? cp ( S? '|' S? cp )+ S? ')'
 //                                                                       [VC: Proper Group/PE Nesting]
 //
-/***** define parse choice(s, cp)
-  "(", parse-s?(s), parse-cp(cp), 
-        parse-s?(s), "|", parse-s?(s), parse-cp(cp),
-  loop([parse-s?(s), "|", parse-s?(s), parse-cp(cp)]),
-  parse-s?(s), ")"
-end parse choice; ****/
 define pattern repeated choice("|") parse-cp(expr) end;
 
 //    [50]    seq         ::=    '(' S? cp ( S? ',' S? cp )* S? ')'
 //                                                                       [VC: Proper Group/PE Nesting]
 //
-/***** define parse seq(s, cp)
-  "(", parse-s?(s), parse-cp(cp),
-  loop([parse-s?(s), ",", parse-s?(s), parse-cp(cp)]),
-  parse-s?(s), ")"
-end parse seq; ****/
 define pattern seq(",") parse-cp(expr) end;
 
 // Mixed-content Declaration
@@ -575,18 +563,10 @@ end parse enumerated-type;
 define pattern notation-helper("|") parse-name(expr) end;
 define parse notation-type(s, name)
   "NOTATION", parse-s(s),  parse-notation-helper(s)
-/****  "(", parse-s?(s), parse-name(name),
-  loop([parse-s?(s), "|", parse-s?(s), parse-name(name)]),
-  parse-s?(s), ")" ****/
 end parse notation-type;
 
 //    [59]    Enumeration       ::=    '(' S? Nmtoken (S? '|' S? Nmtoken)* S? ')'        [VC: Enumeration]
 //
-/**** define parse enumeration(s, nmtoken)
-  "(", parse-s?(s), parse-nmtoken(nmtoken),
-  loop([parse-s?(s), "|", parse-s?(s), parse-nmtoken(nmtoken)]),
-  parse-s?(s), ")"
-end parse enumeration; ****/
 define pattern enumeration("|") parse-nmtoken(expr) end;
 
 // Attribute Defaults
@@ -613,15 +593,6 @@ end parse conditional-sect;
 //    [62]    includeSect           ::=    '<![' S? 'INCLUDE' S? '[' extSubsetDecl ']]>'      /* */
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
 //
-/**** define method parse-include-sect(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(s, subset-decl);
-    ["<![", {parse-s(s), []}, 
-     "INCLUDE", {parse-s(s), []}, 
-     "[", parse-ext-subset-decl(subset-decl), "]]>"];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-include-sect; ***/
 define parse include-sect(s, subset-decl)
   "<![", parse-s?(s), "INCLUDE", parse-s?(s), "[", 
   parse-ext-subset-decl(subset-decl), "]]>"
@@ -630,15 +601,6 @@ end parse include-sect;
 //    [63]    ignoreSect            ::=    '<![' S? 'IGNORE' S? '[' ignoreSectContents* ']]>' 
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
 //
-/**** define method parse-ignore-sect(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(s, ignore-sect);
-    ["<![", {parse-s(s), []}, 
-     "IGNORE", {parse-s(s), []}, 
-     "[", loop(parse-ignore-sect-contents(ignore-sect)), "]]>"];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-ignore-sect; ****/
 define parse ignore-sect(s, ignore-sect)
   "<![", parse-s?(s), "IGNORE", parse-s?(s), "[", 
   loop(parse-ignore-sect-contents(ignore-sect)), "]]>"
@@ -647,14 +609,6 @@ end parse ignore-sect;
 //    [64]    ignoreSectContents    ::=    Ignore ('<![' ignoreSectContents ']]>' Ignore)*
 // They are doing it again.
 //
-/**** define method parse-ignore-sect-contents(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(ignore, ignore-sect);
-    [parse-ignore(ignore),
-     loop(["<![", loop(parse-ignore-sect-contents(ignore-sect)), "]]>", parse-ignore(ignore)])];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-ignore-sect-contents; ***/
 define parse ignore-sect-contents(ignore, ignore-sect)
   parse-ignore(ignore),
   loop(["<![", loop(parse-ignore-sect-contents(ignore-sect)), "]]>", parse-ignore(ignore)])
@@ -773,44 +727,8 @@ end parse char-ref;
 //    [89]    Extender    ::=    #x00B7 | #x02D0 | #x02D1 | #x0387 | #x0640 | #x0E46 | #x0EC6 | #x3005 | [#x3031-#x3035] | [#x309D-#x309E] | [#x30FC-#x30FE]
 //    
 //
-/**** define method parse-encoding-info(string, #key start = 0, end: stop)
-  local method is-not-single-quote?(char :: <character>)
-      char ~= '\'';
-  end method is-not-single-quote?;
-
-  local method is-not-double-quote?(char :: <character>)
-      char ~= '"';
-  end method is-not-double-quote?;
-
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, space, eq, version-num);
-    ["encoding",
-     parse-eq(eq),
-     {['\'',
-       [test(is-not-single-quote?, c), loop(test(is-not-single-quote?, c))],
-       '\''],
-      ['"',
-       [test(is-not-double-quote?, c), loop(test(is-not-double-quote?, c))],
-       '"']}];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-encoding-info; ****/
 define collect-value encoding-info(eq, c) () "'", '"' => #t end;
 
-/*** define method parse-xml-attributes (string, #key start = 0, end: stop)
-  with-collector into-vector attribute-vector, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(attribute-name, eq, attribute-value, space);
-      {loop([parse-name(attribute-name),
-             parse-eq(eq),
-             parse-xml-attribute(attribute-value),
-             parse-s?(space),
-             do(collect(make(<attribute>, name: attribute-name, value: attribute-value)))]),
-       []};
-      values(index, attribute-vector);
-    end with-meta-syntax;
-  end with-collector;
-end method parse-xml-attributes; ****/
 define collector xml-attributes(attr-name, eq, attr-val, sp) => (str)
   loop([parse-name(attr-name), parse-eq(eq),
         parse-xml-attribute(attr-val), parse-s?(sp),
