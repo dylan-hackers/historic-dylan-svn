@@ -139,7 +139,7 @@ states:
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
                                   direction: ?#"where",
-                                  condition: #"marker0",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
                                   state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
@@ -148,7 +148,7 @@ states:
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
                                   direction: #"Here",
-                                  condition: #"marker0",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
                                   state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
