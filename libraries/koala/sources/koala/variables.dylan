@@ -49,55 +49,6 @@ define variable *default-static-content-type* :: <string> = "application/octet-s
 // set.
 define variable *default-dynamic-content-type* :: <string> = "text/html";
 
-define table *mime-type-map* = {
-  #"au"    => "audio/basic",
-  #"snd"   => "audio/basic",
-  #"mid"   => "audio/midi",
-  #"midi"  => "audio/midi",
-  #"kar"   => "audio/midi",
-  #"mpga"  => "audio/mpeg",
-  #"mp2"   => "audio/mpeg",
-  #"doc"   => "application/msword",
-  #"bin"   => "application/octet-stream",
-  #"exe"   => "application/octet-stream",
-  #"class" => "application/octet-stream",
-  #"ps"    => "application/postscript",
-  #"ai"    => "application/postscript",
-  #"eps"   => "application/postscript",
-  #"ppt"   => "application/powerpoint",
-  #"zip"   => "application/zip",
-  #"pdf"   => "application/pdf",
-  #"au"    => "audio/basic",
-  #"snd"   => "audio/basic",
-  #"mid"   => "audio/midi",
-  #"midi"  => "audio/midi",
-  #"kar"   => "audio/midi",
-  #"mpga"  => "audio/mpeg",
-  #"mp2"   => "audio/mpeg",
-  #"gif"   => "image/gif",
-  #"jpe"   => "image/jpeg",
-  #"jpeg"  => "image/jpeg",
-  #"jpg"   => "image/jpeg",
-  #"png"   => "image/png",
-  #"bat"   => "text/plain",
-  #"ini"   => "text/plain",
-  #"bat"   => "text/plain",
-  #"bat"   => "text/plain",
-  #"bat"   => "text/plain",
-  #"txt"   => "text/plain",
-  #"text"  => "text/plain",
-  #"htm"   => "text/html",
-  #"html"  => "text/html",
-  #"xml"   => "text/xml",
-  #"mpe"   => "video/mpeg",
-  #"mpeg"  => "video/mpeg",
-  #"mpg"   => "video/mpeg",
-  #"qt"    => "video/quicktime",
-  #"mov"   => "video/quicktime",
-  #"avi"   => "video/x-msvideo",
-  #"asf"   => "video/x-msvideo"  // a guess
-};
-
 // This is the "master switch" for auto-registration of URLs.  If #f then URLs will
 // never be automatically registered based on their file types.  It defaults to #f
 // to be safe.
