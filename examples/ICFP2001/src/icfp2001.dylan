@@ -25,7 +25,7 @@ define constant <space> =
   one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
          as(<character>, #x0a));
 
-define function is-space?(c)
+define inline function is-space?(c)
   instance?(c, <space>);
 end function is-space?;
 
@@ -168,7 +168,11 @@ define function bgh-parse(s :: <byte-string>)
 
   let state-stack = make(<stretchy-vector>);
   let tag-stack = make(<stretchy-vector>);
-  let current-attributes = make(<attribute>);
+
+  let curr-state = make(<attribute>);
+  let run-state = make(<attribute>);
+  let last-char-was-space = #f;
+
   let p = 0;
 
   add!(fragments, ""); // stop concatenate puking with no args. ick
@@ -180,34 +184,66 @@ define function bgh-parse(s :: <byte-string>)
       end;
     end method save-fragment,
     
-    method save-run(new-state :: <attribute>)
-      if (new-state.value ~= current-attributes.value)
+    method save-run()
+      if (run-state.value ~== curr-state.value)
 	let s :: <byte-string> = apply(concatenate, fragments);
 	if (s.size > 0)
-	  add!(runs, pair(current-attributes, s));
+	  add!(runs, pair(run-state, s));
 	end;
 	fragments.size := 1; // keep the empty string
-	current-attributes := new-state;
+	run-state := curr-state;
       end;
     end method save-run;
   
   while (p < s.size)
+    let ch = s[p];
     case
-      s[p] ~= '<' =>
-	p := p + 1;
+      ch ~= '<' =>
+
+	if (is-space?(ch))
+	  s[p] := ' ';
+	  block (exit)
+	    let run-space-state = run-state.space-context.value;
+	    let space-state = curr-state.space-context.value;
+	    let same-format = run-space-state == space-state;
+	    if (curr-state.typewriter)
+	      if (same-format)
+		p := p + 1;
+	      else
+		save-fragment();
+		save-run();
+	      end;
+	    elseif(last-char-was-space)
+	      if (same-format)
+		save-fragment();
+		p := p + 1;
+	      else
+		save-fragment();
+		save-run();
+	      end;
+	    elseif (same-format)
+	      p := p + 1;
+	    end;
+	  end;
+	  last-char-was-space := #t;
+	else
+	  save-run();
+	  last-char-was-space := #f;
+	  p := p + 1;
+	end;
 
       s[p + 1] ~= '/' =>
 	save-fragment();
-	let (tag, new-p, new-state) = parse-tag(s, p + 1, current-attributes);
+	let (tag, new-p, new-state) = parse-tag(s, p + 1, curr-state);
 	add!(tag-stack, tag);
-	add!(state-stack, current-attributes);
-	save-run(new-state);
+	add!(state-stack, curr-state);
+	curr-state := new-state;
 	p := new-p;
 	first-char := p;
 
       otherwise =>
 	save-fragment();
-	let (tag, new-p) = parse-tag(s, p + 2, current-attributes);
+	let (tag, new-p) = parse-tag(s, p + 2, curr-state);
 
 	if (tag-stack.last ~== tag)
 	  error("mis-balanced tags");
@@ -215,14 +251,15 @@ define function bgh-parse(s :: <byte-string>)
 	let new-state = state-stack.last;
 	tag-stack.size := tag-stack.size - 1;
 	state-stack.size := state-stack.size - 1;
-	save-run(new-state);
+	curr-state := new-state;
 	p := new-p;
 	first-char := p;
 
     end case;
   end;
   save-fragment();
-  save-run(make(<attribute>, value: -1)); // illegal value
+  curr-state := make(<attribute>, value: -1);
+  save-run();
 
   runs;
 end function bgh-parse;

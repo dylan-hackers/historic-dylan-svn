@@ -1,3 +1,6 @@
 TODO list
 
-nothing to do yet
+EM should invert!  And only if S not set
+S should clear EM
+implement space context and space compression
+

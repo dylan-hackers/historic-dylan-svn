@@ -90,10 +90,33 @@ define functional class <attribute> (<object>)
 end class <attribute>;
 
 define attribute-slot #x01 bold end;
-define attribute-slot #x02 emphasis end;
 define attribute-slot #x04 italic end;
-define attribute-slot #x08 strong end;
 define attribute-slot #x10 typewriter end;
+
+
+define inline method emphasis(a :: <attribute>) => res :: <boolean>;
+  logand(a.value, #x02) ~= 0;
+end method emphasis;
+
+define inline method set-emphasis(a :: <attribute>)
+ => newObj :: <attribute>;
+  if (a.strong)
+    a;
+  else
+    make(<attribute>, value: logxor(a.value, #x02));
+  end;
+end method set-emphasis;
+
+
+define inline method strong(a :: <attribute>) => res :: <boolean>;
+  logand(a.value, #x10) ~= 0;
+end method strong;
+
+define inline method set-strong(a :: <attribute>)
+ => newObj :: <attribute>;
+  make(<attribute>, value: logand(logior(a.value, #x10), lognot(#x02)));
+end method set-strong;
+
 
 define inline method set-plain(a :: <attribute>)
  => newObj :: <attribute>;
@@ -137,6 +160,17 @@ end method set-color;
 
 define sealed domain make(singleton(<attribute>));
 define sealed domain initialize(<attribute>);
+
+
+define inline method space-context(a :: <attribute>)
+ => context :: <attribute>;
+  let new-val = logand(a.value, lognot(#x0f));
+  if (a.underline == 0)
+    // shortcut the lookup of #"white"
+    new-val := insert-field(new-val, 8, 11, 4);
+  end;
+  make(<attribute>, value: new-val);
+end method space-context;
 
 
 define method print-object(a :: <attribute>, stream :: <stream>)

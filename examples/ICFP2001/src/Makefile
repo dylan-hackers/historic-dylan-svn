@@ -17,4 +17,4 @@ install: ../runme
            src/Makefile src/icfp2001.lid src/*.dylan
 
 test: icfp2001
-	(time ./icfp2001 <tests/test2) && echo **Success**
+	(time ./icfp2001 <tests/test5) && echo **Success**
