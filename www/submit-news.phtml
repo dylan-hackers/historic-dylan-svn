@@ -24,8 +24,19 @@ Message body:
 <?php
 } else {
 
+    echo $body;
+
     $db = mysql_connect("localhost","gwydion","");
     mysql_select_db("gwydion");
+
+    $query = 'insert into news values (NOW(),"'.$headline.'","'.$body.'","andreas","andreas",0)';
+    $res = mysql_query($query, $db);
+    $err = mysql_error();
+    if($err) {
+      echo "MySQL error occurred. Please notify <a href=andreas@andreas.org>Andreas</a>.";
+    } else {
+      echo "News submitted.<p>";
+    }	
 
     $query = "select * from news order by time desc";
     $res = mysql_query($query, $db);
