@@ -25,7 +25,12 @@ define method capacity-left(r :: <robot>)
   end if;
 end method capacity-left;
 
-define method copy-robot( robot :: <robot>, #key new-id = #f, new-location = #f, new-capacity = #f, new-money = #f, new-inventory = #f ) 
+define method copy-robot( robot :: <robot>,
+                          #key new-id,
+                               new-location,
+                               new-capacity,
+                               new-money,
+                               new-inventory ) 
   => ( r :: <robot> )
   let id = new-id | robot.id;
   let location = new-location | robot.location;
