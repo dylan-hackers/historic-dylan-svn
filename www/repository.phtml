@@ -1,0 +1,55 @@
+<?php
+require "shared.inc";
+standard_header("Repository Access");
+?>
+
+<h2>Checking Out the Repository</h2>
+
+<p>The development source code for Gwydion Dylan, Functional
+Developer, and collections of Dylan libraries and example code is
+stored in a <a href="http://subversion.tigris.org/">Subversion</a>
+repository.  For developers, the base URI to check out is</p>
+
+<pre>
+svn+ssh://svn.gwydiondylan.org/scm/svn/dylan
+</pre>
+
+<p>For example, to check out <tt>src/</tt> (Gwydion Dylan) from the
+trunk, you can execute:</p>
+
+<pre>
+$ svn co svn+ssh://svn.gwydiondylan.org/scm/svn/dylan/trunk/src src
+</pre>
+
+<p>To check out the fundev-2-1-jam branch of Functional Developer,</p>
+
+<pre>
+$ svn co svn+ssh://svn.gwydiondylan.org/scm/svn/dylan/branches/fundev-2-1-jam/fundev fundev
+</pre>
+
+<p>You could also check out the entirity of trunk:</p>
+
+<pre>
+$ svn co svn+ssh://svn.gwydiondylan.org/scm/svn/dylan/trunk gd
+</pre>
+
+<p>For non-developers, the base URI to check out is</p>
+
+<pre>
+svn+ssh://anonsvn@anonsvn.gwydiondylan.org/scm/svn/dylan
+</pre>
+
+<p>as described on the <a href="downloading.phtml">downloading page</a>.</p>
+
+
+<h2>For More Information</h2>
+
+<ul>
+  <li><a href="http://www.onlamp.com/pub/a/onlamp/2004/08/19/subversiontips.html">The Top Ten Subversion Tips for CVS Users</li>
+  <li><a href="http://svnbook.red-bean.com/">Version Control with Subversion</a></li>
+  <li><a href="http://svn.collab.net/repos/svn/trunk/doc/user/cvs-crossover-guide.html">CVS to SVN Crossover Guide</a></li>
+  <li><a href="http://svn.collab.net/repos/svn/trunk/doc/user/svn-best-practices.html">Subversion Best Practices</a></li>
+</ul>
+
+<?php standard_footer(); ?>
+~
