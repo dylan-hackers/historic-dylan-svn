@@ -19,7 +19,6 @@ define class <thomas> (<robot-agent>)
     init-value: #f;
 end class <thomas>;
 
-
 define method packages-with-dest (packages :: <sequence>, loc :: <point>)
  => (lst :: <sequence>)
   choose(method(p) p.dest = loc end method, packages)
@@ -30,24 +29,24 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
   let tom-pos = agent-pos(tom, state);
   local
     method tom-closer? (base :: <point>, bot :: <robot>) => <boolean>;
-      let tom-path = find-path(tom-pos, base, state.board);
-      let bot-path = find-path(bot.location, base, state.board);
-      if (tom-path)
-        if (bot-path) tom-path.size < bot-path.size else #t end if;
+      let tom-len = path-length(tom-pos, base, state.board);
+      let bot-len = path-length(bot.location, base, state.board);
+      if (tom-len)
+        if (bot-len) tom-len < bot-len else #t end if;
       else
         #f
       end if;
     end method tom-closer?,
     method base-closer? (base-1, base-2)
-      size(find-path(tom-pos, base-1, state.board)) <
-        size(find-path(tom-pos, base-2, state.board))
+      path-length(tom-pos, base-1, state.board) <
+        path-length(tom-pos, base-2, state.board)
     end method base-closer?;
   // 1. Find the bases you have not yet visited.
   let maybe-visit = choose(method (x) ~member?(x, tom.visited-bases) end,
                            state.bases);
   // 2. Now, pick the bases for which you are closer than any other
   //    robot.
-  let other-robots = remove(state.robots, find-robot(state, tom.agent-id));
+  let other-robots = remove(state.robots, agent-robot(tom, state));
   let good-bases = choose(method (base)
                             every?(method(bot) tom-closer?(base, bot) end,
                                    other-robots)
@@ -65,37 +64,6 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
     tom.goal := $nowhere-to-go; // there's nowhere to go!
   end if;
 end method choose-next-base;
-
-/* use load-packages #####
-define method choose-packages (packages :: <sequence>, tom :: <thomas>,
-                               state :: <state>)
- => (ps :: <sequence>)
-  let sorted-packages = sort(packages,
-                             test: method(a, b) a.weight > b.weight end);
-  let ps = #();
-  let tot = 0;
-  block(return)
-    for (p in sorted-packages)
-      if (tot + p.weight > agent-capacity(tom, state))
-        return(ps)
-      else
-        if (find-path(agent-pos(tom, state), p.dest, state.board))
-          ps := add(ps, p);
-          tot := tot + p.weight;
-        end if;
-      end if;
-    finally
-      ps
-    end for;
-  end block;
-end method choose-packages;
-*/
-
-/*
-define method punt(id :: <integer>) => <command>;
-  make(<pick>, id: id, bid: 1, package-ids: #(13575));
-end method punt;
-*/
 
 define method generate-next-move* (tom :: <thomas>, state :: <state>)
  => (c :: <command>)
@@ -120,9 +88,6 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
         if (tom.moves-remaining.empty?) // we are at the base
           tom.visited-bases := add(tom.visited-bases,
                                    state.board[tom-pos.y, tom-pos.x]);
-//          let ps = choose-packages(packages-at(state, tom-pos),
-//                                   tom,
-//                                   state);
           let ps = load-packages(tom, state, compare: method(a, b) a.weight > b.weight end);
           if (ps.empty?) // there are no packages we can pick up.
             choose-next-base(tom, state);
@@ -148,7 +113,6 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
         // for a turn.
         choose-next-base(tom, state);
         if (tom.goal = $nowhere-to-go)
-//          tom.agent-id.punt
           tom.punt
         else
           generate-next-move(tom, state);
