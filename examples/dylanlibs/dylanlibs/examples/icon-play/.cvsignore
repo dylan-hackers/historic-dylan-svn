@@ -1,6 +1,6 @@
-icon-play.hdp
+*.hdp
 release
 lib
-icon-play-build
+*-build
 bin
 *~

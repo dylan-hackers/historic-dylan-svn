@@ -1,6 +1,6 @@
-opengl-example1.hdp
+*.hdp
 release
 lib
-opengl-example1-build
+*-build
 bin
 *~

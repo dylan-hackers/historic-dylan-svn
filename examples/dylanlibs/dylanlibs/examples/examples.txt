@@ -46,6 +46,14 @@ applications using the Microsoft ATL DLL. This demonstration hosts the
 Microsoft Web Browser component to create a very simple web browser by
 creating a new DUIM gadget to host the control.
 
+6) send-keys-play
+=================
+Dylan Implementations:
+  Functional Developer
+
+Demonstrates using the send-keys library by starting a DOS application
+and send keystrokes to control it.
+
 -- 
 Chris Double.  
 01 May 2001.
