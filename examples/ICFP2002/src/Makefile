@@ -34,6 +34,9 @@ test: icfp2002
 test-dumbot: icfp2002
 	./icfp2002 cantor.gwydiondylan.org 6969 dumbot
 
+test-pushbot: icfp2002
+	./icfp2002 cantor.gwydiondylan.org 6969 pushbot
+
 test-gabot: icfp2002
 	./icfp2002 cantor.gwydiondylan.org 6969 gabot
 
