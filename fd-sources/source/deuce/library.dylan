@@ -8,9 +8,7 @@ Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library deuce
-  use functional-dylan;
-  use threads;
-  use collections;
+  use common-dylan;
   use io;
   use system;
   use locators;

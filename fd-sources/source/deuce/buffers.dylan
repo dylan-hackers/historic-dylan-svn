@@ -343,6 +343,7 @@ define method save-buffer
   values(#f, #f)
 end method save-buffer;
 
+/*
 // ... but "Save As" works on just about anything
 define method save-buffer-as
     (container-class == <flat-file-source-container>,
@@ -400,6 +401,7 @@ define method save-buffer-as
     values(pathname, condition)
   end
 end method save-buffer-as;
+*/
 
 // In the one-frame-per-buffer policy, we want to exit when we kill the
 // buffer.  'exit-editor?' is necessary to prevent infinite recursion

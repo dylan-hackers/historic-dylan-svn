@@ -331,22 +331,19 @@ end module deuce;
 
 // Implementation and extension module
 define module deuce-internals
-  use functional-dylan,
+  use common-dylan,
     exclude: { position, position-if, count };
-  use dylan-extensions,
-    import: { \without-bounds-checks,
-	      element-no-bounds-check,
-	      element-no-bounds-check-setter,
-	      element-range-error };
-  use simple-format;
+  use common-extensions,
+    exclude: { position };
+  use format;
   use threads;
-  use table-extensions;
-  use plists;
+//  use table-extensions;
+//  use plists;
 
   use byte-vector;
-  use streams-internals,
-    rename: { <buffer>       => streams/<buffer>,
-	      read-character => streams/read-character };
+//  use streams-internals,
+//    rename: { <buffer>       => streams/<buffer>,
+//	      read-character => streams/read-character };
   use date;
   use file-system,
     export: { <pathname> };
