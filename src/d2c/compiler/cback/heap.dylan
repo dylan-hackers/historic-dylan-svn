@@ -1,5 +1,5 @@
 module: heap
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.9.2.1 1999/06/11 03:34:33 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.9.2.2 1999/06/13 01:54:30 housel Exp $
 copyright: Copyright (c) 1995, 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -218,7 +218,7 @@ define method build-local-heap
   for (root in unit.unit-init-roots, index from 0)
     let name = root.root-name;
     if (root.root-comment)
-      format(stream, "\n/* %s */\n", root.root-comment);
+      format(stream, "\n/* %s */\n", root.root-comment.clean-for-comment);
     else
       write(stream, "\n");
     end if;
@@ -257,11 +257,18 @@ define method spew-objects-in-queue (state :: <heap-file-state>) => ();
     let object = pop(state.object-queue);
     let info = get-info-for(object, #f);
 
-    format(stream, "\n/* %s */\n", object);
+    format(stream, "\n/* %s */\n", object.clean-for-comment);
 
     let labels = info.const-info-heap-labels;
     if (labels.empty?)
       error("Trying to spew %=, but it doesn't have any labels.", object);
+    end if;
+    if(labels.size > 1)
+      format(stream, "/* ");
+      for(label in labels)
+	format(stream, "%s: ");
+      end for;
+      format(stream, "*/\n");
     end if;
     spew-object(first(labels), object, state);
   end;
@@ -311,28 +318,30 @@ define method spew-reference
     (object :: <literal-true>, rep :: <immediate-representation>,
      tag :: <byte-string>, state :: <heap-file-state>)
     => ();
-  format(state.file-guts-stream, "1 /* %s */", tag)
+  format(state.file-guts-stream, "1 /* %s */", tag.clean-for-comment)
 end;
 
 define method spew-reference
     (object :: <literal-false>, rep :: <immediate-representation>,
      tag :: <byte-string>, state :: <heap-file-state>)
     => ();
-  format(state.file-guts-stream, "0 /* %s */", tag)
+  format(state.file-guts-stream, "0 /* %s */", tag.clean-for-comment)
 end;
 
 define method spew-reference
     (object :: <literal-integer>, rep :: <immediate-representation>,
      tag :: <byte-string>, state :: <heap-file-state>)
     => ();
-  format(state.file-guts-stream, "%d /* %s */", object.literal-value, tag)
+  format(state.file-guts-stream, "%d /* %s */", object.literal-value,
+	 tag.clean-for-comment)
 end;
 
 define method spew-reference
     (object :: <literal-float>, rep :: <immediate-representation>,
      tag :: <byte-string>, state :: <heap-file-state>)
     => ();
-  format(state.file-guts-stream, "%= /* %s */", object.literal-value, tag)
+  format(state.file-guts-stream, "%= /* %s */", object.literal-value,
+	 tag.clean-for-comment)
 end;
 
 define method spew-reference
@@ -362,10 +371,10 @@ define method spew-reference
   spew-heap-prototype(object-name(heapptr, state), heapptr, state);
   if(instance?(object, <literal-integer>))
     format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */", 
-	   object-name(heapptr, state), dataword, tag);
+	   object-name(heapptr, state), dataword, tag.clean-for-comment);
   else
     format(state.file-guts-stream, "{ (heapptr_t) &%s, { %= } } /* %s */", 
-	   object-name(heapptr, state), dataword, tag);
+	   object-name(heapptr, state), dataword, tag.clean-for-comment);
   end if;
 end;
 
@@ -380,7 +389,7 @@ define method spew-reference
     => ();
   spew-heap-prototype(object-name(object, state), object, state);
   format(state.file-guts-stream, "{ (heapptr_t) &%s, { 0 } } /* %s */",
-	 object-name(object, state), tag);
+	 object-name(object, state), tag.clean-for-comment);
 end;
 
 // spew-reference{<ct-value>,<heap-representation>}
@@ -392,7 +401,7 @@ define method spew-reference
      tag :: <byte-string>, state :: <heap-file-state>) => ();
   spew-heap-prototype(object-name(object, state), object, state);
   format(state.file-guts-stream, "(heapptr_t) &%s /* %s */",
-	 object-name(object, state), tag);
+	 object-name(object, state), tag.clean-for-comment);
 end;
 
 // spew-reference{<ct-entry-point>,<immediate-representation>}
@@ -415,7 +424,7 @@ define method spew-reference
     #"callback" => maybe-emit-prototype(name, info, state);
   end select;
 
-  format(state.file-guts-stream, "%s /* %s */", name, tag);
+  format(state.file-guts-stream, "%s /* %s */", name, tag.clean-for-comment);
 end;
 
 // spew-reference{<ct-entry-point>,<general-representation>}
@@ -439,7 +448,7 @@ define method spew-reference
   end select;
 
   format(state.file-guts-stream, "{ (heapptr_t) &%s, { %s } }",
-	 object-name(proxy, state), name, tag);
+	 object-name(proxy, state), name, tag.clean-for-comment);
 end;
 
 // object-name -- internal.
@@ -462,8 +471,7 @@ define method object-name (object :: <ct-value>, state :: <heap-file-state>)
       add-new!(state.undumped-objects, object);
     else
       //
-      // Dump-o-rama.  Mark it as dumped, queue it, and flag it as referenced
-      // so we don't try to import the name.
+      // Dump-o-rama.  Mark it as dumped, and queue it.
       info.const-info-dumped? := #t;
       push-last(state.object-queue, object);
     end if;
@@ -472,7 +480,8 @@ define method object-name (object :: <ct-value>, state :: <heap-file-state>)
     if (info.const-info-heap-labels.empty?)
       //
       // Make (and record) a new label.
-      let label = stringify(state.id-prefix, state.next-id);
+      let label = object-label(object, state)
+	           | stringify(state.id-prefix, state.next-id);
       state.next-id := state.next-id + 1;
       info.const-info-heap-labels := vector(label);
       //
@@ -489,6 +498,56 @@ define method object-name (object :: <ct-value>, state :: <heap-file-state>)
   name;
 end method object-name;
 
+
+// object-label -- internal
+// 
+// Since the following objects are deferred to the global heap (see
+// defer-for-global-heap? below), we need to try to give them them
+// unique heap labels.  Otherwise, different libraries may try to give
+// their own local names to the same object.
+
+define generic object-label
+    (object :: <ct-value>, state :: <heap-file-state>)
+ => (label :: false-or(<byte-string>));
+
+// By default we can't come up with a name.
+//
+define method object-label
+    (object :: <ct-value>, state :: <heap-file-state>)
+ => (label :: false-or(<byte-string>));
+  #f;
+end;
+
+define method object-label
+    (object :: <literal-symbol>, state :: <heap-file-state>)
+ => (label :: false-or(<byte-string>));
+  concatenate("SYM_",
+	      string-to-c-name(as(<string>, object.literal-value)),
+	      "_HEAP");
+end;
+
+define method object-label
+    (object :: <ct-open-generic>, state :: <heap-file-state>)
+ => (label :: false-or(<byte-string>));
+  concatenate(object.ct-function-definition.defn-name.c-name-global, "_HEAP");
+end;
+
+define method object-label
+    (object :: <defined-cclass>, state :: <heap-file-state>)
+ => (label :: false-or(<byte-string>));
+  concatenate(object.class-defn.defn-name.c-name-global, "_HEAP");
+end;
+
+define method object-label
+    (object :: <slot-info>, state :: <heap-file-state>)
+ => (label :: false-or(<byte-string>));
+  let cclass-defn = object.slot-introduced-by.class-defn;
+  let getter = object.slot-getter;
+  let getter-defn = getter & getter.variable-definition;
+  getter-defn
+    & concatenate(cclass-defn.defn-name.c-name-global,
+		  "Z", getter-defn.defn-name.c-name-global, "_SLOT_HEAP");
+end;
 
 // entry-name -- internal.
 //
@@ -1303,7 +1362,7 @@ define method spew-layout
     (class :: <cclass>, state :: <heap-file-state>, #key size)
  => ();
   let stream = state.file-body-stream;
-  let classname = class.cclass-name.c-name;
+  let classname = class.cclass-name.c-name-global;
   let name = if(size)
 	       stringify(classname, "_SIZE", size);
 	     else

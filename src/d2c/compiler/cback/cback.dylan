@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.9.2.1 1999/06/11 03:28:56 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.9.2.2 1999/06/13 01:54:30 housel Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 
@@ -444,6 +444,15 @@ define method c-name (name :: <anonymous-name>) => res :: <byte-string>;
   else
     "UNKNOWN";
   end;
+end method;
+
+define generic c-name-global (name :: <name>) => (result :: <byte-string>);
+
+define method c-name-global (name :: <name>) => (result :: <byte-string>);
+  let library-name
+    = string-to-c-name(as(<string>,
+			  name.name-module.module-home.library-name));
+  concatenate(library-name, "Z", c-name(name));
 end method;
 
 // Emit a description of the <source-location> in C.  For 
