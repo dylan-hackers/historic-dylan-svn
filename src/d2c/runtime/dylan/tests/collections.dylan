@@ -478,7 +478,9 @@ define method test-collection
             test-pop,
             test-push-last,
             test-pop-last
-            ))
+            ));
+  // Test combinations of push, pop, push-last, pop-last
+  test-deque-operations(name, collection);
 end method test-collection;
 
 define method test-collection
@@ -1135,12 +1137,134 @@ end method test-add-new!;
 
 define method test-remove
     (name :: <string>, sequence :: <sequence>) => ()
-  //---*** Fill this in...
+  test-remove-or-remove!(name, sequence, remove);
 end method test-remove;
 
 define method test-remove!
     (name :: <string>, sequence :: <sequence>) => ()
-  //---*** Fill this in...
+  test-remove-or-remove!(name, sequence, remove!);
+end method test-remove!;
+
+define inline method text
+    (name :: <string>, test-description :: <string>, class :: <class>)
+ => (string :: <string>)
+  format-to-string("%s %= on a %=", name, test-description, class)
+end;
+
+// We need to use test values suitable for the element type of the collection
+define method dummy-test-values (element-type :: <object>)
+  values(-3, -2, -1, 0, 1, 2, 3);
+end;
+
+// We need to use test values suitable for the element type of the collection
+define method dummy-test-values (element-type :: subclass(<character>))
+  values('1', '2', '3', '@', 'A', 'B', 'C');
+end;
+
+// I'm not sure what remove or remove! should do for ranges. I didn't see
+// any mention of the issue in the DRM.
+define method test-remove-or-remove!
+    (name :: <string>, seq :: <sequence>, function :: <function>)
+ => ()
+  let class = type-for-copy(seq);
+
+  local method sequence (#rest vals)
+    as(class, vals);
+  end;
+
+  // We need to use test values suitable for the element type of the collection
+  let (neg-C, neg-B, neg-A, o, A, B, C) = dummy-test-values(element-type(seq));
+
+  check-equal(text(name, "test01", class), list(), function(sequence(), o));
+  check-equal(text(name, "test02", class), list(), function(sequence(o), o));
+  check-equal(text(name, "test03", class), list(), function(sequence(o, o), o));
+  check-equal(text(name, "test04", class), list(), function(sequence(o, o, o), o));
+
+  check-equal(text(name, "test05", class), list(A), function(sequence(A), o));
+
+  check-equal(text(name, "test06", class), list(A), function(sequence(o, A), o));
+  check-equal(text(name, "test07", class), list(A), function(sequence(A, o), o));
+  check-equal(text(name, "test08", class), list(A, B), function(sequence(A, B), o));
+
+  check-equal(text(name, "test10", class), list(A), function(sequence(o, o, A), o));
+  check-equal(text(name, "test11", class), list(A), function(sequence(o, A, o), o));
+  check-equal(text(name, "test12", class), list(A), function(sequence(A, o, o), o));
+  check-equal(text(name, "test13", class), list(A, B), function(sequence(o, A, B), o));
+  check-equal(text(name, "test14", class), list(A, B), function(sequence(A, o, B), o));
+  check-equal(text(name, "test15", class), list(A, B), function(sequence(A, B, o), o));
+  check-equal(text(name, "test16", class), list(A, B, C), function(sequence(A, B, C), o));
+
+  check-equal(text(name, "test20", class), list(A, B), function(sequence(A, o, o, B), o));
+  check-equal(text(name, "test21", class), list(A, B), function(sequence(o, A, B, o), o));
+  check-equal(text(name, "test22", class), list(A, B), function(sequence(A, o, o, o, B), o));
+  check-equal(text(name, "test23", class), list(A, B, C), function(sequence(o, A, B, C, o), o));
+  check-equal(text(name, "test24", class), list(A, B), function(sequence(A, o, o, o, o, B), o));
+
+  check-equal(text(name, "test30", class), list(A, B, C), function(sequence(A, o, B, o, C, o), o));
+  check-equal(text(name, "test31", class), list(A, B, C), function(sequence(o, A, o, B, o, C), o));
+
+  // test the count: keyword
+  check-equal(text(name, "test50", class), list(), function(sequence(o, o, o), o, count: #f));
+
+  check-equal(text(name, "test51", class), list(o, o, o), function(sequence(o, o, o), o, count: -1));
+  check-equal(text(name, "test52", class), list(o, o, o), function(sequence(o, o, o), o, count: 0));
+  check-equal(text(name, "test53", class), list(o, o), function(sequence(o, o, o), o, count: 1));
+  check-equal(text(name, "test54", class), list(o), function(sequence(o, o, o), o, count: 2));
+  check-equal(text(name, "test55", class), list(), function(sequence(o, o, o), o, count: 3));
+  check-equal(text(name, "test56", class), list(), function(sequence(o, o, o), o, count: 4));
+
+  // test the count: keyword
+  check-equal(text(name, "test57", class), list(A, o, o, o, B), function(sequence(A, o, o, o, B), o, count: -1));
+  check-equal(text(name, "test58", class), list(A, o, o, o, B), function(sequence(A, o, o, o, B), o, count: 0));
+  check-equal(text(name, "test59", class), list(A, o, o, B), function(sequence(A, o, o, o, B), o, count: 1));
+  check-equal(text(name, "test60", class), list(A, o, B), function(sequence(A, o, o, o, B), o, count: 2));
+  check-equal(text(name, "test61", class), list(A, B), function(sequence(A, o, o, o, B), o, count: 3));
+  check-equal(text(name, "test62", class), list(A, B), function(sequence(A, o, o, o, B), o, count: 4));
+
+  check-equal(text(name, "test63", class), list(A, o, B, o, C, o), function(sequence(A, o, B, o, C, o), o, count: -1));
+  check-equal(text(name, "test64", class), list(A, o, B, o, C, o), function(sequence(A, o, B, o, C, o), o, count: 0));
+  check-equal(text(name, "test65", class), list(A, B, o, C, o), function(sequence(A, o, B, o, C, o), o, count: 1));
+  check-equal(text(name, "test66", class), list(A, B, C, o), function(sequence(A, o, B, o, C, o), o, count: 2));
+  check-equal(text(name, "test67", class), list(A, B, C), function(sequence(A, o, B, o, C, o), o, count: 3));
+  check-equal(text(name, "test68", class), list(A, B, C), function(sequence(A, o, B, o, C, o), o, count: 4));
+
+  // test the test: keyword
+  local method test (x, y)
+    x <= y;
+  end;
+
+  check-equal(text(name, "test69", class), list(), function(sequence(o, o, o), o, test: test));
+  check-equal(text(name, "test70", class), list(A, B), function(sequence(neg-B, neg-A, o, A, B), o, test: test));
+  check-equal(text(name, "test71", class), list(neg-A, o, A, B), function(sequence(neg-B, neg-A, o, A, B), o, test: test, count: 1));
+  check-equal(text(name, "test72", class), list(B, A), function(sequence(B, A, o, neg-A, neg-B), o, test: test));
+end method test-remove-or-remove!;
+
+define method test-remove!
+    (name :: <string>, seq :: type-union(<deque>, <stretchy-vector>))
+ => ()
+  next-method();
+
+  let class = type-for-copy(seq);
+
+  local method sequence (#rest vals)
+    as(class, vals);
+  end;
+
+  // We need to use test values suitable for the element type of the collection
+  let (neg-C, neg-B, neg-A, o, A, B, C) = dummy-test-values(element-type(seq));
+
+  // identity check: check that remove!(sequence) == sequence
+  let s = sequence();
+  check-true(text(name, "test101", class), remove!(s, o) == s);
+
+  let s = sequence(o);
+  check-true(text(name, "test102", class), remove!(s, o) == s);
+
+  let s = sequence(o, o, o);
+  check-true(text(name, "test103", class), remove!(s, o) == s);
+
+  let s = sequence(A, A, A);
+  check-true(text(name, "test104", class), remove!(s, o) == s);
 end method test-remove!;
 
 define method test-choose
@@ -1512,6 +1636,178 @@ define method test-pop-last
     (name :: <string>, deque :: <deque>) => ()
   //---*** Fill this in...
 end method test-pop-last;
+
+define method test-deque-operations
+    (name :: <string>, collection :: <deque>) => ()
+  let class = type-for-copy(collection);
+
+  local method deque (#rest vals)
+    as(class, vals);
+  end;
+
+  let elt-type = element-type(collection);
+  let (neg-C, neg-B, neg-A, o, A, B, C) = dummy-test-values(elt-type);
+
+  check-condition(text(name, "test01", class), <error>, pop(deque()));
+  check-condition(text(name, "test02", class), <error>, pop-last(deque()));
+
+  // push, pop
+  let deq = deque();
+  push(deq, A);
+  check-equal(text(name, "test10", class), list(A), deq);
+  check-equal(text(name, "test11", class), A, pop(deq));
+  check-true(text(name, "test12", class), empty?(deq));
+
+  check-condition(text(name, "test13", class), <error>, pop(deq));
+  check-condition(text(name, "test14", class), <error>, pop-last(deq));
+
+  // push, pop-last
+  let deq = deque();
+  push(deq, A);
+  check-equal(text(name, "test15", class), list(A), deq);
+  check-equal(text(name, "test16", class), A, pop-last(deq));
+  check-true(text(name, "test17", class), empty?(deq));
+
+  check-condition(text(name, "test18", class), <error>, pop(deq));
+  check-condition(text(name, "test19", class), <error>, pop-last(deq));
+  
+  // push-last, pop
+  let deq = deque();
+  push-last(deq, A);
+  check-equal(text(name, "test20", class), list(A), deq);
+  check-equal(text(name, "test21", class), A, pop(deq));
+  check-true(text(name, "test22", class), empty?(deq));
+
+  // push-last, pop-last
+  let deq = deque();
+  push-last(deq, A);
+  check-equal(text(name, "test23", class), list(A), deq);
+  check-equal(text(name, "test24", class), A, pop-last(deq));
+  check-true(text(name, "test25", class), empty?(deq));
+
+  check-equal(text(name, "test30", class), A, pop(deque(1, B)));
+  check-equal(text(name, "test31", class), B, pop-last(deque(1, B)));
+
+  let deq = deque(A);
+  push(deq, B);
+  check-equal(text(name, "test32", class), B, pop(deq));
+  check-equal(text(name, "test33", class), A, pop-last(deq));
+  check-true(text(name, "test34", class), empty?(deq));
+
+  let deq = deque(A);
+  push(deq, B);
+  check-equal(text(name, "test35", class), A, pop-last(deq));
+  check-equal(text(name, "test36", class), B, pop(deq));
+  check-true(text(name, "test37", class), empty?(deq));
+
+  let deq = deque(A);
+  push-last(deq, B);
+  check-equal(text(name, "test38", class), A, pop(deq));
+  check-equal(text(name, "test39", class), B, pop-last(deq));
+  check-true(text(name, "test40", class), empty?(deq));
+
+  let deq = deque(A);
+  push-last(deq, B);
+  check-equal(text(name, "test41", class), B, pop-last(deq));
+  check-equal(text(name, "test42", class), A, pop(deq));
+  check-true(text(name, "test43", class), empty?(deq));
+
+  if ((elt-type == <object>) | (elt-type == <integer>))
+    let limit = 500;
+  
+    // push, pop grow/shrink
+    let deq = deque(#"scooby-snack");
+    for (i from 0 below limit)
+      for (j from 0 below limit)
+        push(deq, i);
+      end;
+      for (j from 1 below limit)
+        pop(deq);
+      end;
+    end for;
+    check-equal(text(name, "test40", class), limit + 1, deq.size);
+    for (i from 0 below limit)
+      for (j from 1 below limit)
+        push(deq, i);
+      end;
+      for (j from 0 below limit)
+        pop(deq);
+      end;
+    end for;
+    check-equal(text(name, "test41", class), 1, deq.size);
+    check-equal(text(name, "test42", class), #"scooby-snack", pop-last(deq));
+  
+    // push-last, pop-last grow/shrink
+    let deq = deque(#"scooby-snack");
+    for (i from 0 below limit)
+      for (j from 0 below limit)
+        push-last(deq, i);
+      end;
+      for (j from 1 below limit)
+        pop-last(deq);
+      end;
+    end for;
+    check-equal(text(name, "test43", class), limit + 1, deq.size);
+    for (i from 0 below limit)
+      for (j from 1 below limit)
+        push-last(deq, i);
+      end;
+      for (j from 0 below limit)
+        pop-last(deq);
+      end;
+    end for;
+    check-equal(text(name, "test44", class), 1, deq.size);
+    check-equal(text(name, "test45", class), #"scooby-snack", pop-last(deq));
+  
+    // push, pop-last rolling test
+    let deq = deque();
+    let number = 1;
+    for (i from 0 below limit)
+      push(deq, number);
+      number := number + 1;
+    end;
+    check-equal(text(name, "test50", class), limit, deq.size);
+    let last-element = #f;
+    for (i from 0 below limit)
+      for (j from 0 below limit)
+        push(deq, number);
+        number := number + 1;
+      end;
+      for (j from 0 below limit)
+        pop-last(deq);
+      end;
+    end;
+    for (i from 0 below limit)
+      last-element := pop-last(deq);
+    end;
+    check-equal(text(name, "test51", class), 0, deq.size);
+    check-equal(text(name, "test52", class), number, last-element + 1);
+  
+    // push-last, pop rolling test
+    let deq = deque();
+    let number = 1;
+    for (i from 0 below limit)
+      push-last(deq, number);
+      number := number + 1;
+    end;
+    check-equal(text(name, "test53", class), limit, deq.size);
+    let last-element = #f;
+    for (i from 0 below limit)
+      for (j from 0 below limit)
+        push-last(deq, number);
+        number := number + 1;
+      end;
+      for (j from 0 below limit)
+        pop(deq);
+      end;
+    end;
+    for (i from 0 below limit)
+      last-element := pop(deq);
+    end;
+    check-equal(text(name, "test54", class), 0, deq.size);
+    check-equal(text(name, "test55", class), number, last-element + 1);
+  end if;
+end method test-deque-operations;
 
 
 /// List tests
