@@ -23,8 +23,8 @@ Changes for version 0.3
   - Koala: Added the "headers" log level, to show incoming/outgoing headers if desired.
            See config/koala-config.xml
   - Koala: New config file setting: <port value="n" />
-  - Koala: Some statistics are now available via built-in URIs:
-           /koala/stats, /koala/user-agents, 
+  - Koala: Some statistics/utilities are now available via built-in URIs:
+           /koala/stats, /koala/user-agents, /koala/http-error?code=xxx
 
 
 ***********************************************************************************
