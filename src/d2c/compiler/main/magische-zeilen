@@ -1,4 +1,5 @@
-let a = #f; a := 42; if (a) return() else 3 + 4 end end
+block(return) let a = #f; a := 42; if (a) return() else 3 + 4 end end
+block(return) let a = #f; /* a := 42; */ if (a) return() else 3 + 4 end end
 block(return) for(i from 0 below 10) if(i > 6) return(17) end end; 23 end
 block(return) for(i from 0 below 10) if(i > 6) return(i) end end; 23 end
 block(return) let one = #f; one := 42; let two = if (~one) return() else 4 + 5 end; two := #f; if (two) "two" else 3 + 4 end end
