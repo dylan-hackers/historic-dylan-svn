@@ -103,6 +103,7 @@ define class <ant> (<object>)
   slot resting :: <integer> = 0;
   slot direction :: <direction> = 0;
   slot has-food :: <boolean> = #f;
+  slot ant-position :: <position>, required-init-keyword: at:;
 end class <ant>;
 
 define class <cell> (<object>)
@@ -137,6 +138,9 @@ end function ant-at;
 // wrong argument order
 define function ant-at-setter(p :: <position>, a :: false-or(<ant>)) => ()
   cell-at(p).ant := a;
+  if (a)
+    a.ant-position := p;
+  end;
 end function ant-at-setter;
 
 define constant set-ant-at = ant-at-setter;
@@ -157,17 +161,17 @@ end function ant-is-alive;
 
 define function find-ant(aid :: <integer>)
   => (p :: false-or(<position>));
+  let ant = *ants*[aid];
   block(return)
-    for(xx from 0 below *world*.dimensions[0])
-      for(yy from 0 below *world*.dimensions[1])
-        let p = make-position(xx, yy);
-        if(some-ant-is-at(p) & ant-at(p).id == aid)
-          return(p)
-        end if;
-      end for;
-    end for;
-    #f
-  end block;
+    unless (ant)
+      format-out("expect to find ant %d\n", aid);
+      return(#f);
+    end;
+    if (ant.id ~= aid)
+      format-out("expect to find ant %d, but got %d\n", aid, ant.id);
+    end;
+    ant.ant-position;
+  end;
 end function find-ant;
 
 define constant kill-ant-at = clear-ant-at;
@@ -221,7 +225,7 @@ define function read-map(s :: <stream>) => (result :: <array>);
         end select;
       let cell = apply(make, <cell>, options);
       if(cell.anthill)
-        let ant = make(<ant>, color: cell.anthill, id: ant-count);
+        let ant = make(<ant>, color: cell.anthill, id: ant-count, at: make-position(xx, yy));
         ant-count := ant-count + 1;
         cell.ant := ant;
         add!(*ants*, ant);
