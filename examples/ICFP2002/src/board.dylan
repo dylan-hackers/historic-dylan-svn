@@ -154,9 +154,10 @@ define method find-robot (state :: <state>, robot-id :: <integer>)
   //       robot-id, map(id, state.robots));
   iterate loop (lst = state.robots)
     case
-      lst.empty?             => error("find-robot: id does not exist");
+      lst.empty? => error("find-robot: id %d does not exist", robot-id);
       lst.head.id = robot-id => lst.head;
-      otherwise              => loop(lst.tail);
+      otherwise
+        => loop(lst.tail);
     end case;
   end iterate;
 end method find-robot;
