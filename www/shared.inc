@@ -3,7 +3,7 @@
 require "db_connect.inc";
 
 function current_version(){
-    echo "2.3.8";
+    echo "2.3.9";
 }
 
 function begin_progress_table () {
@@ -73,12 +73,13 @@ function standard_footer () {
 
 <P><STRONG>User Resources</STRONG></P>
 <UL>
+<LI><A HREF="downloading.phtml">Downloading Software</A>
+<LI><A HREF="gdref.phtml">Documentation</A>
+<LI><A HREF="lists.phtml">Mailing Lists</A>
+<LI><A HREF="http://monday.sourceforge.net/wiki/">Wiki</A>
+<LI><A HREF="learning.phtml">Learning Dylan</A>
 <LI><A HREF="screenshots.phtml">Screenshots</A>
 <LI><A HREF="limitations.phtml">Current Limitations</A>
-<LI><A HREF="downloading.phtml">Downloading Software</A>
-<LI><A HREF="lists.phtml">Mailing Lists</A>
-<LI><A HREF="learning.phtml">Learning Dylan</A>
-<LI><A HREF="gdref.phtml">Documentation</A>
 </UL>
 
 <P><STRONG>Developer Resources</STRONG></P>
@@ -87,6 +88,7 @@ function standard_footer () {
 <LI><A HREF="/cgi-bin/gd">Bug Tracker</A>
 <LI><A HREF="/cgi-bin/gd.private">Private Bug Tracker</A>
 <LI><A HREF="projects.phtml">Current Projects</A>
+<LI><A HREF="submit-news.phtml">Submit News</A>
 </UL>
 
 <P><STRONG>Wishlist</STRONG></P>
