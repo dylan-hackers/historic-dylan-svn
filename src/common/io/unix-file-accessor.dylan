@@ -15,8 +15,9 @@ define sealed class <unix-fd-file-accessor> (<external-file-accessor>)
     init-keyword: file-position:;
   constant slot asynchronous? :: <boolean> = #f, 
     init-keyword: asynchronous?:;
-  slot accessor-preferred-buffer-size :: <integer> = 0;
-  slot accessor-at-end? :: <boolean> = #f;
+  sealed slot accessor-positionable? :: <boolean> = #f;
+  sealed slot accessor-preferred-buffer-size :: <integer> = 0;
+  sealed slot accessor-at-end? :: <boolean> = #f;
 end class <unix-fd-file-accessor>;
 
 ignore(asynchronous?);
@@ -46,6 +47,7 @@ define method accessor-open
      #all-keys) => ()
   let (preferred-size, positionable?) = unix-fd-info(initial-file-descriptor);
   accessor.accessor-preferred-buffer-size := preferred-size;
+  accessor.accessor-positionable? := positionable?;
   *open-accessors*[accessor] := #t;
 end method accessor-open;
 
@@ -73,15 +75,14 @@ end method accessor-open?;
 define method accessor-size
     (accessor :: <unix-fd-file-accessor>)
  => (size :: false-or(<integer>))
-  let old-position = accessor.file-position;
-  let new-position = unix-lseek(accessor.file-descriptor, 0, $seek_end);
-  if (new-position >= 0
-        & unix-lseek(accessor.file-descriptor, old-position,
-                     $seek_set) = old-position)
-    new-position
-  else
-    #f
-  end
+  accessor.accessor-positionable?
+  & begin
+      let fd = accessor.file-descriptor;
+      let old-position = accessor.file-position;
+      unix-lseek(fd, 0, $seek_end) >= 0
+        & unix-lseek(fd, old-position, $seek_set) = old-position
+        & new-position
+    end
 end method accessor-size;
 
 define inline method accessor-position

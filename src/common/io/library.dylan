@@ -220,6 +220,7 @@ define module streams-internals
          accessor-at-end?-setter,
 	 accessor-size,
 	 accessor-size-setter,
+         accessor-positionable?,
          accessor-position,
          accessor-position-setter,
 	 accessor-force-output,
