@@ -578,20 +578,6 @@ define constant <name-char> = type-union(<letter>, <digit>, one-of('.', '-', '_'
 
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
-
-/***** TO_BE_REFACTORED
-// eliminate parse-xml-name? (redundant?)
-define method parse-xml-name(string, #key start = 0, end: stop)
-  with-collector into-vector name, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c);
-      [loop([type(<letter>, c), do(collect(c))])];
-      values(index, as(<string>, name));
-    end with-meta-syntax;
-  end with-collector;
-end method parse-xml-name;
-****/
-
 define method parse-name(string, #key start = 0, end: stop)
   with-collector into-vector name, collect: collect;
     with-meta-syntax parse-string (string, start: start, pos: index)
