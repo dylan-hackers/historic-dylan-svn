@@ -29,7 +29,7 @@ clean:
 install: icfp2002
 	strip icfp2002
 	cd ..; tar czf dylan-hackers.tgz README buildme runme \
-           src/Makefile src/icfp2002.lid src/*.dylan src/icfp2002
+           src/Makefile src/icfp2002.lid src/*.dylan src/icfp2002 src/*.intr src/*.lid src/c-opengl-visualizer.c src/network-internal.h TODO
 	   md5sum ../dylan-hackers.tgz
 
 test: icfp2002
