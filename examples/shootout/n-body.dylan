@@ -131,9 +131,9 @@ begin
   let n = application-arguments()[0].string-to-integer;
   
   offset-momentum($bodies);
-  format-out("%d\n", energy($bodies,0.0));
+  format-out("%.9f\n", energy($bodies,0.0));
   for (i from 1 to n)
     advance($bodies,0.01d0);
   end for;
-  format-out("%d\n", energy($bodies,0.0));
+  format-out("%.9f\n", energy($bodies,0.0));
 end;

@@ -74,5 +74,5 @@ end function fannkuch;
 
 begin
   let arg = application-arguments()[0].string-to-integer;
-  format-out("%d\n",fannkuch(arg));
+  format-out("Pfannkuchen(%=) = %d\n", arg, fannkuch(arg));
 end;

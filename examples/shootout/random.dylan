@@ -21,5 +21,5 @@ begin
     generate-random(100.0d0);
   end;
 
-  format-out("%.9f\n", generate-random(100.0d0));
+  format-out("%d\n", generate-random(100.0d0));
 end;
