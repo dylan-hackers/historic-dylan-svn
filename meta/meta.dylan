@@ -14,10 +14,6 @@ end collector word;
 define constant $graphic-digit :: <byte-string> = concatenate($digit, "+-");
 
 
-define inline function charval(c :: <character>) => int :: <integer>;
-  as(<integer>, c) - as(<integer>, '0');
-end charval;
-
 /*
 // This is the right way to do it, but as at Oct02 takes three times longer than the collector method
 define meta int (c :: <character> = ' ', sign :: <integer> = 1, val :: <integer> = 0) => (sign * val)
@@ -81,15 +77,6 @@ end collector double-float;
 define meta s(c)
   element-of($space, c), loop(element-of($space, c))
 end meta s;
-
-define function digit?(c :: <character>) => (ans :: <boolean>)
-  c >= '0' & c <= '9'
-end function digit?;
-
-define constant $zero :: <integer> = as(<integer>, '0');
-define function digit(c :: <character>) => (ans :: <integer>)
-  as(<integer>, c) - $zero;
-end function digit;
 
 
 // This is kinda long and complex, but it's several orders of magnitude faster
