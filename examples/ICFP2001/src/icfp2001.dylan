@@ -13,14 +13,14 @@ define class <char> (<object>)
 end class <char>;
 
 define class <attribute> (<object>)  // make that a flyweight pattern one day
-  slot bold       :: <boolean>;
-  slot emphasis   :: <boolean>;
-  slot italic     :: <boolean>;
-  slot strong     :: <boolean>;
-  slot typewriter :: <boolean>;
-  slot underline  :: false-or(limited(<integer>, min:0, max: 3));
-  slot size       :: false-or(limited(<integer>, min:0, max: 9));
-  slot color      :: <color>;
+  slot bold       :: <boolean> = #f;
+  slot emphasis   :: <boolean> = #f;
+  slot italic     :: <boolean> = #f;
+  slot strong     :: <boolean> = #f;
+  slot typewriter :: <boolean> = #f;
+  slot underline  :: limited(<integer>, min:0, max: 3) = 0;
+  slot size       :: false-or(limited(<integer>, min:0, max: 9)) = #f;
+  slot color      :: false-or(<color>) = #f;
 end class <attribute>;
 
 define constant <color> = one-of(#"red", #"green", #"blue", 
@@ -88,6 +88,15 @@ define method parse(input, #key start = 0)
   end;
 end method parse;
 
+define function bgh-parse(s :: <byte-string>)
+  let v = make(<stretchy-vector>);
+  for (c keyed-by i in s)
+    format-out("char %= is %=\n", i, c);
+    
+  end;
+  v;
+end function bgh-parse;
+
 define function time-is-not-up?()
   #f;
 end function time-is-not-up?;
@@ -121,7 +130,7 @@ define function main(name, arguments)
 
     let original-input      = slurp-input(input-stream);
     let best-transformation = original-input;
-    let parse-tree          = parse(original-input);
+    let parse-tree          = bgh-parse(original-input);
 
     write(*standard-output*, parse-tree);
 
