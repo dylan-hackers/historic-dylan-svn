@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.38 2003/07/11 03:20:04 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.38.2.1 2004/02/22 06:52:00 housel Exp $
 copyright: see below
 module: bootstrap
 
@@ -200,7 +200,7 @@ define module dylan-viscera
     <byte-character>, <true>, <false>,
     false-or, one-of, <never-returns>, subclass, direct-instance,
     report-condition, condition-format, condition-force-output,
-    *warning-output*, *gdb-output*,
+    *warning-output*,
     <debugger>, invoke-debugger, debugger-message, *debugger*, debug-message,
     <bit>, <byte>, <byte-vector>,
     <set>, <object-set>,
@@ -273,7 +273,6 @@ define module dylan-viscera
     %make-next-method-cookie,
     %object-class,
     ambiguous-method-error,
-    apply-safely,		 
     catch,
     check-types,
     class-all-slot-descriptors,

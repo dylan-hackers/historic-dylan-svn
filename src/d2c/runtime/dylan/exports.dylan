@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.39 2003/07/11 03:20:04 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.39.2.1 2004/02/22 06:51:59 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -232,9 +232,6 @@ define module System
 	     <designator-class>, \designator-class-definer,
 	     size-of, alignment-of, referenced-type,
 
-	     // Nasty debugging hooks.
-	     *gdb-output*,
-
 	     // Raw pointer stuff.
 	     <raw-pointer>, pointer-deref, pointer-deref-setter,
              vector-elements-address,
@@ -305,7 +302,6 @@ define module magic
 	     %make-next-method-cookie,
 	     %object-class,
 	     ambiguous-method-error,
-	     apply-safely,
 	     catch,
 	     check-types,
 	     class-all-slot-descriptors,
