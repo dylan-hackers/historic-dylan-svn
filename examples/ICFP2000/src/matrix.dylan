@@ -118,7 +118,7 @@ define method \- (p1 :: <3D-point>, p2 :: <3D-point>)
   let w1 = p1.w;
   let w2 = p2.w;
   if (w1 = 1.0 & w2 = 1.0)
-    vector3D(p1.x - p1.x, 
+    vector3D(p1.x - p2.x, 
 	     p1.y - p2.y, 
 	     p1.z - p2.z);
   else
