@@ -41,10 +41,9 @@ Demonstrates using the date-gadgets from the dylanlibs library.
 Dylan Implementations: 
   Functional Developer
 
-An example of a way of hosting ActiveX controls inside DUIM
-applications using the Microsoft ATL DLL. This demonstration hosts the
-Microsoft Web Browser component to create a very simple web browser by
-creating a new DUIM gadget to host the control.
+Shows how to use the <msie-gadget> and <atl-activex-gadget> to create
+a very simple web browser by hosting the Microsoft Internet Explorer
+control.
 
 6) send-keys-play
 =================
@@ -75,5 +74,5 @@ Demonstrates using the double-base64 library..
 
 -- 
 Chris Double.  
-04 May 2001.
+10 May 2001.
 

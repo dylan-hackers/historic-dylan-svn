@@ -337,7 +337,7 @@ define method node-select-nodes( node :: <node>, query :: <string>) => (s :: <se
   node-list-to-sequence(%select-nodes(node.msxml3-interface, query));
 end method node-select-nodes;
 
-define method node-select-single-node( node :: <node>, query :: <string>) => (r :: <node>)
+define method node-select-single-node( node :: <node>, query :: <string>) => (r :: false-or(<node>))
   make-proxy(%select-single-node(node.msxml3-interface, query));
 end method node-select-single-node;
 

@@ -6,15 +6,11 @@ Copyright: (C) 2000, Chris Double.  All rights reserved.
 define library simple-web-browser
   use functional-dylan;
   use duim;
-  use c-ffi;
-  use win32-duim;
-  use win32-common;
-  use win32-controls;
-  use win32-kernel;
-  use win32-user;
   use ms-internet;
   use com;
   use ole-automation;
+  use atl-activex-gadget;
+  use msie-gadget;
 
 
   // Add any more module exports here.
