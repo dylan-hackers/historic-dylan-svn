@@ -30,3 +30,4 @@ ALL $CVSROOT/CVSROOT/syncmail -u %{sVv} gd-chatter@gwydiondylan.org
 ALL $CVSROOT/CVSROOT/ciabot %{sVv}
 ^www touch /usr/local/www/data/.needs-rebuild
 ^ref touch /usr/local/www/gdref/.needs-rebuild
+^libraries/koala/www/koala touch /usr/local/www/koala/.needs-rebuild
