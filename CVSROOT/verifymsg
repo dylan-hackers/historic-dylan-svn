@@ -19,4 +19,4 @@
 # One thing that should be noted is the the ALL keyword is not
 # supported.  There can be only one entry that matches a given
 # repository.
-ALL /usr/share/cvssupport/logmsg.verify
+DEFAULT /usr/share/cvssupport/logmsg.verify
