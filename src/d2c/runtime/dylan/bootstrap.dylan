@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.9.4.2 2000/06/25 06:16:17 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.9.4.3 2000/06/25 21:11:33 emk Exp $
 copyright: see below
 module: bootstrap
 
@@ -285,6 +285,7 @@ define module dylan-viscera
     pop-unwind-protect,
     push-handler,
     push-unwind-protect,
+    <simple-integer-vector>,
     slot-init-function,
     slot-init-function-setter,
     slot-init-value,
