@@ -14,13 +14,13 @@ if (!$enable_bootstrap || $enable_mindy_bootstrap) {
 		       '../../common/threads',
 		       '../../common/table-ext',
 		       '../../common/common-dylan',
-		       '../../common/collections', # FIXME
 		       '../../common/collection-extensions',
 		       '../../common/string-ext',
 		       '../../common/regular-expressions',
 		       '../../common/io',
 		       '../../common/system',
-		       '../../common/getopt');
+		       '../../common/getopt',
+		       '../../common/stream-ext');
 
     do install_from_src($includedir, "runtime.h");
 } else {
