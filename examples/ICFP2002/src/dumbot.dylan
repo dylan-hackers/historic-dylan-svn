@@ -33,8 +33,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     // Pick ups:
     let packages-here = packages-at(s, robot.location, 
 				    available-only: #t);
-    format-out("DB: Packages here: %=\n", packages-here);
-    force-output(*standard-output*);
+
     if (packages-here ~= #f & ~packages-here.empty?)
       let take-these = make(<vector>);
       let left = robot.capacity-left;
@@ -64,51 +63,20 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 
     maybe-mark-base-visited(me, s, robot.location);
 
-    format-out("DB: package destinations: %=\n", map(dest, inventory));
-    force-output(*standard-output*);
-
     // Go to the next interesting place:
     let targets = concatenate(map(dest, inventory),
 			       map(location, choose(curry(curry(deliverable?, me), s),
 				    s.free-packages)),
 			      unvisited-bases(me, s));
     
-    format-out("DB: Targets: %=\n", targets);
-    force-output(*standard-output*);
+    let (target, path) = closest-point(s, robot.location, targets);
 
-    let paths = map(curry(rcurry(find-path, s.board), robot.location),
-		    targets);
-
-    paths := choose(curry(\~=, #f), paths);
-
-    paths := sort!(paths, stable: #t, 
-		  test: method (a :: <list>, b :: <list>) 
-			  a.size < b.size;
-                        end method);
     let direction
-      = if (empty?(paths))
+      = if (~target)
 	  error("Sorry, can't find anywhere to go!\n");
 	else
-	  turn(robot, paths.first);
+	  points-to-direction(robot.location, path.first);
 	end if;
     return(make(<move>, bid: 1, direction: direction, id: robot.id));
   end block;
 end method generate-next-move;
-
-
-define function turn(robot :: <robot>, path :: <point-list>)
-// => what???
-	  let new-loc = path.first;
-	  case
-	    new-loc = point(x: robot.location.x, y: robot.location.y + 1)
-	      => $north;
-	    new-loc = point(x: robot.location.x + 1, y: robot.location.y)
-	      => $east;
-	    new-loc = point(x: robot.location.x, y: robot.location.y - 1)
-	      => $south;
-	    new-loc = point(x: robot.location.x - 1, y: robot.location.y)
-	      => $west;
-	    new-loc = point(x: robot.location.x, y: robot.location.y)
-	      => error("Can't happen, robot: %=, path: %=\n", robot, path);
-	  end case;
-end function turn;
