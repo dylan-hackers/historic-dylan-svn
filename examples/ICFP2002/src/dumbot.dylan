@@ -1,10 +1,6 @@
 module: client
  
 
-define class <dumbot> (<robot-agent>)
-end class <dumbot>;
-
-
 define class <dumber-bot> (<robot-agent>)
 end class <dumber-bot>;
 
@@ -65,6 +61,22 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
   make(<move>, bid: 1, direction: direction);
 end method generate-next-move;
 
+define class <dumbot> (<robot-agent>)
+  slot visited-bases :: <list>,
+    init-value: #();
+end class <dumbot>;
+
+define method unvisited-bases(me :: <dumbot>, s :: <state>)
+  choose(method (b :: <point>)
+	   ~any?(curry(\=, b), me.visited-bases);
+	 end method, s.bases);
+end method unvisited-bases;
+
+define method maybe-mark-base(me :: <dumbot>, s :: <state>, p :: <point>)
+  if (any?(curry(\=, p), s.bases) & ~any?(curry(\=, p), me.visited-bases))
+    me.visited-bases := add!(me.visited-bases, p);
+  end if;
+end method maybe-mark-base;
 
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
@@ -86,8 +98,6 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     end if;
     
     // Pick ups:
-    format-out("DB: All packages: %=\n", s.packages);
-    force-output(*standard-output*);
     let packages-here = packages-at(s, robot.location, 
 				    available-only: #t);
     format-out("DB: Packages here: %=\n", packages-here);
@@ -118,11 +128,16 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
       format-out("DB: No packages here (or first move)\n");
       force-output(*standard-output*);
     end if;
-    
+
+    maybe-mark-base(me, s, robot.location);
+
+    format-out("DB: package destinations: %=\n", map(dest, robot.inventory));
+    force-output(*standard-output*);
+
     // Go to the next interesting place:
     let targets = concatenate(map(dest, robot.inventory),
 			      map(location, s.free-packages),
-			      s.bases);
+			      unvisited-bases(me, s));
     
     format-out("DB: Targets: %=\n", targets);
     force-output(*standard-output*);
@@ -141,8 +156,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
                         end method);
     let direction
       = if (empty?(paths))
-	  debug("Sorry, can't find anywhere to go!\n");
-	  $north
+	  error("Sorry, can't find anywhere to go!\n");
 	else
 	  let path = paths.first;
 	  let new-loc = path.first;
