@@ -1,24 +1,23 @@
 module: assembler
 
 
-define brain chris
+define brain chris-surround
 
-  [start:]
 	Turn Left;
 	Turn Right, (random_turn);
 
   [move:]
-	Move => start;
-	Sense Here (Marker 0), (spin);
-	Sense Ahead (Marker 0), (marker_0_ahead);
-	Sense LeftAhead (Marker 0), (marker_0_left_ahead);
-	Sense RightAhead (Marker 0), (marker_0_right_ahead);
+	Move => chris-surround;
+	Sense Here (Marker 5), (spin);
+	Sense Ahead (Marker 5), (marker_0_ahead);
+	Sense LeftAhead (Marker 5), (marker_0_left_ahead);
+	Sense RightAhead (Marker 5), (marker_0_right_ahead);
 //	Flip 300, (stake_place, move);
 	Sense Here Home => move;
 	Flip 50, (stake_place, move);
 	
   [marker_0_ahead:]
-	Move spin => start;
+	Move spin => chris-surround;
 
   [marker_0_left_ahead:]
 	Turn Left, (move);
@@ -27,44 +26,44 @@ define brain chris
 	Turn Right, (move);
 	
   [stake_place:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Turn Right;
 	Move stake_place_2 => sp1_try1;
 
   [stake_place_2:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Move stake_place_3 => sp2_try1;
 
   [stake_place_3:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Move stake_place_4 => sp3_try1;
 
   [stake_place_4:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Move stake_place_5 => sp4_try1;
 
   [stake_place_5:]
-	Mark 0, (spin);
+	Mark 5, (spin);
 
   [sp1_try1:]
-	Sense Ahead Rock, (start);	
-	Move stake_place_2 => start;
+	Sense Ahead Rock, (chris-surround);	
+	Move stake_place_2 => chris-surround;
 
   [sp2_try1:]
-	Sense Ahead Rock, (start);	
-	Move stake_place_3 => start;
+	Sense Ahead Rock, (chris-surround);	
+	Move stake_place_3 => chris-surround;
 
   [sp3_try1:]
-	Sense Ahead Rock, (start);	
-	Move stake_place_4 => start;
+	Sense Ahead Rock, (chris-surround);	
+	Move stake_place_4 => chris-surround;
 
   [sp4_try1:]
-	Sense Ahead Rock, (start);	
-	Move stake_place_5 => start;
+	Sense Ahead Rock, (chris-surround);	
+	Move stake_place_5 => chris-surround;
 
   [spin:]
 	Turn Right, (spin);
@@ -102,4 +101,4 @@ define brain chris
 end;
 
 
-chris().dump-brain;
+chris-surround().dump-brain;
