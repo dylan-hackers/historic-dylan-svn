@@ -141,7 +141,8 @@ end function receive-initial-setup;
 define function receive-board-layout (s :: <stream>) => <board>;
   block()
     let (max-x, max-y) = receive-board-dimensions(s);
-    let board = make(<board>, dimensions: list(max-x, max-y));
+    let board = make(<board>,
+                     dimensions: list(max-y, max-x)); // deliberate transpose
     for (y from 1 to max-y)
       receive-board-row(s, board, max-x, y)
     end for;
@@ -205,21 +206,23 @@ define function receive-board-row (s :: <stream>,
   for (x from 1 to max-x)
     let c = s.read-element;
     select (c)
-      $empty-char => b[x, y] := make(<space>);
-      $water-char => b[x, y] := make(<water>);
-      $wall-char  => b[x, y] := make(<wall>);
-      $base-char  => b[x, y] := make(<base>);
+      $empty-char => b[y, x] := make(<space>);
+      $water-char => b[y, x] := make(<water>);
+      $wall-char  => b[y, x] := make(<wall>);
+      $base-char  => b[y, x] := make(<base>);
       otherwise =>
         message-error("receive-board-row: bad board element '%c'\n", c);
     end select;
   finally
     block ()
+      debug("foo\n");
       receive-newline(s);
+      debug("bar\n");
     exception (e :: <message-error>)
       add-error(e, "receive-board-row -- row did not terminate as expected\n");
     end block;
   end for;
-  debug("receive-board-row: max-x = %d, y = %d cols read\n", max-x, y);
+  debug("receive-board-row: max-x = %d, y = %d read\n", max-x, y);
 end function receive-board-row;
 
 
@@ -231,7 +234,7 @@ define function receive-board-dimensions (s :: <stream>)
     receive-spaces(s);
     let y = receive-integer(s);
     receive-newline(s);
-    debug("receive-integer: %d x %d\n", x, y);
+    debug("receive-board-dimensions: %d x %d\n", x, y);
     //
     values(x, y);
   exception (e :: <message-error>)
