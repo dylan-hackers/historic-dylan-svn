@@ -1,3 +1,12 @@
 TODO list
 
-win the contest
+Write modules to solve:
+
++ A* pathfinding
+- travelling salesman problem
+  - Construct a minimum spanning tree
+  - Do a dfs on it for the path to follow
+
+- knapsack problem
+- minimax engine
+- function to get cpu time
