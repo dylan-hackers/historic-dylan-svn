@@ -554,7 +554,7 @@ end method;
 // type-for-copy -- public
 // 
 define sealed inline method type-for-copy
-    (range :: <builtin-range>) => (result :: <class>);
+    (range :: <builtin-range>) => (class :: <class>);
   <list>;
 end method;
 

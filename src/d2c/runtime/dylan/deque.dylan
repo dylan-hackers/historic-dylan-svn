@@ -579,6 +579,14 @@ define inline method as
 end;
 
 
+// Not strictly necessary, but produces slightly more optimal code
+//
+define inline method type-for-copy (object :: <object-deque>)
+ => (class :: <class>)
+  <object-deque>;
+end;
+
+
 define inline method map-into (destination :: <object-deque>,
                                proc :: <function>, sequence :: <sequence>,
                                #next next-method, #rest more-sequences)

@@ -53,6 +53,7 @@ define method as (type :: <type>, obj :: <object>) => (result :: <object>);
   end case;
 end method as;
 
-define inline method type-for-copy (object :: <object>) => type :: <type>;
-  object-class(object);
-end;
+define inline method type-for-copy (object :: <object>)
+    => class :: <class>;
+  object.object-class;
+end method type-for-copy;

@@ -279,8 +279,9 @@ define sealed method as
 end;
 
 // Not strictly necessary, but produces slightly more optimal code
+//
 define inline method type-for-copy (object :: <simple-object-vector>)
- => (res :: <class>)
+ => (class :: <class>)
   <simple-object-vector>;
 end;
 

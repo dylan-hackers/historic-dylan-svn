@@ -393,6 +393,13 @@ define inline method as
   vector;
 end;
 
+// Not strictly necessary, but produces slightly more optimal code
+//
+define inline method type-for-copy (object :: <stretchy-object-vector>)
+ => (class :: <class>)
+  <stretchy-object-vector>;
+end;
+
 define method map-into (destination :: <stretchy-object-vector>,
 			proc :: <function>, sequence :: <sequence>,
 			#next next-method, #rest more-sequences)

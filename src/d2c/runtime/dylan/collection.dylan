@@ -172,9 +172,14 @@ define open generic key-test
     (collection :: <collection>) => (test-function :: <function>);
 
 
-define inline method type-for-copy (coll :: <mutable-collection>)
-    => res :: <class>;
-  coll.object-class;
+// This type-for-copy method is specified in the DRM, but I'm not
+// convinced it does anything useful since the method for <object>
+// does the same thing.  This issue in the DRM has been flagged
+// for further review.
+//
+define inline method type-for-copy (collection :: <mutable-collection>)
+    => class :: <class>;
+  collection.object-class;
 end method type-for-copy;
 
 // Collection Methods.

@@ -44,7 +44,7 @@ end;
 // (e.g. add their own override) which would just confuse the compiler.
 //
 define inline function object-class (thing :: <object>)
-    => res :: <class>;
+    => class :: <class>;
   %object-class(thing);
 end;
 

@@ -193,10 +193,6 @@ define method shallow-copy (list :: <list>) => res :: <list>;
   dup-if-pair(list);
 end method shallow-copy;
 
-define inline method type-for-copy (object :: <list>) => res :: <type>;
-  <list>;
-end;
-
 define flushable sealed method as
     (class == <list>, collection :: <collection>)
     => res :: <list>;
@@ -220,6 +216,14 @@ define flushable method as
   finally
     res;
   end;
+end;
+
+// It is important to define this method because the type-for-copy
+// of an <empty-list> is <list>, not <empty-list>.
+//
+define inline method type-for-copy (object :: <list>)
+ => (class :: <class>)
+  <list>;
 end;
 
 define inline method empty? (list :: <list>) => res :: <boolean>;
