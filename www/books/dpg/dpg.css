@@ -94,6 +94,8 @@ th {
 	border-bottom-style: solid;
 	border-bottom-color: black;
 
+	vertical-align: middle
+
 	padding-left: 1em;
 	padding-right: 1em;
 }
@@ -109,26 +111,16 @@ td {
 }
 
 td pre {
-	font-family: monospace;
-	font-weight: bold;
 	padding: 0;
-	margin: 0.5em;
 }
 
 
-td pre em {
-	font-family: monospace;
+pre em {
 	font-weight: normal;
-	font-style: italic;
+	font-style: normal;
 }
 
 table p {
 	margin: 0px;
 	padding: 0px;
 }
-
-code, pre {
-	font-weight: bold;
-	font-family: monospace;
-}
-
