@@ -3,11 +3,10 @@ if [ -f /usr/local/www/gdref/.needs-rebuild ]; then
 	date
 	rm -f /usr/local/www/gdref/.needs-rebuild
 	cd /usr/local/www/ref
-	cvs update -dP
+	svn update
 	/usr/local/bin/gmake
 	/usr/local/bin/gmake html-unchunked
 	cp -r gdlibs gdapi gdmaint gduser tutorial *.html *.png /usr/local/www/gdref/
 	cp -r /usr/local/www/data/gdref/man /usr/local/www/gdref/
 	cp tri.png streams.png /usr/local/www/gdref/gdlibs/
-	find /usr/local/www/gdref -name CVS -type d | xargs rm -rf
 fi

@@ -3,5 +3,5 @@ if [ -f /usr/local/www/data/.needs-rebuild ]; then
 	date
 	rm -f /usr/local/www/data/.needs-rebuild
 	cd /usr/local/www/data
-	cvs update -dP
+	svn update
 fi
