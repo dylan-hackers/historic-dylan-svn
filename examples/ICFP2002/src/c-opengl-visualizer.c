@@ -205,8 +205,8 @@ char *parsePlayerAction(unsigned int playerID, char *string)
             printf("Player %u arrives at (%u, %u)\n",
                    playerID, x, y);
 
-            gPlayers[playerID].x = x;
-            gPlayers[playerID].y = y;
+            gPlayers[playerID].x = x - 1;
+            gPlayers[playerID].y = y - 1;
             gPlayers[playerID].playing = TRUE;
         }
         break;
@@ -262,8 +262,8 @@ void readPackageList(void)
 
 void sendAction(void)
 {
-    printf("sending \"100 Move N\\n\"\n");
-    send(gUnixSocket, "100 Move N\n", 11, 0);
+    printf("sending \"1 Pick\\n\"\n");
+    send(gUnixSocket, "1 Pick\n", 7, 0);
 }
 
 //------------------------------------------------------------------------
