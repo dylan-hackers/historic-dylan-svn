@@ -30,7 +30,7 @@
 <!ENTITY % dylan.def.class
            "DylanConstantDef|DylanVariableDef|
             DylanGenericDef|DylanMethodDef|DylanFunctionDef|
-            DylanClassDef|DylanMacroDef|triangle
+            DylanClassDef|DylanMacroDef
             %local.dylan.def.class;" >
 
 <!ENTITY % local.dylan.tech.char.class "">
@@ -98,8 +98,6 @@
   Reference Manual.
 -->
 
-<!ELEMENT triangle - O EMPTY>
-
 <!ELEMENT DylanConstantDef - - (DefName, DefSummary, DefType?, DefValue?,
                                 DefDescription, DefSection*) >
 
@@ -157,8 +155,8 @@
 -->
 
 <!ELEMENT Param - - (ParamName, (ParamType|ParamSingleton)?, ParamSummary?) >
-<!ELEMENT KeyParam - - (ParamName, ParamType?, ParamDefault?, ParamSummary?) >
 <!ELEMENT RestParam - - (ParamName, ParamType?, ParamSummary?)? >
+<!ELEMENT KeyParam - - (ParamName, ParamType?, ParamDefault?, ParamSummary?) >
 <!ELEMENT AllKeys - O EMPTY >
 <!ELEMENT ParamName - - (#PCDATA) >
 <!ELEMENT ParamType - - (#PCDATA) >
@@ -181,5 +179,5 @@
   and generic functions.
 -->
 
-<!ELEMENT DefParameters - - (Param*, RestParam?, (KeyParam+, AllKeys?)?) >
+<!ELEMENT DefParameters - - (Param*, RestParam?, (KeyParam*, AllKeys?)?) >
 <!ELEMENT DefReturns - - (Param*, RestParam?) -(ParamSingleton)>
