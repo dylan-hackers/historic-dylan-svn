@@ -1,6 +1,6 @@
 <!--
 
-$Id: build.xml,v 1.5 2002/07/30 03:06:20 sigue Exp $
+$Id: build.xml,v 1.6 2002/08/10 03:04:02 sigue Exp $
 
 Ant build file for the Koala HTTP server and associated libraries.
 
@@ -44,10 +44,11 @@ koala-x.y
     <echo message="  dist [default] -- builds a full Koala distribution with source" />
     <echo message="  binary         -- builds a binary-only distribution" />
     <echo message="  source         -- builds a source-only distribution" />
-    <echo message="  clean-all      -- cleans up the build directories" />
+    <echo message="  www            -- builds the Koala web pages" />
     <echo message="  clean-dist     -- deletes the distribution directory" />
-    <echo message="  clean-binary   -- cleans binaries (koala-build etc) out of the source directories" />
-    <echo message="  clean-source   -- cleans junk file out of the source directories" />
+    <echo message="  clean-binary   -- deletes compiler turds" />
+    <echo message="  clean-source   -- deletes junk files (emacs turds etc) out of the source directories" />
+    <echo message="  clean-all      -- calls all other clean-* targets" />
     <echo message="  help           -- display this help message" />
   </target>
 
@@ -58,34 +59,46 @@ koala-x.y
   </target>
 
 
-  <!-- ********** basics ********** -->
 
-  <!-- Builds everything that goes in both the source and binary distributions. -->
+  <!-- ********** www ********** -->
 
-  <target name="basics">
+  <!-- Builds everything for the Koala download web pages.
+       I actually put more in here than is accessible on the site,
+       but it's not very big so it shouldn't matter.
+    -->
 
-    <mkdir dir="${dist}" />
-    <mkdir dir="${dist}" />
+  <target name="www">
+
     <mkdir dir="${dist}/www" />
-    <mkdir dir="${dist}/config" />
 
-    <copy todir="${dist}/www"
-          overwrite="yes">
+    <copy todir="${dist}/www">
       <fileset dir="${www}" />
     </copy>
 
+    <copy todir="${dist}/www/koala">
+      <fileset dir="${basedir}"
+               includes="change-log.txt" />
+    </copy>
+  </target>
+
+
+
+  <!-- ********** common ********** -->
+
+  <!-- Builds everything that goes in both the source and binary distributions. -->
+
+  <target name="common" depends="www">
+
+    <mkdir dir="${dist}" />
+    <mkdir dir="${dist}/config" />
+
     <copy file="${basedir}/config/koala-config.xml"
           todir="${dist}/config"
-          overwrite="yes" />
+          />
 
-    <copy file="${basedir}/README.txt"
-          todir="${dist}"
-          overwrite="yes">
-    </copy>
-
-    <copy file="${basedir}/change-log.txt"
-          todir="${dist}"
-          overwrite="yes">
+    <copy todir="${dist}">
+      <fileset dir="${basedir}"
+               includes="change-log.txt, README.txt" />
     </copy>
 
   </target>
@@ -93,13 +106,16 @@ koala-x.y
 
   <!-- ********** binary ********** -->
 
-  <target name="binary" depends="basics">
+  <target name="binary" depends="common">
 
     <mkdir dir="${dist}/bin" />
 
-    <copy todir="${dist}/bin"
-          overwrite="yes">
+    <copy todir="${dist}/bin">
       <fileset dir="${sources}/example/release" />
+    </copy>
+
+    <copy todir="${dist}/bin">
+      <fileset dir="${sources}/xml-rpc-client/release" />
     </copy>
 
   </target>
@@ -107,31 +123,31 @@ koala-x.y
 
   <!-- ********** source-only ********** -->
 
-  <target name="source" depends="basics">
+  <target name="source" depends="common">
 
     <mkdir dir="${dist}/sources" />
     <mkdir dir="${dist}/build" />
     <mkdir dir="${dist}/lib" />
     
-    <copy todir="${dist}/sources"
-          overwrite="yes">
+    <copy todir="${dist}/sources">
       <fileset dir="${basedir}/sources" includes="**/*.dylan, **/*.txt, **/*.lid, **/*.hdp, **/*.htm, **/*.html" />
     </copy>
 
-    <copy todir="${dist}/lib"
-          overwrite="yes">
+    <copy todir="${dist}/lib">
       <fileset dir="${basedir}/lib" includes="**/*.dylan, **/*.txt, **/*.lid, **/*.hdp, **/*.htm, **/*.html" />
     </copy>
 
     <copy file="${basedir}/build/build.xml"
           todir="${dist}/build"
-          overwrite="yes">
-    </copy>
+          />
 
     <copy file="${basedir}/to-do.txt"
           todir="${dist}"
-          overwrite="yes">
-    </copy>
+          />
+
+    <mkdir dir="${dist}/sources/example/config" />
+    <copy file="${config}/koala-config.xml"
+    	  todir="${dist}/sources/example/config" />
 
   </target>
 
@@ -147,26 +163,20 @@ koala-x.y
 
   <target name="clean-source">
     <delete>
-      <fileset dir="${basedir}/sources"
+      <fileset dir="${basedir}"
                defaultexcludes="no"
-               includes="**/*~, **/#*#, **/.#*" />
-    </delete>
-    <delete>
-      <fileset dir="${basedir}/www"
-               defaultexcludes="no"
-               includes="**/*~, **/#*#, **/.#*" />
+               includes="**/*~, **/#*#, **/.#*"
+               />
     </delete>
   </target>
 
   <target name="clean-binary">
-    <delete dir="${sources}/koala/koala-build" />
-    <delete dir="${sources}/koala/bin" />
-    <delete dir="${sources}/koala/lib" />
-    <delete dir="${sources}/koala/release" />
-    <delete dir="${sources}/example/koala-example-build" />
-    <delete dir="${sources}/example/bin" />
-    <delete dir="${sources}/example/lib" />
-    <delete dir="${sources}/example/release" />
+    <delete>
+      <fileset dir="${sources}"
+               includes="**/*-build/*, **/bin/*, **/lib/*, **/release/*"
+               excludes="**/*.dylan, **/*.hdp, **/*.lid, **/*.txt, **/*.html, **/*.htm"
+               />
+    </delete>
   </target>
 
 </project>

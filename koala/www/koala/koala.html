@@ -38,15 +38,48 @@ Pages.
 
 <h3>Organization of the Koala distribution</h3>
 
-<pre>
-koala/bin              -- Binaries for the demo application.
-koala/config/          -- Koala configuration files.
-koala/lib/             -- Third-party libraries.
-koala/sources/koala    -- Koala and Dylan Server Pages sources.
-koala/sources/example  -- A demo application using DSP.
-koala/www              -- Web pages, including the demo application.
-koala/www/koala        -- Some preliminary Koala/DSP documentation.
-</pre>
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td><code>koala/bin</code></td>
+    <td>Binaries for Koala, the demo, the XML-RPC client, etc</td>
+  </tr>
+  <tr>
+    <td><code>koala/config/</code></td>
+    <td>Koala configuration files.</td>
+  </tr>
+  <tr>
+    <td><code>koala/lib/</code></td>
+    <td>Third-party libraries.</td>
+  </tr>
+  <tr>
+    <td><code>koala/sources/koala</code></td>
+    <td>Koala and Dylan Server Pages sources.</td>
+  </tr>
+  <tr>
+    <td><code>koala/sources/example</code></td>
+    <td>A demo application using DSP.</td>
+  </tr>
+  <tr>
+    <td><code>koala/sources/xml-rpc-client&nbsp;&nbsp;</code></td>
+    <td>An XML-RPC client</td>
+  </tr>
+  <tr>
+    <td><code>koala/sources/xml-rpc-common&nbsp;&nbsp;</code></td>
+    <td>Code shared by the XML-RPC client and server.</td>
+  </tr>
+  <tr>
+    <td><code>koala/www</code></td>
+    <td>Web pages</td>
+  </tr>
+  <tr>
+    <td><code>koala/www/demo</code></td>
+    <td>Dylan Server Pages templates for the demo application.</td>
+  </tr>
+  <tr>
+    <td><code>koala/www/koala</code></td>
+    <td>These Koala web pages.</td>
+  </tr>
+</table>
 
 
 <h3>Running Koala</h3>
@@ -62,9 +95,11 @@ by double clicking on koala-example.exe in the koala/bin/ directory.
 href="http://localhost/">http://localhost/</a> to browse the documents
 in koala/www, or <a
 href="http://localhost/demo/home.dsp">http://localhost/demo/home.dsp</a>
-for the Dylan Server Pages demo.  Note that &lt;koala-root&gt;/config/koala-config.xml
-has many comments explaining configuration settings.
-
+for the Dylan Server Pages demo.  If you want to change the default
+settings (for example the port number or document root directory) you
+can edit a copy of <i>koala-dir</i>/config/koala-config.xml and put it in
+sources/example/config/koala-config.xml.  The config file has many
+comments explaining configuration settings.
 
 
 <a name="building"></a>
@@ -74,9 +109,8 @@ If you have a source distribution then you can build Koala using <a
 href="http://www.functionalobjects.com">Functional Developer</a> (free
 evaluation versions available).  Just open
 sources/example/koala-example.hdp in FunDev and choose Project / Build
-from the menu.  You may want to put a copy of config/koala-config.xml
-into sources/example/config/koala-config.xml and set DEBUG-SERVER to
-&quot;on&quot;.
+from the menu.  You will probably want to edit the koala-config.xml file
+to turn on debugging.  (See comments in the file for how to do that.)
 
 <p>If you want to make a new distribution of Koala, build the koala-example
 project, then use the Build Release command in Functional Developer,
@@ -104,9 +138,9 @@ Any and all feedback appreciated.
 there's no request document to parse.)
 
 <p>The XML-RPC client is available as the xml-rpc-client library in
-&lt;<i>koala-root</i>&gt;/sources/xml-rpc-client.  The main interfaces
-are the xml-rpc-call and xml-rpc-call-2 methods.  The latter takes a
-port number and URL in addition to the method name and arguments.
+<i>koala-dir</i>/sources/xml-rpc-client.  The main interfaces are the
+xml-rpc-call and xml-rpc-call-2 methods.  The latter takes a port number
+and URL in addition to the method name and arguments.
 
 </body>
 </html>

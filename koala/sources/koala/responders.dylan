@@ -13,9 +13,11 @@ define responder general-stats-responder ("/koala/stats")
     (request, response)
   let stream = output-stream(response);
   let server = request.request-server;
+  format(stream, "<html><body>");
   format(stream, "%s<br>", $server-header-value);
   format(stream, "Up since %s<br>", as-iso8601-string(server.startup-date));
   format(stream, "Connections handled: %d<br>", server.connections-accepted);
+  format(stream, "</body></html>");
 end;
 
 
@@ -24,9 +26,11 @@ end;
 define responder user-agent-responder ("/koala/user-agents")
     (request, response)
   let stream = output-stream(response);
+  format(stream, "<html><body>");
   for (count keyed-by agent in user-agent-stats(request-server(request)))
     format(stream, "%5d: %s<br>", count, agent);
   end;
+  format(stream, "</body></html>");
 end;
 
 // Return an HTTP error code, for testing purposes.

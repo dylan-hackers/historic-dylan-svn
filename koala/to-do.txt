@@ -16,7 +16,7 @@ Version 0.4
     (which contains a scheme etc) and just the path.
 
 
-Version 0.4
+Version 0.5
 -----------
 
 * Sessions - They should be able to work without cookies enabled, either

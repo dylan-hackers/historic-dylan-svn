@@ -441,34 +441,40 @@ define function handler-top-level
           *request* := request;
           with-simple-restart("Skip this request and continue with the next")
             block (exit-inner)
-              let handler <condition>
-                = method (c :: <condition>, next-handler :: <function>)
+              let handler <error>
+                = method (c :: <error>, next-handler :: <function>)
                     if (*debugging-server*)
                       next-handler();  // decline to handle the error
                     else
-                      // Bind *debugging-server* to true to prevent infinite
-                      // recursion if there's an error in send-error-response.
-                      dynamic-bind (*debugging-server* = #t)
-                        send-error-response(request, c);
-                      end;
+                      send-error-response(request, c);
                       exit-inner();
                     end;
                   end;
               with-resource (query-values = <string-table>)
                 block ()
-                  request.request-query-values := query-values;
-                  read-request(request);
-                  dynamic-bind (*request-query-values* = query-values)
-                    invoke-handler(request);
+                  block ()
+                    request.request-query-values := query-values;
+                    read-request(request);
+                    dynamic-bind (*request-query-values* = query-values)
+                      invoke-handler(request);
+                    end;
+                  exception (c :: <http-error>)
+                    // Always handle HTTP errors, even when debugging...
+                    send-error-response(request, c);
+                    exit-inner();
                   end;
                 cleanup
                   request.request-query-values := #f;
                   deallocate-resource(<string-table>, query-values);
+                exception (c :: <socket-condition>)
+                  // Always exit the request handler when a socket error occurs...
+                  log-debug("A socket error occurred: %s",
+                            condition-to-string(c));
+                  exit-request-handler();
                 end;
               end with-resource;
             end block;
-            iff(request.request-keep-alive?,
-                exit-request-handler());
+            request.request-keep-alive? | exit-request-handler();
           end with-simple-restart;
         end while;
       end block;
@@ -616,17 +622,25 @@ define function process-request-content
   end if;
 end;
 
-define method send-error-response (request :: <request>, c :: <condition>)
+define function send-error-response (request :: <request>, c :: <condition>)
+  block ()
+    send-error-response-internal(request, c);
+  exception (e :: <error>)
+    log-error("An error occurred while sending error response.");
+  end;
+end;
+
+define method send-error-response-internal (request :: <request>, err :: <http-error>)
   apply(log-error,
-        condition-format-string(c),
-        condition-format-arguments(c));
+        condition-format-string(err),
+        condition-format-arguments(err));
   send-error-response(request,
                       make(<internal-server-error>,
                            code: 500,
                            format-string: "Internal Server Error"));
 end;
 
-define method send-error-response (request :: <request>, err :: <http-error>)
+define method send-error-response-internal (request :: <request>, err :: <http-error>)
   with-resource (headers = <header-table>)
     with-resource (response = <response>,
                    request: request,
