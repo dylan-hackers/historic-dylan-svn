@@ -8,13 +8,13 @@ define library debugger
   use command-processor;
   use collection-extensions;
   use string-extensions;
-
+  export debugger;
 end library debugger;
 
 define module debugger
   use dylan;
   use extensions, exclude: { \without-bounds-checks};
-  use common-dylan, exclude: { \without-bounds-checks};
+  use common-dylan, exclude: { \without-bounds-checks, format-to-string};
   use format;
   use format-out;
   use standard-io;
