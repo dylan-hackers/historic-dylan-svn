@@ -135,6 +135,23 @@ states:
                              state-failure: curry(lookup, instrs, ?#"no", 0))
                     end method) }
 
+  { Sense ?where:name (Marker ?what:expression), (?yes:name, ?no:name) }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: ?#"where",
+                                  condition: #"marker0",
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+
+  { Sense (Marker ?what:expression), (?yes:name, ?no:name) }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: #"Here",
+                                  condition: #"marker0",
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
   { Sense ?where:name ?what:name, (?yes:name, ?no:name) }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
