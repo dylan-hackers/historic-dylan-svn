@@ -3,10 +3,12 @@ synopsis: Ray-intersection code
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
-define sealed class <ray> (<object>)
-  slot ray-position :: <3D-point>;
-  slot ray-direction :: <3D-vector>;
+define class <ray> (<object>)
+  slot ray-position :: <3D-point>, required-init-keyword: position:;
+  slot ray-direction :: <3D-vector>, required-init-keyword: direction:;
 end class <ray>;
+
+define sealed domain make(singleton(<ray>));
 
 define method initialize(ray :: <ray>, #next next-method, #key
 			   position: pos :: <3D-point>, 
@@ -17,17 +19,18 @@ define method initialize(ray :: <ray>, #next next-method, #key
   ray.ray-direction := normalize(dir);
 end method initialize;
 
-define method transform-with-matrix(ray :: <ray>, matrix :: <transform>)
+define method transform-with-matrix(ray :: <ray>, matrix :: <transform>) => (new-ray :: <ray>);
   make(<ray>, position: matrix * ray.ray-position, direction: matrix * ray.ray-direction);
 end method transform-with-matrix;
 
-define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: shadow-test?)
+define method intersection-before(o :: <obj>, ray :: <ray>, distance :: <fp>,
+				  #key shadow-test: shadow-test?)
  => (point, normal, surface-function, new-distance)
 
   // First transform the pos/ray/distance into the coordinates of o,
   // using the inverse of o.transform.
 
-  let local-ray = transform-with-matrix(ray, o.inverse-transform);
+  let local-ray :: <ray> = transform-with-matrix(ray, o.inverse-transform);
 
   let (our-point, our-normal, surface-method, new-distance) =
     real-intersection-before(o, local-ray, distance, shadow-test: shadow-test?);
@@ -36,8 +39,12 @@ define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: s
   if (shadow-test?)
     our-point;
   elseif (our-point)
-    let point = o.transform * our-point;
-    let normal = normalize(o.transform * our-normal); 
+    let trans :: <transform> = o.transform;
+    let our-point :: <3D-point> = our-point;
+    let our-normal :: <3D-vector> = our-normal;
+
+    let point :: <3D-point> = trans * our-point;
+    let normal :: <3D-vector> = normalize(trans * our-normal); 
     // XXX: can we transform new-distance?  We probably already
     // computed it...
     new-distance := magnitude(ray.ray-position - point);
@@ -48,44 +55,45 @@ define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: s
   end if;
 end method intersection-before;
 
-define method real-intersection-before(m :: <sphere>, ray, distance, #key
+define method real-intersection-before(m :: <sphere>, ray :: <ray>, distance :: <fp>, #key
 				    shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
 
   block (easy-out)
-    let ray-to-center = ray.ray-position - $origin;
+    let ray-to-center :: <3D-vector> = ray.ray-position - $origin;
+    let mag :: <fp> = magnitude(ray-to-center);
 
-    if (magnitude(ray-to-center) < 1.0)
+    if (mag < 1.0)
       // We started inside the sphere
       if (shadow-test?)
 	easy-out(#t);
       else
 	// XXX Intersection between ray and inside of sphere
       end if;
-    elseif (magnitude(ray-to-center) - 1.0 > distance)
+    elseif (mag - 1.0 > distance)
       easy-out(#f);  // We're out of range.
     else
-      let t_ca = -ray-to-center * ray.ray-direction;
+      let t_ca :: <fp> = -ray-to-center * ray.ray-direction;
       if (t_ca < 0.0)
 	// Pointing away from sphere, no intersection
 	easy-out(#f);
       end if;
     
-      let l_oc_2 = ray-to-center * ray-to-center;
-      let d_2 = l_oc_2 - (t_ca * t_ca);
+      let l_oc_2 :: <fp> = ray-to-center * ray-to-center;
+      let d_2 :: <fp> = l_oc_2 - (t_ca * t_ca);
       
       if (abs(d_2) > 1.0)
 	easy-out(#f);
       elseif (shadow-test?)
 	easy-out(#t);
       else
-	let point = ray.ray-position + ray.ray-direction * (t_ca - sqrt(1.0 - d_2));
+	let point :: <3D-point> = ray.ray-position + ray.ray-direction * (t_ca - sqrt(1.0 - d_2));
 /*	format-out("t_ca = %=, d_2 = %=\n", t_ca, d_2);
 	format-out("  ray.ray-position = %=, ray-ray-direction = %=\n", ray.ray-position, ray.ray-direction);
 	format-out("  point = %=\n", point);
 	force-output(*standard-output*); */
-	let u = clamp(atan2(point.z, point.x));
-	let v = clamp((point.y + 1.0) / 2.0);
+	let u :: <fp> = clamp(atan2(point.z, point.x));
+	let v :: <fp> = clamp((point.y + 1.0) / 2.0);
 	values(point, 
 	       point - $origin, 
 	       make-surface-closure(0, u, v, m.surface-interpreter-entry), 
@@ -95,29 +103,33 @@ define method real-intersection-before(m :: <sphere>, ray, distance, #key
   end block;
 end method real-intersection-before;
     
-define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-test: shadow-test?)
+define method real-intersection-before(m :: <plane>, ray :: <ray>, distance :: <fp>, #key shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
 
-  if (ray.ray-position.y < 0.0 & ray.ray-direction.y < 0.0)
+  let pos-y :: <fp> = ray.ray-position.y;
+  let dir-y :: <fp> = ray.ray-direction.y;
+
+  if (pos-y < 0.0 & dir-y < 0.0)
     #f;
-  elseif (ray.ray-position.y > 0.0 & ray.ray-direction.y > 0.0)
+  elseif (pos-y > 0.0 & dir-y > 0.0)
     #f;
   elseif (shadow-test?)
     #t;
   else
-    let t = -ray.ray-position.y / ray.ray-direction.y;
+    let t :: <fp> = -pos-y / dir-y;
     if (abs(t) > distance)
       #f;
     else
-      let point = ray.ray-position + ray.ray-direction * t;
+      let point :: <3D-point> = ray.ray-position + ray.ray-direction * t;
       let u = clamp(point.x);
       let v = clamp(point.z);
       values(point, 
-	     vector3D(0.0, if (ray.ray-position.y < 0.0) 
-			     -1.0 
-			   else
-			     1.0 
-			   end if, 0.0),
+	     vector3D(0.0,
+		      if (ray.ray-position.y < 0.0) 
+			-1.0 
+		      else
+			1.0 
+		      end if, 0.0),
 	     make-surface-closure(0, u, v, m.surface-interpreter-entry), t);
     end if;
   end if;
