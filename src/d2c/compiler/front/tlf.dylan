@@ -30,6 +30,10 @@ copyright: see below
 
 define variable *Top-Level-Forms* = make(<stretchy-vector>);
 
+define sealed class <tlf-dependency>(<general-dependency>)
+  slot source-tlf :: <top-level-form>, required-init-keyword: source:;
+end;
+
 define open primary abstract class <top-level-form> (<source-location-mixin>, <dependent-mixin>)
   slot tlf-component :: false-or(<component>) = #f, init-keyword: component:;
   slot tlf-init-function :: false-or(<ct-function>) = #f,
@@ -37,7 +41,7 @@ define open primary abstract class <top-level-form> (<source-location-mixin>, <d
   //
   // Threaded list of the dependencies connecting this tlf to the
   // dependent that use this expression.
-  slot tlf-dependents :: false-or(<general-dependency>),
+  slot tlf-dependents :: false-or(<tlf-dependency>),
     init-value: #f, init-keyword: dependents:;
 end;
 
@@ -179,3 +183,6 @@ define sealed domain initialize(<define-class-tlf>);
 // <magic-internal-primitives-placeholder> -- subclass of <top-level-form>
 define sealed domain make(singleton(<magic-internal-primitives-placeholder>));
 define sealed domain initialize(<magic-internal-primitives-placeholder>);
+// <tlf-dependency> -- subclass of <general-dependency>
+define sealed domain make(singleton(<tlf-dependency>));
+define sealed domain initialize(<tlf-dependency>);

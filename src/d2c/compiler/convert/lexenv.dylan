@@ -175,13 +175,6 @@ define method find-binding (lexenv :: <general-lexenv>, name :: <identifier-toke
 end;
 
 
-define sealed class <tlf-dependency>(<general-dependency>)
-  slot source-tlf :: <top-level-form>, required-init-keyword: source:;
-end;
-
-
-
-
 define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-token>, #next search-my-bindings)
  => res :: false-or(<top-level-binding>);
   search-my-bindings()
@@ -232,7 +225,3 @@ define sealed domain initialize(<binding>);
 // <top-level-binding> -- subclass of <general-binding>
 define sealed domain make(singleton(<top-level-binding>));
 define sealed domain initialize(<top-level-binding>);
-
-// <tlf-dependency> -- subclass of <general-dependency>
-define sealed domain make(singleton(<tlf-dependency>));
-define sealed domain initialize(<tlf-dependency>);
