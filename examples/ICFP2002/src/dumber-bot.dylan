@@ -9,8 +9,6 @@ end class <dumber-bot>;
 define method generate-next-move(me :: <dumber-bot>, s :: <state>)
  => <command>;
 
-  // make(<move>, bid: 1, direction: $north);
-
   // Find the closest base.
   let robot = find-robot(s, me.agent-id);
   let myPosition = robot.location;
@@ -58,5 +56,5 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
         end case;
       end if;
 
-  make(<move>, bid: 1, direction: direction);
+  make(<move>, bid: 1, direction: direction, id: find-robot(s, me.agent-id));
 end method generate-next-move;
