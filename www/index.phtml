@@ -43,7 +43,7 @@ if($err) {
 } else {
     while($row = mysql_fetch_row($res)) {
         echo "<DT><STRONG>".$row[1]." (".$row[0].")</STRONG></dt>\n";
-        echo "<DD><P>".$row[2]."</P>\n\n";
+        echo "<DD><P>".$row[2]."\n\n";
    }
 }
 ?>

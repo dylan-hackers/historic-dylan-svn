@@ -117,7 +117,7 @@ function standard_footer () {
 ?>
 </TD></TR>
 </TABLE>
-
+</TABLE>
 
 </BODY>
 </HTML>
