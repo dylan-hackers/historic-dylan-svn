@@ -35,6 +35,7 @@ define library compiler-cback
   use compiler-front;
   use compiler-convert;
   use compiler-parser;  // for <macro-source-location>
+  use melange-support; // for llvm interfacing
   export cback;
   export heap;
 end library;
@@ -86,6 +87,7 @@ define module cback
   use Extensions, import: {<stretchy-object-vector>};
   use abstract-optimizer;
   use xep-tools, import: {build-xep-component};
+  use melange-support, exclude: {callback-entry}; // for llvm interfacing
 
   export
     <unit-state>, unit-prefix, unit-init-roots, unit-eagerly-reference,

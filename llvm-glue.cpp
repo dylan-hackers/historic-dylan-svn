@@ -1,0 +1,1 @@
+#include <llvm/BasicBlock.h>extern "C" int foo(){ 1;};using namespace llvm;extern "C" void* make_llvm_basic_block(void){  return new BasicBlock();}

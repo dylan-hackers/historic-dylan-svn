@@ -12,6 +12,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../convert'
     . ' -L../front'
     . ' -L../parser'
+    . ' -L../../runtime/melange'
     . ' -L../../runtime/random'
     . ' -L../../runtime/threads';
 

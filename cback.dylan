@@ -28,6 +28,112 @@ copyright: see below
 //
 //======================================================================
 
+
+
+
+// ####################################################
+// ####################################################
+// ######### HERE COMES THE INITIAL LLVM HACK #########
+// ####################################################
+// ####################################################
+
+
+
+// Philosophy: declare the absolute minimum for now
+
+
+// #########
+// ### Types
+
+define abstract functional class <llvm-type>(<statically-typed-pointer>)
+end;
+
+// ##########
+// ### Values
+
+define abstract functional class <llvm-value>(<statically-typed-pointer>)
+  virtual slot type :: <llvm-type>;
+  virtual slot name :: <byte-string>;
+  virtual slot uses :: <sequence>;
+end;
+
+define abstract functional class <llvm-user>(<llvm-value>)
+  virtual slot operands :: <sequence>;
+end;
+
+define abstract functional class <llvm-constant>(<llvm-user>)
+end;
+
+
+define abstract functional class <llvm-global-value>(<llvm-constant>)
+end;
+
+
+
+// ################
+// ### Instructions
+
+define abstract functional class <llvm-instruction>(<llvm-user>)
+  virtual slot parent :: <llvm-basic-block>;
+  virtual slot previous :: <llvm-instruction>;
+  virtual slot next :: <llvm-instruction>;
+end;
+
+
+define functional class <llvm-allocation-instruction>(<llvm-instruction>)
+
+end;
+
+
+
+// ################
+// ### Basic Blocks
+
+define abstract functional class <llvm-basic-block>(<llvm-value>)
+  virtual slot instructions :: <sequence>; // ## make BB a <sequence>?
+  virtual slot previous :: <llvm-basic-block>;
+  virtual slot next :: <llvm-basic-block>;
+  virtual slot parent :: <llvm-function>;
+  virtual slot terminator :: <llvm-instruction>;
+end;
+
+
+define method make (c == <llvm-basic-block>, #rest rest, #key)
+ => (result :: <llvm-basic-block>);
+  next-method(c, pointer: call-out("make_llvm_basic_block", ptr:));
+end;
+
+
+// #############
+// ### Functions
+
+define functional class <llvm-function>(<llvm-global-value>)
+  virtual slot basic-blocks :: <sequence>; // ## make function a <sequence>?
+  virtual slot arguments :: <sequence>;
+  virtual slot previous :: <llvm-function>;
+  virtual slot next :: <llvm-function>;
+end;
+
+
+
+// ###################################################
+// ###################################################
+// ######### HERE ENDS THE INITIAL LLVM HACK #########
+// ###################################################
+// ###################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
 // External interfaces:
 //
 //  The primary external interfaces used by "main" are: emit-component
