@@ -21,6 +21,13 @@ define function main(name, arguments)
   end for;
   close-ppm(file);
 
+  let o = make(<obj>);
+  o.model := make(<sphere>);
+
+  render-image(o, 1, "render.ppm", 
+	       make(<color>, red: 1.0, green: 1.0, blue:1.0),
+	       make(<stretchy-vector>), 256, 256, $double-pi);
+
   exit-application(0);
 end function main;
 
