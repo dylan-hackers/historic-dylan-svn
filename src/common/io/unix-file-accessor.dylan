@@ -79,7 +79,8 @@ define method accessor-size
   & begin
       let fd = accessor.file-descriptor;
       let old-position = accessor.file-position;
-      unix-lseek(fd, 0, $seek_end) >= 0
+      let new-position = unix-lseek(fd, 0, $seek_end);
+      new-position >= 0
         & unix-lseek(fd, old-position, $seek_set) = old-position
         & new-position
     end
