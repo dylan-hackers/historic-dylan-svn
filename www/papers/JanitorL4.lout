@@ -4,6 +4,7 @@
 
 @Database @Reference { refs }
 def @GCT { GCT }
+def @L4 { L4::Pistachio }
 
 @Report
 @DateLine { Yes }
@@ -15,7 +16,7 @@ A Lightweight Garbage Collector for the L4 Microkernel
 @AbstractDisplay { Yes }
 @Abstract {
 We present the design of a small and performant
-exact garbage collector for the L4::Pistachio
+exact garbage collector for the @L4
 microkernel. In its first incarnation the mark-and-sweep
 collection strategy is supported, but
 in principle other strategies like compacting and
@@ -37,7 +38,7 @@ access to each others objects, ensuring privacy.
 @Begin
 @PP
 In this design document we briefly introduce the
-abstraction concepts provided by the L4::Pistachio
+abstraction concepts provided by the @L4
 microkernel, and immediately delve into the high
 level ideas behind the garbage collector that builds
 on these abstractions. Later sections dissect each
@@ -54,7 +55,7 @@ has been reached.
 @Begin
 @PP
 We start out by recalling the concepts that allow us
-to regard the L4::Pistachio microkernel as an abstract
+to regard the @L4 microkernel as an abstract
 modern CPU. Thereafter we dedicate some room to the
 description of the workings of a simple mark-and-sweep
 garbage collector that has the exact tracing property.
@@ -290,6 +291,31 @@ oder or thematical interconnections.
 ##################################
 ##################################
 @Section
+@Title { Future Work }
+@Begin
+@PP
+The mentioned mechanisms can be performance tuned by some
+features not yet described in the literature (???). Such
+features include the exchange of trusted code that performs
+marking or compacting. Ideally the exchange of worker code
+is controlled by a third server that utilizes cryptographic
+signatures and is able to verify termination properties of
+the worker code. Injecting code from the client into the
+server allows executing of marking code inside of the server
+avoiding any context switches mandated by IPC with all positive
+effects on cache utilization and runtime overhead.
+
+@PP
+UnMap events could be used to notify clients about the fact that
+a flexpage is about to be withdrawn. This could trigger a compaction
+or precollection of all outgoing references.
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
 @Title { Summary }
 @Begin
 @PP
@@ -314,7 +340,75 @@ oder or thematical interconnections.
 @Title { Bibliography }
 @Begin
 @PP
-
+The SawMill Multiserver Approach
 @End @Section
+
+
+##################################
+##################################
+##################################
+@Appendix
+@Title { The Garbage Server IPC Interface }
+@Begin
+@PP
+The @L4 server providing the automatic memory management
+facilities is called @I { Garbage Server } because its
+main purpose is to provide uninitialized memory locations
+to its clients and reclaim back some of the garbage the
+client accumulated at periodic intervals.
+@PP
+The below interfaces will be given in IDL style along with
+description of their arguments, purpose and side-effects.
+
+###########
+@SubAppendix @Title { IPC call @F allocate }
+@Begin
+@PP
+@Argument
+  name: metaPage
+  type: FlexPage
+  { Specifies a flexpage where the metadata for the requested flexpages should go.
+     }
+@Argument
+  name: sizeInOctets
+  type: size_t
+  { Specifies the amount of garbage that is requested by the client.
+     }
+@Purpose
+{ @F allocate shall reply with a (not necessarily contiguous) range of flexpages
+  in sum covering  @F sizeInOctets octets of garbage. }
+@SideEffects
+{ @F allocate shall zero out the metadata corresponding to the returned flexpages
+  in the flexpage pointed to by @F {metaPage}. }
+
+@End @SubAppendix
+
+###########
+@SubAppendix @Title { IPC call @F collect }
+@Begin
+@PP
+@Argument
+  name: metaPage
+  type: FlexPage
+  { Specifies a flexpage where the metadata for the requested flexpages should go.
+     }
+@Argument
+  name: sizeInOctets
+  type: size_t
+  { Specifies the amount of garbage that is requested by the client.
+     }
+@Purpose
+{ @F allocate shall reply with a (not necessarily contiguous) range of flexpages
+  in sum covering  @F sizeInOctets octets of garbage. }
+@SideEffects
+{ @F allocate shall zero out the metadata corresponding to the returned flexpages
+  in the flexpage pointed to by @F { metaPage }. }
+
+@End @SubAppendix
+
+
+
+@EndSubAppendices
+@End @Appendix
 
 
