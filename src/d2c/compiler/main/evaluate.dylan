@@ -88,6 +88,11 @@ define method fer-evaluate-regions(region :: <region>, more-regions :: <list>, e
   fer-evaluate-regions(more-regions.head, more-regions.tail, fer-gather-bindings(region, environment))
 end;
 
+define method fer-evaluate-regions(return :: <return>, more-regions == #(), environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  fer-evaluate(return, environment)
+end;
+
 // ########## fer-gather-bindings ##########
 define generic fer-gather-bindings(region :: <region>, environment :: <object>)
   => (extended-env, potential-value :: false-or(<ct-value>));
@@ -132,10 +137,18 @@ define method fer-gather-assigns-bindings(assign :: <abstract-assignment>, envir
 end;
 
 // ########## fer-gather-assign-bindings ##########
+define generic fer-gather-assign-bindings(defs :: false-or(<definition-site-variable>), expr :: <expression>, environment :: <object>)
+ => extended-env;
+
 define method fer-gather-assign-bindings(defs :: <definition-site-variable>, expr :: <expression>, environment :: <object>)
-  => extended-env;
+ => extended-env;
   let var-value = fer-evaluate-expression(expr, environment);
   append-env(environment, defs, var-value)
+end;
+
+define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression>, environment :: <object>)
+ => retained-env;
+  environment
 end;
 
 
