@@ -4,15 +4,84 @@ module: assembler
 define brain alex
 
   [start:]
-    Flip 90, (gatherer, attacker);
+    Flip 10, (gatherer, attacker);
 
 
-  // Gatherers gather food.
+  // Gatherers gather food. Based on the best gatherer we had (by Keith Bauer!).
   [gatherer:]
-    Move gatherer => g-turn-left;
+    Flip 2, (rightant-search, leftant-search);
 
-  [g-turn-left:]
-    Turn Left, (gatherer);
+
+  [rightant-search:]
+    Move => rightant-search-blocked;
+    Sense Home, (rightant-search);
+    PickUp, (rightant-turn-and-return);
+    Sense FoeHome, (rightant-patrol, rightant-search);
+
+  [rightant-search-blocked:]
+    Turn Right, (rightant-search);
+
+  [rightant-turn-and-return:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (rightant-return);
+
+  [rightant-return:]
+    Move => rightant-return-blocked;
+    Sense Home => rightant-return;
+    Drop, (rightant-turn-and-search);
+
+  [rightant-return-blocked:]
+    Turn Left, (rightant-return);
+
+  [rightant-turn-and-search:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (rightant-search);
+
+  [rightant-patrol:]
+    PickUp, (rightant-return);
+    Sense Ahead FoeHome => rightant-turn-and-patrol;
+    Move rightant-patrol => rightant-turn-and-patrol;
+
+  [rightant-turn-and-patrol:]
+    Turn Right, (rightant-patrol);
+
+
+  [leftant-search:]
+    Move => leftant-search-blocked;
+    Sense Home, (leftant-search);
+    PickUp, (leftant-turn-and-return);
+    Sense FoeHome, (leftant-patrol, leftant-search);
+
+  [leftant-search-blocked:]
+    Turn Left, (leftant-search);
+
+  [leftant-turn-and-return:]
+    Turn Left;
+    Turn Left;
+    Turn Left, (leftant-return);
+
+  [leftant-return:]
+    Move => leftant-return-blocked;
+    Sense Home => leftant-return;
+    Drop, (leftant-turn-and-search);
+
+  [leftant-return-blocked:]
+    Turn Right, (leftant-return);
+
+  [leftant-turn-and-search:]
+    Turn Left;
+    Turn Left;
+    Turn Left, (leftant-search);
+
+  [leftant-patrol:]
+    PickUp, (leftant-return);
+    Sense Ahead FoeHome => leftant-turn-and-patrol;
+    Move leftant-patrol => leftant-turn-and-patrol;
+
+  [leftant-turn-and-patrol:]
+    Turn Left, (leftant-patrol);
 
 
   // Attackers attack other ant hill.
