@@ -22,8 +22,10 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf gdapi.rtf
 	-rm -rf $@
 	-rm -rf ,$@
 	mkdir ,$@
+	ln dylandoc.dsl ,$@/dylandoc.dsl # oh, what a hack...
 	(cd ,$@; \
-	 SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -d dylandoc.dsl#html -t sgml -ihtml ../$<)
+	 SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c ../CATALOG -d dylandoc.dsl#html -t sgml -ihtml ../$<)
+	rm ,$@/dylandoc.dsl
 	mv ,$@ $@
 
 # Make a single HTML file.
