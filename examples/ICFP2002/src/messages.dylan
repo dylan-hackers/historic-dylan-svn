@@ -18,8 +18,8 @@ module: messages
 //   $base-space
 //
 // Setting board data: aref(space, <board>, row, col) => ()
-
-
+// Making robots -- robot(N) should be a hash-consing constructor
+// that returns the same robot if N is repeated (aka Flyweight pattern).
 
 // Constants and error handling. 
 
@@ -52,6 +52,13 @@ define function add-error (e :: <message-error>, fmt :: <string>, #rest args)
   error(e)
 end function add-error;
 
+define function debug(fmt :: <string>, #rest args) => ()
+  if (*debug*)
+    apply(format-out, *standard-error*, fmt, args);
+    force-output(*standard-error*);
+  end if;
+end function debug;
+
 // Sending functions. 
 
 define function send-player (s :: <stream>) => ()
@@ -59,14 +66,26 @@ define function send-player (s :: <stream>) => ()
   debug("send-player:\n%s", $player-msg);
 end function send-player;
 
-// Basic receiver functions. 
+// Basic receiver functions. These functions will let you understand the
+// server and send messages to it. 
 
 define function receive-player (s :: <stream>) => ()
   receive-string(s, $player-msg);
   debug("receive-player\n");
 end function receive-player;
 
-define function receive-board (s :: <stream>) => <board>;
+define function receive-initial-setup (s :: <stream>)
+ => (robot-id :: <integer>,
+     carry-max :: <integer>,
+     money :: <integer>,
+     board :: <board>)
+  let board = receive-board-layout(s);
+  let (robot-id, carry-max, money) = receive-client-configuration(s);
+  receive-initial-robot-positions(s, b);
+  values(robot-id, carry-max, money, board);
+end function receive-initial-setup;
+
+define function receive-board-layout (s :: <stream>) => <board>;
   block()
     let (rows, cols) = receive-board-dimensions(s);
     let board = make(<board>, rows: rows, cols: cols);
@@ -78,29 +97,49 @@ define function receive-board (s :: <stream>) => <board>;
   exception (e :: <message-error>)
     add-error(e, "Receive-board failed");
   end block;
-end function receive-board;
+end function receive-board-layout;
 
-define function receive-configuration (s :: <stream>)
- => (unique-id :: <integer>, carry-max :: <integer>, money :: <integer>)
+define function receive-client-configuration (s :: <stream>)
+ => (robot-id :: <integer>, carry-max :: <integer>, money :: <integer>)
   block()
-    let unique-id = receive-integer(s);
+    let robot-id = receive-integer(s);
     receive-space(s);
     let carry-max = receive-integer(s);
     receive-space(s);
     let money = receive-integer(s);
     receive-newline(s);
     debug("receive-configuration: (%d, %d, %d)\n",
-          unique-id, carry-max, money);
-    values(unique-id, carry-max, money);
+          robot-id, carry-max, money);
+    values(robot-id, carry-max, money);
   exception (e :: <message-error>)
     add-error(e, "receive-configuration\n");
   end block;
-end function receive-configuration;
+end function receive-client-configuration;
 
-define function receive-
+// 
 
+define function receive-initial-robot-positions
+    (s :: <stream>, b :: <board>) => ()
+  let (robot-id, row, col) = receive-robot-positions(s);
+  b[row, col] := robot(robot-id);
+  iterate loop (c :: <character> = s.read-element)
+    select (c)
+      ' ' =>
+        begin
+          let (robot-id, row, col) = receive-robot-positions(s);
+          b[row, col] := robot(robot-id);
+          loop(s.read-element);
+        end;
+      '\n' => #f;
+      otherwise => message-error("receive-initial-robot-positions\n");
+    end select;
+  end iterate;
+  debug("receive-initial-robot-positions\n");
+end function receive-initial-robot-positions;
 
 // Supporting functions.
+
+// Read one row of a board data from a stream and update the board with it.
 
 define function receive-board-row (s :: <stream>,
                                    b :: <board>,
@@ -126,6 +165,10 @@ define function receive-board-row (s :: <stream>,
   debug("receive-board-row: row %d, %d cols read\n", row, cols);
 end function receive-board-row;
 
+define function 
+
+// Read the dimensions of a board from a stream.
+
 define function receive-board-dimensions (s :: <stream>)
  => (rows :: <integer>, cols :: <integer>)
   block()
@@ -141,12 +184,38 @@ define function receive-board-dimensions (s :: <stream>)
   end block;
 end function receive-board-dimensions;
 
-define function debug(fmt :: <string>, #rest args) => ()
-  if (*debug*)
-    apply(format-out, *standard-error*, fmt, args);
-    force-output(*standard-error*);
-  end if;
-end function debug;
+// This function reads the initial server response and pulls out a 
+// robot ID and location
+
+define function receive-robot-location (s :: <stream>)
+ => (robot-id :: <integer>, row :: <integer>, col :: <integer>)
+  block()
+    receive-sharp(s);
+    let robot-id = receive-integer(s);
+    receive-string(s, " X ");
+    let row = receive-integer(s);
+    receive-integer(s, " Y ");
+    let col = receive-integer(s);
+    debug("receive-robot-location: Robot %d at (%d, %d)\n",
+          robot-id, row, col);
+    values(robot-id, row, col);
+  exception (e :: <message-error>)
+    add-error(e, "receive-robot-location\n");
+  end block;
+end function receive-robot-location;
+
+
+//
+
+// Match zero or more spaces. 
+
+define function receive-spaces (stream :: <stream>) => ()
+  while (stream.peek = ' ')
+    stream.read-element; // Discard spaces. Return value deliberately ignored.
+  end while;
+end function receive-spaces;
+
+// Match exactly one space.
 
 define function receive-space (stream :: <stream>) => ()
   let c = stream.read-element;
@@ -154,19 +223,27 @@ define function receive-space (stream :: <stream>) => ()
     message-error("receive-space: expected space, got '%c'\n", c);
   end unless;
 end function receive-space;
-                                 
-define function receive-spaces (stream :: <stream>) => ()
-  while (stream.peek = ' ')
-    stream.read-element; // Discard spaces. Return value deliberately ignored.
-  end while;
-end function receive-spaces;
-
+                           
+// Match exactly one newline. 
+      
 define function receive-newline (stream :: <stream>) => ()
   let c = stream.read-element;
   unless (c = '\n')
     message-error("receive-newline: got '%c' instead of newline\n", c)
   end unless;
 end function receive-newline;
+
+// Match exactly one '#'
+
+define function receive-sharp (stream :: <stream>) => ()
+  let c = stream.read-element;
+  unless (c = '#')
+    message-error("receive-sharp: got '%c' instead of newline\n", c)
+  end unless;
+end function receive-sharp;
+
+// Test to see if an expected string is on the stream, consuming the
+// string if it is.
 
 define function receive-string (stream :: <stream>, str :: <string>) => ()
   let str* = read(stream, str.size);
@@ -175,8 +252,14 @@ define function receive-string (stream :: <stream>, str :: <string>) => ()
   end unless;
 end function receive-string;
 
+// Read an integer from a string. The integer *CANNOT* be prefixed with
+// spaces. It may start with 1 '-'. 
+
 define function receive-integer (stream :: <stream) => <integer>;
   let v = make(<stretchy-vector>);
+  when (stream.peek = '-')
+    v := add!(v, stream.read-element);
+  end when;
   while (stream.peek.digit?)
     v := add!(v, stream.read-element);
   end while;
@@ -187,3 +270,4 @@ define function receive-integer (stream :: <stream) => <integer>;
                   as(<string>, v));
   end block;
 end function receive-integer;
+
