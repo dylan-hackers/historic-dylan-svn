@@ -12,10 +12,17 @@ define macro brain-definer
   { ?label:expression ?state; ... } => { let (label, counter) = (?label, 0); ?state; ... }
 
  state:
-  { Turn ?:name } => { instrs[make(<instruction-label-count>, label: label, count: counter)]
-                         := method() make(<turn>, left-or-right: ?#"name", state: lookup(instrs, label, counter + 1)) end; }
-  { Turn ?:name (?label:name) } => { instrs[make(<instruction-label-count>, label: label, count: counter)]
-                                       := method() make(<turn>, left-or-right: ?#"name", state: lookup(instrs, ?#"label", 0)) end; }
+  { Turn ?:name } => { push-thunk(instrs, label, counter,
+                                  method()
+                                    make(<turn>, left-or-right: ?#"name", state: lookup(instrs, label, counter + 1))
+                                  end;
+                     }
+
+  { Turn ?:name (?label:name) } => { push-thunk(instrs, label, counter,
+                                                method()
+                                                  make(<turn>, left-or-right: ?#"name", state: lookup(instrs, ?#"label", 0))
+                                                end;
+                                   }
 
 
   { Move => ?:name } => { push-thunk(instrs, label, counter,
@@ -39,6 +46,16 @@ define macro brain-definer
                                                                                 state-failure: lookup(instrs, ?#"no", 0))
                                                                    end)
                         }
+
+  { Sense ?where:name ?what:name (?yes:name, ?no:name) } => { push-thunk(instrs, label, counter,
+                                                                         method() make(<flip>,
+                                                                                       direction: ?#"where",
+                                                                                       condition: ?#"what",
+                                                                                       state-true: lookup(instrs, ?#"yes", 0),
+                                                                                       state-false: lookup(instrs, ?#"no", 0))
+                                                                         end)
+                        }
+
 end;
 
 
