@@ -9,7 +9,7 @@ define constant <direction> = one-of($north, $south, $east, $west);
 define abstract class <command> (<object>)
   constant slot bid :: <integer>,
     required-init-keyword: bid:;
-  constant slot robot-id :: <integer>, init-keyword: id:;
+  constant slot robot-id :: <integer>, required-init-keyword: id:;
 end class <command>;
 
 define class <pick> (<command>)
