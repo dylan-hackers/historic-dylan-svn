@@ -56,11 +56,23 @@ define inline sealed method aref
     (board :: <board>, #rest indices)
     => element :: <terrain>;
   let (row :: <integer>, col :: <integer>) = apply(values, indices);
-  block ()
+  
+  case
+  row >= rows
+  | row < 0
+  | col >= cols
+  | col < 0
+    => <wall>.make;
+  otherwise
+    => board.data[row * board.cols + col];
+  end case;
+  /*
+  block () // help the compiler to eliminate \signal
     board.data[row * board.cols + col];
   exception (<error>)
     <wall>.make
   end block;
+  */
 end;
 
 define inline sealed method aref-setter
