@@ -507,26 +507,28 @@ end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <drop>)
  => (state :: <state>)
-  debug("process-server-command <drop>: start robot packages %=\n",
-        find-robot(state, command.robot-id).inventory.size);
   let loc = find-robot(state, command.robot-id).location;
   for(pid in command.package-ids)
     let p = find-package(state, pid);
-    unless (loc = p.dest)
+    if (loc = p.dest) // We are at the destination, so kill the package
+      let packages* = remove(state.packages, p,
+                             test: method (p*, p) p*.id = p.id end method);
+      state := make(<state>,
+                    board: state.board,
+                    bases: state.bases,
+                    robots: state.robots,
+                    packages: packages*);
+    else
       state := add-package(state, copy-package(p,
                                                new-location: loc,
                                                new-carrier: #f));
-    end unless;
+    end if;
     let bot = find-robot(state, command.robot-id);
     let new-inventory = remove(bot.inventory, p,
                                test: method (p*, p) p*.id = p.id end method);
     let bot* = copy-robot(bot, new-inventory: new-inventory);
-    debug("bot-size  = %d\n", bot.inventory.size);
-    debug("bot*-size = %d\n", bot*.inventory.size);
     state := add-robot(state, bot*);
   end for;
-  debug("process-server-command <drop>: final robot packages %=\n",
-        find-robot(state, command.robot-id).inventory.size);
   state;
 end method process-server-command;
 
