@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.8 2003/10/04 15:28:47 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.9 2003/10/04 16:51:24 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -564,7 +564,6 @@ define method emit-source-location
    file :: <file-state>) => ();
    format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
           source-loc.line-getter, source-loc.source.full-file-name);
-//          source-loc.end-line, source-loc.source.full-file-name);
 end;
 
 
@@ -574,31 +573,29 @@ define generic maybe-emit-source-location(source-loc :: <source-location>,
 
 define method maybe-emit-source-location(source-loc :: <known-source-location>,
 				   file :: <file-state>, #key line-getter = end-line) => ();
-
-//  emit-source-location(file.file-guts-stream, source-loc, line-getter, file);
-
   if (file.file-source-location ~= source-loc)
-//    format(file.file-guts-stream, "\n/* #line %d \"%s\" */\n",
-//	   source-loc.end-line, source-loc.source.full-file-name); // FIXME
-    finish-source-location(/* source-loc, */ file);
+    finish-source-location(file);
     emit-source-location(file.file-guts-stream, source-loc, line-getter, file);
     file.file-source-location := source-loc;
   end if;
 end method;
 
+define method maybe-emit-source-location(source-loc :: <macro-source-location>,
+				   file :: <file-state>, #key line-getter = end-line) => ();
+  maybe-emit-source-location(source-loc.macro-srcloc-source.source-location, file, line-getter: line-getter);
+end method;
+
 define method maybe-emit-source-location(source-loc :: <source-location>,
 				   file :: <file-state>, #key line-getter) => ();
   if (file.file-source-location ~= source-loc)
-    finish-source-location(/* source-loc, */ file);
+    finish-source-location(file);
     format(file.file-guts-stream, "/* #line %= */\n", object-class(source-loc));
     file.file-source-location := source-loc;
   end if;
 end method;
 
-define method finish-source-location(/* source-loc :: <source-location>, */
-				   file :: <file-state>) => ();
+define function finish-source-location(file :: <file-state>) => ();
   if (instance?(file.file-source-location, <known-source-location>))
-//    format(file.file-guts-stream.inner-stream, ")");
     format(file.file-guts-stream, ")");
     file.file-source-location := make(<unknown-source-location>);
   end;
@@ -1961,9 +1958,9 @@ define method emit-function
   end;
 
   maybe-emit-source-location(function.source-location, file, line-getter: start-line);
-  finish-source-location(/* function.source-location, */ file);
+  finish-source-location(file);
   emit-region(function.body, file);
-  finish-source-location(/* assign.source-location, */ file);
+  finish-source-location(file);
 
   let stream = file.file-body-stream;
   format(stream, "/* %s */\n", function.name.clean-for-comment);
@@ -2114,7 +2111,6 @@ define method emit-region
     = file.file-guts-stream.inner-stream;
   for (assign = region.first-assign then assign.next-op,
        while: assign)
-
     maybe-emit-source-location(assign.source-location, file);
 
     emit-assignment(assign.defines, assign.depends-on.source-exp, 
@@ -2122,8 +2118,6 @@ define method emit-region
     if (byte-string.stream-size >= 65536)
       add!(file.file-guts-overflow, byte-string.stream-contents);
     end if;
-
-//    finish-source-location(assign.source-location, file);
   end for;
 end;
 
