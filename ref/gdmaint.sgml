@@ -1189,6 +1189,20 @@ add-od-loader(*default-dispatcher*, #"byte-string",
 	<filename>dylan-dump.dylan</filename>.)  The functions used to
 	build the dispatch method are described below.
 	</para>
+	<para>The following descriptions TBD:</para>
+	<itemizedlist>
+	 <listitem><para>&lt;load-state></para></listitem>
+	 <listitem><para>od-stream</para></listitem>
+	 <listitem><para>od-buffer</para></listitem>
+	 <listitem><para>od-next</para></listitem>
+	 <listitem><para>od-next-setter</para></listitem>
+	 <listitem><para>load-object-dispatch</para></listitem>
+	 <listitem><para>load-raw-data</para></listitem>
+	 <listitem><para>load-subobjects-vector</para></listitem>
+	 <listitem><para>load-sole-subobject</para></listitem>
+	 <listitem><para>assert-end-object</para></listitem>
+	 <listitem><para>$end-object</para></listitem>
+	</itemizedlist>
        </sect3>
 
        <sect3 id="gdmaint-d2c-base-od-format-circular">
