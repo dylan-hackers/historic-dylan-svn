@@ -126,6 +126,15 @@ states:
                                     curry(lookup, instrs, ?#"name", 0))
                     end) }
 
+  { Move ?:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<move>,
+                                  state-success:
+                                    curry(lookup, instrs, ?#"name", 0),
+                                  state-failure:
+                                    curry(lookup, instrs, label, counter + 1))
+                    end) }
+
   { Flip ?prob:expression, (?yes:name, ?no:name) }
     => { push-thunk(instrs, label, counter,
                     method()

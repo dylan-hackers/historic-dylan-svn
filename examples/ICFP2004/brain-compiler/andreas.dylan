@@ -106,8 +106,8 @@ define brain andreas-gatherer
   [deliver-food:]
     Sense Home, (drop-and-get-out-of-home);
     Sense Ahead Home, (deliver-move-forward);
-    Sense Left Home, (deliver-move-left);
-    Sense Right Home, (deliver-move-right);
+    Sense LeftAhead Home, (deliver-move-left);
+    Sense RightAhead Home, (deliver-move-right);
     Flip 1, (deliver-forward, deliver-forward);
     
 
@@ -115,7 +115,6 @@ define brain andreas-gatherer
     Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
 
   [deliver-move-forward:]
-    Unmark 0;
     Mark 1;
     Move deliver-food => deliver-try-other-four;
 
