@@ -29,6 +29,12 @@ define terrain <base> end;
 define terrain <space> end;
 
 
+define function passable?(b :: <board>, x :: <coordinate>, y :: <coordinate>)
+ => (passable :: <boolean>);
+  let ch = b.lines[y][x];
+  ch == '.' | ch == '@';
+end;
+
 // Board
 
 define constant <line> = limited(<vector>, of: <terrain>);
