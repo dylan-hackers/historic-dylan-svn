@@ -22,7 +22,6 @@ define method do-the-rest(sym == #"file", str :: <string>)
   with-open-file(in = str)
     let doc = parse-document(in.stream-contents);
     transform-document(doc, state: #"html");
-   // display-node(doc);
   end;
 end method do-the-rest;
 
@@ -32,8 +31,8 @@ define function main(name, arguments)
   exit-application(0);
 end function main;
 
-// Invoke our main() function.
 begin
+// we can start getting rid of these test fns and exports
   $testable-fns[#"attribute"] := parse-attribute;
   $testable-fns[#"char-data"] := parse-char-data;
   $testable-fns[#"stag"] := parse-stag;
