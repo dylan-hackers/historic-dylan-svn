@@ -86,7 +86,7 @@ end function expand-entity;
 //-------------------------------------------------------
 // assigning parents
 define variable *parent* = #f;
-define class <add-parents> (<object>) end;
+define class <add-parents> (<xform-state>) end;
 define constant $add-parents = make(<add-parents>);
 
 define method before-transform(node :: <node>, state :: <add-parents>,
