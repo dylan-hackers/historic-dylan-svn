@@ -12,7 +12,7 @@ function begin_progress_table () {
 
 function progress ($label, $count) {
     echo("<TR><TD><STRONG>" . $label . ":</STRONG></TD>" .
-	 "<TD ALIGN=RIGHT><IMG SRC=\"images/progress" . $count . ".png\" " .
+	 "<TD ALIGN=RIGHT><IMG SRC=\"/images/progress" . $count . ".png\" " .
 	 "ALT=\"[" . $count . " of 10]\"></TD></TR>\n");
 }
 
@@ -25,9 +25,9 @@ function short_header ($title) {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-    <LINK REL="stylesheet" TYPE="text/css" HREF="sinorca-grey.css" TITLE="Grey boxes stylesheet">
-    <LINK rel="stylesheet alternative" TYPE="text/css" HREF="sinorca-white.css" title="White boxes stylesheet">
-    <LINK rel="stylesheet" TYPE="text/css" HREF="color-scheme.css">
+    <LINK REL="stylesheet" TYPE="text/css" HREF="/sinorca-grey.css" TITLE="Grey boxes stylesheet">
+    <LINK rel="stylesheet alternative" TYPE="text/css" HREF="/sinorca-white.css" title="White boxes stylesheet">
+    <LINK rel="stylesheet" TYPE="text/css" HREF="/color-scheme.css">
     <TITLE>Gwydion Dylan: <?php echo $title?></TITLE>
 </HEAD>
 <BODY>
@@ -35,53 +35,53 @@ function short_header ($title) {
 
     <div id="upperMenuBar">
       <div class="LHS">
-        <a href="index.phtml" class="highlight">Home</a>
+        <a href="/index.phtml" class="highlight">Home</a>
       </div>
       <div class="RHS">
-        <a href="about-dylan.phtml">About Dylan</a>|
-        <a href="downloading.phtml">Downloads</a>|
-        <a href="gdref.phtml">Documentation</a>|
-        <a href="lists.phtml">Mailing Lists</a>|
+        <a href="/about-dylan.phtml">About Dylan</a>|
+        <a href="/downloading.phtml">Downloads</a>|
+        <a href="/gdref.phtml">Documentation</a>|
+        <a href="/lists.phtml">Mailing Lists</a>|
         <a href="http://monday.sourceforge.net/wiki/">Wiki</a>
       </div>
     </div>
 
-    <DIV ID="header"><a HREF="http://www.gwydiondylan.org"><img src="gwydion-8caae6.png" alt="Gwydion Dylan"></a></DIV>
+    <DIV ID="header"><a HREF="http://www.gwydiondylan.org"><img src="/gwydion-8caae6.png" alt="Gwydion Dylan"></a></DIV>
 
     <div class="sideMenuBox">
       <div>About Dylan &amp; Gwydion</div>
-      <A HREF="about-dylan.phtml">&rsaquo; What is Dylan?</A>
-      <A HREF="about-gwydion.phtml">&rsaquo; Who was Gwydion?</A>
-      <A HREF="goals.phtml">&rsaquo; Our Goals</A>
-      <A HREF="statistics.phtml">&rsaquo; Current Scorecard</A>
-      <A HREF="contests.phtml">&rsaquo; Dylan Competes</A>
-      <A HREF="ports.phtml">&rsaquo; Supported Platforms</A>
-      <A HREF="maintainers.phtml">&rsaquo; Gwydion Maintainers</A>
+      <A HREF="/about-dylan.phtml">&rsaquo; What is Dylan?</A>
+      <A HREF="/about-gwydion.phtml">&rsaquo; Who was Gwydion?</A>
+      <A HREF="/goals.phtml">&rsaquo; Our Goals</A>
+      <A HREF="/statistics.phtml">&rsaquo; Current Scorecard</A>
+      <A HREF="/contests.phtml">&rsaquo; Dylan Competes</A>
+      <A HREF="/ports.phtml">&rsaquo; Supported Platforms</A>
+      <A HREF="/maintainers.phtml">&rsaquo; Gwydion Maintainers</A>
       <A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">&raquo; Gwydion at CMU</A>
       <A HREF="http://www.fun-o.com">&raquo; Functional Developer</a>
-      <A HREF="news.phtml">&rsaquo; Older News</A>
+      <A HREF="/news.phtml">&rsaquo; Older News</A>
     </div>
 
     <div class="sideMenuBox lighterBG">
       <div>User Resources</div>
-      <A HREF="downloading.phtml">&rsaquo; Downloading Software</A>
-      <A HREF="tools.phtml">&rsaquo; Working with Other Tools</a>
-      <A HREF="gdref.phtml">&rsaquo; Documentation</A>
-      <A HREF="lists.phtml">&rsaquo; Mailing Lists</A>
+      <A HREF="/downloading.phtml">&rsaquo; Downloading Software</A>
+      <A HREF="/tools.phtml">&rsaquo; Working with Other Tools</a>
+      <A HREF="/gdref.phtml">&rsaquo; Documentation</A>
+      <A HREF="/lists.phtml">&rsaquo; Mailing Lists</A>
       <A HREF="/bugs/">&rsaquo; Bug Tracker</A>
       <A HREF="http://monday.sourceforge.net/wiki/">&raquo; Wiki</A>
-      <A HREF="learning.phtml">&rsaquo; Learning Dylan</A>
-      <A HREF="users.phtml">&rsaquo; Projects Using Dylan</A>
-      <A HREF="screenshots.phtml">&rsaquo; Screenshots</A>
-      <A HREF="limitations.phtml">&rsaquo; Current Limitations</A>
+      <A HREF="/learning.phtml">&rsaquo; Learning Dylan</A>
+      <A HREF="/users.phtml">&rsaquo; Projects Using Dylan</A>
+      <A HREF="/screenshots.phtml">&rsaquo; Screenshots</A>
+      <A HREF="/limitations.phtml">&rsaquo; Current Limitations</A>
     </div>
 
     <div class="sideMenuBox">
       <div>Developer Resources</div>
       <A HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse CVS</A>
       <A HREF="/cvszilla/query.cgi">&rsaquo; CVSzilla search</A>
-      <A HREF="projects.phtml">&rsaquo; Current Projects</A>
-      <A HREF="submit-news.phtml">&rsaquo; Submit News</A>
+      <A HREF="/projects.phtml">&rsaquo; Current Projects</A>
+      <A HREF="/submit-news.phtml">&rsaquo; Submit News</A>
       <!--      <A HREF="/cgi-bin/tinderbox/showbuilds.pl?tree=Gwydion">&rsaquo; Tinderbox</A>-->
     </div>
 <!--
