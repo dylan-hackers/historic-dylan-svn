@@ -97,15 +97,28 @@ define function draw-cell(cell, position) => ()
     draw-hex(position, cell-color(cell));
 end;
 
+define constant $font = $GLUT-BITMAP-9-BY-15;
+
 define function draw-cell-food(cell, position) => ()
     if (cell.food > 0)
-        let (x, y) = cell-position(position);
+      let (x, y) = cell-position(position);
+      glPushMatrix();
+      glTranslate(x, y, 0.0);
+      set-gl-color($FOOD-COLOR);
+      glBegin($GL-QUADS);
+      glVertex(-$SIN-PI-OVER-3,       0.0);
+      glVertex(-0.5 * $SIN-PI-OVER-3, -0.5 * $SIN-PI-OVER-3);
+      glVertex(0.0,                   0.0);
+      glVertex(-0.5 * $SIN-PI-OVER-3, 0.5 * $SIN-PI-OVER-3);
+      glEnd();
+      glPopMatrix();
+/*
         let count-string = integer-to-string(cell.food);
         
         let total-width = 0.0;
         for (character in count-string)
             total-width := total-width +
-                glutStrokeWidth($GLUT-STROKE-ROMAN,
+                glutStrokeWidth($font,
                                 as(<integer>, character));
         end;
     
@@ -115,10 +128,11 @@ define function draw-cell-food(cell, position) => ()
             glTranslate(-0.5 * total-width, -50.0, 0.0);
             set-gl-color($FOOD-COLOR);
             for (character in count-string)
-                glutStrokeCharacter($GLUT-STROKE-ROMAN,
+                glutStrokeCharacter($font,
                                     as(<integer>, character));
             end;
         glPopMatrix();
+*/
     end;
 end;
 
@@ -330,8 +344,13 @@ define variable draw :: <function> =
     glutReportErrors();
 end;
 
+define variable *window-x* = 1000; 
+define variable *window-y* = 1000; 
+
 define variable reshape :: <function> =
         callback-method(width :: <integer>, height :: <integer> ) => ();                
+    *window-x* := width;
+    *window-y* := height;
     glViewport(0, 0, width, height);
     glMatrixMode($GL-PROJECTION);
     glLoadIdentity();
@@ -346,7 +365,9 @@ end;
 
 define variable idle :: <function> =
         callback-method() => ();
+    for(i from 1 to 10)
       step-world();
+    end;
     glutPostRedisplay();
 end;
 
@@ -356,7 +377,11 @@ define variable keyboard :: <function> =
     
     if (char == '+' | char == '=')
         *scale* := *scale* * 2.0;
+      *x-offset* := *x-offset* - (*window-x* / *scale*) / 2.0; 
+      *y-offset* := *y-offset* - (*window-y* / *scale*) / 2.0; 
     elseif (char == '-')
+      *x-offset* := *x-offset* + (*window-x* / *scale*) / 2.0; 
+      *y-offset* := *y-offset* + (*window-y* / *scale*) / 2.0; 
         *scale* := *scale* * 0.5;
     end if;
 end;
@@ -403,7 +428,7 @@ begin
   glutInitDisplayMode($GLUT-RGB + $GLUT-DEPTH + $GLUT-DOUBLE);
   
   glutInitWindowPosition(0, 0);
-  glutInitWindowSize(1000, 1000);
+  glutInitWindowSize(*window-x*, *window-y*);
   glutCreateWindow("Marching Dylants");
   
   cache-world-display-list();
