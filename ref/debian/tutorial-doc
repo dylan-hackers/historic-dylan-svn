@@ -1,9 +1,0 @@
-Document: tutorial
-Title: Dylan Tutorial
-Author: Eric Kidd
-Abstract: This package contains an introduction to the Dylan language
-Section: programming
-
-Format: HTML
-Index: /usr/share/doc/gwydion-dylan-doc-html/tutorial/tutorial.html
-Files: /usr/share/doc/gwydion-dylan-doc-html/tutorial/*
