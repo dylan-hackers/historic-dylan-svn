@@ -3,10 +3,12 @@ synopsis: Color manipulation code
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
+define constant $color-component-type = <double-float>;
+
 define class <color> (<object>)
-  slot red :: <float>, required-init-keyword: #"red";
-  slot green :: <float>, required-init-keyword: #"green";
-  slot blue :: <float>, required-init-keyword: #"blue";
+  slot red :: $color-component-type, required-init-keyword: #"red";
+  slot green :: $color-component-type, required-init-keyword: #"green";
+  slot blue :: $color-component-type, required-init-keyword: #"blue";
 end class <color>;
 
 define method make-black() => (black :: <color>)
@@ -31,7 +33,7 @@ define method export-with-depth(c :: <color>, depth :: <integer>)
 	  end if;
 	end method clampint;
 
-  let d :: <float> = as(<float>, depth);
+  let d :: $color-component-type = as($color-component-type, depth);
   let r = floor(c.red * d);
   let g = floor(c.green * d);
   let b = floor(c.blue * d);
@@ -114,11 +116,16 @@ end method silly-texture;
 define method red-texture(surface-id, u, v)
  => (color, diffusion, specular, phong-exp)
   values(make(<color>, red: 1.0, green: 0.0, blue: 0.0), 
-	 1.0, 1.0, 5.0);
+	 1.0, 0.0, 5.0);
 end method red-texture;
 
 define method blue-texture(surface-id, u, v)
  => (color, diffusion, specular, phong-exp)
   values(make(<color>, red: 0.0, green: 0.0, blue: 1.0), 
-	 1.0, 1.0, 5.0);
+	 1.0, 0.0, 5.0);
 end method blue-texture;
+
+define method mirror-texture(surface-id, u, v)
+  => (color, diffusion, specular, phong-exp)
+  values(make-white(), 0.0, 1.0, 1.0);
+end method mirror-texture;
