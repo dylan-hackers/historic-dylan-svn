@@ -76,8 +76,42 @@ define method say (time :: &lt;time-offset&gt;) =&gt; ()
 end method say-time-offset;
 </pre>
 <p><a href="#marker-9-197">Figure 5.5</a> shows that the generic function <code>say</code> has two methods defined for it.</p>
-<table><caption>Figure 5.5   <a name="marker-9-197"></a>Methods for the <code>say</code> generic function.</caption><tr><td><p><img alt="db80im12" src="db80im12.gif" /></p>
-</td></tr></table><p>We can call <code>say</code>:</p>
+
+
+<table class="generic-function">
+	<caption>Figure 5.5   <a name="marker-9-197"></a>Methods for the <code>say</code> generic function.</caption>
+	<tr>
+		<th>
+			Generic function <code>say</code>
+		</th>
+	</tr>
+	<tr>
+		<td>
+<pre><code>define method say (time :: &lt;time-of-day&gt;) => ()
+  let (hours, minutes) = decode-total-seconds(time);
+  format-out
+    ("%d:%s%d", hours, if (minutes < 10) "0" else "" end, minutes);
+end say;
+</code></pre>
+		</td>
+	</tr>
+	<tr>
+		<td>
+<pre><code>define method say (time :: &lt;time-offset&gt;) => ()
+  let (hours, minutes) = decode-total-seconds(time);
+  format-out("%s %d:%s%d",
+             if (past?(time)) "minus" else "plus" end,
+             hours,
+             if (minutes < 10) "0" else "" end,
+             minutes);
+end say;
+</code></pre>
+		</td>
+	</tr>
+</table>
+
+
+<p>We can call <code>say</code>:</p>
 <pre>
 <em>? </em>say(*my-time-of-day*);
 <em>0:02</em>
