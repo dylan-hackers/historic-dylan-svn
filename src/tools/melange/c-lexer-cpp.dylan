@@ -3,7 +3,7 @@ author:  Robert Stockton (rgs@cs.cmu.edu)
 synopsis: Encapsulates the lexical conventions of the C language.
           This file also incorporates most of the functionality of CPP.
 copyright: see below
-rcs-header: $Header: /scm/cvs/src/tools/melange/c-lexer-cpp.dylan,v 1.16.2.3 2004/07/22 16:36:47 housel Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/c-lexer-cpp.dylan,v 1.16.2.4 2004/08/21 02:56:11 phinely Exp $
 
 //======================================================================
 //
@@ -680,7 +680,7 @@ define method try-cpp
 	    state.cpp-stack := pair(#"accept", state.cpp-stack);
 	  else
 	    do-skip(state.position,
-		    state.cpp-stack := pair(#"skip", state.cpp-stack));
+		    state.cpp-stack := pair(#"retry", state.cpp-stack));
 	  end if;
 	"if" =>
 	  let stack = state.cpp-stack;
