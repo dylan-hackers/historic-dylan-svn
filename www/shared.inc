@@ -46,7 +46,7 @@ function short_header ($title) {
       </div>
     </div>
 
-    <DIV ID="header"><img src="gwydion-8caae6.png"></DIV>
+    <DIV ID="header"><a HREF="http://www.gwydiondylan.org"><img src="gwydion-8caae6.png"></a></DIV>
 
     <form id="headerSearch" action="/cgi-bin/search.cgi" method="get">
       <div>
