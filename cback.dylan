@@ -175,6 +175,23 @@ define functional class <llvm-allocation-instruction>(<llvm-instruction>)
 
 end;
 
+define /*abstract*/ functional class <llvm-terminator-instruction>(<llvm-instruction>)
+
+end;
+
+define functional class <llvm-return-instruction>(<llvm-terminator-instruction>)
+
+end;
+
+
+define method make (c == <llvm-return-instruction>, #rest rest,
+		    #key atEnd :: <llvm-basic-block>)
+ => (result :: <llvm-return-instruction>);
+  next-method(c, pointer: call-out("make_llvm_ReturnInst", ptr:, ptr: atEnd.raw-value));
+end;
+
+
+
 
 
 // ################
@@ -189,9 +206,12 @@ define /*abstract*/ functional class <llvm-basic-block>(<llvm-value>)
 end;
 
 
-define method make (c == <llvm-basic-block>, #rest rest, #key /*NAME, FUNC, BEFORE*/)
+define method make (c == <llvm-basic-block>, #rest rest,
+		    #key name :: <byte-string> = "",
+			 into :: false-or(<llvm-function>),
+			 before :: false-or(<llvm-basic-block>))
  => (result :: <llvm-basic-block>);
-  next-method(c, pointer: call-out("make_llvm_BasicBlock", ptr:));
+  next-method(c, pointer: call-out("make_llvm_BasicBlock", ptr:, ptr: name.object-address, ptr: raw-value(into | $null-pointer), ptr: raw-value(before | $null-pointer)));
 end;
 
 
@@ -206,11 +226,11 @@ define functional class <llvm-function>(<llvm-global-value>)
 end;
 
 
-define method make (f == <llvm-function>, #rest rest, #key type :: <llvm-function-type>, name :: false-or(<byte-string>), module :: false-or(<llvm-module>))
+define method make (f == <llvm-function>, #rest rest, #key type :: <llvm-function-type>, name :: <byte-string> = "", module :: false-or(<llvm-module>))
  => (result :: <llvm-function>);
   next-method(f, pointer: call-out("make_llvm_Function", ptr:,
 				   ptr: type.raw-value,
-				   ptr: object-address(name | ""),
+				   ptr: name.object-address,
 				   ptr: raw-value(module | $null-pointer)));
 end;
 
@@ -231,9 +251,9 @@ define functional class <llvm-module>(<llvm-object>)
 end;
 
 
-define method make (m == <llvm-module>, #rest rest, #key name :: false-or(<byte-string>))
+define method make (m == <llvm-module>, #rest rest, #key name :: <byte-string> = "")
  => (result :: <llvm-module>);
-  next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: object-address(name | "")));
+  next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: name.object-address));
 end;
 
 define llvm-accessors <llvm-module> ("Module")
@@ -251,7 +271,6 @@ define method emit-tlf-gunk
 
   let m = make(<llvm-module>, name: "test");
   
-//  make(<llvm-basic-block>).dump;
   m.dump;
 
 
@@ -261,6 +280,12 @@ define method emit-tlf-gunk
   let func = make(<llvm-function-type>, return-type: void, argument-types: #[], variadic: #t);
   func.dump;
   
+  let f = make(<llvm-function>, name: "main", type: func, module: m);
+
+  let bb = make(<llvm-basic-block>, name: "body", into: f);
+  make(<llvm-return-instruction>, atEnd: bb);
+  
+  m.dump;
   m.delete;
 end method emit-tlf-gunk;
 

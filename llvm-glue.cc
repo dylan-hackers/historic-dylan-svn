@@ -3,6 +3,7 @@
 #include <llvm/DerivedTypes.h>
 #include <llvm/BasicBlock.h>
 #include <llvm/Module.h>
+#include <llvm/Instructions.h>
 
 namespace d2c
 {
@@ -63,25 +64,30 @@ namespace d2c
 using namespace llvm;
 using namespace d2c;
 
-extern "C" void* make_llvm_BasicBlock(void/*NAME, FUNC, BEFORE*/)
+extern "C" BasicBlock* make_llvm_BasicBlock(const ByteString* name, Function* function, BasicBlock* before)
 {
-  return new BasicBlock();
+  return new BasicBlock(*name, function, before);
 }
 
-extern "C" void* make_llvm_FunctionType(const Type* result, const SimpleObjectVector* argtypes, bool isVarArg)
+extern "C" FunctionType* make_llvm_FunctionType(const Type* result, const SimpleObjectVector* argtypes, bool isVarArg)
 {
   std::vector<const Type*> params/*()*/;
   return FunctionType::get(result, params, isVarArg);
 }
 
-extern "C" void* make_llvm_Module(const ByteString* name)
+extern "C" Module* make_llvm_Module(const ByteString* name)
 {
   return new Module(*name);
 }
 
-extern "C" void* make_llvm_Function(FunctionType* type, const ByteString* name, Module* module)
+extern "C" Function* make_llvm_Function(FunctionType* type, const ByteString* name, Module* module)
 {
   return new Function(type, GlobalValue::ExternalLinkage, *name, module);
+}
+
+extern "C" ReturnInst* make_llvm_ReturnInst(/*val, beforeinstr*/ BasicBlock* atEnd)
+{
+  return new ReturnInst(atEnd);
 }
 
 
@@ -111,3 +117,26 @@ extern "C" const Type* get_llvm_VoidTyID(void)
 {
   return Type::getPrimitiveType(Type::VoidTyID);
 }
+
+#define LLVM_TYPEID2TYPE(ID) \
+extern "C" const Type* get_llvm_ ## ID(void) \
+{ \
+  return Type::getPrimitiveType(Type::ID); \
+}
+
+LLVM_TYPEID2TYPE(BoolTyID)
+LLVM_TYPEID2TYPE(UByteTyID)
+LLVM_TYPEID2TYPE(SByteTyID)
+LLVM_TYPEID2TYPE(UShortTyID)
+LLVM_TYPEID2TYPE(ShortTyID)
+LLVM_TYPEID2TYPE(UIntTyID)
+LLVM_TYPEID2TYPE(IntTyID)
+LLVM_TYPEID2TYPE(ULongTyID)
+LLVM_TYPEID2TYPE(LongTyID)
+LLVM_TYPEID2TYPE(FloatTyID)
+LLVM_TYPEID2TYPE(DoubleTyID)
+LLVM_TYPEID2TYPE(LabelTyID)
+
+
+
+
