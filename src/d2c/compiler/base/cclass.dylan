@@ -950,6 +950,9 @@ define method inherit-slots () => ();
 		   end method);
   //
   // Now propagate slots down to each subclass.
+  for (cls in *All-Classes*)
+    cls.layout-computed? := #f;
+  end;
   do(inherit-slots-for, *All-Classes*);
 end;
 
