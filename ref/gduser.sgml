@@ -120,17 +120,17 @@
       plus, of course, all the tools and header files the C compiler
       needs to do his job. Your best bet on most platforms is having
       <ULINK
-      URL="http://www.gnu.org/gnulist/production/gcc.html">gcc</ULINK>
+      URL="http://gcc.gnu.org/">gcc</ULINK>
       installed, plus the <ULINK
-      URL="http://www.gnu.org/gnulist/production/binutils.html">binutils</ULINK>,
+      URL="http://www.gnu.org/software/binutils/binutils.html">binutils</ULINK>,
       and whatever standard C library and headers are
       appropriate. Installation of <ULINK
-      URL="http://www.gnu.org/gnulist/production/make.html">GNU
+      URL="http://www.gnu.org/software/make/make.html">GNU
       Make</ULINK> is also required.</PARA>
 
       <PARA>If you want to use shared libraries (which is the default
       on most systems), you need to install the <ULINK
-      URL="http://www.gnu.org/gnulist/production/libtool.html">libtool</ULINK>
+      URL="http://www.gnu.org/software/libtool/libtool.html">libtool</ULINK>
       package as well.</PARA>
     </SECT1>
 
@@ -411,7 +411,7 @@ main(application-name(), application-arguments());
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.11 2001/01/13 17:32:40 andreas Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.12 2002/07/13 17:56:17 gabor Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
