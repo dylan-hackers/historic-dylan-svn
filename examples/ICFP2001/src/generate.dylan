@@ -24,6 +24,13 @@ end method;
     
 define method generate-output(input)
   let state = make(<generator-state>, output: input);
+  local method pop-tag()
+          add!(state.current-output, state.open-tags.first.close-tag);
+          pop(state.open-tags);
+          pop(state.attribute-stack);
+          add!(state.current-output, state.remaining-output[0].string);
+          state.remaining-output := subsequence(state.remaining-output, start: 1);
+        end;
 
   while(state.remaining-output.size > 0)
     debug("%=\n", state.current-output);
@@ -34,11 +41,7 @@ define method generate-output(input)
       add!(state.current-output, state.remaining-output[0].string);
       state.remaining-output := subsequence(state.remaining-output, start: 1);
     elseif(state.attribute-stack.size > 1 & to.value = state.attribute-stack.second.value)
-      add!(state.current-output, state.open-tags.first.close-tag);
-      pop(state.open-tags);
-      pop(state.attribute-stack);
-      add!(state.current-output, state.remaining-output[0].string);
-      state.remaining-output := subsequence(state.remaining-output, start: 1);
+      pop-tag();
     else
       if(~from.bold & to.bold)
         add!(state.current-output, tag-BB.open-tag);
