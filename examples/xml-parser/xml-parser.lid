@@ -1,6 +1,7 @@
 library: xml-parser
 files: library
   interface
-  productions
   transform
+  collect
+  productions
 
