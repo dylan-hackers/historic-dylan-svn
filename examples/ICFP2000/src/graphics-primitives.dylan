@@ -118,6 +118,46 @@ define graphics-primitive uscale(o :: <obj> => factor :: <fp>)
   uniform-scale(o, factor);
 end;
 
+
+/*
+define method optimizable-two(token1 :: <fp>, token2 == #"uscale", more :: <list>, suppress-closure == #f, #key orig :: <pair>)
+                                => (tokens :: <list>, closure);
+
+  debug-print("optimizing uscale");
+  
+end;
+
+*/
+
+define macro unary-optimization-definer
+  { define unary-optimization ?:name(?type:expression, ?operator:expression) end }
+  =>
+  { define unary-optimization ?name(?type, ?type, ?operator) end; }
+
+  { define unary-optimization ?:name(?front:expression, ?back:expression, ?operator:expression) end }
+  =>
+  { define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <pair>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+      let (cont, remaining) = more-tokens.optimize-compile-GML;
+      values( remaining,
+              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
+              cont(pair(?operator(left, right), rest), env)
+              end method)
+    end method;
+    
+    define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <list>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+      let (cont, remaining) = more-tokens.optimize-compile-GML;
+      values( remaining,
+              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
+              cont(pair(?operator(left, right), rest), env)
+              end method)
+    end method; }
+end macro unary-optimization-definer;
+
+define unary-optimization uscale(<obj>, <fp>, uniform-scale) end;
+
+
 // Lighting:
 define graphics-primitive light(dir :: <point> => color :: <point>) 
   make(<star>, direction: vector3D(dir.point-x, dir.point-y, dir.point-z), 
