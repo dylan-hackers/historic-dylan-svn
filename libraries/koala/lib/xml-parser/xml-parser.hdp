@@ -8,13 +8,13 @@ files:	library
 	printing
 	collect
 	productions
-subprojects:	..\meta\meta.hdp
+subprojects:	..\..\..\meta\meta.hdp
 	..\multimap\multimap.hdp
-	..\anaphora\anaphora.hdp
+	..\..\..\anaphora\anaphora.hdp
 base-address:	0x63DE0000
 major-version:	0
 minor-version:	0
 library-pack:	0
-compilation-mode:	tight
+compilation-mode:	loose
 target-type:	executable
 comment:	additional keywords
