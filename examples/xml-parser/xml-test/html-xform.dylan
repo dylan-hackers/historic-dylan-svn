@@ -37,11 +37,17 @@ define method prepare-document(doc :: <document>, state :: <html>,
   let dname = as(<string>, doc.name);
   state.document-name := dname;
   collect-entity-defs(doc);
-  let dtd = make(<dtd>, name: doc.name, 
-                 ref: concatenate(dname, "-entities.html"));
+/*
+  let dtd = make(<dtd>, name: dname, sys/pub: #"system",
+                 sys-id: concatenate(dname, "-entities.html"));
   new-line(stream);
   print-in("purple", dtd, stream);
-  format(stream, "%=", header-comment(dname));
+ */
+
+  // insert the banner comment right after the XML processing instruction
+  let new-front = vector(doc.node-children[0], header-comment(dname));
+  doc.node-children := concatenate(new-front,
+				   copy-sequence(doc.node-children, start: 1));
 end method prepare-document;
 
 define method transform(in :: <document>, tag-name :: <symbol>,
