@@ -60,7 +60,7 @@ define generic dump(o :: <llvm-object>) => ();
 define /*abstract*/ functional class <llvm-type>(<llvm-object>)
 end;
 
-define /*abstract*/ functional class <llvm-primitive-type>(<llvm-type>)
+define functional class <llvm-primitive-type>(<llvm-type>)
 end;
 
 define method make (f == <llvm-primitive-type>, #rest rest,
@@ -69,20 +69,20 @@ define method make (f == <llvm-primitive-type>, #rest rest,
 
   next-method(f,
 	      pointer: select (id)
-			 VoidTyID: => call-out("get_llvm_VoidTyID", ptr:);
+			 VoidTyID: => call-out("get_llvm_" "VoidTyID", ptr:);
+			 BoolTyID: => call-out("get_llvm_" "BoolTyID", ptr:);
+			 UByteTyID: => call-out("get_llvm_" "UByteTyID", ptr:);
+			 SByteTyID: => call-out("get_llvm_" "SByteTyID", ptr:);
+			 UShortTyID: => call-out("get_llvm_" "UShortTyID", ptr:);
+			 ShortTyID: => call-out("get_llvm_" "ShortTyID", ptr:);
+			 UIntTyID: => call-out("get_llvm_" "UIntTyID", ptr:);
+			 IntTyID: => call-out("get_llvm_" "IntTyID", ptr:);
+			 ULongTyID: => call-out("get_llvm_" "ULongTyID", ptr:);
+			 LongTyID: => call-out("get_llvm_" "LongTyID", ptr:);
+			 FloatTyID: => call-out("get_llvm_" "FloatTyID", ptr:);
+			 DoubleTyID: => call-out("get_llvm_" "DoubleTyID", ptr:);
+			 LabelTyID: => call-out("get_llvm_" "LabelTyID", ptr:);
 		       end);
-/*BoolTyID
-UByteTyID
-SByteTyID
-UShortTyID
-ShortTyID
-UIntTyID
-IntTyID
-ULongTyID
-LongTyID
-FloatTyID
-DoubleTyID
-LabelTyID*/
 end;
 
 define functional class <llvm-function-type>(<llvm-type>)
@@ -103,27 +103,34 @@ end;
 
 define macro llvm-accessors-definer
   { define llvm-accessors ?class-name:name (?C++-name:token) end }
-  =>
-  { }
+  => { }
 
   { define llvm-accessors ?class-name:name (?C++-name:token) ?accessor; ?rest:* end }
-  =>
-  { define single llvm-accessors [?class-name, ?C++-name, ?accessor] end; define llvm-accessors ?class-name (?C++-name) ?rest end }
+  => { define single llvm-accessors [?class-name, ?C++-name, ?accessor] end; define llvm-accessors ?class-name (?C++-name) ?rest end }
+
+  { define single llvm-accessors [?class-name:name, ?C++-name:token, [make; (?keyword-args:*); (?pass-args:*)]] end }
+  => {
+       define method make(c == ?class-name, #next next-method, #rest rest, #key ?keyword-args) => result :: ?class-name;
+	 next-method(c, pointer: call-out("make_llvm_" ?C++-name, ptr:, ?pass-args));
+       end
+     }
 
   { define single llvm-accessors [?class-name:name, ?C++-name:token, [?:name; (); (?results:variable-list)]] end }
-  =>
-  { define method ?name(o :: ?class-name) => (?results);
-      call-out(?"name" "_llvm_" ?C++-name, void:, ptr: o.raw-value)
-    end }
-
-/*  { define single llvm-accessors [?class-name:name, ?C++-name:name, [?:name; (?args:variable-list); (?results:variable-list)]] end }
-  =>
-  { define method ?name(o :: ?class-name, ?args) => (?results);
-      call-out(?"name" "_llvm_" ?"C++-name", void:, ptr: o.raw-value)
-    end } */
+  => {
+       define method ?name(o :: ?class-name) => (?results);
+	 call-out(?"name" "_llvm_" ?C++-name, void:, ptr: o.raw-value)
+       end
+     }
 
   accessor:
-  { ?:name, () => () } => { [?name; (); () ] }
+  { make, (?keyword-args:*), ?pass-args:* } => { [ make; (?keyword-args); (?pass-args) ] }
+
+  { ?:name, () => () } => { [ ?name; (); () ] }
+  
+  
+//  C++-name:
+//  { <llvm-type> } => { "Type" }
+// etc...
 end;
 
 
@@ -184,10 +191,17 @@ define functional class <llvm-return-instruction>(<llvm-terminator-instruction>)
 end;
 
 
+/*
 define method make (c == <llvm-return-instruction>, #rest rest,
 		    #key atEnd :: <llvm-basic-block>)
  => (result :: <llvm-return-instruction>);
   next-method(c, pointer: call-out("make_llvm_ReturnInst", ptr:, ptr: atEnd.raw-value));
+end;
+*/
+
+
+define llvm-accessors <llvm-return-instruction> ("ReturnInst")
+  make, (atEnd :: <llvm-basic-block>), ptr: atEnd.raw-value;
 end;
 
 
@@ -197,7 +211,7 @@ end;
 // ################
 // ### Basic Blocks
 
-define /*abstract*/ functional class <llvm-basic-block>(<llvm-value>)
+define functional class <llvm-basic-block>(<llvm-value>)
   virtual slot instructions :: <sequence>; // ## make BB a <sequence>?
   virtual slot previous :: <llvm-basic-block>;
   virtual slot next :: <llvm-basic-block>;

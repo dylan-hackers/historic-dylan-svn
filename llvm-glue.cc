@@ -64,6 +64,8 @@ namespace d2c
 using namespace llvm;
 using namespace d2c;
 
+
+/*
 extern "C" BasicBlock* make_llvm_BasicBlock(const ByteString* name, Function* function, BasicBlock* before)
 {
   return new BasicBlock(*name, function, before);
@@ -71,7 +73,7 @@ extern "C" BasicBlock* make_llvm_BasicBlock(const ByteString* name, Function* fu
 
 extern "C" FunctionType* make_llvm_FunctionType(const Type* result, const SimpleObjectVector* argtypes, bool isVarArg)
 {
-  std::vector<const Type*> params/*()*/;
+  std::vector<const Type*> params/ *()* /;
   return FunctionType::get(result, params, isVarArg);
 }
 
@@ -85,10 +87,34 @@ extern "C" Function* make_llvm_Function(FunctionType* type, const ByteString* na
   return new Function(type, GlobalValue::ExternalLinkage, *name, module);
 }
 
-extern "C" ReturnInst* make_llvm_ReturnInst(/*val, beforeinstr*/ BasicBlock* atEnd)
+extern "C" ReturnInst* make_llvm_ReturnInst(/ *val, beforeinstr* / BasicBlock* atEnd)
 {
   return new ReturnInst(atEnd);
 }
+
+*/
+
+#define LLVM_MAKE(CLASS, ARGLIST) \
+extern "C" CLASS* make_llvm_ ## CLASS ARGLIST
+
+#define LLVM_MAKE_SIMPLE(CLASS, ARGLIST, HOW) \
+LLVM_MAKE(CLASS, ARGLIST) { return new CLASS HOW; }
+
+LLVM_MAKE_SIMPLE(BasicBlock, (const ByteString* name, Function* function, BasicBlock* before), (*name, function, before))
+LLVM_MAKE_SIMPLE(Module, (const ByteString* name), (*name))
+LLVM_MAKE_SIMPLE(Function, (FunctionType* type, const ByteString* name, Module* module), (type, GlobalValue::ExternalLinkage, *name, module))
+LLVM_MAKE_SIMPLE(ReturnInst, (/*val, beforeinstr*/ BasicBlock* atEnd), (atEnd))
+
+LLVM_MAKE(FunctionType, (const Type* result, const SimpleObjectVector* argtypes, bool isVarArg))
+{
+  std::vector<const Type*> params/*()*/;
+  return FunctionType::get(result, params, isVarArg);
+}
+/*
+LLVM_MAKE_SIMPLE(, , )
+LLVM_MAKE_SIMPLE(, , )
+LLVM_MAKE_SIMPLE(, , )
+*/
 
 
 #define LLVM_DELETER(CLASS) \
@@ -113,17 +139,13 @@ LLVM_NULLARY(Value, dump)
 
 
 
-extern "C" const Type* get_llvm_VoidTyID(void)
-{
-  return Type::getPrimitiveType(Type::VoidTyID);
-}
-
 #define LLVM_TYPEID2TYPE(ID) \
 extern "C" const Type* get_llvm_ ## ID(void) \
 { \
   return Type::getPrimitiveType(Type::ID); \
 }
 
+LLVM_TYPEID2TYPE(VoidTyID)
 LLVM_TYPEID2TYPE(BoolTyID)
 LLVM_TYPEID2TYPE(UByteTyID)
 LLVM_TYPEID2TYPE(SByteTyID)
