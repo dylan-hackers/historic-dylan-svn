@@ -160,7 +160,7 @@ end method stream-at-end?;
 define method stream-input-available?
     (stream :: <file-stream>) => (available? :: <boolean>)
   readable?(stream)
-  & error("stream-input-available?")
+  & error("stream-input-available?") // ### FIXME
 end method stream-input-available?;
 
 // Note that there is always a stream-shared-buffer, even at the beginning
@@ -316,7 +316,6 @@ define method do-next-input-buffer
   the-buffer.buffer-start := start;
   the-buffer.buffer-next := start;
   if (nread > 0)
-
     the-buffer
   else
     #f		// end of file

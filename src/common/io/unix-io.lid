@@ -31,8 +31,9 @@ Files:	library
 	unix-file-accessor
 	unix-standard-io
 	format-out
+	condition-format
+	redirect-io
 C-Object-Files:	unix-portability.o
-XFiles:	print-double-integer-kludge
 Other-Files:   Open-Source-License.txt
 Major-Version: 2
 Minor-Version: 1

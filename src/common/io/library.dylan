@@ -342,3 +342,16 @@ define module io-internals
   use standard-io;
   use format-out;
 end module io-internals;
+
+define module redirect-io
+  use dylan;
+  use streams;
+  use format;
+  use standard-io;
+  use extensions,
+     import: {*warning-output*, condition-format, condition-force-output};
+  use system,
+     import: {*gdb-output*};
+end module;
+
+  
