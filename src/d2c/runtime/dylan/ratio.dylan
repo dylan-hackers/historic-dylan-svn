@@ -42,7 +42,7 @@ define functional class <ratio> (<rational>)
 end;
 
 define sealed inline method make
-    (class == <ratio>, #next next-method,
+    (class == <ratio>,
      #key numerator :: <general-integer>, denominator :: <general-integer>)
     => res :: <ratio>;
   //

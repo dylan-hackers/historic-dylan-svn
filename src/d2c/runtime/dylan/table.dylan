@@ -287,7 +287,7 @@ define sealed inline method make
 end method make;
 
 define method initialize
-    (ht :: <table>, #next next-method, #key size: sz = 0);
+    (ht :: <table>, #key size: sz = 0);
   next-method();
   resize-table(ht, sz);
 end method initialize;

@@ -402,8 +402,7 @@ define inline method type-for-copy (object :: <stretchy-object-vector>)
 end;
 
 define method map-into (destination :: <stretchy-object-vector>,
-			proc :: <function>, sequence :: <sequence>,
-			#next next-method, #rest more-sequences)
+			proc :: <function>, sequence :: <sequence>, #rest more-sequences)
     => res :: <stretchy-vector>;
   if (empty?(more-sequences))
     let sz = size(sequence);
@@ -664,8 +663,7 @@ define sealed method remove! (ssv :: <limited-stretchy-vector>, elem,
 end method remove!;
 
 define sealed method map-into (destination :: <limited-stretchy-vector>,
-				proc :: <function>, sequence :: <sequence>,
-				#next next-method, #rest more-sequences)
+				proc :: <function>, sequence :: <sequence>, #rest more-sequences)
  => res :: <stretchy-vector>;
   if (empty?(more-sequences))
     let sz = size(sequence);

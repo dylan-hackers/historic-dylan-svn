@@ -600,11 +600,11 @@ end method;
 // multiple of "by:" away from "from:".
 //
 define sealed method member?
-    (value :: <object>, range :: <builtin-range>, #next next,
+    (value :: <object>, range :: <builtin-range>,
      #key test :: <function> = \==)
  => (result :: <boolean>);
   case
-    (test ~= \==) => next();
+    (test ~= \==) => next-method();
     (~instance?(value, <real>)) => #f;
     otherwise =>
       let (count, remainder)
@@ -850,7 +850,7 @@ end method;
 // method for ranges.
 //
 define sealed inline method intersection (range1 :: <builtin-range>, range2 :: <builtin-range>,
-                                          #next next-method, #key test :: <function> = \==)
+                                          #key test :: <function> = \==)
       => sequence :: <sequence>;
    if (test == \== | test == \=)
       range-intersection (range1, range2, test: test);

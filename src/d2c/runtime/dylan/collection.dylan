@@ -1027,7 +1027,7 @@ end function sequence-map-as;
 
 define method map-into
     (target :: <mutable-sequence>, proc :: <function>,
-     sequence :: <sequence>, #next next-method, #rest more-collections)
+     sequence :: <sequence>, #rest more-collections)
     => res :: <mutable-sequence>;
   if (all-sequences?(more-collections))
     sequence-map-into(target, proc, sequence, more-collections);

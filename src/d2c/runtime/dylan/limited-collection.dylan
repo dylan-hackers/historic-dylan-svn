@@ -206,7 +206,7 @@ end method make-limited-collection;
 // a constant folder to get the element-type.
 define method element-setter
     (new-value :: <object>, collection :: <limited-object-table>,
-     key :: <object>, #next next-method)
+     key :: <object>)
  => (element :: <object>)
   check-type(new-value,
 	     collection.%limited-collection-type.limited-element-type);

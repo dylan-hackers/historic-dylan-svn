@@ -104,9 +104,9 @@ define sealed inline method member?
 end method;
 
 define sealed inline method initialize
-    (set :: <object-set>, #next next-method, #key size)
+    (set :: <object-set>, #key size)
  => (#rest results);
-  if(size)
+  if (size)
     set.set-elements := make(<object-table>, size: size);
   else
     set.set-elements := make(<object-table>);

@@ -585,7 +585,7 @@ end;
 
 define inline method map-into (destination :: <object-deque>,
                                proc :: <function>, sequence :: <sequence>,
-                               #next next-method, #rest more-sequences)
+                               #rest more-sequences)
     => res :: <deque>;
   if (empty?(more-sequences))
     let sz = size(sequence);

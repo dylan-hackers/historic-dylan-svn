@@ -466,7 +466,7 @@ define method remove-duplicates!
 end method remove-duplicates!;
 
 define sealed method concatenate!
-    (pair :: <pair>, #next next-method, #rest more-sequences)
+    (pair :: <pair>, #rest more-sequences)
  => (pair :: <pair>)
   if(every?(rcurry(instance?, <list>), more-sequences))
     let prev :: <pair>

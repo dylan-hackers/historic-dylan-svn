@@ -79,7 +79,7 @@ define sealed domain make (singleton(<symbol-table>));
 // Make the cells vector and compute the resize-threshold.
 // 
 define sealed method initialize
-    (table :: <symbol-table>, #next next-method, #key size, #all-keys)
+    (table :: <symbol-table>, #key size, #all-keys)
   next-method();
   table.cells := make(<simple-object-vector>, size: size, fill: #f);
   table.resize-threshold := floor/(size * 3, 2);
@@ -132,8 +132,7 @@ end;
 // we do anyway.  We need to somehow define how symbols are made.
 // 
 define sealed method make
-    (class == <symbol>, #next next-method,
-     #key string :: <string>, table :: <symbol-table>)
+    (class == <symbol>, #key string :: <string>, table :: <symbol-table>)
  => (res :: <symbol>);
 //  let string :: <byte-string> = as(<byte-string>, string);
   let hash :: <integer> = symbol-hash(string);
