@@ -123,6 +123,11 @@ define function put-instruction(start-instr, brain, pos-table)
  // ### TODO
 end;
 
+
+define function dump-brain(brain :: <vector>)
+  map(compose(format-out, unparse), brain)
+end;
+
 define functional class <instruction-label-count> (<object>)
   constant slot instruction-label, required-init-keyword: label:;
   constant slot instruction-count, required-init-keyword: count:;

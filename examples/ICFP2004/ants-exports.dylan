@@ -88,6 +88,7 @@ define module ants
     *random-seed*,
     randomint,
     load-world,
-    step-world;
+    step-world,
+    unparse;
 
 end module ants;

@@ -23,3 +23,6 @@ define brain test-brain1
  end;
  
  
+ 
+ 
+ test-brain1().dump-brain;
