@@ -1027,7 +1027,7 @@ begin
   end block;
 end begin;
 
-// juxtapose -- run two parsers side-by-side
+// parallel -- run two parsers side-by-side
 // both consuming the same input
 //
 define function parallel(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
@@ -1064,4 +1064,15 @@ define function epsilon(inp :: <byte-string>, matched :: <list>, more)
 	    pair(inp.always,
 		 matched),
 	    more.tail)
+end;
+
+
+// optional -- given a parser, construct
+// a new parser that: always succeeds
+// producing something when input has been
+// consumed, #f otherwise
+//
+define function optional(p :: <function>)
+ => optional :: <function>;
+  parallel(p, epsilon, connective: identity)
 end;
