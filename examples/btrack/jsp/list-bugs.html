@@ -1,0 +1,54 @@
+<%@ taglib uri="btrack.tld" prefix="bt" %>
+
+<html>
+<head><title>Bug Tracker - Bug List</title></head>
+
+<body bgcolor="#FFFFFF">
+
+<jsp:include page="header.html" flush="true"/>
+
+<center><h1>Bug Report List</h1></center>
+
+<bt:errorsOrMessages/>
+
+<a href="record?id=new&type=Bug&origin=list-bugs">Click here to create a new bug report.</a>
+<br>Click any bug report to edit that bug.
+
+<p>
+
+<table border="1" width="95%" align="center">
+  <bt:bug key="init_all" recordClass="sigue.btrack.Bug"/>
+  <tr>
+    <th nowrap>Bug#</th>
+    <th nowrap>Priority</th>
+    <th nowrap>Severity</th>
+    <th nowrap>Reported By</th>
+    <th nowrap>Product</th>
+    <th nowrap>Module</th>
+    <th nowrap>Synopsis</th>
+  </tr>
+  <bt:iterate key="all_records">
+    <bt:no_rows_message>
+      <tr><td colspan="6">There are no bugs to display.</td></tr>
+    </bt:no_rows_message>
+    <bt:row>
+      <jsp:useBean id="record" class="sigue.btrack.Bug" scope="page"/>
+      <tr>
+        <td width="2%" align="right"><jsp:getProperty name="record" property="bugNumber"/></td>
+        <td width="2%" align="center"><jsp:getProperty name="record" property="priority"/></td>
+        <td width="2%" align="center"><jsp:getProperty name="record" property="severity"/></td>
+        <td width="5%" align="center"><jsp:getProperty name="record" property="reportedBy"/></td>
+        <td width="5%" align="center"><jsp:getProperty name="record" property="product"/></td>
+        <td width="5%" align="center"><jsp:getProperty name="record" property="module"/></td>
+        <td width="79%"><a href="record?id=<bt:bug key="id"/>&type=Bug"><jsp:getProperty name="record" property="synopsis"/></a></td>
+      </tr>
+    </bt:row>
+  </bt:iterate>
+</table>
+
+<p>
+
+<jsp:include page="footer.html" flush="true"/>
+
+</body>
+</html>

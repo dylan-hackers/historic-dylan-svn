@@ -1,0 +1,3 @@
+&compile_subdirs("cat", "craps", "diff", "hello-world",
+		 "html2txt", "library-demo",
+		 "minesweeper", "stream-demo", "tk-html2txt");

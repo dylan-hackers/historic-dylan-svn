@@ -1,0 +1,18 @@
+&makegen_include("../common-Makegen");
+
+if ($features{'compiled_for_unix'}) {
+    &emit_c_file_rule('unix-fds');
+    $streams_lid_file = 'unix-streams';
+} elsif ($features{'compiled_for_win32'}) {
+    &emit_c_file_rule('win32-fds');
+    $streams_lid_file = 'win32-streams';
+} else {
+    &unknown_platform_error();
+}
+
+&emit_library_rule(
+    $streams_lid_file, '$(BUILDROOT)/force.timestamp', '', 'compile',
+	'no-mindy', 'install');
+
+&emit_library_rule(
+    'Mindy-streams', '', '', 'compile-mindy', 'no-d2c', 'install');

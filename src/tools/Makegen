@@ -1,0 +1,25 @@
+
+if ($features{'compiled_for_win32'}) {
+    $system_dependent_misc = 'win32-misc';
+} elsif ($features{'compiled_for_unix'}) {
+    $system_dependent_misc = 'unix-misc';
+} else {
+    &unknown_platform_error();
+}
+
+do compile_subdirs(
+    'elisp',
+    'parsergen',
+    'melange',
+    'shared-misc',
+    $system_dependent_misc
+);
+
+if ($stage2) {
+  do compile_subdirs(
+      'lisp2dylan',
+      'versioner',
+      'make-exports',
+      'synopsis'
+  );
+}

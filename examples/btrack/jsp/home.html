@@ -1,0 +1,39 @@
+<%@ taglib uri="btrack.tld" prefix="bt" %>
+
+<html>
+<head><title>Bug Tracker Home</title></head>
+
+<body bgcolor="#FFFFFF">
+
+<jsp:include page="header.html" flush="true"/>
+
+<center> <h1>Welcome to Bug Tracker</h1> </center>
+
+<p> <bt:errorsOrMessages/>
+
+<center>
+  <img src="<bt:image name="bug.gif"/>">
+  <p>
+  <p>
+  <p>
+  <table border="0">
+    <tr>
+      <td>
+        <font size="+2">
+          <ol>
+            <li><a href="record?id=new&type=Bug&origin=home">Enter a new bug report</a></li>
+            <li><a href="nyi.html">Search bug reports</a></li>
+            <li><a href="list-bugs.html">List recent bug reports</a></li>
+            <li><a href="admin.html">Administration</a></li>
+            <li><a href="nyi.html">Reports</a></li>
+          </ol>
+        </font>
+      </td>
+    </tr>
+  </table>
+</center>
+
+<jsp:include page="footer.html" flush="true"/>
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+
+&makegen_include("../common-Makegen");
+&emit_parsergen_rule('parser');
+&d2c_library('Parser', '-L../base');
