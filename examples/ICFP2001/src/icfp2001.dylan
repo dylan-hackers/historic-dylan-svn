@@ -282,6 +282,9 @@ define function main(name, arguments)
 
   local
     method see-if-best(new-output)
+      format(*standard-error*, "In see-if-best\n");
+      force-output(*standard-error*);
+
 //      if (new-output.size < best-transformation.size)
 	best-transformation := new-output;
 //      end if;
@@ -297,7 +300,8 @@ define function main(name, arguments)
   exception (<timeout>)
   end;
 
-  if(is-space?(best-transformation[best-transformation.size - 1]))
+  if(best-transformation.size > 0 &
+       is-space?(best-transformation[best-transformation.size - 1]))
     best-transformation[best-transformation.size - 1] := '\n';
   end if;
   write(*standard-output*, best-transformation);
