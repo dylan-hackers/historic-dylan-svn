@@ -114,16 +114,22 @@ end;
 
 define variable *resource-pools* = make(<table>);
 define constant $default-pool-max-size :: <integer> = 5;  // ---TODO: make this bigger after done debugging
-define constant $resource-pool-lock = make(<lock>);
 
 define class <resource-pool> (<object>)
-  slot pool-resources :: <stretchy-vector> = make(<stretchy-vector>);
   slot maximum-size  :: <integer> = $default-pool-max-size, init-keyword: #"max-size";
-  // ---TODO: New implementation, not yet finished.
   constant slot active-resources   :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot inactive-resources :: <stretchy-vector> = make(<stretchy-vector>);
-  slot active-count :: <integer> = 0;
-  slot inactive-count :: <integer> = 0;
+  slot resource-lock :: <lock> = make(<lock>);
+  slot %resource-notification :: <notification>;
+end;
+
+define method resource-notification
+    (pool :: <resource-pool>) => (notif :: <notification>)
+  if (slot-initialized?(%resource-notification, pool))
+    %resource-notification(pool)
+  else
+    %resource-notification(pool) := make(<notification>, lock: resource-lock(pool))
+  end
 end;
 
 define function get-resource-pool
@@ -139,32 +145,72 @@ define function get-resource-pool
   end
 end;
 
-// Find a resource in the inactive pool and atomically move it to the active pool,
-// or allocate a new resource and store it in the active pool.
-/*
+// Find or create a resource and activate it.  If the pool is at its maximum
+// size, wait for another resource to be freed.
 define method activate-resource
-    (pool :: <resource-pool>) => (resource :: <object>)
-  let actives = pool.active-resources;
-  let inactives = pool.inactive-resources;
-  with-lock ($resource-pool-lock)
-    if (size(inactives) > 0)
-      let resource = inactives[ size( inactives ) - 1 ];
-      add!(actives, resource);
-      inc!(pool.active-count);
-      remove!(inactives, resource);
-      dec!(pool.inactive-count);
-    else
-      */
+    (pool :: <resource-pool>, #rest init-args)
+ => (resource :: <object>)
+end activate-resource;
       
+
+/*
+Resource allocation algorithm:
+  acquire resource lock
+    loop
+      if there are inactive resources
+         and one is bigger than requested size
+      then
+        reinitialize the existing resource
+        move it to active set
+        return it
+      elseif total resources in pool are < pool max resources
+        create a new resource
+        store it in active set
+        return it
+      else
+        release resource lock and wait for notification of new resources available
+      end if
+    end loop
+  release resource lock
+*/
+
 
 define method allocate-resource
     (resource-class :: <class>, #rest init-args, #key size: sz :: <integer> = 20)
  => (resource :: <object>)
-  let smallest-diff = $maximum-integer;
-  let smallest-index = #f;
-  let empty-index = #f;
-  let pool = get-resource-pool(resource-class);
-  let resources = pool-resources(pool);
+  let actives = pool.active-resources;
+  let inactives = pool.inactive-resources;
+  block (return)
+    with-lock (pool.resource-lock)
+      while (#t)
+        let inactive-count = size(inactives);
+        if (inactive-count > 0)
+          let resource = find-inactive-resource(inactives, sz);
+          add!(actives, resource);
+          remove!(inactives, resource);  // A bit 'spensive. Probably better to use a list.
+          return(resource);
+        elseif ((inactive-count + size(actives)) < pool.maximum-size)
+          log-debug("No %= resource found.  Allocating a new one.", resource-class);
+          let resource = apply(new-resource, resource-class, init-args)
+          add!(actives, resource);
+          return(resource);
+        else
+          // The pool is at its maximum size, so wait for a resource to be deallocated.
+          wait-for(pool.resource-notification);
+        end if
+      end while
+    end with-lock
+  end block
+end allocate-resource;
+
+// Find the resource closest in size to sz, but than sz.
+// This is called with the lock for the associated resource pool held.
+//
+define inline method find-inactive-resource
+    (inactive-resources :: <sequence>, sz :: <integer>)
+ => (resource :: <object>)
+  let min-diff = $maximum-integer;
+  let min-index = #f;
   with-lock ($resource-pool-lock)
     for (item in resources,
          index from 0)
@@ -191,7 +237,7 @@ define method allocate-resource
       apply(new-resource, resource-class, init-args)
     end if
   end with-lock;
-end allocate-resource;
+end find-inactive-resource;
 
 define method deallocate-resource
     (resource-class :: <class>, resource :: <object>)
