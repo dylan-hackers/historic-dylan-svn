@@ -1,5 +1,5 @@
 Module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.3.4.2 2000/06/26 06:20:40 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.3.4.3 2000/07/01 23:20:43 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -43,6 +43,7 @@ operation
 	general-call {abstract}
 	    unknown-call
 	    mv-call
+            delayed-optimization-call
 	error-call
     prologue
     self-tail-call

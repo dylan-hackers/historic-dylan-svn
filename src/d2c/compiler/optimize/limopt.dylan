@@ -1,4 +1,4 @@
-RCS-Header: $Header: /scm/cvs/src/d2c/compiler/optimize/limopt.dylan,v 1.1.2.3 2000/06/26 06:20:40 emk Exp $
+RCS-Header: $Header: /scm/cvs/src/d2c/compiler/optimize/limopt.dylan,v 1.1.2.4 2000/07/01 23:20:44 emk Exp $
 module: cheese
 Copyright: See below.
 Synopsis: Optimizer support for limited collections.
@@ -48,6 +48,12 @@ Synopsis: Optimizer support for limited collections.
 //  Limited types are memoized, so the result of this function is
 //  effectively cached.
 
+// "Limited simple vector of limited integer" classes. Used below.
+define constant $lsvli-classes =
+  #[#"<simple-uchar-vector>", #"<simple-schar-vector>",
+    #"<simple-ushort-vector>", #"<simple-sshort-vector>",
+    #"<limited-simple-vector>"];
+
 define method find-limited-collection-implementation
     (type :: <limited-collection-ctype>)
  => (cclass :: false-or(<cclass>))
@@ -63,14 +69,23 @@ define method find-limited-collection-implementation
       end if;
       
     // limited(<vector>, of: ...)
+    // We can't do anything with this, because it might be a stretchy vector
+    // or a simple vector. D'oh! So don't use this when declaring type
+    // constraints.
+
     // limited(<simple-vector>, of: ...)
-    specifier-type(#"<vector>"), specifier-type(#"<simple-vector>") =>
-      select (type.element-type)
-	specifier-type(#"<integer>") =>
+    specifier-type(#"<simple-vector>") =>
+      let elem-type = type.element-type;
+      case
+	elem-type == specifier-type(#"<object>") =>
+	  specifier-type(#"<simple-object-vector>");
+	elem-type == specifier-type(#"<integer>") =>
 	  specifier-type(#"<simple-integer-vector>");
+	instance?(elem-type, <limited-integer-ctype>) =>
+	  look-up-class-by-limited-integer-type(elem-type, $lsvli-classes);
 	otherwise =>
-	  #f
-      end select;
+	  specifier-type(#"<limited-simple-vector>")
+      end case;
 
     otherwise =>
       #f;
@@ -80,6 +95,60 @@ end method find-limited-collection-implementation;
 // Hang our method on the ctype module's hook.
 *find-limited-collection-implementation* :=
   find-limited-collection-implementation;
+
+
+//=========================================================================
+//  look-up-class-by-limited-integer-type
+//=========================================================================
+//  This is some gross support code for dealing with limited integer
+//  element types gracefully.
+//
+//  XXX - This code is largely duplicated in
+//  runtime/limited-collection.dylan.
+//  XXX - These constants *really* don't belong here. We could probably
+//  get them from the C-Representation module.
+
+// From /usr/include/limits.h.
+define constant $CHAR_MIN  = -128;
+define constant $CHAR_MAX  = 127;
+define constant $UCHAR_MAX = 255;
+define constant $SHRT_MIN  = -32768;
+define constant $SHRT_MAX  = 32767;
+define constant $USHRT_MAX = 65535;
+
+// A little help for selecting one of several classes based on a limited
+// integer type. The 'five-classes' vector should contain an element for
+// each of <%u-char>, <%s-char>, <%u-short>, <%s-short> and a default value,
+// in that order.
+define function look-up-class-by-limited-integer-type
+    (type :: <limited-integer-ctype>, five-classes :: <simple-object-vector>)
+ => (class :: <cclass>)
+  let choice =
+    block (return)
+      let min-ext = type.low-bound;
+      let max-ext = type.high-bound;
+      unless (min-ext & max-ext)
+	return(4);
+      end unless;
+      // These two conversions may cause an error.
+      let min = as(<integer>, min-ext);
+      let max = as(<integer>, max-ext);
+      case
+	(min == 0) =>
+	  select (max by \==)
+	    $UCHAR_MAX => 0;
+	    $USHRT_MAX => 2;
+	    otherwise  => 4;
+	  end select;
+	(min == $CHAR_MIN & max == $CHAR_MAX) => 1;
+	(min == $SHRT_MIN & max == $SHRT_MAX) => 3;
+	otherwise => 4;
+      end case;
+    exception (e :: <error>)
+      4;
+    end block;
+  specifier-type(five-classes[choice]);
+end function look-up-class-by-limited-integer-type;
 
 
 //=========================================================================
@@ -235,3 +304,36 @@ define method size-transformer
 end method size-transformer;
 
 define-delayed-transformer(#"size", size-transformer);
+
+
+//=========================================================================
+//  instance? optimizations
+//=========================================================================
+//  We want to suppress type-checks of the form:
+//    let v :: <limited-object-table> = ...;
+//    instance?(v, limited(<table>, of: <object>));
+//  These are very rare, but typically show up in 'make' methods.
+//
+//  What about:
+//    let <10-vec> = limited(<simple-vector>, size: 10);
+//    let v :: <10-vec> = ...;
+//    instance?(v, limited(<table>, of: <object>));
+//
+//  This is the wrong approach. I need to fix 'make' somehow. Perhaps we
+//  can wrap a <truly-the> around the result of calling 'make' on limited
+//  collection types? Or screw with the 'make' handler above? Hmm.
+
+/*
+define method build-instance?
+    (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
+     value :: <leaf>, lim-type :: <limited-collection-ctype>,
+     #next next-method)
+ => (res :: <expression>)
+  let only-possible-cclass = lim-type.implementation-class;
+  if (value.derived-type == only-possible-cclass)
+    
+  else
+    next-method();
+  end if;
+end method build-instance?;
+*/

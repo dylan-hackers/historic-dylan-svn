@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5.4.4 2000/06/26 06:20:40 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5.4.5 2000/07/01 23:20:44 emk Exp $
 copyright: see below
 
 
@@ -52,22 +52,38 @@ define variable *optimize-ncalls* :: <integer> = 0;
 
 // Note: the simplify-only: keyword is used only during inline
 // expansions.  It is not useful in any other situation.
+// This function sets up our gross global variables and calls
+// optimize-component-internal.
 define method optimize-component
     (optimizer :: <cmu-optimizer>,
      component :: <component>,
-     #key simplify-only? :: <boolean>) => ();
-
+     #key simplify-only? :: <boolean>)
+ => ()
   // Set up our globals.
-  optimizer.simplification-pass? := simplify-only?;
-  *optimizer* := optimizer;
+  let old-simplification-flag = optimizer.simplification-pass?;
+  let old-optimizer = *optimizer*;
+  block ()
+    optimizer.simplification-pass? := simplify-only?;
+    *optimizer* := optimizer;
+    optimize-component-internal(optimizer, component);
+  cleanup
+    optimizer.simplification-pass? := old-simplification-flag;
+    *optimizer* := old-optimizer;
+  end block;
+end method optimize-component;
 
+define method optimize-component-internal
+    (optimizer :: <cmu-optimizer>, component :: <component>) => ()
   reverse-queue(component, #f);
   let done = #f;
+  if (optimizer.debug-optimizer?)
+    dformat("\n******** Preparing to optimize new component\n\n");
+    dump-fer(component)
+  end;
   until (done)
     if (*do-sanity-checks*)
       check-sanity(component);
     end;
-    if (optimizer.debug-optimizer?) dump-fer(component) end;
     if (component.initial-variables)
       if (optimizer.debug-optimizer?)
 	dformat("\n******** doing trivial ssa conversion\n\n");
@@ -88,6 +104,7 @@ define method optimize-component
 	dformat("\n******** about to optimize %=\n\n", queueable);
       end;
       optimize(component, queueable);
+      if (optimizer.debug-optimizer?) dump-fer(component) end;
       *optimize-ncalls* := *optimize-ncalls* + 1;
     else
       local method try (function, what)
@@ -110,7 +127,7 @@ define method optimize-component
 	      "eliminating common sub-expressions")
 	| try(propagate-constraints, "propagating constraints")
 	| try(optimistic-type-inference, "optimistic type inference")
-	| (simplify-only? & (done := #t))
+	| (optimizer.simplification-pass? & (done := #t))
 	| try(add-type-checks, "adding type checks")
 	| try(replace-placeholders, "replacing placeholders")
 	| try(environment-analysis, "running environment analysis")
@@ -118,7 +135,7 @@ define method optimize-component
 	| (done := #t);
     end if;
   end until;
-end method optimize-component;
+end method optimize-component-internal;
 
 
 define method reverse-queue
