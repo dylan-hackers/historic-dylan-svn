@@ -15,5 +15,12 @@ define method evaluate(expression :: <string>)
                                     buffer: as(<byte-vector>, expression)),
                        start-line: 0,
                        start-posn: 0);
-  format(*standard-output*, "%=\n", parse-expression(tokenizer));
+  parse-source-record(tokenizer);
+  let component = make(<fer-component>);
+  let builder = make-builder(component);
+  for(tlf in *top-level-forms*)
+    convert-top-level-form(builder, tlf);
+    let inits = builder-result(builder);
+    format(*standard-output*, "%=\n", inits);
+  end for;
 end method evaluate;
