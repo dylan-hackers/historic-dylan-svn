@@ -4,7 +4,14 @@ module: assembler
 define macro brain-definer
   { define brain ?:name ?states end }
    =>
-  { define function ?name() let instrs = make(<table>); let (label, counter) = (start:, 0); ?states end }
+  {
+    define function ?name() => brain :: <vector>;
+      let instrs = make(<table>);
+      let (label, counter) = values(start:, 0);
+      ?states;
+      compile-states(instrs)
+    end function
+  }
 
  states:
   {} => {}
@@ -18,7 +25,7 @@ define macro brain-definer
                                   end);
                      }
 
-  { Turn ?:name (?label:name) } => { push-thunk(instrs, label, counter,
+  { Turn ?:name, (?label:name) } => { push-thunk(instrs, label, counter,
                                                 method()
                                                   make(<turn>, left-or-right: ?#"name", state: lookup(instrs, ?#"label", 0))
                                                 end);
@@ -39,27 +46,28 @@ define macro brain-definer
                                                        end)
                         }
 
-  { Flip ?prob:expression (?yes:name, ?no:name) } => { push-thunk(instrs, label, counter,
-                                                                  method() make(<flip>,
-                                                                                probability: ?prob,
-                                                                                state-success: lookup(instrs, ?#"yes", 0),
-                                                                                state-failure: lookup(instrs, ?#"no", 0))
-                                                                   end)
+  { Flip ?prob:expression, (?yes:name, ?no:name) } => { push-thunk(instrs, label, counter,
+                                                                   method()
+                                                                     make(<flip>,
+                                                                          probability: ?prob,
+                                                                          state-success: lookup(instrs, ?#"yes", 0),
+                                                                          state-failure: lookup(instrs, ?#"no", 0))
+                                                                   end method)
                         }
 
-  { Sense ?where:name ?what:name (?yes:name, ?no:name) } => { push-thunk(instrs, label, counter,
-                                                                         method() make(<flip>,
-                                                                                       direction: ?#"where",
-                                                                                       condition: ?#"what",
-                                                                                       state-true: lookup(instrs, ?#"yes", 0),
-                                                                                       state-false: lookup(instrs, ?#"no", 0))
-                                                                         end)
+  { Sense ?where:name ?what:name, (?yes:name, ?no:name) } => { push-thunk(instrs, label, counter,
+                                                                          method() make(<flip>,
+                                                                                        direction: ?#"where",
+                                                                                        condition: ?#"what",
+                                                                                        state-true: lookup(instrs, ?#"yes", 0),
+                                                                                        state-false: lookup(instrs, ?#"no", 0))
+                                                                          end)
                         }
 
 end;
 
 
-define function push-thunk (instrs, label, counter, thunk)
+define function push-thunk (instrs, label, counter, thunk) => ();
   let pos = make(<instruction-label-count>, label: label, count: counter);
   if (element(instrs, pos, default: #f))
     error("label %s already defined?", label);
@@ -68,9 +76,8 @@ define function push-thunk (instrs, label, counter, thunk)
   instrs[pos] := thunk;
 end;
 
-define function lookup
-    (instrs, label, counter)
- => (instr :: <instruction>);
+define function lookup (instrs, label, counter)
+ => instr :: <instruction>;
   let pos = make(<instruction-label-count>, label: label, count: counter);
   let instr = instrs[pos];
   select (instr by instance?)
@@ -79,6 +86,10 @@ define function lookup
     otherwise =>
       instr;
   end;
+end;
+
+define function compile-states (instrs :: <table>)
+ => brain :: <vector>;
 end;
 
 define functional class <instruction-label-count> (<object>)
@@ -92,3 +103,9 @@ define method functional-==
   l.instruction-label == r.instruction-label
     & l.instruction-count == r.instruction-count
 end;
+
+
+
+define brain minimal
+  Flip 9, (start, start);
+end brain;
