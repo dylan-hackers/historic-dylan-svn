@@ -7,22 +7,40 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
     glFrontFace($GL-CW);
   end if;
   let inPoly = #f;
+  let face-index :: <integer> = 0;
   let normals :: false-or(<simple-object-vector>) = ifs.normal;
   let coords :: <simple-object-vector> = ifs.coord;
 
-  for(e :: <integer> in ifs.coord-index)
+  for(e :: <integer> keyed-by i :: <integer> in ifs.coord-index)
     if (e == -1)
       if (inPoly)
         glEnd();
         inPoly := #f;
+        face-index := face-index + 1;
       end;
     else
       unless (inPoly)
         glBegin($GL-POLYGON);
         inPoly := #t;
-      end;
-      if(normals)
-        let n :: <3d-vector> = normals[e];
+        unless(ifs.normal-per-vertex | (~ifs.normal-index & ~ifs.normal))
+          let n :: <3d-vector> =
+            if(ifs.normal-index)
+              ifs.normal-index[face-index]
+            else
+              ifs.normal
+            end if;
+          let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
+            = values(n[0], n[1], n[2]);
+          glNormal(x, y, z);
+        end unless;
+      end unless;
+      if(ifs.normal-per-vertex & (ifs.normal-index | ifs.normal))
+        let n :: <3d-vector> =
+          if(ifs.normal-index)
+            ifs.normal-index[i]
+          else
+            normals[e]
+          end;
         let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
           = values(n[0], n[1], n[2]);
         glNormal(x, y, z);

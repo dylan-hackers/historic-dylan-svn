@@ -216,7 +216,7 @@ define method main(progname, #rest arguments)
              vector(/* make(<camera>,
                          position:  3d-point ( 0.0, 1.7, 10.0 )), */
                     make(<spotlight>,
-                         position:  3d-point ( 3.0s0, 3.0s0,-2.0s0, 1.0s0),
+                         position:  3d-point ( 6.0s0, 6.0s0,-4.0s0, 1.0s0),
                          direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
                          ambient:   vector   ( 0.3,   0.3,   0.3, 1.0),
                          diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
@@ -225,8 +225,8 @@ define method main(progname, #rest arguments)
                     make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                          translation: 3d-vector(3.0, 3.0, -2.0), 
                          children: vector(make(<sphere>))),
-                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
-//                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
+//                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
+                    make(<transform>, scale: 3d-vector(0.2, 0.2, 0.2), 
                          children: vector(parse-vrml(arguments[0])))));
   end if;
 //  exit(exit-code: 0);
