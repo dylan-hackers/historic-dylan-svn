@@ -7,14 +7,16 @@ end class <dumbot>;
 
 define method unvisited-bases(me :: <dumbot>, s :: <state>)
  => (c :: <collection>);
-  choose(rcurry(compose(\~,member?), me.visited-bases), s.bases);
+  choose(method (b :: <point>) 
+	   ~member?(b, me.visited-bases, test: \=);
+	 end method, s.bases);
 end method unvisited-bases;
 
-define method maybe-mark-base(me :: <dumbot>, s :: <state>, p :: <point>)
-  if (member?(p, s.bases))
-    me.visited-bases := add-new!(me.visited-bases, p);
+define method maybe-mark-base-visited(me :: <dumbot>, s :: <state>, p :: <point>)
+  if (member?(p, s.bases, test: \=))
+    me.visited-bases := add-new!(me.visited-bases, p, test: \=);
   end if;
-end method maybe-mark-base;
+end method maybe-mark-base-visited;
 
 define method deliverable?(me :: <dumbot>, s :: <state>, p :: <package>, 
 			   #key robot = find-robot(s, me.agent-id), 
@@ -72,7 +74,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
       force-output(*standard-output*);
     end if;
 
-    maybe-mark-base(me, s, robot.location);
+    maybe-mark-base-visited(me, s, robot.location);
 
     format-out("DB: package destinations: %=\n", map(dest, robot.inventory));
     force-output(*standard-output*);
@@ -88,9 +90,6 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 
     let paths = map(curry(rcurry(find-path, s.board), robot.location),
 		    targets);
-
-    format-out("DB: Paths: %=\n", paths);
-    force-output(*standard-output*);
 
     paths := choose(curry(\~=, #f), paths);
 
