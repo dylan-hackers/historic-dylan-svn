@@ -15,6 +15,7 @@ clean:
 install: ../runme
 	cd ..; tar czf dylan-hackers.tgz README buildme runme \
            src/Makefile src/icfp2001.lid src/*.dylan
+	   md5sum ../dylan-hackers.tgz
 
 test: icfp2001
 	(time ./icfp2001 <tests/test5) && echo **Success**
