@@ -2692,11 +2692,24 @@ Provides "subsequences", which represent an aliased reference to some part of an
 <listitem>
 <para><dmodule>vector-search</dmodule>
 Provides a small assortment of specialized operations for searching and modifying <classname>&lt;vector&gt;</classname>s. These operations are analogous to existing collection operations but provide keywords and efficiency improvements which are meaningful only within the more limited domain. 
-
-
 </PARA>
+</listitem>
+</itemizedlist>
+<para>The Collections-Extensions Library also has some additional modules added by the GwydionDylan Maintainers.  These modules are:
+</para>
+<itemizedlist>
+<listitem>
+<para><dmodule>heap</dmodule> was supposed to implement a priority queue, but because of conflicts with <classname>&lt;deque&gt;</classname> methods, <dmodule>heap</dmodule> is currently empty.
+</para>
+</listitem>
+<listitem>
+<para><dmodule>sequence-diff</dmodule> implements the Unix diff utility algorithm</para>
+</listitem>
+<listitem>
+<para><dmodule>Sequence-Utilities</dmodule> provides useful methods on collections, written by Matthias Hölzl.</para>
+</listitem>
+</itemizedlist>
 </sect1>
-
   </CHAPTER>
 
   <chapter id="libs-table-extensions">
