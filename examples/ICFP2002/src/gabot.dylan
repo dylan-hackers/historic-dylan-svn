@@ -11,7 +11,7 @@ define abstract class <strategy>(<object>)
 end;
 
 // ## valid?
-define generic valid?(s :: <strategy>) => valid :: <boolean>;
+define generic valid?(s :: <strategy>, s :: <state>) => valid :: <boolean>;
 // ## safe?
 define generic safe?(strategy :: <strategy>, me :: <gabot>, s :: <state>) => safe :: <boolean>;
 // ## create-command
@@ -94,7 +94,7 @@ define function drop-strategy(drop-path :: <path>)
   make(<drop-strategy>, path: drop-path, approach: drop-path.last);
 end;
 
-define method valid?(dropping :: <drop-strategy>) => valid :: <boolean>;
+define method valid?(dropping :: <drop-strategy>, s :: <state>) => valid :: <boolean>;
   // did we arrive?
   if (dropping.strategy-path.size < 2)
     debug("arrived!\n"); // TODO: if neihbor robots, bid more...
@@ -147,13 +147,18 @@ define method create-terminal-command(s :: <pick-strategy>, state :: <state>) =>
   make(<pick>, package-ids: map(id, load-packages(s.strategy-agent, state, compare: pick-compare)), bid: 1, id: s.strategy-robot.id);
 end;
 
-define method valid?(picking :: <pick-strategy>) => valid :: <boolean>;
+define method valid?(picking :: <pick-strategy>, state :: <state>) => valid :: <boolean>;
   // did we arrive?
   if (picking.strategy-path.size < 2)
     debug("arrived!\n");
     #f
   else
-    #t;
+  	// ## efficiency!!!
+    ~empty?(choose(curry(deliverable?,
+                         agent-robot(picking.strategy-agent, state),
+                         state),
+                   packages-at(state,
+                               agent-pos(picking.strategy-agent, state))));
   end;
 end;
 
@@ -232,7 +237,7 @@ block (return)
 
 debug("check\n");
   me.decided
-    & (me.decided.valid? | me.decided.finish)
+    & (valid?(me.decided, s) | me.decided.finish)
     & safe?(me.decided, me, s)
     & me.decided.follow;
 debug("check1\n");
