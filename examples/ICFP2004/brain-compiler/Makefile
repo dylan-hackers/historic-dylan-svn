@@ -5,7 +5,7 @@ run:	bin
 	./brain-compiler
 
 alex:
-	d2c -s -g --debug -L .. alex.lid
+	d2c -s -g --debug -L.. alex.lid
 
 clean:
 	-rm -f *.o *.lo *.s *.a *.c *.mak *~ brain-compiler alex
