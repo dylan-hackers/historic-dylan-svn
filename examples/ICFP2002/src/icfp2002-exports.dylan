@@ -36,7 +36,8 @@ define module board
     send-board, receive-board,
     width, height,
     <terrain>, <wall>, <water>, <base>, <space>,
-    <package>, <robot>,
+    <package>, weight, x, y, dest-x, dest-y,
+    <robot>, capacity, x, y, capacity-left,
     add-robot,
     add-package;
 end module board;
