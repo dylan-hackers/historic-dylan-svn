@@ -5,8 +5,8 @@ Author:   many authors
 
 // This library is a collection of utilities that are generally useful
 // for Dylan programming, but aren't big enough to have a library all
-// their own.  These were written by various authors (including myself)
-// and shamelessly stolen by me (Carl Gay).
+// their own.  These were written by various authors and shamelessly
+// stolen (or written) by me (Carl Gay).
 
 
 // ---TODO: Add an equal? method, that is like = but does case insensitive
@@ -185,11 +185,9 @@ end method string-to-float;
 define method float-to-formatted-string
     (value :: <float>, #key decimal-places)
  => (s :: <string>)
-  let value = if(decimal-places)
-                as(<double-float>, truncate(value * 10 ^ min(decimal-places, 7))) / 10d0 ^ decimal-places
-              else
-                value
-              end if;
+  let value = iff(decimal-places,
+                  as(<double-float>, truncate(value * 10 ^ min(decimal-places, 7))) / 10d0 ^ decimal-places,
+                  value);
   let s = float-to-string(value);
   let dp = subsequence-position(s, ".");
   let tp = subsequence-position(s, "d") | subsequence-position(s, "s") | s.size;
@@ -211,43 +209,46 @@ define method float-to-formatted-string
     d := temp.size;
   end if;
       
-  concatenate(copy-sequence(temp, start: 0, end: min(d + 1, temp.size)),
-              if(d = temp.size)
-                ""
-              else 
-                "."
-              end if,
-              if(d = temp.size)
-                ""
-              else
-                copy-sequence(temp, 
-                              start: d + 1, 
-                              end: if(decimal-places) 
-                                     min(d + 1 + decimal-places, temp.size)
-                                   else 
-                                     temp.size 
-                                   end)
-              end if);
+  let tsize = temp.size;
+  concatenate(copy-sequence(temp, start: 0, end: min(d + 1, tsize)),
+              iff(d = tsize, "", "."),
+              iff(d = tsize,
+                  "",
+                  copy-sequence(temp, 
+                                start: d + 1, 
+                                end: iff(decimal-places,
+                                         min(d + 1 + decimal-places, tsize),
+                                         tsize))));
 end method float-to-formatted-string;
 
 
-define method join
-    (seq :: <sequence>, separator :: <string>,
+
+// ----------------------------------------------------------------------
+// join, join-as
+
+define method join-as
+    (result-type :: subclass(<mutable-sequence>), seq :: <sequence>, separator :: <object>,
      #key key :: <function> = identity)
- => (string :: <string>)
-  // ---TODO: this would be more efficient using with-output-to-string, i suspect.
-  let result = "";
-  let n = seq.size;
+ => (result :: <mutable-sequence>)
+  let result = make(result-type, size: 0);
+  let length = seq.size;
   for (i from 1, item in seq)
-    result := concatenate(result, key(item));
-    if (i < n)
-      result := concatenate(result, separator);
+    result := concatenate-as(result-type, result, key(item));
+    if (i < length)
+      result := concatenate-as(result-type, result, separator);
     end;
   end;
   result
 end;
 
+define method join
+    (seq :: <sequence>, separator :: <object>, #key key :: <function> = identity)
+ => (seq :: <sequence>)
+  join-as(type-for-copy(seq), seq, separator, key: key)
+end;
 
+
+// ----------------------------------------------------------------------
 // For removing certain keyword/value pairs from argument lists before
 // passing them along with apply or next-method.
 //
@@ -273,14 +274,18 @@ define method remove-keys
 end method remove-keys;
 
 
-// Seems like this should be in dylan or common-dylan.
+// ----------------------------------------------------------------------
+// Seems like this should be in the core language.
 //
-define method as
-    (type == <integer>, value :: <string>) => (v :: <integer>)
+define sideways method as
+    (type == <integer>, value :: <string>) => (i :: <integer>)
   string-to-integer(value)
 end;
 
-define method throw
+// ----------------------------------------------------------------------
+// raise(<my-error>, "%s broke", foo)
+
+define method raise
     (class :: subclass(<condition>), format-string, #rest args)
   signal(make(class,
               format-string: format-string,
