@@ -59,7 +59,6 @@ define function string-to-number(s :: <string>, #key base :: <integer> = 10)
                  end method;
 
   iterator(method(x) num := num * the-base + x end);
-  num := num * sign;
 
   if(non-number = '.')
     let div :: <integer> = 1;
@@ -67,14 +66,14 @@ define function string-to-number(s :: <string>, #key base :: <integer> = 10)
   end if;
 
   if(non-number = 'e')
-    sign := select(peek(stream))
-              '+' => begin read-element(stream); 1 end;
-              '-' => begin read-element(stream); -1 end;
-              otherwise => 1;
-            end select;
+    let sign = select(peek(stream))
+                 '+' => begin read-element(stream); 1 end;
+                 '-' => begin read-element(stream); -1 end;
+                 otherwise => 1;
+               end select;
     iterator(method(x) exp := exp * base + x end);
     exp := exp * sign;
   end if;
 
-  num * (the-base ^ exp)
+  sign * num * (the-base ^ exp)
 end function string-to-number;
