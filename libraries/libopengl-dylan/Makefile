@@ -9,7 +9,7 @@ ifeq ($(shell uname), NetBSD)
 	MELANGE=melange -v -I/usr/pkg/include -I/usr/X11R6/include --d2c
 else
 	LIDFILE=opengl.lid
-	MELANGE=melange -v -I/usr/X11R6/include --d2c
+	MELANGE=melange -I/usr/X11R6/include --d2c
 endif
 endif
 
