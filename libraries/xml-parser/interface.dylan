@@ -4,8 +4,38 @@ inspired-from-the-work-by: Andreas Bogk, Chris Double
 copyright: (c) 2001-2002, LGPL
 
 define abstract class <xml> (<object>)
-  slot name :: <symbol>, required-init-keyword: name:;
+  virtual slot name;
+  slot name-with-proper-capitalization :: <string>,
+    required-init-keyword: name:;
 end class <xml>;
+
+define method name(xml :: <xml>) => (symbol)
+  as(<symbol>, xml.name-with-proper-capitalization);
+end method name;
+
+define method name-setter(sym, xml :: <xml>) => (ans)
+  xml.name-with-proper-capitalization := as(<string>, sym);
+end method name-setter;
+
+/*  Well, this worked like a charm -- NOT!
+define method make(cls :: subclass(<xml>), #next next, #rest args, #key name)
+ => (elt :: <xml>)
+  let namei = if(instance?(name, type-union(<symbol>, <string>)))
+                as(<string>, name)
+              else
+               "no-name"
+              end if;
+  apply(next, cls, name: namei, args);
+end method make;
+ */
+
+define method initialize(xml :: <xml>, #key name) => (elt :: <xml>)
+  unless(slot-initialized?(xml, name-with-proper-capitalization)
+         & ~ xml.name-with-proper-capitalization.empty?)
+    xml.name-with-proper-capitalization := as(<string>, name);
+  end unless;
+  xml;
+end method initialize;
 
 define abstract class <node-mixin> (<object>)
   slot node-children = #[], init-keyword: children:;    
@@ -24,10 +54,20 @@ define abstract class <attributes> (<tag>)
   slot attributes :: <vector> = #[], init-keyword: attributes:;
 end class <attributes>;
 
-// a document contains pi's comments and the root node
+// a document contains pi's, comments and the root node
 define class <document> (<xml>, <node-mixin>)
+  inherited slot name-with-proper-capitalization = "ignored";
   constant virtual slot root :: <element>;
 end class <document>;
+
+define method name(doc :: <document>) => (symbol)
+  doc.root.name;
+end method name;
+
+define method name-setter(name, doc :: <document>) => (ans)
+  doc.root.name-with-proper-capitalization := as(<string>, name);
+  name;
+end method name-setter;
 
 define method root(doc :: <document>) => (elt :: <element>)
   choose(rcurry(instance?, <element>), doc.node-children)[0]
@@ -56,14 +96,8 @@ define open generic make-element(kids :: <sequence>, name :: <symbol>,
                                  attribs :: <sequence>, mod :: <boolean>)
  => (elt :: <element>);
 
-define method make-element(k :: <sequence>, n :: <symbol>, 
-                           a :: <sequence>, mod :: <boolean>)
- => (elt :: <element>)
-  make(<element>, children: k, name: n, attributes: a);
-end method make-element;
-
 define class <char-string> (<xml>)
-  inherited slot name, init-value: #"chars";
+  inherited slot name-with-proper-capitalization = "chars";
   constant slot text :: <string>, required-init-keyword: text:;
 end class <char-string>;
 
@@ -127,9 +161,11 @@ define class <processing-instruction> (<attributes>)
   inherited slot before-close = "?";
 end class <processing-instruction>;
 
-define abstract class <system-mixin> (<object>)
-  slot reference :: false-or(<string>) = #f, init-keyword: ref:;
-end class <system-mixin>;
+define abstract class <external-mixin> (<object>)
+  slot sys-id :: false-or(<string>) = #f, init-keyword: sys-id:;
+  slot pub-id :: false-or(<string>) = #f, init-keyword: pub-id:;
+  slot sys/pub :: one-of(#"system", #"public", #f) = #f, init-keyword: sys/pub:;
+end class <external-mixin>;
 
 define abstract class <entity> (<tag>)
   inherited slot after-open = "!ENTITY ";
@@ -141,15 +177,15 @@ define class <internal-entity> (<entity>)
   slot expansion :: <sequence> = #[], init-keyword: expands-to:;
 end class <internal-entity>;
 
-define class <external-entity> (<entity>, <system-mixin>) end;
+define class <external-entity> (<entity>, <external-mixin>) end;
 
-define class <dtd> (<tag>, <system-mixin>)
-  slot internal-entities :: <sequence> = #[];
+define class <dtd> (<tag>, <external-mixin>)
+  slot internal-declarations :: <sequence> = #[], init-keyword: internal:;
   inherited slot after-open = "!DOCTYPE ";
 end class <dtd>;
 
 define class <comment> (<tag>)
-  inherited slot name = #"-";
+  inherited slot name-with-proper-capitalization = "-";
   inherited slot after-open = "!-";
   inherited slot before-close = " --";
   slot comment :: <string> = "", init-keyword: comment:;

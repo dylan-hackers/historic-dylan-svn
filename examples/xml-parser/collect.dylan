@@ -78,10 +78,7 @@ end method collect-elements;
 // instead of looking for any J. Random "//daniel"
 define method collect-elements(elt :: <element>, tree :: <sequence>)
  => (ans :: <sequence>)
-  collect-elements(make(<document>, 
-                        name: elt.name, 
-                        children: vector(elt)),
-                   tree);
+  collect-elements(make(<document>, children: vector(elt)), tree);
 end method collect-elements;
 
 //-------------------------------------------------------
@@ -178,10 +175,10 @@ define method element-setter(txt :: <string>, elt :: <element>,
 end method element-setter;
 
 // and the more usual:
-// elt["bar"] := make(<element>, name: #"baz", children: #[], 
+// elt["bar"] := make(<element>, name: "baz", children: #[], 
 //                    parent: elt, attributes: #[]) 
 // yields <foo name='yo'><baz/></foo>, and
-// elt["@name"] := make(<attribute>, name: #"color", value: "blue")
+// elt["@name"] := make(<attribute>, name: "color", value: "blue")
 // yields <foo color='blue'><baz/></foo>
 define method element-setter(new-elt :: <xml>, elt :: <element>,
                              key :: type-union(<string>, <symbol>))

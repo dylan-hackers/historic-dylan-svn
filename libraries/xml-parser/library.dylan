@@ -16,15 +16,16 @@ define module xml-parser
   create <document>, <element>, <attribute>, <xml>, <processing-instruction>,
     <entity-reference>, <add-parents>, <char-reference>, <comment>, <tag>,
     <char-string>, <dtd>, <internal-entity>, <external-entity>,
-    text, text-setter, char, name, name-setter, root;
+    text, text-setter, name, name-setter, name-with-proper-capitalization,
+    root, char;
 
   create entity-value, attributes, attributes-setter,
     attribute-value, attribute-value-setter,
     node-children, node-children-setter, 
     element-parent, element-parent-setter,
-    collect-elements, make-element, reference, reference-setter, 
-    internal-entities, internal-entities-setter, expansion, expansion-setter,
-    comment, comment-setter;
+    collect-elements, make-element, sys-id, pub-id, sys/pub,
+    internal-declarations, internal-declarations-setter,
+    expansion, expansion-setter, comment, comment-setter;
 
   // for printing
   create <printing>, xml-name,
@@ -36,7 +37,7 @@ define module xml-parser
 end module xml-parser;
 
 define module interface
-  use common-dylan, exclude: { format-to-string };
+  use common-dylan;
   use streams;
   use format;
 
@@ -44,7 +45,7 @@ define module interface
   use xml-parser;
 
   export
-    <reference>, <attributes>, <node-mixin>, <system-mixin>,
+    <reference>, <attributes>, <node-mixin>, <external-mixin>,
     after-open, before-close, $hex-digit, $version-number, trim-string;
 end module interface;
 
