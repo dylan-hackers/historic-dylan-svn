@@ -1,0 +1,9 @@
+Move 1 4
+Sense LeftAhead 2 6 Home
+Turn Left 3
+Move 0 4
+Drop 5
+Flip 1 0 0
+Flip 9 2 7
+Mark 1 8
+Turn Right 0

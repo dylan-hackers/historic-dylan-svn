@@ -18,10 +18,11 @@ keith:
 	./ants ant-brains/sample.ant ant-brains/onesadant.ant worlds/sample0.world
 
 alex:
-	./ants ant-brains/sample.ant ant-brains/alex.ant worlds/sample0.world
+	./ants ant-brains/onesadant.ant ant-brains/alex-generated.ant worlds/sample0.world
+	./ants ant-brains/alex-generated.ant ant-brains/onesadant.ant worlds/sample0.world
 	
 alex-vis:
-	./Visualizer/ant-visualizer ant-brains/alex.ant ant-brains/alex.ant worlds/sample0.world
+	./Visualizer/ant-visualizer ant-brains/alex-generated.ant ant-brains/alex-generated.ant worlds/sample0.world
 
 clean:
 	-rm -f *.o *.lo *.s *.a *.c *.mak *~ ants
