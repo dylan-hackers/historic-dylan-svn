@@ -718,7 +718,10 @@ end method verify-keywords;
 // apply -- exported.
 //
 // Call the function with the arguments.  The last element of arguments is
-// itself a sequence of additional arguments.
+// itself a sequence of additional arguments. There is a compiler transform
+// that eliminates the overhead below for cases where the call to apply
+// is visible, though it's not eliminating the gf call in places that it
+// should be able to. See https://www.gwydiondylan.org/bugs/show_bug.cgi?id=7146
 //
 define function apply (function :: <function>, #rest arguments)
   let last-index :: <integer> = size(arguments) - 1;
