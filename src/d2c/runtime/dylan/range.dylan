@@ -363,16 +363,16 @@ end function;
 // bounded range is made.
 //
 define function range 
-    (#key from: r-from = 0, by: r-by = 1,
-          to: r-to = #f, above: r-above = #f, below: r-below = #f,
-	  size: r-size = #f)
+    (#key from: r-from :: <real> = 0,           by: r-by  :: <real> = 1,
+          to: r-to  :: false-or(<real>),        above: r-above  :: false-or(<real>),
+          below: r-below  :: false-or(<real>),  size: r-size  :: false-or(<real>))
  => new-range :: <builtin-range>;
   let range-size =
-    compute-range-size (r-from, r-by, r-to, r-above, r-below, r-size);
+    compute-range-size(r-from, r-by, r-to, r-above, r-below, r-size);
   if (range-size)
-    make (<bounded-range>, from: r-from, by: r-by, size: range-size);
+    make(<bounded-range>, from: r-from, by: r-by, size: range-size);
   else
-    make (<unbounded-range>, from: r-from, by: r-by);
+    make(<unbounded-range>, from: r-from, by: r-by);
   end if;
 end function;
 
@@ -387,7 +387,7 @@ end function;
 define sealed inline method make
     (class-to-make == <range>, #rest keys, #key, #all-keys)
  => (new-range :: <builtin-range>);
-   apply (range, keys);
+   apply(range, keys);
 end method;
 
 
@@ -405,7 +405,7 @@ define sealed method element (range :: <bounded-range>, key :: <integer>,
       (key >= 0) & (key < range.size) =>
          range.range-from + (key * range.range-by);
       (default == $not-supplied) =>
-         error ("No such element in %=: %d", range, key);
+         element-error(range, key);
       otherwise =>
          default;
    end case;
@@ -419,7 +419,7 @@ define sealed method element
       (key >= 0) =>
          range.range-from + (key * range.range-by);
       (default == $not-supplied) =>
-         error ("No such element in %=: %d", range, key);
+         element-error(range, key);
       otherwise =>
          default;
    end case;
@@ -579,16 +579,16 @@ end method;
 // 
 // Trying to reduce an unbounded range will not terminate.
 //
-define sealed inline method reduce
+define sealed not-inline method reduce
     (procedure :: <function>, initial-value, range :: <unbounded-range>)
- => (result :: <object>);
-   error ("REDUCE not applicable for unbounded <range>");
+ => (result :: <never-returns>);
+   error("REDUCE not applicable for unbounded <range>");
 end method;
 //
-define sealed inline method reduce1
+define sealed not-inline method reduce1
     (procedure :: <function>, range :: <unbounded-range>)
- => (result :: <object>);
-   error ("REDUCE1 not applicable for unbounded <range>");
+ => (result :: <never-returns>);
+   error("REDUCE1 not applicable for unbounded <range>");
 end method;
 
 
@@ -642,26 +642,26 @@ end method member?;
 
 // add
 //
-define sealed inline method add
-    (range :: <unbounded-range>, new) => (result :: <sequence>);
-  error ("ADD not applicable for unbounded <range>");
+define sealed not-inline method add
+    (range :: <unbounded-range>, new) => (result :: <never-returns>);
+  error("ADD not applicable for unbounded <range>");
 end method;
 
 
 // add-new
 //
-define sealed inline method add-new
-    (range :: <unbounded-range>, new, #key test) => (result :: <sequence>);
-  error ("ADD-NEW not applicable for unbounded <range>");
+define sealed not-inline method add-new
+    (range :: <unbounded-range>, new, #key test) => (result :: <never-returns>);
+  error("ADD-NEW not applicable for unbounded <range>");
 end method;
 
 
 // choose
 //
-define sealed inline method choose
+define sealed not-inline method choose
     (predicate :: <function>, range :: <unbounded-range>)
- => (result :: <sequence>);
-   error ("CHOOSE not applicable for unbounded <range>");
+ => (result :: <never-returns>);
+   error("CHOOSE not applicable for unbounded <range>");
 end method;
 
 
@@ -673,9 +673,9 @@ end method;
 
 // remove-duplicates
 //
-define sealed inline method remove-duplicates
-    (range :: <unbounded-range>, #key test) => (result :: <sequence>);
-  error ("REMOVE-DUPLICATES not applicable for unbounded <range>");
+define sealed not-inline method remove-duplicates
+    (range :: <unbounded-range>, #key test) => (result :: <never-returns>);
+  error("REMOVE-DUPLICATES not applicable for unbounded <range>");
 end method;
 
 
@@ -758,9 +758,9 @@ define sealed method reverse
 	  size: range-to-reverse.size);
 end method;
 //
-define sealed inline method reverse
-    (range :: <unbounded-range>) => (result :: <sequence>);
-  error ("REVERSE not applicable for unbounded <range>");
+define sealed not-inline method reverse
+    (range :: <unbounded-range>) => (result :: <never-returns>);
+  error("REVERSE not applicable for unbounded <range>");
 end method;
 
 
@@ -779,22 +779,22 @@ define sealed method reverse!
   range
 end method;
 //
-define sealed inline method reverse!
-    (range :: <unbounded-range>) => (result :: <sequence>);
-  error ("REVERSE! not applicable for unbounded <range>");
+define sealed not-inline method reverse!
+    (range :: <unbounded-range>) => (result :: <never-returns>);
+  error("REVERSE! not applicable for unbounded <range>");
 end method;
 
 
 // sort
 //
-define sealed inline method sort
-    (range :: <unbounded-range>, #key test, stable) => (result :: <sequence>);
-  error ("SORT not applicable for unbounded <range>");
+define sealed not-inline method sort
+    (range :: <unbounded-range>, #key test, stable) => (result :: <never-returns>);
+  error("SORT not applicable for unbounded <range>");
 end method;
 
-define sealed inline method sort!
-    (range :: <unbounded-range>, #key test, stable) => (result :: <sequence>);
-  error ("SORT! not applicable for unbounded <range>");
+define sealed not-inline method sort!
+    (range :: <unbounded-range>, #key test, stable) => (result :: <never-returns>);
+  error("SORT! not applicable for unbounded <range>");
 end method;
 
 // last -- public
@@ -808,9 +808,9 @@ define sealed inline method last
    apply(element, range, range.size - 1, keys)
 end method;
 //
-define sealed inline method last
-    (range :: <unbounded-range>, #key default) => (result :: <object>);
-  error ("LAST not applicable for unbounded <range>");
+define sealed not-inline method last
+    (range :: <unbounded-range>, #key default) => (result :: <never-returns>);
+  error("LAST not applicable for unbounded <range>");
 end method;
 
 
