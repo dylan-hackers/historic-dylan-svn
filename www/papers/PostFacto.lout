@@ -151,7 +151,7 @@ implicitly by not declaring GFs as being @F { open }.
 @Begin
 Our analysis centers around the observation that a successful function
 call automatically implies that all semantics dictated constraints w.r.t.
-the functions call and return preconditions are fulfilled. To stay with
+the function's call and return preconditions are fulfilled. To stay with
 our running example from the introduction, if a call @F { render(a, b) }
 returns, we can safely assume that the constraints @F { instance?(a, <document>) }
 and @F { instance?(b, <device>) } hold true.
@@ -179,7 +179,7 @@ In summary the function call return is an evidence that the contract
 by types has been fulfilled. Naturally, if the language provides means of
 intercepting runtime errors (Dylan provides @F {block}s and @F {let handler}s
 for this purpose) the inference domain ends at these @I { error boundaries }.
-This analysis is certainly widely known and exploited, e.g. by @I { type
+@PP This analysis is certainly widely known and exploited, e.g. by @I { type
 checking } arguments before the call to the function and propagating the type-refined
 expressions furtheron. Also the declared types of the returned values can be
 used in the obvious way. Our contribution is the exploration of the described
@@ -200,13 +200,32 @@ the @I { definitive set } of methods that are provably applicable by checking th
 the static types of arguments are subtypes of the respective argument types in the
 signature. Leaving away the definitive set from the applicable set the @I { maybe set }
 remains.
-
+@PP The Dylan language semantics describes [@I refDRM] that from the set of
+applicable methods the one with the most specific argument types will be called
+(which in turn may call @F next-method to pass control to the next specific one
+for code reuse purposes).
 @End @SubSection
 
 ###########
 @SubSection @Title { Extracting Typing Constraints }
 @Begin
 @PP
+When the compiler can determine exactly one most specific method that is to be called,
+the widely known and applied optimization arises: the return type of the function can
+be utilized to track the type of the value returned from the function call.
+@PP This is not our focus however. We are interested in the amount of information that
+can be extracted from the call to the GF when it is not exactly known to the compiler
+which method form the maybe set will be invoked at runtime. In the terms of the previous
+section the compiler infers a nonempty fixed applicable set (because of sealig), and an
+empty definitive set (because the knowledge of argument types is not precise enough).
+Our optimization tries to turn this vice of multiple dispatch to a virtue, nevertheless.
+@PP We observe that since all methods in the maybe set are applicable, one of them @I
+{ will be called }. This can be stated in terms of typing: the type of argument @I n
+must have been in the type union of the methods in the maybe set at argument position
+{@I n}, if the function call returns @I {without signalling an error}. In the dominance
+domain of this call we can assume that the type constraint holds.
+
+
 signature unions, indexed by argument. gives rise to
 multiple constraints
 @End @SubSection
