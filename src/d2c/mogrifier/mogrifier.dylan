@@ -42,42 +42,21 @@ end;
 define method powerpc-disassemble-primary(primary :: <integer>, secondary :: <integer>)
  => mnemonics :: <string>;
   format-out("unknown primary: %d\n", primary);
-  "??? "
+  "???"
 end;
-/*
-define method powerpc-disassemble-primary(primary == #x0, secondary :: <integer>)
- => mnemonics :: <string>;
-  "or "
-end;
-
-define method powerpc-disassemble-primary(primary == 19, secondary :: <integer>)
- => mnemonics :: <string>;
-  "??? "
-end;
-
-define method powerpc-disassemble-primary(primary == #xF, secondary :: <integer>)
- => mnemonics :: <string>;
-  "??Z "
-end;
-
-define method powerpc-disassemble-primary(primary == #x1E, secondary :: <integer>)
- => mnemonics :: <string>;
-  "??T "
-end;
-*/
 
 define method powerpc-disassemble-primary(primary == 31, secondary :: <integer>)
  => mnemonics :: <string>;
   format-out("key: %d\n", logand(ash(secondary, -1), #x3FF));
  
-  powerpc-disassemble-31(logand(ash(secondary, -1), #x3FF), secondary)
+  powerpc-disassemble-subcode(primary, logand(ash(secondary, -1), #x3FF), secondary)
 end;
 
-define method powerpc-disassemble-31(subcode == 339, secondary :: <integer>)
+define method powerpc-disassemble-subcode(primary == 31, subcode == 339, secondary :: <integer>)
  => mnemonics :: <string>;
   format-out("spr: %d\n", logand(ash(secondary, -11), #x3FF));
  
-  "mfspr "
+  "mfspr"
 end;
 
 define macro instruction-definer
@@ -100,11 +79,11 @@ define macro instruction-definer
   { define instruction ?:name(?primary:expression; D, A, B; ?key:expression; RESERVE) end }
   =>
   { 
-    define method powerpc-disassemble-31(subcode == ?key, secondary :: <integer>)
+    define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
-      powerpc-disassemble-DAB-31(subcode, secondary)
+      powerpc-disassemble-DAB(?primary, ?key, secondary)
     end;
-    define method powerpc-disassemble-DAB-31(subcode == ?key, secondary :: <integer>)
+    define method powerpc-disassemble-DAB(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("D: %d, A: %d, B: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F));
       ?"name"
@@ -113,11 +92,11 @@ define macro instruction-definer
 
   { define instruction ?:name(?primary:expression; S, A, B; ?key:expression; Rc) end }
   =>
-  { define method powerpc-disassemble-31(subcode == ?key, secondary :: <integer>)
+  { define method powerpc-disassemble-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
-      powerpc-disassemble-SABRc-31(subcode, secondary)
+      powerpc-disassemble-SABRc(?primary, ?key, secondary)
     end;
-    define method powerpc-disassemble-SABRc-31(subcode == ?key, secondary :: <integer>)
+    define method powerpc-disassemble-SABRc(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("S: %d, A: %d, B: %d, Rc: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -11), #x1F), logand(secondary, #x1));
       ?"name"
@@ -141,10 +120,14 @@ define macro instruction-definer
 
   { define instruction ?:name(?primary:expression; BO, BI; RESERVE; ?key:expression; LK) end }
   =>
-  { define method powerpc-BOBILK-19(subcode == ?key, secondary :: <integer>)
+  { define method powerpc-disassemble-primary(subcode == ?key, secondary :: <integer>)
+     => mnemonics :: <string>;
+      powerpc-disassemble-BOBILK(?primary, logand(ash(secondary, -1), #x3FF), secondary)
+    end;
+    define method powerpc-disassemble-BOBILK(primary == ?primary, subcode == ?key, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("BO: %d, BI: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -1), #x3FF));
-      ?"name"
+      concatenate(?"name", secondary.instruction-LK)
     end;
   }
 
@@ -153,11 +136,16 @@ define macro instruction-definer
   { define method powerpc-disassemble-primary(primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
       format-out("BO: %d, BI: %d, BD: %d, AA: %d, LK: %d\n", logand(ash(secondary, -21), #x1F), logand(ash(secondary, -16), #x1F), logand(ash(secondary, -2), #x3FFF), logand(ash(secondary, -1), #x1), logand(secondary, #x1));
-      ?"name"
+      concatenate(?"name", secondary.instruction-LK)
     end;
   }
 end macro instruction-definer;
 
+
+define inline function instruction-LK(secondary :: <integer>)
+ => lk :: <string>;
+  logand(secondary, #x1) == 1 & "l" | "";
+end;
 
 define instruction addis(15; D, A, SIMM) end;
 define instruction addi(14; D, A, SIMM) end;
@@ -172,34 +160,21 @@ define instruction or(31; S, A, B; 444; Rc) end;
 define instruction lwarx(31; D, A, B; 20; RESERVE) end;
 
 define instruction bc(16; BO, BI, BD, AA, LK) end;
-
-
 define instruction bclr(19; BO, BI; RESERVE; 16; LK) end;
 define instruction bcctr(19; BO, BI; RESERVE; 528; LK) end;
 define instruction stmw(47; S, A, d) end;
 define updatable instruction stw(36; S, A, d) end;
-//define instruction sthu(45; S, A, d) end;
 define updatable instruction sth(44; S, A, d) end;
-//define instruction stwu(37; S, A, d) end;
 define updatable instruction stfs(52; S, A, d) end;
-//define instruction stfsu(53; S, A, d) end;
 define updatable instruction stfd(54; S, A, d) end;
-//define instruction stfdu(55; S, A, d) end;
 define updatable instruction stb(38; S, A, d) end;
-//define instruction stbu(39; S, A, d) end;
 define updatable instruction lwz(32; S, A, d) end;
-//define instruction lwzu(33; S, A, d) end;
 define instruction lmw(46; S, A, d) end;
 define updatable instruction lhz(40; S, A, d) end;
-//define instruction lhzu(41; S, A, d) end;
 define updatable instruction lha(42; S, A, d) end;
-//define instruction lhau(43; S, A, d) end;
 define updatable instruction lfs(48; S, A, d) end;
-//define instruction lfsu(49; S, A, d) end;
 define updatable instruction lfd(50; S, A, d) end;
-//define instruction lfdu(51; S, A, d) end;
 define updatable instruction lbz(34; S, A, d) end;
-//define instruction lbzu(35; S, A, d) end;
 
 define function main(name, arguments)
   format-out("Hello, world!\n");
