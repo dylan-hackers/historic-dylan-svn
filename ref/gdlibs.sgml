@@ -1,0 +1,2279 @@
+<!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.0//EN" [
+ <!ENTITY % entities SYSTEM "entities.sgml">
+ %entities;
+]>
+<BOOK>
+  <TITLE>Gwydion Dylan Library Reference Guide</TITLE>
+
+  <bookinfo>
+    <COPYRIGHT>
+      <YEAR>1996</YEAR>
+      <YEAR>1997</YEAR>
+      <YEAR>1998</YEAR>
+      <HOLDER>Carnegie Mellon University</HOLDER>
+      <HOLDER>Gwydion Dylan Maintainers</HOLDER>
+    </COPYRIGHT>
+    &cmu.terms;
+    <bookbiblio>
+      <title>Gwydion Dylan Library Reference Guide</title>
+      <titleabbrev>Library Reference Guide</titleabbrev>
+      <date>09 September 1998</date>
+      <editor>&person.housel;</editor>
+    </bookbiblio>
+  </bookinfo>
+
+  <CHAPTER ID="libs-introduction">
+    <TITLE>Introduction</TITLE>
+
+    <PARA>This manual serves as a guide to the libraries included with
+    Gywdion &dylan;.  These libraries include:</PARA>
+
+    <VARIABLELIST>
+      <VARLISTENTRY>
+	<TERM>Dylan</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Streams</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Standard-IO</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Format</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Format-Out</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Print</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Collection-Extensions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Table-Extensions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>String-Extensions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Regular-Expressions</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Transcendental</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Time</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Random</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>Matrix</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+      <VARLISTENTRY>
+	<TERM>TK</TERM>
+	<LISTITEM>
+	  <PARA></PARA>
+	</LISTITEM>
+      </VARLISTENTRY>
+    </VARIABLELIST>
+    
+  </CHAPTER>
+
+  <CHAPTER ID="libs-dylan">
+    <TITLE>The Dylan Library and Gwydion Dylan Extensions</TITLE>
+
+    <SECT1>
+      <TITLE>Introduction</TITLE>
+      
+      <PARA>In the process of working with Dylan, the Gwydion Project
+      has come up with numerous extensions to the Dylan language. Some
+      of them form entire libraries, like the Collection-Extensions
+      and String-Extensions libraries. Others have been added to the
+      Dylan library, in such modules as Extensions and System.</PARA>
+      
+      <PARA>We continue to make no claims about future support for our
+      extensions. However, some extensions are more likely than others
+      to make it into our future compilers. This file documents those
+      extensions which we think will be included in our compiler's
+      Dylan library.</PARA>
+      
+      <PARA>Extensions which go in separate libraries are documented
+      in their own files; extensions which are part of the Mindy Dylan
+      library but which have a less certain future are documented in
+      the Mindy documentation.</PARA>
+
+      <PARA>For the remainder of this chapter, we shall refer to
+      "Gwydion compilers" as a shorthand for "Mindy and other
+      Dylan compilers that the Gwydion Project may write." It is
+      not meant as a guarentee that all future Gwydion releases will
+      support these extensions.</PARA>
+
+      <PARA>Specific Gwydion compilers may support extensions not
+      listed here; see their documentation for details.</PARA>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>Modules of the Dylan Library</TITLE>
+      
+      <PARA>In addition to containing the Dylan module, the Dylan
+      library contains a variety of modules which provide
+      extensions. Gwydion compilers export the following modules from
+      the Dylan library:</PARA>
+
+      <VARIABLELIST>
+	<VARLISTENTRY>
+	  <TERM>Extensions</TERM>
+	  <LISTITEM>
+	    <PARA>This module exports useful extensions to the Dylan
+            language (see <XREF LINKEND="libs-dylan-extensions">).
+            Ultimately, there will be several, more logically separate
+            libraries that extend Dylan or provide an application
+            framework for users. For now, we put any commonly used
+            utilities in the Extensions module.</PARA>
+	  </LISTITEM>
+	</VARLISTENTRY>
+
+	<VARLISTENTRY>
+	  <TERM>System</TERM>
+	  <LISTITEM>
+	    <PARA>This module exports an interface to operating system
+            calls and special, low-level functionality (see <XREF
+            LINKEND="libs-dylan-system">).</PARA>
+	  </LISTITEM>
+	</VARLISTENTRY>
+
+	<VARLISTENTRY>
+	  <TERM>Introspection</TERM>
+	  <LISTITEM>
+	    <PARA>This module exports reflective operations for
+	    examining classes, functions, and so on.</PARA>
+	  </LISTITEM>
+	</VARLISTENTRY>
+
+	<VARLISTENTRY>
+	  <TERM>Cheap-io</TERM>
+	  <LISTITEM>
+	    <PARA>This module exports some basic, unextendable input
+	    and output functionality.</PARA>
+	  </LISTITEM>
+	</VARLISTENTRY>
+      </VARIABLELIST>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>The Dylan Module</TITLE>
+
+      <PARA>Whenever possible, we have tried to keep the Dylan module
+      pristine and unextended, prefering to add our extensions to
+      separate modules or libraries. However, this is not always
+      possible, particularly when it involves extending the behavior
+      of a function or macro that is exported from the Dylan
+      module. Currently, Gwydion compilers support these extensions to
+      the Dylan module as described below:</PARA>
+
+      <ITEMIZEDLIST>
+	<LISTITEM>
+	  <PARA>Gwydion compilers support <LITERAL>keyed-by</LITERAL>
+	  clauses in <LITERAL>for</LITERAL> statements.  The format of
+	  such a clause is</PARA>
+
+	  <SYNOPSIS><PARAMETER>var</PARAMETER> keyed-by <PARAMETER>key</PARAMETER> in <PARAMETER>collection</PARAMETER></SYNOPSIS>
+
+	  <PARA>The <PARAMETER>var</PARAMETER> is bound to each
+	  element in <PARAMETER>collection</PARAMETER>, and
+	  <PARAMETER>key</PARAMETER> is bound to the element's key
+	  value.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Gwydion compilers supports <LITERAL>using</LITERAL>
+	  clauses in <LITERAL>for</LITERAL> statements.  The format of
+	  such a clause is</PARA>
+
+	  <SYNOPSIS><PARAMETER>var</PARAMETER> in <PARAMETER>collection</PARAMETER> using <PARAMETER>protocol</PARAMETER></SYNOPSIS>
+
+	  <PARA>The <PARAMETER>protocol</PARAMETER> will be used
+	  instead of
+	  <FUNCTION>forward-iteration-protocol</FUNCTION>. The
+	  <PARAMETER>protocol</PARAMETER> argument must be a variable
+	  name, not an expression. These <LITERAL>using</LITERAL>
+	  clauses may be used together with
+	  <LITERAL>keyed-by</LITERAL>:</PARA>
+	  
+	  <SYNOPSIS><PARAMETER>var</PARAMETER> keyed-by <PARAMETER>key</PARAMETER> in <PARAMETER>collection</PARAMETER> using <PARAMETER>protocol</PARAMETER></SYNOPSIS>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Gwydion compilers have an additional type of top level
+	  definition, <LITERAL>define function</LITERAL>, which
+	  creates a constant binding in the current module and
+	  initializes it to a new function. The usage of
+	  <LITERAL>define function</LITERAL> usage is similar to that
+	  of <LITERAL>define method</LITERAL>. The following is an
+	  example:</PARA>
+
+	  <PROGRAMLISTING>
+define function cube (x)
+  x * x * x;
+end function cube;
+</PROGRAMLISTING>
+
+	  <PARA>A similar result might be had by writing</PARA>
+
+	  <PROGRAMLISTING>
+define constant cube = method (x)
+                         x * x * x;
+                       end method;
+</PROGRAMLISTING>
+
+	  <PARA>or</PARA>
+
+	  <PROGRAMLISTING>
+define method cube (x)
+  x * x * x;
+end method cube;
+</PROGRAMLISTING>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Gwydion compilers supports subclass specializers via
+	  the <FUNCTION>limited</FUNCTION> function.  A subclass
+	  specializer causes a method to be invoked whenever the
+	  generic function was called on a value that is the specified
+	  class or any subclass of the specified class.  The method is
+	  never invoked on a value that is an instance (direct or
+	  indirect) of the specified class, only when the value is a
+	  subclass of the specified class.  The following is an
+	  example:</PARA>
+
+	  <PROGRAMLISTING>
+define method make
+    (result-class :: limited(&lt;class&gt;, subclass-of: &lt;my-class&gt;));
+  let x = next-method();
+  do-special-logging-or-something(x);
+  x;
+end method;</PROGRAMLISTING>
+	</LISTITEM>
+      </ITEMIZEDLIST>
+    </SECT1>
+
+    <SECT1 ID=libs-dylan-extensions>
+      <TITLE>The Extensions Module</TITLE>
+
+      <PARA>Ultimately, there will be several, more logically separate
+      libraries that extend Dylan or provide an application framework
+      for users.  For now, we put any commonly used utilities in the
+      Extensions module.</PARA>
+
+      <SECT2>
+	<TITLE>Generally Useful Definitions</TITLE>
+
+	<PARA>The Extensions module exports the following generally
+	useful functionality:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;byte-vector&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This class is a subclass of
+	    <CLASSNAME>&lt;vector&gt;</CLASSNAME> that can only hold
+	    integers between 0 and 255 inclusively.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;byte-character&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+
+	    <PARA><CLASSNAME>&lt;character&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Characters of this type represent the ASCII
+	    character set (or extensions to ASCII such as ISO
+	    8859). Note, in Gwydion compilers the
+	    <CLASSNAME>&lt;character&gt;</CLASSNAME> class is
+	    equivalent to Unicode characters.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>assert</REFNAME>
+	    <REFPURPOSE>function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>assert</FUNCTION> <PARAMETER>value</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>value</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function signals an error if
+	    <PARAMETER>value</PARAMETER> is
+	    <LITERAL>#f</LITERAL>. Otherwise, it does nothing. In
+	    future Gwydion compilers, assert may be changed to a
+	    macro, which may or may not evaluate its argument exactly
+	    once.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>one-of</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>one-of</FUNCTION> #rest <PARAMETER>objects</PARAMETER> => <PARAMETER>type</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>objects</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>Instances of <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>type</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function takes any number of objects, and
+	    returns the type that is the type-union of the singletons
+	    of those objects. For example, the expression</PARA>
+
+	    <PROGRAMLISTING>
+one-of(#"foo", #"bar", #"baz")</PROGRAMLISTING>
+
+	    <PARA>is equivalent to</PARA>
+
+	    <PROGRAMLISTING>
+type-union(singleton(#"foo"), singleton(#"bar"), singleton(#"baz"))</PROGRAMLISTING>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>false-or</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>false-or</FUNCTION> <PARAMETER>type</PARAMETER> => <PARAMETER>bigger-type</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>Type</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>bigger-type</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function is useful in type expressions. It
+	    captures the common idiom of returning an instance of a
+	    particular type or the value #f. The expression</PARA>
+
+	    <PROGRAMLISTING>
+false-or(&lt;integer&gt;)</PROGRAMLISTING>
+
+	    <PARA>is equivalent to the expression</PARA>
+
+	    <PROGRAMLISTING>
+type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Debugger Customizations</TITLE>
+
+	<PARA>(A note on terminology: We use the term "debugger" here
+	in the loose, Dylan sense of anything that handles an uncaught
+	error. In Mindy, this debugger is indeed a full fledged
+	debugger, but in other Gwydion compilers it may not be.)</PARA>
+
+	<PARA>The debugger uses the function
+	<FUNCTION>report-condition</FUNCTION> to print conditions as error
+	messages to users; for example, this is the function that
+	implements the <LITERAL>%S</LITERAL> format-string directive
+	for conditions. The debugger also uses the
+	<FUNCTION>format</FUNCTION> function exported from the Cheap-io
+	module to process format strings, and it prints directly to
+	the Unix stdout. If any library that is used itself uses the
+	Debugger-format library, then the debugger uses format from
+	the Format library, which is shipped with Gwydion
+	compilers. You can extend how the debugger prints conditions,
+	change what formatting function it uses, and direct where
+	debugger output goes with the following:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>report-condition</REFNAME>
+	    <REFPURPOSE>Generic Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>report-condition</FUNCTION> <PARAMETER>condition</PARAMETER> <PARAMETER>stream</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>condition</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;condition&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>stream</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;stream&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This is the function that is used to print condition
+	    variables as error messages to users. The internal
+	    <FUNCTION>format</FUNCTION> function used by Mindy uses
+	    report-condition for condition arguments to the
+	    <LITERAL>%S</LITERAL> format directive. The Format
+	    library's <FUNCTION>print-message</FUNCTION> method for
+	    conditions calls
+	    <FUNCTION>report-condition</FUNCTION>.</PARA>
+
+	    <PARA>If you are writing a module that does no output but
+	    still provides report-condition methods, you should use
+	    <FUNCTION>condition-format</FUNCTION> to format
+	    output. Using <FUNCTION>condition-format</FUNCTION> makes
+	    your module more flexible for users of your module. If you
+	    call Cheap-IO's format, you'll be forced to write to only
+	    one destination, <LITERAL>stdout</LITERAL>, ignoring the
+	    <PARAMETER>stream</PARAMETER> argument. If you call the
+	    Format library's <FUNCTION>format</FUNCTION> function,
+	    then your module will require the Format, Print, and
+	    Streams libraries; therefore, users of your module may
+	    ultimately load these other libraries needlessly. Of
+	    course, if you want to make use of the extended
+	    functionality of the Format library's format control
+	    strings, then you only have one choice anyway, and there's
+	    no reason to use <FUNCTION>condition-format</FUNCTION>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME></REFNAME>
+	    <REFPURPOSE></REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>condition-format</FUNCTION> <PARAMETER>stream</PARAMETER> <PARAMETER>control-string</PARAMETER>#rest <PARAMETER>arguments</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>stream</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>control-string</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;string&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>arguments</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>Instances of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function serves as a firewall between the
+	    condition system and the Streams and Format
+	    libraries. Methods on
+	    <FUNCTION>report-condition</FUNCTION> should use
+	    <FUNCTION>condition-format</FUNCTION> to do their
+	    formatting. Users will generally use
+	    <LITERAL>*debug-output*</LITERAL> or
+	    <LITERAL>*warning-output*</LITERAL> for the stream
+	    argument, but this is not required.</PARA>
+
+	    <PARA>Mindy supplies a method for when stream is
+	    <LITERAL>#"Cheap-IO"</LITERAL>. The Gwydion Format library
+	    supplies a method for when stream is a subclass of
+	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
+	    implementing your own streams or format libraries, you
+	    will need to define a method on
+	    <FUNCTION>condition-format</FUNCTION> for your type of
+	    stream.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>condition-force-output</REFNAME>
+	    <REFPURPOSE>Generic Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>condition-force-output</FUNCTION> <PARAMETER>stream</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <PARA>None</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA><FUNCTION>Condition-force-output</FUNCTION> forces
+	    any pending output from <PARAMETER>stream</PARAMETER>'s
+	    buffer to <PARAMETER>stream</PARAMETER>'s
+	    destination. This function is invoked by the debugger
+	    after a condition has been reported and before it pauses
+	    for user input. Unless you are writing a debugger, you do
+	    not need to call
+	    <FUNCTION>condition-force-output</FUNCTION>
+	    yourself.</PARA>
+
+	    <PARA>Mindy supplies a method for when stream is
+	    <LITERAL>#"Cheap-IO"</LITERAL>. The Gwydion Format library
+	    supplies a method for when stream is a subclass of
+	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
+	    implementing your own streams or format libraries, you
+	    will need to define a method on
+	    <FUNCTION>condition-force-output</FUNCTION> for your type
+	    of stream.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>*warning-output*</REFNAME>
+	    <REFPURPOSE>Variable</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Default-handler for
+	    <CLASSNAME>&lt;warning&gt;</CLASSNAME> uses
+	    <LITERAL>*warning-output*</LITERAL> to print warning
+	    messages. This variable must be either a
+	    <CLASSNAME>&lt;stream&gt;</CLASSNAME> from the Streams
+	    library, or <LITERAL>#"Cheap-IO"</LITERAL> (the
+	    default). When this variable is
+	    <LITERAL>#"Cheap-IO"</LITERAL>, the output goes to
+	    <LITERAL>stderr</LITERAL>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+
+      <SECT2 ID="libs-dylan-exiting-applications">
+	<TITLE>Exiting Applications</TITLE>
+
+	<PARA>The Extensions module exports the following
+	functionality for controlling the exiting of
+	applications:</PARA>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>exit</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>exit</FUNCTION> #key <PARAMETER>exit-code</PARAMETER> =></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Keyword Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>exit-code:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <LITERAL>&lt;integer&gt;</LITERAL>.  The default is
+		  0.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Causes the process to exit with return code
+	    <PARAMETER>exit-code</PARAMETER>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>on-exit</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>on-exit</FUNCTION> <PARAMETER>function</PARAMETER> => <PARAMETER>meaningless</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM>function</TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;function&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM>meaningless</TERM>
+		<LISTITEM>
+		  <PARA>Always equal to <LITERAL>#f</LITERAL>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Arranges for the <FUNCTION>exit</FUNCTION> function
+	    to call the argument function.  The argument function must
+	    take no required arguments.  Users may call
+	    <FUNCTION>on-exit</FUNCTION> multiple times to install
+	    more than one function for <FUNCTION>exit</FUNCTION> to
+	    call, but the order in which exit invokes the functions is
+	    undefined. Calling <FUNCTION>on-exit</FUNCTION> on the
+	    same function repeatedly, installs that function multiple
+	    times.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+      <SECT2>
+	<TITLE>Collections</TITLE>
+
+	<PARA>The Extensions module exports the following
+	<CLASSNAME>&lt;collection&gt;</CLASSNAME>
+	functionality:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>key-exists?</REFNAME>
+	    <REFPURPOSE>Generic Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>key-exists?</FUNCTION> <PARAMETER>collection</PARAMETER> <PARAMETER>key</PARAMETER> => <PARAMETER>win?</PARAMETER> <PARAMETER>elt</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>collection</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;collection&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>key</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>win?</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;boolean&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>elt</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Return whether <PARAMETER>key</PARAMETER> is in
+	    <PARAMETER>collection</PARAMETER>. If the
+	    <PARAMETER>key</PARAMETER> is in the
+	    <PARAMETER>collection</PARAMETER>, then the second value
+	    is the element associated with <PARAMETER>key</PARAMETER>;
+	    otherwise, the second return value is #f.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+      <SECT2>
+	<TITLE>Integers</TITLE>
+
+	<PARA>Gwydion compilers have an abstract class
+	<CLASSNAME>&lt;general-integer&gt;</CLASSNAME> which has two
+	concrete subclasses, <CLASSNAME>&lt;integer&gt;</CLASSNAME>
+	and <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>s have a limited range
+	of values, and <CLASSNAME>&lt;integer&gt;</CLASSNAME>
+	arithmetic uses the computer's underlying integer
+	facilities. <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s
+	can take on any value, and are similar to Common Lisp
+	"bignums."  Expressions involving
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s produce
+	<CLASSNAME>&lt;extendedinteger&gt;</CLASSNAME> results because
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s are
+	contagious. If an expression involving only
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME> values would produce a
+	result that does not fit in an
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>, then the Gwydion
+	compiler will signal an overflow error. You can use the
+	<FUNCTION>as</FUNCTION> function to convert back and forth
+	between <CLASSNAME>&lt;integer&gt;</CLASSNAME>s and
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>s. As signals
+	an error when converting an
+	<CLASSNAME>&lt;extended-integer&gt;</CLASSNAME> to a
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>, and the value does not fit in a
+	<CLASSNAME>&lt;integer&gt;</CLASSNAME>.</PARA>
+
+	<PARA>The Extension module exports the following integer
+	functionality:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;general-integer&gt;</REFNAME>
+	    <REFPURPOSE>Abstract Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclass</TITLE>
+
+	    <PARA><CLASSNAME>&lt;rational&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>The superclass of
+	    <CLASSNAME>&lt;integer&gt;</CLASSNAME> and
+	    <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;extended-integer&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+
+	    <PARA><CLASSNAME>&lt;general-integer&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>$maximum-integer</REFNAME>
+	    <REFPURPOSE>Constant</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Holds the largest positive
+	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>$minimum-integer</REFNAME>
+	    <REFPURPOSE>Constant</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>Holds the smallest negative
+	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+
+      <SECT2>
+	<TITLE>Ratios</TITLE>
+
+	<PARA>The  Extensions module exports the following:</PARA>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;ratio&gt;</REFNAME>
+	    <REFPURPOSE>Class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+
+	    <PARA><CLASSNAME>&lt;rational&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>A ratio is normalized so that it has a positive
+	    denominator, and the greatest common divisor of the
+	    numerator and the denominator is one. Ratios are never
+	    automatically converted to integers. For example,
+	    <LITERAL>ratio(4, 2)</LITERAL> would return
+	    <LITERAL>2/1</LITERAL>.</PARA>
+
+	    <PARA>A numeric operation involving two ratios produces a
+	    normalized ratio result. A numeric operation involving a
+	    ratio and an integer produced a normalized ratio result. A
+	    numeric operation involving a ratio and a float produces a
+	    float result.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>ratio</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>ratio</FUNCTION> <PARAMETER>numerator</PARAMETER> <PARAMETER>denominator</PARAMETER> => <PARAMETER>ratio</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>numerator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>denominator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>ratio</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function makes a ratio from the two integers.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>numerator</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>numerator</FUNCTION> <PARAMETER>ratio</PARAMETER> => <PARAMETER>the-numerator</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>ratio</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>the-numerator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function returns the numerator part of a ratio.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>denominator</REFNAME>
+	    <REFPURPOSE>Function</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Signature</TITLE>
+
+	    <SYNOPSIS><FUNCTION>denominator</FUNCTION> <PARAMETER>ratio</PARAMETER> => <PARAMETER>the-denominator</PARAMETER></SYNOPSIS>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Arguments</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>ratio</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Values</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><PARAMETER>the-denominator</PARAMETER></TERM>
+		<LISTITEM>
+		  <PARA>An instance of
+		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>This function returns the denominator part of a ratio.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+      </SECT2>
+    </SECT1>
+
+    <SECT1 ID="libs-dylan-system">
+      <TITLE>The System Module</TITLE>
+
+      <PARA></PARA>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>The Introspection Module</TITLE>
+
+      <PARA></PARA>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>The Cheap-IO Module</TITLE>
+
+      <PARA></PARA>
+
+    </SECT1>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-streams">
+    <DOCINFO>
+      <TITLE>The Streams Library</TITLE>
+      <DATE>06 Feb 1997</DATE>
+      <EDITOR>
+	<FIRSTNAME>Andrew</FIRSTNAME><SURNAME>Shires</SURNAME>
+      </EDITOR>
+      <AUTHORGROUP>
+	<AUTHOR>
+	  <FIRSTNAME>Scott</FIRSTNAME><SURNAME>McKay</SURNAME>
+	  <AFFILIATION>
+	    <ORGNAME>Harlequin, Inc.</ORGNAME>
+	  </AFFILIATION>
+	</AUTHOR>
+	<AUTHOR>
+	  <FIRSTNAME>Bill</FIRSTNAME><SURNAME>Chiles</SURNAME>
+	</AUTHOR>
+	<AUTHOR>
+	  <FIRSTNAME>Marc</FIRSTNAME><SURNAME>Ferguson</SURNAME>
+	</AUTHOR>
+	<AUTHOR>
+	  <FIRSTNAME>Eliot</FIRSTNAME><SURNAME>Miranda</SURNAME>
+	</AUTHOR>
+      </AUTHORGROUP>
+    </DOCINFO>
+    <TITLE>The Streams Library</TITLE>
+
+    <AUTHORBLURB>
+      <FORMALPARA>
+	<TITLE>Acknowlegements</TITLE>
+	<PARA>We'd like to thank the other people who
+	have been instrumental in the production of this proposal:
+	Jonathan Bachrach, Dave Berry, John Dunning, Chris Fry, Paul
+	Haahr, William Lott, Rob Maclachlan, Tim McNerney, Tony Mann,
+	Keith Playford, Robert Stockton, and Tucker Withington.</PARA>
+      </FORMALPARA>
+    </AUTHORBLURB>
+
+    <SECT1>
+      <TITLE>Discussing error conditions</TITLE>
+
+      <PARA>This document uses two special terms in discussions of
+      error conditions.</PARA>
+
+      <PARA>When we say that something is an error, we mean that the
+      result is undefined. In particular, we do not mean that a
+      Streams implementation must signal an error condition; that is
+      the implementor's choice. So, for instance, the following text,
+      from page FIXME, means only that the result of using unread-element
+      in the case described is undefined:</PARA>
+
+      <PARA>It is an error to apply
+      <FUNCTION>unread-element</FUNCTION> to an element that is not
+      the element most recently read from the stream.</PARA>
+
+      <PARA>Only when we specifically mention signaling do we mean
+      that a Streams implementation must signal an error
+      condition. Note that we may not, in such a case, say exactly
+      which error condition must be signaled; if we do not say so, the
+      choice is again up to the implementor. In this text from the
+      description of stream-position-setter on page FIXME, for instance,
+      we state that an implementation must signal an error, but we do
+      not say what error must be signaled:</PARA>
+
+      <PARA>When position is a
+      <CLASSNAME>&lt;stream-position&gt;</CLASSNAME>, if it is invalid
+      for some reason, this function signals an error.</PARA>
+
+      <PARA>By contrast, the following text from the description of
+      <FUNCTION>read-element</FUNCTION> on page FIXME says exactly
+      which error must be signaled:</PARA>
+
+      <PARA>If the end of the stream is encountered and no value was
+      supplied for on-end-of-stream, read-element signals an
+      <CLASSNAME>&lt;end-of-stream-error&gt;</CLASSNAME>
+      condition. </PARA>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>Goals of the Library</TITLE>
+
+      <PARA>The Dylan Streams library aims to provide:</PARA>
+
+      <ITEMIZEDLIST>
+	<LISTITEM>
+	  <PARA>A generic, easy-to-use interface for streaming over
+	  sequences and files. The same high-level interface for
+	  consuming or producing is available irrespective of the type
+	  of stream, or the types of the elements being streamed
+	  over.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Efficiency, especially for the common case of file
+	  I/O.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>Access to an underlying buffer management protocol.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>An extensible framework. Other areas of functionality
+	  that require a stream interface should be easy to integrate
+	  with the library.</PARA>
+	</LISTITEM>
+      </ITEMIZEDLIST>
+
+      <PARA>The proposal presents the design of a Streams library that
+      meets these goals using Dylan's built-in sequences and a
+      buffered disk file interface. </PARA>
+
+      <PARA>The proposal does not address a number of related issues,
+      including:</PARA>
+
+      <ITEMIZEDLIST>
+	<LISTITEM>
+	  <PARA>A standard object-printing package such as Smalltalk's
+	  <LITERAL>printOn:</LITERAL> or Lisp's
+	  <LITERAL>print-object</LITERAL>, or a formatted printing
+	  facility such as Lisp's
+	  <LITERAL>format</LITERAL>. Additional libraries are expected
+	  to provide these facilities.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>General object dumping and loading.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>A comprehensive range of I/O facilities for using
+	  memory-mapped files, network connections, and so on. Such
+	  facilities should be easy to add to the Streams library
+	  because of its extensible framework.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>An interface for naming files.</PARA>
+	</LISTITEM>
+
+	<LISTITEM>
+	  <PARA>An interface to operating system functionality, such
+	  as file renaming or deleting operations.  </PARA>
+	</LISTITEM>
+      </ITEMIZEDLIST>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>Concepts</TITLE>
+
+      <PARA>A stream provides sequential access to an aggregate of
+      data, such as a Dylan sequence or a disk file. Streams grant
+      this access according to a metaphor of reading and writing:
+      elements can be read from streams or written to them.</PARA>
+
+      <PARA>Streams are represented as Dylan objects, and all are
+      general instances of the class
+      <CLASSNAME>&lt;stream&gt;</CLASSNAME>, which the Streams library
+      defines.</PARA>
+
+      <PARA>We say that a stream is established over the data
+      aggregate. Hence, a stream providing access to the string
+      <LITERAL>"hello world"</LITERAL> is said to be a stream over the
+      string <LITERAL>"hello world"</LITERAL>.</PARA>
+
+      <PARA>Streams permitting reading operations are called input
+      streams. Input streams allow elements from the underlying data
+      aggregate to be consumed. Conversely, streams permitting writing
+      operations are called output streams. Output streams allow
+      elements to be written to the underlying data aggregate. Streams
+      permitting both kinds of operations are called input-output
+      streams. </PARA>
+
+      <PARA>The library provides a set of functions for reading
+      elements from an input stream. These functions hide the details
+      of indexing, buffering, and so on. For instance, the function
+      read-element reads a single data element from an input
+      stream. </PARA>
+
+      <PARA>The following expression binds stream to an input stream
+      over the string <LITERAL>"hello world"</LITERAL>: </PARA>
+
+      <PROGRAMLISTING>
+let stream = make(&lt;string-stream&gt;, contents: "hello world");</PROGRAMLISTING>
+
+      <PARA>The first invocation of read-element on stream returns the
+      character 'h', the next invocation 'e', and so on. Once a stream
+      has been used to consume all the elements of the data, the
+      stream is said to be at its end. This condition can be tested
+      with the function <FUNCTION>stream-at-end?</FUNCTION>. The
+      following code fragment applies function to all elements of the
+      sequence:</PARA>
+
+      <PROGRAMLISTING>
+let stream = make(&lt;sequence-stream&gt;, contents: seq);
+while (~stream-at-end?(stream)) 
+	function(read-element(stream));
+end;</PROGRAMLISTING>
+
+      <PARA>When all elements of a stream have been read, further
+      calls to <FUNCTION>read-element</FUNCTION> result in the
+      <CLASSNAME>&lt;end-of-stream-error&gt;</CLASSNAME> condition
+      being signalled. An alternative end-of-stream behavior is to
+      have a distinguished end-of-stream value returned. You can
+      supply such an end-of-stream value as a keyword argument to the
+      various read functions; the value can be any object. Supplying
+      an end-of-stream value to a read function is more efficient than
+      asking whether a stream is at its end on every iteration of a
+      loop. </PARA>
+
+      <PARA>The library also provides a set of functions for writing
+      data elements to an output stream. Like the functions that
+      operate upon input streams, these functions hide the details of
+      indexing, growing an underlying sequence, buffering for a file,
+      and so on. For instance, the function
+      <FUNCTION>write-element</FUNCTION> writes a single data element
+      to an output stream. </PARA>
+
+      <PARA>The following forms bind stream to an output stream over
+      an empty string and create the string <LITERAL>"I
+      see!"</LITERAL>, using the function
+      <FUNCTION>stream-contents</FUNCTION> to access all of the
+      stream's elements.</PARA>
+
+      <PROGRAMLISTING>
+let stream = make(&lt;byte-string-stream&gt;, direction: #"output");
+write-element(stream, 'I');
+write-element(stream, ' ');
+write(stream, "see");
+write-element(stream, '!');
+stream-contents(stream);</PROGRAMLISTING>
+
+      <PARA>Calling <FUNCTION>write</FUNCTION> on a sequence has the
+      same effect as calling <FUNCTION>write-element</FUNCTION> on all
+      the elements of the sequence. However, it is not required that
+      <FUNCTION>write</FUNCTION> be implemented directly in terms of
+      <FUNCTION>write-element</FUNCTION>; it might be implemented more
+      efficiently, especially for buffered streams.</PARA>
+
+      <PARA>Some streams are positionable; that is, they permit random
+      access to their elements. Postionable streams allow you to set
+      the position at which the stream will be accessed by the next
+      operation. The following example uses positioning to return the
+      character <LITERAL>'w'</LITERAL> from a stream over the string
+      <LITERAL>"hello world"</LITERAL>:</PARA>
+
+      <PROGRAMLISTING>
+let stream = make(&lt;string-stream&gt;, contents: "hello world");
+stream-position(stream) := 6;
+read-element(stream);</PROGRAMLISTING>
+      
+      <PARA>The following example returns a string, but the contents
+      of the first ten characters are undefined:</PARA>
+
+      <PROGRAMLISTING>
+let stream = make(&lt;string-stream&gt;, direction: #"output");
+adjust-stream-position(stream, 10); 
+write(stream, "whoa!");
+stream-contents(stream);</PROGRAMLISTING>
+      
+      <PARA>You can request a sequence containing all of the elements
+      of a positionable stream by calling
+      <FUNCTION>stream-contents</FUNCTION> on it. The sequence
+      returned never shares structure with any underlying sequence
+      that might be used in future by the stream. For instance, the
+      string returned by calling <FUNCTION>stream-contents</FUNCTION>
+      on an output <CLASSNAME>&lt;string-stream&gt;</CLASSNAME> will
+      not be the same string as that being used to represent the
+      string stream.</PARA>
+
+      <PARA>When making an input &lt;string-stream&gt;, you can cause
+      the stream to produce elements from any subsequence of the
+      supplied string. For example:</PARA>
+
+      <PROGRAMLISTING>
+read-to-end(make(&lt;string-stream&gt;, 
+                 contents: "hello there, world",
+                 start: 6, 
+                 end: 11));</PROGRAMLISTING>
+
+      <PARA>This example evaluates to "there". The interval (start,
+      end) includes the index start but excludes the index end. This
+      is consistent with standard Dylan functions over sequences, such
+      as copy-sequence. The read-to-end function is one of a number of
+      convenient utility functions for operating on streams and
+      returns all the elements up to the end of the stream from the
+      stream's current position.</PARA>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>Streams, growing sequences, and object identity</TITLE>
+
+      <PARA>When writing to output streams over sequences, Dylan may
+      from time to time need to grow the underlying sequence that it
+      is using to represent the stream data. </PARA>
+
+      <PARA>Consider the example of an output stream instantiated over
+      an empty string. As soon as a write operation is performed on
+      the stream, it is necessary to replace the string object used in
+      the representation of the string stream. As well as incurring
+      the cost of creating a new string, the replacement operation can
+      affect the integrity of other references to the string within
+      the program. </PARA>
+
+      <PARA>To guarantee that alias references to a sequence used in
+      an output <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME> will
+      have access to any elements written to the sequence via the
+      stream, supply a <CLASSNAME>&lt;stretchy-vector&gt;</CLASSNAME>
+      to make. A stream over a stretchy vector will use the same
+      stretchy vector throughout the stream's existence. </PARA>
+
+      <PARA>For example:</PARA>
+
+      <PROGRAMLISTING>
+let sv = make(&lt;stretchy-vector&gt;);
+let stream = make(&lt;sequence-stream&gt;, 
+                  contents: sv, 
+                  direction: #"output");
+write(stream, #(1, 2, 3, 4, 5, 6, 7, 8, 9));
+write(stream, "ABCDEF");
+values(sv, stream-contents(stream));</PROGRAMLISTING>
+
+      <PARA>The example returns two values. Each value is the same
+      (<LITERAL>\==</LITERAL>) stretchy vector:</PARA>
+
+      <PROGRAMLISTING>
+#[1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F']</PROGRAMLISTING>
+
+      <PARA>If a stretchy vector is not supplied, the result is
+      different: </PARA>
+
+      <PROGRAMLISTING>
+let v = make(&lt;vector&gt;, size: 5);
+let stream = make(&lt;sequence-stream&gt;,
+                  contents: v, 
+                  direction: #"output");
+write(stream, #(1, 2, 3, 4, 5, 6, 7, 8, 9));
+write(stream, "ABCDEF");
+values(v, stream-contents(stream));</PROGRAMLISTING>
+
+      <PARA>This example returns as its first value the original
+      vector, whose contents are undefined, but the second value is a
+      new vector:</PARA>
+
+      <PROGRAMLISTING>
+#[1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F']</PROGRAMLISTING>
+
+      <PARA>This difference arises because the output stream in the
+      second example does not use a stretchy vector to hold the stream
+      data. A vector of at least 15 elements is necessary to
+      accommodate the elements written to the stream, but the vector
+      supplied, <LITERAL>v</LITERAL>, can hold only 5. Since the
+      stream cannot change <LITERAL>v</LITERAL>'s size, it must
+      allocate a new vector each time it grows. </PARA>
+    </SECT1>
+
+    <SECT1>
+      <TITLE>Stream classes</TITLE>
+
+      <PARA>The exported streams class heterarchy is as follows:</PARA>
+
+      <FIGURE>
+	<TITLE>Streams library classes. </TITLE>
+	<GRAPHIC></GRAPHIC>
+      </FIGURE>
+
+      <PARA>Except for the classes
+      <CLASSNAME>&lt;stream&gt;</CLASSNAME>,
+      <CLASSNAME>&lt;buffered-stream&gt;</CLASSNAME>, and
+      <CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME>, these are
+      instantiable classes.</PARA>
+
+      <SECT2>
+	<TITLE>Class Reference</TITLE>
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;stream&gt;</REFNAME>
+	    <REFPURPOSE>Open abstract class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>The superclass of all stream classes and a direct
+	  subclass of <CLASSNAME>&lt;object&gt;</CLASSNAME>. It is not
+	  instantiable.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;positionable-stream&gt;</REFNAME>
+	    <REFPURPOSE>Open abstract class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>A subclass of &lt;stream&gt; supporting the
+	    Positionable Stream Protocol. It is not
+	    instantiable.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;buffered-stream&gt;</REFNAME>
+	    <REFPURPOSE>Open abstract class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>A subclass of <CLASSNAME>&lt;stream&gt;</CLASSNAME>
+	    supporting the Stream Extension Protocol and the Buffer
+	    Access Protocol. It is not instantiable.</PARA>
+
+	    <PARA>Streams of this class support the
+	    <LITERAL>buffer-size:</LITERAL> init-keyword, which can be
+	    used to suggest the size of the stream's buffer. However,
+	    the instantiated stream might not use this value: it is
+	    taken purely as a suggested value. For example, a stream
+	    that uses a specific device's hardware buffer might use a
+	    fixed buffer size regardless of the value passed with the
+	    <LITERAL>buffer-size:</LITERAL> init-keyword. </PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;file-stream&gt;</REFNAME>
+	    <REFPURPOSE>Open abstract class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>The class of streams over disk files.</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+
+	    <PARA><CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME>,
+	  <CLASSNAME>&lt;buffered-stream&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Init-keywords</TITLE>
+
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>locator:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>if-exists:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>if-does-not-exist:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>When you instantiate this class, an
+	    implementation-dependent, indirect instance of it is
+	    created. The file being streamed over is opened
+	    immediately upon creating the stream. </PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;sequence-stream&gt;</REFNAME>
+	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>The class of streams over sequences. </PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+	    <PARA><CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Init-keywords</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>start:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>end:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Description</TITLE>
+
+	    <PARA>The <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>
+	    class can be used for streaming over all sequences, but
+	    there are also subclasses
+	    <CLASSNAME>&lt;string-stream&gt;</CLASSNAME>,
+	    <CLASSNAME>&lt;byte-string-stream&gt;</CLASSNAME>, and
+	    <CLASSNAME>&lt;unicode-string-stream&gt;</CLASSNAME>,
+	    which are specialized for streaming over strings.</PARA>
+	  </REFSECT1>
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;string-stream&gt;</REFNAME>
+	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>The class of streams over strings.</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+	    <PARA><CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Init-keywords</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>start:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>end:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;byte-string-stream&gt;</REFNAME>
+	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>The class of streams over byte strings.</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+	    <PARA><CLASSNAME>&lt;string-stream&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Init-keywords</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>start:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>end:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+
+	</REFENTRY>
+
+	<REFENTRY>
+	  <REFNAMEDIV>
+	    <REFNAME>&lt;unicode-string-stream&gt;</REFNAME>
+	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
+	  </REFNAMEDIV>
+	  <REFSECT1>
+	    <TITLE>Summary</TITLE>
+
+	    <PARA>The class of streams over Unicode strings.</PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Superclasses</TITLE>
+	    <PARA><CLASSNAME>&lt;string-stream&gt;</CLASSNAME></PARA>
+	  </REFSECT1>
+	  <REFSECT1>
+	    <TITLE>Init-keywords</TITLE>
+	    <VARIABLELIST>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>start:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	      <VARLISTENTRY>
+		<TERM><LITERAL>end:</LITERAL></TERM>
+		<LISTITEM>
+		  <PARA></PARA>
+		</LISTITEM>
+	      </VARLISTENTRY>
+	    </VARIABLELIST>
+	  </REFSECT1>
+	</REFENTRY>
+      </SECT2>
+      
+      <SECT2>
+	<TITLE>Creating streams</TITLE>
+
+	<PARA>The following functions are used to create streams.</PARA>
+
+	<SECT3>
+	  <TITLE>File streams </TITLE>
+
+	  <PARA>File streams are intended only for accessing the
+	  contents of files. They are not intended to provide a
+	  general file handling facility of renaming, deleting,
+	  moving, parsing directory names and so on.</PARA>
+
+	  <REFENTRY>
+	    <REFNAMEDIV>
+	      <REFNAME>make
+	      <REPLACEABLE>file-stream-class</REPLACEABLE></REFNAME>
+	      <REFPURPOSE>General function method</REFPURPOSE>
+	    </REFNAMEDIV>
+	    <REFSECT1>
+	      <TITLE>Summary</TITLE>
+
+	      <PARA>Creates and opens a stream over a file.</PARA>
+	    </REFSECT1>
+	    <REFSECT1>
+	      <TITLE>Signature</TITLE>
+
+	      <SYNOPSIS><FUNCTION>make</FUNCTION> file-stream-class <LITERAL>#key</LITERAL> <PARAMETER>locator</PARAMETER> <PARAMETER>direction</PARAMETER> <PARAMETER>if-exists</PARAMETER> <PARAMETER>if-does-not-exist</PARAMETER> <PARAMETER>buffer-size</PARAMETER> <PARAMETER>element-type</PARAMETER> <PARAMETER>encoding</PARAMETER> 
+=&gt; <PARAMETER>file-stream-instance</PARAMETER> 
+</SYNOPSIS>
+	    </REFSECT1>
+	    <REFSECT1>
+	      <TITLE>Description</TITLE>
+
+	      <PARA>Returns a new instance of a concrete subclass of
+	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME> that streams
+	      over the contents of the file referenced by locator. To
+	      determine the concrete subclass to be instantiated, this
+	      method calls the generic function
+	      <FUNCTION>type-for-file-stream</FUNCTION> (see FIXME).</PARA>
+
+	      <PARA>The <REPLACEABLE>file-stream-class</REPLACEABLE>
+	      argument is the class
+	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME>.</PARA>
+
+	      <PARA>The <LITERAL>locator:</LITERAL> init-keyword
+	      should be a string naming a file. If the Locators
+	      library is in use, locator should be an instance of
+	      <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
+	      can be coerced to one.</PARA>
+
+	      <PARA>The <LITERAL>direction:</LITERAL> init-keyword
+	      specifies the direction of the stream.</PARA>
+
+	      <PARA>The <LITERAL>if-exists:</LITERAL> and
+	      <LITERAL>if-does-not-exist:</LITERAL> init-keywords
+	      specify actions to take if the file named by locator
+	      does or does not already exist when the stream is
+	      created. These init-keywords are discussed in more
+	      detail in FIXME.</PARA>
+
+	      <PARA>The <LITERAL>buffer-size:</LITERAL> init-keyword
+	      is explained in &lt;buffered-stream&gt; FIXME.</PARA>
+
+	      <PARA>The <LITERAL>element-type</LITERAL> init-keyword
+	      specifies the type of the elements in the file named by
+	      locator. This allows file elements to be represented
+	      abstractly; for instance, contiguous elements could be
+	      treated as a single database record. This init-keyword
+	      defaults to something useful, potentially based on the
+	      properties of the file;
+	      <CLASSNAME>&lt;byte-character&gt;</CLASSNAME> and
+	      <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME> are
+	      likely choices. See FIXME.</PARA>
+	    </REFSECT1>
+	  </REFENTRY>
+
+	  <REFENTRY>
+	    <REFNAMEDIV>
+	      <REFNAME>type-for-file-stream</REFNAME>
+	      <REFPURPOSE>Open generic function</REFPURPOSE>
+	    </REFNAMEDIV>
+	    <REFSECT1>
+	      <TITLE>Summary</TITLE>
+
+	      <PARA>Returns the kind of file-stream class to
+	      instantiate for a given file.</PARA>
+	    </REFSECT1>
+	    <REFSECT1>
+	      <TITLE>Signature</TITLE>
+
+	      <SYNOPSIS><FUNCTION>type-for-file-stream</FUNCTION>
+	      <PARAMETER>locator</PARAMETER>
+	      <PARAMETER>element-type</PARAMETER>
+	      <LITERAL>#rest</LITERAL> <PARAMETER>all-keys</PARAMETER>
+	      =&gt; <PARAMETER>file-stream-type</PARAMETER></SYNOPSIS>
+	    </REFSECT1>
+	    <REFSECT1>
+	      <TITLE>Description</TITLE>
+
+	      <PARA>The method for make on
+	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME> calls this
+	      function to determine the class of which it should
+	      create an instance.</PARA>
+	    </REFSECT1>
+	  </REFENTRY>
+	</SECT3>
+
+	<SECT3>
+	  <TITLE>Options when creating file streams</TITLE>
+
+	  <PARA>When creating file streams, you can can supply the
+	  following init-keywords to <FUNCTION>make</FUNCTION> in
+	  addition to the usual direction: </PARA>
+
+	  <VARIABLELIST>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>if-exists:</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>An action to take if the file already exists.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>if-does-not-exist:</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>An action to take if the file does not already
+		exist.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>element-type:</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>How the elements of the underlying file are
+		accessed.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	  </VARIABLELIST>
+
+	  <PARA>The <LITERAL>if-exists:</LITERAL> init-keyword allows
+	  you to specify an action to take if the file named by
+	  <PARAMETER>locator</PARAMETER> already exists. The options
+	  are:</PARA>
+
+	  <VARIABLELIST>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#f</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>No action. This is the default when the stream's
+		direction is <LITERAL>#"input"</LITERAL> or
+		<LITERAL>#"input-output"</LITERAL>.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"new-version"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>If the underlying file system supports file
+		versioning, a new version of the file is created. This
+		is the default when the stream's direction is
+		<LITERAL>#"output"</LITERAL>.</PARA>
+
+		<PARA>If the file system does not support file
+		versioning, the implementation should substitute one
+		of the other <LITERAL>if-exists:</LITERAL> behaviors;
+		the <LITERAL>#"replace"</LITERAL> behavior is a good
+		choice. </PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"overwrite"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>Set the stream's position to the beginning of
+		the file, but preserve the current contents of the
+		file. This is useful when the direction is
+		<LITERAL>#"input-output"</LITERAL> and you want to
+		overwrite an existing file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"replace"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>Delete or rename the existing file and create a
+		new file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"append"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>Set the stream's initial position to the end of
+		the existing file so that all new output occurs at the
+		end of the file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"truncate"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>If the file exists, it is truncated, setting the
+		size of the file to 0. If the file does not exist,
+		create a new file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"signal"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>Signal a
+		<CLASSNAME>&lt;file-exists-error&gt;</CLASSNAME>
+		condition. </PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	  </VARIABLELIST>
+
+	  <PARA>The <LITERAL>if-does-not-exist:</LITERAL> init-keyword
+	  allows you to specify an action to take if the file named by
+	  <PARAMETER>locator</PARAMETER> does not exist. The options
+	  are:</PARA>
+
+	  <VARIABLELIST>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#f</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>No action.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"signal"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>Signal a
+		<CLASSNAME>&lt;file-does-not-exist-error&gt;</CLASSNAME>
+		condition. This is the default when the stream's
+		direction is <LITERAL>#"input"</LITERAL>.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><LITERAL>#"create"</LITERAL></TERM>
+	      <LISTITEM>
+		<PARA>Create a new zero-length file. This is the
+		default when the stream's direction is
+		<LITERAL>#"output"</LITERAL> or
+		<LITERAL>#"input-output"</LITERAL>.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	  </VARIABLELIST>
+
+	  <PARA>Because creating a file stream always involves an
+	  attempt to open the underlying file, the aforementioned
+	  error conditions will occur during file stream instance
+	  initialization.</PARA>
+
+	  <PARA>If an implementation checks file permissions when
+	  creating and opening file streams, and it detects an attempt
+	  to read a file for which the user has no read permission, or
+	  to write a file for which the user has no write permission,
+	  then an
+	  <CLASSNAME>&lt;invalid-file-permissions-error&gt;</CLASSNAME>
+	  condition is signalled at the time the file stream is
+	  created.</PARA>
+
+	  <PARA>The <LITERAL>element-type:</LITERAL> init-keyword
+	  controls how the elements of the underlying file are
+	  accessed. </PARA>
+
+	  <NOTE>
+	    <TITLE>Implementation Note</TITLE>
+
+	    <PARA>Ideally, element-type could be any valid Dylan type
+	    such as <LITERAL>limited(&lt;integer&gt;, min: 0, max:
+	    255)</LITERAL> or
+	    <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME>. This
+	    approach may make it possible to implement a potentially
+	    inefficient but general set of file streams. Unfortunately
+	    the current language definition does not include adequate
+	    support for this approach, so we specify instead an
+	    interim minimum set of three element types. The element
+	    types are for the time being exported from the streams
+	    module of the Streams library.</PARA>
+	  </NOTE>
+
+	  <PARA>The three possible element types are: </PARA>
+
+	  <VARIABLELIST>
+	    <VARLISTENTRY>
+	      <TERM><CLASSNAME>&lt;byte-character&gt;</CLASSNAME></TERM>
+	      <LISTITEM>
+		<PARA>The file is accessed as a sequence of 8-bit
+		  characters.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><CLASSNAME>&lt;unicode-character&gt;</CLASSNAME></TERM>
+	      <LISTITEM>
+		<PARA>The file is accessed as a sequence of 16-bit Unicode
+		  characters.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><CLASSNAME>&lt;byte&gt;</CLASSNAME></TERM>
+	      <LISTITEM>
+		<PARA>The file is accessed as a sequence of unsigned 8-bit
+		  integers.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	  </VARIABLELIST>
+
+	  <NOTE>
+	    <TITLE>Portability Note</TITLE>
+
+	    <PARA>Portable code can count on the existence of these
+	    three element types, but implementations are free to
+	    provide more. </PARA>
+	  </NOTE>
+	</SECT3>
+	<SECT3>
+	  <TITLE>Sequence streams</TITLE>
+
+	  <PARA>There are make methods on
+	  <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>,
+	  <CLASSNAME>&lt;string-stream&gt;</CLASSNAME>,
+	  <CLASSNAME>&lt;byte-string-stream&gt;</CLASSNAME> and
+	  <CLASSNAME>&lt;unicode-string-stream&gt;</CLASSNAME>. The
+	  <FUNCTION>make</FUNCTION> methods on
+	  <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME> and
+	  <CLASSNAME>&lt;string-stream&gt;</CLASSNAME> might not
+	  create direct instances of those classes, but instead an
+	  instance of a subclass determined by
+	  <FUNCTION>type-for-sequence-stream</FUNCTION>.</PARA>
+	</SECT3>
+      </SECT2>
+    </SECT1>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-standard-io">
+    <TITLE>The Standard-IO Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-format">
+    <TITLE>The Format Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-format-out">
+    <TITLE>The Format-Out Library</TITLE>
+
+    <PARA>The Format-Out library is designed to provide a simple
+    interface to the Format library. It exports the module Format-Out
+    and re-exports the Format and Standard-IO modules from the Format
+    and Standard-IO libraries respectively. The Format-Out module
+    exports one function <FUNCTION>format-out</FUNCTION>.</PARA>
+    
+
+    <REFENTRY>
+      <REFNAMEDIV>
+	<REFNAME>format-out</REFNAME>
+	<REFPURPOSE>Function</REFPURPOSE>
+      </REFNAMEDIV>
+      <REFSECT1>
+	<TITLE>Summary</TITLE>
+	<PARA>Formats arguments to <LITERAL>*standard-output*</LITERAL>.</PARA>
+      </REFSECT1>
+      <REFSECT1>
+	<TITLE>Signature</TITLE>
+	<SYNOPSIS><FUNCTION>format-out</FUNCTION> <PARAMETER>control-string</PARAMETER> <LITERAL>#key</LITERAL> <PARAMETER>args</PARAMETER> => </SYNOPSIS>
+      </REFSECT1>
+      <REFSECT1>
+	<TITLE>Arguments</TITLE>
+	<VARIABLELIST>
+	  <VARLISTENTRY>
+	    <TERM><PARAMETER>control-string</PARAMETER></TERM>
+	    <LISTITEM>
+	      <PARA>An instance of
+	      <CLASSNAME>&lt;byte-string&gt;</CLASSNAME>.</PARA>
+	    </LISTITEM>
+	  </VARLISTENTRY>
+	  <VARLISTENTRY>
+	    <TERM><PARAMETER>args</PARAMETER></TERM>
+	    <LISTITEM>
+	      <PARA>Instances of <CLASSNAME>&lt;object&gt;</CLASSNAME></PARA>
+	    </LISTITEM>
+	  </VARLISTENTRY>
+	</VARIABLELIST>
+      </REFSECT1>
+      <REFSECT1>
+	<TITLE>Values</TITLE>
+	<PARA>None</PARA>
+      </REFSECT1>
+      <REFSECT1>
+	<TITLE>Description</TITLE>
+	<PARA>Performs</PARA>
+	<PROGRAMLISTING>
+apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
+      </REFSECT1>
+    </REFENTRY>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-print">
+    <TITLE>The Print Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-collection-extensions">
+    <TITLE>The Collection-Extensions Library</TITLE>
+
+    <PARA></PARA>
+
+  </CHAPTER>
+
+  <CHAPTER ID="libs-table-extensions">
+    <TITLE>The Table-Extensions Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-string-extensions">
+    <TITLE>The String-Extensions Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+  
+  <CHAPTER ID="libs-regular-expressions">
+    <TITLE>The Regular-Expressions Library</TITLE>
+
+    <PARA></PARA>
+
+  </CHAPTER>
+
+  <CHAPTER ID="libs-transcendental">
+    <TITLE>The Transcendental Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-time">
+    <TITLE>The Time Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-random">
+    <TITLE>The Random Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+   <CHAPTER ID="libs-matrix">
+    <TITLE>The Matrix Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+
+  <CHAPTER ID="libs-dylan-tk">
+    <TITLE>The TK Library</TITLE>
+
+    <PARA></PARA>
+  </CHAPTER>
+</BOOK>

@@ -23,7 +23,7 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/mindy/interp/Makefile.in,v 1.1 1998/05/03 19:55:18 andreas Exp $
+##  $Header: /scm/cvs/src/mindy/interp/Makefile.in,v 1.4 1998/08/31 14:29:24 andreas Exp $
 ##
 ##  This is the makefile for the Mindy byte-interpreter.
 ##
@@ -58,6 +58,8 @@ INSTALL_DATA	=	@INSTALL_DATA@
 LIBOBJS =		@LIBOBJS@
 LIBS	=		../compat/libcompat.a @LIBS@
 
+TIME_INC=		@TIME_INC@
+
 ##
 ## end of configure written portion
 ##
@@ -76,7 +78,7 @@ SRCS = parser-tab.c lexer.c \
 	char.c handler.c instance.c input.c driver.c \
 	table.c fd.c buf.c weak.c brkpt.c extern.c ext-init.c
 
-EXTERN-INCLUDES = ${SRCDIR}/malloc.inc ${SRCDIR}/../../common/time/time.inc
+EXTERN-INCLUDES = ${SRCDIR}/malloc.inc ${TIME_INC}
 
 mindy: ${OBJS} ../compat/libcompat.a
 	${CC} ${OBJS} ${LIBS} -o ,mindy
@@ -87,8 +89,10 @@ ${SRCDIR}/parser-tab.c: ${SRCDIR}/parser.y
 	mv y.tab.c ${SRCDIR}/parser-tab.c
 	mv y.tab.h ${SRCDIR}/parser-tab.h
 
-${SRCDIR}/extern1.def ${SRCDIR}/extern2.def: $(EXTERN-INCLUDES) ${SRCDIR}/make-init.pl
-	$(PERL) ${SRCDIR}/make-init.pl $(EXTERN-INCLUDES)
+${SRCDIR}/parser-tab.h: ${SRCDIR}/parser-tab.c
+
+${SRCDIR}/extern1.def ${SRCDIR}/extern2.def: $(EXTERN-INCLUDES) make-init.pl
+	$(PERL) make-init.pl $(EXTERN-INCLUDES)
 	mv ,extern1.def ${SRCDIR}/extern1.def
 	mv ,extern2.def ${SRCDIR}/extern2.def
 

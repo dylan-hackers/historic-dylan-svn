@@ -1,0 +1,2 @@
+*.c *.mak *.s *-intr.dylan
+gtk-hello-world
