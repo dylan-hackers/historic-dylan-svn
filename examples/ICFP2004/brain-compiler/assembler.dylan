@@ -132,15 +132,59 @@ define method put-instruction(instr :: <instruction>, brain :: <stretchy-vector>
   add!(brain, instr);
 end;
 
+define macro integrate-state
+  { integrate-state(?state:name, ?instr:expression, ?brain:expression, ?pos-table:expression) }
+  =>
+  {
+    let next-state = ?instr.?state;
+    select (next-state by instance?)
+      <instruction> =>
+        let pos = element(?pos-table, next-state, default: #f);
+        if (pos)
+          ?instr.?state := pos;
+        else
+          put-instruction(next-state, ?brain, ?pos-table);
+          put-instruction(?instr, ?brain, ?pos-table);
+        end;
+      <integer> =>
+        #t // we are done
+    end select;
+  }
+end;
+
+define method put-instruction(instr :: <sense>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  integrate-state(state-true, instr, brain, pos-table);
+  integrate-state(state-false, instr, brain, pos-table);
+end;
+  
+define method put-instruction(instr :: <mark>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  integrate-state(state, instr, brain, pos-table);
+end;
+  
+define method put-instruction(instr :: <unmark>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  integrate-state(state, instr, brain, pos-table);
+end;
+  
+define method put-instruction(instr :: <pickup>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  integrate-state(state-success, instr, brain, pos-table);
+  integrate-state(state-failure, instr, brain, pos-table);
+end;
+  
+
 define method put-instruction(instr :: <drop>, brain :: <stretchy-vector>, pos-table :: <table>)
  => ();
   next-method();
   
   let next-state = instr.state;
   select (next-state by instance?)
-//    <function> =>
-//      instr.state := next-state();
-//      put-instruction(instr, brain, pos-table);
     <instruction> =>
       let pos = element(pos-table, next-state, default: #f);
       if (pos)
@@ -154,6 +198,12 @@ define method put-instruction(instr :: <drop>, brain :: <stretchy-vector>, pos-t
   end select;
 end;
 
+define method put-instruction(instr :: <turn>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  integrate-state(state, instr, brain, pos-table);
+end;
+  
 define method put-instruction(instr :: <move>, brain :: <stretchy-vector>, pos-table :: <table>)
  => ();
   next-method();
@@ -188,6 +238,13 @@ define method put-instruction(instr :: <move>, brain :: <stretchy-vector>, pos-t
   end select;
 end;
 
+define method put-instruction(instr :: <flip>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  integrate-state(state-success, instr, brain, pos-table);
+  integrate-state(state-failure, instr, brain, pos-table);
+end;
+  
 
 define function dump-brain(brain :: <vector>)
   map(compose(format-out, unparse), brain)
