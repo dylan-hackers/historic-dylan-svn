@@ -40,10 +40,31 @@ end;
 <pre>
 <em>? </em>say-greeting(&quot;Buenos Dias&quot;);
 <em>Buenos Dias</em>
-</pre><table><caption>
-Figure 3.1   <a name="marker-9-99"></a>The <code>say-greeting</code> generic function and its methods.
-</caption><tr><td><p><img alt="db37ima4" src="db37ima4.gif" /></p>
-</td></tr></table>
+</pre>
+<table class="generic-function">
+	<caption><a name="marker-9-99"></a>Figure 3.1 The <code>say-greeting</code> generic function and its methods.</caption>
+	<tr>
+		<th>
+			Generic function <code>say-greeting</code>
+		</th>
+	</tr>
+	<tr>
+		<td>
+<pre><code>define method say-greeting (greeting :: &lt;object&gt;)
+  format-out("%s\n", greeting);
+end;
+</code></pre>
+		</td>
+	</tr>
+	<tr>
+		<td>
+<pre><code>define method say-greeting (greeting :: &lt;integer&gt;)
+  format-out("Your lucky number is %s.\n", greeting);
+end;
+</code></pre>
+		</td>
+	</tr>
+</table>
 </div>
 
 <div class="toc">
