@@ -1411,15 +1411,37 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           <definitkeywords>
             <keyparam>
               <paramname>locator</paramname>
+              <paramtype>&lt;string&gt;</paramtype>
+              <paramsummary>
+                The file name.  If the <dlibary>Locators</dlibrary>
+                library is in use, locator should be an instance of
+	        <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
+	        can be coerced to one.
+              </paramsummary>
             </keyparam>
             <keyparam>
 	      <paramname>direction</paramname>
+              <paramtype>
+                one-of(#"input", #"output", #"input-output")
+              </paramtype>
             </keyparam>
             <keyparam>
 	      <paramname>if-exists</paramname>
+              <paramtype>
+                one-of(#f, #"new-version", #"overwrite", #"replace", #"append", #"truncate", #"signal")
+              </paramtype>
+              <paramsummary>
+                An action to take if the file already exists.
+              </paramsummary>
             </keyparam>
             <keyparam>
 	      <paramname>if-does-not-exist</paramname>
+              <paramtype>
+                one-of(#f, #"signal", #"create")
+              </paramtype>
+              <paramsummary>
+                An action to take if the file doesn't exists.
+              </paramsummary>
             </keyparam>
           </definitkeywords>
           <defdescription>
@@ -1427,6 +1449,110 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    implementation-dependent, indirect instance of it is
 	    created. The file being streamed over is opened
 	    immediately upon creating the stream. </PARA>
+
+	  <PARA>The <dlit>if-exists:</dlit> init-keyword allows
+	  you to specify an action to take if the file named by
+	  <PARAMETER>locator</PARAMETER> already exists. The options
+	  are:</PARA>
+
+	  <VARIABLELIST>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#f</dlit></TERM>
+	      <LISTITEM>
+		<PARA>No action. This is the default when the stream's
+		direction is <dlit>#"input"</dlit> or
+		<dlit>#"input-output"</dlit>.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"new-version"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>If the underlying file system supports file
+		versioning, a new version of the file is created. This
+		is the default when the stream's direction is
+		<dlit>#"output"</dlit>.</PARA>
+
+		<PARA>If the file system does not support file
+		versioning, the implementation should substitute one
+		of the other <dlit>if-exists:</dlit> behaviors;
+		the <dlit>#"replace"</dlit> behavior is a good
+		choice. </PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"overwrite"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>Set the stream's position to the beginning of
+		the file, but preserve the current contents of the
+		file. This is useful when the direction is
+		<dlit>#"input-output"</dlit> and you want to
+		overwrite an existing file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"replace"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>Delete or rename the existing file and create a
+		new file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"append"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>Set the stream's initial position to the end of
+		the existing file so that all new output occurs at the
+		end of the file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"truncate"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>If the file exists, it is truncated, setting the
+		size of the file to 0. If the file does not exist,
+		create a new file.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"signal"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>Signal a
+		<CLASSNAME>&lt;file-exists-error&gt;</CLASSNAME>
+		condition. </PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	  </VARIABLELIST>
+
+	  <PARA>The <dlit>if-does-not-exist:</dlit> init-keyword
+	  allows you to specify an action to take if the file named by
+	  <PARAMETER>locator</PARAMETER> does not exist. The options
+	  are:</PARA>
+
+	  <VARIABLELIST>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#f</dlit></TERM>
+	      <LISTITEM>
+		<PARA>No action.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"signal"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>Signal a
+		<CLASSNAME>&lt;file-does-not-exist-error&gt;</CLASSNAME>
+		condition. This is the default when the stream's
+		direction is <dlit>#"input"</dlit>.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	    <VARLISTENTRY>
+	      <TERM><dlit>#"create"</dlit></TERM>
+	      <LISTITEM>
+		<PARA>Create a new zero-length file. This is the
+		default when the stream's direction is
+		<dlit>#"output"</dlit> or
+		<dlit>#"input-output"</dlit>.</PARA>
+	      </LISTITEM>
+	    </VARLISTENTRY>
+	  </VARIABLELIST>
           </defdescription>
         </dylanclassdef>
 
@@ -1544,27 +1670,12 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      over the contents of the file referenced by locator. To
 	      determine the concrete subclass to be instantiated, this
 	      method calls the generic function
-	      <FUNCTION>type-for-file-stream</FUNCTION> (see FIXME).</PARA>
+	      <FUNCTION>type-for-file-stream</FUNCTION>.</PARA>
 
 	      <PARA>The <REPLACEABLE>file-stream-class</REPLACEABLE>
 	      argument is the class
 	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME>.</PARA>
 
-	      <PARA>The <dlit>locator:</dlit> init-keyword
-	      should be a string naming a file. If the Locators
-	      library is in use, locator should be an instance of
-	      <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
-	      can be coerced to one.</PARA>
-
-	      <PARA>The <dlit>direction:</dlit> init-keyword
-	      specifies the direction of the stream.</PARA>
-
-	      <PARA>The <dlit>if-exists:</dlit> and
-	      <dlit>if-does-not-exist:</dlit> init-keywords
-	      specify actions to take if the file named by locator
-	      does or does not already exist when the stream is
-	      created. These init-keywords are discussed in more
-	      detail in FIXME.</PARA>
 
 	      <PARA>The <dlit>buffer-size:</dlit> init-keyword
 	      is explained in &lt;buffered-stream&gt; FIXME.</PARA>
@@ -1620,20 +1731,6 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  following init-keywords to <FUNCTION>make</FUNCTION> in
 	  addition to the usual direction: </PARA>
 
-	  <VARIABLELIST>
-	    <VARLISTENTRY>
-	      <TERM><dlit>if-exists:</dlit></TERM>
-	      <LISTITEM>
-		<PARA>An action to take if the file already exists.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>if-does-not-exist:</dlit></TERM>
-	      <LISTITEM>
-		<PARA>An action to take if the file does not already
-		exist.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
 
 	    <VARLISTENTRY>
 	      <TERM><dlit>element-type:</dlit></TERM>
@@ -1644,109 +1741,6 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    </VARLISTENTRY>
 	  </VARIABLELIST>
 
-	  <PARA>The <dlit>if-exists:</dlit> init-keyword allows
-	  you to specify an action to take if the file named by
-	  <PARAMETER>locator</PARAMETER> already exists. The options
-	  are:</PARA>
-
-	  <VARIABLELIST>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#f</dlit></TERM>
-	      <LISTITEM>
-		<PARA>No action. This is the default when the stream's
-		direction is <dlit>#"input"</dlit> or
-		<dlit>#"input-output"</dlit>.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"new-version"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>If the underlying file system supports file
-		versioning, a new version of the file is created. This
-		is the default when the stream's direction is
-		<dlit>#"output"</dlit>.</PARA>
-
-		<PARA>If the file system does not support file
-		versioning, the implementation should substitute one
-		of the other <dlit>if-exists:</dlit> behaviors;
-		the <dlit>#"replace"</dlit> behavior is a good
-		choice. </PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"overwrite"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Set the stream's position to the beginning of
-		the file, but preserve the current contents of the
-		file. This is useful when the direction is
-		<dlit>#"input-output"</dlit> and you want to
-		overwrite an existing file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"replace"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Delete or rename the existing file and create a
-		new file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"append"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Set the stream's initial position to the end of
-		the existing file so that all new output occurs at the
-		end of the file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"truncate"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>If the file exists, it is truncated, setting the
-		size of the file to 0. If the file does not exist,
-		create a new file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"signal"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Signal a
-		<CLASSNAME>&lt;file-exists-error&gt;</CLASSNAME>
-		condition. </PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	  </VARIABLELIST>
-
-	  <PARA>The <dlit>if-does-not-exist:</dlit> init-keyword
-	  allows you to specify an action to take if the file named by
-	  <PARAMETER>locator</PARAMETER> does not exist. The options
-	  are:</PARA>
-
-	  <VARIABLELIST>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#f</dlit></TERM>
-	      <LISTITEM>
-		<PARA>No action.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"signal"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Signal a
-		<CLASSNAME>&lt;file-does-not-exist-error&gt;</CLASSNAME>
-		condition. This is the default when the stream's
-		direction is <dlit>#"input"</dlit>.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"create"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Create a new zero-length file. This is the
-		default when the stream's direction is
-		<dlit>#"output"</dlit> or
-		<dlit>#"input-output"</dlit>.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	  </VARIABLELIST>
 
 	  <PARA>Because creating a file stream always involves an
 	  attempt to open the underlying file, the aforementioned
