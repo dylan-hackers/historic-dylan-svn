@@ -29,6 +29,8 @@ install: icfp2002
 
 test: icfp2002
 	./icfp2002 cantor.gwydiondylan.org 6969
+test-dumbot: icfp2002
+	./icfp2002 cantor.gwydiondylan.org 6969 dumbot
 
 single: icfp2002
 	./icfp2002 icfp1.cse.ogi.edu 22001
@@ -39,10 +41,10 @@ multi:  icfp2002
 network-internal.dylan: network-internal.intr network-internal.h
 	melange --d2c -I`gcc --print-file-name=include` network-internal.intr network-internal.dylan
 
-network.lib.du: network.lid network.dylan network-exports.dylan network-internal.dylan Makefile
+network.lib.du: network.lid network.dylan network-exports.dylan network-internal.dylan
 	d2c $(D2C_FLAGS) network.lid
 
-test-server: test-server.lid test-server.dylan test-server-exports.dylan Makefile
+test-server: test-server.lid test-server.dylan test-server-exports.dylan
 	d2c $(D2C_FLAGS) test-server.lid
 
 c-opengl-visualizer:	c-opengl-visualizer.c
