@@ -481,6 +481,16 @@ define function handler-top-level
                       exit-inner();
                     end;
                   end;
+              let handler <stream-error>
+                = method (c :: <error>, next-handler :: <function>)
+                    if (*debugging-server*)
+                      next-handler();  // decline to handle the error
+                    else
+                      log-error("A stream error occurred. %=", c);
+                      exit-inner();
+                    end;
+                  end;
+                    
               with-resource (query-values = <string-table>)
                 block ()
                   block ()
@@ -656,12 +666,12 @@ end;
 define function send-error-response (request :: <request>, c :: <condition>)
   block ()
     send-error-response-internal(request, c);
-  exception (e :: <error>)
+  exception (e :: <condition>)
     log-error("An error occurred while sending error response. %=", e);
   end;
 end;
 
-define function send-error-response-internal (request :: <request>, err :: <koala-error>)
+define function send-error-response-internal (request :: <request>, err :: <error>)
   with-resource (headers = <header-table>)
     with-resource (response = <response>,
                    request: request,
