@@ -1,5 +1,0 @@
-*.c
-*.mak
-*.lo
-osmesa-test
-.libs
