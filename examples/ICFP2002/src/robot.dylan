@@ -1,16 +1,28 @@
 module: board
 
-define abstract class <robot>(<object>)
-  slot id;
-  slot capacity :: <integer>;
-
-  slot x :: <integer>;
-  slot y :: <integer>;
-  slot money :: <integer>;
-  slot inventory :: limited(<vector>, of: <package>);
+define class <robot> (<object>)
+  slot id :: <integer>,
+    required-init-keyword: id:;
+  slot x :: <integer>,
+    required-init-keyword: x:;
+  slot y :: <integer>,
+    required-init-keyword: y:;
+  slot capacity :: false-or(<integer>),
+    init-keyword: capacity:,
+    init-value: #f;
+  slot money :: false-or(<integer>),
+    init-keyword: money:,
+    init-value: #f;
+  slot inventory :: limited(<vector>, of: <package>),
+    init-keyword: inventory:,
+    init-value: make(limited(<vector>, of: <package>), size: 0);
 end;
 
 define method capacity-left(r :: <robot>)
  => (w :: <integer>)
-  r.capacity - reduce1(\+, map(weight, r.inventory));
+  if (r.capacity | ~every?(identity, r.inventory))
+    r.capacity - reduce1(\+, map(weight, r.inventory));
+  else
+    #f
+  end if;
 end method capacity-left;
