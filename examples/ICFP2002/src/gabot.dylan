@@ -42,7 +42,8 @@ define method create-command(s :: <path-strategy>) => command :: <command>;
              & path.tail
              | path;
   let path = s.strategy-path := path;
-  make(<move>, direction: turn(robot, path), bid: 1, id: robot.id);
+  make(<move>, direction: points-to-direction(robot.location, path.first), 
+       bid: 1, id: robot.id);
 end;
 
 // ## safe?{<path-strategy>}
