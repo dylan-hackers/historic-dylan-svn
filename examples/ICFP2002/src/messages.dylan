@@ -444,6 +444,8 @@ define function more-events?(s :: <stream>) => (r :: <boolean>)
   s.peek ~= '\n';
 end function more-events?;
 
+define generic process-server-command(state :: <state>, command :: <command>) => (state :: <state>);
+
 define function receive-server-command-reply(s :: <stream>, state :: <state>) => (state :: <state>)
   block()
     while(more-events?(s))
@@ -452,6 +454,7 @@ define function receive-server-command-reply(s :: <stream>, state :: <state>) =>
       while(more-commands?(s))
         let command = receive-server-command(s);
         debug("receive-server-command-reply: %d %=\n", id, command);
+	    state := process-server-command(state, command);
       end while;
     end while;
     receive-newline(s);
@@ -462,3 +465,23 @@ define function receive-server-command-reply(s :: <stream>, state :: <state>) =>
   end;
 end function receive-server-command-reply;
 
+// Ignore commands I don't handle for now.
+define method process-server-command(state :: <state>, command :: <command>) => (state :: <state>)
+  state   
+end method process-server-command;
+
+define method process-server-command(state :: <state>, command :: <move>) => (state :: <state>)
+  let bot = find-robot(state, command.robot-id);
+  let old-location = bot.location;
+  let new-location =
+    select (command.direction)
+      $north => point(x: old-location.x + 1, y: old-location.y);
+      $south => point(x: old-location.x - 1, y: old-location.y);
+      $east  => point(x: old-location.x, y: old-location.y + 1);
+      $west  => point(x: old-location.x, y: old-location.y - 1);
+    otherwise => error("process-server-command: Can't happen!")
+  end select;
+
+  add-robot(state, copy-robot(bot, location: new-location));
+  state;
+end method process-server-command;
