@@ -10,6 +10,8 @@ define class <generator-state> (<object>)
   slot remaining-text-runs :: <subsequence>;
 end class <generator-state>;
 
+define sealed domain make(singleton(<generator-state>));
+
 define sealed method initialize
     (obj :: <generator-state>, #key clone, text-runs, #all-keys)
  => ();
@@ -51,21 +53,23 @@ define method generate-output(input :: <stretchy-object-vector>)
 //    debug("%=\n", state.attribute-stack);
 //    debug("%=\n", state.open-tag-stack);
 //    force-output(*standard-error*);
-    let from = state.attribute-stack.first;
-    let to   = state.remaining-text-runs[0].attributes;
+    let from :: <attribute> = state.attribute-stack.first;
+    let to   :: <attribute> = state.remaining-text-runs[0].attributes;
 //    describe-attributes(from, *standard-error*);
 //    describe-attributes(to, *standard-error*);
 //    debug("\n");
 //    force-output(*standard-error*);
 
     if(from.value = to.value)
+      // same attributes .. just output the text
       state.output-tokens :=
 	pair(state.remaining-text-runs[0].string, state.output-tokens);
       state.remaining-text-runs :=
 	subsequence(state.remaining-text-runs, start: 1);
-    elseif(state.attribute-stack ~= #() 
-             & state.attribute-stack.tail ~= #() 
+    elseif(state.attribute-stack ~== #() 
+             & state.attribute-stack.tail ~== #() 
              & to.value = state.attribute-stack.second.value)
+      // the attributes we want are *just* down one level on the stack
       pop-tag();
     elseif(from.bold & ~to.bold)
       pop-tag();
@@ -83,13 +87,17 @@ define method generate-output(input :: <stretchy-object-vector>)
       pop-tag();
     elseif(from.color & ~to.color)
       pop-tag();
-    elseif(from.font-size ~= to.font-size &
+    elseif(from.font-size ~== to.font-size &
              member?(to, state.attribute-stack,
-		       test: method(x, y) x.font-size = y.font-size end))
+		       test: method(x :: <attribute>, y :: <attribute>)
+				 x.font-size == y.font-size;
+			     end))
       pop-tag();
-    elseif(from.color ~= to.color &
+    elseif(from.color ~== to.color &
              member?(to, state.attribute-stack,
-		       test: method(x, y) x.color = y.color end))
+		       test: method(x :: <attribute>, y :: <attribute>)
+				 x.color == y.color;
+			     end))
       pop-tag();
     elseif(~from.bold & to.bold)
       push-tag(tag-BB);
@@ -103,7 +111,7 @@ define method generate-output(input :: <stretchy-object-vector>)
       push-tag(tag-TT);
     elseif(from.underline < to.underline)
       push-tag(tag-U);
-    elseif(from.font-size ~= to.font-size)
+    elseif(from.font-size ~== to.font-size)
       let tag = 
         select(to.font-size)
           0 => tag-0;
@@ -118,7 +126,7 @@ define method generate-output(input :: <stretchy-object-vector>)
           9 => tag-9;
         end;
       push-tag(tag);
-    elseif(from.color ~= to.color)
+    elseif(from.color ~== to.color)
       let tag = 
         select(to.color)
           #"red"     => tag-r;
@@ -133,7 +141,7 @@ define method generate-output(input :: <stretchy-object-vector>)
       push-tag(tag);
     end if;
   end while;
-  while(state.open-tag-stack.head ~= #())
+  while(state.open-tag-stack.head ~== #())
     pop-tag();
   end while;
   reverse!(state.output-tokens);
