@@ -1045,6 +1045,17 @@ define module opengl-glut
     glutVideoPan,
     glutReportErrors;
 
+  export
+    $GLUT-BITMAP-8-BY-13,
+    $GLUT-BITMAP-9-BY-15,
+    $GLUT-BITMAP-8-BY-13,
+    $GLUT-BITMAP-TIMES-ROMAN-10,
+    $GLUT-BITMAP-TIMES-ROMAN-24,
+    $GLUT-BITMAP-HELVETICA-10,
+    $GLUT-BITMAP-HELVETICA-12,
+    $GLUT-BITMAP-HELVETICA-18;
+
+
   // GLUT constants:
   export
     $GLUT-API-VERSION,
