@@ -31,15 +31,19 @@ define method try-pickup-many2(robot :: <robot>, s :: <state>, #key
                             end method);
                                             
 
-  let table = make(<table>);
+  let table = make(<equal-table>);
   local method lookup(w, i)
    => (v, p :: <collection>);
     let e = element(table, cons(w, i), default: #"not-found");
+//    debug("lookup(%=, %=)... ", w, i);
     if (e ~= #"not-found")
-      values(e.head, e.tail);
+//      debug("cached\n");
+      values(car(e), cdr(e));
     elseif (w = 0 | i = 0)
+//      debug("0\n");
       values(0, #());
     elseif (packages[i - 1].weight > capacity)
+//      debug("too heavy\n");
       /*
         let good-keys = choose(method (a :: <pair>)
                                  a.head = w & a.tail < i;
@@ -54,13 +58,14 @@ define method try-pickup-many2(robot :: <robot>, s :: <state>, #key
       */
       lookup(capacity, i - 1);
     else
-      if (value-function(packages[i - 1]) + lookup(w - packages[i - 1].weight, i - 1)
+//      debug("Evaluating...\n");
+      if (value-function(robot, s, packages[i - 1]) + lookup(w - packages[i - 1].weight, i - 1)
             > lookup(w, i - 1))
         // Take it...
         let (rest-value, rest-pkgs) = lookup(w - packages[i - 1].weight, i - 1);
-        table[cons(w, i)] = cons(value-function(packages[i - 1]) + rest-value, 
+        let e = table[cons(w, i)] := cons(value-function(robot, s, packages[i - 1]) + rest-value, 
                                  add(rest-pkgs, packages[i - 1]));
-        values(value-function(packages[i - 1]) + rest-value, add(rest-pkgs, packages[i - 1]));
+        values(car(e), cdr(e));
       else
         // Don't take it...
         lookup(w, i - 1);
