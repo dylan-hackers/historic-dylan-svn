@@ -695,7 +695,7 @@ define sub brain chris-defender (leave)
 	Sense RightAhead (Marker 5), (marker_5_right_ahead);
 //	Flip 300, (stake_place, move);
 	Sense Here Home => move;
-	Flip 10, (stake_place, move);
+	Flip 20, (stake_place, move);
 	
   [marker_5_ahead:]
 	Move spin => chris-defender;
@@ -796,13 +796,20 @@ define brain alex-keith
     Flip 3, (defender);
     Sub keith-gatherer;
 
+
   [patroller:]
     Sub keith-patroller;
     Sub keith-patroller-hack;
 
+
   [defender:]
+    Flip 4, (c-defender, k-defender);
+
+  [c-defender:]
     Sub chris-defender;
-//    Sub keith-defender;
+
+  [k-defender:]
+    Sub keith-defender;
 
 end brain;
 
