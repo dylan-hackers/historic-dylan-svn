@@ -118,7 +118,7 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <functi
                 end if;
               end if;
             end for;
-            values(best-thing, distance)
+            values(best-thing, best-path)
           end block;
         end method;
   
