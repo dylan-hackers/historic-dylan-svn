@@ -8,8 +8,22 @@ define abstract class <robot-agent>(<object>)
     init-value: #();
 end class <robot-agent>;
 
+
+define generic generate-next-move(me :: <robot-agent>, s :: <state>)
+ => command :: <command>;
+
+define generic punt(me :: <robot-agent>)
+ => punt :: <drop>;
+
+define method punt(me :: <robot-agent>)
+ => punt :: <drop>;
+  make(<drop>, bid: 1, id: me.agent-id, package-ids: #())
+end;
+
+
 // abstract function:
 define method generate-next-move(me :: <robot-agent>, state :: <state>) => (c :: <command>)
+  me.punt
 end method generate-next-move;
 
 

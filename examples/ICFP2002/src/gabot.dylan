@@ -26,6 +26,12 @@ define class <gabot> (<dumbot>)
   slot decided :: <strategy>.false-or = #f;
 end class <gabot>;
 
+define method punt(me :: <gabot>)
+ => punt :: <drop>;
+  me.decided := #f;
+  next-method();
+end;
+
 
 // ##################
 // ## <path-strategy>
@@ -42,6 +48,7 @@ define method create-command(s :: <path-strategy>) => command :: <command>;
              & path.tail
              | path;
   let path = s.strategy-path := path;
+  
   make(<move>, direction: points-to-direction(robot.location, path.first), 
        bid: 1, id: robot.id);
 end;

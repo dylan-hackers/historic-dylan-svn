@@ -91,9 +91,11 @@ define method choose-packages (packages :: <sequence>, tom :: <thomas>,
 end method choose-packages;
 */
 
+/*
 define method punt(id :: <integer>) => <command>;
   make(<pick>, id: id, bid: 1, package-ids: #(13575));
 end method punt;
+*/
 
 define method generate-next-move* (tom :: <thomas>, state :: <state>)
  => (c :: <command>)
@@ -146,7 +148,8 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
         // for a turn.
         choose-next-base(tom, state);
         if (tom.goal = $nowhere-to-go)
-          tom.agent-id.punt
+//          tom.agent-id.punt
+          tom.punt
         else
           generate-next-move(tom, state);
         end if;

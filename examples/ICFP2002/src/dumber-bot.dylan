@@ -7,10 +7,6 @@ end class <dumber-bot>;
 // Bot by Alex and Bruce. We use Keith's visualiser (on CVS) to track our robot's
 // progress on the server with OpenGL visualiser. :-P
 
-define generic generate-next-move(me :: <robot-agent>, s :: <state>)
- => command :: <command>;
-
-
 define method generate-next-move(me :: <dumber-bot>, s :: <state>)
  => command :: <command>;
 
