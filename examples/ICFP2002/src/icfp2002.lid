@@ -9,4 +9,5 @@ files:
   robot-agent
   package
   command
+  dumbot
   
