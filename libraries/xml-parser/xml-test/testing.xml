@@ -7,7 +7,7 @@
  <address for="Douglas M. Auclair">
   <street>Inzer</street>
   <third-line city='Springfield' state="VA"><zip>22151</zip></third-line>
-  <hi-mom best="1"/>
+  <hi-mom/> <!-- tests default attributes -->
   <txt>This is interesting; I like &foo;&#x20;and&#32;&baz;.</txt>
   <txt>because foo is &foo; and baz is &baz;.</txt>
   <program>
