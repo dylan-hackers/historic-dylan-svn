@@ -1,6 +1,6 @@
 Module: ctype
 Description: compile-time type system
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.4 2000/01/24 04:55:57 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.4.4.1 2000/06/12 22:19:34 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -29,6 +29,27 @@ copyright: see below
 // Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 //
 //======================================================================
+
+/*
+
+values-ctype [identity-preserving-mixin] {abstract}
+    ctype {abstract}
+        cclass [eql-ct-value] {abstract} (external)
+        union-ctype [ct-value]
+        unknown-ctype        
+        limited-ctype {abstract}
+            limited-integer-type [ct-value]
+            limited-collection-type [ct-value]
+            singleton-type [ct-value]
+            byte-character-type [ct-value]
+            direct-instance-ctype [ct-value] (external)
+            subclass-ctype [ct-value, identity-preserving-mixin] (external)
+    multi-value-ctype
+
+wild-ctype() returns a <multi-value-ctype> with zero or more values of
+type <object>. This is the result type of an unconstrained function.
+
+*/
 
 /// Superclass of multi-value types and regular single types.
 define abstract class <values-ctype> (<identity-preserving-mixin>)
