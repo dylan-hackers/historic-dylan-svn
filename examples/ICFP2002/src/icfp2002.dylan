@@ -9,14 +9,14 @@ define function read-configuration(stream :: <stream>)
 end function read-configuration;
 
 
-define function play-the-game(input :: <stream>, output :: <stream>) => ();
+define function play-the-game(bot :: <class>, input :: <stream>, output :: <stream>) => ();
   send-player(output);
   force-output(output);
   let (my-id :: <integer>, 
        my-capacity :: <integer>, 
        my-money :: <integer>, 
        state :: <state>) = receive-initial-setup(input);
-  let agent = make(<dumber-bot>, robot: find-robot(state, my-id));
+  let agent = make(bot, robot: find-robot(state, my-id));
 
 
   debug("board is %=", state.board);
@@ -29,16 +29,6 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
     send-command(output, move);
     state := receive-server-command-reply(input, state);
   end while;  
-
-  /*
-  let running = #t;
-  while(running)
-    state := read-packages(input, state);
-    let move = generate-next-move(agent, state);
-    send-move(output, move);
-    state := read-movements(input, state);
-  end while;
-  */
 end function play-the-game;
 
 
@@ -53,12 +43,6 @@ define method test-path-finding(board :: <board>)
     debug("Sorry, no path found.\n");
   else
     debug("Resulting path of length: %=.\n", path.size);
-
-    
-    // for (elt in path)
-      // debug("X = %=, Y = %=\n", elt.x, elt.y);
-    // end for;
-
 
     debug("Here is the board with the path on it:\n");
     debug("Size: width is %=, height is %=.\n",
@@ -77,6 +61,23 @@ define method test-path-finding(board :: <board>)
 end method test-path-finding;
 
 
+define function figure-out-which-bot(bot-type :: <string>)
+ => bot-class :: <class>;
+  debug("bot-type: %s\n", bot-type);
+  case
+    bot-type = "dumber-bot"
+      => <dumber-bot>;
+    bot-type = "dumbot"
+      => <dumbot>;
+    bot-type = "thomas"
+      => <thomas>;
+//    bot-type = "gabot"
+//      => <gabot>;
+    otherwise => <dumber-bot>;
+  end case;
+end;
+
+
 define function main(name, arguments)
 
   if(arguments.size < 2)
@@ -84,8 +85,11 @@ define function main(name, arguments)
   end if;
   let (input-stream, output-stream) 
     = tcp-client-connection(arguments[0], string-to-integer(arguments[1]));
+  let bot-type = arguments.size > 2
+                 & arguments[2]
+                 | "dumber-bot";
 
-  play-the-game(input-stream, output-stream);
+  play-the-game(figure-out-which-bot(bot-type), input-stream, output-stream);
 
   /*
   let running = #t;

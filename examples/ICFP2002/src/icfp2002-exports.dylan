@@ -125,6 +125,7 @@ define module client
     robot,
     <dumbot>, <dumber-bot>,
     <dumber-bot>,
+    <thomas>,
     generate-next-move;
 end module client;
 
