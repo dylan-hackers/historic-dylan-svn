@@ -1,6 +1,6 @@
 module: platform
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.1 1998/05/03 19:55:31 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.4 1998/08/13 05:21:15 housel Exp $
 copyright: Copyright (c) 1995, 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -93,6 +93,10 @@ define sealed /* exported */ class <platform> (<object>)
     required-init-keyword: #"library-filename-prefix";
   constant /* exported */ slot library-filename-suffix :: <byte-string>,
     required-init-keyword: #"library-filename-suffix";
+  // if this is defined, search for shared libraries
+  constant /* exported */ slot shared-library-filename-suffix
+      :: false-or(<byte-string>) = #f,
+    init-keyword: #"shared-library-filename-suffix";
   constant /* exported */ slot executable-filename-suffix :: <byte-string>,
     required-init-keyword: #"executable-filename-suffix";
 
@@ -104,6 +108,14 @@ define sealed /* exported */ class <platform> (<object>)
     required-init-keyword: #"assembler-command";
   constant /* exported */ slot link-library-command :: <byte-string>,
     required-init-keyword: #"link-library-command";
+  constant /* exported */ slot randomize-library-command
+      :: false-or(<byte-string>) = #f,
+    init-keyword: #"randomize-library-command";
+
+  // if this is defined, we can build shared libraries
+  constant /* exported */ slot link-shared-library-command
+      :: false-or(<byte-string>) = #f,
+    init-keyword: #"link-shared-library-command";
   constant /* exported */ slot link-executable-command :: <byte-string>,
     required-init-keyword: #"link-executable-command";
   constant /* exported */ slot link-executable-flags :: <byte-string>,
@@ -157,10 +169,15 @@ define sealed /* exported */ class <platform> (<object>)
     init-keyword: #"descriptor-type-string";
   constant /* exported */ slot descriptor-reference-string :: <byte-string>,
     init-keyword: #"descriptor-reference-string";
+  constant /* exported */ slot object-size-string :: false-or(<byte-string>)
+      = #f,
+    init-keyword: #"object-size-string";
 
   constant /* exported */ slot omit-colon-after-label-declarations? 
       :: <boolean> = #f,
     init-keyword: #"omit-colon-after-label-declarations?";
+  constant /* exported */ slot align-arg-is-power-of-two? :: <boolean> = #f,
+    init-keyword: #"align-arg-is-power-of-two?";
 end class <platform>;
 
 define sealed domain make(singleton(<platform>));
@@ -248,7 +265,8 @@ define function add-platform!
 	#"uses-drive-letters?", #"environment-variables-can-be-exported?",
 	#"use-dbclink?", #"link-doesnt-search-for-libs?",
 	#"import-directive-required?", #"supports-debugging?",
-	#"omit-colon-after-label-declarations?", #"big-endian?" =>
+	#"big-endian?", #"omit-colon-after-label-declarations?",
+	#"align-arg-is-power-of-two?"  =>
 	  keyword-values := add!(keyword-values, string-to-boolean(val));
 	#"integer-length" =>
 	  keyword-values := add!(keyword-values, string-to-integer(val));

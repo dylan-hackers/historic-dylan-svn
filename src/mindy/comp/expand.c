@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/comp/expand.c,v 1.1 1998/05/03 19:55:07 andreas Exp $
+* $Header: /scm/cvs/src/mindy/comp/expand.c,v 1.3 1998/12/17 11:10:14 igor Exp $
 *
 * This file does source-to-source expansions.
 *
@@ -106,17 +106,6 @@ static void expand_bindings(struct bindings *bindings)
     expand_expr(&bindings->expr);
 }
 
-static void expand_rettypes(struct return_type_list *rettypes)
-{
-    struct return_type *r;
-
-    for (r = rettypes->req_types; r != NULL; r = r->next)
-	if (r->type)
-	    expand_expr(&r->type);
-    if (rettypes->rest_type)
-	expand_expr(&rettypes->rest_type);
-}
-
 static void bind_rettypes(struct body *body,
 			  struct return_type_list *rettypes)
 {
@@ -154,16 +143,6 @@ static void bind_rettypes(struct body *body,
 	bind_temp(body, id(rettypes->rest_temp),
 		  make_function_call(make_varref(id(ctype)), args));
 	rettypes->rest_temp_varref = make_varref(id(rettypes->rest_temp));
-    }
-}
-
-static void expand_plist(struct plist *plist)
-{
-    if (plist) {
-	struct property *p;
-
-	for (p = plist->head; p != NULL; p = p->next)
-	    expand_expr(&p->expr);
     }
 }
 
@@ -1342,6 +1321,7 @@ static boolean expand_let_constituent(struct constituent **ptr,
 		struct body *let_body = let->body;
 		let->body = make_body();
 		add_constituent(body, (struct constituent *)let);
+		let->next = NULL;
 		for (; p != NULL; p = p->next) {
 		    if (p->type_temp) {
 			struct symbol *temp = gensym();
@@ -1369,6 +1349,7 @@ static boolean expand_let_constituent(struct constituent **ptr,
 		expr = make_function_call(make_varref(id(check_type)), args);
 		bindings->expr = expr;
 		add_constituent(body, (struct constituent *)let);
+		let->next = NULL;
 	    }
 	    *ptr = make_expr_constituent(make_body_expr(body));
 	    return TRUE;

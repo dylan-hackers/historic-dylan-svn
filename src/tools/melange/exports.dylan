@@ -5,7 +5,7 @@ copyright: Copyright (C) 1994, Carnegie Mellon University
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/exports.dylan,v 1.1 1998/05/03 19:55:53 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/exports.dylan,v 1.5 1998/12/21 00:03:18 emk Exp $
 
 //======================================================================
 //
@@ -86,6 +86,7 @@ define library melange
   use streams;
   use standard-io;
   use format;
+  use parse-arguments;
   use melange-c;
   export
     name-mappers;
@@ -119,7 +120,8 @@ define module int-lexer
     <pointer-token>, <constant-token>, <variable-token>, <getter-token>,
     <setter-token>, <read-only-token>, <seal-token>, <seal-functions-token>,
     <boolean-token>, <sealed-token>, <open-token>, <inline-token>,
-    <value-token>, <literal-token>, <mindy-inc-token>;
+    <value-token>, <function-type-token>, <callback-maker-token>,
+    <callout-function-token>, <literal-token>, <mindy-inc-token>;
 end module int-lexer;
 
 define module int-parse
@@ -139,7 +141,8 @@ define module int-parse
     file-imports, file-import-modes, prefix, exclude, excluded-files, rename,
     mappings, equates, read-only, seal-string, <clause>, <function-clause>,
     <struct-clause>, <union-clause>, <pointer-clause>, <constant-clause>,
-    <variable-clause>, name, options, <undefined>, undefined;
+    <variable-clause>, <function-type-clause>, name, options, <undefined>,
+    undefined;
 end module int-parse;
 
 define module name-mappers
@@ -169,10 +172,16 @@ define module define-interface
 
   // From streams
   use streams;
-   
+  
+  // From format
+  use format;
+
   // From standard-io
   use standard-io;
 
+  // From parse-arguments
+  use parse-arguments;
+  
   // local packages
   use int-lexer;
   use int-parse, rename: {rename => renames};
@@ -181,5 +190,6 @@ define module define-interface
     rename: {parse => c-parse, <parse-state> => <c-parse-state>};
   use name-mappers;
   use portability;
+  use parse-conditions, exclude: {parse-error};
 end module define-interface;
 
