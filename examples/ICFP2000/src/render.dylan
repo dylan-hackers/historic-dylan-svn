@@ -3,27 +3,39 @@ synopsis: Recursive raytracing renderer
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
+
+// When recursing, move a tad in the direction of the ray your going
+// for to avoid getting cut off by the surface you're leaving.
+define constant $surface-acne-prevention-offset = 0.000000000001;
+
 define method get-tracer(o :: <obj>, ambient :: <color>, 
 			 lights :: <collection>) => (tracer)
   local method tracer(ray, depth)
     if (depth > 0)
-      let (point, normal, surface-method, distance) = intersection-before(o, ray, 1.0/0.0);
+      let (point, normal, surface-method, distance) = 
+	intersection-before(o, ray, 1.0/0.0);
       
       if (point)
-	/*	let reflection-color = 0;
-	  if (surf-specular)
-	    let reflected-ray = 2 * normal * (normal * ray) - ray;
-	    reflection-color = tracer(o, point, reflected-ray, depth - 1, 
-				      ambient, lights);
-	  end if; 
-	*/
+	let reflection-color = make-black();
 	let surf = surface-method();
-	let c = surf.color * (surf.diffusion-coefficient * ambient);
+	if (surf.specular-coefficient)
+	  let reflection-vector = 2.0 * normal * 
+	    (normal * ray.ray-direction) - ray.ray-direction;
+	  let reflected-ray = make(<ray>, direction:
+				     reflection-vector, 
+				   position: point +
+				     $surface-acne-prevention-offset *
+				     reflection-vector);
+	  reflection-color = tracer(reflected-ray, depth - 1);
+	end if; 
+	  
+	let c = surf.color * (surf.diffusion-coefficient * ambient +
+				surf.specular-coefficient * reflection-color);
 	for (l in lights)
 	  if (can-see(o, point, l))
 	    c := c + surf.color * 
 	      (intensity-on(l, point, normal) * surf.diffusion-coefficient
-		 + intensity-on(l, point, normal, phong: surf.phong-coefficient)
+		+ intensity-on(l, point, normal, phong: surf.phong-coefficient)
 		 * surf.specular-coefficient);
 	  end if;
 	end for;  
