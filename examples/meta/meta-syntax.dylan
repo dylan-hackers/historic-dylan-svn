@@ -64,7 +64,7 @@ define macro collector-definer
         end with-collector)) }
 { define collector ?:name (?vars:*) ?meta:* end }
  => { scanner-builder(?name, 
-       (with-collector into-vector str, collect: ?=collect;
-          meta-builder(?=string, ?=start, (?vars), (as(<string>, str)), (?meta));
+       (with-collector into-vector ?=str, collect: ?=collect;
+          meta-builder(?=string, ?=start, (?vars), (as(<string>, ?=str)), (?meta));
         end with-collector)) }
 end macro collector-definer;
