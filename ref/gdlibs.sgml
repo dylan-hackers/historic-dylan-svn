@@ -1471,96 +1471,38 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylanclassdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;byte-string-stream&gt;</REFNAME>
-	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
+        <dylanclassdef>
+	  <defname>&lt;byte-string-stream&gt;</dEFNAME>
+	  <defadjectives>Open instantiable</defadjectives>
+	  <defsummary>The class of streams over strings.</defsummary>
+	  <defsupers><defsuper>&lt;sequence-stream&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	    <keyparam><paramname>contents</paramname></keyparam>
+	    <keyparam><paramname>direction</paramname></keyparam>
+	    <keyparam><paramname>start</paramname></keyparam>
+	    <keyparam><paramname>end</paramname></keyparam>
+	  </definitkeywords>
+          <defdescription>
+	    <PARA>Streams over byte strings.</para>
+          </defdescription>
+        </dylanclassdef>
 
-	    <PARA>The class of streams over byte strings.</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
-	    <PARA><CLASSNAME>&lt;string-stream&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Init-keywords</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><dlit>contents:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>direction:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>start:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>end:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
+        <dylanclassdef>
+	  <defname>&lt;unicode-string-stream&gt;</dEFNAME>
+	  <defadjectives>Open instantiable</defadjectives>
+	  <defsummary>The class of streams over strings.</defsummary>
+	  <defsupers><defsuper>&lt;sequence-stream&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	    <keyparam><paramname>contents</paramname></keyparam>
+	    <keyparam><paramname>direction</paramname></keyparam>
+	    <keyparam><paramname>start</paramname></keyparam>
+	    <keyparam><paramname>end</paramname></keyparam>
+	  </definitkeywords>
+          <defdescription>
+	    <PARA>Streams over unicode strings</para>
+          </defdescription>
+        </dylanclassdef>
 
-	</REFENTRY>
-
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;unicode-string-stream&gt;</REFNAME>
-	    <REFPURPOSE>Open instantiable class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
-
-	    <PARA>The class of streams over Unicode strings.</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
-	    <PARA><CLASSNAME>&lt;string-stream&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Init-keywords</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><dlit>contents:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>direction:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>start:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><dlit>end:</dlit></TERM>
-		<LISTITEM>
-		  <PARA></PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	</REFENTRY>
       </SECT2>
       
       <SECT2>
@@ -1569,7 +1511,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	<PARA>The following functions are used to create streams.</PARA>
 
 	<SECT3>
-	  <TITLE>File streams </TITLE>
+	  <TITLE>File streams</TITLE>
 
 	  <PARA>File streams are intended only for accessing the
 	  contents of files. They are not intended to provide a
