@@ -59,6 +59,7 @@ function short_header ($title) {
 <LI><A HREF="about-dylan.phtml">What is Dylan?</A>
 <LI><A HREF="about-gwydion.phtml">Who was Gwydion?</A>
 <LI><A HREF="goals.phtml">Our Goals</A>
+<LI><A HREF="contests.phtml">How does Dylan Stack Up?</A>
 <LI><A HREF="ports.phtml">Supported Platforms</A>
 <LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
 <LI><A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">Gwydion at CMU</A>
@@ -73,6 +74,7 @@ function short_header ($title) {
 <LI><A HREF="lists.phtml">Mailing Lists</A>
 <LI><A HREF="http://monday.sourceforge.net/wiki/">Wiki</A>
 <LI><A HREF="learning.phtml">Learning Dylan</A>
+<LI><A HREF="users.phtml">Projects Using Dylan</A>
 <LI><A HREF="screenshots.phtml">Screenshots</A>
 <LI><A HREF="limitations.phtml">Current Limitations</A>
 </UL>
