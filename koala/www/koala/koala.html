@@ -56,8 +56,8 @@ Pages.
     <td>Koala and Dylan Server Pages sources.</td>
   </tr>
   <tr>
-    <td><code>koala/sources/example</code></td>
-    <td>A demo application using DSP.</td>
+    <td><code>koala/sources/examples</code></td>
+    <td>Demo applications.</td>
   </tr>
   <tr>
     <td><code>koala/sources/xml-rpc-client&nbsp;&nbsp;</code></td>
@@ -103,28 +103,81 @@ comments explaining configuration settings.
 
 
 <a name="building"></a>
-<h3>Building Koala</h3>
+<h3>Building on Windows</h3>
 
 If you have a source distribution then you can build Koala using <a
 href="http://www.functionalobjects.com">Functional Developer</a> (free
 evaluation versions available).  Just open
-sources/example/koala-example.hdp in FunDev and choose Project / Build
+sources/koala-app/koala-app.hdp in FunDev and choose Project / Build
 from the menu.  You will probably want to edit the koala-config.xml file
 to turn on debugging.  (See comments in the file for how to do that.)
 
-<p>If you want to make a new distribution of Koala, build the koala-example
-project, then use the Build Release command in Functional Developer,
-then cd to koala/build and type "ant dist".  This should create a
-directory called koala/dist containing the distribution, which you can
-then zip up.  See koala/build/build.xml or type "ant help" for details
-of other Ant targets.  I use Ant 1.4.1.  
+<h3>Building on Linux</h3>
 
+(Thanks to Hannes Mehnert for figuring out how to do this.)
 
-<h3>Feedback</h3>
+<UL>
+<li>get fundev cvs module</li>
+<li>apply following patch (in Sources/lib/run-time/pentium-linux/) to mask SIGPIPE:
+  <pre>
+diff -u -r1.1.1.1 x86-linux-exceptions.c
+--- x86-linux-exceptions.c      12 Mar 2004 00:09:07 -0000      1.1.1.1
++++ x86-linux-exceptions.c      30 Mar 2004 00:56:20 -0000
+@@ -54,6 +54,8 @@
+   struct sigaction newFPEHandler;
+   struct sigaction newSEGVHandler;
+ 
++  sigset_t set, oldset;
++
+   newFPEHandler.sa_handler = oldFPEHandler->sa_handler;
+   sigemptyset(&newFPEHandler.sa_mask);
+   newFPEHandler.sa_flags = 0;
+@@ -63,6 +65,10 @@
+   sigemptyset(&newSEGVHandler.sa_mask);
+   newSEGVHandler.sa_flags = 0;
+   sigaction(SIGSEGV, &newSEGVHandler, oldSEGVHandler);
++
++  sigemptyset(&set);
++  sigaddset(&set, SIGPIPE);
++  sigprocmask(SIG_BLOCK, &set, &oldset);
+ }
+ 
+ static void RemoveDylanExceptionHandlers (struct sigaction * oldFPEHandler,
+  </pre>
+</li>
+<li>bootstrap fundev</li>
+<li>get libraries cvs module</li>
+<li>make a personal registry
+  <p>There's a simple script to create the registries for you, in
+     KOALA-DIR/make-registries.sh.  For example, if your koala checkout
+     is in /home/me/libraries/koala and you want your registry to be in
+     /home/me/dylan:
+  <pre>
+cd /home/me/dylan
+/home/me/libraries/koala/make-registries.sh ../libraries/koala
+  </pre>
+</li>
+<li>start Bootstrap.final/bin/minimal-console-compiler</li>
+<li>set personal-root "/home/me/dylan/registry"</li>
+<li>open koala-app</li>
+<li>build
+    <p>(you'll find the build products in /home/me/dylan/registry/Build/bin)
+</li>
+<li>create /home/me/dylan/registry/Build/config/ and put koala/config/mime-type-map.xml
+  and koala/config/koala-config.xml in it</li>
 
-Any and all feedback appreciated.
-<br>carlgay [at] attbi [dot] com
-<p>
+<li>If not running koala-app as root, update koala-config.xml to use a port
+    number above 1024.</li>
+
+<li>If you're on linux-2.6 you need to set THREAD_LIBRARY_USES_SEGMENT_REGISTER to TRUE
+ (export THREAD_LIBRARY_USES_SEGMENT_REGISTER=TRUE in bash,
+  setenv THREAD_LIBRARY_USES_SEGMENT_REGISTER TRUE in tcsh)
+and run 'strace ./dsp-basics'
+
+<li>now run koala-app</li>
+
+</UL>
+
 
 <!-- ============================== User's Guide =============================== -->
 <hr>
