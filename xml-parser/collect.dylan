@@ -22,12 +22,22 @@ and do the transformation on the match list to map "*" => <wildcard>
 // the other state uses in xml-test/ wind up to be).  The class slot
 // elements grows incrementally as the XML tree is traversed.  The
 // slot pattern tracks the match during the tree descent.
-define class <collect-state> (<xform-state>)
+define class <collect-state> (<object>)
   constant slot pattern :: <sequence>, required-init-keyword: pattern:;
-  class slot elements :: <list> = #();
+  virtual slot elements;
   slot candidate :: false-or(<element>) = #f;
   slot depth :: <integer> = 0;
 end class <collect-state>;
+
+define variable *collected-elements* :: <list> = #();
+
+define method elements(c :: <collect-state>) => (lst)
+  *collected-elements*;
+end method elements;
+
+define method elements-setter(lst, c :: <collect-state>)
+  *collected-elements* := lst;
+end method elements-setter;
 
 define variable *original-state* = #f;
 

@@ -11,7 +11,7 @@ end library;
 
 define module xml-parser
   create transform, transform-document, before-transform, 
-         <xform-state>, *xml-depth*;
+         <xform-state>, <collect-state>, *xml-depth*;
 
   create parse-document;
 
