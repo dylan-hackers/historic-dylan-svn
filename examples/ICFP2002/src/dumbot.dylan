@@ -102,7 +102,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	if (pkg.weight <= robot.capacity
 	      & find-path(robot.location, pkg.location, s.board))
 	  left := left - pkg.weight;
-	  take-these := add!(take-these, x);
+	  take-these := add!(take-these, pkg);
 	end if;
       end for;
       if (~take-these.empty?)
