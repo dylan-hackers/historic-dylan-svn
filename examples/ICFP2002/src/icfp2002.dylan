@@ -7,6 +7,11 @@ define function debug(#rest args)
   force-output(*standard-error*);
 end function debug;
 
+define function read-configuration(stream :: <stream>)
+ => (id :: <integer>, capacity :: <integer>, money :: <integer>);
+  values(map(string-to-integer, split(" ", read-line(stream))))
+end function read-configuration;
+
 /*
 define function play-the-game(input :: <stream>, output :: <stream>) => ();
   write-line(output, "Player");

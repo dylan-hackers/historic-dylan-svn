@@ -3,7 +3,7 @@ module: board
 define class <state> (<object>)
   slot board :: <board>, required-init-keyword: board:;
   slot robots :: <collection> = #(), init-keyword: robots:;
-  slot packages :: <collection> = #(), init-keyword: robots:;
+  slot packages :: <collection> = #(), init-keyword: packages:;
 end class <state>;
 
 // Terrain types
@@ -36,8 +36,6 @@ define constant <coordinate> = limited(<integer>, min: 0);
 
 define concrete class <board> (<array>)
   slot lines :: limited(<vector>, of: <line>);
-  slot bots;
-  slot packages;
 //  keyword rows;
 //  keyword cols;
 end;
@@ -53,8 +51,8 @@ end;
 define method initialize(b :: <board>, #key x, y, #all-keys)
   b.lines :=
   map-as(limited(<vector>, of: <line>),
-         method(ignore) make(<line>, size: cols, fill: '.') end,
-         range(below: rows));
+         method(ignore) make(<line>, size: x, fill: '.') end,
+         range(below: y));
 end;
 
 
