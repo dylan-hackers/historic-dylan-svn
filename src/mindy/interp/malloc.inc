@@ -1,4 +1,0 @@
-free()
-malloc()
-strcmp()
-strlen()
