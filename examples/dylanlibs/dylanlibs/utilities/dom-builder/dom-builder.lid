@@ -4,6 +4,7 @@ files:	library
 	dom-builder
 	simple-dom
 	html-generator
+	xml-generator
 base-address:	0x63FE0000
 linker-options:	$(guilflags)
 major-version:	1

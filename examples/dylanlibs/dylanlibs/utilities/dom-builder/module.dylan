@@ -55,3 +55,17 @@ define module html-generator
     print-html-to-string;
 end module html-generator;
 
+// Contains utilities for generating XML from a DOM.
+define module xml-generator
+  use common-dylan;
+  use simple-dom;
+  use streams;
+  use sequence-utilities;
+
+  export
+    print-xml,
+    print-xml-to-string;
+end module xml-generator;
+
+
+
