@@ -123,8 +123,35 @@ define function compile-states (instrs :: <table>)
   
 end;
 
-define function put-instruction(start-instr, brain, pos-table)
- // ### TODO
+define generic put-instruction(instr :: <instruction>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+
+define method put-instruction(instr :: <instruction>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  pos-table[instr] := brain.size;
+  add!(brain, instr);
+end;
+
+define method put-instruction(instr :: <drop>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  
+  let next-state = instr.state;
+  select (next-state by instance?)
+//    <function> =>
+//      instr.state := next-state();
+//      put-instruction(instr, brain, pos-table);
+    <instruction> =>
+      let pos = element(pos-table, next-state, default: #f);
+      if (pos)
+        instr.state := pos;
+      else
+        put-instruction(next-state, brain, pos-table);
+        put-instruction(instr, brain, pos-table);
+      end;
+    <integer> =>
+      #t // we are done
+  end select;
 end;
 
 
