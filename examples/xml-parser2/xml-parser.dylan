@@ -286,7 +286,7 @@ end method parse-pi-target;
 // Now here we require multi-byte lookahead. Great. And we need to
 // rearrange things a little because we have no equivalent to the
 // - operator. Basically, we're construcing our own non-greedy
-// loop here.                        --andreas
+// loop operator here.                        --andreas
 //                      
 define method parse-cd-sect(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
@@ -465,19 +465,19 @@ end method parse-ext-subset-decl;
 //    [32]    SDDecl    ::=    S 'standalone' Eq (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no') '"')) [VC: Standalone Document Declaration]
 //    
 define method parse-sd-decl(string, #key start = 0, end: stop)
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c, space, eq);
-      [parse-s(space),
-       "standalone",
-       parse-eq(eq),
-       {['\'',
-	 {"yes", "no"},
-	 '\''],
-	['"',
-	 {"yes", "no"},
-	 '"']}];
-      values(index, #t);
-    end with-meta-syntax;
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, space, eq);
+    [parse-s(space),
+     "standalone",
+     parse-eq(eq),
+     {['\'',
+       {"yes", "no"},
+       '\''],
+      ['"',
+       {"yes", "no"},
+       '"']}];
+    values(index, #t);
+  end with-meta-syntax;
 end method parse-sd-decl;
 
 
@@ -490,12 +490,12 @@ end method parse-sd-decl;
 //                                                  [VC: Element Valid]
 //    
 define method parse-element(string, #key start = 0, end: stop)
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c, empty-tag, stag, content, etag);
-      {parse-empty-elem-tag(empty-tag),
-       [parse-stag(stag), parse-content(content), parse-etag(etag)]};
-      values(index, #t);
-    end with-meta-syntax;
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, empty-tag, stag, content, etag);
+    {parse-empty-elem-tag(empty-tag),
+     [parse-stag(stag), parse-content(content), parse-etag(etag)]};
+    values(index, #t);
+  end with-meta-syntax;
 end method parse-element;
 
 
@@ -504,14 +504,15 @@ end method parse-element;
 //    [40]    STag         ::=    '<' Name (S Attribute)* S? '>' [WFC: Unique Att Spec]
 //
 define method parse-stag(string, #key start = 0, end: stop)
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c, name, attribute, s);
-      ["<",
-       loop([parse-s(s), parse-attribute(attribute)]),
-       {parse-s(s), []},
-       ">"];
-      values(index, #t);
-    end with-meta-syntax;
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name, attribute, s);
+    ["<",
+     parse-name(name),
+     loop([parse-s(s), parse-attribute(attribute)]),
+     {parse-s(s), []},
+     ">"];
+    values(index, #t);
+  end with-meta-syntax;
 end method parse-stag;
 
 
@@ -520,13 +521,13 @@ end method parse-stag;
 //                                                               [WFC: No < in Attribute Values]
 //    
 define method parse-attribute(string, #key start = 0, end: stop)
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c, name, eq, attribute-value);
-      [parse-name(name),
-       parse-eq(eq),
-       parse-attribute-value(attribute-value)];
-      values(index, #t);
-    end with-meta-syntax;
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name, eq, attribute-value);
+    [parse-name(name),
+     parse-eq(eq),
+     parse-attribute-value(attribute-value)];
+    values(index, #t);
+  end with-meta-syntax;
 end method parse-attribute;
 
 
@@ -535,11 +536,11 @@ end method parse-attribute;
 //    [42]    ETag    ::=    '</' Name S? '>'
 //    
 define method parse-etag(string, #key start = 0, end: stop)
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c, name, eq, attribute-value);
-      ["</", parse-name(name), {parse-s(s), []}, ">"];
-      values(index, #t);
-    end with-meta-syntax;
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name, eq, attribute-value);
+    ["</", parse-name(name), {parse-s(s), []}, ">"];
+    values(index, #t);
+  end with-meta-syntax;
 end method parse-etag;
 
 
@@ -547,15 +548,66 @@ end method parse-etag;
 // 
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)* /* */
 //    
+define method parse-content(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, data, elemnt, reference, cd-sect, pi, comment);
+      [{parse-char-data(data), []},
+       loop([{parse-element(elemnt), parse-reference(reference), 
+	      parse-cd-sect(cd-sect), parse-pi(pi), parse-comment(comment)},
+	     {parse-char-data(data), []}])];
+      values(index, #t);
+  end with-meta-syntax;
+end method parse-content;
+
+
 // Tags for Empty Elements
 // 
 //    [44]    EmptyElemTag    ::=    '<' Name (S Attribute)* S? '/>' [WFC: Unique Att Spec]
-//    
+//
+// This is not optimal because we parse the whole tag data twice if it
+// is not an empty-elem-tag. Need to unify this with [39].
+define method parse-empty-elem-tag(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name, attribute, s);
+    ["<",
+     parse-name(name),
+     loop([parse-s(s), parse-attribute(attribute)]),
+     {parse-s(s), []},
+     "/>"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-empty-elem-tag;
+
+
 // Element Type Declaration
 // 
 //    [45]    elementdecl    ::=    '<!ELEMENT' S Name S contentspec S? '>' [VC: Unique Element Type Declaration]
+//
+define method parse-elementdecl(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, name, spec, s);
+    ["<!ELEMENT",
+     parse-s(s), 
+     parse-name(name),
+     parse-contentspec(spec),
+     {parse-s(s), []},
+     "/>"];
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-elementdecl;
+
+
 //    [46]    contentspec    ::=    'EMPTY' | 'ANY' | Mixed | children
 //    
+define method parse-contentspec(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, mixed, children)
+    {"EMPTY", "ANY", parse-mixed(mixed), parse-children(children)};
+    values(index, #t);
+  end with-meta-syntax;
+end method parse-empty-elem-tag;
+
+
 // Element-content Models
 // 
 //    [47]    children    ::=    (choice | seq) ('?' | '*' | '+')?
