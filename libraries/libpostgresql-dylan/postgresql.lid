@@ -6,3 +6,4 @@ files:
     library
     postgresql-exports
     postgresql-intr
+//postgresql.dylan
