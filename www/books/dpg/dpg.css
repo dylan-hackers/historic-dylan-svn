@@ -7,14 +7,19 @@
 
 
 body {
-
 	margin-left: 20px;
 	margin-right: 20px;
 	margin-top: 20px;
 	margin-bottom: 20px;
 
+	font-family: serif;
+
 	background-color: #dddddd;
 	color: black;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: sans-serif;
 }
 
 img {
@@ -111,12 +116,14 @@ td {
 
 td pre {
 	font-family: monospace;
+	font-weight: bold;
 	padding: 0;
 	margin: 0.5em;
 }
 
 
 td pre em {
+	font-family: monospace;
 	font-weight: normal;
 	font-style: italic;
 }
