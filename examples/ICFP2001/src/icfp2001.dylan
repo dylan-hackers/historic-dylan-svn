@@ -267,11 +267,9 @@ define function main(name, arguments)
   end;
 
   if(is-space?(best-transformation[best-transformation.size - 1]))
-    best-transformation :=
-      copy-sequence(best-transformation, end: best-transformation.size - 1);
+    best-transformation[best-transformation.size - 1] := '\n';
   end if;
   write(*standard-output*, best-transformation);
-  write(*standard-output*, "\n");
   force-output(*standard-output*);
 
   exit-application(0);
