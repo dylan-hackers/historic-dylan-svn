@@ -347,3 +347,132 @@ define function receive-integer (stream :: <stream>) => int :: <integer>;
   end block;
 end function receive-integer;
 
+// Functions for receiving information from the server
+
+/* Commented out until I get the merge working
+
+// Read package information from the server
+define function receive-package-information(s :: <stream>) 
+  => (id :: <integer>, x :: <integer>, y :: <integer>, weight :: <integer>)
+    let package-id = receive-integer(s);
+    receive-space(s);
+    let package-x = receive-integer(s);
+    receive-space(s);
+    let package-y = receive-integer(s);
+    receive-space(s);
+    let package-weight = receive-integer(s);
+end function receive-package-information;
+
+// Return #t if more package information is available on the line
+define function more-packages?(s :: <stream>)
+  => (r :: <boolean>)
+  // Does this need to check for spaces before the new line?
+  s.peek ~= '\n';
+end function more-packages?;
+
+// Receive server package information
+define function receive-server-packages(s :: <stream>, state :: <state>) => (state :: <state>)
+  while(more-packages?(s))
+    receive-spaces(s);
+    let (id, x, y, weight) = receive-package-information(s);
+    state := add-package(state, make(<package>,
+                                     id: id,
+                                     location: point(x: 0, y: 0),
+                                     dest: point(x: x, y: y),
+                                     weight: weight));
+    debug("receive-server-packages: %d %d %d %d\n", id, x, y, weight);
+  end while;
+  receive-newline(s);
+  debug("receive-server-packages: end\n");
+  state;
+end function receive-server-packages;
+
+// Instantiate a <command> based on the given character and contents
+// of the stream.
+define generic do-receive-server-command(c :: <character>, s :: <stream>)
+  => (r :: <command>);
+
+define method do-receive-server-command(c == 'N', s :: <stream>)
+  => (r :: <command>)
+  debug("move N command received\n");
+  make(<move>, direction: $north, bid: 1);
+end method do-receive-server-command;
+
+define method do-receive-server-command(c == 'S', s :: <stream>)
+  => (r :: <command>)
+  debug("move S command received\n");
+  make(<move>, direction: $south, bid: 1);
+end method do-receive-server-command;
+
+define method do-receive-server-command(c == 'E', s :: <stream>)
+  => (r :: <command>)
+  debug("move E command received\n");
+  make(<move>, direction: $east, bid: 1);
+end method do-receive-server-command;
+
+define method do-receive-server-command(c == 'W', s :: <stream>)
+  => (r :: <command>)
+  debug("move W command received\n");
+  make(<move>, direction: $west, bid: 1);
+end method do-receive-server-command;
+
+define method do-receive-server-command(c == 'P', s :: <stream>)
+  => (r :: <command>)
+  debug("pick command received\n");
+  receive-spaces(s);  
+  make(<pick>, direction: receive-integer(s), bid: 1);
+end method do-receive-server-command;
+
+define method do-receive-server-command(c == 'D', s :: <stream>)
+  => (r :: <command>)
+  debug("drop command received\n");
+  receive-spaces(s);  
+  make(<drop>, direction: receive-integer(s), bid: 1);
+end method do-receive-server-command;
+
+define method do-receive-server-command(c == 'X', s :: <stream>)
+  => (r :: <command>)
+  debug("transform command received\n");
+  receive-spaces(s);  
+  let x = receive-integer(s);
+  receive-spaces(s);
+  receive-string(s, "Y");
+  receive-spaces(s);
+  let y = receive-integer(s);
+  make(<transport>, location: point(x: x, y: y), bid: 1);
+end method do-receive-server-command;
+
+define function receive-server-command(stream :: <stream>)
+  => (r :: <command>)
+  do-receive-server-command(stream.read-element, stream);  
+end function receive-server-command;
+
+define function more-commands?(s :: <stream>) => (r :: <boolean>)
+  receive-spaces(s);
+  let ch :: <character> = s.peek;
+  ch ~= '#' & ch ~= '\n';
+end function more-commands?;
+
+define function more-events?(s :: <stream>) => (r :: <boolean>)
+  s.peek ~= '\n';
+end function more-events?;
+
+define function receive-server-command-reply(s :: <stream>, state :: <state>) => (state :: <state>)
+  block()
+    while(more-events?(s))
+      receive-sharp(s);
+      let id = receive-integer(s);    
+      while(more-commands?(s))
+        let command = receive-server-command(s);
+        debug("receive-server-command-reply: %d %=\n", id, command);
+      end while;
+    end while;
+    receive-newline(s);
+    debug("receive-server-command-reply: end\n");
+    state;
+  exception(e :: <message-error>)
+    add-error(e, "receive-server-command-reply failed");
+  end;
+end function receive-server-command-reply;
+
+*/
