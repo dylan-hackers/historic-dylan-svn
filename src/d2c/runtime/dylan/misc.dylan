@@ -86,7 +86,7 @@ define inline method values-sequence (sequence :: <sequence>)
   values-sequence(as(<simple-object-vector>, sequence));
 end;
 
-define sealed inline method values-sequence
+define inline method values-sequence
     (vector :: <simple-object-vector>)
   %%primitive(values-sequence, vector);
 end;
