@@ -1,11 +1,11 @@
 bin:
-	d2c ants.lid
+	d2c -M ants.lid
 
 lib:
-	d2c ants-library.lid
+	d2c -M ants-library.lid
 
 vis:	lib
-	cd Visualizer; make; cd ..
+	$(MAKE) -C Visualizer
 
 run:
 	rm -rf dump.tiny
@@ -17,4 +17,7 @@ run-vis:
 clean:
 	-rm -f *.o *.lo *.s *.a *.c *.mak *~ ants
 	-rm -rf .libs
-	cd Visualizer; make clean; cd ..
+	$(MAKE) -C Visualizer clean
+
+-include ants.deps
+-include ants-library.deps
