@@ -7,7 +7,17 @@ define interface
   #include "GL/glu.h",
     equate: {"GLenum"    => <GLenum>},
 	     
-    exclude: {"GLenum"},
+    exclude:
+    {"GLenum",
+     "gluCheckExtension",
+     "gluTessBeginContour",
+     "gluTessEndContour",
+     "gluTessBeginPolygon",
+     "gluTessEndPolygon",
+     "gluTessNormal",
+     "gluTessProperty",
+     "gluGetTessProperty"
+       },
   
 // Generally useful mappings:  
     map: {"char*" => <byte-string>},
