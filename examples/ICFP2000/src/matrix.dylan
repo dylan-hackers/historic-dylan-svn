@@ -84,18 +84,18 @@ end method;
 
 define method \* (v1 :: <vector3D>, v2 :: <vector3D>)
  => (dot-product :: <fp>);
-  v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
+  (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z) / (v1.w * v2.w);
 end method;
 
 define method \* (v :: <vector3D>, n :: <fp>)
  => (scalar-product :: <vector3D>);
-  vector3D(v.x * n, v.y * n, v.z * n, v.w * n);
+  vector3D(v.x * n, v.y * n, v.z * n, v.w);
 end method;
 
 
 define method \* (n :: <fp>, v :: <vector3D>)
  => (scalar-product :: <vector3D>);
-  vector3D(v.x * n, v.y * n, v.z * n, v.w * n);
+  vector3D(v.x * n, v.y * n, v.z * n, v.w);
 end method;
 
 define method \* (a :: <transform>, b :: <transform>)
@@ -123,7 +123,7 @@ end;
 
 define method negative(v :: <vector3D>)
  => (negation :: <vector3D>);
-  vector3D(-v.x, -v.y, -v.z, -v.w);
+  vector3D(v.x, v.y, v.z, -v.w);
 end method;
 
 define method \+ (v1 :: <vector3D>, v2 :: <vector3D>)
@@ -150,12 +150,11 @@ end method homogenize;
 define method magnitude(v :: <vector3D>)
  => (length :: <fp>);
   let (a, b, c, d) = values(v.x, v.y, v.z, v.w);
-  sqrt(a * a + b * b + c * c + d * d);
+  sqrt(a * a + b * b + c * c) / d;
 end method magnitude;
 
 define method normalize(v :: <vector3D>)
   => (result :: <vector3D>);
-  let r = 1.0 / v.magnitude;
-  vector3D(v.x * r, v.y * r, v.z * r, v.w * r);
+  let (a, b, c, d) = values(v.x, v.y, v.z, v.w);
+  vector3D(a, b, c, sqrt(a * a + b * b + c * c));
 end method normalize;
-
