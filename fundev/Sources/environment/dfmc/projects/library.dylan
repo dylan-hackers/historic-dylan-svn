@@ -67,8 +67,7 @@ define module dfmc-environment-projects
   use dfmc-progress-reports,
     import: { internal-reporting-setter };
   use build-system,
-    import: { $personal-bin, $personal-bin-as-string,
-	      system-release-path };
+    import: { $personal-bin, system-release-path };
 
   export <native-project-object>,
          <dfmc-project-object>;

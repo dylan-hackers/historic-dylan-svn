@@ -384,6 +384,36 @@ end;
 
 
 
+/// Merged library DLL information
+
+define method merged-project-name
+    (library :: <symbol>) => (merged-library :: <symbol>)
+  let info = find-library-info(library);
+  let merge-parent = info & info.info-merge-parent;
+  if (merge-parent)
+    merge-parent.info-name
+  else
+    library
+  end
+end method merged-project-name;
+
+define method merged-project-libraries
+    (library :: <symbol>)
+ => (parent :: <symbol>, libraries :: <sequence>)
+  let library-info = find-library-info(library);
+  let parent-info =
+    if (library-info) library-info.info-merge-parent | library-info end;
+  let parent-binary-info = parent-info & parent-info.info-binary;
+  let parent = if (parent-info) parent-info.info-name else library end;
+  values(parent,
+	 if (parent-binary-info)
+           map(info-name, parent-binary-info.info-merged-libraries);
+	 else
+	   #[]
+	 end)
+end method merged-project-libraries;
+
+
 /// Library category handling
 
 define class <library-category-info> (<release-info>)

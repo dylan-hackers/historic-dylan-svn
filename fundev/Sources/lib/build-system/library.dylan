@@ -44,9 +44,6 @@ define module build-system
     default-build-script,
     default-build-script-setter,
 
-    merged-project-name,
-    merged-project-libraries,
-    
     //$personal-lib,
     $personal-bin,
     //$system-lib,
