@@ -59,12 +59,12 @@ function standard_footer () {
 <UL>
 <LI><A HREF="./">Overview</A>
 <LI><A HREF="about-dylan.phtml">What is Dylan?</A>
-<LI><A HREF="news.phtml">What's New?</A>
 <LI><A HREF="goals.phtml">Our Goals</A>
 <LI><A HREF="ports.phtml">Supported Platforms</A>
 <LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
 <LI><A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">Gwydion at CMU</A>
 <LI><A HREF="http://www.fun-o.com">Functional Developer</a>, the commercial Dylan implementation
+<LI><A HREF="news.phtml">Older News</A>
 </UL>
 
 <P><STRONG>User Resources</STRONG></P>
@@ -95,7 +95,7 @@ function standard_footer () {
 
 <DIV CLASS=footer>
 
-<P><SMALL>Copyright &copy; 1998-2000 Gwydion Dylan Maintainers. All rights
+<P><SMALL>Copyright &copy; 1998-2001 Gwydion Dylan Maintainers. All rights
 reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
 HREF="http://www.apache.org/">Apache</A> on a machine running <A
 HREF="http://www.jurix.org/">Jurix Linux</A>. Graphics by the <A
