@@ -7,23 +7,11 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// The port on which to listen for HTTP requests.
-define variable *server-port* :: <integer> = 80;
-
-// Whether to show directory contents when a user requests a directory URL.
-define variable *allow-directory-listings* = #t;
-
 // Whether the server should run in debug mode or not.  If this is true then errors
 // encountered while servicing HTTP requests will not be handled by the server itself.
 // Normally the server will handle them and return an "internal server error" response.
 // Setting this to true is the recommended way to debug your Dylan Server Pages.
 define variable *debugging-server* :: <boolean> = #f;
-
-// Whether or not to include a Server: header in all responses.  Most people won't
-// care either way, but some might want to hide the server type so as to prevent
-// cracking or to hide the fact that they're not using one of the Chosen Few accepted
-// technologies.  Wimps.  ;-)
-define variable *generate-server-header* :: <boolean> = #t;
 
 // The top of the directory tree under which the server's
 // configuration, error, and log files are kept.  Other pathnames
@@ -32,22 +20,32 @@ define variable *generate-server-header* :: <boolean> = #t;
 // the koala executable.
 define variable *server-root* :: false-or(<directory-locator>) = #f;
 
-// The root of the web document hierarchy.  By default, this will be
-// *server-root*/www.
-define variable *document-root* :: false-or(<directory-locator>) = #f;
+define function ensure-server-root ()
+  when (~*server-root*)
+    // This works, in both Windows and unix, but logging is less informative...
+    // *server-root* := as(<directory-locator>, "..");
+    // ...so use application-filename instead.
+    let exe-dir = locator-directory(as(<file-locator>, application-filename()));
+    *server-root* := parent-directory(exe-dir);
+  end;
+end;
 
-// The set of file names that are searched for when a directory URL is requested.
-// They are searched in order, and the first is chosen.
-define variable *default-document-names* :: <sequence>
-  = #["index.html", "index.htm"];
+define function init-server-root (#key location)
+  ensure-server-root();
+  when (location)
+    *server-root* := merge-locators(as(<directory-locator>, location),
+                                    *server-root*);
+  end;
+end;
 
-// The value sent in the "Content-Type" header for static file responses if no other
-// value is set.  See *mime-type-map*.
-define variable *default-static-content-type* :: <string> = "application/octet-stream";
 
-// The value sent in the "Content-Type" header for dynamic responses if no other value is
-// set.
-define variable *default-dynamic-content-type* :: <string> = "text/html";
+// TODO: The follow 3 should probably be per vhost.
+
+define variable *mime-type-map* :: <table> = make(<table>);
+
+define variable *logfile* :: false-or(<string>) = #f;
+
+define variable *logfile-type* :: one-of(#"common", #"extended") = #"common";
 
 // This is the "master switch" for auto-registration of URLs.  If #f then URLs will
 // never be automatically registered based on their file types.  It defaults to #f
@@ -64,10 +62,3 @@ define variable *auto-register-pages?* :: <boolean> = #f;
 // page in a DSP application.
 define variable *auto-register-map* :: <string-table>
   = make(<string-table>);
-
-define variable *mime-type-map* :: <table> = make(<table>);
-
-define variable *logfile* :: false-or(<string>) = #f;
-
-define variable *logfile-type* :: one-of(#"common", #"extended") = #"common";
-

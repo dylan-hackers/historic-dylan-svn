@@ -1,6 +1,6 @@
 Module:    dylan-user
 Author:    Gail Zacharias, Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
            Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
@@ -89,6 +89,7 @@ define module utilities
     whitespace-position,
     skip-whitespace,
     trim-whitespace,
+    trim,
     looking-at?,
     key-match,
     string-match,

@@ -90,6 +90,18 @@ define function trim-whitespace (buffer :: <byte-string>,
          end)
 end trim-whitespace;
 
+define function trim
+    (string :: <byte-string>) => (trimmed-string :: <byte-string>)
+  let len :: <integer> = size(string);
+  let (bpos, epos) = trim-whitespace(string, 0, len);
+  if (bpos == 0 & epos == len)
+    string
+  else
+    copy-sequence(string, start: bpos, end: epos)
+  end;
+end;
+
+
 // Ugh. should look up in a table...
 define inline function non-token-char? (ch :: <byte-character>)
   let c = as(<integer>, ch);

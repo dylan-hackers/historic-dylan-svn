@@ -1,16 +1,75 @@
 Koala To-Do List
 ----------------
 
-Version 0.4
------------
+* Thread pool.  Can be expensive to allocate/deallocate a threads.
+
+* Fix security issues...
+
+May 17 14:44:35 <andreas>	Carl: Are you still here?
+May 17 14:44:41 <cgay>	yes, hi
+May 17 14:45:27 <andreas>	Carl: I think you need a generic mechanism to make sure an attacker cannot trick his way through protection mechanisms by using different names for the same file.
+May 17 14:45:38 <andreas>	Are you aware of the poisoned NULL byte?
+May 17 14:45:53 <cgay>	no, but it sounds bad :)
+May 17 14:47:29 <andreas>	Imagine a web server written in a language that keeps explicit track of string lengths. Like Dylan. Running on top of a OS with a system interface inspired by C, such as UNIX oder Windows, where strings are NULL-terminated.
+May 17 14:47:49 <andreas>	Now imagine what happens when you handle a request like foo.exe%00.txt
+May 17 14:49:05 <cgay>	you pass that string to the OS open() and all hell breaks loose?
+May 17 14:49:52 <andreas>	What usually happens is that you map from filename extensions to MIME types, and from there to request handlers.
+May 17 14:50:14 <andreas>	Say that .exe maps to application/cgi-bin, and .txt maps to text/plain.
+May 17 14:50:34 <andreas>	YOu have that CGI there, which of course contains your database passwords.
+May 17 14:51:28 <andreas>	The %00 gets converted into a NULL byte, which is a legal part of the string. SO your code thinks the user requests a txt file, and calls the appropriate handler.
+May 17 14:51:46 <andreas>	Which calls open() on the string it gets, and delivers the contents to the user.
+May 17 14:52:04 <andreas>	Of course, at this moment, the .txt is lost, and your server happily delivers the application binary.
+May 17 14:52:04 <^self>	i see.
+May 17 14:52:18 <cgay>	ah
+May 17 14:53:17 <andreas>	WIndows has a couple more gotchas like that. There once was the problem that you could append $00 to a filename to do some magic, and that $00 was stripped by the OS before opening the file.
+May 17 14:53:42 <andreas>	So you need a generic pathname canonicalization mechanism to protect against this problem in a systematic manner.
+May 17 14:54:06 <andreas>	This needs to be carefully worked out for every platform, including all of these gotchas.
+May 17 14:54:49 <cgay>	i c.  do you have a good source for this info?  otherwise i'll just search for 'poisoned null byte'
+May 17 14:55:33 <cgay>	i wonder if CL-HTTP has already done something like this...
+May 17 14:55:59 <andreas>	I have explained all there is to know about that. The hard part is coming up with a design that allows for central maintenance of platform rules, so the user code doesn't have to worry anymore.
+May 17 14:56:15 <andreas>	You need to fight the whole class of bugs, not just this single instance.
+May 17 14:58:22 <cgay>	yup
+May 17 14:59:49 <andreas>	I've seen that you did well on preventing directory traversal, btw. :)
+May 17 15:00:46 <andreas>	There are web servers you can fool with %2e%2f%2f
+May 17 15:00:58 <andreas>	Err... %2e%2e%2f that is.
+May 17 15:01:20 <cgay>	which must be ../
+May 17 15:02:01 <--	hannes has quit ("-> cccb")
+May 17 15:02:10 <cgay>	I'll make a note of your comments and try to get to that soon
+May 17 15:03:06 <andreas>	Cool. :) Meanwhile, I'll continue to tame MPS for koala on Linux. It's progressing...
+May 17 15:04:29 <cgay>	I almost have virtual hosts working, and a sort of generic directory policy mechanism
+May 17 15:04:59 <andreas>	I mention unification of legacy composite characters in UNICODE as another joyful problem in the same category.
+May 17 15:05:47 <andreas>	Just for your notes, not that we have much of UNICODE support at the moment. :)
+May 17 15:10:44 <andreas>	Regarding the directory policy: do you have a notion of a generic protection policy?
+May 17 15:10:46 <robmyers>	URL-encoding characters used to be good for getting the source to ASP pages. It was particularly bad as they'd already "ficed" the bug by refusing the ASCII that caused the same problem. :-)
+May 17 15:10:53 <robmyers>	"fixed", even.
+May 17 15:16:34 <andreas>	Oh, koala comes with yet another implementation of string-to-float! :)
+May 17 15:16:54 <cgay>	i think i stole it from chris double
+May 17 15:17:50 <cgay>	haven't done much of anything with security yet
+May 17 15:19:01 <andreas>	There's string-to-float and float-to-string in common-dylan. The Gwydion implementation is carefully written to be precise, in the sense that concatenate(string-to-float, float-to-string) and vice versa is the identity function.
+May 17 15:20:16 <cgay>	ok.  i also need to stop using the copies of anaphora, meta, xml-parser, etc that are in the koala dir
+May 17 15:20:54 <andreas>	Probably. Which reminds me taht we need some generic library distribution and installation mechanism.
+May 17 15:21:17 <andreas>	Sooner or later. :)
+May 17 15:22:16 <cgay>	do you mean something like CPAN?
+May 17 15:22:25 <andreas>	Yes.
+May 17 15:22:48 <andreas>	CPAN was a major factor in perl's success.
+May 17 15:23:09 <cgay>	i've used it a lot lately.  it's probably the best thing about perl.  ;-)
+May 17 15:23:48 <andreas>	Oh, it has powerful code obfuscation facilities for job security. :)
+May 17 15:23:48 <--	pritlove has quit (Remote closed the connection)
+May 17 15:24:51 <cgay>	at this point i'd settle for a manually maintained library repository, which could be automated later
+May 17 15:25:00 -->	pritlove (~pritlove@port-212-202-175-14.dynamic.qsc.de) has joined #dylan
+May 17 15:25:14 <andreas>	Yes.
+May 17 15:27:08 <cgay>	does CPAN do dependency tracking?
+May 17 15:27:19 <andreas>	Yes.
+May 17 15:28:08 <cgay>	so it wouldn't install a too-new version...
+May 17 15:28:48 <andreas>	Not sure if they can do that.
+May 17 15:29:43 <andreas>	Something like a too-new version shouldn't happen. If a version breaks backwards compatibility, that is a major version change, which warrants a new, non-conflicting library name, so you can have both versions coexist for old and new code.
 
 * URL cleanups
   - Make sure that decode-url is used in all the right places to convert
     from %xx to appropriate characters.
 
-
-Version 0.5
------------
+* I believe all URL strings and methods on urls should be typed as <byte-string>,
+  not <string>.
 
 * Sessions - They should be able to work without cookies enabled, either
   by URL rewriting or ...?
@@ -24,6 +83,8 @@ Version 0.5
 
 * New config file setting: <server-administrator> (per vhost)
 
+* Logging.  Ability to specify a log file (per vhost), possibly with
+  a separate file for errors and/or 'activity', as in Apache.
      
 
 Kitchen Sink
