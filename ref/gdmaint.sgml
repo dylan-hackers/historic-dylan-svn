@@ -31,14 +31,18 @@
   <bookinfo>
     <COPYRIGHT>
       <YEAR>1998</YEAR>
+	<YEAR>1999</YEAR>
+	<YEAR>2000</YEAR>
+	<YEAR>2001</YEAR>
       <HOLDER>Carnegie Mellon University</HOLDER>
       <HOLDER>Gwydion Dylan Maintainers</HOLDER>
     </COPYRIGHT>
     &cmu.terms;
     <bookbiblio>
-      <date>09 September 1998</date>
+      <date>11 July 2001</date>
       <editor>&person.housel;</editor>
       <editor>&person.emk;</editor>
+	<editor>&person.auclair;</editor>
     </bookbiblio>
   </bookinfo>
 
@@ -461,25 +465,30 @@
       </sect2>
 
       <sect2 id="gdmaint-d2c-base-od-format">
-	<title>The <dmodule>OD-Format</dmodule> Module</title>
+	 <!-- docinfo>
+	  <title>OD-Format Module</title>
+	  <date>July 11, 2001</date>
+	  <author><firstname>Nick</firstname><surname>Kramer</surname></author>
+	  <editor>&person.auclair;</editor>
+	 </docinfo --> <!-- docinfo not allowed for sect2 tag -->
+	 <title>The <dmodule>OD-Format</dmodule> Module</title>
+	  <sect3 id="gdmaint-d2c-base-od-format-intro">
+	   <title>Introduction</title>
 
-	<para>The <dmodule>OD-Format</dmodule> module implements the
-	<glossterm>Object Description Format</glossterm>, a binary format
-	for storing persistent objects. This is used by the
-	<filename>*.lib.du</filename> files emitted by &d2c;, though it
-	might be potentially useful elsewhere.</para>
+	   <para>The <dmodule>OD-Format</dmodule> module was designed by Rob MacLachlan 
+          and implements the <glossterm>Object Description Format</glossterm>, a 
+	    binary format for storing persistent objects. This is used by the
+	    <filename>*.lib.du</filename> files emitted by &d2c;, though it
+	    might be potentially useful elsewhere.</para>
 
-	<para>The file
-	<filename>gd/src/d2c/compiler/base/od-format.dylan</filename>
-	contains an extensive discussion the module's goals and data
-	format. From the top-of-file comment:</para>
+	   <para>The file <filename>gd/src/d2c/compiler/base/od-format.dylan</filename>
+	    contains an extensive discussion the module's goals and data format.</para>
 
-	<blockquote>
-	  <para>The basic requirement of the "Object Description Format"
+         <para>The basic requirement of the "Object Description Format"
           (ODF) is to allow an open-ended variety of objects to be dumped
           into a file, where:</para>
 
-	  <itemizedlist>
+	   <itemizedlist>
 	    <listitem>
 	      <para>instances may refer to each other in an arbitrary graph
 	      structure, and</para>
@@ -489,12 +498,12 @@
               defined in distinct object description units (files,
               etc.)</para>
 	    </listitem>
-	  </itemizedlist>
+	   </itemizedlist>
 
-	  <para>In order to make the design interesting, the ODF attempts
+	   <para>In order to make the design interesting, the ODF attempts
           to satisfy various incompatible requirements:</para>
 
-	  <itemizedlist>
+	   <itemizedlist>
 	    <listitem>
 	      <para>To support efficient parsing and unparsing on a variety
               of architectures, but also to potentially serve as a
@@ -505,65 +514,445 @@
               also to potentially support random-access demand-loading of
               objects when possible (e.g. on files.)</para>
 	    </listitem>
-	  </itemizedlist>
-	</blockquote>
+	   </itemizedlist>
 
-	<para>We should consider making this into a standalone library at
-	some point in the future.</para>
+	   <para>We should consider making this into a standalone library at
+	    some point in the future.</para>
+ 	  </sect3>
 
-	<dylangenericdef>
-	  <defname>dump-od</defname>
-	  <defadjectives>Open</defadjectives>
-	  <defsummary>Write an object to the dump buffer.</defsummary>
-	  <defparameters>
-	    <param>
-	      <paramname>object</paramname>
-	      <paramtype>&lt;object></paramtype>
-	      <paramsummary>The object to dump.</paramsummary>
-	    </param>
-	    <param>
-	      <paramname>buffer</paramname>
-	      <paramtype>&lt;dump-buffer></paramtype>
-	      <paramsummary>The in-memory buffer into which the object
-	      should be dumped.</paramsummary>
-	    </param>
-	  </defparameters>
-	  <defreturns>
-	  </defreturns>
-	  <defdescription>
-	    <para>This routine is overloaded to dump individual types
-	    objects. Methods for primitive Dylan types can be found in
-	    <xref linkend="gdmaint-d2c-base-dylan-dump">.</para>
-	  </defdescription>
-	</dylangenericdef>
+	  <sect3 id="gdmaint-d2c-base-od-format-dumping">
+	   <title>Dumping Objects</title>
 
-	<dylanfunctiondef>
-	  <defname>add-od-loader</defname>
-	  <defsummary>Register a routine for reading a dumped object back
-	  into memory.</defsummary>
-	  <defparameters>
+	   <dylanconstantdef>
+		<defname>&lt;data-unit-name></defname>
+		<defsummary>Things that can be the name of a data unit.</defsummary>
+		<defvalue>&lt;symbol></defvalue>
+		<defdescription>
+		 <para><dname>&lt;data-unit-name></dname> is a <dname>&lt;symbol></dname>
+		   because is must be comparible with <dname>\==</dname>.</para>
+		</defdescription>
+	   </dylanconstantdef>
 
+	   <dylanconstantdef>
+		<defname>$library-summary-unit-type</defname>
+		<defsummary>A constant for <dname>begin-dumping</dname></defsummary>
+		<defvalue>0</defvalue>
+		<defdescription>
+		 <para>This is currently the only type of OD format allowed.  To build
+		  another format (e.g. DOOD), a new exported constant must be added to 
+		  <dmodule>OD-Format</dmodule> and the file extension must be added to
+		  <dname>$unit-type-strings</dname> (an internal constant to 
+		  <dmodule>OD-Format</dmodule>).</para>
+		</defdescription>
+	   </dylanconstantdef>
+
+  	   <dylanfunctiondef>
+	    <defname>begin-dumping</defname>
+	    <defsummary>Returns a dump state used by other OD functions.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>name</paramname>
+	        <paramtype>&lt;data-unit-name></paramtype>
+		  <ParamSummary>The thing to dump.</paramSummary>
+	      </param>
+	      <param>
+	        <paramname>type</paramname>
+	        <paramtype>&lt;integer></paramtype>
+		  <paramSummary>The "unit type code"</paramSummary>
+	      </param>
+	      <keyparam>
+	        <paramname>where</paramname>
+	        <paramtype>false-or(&lt;string>)</paramtype>
+		  <paramdefault>name.&lt;type translation>.du
+		  </paramdefault>
+		  <paramSummary>Dump file name.</paramSummary>
+	      </keyparam>
+	    </defparameters>
+	    <defreturns>
+	     <param>
+		<paramname>dump-state</paramname>
+		<paramtype>&lt;dump-state></paramtype>
+	     </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>Creates a state (which acts very much like a buffer) for other 
+		 dumping functions to use to build the <dlit>du</dlit> file in memory.  
+		 <dname>End-dumping</dname> actually writes the built information to file.
+		</para>
+	    </defdescription>
+	   </dylanfunctiondef>
+	   
+  	   <dylanfunctiondef>
+	    <defname>end-dumping</defname>
+	    <defsummary>Flushes the dump state to file.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>state</paramname>
+	        <paramtype>&lt;dump-state></paramtype>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	    </defreturns>
+	    <defdescription>
+	      <para>Actually output the file.</para>
+	    </defdescription>
+	   </dylanfunctiondef>
+
+  	   <dylangenericdef>
+	    <defname>dump-od</defname>
+	    <defadjectives>Open</defadjectives>
+	    <defsummary>Write an object to the dump buffer.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>object</paramname>
+	        <paramtype>&lt;object></paramtype>
+	        <paramsummary>The object to dump.</paramsummary>
+	      </param>
+	      <param>
+	        <paramname>buffer</paramname>
+	        <paramtype>&lt;dump-buffer></paramtype>
+	        <paramsummary>The in-memory buffer into which the object
+	        should be dumped.</paramsummary>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	    </defreturns>
+	    <defdescription>
+	      <para>This routine is overloaded to dump individual types
+	       objects. Methods for primitive Dylan types can be found in
+	       <xref linkend="gdmaint-d2c-base-dylan-dump">.</para>
+	    </defdescription>
+	   </dylangenericdef>
+	
+	  <dylanclassdef>
+	   <defname>&lt;dump-state></defname>
+	   <defsummary>Holder of the in-progress object dump.</defsummary>
+	   <defsupers><defsuper>&lt;dump-buffer></defsuper></defsupers>
+	   <definitkeywords></definitkeywords>
+	   <defdescription>
+	    <para>Contains all information about the current object-dump in progress.
+		It is illegal to use a dump-state after it has been passed to
+		<dname>end-dumping</dname>.  All instances of <dname>&lt;dump-state></dname>
+		are created by calls to <dname>begin-dumping</dname>.
+	    </para>
+	   </defdescription>
+	  </dylanclassdef>
+       </sect3>
+
+	 <sect3 id="gdmaint-d2c-base-od-format-loading">
+	  <title>Loading Dumped Objects</title>
+	
+	  <dylanclassdef>
+	   <defname>&lt;dispatcher></defname>
+	   <defsummary>Binary to in-memory instance transformer.</defsummary>
+	   <defsupers><defsuper>&lt;object></defsuper></defsupers>
+	   <definitkeywords>
+	    <keyparam>
+		<paramname>initialize-from</paramname>
+		<paramdefault>*default-dispatcher*</paramdefault>
+		<paramsummary>Unless &false;, initialize instance's dispatch information
+		 from this dispatcher.</paramsummary>
+	    </keyparam>
+	   </definitkeywords>
+	   <defdescription>
+	    <para>A dispatcher is an object that tells the loader how to convert binary 
+		data into Dylan objects.
+	    </para>
+	   </defdescription>
+	  </dylanclassdef>
+
+	  <dylanvariabledef>
+	   <defname>*default-dispatcher*</defname>
+	   <defsummary>Default dispatcher used for initialization.</defsummary>
+	   <deftype>&lt;dispatcher></deftype>
+	   <defdescription>
+	    <para><dmodule>Dylan-dump</dmodule> loads this variable
+		with dispatching information for several commonly-used Dylan types
+		(see <xref linkend="gdmaint-d2c-base-dylan-dump">).
+	    </para>
+	   </defdescription>
+	  </dylanvariabledef>
+
+	  <dylanvariabledef>
+	   <defname>*data-unit-search-path*</defname>
+	   <defsummary>Paths to du files.</defsummary>
+	   <deftype>&lt;sequence></deftype>
+	   <defvalue>#[]</defvalue>
+	   <defdescription>
+	    <para>This is used by <dname>find-data-unit</dname> to locate the du file
+		to load.
+	    </para>
+	   </defdescription>
+	  </dylanvariabledef>
+
+	   <dylanconstantdef>
+		<defname>&lt;location-hint></defname>
+		<defsummary>A hint of where to find a data unit.</defsummary>
+		<defvalue>&lt;byte-string></defvalue>
+		<defdescription>
+		 <para>This is currently an absolute(?) pathname.</para>
+		</defdescription>
+	   </dylanconstantdef>
+
+	   <dylanconstantdef>
+		<defname>&lt;word></defname>
+		<defsummary>A portable, full-sized <dname>&lt;integer></dname>.</defsummary>
+		<defvalue>&lt;integer></defvalue>
+		<defdescription>
+		 <para>It seems mindy has a limited size for <dname>&lt;integer></dname>,
+		  so, for mindy, <dname>&lt;word></dname> is a 
+		  <dname>&lt;general-integer></dname> to allow for proper bit manipulations
+		  that do not clobber the value via overflow.</para>
+		</defdescription>
+	   </dylanconstantdef>
+
+	  <dylanmethoddef>
+	   <defname>find-data-unit</defname>
+	   <defsummary>Locates then loads a du file.</defsummary>
+	   <defparameters>
 	    <param>
-	      <paramname>dispatcher</paramname>
-	      <paramtype>&lt;dispatcher></paramtype>
+		<paramname>name</paramname>
+		<paramtype>&lt;data-unit-name></paramtype>
 	    </param>
 	    <param>
-	      <paramname>name</paramname>
-	      <paramtype>&lt;symbol></paramtype>
+		<paramname>type</paramname>
+		<paramtype>&lt;integer></paramtype>
+		<paramsummary>(Currently only <dname>$library-summary-unit-type</dname>
+		  allowed).</paramsummary>
 	    </param>
+	    <keyparam>
+		<paramname>location-hint</paramname>
+		<paramtype>false-or(&lt;location-hint>)</paramtype>
+		<paramsummary>File name for the dump file; used if the data unit cannot
+		 be found in the current <dname>*data-unit-search-path*</dname>.
+		</paramsummary>
+	    </keyparam>
+	    <keyparam>
+		<paramname>check-hash</paramname>
+		<paramtype>false-or(&lt;word>)</paramtype>
+		<paramsummary>Can be used to detect version mismatches between data units
+		  (used internally as <dlit>expected-hash</dlit>)</paramsummary>
+	    </keyparam>
+	    <keyparam>
+		<paramname>dispatcher</paramname>
+		<paramtype>&lt;dispatcher></paramtype>
+		<paramdefault>*default-dispatcher*</paramdefault>
+		<paramsummary>Provides the dispatcher to be used for the loading process.
+		</paramsummary>
+	    </keyparam>
+	   </defparameters>
+	   <defreturns>
 	    <param>
-	      <paramname>func</paramname>
-	      <paramtype>&lt;function></paramtype>
+		<paramname>res</paramname>
+		<paramtype>&lt;data-unit></paramtype>
+		<paramsummary>Contains the resulting transformed objects from the du file.
+		</paramsummary>
 	    </param>
-	  </defparameters>
-	  <defreturns>
-	  </defreturns>
-	  <defdescription>
-	    <para>This function is the <quote>other half</quote> of
-	    <dlit>dump-od</dlit>. It is called to register a routine for
-	    reloading dumped objects.</para>
-	  </defdescription>
-	</dylanfunctiondef>
+	   </defreturns>
+	   <defdescription>
+	    <para>Find-data-unit, when given a data unit name and type, returns the
+corresponding data unit.  This is the main entry for causing loading to
+happen.  Also used recursively.</para>
+	   </defdescription>
+	  </dylanmethoddef>
+	 </sect3>
+
+       <sect3 id="gdmaint-d2c-base-od-format-defining">
+	  <title>Defining Simple Dumpers and Loaders</title>
+	  
+	  <para>To write a dumper for a class, one needs to think of a name for the
+	   class (usually just take the &lt;>'s off the class name), register the name
+	   with <dname>register-object-id</dname>, and define a dumper.  If your data
+	   structure contains any object sharing or circular usages, also see
+	   <xref linkend="gdmaint-d2c-base-od-format-circular"> and 
+	   <xref linkend="gdmaint-d2c-base-od-format-sharing">.  For automatic generation
+	   of object dumpers and loaders, see 
+	   <xref linkend="gdmaint-d2c-base-od-format-autodump">.</para>
+
+  	   <dylanmethoddef>
+	    <defname>register-object-id</defname>
+	    <defsummary>Associates a number for a type for the OD dumping functions.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>name</paramname>
+	        <paramtype>&lt;symbol></paramtype>
+		  <paramsummary>The name of the type.</paramsummary>
+	      </param>
+	      <param>
+	        <paramname>id</paramname>
+	        <paramtype>&lt;integer></paramtype>
+		  <paramsummary>The associated integral value.</paramsummary>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	    </defreturns>
+	    <defdescription>
+		<para>Equate the <dname>name</dname> with the <dname>id</dname>.  This
+		 function is not exported; rather, all 
+		 <dname>register-object-id</dname> calls must occur in the 
+		 <dmodule>OD-Format</dmodule> module.</para>
+		<para>Of course, this requirement makes it really tough for extending
+		  <dmodule>OD-Format</dmodule> for user defined types ...</para>
+	    </defdescription>
+	   </dylanmethoddef>
+
+  	   <dylanfunctiondef>
+	    <defname>add-od-loader</defname>
+	    <defsummary>Register a routine for reading a dumped object back
+	     into memory.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>dispatcher</paramname>
+	        <paramtype>&lt;dispatcher></paramtype>
+	      </param>
+	      <param>
+	        <paramname>name</paramname>
+	        <paramtype>&lt;symbol></paramtype>
+	      </param>
+	      <param>
+	        <paramname>func</paramname>
+	        <paramtype>&lt;function></paramtype>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	    </defreturns>
+	    <defdescription>
+	      <para>This function is the <quote>other half</quote> of
+	       <dname>dump-od</dname>. It is called to register a function for
+	       reloading dumped objects, which has the signature:
+<programlisting>
+method(state :: &lt;load-state>) => res :: &lt;object-type-read-in></programlisting>.
+		</para>
+		<para>If you use <dname>add-od-loader</dname>, you will need to define a
+		  corresponding method on <dname>dump-od</dname> (see
+		  <xref linkend="gdmaint-d2c-base-od-format-dumping">).</para>
+	    </defdescription>
+	   </dylanfunctiondef>
+
+	   <dylanmethoddef>
+	    <defname>add-make-dumper</defname>
+	    <defsummary>Convenience method to add both a loader and dumper.</defsummary>
+	    <defparameters>
+	     <param>
+		<paramname>name</paramname>
+		<paramtype>&lt;symbol></paramtype>
+		<paramsummary>Type name.</paramsummary>
+	     </param>
+	     <param>
+		<paramname>dispatcher</paramname>
+		<paramtype>&lt;dispatcher></paramtype>
+		<paramsummary>Where the loader and dumper are being added.</paramsummary>
+	     </param>
+	     <param>
+		<paramname>obj-class</paramname>
+		<paramtype>&lt;class></paramtype>
+		<paramsummary>Must be the direct class of the instances we
+ are to dump (and of course, must also be instantiable via make.)</paramsummary>
+	     </param>
+		<param>
+		 <paramname>slots</paramname>
+		 <paramtype>&lt;list></paramtype>
+		 <paramsummary>The slots' descriptions of the class.</paramsummary>
+		</param>
+		<keyparam>
+		 <paramname>load-external</paramname>
+		 <paramtype>&lt;boolean></paramtype>
+		</keyparam>
+		<keyparam>
+		 <paramname>dumper-only</paramname>
+		 <paramtype>&lt;boolean></paramtype>
+		 <paramsummary>If &true;, do not create the loader.</paramsummary>
+		</keyparam>
+		<keyparam>
+		 <paramname>load-side-effect</paramname>
+		 <paramtype>false-or(&lt;function>)</paramtype>
+		</keyparam>
+		<keyparam>
+		 <paramname>dump-side-effect</paramname>
+		 <paramtype>false-or(&lt;function>)</paramtype>
+		</keyparam>
+	    </defparameters>
+	    <defreturns></defreturns>
+	    <defdescription>
+		<para>A convenient way to define both a loader and a dumper for objects
+		 of class <dname>obj-class</dname>.  <dname>Slots</dname> is a list which
+		 is in this format:</para>
+<programlisting>
+#(slot-accessor-function-1, init-keyword-1, setter-function-1,
+  slot-accessor-function-2, init-keyword-2, setter-function-2,
+  ...)
+</programlisting>
+		<para>Note that the stuff is implicitly grouped in clumps of 3.  Either
+		 of the init-keyword or the setter may be &false;, but not both.  The
+		 "make dumper" requests backpatching when it encounters an unresolved 
+		 forward reference (due to circularities).  Any slot which might have a
+		 forward reference must have a setter function (it can also have an
+		 init-keyword, which will be used if possible).</para>
+
+		<para>A "make dumper" may be used when an object can be reconstructed from
+		 some accessor values by reinstatiating the object with <dname>make</dname>
+		 and backpatching some slots.  This is pretty general, since the accessor
+		 and setter function are not required to be slot accessors and setters.
+		</para>
+	    </defdescription>
+	   </dylanmethoddef>
+       </sect3>
+
+	 <sect3 id="gdmaint-d2c-base-od-format-autodump">
+	  <title>Autodump</title>
+
+	  <para>[Description of Autodump coming soon]</para>
+	 </sect3>
+
+	 <sect3 id="gdmaint-d2c-base-od-format-representation">
+	  <title>ODF Representation of Objects</title>
+
+	  <para>In the dump files, objects contain the following parts:  a header, raw
+	   data, sub-objects, and an end-of-object marker.  The header is a single
+	   machine word which contains the class of the object.  (Actually, it contains
+	   the object-id, which is found by registry look-up.)  The header also 
+	   indicates if there is any raw data and sub-objects.  The raw data section is
+	   zero or more machine words which only have meaning to the object's loader.  If
+	   raw data is present, it is preceded by a byte-count (which is a single 
+	   machine word).  If there are sub-objects, they come next.  The last object
+	   in a sub-object list is a magical <dname>$end-object</dname>, which denotes
+	   both the end of the sub-object list and the last word of the current object.
+	  </para>
+	  <para>For more detail on the binary representation and on issues such as 
+	   endian-ness and machine word size, see 
+	   <xref linkend="gdmaint-d2c-base-od-format-binary">.</para>
+	  <para>When an object is loaded, the loading code reads in the header.  The
+	   object class id is extracted from the header.  The dispatcher then provides
+	   a load function based on the class id, which reads the remainder of the data
+	   associated with the object and returns the reconstructed object.</para>
+	 </sect3>
+
+       <sect3 id="gdmaint-d2c-base-od-format-dumpers">
+	  <title>Functions for Writing Dumpers</title>
+        <para>TBD</para>
+       </sect3>
+
+       <sect3 id="gdmaint-d2c-base-od-format-loaders">
+	  <title>Functions for Writing Loaders</title>
+        <para>TBD</para>
+       </sect3>
+
+       <sect3 id="gdmaint-d2c-base-od-format-circular">
+	  <title>Circular Usage</title>
+        <para>TBD</para>
+       </sect3>
+
+       <sect3 id="gdmaint-d2c-base-od-format-sharing">
+	  <title>Object Sharing</title>
+        <para>TBD</para>
+       </sect3>
+
+       <sect3 id="gdmaint-d2c-base-od-format-binary">
+	  <title>Binary Representation</title>
+        <para>See the first few pages of comments in 
+		<filename>od-format.dylan</filename>.</para>
+       </sect3>
       </sect2>
 
       <sect2 id="gdmaint-d2c-base-dylan-dump">
