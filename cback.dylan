@@ -58,6 +58,38 @@ end;
 define functional class <llvm-function-type>(<llvm-type>)
 end;
 
+
+define macro llvm-accessors-definer
+  { define llvm-accessors ?class-name:name (?C++-name:name) end }
+  =>
+  { }
+
+  { define llvm-accessors ?class-name:name (?C++-name:name) ?accessor; ?rest:* end }
+  =>
+  { define single llvm-accessors [?class-name, ?C++-name, ?accessor] end; define llvm-accessors ?class-name (?C++-name) ?rest end }
+
+  { define single llvm-accessors [?class-name:name, ?C++-name:name, [?:name; (); (?results:variable-list)]] end }
+  =>
+  { define method ?name(o :: ?class-name) => (?results);
+      call-out(?"name" "_llvm_" ?"C++-name", void:, ptr: o.raw-value)
+    end }
+
+/*  { define single llvm-accessors [?class-name:name, ?C++-name:name, [?:name; (?args:variable-list); (?results:variable-list)]] end }
+  =>
+  { define method (o :: ?class-name, ?args) => (?results);
+      call-out(?"name" "_llvm_" ?"C++-name", void:, ptr: o.raw-value)
+    end } */
+
+  accessor:
+  { ?:name, () => () } => { [?name; (); () ] }
+end;
+
+
+define llvm-accessors <llvm-type> (Type)
+//  delete, () => ();
+//  dump, () => ();
+end;
+
 // ##########
 // ### Values
 
@@ -80,10 +112,18 @@ end;
 
 
 // delete: give up ownership and destroy
-define generic delete(v :: <llvm-object>) => ();
+define generic delete(o :: <llvm-object>) => ();
 
 define method delete(v :: <llvm-value>) => ();
   call-out("delete_llvm_Value", void:, ptr: v.raw-value)
+end;
+
+
+// dump: output some textual representation for debugging purposes
+define generic dump(o :: <llvm-object>) => ();
+
+define method dump(v :: <llvm-value>) => ();
+  call-out("dump_llvm_Value", void:, ptr: v.raw-value)
 end;
 
 
@@ -115,7 +155,7 @@ define /*abstract*/ functional class <llvm-basic-block>(<llvm-value>)
 end;
 
 
-define method make (c == <llvm-basic-block>, #rest rest, #key)
+define method make (c == <llvm-basic-block>, #rest rest, #key /*NAME, FUNC, BEFORE*/)
  => (result :: <llvm-basic-block>);
   next-method(c, pointer: call-out("make_llvm_BasicBlock", ptr:));
 end;
@@ -166,6 +206,10 @@ define method delete(m :: <llvm-module>) => ();
   call-out("delete_llvm_Module", void:, ptr: m.raw-value)
 end;
 
+define method dump(m :: <llvm-module>) => ();
+  call-out("dump_llvm_Module", void:, ptr: m.raw-value)
+end;
+
 
 
 // ###################################################
@@ -176,7 +220,9 @@ define method emit-tlf-gunk
 
   let m = make(<llvm-module>, name: "test");
   
-  
+//  make(<llvm-basic-block>).dump;
+  m.dump;
+
   m.delete;
 end method emit-tlf-gunk;
 
