@@ -12,6 +12,13 @@ if ($shared) {
 	printf($target_platform{'link_shared_library_command'}, $lib_name,
 	       "allocate$dot_obj main$dot_obj nlx$dot_obj trampoline$dot_obj",
 	       $libdir);
+	if ($static) {
+	    local ($dot_lib)
+		= split(/\s+/, $target_platform{'library_filename_suffix'});
+	    print "\trm -f $lib_prefix$unit_prefix$dot_lib\n";
+	    print "\tln -s .libs/$lib_prefix$unit_prefix$dot_lib",
+	        " $lib_prefix$unit_prefix$dot_lib\n";
+	}
 } else {
 	printf($target_platform{'link_library_command'}, $lib_name,
 	       "allocate$dot_obj main$dot_obj nlx$dot_obj trampoline$dot_obj");
