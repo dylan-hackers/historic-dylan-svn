@@ -25,6 +25,10 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
   // Send dummy command
   send-command(output, make(<move>, direction: $west, bid: 1));
   state := receive-server-command-reply(input, state);
+  state := receive-server-packages(input, state);
+  send-command(output, make(<move>, direction: $west, bid: 1));
+  state := receive-server-command-reply(input, state);
+
 //  test-path-finding(state.board);
 
   /*
