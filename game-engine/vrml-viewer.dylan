@@ -132,7 +132,7 @@ define constant *scene-graph* = make(<indexed-face-set>,
 */
                                                  
 define variable display-func :: <function> = callback-method() => ();
-  glClear($GL-COLOR-BUFFER-BIT | $GL-DEPTH-BUFFER-BIT);
+  glClear(logior($GL-COLOR-BUFFER-BIT, $GL-DEPTH-BUFFER-BIT));
   glLoadIdentity();
   glScale(0.01, 0.01, 0.01);
   render-to-opengl(*scene-graph*);
@@ -140,18 +140,18 @@ define variable display-func :: <function> = callback-method() => ();
 end;
 
 define method main(progname, #rest arguments)
-  glutInitDisplayMode($GLUT-RGBA + $GLUT-DEPTH + $GLUT-DOUBLE);
+  glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
   glutInitWindowSize(500, 500);
+  let win :: <integer> = glutCreateWindow("Foo");
 
   glShadeModel($GL-SMOOTH);
   glEnable($GL-DEPTH-TEST);
-  glDepthFunc($GL-NEVER);
+  glDepthFunc($GL-LESS);
   glEnable($GL-COLOR-MATERIAL);
   glHint($GL-PERSPECTIVE-CORRECTION-HINT, $GL-NICEST);
 
   GC-enable-incremental();
 
-  let win :: <integer> = glutCreateWindow("Foo");
   format(*standard-output*, "GL_VENDOR: %s\n", 
 	                     glGetString($GL-VENDOR));
   format(*standard-output*, "GL_RENDERER: %s\n", 
@@ -160,6 +160,8 @@ define method main(progname, #rest arguments)
 	                     glGetString($GL-VERSION));
   format(*standard-output*, "GL_EXTENSIONS: %s\n", 
 	                     glGetString($GL-EXTENSIONS));
+  format(*standard-output*, "Depth test: %=\n", 
+	                     glIsEnabled($GL-DEPTH-TEST));
   force-output(*standard-output*);
 //  glutFullScreen();
 
@@ -172,6 +174,7 @@ define method main(progname, #rest arguments)
 
   glMatrixMode($GL-MODELVIEW);
 
+  glEnable($GL-AUTO-NORMAL);
 //  glCullFace($GL-BACK);
 //  glEnable($GL-CULL-FACE)
   glEnable($GL-LIGHTING);
