@@ -971,7 +971,7 @@ define class <bitfield-declaration> (<type-declaration>)
 end class <bitfield-declaration>;
 
 define class <coalesced-bitfields> (<declaration>)
-  slot type :: <predefined-type-declaration> = unsigned-char-type;
+  slot type :: <predefined-type-declaration> = unsigned-long-type;
   slot bit-size :: <integer> = 0;
   slot fields :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot excluded? :: <boolean> = #f; // defer to each field
