@@ -162,9 +162,9 @@ define function read-lines(s :: <stream>)
   result;
 end function read-lines;
 
-define constant breed-factor = 3;
-
 define function run-breeding()
+  let deviation = 10.0;
+
   let brains =
     with-open-file(brain-stream = "contestants")
       map(method(name) make(<brain>, name: name) end, 
@@ -176,6 +176,8 @@ define function run-breeding()
     with-open-file(worlds-stream = "world-list")
       read-lines(worlds-stream)
     end with-open-file;
+
+  let breed-factor :: <integer> = 3;
     
   while(#t)
     let clone-brains = make(<stretchy-vector>);
@@ -183,7 +185,7 @@ define function run-breeding()
     for(b in brains)
       for(i from 0 below breed-factor)
         let b* = clone-brain(b);
-        mutate-brain(b*);
+        mutate-brain(b*, deviation: deviation);
         save-brain(b*);
         add!(clone-brains, b*);
       end for;
@@ -191,7 +193,7 @@ define function run-breeding()
 
     let all-brains = concatenate(brains, clone-brains);
     
-    for(i from 0 below all-brains.size * 8)
+    for(i from 0 below all-brains.size * 4)
       run-single-tournament(all-brains, worlds);
       report-sorted-score(all-brains);
     end for;
@@ -205,6 +207,9 @@ define function run-breeding()
         write-line(working-on, b.name);
       end for;
     end with-open-file;
+
+    deviation := deviation * 0.9;
+    breed-factor := 1;
   end while;
 end function run-breeding;
 
