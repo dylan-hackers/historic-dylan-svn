@@ -136,6 +136,7 @@ define module icfp2002
   use messages;
   use board;
   use client;
+  use command;
 
   // For testing only. Sorry.
   use path;
