@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.31.2.6 2003/08/10 23:50:20 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.31.2.7 2003/10/16 11:36:56 andreas Exp $
 copyright: see below
 module: bootstrap
 
@@ -262,6 +262,9 @@ define module dylan-viscera
     <equal-table>, equal-hash,
     <value-table>, value-hash,
     string-hash, sequence-hash,
+
+    // value cells
+    <value-cell>, value,
 
     // Variables magically referenced by the compiler which we need to hang
     // around even though they aren't otherwise overtly exported.

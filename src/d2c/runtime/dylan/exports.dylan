@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.32.2.6 2003/08/10 23:50:20 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.32.2.7 2003/10/16 11:36:57 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -196,6 +196,9 @@ define module Extensions
 
              // Sets
              <set>, <object-set>,
+
+             // value cells
+	     <value-cell>, value,
 
 	     // Misc other stuff.
 	     $not-supplied, ignore, functional-==, key-exists?, assert,
