@@ -39,11 +39,19 @@ void readMyConfiguration(void)
 
 //------------------------------------------------------------------------
 
+void setOpenGLParametersForPackage(void)
+{
+    glColor3d(1.0, 1.0, 0.0);
+}
+
+//------------------------------------------------------------------------
+
 #define MAX_ROBOTS 2000
 
 typedef struct
 {
     Boolean playing;
+    unsigned int packageCount;
     unsigned int x;
     unsigned int y;
 }
@@ -184,7 +192,6 @@ char *parsePlayerAction(unsigned int playerID, char *string)
             break;
             
         case 'P':
-        case 'D':
         {
             unsigned int packageID;
             string += 2;
@@ -192,9 +199,21 @@ char *parsePlayerAction(unsigned int playerID, char *string)
             printf("Player %u picked up package id %u\n",
                    playerID,
                    packageID);
+            ++gPlayers[playerID].packageCount;
         }
         break;
-
+        case 'D':
+        {
+            unsigned int packageID;
+            string += 2;
+            string = parseUnsigned(&packageID, string);
+            printf("Player %u dropped package id %u\n",
+                   playerID,
+                   packageID);
+            --gPlayers[playerID].packageCount;
+        }
+        break;
+        
         case 'X':
         {
             unsigned int x, y;
@@ -208,6 +227,7 @@ char *parsePlayerAction(unsigned int playerID, char *string)
             gPlayers[playerID].x = x - 1;
             gPlayers[playerID].y = y - 1;
             gPlayers[playerID].playing = TRUE;
+            gPlayers[playerID].packageCount = 0;
         }
         break;
     }
@@ -309,6 +329,16 @@ void display(void)
             glVertex2d(gPlayers[playerID].x + 0.75, gPlayers[playerID].y + 0.25);
             glVertex2d(gPlayers[playerID].x + 0.75, gPlayers[playerID].y + 0.75);
             glVertex2d(gPlayers[playerID].x + 0.25, gPlayers[playerID].y + 0.75);
+
+            if (gPlayers[playerID].packageCount > 0)
+            {
+                setOpenGLParametersForPackage();
+
+                glVertex2d(gPlayers[playerID].x + 0.35, gPlayers[playerID].y + 0.35);
+                glVertex2d(gPlayers[playerID].x + 0.65, gPlayers[playerID].y + 0.35);
+                glVertex2d(gPlayers[playerID].x + 0.65, gPlayers[playerID].y + 0.65);
+                glVertex2d(gPlayers[playerID].x + 0.35, gPlayers[playerID].y + 0.65);
+            }
         }
     }
     
