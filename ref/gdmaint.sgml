@@ -1,4 +1,4 @@
-<!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.0//EN" [
+<!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.1//EN" [
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
 
@@ -279,6 +279,7 @@
           the &convert-lib;. At the end of this stage, the input files have
           been completely parsed and macro-expanded.</para>
 	</formalpara>
+      </listitem>
       <listitem>
 	<formalpara>
 	  <title>Finalize the top-level forms</title>
@@ -435,7 +436,7 @@
 	      <dmodule>Dylan</dmodule>, some of
 	      <dmodule>Extensions</dmodule>, a few names from
 	      <dmodule>Table-Extensions</dmodule> and several of the
-	      <abbrev>I/O</abbrev>-related modules.
+	      <abbrev>I/O</abbrev>-related modules.  </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
@@ -1178,7 +1179,7 @@ define variable foo :: run-time-expression() = #f;
 	level.</para>
       </sect2>
 
-      <sect2 id="gdmaint-d2c-convert-define-libraries-and-modules">
+      <sect2 id="gdmaint-d2c-conv-define-lib-and-mod">
 	<title>The <dmodule>Define-Libraries-and-Modules</dmodule>
 	Module</title>
 
@@ -1196,7 +1197,7 @@ define variable foo :: run-time-expression() = #f;
 	lives here.</para>
       </sect2>
 
-      <sect2 id="gdmaint-d2c-convert-define-constants-and-variables">
+      <sect2 id="gdmaint-d2c-conv-define-const-and-var">
 	<title>The <dmodule>Define-Constants-and-Variables</dmodule>
 	Module</title>
 

@@ -1,4 +1,4 @@
-<!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.0//EN" [
+<!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.1//EN" [
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
 ]>
@@ -368,7 +368,7 @@ end method main;
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.9 1999/01/22 21:50:08 emk Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.10 1999/10/28 00:49:19 andreas Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
@@ -999,6 +999,7 @@ end interface;</programlisting>
 		<entry>Does no translation.</entry>
 	      </row>
 	    </tbody>
+          </tgroup>
 	</table>
 	
 	<para><xref linkend="melange-name-mapping"> describes the four

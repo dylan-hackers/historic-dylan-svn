@@ -37,11 +37,11 @@
 <!ENTITY % html "IGNORE">
 <![%html;[
 <!ENTITY % print "IGNORE">
-<!ENTITY docbook.dsl SYSTEM "nwalsh-modular/html/docbook.dsl" CDATA dsssl>
+<!ENTITY docbook.dsl SYSTEM "docbook_stylesheets/html/docbook.dsl" CDATA dsssl>
 ]]>
 <!ENTITY % print "INCLUDE">
 <![%print;[
-<!ENTITY docbook.dsl SYSTEM "nwalsh-modular/print/docbook.dsl" CDATA dsssl>
+<!ENTITY docbook.dsl SYSTEM "docbook_stylesheets/print/docbook.dsl" CDATA dsssl>
 ]]>
 ]>
 <style-sheet>
@@ -145,8 +145,11 @@
 (element (affiliation orgname) ($affiliation-element$))
 (element (affiliation orgdiv) ($affiliation-element$))
 
+;(element (affiliation address)
+;  ($linespecific-content$))
+
 (element (affiliation address)
-  ($linespecific-content$))
+  ($affiliation-element$))
 
 (element holder
   ;; Copyright holders should be separated by commas.

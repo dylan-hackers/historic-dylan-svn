@@ -26,10 +26,8 @@
 --
 
 
--- RedHat 5.1 with Cygnus DocBook tools --
-CATALOG /usr/lib/sgml/CATALOG
-SYSTEM "nwalsh-modular/html/docbook.dsl" "/usr/lib/sgml/stylesheets/nwalsh-modular/html/docbook.dsl"
-SYSTEM "nwalsh-modular/print/docbook.dsl" "/usr/lib/sgml/stylesheets/nwalsh-modular/print/docbook.dsl"
+SYSTEM "docbook_stylesheets/html/docbook.dsl" "/usr/local/share/sgml/docbook_stylesheets/html/docbook.dsl"
+SYSTEM "docbook/print/docbook.dsl" "/usr/local/share/sgml/docbook_stylesheets/print/docbook.dsl"
 
 
 -- Generic Template --
@@ -39,5 +37,5 @@ SYSTEM "nwalsh-modular/print/docbook.dsl" "/usr/lib/sgml/stylesheets/nwalsh-modu
 
 
 -- ALL SYSTEMS --
-PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.0//EN" "dylandoc.dtd"
+PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.1//EN" "dylandoc.dtd"
 PUBLIC "UNREGISTERED::Eric Kidd//DylanDoc Style Sheet//EN" "dylandoc.dsl"
