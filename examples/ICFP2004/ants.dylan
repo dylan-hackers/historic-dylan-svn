@@ -80,19 +80,19 @@ define constant <state> = limited(<integer>, min: 0, max: 9999);
 define class <ant> (<object>)
   constant slot id :: <integer>, init-keyword: id:;
   slot state :: <state> = 0;
-  slot color :: <color>, init-keyword: color:;
+  constant slot color :: <color>, init-keyword: color:;
   slot resting :: <integer> = 0;
   slot direction :: <direction> = 0;
   slot has-food :: <boolean> = #f;
 end class <ant>;
 
 define class <cell> (<object>)
-  slot rocky :: <boolean> = #f;
+  constant slot rocky :: <boolean> = #f;
   slot ant :: false-or(<ant>) = #f;
   slot food :: <integer> = 0, init-keyword: food:;
-  slot red-marker :: <vector> = make(<vector>, size: 5);
-  slot black-marker :: <vector> = make(<vector>, size: 5);
-  slot anthill :: false-or(<color>) = #f, init-keyword: anthill:;
+  constant slot red-marker :: <vector> = make(<vector>, size: 5);
+  constant slot black-marker :: <vector> = make(<vector>, size: 5);
+  constant slot anthill :: false-or(<color>) = #f, init-keyword: anthill:;
 end class <cell>;
 
 define variable *world* :: <array> = make(<array>, dimensions: #[8, 8]);
@@ -554,7 +554,10 @@ define function play-game(red-brain :: <string>,
 end function play-game;
 */
 begin
-  let test-machine = read-state-machine(*standard-input*);
+/*  let test-machine = read-state-machine(*standard-input*);
   do(method(x) format-out("%s\n", unparse(x)) end, test-machine);
   force-output(*standard-output*);
+*/
+
+  let testmap = read-map(*standard-input*);
 end;
