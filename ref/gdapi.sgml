@@ -2,7 +2,7 @@
  <!ENTITY % entities SYSTEM "dylandoc.ent">
  %entities;
 ]>
-<book>
+<book id="gdapi">
   <title>&d2c; API Reference</title>
   <bookinfo>
     <copyright>
@@ -17,7 +17,7 @@
       <editor>&person.neel;</editor>
     </bookbiblio>
   </bookinfo>
-  <chapter>
+  <chapter id="introduction">
     <title>Introduction</title>
     <para>This document is a companion to the Gwydion Dylan
 Maintainer's Manual. The Maintainer's Manual contains an overview of
@@ -37,14 +37,14 @@ needed. In particular, I'd like to ask that when you add or modify any
 definitions to d2c, that you add the documentation to this guide. The more
 people that work on this, the faster that it will get done.</para>
   </chapter>
-  <chapter>
+  <chapter id="library-compiler-base">
     <title>Library compiler-base</title>
-    <sect1>
+    <sect1 id="module-c-rep">
       <title>Module c-representation</title>
       <para>This module contains classes that represent the various C
 representations of Dylan objects, along with various methods to
 manipulate them.</para>
-      <sect2>
+      <sect2 id="file-c-rep">
 	<title>File compiler/base/c-rep.dylan</title>
 	<dylanconstantdef>
 	  <defname>$byte-bits</defname>
@@ -939,14 +939,14 @@ at compile time.</defsummary>
 	</dylanmethoddef>
       </sect2>
     </sect1>
-    <sect1>
+    <sect1 id="module-utils">
       <title>Module utils</title>
 	<para>Unsurprisingly, this module is a grab-bag of various
 useful functions and methods the used by modules in the rest of the
 compiler. Some of this stuff is actually quite useful in contexts
 beyond writing a compiler, and should probably be moved into some of
 the common libraries rather than living in compiler base.</para>
-      <sect2>
+      <sect2 id="file-utils">
 	<title>File compiler/base/utils.dylan</title>
 	<dylanmethoddef>
 	  <defname>pretty-format</defname>
