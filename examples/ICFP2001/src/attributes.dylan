@@ -211,6 +211,7 @@ define inline method maximum-transition-cost(a :: <attribute>, b :: <attribute>)
     if(b.strong) total-cost := total-cost + tag-S.cost end;
     if(b.typewriter) total-cost := total-cost + tag-TT.cost end;
     total-cost := total-cost + b.underline * tag-U.cost;
+    total-cost := total-cost + 1; // extra penalty
   end;
        
   if(a.font-size ~= b.font-size) total-cost := total-cost + tag-0.cost end;
