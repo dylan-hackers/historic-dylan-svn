@@ -1,6 +1,6 @@
 <?php
 require "shared.inc";
-standard_header("Gwydion Dylan Software Map");
+standard_header("Software Map");
 ?>
 
 <p>Lest you think that we have this nice compiler, but nobody uses it,
@@ -19,19 +19,21 @@ can be built with Gwydion Dylan.</p>
 <?
   $db = db_connect();
   mysql_select_db("gwydion", $db);
-  $query = "select id,name,version,DATE_FORMAT(update_time, '%m-%d-%Y*%h:%m:%s') AS update_time,description from softmap order by update_time ";
+  $query = "select id,name,version,DATE_FORMAT(update_time, '%m-%d-%Y'),description from softmap order by update_time desc";
   $res = mysql_query($query, $db);
   $err = mysql_error();
   if ($err) {
     echo "MySQL error occurred. Please notify <a href=mailto:igor@pobox.com>Jeff Dubrule</a>.";
   } else {
     while ($row = mysql_fetch_row($res)) {
+      list($id, $name, $version, $update_time, $description) = $row;
 # id, name, version, update_time, description
       echo "  <tr>\n";
-      echo "    <td>" . $row[1] . "</td>\n";
-      echo "    <td>" . str_replace("*", "<br>", $row[3]) . "</td>\n";
-      echo "    <td>" . $row[4] . "</td>\n";
-      echo "    <td align=right>" . $row[2] . "</td>\n";
+      echo "    <td><a href=project-detail.phtml?id=" . $id . ">" 
+	             . $name . "</a></td>\n";
+      echo "    <td>" . $update_time . "</td>\n";
+      echo "    <td>" . $description . "</td>\n";
+      echo "    <td align=right>" . $version . "</td>\n";
       echo "  </tr>\n";
     }
   }

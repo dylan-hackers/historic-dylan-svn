@@ -1,0 +1,33 @@
+<?php
+require "shared.inc";
+$db = db_connect();
+
+if (!isset($id)) {
+  echo "You must specify an ID to use!";
+} else {
+  $query = "select id,name,version,DATE_FORMAT(update_time, '%a %b %d %h:%m:%s %Y'),description from softmap where id = " . intval($id);
+  $res = mysql_query($query, $db);
+  if ($err = mysql_error()) {
+    echo "MySQL error occurred. Please notify <a href=mailto:igor@pobox.com>Jeff Dubrule</a>.";
+  } else {
+    list ($id, $name, $version, $update_time, $description) = 
+	mysql_fetch_row($res);
+    standard_header("Software Map: " . strval($name));
+?>
+<table>
+  <tr>
+    <td align=right>Latest version:</td>
+    <td><strong><? echo strval($version); ?></strong></td>
+  </tr>
+  <tr>
+    <td align=right>Entry last updated:</td>
+    <td><strong><? echo strval($update_time); ?></strong></td>
+  </tr>
+</table>
+<p><? echo $description; ?>
+<?
+  }
+}
+?>
+
+<?php standard_footer(); ?>
