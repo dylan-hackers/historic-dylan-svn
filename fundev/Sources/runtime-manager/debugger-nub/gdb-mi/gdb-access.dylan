@@ -145,15 +145,25 @@ define generic parse-result(result-class :: <class>, mi-reply :: <byte-string>) 
 define macro mi-operation-definer
   // low-level definers
 
-  {define class-for-sequential mi-operation ?:name(?sequence-slot:*) end}
+  { define class-for-sequential mi-operation ?:name(?sequence-slot:*) end }
   =>
   {
     define class ?name ## "-<command>"(<mi-command>)
       ?sequence-slot;
     end;
   }
+  
+  
+  { define class-for-regular mi-operation ?:name(?regular-class-options) end }
+  =>
+  {
+    define class ?name ## "-<command>"(<mi-command>)
+      ?regular-class-options
+    end;
+  }
 
-  {define creator-for-sequential mi-operation ?:name(?rest-sequence, ?sequence-arg) end}
+
+  { define creator-for-sequential mi-operation ?:name(?rest-sequence, ?sequence-arg) end }
   =>
   {
     define function ?name(?rest-sequence)
@@ -161,19 +171,19 @@ define macro mi-operation-definer
     end;
   }
 
-  {define emitter-for-sequential mi-operation ?:name(?rest-sequence, ?sequence-arg) end}
+  { define emitter-for-sequential mi-operation ?:name(?rest-sequence, ?sequence-arg) end }
   =>
   {
   }
 
-  {define result-for-sequential mi-operation ?:name(?parse-sequence:*) end}
+  { define result-for-sequential mi-operation ?:name(?parse-sequence:*) end }
   =>
   {
     define class ?name ## "-<result>"(<mi-result>)
     end;
   }
 
-  {define parser-for-sequential mi-operation ?:name(?parse-sequence) end}
+  { define parser-for-sequential mi-operation ?:name(?parse-sequence) end }
   =>
   {
     define method parse-result(result-class == ?name ## "-<result>", mi-reply :: <byte-string>) => result :: <mi-result>;
@@ -192,10 +202,33 @@ define macro mi-operation-definer
 
 
   // high-level definers
-
-  {define mi-operation ?:name; ?parses:* end}
+  //
+  { define mi-operation ?:name; ?parses:* end }
   =>
   {}
+
+  // arguments
+  { define mi-operation ?:name(?argument, ?arguments) ?parses:* end }
+  =>
+  {
+  //////  define class-for-regular mi-operation ?name(?argument ?arguments) end;
+    define class-for-regular mi-operation ?name([a b :: <object>;(required-init-keyword: #"name")]) end;
+//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define result-for-sequential mi-operation ?name(?parses) end;
+//    define parser-for-sequential mi-operation ?name(?parses) end
+  }
+
+  // options in front of something
+  { define mi-operation ?:name(?options) ?parses:* end }
+  =>
+  {
+    define class-for-regular mi-operation ?name(?options) end;
+//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define result-for-sequential mi-operation ?name(?parses) end;
+//    define parser-for-sequential mi-operation ?name(?parses) end
+  }
 
   // sequences of something
   { define mi-operation ?:name((?sequence:*)) ?parses:* end }
@@ -208,7 +241,8 @@ define macro mi-operation-definer
     define parser-for-sequential mi-operation ?name(?parses) end
   }
 
-  {define mi-operation ?:name(?:*) ?parses:* end}
+  // ignore all other stuff for now!!!! #####
+  { define mi-operation ?:name(?:*) ?parses:* end }
   =>
   {}
   
@@ -231,10 +265,33 @@ define macro mi-operation-definer
   parse-directive:
     { resulting ?:name } => { method(inp, matched, more) => (); let m = match(inp, "^" "?name"); more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
     { resulting ?:name => ?parser:expression } => { method(inp, matched, more) => (); let m = match(inp, "^" "?name"); more.head(inp, pair(if (m) rcurry(?parser, m) else #f.always end if, matched), more.tail) end method }
+
+  options:
+    {} => {}
+    { ?option ... } => { ?option ... }
+
+  option:
+    { [ ?:name ] } => { [ ?name ?name :: <boolean>;(init-keyword: #"?name", init-value: #f) ] }
+    { [ ?flag:name ?:name ] } => { [ ?flag ?name :: <boolean>;(init-keyword: #"?flag", init-value: #f) ] }
+    { [ ?flag:name ?:name :: ?:expression ] } => { [ ?flag ?name :: ?expression;(required-init-keyword: #"?flag") ] }
+
+  arguments:
+    {} => {}
+    { ?argument, ... } => { ?argument ... }
+
+  argument:
+    { ?:name :: ?:expression } => { [ ?name ?name :: ?expression;(required-init-keyword: #"?name") ] }
+
+  regular-class-options:
+    {} => {}
+    { [ ?regular-class-option ] ... } => { ?regular-class-option; ... }
+
+  regular-class-option:
+    { ?flag:name ?:name :: ?:expression;(?stuff:*) } => { constant slot ?name :: ?expression, ?stuff }
 end;
 
 define macro mi-parser-definer
-  {define mi-parser ?:name(?:*) ?:* end}
+  { define mi-parser ?:name(?:*) ?:* end }
   =>
   {}
 end;
@@ -267,15 +324,28 @@ end;
 
 
 define mi-operation break-insert(
-    [ "-t" ]
-    [ "-h" ]
-    [ "-r" ]
+    [ -t ])
+//    [ -h ]
+//    [ -r ]
+//    [ -c condition :: <mi-expression> ]
+//    [ -i ignore-count :: <positive> ]
+//    [ -p thread :: <positive> ]
+//    { line :: <positive>; addr :: <mi-address> })
+  resulting done => parse-breakpoint;// bkpt={number="1",addr="0x0001072c",file="recursive2.c",line="4"}
+end;
+
+/*
+define mi-operation break-insert(
+    [ t ]
+    [ h ]
+    [ r ]
     [ "-c" condition :: <mi-expression> ]
     [ "-i" ignore-count :: <positive> ]
     [ "-p" thread :: <positive> ]
     { line :: <positive>; addr :: <mi-address> })
   resulting done => parse-breakpoint;// bkpt={number="1",addr="0x0001072c",file="recursive2.c",line="4"}
 end;
+*/
 
 define mi-parser breakpoint(bkpt)
   number :: <positive>;
