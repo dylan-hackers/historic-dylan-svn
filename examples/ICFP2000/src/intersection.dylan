@@ -192,11 +192,16 @@ define method real-intersection-before(m :: <cone>, ray, distance, #key shadow-t
 				       ray);
   if (hit & (hit.x * hit.x + hit.z * hit.z) <= 1.0)
     add!(hits, vector(dist, hit, vector3D(0.0, -1.0, 0.0),
-		      make-surface-closure(1, x / 2.0 + 0.5, y / 2.0 + 0.5, m.surface-interpreter-entry)))
+		      make-surface-closure(1, hit.x / 2.0 + 0.5, hit.y / 2.0 + 0.5, m.surface-interpreter-entry)))
   end if;
 
   // Check side
-  
+  if (hits.size > 0)
+    let hits = sort!(hits, test: method(a, b) a[0] < b[0]  end method);
+    values(hits[0][1], hits[0][2], hits[0][3], magnitude(ray.ray-position - hits[0][1]));
+  else
+    #f;
+  end if;
 
 end method real-intersection-before;
 
