@@ -81,6 +81,7 @@ end module messages;
 
 define module client
   use board;
+  use command;
 
   export <robot-agent>
 end module client;
