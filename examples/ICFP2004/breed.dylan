@@ -1,0 +1,3 @@
+module: ants
+
+run-breeding();
