@@ -376,45 +376,45 @@ end function receive-server-packages;
 
 // Instantiate a <command> based on the given character and contents
 // of the stream.
-define generic do-receive-server-command(c :: <character>, s :: <stream>)
+define generic do-receive-server-command(c :: <character>, s :: <stream>, id :: <integer>)
   => (r :: <command>);
 
-define method do-receive-server-command(c == 'N', s :: <stream>)
+define method do-receive-server-command(c == 'N', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("move N command received\n");
-  make(<move>, direction: $north, bid: 1);
+  make(<move>, direction: $north, bid: 1, id: id);
 end method do-receive-server-command;
 
-define method do-receive-server-command(c == 'S', s :: <stream>)
+define method do-receive-server-command(c == 'S', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("move S command received\n");
-  make(<move>, direction: $south, bid: 1);
+  make(<move>, direction: $south, bid: 1, id: id);
 end method do-receive-server-command;
 
-define method do-receive-server-command(c == 'E', s :: <stream>)
+define method do-receive-server-command(c == 'E', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("move E command received\n");
-  make(<move>, direction: $east, bid: 1);
+  make(<move>, direction: $east, bid: 1, id: id);
 end method do-receive-server-command;
 
-define method do-receive-server-command(c == 'W', s :: <stream>)
+define method do-receive-server-command(c == 'W', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("move W command received\n");
-  make(<move>, direction: $west, bid: 1);
+  make(<move>, direction: $west, bid: 1, id: id);
 end method do-receive-server-command;
 
-define method do-receive-server-command(c == 'P', s :: <stream>)
+define method do-receive-server-command(c == 'P', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("pick command received\n");
   receive-spaces(s);  
-  make(<pick>, direction: receive-integer(s), bid: 1);
+  make(<pick>, direction: receive-integer(s), bid: 1, id: id);
 end method do-receive-server-command;
 
-define method do-receive-server-command(c == 'D', s :: <stream>)
+define method do-receive-server-command(c == 'D', s :: <stream>, id :: <integer>)
   => (r :: <command>)
   debug("drop command received\n");
   receive-spaces(s);  
-  make(<drop>, direction: receive-integer(s), bid: 1);
+  make(<drop>, direction: receive-integer(s), bid: 1, id: id);
 end method do-receive-server-command;
 
 define method do-receive-server-command(c == 'X', s :: <stream>)
@@ -429,9 +429,9 @@ define method do-receive-server-command(c == 'X', s :: <stream>)
   make(<transport>, location: point(x: x, y: y), bid: 1);
 end method do-receive-server-command;
 
-define function receive-server-command(stream :: <stream>)
+define function receive-server-command(stream :: <stream>, id :: <integer>)
   => (r :: <command>)
-  do-receive-server-command(stream.read-element, stream);  
+  do-receive-server-command(stream.read-element, stream, id);  
 end function receive-server-command;
 
 define function more-commands?(s :: <stream>) => (r :: <boolean>)
@@ -452,7 +452,7 @@ define function receive-server-command-reply(s :: <stream>, state :: <state>) =>
       receive-sharp(s);
       let id = receive-integer(s);    
       while(more-commands?(s))
-        let command = receive-server-command(s);
+        let command = receive-server-command(s, id);
         debug("receive-server-command-reply: %d %=\n", id, command);
 	    state := process-server-command(state, command);
       end while;
