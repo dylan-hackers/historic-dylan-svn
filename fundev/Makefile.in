@@ -1,7 +1,7 @@
 prefix		= @prefix@
 install_root	= $(prefix)/lib/functional-developer
 
-srcdir		= @srcdir@
+srcdir		= @abs_srcdir@
 abs_srcdir	= @abs_srcdir@
 abs_builddir	= @abs_builddir@
 
@@ -104,7 +104,8 @@ Bootstrap.2/bin/minimal-console-compiler: stage-1-bootstrap
 	FUNCTIONAL_DEVELOPER_USER_INSTALL=$(abs_builddir)/Bootstrap.2 \
 	  $(MAKE) -C $(abs_srcdir)/Sources/lib/run-time/pentium-linux install
 	@FUNCTIONAL_DEVELOPER_PLATFORM_NAME=$(fd_build) \
-	  FUNCTIONAL_DEVELOPER_RELEASE_ROOT=$(abs_builddir)/Bootstrap.1 \
+	  FUNCTIONAL_DEVELOPER_RELEASE_ROOT=$(abs_builddir)/Bootstrap.2 \
+	  FUNCTIONAL_DEVELOPER_RELEASE_INSTALL=$(abs_builddir)/Bootstrap.2 \
 	  FUNCTIONAL_DEVELOPER_BUILD_LOGS=$(abs_builddir)/Bootstrap.2/logs \
 	  FUNCTIONAL_DEVELOPER_USER_ROOT=$(abs_builddir)/Bootstrap.2 \
 	  FUNCTIONAL_DEVELOPER_USER_INSTALL=$(abs_builddir)/Bootstrap.2 \
