@@ -119,18 +119,10 @@ end function get-successors;
 
 
 // Simple version of A*.
-define function find-path(source :: <point>,
-                          target :: <point>,
-                          board :: <board>,
-                          #key cutoff :: false-or(<path-cost>))
+define function find-path*(source :: <point>,
+                           target :: <point>,
+                           board :: <board>)
  => (res :: false-or(<point-list>))
-
-  if (cutoff & distance-cost(source, target) >= cutoff)
-    debug("### cutting off: source: %=, target: %=, cutoff: %=\n", source, target, cutoff);
-  end;
-
-unless (cutoff & distance-cost(source, target) >= cutoff)
-
   let open :: <priority-queue> = make(<priority-queue>);
   let closed :: <list> = #();
   open := add!(open, make(<prioritized-location>,
@@ -176,8 +168,37 @@ unless (cutoff & distance-cost(source, target) >= cutoff)
     end while;
     #f;
   end;
-end unless;
+end function find-path*;
+
+// This version supports cutoffs and memoizing the results. 
+
+define function find-path(source :: <point>,
+                          target :: <point>,
+                          board :: <board>,
+                          #key cutoff :: false-or(<path-cost>))
+ => (res :: false-or(<point-list>))
+  if (cutoff & distance-cost(source, target) >= cutoff)
+    debug("### cutting off: source: %=, target: %=, cutoff: %=\n",
+          source, target, cutoff);
+    #f
+  else
+    find-path*(source, target, board);
+//
+// Commit this after testing the refactoring.
+//
+//    let maybe-path = element(board.path-cache, cons(source, target),
+//                             default: $not-memoized);
+//    if (path = $not-memoized)
+//      let path = find-path*(source, target, board);
+//      board.path-cache[cons(source, target)] := path;
+//      // TODO -- cache the whole path. Maybe too inefficient.
+//      path;
+//    else
+//      maybe-path
+//    end if;
+  end if;
 end function find-path;
+
 
 //
 // Adding memoized path-length to path.dylan

@@ -7,6 +7,8 @@ define sealed class <board>(<array>)
   slot rows :: <coordinate>, init-value: 0;
   slot data :: <terrain-vector>, // for now
     init-value: make(<terrain-vector>);
+  class slot path-cache :: <equal-table>,
+    init-value: make(<equal-table>);
   class slot path-length-cache :: <equal-table>,
     init-value: make(<equal-table>);
 end;
