@@ -533,7 +533,7 @@ define method adjust-stream-position-from-start
       let new-buffer-next = 
 	logand(the-buffer.buffer-on-page-bits, position-from-start);
       // Input only streams can't have partial buffers or dirty buffers.
-      if (position-from-start > size-of-stream)
+      if (size-of-stream & position-from-start > size-of-stream)
 	signal(make(<stream-position-error>, stream: the-stream, 
 		    size: size-of-stream, position: position-from-start));
       elseif (stream-input-buffer(the-stream)
@@ -560,6 +560,11 @@ define method adjust-stream-position-from-start
       end if;
     // Input-output streams
     #"input-output" =>
+      unless (size-of-stream)
+        error(make(<stream-position-error>, stream: the-stream, 
+                   size: size-of-stream, position: position-from-start,
+                   format-string: "input-output stream must be positionable"));
+      end unless;
       let the-buffer :: <buffer> = stream-shared-buffer(the-stream);
       let new-buffer-position = 
 	logand(the-buffer.buffer-off-page-bits, position-from-start);
@@ -707,7 +712,8 @@ define method adjust-stream-position-from-start
 	the-buffer.buffer-position := new-buffer-position;
 	the-buffer.buffer-next := new-buffer-next;
 	the-buffer.buffer-end := new-buffer-next;
-	if (position-from-start > size-of-stream) // off the end of file.
+	if (size-of-stream
+              & position-from-start > size-of-stream) // off the end of file.
 	  // We force a null out to guarantee that the stream
 	  // size grows when position is set past the end of file.
 	  if (new-buffer-next = 0)
