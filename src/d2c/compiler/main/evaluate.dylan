@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.32 2002/07/29 23:30:10 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.33 2002/08/09 22:30:26 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -409,18 +409,51 @@ end;
 define generic fer-evaluate-primitive(name :: <symbol>, depends-on :: false-or(<dependency>), environment :: <interpreter-environment>)
  => result :: <ct-value>;
 
+
+
+define macro primitive-emulator-aux-definer
+  {
+    define primitive-emulator-aux ?primitive:expression ?:name(?lhs:variable, ?rhs:variable) ?stuff:* end
+  }
+  =>
+  {
+    define method fer-evaluate-primitive(name == ?primitive, depends-on :: <dependency>, environment :: <interpreter-environment>)
+     => result :: <ct-value>;
+      let ?lhs = evaluate(depends-on.source-exp, environment);
+      let ?rhs = evaluate(depends-on.dependent-next.source-exp, environment);
+      as(<ct-value>, ?name(?stuff))
+    end;
+  }
+
+  {
+    define unary primitive-emulator-aux ?primitive:expression ?:name(?val:variable) ?stuff:* end
+  }
+  =>
+  {
+    define method fer-evaluate-primitive(name == ?primitive, depends-on :: <dependency>, environment :: <interpreter-environment>)
+     => result :: <ct-value>;
+      let ?val = evaluate(depends-on.source-exp, environment);
+      as(<ct-value>, ?name(?stuff))
+    end;
+  }
+end macro primitive-emulator-aux-definer;
+
 define macro primitive-emulator-definer
   {
     define primitive-emulator ?:name end
   }
   =>
   {
-    define method fer-evaluate-primitive(name == "fixnum-" ## ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
+/*    define method fer-evaluate-primitive(name == "fixnum-" ## ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
      => result :: <ct-value>;
       let lhs = evaluate(depends-on.source-exp, environment);
       let rhs = evaluate(depends-on.dependent-next.source-exp, environment);
       as(<ct-value>, ?name(lhs.literal-value, rhs.literal-value))
     end;
+*/
+	define primitive-emulator-aux "fixnum-" ## ?#"name" ?name(lhs, rhs)
+		lhs.literal-value, rhs.literal-value
+	end
   }
 
   {
@@ -428,12 +461,27 @@ define macro primitive-emulator-definer
   }
   =>
   {
-    define method fer-evaluate-primitive(name == ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
+/*    define method fer-evaluate-primitive(name == ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
      => result :: <ct-value>;
       let lhs :: <eql-ct-value> = evaluate(depends-on.source-exp, environment);
       let rhs :: <eql-ct-value> = evaluate(depends-on.dependent-next.source-exp, environment);
       as(<ct-value>, ?name(lhs, rhs))
-    end;
+    end;*/
+
+	define primitive-emulator-aux ?#"name" ?name(lhs :: <eql-ct-value>, rhs :: <eql-ct-value>)
+		lhs.literal-value, rhs.literal-value
+	end
+  }
+
+
+  {
+    define unary primitive-emulator ?:name => ?func:name end
+  }
+  =>
+  {
+	define unary primitive-emulator-aux ?#"name" ?func(val :: <ct-value>)
+		val.literal-value
+	end
   }
 end;
 
@@ -446,6 +494,7 @@ define primitive-emulator logior end;
 define primitive-emulator logxor end;
 define primitive-emulator logand end;
 define primitive-emulator (\==) end;
+define unary primitive-emulator not => \~ end;
 
 // ########## append-environment ##########
 define function append-environment(prev-env :: <interpreter-environment>, new-binding, new-value) => new-env;
