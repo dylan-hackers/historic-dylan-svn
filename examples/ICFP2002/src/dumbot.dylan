@@ -3,12 +3,6 @@ module: client
 define class <dumbot> (<robot-agent>)
 end class <dumbot>;
 
-define method deliverable?(me :: <dumbot>, s :: <state>, p :: <package>, 
-			   #key robot = find-robot(s, me.agent-id), 
-			        capacity = robot.capacity-left)
-  p.weight <= capacity & find-path(robot.location, p.location, s.board);
-end method deliverable?;
-
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
   let robot = find-robot(s, me.agent-id);
@@ -25,7 +19,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 
     // Go to the next interesting place:
     let targets = concatenate(map(dest, inventory),
-			       map(location, choose(curry(curry(deliverable?, me), s),
+			       map(location, choose(curry(curry(deliverable?, robot), s),
 				    s.free-packages)),
 			      unvisited-bases(me, s));
     
