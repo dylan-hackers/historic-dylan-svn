@@ -28,7 +28,7 @@ for my $pc (0..scalar @inst - 1){
 
     for (@words){
 	my $target = $labels{$_};
-	$_ = $target if $target;
+	$_ = $target if defined($target);
     }
 
     print join(" ", @words), "\n";
