@@ -10,29 +10,28 @@ copyright: LGPL
 define method parse-xml-element-start(builder :: <xml-builder>, 
     string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, element-name, attributes, space, embedded-end-tag);
-    ["<",
-     parse-name(element-name),
-     loop(parse-s(space)),
-     parse-xml-attributes(attributes),
+    variables(c, elt, embedded-end-tag);
+    [parse-beginning-of-tag(elt),
      {["/", yes!(embedded-end-tag)], []},
      ">"];
-    let tag :: <xml-element> = make(<xml-element>, 
-       name: element-name, attributes: attributes);
-    start-element(builder, tag);
+    start-element(builder, elt);
     if(embedded-end-tag)
-      end-element(builder, tag);
+      end-element(builder, elt);
     end if;
-    values(index, tag);
+    values(index, elt);
   end with-meta-syntax;
 end method parse-xml-element-start;
 
 define method start-element(bldr :: <xml-builder>, elt :: <xml-element>)
-  error("You must subclass <xml-builder> and start-element");
+  error("You must subclass <xml-builder> and add to start-element");
 end method start-element;
 
 define method end-element(bldr :: <xml-builder>, elt :: <xml-element>)
-  error("You must subclass <xml-builder> and end-element");
+  error("You must subclass <xml-builder> and add to end-element");
 end method end-element;
+
+define method text(bldr :: <xml-builder>, txt :: <string>)
+  error("You must subclass <xml-builder> and add to text");
+end method text;
 
 

@@ -51,7 +51,7 @@ define module value-impl
   use meta;
   use xml-parser;
 
-  export parse-xml-attributes, parse-name, parse-s,
+  export parse-beginning-of-tag;
 end module value-impl;
 
 define module builder-impl

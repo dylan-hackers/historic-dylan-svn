@@ -457,7 +457,20 @@ define method parse-attribute(string, #key start = 0, end: stop)
   end with-meta-syntax;
 end method parse-attribute;
 
-/**** TO_BE_REFACTORED by parse-xml-element-start *****/
+// helper method for parsing opening tags
+define method parse-beginning-of-tag(string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(c, element-name, attributes, s);
+    ["<",
+     parse-name(element-name),
+     loop(parse-s(s)),
+     parse-xml-attributes(attributes)];
+    values(index, 
+           make(<xml-element>, name: element-name, 
+                               attributes: attributes));
+  end with-meta-syntax;
+end method parse-beginning-of-tag;
+
 // Tags for Empty Elements
 // 
 //    [44]    EmptyElemTag    ::=    '<' Name (S Attribute)* S? '/>' [WFC: Unique Att Spec]
@@ -466,18 +479,20 @@ end method parse-attribute;
 // is not an empty-elem-tag. Need to unify this with [39].
 define method parse-empty-elem-tag(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, element-name, attributes, s);
-    ["<",
-     parse-name(element-name),
-     loop(parse-s(s)),
-     parse-xml-attributes(attributes),
-     "/>"];
-    values(index, 
-           make(<xml-element>, name: element-name, 
-                               attributes: attributes));
+    variables(c, elt);
+    [parse-beginning-of-tag(elt), "/>"];
+    values(index, elt);
+//    variables(c, element-name, attributes, s);
+  //  ["<",
+    // parse-name(element-name),
+//     loop(parse-s(s)),
+  //   parse-xml-attributes(attributes),
+    // "/>"];
+//    values(index, 
+  //         make(<xml-element>, name: element-name, 
+    //                           attributes: attributes));
   end with-meta-syntax;
 end method parse-empty-elem-tag;
-
 
 // Start-tag
 // 
@@ -485,15 +500,18 @@ end method parse-empty-elem-tag;
 //
 define method parse-stag(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, element-name, attributes, s);
-    ["<",
-     parse-name(element-name),
-     loop(parse-s(s)),
-     parse-xml-attributes(attributes),
-     ">"];
-    values(index, 
-           make(<xml-element>, name: element-name, 
-                               attributes: attributes));
+    variables(c, elt);
+    [parse-beginning-of-tag(elt), ">"];
+    values(index, elt);
+//    variables(c, element-name, attributes, s);
+  //  ["<",
+    // parse-name(element-name),
+//     loop(parse-s(s)),
+  //   parse-xml-attributes(attributes),
+    // ">"];
+//    values(index, 
+  //         make(<xml-element>, name: element-name, 
+    //                           attributes: attributes));
   end with-meta-syntax;
 end method parse-stag;
 
