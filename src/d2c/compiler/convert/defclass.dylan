@@ -1,5 +1,5 @@
 module: define-classes
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defclass.dylan,v 1.2.2.1 1998/09/23 01:25:43 anoncvs Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defclass.dylan,v 1.2.2.2 1998/09/27 22:22:50 tc Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -38,6 +38,8 @@ copyright: Copyright (c) 1994  Carnegie Mellon University
 //   <inherited-slot-parse>
 //   <init-arg-parse>
 //
+// <class-features-mixin>
+//
 // <class-definition>        		../base/defns.dylan
 //   <real-class-definition>
 //     <local-class-definition>
@@ -49,13 +51,10 @@ copyright: Copyright (c) 1994  Carnegie Mellon University
 //   <maker-function-definition>
 //   <init-function-definition>
 //
-// <parse-fragment-description>
-//   <class-parse-fragment-descr>
-//   <slot-parse-fragment-descr>
-//
-// <parse-description>
-//   <class-parse-description>
-//   <slot-parse-description>
+// <class-builder>
+//   <class-definition-builder>
+//   <slot-definition-builder>
+//   <cclass-builder>
 //
 // <top-level-form-description>
 //   <class-tlf-descr>
@@ -267,23 +266,32 @@ define method defn-type (defn :: <real-class-definition>) => res :: <cclass>;
 end;
 
 
+// <class-features-mixin>  -- internal.
+//
+// Define slots that describe the features of a class (DRM p.52):
+// abstract, primary, and sealed.
+//
+define class <class-features-mixin> (<object>)
+  //
+  // Several boolean flags, just what the names say.
+  slot is-functional? :: <boolean>,
+    required-init-keyword: functional:;
+  slot is-sealed? :: <boolean>,
+    required-init-keyword: sealed:;
+  slot is-abstract? :: <boolean>,
+    required-init-keyword: abstract:;
+  slot is-primary? :: <boolean>,
+    required-init-keyword: primary:;
+end class <class-features-mixin>;
+
 // <local-class-definition>
 //
-define class <local-class-definition> (<real-class-definition>)
+define class <local-class-definition> (<real-class-definition>,
+				       <class-features-mixin>)
   // 
   // Vector of <expression-parse>s for the superclasses.
   slot class-defn-supers :: <simple-object-vector>,
     required-init-keyword: supers:;
-  //
-  // Several boolean flags, just what the names say.
-  slot class-defn-functional? :: <boolean>,
-    required-init-keyword: functional:;
-  slot class-defn-sealed? :: <boolean>,
-    required-init-keyword: sealed:;
-  slot class-defn-abstract? :: <boolean>,
-    required-init-keyword: abstract:;
-  slot class-defn-primary? :: <boolean>,
-    required-init-keyword: primary:;
   //
   // Vector of the slots.
   // Each member is of type <slot-defn>.
@@ -291,6 +299,7 @@ define class <local-class-definition> (<real-class-definition>)
     required-init-keyword: slots:;
   //
   // Vector of slot init value overrides.
+  // Each member is of type <override-defn>.
   slot class-defn-overrides :: <simple-object-vector>,
     required-init-keyword: overrides:;
 end;  
@@ -403,184 +412,140 @@ define class <init-function-definition> (<abstract-method-definition>)
 end class <init-function-definition>;
 
 
-// Parse descriptions.
-// ==================
+// Parse builders.
+// ==============
 //
 // When processing top level forms we need to gather a lot of
-// information about the form on which we are currently working.  If
-// we store this information into local variables we have long
-// argument lists and therefore strong coupling between the functions
-// that work on the form and we make it unnecessarily hard to factor
-// out subtasks because we need to figure out exactly which
-// information each task needs.  To avoid this we define some classes
-// that hold all this data.  These classes are not generally useful,
-// they just faciliate the following functions.
-//
-// We use two classes for each parse: a <parse-fragment-description>
-// that holds the raw fragments, and a <parse-description> which is
-// built from the <parse-fragment-description> and some other
-// information and stores the "abstract" information that is more
-// commonly needed during processing of the top level form.
-
-// <parse-fragment-description> -- internal.
-//
-// Subclasses of <parse-fragment-description> are mostly needed to
-// build instances of <parse-description> and for error reporting.
-//
-define abstract class <parse-fragment-description> (<object>)
-end class;
+// information about the form on which we are currently working.
+// We encapsulate this information in "builder" classes.
 
 
-// make-parse-fragment-descr -- internal GF.
-//
-// Generate a <parse-fragment-description>.  Not sure yet about the
-// correct constraint on `parse'.
-//
-define generic make-parse-fragment-descr (parse :: <object>)
- => (fragment-description :: <parse-fragment-description>);
-
-
-// <parse-description> -- internal.
+// <class-builder> -- internal.
 //
 // During the processing of top-level forms we pass around an instance
-// of a subclasses of <parse-description> that holds all information
+// of a subclasses of <class-builder> that holds all information
 // about the tlf in question.  Note that there is not generic
-// `make-parse-descr' since every type of <parse-description> needs
+// `make-definition-builder' since every type of <class-builder> needs
 // different additional info.
 //
-define abstract class <parse-description> (<object>)
+define abstract class <class-builder> (<object>)
 end class;
 
 
-// <class-parse-fragment-descri> -- internal.
-//
-// Fragment description for <define-class-parse>.
-//
-define class <class-parse-fragment-descr> (<parse-fragment-description>)
-  slot functional?-fragment :: false-or(<fragment>),
-    init-keyword: functional?-fragment:;
-  slot sealed?-fragment :: false-or(<fragment>),
-    init-keyword: sealed?-fragment:;
-  slot primary?-fragment :: false-or(<fragment>),
-    init-keyword: primary?-fragment:;
-  slot abstract?-fragment :: false-or(<fragment>),
-    init-keyword: abstract?-fragment:;
-end class <class-parse-fragment-descr>;
-
-
-// make-parse-fragment-descr {<define-class-parse>} -- internal.
-//
-define method make-parse-fragment-descr
-    (class-parse :: <define-class-parse>)
- => (fragment-description :: <class-parse-fragment-descr>);
-  let (class-functional?-frag, class-sealed?-frag, class-primary?-frag,
-       class-abstract?-frag)
-    = extract-properties(class-parse.defclass-options,
-			 #"functional", #"sealed",
-			 #"primary", #"abstract");
-  make(<class-parse-fragment-descr>,
-       functional?-fragment: class-functional?-frag,
-       sealed?-fragment: class-sealed?-frag,
-       primary?-fragment: class-primary?-frag,
-       abstract?-fragment: class-abstract?-frag);
-end method make-parse-fragment-descr;
-
-
-// <class-parse-description> -- internal.
+// <class-definition-builder> -- internal.
 //
 // A helper class that contains all the infomation that
 // `process-top-level-form' needs about a class parse.
 //
-define class <class-parse-description> (<parse-description>)
+define class <class-definition-builder> (<class-builder>,
+					 <class-features-mixin>)
   slot name :: <symbol>,
-    init-keyword: name:;
-  slot is-functional? :: <boolean>,
-    init-keyword: is-functional?:;
-  slot is-sealed? :: <boolean>,
-    init-keyword: is-sealed?:;
-  slot is-primary? :: <boolean>,
-    init-keyword: is-primary?:;
-  slot is-abstract? :: <boolean>,
-    init-keyword: is-abstract?:;
+    required-init-keyword: name:;
   slot slots :: <stretchy-vector>,
-    init-keyword: slots:;
+    required-init-keyword: slots:;
   slot overrides :: <stretchy-vector>,
-    init-keyword: overrides:;
-end class <class-parse-description>;
+    required-init-keyword: overrides:;
+  slot class-supers :: <simple-object-vector>,
+    required-init-keyword: class-supers:;
+end class <class-definition-builder>;
 
 
-// make-class-parse-description -- internal.
+// make-class-definition-builder -- internal.
 //
-// Create a <class-parse-description> from a <define-class-parse> and
-// a <class-parse-fragment-descr>.
+// Create a <class-definition-builder> from a <define-class-parse>.
 //
-define inline function make-class-parse-description
-    (class-parse :: <define-class-parse>,
-     descr ::  <class-parse-fragment-descr>)
- => (description :: <class-parse-description>);
-  make(<class-parse-description>,
-       name: class-parse.defclass-name.token-symbol,
-       is-functional?:
-	 descr.functional?-fragment
-	 & extract-boolean(descr.functional?-fragment),
-       is-sealed?:
-	 ~descr.sealed?-fragment
-	 | extract-boolean(descr.sealed?-fragment),
-       is-primary?:
-	 descr.primary?-fragment
-	 & extract-boolean(descr.primary?-fragment),
-       is-abstract?:
-	 descr.abstract?-fragment
-	 & extract-boolean(descr.abstract?-fragment),
+define function make-class-definition-builder
+    (class-parse :: <define-class-parse>)
+ => (builder :: <class-definition-builder>);
+  let (class-functional?-fragment :: false-or(<fragment>),
+       class-sealed?-fragment :: false-or(<fragment>),
+       class-primary?-fragment :: false-or(<fragment>),
+       class-abstract?-fragment :: false-or(<fragment>))
+    = extract-properties(class-parse.defclass-options,
+			 #"functional", #"sealed",
+			 #"primary", #"abstract");
+  let name :: <symbol>
+    = class-parse.defclass-name.token-symbol;
+  make(<class-definition-builder>,
+       name: name,
+       class-parse: class-parse,
+       class-supers: class-parse.defclass-superclass-exprs,
        slots: make(<stretchy-vector>),
-       overrides: make(<stretchy-vector>));
-end function make-class-parse-description;
+       overrides: make(<stretchy-vector>),
+       functional:
+	 class-functional?-fragment
+	 & extract-boolean(class-functional?-fragment),
+       sealed:
+	 ~class-sealed?-fragment
+	 | extract-boolean(class-sealed?-fragment),
+       primary:
+	 class-primary?-fragment
+	 & extract-boolean(class-primary?-fragment),
+       abstract:
+	 class-abstract?-fragment
+	 & extract-boolean(class-abstract?-fragment));
+end function make-class-definition-builder;
 
 
-// <slot-parse-fragment-descr>
+// <slot-definition-builder>
 //
-define class <slot-parse-fragment-descr> (<parse-fragment-description>)
-  slot  sealed?-fragment :: false-or(<fragment>),
-    init-keyword:  sealed?-fragment:;
-  slot  allocation-fragment :: false-or(<fragment>),
-    init-keyword:  allocation-fragment:;
-  slot  type-fragment :: false-or(<fragment>),
-    init-keyword:  type-fragment:;
-  slot  setter-fragment :: false-or(<fragment>),
-    init-keyword:  setter-fragment:;
-  slot  init-keyword-fragment :: false-or(<fragment>),
-    init-keyword:  init-keyword-fragment:;
-  slot  req-init-keyword-fragment :: false-or(<fragment>),
-    init-keyword:  req-init-keyword-fragment:;
-  slot  init-value-fragment :: false-or(<fragment>),
-    init-keyword:  init-value-fragment:;
-  slot  init-expr-fragment :: false-or(<fragment>),
-    init-keyword:  init-expr-fragment:;
-  slot  init-function-fragment :: false-or(<fragment>),
-    init-keyword:  init-function-fragment:;
-  slot  sizer-fragment :: false-or(<fragment>),
-    init-keyword:  sizer-fragment:;
-  slot  size-init-keyword-fragment :: false-or(<fragment>),
-    init-keyword:  size-init-keyword-fragment:;
-  slot  req-size-init-keyword-fragment :: false-or(<fragment>),
-    init-keyword:  req-size-init-keyword-fragment:;
-  slot  size-init-value-fragment :: false-or(<fragment>),
-    init-keyword:  size-init-value-fragment:;
-  slot size-init-function-fragment :: false-or(<fragment>),
-    init-keyword: size-init-function-fragment:;
-end class <slot-parse-fragment-descr>;
-
-
-// make-parse-fragment-descr {<abstract-slot-parse>} -- internal.
+// Info about a slot parse.
 //
-define method make-parse-fragment-descr
-    (slot :: <abstract-slot-parse>)
- => (fragment-description :: <slot-parse-fragment-descr>);
-  let (sealed?-frag, allocation-frag, type-frag, setter-frag,
-       init-keyword-frag, req-init-keyword-frag, init-value-frag,
-       init-expr-frag, init-function-frag, sizer-frag,
-       size-init-keyword-frag, req-size-init-keyword-frag,
-       size-init-value-frag, size-init-function-frag)
+define class <slot-definition-builder> (<class-builder>)
+  slot getter :: <symbol>,
+    required-init-keyword: getter:;
+  slot is-sealed? :: <boolean>,
+    required-init-keyword: is-sealed?:;
+  slot allocation :: <symbol>,
+    required-init-keyword: allocation:;
+  slot type :: false-or(<expression-parse>),
+    required-init-keyword: type:;
+  slot setter :: false-or(<symbol>),
+    required-init-keyword: setter:;
+  slot init-keyword :: false-or(<symbol>),
+    required-init-keyword: init-keyword:;
+  slot req-init-keyword :: false-or(<symbol>),
+    required-init-keyword: req-init-keyword:;
+  slot init-value :: false-or(<expression-parse>),
+    required-init-keyword: init-value:;
+  slot init-expr :: false-or(<expression-parse>),
+    required-init-keyword: init-expr:;
+  slot init-function :: false-or(<expression-parse>),
+    required-init-keyword: init-function:;
+  slot sizer :: false-or(<symbol>),
+    required-init-keyword: sizer:;
+  slot size-init-keyword :: false-or(<symbol>),
+    required-init-keyword: size-init-keyword:;
+  slot req-size-init-keyword :: false-or(<symbol>),
+    required-init-keyword: req-size-init-keyword:;
+  slot size-init-value :: false-or(<expression-parse>),
+    required-init-keyword: size-init-value:;
+  slot size-init-function :: false-or(<expression-parse>),
+    required-init-keyword: size-init-function:;
+  slot sizer-fragment :: false-or(<fragment>),
+    required-init-keyword: sizer-fragment:;
+  slot init-keyword-fragment :: false-or(<fragment>),
+    required-init-keyword: init-keyword-fragment:;
+  slot size-init-keyword-fragment :: false-or(<fragment>),
+    required-init-keyword: size-init-keyword-fragment:;
+  slot req-size-init-keyword-fragment :: false-or(<fragment>),
+    required-init-keyword: req-size-init-keyword-fragment:;
+end class <slot-definition-builder>;
+
+
+// make-slot-definition-builder
+//
+define function make-slot-definition-builder
+    (class :: <class-definition-builder>,
+     slot :: <abstract-slot-parse>)
+ => (builder :: <slot-definition-builder>);
+  let (sealed?-fragment, allocation-fragment,
+       type-fragment, setter-fragment,
+       init-keyword-fragment, req-init-keyword-fragment,
+       init-value-fragment, init-expr-fragment,
+       init-function-fragment, sizer-fragment,
+       size-init-keyword-fragment, req-size-init-keyword-fragment,
+       size-init-value-fragment, size-init-function-fragment)
     = extract-properties(slot.slot-parse-options,
 			 sealed:, allocation:, type:, setter:,
 			 init-keyword:, required-init-keyword:,
@@ -588,91 +553,28 @@ define method make-parse-fragment-descr
 			 sizer:, size-init-keyword:,
 			 required-size-init-keyword:,
 			 size-init-value:, size-init-function:);
-  make(<slot-parse-fragment-descr>,
-       sealed?-fragment: sealed?-frag,
-       allocation-fragment:  allocation-frag,
-       type-fragment: type-frag,
-       setter-fragment: setter-frag,
-       init-keyword-fragment: init-keyword-frag,
-       req-init-keyword-fragment: req-init-keyword-frag,
-       init-value-fragment: init-value-frag,
-       init-expr-fragment: init-expr-frag,
-       init-function-fragment: init-function-frag,
-       sizer-fragment: sizer-frag,
-       size-init-keyword-fragment: size-init-keyword-frag,
-       req-size-init-keyword-fragment: req-size-init-keyword-frag,
-       size-init-value-fragment: size-init-value-frag,
-       size-init-function-fragment: size-init-function-frag);
-end method make-parse-fragment-descr;
-
-
-// <slot-parse-description>
-//
-// Info about a slot parse.
-//
-define class <slot-parse-description> (<parse-description>)
-  slot getter :: <symbol>,
-    init-keyword: getter:;
-  slot is-sealed? :: <boolean>,
-    init-keyword: is-sealed?:;
-  slot allocation :: <symbol>,
-    init-keyword: allocation:;
-  slot type :: false-or(<expression-parse>),
-    init-keyword: type:;
-  slot setter :: false-or(<symbol>),
-    init-keyword: setter:;
-  slot init-keyword :: false-or(<symbol>),
-    init-keyword: init-keyword:;
-  slot req-init-keyword :: false-or(<symbol>),
-    init-keyword: req-init-keyword:;
-  slot init-value :: false-or(<expression-parse>),
-    init-keyword: init-value:;
-  slot init-expr :: false-or(<expression-parse>),
-    init-keyword: init-expr:;
-  slot init-function :: false-or(<expression-parse>),
-    init-keyword: init-function:;
-  slot sizer :: false-or(<symbol>),
-    init-keyword: sizer:;
-  slot size-init-keyword :: false-or(<symbol>),
-    init-keyword: size-init-keyword:;
-  slot req-size-init-keyword :: false-or(<symbol>),
-    init-keyword: req-size-init-keyword:;
-  slot size-init-value :: false-or(<expression-parse>),
-    init-keyword: size-init-value:;
-  slot size-init-function :: false-or(<expression-parse>),
-    init-keyword: size-init-function:;
-end class <slot-parse-description>;
-
-
-// make-slot-parse-descr
-//
-define inline function make-slot-parse-descr
-    (class :: <class-parse-description>,
-     slot :: <abstract-slot-parse>,
-     fragment :: <slot-parse-fragment-descr>)
- => (description :: <slot-parse-description>);
   let allocation :: <symbol>
-    = if (fragment.allocation-fragment)
-	extract-identifier(fragment.allocation-fragment).token-symbol;
+    = if (allocation-fragment)
+	extract-identifier(allocation-fragment).token-symbol;
       else
 	#"instance";
       end;
   let getter :: <symbol> = slot.slot-parse-name.token-symbol;
 
-  make(<slot-parse-description>,
+  make(<slot-definition-builder>,
        getter: getter,
        is-sealed?:
-	 fragment.sealed?-fragment
-	 & extract-boolean(fragment.sealed?-fragment),
+	 sealed?-fragment
+	 & extract-boolean(sealed?-fragment),
        allocation: allocation,
        type:
-	 fragment.type-fragment
-	 & expression-from-fragment(fragment.type-fragment),
+	 type-fragment
+	 & expression-from-fragment(type-fragment),
        setter:
 	 if (class.is-functional? & allocation == #"instance")
 	   let id
-	     = fragment.setter-fragment
-	     & extract-identifier-or-false(fragment.setter-fragment);
+	     = setter-fragment
+	     & extract-identifier-or-false(setter-fragment);
 	   if (id)
 	     compiler-warning-location
 	       (id,
@@ -680,43 +582,47 @@ define inline function make-slot-parse-descr
 		  " have a setter.");
 	   end;
 	   #f;
-	 elseif (fragment.setter-fragment)
-	   let id = extract-identifier-or-false(fragment.setter-fragment);
+	 elseif (setter-fragment)
+	   let id = extract-identifier-or-false(setter-fragment);
 	   id & id.token-symbol;
 	 else
 	   symcat(getter, "-setter");
 	 end,
        init-keyword:
-	 (fragment.init-keyword-fragment
-	    & extract-keyword(fragment.init-keyword-fragment)),
+	 (init-keyword-fragment
+	    & extract-keyword(init-keyword-fragment)),
        req-init-keyword:
-	 (fragment.req-init-keyword-fragment
-	    & extract-keyword(fragment.req-init-keyword-fragment)),
+	 (req-init-keyword-fragment
+	    & extract-keyword(req-init-keyword-fragment)),
        init-value:
-	 (fragment.init-value-fragment
-	    & expression-from-fragment(fragment.init-value-fragment)),
+	 (init-value-fragment
+	    & expression-from-fragment(init-value-fragment)),
        init-expr:
-	 (fragment.init-expr-fragment
-	    & expression-from-fragment(fragment.init-expr-fragment)),
+	 (init-expr-fragment
+	    & expression-from-fragment(init-expr-fragment)),
        init-function:
-	 (fragment.init-function-fragment
-	    & expression-from-fragment(fragment.init-function-fragment)),
+	 (init-function-fragment
+	    & expression-from-fragment(init-function-fragment)),
        sizer:
-	 (fragment.sizer-fragment
-	    & extract-identifier(fragment.sizer-fragment).token-symbol),
+	 (sizer-fragment
+	    & extract-identifier(sizer-fragment).token-symbol),
        size-init-keyword:
-	 (fragment.size-init-keyword-fragment
-	    & extract-keyword(fragment.size-init-keyword-fragment)),
+	 (size-init-keyword-fragment
+	    & extract-keyword(size-init-keyword-fragment)),
        req-size-init-keyword:
-	 (fragment.req-size-init-keyword-fragment
-	    & extract-keyword(fragment.req-size-init-keyword-fragment)),
+	 (req-size-init-keyword-fragment
+	    & extract-keyword(req-size-init-keyword-fragment)),
        size-init-value:
-	 (fragment.size-init-value-fragment
-	    & expression-from-fragment(fragment.size-init-value-fragment)),
+	 (size-init-value-fragment
+	    & expression-from-fragment(size-init-value-fragment)),
        size-init-function:
-	 (fragment.size-init-function-fragment
-	    & expression-from-fragment(fragment.size-init-function-fragment)));
-end function make-slot-parse-descr;
+	 (size-init-function-fragment
+	    & expression-from-fragment(size-init-function-fragment)),
+       sizer-fragment: sizer-fragment,
+       init-keyword-fragment: init-keyword-fragment,
+       size-init-keyword-fragment: size-init-keyword-fragment,
+       req-size-init-keyword-fragment: req-size-init-keyword-fragment);
+end function make-slot-definition-builder;
 
 
 // extract-identifier-or-false -- internal.
@@ -751,6 +657,43 @@ define function extract-identifier (fragment :: <token-fragment>)
 	("invalid identifier: %s", token);
   end select;
 end function extract-identifier;
+
+
+// <cclass-builder>  -- internal.
+//
+define class <cclass-builder> (<class-builder>)
+  slot definition,
+    required-init-keyword: definition:;
+  slot super-exprs,
+    required-init-keyword: super-exprs:;
+  slot nsupers,
+    required-init-keyword: nsupers:;
+  slot supers,
+    required-init-keyword: supers:;
+  slot closest-super,
+    required-init-keyword: closest-super:;
+  slot closest-primary,
+    required-init-keyword: closest-primary:;
+  slot bogus?,
+    required-init-keyword: bogus?:;
+end class <cclass-builder>;
+
+define function make-cclass-builder
+    (defn :: <local-class-definition>)
+ => builder :: <cclass-builder>;
+  let super-exprs = defn.class-defn-supers;
+  let nsupers = super-exprs.size;
+  let supers = make(<simple-object-vector>, size: nsupers);
+  let closest-super = #f;
+  let closest-primary = #f;
+  let bogus? = #f;
+  make(<cclass-builder>,
+       definition: defn, super-exprs: super-exprs,
+       nsupers: nsupers, supers: supers,
+       closest-super: closest-super,
+       closest-primary: closest-primary,
+       bogus?: bogus?);
+end function make-cclass-builder;
 
 // Top level form processing.
 // =========================
@@ -769,18 +712,16 @@ end function extract-identifier;
 //    -- method on imported GF.
 //
 define method process-top-level-form (form :: <define-class-parse>) => ();
-  let class-fragments :: <class-parse-fragment-descr>
-    = make-parse-fragment-descr(form);
-  let class :: <class-parse-description>
-    = make-class-parse-description(form, class-fragments);
+  let class :: <class-definition-builder>
+    = make-class-definition-builder(form);
   
   add-%object-class-override(form, class);
   process-slots(form, class);
 
-  let defn
+  let defn :: <local-class-definition>
     = make-local-class-definition(form, class);
-  implicitly-define-generics(class.slots, defn);
-  assign-override-classes(class.overrides, defn);
+  implicitly-define-generics(defn);
+  assign-override-classes(defn);
 
   note-variable-definition(defn);
   add!(*Top-Level-Forms*, make(<define-class-tlf>, defn: defn));
@@ -792,9 +733,9 @@ end method process-top-level-form;
 // If `class' is not abstract and has superclasses we add an override
 // for the `%object-class' slot.
 //
-define inline function add-%object-class-override
+define function add-%object-class-override
     (class-parse :: <define-class-parse>,
-     class :: <class-parse-description>)
+     class :: <class-definition-builder>)
  => ();
   unless (class.is-abstract? | empty?(class-parse.defclass-superclass-exprs))
     add!(class.overrides,
@@ -810,9 +751,9 @@ end function add-%object-class-override;
 
 // process-slots -- internal.
 //
-define inline function process-slots
+define function process-slots
     (class-parse :: <define-class-parse>,
-     class :: <class-parse-description>)
+     class :: <class-definition-builder>)
  => ();
   for (option in class-parse.defclass-slots)
     block ()
@@ -826,26 +767,25 @@ end function process-slots;
 
 // make-local-class-definition -- internal.
 //
-define inline function make-local-class-definition
+define function make-local-class-definition
     (class-parse :: <define-class-parse>,
-     class :: <class-parse-description>)
+     class :: <class-definition-builder>)
  => (definition :: <local-class-definition>);
   
   let slots = as(<simple-object-vector>, class.slots);
   let overrides = as(<simple-object-vector>, class.overrides);
-
   make(<local-class-definition>,
        name: make(<basic-name>,
 		  symbol: class.name,
 		  module: *Current-Module*),
        library: *Current-Library*,
-       supers: class-parse.defclass-superclass-exprs,
+       supers: class.class-supers,
+       slots: slots,
+       overrides: overrides,
        functional: class.is-functional?,
        sealed: class.is-sealed?,
        primary: class.is-primary?,
-       abstract: class.is-abstract?,
-       slots: slots,
-       overrides: overrides);
+       abstract: class.is-abstract?);
 end function make-local-class-definition;
 
 
@@ -853,9 +793,11 @@ end function make-local-class-definition;
 //
 // Create the implicit definitions for the accessor generic functions.
 //
-define inline function  implicitly-define-generics
-    (slots :: <stretchy-vector>, defn :: <local-class-definition>)
- => ()
+define function  implicitly-define-generics
+    (defn :: <local-class-definition>)
+ => ();
+  let slots :: <simple-object-vector>
+    = defn.class-defn-slots;
   for (slot in slots)
     slot.slot-defn-class := defn;
     //
@@ -881,8 +823,10 @@ end function implicitly-define-generics;
 
 // assign-override-classes -- internal
 //
-define inline function assign-override-classes
-    (overrides :: <stretchy-vector>, defn :: <local-class-definition>);
+define function assign-override-classes
+    (defn :: <local-class-definition>);
+  let overrides :: <simple-object-vector>
+    = defn.class-defn-overrides;
   for (override in overrides)
     override.override-defn-class := defn;
   end for;
@@ -894,46 +838,44 @@ end function assign-override-classes;
 // process-slot -- internal GF.
 //
 define generic process-slot
-    (parse :: <parse-description>, slot :: <abstract-slot-parse>)
+    (parse :: <class-definition-builder>, slot :: <abstract-slot-parse>)
  => ();
 
 
 // process-slot {<slot-parse>} -- internal.
 //
 define method process-slot
-    (class :: <class-parse-description>,
+    (class :: <class-definition-builder>,
      slot :: <slot-parse>)
     => ();
-  let slot-fragment-descr :: <slot-parse-fragment-descr>
-    = make-parse-fragment-descr(slot);
-  let slot-descr :: <slot-parse-description>
-    = make-slot-parse-descr(class, slot, slot-fragment-descr);
-  check-slot-inits(slot-descr, slot-fragment-descr);
+  let slot-builder :: <slot-definition-builder>
+    = make-slot-definition-builder(class, slot);
+  check-slot-inits(slot-builder);
 
   let getter-name
-    = make(<basic-name>, symbol: slot-descr.getter,
+    = make(<basic-name>, symbol: slot-builder.getter,
 	   module: *Current-Module*);
   let setter-name
-    = slot-descr.setter
-      & make(<basic-name>, symbol: slot-descr.setter,
+    = slot-builder.setter
+      & make(<basic-name>, symbol: slot-builder.setter,
 	     module: *Current-Module*);
   let size-defn :: false-or(<slot-defn>)
-    = make-sizer-slot-definition(class, slot-descr, slot-fragment-descr);
+    = make-sizer-slot-definition(class, slot-builder);
   
   let slot = make(<slot-defn>,
-		  sealed: slot-descr.is-sealed? & #t,
-		  allocation: slot-descr.allocation,
-		  type: slot-descr.type,
+		  sealed: slot-builder.is-sealed? & #t,
+		  allocation: slot-builder.allocation,
+		  type: slot-builder.type,
 		  getter-name: getter-name,
 		  setter-name: setter-name,
-		  init-value: slot-descr.init-value,
-		  init-function: slot-descr.init-function,
+		  init-value: slot-builder.init-value,
+		  init-function: slot-builder.init-function,
 		  init-keyword:
-		    slot-descr.init-keyword
-		    | slot-descr.req-init-keyword,
+		    slot-builder.init-keyword
+		    | slot-builder.req-init-keyword,
 		  sizer-defn: size-defn,
 		  init-keyword-required:
-		    slot-descr.req-init-keyword & #t);
+		    slot-builder.req-init-keyword & #t);
   add!(class.slots, slot);
 end method process-slot;
 
@@ -941,64 +883,62 @@ end method process-slot;
 // check-slot-inits -- internal.
 //
 // Check whether the init value, keyword and function arguments for
-// `slot-descr' are allowed.  `Fragment-descr' is only used to find
-// the location when we repor an error.
+// `slot-builder' are allowed.  
 //
-define inline function check-slot-inits
-    (slot-descr :: <slot-parse-description>,
-     fragment-descr :: <slot-parse-fragment-descr>)
+define function check-slot-inits
+    (slot-builder :: <slot-definition-builder>)
  => ();
-  if (slot-descr.init-value)
-    if (slot-descr.init-expr)
+  if (slot-builder.init-value)
+    if (slot-builder.init-expr)
       compiler-fatal-error-location
-	(slot-descr.init-value,
+	(slot-builder.init-value,
 	 "Can't supply both an init-value: and an init-expression.");
     end if;
-    if (slot-descr.init-function)
+    if (slot-builder.init-function)
       compiler-fatal-error-location
-	(slot-descr.init-value,
+	(slot-builder.init-value,
 	 "Can't supply both an init-value: and an init-function:.");
     end;
-    if (slot-descr.req-init-keyword)
+    if (slot-builder.req-init-keyword)
       compiler-fatal-error-location
-	(slot-descr.init-value,
+	(slot-builder.init-value,
 	 "Can't supply both an init-value: and a required-init-keyword:.");
     end;
-  elseif (slot-descr.init-expr)
-    if (slot-descr.init-function)
+  elseif (slot-builder.init-expr)
+    if (slot-builder.init-function)
       compiler-fatal-error-location
-	(slot-descr.init-expr,
+	(slot-builder.init-expr,
 	 "Can't supply both an init-function: and an init-expression.");
     end if;
-    if (slot-descr.req-init-keyword)
+    if (slot-builder.req-init-keyword)
       compiler-fatal-error-location
-	(slot-descr.init-expr,
+	(slot-builder.init-expr,
 	 "Can't supply both an init-value: and a required-init-keyword:.");
     end;
-    if (instance?(slot-descr.init-expr, <literal-ref-parse>))
-      slot-descr.init-value := slot-descr.init-expr;
+    if (instance?(slot-builder.init-expr, <literal-ref-parse>))
+      slot-builder.init-value := slot-builder.init-expr;
     else
-      slot-descr.init-function
+      slot-builder.init-function
 	:= make(<method-ref-parse>,
 		method: make(<method-parse>,
 			     parameters: make(<parameter-list>, fixed: #[]),
-			     body: slot-descr.init-expr));
+			     body: slot-builder.init-expr));
     end if;
-  elseif (slot-descr.init-function)
-    if (slot-descr.req-init-keyword)
+  elseif (slot-builder.init-function)
+    if (slot-builder.req-init-keyword)
       compiler-fatal-error-location
-	(slot-descr.init-function,
+	(slot-builder.init-function,
 	 "Can't supply both an init-function: and a "
 	   "required-init-keyword:.");
     end;
   end;
-  if (slot-descr.init-keyword & slot-descr.req-init-keyword)
+  if (slot-builder.init-keyword & slot-builder.req-init-keyword)
     compiler-fatal-error-location
       (simplify-source-location
-	 (fragment-descr.init-keyword-fragment.source-location),
+	 (slot-builder.init-keyword-fragment.source-location),
        "Can't supply both an init-keyword: and a required-init-keyword:.");
   end;
-end function;
+end function check-slot-inits;
 
 
 // make-sizer-slot-definition -- internal.
@@ -1008,21 +948,20 @@ end function;
 // arguments for the sizer slot are provided and report an error if
 // this is the case.
 //
-define inline function make-sizer-slot-definition
-    (class :: <class-parse-description>,
-     slot-descr :: <slot-parse-description>,
-     fragment-descr :: <slot-parse-fragment-descr>)
+define function make-sizer-slot-definition
+    (class :: <class-definition-builder>,
+     slot-builder :: <slot-definition-builder>)
  => (sizer-definition :: false-or(<slot-defn>));
-  if (slot-descr.sizer)
+  if (slot-builder.sizer)
     let sizer-name
       = make(<basic-name>,
-	     symbol: slot-descr.sizer,
+	     symbol: slot-builder.sizer,
 	     module: *Current-Module*);
     
-    check-for-sizer-slot-error(slot-descr, fragment-descr);
+    check-for-sizer-slot-error(slot-builder);
     let slot :: <slot-defn>
       = make(<slot-defn>,
-	     sealed: slot-descr.is-sealed?,
+	     sealed: slot-builder.is-sealed?,
 	     allocation: #"instance",
 	     type:
 	       make(<varref-parse>,
@@ -1033,17 +972,17 @@ define inline function make-sizer-slot-definition
 			     uniquifier: make(<uniquifier>))),
 	     getter-name: sizer-name,
 	     setter-name: #f,
-	     init-value: slot-descr.size-init-value,
-	     init-function: slot-descr.size-init-function,
+	     init-value: slot-builder.size-init-value,
+	     init-function: slot-builder.size-init-function,
 	     init-keyword:
-	       slot-descr.size-init-keyword
-	       | slot-descr.req-size-init-keyword,
+	       slot-builder.size-init-keyword
+	       | slot-builder.req-size-init-keyword,
 	     init-keyword-required:
-	       slot-descr.req-size-init-keyword & #t);
+	       slot-builder.req-size-init-keyword & #t);
     add!(class.slots, slot);
     slot;
   else
-    check-for-no-sizer-slot-error(slot-descr, fragment-descr);
+    check-for-no-sizer-slot-error(slot-builder);
     #f;
   end;
 end function make-sizer-slot-definition;
@@ -1054,74 +993,73 @@ end function make-sizer-slot-definition;
 // Do the error checking for `make-sizer-slot-definition' in the case
 // that the class has a sizer slot.
 //
-define inline function check-for-sizer-slot-error
-    (slot-descr :: <slot-parse-description>,
-     fragment-descr :: <slot-parse-fragment-descr>)
+define function check-for-sizer-slot-error
+    (slot-builder :: <slot-definition-builder>)
  => ();
-  unless (slot-descr.allocation == #"instance")
-    compiler-fatal-error-location
-      (simplify-source-location(sizer-fragment.source-location),
-       "Only instance allocation slots can be variable length, but "
-	 "%s has %s allocation",
-       slot-descr.getter, slot-descr.allocation);
-  end unless;
-  
-  if (slot-descr.size-init-value)
-    if (slot-descr.size-init-function)
-      compiler-fatal-error-location
-	(slot-descr.size-init-value,
-	 "Can't have both a size-init-value: and size-init-function:");
-    end if;
-  elseif (~(slot-descr.size-init-function
-	      | slot-descr.req-size-init-keyword))
-    compiler-fatal-error
-      ("The Initial size for vector slot %s must be supplied somehow.",
-       slot-descr.getter);
-  end if;
-  
-  if (slot-descr.size-init-keyword
-	& slot-descr.req-size-init-keyword)
+  unless (slot-builder.allocation == #"instance")
     compiler-fatal-error-location
       (simplify-source-location
-	 (fragment-descr.size-init-keyword-fragment.source-location),
+	 (slot-builder.sizer-fragment.source-location),
+       "Only instance allocation slots can be variable length, but "
+	 "%s has %s allocation",
+       slot-builder.getter, slot-builder.allocation);
+  end unless;
+  
+  if (slot-builder.size-init-value)
+    if (slot-builder.size-init-function)
+      compiler-fatal-error-location
+	(slot-builder.size-init-value,
+	 "Can't have both a size-init-value: and size-init-function:");
+    end if;
+  elseif (~(slot-builder.size-init-function
+	      | slot-builder.req-size-init-keyword))
+    compiler-fatal-error
+      ("The Initial size for vector slot %s must be supplied somehow.",
+       slot-builder.getter);
+  end if;
+  
+  if (slot-builder.size-init-keyword
+	& slot-builder.req-size-init-keyword)
+    compiler-fatal-error-location
+      (simplify-source-location
+	 (slot-builder.size-init-keyword-fragment.source-location),
        "Can't have both a size-init-keyword: and a "
 	 "required-size-init-keyword:");
   end if;
 end function check-for-sizer-slot-error;
 
 
-// check-for-sizer-slot-error -- internal.
+// check-for-no-sizer-slot-error -- internal.
 //
 // Do the error checking for `make-sizer-slot-definition' in the case
 // that the class does not have a sizer slot.
 //
-define inline function check-for-no-sizer-slot-error
-    (slot-descr :: <slot-parse-description>,
-     fragment-descr :: <slot-parse-fragment-descr>)
+define function check-for-no-sizer-slot-error
+    (slot-builder :: <slot-definition-builder>)
  => ();
-  if (slot-descr.size-init-value)
+  if (slot-builder.size-init-value)
     compiler-fatal-error-location
-      (slot-descr.size-init-value,
+      (slot-builder.size-init-value,
        "Can't supply a size-init-value: without a sizer: generic "
 	 "function");
   end;
-  if (slot-descr.size-init-function)
+  if (slot-builder.size-init-function)
     compiler-fatal-error-location
-      (slot-descr.size-init-function,
+      (slot-builder.size-init-function,
        "Can't supply a size-init-function: without a "
 	 "sizer: generic function");
   end;
-  if (slot-descr.size-init-keyword)
+  if (slot-builder.size-init-keyword)
     compiler-fatal-error-location
       (simplify-source-location
-	 (fragment-descr.size-init-keyword-fragment.source-location),
+	 (slot-builder.size-init-keyword-fragment.source-location),
        "Can't supply a size-init-keyword: without a "
 	 "sizer: generic function");
   end;
-  if (slot-descr.req-size-init-keyword)
+  if (slot-builder.req-size-init-keyword)
     compiler-fatal-error-location
       (simplify-source-location
-	 (fragment-descr.req-size-init-keyword-fragment.source-location),
+	 (slot-builder.req-size-init-keyword-fragment.source-location),
        "Can't supply a required-size-init-keyword: "
 	 "without a sizer: generic function");
   end;
@@ -1131,7 +1069,7 @@ end function check-for-no-sizer-slot-error;
 // process-slot {<inherited-slot-parse>} -- internal.
 //
 define method process-slot
-    (class :: <class-parse-description>,
+    (class :: <class-definition-builder>,
      slot :: <inherited-slot-parse>)
     => ();
   let (init-value-frag, init-expr-frag, init-function-frag)
@@ -1187,7 +1125,7 @@ end method process-slot;
 // process-slot {<init-arg-parse>} -- internal.
 //
 define method process-slot
-    (class :: <class-parse-description>,
+    (class :: <class-definition-builder>,
      slot :: <init-arg-parse>)
  => ();
   let (required?-frag, type-frag, init-value-frag, init-function-frag)
@@ -1261,143 +1199,9 @@ define function compute-cclass (defn :: <local-class-definition>)
   defn.class-defn-cclass := #"computing";
   //
   // Evaluate the superclasses, and check them for validity.
-  let super-exprs = defn.class-defn-supers;
-  let nsupers = super-exprs.size;
-  let supers = make(<simple-object-vector>, size: nsupers);
-  let closest-super = #f;
-  let closest-primary = #f;
-  let bogus? = #f;
+  let cclass-builder :: <cclass-builder>
+    = make-cclass-builder(defn);
   local
-    method check-class-for-violations
-	(super :: false-or(<ct-value>),
-	 super-expr :: <constituent-parse>,
-	 index :: <integer>)
-     => ();
-      //
-      // Store the superclass.
-      supers[index] := super;
-      
-      error-if-sealing-violation(super, super-expr);
-      warning-if-illegal-abstract-superclass(super, super-expr);
-      //
-      // Check that everything is okay with the functional adjective.
-      if (defn.class-defn-functional?)
-	error-if-non-functional-superclass(super, super-expr);
-      else
-	error-if-functional-superclass(super, super-expr);
-      end if;
-      error-if-unrelated-primaries(super, super-expr);
-    end method check-class-for-violations,
-    //
-    // error-if-sealing-violation
-    //
-    method error-if-sealing-violation
-	(super :: false-or(<ct-value>),
-	 super-expr :: <constituent-parse>)
-     => ();
-      //
-      // Make sure we arn't trying to inherit from a sealed class.
-      if (super.sealed? & super.loaded?)
-	compiler-error-location
-	  (super-expr.source-location,
-	   "%s can't inherit from %s because %s is sealed.",
-	   defn.defn-name, super, super);
-	bogus? := #t;
-      end if;
-    end method error-if-sealing-violation,
-    //
-    // warning-if-illegal-abstract-superclass
-    //
-    method warning-if-illegal-abstract-superclass
-	(super :: false-or(<ct-value>),
-	 super-expr :: <constituent-parse>)
-     => ();
-      //
-      // Check that everything is okay with the abstract adjective.
-      if (defn.class-defn-abstract? & ~super.abstract?)
-	compiler-warning-location
-	  (super-expr.source-location,
-	   "abstract class %s can't inherit from %s because "
-	     "%s is concrete -- ignoring abstract abjective.",
-	   defn.defn-name, super, super);
-	defn.class-defn-abstract? := #f;
-      end if;
-    end method warning-if-illegal-abstract-superclass,
-    //
-    // error-if-non-functional-superclass
-    //
-    method error-if-non-functional-superclass
-	(super :: false-or(<ct-value>),
-	 super-expr :: <constituent-parse>)
-     => ();
-      //
-      // Make sure we arn't trying to inherit from anything we can't.
-      if (super.not-functional?)
-	compiler-error-location
-	  (super-expr.source-location,
-	   "functional class %s can't inherit from %s "
-	     "because %s %s and is not functional.",
-	   defn.defn-name, super, super,
-	   if (super.abstract?)
-	     "has instance slots";
-	   else
-	     "is concrete";
-	   end if);
-	bogus? := #t;
-      end if;
-    end method error-if-non-functional-superclass,
-    //
-    // error-if-functional-superclass
-    //
-    method error-if-functional-superclass
-	(super :: false-or(<ct-value>),
-	 super-expr :: <constituent-parse>)
-     => ();
-      //
-      // It isn't a functional class, so make sure we arn't trying to
-      // inherit from a functional class.
-      if (super.functional?)
-	compiler-error-location
-	  (super-expr.source-location,
-	   "class %s can't inherit from %s because %s is functional.",
-	   defn.defn-name, super, super);
-	bogus? := #t;
-      end if;
-    end method error-if-functional-superclass,
-    //
-    // error-if-unrelated-primaries
-    //
-    method error-if-unrelated-primaries
-	(super :: false-or(<ct-value>),
-	 super-expr :: <constituent-parse>)
-     => ();
-      //
-      // Check to see if this superclass's closest-primary-superclass
-      // is closer than any of the others so far.
-      let other-primary = super.closest-primary-superclass;
-      if (~closest-primary | csubtype?(other-primary, closest-primary))
-	closest-super := super;
-	closest-primary := other-primary;
-      elseif (~csubtype?(closest-primary, other-primary))
-	local method describe (primary, super)
-		if (primary == super)
-		  as(<string>, primary.cclass-name.name-symbol);
-		else
-		  format-to-string("%s (inherited via %s)",
-				   primary.cclass-name.name-symbol,
-				   super.cclass-name.name-symbol);
-		end;
-	      end;
-	compiler-error-location
-	  (super-expr.source-location,
-	   "%s can't inherit from %s and %s because they are both primary "
-	     "and neither is a subclass of the other.",
-	   defn.defn-name,
-	   describe(closest-primary, closest-super),
-	   describe(other-primary, super));
-	bogus? := #t;
-      end if;
-    end method error-if-unrelated-primaries,
     //
     // superclass-not-cclass-error
     //
@@ -1419,17 +1223,17 @@ define function compute-cclass (defn :: <local-class-definition>)
 	   integer-to-english(index + 1, as: #"ordinal"),
 	   defn.defn-name);
       end if;
-      bogus? := #t;
+      cclass-builder.bogus? := #t;
     end method superclass-not-cclass-error;
 
 
-  for (index from 0 below nsupers)
+  for (index from 0 below cclass-builder.nsupers)
     let super-expr :: <constituent-parse>
-      = super-exprs[index];
+      = cclass-builder.super-exprs[index];
     let super :: false-or(<ct-value>)
       = ct-eval(super-expr, #f);
     if (instance?(super, <cclass>))
-      check-class-for-violations(super, super-expr, index);
+      check-class-for-violations(cclass-builder, super, super-expr, index);
     else
       //
       // The superclass isn't a <class>.  So complain.
@@ -1438,27 +1242,27 @@ define function compute-cclass (defn :: <local-class-definition>)
   end for;
 
   if (defn == dylan-defn(#"<object>"))
-    unless (nsupers.zero?)
+    unless (cclass-builder.nsupers.zero?)
       error("<object> has superclasses?");
     end unless;
   else
-    if (nsupers.zero?)
+    if (cclass-builder.nsupers.zero?)
       compiler-error-location
 	(defn, "%s has no superclasses.", defn.defn-name);
-      bogus? := #t;
-    elseif (closest-primary == #f & ~bogus?)
+      cclass-builder.bogus? := #t;
+    elseif (cclass-builder.closest-primary == #f & ~cclass-builder.bogus?)
       error("<object> isn't being inherited or isn't primary?");
     end if;
   end if;
 
-  unless (bogus?)
+  unless (cclass-builder.bogus?)
     //
     // Compute the slots and overrides.
     let slot-infos = map(compute-slot, defn.class-defn-slots);
-    let override-infos = map(compute-override, defn.class-defn-overrides);
+    let override-infos = map(compute-override-info, defn.class-defn-overrides);
     //
     // Make and return the <cclass>.
-    make-defined-cclass(defn, supers, slot-infos, override-infos);
+    make-defined-cclass(defn, cclass-builder.supers, slot-infos, override-infos);
   end unless;
 end function compute-cclass;
 
@@ -1467,7 +1271,7 @@ end function compute-cclass;
 //
 // Return a <defined-cclass> for `defn'.
 //
-define inline function make-defined-cclass
+define function make-defined-cclass
     (defn :: <real-class-definition>,
      supers :: <simple-object-vector>,
      slot-infos :: <simple-object-vector>,
@@ -1480,27 +1284,174 @@ define inline function make-defined-cclass
        direct-superclasses: as(<list>, supers),
        not-functional:
 	 // Do we proclude functional subclasses?
-	 if (defn.class-defn-functional?)
+	 if (defn.is-functional?)
 	   #f;
-	 elseif (defn.class-defn-abstract?)
+	 elseif (defn.is-abstract?)
 	   ~supers.empty?
 	     & (any?(not-functional?, supers)
 		  | any?(inhibits-functional-classes?, slot-infos));
 	 else
 	   #t;
 	 end,
-       functional: defn.class-defn-functional?,
-       sealed: defn.class-defn-sealed?,
-       primary: defn.class-defn-primary?,
-       abstract: defn.class-defn-abstract?,
+       functional: defn.is-functional?,
+       sealed: defn.is-sealed?,
+       primary: defn.is-primary?,
+       abstract: defn.is-abstract?,
        slots: slot-infos,
        overrides: override-infos);
 end function make-defined-cclass;
 
 
+// check-class-for-violations  -- internal.
+//
+define function check-class-for-violations
+    (cclass-builder :: <cclass-builder>,
+     super :: false-or(<ct-value>),
+     super-expr :: <constituent-parse>,
+     index :: <integer>)
+ => ();
+  //
+  // Store the superclass.
+  cclass-builder.supers[index] := super;
+  
+  error-if-sealing-violation(cclass-builder, super, super-expr);
+  warning-if-illegal-abstract-superclass(cclass-builder, super,
+					 super-expr);
+  //
+  // Check that everything is okay with the functional adjective.
+  if (cclass-builder.definition.is-functional?)
+    error-if-non-functional-superclass(cclass-builder, super, super-expr);
+  else
+    error-if-functional-superclass(cclass-builder, super, super-expr);
+  end if;
+  error-if-unrelated-primaries(cclass-builder, super, super-expr);
+end function check-class-for-violations;
+
+
+// error-if-sealing-violation
+//
+define function error-if-sealing-violation
+    (cclass-builder :: <cclass-builder>,
+     super :: false-or(<ct-value>),
+     super-expr :: <constituent-parse>)
+ => ();
+  //
+  // Make sure we arn't trying to inherit from a sealed class.
+  if (super.sealed? & super.loaded?)
+    compiler-error-location
+      (super-expr.source-location,
+       "%s can't inherit from %s because %s is sealed.",
+       cclass-builder.definition.defn-name, super, super);
+    cclass-builder.bogus? := #t;
+  end if;
+end function error-if-sealing-violation;
+
+
+// warning-if-illegal-abstract-superclass  -- internal.
+//
+define function warning-if-illegal-abstract-superclass
+    (cclass-builder :: <cclass-builder>,
+     super :: false-or(<ct-value>),
+     super-expr :: <constituent-parse>)
+ => ();
+  //
+  // Check that everything is okay with the abstract adjective.
+  if (cclass-builder.definition.is-abstract? & ~super.abstract?)
+    compiler-warning-location
+      (super-expr.source-location,
+       "abstract class %s can't inherit from %s because "
+	 "%s is concrete -- ignoring abstract abjective.",
+       cclass-builder.definition.defn-name, super, super);
+    cclass-builder.definition.is-abstract? := #f;
+  end if;
+end function warning-if-illegal-abstract-superclass;
+
+
+// error-if-non-functional-superclass  -- internal.
+//
+define function error-if-non-functional-superclass
+    (cclass-builder :: <cclass-builder>,
+     super :: false-or(<ct-value>),
+     super-expr :: <constituent-parse>)
+ => ();
+  //
+  // Make sure we arn't trying to inherit from anything we can't.
+  if (super.not-functional?)
+    compiler-error-location
+      (super-expr.source-location,
+       "functional class %s can't inherit from %s "
+	 "because %s %s and is not functional.",
+       cclass-builder.definition.defn-name, super, super,
+       if (super.abstract?)
+	 "has instance slots";
+       else
+	 "is concrete";
+       end if);
+    cclass-builder.bogus? := #t;
+  end if;
+end function error-if-non-functional-superclass;
+
+
+// error-if-functional-superclass
+//
+define function error-if-functional-superclass
+    (cclass-builder :: <cclass-builder>,
+     super :: false-or(<ct-value>),
+     super-expr :: <constituent-parse>)
+ => ();
+  //
+  // It isn't a functional class, so make sure we arn't trying to
+  // inherit from a functional class.
+  if (super.functional?)
+    compiler-error-location
+      (super-expr.source-location,
+       "class %s can't inherit from %s because %s is functional.",
+       cclass-builder.definition.defn-name, super, super);
+    cclass-builder.bogus? := #t;
+  end if;
+end function error-if-functional-superclass;
+
+
+// error-if-unrelated-primaries
+//
+define function error-if-unrelated-primaries
+    (cclass-builder :: <cclass-builder>,
+     super :: false-or(<ct-value>),
+     super-expr :: <constituent-parse>)
+ => ();
+  //
+  // Check to see if this superclass's closest-primary-superclass
+  // is closer than any of the others so far.
+  let other-primary = super.closest-primary-superclass;
+  if (~cclass-builder.closest-primary
+	| csubtype?(other-primary, cclass-builder.closest-primary))
+    cclass-builder.closest-super := super;
+    cclass-builder.closest-primary := other-primary;
+  elseif (~csubtype?(cclass-builder.closest-primary, other-primary))
+    local method describe (primary, super)
+	    if (primary == super)
+	      as(<string>, primary.cclass-name.name-symbol);
+	    else
+	      format-to-string("%s (inherited via %s)",
+			       primary.cclass-name.name-symbol,
+			       super.cclass-name.name-symbol);
+	    end;
+	  end;
+    compiler-error-location
+      (super-expr.source-location,
+       "%s can't inherit from %s and %s because they are both primary "
+	 "and neither is a subclass of the other.",
+       cclass-builder.definition.defn-name,
+       describe(cclass-builder.closest-primary, cclass-builder.closest-super),
+       describe(other-primary, super));
+    cclass-builder.bogus? := #t;
+  end if;
+end function error-if-unrelated-primaries;
+
+
 // compute-slot  -- internal.
 //
-define inline function compute-slot
+define function compute-slot
     (slot :: <slot-defn>)
  => info :: <slot-info>;
   //
@@ -1520,7 +1471,7 @@ end function compute-slot;
 
 // make-slot-info-for-sizer-slot -- internal.
 //
-define inline function make-slot-info-for-sizer-slot
+define function make-slot-info-for-sizer-slot
     (slot :: <slot-defn>)
  => (info :: <slot-info>);
   let getter-name = slot.slot-defn-getter-name;
@@ -1538,7 +1489,7 @@ end function make-slot-info-for-sizer-slot;
 
 // make-slot-info-for-standard-slot -- internal.
 //
-define inline function make-slot-info-for-standard-slot
+define function make-slot-info-for-standard-slot
     (slot :: <slot-defn>)
  => (info :: <slot-info>);
   let getter-name = slot.slot-defn-getter-name;
@@ -1553,9 +1504,13 @@ define inline function make-slot-info-for-standard-slot
 	 slot.slot-defn-init-keyword-required?);
 end function make-slot-info-for-standard-slot;
   
-// compute-override -- internal.
+
+// compute-override-info  -- internal.
 //
-define inline function compute-override
+// Compute the override info for `override' and store it in the
+// `override-defn-info' slot.
+//
+define function compute-override-info
     (override :: <override-defn>) => info :: <override-info>;
   let getter-name = override.override-defn-getter-name;
   //
@@ -1568,7 +1523,7 @@ define inline function compute-override
 		  init-function: override.override-defn-init-function & #t);
   override.override-defn-info := info;
   info;
-end function compute-override;
+end function compute-override-info;
 
 
 // inhibits-functionsl-classes? -- internal GF.
@@ -1625,7 +1580,7 @@ end method finalize-top-level-form;
 // Compute `defn''s cclass if it is not yet computed, otherwise return
 // whatever was previously computed.
 //
-define inline function compute-tlf-cclass-if-necessary
+define function compute-tlf-cclass-if-necessary
     (defn :: <definition>)
  => cclass :: false-or(<cclass>);
   if (defn.class-defn-cclass == #"not-computed-yet")
@@ -1640,7 +1595,7 @@ end function compute-tlf-cclass-if-necessary;
 //
 // Finalize `override'.
 //
-define inline function finalize-tlf-override
+define function finalize-tlf-override
     (override :: <override-defn>,
      tlf :: <define-class-tlf>)
  => ();
@@ -1674,9 +1629,7 @@ end function finalize-tlf-override;
 //
 // Finalize `slot'.
 //
-// (Inlined because it has only one call site).
-//
-define inline function finalize-slot
+define function finalize-slot
     (slot :: <slot-defn>, cclass :: false-or(<cclass>),
      class-type :: <ctype>, tlf :: <define-class-tlf>)
     => ();
@@ -1701,7 +1654,7 @@ end function finalize-slot;
 
 // compute-slot-type  -- internal.
 //
-define inline function compute-slot-type
+define function compute-slot-type
     (slot :: <slot-defn>)
  => slot-type :: <ctype>;
   if (slot.slot-defn-type)
@@ -1719,7 +1672,7 @@ end function compute-slot-type;
 
 // fill-in-slot-info  -- internal.
 //
-define inline function fill-in-slot-info
+define function fill-in-slot-info
     (slot :: <slot-defn>, slot-type :: <ctype>,
      tlf :: <define-class-tlf>)
  => ();
@@ -1751,91 +1704,11 @@ end function fill-in-slot-info;
 
 // define-slot-accessors  -- internal.
 //
-define inline function define-slot-accessors
+define function define-slot-accessors
     (slot :: <slot-defn>, slot-type :: <ctype>,
      cclass :: false-or(<cclass>), tlf :: <define-class-tlf>,
      specializers :: <list>)
  => ();    
-  local
-    //
-    // set-slot-defn-getter  -- internal.
-    //
-    method set-slot-defn-getter
-	(library :: <library>, hairy? :: <boolean>)
-     => ();
-      slot.slot-defn-getter
-	:= make(<getter-method-definition>,
-		base-name: slot.slot-defn-getter-name,
-		library: library,
-		signature: make(<signature>,
-				specializers: specializers,
-				returns: slot-type),
-		hairy: hairy?,
-		slot: slot.slot-defn-info);
-    end method set-slot-defn-getter,
-    //
-    // add-slot-defn-getter-to-gf
-    //
-    method add-slot-defn-getter-to-gf () => ();            
-      let gf :: false-or(<generic-definition>)
-	= slot.slot-defn-getter.method-defn-of;
-      if (gf)
-	ct-add-method(gf, slot.slot-defn-getter);
-      end;
-    end method add-slot-defn-getter-to-gf,
-    //
-    // add-seal-if-necessary
-    //
-    method add-seal-if-necessary(library :: <library>) => ();
-      let gf :: false-or(<generic-definition>)
-	= slot.slot-defn-getter.method-defn-of;
-      if (slot.slot-defn-sealed?)
-	if (gf)
-	  add-seal(gf, library, specializers, tlf);
-	else
-	  compiler-error
-	    ("%s doesn't name a generic function, so can't be sealed.",
-	     slot.slot-defn-getter-name);
-	end if;
-      end if;
-    end method add-seal-if-necessary,
-    //
-    // set-slot-defn-setter
-    //
-    method set-slot-defn-setter
-	(library :: <library>, hairy? :: <boolean>)
-     => ();
-      slot.slot-defn-setter
-	:= if (slot.slot-defn-setter-name)
-	     let defn = make(<setter-method-definition>,
-			     base-name: slot.slot-defn-setter-name,
-			     library: library,
-			     signature: make(<signature>,
-					     specializers:
-					       pair(slot-type, specializers),
-					     returns: slot-type),
-			     hairy: hairy?,
-			     slot: slot.slot-defn-info);
-	     let gf = defn.method-defn-of;
-	     if (gf)
-	       ct-add-method(gf, defn);
-	     end;
-	     if (slot.slot-defn-sealed?)
-	       if (gf)
-		 add-seal(gf, library,
-			  pair(object-ctype(), specializers), tlf);
-	       else
-		 compiler-error
-		   ("%s doesn't name a generic function, so can't be sealed.",
-		    slot.slot-defn-setter-name);
-	       end;
-	     end;
-	     defn;
-	   else
-	     #f;
-	   end if;      
-    end method set-slot-defn-setter;
-  
   unless (slot.slot-defn-allocation == #"virtual")
     //
     // Extract the library from the class definition.
@@ -1843,13 +1716,104 @@ define inline function define-slot-accessors
     //
     // Are the accessor methods hairy?
     let hairy? = ~cclass | instance?(slot-type, <unknown-ctype>);
-
-    set-slot-defn-getter(library, hairy?);
-    add-slot-defn-getter-to-gf();
-    add-seal-if-necessary(library);
-    set-slot-defn-setter(library, hairy?);
+    
+    set-slot-defn-getter(slot, slot-type, specializers, library, hairy?);
+    add-slot-defn-getter-to-gf(slot);
+    add-seal-if-necessary(slot, tlf, specializers, library);
+    set-slot-defn-setter(slot, slot-type, tlf, specializers,
+			 library, hairy?);
   end unless;
 end function define-slot-accessors;
+
+
+// set-slot-defn-getter  -- internal.
+//
+define function set-slot-defn-getter
+    (slot :: <slot-defn>, slot-type :: <ctype>,
+     specializers :: <list>,
+     library :: <library>, hairy? :: <boolean>)
+ => ();
+  slot.slot-defn-getter
+    := make(<getter-method-definition>,
+	    base-name: slot.slot-defn-getter-name,
+	    library: library,
+	    signature: make(<signature>,
+			    specializers: specializers,
+			    returns: slot-type),
+	    hairy: hairy?,
+	    slot: slot.slot-defn-info);
+end function set-slot-defn-getter;
+
+
+// add-slot-defn-getter-to-gf
+//
+define function add-slot-defn-getter-to-gf
+    (slot :: <slot-defn>) => ();            
+  let gf :: false-or(<generic-definition>)
+    = slot.slot-defn-getter.method-defn-of;
+  if (gf)
+    ct-add-method(gf, slot.slot-defn-getter);
+  end;
+end function add-slot-defn-getter-to-gf;
+
+
+// add-seal-if-necessary
+//
+define function add-seal-if-necessary
+    (slot :: <slot-defn>, tlf :: <define-class-tlf>,
+     specializers :: <list>, library :: <library>)
+ => ();
+  let gf :: false-or(<generic-definition>)
+    = slot.slot-defn-getter.method-defn-of;
+  if (slot.slot-defn-sealed?)
+    if (gf)
+      add-seal(gf, library, specializers, tlf);
+    else
+      compiler-error
+	("%s doesn't name a generic function, so can't be sealed.",
+	 slot.slot-defn-getter-name);
+    end if;
+  end if;
+end function add-seal-if-necessary;
+
+
+// set-slot-defn-setter
+//
+define function set-slot-defn-setter
+    (slot :: <slot-defn>, slot-type :: <ctype>,
+     tlf :: <define-class-tlf>, specializers :: <list>,
+     library :: <library>, hairy? :: <boolean>)
+ => ();
+  slot.slot-defn-setter
+    := if (slot.slot-defn-setter-name)
+	 let defn = make(<setter-method-definition>,
+			 base-name: slot.slot-defn-setter-name,
+			 library: library,
+			 signature: make(<signature>,
+					 specializers:
+					   pair(slot-type, specializers),
+					 returns: slot-type),
+			 hairy: hairy?,
+			 slot: slot.slot-defn-info);
+	 let gf = defn.method-defn-of;
+	 if (gf)
+	   ct-add-method(gf, defn);
+	 end;
+	 if (slot.slot-defn-sealed?)
+	   if (gf)
+	     add-seal(gf, library,
+		      pair(object-ctype(), specializers), tlf);
+	   else
+	     compiler-error
+	       ("%s doesn't name a generic function, so can't be sealed.",
+		slot.slot-defn-setter-name);
+	   end;
+	 end;
+	 defn;
+       else
+	 #f;
+       end if;      
+end function set-slot-defn-setter;
 
 
 // maybe-define-init-function  -- internal.
@@ -1878,7 +1842,7 @@ end function maybe-define-init-function;
 // Return `init-val' and #f is `init-val' is a compile-time function,
 // otherwise report an error and return (#f, #f).
 //
-define inline function return-init-val-or-error
+define function return-init-val-or-error
     (init-fun :: <ct-value>, expr :: <expression-parse>)
  => (init-function :: false-or(<ct-value>),
      change-to-init-value? :: <false>);
@@ -1894,7 +1858,7 @@ end function return-init-val-or-error;
 
 // maybe-define-init-function-from-method-ref  -- internal.
 //
-define inline function maybe-define-init-function-from-method-ref
+define function maybe-define-init-function-from-method-ref
     (expr :: <expression-parse>, getter-name :: <basic-name>,
      tlf :: <define-class-tlf>, method-ref :: <method-ref-parse>)
  => (ctv :: false-or(<ct-value>), change-to-init-value? :: <boolean>);
@@ -1922,7 +1886,7 @@ end function maybe-define-init-function-from-method-ref;
 
 // define-constant-init-function  -- internal.
 //
-define inline function define-constant-init-function
+define function define-constant-init-function
     (getter-name :: <basic-name>, tlf :: <define-class-tlf>,
      method-parse :: <method-parse>)
  => (ctv :: false-or(<ct-value>), change-to-init-value? :: <false>);
@@ -1987,7 +1951,7 @@ end;
 
 // compute-new-evaluations-function?  -- internal.
 //
-define inline function compute-new-evaluations-function?
+define function compute-new-evaluations-function?
     (defn :: <real-class-definition>)
  => (create-new-function? :: <boolean>);
   block (return)
@@ -2046,7 +2010,7 @@ end method class-defn-maker-function;
 
 // compute-class-defn-maker-function  -- internal.
 //
-define inline function compute-class-defn-maker-function
+define function compute-class-defn-maker-function
     (defn :: <real-class-definition>)
  => class-defn-maker-function :: false-or(<ct-function>);
   block (return)
@@ -2096,7 +2060,7 @@ end function compute-class-defn-maker-function;
 
 // prepare-slot-for-maker-or-return  -- internal.
 //
-define inline function prepare-slot-for-maker-or-return
+define function prepare-slot-for-maker-or-return
     (slot :: <slot-info>, cclass :: <cclass>,
      key-infos :: <stretchy-vector>, return :: <function>)
  => ();
@@ -2129,7 +2093,7 @@ end function prepare-slot-for-maker-or-return;
 
 // find-active-override -- internal.
 //
-define inline function find-active-override
+define function find-active-override
     (slot :: <slot-info>, cclass :: <ct-value>)
  => override :: false-or(<override-info>);
   block (found)
@@ -2146,7 +2110,7 @@ end function find-active-override;
 
 // find-init-function-or-return  -- internal.
 //
-define inline function find-init-function-or-return
+define function find-init-function-or-return
     (slot :: <slot-info>, override :: false-or(<override-info>),
      return :: <function>)
  => init-function :: type-union(<ct-value>, <boolean>);
@@ -2165,7 +2129,7 @@ end function find-init-function-or-return;
 
 // find-init-value-or-return  -- internal.
 //
-define inline function find-init-value-or-return
+define function find-init-value-or-return
     (slot :: <slot-info>, override :: false-or(<override-info>),
      return :: <function>)
  => init-value :: type-union(<ct-value>, <boolean>);
@@ -2184,7 +2148,7 @@ end function find-init-value-or-return;
 
 // make-keyword-info-for-slot  -- internal.
 //
-define inline function make-keyword-info-for-slot
+define function make-keyword-info-for-slot
     (slot :: <slot-info>, key-infos :: <stretchy-vector>,
      override :: false-or(<override-info>),
      init-value :: type-union(<ct-value>, <boolean>))
@@ -2219,8 +2183,8 @@ define method maker-inline-expansion
   leaf;
 end method maker-inline-expansion;
 
-// Top level form description.
-// ==========================
+// Top level form builders.
+// =======================
 //
 // When converting top-level forms we face the same problem as when
 // parsing top-level forms: We have large amounts of data to be
@@ -2280,7 +2244,7 @@ end class <hairy-class-tlf-descr>;
 // Create either a <simple-class-tlf-descr> or a
 // <hairy-class-tlf-descr>.
 //
-define inline function make-class-tlf-descr
+define function make-class-tlf-descr
     (tl-builder :: <fer-builder>, tlf :: <define-class-tlf>)
  => class-tlf-descr :: <class-tlf-descr>;
   let defn = tlf.tlf-defn;
@@ -2328,7 +2292,7 @@ end class <slot-defn-descr>;
 
 // make-slot-defn-descr  -- internal.
 //
-define inline function make-slot-defn-descr
+define function make-slot-defn-descr
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-defn :: <slot-defn>)
  => slot-defn-descr :: <slot-defn-descr>;
@@ -2358,7 +2322,7 @@ end function make-slot-defn-descr;
 
 // calculate-type-var  -- internal.
 //
-define inline function calculate-type-var
+define function calculate-type-var
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-defn :: <slot-defn>, slot-info :: <slot-info>,
      slot-type :: <ctype>, slot-name)
@@ -2390,7 +2354,7 @@ end function calculate-type-var;
 // calculate-type-and-type-var  -- internal.
 //
 /*
-define inline function calculate-type-and-type-var
+define function calculate-type-and-type-var
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-defn :: <slot-defn>, slot-info :: <slot-info>,
      slot-type :: <ctype>, slot-name)
@@ -2440,7 +2404,7 @@ end class <override-defn-descr>;
 
 // make-override-descr  -- internal.
 //
-define inline function make-override-descr
+define function make-override-descr
     (tlf-descr :: <simple-class-tlf-descr>,
      override-defn :: <override-defn>)
  => override-descr :: <override-defn-descr>;
@@ -2503,43 +2467,40 @@ define method convert-top-level-form-using-descr
   // functions.
   fer-convert-init-function-defns(tlf-descr);
   
-  begin
+  // Do the defered evaluations for any of the superclasses that need it.
+  for (super in tlf-descr.cclass.direct-superclasses)
+    do-deferred-evaluation-for(tlf-descr, super);
+  end for;
+  
+  // Process slot definitions.
+  for (slot-defn in tlf-descr.definition.class-defn-slots,
+       index from 0)
+    let slot-descr :: <slot-defn-descr> =
+      make-slot-defn-descr(tlf-descr, slot-defn);
+    if (slot-descr.init-value == #t)
+      build-init-value-assignment(tlf-descr, slot-descr);
+    elseif (slot-descr.init-function == #t)
+      build-init-function-assignment(tlf-descr, slot-descr);
+    end;
+    build-getter-and-setter(tlf-descr, slot-descr);
+  end for;
+  
+  // Process overrides.
+  for (override-defn in tlf-descr.definition.class-defn-overrides,
+       index from 0)
+    let override-descr :: <override-defn-descr>
+      = make-override-descr(tlf-descr, override-defn);
     
-    // Do the defered evaluations for any of the superclasses that need it.
-    for (super in tlf-descr.cclass.direct-superclasses)
-      do-deferred-evaluation-for(tlf-descr, super);
-    end for;
-    
-    // Process slot definitions.
-    for (slot-defn in tlf-descr.definition.class-defn-slots,
-	 index from 0)
-      let slot-descr :: <slot-defn-descr> =
-	make-slot-defn-descr(tlf-descr, slot-defn);
-      if (slot-descr.init-value == #t)
-	build-init-value-assignment(tlf-descr, slot-descr);
-      elseif (slot-descr.init-function == #t)
-	build-init-function-assignment(tlf-descr, slot-descr);
-      end;
-      build-getter-and-setter(tlf-descr, slot-descr);
-    end for;
-
-    // Process overrides.
-    for (override-defn in tlf-descr.definition.class-defn-overrides,
-	 index from 0)
-      let override-descr :: <override-defn-descr>
-	= make-override-descr(tlf-descr, override-defn);
-      
-      if (override-descr.init-value == #t
-	    | override-descr.init-function == #t)
-	if (override-descr.init-value)
-	  build-override-value-assignment(tlf-descr, override-descr);
-	else
-	  build-override-function-assignment(tlf-descr, override-descr);
-	end if;
+    if (override-descr.init-value == #t
+	  | override-descr.init-function == #t)
+      if (override-descr.init-value)
+	build-override-value-assignment(tlf-descr, override-descr);
+      else
+	build-override-function-assignment(tlf-descr, override-descr);
       end if;
-    end for;
-  end begin;
-
+    end if;
+  end for;
+  
   build-tlf-maker(tlf-descr);
   
   let ctv = tlf-descr.definition.class-defn-defered-evaluations-function;
@@ -2553,7 +2514,7 @@ end method convert-top-level-form-using-descr;
 
 // do-deferred-evaluation-for-super  -- internal.
 //
-define inline function do-deferred-evaluation-for
+define function do-deferred-evaluation-for
     (tlf-descr :: <simple-class-tlf-descr>, super :: <cclass>)
  => ();
   if (super.class-defn.class-defn-defered-evaluations-function)
@@ -2573,7 +2534,7 @@ end function do-deferred-evaluation-for;
 //
 // fer-convert all `init-function-defn's of `tlf'.
 //
-define inline function fer-convert-init-function-defns
+define function fer-convert-init-function-defns
     (tlf-descr :: <simple-class-tlf-descr>)
  => ();
   for (init-func-defn in tlf-descr.tlf.tlf-init-function-defns)
@@ -2588,7 +2549,7 @@ end function fer-convert-init-function-defns;
 
 // build-init-value-assignment
 //
-define inline function build-init-value-assignment
+define function build-init-value-assignment
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-descr :: <slot-defn-descr>)
  => ();
@@ -2613,7 +2574,7 @@ end function build-init-value-assignment;
 
 // build-init-function-assignment
 //
-define inline function build-init-function-assignment
+define function build-init-function-assignment
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-descr :: <slot-defn-descr>)
  => ();
@@ -2637,7 +2598,7 @@ end function build-init-function-assignment;
 
 // build-call  -- internal.
 //
-define inline function build-call
+define function build-call
     (tlf-descr :: <simple-class-tlf-descr>,
      name, #rest args)
  => local-variable :: <initial-variable>;
@@ -2657,7 +2618,7 @@ end function build-call;
 
 // build-add-method  -- internal
 //
-define inline function build-add-method
+define function build-add-method
     (tlf-descr :: <simple-class-tlf-descr>,
      gf-name :: <name>,
      method-defn :: <accessor-method-definition>,
@@ -2695,7 +2656,7 @@ end function build-add-method;
 
 // build-getter-and-setter -- internal.
 //
-define inline function build-getter-and-setter
+define function build-getter-and-setter
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-descr :: <slot-defn-descr>)
  => ();          
@@ -2711,7 +2672,7 @@ end function build-getter-and-setter;
 
 // build-typed-getter-and-setter -- internal.
 //
-define inline function build-typed-getter-and-setter
+define function build-typed-getter-and-setter
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-descr :: <slot-defn-descr>)
  => ();          
@@ -2757,23 +2718,21 @@ end function build-typed-getter-and-setter;
 
 // build-untyped-getter-and-setter -- internal.
 //
-define inline function build-untyped-getter-and-setter
+define function build-untyped-getter-and-setter
     (tlf-descr :: <simple-class-tlf-descr>,
      slot-descr :: <slot-defn-descr>)
  => ();          
-  begin
-    let getter
-      = slot-descr.slot-definition.slot-defn-getter.ct-value;
-    let getter-standin
-      = slot-accessor-standin(slot-descr.slot-info,
-			      #"getter");
-    if (getter-standin)
-      getter.ct-accessor-standin := getter-standin;
-    else
-      build-getter(tlf-descr.tl-builder, getter,
-		   slot-descr.slot-definition, slot-descr.slot-info);
-    end if;
-  end begin;
+  let getter
+    = slot-descr.slot-definition.slot-defn-getter.ct-value;
+  let getter-standin
+    = slot-accessor-standin(slot-descr.slot-info,
+			    #"getter");
+  if (getter-standin)
+    getter.ct-accessor-standin := getter-standin;
+  else
+    build-getter(tlf-descr.tl-builder, getter,
+		 slot-descr.slot-definition, slot-descr.slot-info);
+  end if;
   
   if (slot-descr.slot-definition.slot-defn-setter)
     let setter = slot-descr.slot-definition.slot-defn-setter.ct-value;
@@ -2792,7 +2751,7 @@ end function build-untyped-getter-and-setter;
 
 // build-override-value-assignment  -- internal.
 //
-define inline function build-override-value-assignment
+define function build-override-value-assignment
     (tlf-descr :: <simple-class-tlf-descr>,
      override-descr :: <override-defn-descr>)
  => ();
@@ -2821,7 +2780,7 @@ end function build-override-value-assignment;
 
 // build-override-function-assignment  -- internal.
 //
-define inline function build-override-function-assignment
+define function build-override-function-assignment
     (tlf-descr :: <simple-class-tlf-descr>,
      override-descr :: <override-defn-descr>)
  => ();
@@ -2847,7 +2806,7 @@ end function build-override-function-assignment;
 
 // build-tlf-maker  -- internal.
 //
-define inline function build-tlf-maker
+define function build-tlf-maker
     (tlf-descr :: <simple-class-tlf-descr>)
  => ();
   unless (tlf-descr.cclass.abstract?)
@@ -2889,7 +2848,7 @@ end function build-tlf-maker;
 
 // build-deferred-evaluations-function  -- internal.
 //
-define inline function build-deferred-evaluations-function
+define function build-deferred-evaluations-function
     (tlf-descr :: <simple-class-tlf-descr>,
      ctv :: false-or(<ct-function>));
   let func-region
@@ -2979,7 +2938,7 @@ define class <maker-body-descr> (<top-level-form-description>)
 end class <maker-body-descr>;
 
 
-define inline function make-maker-body-descr
+define function make-maker-body-descr
     (tl-builder :: <fer-builder>, defn :: <class-definition>)
  => body-descr :: <maker-body-descr>;
   let maker-key-infos = make(<stretchy-vector>);
@@ -3018,7 +2977,7 @@ end function make-maker-body-descr;
 
 // build-maker-function-body  -- internal.
 //
-define inline function build-maker-function-body
+define function build-maker-function-body
     (tl-builder :: <fer-builder>, defn :: <class-definition>)
     => (maker-region :: <fer-function-region>,
 	signature :: <signature>);
@@ -3121,7 +3080,7 @@ end function build-maker-function-body;
 
 // calculate-init-value-and-function  -- internal.
 //
-define inline function calculate-init-value-and-function
+define function calculate-init-value-and-function
     (override :: false-or(<override-info>),
      slot :: <instance-slot-info>)
  => (init-value :: type-union(<ct-value>, <boolean>),
@@ -3154,7 +3113,7 @@ define class <maker-slot-descr> (<top-level-form-description>)
     required-init-keyword: init-function:;
 end class <maker-slot-descr>;
 
-define inline function make-maker-slot-descr
+define function make-maker-slot-descr
     (maker-descr :: <maker-body-descr>,
      slot :: <instance-slot-info>)
  => (slot-descr :: <maker-slot-descr>);
@@ -3674,7 +3633,7 @@ end function slot-accessor-standin;
 
 // might-be-in-data-word  -- internal.
 //
-define inline function might-be-in-data-word?
+define function might-be-in-data-word?
     (slot :: <slot-info>) => res :: <boolean>;
   //
   // For a slot to ever be in the data-word, it must be in the data-word of
@@ -4138,7 +4097,7 @@ end method lookup-position;
 
 // restrict-splits  -- internal.
 //
-define inline function restrict-splits
+define function restrict-splits
     (splits :: <list>, class :: <cclass>, if-yes? :: <boolean>)
     => res :: <list>;
   choose(method (split :: <cclass>) => res :: <boolean>;
@@ -4264,7 +4223,7 @@ end method dump-od;
 
 // class-defn-new-slot-infos  -- internal.
 //
-define inline function class-defn-new-slot-infos
+define function class-defn-new-slot-infos
     (defn :: <real-class-definition>)
  => res :: <simple-object-vector>;
   let class = defn.class-defn-cclass;
@@ -4273,7 +4232,7 @@ end function class-defn-new-slot-infos;
 
 // class-defn-new-slot-infos-setter  -- internal.
 //
-define inline function class-defn-new-slot-infos-setter
+define function class-defn-new-slot-infos-setter
     (vec :: false-or(<simple-object-vector>),
      defn :: <real-class-definition>)
  => ();
@@ -4285,7 +4244,7 @@ end function class-defn-new-slot-infos-setter;
 
 // class-defn-all-slot-infos  -- internal.
 //
-define inline function class-defn-all-slot-infos
+define function class-defn-all-slot-infos
     (defn :: <real-class-definition>)
  => res :: <simple-object-vector>;
   let class = defn.class-defn-cclass;
@@ -4294,7 +4253,7 @@ end function class-defn-all-slot-infos;
 
 // class-defn-all-slot-infos-setter  -- internal.
 //
-define inline function class-defn-all-slot-infos-setter
+define function class-defn-all-slot-infos-setter
     (vec :: false-or(<simple-object-vector>),
      defn :: <real-class-definition>)
  => ();
@@ -4305,7 +4264,7 @@ end function class-defn-all-slot-infos-setter;
 
 // class-defn-override-infos  -- internal.
 //
-define inline function class-defn-override-infos
+define function class-defn-override-infos
     (defn :: <real-class-definition>) => res :: <simple-object-vector>;
   let class = defn.class-defn-cclass;
   class & class.override-infos;
@@ -4313,7 +4272,7 @@ end function class-defn-override-infos;
 
 // class-defn-override-infos-setter -- internal.
 //
-define inline function class-defn-override-infos-setter
+define function class-defn-override-infos-setter
     (vec :: false-or(<simple-object-vector>), defn :: <real-class-definition>)
     => ();
   if (vec)
@@ -4323,7 +4282,7 @@ end function class-defn-override-infos-setter;
 
 // class-defn-vector-slot  -- internal.
 //
-define inline function class-defn-vector-slot
+define function class-defn-vector-slot
     (defn :: <real-class-definition>) => res :: false-or(<vector-slot-info>);
   let class = defn.class-defn-cclass;
   class & class.vector-slot;
@@ -4331,7 +4290,7 @@ end function class-defn-vector-slot;
 
 // class-defn-vector-slot-setter  -- internal.
 //
-define inline function class-defn-vector-slot-setter
+define function class-defn-vector-slot-setter
     (info :: false-or(<vector-slot-info>), defn :: <real-class-definition>)
     => ();
   let class = defn.class-defn-cclass;
