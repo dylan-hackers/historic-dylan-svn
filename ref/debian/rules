@@ -1,0 +1,56 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+topdir=$(shell pwd)
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+
+	${MAKE} all
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	${MAKE} clean
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Put the tools where Debian expects them
+	install -m644 CATALOG `pwd`/debian/tmp/usr/share/sgml/docbook/custom/dylandoc/catalog
+	install -m644 dylandoc.dtd `pwd`/debian/tmp/usr/share/sgml/docbook/custom/dylandoc
+	install -m644 dylandoc.dsl `pwd`/debian/tmp/usr/share/sgml/docbook/custom/dylandoc
+	install -m644 dylandoc.ent `pwd`/debian/tmp/usr/share/sgml/docbook/custom/dylandoc
+	cp CATALOG `pwd`/debian/tmp/etc/sgml/dylandoc.cat
+
+	for i in gduser gdapi gdlibs gdmaint tutorial;			\
+	do														\
+		cp -ar $${i} `pwd`/debian/gwydion-dylan-doc-html/usr/share/doc/gwydion-dylan-doc-html;	\
+	done;
+
+binary-arch: build install
+# We have nothing to do by default.
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs README
+	dh_installchangelogs
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

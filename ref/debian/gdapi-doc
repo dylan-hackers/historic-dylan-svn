@@ -1,0 +1,11 @@
+Document: gdapi
+Title: Gwydion Dylan API Reference
+Author: Neel Krishnaswami, et. al.
+Abstract: This package contains the api reference for the
+ Gwydion Dylan development environment.  It is meant to be
+ used as a companion to the Maintainer's Manual.
+Section: programming
+
+Format: HTML
+Index: /usr/share/doc/gwydion-dylan-doc-html/gdapi/gdapi.html
+Files: /usr/share/doc/gwydion-dylan-doc-html/gdapi/*

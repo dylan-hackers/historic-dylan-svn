@@ -8,12 +8,10 @@
   <chapter>
     <title>This is a sample chapter</title>
 
-    <para>This is a sample paragraph referring the
-    <dlibrary>Dylan</dlibrary> library and the
-    <dmodule>Dylan</dmodule> module inside that library. And then we
-    have some literal code: <dlit>every?(im-schrank?, du.tassen)</dlit>
-    </para>
-
+    <para>This is a sample paragraph referring the <dlibrary>Dylan</dlibrary>
+    library and the <dmodule>Dylan</dmodule> module inside that library. And
+    then we have some literal code: <dlit>every?(im-schrank?, du.tassen)
+    </dlit></para>
 
     <dylanconstantdef>
       <defname>$foo</defname>

@@ -1,0 +1,10 @@
+Document: gdmaint
+Title: Gwydion Dylan Porting and Maintenance Guide
+Author: Carnegie Mellon University and the Gwydion Dylan Maintainers
+Abstract: This package contains the programmer's guide for porting
+ and maintaining Gwydion Dylan.
+Section: programming
+
+Format: HTML
+Index: /usr/share/doc/gwydion-dylan-doc-html/gdmaint/gdmaint.html
+Files: /usr/share/doc/gwydion-dylan-doc-html/gdmaint/*

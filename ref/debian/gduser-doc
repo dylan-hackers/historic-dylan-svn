@@ -1,0 +1,10 @@
+Document: gduser
+Title: Gwydion Dylan User's Guide
+Author: Peter Housel, et. al.
+Abstract: This package contains the user's guide for the
+ Gwydion Dylan tools
+Section: programming
+
+Format: HTML
+Index: /usr/share/doc/gwydion-dylan-doc-html/gduser/gduser.html
+Files: /usr/share/doc/gwydion-dylan-doc-html/gduser/*
