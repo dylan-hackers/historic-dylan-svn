@@ -29,6 +29,7 @@ define module opengl
     glLight,
     glLightModel,
     glMaterial,
+    glMultMatrix,
     glNormal,
     glPixelStore,
     glPixelTransfer,
@@ -55,8 +56,6 @@ define module opengl
     glMapGrid1f,
     glMapGrid2d,
     glMapGrid2f,
-    glMultMatrixd,
-    glMultMatrixf,
     glPixelMapfv,
     glPixelMapuiv,
     glPixelMapusv;
@@ -1191,3 +1190,35 @@ define module opengl-glut
     $GLUT-CURSOR-FULL-CROSSHAIR;
 
 end module;
+
+define module opengl-osmesa
+  use dylan;
+  use extensions;
+  use melange-support;
+
+  export
+    OSMesaCreateContext,
+    OSMesaDestroyContext,
+    OSMesaMakeCurrent,
+    OSMesaGetCurrentContext,
+    OSMesaPixelStore,
+    OSMesaGetIntegerv,
+    OSMesaGetDepthBuffer,
+    OSMesaGetColorBuffer,
+    
+    $OSMESA-MAJOR-VERSION,
+    $OSMESA-MINOR-VERSION,
+    $OSMESA-COLOR-INDEX,
+    $OSMESA-RGBA,
+    $OSMESA-BGRA,
+    $OSMESA-ARGB,
+    $OSMESA-RGB,
+    $OSMESA-BGR,
+    $OSMESA-ROW-LENGTH,
+    $OSMESA-Y-UP,
+    $OSMESA-WIDTH,
+    $OSMESA-HEIGHT,
+    $OSMESA-FORMAT,
+    $OSMESA-TYPE;
+
+end module opengl-osmesa;
