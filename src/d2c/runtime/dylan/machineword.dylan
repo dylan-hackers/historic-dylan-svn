@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/machineword.dylan,v 1.8 2003/10/22 20:48:54 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/machineword.dylan,v 1.8.2.1 2004/03/03 20:28:32 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -57,6 +57,32 @@ define sealed inline method as
     (class == <machine-word>, integer :: <integer>)
  => (machine-word :: <machine-word>);
   make(<machine-word>, value: integer);
+end method;
+
+define sealed inline method as
+    (class == <machine-word>, num :: <extended-integer>)
+ => (machine-word :: <machine-word>);
+  let len = bignum-size(num);
+  if (num < $minimum-integer | num >= ash(#e1, $machine-word-size))
+    error("%= can't be represented as a <machine-word>", num);
+  elseif (len = 1)
+    make(<machine-word>, value: bignum-digit(num, 0).as-signed);
+  elseif (len = 2)
+    make(<machine-word>,
+         value: as-signed-2(bignum-digit(num, 1), bignum-digit(num, 0)));
+  else
+    local
+      method repeat (index :: <integer>, result :: <integer>)
+        if (negative?(index))
+          make(<machine-word>, value: result);
+        else
+          repeat(index - 1,
+                 logior(ash(result, $digit-bits),
+                        as-unsigned(bignum-digit(num, index))));
+        end;
+      end;
+    repeat(len - 2, as-signed(bignum-digit(num, len - 1)));
+  end;
 end method;
 
 define sealed inline method as
