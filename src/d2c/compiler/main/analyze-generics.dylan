@@ -196,7 +196,7 @@ define method initialize
 	create-pole(i, "P");
       else
 	let supers = superclass-ids(i);
-	let closest = single-closet-pole(pole-table, pole-cclass-ids, supers);
+	let closest = single-closest-pole(pole-table, pole-cclass-ids, supers);
 
 	// Verify our closest pole computation.
 	//let check = single-closet-pole-check(pole-table, pole-cclass-ids, i);
@@ -311,7 +311,7 @@ define constant $chunk-size = 32;
 // which corresponds to a pointer on a 32-bit architecture. We can, of course,
 // narrow these entries by adding *another* level of indirection, but we'd
 // prefer to avoid that.
-define constant $chunk-id-width = 2;
+define constant $chunk-id-width = 4;
 
 // Perform "chunked" compression. We break the argument array into
 // fixed-size chunks, and discard all chunks in which all entries are
@@ -367,7 +367,7 @@ end function compute-chunk-compressed-size;
 
 
 //=========================================================================
-//  Single-closet-pole
+//  Single-closest-pole
 //=========================================================================
 //  Determine whether or not we have one i-pole which is closer than all
 //  the others. This will only be true if all of our superclasses have the
@@ -388,12 +388,19 @@ end function compute-chunk-compressed-size;
 //  So we find the largest i-pole, and *then* do *one* set of subtype
 //  checks.
 
-define function single-closet-pole
+// These counters divide poles into mutually exclusive categories.
+define variable *one-parent-count* :: <integer> = 0;
+define variable *identical-poles-count* :: <integer> = 0;
+define variable *secondary-i-pole-count* :: <integer> = 0;
+define variable *single-closest-pole-count* :: <integer> = 0;
+
+define function single-closest-pole
     (pole-table :: <int-vector>,
      pole-cclass-ids :: <stretchy-int-vector>,
      supers :: <int-vector>)
  => (closest :: false-or(<integer>))
   if (supers.size == 1)
+    *one-parent-count* := *one-parent-count* + 1;
     pole-table[supers.first];
   else
     block (return)
@@ -415,6 +422,7 @@ define function single-closet-pole
 
       // If all our i-poles are identical, we're OK.
       if (all-identical?)
+	*identical-poles-count* := *identical-poles-count* + 1;
 	return(first-pole);
       end if;
 
@@ -423,15 +431,17 @@ define function single-closet-pole
       for (super in supers)
 	let pole-cclass-id = pole-cclass-ids[pole-table[super]];
 	unless (fast-subclass?(candidate, pole-cclass-id.id-cclass))
+	  *secondary-i-pole-count* := *secondary-i-pole-count* + 1;
 	  return(#f);
 	end unless;
       end for;
 
       // Our largest i-pole hid all the rest.
+      *single-closest-pole-count* := *single-closest-pole-count* + 1;
       current-largest;
     end block;
   end if;
-end function single-closet-pole;
+end function single-closest-pole;
 
 // Use the fast subclass check algorithm from Vitek, et al.
 // The type inclusion matrix has already been computed by the compiler.
@@ -772,7 +782,10 @@ define function analyze-generics () => ()
     // Summarize each generic function (and count the total number of
     // methods and argument positions).
     let total-arg-positions = 0;
+    let total-active-arg-positions = 0;
+    let total-hairy-arg-positions = 0;
     let total-methods = 0;
+    let total-estimated-matrix-entries = 0;
     for (gf in real-generics)
 
       let gf-info = compute-generic-info(gf);
@@ -784,6 +797,8 @@ define function analyze-generics () => ()
 	else
 	  size(choose(argument-may-affect-dispatch?, args));
 	end if;
+      total-active-arg-positions :=
+	total-active-arg-positions + active-arg-position-count;
 
       let name = gf.defn-name;
       let arg-position-count = gf.function-defn-signature.specializers.size;
@@ -799,17 +814,28 @@ define function analyze-generics () => ()
       total-methods := total-methods + method-count;
 
       format(analysis, "\n");
+      let estimated-matrix-entry-count = 1;
       for (arg in args)
 
 	// Update our compression totals.
-	unless (arg.argument-hairy?)
+	// We don't bother to count tables sizes for arguments which can
+	// never affect the dispatch.
+	unless (arg.argument-hairy? | ~arg.argument-may-affect-dispatch?)
 	  uncompressed-size :=
 	    uncompressed-size + arg.argument-array-uncompressed-size;
 	  span-compressed-size :=
 	    span-compressed-size + arg.argument-array-span-compressed-size;
 	  chunk-compressed-size :=
 	    chunk-compressed-size + arg.argument-array-chunk-compressed-size;
-	end unless;
+	  estimated-matrix-entry-count :=
+	    estimated-matrix-entry-count * arg.argument-total-i-poles;
+        end unless;
+
+	// Keep count of hairy arguments, so we know how much of the time
+	// we spend whimping out.
+	if (arg.argument-hairy?)
+	  total-hairy-arg-positions := total-hairy-arg-positions + 1;
+	end if;
 
 	// Print some descriptive data.
 	describe-argument-array(analysis, arg);
@@ -829,19 +855,36 @@ define function analyze-generics () => ()
 	*/
 
       end for;
+
+      // Assume we only create matrices for methods with multiple
+      // dispatching arguments.
+      if (active-arg-position-count > 1)
+	total-estimated-matrix-entries :=
+	  total-estimated-matrix-entries + estimated-matrix-entry-count;
+      end if;
     end for;
     
-    format(analysis, "Found %d argument positions, %d methods.\n",
-	   total-arg-positions, total-methods);
+    format(analysis,
+	   "Found %d argument positions (%d active, %d hairy), %d methods.\n",
+	   total-arg-positions, total-active-arg-positions,
+	   total-hairy-arg-positions, total-methods);
 
     format(analysis, "Argument array size: %d bytes uncompressed.\n",
 	   uncompressed-size);
     format(analysis, "Using span compression: %d bytes, saving %d%%\n",
 	   span-compressed-size,
 	   100 - round/(100 * span-compressed-size, uncompressed-size));
-    format(analysis, "Using chunked compression: %d bytes, saving %d%%\n",
+    format(analysis, "Using chunked compression: %d bytes, saving %d%%\n\n",
 	   chunk-compressed-size,
 	   100 - round/(100 * chunk-compressed-size, uncompressed-size));
+
+    format(analysis, "Estimated dispatch matrix entires: %d\n\n",
+	   total-estimated-matrix-entries);
+
+    format(analysis, "One parent: %d\n", *one-parent-count*);
+    format(analysis, "Identical poles: %d\n", *identical-poles-count*);
+    format(analysis, "Secondary i-poles: %d\n", *secondary-i-pole-count*);
+    format(analysis, "Single closest: %d\n", *single-closest-pole-count*);
 
   cleanup
     close(analysis);
