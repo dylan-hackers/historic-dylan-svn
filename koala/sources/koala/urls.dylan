@@ -26,6 +26,45 @@ define function make-locator (netloc :: false-or(<http-server-url>),
   end;
 end make-locator;
 
+define function decode-url
+    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
+ => (str :: <string>)
+  iterate count (pos :: <integer> = bpos, n :: <integer> = 0)
+    let pos = char-position('%', str, pos, epos);
+    if (pos)
+      if (pos + 3 <= epos)
+        count(pos + 3, n + 2)
+      else
+        invalid-url-encoding-error();
+      end;
+    elseif (n == 0)
+      substring(str, bpos, epos)
+    else // Ok, really have to copy...
+      let nlen = epos - bpos - n;
+      let nstr = make(<byte-string>, size: nlen);
+      iterate copy (i :: <integer> = 0, pos :: <integer> = bpos)
+        unless (pos == epos)
+          let ch = str[pos];
+          if (ch ~== '%')
+            nstr[i] := ch;
+            copy(i + 1, pos + 1);
+          else
+            let c1 = digit-weight(str[pos + 1]);
+            let c2 = digit-weight(str[pos + 2]);
+            if (c1 & c2)
+              nstr[i] := as(<byte-character>, c1 * 16 + c2);
+              copy(i + 1, pos + 3);
+            else
+              invalid-url-encoding-error();
+            end;
+          end;
+        end unless;
+      end iterate;
+      nstr
+    end if;
+  end iterate;
+end decode-url;
+
 define function parse-request-uri (str, str-beg, str-end)
   => (uri :: <url>) // <http-url>, but that's bogus.
   parse-uri(str, str-beg, str-end)
@@ -64,11 +103,11 @@ define function parse-http-server (str :: <byte-string>,
                                    net-end :: <integer>)
   => (netloc :: false-or(<http-server-url>))
   let host-end = char-position(':', str, net-beg, net-end) | net-end;
-  let host = urldecode(str, net-beg, host-end);
+  let host = decode-url(str, net-beg, host-end);
   let port = if (host-end == net-end)
                80
              else
-               //---TODO: should urldecode this as well, in theory...
+               //---TODO: should decode-url this as well, in theory...
                string->integer(str, host-end + 1, net-end)
              end;
   host & port & make(<http-server-url>, host: host, port: port);
@@ -89,7 +128,7 @@ define function parse-uri-path (str, str-beg, str-end)
     let beg = beg + 1;
     let pos = char-position('/', str, beg, path-end);
     if (pos)
-      let seg = urldecode(str, beg, pos);
+      let seg = decode-url(str, beg, pos);
       if (seg)
         add!(segs, seg);
         loop(pos);
@@ -99,8 +138,8 @@ define function parse-uri-path (str, str-beg, str-end)
     else
       let segs = as(<simple-object-vector>, segs);
       let dot-pos = char-position-from-end('.', str, beg, path-end);
-      let name = urldecode(str, str-beg, dot-pos | path-end);
-      let type = dot-pos & urldecode(str, dot-pos + 1, path-end);
+      let name = decode-url(str, str-beg, dot-pos | path-end);
+      let type = dot-pos & decode-url(str, dot-pos + 1, path-end);
       let query = (path-end ~== str-end) & substring(str, path-end + 1, str-end);
       values(segs, name, type, query)
     end;
@@ -123,7 +162,7 @@ end parse-uri-path;
     (unless (eq start end)
       (loop
         (let ((pos (or (char-position #\+ string start end) end)))
-          (push (urldecode string start pos) values)
+          (push (decode-url string start pos) values)
           (when (eq pos end) (return))
           (setq start (%i+ pos 1)))))
     (nreverse values)))
@@ -165,7 +204,7 @@ end parse-uri-path;
              (vpos (%i+ epos 1))
              (mainkey nil)
              (subkey nil)
-             (key (multiple-value-bind (kstr kstart kend) (urldecode string start epos t)
+             (key (multiple-value-bind (kstr kstart kend) (decode-url string start epos t)
                     (let* ((key (intern-key kstr kstart kend *known-form-subkeys*))
                            (vend (char-position #\. kstr kstart kend))
                            (spos (and vend (%i+ vend 1))))
@@ -175,7 +214,7 @@ end parse-uri-path;
                                          (intern-key kstr spos kend *known-form-subkeys*))))
                       key)))
              ;; TODO: should we replace +'s in value with spaces?
-             (value (unless (eq vpos apos) (urldecode string vpos apos)))
+             (value (unless (eq vpos apos) (decode-url string vpos apos)))
              (old (gethash key table nil)))
         (cond ((not old) (setf (gethash key table) value))
               ((stringp old) (setf (gethash key table) (cons (list value old) nil)))
@@ -194,7 +233,7 @@ end parse-uri-path;
         (setq start (%i+ apos 1))))))
 
 
-(defun urldecode (string start end &optional segment-ok)
+(defun decode-url (string start end &optional segment-ok)
   ;; returns (new-string new-start new-end)
   ;; If segment-ok is nil, always returns a complete string, i.e. new-start=0, new-end=length(new-string).
   ;; If segment-ok is :replace, just decodes in place, i.e. new-string = string.

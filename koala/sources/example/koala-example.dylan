@@ -199,6 +199,37 @@ define tag demo-sessions
   set-attribute(session, #"xxx", (x & x + 1) | 0);
 end;
 
+define page login-page (<dylan-server-page>)
+    (uri: "/login.dsp",
+     source: new-locator("login.dsp"))
+end;
+
+define tag current-username
+    (page :: <login-page>, request :: <request>, response :: <response>)
+  let username = get-attribute(get-session(request), #"username");
+  username & write(output-stream(response), username);
+end;
+
+define method respond-to-post
+    (page :: <dsp-test-page>, request :: <request>, response :: <response>)
+  let username = get-query-value("username");
+  let password = get-query-value("password");
+  when (username | password)
+    let session = get-session(request);
+    set-attribute(session, #"username", username);
+    set-attribute(session, #"password", password);
+  end;
+  next-method();  // process the DSP template
+end;
+
+define tag maybe-display-welcome
+    (page :: <dsp-test-page>, request :: <request>, response :: <response>)
+  let username = get-attribute(get-session(request), #"username");
+  when (username)
+    format(output-stream(response), "<h2>Welcome %s!</h2>\n", username);
+  end;
+end;
+  
 
 
 /// Main

@@ -189,46 +189,6 @@ define function digit-weight (ch :: <byte-character>) => (n :: false-or(<integer
   end;
 end digit-weight;
 
-define function urldecode (str :: <byte-string>,
-                           bpos :: <integer>,
-                           epos :: <integer>)
-   => (str :: <string>)
-  iterate count (pos :: <integer> = bpos, n :: <integer> = 0)
-    let pos = char-position('%', str, pos, epos);
-    if (pos)
-      if (pos + 3 <= epos)
-        count(pos + 3, n + 2)
-      else
-        invalid-url-encoding-error();
-      end;
-    elseif (n == 0)
-      substring(str, bpos, epos)
-    else // Ok, really have to copy...
-      let nlen = epos - bpos - n;
-      let nstr = make(<byte-string>, size: nlen);
-      iterate copy (i :: <integer> = 0, pos :: <integer> = bpos)
-        unless (pos == epos)
-          let ch = str[pos];
-          if (ch ~== '%')
-            nstr[i] := ch;
-            copy(i + 1, pos + 1);
-          else
-            let c1 = digit-weight(str[pos + 1]);
-            let c2 = digit-weight(str[pos + 2]);
-            if (c1 & c2)
-              nstr[i] := as(<byte-character>, c1 * 16 + c2);
-              copy(i + 1, pos + 3);
-            else
-              invalid-url-encoding-error();
-            end;
-          end;
-        end unless;
-      end iterate;
-      nstr
-    end if;
-  end iterate;
-end urldecode;
-
 //define constant ($maximum-integer-q, $maximum-integer-r) = floor/($maximum-integer, 10);
 
 // Returns #f if the string is empty, or there are any non-digits in string, or

@@ -94,9 +94,10 @@ define method new-session
   add-cookie(*response*, "koala_session_id", id,
              max-age: *session-max-age*,
              path: "/",
-             // domain: ???
+             // domain: ??? ---TODO
              comment: "This cookie assigns a unique number to your browser so that we can "
                       "remember who you are as you move from page to page within our site.");
-  make(<session>, id: id)
+  let session = make(<session>, id: id);
+  request.request-session := session
 end;
 

@@ -4,6 +4,8 @@
 This page demonstrates various features of Dylan Server Pages.<p>
 
 
+<dsp:maybe-display-welcome/>
+
 <!-- The most basic DSP tag.  No arguments, no body. -->
 <p><hr>
 Basic tags:<br>
