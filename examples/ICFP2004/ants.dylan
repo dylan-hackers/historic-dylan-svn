@@ -101,10 +101,32 @@ define class <ant> (<object>)
   slot state :: <state> = 0;
   constant slot color :: <color>, required-init-keyword: color:;
   slot resting :: <integer> = 0;
+  slot idle-timer :: <integer> = 0;
   slot direction :: <direction> = 0;
   slot has-food :: <boolean> = #f;
   slot ant-position :: <position>, required-init-keyword: at:;
 end class <ant>;
+
+define function idle-ant(a :: <ant>)
+/*
+  a.idle-timer := a.idle-timer + 1;
+  if(a.idle-timer > 300 & modulo(a.idle-timer, 100) == 0)
+    format-out("Warning: ant %= has been idle for %= turns, state %=:\n"
+                 "%=\n\n",
+               a, a.idle-timer, a.state,
+               unparse(if(color(a) == #"red")
+                         *red-brain*[a.state];
+                       else
+                         *black-brain*[a.state];
+                       end if));
+  end if;
+*/
+end function idle-ant;
+
+define function reset-idle-ant(a :: <ant>)
+  a.idle-timer := 0;
+end function reset-idle-ant;
+                                                  
 
 define class <cell> (<object>)
   constant slot rocky :: <boolean> = #f, init-keyword: rocky:;
@@ -508,6 +530,7 @@ define function step(aid :: <integer>)
   if(ant-is-alive(aid))
     let p = find-ant(aid);
     let a = ant-at(p);
+    idle-ant(a);
     if(resting(a) > 0)
       a.resting := resting(a) - 1;
     else
@@ -549,6 +572,7 @@ define function step(aid :: <integer>)
           if(rocky(cell-at(newp)) | some-ant-is-at(newp))
             a.state := ins.state-failure;
           else
+            reset-idle-ant(a);
             clear-ant-at(p);
             set-ant-at(newp, a);
             a.state := ins.state-success;

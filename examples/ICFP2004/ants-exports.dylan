@@ -12,6 +12,7 @@ define module ants
   use streams;
   use standard-io;
   use format-out;
+  use simple-random;
 
   export <position>,
     x,

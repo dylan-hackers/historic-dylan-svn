@@ -126,7 +126,7 @@ states:
                                     curry(lookup, instrs, ?#"name", 0))
                     end) }
 
-  { Flip ?prob:expression, (?yes:name, ?no:name) }
+  { Flip ?prob:expression, ?yes:name => ?no:name }
     => { push-thunk(instrs, label, counter,
                     method()
                         make(<flip>,
@@ -135,7 +135,25 @@ states:
                              state-failure: curry(lookup, instrs, ?#"no", 0))
                     end method) }
 
-  { Sense ?where:name (Marker ?what:expression), (?yes:name, ?no:name) }
+  { Flip ?prob:expression, => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method()
+                        make(<flip>,
+                             probability: ?prob,
+                             state-success: curry(lookup, instrs, label, counter + 1),
+                             state-failure: curry(lookup, instrs, ?#"no", 0))
+                    end method) }
+
+  { Flip ?prob:expression, ?yes:name => }
+    => { push-thunk(instrs, label, counter,
+                    method()
+                        make(<flip>,
+                             probability: ?prob,
+                             state-success: curry(lookup, instrs, ?#"yes", 0),
+                             state-failure: curry(lookup, instrs, label, counter + 1))
+                    end method) }
+
+    { Sense ?where:name (Marker ?what:expression), ?yes:name => ?no:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
                                   direction: ?#"where",
@@ -144,7 +162,7 @@ states:
                                   state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
 
-  { Sense (Marker ?what:expression), (?yes:name, ?no:name) }
+  { Sense (Marker ?what:expression), ?yes:name => ?no:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
                                   direction: #"Here",
@@ -152,7 +170,7 @@ states:
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
                                   state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
-  { Sense ?where:name ?what:name, (?yes:name, ?no:name) }
+  { Sense ?where:name ?what:name, ?yes:name => ?no:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
                                   direction: ?#"where",
@@ -161,7 +179,7 @@ states:
                                   state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
 
-  { Sense ?what:name, (?yes:name, ?no:name) }
+  { Sense ?what:name, ?yes:name => ?no:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
                                   direction: #"Here",
@@ -169,6 +187,76 @@ states:
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
                                   state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
+
+    { Sense ?where:name (Marker ?what:expression), ?yes:name => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: ?#"where",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+
+  { Sense (Marker ?what:expression), => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: #"Here",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                                  state-true: curry(lookup, instrs, label, counter + 1),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+  { Sense ?where:name ?what:name, => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: ?#"where",
+                                  condition: ?#"what",
+                                  state-true: curry(lookup, instrs, label, counter + 1),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+
+  { Sense ?what:name, => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: #"Here",
+                                  condition: ?#"what",
+                                  state-true: curry(lookup, instrs, label, counter + 1),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+    { Sense ?where:name (Marker ?what:expression), ?yes:name => }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: ?#"where",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, label, counter + 1))
+                    end) }
+
+  { Sense (Marker ?what:expression), ?yes:name => }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: #"Here",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, label, counter + 1))
+                    end) }
+  { Sense ?where:name ?what:name, ?yes:name => }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: ?#"where",
+                                  condition: ?#"what",
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, label, counter + 1))
+                    end) }
+
+  { Sense ?what:name, ?yes:name => }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: #"Here",
+                                  condition: ?#"what",
+                                  state-true: curry(lookup, instrs, ?#"yes", 0),
+                                  state-false: curry(lookup, instrs, label, counter + 1))
+                    end) }
+
 end macro;
 
 
