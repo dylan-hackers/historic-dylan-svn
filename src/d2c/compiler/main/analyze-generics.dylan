@@ -5,12 +5,17 @@ Synopsis: Research code for improving generic function dispatch.
 
 /*
 
-TODO - 
+TODO - I think all this is done, but I'm not sure yet.
 
 / Assign class IDs using reversed post-order traversal
 / Assign pole numbers in sequence
   Calculate minimal pole sets
   Fix pole counts
+
+TODO - Stuff to work on still.
+
+  Implement Prof. Cormen's algorithm
+  Implement segmentation-based compression
 
 */
 
@@ -108,6 +113,27 @@ define class <argument-info> (<object>)
   slot argument-total-i-poles :: <integer>;
   slot argument-artificial-i-poles :: <integer>;
 
+  //-----------------------------------------------------------------------
+  // Compression statistics.
+  //-----------------------------------------------------------------------
+  // (Not defined for hairy arguments.)
+
+  // Width of each table entry, in bytes (we use either 1 or 2 byte pole IDs).
+  slot argument-array-entry-width :: <integer>;
+
+  // The number of bytes required by an uncompressed argument array.
+  // This should be identical to cclass-count() * the entry width, but we
+  // include it for the sake of orthogonality.
+  slot argument-array-uncompressed-size :: <integer>;
+
+  // Compression using a baseline technique suggested by Professor Cormen:
+  // Remove "useless" entries from the start and end of the array. This
+  // slot contains the size of the span remaining in the middle.
+  slot argument-array-span-compressed-size :: <integer>;
+
+  // Compression using fixed-size chunks and a two-tier argument array.
+  slot argument-array-chunk-compressed-size :: <integer>;
+
 end class <argument-info>;
 
 define method initialize
@@ -195,12 +221,153 @@ define method initialize
     arginfo.argument-artificial-i-poles :=
       next-pole-id - specializer-cclasses.size;
 
+    // Compute statistics for several different kinds of compression.
+    compute-compression-statistics(arginfo);
   end if;
-end method;
+end method initialize;
 
 
 //=========================================================================
-//  single-closet-pole
+//  compute-compression-statistics
+//=========================================================================
+//  These method should be called for all non-hairy generic functions.
+
+// Caculate each of the different kinds of statistics we'll need for
+// each argument array.
+define function compute-compression-statistics
+    (arginfo :: <argument-info>) => ()
+  compute-array-entry-width(arginfo);
+  compute-uncompressed-size(arginfo);
+  compute-span-compressed-size(arginfo);
+  compute-chunk-compressed-size(arginfo);
+end function;
+
+// Determine whether we'll need one or two bytes for each entry in this
+// array (as per Dujardin, et al.). In almost all cases, we can get by
+// with a single byte, so this optimization buys us nearly 50% compression.
+// (Of course, we *might* have more than 65,536 i-poles on one argument
+// position, but such a pathological case has never been seen.)
+define function compute-array-entry-width
+    (arginfo :: <argument-info>) => ()
+  let poles = arginfo.argument-artificial-i-poles;
+  let width =
+    case
+      (0 <= poles & poles < 256)     => 1;
+      (256 <= poles & poles < 65536) => 2;
+      otherwise => error("Illegal and unexpected pole count");
+    end case;
+  arginfo.argument-array-entry-width := width;
+end function compute-array-entry-width;
+
+// Compute our uncompressed array size in bytes
+define function compute-uncompressed-size
+    (arginfo :: <argument-info>) => ()
+  arginfo.argument-array-uncompressed-size :=
+    cclass-count() * arginfo.argument-array-entry-width;
+end function compute-uncompressed-size;
+
+// Professor Cormen suggested that "useful" dispatch entries tended to
+// clump together somewhere in the middle of an array. (In this context,
+// we define "useful" to mean "having a different i-pole number than
+// the class <object>".) We perform simple compression by discarding these
+// entries.
+define function compute-span-compressed-size
+    (arginfo :: <argument-info>) => ()
+
+  // Get the necessary goodies to perform our iteration.
+  let array = arginfo.argument-array;
+  let count = array.size;
+
+  // Get the pole ID for <object>.
+  let default :: <integer> = array[0];
+
+  // Walk up from the bottom, counting entries to throw away.
+  // We assume that we can always throw away the entry for <object>.
+  let strip-from-bottom = 1;
+  for (i from 1 below count, while: array[i] == default)
+    strip-from-bottom := strip-from-bottom + 1;
+  end for;
+
+  // Repeat the process, but this time walking downwards.
+  // But remember, we can't strip anything from the top if we stripped
+  // the whole array from the bottom.
+  let strip-from-top = 0;
+  if (strip-from-bottom < count)
+    for (i from (count - 1) above 0 by -1, while: array[i] == default)
+      strip-from-top := strip-from-top + 1;
+    end for;
+  end if;
+
+  // Calculate the span size in bytes.
+  arginfo.argument-array-span-compressed-size :=
+    (count - strip-from-bottom - strip-from-top) *
+    arginfo.argument-array-entry-width;
+end function compute-span-compressed-size;
+
+// For now, we only support a single chunk size.
+define constant $chunk-size = 32;
+
+// We assume that each entry in our chunk table must be four bytes wide,
+// which corresponds to a pointer on a 32-bit architecture. We can, of course,
+// narrow these entries by adding *another* level of indirection, but we'd
+// prefer to avoid that.
+define constant $chunk-id-width = 2;
+
+// Perform "chunked" compression. We break the argument array into
+// fixed-size chunks, and discard all chunks in which all entries are
+// identical. (In practice, we would replace these with pre-allocated chunks
+// from the compiler's runtime library.)
+//
+// Once this is done, we need to access the entries through a two-tier
+// structure. The first tier is indexed by the (class ID div chunk size),
+// and the second tier is indexed by the (class ID mod chunk size).
+//
+// To calculate the size of the resulting structure, we need to calculate
+// the total size of all the remaining chunks, and add in the size of the
+// first-tier array. We ignore the size of pre-allocated chunks in the
+// runtime library; there won't be many of these.
+define function compute-chunk-compressed-size
+    (arginfo :: <argument-info>)
+ => (sz :: <integer>)
+
+  let array = arginfo.argument-array;
+
+  let whole-chunks = floor/(array.size, $chunk-size);
+  let partial-chunk? = modulo(array.size, $chunk-size) ~= 0;
+
+  // Figure how out many real chunks we'll need.
+  let chunks-needed = 0;
+  for (i from 0 below whole-chunks)
+    let first-index :: <integer> = i * $chunk-size; 
+    let first-value :: <integer> = array[first-index];
+    let interesting? :: <boolean> = #f;
+    for (j from 1 below $chunk-size)
+      if (array[first-index + j] ~= first-value)
+	interesting? := #t;
+      end if;
+    end for;
+    if (interesting?)
+      chunks-needed := chunks-needed + 1;
+    end if;
+  end for;
+
+  // Add on an extra chunk if we have any leftovers.
+  if (partial-chunk?)
+    chunks-needed := chunks-needed + 1;
+  end if;
+
+  // Calculate sizes.
+  let unique-chunk-size =
+    chunks-needed * $chunk-size * arginfo.argument-array-entry-width;
+  let first-tier-size =
+    ceiling/(array.size, $chunk-size) * $chunk-id-width;
+  arginfo.argument-array-chunk-compressed-size :=
+    unique-chunk-size + first-tier-size;
+end function compute-chunk-compressed-size;
+
+
+//=========================================================================
+//  Single-closet-pole
 //=========================================================================
 //  Determine whether or not we have one i-pole which is closer than all
 //  the others. This will only be true if all of our superclasses have the
@@ -447,6 +614,8 @@ end function compute-specializer-cclasses;
 //      This helps to arrange the argument arrays in a fashion convenient
 //      for compression. The exact definitions of "related" and
 //      "together" are subject to interpretation and refinement.
+//
+//  Topological sort algorithm from CLR...
 
 define constant $UNVISITED_MARK = 0;
 define constant $VISITED_MARK = 1;
@@ -546,24 +715,6 @@ end function compute-cclass-information;
 
 
 //=========================================================================
-//  Computing Table Sizes
-//=========================================================================
-//  
-
-/*
-define function compute-argument-array-size
-    (arginfo :: <argument-info>,
-     chunk-size :: <integer>)
- => (sz :: <integer>)
-
-  let array = arginfo.argument-array;
-  let whole-chunks = array.size / chunk-size;
-  let partial-chunk? = (array.size % chunk-size ~= 0);
-end function;
-*/
-
-
-//=========================================================================
 //  Main Program
 //=========================================================================
 
@@ -571,6 +722,7 @@ define function analyze-generics () => ()
   format(*debug-output*, "Analyzing <cclass> hierarchy.\n");
   compute-cclass-information();
 
+  // Some smoke-test code, just to make sure our primitives work.
   let collection-cclass = dylan-value(#"<collection>");
   let sequence-cclass = dylan-value(#"<sequence>");
   format(*debug-output*, "<sequence> %s a subclass of <collection>\n",
@@ -610,7 +762,13 @@ define function analyze-generics () => ()
 
     format(analysis, "Found %d classes, %d real generics (%d total).\n\n",
 	   classes.size, real-generics.size, generics.size);
-    
+
+
+    // Keep running totals of compression information.
+    let uncompressed-size = 0;
+    let span-compressed-size = 0;
+    let chunk-compressed-size = 0;
+
     // Summarize each generic function (and count the total number of
     // methods and argument positions).
     let total-arg-positions = 0;
@@ -643,6 +801,17 @@ define function analyze-generics () => ()
       format(analysis, "\n");
       for (arg in args)
 
+	// Update our compression totals.
+	unless (arg.argument-hairy?)
+	  uncompressed-size :=
+	    uncompressed-size + arg.argument-array-uncompressed-size;
+	  span-compressed-size :=
+	    span-compressed-size + arg.argument-array-span-compressed-size;
+	  chunk-compressed-size :=
+	    chunk-compressed-size + arg.argument-array-chunk-compressed-size;
+	end unless;
+
+	// Print some descriptive data.
 	describe-argument-array(analysis, arg);
 	format(analysis, "\n");
 
@@ -664,7 +833,16 @@ define function analyze-generics () => ()
     
     format(analysis, "Found %d argument positions, %d methods.\n",
 	   total-arg-positions, total-methods);
-    
+
+    format(analysis, "Argument array size: %d bytes uncompressed.\n",
+	   uncompressed-size);
+    format(analysis, "Using span compression: %d bytes, saving %d%%\n",
+	   span-compressed-size,
+	   100 - round/(100 * span-compressed-size, uncompressed-size));
+    format(analysis, "Using chunked compression: %d bytes, saving %d%%\n",
+	   chunk-compressed-size,
+	   100 - round/(100 * chunk-compressed-size, uncompressed-size));
+
   cleanup
     close(analysis);
   end block;
