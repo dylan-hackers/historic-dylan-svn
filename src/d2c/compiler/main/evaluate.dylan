@@ -5,6 +5,10 @@ define variable *interpreter-library* = #f;
 define method evaluate(expression :: <string>)
   if(~ *interpreter-library*)
     *interpreter-library* := find-library(#"foo", create: #t);
+    seed-representations();
+    inherit-slots();
+    inherit-overrides();
+    layout-instance-slots();
   end if;
   *Current-Library* := *interpreter-library*;
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
