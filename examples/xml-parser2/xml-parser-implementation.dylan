@@ -715,11 +715,14 @@ end method parse-pubid-literal;
 //                                                --andreas
 //
 define method parse-char-data(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    [loop((not-in-set?(c, "<&")))];
-    values(index, #t);
-  end with-meta-syntax;  
+// DOUG HERE
+  with-collector into-vector chars, collect: collect;
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c);
+      [loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])];
+      values(index, as(<string>, chars));
+    end with-meta-syntax;
+  end with-collector;
 end method parse-char-data;
 
 // CDATA Sections

@@ -41,6 +41,7 @@ begin
   $testable-fns[#"parse-attribute"] := parse-attribute;
   $testable-fns[#"parse-xml-element-start"] 
     := curry(parse-xml-element-start, *my-builder*);
+  $testable-fns[#"parse-char-data"] := parse-char-data;
   
   main(application-name(), application-arguments());
 end;
