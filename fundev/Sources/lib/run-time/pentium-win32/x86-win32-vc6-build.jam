@@ -303,7 +303,7 @@ rule DylanLibraryUses image : library : dir {
   if ! $(_lib_$(library:L)) {
     local PARENT = $(image[1]:L) ;
 
-    if $(dir) = system {
+    if $(dir) = system || $(SYSTEM) {
       # This is a system library; read $(SYSTEM_LIBDIR)/$(library:L).mkf
 
       local SYSTEM = true ;
@@ -355,7 +355,7 @@ rule DylanLibraryClosure image : libraries {
 
 actions Cc
 {
-  $(CC) /c /Fo$(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+  $(CC) /c /Fo"$(<)" $(CCFLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
 }
 
 rule LinkDLL {
