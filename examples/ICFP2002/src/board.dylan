@@ -184,12 +184,12 @@ define method add-package (state :: <state>, package :: <package>) => <state>;
 end method add-package;
 
 define function packages-at(state :: <state>, p :: <point>)
- => (v :: <vector>);
+ => (c :: <collection>);
   choose-by(curry(\=, p), map(location, state.packages), state.packages);
 end function packages-at;
 
 define function free-packages(s :: <state>)
- => (v :: <vector>);
+ => (c :: <collection>);
   choose-by(curry(\=, #f), map(carrier, s.packages), s.packages);
 end function free-packages;
 
