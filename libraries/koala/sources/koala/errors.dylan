@@ -1,4 +1,4 @@
-Module:    internals
+Module:    http-server-internals
 Synopsis:  HTTP errors
 Author:    Gail Zacharias, Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
@@ -37,6 +37,20 @@ define method http-error-message (e :: <http-error>)
   iff(pos,
       substring(msg, 0, pos),
       msg)
+end;
+
+// This is for sending to the client
+define method http-error-message-no-code
+    (e :: <http-error>) => (msg :: false-or(<string>))
+  apply(condition-format-string(e), condition-format-arguments(e))
+end;
+
+// This is for logging.
+define method condition-to-string
+    (e :: <http-error>) => (s :: <string>)
+  format-to-string("%d %s",
+                   http-error-code(e),
+                   http-error-message-no-code(e))
 end;
 
 // Error codes 4xx.  Some 4xx error codes (e.g., 404) aren't really client errors,

@@ -137,7 +137,7 @@ end;
 // This tag demonstrates the use of tag keyword arguments.  The tag call looks
 // like this:  <demo:show-keys arg1="100" arg2="foo"/>
 // Note that since arg1 is typed as an <integer> it is automatically parsed to
-// an <integer>.  To define new tag argument types, add methods to the
+// an <integer>.  To define new tag argument parsers, add methods to the
 // parse-tag-arg generic.
 //
 define tag show-keys in demo
@@ -147,6 +147,7 @@ define tag show-keys in demo
          "The value of arg1 + 1 is %=.  The value of arg2 is %=.",
          arg1 + 1, arg2);
 end;
+
 
 define named-method logged-in? in demo
     (page, request)

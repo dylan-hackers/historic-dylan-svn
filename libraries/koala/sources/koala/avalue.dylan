@@ -1,4 +1,4 @@
-Module:    internals
+Module:    http-server-internals
 Synopsis:  values with attributes
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.

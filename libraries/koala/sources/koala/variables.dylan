@@ -1,4 +1,4 @@
-Module:    internals
+Module:    http-server-internals
 Synopsis:  Some globals that don't belong anywhere else in particular.
            Most are configurable in the config.xml file.
 Author:    Carl Gay
@@ -91,7 +91,7 @@ define table *mime-type-map* = {
 };
 
 // If this is set to true and certain URLs are requested, a page will be
-// automatically registered for the URL.  See *auto-register-file-types*.
+// automatically registered for the URL.  See *auto-register-map*.
 define variable *auto-register-pages?* :: <boolean> = #t;
 
 // Maps from file extensions (e.g., "dsp") to functions that will register a URL

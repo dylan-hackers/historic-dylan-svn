@@ -1,4 +1,4 @@
-Module:    internals
+Module:    http-server-internals
 Synopsis:  For processing the configuration init file, server.xml
 Author:    Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.

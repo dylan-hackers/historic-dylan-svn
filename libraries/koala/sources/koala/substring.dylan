@@ -1,4 +1,4 @@
-Module:    internals
+Module:    utilities
 Synopsis:  Non-copying substrings.
 Author:    Gail Zacharias, Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
