@@ -84,7 +84,7 @@ Sense Ahead 11 1 Marker 3
 ;Turn Right 10
 ;Sense Ahead 25 22 Friend
 ;Move 23 25
-;Sense Here 24 search Marker 3
+;Sense Here 24 25 Marker 3
 ;Drop 24
 end;
 
@@ -129,7 +129,7 @@ Flip 4 10 1
 ;Flip 10 14 13
 ;Move 10 14
 ;Turn Right 10
-;Flip 6 27
+;Flip 6 27 19
 ;Turn Right 17
 ;Turn Right 18
 ;Turn Right 19
@@ -143,14 +143,14 @@ Flip 4 10 1
 ;Move 10 26
 end;
 
-define sub brain simple-search
+define sub brain simple-search(back)
   [guards-init:]
     Sub guards-init;
 
   [search:]
-    Move, => search-blocked;
+    Move => search-blocked;
     Sense Here (Marker 3), (search);
-    Pickup (turn-and-return);
+    Pickup, (turn-and-return);
     Sense Ahead FoeHome, (patrol, search);
 
   [search-blocked:]
@@ -176,7 +176,6 @@ define sub brain simple-search
   [defense-find-guard-post:]
     Sub defense-find-guard-post;
     Flip 1, (turn-and-return, turn-and-return);    
-
 end;
 
 // Marks 0 and 1 and 2.
@@ -423,152 +422,6 @@ Sense Here 6 1 Marker 0
 ;Turn Left 226
 ;Turn Right 226
 end; // bruce-spiral
-
-
-// Marks 3 and 4.
-define ant-subbrain keith-defensant2
-Flip 2 1 83
-;Sense Ahead 2 4 Home
-;Move 1 3
-;Turn Right 1
-;Turn Right 5
-;Sense Ahead 7 6 Home
-;Turn Right 7
-;Sense Ahead 8 10 Home
-;Move 7 9
-;Turn Right 1
-;Turn Right 11
-;Turn Right 12
-;Move 13 1
-;Move 14 1
-;Move 15 1
-;Move 16 1
-;Move 17 1
-;Sense Here 58 18 Marker 4
-;Mark 4 19
-;Turn Right 20
-;Move 21 20
-;Mark 3 22
-;Turn Right 23
-;Turn Right 24
-;Turn Right 25
-;Move 26 25
-;Turn Left 27
-;Turn Left 28
-;Move 29 28
-;Mark 3 30
-;Turn Right 31
-;Turn Right 32
-;Turn Right 33
-;Move 34 33
-;Turn Left 35
-;Turn Left 36
-;Move 37 36
-;Mark 3 38
-;Turn Right 39
-;Turn Right 40
-;Turn Right 41
-;Move 42 41
-;Turn Left 43
-;Turn Left 44
-;Move 45 44
-;Mark 3 46
-;Turn Right 47
-;Turn Right 48
-;Turn Right 49
-;Move 50 49
-;Turn Left 51
-;Turn Left 52
-;Move 53 52
-;Mark 3 54
-;Turn Right 55
-;Turn Right 56
-;Turn Right 57
-;Move 83 57
-;Sense Ahead 69 59 Marker 3
-;Turn Right 60
-;Sense Ahead 71 61 Marker 3
-;Turn Right 62
-;Sense Ahead 73 63 Marker 3
-;Turn Right 64
-;Sense Ahead 75 65 Marker 3
-;Turn Right 66
-;Sense Ahead 77 67 Marker 3
-;Turn Right 68
-;Sense Ahead 79 69 Marker 3
-;Sense Ahead 70 80 Friend
-;Turn Right 60
-;Sense Ahead 72 80 Friend
-;Turn Right 62
-;Sense Ahead 74 80 Friend
-;Turn Right 64
-;Sense Ahead 76 80 Friend
-;Turn Right 66
-;Sense Ahead 78 80 Friend
-;Turn Right 68
-;Sense Ahead 83 80 Friend
-;Move 81 83
-;Sense Here 82 83 Marker 3
-;Drop 82
-;Move 84 88
-;Sense Here 83 85 Marker 4
-;PickUp 89 86
-;Sense Ahead 87 83 FoeHome
-;Flip 4 124 115
-;Turn Right 83
-;Turn Right 90
-;Turn Right 91
-;Turn Right 92
-;Move 93 111
-;Sense Here 94 92 Home
-;Sense Ahead 95 97 Home
-;Move 94 96
-;Turn Right 94
-;Turn Right 98
-;Sense Ahead 100 99 Home
-;Turn Right 100
-;Sense Ahead 101 103 Home
-;Move 100 102
-;Turn Right 94
-;Turn Right 104
-;Turn Right 105
-;Move 106 94
-;Move 107 94
-;Move 108 94
-;Move 109 94
-;Move 110 94
-;Drop 58
-;Turn Left 92
-;Turn Right 113
-;Turn Right 114
-;Turn Right 83
-;PickUp 89 116
-;Sense RightAhead 117 118 FoeHome
-;Turn Right 118
-;Turn Right 119
-;Move 120 119
-;Sense LeftAhead 121 122 FoeHome
-;Turn Left 115
-;Turn Left 123
-;Turn Left 115
-;PickUp 129 125
-;Sense Ahead 126 128 FoeHome
-;Flip 10 128 127
-;Move 124 128
-;Turn Right 124
-;Turn Right 130
-;Turn Right 131
-;Turn Right 132
-;Flip 6 92 133
-;Sense Here 134 136 FoeHome
-;Move 133 135
-;Turn Right 133
-;Drop 137
-;Turn Right 138
-;Turn Right 139
-;Turn Right 140
-;Move 124 140
-end; // keith-defensant2
 
 
 define ant-subbrain alex-killer2
