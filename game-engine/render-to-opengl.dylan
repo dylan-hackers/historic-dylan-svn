@@ -6,26 +6,27 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
   else
     glFrontFace($GL-CW);
   end if;
-  let start = 0;
-  local
-    method addpoly(from :: <integer>, to :: <integer>)
-      glBegin($GL-POLYGON);
-      for (i from from below to)
-        let v :: <3d-point> = ifs.coord[ifs.coord-index[i]];
-        let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
-          = values(v[0], v[1], v[2]);
-        glVertex(x, y, z);
-      end;
-      glEnd();
-      start := to + 1;
-    end method;                  
-  for(e :: <integer> in ifs.coord-index, i from 0)
+  let inPoly = #f;
+  for(e :: <integer> in ifs.coord-index)
     if (e == -1)
-      addpoly(start, i);
+      if (inPoly)
+        glEnd();
+        inPoly := #f;
+      end;
+    else
+      unless (inPoly)
+        glBegin($GL-POLYGON);
+        inPoly := #t;
+      end;
+      let v :: <3d-point> = ifs.coord[e];
+      let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
+        = values(v[0], v[1], v[2]);
+      glVertex(x, y, z);
     end;
   end;
-  if (ifs.coord-index.last ~== -1)
-    addpoly(start, ifs.coord-index.size);
+  if (inPoly)
+    glEnd();
+    inPoly := #f;
   end;
 end method render-to-opengl;
 
