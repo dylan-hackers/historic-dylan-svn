@@ -7,7 +7,7 @@ FILES := library.dylan \
 	 productions.dylan
 
 libxml-parser.a: $(FILES)
-	d2c -L ../anaphora -L ../meta -L ../multimap xml-parser.lid
+	d2c -L ../../examples/anaphora -L ../meta -L ../../examples/multimap xml-parser.lid
 
 clean:
 	rm *.o *.c *~ cc-*.mak *.a *.du
