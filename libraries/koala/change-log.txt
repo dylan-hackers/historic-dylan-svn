@@ -6,9 +6,14 @@ Change log for Koala HTTP server and Dylan Server Pages
 Changes for version 0.3
 
   New Features:
-  - Koala: XML-RPC server and client added.  See config/koala-config.xml for settings.
+  - Koala: XML-RPC server added.  See config/koala-config.xml for settings.
+           Start the example and use the "ping" and "echo" methods to test.
+  - Other: XML-RPC client added.
   - Koala: New config variable 'auto-register'.  See config/koala-config.xml
-
+  - Koala: It is now possible to get the body content of a POST for content-types
+           other than application/x-www-form-url-encoded.  See request-content(<request>).
+  - Koala: Added the "headers" log level, to show incoming/outgoing headers if desired.
+           See config/koala-config.xml
 
 ***********************************************************************************
 
