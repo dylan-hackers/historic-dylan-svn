@@ -104,6 +104,15 @@ states:
                                     curry(lookup, instrs, ?#"fail", 0))
                     end) }
 
+  { PickUp, (?success:name) }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<pickup>,
+                                  state-success:
+                                    curry(lookup, instrs, ?#"success", 0),
+                                  state-failure:
+                                    curry(lookup, instrs, label, counter + 1))
+                    end) }
+
   { PickUp => ?:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<pickup>,

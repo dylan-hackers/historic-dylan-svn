@@ -11,8 +11,14 @@ end brain;
 define brain test-brain1
 //  [start:]
          Sub test-sub;
+         Move fonz  => start;
+  [fonz:]
          Sub test-sub;
-         Move start  => start;
+         Pickup, (start);
+         Move sub-problem  => start;
+  [sub-problem:]
+         Move fonz  => start;
+         
  /*        Move => problem;
          Sense LeftAhead (Marker 1) => choose; // no-branching
          Sense (Marker 1) => choose;
