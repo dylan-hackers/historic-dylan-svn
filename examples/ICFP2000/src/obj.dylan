@@ -101,7 +101,7 @@ define method x-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
   // cos(-theta) = cos(theta), sin(-theta) = -sin(theta)
   *x-rotation-matrix*.v12 := -*x-rotation-matrix*.v12;
   *x-rotation-matrix*.v21 := -*x-rotation-matrix*.v21;
-  new-object.inverse-transform := o.inverse-transform * *x-rotation-matrix*;
+  new-object.inverse-transform := *x-rotation-matrix* * o.inverse-transform;
 
   *last-x-rotation-theta* := -theta;
   new-object;  
@@ -119,7 +119,7 @@ define method y-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
     *y-rotation-matrix*.v22 := c;
   end if;
   let new-object = copy(o);
-  new-object.transform := o.transform * *y-rotation-matrix*;
+  new-object.transform := *y-rotation-matrix* * o.transform;
 
   *y-rotation-matrix*.v02 := -*y-rotation-matrix*.v02;
   *y-rotation-matrix*.v20 := -*y-rotation-matrix*.v20;
@@ -142,7 +142,7 @@ define method z-rotate(o :: <obj>, theta) => (same-obj :: <obj>)
   end if;
   let new-object = copy(o);
 
-  new-object.transform := o.transform * *z-rotation-matrix* ;
+  new-object.transform :=  *z-rotation-matrix* * o.transform;
 
   *z-rotation-matrix*.v01 := -*z-rotation-matrix*.v01;
   *z-rotation-matrix*.v10 := -*z-rotation-matrix*.v10;
