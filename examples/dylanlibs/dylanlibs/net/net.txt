@@ -69,7 +69,12 @@ to use it.
 A simple http-server. Not a full fledged web server unfortunately but
 maybe one day...
 
+8) smtp
+=======
+
+A library that implements the SMTP network protocol for sending email.
+
 -- 
 Chris Double.  
-13 June 2001.
+02 September 2001.
 

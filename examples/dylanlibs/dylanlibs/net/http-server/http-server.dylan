@@ -207,14 +207,32 @@ define method process-client-connection(server :: <threaded-http-server>, remote
  => ()
   make(<thread>, function: 
 	method()
-	  block()
-	    handle-request(server, remote-socket);
-          cleanup
-            force-output(remote-socket);
-            close(remote-socket);
-//          exception(e :: <error>)
-//            format-out("Condition: %=\n", e);
-	  end;
+          block()
+  	    block()
+  	      handle-request(server, remote-socket);
+            cleanup
+              block()
+                force-output(remote-socket);
+              exception(e :: <error>)
+                // Ignore
+              exception(e :: <socket-condition>)
+                // Ignore
+              end;
+              block()
+                close(remote-socket, abort: #t);
+              exception(e :: <error>)
+                // Ignore
+              exception(e :: <socket-condition>)
+                // Ignore
+              end;
+            end block;
+          exception(e :: <socket-condition>)
+            format-out("Condition: %=\n", e);
+          exception(e :: <socket-error>)
+            format-out("Error: %=\n", e);
+          exception(e :: <error>)
+            format-out("Error: %=\n", e);
+	  end block;
 	end);
 end method process-client-connection;
 
@@ -353,20 +371,40 @@ end method handle-request;
 
 define method start-http-server(server :: <simple-http-server>, #key port = 80)
  => ()
-  block(quit-server)    
-    with-server-socket(server-socket, port: port)
-      server.http-server-socket := server-socket;
-
-      start-server(server-socket, remote-socket)
-        process-client-connection(server, remote-socket);
-        when(server.http-server-perform-shutdown?)
-          quit-server();
-        end when;
-      end;
-    end with-server-socket;
-  cleanup
-    server.http-server-socket := #f;
-  end block;
+  block()
+    block(quit-server)    
+      with-server-socket(server-socket, port: port)
+        block()
+          server.http-server-socket := server-socket;
+ 
+          start-server(server-socket, remote-socket)
+            block()
+              process-client-connection(server, remote-socket);
+              when(server.http-server-perform-shutdown?)
+                quit-server();
+              end when;         
+            exception(e :: <socket-condition>)
+                // Ignore
+            exception(e :: <error>)
+              // Ignore
+            end;
+          end;
+        cleanup
+          block()
+            close(server-socket, abort?: #t);
+          exception(e :: <socket-condition>)
+                // Ignore
+          exception(e :: <error>)
+            // Ignore
+          end;
+        end block;
+      end with-server-socket;
+    cleanup
+      server.http-server-socket := #f;
+    end block;
+  exception(e :: <socket-condition>)
+    // Ignore
+  end;
 end method start-http-server;
 
 define method start-http-server-on-thread(server :: <simple-http-server>, #key port = 80)
