@@ -27,13 +27,12 @@ public class Platform extends NamedRecord {
     }
 
     public static Platform loadPlatform (Integer id) {
-        return (Platform) DatabaseRecord.loadRecord(id, Platform.class);
+        return (Platform) DatabaseRecord.loadRecord(id, Platform.class, true);
     }
 
-    public static Platform loadPlatform (ResultSet rset, boolean must_be_unique)
-        throws BugTrackException
+    public static Platform loadPlatform (ResultSet rset)
     {
-        return (Platform) DatabaseRecord.loadRecord(rset, Platform.class, must_be_unique);
+        return (Platform) DatabaseRecord.loadRecord(rset, Platform.class);
     }
 
 }

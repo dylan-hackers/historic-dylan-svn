@@ -38,13 +38,12 @@ public class Product extends OwnedRecord {
     }
 
     public static Product loadProduct (Integer id) {
-        return (Product) DatabaseRecord.loadRecord(id, Product.class);
+        return (Product) DatabaseRecord.loadRecord(id, Product.class, true);
     }
 
-    public static Product loadProduct (ResultSet rset, boolean must_be_unique)
-        throws BugTrackException
+    public static Product loadProduct (ResultSet rset)
     {
-        return (Product) DatabaseRecord.loadRecord(rset, Product.class, must_be_unique);
+        return (Product) DatabaseRecord.loadRecord(rset, Product.class);
     }
 
 }

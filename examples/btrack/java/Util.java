@@ -30,7 +30,7 @@ public class Util
     //
 
     public static Connection openDatabaseConnection ()
-        throws SQLException, BugTrackException
+        throws SQLException
     {
         if (DB_DRIVER == null) {
             try {
@@ -50,7 +50,7 @@ public class Util
     private static int max_uid = 0;
     private static int next_uid = 0;
 
-    public static int getUniqueID () throws BugTrackException {
+    public static int getUniqueID () {
         synchronized (UID_LOCK) {
             while (next_uid >= max_uid) {
                 try {
@@ -71,7 +71,7 @@ public class Util
      * max_uid, and store max_uid back into the database for next time.
      */
     private static void loadUniqueID ()
-        throws BugTrackException, SQLException 
+        throws SQLException 
     {
         Connection conn = Util.openDatabaseConnection();
         conn.setAutoCommit(false);                       // start transaction
@@ -149,11 +149,7 @@ public class Util
             a.setName("admin");
             a.setPassword("admin");
             a.setEmailAddress("admin");
-            try {
-                a.save();
-            } catch (SQLException e) {
-                Debug.backtrace(e);
-            }
+            a.save();
         }
     }
 

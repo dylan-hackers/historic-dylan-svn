@@ -48,7 +48,7 @@ public abstract class NamedRecord extends DatedRecord
 
     //---TODO: Add a way to get the status from the form.
     public void respondToEditForm (HttpServletRequest request,
-                                 HttpSession session)
+                                   HttpSession session)
     {
         String name = Util.getRequiredField(request, session, "name");
         if (name != null) {
@@ -62,23 +62,17 @@ public abstract class NamedRecord extends DatedRecord
                 return;
             }
             setName(name);
-            try {
-                save();
-                Util.noteMessage(session,
-                                 "The " + prettyName() + " '" + getName()
-                                 + (is_new ? "' was created." : "' updated."));
-            } catch (SQLException se) {
-                Util.noteError(session, se.toString());
-            }
+            save();
+            Util.noteMessage(session,
+                             "The " + prettyName() + " '" + getName()
+                             + (is_new ? "' was created." : "' updated."));
         }
     }
 
     /**
      * This will be overridden by any subclasses that add extra database fields.
      */
-    public void save (Connection conn)
-        throws BugTrackException, SQLException
-    {
+    public void save (Connection conn) throws SQLException {
         boolean is_new = isNew();
         String query
             = (is_new

@@ -23,13 +23,13 @@
     <th nowrap>&nbsp;</th>
     <th nowrap>Name</th>
   </tr>
-  <bt:iterate key="all_records">
-    <bt:no_rows_message>
+  <bt:iterate name="all_records" type="sigue.btrack.OperatingSystem">
+    <bt:noRowsMessage>
       <tr><td colspan="4">There are no operating systems to display.</td></tr>
-    </bt:no_rows_message>
+    </bt:noRowsMessage>
     <bt:row>
       <tr>
-        <td><bt:iterate key="row-number"/></td>
+        <td><bt:rowNumber/></td>
         <td><a href="record?id=<bt:operating_system key="id"/>&type=OperatingSystem"><bt:operating_system key="name"/></a></td>
       </tr>
     </bt:row>

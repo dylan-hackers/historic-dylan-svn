@@ -27,13 +27,12 @@ public class Browser extends NamedRecord {
     }
 
     public static Browser loadBrowser (Integer id) {
-        return (Browser) DatabaseRecord.loadRecord(id, Browser.class);
+        return (Browser) DatabaseRecord.loadRecord(id, Browser.class, true);
     }
 
-    public static Browser loadBrowser (ResultSet rset, boolean must_be_unique)
-        throws BugTrackException
+    public static Browser loadBrowser (ResultSet rset)
     {
-        return (Browser) DatabaseRecord.loadRecord(rset, Browser.class, must_be_unique);
+        return (Browser) DatabaseRecord.loadRecord(rset, Browser.class);
     }
 
 }

@@ -27,10 +27,10 @@
     <th nowrap>Module</th>
     <th nowrap>Synopsis</th>
   </tr>
-  <bt:iterate key="all_records">
-    <bt:no_rows_message>
+  <bt:iterate name="all_records" type="sigue.btrack.Bug">
+    <bt:noRowsMessage>
       <tr><td colspan="6">There are no bugs to display.</td></tr>
-    </bt:no_rows_message>
+    </bt:noRowsMessage>
     <bt:row>
       <jsp:useBean id="record" class="sigue.btrack.Bug" scope="page"/>
       <tr>

@@ -22,14 +22,14 @@
     <th nowrap>Owner</th>
     <th nowrap>Modules</th>
   </tr>
-  <bt:iterate name="all_products" class="sigue.btrack.Product">
+  <bt:iterate name="all_products" type="sigue.btrack.Product" beanId="product">
     <bt:noRowsMessage>
       <tr><td colspan="3">There are no products.</td></tr>
     </bt:noRowsMessage>
     <bt:row>
-      <jsp:useBean id="item" scope="page" class="sigue.btrack.Product"/>
+      <jsp:useBean id="product" scope="page" class="sigue.btrack.Product"/>
       <tr>
-        <td><a href="record?id=<jsp:getProperty name="item" property="id"/>&type=Product"><jsp:getProperty name="item" property="name"/></a></td>
+        <td><a href="record?id=<jsp:getProperty name="product" property="id"/>&type=Product"><jsp:getProperty name="product" property="name"/></a></td>
         <td><bt:product key="owner"/></td>
         <td><bt:product key="modules"/></td>
       </tr>

@@ -60,7 +60,7 @@ create table tbl_bug_dependencies (
 );
 
 
--- Additional comments added to a bug report.
+-- Additional comments added to another record.
 drop   table tbl_comment;
 create table tbl_comment (
   comment_id         INTEGER NOT NULL,
@@ -171,7 +171,8 @@ create table tbl_module (
   name               CHAR(30) NOT NULL,
   description        VARCHAR(4000),
   owner              INTEGER NOT NULL,      -- The account_id of the user with primary responsibility.
-  status             CHAR NOT NULL          -- 'O' = Obsolete, 'A' = active
+  status             CHAR NOT NULL,         -- 'O' = Obsolete, 'A' = active
+  product            INTEGER NOT NULL       -- a product_id
 );
 create unique index XPtbl_module on tbl_module ( module_id );
 

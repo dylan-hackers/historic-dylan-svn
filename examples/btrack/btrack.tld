@@ -20,14 +20,23 @@
       <required>true</required>
     </attribute>
     <attribute>
-      <name>class</name>
+      <name>type</name>
       <required>true</required>
+    </attribute>
+    <attribute>
+      <name>beanId</name>
+      <required>false</required>
     </attribute>
   </tag>
 
   <tag>
     <name>noRowsMessage</name>
     <tagclass>sigue.btrack.NoRowsTag</tagclass>
+  </tag>
+
+  <tag>
+    <name>rowNumber</name>
+    <tagclass>sigue.btrack.RowNumberTag</tagclass>
   </tag>
 
   <tag>

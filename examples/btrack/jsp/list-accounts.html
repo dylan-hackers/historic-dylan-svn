@@ -23,13 +23,13 @@
     <th nowrap>Name</th>
     <th nowrap>Email Address</th>
   </tr>
-  <bt:iterate key="all_records">
-    <bt:no_rows_message>
+  <bt:iterate name="all_records" type="sigue.btrack.Account">
+    <bt:noRowsMessage>
       <tr><td colspan="3">There are no user accounts.</td></tr>
-    </bt:no_rows_message>
+    </bt:noRowsMessage>
     <bt:row>
       <tr>
-        <td><bt:iterate key="row-number"/></td>
+        <td><bt:rowNumber/></td>
         <td><a href="record?id=<bt:account key="id"/>&type=Account"><bt:account key="name"/></a></td>
         <td><bt:account key="email"/></td>
       </tr>

@@ -19,10 +19,10 @@ public class RowTag extends TagSupport
             return Tag.SKIP_BODY;
         } else {
             current_row = itag.currentElement();
-            if (current_row != null) {
+            if (current_row != null && itag.getBeanId() != null) {
                 // This is so that if the current row is a bean, jsp:useBean will work
                 // inside of iterations.
-                pageContext.setAttribute("item", current_row);
+                pageContext.setAttribute(itag.getBeanId(), current_row);
                 Debug.println("storing record in page scope: " + current_row);
             }
             return (current_row == null

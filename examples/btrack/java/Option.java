@@ -1,14 +1,14 @@
 package sigue.btrack;
 
 /**
- * A simple way of associating a number with some object.
- * Intended to be used for all the code that presents lists of
- * numbered options in web pages.
+ * A simple way of associating a number with some object.  Intended to
+ * be used for all the code that presents lists of numbered options in
+ * web pages.
  */
 public class Option {
 
-    int number;
-    Object value;
+    private int number;
+    private Object value;
 
     public Option (int n, Object v) {
         number = n;

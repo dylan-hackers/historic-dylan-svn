@@ -125,13 +125,12 @@ public class Account extends NamedRecord
     }
 
     public static Account loadAccount (Integer account_id) {
-        return (Account) DatabaseRecord.loadRecord(account_id, Account.class);
+        return (Account) DatabaseRecord.loadRecord(account_id, Account.class, true);
     }
 
-    public static Account loadAccount (ResultSet rset, boolean must_be_unique)
-        throws BugTrackException
+    public static Account loadAccount (ResultSet rset)
     {
-        return (Account) DatabaseRecord.loadRecord(rset, Account.class, must_be_unique);
+        return (Account) DatabaseRecord.loadRecord(rset, Account.class);
     }
 
     public void respondToEditForm (HttpServletRequest request, HttpSession session) {
@@ -155,21 +154,16 @@ public class Account extends NamedRecord
             setName(name);
             setPassword(password);
             setEmailAddress(email);
-            try {
-                save();
-                Util.noteMessage(session, "Account '" + getName()
-                                 + (is_new ? "' created." : "' updated."));
-            } catch (SQLException se) {
-                Debug.backtrace(se);
-                Util.noteError(session, se.toString());
-            }
+            save();
+            Util.noteMessage(session, "Account '" + getName()
+                             + (is_new ? "' created." : "' updated."));
         }
     }
 
     /**
      * Load all accounts into the cache.
      */
-    public void save (Connection conn) throws BugTrackException, SQLException {
+    public void save (Connection conn) throws SQLException {
         String insert = "insert into tbl_account (account_id,mod_count,date_entered,date_modified,name,status,password,email_address,email_prefs,permissions,role) values (?,?,?,?,?,?,?,?,?,?,?)";
         String update = "update tbl_account set mod_count = ?, date_entered = ?, date_modified = ?, name = ?, status = ?, password = ?, email_address = ?, email_prefs = ?, permissions = ?, role = ? where account_id = ?";
         int idx = 1;

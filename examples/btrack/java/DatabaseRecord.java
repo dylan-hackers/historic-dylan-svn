@@ -88,18 +88,19 @@ public abstract class DatabaseRecord
      * Called after a new record is created and is about to be edited.
      * This gives each record type a chance to initialize any fields
      * based on the request that asked the record to be created.  e.g.,
-     * the Version and Module records need to extract the productid
+     * the Version and Module records need to extract the product_id
      * from the query and store the correct product in the new record.
      */
     public void initializeNewRecord (HttpServletRequest request,
-                                     HttpSession session) {
+                                     HttpSession session)
+    {
     }
 
 
     /**
      * Implements the CollectionGenerator interface for IterateTag.
      */
-    public AbstractList generateCollection () {
+    public AbstractList generateCollection (HttpSession session) {
         return listAll();
     }
 
@@ -151,61 +152,28 @@ public abstract class DatabaseRecord
         return "select * from " + tableName() + " where " + recordIDColumnName() + " = ?";
     }
 
-    /**
-     * Loads a record from the database directly.  Normally this is only done when
-     * <ol>
-     * <li> the record couldn't be found in the cache, or
-     * <li> the record was found in the cache but was out of date, or
-     * <li> the caller specified load_latest = true.
-     * </ol>
-     */
-    private static DatabaseRecord loadRecordFromDatabase (Integer id, Class recordClass)
+    private static DatabaseRecord loadRecordInternal (ResultSet rset, Class recordClass)
         throws SQLException
     {
-        if (id != null && id.intValue() == 0) {
-            return classPrototype(recordClass);
-        }
-        DatabaseRecord record = newDatabaseRecord(recordClass);
-        if (record == null) {
-            return null;
-        }
-        Connection conn = Util.openDatabaseConnection();
-        PreparedStatement ps = conn.prepareStatement(record.loadRecordQuery());
-        ps.setInt(1, id.intValue());
-        ResultSet rset = ps.executeQuery();
-        if (!rset.next()) {
-            throw new BugTrackException("No record was found with ID " + id + "!");
-        }
-        return loadRecordFromDatabase(rset, record, id, true);
+        return loadRecordInternal(rset, recordClass, null);
     }
 
-    private static DatabaseRecord loadRecordFromDatabase (ResultSet rset,
-                                                          DatabaseRecord record,
-                                                          Integer id,
-                                                          boolean must_be_unique)
+    private static DatabaseRecord loadRecordInternal (ResultSet rset, Class recordClass, Integer id)
         throws SQLException
     {
-        if (record == null) {
-            return null;
-        }
-        int row_id = rset.getInt(record.recordIDColumnName());
+        DatabaseRecord prototype = classPrototype(recordClass);
+        int row_id = rset.getInt(prototype.recordIDColumnName());
         if (id != null && id.intValue() != row_id) {
             throw new BugTrackException("Record ID (" + id
                                         + ") does not match the ID in the database ("
                                         + row_id + ").");
         } else {
-            id = (id == null) ? new Integer(row_id) : id;
-            // There doesn't seem to be a good way to ask how many rows are in a ResultSet.
-            /* This can't be supported in JDBC 1.1 drivers
-            if (must_be_unique) {
-                if (rset.next()) {
-                    throw new BugTrackException("More than one record was found with ID " + id + "!");
-                } else {
-                    rset.previous();
-                }
+            Integer recid = (id == null) ? new Integer(row_id) : id;
+            DatabaseRecord record = getRecord(recid);
+            if (record == null) {
+                record = newDatabaseRecord(recordClass);
             }
-            */
-            record.setId(id);
+            record.setId(recid);
             // Delegate to subclasses to initialize any subclass fields from the ResultSet.
             record.initializeFromRow(rset);
             record.cacheRecord();
@@ -213,29 +181,32 @@ public abstract class DatabaseRecord
         }
     }
             
-    public static DatabaseRecord loadRecord (ResultSet rset, Class recordClass, boolean unique) {
+    public static DatabaseRecord loadRecord (ResultSet rset, Class recordClass) {
         try {
-            //---TODO: Really don't want to create a new record before checking
-            //         the cache.  Need to get the result set and check the ID
-            //         (always in the first column) to find a record first.
-            DatabaseRecord record = newDatabaseRecord(recordClass);
-            return loadRecordFromDatabase(rset, record, null, unique);
+            return loadRecordInternal(rset, recordClass, null);
         } catch (SQLException e) {
             Debug.backtrace(e);
+            throw new DatabaseException(e, "Unable to load record of class " + recordClass);
         }
-        return null;
-    }
-
-    // ---TODO: For now load_latest defaults to true.  May want to change that in the future.
-    public static DatabaseRecord loadRecord (Integer id, Class recordClass) {
-        return loadRecord(id, recordClass, true);
     }
 
     public static DatabaseRecord loadRecord (Integer id, Class recordClass, boolean load_latest) {
         try {
             DatabaseRecord record = getRecord(id);
             if (record == null || load_latest == true) {
-                return loadRecordFromDatabase(id, recordClass);  // this will cache the record, if found.
+                // assert(id != null)
+                if (id.intValue() == 0) {
+                    return classPrototype(recordClass);
+                }
+                DatabaseRecord prototype = classPrototype(recordClass);
+                Connection conn = Util.openDatabaseConnection();
+                PreparedStatement ps = conn.prepareStatement(prototype.loadRecordQuery());
+                ps.setInt(1, id.intValue());
+                ResultSet rset = ps.executeQuery();
+                if (!rset.next()) {
+                    throw new BugTrackException("No record was found with ID " + id + "!");
+                }
+                return loadRecordInternal(rset, recordClass, id);
             }
             if (!recordClass.isInstance(record)) {
                 Debug.println("loadRecord: Found a record but it is not the correct type.  "
@@ -250,8 +221,8 @@ public abstract class DatabaseRecord
             }
         } catch (SQLException e) {
             Debug.backtrace(e);
+            throw new DatabaseException(e, "Unable to load record with ID " + id);
         }
-        return null;
     }
 
     //---TODO: This could check for a cached account before hitting the DB.
@@ -261,14 +232,38 @@ public abstract class DatabaseRecord
             Statement stmt = conn.createStatement();
             ResultSet rset = stmt.executeQuery(query);
             if (rset.next()) {
-                return loadRecord(rset, recordClass, true);
+                return loadRecord(rset, recordClass);
             }
         } catch (Exception e) {
             Debug.backtrace(e);
+            throw new DatabaseException(e,
+                                        "Unable to load record using query '"
+                                        + query + "'.");
         }
         return null;
     }
 
+    public static AbstractList loadRecords (String query, Class recordClass) {
+        ArrayList records = new ArrayList();
+        try {
+            Connection conn = Util.openDatabaseConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rset = stmt.executeQuery(query);
+            while (rset.next()) {
+                DatabaseRecord rec = loadRecordInternal(rset, recordClass, null);
+                if (rec != null) {
+                    records.add(rec);
+                }
+            }
+        } catch (Exception e) {
+            Debug.backtrace(e);
+            throw new DatabaseException(e,
+                                        "Unable to load records using query '"
+                                        + query + "'.");
+        }
+        return records;
+    }
+        
 
     /**
      * Save the record to the database.  If the record has never been saved a new
@@ -277,26 +272,34 @@ public abstract class DatabaseRecord
      * to update only the changed elements.  (Keep a hash table of changed values,
      * where the key is the column name.)
      */
-    public final void save () throws BugTrackException, SQLException {
+    public final void save () {
         Connection conn = null;
+        Exception error = null;
         try {
             conn = Util.openDatabaseConnection();
             save(conn);
             conn.commit();
             cacheRecord();  // in case it's a new record
         }
-        catch (Exception e) {
-            Debug.backtrace(e);
+        catch (Exception e1) {
+            error = e1;
+            Debug.backtrace(e1);
             try {
                 conn.rollback();
             }
-            finally {
-                throw new BugTrackException(e.getMessage());
-            }
+            catch (SQLException e2) {}
         }
         finally {
             if (conn != null) {
-                conn.close();
+                try {
+                    conn.close();
+                }
+                catch (SQLException e) {}
+            }
+            if (error != null) {
+                throw new DatabaseException(error,
+                                            "Unable to save record (ID = "
+                                            + getId() + ") to database.");
             }
         }
     }
@@ -305,7 +308,7 @@ public abstract class DatabaseRecord
      * This method does the actual saving.  The save() method above takes care
      * of establishing the connection, error handling, etc.
      */
-    protected abstract void save (Connection conn) throws BugTrackException, SQLException;
+    protected abstract void save (Connection conn) throws Exception;
 
     public static DatabaseRecord classPrototype (Class recordClass) {
         try {
@@ -329,7 +332,7 @@ public abstract class DatabaseRecord
             ResultSet rset = stmt.executeQuery("select * from " + prototype.tableName());
             int num_loaded = 0;
             while (rset.next()) {
-                loadRecord(rset, recordClass, false);
+                loadRecord(rset, recordClass);
                 ++num_loaded;
             }
             Debug.println("DatabaseRecord.loadAll: loaded " + num_loaded + " "

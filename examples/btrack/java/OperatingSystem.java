@@ -27,13 +27,12 @@ public class OperatingSystem extends NamedRecord {
     }
 
     public static OperatingSystem loadOperatingSystem (Integer id) {
-        return (OperatingSystem) DatabaseRecord.loadRecord(id, OperatingSystem.class);
+        return (OperatingSystem) DatabaseRecord.loadRecord(id, OperatingSystem.class, true);
     }
 
-    public static OperatingSystem loadOperatingSystem (ResultSet rset, boolean must_be_unique)
-        throws BugTrackException
+    public static OperatingSystem loadOperatingSystem (ResultSet rset)
     {
-        return (OperatingSystem) DatabaseRecord.loadRecord(rset, OperatingSystem.class, must_be_unique);
+        return (OperatingSystem) DatabaseRecord.loadRecord(rset, OperatingSystem.class);
     }
 
 }

@@ -27,6 +27,7 @@ public class BaseServlet extends HttpServlet {
             Debug.println("origin = " + request.getParameter("origin"));
             Object origin = request.getParameter("origin");
             if (origin != null) {
+                Debug.println("Setting origin to " + origin + " in session.");
                 session.setAttribute("origin", origin);
             }
             handleGet(request, response, session);
@@ -43,6 +44,7 @@ public class BaseServlet extends HttpServlet {
             Debug.println("origin = " + request.getParameter("origin"));
             Object origin = request.getParameter("origin");
             if (origin != null) {
+                Debug.println("Setting origin to " + origin + " in session.");
                 session.setAttribute("origin", origin);
             }
             handlePost(request, response, session);

@@ -91,6 +91,7 @@ public class RecordServlet extends BaseServlet
                 return;
             }
         }
+        Debug.println("RecordServlet.doEdit: Setting 'record' to " + record);
         session.setAttribute("record", record);
         String editPage = "/edit-" + recordType.toLowerCase() + ".html";
         request.getRequestDispatcher(editPage).forward(request, response);

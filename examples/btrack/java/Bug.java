@@ -190,13 +190,12 @@ public class Bug extends DatedRecord
     }
             
     public static Bug loadBug (Integer id) {
-        return (Bug) DatabaseRecord.loadRecord(id, Bug.class);
+        return (Bug) DatabaseRecord.loadRecord(id, Bug.class, true);
     }
 
-    public static Bug loadBug (ResultSet rset, boolean must_be_unique)
-        throws BugTrackException
+    public static Bug loadBug (ResultSet rset)
     {
-        return (Bug) DatabaseRecord.loadRecord(rset, Bug.class, must_be_unique);
+        return (Bug) DatabaseRecord.loadRecord(rset, Bug.class);
     }
 
     //---TODO: this is truly disgusting code.  fix it to be more data driven.
@@ -250,19 +249,15 @@ public class Bug extends DatedRecord
         setDuplicateOf(duplicate_of);
         setBugNumber(is_new ? Util.nextBugNumber() : getBugNumber());
         setReportedBy(Util.getCurrentAccount(session));
-        try {
-            save();
-            Util.noteMessage(session, "Bug #" + getBugNumber()
-                             + (is_new ? " created." : " updated."));
-        } catch (SQLException se) {
-            Util.noteError(session, se.toString());
-        }
+        save();
+        Util.noteMessage(session, "Bug #" + getBugNumber()
+                         + (is_new ? " created." : " updated."));
     }
 
     /**
      * This will be overridden by any subclasses that add extra database fields.
      */
-    public void save (Connection conn) throws BugTrackException, SQLException {
+    public void save (Connection conn) throws SQLException {
         boolean is_new = isNew();
         String query
             = (is_new

@@ -57,19 +57,14 @@ public abstract class OwnedRecord extends NamedRecord {
             }
             setName(name);
             setOwner(owner);
-            try {
-                save();
-                Util.noteMessage(session, "The " + prettyName() + " '" + getName()
-                                 + (is_new ? "' was created." : "' updated."));
-            } catch (SQLException se) {
-                Util.noteError(session, se.toString());
-                return;
-            }
+            save();
+            Util.noteMessage(session, "The " + prettyName() + " '" + getName()
+                             + (is_new ? "' was created." : "' updated."));
         }
     }
 
     //---TODO: remove duplication with NamedRecord.save
-    public void save (Connection conn) throws BugTrackException, SQLException {
+    public void save (Connection conn) throws SQLException {
         boolean is_new = isNew();
         String query
             = (is_new

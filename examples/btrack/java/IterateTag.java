@@ -7,30 +7,32 @@ import java.util.AbstractList;
 
 /**
  * Example:
- * <bt:iterate name="all_records" class="sigue.btrack.Bug">
+ * <bt:iterate name="all_records" type="sigue.btrack.Bug">
  *   <bt:noRowsMessage><tr><td>There are no rows to display.</td></tr></bt:noRowsMessage>
- *   <bt:row><tr><td>This is row number <bt:iterate key="row-number"/>.</bt:row>
+ *   <bt:row><tr><td>This is row number <bt:rowNumber/>.</bt:row>
  * </bt:iterate>
  */
 public class IterateTag extends BodyTagSupport
 {
-    private Class klass;
+    private Class type;
     private String name;
+    private String beanId;
 
     private AbstractList list = null;
     private int current_index = 0;
 
-    // setter called by JSP container to set tag attribute values
-    public void setClass (String k) {
+    public void setName (String n) { name = n; }
+    public void setBeanId (String id) { beanId = id; }
+
+    // Setter called by JSP container to set tag attribute values.
+    // Using the name "class" didn't work.  I assume there's some kind
+    // of conflict with built-in Java or JSP setter/getter with that name.
+    public void setType (String t) {
         try {
-            klass = Class.forName(k);
+            type = Class.forName(t);
         } catch (ClassNotFoundException e) {
             Debug.backtrace(e);
         }
-    }
-
-    public void setName (String n) {
-        name = n;
     }
 
     public boolean isEmpty () {
@@ -55,33 +57,21 @@ public class IterateTag extends BodyTagSupport
         return current_index;
     }
 
+    /**
+     * This is for the RowTag nested tag.  It stores the current row in
+     * the PageContext under the beanId key so that jsp:useBean can find it.
+     */
+    public String getBeanId () { return beanId; }
+
     public int doStartTag () throws JspException {
-        /*
-        if ("row-number".equalsIgnoreCase(key)) {
-            // Just display the current row/iteration number...
-            // Note this is a nested iteration tag, so we have to find the parent.
-            try {
-                IterateTag itag = (IterateTag) TagSupport.findAncestorWithClass(this, IterateTag.class);
-                if (itag == null) {
-                    Debug.println("RowTag.doStartTag: no enclosing 'iterate' tag found.");
-                } else {
-                    pageContext.getOut().print(itag.iterationNumber() + 1);
-                }
-            } catch (IOException e) {
-                Debug.backtrace(e);
-            }
-            return Tag.SKIP_BODY;
-        } else {
-        */
-            // Initialize the iteration context
-            // ---TODO: The use of DatabaseRecord here should be removed.
-            CollectionGenerator gen
-                = (CollectionGenerator) DatabaseRecord.classPrototype(this.klass);
-            this.list = (AbstractList) gen.generateCollection();
-            current_index = 0;
-            Debug.println("IterateTag.doStartTag: list = " + list);
-            return BodyTag.EVAL_BODY_TAG;
-        //}
+        // Initialize the iteration context
+        // ---TODO: The use of DatabaseRecord here should be removed.
+        CollectionGenerator gen
+            = (CollectionGenerator) DatabaseRecord.classPrototype(this.type);
+        this.list = (AbstractList) gen.generateCollection(pageContext.getSession());
+        current_index = 0;
+        Debug.println("IterateTag.doStartTag: list = " + list);
+        return BodyTag.EVAL_BODY_TAG;
     }
 
     public int doAfterBody () throws JspException {

@@ -1,5 +1,7 @@
 @echo off
 
+REM     LOW TECH = GOOD
+
 REM Add "-verbose" to the following command to help in debugging.
 REM ant -verbose -emacs -buildfile build.xml -DTOMCAT_HOME=%TOMCAT_HOME% %1 %2 %3 %4 %5 %6 %7 %8 %9
 
