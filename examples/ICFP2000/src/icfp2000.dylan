@@ -50,7 +50,7 @@ define function main(name, arguments)
 //  translate!(o, 0.0, -0.25, 0.0);
 
   o := x-rotate(o, ($double-pi / 2.0) * 3);
-  o :=  translate(o, 0.0, -0.5, 0.0);
+  o :=  translate(o, 0.0, 0.0, 0.5);
 
 //  z-rotate!(o, $double-pi / 16.0);
 /*
