@@ -7,3 +7,5 @@ files:
   icfp2001
   attributes
   generate
+  generator-state
+  search-strategies

@@ -292,10 +292,10 @@ define function main(name, arguments)
   block()
     debug("Parsing input.\n");
     let parse-tree          = bgh-parse(original-input);
-    dump-parse-tree(parse-tree);
+//    dump-parse-tree(parse-tree);
 
     debug("Generating output.\n");
-    generate-output(parse-tree).concatenate-strings.see-if-best;
+    generate-optimized-output(parse-tree).concatenate-strings.see-if-best;
 //    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)

@@ -12,6 +12,7 @@ define class <generator-state> (<object>)
 end class <generator-state>;
 
 define sealed domain make(singleton(<generator-state>));
+define sealed domain initialize(<generator-state>);
 
 define sealed method initialize
     (obj :: <generator-state>, #key clone, text-runs, #all-keys)
@@ -32,6 +33,33 @@ define sealed method initialize
                                       text-runs);
   end;
 end method;
+
+define method print-state(state :: <generator-state>)
+ => ();
+  debug("%=\n", state.output-tokens);
+  debug("%=\n", state.remaining-text-runs);
+  debug("%=\n", state.attribute-stack);
+  debug("%=\n", state.open-tag-stack);
+  debug("%=\n", state.maximum-cost);
+  describe-attributes(state.from, *standard-error*);
+  describe-attributes(state.to, *standard-error*);
+  debug("\n");
+  force-output(*standard-error*);
+end method print-state;
+
+define inline method from(state :: <generator-state>) 
+ => att :: <attribute>;
+  state.attribute-stack.first;
+end method from;
+
+define inline method to(state :: <generator-state>)
+ => att :: <attribute>;
+  if(state.remaining-text-runs.size > 0)
+    state.remaining-text-runs[0].attributes;
+  else
+    make(<attribute>);
+  end if;
+end method to;
 
 define method pop-tag(old-state :: <generator-state>)
  => new-state :: <generator-state>;
@@ -84,3 +112,59 @@ define method emit-text!(state :: <generator-state>)
   state;
 end method emit-text!;
 
+// works almost like the case macro, but evaluates all tests,
+// and collects the expressions where test is true in a list.
+define macro collect-case
+  { collect-case ?:case-body end } => 
+    {  begin let result :: <list> = #(); ?case-body end}
+    case-body:
+    { ?x:expression => ?:body ; ... } => { if (?x) result := pair(?body, result); end;  ... }
+    { } => { result };
+end;
+
+
+// returns list of open tags needed for reaching the desired state
+define method applicable-tags(state :: <generator-state>)
+ => possible-tags :: <list>;
+  let from :: <attribute> = state.from;
+  let to   :: <attribute> = state.to;
+  let tags =
+    collect-case
+      ~from.bold & to.bold              => tag-BB;
+      ~from.emphasis & to.emphasis      => tag-EM;
+      from.emphasis & ~to.emphasis      => tag-EM;
+      ~from.italic & to.italic          => tag-I;
+      ~from.strong & to.strong          => tag-S;
+      ~from.typewriter & to.typewriter  => tag-TT;
+      from.underline < to.underline     => tag-U;
+      from.underline < to.underline - 1 => tag-U;
+      from.underline < to.underline - 2 => tag-U;
+      to.font-size & from.font-size ~== to.font-size
+        =>
+        select(to.font-size)
+          0 => tag-0;
+          1 => tag-1;
+          2 => tag-2;
+          3 => tag-3;
+          4 => tag-4;
+          5 => tag-5;
+          6 => tag-6;
+          7 => tag-7;
+          8 => tag-8;
+          9 => tag-9;
+        end;
+      to.color & from.color ~== to.color
+        =>
+        select(to.color)
+          #"red"     => tag-r;
+          #"green"   => tag-g;
+          #"blue"    => tag-b;
+          #"cyan"    => tag-c;
+          #"magenta" => tag-m;
+          #"yellow"  => tag-y;
+          #"black"   => tag-k;
+          #"white"   => tag-w;
+        end;
+    end collect-case;
+  tags;
+end method;

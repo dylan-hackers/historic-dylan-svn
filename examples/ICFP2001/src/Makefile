@@ -1,5 +1,6 @@
 SOURCES=icfp2001.dylan icfp2001-exports.dylan \
-	attributes.dylan generate.dylan optimize.dylan
+	attributes.dylan generate.dylan optimize.dylan generator-state.dylan \
+	search-strategies.dylan
 
 icfp2001: icfp2001.lid $(SOURCES)
 	d2c -s icfp2001.lid

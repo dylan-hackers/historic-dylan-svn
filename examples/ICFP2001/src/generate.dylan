@@ -10,95 +10,44 @@ define method generate-output(input :: <stretchy-object-vector>)
 
   while(state.remaining-text-runs.size > 0)
     check-timeout();
-    debug("%=\n", state.output-tokens);
-    debug("%=\n", state.remaining-text-runs);
-    debug("%=\n", state.attribute-stack);
-    debug("%=\n", state.open-tag-stack);
-    debug("%=\n", state.maximum-cost);
-    force-output(*standard-error*);
-    let from :: <attribute> = state.attribute-stack.first;
-    let to   :: <attribute> = state.remaining-text-runs[0].attributes;
-    describe-attributes(from, *standard-error*);
-    describe-attributes(to, *standard-error*);
-    debug("\n");
-    force-output(*standard-error*);
+    let from :: <attribute> = state.from;
+    let to   :: <attribute> = state.to;
+
+    if(#f)
+      print-state(state);
+    end if;
+
+    local
+      method can-pop-to-attr(name)
+        from.name ~== to.name &
+          member?(to, state.attribute-stack,
+                  test: method(x :: <attribute>, y :: <attribute>)
+                            x.name == y.name;
+                        end);
+      end method can-pop-to-attr;
+      
+    let pop =
+      (state.attribute-stack ~== #() 
+         & state.attribute-stack.tail ~== #() 
+         & to.value = state.attribute-stack.second.value) |
+      (from.bold & ~to.bold) |
+      (from.italic & ~to.italic) |
+      (from.strong & ~to.strong) |
+      (from.typewriter & ~to.typewriter) |
+      (from.underline > to.underline) |
+      (from.font-size & ~to.font-size) |
+      (from.color & ~to.color) |
+      can-pop-to-attr(emphasis) |
+      can-pop-to-attr(font-size) |
+      can-pop-to-attr(color);
 
     if(from.value = to.value)
       // same attributes .. just output the text
       emit-text!(state);
-    elseif(state.attribute-stack ~== #() 
-             & state.attribute-stack.tail ~== #() 
-             & to.value = state.attribute-stack.second.value)
-      // the attributes we want are *just* down one level on the stack
+    elseif(pop)
       pop-tag!(state);
-    elseif(from.bold & ~to.bold)
-      pop-tag!(state);
-    elseif(from.emphasis & ~to.emphasis)
-      pop-tag!(state);
-    elseif(from.italic & ~to.italic)
-      pop-tag!(state);
-    elseif(from.strong & ~to.strong)
-      pop-tag!(state);
-    elseif(from.typewriter & ~to.typewriter)
-      pop-tag!(state);
-    elseif(from.underline > to.underline)
-      pop-tag!(state);
-    elseif(from.font-size & ~to.font-size)
-      pop-tag!(state);
-    elseif(from.color & ~to.color)
-      pop-tag!(state);
-    elseif(from.font-size ~== to.font-size &
-             member?(to, state.attribute-stack,
-		       test: method(x :: <attribute>, y :: <attribute>)
-				 x.font-size == y.font-size;
-			     end))
-      pop-tag!(state);
-    elseif(from.color ~== to.color &
-             member?(to, state.attribute-stack,
-		       test: method(x :: <attribute>, y :: <attribute>)
-				 x.color == y.color;
-			     end))
-      pop-tag!(state);
-    elseif(~from.bold & to.bold)
-      push-tag!(state, tag-BB);
-    elseif(~from.emphasis & to.emphasis)
-      push-tag!(state, tag-EM);
-    elseif(~from.italic & to.italic)
-      push-tag!(state, tag-I);
-    elseif(~from.strong & to.strong)
-      push-tag!(state, tag-S);
-    elseif(~from.typewriter & to.typewriter)
-      push-tag!(state, tag-TT);
-    elseif(from.underline < to.underline)
-      push-tag!(state, tag-U);
-    elseif(from.font-size ~== to.font-size)
-      let tag = 
-        select(to.font-size)
-          0 => tag-0;
-          1 => tag-1;
-          2 => tag-2;
-          3 => tag-3;
-          4 => tag-4;
-          5 => tag-5;
-          6 => tag-6;
-          7 => tag-7;
-          8 => tag-8;
-          9 => tag-9;
-        end;
-      push-tag!(state, tag);
-    elseif(from.color ~== to.color)
-      let tag = 
-        select(to.color)
-          #"red"     => tag-r;
-          #"green"   => tag-g;
-          #"blue"    => tag-b;
-          #"cyan"    => tag-c;
-          #"magenta" => tag-m;
-          #"yellow"  => tag-y;
-          #"black"   => tag-k;
-          #"white"   => tag-w;
-        end;
-      push-tag!(state, tag);
+    else
+      do(curry(push-tag!, state), applicable-tags(state));
     end if;
   end while;
   while(state.open-tag-stack.head ~== #())
@@ -106,3 +55,86 @@ define method generate-output(input :: <stretchy-object-vector>)
   end while;
   reverse!(state.output-tokens);
 end method generate-output;
+
+define method generate-optimized-output(input :: <stretchy-object-vector>)
+ => strings :: <list>;
+  let state = make(<generator-state>, text-runs: input);
+  local
+    method finished? (x :: <generator-state>) => result :: <boolean>;
+      x.remaining-text-runs.size = 0;
+    end method finished?;
+  local
+    method successor-states (x) => states;
+      apply(concatenate, map(generate-next-run, x));
+    end method successor-states;
+              
+  let result-states = beam-search(state, successor-states, maximum-cost, finished?);
+  for(i in result-states)
+    print-state(i);
+  end for;
+  reverse!(result-states.head.output-tokens);
+end method generate-optimized-output;
+
+// returns all states reachable by popping, including itself (no pop)
+// when chance to finish, return only finished state
+define method generate-pops(state :: <generator-state>)
+ => successor-states :: <list>;
+  if(state.remaining-text-runs.size = 0) // We're done.
+    while(state.open-tag-stack.head ~== #())
+      state := pop-tag(state);
+    end while;
+    list(state);
+  else
+    let pops = list(state);
+    while(state.open-tag-stack.head ~== #())
+      state := pop-tag(state);
+      pops := pair(state, pops);
+    end while;
+    pops;
+  end;
+end method generate-pops;
+
+// returns itself and itself with applied PL
+define method generate-pl(state :: <generator-state>)
+ => successor-states :: <list>;
+  let from :: <attribute> = state.from;
+  let to   :: <attribute> = state.to;
+
+  if((from.strong       & ~to.strong) |
+       (from.typewriter & ~to.typewriter) |
+       (from.emphasis   & ~to.emphasis) |
+       (from.italic     & ~to.italic) |
+       (from.bold       & ~to.bold) |
+       (from.underline > 0 & to.underline = 0))
+    list(push-tag(state, tag-PL), state);
+  else
+    list(state);
+  end if;
+end method generate-pl;
+
+// returns all states that lead to actual emission of text
+define method generate-pushes(state :: <generator-state>)
+ => successor-states :: <list>;
+  block(return)
+    let from :: <attribute> = state.from;
+    let to   :: <attribute> = state.to;
+
+    if(from.value = to.value)
+      return(list(emit-text(state)));
+    end;
+
+    let tags :: <list>      = applicable-tags(state);
+
+    apply(concatenate, #(), map(generate-pushes, map(curry(push-tag, state), tags)));
+  end;
+end method generate-pushes;
+
+// applies PL, pushes and pops and returns all result states
+define method generate-next-run(state :: <generator-state>)
+ => successor-states :: <list>;
+  let new-states = generate-pl(state);
+
+  new-states := apply(concatenate, #(), map(generate-pushes, new-states));
+  new-states := apply(concatenate, #(), map(generate-pops, new-states));
+  new-states;
+end method generate-next-run;
