@@ -45,7 +45,10 @@ states:
     => { let counter = counter + 1; ?state; ... }
 
  state:
-  { Set ?:expression }
+  { Set ?:name = ?:expression, (?labelFrom:name => ?labelFrom:name) }
+    => { let counter = counter - 1; let var1 :: <boolean> = ?expression }
+
+  { Set ?:name = ?:expression }
     => { let counter = counter - 1; let var1 :: <boolean> = ?expression }
 
   { IfSet { ?then-states } { ?else-states } }
@@ -148,6 +151,13 @@ states:
     => { push-thunk(instrs, label, counter,
                     method() make(<move>,
                                   state-success: curry(lookup, instrs, ?#"name", 0),
+                                  state-failure: curry(lookup, instrs, label, counter + 1))
+                    end) }
+
+  { Move }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<move>,
+                                  state-success: curry(lookup, instrs, label, counter + 1),
                                   state-failure: curry(lookup, instrs, label, counter + 1))
                     end) }
 

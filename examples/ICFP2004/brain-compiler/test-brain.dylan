@@ -11,16 +11,17 @@ end brain;
 define brain test-brain1
          Drop, (start);
   [start:]
-         Set #t;
+         Set V1 = #t, (fonz => fonzT);
+         Set V1 = #t;
 //         IfSet // var1
-//          { Drop, (fonz); }
+//          { Drop, (fonzT); }
 //          { Drop, (sub-problem); };
 
-         Sub test-sub;
+////         Sub test-sub;
          Move fonz  => start;
   [fonz:]
-         Sub test-sub;
-         Pickup, (start);
+////         Sub test-sub;
+///         Pickup, (start);
          Move sub-problem  => start;
   [sub-problem:]
          Move fonz  => start;
