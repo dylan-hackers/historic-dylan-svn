@@ -55,9 +55,10 @@ sub build_library {
 
     open(REGISTRY, '<', "$user_registries/$platform_name/$library")
 	|| open(REGISTRY, '<', "$user_registries/generic/$library")
-	|| return undef;
+	|| return 0;
     my $line = <REGISTRY>;
     close(REGISTRY);
+
 
     # abstract://dylan/environment/console/minimal-console-compiler.lid
     $line =~ s|^abstract://dylan/||;
@@ -111,7 +112,7 @@ sub build_library {
 
     print "Building $library... ";
 
-    my $command = "$compiler -nologo -save -build";
+    my $command = $compiler;
     $command .= " -debugger" if($debugger);
     $command .= " $library";
 
