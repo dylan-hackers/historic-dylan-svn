@@ -1,0 +1,92 @@
+[cross-posted to the GwydionDylan mail list]
+
+Hello, all,
+
+I've needed to implement multimap (a <table> which allows non-unique keys) on several projects.  I find multimap a useful, general-purpose collection; therefore, I propose we add it to the table-extensions library.  My proposal follows the format from Kim Barret's archive.
+
+If accepted, I'll add it to the GwydionDylan table-extensions library as under the lesser GNU license.
+
+Sincerely,
+Doug Auclair
+
+-----
+
+ISSUE:  Add a table type with non-unique keys to the table-extensions library
+
+CATEGORY: addition
+DOCUMENT: table-extensions library
+
+PROPOSAL:
+<multimap> [Open Abstract Instantiable Class]
+---------------------------------------------
+The class of <table>s where each key may have more than one associated value.
+
+Superclasses: <object-table>
+Init-keywords:  None.
+Description:
+  Creates a table which has keyed elements that are sequences (the sequence class is implementation defined).  When a new key with a value is added to this collection, the key is associated with a new sequence containing the value.  When a pre-existing key is added with a new value, that value is added to the sequence associated with that key.  Where the value is added to the sequence (at the beginning, in the middle, or at the end) is implementation defined.  Identical values may be added to a keyed sequence multiple times.  
+
+  The element type of <multimap> is (an implementation defined subclass of) <sequence>.
+
+Operations:  
+<multimap>, as a subclass of <object-table>, follows the protocols for its superclasses (notably, <table> and <object-table>).  It also provides the following methods:
+
+method: element
+description: For an existing key, element always returns a sequence, otherwise returns as element on <object-table> (i.e. error unless a value is supplied to the default: keyword).
+
+method: element-setter
+description:  For an existing key, element-setter adds the value to the keyed sequence (alternatively, it may associate the key to a newly created sequence with all the prior elements and the new value added to it).  For a new key, element-setter allocates a fresh sequence with the value as the sequence's only element.
+
+------------------------------------------------------
+
+RATIONALE:
+The multimap is a general-purpose table type that allows storing information with non-unique keys.  Multimaps are useful in a variety of problem domains, e.g.:  CLP(FD) (constraint logic programming), amino-acid sequencers, parsers/compilers, and personnel/activity scheduling systems.
+
+The current language/library definition allows hand-crafting such a collection, but such code 1) is cumbersome, 2) must be reimplemented for each project, and 3) gets in the way of code maintenance and clarity.
+
+EXAMPLES:
+define constant $vars = make(<multmap>);
+// partial list from http://tuxedo.org/jargon/html/entry/metasyntactic-variable.html
+$vars[#"metasyntactic"] := "foo";
+$vars[#"metasyntactic"] := "bar";
+$vars[#"metasyntactic"] := "baz";
+$vars[#"metasyntactic"] := "quux";
+$vars[#"cartesian"] := "x";
+$vars[#"loop"] := #"i";
+$vars[#"loop"] := #"i";
+$vars[#"loop"] := #"j";
+
+$vars[#"metasyntactic"]
+=> (a sequence of 4 elements: "foo", "bar", "baz", "quux", order is implementation-defined)
+
+$vars[#"cartesian"]
+=> (a sequence of 1 element: "x")
+
+$vars[#"loop"]
+=> (a sequence of 3 elements: #"i", #"i", #"j", order is implementation defined)
+
+$vars[#"floop"]
+=> error signaled
+
+element($vars, #"bloop", default: 7)
+=> (a sequence of 1 element: 7)
+
+element($vars, #"miu", default: #("miuumiu", "miiiiiu", "mimmmiu"))
+=> (a sequence of 3 elements: "miuumiu", "miiiiiu", "mimmmiu", order is implementation defined)
+
+See also the xml-parser sources (productions.dylan), available from the GwydionDylan cvs repository, for a working example of a multimap.
+
+COST TO IMPLEMENTORS:
+Minimal.  This is an addition to the table-extensions library, so it will not slow down optimizers, (byte-)compilers or interpreters.  Three (similar) implementations exist, so design and implementation is not a large cost.
+
+COST TO USERS:
+Multimap, as a binding in the table-extensions library, is a "pay on use" feature for users.  If they do not use it, it will not cost them either in compile or run time.  Its availability in the library provides an easy-to-use and convenient addition to the collection hierarchy.
+
+REVISION HISTORY:  
+1. Proposed March 19, 2002, Douglas M. Auclair
+
+RELATED ISSUES:
+The multimap follows the protocol of the <table> type (discussed and explained in the DRM) with the appearance of allowing multiple entries on one key.
+
+STATUS:
+Open until April 19, 2002
