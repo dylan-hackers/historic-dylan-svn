@@ -3730,8 +3730,9 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       compute the value of the series 4 - 4/3 + 4/5 - 4/7 ... (which
       takes a very large number of terms to get close to Chuck Moore's
       find (see below)).  Another is to use the Fibonacci numbers
-      (see http://www.ee.surrey.ac.uk/Personal/R.Knott/Fibonacci/fibpi.html, which
-	is an article on computing pi using arc-tangents</ulink>)
+      (see <ulink url=
+	"http://www.ee.surrey.ac.uk/Personal/R.Knott/Fibonacci/fibpi.html">
+	this article on computing pi using arc-tangents</ulink>)
       which become usable in about ten terms.
     </para>
 
@@ -4046,7 +4047,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
         <para>
 	  The value here is 2.7182818284590452354.  To compute your
 	  own approximation, use the Fibonacci numbers (1, 1, 2, 3, 5,
-	  8, 13, 21 ...).  e = F(n) / F(n-1); where the larger n is,
+	  8, 13, 21, ...).  e = F(n) / F(n-1); where the larger n is,
 	  the more accurate e is.
 	</para>
       </defdescription>
@@ -4064,6 +4065,15 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	</para>
       </defdescription>
     </dylanconstantdef>
+
+    </sect1>
+
+    <sect1 id="lib-transcendental-log">
+    <title>The Logarithmic Functions</title>
+    <para>
+      The logarithmic family of functions (<function>log</function> in its
+      various forms and <function>exp</function>) use e as their foundation.
+    </para>
 
     </sect1>
 
