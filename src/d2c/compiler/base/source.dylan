@@ -1,5 +1,5 @@
 module: source
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/source.dylan,v 1.12 2003/09/15 18:45:21 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/source.dylan,v 1.12.2.1 2003/11/20 19:23:53 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -151,6 +151,7 @@ define method fill-buffer (big-buf :: <big-buffer>, stream :: <stream>) => ();
   end for;
 end method fill-buffer;
 
+/*
 define method copy-bytes
     (dst :: <byte-string>, dst-offset :: <integer>,
      src :: <big-buffer>, src-offset :: <integer>,
@@ -172,6 +173,7 @@ define method copy-bytes
     partial-copy(end-buf, 0, end-byte);
   end if;
 end method copy-bytes;
+*/
 
 define constant <file-contents> = type-union(<buffer>, <big-buffer>, <byte-vector>);
 
@@ -199,7 +201,7 @@ define method fill-buffer (buf :: <buffer>, stream :: <stream>) => ();
   block ()
     read-into!(stream, buf.size, buf);
   exception (inc-read :: <incomplete-read-error>)
-    copy-into-buffer!(buf, 0, inc-read.incomplete-read-sequence);
+    copy-into-buffer!(buf, 0, inc-read.stream-error-sequence);
   exception (<end-of-stream-error>)
     #f;
   end; 
@@ -225,7 +227,7 @@ define method extract-line
   finally
     let len = index - line-start;
     let result = make(<byte-string>, size: len);
-    copy-bytes(result, 0, contents, line-start, len);
+    copy-bytes(contents, line-start, result, 0, len);
     result;
   end for;
 end method extract-line;
@@ -236,8 +238,8 @@ end method extract-line;
 define class <source-file> (<source>)
   //
   // The name for this source file.
-  constant slot full-file-name :: <byte-string>, 
-    required-init-keyword: #"name";
+  constant slot source-locator :: <file-locator>,
+    required-init-keyword: #"locator";
   //
   // The contents, or #f if we haven't read them in yet.
   slot %contents :: false-or(<file-contents>) = #f;
@@ -247,7 +249,7 @@ define sealed domain make (singleton(<source-file>));
 define sealed domain initialize (<source-file>);
 
 define function file-name (source-file :: <source-file>) => name :: <string>;
-  source-file.full-file-name.pathless-filename;
+  source-file.source-locator.locator-name
 end function file-name;
 
 define sealed method source-name (src :: <source-file>)
@@ -270,7 +272,7 @@ define method contents (source :: <source-file>)
  => contents :: <file-contents>;
   source.%contents
     | begin
-	let file = make(<file-stream>, locator: source.full-file-name);
+	let file = make(<file-stream>, locator: source.source-locator);
 	block ()
 	  let result = make-buffer(file.stream-size);
 	  fill-buffer(result, file);
@@ -286,7 +288,7 @@ end method contents;
 
 
 add-make-dumper(#"source-file", *compiler-dispatcher*, <source-file>,
-		list(full-file-name, name:, #f));
+		list(source-locator, locator:, #f));
 
 
 // <source-buffer> -- exported.
@@ -510,7 +512,7 @@ define method extract-string
   let len = finish - start;
   if (len.positive?)
     let result = make(<string>, size: len);
-    copy-bytes(result, 0, source-location.source.contents, start, len);
+    copy-bytes(source-location.source.contents, start, result, 0, len);
     result;
   else
     "";
@@ -542,17 +544,14 @@ end method;
 
 add-od-loader(*compiler-dispatcher*, #"known-source-location",
   method (state :: <load-state>) => res :: <known-source-location>;
-    state.od-next := state.od-next + $word-bytes; // skip count
     let nbytes = $source-file-location-words * $word-bytes;
-    let next = fill-at-least(nbytes, state);
-    let buf = state.od-buffer;
-    let s-posn = buffer-word(buf, next + (0 * $word-bytes));
-    let s-line = buffer-word(buf, next + (1 * $word-bytes));
-    let s-column = buffer-word(buf, next + (2 * $word-bytes));
-    let e-posn = buffer-word(buf, next + (3 * $word-bytes));
-    let e-line = buffer-word(buf, next + (4 * $word-bytes));
-    let e-column = buffer-word(buf, next + (5 * $word-bytes));
-    state.od-next := next + nbytes;
+    let (buf, next) = buffer-at-least(nbytes + $word-bytes, state);
+    let s-posn = buffer-word(buf, next + (1 * $word-bytes));
+    let s-line = buffer-word(buf, next + (2 * $word-bytes));
+    let s-column = buffer-word(buf, next + (3 * $word-bytes));
+    let e-posn = buffer-word(buf, next + (4 * $word-bytes));
+    let e-line = buffer-word(buf, next + (5 * $word-bytes));
+    let e-column = buffer-word(buf, next + (6 * $word-bytes));
     let file = load-object-dispatch(state);
     assert-end-object(state);
     make(<known-source-location>,
