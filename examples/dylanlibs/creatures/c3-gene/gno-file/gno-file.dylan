@@ -26,14 +26,14 @@ define class <gno-extra-documentation> (<object>)
 end class;
 
 define method load-gno-file ( filename, #key version ) => (gno)
-  with-open-file( fs = filename, element-type: <byte> )
+  with-open-file( fs = filename, element-type: <byte-character> )
     do-load-gno-file( fs, make(<stretchy-vector>), version )
   end with-open-file;
 end method load-gno-file;
 
 define method read-16-bits( fs, #key endian = #"little" )
-  let total-size1 = read-element( fs );
-  let total-size2 = read-element( fs );
+  let total-size1 = as(<integer>, read-element( fs ));
+  let total-size2 = as(<integer>, read-element( fs ));
   if(endian == #"little")
     total-size1 + total-size2 * 256;
   else
