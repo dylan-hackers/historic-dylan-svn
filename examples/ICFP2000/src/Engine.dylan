@@ -156,18 +156,18 @@ end;
 // Points
 
 define sealed class <point>(<object>)
-     slot x :: <float>, required-init-keyword: x:;
-     slot y :: <float>, required-init-keyword: y:;
-     slot z :: <float>, required-init-keyword: z:;
+     slot x :: <fp>, required-init-keyword: x:;
+     slot y :: <fp>, required-init-keyword: y:;
+     slot z :: <fp>, required-init-keyword: z:;
 end class <point>;
 
 define method compile-one(token == #"point", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
   let (cont, remaining) = more-tokens.compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-           let (z :: <float>, rest :: <pair>) = values(stack.head, stack.tail);
-           let (y :: <float>, rest :: <pair>) = values(rest.head, rest.tail);
-           let (x :: <float>, rest :: <list>) = values(rest.head, rest.tail);
+           let (z :: <fp>, rest :: <pair>) = values(stack.head, stack.tail);
+           let (y :: <fp>, rest :: <pair>) = values(rest.head, rest.tail);
+           let (x :: <fp>, rest :: <list>) = values(rest.head, rest.tail);
            cont(pair(make(<point>, x: x, y: y, z: z), rest), env)
          end method,
          remaining)
