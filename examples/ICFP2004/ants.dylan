@@ -461,42 +461,47 @@ define function parse-instruction(s :: <byte-string>)
 
   let opcode = sym(0);
 
-  select(opcode)
-    #"sense" => 
-      let condition = sym(4);
-      if(condition = #"marker")
-        condition := as(<symbol>, 
-                        concatenate(constituents[4],
-                                    constituents[5]));
-      end if;
-                                    
-      make(<sense>, 
-                     direction: sym(1),
-                     state-true: int(2),
-                     state-false: int(3),
-                     condition: condition);
-    #"mark" => make(<mark>, 
-                     marker: int(1),
-                     state: int(2));
-    #"unmark" => make(<unmark>, 
+  let insn =
+    select(opcode)
+      #"sense" => 
+        let condition = sym(4);
+        if(condition = #"marker")
+          condition := as(<symbol>, 
+                          concatenate(constituents[4],
+                                      constituents[5]));
+        end if;
+        
+        make(<sense>, 
+             direction: sym(1),
+             state-true: int(2),
+             state-false: int(3),
+             condition: condition);
+      #"mark" => make(<mark>, 
                       marker: int(1),
                       state: int(2));
-    #"pickup" => make(<pickup>, 
+      #"unmark" => make(<unmark>, 
+                        marker: int(1),
+                        state: int(2));
+      #"pickup" => make(<pickup>, 
+                        state-success: int(1),
+                        state-failure: int(2));
+      #"drop" => make(<drop>,
+                      state: int(1));
+      #"turn" => make(<turn>,
+                      left-or-right: sym(1),
+                      state: int(2));
+      #"move" => make(<move>,
                       state-success: int(1),
                       state-failure: int(2));
-    #"drop" => make(<drop>,
-                    state: int(1));
-    #"turn" => make(<turn>,
-                    left-or-right: sym(1),
-                    state: int(2));
-    #"move" => make(<move>,
-                    state-success: int(1),
-                    state-failure: int(2));
-    #"flip" => make(<flip>,
-                    probability: int(1),
-                    state-success: int(2),
-                    state-failure: int(3));
-  end select;
+      #"flip" => make(<flip>,
+                      probability: int(1),
+                      state-success: int(2),
+                      state-failure: int(3));
+    end select;
+  unless(s = insn.unparse)
+    format-out("*** Severe warning! Mismatch between assembly and unassembly! ***\n");
+  end unless;
+  insn
 end function parse-instruction;
 
 define function adjacent-ants(p :: <position>, c :: <color>)
