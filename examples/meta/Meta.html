@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>The Meta Library</title>
+  </head>
+
+  <body>
+    <h1>The Meta Library</h1>
+    
+    This is a reorganized version of the original text-only
+    documentation.  It became more and more unreadable, so here is a
+    more structured HTML-Version.<p>
+
+    <ol>
+      <li><a href="#introduction">Introduction</a>
+      <li><a href="#exports">Exported Facilities</a>
+      <li><a href="#syntax">Syntax of <tt>with-meta-syntax</tt></a>
+      <li><a href="#expressions">Meta expressions</tt></a>
+      <li><a href="#example">Example code</tt></a>
+      <li><a href="#references">References</a>
+    </ol>
+
+
+    <a name="introduction">
+      <h2>1.  Introduction</h2></a>
+
+    <p>
+
+    This is an implementation of Meta, a technique used to simplify the
+    task of writing parsers.  <a href="#baker91">[Baker91]</a> describes
+    Meta and shows the main ideas for an implementation in Common Lisp.
+
+    <blockquote>
+      If all META did was recognize regular expressions, it would not be
+      very useful. It is a programming language, however, and the
+      operations [], {} and $ correspond to the Common Lisp control
+      structures AND, OR, and DO.[8] Therefore, we can utilize META to
+      not only parse, but also to transform. In this way, META is
+      analogous to "attributed grammars" [Aho86], but it is an order of
+      magnitude simpler and more efficient. Thus, with the addition of
+      the "escape" operation "!", which allows us to incorporate
+      arbitrary Lisp expressions into META, we can not only parse
+      integers, but produce their integral value as a result.
+      --<a href="#baker91">[Baker91]</a>
+    </blockquote>
+    
+    The macro defined here is an attempt to implement Meta (with
+    slightly adapted syntax) for Dylan.  It is functional, but not yet
+    optimized.<p>
+
+
+
+    <a name="exports">
+      <h2>2.  Exported facilities</h2></a>
+    <p>
+
+    The <tt>meta</tt>-library exports the <tt>meta</tt>-module with two
+    macros:
+    <dl>
+      <dt><tt>with-meta-syntax</tt>
+      <dd>
+	Implements Meta and provides some additional functionality to
+	  defines variables. See below.<p>
+      <dt><a href="With-collector.html"><tt>with-collector</tt></a>
+      <dd>
+	General facility to collect data into lists or vectors.
+	Initially <tt>with-meta-syntax</tt> had this functionality
+	integrated--a mess.  Now there is this more modular approach.
+    </dl>
+
+
+    
+    <a name="syntax">
+      <h2>3.  Syntax of <tt>with-meta-syntax</tt></h2></a>
+    <p>
+
+    Meta integrates the ability to parse from streams and strings in one
+    facility.  (The parsing of lists is not implemented yet, because
+    it's rather useless in Dylan.  This addition would be simple to do,
+    though.)
+
+    <dl>
+      <dd><pre>
+<b>with-meta-syntax</b> <i>source-type</i> (<i>source</i> <tt>#key</tt> <i>keys</i>)
+  <i>[ variables ]</i>
+  <i>meta;</i>
+  <i>body</i>
+<b>end</b>
+	</pre>
+
+      <dt><b>Arguments:</b>
+      <dd>
+	<i>source-type</i>---either <code>parse-stream</code>
+	or <code>parse-string</code><p>
+
+	  <i>source</i>---either a stream or a string, depending on 
+
+	  <i>source-type</i><p>
+
+	  <i>keys</i>---<i>source-type</i> specific.<p>
+
+	  <i>meta</i>---a <a href="#expressions">Meta expression</a>.<p>
+
+	  <i>body</i>---a body.  Evaluated only if parsing is successful.<p>
+
+      <dt><b>Values:</b>
+      <dd>
+	If parsing fails <code>#f</code>, otherwise the values of
+	<i>body</i>.<p>
+
+      <dt><b>Keyword arguments:</b>
+      <dd>
+	<tt>parse-stream</tt> does not accept keyword arguments
+	currently.
+
+	<p><tt>parse-string</tt> recognizes the following keywords: <p>
+
+	  <i>start</i>---Index to start at<p>
+	  <i>end</i>---Index to finish before<p>
+	  <i>pos</i>---A name.  A variable called <i>pos</i> will be
+	  defined which holds the current index during execution of the
+	  <tt>with-meta-syntax</tt> forms.<p>
+
+      <dt><b>Special programming aids:</b>
+      <dd>
+	<code><b>variables</b> (<i>variable [ :: type ] [ = init ], ...</i>);</code>
+	<p>Bind variables to <i>init</i>, which defaults to #f;<p>
+	  
+	Future versions will have further special forms.<p>
+
+      <dt><b>Example fragments:</b>
+      <dd><pre>
+<b>with-meta-syntax parse-stream</b> (*standard-input*)
+  <i>body</i>
+<b>end with-meta-syntax</b>;
+
+<b>let</b> query :: &lt;string&gt; = ask-user();
+<b>with-meta-syntax parse-string</b> (query, start: 23, end: 42)
+  <i>body</i>
+<b>end with-meta-syntax</b>;
+
+<b>with-meta-syntax parse-string</b> (query)
+  ... ['\n', finish()] ...
+  values(these, values, will, be, returned);
+<b>end with-meta-syntax</b>;
+	</pre>
+    </dl>
+
+
+
+    <a name="expressions">
+      <h2>4.  Meta expressions</h2></a>
+    <p>
+
+    Meta is a small, but featureful language, so naturally it has its
+    own syntax.  This syntax is adapted to Dylan's way of writing
+    things, of course.
+
+    <p>There are several basic Meta expressions implementing the core
+    functionality.  Additionally there are some <i>pseudo-functions</i>,
+    syntactically function-like constructs which simplify certain tasks
+    that would otherwise have to be written manually.
+
+    <h3>Basic Meta expressions as described by Baker</h3>
+
+    <table>
+      <tr>
+	<td><b>Baker</b></td>
+	<td><b><tt>with-meta-syntax</tt></b></td>
+	<td><b>Description</b><td>
+      </tr> <tr>
+	<td><code><i>fragment</i></code></td>
+	<td><code><i>fragment</i></code></td>
+	<td>try to match this</td>
+      </tr> <tr>
+	<td><code>[a b c ... n]</code></td>
+	<td><code>[a, b, c, ..., n]</code></td>
+	<td>and/try all</td>
+      </tr> <tr>
+	<td><code>{a b c ... n}</code></td>
+	<td><code>{a, b, c, ..., n}</code></td>
+	<td>or/first hit</td>
+      </tr> <tr>
+	<td><code>@(<i>type</i> <i>variable</i>)</code></td>
+	<td><code>type(<i>type</i>, <i>variable</i>)</code></td>
+	<td>match any <i>type</i></td>
+      </tr> <tr>
+	<td><code>$foo</code></td>
+	<td><code>loop(foo)</td>
+	<td>zero or more</td>
+      </tr> <tr>
+	<td><code>!<i>Lisp</i></code></td>
+	<td><code>(<i>Dylan</i>)</code></td>
+	<td>call the code (and check result)</td>
+      </tr>
+    </table>
+    <p>
+
+    The same grammar which works for streams will works for strings,
+    too.  When parsing strings, more than just one-character look-ahead
+    is possible, though.  You can therefore not only match against
+    characters, but also whole substrings.  This does not work when
+    reading from a stream.<p>
+
+
+    <h3>Additional pseudo-function expressions</h3>
+
+    <table>
+      <tr>
+	<td><b><tt>with-meta-syntax</tt></b></td>
+	<td><b>Description</b></td>
+	<td><b>Could be written as</b></td>
+      </tr> <tr>
+	<td><code>do(<i>Dylan</i>)</code></td>
+	<td>call the code and continue (whatever the result is)</td>
+	<td><code>(<i>Dylan</i>; #t)</code></td>
+      </tr> <tr>
+	<td><code>finish()</code></td>
+	<td>finish parsing successfully</td>
+	<td>not possible</td>
+      </tr> <tr>
+	<td><code>test(<i>predicate</i>)</code></td>
+	<td>Match against a predicate.</td>
+	<td>not possible</td>
+      </tr> <tr>
+	<td><code>test(<i>predicate</i>, <i>variable</i>)</code></td>
+	<td>Match against a predicate, saving the result.</td>
+	<td>not possible</td>
+      </tr> <tr>
+	<td><code>yes!(<i>variable</i>)</code></td>
+	<td>Set <i>variable</i> to #t and continue.</td>
+	<td><code>(<i>variable</i> := #t)</code></td>
+      </tr> <tr>
+	<td><code>no!(<i>variable</i>)</code></td>
+	<td>Set <i>variable</i> to #f and continue.</td>
+	<td><code>(<i>variable</i> := #f; #t)</code></td>
+      </tr> <tr>
+	<td><code>set!(<i>variable</i>, <i>value</i>)</code></td>
+	<td>Set <i>variable</i> to <i>value</i> and continue.</td>
+	<td><code>(<i>variable</i> := <i>value</i>; #t)</code></td>
+      </tr> <tr>
+	<td><code>accept(<i>variable</i>)</code></td>
+	<td>Match anything and save result.</td>
+	<td><code>type(&lt;object&gt;, <i>variable</i>)</code></td>
+      </tr>
+    </table>
+
+
+
+    <a name="example">
+      <h2>5.  Example code</h2></a><p>
+
+    <h3>Parsing an integer (base 10)</h3><p>
+
+      Common Lisp version:<p>
+
+    <pre>
+(defun parse-integer (&aux (s +1) d (n 0))
+  (and
+   (matchit
+    [{#\+ [#\- !(setq s -1)] []}
+    @(digit d) !(setq n (digit-to-integer d))
+    $[@(digit d) !(setq n (+ (* n 10) (digit-to-integer d)))]])
+   (* s n)))
+    </pre>
+
+    Direct translation to Dylan:<p>
+
+    <pre>
+define constant &lt;digit&gt; = one-of('0','1','2','3','4','5','6','7','8','9');
+
+define function parse-integer (source :: &lt;stream&gt;);
+  let s = +1; // sign
+  let n = 0;  // number
+  with-meta-syntax parse-stream (source) (d)
+    [{'+', ['-', (s := -1)], []},
+     type(&lt;digit&gt;, d), (n := digit-to-integer(d)),
+     loop([type(&lt;digit&gt;, d), (n := digit-to-integer(d) + 10 * n)])];
+    (s * n)
+  end with-meta-syntax;
+end function parse-integer;
+    </pre>
+
+    Alternative version:
+
+    <pre>
+define function parse-integer (source :: &lt;stream&gt;);
+  with-meta-syntax parse-stream (source)
+    variables (d, sign = +1, num = 0);
+    [{'+', ['-', set!(sign, 1)], []},
+     test(digit?, d), set!(num, digit-to-integer(d)),
+     loop([test(digit?, d), set!(num, digit-to-integer(d) + 10 * num)])];
+    sign * num;
+  end with-meta-syntax;
+end function parse-integer;
+    </pre>
+
+    
+    <a name="finger">
+      <h3>Parsing finger queries</h3></a><p>
+
+    <pre>
+define function parse-finger-query (query :: &lt;string&gt;)
+  with-collector into-buffer user like query (collect: collect)
+    with-meta-syntax parse-string (query)
+      variables (whois, at, c);
+      [loop(' '), {[{"/W", "/w"}, yes!(whois)], []},        // Whois switch?
+       loop(' '), loop({[{'\n', '\r'}, finish()],           // Newline? Quit.
+			{['@', yes!(at), do(collect('@'))], // @? Indirect.
+			 [accept(c), do(collect(c))]}})];   // then collect char
+      values(whois, user(), at);
+    end with-meta-syntax;
+  end with-collector;
+end function parse-finger-query;
+    </pre>
+
+
+
+    <a name="references">
+      <h2>6.  References</h2></a>
+    <p>
+
+    <a name="baker91"></a>
+    <a href="ftp://ftp.netcom.com/pub/hb/hbaker/Prag-Parse.html">[Baker91]</a>
+    Baker, Henry. "Pragmatic Parsing in Common Lisp".
+    <i>ACM Lisp Pointers 4, 2</i> (Apr-Jun 1991), 3-15.<p>
+
+    <hr>
+    <address><a href="mailto:david.lichteblau@snafu.de">David Lichteblau</a></address>
+<!-- hhmts start -->
+Last modified: Sat Apr 10 20:47:23 CEST 1999
+<!-- hhmts end -->
+  </body>
+</html>

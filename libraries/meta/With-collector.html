@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>Meta Library: Collecting data into sequences</title>
+  </head>
+
+  <body>
+    <h1>Meta Library: Collecting data into sequences</h1>
+    
+    The <a href="Meta.html">Meta library</a> makes it easy to write
+    parsers in Dylan.  It includes a macro called
+    <tt>with-collector</tt> which additionally allows to collect data
+    into a sequence.  This is similar in spirit to Common Lisp's
+    <tt>LOOP</tt> clauses <tt>COLLECT</tt> and <tt>APPEND</tt>, but more
+    flexible.  If you want to extract subsequences from a string while
+    parsing it, this is the tool to use.<p>
+
+    <ol>
+      <li><a href="#overview">Overview</a>
+      <li><a href="#into">Collecting <tt>into-list</tt> or <tt>into-vector</tt></a>
+      <li><a href="#vector">Writing into an existing vector</a>
+      <li><a href="#buffers">Using buffers</tt></a>
+      <li><a href="#minimal">A minimal collection form</tt></a>
+      <li><a href="#example">Example code</tt></a>
+    </ol>
+
+
+    <a name="overview">
+      <h2>1.  Overview</h2></a>
+
+    <p>
+
+      Like <tt>COLLECT</tt>, <tt>with-collector</tt> can put objects
+      into a list.  Unlike <tt>COLLECT</tt>, it can also create vectors
+      or write into already created vectors.<p>
+
+      The basic syntax for all of these cases is:
+
+    <dl>
+      <dd><pre>
+<b>with-collector</b> <i>operation ...</i> #key <i>collect</i>, <i>append</i>;
+  <i>body</i>
+<b>end</b>
+	</pre>
+
+      <dt><b>Arguments:</b>
+      <dd>
+	<i>operation</i>---specifies the mode of operation.  see below.<p>
+
+	  <i>collect</i>---a name for a function that, called with a
+	  parameter, inserts this parameter into the sequence.<p>
+
+	  <i>append</i>---a name for a function that, called with a
+	  sequence, appends this parameter to the sequence.<p>
+
+	  <i>body</i>---a body.<p>
+
+      <dt><b>Values:</b>
+      <dd>
+	Normally the values of <i>body</i>.  There is <a
+	href="#minimal">minimal form</a> of <tt>with-collector</tt>,
+	which always returns the collected sequence.<p>
+    </dl>
+
+
+    <a name="into">
+      <h2>2.  Collecting <tt>into-list</tt> or <tt>into-vector</tt></h2></a>
+    <p>
+
+      Two simple forms of <tt>with-collector</tt> are <tt>into-list</tt> 
+      and <tt>into-vector</tt>.  They create a list or a vector and
+      write into it.  The sequence is available as a variable with a
+      user-defined name:<p>
+
+    <pre>
+<b>with-collector</b> into-list <i>name</i> #key <i>collect</i>, <i>append</i>;
+  <i>body</i>
+<b>end</b>
+
+<b>with-collector</b> into-vector <i>name</i> #key <i>collect</i>, <i>append</i>;
+  <i>body</i>
+<b>end</b>
+    </pre>
+
+
+
+    <a name="vector">
+      <h2>3.  Writing into an existing vector</h2></a>
+    <p>
+
+      <tt>into-vector</tt>, by default, creates a
+      &lt;stretchy-sequence&gt;.  If you don't like this behaviour, you
+      can specify a different vector that will be used.  For instance,
+      if you already know how long the result will be, you might want to
+      create a string in the first place.
+
+    <pre>
+<b>with-collector</b> into-vector <i>name</i> = <i>init</i>, #key <i>collect</i>, <i>append</i>;
+  <i>body</i>
+<b>end</b>
+    </pre>
+
+
+      
+    <a name="buffers">
+      <h2>4.  Using buffers</h2></a>
+    <p>
+
+      Normally it is not known in advance how long the result will be.
+      What is really needed is a sequence that automatically reduces its
+      size after processing is finished.  <tt>into-buffer</tt>
+      implements this by returning a subsequence of the original vector.<p>
+
+      Instead of a variable holding the sequence there is now a function 
+      which creates the subsequence.<p>
+
+    <pre>
+<b>with-collector</b> into-buffer <i>function-name</i>, #key <i>collect</i>, <i>append</i>;
+  <i>body</i>
+<b>end</b>
+    </pre><p>
+
+      But how do you find out what the maximum buffer size has to be?  A 
+      safe guess is the length of the original vector you are extracting 
+      elements from.  The following construct automatically creates a
+      vector of the same class (well, <tt>type-for-copy</tt>) and size as <i>big-one</i>:<p>
+
+    <pre>
+<b>with-collector</b> into-buffer <i>function-name</i> like <i>big-one</i>, #key <i>collect</i>, <i>append</i>;
+  <i>body</i>
+<b>end</b>
+    </pre><p>
+
+
+
+    <a name="minimal">
+      <h2>5.  A minimal collection form</h2></a><p>
+
+      If you don't need to write into vectors or use buffers, but just
+      want to collect some stuff and return it, use this idiom:<p>
+
+    <pre>
+<b>with-collector</b> <i>{</i>into-list<i>|</i>into-vector<i>}</i>, #key <i>collect</i>, <i>append</i>;
+  <i>body</i>
+  // Note: Values of <i>body</i> will be thrown away.
+<b>end</b>
+    </pre><p>
+
+
+
+    <a name="example">
+      <h2>6.  Example code</h2></a><p>
+
+    <pre>
+define function parse-finger-query (query :: &lt;string&gt;)
+  with-collector into-buffer user like query (collect: collect)
+    with-meta-syntax parse-string (query)
+      let (whois, at, c);
+      [loop(' '), {[{"/W", "/w"}, yes!(whois)], []},        // Whois switch?
+       loop(' '), loop({[{'\n', '\r'}, finish()],           // Newline? Quit.
+			{['@', yes!(at), do(collect('@'))], // @? Indirect.
+			 [type(&lt;character&gt;, c),             // Else:
+			  do(collect(c))]}})];              //   Collect char
+      values(whois, user(), at);
+    end with-meta-syntax;
+  end with-collector;
+end function parse-finger-query;
+    </pre>
+
+    <hr>
+    <address><a href="mailto:david.lichteblau@snafu.de">David Lichteblau</a></address>
+<!-- hhmts start -->
+Last modified: Thu Apr  1 20:21:43 CEST 1999
+<!-- hhmts end -->
+  </body>
+</html>

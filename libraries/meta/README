@@ -1,0 +1,84 @@
+meta 0.5--Copyright (c) 1999 David Lichteblau <lichtebl@math.fu-berlin.de>
+
+
+This is an implementation of Meta, a technique used to simplify the task
+of writing parsers.  [Baker] describes Meta and shows the main ideas for
+an implementation in Common Lisp.
+
+	  If all META did was recognize regular expressions, it would
+	  not be very useful. It is a programming language, however,
+	  and the operations [], {} and $ correspond to the Common
+	  Lisp control structures AND, OR, and DO.[8] Therefore, we
+	  can utilize META to not only parse, but also to
+	  transform. In this way, META is analogous to "attributed
+	  grammars" [Aho86], but it is an order of magnitude simpler
+	  and more efficient. Thus, with the addition of the "escape"
+	  operation "!", which allows us to incorporate arbitrary Lisp
+	  expressions into META, we can not only parse integers, but
+	  produce their integral value as a result.  [Baker]
+
+The macro defined here is an attempt to implement Meta (with slightly
+adapted syntax) for Dylan.  It is functional, but not yet optimized.
+
+
+History
+=======
+
+0.5
+  - use libtool
+
+0.4
+  - unique unique-id-base
+  - added makefile with `make install' support
+  - Replaced ?meta:token (wrong) with ?meta:* (correct).
+    Thanks to <chris@cnd.co.nz>.
+
+0.3
+  - fixed `type(variable)'
+  - void type declarations again...
+  - new pseudo-function `accept'
+  - subroutines (new feature, not documented)
+
+0.2
+  - created Meta library
+  - major cleanup
+  - `with-collector'
+  - new documentation
+  - fixed `store!' (now called `set!') and some type declarations.
+    (Thanks to <keith@harlequin.co.uk>).
+
+0.1 meta.dylan in dfingerd-0.1
+
+
+Documentation
+=============
+
+	See Meta.html and With-collector.html.
+
+
+Harlequin Dylan support
+=======================
+
+meta 0.3 has been reported to compile with Harlequin Dylan, but some
+modifications will be necessary:
+  - SUBSEQUENCE is not supported.  Try to use COPY-SEQUENCE.
+  - meta-library.dylan has to be adapted, because Meta is not
+    COMMON-DYLAN-aware yet.
+Stay tuned for release 0.5.
+
+
+Installation using Gwydion Dylan
+================================
+
+Compilation using d2c (obviously Mindy won't work):
+
+	$ make                         # d2c meta.lid
+
+Testing:
+
+	example$ make                  # d2c -L.. example.lid
+	example$ ./example
+
+Automatic installation (requires Gwydion Dylan 2.3.1):
+
+	$ make install
