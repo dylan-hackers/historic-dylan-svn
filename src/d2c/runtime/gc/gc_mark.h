@@ -38,12 +38,17 @@
 /* subset of the places the conservative marker would.  It must be safe	*/
 /* to invoke the normal mark procedure instead.				*/
 # define PROC_BYTES 100
-typedef struct ms_entry * (*mark_proc)(/* word * addr, mark_stack_ptr,
-					  mark_stack_limit, env */);
+/* The real declarations of the following are in gc_priv.h, so that	*/
+/* we can avoid scanning the following table.				*/
+/*
+typedef struct ms_entry * (*mark_proc)(   word * addr, mark_stack_ptr,
+					  mark_stack_limit, env   );
 					  
 # define LOG_MAX_MARK_PROCS 6
 # define MAX_MARK_PROCS (1 << LOG_MAX_MARK_PROCS)
 extern mark_proc GC_mark_procs[MAX_MARK_PROCS];
+*/
+
 extern word GC_n_mark_procs;
 
 /* Object descriptors on mark stack or in objects.  Low order two	*/
@@ -124,9 +129,20 @@ mse * GC_signal_mark_stack_overflow();
     } \
 }
 
-/* Push the contenst of current onto the mark stack if it is a valid	*/
+#ifdef PRINT_BLACK_LIST
+#   define GC_FIND_START(current, hhdr, source) \
+	GC_find_start(current, hhdr, source)
+#else
+#   define GC_FIND_START(current, hhdr, source) \
+	GC_find_start(current, hhdr)
+#endif
+
+/* Push the contents of current onto the mark stack if it is a valid	*/
 /* ptr to a currently unmarked object.  Mark it.			*/
-# define PUSH_CONTENTS(current, mark_stack_top, mark_stack_limit) \
+/* If we assumed a standard-conforming compiler, we could probably	*/
+/* generate the exit_label transparently.				*/
+# define PUSH_CONTENTS(current, mark_stack_top, mark_stack_limit, \
+		       source, exit_label) \
 { \
     register int displ;  /* Displacement in block; first bytes, then words */ \
     register hdr * hhdr; \
@@ -134,14 +150,14 @@ mse * GC_signal_mark_stack_overflow();
     \
     GET_HDR(current,hhdr); \
     if (IS_FORWARDING_ADDR_OR_NIL(hhdr)) { \
-         current = GC_find_start(current, hhdr); \
-         if (current == 0) continue; \
+         current = GC_FIND_START(current, hhdr, (word)source); \
+         if (current == 0) goto exit_label; \
          hhdr = HDR(current); \
     } \
     displ = HBLKDISPL(current); \
     map_entry = MAP_ENTRY((hhdr -> hb_map), displ); \
     if (map_entry == OBJ_INVALID) { \
-        GC_ADD_TO_BLACK_LIST_NORMAL(current); continue; \
+        GC_ADD_TO_BLACK_LIST_NORMAL(current, source); goto exit_label; \
     } \
     displ = BYTES_TO_WORDS(displ); \
     displ -= map_entry; \
@@ -153,25 +169,33 @@ mse * GC_signal_mark_stack_overflow();
           \
         if (mark_word & mark_bit) { \
 	      /* Mark bit is already set */ \
-	      continue; \
+	      goto exit_label; \
         } \
         *mark_word_addr = mark_word | mark_bit; \
     } \
     PUSH_OBJ(((word *)(HBLKPTR(current)) + displ), hhdr, \
     	     mark_stack_top, mark_stack_limit) \
+  exit_label: ; \
 }
+
+#ifdef PRINT_BLACK_LIST
+#   define PUSH_ONE_CHECKED(p, ip, source) \
+	GC_push_one_checked(p, ip, (ptr_t)(source))
+#else
+#   define PUSH_ONE_CHECKED(p, ip, source) \
+	GC_push_one_checked(p, ip)
+#endif
 
 /*
  * Push a single value onto mark stack. Mark from the object pointed to by p.
- * GC_push_one is normally called by GC_push_regs, and thus must be defined.
  * P is considered valid even if it is an interior pointer.
  * Previously marked objects are not pushed.  Hence we make progress even
  * if the mark stack overflows.
  */
-# define GC_PUSH_ONE_STACK(p) \
+# define GC_PUSH_ONE_STACK(p, source) \
     if ((ptr_t)(p) >= GC_least_plausible_heap_addr 	\
 	 && (ptr_t)(p) < GC_greatest_plausible_heap_addr) {	\
-	 GC_push_one_checked(p,TRUE);	\
+	 PUSH_ONE_CHECKED(p, TRUE, source);	\
     }
 
 /*
@@ -183,15 +207,28 @@ mse * GC_signal_mark_stack_overflow();
 # else
 #   define AIP FALSE
 # endif
-# define GC_PUSH_ONE_HEAP(p) \
+# define GC_PUSH_ONE_HEAP(p,source) \
     if ((ptr_t)(p) >= GC_least_plausible_heap_addr 	\
 	 && (ptr_t)(p) < GC_greatest_plausible_heap_addr) {	\
-	 GC_push_one_checked(p,AIP);	\
+	 PUSH_ONE_CHECKED(p,AIP,source);	\
     }
 
+/*
+ * Mark from one finalizable object using the specified
+ * mark proc. May not mark the object pointed to by 
+ * real_ptr. That is the job of the caller, if appropriate
+ */
+# define GC_MARK_FO(real_ptr, mark_proc) \
+{ \
+    (*(mark_proc))(real_ptr); \
+    while (!GC_mark_stack_empty()) GC_mark_from_mark_stack(); \
+    if (GC_mark_state != MS_NONE) { \
+        GC_set_mark_bit(real_ptr); \
+        while (!GC_mark_some((ptr_t)0)); \
+    } \
+}
 
-
-extern bool GC_mark_stack_too_small;
+extern GC_bool GC_mark_stack_too_small;
 				/* We need a larger mark stack.  May be	*/
 				/* set by client supplied mark routines.*/
 
@@ -207,8 +244,8 @@ typedef int mark_state_t;	/* Current state of marking, as follows:*/
 				
 				/* Invariant I: all roots and marked	*/
 				/* objects p are either dirty, or point */
-				/* objects q that are either marked or	*/
-				/* a pointer to q appears in a range	*/
+				/* to objects q that are either marked 	*/
+				/* or a pointer to q appears in a range	*/
 				/* on the mark stack.			*/
 
 # define MS_NONE 0		/* No marking in progress. I holds.	*/
@@ -238,3 +275,4 @@ typedef int mark_state_t;	/* Current state of marking, as follows:*/
 extern mark_state_t GC_mark_state;
 
 #endif  /* GC_MARK_H */
+

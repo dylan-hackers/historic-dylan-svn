@@ -23,7 +23,7 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/Makegen,v 1.1 1998/05/03 19:54:57 andreas Exp $
+##  $Header: /scm/cvs/src/Makegen,v 1.9 1999/05/29 21:28:28 andreas Exp $
 ##
 ##  This is the makegen file for the entire Dylan tree.
 ##
@@ -35,47 +35,96 @@
 
 ## Make force.timestamp if not there yet.
 push(@compile_commands, "\$(MAKE) force.timestamp");
-print <<'EOF'
-
+print <<'EOF';
 force.timestamp:
 	touch force.timestamp
 
 EOF
-;
 
-&compile_subdirs("mindy");
-if ($stage2) {
-    &compile_subdirs("d2c", "common", "tools");
+## Always emit a post-bootstrap cleanup rule, just in case we need one.
+print <<EOF;
+.PHONY: bootstrap_clean
+
+bootstrap_clean: clean
+	rm -rf bootstrap_compiler
+	rm -f config.cache
+	\@echo
+	\@echo "Now run $recheck to prepare for normal builds."
+
+EOF
+
+sub message {
+    push(@compile_commands, "\@echo \"$_[0]\"");
+}
+
+if ($features{'compiled_for_unix'}) {
+    &compile_subdirs('doc');
+}
+
+if ($enable_mindy) {
+    &compile_subdirs("mindy");
+}
+if ($enable_bootstrap) {
+    if ($bootstrap_compiler eq "mindy") {
+	push(@compile_commands, 
+	     sprintf($host_platform{'recursive_make_command'}, 
+		     "common", "dbc_only"));
+	&compile_subdirs("d2c", "common");
+	push(@compile_commands, 
+	     sprintf($host_platform{'recursive_make_command'}, 
+		     "d2c", "d2c-compile"));
+	&message("Bootstrap complete; now install d2c, remove config.cache,");
+	&message("re-run configure, and make again.");
+    } else {
+	&compile_subdirs("d2c");
+	# XXX - this directory name is confusing
+	push(@compile_commands, 'mkdir bootstrap_compiler');
+	push(@compile_commands, 'cp d2c/compiler/main/d2c bootstrap_compiler');
+	push(@compile_commands, 'rm -f config.cache');
+	push(@compile_commands, $recheck);
+	push(@compile_commands, '$(MAKE) clean');
+	push(@compile_commands, '$(MAKE)');
+	&message("Bootstrap complete. Type 'make bootstrap_clean' to perform");
+	&message("a regular build.");
+    }
 }
 else {
-    &compile_subdirs("common", "tools", "d2c");
+    if ($enable_d2c) {
+	&compile_subdirs("d2c");
+    }
+    &compile_subdirs("common", "tools", "tests", "demos");
 }    
-
-&compile_subdirs("tests", "demos");
 
 push(@install_dependencies, "installdirs");
     
 if ($features{'compiled_for_unix'}) {
     print <<"EOF"
-d2c-compile: default
-	(cd common; \$(MAKE))
-	(cd d2c; \$(MAKE) d2c-compile)
-
 installdirs:
-	$srcdir/mkinstalldirs $bindir $libdir $libdir/elisp $includedir \\
-	   $sysconfdir
+	$srcdir/mkinstalldirs \${DESTDIR}$bindir \\
+	   \${DESTDIR}$sitelibdir \\
+	   \${DESTDIR}$libdir \${DESTDIR}$libdir/elisp \\
+	   \${DESTDIR}$includedir \${DESTDIR}$sysconfdir \\
+           \${DESTDIR}$mandir/man1 \${DESTDIR}$mandir/man4 \\
+           \${DESTDIR}$mandir/man7
+
 EOF
 ;
 } elsif ($features{'compiled_for_win32'}) {
     print <<"EOF"
 installdirs:
-	-mkdir $bindir
-	-mkdir $libdir
-       	-mkdir $libdir\\elisp
-       	-mkdir $includedir
-	-mkdir $sysconfdir
+	-mkdir \${DESTDIR}$bindir
+	-mkdir \${DESTDIR}$libdir
+       	-mkdir \${DESTDIR}$libdir\\elisp
+       	-mkdir \${DESTDIR}$includedir
+	-mkdir \${DESTDIR}$sysconfdir
+
 EOF
 ;
 } else {
     &unknown_platform_error();
 }
+
+# Blow away our dep files whenever we make clean.
+# XXX - it might be better to do this when we re-run configure.
+push(@clean_commands,
+     'find . -name \\*.dep -exec rm {} \\; -exec touch {} \\;');

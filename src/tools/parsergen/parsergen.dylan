@@ -1,6 +1,6 @@
 module: parsergen
 author: William Lott, translated to Dylan by Nick Kramer
-rcs-header: $Header: /scm/cvs/src/tools/parsergen/parsergen.dylan,v 1.1 1998/05/03 19:55:56 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/parsergen/parsergen.dylan,v 1.3 1999/05/25 01:21:28 housel Exp $
 
 //======================================================================
 //
@@ -114,7 +114,8 @@ define class <token> (<terminal>)
   constant slot token-id :: <integer>, required-init-keyword: #"id";
 end class <token>;
 
-define method initialize (result :: <token>, #next next-method, #all-keys)
+define method initialize
+    (result :: <token>, #next next-method, #key, #all-keys)
   next-method();
   result.grammar-symbol-first := list(result);
 end method initialize;
@@ -526,11 +527,12 @@ define inline function done-equal (x :: <pair>, y :: <pair>)
   (x.head == y.head & x.tail == y.tail);
 end function done-equal;
 
-define inline function done-hash (x :: <pair>)
+define inline function done-hash (x :: <pair>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
-  let (id1, state1) = object-hash(x.head);
-  let (id2, state2) = object-hash(x.tail);
-  merge-hash-codes(id1, state1, id2, state2, ordered: #t);
+  let (id1, state1) = object-hash(x.head, initial-state);
+  let (id2, state2) = object-hash(x.tail, state1);
+  let id = merge-hash-ids(id1, id2, ordered: #t);
+  values(id, state2);
 end function done-hash;
 
 define sealed inline method table-protocol (ht :: <done-table>) 

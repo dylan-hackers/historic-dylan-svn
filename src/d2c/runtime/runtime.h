@@ -18,6 +18,9 @@ typedef struct descriptor {
 typedef descriptor_t *(*entry_t)();
 
 extern heapptr_t allocate(int bytes);
+extern descriptor_t *allocate_stack(void);
+extern heapptr_t make_trampoline(void *func, descriptor_t closure,
+				 int nkeys, char *signature);
 extern descriptor_t *catch(descriptor_t *(*fn)(descriptor_t *sp, void *state,
                                                heapptr_t thunk),
                            descriptor_t *sp, heapptr_t func);
@@ -34,7 +37,10 @@ extern long double extended_float_value(heapptr_t xf);
 extern heapptr_t initial_symbols;
 
 extern void not_reached(void);
+extern void no_core_dumps(void);
 
 #ifdef WIN32
    double rint(double x);
 #endif
+
+#include <errno.h>

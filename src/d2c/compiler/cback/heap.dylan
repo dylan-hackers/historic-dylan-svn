@@ -1,5 +1,5 @@
 module: heap
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.1 1998/05/03 19:55:32 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.9 1999/05/24 17:10:52 housel Exp $
 copyright: Copyright (c) 1995, 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -55,6 +55,10 @@ copyright: Copyright (c) 1995, 1996  Carnegie Mellon University
 // If the class is open, then other libraries can add additional subclasses.
 // If we dumped the class in a local heap, we would have no way of including
 // these new subclasses in the direct-subclasses list.
+//
+// Also, due to the new %subclass? code, we have to dump all classes to the
+// global heap, since we have to calculate the type inclusion matrix after
+// we know about all of them.
 //
 // A related issue is slot descriptors for open classes.  Slot descriptors
 // contain a ``position table'' mapping (sub)class to slot position.  But slot
@@ -219,7 +223,9 @@ define method build-global-heap
 
   spew-objects-in-queue(state);
 
-  format(stream, "\n\n\t%s\t8\n", target.align-directive);
+  format(stream, "\n\n");
+  align-to-n-bytes(stream, 8, target);
+
   spew-label(state, "initial_symbols", export: #t);
   spew-reference(state.symbols, *heap-rep*, "Initial Symbols", state);
 end;
@@ -257,6 +263,10 @@ define method build-local-heap
     end if;
     if (name)
       spew-label(state, name, export: #t);
+      if (target.object-size-string)
+	format(stream, target.object-size-string,
+	       target.mangled-name-prefix, name, 8);
+      end if;
       if (target.supports-debugging?)
 	format(stream, target.descriptor-reference-string, 
 	       target.mangled-name-prefix, name);
@@ -293,8 +303,9 @@ define method spew-objects-in-queue (state :: <state>) => ();
     let object = pop(state.object-queue);
     let info = get-info-for(object, #f);
 
-    format(stream, "\n%s %s\n\t%s\t8\n", target.comment-token, object,
-	   target.align-directive);
+    format(stream, "\n%s %s\n", target.comment-token, object);
+    align-to-n-bytes(stream, 8, target);
+
     let labels = info.const-info-heap-labels;
     if (labels.empty?)
       error("Trying to spew %=, but it doesn't have any labels.", object);
@@ -304,6 +315,11 @@ define method spew-objects-in-queue (state :: <state>) => ();
 	format(stream, "%s %s\n", target.comment-token, label);
       else
 	spew-label(state, label, export: #t);
+	if (target.object-size-string)
+	  format(stream, target.object-size-string,
+		 target.mangled-name-prefix, label,
+		 logand(object-size(object) + 7, -8));
+	end if;
       end if;
     end for;
 
@@ -370,6 +386,27 @@ define method save-n-bytes
   end while;
 end method save-n-bytes;
 
+//------------------------------------------------------------------------
+//  align-to-n-bytes
+//
+// This method emits an align-directive to make sure we are on an n-byte
+// boundary.  The number of bytes should always be a power of two.
+//------------------------------------------------------------------------
+
+define method align-to-n-bytes
+    (stream :: <stream>, bytes :: <integer>, target :: <platform>) => ();
+  if (target.align-arg-is-power-of-two?)
+    let power-of-two = for (bytes :: <integer> = bytes then ash(bytes, -1),
+			    lg :: <integer> = 0 then lg + 1,
+			    while: bytes > 1)
+		       finally
+			 lg;
+		       end for;
+    format(stream, "\t%s\t%d\n", target.align-directive, power-of-two);
+  else
+    format(stream, "\t%s\t%d\n", target.align-directive, bytes);
+  end if;
+end method align-to-n-bytes;
 
 //------------------------------------------------------------------------
 //  Spew-reference
@@ -782,10 +819,12 @@ end method defer-for-global-heap?;
 // when originally defined must be defered because we *must* not ever dump
 // more than one copy.
 // 
+// New: dump all the classes to global heap.
 define method defer-for-global-heap?
     (object :: <cclass>, state :: <local-state>)
     => defer? :: <boolean>;
-  ~object.sealed? | object.defined-externally?;
+//  ~object.sealed? | object.defined-externally?;
+  #t;
 end method defer-for-global-heap?;
 
 // Likewise, slot infos for open classes must be defered because their
@@ -930,7 +969,7 @@ define method spew-object
 		'\0' =>
 		  add!($spewed-string-buffer, '\\');
 		  add!($spewed-string-buffer, '0');
-		'\n' =>
+                '\n' =>
 		  add!($spewed-string-buffer, '\\');
 		  add!($spewed-string-buffer, 'n');
 		'\t' =>
@@ -946,13 +985,17 @@ define method spew-object
 		  add!($spewed-string-buffer, '\\');
 		  add!($spewed-string-buffer, 'f');
 		otherwise =>
+                  // characters outside of C0 and C1 are passed through
+                  // as is: the rest are escaped
 		  if (char >= ' ' & char <= '~')
-		    add!($spewed-string-buffer, char);
-		  else
-		    let code = as(<integer>, char);
-		    let substr = format-to-string("\\x%x%x", ash(code, -16),
-						  logand(code, 15));
-		    map(method (c) add!($spewed-string-buffer, c) end, substr);
+                    add!($spewed-string-buffer, char);
+                  elseif (as(<integer>, char) >= #xa1 & as(<integer>, char) <= #xff)
+                    add!($spewed-string-buffer, char);
+                  else
+                    let code = as(<integer>, char);
+                    // this will need to be updated when Unicode is fully supported
+		    let substr = format-to-string("\\x%x", logand(code, #xff));
+		    do(method (c) add!($spewed-string-buffer, c) end, substr);
 		  end if;
 	      end select;
 	    end for;
@@ -1086,6 +1129,11 @@ define method spew-object
 		class-all-slot-descriptors:
 		  make(<literal-simple-object-vector>,
 		       contents: object.all-slot-infos,
+		       sharable: #t),
+		class-bucket: as(<ct-value>, object.bucket),
+		class-row:
+		  make(<literal-simple-object-vector>,
+		       contents: map(curry(as,<ct-value>), object.row),
 		       sharable: #t));
 end;
 
@@ -1123,6 +1171,15 @@ define method spew-object
 		slot-positions:
 		  if (instance?(object, <instance-slot-info>))
 		    as(<ct-value>, as(<list>, object.slot-positions));
+		  end if,
+		slot-representation:
+		  if (instance?(object, <instance-slot-info>))
+		    as(<ct-value>,
+		       object.slot-representation.representation-name);
+		  end if,
+		slot-initialized?-slot:
+		  if (instance?(object, <instance-slot-info>))
+		    as(<ct-value>, object.slot-initialized?-slot);
 		  end if);
 end method spew-object;
 
@@ -1151,6 +1208,63 @@ define method spew-object (object :: <ct-function>, state :: <state>) => ();
   else
     spew-function(object, state);
   end if;
+end;
+
+define method spew-object (object :: <ct-callback-function>, state :: <state>) => ();
+  spew-function(object, state,
+		callback-entry: make(<ct-entry-point>,
+				     for: object, kind: #"callback"),
+		callback-signature: make(<literal-string>,
+					 value: callback-signature(object)));
+end;
+
+define method callback-signature(func :: <ct-callback-function>)
+ => (signature :: <byte-string>);
+  let sig = func.ct-function-signature;
+  let args = sig.specializers;
+  let returns = sig.returns;
+
+  let callback-sig = make(<byte-string>, size: sig.specializers.size + 1);
+
+  callback-sig[0] := callback-signature-key(returns);
+  for(type in args, i = 1 then i + 1)
+    callback-sig[i] := callback-signature-key(type);
+  end;
+    
+  callback-sig;
+end;
+    
+define method callback-signature-key (type :: <values-ctype>)
+ => (key :: <byte-character>);
+  if (type == empty-ctype())
+    'v';
+  elseif (type.min-values ~== 1)
+    'v';
+  else
+    let rep = pick-representation(type, #"speed");
+    select(rep)
+      *general-rep* => 'o';
+      *heap-rep* => 'h';
+      *boolean-rep* => 'B';
+      
+      *long-rep* => 'l';
+      *int-rep* => 'i';
+      *uint-rep* => 'u';
+      *short-rep* => 's';
+      *ushort-rep* => 't';
+      *byte-rep* => 'c';
+      *ubyte-rep* => 'b';
+      
+      *ptr-rep* => 'p';
+      
+      *float-rep* => 'f';
+      *double-rep* => 'd';
+      *long-double-rep* => 'D';
+      otherwise =>
+	error("Couldn't find a callback signature key for representation %=",
+	      rep);
+    end;
+  end;
 end;
 
 define method spew-object
@@ -1242,7 +1356,7 @@ define method spew-function
   apply(spew-instance, func.ct-value-cclass, state,
 	function-name:
 	  make(<literal-string>, value:
-	       format-to-string("%s\n", func.ct-function-name)),
+	       format-to-string("%s", func.ct-function-name)),
 	function-specializers:
 	  make(<literal-simple-object-vector>,
 	       contents: sig.specializers,

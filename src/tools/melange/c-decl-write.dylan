@@ -107,8 +107,57 @@ define generic write-file-load
 // Most of the code in this file goes to support this single operations.
 //
 define generic write-declaration
-    (decl :: <declaration>, load-string :: <string>,
-     stream :: <stream>) => ();
+    (decl :: <declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>) => ();
+
+
+//------------------------------------------------------------------------
+//  <written-name-record> -- maintains a set of all names written so far,
+//  and detects duplicate names.
+//------------------------------------------------------------------------
+
+define class <written-name-record> (<object>)
+  slot written-name-table :: <table> /* <symbol> => <declaration> */
+    = make(<table>);
+end class <written-name-record>;
+
+define class <written-declaration> (<object>)
+  constant slot written-declaration :: <declaration>,
+    required-init-keyword: declaration:;
+  constant slot written-name :: <string>,
+    required-init-keyword: name:;
+end class <written-declaration>;
+
+define function register-written-name
+    (rec :: <written-name-record>, name :: <string>,
+     decl :: <declaration>, #key subname? = #f)
+ => ();
+
+  let interned-name = as(<symbol>, name);
+  let table = rec.written-name-table;
+  let existing = element(table, interned-name, default: #f);
+
+  // If there is already a symbol by that name, there is a potential
+  // conflict if the case is different, or if either of the names is
+  // not a structure accessor.  If both are struct slot accessors then
+  // it's probably okay.
+  if (existing
+	& (name ~= existing.written-name
+	     | ~instance?(decl, <structured-type-declaration>)
+	     | ~instance?(existing.written-declaration,
+			 <structured-type-declaration>)))
+    // XXX - We should try to extract a source location from each record
+    // when printing these error messages. We should also give the C and
+    // Dylan forms of each name. But doing so will be a pain.
+    signal(make(<simple-warning>,
+		format-string: "melange: %s has multiple definitions",
+		format-arguments: list(name)));
+  else 
+    element(table, interned-name)
+      := make(<written-declaration>, declaration: decl, name: name);
+  end if;
+end function register-written-name;
+
 
 //------------------------------------------------------------------------
 // Support code
@@ -192,8 +241,8 @@ define method c-accessor
     (type :: <float-type-declaration>, offset :: <string>,
      parameter :: <string>, equated :: <string>)
  => (result :: <string>);
-  "error(\"C structure accessors for floating point fields "
-    "not yet supported.\")";
+  format-to-string("%s(%s, offset: %s)",
+		   type.accessor-name, parameter, offset);
 end method c-accessor;
 
 define method c-accessor
@@ -215,7 +264,7 @@ end method c-accessor;
 
 define constant <non-atomic-types>
     = type-union(<struct-declaration>, <union-declaration>,
-		 <vector-declaration>);
+		 <vector-declaration>, <function-type-declaration>);
 define constant <pointer-rep-types>
     = type-union(<pointer-declaration>, <non-atomic-types>);
 
@@ -253,7 +302,8 @@ end method c-accessor;
 //
 define method write-c-accessor-method
     (compound-type :: <type-declaration>, slot-name :: <string>,
-     slot-type :: <slot-declaration>, offset :: <integer>, stream :: <stream>)
+     slot-type :: <slot-declaration>, offset :: <integer>,
+     written-names :: <written-name-record>, stream :: <stream>)
  => ();
   let real-type = true-type(slot-type.type);
   // Write getter method
@@ -267,6 +317,7 @@ define method write-c-accessor-method
 	 import-value(slot-type, c-accessor(slot-type.type, offset,
 					    "ptr", slot-type.type-name)),
 	 slot-name);
+  register-written-name(written-names, slot-name, compound-type);
 
   if (~slot-type.read-only
 	& ~instance?(real-type, <non-atomic-types>))
@@ -282,6 +333,8 @@ define method write-c-accessor-method
 	   c-accessor(slot-type.type, offset,
 		      "ptr", slot-type.type-name),
 	   export-value(slot-type, "value"), slot-name);
+    register-written-name(written-names, concatenate(slot-name, "-setter"),
+			  compound-type);
   end if;
 end method write-c-accessor-method;
 
@@ -299,7 +352,7 @@ end method write-c-accessor-method;
 define method write-c-bitfield-methods
     (compound-type :: <struct-declaration>, 
      glob-type :: <coalesced-bitfields>, offset :: <integer>,
-     stream :: <stream>)
+     written-names :: <written-name-record>, stream :: <stream>)
  => ();
   for (slot-type in glob-type.fields)
     unless (slot-type.excluded?)
@@ -320,6 +373,7 @@ define method write-c-bitfield-methods
 	     slot-type.sealed-string, slot-name, compound-type.type-name,
 	     slot-type.mapped-name, import-value(slot-type, extractor),
 	     slot-name);
+      register-written-name(written-names, slot-name, compound-type);
 
       if (~slot-type.read-only
 	    & ~instance?(real-type, <non-atomic-types>))
@@ -344,13 +398,16 @@ define method write-c-bitfield-methods
 	       export-value(slot-type, "value"), real-type.start-bit,
 	       // footer
 	       slot-name);
+	register-written-name(written-names, concatenate(slot-name, "-setter"),
+			      compound-type);
       end if;
     end unless;
   end for;
 end method write-c-bitfield-methods;
 
 define method d2c-type-tag
-    (type :: <pointer-rep-types>) => (result :: <byte-string>);
+    (type :: <pointer-rep-types>)
+ => (result :: <byte-string>);
   "ptr:";
 end method d2c-type-tag;
 
@@ -410,7 +467,8 @@ end method d2c-arg;
 // creating slot accessors.
 //
 define method write-declaration
-    (decl :: <struct-declaration>, load-string :: <string>, stream :: <stream>)
+    (decl :: <struct-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   if (~decl.equated?)
     let supers = decl.superclasses | #("<statically-typed-pointer>");
@@ -418,6 +476,7 @@ define method write-declaration
 	   class-sealing(),
 	   decl.dylan-name,
 	   as(<byte-string>, apply(join, ", ", supers)));
+    register-written-name(written-names, decl.dylan-name, decl);
     if (melange-target == #"d2c")
       format(stream, "define sealed domain make (singleton(%s));\n\n",
 	     decl.dylan-name)
@@ -431,11 +490,12 @@ define method write-declaration
 	      = aligned-slot-position(end-offset, slot-type);
 	    case
 	      (instance?(c-slot, <coalesced-bitfields>)) =>
-		write-c-bitfield-methods(decl, c-slot, start-offset, stream);
+		write-c-bitfield-methods(decl, c-slot, start-offset,
+					 written-names, stream);
 	      (c-slot.excluded?) => #f;
 	      otherwise =>
 		write-c-accessor-method(decl, c-slot.dylan-name, c-slot,
-					start-offset, stream);
+					start-offset, written-names, stream);
 	    end case;
 	    end-offset;
 	  end method slot-accessors;
@@ -467,7 +527,8 @@ end method write-declaration;
 // are calculated differently.
 //
 define method write-declaration
-    (decl :: <union-declaration>, load-string :: <string>, stream :: <stream>)
+    (decl :: <union-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   if (~decl.equated?)
     let supers = decl.superclasses | #("<statically-typed-pointer>");
@@ -475,6 +536,7 @@ define method write-declaration
 	   class-sealing(),
 	   decl.dylan-name,
 	   as(<byte-string>, apply(join, ", ", supers)));
+    register-written-name(written-names, decl.dylan-name, decl);
     if (melange-target == #"d2c")
       format(stream, "define sealed domain make (singleton(%s));\n\n",
 	     decl.dylan-name)
@@ -486,7 +548,8 @@ define method write-declaration
       for (c-slot in decl.members)
 	if (~c-slot.excluded?)
 	  let name = c-slot.dylan-name;
-	  write-c-accessor-method(decl, name, c-slot, 0, stream);
+	  write-c-accessor-method(decl, name, c-slot, 0, written-names,
+				  stream);
 	end if;
       end for;
     end if;
@@ -511,7 +574,8 @@ end method write-declaration;
 // values are written for each literal.
 //
 define method write-declaration
-    (decl :: <enum-declaration>, load-string :: <string>, stream :: <stream>)
+    (decl :: <enum-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   if (~decl.equated?)
     let type-name = decl.dylan-name;
@@ -526,25 +590,28 @@ define method write-declaration
       format(stream,
 	     "define constant %s = limited(<integer>, min: %d, max: %d);\n",
 	     type-name, min-enum, max-enum);
+      register-written-name(written-names, type-name, decl);
 
       for (literal in decl.members)
 	let name = literal.dylan-name;
 	let int-value = literal.constant-value;
 	format(stream, "define constant %s :: %s = %d;\n",
 	       name, type-name, int-value);
+	register-written-name(written-names, name, decl, subname?: #t);
       finally
 	write(stream, "\n");
       end for;
     else
       format(stream, "define constant %s = <integer>;\n\n",
 	     type-name);
+      register-written-name(written-names, type-name, decl);
     end if;
   end if;
 end method write-declaration;
 
 define method write-declaration
-    (decl :: <enum-slot-declaration>, load-string :: <string>,
-     stream :: <stream>)
+    (decl :: <enum-slot-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   // The routine for <enum-declaration> will already have written these, so we
   // need do nothing.
@@ -556,8 +623,8 @@ end method write-declaration;
 // if appropriate (see comments for "write-c-accessor-method" above).
 //
 define method write-declaration
-    (decl :: <variable-declaration>, load-string :: <string>,
-     stream :: <stream>)
+    (decl :: <variable-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   let name = decl.dylan-name;
   let raw-name = anonymous-name();
@@ -577,16 +644,19 @@ define method write-declaration
 		      select (melange-target)
 			#"mindy" => c-accessor(decl.type,
 					       0, raw-name, decl.type-name);
-			#"d2c" => concatenate("c-variable-ref(",
+			#"d2c" => concatenate("as(", decl.type-name,
+					      ", c-variable-ref(",
 					      decl.type.d2c-type-tag, " \"&",
-					      decl.simple-name, "\")");
+					      decl.simple-name, "\"))");
 		      end select),
 	 decl.getter);
+  register-written-name(written-names, decl.getter, decl);
 
   // Write a setter method
   if (~decl.read-only 
 	& ~instance?(real-type, <non-atomic-types>))
     format(stream,
+	   // XXX - Broken when assigning to pointer variables.
 	   "define %s method %s (value :: %s) => (result :: %s);\n"
 	     "  %s := %s;\n  value;\nend method %s;\n\n",
 	   decl.sealed-string, decl.setter, decl.type.mapped-name,
@@ -598,6 +668,7 @@ define method write-declaration
 				   decl.simple-name, "\")");
 	   end select,
 	   export-value(decl, "value"), decl.setter);
+    register-written-name(written-names, decl.setter, decl);
   end if;
 end method write-declaration;
 
@@ -628,8 +699,8 @@ end method split-parameters;
 // straightforward, but rather long and tedious.
 //
 define method write-declaration
-    (decl :: <function-declaration>, load-string :: <string>,
-     stream :: <stream>)
+    (decl :: <function-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   let raw-name = anonymous-name();
   let (in-params, out-params) = split-parameters(decl.type);
@@ -651,6 +722,7 @@ define method write-declaration
 
   // ... then create a more robust method as a wrapper.
   format(stream, "define method %s\n    (", decl.dylan-name);
+  register-written-name(written-names, decl.dylan-name, decl);
   for (arg in in-params, count from 1)
     if (count > 1) write(stream, ", ") end if;
     case
@@ -707,29 +779,44 @@ define method write-declaration
 	    write(stream, export-value(arg, arg.dylan-name));
 	  end if;
 	end for;
+	write(stream, ");\n");
       end;
     #"d2c" =>
       begin
 	if (~params.empty? & instance?(last(params), <varargs-declaration>))
-	  error("Varargs functions not yet handled: %s", decl.simple-name);
+	  format(stream, "if (~empty?(%s))\n"
+		   "    error(\"Variable arguments not yet supported\");\n"
+		   "  else\n    ", last(params).dylan-name);
+	  format(stream, "call-out(\"%s\", %s", decl.simple-name,
+		 decl.type.result.type.d2c-type-tag);
+	  for (count from 1, arg in params)
+	    if (instance?(arg, <varargs-declaration>))
+	      // print nothing (values needed by Mindy)
+	      values();
+	    elseif (arg.direction == #"in-out" | arg.direction == #"out")
+		format(stream, ", ptr: %s-ptr.raw-value", arg.dylan-name);
+	    else
+	      format(stream, ", %s",
+		     d2c-arg(arg.type, export-value(arg, arg.dylan-name)));
+	    end if;
+	  end for;
+	  write(stream, ");\n");
+	  write(stream, "  end if;\n");
 	else
 	  format(stream, "call-out(\"%s\", %s", decl.simple-name,
 		 decl.type.result.type.d2c-type-tag);
+	  for (count from 1, arg in params)
+	    if (arg.direction == #"in-out" | arg.direction == #"out")
+		format(stream, ", ptr: %s-ptr.raw-value", arg.dylan-name);
+	    else
+	      format(stream, ", %s",
+		     d2c-arg(arg.type, export-value(arg, arg.dylan-name)));
+	    end if;
+	  end for;
+	  write(stream, ");\n");
 	end if;
-	for (count from 1, arg in params)
-	  write(stream, ", ");
-	  if (instance?(arg, <varargs-declaration>))
-	    format(stream, "%s", d2c-arg(arg.type, arg.dylan-name));
-	  elseif (arg.direction == #"in-out" | arg.direction == #"out")
-	    format(stream, "ptr: %s-ptr.raw-value", arg.dylan-name);
-	  else
-	    format(stream, "%s",
-		   d2c-arg(arg.type, export-value(arg, arg.dylan-name)));
-	  end if;
-	end for;
       end;
   end select;
-  write(stream, ");\n");
 
   if(melange-target = #"d2c")
     if (instance?(result-type.true-type, <pointer-rep-types>))
@@ -763,29 +850,61 @@ define method write-declaration
   format(stream, ");\nend method %s;\n\n", decl.dylan-name);
 end method write-declaration;
 
-// We don't really handle function types, since we can't really define them in
-// dylan.  We simply define them to be <statically-typed-pointer>s and assume
-// that anybody who tries to pass one as a parameter gets it right.  This will
-// be fleshed out more when we have an implementation which can handle
-// callbacks properly.
-//
+// XXX - Callback and function pointer support is currently in transition.
+// We now create distinct types, but we don't yet generate code for
+// callback and callout support.
+
 define method write-declaration
-    (decl :: <function-type-declaration>, load-string :: <string>,
+    (decl :: <function-type-declaration>,
+     written-names :: <written-name-record>, load-string :: <string>,
      stream :: <stream>)
  => ();
   if (~decl.equated?)
-    // Equate this type to "<statically-typed-pointer>" as a placeholder.
-    // We may want to change this later.
-    format(stream, "define constant %s = <statically-typed-pointer>;\n\n",
-	   decl.dylan-name)
+    format(stream, "define %s class %s (<function-pointer>) end;\n\n",
+	   class-sealing(), decl.dylan-name);
+    register-written-name(written-names, decl.dylan-name, decl);
+  end if;
+
+  // XXX - Hack alert. Because we haven't integrated the local name mapper
+  // with the standard name mapper, we must check for it's existence. This
+  // means that the user must explicity specify a function-type clause to
+  // get the default maker and caller names. This is inconsistent. See
+  // interface.dylan's handling of <function-type-clause> for more info.
+  if (decl.local-name-mapper)
+    local method get-name(name, alternate-prefix)
+	    if (name)
+	      as(<string>, name);
+	    else
+	      decl.local-name-mapper(alternate-prefix, decl.simple-name);
+	    end if;
+	  end method get-name;
+    
+    let maker = get-name(decl.callback-maker-name, "make");
+    let caller = get-name(decl.callout-function-name, "call");
+    select (melange-target)
+      #"d2c" =>
+	format(stream, "/* binding for %s goes here */\n\n", maker);
+	format(stream, "/* binding for %s goes here */\n\n", caller);    
+      #"mindy" =>
+	format(stream, "/* skipping bindings for %s, %s */\n\n",
+	       maker, caller);
+	signal(make(<simple-warning>,
+		    format-string:
+		      "melange: skipping mindy bindings for %s, %s",
+		    format-arguments: list(maker, caller)));
+      otherwise =>
+	error("melange: so, you wrote a new compiler?");
+    end select;
+    register-written-name(written-names, maker, decl);
+    register-written-name(written-names, caller, decl);
   end if;
 end method write-declaration;
 
 // Vectors likely still need some work.  Fake it for now.
 //
 define method write-declaration
-    (decl :: <vector-declaration>, load-string :: <string>,
-     stream :: <stream>)
+    (decl :: <vector-declaration>,  written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   if (~decl.equated?)
     // Create a new class -- we must insure that the class is a subclass of
@@ -797,6 +916,7 @@ define method write-declaration
 	   class-sealing(),
 	   decl.dylan-name,
 	   as(<byte-string>, apply(join, ", ", supers)));
+    register-written-name(written-names, decl.dylan-name, decl);
     if (melange-target == #"d2c")
       format(stream, "define sealed domain make (singleton(%s));\n\n",
 	     decl.dylan-name)
@@ -817,14 +937,15 @@ end method write-declaration;
 // if it occurs. 
 //
 define method write-declaration
-    (decl :: <typedef-declaration>, load-string :: <string>,
-     stream :: <stream>)
+    (decl :: <typedef-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   // We must special case this one since there are so many declarations of the
   // form "typedef struct foo foo".
   if (~decl.equated? & decl.simple-name ~= decl.type.simple-name)
     format(stream, "define constant %s = %s;\n\n",
 	   decl.dylan-name, decl.type.dylan-name);
+    register-written-name(written-names, decl.dylan-name, decl);
   end if;
 end method write-declaration;
 
@@ -845,8 +966,8 @@ end method write-declaration;
 // aliasing and compute the appropriate sort of name.
 //
 define method write-declaration
-    (decl :: <macro-declaration>, load-string :: <string>,
-     stream :: <stream>)
+    (decl :: <macro-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   let raw-value = decl.constant-value;
   let value = select (raw-value by instance?)
@@ -856,14 +977,15 @@ define method write-declaration
 		<token> => raw-value.string-value;
 	      end select;
   format(stream, "define constant %s = %s;\n\n", decl.dylan-name, value);
+  register-written-name(written-names, decl.dylan-name, decl);
 end method write-declaration;
 
 // For pointers, we need "dereference" and "content-size" functions.  This is
 // pretty strightforward.
 //
 define method write-declaration
-    (decl :: <pointer-declaration>, load-string :: <string>,
-     stream :: <stream>)
+    (decl :: <pointer-declaration>, written-names :: <written-name-record>,
+     load-string :: <string>, stream :: <stream>)
  => ();
   if (decl.equated? | decl.simple-name = decl.referent.simple-name)
     values();
@@ -878,6 +1000,7 @@ define method write-declaration
 	   class-sealing(),
 	   decl.dylan-name,
 	   as(<byte-string>, apply(join, ", ", supers)));
+    register-written-name(written-names, decl.dylan-name, decl);
     if (melange-target == #"d2c")
       format(stream, "define sealed domain make (singleton(%s));\n\n",
 	     decl.dylan-name)

@@ -24,13 +24,14 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/comp/lexer.l,v 1.1 1998/05/03 19:55:07 andreas Exp $
+* $Header: /scm/cvs/src/mindy/comp/lexer.l,v 1.4 1999/03/02 13:49:02 andreas Exp $
 *
 * This file is the lexical analizer.
 *
 \**********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "lexer.h"
 #include "src.h"
 #include "parser-tab.h"
@@ -67,16 +68,16 @@ N	((({G}{DGS}*)?{A}{ADGS}*)|({D}{DGS}*({A}{DGS}+)*{A}{A}{ADGS}*))
 
 O	":="|"+"|"-"|"*"|"/"|"="|"=="|"<"|">"|"<="|">="|"~="|"~=="|"&"|"|"|"^"
 
-STR	\"(([ !#-\[\]-~])|(\\["\\abefnrt0]))*\"
+STR	\"(([ !#-\[\]-~])|(\\["\\abefnrt0<]))*\"
 
 %%
 
 <INITIAL>.			BEGIN(ini); yyless(0);
 
-<ini>^#!.*\n			BEGIN(key); warn(line_count, "igoring initial #! interpreter comment\n"); line_count++; 
+<ini>#!.*\n			BEGIN(key); warn(line_count, "igoring initial #! interpreter comment\n"); line_count++; 
 
-<ini,key>^[a-z][-a-z0-9]*:	BEGIN(val); return make_header_key();
-<ini,key>^[ \t]*\n		BEGIN(etc); return make_header_end();
+<ini,key>[a-z][-a-z0-9]*:	BEGIN(val); return make_header_key();
+<ini,key>[ \t]*\n		BEGIN(etc); return make_header_end();
 
 <val>.*\n([ \t]+.+\n)*		BEGIN(key); return make_header_val();
 
@@ -187,6 +188,7 @@ STR	\"(([ !#-\[\]-~])|(\\["\\abefnrt0]))*\"
 
 <etc>'[ -&(-\[\]-~]'		is(CHARACTER);
 <etc>'\\['\\abefnrt0]'		is(CHARACTER);
+<etc>'\\<[0-9a-f]{1,4}>'	is(CHARACTER);
 
 <etc>{STR}			is(STRING);
 

@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.1 1998/05/03 19:55:38 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.8 1999/04/10 22:48:24 emk Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
@@ -101,7 +101,7 @@ define module Dylan
 	     every?, reduce, reduce1, choose, choose-by, member?,
 	     find-key, remove-key!, replace-elements!, fill!,
 	     forward-iteration-protocol, backward-iteration-protocol,
-	     table-protocol, merge-hash-codes, object-hash,
+	     table-protocol, merge-hash-ids, object-hash,
 
 	     // Reflective Operations on Types
 	     instance?, subtype?, object-class, all-superclasses,
@@ -127,9 +127,6 @@ define module Dylan
 	     condition-format-string, condition-format-arguments,
 	     type-error-value, type-error-expected-type,
 
-	     // Other Built-In Objects
-	     $permanent-hash-state,
-
 	     // Definitions
 	     variable-definer, constant-definer, domain-definer,
 	     function-definer, generic-definer, method-definer, class-definer,
@@ -140,7 +137,10 @@ define module Dylan
 	     \block, \method,
 
 	     // Function-macro operators.
-	     \:=, \&, \|
+	     \:=, \&, \|,
+
+             // Constants
+             $maximum-integer, $minimum-integer
     },
     export: all;
 end;
@@ -156,7 +156,9 @@ define module Extensions
 	     <ratio>, ratio, numerator, denominator,
 
 	     // More types.
-	     <byte-character>, <true>, <false>,
+	     <byte-character>, <true>, <false>, <stretchy-sequence>,
+	     <stretchy-object-vector>,
+	     <simple-object-deque> => <object-deque>,
 
 	     // Type extensions.
 	     false-or, one-of, <never-returns>, subclass, direct-instance,
@@ -173,7 +175,7 @@ define module Extensions
 
 	     // Misc other stuff.
 	     $not-supplied, ignore, functional-==, key-exists?, assert,
-	     exit, limited-collection-definer,
+	     exit, on-exit, limited-collection-definer,
 	     limited-vector-class, element-type, %elem, %elem-setter,
 	     limited-sv-class, ssv-data, ssv-data-setter, lsv-data-type,
              lsv-fill, %main, main
@@ -196,7 +198,11 @@ define module System
     import: {\%%primitive,
 	     
 	     // Foreign interface stuff.
-	     \call-out, \c-include, \c-decl, \c-expr,
+	     \call-out, \c-include, \c-decl, \c-expr, \callback-method,
+	     callback-entry,
+
+	     // Nasty debugging hooks.
+	     *gdb-output*,
 
 	     // Raw pointer stuff.
 	     <raw-pointer>, pointer-deref, pointer-deref-setter,
@@ -239,6 +245,7 @@ end module %Hash-Tables;
 define module magic
   use Dylan-Viscera,
     import: {%check-type,
+             %element,
 	     %element-setter,
 	     %instance?,
 	     %make-method,
@@ -253,7 +260,9 @@ define module magic
 	     class-new-slot-descriptors,
 	     closure-var,
 	     closure-var-setter,
+	     \define-constant,
 	     \define-generic,
+	     \define-variable,
 	     disable-catcher,
 	     find-slot-offset,
 	     \for-aux,

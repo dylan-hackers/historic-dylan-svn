@@ -1,5 +1,5 @@
 module: define-classes
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defclass.dylan,v 1.1 1998/05/03 19:55:35 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defclass.dylan,v 1.5 1999/04/17 17:46:55 andreas Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -205,6 +205,10 @@ define class <local-class-definition> (<real-class-definition>)
   // Vector of slot init value overrides.
   slot class-defn-overrides :: <simple-object-vector>,
     required-init-keyword: overrides:;
+  //
+  // Vector of init keyword arguments
+  slot class-defn-keywords :: <simple-object-vector>,
+    required-init-keyword: keywords:;
 end;  
 
 define class <slot-defn> (<object>)
@@ -289,6 +293,37 @@ define class <override-defn> (<object>)
     init-value: #f;
 end;
 
+define class <keyword-defn> (<object>)
+  //
+  // The class that introduces this keyword.
+  slot keyword-defn-class :: <real-class-definition>;
+  //
+  // The keyword
+  slot keyword-defn-symbol :: <symbol>,
+    required-init-keyword: symbol:;
+  //
+  // The init-value expression, or #f if none.
+  slot keyword-defn-init-value :: false-or(<expression-parse>),
+    init-value: #f, init-keyword: init-value:;
+  //
+  // The init-function expression, or #f if none.
+  slot keyword-defn-init-function :: false-or(<expression-parse>),
+    init-value: #f, init-keyword: init-function:;
+  //
+  // Is this keyword required?
+  slot keyword-defn-required? :: <boolean>, 
+    init-value: #f, init-keyword: required?:;
+  // 
+  // The type restriction for this keyword, if any.
+  slot keyword-defn-type :: false-or(<expression-parse>),
+    init-value: #f, init-keyword: type:;
+  //
+  // The <override-info> for this override, or #f if we haven't computed it
+  // or don't know enough about the class to compute it at all.
+  slot keyword-defn-info :: false-or(<keyword-info>),
+    init-value: #f;
+end;
+
 
 define class <maker-function-definition> (<abstract-method-definition>)
   slot maker-func-defn-class-defn :: <class-definition>,
@@ -333,6 +368,7 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
     = class-abstract?-frag & extract-boolean(class-abstract?-frag);
   let slots = make(<stretchy-vector>);
   let overrides = make(<stretchy-vector>);
+  let keywords = make(<stretchy-vector>);
   unless (class-abstract? | empty?(form.defclass-superclass-exprs))
     add!(overrides,
 	 make(<override-defn>,
@@ -342,13 +378,14 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
   end;
   for (option in form.defclass-slots)
     block ()
-      process-slot(name, class-functional?, slots, overrides, option);
+      process-slot(name, class-functional?, slots, overrides, keywords, option);
     exception (<fatal-error-recovery-restart>)
       #f;
     end block;
   end for;
   let slots = as(<simple-object-vector>, slots);
   let overrides = as(<simple-object-vector>, overrides);
+  let keywords = as(<simple-object-vector>, keywords);
   let defn = make(<local-class-definition>,
 		  name: make(<basic-name>,
 			     symbol: name,
@@ -360,7 +397,8 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
 		  primary: class-primary?,
 		  abstract: class-abstract?,
 		  slots: slots,
-		  overrides: overrides);
+		  overrides: overrides,
+		  keywords: keywords);
   for (slot in slots)
     slot.slot-defn-class := defn;
     //
@@ -384,6 +422,9 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
   for (override in overrides)
     override.override-defn-class := defn;
   end for;
+  for (keyword in keywords)
+    keyword.keyword-defn-class := defn;
+  end for;
   note-variable-definition(defn);
   add!(*Top-Level-Forms*, make(<define-class-tlf>, defn: defn));
 end method process-top-level-form;
@@ -391,13 +432,13 @@ end method process-top-level-form;
 
 define generic process-slot
     (class-name :: <symbol>, class-functional? :: <boolean>,
-     slots :: <stretchy-vector>, overrides :: <stretchy-vector>,
+     slots :: <stretchy-vector>, overrides :: <stretchy-vector>, keywords :: <stretchy-vector>,
      slot :: <abstract-slot-parse>)
     => ();
 
 define method process-slot
     (class-name :: <symbol>, class-functional? :: <boolean>,
-     slots :: <stretchy-vector>, overrides :: <stretchy-vector>,
+     slots :: <stretchy-vector>, overrides :: <stretchy-vector>, keywords :: <stretchy-vector>,
      slot :: <slot-parse>)
     => ();
   let (sealed?-frag, allocation-frag, type-frag, setter-frag,
@@ -611,7 +652,7 @@ end method process-slot;
 
 define method process-slot
     (class-name :: <symbol>, class-functional? :: <boolean>,
-     slots :: <stretchy-vector>, overrides :: <stretchy-vector>,
+     slots :: <stretchy-vector>, overrides :: <stretchy-vector>, keywords :: <stretchy-vector>,
      slot :: <inherited-slot-parse>)
     => ();
   let (init-value-frag, init-expr-frag, init-function-frag)
@@ -663,69 +704,74 @@ end method process-slot;
 
 define method process-slot
     (class-name :: <symbol>, class-functional? :: <boolean>,
-     slots :: <stretchy-vector>, overrides :: <stretchy-vector>,
+     slots :: <stretchy-vector>, overrides :: <stretchy-vector>, keywords :: <stretchy-vector>,
      slot :: <init-arg-parse>)
-    => ();
-  let (required?-frag, type-frag, init-value-frag, init-function-frag)
+ => ();
+  let (required?-frag, type-frag, init-value-frag, init-function-frag, init-expr-frag)
     = extract-properties(slot.init-arg-parse-options,
-			 required:, type:, init-value:, init-function:);
-
+			 required:, type:, init-value:, init-function:, init-expr:);
+  
   let required? = required?-frag & extract-boolean(required?-frag);
   let type = type-frag & expression-from-fragment(type-frag);
   let init-value = init-value-frag & expression-from-fragment(init-value-frag);
   let init-function
     = init-function-frag & expression-from-fragment(init-function-frag);
+  let init-expr
+    = init-expr-frag & expression-from-fragment(init-expr-frag);
 
-  if (required?)
-    if (init-value)
+  if (init-value)
+    if (init-expr)
       compiler-fatal-error-location
 	(init-value,
-	 "Can't supply an init-value: for required keyword init arg specs");
-    end;
+	 "Can't supply both an init-value: and an init-expression.");
+    end if;
     if (init-function)
+      compiler-fatal-error-location
+	(init-value,
+	 "Can't supply both an init-value: and an init-function:.");
+    end;
+    if (required?)
+      compiler-fatal-error-location
+	(init-value,
+	 "Can't supply both an init-value: and a required-init-keyword:.");
+    end;
+  elseif (init-expr)
+    if (init-function)
+      compiler-fatal-error-location
+	(init-expr,
+	 "Can't supply both an init-function: and an init-expression.");
+    end if;
+    if (required?)
+      compiler-fatal-error-location
+	(init-expr,
+	 "Can't supply both an init-value: and a required-init-keyword:.");
+    end;
+    if (instance?(init-expr, <literal-ref-parse>))
+      init-value := init-expr;
+    else
+      init-function
+	:= make(<method-ref-parse>,
+		method: make(<method-parse>,
+			     parameters: make(<parameter-list>, fixed: #[]),
+			     body: init-expr));
+    end if;
+  elseif (init-function)
+    if (required?)
       compiler-fatal-error-location
 	(init-function,
-	 "Can't supply an init-function: for required keyword init arg specs");
-    end;
-  elseif (init-value)
-    if (init-function)
-      compiler-fatal-error-location
-	(init-value,
-	 "Can't supply both an init-value: and an "
-	   "init-function: for keyword init arg specs");
+	 "Can't supply both an init-function: and a "
+	   "required-init-keyword:.");
     end;
   end;
-  // ### Need to do something with it.
+
+  add!(keywords,
+       make(<keyword-defn>,
+	    symbol: slot.init-arg-parse-keyword,
+	    required?: required?,
+	    type: type,
+	    init-value: init-value,
+	    init-function: init-function));
 end method process-slot;
-
-
-define method extract-identifier-or-false (fragment :: <token-fragment>)
-    => res :: false-or(<identifier-token>);
-  let token = fragment.fragment-token;
-  select (token.token-kind)
-    $false-token =>
-      #f;
-    $raw-ordinary-word-token, $ordinary-define-body-word-token,
-    $ordinary-define-list-word-token, $quoted-name-token =>
-      token;
-    otherwise =>
-      compiler-fatal-error
-	("invalid identifier: %s", token);
-  end select;
-end method extract-identifier-or-false;
-
-define method extract-identifier (fragment :: <token-fragment>)
-    => res :: false-or(<identifier-token>);
-  let token = fragment.fragment-token;
-  select (token.token-kind)
-    $raw-ordinary-word-token, $ordinary-define-body-word-token,
-    $ordinary-define-list-word-token, $quoted-name-token =>
-      token;
-    otherwise =>
-      compiler-fatal-error
-	("invalid identifier: %s", token);
-  end select;
-end method extract-identifier;
 
 
 
@@ -885,6 +931,7 @@ define method compute-cclass (defn :: <real-class-definition>)
     // Compute the slots and overrides.
     let slot-infos = map(compute-slot, defn.class-defn-slots);
     let override-infos = map(compute-override, defn.class-defn-overrides);
+    let keyword-infos = map(compute-keyword, defn.class-defn-keywords);
     //
     // Make and return the <cclass>.
     make(<defined-cclass>,
@@ -908,7 +955,8 @@ define method compute-cclass (defn :: <real-class-definition>)
 	 primary: defn.class-defn-primary?,
 	 abstract: defn.class-defn-abstract?,
 	 slots: slot-infos,
-	 overrides: override-infos);
+	 overrides: override-infos,
+	 keywords: keyword-infos);
   end unless;
 end method compute-cclass;
 
@@ -956,6 +1004,21 @@ define method compute-override
 		  init-value: override.override-defn-init-value & #t,
 		  init-function: override.override-defn-init-function & #t);
   override.override-defn-info := info;
+  info;
+end;
+
+define method compute-keyword
+    (keyword :: <keyword-defn>) => info :: <keyword-info>;
+  //
+  // Note: we don't pass in anything for the init-value or init-function,
+  // because we need to compile-time-eval those, which we can't do until
+  // tlf-finalization time.
+  let info = make(<keyword-info>,
+		  symbol: keyword.keyword-defn-symbol,
+		  required?: keyword.keyword-defn-required?,
+		  init-value: keyword.keyword-defn-init-value & #t,
+		  init-function: keyword.keyword-defn-init-function & #t);
+  keyword.keyword-defn-info := info;
   info;
 end;
 
@@ -1350,6 +1413,7 @@ define method class-defn-maker-function
 		      library: defn.defn-library,
 		      signature: sig,
 		      inline-function: maker-inline-expansion,
+		      inline-type: #"inline",
 		      class-defn: defn);
 	       end if;
 	   //
@@ -1370,7 +1434,7 @@ define method maker-inline-expansion
   let component = make(<fer-component>);
   let builder = make-builder(component);
   let region = build-maker-function-body(builder, class-defn);
-  let leaf = make-function-literal(builder, #f, #f, #"local",
+  let leaf = make-function-literal(builder, #f, #"function", #"local",
 				   maker-defn.function-defn-signature, region);
   optimize-component(component, simplify-only: #t);
   leaf;
@@ -1625,13 +1689,13 @@ define method convert-top-level-form
       // Fill in the maker function.
       let ctv = defn.class-defn-maker-function;
       if (ctv)
-	make-function-literal(tl-builder, ctv, #f, #"global",
+	make-function-literal(tl-builder, ctv, #"function", #"global",
 			      maker-signature, maker-region);
       else
 	// The maker function isn't a compile-time constant, so add code to
 	// the defered evaluations to install it.
 	let maker-leaf
-	  = make-function-literal(tl-builder, #f, #f, #"local",
+	  = make-function-literal(tl-builder, #f, #"function", #"local",
 				  maker-signature, maker-region);
 	build-assignment
 	  (evals-builder, policy, source, #(),
@@ -1658,7 +1722,7 @@ define method convert-top-level-form
       // Return nothing.
       build-return(tl-builder, policy, source, func-region, #());
       end-body(tl-builder);
-      make-function-literal(tl-builder, ctv, #f, #"global",
+      make-function-literal(tl-builder, ctv, #"function", #"global",
 			    ctv.ct-function-signature, func-region);
     else
       assert(instance?(builder-result(evals-builder), <empty-region>));
@@ -2141,7 +2205,7 @@ define method convert-init-function
 		   make-unknown-call(builder, var, #f, #()));
   build-return(builder, policy, source, func-region, temp);
   end-body(builder);
-  make-function-literal(builder, #f, #f, #"local",
+  make-function-literal(builder, #f, #"function", #"local",
 			make(<signature>, specializers: #()),
 			func-region);
 end;
@@ -2290,7 +2354,7 @@ define method build-getter
   build-return(builder, policy, source, region, result);
   end-body(builder);
   make-function-literal
-    (builder, ctv, #t, if (ctv) #"global" else #"local" end,
+    (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
 	  specializers:
 	    if (index)
@@ -2357,7 +2421,7 @@ define method build-setter
   build-return(builder, policy, source, region, new);
   end-body(builder);
   make-function-literal
-    (builder, ctv, #t, if (ctv) #"global" else #"local" end,
+    (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
 	  specializers:
 	    if (index)

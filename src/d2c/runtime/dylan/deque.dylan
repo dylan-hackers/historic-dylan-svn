@@ -2,7 +2,7 @@ copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
 author: David Pierce (dpierce@cs.cmu.edu)
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/deque.dylan,v 1.1 1998/05/03 19:55:40 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/deque.dylan,v 1.6 1999/05/25 01:21:25 housel Exp $
 
 //======================================================================
 //
@@ -50,13 +50,14 @@ rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/deque.dylan,v 1.1 1998/05/03
 // This implementation of deques uses element objects with pointers to
 // represent the deque.
 
-define open abstract class <deque> (<mutable-sequence>, <stretchy-collection>)
+define open abstract class <deque> (<stretchy-sequence>, <mutable-sequence>)
 //  keyword size:, init-value: 0;
 //  keyword fill:, init-value: #f;
 end class <deque>;
 
 define sealed inline method make
-    (cls == <deque>, #rest rest, #all-keys) => (res :: <simple-object-deque>) 
+    (cls == <deque>, #rest rest, #key, #all-keys)
+ => (res :: <simple-object-deque>) 
   apply(make, <simple-object-deque>, rest);
 end method make;
 
@@ -72,10 +73,10 @@ end method make;
 //
 // These are the main functions to use with deques.
 //
-define generic push (deque :: <deque>, new) => (new :: <object>);
-define generic pop (deque :: <deque>) => (result :: <object>);
-define generic push-last (deque :: <deque>, new) => (new :: <object>);
-define generic pop-last (deque :: <deque>) => (result :: <object>);
+define open generic push (deque :: <deque>, new) => (new :: <object>);
+define open generic pop (deque :: <deque>) => (result :: <object>);
+define open generic push-last (deque :: <deque>, new) => (new :: <object>);
+define open generic pop-last (deque :: <deque>) => (result :: <object>);
 
 // <deque-element> -- internal
 //
@@ -264,7 +265,7 @@ end method drop!;
 // DEQUE-HEAD of the deque.  If the deque is empty, both DEQUE-HEAD and
 // DEQUE-TAIL must be set to the new element.
 //
-define method push (deque :: <simple-object-deque>, new)
+define sealed method push (deque :: <simple-object-deque>, new)
  => (result :: <object>);
   let new-element :: <deque-element> = make(<deque-element>, data: new);
   case
@@ -285,7 +286,7 @@ end method push;
 // Removes the first deque-element and returns its DEQUE-ELEMENT-DATA.  If
 // the deque is empty, an error is signalled.
 //
-define method pop (deque :: <simple-object-deque>) => (result :: <object>);
+define sealed method pop (deque :: <simple-object-deque>) => (result :: <object>);
   case
     empty?(deque) =>
       error("POP:  deque empty.");
@@ -309,7 +310,7 @@ end method pop;
 // Creates a new deque-element and places it at the DEQUE-TAIL of the
 // deque.
 //
-define method push-last (deque :: <simple-object-deque>, new)
+define sealed method push-last (deque :: <simple-object-deque>, new)
  => (result :: <object>);
   let new-element :: <deque-element> = make(<deque-element>, data: new);
   case
@@ -329,7 +330,7 @@ end method push-last;
 //
 // Removes the last deque-element and returns its DEQUE-ELEMENT-DATA.
 //
-define method pop-last (deque :: <simple-object-deque>) =>
+define sealed method pop-last (deque :: <simple-object-deque>) =>
     (result :: <object>);
   case
     empty?(deque) =>

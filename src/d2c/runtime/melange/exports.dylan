@@ -1,5 +1,5 @@
 module: dylan-user
-RCS-header: $Header: /scm/cvs/src/d2c/runtime/melange/exports.dylan,v 1.1 1998/05/03 19:55:51 andreas Exp $
+RCS-header: $Header: /scm/cvs/src/d2c/runtime/melange/exports.dylan,v 1.4 1999/04/15 14:40:59 andreas Exp $
 
 //======================================================================
 //
@@ -34,7 +34,8 @@ end library melange-support;
 define module melange-support
   use dylan;
   use extensions, export: {subclass};
-  use system, export: {call-out, c-include, c-decl, c-expr};
+  use system, export: {call-out, c-include, c-decl, c-expr, callback-method,
+                       callback-entry};
 
   export
     c-variable-ref, c-variable-ref-setter,
@@ -44,7 +45,9 @@ define module melange-support
     signed-short-at-setter, unsigned-short-at, unsigned-short-at-setter,
     signed-long-at, signed-long-at-setter, unsigned-long-at,
     unsigned-long-at-setter, longlong-at, longlong-at-setter,
-    pointer-at, pointer-at-setter,
+    unsigned-longlong-at, unsigned-longlong-at-setter,
+    float-at, float-at-setter, double-at, double-at-setter,
+    long-double-at, long-double-at-setter, pointer-at, pointer-at-setter,
 
     destroy, pointer-value, pointer-value-setter, content-size,
     structure-size, export-value, import-value, <machine-pointer>,

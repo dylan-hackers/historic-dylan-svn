@@ -23,7 +23,7 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/mindy/etc/Makefile.in,v 1.1 1998/05/03 19:55:20 andreas Exp $
+##  $Header: /scm/cvs/src/mindy/etc/Makefile.in,v 1.4 1999/01/17 03:01:33 emk Exp $
 ##
 ##  This is the makefile for the Mindy load and go executive
 ##	and any other small programs that might be useful.
@@ -40,12 +40,14 @@ exec_prefix	=	@exec_prefix@
 srcdir	=		@srcdir@
 
 SRCDIR	=		${srcdir}
+CONFIGDIR = 		@builddir@
 BINDIR	=		@bindir@
 LIBDIR	=		@libdir@/dylan
+DESTDIR =
 
 CC	=		@CC@
 CCOPTS	=		@CCOPTS@
-CFLAGS	=		$(CCOPTS) -I${SRCDIR} @DEFS@ -DBINDIR=\"${BINDIR}\" -DLIBDIR=\"${LIBDIR}\"
+CFLAGS	=		$(CCOPTS) -I${SRCDIR} -I${CONFIGDIR} @DEFS@ -DBINDIR=\"${BINDIR}\" -DLIBDIR=\"${LIBDIR}\"
 YACC	=		@YACC@
 YFLAGS	=		-d
 LEX	=		@LEX@
@@ -80,7 +82,7 @@ clean:
 
 realclean:
 	rm -f ${OBJS} mindyexec Makefile *~ \#* core
-	
+
 install: mindyexec
-	${INSTALL_PROGRAM} mindyexec ${BINDIR}/mindyexec
+	${INSTALL_PROGRAM} mindyexec ${DESTDIR}${BINDIR}/mindyexec
 

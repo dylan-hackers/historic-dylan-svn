@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.1 1998/05/03 19:55:31 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.12 1999/05/24 17:00:43 housel Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -303,12 +303,11 @@ define module source
 
     <unknown-source-location>,
 
-    <source-file>, contents, <file-contents>,
+    <source-file>, contents, <file-contents>, full-file-name, file-name,
 
     <file-source-location>, source-file,
     start-posn, start-line, start-column,
     end-posn, end-line, end-column,
-    file-name,
 
     extract-string;
 end;
@@ -426,10 +425,17 @@ define module platform
   use string-conversions, import: { string-to-integer };
 
   export
-    get-platforms, <platform>, *current-target*,
+    parse-platforms-file, <platform>, *current-target*, get-platform-named,
     default-features,
 
     platform-integer-length,
+    pointer-size,
+    integer-size,
+    long-size,
+    short-size,
+    single-size,
+    double-size,
+    long-double-size,
 
     heap-preamble,
     align-directive,
@@ -443,12 +449,16 @@ define module platform
     object-filename-suffix,
     library-filename-prefix,
     library-filename-suffix,
+    shared-library-filename-suffix,
     executable-filename-suffix,
 
     compile-c-command,
     default-c-compiler-flags,
+    default-c-compiler-debug-flags,
     assembler-command,
     link-library-command,
+    randomize-library-command,
+    link-shared-library-command,
     link-executable-command,
     link-executable-flags,
     make-command,
@@ -462,9 +472,11 @@ define module platform
     supports-debugging?,
     descriptor-type-string,
     descriptor-reference-string,
+    object-size-string,
 
     big-endian?,
-    omit-colon-after-label-declarations?;
+    omit-colon-after-label-declarations?,
+    align-arg-is-power-of-two?;
 end module platform;
 
 
@@ -691,6 +703,7 @@ define module classes
     abstract?, primary?, functional?, not-functional?, all-slot-infos,
     all-slot-infos-setter, new-slot-infos, new-slot-infos-setter,
     override-infos, override-infos-setter, unique-id,
+    keyword-infos, keyword-infos-setter,
     set-and-record-unique-id, subclass-id-range-min,
     subclass-id-range-max,
     direct-space-representation, direct-space-representation-setter,
@@ -700,7 +713,7 @@ define module classes
     instance-slots-layout, vector-slot,
     vector-slot-setter, data-word-slot,
     class-heap-fields, class-heap-fields-setter,
-    <defined-cclass>, class-defn, class-defn-setter,
+    <defined-cclass>, class-defn, class-defn-setter, bucket, row,
 
     <slot-allocation>, <slot-info>, slot-introduced-by,
     slot-type, slot-type-setter, slot-getter, slot-read-only?,
@@ -723,6 +736,8 @@ define module classes
     override-init-value, override-init-value-setter,
     override-init-function, override-init-function-setter,
 
+    <keyword-info>,
+
     <layout-table>, layout-length, layout-holes,
 
     <subclass-ctype>, subclass-of,
@@ -731,7 +746,8 @@ define module classes
     <proxy>, proxy-for,
 
     inherit-slots, inherit-overrides, assign-unique-ids,
-    layout-instance-slots, layout-slots-for,
+    layout-instance-slots, layout-slots-for, layout-slots-for-if-possible,
+    calculate-type-inclusion-matrix,
 
     // For dumper...
     <limited-cclass>, each-subclass-slots-count;
@@ -757,7 +773,7 @@ define module c-representation
   use classes;
   use od-format;
   use compile-time-values;
-
+  use platform;
   export
     seed-representations,
 
@@ -772,6 +788,7 @@ define module c-representation
 
     representation-class,
     representation-data-word-member,
+    representation-name,
 
     *general-rep*, *heap-rep*, *boolean-rep*,
     *long-rep*, *int-rep*, *uint-rep*, *short-rep*, *ushort-rep*,
@@ -797,6 +814,7 @@ define module compile-time-functions
     ct-function-definition, ct-function-closure-var-types,
     has-general-entry?, has-general-entry?-setter,
 
+    <ct-callback-function>, has-callback-entry?, has-callback-entry?-setter,
     <ct-generic-function>, <ct-open-generic>, <ct-sealed-generic>,
 
     <ct-method>, ct-method-hidden?,

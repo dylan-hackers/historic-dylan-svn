@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.1 1998/05/03 19:55:39 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.7 1999/04/10 22:48:21 emk Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: bootstrap
@@ -148,7 +148,7 @@ define module dylan-viscera
     do, map, map-as, map-into, any?, every?, reduce, reduce1, choose,
     choose-by, member?, find-key, remove-key!, replace-elements!, fill!,
     forward-iteration-protocol, backward-iteration-protocol, table-protocol,
-    merge-hash-codes, object-hash,
+    merge-hash-ids, object-hash,
 
     // Reflective Operations on Types
     instance?, subtype?, object-class, all-superclasses, direct-superclasses,
@@ -171,9 +171,6 @@ define module dylan-viscera
     return-description, condition-format-string, condition-format-arguments,
     type-error-value, type-error-expected-type,
 
-    // Other Built-In Objects
-    $permanent-hash-state,
-
     // Definitions
     variable-definer, constant-definer, domain-definer, function-definer,
     generic-definer, method-definer, class-definer, library-definer,
@@ -192,7 +189,7 @@ define module dylan-viscera
 		 <byte-character>, <true>, <false>,
     false-or, one-of, <never-returns>, subclass, direct-instance,
     report-condition, condition-format, condition-force-output,
-    *warning-output*,
+    *warning-output*, *gdb-output*,
     <debugger>, invoke-debugger, *debugger*,
     <byte>, <byte-vector>,
     $not-supplied, ignore,
@@ -201,13 +198,14 @@ define module dylan-viscera
     limited-collection-definer, limited-vector-class, element-type, 
     %elem, %elem-setter, limited-sv-class, ssv-data, ssv-data-setter,
     lsv-data-type, lsv-fill, %main, main,
+    <stretchy-sequence>, <simple-object-deque>, <stretchy-object-vector>,
 
     // Cheap IO
     format, print-message, print, write-integer, puts,
 
     // System stuff
     \%%primitive,
-    call-out, c-include, c-decl, c-expr,
+    call-out, c-include, c-decl, c-expr, callback-method, callback-entry,
     <raw-pointer>, pointer-deref, pointer-deref-setter,
     object-address,
     <buffer>, <buffer-index>, $maximum-buffer-size,
@@ -215,7 +213,7 @@ define module dylan-viscera
     copy-bytes, buffer-address,
 
     system, import-string, export-string, getenv, 
-    exit, no-core-dumps, get-time-of-day,
+    exit, on-exit, no-core-dumps, get-time-of-day,
 
     // Introspection Stuff
     class-name, function-name,
@@ -237,6 +235,7 @@ define module dylan-viscera
     // Variables magically referenced by the compiler which we need to hang
     // around even though they aren't otherwise overtly exported.
     %check-type,
+    %element,
     %element-setter,
     %instance?,
     %make-method,
@@ -251,7 +250,9 @@ define module dylan-viscera
     class-new-slot-descriptors,
     closure-var,
     closure-var-setter,
+    \define-constant,
     \define-generic,
+    \define-variable,
     disable-catcher,
     find-slot-offset,
     \for-aux,

@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/class.dylan,v 1.1 1998/05/03 19:55:37 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/class.dylan,v 1.4 1999/05/25 01:21:25 housel Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
@@ -107,6 +107,12 @@ define class <class> (<type>)
   // is computed.
   slot class-each-subclass-slots :: <simple-object-vector>;
 */
+  // 
+  // The bucket this class occupies for use in subtype testing.
+  slot class-bucket :: <integer>, required-init-keyword: class-bucket:;
+  //
+  // The row of the type inclusion test matrix for this class.
+  slot class-row :: <simple-object-vector>, init-value: #[];
 end;
 
 /*
@@ -185,6 +191,15 @@ define class <slot-descriptor> (<object>)
   // entails.
   slot slot-positions-cache
     :: type-union(<position-cache-node>, <integer>, one-of(#f, #"data-word")),
+    init-value: #f;
+  //
+  // The name of the representation of this slot
+  slot slot-representation :: false-or(<symbol>),
+    init-value: #f;
+  //
+  // The slot that marks whether or not this one has been initialized,
+  // if there is one.
+  slot slot-initialized?-slot :: false-or(<slot-descriptor>),
     init-value: #f;
 end;
 
@@ -449,11 +464,52 @@ end method find-slot-offset;
 // slot-initialized? -- exported.
 //
 // Return #t if the slot has been initialized, and #f if not.
-// 
+//
+
+define open generic slot-initialized?
+    (instance :: <object>, getter :: <generic-function>)
+    => res :: <boolean>;
+
 define method slot-initialized?
     (instance :: <object>, getter :: <generic-function>)
     => res :: <boolean>;
-  error("### runtime slot-initialized? not yet implemented.");
+  let (sorted :: <list>, unsorted :: <list>)
+    = sorted-applicable-methods(getter, instance);
+  let meth = if(empty?(sorted))
+	       if(empty?(unsorted))
+		 error("slot-initialized? can't find"
+			 " an applicable method of %=",  getter);
+	       else
+		 first(unsorted);
+	       end if;
+	     else
+	       first(sorted);
+	     end if;
+  if(~instance?(meth, <accessor-method>))
+    error("slot-initialized? can't find a slot-accessor method of %=", getter);
+  end if;
+  let slot = meth.accessor-slot;
+  if(slot.slot-initialized?-slot)
+    let offset = find-slot-offset(object-class(instance),
+				  slot.slot-initialized?-slot);
+    %%primitive(ref-slot, instance, #"boolean", offset);
+  elseif (slot.slot-init-value ~== $not-supplied
+	    | slot.slot-init-function
+	    | slot.slot-init-keyword-required?)
+    #t;
+  else
+    let offset = find-slot-offset(object-class(instance), slot);
+    select(slot.slot-representation)
+      #"general" =>
+	let result = %%primitive(ref-slot, instance, #"general", offset);
+	%%primitive(initialized?, result);
+      #"heap" =>
+	let result = %%primitive(ref-slot, instance, #"heap", offset);
+	%%primitive(initialized?, result);
+      otherwise =>
+	error("slot-initialized? can't handle slot representation");
+    end select;
+  end if;
 end;
 
 
@@ -496,10 +552,10 @@ define method compute-layout (class :: <class>) => ();
 
 // The default make method.
 
-define open generic make (type :: <type>, #rest supplied-keys, #all-keys)
+define open generic make (type :: <type>, #rest supplied-keys, #key, #all-keys)
     => instance;
 
-define method make (class :: <class>, #rest supplied-keys, #all-keys)
+define method make (class :: <class>, #rest supplied-keys, #key, #all-keys)
     => instance;
   if (class.class-abstract?)
     error("Can't make instances of %= because it is abstract.", class);
@@ -543,9 +599,10 @@ define method do-defered-evaluations (class :: <class>) => ();
   class.class-defered-evaluations := #f;
 end;
 
-define open generic initialize (instance :: <object>, #rest keys, #all-keys);
+define open generic initialize
+    (instance :: <object>, #rest keys, #key, #all-keys);
 
-define inline method initialize (instance :: <object>, #all-keys) => ();
+define inline method initialize (instance :: <object>, #key, #all-keys) => ();
 end;
 
 

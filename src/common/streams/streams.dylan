@@ -2,7 +2,7 @@ module: Streams
 author: Ben Folk-Williams
 synopsis: Creating streams, Querying, Positionable Stream Protocol, Locking.
 copyright: See below.
-RCS-header: $Header: /scm/cvs/src/common/streams/streams.dylan,v 1.1 1998/05/03 19:55:03 andreas Exp $
+RCS-header: $Header: /scm/cvs/src/common/streams/streams.dylan,v 1.4 1999/05/25 01:21:22 housel Exp $
 
 //======================================================================
 //
@@ -117,18 +117,21 @@ define class <simple-sequence-stream> (<sequence-stream>)
   slot position :: <integer> = 0;
 end class;
 
+// Older versions of d2c don't support the keyword clause. So in oder to support
+// bootstrapping with them, we override the make method instead.
+// XXX one day we want to get rid of that.
+
 /// <byte-string-stream> -- Exported.
 ///
 define class <byte-string-stream> (<simple-sequence-stream>, <string-stream>)
-  keyword contents:, type: <byte-string>, init-value: make(<byte-string>);
+  // keyword contents: = make(<byte-string-stream>), type: <byte-string>;
 end class;
 
 /// <unicode-string-stream> -- Exported.
 ///
 define class <unicode-string-stream> 
     (<simple-sequence-stream>, <string-stream>)
-  keyword contents:, type: <unicode-string>,
-    init-value: make(<unicode-string>);
+//  keyword contents: = make(<unicode-string>), type: <unicode-string>;
 end class;
 
 
@@ -219,7 +222,7 @@ end method;
 /// initialize
 ///
 define method initialize (stream :: <stream>, #next next-method,
-			  #all-keys)
+			  #key, #all-keys)
  => ();
   stream.outer-stream := stream;
   next-method();
@@ -272,11 +275,41 @@ define sealed method initialize
   stream.position := start;
 end method initialize;
 
+define sealed method make
+    (stream == <byte-string-stream>,
+     #next next-method,
+     #rest all-parameters,
+     #key contents :: type-union(singleton($not-supplied), <byte-string>) = $not-supplied, 
+     #all-keys)
+ => (result :: <byte-string-stream>)
+  if(contents == $not-supplied)
+    apply(next-method, stream, contents:, make(<byte-string>), all-parameters);
+  else
+    next-method();
+  end if;
+end method make;
+
+define sealed method make
+    (stream == <unicode-string-stream>,
+     #next next-method,
+     #rest all-parameters,
+     #key contents :: type-union(singleton($not-supplied), <unicode-string>) = $not-supplied, 
+     #all-keys)
+ => (result :: <unicode-string-stream>)
+  if(contents == $not-supplied)
+    apply(next-method, stream, contents:, make(<unicode-string>), all-parameters);
+  else
+    next-method();
+  end if;
+end method make;
+
+
 /// close -- Exported.
 ///
-define open generic close (stream :: <stream>, #all-keys);
+define open generic close (stream :: <stream>, #key, #all-keys);
 
-define sealed method close (stream :: <simple-sequence-stream>, #all-keys);
+define sealed method close (stream :: <simple-sequence-stream>,
+			    #key, #all-keys);
   block ()
     lock-stream(stream);
     if (stream.direction ~== #"input")
@@ -533,6 +566,32 @@ define sealed method stream-contents (stream :: <simple-sequence-stream>,
     unlock-stream(stream);
   end block;
 end method stream-contents;
+
+
+//// with-open-file
+//// Sorry, no macros in mindy
+#if (~mindy)
+define macro with-open-file // I _must_ be overlooking this one!
+  {
+    with-open-file (?stream:variable = ?namestring:expression,
+		    #rest ?parameters:expression)
+      ?:body
+    end
+  }
+ => {
+      let stream = #f;
+      block ()
+	stream := make(<file-stream>, locator: ?namestring, ?parameters);
+	let ?stream = stream;
+	?body;
+      cleanup
+	if (stream)
+	  close(stream);
+	end if;
+      end block
+    }
+end macro with-open-file;
+#endif
 
 
 //// Using File Streams.

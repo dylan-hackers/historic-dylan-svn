@@ -1,5 +1,5 @@
 module: expanders
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/expand.dylan,v 1.1 1998/05/03 19:55:36 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/expand.dylan,v 1.3 1999/02/25 06:56:49 housel Exp $
 copyright: Copyright (c) 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -127,6 +127,33 @@ define method extract-boolean (fragment :: <fragment>)
   end if;
 end method extract-boolean;
 
+define method extract-identifier-or-false (fragment :: <token-fragment>)
+    => res :: false-or(<identifier-token>);
+  let token = fragment.fragment-token;
+  select (token.token-kind)
+    $false-token =>
+      #f;
+    $raw-ordinary-word-token, $ordinary-define-body-word-token,
+    $ordinary-define-list-word-token, $quoted-name-token =>
+      token;
+    otherwise =>
+      compiler-fatal-error
+	("invalid identifier: %s", token);
+  end select;
+end method extract-identifier-or-false;
+
+define method extract-identifier (fragment :: <token-fragment>)
+    => res :: false-or(<identifier-token>);
+  let token = fragment.fragment-token;
+  select (token.token-kind)
+    $raw-ordinary-word-token, $ordinary-define-body-word-token,
+    $ordinary-define-list-word-token, $quoted-name-token =>
+      token;
+    otherwise =>
+      compiler-fatal-error
+	("invalid identifier: %s", token);
+  end select;
+end method extract-identifier;
 
 define method extract-properties
     (plist :: <simple-object-vector>, #rest names)
@@ -240,6 +267,27 @@ define-procedural-expander
 	  (make(<method-ref-parse>,
 		method:
 		  make(<method-parse>,
+		       parameters:
+			 parse-parameter-list(make(<fragment-tokenizer>,
+						   fragment: parameters-frag)),
+		       returns:
+			 parse-variable-list(make(<fragment-tokenizer>,
+						  fragment: results-frag)),
+		       body: expression-from-fragment(body-frag))),
+	   source-location: generate-token-source-location(generator)));
+   end method);
+
+define-procedural-expander
+  (#"make-callback-method",
+   method (generator :: <expansion-generator>, parameters-frag :: <fragment>,
+	   results-frag :: <fragment>, body-frag :: <fragment>)
+       => ();
+     generate-fragment
+       (generator,
+	make-parsed-fragment
+	  (make(<callback-method-ref-parse>,
+		method:
+		  make(<callback-method-parse>,
 		       parameters:
 			 parse-parameter-list(make(<fragment-tokenizer>,
 						   fragment: parameters-frag)),

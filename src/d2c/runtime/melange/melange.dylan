@@ -1,5 +1,5 @@
 module: melange-support
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/melange/melange.dylan,v 1.1 1998/05/03 19:55:51 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/melange/melange.dylan,v 1.4 1999/04/15 14:41:00 andreas Exp $
 
 //======================================================================
 //
@@ -227,6 +227,58 @@ define sealed inline method longlong-at-setter
   error("accesses to 'long long' data not currently supported");
 end method longlong-at-setter;
 
+define sealed inline method unsigned-longlong-at
+    (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <integer>);
+  error("accesses to 'unsigned long long' data not currently supported");
+end method unsigned-longlong-at;
+
+define sealed inline method unsigned-longlong-at-setter
+    (new :: <integer>,
+     ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <integer>);
+  error("accesses to 'unsigned long long' data not currently supported");
+end method unsigned-longlong-at-setter;
+
+define sealed inline method float-at
+    (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <single-float>);
+  pointer-deref(float:, ptr.raw-value, offset);
+end method float-at;
+
+define sealed inline method float-at-setter
+    (new :: <single-float>,
+     ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <single-float>);
+  pointer-deref(float:, ptr.raw-value, offset) := new;
+end method float-at-setter;
+
+define sealed inline method double-at
+    (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <double-float>);
+  pointer-deref(double:, ptr.raw-value, offset);
+end method double-at;
+
+define sealed inline method double-at-setter
+    (new :: <double-float>,
+     ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <double-float>);
+  pointer-deref(double:, ptr.raw-value, offset) := new;
+end method double-at-setter;
+
+define sealed inline method long-double-at
+    (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <extended-float>);
+  pointer-deref(long-double:, ptr.raw-value, offset);
+end method long-double-at;
+
+define sealed inline method long-double-at-setter
+    (new :: <extended-float>,
+     ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
+ => (result :: <extended-float>);
+  pointer-deref(double:, ptr.raw-value, offset) := new;
+end method long-double-at-setter;
+
 define sealed inline method pointer-at
     (ptr :: <statically-typed-pointer>,
      #key offset :: <integer> = 0, class)
@@ -241,6 +293,7 @@ define sealed inline method pointer-at-setter
           class :: <class> = <statically-typed-pointer>)
  => (result :: <statically-typed-pointer>);
   pointer-deref(ptr:, ptr.raw-value, offset) := new.raw-value;
+  new;
 end method pointer-at-setter;
 
 define sealed domain \= (<statically-typed-pointer>, <object>);

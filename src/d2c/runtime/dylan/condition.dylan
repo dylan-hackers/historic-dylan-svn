@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/condition.dylan,v 1.1 1998/05/03 19:55:38 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/condition.dylan,v 1.3 1999/04/10 22:48:22 emk Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
@@ -146,10 +146,11 @@ define open generic condition-format
 // condition-format(#"cheap-IO") -- internal.
 //
 // Bootstrap method for condition-format that just calls the cheap-IO format.
+// 23 Nov 98 - emk - added support for #"Cheap-Err", too.
 //
 define sealed method condition-format
-    (stream == #"cheap-IO", control-string :: <string>, #rest arguments) => ();
-  apply(format, control-string, arguments);
+    (stream :: <symbol>, control-string :: <string>, #rest arguments) => ();
+  apply(cheap-format, stream, control-string, arguments);
 end;
 
 // condition-force-output
@@ -162,8 +163,8 @@ define open generic condition-force-output (stream :: <object>) => ();
 //
 // Bootstrap method for condition-format that just calls the cheap-IO fflush.
 //
-define sealed method condition-force-output (stream == #"cheap-IO") => ();
-  c-expr(void: "fflush(stdout)");
+define sealed method condition-force-output (stream :: <symbol>) => ();
+  cheap-force-output(stream);
 end;
 
 
@@ -171,7 +172,7 @@ end;
 //
 // The ``stream'' to which warnings report when signaled (and not handled).
 //
-define variable *warning-output* :: <object> = #"cheap-IO";
+define variable *warning-output* :: <object> = #"Cheap-Err";
 
 
 // Condition reporting.
@@ -578,9 +579,9 @@ end method %break;
 // 
 define method lose
     (str :: <byte-string>, #rest args) => res :: <never-returns>;
-  puts("internal error: ");
-  apply(format, str, args);
-  puts('\n');
+  fputs("internal error: ", #"Cheap-Err");
+  apply(cheap-format, #"Cheap-Err", str, args);
+  fputs('\n', #"Cheap-Err");
   call-out("abort", void:);
 end;
 
@@ -690,10 +691,16 @@ end;
 // internals.  There is no guarantee that they will continue to work
 // in the future.
 
+// XXX - *gdb-output* is evil and should go away when we get a new
+// streams-protocol. It should be bound to whatever the current program
+// is using for standard output.
+//
+define variable *gdb-output* = #"Cheap-IO";
+
 define method gdb-print-object (obj :: <object>) => ();
   block ()
-  condition-format(*warning-output*, "%=\n", obj);
-  condition-force-output(*warning-output*);
+  condition-format(*gdb-output*, "%=\n", obj);
+  condition-force-output(*gdb-output*);
   exception (error :: <error>)
     #f;
   end block;
@@ -714,8 +721,8 @@ define method apply-safely (fun :: <function>, #rest arguments)
   block ()
     apply(fun, arguments);
   exception (error :: <error>)
-    condition-format(*warning-output*, "%s\n", error);
-    condition-force-output(*warning-output*);
+    condition-format(*gdb-output*, "%s\n", error);
+    condition-force-output(*gdb-output*);
   end block;
 end method apply-safely;
 

@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/comp/parser.y,v 1.1 1998/05/03 19:55:08 andreas Exp $
+* $Header: /scm/cvs/src/mindy/comp/parser.y,v 1.3 1999/05/25 01:21:26 housel Exp $
 *
 * This file is the grammar.
 *
@@ -902,11 +902,12 @@ gf_rest_parameters:
 
 gf_keyword_parameters_list:
 	KEY gf_keyword_parameters_opt { free($1); $$ = $2; }
-    |	ALL_KEYS { free($1); $$ = allow_all_keywords(make_param_list()); }
 ;
 
 gf_keyword_parameters_opt:
 	/* epsilon */ { $$ = allow_keywords(make_param_list()); }
+    |	COMMA ALL_KEYS
+	{ free($1); free($2); $$ = allow_all_keywords(make_param_list()); }
     |	gf_keyword_parameters { $$ = $1; }
 ;
 
@@ -954,11 +955,11 @@ named_method:
 ;
 
 method_description:
-	LPAREN parameters RPAREN return_type SEMI body
-	{ free($1); free($3); free($5);
-	  $$ = make_method_description($2, $4, $6);
+	LPAREN parameters RPAREN return_type body
+	{ free($1); free($3);
+	  $$ = make_method_description($2, $4, $5);
 	}
-    |	LPAREN parameters RPAREN return_type semi_opt
+    |	LPAREN parameters RPAREN return_type
 	{ free($1); free($3);
 	  $$ = make_method_description($2, $4, make_body());
 	}
@@ -969,9 +970,9 @@ method_description:
 ;
 
 return_type:
-	ARROW return_type_list
-	{ free($1); $$ = $2; }
-    |	ARROW LPAREN return_type_list RPAREN
+	ARROW return_type_list SEMI
+	{ free($1); free($3); $$ = $2; }
+    |	ARROW LPAREN return_type_list RPAREN semi_opt
 	{ free($1); free($2); free($4); $$ = $3; }
 ;
 
@@ -1054,8 +1055,6 @@ rest_parameter:
 keyword_parameters_list:
 	KEY keyword_parameters_opt
 	{ free($1); $$ = $2; }
-    |	ALL_KEYS
-	{ free($1); $$ = allow_all_keywords(make_param_list()); }
 ;
 
 keyword_parameters_opt:

@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/macros.dylan,v 1.1 1998/05/03 19:55:38 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/macros.dylan,v 1.5 1999/04/16 14:35:28 andreas Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
@@ -430,6 +430,9 @@ define macro class-definer
     { required keyword ?key:token, #rest ?init-arg-options }
       => make-init-arg({?key}, {required: #t, ?init-arg-options})
 
+    { keyword ?key:token ?equals:token ?:expression, #rest ?init-arg-options }
+      => make-init-arg({?key}, {init-expr: ?expression, ?init-arg-options})
+
   inherited-options:
     { #rest ?all:*, 
       #key ?init-value:expression = #f,
@@ -470,12 +473,16 @@ define macro class-definer
 end;
 
 define macro constant-definer
-    { define constant ?vars = ?:expression }
-      => make-define-constant({ ?vars }, { ?expression })
-  vars:
-    { ?:variable } => { ?variable }
-    { (?:variable-list) } => { ?variable-list }
-end;
+    { define constant ?:variable = ?:expression }
+      => { define-constant ( ?variable; dummy = ?expression ) }
+    { define constant ( ?:variable-list ) ?eq:token ?:expression }
+      => { define-constant ( ?variable-list; dummy ?eq ?expression ) }
+end macro;
+
+define macro define-constant
+    { define-constant ( ?:variable-list; ?dummy:name = ?:expression ) }
+    => make-define-constant({ ?variable-list }, { ?expression })
+end macro;
 
 define macro domain-definer
     { define sealed domain ?:name (?types ) }
@@ -523,7 +530,11 @@ define macro method-definer
   adjectives:
     { } => { }
     { sealed ... } => { sealed: #t, ... }
-    { inline ... } => { inline: #t, ... }
+    { not-inline ... } => { inline-type: not-inline, ... }
+    { default-inline ... } => { inline-type: default-inline, ... }
+    { may-inline ... } => { inline-type: may-inline, ... }
+    { inline ... } => { inline: #t, inline-type: inline, ... }
+    { inline-only ... } => { inline-type: inline-only, ... }
     { movable ... } => { movable: #t, ... }
     { flushable ... } => { flushable: #t, ... }
 end;
@@ -577,12 +588,16 @@ define macro library-definer
 end;
 
 define macro variable-definer
-    { define variable ?vars = ?:expression }
-      => make-define-variable({ ?vars }, { ?expression })
-  vars:
-    { ?:variable } => { ?variable }
-    { (?:variable-list) } => { ?variable-list }
-end;
+    { define variable ?:variable = ?:expression }
+      => { define-variable ( ?variable; dummy = ?expression ) }
+    { define variable ( ?:variable-list ) ?eq:token ?:expression }
+      => { define-variable ( ?variable-list; dummy ?eq ?expression ) }
+end macro;
+
+define macro define-variable
+    { define-variable ( ?:variable-list; ?dummy:name = ?:expression ) }
+    => make-define-variable({ ?variable-list }, { ?expression })
+end macro;
 
 
 
@@ -612,3 +627,11 @@ define macro c-expr
       => { %%primitive(\c-expr, ?result-type, ?expression) }
 end;
 
+// Callback-related macros
+
+define macro callback-method
+    { callback-method (?:parameter-list) => ( ?result:variable ); ?:body end }
+      => make-callback-method({ ?parameter-list }, { ?result }, { ?body })
+    { callback-method (?:parameter-list) => ( ); ?:body end }
+      => make-callback-method({ ?parameter-list }, { }, { ?body })
+end;

@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.1 1998/05/03 19:55:33 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.22 1999/05/29 21:28:28 andreas Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -33,57 +33,63 @@ copyright: Copyright (c) 1994  Carnegie Mellon University
 // <unit-state> (but it doesn't.)
 //
 define class <main-unit-state> (<object>)
-    slot unit-lid-file :: <byte-string>, required-init-keyword: lid-file:;
-    slot unit-command-line-features :: <list>, 
-         required-init-keyword: command-line-features:;
-    slot unit-target :: <platform>,
-         required-init-keyword: target:;
-    slot unit-log-dependencies :: <boolean>, 
-         required-init-keyword: log-dependencies:;
-    slot unit-no-binaries :: <boolean>,
-         required-init-keyword: no-binaries:;
-
-    // A facility for hacking around C compiler bugs by using a different
-    // command for particular C compilations.  cc-override is a format string
-    // used instead of the normal platform compile-c-command.  It is used
-    // whenever compiling one of the files in the override-files list.
-    slot unit-cc-override :: false-or(<string>),
-         required-init-keyword: cc-override:;
-    slot unit-override-files :: <list>,
-         required-init-keyword: override-files:;
-
-    slot unit-header :: <header>;
-    slot unit-files :: <stretchy-vector>;
-    slot unit-lib-name :: <byte-string>;
-    slot unit-lib :: <library>;
-    // unit-prefix already a <unit-state> accessor
-    slot unit-mprefix :: <byte-string>;
-    slot unit-tlf-vectors :: <stretchy-vector> = make(<stretchy-vector>);
-    slot unit-init-functions :: <stretchy-vector> = make(<stretchy-vector>);
-    slot unit-cback-unit :: <unit-state>;
-    slot unit-other-cback-units :: <simple-object-vector>;
-
-    slot unit-cc-flags;
-    // Makefile generation streams, etc.
-    slot unit-all-generated-files :: <list>, init-value: #();
-    slot unit-makefile-name :: <byte-string>;
-    slot unit-temp-makefile-name :: <byte-string>;
-    slot unit-makefile :: <file-stream>;
-    slot unit-objects-stream :: <buffered-byte-string-output-stream>;
-    slot unit-clean-stream :: <buffered-byte-string-output-stream>;
-    slot unit-real-clean-stream :: <buffered-byte-string-output-stream>;
-
-    slot unit-entry-function :: false-or(<ct-function>), init-value: #f;
-    slot unit-unit-info :: <unit-info>;
-
-    // All names of the .o files we generated in a string.
-    slot unit-objects :: <byte-string>;
-
-    // The name of the .ar file we generated.
-    slot unit-ar-name :: <byte-string>;
-
-    // The name of the executable file we generate.
-    slot unit-executable :: false-or(<byte-string>);
+  slot unit-lid-file :: <byte-string>, required-init-keyword: lid-file:;
+  slot unit-command-line-features :: <list>, 
+    required-init-keyword: command-line-features:;
+  slot unit-target :: <platform>,
+    required-init-keyword: target:;
+  slot unit-log-dependencies :: <boolean>, 
+    required-init-keyword: log-dependencies:;
+  slot unit-no-binaries :: <boolean>,
+    required-init-keyword: no-binaries:;
+  slot unit-link-static :: <boolean>,
+    required-init-keyword: link-static:;
+  
+  // A facility for hacking around C compiler bugs by using a different
+  // command for particular C compilations.  cc-override is a format string
+  // used instead of the normal platform compile-c-command.  It is used
+  // whenever compiling one of the files in the override-files list.
+  slot unit-cc-override :: false-or(<string>),
+    required-init-keyword: cc-override:;
+  slot unit-override-files :: <list>,
+    required-init-keyword: override-files:;
+  
+  slot unit-header :: <header>;
+  slot unit-files :: <stretchy-vector>;
+  slot unit-lib-name :: <byte-string>;
+  slot unit-lib :: <library>;
+  // unit-prefix already a <unit-state> accessor
+  slot unit-mprefix :: <byte-string>;
+  slot unit-tlf-vectors :: <stretchy-vector> = make(<stretchy-vector>);
+  slot unit-init-functions :: <stretchy-vector> = make(<stretchy-vector>);
+  slot unit-cback-unit :: <unit-state>;
+  slot unit-other-cback-units :: <simple-object-vector>;
+  
+  // Simplistic flags to control debugging (and someday, optimization).
+  // We only have one of these right now.
+  slot unit-debug? :: <boolean>, init-keyword: debug?:, init-value: #f;
+  
+  slot unit-cc-flags;
+  // Makefile generation streams, etc.
+  slot unit-all-generated-files :: <list>, init-value: #();
+  slot unit-makefile-name :: <byte-string>;
+  slot unit-temp-makefile-name :: <byte-string>;
+  slot unit-makefile :: <file-stream>;
+  slot unit-objects-stream :: <buffered-byte-string-output-stream>;
+  slot unit-clean-stream :: <buffered-byte-string-output-stream>;
+  slot unit-real-clean-stream :: <buffered-byte-string-output-stream>;
+  
+  slot unit-entry-function :: false-or(<ct-function>), init-value: #f;
+  slot unit-unit-info :: <unit-info>;
+  
+  // All names of the .o files we generated in a string.
+  slot unit-objects :: <byte-string>;
+  
+  // The name of the .ar file we generated.
+  slot unit-ar-name :: <byte-string>;
+  
+  // The name of the executable file we generate.
+  slot unit-executable :: false-or(<byte-string>);
 end class <main-unit-state>;
 
 
@@ -92,16 +98,15 @@ end class <main-unit-state>;
 // Information which needs to go into the library dump file.
 //
 define class <unit-info> (<object>)
-
   slot unit-name :: <byte-string>,
     required-init-keyword: #"unit-name";
-
+  
   slot undumped-objects :: <simple-object-vector>,
     required-init-keyword: #"undumped-objects";
-
+  
   slot extra-labels :: <simple-object-vector>,
     required-init-keyword: #"extra-labels";
-
+  
   slot unit-linker-options :: false-or(<byte-string>),
     init-value: #f, init-keyword: #"linker-options";
 end class <unit-info>;
@@ -208,14 +213,30 @@ define method test-parse
   end block;
 end method test-parse;
 
+define function translate-abstract-filename (abstract-name :: <byte-string>)
+ => (physical-name :: <byte-string>)
+  // XXX - We should eventually replace this with a routine that checks
+  // for foo.dylan and then foo.dyl, preferably using some sort of abstract
+  // locator translation. But for now, we keep it simple.
+  concatenate(abstract-name, ".dylan");
+end;
 
 define method parse-lid (state :: <main-unit-state>) => ();
   let source = make(<source-file>, name: state.unit-lid-file);
   let (header, start-line, start-posn) = parse-header(source);
-  
+
+  // We support to types of lid files: old "Gwydion LID" and new
+  // "official LID". The Gwydion format had a series of file names after
+  // the header; the new format has a 'Files:' keyword in the header. We
+  // grab the keyword value, transform the filenames in a vaguely appropriate
+  // fashion, and then grab anything in the body "as is". This handles both
+  // formats. See translate-abstract-filename for details of the new format.
   let contents = source.contents;
   let end-posn = contents.size;
-  let files = make(<stretchy-vector>);
+  let files = map-as(<stretchy-vector>,
+		     translate-abstract-filename,
+		     split-at-whitespace(element(header, #"files",
+						 default: "")));
 
   local
     method repeat (posn :: <integer>)
@@ -323,19 +344,41 @@ end method process-feature;
 // There might be more than one possible object file suffix, so we try them
 // all, but if we find it under more than one suffix, we error.
 //
+// If the platform supports shared libraries (as indicated by the presence
+// of shared-library-filename-suffix in platforms.descr), and if the user
+// didn't specify '-static' on the command line, locate shared library
+// version first. 
 define method find-library-archive
-    (unit-name :: <byte-string>, target :: <platform>)
+    (unit-name :: <byte-string>, state :: <main-unit-state>)
  => path :: <byte-string>;
+  let target = state.unit-target;
   let libname = concatenate(target.library-filename-prefix, unit-name);
   let suffixes = split-at-whitespace(target.library-filename-suffix);
+
   let found = #();
-  for (suffix in suffixes)
-    let suffixed = concatenate(libname, suffix);
-    let path = find-file(suffixed, *data-unit-search-path*);
-    if (path)
-      found := pair(path, found);
+
+  let find = method (suffixes)
+	       let found = #();
+	       for (suffix in suffixes)
+		 let suffixed = concatenate(libname, suffix);
+		 let path = find-file(suffixed, *data-unit-search-path*);
+		 if (path)
+		   found := pair(path, found);
+		 end if;
+	       end for;
+	       found;
+	     end method;
+
+  if (target.shared-library-filename-suffix & ~state.unit-link-static)  
+    let shared-suffixes = split-at-whitespace(target.shared-library-filename-suffix);
+    found := find(shared-suffixes);
+    if (empty?(found))
+      found := find(suffixes);
     end if;
-  end for;
+  else
+    found := find(suffixes);
+  end if;
+
   if (empty?(found))
     error("Can't find object file for library %s.", unit-name);
   elseif (found.tail ~== #())
@@ -533,7 +576,11 @@ end method parse-and-finalize-library;
 define method emit-make-prologue (state :: <main-unit-state>) => ();
   let cc-flags
     = getenv("CCFLAGS") 
-        | format-to-string(state.unit-target.default-c-compiler-flags,
+        | format-to-string(if (state.unit-debug?)
+			     state.unit-target.default-c-compiler-debug-flags;
+			   else
+			     state.unit-target.default-c-compiler-flags;
+			   end if,
 			   $runtime-include-dir);
 
   state.unit-cc-flags := cc-flags;
@@ -610,7 +657,8 @@ define method compile-1-tlf
     end-body(builder);
     let sig = make(<signature>, specializers: #(), returns: result-type);
     let ctv = make(<ct-function>, name: name-obj, signature: sig);
-    make-function-literal(builder, ctv, #f, #"global", sig, init-function);
+    make-function-literal(builder, ctv, #"function", #"global",
+			  sig, init-function);
     add!(state.unit-init-functions, ctv);
   end;
   optimize-component(component);
@@ -747,7 +795,17 @@ end method build-local-heap-file;
 define method build-ar-file (state :: <main-unit-state>) => ();
   let objects = stream-contents(state.unit-objects-stream);
   let target = state.unit-target;
-  let suffix = split-at-whitespace(target.library-filename-suffix).first;
+  let build-shared? =   ~state.unit-link-static 
+                      & ~state.unit-executable
+                      & boolean-header-element(#"shared-library", #f, state)
+                      & target.shared-library-filename-suffix 
+                      & target.link-shared-library-command;
+  let suffix = split-at-whitespace(
+				   if (build-shared?) 
+				     target.shared-library-filename-suffix;
+				   else
+				     target.library-filename-suffix;
+				   end if).first;
   let ar-name = concatenate(target.library-filename-prefix,
   			    state.unit-mprefix,
 			    suffix);
@@ -760,9 +818,20 @@ define method build-ar-file (state :: <main-unit-state>) => ();
   
   let objects = use-correct-path-separator(objects, target);
 
-  let link-string = format-to-string(target.link-library-command, 
+  let link-string = format-to-string(
+				     if (build-shared?)
+				       target.link-shared-library-command;
+				     else
+				       target.link-library-command;
+				     end if, 
 				     ar-name, objects);
   format(state.unit-makefile, "\t%s\n", link-string);
+  
+  if (target.randomize-library-command)
+    let randomize-string = format-to-string(target.randomize-library-command,
+					    ar-name);
+    format(state.unit-makefile, "\t%s\n", randomize-string);
+  end if;
 end method;
 
 
@@ -796,15 +865,17 @@ define method build-inits-dot-c (state :: <main-unit-state>) => ();
   write(stream,
 	"void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
   for (unit in *units*)
-    format(stream, "    %s_Library_init(sp);\n", unit.unit-name);
+    format(stream, "    %s_Library_init(sp);\n", string-to-c-name(unit.unit-name));
   end;
   if (entry-function-name)
     format(stream, "    %s(sp, argc, argv);\n", entry-function-name);
   end if;
   write(stream, "}\n");
   write(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
-  write(stream, "void main(int argc, char *argv[])\n{\n");
-  write(stream, "    real_main(argc, argv);\n}\n");
+  write(stream, "int main(int argc, char *argv[]) {\n");
+  write(stream, "    real_main(argc, argv);\n");
+  write(stream, "    return 0;\n");
+  write(stream, "}\n");
   close(stream);
 end method;
 
@@ -827,7 +898,7 @@ define method build-executable (state :: <main-unit-state>) => ();
 	    // If cross-compiling use -l -L search mechanism.
 	    dash-small-ells := stringify(" -l", name, dash-small-ells);
 	  else
-	    let archive = find-library-archive(name, state.unit-target);
+	    let archive = find-library-archive(name, state);
 	    unit-libs := stringify(' ', archive, unit-libs);
 	  end if;
 	end method add-archive;
@@ -976,6 +1047,7 @@ define method compile-library (state :: <main-unit-state>)
     build-ar-file(state);
     if (state.unit-executable)
       log-target(state.unit-executable);
+      calculate-type-inclusion-matrix();
       build-da-global-heap(state);
       build-inits-dot-c(state);
       build-executable(state);
@@ -1052,7 +1124,7 @@ define method build-unit-init-function
   // course, on the HP, the linker has separate namespaces for code
   // and data, but most other platforms do not)
   format(stream, "void %s_Library_init(descriptor_t *sp)\n{\n%s}\n",
-	 prefix, init-func-guts);
+	 string-to-c-name(prefix), init-func-guts);
 end;
 
 
@@ -1123,7 +1195,7 @@ define method build-command-line-entry
   let sig = make(<signature>, specializers: list(int-type, rawptr-type),
 		 returns: result-type);
   let ctv = make(<ct-function>, name: name-obj, signature: sig);
-  make-function-literal(builder, ctv, #f, #"global", sig, func);
+  make-function-literal(builder, ctv, #"function", #"global", sig, func);
   optimize-component(component);
   emit-component(component, file);
   ctv;
@@ -1142,6 +1214,8 @@ define method incorrect-usage () => ();
 	 "    -M                  Generate makefile dependencies\n");
   format(*standard-error*, 
 	 "    -no-binaries        Do not compile the generated C code\n");
+  format(*standard-error*, 
+	 "    -static             Don't link against shared libraries\n");
   format(*standard-error*, 
 	 "    -Ttarget            Generate code for the given target machine\n");
   format(*standard-error*, 
@@ -1170,7 +1244,123 @@ define constant $search-path-seperator =
   ':';
 #endif
 
+
+//----------------------------------------------------------------------
+// <feature-option-parser> - handles -D, -U
+//----------------------------------------------------------------------
+// d2c has a delightfully non-standard '-D' flag with a corresponding '-U'
+// flag which allows you to undefine things (well, sort of). We create a
+// new option parser class to handle these using the option-parser-protocol
+// module from the parse-arguments library.
+
+define class <d2c-feature-option-parser> (<negative-option-parser>)
+end class <d2c-feature-option-parser>;
+
+define method reset-option-parser
+    (parser :: <d2c-feature-option-parser>, #next next-method) => ()
+  next-method();
+  parser.option-value := make(<deque> /* of: <string> */);
+end;
+
+define method parse-option
+    (parser :: <d2c-feature-option-parser>,
+     arg-parser :: <argument-list-parser>)
+ => ()
+  let negative? = negative-option?(parser, get-argument-token(arg-parser));
+  let value = get-argument-token(arg-parser).token-value;
+  push-last(parser.option-value,
+	    if (negative?)
+	      concatenate("~", value)
+	    else
+	      value
+	    end if);
+end method parse-option;
+
+    
+//----------------------------------------------------------------------
+// Built-in help.
+//----------------------------------------------------------------------
+
+define method show-copyright(stream :: <stream>) => ()
+  format(stream, "d2c (Gwydion Dylan) %s\n", $version);
+  format(stream, "Compiles Dylan source into C, then compiles that.\n");
+  format(stream, "Copyright 1994-1997 Carnegie Mellon University\n");
+  format(stream, "Copyright 1998,1999 Gwydion Dylan Maintainers\n");
+end method show-copyright;
+
+define method show-usage(stream :: <stream>) => ()
+  format(stream,
+"Usage: d2c [options] -Llibdir... lidfile\n");
+end method show-usage;
+
+define method show-usage-and-exit() => ()
+  show-usage(*standard-error*);
+  exit(exit-code: 1);
+end method show-usage-and-exit;
+
+define method show-help(stream :: <stream>) => ()
+  show-copyright(stream);
+  format(stream, "\n");
+  show-usage(stream);
+  format(stream,
+"       -L, --libdir:      Extra directories to search for libraries.\n"
+"       -D, --define:      Define conditional compilation features.\n"
+"       -U, --undefine:    Undefine conditional compilation features.\n"
+"       -M, --log-deps:    Log dependencies to a file.\n"
+"       -T, --target:      Target platform name.\n"
+"       -p, --platforms:   File containing platform descriptions.\n"
+"       --no-binaries:     Do not compile generated C files.\n"
+"       -g, --debug:       Generate debugging code.\n"
+"       -s, --static:      Force static linking.\n"
+"       -d, --break:       Debug d2c by breaking on errors.\n"
+"       --dump-transforms: Display detailed optimizer information.\n"
+"       -F, --cc-overide-command:\n"
+"                          Alternate method of invoking the C compiler.\n"
+"                          Used on files speficied with -f.\n"
+"       -f, --cc-overide-file:\n"
+"                          Files which need special C compiler invocation.\n"
+"       --help:            Show this help text.\n"
+"       --version          Show version number.\n"
+	   );
+end method show-help;
+
+define method show-compiler-info(stream :: <stream>) => ()
+  local method p (#rest args)
+	  apply(format, stream, args);
+	end;
+
+  // This output gets read by ./configure.
+  // All output must be of the form "KEY=VALUE". All keys must begin with
+  // "_DCI_" (for "Dylan compiler info") and either "DYLAN" (which designates
+  // a general purpose value) or "D2C" (which should be used for anything
+  // which is necessarily specific to d2c.
+
+  // This value indicates how much of LID we implement correctly.
+  //   0: We only support CMU-style LID files.
+  //   1: We support everything from 0 plus the 'File:' keyword.
+  p("_DCI_DYLAN_LID_FORMAT_VERSION=1\n");
+
+  // Increment this value here (and CURRENT_BOOTSTRAP_COUNTER) in
+  // configure.in to force an automatic bootstrap.
+  p("_DCI_D2C_BOOTSTRAP_COUNTER=2\n");
+
+  // The directory (relative to --prefix) where ./configure can find our
+  // runtime libraries. This is used when bootstrapping.
+  p("_DCI_D2C_RUNTIME_SUBDIR=%s/%s\n", $version, as(<string>, $default-target-name));
+
+  // The absolute path to where d2c searches for user-installed libraries.
+  // This is used by the Makefile generated by make-dylan-lib to install
+  // site-local Dylan code in the right directoy.
+  p("_DCI_D2C_DYLAN_USER_DIR=%s/lib/dylan/%s/%s/dylan-user\n", $default-dylan-user-dir, $version, as(<string>, $default-target-name));
+end method;
+
+define method show-dylan-user-location(stream :: <stream>) => ()
+  format(stream, "%s/lib/dylan/%s/%s/dylan-user\n", $default-dylan-user-dir, $version, as(<string>, $default-target-name));
+end method;
+
+//----------------------------------------------------------------------
 // Where to find various important files.
+//----------------------------------------------------------------------
 
 // $default-dylan-dir and $default-target-name are defined in
 // file-locations.dylan, which is generated by makegen.
@@ -1182,6 +1372,7 @@ define constant $search-path-seperator =
 // variables, which Dylan doesn't have yet.
 
 define constant $dylan-dir = getenv("DYLANDIR") | $default-dylan-dir;
+define constant $dylan-user-dir = getenv("DYLANUSERDIR") | getenv("DYLANDIR") | $default-dylan-user-dir;
 
 // Platform parameter database.
 define constant $default-targets-dot-descr
@@ -1189,120 +1380,152 @@ define constant $default-targets-dot-descr
 
 // Library search path.
 define constant $default-dylan-path
-  = concatenate(".:", $dylan-dir, "/lib/dylan/");
+  = concatenate(".:", $dylan-user-dir, "/lib/dylan/", $version, "/", as(<string>, $default-target-name), "/dylan-user:", 
+                      $dylan-dir, "/lib/dylan/", $version, "/", as(<string>, $default-target-name));
 
 // Location of runtime.h
 define constant $runtime-include-dir
-  = concatenate($dylan-dir, "/include/");
+  = concatenate($dylan-dir, "/include");
+
+
+//----------------------------------------------------------------------
+// Main
+//----------------------------------------------------------------------
 
 define method main (argv0 :: <byte-string>, #rest args) => ();
   #if (~mindy)
-  no-core-dumps();
+    no-core-dumps();
   #endif
   *random-state* := make(<random-state>, seed: 0);
   define-bootstrap-module();
-  let library-dirs = make(<stretchy-vector>);
-  let lid-file = #f;
-  let features = #();
-  let log-dependencies = #f;
-  let target-machine = $default-target-name;
-  let no-binaries = #f;
-  let targets-file = $default-targets-dot-descr;
-  let cc-override = #f;
-  let override-files = #();
-  for (arg in args)
-    if (arg.size >= 1 & arg[0] == '-')
-      if (arg.size >= 2)
-	select (arg[1])
-	  'L' =>
-	    if (arg.size > 2)
-	      add!(library-dirs, copy-sequence(arg, start: 2));
-	    else
-	      error("Directory not supplied with -L.");
-	    end;
-	  'D' =>
-	    if (arg.size > 2)
-	      features := pair(copy-sequence(arg, start: 2), features);
-	    else
-	      error("Feature to define not supplied with -D.");
-	    end;
-	  'U' =>
-	    if (arg.size > 2)
-	      let feature = copy-sequence(arg, start: 1);
-	      feature[0] := '~';
-	      features := pair(feature, features);
-	    else
-	      error("Feature to undefine not supplied with -U.");
-	    end;
-	  'M' =>
-	    if (arg.size > 2)
-	      error("Bogus switch: %s", arg);
-	    end if;
-	    log-dependencies := #t;
-	  'T' =>
-	    if (arg.size > 2)
-	      target-machine := as(<symbol>, copy-sequence(arg, start: 2));
-	    else
-	      error("Target environment not supplied with -T.");
-	    end if;
-	  'p' =>
-	    if (arg.size > 2)
-	      targets-file := copy-sequence(arg, start: 2);
-	    else
-	      error("Name of targets description file not supplied with -p.");
-	    end if;
-	  'n' =>
-	    if (arg = "-no-binaries")  // We need this switch to keep gmake
-	                               // from deleting dylan.lib.du when 
-	                               // gmake -f cc-dylan-files.mak fails
-	      no-binaries := #t;
-	    else
-	      error("Bogus switch: %s", arg);
-	    end if;
-	  'd' =>
-	    if (arg.size == 2)
-	      *break-on-compiler-errors* := #t;
-	    else
-	      error("Bogus switch: %s", arg);
-	    end if;
-	  'F' =>
-	    cc-override := copy-sequence(arg, start: 2);
-	  'f' =>
-	    if (arg.size > 2)
-	      override-files := pair(copy-sequence(arg, start: 2),
-	      			     override-files);
-	    else
-	      error("Name of override file not supplied with -f.");
-	    end if;
-	  'g' =>
-	    *emit-all-function-objects?* := #t;
-	  otherwise =>
-	    error("Bogus switch: %s", arg);
-	end select;
-      else
-	error("Bogus switch: %s", arg);
-      end;
-    else
-      if (lid-file)
-	error("Multiple LID files: %s and %s", lid-file, arg);
-      else
-	lid-file := arg;
-      end;
-    end;
-  end;
+ 
+  // Set up our argument parser with a description of the available options.
+  let argp = make(<argument-list-parser>);
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("help"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("version"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("compiler-info"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("dylan-user-location"));
+  add-option-parser-by-type(argp,
+			    <repeated-parameter-option-parser>,
+			    long-options: #("libdir"),
+			    short-options: #("L"));
+  add-option-parser-by-type(argp,
+			    <d2c-feature-option-parser>,
+			    long-options: #("define"),
+			    short-options: #("D"),
+			    negative-long-options: #("undefine"),
+			    negative-short-options: #("U"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("log-deps"),
+			    short-options: #("M"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("target"),
+			    short-options: #("T"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("platforms"),
+			    short-options: #("p"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("no-binaries"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("break"),
+			    short-options: #("d"));
+  add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    long-options: #("cc-override-command"),
+			    short-options: #("F"));
+  add-option-parser-by-type(argp,
+			    <repeated-parameter-option-parser>,
+			    long-options: #("cc-override-file"),
+			    short-options: #("f"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("debug"),
+			    short-options: #("g"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("static"),
+			    short-options: #("s"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("dump-transforms"));
+			    
+  // Parse our command-line arguments.
+  unless(parse-arguments(argp, args))
+    show-usage-and-exit();
+  end unless;
 
-  unless (lid-file)
-    incorrect-usage();
-  end;
+  // Handle our informational options.
+  if (option-value-by-long-name(argp, "help"))
+    show-help(*standard-output*);
+    exit(exit-code: 0);
+  end if;
+  if (option-value-by-long-name(argp, "version"))
+    show-copyright(*standard-output*);
+    exit(exit-code: 0);
+  end if;
+  if (option-value-by-long-name(argp, "compiler-info"))
+    show-compiler-info(*standard-output*);
+    exit(exit-code: 0);
+  end if;
+  if (option-value-by-long-name(argp, "dylan-user-location"))
+    show-dylan-user-location(*standard-output*);
+    exit(exit-code: 0);
+  end if;
+
+  // Get our simple options.
+  let library-dirs = option-value-by-long-name(argp, "libdir");
+  let features = option-value-by-long-name(argp, "define");
+  let log-dependencies = option-value-by-long-name(argp, "log-deps");
+  let no-binaries = option-value-by-long-name(argp, "no-binaries");
+  let cc-override = option-value-by-long-name(argp, "cc-override-command");
+  let override-files = option-value-by-long-name(argp, "cc-override-file");
+  let link-static = option-value-by-long-name(argp, "static");
+  *break-on-compiler-errors* = option-value-by-long-name(argp, "break");
+  let debug? = option-value-by-long-name(argp, "debug");
+  *emit-all-function-objects?* = debug?;
+
+  // Determine our compilation target.
+  let target-machine-name = option-value-by-long-name(argp, "target");
+  let target-machine =
+    if(target-machine-name)
+      as(<symbol>, target-machine-name);
+    else
+      $default-target-name;
+    end if;
+  let targets-file = option-value-by-long-name(argp, "platforms") |
+    $default-targets-dot-descr;
+
+  // For folks who have *way* too much time (or a d2c bug) on their hands.
+  if (option-value-by-long-name(argp, "dump-transforms"))
+    print-debugging-output();
+  end if;
+
+  // Process our regular arguments, too.
+  let args = regular-arguments(argp);
+  unless (args.size = 1)
+    show-usage-and-exit();
+  end unless;
+  let lid-file = args[0];
+
+  // Set up our target.
   if (targets-file == #f)
     error("Can't find platforms.descr");
   end if;
-  let possible-targets = get-platforms(targets-file);
-  if (~key-exists?(possible-targets, target-machine))
-    error("Unknown platform %=.", target-machine);
-  end if;
-  let target = possible-targets[target-machine];
-  *current-target* := target;
+  parse-platforms-file(targets-file);
+  *current-target* := get-platform-named(target-machine);
 
   // Stuff in DYLANPATH goes after any explicitly listed directories.
   let dylanpath = getenv("DYLANPATH") | $default-dylan-path;
@@ -1311,7 +1534,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 		      end,
 		      dylanpath);
   for (dir in dirs)
-    add!(library-dirs, dir);
+    push-last(library-dirs, dir);
   end for;
   		       
   *Data-Unit-Search-Path* := as(<simple-object-vector>, library-dirs);
@@ -1319,12 +1542,14 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   let state
       = make(<main-unit-state>,
              lid-file: lid-file,
-	     command-line-features: reverse!(features), 
+	     command-line-features: as(<list>, features), 
 	     log-dependencies: log-dependencies,
-	     target: target,
+	     target: *current-target*,
 	     no-binaries: no-binaries,
+	     link-static: link-static,
+	     debug?: debug?,
 	     cc-override: cc-override,
-	     override-files: override-files);
+	     override-files: as(<list>, override-files));
   let worked? = compile-library(state);
   exit(exit-code: if (worked?) 0 else 1 end);
 end method main;

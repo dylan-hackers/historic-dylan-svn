@@ -4,7 +4,7 @@ synopsis: Everything that relates to finite automaton
           (build-NFA, NFA-to-DFA, sim-DFA)
 copyright:  Copyright (C) 1994, Carnegie Mellon University.
             All rights reserved.
-rcs-header: $Header: /scm/cvs/src/common/regexp/Attic/finite-automaton.dylan,v 1.1 1998/05/03 19:55:02 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/common/regexp/Attic/finite-automaton.dylan,v 1.3 1999/05/25 01:21:21 housel Exp $
 
 //======================================================================
 //
@@ -88,7 +88,7 @@ define variable machine = make(<stretchy-vector>);
 define variable state-count = 0;
 
 define method initialize(s :: <NFA-state>, #next next-method,
-			 #all-keys);
+			 #key, #all-keys);
   s.number := state-count;
   machine[s.number] := s;
   state-count := state-count + 1;
@@ -245,13 +245,12 @@ define method my-test-function (set1 :: <list>, set2 :: <list>)
   size(union(set1, set2, test: \==)) = set1.size;
 end method my-test-function;
 
-define method my-hash-function (set :: <list>)
+define method my-hash-function (set :: <list>, initial-state :: <hash-state>)
   let id = 0;
-  let state = $permanent-hash-state;
+  let state = initial-state;
   for (elt in set)
-    let (elt-id, elt-state) = object-hash(elt);
-    let (new-id, new-state) = merge-hash-codes(id, state, elt-id, elt-state,
-					       ordered: #f);
+    let (elt-id, new-state) = object-hash(elt, state);
+    let new-id = merge-hash-ids(id, elt-id, ordered: #f);
     id := new-id;
     state := new-state;
   end for;

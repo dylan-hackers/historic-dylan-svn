@@ -1,5 +1,5 @@
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/system.dylan,v 1.1 1998/05/03 19:55:40 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/system.dylan,v 1.3 1998/09/22 15:40:17 housel Exp $
 copyright: Copyright (c) 1995  Carnegie Mellon University
 	   All rights reserved.
 module: dylan-viscera
@@ -74,6 +74,22 @@ define method exit (#key exit-code :: <integer> = 0)
   call-out("exit", void:, int:, exit-code);
 end method exit;
 
+define variable *on-exit-functions* :: <list> = #();
+
+define constant on-exit-handler
+  = callback-method() => ();
+      for(func in *on-exit-functions*)
+        func();
+      end;
+    end;
+
+define method on-exit(function :: <function>)
+  if(empty?(*on-exit-functions*))
+    call-out("atexit", int:, ptr: callback-entry(on-exit-handler));
+  end if;
+  *on-exit-functions* := add(*on-exit-functions*, function);
+end method;
+
 // no-core-dumps
 //
 // Sets the current limit for core dumps to 0.  Keeps us from dumping 32+ meg
@@ -84,10 +100,7 @@ end method exit;
 //
 define method no-core-dumps () => ();
   #if (~ compiled-for-win32)
-    let buf = make(<buffer>, size: 8);
-    call-out("getrlimit", #"void", #"int", 4, #"ptr", buf.buffer-address);
-    pointer-deref(#"int", buf.buffer-address, 0) := 0;
-    call-out("setrlimit", #"void", #"int", 4, #"ptr", buf.buffer-address);
+   call-out("no_core_dumps", #"void");
   #endif
 end method no-core-dumps;
 

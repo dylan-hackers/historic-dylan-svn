@@ -1,0 +1,9 @@
+ansi-c-test
+*.s
+*.c
+*.mak
+c-parser-engine.dylan
+pidgin
+gmon.out
+*.cffi
+*.log
