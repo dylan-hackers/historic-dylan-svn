@@ -2292,7 +2292,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   	<defreturns>
   	  <param>
   	    <paramname> answer </paramname>
-  	    <paramtype &lt;boolean&gt; </paramtype>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
   	  </param>
   	</defreturns>
   	<defdescription>
