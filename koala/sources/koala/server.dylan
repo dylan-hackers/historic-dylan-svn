@@ -542,8 +542,12 @@ define method send-error-response (request :: <request>, err :: <error>)
   send-response(response, response-code: error-code, response-message: one-liner);
 end send-error-response;
 
+// API
+// Register a response function (or an alias) for a given URI.
+// The URI mapping directly to a function is considered the canonical URI.
+// See find-responder and register-alias-uri.
 define method register-uri
-    (uri :: <string>, fun :: <function>, #rest args, #key replace?)
+    (uri :: <string>, target :: <object>, #rest args, #key replace?)
   let server :: <server> = *server*;
   let (bpos, epos) = trim-whitespace(uri, 0, size(uri));
   if (bpos = epos)
@@ -551,16 +555,42 @@ define method register-uri
                format-string: "You cannot register an empty URI: %=",
                format-arguments: list(substring(uri, bpos, epos))));
   else
-    let old-fun = element(server.uri-map, uri, default: #f);
-    if (replace? | ~old-fun)
-      server.uri-map[uri] := fun;
+    let old-target = element(server.uri-map, uri, default: #f);
+    if (replace? | ~old-target)
+      server.uri-map[uri] := target;
     else
       error(make(<application-error>,
-                 format-string: "There is already a function registered for URI %=",
+                 format-string: "There is already a target registered for URI %=",
                  format-arguments: list(uri)));
     end;
   end;
 end register-uri;
+
+// API
+// Just a clearer name for aliasing.
+define method register-alias-uri
+    (alias :: <string>, target :: <string>, #key replace?)
+  register-uri(alias, target, replace?: replace?);
+end;
+
+// Find a responder function, following alias links, if any.
+define method find-responder
+    (uri :: <string>)
+ => (responder :: false-or(<function>), canonical-uri)
+  let map = uri-map(*server*);
+  local method find-it (uri :: <string>, seen :: <list>)
+                    => (responder, canonical-uri)
+          let candidate = element(map, uri, default: #f);
+          select (candidate by instance?)
+            <function> => values(candidate, uri);
+            <string>   => iff(member?(candidate, seen, test: string-equal?),
+                              application-error(),  // ---TODO: "circular URL alias"
+                              find-it(candidate, pair(uri, seen)));
+            otherwise  => #f;
+          end;
+        end;
+  find-it(uri, #())
+end;
 
 // define responder test ("/test", secure?: #t)
 //     (request, response)
@@ -585,7 +615,7 @@ define method invoke-handler
   let uri :: <string> = request-uri(request);
   with-resource (headers = <header-table>)
     let response :: <response> = make(<response>, request: request, headers: headers);
-    let responder = element(uri-map(*server*), uri, default: #f);
+    let (responder, canonical-uri) = find-responder(uri);
     dynamic-bind (*response* = response)
       if (responder)
         log-info("%s handler found", uri);

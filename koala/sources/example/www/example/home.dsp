@@ -1,3 +1,5 @@
+<%dsp:taglib name="example" prefix="ex"/>
+
 <html>
 <head>
   <title>DSP Example -- Home</title>
