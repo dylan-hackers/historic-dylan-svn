@@ -26,7 +26,10 @@ History
 
 current cvs version, to be called 0.6
   - dauclair puts former module meta into meta-base; adds meta-syntax
-    sugar, meta-types, license is LGPL
+    sugar (meta-definer and collect-definer forms), meta-types, license is LGPL
+  - added `peek', deprecated `peeking'
+  - added `element-of', a much faster `type', deprecated `type'
+  - updated documentation
 
 initial cvs version
   - ported to FD by <chris@cnd.co.nz> and <dauclair@hotmail.com>.
