@@ -232,10 +232,12 @@ define function read-map(s :: <stream>) => (result :: <world>);
         end select;
       let cell = apply(make, <cell>, options);
       if(cell.anthill)
-        let ant = make(<ant>, color: cell.anthill, id: ant-count, at: make-position(xx, yy));
-        ant-count := ant-count + 1;
-        cell.ant := ant;
-        add!(*ants*, ant);
+        // if (*ants*.size < 1)
+          let ant = make(<ant>, color: cell.anthill, id: ant-count, at: make-position(xx, yy));
+          ant-count := ant-count + 1;
+          cell.ant := ant;
+          add!(*ants*, ant);
+        // end if;
       end if;
       result.cells[make-position(xx, yy)] := cell;
     end for;

@@ -3,3 +3,5 @@ executable: brain-compiler
 files:  brain-compiler-exports
 	assembler
 	test-brain
+	alex
+
