@@ -139,7 +139,6 @@ define method register-pages-as
      #key descend? = #t, file-type)
   // url-dir always ends in '/'
   local method doer (url-dir, directory, name, type)
-          format-out("name = %=\n", name);
           select (type)
             #"file" =>
               let file = merge-locators(as(<file-locator>, name),
@@ -149,7 +148,6 @@ define method register-pages-as
                                        url: concatenate(url-dir, name)));
             #"directory" =>
               let dir = subdirectory-locator(as(<directory-locator>, directory), name);
-              format-out("dir = %=\n", as(<string>, dir));
               when (descend?)
                 do-directory(curry(doer, concatenate(url-dir, name, "/")),
                              dir);
