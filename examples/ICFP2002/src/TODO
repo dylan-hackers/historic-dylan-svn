@@ -2,10 +2,14 @@ TODO list
 
 Write modules to solve:
 
+(A + sign means that it's done. 
+
 + A* pathfinding
-- travelling salesman problem
-  - Construct a minimum spanning tree
-  - Do a dfs on it for the path to follow
+  - Add a real priority queue
+
+- travelling salesman problem (in progress) 
+  - Construct a minimum spanning tree (in progress)
+  - Do a dfs on it for the path to follow (in progress)
 
 - knapsack problem
 - minimax engine
