@@ -1,3 +1,5 @@
+MELANGE=melange -I/usr/X11R6/include --d2c
+
 opengl.lib.du: opengl.lid opengl-exports.dylan opengl-intr.dylan \
                opengl-glut-intr.dylan opengl-glu-intr.dylan \
 	       opengl-macros.dylan opengl-osmesa-intr.dylan
@@ -7,19 +9,19 @@ opengl.lid: opengl-exports.dylan opengl-intr.dylan opengl-glut-intr.dylan
 	touch $@
 
 opengl-intr.dylan: opengl.intr
-	melange -I. -I/usr/X11R6/include --d2c $< ,$@ \
+	$(MELANGE) $< ,$@ \
 	&& sed 's/\$$GLenum\$$/$$/g' < ,$@ > $@ && rm ,$@
 
 opengl-glu-intr.dylan: opengl-glu.intr
-	melange -I. -I/usr/X11R6/include --d2c $< ,$@ && mv ,$@ $@
+	$(MELANGE) $< ,$@ && mv ,$@ $@
 
 opengl-glut-intr.dylan: opengl-glut.intr
-	melange -I. -I/usr/X11R6/include --d2c $< ,$@ && mv ,$@ $@
+	$(MELANGE) $< ,$@ && mv ,$@ $@
 
 opengl-osmesa-intr.dylan: opengl-osmesa.intr
-	melange -I. -I/usr/X11R6/include --d2c $< ,$@ && mv ,$@ $@
+	$(MELANGE) $< ,$@ && mv ,$@ $@
 
 clean:
-	-rm -f *.mak *.lib.du *.o *.a *.s *.c ,* opengl-test *~ \
+	-rm -f *.mak *.lib.du *.o *.a *.s *.c ,* *~ \
 	opengl-intr.dylan opengl-glu-intr.dylan opengl-glut-intr.dylan \
 	opengl-osmesa-intr.dylan
