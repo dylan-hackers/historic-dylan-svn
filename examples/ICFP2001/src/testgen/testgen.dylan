@@ -149,7 +149,7 @@ define function document(depth :: <integer>) => ();
       document(depth + 1);
       write(*standard-output*, "</w>");
   end select;
-  if(random(depth) < 2)
+  if(random(depth) < 5)
     document(depth + 1);
   end if;
 end function;
