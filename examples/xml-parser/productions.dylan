@@ -100,8 +100,12 @@ define method entity-value(ent :: <entity-reference>)
   *entities*[ent.name];
 end method entity-value;
 
-define method do-entity(obj :: <object>) list(obj); end;
-define method do-entity(ent :: <entity-reference>) 
+define method do-entity(obj :: <object>) => (seq :: <sequence>)
+  list(obj); 
+end;
+
+define method do-entity(ent :: <entity-reference>)
+ => (seq :: <sequence>)
   explode-entity-value(ent.entity-value)
 end method do-entity;
 
@@ -488,6 +492,7 @@ end method collapse-strings;
 // element in the new sequence
 define method collapse-strings(str :: <sequence>, b == #t)
   // DOUG work on this, please!
+  str
 end method collapse-strings;
 
 define collector content(ignor, contents) 
