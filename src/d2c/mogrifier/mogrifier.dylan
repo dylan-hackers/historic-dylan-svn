@@ -114,15 +114,29 @@ define macro instruction-definer
     end;
   }
 
-  { define instruction ?:name(?primary:expression; ?rest:*) end }
+  { define instruction ?:name(?primary:expression; ?rest:*) ?simp:* end }
   =>
-  { define instruction ?"name"(?primary; ?rest) end }
+  { define instruction ?"name"(?primary; ?rest) ?simp end }
 
   { define instruction ?:expression(?primary:expression; ?form) end }
   =>
   { define method powerpc-disassemble-primary(simplify :: <boolean>, primary == ?primary, secondary :: <integer>)
      => mnemonics :: <string>;
       concatenate(?expression, ?form)
+    end;
+  }
+  
+  { define instruction ?:expression(?primary:expression; ?rest:*) ?simplifications end }
+  =>
+  {
+    define instruction ?expression(?primary; ?rest) end;
+    define method powerpc-disassemble-primary(simplify == #t, primary == ?primary, secondary :: <integer>, #next next-method)
+     => mnemonics :: <string>;
+      case
+        ?simplifications;
+        otherwise
+          => next-method();
+      end case
     end;
   }
   
@@ -146,6 +160,8 @@ define macro instruction-definer
 
     // simplified forms:
     { S, A, Rc } => { secondary.instruction-field-Rc, " ", secondary.instruction-field-A, ",", secondary.instruction-field-S }
+    { crfD, A, B } => { " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-A, ",", secondary.instruction-field-B }
+    { A, B } => { " ", secondary.instruction-field-A, ",", secondary.instruction-field-B }
 
   absolute-type-branch:
     { AA, LK } => { secondary.instruction-field-LK, secondary.instruction-field-AA }
@@ -156,9 +172,22 @@ define macro instruction-definer
 
   simplification:
 //    { ?:expression => ?:name } => { ?expression => ?"name" }
-//    { field ?field-a field ?field-b => ?:name(?form) } => { ?field-a = ?field-b => concatenate(?"name", ?form) }
-    { (field ?field-a field ?field-b) => ?:name(?form) } => { ?field-a = ?field-b => concatenate(?"name", ?form) }
-    { ?:expression => ?:name(?form) } => { ?expression => concatenate(?"name", ?form) }
+    { field ?field-a ?:token field ?field-b => ?:name(?form) } => { (?field-a ?token ?field-b) => concatenate(?"name", ?form) }
+    { field ?field ?:token ?:expression => ?:name(?form) } => { (?field ?token ?expression) => concatenate(?"name", ?form) }
+    { flagged ?flag => ?:name(?form) } => { (?flag) => concatenate(?"name", ?form) }
+    { unflagged ?flag => ?:name(?form) } => { (~?flag) => concatenate(?"name", ?form) }
+    { [?conditions] => ?:name(?form) } => { (?conditions) => concatenate(?"name", ?form) }
+//    { ?:expression => ?:name(?form) } => { ?expression => concatenate(?"name", ?form) }
+
+  conditions:
+    { (?condition) ?:token ... } => { (?condition) ?token ... }
+    { (?condition) } => { (?condition) }
+
+  condition:
+    { field ?field-a ?equals:token field ?field-b } => { (?field-a ?equals ?field-b) }
+    { field ?field-a ?equals:token ?:expression } => { (?field-a ?equals ?expression) }
+    { flagged ?flag } => { (?flag) }
+    { unflagged ?flag } => { (~?flag) }
 
   field-a:
     { ?field } => { ?field }
@@ -169,6 +198,11 @@ define macro instruction-definer
   field:
     { S } => { secondary.instruction-mask-S }
     { B } => { secondary.instruction-mask-B }
+    { A } => { secondary.instruction-mask-A }
+    { crfD } => { secondary.instruction-mask-crfD }
+
+  flag:
+    { L } => { (secondary.instruction-mask-L == 1) }
 
 end macro instruction-definer;
 
@@ -334,7 +368,7 @@ define method powerpc-disassemble-subcode
 end;
 */
 
-
+/*
 define method powerpc-disassemble-primary
   (simplify == #t,
    primary == 11,
@@ -350,7 +384,7 @@ define method powerpc-disassemble-primary
       => next-method();
   end case;
 end;
-
+*/
 
 define instruction addis(15; D, A, SIMM) end;
 define instruction addi(14; D, A, SIMM) end;
@@ -363,7 +397,9 @@ define instruction mulli(7; D, A, SIMM) end;
 
 define instruction or(31; 444; S, A, B, Rc)
 //  simplify S = B => mr(S, A, Rc)
-  simplify (field S field B) => mr(S, A, Rc);
+  simplify field S = field B
+    => mr(S, A, Rc);
+//  simplify field S = 1 => mr(S, A, Rc);
 //  simplify #t => mr
 end;
 define instruction xor(31; 316; S, A, B, Rc) end;
@@ -409,7 +445,14 @@ define instruction mtspr(31; 467; S, spr) end;
 define instruction mfspr(31; 339; D, spr) end;
 
 define instruction cmp(31; 0; crfD, L, A, B) end;
-define instruction cmpi(11; crfD, L, A, SIMM) end;
+
+define instruction cmpi(11; crfD, L, A, SIMM)
+  simplify [(field crfD = 0) & (unflagged L)]
+    => cmpwi(A, B);
+  simplify unflagged L
+    => cmpwi(crfD, A, B);
+end;
+
 define instruction crand(19; 257; crbD, crbA, crbB) end;
 define instruction crandc(19; 129; crbD, crbA, crbB) end;
 define instruction creqv(19; 289; crbD, crbA, crbB) end;
