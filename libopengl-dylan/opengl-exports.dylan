@@ -1204,6 +1204,7 @@ define module opengl-glut
 
 end module;
 
+/*
 define module opengl-osmesa
   use dylan;
   use extensions;
@@ -1235,3 +1236,4 @@ define module opengl-osmesa
     $OSMESA-TYPE;
 
 end module opengl-osmesa;
+*/
