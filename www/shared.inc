@@ -37,6 +37,7 @@ function short_header ($title) {
 
 <TABLE BORDER=0 WIDTH="100%" CELLPADDING=0 CELLSPACING=10>
 
+<TR>
 <TD WIDTH="30%" VALIGN=TOP>
 
 <TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
@@ -78,8 +79,26 @@ function short_header ($title) {
 <UL>
 <LI><A HREF="browser.phtml">Code Browser/IDE</A>
 </UL>
-
 </TD>
+</TR>
+
+<TR>
+<TD>
+   <DIV CLASS=footer>
+
+<P><SMALL>Copyright &copy; 1998-2002 Gwydion Dylan Maintainers. All rights
+reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
+HREF="http://www.apache.org/">Apache</A> on a machine running <A
+HREF="http://www.debian.org/">Debian Linux</A>. Graphics by the <A
+HREF="http://www.gimp.org/">GIMP</A>. [<A
+HREF="mailto:gd-hackers@gwydiondylan.org">Feedback</A>]</SMALL></P>
+
+</DIV>
+
+</TD></TR>
+</TABLE>
+
+
 
 <TD WIDTH="70%" VALIGN=TOP>
 
@@ -97,23 +116,7 @@ function standard_footer () {
 ?>
 </TD></TR>
 </TABLE>
-</TD>
 
-</TABLE>
-
-<DIV CLASS=footer>
-
-<P><SMALL>Copyright &copy; 1998-2002 Gwydion Dylan Maintainers. All rights
-reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
-HREF="http://www.apache.org/">Apache</A> on a machine running <A
-HREF="http://www.debian.org/">Debian Linux</A>. Graphics by the <A
-HREF="http://www.gimp.org/">GIMP</A>. [<A
-HREF="mailto:gd-hackers@gwydiondylan.org">Feedback</A>]</SMALL></P>
-
-</DIV>
-
-</TD></TR>
-</TABLE>
 
 </BODY>
 </HTML>
