@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mime-type-map>
+	<mime-type id="application/andrew-inset">
+		<extension>ez</extension>
+	</mime-type>
+	<mime-type id="application/mac-binhex40">
+		<extension>hqx</extension>
+	</mime-type>
+	<mime-type id="application/mac-compactpro">
+		<extension>cpt</extension>
+	</mime-type>
+	<mime-type id="application/mathml+xml">
+		<extension>mathml</extension>
+	</mime-type>
+	<mime-type id="application/msword">
+		<extension>doc</extension>
+	</mime-type>
+	<mime-type id="application/octet-stream">
+		<extension>bin</extension>
+		<extension>dms</extension>
+		<extension>lha</extension>
+		<extension>lzh</extension>
+		<extension>exe</extension>
+		<extension>class</extension>
+		<extension>so</extension>
+		<extension>dll</extension>
+		<extension>dmg</extension>
+	</mime-type>
+	<mime-type id="application/oda">
+		<extension>oda</extension>
+	</mime-type>
+	<mime-type id="application/ogg">
+		<extension>ogg</extension>
+	</mime-type>
+	<mime-type id="application/pdf">
+		<extension>pdf</extension>
+	</mime-type>
+	<mime-type id="application/postscript">
+		<extension>ai</extension>
+		<extension>eps</extension>
+		<extension>ps</extension>
+	</mime-type>
+	<mime-type id="application/rdf+xml">
+		<extension>rdf</extension>
+	</mime-type>
+	<mime-type id="application/smil">
+		<extension>smi</extension>
+		<extension>smil</extension>
+	</mime-type>
+	<mime-type id="application/srgs">
+		<extension>gram</extension>
+	</mime-type>
+	<mime-type id="application/srgs+xml">
+		<extension>grxml</extension>
+	</mime-type>
+	<mime-type id="application/vnd.mif">
+		<extension>mif</extension>
+	</mime-type>
+	<mime-type id="application/vnd.ms-excel">
+		<extension>xls</extension>
+	</mime-type>
+	<mime-type id="application/vnd.ms-powerpoint">
+		<extension>ppt</extension>
+	</mime-type>
+	<mime-type id="application/vnd.wap.wbxml">
+		<extension>wbxml</extension>
+	</mime-type>
+	<mime-type id="application/vnd.wap.wmlc">
+		<extension>wmlc</extension>
+	</mime-type>
+	<mime-type id="application/vnd.wap.wmlscriptc">
+		<extension>wmlsc</extension>
+	</mime-type>
+	<mime-type id="application/voicexml+xml">
+		<extension>vxml</extension>
+	</mime-type>
+	<mime-type id="application/x-bcpio">
+		<extension>bcpio</extension>
+	</mime-type>
+	<mime-type id="application/x-cdlink">
+		<extension>vcd</extension>
+	</mime-type>
+	<mime-type id="application/x-chess-pgn">
+		<extension>pgn</extension>
+	</mime-type>
+	<mime-type id="application/x-cpio">
+		<extension>cpio</extension>
+	</mime-type>
+	<mime-type id="application/x-csh">
+		<extension>csh</extension>
+	</mime-type>
+	<mime-type id="application/x-director">
+		<extension>dcr</extension>
+		<extension>dir</extension>
+		<extension>dxr</extension>
+	</mime-type>
+	<mime-type id="application/x-dvi">
+		<extension>dvi</extension>
+	</mime-type>
+	<mime-type id="application/x-futuresplash">
+		<extension>spl</extension>
+	</mime-type>
+	<mime-type id="application/x-gtar">
+		<extension>gtar</extension>
+	</mime-type>
+	<mime-type id="application/x-hdf">
+		<extension>hdf</extension>
+	</mime-type>
+	<mime-type id="application/x-javascript">
+		<extension>js</extension>
+	</mime-type>
+	<mime-type id="application/x-java-jnlp-file">
+		<extension>jnlp</extension>
+	</mime-type>
+	<mime-type id="application/x-koan">
+		<extension>skp</extension>
+		<extension>skd</extension>
+		<extension>skt</extension>
+		<extension>skm</extension>
+	</mime-type>
+	<mime-type id="application/x-latex">
+		<extension>latex</extension>
+	</mime-type>
+	<mime-type id="application/x-netcdf">
+		<extension>nc</extension>
+		<extension>cdf</extension>
+	</mime-type>
+	<mime-type id="application/x-sh">
+		<extension>sh</extension>
+	</mime-type>
+	<mime-type id="application/x-shar">
+		<extension>shar</extension>
+	</mime-type>
+	<mime-type id="application/x-shockwave-flash">
+		<extension>swf</extension>
+	</mime-type>
+	<mime-type id="application/x-stuffit">
+		<extension>sit</extension>
+	</mime-type>
+	<mime-type id="application/x-sv4cpio">
+		<extension>sv4cpio</extension>
+	</mime-type>
+	<mime-type id="application/x-sv4crc">
+		<extension>sv4crc</extension>
+	</mime-type>
+	<mime-type id="application/x-tar">
+		<extension>tar</extension>
+	</mime-type>
+	<mime-type id="application/x-tcl">
+		<extension>tcl</extension>
+	</mime-type>
+	<mime-type id="application/x-tex">
+		<extension>tex</extension>
+	</mime-type>
+	<mime-type id="application/x-texinfo">
+		<extension>texinfo</extension>
+		<extension>texi</extension>
+	</mime-type>
+	<mime-type id="application/x-troff">
+		<extension>t</extension>
+		<extension>tr</extension>
+		<extension>roff</extension>
+	</mime-type>
+	<mime-type id="application/x-troff-man">
+		<extension>man</extension>
+	</mime-type>
+	<mime-type id="application/x-troff-me">
+		<extension>me</extension>
+	</mime-type>
+	<mime-type id="application/x-troff-ms">
+		<extension>ms</extension>
+	</mime-type>
+	<mime-type id="application/x-ustar">
+		<extension>ustar</extension>
+	</mime-type>
+	<mime-type id="application/x-wais-source">
+		<extension>src</extension>
+	</mime-type>
+	<mime-type id="application/xhtml+xml">
+		<extension>xhtml</extension>
+		<extension>xht</extension>
+	</mime-type>
+	<mime-type id="application/xslt+xml">
+		<extension>xslt</extension>
+	</mime-type>
+	<mime-type id="application/xml">
+		<extension>xml</extension>
+		<extension>xsl</extension>
+	</mime-type>
+	<mime-type id="application/xml-dtd">
+		<extension>dtd</extension>
+	</mime-type>
+	<mime-type id="application/zip">
+		<extension>zip</extension>
+	</mime-type>
+	<mime-type id="audio/basic">
+		<extension>au</extension>
+		<extension>snd</extension>
+	</mime-type>
+	<mime-type id="audio/midi">
+		<extension>mid</extension>
+		<extension>midi</extension>
+		<extension>kar</extension>
+	</mime-type>
+	<mime-type id="audio/mpeg">
+		<extension>mpga</extension>
+		<extension>mp2 mp3</extension>
+	</mime-type>
+	<mime-type id="audio/x-aiff">
+		<extension>aif</extension>
+		<extension>aiff</extension>
+		<extension>aifc</extension>
+	</mime-type>
+	<mime-type id="audio/x-mpegurl">
+		<extension>m3u</extension>
+	</mime-type>
+	<mime-type id="audio/x-pn-realaudio">
+		<extension>ram</extension>
+		<extension>rm</extension>
+	</mime-type>
+	<mime-type id="audio/x-pn-realaudio-plugin">
+		<extension>rpm</extension>
+	</mime-type>
+	<mime-type id="audio/x-realaudio">
+		<extension>ra</extension>
+	</mime-type>
+	<mime-type id="audio/x-wav">
+		<extension>wav</extension>
+	</mime-type>
+	<mime-type id="chemical/x-pdb">
+		<extension>pdb</extension>
+	</mime-type>
+	<mime-type id="chemical/x-xyz">
+		<extension>xyz</extension>
+	</mime-type>
+	<mime-type id="image/bmp">
+		<extension>bmp</extension>
+	</mime-type>
+	<mime-type id="image/cgm">
+		<extension>cgm</extension>
+	</mime-type>
+	<mime-type id="image/gif">
+		<extension>gif</extension>
+	</mime-type>
+	<mime-type id="image/ief">
+		<extension>ief</extension>
+	</mime-type>
+	<mime-type id="image/jpeg">
+		<extension>jpeg</extension>
+		<extension>jpg</extension>
+		<extension>jpe</extension>
+	</mime-type>
+	<mime-type id="image/jp2">
+		<extension>jp2</extension>
+	</mime-type>
+	<mime-type id="image/pict">
+		<extension>pict</extension>
+		<extension>pic</extension>
+		<extension>pct</extension>
+	</mime-type>
+	<mime-type id="image/png">
+		<extension>png</extension>
+	</mime-type>
+	<mime-type id="image/svg+xml">
+		<extension>svg</extension>
+	</mime-type>
+	<mime-type id="image/tiff">
+		<extension>tiff</extension>
+		<extension>tif</extension>
+	</mime-type>
+	<mime-type id="image/vnd.djvu">
+		<extension>djvu</extension>
+		<extension>djv</extension>
+	</mime-type>
+	<mime-type id="image/vnd.wap.wbmp">
+		<extension>wbmp</extension>
+	</mime-type>
+	<mime-type id="image/x-cmu-raster">
+		<extension>ras</extension>
+	</mime-type>
+	<mime-type id="image/x-macpaint">
+		<extension>pntg</extension>
+		<extension>pnt</extension>
+		<extension>mac</extension>
+	</mime-type>
+	<mime-type id="image/x-icon">
+		<extension>ico</extension>
+	</mime-type>
+	<mime-type id="image/x-portable-anymap">
+		<extension>pnm</extension>
+	</mime-type>
+	<mime-type id="image/x-portable-bitmap">
+		<extension>pbm</extension>
+	</mime-type>
+	<mime-type id="image/x-portable-graymap">
+		<extension>pgm</extension>
+	</mime-type>
+	<mime-type id="image/x-portable-pixmap">
+		<extension>ppm</extension>
+	</mime-type>
+	<mime-type id="image/x-quicktime">
+		<extension>qtif</extension>
+		<extension>qti</extension>
+	</mime-type>
+	<mime-type id="image/x-rgb">
+		<extension>rgb</extension>
+	</mime-type>
+	<mime-type id="image/x-xbitmap">
+		<extension>xbm</extension>
+	</mime-type>
+	<mime-type id="image/x-xpixmap">
+		<extension>xpm</extension>
+	</mime-type>
+	<mime-type id="image/x-xwindowdump">
+		<extension>xwd</extension>
+	</mime-type>
+	<mime-type id="model/iges">
+		<extension>igs</extension>
+		<extension>iges</extension>
+	</mime-type>
+	<mime-type id="model/mesh">
+		<extension>msh</extension>
+		<extension>mesh</extension>
+		<extension>silo</extension>
+	</mime-type>
+	<mime-type id="model/vrml">
+		<extension>wrl</extension>
+		<extension>vrml</extension>
+	</mime-type>
+	<mime-type id="text/calendar">
+		<extension>ics</extension>
+		<extension>ifb</extension>
+	</mime-type>
+	<mime-type id="text/css">
+		<extension>css</extension>
+	</mime-type>
+	<mime-type id="text/html">
+		<extension>html</extension>
+		<extension>htm</extension>
+	</mime-type>
+	<mime-type id="text/plain">
+		<extension>asc</extension>
+		<extension>txt</extension>
+	</mime-type>
+	<mime-type id="text/richtext">
+		<extension>rtx</extension>
+	</mime-type>
+	<mime-type id="text/rtf">
+		<extension>rtf</extension>
+	</mime-type>
+	<mime-type id="text/sgml">
+		<extension>sgml</extension>
+		<extension>sgm</extension>
+	</mime-type>
+	<mime-type id="text/tab-separated-values">
+		<extension>tsv</extension>
+	</mime-type>
+	<mime-type id="text/vnd.wap.wml">
+		<extension>wml</extension>
+	</mime-type>
+	<mime-type id="text/vnd.wap.wmlscript">
+		<extension>wmls</extension>
+	</mime-type>
+	<mime-type id="text/x-setext">
+		<extension>etx</extension>
+	</mime-type>
+	<mime-type id="video/mp4">
+		<extension>mp4</extension>
+	</mime-type>
+	<mime-type id="video/mpeg">
+		<extension>mpeg</extension>
+		<extension>mpg</extension>
+		<extension>mpe</extension>
+	</mime-type>
+	<mime-type id="video/quicktime">
+		<extension>qt</extension>
+		<extension>mov</extension>
+	</mime-type>
+	<mime-type id="video/vnd.mpegurl">
+		<extension>mxu</extension>
+	</mime-type>
+	<mime-type id="video/x-dv">
+		<extension>dv</extension>
+		<extension>dif</extension>
+	</mime-type>
+	<mime-type id="video/x-msvideo">
+		<extension>avi</extension>
+	</mime-type>
+	<mime-type id="video/x-sgi-movie">
+		<extension>movie</extension>
+	</mime-type>
+	<mime-type id="x-conference/x-cooltalk">
+		<extension>ice</extension>
+	</mime-type>
+</mime-type-map>

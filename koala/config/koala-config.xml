@@ -41,6 +41,9 @@
 <port value="80" />
 
 
+<!-- location of the mime-type file -->
+<mime-type-map location="mime-type-map.xml" />
+
 <!-- unused as yet -->
 <administrator
    email="you@your.domain"
