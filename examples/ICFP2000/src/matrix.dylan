@@ -3,10 +3,15 @@ synopsis: utility functions missing from the matrix library
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
+//
+// Matrices are zero-based and addressed as matrix[row, column]
+//
+// We assumes matrices to be 4x4, and vectors to have size 4
 
 define constant make-matrix   = curry(make, <matrix>, dimensions: #[4,4]);
 define constant make-identity = curry(identity-matrix, dimensions: #[4,4]);
 
+define constant $origin = #[0.0, 0.0, 0.0, 1.0];
 
 define method \* (mat :: <matrix>, vector :: <vector>)
  => mult-vector :: <vector>;
@@ -40,12 +45,12 @@ end method;
 
 define method \+ (v1 :: <vector>, v2 :: <vector>)
  => (sum :: <vector>);
-  map(\+, v1, v2);
+  map(\+, homogenize(v1), homogenize(v2));
 end method;
 
 define method \- (v1 :: <vector>, v2 :: <vector>)
  => (difference :: <vector>);
-  map(\-, v1, v2);
+  map(\-, homogenize(v1), homogenize(v2));
 end method;
 
 define method print-object(mat :: <matrix>, stream :: <stream>)

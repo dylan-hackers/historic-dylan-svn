@@ -5,10 +5,10 @@ copyright: this program may be freely used by anyone, for any purpose
 
 define method get-tracer(o :: <obj>, ambient :: <color>, 
 			 lights :: <collection>) => (tracer)
-  local method tracer(pos, ray, depth)
+  local method tracer(ray, depth)
     if (depth > 0)
       let (point, normal, surf-color, surf-diffuse, surf-specular,
-	   surf-phong) = intersection-before(o, pos, ray, 1.0/0.0);
+	   surf-phong) = intersection-before(o, ray, 1.0/0.0);
       
       if (point)
 	/*	let reflection-color = 0;
@@ -49,8 +49,8 @@ define method render-image(o, depth :: <integer>, filename, ambient :: <color>,
 				  / as(<float>, width) * world-width;
       let world-y :: <float> = as(<float>, y - truncate/(height, 2))
 				  / as(<float>, height) * world-height;
-      let ray :: <vector> = vector(world-x, world-y, 0.0, 2.0) - $eye-pos; // XXX
-      write-pixel(canvas, trace($eye-pos, ray, depth));
+      let ray = make(<ray>, position: $eye-pos, direction: vector(world-x, world-y, 0.0, 1.0) - $eye-pos);
+      write-pixel(canvas, trace(ray, depth));
     end for;
   end for;
 

@@ -4,11 +4,16 @@ authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
 define function main(name, arguments)
-  let mat = identity-matrix(dimensions: #[4,4]);
+  let mat2 = identity-matrix(dimensions: #[4,4]);
+  let mat = matrix(#[1.0, 0.0, 0.0, 0.0],
+		    #[0.0, 1.0, 0.0, 0.25],
+		    #[0.0, 0.0, 1.0, 0.0],
+		    #[0.0, 0.0, 0.0, 1.0]);
+		    
   let vec = #[1.0, 2.0, 3.0, 4.0];
 
   format-out("%=\n%=\n%=\n", mat, vec, homogenize(vec));
-  format-out("%=\n%=\n%=\n", mat * vec, vec * mat, vec * vec);
+  format-out("%=\n%=\n%=\n", homogenize(mat * vec), vec * mat, vec * vec);
   
   format-out("parsing 3.141592654123456789e27 gives %=\n",
 	     atof("3.141592654123456789e27"));
