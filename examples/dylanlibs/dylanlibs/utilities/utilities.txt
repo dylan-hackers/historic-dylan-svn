@@ -1,0 +1,16 @@
+DylanLibs - Utility Libraries
+=============================
+
+Various libraries for performing common things.
+
+1) dynamic-library-protocol
+===========================
+Dylan Implementations: 
+  Functional Developer
+
+A library that exports a protocol allowing dynamic loading of Dylan
+libraries at runtime. See the dynamic-library examples.
+-- 
+Chris Double.  
+27 May 2001.
+

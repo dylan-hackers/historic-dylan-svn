@@ -76,7 +76,13 @@ Demonstrates using the double-base64 library..
 ==============
 Demonstrates using RG Softwares neural net DLL from Dylan. See the
 rgsoftware.txt file in that directory for more details.
+
+11) dynamic-loader
+==================
+Examples of using the dynamic-loader-protocol library to dynamically
+load Dylan code at runtime.
+
 -- 
 Chris Double.  
-20 May 2001.
+27 May 2001.
 
