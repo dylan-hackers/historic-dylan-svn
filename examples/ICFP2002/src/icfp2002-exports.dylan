@@ -79,13 +79,14 @@ define module command
   use utils;
   use streams;
   use print;
-  use board, import: { <point> };
+  use board;
 
   export
     $north,
     $south,
     $east,
     $west,
+    process-command,
     <direction>,
     <command>, bid, robot-id,
     <move>, direction,

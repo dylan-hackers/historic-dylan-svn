@@ -444,8 +444,6 @@ define function more-events?(s :: <stream>) => (r :: <boolean>)
   s.peek ~= '\n';
 end function more-events?;
 
-define generic process-server-command(state :: <state>, command :: <command>) => (state :: <state>);
-
 define function receive-server-command-reply(s :: <stream>, state :: <state>) => (state :: <state>)
   block()
     while(more-events?(s))
@@ -454,7 +452,7 @@ define function receive-server-command-reply(s :: <stream>, state :: <state>) =>
       while(more-commands?(s))
         let command = receive-server-command(s, id);
         debug("receive-server-command-reply: %d %=\n", id, command);
-        state := process-server-command(state, command);
+        state := process-command(state, command);
       end while;
     end while;
     receive-newline(s);
@@ -464,101 +462,3 @@ define function receive-server-command-reply(s :: <stream>, state :: <state>) =>
     add-error(e, "receive-server-command-reply failed");
   end;
 end function receive-server-command-reply;
-
-// Ignore commands I don't handle for now.
-define method process-server-command(state :: <state>, command :: <command>) => (state :: <state>)
-  state   
-end method process-server-command;
-
-define method process-server-command(state :: <state>, command :: <move>) => (state :: <state>)
-  let bot = find-robot(state, command.robot-id);
-  let old-location = bot.location;
-  let new-location =
-    select (command.direction)
-      $north => point(x: old-location.x,     y: old-location.y + 1);
-      $east  => point(x: old-location.x + 1, y: old-location.y);
-      $south => point(x: old-location.x,     y: old-location.y - 1);
-      $west  => point(x: old-location.x - 1, y: old-location.y);
-    otherwise => error("process-server-command: Can't happen!")
-  end select;
-  // For this bot, work through all the packages it carries and
-  // update it's location.
-  let ps = choose(method(p) p.carrier & p.carrier.id = bot.id end,
-                  state.packages);
-  for(p in ps)
-    state := add-package(state, copy-package(find-package(state, p.id), 
-                                             new-location: new-location));
-  end for;
-  let x = add-robot(state, copy-robot(bot, new-location: new-location));
-  x
-end method process-server-command;
-
-define method process-server-command(state :: <state>, command :: <pick>) => (state :: <state>)
-  let bot = find-robot(state, command.robot-id);
-  let loc = bot.location;
-  for(pid in command.package-ids)
-    state := add-package(state, copy-package(find-package(state, pid, create: #t), 
-					     new-location: loc, 
-					     new-carrier: bot));
-    state := add-robot(state, copy-robot(bot, new-inventory: add(bot.inventory, find-package(state, pid))));
-  end for;
-  state;
-end method process-server-command;
-
-define method process-server-command(state :: <state>, command :: <drop>)
- => (state :: <state>)
-  let loc = find-robot(state, command.robot-id).location;
-  for(pid in command.package-ids)
-    let p = find-package(state, pid, create: #t);
-    if (loc = p.dest) // We are at the destination, so kill the package
-      let packages* = remove(state.packages, p,
-                             test: method (p*, p) p*.id = p.id end method);
-      state := make(<state>,
-                    board: state.board,
-                    bases: state.bases,
-                    robots: state.robots,
-                    packages: packages*);
-    else // otherwise just put the package on the floor.
-      state := add-package(state, copy-package(p,
-                                               new-location: loc,
-                                               new-carrier: #f));
-    end if;
-    let bot = find-robot(state, command.robot-id);
-    let new-inventory = remove(bot.inventory, p,
-                               test: method (p*, p) p*.id = p.id end method);
-    let bot* = copy-robot(bot, new-inventory: new-inventory);
-    state := add-robot(state, bot*);
-  end for;
-  state;
-end method process-server-command;
-
-define method process-server-command(state :: <state>, command :: <transport>)
- => (state :: <state>)
-  if (robot-exists?(state, command.robot-id))
-    //  
-    // This bot is on our list, so we need to move it, and all of the
-    // packages it's carrying.
-    //
-    let bot :: <robot> = find-robot(state, command.robot-id);
-    let ps = choose(method(p) p.carrier.id = bot.id end, state.packages);
-    for(p in ps)
-      let moved-package :: <package> =
-        copy-package(find-package(state, p.id),
-                     new-location: command.transport-location);
-      state := add-package(state, moved-package);
-    end for;
-    add-robot(state, copy-robot(bot, new-location: command.transport-location));
-  else
-    // The robot isn't on our list, so it's a new robot that's just
-    // joined the game. We need to add it to the list, and update the
-    // world state. There's no need to frob with packages as above, because
-    // robots enter the world with no packages.
-    //
-    let new-bot :: <robot> = make(<robot>,
-                                  id: command.robot-id,
-                                  location: command.transport-location);
-    state := add-robot(state, new-bot);
-    //
-    state;
-  end if;
-end method process-server-command;
