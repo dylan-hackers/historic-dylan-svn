@@ -1,5 +1,6 @@
 #!/bin/sh
 if [ -f /usr/local/www/koala/.needs-rebuild ]; then
+	date
 	rm -f /usr/local/www/koala/.needs-rebuild
 	cd /usr/local/www/koala
 	cvs update -dP

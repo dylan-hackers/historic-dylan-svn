@@ -1,5 +1,6 @@
 #!/bin/sh
 if [ -f /usr/local/www/gdref/.needs-rebuild ]; then
+	date
 	rm -f /usr/local/www/gdref/.needs-rebuild
 	cd /usr/local/www/ref
 	cvs update -dP
