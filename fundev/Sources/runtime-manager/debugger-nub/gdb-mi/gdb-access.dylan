@@ -139,29 +139,27 @@ end;
 define macro mi-operation-definer
   // low-level definers
 
-  {define class-for mi-operation ?:name(?prim-sequence:*) end}
+  {define class-for-sequential mi-operation ?:name(?sequence-slot:*) end}
   =>
   {
     define class ?name ## "<mi-command>"(<mi-command>)
-      ?prim-sequence;
+      ?sequence-slot;
     end;
   }
 
-  {define creator-for mi-operation ?:name(?rest-sequence:*) end}
+  {define creator-for-sequential mi-operation ?:name(?rest-sequence, ?sequence-arg) end}
   =>
   {
-    define class ?name ## "<mi-command>"(<mi-command>)
-      ?prim-sequence;
-    end;
-  }
-
-  {define parser-for-seqential mi-operation ?:name(?parse-sequence, ?sequence-arg) end}
-  =>
-  {
-    define function ?name(?parse-sequence)
+    define function ?name(?rest-sequence)
       make(?name ## "<mi-command>", #"?name", ?sequence-arg)
     end;
   }
+
+  {define parser-for-sequential mi-operation ?:name(?parse-sequence:*) end}
+  =>
+  {
+  }
+
 
 
   // high-level definers
@@ -171,27 +169,24 @@ define macro mi-operation-definer
   {}
 
   // sequences of something
-  {define mi-operation ?:name((?sequence:*)) ?parses:* end}
+  { define mi-operation ?:name((?sequence:*)) ?parses:* end }
   =>
   {
-    define class-for mi-operation ?:name(?sequence) end
-    define creator-for-seqential mi-operation ?:name(?sequence, ?sequence) end
-///    define class ?name ## "<mi-command>"(<mi-command>)
-///      ?prim-sequence;
-///    end;
+    define class-for-sequential mi-operation ?name(?sequence) end;
+    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end
   }
 
   {define mi-operation ?:name(?:*) ?parses:* end}
   =>
   {}
   
-  prim-sequence:
-//    { ?:name :: ?:expression } => { #next ?name :: ?expression }
+  sequence-slot:
     { ?:name :: ?:expression }
     => { slot ?name :: limited(<vector>, of: ?expression), required-init-keyword: #"?name" }
 
   rest-sequence:
     { ?:name :: ?:expression } => { #rest ?name :: ?expression }
+
   sequence-arg:
     { ?:name :: ?:expression } => { ?name }
 end;
