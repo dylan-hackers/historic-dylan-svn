@@ -39,8 +39,10 @@ define terrain <space> '.' end;
 
 define inline function passable?(b :: <board>, p :: <point>)
  => (passable :: <boolean>);
-  let ch :: <character> = b[p.y][p.x];
-  ch == '.' | ch == '@';
+  let ch :: <terrain> = b[p.y, p.x];
+  instance?(ch, <space>) | instance?(ch, <base>);
+//  let ch :: <character> = b[p.y, p.x];
+//  ch == '.' | ch == '@';
 end;
 
 define inline function width(b :: <board>) => w :: <coordinate>;
