@@ -62,7 +62,7 @@ end;
 
 
 define method optimizable-two(token1, token2, more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-//  debug-print("ееее1еее %= %= %= %= %= ", token1, token2, more.head, more.tail, suppress-closure);
+//  debug-print("####1### %= %= %= %= %= ", token1, token2, more.head, more.tail, suppress-closure);
   optimizable-three(token1, token2, more.head, more.tail, suppress-closure, orig: orig)
 end;
 
@@ -82,7 +82,7 @@ end;
 // optimize #"point"
 
 define method optimizable-three(token1 :: <fp>, token2 :: <fp>, token3 :: <fp>, more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-    debug-print("ееее2еее");
+    debug-print("####2###");
 
   if (more.head == #"point")
     pair(make(<point>, x: token1, y: token2, z: token3), more.tail)
