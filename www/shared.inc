@@ -68,9 +68,11 @@ Dylan Websites</A>
 
 <P><STRONG>User Resources</STRONG></P>
 <UL>
+<LI>Current Limitations
 <LI><A HREF="downloading.phtml">Downloading Software</A>
-<LI><A HREF="gdref.phtml">Documentation</A>
 <LI><A HREF="lists.phtml">Mailing Lists</A>
+<LI><A HREF="learning.phtml">Learning Dylan</A>
+<LI><A HREF="gdref.phtml">Documentation</A>
 <LI><A HREF="http://www.randomhacks.com/cgi-bin/fom">FAQ-O-Matic</A>
 </UL>
 
@@ -85,7 +87,7 @@ Dylan Websites</A>
 <P><STRONG>Wishlist</STRONG></P>
 <UL>
 <LI><A HREF="shared-libs.phtml">Shared Libraries</A>
-<LI><A HREF="browser.phtml">GNU Dylan Browser!</A>
+<LI><A HREF="browser.phtml">Code Browser/IDE</A>
 </UL>
 
 </TD></TR>
