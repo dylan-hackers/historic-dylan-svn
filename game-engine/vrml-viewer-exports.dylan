@@ -30,6 +30,7 @@ define module vrml-model
   use common-dylan;
   use transcendentals;
   use vector-math;
+  use format-out;
   
   export
     <node>,

@@ -259,6 +259,7 @@ define method main(progname, #rest arguments)
 
 //  glEnable($GL-AUTO-NORMAL);
 //  glEnable($GL-NORMALIZE);
+  glEnable($GL-RESCALE-NORMAL);
 
 //  glCullFace($GL-BACK);
 //  glFrontFace($GL-CW);

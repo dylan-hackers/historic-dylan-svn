@@ -20,7 +20,8 @@ end method render-to-opengl;
 define method render-to-opengl(transform :: <transform>)
   local 
     method gl-rotate*(v :: <vector>)
-      glRotate(s(v[3]), s(v[0]), s(v[1]), s(v[2]));
+      glRotate(v[3], v[0], v[1], v[2]);
+//      format-out("glRotate(%=);\n", v);
     end method gl-rotate*;
   glPushMatrix();
   transform.translation & apply(glTranslate, transform.translation);
@@ -30,7 +31,7 @@ define method render-to-opengl(transform :: <transform>)
                         & gl-rotate*        (transform.scale-orientation);
   transform.scale       & apply(glScale,     transform.scale);
   transform.scale-orientation 
-                        & gl-rotate*        (transform.scale-orientation * - 1);
+                        & gl-rotate*        (transform.scale-orientation * -1);
   transform.center      & apply(glTranslate, transform.center * -1);
   next-method();
   glPopMatrix();

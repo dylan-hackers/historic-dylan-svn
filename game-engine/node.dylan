@@ -59,9 +59,8 @@ define method initialize(ifs :: <indexed-face-set>, #key, #all-keys)
         for(k in adjoining-faces)
           sum := sum + ifs.face-normals[k];
         end for;
-        sum := sum / (adjoining-faces.size + 1);
           
-        ifs.vertex-normals[i][j] := sum;
+        ifs.vertex-normals[i][j] := normalize(sum);
       end for;
     end for;
   end unless;
