@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.37 2002/08/10 18:31:50 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.38 2002/08/10 19:59:09 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -156,11 +156,38 @@ end method evaluate;
 define generic fer-evaluate(region :: <region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
 
+define macro fer-evaluator-definer
+  {
+    define fer-evaluator ?region:name(?environment:name)
+      ?:body
+    end
+  }
+  =>
+  {
+    define method fer-evaluate(?region :: "<" ## ?region ## ">", ?environment :: <interpreter-environment>)
+     => ?environment :: <interpreter-environment>;
+      ?body
+    end;
+  }
+end macro fer-evaluator-definer;
+
 define class <exit-condition>(<condition>)
   constant slot exit-block :: <block-region-mixin>, required-init-keyword: block:;
   constant slot exit-environment :: <interpreter-environment>, required-init-keyword: environment:;
 end class <exit-condition>;
 
+
+define fer-evaluator block-region(environment)
+  block ()
+    fer-evaluate(block-region.body, environment)
+  exception (exit :: <exit-condition>, test: method(exit :: <exit-condition>)
+                                               exit.exit-block == block-region
+                                             end method)
+    exit.exit-environment;
+  end block
+end;
+
+/*
 define method fer-evaluate(block-region :: <block-region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   block ()
@@ -171,7 +198,17 @@ define method fer-evaluate(block-region :: <block-region>, environment :: <inter
     exit.exit-environment;
   end block
 end;
+*/
 
+
+define fer-evaluator loop-region(environment)
+  local method repeat(environment :: <interpreter-environment>)
+      repeat(fer-evaluate(loop-region.body, environment))
+    end method;
+  repeat(environment);
+end loop-region;
+
+/*
 define method fer-evaluate(loop :: <loop-region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   local method repeat(environment :: <interpreter-environment>)
@@ -179,18 +216,29 @@ define method fer-evaluate(loop :: <loop-region>, environment :: <interpreter-en
     end method;
   repeat(environment);
 end;
+*/
 
+define fer-evaluator exit(environment)
+  signal(make(<exit-condition>, block: exit.block-of, environment: environment));
+end exit;
+
+/*
 define method fer-evaluate(exit :: <exit>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   signal(make(<exit-condition>, block: exit.block-of, environment: environment));
 end;
+*/
 
+define fer-evaluator simple-region(environment)
+  fer-gather-assigns-bindings(simple-region.first-assign, environment);
+end;
 
-
+/*
 define method fer-evaluate(simple :: <simple-region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   fer-gather-assigns-bindings(simple.first-assign, environment);
 end;
+*/
 
 define class <return-condition>(<exit-condition>)
   constant slot exit-result :: <ct-value>, required-init-keyword: result:;
@@ -207,19 +255,45 @@ define method fer-evaluate(func :: <function-region>, environment :: <interprete
 end;
 */
 
+define fer-evaluator return(environment)
+  signal(make(<return-condition>, block: return.block-of,
+				  result: evaluate(return.depends-on.source-exp, environment),
+				  environment: environment));
+end;
+
+/*
 define method fer-evaluate(return :: <return>, environment :: <interpreter-environment>)
  => environment :: <never-returns>;
   signal(make(<return-condition>, block: return.block-of,
 				  result: evaluate(return.depends-on.source-exp, environment),
 				  environment: environment));
 end;
+*/
 
-define method fer-evaluate(compound :: <compound-region>, environment :: <interpreter-environment>)
+define fer-evaluator compound-region(environment)
+  let regions = compound-region.regions;
+  fer-evaluate-regions(regions.head, regions.tail, environment)
+end;
+
+/*define method fer-evaluate(compound :: <compound-region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   let regions = compound.regions;
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
+*/
 
+define fer-evaluator if-region(environment)
+  let test-value
+    = evaluate(if-region.depends-on.source-exp,
+                              environment);
+  if(test-value == as(<ct-value>, #f))
+    fer-evaluate(if-region.else-region, environment);
+  else
+    fer-evaluate(if-region.then-region, environment);
+  end if;
+end;
+
+/**
 define method fer-evaluate(the-if :: <if-region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   let test-value
@@ -230,7 +304,7 @@ define method fer-evaluate(the-if :: <if-region>, environment :: <interpreter-en
   else
     fer-evaluate(the-if.then-region, environment);
   end if;
-end;
+end;*/
 
 // ########## fer-evaluate-regions ##########
 define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <interpreter-environment>)
