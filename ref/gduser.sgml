@@ -1,4 +1,4 @@
-<!DOCTYPE Book PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
+<!DOCTYPE BOOK PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
 ]>
@@ -11,41 +11,12 @@
       <HOLDER>Carnegie Mellon University</HOLDER>
       <HOLDER>Gwydion Dylan Maintainers</HOLDER>
     </COPYRIGHT>
-    <LEGALNOTICE>
-      <PARA>Use and copying of this software and preparation of
-      derivative works based on this software are permitted, including
-      commercial use, provided that the following conditions are
-      observed: </PARA>
-      
-      <ITEMIZEDLIST>
-	<LISTITEM>
-	  <PARA>This copyright notice must be retained in full on any
-          copies and on appropriate parts of any derivative
-          works. </PARA>
-	</LISTITEM>
-	
-	<LISTITEM>
-	  <PARA>Documentation (paper or online) accompanying any
-          system that incorporates this software, or any part of it,
-          must acknowledge the contribution of the Gwydion Project at
-          Carnegie Mellon University.</PARA>
-	</LISTITEM>
-      </ITEMIZEDLIST>
-      
-      <PARA>This software is made available "as is". Neither the
-      authors nor Carnegie Mellon University make any warranty about
-      the software, its performance, or its conformity to any
-      specification. </PARA>
-      
-      <PARA>Bug reports, questions, comments, and suggestions should
-      be sent by E-mail to the Internet address
-      <EMAIL>gd-bugs@randomhacks.com</EMAIL>.</PARA>
-    </LEGALNOTICE>
+    &cmu.terms;
     <bookbiblio>
       <title>Gwydion Dylan User's Guide</title>
       <titleabbrev>User's Guide</titleabbrev>
       <date>09 September 1998</date>
-      &editor.housel;
+      <editor>&person.housel;</editor>
     </bookbiblio>
   </bookinfo>
 
@@ -146,7 +117,16 @@
     <SECT1 ID="gduser-supported-systems">
       <TITLE>Supported Systems</TITLE>
 
-      <PARA></PARA>
+      <PARA>As of the current writing, Gwydion Dylan supports several
+      flavors of Unix-like systems, including GNU/Linux (on x86 and PowerPC
+      machines), FreeBSD, and Solaris. Other systems are supported but not
+      current, including Windows NT and several varieties of Unix. Binary
+      packages are available for a wide range of Linux
+      distributions. Bringing an ignored port up to date requires one or
+      more recompilations. Creating a new port requires several days to a
+      few weeks of work, and a familiarity with both Dylan and the target
+      system.
+      </PARA>
     </SECT1>
 
     <SECT1 ID="gduser-rpm-installation">
@@ -189,9 +169,93 @@
     <PARA>This chapter describes the Gwydion Dylan-to-C compiler,
     &d2c;.</PARA>
 
+    <sect1 id="gduser-getting-started">
+      <title>Getting Started with &d2c;</title>
+
+      <para>This section explains the structure of a simple Dylan program,
+      and shows how to use &d2c;</para>
+
+      <SECT2 ID="gduser-program-structure">
+	<TITLE>Structure of a Simple Dylan Program</TITLE>
+	
+	<PARA>A Dylan program currently consists of several files. These
+        are the Library Interchange Definition (or <Acronym/LID/) file, the
+        inport/exports file, and one or more source files. For the time
+        being, it is not possible to compile a standalone source
+        file.</para>
+      
+	<para>The <acronym>LID</acronym> file instructs the compiler how to
+        build a Dylan library or application. It includes a list of source
+        files, compiler options and other descriptive information. It can
+        be identified by the file name extenion
+        <literal>lid</literal>.</para>
+
+        <para>A second file lists all the function and variable names
+        imported and exported by the program. This generally ends in
+        <literal/-exports.dylan/ or <literal/-library.dylan/. Technically,
+        this file consists of Dylan source code, but it almost never
+        contains any declarations but <literal/define library/ or
+        <literal/define module/.</para>
+
+        <para>Other files end in the extension <literal/dylan/ and contain
+        the actual Dylan source code.</para>
+      </SECT2>
+
+      <SECT2 ID="gduser-make-dylan-app">
+	<TITLE>Using <command>make-dylan-app</command></TITLE>
+
+	<para>Because &d2c; requires such a complex set of files for even a
+         simple program, it's usually best to take advantage of the program
+         <Command/make-dylan-app/ to create a new application. To use this,
+         <command/cd/ to an appropriate directory and type
+         <command>make-dylan-app <parameter/program-name/</command>. This
+         will create a new directory containing a simple program which uses
+         a set of libraries useful for a command line utility.</para>
+      </sect2>
+
+      <sect2 id="gduser-hello-world">
+	<title>A Sample Program</title>
+
+	<para>Create a new program called <literal/hello/ by running
+	the command <command/make-dylan-app hello/. This will create
+	a new directory named <filename/hello/.</para>
+
+	<para>Open up the file <filename>hello/hello.dylan</filename> and
+	fill in reasonable values for the <literal/author:/ and
+	<literal/copyright:/ keywords. Add a line to the <literal/main/
+	function to print <quote/Hello world!/ to standard output:</para>
+
+<ProgramListing>
+library: hello
+module: hello
+author: J. Random Hacker &lt;jrandom@randomhacks.com&gt;
+copyright: Copyright 1998, J. Random Hacker
+
+define method main(appname, #rest arguments)
+  // insert code here ...
+  format(*standard-output*, "Hello world!\n");
+
+  // XXX - This is temporary, and only here because of bugs in
+  // the compiler and runtime environment.
+  force-output(*standard-error*);
+  force-output(*standard-output*);
+  exit(exit-code: 0);
+end method main;
+</ProgramListing>
+
+	<para>To compile the program, type <command/d2c hello.lid/. This
+	will take slightly too long and create an enormous <command/hello/
+	binary in the current directory. The actual code size for program
+	itself is a few kilobytes; the rest is a statically linked copy of
+	most of the major Dylan libraries included with d2c. Future work on
+	the compiler will implement shared libraries and cut executables
+	down to size.</para>
+      </sect2>
+    </sect1>
+
     <SECT1 ID="gduser-working-with-lid">
       <TITLE>Working with LID (Library Interchange Definition) Files</TITLE>
-
+      
       <PARA>As described in the DRM, in the Dylan language the basic
       unit of compilation is the library.  FIXME more to say about this.</PARA>
 
@@ -308,7 +372,7 @@
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.2 1998/09/16 06:46:52 emk Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.3 1998/09/16 21:57:40 emk Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
@@ -434,7 +498,7 @@ Compile Time Constants
       <titleabbrev>Melange</titleabbrev>
       <date>04 June 1997</date>
       <authorgroup>
-	  &author.rstockton;
+	  <author>&person.rstockton;</author>
       </authorgroup>
     </DOCINFO>
 

@@ -1,33 +1,22 @@
 .PHONY: all snap clean distclean reallyclean
 
-all: gduser gdlibs gdmaint tutorial gdc
+MANUALS = gduser gdlibs gdmaint tutorial
+
+all: $(MANUALS)
 
 snap: distclean
 	(cd ..; tar czvf gdref-0.1.`date +%Y%m%d`.tar.gz gdref)
 
 clean:
-	rm -rf gduser
-	rm -rf gdlibs
-	rm -rf gdmaint
-	rm -rf tutorial
-	rm -rf gdc
+	rm -rf $(MANUALS)
 	rm -f *.ps *.eps
+	rm -rf *.junk db2html-dir
 
 distclean: clean
 	rm -f *~
 
 reallyclean: distclean
 
-%: %.sgml
+%: %.sgml entities.sgml
 	rm -rf $@
 	db2html $<
-
-gduser: gduser.sgml entities.sgml
-
-gdlibs: gdlibs.sgml entities.sgml
-
-gdmaint: gdmaint.sgml entities.sgml
-
-tutorial: tutorial.sgml entities.sgml
-
-gdc: gdc.sgml entities.sgml

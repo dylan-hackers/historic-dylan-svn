@@ -11,41 +11,12 @@
       <HOLDER>Carnegie Mellon University</HOLDER>
       <HOLDER>Gwydion Dylan Maintainers</HOLDER>
     </COPYRIGHT>
-    <LEGALNOTICE>
-      <PARA>Use and copying of this software and preparation of
-      derivative works based on this software are permitted, including
-      commercial use, provided that the following conditions are
-      observed: </PARA>
-      
-      <ITEMIZEDLIST>
-	<LISTITEM>
-	  <PARA>This copyright notice must be retained in full on any
-          copies and on appropriate parts of any derivative
-          works. </PARA>
-	</LISTITEM>
-	
-	<LISTITEM>
-	  <PARA>Documentation (paper or online) accompanying any
-          system that incorporates this software, or any part of it,
-          must acknowledge the contribution of the Gwydion Project at
-          Carnegie Mellon University.</PARA>
-	</LISTITEM>
-      </ITEMIZEDLIST>
-      
-      <PARA>This software is made available "as is". Neither the
-      authors nor Carnegie Mellon University make any warranty about
-      the software, its performance, or its conformity to any
-      specification. </PARA>
-      
-      <PARA>Bug reports, questions, comments, and suggestions should
-      be sent by E-mail to the Internet address
-      <EMAIL>gd-bugs@randomhacks.com</EMAIL>.</PARA>
-    </LEGALNOTICE>
+    &cmu.terms;
     <bookbiblio>
       <title>Gwydion Dylan Porting and Maintenance Guide</title>
       <titleabbrev>Maintenance Guide</titleabbrev>
       <date>09 September 1998</date>
-      &editor.housel;
+      <editor>&person.housel;</editor>
     </bookbiblio>
   </bookinfo>
 

@@ -12,7 +12,7 @@
       <Title>Getting Started with &dylan;</Title>
       <TitleAbbrev>Dylan Tutorial</TitleAbbrev>
       <AuthorGroup>
-	&author.emk;
+	<Author>&person.emk;</Author>
       </AuthorGroup>
 
       <Abstract id="abstract">
