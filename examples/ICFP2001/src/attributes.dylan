@@ -187,6 +187,23 @@ define inline method maximum-cost(a :: <attribute>)
   total-cost;
 end method maximum-cost;
 
+define inline method maximum-transition-cost(a :: <attribute>, b :: <attribute>)
+ => total-cost :: <integer>;
+  let total-cost :: <integer> = 0;
+  if(~a.bold & b.bold) total-cost := total-cost + tag-B.cost end;
+  if(~a.italic & b.italic) total-cost := total-cost + tag-I.cost end;
+  if(~a.emphasis & b.emphasis) total-cost := total-cost + tag-EM.cost end;
+  if(~a.strong & b.strong) total-cost := total-cost + tag-S.cost end;
+  if(~a.typewriter & b.typewriter) total-cost := total-cost + tag-TT.cost end;
+  if(a.underline < b.underline)
+    total-cost := total-cost + (b.underline - a.underline) * tag-U.cost;
+  end if;
+  if(a.font-size ~= b.font-size) total-cost := total-cost + tag-0.cost end;
+  if(a.color ~= b.color) total-cost := total-cost + tag-r.cost end;
+  total-cost := total-cost + tag-PL.cost;
+  total-cost;
+end method maximum-transition-cost;
+
 define method print-object(a :: <attribute>, stream :: <stream>)
  => ();
   format(stream, "attribute {val=%=, B=%=, EM=%=, I=%=, S=%=, TT=%=, ",

@@ -303,7 +303,16 @@ define function main(name, arguments)
     debug("Generating output.\n");
     generate-output(parse-tree).concatenate-strings.see-if-best;
     debug("Generating optimized output.\n");
-    generate-optimized-output(parse-tree).concatenate-strings.see-if-best;
+    let exhausted = #f;
+    let i = 0;
+    while(~exhausted)
+      let (string, done) =
+        generate-optimized-output(parse-tree, run: i);
+      string.concatenate-strings.see-if-best;
+      exhausted := done;
+      i := i + 1;
+    end while;
+      
 //    optimize-output(parse-tree).concatenate-strings.see-if-best;
 
   exception (<timeout>)

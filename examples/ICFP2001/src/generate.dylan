@@ -55,8 +55,8 @@ define method generate-output(input :: <stretchy-object-vector>)
   reverse!(state.output-tokens);
 end method generate-output;
 
-define method generate-optimized-output(input :: <stretchy-object-vector>)
- => strings :: <list>;
+define method generate-optimized-output(input :: <stretchy-object-vector>, #key run = 0)
+ => (strings :: <list>, exhausted :: <boolean>);
   let state = make(<generator-state>, text-runs: input);
   local
     method finished? (x :: <generator-state>) => result :: <boolean>;
@@ -66,16 +66,20 @@ define method generate-optimized-output(input :: <stretchy-object-vector>)
     method successor-states (x) => states;
       apply(concatenate, map(generate-next-run, x));
     end method successor-states;
+  local 
+    method cost-order (x :: <generator-state>, y :: <generator-state>)
+      if(x.maximum-cost == y.maximum-cost)
+        maximum-transition-cost(x.from, x.to) < maximum-transition-cost(y.from, y.to);
+      else
+        x.maximum-cost < y.maximum-cost;
+      end if;
+    end method cost-order;
               
-  let result-states = #();
-  let beam-width = 10;
-  while(result-states = #())
+  let beam-width = 10 * 2 ^ run;
     debug("Beam width: %=\n", beam-width);
-    result-states := beam-search(state, successor-states, maximum-cost, finished?, beam-width: beam-width);
-    beam-width := beam-width * 2;
-  end while;
+  let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width);
 
-  reverse!(result-states.head.output-tokens);
+  values(reverse!(result-states.head.output-tokens), exhausted);
 end method generate-optimized-output;
 
 // returns all states reachable by popping, including itself (no pop)
