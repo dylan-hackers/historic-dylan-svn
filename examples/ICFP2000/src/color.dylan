@@ -40,12 +40,34 @@ define method export-with-depth(c :: <color>, depth :: <integer>)
 end method export-with-depth;
 
 define method \* (c :: <color>, x :: <number>)
- => (scaled_c :: <color>)
+ => (scaled-color :: <color>)
   make(<color>, 
        red:   clamp(c.red   * x),
        green: clamp(c.green * x),
        blue:  clamp(c.blue  * x));
 end method;
+
+define method \* (x :: <number>, c :: <color>)
+ => (scaled-color :: <color>)
+  c * x;
+end method;
+
+define method \* (c1 :: <color>, c2 :: <color>)
+ => (subtractive :: <color>)
+  make(<color>,
+         red: c1.red * c2.red,
+         green: c1.green * c2.green,
+         blue: c1.blue * c2.blue
+       );
+end method;
+
+define method \+ (c1 :: <color>, c2 :: <color>)
+    make(<color>, 
+       red:   clamp(c1.red   + c2.red),
+       green: clamp(c1.green + c2.green),
+       blue:  clamp(c1.blue  + c2.blue));
+end method;
+
 
 define class <surface> (<object>)
   slot color, init-keyword: color:, init-value: make(<color>, red: 1.0, green: 1.0, blue: 1.0);
@@ -92,6 +114,6 @@ end method silly-texture;
 define method red-texture(surface-id, u, v)
  => (color, diffusion, specular, phong-exp)
   values(make(<color>, red: 1.0, green: 0.0, blue: 0.0), 
-	 1.0, 0.0, 0.0);
+	 1.0, 0.5, 0.5);
 end method red-texture;
 
