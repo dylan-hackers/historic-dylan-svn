@@ -132,21 +132,21 @@
       <PARA>In the process of working with Dylan, the Gwydion Project
       has come up with numerous extensions to the Dylan language. Some
       of them form entire libraries, like the
-      <dlibrary>Collection-Extensions</dlibrary> and
-      <dlibrary>String-Extensions</dlibrary> libraries. Others have
-      been added to the <dlibrary>Dylan</dlibrary> library, in such
-      modules as <dmodule>Extensions</dmodule> and
-      <dmodule>System</dmodule>.</PARA>
+      <DLIBRARY>Collection-Extensions</DLIBRARY> and
+      <DLIBRARY>String-Extensions</DLIBRARY> libraries. Others have
+      been added to the <DLIBRARY>Dylan</DLIBRARY> library, in such
+      modules as <DMODULE>Extensions</DMODULE> and
+      <DMODULE>System</DMODULE>.</PARA>
       
       <PARA>We continue to make no claims about future support for our
       extensions. However, some extensions are more likely than others
       to make it into our future compilers. This file documents those
       extensions which we think will be included in our compiler's
-      <dlibrary>Dylan</dlibrary> library.</PARA>
+      <DLIBRARY>Dylan</DLIBRARY> library.</PARA>
       
       <PARA>Extensions which go in separate libraries are documented
       in their own files; extensions which are part of the Mindy
-      <dlibrary>Dylan</dlibrary> library but which have a less certain
+      <DLIBRARY>Dylan</DLIBRARY> library but which have a less certain
       future are documented in the Mindy documentation.</PARA>
 
       <PARA>For the remainder of this chapter, we shall refer to
@@ -162,27 +162,28 @@
     <SECT1 id="libs-dylan-modules">
       <TITLE>Modules of the Dylan Library</TITLE>
       
-      <PARA>In addition to containing the <dmodule>Dylan</dmodule>
-      module, the <dlibrary>Dylan</dlibrary> library contains a
+      <PARA>In addition to containing the <DMODULE>Dylan</DMODULE>
+      module, the <DLIBRARY>Dylan</DLIBRARY> library contains a
       variety of modules which provide extensions. Gwydion compilers
-      export the following modules from the <dlibrary>Dylan</dlibrary>
+      export the following modules from the <DLIBRARY>Dylan</DLIBRARY>
       library:</PARA>
 
       <VARIABLELIST>
 	<VARLISTENTRY>
-	  <TERM>Extensions</TERM>
+	  <TERM><DMODULE>Extensions</DMODULE></TERM>
 	  <LISTITEM>
 	    <PARA>This module exports useful extensions to the Dylan
-            language (see <XREF LINKEND="libs-dylan-extensions">).
-            Ultimately, there will be several, more logically separate
-            libraries that extend Dylan or provide an application
-            framework for users. For now, we put any commonly used
-            utilities in the Extensions module.</PARA>
+	    language (see <XREF LINKEND="libs-dylan-extensions">).
+	    Ultimately, there will be several, more logically separate
+	    libraries that extend Dylan or provide an application
+	    framework for users. For now, we put any commonly used
+	    utilities in the <DMODULE>Extensions</DMODULE>
+	    module.</PARA>
 	  </LISTITEM>
 	</VARLISTENTRY>
 
 	<VARLISTENTRY>
-	  <TERM>System</TERM>
+	  <TERM><DMODULE>System</DMODULE></TERM>
 	  <LISTITEM>
 	    <PARA>This module exports an interface to operating system
             calls and special, low-level functionality (see <XREF
@@ -191,7 +192,7 @@
 	</VARLISTENTRY>
 
 	<VARLISTENTRY>
-	  <TERM>Introspection</TERM>
+	  <TERM><dmodule>Introspection</dmodule></TERM>
 	  <LISTITEM>
 	    <PARA>This module exports reflective operations for
 	    examining classes, functions, and so on.</PARA>
@@ -199,7 +200,7 @@
 	</VARLISTENTRY>
 
 	<VARLISTENTRY>
-	  <TERM>Cheap-io</TERM>
+	  <TERM><dmodule>Cheap-io</dmodule></TERM>
 	  <LISTITEM>
 	    <PARA>This module exports some basic, unextendable input
 	    and output functionality.</PARA>
@@ -209,20 +210,21 @@
     </SECT1>
 
     <SECT1 id="libs-dylan-dylan">
-      <TITLE>The Dylan Module</TITLE>
+      <TITLE>The <dmodule>Dylan</dmodule> Module</TITLE>
 
-      <PARA>Whenever possible, we have tried to keep the Dylan module
-      pristine and unextended, prefering to add our extensions to
-      separate modules or libraries. However, this is not always
-      possible, particularly when it involves extending the behavior
-      of a function or macro that is exported from the Dylan
+      <PARA>Whenever possible, we have tried to keep the
+      <dmodule>Dylan</dmodule> module pristine and unextended,
+      prefering to add our extensions to separate modules or
+      libraries. However, this is not always possible, particularly
+      when it involves extending the behavior of a function or macro
+      that is exported from the <dmodule>Dylan</dmodule>
       module. Currently, Gwydion compilers support these extensions to
       the Dylan module as described below:</PARA>
 
       <ITEMIZEDLIST>
 	<LISTITEM>
-	  <PARA>Gwydion compilers support <LITERAL>keyed-by</LITERAL>
-	  clauses in <LITERAL>for</LITERAL> statements.  The format of
+	  <PARA>Gwydion compilers support <dlit>keyed-by</dlit>
+	  clauses in <dlit>for</dlit> statements.  The format of
 	  such a clause is</PARA>
 
 	  <SYNOPSIS><PARAMETER>var</PARAMETER> keyed-by <PARAMETER>key</PARAMETER> in <PARAMETER>collection</PARAMETER></SYNOPSIS>
