@@ -1,6 +1,6 @@
-local($common);
-
 if (!$enable_bootstrap || $enable_mindy_bootstrap) {
+    do install_from_src($includedir, "runtime.h");
+    
     if ($host_name eq $target_name) {
 	do compile_subdirs('c-code');
     };
@@ -9,20 +9,17 @@ if (!$enable_bootstrap || $enable_mindy_bootstrap) {
 		       'melange',
 #		       'c-ffi',
 		       'garbage-collection',
-		       '../../common/transcendental',
-		       'random',
-		       '../../common/threads',
-		       '../../common/table-ext',
-		       '../../common/common-dylan',
-		       '../../common/collection-extensions',
-		       '../../common/string-ext',
-		       '../../common/regular-expressions',
-		       '../../common/io',
-		       '../../common/system',
-		       '../../common/getopt',
-		       '../../common/stream-ext');
-
-    do install_from_src($includedir, "runtime.h");
-} else {
-    do compile_subdirs('random');
+		       '../../common/transcendental');
 }
+
+do compile_subdirs('random',
+		   '../../common/threads',
+		   '../../common/table-ext',
+		   '../../common/common-dylan',
+		   '../../common/collection-extensions',
+		   '../../common/string-ext',
+		   '../../common/regular-expressions',
+		   '../../common/io',
+		   '../../common/system',
+		   '../../common/getopt',
+		   '../../common/stream-ext');
