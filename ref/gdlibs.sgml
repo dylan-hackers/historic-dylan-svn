@@ -7522,6 +7522,11 @@ log(100000, base: 10) => 5.0
 	  </para>
 	</listitem>
       </itemizedlist>
+      <para>
+        See <xref linkend="libs-format-example-using-m-complex">,
+        which demonstrates using these time-formatting commands to
+        display time in a human-readable format.
+      </para>
     </sect1>
   </CHAPTER>
 
