@@ -93,8 +93,13 @@ define graphics-primitive cube(surf :: <function>)
   make(<cube>, surface-function: surf);
 end;
 
-define graphics-primitive cone() error("No cones yet!") end;
-define graphics-primitive cylinder() error("No cylinders yet!") end;
+define graphics-primitive cone(surf :: <function>)
+  make(<cone>, surface-function: surf);
+end;
+
+define graphics-primitive cylinder(surf :: <function>) 
+  make(<cylinder>, surface-function: surf);
+end;
 
 // Transformations: 
 define graphics-primitive rotatex(o :: <obj> => theta :: <fp>)
@@ -193,6 +198,11 @@ define graphics-primitive union(o1 :: <obj> => o2 :: <obj>)
   make(<csg-union>, of: vector(o1, o2));
 end;
 
-define graphics-primitive difference() error("You write it!") end;
-define graphics-primitive intersect() error("You write it!")  end;
+define graphics-primitive difference(o1 :: <obj> => o2 :: <obj>) 
+  o1;
+end;
+
+define graphics-primitive intersect(o1 :: <obj> => o2 :: <obj>)
+  o1;
+end;
 
