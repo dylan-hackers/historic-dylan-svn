@@ -1,4 +1,6 @@
 module: libpng-internal
+author: Andreas Bogk <andreas@andreas.org>
+copyright: (C) Andreas Bogk, under modified BSD license
 
 define interface
   #include "png.h",

@@ -1,4 +1,6 @@
 module: libpng
+author: Andreas Bogk <andreas@andreas.org>
+copyright: (C) Andreas Bogk, under modified BSD license
 
 define function fd-to-file-ptr(fd :: <integer>)
  => (<png-FILE-p>)

@@ -1,3 +1,14 @@
+This package was debianized by Brent A. Fulgham <bfulgham@debian.org>
+Fri, 11 Apr 2003 18:03:45 -0700
+
+It was downloaded from the Gwydion Dylan Project CVS
+(see http://www.gwydiondylan.org).
+
+Upstream Author:  Andreas Bogk <andreas@andreas.org>
+Copyright:  (C) 2003-2004, Andreas Bogk, under modified BSD license
+
+=======================================================================
+
 Modified BSD license
     
 Redistribution and use in source and binary forms, with or
