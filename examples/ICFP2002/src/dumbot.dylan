@@ -7,15 +7,18 @@ end class <dumbot>;
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
   block(return)
+    // Deliver what we can:
     let drop-these = choose(at-destination?, me.robot.inventory);
-    if (~ empty?(drop-these))
+    if (~drop-these.empty?)
       return(make(<drop>, package-ids: map(id, drop-these)));
     end if;
     
+    // Pick ups:
     let packages-here = packages-at(s, me.robot.location);
-    if (~ empty?(packages-here))
+    if (~packages-here.empty?)
       let take-these = make(<vector>);
       let left = me.robot.capacity;
+      // Greedy algorithm to get as much as we can:
       for (pkg in sort(packages-here))
 	if (pkg.weight <= me.robot.capacity
 	      & find-path(me.robot.location, pkg.location, s.board))
@@ -25,12 +28,36 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
       end for;
       return(make(<pick>, package-ids: map(id, take-these)));
     end if;
-/*
-   targets := carried package destinations, free packages, unvisited homebases;
-   target = closest(targets);
+    
+    // Go to the next interesting place:
+    let targets = concatenate(map(dest, me.robot.inventory),
+			      map(location, s.free-packages)/*,
+			      map(location, choose(unvisted?,
+						   s.home-bases) )*/);
 
-   return(make(<move>, find-path(target)[0]));
- */
+    let paths = map(curry(rcurry(find-path, s.board), me.robot,location),
+		    targets);
 
+    paths := sort!(paths, stable: #t, 
+		  test: method (a :: <list>, b :: <list>) 
+			  a.size < b.size;
+                        end method);
+    
+    let new-loc = paths.first.first;
+    let direction = $North;
+
+    if (new-loc = make(<point>, x: new-loc.x, y: new-loc.y + 1))
+      direction = #"north";
+    elseif (new-loc = make(<point>, x: new-loc.x + 1, y: new-loc.y))
+      direction = #"east";
+    elseif (new-loc = make(<point>, x: new-loc.x, y: new-loc.y - 1))
+      direction = #"south";
+    elseif (new-loc = make(<point>, x: new-loc.x - 1, y: new-loc.y))
+      direction = #"west";
+    else
+      error("Can't happen");
+    end if;
+
+    return(make(<move>, direction: direction));
   end block;
 end method generate-next-move;
