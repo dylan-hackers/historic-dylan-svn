@@ -480,7 +480,7 @@ main(application-name(), application-arguments());
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.15 2002/09/17 09:10:10 andreas Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.16 2002/10/30 14:36:11 andreas Exp $
 library: my-program
 unique-id-base: 30000
 executable: mp
@@ -1730,7 +1730,7 @@ int *ReadInts2(int *Count);      /* result is a vector of  integers */</programl
 define interface
    #include "readints.h",
       rename: {"int *" =&gt; int-vector};
-   function "ReadInts1"
+   function "ReadInts1",
       output-argument: 1;
    function "ReadInts2" =&gt; Read-Integers-Vector,
    output-argument: Count;
