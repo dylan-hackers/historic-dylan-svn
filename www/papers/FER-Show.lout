@@ -1,0 +1,156 @@
+@SysInclude { slides }
+@SysInclude { diag }
+
+
+
+@OverheadTransparencies
+    @Title { The Rocky Horror FER Show }
+    @Author { Gabor Greif }
+    @Institution { Gwydion Dylan Maintainers }
+    @PageOrientation { Landscape }
+//
+
+
+####################################################################
+####################################################################
+@Lecture
+@Title { FER Basics }
+@RunningTitle { FER }
+@Begin
+@BeginOverheads
+####################################################################
+@Overhead
+    @Title { FER }
+@Begin
+@B { FrontEnd Representation }
+@DashList
+@ListItem { Actually, it is the representation in the @I middle-end }
+@ListItem { Heavily linked }
+@ListItem { Many concepts catered for (data"/"control flow) }
+@ListItem { Utility routines for building it exist }
+@ListItem { Dumpable to data units (@F .du files) }
+@EndList
+@End @Overhead
+
+
+
+
+
+####################################################################
+@Overhead
+    @Title { Creation }
+#    @RunningTitle {  }
+@Begin
+@BulletList
+@ListItem { @F convert library creates FER from AST }
+@ListItem { The optimizer destructively modifies it }
+@ListItem { The backend spills target specific (machine-code) based on it }
+@EndList
+
+@CenteredDisplay @Diag
+	arrow { yes }
+	treehsep { 2c }
+#	linklabelfont { @F }
+	linklabelformat { @F @Body } {
+@HTree {
+	@Node @ShadowBox { Text file }
+	@FirstSub ylabel { parser } {
+		@Node AST
+		@FirstSub ylabel { convert } {
+			@Node FER
+			@FirstSub ylabel { optimize } {
+				@Node FER
+				@FirstSub ylabel { cback } @Node binary
+}}}}
+}
+
+@End @Overhead
+
+
+####################################################################
+@Overhead
+    @Title { History }
+    @RunningTitle { Implementations }
+@Begin
+Developed for @B {Gwydion Dylan} compiler, originally
+conceived at Carnegie Mellon University.
+@LP
+Comparable with @I {Haskell}s @F Core language.
+@LP
+Input for the @F Monday project
+@End @Overhead
+
+
+
+@EndOverheads
+@End @Lecture
+
+
+####################################################################
+####################################################################
+@Lecture
+@Title { Data-Flow Framework }
+@RunningTitle { Data-flow }
+@Begin
+@BeginOverheads
+
+####################################################################
+@Overhead
+    @Title { Data Flow }
+@Begin
+@B { Concept of data dependencies }
+@DashList
+@ListItem { @F <dependency> level }
+@ListItem { @F <expression> level }
+@ListItem {  }
+@EndList
+@End @Overhead
+
+
+
+@EndOverheads
+@End @Lecture
+
+####################################################################
+####################################################################
+@Lecture
+@Title { Control-Flow Framework }
+@RunningTitle { Control-flow }
+@Begin
+@BeginOverheads
+
+####################################################################
+@Overhead
+    @Title { Control Flow }
+@Begin
+@B { Concept of hierarchical execution }
+@DashList
+@ListItem { @F <region> level }
+@ListItem { @F <assignment> level }
+@ListItem { Control-Flow graph normalized to tree structure }
+@EndList
+@End @Overhead
+
+####################################################################
+@Overhead
+    @Title { Control Flow }
+@Begin
+@B { Concept of hierarchical execution }
+@DashList
+@ListItem { @I { Control-Flow Graph } normalized to tree structure }
+@ListItem { Nonlinear elements:
+	@BulletList
+   		@ListItem { calls }
+   		@ListItem { loops }
+   		@ListItem { (non-local) exits }
+   		@ListItem { handlers }
+	@EndList
+ }
+@EndList
+@End @Overhead
+
+
+
+@EndOverheads
+@End @Lecture
+
