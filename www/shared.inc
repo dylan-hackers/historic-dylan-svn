@@ -80,7 +80,7 @@ function short_header ($title) {
       <A HREF="downloading.phtml">&rsaquo; Downloading Software</A>
       <A HREF="gdref.phtml">&rsaquo; Documentation</A>
       <A HREF="lists.phtml">&rsaquo; Mailing Lists</A>
-      <A HREF="gdbugs.phtml">&rsaquo; Bug Tracker</A>
+      <A HREF="/cgi-bin/gd">&rsaquo; Bug Tracker</A>
       <A HREF="http://monday.sourceforge.net/wiki/">&raquo; Wiki</A>
       <A HREF="learning.phtml">&rsaquo; Learning Dylan</A>
       <A HREF="users.phtml">&rsaquo; Projects Using Dylan</A>
@@ -91,7 +91,7 @@ function short_header ($title) {
     <div class="sideMenuBox">
       <div>Developer Resources</div>
       <A HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse CVS</A>
-      <A HREF="gdbugs_priv.phtml">&rsaquo; Private Bug Tracker</A>
+      <A HREF="/cgi-bin/gd.private">&rsaquo; Private Bug Tracker</A>
       <A HREF="projects.phtml">&rsaquo; Current Projects</A>
       <A HREF="submit-news.phtml">&rsaquo; Submit News</A>
     </div>
