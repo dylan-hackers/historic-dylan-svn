@@ -54,7 +54,7 @@ Database Exception Design
   database all declare SQLException in the throws clause because there's
   no real recovery protocol that can be used.  All that will happen is
   that the error will percolate up to the top level so that it can be
-  dispayed to the user.  Therefore, all the public database method (see
+  dispayed to the user.  Therefore, all the public database methods (see
   DatabaseRecord.java) catch SQLException themselves and wrap it in a
   DatabaseException, which extends RuntimeException so it needn't be
   declared.  Callers of loadRecord and related methods must check for

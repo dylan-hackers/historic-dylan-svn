@@ -64,7 +64,8 @@ public abstract class DatabaseRecord
      * This method gives the subclass a chance to initialize any of its
      * fields from the ResultSet when a record is loaded from the database.
      */
-    protected abstract void initializeFromRow (ResultSet row) throws SQLException;
+    protected abstract void initializeFromRow (ResultSet row)
+        throws SQLException;
 
     protected abstract String recordIDColumnName ();
 
