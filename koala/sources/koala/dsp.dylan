@@ -13,6 +13,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 //     a page to be used for a particular URI.
 // (3) Use "define page", specifying <dylan-server-page> as a superclass and define any "tags"
 //     you need with "define tag".  Create a .dsp file that calls the tags with <dsp:my-tag .../>
+//
+// See ../example/*.dylan for usage examples.
 
 
 //---TODO:
@@ -22,11 +24,11 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 //   Doesn't seem high priority.  Probably adds mostly-needless complexity.
 
 
-//
-// Generic pages
-//
+///
+/// Generic pages
+///
 
-// Holds the map of query keys/vals in "?x=1&y=2" part of the URI (for GET method)
+// Holds the map of query keys/vals in the "?x=1&y=2" part of the URI (for GET method)
 // or form keys/vals for the POST method.
 define thread variable *page-values* :: false-or(<string-table>) = #f;
 
@@ -47,23 +49,58 @@ define method do-query-values
   end;
 end;
 
+// Is there any need to maintain POSTed values separately from GET query values?
+define constant get-form-value :: <function> = get-query-value;
+define constant do-form-values :: <function> = do-query-values;
+define constant count-form-values :: <function> = count-query-values;
+
+
+/// <page-context>
+
+// Gives the user a place to store values that will have a lifetime
+// equal to the duration of the page processing (i.e., during process-page).  The
+// name is stolen from JSP's PageContext class, but it's not intended to serve the
+// same purpose.
+
+define class <page-context> (<attributes-mixin>)
+end;
+
+define thread variable *page-context* :: false-or(<page-context>) = #f;
+
+// API
+define method page-context
+    () => (context :: false-or(<page-context>))
+  *page-context*
+end;
+
+
+/// URL mapping
+
 define variable *page-to-uri-map* :: <table> = make(<table>);
 
+//---TODO: Having multiple URLs associated with a page poses a problem.  Can't tell
+//         which one to merge against when resolving relative URLs.  Just have one
+//         canonical URL but allow the page to be exported under others too?
+//---TODO: page-uris-setter
 define method page-uris
     (page :: <page>) => (uris :: <sequence>)
   element(*page-to-uri-map*, page, default: list())
 end;
 
-define constant get-form-value :: <function> = get-query-value;
-define constant do-form-values :: <function> = do-query-values;
-define constant count-form-values :: <function> = count-query-values;
+define method page-uri
+    (page :: <page>) => (uri :: <string>)
+  first(page-uris(page))
+end;
+
+
+/// <page>
 
 define open primary class <page> (<object>)
 end;
 
 define method print-object
     (page :: <page>, stream)
-  format(stream, "%s", first(page-uris(page)));
+  format(stream, "%s", page-uri(page));
 end;
 
 define method initialize
@@ -90,22 +127,25 @@ end;
 
 // This is the method registered as the response function for all <page>s.
 // See register-page.
-define method process-page
-    (page :: <page>, request :: <request>, response :: <response>)
-  dynamic-bind (*page-values* = request-query-values(request))
+define method process-page (page :: <page>,
+                            request :: <request>,
+                            response :: <response>)
+  dynamic-bind (*page-values* = request-query-values(request),
+                *page-context* = allocate-resource(<page-context>))
     select (request.request-method)
-      #"POST" => respond-to-post(page, request, response);
-      #"GET"  => respond-to-get(page, request, response);
-      #"HEAD" => respond-to-head(page, request, response);
+      #"POST"   => respond-to-post(page, request, response);
+      #"GET"    => respond-to-get(page, request, response);
+      #"HEAD"   => respond-to-head(page, request, response);
       otherwise => unsupported-request-method-error();
     end;
   end;
 end process-page;
 
 // Applications should call this to register a page for a particular URI.
-define function register-page
-    (uri :: <string>, page :: <page>, #key replace?)
-  register-response-function(uri, curry(process-page, page), replace?: replace?);
+define function register-page (uri :: <string>,
+                               page :: <page>,
+                               #key replace?)
+  register-uri(uri, curry(process-page, page), replace?: replace?);
   *page-to-uri-map*[page] := add-new!(page-uris(page), uri);
 end register-page;
 
@@ -123,16 +163,23 @@ define method initialize
     (page :: <file-page-mixin>, #key, #all-keys)
   next-method();
   when (~slot-initialized?(page, source-location))
-    page.source-location := source-location-from-uri(first(page-uris(page)));
+    page.source-location := document-location(page-uri(page));
   end;
 end;
 
-define method source-location-from-uri
-    (uri :: <string>) => (source :: <file-locator>)
+// Return a locator for the given URL under the *document-root*.
+define method document-location
+    (uri :: <string>, #key context :: false-or(<directory-locator>))
+ => (source :: <file-locator>)
   let uri = iff(~empty?(uri) & uri[0] = '/',
                 copy-sequence(uri, start: 1),  // get rid of leading slash
                 uri);
-  merge-locators(as(<file-locator>, uri), *document-root*)
+  merge-locators(as(<file-locator>, uri), context | *document-root*)
+end;
+
+define method page-directory
+    (page :: <file-page-mixin>) => (locator :: <directory-locator>)
+  locator-directory(source-location(page))
 end;
 
 define method page-source-modified?
@@ -160,7 +207,7 @@ define method respond-to-get
     write(stream, page.contents);
     force-output(stream);
   else
-    resource-not-found-error();
+    resource-not-found-error(uri: request-uri(request));
   end;
 end;
 
@@ -287,7 +334,7 @@ define method parse-page
     (page :: <dylan-server-page>)
   let string = file-contents(source-location(page));
   if (~string)
-    resource-not-found-error();
+    resource-not-found-error(uri: page-uri(page));
   else
     //log-debug("Parsing page %s", as(<string>, source-location(page)));
     page.contents := string;
@@ -314,7 +361,8 @@ define method parse-template
         method add-entry (entry)
           add!(template, entry);
         end,
-        method process-dsp-tag (call, tag-start, tag-end, has-body?) => (scan-pos :: <integer>)
+        method process-dsp-tag (call, tag-start, tag-end, has-body?)
+            => (scan-pos :: <integer>)
           add-entry(call);
           if (~has-body?)
             tag-end + iff(has-body?, 1, 2);
@@ -332,16 +380,17 @@ define method parse-template
             end-tag-start + size(close-tag-name);
           end;
         end method,
-        method process-dsp-directive (call, tag-start, tag-end, has-body?) => (scan-pos :: <integer>)
+        method process-dsp-directive (call, tag-start, tag-end, has-body?)
+            => (scan-pos :: <integer>)
           iff(string-equal?(tag-name(call), "include"),
               process-include-directive(call, tag-start, tag-end, has-body?),
               error("Unrecognized DSP directive %= at position %d",
                     tag-name(call), tag-start));
         end,
-        method process-include-directive (call, tag-start, tag-end, has-body?) => (scan-pos :: <integer>)
+        method process-include-directive (call, tag-start, tag-end, has-body?)
+            => (scan-pos :: <integer>)
           let url = get-arg(call, #"url");
-          let loc = merge-locators(as(<file-locator>, url), *document-root*);
-          let contents = file-contents(loc);
+          let contents = file-contents(document-location(url, context: page-directory(page)));
           if (contents)
             let tmplt = parse-template(page, contents, 0, size(contents));
             add-entry(tmplt);
@@ -464,4 +513,12 @@ define method respond-to-head
   //---TODO
 end;
 
+
+/// Utilities
+
+//---*** TODO
+define function quote-html
+    (text :: <string>) => (quoted-text :: <string>)
+  text
+end;
 

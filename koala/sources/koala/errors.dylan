@@ -88,7 +88,8 @@ define http-error invalid-request-line-error (<http-parse-error>)
 //  403 "Access refused";
 
 define http-error resource-not-found-error (<http-client-error>)
-    404 "Resource not found";
+    404 "Resource not found: %s",
+    uri;
 
 // This is when can't match Accept headers.
 // Response SHOULD include description of available

@@ -16,7 +16,7 @@ define class <response> (<object>)
   // set the output stream type (e.g., binary or text).  See output-stream.
   slot response-output-stream :: false-or(<stream>) = #f;
 
-  constant slot response-headers :: <header-table> = allocate-resource(<header-table>);
+  constant slot response-headers :: <header-table>, required-init-keyword: #"headers";
   slot headers-sent? :: <boolean> = #f;
   slot buffered? :: <boolean> = #t;
 end;
@@ -98,10 +98,11 @@ define method send-response
     send-headers(response, stream);
   end unless;
 
-  //Send the body (or what there is of it so far).
-  //---TODO: Optimize this.  stream-contents creates a copy.
-  let contents = stream-contents(output-stream(response), clear-contents?: #t);
-  //log-debug("-->%s", contents);
+  // Send the body (or what there is of it so far).
+  // Note that it's important for this to use clear-contents?: #f so that the
+  // allocate-resource code can tell how big the underlying sequence is when it
+  // tries to re-use the stream.
+  let contents = stream-contents(output-stream(response), clear-contents?: #f);
   write(stream, contents);
 end;
 

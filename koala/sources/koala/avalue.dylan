@@ -28,7 +28,7 @@ define class <avalue> (<explicit-key-collection>, <sealed-constructor>)
     required-init-keyword: alist:;
 end;
 
-define constant $empty-avalue = make(<avalue>, value: #f, alist: #[]);
+//define constant $empty-avalue = make(<avalue>, value: #f, alist: #[]);
 
 define inline sealed method size (av :: <avalue>) => (sz :: <integer>)
   size(av.avalue-alist)
@@ -109,3 +109,5 @@ define sealed method element-setter (value , av :: <avalue>, key :: <string>)
   error("Can't modify %=", av);
 end;
 */
+
+

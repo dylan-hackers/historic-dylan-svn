@@ -524,8 +524,5 @@ define method parse-header-value
   cookies
 end;
 
-define method allocate-resource (class == <header-table>)
-  make(<header-table>);  // just a stub for now.
-end;
 
 

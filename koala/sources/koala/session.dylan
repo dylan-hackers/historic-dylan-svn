@@ -20,10 +20,8 @@ define method set-session-max-age
   *session-max-age* := age
 end;
 
-define open primary class <session> (<object>)
+define open primary class <session> (<attributes-mixin>)
   constant slot session-id :: <integer>, required-init-keyword: #"id";
-  // For random values clientcode wants to store in the session.
-  slot session-values :: false-or(<table>) = #f;
   // ---TODO: 
   // cookie
   // 
@@ -47,23 +45,6 @@ define function next-session-id
     () => (id :: <integer>)
   inc!(*next-session-id*)
 end;
-
-// API
-define method get-attribute
-    (session :: <session>, key :: <object>, #key default) => (attribute :: <object>)
-  let values = session.session-values;
-  iff(values,
-      element(values, key, default: default),
-      default)
-end;
-
-// API
-define method set-attribute
-    (session :: <session>, key :: <object>, value :: <object>)
-  let values = session.session-values | (session.session-values := make(<table>));
-  values[key] := value
-end;
-
 
 // API
 // This is the only way for user code to get the session object.

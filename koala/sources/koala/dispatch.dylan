@@ -1,4 +1,5 @@
 Module:    internals
+Synopsis:  Given a URL, dispatch to the appropriate responder
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
@@ -37,7 +38,6 @@ define function match-directories (pdir :: <list>, udir :: <list>)
         #f
       end;
 
--
 define function match-translation (pattern :: <url>, url :: <url>)
   let pdir = pattern.url-directory;
   let udir = url.url-directory;

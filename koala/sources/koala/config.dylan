@@ -11,6 +11,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 //   *debugging-server*
 //   What dlls to load?
 //   *document-root*
+//   Almost all variables in variables.dylan
 
 // Process the server config file, config.xml.
 // Assume a user directory structure like:

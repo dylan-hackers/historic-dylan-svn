@@ -27,7 +27,7 @@ major-version:	1
 minor-version:	0
 library-pack:	0
 compilation-mode:	loose
-target-type:	executable
+target-type:	dll
 other-files:	..\license.txt
 	doc.html
 comment:	additional keywords
