@@ -8,6 +8,7 @@ SOURCES=icfp2002.dylan icfp2002-exports.dylan \
   messages.dylan \
   point.dylan \
   dumbot.dylan \
+  dumber-bot.dylan \
   pushbot.dylan \
   thomas.dylan
 
