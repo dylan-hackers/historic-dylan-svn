@@ -188,7 +188,7 @@ define function lookup (instrs, label, counter)
 
   let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
   
-//  block
+  block ()
     let instr = instrs[pos];
     select (instr by instance?)
       <function> =>
@@ -196,9 +196,9 @@ define function lookup (instrs, label, counter)
       otherwise =>
         instr;
     end;
-//  exception (<error>)
-//    format-out("lookup: (%s, %d), did you fall off your block?\n", label, counter);
-//  end block;
+  exception (<error>)
+    format-out("lookup: (%s, %d), did you fall off your block?\n", label, counter);
+  end block;
 end;
 
 define function compile-states (instrs :: <table>)
