@@ -45,9 +45,6 @@ copyright: LGPL
 // 
 //    [1]    document    ::=    prolog element Misc*
 //
-
-define variable *modify?* :: <boolean> = #t;
-
 define function parse-document(doc :: <string>, 
                                #key start = 0, end: stop, 
                                substitute-entities? = #t,
@@ -61,6 +58,8 @@ define function parse-document(doc :: <string>,
   transform-document(document, state: make(<add-parents>));
   document;
 end function parse-document;
+
+define variable *modify?* :: <boolean> = #t;
 
 define meta document-helper(prolog, elemnt, misc) =>
  (make(<document>, name: elemnt.name, children: vector(elemnt)))
@@ -316,7 +315,7 @@ define meta doctypedecl(s, name, id, markup, decl-sep)
   "<!DOCTYPE", scan-s(s), scan-name(name), 
   {[scan-s(s), scan-external-id(id),
 // hokay, we've got an external-ID, now let's parse that document
-// and bring in its (I hope only) entities
+// and bring in its entities and default attribute values.
    do(with-open-file(in = id, direction: #"input-output")
         scan-dtd-stuff(stream-contents(in, clear-contents?: #f))
       end)], 
@@ -365,8 +364,7 @@ end meta ext-subset-decl;
 //
 define meta sd-decl(sp, eq)
   scan-s(sp), "standalone", scan-eq(eq),
-// DOUG: another '/" example
-  {['\'', {"yes", "no"}, '\''], ['"', {"yes", "no"}, '"']}
+  {["'", {"yes", "no"}, "'"], ['"', {"yes", "no"}, '"']}
 end meta sd-decl;
 
 //    (Productions 33 through 38 have been removed.)
@@ -392,29 +390,7 @@ define meta element(elt-name, attribs, content, etag)
     ["/>", no!(*last-tag-name*), set!(content, "")] }
 end meta element;
 
-
-  /* element used to be:
-   {[scan-stag(name, attribs), scan-content(content), scan-etag(etag)],
-    [scan-empty-elem-tag(name, attribs), set!(content, "")]}, [] */
-
 // Production 40 (Stag) has been removed (now handled by 39 (element)).
-
-/* refactored
-// Start-tag
-// 
-//    [40]    STag ::=  '<' Name (S Attribute)* S? '>' [WFC: Unique Att Spec]
-//
-define meta stag(elt, attribs) => (elt, attribs)
-  scan-beginning-of-tag(elt, attribs), 
-  do(if(*last-tag-name* == elt)
-       maybe-tag-mismatch(format-to-string("Opening same tag (<%s>)", 
-                                           *last-tag-name*),
-                          "Perhaps you meant to close the tag?",
-                          index, string);
-     end if;
-     *last-tag-name* := elt), ">"
-end meta stag;
-*/
 
 // a little bit of checking for element-name redundancy:
 define variable *last-tag-name* :: false-or(<symbol>) = #f;
@@ -554,18 +530,6 @@ define collector content(ignor, contents)
 end collector content;
 
 // Production 44 (EmptyElemTag) is now handled by 39 (element)
-
-/* refactored
-// Tags for Empty Elements
-// 
-// [44] EmptyElemTag ::= '<' Name (S Attribute)* S? '/>' [WFC: Unique Att Spec]
-//
-// This is not optimal because we scan the whole tag data twice if it
-// is not an empty-elem-tag. Need to unify this with [39].
-define meta empty-elem-tag(elt, attribs) => (elt, attribs)
-  scan-beginning-of-tag(elt, attribs), "/>", set!(*last-tag-name*, #f)
-end meta empty-elem-tag;
-*/
 
 // Element Type Declaration
 // 
@@ -747,24 +711,25 @@ define meta include-sect(s, subset-decl)
   scan-ext-subset-decl(subset-decl), "]]>"
 end meta include-sect;
 
-//    [63]    ignoreSect            ::=    '<![' S? 'IGNORE' S? '[' ignoreSectContents* ']]>' 
-//                                                                                            [VC: Proper Conditional Section/PE Nesting]
+// [63] ignoreSect ::= '<![' S? 'IGNORE' S? '[' ignoreSectContents* ']]>' 
+//                     [VC: Proper Conditional Section/PE Nesting]
 //
 define meta ignore-sect(s, ignore-sect)
   "<![", scan-s?(s), "IGNORE", scan-s?(s), "[", 
   loop(scan-ignore-sect-contents(ignore-sect)), "]]>"
 end meta ignore-sect;
 
-//    [64]    ignoreSectContents    ::=    Ignore ('<![' ignoreSectContents ']]>' Ignore)*
-// They are doing it again.
+// [64] ignoreSectContents ::= Ignore ('<![' ignoreSectContents ']]>' Ignore)*
+// Andreas: They are doing it again.
 //
 define meta ignore-sect-contents(ignore, ignore-sect)
   scan-ignore(ignore),
-  loop(["<![", loop(scan-ignore-sect-contents(ignore-sect)), "]]>", scan-ignore(ignore)])
+  loop(["<![", loop(scan-ignore-sect-contents(ignore-sect)), "]]>", 
+        scan-ignore(ignore)])
 end meta ignore-sect-contents;
 
-//    [65]    Ignore                ::=    Char* - (Char* ('<![' | ']]>') Char*)
-//  like, wow, what a def ... FIXME!
+// [65] Ignore ::= Char* - (Char* ('<![' | ']]>') Char*)
+// like, wow, what a def ... FIXME!
 define method scan-ignore(string, #key start = 0, end: stop)
   values(start, #t);  // DOUG changed index to start
 end method scan-ignore;
@@ -902,7 +867,7 @@ define meta external-id(s, sys, pub) => (sys)
   scan-system-literal(sys)
 end meta external-id;
 
-//    [76]    NDataDecl     ::=    S 'NDATA' S Name                          [VC: Notation Declared]
+//    [76]    NDataDecl     ::=    S 'NDATA' S Name [VC: Notation Declared]
 //
 define meta n-data-decl(s, name) => (name)
   scan-s(s), "NDATA", scan-s(s), scan-name(name)
@@ -927,8 +892,9 @@ end meta ext-parsed-ent;
 
 // Encoding Declaration
 // 
-//    [80]    EncodingDecl    ::=    S 'encoding' Eq ('"' EncName '"' | "'" EncName "'" )
-//    [81]    EncName         ::=    [A-Za-z] ([A-Za-z0-9._] | '-')*                      /* Encoding name contains only Latin characters */
+// [80] EncodingDecl ::= S 'encoding' Eq ('"' EncName '"' | "'" EncName "'" )
+// [81] EncName      ::=    [A-Za-z] ([A-Za-z0-9._] | '-')*
+// Andreas: Encoding name contains only Latin characters
 //
 define meta encoding-decl(s, eq, name) => (name)
   scan-s(s), "encoding", scan-eq(eq),
@@ -942,7 +908,8 @@ define constant scan-encoding-name = scan-version-num;
 
 // Notation Declarations
 // 
-//    [82]    NotationDecl    ::=    '<!NOTATION' S Name S (ExternalID | PublicID) S? '>' [VC: Unique Notation Name]
+// [82] NotationDecl ::= '<!NOTATION' S Name S (ExternalID | PublicID) S? '>'
+//                       [VC: Unique Notation Name]
 //
 define meta notation-decl(s, name, ex, pub)
   "<!NOTATION", scan-s(s), scan-name(name), scan-s(s),
