@@ -545,14 +545,6 @@ end method parse-contentspec;
 // 
 //    [47]    children    ::=    (choice | seq) ('?' | '*' | '+')?
 //
-/**** define method parse-children(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, choice, seq);
-      [{parse-choice(choice), parse-seq(seq)}, 
-       {{"?", "*", "+"}, []}];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-children; ****/
 define parse children(choice, seq)
   {parse-choice(choice), parse-seq(seq)}, 
   {{"?", "*", "+"}, []}
@@ -560,14 +552,6 @@ end parse children;
 
 //    [48]    cp          ::=    (Name | choice | seq) ('?' | '*' | '+')?
 //
-/***** define method parse-cp(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, name, choice, seq);
-      [{parse-name(name), parse-choice(choice), parse-seq(seq)}, 
-       {{"?", "*", "+"}, []}];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-cp; ****/
 define parse cp(name, choice, seq)
   {parse-name(name), parse-choice(choice), parse-seq(seq)}, 
   {{"?", "*", "+"}, []}
@@ -576,25 +560,6 @@ end parse cp;
 //    [49]    choice      ::=    '(' S? cp ( S? '|' S? cp )+ S? ')'      /* */
 //                                                                       /* */
 //                                                                       [VC: Proper Group/PE Nesting]
-/**** define method parse-choice(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, s, cp);
-      ["(",
-       {parse-s(s), []},
-       parse-cp(cp),
-       {parse-s(s), []},
-       "|",
-       {parse-s(s), []},
-       parse-cp(cp),
-       loop([{parse-s(s), []},
-             "|",
-             {parse-s(s), []},
-             parse-cp(cp)]),
-       {parse-s(s), []},
-       ")"];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-choice; ****/
 define parse choice(s, cp)
   "(", {parse-s(s), []}, parse-cp(cp), {parse-s(s), []},
   "|", {parse-s(s), []}, parse-cp(cp),
@@ -605,21 +570,6 @@ end parse choice;
 //    [50]    seq         ::=    '(' S? cp ( S? ',' S? cp )* S? ')'      /* */
 //                                                                       [VC: Proper Group/PE Nesting]
 //
-/**** define method parse-seq(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, s, cp);
-      ["(",
-       {parse-s(s), []},
-       parse-cp(cp),
-       loop([{parse-s(s), []},
-             ",",
-             {parse-s(s), []},
-             parse-cp(cp)]),
-       {parse-s(s), []},
-       ")"];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-seq; *****/
 define parse seq(s, cp)
   "(", {parse-s(s), []}, parse-cp(cp),
   loop([{parse-s(s), []}, ",", {parse-s(s), []}, parse-cp(cp)]),
@@ -657,18 +607,6 @@ end method parse-mixed;
 // 
 //    [52]    AttlistDecl    ::=    '<!ATTLIST' S Name AttDef* S? '>'
 //
-/**** define method parse-attlist-decl(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, s, name, att-def);
-      {["<!ATTLIST",
-        parse-s(s),
-        parse-name(name),
-        loop(parse-att-def(att-def)),
-        {parse-s(s), []},
-        ">"]};
-    values(index, #t);
-  end with-meta-syntax;
-end meyhod parse-attlist-decl; ****/
 define parse attlist-decl(s, name, att-def)
   {["<!ATTLIST", parse-s(s), parse-name(name),
     loop(parse-att-def(att-def)), {parse-s(s), []}, ">"]}, []
@@ -676,15 +614,6 @@ end parse attlist-decl;
 
 //    [53]    AttDef         ::=    S Name S AttType S DefaultDecl
 //
-/**** define method parse-att-def(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(s, name, att-type, default-decl);
-      [parse-s(s), parse-name(name), 
-       parse-s(s), parse-att-type(att-type), 
-       parse-s(s), parse-default-decl(default-decl)];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-att-def; *****/
 define parse att-def(s, name, att-type, default-decl)
   parse-s(s), parse-name(name), 
   parse-s(s), parse-att-type(att-type), 
@@ -695,13 +624,6 @@ end parse att-def;
 // 
 //    [54]    AttType          ::=    StringType | TokenizedType | EnumeratedType
 //
-/*** define method parse-att-type(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(string-type, tokenized-type, enumerated-type);
-      {parse-string-type(string-type), parse-tokenized-type(tokenized-type), parse-enumerated-type(enumerated-type)};
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-att-type; ****/
 define parse att-type(string, tokenized, enumerated)
   {parse-string-type(string), 
    parse-tokenized-type(tokenized), 
@@ -710,12 +632,6 @@ end parse att-type;
 
 //    [55]    StringType       ::=    'CDATA'
 //
-/**** define method parse-string-type(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    ["CDATA"];
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-string-type; ****/
 define parse string-type(c)
   "CDATA"
 end parse string-type;
@@ -730,12 +646,6 @@ end parse string-type;
 //                                    | 'NMTOKEN'                                 [VC: Name Token]
 //                                    | 'NMTOKENS'                                [VC: Name Token]
 //
-/**** define method parse-tokenized-type(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    {"ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", "NMTOKENS"};
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-tokenized-type; ****/
 define parse tokenized-type(c)
   {"ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", "NMTOKENS"}, []
 end parse tokenized-type;
