@@ -39,6 +39,14 @@ define method export-with-depth(c :: <color>, depth :: <integer>)
   values(clampint(r), clampint(g), clampint(b));
 end method export-with-depth;
 
+define method \* (c :: <color>, x :: <number>)
+ => (scaled_c :: <color>)
+  make(<color>, 
+       red:   clamp(c.red   * x),
+       green: clamp(c.green * x),
+       blue:  clamp(c.blue  * x));
+end method;
+
 define class <surface> (<object>)
   slot color, init-keyword: color:, init-value: make(<color>, red: 1.0, green: 1.0, blue: 1.0);
   slot diffusion-coefficient, init-keyword: diffusion:, init-value: 1.0;
@@ -80,4 +88,10 @@ define method silly-texture(surface-id, u, v)
     values(make(<color>, red: 0.0, green: 0.0, blue: 0.0), 1.0, 0.2, 0.2);
   end if;
 end method silly-texture;
+
+define method red-texture(surface-id, u, v)
+ => (color, diffusion, specular, phong-exp)
+  values(make(<color>, red: 1.0, green: 0.0, blue: 0.0), 
+	 1.0, 0.0, 0.0);
+end method red-texture;
 
