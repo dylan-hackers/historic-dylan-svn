@@ -25,7 +25,6 @@ define module xml-parser
 
   // for printing
   create <printing>, xml-name,
-    // print-element-spacing, increase-spacing, decrease-spacing;
     *xml-depth*, *open-tag*, *close-tag*, *ampersand*, *printer-state*,
 end module xml-parser;
 
