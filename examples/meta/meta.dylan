@@ -55,10 +55,18 @@ define macro meta-parse-aux
 		   let success = matches?(peek(stream));
 		   values(success, success & read-element(stream));
 		 end method match-test;
+	   local method match-peek ()
+		  => (success :: <boolean>, result :: <object>);
+		   values(#t, peek(stream));
+		 end method match-peek;
+	   local method match-slurp () => ();
+		   read-element(stream);
+		 end method match-slurp;
 	   local method call-sub (sub :: <function>);
 		   sub(stream);
 		 end method call-sub;
-	   process-meta(?meta, match, match-type, match-test, call-sub)
+	   process-meta(?meta, match, match-type, match-test, match-peek,
+			match-slurp, call-sub)
 	     & ?result }
 
     { meta-parse-aux parse-string, ?source:expression,
@@ -106,6 +114,14 @@ define macro meta-parse-aux
 		   if (success) ?pos := ?pos + 1; end;
 		 end block;
 	       end method match-test;
+	 local method match-peek ()
+		=> (success :: <boolean>, result :: <object>);
+		 let success = (?pos < stop);
+		 values(success, success & string[?pos]);
+	       end method match-peek;
+	 local method match-slurp () => ();
+		 ?pos := ?pos + 1;
+	       end method match-slurp;
 	   local method call-sub (sub :: <function>);
 		   let (position, #rest results)
 		     = sub(string, start: ?pos, end: stop);
@@ -116,16 +132,19 @@ define macro meta-parse-aux
 		     #f;
 		   end if;
 		 end method call-sub;
-	  process-meta(?meta, match, match-type, match-test, call-sub)
+	  process-meta(?meta, match, match-type, match-test, match-peek,
+		       match-slurp, call-sub)
 	    & ?result }
 end macro meta-parse-aux;
 
 define macro process-meta
     { process-meta(?meta, ?match:name, ?match-type:name, ?match-test:name,
-		   ?call-sub:name) }
+		   ?match-peek:name, ?match-slurp:name, ?call-sub:name) }
       => { let match = ?match;
 	   let match-type = ?match-type;
 	   let match-test = ?match-test;
+	   let match-peek = ?match-peek;
+	   let match-slurp = ?match-slurp;
 	   let call-sub = ?call-sub;
 	   block (finish)
 	     ?meta
@@ -175,6 +194,17 @@ define macro process-meta
 	     if (success)
 	       ?variable := value;
 	       #t;
+	     end if;
+	   end }
+    { peeking(?variable:name, ?test:expression) }
+      => { begin
+	     let (success, value) = match-peek();
+	     if (success)
+	       ?variable := value;
+	       if (?test)
+		 match-slurp();
+		 #t;
+	       end if;
 	     end if;
 	   end }
     { ?subroutine:name(?variables:*) }

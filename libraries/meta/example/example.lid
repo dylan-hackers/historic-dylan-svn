@@ -1,4 +1,4 @@
 library: example
 executable: example
-files: example
-  example-exports
+files: example-exports
+  example

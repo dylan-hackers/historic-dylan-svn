@@ -35,6 +35,14 @@ define function parse-finger-query (query :: <string>)
   end with-collector;
 end function parse-finger-query;
 
+define function test-peeking (query :: <string>)
+  with-meta-syntax parse-string (query)
+    variables (c, (i = 0));
+    loop([peeking(c, c >= 'a' & c <= 'z'), do(i := i + 1)]);
+    i;
+  end with-meta-syntax;
+end function test-peeking;
+
 define method main(appname, #rest arguments)
   format-out("Enter fixnum: "); force-output(*standard-output*);
   let number = parse-integer(*standard-input*);
@@ -46,8 +54,10 @@ define method main(appname, #rest arguments)
   let (whois, user, at) = parse-finger-query(read-line(*standard-input*));
   format-out("Results: Whois Switch: %=, Indirect: %=, User: %=\n",
 	     whois, at, user);
+
+  format-out("Enter [a-z]*: "); force-output(*standard-output*);
+  let i = test-peeking(read-line(*standard-input*));
+  format-out("%= valid chars read.\n", i);
 end method main;
 
 main("example", 1,2,3);
-
-
