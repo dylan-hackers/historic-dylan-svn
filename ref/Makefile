@@ -1,11 +1,11 @@
 .PHONY: all snap clean distclean reallyclean html-chunked html-unchunked
 
 SGML_BASE_DIR=/usr/local/share/sgml
-SGML_CATALOG_FILES=$(SGML_BASE_DIR)/dsssl/catalog:$(SGML_BASE_DIR)/docbook/docbook.cat:$(SGML_BASE_DIR)/iso/iso.cat:$(SGML_BASE_DIR)/docbook_stylesheets/catalog:$(SGML_BASE_DIR)/dylandoc/dylandoc.cat
+SGML_CATALOG_FILES=$(SGML_BASE_DIR)/dsssl/catalog:$(SGML_BASE_DIR)/docbook/docbook.cat:$(SGML_BASE_DIR)/iso/iso.cat:$(SGML_BASE_DIR)/docbook_stylesheets/catalog:$(SGML_BASE_DIR)/docbook/custom/dylandoc/catalog
 
 DYLANDOC_TOOLS = CATALOG dylandoc.dtd dylandoc.dsl
 STANDARD_DEPS = dylandoc.ent $(DYLANDOC_TOOLS)
-JADE = SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c CATALOG
+JADE = SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c ./CATALOG
 
 SGML_MANUALS = gduser.sgml gdlibs.sgml gdmaint.sgml tutorial.sgml gdapi.sgml
 HTML_CHUNKED_MANUALS = gduser gdlibs gdmaint tutorial gdapi

@@ -1,5 +1,5 @@
 <!DOCTYPE BOOK PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.1//EN" [
- <!ENTITY % entities SYSTEM "entities.sgml">
+ <!ENTITY % entities SYSTEM "dylandoc.ent">
  %entities;
 
  <!ELEMENT DylanCharFnDef - O EMPTY>
