@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.38 2002/08/10 19:59:09 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.39 2002/08/10 23:00:45 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -40,7 +40,11 @@ define generic evaluate(expression, environment :: <interpreter-environment>)
 define constant $empty-environment 
   = curry(error, "trying to access %= in an empty environment");
 
-define constant <interpreter-environment> :: <type> = <object>;
+define constant <interpreter-environment> :: <type> = <function>;
+
+define class <function-literal-query> (<condition>)
+  constant slot for-ct-function :: <ct-function>, required-init-keyword: ct-function:;
+end;
 
 define method evaluate(expression :: <string>, env :: <interpreter-environment> )
  => (val :: <ct-value>)
@@ -98,9 +102,19 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
         force-output(*debug-output*);
         
         let value
-          = block ()
+          = block (return)
+              let handler <function-literal-query>
+                = method(query-literal :: <function-literal-query>, #rest ignore) => res :: <function-literal>;
+                    block (found)
+                      for (literal in component.all-function-literals)
+                        if (literal.ct-function == query-literal.for-ct-function)
+                          literal.found
+                        end if;
+                      end for;
+                    end block;
+                  end method;
               fer-evaluate(init-function-region.body, env)
-              exception (ret :: <return-condition>)
+            exception (ret :: <return-condition>)
               ret.exit-result
             end;
     
@@ -187,19 +201,6 @@ define fer-evaluator block-region(environment)
   end block
 end;
 
-/*
-define method fer-evaluate(block-region :: <block-region>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  block ()
-    fer-evaluate(block-region.body, environment)
-  exception (exit :: <exit-condition>, test: method(exit :: <exit-condition>)
-                                               exit.exit-block == block-region
-                                             end method)
-    exit.exit-environment;
-  end block
-end;
-*/
-
 
 define fer-evaluator loop-region(environment)
   local method repeat(environment :: <interpreter-environment>)
@@ -208,52 +209,21 @@ define fer-evaluator loop-region(environment)
   repeat(environment);
 end loop-region;
 
-/*
-define method fer-evaluate(loop :: <loop-region>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  local method repeat(environment :: <interpreter-environment>)
-      repeat(fer-evaluate(loop.body, environment))
-    end method;
-  repeat(environment);
-end;
-*/
 
 define fer-evaluator exit(environment)
   signal(make(<exit-condition>, block: exit.block-of, environment: environment));
 end exit;
 
-/*
-define method fer-evaluate(exit :: <exit>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  signal(make(<exit-condition>, block: exit.block-of, environment: environment));
-end;
-*/
 
 define fer-evaluator simple-region(environment)
   fer-gather-assigns-bindings(simple-region.first-assign, environment);
 end;
 
-/*
-define method fer-evaluate(simple :: <simple-region>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  fer-gather-assigns-bindings(simple.first-assign, environment);
-end;
-*/
 
 define class <return-condition>(<exit-condition>)
   constant slot exit-result :: <ct-value>, required-init-keyword: result:;
 end class <return-condition>;
 
-/*
-define method fer-evaluate(func :: <function-region>, environment :: <interpreter-environment>)
- => environment :: <never-returns>;
-  block ()
-    fer-evaluate(init-function-region.body, environment)
-  exception (return :: <return-condition>, test: method(exit :: <exit-condition>)
-    return.exit-result;
-  end block
-end;
-*/
 
 define fer-evaluator return(environment)
   signal(make(<return-condition>, block: return.block-of,
@@ -261,26 +231,12 @@ define fer-evaluator return(environment)
 				  environment: environment));
 end;
 
-/*
-define method fer-evaluate(return :: <return>, environment :: <interpreter-environment>)
- => environment :: <never-returns>;
-  signal(make(<return-condition>, block: return.block-of,
-				  result: evaluate(return.depends-on.source-exp, environment),
-				  environment: environment));
-end;
-*/
 
 define fer-evaluator compound-region(environment)
   let regions = compound-region.regions;
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
 
-/*define method fer-evaluate(compound :: <compound-region>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  let regions = compound.regions;
-  fer-evaluate-regions(regions.head, regions.tail, environment)
-end;
-*/
 
 define fer-evaluator if-region(environment)
   let test-value
@@ -293,18 +249,6 @@ define fer-evaluator if-region(environment)
   end if;
 end;
 
-/**
-define method fer-evaluate(the-if :: <if-region>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  let test-value
-    = evaluate(the-if.depends-on.source-exp,
-                              environment);
-  if(test-value == as(<ct-value>, #f))
-    fer-evaluate(the-if.else-region, environment);
-  else
-    fer-evaluate(the-if.then-region, environment);
-  end if;
-end;*/
 
 // ########## fer-evaluate-regions ##########
 define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <interpreter-environment>)
@@ -430,7 +374,7 @@ define method evaluate(expr :: <truly-the>, environment :: <interpreter-environm
  => result :: <ct-value>;
   evaluate(expr.depends-on.source-exp, environment)
 end;
-
+/*
 // ######### extract-leaf #########
 // is there a way to arrive from <ct-method> to its literal?
 // OPEN QUESTION
@@ -453,12 +397,16 @@ define method extract-leaf(var :: <multi-definition-variable>)
  => leaf :: <leaf>;
   var.definitions.first.extract-leaf
 end;
-
+*/
 
 define method evaluate(expr :: <unknown-call>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
+//  let leaf :: <abstract-function-literal> = expr.depends-on.source-exp.extract-leaf;
+
+  let leaf = signal(make(<function-literal-query>,
+                         ct-function: evaluate(expr.depends-on.source-exp, environment)));
+
   let args = expr.depends-on.dependent-next;
-  let leaf :: <abstract-function-literal> = expr.depends-on.source-exp.extract-leaf;
   evaluate-call(leaf, args, environment);
 //  main-entry
 
