@@ -505,19 +505,33 @@ define method process-server-command(state :: <state>, command :: <pick>) => (st
   state;
 end method process-server-command;
 
-define method process-server-command(state :: <state>, command :: <drop>) => (state :: <state>)
-  let bot = find-robot(state, command.robot-id);
-  let loc = bot.location;
+define method process-server-command(state :: <state>, command :: <drop>)
+ => (state :: <state>)
+  debug("process-server-command <drop>: start robot packages %=\n",
+        find-robot(state, command.robot-id).inventory.size);
+  let loc = find-robot(state, command.robot-id).location;
   for(pid in command.package-ids)
-    state := add-package(state, copy-package(find-package(state, pid), 
-					     new-location: loc, 
-					     new-carrier: #f));
-    state := add-robot(state, copy-robot(bot, new-inventory: remove(bot.inventory, find-package(state, pid))));
+    let p = find-package(state, pid);
+    unless (loc = p.dest)
+      state := add-package(state, copy-package(p,
+                                               new-location: loc,
+                                               new-carrier: #f));
+    end unless;
+    let bot = find-robot(state, command.robot-id);
+    let new-inventory = remove(bot.inventory, p,
+                               test: method (p*, p) p*.id = p.id end method);
+    let bot* = copy-robot(bot, new-inventory: new-inventory);
+    debug("bot-size  = %d\n", bot.inventory.size);
+    debug("bot*-size = %d\n", bot*.inventory.size);
+    state := add-robot(state, bot*);
   end for;
+  debug("process-server-command <drop>: final robot packages %=\n",
+        find-robot(state, command.robot-id).inventory.size);
   state;
 end method process-server-command;
 
-define method process-server-command(state :: <state>, command :: <transport>) => (state :: <state>)
+define method process-server-command(state :: <state>, command :: <transport>)
+ => (state :: <state>)
   let bot = find-robot(state, command.robot-id);
 
   // For this bot, work through all the packages it carries and
@@ -525,7 +539,7 @@ define method process-server-command(state :: <state>, command :: <transport>) =
   let ps = choose(method(p) p.carrier.id = bot.id end, state.packages);
   for(p in ps)
 	state := add-package(state, copy-package(find-package(state, p.id), 
-	         	                             new-location: command.transport-location));
+                                                 new-location: command.transport-location));
   end for;
   add-robot(state, copy-robot(bot, new-location: command.transport-location));
 end method process-server-command;
