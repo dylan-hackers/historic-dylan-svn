@@ -1565,6 +1565,459 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylangenericdef>
 
+	<sect4 id="libs-streams-reg-general-fns-reading">
+	  <title>Reading Functions</title>
+	  <para>
+	    From a stream, one can read one element, a number of
+	    elements, or a line at a time.
+	  </para>
+
+          <dylangenericdef>
+            <defname>read-element</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Reads the next element from the stream.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	      <keyparam>
+	        <paramname>on-end-of-stream</paramname>
+		<paramdefault>$not-supplied</paramdefault>
+		<paramsummary>Value returned if reading past the stream.
+		</paramsummary>
+              </keyparam>
+            </defparameters>
+            <defreturns>
+              <param>
+                <paramname>element-or-eof</paramname>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Reads the next element from the stream and advances
+                the stream's position.</para>
+	      <para>When the stream is past the end
+                of the contents, two possible results occur.  If the
+                caller supplied a value to the 
+                <dlit>on-end-of-stream:</dlit> keyword, then that
+                value is returned.  Otherwise,
+                <dname>read-element</dname> throws an
+                <dname>&lt;end-of-stream-error&gt;</dname>.
+              </para>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>unread-element</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Backs up the stream by one element.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	      <param>
+	        <paramname>elemnt</paramname>
+		<paramsummary>What the previous element should be.
+		</paramsummary>
+              </param>
+            </defparameters>
+            <defreturns>
+              <param>
+                <paramname>the-elemnt</paramname>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Backs up the stream by one element.  In some methods this
+                function will ensure that
+                <parameter>elemnt</parameter> is at the stream's
+                position.  If it isn't then
+                <dname>unread-element</dname> will signal an error.
+                Otherwise, it will return <parameter>elemnt</parameter>.
+              </para>
+	      <note>
+	        <para>
+		  One must be careful about using <dlit>element</dlit>
+		  as a variable name, for Dylan uses the function 
+		  <dname>element</dname> to resolve element access of
+		  sequences with the bracket syntax
+		  (i.e. <dlit>[</dlit> and <dlit>]</dlit>).  Results
+		  can be unpredicable when one has a local binding to
+		  <dname>element</dname> and also indexes into
+		  sequences with the bracket syntax.
+		</para>
+	      </note>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>peek</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Retrieves the next element from the stream.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	      <keyparam>
+	        <paramname>on-end-of-stream</paramname>
+		<paramdefault>$not-supplied</paramdefault>
+		<paramsummary>Value returned if reading past the stream.
+		</paramsummary>
+              </keyparam>
+            </defparameters>
+            <defreturns>
+              <param>
+                <paramname>element-or-eof</paramname>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Reads the next element from the stream but does not advance
+                the stream's position.  Handles end-of-stream
+                conditions just as <dname>read-element</dname> does.</para>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>read</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Reads in a group of elements from a stream.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	      <param>
+	        <paramname>n</paramname>
+		<paramtype>&lt;integer&gt;</paramtype>
+		<paramsummary>Number of elements to read.</paramsummary>
+              </param>
+	      <keyparam>
+	        <paramname>on-end-of-stream</paramname>
+		<paramdefault>$not-supplied</paramdefault>
+		<paramsummary>Value returned if reading past the stream.
+		</paramsummary>
+              </keyparam>
+            </defparameters>
+            <defreturns>
+              <param>
+                <paramname>sequence-or-eof</paramname>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Reads in <parameter>n</parameter> elements from the
+                stream starting from the
+                the stream's current position.  The type of the
+                collection returned depends on the collection
+                underlying the stream.  Handles end-of-stream
+                conditions just as <dname>read-element</dname> does.</para>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>read-into!</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Reads a group of elements from a stream into a
+	      collection.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	      <param>
+	        <paramname>n</paramname>
+		<paramtype>&lt;integer&gt;</paramtype>
+		<paramsummary>Number of elements to read.</paramsummary>
+              </param>
+	      <param>
+	        <paramname>sequence</paramname>
+		<paramtype>&lt;mutable-sequence&gt;</paramtype>
+		<paramsummary>Note: this sequence must allow for
+		  changes in its size.
+		</paramsummary>
+              </param>
+	      <keyparam>
+	        <paramname>start</paramname>
+		<paramdefault>0</paramdefault>
+		<paramsummary>What index to start writing into the sequence.
+		</paramsummary>
+              </keyparam>
+	      <keyparam>
+	        <paramname>on-end-of-stream</paramname>
+		<paramdefault>$not-supplied</paramdefault>
+		<paramsummary>Value returned if reading past the stream.
+		</paramsummary>
+              </keyparam>
+            </defparameters>
+            <defreturns>
+              <param>
+                <paramname>count-or-eof</paramname>
+		<paramsummary>Number of elements transferred.</paramsummary>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Reads in <parameter>n</parameter> elements from the
+                stream starting from the
+                the stream's current position and places those
+                elements into
+                <parameter>sequence</parameter>.
+                <parameter>Sequence</parameter> must be mutable to
+                allow it to expand should the
+                streamed in elements be larger than its original size.
+                Handles end-of-stream 
+                conditions just as <dname>read-element</dname> does.</para>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>discard-input</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Discards the elements from the stream.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	    </defparameters>
+            <defreturns>
+            </defreturns>
+            <defdescription>
+              <para>
+                "Reads" in all the elements, and then discards them.
+                The actual action depends on which method of this
+                function does the work.  The default implementation
+                does nothing, other implementations advance the
+                stream's position to the end of the collection.
+              </para>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>stream-input-available?</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Checks the stream if it's available for reading.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	    </defparameters>
+            <defreturns>
+	      <param>
+	        <paramname>input-available?</paramname>
+		<paramtype>&lt;boolean&gt;</paramtype>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Checks if the stream is available for reading.
+              </para>
+            </defdescription>
+          </dylangenericdef>
+
+	  <sect5 id="libs-streams-reg-general-fns-reading-handy">
+	    <title>Convenience Reading Functions</title>
+	    <para>
+	       Conveniece functions for reading from streams.
+	       These functions are implemented in terms of the more
+	       primitive functions defined above.
+	    </para>
+
+            <dylanmethoddef>
+              <defname>read-to</defname>
+	      <defsummary>Reads in a group of elements from a stream up
+	        to a marker element.
+	      </defsummary>
+	      <defparameters>
+	        <param>
+	          <paramname>stream</paramname>
+		  <paramtype>&lt;stream&gt;</paramtype>
+                </param>
+	        <param>
+	          <paramname>elemnt</paramname>
+		  <paramsummary>The element to read up to.</paramsummary>
+                </param>
+	        <keyparam>
+	          <paramname>on-end-of-stream</paramname>
+		  <paramdefault>$not-supplied</paramdefault>
+		  <paramsummary>Value returned if reading past the stream.
+		  </paramsummary>
+                </keyparam>
+	        <keyparam>
+	          <paramname>test</paramname>
+		  <paramtype>&lt;function&gt;</paramtype>
+		  <paramdefault>\==</paramdefault>
+		  <paramsummary>Comparator for elemnt and the stream's contents.
+		  </paramsummary>
+                </keyparam>
+              </defparameters>
+              <defreturns>
+                <param>
+                  <paramname>sequence-or-eof</paramname>
+                </param>
+		<param>
+		  <paramname>found?</paramname>
+		  <paramtype>&lt;boolean&gt;</paramtype>
+		</param>
+              </defreturns>
+              <defdescription>
+                <para>
+                  Reads in as many elements from the
+		  stream starting from the
+		  the stream's current position until it reaches
+		  <parameter>elemnt</parameter>.  Returns the matching
+		  sequence and &true; if <parameter>elemnt</parameter>
+		  was in the stream.  If <dname>read-to</dname> does
+		  not find <parameter>elemnt</parameter> (using the
+		  function supplied to <dlit>test:</dlit>), it will
+		  handle end-of-stream conditions as
+		  <dname>read-element</dname>.</para>
+              </defdescription>
+            </dylanmethoddef>
+
+            <dylanmethoddef>
+              <defname>read-through</defname>
+	      <defsummary>Reads in a group of elements from a stream up
+	        to and including a marker element.
+	      </defsummary>
+	      <defparameters>
+	        <param>
+	          <paramname>stream</paramname>
+		  <paramtype>&lt;stream&gt;</paramtype>
+                </param>
+	        <param>
+	          <paramname>elemnt</paramname>
+		  <paramsummary>The element to read up to.</paramsummary>
+                </param>
+	        <keyparam>
+	          <paramname>on-end-of-stream</paramname>
+		  <paramdefault>$not-supplied</paramdefault>
+		  <paramsummary>Value returned if reading past the stream.
+		  </paramsummary>
+                </keyparam>
+	        <keyparam>
+	          <paramname>test</paramname>
+		  <paramtype>&lt;function&gt;</paramtype>
+		  <paramdefault>\==</paramdefault>
+		  <paramsummary>Comparator for elemnt and the stream's contents.
+		  </paramsummary>
+                </keyparam>
+              </defparameters>
+              <defreturns>
+                <param>
+                  <paramname>sequence-or-eof</paramname>
+                </param>
+		<param>
+		  <paramname>found?</paramname>
+		  <paramtype>&lt;boolean&gt;</paramtype>
+		</param>
+              </defreturns>
+              <defdescription>
+                <para>
+		  Just as <dname>read-to</dname>, but this function
+		  also returns the marker element as part of the
+		  sequence returned.
+		</para>
+              </defdescription>
+            </dylanmethoddef>
+
+            <dylanmethoddef>
+              <defname>read-to-end</defname>
+              <defsummary>Reads a stream to its end.
+              </defsummary>
+              <defparameters>
+                <param>
+                  <paramname>stream</paramname>
+                  <paramtype>&lt;stream&gt;</paramtype>
+                </param>
+              </defparameters>
+              <defreturns>
+                <param>
+                  <paramname>sequence</paramname>
+                  <paramtype>&lt;sequence&gt;</paramtype>
+                </param>
+              </defreturns>
+              <defdescription>
+		<para>
+                  Reads the stream to its end as a returned sequence.
+		</para>
+		<para>
+                  Actually, the implementation trades efficiency for
+                  safety, relying on the exception mechanism to throw
+                  an <dname>&lt;end-of-stream-error&gt;</dname>.  If you
+                  know the underlying sequence structure, you can write a
+                  more efficient, and equally safe, method for your structure,
+                  e.g., if you know that your sequence contains no &false;
+                  elements, you can use &false; as a flag to the 
+                  <dlit>on-end-of-stream:</dlit> keyword to another 
+                  <dname>read</dname> function.  Or, if you know that your
+                  sequence is a multiple of a certain size (and you are using
+                  a <dname>&lt;buffered-stream&gt;</dname>, to boot), you can
+                  use <dname>read</dname> with the <parameter>n</parameter>
+                  parameter set to the size multiple.
+		</para>
+              </defdescription>
+            </dylanmethoddef>
+
+            <dylanmethoddef>
+              <defname>skip-through</defname>
+              <defsummary>Skips a group of elements from a stream up
+                to and including a marker element.
+              </defsummary>
+              <defparameters>
+                <param>
+                  <paramname>stream</paramname>
+                  <paramtype>&lt;stream&gt;</paramtype>
+                </param>
+                <param>
+                  <paramname>elemnt</paramname>
+                  <paramsummary>The element to read past.</paramsummary>
+                </param>
+                <keyparam>
+                  <paramname>test</paramname>
+                  <paramtype>&lt;function&gt;</paramtype>
+                  <paramdefault>\==</paramdefault>
+                </keyparam>
+              </defparameters>
+              <defreturns>
+                <param>
+                  <paramname>found?</paramname>
+                  <paramtype>&lt;boolean&gt;</paramtype>
+                  <paramsummary>If the marker element was encountered.
+                  </paramsummary>
+                </param>
+              </defreturns>
+              <defdescription>
+                <para>
+                  Reads and discards elements of a stream up to and including
+                  <parameter>elemnt</parameter>.  If this function encounters
+                  the end of the stream first, it returns &false;, otherwise
+                  it returns &true;.
+                </para>
+              </defdescription>
+            </dylanmethoddef>
+
+	  </sect5>
+	</sect4> 
+
+	<sect4 id="libs-streams-reg-general-fns-writing">
+	  <title>Writing Functions</title>
+	  <para></para>
+	</sect4> 
+
+	<sect4 id="libs-streams-reg-general-fns-lines">
+	  <title>Functions over Lines</title>
+	  <para></para>
+	</sect4> 
+
         <sect4 id="libs-streams-reg-general-fns-querying">
          <title>Querying Functions</title>
          <dylangenericdef>
