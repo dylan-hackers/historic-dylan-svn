@@ -378,31 +378,17 @@ define macro mi-parser-definer
   =>
   {
     define function "parse-" ## ?name(mi-tuple :: <byte-string>, matched :: <list>, more) => ();
-//      block (return)
-///        local method finish(inp :: <byte-string>, matched :: <list>, more)
-///                let got :: singleton(1) = matched.size;
-///                return(matched.head(?name ## "-<result>"));
-///              end;
-
-        let m = match(mi-tuple, ?"tag" "={"); // more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
-//        if (m)
-//          let m = m & match(m, ?"var1");
-//          let (m, val) = m & parse-as(m, <integer>);
-          ?tuple-fields;
-            let m = m & match(m, "}");
-            more.head(inp,
-                      pair(if (m & m.empty?)
-                             method(cla) apply(make, cla, ?tuple-keyword/values) end method
-                           else
-                             #f.always
-                           end if,
-                           matched),
-                      more.tail)
-                                
-//        end;
-//        let parsers = list(?p-sequence, finish);
-//        parsers.head(mi-tuple, #(), parsers.tail);
-//      end block;
+      let m = match(mi-tuple, ?"tag" "={");
+      ?tuple-fields;
+      let m = m & match(m, "}");
+      more.head(mi-tuple,
+                pair(if (m & m.empty?)
+                       method(cla) apply(make, cla, vector(?tuple-keyword/values)) end method
+                     else
+                       #f.always
+                     end if,
+                     matched),
+                more.tail)
     end
   }
   
@@ -422,11 +408,11 @@ define macro mi-parser-definer
 
   tuple-fields:
     { } => { }
-    { ?tag:name ?type:expression; ... } => { let (m, ?tag :: ?type) = m & parse-as(m, ?type); ... }
+    { ?tag:name ?type:expression; ... } => { let (m, ?tag :: false-or(?type)) = m & parse-as(m, ?type); ... }
 
   tuple-keyword/values:
     { } => { }
-    { ?tag:name ?:expression; ... } => { ?#"tag"; ?tag, ... }
+    { ?tag:name ?:expression; ... } => { ?#"tag", ?tag, ... }
 end;
 
 
