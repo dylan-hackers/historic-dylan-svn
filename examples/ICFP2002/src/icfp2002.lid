@@ -11,4 +11,5 @@ files:
   command
   robot-agent
   messages
+  point
   dumbot
