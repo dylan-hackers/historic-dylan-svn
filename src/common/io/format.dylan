@@ -73,13 +73,15 @@ end method;
 
 define /* sealed */ method print-message (object :: <condition>, stream :: <stream>)
     => ();
-  //---*** This method is broken right now.  It should just call report-condition.
-  //---*** If this interim bit of code is not good enough, then we'll have to do
-  //---*** something better (assuming we can't just fix report-condition).
-  //---*** report-condition(object, stream);
   dynamic-bind (*print-escape?* = #f)	// print as a string
     print-object(object, stream)
   end
+end method;
+
+define method print-message (condition :: <format-string-condition>, stream :: <stream>)
+    => ();
+  apply(format, stream, condition-format-string(condition), 
+        condition-format-arguments(condition))
 end method;
 
 define sealed method print-message (object :: <string>, stream :: <stream>)

@@ -350,8 +350,4 @@ define module redirect-io
   use standard-io;
   use extensions,
      import: {*warning-output*, condition-format, condition-force-output};
-  use system,
-     import: {*gdb-output*};
 end module;
-
-  
