@@ -23,11 +23,24 @@ end;
 
 define class <http-error> (<koala-error>)
   constant slot http-error-code :: <integer>, required-init-keyword: code:;
-  constant slot http-error-header :: false-or(<header-table>) = #f, init-keyword: header:;
+  constant slot http-error-headers :: false-or(<header-table>) = #f, init-keyword: headers:;
 end;
 
 define constant $application-error-code = 599;
 define constant $application-error-message = "Application error";
+
+//define http-error application-error (<http-server-error>)
+//    $application-error-code $application-error-message,
+//    format-string, format-arguments;
+
+define function application-error (#key format-string, format-arguments)
+  signal(make(<http-server-error>,
+              code: $application-error-code,
+              format-string: iff(format-string,
+                                 concatenate($application-error-message, " -- ", format-string),
+                                 $application-error-message),
+              format-arguments: format-arguments | #[]));
+end;
 
 // Any error caused by non-server code will be reported as a server error.
 // 599 is a non-standard return code, but clients SHOULD display the message
@@ -81,48 +94,47 @@ define class <http-server-error> (<http-error>)
 end;
 
 define macro http-error-definer
- { define http-error ?:name (?class) ?code:token ?string:token ?headertype, ?args:* }
-  => { define function ?name (#key value :: false-or(<string>) = #f, ?args)
-         let headers :: false-or(<header-table>) = #f;
-         if (value)
-           headers := make(<header-table>);
-           headers[ ?headertype ] := value;
-         end if;
+ { define http-error ?:name (?class:expression)
+       ?response-code:expression ?format-string:expression, ?format-args:* }
+  => { define constant "$" ## ?name = ?response-code;
+       define function ?name (#key headers :: false-or(<header-table>),
+                                   header-name :: false-or(<string>),
+                                   header-value :: false-or(<string>),
+                                   ?format-args)
+         if (header-name & header-value)
+           headers := headers | make(<header-table>);
+           headers[header-name] := header-value;
+         end;
          signal(make(?class,
-                     code: ?code,
-                     header: headers,
-                     format-string: ?string,
-                     format-arguments: vector(?args)
-                    )
-               )
-       end }
- class:
-  { } => { <http-error> }
-  { ?:name } => { ?name }
-
- headertype:
-  { } => { #f }
-  { type ?htype:token } => { ?htype }
+                     code: "$" ## ?name,
+                     headers: headers,
+                     format-string: ?format-string,
+                     format-arguments: vector(?format-args)));
+       end
+     }
 end;
 
 define class <http-parse-error> (<http-client-error>)
 end;
 
 define http-error moved-permanently-redirect (<http-redirect-error>)
-    301 "Moved Permanently" type "Location";
+    301
+    "The requested document has moved permanently to %s",
+    location;
 
 define http-error not-modified (<http-redirect-error>)
     304 "Not Modified";
 
-
 define http-error header-too-large-error (<http-client-error>)
-    400 "Request header size exceeded limit of %d bytes", max-size;
+    400 "Request header size exceeded limit of %d bytes",
+    max-size;
 
 //define http-error request-url-too-large-error (<http-client-error>)
 //    414 "Request URL exceeded limit of %d bytes", max-size;
 
 define http-error invalid-url-error (<http-parse-error>)
-    400 "Invalid request url: %=", url;
+    400 "Invalid request url: %=",
+    url;
 
 define http-error invalid-url-encoding-error (<http-parse-error>)
     400 "Invalid digits following %% in urlencoded string";
@@ -162,7 +174,8 @@ define http-error content-length-required-error (<http-client-error>)
 // The server MAY close the connection to prevent the client from continuing
 // the request.
 define http-error request-entity-too-large-error (<http-client-error>)
-    413 "Request entity exceeded limit of %d bytes", max-size;
+    413 "Request entity exceeded limit of %d bytes",
+    max-size;
 
 define http-error unsupported-media-type-error (<http-client-error>)
     415 "Unsupported media type";
@@ -195,18 +208,4 @@ end;
 
 define http-error internal-server-error (<internal-server-error>)
     500 "Internal server error";
-
-//define http-error application-error (<http-server-error>)
-//    $application-error-code $application-error-message,
-//    format-string, format-arguments;
-
-define function application-error (#key format-string,
-                                   format-arguments)
-  signal(make(<http-server-error>,
-              code: $application-error-code,
-              format-string: iff(format-string,
-                                 concatenate($application-error-message, " -- ", format-string),
-                                 $application-error-message),
-              format-arguments: format-arguments | #[]));
-end;
 

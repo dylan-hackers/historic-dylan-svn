@@ -190,7 +190,7 @@ define method send-response
     add-header(response, "Date", as-rfc-1123-date(current-date()));
 
     let content-length :: <string> = "0";
-    unless (response-code == 304)
+    unless (response-code == $not-modified)
       content-length := integer-to-string(stream-size(output-stream(response)));
       // Add required headers
       add-header(response, "Content-Length", content-length);
