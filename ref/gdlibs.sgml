@@ -1342,12 +1342,12 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	</PARA>
 
         <dylanclassdef>
-          <dEFNAME>&lt;stream&gt;</dEFNAME>
+          <defname>&lt;stream&gt;</defname>
           <defadjectives>open abstract</defadjectives>
-	  <defsupers><defsuper>&lt;object&gt;</defsuper></defsupers>
 	  <defsummary>
 	    The superclass of all stream classes.
           </defsummary>
+	  <defsupers><defsuper>&lt;object&gt;</defsuper></defsupers>
           <definitkeywords>
             <keyparam>
               <paramname>outer-stream</paramname>
@@ -1359,10 +1359,10 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
         </dylanclassdef>
 
         <dylanclassdef>
-	  <dEFNAME>&lt;positionable-stream&gt;</dEFNAME>
+	  <defname>&lt;positionable-stream&gt;</defname>
           <defadjectives>open abstract</defadjectives>
-	  <defsupers><defsuper>&lt;stream&gt;</defsuper></defsupers>
 	  <defsummary>It supports the Positionable Stream Protocol</defsummary>
+	  <defsupers><defsuper>&lt;stream&gt;</defsuper></defsupers>
           <definitkeywords>
           </definitkeywords>
           <defdescription>
