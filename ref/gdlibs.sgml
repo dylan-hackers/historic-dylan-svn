@@ -19,6 +19,7 @@
     <bookbiblio>
       <date>09 September 1998</date>
       <editor>&person.housel;</editor>
+      <editor>&person.bogk;</editor>
     </bookbiblio>
   </bookinfo>
 
@@ -210,7 +211,7 @@
     </SECT1>
 
     <SECT1 id="libs-dylan-dylan">
-      <TITLE>The <dmodule>Dylan</dmodule> Module</TITLE>
+      <TITLE>The Dylan Module</TITLE>
 
       <PARA>Whenever possible, we have tried to keep the
       <dmodule>Dylan</dmodule> module pristine and unextended,
@@ -219,7 +220,7 @@
       when it involves extending the behavior of a function or macro
       that is exported from the <dmodule>Dylan</dmodule>
       module. Currently, Gwydion compilers support these extensions to
-      the Dylan module as described below:</PARA>
+      the <dmodule>Dylan</dmodule> module as described below:</PARA>
 
       <ITEMIZEDLIST>
 	<LISTITEM>
@@ -236,30 +237,30 @@
 	</LISTITEM>
 
 	<LISTITEM>
-	  <PARA>Gwydion compilers supports <LITERAL>using</LITERAL>
-	  clauses in <LITERAL>for</LITERAL> statements.  The format of
+	  <PARA>Gwydion compilers supports <dlit>using</dlit>
+	  clauses in <dlit>for</dlit> statements.  The format of
 	  such a clause is</PARA>
 
 	  <SYNOPSIS><PARAMETER>var</PARAMETER> in <PARAMETER>collection</PARAMETER> using <PARAMETER>protocol</PARAMETER></SYNOPSIS>
 
 	  <PARA>The <PARAMETER>protocol</PARAMETER> will be used
 	  instead of
-	  <FUNCTION>forward-iteration-protocol</FUNCTION>. The
+	  <dname>forward-iteration-protocol</dname>. The
 	  <PARAMETER>protocol</PARAMETER> argument must be a variable
-	  name, not an expression. These <LITERAL>using</LITERAL>
+	  name, not an expression. These <dlit>using</dlit>
 	  clauses may be used together with
-	  <LITERAL>keyed-by</LITERAL>:</PARA>
+	  <dlit>keyed-by</dlit>:</PARA>
 	  
 	  <SYNOPSIS><PARAMETER>var</PARAMETER> keyed-by <PARAMETER>key</PARAMETER> in <PARAMETER>collection</PARAMETER> using <PARAMETER>protocol</PARAMETER></SYNOPSIS>
 	</LISTITEM>
 
 	<LISTITEM>
 	  <PARA>Gwydion compilers have an additional type of top level
-	  definition, <LITERAL>define function</LITERAL>, which
+	  definition, <dlit>define function</dlit>, which
 	  creates a constant binding in the current module and
 	  initializes it to a new function. The usage of
-	  <LITERAL>define function</LITERAL> usage is similar to that
-	  of <LITERAL>define method</LITERAL>. The following is an
+	  <dlit>define function</dlit> usage is similar to that
+	  of <dlit>define method</dlit>. The following is an
 	  example:</PARA>
 
 	  <PROGRAMLISTING>
@@ -388,7 +389,7 @@ end method;</PROGRAMLISTING>
 
 	    <PARA>This function signals an error if
 	    <PARAMETER>value</PARAMETER> is
-	    <LITERAL>#f</LITERAL>. Otherwise, it does nothing. In
+	    <dlit>#f</dlit>. Otherwise, it does nothing. In
 	    future Gwydion compilers, assert may be changed to a
 	    macro, which may or may not evaluate its argument exactly
 	    once.</PARA>
@@ -505,7 +506,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	<PARA>The debugger uses the function
 	<FUNCTION>report-condition</FUNCTION> to print conditions as error
 	messages to users; for example, this is the function that
-	implements the <LITERAL>%S</LITERAL> format-string directive
+	implements the <dlit>%S</dlit> format-string directive
 	for conditions. The debugger also uses the
 	<FUNCTION>format</FUNCTION> function exported from the Cheap-io
 	module to process format strings, and it prints directly to
@@ -557,7 +558,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    variables as error messages to users. The internal
 	    <FUNCTION>format</FUNCTION> function used by Mindy uses
 	    report-condition for condition arguments to the
-	    <LITERAL>%S</LITERAL> format directive. The Format
+	    <dlit>%S</dlit> format directive. The Format
 	    library's <FUNCTION>print-message</FUNCTION> method for
 	    conditions calls
 	    <FUNCTION>report-condition</FUNCTION>.</PARA>
@@ -568,7 +569,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    output. Using <FUNCTION>condition-format</FUNCTION> makes
 	    your module more flexible for users of your module. If you
 	    call Cheap-IO's format, you'll be forced to write to only
-	    one destination, <LITERAL>stdout</LITERAL>, ignoring the
+	    one destination, <dlit>stdout</dlit>, ignoring the
 	    <PARAMETER>stream</PARAMETER> argument. If you call the
 	    Format library's <FUNCTION>format</FUNCTION> function,
 	    then your module will require the Format, Print, and
@@ -631,12 +632,12 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    <FUNCTION>report-condition</FUNCTION> should use
 	    <FUNCTION>condition-format</FUNCTION> to do their
 	    formatting. Users will generally use
-	    <LITERAL>*debug-output*</LITERAL> or
-	    <LITERAL>*warning-output*</LITERAL> for the stream
+	    <dlit>*debug-output*</dlit> or
+	    <dlit>*warning-output*</dlit> for the stream
 	    argument, but this is not required.</PARA>
 
 	    <PARA>Mindy supplies a method for when stream is
-	    <LITERAL>#"Cheap-IO"</LITERAL>. The Gwydion Format library
+	    <dlit>#"Cheap-IO"</dlit>. The Gwydion Format library
 	    supplies a method for when stream is a subclass of
 	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
 	    implementing your own streams or format libraries, you
@@ -687,7 +688,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    yourself.</PARA>
 
 	    <PARA>Mindy supplies a method for when stream is
-	    <LITERAL>#"Cheap-IO"</LITERAL>. The Gwydion Format library
+	    <dlit>#"Cheap-IO"</dlit>. The Gwydion Format library
 	    supplies a method for when stream is a subclass of
 	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
 	    implementing your own streams or format libraries, you
@@ -707,13 +708,13 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 
 	    <PARA>Default-handler for
 	    <CLASSNAME>&lt;warning&gt;</CLASSNAME> uses
-	    <LITERAL>*warning-output*</LITERAL> to print warning
+	    <dlit>*warning-output*</dlit> to print warning
 	    messages. This variable must be either a
 	    <CLASSNAME>&lt;stream&gt;</CLASSNAME> from the Streams
-	    library, or <LITERAL>#"Cheap-IO"</LITERAL> (the
+	    library, or <dlit>#"Cheap-IO"</dlit> (the
 	    default). When this variable is
-	    <LITERAL>#"Cheap-IO"</LITERAL>, the output goes to
-	    <LITERAL>stderr</LITERAL>.</PARA>
+	    <dlit>#"Cheap-IO"</dlit>, the output goes to
+	    <dlit>stderr</dlit>.</PARA>
 	  </REFSECT1>
 	</REFENTRY>
       </SECT2>
@@ -738,10 +739,10 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    <TITLE>Keyword Arguments</TITLE>
 	    <VARIABLELIST>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>exit-code:</LITERAL></TERM>
+		<TERM><dlit>exit-code:</dlit></TERM>
 		<LISTITEM>
 		  <PARA>An instance of
-		  <LITERAL>&lt;integer&gt;</LITERAL>.  The default is
+		  <dlit>&lt;integer&gt;</dlit>.  The default is
 		  0.</PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
@@ -784,7 +785,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	      <VARLISTENTRY>
 		<TERM>meaningless</TERM>
 		<LISTITEM>
-		  <PARA>Always equal to <LITERAL>#f</LITERAL>.</PARA>
+		  <PARA>Always equal to <dlit>#f</dlit>.</PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	    </VARIABLELIST>
@@ -975,8 +976,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    denominator, and the greatest common divisor of the
 	    numerator and the denominator is one. Ratios are never
 	    automatically converted to integers. For example,
-	    <LITERAL>ratio(4, 2)</LITERAL> would return
-	    <LITERAL>2/1</LITERAL>.</PARA>
+	    <dlit>ratio(4, 2)</dlit> would return
+	    <dlit>2/1</dlit>.</PARA>
 
 	    <PARA>A numeric operation involving two ratios produces a
 	    normalized ratio result. A numeric operation involving a
@@ -1261,10 +1262,10 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       <ITEMIZEDLIST>
 	<LISTITEM>
 	  <PARA>A standard object-printing package such as Smalltalk's
-	  <LITERAL>printOn:</LITERAL> or Lisp's
-	  <LITERAL>print-object</LITERAL>, or a formatted printing
+	  <dlit>printOn:</dlit> or Lisp's
+	  <dlit>print-object</dlit>, or a formatted printing
 	  facility such as Lisp's
-	  <LITERAL>format</LITERAL>. Additional libraries are expected
+	  <dlit>format</dlit>. Additional libraries are expected
 	  to provide these facilities.</PARA>
 	</LISTITEM>
 
@@ -1305,8 +1306,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 
       <PARA>We say that a stream is established over the data
       aggregate. Hence, a stream providing access to the string
-      <LITERAL>"hello world"</LITERAL> is said to be a stream over the
-      string <LITERAL>"hello world"</LITERAL>.</PARA>
+      <dlit>"hello world"</dlit> is said to be a stream over the
+      string <dlit>"hello world"</dlit>.</PARA>
 
       <PARA>Streams permitting reading operations are called input
       streams. Input streams allow elements from the underlying data
@@ -1323,7 +1324,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       stream. </PARA>
 
       <PARA>The following expression binds stream to an input stream
-      over the string <LITERAL>"hello world"</LITERAL>: </PARA>
+      over the string <dlit>"hello world"</dlit>: </PARA>
 
       <PROGRAMLISTING>
 let stream = make(&lt;string-stream&gt;, contents: "hello world");</PROGRAMLISTING>
@@ -1362,8 +1363,8 @@ end;</PROGRAMLISTING>
       to an output stream. </PARA>
 
       <PARA>The following forms bind stream to an output stream over
-      an empty string and create the string <LITERAL>"I
-      see!"</LITERAL>, using the function
+      an empty string and create the string <dlit>"I
+      see!"</dlit>, using the function
       <FUNCTION>stream-contents</FUNCTION> to access all of the
       stream's elements.</PARA>
 
@@ -1386,8 +1387,8 @@ stream-contents(stream);</PROGRAMLISTING>
       access to their elements. Postionable streams allow you to set
       the position at which the stream will be accessed by the next
       operation. The following example uses positioning to return the
-      character <LITERAL>'w'</LITERAL> from a stream over the string
-      <LITERAL>"hello world"</LITERAL>:</PARA>
+      character <dlit>'w'</dlit> from a stream over the string
+      <dlit>"hello world"</dlit>:</PARA>
 
       <PROGRAMLISTING>
 let stream = make(&lt;string-stream&gt;, contents: "hello world");
@@ -1466,7 +1467,7 @@ write(stream, "ABCDEF");
 values(sv, stream-contents(stream));</PROGRAMLISTING>
 
       <PARA>The example returns two values. Each value is the same
-      (<LITERAL>\==</LITERAL>) stretchy vector:</PARA>
+      (<dlit>\==</dlit>) stretchy vector:</PARA>
 
       <PROGRAMLISTING>
 #[1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F']</PROGRAMLISTING>
@@ -1494,8 +1495,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       second example does not use a stretchy vector to hold the stream
       data. A vector of at least 15 elements is necessary to
       accommodate the elements written to the stream, but the vector
-      supplied, <LITERAL>v</LITERAL>, can hold only 5. Since the
-      stream cannot change <LITERAL>v</LITERAL>'s size, it must
+      supplied, <dlit>v</dlit>, can hold only 5. Since the
+      stream cannot change <dlit>v</dlit>'s size, it must
       allocate a new vector each time it grows. </PARA>
     </SECT1>
 
@@ -1558,13 +1559,13 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    Access Protocol. It is not instantiable.</PARA>
 
 	    <PARA>Streams of this class support the
-	    <LITERAL>buffer-size:</LITERAL> init-keyword, which can be
+	    <dlit>buffer-size:</dlit> init-keyword, which can be
 	    used to suggest the size of the stream's buffer. However,
 	    the instantiated stream might not use this value: it is
 	    taken purely as a suggested value. For example, a stream
 	    that uses a specific device's hardware buffer might use a
 	    fixed buffer size regardless of the value passed with the
-	    <LITERAL>buffer-size:</LITERAL> init-keyword. </PARA>
+	    <dlit>buffer-size:</dlit> init-keyword. </PARA>
 	  </REFSECT1>
 	</REFENTRY>
 
@@ -1589,25 +1590,25 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 
 	    <VARIABLELIST>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>locator:</LITERAL></TERM>
+		<TERM><dlit>locator:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<TERM><dlit>direction:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>if-exists:</LITERAL></TERM>
+		<TERM><dlit>if-exists:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>if-does-not-exist:</LITERAL></TERM>
+		<TERM><dlit>if-does-not-exist:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
@@ -1642,25 +1643,25 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <TITLE>Init-keywords</TITLE>
 	    <VARIABLELIST>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<TERM><dlit>contents:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<TERM><dlit>direction:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>start:</LITERAL></TERM>
+		<TERM><dlit>start:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>end:</LITERAL></TERM>
+		<TERM><dlit>end:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
@@ -1698,25 +1699,25 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <TITLE>Init-keywords</TITLE>
 	    <VARIABLELIST>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<TERM><dlit>contents:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<TERM><dlit>direction:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>start:</LITERAL></TERM>
+		<TERM><dlit>start:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>end:</LITERAL></TERM>
+		<TERM><dlit>end:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
@@ -1744,25 +1745,25 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <TITLE>Init-keywords</TITLE>
 	    <VARIABLELIST>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<TERM><dlit>contents:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<TERM><dlit>direction:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>start:</LITERAL></TERM>
+		<TERM><dlit>start:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>end:</LITERAL></TERM>
+		<TERM><dlit>end:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
@@ -1790,25 +1791,25 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <TITLE>Init-keywords</TITLE>
 	    <VARIABLELIST>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>contents:</LITERAL></TERM>
+		<TERM><dlit>contents:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>direction:</LITERAL></TERM>
+		<TERM><dlit>direction:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>start:</LITERAL></TERM>
+		<TERM><dlit>start:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
 	      </VARLISTENTRY>
 	      <VARLISTENTRY>
-		<TERM><LITERAL>end:</LITERAL></TERM>
+		<TERM><dlit>end:</dlit></TERM>
 		<LISTITEM>
 		  <PARA></PARA>
 		</LISTITEM>
@@ -1845,7 +1846,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <REFSECT1>
 	      <TITLE>Signature</TITLE>
 
-	      <SYNOPSIS><FUNCTION>make</FUNCTION> file-stream-class <LITERAL>#key</LITERAL> <PARAMETER>locator</PARAMETER> <PARAMETER>direction</PARAMETER> <PARAMETER>if-exists</PARAMETER> <PARAMETER>if-does-not-exist</PARAMETER> <PARAMETER>buffer-size</PARAMETER> <PARAMETER>element-type</PARAMETER> <PARAMETER>encoding</PARAMETER> 
+	      <SYNOPSIS><FUNCTION>make</FUNCTION> file-stream-class <dlit>#key</dlit> <PARAMETER>locator</PARAMETER> <PARAMETER>direction</PARAMETER> <PARAMETER>if-exists</PARAMETER> <PARAMETER>if-does-not-exist</PARAMETER> <PARAMETER>buffer-size</PARAMETER> <PARAMETER>element-type</PARAMETER> <PARAMETER>encoding</PARAMETER> 
 =&gt; <PARAMETER>file-stream-instance</PARAMETER> 
 </SYNOPSIS>
 	    </REFSECT1>
@@ -1863,26 +1864,26 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      argument is the class
 	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME>.</PARA>
 
-	      <PARA>The <LITERAL>locator:</LITERAL> init-keyword
+	      <PARA>The <dlit>locator:</dlit> init-keyword
 	      should be a string naming a file. If the Locators
 	      library is in use, locator should be an instance of
 	      <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
 	      can be coerced to one.</PARA>
 
-	      <PARA>The <LITERAL>direction:</LITERAL> init-keyword
+	      <PARA>The <dlit>direction:</dlit> init-keyword
 	      specifies the direction of the stream.</PARA>
 
-	      <PARA>The <LITERAL>if-exists:</LITERAL> and
-	      <LITERAL>if-does-not-exist:</LITERAL> init-keywords
+	      <PARA>The <dlit>if-exists:</dlit> and
+	      <dlit>if-does-not-exist:</dlit> init-keywords
 	      specify actions to take if the file named by locator
 	      does or does not already exist when the stream is
 	      created. These init-keywords are discussed in more
 	      detail in FIXME.</PARA>
 
-	      <PARA>The <LITERAL>buffer-size:</LITERAL> init-keyword
+	      <PARA>The <dlit>buffer-size:</dlit> init-keyword
 	      is explained in &lt;buffered-stream&gt; FIXME.</PARA>
 
-	      <PARA>The <LITERAL>element-type</LITERAL> init-keyword
+	      <PARA>The <dlit>element-type</dlit> init-keyword
 	      specifies the type of the elements in the file named by
 	      locator. This allows file elements to be represented
 	      abstractly; for instance, contiguous elements could be
@@ -1912,7 +1913,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      <SYNOPSIS><FUNCTION>type-for-file-stream</FUNCTION>
 	      <PARAMETER>locator</PARAMETER>
 	      <PARAMETER>element-type</PARAMETER>
-	      <LITERAL>#rest</LITERAL> <PARAMETER>all-keys</PARAMETER>
+	      <dlit>#rest</dlit> <PARAMETER>all-keys</PARAMETER>
 	      =&gt; <PARAMETER>file-stream-type</PARAMETER></SYNOPSIS>
 	    </REFSECT1>
 	    <REFSECT1>
@@ -1935,13 +1936,13 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 
 	  <VARIABLELIST>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>if-exists:</LITERAL></TERM>
+	      <TERM><dlit>if-exists:</dlit></TERM>
 	      <LISTITEM>
 		<PARA>An action to take if the file already exists.</PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>if-does-not-exist:</LITERAL></TERM>
+	      <TERM><dlit>if-does-not-exist:</dlit></TERM>
 	      <LISTITEM>
 		<PARA>An action to take if the file does not already
 		exist.</PARA>
@@ -1949,7 +1950,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    </VARLISTENTRY>
 
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>element-type:</LITERAL></TERM>
+	      <TERM><dlit>element-type:</dlit></TERM>
 	      <LISTITEM>
 		<PARA>How the elements of the underlying file are
 		accessed.</PARA>
@@ -1957,54 +1958,54 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    </VARLISTENTRY>
 	  </VARIABLELIST>
 
-	  <PARA>The <LITERAL>if-exists:</LITERAL> init-keyword allows
+	  <PARA>The <dlit>if-exists:</dlit> init-keyword allows
 	  you to specify an action to take if the file named by
 	  <PARAMETER>locator</PARAMETER> already exists. The options
 	  are:</PARA>
 
 	  <VARIABLELIST>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#f</LITERAL></TERM>
+	      <TERM><dlit>#f</dlit></TERM>
 	      <LISTITEM>
 		<PARA>No action. This is the default when the stream's
-		direction is <LITERAL>#"input"</LITERAL> or
-		<LITERAL>#"input-output"</LITERAL>.</PARA>
+		direction is <dlit>#"input"</dlit> or
+		<dlit>#"input-output"</dlit>.</PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"new-version"</LITERAL></TERM>
+	      <TERM><dlit>#"new-version"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>If the underlying file system supports file
 		versioning, a new version of the file is created. This
 		is the default when the stream's direction is
-		<LITERAL>#"output"</LITERAL>.</PARA>
+		<dlit>#"output"</dlit>.</PARA>
 
 		<PARA>If the file system does not support file
 		versioning, the implementation should substitute one
-		of the other <LITERAL>if-exists:</LITERAL> behaviors;
-		the <LITERAL>#"replace"</LITERAL> behavior is a good
+		of the other <dlit>if-exists:</dlit> behaviors;
+		the <dlit>#"replace"</dlit> behavior is a good
 		choice. </PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"overwrite"</LITERAL></TERM>
+	      <TERM><dlit>#"overwrite"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>Set the stream's position to the beginning of
 		the file, but preserve the current contents of the
 		file. This is useful when the direction is
-		<LITERAL>#"input-output"</LITERAL> and you want to
+		<dlit>#"input-output"</dlit> and you want to
 		overwrite an existing file.</PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"replace"</LITERAL></TERM>
+	      <TERM><dlit>#"replace"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>Delete or rename the existing file and create a
 		new file.</PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"append"</LITERAL></TERM>
+	      <TERM><dlit>#"append"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>Set the stream's initial position to the end of
 		the existing file so that all new output occurs at the
@@ -2012,7 +2013,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"truncate"</LITERAL></TERM>
+	      <TERM><dlit>#"truncate"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>If the file exists, it is truncated, setting the
 		size of the file to 0. If the file does not exist,
@@ -2020,7 +2021,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"signal"</LITERAL></TERM>
+	      <TERM><dlit>#"signal"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>Signal a
 		<CLASSNAME>&lt;file-exists-error&gt;</CLASSNAME>
@@ -2029,34 +2030,34 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    </VARLISTENTRY>
 	  </VARIABLELIST>
 
-	  <PARA>The <LITERAL>if-does-not-exist:</LITERAL> init-keyword
+	  <PARA>The <dlit>if-does-not-exist:</dlit> init-keyword
 	  allows you to specify an action to take if the file named by
 	  <PARAMETER>locator</PARAMETER> does not exist. The options
 	  are:</PARA>
 
 	  <VARIABLELIST>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#f</LITERAL></TERM>
+	      <TERM><dlit>#f</dlit></TERM>
 	      <LISTITEM>
 		<PARA>No action.</PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"signal"</LITERAL></TERM>
+	      <TERM><dlit>#"signal"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>Signal a
 		<CLASSNAME>&lt;file-does-not-exist-error&gt;</CLASSNAME>
 		condition. This is the default when the stream's
-		direction is <LITERAL>#"input"</LITERAL>.</PARA>
+		direction is <dlit>#"input"</dlit>.</PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	    <VARLISTENTRY>
-	      <TERM><LITERAL>#"create"</LITERAL></TERM>
+	      <TERM><dlit>#"create"</dlit></TERM>
 	      <LISTITEM>
 		<PARA>Create a new zero-length file. This is the
 		default when the stream's direction is
-		<LITERAL>#"output"</LITERAL> or
-		<LITERAL>#"input-output"</LITERAL>.</PARA>
+		<dlit>#"output"</dlit> or
+		<dlit>#"input-output"</dlit>.</PARA>
 	      </LISTITEM>
 	    </VARLISTENTRY>
 	  </VARIABLELIST>
@@ -2075,7 +2076,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  condition is signalled at the time the file stream is
 	  created.</PARA>
 
-	  <PARA>The <LITERAL>element-type:</LITERAL> init-keyword
+	  <PARA>The <dlit>element-type:</dlit> init-keyword
 	  controls how the elements of the underlying file are
 	  accessed. </PARA>
 
@@ -2083,8 +2084,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	    <TITLE>Implementation Note</TITLE>
 
 	    <PARA>Ideally, element-type could be any valid Dylan type
-	    such as <LITERAL>limited(&lt;integer&gt;, min: 0, max:
-	    255)</LITERAL> or
+	    such as <dlit>limited(&lt;integer&gt;, min: 0, max:
+	    255)</dlit> or
 	    <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME>. This
 	    approach may make it possible to implement a potentially
 	    inefficient but general set of file streams. Unfortunately
@@ -2177,11 +2178,11 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       </REFNAMEDIV>
       <REFSECT1>
 	<TITLE>Summary</TITLE>
-	<PARA>Formats arguments to <LITERAL>*standard-output*</LITERAL>.</PARA>
+	<PARA>Formats arguments to <dlit>*standard-output*</dlit>.</PARA>
       </REFSECT1>
       <REFSECT1>
 	<TITLE>Signature</TITLE>
-	<SYNOPSIS><FUNCTION>format-out</FUNCTION> <PARAMETER>control-string</PARAMETER> <LITERAL>#key</LITERAL> <PARAMETER>args</PARAMETER> => </SYNOPSIS>
+	<SYNOPSIS><FUNCTION>format-out</FUNCTION> <PARAMETER>control-string</PARAMETER> <dlit>#key</dlit> <PARAMETER>args</PARAMETER> => </SYNOPSIS>
       </REFSECT1>
       <REFSECT1>
 	<TITLE>Arguments</TITLE>
@@ -2366,7 +2367,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <title>A Simple Example</title>
 
       <para><xref linkend="libs-parse-arguments-example-library"> and <xref
-      linkend="libs-parse-arguments-example-source"> demonstrate how to use
+      linkend="libs-parse-arguments-example-with-macro"> demonstrate how to use
       the parse-arguments library in a simple application.</para>
 
       <figure id="libs-parse-arguments-example-library">
@@ -2389,6 +2390,52 @@ define module sample-application
 end module;
 </programlisting>
       </figure>
+
+
+      <figure id="libs-parse-arguments-example-with-macro">
+	<title>Source code for a sample application using
+	parse-arguments, making use of the <dlit>define argument-parser</dlit> macro.</title>
+<programlisting>
+Module: sample-application
+
+define argument-parser &lt;sample-parser> ()
+  option verbose?, long: "verbose", short: "v";
+  option logfile, kind: &lt;parameter-option-parser>, long: "logfile", short: "L";
+  regular-arguments file-names;
+end;
+
+define method main(program-name :: &lt;string>, #rest arguments)
+  let parser = make(&lt;sample-parser>);
+
+  unless (parse-arguments(parser, arguments))
+    format-out("Usage: %s [-v] [-Llogfile] files...\n", program-name);
+    exit(exit-code: 1);
+  end;
+
+  // Body of program.
+end;
+</programlisting>
+      </figure>
+
+      <para>In <xref linkend="libs-parse-arguments-example-with-macro">, the
+      variable <dlit>parser.verbose?</dlit> will be set to <dlit>#t</dlit> if
+      either <literal>--verbose</literal> or <literal>-v</literal> appears
+      on the command line. Otherwise, it will be set to
+      <dlit>#f</dlit>. Similarly, if <literal>-Lfilename</literal> or
+      <literal>--logfile=filename</literal> appears on the command line,
+      the variable <dlit>parser.logfile</dlit> will be set the string
+      <literal>"filename"</literal>. Otherwise, it too will be set to
+      <dlit>#f</dlit>.</para>
+
+      <para>Any other arguments will be collected and placed in the
+      variable <dlit>parser.file-names</dlit>.</para>
+
+      <para><xref linkend="libs-parse-arguments-example-source"> shows
+      how to use the <dlibrary>Parse-Arguments</dlibrary> library
+      without using the <dlit>define argument-parser</dlit>
+      macro. Here the various arguments are added manually, and
+      accessed using the <dname>option-value-by-long-name</dname>
+      method.</para>
 
       <figure id="libs-parse-arguments-example-source">
 	<title>Source code for a sample application using
@@ -2421,18 +2468,14 @@ end;
 </programlisting>
       </figure>
 
-      <para>In <xref linkend="libs-parse-arguments-example-source">, the
-      variable <dlit>verbose?</dlit> will be set to <dlit>#t</dlit> if
-      either <literal>--verbose</literal> or <literal>-v</literal> appears
-      on the command line. Otherwise, it will be set to
-      <dlit>#f</dlit>. Similarly, if <literal>-Lfilename</literal> or
-      <literal>--logfile=filename</literal> appears on the command line,
-      the variable <dlit>logfile</dlit> will be set the string
-      <literal>"filename"</literal>. Otherwise, it too will be set to
-      <dlit>#f</dlit>.</para>
 
-      <para>Any other arguments will be collected and placed in the
-      variable <dlit>file-names</dlit>.</para>
+      <para>Using the <dname>define argument-parser</dname> is the
+      preferred way of using the <dlibrary>Parse-Arguments</dlibrary>
+      library. It is both more convenient and better readable. The
+      manual way is documented both for users of Mindy, which doesn't
+      have macro capabilities, and for advanced users who wish to
+      extend the functionality of the option parsers.</para>
+
     </sect1>
 
     <sect1 id="libs-parsing-arguments">

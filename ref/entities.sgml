@@ -16,6 +16,13 @@
 </affiliation>
 ">
 
+<!ENTITY person.bogk "
+<firstname>Andreas</firstname><surname>bogk</surname>
+<affiliation>
+  <address><email>andreas@andreas.org</email></address>
+</affiliation>
+">
+
 <!-- Original Gwydion People -->
 
 <!ENTITY person.rstockton "
@@ -86,6 +93,6 @@
       
       <PARA>Bug reports, questions, comments, and suggestions should
       be sent by E-mail to the Internet address
-      <EMAIL>gd-bugs@randomhacks.com</EMAIL>.</PARA>
+      <EMAIL>gd-bugs@gwydiondylan.org</EMAIL>.</PARA>
     </LEGALNOTICE>
 '>
