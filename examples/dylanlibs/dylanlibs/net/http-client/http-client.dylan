@@ -28,6 +28,9 @@ define class <http-session> (<object>)
   // The curl handle for this session.
   slot http-session-curl :: false-or(<curl>), required-init-keyword: curl:;
 
+  // Lock for managing access to the session
+  slot http-session-lock :: <lock> = make(<recursive-lock>);
+
   // A sequence of resources that need to be held onto until
   // the session is cleaned up.
   slot http-resources :: false-or(<sequence>) = make(<stretchy-vector>);
@@ -50,17 +53,25 @@ define method make-http-session(#key cookies? = #t, user-agent) => (r :: <http-s
 end method make-http-session;
 
 define method cleanup-http-session(session :: <http-session>) => ()
-  curl-easy-cleanup(session.http-session-curl);
-  session.http-resources := #f;
-  session.http-session-curl := #f;
+  with-lock(session.http-session-lock)
+    curl-easy-cleanup(session.http-session-curl);
+    session.http-resources := #f;
+    session.http-session-curl := #f;
+  end with-lock;
 end method cleanup-http-session;
 
 define method add-resource(session :: <http-session>, r :: <object>) => (r :: <object>)
-  session.http-resources := add!(session.http-resources, r);
-  r
+  with-lock(session.http-session-lock)
+    session.http-resources := add!(session.http-resources, r);
+    r
+  end with-lock;
 end method add-resource;
 
 define macro with-http-session                              
+{ with-http-session(?:name) ?:body end }
+=> { with-http-session(?name = #f)
+       ?body
+     end  }
 { with-http-session(?:name = ?:expression) ?:body end }
 => { begin
        let original-session = ?expression;
@@ -84,49 +95,51 @@ define method do-http-request(session :: <http-session>,
                               content,
                               query)
  => (r :: <string>)
-  let curl = session.http-session-curl;
-  let result = "";
+  with-lock(session.http-session-lock)
+    let curl = session.http-session-curl;
+    let result = "";
 
-  local method handle-request(ptr, size, nmemb, stream)
-    ignore(stream);
-    result := concatenate(result, as(<byte-string>, c-type-cast(<c-string>, ptr)));
-    size * nmemb;
-  end method;
+    local method handle-request(ptr, size, nmemb, stream)
+      ignore(stream);
+     result := concatenate(result, as(<byte-string>, c-type-cast(<c-string>, ptr)));
+       size * nmemb;
+    end method;
 
-  dynamic-bind(*write-function-callback* = handle-request)
-    curl-easy-setopt(curl, $curlopt-url, add-resource(session, as(<c-string>, url)));
-    curl-easy-setopt(curl, $curlopt-writefunction, c-write-function-callback);
-    curl-easy-setopt(session.http-session-curl, $curlopt-autoreferer, 1);
+    dynamic-bind(*write-function-callback* = handle-request)
+      curl-easy-setopt(curl, $curlopt-url, add-resource(session, as(<c-string>, url)));
+      curl-easy-setopt(curl, $curlopt-writefunction, c-write-function-callback);
+      curl-easy-setopt(session.http-session-curl, $curlopt-autoreferer, 1);
 
-    when(http-method == #"post")
-      if(query)        
-        content := "";
-        for(pairs in query)
-          unless(empty?(content))
-            content := concatenate(content, "&");
-          end unless;
+      when(http-method == #"post")
+        if(query)        
+          content := "";
+          for(pairs in query)
+            unless(empty?(content))
+              content := concatenate(content, "&");
+            end unless;
 
-          content := concatenate(content, pairs.head, "=", pairs.tail)
-        end for;
-      end if;
+            content := concatenate(content, pairs.head, "=", pairs.tail)
+          end for;
+        end if;
         
-      let c-content = add-resource(session, as(<c-string>, content));
-      curl-easy-setopt(curl, $curlopt-post, 1);
-      curl-easy-setopt(curl, $curlopt-postfields, c-content);
-      curl-easy-setopt(curl, $curlopt-postfieldsize, c-content.size);        
-    end when;
+        let c-content = add-resource(session, as(<c-string>, content));
+        curl-easy-setopt(curl, $curlopt-post, 1);
+        curl-easy-setopt(curl, $curlopt-postfields, c-content);
+        curl-easy-setopt(curl, $curlopt-postfieldsize, c-content.size);        
+      end when;
 
-    when(http-method == #"get")
-      curl-easy-setopt(curl, $curlopt-post, 0);    
-    end when;
+      when(http-method == #"get")
+        curl-easy-setopt(curl, $curlopt-post, 0);    
+      end when;
 
-    when(follow-location?)
-      curl-easy-setopt(curl, $curlopt-followlocation, 1);
-    end when;
+      when(follow-location?)
+        curl-easy-setopt(curl, $curlopt-followlocation, 1);
+      end when;
 
-    curl-easy-perform(curl);
-    result;
-  end dynamic-bind;    
+      curl-easy-perform(curl);
+      result;
+    end dynamic-bind;    
+  end with-lock;
 end method do-http-request;
 
 
