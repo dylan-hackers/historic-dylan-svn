@@ -58,8 +58,8 @@
 
 <!ENTITY ftpdir 'ftp://berlin.ccc.de/pub/gd/'>
 
-<!ENTITY gdmp 'Gwydion Dylan Maintenance Project
-<ulink url="http://www.gwydiondylan.org/">
+<!ENTITY gdmp '
+<ulink url="http://www.gwydiondylan.org/">Gwydion Dylan Maintenance Project</>
 '>
 
 <!ENTITY gcc "<Command>gcc</>">
