@@ -8,12 +8,15 @@ define constant <cent-type> = limited(<integer>, min: 0, max: 99);
 define constant <money-sign> = one-of(#"positive", #"negative");
 
 define class <money> (<object>)
-  constant slot money-sign :: <money-sign> = #"positive", init-keyword: sign:;
-  constant slot money-dollars :: <dollar-type> = 0, init-keyword: dollars:;
-  constant slot money-cents :: <cent-type> = 0, init-keyword: cents:;
+  constant sealed slot money-sign :: <money-sign> = #"positive", init-keyword: sign:;
+  constant sealed slot money-dollars :: <dollar-type> = 0, init-keyword: dollars:;
+  constant sealed slot money-cents :: <cent-type> = 0, init-keyword: cents:;
 end class <money>;
 
-define method sign-multiplier(sign :: <money-sign>) => (r :: one-of(-1, 1))
+define sealed domain make(singleton(<money>));
+define sealed domain initialize(<money>);
+
+define sealed method sign-multiplier(sign :: <money-sign>) => (r :: one-of(-1, 1))
   if(sign == #"negative")
     -1
   else
@@ -21,11 +24,11 @@ define method sign-multiplier(sign :: <money-sign>) => (r :: one-of(-1, 1))
   end;
 end method sign-multiplier;
 
-define method invert-sign(sign == #"negative") => (r == #"positive")
+define sealed method invert-sign(sign == #"negative") => (r == #"positive")
   #"positive"
 end method invert-sign;
 
-define method invert-sign(sign == #"positive") => (r == #"negative")
+define sealed method invert-sign(sign == #"positive") => (r == #"negative")
   #"negative"
 end method invert-sign;                         
 
@@ -41,7 +44,7 @@ define method print-message( m :: <money>, stream :: <stream> ) => ()
   print-object(m, stream);
 end method print-message;
 
-define method make-money(dollars :: <dollar-type>, cents :: <cent-type>, #key sign :: <money-sign> = #"positive") => (m :: <money>)
+define sealed method make-money(dollars :: <dollar-type>, cents :: <cent-type>, #key sign :: <money-sign> = #"positive") => (m :: <money>)
   make(<money>, 
        dollars: dollars, 
        cents: cents,
@@ -75,34 +78,34 @@ define method as(t == <money>, dollars :: <integer>) => (m :: <money>)
                    end);
 end method as;
 
-define method normalize(dollars, cents) => (dollars :: <dollar-type>, cents :: <cent-type>, sign :: <money-sign>)
+define sealed method normalize(dollars, cents) => (dollars :: <dollar-type>, cents :: <cent-type>, sign :: <money-sign>)
   let sign = if(negative?(dollars)) #"negative" else #"positive" end;
   let (add-dollars, real-cents) = truncate/(cents, 100);
   let dollars = dollars + add-dollars;
   values(abs(dollars), abs(real-cents), sign);  
 end method normalize;
 
-define method money-operation(operation == #"add", 
-                              lhs-sign == #"positive", 
-                              rhs-sign == #"positive") => (op :: <function>)
+define sealed method money-operation(operation == #"add", 
+                                     lhs-sign == #"positive", 
+                                     rhs-sign == #"positive") => (op :: <function>)
   \+
 end method money-operation;
 
-define method money-operation(operation == #"add", 
-                              lhs-sign == #"negative", 
-                              rhs-sign == #"negative") => (op :: <function>)
+define sealed method money-operation(operation == #"add", 
+                                     lhs-sign == #"negative", 
+                                     rhs-sign == #"negative") => (op :: <function>)
   \+
 end method money-operation;
 
-define method money-operation(operation == #"add", 
-                              lhs-sign == #"positive", 
-                              rhs-sign == #"negative") => (op :: <function>)
+define sealed method money-operation(operation == #"add", 
+                                     lhs-sign == #"positive", 
+                                     rhs-sign == #"negative") => (op :: <function>)
   \-
 end method money-operation;
 
-define method money-operation(operation == #"add", 
-                              lhs-sign == #"negative", 
-                              rhs-sign == #"positive") => (op :: <function>)
+define sealed method money-operation(operation == #"add", 
+                                     lhs-sign == #"negative", 
+                                     rhs-sign == #"positive") => (op :: <function>)
   method(a, b)
     b - a;
   end method;
@@ -260,13 +263,13 @@ end method \=;
 define method \<(lhs :: <money>, rhs :: <money>) => (r :: <boolean>)
   lhs.money-sign == #"negative" & rhs.money-sign == #"positive" |
     (lhs.money-sign == #"positive" &
-     lhs.money-dollars < rhs.money-dollars |
+     (lhs.money-dollars < rhs.money-dollars |
        (lhs.money-dollars = rhs.money-dollars &
-          lhs.money-cents < rhs.money-cents)) |
+          lhs.money-cents < rhs.money-cents))) |
     (lhs.money-sign == #"negative" &
-     lhs.money-dollars > rhs.money-dollars |
+     (lhs.money-dollars > rhs.money-dollars |
        (lhs.money-dollars = rhs.money-dollars &
-          lhs.money-cents > rhs.money-cents));     
+          lhs.money-cents > rhs.money-cents)));     
 end method \<;
 
 define method zero?(m :: <money>) => (r :: <boolean>)
