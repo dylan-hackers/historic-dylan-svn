@@ -36,7 +36,7 @@ define macro parse-definer
 end macro parse-definer;
 
 define macro parse-helper
-{ parse-helper(?:name, (?meta-vars), (?results), (?meta)) }
+{ parse-helper(?:name, (?meta-vars:*), (?results), (?meta)) }
  => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
         meta-builder(string, start, (?meta-vars), (?results), (?meta));
       end; }
@@ -52,8 +52,44 @@ define macro collector-definer
       end; }
 end macro collector-definer;
 
+define macro collect-value-definer
+{ define collect-value ?:name (?vars:*)
+    (#key ?test:variable = not-in-set?)
+    ?single:expression, ?double:expression => ?meta
+  end }
+ => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
+        with-collector into-vector str, collect: collect;
+          meta-builder(string, start, (c, ?vars), (as(<string>, str)),
+            ({['"',
+          loop({[test(rcurry(?test, ?double), c),
+                 do(collect(c))]}), 
+// DOUG          ?meta,
+          '"'],
+         ["'",
+          loop({[test(rcurry(?test, ?single), c), 
+                 do(collect(c))]}), 
+// DOUG          ?meta,
+          "'"]}, []));
+        end with-collector;
+      end method; }
+ /*****  Either I'm missing something or this should work
+  *      FD pukes on this, tho'
+ => { define collector ?name(c, ?vars)
+        {['"',
+          loop({[test(rcurry(?test, ?double), c),
+                 do(collect(c))]}), 
+// DOUG          ?meta,
+          '"'],
+         ["'",
+          loop({[test(rcurry(?test, ?single), c), 
+                 do(collect(c))]}), 
+// DOUG          ?meta,
+          "'"]}, []
+       end collector; } *****/
+end macro collect-value-definer;
+
 define macro meta-builder
-{ meta-builder(?str:expression, ?start:expression, (?vars), (?results), (?meta)) }
+{ meta-builder(?str:expression, ?start:expression, (?vars:*), (?results), (?meta)) }
  => {  with-meta-syntax parse-string (?str, start: ?start, pos: index)
          variables(?vars);
          [ ?meta ];
@@ -123,38 +159,6 @@ define parse nmtokens(token, s)
   parse-nmtoken(token), loop([parse-s(s), parse-nmtoken(token)])
 end parse nmtokens;
 
-// [9] - [12] are best described as slightly differing instances of 
-// an algorithm
-define macro parse-value-definer
-{ define parse-value ?:name(?meta-vars:*)
-    ?nix-single-quote-str:expression, ?nix-double-quote-str:expression
-       => ?meta
-  end }
- => { parse-helper( ?name ## "-value", (c, ?meta-vars), (#t),
-                    ( {['"',
-                        loop({test(rcurry(not-in-set?, ?nix-double-quote-str), c)}), 
-// DOUG                 ?meta, 
-                        '"'],
-                       ['\'',
-                        loop({test(rcurry(not-in-set?, ?nix-single-quote-str), c)}), 
-// DOUG                 ?meta,
-                        '\'']}, [] )) }
-end macro parse-value-definer;
-
-/****
-define macro parse-value-builder
-{ parse-value-builder( ?c:variable, (?meta-vars:*), ?test:expression,
-                      ?not-single:expression, ?not-double:expression,
-                      (?meta) ) }
- => { ['"', loop({(?test(?c, ?not-double))}),
-// DOUG       ?meta,
-         '"'],
-        ["'", loop({(?test(?c, ?not-single))}),
-// DOUG       ?meta,
-         "'"] }
-end macro parse-value-builder;
-****/
-
 // Literals
 //
 //    [9]     EntityValue      ::=    '"' ([^%&"] | PEReference | Reference)* '"'
@@ -167,37 +171,20 @@ define method not-in-set?(character, set)
   ~ member?(character, set);
 end method not-in-set?;
 
-define parse-value entity(ref)
+define collect-value entity-value(ref) ()
   "%&'", "%&\"" => parse-pe-reference(ref), parse-reference(ref)
-end parse-value entity;
+end collect-value entity-value;
 
 //    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
 //                                    |  "'" ([^<&'] | Reference)* "'"
 //
-define parse-value att(ref)
+define collect-value att-value(ref) ()
   "<&'", "<&\"" => parse-reference(ref)
-end parse-value att;
-
-// here again we use a macro to simplify parsing literals
-define macro collect-literal-definer
-{ define collect-literal ?:name(?nix-single-quote-str:expression, 
-                                ?nix-double-quote-str:expression,
-                                #key ?test:expression = not-in-set?)
-  end }
- => { define collector ?name ## "-literal" (c) 
-        {['"',
-          loop({[test(rcurry(?test, ?nix-double-quote-str), c),
-                 do(collect(c))]}), 
-          '"'],
-         ["'",
-          loop({[test(rcurry(?test, ?nix-single-quote-str), c), 
-                 do(collect(c))]}), 
-          "'"]}, []
-      end; }
-end macro collect-literal-definer;
+end collect-value att-value;
 
 //    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
 //
+/****
 define collector system-literal (c)
   {['"',
     loop([test(rcurry(not-in-set?, "\""), c), do(collect(c))]), 
@@ -205,18 +192,24 @@ define collector system-literal (c)
    ['\'',
     loop([test(rcurry(not-in-set?, "'"), c), do(collect(c))]),
     '\'']}, []
+end; ****/
+define collect-value system-literal() ()
+  "'", "\"" => []
 end;
-// define collect-literal system("'", "\"") end; this really should work
 
 //    [12]    PubidLiteral     ::=    '"' PubidChar* '"' | "'" (PubidChar - "'")* "'"
 //
-define collector pubid-literal (c)
+/**** define collector pubid-literal (c)
   {['"',
     loop([type(<pub-id-char>, c), do(collect(c))]), 
     '"'],
    ['\'',
     loop([type(<pub-id-char-without-quotes>, c), do(collect(c))]), 
     '\'']}, []
+end; ****/
+define collect-value pubid-literal() 
+  (test: method(x, y) subtype?(singleton(x), y) end)
+  <pub-id-char-without-quotes>, <pub-id-char> => []
 end;
 
 //    [13]    PubidChar        ::=    #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]
