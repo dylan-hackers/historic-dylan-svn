@@ -121,10 +121,16 @@ end;
 // Lighting:
 define graphics-primitive light(dir :: <point> => color :: <point>) 
   make(<star>, direction: vector3D(dir.point-x, dir.point-y, dir.point-z), 
-               color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z));
+       color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z));
 end;
 
-define graphics-primitive pointlight() error("No pointlights yet") end;
+define graphics-primitive pointlight(loc :: <point> => color ::
+				       <point>)
+  make(<firefly>, location: point3D(loc.point-x, loc.point-y, loc.point-z, 1.0),
+       color: make(<color>, red: color.point-x, green: color.point-y, blue: color.point-z));
+       
+end;
+
 define graphics-primitive spotlight() error("No spotlights yet") end;
 
 // CSG:
