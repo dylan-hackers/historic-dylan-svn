@@ -814,65 +814,139 @@ define method subsequence-position
 end method subsequence-position;
 
 // author: PDH
+// Returns the minimum of two sequence sizes or false if neither
+// sequence is bounded.
+//
+define inline-only method min-size
+    (sequence1 :: <sequence>, sequence2 :: <sequence>)
+    => result :: false-or(<integer>);
+  let size1 :: false-or(<integer>) = sequence1.size;
+  let size2 :: false-or(<integer>) = sequence2.size;
+  if (size1)
+    if (size2)
+      min(size1, size2);
+    else
+      size1;
+    end if;
+  else
+    size2;
+  end if;
+end method min-size;
+
+// author: PDH
+// Returns the minimum size of the sequences in more-sequences,
+// or false if none of the sequences is bounded. The first parameter
+// acts as a seed.
+//
+define inline-only method min-size
+    (len :: false-or(<integer>),
+     more-sequences :: <rest-parameters-sequence>)
+    => result :: false-or(<integer>);
+  for (other-sequence :: <sequence> in more-sequences)
+    let other-size :: false-or(<integer>) = other-sequence.size;
+    if (other-size)
+      len := if (len)
+               min(len, other-size);
+             else
+               other-size;
+             end;
+    end if;
+  end for;
+  len;
+end method min-size;
+
+// author: PDH
 // 10x speed-up over previous version of this method (not the compiler
 // transform)
 // d2c has a transform for visible calls to do (over sequences) which
-// is much, much faster than the code below when more-collections is
-// not empty.
+// is much faster than the code below when the size of more-collections
+// is greater than two.
 //
 define method do
-    (proc :: <function>, sequence :: <sequence>,
-     #next next-method, #rest more-collections)
+    (proc :: <function>, sequence0 :: <sequence>, #rest more-collections)
     => res :: <false>;
-  if (empty?(more-collections))
-    for (element in sequence)
-      proc(element);
+  let sz = sequence0.size;
+
+  let (sequence0-init, ignore1, sequence0-next-state, ignore2,
+       ignore3, sequence0-current-element) = forward-iteration-protocol(sequence0);
+
+  let more-size = more-collections.size;
+  if (more-size == 0)
+    unless (sz)
+      unbounded-collection-error(do);
     end;
+    for (index from 0 below sz,
+         sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state))
+      proc(sequence0-current-element(sequence0, sequence0-state));
+    end for;
   elseif (every?(rcurry(instance?, <sequence>), more-collections))
     let more-sequences = more-collections;
-    // Stuff all the forward-iteration-protocol info into a bunch of
-    // parallel vectors..
-    //
-    let more-size = more-sequences.size;
-    let states = make(<vector>, size: more-size);
-    let limits = make(<vector>, size: more-size);
-    let next-states = make(<vector>, size: more-size);
-    let finished-state?s = make(<vector>, size: more-size);
-    let current-elements = make(<vector>, size: more-size);
 
-    for (seq keyed-by i in more-sequences)
-      let (init, limit, next-state, finished-state?, ignore, current-element)
-        = forward-iteration-protocol(seq);
-      states[i] := init;
-      limits[i] := limit;
-      next-states[i] := next-state;
-      finished-state?s[i] := finished-state?;
-      current-elements[i] := current-element;
-    end for;
+    let sz = min-size(sz, more-sequences);
+    unless (sz)
+      unbounded-collection-error(do);
+    end;
 
-    // To call the mapped function on the n'th elements of the
-    // sequences, we need to collect all the elements.
-    //
-    let more-elts = make(<vector>, size: more-size);
+    if (more-size == 1)
+      let sequence1 = more-sequences[0];
+      let (sequence1-init, ignore1, sequence1-next-state, ignore2,
+           ignore3, sequence1-current-element) = forward-iteration-protocol(sequence1);
+      for (index from 0 below sz,
+           sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state),
+           sequence1-state = sequence1-init then sequence1-next-state(sequence1, sequence1-state))
+         proc(sequence0-current-element(sequence0, sequence0-state),
+              sequence1-current-element(sequence1, sequence1-state));
+      end for;
+    elseif (more-size == 2)
+      let sequence1 = more-sequences[0];
+      let (sequence1-init, ignore1, sequence1-next-state, ignore2,
+           ignore3, sequence1-current-element) = forward-iteration-protocol(sequence1);
+      let sequence2 = more-sequences[1];
+      let (sequence2-init, ignore1, sequence2-next-state, ignore2,
+           ignore3, sequence2-current-element) = forward-iteration-protocol(sequence2);
+      for (index from 0 below sz,
+           sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state),
+           sequence1-state = sequence1-init then sequence1-next-state(sequence1, sequence1-state),
+           sequence2-state = sequence2-init then sequence2-next-state(sequence2, sequence2-state))
+        proc(sequence0-current-element(sequence0, sequence0-state),
+             sequence1-current-element(sequence1, sequence1-state),
+             sequence2-current-element(sequence2, sequence2-state));
+      end for;
+    else
+      // Stuff all the forward-iteration-protocol info into a bunch of
+      // parallel vectors..
+      //
+      let states = make(<vector>, size: more-size);
+      let next-states = make(<vector>, size: more-size);
+      let current-elements = make(<vector>, size: more-size);
 
-    block (break)
-      for (elt in sequence)
-        for (seq keyed-by i in more-sequences, state in states, limit in limits,
-             next-state in next-states, finished-state? in finished-state?s,
-             current-element in current-elements)
-          if (finished-state?(seq, state, limit))
-            break();
-          end;
+      for (seq keyed-by i in more-sequences)
+        let (init, ignore1, next-state, ignore2, ignore3, current-element)
+          = forward-iteration-protocol(seq);
+        states[i] := init;
+        next-states[i] := next-state;
+        current-elements[i] := current-element;
+      end for;
+
+      // To call the mapped function on the n'th elements of the
+      // sequences, we need to collect all the elements.
+      //
+      let more-elts = make(<vector>, size: more-size);
+
+      for (index from 0 below sz,
+           sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state))
+        for (seq keyed-by i in more-sequences, state in states,
+             next-state in next-states, current-element in current-elements)
           more-elts[i] := current-element(seq, state);
           states[i] := next-state(seq, state);
         end for;
-        apply(proc, elt, more-elts);
+        apply(proc, sequence0-current-element(sequence0, sequence0-state), more-elts);
       end for;
-    end block;
+    end if;
     #f;
   else
     next-method();
-  end;
+  end if;
 end method do;
 
 // If the type specifier for the first argument is changed to
@@ -881,46 +955,24 @@ end method do;
 //
 define method map-as
     (type :: <type>, proc :: <function>, sequence :: <sequence>,
-     #rest more-collections)
+     #next next-method, #rest more-collections)
     => res :: <mutable-sequence>;
   if (subtype?(type, <sequence>)
       & every?(rcurry(instance?, <sequence>), more-collections))
-    sequence-map-as(type, proc, sequence, more-collections);
+    let sz = min-size(sequence.size, more-collections);
+    unless (sz)
+      unbounded-collection-error(map-as);
+    end;
+    sequence-map-into(make-collection(type, sz), proc, sequence,
+                      more-collections);
   else
     next-method();
   end;
 end method map-as;
 
-// If the type specifier for the first argument is changed to
-// subclass(<mutable-sequence>), it breaks this method for
-// limited collections. Need to investigate further.
-//
-define inline-only function sequence-map-as
-    (type :: <type>, proc :: <function>, sequence :: <sequence>,
-     more-sequences :: <rest-parameters-sequence>)
-    => res :: <mutable-sequence>;
-  let len = sequence.size;
-  for (other-sequence :: <sequence> in more-sequences)
-    let other-len = other-sequence.size;
-    if (other-len)
-      if (len)
-        len := min(len, other-len);
-      else
-        len := other-len;
-      end;
-    end;
-  end;
-  unless (len)
-    error("At least one argument to map-as must be bounded");
-  end;
-  sequence-map-into(make-collection(type, len), proc, sequence,
-                    more-sequences);
-end function sequence-map-as;
-
-
 define method map-into
     (target :: <mutable-sequence>, proc :: <function>,
-     sequence :: <sequence>, #rest more-collections)
+     sequence :: <sequence>, #next next-method, #rest more-collections)
     => res :: <mutable-sequence>;
   if (every?(rcurry(instance?, <sequence>), more-collections))
     sequence-map-into(target, proc, sequence, more-collections);
@@ -931,64 +983,100 @@ end method map-into;
 
 
 // author: PDH
-// 1.2x speedup
+// 2x speedup
 //
 define function sequence-map-into
     (target :: <mutable-sequence>, proc :: <function>,
-     sequence :: <sequence>, more-sequences :: <rest-parameters-sequence>)
+     sequence0 :: <sequence>, more-sequences :: <rest-parameters-sequence>)
     => res :: <mutable-sequence>;
-  let (target-init, target-limit, target-next-state, target-finished-state?,
-       ignore1, ignore2, target-current-element-setter)
+  let sz = min-size(target, sequence0);
+
+  let (target-init, ignore1, target-next-state, ignore2,
+       ignore3, ignore4, target-current-element-setter)
     = forward-iteration-protocol(target);
 
-  if (empty?(more-sequences))
-    for (elt in sequence,
+  let (sequence0-init, ignore1, sequence0-next-state, ignore2,
+       ignore3, sequence0-current-element) = forward-iteration-protocol(sequence0);
+
+  let more-size = more-sequences.size;
+  if (more-size == 0)
+    unless (sz)
+      unbounded-collection-error(map-into);
+    end;
+    for (index from 0 below sz,
          target-state = target-init then target-next-state(target, target-state),
-         until: target-finished-state?(target, target-state, target-limit))
-      target-current-element(target, target-state) := proc(elt);
+         sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state))
+      target-current-element(target, target-state)
+        := proc(sequence0-current-element(sequence0, sequence0-state));
     end for;
   else
-    // Stuff all the forward-iteration-protocol info into a bunch of
-    // parallel vectors..
-    //
-    let more-size = more-sequences.size;
-    let states = make(<vector>, size: more-size);
-    let limits = make(<vector>, size: more-size);
-    let next-states = make(<vector>, size: more-size);
-    let finished-state?s = make(<vector>, size: more-size);
-    let current-elements = make(<vector>, size: more-size);
+    let sz = min-size(sz, more-sequences);
+    unless (sz)
+      unbounded-collection-error(map-into);
+    end;
 
-    for (seq keyed-by i in more-sequences)
-      let (init, limit, next-state, finished-state?, ignore, current-element)
-        = forward-iteration-protocol(seq);
-      states[i] := init;
-      limits[i] := limit;
-      next-states[i] := next-state;
-      finished-state?s[i] := finished-state?;
-      current-elements[i] := current-element;
-    end for;
-
-    // To call the mapped function on the n'th elements of the
-    // sequences, we need to collect all the elements.
-    //
-    let more-elts = make(<vector>, size: more-size);
-
-    block (break)
-      for (elt in sequence,
+    if (more-size == 1)
+      let sequence1 = more-sequences[0];
+      let (sequence1-init, ignore1, sequence1-next-state, ignore2,
+           ignore3, sequence1-current-element) = forward-iteration-protocol(sequence1);
+      for (index from 0 below sz,
            target-state = target-init then target-next-state(target, target-state),
-           until: target-finished-state?(target, target-state, target-limit))
-        for (seq keyed-by i in more-sequences, state in states, limit in limits,
-             next-state in next-states, finished-state? in finished-state?s,
-             current-element in current-elements)
-          if (finished-state?(seq, state, limit))
-            break();
-          end;
+           sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state),
+           sequence1-state = sequence1-init then sequence1-next-state(sequence1, sequence1-state))
+        target-current-element(target, target-state)
+          := proc(sequence0-current-element(sequence0, sequence0-state),
+                  sequence1-current-element(sequence1, sequence1-state));
+      end for;
+    elseif (more-size == 2)
+      let sequence1 = more-sequences[0];
+      let (sequence1-init, ignore1, sequence1-next-state, ignore2,
+           ignore3, sequence1-current-element) = forward-iteration-protocol(sequence1);
+      let sequence2 = more-sequences[1];
+      let (sequence2-init, ignore1, sequence2-next-state, ignore2,
+           ignore3, sequence2-current-element) = forward-iteration-protocol(sequence2);
+      for (index from 0 below sz,
+           target-state = target-init then target-next-state(target, target-state),
+           sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state),
+           sequence1-state = sequence1-init then sequence1-next-state(sequence1, sequence1-state),
+           sequence2-state = sequence2-init then sequence2-next-state(sequence2, sequence2-state))
+        target-current-element(target, target-state)
+          := proc(sequence0-current-element(sequence0, sequence0-state),
+                  sequence1-current-element(sequence1, sequence1-state),
+                  sequence2-current-element(sequence2, sequence2-state));
+      end for;
+    else
+      // Stuff all the forward-iteration-protocol info into a bunch of
+      // parallel vectors..
+      //
+      let states = make(<vector>, size: more-size);
+      let next-states = make(<vector>, size: more-size);
+      let current-elements = make(<vector>, size: more-size);
+
+      for (seq keyed-by i in more-sequences)
+        let (init, ignore1, next-state, ignore2, ignore3, current-element)
+          = forward-iteration-protocol(seq);
+        states[i] := init;
+        next-states[i] := next-state;
+        current-elements[i] := current-element;
+      end for;
+
+      // To call the mapped function on the n'th elements of the
+      // sequences, we need to collect all the elements.
+      //
+      let more-elts = make(<vector>, size: more-size);
+
+      for (index from 0 below sz,
+           target-state = target-init then target-next-state(target, target-state),
+           sequence0-state = sequence0-init then sequence0-next-state(sequence0, sequence0-state))
+        for (seq keyed-by i in more-sequences, state in states,
+             next-state in next-states, current-element in current-elements)
           more-elts[i] := current-element(seq, state);
           states[i] := next-state(seq, state);
         end for;
-        target-current-element(target, target-state) := apply(proc, elt, more-elts);
+        target-current-element(target, target-state)
+          := apply(proc, sequence0-current-element(sequence0, sequence0-state), more-elts);
       end for;
-    end block;
+    end if;
   end if;
   target;
 end function sequence-map-into;
@@ -1320,10 +1408,9 @@ define not-inline function element-error (collection :: <collection>, index :: <
   error("No element with index %d in %=", index, collection);
 end function;
 
-define not-inline function unbounded-collection-error
-    (function-name :: <string>, collection :: <collection>)
+define not-inline function unbounded-collection-error (function :: <function>)
  => res :: <never-returns>;
-  error("Function/method %s was not expecting the unbounded collection %=", function-name, collection);
+  error("Function/method %= was expecting at least one bounded collection in its parameter list.", function);
 end function;
 
 // author: PDH
@@ -1331,7 +1418,7 @@ end function;
 //
 define not-inline function check-start-end-bounds-error
      (method-name :: <string>, sequence :: <sequence>, start :: <integer>, last :: <integer>)
-  => (result)
+  => (result :: <never-returns>)
   let seq-size :: <integer> = sequence.size;
   case
     (last > seq-size)
