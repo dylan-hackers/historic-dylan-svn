@@ -131,12 +131,13 @@ define method self-insert-command(c)
 end method self-insert-command;
 
 define method run-command(c)
-  complete-command(c);
+  let co = find-command-by-prefix(*command-line*);
+  complete-command-aux(co);
   format-out("\r\n");
   let commands = find-prefixing-command(*command-line*);
   if(commands.size = 0)
     format-out("Unknown command. Try Help.\r\n");
-  elseif(commands.size > 1)
+  elseif(co.size > 1)
     format-out("Ambiguous command. Try Help.\r\n");
   else
     to-cooked();
@@ -201,8 +202,8 @@ define function longest-common-prefix(strings :: <collection>)
 end function longest-common-prefix;
   
   
-define method complete-command-aux()
-  let commands = find-command-by-prefix(*command-line*);
+define method complete-command-aux(commands) => (bool :: <boolean>)
+  let oldsize = *command-line*.size;
   if(commands.size = 1)
     *command-line* := copy-sequence(commands[0].name);
     *buffer-pointer* := *command-line*.size;
@@ -210,20 +211,44 @@ define method complete-command-aux()
     *command-line* := longest-common-prefix(map(name, commands));
     *buffer-pointer* := *command-line*.size;
   end if;
+  oldsize = *command-line*.size;
 end method complete-command-aux;
     
 define method complete-command(c)
-  complete-command-aux();
+  let commands = find-command-by-prefix(*command-line*);
+  if(commands.size = 0)
+    format-out("\r\nNo completions found.\r\n");
+  else
+    let tab-completion-needed? = (complete-command-aux(commands));
+    if(tab-completion-needed?)
+      tab-completion(commands);
+    end if;
+  end if;
+  if(commands.size = 1)
+    self-insert-command(' ');
+  end if;
   repaint-line();
 end method complete-command;
 
 define method complete-command-and-insert-space(c)
-  complete-command-aux();
-  unless(*buffer-pointer* > 0 & *command-line*[*buffer-pointer* - 1] = ' ')
+  let commands = find-command-by-prefix(*command-line*);
+  let tab-completion-needed? = complete-command-aux(commands);
+  if (tab-completion-needed?)
+    tab-completion(commands);
+  end if;
+  if(*command-line*.size > 0 & *command-line*[*buffer-pointer* - 1] ~= ' ' & commands.size < 2)
     self-insert-command(' ');
-  end unless;
+  end if;
   repaint-line();
 end method complete-command-and-insert-space;
+
+define method tab-completion(commands)
+  format-out("\r\n");
+  for(i from 0 below commands.size)
+    format-out("%s\t", commands[i].name);
+  end for;
+  format-out("\r\n");
+end method tab-completion;
 
 define method beginning-of-line(c)
   *buffer-pointer* := 0;
@@ -249,15 +274,21 @@ define variable *key-bindings* = make(<simple-vector>,
                                       fill: self-insert-command);
 
 *key-bindings*[as(<integer>, '\r')] := run-command;
-*key-bindings*[2] := backward-char-command;
-*key-bindings*[6] := forward-char-command;
+*key-bindings*[68] := backward-char-command;
+*key-bindings*[67] := forward-char-command;
 *key-bindings*[8] := delete-char-backwards;
 *key-bindings*[127] := delete-char-backwards;
 *key-bindings*[9] := complete-command;
 *key-bindings*[as(<integer>, ' ')] := complete-command-and-insert-space;
 *key-bindings*[1] := beginning-of-line;
+*key-bindings*[72] := beginning-of-line;
 *key-bindings*[5] := end-of-line;
+*key-bindings*[70] := end-of-line;
 *key-bindings*[11] := kill-to-end-of-line;
+*key-bindings*[91] := #f;
+*key-bindings*[37] := #f;
+*key-bindings*[27] := #f;
+
 
 define variable to-raw    = identity;
 define variable to-cooked = identity;
