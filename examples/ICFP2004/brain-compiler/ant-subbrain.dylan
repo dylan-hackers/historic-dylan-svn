@@ -16,18 +16,6 @@ define macro ant-subbrain-definer
     end function
   }
 
-  { define ant-subbrain ?:name ?ant-states end }
-  =>
-  {
-    define function ?name(outer-instrs, label, current-counter) => ();
-      let instrs = make(<table>);
-      instrs[#"VARIABLES"] := outer-instrs[#"VARIABLES"]; // for now ###///shallow-copy(outer-instrs[#"VARIABLES"]);
-      push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, ?#"name", 0));
-      let (label, counter) = values(?#"name", -1);
-      ?ant-states;
-    end function
-  }
-  
   { define ant-subbrain ?:name(?outsiders) ?ant-states end }
   =>
   {
@@ -41,9 +29,21 @@ define macro ant-subbrain-definer
     end function
   }
   
+  { define ant-subbrain ?:name ?ant-states end }
+  =>
+  {
+    define function ?name(outer-instrs, label, current-counter) => ();
+      let instrs = make(<table>);
+      instrs[#"VARIABLES"] := outer-instrs[#"VARIABLES"]; // for now ###///shallow-copy(outer-instrs[#"VARIABLES"]);
+      push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, ?#"name", 0));
+      let (label, counter) = values(?#"name", -1);
+      ?ant-states;
+    end function
+  }
+  
   outsiders:
   { } => { }
-  { ?outsider, ... }
+  { ?:name, ... }
     =>
   { let "outsider_" ## ?name = curry(lookup, outer-instrs, ?#"name", 0); ... }
   
@@ -129,7 +129,51 @@ define macro ant-subbrain-definer
                      state-false: curry(lookup, instrs, label, ?failure)))
   }
 
-  { Sense ?where:name ?success-cont ?failure-cont ?what:name }
+  { Sense ?where:name ?success:name ?failure:name ?what:name } // 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: ?#"what",
+                     state-true: "outsider_" ## ?success,
+                     state-false: "outsider_" ## ?failure))
+  }
+
+  { Sense ?where:name ?success:name ?failure:expression ?what:name } // 2
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: ?#"what",
+                     state-true: "outsider_" ## ?success,
+                     state-false: curry(lookup, instrs, label, ?failure)))
+  }
+  
+  { Sense ?where:name ?success:expression ?failure:name ?what:name } // 3
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: ?#"what",
+                     state-true: curry(lookup, instrs, label, ?success),
+                     state-false: "outsider_" ## ?failure))
+  }
+  
+  { Sense ?where:name ?success:expression ?failure:expression ?what:name } // 4
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: ?#"what",
+                     state-true: curry(lookup, instrs, label, ?success),
+                     state-false: curry(lookup, instrs, label, ?failure)))
+  }
+
+/*  { Sense ?where:name ?success-cont ?failure-cont ?what:name }
   =>
   {
     push-thunk(instrs, label, counter,
@@ -141,7 +185,7 @@ define macro ant-subbrain-definer
                      state-true: ?success-cont,
                      state-false: ?failure-cont))
   }
-  
+  */
   
   success-cont:
   { ?:name } => { "outsider_" ## ?name }
