@@ -59,6 +59,12 @@ define method generate-output(input)
       pop-tag();
     elseif(from.color & ~to.color)
       pop-tag();
+    elseif(from.font-size ~= to.font-size &
+             member?(to, state.attribute-stack, test: method(x, y) x.font-size = y.font-size end))
+      pop-tag();
+    elseif(from.color ~= to.color &
+             member?(to, state.attribute-stack, test: method(x, y) x.color = y.color end))
+      pop-tag();
     elseif(~from.bold & to.bold)
       add!(state.current-output, tag-BB.open-tag);
       push(state.open-tags, tag-BB);
