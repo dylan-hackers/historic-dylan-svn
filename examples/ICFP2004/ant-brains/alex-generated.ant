@@ -1,4 +1,4 @@
-Flip 5 1 110
+Flip 5 1 112
 Flip 3 2 50
 Sense Here 3 19 FoeHome
 Sense Here 4 43 Food
@@ -95,136 +95,254 @@ Flip 4 94 97
 Flip 10 95 96
 Turn Left 51
 Turn Right 51
-Sense Ahead 98 109 FoeHome
-Sense LeftAhead 99 106 Foe
-Sense RightAhead 100 102 Foe
-Turn Right 101
-Turn Right 51
-Move 51 103
-Sense Ahead 104 105 Friend
-Turn Left 51
+Sense Ahead 98 111 FoeHome
+Sense LeftAhead 99 109 Foe
+Sense RightAhead 100 106 Foe
+Flip 3 101 103
+Sense RightAhead 102 99 Foe
+Sense LeftAhead 101 99 Foe
+Turn Right 104
+Turn Right 105
 Flip 3 94 95
-Move 51 107
-Sense Ahead 104 108 Friend
-Flip 3 94 95
+Move 105 107
+Sense Ahead 108 105 Friend
+Turn Left 105
+Move 105 110
+Sense Ahead 108 105 Friend
 Turn Right 51
-Flip 5 111 138
-Move 112 137
-Sense Here 111 113 Home
-PickUp 114 127
-Turn Right 115
-Turn Right 116
+Flip 5 113 140
+Move 114 139
+Sense Here 113 115 Home
+PickUp 116 129
 Turn Right 117
-Move 118 126
-Sense Here 119 117 Home
-Move 120 120
-Move 121 121
+Turn Right 118
+Turn Right 119
+Move 120 128
+Sense Here 121 119 Home
 Move 122 122
-Drop 123
-Turn Right 124
-Turn Right 125
-Turn Right 111
-Turn Left 117
-Sense Ahead 128 111 FoeHome
-PickUp 114 129
-Sense RightAhead 130 131 FoeHome
-Turn Right 131
-Turn Right 132
-Move 133 132
-Sense LeftAhead 134 135 FoeHome
-Turn Left 128
-Turn Left 136
-Turn Left 128
-Turn Right 111
-Flip 5 139 189
-Flip 5 140 140
-Turn Left 141
-Turn Right 142
-Flip 3 143 178
-Turn Right 144
-Sense Ahead 145 140 Home
-Move 146 140
-Sense Here 147 148 Marker 5
-Turn Right 147
-Sense Ahead 149 150 Marker 5
-Move 147 140
-Sense LeftAhead 151 152 Marker 5
-Turn Left 144
-Sense RightAhead 153 154 Marker 5
-Turn Right 144
-Sense Here 155 144 Home
-Flip 20 156 144
-Mark 5 157
+Move 123 123
+Move 124 124
+Drop 125
+Turn Right 126
+Turn Right 127
+Turn Right 113
+Turn Left 119
+Sense Ahead 130 113 FoeHome
+PickUp 116 131
+Sense RightAhead 132 133 FoeHome
+Turn Right 133
+Turn Right 134
+Move 135 134
+Sense LeftAhead 136 137 FoeHome
+Turn Left 130
+Turn Left 138
+Turn Left 130
+Turn Right 113
+Flip 5 141 283
+Flip 5 142 234
+Flip 6 143 163
+Flip 10 144 147
+Flip 2 145 146
+Turn Left 143
+Turn Right 143
+Move 148 144
+Sense Here 149 143 FoeHome
+PickUp 150 160
+Turn Right 151
+Turn Right 152
+Turn Right 153
+Sense Here 154 155 FoeHome
+Move 153 153
+Drop 156
+Turn Right 157
 Turn Right 158
 Turn Right 159
-Move 160 176
-Mark 5 161
-Turn Right 162
-Move 163 174
-Mark 5 164
-Turn Right 165
-Move 166 172
-Mark 5 167
-Turn Right 168
-Move 169 170
-Mark 5 147
-Sense Ahead 140 171 Rock
-Move 169 140
-Sense Ahead 140 173 Rock
-Move 166 140
-Sense Ahead 140 175 Rock
-Move 163 140
-Sense Ahead 140 177 Rock
-Move 160 140
-Flip 2 179 180
-Turn Left 144
-Flip 5 181 184
-Turn Right 182
+Move 149 159
+Sense Ahead 161 162 FoeHome
+Move 149 162
+Turn Right 149
+Sense Here 164 171 Home
+Move 163 165
+Sense Ahead 166 170 Marker 0
+Mark 1 167
+Sense Ahead 167 168 Friend
+Unmark 1 169
+Move 163 170
+Turn Right 163
+Mark 0 172
+Turn Right 173
+Turn Right 174
+Turn Right 175
+Sense Ahead 176 211 Marker 1
+Turn Right 177
+Turn Right 178
+Turn Right 179
+Move 180 210
+Sense Here 163 181 Home
+Sense Here 182 185 Marker 0
 Turn Right 183
-Turn Right 144
-Flip 2 185 187
-Turn Left 186
-Turn Left 144
+Turn Right 184
+Move 179 179
+PickUp 186 200
+Turn Right 187
 Turn Right 188
-Turn Right 144
-Flip 2 190 209
-Move 191 208
-Sense Here 190 192 Home
-PickUp 193 203
+Turn Right 189
+Move 190 199
+Sense Ahead 191 189 Marker 0
+Sense Ahead 192 196 Friend
+Drop 193
 Turn Right 194
 Turn Right 195
-Turn Right 196
-Move 197 202
-Sense Here 198 196 Home
-Drop 199
-Turn Right 200
-Turn Right 201
-Turn Right 190
-Turn Left 196
-Sense Here 204 190 FoeHome
-PickUp 196 205
-Sense Ahead 206 207 FoeHome
-Move 204 207
+Turn Right 179
+Move 197 197
+Move 198 198
+Drop 163
+Turn Left 189
+Sense Ahead 201 179 FoeHome
+PickUp 186 202
+Sense RightAhead 203 204 FoeHome
 Turn Right 204
-Flip 8 209 229
-Move 210 227
-Sense Here 209 211 Home
-PickUp 212 222
-Turn Left 213
-Turn Left 214
-Turn Left 215
-Move 216 221
-Sense Here 217 215 Home
-Drop 218
-Turn Left 219
-Turn Left 220
+Turn Right 205
+Move 206 205
+Sense LeftAhead 207 208 FoeHome
+Turn Left 201
 Turn Left 209
+Turn Left 201
+Turn Right 179
+Sense RightAhead 176 212 Marker 1
+Sense LeftAhead 176 213 Marker 1
+Turn Right 214
 Turn Right 215
-Sense Here 223 209 FoeHome
-PickUp 215 224
-Sense Ahead 225 226 FoeHome
-Move 223 226
-Turn Left 223
-Flip 8 190 228
-Turn Left 209
-Turn Right 190
+Turn Right 216
+Sense Here 217 224 Food
+PickUp 218 218
+Turn Right 219
+Turn Right 220
+Turn Right 221
+Move 222 222
+Sense Here 223 189 Home
+Drop 163
+Sense Ahead 225 175 Food
+Move 226 226
+PickUp 227 227
+Turn Right 228
+Turn Right 229
+Turn Right 230
+Move 231 231
+Move 232 232
+Sense Here 233 189 Home
+Drop 163
+Turn Left 235
+Turn Right 236
+Flip 3 237 272
+Turn Right 238
+Sense Ahead 239 234 Home
+Move 240 234
+Sense Here 241 242 Marker 5
+Turn Right 241
+Sense Ahead 243 244 Marker 5
+Move 241 234
+Sense LeftAhead 245 246 Marker 5
+Turn Left 238
+Sense RightAhead 247 248 Marker 5
+Turn Right 238
+Sense Here 249 238 Home
+Flip 20 250 238
+Mark 5 251
+Turn Right 252
+Turn Right 253
+Move 254 270
+Mark 5 255
+Turn Right 256
+Move 257 268
+Mark 5 258
+Turn Right 259
+Move 260 266
+Mark 5 261
+Turn Right 262
+Move 263 264
+Mark 5 241
+Sense Ahead 234 265 Rock
+Move 263 234
+Sense Ahead 234 267 Rock
+Move 260 234
+Sense Ahead 234 269 Rock
+Move 257 234
+Sense Ahead 234 271 Rock
+Move 254 234
+Flip 2 273 274
+Turn Left 238
+Flip 5 275 278
+Turn Right 276
+Turn Right 277
+Turn Right 238
+Flip 2 279 281
+Turn Left 280
+Turn Left 238
+Turn Right 282
+Turn Right 238
+Flip 2 284 315
+Move 285 314
+Sense Here 284 286 Home
+PickUp 287 297
+Turn Right 288
+Turn Right 289
+Turn Right 290
+Move 291 296
+Sense Here 292 290 Home
+Drop 293
+Turn Right 294
+Turn Right 295
+Turn Right 284
+Turn Left 290
+Sense Here 298 284 FoeHome
+PickUp 290 299
+Sense Ahead 300 308 FoeHome
+Sense LeftAhead 301 312 Foe
+Sense RightAhead 302 309 Foe
+Flip 3 303 305
+Sense RightAhead 304 301 Foe
+Sense LeftAhead 303 301 Foe
+Turn Right 306
+Turn Right 307
+Flip 4 308 298
+Turn Right 298
+Move 307 310
+Sense Ahead 311 307 Friend
+Turn Left 307
+Move 307 313
+Sense Ahead 311 307 Friend
+Flip 8 315 347
+Move 316 345
+Sense Here 315 317 Home
+PickUp 318 328
+Turn Left 319
+Turn Left 320
+Turn Left 321
+Move 322 327
+Sense Here 323 321 Home
+Drop 324
+Turn Left 325
+Turn Left 326
+Turn Left 315
+Turn Right 321
+Sense Here 329 315 FoeHome
+PickUp 321 330
+Sense Ahead 331 339 FoeHome
+Sense LeftAhead 332 343 Foe
+Sense RightAhead 333 340 Foe
+Flip 3 334 336
+Sense RightAhead 335 332 Foe
+Sense LeftAhead 334 332 Foe
+Turn Right 337
+Turn Right 338
+Flip 4 339 329
+Turn Left 329
+Move 338 341
+Sense Ahead 342 338 Friend
+Turn Left 338
+Move 338 344
+Sense Ahead 342 338 Friend
+Flip 8 284 346
+Turn Left 315
+Turn Right 284

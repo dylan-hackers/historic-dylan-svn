@@ -161,7 +161,7 @@ Turn Right .
 Turn Right search:
 
 patrol:
-PickUp turn_and_return: . Food
+PickUp turn_and_return: .
 Sense RightAhead patrol_turn_right1: patrol_move_right: FoeHome
 
 patrol_turn_right1:

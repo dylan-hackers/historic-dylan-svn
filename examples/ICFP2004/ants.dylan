@@ -644,7 +644,11 @@ define function load-world()
   apply(aux-load-world, application-arguments());
 end function load-world;
 
+define variable *number-of-world-steps* :: <integer> = 0;
+
 define function step-world()
+  *number-of-world-steps* := *number-of-world-steps* + 1;
+//  format-out("Step: %d\n", *number-of-world-steps*);
   for(i from 0 below *ants*.size)
     step(i);
   end for;

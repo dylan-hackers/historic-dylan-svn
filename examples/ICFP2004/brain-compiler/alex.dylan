@@ -1,6 +1,30 @@
 module: assembler
 
 
+define sub brain move-avoid-gaps (leave)
+  Sense LeftAhead Foe, (avoid);
+  Move leave;
+  Sense Ahead Friend, (left-avoid, leave);
+
+  [avoid:]
+    Sense RightAhead Foe, (avoid-really);
+    Move leave;
+    Sense Ahead Friend, (left-avoid, leave);
+
+  [avoid-really:]
+    Flip 3, (plug-hole);
+    Turn Right;
+    Turn Right, (leave);
+
+  [left-avoid:]
+    Turn Left, (leave);
+
+  [plug-hole:]
+    Sense RightAhead Foe => avoid;
+    Sense LeftAhead Foe, (plug-hole, avoid);
+end; // move-avoid-gaps
+
+
 // Attackers attack other ant hills.
 define sub brain alex-attacker (leave)
 
@@ -21,26 +45,9 @@ define sub brain alex-attacker (leave)
   [attacker-success-left:]
     Turn Left, (attacker-success);
 
-
   [a-steal-from-in-front:]
-    Sense LeftAhead Foe, (a-avoid);
-    Move attacker-success;
-    Sense Ahead Friend, (a-steal-from-in-front-left-avoid);
+    Sub move-avoid-gaps;
     Flip 3, (attacker-success-right, attacker-success-left);
-
-  [a-avoid:]
-    Sense RightAhead Foe, (a-avoid-really);
-    Move attacker-success;
-    Sense Ahead Friend, (a-steal-from-in-front-left-avoid);
-    Flip 3, (attacker-success-right, attacker-success-left);
-
-  [a-avoid-really:]
-    Turn Right;
-    Turn Right, (attacker-success);
-
-  [a-steal-from-in-front-left-avoid:]
-    Turn Left, (attacker-success);
-
 
 /*
   [a-steal-from-in-front:]
@@ -305,7 +312,9 @@ define sub brain keith-gatherer (leave)
   [rightant-patrol:]
     PickUp, (rightant-return);
     Sense Ahead FoeHome => rightant-turn-and-patrol;
-    Move rightant-patrol => rightant-turn-and-patrol;
+    Sub move-avoid-gaps;
+    Flip 4, (rightant-turn-and-patrol, rightant-patrol);
+//    Move rightant-patrol => rightant-turn-and-patrol;
 
   [rightant-turn-and-patrol:]
     Turn Right, (rightant-patrol);
@@ -342,7 +351,9 @@ define sub brain keith-gatherer (leave)
   [leftant-patrol:]
     PickUp, (leftant-return);
     Sense Ahead FoeHome => leftant-turn-and-patrol;
-    Move leftant-patrol => leftant-turn-and-patrol;
+    Sub move-avoid-gaps;
+    Flip 4, (leftant-turn-and-patrol, leftant-patrol);
+//    Move leftant-patrol => leftant-turn-and-patrol;
 
   [leftant-turn-and-patrol:]
     Turn Left, (leftant-patrol);
@@ -971,7 +982,7 @@ define brain alex-keith
 
 
   [defender:]
-    Flip 5, (c-defender, c-defender);
+    Flip 5, (k-defender, c-defender);
 
   [c-defender:]
     Sub chris-defender;
