@@ -109,76 +109,10 @@ define variable passive-motion-func :: <function>
 end;
 
 define variable reshape-func :: <function> = callback-method(x :: <integer>, y :: <integer>) => ();
-  let aspect-ratio = as(<double-float>, x) / as(<double-float>, y);
-  format-out("Adjusting viewport: x: %=, y: %=\n", x, y);
-  glViewport(0, 0, x, y);
-//  glFrustum(-0.25 * aspect-ratio, 0.25 * aspect-ratio, 
-//            -0.25, 0.25, 0.5, 100.0);
-/*
-  glMatrixMode($GL-PROJECTION);
-  glLoadIdentity();
-  if(y = 0)
-    gluPerspective(80.0d0, as(<double-float>, x), 1.0, 5000.0)
-  else
-    gluPerspective(80.0d0, as(<double-float>, x) / as(<double-float>, y), 1.0, 5000.0)
-  end if;
-*/
-//  glMatrixMode($GL-MODELVIEW);
-//  glLoadIdentity();
-  post-event(make(<reshape-event>, location: make(<point>, x: x, y: y)));
+  $camera.viewport := vector(x, y);
 end;
 
 define variable *scene-graph* = #[];
-/*
-  make(<container-node>, children: 
-         vector(make(<camera>),
-                make(<spotlight>,
-                     position:  3d-point ( 3.0s0, 3.0s0,-2.0s0),
-                     direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
-                     ambient:   vector   ( 0.1,   0.1,   0.1, 1.0),
-                     diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
-                     specular:  vector   ( 0.3,   0.3,   0.3, 1.0)),
-                make(<line-grid>),
-                make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
-                     translation: 3d-vector(3.0, 3.0, -2.0), 
-                     children: vector(make(<sphere>))),
-                make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), children: 
-                       vector(make(<shape>, geometry:
-                                     make(<indexed-face-set>,
-                                          points: vector(3d-point(-15.0, 0.0, 0.000001),
-                                                         3d-point(-4.635254, 0.0, -14.265848),
-                                                         3d-point(12.135255, 0.0, -8.816778),
-                                                         3d-point(12.135253, 0.0, 8.816781),
-                                                         3d-point(-4.635254, 0.0, 14.265848),
-                                                         3d-point(-12.0, 65.0, 0.000001),
-                                                         3d-point(-3.708204, 65.0, -11.412679),
-                                                         3d-point(9.708204, 65.0, -7.053422),
-                                                         3d-point(9.708202, 65.0, 7.053425),
-                                                         3d-point(-3.708204, 65.0, 11.412679)),
-                                          indices: #[#[0,1,6,5],
-                                                     #[1,2,7,6],
-                                                     #[2,3,8,7],
-                                                     #[3,4,9,8],
-                                                     #[4,0,5,9]],
-                                          crease-angle: 1.5))))));
-*/
-/*
-define constant *scene-graph* = make(<indexed-face-set>,
-                                     points: #[#[-0.5, -0.5, -0.5],
-                                               #[ 0.5, -0.5, -0.5],
-                                               #[ 0.5,  0.5, -0.5],
-                                               #[-0.5,  0.5, -0.5],
-                                               #[ 0.5,  0.5,  0.5],
-                                               #[ 0.5, -0.5,  0.5],
-                                               #[-0.5, -0.5,  0.5],
-                                               #[-0.5,  0.5,  0.5]],
-                                     indices: #[#[0,1,2,3],
-                                                #[4,5,6,7],
-                                                #[0,1,5,6],
-                                                #[2,3,7,4],
-                                                #[0,3,7,6],
-                                                #[1,2,4,5]]);
-*/
                                  
 define variable *last-stamp* = 0.0;
 define variable *speed* = vector(0.0, 0.0, 0.0);
@@ -250,7 +184,6 @@ define method main(progname, #rest arguments)
   format(*standard-output*, "GL_EXTENSIONS: %s\n", 
 	                     glGetString($GL-EXTENSIONS));
   force-output(*standard-output*);
-//  glutFullScreen();
 
   glEnable($GL-AUTO-NORMAL);
   glEnable($GL-NORMALIZE);
@@ -276,12 +209,12 @@ define method main(progname, #rest arguments)
   glClearDepth(1.0d0);
 
   glutIgnoreKeyRepeat(1); // ignore auto-repeat
-  glutSetCursor($GLUT-CURSOR-NONE);
+//  glutSetCursor($GLUT-CURSOR-NONE);
   glutDisplayFunc(display-func);
 //  glutTimerFunc(20, timer-func, 0);
-  glutMouseFunc(mouse-func);
-  glutMotionFunc(motion-func);
-  glutPassiveMotionFunc(passive-motion-func);
+//  glutMouseFunc(mouse-func);
+//  glutMotionFunc(motion-func);
+//  glutPassiveMotionFunc(passive-motion-func);
   glutReshapeFunc(reshape-func);
   glutKeyboardFunc(keyboard-func);
   glutSpecialFunc(special-func);

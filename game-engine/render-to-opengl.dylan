@@ -147,9 +147,13 @@ define method render-to-opengl(node :: <sphere>)
 end method render-to-opengl;
 
 define method render-to-opengl(node :: <camera>)
+  let (x, y) = values(node.viewport[0], node.viewport[1]);
+  let aspect-ratio = as(<double-float>, x) / as(<double-float>, y);
+
+  glViewport(0, 0, x, y);
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
-  glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
+  glFrustum(-0.25 * aspect-ratio, 0.25 * aspect-ratio, -0.25, 0.25, 0.5, 100.0);
   apply(gluLookAt, concatenate(node.eye-position, node.looking-at, node.up));
   apply(glRotate, node.angle, node.up);
   glMatrixMode($GL-MODELVIEW);
