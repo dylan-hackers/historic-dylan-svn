@@ -170,7 +170,7 @@ define module Extensions
 	     // More types.
 	     <byte-character>, <true>, <false>, <stretchy-sequence>,
 	     <stretchy-object-vector>, <simple-object-table>,
-	     <simple-object-deque> => <object-deque>,
+	     <object-deque>,
 
 	     // Type extensions.
 	     false-or, one-of, <never-returns>, subclass, direct-instance,

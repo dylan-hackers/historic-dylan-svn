@@ -209,7 +209,7 @@ define module dylan-viscera
     limited-collection-definer, limited-vector-class, element-type, 
     %elem, %elem-setter, limited-sv-class, ssv-data, ssv-data-setter,
     lsv-data-type, lsv-fill, %main, main,
-    <stretchy-sequence>, <simple-object-deque>, <stretchy-object-vector>,
+    <stretchy-sequence>, <object-deque>, <stretchy-object-vector>,
     <simple-object-table>, element-error,
 
     // Cheap IO

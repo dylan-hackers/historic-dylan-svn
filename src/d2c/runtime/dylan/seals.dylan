@@ -54,7 +54,7 @@ define sealed domain dimension (<builtin-array>, <integer>);
 define sealed domain dimensions (<builtin-array>);
 
 define constant <builtin-mutable-sequence>
-  = type-union(<builtin-array>, <list>, <simple-object-deque>);
+  = type-union(<builtin-array>, <list>, <object-deque>);
 
 define sealed domain first-setter (<object>, <builtin-mutable-sequence>);
 define sealed domain second-setter (<object>, <builtin-mutable-sequence>);
@@ -109,7 +109,7 @@ define sealed domain last (<builtin-sequence>);
 define sealed domain subsequence-position (<builtin-sequence>, <builtin-sequence>);
 
 define constant <builtin-stretchy-sequence>
-  = type-union(<stretchy-object-vector>, <simple-object-deque>);
+  = type-union(<stretchy-object-vector>, <object-deque>);
 
 define sealed domain size-setter (<integer>, <builtin-stretchy-sequence>);
 
