@@ -28,7 +28,7 @@ define macro with-meta-syntax
 
   vars:
     { ?:variable, ... } => { let ?variable = #f; ... }
-    { (?:variable = ?init:expression), ... } => { let ?variable = ?init; ... }
+    { ?:variable = ?init:expression, ... } => { let ?variable = ?init; ... }
     { } => { }
 end macro with-meta-syntax;
 
