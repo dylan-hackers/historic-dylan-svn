@@ -1,5 +1,5 @@
 module:         wc
-synopsis:       implemenation of "Count Lines/Words/Chars" benchmark
+synopsis:       implementation of "Count Lines/Words/Chars" benchmark
 author:         Peter Hinely
 copyright:      public domain
 use-libraries:  common-dylan, io, string-extensions
