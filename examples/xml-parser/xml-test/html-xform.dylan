@@ -21,7 +21,6 @@ end method before-transform;
 
 define method transform(in :: <document>, tag-name :: <symbol>,
                         state :: <html>, str :: <stream>)
- // *ent* := make(<table>);
   collect-entity-defs(in);
   let name = as(<string>, tag-name);
 
@@ -29,16 +28,10 @@ define method transform(in :: <document>, tag-name :: <symbol>,
   write(str, "&lt;?<FONT COLOR='green'>xml</FONT> "
              "<FONT COLOR='blue'>version</FONT>=\"1.0\"?&gt;<BR>\n"
              "&lt;!<FONT COLOR='purple'>DOCTYPE </FONT><FONT COLOR='green'>");
-/****
-  write(str, format-to-string("%s</FONT> SYSTEM \"<A HREF='%s"
-                              "-dtd.html'>%s.dtd</A>\">\n<P>\n",
-                              name, name, name));
-***/
   write(str, concatenate(name, "</FONT> ["));
   referenced-entities(str, state);
   write(str, "\n<BR>]&gt;<BR>");
   next-method();
-//  write(str, "<HR>\nReferenced entities:<P>\n");
   write(str, "\n </BODY>\n</HTML>");
 end method transform;
 
@@ -69,7 +62,6 @@ define method transform(in :: <entity-reference>, tag-name :: <symbol>,
   write(str, 
     format-to-string("<A HREF='#%s'>&amp;%s;</A>",
                      as(<string>, tag-name), as(<string>, tag-name)));
-//  *ent*[tag-name] := in;
 end method transform;
 
 // turn all < to &lt;, > to &gt; and & to &amp;

@@ -249,19 +249,6 @@ end macro collect-data-definer;
 define collect-data char("<&") end;
 define collect-data single-char("'&") end;
 define collect-data double-char("\"&") end;
-/******
-define collector single-char-data(c)
- => (make(<char-string>, text: as(<string>, str)))
-  [test(rcurry(not-in-set?, "'&"), c), do(collect(c))],
-  loop([test(rcurry(not-in-set?, "'&"), c), do(collect(c))])
-end collector single-char-data;
-
-define collector double-char-data(c)
- => (make(<char-string>, text: as(<string>, str)))
-  [test(rcurry(not-in-set?, "\"&"), c), do(collect(c))],
-  loop([test(rcurry(not-in-set?, "\"&"), c), do(collect(c))])
-end collector double-char-data;
-*****/
 
 // Comments
 
@@ -421,10 +408,13 @@ define collect-value xml-attribute(c) () "'", "\"" => { } end;
 //                              | STag content ETag [WFC: Element Type Match]
 //                                                  [VC: Element Valid]
 //
+// here, for a bit more efficiency for most XML docs, we'll
+// assume that tags usually have content, and, therefore, look
+// for non-empty-element tags first when parsing.
 define parse element(name, attribs, content, etag)
  => (make(<element>, children: content, name: name, attributes: attribs))
-  {[parse-empty-elem-tag(name, attribs), set!(content, "")],
-   [parse-stag(name, attribs), parse-content(content), parse-etag(etag)]}, []
+  {[parse-stag(name, attribs), parse-content(content), parse-etag(etag)],
+   [parse-empty-elem-tag(name, attribs), set!(content, "")]}, []
 end parse element;
 
 // Start-tag
