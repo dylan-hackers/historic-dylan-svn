@@ -12,9 +12,23 @@ end library;
 define module xml-parser
   create <xml-builder>, <xml-element>, <xml-parse-error>;
   create start-element, end-element, text;
+  create name, attributes; // slots for <xml-element>
 
+// I really don't want the below defs -- parse-document should
+// do everything, but until I get that working, I need to test
+// the system piecemeal.
   create parse-xml-element-start;
-  create children, children-setter, name, attributes;
+  create parse-element, parse-attribute, parse-stag, parse-content,
+         parse-etag;
+
+// all the above parse-foos will be replaced with:
+  create parse-document;
+// however, parse-document REQUIRES there be the prologue (some
+// mal-formed xml docs skip that, THEN the root element, and 
+// FINALLY, AT LEAST ONE misc (which is a space, comment or 
+// processing instruction).  I feel the [ ] parse ("and" parse)
+// should be replaced with an { } parse ("or").  Thinking on that
+// while I test the rest of the system.
 end module xml-parser;
 
 define module interface
@@ -37,5 +51,4 @@ define module xml-parser-implementation
   use xml-parser;
   use interface;
 end module xml-parser-implementation;
-
 
