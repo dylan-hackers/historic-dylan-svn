@@ -34,7 +34,10 @@ extern long double extended_float_value(heapptr_t xf);
 extern heapptr_t initial_symbols;
 
 extern void not_reached(void);
+extern void no_core_dumps(void);
 
 #ifdef WIN32
    double rint(double x);
 #endif
+
+#include <errno.h>
