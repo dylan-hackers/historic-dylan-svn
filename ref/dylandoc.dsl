@@ -74,6 +74,29 @@
 
 
 ;;;========================================================================
+;;; Inline Elements
+;;;========================================================================
+;;; Provide formatting for our various inline elements.
+
+(define (process-dylan-literal #!optional (children (process-children)))
+  (make element
+    gi: "CODE"
+    children))
+
+(element DLibrary
+  (process-dylan-literal))
+
+(element DModule
+  (process-dylan-literal))
+
+(element DName
+  (process-dylan-literal))
+
+(element DLit
+  (process-dylan-literal))
+
+
+;;;========================================================================
 ;;; Generic Definition Support
 ;;;========================================================================
 ;;; This code implements the "look" shared by all defintions.
@@ -155,7 +178,7 @@
       gi: "BLOCKQUOTE"
       sect)))
 
-(element DefBody
+(element DefDescription
   (process-section "Description"))
   
 
@@ -174,7 +197,7 @@
 				       ("COLUMNSPACING" "0")))
 		       (literal "None."))))
 
-(element DefParam
+(define (process-param)
   (make element
     gi: "TR"
     (make sequence
@@ -194,15 +217,29 @@
 	  (literal ". ")
 	  (if (have-child? "ParamSummary")
 	      (process-first-descendant "ParamSummary")
+	      (empty-sosofo))
+	  (if (have-child? "ParamDefault")
+	      (make sequence
+		(literal " Defaults to ")
+		(process-first-descendant "ParamDefault")
+		(literal "."))
 	      (empty-sosofo)))))))
+
+(element Param
+  (process-param))
+
+(element KeyParam
+  (process-param))
 
 (element ParamName
   (make element
     gi: "EM"))
 
 (element ParamType
-  (make element
-    gi: "CODE"))
+  (process-dylan-literal))
+
+(element ParamDefault
+  (process-dylan-literal))
 
 (element ParamSummary
   (process-children))
@@ -221,8 +258,7 @@
 
 (element DefSuper
   (make sequence
-    (make element
-      gi: "CODE")
+    (process-dylan-literal)
     (literal " ")))
 
 (element DefInitKeywords
@@ -231,11 +267,9 @@
 
 (mode init-keywords
   (element ParamName
-    (make element
-      gi: "CODE"
-      (make sequence
-	(process-children)
-	(literal ":")))))
+    (process-dylan-literal (make sequence
+			     (process-children)
+			     (literal ":")))))
 
 
 ;;;========================================================================
@@ -412,7 +446,7 @@
       (make sequence
 	(process-first-descendant "DefParameters")
 	(process-first-descendant "DefReturns")))
-    (process-first-descendant "DefBody")))
+    (process-first-descendant "DefDescription")))
 
 
 </style-specification-body>

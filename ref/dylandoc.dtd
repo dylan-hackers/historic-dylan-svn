@@ -33,10 +33,16 @@
             DylanClassDef|DylanMacroDef
             %local.dylan.def.class;" >
 
+<!ENTITY % local.dylan.tech.char.class "">
+<!ENTITY % dylan.tech.char.class
+           "DLibrary|DModule|DName|DLit
+            %local.dylan.tech.char.class;" >
+
 
 <!-- =============== DocBook Entity Overrides ===================== -->
 
 <!ENTITY % local.synop.class "|%dylan.def.class;">
+<!ENTITY % local.tech.char.class "|%dylan.tech.char.class;">
 
 
 <!-- =============== The Real Thing =============================== -->
@@ -45,42 +51,65 @@
 %docbook.definition;
 
 
-<!-- =============== Element Definitions ========================== -->
+<!-- =============== Local Entities =============================== -->
 
-<!ELEMENT DefName - - (#PCDATA) >
-<!ELEMENT DefSummary - - (%para.char.mix;)+ >
-<!ELEMENT DefBody - - (%component.mix;)+ -(synop.class) >
-<!ELEMENT DefType - - (#PCDATA) >
-<!ELEMENT DefValue - - (#PCDATA) >
-<!ELEMENT DefAdjectives - - (#PCDATA) >
-<!ELEMENT DefParameters - - (DefParam*, Rest?, 
-                            (Key, AllKeys?)?) >
-<!ELEMENT DefReturns - - (DefParam*, Rest?) -(ParamSingleton)>
-<!ELEMENT DefParam - - (ParamName, (ParamType|ParamSingleton)?,
-                        ParamSummary?) >
-<!ELEMENT Rest - - (ParamName, RestType?, ParamSummary?)? >
-<!ELEMENT RestType - - (#PCDATA) >
-<!ELEMENT Key - - (DefParam*) >
-<!ELEMENT AllKeys - O EMPTY >
-<!ELEMENT ParamName - - (#PCDATA) >
-<!ELEMENT ParamType - - (#PCDATA) >
-<!ELEMENT ParamSingleton - - (#PCDATA) >
-<!ELEMENT ParamSummary - - ((%para.char.mix; | %para.mix;)+) >
-<!ELEMENT DefSupers - - (DefSuper+) >
-<!ELEMENT DefSuper - - (#PCDATA) >
-<!ELEMENT DefInitKeywords - - (DefParam*) >
+<!--
+  The following entities define collections of attributes which can
+  be used to locate a Dylan library, module or definition. These
+  represent hyperlinks of a sort, and should only be used someplace
+  that a cross-reference would be meaningful.
+
+  Note that these attributes do not refer to the namespace *within*
+  a module, but rather the names exported by one.
+-->
+<!ENTITY % dlib "DLib CDATA #IMPLIED" >
+<!ENTITY % dmod "DMod CDATA #IMPLIED" >
+<!ENTITY % dloc "%dlib; %dmod;" >
+
+
+<!-- =============== Inline Elements ==================================
+  These are meant for use in normal text contexts. They're essentially
+  just variations on LITERAL, but provide Dylan-specific information.
+
+  DLibrary and DModule should be used to refer to library and module
+  names, respectively. DName should be used for any single Dylan name
+  which could appear in an export statement (classes, variables,
+  functions, macros, etc). DLit can be used for any other fragments of
+  Dylan code.
+
+  Of special importance: please try to use the standard DocBook tag
+  PARAMETER when refering to parameters, instead of using DLit or
+  LITERAL.
+-->
+
+<!ELEMENT DLibrary - - (#PCDATA) >
+
+<!ELEMENT DModule - - (#PCDATA) >
+<!ATTLIST DModule %dlib; >
+
+<!ELEMENT DName - - (#PCDATA) >
+<!ATTLIST DName %dloc; >
+
+<!ELEMENT DLit - - (#PCDATA) >
+
+
+<!-- =============== Definition Elements ==============================
+  These correspond to the different types of definitions in the Dylan
+  Reference Manual.
+-->
 
 <!ELEMENT DylanConstantDef - - (DefName, DefSummary, DefType?, DefValue?,
-                                DefBody) >
+                                DefDescription, DefSection*) >
 
 <!ELEMENT DylanVariableDef - - (DefName, DefSummary, DefType?, DefValue?,
-                                DefBody) >
+                                DefDescription, DefSection*) >
 
 <!ELEMENT DylanFunctionDef - - (DefName, DefAdjectives?, DefSummary,
-                                DefParameters, DefReturns, DefBody) >
+                                DefParameters, DefReturns, DefDescription,
+				DefSection*) >
 
 <!ELEMENT DylanClassDef - - (DefName, DefAdjectives?, DefSummary, DefSupers,
-                             DefInitKeywords, DefBody) >
+                             DefInitKeywords, DefDescription, DefSection*) >
 
 <!ATTLIST DylanConstantDef DylanDefName CDATA #FIXED "Constant">
 <!ATTLIST DylanVariableDef DylanDefName CDATA #FIXED "Variable">
@@ -88,15 +117,59 @@
 <!ATTLIST DylanClassDef    DylanDefName CDATA #FIXED "Class">
 
 
-<!-- Scratch ,,, 
-
-<!ATTLIST DylanName
-          library  CDATA #IMPLIED
-          module   CDATA #IMPLIED >
-<!ELEMENT DylanType - - (#PCDATA) >
-
-<!ELEMENT DylanVar - - (DylanName, DylanType?) >
-
-<!ELEMENT DylanSynopsis - - ((%dylan.def.class;), (%component.mix;)+) >
-
+<!-- =============== Shared Definition Support ========================
+  The following elements show up in most types of definitions.
 -->
+
+<!ELEMENT DefName - - (#PCDATA) >
+<!ELEMENT DefAdjectives - - (#PCDATA) >
+<!ELEMENT DefSummary - - (%para.char.mix;)+ >
+<!ELEMENT DefDescription - - (%component.mix;)+ -(synop.class) >
+<!ELEMENT DefSection - - (Title, (%component.mix;)+) -(synop.class) >
+
+
+<!-- =============== Variable and Constant Definitions ================
+  The following elements show up in variable and constant defintions.
+-->
+
+<!ELEMENT DefType - - (#PCDATA) >
+<!ELEMENT DefValue - - (#PCDATA) >
+
+
+<!-- =============== Parameter Definition Supprt ======================
+  The following elements are used to define different kinds of
+  parameter lists.
+
+  Note that the ParamName for KeyParam should not include the final ":"
+  character. This will be added as appropriate by the style sheets.
+-->
+
+<!ELEMENT Param - - (ParamName, (ParamType|ParamSingleton)?, ParamSummary?) >
+<!ELEMENT KeyParam - - (ParamName, ParamType?, ParamDefault?, ParamSummary?) >
+<!ELEMENT Rest - - (ParamName, RestType?, ParamSummary?)? >
+<!ELEMENT RestType - - (#PCDATA) >
+<!ELEMENT AllKeys - O EMPTY >
+<!ELEMENT ParamName - - (#PCDATA) >
+<!ELEMENT ParamType - - (#PCDATA) >
+<!ELEMENT ParamDefault - - (#PCDATA) >
+<!ELEMENT ParamSingleton - - (#PCDATA) >
+<!ELEMENT ParamSummary - - ((%para.char.mix; | %para.mix;)+) >
+
+
+<!-- =============== Class Definitions ================================
+  The following elements are used to define different kinds of
+  parameter lists.
+-->
+
+<!ELEMENT DefSupers - - (DefSuper*) >
+<!ELEMENT DefSuper - - (#PCDATA) >
+<!ELEMENT DefInitKeywords - - (KeyParam*) >
+
+
+<!-- =============== Function Definitions ========================
+  The following elements are used to define functions, methods
+  and generic functions.
+-->
+
+<!ELEMENT DefParameters - - (Param*, Rest?, (KeyParam+, AllKeys?)?) >
+<!ELEMENT DefReturns - - (Param*, Rest?) -(ParamSingleton)>
