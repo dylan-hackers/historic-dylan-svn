@@ -30,7 +30,9 @@ end module meta-syntax;
 
 define module meta-types
   use common-dylan;
-  export $space, $digit, $letter, $num-char, $any-char, $graphic-char;
+  export
+    $space, $digit, $letter, $num-char, $any-char,
+    $punctuation, $graphic-char, $graphic-digit;
 end module meta-types;
 
 define module meta
