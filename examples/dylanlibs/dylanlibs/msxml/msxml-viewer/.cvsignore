@@ -1,6 +1,6 @@
-msxml-viewer.hdp
+*.hdp
 release
 lib
-msxml-viewer-build
+*-build
 bin
 *~

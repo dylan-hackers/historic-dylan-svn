@@ -1,6 +1,6 @@
-msxml3-dispatch.hdp
+*.hdp
 release
 lib
-msxml3-dispatch-build
+*-build
 bin
 *~

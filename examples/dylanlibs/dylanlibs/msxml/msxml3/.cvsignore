@@ -1,6 +1,6 @@
-msxml3.hdp
+*.hdp
 release
 lib
-msxml3-build
+*-build
 bin
 *~

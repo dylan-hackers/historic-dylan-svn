@@ -89,6 +89,28 @@ file in the duim directory for details.
 Libraries that wrap native Win32 functionality using C-FFI. See the
 win32.txt file in the win32 directory for details.
 
+6) lazy-evaluation
+==================
+
+A library that provides lazy evaluation functionality for
+Dylan. Implements equivalents to Scheme's delay and force, along with
+lazy lists, lazy mapping, etc.
+
+7) parser-combinator
+====================
+
+A library of lazy parser combinators for Dylan, implemented along the lines
+for the parser combinators described in the Clean book:
+  ftp://ftp.cs.kun.nl/pub/Clean/papers/cleanbook/II.05.ParserCombinators.pdf
+
+Not yet fully implemented!
+
+8) net
+======
+
+Various net and internet protocols, socket extensions, xml-rpc,
+etc. Sett the net.txt file in the net directory for details.
+
 Chris Double.
 01 May 2001.
 
