@@ -34,10 +34,10 @@ module: dylan-viscera
 define abstract class <boolean> (<object>)
 end;
 
-// Seal = on <boolean>s.  But not yet.
-// 
-//seal generic \= (<boolean>, <object>);
-//seal generic \= (<object>, <boolean>);
+// Seal = on booleans.
+//
+define sealed domain \= (<boolean>, <object>);
+define sealed domain \= (<object>, <boolean>);
 
 // <true> -- exported from Extensions.
 //

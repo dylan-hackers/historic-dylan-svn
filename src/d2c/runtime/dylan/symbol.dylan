@@ -163,13 +163,13 @@ define sealed method make
 end method make;
 
 // Seal initialize on <symbol>.
-// 
+//
 define sealed domain initialize (<symbol>);
 
 // Seal = on symbols.
-// 
-//seal generic \= (<symbol>, <object>);
-//seal generic \= (<object>, <symbol>);
+//
+define sealed domain \= (<symbol>, <object>);
+define sealed domain \= (<object>, <symbol>);
 
 // symbol-hash -- internal.
 //

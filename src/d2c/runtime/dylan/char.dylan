@@ -103,10 +103,10 @@ define sealed inline method as (type :: <limited-integer>, char :: <character>)
   char.value;
 end;
 
-// Seal = on characters.  But not yet.
+// Seal = on characters.
 //
-//seal generic \= (<character>, <object>);
-//seal generic \= (<object>, <character>);
+define sealed domain \= (<character>, <object>);
+define sealed domain \= (<object>, <character>);
 
 // < -- exported GF method.
 //
