@@ -7,7 +7,7 @@
       <ex:iff test="logged-in?">
         <i>You are logged in as <ex:current-username/></i>
       </ex:iff>
-      or <ex:current-username/>
+      &nbsp;
     </td>
     <td width="50%" align="right">
       <a href="home.dsp">Go back to demo home</a>
