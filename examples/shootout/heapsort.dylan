@@ -9,7 +9,7 @@ define constant $IA = 3877;
 define constant $IC = 29573;
 
 
-// use a closure to keep the state of the "last" variable
+// utilize Dylan's cool closure functionality to keep the state of the "last" variable
 define function random-generator (seed :: <integer>) => random-generator :: <method>;
   let last = seed;
 
@@ -71,7 +71,7 @@ define function main ()
   let generate-random = random-generator(42);
 
   for (i from 1 to N)
-    array[i] := generate-random(1.0);
+    array[i] := generate-random(1.0d0);
   end;
 
   heapsort(N, array);
