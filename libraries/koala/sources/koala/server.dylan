@@ -489,6 +489,7 @@ define function handler-top-level
                     dynamic-bind (*request-query-values* = query-values)
                       invoke-handler(request);
                     end;
+                    force-output(request.request-socket);
                   exception (c :: <http-error>)
                     // Always handle HTTP errors, even when debugging...
                     send-error-response(request, c);
@@ -800,6 +801,9 @@ define method invoke-handler
                    request: request,
                    headers: headers)
       let (responder, canonical-url) = find-responder(url);
+      if(request.request-keep-alive?)
+        add-header(response, "Connection", "Keep-Alive");
+      end if;
       dynamic-bind (*response* = response)
         if (responder)
           log-debug("%s handler found", url);
