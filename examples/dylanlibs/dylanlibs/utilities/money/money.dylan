@@ -184,6 +184,7 @@ define method parse-money(source :: <string>, #key start, end: the-end) => (m ::
     end if;
   let state = #"start";
   let dollars = 0;
+  let cents-power = 1;
   let cents = 0;
   let sign = #"positive";
   block(return)
@@ -218,7 +219,8 @@ define method parse-money(source :: <string>, #key start, end: the-end) => (m ::
         #"cent" =>
           case
             digit?(ch) => begin
-                            cents := cents * 10 + digit-to-integer(ch);
+                            cents := cents + (10 ^ cents-power) * digit-to-integer(ch);
+                            cents-power := cents-power - 1;
                           end;
             otherwise => return(#f);
           end case; 
