@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10 2000/05/09 20:04:42 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10.2.1 2000/05/18 22:13:16 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -204,6 +204,10 @@ define module System
 	     // Foreign interface stuff.
 	     \call-out, \c-include, \c-decl, \c-expr, \callback-method,
 	     callback-entry,
+
+	     // Designator-class (C-FFI) stuff
+	     <designator-class>, designator-class-definer,
+	     size-of, alignment-of, referenced-type,
 
 	     // Nasty debugging hooks.
 	     *gdb-output*,
