@@ -1320,17 +1320,14 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       allocate a new vector each time it grows. </PARA>
     </SECT1>
 
-    <SECT1 id="libs-streams-classes">
-      <TITLE>Stream classes</TITLE>
+    <SECT1 id="libs-streams-ref">
+      <TITLE>Streams Reference</TITLE>
 
       <PARA>The exported streams class heterarchy is as follows:</PARA>
 
       <FIGURE>
-	<TITLE>Streams library classes. </TITLE>
-	<GRAPHIC></GRAPHIC>
-<!-- should be graphic fileref="streams.png" / -->
-<!-- or graphic entityref="streams" / -->
-
+	<TITLE>Streams library classes.</TITLE>
+	<GRAPHIC fileref="streams.png"></GRAPHIC>
       </FIGURE>
 
       <PARA>Except for the classes
@@ -1339,11 +1336,14 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       <CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME>, these are
       instantiable classes.</PARA>
 
-      <SECT2 id="libs-stream-class-ref">
-	<TITLE>Class Reference</TITLE>
-        <PARA> <!-- having a problem printing below without PARA tags? -->
-	</PARA>
+      <para>Streams, in general, have a host of operations for walking over
+        or changing collections, and file streams have some specific issues
+        of their own.  Therefore, we will cover the general stream classes
+        and operations in <xref linkend="libs-streams-ref-general">, and file
+        streams in <xref linkend="libs-streams-ref-file">.</para>
 
+      <sect2 id="libs-streams-ref-general">
+        <title>General Stream Classes and Operations</title>
         <dylanclassdef>
           <defname>&lt;stream&gt;</defname>
           <defadjectives>open abstract</defadjectives>
@@ -1384,6 +1384,12 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defsummary>
 	  <defsupers><defsuper>&lt;stream&gt;</defsuper></defsupers>
           <definitkeywords>
+            <keyparam>
+	      <paramname>buffer-size</paramname>
+	      <paramtype>&lt;integer&gt;</paramtype>
+	      <paramsummary>Suggests the size of the underlying collection.
+	      </paramsummary>
+            </keyparam>
           </definitkeywords>
           <defdescription>
 	    <PARA>A subclass of <CLASSNAME>&lt;stream&gt;</CLASSNAME>
@@ -1401,163 +1407,6 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylanclassdef>
 
-        <dylanclassdef>
-	  <dEFNAME>&lt;file-stream&gt;</dEFNAME>
-	  <defadjectives>Open abstract</defadjectives>
-	  <defsummary>
-	    The class of streams over disk files.
-	  </defsummary>
-	  <defsupers>
-            <defsuper>&lt;buffered-stream&gt;</defsuper>
-            <defsuper>&lt;positionable-stream&gt;</defsuper>
-          </defsupers>
-          <definitkeywords>
-            <keyparam>
-              <paramname>locator</paramname>
-              <paramtype>&lt;string&gt;</paramtype>
-              <paramsummary>
-                The file name.  If the <dlibrary>Locators</dlibrary>
-                library is in use, locator should be an instance of
-	        <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
-	        can be coerced to one.
-              </paramsummary>
-            </keyparam>
-            <keyparam>
-	      <paramname>direction</paramname>
-              <paramtype>
-                one-of(#"input", #"output", #"input-output")
-              </paramtype>
-            </keyparam>
-            <keyparam>
-	      <paramname>if-exists</paramname>
-              <paramtype>
-                one-of(#f, #"new-version", #"overwrite", #"replace", #"append", #"truncate", #"signal")
-              </paramtype>
-              <paramsummary>
-                An action to take if the file already exists.
-              </paramsummary>
-            </keyparam>
-            <keyparam>
-	      <paramname>if-does-not-exist</paramname>
-              <paramtype>
-                one-of(#f, #"signal", #"create")
-              </paramtype>
-              <paramsummary>
-                An action to take if the file doesn't exists.
-              </paramsummary>
-            </keyparam>
-          </definitkeywords>
-          <defdescription>
-	    <PARA>When you instantiate this class, an
-	    implementation-dependent, indirect instance of it is
-	    created. The file being streamed over is opened
-	    immediately upon creating the stream. </PARA>
-
-	  <PARA>The <dlit>if-exists:</dlit> init-keyword allows
-	  you to specify an action to take if the file named by
-	  <PARAMETER>locator</PARAMETER> already exists. The options
-	  are:</PARA>
-
-	  <VARIABLELIST>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#f</dlit></TERM>
-	      <LISTITEM>
-		<PARA>No action. This is the default when the stream's
-		direction is <dlit>#"input"</dlit> or
-		<dlit>#"input-output"</dlit>.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"new-version"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>If the underlying file system supports file
-		versioning, a new version of the file is created. This
-		is the default when the stream's direction is
-		<dlit>#"output"</dlit>.</PARA>
-
-		<PARA>If the file system does not support file
-		versioning, the implementation should substitute one
-		of the other <dlit>if-exists:</dlit> behaviors;
-		the <dlit>#"replace"</dlit> behavior is a good
-		choice. </PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"overwrite"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Set the stream's position to the beginning of
-		the file, but preserve the current contents of the
-		file. This is useful when the direction is
-		<dlit>#"input-output"</dlit> and you want to
-		overwrite an existing file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"replace"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Delete or rename the existing file and create a
-		new file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"append"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Set the stream's initial position to the end of
-		the existing file so that all new output occurs at the
-		end of the file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"truncate"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>If the file exists, it is truncated, setting the
-		size of the file to 0. If the file does not exist,
-		create a new file.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"signal"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Signal a
-		<CLASSNAME>&lt;file-exists-error&gt;</CLASSNAME>
-		condition. </PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	  </VARIABLELIST>
-
-	  <PARA>The <dlit>if-does-not-exist:</dlit> init-keyword
-	  allows you to specify an action to take if the file named by
-	  <PARAMETER>locator</PARAMETER> does not exist. The options
-	  are:</PARA>
-
-	  <VARIABLELIST>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#f</dlit></TERM>
-	      <LISTITEM>
-		<PARA>No action.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"signal"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Signal a
-		<CLASSNAME>&lt;file-does-not-exist-error&gt;</CLASSNAME>
-		condition. This is the default when the stream's
-		direction is <dlit>#"input"</dlit>.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><dlit>#"create"</dlit></TERM>
-	      <LISTITEM>
-		<PARA>Create a new zero-length file. This is the
-		default when the stream's direction is
-		<dlit>#"output"</dlit> or
-		<dlit>#"input-output"</dlit>.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	  </VARIABLELIST>
-          </defdescription>
-        </dylanclassdef>
 
         <dylanclassdef>
 	  <dEFNAME>&lt;sequence-stream&gt;</dEFNAME>
@@ -1632,190 +1481,6 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylanclassdef>
 
-      </SECT2>
-      
-      <SECT2>
-	<TITLE>Creating streams</TITLE>
-
-	<PARA>The following functions are used to create streams.</PARA>
-
-	<SECT3>
-	  <TITLE>File streams</TITLE>
-
-	  <PARA>File streams are intended only for accessing the
-	  contents of files. They are not intended to provide a
-	  general file handling facility of renaming, deleting,
-	  moving, parsing directory names and so on.</PARA>
-
-	  <REFENTRY>
-	    <REFNAMEDIV>
-	      <REFNAME>make
-	      <REPLACEABLE>file-stream-class</REPLACEABLE></REFNAME>
-	      <REFPURPOSE>General function method</REFPURPOSE>
-	    </REFNAMEDIV>
-	    <REFSECT1>
-	      <TITLE>Summary</TITLE>
-
-	      <PARA>Creates and opens a stream over a file.</PARA>
-	    </REFSECT1>
-	    <REFSECT1>
-	      <TITLE>Signature</TITLE>
-
-	      <SYNOPSIS><FUNCTION>make</FUNCTION> file-stream-class <dlit>#key</dlit> <PARAMETER>locator</PARAMETER> <PARAMETER>direction</PARAMETER> <PARAMETER>if-exists</PARAMETER> <PARAMETER>if-does-not-exist</PARAMETER> <PARAMETER>buffer-size</PARAMETER> <PARAMETER>element-type</PARAMETER> <PARAMETER>encoding</PARAMETER> 
-=&gt; <PARAMETER>file-stream-instance</PARAMETER> 
-</SYNOPSIS>
-	    </REFSECT1>
-	    <REFSECT1>
-	      <TITLE>Description</TITLE>
-
-	      <PARA>Returns a new instance of a concrete subclass of
-	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME> that streams
-	      over the contents of the file referenced by locator. To
-	      determine the concrete subclass to be instantiated, this
-	      method calls the generic function
-	      <FUNCTION>type-for-file-stream</FUNCTION>.</PARA>
-
-	      <PARA>The <REPLACEABLE>file-stream-class</REPLACEABLE>
-	      argument is the class
-	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME>.</PARA>
-
-
-	      <PARA>The <dlit>buffer-size:</dlit> init-keyword
-	      is explained in &lt;buffered-stream&gt; FIXME.</PARA>
-
-	      <PARA>The <dlit>element-type</dlit> init-keyword
-	      specifies the type of the elements in the file named by
-	      locator. This allows file elements to be represented
-	      abstractly; for instance, contiguous elements could be
-	      treated as a single database record. This init-keyword
-	      defaults to something useful, potentially based on the
-	      properties of the file;
-	      <CLASSNAME>&lt;byte-character&gt;</CLASSNAME> and
-	      <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME> are
-	      likely choices. See FIXME.</PARA>
-	    </REFSECT1>
-	  </REFENTRY>
-
-	  <REFENTRY>
-	    <REFNAMEDIV>
-	      <REFNAME>type-for-file-stream</REFNAME>
-	      <REFPURPOSE>Open generic function</REFPURPOSE>
-	    </REFNAMEDIV>
-	    <REFSECT1>
-	      <TITLE>Summary</TITLE>
-
-	      <PARA>Returns the kind of file-stream class to
-	      instantiate for a given file.</PARA>
-	    </REFSECT1>
-	    <REFSECT1>
-	      <TITLE>Signature</TITLE>
-
-	      <SYNOPSIS><FUNCTION>type-for-file-stream</FUNCTION>
-	      <PARAMETER>locator</PARAMETER>
-	      <PARAMETER>element-type</PARAMETER>
-	      <dlit>#rest</dlit> <PARAMETER>all-keys</PARAMETER>
-	      =&gt; <PARAMETER>file-stream-type</PARAMETER></SYNOPSIS>
-	    </REFSECT1>
-	    <REFSECT1>
-	      <TITLE>Description</TITLE>
-
-	      <PARA>The method for make on
-	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME> calls this
-	      function to determine the class of which it should
-	      create an instance.</PARA>
-	    </REFSECT1>
-	  </REFENTRY>
-	</SECT3>
-
-	<SECT3>
-	  <TITLE>Options when creating file streams</TITLE>
-
-	  <PARA>When creating file streams, you can can supply the
-	  following init-keywords to <FUNCTION>make</FUNCTION> in
-	  addition to the usual direction: </PARA>
-
-	  <VARIABLELIST>
-	    <VARLISTENTRY>
-	      <TERM><dlit>element-type:</dlit></TERM>
-	      <LISTITEM>
-		<PARA>How the elements of the underlying file are
-		accessed.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	  </VARIABLELIST>
-
-
-	  <PARA>Because creating a file stream always involves an
-	  attempt to open the underlying file, the aforementioned
-	  error conditions will occur during file stream instance
-	  initialization.</PARA>
-
-	  <PARA>If an implementation checks file permissions when
-	  creating and opening file streams, and it detects an attempt
-	  to read a file for which the user has no read permission, or
-	  to write a file for which the user has no write permission,
-	  then an
-	  <CLASSNAME>&lt;invalid-file-permissions-error&gt;</CLASSNAME>
-	  condition is signalled at the time the file stream is
-	  created.</PARA>
-
-	  <PARA>The <dlit>element-type:</dlit> init-keyword
-	  controls how the elements of the underlying file are
-	  accessed. </PARA>
-
-	  <NOTE>
-	    <TITLE>Implementation Note</TITLE>
-
-	    <PARA>Ideally, element-type could be any valid Dylan type
-	    such as <dlit>limited(&lt;integer&gt;, min: 0, max:
-	    255)</dlit> or
-	    <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME>. This
-	    approach may make it possible to implement a potentially
-	    inefficient but general set of file streams. Unfortunately
-	    the current language definition does not include adequate
-	    support for this approach, so we specify instead an
-	    interim minimum set of three element types. The element
-	    types are for the time being exported from the streams
-	    module of the Streams library.</PARA>
-	  </NOTE>
-
-	  <PARA>The three possible element types are: </PARA>
-
-	  <VARIABLELIST>
-	    <VARLISTENTRY>
-	      <TERM><CLASSNAME>&lt;byte-character&gt;</CLASSNAME></TERM>
-	      <LISTITEM>
-		<PARA>The file is accessed as a sequence of 8-bit
-		  characters.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><CLASSNAME>&lt;unicode-character&gt;</CLASSNAME></TERM>
-	      <LISTITEM>
-		<PARA>The file is accessed as a sequence of 16-bit Unicode
-		  characters.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	    <VARLISTENTRY>
-	      <TERM><CLASSNAME>&lt;byte&gt;</CLASSNAME></TERM>
-	      <LISTITEM>
-		<PARA>The file is accessed as a sequence of unsigned 8-bit
-		  integers.</PARA>
-	      </LISTITEM>
-	    </VARLISTENTRY>
-	  </VARIABLELIST>
-
-	  <NOTE>
-	    <TITLE>Portability Note</TITLE>
-
-	    <PARA>Portable code can count on the existence of these
-	    three element types, but implementations are free to
-	    provide more. </PARA>
-	  </NOTE>
-	</SECT3>
-	<SECT3>
-	  <TITLE>Sequence streams</TITLE>
-
 	  <PARA>There are make methods on
 	  <CLASSNAME>&lt;sequence-stream&gt;</CLASSNAME>,
 	  <CLASSNAME>&lt;string-stream&gt;</CLASSNAME>,
@@ -1827,8 +1492,326 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  create direct instances of those classes, but instead an
 	  instance of a subclass determined by
 	  <FUNCTION>type-for-sequence-stream</FUNCTION>.</PARA>
-	</SECT3>
-      </SECT2>
+
+        <dylangenericdef>
+          <defname>type-for-sequence-stream</defname>
+          <defadjectives>open</defadjectives>
+          <defsummary>Returns a stream depending on the sequence.</defsummary>
+          <defparameters>
+            <param>
+              <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	  </defparameters>
+          <defreturns>
+            <param>
+	      <paramname>sequence-stream-type</paramname>
+	      <paramtype>&lt;type&gt;</paramtype>
+            </param>
+          </defreturns>
+          <defdescription>
+            <para>
+              Called by <function>make</function>.  Returns a type for 
+              creating a 
+	      <classname>&lt;sequence-stream&gt;</classname>.
+            </para>
+          </defdescription>
+        </dylangenericdef>
+
+        <dylangenericdef>
+          <defname>close</defname>
+          <defadjectives>open</defadjectives>
+          <defsummary>Closes a stream.</defsummary>
+          <defparameters>
+            <param>
+              <paramname>stream</paramname>
+	      <paramtype>&lt;stream&gt;</paramtype>
+            </param>
+            <allkeys>
+          </defparameters>
+          <defreturns>
+          </defreturns>
+          <defdescription>
+            <para>Streams are automatically opened when created, and closed
+              when they go out of scope.  But, sometimes it is necessary to
+              close a stream immediately (for example, to open another one
+              over the same sequence but in the opposite direction).  This
+              function provides for that necessity.
+            </para>
+          </defdescription>
+        </dylangenericdef>
+      </sect2>
+
+      <sect2 id="libs-streams-ref-file">
+        <title>File Stream Classes and Operations</title>
+        <sect3 id="libs-streams-ref-file-class">
+           <title>Class File-Stream</title>
+        <dylanclassdef>
+	  <dEFNAME>&lt;file-stream&gt;</dEFNAME>
+	  <defadjectives>Open abstract</defadjectives>
+	  <defsummary>
+	    The class of streams over disk files.
+	  </defsummary>
+	  <defsupers>
+            <defsuper>&lt;buffered-stream&gt;</defsuper>
+            <defsuper>&lt;positionable-stream&gt;</defsuper>
+          </defsupers>
+          <definitkeywords>
+            <keyparam>
+              <paramname>locator</paramname>
+              <paramtype>&lt;string&gt;</paramtype>
+              <paramsummary>
+                The file name.  If the <dlibrary>Locators</dlibrary>
+                library is in use, locator should be an instance of
+	        <CLASSNAME>&lt;locator&gt;</CLASSNAME> or a string that
+	        can be coerced to one.
+              </paramsummary>
+            </keyparam>
+            <keyparam>
+	      <paramname>direction</paramname>
+              <paramtype>
+                one-of(#"input", #"output", #"input-output")
+              </paramtype>
+            </keyparam>
+            <keyparam>
+	      <paramname>if-exists</paramname>
+              <paramtype>
+                one-of(#f, #"new-version", #"overwrite", #"replace", #"append", #"truncate", #"signal")
+              </paramtype>
+              <paramsummary>
+                An action to take if the file already exists.
+              </paramsummary>
+            </keyparam>
+            <keyparam>
+	      <paramname>if-does-not-exist</paramname>
+              <paramtype>
+                one-of(#f, #"signal", #"create")
+              </paramtype>
+              <paramsummary>
+                An action to take if the file doesn't exists.
+              </paramsummary>
+            </keyparam>
+            <keyparam>
+	      <paramname>element-type</paramname>
+              <paramtype>&lt;type&gt;</paramtype>
+              <paramsummary>
+                What kind of file (usually &lt;byte&gt; or &lt;byte-character&gt;).
+              </paramsummary>
+            </keyparam>
+          </definitkeywords>
+          <defdescription>
+	    <PARA>When you instantiate this class, an
+	    implementation-dependent, indirect instance of it is
+	    created (from a call to <function>type-for-file-stream</function>). 
+             The file being streamed over is opened
+	    immediately upon creating the stream. </PARA>
+
+          <PARA>File streams are intended only for accessing the
+          contents of files. They are not intended to provide a
+          general file handling facility of renaming, deleting,
+          moving, parsing directory names and so on.  If you wish to do 
+          these kinds of operations,
+          use the <dlibrary>File-System</dlibrary> library instead.</PARA> 
+
+	  <PARA>If an implementation checks file permissions when
+	  creating and opening file streams, and it detects an attempt
+	  to read a file for which the user has no read permission, or
+	  to write a file for which the user has no write permission,
+	  then an
+	  <CLASSNAME>&lt;invalid-file-permissions-error&gt;</CLASSNAME>
+	  condition is signalled at the time the file stream is
+	  created.</PARA>
+
+	  <PARA>Because creating a file stream always involves an
+	  attempt to open the underlying file, the aforementioned
+	  error conditions will occur during file stream instance
+	  initialization.</PARA>
+
+              <PARA>The <dlit>element-type</dlit> init-keyword
+              specifies the type of the elements in the file named by
+              locator. This allows file elements to be represented
+              abstractly; for instance, contiguous elements could be
+              treated as a single database record. This init-keyword
+              defaults to something useful, potentially based on the
+              properties of the file;
+              <CLASSNAME>&lt;byte-character&gt;</CLASSNAME> and
+              <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME> are
+              likely choices.</PARA>
+
+	  <PARA>The optional <dlit>if-exists:</dlit> init-keyword allows
+	  you to specify an action to take if the file named by
+	  <PARAMETER>locator</PARAMETER> already exists. The options
+	  are:</PARA>
+
+	  <itemizedlist>
+	      <LISTITEM>
+		<PARA><dlit>#f</dlit> -- No action. This is the 
+                default when the stream's
+		direction is <dlit>#"input"</dlit> or
+		<dlit>#"input-output"</dlit>.</PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"new-version"</dlit> -- If the underlying 
+                file system supports file
+		versioning, a new version of the file is created. This
+		is the default when the stream's direction is
+		<dlit>#"output"</dlit>.</PARA>
+
+		<PARA>If the file system does not support file
+		versioning, the implementation should substitute one
+		of the other <dlit>if-exists:</dlit> behaviors;
+		the <dlit>#"replace"</dlit> behavior is a good
+		choice. </PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"overwrite"</dlit> -- Set the stream's 
+                position to the beginning of
+		the file, but preserve the current contents of the
+		file. This is useful when the direction is
+		<dlit>#"input-output"</dlit> and you want to
+		overwrite an existing file.</PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"replace"</dlit> -- Delete or rename the 
+                existing file and create a new file.</PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"append"</dlit> -- Set the stream's 
+                initial position to the end of
+		the existing file so that all new output occurs at the
+		end of the file.</PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"truncate"</dlit> -- If the file exists, 
+                it is truncated, setting the
+		size of the file to 0. If the file does not exist,
+		create a new file.</PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"signal"</dlit> -- Signal a
+		<CLASSNAME>&lt;file-exists-error&gt;</CLASSNAME>
+		condition. </PARA>
+	      </LISTITEM>
+	  </itemizedlist>
+
+	  <PARA>The optional <dlit>if-does-not-exist:</dlit> init-keyword
+	  allows you to specify an action to take if the file named by
+	  <PARAMETER>locator</PARAMETER> does not exist. The options
+	  are:</PARA>
+
+	  <itemizedlist>
+	      <LISTITEM>
+		<PARA><dlit>#f</dlit> -- No action.</PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"signal"</dlit> -- Signal a
+		<CLASSNAME>&lt;file-does-not-exist-error&gt;</CLASSNAME>
+		condition. This is the default when the stream's
+		direction is <dlit>#"input"</dlit>.</PARA>
+	      </LISTITEM>
+	      <LISTITEM>
+		<PARA><dlit>#"create"</dlit> -- Create a new zero-length 
+                file. This is the
+		default when the stream's direction is
+		<dlit>#"output"</dlit> or
+		<dlit>#"input-output"</dlit>.</PARA>
+	      </LISTITEM>
+	  </itemizedlist>
+          </defdescription>
+        </dylanclassdef>
+
+        <para>There are some implementation and portability notes dealing
+          with file streams, particularly dealing with the <dlit>element-type:</dlit>
+          keyword.</para>
+
+          <NOTE>
+            <TITLE>Implementation Note</TITLE>
+
+            <PARA>Ideally, element-type could be any valid Dylan type
+            such as <dlit>limited(&lt;integer&gt;, min: 0, max:
+            255)</dlit> or
+            <CLASSNAME>&lt;unicode-character&gt;</CLASSNAME>. This
+            approach may make it possible to implement a potentially
+            inefficient but general set of file streams. Unfortunately
+            the current language definition does not include adequate
+            support for this approach, so we specify instead an
+            interim minimum set of three element types. The element
+            types are for the time being exported from the 
+            <dmodule>streams</dmodule>
+            module of the <dlibrary>Streams</dlibrary> library.</PARA>
+          </NOTE>
+
+          <PARA>The three possible element types are: </PARA>  
+          <itemizedlist>
+              <LISTITEM>
+                <PARA><CLASSNAME>&lt;byte-character&gt;</CLASSNAME> -- The 
+                  file is accessed as a sequence of 8-bit
+                  characters.</PARA>
+              </LISTITEM>
+              <LISTITEM>
+                <PARA><CLASSNAME>&lt;unicode-character&gt;</CLASSNAME> -- The 
+                  file is accessed as a sequence of 16-bit Unicode
+                  characters.</PARA>
+              </LISTITEM>
+              <LISTITEM>
+                <PARA><CLASSNAME>&lt;byte&gt;</CLASSNAME> -- The file is 
+                  accessed as a sequence of unsigned 8-bit
+                  integers.</PARA>
+              </LISTITEM>
+          </itemizedlist>
+
+          <NOTE>
+            <TITLE>Portability Note</TITLE>
+
+            <PARA>Portable code can count on the existence of these
+            three element types, but implementations are free to
+            provide more. </PARA>
+          </NOTE>
+	</sect3>
+	<sect3 id="libs-streams-ref-file-functions">
+            <title>File Stream Functions</title>
+            <para>All the operations described in 
+	     <xref linkend="libs-streams-ref-general"> work with file streams.
+               The following functions are specific to file streams.</para>
+	
+	<dylangenericdef>
+	      <dEFNAME>type-for-file-stream</dEFNAME>
+	  <defadjectives>open</defadjectives>
+	      <defsummary>Returns the kind of file-stream class to
+	      instantiate for a given file.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>locator</paramname>
+	      <paramtype>type-union(&lt;locator&gt;, &lt;string&gt;)</paramtype>
+	      <paramsummary>The file over which to stream</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>element-type</paramname>
+	      <paramtype>false-or(&lt;type&gt;)</paramtype>
+	      <paramsummary>The kind of file</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>encoding</paramname>
+	      <paramtype>false-or(&lt;type&gt;)</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>type</paramname>
+	      <paramtype>&lt;type&gt;</paramtype>
+	      <paramsummary>The file-stream type.</paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	      <PARA>The method for <function>make</function> on
+	      <CLASSNAME>&lt;file-stream&gt;</CLASSNAME> calls this
+	      function to determine the class of which it should
+	      create an instance.</PARA>
+	  </defdescription>
+	</dylangenericdef>
+          </sect3>
+	</sect2>
+
     </SECT1>
   </CHAPTER>
 
@@ -5704,11 +5687,11 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defparameters>
   	  <param>
   	    <paramname> num </paramname>
-  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramtype>&lt;integer&gt;</paramtype>
   	  </param>
   	  <keyparam>
   	    <paramname> base </paramname>
-  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramtype>&lt;integer&gt;</paramtype>
   	    <paramsummary>
   	      <dlit>base</dlit> should be between 2 and 36, inclusive,
   	      and is the radix of the string representation; it
@@ -5718,18 +5701,18 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	  </keyparam>
   	  <keyparam>
   	    <paramname> uppercase </paramname>
-  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	    <paramtype>&lt;boolean&gt;</paramtype>
   	    <paramsummary>
-  	      If it is <dlit>#t</dlit>, then uppercase letters will be
+  	      If it is &true;, then uppercase letters will be
   	      used to represent digits higher than 9, and lowercase
-  	      will be used if <dlit>#f</dlit>.
+  	      will be used if &false;.
   	    </paramsummary>
   	  </keyparam>
   	</defparameters>
   	<defreturns>
   	  <param>
   	    <paramname> number </paramname>
-  	    <paramtype> &lt;string&gt; </paramtype>
+  	    <paramtype>&lt;string&gt;</paramtype>
   	  </param>
   	</defreturns>
   	<defdescription>
@@ -5752,7 +5735,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defparameters>
   	  <param>
   	    <paramname> string </paramname>
-  	    <paramtype> &lt;sequence&gt; </paramtype>
+  	    <paramtype>&lt;sequence&gt;</paramtype>
   	    <paramsummary>
   	      Any <classname> &lt;sequence&gt; </classname> of
   	      <classname> &lt;character&gt; </classname> objects are
@@ -5762,7 +5745,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	  </param>
   	  <keyparam>
   	    <paramname> base </paramname>
-  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramtype>&lt;integer&gt;</paramtype>
   	    <paramsummary>
   	      Between 2 and 36, inclusive, denoting the base to read
   	      integers in. An error is signalled if base is not in
@@ -5773,7 +5756,7 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
   	<defreturns>
   	  <param>
   	    <paramname> integer </paramname>
-  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramtype>&lt;integer&gt;</paramtype>
   	  </param>
   	</defreturns>
   	<defdescription>
@@ -6645,7 +6628,10 @@ method (big-string, replace-string, #key count, start, end)
       relationships for a right triangle.  The discussion will use the
       below reference figure:
     </para>
-    <triangle>
+    <FIGURE id="libs-transcendental-sincostan-tri-1">
+      <TITLE>A right triangle</TITLE>
+      <GRAPHIC fileref="tri.png"></GRAPHIC>
+    </FIGURE>
     <para>
       Sine, cosine, and tangent are used when you know an angle and a
       length of one of the sides of a right triangle, and you want to
@@ -6674,7 +6660,8 @@ method (big-string, replace-string, #key count, start, end)
       <defdescription>
   	<para>
 	  Returns the sine of a real number.  Using the above right
-	  triangle, the sine of theta is AB / AC.  For example, say AC
+	  triangle in <xref linkend="libs-transcendental-sincostan-tri-1">, 
+          the sine of theta is AB / AC.  For example, say AC
 	  is 12 meters and theta is <dlit>$double-pi</dlit> / 6 (30 degrees).  
 	  You solve
 	  for AB by multiplying AC and sine theta.  AB = 12 * 
@@ -6805,7 +6792,10 @@ method (big-string, replace-string, #key count, start, end)
       functions of sine, cosine and tangent resolve this issue.  Let's
       use the same reference diagram for the following discussion.
     </para>
-    <triangle>
+    <FIGURE id="libs-transcendental-arc-tri-1">
+      <TITLE>A right triangle</TITLE>
+      <GRAPHIC fileref="tri.png"></GRAPHIC>
+    </FIGURE>
     <para>
       The
       arc sine function (<function>asin</function>, also known as the 
@@ -6860,7 +6850,8 @@ method (big-string, replace-string, #key count, start, end)
       <defdescription>
 	<para>
 	  Given the hypotenuse (AC) and the base (BC), the arc-cosine
-	  gives theta in the diagram:  the angle in radians.
+	  gives theta in <xref linkend="libs-transcendental-arc-tri-1">:  
+          the angle in radians.
 	</para>
       </defdescription>
     </dylangenericdef>
@@ -6909,8 +6900,10 @@ method (big-string, replace-string, #key count, start, end)
       </defreturns>
       <defdescription>
 	<para>
-	  Given the height (AB) as y and the base (BC) as x, 
-	  the arc-tangent gives theta as z:  the angle in radians.
+	  Given the height (AB) as <parameter>y</parameter> and the base (BC) 
+          as <parameter>x</parameter>, 
+	  the arc-tangent gives theta as <parameter>z</parameter>:  the angle 
+          in radians.
 	</para>
       </defdescription>
     </dylangenericdef>
@@ -7158,13 +7151,17 @@ log(100000, base: 10) => 5.0
 	  <para>
 	    <function>exp</function> returns e raised to the number supplied.
 	    You may be wondering what purpose this function serves, given
-	    <constant>$double-e</constant> and <function>^</function>.  
+	    <constant>$double-e</constant> and <function>\^</function>.  
 	    Actually, <function>exp</function> is a favorite function of mine,
 	    because it is used in the compounding interest formula, which is:
 	    T = Pert (The resulting Total money is Principal multiplied by e 
 	    to the rt power (rate times time)).  So, 10000 USD will be over
 	    33000 USD if held for twelve years in an account earning 10 
-	    percent.  How many years will it take to make 1000000 USD if you
+	    percent, as shown by the result of:
+          </para>
+          <programlisting>
+10000 * exp(12 * 0.1)</programlisting>
+          <para>How many years will it take to make 1000000 USD if you
 	    start investing 10000 USD at 21 percent and add 500 USD per month?
 	  </para>
 	</defdescription>
@@ -8062,7 +8059,8 @@ log(100000, base: 10) => 5.0
 	</defreturns>
 	<defdescription>
 	  <para>
-	    Return a random integer between 0 (inclusive) and arg
+	    Return a random integer between 0 (inclusive) and 
+            <parameter>arg</parameter>
 	    (exclusive).  We return the same kind of integer that arg
 	    is. 
 	  </para>
