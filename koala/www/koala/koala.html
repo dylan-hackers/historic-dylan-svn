@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Koala Doc</title>
+  <title>Koala Documentation</title>
 
   <style><!--
   body        { font-family: Arial,Helvetica,Sans-serif; font-size: 10pt; }
@@ -17,12 +17,74 @@
 
 <body text="#000000" bgcolor="#F0F0FF">
 
-<h1 align="center">Koala Doc</h1>
+<h1 align="center">Koala Documentation</h1>
 
-For now just a few notes...
+This is a preliminary release of the Koala HTTP server and Dylan Server
+Pages.
 
-<p>Probably a good way to see how to write an addition to Koala, is to start
-by looking at xml-rpc-server.dylan
+<h2>Contents</h2>
+
+<ol>
+  <li><a href="#getting-started">Getting Started</a></li>
+  <li><a href="#users-guide">User's Guide</a></li>
+</ol>
+
+<a name="getting-started"></a>
+<h2>Getting Started</h3>
+
+<h3>Organization of the Koala distribution</h3>
+
+<pre>
+koala/bin              -- Binaries for the demo application.
+koala/config/          -- Koala configuration files.
+koala/lib/             -- Third-party libraries.
+koala/sources/koala    -- Koala and Dylan Server Pages sources.
+koala/sources/example  -- A demo application using DSP.
+koala/www              -- Web pages, including the demo application.
+koala/www/koala        -- Some preliminary Koala/DSP documentation.
+</pre>
+
+
+<h3>Running Koala</h3>
+
+So far Koala only runs on Windows.  I hope to fix this as soon as possible.
+
+<p>If you're using the binary version, you can start the demo application
+by double clicking on koala-example.exe in the koala/bin/ directory.
+
+<p>If you have the source version, see <a href="#building">Building Koala</a>, below.
+
+<p>Point your browser at <a
+href="http://localhost/">http://localhost/</a> to browse the documents
+in koala/www, or <a
+href="http://localhost/demo/home.dsp">http://localhost/demo/home.dsp</a>
+for the Dylan Server Pages demo.  Note that &lt;koala-root&gt;/config/koala-config.xml
+has many comments explaining configuration settings.
+
+
+
+<a name="building"></a>
+<h3>Building Koala</h3>
+
+If you have a source distribution then you can build Koala using <a
+href="http://www.functionalobjects.com">Functional Developer</a> (free
+evaluation versions available).  Just open
+sources/example/koala-example.hdp and build the project.  You may want
+to put a copy of config/koala-config.xml into
+sources/example/config/koala-config.xml and set DEBUG-SERVER to "on".
+
+If you want to make a new distribution of Koala, build the koala-example
+project, then use the Build Release command in Functional Developer,
+then cd to koala/build and type "ant dist".  This should create a
+directory called koala/dist containing the distribution, which you can
+then zip up.  See koala/build/build.xml or type "ant help" for details
+of other Ant targets.  I use Ant 1.4.1.  
+
+
+<h3>Feedback</h3>
+
+Any and all feedback appreciated.
+<br>carlgay [at] attbi [dot] com
 
 
 </body>
