@@ -139,9 +139,7 @@ define module od-format
   use utils;
   use self-organizing-list;
   use file-system, import: {find-and-open-file};
-#if (~mindy & ~bootstrap_hack)
   use Extensions, import: {<stretchy-object-vector>, <simple-object-table>};
-#endif
   export
     $odf-header-flag,
     $odf-etype-mask,

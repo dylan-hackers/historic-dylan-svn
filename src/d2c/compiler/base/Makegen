@@ -12,9 +12,5 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/regular-expressions'
     . ' -L../../../common/base-file-system';
 
-if ($enable_bootstrap) {
-  $D2CFLAGS = $D2CFLAGS . ' -Dbootstrap_hack ';
-}
-
 do emit_library_rule('Base', '$(BUILDROOT)/force.timestamp', '', 
 		     'compile', 'install');

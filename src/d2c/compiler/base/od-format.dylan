@@ -1,5 +1,5 @@
 Module: od-format
-RCS-header: $Header: /scm/cvs/src/d2c/compiler/base/od-format.dylan,v 1.19.4.3 2004/02/12 01:31:54 andreas Exp $
+RCS-header: $Header: /scm/cvs/src/d2c/compiler/base/od-format.dylan,v 1.19.4.4 2004/07/21 22:19:15 prom Exp $
 
 //======================================================================
 //
@@ -228,11 +228,6 @@ Note that:
 //
 // Note that it is intended that all IDs be registered in this file so that
 // we are sure that IDs are globally unique.
-
-#if (mindy | bootstrap_hack)
-define constant <stretchy-object-vector> = <stretchy-vector>;
-define constant <simple-object-table> = <table>;
-#endif
 
 define constant $object-id-registry :: <simple-object-table>
   = make(<object-table>);
