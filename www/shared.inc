@@ -82,7 +82,7 @@ function short_header ($title) {
       <A HREF="tools.phtml">&rsaquo; Working with Other Tools</a>
       <A HREF="gdref.phtml">&rsaquo; Documentation</A>
       <A HREF="lists.phtml">&rsaquo; Mailing Lists</A>
-      <A HREF="/cgi-bin/bugzilla/index.cgi">&rsaquo; Bug Tracker</A>
+      <A HREF="/bugs/">&rsaquo; Bug Tracker</A>
       <A HREF="http://monday.sourceforge.net/wiki/">&raquo; Wiki</A>
       <A HREF="learning.phtml">&rsaquo; Learning Dylan</A>
       <A HREF="users.phtml">&rsaquo; Projects Using Dylan</A>
@@ -93,10 +93,10 @@ function short_header ($title) {
     <div class="sideMenuBox">
       <div>Developer Resources</div>
       <A HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse CVS</A>
-      <A HREF="/cgi-bin/cvszilla/query.cgi">&rsaquo; CVSzilla search</A>
+      <A HREF="/cvszilla/query.cgi">&rsaquo; CVSzilla search</A>
       <A HREF="projects.phtml">&rsaquo; Current Projects</A>
       <A HREF="submit-news.phtml">&rsaquo; Submit News</A>
-      <A HREF="/cgi-bin/tinderbox/showbuilds.pl?tree=Gwydion">&rsaquo; Tinderbox</A>
+      <!--      <A HREF="/cgi-bin/tinderbox/showbuilds.pl?tree=Gwydion">&rsaquo; Tinderbox</A>-->
     </div>
 <!--
     <div class="sideTextBox">
@@ -137,7 +137,7 @@ reserved.
 
       <div>  Created using <A HREF="http://www.php.net/">PHP</A>, <A
 HREF="http://www.apache.org/">Apache</A> on a machine running <A
-HREF="http://www.debian.org/">Debian Linux</A>. Graphics by the <A
+HREF="http://www.FreeBSD.org/">FreeBSD</A>. Graphics by the <A
 HREF="http://www.gimp.org/">GIMP</A>.
       </div>
     </div>

@@ -3,7 +3,7 @@ require "shared.inc";
 ?>
 
 <?php
-if($REQUEST_METHOD == "GET") {
+if(getenv('REQUEST_METHOD') == "GET") {
   standard_header("Submit News");
 ?>
 
@@ -25,8 +25,11 @@ Message body:
 } else {
     standard_header("News submitted");
 
-    $db = db_connect();
+    $db = mysql_connect(":/tmp/mysql.sock",'www-post','gwydion-post');
+    mysql_select_db("gwydion", $db);
 
+    $headline = $_POST['headline'];
+    $body = $_POST['body'];
     $query = 'insert into news values (NOW(),"'.$headline.'","'.$body.'","andreas","andreas",0)';
     $res = mysql_query($query, $db);
     $err = mysql_error();

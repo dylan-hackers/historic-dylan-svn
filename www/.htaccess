@@ -1,2 +1,6 @@
-DirectoryIndex index.phtml
-php_value include_path /usr/share/mnogosearch-php:/etc/mnogosearch-php
+<Files submit-news.phtml>
+  AuthName "Submit News"
+  AuthType Basic
+  require valid-user
+  AuthUserFile /usr/local/www/data/.htpasswd
+</Files>
