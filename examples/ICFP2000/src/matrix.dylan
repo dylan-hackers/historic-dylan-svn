@@ -87,12 +87,6 @@ define method \* (v1 :: <vector3D>, v2 :: <vector3D>)
   v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
 end method;
 
-define method \* (v1 :: <vector>, v2 :: <vector>)
- => (dot-product :: <number>);
-  reduce1(\+, map(\*, v1, v2));
-end method;
-
-
 define method \* (v :: <vector3D>, n :: <fp>)
  => (scalar-product :: <vector3D>);
   vector3D(v.x * n, v.y * n, v.z * n, v.w * n);
@@ -132,22 +126,10 @@ define method negative(v :: <vector3D>)
   vector3D(-v.x, -v.y, -v.z, -v.w);
 end method;
 
-define method negative(v :: <vector>)
- => (negation :: <vector>);
-  map(curry(\*, -1), v);
-end method;
-
-
 define method \+ (v1 :: <vector3D>, v2 :: <vector3D>)
  => (sum :: <vector3D>);
   vector3D(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
 end method;
-
-define method \+ (v1 :: <vector>, v2 :: <vector>)
- => (sum :: <vector>);
-  map(\+, v1, v2);
-end method;
-
 
 define method \- (v1 :: <vector3D>, v2 :: <vector3D>)
  => (difference :: <vector3D>);
