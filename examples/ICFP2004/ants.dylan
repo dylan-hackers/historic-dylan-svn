@@ -500,6 +500,31 @@ define function step(aid :: <integer>)
   end if;
 end function step;
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Random numbers
+
+define variable *random-seed* :: <integer> = 12345;
+
+define function randomint(n :: <integer>)
+ => (randomint :: <integer>);
+  let seed = *random-seed*;
+  *random-seed* := seed * 22695477 + 1;
+  let x = logand(ash(seed,-16), 16383);
+  let (q, r) = truncate/(x, n);
+  r;
+end randomint;
+
+begin
+  // discard the first 4 seeds
+  randomint(2);
+  randomint(2);
+  randomint(2);
+  randomint(2);
+end;
+
+////////////////////////////////////////////////////////////////////////////////
+
 define function play-game(red-brain :: <string>,
                           black-brain :: <string>,
                           world :: <string>)
