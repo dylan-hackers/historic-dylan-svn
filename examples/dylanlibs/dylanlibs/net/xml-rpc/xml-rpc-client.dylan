@@ -32,7 +32,39 @@ define method as-xml-rpc-type(value :: <boolean>) => (s :: <string>)
 end method as-xml-rpc-type;
 
 define method as-xml-rpc-type(value :: <string>) => (s :: <string>)
-  format-to-string("<string>%s</string>", value);                     
+  format-to-string("<string>%s</string>", encode-string(value));                     
+end method as-xml-rpc-type;
+
+define method xml-float-to-string(value :: <float>) => (s :: <string>)
+  let s = format-to-string("%d", value);
+  let dp = subsequence-position(s, ".");
+  let tp = subsequence-position(s, "d") | subsequence-position(s, "s");
+  let lhs = copy-sequence(s, end: dp);
+  let rhs = copy-sequence(s, start: dp + 1, end: tp);
+  let shift = string-to-integer(s, start: tp + 1);
+  let result = "";
+  if(shift <= 0)
+    result := concatenate(result, lhs, ".");
+    for(n from 0 below abs(shift))
+      result := concatenate(result, "0");
+    end for;
+    result := concatenate(result, rhs);
+  else
+    result := concatenate(result, lhs);
+    if(rhs.size < shift)
+      result := concatenate(result, rhs);
+      for(n from 0 below shift - rhs.size)
+        result := concatenate(result, "0");
+      end for;
+    else
+      error("Error parsing float");
+    end if;
+  end if;
+  result;    
+end method xml-float-to-string;
+
+define method as-xml-rpc-type(value :: <float>) => (s :: <string>)
+  format-to-string("<double>%s</double>", xml-float-to-string(value));                     
 end method as-xml-rpc-type;
 
 define method as-xml-rpc-type(value :: <date>) => (s :: <string>)

@@ -61,6 +61,14 @@ Dylan Implementations:
 
 Demonstrates using the xml-rpc library by calling various servers.
 
+8) xml-rpc-interop-example
+==========================
+Dylan Implementations:
+  Functional Developer
+
+Demonstrates using the xml-rpc library to call an xml-rpc server that
+is running the various interop tests methods.
+
 -- 
 Chris Double.  
 04 May 2001.

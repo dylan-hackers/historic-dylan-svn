@@ -36,7 +36,9 @@ define module xml-rpc-internals
 	<xml-rpc-condition>,
 	xml-rpc-fault-code,
 	xml-rpc-fault-string,
-	parse-response-integer-value;
+	parse-response-integer-value,
+        encode-string,
+        decode-string;
 end module xml-rpc-internals;
 
 define module xml-rpc-client

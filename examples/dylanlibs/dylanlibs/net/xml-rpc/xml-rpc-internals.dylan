@@ -4,6 +4,143 @@ Author:    Chris Double
 Copyright: (C) 2000, Chris Double.  All rights reserved.
 License:   See License.txt
 
+// Encode/Decode a string so it is safe to pass inside XML
+define method encode-string(s :: <string>) => (r :: <string>)
+  let v = make(<stretchy-vector>);
+  for(ch in s)
+    select(ch)
+      '<' => begin
+               v := add!(v, '&');
+               v := add!(v, 'l');
+               v := add!(v, 't');
+               v := add!(v, ';');
+             end;
+      '>' => begin
+               v := add!(v, '&');
+               v := add!(v, 'g');
+               v := add!(v, 't');
+               v := add!(v, ';');
+             end;
+      '&' => begin
+               v := add!(v, '&');
+               v := add!(v, 'a');
+               v := add!(v, 'm');
+               v := add!(v, 'p');
+               v := add!(v, ';');
+             end;
+      otherwise => v := add!(v, ch);
+    end;       
+  finally 
+    as(<string>, v);
+  end for;  
+end method encode-string;
+
+define method decode-string(s :: <string>) => (r :: <string>)
+  let result = make(<stretchy-vector>);
+  let state = #"normal";
+  local method process-state(ch)
+    select(state)
+      #"normal" => 
+        if(ch == '&')
+          state := #"encoding";
+        else
+          result := add!(result, ch);
+        end if;
+      #"encoding" =>
+        select(ch)
+          'a' => state := #"amp1";
+          'g' => state := #"gt1";
+          'l' => state := #"lt1";
+          otherwise => 
+            begin
+              state := #"normal";
+              result := add!(result, '&');
+              process-state(ch);
+            end;
+        end;
+      #"amp1" =>
+        if(ch == 'm')
+          state := #"amp2";
+        else
+          state := #"normal";
+          result := add!(result, '&');
+          result := add!(result, 'a');
+          process-state(ch);
+        end if;
+      #"amp2" => 
+        if(ch == 'p')
+          state := #"amp3";
+        else
+          state := #"normal";
+          result := add!(result, '&');
+          result := add!(result, 'a');
+          result := add!(result, 'm');
+          process-state(ch);
+        end if;
+      #"amp3" => 
+        if(ch == ';')
+          state := #"normal";
+          result := add!(result, '&');
+        else
+          state := #"normal";
+          result := add!(result, '&');
+          result := add!(result, 'a');
+          result := add!(result, 'm');
+          result := add!(result, 'p');
+          process-state(ch);
+        end if;
+      #"gt1" =>
+        if(ch == 't')
+          state := #"gt2";
+        else
+          state := #"normal";
+          result := add!(result, '&');
+          result := add!(result, 'g');
+          process-state(ch);
+        end if;
+      #"gt2" => 
+        if(ch == ';')
+          state := #"normal";
+          result := add!(result, '>');
+        else
+          state := #"normal";
+          result := add!(result, '&');
+          result := add!(result, 'g');
+          result := add!(result, 't');
+          process-state(ch);
+        end if;
+      #"lt1" =>
+        if(ch == 't')
+          state := #"lt2";
+        else
+          state := #"normal";
+          result := add!(result, '&');
+          result := add!(result, 'l');
+          process-state(ch);
+        end if;
+      #"lt2" => 
+        if(ch == ';')
+          state := #"normal";
+          result := add!(result, '<');
+        else
+          state := #"normal";
+          result := add!(result, '&');
+          result := add!(result, 'l');
+          result := add!(result, 't');
+          process-state(ch);
+        end if;
+      otherwise => error("Unknown state");
+    end select;
+  end method;
+
+  for(n from 0 below s.size)
+    let ch = s[n];
+    process-state(ch);
+  finally
+    as(<string>, result);
+  end for;                       
+end method decode-string;
+
 define constant <letter> = 
     one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -212,7 +349,7 @@ define method parse-response-string-internal (string, #key start = 0, end: stop)
     with-meta-syntax parse-string (string, start: start, pos: index)
       variables(space, c);
       [loop([test(is-not-special?, c), do(collect(c))])];
-      values(index, copy-sequence(result()));
+      values(index, decode-string(result()));
     end with-meta-syntax;  
   end with-collector;
 end method parse-response-string-internal;   
@@ -228,21 +365,41 @@ define method parse-response-string (string, #key start = 0, end: stop)
   end with-meta-syntax;  
 end method parse-response-string;   
 
-// Needs to be implemented properly
-define method parse-response-double (string, #key start = 0, end: stop)
-  local method is-not-special?(char :: <character>)
-      char ~= '<';
-  end method is-not-special?;
-
+define method parse-response-double-value(string, #key start = 0, end: stop)
   with-collector into-buffer result like string, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(space, c);
-      ["<double>", 
-       loop([test(is-not-special?, c), do(collect(c))]),
-       "</double>"];
-      values(index, as(<string>, result()));
-    end with-meta-syntax;  
+    with-collector into-buffer result2 like string, collect: collect2;
+      with-meta-syntax parse-string (string, start: start, pos: index)
+        variables(sign, c, space, value, state);
+        [ set!(state, #"lhs"),
+          {['-', set!(sign, -1) ],
+           [ { '+', [] } , set!(sign, 1)]},
+           loop({ ['.', set!(state, #"rhs") ],
+                  [type(<digit>, c), do(if(state == #"lhs") collect(c) else collect2(c) end)]}),
+         ];
+
+        values(index, 
+          begin
+            let r1 = copy-sequence(result());
+            let r2 = copy-sequence(result2());
+            let r1 = if(empty?(r1)) "0" else r1 end;
+            let r2 = if(empty?(r2)) "0" else r2 end;
+            (string-to-integer(r1) * sign) + 
+                       (as(<double-float>, (string-to-integer(r2) * sign)) / 
+                         (10 ^ r2.size))
+          end);
+      end with-meta-syntax;  
+    end with-collector;
   end with-collector;
+end method parse-response-double-value;
+
+define method parse-response-double (string, #key start = 0, end: stop)
+  with-meta-syntax parse-string (string, start: start, pos: index)
+    variables(space, value);
+    ["<double>", 
+     parse-response-double-value(value),
+     "</double>"];
+    values(index, value);
+  end with-meta-syntax;  
 end method parse-response-double;   
 
 // Needs to be implemented properly
@@ -368,7 +525,7 @@ define method parse-response-array-data (string, #key start = 0, end: stop)
       variables(space, value);
       ["<data>",
        loop(parse-s(space)),
-       loop([parse-response-value(value), do(collect(value))]),	   
+       loop([parse-response-value(value), do(collect(value)), loop(parse-s(space))]),	   
        loop(parse-s(space)),
        "</data>"];
       values(index, array);
