@@ -203,40 +203,42 @@ define macro mi-operation-definer
 
   // high-level definers
   //
-  { define mi-operation ?:name; ?parses:* end }
-  =>
-  {}
-
-  // sequences of something
-  { define mi-operation ?:name((?sequence:*)) ?parses:* end }
+  { define mi-operation ?:name; ?parse-sequence end }
   =>
   {
-    define class-for-sequential mi-operation ?name(?sequence) end;
-    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-    define result-for-sequential mi-operation ?name(?parses) end;
-    define parser-for-sequential mi-operation ?name(?parses) end
+    // TBD
+  }
+
+  // sequences of something
+  { define mi-operation ?:name((?argument)); ?parse-sequence end }
+  =>
+  {
+    define class-for-sequential mi-operation ?name(?argument) end;
+    define creator-for-sequential mi-operation ?name(?argument, ?argument) end;
+    define emitter-for-sequential mi-operation ?name(?argument, ?argument) end;
+    define result-for-sequential mi-operation ?name(?parse-sequence) end;
+    define parser-for-sequential mi-operation ?name(?parse-sequence) end
   }
 
   // options in front of something
-  { define mi-operation ?:name([ ?option ] ?options) ?parses:* end }
+  { define mi-operation ?:name [ ?option ] ?options; ?parse-sequence end }
   =>
   {
     define class-for-regular mi-operation ?name([ ?option ] ?options) end;
 //    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
 //    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define result-for-sequential mi-operation ?name(?parses) end;
-//    define parser-for-sequential mi-operation ?name(?parses) end
+//    define result-for-sequential mi-operation ?name(?parse-sequence) end;
+//    define parser-for-sequential mi-operation ?name(?parse-sequence) end
   }
 
-  { define mi-operation ?:name({ ?alternate } ?options) ?parses:* end }
+  { define mi-operation ?:name { ?alternate } ?options; ?parse-sequence end }
   =>
   {
     define class-for-regular mi-operation ?name(?alternate ?options) end;
 //    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
 //    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define result-for-sequential mi-operation ?name(?parses) end;
-//    define parser-for-sequential mi-operation ?name(?parses) end
+//    define result-for-sequential mi-operation ?name(?parse-sequence) end;
+//    define parser-for-sequential mi-operation ?name(?parse-sequence) end
   }
 
   // arguments
@@ -247,7 +249,7 @@ define macro mi-operation-definer
     // ---- more
   } */
 
-  { define mi-operation ?:name(?argument, ?arguments) ?parses:* end }
+  { define mi-operation ?:name(?argument, ?arguments) ?options; ?parse-sequence end }
   =>
   {
     define class-for-regular mi-operation ?name(?argument ?arguments) end;
@@ -255,21 +257,25 @@ define macro mi-operation-definer
   }
 
   // ignore all other stuff for now!!!! #####
-  { define mi-operation ?:name(?:*) ?parses:* end }
-  =>
-  {}
+//  { define mi-operation ?:name(?:*) ?parses:* end }
+//  =>
+//  {}
   
   // auxiliary patterns
   //
   sequence-slot:
-    { ?:name :: ?:expression }
+    { [ ?ignore:name ?:name :: ?:expression;(?blurb:*) ] }
     => { slot ?name :: limited(<vector>, of: ?expression), required-init-keyword: #"?name" }
 
   rest-sequence:
-    { ?:name :: ?:expression } => { #rest ?name :: ?expression }
+    { [ ?ignore:name ?:name :: ?:expression;(?blurb:*) ] }
+//    { ?:name :: ?:expression }
+    => { #rest ?name :: ?expression }
 
   sequence-arg:
-    { ?:name :: ?:expression } => { ?name }
+    { [ ?ignore:name ?:name :: ?:expression;(?blurb:*) ] }
+//    { ?:name :: ?:expression }
+    => { ?name }
 
   parse-sequence:
     {} => {}
@@ -321,25 +327,25 @@ end;
 
 
 
-define mi-operation break-after(number :: <positive>, count :: <positive>)
+define mi-operation break-after(number :: <positive>, count :: <positive>);
   resulting error => report;
   resulting done => parse-breakpoint-table;
 end;
 
-define mi-operation break-condition(number :: <positive>, expr :: <mi-expression>)
+define mi-operation break-condition(number :: <positive>, expr :: <mi-expression>);
 end;
 
-define mi-operation break-delete((breakpoint :: <positive>))
+define mi-operation break-delete((breakpoint :: <positive>));
   resulting error => report;
   resulting done;
 end;
 
-define mi-operation break-disable((breakpoint :: <positive>))
+define mi-operation break-disable((breakpoint :: <positive>));
   resulting error => report;
   resulting done;
 end;
 
-define mi-operation break-enable((breakpoint :: <positive>))
+define mi-operation break-enable((breakpoint :: <positive>));
   resulting error => report;
   resulting done;
 end;
@@ -348,30 +354,18 @@ define mi-operation break-info(breakpoint :: <positive>)
 end;
 
 
-define mi-operation break-insert(
+define mi-operation break-insert
     [ t ]
     [ h ]
     [ r ]
     [ c condition :: <mi-expression> ]
     [ i ignore-count :: <positive> ]
     [ p thread :: <positive> ]
-    { line :: <positive>; addr :: <mi-address> }
-)
+    { line :: <positive>; addr :: <mi-address> };
+
   resulting done => parse-breakpoint;// bkpt={number="1",addr="0x0001072c",file="recursive2.c",line="4"}
 end;
 
-/*
-define mi-operation break-insert(
-    [ t ]
-    [ h ]
-    [ r ]
-    [ "-c" condition :: <mi-expression> ]
-    [ "-i" ignore-count :: <positive> ]
-    [ "-p" thread :: <positive> ]
-    { line :: <positive>; addr :: <mi-address> })
-  resulting done => parse-breakpoint;// bkpt={number="1",addr="0x0001072c",file="recursive2.c",line="4"}
-end;
-*/
 
 define mi-parser breakpoint(bkpt)
   number :: <positive>;
@@ -389,7 +383,7 @@ define mi-parser breakpoint-table(BreakpointTable)
 
 end;
 
-define mi-operation break-watch({a; r})
+define mi-operation break-watch{a; r};
   resulting done => parse-reason;
 end;
 
@@ -409,10 +403,9 @@ define mi-operation data-disassemble(
 end;
 */
 
-define mi-operation data-disassemble(mode :: one-of(source:, raw:);
+define mi-operation data-disassemble(mode :: one-of(source:, raw:))
     [ s start-addr /* -e end-addr */ ]
-  [ f filename /* -l linenum [ -n lines ] */]
-  )
+    [ f filename /* -l linenum [ -n lines ] */];
 
   resulting done => parse-instructions; // asm_insns
 end;
@@ -433,11 +426,11 @@ end;
 
 
 
-define mi-operation data-list-register-names([ ( regno :: <positive> ) ])
+define mi-operation data-list-register-names((regno :: <positive>));
   resulting done => parse-registers // -names=["r1","r2","r3"]
 end;
 
-define mi-operation data-list-register-values(fmt :: <character>, [ ( regno :: <positive> ) ])
+define mi-operation data-list-register-values(fmt :: <character>) ((regno :: <positive>));
 end;
 
 
@@ -492,7 +485,8 @@ define mi-operation exec-step-instruction;
 
 end;
 
-define mi-operation exec-until([ location :: <mi-location> ])
+define mi-operation exec-until
+    [ location :: <mi-location> ];
 
 end;
 
@@ -500,7 +494,8 @@ define mi-operation file-exec-and-symbols(file :: <byte-string>)
 
 end;
 
-define mi-operation file-exec-file([file :: <byte-string>])
+define mi-operation file-exec-file
+    [file :: <byte-string>];
 
 end;
 
@@ -524,7 +519,8 @@ define mi-operation file-list-symbol-files;
 
 end;
 
-define mi-operation file-symbol-file([file :: <byte-string>])
+define mi-operation file-symbol-file
+    [file :: <byte-string>];
 
 end;
 
@@ -547,7 +543,7 @@ define mi-operation gdb-version;
 
 end;
 
-define mi-operation interpreter-exec(interpreter command)
+define mi-operation interpreter-exec(interpreter, command)
 
 end;
 
@@ -613,21 +609,27 @@ define mi-operation stack-info-frame;
 
 end;
 
-define mi-operation stack-info-depth([ max-depth :: false_or(<integer>) ])
+define mi-operation stack-info-depth
+//    [ max-depth :: false-or(<integer>) ];
+    [ max-depth :: <integer> ];
 
 end;
 
-define mi-operation stack-list-arguments show-values([ low-frame high-frame ])
+define mi-operation stack-list-arguments(show-values)
+  [ low-frame /*; high-frame */ ];
 
 end;
 
-define mi-operation stack-list-frames([ low-frame high-frame ])
+define mi-operation stack-list-frames
+  [ low-frame /*; high-frame */ ];
 
 end;
 
+/*
 define mi-operation stack-list-locals(print-values -- { all-values, simple-values} )
 
 end;
+*/
 
 
 // ####################################
@@ -682,11 +684,13 @@ end;
 // GDB/MI Target Manipulation Commands
 
 
-define mi-operation target-attach({pid; file}
+define mi-operation target-attach
+    {pid; file};
 
 end;
 
-define mi-operation target-compare-sections([ section ])
+define mi-operation target-compare-sections
+    [ section ];
 
 end;
 
@@ -718,21 +722,30 @@ define mi-operation target-list-parameters;
 
 end;
 
-define mi-operation target-select type parameters ...
+/*
+define mi-operation target-select(type parameters ...)
 
 end;
-
+*/
 
 // ####################################
 // GDB/MI Thread Commands
 
 define mi-operation thread-info;
 
+end;
+
 define mi-operation thread-list-all-threads;
+
+end;
 
 define mi-operation thread-list-ids;
 
+end;
+
 define mi-operation thread-select(threadnum)
+
+end;
 
 
 // ####################################
