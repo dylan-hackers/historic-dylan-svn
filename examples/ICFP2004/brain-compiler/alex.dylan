@@ -584,7 +584,6 @@ define sub brain keith-patroller (leave)
 end brain; // keith-patroller
 
 
-/*
 define ant-subbrain keith-defender
 Flip 6 73 1
 ;Sense Here 2 9 Home
@@ -611,9 +610,9 @@ Flip 6 73 1
 ;Turn Right 23
 ;Turn Right 41
 ;PickUp 25 25
-;Turn Right 26 26
-;Turn Right 27 27
-;Turn Right 28 28
+;Turn Right 26
+;Turn Right 27
+;Turn Right 28
 ;Move 29 29
 ;Sense Here 30 53 Home
 ;Drop 1
@@ -650,7 +649,7 @@ Flip 6 73 1
 ;Turn Right 62
 ;Turn Right 63
 ;Turn Right 41
-;PickUp 50 65 Food
+;PickUp 50 65
 ;Sense RightAhead 66 67 FoeHome
 ;Turn Right 67
 ;Turn Right 68
@@ -680,7 +679,6 @@ Flip 6 73 1
 ;Turn Right 92
 ;Move 79 92
 end ant-subbrain; // keith-defender
-*/
 
 
 define sub brain chris-defender (leave)
@@ -689,47 +687,48 @@ define sub brain chris-defender (leave)
   Turn Right, (random_turn);
 
   [move:]
+        Sense Ahead Home => chris-defender;
 	Move => chris-defender;
-	Sense Here (Marker 0), (spin);
-	Sense Ahead (Marker 0), (marker_0_ahead);
-	Sense LeftAhead (Marker 0), (marker_0_left_ahead);
-	Sense RightAhead (Marker 0), (marker_0_right_ahead);
+	Sense Here (Marker 5), (spin);
+	Sense Ahead (Marker 5), (marker_5_ahead);
+	Sense LeftAhead (Marker 5), (marker_5_left_ahead);
+	Sense RightAhead (Marker 5), (marker_5_right_ahead);
 //	Flip 300, (stake_place, move);
 	Sense Here Home => move;
-	Flip 50, (stake_place, move);
+	Flip 10, (stake_place, move);
 	
-  [marker_0_ahead:]
+  [marker_5_ahead:]
 	Move spin => chris-defender;
 
-  [marker_0_left_ahead:]
+  [marker_5_left_ahead:]
 	Turn Left, (move);
 
-  [marker_0_right_ahead:]
+  [marker_5_right_ahead:]
 	Turn Right, (move);
 	
   [stake_place:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Turn Right;
 	Move stake_place_2 => sp1_try1;
 
   [stake_place_2:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Move stake_place_3 => sp2_try1;
 
   [stake_place_3:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Move stake_place_4 => sp3_try1;
 
   [stake_place_4:]
-	Mark 0;
+	Mark 5;
 	Turn Right;
 	Move stake_place_5 => sp4_try1;
 
   [stake_place_5:]
-	Mark 0, (spin);
+	Mark 5, (spin);
 
   [sp1_try1:]
 	Sense Ahead Rock, (chris-defender);	
@@ -751,10 +750,10 @@ define sub brain chris-defender (leave)
 	Turn Right, (spin);
 
   [random_turn:]
-	Flip 5, (turn_to_0);
-	Flip 5, (turn_to_1);
+	Flip 3, (turn_to_0);
+	Flip 2, (turn_to_4);
 	Flip 5, (turn_to_2);
-	Flip 5, (turn_to_3, turn_to_4);
+	Flip 2, (turn_to_3, turn_to_1);
 
   [turn_to_0:]
 	Turn Right, (move);
@@ -769,17 +768,11 @@ define sub brain chris-defender (leave)
 	Turn Right, (move);
 
   [turn_to_3:]
-	Turn Right;
-	Turn Right;
-	Turn Right;
-	Turn Right, (move);
+	Turn Left;
+	Turn Left, (move);
 
   [turn_to_4:]
-	Turn Right;
-	Turn Right;
-	Turn Right;
-	Turn Right;
-	Turn Right, (move);
+	Turn Left, (move);
 end; // sub brain chris-defender
 
 
@@ -800,7 +793,7 @@ define brain alex-keith
 
   [gatherer:]
     Flip 5, (patroller);
-    Flip 10, (defender);
+    Flip 3, (defender);
     Sub keith-gatherer;
 
   [patroller:]
