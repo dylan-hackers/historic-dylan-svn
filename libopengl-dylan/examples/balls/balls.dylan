@@ -1,4 +1,4 @@
-module: ball-example
+module: balls
 synopsis: Dylan version of Mike Austin's OpenGL "Balls" example
 author:  Brent Fulgham <bfulgham@debian.org>, based on Mike Austin's 'balls.io'
 copyright: (C) Brent Fulgham.  Terms: Public Domain
