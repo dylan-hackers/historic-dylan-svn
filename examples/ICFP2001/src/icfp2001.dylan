@@ -56,9 +56,36 @@ define method parse-textstring(input, #key start = 0)
   values(copy-sequence(input, end: bytes-consumed), bytes-consumed);
 end method parse-textstring;
 
+define method parse-elem(input, #key start = 0)
+ => (string, bytes-consumed);
+  while(input[start] ~= '>')
+    start := start + 1;
+  end while;
+  let (elem, bytes-consumed) = parse(input, start: start + 1);
+  while(input[bytes-consumed] ~= '>')
+    bytes-consumed := bytes-consumed + 1;
+  end while;
+  values(elem, bytes-consumed);
+end method parse-elem;
+
 define method parse(input, #key start = 0)
-  let (string, bytes-consumed) = parse-textstring(input, start: start);
-  string;
+
+  let (elem, bytes-consumed) =   if(input[start] = '<')
+                                   if(input[start + 1] ~= '/')
+                                     parse-elem(input, start: start);
+                                   else
+                                     values(#(), start);
+                                   end;
+                                 else
+                                   parse-textstring(input, start: start);
+                                 end;
+
+  if (bytes-consumed == input.size)
+    values(elem, bytes-consumed);
+  else
+    let (return-elem, return-consumed) = parse(input, start: bytes-consumed);
+    values(pair(elem, return-elem), return-consumed);
+  end;
 end method parse;
 
 define function time-is-not-up?()
