@@ -1,0 +1,60 @@
+From: "Michael T. Richter" <mtr@ottawa.com>
+Subject: Re: MI: why?
+Newsgroups: comp.lang.dylan
+Date: Wed, 12 Jan 2000 22:24:34 GMT
+Organization: Bell Solutions
+Path: news1.transmedia.de!news-FFM2.ecrc.net!news-feed.fnsi.net!netnews.com!cpk-news-hub1.bbnplanet.com!news.gtei.net!news1.bellglobal.com!198.235.216.4.POSTED!not-for-mail
+Message-ID: <Ca7f4.38$Va2.215@198.235.216.4>
+References: <20000112214133.27101.qmail@web3301.mail.yahoo.com>
+Lines: 39
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+NNTP-Posting-Host: 204.101.128.170
+X-Trace: 198.235.216.4 947715874 204.101.128.170 (Wed, 12 Jan 2000 17:24:34 EDT)
+NNTP-Posting-Date: Wed, 12 Jan 2000 17:24:34 EDT
+Xref: soma.andreas.org comp.lang.dylan:224
+
+rob myers <mac_gwydion@yahoo.com> wrote in message
+news:20000112214133.27101.qmail@web3301.mail.yahoo.com...
+> Classes as a concept don't have to contain methods,
+> and indeed even in C++ you can view a virtual method
+> as an entity that stretches down through the class
+> hierachy.
+
+This was the biggest switch I had to make in thinking about
+object-orientation when switching to Dylan.  I had beforehand -- because of
+pollution caused by C++, Java, Eiffel, etc. -- always conflated the mostly
+orthogonal issues of state encapsulation, access control and functionality
+encapsulation into one "golden hammer" solution: classes.  It took looking
+into Dylan, Modula-3 (to an extent) and other such languages for me to even
+realize that an alternative viewpoint was available.
+
+Now, post-Dylan-switch, I map these concepts into different containers.
+State encapsulation belongs to classes.  Access control belongs to libraries
+and modules.  Functionality encapsulation belongs to generic methods.  I
+find myself wrestling with the language less and the problem domain more
+now.  This, combined with access to some of the cool features of functional
+programming (not to mention the ability to effectively add new semantics to
+the language with hygenic macros) has confirmed my selection.
+
+Of course now I can't convince any of my colleagues of the benefits of this
+switch.  They see methods without a "self" or "this" (implied or explicit)
+and the barriers snap up.  "That's not object-oriented programming!" is the
+endless refrain.
+
+> MI can save time and effort, make elegant designs
+> or be mis-used like anything else. :-)
+
+There is *no* language feature in *any* programming language which cannot be
+perverted to the cause of Evil.  Yes, that includes "if" statements....  :-)
+
+--
+Michael T. Richter    <mtr@ottawa.com>    http://www.igs.net/~mtr/
+"get a life. its a plastic box with wires in it."
+-- Nadia Mizner <nadiam@onthenet.com.au> (in private correspondence)
