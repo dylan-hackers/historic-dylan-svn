@@ -106,6 +106,66 @@ Input for the @F Monday project
 @EndList
 @End @Overhead
 
+####################################################################
+@Overhead
+    @Title { Expressions }
+@Begin
+@B { Expressions are the smallest calculated data }
+@DashList
+@ListItem { their class is @F <expression> }
+@ListItem { @F <leaf> is a subclass that is fully evaluated }
+@ListItem { an @F <operation> need to be calculated }
+@EndList
+An @F <operation> (e.g. a @F <known-call>) is said to @I depend
+on its arguments. Other constructs that depend on expressions
+are assignments, if-conditions and returns.
+@End @Overhead
+
+####################################################################
+@Overhead
+    @Title { Dependency Level }
+@Begin
+@B { @R @F <dependency> objects track the association of sources to its dependents }
+@LP
+To ascend to the dependency level you can:
+@DashList
+@ListItem { from an @F <expression> call @F "\\dependents" to get the head
+of the dependent chain and follow by @F "\\source-next" to obtain all @F <dependency>
+objects that reference that source @F <expression> }
+@ListItem { from an @F <operation> call @F "\\depends-on" to get the head
+of the uses sequence and follow by @F "\\dependent-next" to obtain all @F <dependency>
+objects that are referenced by that dependent @F <operation>. This sequence is ordered. }
+@EndList
+The effect is getting a two-dimensional fabric.
+@LP
+@End @Overhead
+
+####################################################################
+@Overhead
+    @Title { Naming Convention }
+@Begin
+Unfortunately the getter names @F "\\source-next" and @F "\\dependent-next" are rather
+unintuitive. But one can remember these better when thinking about @F <dependency>
+objects having a common source and dependent, respectively.
+@LP
+To get to the first @F <dependency> objects, the more intuitive @F "\\dependents"  and
+@F "\\depends-on" getters are provided. The latter is a slot of the mixin class
+@F {<dependent-mixin>}.
+
+@End @Overhead
+
+
+####################################################################
+@Overhead
+    @Title { Dependency Fabric over Expressions }
+@Begin
+@IndentedDisplay @Diag
+{
+
+
+}
+@End @Overhead
+
 
 
 @EndOverheads
