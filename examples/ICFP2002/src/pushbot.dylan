@@ -198,7 +198,7 @@ define method try-pickup-many(me :: <pushbot>, robot :: <robot>, s :: <state>)
 			     end method))
 	if (pkg.weight <= left
 	      & find-path-repeatedly(robot.location, pkg.location, s.board,
-				     cutoffs: #[50, #f]))
+				     cutoffs: #[#f])) // ie, only if it can be delivered
 	  left := left - pkg.weight;
 	  take-these := add!(take-these, pkg);
 	end if;
@@ -219,8 +219,11 @@ define method try-pickup-many(me :: <pushbot>, robot :: <robot>, s :: <state>)
 end method;
 
 // try to pick as many as you can to the nearest bases
-//define method try-pickup-nearest()
-  // TODO
+// sort by destination and then subsort by weight
+//define method try-pickup-nearest(me :: <pushbot>, robot :: <robot>, s :: <state>)
+// => (c :: false-or(<command>))
+//  block(return)
+    
 //end method;
 
 define method try-chase-robot(me :: <pushbot>, robot :: <robot>, s :: <state>)
