@@ -49,9 +49,11 @@ define function parse-document(doc :: <string>,
                                #key start = 0, end: stop, 
                                substitute-entities? = #t,
                                modify-elements-when-parsing? = #t,
+			       print-warnings? = #f,
  			       ignore-comments? = #t)
  => (stripped-tree :: <document>)
   *entities* := make(<table>);
+  *show-warnings?* := print-warnings?;
   *defining-entities?* := #f;
   *ignore-comments?* := ignore-comments?;
   *modify?* := modify-elements-when-parsing?;
@@ -62,6 +64,7 @@ define function parse-document(doc :: <string>,
 end function parse-document;
 
 define variable *modify?* :: <boolean> = #t;
+define variable *show-warnings?* :: <boolean> = #f;
 define variable *ignore-comments?* :: <boolean> = #t;
 
 define meta document-helper(prolog, elemnt, misc) =>
@@ -447,10 +450,12 @@ end function add-default-attributes;
 
 define function maybe-tag-mismatch(msg :: <string>, hint :: <string>,
                                    idx :: <integer>, file :: <string>) => ()
-  format(*standard-error*, 
-         "\nWARNING!  %s at file location %d.\n%s\n\n%s\n", msg, idx,
-         hint, copy-sequence(file, start: max(idx - 80, 0),
-                             end: min(idx + 80, file.size)));
+  if(*show-warnings?*)
+    format(*standard-error*, 
+           "\nWARNING!  %s at file location %d.\n%s\n\n%s\n", msg, idx,
+           hint, copy-sequence(file, start: max(idx - 80, 0),
+                               end: min(idx + 80, file.size)));
+  end if;
 end function maybe-tag-mismatch;
 
 define collector xml-attributes(attrib, sp) => (str)
