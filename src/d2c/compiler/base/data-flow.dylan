@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -109,7 +109,7 @@ define open abstract class <dependent-mixin> (<queueable-mixin>)
   //
   // Head of list of dependencies for the expressions that we depend on,
   // threaded by dependent-next.
-  slot depends-on :: false-or(<dependency>), init-value: #f,
+  slot depends-on :: false-or(<general-dependency>), init-value: #f,
     init-keyword: depends-on:;
 end class;
 
@@ -131,10 +131,8 @@ end class;
 // and Y.  An assignment like "T := X + Y" is a use of "X + Y", but not of X
 // and Y.
 //
-define class <dependency> (<object>)
-  //
-  // The source expression generating the value.
-  slot source-exp :: <expression>, required-init-keyword: source-exp:;
+
+define open abstract class <general-dependency> (<object>)
   //
   // Thread running through all the edges with this source-exp (uses of this
   // expression) in no particular order.
@@ -151,6 +149,12 @@ define class <dependency> (<object>)
   // argument ordering in an <operation>.)
   slot dependent-next :: false-or(<dependency>), init-value: #f,
     init-keyword: dependent-next:;
+end class;
+
+define sealed class <dependency> (<general-dependency>)
+  //
+  // The source expression generating the value.
+  slot source-exp :: <expression>, required-init-keyword: source-exp:;
 end class;
 
 
