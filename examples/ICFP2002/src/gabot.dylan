@@ -84,13 +84,18 @@ end;
 // ## create-command{<drop-strategy>}
 define method create-terminal-command(s :: <drop-strategy>, state :: <state>) => command :: <command>;
   debug("GB: Dropping in create-terminal-command\n");
+
+// STOPGAP measure until   at-destination? works reliably
+  let pos = agent-pos(s.strategy-agent, state);
   
-//  let pos = agent-pos(s.strategy-agent, state);
-  
-/*  local method destined(p :: <package>) => here :: <boolean>;
+  local method destined?(p :: <package>) => here :: <boolean>;
           p.dest == pos;
-        end;*/
-  let destined-packages = choose(at-destination?, agent-packages(s.strategy-agent, state));
+        end;
+// END STOPGAP
+        
+        
+  let destined-packages = choose(destined?, agent-packages(s.strategy-agent, state));
+//  let destined-packages = choose(at-destination?, agent-packages(s.strategy-agent, state));
   make(<drop>, package-ids: map(id, destined-packages), bid: 1, id: s.strategy-robot.id);
 end;
 
