@@ -26,7 +26,7 @@ module: messages
 
 // Constants and error handling. 
 
-define variable *debug* = #t;
+//define variable *debug* = #t;
 
 define constant $player-msg = "Player\n";
 define constant $empty-char = '.';
@@ -60,12 +60,12 @@ define function add-error (e :: <message-error>, fmt :: <string>, #rest args)
   error(e)
 end function add-error;
 
-define function debug(fmt :: <string>, #rest args) => ()
-  if (*debug*)
-    apply(format, *standard-error*, fmt, args);
-    force-output(*standard-error*);
-  end if;
-end function debug;
+//define function debug(fmt :: <string>, #rest args) => ()
+//  if (*debug*)
+//    apply(format, *standard-error*, fmt, args);
+//    force-output(*standard-error*);
+//  end if;
+//end function debug;
 
 define function force-format(s :: <stream>, fmt :: <string>, #rest args) => ()
   apply(format, s, fmt, args);

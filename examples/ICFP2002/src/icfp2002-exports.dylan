@@ -12,6 +12,15 @@ define library icfp2002
   use network;
 end library;
 
+define module utils
+  use common-dylan;
+  use streams;
+  use format-out;
+  use standard-io;
+
+  export
+    *debug*, debug;
+end module utils;
 
 define module board
   use common-dylan;
@@ -36,12 +45,13 @@ end module board;
 
 define module path
   use common-dylan;
+  use utils;
   use board;
 
   // For debugging only. Sorry.
-  use format-out;
-  use standard-io;
-  use streams, export: all;
+//  use format-out;
+//  use standard-io;
+//  use streams, export: all;
 
   export <point-list>, find-path;
 end module path;
@@ -63,7 +73,8 @@ end module command;
 
 define module messages
   use common-dylan;
-  use standard-io;
+//  use standard-io;
+  use utils;
   use streams;
   use character-type, import: {digit?};
   use board;
@@ -114,7 +125,8 @@ define module icfp2002
   use format;
   use subseq;
   use streams, export: all;
-  use standard-io;
+  use utils;
+//  use standard-io;
   use string-conversions, import: {string-to-integer};
   use extensions, import: {report-condition};
   // use time;
