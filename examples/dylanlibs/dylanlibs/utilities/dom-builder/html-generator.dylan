@@ -12,6 +12,27 @@ define method print-html(e :: <element>, stream :: <stream>) => ()
   end for;
 end method print-html;
 
+define variable *non-closed-tags* =
+    #[#"area", 
+      #"base", 
+      #"basefont", 
+      #"bgsound", 
+      #"br",
+      #"button",
+      #"col",
+      #"colgroup",
+      #"embed",
+      #"hr",
+      #"input",
+      #"isindex",
+      #"keygen",
+      #"link",
+      #"meta",
+      #"object",
+      #"plaintext",
+      #"spacer",
+      #"wbr"];
+
 define method print-html(e :: <node-element>, stream :: <stream>) => ()
   let node-tag-name = as(<string>, e.node-element-tag);
   write-element(stream, '<');
@@ -32,9 +53,11 @@ define method print-html(e :: <node-element>, stream :: <stream>) => ()
 
   write-element(stream, '>');
   next-method();
-  write(stream, "</");
-  write(stream, node-tag-name);
-  write-element(stream, '>');
+  unless(member?(e.node-element-tag, *non-closed-tags*))
+    write(stream, "</");
+    write(stream, node-tag-name);
+    write-element(stream, '>');
+  end unless;
 end method print-html;
 
 define method print-html(t :: <text-element>, stream :: <stream>) => ()
