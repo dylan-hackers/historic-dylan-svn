@@ -1,6 +1,0 @@
-enscript has to be patched to know about dylan syntax highlighting:
-
-enscript.st.diff - patch against $enscript-dir/hl/enscript.st
-dylan.st         - syntax highlighting for dylan $enscript-dir/hl/enscript.st
-
-patches are against GNU enscript 1.6.4

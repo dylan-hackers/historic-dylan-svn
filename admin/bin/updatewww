@@ -1,7 +1,0 @@
-#!/bin/sh
-if [ -f /usr/local/www/data/.needs-rebuild ]; then
-	date
-	rm -f /usr/local/www/data/.needs-rebuild
-	cd /usr/local/www/data
-	/usr/local/bin/svn update
-fi

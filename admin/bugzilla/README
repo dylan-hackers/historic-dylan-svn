@@ -1,8 +1,0 @@
-bugzilla patches:
-
-always-cc-gd-chatter.diff - patch to Cc always gd-chatter@gwydiondylan.org
-                            on new bugs
-templates-global-banner.html.tmpl.diff - global banner (gwydion style)
-templates-bug-comments.html.tmpl.diff - cvszilla patch
-
-patches are against bugzilla-2.16.6
