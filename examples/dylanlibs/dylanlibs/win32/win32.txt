@@ -40,7 +40,18 @@ Automatically generated COM wrapper for the Adobe SVG Control version
 had to add some manual vtable-interface definitions as well. Used by
 the adobe-svg-gadget library in the DUIM directory.
 
+5) tidy-com
+===========
+
+A wrapper for the HTML Tidy COM Component. Includes a high level
+module which requires no explicit use of COM libraries by the
+application. Takes an input HTML string and 'tidies' it such that the
+output string is HTML 4.0 compliant. See the tidy-com-example
+application for details of use. You must have installed and registered
+the HTML tidy componenet availble from the following web site:
+  http://perso.wanadoo.fr/ablavier/TidyCOM/index.html
+
 -- 
 Chris Double.  
-23 June 2001.
+3 July 2001.
 
