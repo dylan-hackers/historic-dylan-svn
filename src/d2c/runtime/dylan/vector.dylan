@@ -274,6 +274,17 @@ define sealed method as
   res;
 end method as;
 
+// author: PDH
+define sealed method as
+    (class == <simple-object-vector>, vec :: <byte-string>)
+    => res :: <simple-object-vector>;
+  let res = make(<simple-object-vector>, size: vec.size);
+  for (elt keyed-by index in vec)
+    %element(res, index) := elt;
+  end;
+  res;
+end method as;
+
 // This method looks to be unduly specific, but the compiler will
 // generate this case whenever you "apply" a function to a list
 //
@@ -297,8 +308,9 @@ define sealed method as
  => (res :: <simple-object-vector>);
   let sz = ssv.size;
   let res = make(<simple-object-vector>, size: sz);
+  let data = ssv.ssv-data;
   for (index :: <integer> from 0 below sz)
-    %element(res, index) := %element(ssv, index);
+    %element(res, index) := %element(data, index);
   end;
   res;
 end;
@@ -367,23 +379,23 @@ define constant $memcpy-switchover-point = 50;
 
 // author: PDH, 4x speed-up
 define method copy-sequence
-    (src :: <simple-object-vector>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
+    (source :: <simple-object-vector>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <simple-object-vector>);
-  let last = check-start-end-bounds(copy-sequence, src, start, last);
-  let dst-size = last - start;
-  let dst = make(<simple-object-vector>, size: dst-size);
+  let last = check-start-end-bounds(copy-sequence, source, start, last);
+  let dest-size = last - start;
+  let dest = make(<simple-object-vector>, size: dest-size);
   // use an empirically determined cut-off point to switch to memcpy
-  if (dst-size < $memcpy-switchover-point)
-    for (dst-index from 0 below dst-size, src-index from start)
-      %element(dst, dst-index) := %element(src, src-index);
+  if (dest-size < $memcpy-switchover-point)
+    for (dest-index from 0 below dest-size, source-index from start)
+      %element(dest, dest-index) := %element(source, source-index);
     end;
   else
     call-out("memcpy", void:,
-       ptr: vector-elements-address(dst),
-       ptr: vector-elements-address(src) + start * c-expr(int: "sizeof(descriptor_t)"),
-       int: dst-size * c-expr(int: "sizeof(descriptor_t)"));  
+       ptr: vector-elements-address(dest),
+       ptr: vector-elements-address(source) + start * c-expr(int: "sizeof(descriptor_t)"),
+       int: dest-size * c-expr(int: "sizeof(descriptor_t)"));  
   end if;
-  dst;
+  dest;
 end method;
 
 // author: PDH, 5x speed-up
