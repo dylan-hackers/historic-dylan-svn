@@ -662,72 +662,63 @@ define inline method \== (a :: <double-integer>, b :: <object>)
   #f;
 end;
 
+define macro binary-operation-definer
+  { define binary-operation ?:name
+      primitive ?primitive:expression
+      operand-class ?operand-class:expression
+      result-class ?result-class:expression end }
+    => {
+        define inline method ?name 
+            (a :: ?operand-class, b :: ?result-class)
+         => res :: ?result-class;
+            %%primitive(?primitive, as(?result-class, a), b);
+        end method;
+
+        define inline method ?name 
+            (a :: ?result-class, b :: ?operand-class)
+         => res :: ?result-class;
+            %%primitive(?primitive, as(?result-class, b), a);
+        end method;
+
+        define inline method ?name 
+            (a :: ?result-class, b :: ?result-class)
+         => res :: ?result-class;
+            %%primitive(?primitive, a, b);
+        end method; }
+end macro;
+
 define inline method \< (a :: <double-integer>, b :: <double-integer>)
-    => res :: <boolean>;
+ => res :: <boolean>;
   %%primitive(dblfix-<, a, b);
 end;
 
 define inline method \< (a :: <integer>, b :: <double-integer>)
-    => res :: <boolean>;
-  let dbl-a = as(<double-integer>, a);
-  %%primitive(dblfix-<, dbl-a, b);
+ => res :: <boolean>;
+  %%primitive(dblfix-<, as(<double-integer>, a), b);
 end;
 
 define inline method \< (a :: <double-integer>, b :: <integer>)
-    => res :: <boolean>;
-  let dbl-b = as(<double-integer>, b);
-  %%primitive(dblfix-<, a, dbl-b);
+ => res :: <boolean>;
+  %%primitive(dblfix-<, a, as(<double-integer>, b));
 end;
 
-define inline method \+ (a :: <double-integer>, b :: <double-integer>)
-    => res :: <double-integer>;
-  %%primitive(dblfix-+, a, b);
+
+define binary-operation \+
+  primitive dblfix-+
+  operand-class <integer>
+  result-class <double-integer>
 end;
 
-define inline method \+ (a :: <integer>, b :: <double-integer>)
-    => res :: <double-integer>;
-  let dbl-a = as(<double-integer>, a);
-  %%primitive(dblfix-+, dbl-a, b);
+define binary-operation \*
+  primitive dblfix-*
+  operand-class <integer>
+  result-class <double-integer>
 end;
 
-define inline method \+ (a :: <double-integer>, b :: <integer>)
-    => res :: <double-integer>;
-  let dbl-b = as(<double-integer>, b);
-  %%primitive(dblfix-+, a, dbl-b);
-end;
-
-define inline method \* (a :: <double-integer>, b :: <double-integer>)
-    => res :: <double-integer>;
-  %%primitive(dblfix-*, a, b);
-end;
-
-define inline method \* (a :: <integer>, b :: <double-integer>)
-    => res :: <double-integer>;
-  let dbl-a = as(<double-integer>, a);
-  %%primitive(dblfix-*, dbl-a, b);
-end;
-
-define inline method \* (a :: <double-integer>, b :: <integer>)
-    => res :: <double-integer>;
-  let dbl-b = as(<double-integer>, b);
-  %%primitive(dblfix-*, a, dbl-b);
-end;
-
-define inline method \- (a :: <double-integer>, b :: <double-integer>)
-    => res :: <double-integer>;
-  %%primitive(dblfix--, a, b);
-end;
-
-define inline method \- (a :: <integer>, b :: <double-integer>)
-    => res :: <double-integer>;
-  let dbl-a = as(<double-integer>, a);
-  %%primitive(dblfix--, dbl-a, b);
-end;
-
-define inline method \- (a :: <double-integer>, b :: <integer>)
-    => res :: <double-integer>;
-  let dbl-b = as(<double-integer>, b);
-  %%primitive(dblfix--, a, dbl-b);
+define binary-operation \-
+  primitive dblfix--
+  operand-class <integer>
+  result-class <double-integer>
 end;
 
 define inline method negative (a :: <double-integer>)
@@ -829,64 +820,22 @@ define inline method truncate/
   end;
 end;
 
-define inline method binary-logior
-    (a :: <double-integer>, b :: <double-integer>)
- => (res :: <double-integer>);
-  %%primitive(dblfix-logior, a, b);
+define binary-operation binary-logior
+  primitive dblfix-logior
+  operand-class <integer>
+  result-class <double-integer>
 end;
 
-define inline method binary-logior
-    (a :: <integer>, b :: <double-integer>)
- => (res :: <double-integer>);
-  let dbl-a = as(<double-integer>, a);
-  %%primitive(dblfix-logior, dbl-a, b);
+define binary-operation binary-logxor
+  primitive dblfix-logxor
+  operand-class <integer>
+  result-class <double-integer>
 end;
 
-define inline method binary-logior
-    (a :: <double-integer>, b :: <integer>)
- => (res :: <double-integer>);
-  let dbl-b = as(<double-integer>, b);
-  %%primitive(dblfix-logior, a, dbl-b);
-end;
-
-define inline method binary-logxor
-    (a :: <double-integer>, b :: <double-integer>)
- => (res :: <double-integer>);
-  %%primitive(dblfix-logxor, a, b);
-end;
-
-define inline method binary-logxor
-    (a :: <integer>, b :: <double-integer>)
- => (res :: <double-integer>);
-  let dbl-a = as(<double-integer>, a);
-  %%primitive(dblfix-logxor, dbl-a, b);
-end;
-
-define inline method binary-logxor
-    (a :: <double-integer>, b :: <integer>)
- => (res :: <double-integer>);
-  let dbl-b = as(<double-integer>, b);
-  %%primitive(dblfix-logxor, a, dbl-b);
-end;
-
-define inline method binary-logand
-    (a :: <double-integer>, b :: <double-integer>)
- => (res :: <double-integer>);
-  %%primitive(dblfix-logand, a, b);
-end;
-
-define inline method binary-logand
-    (a :: <integer>, b :: <double-integer>)
- => (res :: <double-integer>);
-  let dbl-a = as(<double-integer>, a);
-  %%primitive(dblfix-logand, dbl-a, b);
-end;
-
-define inline method binary-logand
-    (a :: <double-integer>, b :: <integer>)
- => (res :: <double-integer>);
-  let dbl-b = as(<double-integer>, b);
-  %%primitive(dblfix-logand, a, dbl-b);
+define binary-operation binary-logand
+  primitive dblfix-logand
+  operand-class <integer>
+  result-class <double-integer>
 end;
 
 define inline method lognot (a :: <double-integer>)
