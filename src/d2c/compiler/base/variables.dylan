@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -841,6 +841,9 @@ define class <variable> (<namespace-constituent>)
   // Function to build some parse tree out of fragments.  Called because of
   // references in procedural macros.
   slot variable-fragment-expander :: false-or(<function>) = #f;
+  //
+  // Top level form that is the origin of this module variable
+  slot variable-tlf :: <object>, required-init-keyword: tlf:;
 end class <variable>;
 
 define sealed domain make (singleton(<variable>));
@@ -866,7 +869,7 @@ define generic variable-definition (var :: <variable>)
 // already exist, either create it (if create is true) or return #f
 // (if create is false).
 //
-define method find-variable (name :: <basic-name>, #key create: create?)
+define method find-variable (name :: <basic-name>, #key create: create?, tlf: tlf)
     => result :: false-or(<variable>);
   let mod = name.name-module;
   let sym = name.name-symbol;
@@ -874,7 +877,7 @@ define method find-variable (name :: <basic-name>, #key create: create?)
   if (entry)
     entry.entry-constituent;
   elseif (create?)
-    let new = make(<variable>, name: sym, home: mod);
+    let new = make(<variable>, name: sym, home: mod, tlf: tlf);
     add-entry(mod, sym,
 	      stringify("defined inside module ",
 			as(<byte-string>, mod.module-name)),
