@@ -79,7 +79,7 @@ define method send-command (s :: <stream>, command :: <move>) => ();
       $west => $west-string;
       otherwise => error("send-command: Can't happen!")
     end select;
-  force-format(s, "%d Move %s\n\n", command.bid, direction-string);
+  force-format(s, "%d Move %s\n", command.bid, direction-string);
   debug("send-command(<move>): bid %d and dir %s\n",
         command.bid, direction-string);
 end method send-command;
