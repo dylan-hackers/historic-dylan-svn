@@ -68,13 +68,10 @@ define function pick-strategy(pick-path :: <path>)
 end;
 
 
-/*
-// ---> Error   : Internal compiler error: Trying to get some values back from a function that doesn't return?
-
-define generic find-safest(me :: <gabot>, coll :: <sequence>, location :: <function>, s :: <state>, #key weighting :: <function> = identity)
+define generic find-safest(me :: <gabot>, coll :: <sequence>, locator :: <function>, s :: <state>, #key weighting :: <function> = identity)
   => (thing, way :: <path>.false-or);
 
-define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <function>, s :: <state>, #key weighting :: <function> = identity)
+define method find-safest(me :: <gabot>, coll :: <sequence>, locator :: <function>, s :: <state>, #key weighting :: <function> = identity)
   => (thing, way :: <path>.false-or);
 
   let position = find-robot(s, me.agent-id).location;
@@ -82,41 +79,9 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <functi
     local find-near-safe-place(best-thing, best-path :: <path>)
          => (better-thing, better-path :: <path>);
          
-         let distance = distance-cost(position, best-path.last);
-
-          block (found)
-            for (thing in coll)
-              let path = find-path(position, thing, s.board, cutoff: best-thing & distance);
-              if (path)
-                if (~best-thing
-                    | distance-cost(position, thing.location) < distance) // # FISHY TODO we should compare paths
-                  let (better-thing, nearer-path)
-                    = find-near-safe-place(thing, path);
-                  found(better-thing, nearer-path)
-                end if;
-              end if;
-            end for;
-            values(best-thing, distance)
-          end block;
-        end method;
-  
-  
-  find-near-safe-place(#f, #());
-end method find-safest;
-*/
-
-define generic find-safest(me :: <gabot>, coll :: <sequence>, location :: <function>, s :: <state>, #key weighting :: <function> = identity)
-  => (thing, way :: <path>.false-or);
-
-define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <function>, s :: <state>, #key weighting :: <function> = identity)
-  => (thing, way :: <path>.false-or);
-
-  let position = find-robot(s, me.agent-id).location;
-
-    local find-near-safe-place(best-thing, best-path :: <path>)
-         => (better-thing, better-path :: <path>);
-         
-         let distance = best-path == #() & 1001 | distance-cost(position, best-path.last);
+         let distance = best-path == #()
+                        & s.board.height() + s.board.width() + 1
+                        | distance-cost(position, best-path.last);
 
           block (found)
             for (thing in coll)
@@ -124,7 +89,7 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <functi
               debug("find-near-safe-place: thing: %=, path: %=\n", thing, path);
               if (path)
                 if (~best-thing
-                    | distance-cost(position, thing.location) < distance) // # FISHY TODO we should compare paths
+                    | distance-cost(position, thing.locator) < distance) // # FISHY TODO we should compare paths
                   let (better-thing, nearer-path)
                     = find-near-safe-place(thing, path);
                   found(better-thing, nearer-path)
