@@ -81,10 +81,6 @@ define method disassemble(instr :: <powerpc-instruction>)
   powerpc-disassemble(instr.instruction-word);
 end;
 
-//define generic class-for-instruction-primary(primary :: <primary-field>)
-define generic class-for-instruction-primary(primary :: <integer>)
- => class :: subclass(<powerpc-instruction>);
-
 define generic class-for-instruction-subcode(primary :: <primary-field>, key :: <subcode-field>)
  => class :: subclass(<powerpc-instruction>);
 
@@ -97,13 +93,6 @@ define method branch-target
 => location :: <object>;
 end;
 
-//define method class-for-instruction-primary(primary :: <primary-field>)
-/*
-define method class-for-instruction-primary(primary :: <integer>)
- => class :: singleton(<powerpc-instruction>);
-  <powerpc-instruction>
-end;
-*/
 
 define method class-for-instruction-subcode(primary :: <primary-field>, key :: <subcode-field>)
  => class :: singleton(<powerpc-instruction>);
@@ -127,11 +116,7 @@ end;
 
 define functional class <powerpc-branch-instruction>(<powerpc-instruction>)
 end;
-/*
-define generic branch-target-primary
-  (instruction-counter :: <integer>, primary :: <primary-field>, secondary :: <integer>)
-=> location :: <object>;
-*/
+
 define generic branch-target-subcode
   (instruction-counter :: <integer>, primary :: <primary-field>, subcode :: <subcode-field>, secondary :: <integer>)
 => location :: <object>;
@@ -188,7 +173,6 @@ define method powerpc-disassemble-primary
    primary :: one-of(19, 31, 63 /* or separate? */),
    secondary :: <integer>)
  => mnemonics :: <string>;
-//  powerpc-disassemble-subcode(simplify, primary, instruction-mask(secondary, 21, 30), secondary)
   powerpc-disassemble-subcode(simplify, primary, instruction-mask-subcode(secondary), secondary)
 end;
 
@@ -268,7 +252,6 @@ define macro instruction-definer
     end;
     define method branch-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode :: ?key-type, secondary :: <integer>)
      => location :: <object>;
-     format-out("branch-target-primary called\n"); // #####
       case
         ?branches;
       end case
@@ -280,18 +263,6 @@ define macro instruction-definer
   {
     define instruction ?expression(?primary; ?rest) ?more end;
     define branch instruction ?expression(?primary, <subcode-field>; ?branch-stuff) end;
-    
-/*    define method class-for-instruction-primary(primary == ?primary)
-     => class :: singleton(<powerpc-branch-instruction>);
-      <powerpc-branch-instruction>
-    end;
-    define method branch-target-primary(instruction-counter :: <integer>, primary == ?primary, secondary :: <integer>)
-     => location :: <object>;
-     format-out("branch-target-primary called\n"); // #####
-      case
-        ?branches;
-      end case
-    end;*/
   }
   
   { define instruction ?:expression(?primary:expression; ?rest:*) simplify ?simplifications; ?more:* end }
