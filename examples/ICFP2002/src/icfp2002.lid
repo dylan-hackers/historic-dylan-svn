@@ -20,3 +20,4 @@ files:
   gabot
   tour
   appraise-state
+  knapsack
