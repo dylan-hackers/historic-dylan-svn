@@ -40,7 +40,17 @@ define function encode-native-clock-as-date (native-clock) => (date :: <date>)
 end function encode-native-clock-as-date;
 
 define function current-date () => (now :: <date>)
-  encode-native-clock-as-date(read-clock())
+  let (err?, timeval) = %gettimeofday($null-pointer);
+  let (err?, tm, gmtoff, zone)
+    = %system-localtime(as(<integer>, timeval.tv-sec));
+  make(<date>, year: tm-year(tm) + 1900,
+               month: tm-mon(tm) + 1,
+               day: tm-mday(tm),
+               hours: tm-hour(tm),
+               minutes: tm-min(tm),
+               seconds: tm-sec(tm),
+               microseconds: timeval.tv-usec,
+               time-zone-offset: truncate/(gmtoff, 60))
 end function current-date;
 
 define function current-timestamp () => (milliseconds :: <integer>, days :: <integer>)
