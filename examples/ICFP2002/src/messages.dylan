@@ -309,7 +309,7 @@ end function receive-sharp;
 // string if it is.
 
 define function receive-string (stream :: <stream>, str :: <string>) => ();
-  let str* = read(stream, str.size);
+  let str* = fd-read(stream, str.size);
   unless (str = str*)
     message-error("receive-string: expected '%s', got '%s'\n", str, str*);
   end unless;
@@ -471,7 +471,6 @@ define method process-server-command(state :: <state>, command :: <command>) => 
 end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <move>) => (state :: <state>)
-/*
   let bot = find-robot(state, command.robot-id);
   let old-location = bot.location;
   let new-location =
@@ -483,7 +482,5 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
     otherwise => error("process-server-command: Can't happen!")
   end select;
 
-  add-robot(state, copy-robot(bot, location: new-location));
-*/
-  state;
+  add-robot(state, copy-robot(bot, new-location: new-location));
 end method process-server-command;
