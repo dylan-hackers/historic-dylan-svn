@@ -208,7 +208,8 @@ define method main(progname, #rest arguments)
   if(arguments.size > 0)
     *scene-graph* := 
       make(<container-node>, children: 
-             vector(make(<camera>),
+             vector(make(<camera>,
+                         position:  3d-point ( 0.0, 1.7, 10.0 )),
                     make(<spotlight>,
                          position:  3d-point ( 3.0s0, 3.0s0,-2.0s0),
                          direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
