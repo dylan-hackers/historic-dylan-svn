@@ -132,7 +132,7 @@ end;
 
 
 define method initialize
-    (vhost :: <virtual-host>, #key, #all-keys)
+    (vhost :: <virtual-host>, #key name, #all-keys)
   next-method();
   // This may be overridden by a <document-root> spec in the config file.
   document-root(vhost) := subdirectory-locator(*server-root*, name);
