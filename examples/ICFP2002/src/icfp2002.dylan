@@ -16,8 +16,7 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
        my-capacity :: <integer>, 
        my-money :: <integer>, 
        state :: <state>) = receive-initial-setup(input);
-  let agent = make(<dumber-bot>, id: my-id, 
-                   capacity: my-capacity, money: my-money);
+  let agent = make(<dumber-bot>, robot: robot-at(state, my-id));
 
 
   debug("board is %=", state.board);
