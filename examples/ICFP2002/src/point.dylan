@@ -7,6 +7,10 @@ define functional sealed class <point> (<object>)
     required-init-keyword: value:;
 end class <point>;
 
+define sealed domain make(singleton(<point>));
+define sealed domain initialize(<point>);
+
+
 define inline function x(p :: <point>) => (x :: <coordinate>);
   logand(p.val, #xffff);
 end;
@@ -17,7 +21,7 @@ end;
 
 define sealed method point(#key x :: <coordinate> = 0, y :: <coordinate> = 0)
  => (res :: <point>);
-  make(<point>, value: ash(y, 16) | logand(x, #xffff));
+  make(<point>, value: logior(ash(y, 16), logand(x, #xffff)));
 end;
 
 define inline sealed method \=(a :: <point>, b :: <point>)
