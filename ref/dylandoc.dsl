@@ -194,6 +194,7 @@
 
 (define (process-defhead-helper defname defadjectives defsummary)
   (make sequence
+    (make empty-element gi: "BR")
     (make element gi: "TABLE" attributes: '(("WIDTH" "100%")
 					    ("CELLPADDING" "0")
 					    ("BORDER" "0"))
