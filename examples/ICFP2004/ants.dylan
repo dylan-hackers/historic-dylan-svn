@@ -94,7 +94,7 @@ end function other-color;
 
 define constant <state> = limited(<integer>, min: 0, max: 9999);
 
-define variable *ants* = make(<stretchy-vector>);
+define variable *ants* :: <stretchy-object-vector> = make(<stretchy-vector>);
 
 define class <ant> (<object>)
   constant slot id :: <integer>, required-init-keyword: id:;
@@ -119,6 +119,12 @@ define function cell-at(p :: <position>)
   => (c :: <cell>)
   *world*.cells[p]
 end function cell-at;
+
+define function get-ant(aid :: <integer>)
+ => (ant :: false-or(<ant>));
+  *ants*[aid];
+end function get-ant;
+
 
 define function is-rocky(p :: <position>)
  => (b :: <boolean>)
@@ -151,13 +157,13 @@ end function clear-ant-at;
 
 define function ant-is-alive(aid :: <integer>)
  => (yesno :: <boolean>)
-  *ants*[aid] ~= #f;
+  get-ant(aid) ~== #f;
 end function ant-is-alive;
 
 
 define function find-ant(aid :: <integer>)
   => (p :: false-or(<position>));
-  let ant = *ants*[aid];
+  let ant = get-ant(aid);
   block(return)
     unless (ant)
       format-out("expect to find ant %d\n", aid);
@@ -391,16 +397,17 @@ define class <flip> (<instruction>)
   slot state-failure :: <continuation>, required-init-keyword: state-failure:;
 end class <flip>;
 
-define variable *red-brain* = make(<vector>);
-define variable *black-brain* = make(<vector>);
+define variable *red-brain* :: <stretchy-object-vector> = make(<stretchy-vector>);
+define variable *black-brain* :: <stretchy-object-vector> = make(<stretchy-vector>);
 
 define function get-instruction(c :: <color>, s :: <integer>)
   => (i :: <instruction>)
-  if(c == #"red")
-    *red-brain*
-  else
-    *black-brain*
-  end if[s];
+  let brain = if(c == #"red")
+                *red-brain*
+              else
+                *black-brain*
+              end if;
+  brain[s];
 end function get-instruction;
 
 define function read-state-machine(s :: <stream>)
