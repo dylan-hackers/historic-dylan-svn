@@ -126,7 +126,7 @@ define function receive-initial-setup (s :: <stream>)
      state :: <state>)
   let board = receive-board-layout(s);
   let (robot-id, carry-max, money) = receive-client-configuration(s);
-  let state = receive-initial-robot-positions(s, board);
+  let state = receive-initial-robot-positions(s, board, money);
   state := search-for-bases(state);
   values(robot-id, carry-max, money, state);
 end function receive-initial-setup;
@@ -180,11 +180,12 @@ end function receive-client-configuration;
 // 
 
 define function receive-initial-robot-positions
-    (s :: <stream>, b :: <board>) => <state>;
+    (s :: <stream>, b :: <board>, money) => <state>;
   let state = make(<state>, board: b);
   let (robot-id, x, y) = receive-robot-location(s);
   state := add-robot(state, make(<robot>, id: robot-id, 
-				 location: point(x: x, y: y)));
+				 location: point(x: x, y: y),
+                                 money: money));
   iterate loop (c :: <character> = s.read-element)
     select (c)
       ' ' =>

@@ -65,6 +65,7 @@ end method process-command;
 
 define method process-command(state :: <state>, command :: <move>) => (state :: <state>)
   let bot = find-robot(state, command.robot-id);
+  let new-money = bot.money & bot.money - abs(command.bid);
   let old-location = bot.location;
   let new-location =
     select (command.direction)
@@ -74,26 +75,48 @@ define method process-command(state :: <state>, command :: <move>) => (state :: 
       $west  => point(x: old-location.x - 1, y: old-location.y);
     otherwise => error("process-command: Can't happen!")
   end select;
-  // For this bot, work through all the packages it carries and
-  // update it's location.
-  let ps = choose(method(p) p.carrier & p.carrier.id = bot.id end,
-                  state.packages);
-  for(p in ps)
-    state := add-package(state, copy-package(find-package(state, p.id), 
-                                             new-location: new-location));
-  end for;
-  let x = add-robot(state, copy-robot(bot, new-location: new-location));
-  x
+  // kill robots here
+  let terrain = terrain-at-point(state.board, new-location);
+  if(robot-at(state, new-location))
+    // push;
+  end if;
+  if(instance?(terrain, <water>))
+    state := remove-robot-by-id(state, command.robot-id);
+    let ps = choose(method(p) p.carrier & p.carrier.id = bot.id end,
+                    state.packages);
+    for(p in ps)
+      state := remove-package-by-id(state, p.id);
+    end for;
+    state
+  else
+    let new-bot = copy-robot(bot, new-location: new-location, new-money: new-money);
+    
+    // For this bot, work through all the packages it carries and
+    // update it's location.
+    let ps = choose(method(p) p.carrier & p.carrier.id = bot.id end,
+                    state.packages);
+    for(p in ps)
+      state := add-package(state, copy-package(find-package(state, p.id), 
+                                               new-location: new-location));
+    end for;
+    let x = add-robot(state, copy-robot(bot, new-location: new-location,
+                                        new-money: new-money));
+    x
+  end if;
 end method process-command;
 
 define method process-command(state :: <state>, command :: <pick>) => (state :: <state>)
   let bot = find-robot(state, command.robot-id);
+  let new-money = bot.money & bot.money - abs(command.bid);
   let loc = bot.location;
   for(pid in command.package-ids)
     state := add-package(state, copy-package(find-package(state, pid, create: #t), 
 					     new-location: loc, 
 					     new-carrier: bot));
-    state := add-robot(state, copy-robot(bot, new-inventory: add(bot.inventory, find-package(state, pid))));
+    state := add-robot(state, copy-robot(bot, 
+                                         new-inventory: add(bot.inventory, 
+                                                            find-package(state, pid)),
+                                         new-money: new-money));
   end for;
   state;
 end method process-command;
@@ -117,9 +140,10 @@ define method process-command(state :: <state>, command :: <drop>)
                                                new-carrier: #f));
     end if;
     let bot = find-robot(state, command.robot-id);
+    let new-money = bot.money & bot.money - abs(command.bid);
     let new-inventory = remove(bot.inventory, p,
                                test: method (p*, p) p*.id = p.id end method);
-    let bot* = copy-robot(bot, new-inventory: new-inventory);
+    let bot* = copy-robot(bot, new-inventory: new-inventory, new-money: new-money);
     state := add-robot(state, bot*);
   end for;
   state;

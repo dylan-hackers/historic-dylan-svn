@@ -43,13 +43,16 @@ define module board
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, id, weight, location, dest, at-destination?, free-packages, carrier,
     <robot>, id, capacity, capacity-setter, inventory, capacity-left, money,
+    terrain-at-point,
     copy-package,
     add-robot,
+    remove-robot-by-id,
     copy-robot,
     find-robot,
     robot-exists?,
     find-package,
-    add-package;
+    add-package,
+    remove-package-by-id;
 end module board;
 
 

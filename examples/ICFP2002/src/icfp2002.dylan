@@ -3,12 +3,6 @@ synopsis: Dylan Hackers entry in the Fifth Annual (2002) ICFP Programming Contes
 copyright: this program may be freely used by anyone, for any purpose
 
 
-define function read-configuration(stream :: <stream>)
- => (id :: <integer>, capacity :: <integer>, money :: <integer>);
-  values(map(string-to-integer, split(" ", read-line(stream))))
-end function read-configuration;
-
-
 define function play-the-game(bot :: <class>, input :: <stream>, output :: <stream>) => ();
   send-player(output);
   force-output(output);
@@ -25,7 +19,9 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
 
   let running = #t;
   while(running)
-    state := receive-server-packages(input, state, find-robot(state, agent.agent-id).location);
+    let bot = find-robot(state, agent.agent-id);
+    debug("Robot state: %=\n", bot);
+    state := receive-server-packages(input, state, bot.location);
     let move = generate-next-move(agent, state);
     send-command(output, move);
     state := receive-server-command-reply(input, state);

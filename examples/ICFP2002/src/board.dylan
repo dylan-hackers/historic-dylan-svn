@@ -52,9 +52,15 @@ define sealed method initialize(board :: <board>, #key dimensions);
   board.data := make(<terrain-vector>, size: y * x);
 end;
 
+define inline sealed method terrain-at-point
+    (board :: <board>, location :: <point>)
+ => element :: <terrain>;
+  board[location.x, location.y];
+end method terrain-at-point;
+
 define inline sealed method aref
     (board :: <board>, #rest indices)
-    => element :: <terrain>;
+ => element :: <terrain>;
   let (row :: <integer>, col :: <integer>) = apply(values, indices);
   let (row :: <integer>, col :: <integer>) = values(row - 1, col - 1);
   
@@ -137,6 +143,25 @@ define method add-robot (state :: <state>, robot :: <robot>) => <state>;
        packages: state.packages, bases: state.bases);
 end method add-robot;
 
+define method remove-robot-by-id (state :: <state>, robot-id :: <integer>) => <state>;
+  let robots* = 
+    block(return)
+      iterate loop (lst = state.robots)
+        if (lst.empty?)
+          return(state.robots)
+        else
+          if (lst.head.id = robot-id)
+            lst.tail
+          else
+            pair(lst.head, lst.tail.loop)
+          end if;
+        end if;
+      end iterate;
+    end block;
+  make(<state>, board: state.board, robots: robots*, 
+       packages: state.packages, bases: state.bases);
+end method remove-robot-by-id;
+
 define method robot-at(state :: <state>, p :: <point>)
  => (r :: false-or(<robot>))
   let res = choose-by(curry(\=, p), map(location, state.robots), state.robots);
@@ -192,6 +217,26 @@ define method add-package (state :: <state>, package :: <package>) => state :: <
                 bases: state.bases,
                 packages: packages*);
 end method add-package;
+
+define method remove-package-by-id (state :: <state>, package-id :: <integer>) => state :: <state>;
+  let packages* = 
+    block(return)
+      iterate loop (lst = state.packages)
+        if (lst.empty?)
+          return(state.packages)
+        else
+          if (lst.head.id = package-id)
+            lst.tail
+          else
+            pair(lst.head, lst.tail.loop)
+          end if;
+        end if;
+      end iterate;
+    end block;
+  make(<state>, board: state.board, robots: state.robots, 
+                bases: state.bases,
+                packages: packages*);
+end method remove-package-by-id;
 
 define function packages-at(state :: <state>, p :: <point>, #key available-only)
  => (c :: <collection>);
