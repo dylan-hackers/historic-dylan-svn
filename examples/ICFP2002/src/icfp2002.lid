@@ -4,4 +4,6 @@ linker-options: -Xlinker -Bstatic
 files:
   icfp2002-exports
   icfp2002
+  board
+  robot
 
