@@ -762,9 +762,9 @@ define method send-error-response-internal (request :: <request>, err :: <error>
       write(out, condition-to-string(err));
       write(out, "\r\n");
     end unless;
-    send-response(response,
-                  response-code: http-error-code(err),
-                  response-message: one-liner);
+    response.response-code    := http-error-code(err);
+    response.response-message := one-liner;
+    send-response(response);
   end;
 end method;
 

@@ -24,6 +24,9 @@ define open primary class <response> (<object>)
   // @see add-header
   slot response-headers :: <header-table>, required-init-keyword: #"headers";
 
+  slot response-code    :: <integer> = 200;
+  slot response-message :: <string>  = "OK";
+
   // Whether or not the headers were allocated with allocate-resource, in which
   // case they need to be deallocated with deallocate-resource.
   slot headers-resourced? :: <boolean> = #f, init-keyword: #"headers-resourced?";
@@ -172,14 +175,16 @@ define method send-headers
 end;
 
 define method send-response
-    (response :: <response>, #key response-code = 200, response-message) => ()
+    (response :: <response>) => ()
   let stream :: <stream> = request-socket(get-request(response));
   let req :: <request> = get-request(response);
   unless (headers-sent?(response))
     // Send the response line
     let response-line
       = format-to-string("%s %d %s\r\n",
-                         $http-version, response-code, response-message | "OK");
+                         $http-version, 
+                         response.response-code, 
+                         response.response-message | "OK");
     unless (req.request-version == #"http/0.9")
       log-copious("-->%s", response-line);
       write(stream, response-line);
@@ -191,7 +196,7 @@ define method send-response
     add-header(response, "Date", as-rfc-1123-date(current-date()));
 
     let content-length :: <string> = "0";
-    unless (response-code == $not-modified)
+    unless (response.response-code == $not-modified)
       content-length := integer-to-string(stream-size(output-stream(response)));
       // Add required headers
       add-header(response, "Content-Length", content-length);
@@ -224,7 +229,7 @@ define method send-response
                         "-", " ",
                         "[", date, "] ",
                         "\"", request, "\" ",
-                        integer-to-string(response-code), " ",
+                        integer-to-string(response.response-code), " ",
                         content-length,
                         ext));
   end unless;

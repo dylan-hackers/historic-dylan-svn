@@ -179,7 +179,11 @@ define module koala
     set-content-type,
     add-header,
     add-cookie,
-    get-request;
+    get-request,
+    response-code,
+    response-code-setter,
+    response-message,
+    response-message-setter;
 
   // Cookies
   create
@@ -230,6 +234,9 @@ define module koala
   create
     access-forbidden-error,
     <koala-api-error>;
+
+  create
+    moved-permanently-redirect;
 
   // Not sure if these should really be exported.
   create
