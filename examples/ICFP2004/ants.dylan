@@ -97,12 +97,15 @@ define class <cell> (<object>)
   constant slot anthill :: false-or(<color>) = #f, init-keyword: anthill:;
 end class <cell>;
 
-define variable *world* :: <array> = make(<array>, dimensions: #[8, 8]);
-
 define function cell-at(p :: <position>)
   => (c :: <cell>)
   *world*[p.x, p.y]
 end function cell-at;
+
+define function is-rocky(p :: <position>)
+ => (b :: <boolean>)
+  cell-at(p).rocky
+end function is-rocky;
 
 define function some-ant-is-at(p :: <position>)
  => (b :: <boolean>)
@@ -529,7 +532,8 @@ end function step;
 ////////////////////////////////////////////////////////////////////////////////
 // Random numbers
 
-define variable *random-seed* :: <integer> = 12345;
+define constant *initial-random-seed* :: <integer> = 12345;
+define variable *random-seed* :: <integer> = *initial-random-seed*;
 
 define function randomint(n :: <integer>)
  => (randomint :: <integer>);
@@ -574,5 +578,3 @@ define function step-world()
     step(i);
   end for;
 end function step-world;
-  
-
