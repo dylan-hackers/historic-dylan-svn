@@ -14,5 +14,6 @@ define module xml-test
   use common-dylan;
   use format-out;
   use xml-parser;
+  use streams;
 end module xml-test;
 
