@@ -28,7 +28,7 @@ end module;
 
 
 define module board
-  use icfp2002, export: all;
+  use icfp2002;
   
   export
     <board>, <coordinate>,
@@ -36,11 +36,6 @@ define module board
     width, height,
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, <robot>;
-  create
-    $empty-char,
-    $water-char,
-    $wall-char,
-    $base-char;
 end module board;
 
 define module command
@@ -58,9 +53,11 @@ define module command
     <drop>;
 end module command;
 
+/*
 define module messages
+  use common-dylan;
   use standard-io;
-  use string-conversions;
+  use streams;
   use board;
   use command;
 
@@ -80,11 +77,13 @@ define module messages
     receive-string,
     receive-board-layout,  // Reads initial board layout, w/o robot positions.
     receive-client-configuration, // Reads our initial status.
-    receive-robot-positions,
+//    receive-robot-positions,
     receive-initial-robot-positions; // Updates board with robot positions.
 end module messages;
+*/
 
 define module client
+  use common-dylan;
   use board;
   use command;
 

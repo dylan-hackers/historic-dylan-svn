@@ -11,8 +11,10 @@ end function debug;
 define function play-the-game(input :: <stream>, output :: <stream>) => ();
   write-line(output, "Player");
   force-output(*standard-error*);
-  let board = read-board(input);
-  let (my-id, my-capacity, my-money) = read-configuration(input);
+  let board :: <board> = read-board(input);
+  let (my-id :: <integer>, 
+       my-capacity :: <integer>, 
+       my-money :: <integer>) = read-configuration(input);
   let agent = make(<robot-agent>, id: my-id, 
                    capacity: my-capacity, money: my-money);
   board := read-robots(input, board);

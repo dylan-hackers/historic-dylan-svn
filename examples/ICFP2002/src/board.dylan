@@ -48,8 +48,8 @@ end;
 define method initialize(b :: <board>, #key x, y, #all-keys)
   b.lines :=
   map-as(limited(<vector>, of: <line>),
-         method(ignore) make(<line>, size: x, fill: $empty-char) end,
-         range(below: y));
+         method(ignore) make(<line>, size: cols, fill: '.') end,
+         range(below: rows));
 end;
 
 
@@ -76,32 +76,15 @@ define method as(class == <character>, obj :: <character>)
   obj
 end;
 
-define generic terrain-from-character(c :: <character>)
+define function terrain-from-character(c :: <character>)
  => terra :: <terrain>;
-
-define method terrain-from-character(c == $empty-char)
- => empty :: <space>;
-  <space>.make
-end;
-
-//define constant <wall> = $wall-char.singleton;
-
-define method terrain-from-character(c == $wall-char)
- => wall :: <wall>;
-  <wall>.make
-end;
-
-//define constant <water> = $water-char.singleton;
-
-define method terrain-from-character(c == $water-char)
- => water :: <water>;
-  <water>.make
-end;
-
-define method terrain-from-character(c == $base-char)
- => base :: <base>;
-  <base>.make
-end;
+  select(c)
+    '.' => <space>.make;
+    '#' => <wall>.make;
+    '~' => <water>.make;
+    '@' => <base>.make;
+  end select;
+end function terrain-from-character;
 
 define function send-board(s :: <stream>, board :: <board>)
  => ();

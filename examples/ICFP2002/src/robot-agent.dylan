@@ -1,6 +1,6 @@
 module: client
 
-define abstract class <robot-agent>(<object>)
+define abstract class <robot-agent> (<object>)
   slot capacity :: <integer>;
   slot board :: <board>;
   slot robot :: <robot>;
