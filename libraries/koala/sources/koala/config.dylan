@@ -116,11 +116,12 @@ define function true-value?
   member?(val, #("yes", "true", "on"), test: string-equal?)
 end;
 
+/*
 define function false-value?
     (val :: <string>) => (true? :: <boolean>)
   ~true-value?(val)
 end;
-
+*/
 
 
 //// koala-config.xml elements.  One method for each element name.
@@ -151,37 +152,35 @@ define method process-config-element (node :: xml$<element>, name == #"port")
 end;
 
 define method process-config-element (node :: xml$<element>, name == #"auto-register")
-  let attr = get-attribute-value(node, #"enabled");
-  if (attr)
-    *auto-register-pages?* := true-value?(attr);
-  else
-    log-warning("Malformed <auto-register> setting.  'enabled' must be specified.");
+  bind (attr = get-attribute-value(node, #"enabled"))
+    iff(attr,
+        *auto-register-pages?* := true-value?(attr),
+        log-warning("Malformed <auto-register> setting.  'enabled' must be specified."));
   end;
 end;
 
 define method process-config-element (node :: xml$<element>, name == #"server-root")
-  let loc = get-attribute-value(node, #"location");
-  if (~loc)
-    log-config-warning("Malformed <server-root> setting.  'location' must be specified.");
-  else
-    init-server-root(location: loc);
+  bind (loc = get-attribute-value(node, #"location"))
+    iff(~loc,
+        log-config-warning("Malformed <server-root> setting.  'location' must be specified."),
+        init-server-root(location: loc));
   end;
 end;
 
 define method process-config-element (node :: xml$<element>, name == #"document-root")
-  let loc = get-attribute-value(node, #"location");
-  if (~loc)
-    log-config-warning("Malformed <document-root> setting.  'location' must be specified.");
-  else
-    init-document-root(location: loc);
+  bind (loc = get-attribute-value(node, #"location"))
+    iff(~loc,
+        log-config-warning("Malformed <document-root> setting.  'location' must be specified."),
+        init-document-root(location: loc));
   end;
 end;
 
 define method process-config-element (node :: xml$<element>, name == #"log")
   let level = get-attribute-value(node, #"level");
-  let clear = get-attribute-value(node, #"clear");
-  when (clear & true-value?(clear))
-    clear-log-levels();
+  bind (clear = get-attribute-value(node, #"clear"))
+    when (clear & true-value?(clear))
+      clear-log-levels();
+    end;
   end;
   if (~level)
     log-config-warning("Malformed <log> setting.  'level' must be specified.");
@@ -199,9 +198,10 @@ define method process-config-element (node :: xml$<element>, name == #"log")
 end;
 
 define method process-config-element (node :: xml$<element>, name == #"debug-server")
-  let value = get-attribute-value(node, #"value");
-  when (value)
-    *debugging-server* := true-value?(value);
+  bind (value = get-attribute-value(node, #"value"))
+    when (value)
+      *debugging-server* := true-value?(value);
+    end;
   end;
   when (*debugging-server*)
     log-warning("Server debugging is enabled.  Server may crash if not run inside an IDE!");
@@ -209,23 +209,28 @@ define method process-config-element (node :: xml$<element>, name == #"debug-ser
 end;
 
 define method process-config-element (node :: xml$<element>, name == #"xml-rpc")
-  let url = get-attribute-value(node, #"url");
-  if (url)
-    *xml-rpc-server-url* := url;
-    log-info("XML-RPC URL set to %s.", url);
-  end;
-
-  let fault-code = get-attribute-value(node, #"internal-error-fault-code");
-  if (fault-code)
-    block ()
-      let int-code = string-to-integer(fault-code);
-      int-code & (*xml-rpc-internal-error-fault-code* := int-code);
-      log-info("XML-RPC internal error fault code set to %d.", int-code);
-    exception (<error>)
-      log-warning("Invalid XML-RPC fault code, %=, specified.  Must be an integer.",
-                  fault-code);
+  bind (url = get-attribute-value(node, #"url"))
+    if (url)
+      *xml-rpc-server-url* := url;
+      log-info("XML-RPC URL set to %s.", url);
     end;
-  end if;
+  end;
+  bind (fault-code = get-attribute-value(node, #"internal-error-fault-code"))
+    if (fault-code)
+      block ()
+        let int-code = string-to-integer(fault-code);
+        int-code & (*xml-rpc-internal-error-fault-code* := int-code);
+        log-info("XML-RPC internal error fault code set to %d.", int-code);
+      exception (<error>)
+        log-warning("Invalid XML-RPC fault code, %=, specified.  Must be an integer.",
+                    fault-code);
+      end;
+    end if;
+  end;
+  bind (debug = get-attribute-value(node, #"debug"))
+    *debugging-xml-rpc* := (debug & true-value?(debug));
+    *debugging-xml-rpc* & log-info("XML-RPC debugging enabled.");
+  end;
 end;
 
 

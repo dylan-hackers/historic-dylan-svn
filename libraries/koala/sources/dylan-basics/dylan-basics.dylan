@@ -1,15 +1,44 @@
 Module:   dylan-basics
 Synopsis: Basic dylan utilities
-Author:   Carl Gay
+Author:   many authors
 
+
+// This library is a collection of utilities that are generally useful
+// for Dylan programming, but aren't big enough to have a library all
+// their own.  These were written by various authors (including myself)
+// and shamelessly stolen by me (Carl Gay).
+
+
+// ----------------------------------------------------------------------
+// bind introduces new bindings a la "let", but also introduces a new
+// block to limit the variables' scope.
+//
+// bind (x = 1, y :: <string> = "y")
+//   x + y
+// end
+//
+define macro bind
+    { bind (?bindings) ?:body end }
+ => { begin
+        ?bindings
+        ;
+        ?body
+      end }
+bindings:
+    { } => { }
+    { ?binding, ... } => { ?binding; ... }
+binding:
+    { ?var:variable = ?val:expression }
+ => { let ?var = ?val }
+end;
 
 // ----------------------------------------------------------------------
 // iff(test, true-part)
 // iff(test, true-part, false-part)
 //
 define macro iff
-  { iff(?test:expression, ?true:expression, ?false:expression) }
-    => { if (?test) ?true else ?false end }
+    { iff(?test:expression, ?true:expression, ?false:expression) }
+ => { if (?test) ?true else ?false end }
   { iff(?test:expression, ?true:expression) }
     => { if (?test) ?true end }
 end;
@@ -148,6 +177,8 @@ end method string-to-float;
 
 // Convert a floating point to a string without the Dylan specific formatting.
 // Prints to the given number of decimal places.
+// Written by Chris Double, as part of dylanlibs.
+//
 define method float-to-formatted-string
     (value :: <float>, #key decimal-places)
  => (s :: <string>)

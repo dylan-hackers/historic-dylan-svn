@@ -345,8 +345,8 @@ end meta decl-sep;
 // we'll add a returned dtd after developing the element-decl's etc.
 // => (make(<dtd>, name: name, sys-id: sys-id, pub-id: pub-id, sys/pub: which))
 define meta doctypedecl(s, name, sys-id, pub-id, which, markup)
-  yes!(*defining-entities?*),
   "<!DOCTYPE", scan-s(s), scan-name(name), 
+  yes!(*defining-entities?*),
   {[scan-s(s), scan-external-id(sys-id, which, pub-id),
    do(
 // hokay, we've got an external-ID, now let's parse that document
@@ -1124,3 +1124,13 @@ define method transform(elt :: <element>, tag-name :: <symbol>,
   *parent* := elt;  // is this rebind superfluous?  Seems to work okay
   next-method();
 end method transform;
+
+// prevent compiler warnings
+begin
+  scan-names;
+  scan-nmtokens;
+  scan-ext-subset;
+  scan-encoding-info;
+  scan-ext-parsed-ent;
+end;
+

@@ -3,6 +3,7 @@ format-version:	2
 library:	xml-rpc-test
 files:	library
 	xml-rpc-test
+subprojects:	..\xml-rpc-client.hdp
 base-address:	0x637A0000
 start-function:	main
 major-version:	1

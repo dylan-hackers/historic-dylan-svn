@@ -36,6 +36,9 @@ Version 0.5
 Kitchen Sink
 ------------
 
+* Ability to specify directories (e.g., CVS, .ssh, etc) that should
+  be excluded when browsing directory structure.
+
 * Ability to specify a URL to be displayed when 404 errors occur.
 
 * Search sources for "---*** TODO" and do them.
