@@ -210,10 +210,10 @@ end method schedule-sleep;
 define method wait-for-schedule(schedule :: <schedule>, 
                                 seconds :: false-or(<integer>))
  => ()
-  debug-message("Waiting for %s seconds", seconds);
+//  debug-message("Waiting for %s seconds", seconds);
 
   unless(wait-for-schedule-changed(schedule, timeout: seconds))
-    debug-message("Timed out");
+//    debug-message("Timed out");
   end unless;
 end method wait-for-schedule;
 
@@ -241,7 +241,7 @@ define method start-schedule(s :: <schedule>, #key execution-threads = 1)
     while(#t)
       wait-for-time-change();
       notify-schedule-changed(s);
-      debug-message("Time changed");
+//      debug-message("Time changed");
     end while;
   end method;
 

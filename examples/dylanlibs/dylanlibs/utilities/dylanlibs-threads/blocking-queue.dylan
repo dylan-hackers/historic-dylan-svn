@@ -15,22 +15,30 @@ end class <blocking-queue>;
 define method push-on-queue(q :: <blocking-queue>, object)
  => ()
   with-lock(q.queue-item-queued.associated-lock)
-    when(q.%internal-queue.empty?)
+    let empty? = q.%internal-queue.empty?;
+    push-last(q.%internal-queue, object);
+    when(empty?)
       release-all(q.queue-item-queued)
     end when;
-
-    push-last(q.%internal-queue, object);
   end with-lock;
 end method push-on-queue;
 
-define method get-from-queue(q :: <blocking-queue>)
+// If the wait for item in the queue times out within TIMEOUT seconds,
+// then return TIMEOUT-VALUE.
+define method get-from-queue(q :: <blocking-queue>, #key timeout, timeout-value)
  => (r :: <object>)
-  with-lock(q.queue-item-queued.associated-lock)
-    while(q.%internal-queue.empty?)
-      wait-for(q.queue-item-queued)
-    end while;
+  with-lock(q.queue-item-queued.associated-lock, timeout: timeout)
+    block(return)
+      while(q.%internal-queue.empty?)
+        unless(wait-for(q.queue-item-queued, timeout: timeout))
+          return(timeout-value);
+        end unless;
+      end while;
 
-    pop(q.%internal-queue);
+      pop(q.%internal-queue);
+    end block;
+  failure
+    timeout-value
   end with-lock;
 end method get-from-queue;
 
