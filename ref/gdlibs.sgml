@@ -2655,15 +2655,47 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   </CHAPTER>
 
   <CHAPTER ID="libs-print">
+    <docinfo>
+	<title>Print Library</title>
+	<date>November 18, 2000</date>
+	<author>&person.auclair;</author>
+    </docinfo>
     <TITLE>The Print Library</TITLE>
-
-    <PARA></PARA>
+    <PARA>This document describes the Print library designed by the Gwydion Project at Carnegie Mellon University. This library provides an interface that outputs an object in Dylan literal syntax if the object can be represented as a Dylan literal, and otherwise, outputs the object in an implementation-dependent manner. There are essentially two functions, <function>print</function> and <function>print-object</function>. The <function>print</function> function accepts keyword arguments that form a print request, controlling features such as circular printing, how deep within a data structure to print, how many elements in long sequences to print before using an ellipsis notation, whether pretty printing is desired, and so on. Users extend <function>print</function>’s ability to print various objects by adding methods to the <function>print-object</function> function. The <function>print</function> function handles most of the overhead to satisfy special print requests, outputting any special notations required, and it only calls <function>print-object</function> when it is necessary to print objects. Users should always call the <function>print</function> function to output objects, especially recursively from within <function>print-object</function> methods to output an object’s components. Users should never call <function>print-object</function> directly.</PARA>
   </CHAPTER>
 
   <CHAPTER ID="libs-collection-extensions">
+    <docinfo>
+      <title>Collection Extentions</title>
+	<date>November 18, 2000</date>
+	<author>&person.auclair;</author>
+    </docinfo>
     <TITLE>The Collection-Extensions Library</TITLE>
+    <sect1 id="libs-collection-extensions-introduction>
+	<title>Introduction</title>
+    <PARA>
+The various modules in this library contain a few new types and operations which are compatible with the collection types specified in the Dylan Reference Manual, but which are not part of that specification. 
+</para><para>
+It is to be expected that more collection types will appear in time, and they will likely be added to this library. This may also result in reorganizations which could force incompatible changes to the existing modules. We hope to minimize such imcompatibilities and, when forced to them, will include sufficient information to facilitate conversion of existing code. </para>
+Collection-extensions exports these modules: </para>
+<itemizedlist>
+<listitem>
+<para>
+<dmodule>self-organizing-list</dmodule>
+Provides "self-organizing lists". These explicit key collections provide roughly the semantics of hash tables, but use a probabilistic implementation which provides O(n) worst case performance but can provide very fast constant time access in the best case. </para>
 
-    <PARA></PARA>
+</listitem>
+<listitem>
+<para><dmodule>subseq</dmodule>
+Provides "subsequences", which represent an aliased reference to some part of an existing sequence. These are analogous to slices (in Ada or Perl) or displaced arrays (in Common Lisp). Subsequences are themselves subclasses of <classname>&lt;sequence&gt;</classname>, and can therefore be passed any <classname>&lt;collection&gt;</classname> or <classname>&lt;sequence&gt;</classname> operation. </para>
+</listitem>
+<listitem>
+<para><dmodule>vector-search</dmodule>
+Provides a small assortment of specialized operations for searching and modifying <classname>&lt;vector&gt;</classname>s. These operations are analogous to existing collection operations but provide keywords and efficiency improvements which are meaningful only within the more limited domain. 
+
+
+</PARA>
+</sect1>
 
   </CHAPTER>
 
@@ -5638,8 +5670,8 @@ N + 1.  The first N columns are the coefficents in a set of simultaneous
 equations, and the last column is a solution vector.   The matrix that is returned is an N by 1 matrix contaning the solution for each variable.   For example, if you have a system of equations like this:
   	    </para>
 	    <programlisting>
-2x + 4y - 2z = 2
-4x + 9y - 3z = 8
+ 2x + 4y - 2z = 2
+ 4x + 9y - 3z = 8
 -2x - 3y + 7z = 10 
 	    </programlisting>
 	    <para>The matrix representing this would be </para>
