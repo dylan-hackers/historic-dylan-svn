@@ -4,7 +4,7 @@ Author:   Carl Gay
 
 define library koala-example
   use dylan;
-  use common-extensions;
+  use common-dylan;
   use io;
   use network;
   use locators;
