@@ -7,7 +7,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Testing
 
-define constant $debugging-koala :: <boolean> = #t;
+define constant $debugging-koala :: <boolean> = #f;
 
 define function test-koala
     () => ()
