@@ -62,7 +62,7 @@ define function path-length (p1 :: <point>, p2 :: <point>, b :: <board>)
   $cache[a];
 end function path-length;
 
-// Now that we have path-length, we will implement Prim's algorithm
+// Now that we have path-length, we will implement Kruskal's algorithm
 // for building minimum spanning trees. 
 
 define class <disjoint-set> (<object>)
