@@ -11,7 +11,7 @@ define library xml-test
 end library xml-test;
 
 define module entity-pass
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use xml-parser;
   use streams;
   use format;
@@ -20,7 +20,7 @@ define module entity-pass
 end module entity-pass;
 
 define module html-xform
-  use common-dylan;
+  use common-dylan, exclude: { format-to-string };
   use xml-parser;
   use entity-pass;
   use streams;
