@@ -30,7 +30,7 @@ define method safe?(dropping :: <drop-strategy>, me :: <gabot>, s :: <state>)
 end method safe?;
 
 // ## <gabot>
-define class <gabot> (<dumber-bot>)
+define class <gabot> (<dumbot>)
   slot decided :: <strategy>.false-or = #f;
 end class <gabot>;
 
@@ -103,11 +103,12 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <functi
     local find-near-safe-place(best-thing, best-path :: <path>)
          => (better-thing, better-path :: <path>);
          
-         let distance = distance-cost(position, best-path.last);
+         let distance = best-path == #() & 1001 | distance-cost(position, best-path.last);
 
           block (found)
             for (thing in coll)
               let path = find-path(position, thing, s.board, cutoff: best-thing & distance);
+              debug("find-near-safe-place: thing: %=, path: %=\n", thing, path);
               if (path)
                 if (~best-thing
                     | distance-cost(position, thing.location) < distance) // # FISHY TODO we should compare paths
