@@ -13,6 +13,7 @@ define class <package> (<object>)
 end class <package>;
 
 define method at-destination?(p :: <package>) 
+  debug("Package location: %=, package.carrier: %=\n", p.location, p.carrier);
   p.dest = p.location;
 end method at-destination?;
 
