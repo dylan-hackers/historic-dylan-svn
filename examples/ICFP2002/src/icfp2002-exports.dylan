@@ -37,7 +37,7 @@ define module board
     width, height, passable?, deadly?,
     <terrain>, <wall>, <water>, <base>, <space>,
     <package>, id, weight, location, dest, at-destination?, free-packages, carrier,
-    <robot>, id, capacity, capacity-setter, inventory, location, capacity-left, money,
+    <robot>, id, capacity, capacity-setter, inventory, capacity-left, money,
     copy-package,
     add-robot,
     copy-robot,
@@ -75,7 +75,7 @@ define module command
     <move>, direction,
     <pick>, package-ids,
     <drop>,
-    <transport>;
+    <transport>, transport-location;
 end module command;
 
 define module messages
