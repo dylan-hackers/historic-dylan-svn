@@ -99,7 +99,7 @@ end function element-children;
 // however, each attribute name must be unique
 define function attribute-value(elt :: <element>, 
                                 attrib-name :: <symbol>)
- => (ans :: <string>)
+ => (ans :: false-or(<string>))
   any?(method(x) x.name == attrib-name & x.value end, 
        elt.element-attributes);
 end function attribute-value;

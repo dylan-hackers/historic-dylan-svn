@@ -10,15 +10,15 @@ define library xml-parser
 end library;
 
 define module xml-parser
-  create transform, transform-document, before-transform, 
+  create transform, transform-document, before-transform, after-transform,
          <xform-state>, <collect-state>, *xml-depth*;
 
-  create parse-document;
+  create parse-document, <add-parents>;
 
   create <document>, <element>, <attribute>, <entity-reference>,
     <char-reference>, <char-string>, <xml>, <node>, text, char, name;
   create entity-value, element-attributes, attribute-value, 
-    node-children, element-parent, collect-elements;
+    node-children, element-parent, collect-elements, make-element;
 end module xml-parser;
 
 define module interface
