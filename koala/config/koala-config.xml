@@ -14,6 +14,7 @@
      name them, were stolen from Apache's httpd.conf.
 -->
 
+
 <!-- SERVER-ROOT is the top of the directory tree under which the
      server's configuration and log files are kept.  Other pathnames are
      merged against this one, so if they're relative they will be
@@ -31,7 +32,23 @@
 <document-root location="www" />
 
 
-<log level="debug" />
+<!-- LOG tells Koala what kind of log messages to display.  There are four
+     possible settings, in order of importance, each of which includes the
+     settings above it:
+       error   - highest importance
+       warning - includes errors (you can't display warnings without seeing errors too)
+       info    - includes warnings and errors.  this is the default value.
+       debug   - includes all log messages
 
+     A bit more granularity may be added in the future.  If the "clear"
+     attribute is false then the previous setting will not be cleared
+     before the new log level is added.  -->
+<log level="info" />
+
+
+<!-- If DEBUG-SERVER is on then errors thrown during the execution of
+     a server request will not be caught.  Only turn this on when running
+     inside a development environment, or the server will crash hard. -->
+<debug-server value="off" />
 
 </koala>
