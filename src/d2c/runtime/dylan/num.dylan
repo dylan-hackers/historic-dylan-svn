@@ -63,9 +63,11 @@ define open generic negative? (num :: <object>) => res :: <boolean>;
 define open generic integral? (num :: <object>) => res :: <boolean>;
 
 // odd? is not specified as being open in the DRM, but we will open it up
+// The DRM also specifies that this method is applicable to integers only.
 define open generic odd? (num :: <object>) => res :: <boolean>;
 
 // even? is not specified as being open in the DRM, but we will open it up 
+// The DRM also specifies that this method is applicable to integers only.
 define open generic even? (num :: <object>) => res :: <boolean>;
 
 define open generic \+ (num1 :: <object>, num2 :: <object>);
@@ -212,12 +214,19 @@ define sealed inline method odd? (a :: <general-integer>) => res :: <boolean>;
   ~even?(a);
 end;
 
-// even? has an implementation here for <integer>, and in bignum.dylan for
-// <extended-integer>
-define sealed inline method even? (a :: <integer>) => res :: <boolean>;
-  zero?(logand(a, 1));
+// The following should be sealed, but currently even? is not implemented
+// for <double-integer>, and we can't compile d2c without fixing it.
+// Un-comment-out the line below when <double-integer> is fixed.
+//define sealed domain even? (<general-integer>);
+
+define sealed inline method odd? (a :: <integer>) => res :: <boolean>;
+  logand(a, 1) = 1;
 end;
 
+// even? is also implemented in bignum.dylan for <extended-integer>
+define sealed inline method even? (a :: <integer>) => res :: <boolean>;
+  logand(a, 1) = 0;
+end;
 
 define inline method integral? (a :: <general-integer>) => res :: <boolean>;
   #t;
