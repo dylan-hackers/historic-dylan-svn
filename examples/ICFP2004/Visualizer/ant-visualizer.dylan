@@ -55,17 +55,25 @@ define function cell-position(position) => (x-result, y-result)
     end;
 end;
 
-define function draw-hex(position) => ()
+define function draw-hex(position, color) => ()
     let (x, y) = cell-position(position);
 
     glBegin($GL-TRIANGLE-FAN);
+        set-gl-color(color);
         glVertex(x                 , y                 );
+        set-gl-color(color);
         glVertex(x                 , y + 1             );
+        set-gl-color(color);
         glVertex(x + $SIN-PI-OVER-3, y + $COS-PI-OVER-3);
+        set-gl-color(color);
         glVertex(x + $SIN-PI-OVER-3, y - $COS-PI-OVER-3);
+        set-gl-color(color);
         glVertex(x                 , y - 1             );
+        set-gl-color(color);
         glVertex(x - $SIN-PI-OVER-3, y - $COS-PI-OVER-3);
+        set-gl-color(color);
         glVertex(x - $SIN-PI-OVER-3, y + $COS-PI-OVER-3);
+        set-gl-color(color);
         glVertex(x                 , y + 1             );
     glEnd();
 end;
@@ -85,8 +93,7 @@ define function cell-color(cell) => (color)
 end;
 
 define function draw-cell(cell, position) => ()
-    set-gl-color(cell-color(cell));
-    draw-hex(position);
+    draw-hex(position, cell-color(cell));
 end;
 
 define function draw-cell-food(cell, position) => ()

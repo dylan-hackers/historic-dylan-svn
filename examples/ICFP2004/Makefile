@@ -12,7 +12,7 @@ run:
 	./ants ant-brains/sample.ant ant-brains/sample.ant worlds/tiny.world > dump.tiny
 
 run-vis:
-	./Visualizer/ant-visualizer ant-brains/sample.ant ant-brains/sample.ant worlds/tiny.world
+	./Visualizer/ant-visualizer ant-brains/sample.ant ant-brains/sample.ant worlds/sample0.world
 
 clean:
 	-rm -f *.o *.lo *.s *.a *.c *.mak *~ ants
