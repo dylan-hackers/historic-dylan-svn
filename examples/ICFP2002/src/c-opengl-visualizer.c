@@ -53,6 +53,7 @@ void setOpenGLParametersForPackage(void)
 typedef struct
 {
     Boolean playing;
+    Boolean updatedThisFrame;
     unsigned int packageCount;
     unsigned int x;
     unsigned int y;
@@ -211,6 +212,7 @@ char *parsePlayerAction(unsigned int playerID, char *string)
                    playerID,
                    packageID);
             ++gPlayers[playerID].packageCount;
+            --gMap[gPlayers[playerID].y][gPlayers[playerID].x].possiblePackageCount;
         }
         break;
         case 'D':
@@ -249,11 +251,25 @@ char *parsePlayerAction(unsigned int playerID, char *string)
 
 char *parseServerResponse(char* string)
 {
+    unsigned int playerID;
+    if (sscanf(string, "Robot %u died.\n", &playerID) == 1)
+    {
+        if (playerID == gID)
+        {
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            return "\n";
+        }
+    }
+
     ++string;
 
-    unsigned int playerID;
+    
     string = parseUnsigned(&playerID, string);
     printf("Player id is %u\n", playerID);
+    gPlayers[playerID].updatedThisFrame = TRUE;
 
     if (*string == '\n')
     {
@@ -358,6 +374,12 @@ void display(void)
     unsigned int playerID;
     for (playerID = 0; playerID < MAX_ROBOTS; ++playerID)
     {
+        if (!gPlayers[playerID].updatedThisFrame)
+        {
+            gPlayers[playerID].playing = FALSE;
+        }
+        gPlayers[playerID].updatedThisFrame = FALSE;
+        
         if (gPlayers[playerID].playing)
         {
             setOpenGLParametersForPlayer(playerID);
