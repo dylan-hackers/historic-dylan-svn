@@ -96,7 +96,7 @@ define class <camera> (<node>)
 end class <camera>;
 
 define class <spotlight> (<node>)
-  slot light-position :: <3d-point> = 3d-point(0.0, 0.0, 0.0), init-keyword: position:;
+  slot light-position :: <3d-point> = 3d-point(0.0, 0.0, 0.0, 1.0), init-keyword: position:;
   slot spot-direction :: <3d-vector> = 3d-vector(0.0, 0.0, -1.0), init-keyword: direction:;
   slot ambient :: false-or(<vector>) = #f, init-keyword: ambient:;
   slot diffuse :: false-or(<vector>) = #f, init-keyword: diffuse:;

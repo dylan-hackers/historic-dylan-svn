@@ -208,15 +208,18 @@ define method main(progname, #rest arguments)
   if(arguments.size > 0)
     *scene-graph* := 
       make(<container-node>, children: 
-             vector(make(<camera>,
-                         position:  3d-point ( 0.0, 1.7, 10.0 )),
+             vector(/* make(<camera>,
+                         position:  3d-point ( 0.0, 1.7, 10.0 )), */
                     make(<spotlight>,
-                         position:  3d-point ( 3.0s0, 3.0s0,-2.0s0),
+                         position:  3d-point ( 3.0s0, 3.0s0,-2.0s0, 1.0s0),
                          direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
                          ambient:   vector   ( 0.1,   0.1,   0.1, 1.0),
                          diffuse:   vector   ( 0.1,   0.1,   0.9, 1.0),
                          specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
                     make(<line-grid>),
+                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
+                         translate: 3d-vector(3.0, 3.0, -2.0), 
+                         children: vector(make(<shape>, geometry: make(<sphere>)))),
                     make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), children: 
                            vector(parse-vrml(arguments[0])))));
   end if;
@@ -245,7 +248,6 @@ define method main(progname, #rest arguments)
   force-output(*standard-output*);
 //  glutFullScreen();
 
-/*
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
   glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
@@ -254,7 +256,6 @@ define method main(progname, #rest arguments)
 	    0.0,  1.0, 0.0); // up direction
 
   glMatrixMode($GL-MODELVIEW);
-*/
 
 //  glEnable($GL-AUTO-NORMAL);
 //  glEnable($GL-NORMALIZE);
@@ -264,6 +265,8 @@ define method main(progname, #rest arguments)
 //  glEnable($GL-CULL-FACE);
 
   glEnable($GL-LIGHTING);
+//  glColor(0.5, 0.5, 0.5);
+
 //  glEnable($GL-LIGHT0);
 //  glLight($GL-LIGHT0, $GL-POSITION, 3.0s0, 3.0s0, -2.0s0, 1.0s0);
 //  glLight($GL-LIGHT0, $GL-AMBIENT, 0.1, 0.1, 0.1, 1.0);
