@@ -52,12 +52,6 @@ end macro parse-builder;
 // Doug wrote this macro for collecting strings
 define macro collector-definer
 { define collector ?:name (?vars:*) ?meta end }
-/*****
- => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
-        with-collector into-vector str, collect: ?=collect;
-          meta-builder(string, start, (?vars), (as(<string>, str)), (?meta));
-        end with-collector;
-      end; } ****/
  => { parse-builder(?name, 
        (with-collector into-vector str, collect: ?=collect;
           meta-builder(?=string, ?=start, (?vars), (as(<string>, str)), (?meta));
@@ -69,24 +63,6 @@ define macro collect-value-definer
     (#key ?test:variable = not-in-set?)
     ?single:expression, ?double:expression => ?meta
   end }
-/*****
- => { define method "parse-" ## ?name (string, #key start = 0, end: stop)
-        with-collector into-vector str, collect: collect;
-          meta-builder(string, start, (c, ?vars), (as(<string>, str)),
-            ({['"',
-          loop({[test(rcurry(?test, ?double), c),
-                 do(collect(c))]}), 
-// DOUG          ?meta,
-          '"'],
-         ["'",f
-          loop({[test(rcurry(?test, ?single), c), 
-                 do(collect(c))]}), 
-// DOUG          ?meta,
-          "'"]}, []));
-        end with-collector;
-      end method; }
-  *****  Either I'm missing something or this should work
-  *      FD pukes on this, tho' ***/
  => { define collector ?name(c, ?vars)
         {['"',
           loop({[test(rcurry(?test, ?double), c),
@@ -296,16 +272,6 @@ end parse cd-sect;
 // 
 //    [22]    prolog         ::=    XMLDecl? Misc* (doctypedecl Misc*)?
 //
-/**** define method parse-prolog(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, decl, misc, doctype);
-    [{parse-xml-decl(decl), []}, 
-     loop(parse-misc(misc)),
-     {[parse-doctypedecl(doctype),
-       loop(parse-misc(misc))], []}]; 
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-prolog; **/
 define parse prolog(decl, misc, doctype)
   {parse-xml-decl(decl), []}, loop(parse-misc(misc)),
   {[parse-doctypedecl(doctype), loop(parse-misc(misc))], []}
@@ -328,21 +294,6 @@ end method parse-xml-decl;
 
 //    [24]    VersionInfo    ::=    S 'version' Eq ("'" VersionNum "'" | '"' VersionNum '"')/* */
 //
-/**** define method parse-version-info(string, #key start = 0, end: stop)
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c, space, eq, version-num);
-      [parse-s(space),
-       "version",
-       parse-eq(eq),
-       {['\'',
-         parse-version-num(version-num),
-         '\''],
-        ['"',
-         parse-version-num(version-num),
-         '"']}];
-      values(index, #t);
-    end with-meta-syntax;
-end method parse-version-info; ***/
 define parse version-info(space, eq, version-num)
   parse-s(space), "version", parse-eq(eq),
   {['\'', parse-version-num(version-num), '\''],
@@ -734,23 +685,12 @@ define method parse-content(string, #key start = 0, end: stop)
   end with-meta-syntax;
 end method parse-content;
 
-
 // Element
 // 
 //    [39]    element    ::=    EmptyElemTag
 //                              | STag content ETag [WFC: Element Type Match]
 //                                                  [VC: Element Valid]
 //
-/*****
-define method parse-element(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, empty-tag, stag, content, etag);
-    {parse-empty-elem-tag(empty-tag),
-     [parse-stag(stag), parse-content(content), parse-etag(etag)]};
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-element;
-****/
 define parse element(name, attribs, content, etag)
  => (make(<element>, children: content, 
           tag-name: name,
