@@ -921,7 +921,7 @@ end function-family-4;
 
 
 define interface
-  #include "GL/gl.h",
+  #include "OpenGL/gl.h",
     name-mapper: minimal-name-mapping,
     exclude: {"GLvoid"},
     map: {"GLubyte*" => <byte-string>},

@@ -4,7 +4,7 @@ author: Jeff Dubrule <igor@pobox.com>
 copyright: (C) Jefferson Dubrule.  See COPYING.LIB for license details.
 
 define interface
-  #include "GL/glu.h",
+  #include "OpenGL/glu.h",
     name-mapper: minimal-name-mapping,
 
     exclude:

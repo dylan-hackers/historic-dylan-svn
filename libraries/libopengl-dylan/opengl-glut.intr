@@ -4,7 +4,7 @@ author: Jeff Dubrule <igor@pobox.com>
 copyright: (C) Jefferson Dubrule.  See COPYING.LIB for license details.
 
 define interface
-  #include "GL/glut.h",
+  #include "GLUT/glut.h",
     name-mapper: minimal-name-mapping,
     exclude: {"GLenum", "exit"},
   
@@ -127,6 +127,11 @@ define constant $GLUT-BITMAP-HELVETICA-12 =
   as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_HELVETICA_12"));
 define constant $GLUT-BITMAP-HELVETICA-18 = 
   as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_HELVETICA_18"));
+
+define constant $GLUT-STROKE-ROMAN = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_STROKE_ROMAN"));
+define constant $GLUT-STROKE-MONO-ROMAN = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_STROKE_MONO_ROMAN"));
 
 /*
 define method glutDisplayFunc(f :: <function>)
