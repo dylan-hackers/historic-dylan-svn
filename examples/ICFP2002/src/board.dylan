@@ -28,20 +28,11 @@ define terrain <water> end;
 define terrain <base> end;
 define terrain <space> end;
 
-/*
 define function passable?(b :: <board>, p :: <point>)
  => (passable :: <boolean>);
-  let ch = b.lines[p.y][p.x];
+  let ch = b[p.y][p.x];
   ch == '.' | ch == '@';
 end;
-*/
-
-define function passable?(b :: <board>, x :: <coordinate>, y :: <coordinate>)
- => (passable :: <boolean>);
-  let ch = b[y][x];
-  ch == '.' | ch == '@';
-end;
-
 
 // Board
 
@@ -100,12 +91,9 @@ define method add-package (state :: <state>, package :: <package>) => <state>;
   make(<state>, board: state.board, robots: state.robots, packages: packages*);
 end method add-package;
 
-define function packages-at(state :: <state>, loc-x, loc-y)
+define function packages-at(state :: <state>, p :: <point>)
  => (v :: <vector>);
-  let result = 
-    choose-by(curry(\=, loc-x), map(x, state.packages), state.packages);
-
-  choose-by(curry(\=, loc-y), map(y, result), result);
+  choose-by(curry(\=, p), map(location, state.packages), state.packages);
 end function packages-at;
 
 define method as(class == <character>, obj :: <character>)

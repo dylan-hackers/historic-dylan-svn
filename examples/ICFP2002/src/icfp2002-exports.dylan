@@ -20,12 +20,12 @@ define module board
   export
     <state>, board, robots, packages, packages-at,
     <board>,
-    <coordinate>, <point>,
+    <coordinate>, <point>, x, y,
     send-board, receive-board,
     width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,
-    <package>, id, weight, x, y, dest-x, dest-y, at-destination?,
-    <robot>, id, capacity, inventory, x, y, capacity-left,
+    <package>, id, weight, location, dest, at-destination?,
+    <robot>, id, capacity, inventory, location, capacity-left,
     add-robot,
     add-package;
 end module board;
