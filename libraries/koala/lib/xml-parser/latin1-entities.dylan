@@ -15,16 +15,10 @@ define macro entities-definer
    { ?data; ... } => { ?data, ... }
 
  data:
-   { <!entity ?ent:name cdata ?charref:expression ?comment-body:* }
+   { <!entity ?ent:name cdata ?charref:expression ?comment-body:* ?:token }
      => { list(?#"ent", make(<char-reference>, char: ?charref.as-char,
 			     name: copy-sequence(?charref, start: 1,
 						 end: ?charref.size - 1))) }
-/*
- comment-body:
-  { } => { }
-  { ?:name ... } => { ?name, ... }
-  { (?:name) ... } => { ?name, ... }
-*/
 end macro entities-definer;
 
 define function as-char(s :: <string>) => (c :: <character>)
