@@ -70,7 +70,7 @@ Dylan Websites</A>
 
 <P><STRONG>Developer Resources</STRONG></P>
 <UL>
-<LI><A HREF="lists.phtml">Mailing List</A>
+<LI><A HREF="lists.phtml">Mailing Lists</A>
 <LI><A HREF="downloading.phtml">Downloading Software</A>
 <LI><A HREF="gdref.phtml">Documentation</A>
 <LI><A HREF="http://www.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>

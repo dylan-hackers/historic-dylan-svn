@@ -3,13 +3,65 @@ require "shared.inc";
 standard_header("Mailing Lists");
 ?>
 
-<P>We have a mailing list for the organization of development at <A
-HREF="gd-hackers@randomhacks.com">gd-hackers@randomhacks.com</A>. If
-you'd like to participate in development, or if you are a user of
-Gwydion Dylan, feel free to join by sending mail to <A
-HREF="mailto:majordomo@randomhacks.com">majordomo@randomhacks.com</a>
-with <tt>subscribe&nbsp;gd-hackers</tt> in the body. Bugs can be
-submitted to <A
+<P>We have several mailing lists. To subscribe please enter you e-mail
+address into the box below, check off the appropriate lists, and hit the
+<STRONG>Subscribe</STRONG> button.</P>
+
+<FORM ACTION="http://www.randomhacks.com/cgi-bin/subscribe.cgi" METHOD="POST">
+<P><STRONG>E-mail address:</STRONG> <INPUT TYPE="TEXT" NAME="EMAIL"></P>
+
+<DL>
+
+<DT><INPUT TYPE="CHECKBOX" NAME="GD-ANNOUNCE">
+<STRONG><A HREF="mailto:gd-announce@randomhacks.com">gd-announce</A></STRONG>
+[Archive]
+
+<DD><P>Find out about new Gwydion Dylan releases! This is an extremely
+low-traffic list reserved for announcements. (If you subscribe to
+gd-hackers below, you don't need to subscribe to this list, too.)</P>
+
+<DT><INPUT TYPE="CHECKBOX" NAME="GD-HACKERS">
+<STRONG><A HREF="mailto:gd-hackers@randomhacks.com">gd-hackers</A></STRONG>
+[Archive]
+
+<DD><P>Our public development list. Here's where we talk about improving
+Gwydion Dylan and co-ordinate most of our development work. (A very small
+bit happens behind the scenes.) If you want to contribute, this is the
+place to start! Just post a message explaining what you'd like to do, and
+see what other developers suggest. You can post small patches to the list,
+or upload big ones to our FTP site. Lurkers are also welcome, too!</P>
+
+<!--
+<P>Please respect this list; we use it to get work done and don't
+appreciate random noise. We <EM>will</EM> unsubscribe you if you're rude or
+ignore requests to stay on topic.</P>
+-->
+
+<DT><INPUT TYPE="CHECKBOX" NAME="GD-CHATTER">
+<STRONG><A HREF="mailto:gd-chatter@randomhacks.com">gd-chatter</A></STRONG>
+[Archive]
+
+<DD><P>This list contains nothing but CVS and JitterBug output. This is for
+hardcore developers who need to know everything that's going on.</P>
+
+<!-- Not yet supported
+<DT><INPUT TYPE="CHECKBOX" NAME="INFO-DYLAN">
+<STRONG><A HREF="mailto:info-dylan@harlequin.co.uk">info-dylan</A></STRONG>
+[Archive]
+
+<DD><P>We don't host this list; <A
+HREF="http://www.harlequin.com/">Harlequin</A> does. It is gatewayed to
+the newsgroup <A HREF="news:comp.lang.dylan">comp.lang.dylan</A>, and is a
+good place to discuss the Dylan programming language.</P>
+-->
+
+</DL>
+
+<P><INPUT TYPE="SUBMIT" VALUE="Subscribe"></P>
+
+</FORM>
+
+<P>Bugs can be submitted to <A
 HREF="mailto:gd-bugs@randomhacks.com">gd-bugs@randomhacks.com</a>.</P>
 
 <?php standard_footer(); ?>
