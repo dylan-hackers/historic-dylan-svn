@@ -1,7 +1,6 @@
 module: meta-base
 author: David Lichteblau (david.lichteblau@snafu.de)
 copyright: Copyright (c) 1999 David Lichteblau.  All Rights Reserved.
-comment: for CVS log see meta-base.dylan
 
 // Please read the file README and the documentation.
 // For licensing information see LICENSE.
@@ -45,11 +44,20 @@ define macro meta-parse-aux
 		     #t;
 		   end if;
 		 end method match;
+
+          // match-type always is looking at one <character>, so
+          // it's more efficient to use rcurry(member?, seq) than
+          // instance? on singletons.  match-element fits the bill.
 	   local method match-type (type :: <type>)
 		  => (success :: <boolean>, result :: <object>);
 		   let success = instance?(peek(stream), type);
 		   values(success, success & read-element(stream));
 		 end method match-type;
+          local method match-element(seq :: <sequence>)
+                 => (success :: <boolean>, result :: <object>);
+                  let success = member?(peek(stream), seq);
+                  values(success, success & read-element(stream));
+                end method match-element;
 	   local method match-test (matches? :: <function>)
 		  => (success :: <boolean>, result :: <object>);
 		   let success = matches?(peek(stream));
@@ -66,7 +74,7 @@ define macro meta-parse-aux
 		   sub(stream);
 		 end method call-sub;
 	   process-meta(?meta, match, match-type, match-test, match-peek,
-			match-slurp, call-sub)
+			match-slurp, match-element, call-sub)
 	     & ?result }
 
     { meta-parse-aux parse-string, ?source:expression,
@@ -97,6 +105,9 @@ define macro meta-parse-aux
 		     if (success) #t; else ?pos := old-index; #f; end;
 		 end select;
 	       end method match;
+
+     // same caveat for this match-type as for the stream one; use
+     // match-element instead, please
 	 local method match-type (type :: <type>);
 		 let success = (?pos < stop) & instance?(string[?pos], type);
 		 block ()
@@ -105,6 +116,15 @@ define macro meta-parse-aux
 		   if (success) ?pos := ?pos + 1; end;
 		 end block;
 	       end method match-type;
+     local method match-element(seq :: <sequence>)
+            => (success :: <boolean>, result)
+             let success = (?pos < stop) & member?(string[?pos], seq);
+             block ()
+               values(success, success & string[?pos]);
+             afterwards
+               if(success) ?pos := ?pos + 1; end;
+             end block;
+           end method;
 	 local method match-test (matches? :: <function>)
 		=> (success :: <boolean>, result :: <object>);
 		 let success = (?pos < stop) & matches?(string[?pos]);
@@ -133,18 +153,19 @@ define macro meta-parse-aux
 		   end if;
 		 end method call-sub;
 	  process-meta(?meta, match, match-type, match-test, match-peek,
-		       match-slurp, call-sub)
+		       match-slurp, match-element, call-sub)
 	    & ?result }
 end macro meta-parse-aux;
 
 define macro process-meta
     { process-meta(?meta, ?match:name, ?match-type:name, ?match-test:name,
-		   ?match-peek:name, ?match-slurp:name, ?call-sub:name) }
+		   ?match-peek:name, ?match-slurp:name, ?match-element:name, ?call-sub:name) }
       => { let match = ?match;
 	   let match-type = ?match-type;
 	   let match-test = ?match-test;
 	   let match-peek = ?match-peek;
 	   let match-slurp = ?match-slurp;
+           let match-element = ?match-element;
 	   let call-sub = ?call-sub;
 	   block (finish)
 	     ?meta
@@ -160,6 +181,8 @@ define macro process-meta
       => { ?ors }
     { loop(?meta) }
       => { while (?meta) end | #t }
+
+// avoid type ... use element-of if possible instead
     { type(?type:expression, ?:variable) }
       => { begin
 	     let (success, value) = match-type(?type);
@@ -188,6 +211,11 @@ define macro process-meta
 	       ?variable := value;
 	     end if;
 	   end }
+    { element-of(?seq:expression, ?:variable) }
+    => { begin
+           let(success, value) = match-element(?seq);
+           if(success) ?variable := value; end if;
+         end }
     { test(?predicate:expression, ?variable:name) }
       => { begin
 	     let (success, value) = match-test(?predicate);
@@ -196,13 +224,25 @@ define macro process-meta
 	       #t;
 	     end if;
 	   end }
+    { peek(?var:name, ?test:expression) }
+    => { begin
+           let (success, value) = match-peek();
+           if(success) ?var := value; if(?test) #t; end if; end if;
+         end }
+
+// There's no reason for the -ing ending, as none of the other
+// pseudo-function expr use that ending.  Therefore, peeking
+// is deprecated, use peek instead.  Besides, peeking is very much like
+// match-test in that it consumes the character -- not at all in line with
+// the real peek, semantically.  The meta peek follows the convention of
+// keeping the stream state as it was.
     { peeking(?variable:name, ?test:expression) }
       => { begin
 	     let (success, value) = match-peek();
 	     if (success)
 	       ?variable := value;
 	       if (?test)
-	//	 match-slurp();
+		 match-slurp();
 		 #t;
 	       end if;
 	     end if;

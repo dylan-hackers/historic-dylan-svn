@@ -26,16 +26,15 @@ end module meta-syntax;
 
 define module meta-types
   use common-dylan;
-  export <space>, <digit>, <letter>, <num-char>, <any-char>, <graphic-char>;
+  export $space, $digit, $letter, $num-char, $any-char, $graphic-char;
 end module meta-types;
 
 define module meta
   use common-dylan;
+  use streams;
   use meta-base, export: all;
   use meta-syntax, export: all;
   use meta-types, export: all;
-  use streams;
 
   export scan-s, scan-word, scan-int, scan-number, string-to-number;
 end module meta;
-

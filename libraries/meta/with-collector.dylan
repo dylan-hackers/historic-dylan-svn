@@ -101,6 +101,3 @@ define macro with-collector
 	 ?body }
 
 end macro with-collector;
-
-
-// EOF
