@@ -3,21 +3,7 @@ Author:   Eric Kidd <eric.kidd@pobox.com>
 Synopsis: Research code for improving generic function dispatch.
           Heavily based on paper by Dujardin, et al.
 
-/*
-
-TODO - I think all this is done, but I'm not sure yet.
-
-/ Assign class IDs using reversed post-order traversal
-/ Assign pole numbers in sequence
-  Calculate minimal pole sets
-  Fix pole counts
-
-TODO - Stuff to work on still.
-
-  Implement Prof. Cormen's algorithm
-  Implement segmentation-based compression
-
-*/
+// This code refers to argument arrays and pole tables interchangeably...
 
 
 //=========================================================================
@@ -67,7 +53,112 @@ define class <generic-info> (<object>)
   slot generic-arguments :: <stretchy-vector>,
     required-init-keyword: arguments:;
 
+  // Information about each argument position.
+  slot %generic-dispatching-arguments :: false-or(<stretchy-vector>) = #f;
 end class <generic-info>;
+
+// Compute and cache the dispatching arguments of this function.
+define function generic-dispatching-arguments
+    (gf :: <generic-info>) => (args :: <stretchy-vector>)
+  unless (gf.%generic-dispatching-arguments)
+    gf.%generic-dispatching-arguments :=
+      choose(argument-non-hairy-and-active?,
+	     gf.generic-arguments);
+  end unless;
+  gf.%generic-dispatching-arguments;
+end function generic-dispatching-arguments;
+
+// Does this function use single dispatch or multiple dispatch?
+// We consider hairy arguments to be non-dispatching in this case.
+define function gf-dispatch-type
+    (gf :: <generic-info>) => (type :: <symbol>)
+  select (size(gf.generic-dispatching-arguments))
+    0 => #"none";
+    1 => #"single";
+    otherwise => #"multiple";
+  end select;
+end function gf-dispatch-type;
+
+// Estimate the number of entries in our dispatch matrix.
+// We ignore dimensions corresponding to hairy arguments.
+define function gf-dispatch-matrix-entry-count
+    (gf :: <generic-info>) => (entries :: <integer>)
+  select (gf.gf-dispatch-type by \==)
+    #"single" =>
+      0;
+    #"multiple" =>
+      let entries = 1;
+      for (arg in gf.generic-dispatching-arguments)
+	entries := entries * arg.argument-total-i-poles;
+      end for;
+      entries;
+    otherwise =>
+      error("Can't compute matrix size for non-dispatching function");
+  end select;
+end function gf-dispatch-matrix-entry-count;
+
+// How many bytes are needed to specify an offset into our pole table?
+define function gf-argument-array-entry-width
+    (gf :: <generic-info>) => (width :: <integer>)
+  let dispatch = gf.gf-dispatch-type;
+  let entries =
+    select (dispatch by \==)
+      #"single" =>
+	// Optimization: Omit dispatch matrix, and store method numbers
+	// directly in argument array. Increment number of potential
+	// entries by two so we can support no-applicable-method error
+	// (and ambiguous-method-error, which probably isn't possible here?).
+	// See DAS98.
+	let dispatching-arg = gf.generic-dispatching-arguments[0];
+	dispatching-arg.argument-total-i-poles + 2;
+      #"multiple" =>
+	gf.gf-dispatch-matrix-entry-count;
+      otherwise =>
+	error("Can't compute entry width for non-dispatching function");
+    end select;
+  case
+    (0 < entries & entries <= 256)     => 1;
+    (256 < entries & entries <= 65536) => 2;
+    otherwise => error("Illegal and unexpected pole count");
+  end case;
+end function gf-argument-array-entry-width;
+
+// Calculate the number of entries in the uncompressed arrays.
+define function gf-uncompressed-pole-table-entry-count
+    (gf :: <generic-info>) => (entries :: <integer>)
+  gf.generic-dispatching-arguments.size * cclass-count();
+end function gf-uncompressed-pole-table-entry-count;
+
+// Figure out how big all our pole tables will be.
+define function gf-uncompressed-pole-table-size
+    (gf :: <generic-info>) => (size :: <integer>)
+  gf.gf-argument-array-entry-width * gf.gf-uncompressed-pole-table-entry-count;
+end function gf-uncompressed-pole-table-size;
+
+// Calculate size of span-compressed pole tables.
+define function gf-span-compressed-pole-table-size
+    (gf :: <generic-info>) => (size :: <integer>)
+  let entries = 0;
+  for (arg in gf.generic-dispatching-arguments)
+    entries := entries + arg.argument-array-span-size;
+  end for;
+  entries * gf.gf-argument-array-entry-width;
+end function gf-span-compressed-pole-table-size;
+
+// Calculate size of chunk-compressed pole tables.
+define function gf-chunk-compressed-pole-table-size
+    (gf :: <generic-info>) => (size :: <integer>)
+  let dispatching = gf.generic-dispatching-arguments;
+  let chunks = 0;
+  for (arg in dispatching)
+    chunks := chunks + arg.argument-array-chunks-required;
+  end for;
+  let unique-chunk-size =
+    chunks * $chunk-size * gf.gf-argument-array-entry-width;
+  let first-tier-size =
+    ceiling/(cclass-count(), $chunk-size) * $chunk-id-width * dispatching.size;
+  unique-chunk-size + first-tier-size;
+end function gf-chunk-compressed-pole-table-size;
 
 
 //=========================================================================
@@ -118,22 +209,17 @@ define class <argument-info> (<object>)
   //-----------------------------------------------------------------------
   // (Not defined for hairy arguments.)
 
-  // Width of each table entry, in bytes (we use either 1 or 2 byte pole IDs).
-  slot argument-array-entry-width :: <integer>;
-
-  // The number of bytes required by an uncompressed argument array.
-  // This should be identical to cclass-count() * the entry width, but we
-  // include it for the sake of orthogonality.
-  slot argument-array-uncompressed-size :: <integer>;
-
   // Compression using a baseline technique suggested by Professor Cormen:
   // Remove "useless" entries from the start and end of the array. This
   // slot contains the size of the span remaining in the middle.
-  slot argument-array-span-compressed-size :: <integer>;
+  slot argument-array-span-size :: <integer>;
 
   // Compression using fixed-size chunks and a two-tier argument array.
-  slot argument-array-chunk-compressed-size :: <integer>;
+  // This slot contains the number of chunks required.
+  slot argument-array-chunks-required :: <integer>;
 
+  // Conflict set computed for coloring compression.
+  slot argument-conflict-set :: <table>;
 end class <argument-info>;
 
 define method initialize
@@ -226,6 +312,19 @@ define method initialize
   end if;
 end method initialize;
 
+// Can we analyze this argument, and is it interesting?
+define function argument-non-hairy-and-active?
+  (arginfo :: <argument-info>) => (non-hairy-and-active? :: <boolean>)
+  ~arginfo.argument-hairy? & arginfo.argument-may-affect-dispatch?;
+end function argument-non-hairy-and-active?;
+
+// Find our whether there's a real method defined on <object>, or just
+// a fake error selector.
+define function argument-has-selector-on-object?
+  (arginfo :: <argument-info>) => (has-selector? :: <boolean>)
+  arginfo.argument-pole-type-array[0] ~= "E";
+end function argument-has-selector-on-object?;
+
 
 //=========================================================================
 //  compute-compression-statistics
@@ -236,35 +335,9 @@ end method initialize;
 // each argument array.
 define function compute-compression-statistics
     (arginfo :: <argument-info>) => ()
-  compute-array-entry-width(arginfo);
-  compute-uncompressed-size(arginfo);
   compute-span-compressed-size(arginfo);
   compute-chunk-compressed-size(arginfo);
 end function;
-
-// Determine whether we'll need one or two bytes for each entry in this
-// array (as per Dujardin, et al.). In almost all cases, we can get by
-// with a single byte, so this optimization buys us nearly 50% compression.
-// (Of course, we *might* have more than 65,536 i-poles on one argument
-// position, but such a pathological case has never been seen.)
-define function compute-array-entry-width
-    (arginfo :: <argument-info>) => ()
-  let poles = arginfo.argument-artificial-i-poles;
-  let width =
-    case
-      (0 <= poles & poles < 256)     => 1;
-      (256 <= poles & poles < 65536) => 2;
-      otherwise => error("Illegal and unexpected pole count");
-    end case;
-  arginfo.argument-array-entry-width := width;
-end function compute-array-entry-width;
-
-// Compute our uncompressed array size in bytes
-define function compute-uncompressed-size
-    (arginfo :: <argument-info>) => ()
-  arginfo.argument-array-uncompressed-size :=
-    cclass-count() * arginfo.argument-array-entry-width;
-end function compute-uncompressed-size;
 
 // Professor Cormen suggested that "useful" dispatch entries tended to
 // clump together somewhere in the middle of an array. (In this context,
@@ -299,9 +372,8 @@ define function compute-span-compressed-size
   end if;
 
   // Calculate the span size in bytes.
-  arginfo.argument-array-span-compressed-size :=
-    (count - strip-from-bottom - strip-from-top) *
-    arginfo.argument-array-entry-width;
+  arginfo.argument-array-span-size :=
+    (count - strip-from-bottom - strip-from-top);
 end function compute-span-compressed-size;
 
 // For now, we only support a single chunk size.
@@ -312,6 +384,9 @@ define constant $chunk-size = 32;
 // narrow these entries by adding *another* level of indirection, but we'd
 // prefer to avoid that.
 define constant $chunk-id-width = 4;
+
+// Right now, we only eliminate chunks which consist entirely of zeros.
+define constant $chunk-default-value = 0;
 
 // Perform "chunked" compression. We break the argument array into
 // fixed-size chunks, and discard all chunks in which all entries are
@@ -339,10 +414,10 @@ define function compute-chunk-compressed-size
   let chunks-needed = 0;
   for (i from 0 below whole-chunks)
     let first-index :: <integer> = i * $chunk-size; 
-    let first-value :: <integer> = array[first-index];
+    //let first-value :: <integer> = array[first-index];
     let interesting? :: <boolean> = #f;
     for (j from 1 below $chunk-size)
-      if (array[first-index + j] ~= first-value)
+      if (array[first-index + j] ~= $chunk-default-value)
 	interesting? := #t;
       end if;
     end for;
@@ -357,13 +432,143 @@ define function compute-chunk-compressed-size
   end if;
 
   // Calculate sizes.
-  let unique-chunk-size =
-    chunks-needed * $chunk-size * arginfo.argument-array-entry-width;
-  let first-tier-size =
-    ceiling/(array.size, $chunk-size) * $chunk-id-width;
-  arginfo.argument-array-chunk-compressed-size :=
-    unique-chunk-size + first-tier-size;
+  arginfo.argument-array-chunks-required := chunks-needed;
 end function compute-chunk-compressed-size;
+
+
+//=========================================================================
+//  compute-coloring-compression-statistics
+//=========================================================================
+//  Compute how much space we'd save using the graph-coloring algorithm
+//  from DAS98.
+//
+//    - For each arg-info in arg-infos
+//      - If arg-info has a non-error selector on object, allocate a full
+//        argument array (special case).
+//      - Else:
+//        - Add each of the terminal classes to the appropriate selector
+//          conflict set.
+//    - For scs in selector-conflict-sets
+//      - Add each selector in the set to all of the other's argument conflict
+//        sets.
+//    - Allocate an empty list of colors
+//    - For each arg-info in arg-infos, sorted by size of argument conflict
+//      - For each allocated color
+//        - If none of the assigned arg-infos have an argument conflict,
+//          assign the arg-info to this color and go to next arg-info.
+//      - Allocate a new color.
+//
+//  Return the number of colors allocated + the number of arg-infos with
+//  non-error selectors on object.
+
+define function compute-coloring-compression-statistics
+    (gf-infos)
+ => (arg-info-count :: <integer>, colors-needed :: <integer>)
+
+  // Collect our argument information vectors, and allocate colors for
+  // argument positions with total coverage.
+  let arg-infos :: <stretchy-object-vector> = make(<stretchy-object-vector>);
+  let color-count :: <integer> = 0;
+  let arg-info-count :: <integer> = 0;
+  for (gf-info in gf-infos)
+    for (arg-info in gf-info.generic-arguments)
+      case
+	(~arg-info.argument-non-hairy-and-active?) =>
+	  // We can't analyze this one.
+	  #f;
+	(arg-info.argument-has-selector-on-object?) =>
+	  // We can analyze this one in our sleep.
+	  color-count := color-count + 1;
+	  arg-info-count := arg-info-count + 1;
+	otherwise =>
+	  // We need to handle this one the hard way.  *sigh*
+	  add!(arg-infos, arg-info);
+	  arg-info-count := arg-info-count + 1;
+      end case;
+    end for;
+  end for;
+
+  // Build selector conflict sets.
+  let selector-conflict-sets = make(<simple-object-vector>,
+				     size: cclass-count());
+  for (i from 0 below selector-conflict-sets.size)
+    selector-conflict-sets[i] := make(<table>);
+  end for;
+  for (arg-info in arg-infos)
+    for (i from 0 below selector-conflict-sets.size)
+      // Only process leaf classes, as described in DAS98.
+      if (i.id-cclass.direct-subclasses.size = 0)
+	// If this argument/selector combination corresponds to a non-error
+	// method, add it to the conflict set.  Since we already filtered
+	// out all the entries where pole #0 was a real method, anything
+	// pointing to pole #0 must be an error.
+	if (arg-info.argument-array[i] ~= 0)
+	  selector-conflict-sets[i][arg-info] := arg-info;
+	end if;
+      end if;
+    end for;
+  end for;
+  
+  // Build argument conflict sets.
+  for (arg-info in arg-infos)
+    arg-info.argument-conflict-set := make(<table>);
+  end for;
+  for (scs in selector-conflict-sets)
+    // Add each argument to the argument conflict set of each of the others.
+    for (a1 in scs)
+      for (a2 in scs)
+	if (a1 ~== a2)
+	  a1.argument-conflict-set[a2] := a2;
+	end if;
+      end for;
+    end for;
+  end for;
+
+  // Sort the arguments by the size of their conflict sets.  Use a stable
+  // sort so the order of our results are defined (by the language) to
+  // be deterministic and repeatable.
+  arg-infos := sort!(arg-infos,
+		     test: method (a, b)
+			     (a.argument-conflict-set.size >
+				b.argument-conflict-set.size);
+			   end method,
+		     stable: #t);
+
+  // Allocate colors.
+  let colors :: <stretchy-object-vector> = make(<stretchy-object-vector>);
+  for (arg-info in arg-infos)
+    block (next-arg-info)
+
+      // Try to assign this arg-info to an existing color.
+      for (color in colors)
+	block (next-color)
+	  
+	  // See if we're allowed to assign the argument to this color.
+	  for (assigned-arg-info in color)
+	    // If we have a conflict, move on to the next color.
+	    if (key-exists?(assigned-arg-info.argument-conflict-set, arg-info))
+	      next-color();
+	    end if;
+	  end for;
+	  
+	  // Assign the argument to this color.
+	  add!(color, arg-info);
+	  next-arg-info();
+	end block;
+      end for;
+	
+      // Create a new color for this arg-info.
+      let new-color = make(<stretchy-object-vector>);
+      color-count := color-count + 1;
+      add!(new-color, arg-info);
+      add!(colors, new-color);
+    end block;
+  end for;
+
+  // Return the total number of argument positions we processed, and the
+  // number of colors we needed.
+  values(arg-info-count, color-count);
+end function compute-coloring-compression-statistics;
 
 
 //=========================================================================
@@ -574,6 +779,47 @@ end function dump-argument-array;
 
 
 //=========================================================================
+//  describe-generic
+//=========================================================================
+//  Describe a complete generic function in gruesome detail.
+//  TODO - Update to dump new statistics, too.
+
+define function describe-generic
+    (analysis :: <stream>, gf-info :: <generic-info>)
+ => ()
+
+  let gf = gf-info.generic-defn;
+  let args = gf-info.generic-arguments;
+
+  let active-arg-position-count =
+    if (any?(argument-hairy?, args)) 
+      -1; // Magic value for our output.
+    else
+      size(choose(argument-may-affect-dispatch?, args));
+    end if;
+
+  // Summarize the generic function.
+  let name = gf.defn-name;
+  let arg-position-count = gf.function-defn-signature.specializers.size;
+  let method-count = gf.generic-defn-methods.size;
+  let sealed? = gf.generic-defn-sealed?;
+  let exported? = gf.defn-name.name-inherited-or-exported?;
+  format(analysis, "%-6s %-8s %2d %2d %3d %s\n",
+	 if (sealed?) "sealed" else "open" end,
+	 if (exported?) "exported" else "private" end,
+	 arg-position-count, active-arg-position-count, method-count,
+	 name);
+
+  // Print some descriptive data about each argument.
+  format(analysis, "\n");
+  for (arg in args)
+    describe-argument-array(analysis, arg);
+    format(analysis, "\n");
+  end for;
+end function describe-generic;
+
+
+//=========================================================================
 //  compute-specializer-cclasses
 //=========================================================================
 //  Given a generic function and an argument position, return the set of
@@ -770,123 +1016,171 @@ define function analyze-generics () => ()
 
   block ()
 
-    format(analysis, "Found %d classes, %d real generics (%d total).\n\n",
-	   classes.size, real-generics.size, generics.size);
+    // Perform our basic analysis, build our tables, and "compress" them.
+    let all-gf-info = map(compute-generic-info, real-generics);
 
+    // Discard generic functions which have no analyzable arguments.
+    let all-analyzable-gf-info =
+      choose(method (gf)
+	       gf.gf-dispatch-type ~== #"none"
+	     end,
+	     all-gf-info);
+    
+    format(*debug-output*, "Dumping analysis file.\n");
+    format(analysis,
+	   "Found %d classes, %d real generics (%d analyzable, %d total).\n\n",
+	   classes.size, real-generics.size, all-analyzable-gf-info.size,
+	   generics.size);
 
-    // Keep running totals of compression information.
-    let uncompressed-size = 0;
-    let span-compressed-size = 0;
-    let chunk-compressed-size = 0;
-
-    // Summarize each generic function (and count the total number of
-    // methods and argument positions).
+    // Describe all our generic functions. This is mostly for debugging
+    // and inspirational purposes. We also count hairy arguments now, because
+    // we may not see them later.
     let total-arg-positions = 0;
-    let total-active-arg-positions = 0;
     let total-hairy-arg-positions = 0;
     let total-methods = 0;
-    let total-estimated-matrix-entries = 0;
-    for (gf in real-generics)
+    for (gf-info in all-gf-info)
+      describe-generic(analysis, gf-info);
 
-      let gf-info = compute-generic-info(gf);
-      let args = gf-info.generic-arguments;
-
-      let active-arg-position-count =
-	if (any?(argument-hairy?, args)) 
-	  -1; // Magic value for our output.
-	else
-	  size(choose(argument-may-affect-dispatch?, args));
-	end if;
-      total-active-arg-positions :=
-	total-active-arg-positions + active-arg-position-count;
-
-      let name = gf.defn-name;
+      // Collect some statistics.
+      let gf = gf-info.generic-defn;
       let arg-position-count = gf.function-defn-signature.specializers.size;
-      let method-count = gf.generic-defn-methods.size;
-      let sealed? = gf.generic-defn-sealed?;
-      let exported? = gf.defn-name.name-inherited-or-exported?;
-      format(analysis, "%-6s %-8s %2d %2d %3d %s\n",
-	     if (sealed?) "sealed" else "open" end,
-	     if (exported?) "exported" else "private" end,
-	     arg-position-count, active-arg-position-count, method-count,
-	     name);
       total-arg-positions := total-arg-positions + arg-position-count;
+      let method-count = gf.generic-defn-methods.size;
       total-methods := total-methods + method-count;
-
-      format(analysis, "\n");
-      let estimated-matrix-entry-count = 1;
-      for (arg in args)
-
-	// Update our compression totals.
-	// We don't bother to count tables sizes for arguments which can
-	// never affect the dispatch.
-	unless (arg.argument-hairy? | ~arg.argument-may-affect-dispatch?)
-	  uncompressed-size :=
-	    uncompressed-size + arg.argument-array-uncompressed-size;
-	  span-compressed-size :=
-	    span-compressed-size + arg.argument-array-span-compressed-size;
-	  chunk-compressed-size :=
-	    chunk-compressed-size + arg.argument-array-chunk-compressed-size;
-	  estimated-matrix-entry-count :=
-	    estimated-matrix-entry-count * arg.argument-total-i-poles;
-        end unless;
-
-	// Keep count of hairy arguments, so we know how much of the time
-	// we spend whimping out.
+      for (arg in gf-info.generic-arguments)
 	if (arg.argument-hairy?)
 	  total-hairy-arg-positions := total-hairy-arg-positions + 1;
 	end if;
-
-	// Print some descriptive data.
-	describe-argument-array(analysis, arg);
-	format(analysis, "\n");
-
-	/*
-	unless (arg.argument-hairy?)
-	  format(analysis, "  %d:", arg.argument-position);
-	  //for (specializer in arg.argument-specializer-cclasses)
-	  //  format(analysis, " %s", specializer)
-	  //end for;
-	  for (i-pole in arg.argument-array)
-	    format(analysis, " %d", i-pole);
-	  end for;
-	  format(analysis, "\n");
-	end unless;
-	*/
-
       end for;
-
-      // Assume we only create matrices for methods with multiple
-      // dispatching arguments.
-      if (active-arg-position-count > 1)
-	total-estimated-matrix-entries :=
-	  total-estimated-matrix-entries + estimated-matrix-entry-count;
-      end if;
     end for;
-    
+
+    // Keep running totals of compression information.
+    // sd = 'single dispatch', md = 'multiple dispatch'.
+    let sd-uncompressed-entries = 0;
+    let md-uncompressed-entries = 0;
+    let sd-uncompressed-size = 0;
+    let md-uncompressed-size = 0;
+    let sd-span-compressed-size = 0;
+    let md-span-compressed-size = 0;
+    let sd-chunk-compressed-size = 0;
+    let md-chunk-compressed-size = 0;
+
+    // Collect our statistics.
+    let total-active-arg-positions = 0;
+    let total-estimated-matrix-entries = 0;
+    let total-sd-gfs = 0;
+    let total-md-gfs = 0;
+    for (gf-info in all-analyzable-gf-info)
+
+      let args = gf-info.generic-arguments;
+
+      total-active-arg-positions :=
+	(total-active-arg-positions +
+	   gf-info.generic-dispatching-arguments.size);
+
+      // Collect our compression statistics based on whether we're
+      // a single or multiple dispatch function.
+      select (gf-info.gf-dispatch-type by \==)
+	#"single" =>
+	  total-sd-gfs := total-sd-gfs + 1;
+	  sd-uncompressed-entries :=
+	    (sd-uncompressed-entries +
+	       gf-info.gf-uncompressed-pole-table-entry-count);
+	  sd-uncompressed-size :=
+	    (sd-uncompressed-size +
+	       gf-info.gf-uncompressed-pole-table-size);
+	  sd-span-compressed-size :=
+	    (sd-span-compressed-size +
+	       gf-info.gf-span-compressed-pole-table-size);
+	  sd-chunk-compressed-size :=
+	    (sd-chunk-compressed-size +
+	       gf-info.gf-chunk-compressed-pole-table-size);
+	#"multiple" =>
+	  total-md-gfs := total-md-gfs + 1;
+	  md-uncompressed-entries :=
+	    (md-uncompressed-entries +
+	       gf-info.gf-uncompressed-pole-table-entry-count);
+	  md-uncompressed-size :=
+	    (md-uncompressed-size +
+	       gf-info.gf-uncompressed-pole-table-size);
+	  md-span-compressed-size :=
+	    (md-span-compressed-size +
+	       gf-info.gf-span-compressed-pole-table-size);
+	  md-chunk-compressed-size :=
+	    (md-chunk-compressed-size +
+	       gf-info.gf-chunk-compressed-pole-table-size);
+	otherwise =>
+	  error("panic!");
+      end select;
+
+      // Update our total number of estimated dispatch matrix entries.
+      // This does the right thing for single-dispatch functions.
+      total-estimated-matrix-entries :=
+	(total-estimated-matrix-entries + 
+	   gf-info.gf-dispatch-matrix-entry-count);
+    end for;
+
     format(analysis,
-	   "Found %d argument positions (%d active, %d hairy), %d methods.\n",
+	   "%d argument positions (%d active, %d hairy), %d methods.\n",
 	   total-arg-positions, total-active-arg-positions,
 	   total-hairy-arg-positions, total-methods);
-
-    format(analysis, "Argument array size: %d bytes uncompressed.\n",
-	   uncompressed-size);
-    format(analysis, "Using span compression: %d bytes, saving %d%%\n",
-	   span-compressed-size,
-	   100 - round/(100 * span-compressed-size, uncompressed-size));
-    format(analysis, "Using chunked compression: %d bytes, saving %d%%\n\n",
-	   chunk-compressed-size,
-	   100 - round/(100 * chunk-compressed-size, uncompressed-size));
-
     format(analysis, "Estimated dispatch matrix entires: %d\n\n",
 	   total-estimated-matrix-entries);
+
+    dump-compression-analysis
+      (analysis, "TOTAL",
+       total-sd-gfs + total-md-gfs,
+       sd-uncompressed-entries + md-uncompressed-entries,
+       sd-uncompressed-size + md-uncompressed-size,
+       sd-span-compressed-size + md-span-compressed-size,
+       sd-chunk-compressed-size + md-chunk-compressed-size);
+
+    dump-compression-analysis
+      (analysis, "SINGLE DISPATCH",
+       total-sd-gfs,
+       sd-uncompressed-entries,
+       sd-uncompressed-size,
+       sd-span-compressed-size,
+       sd-chunk-compressed-size);
+
+    dump-compression-analysis
+      (analysis, "MULTIPLE DISPATCH",
+       total-md-gfs,
+       md-uncompressed-entries,
+       md-uncompressed-size,
+       md-span-compressed-size,
+       md-chunk-compressed-size);
 
     format(analysis, "One parent: %d\n", *one-parent-count*);
     format(analysis, "Identical poles: %d\n", *identical-poles-count*);
     format(analysis, "Secondary i-poles: %d\n", *secondary-i-pole-count*);
-    format(analysis, "Single closest: %d\n", *single-closest-pole-count*);
+    format(analysis, "Single closest: %d\n\n", *single-closest-pole-count*);
+
+    // Do one last little bit of analysis.
+    let (total-arrays, colored-arrays) =
+      compute-coloring-compression-statistics(all-analyzable-gf-info);
+    format(analysis, "  Coloring: %d arrays => %d arrays, saving %d%%\n",
+	   total-arrays, colored-arrays,
+	   100 - round/(100 * colored-arrays, total-arrays));
 
   cleanup
     close(analysis);
   end block;
 end function analyze-generics;
+
+define function dump-compression-analysis
+    (analysis, label, gf-count, uncompressed-entries, uncompressed-size,
+     span-compressed-size, chunk-compressed-size)
+ => ()
+  format(analysis, "Compression analysis: %s\n\n", label);
+  format(analysis, "  Generic functions: %d\n", gf-count);
+  format(analysis, "  Argument array size: %d entries, %dKb uncompressed.\n",
+	 uncompressed-entries,
+	 round/(uncompressed-size, 1024));
+  format(analysis, "  Using span compression: %dKb, saving %d%%\n",
+	 round/(span-compressed-size, 1024),
+	 100 - round/(100 * span-compressed-size, uncompressed-size));
+  format(analysis, "  Using chunked compression: %dKb, saving %d%%\n\n",
+	 round/(chunk-compressed-size, 1024),
+	 100 - round/(100 * chunk-compressed-size, uncompressed-size));
+end function dump-compression-analysis;
