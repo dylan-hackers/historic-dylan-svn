@@ -38,22 +38,6 @@ define method transform(in :: <document>, tag-name :: <symbol>,
                         state :: <html>, stream :: <stream>)
   next-method();
 
-/*                      
-  format(stream, "&lt;!<FONT COLOR='purple'>DOCTYPE </FONT>"
-           "<FONT COLOR='green'>%s</FONT> <FONT COLOR='purple'>SYSTEM </FONT>"
-           "\"<A HREF='%s'>%s.dtd</A>\"&gt;\n<P>\n<FONT COLOR='orange'>\n"
-           "&lt;!-- %s.xml "
-              "parsed by xml-parser, "
-              "written by <A HREF='mailto://doug@cotilliongroup.com'>"
-              "Douglas M. Auclair</A>, <A HREF='mailto://chris@double.co.nz'>"
-              "Chris Double</A>, and <A HREF='mailto://ich@andreas.org'>"
-              "Andreas Bogk</A>.\n<BR>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-              "An LGPL example application available from the <A HREF='"
-              "http://www.gwydiondylan.org'>GwydionDylan</A> web site"
-              " --&gt;</FONT>\n<P>\n", state.document-name, dtd, 
-              state.document-name, state.document-name); */
-
-//  node-iterator(in, state, stream);
   let name = state.document-name;
   let dtd-file = concatenate(name, "-entities.html");
   with-open-file(file = dtd-file, direction: #"output")

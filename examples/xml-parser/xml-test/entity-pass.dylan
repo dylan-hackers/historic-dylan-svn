@@ -30,25 +30,8 @@ define function referenced-entities(namei :: <string>, str :: <stream>, state)
   unless(*ent*.empty?)
     format(str, "<HTML>\n<BODY BGCOLOR='white'>\n");
     print-in("brown", namei.header-comment, str);
-/* <FONT COLOR='"
-              "orange'>&lt;!-- %s.dtd parsed by xml-parser, "
-              "written by <A HREF='mailto://doug@cotilliongroup.com'>"
-              "Douglas M. Auclair</A>, <A HREF='mailto://chris@double.co.nz'>"
-              "Chris Double</A>, and <A HREF='mailto://ich@andreas.org'>"
-              "Andreas Bogk</A>.\n<BR>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-              "An LGPL example application available from the <A HREF='"
-              "http://www.gwydiondylan.org'>GwydionDylan</A> web site"
-              " --&gt;</FONT>\n<P>\n", namei); */
     let ent = sort(map(curry(as, <string>), *ent*.key-sequence));
     for(x in ent) print-in("purple", *ent*[as(<symbol>, x)], str) end for;
-  /*  format(str, "\n<BR>&nbsp;&lt;!<FONT COLOR='purple'>"
-           "ENTITY</FONT> <FONT COLOR='red'><A NAME='%s'>%s</A>"
-           "</FONT> '", x, x);
-    for(y in *ent*[as(<symbol>, x)].entity-value)
-      transform(y, y.name, state, str); 
-    end;
-    format(str, "'&gt;");
-  end for; */
     format(str, "\n</BODY>\n</HTML>");
   end unless;
 end function referenced-entities;
