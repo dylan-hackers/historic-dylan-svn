@@ -301,11 +301,13 @@ define macro mi-operation-definer
     { ?flag:name ?:name :: ?:expression;(?stuff:*) } => { constant slot ?name :: ?expression, ?stuff }
 end;
 
+/*
 define macro mi-parser-definer
   { define mi-parser ?:name(?:*) ?:* end }
   =>
   {}
 end;
+*/
 
 // ####################################
 // GDB/MI Breakpoint table commands
@@ -362,22 +364,31 @@ end;
 
 
 
+
+define generic parse-as(inp :: <byte-string>, type :: <type>)
+ => (remaining :: <byte-string>, value);
+
+define method parse-as(inp :: <byte-string>, type :: <type>)
+ => (remaining :: <byte-string>, value);
+ "" // #####
+end;
+
 define macro mi-parser-definer
   { define tuple-value mi-parser ?:name(?tag:name) {?tuple-fields} {?tuple-keyword/values} end }
   =>
   {
     define function "parse-" ## ?name(mi-tuple :: <byte-string>, matched :: <list>, more) => ();
-      block (return)
+//      block (return)
 ///        local method finish(inp :: <byte-string>, matched :: <list>, more)
 ///                let got :: singleton(1) = matched.size;
 ///                return(matched.head(?name ## "-<result>"));
 ///              end;
 
-        let m = match(mi-tuple, ?"tag"); // more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
+        let m = match(mi-tuple, ?"tag" "={"); // more.head(inp, pair(if (m & m.empty?) make.curry else #f.always end if, matched), more.tail) end method }
 //        if (m)
-          let m = m & match(m, ?"var1");
-          let m = m & match(m, "={");
-          let (m, val) = m & parse-as(m, <integer>);
+//          let m = m & match(m, ?"var1");
+//          let (m, val) = m & parse-as(m, <integer>);
+          ?tuple-fields;
             let m = m & match(m, "}");
             more.head(inp,
                       pair(if (m & m.empty?)
@@ -391,40 +402,31 @@ define macro mi-parser-definer
 //        end;
 //        let parsers = list(?p-sequence, finish);
 //        parsers.head(mi-tuple, #(), parsers.tail);
-      end block;
+//      end block;
     end
   }
   
-  tuple-fields:
-    { } => {  }
-
-  tuple-keyword/values:
-    { } => { }
-
   { define mi-parser ?:name(?tag:name) ?fields end }
   =>
   {
-    define tuple-value mi-parser ?name(?tag) ?fields end
-/*    define function "parse-" ## ?name(mi-tuple :: <byte-string>, matched :: <list>, more) => ();
-      block (return)
-        local method finish(inp :: <byte-string>, matched :: <list>, more)
-                let got :: singleton(1) = matched.size;
-                return(matched.head(?name ## "-<result>"));
-              end;
-         
-         let parsers = list(?p-sequence, finish);
-         parsers.head(mi-tuple, #(), parsers.tail);
-      end block;
-    end*/
+    define tuple-value mi-parser ?name(?tag) {?fields} {?fields} end
   }
   
   fields:
     { } => { }
-    { ?field; ... } => { }
+    { ?field; ... } => { ?field; ... }
   
   field:
-// optional field   { [ ?:name :: ?:expression ] } => { }
-    { ?:name :: ?:expression } => { }
+// optional field   { [ ?:name :: ?:expression ] } => { ?name false-or(?expression) }
+    { ?:name :: ?:expression } => { ?name ?expression }
+
+  tuple-fields:
+    { } => { }
+    { ?tag:name ?type:expression; ... } => { let (m, ?tag :: ?type) = m & parse-as(m, ?type); ... }
+
+  tuple-keyword/values:
+    { } => { }
+    { ?tag:name ?:expression; ... } => { ?#"tag"; ?tag, ... }
 end;
 
 
@@ -440,9 +442,11 @@ define mi-operation break-list;
   resulting done => parse-breakpoint-table;
 end;
 
+/*
 define mi-parser breakpoint-table(BreakpointTable)
 
 end;
+*/
 
 define mi-operation break-watch{a; r};
   resulting done => parse-reason;
