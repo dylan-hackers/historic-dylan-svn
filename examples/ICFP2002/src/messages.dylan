@@ -58,10 +58,6 @@ define function add-error (e :: <message-error>, fmt :: <string>, #rest args)
   error(e)
 end function add-error;
 
-//define function force-format(s :: <stream>, fmt :: <string>, #rest args) => ()
-//  apply(format, s, fmt, args);
-//  force-output(s);
-//end function force-format;
 
 // Sending functions. 
 
