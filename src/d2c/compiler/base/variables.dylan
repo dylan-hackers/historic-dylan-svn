@@ -843,7 +843,7 @@ define class <variable> (<namespace-constituent>)
   slot variable-fragment-expander :: false-or(<function>) = #f;
   //
   // Top level form that is the origin of this module variable
-  slot variable-tlf :: <object>, required-init-keyword: tlf:;
+  slot variable-tlf :: <object> = #f, init-keyword: tlf:;
 end class <variable>;
 
 define sealed domain make (singleton(<variable>));
