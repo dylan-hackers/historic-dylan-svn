@@ -29,9 +29,9 @@ copyright: see below
 //======================================================================
 
 define method file-tokenizer
-    (lib :: <library>, name :: <byte-string>)
+    (lib :: <library>, name :: <file-locator>)
     => (tokenizer :: <tokenizer>, module :: <module>);
-  let source = make(<source-file>, name: name);
+  let source = make(<source-file>, locator: name);
   let (header, start-line, start-posn) = parse-header(source);
   let module = find-module(lib, as(<symbol>, header[#"module"]));
   values(make(<lexer>,
@@ -71,11 +71,8 @@ end method set-library;
 // The identifier for the current directory
 // Used in searching for files
 
-define constant $this-dir = #if (macos)
-			       "";
-			    #else
-			       ".";
-			    #endif
+define constant $this-dir
+  = make(<directory-locator>, path: vector(#"self"), relative?: #t);
 
 define function translate-abstract-filename (abstract-name :: <byte-string>)
  => (physical-name :: <byte-string>)
@@ -124,6 +121,16 @@ define method split-at (test :: <function>, string :: <byte-string>)
 end method split-at;
 
 
+define method strip-dot (extension :: <byte-string>)
+    => res :: <byte-string>;
+  if (extension[0] == '.')
+    copy-sequence(extension, start: 1);
+  else
+    extension;
+  end;
+end method;
+
+
 define method process-feature (feature :: <byte-string>) => ();
   if (feature.empty? | feature[0] ~== '~')
     add-feature(as(<symbol>, feature));
@@ -148,11 +155,22 @@ define method pick-which-file
     delete-file(new-filename);
     #f;
   else
-    rename-file(new-filename, old-filename);
+    rename-file(new-filename, old-filename, if-exists: #"replace");
     #t;
   end if;
 end method pick-which-file;
      
+// Returns false if one of the files isn't there
+//
+define function files-identical? 
+    (filename1 :: <string>, filename2 :: <string>)
+ => answer :: <boolean>;
+  let cmp-command = concatenate("cmp -s ", filename1, " ", filename2);
+  // cmp will return non-zero if they are different, if a file's not
+  // found, or if cmp somehow fails to execute.
+  system(cmp-command) == 0;
+end function files-identical?;
+
 // Look up a header element with a boolean default.  If specified, the option
 // must be "yes" or "no".
 //
@@ -207,4 +225,19 @@ define constant $search-path-seperator =
      ':';
   #endif
 #endif
+
+define function find-file
+    (pathless-name :: <file-locator>, dir-sequence :: <sequence>)
+ => filename :: false-or(<file-locator>);
+  block (return)
+    for (dir :: <directory-locator> in dir-sequence)
+      let merged = merge-locators(pathless-name, dir);
+      if (file-exists?(merged))
+        return(merged);
+      end if;
+    end for;
+    #f
+  end
+end function;
+
 

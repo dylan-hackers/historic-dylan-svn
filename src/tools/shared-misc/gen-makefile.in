@@ -3,8 +3,7 @@
 use Cwd;
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.7 2004/07/22 14:05:14 prom Exp $
-
+#
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
 # gen-makefile turns a single Makegen file into a Makefile.
@@ -146,7 +145,7 @@ use Cwd;
 $usage_message = "Usage: $0 [-pPlatforms.descr] [directory]\n";
 
 @ARGV <= 2 || die $usage_message;
-if ($ARGV[0] =~ /-p(.*)/) {
+if ($ARGV[0] =~ /^-p(.*)/) {
     $platforms_dot_descr = $1;
     shift(@ARGV);
 } else {
@@ -487,7 +486,7 @@ sub maybe_emit_d2c_defines {
         if ($CC) {
             print("CC=$CC\n");
         }
-        if($enable_debug) {
+        if ($enable_debug) {
             $CFLAGS = $target_platform{'default_c_compiler_debug_flags'};
         } elsif ($enable_profiling) {
             $CFLAGS = $target_platform{'default_c_compiler_profile_flags'};
@@ -495,6 +494,11 @@ sub maybe_emit_d2c_defines {
             $CFLAGS = $target_platform{'default_c_compiler_flags'};
         }
         $CFLAGS =~ s/-I%s//;
+
+	if ($use_previous_melange) {
+	    $MELANGE = $PREVIOUS_MELANGE;
+	}
+
         print <<EOF;
 D2C = $D2C
 D2CFLAGS = $D2CFLAGS
@@ -525,30 +529,6 @@ EOF
         }
         $d2c_defines = 1;
     }
-}
-
-# maybe_emit_parsergen_build_rule() -- internal
-#
-sub maybe_emit_parsergen_build_rule {
-    unless ($parsergen_rule) {
-	print "$PARSERGEN_target:\n";
-	print "\t";
-	printf($host_platform{'recursive_make_command'}, $PARSERGEN_DIR, "");
-	print "\n\n";
-    }
-    $parsergen_rule = 1;
-}
-
-# maybe_emit_melange_build_rule() -- internal
-#
-sub maybe_emit_melange_build_rule {
-    unless ($melange_rule) {
-	print "$MELANGE_target:\n";
-	print "\t";
-	printf($host_platform{'recursive_make_command'}, $MELANGE_DIR, "");
-	print "\n\n";
-    }
-    $melange_rule = 1;
 }
 
 # parse_dylan_header() -- internal
@@ -1026,16 +1006,17 @@ sub emit_cc_file_rule {
 sub emit_melange_rule {
     local ($basefile, @headers) = @_;
     do maybe_emit_d2c_defines();
-    do maybe_emit_melange_build_rule();
 
     print "$basefile.dylan: \$(SRCDIR)/$basefile.intr $MELANGE_target";
     foreach $header (@headers) {
        print " \$(SRCDIR)/$header";
     }
-    print "\n\t\$(MELANGE) --d2c -I\$(SRCDIR) ";
-    if($target_name =~ /gcc/) {
-      print "-I`gcc --print-file-name=include` ";
+    print "\n";
+    unless ($use_previous_melange) {
+	printf("\t$host_platform{'recursive_make_command'}\n",
+	       $MELANGE_DIR, "");
     }
+    print "\t\$(MELANGE) --d2c \$(CPPFLAGS) -I\$(SRCDIR) ";
     if($EXTRA_INCLUDE_DIR ne "") {
       print "-I$EXTRA_INCLUDE_DIR ";
     }
@@ -1051,9 +1032,9 @@ sub emit_melange_rule {
 sub emit_parsergen_rule {
     local ($basefile) = @_;
     do maybe_emit_d2c_defines();
-    do maybe_emit_parsergen_build_rule();
 
-    print "$basefile.dylan: \$(SRCDIR)/$basefile.input $PARSERGEN_target";
+    print "$basefile.dylan: \$(SRCDIR)/$basefile.input $PARSERGEN_target\n\t";
+    printf($host_platform{'recursive_make_command'}, $PARSERGEN_DIR, "");
     print "\n\t\$(PARSERGEN) ";
     print "\$(SRCDIR)/$basefile.input $basefile.dylan\n\n";
     push(@compile_dependencies, "$basefile.dylan");

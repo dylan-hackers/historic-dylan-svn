@@ -872,7 +872,7 @@ define method initialize (value :: <tokenizer>,
 	add!(components, read(source-stream, $long-string-component-size));
       end;
     exception (err :: <incomplete-read-error>)
-      add!(components, err.incomplete-read-sequence);
+      add!(components, err.stream-error-sequence);
     exception (err :: <end-of-stream-error>)
       #t;
     end block;

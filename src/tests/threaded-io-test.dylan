@@ -75,9 +75,7 @@ define module threaded-io-test
   use dylan;
   use extensions, import: { main };
   use threads;
-  use streams;
-  use standard-io;
-//  use format;
+  use io;
 end module threaded-io-test;
 
 define method echo-input (stream :: <stream>) => ();

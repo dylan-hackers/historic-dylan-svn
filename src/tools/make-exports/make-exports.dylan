@@ -332,7 +332,7 @@ define method main (ignored, #rest filenames) => ();
     format(*standard-error*,
 	   "Command line usage:\n"
 	     "  make-exports library.input file1.dylan"
-	     "file2.dylan ...\n");
+	     " file2.dylan ...\n");
     force-output(*standard-error*);
     exit(exit-code: 1);
   end if;

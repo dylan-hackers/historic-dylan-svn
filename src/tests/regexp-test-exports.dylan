@@ -29,6 +29,7 @@ module: Dylan-User
 
 define library regexp-test
   use dylan;
+  use common-dylan;
   use string-extensions;
   use regular-expressions;
 end library regexp-test;
@@ -39,5 +40,5 @@ define module regexp-test
   use regular-expressions;
   use substring-search;
   use string-hacking;
-  use cheap-io;
+  use simple-io;
 end module regexp-test;

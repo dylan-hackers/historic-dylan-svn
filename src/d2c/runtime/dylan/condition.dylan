@@ -185,13 +185,6 @@ define sealed method condition-force-output (stream :: <symbol>) => ();
   cheap-force-output(stream);
 end;
 
-
-// *warning-output* -- exported from Extensions
-//
-// The ``stream'' to which warnings report when signaled (and not handled).
-//
-define variable *warning-output* :: <object> = #"Cheap-Err";
-
 
 // Condition reporting.
 
@@ -454,11 +447,10 @@ end method default-handler;
 
 // default-handler(<warning>) -- exported gf method.
 //
-// Report the warning and then just return nothing.
+// Invoke the debugger.
 // 
 define method default-handler (condition :: <warning>)
-  condition-format(*warning-output*, "%s\n", condition);
-  #f;
+  invoke-debugger(*debugger*, condition);
 end method default-handler;
 
 // default-handler(<restart>) -- exported gf method.
@@ -741,58 +733,3 @@ define function select-error
   error("select error: %= does not match any of the keys, at\n%s", 
         target, source-location);
 end;
-
-
-
-// GDB debugging hooks.
-// These are included in this file, because they will thus be more or
-// less guaranteed to be linked in, and because we are bootstrapping
-// off of the "condition-format" stuff.
-//
-// Note that these routines rely upon a magical knowledge of compiler
-// internals.  There is no guarantee that they will continue to work
-// in the future.
-
-// XXX - *gdb-output* is evil and should go away when we get a new
-// streams-protocol. It should be bound to whatever the current program
-// is using for standard output.
-//
-define variable *gdb-output* = #"Cheap-IO";
-
-define method gdb-print-object (obj :: <object>) => ();
-  block ()
-  condition-format(*gdb-output*, "%=\n", obj);
-  condition-force-output(*gdb-output*);
-  exception (error :: <error>)
-    #f;
-  end block;
-end method gdb-print-object;
-
-// WRETCHED HACK: By putting the function in an <object> variable, we
-// guarantee that it will be dumped on the heap and that it will have a
-// general representation.
-//
-define variable apply-safely-fun :: <object> = apply-safely;
-
-// This debugging support routine does a normal apply, but also traps
-// all errors (sending the error message to the standard error
-// output).  The debugger can thus call this function without worrying
-// about an unexpected error messing up the call stack.  
-//
-define method apply-safely (fun :: <function>, #rest arguments)
-  block ()
-    apply(fun, arguments);
-  exception (error :: <error>)
-    condition-format(*gdb-output*, "%s\n", error);
-    condition-force-output(*gdb-output*);
-  end block;
-end method apply-safely;
-
-define function seg-fault-error () => res :: <never-returns>;
-  error("GDB encountered a seg fault -- invalid data.");
-end;
-
-// WRETCHED HACK: We put this in an <object> variable so that we will have a
-// sample of an integer in the general representation.
-//
-define variable gdb-integer-value :: <object> = 1;

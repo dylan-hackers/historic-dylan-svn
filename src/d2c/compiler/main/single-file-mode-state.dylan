@@ -29,7 +29,8 @@ copyright: see below
 //======================================================================
 
 define class <single-file-mode-state> (<main-unit-state>)
-  slot unit-source-file :: <byte-string>, required-init-keyword: source-file:;
+  slot unit-source-locator :: <file-locator>,
+    required-init-keyword: source-locator:;
   
   slot unit-name :: <byte-string>; // for single files, name == module == library == executable
   slot unit-lib :: <library>;
@@ -46,7 +47,7 @@ define class <single-file-mode-state> (<main-unit-state>)
 end class <single-file-mode-state>;
 
 define method parse-and-finalize-library (state :: <single-file-mode-state>) => ();
-  let source = make(<source-file>, name: state.unit-source-file);
+  let source = make(<source-file>, locator: state.unit-source-locator);
   let (header, start-line, start-posn) = parse-header(source);
 
   state.unit-header := header;
@@ -133,7 +134,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 
   let mod = find-module(state.unit-lib, as(<symbol>, lib-name));
 
-  format(*debug-output*, "Parsing %s\n", state.unit-source-file);
+  format(*debug-output*, "Parsing %s\n", state.unit-source-locator);
   block ()
     let tokenizer = make(<lexer>, 
                          module: mod,
@@ -143,7 +144,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
     *Top-Level-Forms* := state.unit-tlfs;
     parse-source-record(tokenizer);
   exception (<fatal-error-recovery-restart>)
-    format(*debug-output*, "skipping rest of %s\n", state.unit-source-file);
+    format(*debug-output*, "skipping rest of %s\n", state.unit-source-locator);
   end block;
 
   finalize-library(state);

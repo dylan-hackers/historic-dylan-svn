@@ -10,7 +10,7 @@ define method main (argv0 :: <byte-string>, #rest names)
   else
     for (name in names)
       let stream = if (name = "-")
-		     make(<fd-stream>, fd: 0);
+		     *standard-input*;
 		   else
 		     make(<file-stream>, locator: name);
 		   end;

@@ -70,7 +70,7 @@ copyright: see below
 //      <file-state>").  As noted above, emit-tlf-gunk and emit-component are
 //      exported.  All others are internal and may have obscure side effects.
 //   make-indenting-stream-string(#rest keys)
-//      Wrapper function for "make(<buffered-byte-string-output-stream>)"
+//      Wrapper function for "make(<byte-string-stream>, direction: #"output")"
 //   get-string(stream :: <indenting-stream>)
 //      Equivalent to "stream-contents".  Only works on
 //      streams which wrap <string-stream>s.
@@ -125,7 +125,7 @@ define constant make-indenting-string-stream
   = method (#rest keys)
 	=> res :: <indenting-stream>;
       apply(make, <indenting-stream>,
-	    inner-stream: make(<buffered-byte-string-output-stream>),
+	    inner-stream: make(<byte-string-stream>, direction: #"output"),
 	    keys);
     end;
 
@@ -545,18 +545,18 @@ define constant <symbolic-c-preprocessor-stream> = <indenting-stream>;
 
 
 // FIXME should be slot
-define variable emitting-file-name :: <byte-string> = "";
+define variable emitting-file-name :: false-or(<file-locator>) = #f;
 
 define function write-source-location
   (stream :: <symbolic-c-preprocessor-stream>,
    source-loc :: <known-source-location>,
    line-getter :: <function>,
    file :: <file-state>) => ();
-  if (emitting-file-name = source-loc.source.full-file-name)
+  if (emitting-file-name = source-loc.source.source-locator)
     format(stream.inner-stream, "\n#line %d\nD__L(",
            source-loc.line-getter);
   else
-    emitting-file-name := source-loc.source.full-file-name;
+    emitting-file-name := source-loc.source.source-locator;
     format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
            source-loc.line-getter, emitting-file-name);
   end;
@@ -1477,6 +1477,7 @@ define method emit-prologue
                  "// do not expect your changes to survive.\n\n");
 
   maybe-emit-include("stddef.h", file);
+  maybe-emit-include("stdlib.h", file);
 
   if (instance?(*double-rep*, <c-data-word-representation>))
     format(stream, "#define GD_DATAWORD_D\n");
@@ -1493,7 +1494,7 @@ define method emit-prologue
   // The most important thing math.h includes is a prototype for rint,
   // although it helps if we ever want to inline functions in the
   // Transcendental library
-//  maybe-emit-include("math.h", file);
+  maybe-emit-include("math.h", file);
 
   format(stream, "#define obj_True %s.heapptr\n",
 	 c-expr-and-rep(as(<ct-value>, #t), *general-rep*, file));
@@ -2008,7 +2009,7 @@ define method compute-function-prototype
 	       else
 		 main-entry-c-name(function-info, file);
 	       end if;
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   let result-rep = function-info.function-info-result-representation;
   case
     (result-rep == #"doesn't-return") => write(stream, "GD_NORETURN void");
@@ -2118,7 +2119,7 @@ end;
 define method emit-region
     (region :: <simple-region>, file :: <file-state>)
     => ();
-  let byte-string :: <buffered-byte-string-output-stream>
+  let byte-string :: <byte-string-stream>
     = file.file-guts-stream.inner-stream;
   for (assign = region.first-assign then assign.next-op,
        while: assign)
@@ -2502,7 +2503,7 @@ define method emit-assignment
 	       stringify(top, " - ", bot));
       else
 	let (args, sp) = cluster-names(call.info);
-	let setup-stream = make(<buffered-byte-string-output-stream>);
+	let setup-stream = make(<byte-string-stream>, direction: #"output");
 	for (arg-dep = arguments then arg-dep.dependent-next,
 	     count from 0,
 	     while: arg-dep)
@@ -2764,7 +2765,7 @@ define method emit-assignment
     => ();
   let function = call.depends-on.source-exp;
   let func-info = find-main-entry-info(function, file);
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   let c-name = main-entry-c-name(func-info, file);
   let (sp, new-sp) = cluster-names(call.info);
   let temps = make-temp-locals-list();
@@ -3624,7 +3625,7 @@ define method float-to-string (value :: <ratio>, digits :: <integer>)
   if (zero?(value))
     "0.0";
   else
-    let stream = make(<buffered-byte-string-output-stream>);
+    let stream = make(<byte-string-stream>, direction: #"output");
     if (negative?(value))
       value := -value;
       write-element(stream, '-');
@@ -3763,17 +3764,6 @@ define method emit-copy
   target ~= expr & format(stream, "%s = %s;\n", target, expr);
 end;
 
-define method emit-copy
-    (target :: <string>, target-rep :: <c-data-word-representation>,
-     source :: <string>, source-rep :: <magic-representation>,
-     file :: <file-state>)
-    => ();
-  let stream = file.file-guts-stream;
-  let c-type-string = source-rep.representation-c-type;
-  format(stream, "%s = allocate(sizeof(%s)); *((%s*)%s) = %s;\n", 
-         target, c-type-string, c-type-string, target, source);
-end;
-
 
 
 // conversion-expr
@@ -3804,8 +3794,8 @@ define method conversion-expr
     let to-more-general = source-rep.representation-to-more-general;
     conversion-expr(target-rep,
 		    select (to-more-general)
-                      #t => source;
-                      #f => error("Tried to convert %= from %= to %=, and can't.", source, source-rep, target-rep);
+		      #t => source;
+		      #f => error("Can't happen.");
 		      otherwise => format-to-string(to-more-general, source);
 		    end,
 		    source-rep.more-general-representation,
@@ -3816,7 +3806,7 @@ define method conversion-expr
 				       source, source-rep, file);
     select (from-more-general)
       #t => more-general;
-      #f => error("Tried to convert %= from %= to %=, and can't.", source, source-rep, target-rep);
+      #f => error("Can't happen.");
       otherwise => format-to-string(from-more-general, more-general);
     end;
   end;

@@ -8,6 +8,7 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
+rcs-header: $Header: 
 
 //======================================================================
 //
@@ -101,7 +102,7 @@ end class <tokenizer>;
 define generic get-token
     (tokenizer :: <tokenizer>, #key) => (result :: <token>);
 define generic unget-token
-    (tokenizer :: <tokenizer>, token :: <token>) => (result :: <false>);
+    (tokenizer :: <tokenizer>, token :: <token>) => (result :: singleton(#f));
 
 //======================================================================
 // Class definitions for and operations upon <token>s
@@ -556,7 +557,7 @@ end method parse-error;
 // Stores a previously analyzed token for later return
 //
 define method unget-token (state :: <tokenizer>, token :: <token>)
-  => (result :: <false>);
+  => (result :: singleton(#f));
   push(state.unget-stack, token);
   #f;
 end method unget-token;
@@ -686,7 +687,7 @@ define constant match-ID
 //
 define method try-identifier
     (state :: <tokenizer>, position :: <integer>)
- => (result :: type-union(<token>, <false>));
+ => (result :: false-or(<token>));
   let contents :: <string> = state.contents;
 
   let (start-index, end-index)
@@ -708,7 +709,7 @@ define constant match-punctuation
 // and #f otherwise.
 //
 define method try-punctuation (state :: <tokenizer>, position :: <integer>)
- => result :: type-union(<token>, <false>);
+ => result :: false-or(<token>);
   let contents :: <string> = state.contents;
 
   if (punctuation?(contents[position]))

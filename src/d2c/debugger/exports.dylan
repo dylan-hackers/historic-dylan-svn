@@ -21,7 +21,9 @@ define module debugger
   use streams;
   use magic;
   use introspection;
-  use system;
+  use system, exclude: { <buffer>, <buffer-index>,
+                        buffer-next, buffer-next-setter,
+                        buffer-end, buffer-end-setter};
   use melange-support;
   use command-processor;
   use subseq;

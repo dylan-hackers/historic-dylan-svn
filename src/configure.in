@@ -1,4 +1,3 @@
-dnl	$Header: /scm/cvs/src/configure.in,v 1.126.2.11 2004/07/22 14:05:03 prom Exp $
 dnl
 dnl	The new and improved configure file for Gwydion Dylan!
 dnl	This is based on the old configure file, but rewritten to
@@ -40,7 +39,7 @@ AC_SUBST(VERSION)
 # $srcdir/version when incrementing this value.)
 #--------------------------------------------------------------------
 
-CURRENT_BOOTSTRAP_COUNTER=1002
+CURRENT_BOOTSTRAP_COUNTER=1003
 AC_SUBST(CURRENT_BOOTSTRAP_COUNTER)
 
 #--------------------------------------------------------------------
@@ -89,7 +88,7 @@ AC_PROG_CC			# Specify when cross-compiling.
 AC_DEFUN(GD_D2C_SYSTEM,[
 case $1 in
     i*86-pc-linux-gnu*)
-        case `$CC -dumpversion` in
+        case `gcc -dumpversion` in
 	     3.3*) $2=x86-linux-gcc33 ;;
 	     3.2*) $2=x86-linux-gcc32 ;;
 	     *)    $2=x86-linux-gcc ;;
@@ -285,6 +284,8 @@ fi
 lid_format_version=$_DCI_DYLAN_LID_FORMAT_VERSION
 AC_SUBST(lid_format_version)
 
+AC_PATH_PROG(MELANGE, melange, no)
+
 #--------------------------------------------------------------------
 # Determine our "build scenario".
 #--------------------------------------------------------------------
@@ -393,7 +394,7 @@ You may need to specify the --with-existing-runtime option to configure; see
     # Make a link to our runtime.h file.
     # XXX - We need to allow the user to specify a location for this!
     if test "$prefix" = NONE; then
-	existing_runtime_header="$ac_default_prefix/include/runtime.h"
+	existing_runtime_header="$d2c_path/include/runtime.h"
     else	
 	existing_runtime_header="$prefix/include/runtime.h"
     fi
@@ -612,6 +613,14 @@ AC_TRY_LINK([#include <time.h>], [int a = daylight; long b = timezone;],
      AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
        [AC_MSG_RESULT(yes)
         AC_DEFINE(HAVE_CYGNUS_DAYLIGHT)])])])
+
+#--------------------------------------------------------------------
+#	Checks for the io and system libraries
+#--------------------------------------------------------------------
+
+AC_CHECK_FUNCS(localtime_r)
+AC_STRUCT_TIMEZONE
+AC_CHECK_MEMBERS([struct stat.st_blksize])
 
 #--------------------------------------------------------------------
 #	Find out if sigaction is available.

@@ -88,9 +88,9 @@ define transcendentals function-test sin ()
   for(x from -500000.333 below 100 by 1997,
       y = 3 then modulo( y * 17, 101 ))
     let cx = cos(x);
-    let cy = cos(as(<double-float>, y));
+    let cy = cos(y);
     let sx = sin(x);
-    let sy = sin(as(<double-float>, y));
+    let sy = sin(y);
     let sxy = sx * cy + sy * cx;
     
     check-true

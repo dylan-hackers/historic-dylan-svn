@@ -489,7 +489,7 @@ define method dump (op :: <operation>, stream :: <stream>) => ();
 end;
 
 define method kind (op :: <operation>) => res :: <string>;
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   write-class-name(op, stream);
   stream.stream-contents;
 end;

@@ -32,9 +32,8 @@ author: Nick Kramer
 
 define library synopsis
   use dylan;
-  use streams;
-  use standard-io;
-  use format;
+  use io;
+  use system;
   use regular-expressions;
   use table-extensions;
 end library synopsis;
@@ -42,10 +41,8 @@ end library synopsis;
 define module synopsis
   use dylan;
   use extensions;
-#if (~mindy)
-  use system; // for %main
-#endif
   use streams;
+  use file-system;
   use standard-io;
   use format;
   use regular-expressions;

@@ -3,9 +3,8 @@ Module: dylan-user
 define library c-parser
   // Standard Dylan
   use dylan;
-  use streams;
-  use standard-io;
-  use format;
+  use io;
+  use system;
 
   // Gwydion Libraries
   use string-extensions;
@@ -25,6 +24,7 @@ define module c-lexer
   use dylan;
   use extensions, exclude: {value};
   use streams;
+  use file-system;
 
   // Gwydion Libraries
   use table-extensions;
@@ -96,6 +96,7 @@ define module c-parser
   use dylan;
   use extensions, exclude: {value};
   use table-extensions;
+  use locators;
 
   // Included with Pidgin
   use source-locations;

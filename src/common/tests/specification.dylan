@@ -16,7 +16,7 @@ define library-spec common-dylan ()
   module simple-random;
   module simple-profiling;
   module transcendentals;
-  //module byte-vector;
+  module byte-vector;
   module machine-words;
   suite common-dylan-regressions;
   //suite threads-test-suite;             //---*** NOTE: Should be changed to module test

@@ -215,7 +215,7 @@ define module Cheap-IO
   use Dylan-Viscera,
     import: {
 	     // Cheap-IO stuff.
-	     format, print-message, print, write-integer, puts
+	     print-message, print, write-integer, puts
 
     },
     export: all;
@@ -233,9 +233,6 @@ define module System
 	     // Designator-class (C-FFI) stuff.
 	     <designator-class>, \designator-class-definer,
 	     size-of, alignment-of, referenced-type,
-
-	     // Nasty debugging hooks.
-	     *gdb-output*,
 
 	     // Raw pointer stuff.
 	     <raw-pointer>, pointer-deref, pointer-deref-setter,
@@ -307,7 +304,6 @@ define module magic
 	     %make-next-method-cookie,
 	     %object-class,
 	     ambiguous-method-error,
-	     apply-safely,
 	     catch,
 	     check-types,
 	     class-all-slot-descriptors,

@@ -450,7 +450,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   if (targets-file == #f)
     error("Can't find platforms.descr");
   end if;
-  parse-platforms-file(targets-file);
+  parse-platforms-file(as(<file-locator>, targets-file));
   *current-target* := get-platform-named(target-machine);
 
   define-platform-constants(*current-target*);
@@ -474,7 +474,10 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     push-last(library-dirs, dir);
   end for;
   		       
-  *Data-Unit-Search-Path* := as(<simple-object-vector>, library-dirs);
+  *Data-Unit-Search-Path*
+       := map-as(<simple-object-vector>,
+                 curry(as, <directory-locator>),
+                 library-dirs);
 
   if (option-value-by-long-name(argp, "compiler-info"))
     show-compiler-info(*standard-output*);
@@ -490,13 +493,13 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 
   let args = regular-arguments(argp);
 
-  local method build-file(filename)
+  local method build-file(locator :: <file-locator>)
           let state
-            = if(filename.filename-extension = ".dylan")
+            = if(locator.locator-extension = "dylan")
                 format(*standard-output*, "Entering single file mode.\n");
                 force-output(*standard-output*);
                 make(<single-file-mode-state>,
-                     source-file: filename,
+                     source-locator: locator,
                      command-line-features: as(<list>, features), 
                      log-dependencies: log-dependencies,
                      target: *current-target*,
@@ -508,7 +511,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
                      profile?: profile?);
               else
                 make(<lid-mode-state>,
-                     lid-file: filename,
+                     lid-locator: locator,
                      command-line-features: as(<list>, features), 
                      log-dependencies: log-dependencies,
                      target: *current-target*,
@@ -545,9 +548,9 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     show-usage-and-exit();
   end unless;
 
-  let lid-file = args[0];
+  let lid-locator = as(<file-locator>, args[0]);
 
-  let worked? = build-file(lid-file);
+  let worked? = build-file(lid-locator);
   exit(exit-code: if (worked?) 0 else 1 end);
 end method main;
 

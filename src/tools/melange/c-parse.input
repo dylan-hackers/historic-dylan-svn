@@ -4,7 +4,6 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/c-parse.input,v 1.18.2.2 2003/10/18 22:13:45 andreas Exp $
 
 //======================================================================
 //
@@ -87,7 +86,7 @@ define variable *typedef-flag* = #f;
 //
 define generic int-value (value :: <object>, state :: <parse-state>);
 
-define method int-value (value :: <general-integer>, state :: <parse-state>)
+define method int-value (value :: <abstract-integer>, state :: <parse-state>)
   value;
 end method;
 
@@ -516,7 +515,7 @@ cast-expr (unary-expr)
 
 cast-expr (<lparen-token> type-name <rparen-token> cast-expr)
   let result = int-value(%4, @0);
-  if (instance?(result, <general-integer>)
+  if (instance?(result, <abstract-integer>)
        & instance?(%2.true-type, <integer-type-declaration>))
     result;
   else
@@ -1652,7 +1651,7 @@ define method parse-type
   unget-token(tokenizer, make(<alien-name-token>,
 			      generator: tokenizer, string: ""));
   let parse-state
-    = make(<parse-value-state>, tokenizer: tokenizer, parent: old-state);
+    = make(<parse-type-state>, tokenizer: tokenizer, parent: old-state);
   parse-loop(parse-state);
 end;
 

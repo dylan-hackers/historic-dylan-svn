@@ -199,7 +199,7 @@ define module dylan-viscera
     <byte-character>, <true>, <false>,
     false-or, one-of, <never-returns>, subclass, direct-instance,
     report-condition, condition-format, condition-force-output,
-    *warning-output*, *gdb-output*,
+    *warning-output*,
     <debugger>, invoke-debugger, debugger-message, *debugger*, debug-message,
     <bit>, <byte>, <byte-vector>,
     <set>, <object-set>,
@@ -213,7 +213,7 @@ define module dylan-viscera
     <simple-object-table>, element-error,
 
     // Cheap IO
-    format, print-message, print, write-integer, puts,
+    print-message, print, write-integer, puts,
 
     // System stuff
     call-out, c-include, c-system-include, c-decl, c-local-decl,
@@ -275,7 +275,6 @@ define module dylan-viscera
     %make-next-method-cookie,
     %object-class,
     ambiguous-method-error,
-    apply-safely,		 
     catch,
     check-types,
     class-all-slot-descriptors,

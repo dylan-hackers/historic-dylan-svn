@@ -42,23 +42,19 @@ copyright: see below
 
 define library lisp2dylan
   use dylan;
-  use streams;
-  use print;
-  use format;
+  use io;
+  use system;
   use string-extensions;
   use regular-expressions;
-  use standard-io;
 end library lisp2dylan;
 
 define module lisp2dylan
   use dylan;
   use streams;
+  use file-system;
   use print;
   use format;
-  use extensions, exclude: { assert }; // we write our own assert
-#if (~mindy)
-  use system;
-#endif
+  use extensions, exclude: { \assert }; // we write our own assert
   use standard-io;
   use character-type;
   use string-hacking;

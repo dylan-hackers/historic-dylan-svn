@@ -30,13 +30,6 @@ module: dylan-viscera
 
 c-system-include("stdio.h");
 
-// XXX - We export this, instead of cheap-format, for reasons of backwards
-// compatibility. Somebody should find out what Harlequin does, and fix
-// this to work like their implementation.
-define method format (str :: <byte-string>, #rest args) => ();
-  apply(cheap-format, #"Cheap-IO", str, args);
-end;
-
 define method cheap-format
     (fake-stream :: <symbol>, str :: <byte-string>, #rest args)
  => ()

@@ -1,5 +1,5 @@
 Module: od-format
-RCS-header: $Header: /scm/cvs/src/d2c/compiler/base/od-format.dylan,v 1.19.4.4 2004/07/21 22:19:15 prom Exp $
+copyright: see below
 
 //======================================================================
 //
@@ -302,7 +302,7 @@ define constant <data-unit-name> = <symbol>;
 
 // A hint of where to find a data unit.  Currently an absolute(?) pathname.
 //
-define constant <location-hint> = <byte-string>;
+define constant <location-hint> = <file-locator>;
 
 
 // Local-index object:
@@ -417,6 +417,9 @@ begin
   // Numbers with components as subobjects:
   register-object-id(#"ratio", #x0035);
 
+  // Locators
+  register-object-id(#"file-locator", #x0040);
+  
 end;
 
 
@@ -1028,21 +1031,22 @@ end method;
 //	called from end-dumping if no stream supplied
 //
 define function create-dump-stream(state :: <dump-state>) => stream :: <stream>;
-	let fname =
-			state.dump-where
-			| concatenate(as-lowercase(as(<string>, state.dump-name)),
-						".",
-						$unit-type-strings[state.dump-type],
-						".du");
-
-	log-target(fname);
-	make(<file-stream>, locator: fname, direction: #"output");
+  let fname =
+    state.dump-where
+    | concatenate(as-lowercase(as(<string>, state.dump-name)),
+                  ".",
+                  $unit-type-strings[state.dump-type],
+                  ".du");
+  
+  log-target(fname);
+  make(<file-stream>, locator: fname, direction: #"output");
 end function create-dump-stream;
 
 // Build the index and actually write stuff out.
 //
-define /* exported */ method end-dumping (state :: <dump-state>,
-																			#key stream :: <stream> = state.create-dump-stream) => ();
+define /* exported */ method end-dumping
+    (state :: <dump-state>,
+     #key stream :: <stream> = state.create-dump-stream) => ();
 
   // End the external index object definition.
   dump-end-entry(0, state.extern-buf);
@@ -1454,13 +1458,19 @@ define variable *Data-Unit-Search-Path* :: <sequence> = #[];
 
 define method search-for-file
     (name :: <byte-string>, hint :: false-or(<location-hint>))
-    => (stream :: false-or(<stream>), found-loc :: false-or(<byte-string>));
-  find-and-open-file(name, if (hint)
-			     concatenate(*Data-Unit-Search-Path*, 
-					 vector(hint));
-			   else
-			     *Data-Unit-Search-Path*;
-			   end if);
+    => (stream :: false-or(<stream>), found-loc :: false-or(<file-locator>));
+  // ### use hint
+  block(return)
+    let locator = as(<file-locator>, name);
+    for (dir :: <directory-locator> in *Data-Unit-Search-Path*)
+      let merged = merge-locators(locator, dir);
+      if (file-exists?(merged))
+        return(make(<file-stream>, locator: merged, direction: #"input"),
+               merged);
+      end if;
+    end for;
+    values(#f, #f);
+  end block;	
 end method search-for-file;
 
 
@@ -1476,8 +1486,8 @@ define method check-unit-header
      expected-hash :: false-or(<word>),
      location-hint :: false-or(<location-hint>))
  => (res :: <data-unit>, oa-len :: <integer>);
-  let buf = state.od-buffer;
-  let base = fill-at-least($data-unit-header-size * $word-bytes, state);
+  let (buf, base)
+    = buffer-at-least($data-unit-header-size * $word-bytes, state);
 
   let (tag, id) = buffer-header-word(buf, base);
   unless (tag = logior($odf-object-definition-etype,
@@ -1533,7 +1543,6 @@ define method check-unit-header
   *data-units*[name] := pair(pair(type, res),
   			     element(*data-units*, name, default: #()));
 
-  state.od-next := base + ($data-unit-header-size * $word-bytes);
   values(res, oa-len);
 
 end method;
@@ -1579,7 +1588,7 @@ define method load-data-unit
 
   let (unit, oa-len)
     = check-unit-header(state, name, type, hash,
-			found-loc[0] == '/' & found-loc);
+			~locator-relative?(found-loc) & found-loc);
   state.load-unit := unit;
   state.overall-length := oa-len;
   let rlocal = load-object-dispatch(state);
@@ -1677,7 +1686,6 @@ define /* exported */ method load-object-dispatch (state :: <load-state>)
   // Make sure label-index is initialized...
   state.position-offset := state.position-offset;
 
-  let buf = state.od-buffer;
   let next = state.od-next;
   // Check if we at a label (or the end.)
   if (next >= state.label-index)
@@ -1713,13 +1721,8 @@ define /* exported */ method load-object-dispatch (state :: <load-state>)
 
   // Normal case, load an entry.
   else
-    // This check is just to avoid a do-nothing call to fill-at-least.
-    unless (state.od-end - next > $word-bytes * 2)
-      next := fill-at-least($word-bytes * 2, state);
-    end unless;
-
+    let (buf, next) = buffer-at-least($word-bytes, state);
     let (flags, code) = buffer-header-word(buf, next);
-    state.od-next := next + $word-bytes;
 
     select (ash(flags, $odf-etype-shift))
      $odf-object-definition-shifted =>
@@ -1757,6 +1760,9 @@ end if;
        else
          wot;
        end;
+     otherwise =>
+       error("unrecognized code %x at index %d position %d stack=%=",
+             flags, next, buffer-position(buf), state.load-stack);
 
     end select;
   end if;
@@ -1768,40 +1774,39 @@ end method;
 // Fill input buffer so that it holds at least nbytes.  If that much data is
 // already there, just return.  For convenience, the value of next is returned.
 //
-define /* exported */ method fill-at-least
+define /* exported */ method buffer-at-least
   (nbytes :: <buffer-index>, state :: <load-state>)
- => next :: <buffer-index>;
+ => (buffer :: <buffer>, next :: <buffer-index>);
   let next = state.od-next;
   let buf-end = state.od-end;
   let avail = buf-end - next;
   if (avail >= nbytes)
-    next;
-  else
+    state.od-next := next + nbytes;
+    values(state.od-buffer, next);
+  elseif (next >= buf-end)
     let buf = state.od-buffer;
     let stream = state.od-stream;
-    assert(nbytes <= buf.size);
-    if (next == buf-end)
-      // Reflect this fact in buffer-next, buffer-end so that
-      // next-input-buffers sees it...
-      buf.buffer-next := buf.buffer-end;
-    else
-      // Move everything to the front of the buffer, to maximize the
-      // amount we can fit at the end.
-      copy-into-buffer!(buf, 0, buf, start: next, end: buf-end);
-      buf.buffer-next := 0;
-      // ### Setting buffer-end is a no-no. For now, it's the only way
-      // to do what was being done under the old stream spec. It should
-      // work with our implementation of the new streams spec, but it is
-      // not a defined by the spec to do so.
-      buf.buffer-end := avail;
-    end if;
-    state.position-offset := state.position-offset + next;
+    state.position-offset := state.position-offset + state.od-end;
     buf := next-input-buffer(stream, bytes: nbytes);
     if (~ buf) error(make(<end-of-stream-error>, stream: stream)) end;
+    state.od-end := buf.buffer-end;
+    state.od-next := (buf.buffer-next := buf.buffer-start + nbytes);
+    values(buf, 0);
+  else
+    let stream = state.od-stream;
+    let buf = state.od-buffer;
+    let overflow = nbytes - avail;
+    let fragment-buf = make(<buffer>, size: nbytes);
+    copy-into-buffer!(fragment-buf, 0, buf, start: next, end: buf-end);
+    state.position-offset := state.position-offset + state.od-end;
+    buf := next-input-buffer(stream, bytes: overflow);
+    if (~ buf) error(make(<end-of-stream-error>, stream: stream)) end;
+    copy-into-buffer!(fragment-buf, avail, buf, start: 0, end: overflow);
     // Update od-next and od-end to reflect the changes we've made in
     // buffer-next and buffer-end. 
     state.od-end := buf.buffer-end;
-    state.od-next := (buf.buffer-next := 0);
+    state.od-next := (buf.buffer-next := buf.buffer-start + overflow);
+    values(fragment-buf, 0);
   end if;
 end method;
 
@@ -1898,13 +1903,12 @@ end method;
 //
 define constant load-word-vector = method (state :: <load-state>) 
  => res :: <simple-object-vector>;
-  let buf = state.od-buffer;
-  let nwords = buffer-word(buf, state.od-next);
-  state.od-next := state.od-next + $word-bytes;
+  let (buf, next) = buffer-at-least($word-bytes, state);
+  let nwords = buffer-word(buf, next);
   let res = make(<simple-object-vector>, size: nwords);
   for (i :: <integer> from 0 below nwords)
-    res[i] := buffer-word(buf, fill-at-least($word-bytes, state));
-    state.od-next := state.od-next + $word-bytes;
+    let (buf, index) = buffer-at-least($word-bytes, state);
+    res[i] := buffer-word(buf, index);
   end for;
   res;
 end method;
@@ -2285,13 +2289,10 @@ add-od-loader(*default-dispatcher*, #"extern-index",
 //
 add-od-loader(*default-dispatcher*, #"extern-handle", 
   method (state :: <load-state>) => res :: <object>;
-    state.od-next := state.od-next + $word-bytes;
-    let buf = state.od-buffer;
-    let next = fill-at-least($word-bytes * 3, state);
-    let hash = buffer-word(buf, next);
-    let du-type = buffer-word(buf, next + $word-bytes);
-    let localid = buffer-word(buf, next + ($word-bytes * 2));
-    state.od-next := next + ($word-bytes * 3);
+    let (buf, next) = buffer-at-least($word-bytes * 4, state);
+    let hash = buffer-word(buf, next + $word-bytes);
+    let du-type = buffer-word(buf, next + ($word-bytes * 2));
+    let localid = buffer-word(buf, next + ($word-bytes * 3));
     let name = load-object-dispatch(state);
     let hint = load-object-dispatch(state);
     assert-end-object(state);

@@ -30,6 +30,9 @@ copyright: see below
 
 define library compiler-main
   use Dylan;
+  use Common-Dylan;
+  use IO;
+  use System;
   use String-extensions;
   use Random;
   use debugger;
@@ -60,12 +63,13 @@ end module progress-indicator;
 
 define module main
   use common;
-  use Extensions, exclude: {element-type, value};
+  use byte-vector;
+  use Extensions, exclude: { element-type, value };
 #if (mindy)
-  use System, import: {system, copy-bytes, getenv, collect-garbage};
+  use System, import: {system, getenv, collect-garbage};
 #else
   use System, 
-     import: {system, copy-bytes, getenv, <raw-pointer>, import-string, 
+     import: {system, getenv, <raw-pointer>, import-string, 
               export-string, no-core-dumps,
               c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out};
 #endif

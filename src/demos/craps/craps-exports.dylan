@@ -29,12 +29,12 @@ module: dylan-user
 
 define library craps
   use dylan;
-  use random;
+  use common-dylan;
 end;
 
 define module craps
   use dylan;
   use extensions;
-  use cheap-io;
-  use random;
+  use simple-io;
+  use simple-random;
 end;

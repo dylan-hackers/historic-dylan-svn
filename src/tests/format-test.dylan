@@ -35,12 +35,12 @@ define variable has-errors = #f;
 define method run-several-tests (test-name :: <string>, 
                                  test :: <function>)
  => ();
-  cheap-io-format("%s ... ", test-name);
+  format-out("%s ... ", test-name);
   let temp-has-errors = has-errors;
   has-errors := #f;
   test();
   if (has-errors == #f)
-    cheap-io-format("ok.\n");
+    format-out("ok.\n");
   end if;
   has-errors := temp-has-errors | has-errors;
 end method run-several-tests;
@@ -49,9 +49,9 @@ define method run-test (input, expected-result, test-name :: <string>)
  => passed? :: <boolean>;
   if (input ~= expected-result)
     has-errors := #t;
-    cheap-io-format("Failed %s!\n", test-name);
-    cheap-io-format("     Got %=\n", input);
-    cheap-io-format("     when we expected %=\n", expected-result);
+    format-out("Failed %s!\n", test-name);
+    format-out("     Got %=\n", input);
+    format-out("     when we expected %=\n", expected-result);
     #f;
   else
     #t;
@@ -65,11 +65,11 @@ define method format-test () => ();
 end method format-test;
 
 define method main (argv0, #rest ignored)
-  cheap-io-format("\nRegression test for the format library.\n\n");
+  format-out("\nRegression test for the format library.\n\n");
   run-several-tests("format", format-test);
   if (has-errors)
-    cheap-io-format("\n********* Warning!  Regression test failed! ***********\n");
+    format-out("\n********* Warning!  Regression test failed! ***********\n");
   else
-    cheap-io-format("All format tests pass.\n");
+    format-out("All format tests pass.\n");
   end if;
 end method main;

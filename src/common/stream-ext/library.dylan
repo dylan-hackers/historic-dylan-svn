@@ -33,7 +33,8 @@ copyright:  See below.
 
 define library stream-extensions
   use dylan;
-  use streams;
+  use io;
+  use system;
   export
     stream-extensions, indenting-streams, concatenated-streams;
 end library stream-extensions;
@@ -58,6 +59,7 @@ define module concatenated-streams
   use dylan;
   use extensions;
   use streams;
+  use file-system;
   export
     <concatenated-stream>;
 end module concatenated-streams;

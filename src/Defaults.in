@@ -71,8 +71,7 @@ $PARSERGEN = "$PARSERGEN_DIR/parsergen";
 $MELANGE_DIR = "$buildroot/tools/melange";
 $MELANGE = "$MELANGE_DIR/melange";
 
-$PARSERGEN_target = $PARSERGEN;
-$MELANGE_target = $MELANGE;
+$PREVIOUS_MELANGE = '@MELANGE@';
 
 if ($enable_bootstrap) {
     $CPPFLAGS = '-I@LOCAL_RUNTIME@';

@@ -1,4 +1,5 @@
 module: source-locations
+rcs-header: $Header: /scm/cvs/src/tools/melange/source-location.dylan,v 1.3.10.2 2004/07/22 16:36:48 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -92,7 +93,7 @@ end method make;
 define sealed method describe-source-location
     (srcloc :: <unknown-source-location>, stream)
     => ();
-  condition-format(stream, "(unknown source location): ");
+  format(stream, "(unknown source location): ");
 end method describe-source-location;
 
 
@@ -126,8 +127,6 @@ define sealed method describe-source-location
 //		     srcloc.source-line,
 //		     srcloc.source-line-position);
 //  else
-  condition-format(stream, "%s:%d: ",
-		   srcloc.source-file,
-		   srcloc.source-line);
+  format(stream, "%s:%d: ", srcloc.source-file, srcloc.source-line);
 //  end if;
 end method describe-source-location;

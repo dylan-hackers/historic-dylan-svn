@@ -317,15 +317,15 @@ define function run-command-processor()
        summary: "Exits the command loop.");
 
   let old-termios = make(<termios>);
-  tcgetattr(*standard-input*.file-descriptor, old-termios);
+  tcgetattr(0 /* *standard-input*.file-descriptor */, old-termios);
 
   let new-termios = make(<termios>);
-  tcgetattr(*standard-input*.file-descriptor, new-termios);
+  tcgetattr(0 /* *standard-input*.file-descriptor */, new-termios);
   cfmakeraw(new-termios);
 
-  to-raw    := curry(tcsetattr, *standard-input*.file-descriptor, 
+  to-raw    := curry(tcsetattr, 0 /* *standard-input*.file-descriptor */, 
                      $TCSANOW, new-termios);
-  to-cooked := curry(tcsetattr, *standard-input*.file-descriptor, 
+  to-cooked := curry(tcsetattr, 0 /* *standard-input*.file-descriptor */, 
                      $TCSANOW, old-termios);
 
   to-raw();

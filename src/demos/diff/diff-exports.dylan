@@ -2,9 +2,8 @@ module: dylan-user
 
 define library diff
   use dylan;
-  use streams;
-  use standard-io;
-  use format;
+  use io;
+  use system;
   use collection-extensions;
 end library diff;
 
@@ -14,7 +13,8 @@ end library diff;
 define module diff-program
   use dylan;
   use extensions, import: {main, %main};
-  use streams, import: {<file-stream>, read-line, force-output};
+  use streams, import: {read-line, force-output};
+  use file-system, import: {<file-stream>};
   use standard-io, import: {*standard-output*};
   use format, import: {format};
   use sequence-diff;

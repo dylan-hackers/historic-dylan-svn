@@ -29,13 +29,16 @@ module: dylan-user
 
 define library stream-demo
   use dylan;
-  use streams;
-  use standard-io;
+  use common-dylan;
+  use io;
+  use system;
 end library;
 
 define module stream-demo
-  use dylan;
+  use common-dylan, exclude: { format-to-string };
   use extensions;
   use streams;
+  use format;
   use standard-io;
+  use file-system;
 end module;

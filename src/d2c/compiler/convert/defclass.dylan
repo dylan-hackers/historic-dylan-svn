@@ -1530,7 +1530,7 @@ define method class-defn-deferred-evaluations-function
 	       for (override-defn in defn.class-defn-overrides)
 		 let info = override-defn.override-defn-info;
 		 if (instance?(info.override-slot, <each-subclass-slot-info>))
-		   if (info.override-init-value /* == #t Â¥ TODO (same as above?) */
+		   if (info.override-init-value /* == #t ¥ TODO (same as above?) */
 			| info.override-init-function)
 		     return(#t);
 		   end;
@@ -1543,11 +1543,11 @@ define method class-defn-deferred-evaluations-function
 	       // function.
 	       for (slot-info in cclass.all-slot-infos)
 		 if (instance?(slot-info, <each-subclass-slot-info>))
-		   if (slot-info.slot-init-value /* == #t Â¥ TODO (same as above?) */
+		   if (slot-info.slot-init-value /* == #t ¥ TODO (same as above?) */
 			| slot-info.slot-init-function)
 		     return(#t);
 		   end;
-		   // examine if overriddenÂ¥Â¥Â¥Â¥
+		   // examine if overridden¥¥¥¥
 		 end;
 	       end;
 
@@ -1557,7 +1557,7 @@ define method class-defn-deferred-evaluations-function
 	       for (slot-defn in defn.class-defn-slots)
 		 let info = slot-defn.slot-defn-info;
 		 if (instance?(info, <indirect-slot-info>))
-		   if (info.slot-init-value /* == #t Â¥ TODO */
+		   if (info.slot-init-value /* == #t ¥ TODO */
 			| info.slot-init-function)
 		     return(#t);
 		   end;
@@ -1911,7 +1911,7 @@ define method build-home-store
         else
 	  meta-slot.slot-introduced-by;
         end;
-  let offset = find-slot-offset(meta-slot, meta-instance); // there may be more than one!!Â¥Â¥Â¥
+  let offset = find-slot-offset(meta-slot, meta-instance); // there may be more than one!!¥¥¥
   build-assignment
     (builder, policy, source, #(),
      make-operation
@@ -2209,13 +2209,13 @@ define method convert-top-level-form
 	let slot-name = getter.variable-name;
 	let init-value = override-info.override-init-value;
 	let init-function = override-info.override-init-function;
-	let type = object-ctype(); /// Â¥Â¥Â¥ as above!!!
+	let type = object-ctype(); /// ¥¥¥ as above!!!
 
 
 	local method make-init-value-var() => var :: <initial-variable>;
 		make-local-var(evals-builder, symcat(slot-name, "-init-value"),
 			       type);
-	      end; /// reuse Â¥Â¥Â¥Â¥ TODO
+	      end; /// reuse ¥¥¥¥ TODO
 
 
 	let (init-value-var, init-function-leaf) =
@@ -2269,7 +2269,7 @@ define method convert-top-level-form
 	    = effective-inits(slot-info, start: override-info);
 	  update-indirect-slot(slot-info, override-info, slot-name, init-value, init-function, type,
 			       init-value-var, make-init-value-var, init-function-leaf,
-			       /* Â¥Â¥Â¥ type-var */ #f);
+			       /* ¥¥¥ type-var */ #f);
 	end if;
       end for;
       
@@ -2281,15 +2281,15 @@ define method convert-top-level-form
 	    & slot-info.slot-introduced-by ~== cclass
 	    & ~any?(compose(curry(\==, slot-info), override-slot), cclass.override-infos))
 	  
-	  // use effective-inits above!!! Â¥Â¥Â¥
-	  let override-info = slot-info.effective-override; // Â¥Â¥Â¥ reuse find-override !!!
+	  // use effective-inits above!!! ¥¥¥
+	  let override-info = slot-info.effective-override; // ¥¥¥ reuse find-override !!!
 	  // since all deferred evaluations are performed at this point,
 	  // we can assume that slot and override descriptors are properly set up.
 	  let init-value = override-info & override-info.override-init-value
 			   | slot-info.slot-init-value;
 	  let init-function = override-info & override-info.override-init-function
 			      | slot-info.slot-init-function;
-	  let type = object-ctype(); /// Â¥Â¥Â¥ as above!!!
+	  let type = object-ctype(); /// ¥¥¥ as above!!!
 	  let slot-name = slot-info.slot-getter.variable-name;
 	  
 	  local method make-init-value-var() => var :: <initial-variable>;
@@ -2941,7 +2941,7 @@ define method build-maker-function-body
 	    method build-slot-init
 		(slot :: <indirect-slot-info>, leaf :: <leaf>, init?-leaf :: <leaf>) => ();
 
-	      if (immediate-rep?) //Â¥Â¥Â¥???
+	      if (immediate-rep?) //¥¥¥???
 		add!(make-immediate-args, leaf);
 	      else
 		let associated = slot.associated-meta-slot;
@@ -3162,7 +3162,7 @@ end method slot-accessor-standin;
 
 
 
-define method slot-accessor-standin // used for spew-object (cback)Â¥Â¥Â¥ relevance???
+define method slot-accessor-standin // used for spew-object (cback)¥¥¥ relevance???
     (slot :: <indirect-slot-info>, kind :: one-of(#"getter", #"setter"))
     => standin :: false-or(<ct-function>);
 
@@ -3238,7 +3238,7 @@ define method build-getter
 
 
 
-/* the below is for each-subclass slots!!!Â´Â´Â´*/
+/* the below is for each-subclass slots!!!´´´*/
 
   let slot-home
     = build-slot-home(slot.slot-getter.variable-name,

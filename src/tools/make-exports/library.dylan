@@ -42,10 +42,8 @@ copyright: see below
 
 define library make-exports
   use dylan;
-  use streams;
-  use standard-io;
-  use print;
-  use format;
+  use io;
+  use system;
   use table-extensions;
   use string-extensions;
   use regular-expressions;
@@ -54,10 +52,8 @@ end library make-exports;
 define module make-exports
   use dylan;
   use extensions;
-#if (~mindy)
-  use system; // for %main
-#endif
   use streams;
+  use file-system;
   use standard-io;
   use print;
   use pprint;

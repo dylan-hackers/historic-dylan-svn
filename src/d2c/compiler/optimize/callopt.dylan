@@ -884,7 +884,7 @@ define method ambiguous-method-warning
     (call :: <abstract-call>, defn :: <generic-definition>,
      ambiguous :: <list>, arg-types :: <list>)
     => ();
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   write(stream, "    (");
   for (arg-type in arg-types, first? = #t then #f)
     unless (first?)
@@ -908,7 +908,7 @@ define method no-applicable-methods-warning
     (call :: <abstract-call>, defn :: <generic-definition>,
      arg-types :: <list>)
     => ();
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   write(stream, "    (");
   for (arg-type in arg-types, first? = #t then #f)
     unless (first?)

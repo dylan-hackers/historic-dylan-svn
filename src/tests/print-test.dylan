@@ -35,12 +35,12 @@ define variable has-errors = #f;
 define method run-several-tests (test-name :: <string>, 
                                  test :: <function>)
  => ();
-  format("%s ... ", test-name);
+  format-out("%s ... ", test-name);
   let temp-has-errors = has-errors;
   has-errors := #f;
   test();
   if (has-errors == #f)
-    format("ok.\n");
+    format-out("ok.\n");
   end if;
   has-errors := temp-has-errors | has-errors;
 end method run-several-tests;
@@ -49,9 +49,9 @@ define method run-test (input, expected-result, test-name :: <string>)
  => passed? :: <boolean>;
   if (input ~= expected-result)
     has-errors := #t;
-    format("Failed %s!\n", test-name);
-    format("     Got %=\n", input);
-    format("     when we expected %=\n", expected-result);
+    format-out("Failed %s!\n", test-name);
+    format-out("     Got %=\n", input);
+    format-out("     when we expected %=\n", expected-result);
     #f;
   else
     #t;
@@ -127,11 +127,11 @@ define method print-test () => ();
 end method print-test;
 
 define method main (argv0, #rest ignored)
-  format("\nRegression test for the print library.\n\n");
+  format-out("\nRegression test for the print library.\n\n");
   run-several-tests("print", print-test);
   if (has-errors)
-    format("\n********* Warning!  Regression test failed! ***********\n");
+    format-out("\n********* Warning!  Regression test failed! ***********\n");
   else
-    format("All print tests pass.\n");
+    format-out("All print tests pass.\n");
   end if;
 end method main;

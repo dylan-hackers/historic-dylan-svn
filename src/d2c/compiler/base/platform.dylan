@@ -477,8 +477,8 @@ end function add-platform!;
 // Reads the platform information out of the specified file.  Returns
 // a table mapping platform names (as symbols) to <platform>s.
 //
-define /* exported */ function parse-platforms-file (filename :: <byte-string>);
-  let source = make(<source-file>, name: filename);
+define /* exported */ function parse-platforms-file (filename :: <file-locator>);
+  let source = make(<source-file>, locator: filename);
   let result = make(<object-table>);
   let state = make(<object-table>);
 

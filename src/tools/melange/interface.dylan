@@ -629,6 +629,7 @@ define method process-define-interface
   get-token(tokenizer).position;
 end method process-define-interface;
 
+/*
 //----------------------------------------------------------------------
 // XXX - Debugging output is broken, unfortunately. This code makes
 // error and warning output go to standard error instead of standard
@@ -653,6 +654,7 @@ end method invoke-debugger;
 #endif
 
 *warning-output* := *standard-error*;
+*/
 
 // establish a protection boundary against unhandled conditions,
 // returning a function that behaves just like the original function,
@@ -663,9 +665,9 @@ define function protect (f :: <function>) => (f* :: <function>)
     block()
       apply(f, arguments)
     exception(condition :: <condition>)
-      condition-format(*warning-output*, "%s\n", condition);
-      format(*warning-output*, "while calling %= with %=\n", f, arguments);
-      force-output(*warning-output*);
+      format(*standard-error*, "%s\n", condition);
+      format(*standard-error*, "while calling %= with %=\n", f, arguments);
+      force-output(*standard-error*);
       #f
     end block
   end method
@@ -690,7 +692,7 @@ end method show-usage;
 
 define method show-usage-and-exit() => ()
   show-usage(*standard-error*);
-  exit(exit-code: 1);
+  exit-application(1);
 end method show-usage-and-exit;
 
 define method show-help(stream :: <stream>) => ()
@@ -718,7 +720,7 @@ end method show-help;
 // to print out a "help" line instead.
 //
 
-define method main (program, #rest args)
+define method main (program, args)
   // Describe our arguments and create appropriate parser objects.
   let *argp* = make(<argument-list-parser>);
   add-option-parser-by-type(*argp*,
@@ -772,11 +774,11 @@ define method main (program, #rest args)
   // Handle our informational options.
   if (option-value-by-long-name(*argp*, "help"))
     show-help(*standard-output*);
-    exit(exit-code: 1);
+    exit-application(0);
   end if;
   if (option-value-by-long-name(*argp*, "version"))
     show-copyright(*standard-output*);
-    exit(exit-code: 1);
+    exit-application(0);
   end if;
   
   // Retrieve our regular options.
@@ -864,8 +866,4 @@ define method main (program, #rest args)
                          module-stream: module-stream,
                          defines: defines,
                          undefines: undefines);
-  exit(exit-code: 0);  // ### seems to be necessary, even though I'd
-                       // think all Dylan programs would exit with
-                       // exit code 0 if they never called exit() at
-                       // all
 end method main;

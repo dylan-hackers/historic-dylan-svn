@@ -3,6 +3,7 @@ author:  Robert Stockton (rgs@cs.cmu.edu)
 synopsis: Encapsulates the lexical conventions of the C language.
           This file also incorporates most of the functionality of CPP.
 copyright: see below
+rcs-header: $Header: /scm/cvs/src/tools/melange/c-lexer-cpp.dylan,v 1.16.2.3 2004/07/22 16:36:47 housel Exp $
 
 //======================================================================
 //
@@ -206,7 +207,7 @@ define /* exported */ function check-cpp-expansion
  => (result :: <boolean>);
   let headless-string 
     = if (string.first == '#') copy-sequence(string, start: 1) else string end;
-  let token-list :: type-union(<sequence>, <false>)
+  let token-list :: false-or(<sequence>)
     = (element(parameter-table, headless-string, default: #f)
 	 | element(tokenizer.cpp-table, string, default: #f));
 
@@ -748,13 +749,6 @@ define method try-cpp
 	  if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
 	    parse-error(state, "Encountered #error directive.");
 	  end if;
-        "warning" =>
-          // ignore warning, and kill to end of line
-	  for (i from state.position below contents.size,
-	       until: contents[i] == '\n')
-	  finally
-	    state.position := i;
-	  end for;
 	"line", "pragma" =>
 	  // Kill to end of line
 	  for (i from pos below contents.size, until: contents[i] == '\n')

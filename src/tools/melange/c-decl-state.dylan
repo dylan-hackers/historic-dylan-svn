@@ -4,6 +4,7 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
+rcs-header: $Header: 
 
 //======================================================================
 //
@@ -174,7 +175,7 @@ define class <parse-cpp-state> (<parse-value-state>) end class;
 
 define method initialize
     (value :: <parse-value-state>,
-     #key parent :: type-union(<parse-state>, <false>))
+     #key parent :: false-or(<parse-state>))
   if (parent)
     value.objects := parent.objects;
     value.structs := parent.structs;

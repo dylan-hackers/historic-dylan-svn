@@ -4,6 +4,7 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
+rcs-header: $Header: 
 
 //======================================================================
 //
@@ -86,7 +87,7 @@ end method class-sealing;
 // static linking of libraries.
 //
 define generic write-mindy-includes
-    (file :: type-union(<string>, <false>), decls :: <sequence>) => ();
+    (file :: false-or(<string>), decls :: <sequence>) => ();
 
 // Writes out appropriate code to load object file and insure that all desired
 // objects are included.  Returns a string which can be included in a
@@ -94,7 +95,7 @@ define generic write-mindy-includes
 //
 define generic write-file-load
     (include-files :: <sequence>,
-     object-file :: type-union(<sequence>, <false>),
+     object-file :: false-or(<sequence>),
      decls :: <sequence>,
      stream :: <stream>)
  => (load-string :: <string>);
@@ -427,26 +428,19 @@ define method write-c-accessor-method
 end method write-c-accessor-method;
 
 define method d2c-type-tag
-    (type :: type-union(<vector-declaration>, <function-type-declaration>, 
-                        <pointer-declaration>))
+    (type :: <pointer-rep-types>)
  => (result :: <byte-string>);
   "ptr:";
 end method d2c-type-tag;
 
 define method d2c-type-tag
-    (type :: type-union(<struct-declaration>, <union-declaration>))
- => (result :: <byte-string>);
-  concatenate("#\"", type.canonical-name, "\"");
+    (type :: <enum-declaration>) => (result :: <byte-string>);
+  "int:";
 end method d2c-type-tag;
 
 define method d2c-type-tag
     (t :: <typedef-declaration>) => (result :: <byte-string>);
   t.type.d2c-type-tag;
-end method d2c-type-tag;
-
-define method d2c-type-tag
-    (type :: <enum-declaration>) => (result :: <byte-string>);
-  "int:";
 end method d2c-type-tag;
 
 define method d2c-type-tag (type :: <predefined-type-declaration>)
@@ -472,13 +466,13 @@ end method d2c-type-tag;
 
 define method d2c-arg
     (type :: <type-declaration>, expr :: <string>) => (result :: <string>);
-  concatenate(type.d2c-type-tag, ", ", expr);
+  concatenate(type.d2c-type-tag, " ", expr);
 end method d2c-arg;
 
 define method d2c-arg
     (type :: <pointer-rep-types>, expr :: <string>)
  => (result :: <string>);
-  concatenate(type.d2c-type-tag, ", (", expr, ").raw-value");
+  concatenate("ptr: (", expr, ").raw-value");
 end method d2c-arg;
 
 define method d2c-arg
@@ -533,21 +527,20 @@ define method write-declaration
       & decl.members 
       & reduce(slot-accessors, 0, decl.coalesced-members);
 
-    if (~*inhibit-struct-accessors?*)
-      format(stream,
-             "define method pointer-value (value :: %s, #key index = 0) "
-               "=> (result :: %s);\n"
-               "  value + index * %d;\nend method pointer-value;\n\n",
-             decl.dylan-name, decl.dylan-name, decl.c-type-size);
-      
-      // Finally write out a "content-size" function for use by "make", etc.
-      format(stream,
-             "define method content-size "
-               "(value :: %s) "
-               "=> (result :: <integer>);\n"
-               "  %d;\nend method content-size;\n\n",
-             subclass-type(decl.dylan-name), decl.c-type-size);
-    end if;
+    format(stream,
+	   "define method pointer-value (value :: %s, #key index = 0) "
+	     "=> (result :: %s);\n"
+	     "  value + index * %d;\nend method pointer-value;\n\n",
+	   decl.dylan-name, decl.dylan-name, decl.c-type-size);
+
+    // Finally write out a "content-size" function for use by "make", etc.
+    format(stream,
+	   "define method content-size "
+	     "(value :: %s) "
+	     "=> (result :: <integer>);\n"
+	     "  %d;\nend method content-size;\n\n",
+	   subclass-type(decl.dylan-name), decl.c-type-size);
+    
   end if;
 end method write-declaration;
 
@@ -581,21 +574,19 @@ define method write-declaration
       end for;
     end if;
 
-    if (~*inhibit-struct-accessors?*)
-      format(stream,
-             "define method pointer-value (value :: %s, #key index = 0) "
-               "=> (result :: %s);\n"
-               "  value + index * %d;\nend method pointer-value;\n\n",
-             decl.dylan-name, decl.dylan-name, decl.c-type-size);
-      
-      // Finally write out a "content-size" function for use by "make", etc.
-      format(stream,
-             "define method content-size "
-               "(value :: %s) "
-               " => (result :: <integer>);\n  %d;\n"
-               "end method content-size;\n\n",
-             subclass-type(decl.dylan-name), decl.c-type-size);
-    end if;
+    format(stream,
+	   "define method pointer-value (value :: %s, #key index = 0) "
+	     "=> (result :: %s);\n"
+	     "  value + index * %d;\nend method pointer-value;\n\n",
+	   decl.dylan-name, decl.dylan-name, decl.c-type-size);
+
+    // Finally write out a "content-size" function for use by "make", etc.
+    format(stream,
+	   "define method content-size "
+	     "(value :: %s) "
+	     " => (result :: <integer>);\n  %d;\n"
+	     "end method content-size;\n\n",
+	   subclass-type(decl.dylan-name), decl.c-type-size);
   end if;
 end method write-declaration;
 
@@ -750,7 +741,7 @@ define method write-declaration
   end if;
 
   // ... then create a more robust method as a wrapper.
-  format(stream, "define function %s\n    (", decl.dylan-name);
+  format(stream, "define method %s\n    (", decl.dylan-name);
   register-written-name(written-names, decl.dylan-name, decl);
   for (arg in in-params, count from 1)
     if (count > 1) write(stream, ", ") end if;
@@ -876,7 +867,7 @@ define method write-declaration
     end if;
   end for;
 
-  format(stream, ");\nend function %s;\n\n", decl.dylan-name);
+  format(stream, ");\nend method %s;\n\n", decl.dylan-name);
 end method write-declaration;
 
 // XXX - Callback and function pointer support is currently in transition.
@@ -1005,7 +996,7 @@ define method write-declaration
   let raw-value = decl.constant-value;
   let value = select (raw-value by instance?)
 		<declaration> => raw-value.dylan-name;
-		<general-integer>, <float> => format-to-string("%=", raw-value);
+		<abstract-integer>, <float> => format-to-string("%=", raw-value);
 		<string> => format-to-string("\"%s\"", 
                                              escape-characters(raw-value));
 		<token> => raw-value.string-value;
@@ -1154,7 +1145,7 @@ end method write-file-load;
 // static linking of libraries.
 //
 define method write-mindy-includes
-    (file :: type-union(<string>, <false>), decls :: <sequence>) => ();
+    (file :: false-or(<string>), decls :: <sequence>) => ();
   if (file)
     let stream = make(<file-stream>, locator: file, direction: #"output");
     for (decl in decls)
