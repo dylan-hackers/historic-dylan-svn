@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Mandated</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Porting and Maintenance Guide"
+HREF="gdmaint.html"><LINK
+REL="UP"
+TITLE="Gwydion Project Coding Style Guide"
+HREF="gdmaint-style.html"><LINK
+REL="PREVIOUS"
+TITLE="Recommended"
+HREF="gdmaint-style-recommended.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Porting and Maintenance Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="gdmaint-style-recommended.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Appendix A. Gwydion Project Coding Style Guide</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="GDMAINT-STYLE-MANDATED"
+>Mandated</A
+></H1
+><H2
+><A
+NAME="AEN168"
+>Function name and open paren</A
+></H2
+><P
+> The <TT
+CLASS="LITERAL"
+>define generic</TT
+> or
+        <TT
+CLASS="LITERAL"
+>define method</TT
+> declarations must have a
+        space or newline between the name of the definition and the
+        parameter list.  At any function call site, the name and open
+        paren must be adjacent, with no intervening characters.</P
+><H2
+><A
+NAME="AEN173"
+>Wrapping <TT
+CLASS="LITERAL"
+>let</TT
+> statements</A
+></H2
+><P
+>If a <TT
+CLASS="LITERAL"
+>let</TT
+> statement wraps, you must
+	put the equal sign on a new line and indent it one extra
+	indent level.</P
+><H2
+><A
+NAME="AEN178"
+>Terminate statements with semicolons</A
+></H2
+><P
+>Semicolons are terminators and must appear wherever they
+	are optional, except as covered by the "Single-line
+	statements" mandate.</P
+><H2
+><A
+NAME="AEN181"
+>Single-line statements</A
+></H2
+><P
+> Single-line statement, such as if-else, must not have
+        any internal semicolons.  If a single-line statement requires
+        an internal semicolon, then you must break the statement into
+        multiple lines.  For example, the following would be illegal
+        in Gwydion style:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let x = if (some-test) foo(); 3; else 5; end;
+let x = if (some-test) foo(); 3 else 5 end;
+let f = method (a, b) foo(); #f; end;</PRE
+><P
+>These should be formatted as follows (ignoring the
+	<TT
+CLASS="LITERAL"
+>end if</TT
+> issue):</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let x = if (some-test)
+   foo();
+   3;
+ else
+   5;
+ end;
+let f = method (a, b)
+   foo();
+   #f;
+ end;</PRE
+><P
+> Most programmers felt this rule, by its nature of
+        eliminating multiple statements within a block on a single
+        line, made code much more readable.</P
+><H2
+><A
+NAME="AEN189"
+>Wrapping arithmetic/boolean expressions</A
+></H2
+><P
+> You must wrap long expressions before operators and
+        indent the operators with one extra indent level from the
+        beginning of the expression.  Note, assignments are considered
+        to be "statements", and the "expression" that wraps is the
+        code on the right-hand side of the assignment operator.
+        Therefore, the first two examples below are considered to be
+        approved style, but the third is not:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>my-local := big-computation(arg1, arg2)
+       + another-hairy-long-calculation(arg3, arg4, arg5)
+my-local := (big-computation(arg1, arg2)
+        + another-hairy-long-calculation(arg3, arg4, arg5))
+my-local := big-computation(arg1, arg2)
+  + another-hairy-long-calculation(arg3, arg4, arg5)</PRE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="gdmaint-style-recommended.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Recommended</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint-style.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

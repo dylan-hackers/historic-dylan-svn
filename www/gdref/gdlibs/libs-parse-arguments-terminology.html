@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Terminology</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Library Reference Guide"
+HREF="gdlibs.html"><LINK
+REL="UP"
+TITLE="The Parse-Arguments Library"
+HREF="libs-parse-arguments.html"><LINK
+REL="PREVIOUS"
+TITLE="The Parse-Arguments Library"
+HREF="libs-parse-arguments.html"><LINK
+REL="NEXT"
+TITLE="A Simple Example"
+HREF="libs-parse-arguments-example.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Library Reference Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="libs-parse-arguments.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 16. The Parse-Arguments Library</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="libs-parse-arguments-example.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="LIBS-PARSE-ARGUMENTS-TERMINOLOGY"
+>Terminology</A
+></H1
+><P
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Parse-Arguments</CODE
+></FONT
+> library uses a
+      standard set of terminology for representing the tokens which might
+      appear on a command line.</P
+><DIV
+CLASS="FIGURE"
+><P
+><B
+><A
+NAME="LIBS-PARSE-ARGUMENTS-CMDLINE-1"
+>Figure 16-1. Sample command line.</A
+></B
+></P
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> sample-app -v --repeat -n=10 foo.txt -- bar.txt</PRE
+></DIV
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>application name</B
+></DT
+><DD
+><P
+>The application name appears first on the command
+	    line. Under Unix-like systems, the application name is passed
+	    to the program exactly as typed. In particular, it may be the
+	    name of a symlink or include one or more directory
+	    components.</P
+></DD
+><DT
+><B
+>command-line arguments</B
+></DT
+><DD
+><P
+>Everything appearing after the application name is a
+	    command-line argument.</P
+></DD
+><DT
+><B
+>regular argument</B
+></DT
+><DD
+><P
+>In <A
+HREF="libs-parse-arguments-terminology.html#LIBS-PARSE-ARGUMENTS-CMDLINE-1"
+>Figure 16-1</A
+>,
+	    <TT
+CLASS="LITERAL"
+>foo.txt</TT
+> and <TT
+CLASS="LITERAL"
+>bar.txt</TT
+> are
+	    regular arguments.</P
+></DD
+><DT
+><B
+>option</B
+></DT
+><DD
+><P
+>Options are also known as flags and switches. They
+	    control the behavior of the application, and may appear in one
+	    of two forms. <I
+CLASS="GLOSSTERM"
+>Short options</I
+> always
+	    appear after a single dash, but several of them may be grouped
+	    together (e.g. <TT
+CLASS="LITERAL"
+>-tzvf</TT
+> in GNU tar). In <A
+HREF="libs-parse-arguments-terminology.html#LIBS-PARSE-ARGUMENTS-CMDLINE-1"
+>Figure 16-1</A
+>,
+	    <TT
+CLASS="LITERAL"
+>-v</TT
+> and <TT
+CLASS="LITERAL"
+>-n</TT
+> are both short
+	    options. <I
+CLASS="GLOSSTERM"
+>Long options</I
+> such as
+	    <TT
+CLASS="LITERAL"
+>--repeat</TT
+> consist of entire words and are
+	    always preceded by two dashes.</P
+></DD
+><DT
+><B
+>parameter</B
+></DT
+><DD
+><P
+>Parameters modify the behavior of an option. In
+            <A
+HREF="libs-parse-arguments-terminology.html#LIBS-PARSE-ARGUMENTS-CMDLINE-1"
+>Figure 16-1</A
+>, the
+	    <TT
+CLASS="LITERAL"
+>10</TT
+> following <TT
+CLASS="LITERAL"
+>-n</TT
+> is a
+	    parameter. Note that the equals sign may be surrounded by
+	    white space or omitted entirely where unambiguous.</P
+></DD
+><DT
+><B
+>option terminator</B
+></DT
+><DD
+><P
+>The double dash without an option name is called an
+	    option terminator. Any arguments appearing after the terminator
+	    are automatically regular arguments, even if they begin with a
+	    dash.</P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libs-parse-arguments.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdlibs.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libs-parse-arguments-example.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The Parse-Arguments Library</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libs-parse-arguments.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>A Simple Example</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Discussing error conditions</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Library Reference Guide"
+HREF="gdlibs.html"><LINK
+REL="UP"
+TITLE="The Streams Library"
+HREF="libs-streams.html"><LINK
+REL="PREVIOUS"
+TITLE="The Streams Library"
+HREF="libs-streams.html"><LINK
+REL="NEXT"
+TITLE="Goals of the Library"
+HREF="streams-goals.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Library Reference Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="libs-streams.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. The Streams Library</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="streams-goals.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="STREAMS-ERROR-CONVENTIONS"
+>Discussing error conditions</A
+></H1
+><P
+>This document uses two special terms in discussions of
+      error conditions.</P
+><P
+>When we say that something is an error, we mean that the
+      result is undefined. In particular, we do not mean that a
+      Streams implementation must signal an error condition; that is
+      the implementor's choice. So, for instance, the following text,
+      from page FIXME, means only that the result of using unread-element
+      in the case described is undefined:</P
+><P
+>It is an error to apply
+      <TT
+CLASS="FUNCTION"
+><B
+>unread-element</B
+></TT
+> to an element that is not
+      the element most recently read from the stream.</P
+><P
+>Only when we specifically mention signaling do we mean
+      that a Streams implementation must signal an error
+      condition. Note that we may not, in such a case, say exactly
+      which error condition must be signaled; if we do not say so, the
+      choice is again up to the implementor. In this text from the
+      description of stream-position-setter on page FIXME, for instance,
+      we state that an implementation must signal an error, but we do
+      not say what error must be signaled:</P
+><P
+>When position is a
+      <TT
+CLASS="CLASSNAME"
+>&#60;stream-position&#62;</TT
+>, if it is invalid
+      for some reason, this function signals an error.</P
+><P
+>By contrast, the following text from the description of
+      <TT
+CLASS="FUNCTION"
+><B
+>read-element</B
+></TT
+> on page FIXME says exactly
+      which error must be signaled:</P
+><P
+>If the end of the stream is encountered and no value was
+      supplied for on-end-of-stream, read-element signals an
+      <TT
+CLASS="CLASSNAME"
+>&#60;end-of-stream-error&#62;</TT
+>
+      condition. </P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libs-streams.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdlibs.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="streams-goals.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The Streams Library</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libs-streams.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Goals of the Library</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

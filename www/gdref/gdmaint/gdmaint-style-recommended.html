@@ -1,0 +1,575 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Recommended</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Porting and Maintenance Guide"
+HREF="gdmaint.html"><LINK
+REL="UP"
+TITLE="Gwydion Project Coding Style Guide"
+HREF="gdmaint-style.html"><LINK
+REL="PREVIOUS"
+TITLE="Gwydion Project Coding Style Guide"
+HREF="gdmaint-style.html"><LINK
+REL="NEXT"
+TITLE="Mandated"
+HREF="gdmaint-style-mandated.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Porting and Maintenance Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="gdmaint-style.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Appendix A. Gwydion Project Coding Style Guide</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="gdmaint-style-mandated.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="GDMAINT-STYLE-RECOMMENDED"
+>Recommended</A
+></H1
+><H2
+><A
+NAME="AEN67"
+>Indent level</A
+></H2
+><P
+> You should use a two-space indentation.  Each time code
+	needs to be further indented, you should use one indent level,
+	which is two spaces.</P
+><H2
+><A
+NAME="AEN70"
+>Indent wrapping slot descriptions</A
+></H2
+><P
+>When a slot description wraps to a new line in a "define
+        class" form, the extra lines should be indented one extra
+        indent level.</P
+><H2
+><A
+NAME="AEN73"
+>Using <TT
+CLASS="LITERAL"
+>///</TT
+> comments</A
+></H2
+><P
+>If you use <TT
+CLASS="LITERAL"
+>///</TT
+> comments, they should
+        only be used between top-level declarations.
+        <TT
+CLASS="LITERAL"
+>///</TT
+> comments can be used for logical page
+        headers, inter-function comments, code section introductions
+        (logical page headers), etc., for example:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>...
+end method;
+
+/// order-espresso -- Method for Exported GF.
+///
+/// This method orders espresso at carts on the corner when it is
+/// raining.  If it is not raining, this method delegates to
+/// next-method. 
+///
+define method order-espresso (vendor :: &#60;outdoor-espresso-cart&#62;,
+                              #next next-method)
+  =&#62; ();
+  ...
+end method;</PRE
+><P
+>Many programmers do not like others to use
+        <TT
+CLASS="LITERAL"
+>///</TT
+> comments.  Rob noted that if these are
+        only used between top-level declarations, where the
+        <TT
+CLASS="LITERAL"
+>///</TT
+> indicates a comment of wider scope (as
+        over a whole definition or logical page), then the Gwydion
+        environment should be able to display such comments however
+        any particular user wants to see them.</P
+><H2
+><A
+NAME="AEN83"
+>Using <TT
+CLASS="LITERAL"
+>/* ... */</TT
+></A
+></H2
+><P
+>If you use <TT
+CLASS="LITERAL"
+>/* ... */</TT
+> comments, they
+        should only be used at the beginning of a file or the
+        beginning of a logical page so that their use is highly
+        localized.  This prevents them from showing up surprisingly in
+        random places throughout a file of code.  Using
+        <TT
+CLASS="LITERAL"
+>/*...*/</TT
+> comments should go away once the
+        Gwydion environment has a means for linking general commentary
+        to logical units of code.  This issue has absolutely nothing
+        to do with using <TT
+CLASS="LITERAL"
+>/*...*/</TT
+> to temporarily
+        exclude code fragments.</P
+><H2
+><A
+NAME="AEN90"
+>Wrapping function definition headers</A
+></H2
+><P
+>When a function header wraps (that is, a <TT
+CLASS="LITERAL"
+>define
+	generic</TT
+> or a <TT
+CLASS="LITERAL"
+>define module</TT
+>
+	declaration), you should either break the line within the
+	parameter list or between the name and the parameter list.  If
+	you break the line between the name and parameter list, or
+	perhaps after the parameter list, then you should indent any
+	extra lines one extra indent level.  There is one exception:
+	the first line of the return values specification may be
+	indented only one space.  The following are examples of
+	recommended style:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method some-longer-name-for-effect
+    (one :: &#60;class-1&#62;, two :: &#60;class-2&#62;, ...)
+    =&#62; (result1 :: &#60;type1&#62;, result2 :: &#60;type2&#62;);
+  statement1;
+  statement2;
+  ...;
+end method;
+
+define method some-longer-name-for-effect
+    (one :: &#60;class-1&#62;, two :: &#60;class-2&#62;, ...)
+ =&#62; (result1 :: &#60;type1&#62;, result2 :: &#60;type2&#62;);
+  statement1;
+  statement2;
+  ...;
+end method;</PRE
+><H2
+><A
+NAME="AEN96"
+>Indent keyword parameters beyond
+	<TT
+CLASS="LITERAL"
+>#key</TT
+> token</A
+></H2
+><P
+> If there is more than one keyword parameter specified
+	in a function declaration, then all keyword parameter
+	specifications should line up with the first specification.
+	The following is an example:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method foo (foo :: &#60;simple-object-vector&#62;,
+                   #key start :: &#60;fixed-integer&#62; = 0,
+		        stop :: &#60;fixed-integer&#62; = foo.size)
+  ...</PRE
+><P
+>If a parameter list that contains a
+        <TT
+CLASS="LITERAL"
+>#key</TT
+> wraps, then you should wrap the
+        parameter list before the <TT
+CLASS="LITERAL"
+>#key</TT
+>
+        token.</P
+><H2
+><A
+NAME="AEN104"
+>Wrapping variable and constant definitions</A
+></H2
+><P
+>When a variable or constant definition wraps, you should
+        break the line before the <TT
+CLASS="LITERAL"
+>=</TT
+> token:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define constant western-culture :: &#60;integer&#62;
+  = north-america-mask | south-america-mask | europe-mask;</PRE
+><H2
+><A
+NAME="AEN109"
+>Using <TT
+CLASS="LITERAL"
+>end <TT
+CLASS="PARAMETER"
+><I
+>mumble</I
+></TT
+></TT
+>
+        to terminate statements</A
+></H2
+><P
+>You should use <TT
+CLASS="LITERAL"
+>end
+	<TT
+CLASS="PARAMETER"
+><I
+>mumble</I
+></TT
+></TT
+>, rather than just
+	<TT
+CLASS="LITERAL"
+>end</TT
+>, whenever there is sufficient vertical
+	space between the beginning and the end of the statement to
+	hinder readability.  Some programmers like to use <TT
+CLASS="LITERAL"
+>end
+	<TT
+CLASS="PARAMETER"
+><I
+>mumble</I
+></TT
+></TT
+> religiously, but those
+	same programmers only use "end" when using <TT
+CLASS="LITERAL"
+>end
+	<TT
+CLASS="PARAMETER"
+><I
+>mumble</I
+></TT
+></TT
+> would make a
+	single-line statement wrap onto a new line.  Programmers may
+	add the <TT
+CLASS="LITERAL"
+><TT
+CLASS="PARAMETER"
+><I
+>mumble</I
+></TT
+></TT
+> to an
+	<TT
+CLASS="LITERAL"
+>end</TT
+> if they feel the code was hard to
+	visually scan, but programmers should not add
+	<TT
+CLASS="LITERAL"
+><TT
+CLASS="PARAMETER"
+><I
+>mumble</I
+></TT
+></TT
+>s to all
+	<TT
+CLASS="LITERAL"
+>end</TT
+>s in someone else's code just because
+	they like that style.  This policy is consistent with adding
+	additional comments to someone else's code to help
+	readability.</P
+><H2
+><A
+NAME="AEN127"
+>Horizontal space for columnization or other visual
+	effects</A
+></H2
+><P
+>You should NOT use horizontal spacing to columnize
+	aspects of Dylan code, or to present other visual effects
+	within the program.  If you do this, you should do it rarely.
+	The one exception to this rule is the "Indent keyword
+	parameters beyond #key token" recommendation.</P
+><H2
+><A
+NAME="AEN130"
+>Keyword syntax</A
+></H2
+><P
+> You should only use keyword notation for symbols in
+        function calls and function declarations.  You can also use
+        keyword notation in slot descriptions within <TT
+CLASS="LITERAL"
+>define
+        class</TT
+>, where you are supplying a symbol to be the
+        key for an initialization argument.  When a symbol is a value,
+        such as a default value in a declaration or an argument value
+        in a call, you should use symbol notation, not keyword
+        notation.  The following are examples of recommended
+        style:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method reposition (stream :: &#60;stream&#62;, offset :: &#60;integer&#62;,
+                          #key from: = #"start")
+
+
+define method foo ()
+  ...
+  bar(x, y, color: #"red");
+  ...
+end method;
+
+// In this example, required-init-keyword: would always be in
+// keyword notation, and "foo:" is the item to which this style
+// recommendation speaks.
+//
+define class &#60;frob&#62;
+  slot gag, required-init-keyword: foo:;
+end;
+//
+// Or ...
+//
+define class &#60;frob&#62;
+  slot gag, required-init-keyword: #"foo";
+end;</PRE
+><H2
+><A
+NAME="AEN135"
+>Blank comment line between introductory comments and
+	definitions</A
+></H2
+><P
+> You should include a blank comment line between the
+        introductory comments for a function and the function
+        definition.  This applies to any top-level declaration for
+        which you supply an introductory comment.  The following is an
+        example:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>// Blah blah blah GINGER blah blah blah.
+//
+define ...</PRE
+><H2
+><A
+NAME="AEN139"
+>Wrapping <TT
+CLASS="LITERAL"
+>case</TT
+> statements (applies to
+	<TT
+CLASS="LITERAL"
+>select</TT
+> too)</A
+></H2
+><P
+>If any single branch of a <TT
+CLASS="LITERAL"
+>case</TT
+>
+        statement wraps, then you should wrap every branch.  In
+        practice, there are common exceptions to this
+        recommendation.</P
+><P
+> When wrapping a case statement, you should wrap it
+        after the <TT
+CLASS="LITERAL"
+>=&#62;</TT
+> token.  There should be no
+        exceptions to this recommendation.</P
+><P
+>	The following exhibit the recommended style:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>case
+  test1 =&#62; expression1;
+  test2 =&#62; expression2;
+end;
+
+case
+  test1 =&#62;
+    statement1;
+    statement2;
+  test2 =&#62;
+    statement1;
+    statement2;
+end;</PRE
+><H2
+><A
+NAME="AEN149"
+>Using <TT
+CLASS="LITERAL"
+>#t</TT
+> for
+	<TT
+CLASS="LITERAL"
+>otherwise</TT
+> in <TT
+CLASS="LITERAL"
+>case</TT
+>
+	statements</A
+></H2
+><P
+> You should not use <TT
+CLASS="LITERAL"
+>#t</TT
+> for
+	<TT
+CLASS="LITERAL"
+>otherwise</TT
+> in <TT
+CLASS="LITERAL"
+>case</TT
+>
+	statements.</P
+><H2
+><A
+NAME="AEN158"
+>Wrapping <TT
+CLASS="LITERAL"
+>for</TT
+> clauses</A
+></H2
+><P
+>When an <TT
+CLASS="LITERAL"
+>=</TT
+>/<TT
+CLASS="LITERAL"
+>then</TT
+>
+        clause needs to wrap, you should wrap before the
+        <TT
+CLASS="LITERAL"
+>=</TT
+> and before the 'then'.  Both the '=' and
+        the 'then' should be indented one extra indent level:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>// Correct.
+//
+... nested levels ...
+                 for (some-index
+			= initialization-expression(x, y, z)
+			then stepper(u, v, w))
+	           stuff(some-index);
+		 end;
+
+// Incorrect.
+//
+... nested levels ...
+                 for (some-index = initialization-expression(x, y, z)
+			then stepper(u, v, w))
+		   stuff(some-index);
+		 end;</PRE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="gdmaint-style.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="gdmaint-style-mandated.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Gwydion Project Coding Style Guide</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdmaint-style.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Mandated</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

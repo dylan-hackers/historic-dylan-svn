@@ -1,0 +1,276 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>report-condition</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Library Reference Guide"
+HREF="gdlibs.html"><LINK
+REL="UP"
+TITLE="Debugger Customizations"
+HREF="libs-dylan-extensions.html#AEN295"><LINK
+REL="PREVIOUS"
+TITLE="The Extensions Module"
+HREF="libs-dylan-extensions.html"><LINK
+REL="NEXT"
+TITLE=""
+HREF="r344.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Library Reference Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="libs-dylan-extensions.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r344.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+>report-condition</H1
+><DIV
+CLASS="REFNAMEDIV"
+><H2
+>Name</H2
+>report-condition &#8212; Generic Function</DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Signature</H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="FUNCTION"
+><B
+>report-condition</B
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>condition</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>stream</I
+></TT
+> =&#62;</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Arguments</H2
+><P
+></P
+><DL
+><DT
+><TT
+CLASS="PARAMETER"
+><I
+>condition</I
+></TT
+></DT
+><DD
+><P
+>An instance of
+		  <TT
+CLASS="CLASSNAME"
+>&#60;condition&#62;</TT
+>.</P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+><I
+>stream</I
+></TT
+></DT
+><DD
+><P
+>An instance of
+		  <TT
+CLASS="CLASSNAME"
+>&#60;stream&#62;</TT
+>.</P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Values</H2
+><P
+>None</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Description</H2
+><P
+>This is the function that is used to print condition
+	    variables as error messages to users. The internal
+	    <TT
+CLASS="FUNCTION"
+><B
+>format</B
+></TT
+> function used by Mindy uses
+	    report-condition for condition arguments to the
+	    <TT
+CLASS="LITERAL"
+>%S</TT
+> format directive. The Format
+	    library's <TT
+CLASS="FUNCTION"
+><B
+>print-message</B
+></TT
+> method for
+	    conditions calls
+	    <TT
+CLASS="FUNCTION"
+><B
+>report-condition</B
+></TT
+>.</P
+><P
+>If you are writing a module that does no output but
+	    still provides report-condition methods, you should use
+	    <TT
+CLASS="FUNCTION"
+><B
+>condition-format</B
+></TT
+> to format
+	    output. Using <TT
+CLASS="FUNCTION"
+><B
+>condition-format</B
+></TT
+> makes
+	    your module more flexible for users of your module. If you
+	    call Cheap-IO's format, you'll be forced to write to only
+	    one destination, <TT
+CLASS="LITERAL"
+>stdout</TT
+>, ignoring the
+	    <TT
+CLASS="PARAMETER"
+><I
+>stream</I
+></TT
+> argument. If you call the
+	    Format library's <TT
+CLASS="FUNCTION"
+><B
+>format</B
+></TT
+> function,
+	    then your module will require the Format, Print, and
+	    Streams libraries; therefore, users of your module may
+	    ultimately load these other libraries needlessly. Of
+	    course, if you want to make use of the extended
+	    functionality of the Format library's format control
+	    strings, then you only have one choice anyway, and there's
+	    no reason to use <TT
+CLASS="FUNCTION"
+><B
+>condition-format</B
+></TT
+>.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libs-dylan-extensions.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdlibs.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r344.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The Extensions Module</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libs-dylan-extensions.html#AEN295"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

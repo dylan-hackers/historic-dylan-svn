@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Variable Clauses</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan User's Guide"
+HREF="gduser.html"><LINK
+REL="UP"
+TITLE="Using the Melange Interface Generator"
+HREF="melange.html"><LINK
+REL="PREVIOUS"
+TITLE="Constant Clauses"
+HREF="melange-constant-clauses.html"><LINK
+REL="NEXT"
+TITLE="Low level support facilities"
+HREF="melange-low-level-support.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan User's Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="melange-constant-clauses.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Using the Melange Interface Generator</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="melange-low-level-support.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="MELANGE-VARIABLE-CLAUSES"
+>Variable Clauses</A
+></H1
+><P
+>Global variables declared within C header files are
+      translated into "getter" functions which retrieve the value of
+      the C variables and optional "setter" functions to modify those
+      values. In effect, they are treated as slots of a "null
+      object"&#8212;the getter function takes no arguments and returns
+      the value of the variable, while the setter function takes a
+      single value which will be the new value of the variable. Type
+      mapping takes place for the arguments and results of these
+      functions, just as it would for slot accessors.</P
+><P
+>Variable clauses support the following options:</P
+><P
+></P
+><DL
+><DT
+>getter:</DT
+><DD
+><P
+>specifies a Dylan variable name which will be used
+            to hold the getter function.</P
+></DD
+><DT
+>setter:</DT
+><DD
+><P
+>specifies either a Dylan variable name which will be
+            used to hold the setter function, or #f to indicate that
+            there should be no setter function.</P
+></DD
+><DT
+>read-only:</DT
+><DD
+><P
+>specifies whether the variable should be
+            settable. "read-only: #t" is equivalent to "setter:
+            #f".</P
+></DD
+><DT
+>seal:</DT
+><DD
+><P
+>specifies whether the getter and setter functions
+            should be sealed. Possible values are "sealed" or "open",
+            and the default is taken from the "seal-functions:" option
+            in the "#include" clause (or "sealed" if not specified
+            there).</P
+></DD
+><DT
+>map:</DT
+><DD
+><P
+>specifies the high-level type to which the variable
+            should be mapped.</P
+></DD
+><DT
+>equate:</DT
+><DD
+><P
+>specifies the low-level type to which the raw C
+            value should be implicitly converted.</P
+></DD
+></DL
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="melange-constant-clauses.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gduser.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="melange-low-level-support.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Constant Clauses</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="melange.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Low level support facilities</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

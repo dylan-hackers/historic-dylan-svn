@@ -1,8 +1,9 @@
-book1.htm
-c27.htm
-c48.htm
-c51.htm
-c54.htm
-c57.htm
-a60.htm
-a60166.htm
+gdmaint.html
+gdmaint-introduction.html
+gdmaint-porting.html
+gdmaint-mindy-internals.html
+gdmaint-d2c-internals.html
+gdmaint-melange-internals.html
+gdmaint-style.html
+gdmaint-style-recommended.html
+gdmaint-style-mandated.html

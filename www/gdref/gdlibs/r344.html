@@ -1,0 +1,270 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+></TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Library Reference Guide"
+HREF="gdlibs.html"><LINK
+REL="UP"
+TITLE="Debugger Customizations"
+HREF="libs-dylan-extensions.html#AEN295"><LINK
+REL="PREVIOUS"
+TITLE="report-condition"
+HREF="r302.html"><LINK
+REL="NEXT"
+TITLE="condition-force-output"
+HREF="r390.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Library Reference Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r302.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r390.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><H2
+>Name</H2
+> &#8212; </DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Signature</H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="FUNCTION"
+><B
+>condition-format</B
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>stream</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>control-string</I
+></TT
+>#rest <TT
+CLASS="PARAMETER"
+><I
+>arguments</I
+></TT
+> =&#62;</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Arguments</H2
+><P
+></P
+><DL
+><DT
+><TT
+CLASS="PARAMETER"
+><I
+>stream</I
+></TT
+></DT
+><DD
+><P
+>An instance of
+		  <TT
+CLASS="CLASSNAME"
+>&#60;object&#62;</TT
+>.</P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+><I
+>control-string</I
+></TT
+></DT
+><DD
+><P
+>An instance of
+		  <TT
+CLASS="CLASSNAME"
+>&#60;string&#62;</TT
+>.</P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+><I
+>arguments</I
+></TT
+></DT
+><DD
+><P
+>Instances of
+		  <TT
+CLASS="CLASSNAME"
+>&#60;object&#62;</TT
+>.</P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Values</H2
+><P
+>None</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Description</H2
+><P
+>This function serves as a firewall between the
+	    condition system and the Streams and Format
+	    libraries. Methods on
+	    <TT
+CLASS="FUNCTION"
+><B
+>report-condition</B
+></TT
+> should use
+	    <TT
+CLASS="FUNCTION"
+><B
+>condition-format</B
+></TT
+> to do their
+	    formatting. Users will generally use
+	    <TT
+CLASS="LITERAL"
+>*debug-output*</TT
+> or
+	    <TT
+CLASS="LITERAL"
+>*warning-output*</TT
+> for the stream
+	    argument, but this is not required.</P
+><P
+>Mindy supplies a method for when stream is
+	    <TT
+CLASS="LITERAL"
+>#"Cheap-IO"</TT
+>. The Gwydion Format library
+	    supplies a method for when stream is a subclass of
+	    <TT
+CLASS="CLASSNAME"
+>&#60;stream&#62;</TT
+>. If you are
+	    implementing your own streams or format libraries, you
+	    will need to define a method on
+	    <TT
+CLASS="FUNCTION"
+><B
+>condition-format</B
+></TT
+> for your type of
+	    stream.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r302.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdlibs.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r390.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>report-condition</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libs-dylan-extensions.html#AEN295"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>condition-force-output</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,529 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Standard Option Types</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Library Reference Guide"
+HREF="gdlibs.html"><LINK
+REL="UP"
+TITLE="The Parse-Arguments Library"
+HREF="libs-parse-arguments.html"><LINK
+REL="PREVIOUS"
+TITLE="A Simple Example"
+HREF="libs-parse-arguments-example.html"><LINK
+REL="NEXT"
+TITLE="The TK Library"
+HREF="libs-dylan-tk.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Library Reference Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="libs-parse-arguments-example.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 16. The Parse-Arguments Library</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="libs-dylan-tk.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="LIBS-PARSE-ARGUMENTS-OPTION-PARSERS"
+>Standard Option Types</A
+></H1
+><P
+><FONT
+COLOR="GREEN"
+><CODE
+>Parse-Arguments</CODE
+></FONT
+> supports the most popular
+      types of <SPAN
+CLASS="ACRONYM"
+>POSIX</SPAN
+> and <SPAN
+CLASS="ACRONYM"
+>GNU</SPAN
+>
+      command-line options.</P
+><TABLE
+WIDTH="100%"
+CELLPADDING="0"
+BORDER="0"
+><TR
+><TD
+><B
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;option-parser&#62;</CODE
+></FONT
+></B
+></TD
+><TD
+ALIGN="RIGHT"
+><STRONG
+>[Abstract Open Primary Class]</STRONG
+></TD
+></TR
+></TABLE
+><HR><BLOCKQUOTE
+>Parses a single command-line option and any
+	parameters.</BLOCKQUOTE
+><P
+><STRONG
+>Superclasses</STRONG
+></P
+><BLOCKQUOTE
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;object&#62;</CODE
+></FONT
+> </BLOCKQUOTE
+><P
+><STRONG
+>Initialization Keywords</STRONG
+></P
+><BLOCKQUOTE
+><TABLE
+BORDER="0"
+COLUMNSPACING="0"
+><TR
+><TD
+VALIGN="TOP"
+><FONT
+COLOR="GREEN"
+><CODE
+>long-options:</CODE
+></FONT
+></TD
+><TD
+>An instance of <FONT
+COLOR="GREEN"
+><CODE
+>&#60;list&#62;</CODE
+></FONT
+>. Specifies the long options handled by this
+	    parser, represented as strings. Defaults to <FONT
+COLOR="GREEN"
+><CODE
+>#()</CODE
+></FONT
+>.</TD
+></TR
+><TR
+><TD
+VALIGN="TOP"
+><FONT
+COLOR="GREEN"
+><CODE
+>short-options:</CODE
+></FONT
+></TD
+><TD
+>An instance of <FONT
+COLOR="GREEN"
+><CODE
+>&#60;list&#62;</CODE
+></FONT
+>. Specifies the short options handled by this
+	    parser, represented as strings. Defaults to <FONT
+COLOR="GREEN"
+><CODE
+>#()</CODE
+></FONT
+>.</TD
+></TR
+></TABLE
+></BLOCKQUOTE
+><P
+><STRONG
+>Description</STRONG
+></P
+><BLOCKQUOTE
+><P
+>Different types of command-line options are parsed
+	  according to different rules. An
+	  <FONT
+COLOR="GREEN"
+><CODE
+>&#60;option-parser&#62;</CODE
+></FONT
+> knows how to handle one type of
+	  option. The <FONT
+COLOR="GREEN"
+><CODE
+>long-options:</CODE
+></FONT
+> and
+	  <FONT
+COLOR="GREEN"
+><CODE
+>short-options:</CODE
+></FONT
+> keywords are used to specify which
+	  option names should be handled by a given parser.</P
+></BLOCKQUOTE
+><TABLE
+WIDTH="100%"
+CELLPADDING="0"
+BORDER="0"
+><TR
+><TD
+><B
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;negative-option-parser&#62;</CODE
+></FONT
+></B
+></TD
+><TD
+ALIGN="RIGHT"
+><STRONG
+>[Abstract Open Class]</STRONG
+></TD
+></TR
+></TABLE
+><HR><BLOCKQUOTE
+>Parses command-line options which may appear in
+	positive and negative forms.</BLOCKQUOTE
+><P
+><STRONG
+>Superclasses</STRONG
+></P
+><BLOCKQUOTE
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;option-parser&#62;</CODE
+></FONT
+> </BLOCKQUOTE
+><P
+><STRONG
+>Initialization Keywords</STRONG
+></P
+><BLOCKQUOTE
+><TABLE
+BORDER="0"
+COLUMNSPACING="0"
+><TR
+><TD
+VALIGN="TOP"
+><FONT
+COLOR="GREEN"
+><CODE
+>negative-long-options:</CODE
+></FONT
+></TD
+><TD
+>An instance of <FONT
+COLOR="GREEN"
+><CODE
+>&#60;list&#62;</CODE
+></FONT
+>. Specifies the negative long options handled by
+	    this parser, represented as strings. Defaults to <FONT
+COLOR="GREEN"
+><CODE
+>#()</CODE
+></FONT
+>.</TD
+></TR
+><TR
+><TD
+VALIGN="TOP"
+><FONT
+COLOR="GREEN"
+><CODE
+>negative-short-options:</CODE
+></FONT
+></TD
+><TD
+>An instance of <FONT
+COLOR="GREEN"
+><CODE
+>&#60;list&#62;</CODE
+></FONT
+>. Specifies the negative short options handled by
+	    this parser, represented as strings. Defaults to <FONT
+COLOR="GREEN"
+><CODE
+>#()</CODE
+></FONT
+>.</TD
+></TR
+></TABLE
+></BLOCKQUOTE
+><P
+><STRONG
+>Description</STRONG
+></P
+><BLOCKQUOTE
+><P
+>Certain command-line options appear in a positive and
+	  negative form. For example, many programs accept
+	  <TT
+CLASS="LITERAL"
+>--verbose</TT
+> and <TT
+CLASS="LITERAL"
+>--quiet</TT
+>
+	  options.</P
+><P
+>This class provides internal support for creating parsers
+	  to handle such options. It cannot be instantiated.</P
+></BLOCKQUOTE
+><TABLE
+WIDTH="100%"
+CELLPADDING="0"
+BORDER="0"
+><TR
+><TD
+><B
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;simple-option-parser&#62;</CODE
+></FONT
+></B
+></TD
+><TD
+ALIGN="RIGHT"
+><STRONG
+>[Sealed Class]</STRONG
+></TD
+></TR
+></TABLE
+><HR><BLOCKQUOTE
+>Parses options without any parameters.</BLOCKQUOTE
+><P
+><STRONG
+>Superclasses</STRONG
+></P
+><BLOCKQUOTE
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;negative-option-parser&#62;</CODE
+></FONT
+> </BLOCKQUOTE
+><P
+><STRONG
+>Initialization Keywords</STRONG
+></P
+><BLOCKQUOTE
+><TABLE
+BORDER="0"
+COLUMNSPACING="0"
+><TR
+><TD
+VALIGN="TOP"
+><FONT
+COLOR="GREEN"
+><CODE
+>default:</CODE
+></FONT
+></TD
+><TD
+>An instance of <FONT
+COLOR="GREEN"
+><CODE
+>&#60;boolean&#62;</CODE
+></FONT
+>. Specifies the value returned by this option
+	    parser if no applicable options appear on the command
+	    line. Defaults to <FONT
+COLOR="GREEN"
+><CODE
+>#f</CODE
+></FONT
+>.</TD
+></TR
+></TABLE
+></BLOCKQUOTE
+><P
+><STRONG
+>Description</STRONG
+></P
+><BLOCKQUOTE
+><P
+>Simple options have no parameters, and may appear in both
+	  positive and negative forms. When parsing a list of arguments,
+	  the value of the option is first set to the default. As the
+	  command line is then scanned from left to right, each positive
+	  option sets the value to <FONT
+COLOR="GREEN"
+><CODE
+>#t</CODE
+></FONT
+> and each negative
+	  option sets it to <FONT
+COLOR="GREEN"
+><CODE
+>#f</CODE
+></FONT
+>.</P
+><P
+>This behavior is consistent with that of the utility
+	  <TT
+CLASS="LITERAL"
+>rm</TT
+>, which allows the user to set default
+	  options with a shell alias of the form <TT
+CLASS="LITERAL"
+>alias rm="rm
+	  -i"</TT
+>. Such defaults can be overriden by explicity
+	  passing a flag when calling <TT
+CLASS="LITERAL"
+>rm</TT
+> because the
+	  rightmost value takes precedence.</P
+></BLOCKQUOTE
+><TABLE
+WIDTH="100%"
+CELLPADDING="0"
+BORDER="0"
+><TR
+><TD
+><B
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;parameter-option-parser&#62;</CODE
+></FONT
+></B
+></TD
+><TD
+ALIGN="RIGHT"
+><STRONG
+>[Sealed Class]</STRONG
+></TD
+></TR
+></TABLE
+><HR><BLOCKQUOTE
+>Parses options which have a parameter and may appear
+        only once.</BLOCKQUOTE
+><P
+><STRONG
+>Superclasses</STRONG
+></P
+><BLOCKQUOTE
+><FONT
+COLOR="GREEN"
+><CODE
+>&#60;option-parser&#62;</CODE
+></FONT
+> </BLOCKQUOTE
+><P
+><STRONG
+>Initialization Keywords</STRONG
+></P
+><BLOCKQUOTE
+>None.</BLOCKQUOTE
+><P
+><STRONG
+>Description</STRONG
+></P
+><BLOCKQUOTE
+><P
+>Foo.</P
+></BLOCKQUOTE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libs-parse-arguments-example.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="gdlibs.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libs-dylan-tk.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>A Simple Example</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libs-parse-arguments.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>The TK Library</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
