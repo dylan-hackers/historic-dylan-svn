@@ -149,6 +149,16 @@ define class <appearance> (<node>)
   slot texture-transform = #f, init-keyword: texture-transform:;
 end class <appearance>;
 
+define class <material> (<node>)
+  slot ambient-intensity :: <float>, init-keyword: ambient-intensity:;
+  slot diffuse-color     :: <color>, init-keyword: diffuse-color:;
+  slot emissive-color    :: <color>, init-keyword: emissive-color:;
+  slot shininess         :: <float>, init-keyword: shininess:;
+  slot specular-color    :: <color>, init-keyword: specular-color:;
+  slot transparency      :: <float>, init-keyword: transparency:;
+end class <material>;
+
+
 define class <line-grid> (<node>)
 end class <line-grid>;
 

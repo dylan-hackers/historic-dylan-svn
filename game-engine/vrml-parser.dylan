@@ -52,7 +52,7 @@ define method parse-vrml(file-name :: <string>)
   => (model :: <node>);
   let save-debug = *debug-meta-functions?*;
   block ()
-    *debug-meta-functions?* := #f;
+    *debug-meta-functions?* := #t;
 
     let input-stream = make(<file-stream>, direction: #"input", locator: file-name);
     let input = slurp-input(input-stream);
@@ -293,12 +293,19 @@ end IndexedFaceSetNode;
 define meta MaterialNode
   (c, ambientIntensity, diffuseColor, emissiveColor,
    shininess, specularColor, transparency)
-  do(ambientIntensity := 0.2;
-     diffuseColor := vector(0.8, 0.8, 0.8);
-     emissiveColor := vector(0.0, 0.0, 0.0);
-     shininess := 0.2;
-     specularColor := vector(0.0, 0.0, 0.0);
-     transparency := 0.0),
+  => (make(<material>,
+           ambient-intensity: ambientIntensity,
+           diffuse-color: diffuseColor,
+           emissive-color: emissiveColor,
+           shininess: shininess,
+           specular-color: specularColor,
+           transparency: transparency))
+  do(ambientIntensity := 0.2s0;
+     diffuseColor := vector(0.8s0, 0.8s0, 0.8s0);
+     emissiveColor := vector(0.0s0, 0.0s0, 0.0s0);
+     shininess := 0.2s0;
+     specularColor := vector(0.0s0, 0.0s0, 0.0s0);
+     transparency := 0.0s0),
   loop([ws?(c),
         {["ambientIntensity", ws(c), scan-SFFloat(ambientIntensity)],
          ["diffuseColor",     ws(c), scan-SFColor(diffuseColor)],

@@ -44,6 +44,8 @@ define module vrml-model
     <camera>, eye-position, looking-at, up,
     <spotlight>, light-position, ambient, diffuse, specular, spot-direction, light-id,
     <appearance>, material, texture, texture-transform,
+    <material>, ambient-intensity, diffuse-color, emissive-color, 
+    shininess, specular-color, transparency,
     preorder-traversal;
 end;
 

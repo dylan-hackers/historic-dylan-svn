@@ -7,6 +7,9 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
     glFrontFace($GL-CW);
   end if;
   let inPoly = #f;
+  let normals :: false-or(<simple-object-vector>) = ifs.normal;
+  let coords :: <simple-object-vector> = ifs.coord;
+
   for(e :: <integer> in ifs.coord-index)
     if (e == -1)
       if (inPoly)
@@ -18,13 +21,13 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
         glBegin($GL-POLYGON);
         inPoly := #t;
       end;
-      if(ifs.normal)
-        let n :: <3d-vector> = ifs.normal[e];
+      if(normals)
+        let n :: <3d-vector> = normals[e];
         let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
           = values(n[0], n[1], n[2]);
         glNormal(x, y, z);
       end if;
-      let v :: <3d-point> = ifs.coord[e];
+      let v :: <3d-point> = coords[e];
       let (x :: <single-float>, y :: <single-float>, z :: <single-float>)
         = values(v[0], v[1], v[2]);
       glVertex(x, y, z);
@@ -95,7 +98,7 @@ define method render-to-opengl(node :: <shape>)
   if(node.appearance)
     glPushAttrib($GL-ALL-ATTRIB-BITS); // need to find out which ones
                                        // actually need to be saved
-//    render-to-opengl(node.appearance);
+    render-to-opengl(node.appearance);
     render-to-opengl(node.geometry);
     glPopAttrib();
   else
@@ -138,10 +141,25 @@ define method render-to-opengl(node :: <spotlight>)
 end method render-to-opengl;
 
 define method render-to-opengl(node :: <appearance>)
-//  node.material          & render-to-opengl(node.material);
+  node.material          & render-to-opengl(node.material);
 //  node.texture           & render-to-opengl(node.texture);
 //  node.texture-transform & render-to-opengl(node.texture-transform);
-//  format-out("Material: %=\n", node.material);
+end method render-to-opengl;
+
+define method render-to-opengl(node :: <material>)
+  glMaterial($GL-FRONT, $GL-AMBIENT, 
+             node.ambient-intensity,  node.ambient-intensity, node.ambient-intensity,
+             node.transparency);
+  glMaterial($GL-FRONT, $GL-DIFFUSE, 
+             node.diffuse-color[0],  node.diffuse-color[1], node.diffuse-color[2],
+             node.transparency);
+  glMaterial($GL-FRONT, $GL-SPECULAR, 
+             node.specular-color[0],  node.specular-color[1], node.specular-color[2],
+             node.transparency);
+  glMaterial($GL-FRONT, $GL-EMISSION, 
+             node.emissive-color[0],  node.emissive-color[1], node.emissive-color[2],
+             node.transparency);
+  glMaterial($GL-FRONT, $GL-SHININESS, node.shininess);
 end method render-to-opengl;
 
 define method render-to-opengl(node :: <true>)
