@@ -28,7 +28,7 @@ Message body:
     $db = mysql_connect("localhost","gwydion","");
     mysql_select_db("gwydion");
 
-    $query = 'insert into news values (NOW(),"'.$headline.'","'.$body.'","andreas","andreas",0)';
+    $query = 'insert into news values (NOW(),"'.addslashes($headline).'","'.addslashes($body).'","andreas","andreas",0)';
     $res = mysql_query($query, $db);
     $err = mysql_error();
     if($err) {
