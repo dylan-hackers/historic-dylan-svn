@@ -15,8 +15,6 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../regular-expressions'
     . ' -L../../common-dylan'
     . ' -L../../threads'
-    . ' -L../../../qa/testworks'
-    . ' -L../../../qa/testworks-specs'
     . ' -L..';
 
 &emit_library_rule('collections-test-suite', '$(BUILDROOT)/force.timestamp',

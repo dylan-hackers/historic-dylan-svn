@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76 2003/04/02 07:35:22 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.1 2003/04/25 02:59:09 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -435,23 +435,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 
 #if(~mindy)
   if (option-value-by-long-name(argp, "interactive"))
-    let finished? = #f;
-    while(~ finished?)
-      format(*standard-output*, "gwydion> ");
-      force-output(*standard-output*);
-      let line = read-line(*standard-input*, on-end-of-stream: #f);
-      if(line)
-        block()
-          evaluate(line, $empty-environment);
-        exception(condition :: <condition>)
-          report-condition(condition, *standard-output*);
-          format(*standard-output*, "\n");
-        end block;
-      else
-        finished? := #t;
-        format(*standard-output*, "\n");
-      end if;
-    end while;
+    run-command-processor();
     exit();
   end if;
 #endif

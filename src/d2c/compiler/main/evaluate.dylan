@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5 2003/03/16 08:43:28 brent Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.1 2003/04/25 02:59:07 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -35,6 +35,24 @@ copyright: see below
 define variable *interpreter-library* = #f;
 
 #if (~mindy)
+
+define function evaluate-safely(expression :: <string>)
+  block()
+    evaluate(expression, $empty-environment);
+  exception(condition :: <condition>)
+    condition-format(*standard-output*, "%s\r\n", condition);
+    force-output(*standard-output*);
+    #f
+  end block
+end function evaluate-safely;
+
+make(<command>, name: "Evaluate", 
+     command: evaluate-safely, 
+     summary: "Evaluate as Dylan expression.");
+
+
+
+
 define generic evaluate(expression, environment :: <interpreter-environment>)
  => val :: <ct-value>;
 
