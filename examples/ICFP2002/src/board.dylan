@@ -187,9 +187,15 @@ define method add-package (state :: <state>, package :: <package>) => <state>;
                 packages: packages*);
 end method add-package;
 
-define function packages-at(state :: <state>, p :: <point>)
+define function packages-at(state :: <state>, p :: <point>, #key available-only)
  => (c :: <collection>);
-  choose-by(curry(\=, p), map(location, state.packages), state.packages);
+  let set = if (available-only)
+	      free-packages(state);
+	    else
+	      state.packages;
+	    end if;
+  choose-by(curry(\=, p), map(location, set), set);
+  
 end function packages-at;
 
 define method find-package (state :: <state>, package-id :: <integer>)
