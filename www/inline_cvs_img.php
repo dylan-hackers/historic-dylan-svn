@@ -18,7 +18,7 @@ $graph->SetDataValues($cvs_data);
 
 // Specify plotting area details
 $graph->SetImageArea(238,220);
-$graph->SetPlotAreaPixels(40,20,208,190);
+$graph->SetPlotAreaPixels(55,20,208,190);
 $graph->SetPrecisionY("0");
 $graph->SetVertTickIncrement("100");
 $graph->SetTickLength("5");
