@@ -6,3 +6,4 @@ let a = #f; a := method() 23 end; a()
 method() 23 end
 method(x) x(x) end(method(y) y end)
 method(x) x(x) end(method(y) 23 end)
+method(x) x(x) end(identity)

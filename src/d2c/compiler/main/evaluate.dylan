@@ -238,7 +238,7 @@ define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression
 end;
 
 // ########## fer-evaluate-call ##########
-
+/*
 // for now....
 define method fer-evaluate /* -call ##### */(func :: <fer-function-region>, environment :: <object>)
   => ct-value :: <ct-value>; // multivalues???
@@ -246,7 +246,7 @@ define method fer-evaluate /* -call ##### */(func :: <fer-function-region>, envi
   // add the vars in the prolog... to a fresh environment ###### TODO
   fer-evaluate(func.body, environment)
 end;
-
+*/
 
 
 define generic fer-evaluate-call(func :: <abstract-function-literal>, operands :: false-or(<dependency>))
@@ -254,7 +254,8 @@ define generic fer-evaluate-call(func :: <abstract-function-literal>, operands :
 
 define method fer-evaluate-call(func :: <method-literal>, operands :: false-or(<dependency>))
  => result :: <ct-value>;
-  fer-evaluate(func.main-entry, curry(error, "no, there is no variable %= in environment")) // #####  func.main-entry.body
+//  fer-evaluate(func.main-entry, curry(error, "no, there is no variable %= in environment")) // #####  func.main-entry.body
+  fer-evaluate(func.main-entry.body, curry(error, "no, there is no variable %= in environment")) // #####  func.main-entry.body
 end;
 
 // ########## fer-evaluate-expression ##########
