@@ -32,7 +32,7 @@ define function main(name, arguments)
 
   //test-matrix-vs-transform();
   //exit-application(0);
-
+/*
   let o1 = make(<sphere>);
   let o2 = make(<plane>);
   let o3 = make(<plane>);
@@ -53,7 +53,7 @@ define function main(name, arguments)
 
   
 
-  let o = make(<csg-union>, of: vector(o1, o2, o3));
+  let o = make(<csg-union>, of: vector(o1, o2));
   
 //  z-rotate!(o, $double-pi / 16.0);
 
@@ -76,10 +76,16 @@ define function main(name, arguments)
   render-image(o, 1, "render.ppm", 
 	       make(<color>, red: 0.0, green: 0.0, blue: 0.0), 
 	       vector(l), 
-	       64, 64, $double-pi / 2.0);
-
+	       256, 256, $double-pi / 2.0);
+*/
   exit-application(0);
 end function main;
+
+// Debugging wedge
+define method print-object(v :: <vector3D>, stream :: <stream>)
+ => ();
+  print-object(vector(v.x, v.y, v.z, v.w), stream);
+end method print-object;
 
 // Invoke our main() function.
 main(application-name(), application-arguments());
