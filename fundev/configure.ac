@@ -47,7 +47,7 @@ done
 AC_PATH_PROG(FDCOMPILE, fdcompile, no)
 test "$FDCOMPILE" = no && AC_MSG_ERROR([
 fdcompile is required to bootstrap Functional Devleloper])
-FDCOMPILE=$FDCOMPILE -save
+FDCOMPILE="$FDCOMPILE -save"
 AC_SUBST(FDCOMPILE)
 
 # TODO: figure out the bootstrap type given the fdcompile version
