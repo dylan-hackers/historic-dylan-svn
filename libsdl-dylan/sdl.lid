@@ -1,7 +1,11 @@
 library: sdl
 author: Rob Myers
-copyright: Copyright (c) 2003 Rob Myers
+copyright: Copyright (c) 2003 Gwydion Dylan Maintainers
+license: LGPL
 linker-options: -lSDL
 files:
-	sdl-exports
+	sdl-library
+	sdl-wrappers-module
+	sdl-module
 	sdl
+	sdl-unix
