@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/driver.c,v 1.5 2000/01/24 04:58:12 andreas Exp $
-*
 * Main driver routines for mindy.
 *
 \**********************************************************************/

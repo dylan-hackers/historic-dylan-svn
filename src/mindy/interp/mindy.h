@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/mindy.h,v 1.4.4.1 2003/07/05 03:56:16 prom Exp $
-*
 \**********************************************************************/
 
 extern char *exec_file_name;

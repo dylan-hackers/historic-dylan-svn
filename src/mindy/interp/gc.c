@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/gc.c,v 1.7.4.1 2003/10/18 22:13:44 andreas Exp $
-*
 * This file is the garbage collector.
 *
 \**********************************************************************/
