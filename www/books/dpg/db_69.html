@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_68.html" />
+<link rel="prev" href="db_68.html" />
+<link rel="next" href="db_70.html" />
+<title>5.2.1   New definitions of the time classes</title>
+</head>
+<body>
+
+<div>
+<a name="heading69"></a>
+
+<div>
+<p><a href="db_70.html"><img src="next.gif" alt="next" /></a> <a href="db_68.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading69-0"></a>
+<h1>5.2.1   New definitions of the time classes</h1>
+<p> We define the new class <code>&lt;time&gt;</code>: </p>
+<pre>
+define class &lt;time&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
+end class &lt;time&gt;; 
+</pre>
+<p> We redefine <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code> to inherit from <code>&lt;time&gt;</code>:</p>
+<pre>
+<em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)
+</em>define class &lt;time-of-day&gt; (&lt;time&gt;)
+end class &lt;time-of-day&gt;; 
+<em>// A relative time between -24:00 and +24:00
+</em>define class &lt;time-offset&gt; (&lt;time&gt;)
+end class &lt;time-offset&gt;;
+</pre>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong><a name="marker-2-189"></a>Dynamic feature -- no need to recompile:</strong> In C++, a complete recompile of the program would be necessary to change the superclass of a class. Most Dylan development environments support a mode that requires only that you compile the new class definitions. The difference between compiling only a few class definitions and compiling the whole program can be a time saver for complex applications.</p>
+</td></tr></table><p> </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_70.html"><img src="next.gif" alt="next" /></a> <a href="db_68.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

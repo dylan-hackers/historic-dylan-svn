@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_262.html" />
+<link rel="prev" href="db_263.html" />
+<link rel="next" href="db_265.html" />
+<title>17.2.2   Vehicle containers</title>
+</head>
+<body>
+
+<div>
+<a name="heading264"></a>
+
+<div>
+<p><a href="db_265.html"><img src="next.gif" alt="next" /></a> <a href="db_263.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading264-0"></a>
+<h1>17.2.2   <a name="marker-9-710"></a>Vehicle containers</h1>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>airport-classes.dylan</code> file. <em>(continued)</em></p>
+</th></tr><tr valign="top"><td><pre>
+<em>// VEHICLE STORAGE</em>
+<em>// The default size for a vehicle container
+</em>define constant $default-capacity
+  = make(&lt;size&gt;, length: 350, width: 200, height: 100); 
+</pre></td></tr><tr valign="top"><td><pre><em>// This class represents a location where an aircraft could be stored
+</em>define abstract class &lt;vehicle-storage&gt; (&lt;physical-object&gt;)
+  slot storage-capacity :: &lt;size&gt; = $default-capacity,
+    init-keyword: capacity:;
+  each-subclass slot name-prefix :: &lt;string&gt; = &quot;Storage&quot;, setter: #f;
+  slot identifier :: &lt;string&gt;, required-init-keyword: id:;
+  slot connected-to :: &lt;simple-object-vector&gt;;
+end class &lt;vehicle-storage&gt;; 
+</pre></td></tr><tr valign="top"><td><pre><em>// By using the name-prefix each-subclass slot, we share one say method
+// for all vehicle containers
+</em>define method say (storage :: &lt;vehicle-storage&gt;) =&gt; ()
+  format-out(&quot;%s %s&quot;, storage.name-prefix, storage.identifier);
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre>define method object-fits?
+    (object :: &lt;physical-object&gt;, container :: &lt;vehicle-storage&gt;)
+ =&gt; (fits? :: &lt;boolean&gt;)
+  let object-size = object.physical-size;
+  let container-capacity = container.storage-capacity;
+  object-size.length &lt; container-capacity.length
+    &amp; object-size.height &lt; container-capacity.height
+    &amp; object-size.width &lt; container-capacity.width;
+end method object-fits?; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Vehicle storage that can hold only one aircraft regardless of direction
+// Direction in this context is either #&quot;inbound&quot; or #&quot;outbound&quot;
+</em>define abstract class &lt;single-storage&gt; (&lt;vehicle-storage&gt;)
+  slot vehicle-currently-occupying :: false-or(&lt;aircraft&gt;) = #f;
+end class &lt;single-storage&gt;; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Vehicle storage that can hold multiple aircraft, with distinct queues
+// for each direction
+</em>define abstract class &lt;multiple-storage&gt; (&lt;vehicle-storage&gt;)
+  slot vehicles-by-direction :: &lt;object-table&gt; = make(&lt;object-table&gt;);
+  slot maxima-by-direction :: &lt;object-table&gt; = make(&lt;object-table&gt;);
+  keyword directions:;
+  keyword maxima:;
+end class &lt;multiple-storage&gt;; 
+</pre></td></tr><tr valign="top"><td><pre><em>// In a real airport, there would be many paths an aircraft could take
+// For our simple airport example, we define only the #&quot;inbound&quot; and 
+// #&quot;outbound&quot; paths
+// The directions parameter is a sequence of these aircraft path names
+// Multiple storage containers can limit the number of aircraft that 
+// they can hold for each path; this is the maxima parameter
+// This initialize method creates a queue to hold aircraft for each
+// direction, and stores the queue in a table indexed by direction
+// This method also stores the maximum number of aircaft for that 
+// direction in a different table
+</em>define method initialize 
+    (object :: &lt;multiple-storage&gt;, #key directions :: &lt;sequence&gt;, 
+     maxima :: &lt;sequence&gt;)
+  next-method ();
+  for (direction in directions,
+       maximum in maxima)
+    object.vehicles-by-direction[direction] := make(&lt;deque&gt;);
+    object.maxima-by-direction[direction] := maximum;
+  end for;
+end method initialize; 
+</pre></td></tr><tr valign="top"><td><pre><em>// From the preceding basic vehicle containers, we can build specific
+// containers for each aircraft-transition location
+</em>define class &lt;gate&gt; (&lt;single-storage&gt;)
+  inherited slot name-prefix, init-value: &quot;Gate&quot;;
+end class &lt;gate&gt;; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Given a zero-based terminal number, and a one-based gate number, create
+// an return a string with a gate letter and a terminal number in it
+</em>define method generate-gate-id 
+    (term :: &lt;nonnegative-integer&gt;, gate :: &lt;positive-integer&gt;)
+ =&gt; (gate-id :: &lt;string&gt;)
+  format-to-string(&quot;%c%d&quot;, $letters[term], gate);
+end method generate-gate-id; 
+</pre></td></tr><tr valign="top"><td><pre><em><a name="marker-9-701"></a>// Gates-per-terminal is a vector; each element of the vector is the
+// number of gates to create for the terminal at that index
+// Returns a vector of all the gate instances
+</em>define method generate-gates
+    (gates-per-terminal :: &lt;vector&gt;, default-gate-capacity :: &lt;size&gt;)
+ =&gt; (gates :: &lt;vector&gt;)
+  let result = make(&lt;vector&gt;, size: reduce1(\+, gates-per-terminal));
+  let result-index = 0;
+  for (term from 0 below gates-per-terminal.size)
+    for (gate from 1 to gates-per-terminal[term])
+      result[result-index]
+        := make(&lt;gate&gt;, id: generate-gate-id(term, gate),
+                capacity: default-gate-capacity);
+      result-index := result-index + 1;
+    end for;
+  end for;
+  result;
+end method generate-gates; 
+</pre></td></tr><tr valign="top"><td><pre><em>// This class represents the part of the airspace over a given airport
+</em>define class &lt;sky&gt; (&lt;multiple-storage&gt;)
+<em>  // The airport over which this piece of sky is located
+</em>  slot airport-below :: &lt;airport&gt;, required-init-keyword: airport:;
+  inherited slot name-prefix, init-value: &quot;Sky&quot;;
+  required keyword inbound-aircraft:;
+end class &lt;sky&gt;; 
+</pre></td></tr><tr valign="top"><td><pre><em><a name="marker-9-702"></a>// When a sky instance is created, a sequence of inbound aircraft is
+// provided 
+// This method initializes the direction slot of the aircraft to 
+// #&quot;inbound&quot;, and places the aircraft in the inbound queue of the sky
+// instance
+</em>define method initialize 
+    (sky :: &lt;sky&gt;,<code> </code>#key inbound-aircraft<code> </code>::<code> </code>&lt;sequence&gt;)
+  next-method(sky, directions: #[#&quot;inbound&quot;, #&quot;outbound&quot;],
+              maxima: vector(inbound-aircraft.size,
+                             inbound-aircraft.size));
+  let inbound-queue = sky.vehicles-by-direction [#&quot;inbound&quot;];
+  for (vehicle in inbound-aircraft)
+    vehicle.direction := #&quot;inbound&quot;;
+    push-last(inbound-queue, vehicle);
+  end for;
+<em>  // Connect the airport to the sky
+</em>  sky.airport-below.sky-above := sky;
+end method initialize; 
+</pre></td></tr><tr valign="top"><td><pre><em>// This class represents a strip of land where aircraft land and take off
+</em>define class &lt;runway&gt; (&lt;single-storage&gt;)
+  inherited slot name-prefix, init-value: &quot;Runway&quot;;
+end class &lt;runway&gt;; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Taxiways connect runways and gates
+</em>define class &lt;taxiway&gt; (&lt;multiple-storage&gt;)
+  inherited slot name-prefix, init-value: &quot;Taxiway&quot;;
+end class &lt;taxiway&gt;; 
+</pre></td></tr></table>
+<p> </p>
+<p> In the preceding portion of the <code>airport-classes.dylan</code> file, we define the tangible objects that represent the various normal locations for aircraft in and around an airport. These locations are known as containers or vehicle storage. We can connect vehicle-storage instances to one another to form an airport. Instances of <code>&lt;single-storage&gt;</code> can hold only one aircraft at a time, whereas instances of <code>&lt;multiple-storage&gt;</code> can hold more than one aircraft at a time. Also, instances of <code>&lt;multiple-storage&gt;</code> treat inbound aircraft separately from outbound aircraft. We define the <code>object-fits?</code> method, which determines whether a physical object can fit into a container. We also define methods for creating, initializing, and describing various containers. Note the use of the <code>each-subclass</code> slot <code>name-prefix</code>, which permits one <code>say</code> method on the <code>&lt;vehicle-storage&gt;</code> class to cover all the vehicle-container classes. Each subclass of vehicle storage can override the inherited value of this slot, to ensure that the proper name of the vehicle storage is used in the description of instances of that subclass.</p>
+<p>The <code>&lt;vehicle-storage&gt;</code>, <code>&lt;multiple-storage&gt;</code>, and <code>&lt;single-storage&gt;</code> classes are all abstract, because it is not sensible to instantiate them. They contain partial implementations that they contribute to their subclasses.</p>
+<p>In the <code>generate-gates</code> method, the <code>gates-per-terminal</code> parameter is a vector that contains the count of gates for each terminal. By adding up all the elements of that vector with <code>reduce1</code>, we can compute the total number of gates at the airport, and thus the size of the vector that can hold all the gates.</p>
+<p>Next, we examine the classes, initialization methods, and <code>say</code> methods for the vehicles in the application.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_265.html"><img src="next.gif" alt="next" /></a> <a href="db_263.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

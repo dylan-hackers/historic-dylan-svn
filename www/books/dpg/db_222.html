@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_190.html" />
+<link rel="prev" href="db_221.html" />
+<link rel="next" href="db_223.html" />
+<title>13.10   Summary</title>
+</head>
+<body>
+
+<div>
+<a name="heading222"></a>
+
+<div>
+<p><a href="db_223.html"><img src="next.gif" alt="next" /></a> <a href="db_221.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading222-0"></a>
+<h1>13.10   Summary</h1>
+<p> In this chapter, we covered the following:</p>
+<ul>
+<li><p>We illustrated Dylan modules and libraries.</p></li>
+<li><p>We showed how to design modules using three roles: interface modules, implementation modules, and client modules.</p></li>
+<li><p>We described how a library might appear in Dylan interchange format.</p></li>
+<li><p>We showed how to create a component library.</p></li>
+<li><p>We illustrated the complexity of component and protocol design.</p></li>
+<li><p>We discussed how to create a protocol that can be extended by multiple client libraries.</p></li>
+<li><p>We discussed namespaces in Dylan, and their <a name="marker-2-660"></a>applicable scope; see <a href="#marker-9-594">Table 13.1</a>. </p>
+</li></ul><table border="1"><caption>
+Table 13.1   <a name="marker-9-594"></a>Namespace scopes.</caption><tr valign="top"><th><p> Namespace</p>
+</th><th><p> Scope</p>
+</th></tr><tr valign="top"><td><p> library</p>
+</td><td><p> global</p>
+</td></tr><tr valign="top"><td><p> module</p>
+</td><td><p> per library</p>
+</td></tr><tr valign="top"><td><p> constant or variable</p>
+</td><td><p> per module</p>
+</td></tr><tr valign="top"><td><p> symbol or keyword</p>
+</td><td><p> global</p>
+</td></tr></table><ul>
+<li><p>We described the roles of modules and the definition clauses that modules use; see <a href="#marker-9-593">Table 13.2</a>. </p></li>
+</ul><table border="1"><caption>
+Table 13.2   <a name="marker-9-593"></a>Module roles.</caption><tr valign="top"><th><p> Role</p>
+</th><th><p> Example clause</p>
+</th></tr><tr valign="top"><td><p> interface</p>
+</td><td><pre>
+<em>// Interface class
+</em>create &lt;time&gt;;
+<em>// Re-exported interface
+</em>use say, export: all;
+</pre></td></tr><tr valign="top"><td>
+<p> client</p>
+</td><td><pre>
+<em>// Substrate module
+</em>use dylan;
+</pre></td></tr><tr valign="top"><td>
+<p> implementation</p>
+</td><td><pre>
+<em>// Interface module
+</em>use time;
+</pre></td></tr><tr valign="top"><td>
+<p> implementation and interface</p>
+</td><td><pre>
+<em>// Interface protocol
+</em>export say;
+</pre></td></tr></table><a name="link-reuse-lastpage"></a><a name="link-time-mod-firstpage"></a>
+<!-- FM pgf ignored -->
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_223.html"><img src="next.gif" alt="next" /></a> <a href="db_221.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

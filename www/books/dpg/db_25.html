@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_24.html" />
+<link rel="prev" href="db_24.html" />
+<link rel="next" href="db_26.html" />
+<title>2.3.1   Assignment, initialization, and equality</title>
+</head>
+<body>
+
+<div>
+<a name="heading25"></a>
+
+<div>
+<p><a href="db_26.html"><img src="next.gif" alt="next" /></a> <a href="db_24.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading25-0"></a>
+<h1>2.3.1   Assignment, initialization, and equality</h1>
+<p> People new to Dylan may find <code>=</code> and <a name="marker-2-75"></a><code>:= </code>confusing, because the names are similar, and the meanings are related but distinct.</p>
+<p>The meaning of <code>=</code> depends on whether it appears an expression, or in a definition of a variable or constant. In an expression, <code>=</code> is a function that tests for equality; for example,</p>
+<pre>
+<em>? </em>3 = 3;
+<em>#t</em>
+</pre>
+<p> In a definition of a variable or constant, <code>=</code> precedes the initial value of the variable or constant; for example, </p>
+<pre>
+<em>? </em>define variable *her-number* = 3;
+</pre>
+<p> After you initialize a variable with <code>=</code>, the <code>=</code> function returns true:</p>
+<pre>
+<em>? </em>*her-number* = 3;
+<em>#t</em>
+</pre>
+<p> The assignment operator, <code>:=</code>, performs assignment, which is setting the value of an existing variable; for example,</p>
+<pre>
+<em>? </em>*her-number* := 4;
+<em>4</em>
+</pre>
+<p> After you have assigned a value to a variable, the = function returns true:</p>
+<pre>
+<em>? </em>*her-number* = 4;
+<em>#t</em>
+</pre>
+<p> Dylan offers an identity predicate, which we discuss in <a href="db_42.html#marker-9-129">Section 3.3.1, page 35</a>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_26.html"><img src="next.gif" alt="next" /></a> <a href="db_24.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

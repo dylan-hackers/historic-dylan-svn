@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_120.html" />
+<link rel="prev" href="db_137.html" />
+<link rel="next" href="db_139.html" />
+<title>10.7   Summary</title>
+</head>
+<body>
+
+<div>
+<a name="heading138"></a>
+
+<div>
+<p><a href="db_139.html"><img src="next.gif" alt="next" /></a> <a href="db_137.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading138-0"></a>
+<h1>10.7   Summary</h1>
+<p> In this chapter, we covered the following:</p>
+<ul>
+<li><p>We described techniques for initializing slots; see <a href="#marker-9-314">Table 10.1</a>.</p></li>
+<li><p>We discussed the syntax of calling getters and setters; see <a href="#marker-9-312">Table 10.2</a>.</p></li>
+<li><p>We showed how to define methods for getters and setters. </p></li>
+<li><p>We showed how and why you can use symbols instead of strings. </p></li>
+<li><p>We described the different kinds of slot allocation; see <a href="#marker-9-317">Table 10.3</a>.</p></li>
+</ul>
+<p> </p>
+<table border="1"><caption>Table 10.1   <a name="marker-9-314"></a>Summary of <a name="marker-2-315"></a>slot-initialization techniques. <em></em></caption><tr valign="top"><th><p>Technique</p>
+</th><th><p>Summary</p>
+</th></tr><tr valign="top"><td><p> <code>initialize<br /></code>method</p>
+</td><td><p> You can define a method for <code>initialize</code> for a class to perform any actions to initialize the instance. The <code>make</code> function calls the <code>initialize</code> generic function after <code>make</code> creates an instance and supplies those initial slot values that it can. If you need to do any complex computation to determine and set the value of a slot, you can do it in an <code>initialize</code> method.</p>
+</td></tr><tr valign="top"><td><p> Init keyword</p>
+</td><td><p> You can use the <code>init-keyword:</code> slot option to declare an optional keyword argument, or the <code>required-init-keyword:</code> slot option to declare a required keyword argument for <code>make</code> when you create an instance of the class. The value of the keyword argument becomes the value of the slot. </p>
+</td></tr><tr valign="top"><td><p> Init value</p>
+</td><td><p> You can use the <code>init-value:</code> slot option to give a default initial value for the slot. This option specifies an expression that is evaluated once, before the first instance of the class is made, to yield a value. Every time an instance is made and the slot needs a default value, this same value is used as the default. The slot receives its default initial value when no init keyword is defined, or when the caller does not supply the init-keyword argument to <code>make</code>. </p>
+</td></tr><tr valign="top"><td><p> Init function</p>
+</td><td><p> You can use the <code>init-function:</code> slot option to provide a function that returns a default value. This option specifies an expression that is evaluated once, before the first instance of the class is made, to yield a function. The function must have no required arguments and must return at least one value. Every time that an instance is made and the slot needs a default value, this function is called with no arguments, and the value that it returns is used as the default. The slot receives its default initial value when no init keyword is defined or when the caller does not supply the init-keyword argument to <code>make</code>. </p>
+</td></tr><tr valign="top"><td><p> Init <br />expression</p>
+</td><td><p> You can use an init expression to provide an expression that yields a default value. Every time that an instance is made and the slot needs a default value, this expression is evaluated, and its value is used as the default. The slot receives its default initial value when no init keyword is defined, or when the caller does not supply the init-keyword argument to <code>make</code>.</p>
+</td></tr></table><p> </p>
+<table border="1"><caption>Table 10.2   <a name="marker-9-312"></a>Syntax of calling getters and setters. <em></em></caption><tr valign="top"><th><p>Call</p>
+</th><th><p>Translation</p>
+</th></tr><tr valign="top"><td><pre>
+<em>object.function-name</em> 
+</pre></td><td><em>function-name<code>(object)</code></em>
+</td></tr><tr valign="top"><td>*my-time-of-day*.total-seconds;
+</td><td>total-seconds(*my-time-of-day*);
+</td></tr><tr valign="top"><td><em>object.name</em> := <em>new-value</em>;
+</td><td><em>name</em>-setter(<em>new-value</em>, <em>object</em>); 
+</td></tr><tr valign="top"><td>
+<p> <em>name(object)</em> := <em>new-value</em>;</p>
+</td><td><pre>
+<em>name</em>-setter(<em>new-value</em>, <em>object</em>); 
+</pre></td></tr><tr valign="top"><td>*my-time-of-day*.total-seconds
+  := 0;
+</td><td><code>total-seconds-setter
+  (0, *my-time-of-day*);</code>
+</td></tr><tr valign="top"><td>total-seconds(*my-time-of-day*)
+  := 0;
+</td><td><pre>total-seconds-setter(0, *my-time-of-day*);
+</pre></td></tr></table>
+<p> </p>
+<p> </p>
+<p> </p>
+<p> </p>
+<p> </p>
+<table border="1"><caption>Table 10.3   <a name="marker-9-317"></a>Summary of slot allocations. <em></em></caption><tr valign="top"><th><p> Allocation</p>
+</th><th><p>Summary</p>
+</th></tr><tr valign="top"><td><p> Instance</p>
+</td><td><p> Each instance allocates storage for the slot, and each instance of the class that defines the slot has its own value of the slot. Instance allocation is the default.</p>
+</td></tr><tr valign="top"><td><p> Virtual</p>
+</td><td><p> No storage is allocated for the slot. You must provide a getter method that computes the value of the virtual slot.</p>
+</td></tr><tr valign="top"><td><p> Class</p>
+</td><td><p> The class that defines the slot allocates storage for the slot. All general instances of the class share the value of the slot. </p>
+</td></tr><tr valign="top"><td><p> Each-<br />subclass</p>
+</td><td><p> The class that defines the slot and each of its subclasses allocate storage for th<a name="marker-2-318"></a>e slot. All the direct instances of each class share the value of the slot.</p>
+</td></tr></table><a name="link-slots-lastpage"></a><a name="link-collect-firstpage"></a><!-- FM pgf ignored -->
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_139.html"><img src="next.gif" alt="next" /></a> <a href="db_137.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

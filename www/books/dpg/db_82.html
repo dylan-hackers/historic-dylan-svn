@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_63.html" />
+<link rel="prev" href="db_81.html" />
+<link rel="next" href="db_83.html" />
+<title>5.8   The time library (so far)</title>
+</head>
+<body>
+
+<div>
+<a name="heading82"></a>
+
+<div>
+<p><a href="db_83.html"><img src="next.gif" alt="next" /></a> <a href="db_81.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading82-0"></a>
+<h1>5.8   The time library (so far)</h1>
+<p> In the course of introducing methods, classes, and generic functions, we have created elements of a library dealing with two kinds of time. Now, we construct a simple library containing those elements (we will continue to develop the time library throughout this book). We represent the time library in four files: a LID file, a library file, a library implementation file, and a test file. We could have expressed this library in three files, by combining into a single file the library implementation file and the test file, but we decided that it would be clearer to separate the underlying implementation (the definitions of classes, methods, and generic functions) from the test (where we create instances and call <code>say</code> on them).</p>
+<table border="1"><tr valign="top"><th><p> The LID file: <code>time.lid</code>.</p>
+</th></tr><tr valign="top"><td><pre>
+library: time
+files:   library
+         library-implementation
+         test
+</pre></td></tr></table>
+<p> </p>
+<p> The library file defines the <code>time</code> library and the <code>time</code> module.</p>
+<table border="1"><tr valign="top"><th><p> The library file: <code>library.dylan</code>. </p>
+</th></tr><tr valign="top"><td><pre>
+module: dylan-user
+define library time
+  use dylan; 
+  use format-out;
+end library time;
+define module time
+  use dylan;
+  use format-out;
+end module time;
+</pre></td></tr></table>
+<p> </p>
+<p> The library implementation file defines the classes, methods, and generic <br />functions.</p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The implementation file: <code>library-implementation.dylan</code>. </p>
+</th></tr><tr valign="top"><td><pre>
+module: time
+<em>// Class definitions</em>
+define class &lt;time&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
+end class &lt;time&gt;; 
+<em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)
+</em>define class &lt;time-of-day&gt; (&lt;time&gt;)
+end class &lt;time-of-day&gt;;
+</pre></td></tr><tr valign="top"><td><em>// A relative time between -24:00 and +24:00
+</em>define class &lt;time-offset&gt; (&lt;time&gt;)
+end class &lt;time-offset&gt;;
+</td></tr><tr valign="top"><td><em>// Method for determining whether a time offset is in the past
+</em>define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
+  time.total-seconds &lt; 0;
+end method past?;
+</td></tr><tr valign="top"><td><em>// Methods for encoding and decoding total seconds</em>
+define method encode-total-seconds
+    (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+ =&gt; (total-seconds :: &lt;integer&gt;)
+  ((hours * 60) + minutes) * 60 + seconds;
+end method encode-total-seconds;
+</td></tr><tr valign="top"><td>define method decode-total-seconds 
+    (time :: &lt;time&gt;)
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  decode-total-seconds(abs(time.total-seconds));
+end method decode-total-seconds;
+</td></tr><tr valign="top"><td>define method decode-total-seconds
+    (total-seconds :: &lt;integer&gt;)
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)<em>	</em>  let(total-minutes, seconds) = truncate/(total-seconds, 60);
+  let(hours, minutes) = truncate/(total-minutes, 60);
+  values(hours, minutes, seconds);
+end method decode-total-seconds;
+</td></tr><tr valign="top"><td><em>// The say generic function and its methods</em>
+<em>// Given an object, print a description of the object
+</em>define generic say (any-object :: &lt;object&gt;) =&gt; ();
+define method say (time :: &lt;time&gt;) =&gt; ()
+  let (hours, minutes) = decode-total-seconds(time); 
+  format-out
+    (&quot;%d:%s%d&quot;, hours, if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end, minutes);
+end method say;
+define method say (time :: &lt;time-offset&gt;)
+  format-out(&quot;%s &quot;, if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end);
+  next-method();
+end method say; 
+</td></tr></table>
+<p> </p>
+<p> The test file creates instances and calls <code>say</code> on the instances. The test file can access variables defined in the implementation file, because both files are in the <code>time</code> module. </p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The test file: <code>test.dylan</code>.</p>
+</th></tr><tr valign="top"><td><pre>
+module: time
+define variable *my-time-offset* :: &lt;time-offset&gt; 
+  = make(&lt;time-offset&gt;, total-seconds: encode-total-seconds(15, 20, 10));
+define variable *your-time-offset* :: &lt;time-offset&gt; 
+  = make(&lt;time-offset&gt;, total-seconds: - encode-total-seconds(6, 45, 30));
+define variable *my-time-of-day* 
+  = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds(0, 2, 0)); 
+define variable *your-time-of-day* 
+  = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds(8, 30, 59));
+say(*my-time-offset*);
+say(*your-time-offset*);
+say(*my-time-of-day*);
+say(*your-time-of-day*);
+</pre></td></tr></table>
+<p> When we run the <code>test.dylan</code> file, Dylan creates two instances of <code>&lt;time-offset&gt;</code> and two instances of <code>&lt;time-of-day&gt;</code>. It calls <code>say</code> on all four instances. The output of the test is</p>
+<pre>
+<em>plus 15:20
+minus 6:45
+0:02
+8:30</em>
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_83.html"><img src="next.gif" alt="next" /></a> <a href="db_81.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

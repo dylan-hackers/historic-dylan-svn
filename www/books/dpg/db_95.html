@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_92.html" />
+<link rel="prev" href="db_94.html" />
+<link rel="next" href="db_96.html" />
+<title>7.3   Abstract classes</title>
+</head>
+<body>
+
+<div>
+<a name="heading95"></a>
+
+<div>
+<p><a href="db_96.html"><img src="next.gif" alt="next" /></a> <a href="db_94.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading95-0"></a>
+<h1>7.3   Abstract classes</h1>
+<p> We intend that the <code>&lt;position&gt;</code> class will not have direct instances. Any position objects should be direct instances of <code>&lt;absolute-position&gt;</code> and <code>&lt;relative-position&gt;</code>. In Dylan, a class that is intended to be a superclass and not to have direct instances is an <strong>abstract</strong> class. A class that is intended to have direct instances is a <strong>concrete</strong> class. </p>
+<p>By default, a user-defined class is concrete. To define an abstract class, you declare it to be abstract in the <code>define class</code> form. For example:</p>
+<p> </p>
+<pre>
+<em>// Superclass of all position classes
+</em>define abstract class &lt;position&gt; (&lt;object&gt;)
+end class &lt;position&gt;; 
+</pre>
+<p> </p>
+<p> The <code>&lt;time&gt;</code> class is another one that we intend to have no direct instances, so we redefine it to be abstract:</p>
+<pre>
+define abstract class &lt;time&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
+end class &lt;time&gt;; 
+</pre>
+<p> </p>
+<p> If we tried to make an instance of <code>&lt;position&gt;</code> or <code>&lt;time&gt;</code> now, <code>make</code> would signal an error. For more information about abstract classes, see <a href="db_99.html#marker-9-272">Section 7.7</a>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_96.html"><img src="next.gif" alt="next" /></a> <a href="db_94.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

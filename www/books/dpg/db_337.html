@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_329.html" />
+<link rel="prev" href="db_336.html" />
+<link rel="next" href="db_338.html" />
+<title>21.8   Summary</title>
+</head>
+<body>
+
+<div>
+<a name="heading337"></a>
+
+<div>
+<p><a href="db_338.html"><img src="next.gif" alt="next" /></a> <a href="db_336.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading337-0"></a>
+<h1>21.8   Summary</h1>
+<p> In this chapter, we introduced macros by explaining their purpose as a language-extension tool, and by showing a range of Dylan macros. Macros can be useful when you want to tailor the language to express a particular problem domain more concisely. </p>
+<p><a href="#marker-9-856">Table 21.1</a> summarizes how constraints control pattern-variable matches. </p>
+<table border="1"><caption>Table 21.1   <a name="marker-9-856"></a>Pattern <a name="marker-2-857"></a>const<a name="marker-2-858"></a>raints.</caption><tr valign="top"><th><p>Constraint</p>
+</th><th><p>Matches</p>
+</th></tr><tr valign="top"><td><p> <code>token</code></p>
+</td><td><p> a lexeme (a Dylan word), including literal strings, symbols, and numbers and punctuation</p>
+</td></tr><tr valign="top"><td><p> <code>name</code></p>
+</td><td><p> a Dylan identifier, including reserved identifiers, such as <code>define</code>, <code>end</code>, and operators such as <code>+</code>, or <code>*</code></p>
+</td></tr><tr valign="top"><td><p> <code>variable</code></p>
+</td><td><p> either <code>variable</code> or <code>variable :: &lt;type&gt;</code>, useful for macros that mimic variable binding (automatically drops the <code>:: &lt;type&gt;</code>, as appropriate on substitution)</p>
+</td></tr><tr valign="top"><td><p> <code>expression</code></p>
+</td><td><p> a well-formed Dylan expression -- a constant, such as <code>37</code>; a variable, such as <code>*my-position*</code>; a function call, such as <code>get-current-time()</code>; a statement, such as <code>if (test) 12 else try() end</code>; or a binary operand series, such as <code>x + y * z</code></p>
+</td></tr><tr valign="top"><td><p> <code>body</code></p>
+</td><td><p> a well-formed Dylan body -- a sequence of semicolon-separated constituents, each constituent being either a definition, local declaration, or expression</p>
+</td></tr><tr valign="top"><td><p> <code>case-body</code></p>
+</td><td><p> a Dylan <code>case</code> statement body</p>
+</td></tr><tr valign="top"><td><p> <code>*</code></p>
+</td><td><p> any sequence of Dylan tokens and parsed forms</p>
+</td></tr></table><a name="link-macros-lastpage"></a>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_338.html"><img src="next.gif" alt="next" /></a> <a href="db_336.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_110.html" />
+<link rel="prev" href="db_110.html" />
+<link rel="next" href="db_112.html" />
+<title>9.1   Functions that create nonclass types</title>
+</head>
+<body>
+
+<div>
+<a name="heading111"></a>
+
+<div>
+<p><a href="db_112.html"><img src="next.gif" alt="next" /></a> <a href="db_110.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading111-0"></a>
+<h1>9.1   Functions that create nonclass <a name="marker-9-290"></a>types<a name="marker-2-291"></a></h1>
+<p> There are three functions that create types that are not classes: <code>singleton</code>, <code>type-union</code>, and <code>limited</code>. </p>
+<dl>
+<dt><code><a name="marker-2-292"></a>singleton</code></dt>
+<dd><p> Takes any instance, and creates a type whose only member is that instance. You can define a singleton type to be used as the parameter specializer of a method that should be chosen for a particular instance. </p></dd>
+<dt><code><a name="marker-2-293"></a>type-union</code></dt>
+<dd><p> Takes one or more classes or types, and creates a new type whose members include all the members of the types that are its arguments. </p></dd>
+<dt><code><a name="marker-2-294"></a>limited</code></dt>
+<dd><p> Takes a type and creates a new type, which is a more restricted version of the type that is its argument (the <strong>base type</strong>). For example, you can define a new type that is based on <code>&lt;integer&gt;</code>, but has a given minimum or maximum value. Another example is to define a new collection type that specifies the type of elements, such as a type that is a vector of integers. The main reasons for defining types with <code>limited</code> are to perform type checking and to increase efficiency. For information about the performance of limited types, <a href="db_299.html#marker-9-771">Section 19.4, page 315</a>.</p></dd>
+</dl>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong><a name="marker-2-285"></a>Convention: </strong>Type names, like class names, are surrounded with angle brackets -- for example, <code>&lt;nonnegative-integer&gt;</code>. </p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_112.html"><img src="next.gif" alt="next" /></a> <a href="db_110.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_52.html" />
+<link rel="prev" href="db_53.html" />
+<link rel="next" href="db_55.html" />
+<title>4.5.2   Init keywords: Keywords that initialize slots</title>
+</head>
+<body>
+
+<div>
+<a name="heading54"></a>
+
+<div>
+<p><a href="db_55.html"><img src="next.gif" alt="next" /></a> <a href="db_53.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading54-0"></a>
+<h1>4.5.2   <a name="marker-9-172"></a>Init keywords: Keywords that initialize slots</h1>
+<p> The <code>total-seconds:</code> keyword is an <a name="marker-2-173"></a><strong>init keyword</strong> -- a keyword that we can give to <code>make</code> to provide an initial value for a slot. To make it possible to give an init keyword to <code>make</code>, we need to use the <code>init-keyword:</code> slot option when we define the class. A <a name="marker-2-174"></a><strong>slot option</strong> lets us specify a characteristic of a slot. Slot options appear after the optional type specifier of a slot.</p>
+<p>Here, we redefine the <code>&lt;time-of-day&gt;</code> class to use the <code>init-keyword:</code> slot option:</p>
+<pre>
+<em>// A specific time of day from 00:00 (midnight) to below 24:00 (tomorrow)
+</em>define class &lt;time-of-day&gt; (&lt;object&gt;)	<em>// 1
+</em>  slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;	<em>// 2
+</em>end class &lt;time-of-day&gt;;	<em>// 3</em>
+</pre>
+<p> The preceding definition <a name="marker-2-175"></a><strong>redefines</strong> the class <code>&lt;time-of-day&gt;</code>. That is, this new definition of <code>&lt;time-of-day&gt;</code> replaces the old definition of <code>&lt;time-of-day&gt;</code>. </p>
+<p>In line 2, the <code>init-keyword:</code> slot option defines <code>total-seconds:</code> as a keyword parameter that we can give to <code>make</code> when we make an instance of this class. Now that we have defined <code>total-seconds:</code> as an init keyword, we can provide the keyword argument as follows: </p>
+<pre>
+<em>?</em> *my-time-of-day* := make(&lt;time-of-day&gt;, total-seconds: 120);
+<em>{instance of &lt;time-of-day&gt;}</em>
+</pre>
+<p> The preceding expression creates a new instance of <code>&lt;time-of-day&gt;</code>, and stores that instance in the variable <code>*my-time-of-day*</code>. The value of the <code>total-seconds</code> slot of this instance is initialized to <code>120</code>. The assignment operator returns the new value stored; in the preceding call, the new value is the newly created instance of <code>&lt;time-of-day&gt;</code>, which the listener displays as <em>{instance of &lt;time-of-day&gt;}</em>.</p>
+<p>We can use the getter to verify that the slot has an initial value:</p>
+<pre>
+<em>? </em>*my-time-of-day*.total-seconds;
+<em>120</em>
+</pre>
+<p> If you call <code>make</code> and provide a keyword that has not been declared as a valid keyword for the class, you get an error; for example,</p>
+<pre>
+<em>?</em> make(&lt;time-of-day&gt;, seconds: 120);
+<em>ERROR: seconds: is not a valid keyword argument to make for {class &lt;time-of-day&gt;}</em>
+</pre>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <a name="marker-2-136"></a><strong>Automatic storage-management note:</strong> Dylan provides automatic storage management (also called garbage collection). Thus, you do not need to deallocate memory explicitly. When an object becomes inaccessible, Dylan's automatic storage management will recycle the storage used by that object. In this section, there are two examples of objects that become inaccessible:</p>
+<ul>
+<li><p>We redefined the <code>&lt;time-of-day&gt;</code> class. The storage used by the old class definition can be recycled.</p></li>
+<li><p>We stored a new instance in <code>*my-time-of-day*</code>. The storage used by the instance previously stored in that variable can be recycled.</p></li>
+</ul>
+<p> Although redefinition is not part of the Dylan language, most Dylan development environments support redefinition. </p>
+</td></tr></table><p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-153"></a>Java:</strong> Java recognizes that manual memory management can be the source of program errors and often can be exploited to breach security measures. Like Dylan, Java has an automatic garbage collector that correctly and efficiently recovers unused objects in a program -- freeing the programmer of that mundane but difficult chore. </p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_55.html"><img src="next.gif" alt="next" /></a> <a href="db_53.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

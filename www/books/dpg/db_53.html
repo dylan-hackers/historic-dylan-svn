@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_52.html" />
+<link rel="prev" href="db_52.html" />
+<link rel="next" href="db_54.html" />
+<title>4.5.1   Keyword arguments in function calls</title>
+</head>
+<body>
+
+<div>
+<a name="heading53"></a>
+
+<div>
+<p><a href="db_54.html"><img src="next.gif" alt="next" /></a> <a href="db_52.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading53-0"></a>
+<h1>4.5.1   Keyword arguments in function calls</h1>
+<p> We would like to be able to call <code>make</code> as follows:</p>
+<pre>
+<em>? </em>make(&lt;time-of-day&gt;, total-seconds: 120);
+</pre>
+<p> We will be able to make this call after we have done a bit of homework, as we shall show in <a href="db_54.html#marker-9-172">Section 4.5.2</a>. In the preceding call to <code>make</code>, we provided a keyword argument, consisting of a keyword, <code>total-seconds:</code>, followed by a value, <code>120</code>. The <code>&lt;time-of-day&gt;</code> instance returned by <code>make</code> has its <code>total-seconds</code> slot set to <code>120</code>.</p>
+<p>A <a name="marker-2-171"></a><strong>keyword argument</strong> consists of a keyword followed by the keyword's value. A <strong>keyword</strong> is a name followed by a colon, such as <code>total-seconds:</code>. The colon after a keyword is not a convention; it is a required part of the keyword. There must be no space between the name and the colon. </p>
+<p>You can define functions to accept keyword arguments. When a function accepts keyword arguments, you can provide them in any order. Keyword arguments can be useful for functions that take many arguments -- when you call the function, you do not need to remember the order of the arguments. Keyword arguments are optional arguments, so they are useful for parameters that have a default value that you may want to override at times. For more information about keyword arguments, see <a href="db_177.html#marker-9-514">Section 12.2.3, page 172</a>.</p>
+<p>How does <code>make</code> know that the value of the <code>total-seconds:</code> keyword should be used to initialize the <code>total-seconds</code> slot? The keyword and the slot happen to have the same name, but that is not how it knows. Before you can use the <code>total-seconds:</code> keyword argument to <code>make</code>, you must associate that keyword with the <code>total-seconds</code> slot in the class definition.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_54.html"><img src="next.gif" alt="next" /></a> <a href="db_52.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

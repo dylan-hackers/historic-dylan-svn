@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_317.html" />
+<link rel="prev" href="db_317.html" />
+<link rel="next" href="db_319.html" />
+<title>20.1.1   The + method using informal exceptions</title>
+</head>
+<body>
+
+<div>
+<a name="heading318"></a>
+
+<div>
+<p><a href="db_319.html"><img src="next.gif" alt="next" /></a> <a href="db_317.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading318-0"></a>
+<h1>20.1.1   <a name="marker-9-822"></a>The <code>+</code> method using informal exceptions</h1>
+<p> </p>
+<p> First, we redefine the method for adding <code>&lt;time-offset&gt;</code> and <code>&lt;time-of-day&gt;</code> (this method was last defined in <a href="db_234.html#marker-9-668">Section 14.3.2</a>, <a href="db_234.html#marker-9-663">page 228</a>). The method now returns an error string in the event that the computed sum is beyond the permitted 24-hour range: </p>
+<p> </p>
+<pre>
+define method \+ (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&gt;)
+ =&gt; (sum :: type-union(&lt;time-of-day&gt;, &lt;string&gt;))
+  let sum 
+    = make(&lt;time-of-day&gt;, 
+           total-seconds: offset.total-seconds + time-of-day.total-seconds);
+  if (sum &gt;= $midnight &amp; sum &lt; $tomorrow) 
+    sum;
+  else
+   &quot;time boundary violated&quot;;
+  end if;
+end method \+;
+</pre>
+<p> </p>
+<p> We have altered the <code>+</code> method in two important ways. First, we have modified the original values declaration, <code>(sum :: &lt;time-of-day&gt;)</code>, to allow the return of either a <code>&lt;time-of-day&gt;</code> instance or a string describing a problem. Second, we have added code that checks the computed time of day, and returns an error string if the sum is out of bounds.</p>
+<p>To illustrate further how the informal exceptions work, we define a method that calls the <code>+</code> method defined in this section. We define a method, <code>correct-arrival-time</code>, that adds predicted weather and traffic delays to an arrival time; and we define <code>say-corrected-time</code>, which calls <code>correct-arrival-time</code> and displays the results:</p>
+<p> </p>
+<pre>
+define method correct-arrival-time 
+    (arrival-time :: &lt;time-of-day&gt;, weather-delay :: &lt;time-offset&gt;,
+     traffic-delay :: &lt;time-offset&gt;)
+ =&gt; (sum :: type-union(&lt;time-of-day&gt;, &lt;string&gt;))
+  let sum1 = weather-delay + arrival-time;
+<em>  // Check whether the result of + was a string representing an error
+</em>  if (instance?(sum1, &lt;string&gt;))
+    sum1;
+  else
+<em>    // Otherwise, if there is no error, compute the second part of the sum
+</em>    traffic-delay + sum1;
+  end if;
+end method correct-arrival-time;
+define constant $no-time = make(&lt;time-offset&gt;, total-seconds: 0);
+define method say-corrected-time
+    (arrival-time :: &lt;time-of-day&gt;, 
+     #key weather-delay :: &lt;time-offset&gt; = $no-time,
+     traffic-delay :: &lt;time-offset&gt; = $no-time)
+ =&gt; ()
+  let result = correct-arrival-time(arrival-time, weather-delay, 
+                                    traffic-delay);
+<em>  // Check whether the result of + was a string representing an error
+</em>  if (instance?(result, &lt;string&gt;))
+    format-out(&quot;Error during time correction: %s&quot;, result);
+  else
+<em>    // Otherwise, if there is no error, display the result
+</em>    say(result);
+  end if;
+end method say-corrected-time;
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_319.html"><img src="next.gif" alt="next" /></a> <a href="db_317.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

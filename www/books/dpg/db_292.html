@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_291.html" />
+<link rel="prev" href="db_291.html" />
+<link rel="next" href="db_293.html" />
+<title>18.5.1   Use of a mix-in class</title>
+</head>
+<body>
+
+<div>
+<a name="heading292"></a>
+
+<div>
+<p><a href="db_293.html"><img src="next.gif" alt="next" /></a> <a href="db_291.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading292-0"></a>
+<h1>18.5.1   Use of a mix-in class</h1>
+<p> In our airport example, four classes now define slots that serve as names or strings that represent identifiers for objects:</p>
+<pre>
+define abstract class &lt;vehicle-storage&gt; (&lt;physical-object&gt;)
+  slot identifier :: &lt;string&gt;, required-init-keyword: id:;
+  ...
+end class &lt;vehicle-storage&gt;;
+define abstract class &lt;vehicle&gt; (&lt;physical-object&gt;)
+  slot vehicle-id :: &lt;string&gt;, required-init-keyword: id:;
+  ...
+end class &lt;vehicle&gt;;
+define class &lt;airport&gt; (&lt;physical-object&gt;)
+  slot name :: &lt;string&gt;, init-keyword: name:;
+  ...
+end class &lt;airport&gt;;
+define class &lt;airline&gt; (&lt;object&gt;)
+  slot name :: &lt;string&gt;, required-init-keyword: name:;
+  ...
+end class &lt;airline&gt;;
+</pre>
+<p> Our example would be more unified and maintainable if we had a single representation for these identifiers.</p>
+<p>There are several ways that we could improve the example using single inheritance. One way to do that in principle would be to define a <code>name</code> slot in a common superclass. In this case, we cannot use this solution, because the only common superclass is the built-in class <code>&lt;object&gt;</code>. This approach would work if all named classes inherited from <code>&lt;physical-object&gt;</code> -- we could add a <code>name</code> slot to <code>&lt;physical-object&gt;</code>. But then all subclasses of <code>&lt;physical-object&gt;</code> would inherit the <code>name</code> slot, whether or not those subclasses need names. Some objects might be inappropriately named, and those instances would be larger than they need to be.</p>
+<p>Another approach would be to define two new subclasses to contain the <code>name</code> slot: a <code>&lt;named-object&gt;</code> subclass of <code>&lt;object&gt;</code>, and a <code>&lt;named-physical-object&gt;</code> subclass of <code>&lt;physical-object&gt;</code>. We would then use <code>&lt;named-physical-object&gt;</code> as the superclass for <code>&lt;vehicle-storage&gt;</code>, <code>&lt;vehicle&gt;</code>, and <code>&lt;airport&gt;</code>, and we would use <code>&lt;named-object&gt;</code> as the superclass for <code>&lt;airline&gt;</code>. That would work, too, although the <code>name</code> slot would be defined in two classes, rather than in one.</p>
+<p>Suppose, however, that we later find that some, but not all, subclasses need another attribute, such as a unique identifier. Perhaps <code>&lt;airport&gt;,</code> <code>&lt;vehicle&gt;</code>, and <code>&lt;airline&gt;</code> need unique identifiers, but <code>&lt;vehicle-storage&gt;</code> does not. Extending this model, we might have to define new classes <code>&lt;unique-object&gt;</code>, <code>&lt;unique-named-object&gt;</code>, <code>&lt;unique-physical-object&gt;</code>, and <code>&lt;unique-named-physical-object&gt;</code>. We now have eight base classes to represent the possible combinations of name and unique identifier. If we add a third attribute, we end up with many more classes. We soon have an unmanageable proliferation of base classes.</p>
+<p>Multiple inheritance provides a solution to these problems. We can define a mix-in class, <code>name-mix-in</code>, whose only purpose is to contain the <code>name</code> slot:</p>
+<pre>
+define abstract class &lt;name-mix-in&gt; (&lt;object&gt;)
+  slot name :: &lt;string&gt;, init-keyword: name:;
+end class &lt;name-mix-in&gt;;
+</pre>
+<p> Now, we redefine our <code>&lt;vehicle-storage&gt;</code>, <code>&lt;vehicle&gt;</code>, <code>&lt;airport&gt;</code>, and <code>&lt;airline&gt;</code> classes to have two direct superclasses: <code>&lt;name-mix-in&gt;</code>, and either <code>&lt;object&gt;</code> or <code>&lt;physical-object&gt;</code>:</p>
+<pre>
+define abstract class &lt;vehicle-storage&gt; (&lt;name-mix-in&gt;, &lt;physical-object&gt;)
+  <em>// identifier slot removed
+</em>  required keyword name:;
+  ...
+end class &lt;vehicle-storage&gt;;
+define abstract class &lt;vehicle&gt; (&lt;name-mix-in&gt;, &lt;physical-object&gt;)
+  <em>// vehicle-id slot removed
+</em>  required keyword name:;
+  ...
+end class &lt;vehicle&gt;;
+define class &lt;airport&gt; (&lt;name-mix-in&gt;, &lt;physical-object&gt;)
+  <em>// name slot removed
+</em>  keyword name:, init-value: &quot;Anonymous Airport&quot;;
+  ...
+end class &lt;airport&gt;;
+define class &lt;airline&gt; (&lt;name-mix-in&gt;, &lt;object&gt;)
+  <em>// name slot removed
+</em>  required keyword name:;
+  ...
+end class &lt;airline&gt;;
+</pre>
+<p> We use the <code>required keyword</code> option to make the <code>name:</code> keyword required when we create an instance of <code>&lt;vehicle-storage&gt;</code>, <code>&lt;vehicle&gt;</code>, or <code>&lt;airline&gt;</code>. If we provided an <code>init-value:</code> or <code>init-function:</code> for the <code>name</code> slot in the definition of <code>&lt;name-mix-in&gt;</code>, Dylan would ignore that option when we created an instance of any of these subclasses.</p>
+<p>We also use the <code>keyword</code> option with an <code>init-value:</code> to provide a default initial value for the <code>name:</code> initialization argument and for the <code>name</code> slot for instances of <code>&lt;airport&gt;</code>.</p>
+<p>Of course, we also have to change other code in our example to use the name <code>name</code> and the init keyword <code>name:</code> when referring to the slot.</p>
+<p>Multiple inheritance provides several advantages in solving the name <br />problem:</p>
+<p>1.  We localize in a single class the characteristic of having a name.</p>
+<p>2.  Subclasses can still customize aspects of the name attribute, such as what that attribute's initial value is, and whether or not it is required.</p>
+<p>3.  We can give a subclass a name attribute without redefining any of its <br />superclasses.</p>
+<p>4.  The only subclasses that have a name attribute are those for which that is appropriate.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_293.html"><img src="next.gif" alt="next" /></a> <a href="db_291.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

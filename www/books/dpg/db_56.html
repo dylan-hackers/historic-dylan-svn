@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_55.html" />
+<link rel="prev" href="db_55.html" />
+<link rel="next" href="db_57.html" />
+<title>4.6.1   Method for encode-total-seconds</title>
+</head>
+<body>
+
+<div>
+<a name="heading56"></a>
+
+<div>
+<p><a href="db_57.html"><img src="next.gif" alt="next" /></a> <a href="db_55.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading56-0"></a>
+<h1>4.6.1   Method for <a name="marker-2-176"></a><em>encode-total-seconds</em></h1>
+<p> We can provide a method that converts from hours, minutes, and seconds to total seconds:</p>
+<pre>
+define method encode-total-seconds 	<em>// 1
+</em>    (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)	<em>// 2
+</em> =&gt; (total-seconds :: &lt;integer&gt;)	<em>// 3
+</em>  ((hours * 60) + minutes) * 60 + seconds;	<em>// 4
+</em>end method encode-total-seconds;	<em>// 5</em>
+</pre>
+<p> Line 2 contains the parameter list of the method <code>encode-total-seconds</code>. The method has three required parameters, named <code>hours</code>, <code>minutes</code>, and <code>seconds</code>, each of type <code>&lt;integer&gt;</code>. This method is invoked when <code>encode-total-seconds</code> is called with three integer arguments.</p>
+<p>Line 3 contains the <a name="marker-2-177"></a><strong>value declaration</strong>, which starts with the characters <code>=&gt;</code>. It is a list declaring the values returned by the method. Each element of the list contains a descriptive name of the return value and the type of the value (if the type is omitted, it is <code>&lt;object&gt;</code>). In this case, there is one value returned, named <code>total-seconds</code>, which is of the type <code>&lt;integer&gt;</code>. The name of a return value is used purely for documentation purposes. Although methods are not required to have value declarations, there are advantages to supplying those declarations. When you provide a value declaration for a method, the compiler signals an error if the method tries to return a value of the wrong type, can check receivers of the results of the method for correct type, and can usually produce more efficient code. These advantages are significant, so we use value declarations throughout the rest of this book. For more information about value declarations, see <a href="db_178.html#marker-9-526">Section 12.2.4, page 175</a>.</p>
+<p>Line 4 is the only expression in the body. It uses arithmetic functions to convert the hours, minutes, and seconds into total seconds. All methods return the value of the expression executed last in the body. This method returns the result of the arithmetic expression in line 4.</p>
+<p>In line 5, we could have simply used <code>end;</code>. We provided <code>end method decode-total-seconds;</code> for documentation purposes. Throughout the rest of this book, we provide the extra words after the <code>end</code> of a definition.</p>
+<p>We can call <code>encode-total-seconds</code> with arguments representing 8 hours, 30 minutes, and 59 seconds: </p>
+<pre>
+<em>? </em>encode-total-seconds(8, 30, 59);
+<em>30659</em>
+</pre>
+<p> We find it convenient to call <code>encode-total-seconds</code> to initialize the <code>total-<br />seconds</code> slot when we create an instance of <code>&lt;time-of-day&gt;</code>, or when we store <br />a new value in that slot. Here, for example, we create a new instance:</p>
+<pre>
+<em>?</em> define variable *your-time-of-day* 
+    = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds(8, 30, 59));
+</pre>
+<p> We examine the value of the <code>total-seconds</code> slot:</p>
+<pre>
+<em>? </em>*your-time-of-day*.total-seconds;
+<em>30659</em>
+</pre>
+<p> The result reminds us that it would be useful to convert in the other direction as well -- from total seconds to hours, minutes, and seconds. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_57.html"><img src="next.gif" alt="next" /></a> <a href="db_55.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

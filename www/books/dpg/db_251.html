@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="prev" href="db_250.html" />
+<link rel="next" href="db_252.html" />
+<title>16 Definition of a New Collection</title>
+</head>
+<body>
+
+<div>
+<a name="heading251"></a>
+
+<div>
+<p><a href="db_252.html"><img src="next.gif" alt="next" /></a> <a href="db_250.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>Dylan Programming</p>
+
+</div>
+<a name="heading251-0"></a>
+<h1>16 <a name="marker-9-687"></a>Defi<a name="marker-2-688"></a>nition of a New <a name="marker-2-689"></a>Collection</h1>
+<p> In this chapter, we implement a data structure called a <strong>sorted sequence</strong>. A sorted sequence is a sequence that automatically keeps the elements of the sequence in a particular order, based on some value computed from each element. Elements are added and removed from sorted sequences; however, the sorted sequence determines the key associated with the element. Thus, it does not make sense to store an element in a sorted sequence at a specific key, because the sorted sequence will determine the correct key to satisfy the automatic-ordering constraint. </p>
+<p>We use Dylan's <a name="marker-2-690"></a><strong>forward-iteration protocol </strong>to implement the connection between our new collection class and Dylan's standard collection generic functions. Dylan's forward-iteration protocol is a well-defined interface that collection implementors and collection-iterator implementors can use to enable iterators to operate over new collections, and to enable collections to work with new iterators. Once the forward iteration protocol is defined on <a name="marker-2-691"></a><code>&lt;sorted-sequence&gt;</code>, many of the standard Dylan collection generic functions that we covered in <a href="db_139.html#marker-9-374">Chapter 11,  <em>Collections and Control Flow</em></a>, will work with instances of the new sequence. </p>
+<p>The airport application uses a sorted sequence to keep track of aircraft transition in time order. See <a href="db_260.html#marker-9-706">Chapter 17,  <em>The Airport Application</em></a>, for more details.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_252.html#heading252-0"><strong>16.1  </strong> - The sorted-sequence.dylan file</a></li>
+<li><a rel="below" href="db_257.html#heading257-0"><strong>16.2  </strong> - The sorted-sequence-library.dylan file</a></li>
+<li><a rel="below" href="db_258.html#heading258-0"><strong>16.3  </strong> - The sorted-sequence.lid file</a></li>
+<li><a rel="below" href="db_259.html#heading259-0"><strong>16.4  </strong> - Summary</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_252.html"><img src="next.gif" alt="next" /></a> <a href="db_250.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

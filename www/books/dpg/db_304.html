@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_295.html" />
+<link rel="prev" href="db_303.html" />
+<link rel="next" href="db_305.html" />
+<title>19.9   Open generic functions</title>
+</head>
+<body>
+
+<div>
+<a name="heading304"></a>
+
+<div>
+<p><a href="db_305.html"><img src="next.gif" alt="next" /></a> <a href="db_303.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading304-0"></a>
+<h1>19.9   <a name="marker-9-782"></a>Op<a name="marker-2-783"></a>en generic functions</h1>
+<p> By default, generic functions are <strong>sealed</strong>. When you use <code>define generic<a name="marker-2-784"></a></code>, that is the same as using <code>define sealed generic</code>. No other library can add methods to a sealed generic function -- not even on new classes that they may introduce. Methods cannot be added to, or removed from, the generic function at run time. The only methods on a sealed generic function are the methods that are defined in the library where the generic function itself is defined. Because of the restrictions on a sealed generic function, the compiler, using type-inference information, can usually narrow the choice of applicable methods for any particular call to the generic function, eliminating most or all of the overhead of run-time dispatching that would normally be expected of a dynamic language.</p>
+<p>We saw in <a href="db_190.html#marker-9-610">Chapter 13,  <em>Libraries and Modules</em></a>, that we must define a generic function that is part of a shared protocol using <code>define open generic</code>, so that libraries sharing the protocol can implement the protocol for the classes that they define, by adding methods. If we do not define the generic function to be open, other libraries are prohibited from adding methods to the generic function, which would make it useless as a protocol. Unfortunately, a generic function that is open cannot be optimized. Even when the compiler may be able to infer the exact types of the arguments to the generic function in a particular call, because an open generic function may have methods added or removed, even at run time, the compiler must produce code to handle all these possibilities.</p>
+<p>Because open generic functions cannot be optimized, you should use them only when necessary. You need to balance the division of your program into libraries against the need to export and open more generic functions if the program is too finely divided. This balance is illustrated by the considerations we made in designing a protocol in <a href="db_217.html#marker-9-657">Section 13.9, page 214</a>. When we chose to split the <code>time</code> and <code>angle</code> libraries, we were forced to create the <code>say</code> protocol library and open the generic function <code>say</code>. In <a href="db_306.html#marker-9-789">Section 19.11</a>, we show how to regain certain optimizations when you decide that opening a generic function is required.</p>
+<p>Note that generic functions that are defined <a name="marker-2-785"></a>implicitly in a library -- such as those that are defined when you define only a single method, or those that are defined for slot accessors -- are sealed by default. If you expect other libraries to add methods to one of these implicit generic functions, you must define the generic function explicitly to be open using <code>define open generic</code>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_305.html"><img src="next.gif" alt="next" /></a> <a href="db_303.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_84.html" />
+<link rel="prev" href="db_84.html" />
+<link rel="next" href="db_86.html" />
+<title>6.1   Methods for the + generic function</title>
+</head>
+<body>
+
+<div>
+<a name="heading85"></a>
+
+<div>
+<p><a href="db_86.html"><img src="next.gif" alt="next" /></a> <a href="db_84.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading85-0"></a>
+<h1>6.1   <a name="marker-9-243"></a>Methods fo<a name="marker-2-244"></a>r the <code>+</code> generic function</h1>
+<p> We need to make it possible to add one time to another. We could define a method with a name such as <code>add</code> or <code>plus</code>. However, the concept of adding times is the same as the concept of adding numbers. Dylan already provides the + generic function for adding numbers. Instead of inventing a new name for the addition operation, we define new methods on the built-in generic function <code>+</code>. We can extend <code>+</code> by defining new methods for it. In certain languages, this technique is called <a name="marker-2-245"></a><strong>operator overloading</strong>.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-235"></a>C++ and Java:</strong> In C++, operator overloading means customizing the action of any built-in operator for classes that you define. In Dylan, operators are just generic functions, and you can add methods to those generic functions for your classes. In C++, the meaning of an overloaded operator is resolved at compile time -- the types of the operands must be known at compile time. Because Dylan operators are generic functions, the method is chosen dynamically according to the argument types --at run time, if the types may vary at run time.</p>
+<p>Java does not allow operator overloading. The Java designers believe that overloading of operators results in inscrutable code (because the meaning of the operator can vary). Dylan and C++ designers believe that, judiciously used, operator overloading permits clearer, more concise code. </p>
+</td></tr></table><p> </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_86.html#heading86-0"><strong>6.1.1  </strong> - Method for adding two time offsets</a></li>
+<li><a rel="below" href="db_87.html#heading87-0"><strong>6.1.2  </strong> - Methods for adding a time of day to a time offset</a></li>
+<li><a rel="below" href="db_88.html#heading88-0"><strong>6.1.3  </strong> - Method for adding other kinds of times</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_86.html"><img src="next.gif" alt="next" /></a> <a href="db_84.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

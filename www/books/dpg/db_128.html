@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_127.html" />
+<link rel="prev" href="db_127.html" />
+<link rel="next" href="db_129.html" />
+<title>10.4.1   The init-value: slot option</title>
+</head>
+<body>
+
+<div>
+<a name="heading128"></a>
+
+<div>
+<p><a href="db_129.html"><img src="next.gif" alt="next" /></a> <a href="db_127.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading128-0"></a>
+<h1>10.4.1   <a name="marker-9-336"></a>The <em><a name="marker-2-337"></a>init-value:</em> slot option</h1>
+<p> We can use the <code>init-value:</code> slot option to give a default initial value to a slot:</p>
+<pre>
+define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;, 
+    init-keyword: total-seconds:, init-value: 0;
+end class &lt;sixty-unit&gt;;
+</pre>
+<p> When we use <code>make</code> to create any subclass of <code>&lt;sixty-unit&gt;</code> (such as <code>&lt;time-of-day&gt;</code>), and we do not supply the <code>total-seconds:</code> keyword to <code>make</code>, the <code>total-seconds</code> slot is initialized to 0.</p>
+<p>The <code>init-value:</code> slot option specifies an expression that is evaluated once, before the first instance of the class is made, to yield a value. Every time that an instance is made and the slot needs a default value, this same value is used as the default. </p>
+<p>In general, a slot receives its default initial value when no init keyword is defined or when the caller does not supply the init-keyword argument to <code>make</code>. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_129.html"><img src="next.gif" alt="next" /></a> <a href="db_127.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_167.html" />
+<link rel="prev" href="db_167.html" />
+<link rel="next" href="db_169.html" />
+<title>12.1.1   Explicit function calls</title>
+</head>
+<body>
+
+<div>
+<a name="heading168"></a>
+
+<div>
+<p><a href="db_169.html"><img src="next.gif" alt="next" /></a> <a href="db_167.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading168-0"></a>
+<h1>12.1.1   Explicit function calls</h1>
+<p> The Dylan syntax<a name="marker-2-450"></a> for an explicit function call has two parts:</p>
+<p>1.  The function to be called -- This is an <strong>operand<a name="marker-2-451"></a></strong> that is evaluated to yield the function itself. Usually, the operand is a reference to a variable or constant that names the function, although it can be any expression (except an operator call) whose value is a function. (For information on operator calls, see Sections <a href="db_171.html#marker-9-461">12.1.4</a> and <a href="db_172.html#marker-9-468">12.1.5</a>.)</p>
+<p>2.  The arguments to which the function is applied -- The arguments are represented by a series of expressions, enclosed in parentheses and separated by commas. Each expression is evaluated, and its value is passed to the function as an argument.</p>
+<p> In the following function call, the function is the value of the variable <code>truncate/</code>; the two arguments are the value of the variable <code>n</code> and the number <code>3</code>:</p>
+<pre>
+truncate/(n, 3);
+</pre>
+<p> A function can be obtained in other ways: for example, it might be an element of an array, the value of a slot of an instance, or the value returned by a call to another function. The following example calls the function that is the element of an <code>operations</code> array designated by the constant <code>$trunc</code>:</p>
+<pre>
+operations[$trunc](n, 3);
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_169.html"><img src="next.gif" alt="next" /></a> <a href="db_167.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

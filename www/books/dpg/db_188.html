@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_182.html" />
+<link rel="prev" href="db_187.html" />
+<link rel="next" href="db_189.html" />
+<title>12.3.6   Closures</title>
+</head>
+<body>
+
+<div>
+<a name="heading188"></a>
+
+<div>
+<p><a href="db_189.html"><img src="next.gif" alt="next" /></a> <a href="db_187.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading188-0"></a>
+<h1>12.3.6   <a name="marker-9-568"></a>Closures</h1>
+<p> This section describes closures<a name="marker-2-569"></a> -- an advanced concept. If you do not understand or wish to study this section, you can safely skip it. </p>
+<p>Consider the following example:</p>
+<pre>
+define method call-and-show (function :: &lt;function&gt;, #rest arguments)
+  format-out(&quot;The result is %=.\n&quot;, apply(function, arguments));
+end method call-and-show;
+define method show-next (x :: &lt;integer&gt;)
+  call-and-show(method () x + 1 end method);
+end method show-next;
+</pre>
+<p> When we execute this code, we get the expected result: </p>
+<pre>
+<em>?</em> show-next(41);
+<em>The result is 42.</em>
+</pre>
+<p> But why did we get that result? We created an anonymous method in <code>show-next</code>, and passed that anonymous method into a completely separate method (<code>call-and-show</code>), where <code>x</code> is not bound to anything. And yet, when the <code>call-and-show</code> method executed the anonymous method that we made, somehow the anonymous method could still access the <code>x</code> binding. We got this reasonable result because the <code>method</code> statement can create a special kind of method called a closure.</p>
+<p>Recall that Dylan has two kinds of variable: module variables and local variables. A local variable<a name="marker-2-570"></a> is defined explicitly by a <code>let</code> or <code>local</code> declaration, and implicitly by a function call, when a method's parameters are initialized to that method's arguments. Local variables are defined within a limited <strong>lexical scope<a name="marker-2-571"></a></strong> -- that is, they <strong>bind<a name="marker-2-572"></a></strong> a name to a value only within a particular textual portion of the program. This portion of the program is that part of the innermost body that follows the definition of the local variable.</p>
+<p>A <code>method<a name="marker-2-573"></a></code> statement or a <code>loca<a name="marker-2-574"></a>l</code> declaration can define a method in a portion of a program where local variables are in effect. In the preceding example, we use a <code>method</code> statement to define a method inside the body of the <code>show-next</code> method, where the local variable <code>x</code> (the parameter for the <code>show-next</code> method) is bound to the argument to <code>show-next</code>. The method that we define inside <code>show-next</code> refers to that local variable <code>x</code>.</p>
+<p>In general, when a program exits a body, the local variables defined inside that body cease to be defined, and it is an error for the program to refer to those variables. But there is an exception. If we use <code>method</code> or <code>local</code> to define a method, and if we then execute that method outside the body in which we define it, the method can still refer to the local variables that were in effect when the method was defined. Such a method is called a closure.</p>
+<p>A <strong>closure<a name="marker-2-575"></a></strong> is a method that <strong>closes over</strong> or captures local variables that are in effect when the method is defined and that are referred to in the body of the method. The closure created by the <code>method</code> statement in our example captures the local variable <code>x</code>. So, even though the local variable <code>x</code> is not defined in the lexical scope of the <code>call-and-show</code> method, the closure called by <code>call-and-show</code> can access the captured binding of <code>x</code>.</p>
+<p>For examples of closures as iteration or mapping functions for collections, see <a href="db_150.html#marker-9-405">Section 11.3.5, page 146</a>, and <a href="db_152.html#marker-9-410">Section 11.3.7, page 147</a>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_189.html"><img src="next.gif" alt="next" /></a> <a href="db_187.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

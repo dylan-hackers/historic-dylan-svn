@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_232.html" />
+<link rel="prev" href="db_233.html" />
+<link rel="next" href="db_235.html" />
+<title>14.3.2   The time implementation file</title>
+</head>
+<body>
+
+<div>
+<a name="heading234"></a>
+
+<div>
+<p><a href="db_235.html"><img src="next.gif" alt="next" /></a> <a href="db_233.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading234-0"></a>
+<h1>14.3.2   The <em><a name="marker-9-668"></a>time</em> implementation file</h1>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>time</code> implementation file: <code>time.dylan</code>.  </p>
+</th></tr><tr valign="top"><td><pre>
+Module: time-implementation
+<em>// Define nonnegative integers as integers that are &gt;= zero
+</em>define constant &lt;nonnegative-integer&gt; = limited(&lt;integer&gt;, min: 0);
+define abstract class &lt;time&gt; (&lt;sixty-unit&gt;)
+end class &lt;time&gt;;
+</pre></td></tr><tr valign="top"><td><pre>define method say (time :: &lt;time&gt;) =&gt; ()
+  let (hours, minutes) = decode-total-seconds(time); 
+  format-out(&quot;%d:%s%d&quot;, 
+             hours, if (minutes &lt; 10) &quot;0&quot; else &quot; &quot; end, minutes);
+end method say;
+</pre></td></tr><tr valign="top"><td><pre><em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)
+</em>define class &lt;time-of-day&gt; (&lt;time&gt;)
+end class &lt;time-of-day&gt;;
+</pre></td></tr><tr valign="top"><td><pre>define method total-seconds-setter
+    (total-seconds :: &lt;integer&gt;, time :: &lt;time-of-day&gt;)
+ =&gt; (total-seconds :: &lt;nonnegative-integer&gt;)
+  if (total-seconds &gt;= 0)
+    next-method();
+  else
+    error(&quot;%d cannot be negative&quot;, total-seconds);
+  end if;
+end method total-seconds-setter; 
+</pre></td></tr><tr valign="top"><td><pre>define method initialize (time :: &lt;time-of-day&gt;, #key) 
+  next-method();
+  if (time.total-seconds &lt; 0)
+    error(&quot;%d cannot be negative&quot;, time.total-seconds);
+  end if;
+end method initialize; 
+</pre></td></tr><tr valign="top"><td><pre><em>// A relative time between -24:00 and +24:00
+</em>define class &lt;time-offset&gt; (&lt;time&gt;)
+end class &lt;time-offset&gt;;
+</pre></td></tr><tr valign="top"><td><pre>define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
+  time.total-seconds &lt; 0;
+end method past?;
+</pre></td></tr><tr valign="top"><td><pre>define method say (time :: &lt;time-offset&gt;) =&gt; ()
+  format-out(&quot;%s &quot;, if (time.past?) &quot;minus&quot; else &quot;plus&quot; end);
+  next-method();
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre>define method \+ 
+    (offset1 :: &lt;time-offset&gt;, offset2 :: &lt;time-offset&gt;) 
+ =&gt; (sum :: &lt;time-offset&gt;)	<em> 
+</em>  let sum = offset1.total-seconds + offset2.total-seconds; 
+  make(&lt;time-offset&gt;, total-seconds: sum); 
+end method \+;	<em> </em>
+</pre></td></tr><tr valign="top"><td><pre><a name="marker-9-663"></a>define method \+ 
+    (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&gt;)
+ =&gt; (sum :: &lt;time-of-day&gt;)
+  make(&lt;time-of-day&gt;, 
+       total-seconds: offset.total-seconds + time-of-day.total-seconds);
+end method \+;
+</pre></td></tr><tr valign="top"><td><pre>define method \+ (time-of-day :: &lt;time-of-day&gt;, offset :: &lt;time-offset&gt;)
+ =&gt; (sum :: &lt;time-of-day&gt;)
+  offset + time-of-day;
+end method \+;
+</pre></td></tr><tr valign="top"><td><pre>define method \&lt; (time1 :: &lt;time-of-day&gt;, time2 :: &lt;time-of-day&gt;)
+  time1.total-seconds &lt; time2.total-seconds;
+end method \&lt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method \&lt; (time1 :: &lt;time-offset&gt;, time2 :: &lt;time-offset&gt;)
+  time1.total-seconds &lt; time2.total-seconds;
+end method \&lt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method \= (time1 :: &lt;time-of-day&gt;, time2 :: &lt;time-of-day&gt;)
+  time1.total-seconds = time2.total-seconds;
+end method \=; 
+</pre></td></tr><tr valign="top"><td><pre>define method \= (time1 :: &lt;time-offset&gt;, time2 :: &lt;time-offset&gt;)
+  time1.total-seconds = time2.total-seconds;
+end method \=; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Two useful time constants
+</em>define constant $midnight
+  = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds(0, 0, 0)); 
+</pre></td></tr><tr valign="top"><td><pre>define constant $tomorrow
+  = make(&lt;time-of-day&gt;,
+         total-seconds: encode-total-seconds(24, 0, 0)); 
+</pre></td></tr></table>
+<p> </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_235.html"><img src="next.gif" alt="next" /></a> <a href="db_233.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

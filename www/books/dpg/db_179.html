@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_174.html" />
+<link rel="prev" href="db_178.html" />
+<link rel="next" href="db_180.html" />
+<title>12.2.5   Parameter-list congruence</title>
+</head>
+<body>
+
+<div>
+<a name="heading179"></a>
+
+<div>
+<p><a href="db_180.html"><img src="next.gif" alt="next" /></a> <a href="db_178.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading179-0"></a>
+<h1>12.2.5   <a name="marker-9-529"></a>Parameter-list congruence</h1>
+<p> A generic function and its methods must all have parameter lists that are compatible, or <strong>congruent<a name="marker-2-530"></a></strong>. Following are the basic rules:</p>
+<ul>
+<li><p>A generic function and its methods must all have the same number of required arguments.</p></li>
+<li><p>The type of any given parameter in each method must be a subtype of the corresponding parameter in the generic function.</p></li>
+<li><p>If a generic function or any of its methods has only required arguments -- that is, it has neither <code>#re<a name="marker-2-531"></a>st</code> nor <code>#k<a name="marker-2-532"></a>ey</code> in its parameter list -- then the generic function and all its methods must have only required arguments.</p></li>
+<li><p>If a generic function or any of its methods accepts a variable number of arguments, but does not accept keyword arguments -- that is, it has <code>#rest</code>, but does not have <code>#key</code>, in its parameter list -- then the generic function and all its methods must accept a variable number of arguments, but must not accept keyword arguments.</p></li>
+<li><p>If a generic function or any of its methods accepts keyword arguments -- that is, it has <code>#key</code> in its parameter list -- then the generic function and all its methods must accept keyword arguments. For this rule, a generic function or method "accepts keyword arguments" even if its parameter list ends with just <code>#key</code>.</p></li>
+<li><p>If a generic function has any specific keyword parameters, then all its methods must have (at least) those specific keyword parameters. The appearance of <code>#al<a name="marker-2-533"></a>l-keys</code> in a method's parameter list does not satisfy this requirement.</p></li>
+</ul>
+<p> The following parameter lists are congruent, because both functions have only required arguments, they have the same number of required arguments, and the type of each method parameter is a subtype of the same parameter in the generic function:</p>
+<pre>
+define generic g (arg1 :: &lt;complex&gt;, arg2 :: &lt;integer&gt;);
+define method g (arg1 :: &lt;real&gt;, arg2 :: &lt;integer&gt;)
+  ...
+end method g;
+</pre>
+<p> The following parameter lists are congruent, because both functions meet the tests for required arguments, both accept keyword arguments, and the generic function has no specific keyword parameters:</p>
+<pre>
+define generic g (arg1 :: &lt;real&gt;, #key);
+define method g (arg1 :: &lt;integer&gt;, #key base :: &lt;integer&gt; = 10)
+  ...
+end method g;
+</pre>
+<p> The following parameter lists are not congruent, because the method's parameter list does not include the specific keyword <code>base</code> of the generic function, even though it does include <code>#all-keys</code>:</p>
+<pre>
+define generic g (arg1 :: &lt;integer&gt;, #key base);
+define method g (arg1 :: &lt;integer&gt;, #key #all-keys)
+  ...
+end method g;
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_180.html"><img src="next.gif" alt="next" /></a> <a href="db_178.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

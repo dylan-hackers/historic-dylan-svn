@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_280.html" />
+<link rel="prev" href="db_287.html" />
+<link rel="next" href="db_289.html" />
+<title>18.4   Multiple inheritance and method dispatch</title>
+</head>
+<body>
+
+<div>
+<a name="heading288"></a>
+
+<div>
+<p><a href="db_289.html"><img src="next.gif" alt="next" /></a> <a href="db_287.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading288-0"></a>
+<h1>18.4   <a name="marker-9-739"></a>Multiple inheritance and <a name="marker-2-740"></a>method dispatch</h1>
+<p> Now that we have seen how Dylan constructs the class precedence list, we return to the issue of how multiple inheritance affects method dispatch. Recall that, when a generic function is called, Dylan chooses the <strong>most specific applicable method</strong> to call. For simplicity, let's consider a generic function that has one specialized parameter. As we have seen, Dylan chooses which method to dispatch by comparing the type of the required <strong>argument</strong> to the generic function with the type of the corresponding specialized <strong>parameter</strong> for each method, using the following procedure:</p>
+<p>1.  Find all the applicable methods. A method is applicable if the required argument is an instance of the type of the specialized parameter.</p>
+<p>2.  Sort the applicable methods in order of specificity. A method is more specific than another if the type of its specialized parameter is a proper subtype of the type of the other method's specialized parameter.</p>
+<p>3.  Call the most specific method.</p>
+<p> In the presence of multiple inheritance, it is possible to have two or more methods that are applicable, but that cannot be sorted by specificity because neither parameter type is a subtype of the other. By following only the rules that we have seen so far, Dylan cannot choose either method to call.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_289.html#heading289-0"><strong>18.4.1  </strong> - Class precedence and method dispatch</a></li>
+<li><a rel="below" href="db_290.html#heading290-0"><strong>18.4.2  </strong> - Refined rules for method dispatch</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_289.html"><img src="next.gif" alt="next" /></a> <a href="db_287.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_202.html" />
+<link rel="prev" href="db_203.html" />
+<link rel="next" href="db_205.html" />
+<title>13.4.2   The interface module</title>
+</head>
+<body>
+
+<div>
+<a name="heading204"></a>
+
+<div>
+<p><a href="db_205.html"><img src="next.gif" alt="next" /></a> <a href="db_203.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading204-0"></a>
+<h1>13.4.2   <a name="marker-9-640"></a>The int<a name="marker-2-641"></a>erface module</h1>
+<p> We can now write a first draft of the interface module for our library:</p>
+<pre>
+<a name="marker-2-642"></a>define module time
+<em>  // Classes
+</em>  create &lt;time&gt;, &lt;time-of-day&gt;, &lt;time-offset&gt;;
+<em>  // Generics
+</em>  create say, encode-total-seconds;
+end module time;
+</pre>
+<p> In the preceding definition, the <code>time</code> interface module creates and exports (makes visible) three classes and two functions. We use the <a name="marker-2-643"></a><code>create</code> clause, because we do not intend to define any implementations in the time-library interface module itself -- that will be done in an implementation module, which will use the time-library module as its interface. The <code>create</code> clause causes the names to be reserved in the <code>time</code> interface module, with the requisite that definitions be provided by some other module in the same library.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-9-583"></a>C:</strong> The Dylan <code>create</code> clause is roughly analogous to the C <code>extern</code> declaration.</p>
+</td></tr></table><p> </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_205.html"><img src="next.gif" alt="next" /></a> <a href="db_203.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_252.html" />
+<link rel="prev" href="db_254.html" />
+<link rel="next" href="db_256.html" />
+<title>16.1.3   Adding and removing elements</title>
+</head>
+<body>
+
+<div>
+<a name="heading255"></a>
+
+<div>
+<p><a href="db_256.html"><img src="next.gif" alt="next" /></a> <a href="db_254.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading255-0"></a>
+<h1>16.1.3   <a name="marker-9-694"></a>Adding and removing elements</h1>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>sorted-sequence.dylan</code> file. <em>(continued)</em></p>
+</th></tr><tr valign="top"><td><pre>
+<em>// Add an element to the sorted sequence
+</em>define method add! 
+    (sorted-sequence :: &lt;sorted-sequence&gt;, new-element :: &lt;object&gt;) 
+ =&gt; (sorted-sequence :: &lt;sorted-sequence&gt;)
+  let element-value = sorted-sequence.value-function;
+  let compare = sorted-sequence.comparison-function;
+  add!(sorted-sequence.data, new-element);
+  sorted-sequence.data 
+    := sort!(sorted-sequence.data, 
+             test: method (e1, e2) 
+                     compare(element-value(e1), element-value(e2))
+                   end);
+  sorted-sequence;
+end method add!; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Remove the item at the top of the sorted sequence
+</em>define method pop (sorted-sequence :: &lt;sorted-sequence&gt;) 
+    =&gt; (top-of-sorted-sequence :: &lt;object&gt;)
+  let data-vector = sorted-sequence.data;
+  let top-of-sorted-sequence = data-vector[0];
+  let sorted-sequence-size = data-vector.size;
+  if (empty?(sorted-sequence))
+    error(&quot;Trying to pop empty sorted-sequence %=.&quot;, sorted-sequence); 
+</pre></td></tr><tr valign="top"><td><pre>  else
+<em>    // Shuffle up existing data, removing the top element from the 
+    // sorted sequence
+</em>    for (i from 0 below sorted-sequence-size - 1)
+      data-vector[i] := data-vector[i + 1];
+    end for;
+<em>    // Decrease the size of the data vector, and return the top element
+</em>    data-vector.size := sorted-sequence-size - 1;
+    top-of-sorted-sequence;
+  end if;
+end method pop; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Remove a particular element from the sorted sequence
+</em>define method remove!
+    (sorted-sequence :: &lt;sorted-sequence&gt;, value :: &lt;object&gt;, 
+     #key test = \==, count = #f)
+ =&gt; (sorted-sequence :: &lt;sorted-sequence&gt;)
+  let data-vector = sorted-sequence.data;
+  let sorted-sequence-size = data-vector.size;
+  for (deletion-point from 0,
+<em>        // If we have reached the end of the sequence, or we have reached
+        // the user-specified limit, we are done
+        // Note that specifying a bound in the preceding clause for
+        //deletion-point does not work, because bounds are computed only
+        // once, and we change sorted-sequence-size in the body
+</em>       until: (deletion-point &gt;= sorted-sequence-size) 
+              | (count &amp; count = 0)) 
+<em>    // Otherwise, if we found a matching element, remove it from the 
+    // sorted sequence.
+</em>    if (test(data-vector[deletion-point], value))
+      for (i from deletion-point below sorted-sequence-size - 1)
+        data-vector[i] := data-vector[i + 1]
+      end for;
+      sorted-sequence-size 
+         := (data-vector.size := sorted-sequence-size - 1);
+      if (count) count := count - 1 end;
+    end if;
+  end for;
+  sorted-sequence;
+end method remove!; 
+</pre></td></tr></table>
+<p> The <code>remove!</code> method uses a form of the <code>for</code> loop that includes an <code>until:</code> clause, much like the <code>my-copy-sequence</code> method defined in <a href="db_148.html#marker-9-402">Section 11.3.3, page 144</a>. Note that all termination checks are tested prior to the execution of the body.</p>
+<p>Although the <code>pop</code> method is not used in the airport application, it is included for completeness. We could make the <code>pop</code> method faster by storing the data elements in reverse order; however, that would lead to either odd behavior or odd implementation of the <code>element</code> function on sorted sequences.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_256.html"><img src="next.gif" alt="next" /></a> <a href="db_254.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

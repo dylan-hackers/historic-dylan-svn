@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_158.html" />
+<link rel="prev" href="db_159.html" />
+<link rel="next" href="db_161.html" />
+<title>11.5.2   Branching with case</title>
+</head>
+<body>
+
+<div>
+<a name="heading160"></a>
+
+<div>
+<p><a href="db_161.html"><img src="next.gif" alt="next" /></a> <a href="db_159.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading160-0"></a>
+<h1>11.5.2   Branching with <em><a name="marker-2-425"></a>case</em></h1>
+<p> Dylan also provides the <code>case</code> control structure to give you an alternative way to express the branching style shown in <a href="db_159.html#marker-9-423">Section 11.5.1</a>:</p>
+<pre>
+define method interpret-votes 
+    (#key yes :: &lt;nonnegative-integer&gt; = 0, no :: &lt;nonnegative-integer&gt; = 0) 
+ =&gt; (interpretation :: &lt;string&gt;)
+  case (yes &gt; 0 &amp; no = 0) =&gt; &quot;unanimously approved&quot;;
+       (yes &gt; no)         =&gt; &quot;approved&quot;;
+       (yes = no)         =&gt; &quot;tie&quot;;
+       otherwise          =&gt; &quot;not approved&quot;;
+  end case;
+end method interpret-votes;
+</pre>
+<p> The decision of whether to use <code>if</code> with <code>elseif</code> and <code>else</code>, as opposed to using <code>case,</code> is largely a matter of personal style.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_161.html"><img src="next.gif" alt="next" /></a> <a href="db_159.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

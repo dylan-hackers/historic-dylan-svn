@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_329.html" />
+<link rel="prev" href="db_335.html" />
+<link rel="next" href="db_337.html" />
+<title>21.7   Auxiliary macros</title>
+</head>
+<body>
+
+<div>
+<a name="heading336"></a>
+
+<div>
+<p><a href="db_337.html"><img src="next.gif" alt="next" /></a> <a href="db_335.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading336-0"></a>
+<h1>21.7   Auxiliary <a name="marker-2-880"></a>macros</h1>
+<p> One difficulty with the aircraft macro that we defined in <a href="db_334.html#marker-9-876">Section 21.5</a> is this: suppose that we want each flight object to know the type of equipment used, rather than our having to look up the type in the aircraft registry. What looks like the obvious approach does not work:</p>
+<pre>
+define macro aircraft-definer
+  { define aircraft ?identifier:name (?type:name) ?flights end }
+   =&gt; { register-aircraft(make(&quot;&lt;&quot; ## ?type ## &quot;&gt;&quot;, id: ?#&quot;identifier&quot;));
+        register-flights(?#&quot;identifier&quot;, ?flights) }
+flights:
+  { }
+   =&gt; { }
+  { ?flight; ... }
+   =&gt; { ?flight, ... }
+flight:
+  { }
+   =&gt; { }
+  { flight ?id:name, #rest ?options:expression }
+   =&gt; { make(&lt;flight&gt;, equipment: ?&quot;type&quot;, id: ?#&quot;id&quot;, ?options) }
+end macro aircraft-definer;
+</pre>
+<p> When we are processing the <code>flight</code> auxiliary rules, we would like to be able to reference the pattern variable <code>?type</code> (coercing it to a string) from the main rules, but it is not <strong>in scope</strong> -- it is inaccessible to the auxiliary rules. We could have <br /><code>register-flights</code> set the <code>equipment</code> slot after the flight is created, but we would prefer to initialize the slot at the time we create the <code>&lt;flight&gt;</code> object. There is a workaround, an <strong>auxiliary macro</strong>:</p>
+<pre>
+define macro aircraft-definer
+  { define aircraft ?identifier:name (?type:name) ?flights:* end }
+   =&gt; { register-aircraft (make(&quot;&lt;&quot; ## ?type ## &quot;&gt;&quot;, id: ?#&quot;identifier&quot;));
+        define flights (?#&quot;identifier&quot;, ?&quot;type&quot;)
+          ?flights
+        end }
+end macro aircraft-definer;
+define macro flights-definer
+  { define flights (?craft:name, ?equipment:name) end }
+   =&gt; { }
+  { define flights (?craft:name, ?equipment:name) ?flight ; ?more:* end }
+   =&gt; { register-flights
+          (?craft, make(&lt;flight&gt;, equipment: ?equipment, ?flight)) ;
+        define flights (?craft, ?equipment) ?more end }
+flight:
+  { }
+   =&gt; { }
+  { flight ?id:name, #rest ?options:expression }
+   =&gt; { id: ?#&quot;id&quot;, ?options }
+end macro flights-definer;
+</pre>
+<p> Here, we have essentially broken out the work that used to be done by the auxiliary rule <code>flights</code> into a separate definition macro. Where <code>flights</code> used points of ellipsis to walk over each flight, the definition macro uses a <strong>wildcard</strong> constraint <code>?more:*</code>, explicitly calling itself again (that is, the macro appears in the substitution, and will be expanded again), as long as there are more flights to be <br />processed.</p>
+<p>Here is an example use of the <code>flights-definer</code> macro:</p>
+<pre>
+define aircraft UA4906H (DC10)
+  flight UA11 from: #&quot;BOS&quot;, to: #&quot;SFO&quot;;
+  flight UA12 from: #&quot;SFO&quot;, to: #&quot;BOS&quot;;
+end aircraft UA4906H;
+</pre>
+<p> Expanding that code would result in the following:</p>
+<pre>
+<em>register-aircraft (make(</em>&lt;DC10&gt;<em>, </em>#&quot;UA4096H&quot;<em>));
+register-flights (</em>#&quot;UA4096H&quot;<em>,
+</em>                  <em>make(&lt;flight&gt;, equipment: </em>&quot;DC10&quot;<em>,
+</em>                       <em>id: </em>#&quot;UA11&quot;<em> </em>from: #&quot;BOS&quot;, to: #&quot;SFO&quot;<em>);
+register-flights (</em>#&quot;UA4096H&quot;<em>,
+</em>                  <em>make(&lt;flight&gt;, equipment: </em>&quot;DC10&quot;<em>,
+</em>                       <em>id: </em>#&quot;UA12&quot;<em> </em>from: #&quot;SFO&quot;, to: #&quot;BOS&quot;<em>);</em>
+</pre>
+<p> (Note that this example is a hypothetical one used to illustrate macro expansion. The <code>define aircraft</code> statement cannot be compiled in the airport example.)</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_337.html"><img src="next.gif" alt="next" /></a> <a href="db_335.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

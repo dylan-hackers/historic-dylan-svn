@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_236.html" />
+<link rel="prev" href="db_237.html" />
+<link rel="next" href="db_239.html" />
+<title>14.4.2   The angle implementation file</title>
+</head>
+<body>
+
+<div>
+<a name="heading238"></a>
+
+<div>
+<p><a href="db_239.html"><img src="next.gif" alt="next" /></a> <a href="db_237.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading238-0"></a>
+<h1>14.4.2   The <em>angle</em> implementation file</h1>
+<p> The <code>angle</code> implementation file is simply a collection of the source records that we developed earlier for creating and saying angles, latitudes, and longitudes.</p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>angle</code> implementation file: <code>angle.dylan</code>.  </p>
+</th></tr><tr valign="top"><td><pre>
+Module: angle-implementation
+define abstract class &lt;angle&gt; (&lt;sixty-unit&gt;)
+end class &lt;angle&gt;;
+</pre></td></tr><tr valign="top"><td><pre>define method say (angle :: &lt;angle&gt;) =&gt; ()
+  let(degrees, minutes, seconds) = decode-total-seconds(angle);
+  format-out(&quot;%d degrees %d minutes %d seconds&quot;,
+             degrees, minutes, seconds);
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre>define class &lt;relative-angle&gt; (&lt;angle&gt;)
+end class &lt;relative-angle&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (angle :: &lt;relative-angle&gt;) =&gt; ()
+  format-out(&quot; %d degrees&quot;, decode-total-seconds(angle));
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre>define abstract class &lt;directed-angle&gt; (&lt;angle&gt;)
+  virtual slot direction :: &lt;symbol&gt;;
+  slot internal-direction :: &lt;symbol&gt;;
+  keyword direction:;
+end class &lt;directed-angle&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method initialize (angle :: &lt;directed-angle&gt;, #key direction: dir)
+  next-method();
+  angle.direction := dir;
+end method initialize;
+</pre></td></tr><tr valign="top"><td><pre>define method direction (angle :: &lt;directed-angle&gt;) =&gt; (dir :: &lt;symbol&gt;)
+  angle.internal-direction;
+end method direction;
+</pre></td></tr><tr valign="top"><td><pre>define method direction-setter 
+    (dir :: &lt;symbol&gt;, angle :: &lt;directed-angle&gt;) =&gt; (new-dir :: &lt;symbol&gt;)
+  angle.internal-direction := dir;
+end method direction-setter; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (angle :: &lt;directed-angle&gt;) =&gt; ()
+  next-method();
+  format-out(&quot; %s&quot;, angle.direction);
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre>define class &lt;latitude&gt; (&lt;directed-angle&gt;)
+end class &lt;latitude&gt;;
+</pre></td></tr><tr valign="top"><td><pre>define method say (latitude :: &lt;latitude&gt;) =&gt; ()
+  next-method();
+  format-out(&quot; latitude\n&quot;);
+end method say;
+</pre></td></tr><tr valign="top"><td><pre>define method direction-setter 
+    (dir :: &lt;symbol&gt;, latitude :: &lt;latitude&gt;) =&gt; (new-dir :: &lt;symbol&gt;)
+  if (dir == #&quot;north&quot; | dir == #&quot;south&quot;)
+    next-method();
+  else
+    error(&quot;%= is not north or south&quot;, dir);
+  end if;
+end method direction-setter; 
+</pre></td></tr><tr valign="top"><td><pre>define class &lt;longitude&gt; (&lt;directed-angle&gt;)
+end class &lt;longitude&gt;;
+</pre></td></tr><tr valign="top"><td><pre>define method say (longitude :: &lt;longitude&gt;) =&gt; ()
+  next-method();
+  format-out(&quot; longitude\n&quot;);
+end method say;
+</pre></td></tr><tr valign="top"><td><pre>define method direction-setter 
+    (dir :: &lt;symbol&gt;, longitude :: &lt;longitude&gt;) =&gt; (new-dir :: &lt;symbol&gt;)
+  if (dir == #&quot;east&quot; | dir == #&quot;west&quot;)
+    next-method();
+  else
+    error(&quot;%= is not east or west&quot;, dir);
+  end if;
+end method direction-setter; 
+</pre></td></tr></table>
+<p> </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_239.html"><img src="next.gif" alt="next" /></a> <a href="db_237.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_224.html" />
+<link rel="prev" href="db_224.html" />
+<link rel="next" href="db_226.html" />
+<title>14.1.1   The sixty-unit-library file</title>
+</head>
+<body>
+
+<div>
+<a name="heading225"></a>
+
+<div>
+<p><a href="db_226.html"><img src="next.gif" alt="next" /></a> <a href="db_224.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading225-0"></a>
+<h1>14.1.1   The <em>sixty-unit-library</em> file</h1>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>sixty-unit-library</code> file: <code>sixty-unit-library.dylan</code>.  </p>
+</th></tr><tr valign="top"><td><pre>
+Module: dylan-user
+<em>// Library definition
+</em>define library sixty-unit
+<em>  // Interface module
+</em>  export sixty-unit;
+<em>  // Substrate library
+</em>  use dylan;
+end library sixty-unit;
+</pre></td></tr><tr valign="top"><td><pre><em>// Interface module
+</em>define module sixty-unit
+<em>  // Classes
+</em>  create &lt;sixty-unit&gt;;
+<em>  // Generics
+</em>  create total-seconds, encode-total-seconds, decode-total-seconds;
+end module sixty-unit;
+</pre></td></tr><tr valign="top"><td><pre><em>// Implementation module
+</em>define module sixty-unit-implementation
+<em>  // External interface
+</em>  use sixty-unit;
+<em>  // Substrate module
+</em>  use dylan;
+end module sixty-unit-implementation;
+</pre></td></tr></table>
+<p> </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_226.html"><img src="next.gif" alt="next" /></a> <a href="db_224.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

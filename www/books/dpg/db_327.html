@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_326.html" />
+<link rel="prev" href="db_326.html" />
+<link rel="next" href="db_328.html" />
+<title>20.4.1   Protected objects</title>
+</head>
+<body>
+
+<div>
+<a name="heading327"></a>
+
+<div>
+<p><a href="db_328.html"><img src="next.gif" alt="next" /></a> <a href="db_326.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading327-0"></a>
+<h1>20.4.1   Protected objects</h1>
+<p> Suppose that you want to design a class of objects that could be accessed only when a lock for that object is granted. You might use instances of such a class to avoid conflicting concurrent access in a multithreaded implementation of Dylan, or you might use instances of such a class to represent files or other operating-<br />system objects that might be accessed reliably by only one process at a time. Let's assume that the <code>&lt;lock&gt;</code> class and the <code>get-lock</code> and <code>release-lock</code> functions are supplied by an external library. The <code>get-lock</code> function atomically obtains the lock if that lock is available; otherwise, it waits until the lock becomes free, and then obtains the lock. The <code>release-lock</code> function frees the lock so that some other process can acquire the lock. Given this locking library, how would we define the following? </p>
+<ul>
+<li><p>A class that represents a protected object </p></li>
+<li><p>A <code>call-using-lock</code> function, which acquires a lock associated with a protected object, calls an arbitrary function, and then releases the lock</p></li>
+</ul>
+<p> We could define the class as follows:</p>
+<pre>
+define abstract class &lt;protected-object&gt; (&lt;object&gt;)
+  slot object-lock :: &lt;lock&gt; = make(&lt;lock&gt;);
+end class &lt;protected-object&gt;;
+</pre>
+<p> Each subclass of <code>&lt;protected-object&gt;</code> would inherit an <code>object-lock</code> slot. The lock instance stored in this slot must be acquired prior to any operation on the protected object, and released when the operation is complete. One naive way to implement <code>call-using-lock</code> would be as follows:</p>
+<pre>
+define method call-using-lock 
+    (object :: &lt;protected-object&gt;, function :: &lt;function&gt;, #rest args)
+ =&gt; (#rest results)
+  get-lock(object.object-lock);
+  apply(function, object, args);
+  release-lock(object.object-lock);
+end method call-using-lock;
+</pre>
+<p> The approach in the preceding example has two serious problems. First, <code>call-using-lock</code> does not return the values returned by calling <code>function</code>. Second, if <code>function </code>executes a nonlocal exit past <code>call-using-lock</code>, the <code>release-lock</code> call will never be executed, and after that point no process will be able to acquire the lock for the protected object. Thus, subsequent attempts to use the protected object will wait forever, because the lock was not properly released. We could add a handler that would release the lock if any condition is signaled, but that might be incorrect, because certain conditions might be handled within the dynamic scope of <code>function</code>, and might never perform a nonlocal exit past <code>call-using-lock</code>. Thus, the lock might be released prematurely, possibly causing the integrity of the protected object to be violated. Also, calling an exit procedure performs a nonlocal exit without signaling a condition at all. </p>
+<p>To solve exactly this sort of problem, Dylan provides the <a name="marker-2-848"></a><code>cleanup</code> clause of <code>block</code>. Code within the body of a <code>cleanup</code> clause is guaranteed to be executed before the <code>block</code> is exited, even if it is a nonlocal exit that causes the <code>block</code> to <br />terminate. The value of this <code>block</code> will be the result of calling <code>function</code>. The <code>cleanup</code> clause does not affect what the <code>block</code> returns. </p>
+<pre>
+define method call-using-lock 
+    (object :: &lt;protected-object&gt;, function :: &lt;function&gt;, #rest args)
+ =&gt; (#rest results)
+  block ()
+    get-lock(object.object-lock);
+    apply(function, object, args);
+  cleanup
+    release-lock(object.object-lock);
+  end block;
+end method call-using-lock;
+</pre>
+<p> The <code>cleanup</code> clause of <code>block</code> provides a powerful tool for ensuring the integrity of applications that use nonlocal exits.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_328.html"><img src="next.gif" alt="next" /></a> <a href="db_326.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_295.html" />
+<link rel="prev" href="db_306.html" />
+<link rel="next" href="db_308.html" />
+<title>19.12   Slot accessors</title>
+</head>
+<body>
+
+<div>
+<a name="heading307"></a>
+
+<div>
+<p><a href="db_308.html"><img src="next.gif" alt="next" /></a> <a href="db_306.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading307-0"></a>
+<h1>19.12   Sl<a name="marker-2-794"></a>ot accessors</h1>
+<p> Dylan does allow you to omit definition of a generic function. As we mentioned earlier, if you define a method without also defining a generic function, Dylan implicitly creates a generic function with the most general types for the parameters and return values that are compatible with the method. The most common case of implicit generic functions is for the slot-accessor methods that are created when a new class is defined. Because these generic functions typically have only a single method and are <strong>sealed</strong> by default (see <a href="db_304.html#marker-9-782">Section 19.9</a>), the compiler can make extensive optimizations for slot accessors, ideally making slot access no more expensive than an array reference or structure-member access in other languages.</p>
+<p>Even when a slot is inherited by subclassing, a good Dylan compiler will use a <a name="marker-2-795"></a><strong>coloring algorithm</strong> to assign slots to the same offset in each subclass, keeping the cost of slot access to a minimum. You can use primary classes (see <a href="db_308.html#marker-9-798">Section 19.13</a>) to guarantee efficient slot access.When a program defines explicit methods for a slot getter or setter generic function, of course, the overhead is greater. </p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-755"></a>C++:</strong> Dylan classes are similar to virtual base classes with virtual data members in that the offsets of their data members are not fixed, and access to the data members can be overridden. See <a href="db_347.html#marker-9-930">Section B.2</a> in <a href="db_345.html#marker-9-926">Appendix B,  <em>Dylan Object Model for C and C++ Programmers</em></a>, for a more detailed analogy.</p>
+</td></tr></table><p> </p>
+<p> In the <code>&lt;sixty-unit&gt;</code> class, we specified an initial value for <code>total-seconds</code>; hence, there is no need to check that the slot has been initialized before it is accessed. In some situations, it may not be feasible to give a default or initial value for a slot. Dylan permits this omission and will ensure that the slot is initialized before that slot is used; of course, this check does not come for free, so it is preferable to provide initial values where possible. In fact, because we always expect to initialize the <code>total-seconds</code> slot when we make a new <code>&lt;sixty-unit&gt;</code>, it would be more accurate to specify <code>&lt;sixty-unit&gt;</code> as follows:</p>
+<pre>
+define open abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;,
+    required-init-keyword: total-seconds:,
+end class &lt;sixty-unit&gt;;
+</pre>
+<p> That is, rather than giving the slot an initial value of <code>0</code> and an optional <br /><code>init-keyword:</code>, we simply require that the slot be initialized when we make a <code>&lt;sixty-unit&gt;</code> object. Of course, the initial value must obey the type constraint of <code>&lt;integer&gt;</code>. The compiler can still make the inference that the slot will always be initialized and will always have an integer value.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-750"></a>C:</strong> Dylan always ensures that a slot is initialized before that slot is accessed, automatically inserting a run-time check when it cannot prove at compile time that the slot is always properly initialized. C puts this burden of safety on the programmer, and that can be the source of subtle bugs. A number of debugging and analysis tools are available as addons to C, to help the programmer with this task.</p>
+</td></tr></table><p> </p>
+<p> Always initializing slots, either with a default value or required init-keyword, will make slot access efficient.</p>
+<p>Finally, in many cases, slots hold values that will not change over the lifetime of each instance (although they may be different values for each instance). In the case of the <code>&lt;sixty-unit&gt;</code> class, we never change the value of <code>total-<br />seconds</code>. When adding two instances, we create a new one to hold the new value, rather than changing one of the argument instances (that way, we do not have to worry about changing an instance that may still be in use by some other part of the program). In such cases, declaring the slot to be <a name="marker-2-796"></a><code>constant</code> both documents and enforces this intent. Furthermore, the compiler can often make additional optimizations for slots that are known never to be modified. The final definition of <code>&lt;sixty-unit&gt;</code> is as follows:</p>
+<pre>
+define open abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
+  constant slot total-seconds :: &lt;integer&gt;,
+    required-init-keyword: total-seconds:,
+end class &lt;sixty-unit&gt;;
+</pre>
+<p> (The <code>constant</code> declaration is simply shorthand for the slot option <code>setter: #f</code>, meaning that there is no way to set the slot.)</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_308.html"><img src="next.gif" alt="next" /></a> <a href="db_306.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

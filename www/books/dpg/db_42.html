@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_41.html" />
+<link rel="prev" href="db_41.html" />
+<link rel="next" href="db_43.html" />
+<title>3.3.1   Predicates for testing equality</title>
+</head>
+<body>
+
+<div>
+<a name="heading42"></a>
+
+<div>
+<p><a href="db_43.html"><img src="next.gif" alt="next" /></a> <a href="db_41.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading42-0"></a>
+<h1>3.3.1   <a name="marker-9-129"></a>Predicates for testing <a name="marker-2-130"></a>equality</h1>
+<p> Dylan provides two predicates for testing equality: <a name="marker-2-131"></a><code>=</code> and <a name="marker-2-132"></a><code>==</code>. The <code>=</code> predicate determines whether two objects are <strong>similar</strong>. Similarity is defined differently for different kinds of objects. When you define new classes, you can define how similarity is tested for those classes by defining a method for <code>=</code>.</p>
+<p>The <code>==</code> predicate determines whether the operands are <strong>identical</strong> -- that is, whether the operands are the same object. The <code>==</code> predicate (identity) is a stronger test: two values may be similar but not identical, and two identical values are always similar. </p>
+<p>If two numbers are mathematically equal, then they are similar:</p>
+<pre>
+<em>?</em> 100 = 100;
+<em>#t</em>
+<em>?</em> 100 = 100.0;
+<em>#t</em>
+</pre>
+<p> Two numbers that are similar, and have the same type, are the same object:</p>
+<pre>
+<em>?</em> 100 == 100;
+<em>#t</em>
+</pre>
+<p> Two numbers that are similar, but have different types, are not the same object:</p>
+<pre>
+<em>?</em> 100 == 100.0;
+<em>#f</em>
+</pre>
+<p> Characters are enclosed in single quotation marks. If two characters look the same, they are similar and identical:</p>
+<pre>
+<em>?</em> 'z' = 'z';
+<em>#t</em>
+<em>?</em> 'z' == 'z';
+<em>#t</em>
+</pre>
+<p> Strings are enclosed in double quotation marks. Strings that have identical elements are similar, but may or may not be identical. That is, strings can have identical elements, but not be the same string. For example, these strings are similar:</p>
+<pre>
+<em>? </em>&quot;apple&quot; = &quot;apple&quot;;
+<em>#t</em>
+</pre>
+<p> Just by looking at two strings, you cannot know whether or not they are the identical string. The only way to determine identity is to use the <code>==</code> predicate. The following expression could return <code>#t</code> or <code>#f</code>:</p>
+<pre>
+<em>? </em>&quot;apple&quot; == &quot;apple&quot;;
+</pre>
+<p> A string is always identical to itself:</p>
+<pre>
+<em>? </em>begin
+    let yours = &quot;apple&quot;;
+    let mine = yours;
+    mine == yours;
+  end; 
+<em>#t</em>
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_43.html"><img src="next.gif" alt="next" /></a> <a href="db_41.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_120.html" />
+<link rel="prev" href="db_126.html" />
+<link rel="next" href="db_128.html" />
+<title>10.4   Slot options for initialization of slots</title>
+</head>
+<body>
+
+<div>
+<a name="heading127"></a>
+
+<div>
+<p><a href="db_128.html"><img src="next.gif" alt="next" /></a> <a href="db_126.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading127-0"></a>
+<h1>10.4   <a name="marker-9-333"></a>Slot options for<a name="marker-2-334"></a> initialization of slots</h1>
+<p> Unlike variables and constants, <a name="marker-2-335"></a>slots can be <strong>uninitialized</strong>; that is, you can create an instance without initializing all the slots. If you call a getter for a slot that has not been initialized, Dylan signals an error. In the following sections, we describe a variety of techniques for avoiding the problem of accessing an uninitialized slot. The most general technique is to define an <code>initialize</code> method for a slot, as shown in <a href="db_126.html#marker-9-331">Section 10.3</a>. </p>
+<p>A slot can be uninitialized. Once a slot receives a value, however, it will always have a value: There is no way to return a slot to the uninitialized state. Sometimes it is useful to store in a slot a value that means none. To make that possible, you need to define a new type for that slot, as shown in <a href="db_112.html#marker-9-295">Section 9.2, page 110</a>. In Sections <a href="db_128.html#marker-9-336">10.4.1</a> through <a href="db_131.html#marker-9-342">10.4.4</a>, we show techniques for initializing slots.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_128.html#heading128-0"><strong>10.4.1  </strong> - The init-value: slot option</a></li>
+<li><a rel="below" href="db_129.html#heading129-0"><strong>10.4.2  </strong> - The required-init-keyword: slot option</a></li>
+<li><a rel="below" href="db_130.html#heading130-0"><strong>10.4.3  </strong> - Slot options for an inherited slot</a></li>
+<li><a rel="below" href="db_131.html#heading131-0"><strong>10.4.4  </strong> - The init-function: slot option</a></li>
+<li><a rel="below" href="db_132.html#heading132-0"><strong>10.4.5  </strong> - Init expressions</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_128.html"><img src="next.gif" alt="next" /></a> <a href="db_126.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

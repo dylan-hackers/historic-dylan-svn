@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_281.html" />
+<link rel="prev" href="db_282.html" />
+<link rel="next" href="db_284.html" />
+<title>18.1.2   Aircraft classes and multiple inheritance</title>
+</head>
+<body>
+
+<div>
+<a name="heading283"></a>
+
+<div>
+<p><a href="db_284.html"><img src="next.gif" alt="next" /></a> <a href="db_282.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading283-0"></a>
+<h1>18.1.2   Aircraft classes and multiple inheritance</h1>
+<p> It is obvious that an aircraft is a flying vehicle. In our airport model, however, we have to take account of an aircraft's behavior on taxiways and runways and at gates. In these situations, the aircraft is acting as a ground vehicle. Perhaps it makes sense to define our aircraft classes as subclasses of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>.</p>
+<p>What could we gain by doing so? Consider cruising speed. When an aircraft is in the air, we need to take into account its flying cruising speed when estimating its time of arrival at its destination. When the aircraft is on the ground, we need to take into account the ground cruising speed when estimating how much time the aircraft will spend on a taxiway or runway. It makes sense to have both flying and ground cruising speeds. It also makes sense for flying cruising speed to be a property of flying vehicles -- more specifically, aircraft -- and for ground cruising speed to be a property of ground vehicles. After all, the notion of cruising speed can be useful in estimating how long a fuel truck will take to arrive at a given gate.</p>
+<p>We now restructure our vehicle classes again, this time to make the aircraft classes be subclasses of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>. We need to remove the <code>cruising-speed</code> slot from the <code>&lt;vehicle&gt;</code> class, and to replace it by two slots: <code>ground-cruising-speed</code> for the <code>&lt;ground-vehicle&gt;</code> class and <code>flying-cruising-speed</code> for the <code>&lt;flying-vehicle&gt;</code> class. We can also take this opportunity to move the <code>altitude</code> slot from the <code>&lt;aircraft&gt;</code> class to the <code>&lt;flying-vehicle&gt;</code> class, because any flying vehicle is likely to need to keep track of its altitude. Finally, we introduce multiple inheritance by redefining the <code>&lt;aircraft&gt;</code> class to be a direct subclass of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>.</p>
+<pre>
+define abstract class &lt;vehicle&gt; (&lt;physical-object&gt;)
+<em>  // Every vehicle has a unique identification code
+</em>  slot vehicle-id :: &lt;string&gt;, required-init-keyword: id:;
+<em>  // The standard size of this class of vehicle
+</em>  each-subclass slot standard-size :: &lt;size&gt;;
+end class &lt;vehicle&gt;;
+define abstract class &lt;ground-vehicle&gt; (&lt;vehicle&gt;)
+<em>  // The normal operating speed of this class of vehicle
+</em>  each-subclass slot ground-cruising-speed :: &lt;positive-integer&gt;;
+end class &lt;ground-vehicle&gt;;
+define abstract class &lt;flying-vehicle&gt; (&lt;vehicle&gt;)
+<em>  // The normal operating speed of this class of vehicle
+</em>  each-subclass slot flying-cruising-speed :: &lt;positive-integer&gt;;
+  slot altitude :: &lt;integer&gt;, init-keyword: altitude:;
+end class &lt;flying-vehicle&gt;;
+define abstract class &lt;aircraft&gt; (&lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;)
+  slot direction :: &lt;symbol&gt;;
+  slot next-transition :: &lt;aircraft-transition&gt;,
+    required-init-keyword: transition:, setter: #f;
+end class &lt;aircraft&gt;;
+</pre>
+<p> Now, all aircraft classes have two slots for cruising speed: <code>ground-cruising-speed</code>, inherited from the <code>&lt;ground-vehicle&gt;</code> class, and <code>flying-cruising-speed</code>, inherited from the <code>&lt;flying-vehicle&gt;</code> class. We have to modify our <code>&lt;B707&gt;</code> class to provide default initial values for these slots.</p>
+<pre>
+define class &lt;B707&gt; (&lt;commercial-aircraft&gt;)
+  inherited slot flying-cruising-speed, init-value: 368;
+  inherited slot ground-cruising-speed, init-value: 45;
+  inherited slot standard-size,
+    init-value: make(&lt;size&gt;, length: 153, width: 146, height: 42);
+end class &lt;B707&gt;;
+</pre>
+<p> Finally, to complete the example, we would change our <code>&lt;fuel-truck&gt;</code> class definition to provide a default initial value for <code>ground-cruising-speed</code>, instead of <code>cruising-speed</code>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_284.html"><img src="next.gif" alt="next" /></a> <a href="db_282.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

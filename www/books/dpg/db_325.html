@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_316.html" />
+<link rel="prev" href="db_324.html" />
+<link rel="next" href="db_326.html" />
+<title>20.3   Additional exception mechanisms</title>
+</head>
+<body>
+
+<div>
+<a name="heading325"></a>
+
+<div>
+<p><a href="db_326.html"><img src="next.gif" alt="next" /></a> <a href="db_324.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading325-0"></a>
+<h1>20.3   Additional exception mechanisms</h1>
+<p> We do not cover the entire Dylan exception protocol in this book. Here, we mention briefly certain other techniques that we do not discuss further in this book: </p>
+<ul>
+<li><p>You can signal conditions with <code><a name="marker-2-842"></a>cerror</code>, and <code><a name="marker-2-843"></a>break</code>, in addition to with the <code>error</code> and <code>signal</code> functions. The <code>cerror</code> function establishes a simple restart, then signals an error in a manner similar to <code>error</code>. The <code>break</code> function directly invokes the debugger without signaling.</p></li>
+<li><p>The <code>exception</code> clause of <code>block</code> and <code>let handler</code> takes several options that, among other things, can facilitate restart signaling and handling. </p></li>
+<li><p>There are additional protocols for attaching a user interface to returning or restarting (<code>return-query</code>, <code>restart-query</code>), which could be used with handlers that act like interactive debuggers. </p></li>
+</ul>
+<p> See <a href="http://www.harlequin.com/products/ads/dylan/doc/drm/"><em>The Dylan Reference Manual</em></a>, for more information.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_326.html"><img src="next.gif" alt="next" /></a> <a href="db_324.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

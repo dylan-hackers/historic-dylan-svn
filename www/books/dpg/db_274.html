@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_260.html" />
+<link rel="prev" href="db_273.html" />
+<link rel="next" href="db_275.html" />
+<title>17.8   The airport-library.dylan file</title>
+</head>
+<body>
+
+<div>
+<a name="heading274"></a>
+
+<div>
+<p><a href="db_275.html"><img src="next.gif" alt="next" /></a> <a href="db_273.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading274-0"></a>
+<h1>17.8   The <code>airport-library.dylan</code> file</h1>
+<p> The airport library implements the main scheduling system for the airport example. This library assumes that your Dylan implementation provides a <code>format-out</code> library, which supplies the <code>format-out</code> and <code>format-to-string</code> functions. This library also assumes that there is a <code>transcendentals</code> library, which supplies the <code>sqrt</code> (square root) function.</p>
+<table border="1"><tr valign="top"><th><p> The <code>airport-library.dylan</code> file.  </p>
+</th></tr><tr valign="top"><td><pre>
+module: dylan-user
+define library airport
+  export airport;
+  use dylan;
+</pre></td></tr><tr valign="top"><td><pre>  use transcendentals; 
+  use say;
+  use format-out;
+  use definitions;
+  use sorted-sequence;
+  use angle;
+  use time;
+end library airport; 
+</pre></td></tr><tr valign="top"><td><pre>define module airport
+  export &lt;size&gt;, length, height, width, current-position, 
+    current-position-setter;
+  export physical-size, physical-size-setter, $default-capacity;
+  export storage-capacity, storage-capacity-setter, identifier; 
+  export connected-to, connected-to-setter;
+  export &lt;gate&gt;, generate-gates, &lt;sky&gt;, &lt;runway&gt;, &lt;taxiway&gt;;
+  export &lt;airline&gt;, name, name-setter, code, code-setter, &lt;flight&gt;;
+  export aircraft-flight, aircraft-flight-setter, number, number-setter,
+    altitude, altitude-setter;
+  export &lt;aircraft-transition&gt;, &lt;b707&gt;, &lt;airport&gt;, sky-above, 
+    sky-above-setter;
+  export process-aircraft;
+  use dylan;
+  use transcendentals, import: {sqrt};
+  use say;
+  use format-out, import: {format-out};
+  use format, import: {format-to-string};
+  use definitions;
+  use sorted-sequence;
+  use time;
+  use angle, export: {direction, direction-setter};
+  use position;
+end module airport; 
+</pre></td></tr></table>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_275.html"><img src="next.gif" alt="next" /></a> <a href="db_273.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

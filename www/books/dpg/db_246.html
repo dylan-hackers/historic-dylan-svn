@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_243.html" />
+<link rel="prev" href="db_245.html" />
+<link rel="next" href="db_247.html" />
+<title>15.3   Behaviors of the objects</title>
+</head>
+<body>
+
+<div>
+<a name="heading246"></a>
+
+<div>
+<p><a href="db_247.html"><img src="next.gif" alt="next" /></a> <a href="db_245.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading246-0"></a>
+<h1>15.3   Behaviors of the objects</h1>
+<p> The top-level function of our application is called <code>process-aircraft</code>. Given an airport that has been properly initialized, <code>process-aircraft</code> will simulate and document the movement of all inbound aircraft through all the containers of the airport, from landing through takeoff.</p>
+<p>To predict how long it will take for an aircraft to arrive at the airport, we need to compute the distance between the position of the aircraft and the position of the airport. Then, we must divide the distance by the speed to determine how long it will take the aircraft to get from one position to the other. The <code>flying-time</code> method will implement that computation in our design. </p>
+<p>Once an aircraft approaches the airport, it enters a series of containers. The generic functions that constitute the vehicle-storage protocol help us to generate and simulate the transitions of the aircraft from container to container.</p>
+<p>We summarize some of the operations in our design here; we summarize the vehicle-storage protocol in <a href="db_247.html#marker-9-683">Section 15.4</a>.</p>
+<strong>process-aircraft <em>airport time</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function simulates and documents the movement of aircraft through the airport, including the time of each transition -- for example,</p>
+<pre>
+<em>12:30: Aircraft Cardinal at Runway 11R-29L
+12:43: Aircraft Cardinal at Taxiway Echo
+12:47: Aircraft Cardinal at Gate A2</em>
+</pre>
+<p>The <em>airport</em> is an instance of <code>&lt;airport&gt;</code>. The <em>time</em> is an instance of <code>&lt;time-of-day&gt;</code>. </p>
+<strong>distance-3d <em>aircraft airport</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function returns the distance between its two arguments. The <em>aircraft</em> is an instance of <code>&lt;aircraft&gt;</code>, and the <em>airport</em> is an instance of <code>&lt;airport&gt;</code>.</p>
+<strong>flying-time <em>aircraft airport</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function returns the time that it would take for the <em>aircraft </em>to fly to the <em>airport</em>. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_247.html"><img src="next.gif" alt="next" /></a> <a href="db_245.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

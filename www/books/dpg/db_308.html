@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_295.html" />
+<link rel="prev" href="db_307.html" />
+<link rel="next" href="db_309.html" />
+<title>19.13   Primary classes</title>
+</head>
+<body>
+
+<div>
+<a name="heading308"></a>
+
+<div>
+<p><a href="db_309.html"><img src="next.gif" alt="next" /></a> <a href="db_307.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading308-0"></a>
+<h1>19.13   <a name="marker-10-797"></a><a name="marker-9-798"></a>Prim<a name="marker-2-799"></a>ary classes</h1>
+<p> Classes have one additional variation that you can use to optimize performance. A class that is defined as <code>primary</code> allows the compiler to generate the most efficient code for accessing the slots defined in the primary class (whether the accessor is applied to the primary class or to one of that class's subclasses). However, a primary class cannot be combined with any other primary class (unless one is a subclass of the other). This restriction implies that you should delay declaring a class to be primary until you are sure of your inheritance design. Also, because sealed classes are already highly optimized, the <code>primary</code> declaration is of most use for open classes.</p>
+<p>As an example, consider the class <code>&lt;sixty-unit&gt;</code>, and its slot <code>total-<br />seconds</code>, as used in this method for <code>decode-total-seconds</code>:</p>
+<pre>
+define method decode-total-seconds 
+    (sixty-unit :: &lt;sixty-unit&gt;)
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  decode-total-seconds(sixty-unit.total-seconds);
+end method decode-total-seconds; 
+</pre>
+<p> Although the generic function for the slot accessor <code>total-seconds</code> is sealed, and it is trivial for the compiler to infer that its argument is a <code>&lt;sixty-unit&gt;</code> in the call <code>sixty-unit.total-seconds</code>, because <code>&lt;sixty-unit&gt;</code> is declared open, the <br />compiler cannot emit the most efficient code for that call. Because an open class could be mixed with any number of other classes, there is no guarantee that the slots of every object that is a <code>&lt;sixty-unit&gt;</code> will always be stored in the same order --there is no guarantee that <code>total-seconds</code> will always be the first slot in an object that is an indirect instance of <code>&lt;sixty-unit&gt;</code>, for instance. </p>
+<p>Declaring a class <code>primary</code> is essentially making a guarantee that the compiler can always put the primary class's slots in the same place in an instance, <br />and that any other superclasses will have to adjust:</p>
+<pre>
+define abstract open primary class &lt;sixty-unit&gt; (&lt;object&gt;)
+  constant slot total-seconds :: &lt;integer&gt;,
+    required-init-keyword: total-seconds:;
+end class &lt;sixty-unit&gt;;
+</pre>
+<p> By adding the <code>primary</code> declaration to the definition, any library that subclasses <code>&lt;sixty-unit&gt;</code> is guaranteed to put <code>total-seconds</code> at the same offset. Hence, the compiler can turn the call <code>sixty-unit.total-seconds</code> into a single machine instruction (load with constant offset), without concern over which subclass of <code>&lt;sixty-unit&gt;</code> was passed as an argument.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-747"></a>C++: </strong>A primary class is like an ordinary base class in C++. Because only one primary class is allowed as a base class, its data members can be assigned the same fixed offset for all derived classes. See <a href="db_347.html#marker-9-930">Appendix B.2,  <em>The concept of classes</em></a>, for a more detailed analogy.</p>
+</td></tr></table><p> </p>
+<p> It is permissible to make subclasses of a primary class also primary, essentially freezing the assignment of all the slots in the subclass too. What is not permissible is to multiply inherit from more than one primary class; as you can see, such behavior would lead to a conflict between the fixed slot assignments.</p>
+<p>Because primary classes restrict extension in this way, you should use them sparingly in libraries intended to be software components. Primary classes are of most benefit in large, modular programs, where all the clients of each component are known, and the need for extensibility is bounded; typically that occurs toward the end of a project, when you are tuning for performance.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_309.html"><img src="next.gif" alt="next" /></a> <a href="db_307.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_329.html" />
+<link rel="prev" href="db_330.html" />
+<link rel="next" href="db_332.html" />
+<title>21.2   Macro hygiene</title>
+</head>
+<body>
+
+<div>
+<a name="heading331"></a>
+
+<div>
+<p><a href="db_332.html"><img src="next.gif" alt="next" /></a> <a href="db_330.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading331-0"></a>
+<h1>21.2   Macro <a name="marker-2-872"></a>hygiene</h1>
+<p> Displaying the code fragments inserted by the macro in <em>underlined italics</em> both helps to show exactly what the macro has done to our code, and draws attention to an important feature of Dylan macros -- they are hygienic macros. A <strong>hygienic</strong> or <strong>referentially transparent</strong> macro system is one that prevents accidental collisions of macro variables with program variables of the same name. Consider the following macro, which is used to exchange the values of two variables:</p>
+<pre>
+define macro swap!
+  { swap! (?place1:expression, ?place2:expression) }
+ =&gt; { let value = ?place1;
+      ?place1 := ?place2;
+      ?place2 := value
+     }
+end macro swap!;
+</pre>
+<p> The local variable <code>value</code> is created by the macro. There is a possibility that this variable could conflict with another variable in the surrounding code. Consider what might happen if we were to expand swap!(value, x):</p>
+<pre>
+<em>let value =<code> value;
+value :=</code></em> x<em>;
+<code>x := value</code></em>
+</pre>
+<p> With simple textual substitutions, <code>swap!</code> would have no effect in this case. Dylan's hygienic macros solve this problem by differentiating between the <em>value<em> </em></em>introduced by the macro and any other <code>value</code> that might appear in the original code.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with<a name="marker-2-854"></a> C:</strong> Because C (and C++) macros are simply text substitutions performed by a preprocessor that has no understanding of the C language, they are inherently unhygienic. C macro writers reduce this problem by choosing unusual or unlikely names for local variables in their macros (such as <code>_swap_temp_value</code>), but even this workaround can be insufficient in complex macros. Dylan macros in effect automatically rename macro variables on each expansion to guarantee unique names.</p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_332.html"><img src="next.gif" alt="next" /></a> <a href="db_330.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

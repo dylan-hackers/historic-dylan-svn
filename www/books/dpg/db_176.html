@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_174.html" />
+<link rel="prev" href="db_175.html" />
+<link rel="next" href="db_177.html" />
+<title>12.2.2   Return and reception of multiple values</title>
+</head>
+<body>
+
+<div>
+<a name="heading176"></a>
+
+<div>
+<p><a href="db_177.html"><img src="next.gif" alt="next" /></a> <a href="db_175.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading176-0"></a>
+<h1>12.2.2   Return and reception of multiple values</h1>
+<p> A Dylan function call -- and, in general, a Dylan expression -- can return any number of values, including none. The <code>values<a name="marker-2-509"></a></code> function is the means of returning multiple values<a name="marker-2-510"></a>. This function takes zero or more arguments, and returns them as separate values.</p>
+<p>Multiple values can be received as the initial values of local variables in a <code>let<a name="marker-2-511"></a></code> declaration. If a <code>let</code> declaration contains multiple variables, they are matched with the values returned by the initialization expression, and each variable is bound to the corresponding value. The following example initializes <code>a</code> to <code>1</code> and <code>b</code> to <code>2:</code></p>
+<pre>
+let (a, b) = values(1, 2);
+</pre>
+<p> The following example initializes <code>ans</code> to <code>2</code> and <code>rem</code> to <code>1</code> -- the two values returned by this call to <code>truncate/</code>:</p>
+<pre>
+let (ans, rem) = truncate/(5, 2);
+</pre>
+<p> The variable list can also end with <code>#rest</code> followed by the name of a variable. In this case, the variable is initialized to a sequence. This sequence contains all the remaining values returned by the initialization expression. If there is no <code>#rest</code>, any excess values are discarded. If the number of variables in the <code>let</code> declaration is greater than the number of values returned, the remaining variables are initialized to <code>#f</code>. (But if the <code>let</code> declaration specifies a type for any of these variables, and if <code>#f</code> is not an instance of that type, then Dylan signals an error.)</p>
+<p>Module variables and constants can also be initialized to multiple values. The variable list of a <code>define variable<a name="marker-2-512"></a></code> or <code>define constan<a name="marker-2-513"></a>t</code> definition can contain multiple variables, and can receive multiple values from its initialization expression in the same way as a <code>let</code> declaration.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_177.html"><img src="next.gif" alt="next" /></a> <a href="db_175.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

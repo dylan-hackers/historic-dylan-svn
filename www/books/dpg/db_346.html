@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_345.html" />
+<link rel="prev" href="db_345.html" />
+<link rel="next" href="db_347.html" />
+<title>B.1   The concept of pointers</title>
+</head>
+<body>
+
+<div>
+<a name="heading346"></a>
+
+<div>
+<p><a href="db_347.html"><img src="next.gif" alt="next" /></a> <a href="db_345.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading346-0"></a>
+<h1>B.1   The concept of <a name="marker-2-928"></a>pointers</h1>
+<p> If you are familiar with a language with explicit pointers, such as C, you may be confused initially by Dylan's object model. Although there is no "pointer-to" operation in Dylan, there are pointers in the implementation. If you are trying to imagine how Dylan objects are implemented, it is better to think in terms of always manipulating a pointer to the object: A Dylan variable (or slot) stores a pointer to an object, rather than a copy of the object's slots. Similarly, assignment, argument passing, and identity comparison are in terms of pointers to objects.</p>
+<p>Even characters and numbers can be <em>considered</em> as objects that are pointed to (objects with an unmodifiable value slot), making the object model uniform. But compilers optimize away the indirection for these built-in classes.</p>
+<p>Note that <code>=</code> comparison defaults to pointer comparison, but can be customized by class. There are sensible customizations built-in for characters, numbers, collections, sequences, and lists. You can add your own customizations for classes that you create.</p>
+<p>Consider this Dylan code:</p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> Dylan object example. </p>
+</th></tr><tr valign="top"><td><pre>
+define class &lt;color&gt; (&lt;object&gt;)
+  slot red :: &lt;integer&gt; = 0, init-keyword: red:;
+  slot green :: &lt;integer&gt; = 0, init-keyword: green:;
+  slot blue :: &lt;integer&gt; = 0, init-keyword: blue:;
+end class &lt;color&gt;;
+</pre></td></tr><tr valign="top"><td><pre>define constant black = make(&lt;color&gt;);
+</pre></td></tr><tr valign="top"><td><pre>define constant white
+  = make(&lt;color&gt;, red: 2 ^ 24 - 1, green: 2 ^ 24 - 1, blue: 2 ^ 24 - 1);
+</pre></td></tr><tr valign="top"><td><pre>define method whiteness-test(color :: &lt;color&gt;)
+  if (color = white) format-out(&quot;It's white!\n&quot;) end;
+end method whiteness-test;
+</pre></td></tr><tr valign="top"><td><pre>define variable color = black;
+</pre></td></tr><tr valign="top"><td><pre>color := white;
+whiteness-test(color);
+</pre></td></tr></table>
+<p> </p>
+<p> The equivalent C code is as follows:</p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> C equivalent of Dylan object example. </p>
+</th></tr><tr valign="top"><td><pre>
+typedef struct _color
+  { int red, green, blue; }
+Color;
+</pre></td></tr><tr valign="top"><td><pre>static Color _black = {0, 0, 0};
+Color* const black = &amp;_black;
+</pre></td></tr><tr valign="top"><td><pre>static Color _white = {16777215, 16777215, 16777215};
+Color* const white = &amp;_white;
+</pre></td></tr><tr valign="top"><td><pre>void whitenessTest(Color* const color) {
+  if (color == white) { printf(&quot;It's white!\n&quot;); }
+}
+</pre></td></tr><tr valign="top"><td><pre>void main () {
+  Color* color = black;
+
+  color = white;
+  whitenessTest(color);
+}
+</pre></td></tr></table>
+<p> </p>
+<p> The benefit of the Dylan model is that the final two statements are a single pointer assignment and a passing of a single pointer as a parameter. The comparison in whitenessTest is a single pointer comparison. Another possible C implementation -- one more typical of C style, but <em>not</em> equivalent to the Dylan implementation -- is as follows:</p>
+<table border="1"><tr valign="top"><th><p> C-style example, without pointers. </p>
+</th></tr><tr valign="top"><td><pre>
+typedef struct _color
+  { int red, green, blue; }
+Color;
+</pre></td></tr><tr valign="top"><td><pre>Color const black = {0, 0, 0};
+Color const white = {16777215, 16777215, 16777215};
+void whitenessTest(Color const color) {
+  if (color.red == white.red &amp;&amp;
+      color.green == white.green &amp;&amp;
+      color.blue == white.blue)
+  { printf(&quot;It's white!\n&quot;); }
+}
+void main () {
+  Color color = black;
+
+  	color = white;
+  whitenessTest(color);
+}
+</pre></td></tr></table>
+<p> In the C-style example, without pointers, the final two statements consist of three integer assignments (as the <code>Color</code> structure is copied), and a passing of a three-slot structure (the equivalent of three arguments) as an argument. The comparison in whitenessTest is three integer comparisons (as the two <code>Color</code> structures are compared, slot by slot).</p>
+<p>The drawback of the Dylan object example is shown here:</p>
+<pre>
+color.blue := 0;
+</pre>
+<p> The preceding call makes <code>white</code> yellow! In the C-style example, without pointers, you would make only <code>color</code> yellow. You can prevent people from changing defined colors to other colors in Dylan by not allowing the slots of <code>&lt;color&gt;</code> objects to be modified once they are initialized -- in other words, by making <code>&lt;color&gt;</code> objects <em>immutable</em>:</p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> Dylan object example, with immutable objects. </p>
+</th></tr><tr valign="top"><td><pre>
+define class &lt;color&gt; (&lt;object&gt;)
+  constant slot red :: &lt;integer&gt; = 0, init-keyword: red:;
+  constant slot green :: &lt;integer&gt; = 0, init-keyword: green:;
+  constant slot blue :: &lt;integer&gt; = 0, init-keyword: blue:;
+end class &lt;color&gt;;
+define constant black = make(&lt;color&gt;);
+define constant white
+  = make(&lt;color&gt;, red: 2 ^ 24 - 1, green: 2 ^ 24 - 1, blue: 2 ^ 24 - 1);
+define variable color = black;
+define method whiteness-test(color :: &lt;color&gt;)
+  if (color = white) format-out(&quot;It's white!\n&quot;) end;
+end method whiteness-test;
+color := white;
+whiteness-test(color);
+</pre></td></tr></table>
+<p> </p>
+<p> You can consider Dylan as always using pointers, even to objects such as integers and characters. Integers and characters are, by definition, immutable objects: There are no slots that you can change in an integer or character object. Thus, there is no danger of setting 6 to 9. Built-in immutable objects can have their pointers optimized away by the compiler: The compiler just has to arrange that <br />6 = 6 and 9 = 9, whether there is only one 6 object pointed to by all the variables with the value 6, or copies of 6 are stored in each of those variables (saving the need for a pointer).</p>
+<p>Another difficulty in the Dylan model is this potentially embarrassing <br />situation:</p>
+<pre>
+color := make(&lt;color&gt;, red: 2 ^ 24 - 1, green: 2 ^ 24 - 1, blue: 2 ^ 24 - 1);
+if (color = white) format-out(&quot;It's white!\n&quot;) end;
+</pre>
+<p> The preceding expression might not say "It's white!", because <code>make</code> might return a new object with white RGB values, and that object would not be <code>=</code> to the object named <code>white</code>. The equivalent C code would be:</p>
+<pre>
+Color* make_color(int r, int g, int b) {
+  Color* c = (Color*)malloc(sizeof(Color));
+  c-&gt;red = r; c-&gt;green = g; c-&gt;blue = b;
+  return c;
+}
+static Color _white = {16777215, 16777215, 16777215};
+Color* const white = &amp;_white;
+Color* color = make_color(16777215, 16777215, 16777215);
+if (color == white) { printf(&quot;It's white!\n&quot;); };
+</pre>
+<p> Because the preceding code is comparing the pointer stored in <code>white</code> to the pointer stored in <code>color</code>, it will clearly not say "It's white!". The default implementation of <code>=</code> in Dylan is to compare pointers. </p>
+<p>There are several solutions to this difficulty in Dylan. One is to customize the <code>=</code> comparison operator for our class to do a comparison more thorough than the default comparison:</p>
+<pre>
+define met<code>h</code>od \= (o1 :: &lt;color&gt;, o2 :: &lt;color&gt;)
+  o1.red = o2.red &amp; o1.green = o2.green &amp; o1.blue = o2.blue;
+end met<code>h</code>od \=;
+</pre>
+<p> Now, using <code>=</code> will compare colors by checking their individual RGB components, and our whiteness test will work. </p>
+<p>Note that Dylan also provides the <code>==</code> comparison operator, which always compares pointers. This comparison is useful when you want to check object identity. But, as we have seen, it is not always the appropriate default for comparison of equality of objects. The compiler can avoid calling our <code>\=</code> method altogether if the same object is compared to itself. It can do so because, with the exception of IEEE NaNs (nonnumbers), values that are <code>==</code> must also be <code>=</code>.</p>
+<p>Another approach that you can use if your objects are immutable is to make sure that they are unique. The <code>m<a name="marker-2-929"></a>ake</code> function is not required to return a new object each time, as shown in the Dylan object example, with unique, immutable objects.</p>
+<p>This advanced use of <code>make</code> and tables ensures that there is always only one instance of each color. Thus, when we make another white, it will always be <em>the</em> white, and our whiteness test will work with the default <code>=</code> comparison. The choice of solution depends on whether you will be doing more making or more <br />comparing. </p>
+<p></p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> Dylan object example, with unique, immutable objects. </p>
+</th></tr><tr valign="top"><td><pre>
+define class &lt;color-table&gt; (&lt;table&gt;)
+end class &lt;color-table&gt;;
+define method table-protocol(&lt;color-table&gt;)
+  local method color-hash(color :: &lt;color&gt;)
+    let (red-id, red-state) = object-hash(color.red);
+    let (grn-id, grn-state) = object-hash(color.green);
+    let (blu-id, blu-state) = object-hash(color.blue);
+    let (merge-id, merge-state) =
+      merge-hash-codes(red-id, red-state,
+                       grn-id, grn-state, ordered: #t);
+    merge-hash-codes(merge-id, merge-state,
+                     blu-id, blu-state, ordered: #t);
+  end;
+  local method color-test(o1 :: &lt;color&gt;, o2 :: &lt;color&gt;)
+    o1.red = o2.red &amp; o1.green = o2.green &amp; o1.blue = o2.blue;
+  end;
+  values(color-test, color-hash)
+end method table-protocol;
+define variable color-table = make(&lt;color-table&gt;);
+define method make(class == &lt;color&gt;, #key red, green, blue)
+  let prototype = next-method();
+  element(color-table, prototype, default: #f) |
+    (color-table[prototype] := prototype);
+end method make;
+</pre></td></tr></table>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_347.html"><img src="next.gif" alt="next" /></a> <a href="db_345.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

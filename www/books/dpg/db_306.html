@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_295.html" />
+<link rel="prev" href="db_305.html" />
+<link rel="next" href="db_307.html" />
+<title>19.11   Sealed domains</title>
+</head>
+<body>
+
+<div>
+<a name="heading306"></a>
+
+<div>
+<p><a href="db_307.html"><img src="next.gif" alt="next" /></a> <a href="db_305.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading306-0"></a>
+<h1>19.11   <a name="marker-9-789"></a>Sealed d<a name="marker-2-790"></a>omains</h1>
+<p> When you define a protocol that is meant to be extended by many libraries, both the base classes and the generic functions that make up the protocol must be open. This simple exigency might make it seem that there is no hope of optimizing such a protocol -- however, there is hope. You use the <code>define sealed domain</code> form to seal selectively subsets or <strong>branches</strong> of the protocol, permitting the compiler to make all the optimizations that would be possible if the classes and generic functions were sealed, but only for the particular subset or branch in question.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Advanced topic:</strong> Sealed domains are one of the most difficult concepts of the Dylan language to understand fully. It is reasonable to defer careful reading of this section until you are faced with a situation similar to the example -- an imported open class and generic function that will be specialized by your library.</p>
+</td></tr></table><p> </p>
+<p> As an example, consider the <code>say</code> protocol as used in the <code>time</code> library. Because the <code>say</code> generic function is defined to be open, even if the compiler can infer that the argument to <code>say</code> is a <code>&lt;time&gt;</code> or <code>&lt;time-offset&gt;</code>, it must insert code to choose the appropriate method to call at run time on the off chance that some other library has added or removed methods for <code>say</code>. The solution is to add the following definition to the <code>time</code> library:</p>
+<pre>
+<em>// Declare the say generic function sealed, for all time classes
+</em>define sealed domain say (&lt;time&gt;);
+</pre>
+<p> This statement is essentially a guarantee to the compiler that the only methods on <code>say</code> that are applicable to <code>&lt;time&gt;</code> objects (and also to <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code> objects, because <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code> are subclasses of <code>&lt;time&gt;</code>) are those that are defined explicitly in the <code>time</code> library (and in any libraries from which that one imports). Thus, when the compiler can prove that the argument to <code>say</code> is a <code>&lt;time-offset&gt;</code>, it can call the correct method directly, without any run-time dispatch overhead.</p>
+<p>Another way to get the same effect as a sealed domain, which is also self-documenting, is to use <code>define sealed method</code><a name="marker-2-791"></a> when defining individual methods on the protocol. So, for instance, in the case of the <code>time</code> library, we might have defined the two methods on <code>say</code> as follows:</p>
+<pre>
+define sealed method say (time :: &lt;time&gt;)
+  let (hours, minutes) = decode-total-seconds (time); 
+  format-out(&quot;%d:%s%d&quot;, hours, if (minutes &lt; 10) &quot;0&quot; else &quot; &quot; end, minutes);
+end method say;
+define sealed method say (time :: &lt;time-offset&gt;) =&gt; ()
+  format-out(&quot;%s &quot;, if (time.past?) &quot;minus&quot; else &quot;plus&quot; end);
+  next-method();
+end method say;
+</pre>
+<p> Defining a sealed method is the same as defining the generic function to be sealed over the domain of the method's specializers. In effect, this technique says that you do not intend anyone to add more specific methods in that domain, or to create classes that would change the applicability of the sealed methods.</p>
+<p>With either the <code>define sealed domain</code> form or the sealed methods, the use of <code>say</code> on <code>&lt;time&gt;</code> objects will be as efficient as it would be were <code>say</code> not an open generic function after all. At the same time, other libraries that create new classes can still extend the <code>say</code> protocol to cover those classes.</p>
+<p>Sealed domains impose <a name="marker-2-792"></a>restrictions on the ability of other libraries to create new methods, to remove new methods, and to create new classes: </p>
+<p>You cannot add methods to an open generic function imported from another library that would fall into the sealed domain of <em>any</em> other library. You can avoid this restriction by ensuring that at least one of the specializers of your method is a subtype of a type defined in your library. </p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-749"></a>C++:</strong> A C++ compiler could optimize out the dispatching of a virtual function by analyzing the entire scope of the argument on which the virtual function dispatches, and proving that argument's exact class. Unfortunately, that scope is often the entire program, so this optimization often can be performed only by a linker. Even a linker cannot make this optimization when a library is compiled, because the classes of a library can be subclassed by a client. The complexity is compounded for dynamic-link libraries, where there may be multiple clients at once. As a result, this optimization is rarely achieved in C++.</p>
+<p>In Dylan, sealed classes, sealed generic functions, and sealed domains explicitly state which generic functions and classes may be extended, and, more important, which cannot. The library designer plans in advance exactly what extensibility the library will have. The Dylan compiler can then optimize dispatching on sealed generic functions and classes and within sealed domains with the assurance that no client will violate the assumptions of the optimization. The sealing restrictions against subclassing or changing method applicability are automatically enforced on each client of a Dylan library. </p>
+</td></tr></table><p> </p>
+<p> When you seal a domain of a generic function imported from another library, you will not cause conflicts with other libraries, as long as both of the following conditions hold:</p>
+<p>1.  At least one of the types in the sealed domain is a subtype of a class defined in your library</p>
+<p>2.  No additional subtypes can be defined for any of the types in the sealed domain </p>
+<p> In the case of a type that is a class, the first condition means that you must have defined either the class or one of its superclasses in your library. The second condition means that the classes in the domain must not have any open subclasses (a degenerate case of which is a leaf class -- a class with no subclasses at all). </p>
+<p>If you need to seal a domain over a class that has open subclasses, you will need a thorough understanding of the sealing constraints detailed in <em>The Dylan Reference Manual</em>, but these two simple rules should handle many common cases. </p>
+<p>In our example, we obeyed both rules of thumb: our methods for <code>say</code> are on classes we defined, and our sealing was over classes that will not be further subclassed. The rules of thumb not only keep you from violating sealing constraints, they make for good protocol design: a library that extends a protocol really should extend it only for classes it fully understands, which usually means classes it creates.</p>
+<p>As an example of the <a name="marker-2-793"></a>restriction on subclassing open classes involved in a sealed domain, if the <code>&lt;time&gt;</code> class were an open class, we still could not add the following class in a library that used the <code>time</code> library:</p>
+<p> </p>
+<pre>
+define class &lt;place-and-time&gt; (&lt;position&gt;, &lt;time&gt;)
+end class &lt;place-and-time&gt;;
+</pre>
+<p> </p>
+<p> As far as the compiler is concerned, it "knows" that the only <code>say</code> method applicable to a <code>&lt;time&gt;</code> is the one in the <code>time</code> library. (That is what we have told it with our <code>sealed domain</code> definition.) It would be valid to pass a <code>&lt;place-and-time&gt;</code> object as an argument to a function that accepted <code>&lt;time&gt;</code> objects, but within that function the compiler might have already optimized a call to <code>say</code> to the method for <code>&lt;time&gt;</code> objects (based on <code>&lt;time&gt;</code> being in the sealed domain of <code>say</code>). But there is also a method for <code>say</code> on <code>&lt;position&gt;</code>, and, more important, we probably will want to define a method specifically for <code>&lt;place-and-time&gt;</code>. Because of this ambiguity, the class <code>&lt;place-and-time&gt;</code> cannot be defined in a separate library, and the compiler will signal an error.</p>
+<p>Note that the class <code>&lt;place-and-time&gt;</code> could be defined in the <code>time</code> library. The compiler can deal correctly with classes that may straddle a sealed domain, if they are known in the library where the sealed domain is defined. It would also be valid to subclass <code>&lt;time&gt;</code> in any way that did not change the applicability of methods in any sealed generic-function domains that include <code>&lt;time&gt;</code>. The actual rule involved depends on an analysis of the exact methods of the generic function, and the rule is complicated enough that you should just rely on your compiler to detect illegal situations.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_307.html"><img src="next.gif" alt="next" /></a> <a href="db_305.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

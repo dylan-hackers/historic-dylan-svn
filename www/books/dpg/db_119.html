@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_110.html" />
+<link rel="prev" href="db_118.html" />
+<link rel="next" href="db_120.html" />
+<title>9.4   Summary</title>
+</head>
+<body>
+
+<div>
+<a name="heading119"></a>
+
+<div>
+<p><a href="db_120.html"><img src="next.gif" alt="next" /></a> <a href="db_118.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading119-0"></a>
+<h1>9.4   Summary</h1>
+<p> In this chapter, we discussed types that are not classes: </p>
+<ul>
+<li><p>A <strong>singleton type</strong> is a type whose only member is one particular instance. An example of creating a singleton type is:</p></li>
+</ul>
+<pre>
+singleton(#f);
+</pre>
+<ul>
+<li><p>A <strong>union type</strong> is a type whose members include all the members of one or more base types. An example of creating a union type is:</p></li>
+</ul>
+<pre>
+type-union(singleton(#f), &lt;integer&gt;);
+</pre>
+<ul>
+<li><p>A <strong>limited type</strong> is a type that is a more restricted version of its base type. For example, a limited-integer type is based on <code>&lt;integer&gt;</code>, but has a given minimum or maximum value:</p></li>
+</ul>
+<pre>
+limited(&lt;integer&gt;, min: 0);
+</pre>
+<p>Another example of a limited type is a limited-collection type, which is a collection type that specifies the type of elements, and/or the size of the collection: </p>
+<pre>
+limited(&lt;vector&gt;, of: &lt;integer&gt;, size: 3);
+<a name="link-classes-lastpage"></a><a name="link-slots-firstpage"></a></pre>
+<!-- FM pgf ignored -->
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_120.html"><img src="next.gif" alt="next" /></a> <a href="db_118.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_212.html" />
+<link rel="prev" href="db_213.html" />
+<link rel="next" href="db_215.html" />
+<title>13.8.2   The updated time-library file</title>
+</head>
+<body>
+
+<div>
+<a name="heading214"></a>
+
+<div>
+<p><a href="db_215.html"><img src="next.gif" alt="next" /></a> <a href="db_213.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading214-0"></a>
+<h1>13.8.2   The <a name="marker-9-654"></a>updated <em>time-library</em> file</h1>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>time-library</code> file: <code>time-library.dylan</code>.  </p>
+</th></tr><tr valign="top"><td><pre>
+Module: dylan-user
+<em>// Library definition
+</em>define library time
+<em>  // Interface module
+</em>  export time;
+<em>  // Substrate libraries
+</em>  use sixty-unit;
+  use format-out;
+  use dylan;
+end library time;
+</pre></td></tr><tr valign="top"><td><pre><em>// Interface module
+</em>define module time
+<em>  // Classes
+</em>  create &lt;time&gt;, &lt;time-of-day&gt;, &lt;time-offset&gt;;
+<em>  // Generics
+</em>  create say;
+  <em>// Shared protocol
+</em>  use sixty-unit, import: { encode-total-seconds }, export: all;
+end module time;
+</pre></td></tr><tr valign="top"><td><pre><em>// Implementation module
+</em>define module time-implementation
+<em>  // External interface
+</em>  use time;
+<em>  // Substrate modules
+</em>  use sixty-unit;
+  use format-out;
+  use dylan;
+end module time-implementation;
+</pre></td></tr></table>
+<p> </p>
+<p> Note that the <code>time</code> interface module imports only <code>encode-total-seconds</code> from <code>sixty-unit</code>. It then <a name="marker-2-655"></a>re-exports all the names that it has imported -- in this case, just <code>encode-total-seconds</code>. In this way, the <code>time</code> interface is acting as a filter and is passing on only a subset of the <code>sixty-unit</code> interface to its clients.</p>
+<p>At this point, we need to <strong>open</strong> the <code>&lt;sixty-unit&gt;</code> class. Because it is now in a separate library, it must be defined to be open to allow other libraries, such as <code>time</code> or <code>angle,</code> to subclass it. Opening a class simply amounts to changing the <code>define class</code> to <code>define open class</code>. The exact implications of this declaration are discussed in <a href="db_295.html#marker-9-761">Chapter 19,  <em>Performance and Flexibility</em></a>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_215.html"><img src="next.gif" alt="next" /></a> <a href="db_213.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

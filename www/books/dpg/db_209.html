@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_208.html" />
+<link rel="prev" href="db_208.html" />
+<link rel="next" href="db_210.html" />
+<title>13.7.1   The sixty-unit implementation file</title>
+</head>
+<body>
+
+<div>
+<a name="heading209"></a>
+
+<div>
+<p><a href="db_210.html"><img src="next.gif" alt="next" /></a> <a href="db_208.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading209-0"></a>
+<h1>13.7.1   The <em>sixty-unit</em> implementation file</h1>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>sixty-unit</code> implementation file: <code>sixty-unit.dylan</code>.  </p>
+</th></tr><tr valign="top"><td><pre>
+Module: sixty-unit
+define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;,
+    required-init-keyword: total-seconds:;
+end class &lt;sixty-unit&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method encode-total-seconds 
+    (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;) 
+ =&gt; (total-seconds :: &lt;integer&gt;)
+  ((max-unit * 60) + minutes) * 60 + seconds;
+end method encode-total-seconds; 
+</pre></td></tr><tr valign="top"><td><pre>define method decode-total-seconds 
+    (sixty-unit :: &lt;sixty-unit&gt;)
+ =&gt; (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  decode-total-seconds(sixty-unit.total-seconds);
+end method decode-total-seconds; 
+</pre></td></tr><tr valign="top"><td><pre>define method decode-total-seconds
+    (total-seconds :: &lt;integer&gt;)
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)<em>	</em>  let(total-minutes, seconds) = truncate/(abs(total-seconds), 60);
+  let(hours, minutes) = truncate/(total-minutes, 60);
+  values(hours, minutes, seconds);
+end method decode-total-seconds; 
+</pre></td></tr></table>
+<p> </p>
+<p> The preceding implementation file is the first file in which we use one of our own modules. The header statement <code>Module: sixty-unit</code> tells the Dylan compiler where to look to resolve the names that we are using -- it tells Dylan that, when we say <code>define class</code> or <code>&lt;integer&gt;</code> or <code>*</code>, we mean the Dylan definitions of <code>define class</code>, <code>&lt;integer&gt;</code>, and <code>*</code>, because <code>sixty-unit</code> uses the <code>dylan</code> module. When we define <code>encode-total-seconds</code>, we mean the <code>encode-total-seconds</code> created by the <code>time</code> module, because <code>sixty-unit</code> uses that module.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_210.html"><img src="next.gif" alt="next" /></a> <a href="db_208.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

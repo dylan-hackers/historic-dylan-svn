@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_63.html" />
+<link rel="prev" href="db_79.html" />
+<link rel="next" href="db_81.html" />
+<title>5.6   Definition of a generic function</title>
+</head>
+<body>
+
+<div>
+<a name="heading80"></a>
+
+<div>
+<p><a href="db_81.html"><img src="next.gif" alt="next" /></a> <a href="db_79.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading80-0"></a>
+<h1>5.6   <a name="marker-9-229"></a>Definition of a generic function</h1>
+<p> We repeat the definitions of the methods for <code>say-time-of-day</code> and <code>say-time-offset</code> here:</p>
+<pre>
+define method say-time-of-day (time :: &lt;time-of-day&gt;) =&gt; ()
+  let(hours, minutes) = decode-total-seconds(time);
+  format-out
+    (&quot;%d:%s%d&quot;, hours, if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end, minutes);
+end method say-time-of-day;
+define method say-time-offset (time :: &lt;time-offset&gt;) =&gt; ()
+  let(hours, minutes) = decode-total-seconds(time);
+  format-out(&quot;%s %d:%s%d&quot;,
+             if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end, 
+             hours, 
+             if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end,
+             minutes);
+end method say-time-offset;
+</pre>
+<p> Now that <code>decode-total-seconds</code> has an applicable method for instances of <code>&lt;time-offset&gt;</code> and <code>&lt;time-of-day&gt;</code>, both these methods work correctly:</p>
+<pre>
+<em>? </em>say-time-of-day(*my-time-of-day*);
+<em>0:02</em>
+<em>? </em>say-time-of-day(*your-time-of-day*);
+<em>8:30</em>
+<em>? </em>say-time-offset(*my-time-offset*);
+<em>plus 15:20</em>
+<em>? </em>say-time-offset(*your-time-offset*);
+<em>minus 6:45</em>
+</pre>
+<p> We have defined two methods: <code>say-time-offset</code> and <code>say-time-of-day</code>. A method defined with <code>define method</code> cannot exist without a <a name="marker-2-230"></a><strong>generic function</strong>. When you define a method, and no generic function of that name exists, Dylan automatically creates a generic function. When we defined these two methods, there were no generic functions with those names defined, so Dylan created module variables named <code>say-time-of-day</code> and <code>say-time-offset</code>, created the generic functions, stored the generic functions in the module variables, and added the methods to the generic functions.</p>
+<p>These two methods are logically related to each other, but have no explicit relationship in the code, other than in the similarity of their names. A cleaner approach is to abstract the concept of what these methods are trying to do -- that is, to describe an object. To introduce this abstraction, we define a new generic function. </p>
+<p>We use <a name="marker-2-231"></a><code>define generic</code> to define the generic function explicitly: </p>
+<pre>
+<em>// Given an object, print a description of the object
+</em>define generic say (any-object :: &lt;object&gt;) =&gt; ();
+</pre>
+<p> This generic function has a name: <code>say</code>. It receives one argument: the object to describe. That argument must be of the type <code>&lt;object&gt;</code>. All objects are of the type <code>&lt;object&gt;</code>, so this generic function does not restrict the type of its argument. </p>
+<p>Our definition for the generic function <code>say</code> is similar to that of the generic function that Dylan would have created automatically if we had defined a method for <code>say</code> before we defined the generic function <code>say</code>. (The only difference is that the automatically defined generic function would have a more general value declaration.) However, defining the generic function explicitly enables us to formalize its purpose, to name the parameter, to specify a type constraint on the parameter, to specify the return values and their types, and to give comments about the generic function as a whole. The generic function defines the <a name="marker-2-232"></a><strong>contract</strong> that all methods for this generic function must obey. The contract of the <code>say</code> generic function is as follows:</p>
+<p>The <code>say</code> generic function receives one required argument, which must be of the type <code>&lt;object&gt;</code>. It prints a description of the object. The <code>say</code> generic function returns no values. </p>
+<p> Dylan requires all the methods for a generic function to have congruent parameter lists and values declarations. See <a href="db_179.html#marker-9-529">Section 12.2.5, page 176</a>.</p>
+<p>Now, we define two methods for <code>say</code>. The method for <code>say</code> on <code>&lt;time-of-day&gt;</code> fulfills the same purpose (and has the same body) as the <code>say-time-of-day</code> method, which we remove from the library with an editor or a gesture in the <br />environment. </p>
+<pre>
+define method say (time :: &lt;time-of-day&gt;) =&gt; ()
+  let (hours, minutes) = decode-total-seconds(time); 
+  format-out
+    (&quot;%d:%s%d&quot;, hours, if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end, minutes);
+end method say;
+</pre>
+<p> Similarly, the method for <code>say</code> on <code>&lt;time-offset&gt;</code> is intended to replace <code>say-time-offset</code>, which we remove.</p>
+<pre>
+define method say (time :: &lt;time-offset&gt;) =&gt; ()
+  let(hours, minutes) = decode-total-seconds(time);
+  format-out(&quot;%s %d:%s%d&quot;,
+             if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end, 
+             hours, 
+             if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end,
+             minutes);
+end method say-time-offset;
+</pre>
+<p> </p>
+<p> <a href="#marker-9-197">Figure 5.5</a> shows that the generic function <code>say</code> has two methods defined for it.</p>
+<p> </p>
+<table border="1"><caption>Figure 5.5   <a name="marker-9-197"></a>Methods for the <code>say</code> generic function.</caption><tr valign="top"><td><p> <img alt="db80im12" src="db80im12.gif" /></p>
+</td></tr></table><p> We can call <code>say</code>:</p>
+<pre>
+<em>? </em>say(*my-time-of-day*);
+<em>0:02</em>
+</pre>
+<p> </p>
+<p> In the preceding call, the argument is of the type <code>&lt;time-of-day&gt;</code>, so the method on <code>&lt;time-of-day&gt;</code> is the only applicable method. That method is invoked.</p>
+<pre>
+<em>? </em>say(*my-time-offset*);
+<em>plus 15:20</em>
+</pre>
+<p> </p>
+<p> In the preceding call, the argument is of the type <code>&lt;time-offset&gt;</code>, so the method on <code>&lt;time-offset&gt;</code> is the only applicable method. That method is invoked.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_81.html"><img src="next.gif" alt="next" /></a> <a href="db_79.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

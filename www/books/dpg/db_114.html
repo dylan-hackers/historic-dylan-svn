@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_113.html" />
+<link rel="prev" href="db_113.html" />
+<link rel="next" href="db_115.html" />
+<title>9.3.1   Method dispatch and classes</title>
+</head>
+<body>
+
+<div>
+<a name="heading114"></a>
+
+<div>
+<p><a href="db_115.html"><img src="next.gif" alt="next" /></a> <a href="db_113.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading114-0"></a>
+<h1>9.3.1   <a name="marker-9-300"></a>Method <a name="marker-2-301"></a>dispatch and classes</h1>
+<p> We have already seen that, when all types are classes, Dylan uses the following rules:</p>
+<p>1.  An object is an instance of a class if it is a general instance of that class (a direct instance of the class or of one of that class's subclasses).</p>
+<p>2.  One class is a proper subtype of another if the first class is a subclass of the second.</p>
+<p> For example, suppose that we have these definitions:</p>
+<pre>
+<em>// Method 1
+</em>define method say (x :: &lt;number&gt;) ... end method say;
+<em>// Method 2
+</em>define method say (x :: &lt;integer&gt;) ... end method say;
+</pre>
+<p> Now, if <code>say</code> is called with an argument of <code>100</code>, both methods are applicable, and method 2 is more specific than method 1.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_115.html"><img src="next.gif" alt="next" /></a> <a href="db_113.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

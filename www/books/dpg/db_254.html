@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_252.html" />
+<link rel="prev" href="db_253.html" />
+<link rel="next" href="db_255.html" />
+<title>16.1.2   Basic collection methods</title>
+</head>
+<body>
+
+<div>
+<a name="heading254"></a>
+
+<div>
+<p><a href="db_255.html"><img src="next.gif" alt="next" /></a> <a href="db_253.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading254-0"></a>
+<h1>16.1.2   <a name="marker-9-693"></a>Basic collection methods</h1>
+<table border="1"><tr><th><p>The <code>sorted-sequence.dylan</code> file. <em>(continued)</em></p></th></tr><tr>
+<td><p>define method size (sorted-sequence :: &lt;sorted-sequence&gt;) <br />    =&gt; (sorted-sequence-size :: &lt;integer&gt;)<br />  sorted-sequence.data.size;<br />end method size; </p></td></tr><tr>
+<td><p>define method shallow-copy (sorted-sequence :: &lt;sorted-sequence&gt;) <br />    =&gt; (copy :: &lt;sorted-sequence&gt;)<br />  let copy <br />    = make(&lt;sorted-sequence&gt;,<br />           value-function: sorted-sequence.value-function,<br />           comparison-function: sorted-sequence.comparison-function);<br /><em>  // The map-into function replaces the elements of the copy's data array<br />  // to be the identical elements of the data array of sorted sequence<br /></em>  copy.data.size := sorted-sequence.data.size;<br />  map-into(copy.data, identity, sorted-sequence.data);<br />  copy;<br />end method shallow-copy; </p></td></tr><tr>
+<td><p>define constant $unsupplied = list(#f);</p><p>define method element <br />    (sorted-sequence :: &lt;sorted-sequence&gt;, key :: &lt;integer&gt;, <br />     #key default = $unsupplied) <br /> =&gt; (element :: &lt;object&gt;);<br />  if (key &lt; sorted-sequence.data.size) <br />    sorted-sequence.data[key];<br />  elseif (default = $unsupplied)<br />    error(&quot;Attempt to access key %= which is outside of %=.&quot;, key, <br />          sorted-sequence);<br />  else default;<br />  end if;<br />end method element; </p></td></tr></table>
+<p> </p>
+<p> In the preceding code, we define methods for determining the number of elements in the sorted sequence, for copying the sorted sequence (but not the elements stored in the sorted sequence), and for accessing a particular item in the sorted sequence. Once we have defined the <code>element</code> method for sorted sequences, we can use the subscripting syntax to access particular items in the sorted sequence. Our <code>element</code> method implements the standard Dylan protocol, which allows the caller to specify a default value if the key is not contained within the collection. If the key is not part of the collection, and no default value is specified, then an error is signaled. Since we do not export <code>$unsupplied</code> from our library, we can be certain that no one can supply that value as the <code>default</code> keyword parameter for our <code>element</code> method.</p>
+<p>Note that the <code>element-setter</code> method is not defined, because it does not make sense to store an element at a particular position within the sorted sequence. The sorted sequence itself determines the correct key for each item added to the sorted sequence, based on the item being added and on the value and comparison functions.</p>
+<p>Next, we show methods for adding and removing elements from sorted sequences.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_255.html"><img src="next.gif" alt="next" /></a> <a href="db_253.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

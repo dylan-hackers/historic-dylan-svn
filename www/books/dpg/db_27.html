@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_24.html" />
+<link rel="prev" href="db_26.html" />
+<link rel="next" href="db_28.html" />
+<title>2.3.3   Module constants</title>
+</head>
+<body>
+
+<div>
+<a name="heading27"></a>
+
+<div>
+<p><a href="db_28.html"><img src="next.gif" alt="next" /></a> <a href="db_26.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading27-0"></a>
+<h1>2.3.3   Module <a name="marker-2-79"></a>constants</h1>
+<p> A <a name="marker-2-80"></a><strong>module constant</strong> is much like a module variable, except that it is an error to assign a different value to a constant. Although you cannot assign a different value to a constant, you may be able to change the elements of the value, such as assigning a different value to an element of an array. </p>
+<p>You use <a name="marker-2-81"></a><code>define constant</code> to define a module constant, in the same way that you use <code>define variable</code> to define a variable. You must initialize the value of the constant, and you cannot change that value throughout the execution of a Dylan program. Here is an example:</p>
+<pre>
+<em>?</em> define constant $pi = 3.14159;
+</pre><table border="1"><tr valign="top"><td>
+<p> <strong><a name="marker-2-38"></a>Convention: </strong>Module constant names start with the dollar sign, <code>$ </code>-- for example, <code>$pi</code>. The dollar sign is part of the name, and does not have any special behavior.</p>
+</td></tr></table><p> </p>
+<p> Both module variables and module constants are accessible within a <strong>module</strong>.</p>
+<p> (See <a href="db_192.html#marker-9-618">Section 13.2, page 189</a>, for information about modules.) Dylan also offers variables that are accessible within a smaller area, called <strong>local variables</strong>. There is no concept of a local constant; all constants are module constants. Therefore, throughout the rest of this book, we use the word <em>constant</em> as shorthand for module constant.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_28.html"><img src="next.gif" alt="next" /></a> <a href="db_26.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

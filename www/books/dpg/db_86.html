@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_85.html" />
+<link rel="prev" href="db_85.html" />
+<link rel="next" href="db_87.html" />
+<title>6.1.1   Method for adding two time offsets</title>
+</head>
+<body>
+
+<div>
+<a name="heading86"></a>
+
+<div>
+<p><a href="db_87.html"><img src="next.gif" alt="next" /></a> <a href="db_85.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading86-0"></a>
+<h1>6.1.1   <a name="marker-9-246"></a>Method for adding two time offsets</h1>
+<p> We now define a method for <code>+</code>. The method adds two time offsets and returns the sum, which is also a time offset:</p>
+<pre>
+<em>// Method on &lt;time-offset&gt;, &lt;time-offset&gt;
+</em>define method \+ 	<em>// 1
+</em>    (offset1 :: &lt;time-offset&gt;, offset2 :: &lt;time-offset&gt;) 	<em>// 2
+</em> =&gt; (sum :: &lt;time-offset&gt;)	<em>// 3
+</em>  let sum = offset1.total-seconds + offset2.total-seconds;	<em>// 4
+</em>  make(&lt;time-offset&gt;, total-seconds: sum);	<em>// 5
+</em>end method \+;	<em>// 6</em>
+</pre>
+<p> On line 1, notice that the method is defined on <code>\+</code>, rather than simply on <code>+</code>. When we define a method on <code>+</code> or on another <a name="marker-2-247"></a>infix function, we need to use a backslash before the function name. The backslash clarifies that we mean the value of the variable + (which is a generic function), and that we are not trying to call the <br />function.</p>
+<p>On line 4, we add the values stored in the <code>total-seconds</code> slots of the two instances. On line 5, we make and return a new instance of <code>&lt;time-offset&gt;</code>. We initialize the <code>total-seconds</code> slot to contain the sum calculated in line 4.</p>
+<p>To test the method, we need to create two instances of <code>&lt;time-offset&gt;</code>:</p>
+<pre>
+define variable *minus-2-hours* =
+  make(&lt;time-offset&gt;, total-seconds: - encode-total-seconds (2, 0, 0));
+define variable *plus-15-20-45* =
+  make(&lt;time-offset&gt;, total-seconds: encode-total-seconds (15, 20, 45)); 
+</pre>
+<p> We can add the time offsets:</p>
+<pre>
+<em>?</em> *minus-2-hours* + *plus-15-20-45*;
+<em>{instance &lt;time-offset&gt;}</em>
+</pre>
+<p> The result is a new instance of <code>&lt;time-offset&gt;</code>. We did not save the value returned. (Many environments offer a way to access values returned by the listener.) We can add the time offsets again, and view the <code>total-seconds</code> slot of the result:</p>
+<pre>
+<em>?</em> decode-total-seconds(*minus-2-hours* + *plus-15-20-45*);
+<em>13
+20
+45</em>
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_87.html"><img src="next.gif" alt="next" /></a> <a href="db_85.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_145.html" />
+<link rel="prev" href="db_145.html" />
+<link rel="next" href="db_147.html" />
+<title>11.3.1   Building our own copy-sequence</title>
+</head>
+<body>
+
+<div>
+<a name="heading146"></a>
+
+<div>
+<p><a href="db_147.html"><img src="next.gif" alt="next" /></a> <a href="db_145.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading146-0"></a>
+<h1>11.3.1   <a name="marker-9-395"></a>Building our own <em>copy-sequence</em></h1>
+<p> How would we write our own <a name="marker-2-396"></a><code>copy-sequence</code> function, if Dylan did not already provide one? There are many possible approaches. One way would be to use a <a name="marker-2-397"></a><code>while</code> loop. A <code>while</code> loop has a <strong>test expression</strong> (surrounded by parentheses) and a <strong>body</strong>. As long as the value of the test expression is true, the body will be executed repeatedly.</p>
+<pre>
+define method my-copy-sequence 
+    (old-sequence :: &lt;sequence&gt;) =&gt; (new-sequence :: &lt;sequence&gt;)
+  let seq-size = old-sequence.size;
+  let new-sequence = make(type-for-copy(old-sequence), size: seq-size);
+  let index = 0;
+  while (index &lt; seq-size)
+    new-sequence[index] := old-sequence[index];
+    index := index + 1;
+  end while;
+  new-sequence;
+end method my-copy-sequence;
+</pre>
+<p> The method <code>my-copy-sequence</code> makes a new sequence of the same size as its argument, then iterates over all the elements of the argument, storing each element of the sequence into the appropriate element of the new sequence. The <a name="marker-2-398"></a><code>size</code> generic function returns the number of elements in a collection. In this example, the <code>while</code> loop terminates when <code>index</code> reaches the size of the sequence. </p>
+<p>The <a name="marker-2-399"></a><code>type-for-copy</code> generic function returns an appropriate class for <code>make</code>, given an object that you wish to copy. For most collections, <code>type-for-copy</code> just returns the class of the collection provided.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_147.html"><img src="next.gif" alt="next" /></a> <a href="db_145.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

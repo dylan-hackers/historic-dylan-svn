@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_262.html" />
+<link rel="prev" href="db_264.html" />
+<link rel="next" href="db_266.html" />
+<title>17.2.3   Vehicles</title>
+</head>
+<body>
+
+<div>
+<a name="heading265"></a>
+
+<div>
+<p><a href="db_266.html"><img src="next.gif" alt="next" /></a> <a href="db_264.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading265-0"></a>
+<h1>17.2.3   Vehicles</h1>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>airport-classes.dylan</code> file. <em>(continued)</em></p>
+</th></tr><tr valign="top"><td><pre>
+<em>// VEHICLES</em>
+<em>// The class that represents all self-propelled devices
+</em>define abstract class &lt;vehicle&gt; (&lt;physical-object&gt;)
+<em>  // Every vehicle has a unique identification code
+</em>  slot vehicle-id :: &lt;string&gt;, required-init-keyword: id:;
+<em>  // The normal operating speed of this class of vehicle in miles per hour
+</em>  each-subclass slot cruising-speed :: &lt;positive-integer&gt;;
+<em>  // Allow individual differences in the size of particular aircraft,
+  // while providing a suitable default for each class of aircraft
+</em>  each-subclass slot standard-size :: &lt;size&gt;;
+end class &lt;vehicle&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method initialize (vehicle :: &lt;vehicle&gt;, #key)
+  next-method();
+  unless (slot-initialized?(vehicle, physical-size))
+    vehicle.physical-size := vehicle.standard-size;
+  end unless;
+end method initialize; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (object :: &lt;vehicle&gt;) =&gt; ()
+  format-out(&quot;Vehicle %s&quot;, object.vehicle-id);
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre><em>// This class represents companies that fly commercial aircraft
+</em>define class &lt;airline&gt; (&lt;object&gt;)
+  slot name :: &lt;string&gt;, required-init-keyword: name:;
+  slot code :: &lt;string&gt;, required-init-keyword: code:;
+end class &lt;airline&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (object :: &lt;airline&gt;) =&gt; ()
+  format-out(&quot;Airline %s&quot;, object.name);
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre><em>// This class represents a regularly scheduled trip for a commercial 
+// airline
+</em>define class &lt;flight&gt; (&lt;object&gt;)
+  slot airline :: &lt;airline&gt;, required-init-keyword: airline:;
+  slot number :: &lt;nonnegative-integer&gt;,
+    required-init-keyword: number:;
+end class &lt;flight&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (object :: &lt;flight&gt;) =&gt; ()
+  format-out(&quot;Flight %s %d&quot;, object.airline.code, object.number);
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre><em>// This class represents vehicles that normally fly for a portion of
+// their trip
+</em>define abstract class &lt;aircraft&gt; (&lt;vehicle&gt;)
+  slot altitude :: &lt;integer&gt;, init-keyword: altitude:;
+<em>  // Direction here is either #&quot;inbound&quot; or #&quot;outbound&quot;
+</em>  slot direction :: &lt;symbol&gt;;
+  <em>// The next step this aircraft might be able to make
+</em>  slot next-transition :: &lt;aircraft-transition&gt;,
+    required-init-keyword: transition:, setter: #f;
+end class &lt;aircraft&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method initialize (vehicle :: &lt;aircraft&gt;, #key)
+  next-method();
+<em>  // There is a one-to-one correspondance between aircraft instances and
+  // transition instances
+  // An aircraft can only make one transition at a time
+  // Connect the aircraft to its transition
+</em>  vehicle.next-transition.transition-aircraft := vehicle;
+end method initialize; 
+</pre></td></tr><tr valign="top"><td><pre><em>// The next step an aircraft might be able to make
+</em>define class &lt;aircraft-transition&gt; (&lt;object&gt;)
+  slot transition-aircraft :: &lt;aircraft&gt;, init-keyword: aircraft:;
+  slot from-container :: &lt;vehicle-storage&gt;, init-keyword: from:;
+  slot to-container :: &lt;vehicle-storage&gt;, init-keyword: to:;
+<em>  // The earliest possible time that the transition could take place
+</em>  slot earliest-arrival :: &lt;time-of-day&gt;, init-keyword: arrival:;
+<em>  // Has this transition already been entered in the sorted sequence? 
+  // This flag saves searching the sorted sequence
+</em>  slot pending? :: &lt;boolean&gt; = #f, init-keyword: pending?:;
+end class &lt;aircraft-transition&gt;; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Describes one step of an aircraft's movements
+</em>define method say (transition :: &lt;aircraft-transition&gt;) =&gt; ()
+  say(transition.earliest-arrival);
+  format-out(&quot;: &quot;);
+  say(transition.transition-aircraft);
+  format-out(&quot; at &quot;);
+  say(transition.to-container);
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Commercial aircraft are aircraft that may have a flight
+// assigned to them
+</em>define abstract class &lt;commercial-aircraft&gt; (&lt;aircraft&gt;)
+  slot aircraft-flight :: false-or(&lt;flight&gt;) = #f, init-keyword: flight:;
+end class &lt;commercial-aircraft&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (object :: &lt;commercial-aircraft&gt;) =&gt; ()
+  let flight = object.aircraft-flight;
+  if (flight)
+    say(flight);
+  else
+    format-out(&quot;Unscheduled Aircraft %s&quot;, object.vehicle-id);
+  end if;
+end method say; 
+</pre></td></tr><tr valign="top"><td><pre><em>// The class that represents all commericial Boeing 707 aircraft
+</em>define class &lt;B707&gt; (&lt;commercial-aircraft&gt;)
+  inherited slot cruising-speed, init-value: 368;
+  inherited slot standard-size,
+    init-value: make(&lt;size&gt;, length: 153, width: 146, height: 42);
+end class &lt;B707&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (aircraft :: &lt;B707&gt;) =&gt; ()
+  if (aircraft.aircraft-flight)
+    next-method();
+  else
+    format-out(&quot;Unscheduled B707 %s&quot;, aircraft.vehicle-id);
+  end if;
+end method say; 
+</pre></td></tr></table>
+<p> In the preceding code, we model everything from the most general class of vehicle down to the specific class that represents the Boeing 707. We also model the transition steps that an aircraft may take as it travels throughout the airport, and the airlines and flights associated with commercial aircraft.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_266.html"><img src="next.gif" alt="next" /></a> <a href="db_264.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

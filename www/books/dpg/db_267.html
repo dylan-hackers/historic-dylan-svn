@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_260.html" />
+<link rel="prev" href="db_266.html" />
+<link rel="next" href="db_268.html" />
+<title>17.3   The vehicle-dynamics.dylan file</title>
+</head>
+<body>
+
+<div>
+<a name="heading267"></a>
+
+<div>
+<p><a href="db_268.html"><img src="next.gif" alt="next" /></a> <a href="db_266.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading267-0"></a>
+<h1>17.3   The <code>vehicle-dynamics.dylan</code> file</h1>
+<p> The <code>vehicle-dynamics.dylan</code> file contains stubs for calculations that predict the behavior of the aircraft involved in the example. True aeronautical calculations are beyond the scope of this book.</p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>vehicle-dynamics.dylan</code> file.  </p>
+</th></tr><tr valign="top"><td><pre>
+module: airport
+<em>// We do not need to type these constants strongly, because the Dylan
+// compiler will figure them out for us</em>
+define constant $average-b707-brake-speed = 60.0;<em> // Miles per hour </em>
+</pre></td></tr><tr valign="top"><td><pre>define constant $feet-per-mile = 5280.0;
+</pre></td></tr><tr valign="top"><td><pre>define constant $average-b707-takeoff-speed = 60.0; <em>// Miles per hour</em> 
+</pre></td></tr><tr valign="top"><td><pre>define constant $takeoff-pause-time = 120; <em>// Seconds</em>
+</pre></td></tr><tr valign="top"><td><pre>define constant $average-b707-taxi-speed = 10.0;
+</pre></td></tr><tr valign="top"><td><pre>define constant $average-b707-gate-turnaround-time
+  = 34 * $seconds-per-minute; <em>// Seconds </em>
+</pre></td></tr><tr valign="top"><td><pre><em>// Computes how long it will take an aircraft to reach an airport
+</em>define method flying-time
+    (aircraft :: &lt;aircraft&gt;, destination :: &lt;airport&gt;)
+ =&gt; (duration :: &lt;time-offset&gt;)
+<em>  // A simplistic calculation that assumes that the aircraft will
+  // average a particular cruising speed for the trip
+</em>  make(&lt;time-offset&gt;,
+       total-seconds:
+         ceiling/(distance-3d(aircraft, destination), 
+                  aircraft.cruising-speed
+                    / as(&lt;single-float&gt;, $seconds-per-hour)));
+end method flying-time; 
+</pre></td></tr><tr valign="top"><td><pre><em>// Computes the distance between an aircraft and an airport, 
+// taking into account the altitude of the aircraft 
+// Assumes the altitude of the aircraft is the height 
+// above the ground level of the airport
+</em>define method distance-3d
+    (aircraft :: &lt;aircraft&gt;, destination :: &lt;airport&gt;)
+ =&gt; (distance :: &lt;single-float&gt;)  <em>// Miles
+  // Here, a squared plus b squared is equals to c squared, where c is the
+  // hypotenuse, and a and b are the other sides of a right triangle
+</em>  sqrt((aircraft.altitude / $feet-per-mile) ^ 2
+       + distance-2d(aircraft.current-position,
+                     destination.current-position) ^ 2);
+end method distance-3d; 
+</pre></td></tr><tr valign="top"><td><pre><em>// The distance between two positions, ignoring altitude
+</em>define method distance-2d
+    (position1 :: &lt;relative-position&gt;, position2 :: &lt;absolute-position&gt;)
+ =&gt; (distance :: &lt;single-float&gt;) <em>// Miles
+  // When we have a relative position for the first argument (the
+  // aircraft), we assume the relative position is relative to the second
+  // argument (the airport)
+</em>  position1.distance;
+end method distance-2d;
+</pre></td></tr><tr valign="top"><td><pre><em>// It would be sensible to provide a distance-2d method that computed 
+// the great-circle distance between two absolute positions
+// Our example does not need this computation, which is
+// beyond the scope of this book </em>
+</pre></td></tr><tr valign="top"><td><pre><em>// The time it takes to go from the point of touchdown to the entrance
+// to the taxiway
+</em>define method brake-time 
+    (aircraft :: &lt;b707&gt;, runway :: &lt;runway&gt;)
+ =&gt; (duration :: &lt;time-offset&gt;)
+  make(&lt;time-offset&gt;,
+       total-seconds:
+         ceiling/(runway.physical-size.length / $feet-per-mile,
+                  $average-b707-brake-speed / $seconds-per-hour));
+end method brake-time; 
+</pre></td></tr><tr valign="top"><td><pre><em>// The time it takes to go from the entrance of the taxiway to the point
+// of takeoff
+</em>define method takeoff-time 
+    (aircraft :: &lt;b707&gt;, runway :: &lt;runway&gt;)
+ =&gt; (duration :: &lt;time-offset&gt;)
+  make(&lt;time-offset&gt;,
+       total-seconds:
+         ceiling/(runway.physical-size.length / $feet-per-mile,
+                  $average-b707-takeoff-speed / $seconds-per-hour)
+           + $takeoff-pause-time);
+end method takeoff-time; 
+</pre></td></tr><tr valign="top"><td><pre><em>// The time it takes to taxi from the runway entrance across the taxiway
+// to the gate
+</em>define method gate-time 
+    (aircraft :: &lt;b707&gt;, taxiway :: &lt;taxiway&gt;)
+ =&gt; (duration :: &lt;time-offset&gt;)
+  make(&lt;time-offset&gt;,
+       total-seconds:
+         ceiling/(taxiway.physical-size.length / $feet-per-mile,
+                  $average-b707-taxi-speed / $seconds-per-hour));
+end method gate-time; 
+</pre></td></tr><tr valign="top"><td><pre><em>// The time it takes to taxi from the gate across the taxiway to the
+// entrance of the runway
+</em>define method runway-time 
+    (aircraft :: &lt;b707&gt;, taxiway :: &lt;taxiway&gt;)
+ =&gt; (duration :: &lt;time-offset&gt;)
+  gate-time(aircraft, taxiway);
+end method runway-time; 
+</pre></td></tr><tr valign="top"><td><pre><em>// The time it takes to unload, service, and load an aircraft.
+</em>define method gate-turnaround 
+    (aircraft :: &lt;b707&gt;, gate :: &lt;gate&gt;) =&gt; (duration :: &lt;time-offset&gt;)
+  make(&lt;time-offset&gt;, total-seconds: $average-b707-gate-turnaround-time);
+end method gate-turnaround; 
+</pre></td></tr></table>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_268.html"><img src="next.gif" alt="next" /></a> <a href="db_266.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

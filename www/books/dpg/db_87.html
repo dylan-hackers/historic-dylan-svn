@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_85.html" />
+<link rel="prev" href="db_86.html" />
+<link rel="next" href="db_88.html" />
+<title>6.1.2   Methods for adding a time of day to a time offset</title>
+</head>
+<body>
+
+<div>
+<a name="heading87"></a>
+
+<div>
+<p><a href="db_88.html"><img src="next.gif" alt="next" /></a> <a href="db_86.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading87-0"></a>
+<h1>6.1.2   Methods for adding a time of day to a time offset</h1>
+<p> These methods implement addition between a time offset and a time of day: </p>
+<pre>
+<em>// Method on &lt;time-offset&gt;, &lt;time-of-day&gt;
+</em>define method \+ 
+    (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&gt;)
+ =&gt; (sum :: &lt;time-of-day&gt;)
+  make(&lt;time-of-day&gt;, 
+       total-seconds: offset.total-seconds + time-of-day.total-seconds);
+end method \+;
+</pre>
+<p> The method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-of-day&gt;</code> is invoked when the first argument is a time offset and the second argument is a time of day. It does the work of creating a new <code>&lt;time-of-day&gt;</code> instance with the <code>total-seconds</code> slot initialized to the sum of the <code>total-seconds</code> slots of the two arguments.</p>
+<pre>
+<em>// Method on &lt;time-of-day&gt;, &lt;time-offset&gt;
+</em>define method \+ 
+    (time-of-day :: &lt;time-of-day&gt;, offset :: &lt;time-offset&gt;)
+ =&gt; (sum :: &lt;time-of-day&gt;)
+  offset + time-of-day;
+end method \+;
+</pre>
+<p> The method on <code>&lt;time-of-day&gt;</code>, <code>&lt;time-offset&gt;</code> is invoked when the first argument is a time of day and the second argument is a time offset. It simply calls <code>+</code> with the order of the arguments switched -- this call invokes the method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-of-day&gt;</code>.</p>
+<p>To test these methods, we can use one of the time offsets created in <a href="db_86.html#marker-9-246">Section 6.1.1</a>, and define the <code>*8-30-59*</code> variable, which contains a <code>&lt;time-of-day&gt;</code> instance, which we define as follows:</p>
+<pre>
+define variable *8-30-59* =
+  make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds(8, 30, 59));
+</pre>
+<p> We add the time offset and the time of day:</p>
+<pre>
+<em>?</em> decode-total-seconds(*minus-2-hours* + *8-30-59*);
+<em>6
+30
+59</em>
+</pre>
+<p> We add the time of day and the time offset:</p>
+<pre>
+<em>?</em> decode-total-seconds(*8-30-59* + *minus-2-hours*);
+<em>6
+30
+59</em>
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_88.html"><img src="next.gif" alt="next" /></a> <a href="db_86.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

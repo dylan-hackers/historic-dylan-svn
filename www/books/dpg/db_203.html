@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_202.html" />
+<link rel="prev" href="db_202.html" />
+<link rel="next" href="db_204.html" />
+<title>13.4.1   Roles of modules</title>
+</head>
+<body>
+
+<div>
+<a name="heading203"></a>
+
+<div>
+<p><a href="db_204.html"><img src="next.gif" alt="next" /></a> <a href="db_202.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading203-0"></a>
+<h1>13.4.1   <a name="marker-9-635"></a>Roles of <a name="marker-2-636"></a>modules</h1>
+<p> In our experience, we have found it useful to consider modules as having roles: interface, implementation, or client. These roles lead to a simple, low-maintenance structure. An <a name="marker-2-637"></a><strong>interface module</strong> creates names that are to be visible to other modules and at a library interface. An <a name="marker-2-638"></a><strong>implementation module</strong> contains the definitions that make up the library (including those visible through an interface module). A <a name="marker-2-639"></a><strong>client module</strong> is a module that depends on other modules' <br />definitions.</p>
+<p>It is possible for a module to play more than one role -- for example, a client module may also implement a higher-level interface. We recommend thinking of modules as having these roles, and in this chapter we use that design convention. </p>
+<p> When illustrating the roles of modules, we use the conventions shown in <a href="#marker-9-589">Figure 13.2</a>. In <a href="#marker-9-589">Figure 13.2</a>, we show a library with three modules: an interface module (with its interface sticking out of the top of the library), an implementation module (overlapping the interface, because it implements the interface by giving definitions to the names the interface exports), and a client module overlapping another library's interface module (using its exported interface module to import definitions from another library). As we noted, the implementation and client are often the same module, and the interface of one library is used by the clients of other libraries. Dylan modules and libraries are not allowed to have mutual dependencies, so we can use the convention of drawing at the top the interfaces that a library exports, and of drawing at the bottom the interfaces that a library uses. It is difficult simultaneously to illustrate the module "use" relationships in only two dimensions -- the overlapping of one module by another is intended to depict usage.</p>
+<p></p>
+<table border="1"><caption>Figure 13.2   <a name="marker-9-589"></a>The roles of modules: interface, implementation, and client.</caption><tr valign="top"><td><p> <a name="marker-10-590"></a><img alt="db20im22" src="db20im22.gif" /></p>
+</td></tr></table><p></p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_204.html"><img src="next.gif" alt="next" /></a> <a href="db_202.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

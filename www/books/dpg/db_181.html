@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_174.html" />
+<link rel="prev" href="db_180.html" />
+<link rel="next" href="db_182.html" />
+<title>12.2.7   Keyword-argument checking</title>
+</head>
+<body>
+
+<div>
+<a name="heading181"></a>
+
+<div>
+<p><a href="db_182.html"><img src="next.gif" alt="next" /></a> <a href="db_180.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading181-0"></a>
+<h1>12.2.7   <a name="marker-9-536"></a>Keyword-argument checking</h1>
+<p> When a function is called, Dylan determines which keyword arguments<a name="marker-2-537"></a>, if any, are permitted for that function call. The set of permitted keyword arguments depends on whether or not a generic function is being called:</p>
+<ul>
+<li><p>If a method is called directly, rather than through a generic function, the specific keywords in the method's parameter list are permitted. If the parameter list includes <code>#all-k<a name="marker-2-538"></a>eys</code>, any keyword argument is permitted.</p></li>
+<li><p>If a generic function is called, all the specific keywords in the parameter lists of all <strong>applicable<a name="marker-2-539"></a></strong> methods are permitted. If the parameter list of the generic function or of <em>any</em> applicable method includes <code>#all-keys</code>, any keyword argument is permitted.</p></li>
+</ul>
+<p> When a generic function is called, one of its methods is <strong>applicable</strong> if every required argument is an instance of the type of the corresponding parameter of the method. For more information on applicable methods, see <a href="db_75.html#marker-9-224">Section 5.5, page 63</a>.</p>
+<p>Consider the following definitions:</p>
+<pre>
+define generic g (arg1 :: &lt;real&gt;, #key);
+<em>// Method 1
+</em>define method g (arg1 :: &lt;real&gt;, #key real-key)
+  ...
+end method g;
+<em>// Method 2
+</em>define method g (arg1 :: &lt;float&gt;, #key float-key)
+  ...
+end method g;
+<em>// Method 3
+</em>define method g (arg1 :: &lt;integer&gt;, #key integer-key)
+  ...
+end method g;
+</pre>
+<p> Now, if we call the generic function <code>g</code> with an instance of <code>&lt;float&gt;</code>, we can supply the keyword arguments <code>real-key:</code> and <code>float-key:</code>, because the methods that have those keyword parameters are both applicable. If we call <code>g</code> with an instance of <code>&lt;integer&gt;</code>, we can supply the keyword arguments <code>real-key:</code> and <code>integer-key:</code>.</p>
+<p>Suppose that, in this same example, we call the generic function <code>g</code> with an instance of <code>&lt;float&gt;</code>, and supply the keyword arguments <code>real-key:</code> and <code>float-key:</code>. Method 2 is most specific, and is called as a result of Dylan's method dispatch. But method 2 does not have a <code>real-key:</code> parameter. If we were calling this method directly, Dylan would signal an error. In this case, method 2 simply ignores the <code>real-key:</code> argument, because Dylan checks keyword arguments for a generic function call as a whole, rather than for a particular method chosen as a result of method dispatch.</p>
+<p>There is an important subtlety of keyword-parameter specifications to note in this example. Because of the rules for parameter-list congruence, the generic function and all its methods must accept keyword arguments -- that is, they must all have <code>#k<a name="marker-2-540"></a>ey</code> in their parameter lists. Notice that we terminated the generic function's parameter list with <code>#key</code>. This use indicates that the generic function permits -- but does not require -- individual methods to specify keyword parameters.</p>
+<p>Suppose that we had instead terminated the generic function's parameter list with <code>#key, #all-k<a name="marker-2-541"></a>eys</code>. This use also would have permitted, but would not have required, individual methods to specify keyword parameters. But it also would have allowed a caller of the generic function to supply <em>any</em> keyword argument. In the earlier example, only a small set of keyword arguments was permitted, and the members of the set varied with the applicable methods.</p>
+<p>In general, when you define a generic function or a method that accepts keyword arguments, it is advisable not to specify <code>#all-keys</code> unnecessarily, because doing so defeats Dylan's keyword-argument checking. If a method needs to accept keyword arguments because of the rules of parameter-list congruence, but does not need to recognize any keywords itself, you should terminate its parameter list with <code>#key</code>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_182.html"><img src="next.gif" alt="next" /></a> <a href="db_180.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

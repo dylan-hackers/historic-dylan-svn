@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_167.html" />
+<link rel="prev" href="db_171.html" />
+<link rel="next" href="db_173.html" />
+<title>12.1.5   Binary-operator calls</title>
+</head>
+<body>
+
+<div>
+<a name="heading172"></a>
+
+<div>
+<p><a href="db_173.html"><img src="next.gif" alt="next" /></a> <a href="db_171.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading172-0"></a>
+<h1>12.1.5   <a name="marker-9-468"></a>Binary-operator calls</h1>
+<p> Dylan has 16 built-in binary operators<a name="marker-2-469"></a>, of the following kinds:</p>
+<ul>
+<li><p>Arithmetic operations<a name="marker-2-470"></a>: <code>+<a name="marker-2-471"></a></code>, <code>-<a name="marker-2-472"></a></code>, <code>*<a name="marker-2-473"></a></code>, <code>/</code><a name="marker-2-474"></a>, and <code>^<a name="marker-2-475"></a></code></p></li>
+<li><p>Comparisons<a name="marker-2-476"></a>: <code>=<a name="marker-2-477"></a></code>, <code>==<a name="marker-2-478"></a></code>, <code>&lt;</code><a name="marker-2-479"></a>, <code>&gt;<a name="marker-2-480"></a></code>, <code>&lt;=<a name="marker-2-481"></a></code>, <code>&gt;=<a name="marker-2-482"></a></code>, <code>~=<a name="marker-2-483"></a></code>, and <code>~==<a name="marker-2-484"></a></code></p></li>
+<li><p>Logical operations<a name="marker-2-485"></a>: <code>&amp;<a name="marker-2-486"></a></code> and <code>|<a name="marker-2-487"></a></code></p></li>
+<li><p>Assignment<a name="marker-2-488"></a>: <code>:=<a name="marker-2-489"></a></code></p></li>
+</ul>
+<p> The syntax for a binary-operator call has three parts:</p>
+<p>1.  An expression that serves as the first operand</p>
+<p>2.  The operator</p>
+<p>3.  An expression that serves as the second operand</p>
+<p> All binary-operator calls, except those to the logical and assignment operators, are abbreviations for calls to functions that have the same names as do the operators. Except for the order of evaluation, the following examples are equivalent:</p>
+<pre>
+a + b;
+\+(a, b);
+</pre>
+<p> The <code>&amp;<a name="marker-2-490"></a></code> and <code>|<a name="marker-2-491"></a></code> operators are implemented as <strong>macros</strong>. (For information on macros, see <a href="db_329.html#marker-9-863">Chapter 21,  <em>Macros</em></a>.) In an expression that includes the <code>&amp;</code> operator, if the first operand has a false value, the second operand is not evaluated. In an expression that includes the <code>|</code> operator, if the first operand has a true value, the second operand is not evaluated.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_173.html"><img src="next.gif" alt="next" /></a> <a href="db_171.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

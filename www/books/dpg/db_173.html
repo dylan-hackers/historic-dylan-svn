@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_167.html" />
+<link rel="prev" href="db_172.html" />
+<link rel="next" href="db_174.html" />
+<title>12.1.6   Assignment</title>
+</head>
+<body>
+
+<div>
+<a name="heading173"></a>
+
+<div>
+<p><a href="db_174.html"><img src="next.gif" alt="next" /></a> <a href="db_172.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading173-0"></a>
+<h1>12.1.6   <a name="marker-9-492"></a>Assignment</h1>
+<p> The assignment<a name="marker-2-493"></a> binary operator, <code>:=<a name="marker-2-494"></a></code>, also is implemented as a macro. An expression that includes this operator works in a special way.</p>
+<p>The operand to the <em>right</em> of the operator is evaluated first. The result is the new value to be assigned.</p>
+<p>The operand to the <em>left</em> of the operator determines the place to which the new value is assigned. This operand can have one of the following kinds of <br />syntax:</p>
+<p> Variable name The variable name is not evaluated. Dylan assigns the new value to the variable.</p>
+<p> Explicit function call Dylan calls the function <em>name<code>-setter<a name="marker-2-495"></a></code></em>, where <em>name</em> is the name of the function in the function call. The first argument to <em>name<code>-setter</code></em> is the new value, and the remaining arguments are the arguments to <em>name</em> in the original function call.</p>
+<p> Slot reference Dylan first converts the slot reference to the corresponding function call. Dylan then calls the function <em>name<code>-setter<a name="marker-2-496"></a></code></em> just as it would have if the slot reference had been an explicit function call.</p>
+<p> Element reference Dylan first converts the element reference to the corresponding function call, using <code>element</code> or <code>aref</code> as the name of the function, as appropriate. Dylan then calls the function<a name="marker-2-497"></a> <code>element-setter</code><a name="marker-2-498"></a> or <code>aref-sette<a name="marker-2-499"></a>r</code> just as it would have if the element reference had been an explicit function call.</p>
+<p> Except for the order of evaluation and returned values, the following examples are equivalent:</p>
+<pre>
+*my-position*.distance := 3.0;
+distance(*my-position*) := 3.0;
+distance-setter(3.0, *my-position*);
+</pre>
+<p> The first two examples return <code>3.0</code>; the second returns whatever <code>distance-<br />setter</code> returns. Usually, this value would be <code>3.0</code>. Note that, if <code>distance</code> is the name of a slot's getter, and if the slot is constant or has a setter with a name other than <code>distance-setter</code>, then the assignment operation results in an error.</p>
+<p>Except for the order of evaluation and returned values, the following examples are equivalent:</p>
+<pre>
+vertices[2] := list(3.5, 4.5);
+element(vertices, 2) := list(3.5, 4.5);
+element-setter(list(3.5, 4.5), vertices, 2);
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_174.html"><img src="next.gif" alt="next" /></a> <a href="db_172.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

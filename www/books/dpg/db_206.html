@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_190.html" />
+<link rel="prev" href="db_205.html" />
+<link rel="next" href="db_207.html" />
+<title>13.5   Library definition</title>
+</head>
+<body>
+
+<div>
+<a name="heading206"></a>
+
+<div>
+<p><a href="db_207.html"><img src="next.gif" alt="next" /></a> <a href="db_205.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading206-0"></a>
+<h1>13.5   Library definition</h1>
+<p> We can now give the definition of the library:</p>
+<pre>
+define library time
+<em>  // Interface module
+</em>  export time;
+<em>  // Substrate libraries
+</em>  use format-out;
+  use dylan;
+end library time;
+</pre>
+<p> In the preceding definition, we declare that the interface to our library is defined by the <code>time</code> interface module. By exporting that module, we make all the exported names from that module accessible to clients of this library. We also declare that the <code>time</code> library relies on the <code>format-out</code> and <code>dylan</code> libraries (that is, that those libraries have interface modules of which our modules will be clients). Notice that no mention is made of the <code>time-implementation</code>, or <code>sixty-unit</code> modules, because they are completely internal to our library and are not visible to any clients of our library. </p>
+<p>Recall that constant and variable names, module names, and library names are distinct, so it is possible to have a library, module, and constant all of the same name. A common convention in a library with only one interface module is to give them the same name, as we have done here.</p>
+<p>To build our library, we would need to define the library, define all the modules, specify where and how the definitions or source records that implement our library are to be found, specify where the object code that results from compiling the source records are to be stored, and provide any particular instructions to the compiler regarding how to build the library. The details of how to provide this information vary from one Dylan implementation to the next.</p>
+<p>To use our library, we would need to specify where to find the object code and the implementation-dependent export information that allows another library to use our library without access to our source records. The details of this information also depend on the Dylan implementation that we are using.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-586"></a>C++:</strong> The library definition, which names the modules exported and libraries used by a library, is similar to C++ header files and includes. The main difference is that the Dylan development environment extracts the information that it needs about exported and imported variables directly, rather than requiring exports to be duplicated in a set of header files, and requiring those header files to be included in every source file that uses the imports.</p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_207.html"><img src="next.gif" alt="next" /></a> <a href="db_205.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

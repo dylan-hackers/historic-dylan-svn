@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_113.html" />
+<link rel="prev" href="db_116.html" />
+<link rel="next" href="db_118.html" />
+<title>9.3.4   Method dispatch and limited integers</title>
+</head>
+<body>
+
+<div>
+<a name="heading117"></a>
+
+<div>
+<p><a href="db_118.html"><img src="next.gif" alt="next" /></a> <a href="db_116.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading117-0"></a>
+<h1>9.3.4   <a name="marker-9-306"></a>Method <a name="marker-2-307"></a>dispatch and limited integers</h1>
+<p> When a type is a limited-integer<a name="marker-2-308"></a> type, Dylan uses the following rules:</p>
+<p>1.  An object is an instance of a limited-integer type if it is an instance of <br /><code>&lt;integer&gt;</code> and if it is (inclusively) within the specified range.</p>
+<p>2.  A limited-integer type is a proper subtype of <code>&lt;integer&gt;</code>, as long as it is not equivalent to <code>&lt;integer&gt;</code>.</p>
+<p>One limited-integer type is a proper subtype of another limited-integer type if the range of the first type is entirely within the range of the second type, and if the two types are not equivalent.</p>
+<p> For example, suppose that we have these definitions:</p>
+<pre>
+define constant &lt;nonnegative-integer&gt; = limited(&lt;integer&gt;, min: 0);
+<em>// Method 1
+</em>define method say (x :: &lt;integer&gt;) ... end method say;
+<em>// Method 2
+</em>define method say (x :: &lt;nonnegative-integer&gt;) ... end method say;
+</pre>
+<p> Now, if <code>say</code> is called with an argument of <code>1</code>, both methods are applicable, and method 2 is more specific than method 1. If <code>say</code> is called with an argument of <code>-1</code>, only method 1 is applicable.</p>
+<p>Now suppose that, instead, we have the following definitions:</p>
+<pre>
+define constant &lt;limited-integer-1&gt; = limited(&lt;integer&gt;, min: -2, max: 2);
+define constant &lt;limited-integer-2&gt; = limited(&lt;integer&gt;, min: 0, max: 4);
+<em>// Method 1
+</em>define method say (x :: &lt;limited-integer-1&gt;) ... end method say;
+<em>// Method 2
+</em>define method say (x :: &lt;limited-integer-2&gt;) ... end method say;
+</pre>
+<p> Now, if <code>say</code> is called with an argument of <code>1</code>, both methods are applicable, and neither method is more specific than the other; the two methods are <strong>ambiguous</strong>. If no more specific method exists, Dylan signals an error when we call <code>say</code> with an argument of <code>1</code>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_118.html"><img src="next.gif" alt="next" /></a> <a href="db_116.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

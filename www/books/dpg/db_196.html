@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_192.html" />
+<link rel="prev" href="db_195.html" />
+<link rel="next" href="db_197.html" />
+<title>13.2.4   Export and import of modules by libraries</title>
+</head>
+<body>
+
+<div>
+<a name="heading196"></a>
+
+<div>
+<p><a href="db_197.html"><img src="next.gif" alt="next" /></a> <a href="db_195.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading196-0"></a>
+<h1>13.2.4   Export and import of modules by libraries</h1>
+<p> Just as a module specifies a namespace for definitions, each library specifies an independent namespace of modules and controls the visibility of its modules. Within each library, every module refers either to a module owned by that library, or to a module owned by another library. Libraries make their modules available to other libraries by <strong>exporting</strong> those modules. A library can refer to the modules of another library by <strong>using</strong> the other library. No library can refer to the modules of another library that are not exported.</p>
+<p>When a library exports a module and a second library uses the first library, importing its modules, then the modules of the second library can use the modules of the first library, just as they can use any other modules in their own library.</p>
+<p>When one library uses another library, it can use all the modules exported from the second library, or it can specify a subset of those exports to <strong>import</strong>. Imported modules can be <strong>renamed</strong> as they are imported, just as imported module names can be removed.</p>
+<p>You can see that libraries and modules together provide a two-level structure of naming, information hiding, and access control. The designers of Dylan believed that only a single level would not give sufficient flexibility, but that more than two levels was unnecessary. In essence, modules give a fine level of control that lets you organize within a single component, and libraries give a higher level of control that lets you organize components into a program. Also, libraries are the Dylan <a name="marker-2-623"></a><strong>compilation unit</strong> -- they are the level at which components can be exchanged without source code being exchanged. A software publisher would typically sell its wares as Dylan libraries.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_197.html"><img src="next.gif" alt="next" /></a> <a href="db_195.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_35.html" />
+<link rel="prev" href="db_35.html" />
+<link rel="next" href="db_37.html" />
+<title>3.1.1   A method that takes an argument</title>
+</head>
+<body>
+
+<div>
+<a name="heading36"></a>
+
+<div>
+<p><a href="db_37.html"><img src="next.gif" alt="next" /></a> <a href="db_35.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading36-0"></a>
+<h1>3.1.1   <a name="marker-9-116"></a>A method that takes an argument</h1>
+<p> We can define a method similar to <code>say-hello</code>, called <code>say-greeting</code>, that takes an argument:</p>
+<pre>
+define method say-greeting (greeting :: &lt;object&gt;);
+  format-out(&quot;%s\n&quot;, greeting);
+end;
+</pre>
+<p> The <code>say-greeting</code> method has one required parameter, named <code>greeting</code>. The type constraint of the required parameter indicates the type that the argument must be. The <code>greeting</code> parameter has the type constraint <code>&lt;object&gt;</code>, which is the most general class. All objects are of the type <code>&lt;object&gt;</code>, so using this class as the type constraint allows the argument to be any object. You can omit the type constraint of a required parameter; that omission has the same effect as specifying <code>&lt;object&gt;</code> as the type constraint. </p>
+<p>We can call <code>say-greeting</code> on a string:</p>
+<pre>
+<em>? </em>say-greeting(&quot;hi, there&quot;);
+<em>hi, there</em>
+</pre>
+<p> We can call <code>say-greeting</code> on an integer, although the integer does not give a particularly friendly greeting:</p>
+<pre>
+<em>?</em> define variable *my-number* :: &lt;integer&gt; = 7;
+<em>? </em>say-greeting(*my-number*);
+<em>7</em>
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_37.html"><img src="next.gif" alt="next" /></a> <a href="db_35.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

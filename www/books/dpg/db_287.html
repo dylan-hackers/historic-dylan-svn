@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_285.html" />
+<link rel="prev" href="db_286.html" />
+<link rel="next" href="db_288.html" />
+<title>18.3.2   More complicated class precedence lists</title>
+</head>
+<body>
+
+<div>
+<a name="heading287"></a>
+
+<div>
+<p><a href="db_288.html"><img src="next.gif" alt="next" /></a> <a href="db_286.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading287-0"></a>
+<h1>18.3.2   More complicated class precedence lists</h1>
+<p> </p>
+<p> Sometimes, more than one class precedence list is consistent with the procedure that we have outlined so far. Suppose, for example, that we had defined two additional classes, <code>&lt;wheeled-vehicle&gt;</code> and <code>&lt;winged-vehicle&gt;</code>, with the class relations illustrated in <a href="#marker-9-724">Figure 18.3</a>.</p>
+<table border="1"><caption>Figure 18.3   <a name="marker-9-724"></a>Expanded graph of vehicle classes that use multiple inheritance.</caption><tr valign="top"><td>
+<img alt="db28im31" src="db28im31.gif" />
+</td></tr></table>
+<p> </p>
+<p> Let's assume that the <code>define class</code> form for <code>&lt;aircraft&gt;</code> lists <code>&lt;winged-vehicle&gt;</code> before <code>&lt;wheeled-vehicle&gt;</code> in its list of direct superclasses. Now, three class precedence lists for <code>&lt;B707&gt;</code> are consistent with the procedures that we have discussed so far:</p>
+<pre>
+&lt;B707&gt;, &lt;commercial-aircraft&gt;, &lt;aircraft&gt;, &lt;winged-vehicle&gt;,
+  &lt;flying-vehicle&gt;, &lt;wheeled-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;vehicle&gt;,   &lt;physical-object&gt;, &lt;object&gt;
+&lt;B707&gt;, &lt;commercial-aircraft&gt;, &lt;aircraft&gt;, &lt;winged-vehicle&gt;,
+  &lt;wheeled-vehicle&gt;, &lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;vehicle&gt;,   &lt;physical-object&gt;, &lt;object&gt;
+&lt;B707&gt;, &lt;commercial-aircraft&gt;, &lt;aircraft&gt;, &lt;winged-vehicle&gt;,
+  &lt;wheeled-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;flying-vehicle&gt;, &lt;vehicle&gt;,   &lt;physical-object&gt;, &lt;object&gt;
+</pre>
+<p> In this case, Dylan uses an algorithm that tends to keep together, in the class precedence list, nonoverlapping superclass-to-subclass chains.</p>
+<p>Look at this situation another way: The algorithm Dylan uses to construct the class precedence list in effect builds the list one class at a time, from highest to lowest precedence. The class precedence list under construction for <code>&lt;B707&gt;</code> is unambiguous from <code>&lt;B707&gt;</code> through <code>&lt;winged-vehicle&gt;</code>. At that point, Dylan could insert either <code>&lt;flying-vehicle&gt;</code> or <code>&lt;wheeled-vehicle&gt;</code> into the list. It chooses the class that has a <em>direct subclass rightmost</em> in the partial class precedence list that it has already constructed. In this case, <code>&lt;flying-vehicle&gt;</code> has a direct subclass <code>&lt;winged-vehicle&gt;</code>, and <code>&lt;wheeled-vehicle&gt;</code> has a direct subclass <code>&lt;aircraft&gt;</code>. Because <code>&lt;winged-vehicle&gt;</code> is rightmost in the partial list already constructed, Dylan chooses <code>&lt;flying-vehicle&gt;</code> as the next entry in the list. Once that decision has been made, the resulting class precedence list must be the first of the three possible orderings that we listed:</p>
+<pre>
+&lt;B707&gt;, &lt;commercial-aircraft&gt;, &lt;aircraft&gt;, &lt;winged-vehicle&gt;,
+  &lt;flying-vehicle&gt;, &lt;wheeled-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;vehicle&gt;,   &lt;physical-object&gt;, &lt;object&gt;
+</pre>
+<p> Note that it is not always possible to compute a class precedence list. Consider the three classes defined as follows:</p>
+<pre>
+define class &lt;a&gt; (&lt;object&gt;)
+  ...
+end class &lt;a&gt;;
+define class &lt;b&gt; (&lt;a&gt;)
+  ...
+end class &lt;b&gt;;
+define class &lt;c&gt; (&lt;a&gt;, &lt;b&gt;)
+  ...
+end class &lt;c&gt;;
+</pre>
+<p> No class precedence list is possible for class <code>&lt;c&gt;</code> in this example, because the ordering of classes <code>&lt;a&gt;</code> and <code>&lt;b&gt;</code> conflicts in the local precedence lists for classes <code>&lt;b&gt;</code> and <code>&lt;c&gt;</code>. Dylan signals an error when it tries to compute a class precedence list and finds that it cannot do so.</p>
+<p>To examine the class precedence list for a class, we use the <a name="marker-2-738"></a><code>all-superclasses</code> function, which returns the class and its superclasses in the same order as they appear in the class precedence list:</p>
+<pre>
+<em>? </em>all-superclasses (&lt;B707&gt;)
+<em>#[{class &lt;B707&gt;}, {class &lt;commercial-aircraft&gt;}, {class &lt;aircraft&gt;},
+  {class &lt;winged-vehicle&gt;}, {class &lt;flying-vehicle&gt;},
+  {class &lt;wheeled-vehicle&gt;},{class &lt;ground-vehicle&gt;}, {class &lt;vehicle&gt;},   {class &lt;physical-object&gt;}, {class &lt;object&gt;}]</em>
+</pre>
+<p> The details of the algorithm that Dylan uses to construct class precedence lists are complicated, and are beyond the scope of this book. For most uncomplicated uses of simple inheritance, the most important points to remember about the class precedence list are that the list of direct superclasses in a <code>define class</code> form is ordered, and each direct superclass in the list takes precedence over all direct superclasses that appear later in the list. In general, if more than one superclass defines a behavior, the subclass behaves most like the first superclass in its class precedence list that defines that behavior.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_288.html"><img src="next.gif" alt="next" /></a> <a href="db_286.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

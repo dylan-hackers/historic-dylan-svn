@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_145.html" />
+<link rel="prev" href="db_149.html" />
+<link rel="next" href="db_151.html" />
+<title>11.3.5   Mapping functions</title>
+</head>
+<body>
+
+<div>
+<a name="heading150"></a>
+
+<div>
+<p><a href="db_151.html"><img src="next.gif" alt="next" /></a> <a href="db_149.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading150-0"></a>
+<h1>11.3.5   <a name="marker-9-405"></a>Map<a name="marker-9-406"></a>ping functions</h1>
+<p> Iterating over all the elements of a collection is a common idiom, and Dylan provides several different mapping functions that accomplish these kinds of iterations in different ways. In the following example, we redefine the <code>my-copy-sequence</code> method originally defined in <a href="db_148.html#marker-9-402">Section 11.3.3</a>. Here, we use the <a name="marker-2-407"></a><code>do</code> iteration construct, instead of a <code>for</code> loop. </p>
+<pre>
+<em>// Assumes that old-list is a proper list (that is, it ends with #()) 
+// and is not circular
+</em>define method my-copy-sequence (old-list :: &lt;list&gt;) =&gt; (new-list :: &lt;list&gt;)
+  let new-list = make(&lt;list&gt;, size: old-list.size);
+<em>  // Remember the pair of the copy that we are initializing
+</em>  let current-pair = new-list;
+<em>    // Iterate over all the elements of the existing list, making new pairs,
+    // and splicing them into the end of the copy that we are building
+</em>  do(method (old-element)
+       current-pair.head := old-element;
+       current-pair := current-pair.tail;
+     end method,
+     old-list);
+  new-list;
+end method my-copy-sequence;
+</pre>
+<p> The <code>do</code> mapping function takes a function and one or more collections, and calls the function on each element of each collection. The function should take one argument if you provide <code>do</code> with one collection, two arguments if you provide two collections, and so on. The result of calling the function is ignored, and <code>do</code> itself returns no meaningful value. The <code>do</code> function is useful only if the method that you provide accomplishes a valuable side effect. In the preceding example, the supplied method stores an element of the old list into the head of the current pair of the new list, and moves to the next pair of the new list. Note that this method is actually a closure, which closes over the <code>current-pair</code> local variable. See <a href="db_188.html#marker-9-568">Section 12.3.6, page 183</a>, for more information about closures.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_151.html"><img src="next.gif" alt="next" /></a> <a href="db_149.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

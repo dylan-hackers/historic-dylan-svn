@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_45.html" />
+<link rel="prev" href="db_50.html" />
+<link rel="next" href="db_52.html" />
+<title>4.4   Getters and setters of slot values</title>
+</head>
+<body>
+
+<div>
+<a name="heading51"></a>
+
+<div>
+<p><a href="db_52.html"><img src="next.gif" alt="next" /></a> <a href="db_50.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading51-0"></a>
+<h1>4.4   <a name="marker-9-167"></a>Getters and <a name="marker-2-168"></a>setters of slot values</h1>
+<p> We can store a value in the <code>total-seconds</code> slot of the <code>&lt;time-of-day&gt;</code> instance by using the assignment operator, <code>:=</code>, as follows: </p>
+<pre>
+<em>? </em>*my-time-of-day*.total-seconds := 180;
+<em>180</em>
+</pre>
+<p> We can examine the value of the slot in the instance: </p>
+<pre>
+<em>? </em>*my-time-of-day*.total-seconds;
+<em>180</em>
+</pre>
+<p> Although these expressions may look like they are accessing the slots directly, they are not. They are abbreviations for function calls to a getter and a setter. A <strong>getter</strong> is a method that retrieves the current value of a slot in an object. A <strong>setter</strong> is a method that stores a value in a slot. Each slot in a class automatically has a getter and a setter defined for it. You can see the function-call syntax, and other information about getters and setters, in <a href="db_120.html#marker-9-321">Chapter 10,  <em>Slots</em></a>. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_52.html"><img src="next.gif" alt="next" /></a> <a href="db_50.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

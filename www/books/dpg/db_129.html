@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_127.html" />
+<link rel="prev" href="db_128.html" />
+<link rel="next" href="db_130.html" />
+<title>10.4.2   The required-init-keyword: slot option</title>
+</head>
+<body>
+
+<div>
+<a name="heading129"></a>
+
+<div>
+<p><a href="db_130.html"><img src="next.gif" alt="next" /></a> <a href="db_128.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading129-0"></a>
+<h1>10.4.2   <a name="marker-9-338"></a>The <a name="marker-2-339"></a><em>required-init-keyword:</em> slot option</h1>
+<p> Instead of giving the slot a default initial value, we can require the caller of <code>make</code> to supply an init keyword for the slot. The <code>required-init-keyword:</code> slot option defines a required init keyword. If the caller of <code>make</code> does not supply the required init keyword, then an error is signaled. </p>
+<pre>
+define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;, required-init-keyword: total-seconds:;
+end class &lt;sixty-unit&gt;;
+</pre>
+<p> The <code>total-seconds</code> slot is defined in the <code>&lt;sixty-unit&gt;</code> class. By making <code>total-seconds:</code> a required init keyword in this class, we make it required for every class that inherits from it, including <code>&lt;time&gt;</code>, <code>&lt;angle&gt;</code>, and all their subclasses. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_130.html"><img src="next.gif" alt="next" /></a> <a href="db_128.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

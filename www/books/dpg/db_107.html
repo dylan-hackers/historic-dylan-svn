@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_103.html" />
+<link rel="prev" href="db_106.html" />
+<link rel="next" href="db_108.html" />
+<title>8.4   The test file</title>
+</head>
+<body>
+
+<div>
+<a name="heading107"></a>
+
+<div>
+<p><a href="db_108.html"><img src="next.gif" alt="next" /></a> <a href="db_106.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading107-0"></a>
+<h1>8.4   The test file</h1>
+<table border="1">
+	<tr>
+		<th><p>The test file: <code>test.dylan</code>. </p></th>
+	</tr>
+	<tr>
+		<td><p>module: timespace</p><p>format-out(&quot;Creating an instance of &lt;absolute-position&gt;:\n&quot;);</p><p>define variable *my-absolute-position* <br />  = make(&lt;absolute-position&gt;, <br />         latitude: make(&lt;latitude&gt;, <br />                        total-seconds: encode-total-seconds(42, 19, 34),<br />                        direction: &quot;North&quot;),<br />         longitude: make(&lt;longitude&gt;,<br />                         total-seconds: encode-total-seconds(70, 56, 26),<br />                         direction: &quot;West&quot;)); </p><p>say(*my-absolute-position*);</p><p>format-out(&quot;\n&quot;); </p>
+		</td>
+	</tr>
+	<tr>
+<td><p>format-out(&quot;Creating an instance of &lt;relative-position&gt;:\n&quot;);</p><p>define variable *her-relative-position* <br />  = make(&lt;relative-position&gt;,<br />         distance: 30,<br />         angle: make(&lt;angle&gt;, <br />                     total-seconds: encode-total-seconds(90, 5, 0)));</p><p>say(*her-relative-position*); </p><p>format-out(&quot;\n&quot;);</p>
+		</td>
+	</tr>
+	<tr>
+<td><p>format-out(&quot;Creating an instance of &lt;time-offset&gt; in *minus-2-hours*.\n&quot;);</p><p>define variable *minus-2-hours* <br />  = make(&lt;time-offset&gt;, total-seconds: - encode-total-seconds (2, 0, 0)); </p>
+		</td>
+	</tr>
+	<tr>
+<td><p>format-out(&quot;Creating an instance of &lt;time-offset&gt; in *plus-15-20-45*.\n&quot;);</p><p>define variable *plus-15-20-45* <br />  = make(&lt;time-offset&gt;, total-seconds: encode-total-seconds (15, 20, 45)); </p>
+		</td>
+	</tr>
+	<tr>
+<td><p>format-out(&quot;Creating an instance of &lt;time-of-day&gt; in *8-30-59*.\n&quot;);</p><p>define variable *8-30-59*<br />  = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds (8, 30, 59));</p>
+		</td>
+	</tr>
+	<tr>
+<td><p>format-out(&quot;Adding &lt;time-offset&gt; + &lt;time-offset&gt;: *minus-2-hours* + *plus-15-20-45*:\n&quot;);</p><p>decode-total-seconds(*minus-2-hours* + *plus-15-20-45*); </p>
+		</td>
+	</tr>
+	<tr>
+<td><p>format-out(&quot;Adding &lt;time-offset&gt; + &lt;time-of-day&gt;: *minus-2-hours* + *8-30-59*:\n&quot;);</p><p>decode-total-seconds(*minus-2-hours* + *8-30-59*); </p>
+		</td>
+	</tr>
+	<tr>
+<td><p>format-out(&quot;Adding &lt;time-of-day&gt; + &lt;time-offset&gt;: *8-30-59* + *minus-2-hours* :\n&quot;);</p><p>decode-total-seconds(*8-30-59* + *minus-2-hours*);</p>
+		</td>
+	</tr>
+</table>
+<p> </p>
+<p> When we run the test file, we see the following output and values:</p>
+<pre>
+<em>Creating an instance of &lt;absolute-position&gt;:
+42 degrees 19 minutes 34 seconds North latitude
+70 degrees 56 minutes 26 seconds West longitude</em>
+<em>Creating an instance of &lt;relative-position&gt;:
+30 miles away at heading 90 degrees</em>
+<em>Creating an instance of &lt;time-offset&gt; in *minus-2-hours*.
+Creating an instance of &lt;time-offset&gt; in *plus-15-20-45*.
+Creating an instance of &lt;time-of-day&gt; in *8-30-59*.
+Adding &lt;time-offset&gt; + &lt;time-offset&gt;: *minus-2-hours* + *plus-15-20-45&quot;:
+13
+20
+45
+Adding &lt;time-offset&gt; + &lt;time-of-day&gt;: *minus-2-hours* + *8-30-59&quot;:
+6
+30
+59
+Adding &lt;time-of-day&gt; + &lt;time-offset&gt;: *8-30-59* + *minus-2-hours*:
+6
+30
+59</em>
+</pre>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_108.html"><img src="next.gif" alt="next" /></a> <a href="db_106.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

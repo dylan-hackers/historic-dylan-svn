@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_167.html" />
+<link rel="prev" href="db_170.html" />
+<link rel="next" href="db_172.html" />
+<title>12.1.4   Unary operator calls</title>
+</head>
+<body>
+
+<div>
+<a name="heading171"></a>
+
+<div>
+<p><a href="db_172.html"><img src="next.gif" alt="next" /></a> <a href="db_170.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading171-0"></a>
+<h1>12.1.4   <a name="marker-9-461"></a>Unary operator calls</h1>
+<p> Dylan has two built-in unary operators,<a name="marker-2-462"></a> <code>-<a name="marker-2-463"></a></code> and <code>~</code><a name="marker-2-464"></a>. The syntax for a unary operator call has two parts: </p>
+<p>1.  The operator</p>
+<p>2.  An operand</p>
+<p> The <code>-</code> operator performs the arithmetic negation of its operand, and the <code>~</code> operator performs the logical negation<a name="marker-2-465"></a>. Both operator calls are abbreviations for function calls. The following examples are equivalent:</p>
+<pre>
+- time-offset;
+negative<a name="marker-2-466"></a>(time-offset);
+</pre>
+<p> The following examples also are equivalent:</p>
+<pre>
+~ test-condition(cond);
+\~(test-condition(cond));
+</pre>
+<p> In the preceding example, we must escape <code>~</code> with <code>\<a name="marker-2-467"></a></code> so that Dylan interprets <code>~</code> as a variable name, instead of as an operator. This syntax indicates an explicit call to the function that is the value of the variable named <code>~</code>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_172.html"><img src="next.gif" alt="next" /></a> <a href="db_170.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_158.html" />
+<link rel="prev" href="db_163.html" />
+<link rel="next" href="db_165.html" />
+<title>11.5.6   Search of arrays with find-key</title>
+</head>
+<body>
+
+<div>
+<a name="heading164"></a>
+
+<div>
+<p><a href="db_165.html"><img src="next.gif" alt="next" /></a> <a href="db_163.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading164-0"></a>
+<h1>11.5.6   <a name="marker-9-434"></a>Search of arrays with <a name="marker-2-435"></a><em>find-key</em></h1>
+<p> In Dylan, we can access multidimensional arrays as though they are linearized one-dimensional vectors by using the <a name="marker-2-436"></a><code>element</code> generic function. Dylan provides a <code>find-key</code> generic function that uses <code>element</code> to find the index (or key) that corresponds to a desired value in a collection. Here, we rewrite <code>find-larger-than</code> to use <code>find-key</code>:</p>
+<pre>
+define method find-larger-than 
+    (array :: &lt;array&gt;, value :: &lt;integer&gt;)
+ =&gt; (result :: type-union(singleton(#f), &lt;integer&gt;))
+  let index 
+    = find-key(array, method (array-element) array-element &gt; value end);
+  index &amp; array[index];
+end method find-larger-than;
+</pre>
+<p> The <code>find-key</code> generic function searches an array, calling the function that we provided on each element. If our function ever returns true, <code>find-key</code> returns the linearized index of the array element containing the value. For a two-dimensional array, the linearized index is the index that would be the appropriate key of a one-dimensional array that we could construct by placing the rows of the two-dimensional array one after the other. Rows in a two-dimensional array are numbered with the first subscript, and the column within those rows is numbered by the second subscript.</p>
+<p>If our function never returns true for any element, <code>find-key</code> returns false. In this example <code>&amp;</code> is truly used as a control structure. If <code>index</code> is false, then <code>&amp;</code> will return false without executing the array access. If <code>index</code> is true, then the array access occurs, and that is the value of the <code>&amp;</code> expression, and thus the value returned from the method.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_165.html"><img src="next.gif" alt="next" /></a> <a href="db_163.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="prev" href="db_347.html" />
+<link rel="next" href="db_349.html" />
+<title>Glossary </title>
+</head>
+<body>
+
+<div>
+<a name="heading348"></a>
+
+<div>
+<p><a href="db_349.html"><img src="next.gif" alt="next" /></a> <a href="db_347.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>Dylan Programming</p>
+
+</div>
+<a name="link-glossary-firstpage"></a><a name="heading348-0"></a>
+<h1> </h1>
+<dl>
+<dt><strong>abstract class</strong></dt>
+<dd><p>A class that cannot have direct instances. To define an abstract class, you provide the <code>abstract</code> class adjective in the <code>define class</code> form. All superclasses of an abstract class must also be abstract.</p></dd>
+<dt><strong>allocation</strong></dt>
+<dd><p>The allocation of a slot determines where the storage for the slot's value is allocated, and determines which instances share the value of the slot. There are four kinds of allocation: instance, class, each-subclass, and virtual.</p></dd>
+<dt><strong>ambiguous methods</strong></dt>
+<dd><p>Methods that cannot be ordered as more specific or less specific than one another, in the method dispatch.</p></dd>
+<dt><strong>assignment</strong></dt>
+<dd><p>The act of setting the value of an existing variable or slot, or of setting an element of a collection. The assignment operator is <code>:=</code>.</p></dd>
+<dt><strong>binding</strong></dt>
+<dd><p>An association between a name and an object. For example, there is a binding that associates the name of a constant and the object that is the value of the constant. The names of functions, module variables, and local variables are also bindings. </p></dd>
+<dt><strong>body</strong></dt>
+<dd><p>A region of program code that delimits the scope of all local variables declared inside it. Bodies can be nested. An body is begun implicitly with <code>define method</code>, and is ended by the corresponding <code>end</code>. You can define a body explicitly by using <code>begin</code> to start it and <code>end</code> to finish it. A local variable has scope extending from its declaration to the end of the smallest body that surrounds it.</p></dd>
+<dt><strong>built-in class</strong></dt>
+<dd><p>A class provided by Dylan, such as <code>&lt;object&gt;</code>, <code>&lt;integer&gt;</code>, or <code>&lt;string&gt;</code>.</p></dd>
+<dt><strong>class</strong></dt>
+<dd><p>A definition of a type of other objects, which are called its instances. A class defines the slots of its instances. Dylan provides built-in classes, and users can define new classes. When you define a class, you specify its name, its direct superclasses, and its slots.</p></dd>
+<dt><strong>class precedence list</strong></dt>
+<dd><p>For a particular class, a list of the class and all its superclasses, ordered from most specific (the class itself) to least specific (the <code>&lt;object&gt;</code> class).</p></dd>
+<dt><strong>closure</strong></dt>
+<dd><p>A method that closes over some local variables. The closure can access the local variables which existed when the closure was created. The ability to dynamically create and return closures that can access lexical state is one of the important dynamic aspects of Dylan. </p></dd>
+<dt><strong>collection</strong></dt>
+<dd><p>A kind of container that can hold zero or more objects. Dylan provides the usual kinds of collections, including arrays, vectors, strings, singly linked lists, queues, hash tables, and so on. In Dylan, a collection is an instance of a class. For example, the <code>&lt;array&gt;</code> class represents arrays, and the <code>&lt;vector&gt;</code> class represents vectors. </p></dd>
+<dt><strong>concrete class</strong></dt>
+<dd><p>A class that can have direct instances. By default, a class is concrete. </p></dd>
+<dt><strong>condition</strong></dt>
+<dd><p>An instance (direct or indirect) of the <code>&lt;condition&gt;</code> class, that represents a problem or unusual situation encountered during program execution. </p></dd>
+<dt><strong>const</strong>ant<em> (also called <strong>module constant)</strong></em></dt>
+<dd><p>An unchanging binding whose scope is its module. You define a constant explicitly with <code>define constant</code>, and implicitly with <code>define class</code>, <code>define generic</code>, <code>define macro</code>, or possibly <code>define method</code>. You must initialize the value of a constant, and you cannot assign another value to a constant during the execution of a Dylan program. </p></dd>
+<dt><strong>constituent</strong></dt>
+<dd><p>A definition, a local declaration, or an expression.</p></dd>
+<dt><strong>constructor</strong></dt>
+<dd><p>A function that creates an instance. A constructor provides a shorthand means for calling <code>make</code>. For example, you can call the constructor function <a name="marker-2-932"></a><code>vector</code> to create a vector, and to initialize that vector with data.</p></dd>
+<dt><strong>contract</strong></dt>
+<dd><p>An agreement between a generic function and its methods. The generic function defines the terms of the contract, and the methods must obey the contract; particularly, the methods' parameters and value declarations must be congruent with the generic function's parameters and value declarations.</p></dd>
+<dt><strong>definition</strong></dt>
+<dd><p>A declaration of a piece of program structure, such as a library, module, class, generic function, or method. A definition usually establishes a module variable or constant. Definitions include <code>define variable</code>, <code>define class</code>, and <code>define method</code>.</p></dd>
+<dt><strong>development</strong> <strong>environment</strong></dt>
+<dd><p>A collection of tools for Dylan programmers that can include an editor custom-tailored for Dylan code, a browser, a compiler, a debugger, and a listener that enables you to enter expressions and to see their values. The features of any development environment are defined by the implementation, rather than by Dylan itself.</p></dd>
+<dt><strong>direct</strong> <strong>instance</strong></dt>
+<dd><p>An object is a direct instance of class A if the object's class is class A. You can use <code>object-class</code> to find out the class of which an object is a direct instance.</p></dd>
+<dt><strong>direct subclass</strong></dt>
+<dd><p>A class is the direct subclass of all its direct superclasses. "Direct" means there is no class intervening between the class and its subclass in the inheritance graph.</p></dd>
+<dt><strong>direct superclass</strong></dt>
+<dd><p>The direct superclasses of a class appear in the <code>define class</code> form for that class. Direct means that there is no class intervening between the class and its superclass in the inheritance graph.</p></dd>
+<dt><strong>dylan library</strong></dt>
+<dd><p>A library that contains modules that contain the elements of the core Dylan language.</p></dd>
+<dt><strong>dylan module</strong></dt>
+<dd><p>A module that contains the elements of the core Dylan language.</p></dd>
+<dt><strong>dylan-user module</strong></dt>
+<dd><p>The special bootstrapping module in which you define the modules and libraries that make up your program. </p></dd>
+<dt><strong>exception</strong></dt>
+<dd><p>An unexpected event that occurs during program execution. </p></dd>
+<dt><strong>expression</strong></dt>
+<dd><p>A piece of code that, when executed, can return (zero or more) values and can have side effects. Expressions include (among others) literals, references to variables or constants, function calls, and statements (such as <code>if</code>, <code>while</code>, and <code>case</code>).</p></dd>
+<dt><code>#f</code></dt>
+<dd><p>The canonical false value. This object is the only object that represents false in Dylan. </p></dd>
+<dt><strong>general instance</strong></dt>
+<dd><p>A member of a class. An object is a general instance of a class if it is either a direct or an indirect instance of that class. The term <em>instance</em> is equivalent to the term <em>general instance</em>.</p></dd>
+<dt><strong>generic function</strong></dt>
+<dd><p>A kind of function. A generic function defines an interface, and contains methods that implement that generic function. When a generic function is called, it chooses the method to call based on the types of its required <br />arguments.</p></dd>
+<dt><strong>getter</strong></dt>
+<dd><p>A method that retrieves the current value of a slot in an object. Each slot in a class automatically has a getter defined for it. The getter's name is the same as the name of the slot.</p></dd>
+<dt><strong>handler</strong></dt>
+<dd><p>A function that can potentially resolve an exceptional situation. </p></dd>
+<dt><strong>implicit generic function</strong></dt>
+<dd><p>A generic function created by Dylan if a method is defined by <code>define method</code> or (for a slot getter or setter) by <code>define class</code> and if no generic function of the same name exists. An implicit generic function has the most general parameter and result types that are compatible with the method.</p></dd>
+<dt><strong>indirect instance</strong></dt>
+<dd><p>An object is an indirect instance of class A if the object's class has class A as a superclass. </p></dd>
+<dt><strong>infix function</strong></dt>
+<dd><p>A function whose calling syntax has the function appearing between the arguments. The arithmetic functions <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>&lt;</code>, <code>&gt;</code>, and so on are infix functions, as is the assignment operator, <code>:=</code>. An example of the calling syntax is: <code>3 + 2</code>.</p></dd>
+<dt><strong>information hiding</strong></dt>
+<dd><p>A principle of minimizing the information that is passed among components in a system; it reduces the interdependencies of components.</p></dd>
+<dt>i<strong>nheritance</strong></dt>
+<dd><p>The ability to arrange for classes that are logically related to one another to share the behaviors and data attributes that they have in common. Each class inherits from one or more other classes, called its superclasses. If no other class is an appropriate superclass, the class inherits from the class <code>&lt;object&gt;</code>. </p></dd>
+<dt><strong>init expression</strong></dt>
+<dd><p>A technique for initializing slots. An init expression provides an expression that yields a default value. Every time that an instance is made and the slot needs a default value, this expression is evaluated, and its value is used as the default. The slot receives its default initial value when no init keyword is defined, or when the caller does not supply the init-keyword argument to <code>make</code>.</p></dd>
+<dt><strong>init function</strong></dt>
+<dd><p>A function of zero arguments that is to be called to return a default initial value for the slot. The function is called every time that an instance is created if no init keyword is defined, or if the caller does not supply the init keyword argument to <code>make</code>. To define an init function for a slot, use the <code>init-function:</code> slot option in the class definition.</p></dd>
+<dt><strong>init keyword</strong></dt>
+<dd><p>A keyword that can be given to <code>make</code> to provide an initial value for a slot. To define an init keyword for a slot, you use the <code>init-keyword:</code> or <code>required-init-keyword:</code> slot option in the class definition.</p></dd>
+<dt><strong>init value</strong></dt>
+<dd><p>A default initial value for a slot, obtained by evaluating an expression once, before the first instance of the class is made. To define an init value for a slot, use the <code>init-value:</code> slot option in the class definition.</p></dd>
+<dt><strong>initialize</strong></dt>
+<dd><p>To provide an initial value for something that you are creating, such as a slot or a variable. </p></dd>
+<dt><strong>initialize method</strong></dt>
+<dd><p>A method for the <code>initialize</code> generic function. The purpose of initialize methods is to initialize an instance before that instance is returned by <code>make</code>.</p></dd>
+<dt><strong>instance</strong></dt>
+<dd><p>A member of a class. An object is an instance of a class if it is either a direct or an indirect instance of that class. The term <em>instance</em> is equivalent to the term <em>general instance</em>.</p></dd>
+<dt><strong>instantiable class</strong></dt>
+<dd><p>A class that can be used as the first argument to <code>make</code>. All concrete classes are instantiable. You can make an abstract class be instantiable by defining a <code>make</code> method for the class; the <code>make</code> method must return an instance of a concrete subclass of the abstract class.</p></dd>
+<dt>i<strong>nterchange format</strong></dt>
+<dd><p>A format that all Dylan implementations accept for publishing and exchanging source code by means of files. In this format, each file contains a single source record. The file must have a header at the front, consisting of pairs of keywords and values. One required keyword is <code>module:</code>; its value is the name of the module in which the source record of the file resides.</p></dd>
+<dt><strong>keyword</strong></dt>
+<dd><p>A symbol name followed by a colon, such as <code>total-seconds:</code>. </p></dd>
+<dt><strong>keyword argument</strong></dt>
+<dd><p>An optional argument to a function consisting of a keyword followed by that keyword's value. You can give keyword arguments in any order. Keyword arguments can be useful for functions that take many arguments -- when you call the function, you do not need to remember the order of the arguments. Keyword parameters enable a method to accept optional arguments that are keyed to a name. Keyword parameters appear after <code>#key</code> in the parameter list. </p></dd>
+<dt><strong>library</strong></dt>
+<dd><p>A Dylan library defines a software component, which is a separately compilable unit that can be either a stand-alone program or a component (library) of a larger program. A library contains modules.</p></dd>
+<dt><strong>library-interchange definition (LID) file</strong></dt>
+<dd><p>A file that enumerates all the files that make up a library. Most Dylan implementations support LID files, but these files are not required to by the core language.</p></dd>
+<dt><strong>limited type</strong></dt>
+<dd><p>A type that is a more restricted version of its base type. For example, a limited-integer type is based on <code>&lt;integer&gt;</code>, but has a given minimum or maximum value. Another example of a limited type is a limited-collection type, which is a collection type that specifies the type of elements, and/or the size of the collection. Limited types are created via <code>limited</code>.</p></dd>
+<dt><strong><a name="marker-10-933"></a>listener</strong></dt>
+<dd><p>A tool that enables you to enter Dylan expressions, executes the expressions, and displays any values and output produced by them.</p></dd>
+<dt><strong>literal constant</strong></dt>
+<dd><p>An object whose contents are known completely at compile time.</p></dd>
+<dt><strong>local declaration</strong></dt>
+<dd><p>A declaration that establishes a local variable, local method, or local condition handler. Local declarations include <code>let</code>, <code>local</code>, and <code>let handler</code>.</p></dd>
+<dt><strong>local variable</strong></dt>
+<dd><p>A binding whose scope extends from its definition to the end of the smallest body that surrounds it. You establish and use local variables within a body. Once the program exits the body, the local variables are no longer defined, and an attempt to access them is an error.</p></dd>
+<dt><strong>macro</strong></dt>
+<dd><p>A word or phrase that stands for another phrase (usually longer, but built of simpler components). Macros can be used for abbreviation, abstraction, simplification, or structuring. The primary use of macros in programming is to extend or adapt the language to allow a more concise or readable solution for a particular problem domain.</p></dd>
+<dt><strong>method</strong></dt>
+<dd><p>A kind of function that can belong to a generic function. Although methods are independent of classes, they operate on instances of classes. A method states the kinds of objects that it handles by the types of its required <br />arguments. </p></dd>
+<dt><strong>module</strong></dt>
+<dd><p>A unit that contains a portion of the definitions of a library. Each module specifies an independent namespace for Dylan constants and variables, and controls the visibility of the names within a module from outside the module. You can use modules both to do information hiding and to prevent name clashes between constants and variables.</p></dd>
+<dt><strong>module constant<em> (see constant)</em></strong></dt>
+<dt><strong>module variable</strong></dt>
+<dd><p>A binding whose scope is its module. A module variable is much like a global variable in other languages. You define a module variable with <code>define variable</code>. When you define a module variable, you must initialize it (that is, provide an initial value for it). If a module variable is not exported from the module that defines it, then it is accessible only within the module. If the module variable is exported by the module that defines it, and is imported or used by another module, then it is accessible within that other module as well.</p></dd>
+<dt><strong>multiple inheritance</strong></dt>
+<dd><p>Inheritance of a class from more than one direct superclass.</p></dd>
+<dt><code>&lt;object&gt;</code> <strong>class</strong></dt>
+<dd><p>The class from which all classes inherit, either directly or indirectly.</p></dd>
+<dt><strong>object</strong></dt>
+<dd><p>An individual datum. Also called an <em>instance</em>.</p></dd>
+<dt><strong>parameter list</strong></dt>
+<dd><p>A list of specifications for the arguments to a function. A parameter list can specify required and optional arguments. The optional arguments can be keyword arguments, each of which is passed to the function as a keyword followed by a value. Each parameter has a name, which is bound to the corresponding argument within the function's body when the function is called. Required parameters and a method's keyword parameters can include type constraints. The parameter lists of a generic function and all its methods must be congruent.</p></dd>
+<dt><strong><a name="marker-10-934"></a>parameter specializer</strong></dt>
+<dd><p>The type of a required parameter of a method.</p></dd>
+<dt><strong>predicate </strong></dt>
+<dd><p>A function that returns true or false. False is always represented as <code>#f</code>. True is represented by the canonical true value, <code>#t</code>, and by any value other than <code>#f</code>.</p></dd>
+<dt><strong>protocol</strong></dt>
+<dd><p>The interface definition of a software component. The purpose of establishing protocols is to define a uniform interface that clients can use, even if the implementation of a component is enhanced or modified.</p></dd>
+<dt><strong>recursion</strong></dt>
+<dd><p>A technique in which a function calls itself.</p></dd>
+<dt><strong>required parameter</strong></dt>
+<dd><p>A parameter corresponding to an argument that must be provided in the call to the function. Required parameters appear before any rest or keyword parameters in a parameter list. Required parameters are ordered, and the required arguments must be given in the same order.</p></dd>
+<dt><strong>rest parameter </strong></dt>
+<dd><p>Parameters that enable a method to accept any number of optional arguments. Any arguments provided in the call after the required arguments are collected in a sequence, which is the value of the rest parameter. A rest parameter, if one exists, appears after <code>#rest</code> in the parameter list. </p></dd>
+<dt><strong>restart</strong></dt>
+<dd><p>A special condition that represents an opportunity to recover from an <br />exception. </p></dd>
+<dt><strong>restart handler</strong></dt>
+<dd><p>A function used to implement the particular recovery action for a restart condition.</p></dd>
+<dt><strong>root</strong></dt>
+<dd><p>The starting point of Dylan class inheritance -- the class <code>&lt;object&gt;</code>, from which all Dylan classes inherit, either directly or indirectly.</p></dd>
+<dt><strong>setter</strong></dt>
+<dd><p>A method that stores a value in a slot. By default, each slot in a class has a setter defined for it automatically. </p></dd>
+<dt><strong>signature</strong></dt>
+<dd><p>The parameter list and the values declaration of a function.</p></dd>
+<dt><strong>singleton type</strong></dt>
+<dd><p>A type whose only member is one particular instance. Singleton types are created via <code>singleton</code>.</p></dd>
+<dt><strong>single inheritance</strong></dt>
+<dd><p>Inheritance in a class that has only one direct superclass.</p></dd>
+<dt><strong>slot</strong></dt>
+<dd><p>A unit of data associated with an instance. A slot is like a structure member or a field in other languages. Information about a slot is specified in the definition of the instance's class. The location of storage for the slot is determined by the slot's allocation. A program retrieves the value of a slot by calling that slot's getter generic function, and, unless the slot is constant, it sets the value by calling the slot's setter generic function.</p></dd>
+<dt><strong>slot option</strong></dt>
+<dd><p>An option that specifies a characteristic of a slot, such as the default initial value or the init keyword. Slot options appear in the <code>define class</code> form.</p></dd>
+<dt><strong>source record</strong></dt>
+<dd><p>A unit that organizes a portion of the Dylan source code for a program. Different Dylan implementations divide code into source records differently, and store the source records differently. For example, an implementation might store source records in a database. Many implementations store source records in files, and typically each file contains one source record.</p></dd>
+<dt><strong>subclass</strong></dt>
+<dd><p>The subclasses of a class include the class itself, and all classes that inherit from the class (all the class's direct subclasses, and all their direct subclasses, and so on). </p></dd>
+<dt><strong>subtype</strong></dt>
+<dd><p>The subtypes of a type include the type itself, and all types that inherit from the type, directly or indirectly.</p></dd>
+<dt><strong>superclass</strong></dt>
+<dd><p>The superclasses of a class include all that class's direct superclasses, and all their direct superclasses, and so on, all the way to the root of class inheritance, which is the <code>&lt;object&gt;</code> class. You can use <code>all-superclasses</code> to find all the superclasses of a class.</p></dd>
+<dt><strong>supertype</strong></dt>
+<dd><p>The supertypes of a type include all the types from which the type inherits, directly or indirectly.</p></dd>
+<dt><strong>symbol</strong></dt>
+<dd><p>An instance of the <code>&lt;symbol&gt;</code> type. Symbols are much like strings. There are two reasons to use symbols in certain cases where you might consider strings. First, symbol comparison is not case sensitive. Second, comparison of two symbols is much faster than is comparison of two strings, because symbols are compared by identity, and strings are usually compared element by element., There are two equivalent syntaxes for referring to symbols: <code>north:</code> is an example of the keyword syntax, whereas <code>#&quot;north&quot;</code> is an example of the hash syntax.</p></dd>
+<dt><code>#t</code></dt>
+<dd><p>The canonical value of true. Note that any value other than <code>#f</code> is considered a value of true.</p></dd>
+<dt><strong>type</strong></dt>
+<dd><p>An object that describes the structure and behavior of its members. All classes are types, but not all types are classes. You can define new nonclass types with <code>limited</code>, <code>singleton</code>, and <code>type-union</code>.</p></dd>
+<dt><strong>type constraint</strong></dt>
+<dd><p>A type associated with a binding or slot that ensures that the value of that binding or slot can hold only objects of that type. </p></dd>
+<dt><strong>union type</strong></dt>
+<dd><p>A type whose members include all the members of one or more base types. Union types are created via <code>type-union</code>.</p></dd>
+<dt><strong>user-defined class</strong></dt>
+<dd><p>A class defined by a Dylan user, and not provided by Dylan itself.</p></dd>
+<dt><strong>value declaration</strong></dt>
+<dd><p>A list of the values returned by a function, and of the types of the values. The name of a return value is used purely for documentation purposes. When you provide a value declaration for a function, Dylan signals an error if the function tries to return a value of the wrong type. The compiler can check receivers of the results of the method for correct type, and can usually produce more efficient code. The value declarations of a generic function and all that function's methods must be congruent.</p></dd>
+<dt><a name="marker-10-935"></a><strong>virtual slot</strong></dt>
+<dd><p>A slot that does not occupy storage; instead, its value is computed. When you define a virtual slot, you need to define a getter method to return the value of the virtual slot, and you can optionally define a setter method to set the value of the virtual slot. </p>
+<a name="link-glossary-lastpage"></a><a name="link-dylanix-firstpage"></a></dd>
+</dl>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_349.html"><img src="next.gif" alt="next" /></a> <a href="db_347.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_252.html" />
+<link rel="prev" href="db_252.html" />
+<link rel="next" href="db_254.html" />
+<title>16.1.1   A new collection class</title>
+</head>
+<body>
+
+<div>
+<a name="heading253"></a>
+
+<div>
+<p><a href="db_254.html"><img src="next.gif" alt="next" /></a> <a href="db_252.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading253-0"></a>
+<h1>16.1.1   <a name="marker-9-692"></a>A new collection class</h1>
+<table border="1"><tr><th><p>The <code>sorted-sequence.dylan</code> file.</p></th></tr><tr>
+<td><p>module: sorted-sequence</p></td></tr><tr>
+<td><p>define class &lt;sorted-sequence&gt; (&lt;sequence&gt;)<br /><em>  // The vector that stores the elements of the sorted sequence, in order<br /></em>  slot data :: &lt;stretchy-vector&gt; = make(&lt;stretchy-vector&gt;, size: 0);<br /><em>  // The function used to extract the comparison value from an element<br /></em>  constant slot value-function :: &lt;function&gt; = identity,<br />    init-keyword: value-function:;<br /><em>  // The function used to determine whether one comparison value is <br />  // smaller than another comparison value<br /></em>  constant slot comparison-function :: &lt;function&gt; = \&lt;,<br />    init-keyword: comparison-function:;<br />end class &lt;sorted-sequence&gt;; </p></td></tr></table>
+<p> </p>
+<p> Because is there is a well-defined ordering of the elements of sorted sequences, we choose <code>&lt;sequence&gt;</code> to be the superclass of <code>&lt;sorted-sequence&gt;</code>. We use the built-in collection class called <code>&lt;stretchy-vector&gt;</code> to store the elements of our sorted sequence, because we want to be able to have the sorted sequence grow to any size in a convenient way.</p>
+<p>The slots <code>comparison-function</code> and <code>value-function</code> are constant slots, because we intend to have clients specify these functions only when they create the sorted sequence. If we had decided to let clients change the value of these slots, we would have made the slots virtual, so that we could reorder the data vector after either function had changed. </p>
+<p>Now that we have covered the structure and initialization of the sorted sequence data structure, we can define basic collection methods.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_254.html"><img src="next.gif" alt="next" /></a> <a href="db_252.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

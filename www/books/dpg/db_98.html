@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_92.html" />
+<link rel="prev" href="db_97.html" />
+<link rel="next" href="db_99.html" />
+<title>7.6   Meeting of angles and times</title>
+</head>
+<body>
+
+<div>
+<a name="heading98"></a>
+
+<div>
+<p><a href="db_99.html"><img src="next.gif" alt="next" /></a> <a href="db_97.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading98-0"></a>
+<h1>7.6   <a name="marker-9-269"></a>Meeting of angles and times</h1>
+<p> We can create a new superclass to combine times and angles. Sometimes, the trickiest part of defining superclasses that model characteristics shared by other classes is thinking of the right name for the superclass. Here, we use <code>&lt;sixty-unit&gt;</code> to name the class that has <code>total-seconds</code> that can be converted to either hours, minutes, and seconds, or to degrees, minutes, and seconds. In the methods for decoding and encoding total seconds, we use the name <code>max-unit</code> to refer to the unit that is hours for time, and degrees for positions.</p>
+<pre>
+define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
+end class &lt;sixty-unit&gt;;
+define method decode-total-seconds 
+    (sixty-unit :: &lt;sixty-unit&gt;)
+ =&gt; (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  decode-total-seconds(abs(sixty-unit.total-seconds));
+end method decode-total-seconds;
+define method encode-total-seconds 
+    (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;) 
+ =&gt; (total-seconds :: &lt;integer&gt;)
+  ((max-unit * 60) + minutes) * 60 + seconds;
+end method encode-total-seconds; 
+</pre>
+<p> We redefine the time and angle classes and methods to take advantage of the new <code>&lt;sixty-unit&gt;</code> class:</p>
+<pre>
+define abstract class &lt;time&gt; (&lt;sixty-unit&gt;)
+end class &lt;time&gt;; 
+define abstract class &lt;angle&gt; (&lt;sixty-unit&gt;)
+end class &lt;angle&gt;; 
+define method say (angle :: &lt;angle&gt;) =&gt; ()
+  let(degrees, minutes, seconds) = decode-total-seconds(angle);
+  format-out(&quot;%d degrees %d minutes %d seconds&quot;,
+             degrees, minutes, seconds);
+end method say; 
+<em>// definition unchanged, repeated for completeness
+</em>define abstract class &lt;directed-angle&gt; (&lt;angle&gt;)
+  slot direction :: &lt;string&gt;, init-keyword: direction:;
+end class &lt;directed-angle&gt;; 
+define method say (angle :: &lt;directed-angle&gt;) =&gt; ()
+  next-method();
+  format-out(&quot; %s&quot;, angle.direction);
+end method say; 
+<em>// definition unchanged, repeated for completeness
+</em>define class &lt;relative-angle&gt; (&lt;angle&gt;)
+end class &lt;relative-angle&gt;;
+<em>// we need to show degrees for &lt;relative-angle&gt;, but do not need to show
+// minutes and seconds,so we override the method on &lt;angle&gt;
+</em>define method say (angle :: &lt;relative-angle&gt;) =&gt; ()
+  format-out(&quot; %d degrees&quot;, decode-total-seconds(angle));
+end method say; 
+define method say (position :: &lt;relative-position&gt;) =&gt; ()
+  format-out(&quot;%d miles away at heading &quot;, position.distance);
+  say(position.angle);
+end method say; 
+</pre>
+<p> </p>
+<p> To see the complete library, and the test code that creates position instances and calls <code>say</code> on them, see <a href="db_103.html#marker-9-278">Chapter 8,  <em>A Simple Library</em></a>.</p>
+<p><a href="#marker-9-259">Figure 7.2</a> shows the inheritance relationships of the classes. When one class inherits from another, the relationship is sometimes called the <a name="marker-2-270"></a><strong>is-a relationship</strong>. For example, a direct instance of <code>&lt;time-offset&gt;</code> <em>is a</em> <code>&lt;time&gt;</code> as well, and it <em>is a</em> <code>&lt;sixty-unit&gt;</code>.</p>
+<table border="1"><caption>Figure 7.2   <a name="marker-9-259"></a>Is-a relationships (inheritance) among classes, shown by arrows. Abstract classes are shown in <em>oblique</em> <em>typewriter</em> <em>font.</em></caption><tr valign="top"><td><p> <img alt="db98im14" src="db98im14.gif" /></p>
+</td></tr></table><p>The classes have another kind of relationship as well -- one class can use another class as the type of a slot, in what is called the <a name="marker-2-271"></a><strong>has-a relationship</strong>. <a href="#marker-9-260">Figure 7.3</a> shows both the inheritance relationships, and the relationships of one class using another class as the type of a slot.</p>
+<p> </p>
+<p>    </p>
+<table border="1"><caption>Figure 7.3   <a name="marker-9-260"></a>Has-a relationships among classes, shown by dashed arrows.</caption><tr valign="top"><td><p> <img alt="db98im15" src="db98im15.gif" /></p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_99.html"><img src="next.gif" alt="next" /></a> <a href="db_97.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_145.html" />
+<link rel="prev" href="db_153.html" />
+<link rel="next" href="db_155.html" />
+<title>11.3.9   Changes to a generic function's signature</title>
+</head>
+<body>
+
+<div>
+<a name="heading154"></a>
+
+<div>
+<p><a href="db_155.html"><img src="next.gif" alt="next" /></a> <a href="db_153.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading154-0"></a>
+<h1>11.3.9   <a name="marker-9-417"></a>Changes to a generic function's <a name="marker-2-418"></a>signature</h1>
+<p> Note that the <code>my-copy-sequence</code> method defined in <a href="db_153.html#marker-9-415">Section 11.3.8</a> has a parameter list that is not congruent with the parameter list of the generic function. That is, that method accepts the <code>start:</code> and <code>end:</code> keyword arguments, when previously only required arguments were allowed for that generic function. We did not explicitly define the <code>my-copy-sequence</code> generic function; Dylan created the generic function implicitly, when we defined the first method for it, in <a href="db_146.html#marker-9-395">Section 11.3.1</a>. The generic function accepts two required parameters, and no keyword parameters.</p>
+<p>When you need to change the signature of a generic function, you must change all the methods for that generic function to have a compatible signature. In our example, we would have to fix the <code>my-copy-sequence</code> method for lists to accept the <code>start:</code> and <code>end:</code> keyword arguments, and would have to change the methods to operate on only a portion of the list provided. For more information about the congruence rules for methods of a generic function, see <a href="db_179.html#marker-9-529">Section 12.2.5, page 176</a>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_155.html"><img src="next.gif" alt="next" /></a> <a href="db_153.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-transitional.lid">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_223.html" />
+<link rel="prev" href="db_235.html" />
+<link rel="next" href="db_237.html" />
+<title>14.4   The angle library</title>
+</head>
+<body>
+
+<div>
+<a name="heading236"></a>
+
+<div>
+<p><a href="db_237.html"><img src="next.gif" alt="next" /></a> <a href="db_235.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading236-0"></a>
+<h1>14.4   The <code>angle</code> library</h1>
+<p> The <code>angle</code> library is the second client of the <code>sixty-unit</code> substrate. The <code>angle</code> library extends the <code>say</code> protocol to handle objects of the classes that it defines, such as <code>&lt;latitude&gt;</code>, <code>&lt;longitude&gt;</code>, and <code>&lt;absolute-position&gt;</code>. For the time being, we have included positions with angles, as we do not foresee any benefit to breaking them out into yet another library, at least for the current application. Nevertheless, we have defined separate interface and implementation modules for positions, and we have broken out the position source records into a separate interchange file. </p>
+<p>Like with the <code>time</code> library, the <code>angle</code> library file does not have to specify the use of the <code>format-out</code> library. It will be transitively included because it is exported by the <code>say</code> library. Similarly, clients of the <code>angle</code> library do not need to know anything about the <code>say</code> and <code>sixty-unit</code> libraries, since those libraries are imported and re-exported to clients of <code>angle</code>.</p>
+<p>Note that the <code>position-implementation</code> module uses the <code>angle</code> module -- it is an internal client of the <code>angle</code> module. This structure means that we can easily break out positions as a separate library, should the need arise.</p>
+<p>Also note that we have used the <code>angle</code> interface module to enforce access control on the <code>internal-direction</code> slot. It should be accessed only through the <code>direction</code> and <code>direction-setter</code> methods, which ensure that valid values are used for our <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> classes. Because only the approved generic functions are created in the interface module, only they will be accessible to clients of the <code>angle</code> library. The <code>internal-direction</code> slot is truly internal to the <code>angle</code> library -- no client library can even determine its existence.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_237.html#heading237-0"><strong>14.4.1  </strong> - The angle-library file</a></li>
+<li><a rel="below" href="db_238.html#heading238-0"><strong>14.4.2  </strong> - The angle implementation file</a></li>
+<li><a rel="below" href="db_239.html#heading239-0"><strong>14.4.3  </strong> - The position implementation file</a></li>
+<li><a rel="below" href="db_240.html#heading240-0"><strong>14.4.4  </strong> - The angle LID file</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_237.html"><img src="next.gif" alt="next" /></a> <a href="db_235.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

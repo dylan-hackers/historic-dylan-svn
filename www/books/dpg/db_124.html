@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_122.html" />
+<link rel="prev" href="db_123.html" />
+<link rel="next" href="db_125.html" />
+<title>10.2.2   Setter methods</title>
+</head>
+<body>
+
+<div>
+<a name="heading124"></a>
+
+<div>
+<p><a href="db_125.html"><img src="next.gif" alt="next" /></a> <a href="db_123.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading124-0"></a>
+<h1>10.2.2   <a name="marker-9-327"></a>Setter methods</h1>
+<p> In most cases, the getter and setter methods that Dylan defines for each slot are perfectly adequate. In certain cases, however, you might want to change the way a getter or setter works. </p>
+<p>For example, we can define a setter method to solve a problem in our time library. The class <code>&lt;time-of-day&gt;</code> inherits the <code>total-seconds</code> slot from the class <code>&lt;sixty-unit&gt;</code>. The type of the slot is <code>&lt;integer&gt;</code>. However, the semantics of <code>&lt;time-of-day&gt;</code> state that the <code>total-seconds</code> should not be less than 0. We can define a setter method for <code>&lt;time-of-day&gt;</code> to ensure that the new value for the total-seconds slot is 0 or greater. </p>
+<p>In our setter method, we will use the type defined in <a href="db_112.html#marker-9-295">Section 9.2, page 110</a>, and repeated here:</p>
+<pre>
+<em>// Define nonnegative integers as integers that are &gt;= zero
+</em>define constant &lt;nonnegative-integer&gt; = limited(&lt;integer&gt;, min: 0);
+</pre>
+<p> The setter method is as follows:</p>
+<pre>
+define method total-seconds-setter
+    (total-seconds :: &lt;integer&gt;, time :: &lt;time-of-day&gt;)
+ =&gt; (total-seconds :: &lt;nonnegative-integer&gt;)
+  if (total-seconds &gt;= 0)
+    next-method();
+  else
+    error(&quot;%d is invalid. total-seconds cannot be negative.&quot;, total-seconds);
+  end if;
+end method total-seconds-setter;
+</pre>
+<p> When the setter for the <code>total-seconds</code> slot is called with an instance of <code>&lt;time-of-day&gt;</code>, the preceding method will be invoked, because it is more specific than the method that Dylan generated on the <code>&lt;sixty-unit&gt;</code> class. If the new value for the <code>total-seconds</code> slot is valid (that is, is greater than or equal to 0), then this method calls <code>next-method</code>, which invokes the setter method on <code>&lt;sixty-unit&gt;</code>. If the new value is less than 0, an error is signaled. </p>
+<p>The following example show what happens when you call <code>total-seconds-setter</code> with a negative value for <code>total-seconds</code>:</p>
+<pre>
+<em>? </em>begin
+    let test-time-of-day = make(&lt;time-of-day&gt;);
+    test-time-of-day.total-seconds := -15;
+  end;
+<em>ERROR: -15 is invalid. total-seconds cannot be negative.</em>
+</pre>
+<p> This setter method ensures that no one can assign an invalid value to the slot. For completeness, we must also ensure that no one can initialize the slot to an invalid value. The way to do that is to define an <code>initialize</code> method, as shown in <a href="db_126.html#marker-9-331">Section 10.3</a>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_125.html"><img src="next.gif" alt="next" /></a> <a href="db_123.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

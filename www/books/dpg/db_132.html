@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_127.html" />
+<link rel="prev" href="db_131.html" />
+<link rel="next" href="db_133.html" />
+<title>10.4.5   Init expressions</title>
+</head>
+<body>
+
+<div>
+<a name="heading132"></a>
+
+<div>
+<p><a href="db_133.html"><img src="next.gif" alt="next" /></a> <a href="db_131.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading132-0"></a>
+<h1>10.4.5   I<a name="marker-2-344"></a>nit expressions</h1>
+<p> An <strong>init expression</strong> is another way of providing a default slot value. Here is an example:</p>
+<pre>
+define class &lt;time-of-day&gt; (&lt;time&gt;)
+  inherited slot total-seconds = get-current-time();
+end class &lt;time-of-day&gt;;
+</pre>
+<p> Every time that we make an instance of the <code>&lt;time-of-day&gt;</code> class and we need a default value for the <code>total-seconds</code> slot, the expression <code>get-current-time();</code> is evaluated to provide an initial value. </p>
+<p>An init expression specifies an expression. Every time that an instance is made and the slot needs a default value, this expression is evaluated and its value is used as the default.</p>
+<p>Notice the similarity between the <code>init-function:</code> slot option and an init expression. In fact, the following slot specifications are equivalent:</p>
+<pre>
+  inherited slot total-seconds, init-function: get-current-time;
+  inherited slot total-seconds = get-current-time();
+</pre>
+<p> That substitution works for functions that have no required arguments. More generally, the following slot specifications are equivalent:</p>
+<pre>
+  slot <em>slot</em> = <em>expression</em>;
+  slot <em>slot</em>, init-function: method () <em>expression</em> end method;
+</pre>
+<p> The expression can be a call to a function that requires arguments. Here, we use <a name="marker-2-345"></a><code>method</code> to define a method with no name.</p>
+<p>The <code>init-value:</code> slot option, <code>init-function:</code> slot option, and init expression are mutually exclusive. A given slot specification can have only one of these.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_133.html"><img src="next.gif" alt="next" /></a> <a href="db_131.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

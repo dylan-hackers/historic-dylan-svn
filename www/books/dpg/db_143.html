@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_141.html" />
+<link rel="prev" href="db_142.html" />
+<link rel="next" href="db_144.html" />
+<title>11.2.2   Creation of vectors and access to elements</title>
+</head>
+<body>
+
+<div>
+<a name="heading143"></a>
+
+<div>
+<p><a href="db_144.html"><img src="next.gif" alt="next" /></a> <a href="db_142.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading143-0"></a>
+<h1>11.2.2   <a name="marker-9-381"></a>Creation of <a name="marker-2-382"></a>vectors and access to elements</h1>
+<p> There are several ways to create collections. One way is to create a collection by using <code>make</code>. For example, here we create a vector that contains two elements:</p>
+<pre>
+<em>? </em>define variable *my-vector* = make(&lt;vector&gt;, size: 2);
+</pre>
+<p> We can change the first and second elements: </p>
+<pre>
+<em>? </em>*my-vector*[0] := 5;
+<em>5</em>
+<em>? </em>*my-vector*[1] := 3;
+<em>3</em>
+<em>? </em>*my-vector*;
+<em>#[5, 3]</em>
+</pre>
+<p> If you want to create a sequence of a certain size, with every element having the same value, you can specify a <code>fill</code> keyword argument to <code>make</code>. The default value for the <code>fill</code> keyword parameter is <code>#f</code>. Thus, if you had read an element of <code>*my-vector*</code> before you wrote numbers into it, you would have received <code>#f</code>.</p>
+<p>We can create and initialize a vector to different values all at once by using a built-in constructor. A <a name="marker-2-383"></a><strong>constructor</strong> is a function that creates an instance; using it is a shorthand for calling <code>make</code>. Here, we use the <a name="marker-2-384"></a><code>vector</code> constructor function to create a vector and to initialize it with data.</p>
+<pre>
+<em>?</em> define variable *my-vector* = vector(5, 3);
+<em>?</em> *my-vector*;
+<em>#[5, 3]</em>
+</pre>
+<p> As we saw in <a href="db_142.html#marker-9-376">Section 11.2.1</a>, certain collections have a literal syntax that enables you to specify a particular data structure as part of the program: </p>
+<pre>
+<em>? </em>define variable *my-vector* = #[5, 3];
+<em>? </em>*my-vector*;
+<em>#[5, 3]</em>
+</pre>
+<p> <a href="#marker-9-368">Figure 11.2</a> shows how you can picture the vector that we just created.</p>
+<table border="1"><caption>Figure 11.2   <a name="marker-9-368"></a>Diagram of the vector <code>#[5, 3]</code>.</caption><tr valign="top"><td><p> <img alt="db14im17" src="db14im17.gif" /></p>
+</td></tr></table><p> You might think that <code>*my-vector*</code> is a direct instance of <code>&lt;vector&gt;</code>, but it is not: The <code>&lt;vector&gt;</code> class is abstract, but instantiable. When you use the <code>vector</code> function, or use <code>make</code> with <code>&lt;vector&gt;</code>, the result is a general instance of <a name="marker-2-385"></a><code>&lt;simple-object-vector&gt;</code>. You specify the size of a <code>&lt;simple-object-vector&gt;</code> when you create one, and you cannot change that size later. If you need a vector that can change size, use the <a name="marker-2-386"></a><code>&lt;stretchy-vector&gt;</code> class. See <a href="db_253.html#marker-9-692">Section 16.1.1, page 246</a>, for an example that uses stretchy vectors. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_144.html"><img src="next.gif" alt="next" /></a> <a href="db_142.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

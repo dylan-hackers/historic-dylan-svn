@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_295.html" />
+<link rel="prev" href="db_314.html" />
+<link rel="next" href="db_316.html" />
+<title>19.15   Summary</title>
+</head>
+<body>
+
+<div>
+<a name="heading315"></a>
+
+<div>
+<p><a href="db_316.html"><img src="next.gif" alt="next" /></a> <a href="db_314.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading315-0"></a>
+<h1>19.15   <a name="marker-10-808"></a>Summary</h1>
+<p> The most important point about performance is that it is important to pay attention to efficiency during the entire design and development cycle of a project. During the design phase, try to ensure that the algorithms chosen have the right asymptotic behavior and constant factors, and that it is possible to implement the needed operations efficiently. During the implementation phase, use the language constructs that most clearly express what the program is doing. Once the program is working correctly, it is then time to add type and sealing declarations, and to use metering and profiling tools to find and rewrite heavily used, slow parts of the program, in order to improve the performance.</p>
+<p>One of the most important considerations when programming is not to worry about performance too soon. It is always more important that your design and implementation be clear and correct, first. There is no value in arriving at an answer with lightning speed, if it turns out to be the wrong answer.</p>
+<p>In this chapter, we covered the following:</p>
+<ul>
+<li><p>We showed how Dylan can balance performance and flexibility to support a range of programming requirements.</p></li>
+<li><p>We showed how type constraints affect performance.</p></li>
+<li><p>We showed how limited types can improve performance.</p></li>
+<li><p>We showed how open generic functions provide modularity and flexibility.</p></li>
+<li><p>We showed how open classes provide modularity and flexibility.</p></li>
+<li><p>We showed how sealed generic function domains mitigate the performance penalty of open classes and generic functions.</p></li>
+<li><p>We showed how primary classes permit efficient slot access. </p></li>
+<li><p>We presented both an execution and efficiency model that provides a conceptual model of how a program in Dylan runs, and what the relative cost of different program elements are.</p></li>
+<li><p>We examined the method constructs for flexibility and performance available in Dylan; see <a href="#marker-9-752">Table 19.1</a>.</p></li>
+</ul>
+<p> </p>
+<table border="1"><caption>Table 19.1   <a name="marker-9-752"></a>Methods: flexibility versus performance.</caption><tr valign="top"><th><p>Construct</p>
+</th><th><p>Effects</p>
+</th></tr><tr valign="top"><td><p> direct method</p>
+</td><td><p> highly optimizable<br />no method dispatch</p>
+</td></tr><tr valign="top"><td><p> sealed generic function on a sealed class</p>
+</td><td><p> highly optimizable<br />not extensible by other libraries</p>
+</td></tr><tr valign="top"><td><p> sealed generic function on an open class</p>
+</td><td><p> optimizable<br />other libraries can subclass</p>
+</td></tr><tr valign="top"><td><p> open generic function on an open class<br />in a sealed domain</p>
+</td><td><p> highly optimizable<br />other libraries can add methods<br />other libraries can subclass</p>
+</td></tr><tr valign="top"><td><p> open generic function on an open class</p>
+</td><td><p> not optimizable<br />methods can be added at run time<br />subclasses can be created at run time</p>
+</td></tr></table><ul>
+<li><p>We discussed the constructs that can <a name="marker-2-809"></a>have type constraints, and the influence on performance or flexibility of using such a declaration; see <a href="#marker-9-754">Table 19.2</a>.</p></li>
+</ul><table border="1"><caption>
+Table 19.2   <a name="marker-9-754"></a>Type constraint: flexibility versus performance.
+</caption><tr valign="top"><th><p>Construct</p>
+</th><th><p>Effects</p>
+</th></tr><tr valign="top"><td><p> module constants</p>
+</td><td><p> enforce program correctness</p>
+</td></tr><tr valign="top"><td><p> module variables</p>
+</td><td><p> permit type inferencing</p>
+</td></tr><tr valign="top"><td><p> required parameters</p>
+</td><td><p> required for method dispatch<br />permit type inferencing</p>
+</td></tr><tr valign="top"><td><p> optional parameters</p>
+</td><td><p> permit type inferencing</p>
+</td></tr><tr valign="top"><td><p> return values</p>
+</td><td><p> enforce program correctness<br />permit type inferencing</p>
+</td></tr><tr valign="top"><td><p> limited types</p>
+</td><td><p> permit type inferencing<br />permit compact data representation</p>
+</td></tr><tr valign="top"><td><p>  slots</p>
+</td><td><p> permit type inferencing</p>
+</td></tr></table><a name="link-perform-lastpage"></a><a name="link-nexcept-firstpage"></a><!-- FM pgf ignored -->
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_316.html"><img src="next.gif" alt="next" /></a> <a href="db_314.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

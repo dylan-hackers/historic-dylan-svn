@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_127.html" />
+<link rel="prev" href="db_130.html" />
+<link rel="next" href="db_132.html" />
+<title>10.4.4   The init-function: slot option</title>
+</head>
+<body>
+
+<div>
+<a name="heading131"></a>
+
+<div>
+<p><a href="db_132.html"><img src="next.gif" alt="next" /></a> <a href="db_130.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading131-0"></a>
+<h1>10.4.4   <a name="marker-9-342"></a>The <a name="marker-2-343"></a><em>init-function:</em> slot option</h1>
+<p> We can use the <code>init-function:</code> slot option to provide a function of no arguments to be called to return a default initial value for the slot. These functions are called <strong>init functions</strong>. They allow the initial value of a slot to be an arbitrary <br />computation. </p>
+<pre>
+define class &lt;time-of-day&gt; (&lt;time&gt;)
+  inherited slot total-seconds, init-function: get-current-time;
+end class &lt;time-of-day&gt;;
+</pre>
+<p> Every time that we make an instance of the <code>&lt;time-of-day&gt;</code> class and we need a default value for the <code>total-seconds</code> slot, the <code>get-current-time</code> function is called to provide an initial value. Here, we assume that <code>get-current-time</code> is available as a library function; it is not part of the core Dylan language.</p>
+<p>The <code>init-function:</code> slot option specifies an expression that is evaluated once, before the first instance of the class is made, to yield a function. The function must have no required arguments and must return at least one value. Every time that an instance is made and the slot needs a default value, this function is called with no arguments, and the value that it returns is used as the default. An init function is called during instance creation when no keyword argument is defined or when an optional keyword argument is not passed to <code>make</code>. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_132.html"><img src="next.gif" alt="next" /></a> <a href="db_130.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

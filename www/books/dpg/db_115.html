@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_113.html" />
+<link rel="prev" href="db_114.html" />
+<link rel="next" href="db_116.html" />
+<title>9.3.2   Method dispatch and singletons</title>
+</head>
+<body>
+
+<div>
+<a name="heading115"></a>
+
+<div>
+<p><a href="db_116.html"><img src="next.gif" alt="next" /></a> <a href="db_114.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading115-0"></a>
+<h1>9.3.2   <a name="marker-9-302"></a>Method <a name="marker-2-303"></a>dispatch and singletons</h1>
+<p> When a type is a singleton, Dylan uses the following rules:</p>
+<p>1.  An object is an instance of a singleton only if the object is identical to the object used as the argument in the call to <code>singleton</code> that created the <br />singleton.</p>
+<p>2.  A singleton is a proper subtype of any other type that the object belongs to. Thus, a singleton is more specific than any other type of which an object is an instance. In particular, a singleton is more specific than the object's class.</p>
+<p> For example, suppose that we have these definitions:</p>
+<pre>
+<em>// Method 1
+</em>define method say (x :: &lt;integer&gt;) ... end method say;
+<em>// Method 2
+</em>define method say (x == 0) ... end method say;
+</pre>
+<p> Note that method 2 illustrates a convenient syntax for defining a method on a singleton without calling <code>singleton</code> explicitly.</p>
+<p>Now, if <code>say</code> is called with an argument of <code>0</code>, both methods are applicable, and method 2 is more specific than method 1. If <code>say</code> is called with an argument that is any other integer, only method 1 is applicable.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_116.html"><img src="next.gif" alt="next" /></a> <a href="db_114.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

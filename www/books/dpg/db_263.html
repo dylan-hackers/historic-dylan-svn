@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_262.html" />
+<link rel="prev" href="db_262.html" />
+<link rel="next" href="db_264.html" />
+<title>17.2.1   Physical objects</title>
+</head>
+<body>
+
+<div>
+<a name="heading263"></a>
+
+<div>
+<p><a href="db_264.html"><img src="next.gif" alt="next" /></a> <a href="db_262.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading263-0"></a>
+<h1>17.2.1   Physical objects</h1>
+<p> The classes that follow describe fundamental attributes of tangible objects.</p>
+<p> </p>
+<table border="1"><tr valign="top"><th><p> The <code>airport-classes.dylan</code> file. </p>
+</th></tr><tr valign="top"><td><pre>
+module: airport
+<em>// PHYSICAL OBJECTS AND SIZE</em>
+<em>// Used to keep track of object dimensions and object capacities
+// All dimensions are in feet
+</em>define class &lt;size&gt; (&lt;object&gt;)
+  slot length :: &lt;positive-integer&gt;, init-keyword: length:;
+  slot width :: &lt;positive-integer&gt;, init-keyword: width:;
+  slot height :: &lt;positive-integer&gt;, init-keyword: height:;
+end class &lt;size&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define abstract class &lt;physical-object&gt; (&lt;object&gt;)
+  slot current-position :: &lt;position&gt;, init-keyword: current-position:;
+  slot physical-size :: &lt;size&gt;, init-keyword: physical-size:;
+end class &lt;physical-object&gt;; 
+</pre></td></tr><tr valign="top"><td><pre>define method say (physical-object :: &lt;physical-object&gt;) =&gt; ()
+  format-out(&quot;object at &quot;);
+  say(physical-object.current-position);
+end method say; 
+</pre></td></tr></table>
+<p> In the preceding portion of the <code>airport-classes.dylan</code> file, we define the class <code>&lt;size&gt;</code>, which allows us to specify the external dimensions and container volume of various objects. For example, we might want to specify that certain gate areas might be too small to hold the large aircraft. We also define the base class for all tangible objects, <code>&lt;physical-object&gt;</code>.</p>
+<p>Next, we define the classes where aircraft are normally located.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_264.html"><img src="next.gif" alt="next" /></a> <a href="db_262.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

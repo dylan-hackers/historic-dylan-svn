@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_309.html" />
+<link rel="prev" href="db_309.html" />
+<link rel="next" href="db_311.html" />
+<title>19.14.1   Efficiency of generic function calls</title>
+</head>
+<body>
+
+<div>
+<a name="heading310"></a>
+
+<div>
+<p><a href="db_311.html"><img src="next.gif" alt="next" /></a> <a href="db_309.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading310-0"></a>
+<h1>19.14.1   Efficiency of generic function calls</h1>
+<p> In addition to using type inferencing and sealed domains, another way to speed up generic function calls when they must dispatch at run time is to cache the return values of previous calls. So, for example, the first time that a given generic function is called with certain classes of arguments, the full sorted sequence of applicable methods is computed; after that, however, it only to be only looked up in a table. Thus, if the generic function is called often with the same type of <br />arguments, most calls will be fast. This technique is used in other object-oriented languages, such as <a name="marker-2-800"></a>Smalltalk and <a name="marker-2-801"></a>CLOS, and is useful for speeding up completely dynamic situations. Most good Dylan compilers will use some form of cached <br />dispatching.</p>
+<p>A second form of cached dispatching is called <strong>call-site caching<a name="marker-2-802"></a></strong>. Although a generic function may have many calls throughout a program, often the types of arguments passed are directly related to where (that is, in what other method) the call is made. Some Dylan compilers will cache the types and methods of each call at the point of call, and will use this cache to avoid dispatch if the same types are passed as arguments in a subsequent call from the same place.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_311.html"><img src="next.gif" alt="next" /></a> <a href="db_309.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_309.html" />
+<link rel="prev" href="db_312.html" />
+<link rel="next" href="db_314.html" />
+<title>19.14.4   Inlining, constant folding, and partial evaluation</title>
+</head>
+<body>
+
+<div>
+<a name="heading313"></a>
+
+<div>
+<p><a href="db_314.html"><img src="next.gif" alt="next" /></a> <a href="db_312.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading313-0"></a>
+<h1>19.14.4   Inlining, constant folding, and partial evaluation</h1>
+<p> One optimization that is common in many computer languages is <strong>inlining<a name="marker-2-805"></a></strong>. <a name="marker-2-806"></a>Inlining replaces a call to a known function with the body of the function. Inlining is an important optimization in Dylan, because almost all Dylan operations -- slot access, array indexing, and collection iteration -- involve function calls. </p>
+<p>All good Dylan compilers, when compiling for speed, can be aggressive about inlining any computations, as long as doing so would not make a program grow too large. Constant folding (evaluating expressions involving constant values at compile time) and inlining are just two of the <a name="marker-2-807"></a><strong>partial-evaluation</strong> techniques that you should expect to find in any good Dylan compiler.</p>
+<p> </p>
+<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-756"></a>C:</strong> A programmer familiar with the optimizations done in C compilers can think of partial evaluation as an extreme combination of inlining and constant folding. One way in which Dylan has an advantage over C for partial evaluation is that it hard for a compiler to evaluate expressions that involve dereferencing pointers. For example, in C, it is difficult to evaluate partially a call to <br /><code>malloc</code>, but Dylan compilers can often evaluate a call to <code>make</code> at compile time.</p>
+</td></tr></table><p> </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_314.html"><img src="next.gif" alt="next" /></a> <a href="db_312.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

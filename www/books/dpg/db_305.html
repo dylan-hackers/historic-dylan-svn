@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_295.html" />
+<link rel="prev" href="db_304.html" />
+<link rel="next" href="db_306.html" />
+<title>19.10   Open classes</title>
+</head>
+<body>
+
+<div>
+<a name="heading305"></a>
+
+<div>
+<p><a href="db_306.html"><img src="next.gif" alt="next" /></a> <a href="db_304.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading305-0"></a>
+<h1>19.10   <a name="marker-9-786"></a>Open cl<a name="marker-2-787"></a>asses</h1>
+<p> By default, classes are <strong>sealed</strong>. When you use <code>define class<a name="marker-2-788"></a></code>, that is the same as using <code>define sealed class</code>. Other libraries cannot directly subclass a sealed class -- they cannot define new classes that have your sealed class as a direct superclass. The only direct subclasses of the class are those subclasses that are defined in the library where the class itself is defined. Extensive optimization opportunities occur when the methods of a sealed generic function are specialized on sealed classes. In this case, the compiler can usually choose the correct method of the generic function to call at compile time, eliminating any run-time overhead for using a generic function.</p>
+<p>We saw in <a href="db_190.html#marker-9-610">Chapter 13,  <em>Libraries and Modules</em></a>, that we must define a class that is a shared substrate, such as <code>&lt;sixty-unit&gt;</code>, using <code>define open class</code>, if the libraries sharing the substrate are expected to subclass the class. If we did not define the class to be open, other libraries would be prevented from subclassing it -- which might be reasonable if the substrate were not intended to be extended by subclassing.</p>
+<p>Unlike an open generic function, an open class does not prevent all optimization. If a generic function has a method applicable to an open class, but the generic function is sealed, then the compiler might still be able to optimize method dispatch if that compiler can infer the types of the arguments to the generic function at a particular call. Sometimes, the dispatch code will be slightly less optimal, because it must allow for arbitrary subclasses, rather than a fixed set of subclasses; in general, however, opening a class is less costly than is opening a generic function.</p>
+<p>Note that, although you cannot directly subclass a sealed class from another library, you can subclass a sealed class in the library that defines the sealed class. It may not be obvious, but a corollary of this rule of sealing is that you can define an <strong>open subclass</strong> of a sealed class in the library that defines the sealed class. Using a sealed class with an open subclass is one simple way to get both flexibility and efficiency -- the classes in the sealed branch will be optimized by the compiler, while the open subclass can be exported for other libraries to build on and extend.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_306.html"><img src="next.gif" alt="next" /></a> <a href="db_304.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

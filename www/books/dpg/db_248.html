@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_243.html" />
+<link rel="prev" href="db_247.html" />
+<link rel="next" href="db_249.html" />
+<title>15.5   Sorted sequences</title>
+</head>
+<body>
+
+<div>
+<a name="heading248"></a>
+
+<div>
+<p><a href="db_249.html"><img src="next.gif" alt="next" /></a> <a href="db_247.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading248-0"></a>
+<h1>15.5   <a name="marker-2-684"></a>Sorted sequences</h1>
+<p> Part of what <code>process-aircraft</code> will do in our example is to generate a collection of possible transition steps for aircraft in or around the airport. For example, if an aircraft is on the runway, then one possible transition step would be to move the aircraft to the taxiway. If there are many aircraft in the airport, there are many possible transitions that might take place at various time. The <code>process-aircraft</code> method needs to consider these transitions in order. That is, if an aircraft is ready to land on a runway in 5 minutes, but another one is ready to take off in 2 minutes, <code>process-aircraft</code> should attempt to complete the take-off transition before completing the landing transition. To keep these transitions in time order, we use a collection called a <strong>sorted sequence</strong>.</p>
+<p>Dylan does not provide a sorted sequence class in its built-in collection library. However, Dylan does provide an extensible collection framework that permits us to define sorted sequences ourselves. In fact, Dylan already provides all the generic functions that we need to interact with sorted sequences: <code>size</code>, <code>shallow-copy</code>, <code>element</code>, <code>add!</code>, <code>pop</code>, <code>remove!</code>, and <code>forward-iteration-<br />protocol</code>. We just need to provide methods for each of these generic functions that implement these operations for sorted sequences. By defining a method for <code>forward-iteration-protocol</code>, we allow sorted sequences to work with the standard Dylan collection iterators discussed in <a href="db_139.html#marker-9-374">Chapter 11,  <em>Collections and Control Flow</em></a>. Because sorted sequences are generally useful, we define them in their own library, in the same manner as we did the time and angle components.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_249.html"><img src="next.gif" alt="next" /></a> <a href="db_247.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_190.html" />
+<link rel="prev" href="db_211.html" />
+<link rel="next" href="db_213.html" />
+<title>13.8   Component library</title>
+</head>
+<body>
+
+<div>
+<a name="heading212"></a>
+
+<div>
+<p><a href="db_213.html"><img src="next.gif" alt="next" /></a> <a href="db_211.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading212-0"></a>
+<h1>13.8   <a name="marker-9-653"></a>Component library</h1>
+<p> In previous examples, we have shown how the <code>&lt;angle&gt;</code> class can use the <code>&lt;sixty-unit&gt;</code> class as a base class. We could have simply included the <code>&lt;angle&gt;</code> class in our time library (presumably calling it a time-and-angle library), but it seems plausible that clients might not want both classes all the time. Another organization would be to make an angle library that uses the time library, which would be burdensome only to clients who want angles without time. Clearly, the right solution is to make a separate <code>sixty-unit</code> library that is shared by the time and angle libraries.</p>
+<p>Because we had already broken out <code>sixty-unit</code> into a separate module and file, we can create this new organization by</p>
+<ul>
+<li><p>Moving the <code>sixty-unit</code> module to its own library file</p></li>
+<li><p>Updating the <code>time</code> library file</p></li>
+<li><p>Opening the <code>&lt;sixty-unit&gt;</code> class</p></li>
+</ul>
+<p> Note that no changes are required to the <code>time</code> implementation file, so we do not present it again.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_213.html#heading213-0"><strong>13.8.1  </strong> - The sixty-unit-library file</a></li>
+<li><a rel="below" href="db_214.html#heading214-0"><strong>13.8.2  </strong> - The updated time-library file</a></li>
+<li><a rel="below" href="db_215.html#heading215-0"><strong>13.8.3  </strong> - The updated sixty-unit implementation file</a></li>
+<li><a rel="below" href="db_216.html#heading216-0"><strong>13.8.4  </strong> - Two LID files</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_213.html"><img src="next.gif" alt="next" /></a> <a href="db_211.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_243.html" />
+<link rel="prev" href="db_246.html" />
+<link rel="next" href="db_248.html" />
+<title>15.4   The vehicle-container protocol</title>
+</head>
+<body>
+
+<div>
+<a name="heading247"></a>
+
+<div>
+<p><a href="db_248.html"><img src="next.gif" alt="next" /></a> <a href="db_246.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading247-0"></a>
+<h1>15.4   <a name="marker-9-683"></a>The vehicle-container protocol</h1>
+<p> Once the aircraft approaches the airport, it enters a set of connected containers on its way inbound to a particular gate. The aircraft eventually turns around and heads outbound toward the sky. The vehicle-container protocol manages the transition of aircraft from one container to another. The generic functions that make up this protocol are summarized next. For all the generic functions that follow, the value of the <em>vehicle</em> parameter must be an instance of <code>&lt;vehicle&gt;</code>, the value of the <em>container</em> parameter must be an instance of <code>&lt;vehicle-storage&gt;</code>, and the value of the <em>direction</em> parameter must be either the symbol <code>#&quot;inbound&quot;</code> or <code>#&quot;outbound&quot;</code>.</p>
+<strong>available? <em>vehicle container direction</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function returns true if there is space in <em>container</em> for <em>vehicle</em> to enter for traveling in <em>direction</em>.</p>
+<strong>move-in-vehicle <em>vehicle container direction</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function moves the <em>vehicle</em> into the <em>container</em> in the <em>direction</em> given. </p>
+<strong>move-out-vehicle <em>vehicle container direction</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function moves the <em>vehicle</em> out of the <em>container</em> in the <em>direction</em> given. </p>
+<strong>next-out <em>container direction</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function determines what vehicle, if any, could move to the next container. If there is such a vehicle, then <code>next-out</code> returns the vehicle, the next container in the direction of travel, and the time it would take to make that <br />transition.</p>
+<strong>next-landing-step <em>container vehicle</em></strong>
+<p><var><em>Generic Function</em></var></p>
+<p>This generic function returns two values. The first value is the class of the next container into which <em>vehicle</em> may move from <em>container</em>. The second value is how long it will take <em>vehicle</em> to move into the next container. This generic function is used by the <code>next-out</code> generic function to accomplish part of the latter's work.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_248.html"><img src="next.gif" alt="next" /></a> <a href="db_246.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

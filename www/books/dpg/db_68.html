@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_63.html" />
+<link rel="prev" href="db_67.html" />
+<link rel="next" href="db_69.html" />
+<title>5.2   Class inheritance</title>
+</head>
+<body>
+
+<div>
+<a name="heading68"></a>
+
+<div>
+<p><a href="db_69.html"><img src="next.gif" alt="next" /></a> <a href="db_67.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading68-0"></a>
+<h1>5.2   <a name="marker-9-209"></a>Class inheritance</h1>
+<p> We have defined two simple classes, <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code>. We repeat the definitions here:</p>
+<pre>
+<em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)
+</em>define class &lt;time-of-day&gt; (&lt;object&gt;)
+  slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
+end class &lt;time-of-day&gt;;
+<em>// A relative time between -24:00 and +24:00
+</em>define class &lt;time-offset&gt; (&lt;object&gt;)<em> 
+</em>  slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;<em> 
+</em>end class &lt;time-offset&gt;;
+</pre>
+<p> There is commonality between the two classes: </p>
+<ul>
+<li><p>Both classes represent a kind of time -- they have a conceptual basis in common. </p></li>
+<li><p>Both classes have a <code>total-seconds</code> slot -- they have structure in common.</p></li>
+<li><p>Both classes need a <code>decode-total-seconds</code> method to convert the <code>total-seconds</code> slot to hours, minutes, and seconds -- they have behavior in <br />common.</p></li>
+</ul>
+<p> We can use inheritance to model the shared aspects of these two classes directly. We need to define a new class, such as <code>&lt;time&gt;</code>, and to redefine the two classes to inherit from <code>&lt;time&gt;</code>. The <code>&lt;time&gt;</code> class will contain the slot <code>total-seconds,</code> and the other two classes will inherit that slot. We shall redefine the <code>decode-total-seconds</code> method such that its parameter is of the <code>&lt;time&gt;</code> type, which means that it can be called for instances of <code>&lt;time-of-day&gt;</code> and of <code>&lt;time-offset&gt;</code>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_69.html#heading69-0"><strong>5.2.1  </strong> - New definitions of the time classes</a></li>
+<li><a rel="below" href="db_70.html#heading70-0"><strong>5.2.2  </strong> - Slot inheritance</a></li>
+<li><a rel="below" href="db_71.html#heading71-0"><strong>5.2.3  </strong> - Existing instances of the classes</a></li>
+<li><a rel="below" href="db_72.html#heading72-0"><strong>5.2.4  </strong> - Relationships of the time classes</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_69.html"><img src="next.gif" alt="next" /></a> <a href="db_67.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

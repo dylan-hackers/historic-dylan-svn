@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_64.html" />
+<link rel="prev" href="db_64.html" />
+<link rel="next" href="db_66.html" />
+<title>5.1.1   Reasons for defining two similar classes</title>
+</head>
+<body>
+
+<div>
+<a name="heading65"></a>
+
+<div>
+<p><a href="db_66.html"><img src="next.gif" alt="next" /></a> <a href="db_64.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading65-0"></a>
+<h1>5.1.1   Reasons for defining two similar classes</h1>
+<p> The <code>&lt;time-offset&gt;</code> class is similar to the <code>&lt;time-of-day&gt;</code> class. They both define a <code>total-seconds</code> slot. Why do we need to have two classes that are so similar?</p>
+<ul>
+<li><p>A <code>&lt;time-of-day&gt;</code> is conceptually different from a <code>&lt;time-offset&gt;</code>. If the <code>total-seconds</code> slot of a <code>&lt;time-of-day&gt;</code> is <code>180</code>, that means the time of day at 0:03 (that is, 3 minutes past midnight). If the <code>total-seconds</code> slot of a <code>&lt;time-offset&gt;</code> is <code>180</code>, that means 3 minutes in the future. If you ask what time it is, the answer is a <code>&lt;time-of-day&gt;</code>. If you ask how long it takes to wash the dog, the answer is a <code>&lt;time-offset&gt;</code>. </p></li>
+<li><p>A <code>&lt;time-offset&gt;</code> can represent time in the past by having a negative value of <code>total-seconds</code>. A <code>&lt;time-of-day&gt;</code>, in contrast, should not have a negative value of <code>total-seconds</code>. Later in this book, we provide methods that guarantee that the <code>total-seconds</code> slot of <code>&lt;time-of-day&gt;</code> instances is not negative; see <a href="db_124.html#marker-9-327">Section 10.2.2, page 120</a>, and <a href="db_126.html#marker-9-331">Section 10.3, page 123</a>.</p></li>
+<li><p>We need different methods for describing instances of <code>&lt;time-offset&gt;</code> and instances of <code>&lt;time-of-day&gt;</code>. The <code>&lt;time-of-day&gt;</code> method prints <code>8:30</code>, and the <code>&lt;time-offset&gt;</code> method should print <code>minus 8:30</code> or <code>plus 8:30</code>.</p></li>
+<li><p>Eventually, we will need to be able to add a <code>&lt;time-of-day&gt;</code> to a <code>&lt;time-offset&gt;</code>. For example, we can add the <code>&lt;time-of-day&gt;</code> 9:03 to the <code>&lt;time-offset&gt;</code> 2:50 and get the <code>&lt;time-of-day&gt;</code> 11:53. We will also need to add two <code>&lt;time-offset&gt;</code> instances. For example, 2 minutes plus 8 minutes is equal to 10 minutes. But we cannot add two <code>&lt;time-of-day&gt;</code> instances, because it does not make sense to add three o'clock to four o'clock.</p></li>
+</ul>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_66.html"><img src="next.gif" alt="next" /></a> <a href="db_64.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

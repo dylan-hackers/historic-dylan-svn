@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_41.html" />
+<link rel="prev" href="db_42.html" />
+<link rel="next" href="db_44.html" />
+<title>3.3.2   Bindings: Mappings between objects and names</title>
+</head>
+<body>
+
+<div>
+<a name="heading43"></a>
+
+<div>
+<p><a href="db_44.html"><img src="next.gif" alt="next" /></a> <a href="db_42.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading43-0"></a>
+<h1>3.3.2   Bindings: <a name="marker-9-133"></a>Mappings between objects and names</h1>
+<p> A <a name="marker-2-134"></a><strong>binding</strong> is a mapping between an object and a name. The name can be a module variable, module constant, or local variable. </p>
+<p>Here, we give the object <code>3.14159</code> the name <code>$pi</code>, where <code>$pi</code> is a module <br />constant:</p>
+<pre>
+<em>?</em> define constant $pi = 3.14159; 
+</pre>
+<p> Here, we give the object <code>&quot;apple&quot;</code> the name <code>*my-favorite-pie*</code>, where <code>*my-favorite-pie*</code> is a module variable:</p>
+<pre>
+<em>?</em> define variable *my-favorite-pie* = &quot;apple&quot;;
+</pre>
+<p> More than one variable can contain a particular object, so, in effect, an object can have many names. Here, we define a new variable that contains the very same pie:</p>
+<pre>
+<em>?</em> define variable *your-favorite-pie* = *my-favorite-pie*;
+<em>? </em>*your-favorite-pie* == *my-favorite-pie*;
+<em>#t</em>
+</pre>
+<p> When you define a method, <code>define method</code> creates a binding between a name and a method object:</p>
+<pre>
+<em>? </em>define method say-greeting (greeting :: &lt;object&gt;);
+   format-out(&quot;%s\n&quot;, greeting);
+  end;
+</pre>
+<p> All the bindings that we have created in this section so far are accessible within a module. (For information about modules, see <a href="db_190.html#marker-9-610">Chapter 13,  <em>Libraries and Modules</em></a>.) <a href="#marker-9-101">Figure 3.3</a> shows how you can picture each binding as a link between a name and another object. </p>
+<p>Local variables are also bindings, but they are accessible only within a certain body of code; for example, </p>
+<pre>
+<em>? </em>begin
+    let radius = 5.0;
+    let circumference = 2.0 * $pi * radius;
+    circumference;
+  end; 
+</pre>
+<p> Bindings can be constant or variable. You can use the assignment operator to change a variable binding, but you cannot change a constant binding. Module constants are constant bindings; module variables and local variables are variable bindings.</p>
+<table border="1"><caption>Figure 3.3   Bindings as links (shown as arrows) between names (enclosed in ovals) and objects (enclosed in rectangles) within a module. <a name="marker-9-101"></a>
+</caption><tr valign="top"><td><p> <img alt="db43ima6" src="db43ima6.gif" /></p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_44.html"><img src="next.gif" alt="next" /></a> <a href="db_42.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

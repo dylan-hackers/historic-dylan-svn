@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_309.html" />
+<link rel="prev" href="db_311.html" />
+<link rel="next" href="db_313.html" />
+<title>19.14.3   Memory usage</title>
+</head>
+<body>
+
+<div>
+<a name="heading312"></a>
+
+<div>
+<p><a href="db_313.html"><img src="next.gif" alt="next" /></a> <a href="db_311.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading312-0"></a>
+<h1>19.14.3   Memory usage</h1>
+<p> Dylan uses <a name="marker-2-803"></a>automatic storage-management; thus, programmers explicitly allocate objects, and hence memory, but deallocation is automatic and occurs after all references to an object are gone. The process of reclaiming memory when objects are no longer in use is known as <strong>garbage collection<a name="marker-2-804"></a></strong>. </p>
+<p>There are strong advantages to automatic storage-management. With manual storage-management, small program bugs, such as freeing of an object that is still in use, can cause subtle bugs that lead to crashes in parts of the program unrelated to where the real problem lies. Dylan is able to guarantee that all programs fail in disciplined ways, usually with exceptions, because the type system and memory management are safe.</p>
+<p>But automatic storage-management may create performance concerns. Although early implementations of garbage collection were infamously slow, modern garbage collectors are usually fast enough that using one should not raise concerns for most programs. But some programs with specialized or tuned use of memory may run slower with automatic management.</p>
+<p>Whether storage management is automatic or manual, the use of memory raises performance issues. Every allocation of memory takes time, including the time to reclaim unused memory; either the programmer must free it explicitly, or the garbage collector has to do more work. </p>
+<p>It is obvious that calling a function such as <code>make</code>, <code>vector</code>, or <code>pair</code> in Dylan allocates memory, but there are operations that implicitly use memory. For example, creating a closure (see <a href="db_188.html#marker-9-568">Section 12.3.6, page 183</a>) will usually cause Dylan to allocate memory for the closure.</p>
+<p>On the other hand, sometimes the compiler is able to prove that an object is never used after the function that creates it returns. In a good compiler, such objects are allocated on the stack, and are reclaimed automatically when the function exits. </p>
+<p>A good Dylan development environment will have tools that help you to meter and profile memory usage, so that you can adjust your program to utilize memory efficiently.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_313.html"><img src="next.gif" alt="next" /></a> <a href="db_311.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

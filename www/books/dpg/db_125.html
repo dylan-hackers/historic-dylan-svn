@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_122.html" />
+<link rel="prev" href="db_124.html" />
+<link rel="next" href="db_126.html" />
+<title>10.2.3   Considerations for naming slots and other objects</title>
+</head>
+<body>
+
+<div>
+<a name="heading125"></a>
+
+<div>
+<p><a href="db_126.html"><img src="next.gif" alt="next" /></a> <a href="db_124.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading125-0"></a>
+<h1>10.2.3   Considerations for naming <a name="marker-2-328"></a>slots and other objects</h1>
+<p> A <a name="marker-2-329"></a><strong>binding</strong> is an association between a name and an object. For example, there is a binding that associates the name of a constant and the value of the constant. The names of functions, module variables, local variables, and classes are also bindings. There is a potential problem that can occur if you use short names. If a client module uses other modules that also define and export bindings with short names, there is a significant chance that name clashes will occur, with different bindings with the same name being imported from different modules. </p>
+<p>If you use the Dylan naming conventions, then a variable will not have the same name as a class, a function, or a constant. The naming conventions avoid name clashes between different kinds of objects. </p>
+<p>A slot is identified by the name of its getter. The getter is visible to all client modules. There is no problem if two getters with the same name are defined by unrelated classes, because the appropriate getter is selected through method dispatch. There is a problem if a getter has the same name as a generic function with an incompatible parameter list or values declaration. (See <a href="db_179.html#marker-9-529">Section 12.2.5, page 176</a>.) When such a problem occurs, the only way to resolve it is to use options to <code>define module</code> to exclude or rename some of the problem bindings. This <br />solution is undesirable, because it requires work on the part of the author of the client module, who must spot and resolve such clashes, and then use an interface that no longer matches its documentation. </p>
+<p><a name="marker-10-330"></a>Therefore, for getters that you intend to export, it makes sense prevent clashes by considering the name of the slot carefully. One technique is to prefix the name of the property with the name of the class. For example, you might define a <code>&lt;person&gt;</code> class with a slot <code>person-name</code>, instead of the shorter possibility, <code>name</code>. One drawback of this technique is that it might expose too much information about the implementation -- that is, the name betrays the class that happens to implement the slot at a particular time, and you have to remember which superclass introduces a property if you are to access that property. </p>
+<p>There is a compromise between using short names and using the class name as a prefix -- you can choose a prefix for a whole group of classes beneath a given class. For example, you might use the prefix <code>person-</code> for slots of many classes that inherit from the <code>&lt;person&gt;</code> class, including <code>&lt;employee&gt;</code>, <code>&lt;consultant&gt;</code>, and so on.</p>
+<pre>
+define class &lt;person&gt; (&lt;object&gt;)
+  slot person-name;
+  slot person-age;
+end class &lt;person&gt;;
+define class &lt;employee&gt; (&lt;person&gt;)
+  slot person-number;
+  slot person-salary;
+end class &lt;employee&gt;;
+define class &lt;consultant&gt; (&lt;employee&gt;)
+  slot person-perks;
+  slot person-parking-lot;
+end class &lt;consultant&gt;;
+</pre>
+<p> Now, in a method on <code>&lt;consultant&gt;</code>, all accesses are consistent, and we do not have to remember where the slots actually originate: </p>
+<pre>
+<em>// Method 1
+</em>define method person-status (p :: &lt;consultant&gt;) =&gt; (status :: &lt;integer&gt;)
+  (p.person-perks.evaluation + p.person-salary.evaluation)
+    / p.person-age;
+end method person-status;
+</pre>
+<p> If we had defined the classes differently, such that we prefixed each getter with the name of the class that defined it, the method would look like this:</p>
+<pre>
+<em>// Method 2
+</em>define method person-status (p :: &lt;consultant&gt;) =&gt; (status :: &lt;integer&gt;)
+  (p.consultant-perks.evaluation + p.employee-salary.evaluation) 
+    / p.person-age;
+end method person-status;
+</pre>
+<p> Method 2 is more difficult to write and read than is Method 1, and is more <br />fragile. If, at some point, all employees are allocated perks, then the use of the <code>consultant-perks</code> getter becomes a problem. </p>
+<table border="1"><tr valign="top"><td><p> <strong>Compari<a name="marker-2-313"></a>son with C++:</strong> In C++, the class is the namespace of its member functions. In Dylan, the module is the namespace of getters and setters. In general, the module is the namespace of all module bindings, including generic functions; getters and setters are generic functions.</p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_126.html"><img src="next.gif" alt="next" /></a> <a href="db_124.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_134.html" />
+<link rel="prev" href="db_135.html" />
+<link rel="next" href="db_137.html" />
+<title>10.6.2   Getter and setter methods for a virtual slot</title>
+</head>
+<body>
+
+<div>
+<a name="heading136"></a>
+
+<div>
+<p><a href="db_137.html"><img src="next.gif" alt="next" /></a> <a href="db_135.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading136-0"></a>
+<h1>10.6.2   <a name="marker-9-356"></a>Getter and setter methods for a virtual slot</h1>
+<p> Here is the getter method for the virtual slot <code>direction</code>:</p>
+<pre>
+<em>// Method 1
+</em>define method direction (angle :: &lt;directed-angle&gt;) =&gt; (dir :: &lt;symbol&gt;)
+  angle.internal-direction;
+end method direction;
+</pre>
+<p> Here are the setter methods for the virtual slot <code>direction</code>:</p>
+<pre>
+<em>// Method 2
+</em>define method direction-setter 
+    (dir :: &lt;symbol&gt;, angle :: &lt;directed-angle&gt;) =&gt; (new-dir :: &lt;symbol&gt;)
+  angle.internal-direction := dir;
+end method direction-setter;
+<em>// Method 3
+</em>define method direction-setter 
+    (dir :: &lt;symbol&gt;, latitude :: &lt;latitude&gt;) =&gt; (new-dir :: &lt;symbol&gt;)
+  if (dir == #&quot;north&quot; | dir == #&quot;south&quot;)
+    next-method();
+  else 
+    error(&quot;%= is not north or south&quot;, dir);
+  end if; 
+end method direction-setter;
+<em>// Method 4
+</em>define method direction-setter 
+    (dir :: &lt;symbol&gt;, longitude :: &lt;longitude&gt;) =&gt; (new-dir :: &lt;symbol&gt;)
+  if (dir == #&quot;east&quot; | dir == #&quot;west&quot;)
+    next-method();
+  else 
+    error(&quot;%= is not east or west&quot;, dir);
+  end if; 
+end method direction-setter;
+</pre>
+<p> The preceding methods work as follows:</p>
+<ul>
+<li><p>When you call <code>direction</code> on an instance of <code>&lt;directed-angle&gt;</code> or any of its subclasses, method 1 is invoked. Method 1 calls the getter <code>internal-direction</code>, and returns the value of the <code>internal-direction</code> slot.</p></li>
+<li><p>When you call <code>direction-setter</code> on a direct instance of <code>&lt;latitude&gt;</code>, method 3 is invoked. Method 3 checks that the direction is valid for latitude; if it finds that the direction is valid, it calls <code>next-method</code>, which invokes method 2. Method 2 stores the direction in the <code>internal-<br />direction</code> slot.</p></li>
+<li><p>When you call <code>direction-setter</code> on a direct instance of <code>&lt;longitude&gt;</code>, method 4 is called. Method 4 checks that the direction is valid for longitude; if it finds that the direction is valid, it calls <code>next-method</code>, which invokes method 2. Method 2 stores the direction in the <code>internal-direction</code> slot.</p></li>
+<li><p>When you call <code>direction-setter</code> on a direct instance of <code>&lt;directed-angle&gt;</code>, method 2 is invoked. Method 2 stores the direction in the <br /><code>internal-direction</code> slot.</p></li>
+</ul>
+<p> In these methods, we use <code>dir</code>, rather than <code>direction</code>, as the name of the parameter that represents direction. Recall that <code>direction</code> is the name of a getter. Although we technically could use <code>direction</code> as the parameter name in these methods (because we do not call the <code>direction</code> getter in the bodies), <code>direction</code> as a parameter name might be confusing to other people reading the code. </p>
+<p>The <code>error</code> function signals an error. For more information about signaling and handling errors, see <a href="db_316.html#marker-9-818">Chapter 20,  <em>Exceptions</em></a>.</p>
+<p>The <code>direction-setter</code> methods check the direction when the setter is called. In <a href="db_137.html#marker-9-357">Section 10.6.3</a>, we check the direction when an instance is made.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_137.html"><img src="next.gif" alt="next" /></a> <a href="db_135.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

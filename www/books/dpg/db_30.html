@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_18.html" />
+<link rel="prev" href="db_29.html" />
+<link rel="next" href="db_31.html" />
+<title>2.5   A complete Dylan program</title>
+</head>
+<body>
+
+<div>
+<a name="heading30"></a>
+
+<div>
+<p><a href="db_31.html"><img src="next.gif" alt="next" /></a> <a href="db_29.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading30-0"></a>
+<h1>2.5   <a name="marker-9-88"></a>A complete Dylan <a name="marker-2-89"></a>program</h1>
+<p> In this section, we show how to create a complete Dylan program. The Dylan program will print the following:</p>
+<pre>
+Hello, world
+</pre>
+<p> The Dylan expression that prints that output is</p>
+<pre>
+format-out(&quot;Hello, world\n&quot;);
+</pre>
+<p> A Dylan <strong>library</strong> defines a software component -- a separately compilable unit that can be either a stand-alone program or a component of a larger program. Thus, when we talk about creating a Dylan program, we are really talking about creating a library. </p>
+<p>A library contains <strong>modules</strong>. Each module contains definitions and expressions. The module is a <strong>namespace</strong> for the definitions and expressions. For example, if you define a module variable in one particular module, it is available to all the code in that module. If you choose to export that module variable, you can make it accessible to other modules that import it. In this chapter, we give the bare minimum of information about libraries and modules -- just enough for you to get started quickly. For a complete description of libraries and modules, see <a href="db_190.html#marker-9-610">Chapter 13,  <em>Libraries and Modules</em></a>.</p>
+<p>To create a complete Dylan program, we need </p>
+<ul>
+<li><p>To define the library that is our program; we shall create a library named <code>hello</code></p></li>
+<li><p>To define a module (or more than one) in the library, to hold the definitions and expressions in our program; we shall create a module named <code>hello</code> in the <code>hello</code> library</p></li>
+<li><p>To write the program code, in the module; we shall put the <code>format-out</code> expression in the <code>hello</code> module of the <code>hello</code> library</p></li>
+</ul>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_31.html#heading31-0"><strong>2.5.1  </strong> - Files of a Dylan program</a></li>
+<li><a rel="below" href="db_32.html#heading32-0"><strong>2.5.2  </strong> - Components of a Dylan program</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_31.html"><img src="next.gif" alt="next" /></a> <a href="db_29.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

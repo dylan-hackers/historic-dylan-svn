@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_75.html" />
+<link rel="prev" href="db_75.html" />
+<link rel="next" href="db_77.html" />
+<title>5.5.1   Step 1: Find the applicable methods</title>
+</head>
+<body>
+
+<div>
+<a name="heading76"></a>
+
+<div>
+<p><a href="db_77.html"><img src="next.gif" alt="next" /></a> <a href="db_75.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading76-0"></a>
+<h1>5.5.1   Step 1: Find the <a name="marker-2-226"></a>applicable methods</h1>
+<p> Start with the set of methods defined for the generic function that was called. A method is <strong>specialized </strong>on a required parameter that has a type constraints. The type constraint of the required parameter is called the <strong>parameter <a name="marker-2-227"></a>specializer</strong> of the parameter. A method is <strong>applicable</strong> if the argument to the generic function is an instance of the parameter specializer of the method. </p>
+<p>For example, consider the <code>decode-total-seconds</code> generic function. <a href="#marker-9-190">Table 5.1</a> shows which method is applicable for certain arguments.</p>
+<p> </p>
+<table border="1"><caption>Table 5.1   <a name="marker-9-190"></a>Applicable methods for arguments to <code>decode-total-seconds</code>.</caption><tr valign="top"><th><p>Argument</p>
+</th><th><p>Argument's type</p>
+</th><th><p>Applicable methods</p>
+</th></tr><tr valign="top"><td><p> <code>*my-time-of-day*</code></p>
+</td><td><p> <code>&lt;time-of-day&gt;</code></p>
+</td><td><p> method on <code>&lt;time&gt;</code></p>
+</td></tr><tr valign="top"><td><p> <code>*my-time-offset*</code></p>
+</td><td><p> <code>&lt;time-offset&gt;</code></p>
+</td><td><p> method on <code>&lt;time&gt;</code></p>
+</td></tr><tr valign="top"><td><p> <code>1000</code></p>
+</td><td><p> <code>&lt;integer&gt;</code></p>
+</td><td><p> method on <code>&lt;integer&gt;</code></p>
+</td></tr><tr valign="top"><td><p> <code>&quot;hello, world&quot;</code></p>
+</td><td><p> <code>&lt;string&gt;</code></p>
+</td><td><p> none</p>
+</td></tr></table><p> The first row of the table shows that, when the argument is a direct instance of <code>&lt;time-of-day&gt;</code>, the method on <code>&lt;time&gt;</code> is applicable, because the argument is an instance of <code>&lt;time&gt;</code> (the method's parameter specializer). The final row of the table shows that, when the argument is <code>&quot;hello, world&quot;</code>, none of the defined methods are applicable, because <code>&quot;hello, world&quot;</code> is not an instance of <code>&lt;time&gt;</code> or<br /><code>&lt;integer&gt;</code>.</p>
+<p>For <code>decode-total-seconds</code>, there is either no or one applicable method for any argument. If there is one applicable method, it is called. If there is no applicable method, the "No applicable method" error is signaled. There is no need to continue to step 2. </p>
+<p>In other cases, there can be several applicable methods. Consider the generic function <code>say-greeting</code>, shown in <a href="#marker-9-196">Figure 5.4</a>. <a href="#marker-9-192">Table 5.2</a> shows that, for certain arguments, one method is applicable, but that, for an integer argument, two methods are applicable. </p>
+<p>When the argument is <code>7</code>, a direct instance of <code>&lt;integer&gt;</code>, the method on <code>&lt;object&gt;</code> is applicable, because <code>7</code> is an instance of <code>&lt;object&gt;</code> (the method's parameter specializer); the method on <code>&lt;integer&gt;</code> also is applicable, because <code>7</code> is an instance of <code>&lt;integer&gt;</code> (the method's parameter specializer).</p>
+<p> </p>
+<table border="1"><caption>Figure 5.4   <a name="marker-9-196"></a>The <code>say-greeting</code> generic function and its methods.</caption><tr valign="top"><td><p> <img alt="db76im11" src="db76im11.gif" /></p>
+</td></tr></table><p> </p>
+<table border="1"><caption>Table 5.2   <a name="marker-9-192"></a>Applicable methods for different arguments to <code>say-greeting</code>.</caption><tr valign="top"><th><p>Argument</p>
+</th><th><p>Applicable method(s)</p>
+</th></tr><tr valign="top"><td><p> <code>7 </code></p>
+</td><td><p> method on <code>&lt;object&gt;</code> method on <code>&lt;integer&gt;</code></p>
+</td></tr><tr valign="top"><td><p> <code>$pi</code></p>
+</td><td><p> method on <code>&lt;object&gt;</code></p>
+</td></tr><tr valign="top"><td><p> <code>&quot;hello, world&quot;</code></p>
+</td><td><p> method on <code>&lt;object&gt;</code></p>
+</td></tr></table>
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_77.html"><img src="next.gif" alt="next" /></a> <a href="db_75.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_63.html" />
+<link rel="prev" href="db_74.html" />
+<link rel="next" href="db_76.html" />
+<title>5.5   Method dispatch</title>
+</head>
+<body>
+
+<div>
+<a name="heading75"></a>
+
+<div>
+<p><a href="db_76.html"><img src="next.gif" alt="next" /></a> <a href="db_74.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading75-0"></a>
+<h1>5.5   <a name="marker-9-224"></a>Method <a name="marker-2-225"></a>dispatch</h1>
+<p> When a generic function is called, it chooses the <strong>most specific applicable method</strong> and calls that method. The process of choosing the most specific method and calling it is <strong>method dispatch</strong>. This process has three steps: </p>
+<p>1.  Find all the <strong>applicable methods</strong> for the argument to the generic function.</p>
+<p>2.  Sort the applicable methods by <strong>specificity</strong>.</p>
+<p>3.  Call the most specific method.</p>
+<p> Dylan does the method dispatch automatically, but it is important that you understand the semantics of the method dispatch. When you understand how Dylan determines the applicability of methods and how it sorts them by specificity, you can design classes and methods that work together correctly. Method dispatch is at the heart of object-oriented programming. </p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+<ul>
+<li><a rel="below" href="db_76.html#heading76-0"><strong>5.5.1  </strong> - Step 1: Find the applicable methods</a></li>
+<li><a rel="below" href="db_77.html#heading77-0"><strong>5.5.2  </strong> - Step 2: Sort applicable methods by specificity</a></li>
+<li><a rel="below" href="db_78.html#heading78-0"><strong>5.5.3  </strong> - Step 3: Call the most specific method</a></li>
+<li><a rel="below" href="db_79.html#heading79-0"><strong>5.5.4  </strong> - Precedence in method dispatch</a></li>
+</ul>
+
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_76.html"><img src="next.gif" alt="next" /></a> <a href="db_74.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

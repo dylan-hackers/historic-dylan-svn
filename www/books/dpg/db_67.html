@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_64.html" />
+<link rel="prev" href="db_66.html" />
+<link rel="next" href="db_68.html" />
+<title>5.1.3   Methods on &lt;time-offset&gt;</title>
+</head>
+<body>
+
+<div>
+<a name="heading67"></a>
+
+<div>
+<p><a href="db_68.html"><img src="next.gif" alt="next" /></a> <a href="db_66.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading67-0"></a>
+<h1>5.1.3   <a name="marker-9-206"></a>Methods on <em>&lt;time-offset&gt;</em></h1>
+<p> Because a <code>&lt;time-offset&gt;</code> can represent future time or past time, it will be useful to provide a convenient way to determine whether a <code>&lt;time-offset&gt;</code> is in the past. We define a new predicate named <code>past?</code> as follows:</p>
+<pre>
+define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
+  time.total-seconds &lt; 0;
+end method past?;
+</pre>
+<p> The <code>past?</code> method returns an instance of <code>&lt;boolean&gt;</code>, which is <code>#t</code> if the time offset is in the past, and otherwise is <code>#f</code>. Here is an example:</p>
+<pre>
+<em>? </em>past?(*my-time-offset*)
+<em>#f</em>
+<em>? </em>past?(*your-time-offset*)
+<em>#t</em>
+</pre>
+<p> We need a method to describe instances of <code>&lt;time-offset&gt;</code>. The output should look like this:</p>
+<pre>
+<em>? </em>say-time-offset(*my-time-offset*);
+<em>plus 15:20</em>
+<em>? </em>say-time-offset(*your-time-offset*);
+<em>minus 6:45</em>
+</pre>
+<p> We might define the method in this way: </p>
+<pre>
+define method say-time-offset (time :: &lt;time-offset&gt;) =&gt; ()
+  let(hours, minutes) = decode-total-seconds(time);
+  format-out(&quot;%s %d:%s%d&quot;,
+             if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end, 
+             hours, 
+             if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end,
+             minutes);
+end method say-time-offset;
+</pre>
+<p> If we test this method in a listener, however, the result is different:</p>
+<pre>
+<em>? </em>say-time-offset(*my-time-offset*);
+<em>ERROR: No applicable method for decode-total-seconds with argument {instance &lt;time-offset&gt;}</em>
+</pre>
+<p> "<a name="marker-2-207"></a>No applicable method" means that there is no method for this generic function that is appropriate for the arguments. To understand this error, we can look at the methods for <code>decode-total-seconds</code> in <a href="db_60.html#marker-9-138">Figure 4.1, page 49</a>. One method takes an argument of the type <code>&lt;integer&gt;</code>. Another method takes an argument of the type <code>&lt;time-of-day&gt;</code>. There is no method for instances of <code>&lt;time-offset&gt;</code>, so Dylan signals an error. There are three possible approaches to solving this problem.</p>
+<p>As a first approach, we could define the <code>say-time-offset</code> method to call <code>decode-total-seconds</code> with an integer. </p>
+<pre>
+<em>// First approach: Call decode-total-seconds with an integer
+</em>define method say-time-offset (time :: &lt;time-offset&gt;) =&gt; ()	<em>// 1
+</em>  let(hours, minutes) = decode-total-seconds(abs(time.total-seconds));	<em>// 2
+</em>  format-out(&quot;%s %d:%s%d&quot;,	<em>// 3
+</em>             if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end, 	<em>// 4
+</em>             hours, 	<em>// 5
+</em>             if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end,<em>	// 6
+</em>             minutes);	<em>// 7
+</em>end method say-time-offset;	<em>// 8	</em>
+</pre>
+<p> We changed only the call to <code>decode-total-seconds</code> on line 2. Here, we call it with the absolute value (returned by the <a name="marker-2-208"></a><code>abs</code> function) of the <code>total-seconds</code> slot.</p>
+<p>This approach works, but it is awkward because we need to remember what kinds of arguments <code>decode-total-seconds</code> can take. The convenient calling syntax that we introduced for calling <code>decode-total-seconds</code> with an instance of <code>&lt;time-of-day&gt;</code> is not available for other kinds of time.</p>
+<p>As a second approach, we could to define a third method for <code>decode-total-seconds</code> that takes as its argument an instance of <code>&lt;time-offset&gt;</code>:</p>
+<pre>
+<em>// Second approach: Define a method on &lt;time-offset&gt;
+</em>define method decode-total-seconds (time :: &lt;time-offset&gt;) =&gt; ()
+  decode-total-seconds(abs(time.total-seconds));
+end method decode-total-seconds;
+</pre>
+<p> The method for <code>say-time-offset</code> can then call <code>decode-total-seconds</code>, as we did in the first place: </p>
+<pre>
+define method say-time-offset (time :: &lt;time-offset&gt;) =&gt; ()
+  let(hours, minutes) = decode-total-seconds(time);
+  format-out(&quot;%s %d:%s%d&quot;,
+             if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end, 
+             hours, 
+             if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end,
+             minutes);
+end method say-time-offset;
+</pre>
+<p> This approach works, and it preserves the flexibility of calling <code>decode-total-seconds</code> on instances of <code>&lt;integer&gt;</code>, <code>&lt;time-of-day&gt;</code>, and <code>&lt;time-offset&gt;</code>. However, the body of the method on <code>&lt;time-offset&gt;</code> (defined in this section) is nearly identical to the body of the method on <code>&lt;time-of-day&gt;</code> (defined in <a href="db_60.html#marker-9-187">Section 4.6.5, page 48</a>). The only difference is that we use <code>abs</code> in the method on <code>&lt;time-offset&gt;</code> but not in the method on <code>&lt;time-of-day&gt;</code>. If we used it in the method on <code>&lt;time-of-day&gt;</code>, it would be harmless. Duplication of code is ugly, adds maintenance overhead, and is particularly undesirable when programming in an object-oriented language, where it may indicate a flaw in the overall design.</p>
+<p>The best solution to the problem lies in a third approach -- to rethink the classes and methods in a more object-oriented style, using inheritance. We show this solution in the next section.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_68.html"><img src="next.gif" alt="next" /></a> <a href="db_66.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

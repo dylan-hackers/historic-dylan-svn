@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_158.html" />
+<link rel="prev" href="db_161.html" />
+<link rel="next" href="db_163.html" />
+<title>11.5.4   Tables: Dynamic associations</title>
+</head>
+<body>
+
+<div>
+<a name="heading162"></a>
+
+<div>
+<p><a href="db_163.html"><img src="next.gif" alt="next" /></a> <a href="db_161.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading162-0"></a>
+<h1>11.5.4   Ta<a name="marker-2-428"></a>bles: Dynamic associations</h1>
+<p> In <a href="db_161.html#marker-9-426">Section 11.5.3</a>, we saw how the <code>color-action</code> method associated traffic-light colors with actions by using <code>select</code>. These associations are <em>static</em>. They are determined at compile time, and you cannot change them without recompiling the <code>color-action</code> method. Sometimes, it is useful to associate one object with another <em>dynamically</em>, while the program is running. Collections are good data structures for this purpose. How could we rewrite <code>color-action</code> so that it uses a collection to associate colors with actions?</p>
+<pre>
+define variable *color-action-table* = make(&lt;table&gt;, size: 3);
+*color-action-table*[#&quot;red&quot;]    := #&quot;stop&quot;;
+*color-action-table*[#&quot;yellow&quot;] := #&quot;slow&quot;;
+*color-action-table*[#&quot;green&quot;]  := #&quot;go&quot;;
+define method color-action (color :: &lt;symbol&gt;) =&gt; (action :: &lt;symbol&gt;)
+  *color-action-table*[color];
+end method color-action;
+</pre>
+<p> The tables provided by Dylan use <code>==</code> to compare keys. </p>
+<p>During the execution of the program, we could add new associations to <code>*color-action-table*</code>, or could change or remove existing associations. Tables grow as necessary to accommodate new associations that are added.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_163.html"><img src="next.gif" alt="next" /></a> <a href="db_161.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>

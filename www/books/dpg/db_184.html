@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link title="main style sheet" rel="stylesheet" href="dpg.css" type="text/css" />
+<link rel="top" href="db_1.html" />
+<link rel="up" href="db_182.html" />
+<link rel="prev" href="db_183.html" />
+<link rel="next" href="db_185.html" />
+<title>12.3.2   Creation of generic functions</title>
+</head>
+<body>
+
+<div>
+<a name="heading184"></a>
+
+<div>
+<p><a href="db_185.html"><img src="next.gif" alt="next" /></a> <a href="db_183.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+
+</div>
+<a name="heading184-0"></a>
+<h1>12.3.2   Creation of generic functions</h1>
+<p> You can create a generic function<a name="marker-2-547"></a> in the following ways:</p>
+<ul>
+<li><p>You can create one explicitly by <code>define generic<a name="marker-2-548"></a></code>.</p></li>
+<li><p>You can create one explicitly by calling <code>make<a name="marker-2-549"></a></code> on the <code>&lt;generic-function&gt;</code> class. You rarely need to create a generic function this way.</p></li>
+<li><p>You can create one implicitly by <code>define method<a name="marker-2-550"></a></code>. If the generic function named by this definition does not yet exist, Dylan creates it.</p></li>
+<li><p>You can create one implicitly by defining a slot in <code>define class<a name="marker-2-551"></a></code>. If a getter generic function for the slot does not yet exist, Dylan creates it.</p></li>
+<li><p>You can create one implicitly by defining a slot (other than a constant slot) in <code>define class<a name="marker-2-552"></a></code>. If a setter generic function for the slot does not yet exist, Dylan creates it.</p></li>
+</ul>
+<p> Each of these procedures, except a call to <code>make</code>, defines a module constant whose value is the generic function created.</p>
+<p>When Dylan creates a generic function implicitly<a name="marker-2-553"></a>, it creates a parameter list and a value declaration for the generic function that are designed to restrict the addition of subsequent methods to the generic function as little as possible. All required arguments to the generic function have type specializers of <code>&lt;object&gt;</code>, and the generic function can return any number of values of any type. The generic function's parameter list is congruent with that of the method being defined. If the generic function accepts keyword arguments, the parameter list ends with <code>#key</code>.</p>
+
+</div>
+
+<div>
+
+<div>
+
+<!-- TOC -->
+
+</div>
+
+<hr />
+<address>Dylan Programming - 9 Apr 1999</address>
+<p><a href="db_185.html"><img src="next.gif" alt="next" /></a> <a href="db_183.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
+
+</div>
+</body>
+</html>
