@@ -88,7 +88,7 @@ end method;
 
 define method generate-next-move(me :: <pushbot>, s :: <state>)
   => (c :: <command>)
-  let robot = find-robot(s, me.id);
+  let robot = find-robot(s, me.agent-id);
   block(return)
     
     let adj-robots = get-adjacent-robots(s, robot.location);

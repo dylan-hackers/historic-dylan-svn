@@ -16,7 +16,7 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
   // make(<move>, bid: 1, direction: $north);
 
   // Find the closest base.
-  let robot = find-robot(s, me.id);
+  let robot = find-robot(s, me.agent-id);
   let myPosition = robot.location;
   
   local find-near-base(best-base :: false-or(<point>), distance :: <integer>)
@@ -68,7 +68,7 @@ end method generate-next-move;
 
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
-  let robot = find-robot(s, me.id);
+  let robot = find-robot(s, me.agent-id);
   block(return)
     format-out("DB: Considering next move (loc: %=)\n", robot.location);
     force-output(*standard-output*);
