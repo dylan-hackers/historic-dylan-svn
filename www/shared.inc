@@ -79,8 +79,8 @@ Dylan Websites</A>
 <P><STRONG>Developer Resources</STRONG></P>
 <UL>
 <LI><A HREF="http://www.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>
-<LI><A HREF="http://www.randomhacks.com/dylan/bugs">Bug Tracker</A>
-<LI><A HREF="http://www.randomhacks.com/dylan/bugs.private">Private Bug Tracker</A>
+<LI><A HREF="http://www.randomhacks.com/dylan-cgi/bugs">Bug Tracker</A>
+<LI><A HREF="http://www.randomhacks.com/dylan-cgi/bugs.private">Private Bug Tracker</A>
 <LI><A HREF="projects.phtml">Current Projects</A>
 </UL>
 
@@ -94,10 +94,15 @@ Dylan Websites</A>
 </TABLE>
 
 <DIV CLASS=footer>
-<P><SMALL>Copyright &copy; 1998 Gwydion Dylan Maintainers. All rights reserved.
-Created using <A HREF="http://www.php.net/">PHP</A>, <A
-HREF="http://www.apache.org/">Apache</A> and <A HREF="http://www.postgresql.org/">PostgreSQL</A> on a machine running
-<A HREF="http://www.redhat.com/">RedHat Linux</A>. Graphics by the <A HREF="http://www.gimp.org/">GIMP</A>.</SMALL></P>
+
+<P><SMALL>Copyright &copy; 1998 Gwydion Dylan Maintainers. All rights
+reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
+HREF="http://www.apache.org/">Apache</A> and <A
+HREF="http://www.postgresql.org/">PostgreSQL</A> on a machine running <A
+HREF="http://www.redhat.com/">RedHat Linux</A>. Graphics by the <A
+HREF="http://www.gimp.org/">GIMP</A>. [<A
+HREF="mailto:gd-bugs@randomhacks.com">Feedback</A>]</SMALL></P>
+
 </DIV>
 
 </TD></TR>
