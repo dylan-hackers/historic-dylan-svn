@@ -88,11 +88,14 @@ end;
 
 define method date-to-stream
     (stream :: <stream>, date :: <date>)
-  let (year, month, day, hours, minutes, seconds) = decode-date(date);
-  format(stream, "%d-%s%d-%s%d %s%d:%s%d:%s%d",
+  let (year, month, day, hours, minutes, seconds, day-of-week, time-zone-offset) = decode-date(date);
+  format(stream, "%d-%s%d-%s%d %s%d:%s%d:%s%d %s%s%d:%s%d",
          year, iff(month < 10, "0", ""), month, iff(day < 10, "0", ""), day,
          iff(hours < 10, "0", ""), hours, iff(minutes < 10, "0", ""), minutes,
-         iff(seconds < 10, "0", ""), seconds);
+         iff(seconds < 10, "0", ""), seconds, iff(positive?(time-zone-offset), "+", "-"),
+         iff(floor/(time-zone-offset, 60) < 10, "0", ""), floor/(time-zone-offset, 60),
+         iff(modulo(time-zone-offset, 60) < 10, "0", ""), modulo(time-zone-offset, 60)
+  );
 end;
 
 define function log-date (#key date :: <date> = current-date())
