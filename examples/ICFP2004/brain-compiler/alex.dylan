@@ -571,7 +571,7 @@ define sub brain keith-patroller (leave)
 end brain; // keith-patroller
 
 
-define sub brain keith-defence (leave)
+define ant-subbrain keith-defence
 Flip 6 73 1
 ;Sense Here 2 9 Home
 ;Move 1 3
@@ -665,7 +665,7 @@ Flip 6 73 1
 ;Turn Right 91
 ;Turn Right 92
 ;Move 79 92
-end brain; // keith-defence
+end ant-subbrain; // keith-defence
 
   
 // Main brain.
