@@ -319,8 +319,25 @@ cinit(egdsocket, objectpoint, 77);
 cinit(connecttimeout, long, 78);
 
   /* Function that will be called to store headers (instead of fwrite). The
-   * parameters will use fwrite() syntax, make sure to follow them. */
+  * parameters will use fwrite() syntax, make sure to follow them. */
 cinit(headerfunction, functionpoint, 79);
+
+  /* Set this to force the HTTP request to get back to GET. Only really usable
+     if POST, PUT or a custom request have been used first.
+   */
+cinit(httpget, long, 80);
+
+  /* Set if we should verify the Common name from the peer certificate in ssl
+   * handshake, set 1 to check existence, 2 to ensure that it matches the
+   * provided hostname. */
+cinit(ssl-verifyhost, long, 81);
+
+  /* Specify which file name to write all known cookies in after completed
+     operation. Set file name to "-" (dash) to make it go to stdout. */
+cinit(cookiejar, objectpoint, 82);
+
+  /* Specify which SSL ciphers to use */
+cinit(ssl-cipher-list, objectpoint, 83);
 
 // Curl functions
 define c-function curl-easy-init
@@ -625,6 +642,22 @@ define easy-setopt connecttimeout
   input parameter value :: <c-long>; 
 end easy-setopt connecttimeout;
 
+define easy-setopt httpget
+  input parameter value :: <c-long>; 
+end easy-setopt httpget;
+
+define easy-setopt ssl-verifyhost
+  input parameter value :: <c-long>; 
+end easy-setopt ssl-verifyhost;
+
+define easy-setopt cookiejar
+  input parameter filename :: <c-string>; 
+end easy-setopt cookiejar;
+
+define easy-setopt ssl-cipher-list
+  input parameter value :: <c-void*>; 
+end easy-setopt ssl-cipher-list;
+
 define c-function curl-easy-perform
   input parameter handle :: <curl>;
   result value :: <curl-code>;
@@ -647,8 +680,14 @@ define c-function curl-formfree
   c-name: "curl_formfree";
 end c-function curl-formfree;
 
+define function default-write-function(ptr, size, nmemb, stream)
+  ignore(ptr);
+  ignore(stream);
+  size * nmemb;
+end function default-write-function;
+
 define thread variable *header-function-callback* = #f;
-define thread variable *write-function-callback* = #f;
+define thread variable *write-function-callback* = default-write-function;
 
 define method dylan-header-function-callback(ptr, size, nmemb, stream) 
   *header-function-callback*(ptr, size, nmemb, stream);

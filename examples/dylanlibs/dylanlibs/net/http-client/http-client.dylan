@@ -54,7 +54,9 @@ define method get-cookie-filename()
  => (r :: <string>)
   with-lock(*cookie-count-lock*)
     *cookie-count* := *cookie-count* + 1;
-    format-to-string("cookies%d", *cookie-count*);
+    let name = format-to-string("cookies%d", *cookie-count*);
+    close(make(<file-stream>, locator: name, direction: #"output", if-exists: #"append", if-does-not-exist: #"create"));
+    name;
   end with-lock;
 end method get-cookie-filename;
 
@@ -80,12 +82,13 @@ define method cleanup-http-session(session :: <http-session>) => ()
   with-lock(session.http-session-lock)
     with-lock(session.http-resources-lock)
       curl-easy-cleanup(session.http-session-curl);
-    
+      session.http-session-curl := #f;
+
       for(resource in session.http-resources)
         destroy(resource)
       end for;
       session.http-resources := #f;
-      session.http-session-curl := #f;
+      drain-finalization-queue();
     end with-lock;
   end with-lock;
 end method cleanup-http-session;
@@ -124,14 +127,16 @@ define method do-http-request(session :: <http-session>,
                               method: http-method = #"get",
                               content,
                               query)
- => (r :: <string>)
+ => (r :: <string>) 
   with-lock(session.http-session-lock)
+    drain-finalization-queue();
+
     let curl = session.http-session-curl;
     let result = "";
 
     local method handle-request(ptr, size, nmemb, stream)
-      ignore(stream);
-     result := concatenate(result, as(<byte-string>, c-type-cast(<c-string>, ptr)));
+       ignore(stream);
+       result := concatenate(result, as(<byte-string>, c-type-cast(<c-string>, ptr)));
        size * nmemb;
     end method;
 
@@ -152,23 +157,24 @@ define method do-http-request(session :: <http-session>,
           end for;
         end if;
 
-        when(~content | empty?(content))
-          error("Empty content passed to http post request");
-        end when;
-        
-        let c-content = add-resource(session, copy-as-char*(content));
         curl-easy-setopt(curl, $curlopt-post, 1);
-        curl-easy-setopt(curl, $curlopt-postfields, c-content);
-        curl-easy-setopt(curl, $curlopt-postfieldsize, c-content.size);        
+        unless(empty?(content))
+          let c-content = add-resource(session, copy-as-char*(content));
+          curl-easy-setopt(curl, $curlopt-postfields, c-content);
+          curl-easy-setopt(curl, $curlopt-postfieldsize, c-content.size);        
+        end unless;
       end when;
 
       when(http-method == #"get")
         curl-easy-setopt(curl, $curlopt-post, 0);    
+        curl-easy-setopt(curl, $curlopt-httpget, 1);    
       end when;
 
-      when(follow-location?)
+      if(follow-location?)
         curl-easy-setopt(curl, $curlopt-followlocation, 1);
-      end when;
+      else
+        curl-easy-setopt(curl, $curlopt-followlocation, 0);
+      end if;
 
       curl-easy-perform(curl);
       result;

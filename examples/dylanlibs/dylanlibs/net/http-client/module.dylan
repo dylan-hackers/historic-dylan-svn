@@ -9,6 +9,8 @@ define module http-client
   use threads;
   use c-ffi;
   use lib-curl;
+  use streams;
+  use finalization;
 
   export
     <http-session>,
