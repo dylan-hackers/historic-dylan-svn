@@ -11,16 +11,11 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // For now it's boolean, but could be a list of directories to allow/disallow.
 define variable *allow-directory-listings* = #t;
 
-// If a request for a directory URI is received and any of these documents exist in that
-// directory, they will be displayed.  They are searched in order and the first one found
-// is sent.
-define variable *default-documents* :: <stretchy-vector> = make(<stretchy-vector>);
-
 // Whether the server should run in debug mode or not.  If this is true then errors
 // encountered while servicing HTTP requests will not be handled by the server itself.
 // Normally the server will handle them and return an "internal server error" response.
 // Setting this to true is the recommended way to debug your Dylan Server Pages.
-define variable *debugging-server* :: <boolean> = #f;
+define variable *debugging-server* :: <boolean> = #t;
 
 // Whether or not to include a Server: header in all responses.  Most people won't
 // care either way, but some might want to hide the server type so as to prevent
@@ -93,5 +88,20 @@ define table *mime-type-map* = {
   #"mov"   => "video/quicktime",
   #"avi"   => "video/x-msvideo",
   #"asf"   => "video/x-msvideo"  // a guess
-}
+};
+
+// If this is set to true and certain URLs are requested, a page will be
+// automatically registered for the URL.  See *auto-register-file-types*.
+define variable *auto-register-pages?* :: <boolean> = #t;
+
+// Maps from file extensions (e.g., "dsp") to functions that will register a URL
+// responder for a URL.  If a URL matching the file extension is requested, and
+// the URL isn't registered yet, then the function for the URL's file type extension
+// will be called to register the URL and then the URL will be processed normally.
+// This mechanism is used, for example, to automatically export .dsp URLs as Dylan
+// Server Pages so that it's not necessary to have a "define page" form for every
+// page in a DSP application.
+define variable *auto-register-map* :: <string-table>
+  = make(<string-table>);
+
 

@@ -551,6 +551,7 @@ end;
 // See find-responder and register-alias-uri.
 define method register-uri
     (uri :: <string>, target :: <object>, #rest args, #key replace?)
+  log-info("URI %s registered", uri);
   let server :: <server> = *server*;
   let (bpos, epos) = trim-whitespace(uri, 0, size(uri));
   if (bpos = epos)
@@ -577,6 +578,8 @@ define method register-alias-uri
 end;
 
 // Find a responder function, following alias links, if any.
+// Perhaps shouldn't have alias links...just put the responder directly on
+// several URLs.
 define method find-responder
     (uri :: <string>)
  => (responder :: false-or(<function>), canonical-uri)
@@ -592,7 +595,19 @@ define method find-responder
             otherwise  => #f;
           end;
         end;
+  local method maybe-auto-register (uri)
+          // could use safe-locator-from-uri, but it's relatively expensive
+          let len = size(uri);
+          let slash = char-position-from-end('/', uri, 0, len);
+          let dot = char-position-from-end('.', uri, slash | 0, len);
+          when (dot & dot < len - 1)
+            let ext = substring(uri, dot + 1, len);
+            let reg-fun = element(*auto-register-map*, ext, default: #f);
+            reg-fun & reg-fun(uri)
+          end
+        end;
   find-it(uri, #())
+    | values(maybe-auto-register(uri), uri)
 end;
 
 // define responder test ("/test", secure?: #t)
