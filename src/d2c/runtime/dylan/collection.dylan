@@ -1190,13 +1190,7 @@ end;
 define method copy-sequence
     (sequence :: <sequence>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <sequence>);
-  let seq-size :: <integer> = sequence.size;
-  let last :: <integer> = last | seq-size;
-  case
-    (last > seq-size) => error("End: (%=) out of range.", last);
-    (start < 0) => error("Start: (%=) out of range.", start);
-    (start > last) => error("Start: (%=) > End: (%=).", start, last);
-  end case;
+  let last = check-start-end-bounds("copy-sequence", sequence, start, last);
 
   let sz :: <integer> = last - start;
   let result = make-collection(type-for-copy(sequence), sz);
@@ -1206,16 +1200,33 @@ define method copy-sequence
   for (index :: <integer> from 0 below start,
        state = init-state then next-state(sequence, state))
   finally
-    let (res-init, res-limit, res-next, res-done?, res-key,
-	 res-elem, res-elem-setter) = forward-iteration-protocol(result);
+    let (res-init, res-limit, res-next, res-done?, res-key, res-elem, res-elem-setter)
+         = forward-iteration-protocol(result);
     for (index :: <integer> from index below last,
-	 state = state then next-state(sequence, state),
-	 res-state = res-init then res-next(result, res-state))
+         state = state then next-state(sequence, state),
+         res-state = res-init then res-next(result, res-state))
       res-elem(result, res-state) := current-element(sequence, state);
     end for;
   end for;
   result;
 end method copy-sequence;
+
+// This is an optimization for shallow-copy for sequences. It is not
+// strictly necessary, and maybe should be removed when map is optimized
+// more fully.
+// Oddly, copy-sequence and shallow-copy return different different types
+// of collections for ranges. Refer to
+//   http://www.gwydiondylan.org/books/drm/drm_101.html#MARKER-2-1691
+//   http://www.gwydiondylan.org/books/drm/drm_102.html#MARKER-2-1796
+//
+define inline method shallow-copy (sequence :: <sequence>)
+ => result :: <sequence>;
+  if (instance?(sequence, <range>))
+    next-method();
+  else
+    copy-sequence(sequence);
+  end if;
+end method shallow-copy;
 
 // See note above.
 //
@@ -1296,14 +1307,14 @@ end method key-exists?;
 //
 define inline function check-start-end-bounds
      (method-name :: <string>, sequence :: <sequence>, start :: <integer>, last :: false-or(<integer>))
-  => (seq-size :: <integer>, last :: <integer>)
+  => last :: <integer>;
   // This type check will fail for unbounded sequences.
   let seq-size :: <integer> = sequence.size;
   let last :: <integer> = last | seq-size;
   if ((last > seq-size) | (start < 0) | (start > last))
     check-start-end-bounds-error(method-name, sequence, start, last);
   end if;
-  values(seq-size, last);
+  last;
 end function;
 
 // out-of-line error function to minimize calling code size

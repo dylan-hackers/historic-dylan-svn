@@ -154,7 +154,7 @@ define method fill!
     (vec :: <simple-vector>, value :: <object>,
      #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (vec :: <simple-vector>);
-  let (seq-size, last) = check-start-end-bounds("fill!", vec, start, last);
+  let last = check-start-end-bounds("fill!", vec, start, last);
   for (index from start below last)
     element(vec, index) := value;
   end;
@@ -315,7 +315,7 @@ define method fill!
     (vec :: <simple-object-vector>, value :: <object>,
      #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (vec :: <simple-object-vector>);
-  let (seq-size, last) = check-start-end-bounds("fill!", vec, start, last);
+  let last = check-start-end-bounds("fill!", vec, start, last);
   for (index from start below last)
     %element(vec, index) := value;
   end;
@@ -369,7 +369,7 @@ define constant $memcpy-switchover-point = 50;
 define method copy-sequence
     (src :: <simple-object-vector>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <simple-object-vector>);
-  let (src-size, last) = check-start-end-bounds("copy-sequence", src, start, last);
+  let last = check-start-end-bounds("copy-sequence", src, start, last);
   let dst-size = last - start;
   let dst = make(<simple-object-vector>, size: dst-size);
   // use an empirically determined cut-off point to switch to memcpy

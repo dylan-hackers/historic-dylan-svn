@@ -518,14 +518,7 @@ end method concatenate!;
 define sealed method copy-sequence
     (sequence :: <object-deque>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
  => (result :: <object-deque>);
-  let seq-size :: <integer> = sequence.size;
-  let last :: <integer> = last | seq-size;
-  case
-    (last > seq-size) => error("End: (%=) out of range.", last);
-    (start < 0) => error("Start: (%=) out of range.", start);
-    (start > last) => error("Start: (%=) > End: (%=).", start, last);
-  end case;
-
+  let last = check-start-end-bounds("copy-sequence", sequence, start, last);
   let sz :: <integer> = last - start;
   let result = make(<object-deque>, size: sz);
 
