@@ -5,7 +5,7 @@ copyright: Copyright (C) 1994, Carnegie Mellon University
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/c-parse.input,v 1.1 1998/05/03 19:55:53 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/c-parse.input,v 1.5 1998/10/18 20:16:39 emk Exp $
 
 //======================================================================
 //
@@ -93,12 +93,16 @@ define method int-value (value :: <integer>, state :: <parse-state>)
   value;
 end method;
 
-define method int-value (value :: <token>, state :: <parse-state>)
-  parse-error(value, "Value in constant expression must be an integer.");
-end method;
-
 define method int-value (token :: <integer-token>, state :: <parse-state>)
   token.value;
+end method;
+
+define method int-value (value :: <character>, state :: <parse-state>)
+  as(<integer>, value);
+end method;
+
+define method int-value (token :: <character-token>, state :: <parse-state>)
+  as(<integer>, token.value);
 end method;
 
 define method int-value (value :: <object>, state :: <parse-state>)
@@ -340,7 +344,13 @@ primary-expr (identifier)
 ;  Error("Primary-Expr Not Yet Handled.");
 ;%
 
-Primary-Expr (<integer-token>)
+primary-expr (<integer-token>)
+  %1.value;
+%
+
+primary-expr (<character-token>)
+  // C evaluates characters as integers in expressions, so we try to parse
+  // them as well. This helps particularly with #definies and enums.
   %1.value;
 %
 
@@ -350,6 +360,20 @@ Primary-Expr (<integer-token>)
 
 primary-expr (<lparen-token> expr <rparen-token>)
   %2;
+%
+
+primary-expr (identifier identifier)
+  // XXX - We use this to catch preprocessor expressions of the form
+  // "defined FOO", which are endemic in the Linux headers and break
+  // the original CMU Melange. Let's hope this works.
+  // What would be the consequences of making "defined" a keyword?
+  if (~instance?(@0, <parse-cpp-state>) | %1.string-value ~= "defined")
+    parse-error(@0, "Didn't expect to see two identifiers back-to-back.");
+  elseif (element(%2.generator.cpp-table, %2.string-value, default: #f))
+    1;
+  else
+    0;
+  end;  
 %
 
 postfix-expr (primary-expr)
@@ -684,19 +708,47 @@ declaration (declaration-specifiers <semicolon-token>)
   process-type-list(%1, @0);
 %
 
-declaration (declaration-specifiers extended-declarator-list
-             <lcurly-token> curly-list <rcurly-token>)
+declaration (inline-declaration)
   // Ignore inline declarations.  These occur in VC++ header files, so we'd
-  // better be able to handle them.
-  write-line(*standard-error*, "Warning: ignoring inline code declaration.");
+  // better be able to handle them. They also occur in Gtk+.
+  parse-warning(%1, "ignoring inline function declaration");
   #f;
 %
 
-declaration (<inline-token> declaration-specifiers extended-declarator-list
-             <lcurly-token> curly-list <rcurly-token>)
-  // Ignore inline declarations.  These occur in VC++ header files, so we'd
-  // better be able to handle them.
-  #f;
+inline-declaration (inline-specifiers declaration-specifiers
+                    extended-declarator-list
+                    <lcurly-token> curly-list <rcurly-token>)
+  %1;
+%
+
+inline-declaration (declaration-specifiers extended-declarator-list
+                    <lcurly-token> curly-list <rcurly-token>)
+  %3;
+%
+
+inline-specifiers (<inline-token>)
+  %1;
+%
+
+inline-specifiers (<static-token>)
+  // XXX - This rule might allow 'static extern', which is
+  // clearly illegal. But we're going to ignore it, so why bother?
+  // This should go away when we handle static storage specifiers.
+  %1;
+%
+
+inline-specifiers (<static-token> <inline-token>)
+  // Bogus declarations of this form appear in Gtk+.
+  // XXX - This rule might allow 'static inline extern', which is
+  // clearly illegal. But we're going to ignore it, so why bother?
+  %2;
+%
+
+inline-specifiers (<inline-token> <static-token>)
+  // XXX - This rule might allow 'inline static extern', which is
+  // clearly illegal. But we're going to ignore it, so why bother?
+  // This should go away when we handle static storage specifiers.
+  %1;
 %
 
 declaration (<extern-token> init-declarator-list <semicolon-token>)
@@ -1310,26 +1362,17 @@ abstract-declarator2 (abstract-declarator2 <lparen-token> parameter-type-list <r
 ;;%
 
 external-definition (<begin-include-token>)
-  if (@0.verbose)
-    write-element(*standard-error*, '[');
-    force-output(*standard-error*);
-  end if;
   push-include-level(@0, %1.string-value);
 %
 
 external-definition (<end-include-token>)
-  if (@0.verbose)
-    write-element(*standard-error*, ']');
-    force-output(*standard-error*);
-  end if;
   do(curry(add-cpp-declaration, @0), %1.value);
   pop-include-level(@0);
 %
 
 external-definition (declaration)
-  if (@0.verbose)
-    write-element(*standard-error*, '.');
-    force-output(*standard-error*);
+  if (%1)
+    parse-progress-report(@0, "Declaration %s.", %1.canonical-name);
   end if;
   %1;
 %

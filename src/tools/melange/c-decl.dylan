@@ -696,6 +696,9 @@ end method pointer-to;
 define class <function-type-declaration> (<type-declaration>)
   slot result :: <result-declaration>, required-init-keyword: #"result";
   slot parameters :: <sequence>, required-init-keyword: #"params";
+  slot local-name-mapper :: false-or(<function>) = #f;
+  slot callback-maker-name :: false-or(<symbol>) = #f;
+  slot callout-function-name :: false-or(<symbol>) = #f;
 end class <function-type-declaration>;
 
 define method canonical-name (decl :: <function-type-declaration>)
@@ -850,6 +853,11 @@ define constant longlong-type = make(<integer-type-declaration>,
 				     name: "long long",
 				     dylan-name: "<integer>",
 				     size: $long-int-size * 2);
+define constant unsigned-longlong-type = make(<integer-type-declaration>,
+					      accessor: "unsigned-longlong-at",
+					      name: "unsigned long long",
+					      dylan-name: "<integer>",
+					      size: $longlong-int-size);
 define constant char-type = make(<integer-type-declaration>,
 				 accessor: "signed-byte-at",
 				 name: "char",

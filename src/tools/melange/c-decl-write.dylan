@@ -215,7 +215,7 @@ end method c-accessor;
 
 define constant <non-atomic-types>
     = type-union(<struct-declaration>, <union-declaration>,
-		 <vector-declaration>);
+		 <vector-declaration>, <function-type-declaration>);
 define constant <pointer-rep-types>
     = type-union(<pointer-declaration>, <non-atomic-types>);
 
@@ -350,7 +350,8 @@ define method write-c-bitfield-methods
 end method write-c-bitfield-methods;
 
 define method d2c-type-tag
-    (type :: <pointer-rep-types>) => (result :: <byte-string>);
+    (type :: <pointer-rep-types>)
+ => (result :: <byte-string>);
   "ptr:";
 end method d2c-type-tag;
 
@@ -763,21 +764,49 @@ define method write-declaration
   format(stream, ");\nend method %s;\n\n", decl.dylan-name);
 end method write-declaration;
 
-// We don't really handle function types, since we can't really define them in
-// dylan.  We simply define them to be <statically-typed-pointer>s and assume
-// that anybody who tries to pass one as a parameter gets it right.  This will
-// be fleshed out more when we have an implementation which can handle
-// callbacks properly.
-//
+// XXX - Callback and function pointer support is currently in transition.
+// We now create distinct types, but we don't yet generate code for
+// callback and callout support.
+
 define method write-declaration
     (decl :: <function-type-declaration>, load-string :: <string>,
      stream :: <stream>)
  => ();
   if (~decl.equated?)
-    // Equate this type to "<statically-typed-pointer>" as a placeholder.
-    // We may want to change this later.
-    format(stream, "define constant %s = <statically-typed-pointer>;\n\n",
+    format(stream, "define functional class %s (<function-pointer>) end;\n\n",
 	   decl.dylan-name)
+  end if;
+
+  // XXX - Hack alert. Because we haven't integrated the local name mapper
+  // with the standard name mapper, we must check for it's existence. This
+  // means that the user must explicity specify a function-type clause to
+  // get the default maker and caller names. This is inconsistent. See
+  // interface.dylan's handling of <function-type-clause> for more info.
+  if (decl.local-name-mapper)
+    local method get-name(name, alternate-prefix)
+	    if (name)
+	      as(<string>, name);
+	    else
+	      decl.local-name-mapper(alternate-prefix, decl.simple-name);
+	    end if;
+	  end method get-name;
+    
+    let maker = get-name(decl.callback-maker-name, "make");
+    let caller = get-name(decl.callout-function-name, "call");
+    select (melange-target)
+      #"d2c" =>
+	format(stream, "/* binding for %s goes here */\n\n", maker);
+	format(stream, "/* binding for %s goes here */\n\n", caller);    
+      #"mindy" =>
+	format(stream, "/* skipping bindings for %s, %s */\n\n",
+	       maker, caller);
+	signal(make(<simple-warning>,
+		    format-string:
+		      "melange: skipping mindy bindings for %s, %s",
+		    format-arguments: list(maker, caller)));
+      otherwise =>
+	error("melange: so, you wrote a new compiler?");
+    end select;
   end if;
 end method write-declaration;
 
