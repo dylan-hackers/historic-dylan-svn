@@ -7,9 +7,7 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// Definitions marked "API" are exported.
-
-define class <response> (<object>)
+define /*exported*/ open primary class <response> (<object>)
   constant slot get-request :: <request>, required-init-keyword: #"request";
 
   // The output stream is created lazily so that the user has the opportunity to
@@ -30,8 +28,7 @@ define method initialize
 end;
 
 
-// API
-define method add-header
+define /*exported*/ method add-header
     (response :: <response>, header :: <string>, value :: <object>, #key if-exists? = #"append")
   if (headers-sent?(response))
     //---TODO: define a <api-error> class or something, and signal it here.
@@ -41,8 +38,7 @@ define method add-header
   end;
 end;
 
-// API
-define method output-stream
+define /*exported*/ method output-stream
     (response :: <response>) => (stream :: <stream>)
   response.response-output-stream
   | (response.response-output-stream := allocate-resource(<string-stream>));
@@ -58,7 +54,6 @@ define method deallocate-resources
   end;
 end;
 
-// API
 // The caller is telling us that either the request is complete or it's OK to
 // send a partial response.  Send the header lines, whatever part of the body
 // has been generated so far, and then clear the output stream.
@@ -117,7 +112,8 @@ define method send-response
 end;
 
 // Convenience.  Seems common to want to add a numeric cookie value.
-define method add-cookie
+//
+define /*exported*/ method add-cookie
     (response :: <response>, name :: <string>, value :: <integer>, #rest args, #key)
   apply(add-cookie, response, name, integer-to-string(value), args)
 end;
@@ -125,7 +121,8 @@ end;
 // This isn't the right way to handle cookies, but it's simple for now.
 // ---TODO: Verify that comment is a TOKEN or QUOTED-STRING, and that other values are TOKENs.
 //          See RFC 2109.
-define method add-cookie
+//
+define /*exported*/ method add-cookie
     (response :: <response>, name :: <string>, value :: <string>,
      #key max-age, path, domain, comment)
   add-header(response, "Set-cookie",
@@ -135,7 +132,5 @@ define method add-cookie
                path    & format(s, "; Path=%s", path);
                domain  & format(s, "; Domain=%s", domain);
                comment & format(s, "; Comment=\"%s\"", comment);
-             end)
+             end);
 end;
-
-

@@ -181,6 +181,8 @@ define function start-server (#key port :: <integer> = 80,
   server.request-class := request-class;
   configure-server();
   ensure-sockets-started();
+  log-info("Server root directory is %s", *server-root*);
+  log-info("Document root is %s", *document-root*);
   log-info("Ready for service on port %d", port);
   while (start-http-listener(server, port)) end;
 end start-server;
@@ -332,7 +334,7 @@ define function do-http-listen (listener :: <listener>)
                      accept(listener.listener-socket); // blocks
                    end;
                  exception (c :: <socket-condition>)
-                   log-error(c);
+                   log-error("%=", c);
                    #f
                  end;
     synchronize-side-effects();
@@ -547,7 +549,7 @@ define method read-request (request :: <request>) => ()
 end read-request;
 
 define method send-error-response (request :: <request>, err :: <error>)
-  log-error(err);
+  log-error("%=", err);
   with-resource (headers = <header-table>)
     let response :: <response>
       = make(<response>, request: request, headers: headers);

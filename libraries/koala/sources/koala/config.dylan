@@ -6,6 +6,11 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+define constant $koala-config-dir :: <string> = "config";
+define constant $koala-config-filename :: <string> = "koala-config.xml";
+define constant $default-document-root :: <string> = "www";
+
+
 // Things to configure:
 //   *log-types*
 //   *debugging-server*
@@ -20,21 +25,115 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // http-server/www               // default web document root
 // http-server/config            // config.xml etc
 define method configure-server ()
-  let exe-loc = as(<file-locator>, application-filename());
-  let bin-dir = locator-directory(exe-loc);
-  let app-dir = parent-directory(bin-dir);
-
-  // Default document root is <koala-root>/www (assuming that the example
-  // project is running).
-  // This may be changed in config.xml (eventually)
-  *document-root* := subdirectory-locator(app-dir, "www");
-  log-info("Document root is %s", *document-root*);
-
-  // config.xml is in <app-dir>/../config/config.xml
-  let config-loc = merge-locators(as(<file-locator>, "config/config.xml"),
-                                  app-dir);
-  //---TODO
+  init-server-root();
+  init-document-root();
+  let config-loc = as(<string>,
+                      merge-locators(as(<file-locator>,
+                                        format-to-string("%s/%s",
+                                                         $koala-config-dir,
+                                                         $koala-config-filename)),
+                                     *server-root*));
+  block ()
+    let xml :: <xml-document> = parse-xml-from-file(config-loc);
+    log-info("Loading server configuration from %s.", config-loc);
+    process-config-node(xml);
+  exception (err :: <error>)
+    log-error("Error loading configuration: %=", err);
+    break("error = %=", err);
+  end;
 end configure-server;
+
+define function ensure-server-root ()
+  when (~*server-root*)
+    let exe-dir = locator-directory(as(<file-locator>, application-filename()));
+    *server-root* := parent-directory(exe-dir);
+    log-debug("Setting *server-root* to %s", as(<string>, *server-root*));
+  end;
+end;
+
+define function init-server-root (#key location)
+  ensure-server-root();
+  when (location)
+    *server-root* := merge-locators(as(<directory-locator>, location), *server-root*);
+    log-debug("Setting *server-root* to %s", as(<string>, *server-root*));
+  end;
+end;
+
+define function init-document-root (#key location)
+  ensure-server-root();
+  *document-root*
+    := merge-locators(as(<directory-locator>, location | $default-document-root),
+                      *server-root*);
+  log-debug("Setting *document-root* to %s", as(<string>, *document-root*));
+end;
+
+define method log-config-warning
+    (format-string, #rest format-args)
+  log-warning("%s: %s",
+              $koala-config-filename,
+              apply(format-to-string, format-string, format-args));
+end;
+
+define method process-config-node (node :: <element>) => ()
+  let name = node-name(node);
+  log-info("Processing configuration element %=", name);
+  process-config-element(node, as(<symbol>, name))
+end;
+
+define method process-config-node (node :: <node>) => ()
+  for (child in child-nodes(node))
+    process-config-node(child);
+  end;
+end;
+
+define method process-config-element (node :: <element>, name :: <object>)
+  log-config-warning("Unrecognized configuration setting found: %=", name);
+end;
+
+
+
+//// koala-config.xml elements.  One method for each element name.
+
+define method process-config-element (node :: <element>, name == #"koala")
+  for (child in child-nodes(node))
+    process-config-node(child);
+  end;
+end;
+
+define method process-config-element (node :: <element>, name == #"server-root")
+  let loc = get-attribute(node, "location");
+  if (~loc)
+    log-config-warning("Malformed <server-root> element.  No location was specified.");
+  else
+    init-server-root(location: loc);
+  end;
+end;
+
+define method process-config-element (node :: <element>, name == #"document-root")
+  let loc = get-attribute(node, "location");
+  if (~loc)
+    log-config-warning("Malformed <document-root> element.  No location was specified.");
+  else
+    init-document-root(location: loc);
+  end;
+end;
+
+define method process-config-element (node :: <element>, name == #"log")
+  let level = get-attribute(node, "level");
+  if (~level)
+    log-config-warning("Malformed <log> element.  No level was specified.");
+  else
+    let class = select (level by string-equal?)
+                  "debug"   => <log-debug>;
+                  "warning" => <log-warning>;
+                  "error"   => <log-error>;
+                  otherwise => <log-info>;
+                end;
+    add-log-level(class);
+    log-debug("Added log level %=", level);
+  end;
+end;
+
 
 //---TODO: Read mime types from a file and set *mime-type-map*.  Get a more complete set of types.
 // ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types
