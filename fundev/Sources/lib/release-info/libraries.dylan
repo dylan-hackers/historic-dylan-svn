@@ -359,23 +359,25 @@ define method interpret-library-binary-xml
 end method interpret-library-binary-xml;
 
 // Install the default library packs
-do-directory(method(directory :: <directory-locator>, name :: <string>, type)
-               if (type == #"directory")
-                 let xml-directory
-                   = subdirectory-locator(directory, name);
-                 let xml-locator
-                   = make(<file-locator>,
-                          //---*** UNIX/Linux filesystem is case sensitive;
-                          //       we need to clean this up!
-                          base: as-lowercase(name),
-                          extension: $library-pack-extension,
-                          directory: xml-directory);
-                 if (file-exists?(xml-locator))
-                   read-library-pack(xml-locator);
-                 end if;
-               end if;
-             end,
-             release-library-packs-directory());
+if (file-exists?(release-library-packs-directory()))
+  do-directory(method(directory :: <directory-locator>, name :: <string>, type)
+                   if (type == #"directory")
+                     let xml-directory
+                       = subdirectory-locator(directory, name);
+                     let xml-locator
+                       = make(<file-locator>,
+                              //---*** UNIX/Linux filesystem is case sensitive;
+                              //       we need to clean this up!
+                              base: as-lowercase(name),
+                              extension: $library-pack-extension,
+                              directory: xml-directory);
+                     if (file-exists?(xml-locator))
+                       read-library-pack(xml-locator);
+                     end if;
+                   end if;
+               end,
+               release-library-packs-directory());
+end if;
 
 
 /// Merged library DLL information
