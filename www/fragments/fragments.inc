@@ -1,5 +1,5 @@
 <?php
-require "../shared.inc";
+require "/shared.inc";
 
 function code_header ($title) {
 ?>
