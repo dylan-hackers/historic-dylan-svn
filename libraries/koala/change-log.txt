@@ -3,7 +3,7 @@ Change log for Koala HTTP server and Dylan Server Pages
 
 ***********************************************************************************
 
-Changes for version 0.2 (released ? ?, 2002)
+Changes for version 0.2 (released May 3, 2002)
   Bug Fixes:
   - Koala: Several resource pool bugs fixed.
   - DSP: Tag parameter specs (in the "define tag" macro) now accept default values.
