@@ -1,7 +1,7 @@
 module: Transcendental
 author: Ben Folk-Williams
 synopsis: Transcendentals.
-RCS-header: $Header: /scm/cvs/src/common/transcendental/transcendental.dylan,v 1.5.2.3 2003/06/14 09:22:20 prom Exp $
+RCS-header: $Header: /scm/cvs/src/common/transcendental/transcendental.dylan,v 1.5.2.4 2003/07/05 03:56:01 prom Exp $
 copyright: see below
 
 //======================================================================
@@ -464,7 +464,7 @@ end method tanh;
 // platforms, and we haven't yet felt up to writing our own.
 // 
 
-#if (compiled-for-hpux | compiled-for-linux | compiled-for-freebsd | compiled-for-beos)
+#if (compiled-for-hpux | compiled-for-linux | compiled-for-freebsd | compiled-for-beos | compiled-for-cygnus)
 
 define sealed method asinh (x :: <integer>) => y :: <single-float>;
   c-include("math.h");

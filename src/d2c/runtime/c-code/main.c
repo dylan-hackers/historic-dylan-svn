@@ -1,4 +1,4 @@
-/* $Header: /scm/cvs/src/d2c/runtime/c-code/main.c,v 1.21.2.3 2003/06/14 09:22:21 prom Exp $ */
+/* $Header: /scm/cvs/src/d2c/runtime/c-code/main.c,v 1.21.2.4 2003/07/05 03:56:13 prom Exp $ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -187,7 +187,7 @@ void no_core_dumps(void)
 #ifdef HAVE_GETRUSAGE
 long *cpu_time(void)
 {
-  long *retval = allocate(2 * sizeof(long));
+  long *retval = (long *) allocate(2 * sizeof(long));
   struct rusage ru;
   if(getrusage(RUSAGE_SELF, &ru) == 0) {
     retval[0]
@@ -202,7 +202,7 @@ long *cpu_time(void)
 #else
 long *cpu_time(void)
 {
-  long *retval = allocate(2 * sizeof(long));
+  long *retval = (long *) allocate(2 * sizeof(long));
   clock_t runtime = clock();
   if(runtime >= 0) {
     retval[0] = (runtime / CLOCKS_PER_SEC);

@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/machineword.dylan,v 1.6 2003/03/28 00:30:37 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/machineword.dylan,v 1.6.2.1 2003/07/05 03:56:13 prom Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -195,7 +195,7 @@ define inline method %shift-right
     (a :: <machine-word>, count :: <integer>)
  => (res :: <machine-word>)
   check-bit-index(count);
-  as(<machine-word>, %%primitive(fixnum-shift-left, as(<integer>, a), count));
+  as(<machine-word>, %%primitive(fixnum-shift-right, as(<integer>, a), count));
 end method;
 
 define inline method u%rotate-left

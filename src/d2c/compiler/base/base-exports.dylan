@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.2 2003/06/10 10:04:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.3 2003/07/05 03:56:02 prom Exp $
 copyright: see below
 
 //======================================================================
@@ -559,7 +559,7 @@ define module variables
     variable-transformers, variable-transformers-setter,
     variable-ct-evaluator, variable-ct-evaluator-setter,
     variable-fragment-expander, variable-fragment-expander-setter,
-    note-variable-definition,
+    note-variable-definition, note-variable-referencing-macro,
     <use>, <all-marker>, <renaming>, renaming-orig-name, renaming-new-name,
 
     module-home, variable-home,
