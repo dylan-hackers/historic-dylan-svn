@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.50 2003/10/03 22:49:26 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.50.2.1 2003/11/20 20:01:34 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -71,7 +71,7 @@ copyright: see below
 //      <file-state>").  As noted above, emit-tlf-gunk and emit-component are
 //      exported.  All others are internal and may have obscure side effects.
 //   make-indenting-stream-string(#rest keys)
-//      Wrapper function for "make(<buffered-byte-string-output-stream>)"
+//      Wrapper function for "make(<byte-string-stream>, direction: #"output")"
 //   get-string(stream :: <indenting-stream>)
 //      Equivalent to "stream-contents".  Only works on
 //      streams which wrap <string-stream>s.
@@ -126,7 +126,7 @@ define constant make-indenting-string-stream
   = method (#rest keys)
 	=> res :: <indenting-stream>;
       apply(make, <indenting-stream>,
-	    inner-stream: make(<buffered-byte-string-output-stream>),
+	    inner-stream: make(<byte-string-stream>, direction: #"output"),
 	    keys);
     end;
 
@@ -538,7 +538,7 @@ define method maybe-emit-source-location(source-loc :: <known-source-location>,
 				   file :: <file-state>) => ();
   if (file.file-source-location ~= source-loc)
     format(file.file-guts-stream, "\n/* #line %d \"%s\" */\n",
-	   source-loc.end-line, source-loc.source.full-file-name); // FIXME
+	   source-loc.end-line, source-loc.source.source-locator); // FIXME
     file.file-source-location := source-loc;
   end if;
 end method;
@@ -546,7 +546,8 @@ end method;
 define method maybe-emit-source-location(source-loc :: <source-location>,
 				   file :: <file-state>) => ();
   if (file.file-source-location ~= source-loc)
-    format(file.file-guts-stream, "/* #line %= */\n", object-class(source-loc));
+    format(file.file-guts-stream,
+           "/* #line %= */\n", object-class(source-loc));
     file.file-source-location := source-loc;
   end if;
 end method;
@@ -1937,7 +1938,7 @@ define method compute-function-prototype
 	       else
 		 main-entry-c-name(function-info, file);
 	       end if;
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   let result-rep = function-info.function-info-result-representation;
   case
     (result-rep == #"doesn't-return") => write(stream, "GD_NORETURN void");
@@ -2047,7 +2048,7 @@ end;
 define method emit-region
     (region :: <simple-region>, file :: <file-state>)
     => ();
-  let byte-string :: <buffered-byte-string-output-stream>
+  let byte-string :: <byte-string-stream>
     = file.file-guts-stream.inner-stream;
   for (assign = region.first-assign then assign.next-op,
        while: assign)
@@ -2432,7 +2433,7 @@ define method emit-assignment
 	       stringify(top, " - ", bot));
       else
 	let (args, sp) = cluster-names(call.info);
-	let setup-stream = make(<buffered-byte-string-output-stream>);
+	let setup-stream = make(<byte-string-stream>, direction: #"output");
 	for (arg-dep = arguments then arg-dep.dependent-next,
 	     count from 0,
 	     while: arg-dep)
@@ -2694,7 +2695,7 @@ define method emit-assignment
     => ();
   let function = call.depends-on.source-exp;
   let func-info = find-main-entry-info(function, file);
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   let c-name = main-entry-c-name(func-info, file);
   let (sp, new-sp) = cluster-names(call.info);
   let temps = make-temp-locals-list();
@@ -3554,7 +3555,7 @@ define method float-to-string (value :: <ratio>, digits :: <integer>)
   if (zero?(value))
     "0.0";
   else
-    let stream = make(<buffered-byte-string-output-stream>);
+    let stream = make(<byte-string-stream>, direction: #"output");
     if (negative?(value))
       value := -value;
       write-element(stream, '-');
