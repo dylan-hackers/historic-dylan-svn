@@ -7,7 +7,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Testing
 
-define constant $debugging-utils :: <boolean> = #t;
+define constant $debugging-utils :: <boolean> = #f;
 
 define function test-utilities
     () => ()

@@ -1,6 +1,17 @@
 Koala To-Do List
 ----------------
 
+Version 0.2
+
+- 404 errors are reporting something bogus ("Resource not found: %s" is
+  not a <function>) when *debugging-server* is false.  Something with
+  the let handler in handler-top-level?
+- Add a bit more to the date/timezone tags.
+
+
+
+General
+
 * Search sources for "---*** TODO" and do them.
 
 * Documentation.  Probably write it in DSP.
@@ -16,9 +27,6 @@ Koala To-Do List
   by URL rewriting or ...?
 
 * URL cleanups:
-  - URLs should always begin with a / and the static file handler will
-    have to remove it before calling merge-locators.  I think this is
-    done.
   - Make sure that decode-url is used in all the right places to convert
     from %xx to appropriate characters.
   - Use 'url' everywhere instead of randomly using 'uri' and 'url'.

@@ -110,7 +110,7 @@ define module utilities
     <log-debug>, log-debug, log-debug-if,
     log-message,
     log-date,
-    add-log-level, remove-log-level;
+    add-log-level, remove-log-level, clear-log-levels;
     
 end module utilities;
     

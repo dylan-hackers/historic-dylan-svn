@@ -428,7 +428,7 @@ define function handler-top-level
               end;
             end block;
             invoke-handler(request);
-          end;
+          end block;
           when (request.request-keep-alive?)
             loop()
           end;

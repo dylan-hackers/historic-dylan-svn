@@ -19,7 +19,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Module variables
 
-define constant $debugging-dsp :: <boolean> = #t;
+define constant $debugging-dsp :: <boolean> = #f;
 
 
 

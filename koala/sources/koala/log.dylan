@@ -59,6 +59,11 @@ define method remove-log-level
   *log-levels* := remove!(*log-levels*, level);
 end;
 
+define method clear-log-levels
+    () => ()
+  remove-all-keys!(*log-levels*);
+end;
+
 // All log messages should pass through here.
 define method log-message
     (level :: <log-level>, format-string :: <string>, #rest format-args)
@@ -108,11 +113,5 @@ define method log-debug-if (test, format-string, #rest format-args)
   if (test)
     apply(log-message, $log-debug, format-string, format-args);
   end;
-end;
-
-// init
-begin
-  // ---TODO: This should be a configuration setting.  Default to <log-info>.
-  add-log-level(<log-debug>);
 end;
 

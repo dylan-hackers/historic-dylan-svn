@@ -1,7 +1,7 @@
 Module:    httpi
-Synopsis:  For processing the configuration init file, server.xml
+Synopsis:  For processing the configuration init file, koala-config.xml
 Author:    Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2002 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
@@ -11,19 +11,12 @@ define constant $koala-config-filename :: <string> = "koala-config.xml";
 define constant $default-document-root :: <string> = "www";
 
 
-// Things to configure:
-//   *log-types*
-//   *debugging-server*
-//   What dlls to load?
-//   *document-root*
-//   Almost all variables in variables.dylan
-
 // Process the server config file, config.xml.
 // Assume a user directory structure like:
-// http-server/
-// http-server/bin               // server executable and libs
-// http-server/www               // default web document root
-// http-server/config            // config.xml etc
+// koala/
+// koala/bin               // server executable and dlls
+// koala/www               // default web document root
+// koala/config            // koala-config.xml etc
 define method configure-server ()
   init-server-root();
   init-document-root();
@@ -75,7 +68,6 @@ end;
 
 define method process-config-node (node :: <element>) => ()
   let name = node-name(node);
-  log-debug("Processing configuration element %=", name);
   process-config-element(node, as(<symbol>, name))
 end;
 
@@ -119,6 +111,10 @@ end;
 
 define method process-config-element (node :: <element>, name == #"log")
   let level = get-attribute(node, "level");
+  let clear = get-attribute(node, "clear");
+  when (member?(clear, #("yes", "true", "on"), test: string-equal?))
+    clear-log-levels();
+  end;
   if (~level)
     log-config-warning("Malformed <log> element.  No level was specified.");
   else
@@ -132,6 +128,15 @@ define method process-config-element (node :: <element>, name == #"log")
     log-debug("Added log level %=", level);
   end;
 end;
+
+define method process-config-element (node :: <element>, name == #"debug-server")
+  let value = get-attribute(node, "value");     // returns "" if not specified
+  *debugging-server*
+    := member?(value, #("true", "on", "yes", ""), test: string-equal?);
+  when (*debugging-server*)
+    log-warning("Server debugging is enabled.  Server may crash if not run inside an IDE!");
+  end;
+end;    
 
 
 //---TODO: Read mime types from a file and set *mime-type-map*.  Get a more complete set of types.

@@ -6,6 +6,7 @@ Change log for Koala HTTP server and Dylan Server Pages
 Changes for version 0.2 (released ? ?, 2002)
   Bug Fixes:
   - Koala: Several resource pool bugs fixed.
+  - DSP: Tag parameter specs (in the "define tag" macro) now accept default values.
 
   New Features:
   - Koala: Use koala-config.xml to specify configuration parameters.  No longer
@@ -14,7 +15,6 @@ Changes for version 0.2 (released ? ?, 2002)
   - DSP: Template parser gives more warnings for malformed tags.
   - DSP: Improved tags for generating dynamic HTML tables.  <dsp:table> tag et al.
   - DSP: Added new tags for date display and timezone hacking.
-  - DSP: Tag parameter specs (in the "define tag" macro) now accept default values.
 
   Internals
   - DSP: Moved DSP to its own module.
