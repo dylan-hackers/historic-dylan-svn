@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.37 2002/04/13 01:35:07 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.37.2.1 2002/07/28 15:19:24 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -1301,6 +1301,22 @@ define method emit-prologue
   format(stream, "#define GENERIC_ENTRY(func) \\\n");
   format(stream, "    ((entry_t)SLOT(func, void *, %d))\n\n",
 	 dylan-slot-offset(specifier-type(#"<method>"), #"generic-entry"));
+
+  format(stream, "#define VERIFY_SIZE_ASSUMPTION(type, size) \\\n");
+  format(stream, "    typedef char dummy_assert_ ## type"
+                 "[sizeof(type) == (size) ? 1 : -1]\n\n");
+  format(stream, "VERIFY_SIZE_ASSUMPTION(descriptor_t, %d);\n",
+                  *general-rep*.representation-size);
+
+  format(stream, "typedef long double ldouble;\n");
+  for(type in #[#"heapptr_t", "int", "long", "short",
+                "float", "double", #"ldouble"],
+      size-getter in vector(pointer-size, integer-size, long-size, short-size, 
+                            single-size, double-size, long-double-size))
+    format(stream, "VERIFY_SIZE_ASSUMPTION(%s, %d);\n",
+                   type, size-getter(*current-target*));
+  end for;
+  format(stream, "\n");
 end;
 
 define method dylan-slot-offset (cclass :: <cclass>, slot-name :: <symbol>)
