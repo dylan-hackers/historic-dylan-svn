@@ -62,19 +62,6 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../cback'
     . ' -L../../debugger';
 
-@potential_targets = &d2c_library('Main', '');
-
-&emit_dbc_link_rule
-    ('d2c.dbc', 
-     '../../../common/base-file-system/base-file-system-lib.dbc '
-     . '../base/compiler-base-lib.dbc ../front/compiler-front-lib.dbc'
-     . ' ../fer-transform/compiler-fer-transform-lib.dbc'
-     . ' ../optimize/compiler-optimize-lib.dbc '
-     . ' ../parser/compiler-parser-lib.dbc ../convert/compiler-convert-lib.dbc'
-     . ' ../cback/compiler-cback-lib.dbc compiler-main-lib.dbc');
-
-if ($enable_mindy_bootstrap) {
-    push(@compile_dependencies, 'd2c.dbc');
-}
-&install_executable($bindir, $potential_targets[0]);
+do emit_library_rule('Main', '$(BUILDROOT)/force.timestamp', '', 
+		     'compile', 'install');
 

@@ -1,5 +1,3 @@
-&makegen_include("../common-Makegen");
-
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
@@ -17,4 +15,5 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../front'
     . ' -L../parser';
 
-&d2c_library('Convert', '');
+do emit_library_rule('Convert', '$(BUILDROOT)/force.timestamp', '', 
+		     'compile', 'install');

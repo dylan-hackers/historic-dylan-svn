@@ -1,5 +1,3 @@
-&makegen_include("../common-Makegen");
-
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
@@ -17,4 +15,5 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../front'
     . ' -L../fer-transform';
 
-&d2c_library('Optimize', '');
+do emit_library_rule('Optimize', '$(BUILDROOT)/force.timestamp', '', 
+		     'compile', 'install');

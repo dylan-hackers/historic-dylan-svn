@@ -1,5 +1,3 @@
-&makegen_include('../common-Makegen');
-
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
@@ -18,4 +16,5 @@ if ($enable_bootstrap) {
   $D2CFLAGS = $D2CFLAGS . ' -Dbootstrap_hack ';
 }
 
-&d2c_library('Base', '');
+do emit_library_rule('Base', '$(BUILDROOT)/force.timestamp', '', 
+		     'compile', 'install');
