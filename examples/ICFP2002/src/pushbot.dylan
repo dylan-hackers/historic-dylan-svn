@@ -31,24 +31,6 @@ define method update-point(p :: <point>, dir)
   end;
 end method;
 
-define method points-to-direction(src :: <point>, dest :: <point>)
- => (dir :: one-of(#"north", #"south", #"west", #"east", #f))
-  let xdiff = src.x - dest.x;
-  let ydiff = src.y - dest.y;
-
-  if(xdiff = -1 & ydiff = 0)
-    #"east";
-  elseif(xdiff = 1 & ydiff = 0)
-    #"west";
-  elseif(xdiff = 0 & ydiff = -1)
-    #"north";
-  elseif(xdiff = 0 & ydiff = 1)
-    #"south";
-  else
-    #f;
-  end;
-end method;
-
 // does a transitive push check
 define method check-direction(s :: <state>, p :: <point>, dir)
  => (res :: <boolean>)

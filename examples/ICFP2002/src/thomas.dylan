@@ -15,8 +15,6 @@ define constant <goal> = one-of($ready, $nowhere-to-go, $going-to-base,
 define class <thomas> (<robot-agent>)
   slot goal :: <goal>,
     init-value: $ready;
-  slot current-package :: <package>.false-or,
-    init-value: #f;
   slot moves-remaining :: false-or(<list>),
     init-value: #f;
 end class <thomas>;
@@ -84,20 +82,6 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
   end if;
 end method choose-next-base;
 
-define method make-move-command
-    (p1 :: <point>, p2 :: <point>, id :: <integer>) => <command>;
-  debug("make-move: %= --> %=\n", p1, p2);
-  let direction =
-    case
-      p1.x = p2.x & p1.y < p2.y => $north;
-      p1.x = p2.x & p1.y > p2.y => $south;
-      p1.x < p2.x & p1.y = p2.y => $east;
-      p1.x > p2.x & p1.y = p2.y => $west;
-      otherwise => error("make-move-command: Can't happen!")
-    end case;
-  make(<move>, id: id, bid: 1, direction: direction);
-end method make-move-command;
-
 define method choose-packages (packages :: <sequence>, tom :: <thomas>,
                                state :: <state>)
  => (ps :: <sequence>)
@@ -163,7 +147,10 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
         else
           let next-point = tom.moves-remaining.head;
           tom.moves-remaining := tom.moves-remaining.tail;
-          make-move-command(tom-pos, next-point, tom.agent-id);
+          make(<move>,
+               id: tom.agent-id,
+               bid: 1,
+               direction: points-to-direction(tom-pos, next-point));
         end if;
       end;
     $nowhere-to-go => 
@@ -190,7 +177,11 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
         else
           let next-point = tom.moves-remaining.head;
           tom.moves-remaining := tom.moves-remaining.tail;
-          make-move-command(agent-pos(tom, state), next-point, tom.agent-id);
+          make(<move>,
+               id: tom.agent-id,
+               bid: 1,
+               direction: points-to-direction(agent-pos(tom, state),
+                                              next-point));
         end if;
       end;
   end select;

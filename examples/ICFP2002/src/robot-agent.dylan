@@ -26,3 +26,23 @@ define method maybe-mark-base-visited(me :: <robot-agent>, s :: <state>, p :: <p
   end if;
 end method maybe-mark-base-visited;
 
+// some direction stuff.
+
+define method points-to-direction(src :: <point>, dest :: <point>)
+ => (dir :: one-of(#"north", #"south", #"west", #"east", #f))
+  let xdiff = src.x - dest.x;
+  let ydiff = src.y - dest.y;
+
+  if(xdiff = -1 & ydiff = 0)
+    #"east";
+  elseif(xdiff = 1 & ydiff = 0)
+    #"west";
+  elseif(xdiff = 0 & ydiff = -1)
+    #"north";
+  elseif(xdiff = 0 & ydiff = 1)
+    #"south";
+  else
+    #f;
+  end;
+end method points-to-direction;
+
