@@ -360,7 +360,7 @@
 	<mime-type id="text/css">
 		<extension>css</extension>
 	</mime-type>
-	<mime-type id="text/html">
+	<mime-type id="text/html; charset=utf-8">
 		<extension>html</extension>
 		<extension>htm</extension>
 	</mime-type>

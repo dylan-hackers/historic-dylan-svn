@@ -131,7 +131,7 @@ define class <virtual-host> (<object>)
 
   // The value sent in the "Content-Type" header for dynamic responses if no
   // other value is set.
-  slot default-dynamic-content-type :: <string> = "text/html";
+  slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
 
   // This is the "master switch" for auto-registration of URLs.  If #f then
   // URLs will never be automatically registered based on their file types.  It
