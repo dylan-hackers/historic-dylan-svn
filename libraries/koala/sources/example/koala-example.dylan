@@ -4,22 +4,24 @@ Author:    Carl Gay
 
 /*
 
-Start this example project and go to /example/home.dsp and you will be led through a 
-series of pages that demonstrate the features of Dylan Server Pages.  You should
+Start this example project and go to /example/home.dsp and you can choose from a
+menu of pages that demonstrate the features of Dylan Server Pages.  You should
 be able to find the code corresponding to a particular URL by searching for that
 URL in this file.
 
 You write your web application as an executable that uses the koala HTTP server dll.
+(This will eventually change.  Koala should eventually load your DLL at run-time.)
 Look for the call to "start-server" in this file for an example of how to start up the
 server.  Following are examples of various ways to define static and dynamic handlers
 for web URIs.
 
 Note that any URIs registered for dynamic pages hide URIs corresponding to files in
-the document root.  The dynamic URI takes precedence.
+the document root directory.  i.e., the dynamic URI takes precedence.
 
 */
 
-// Start the Koala server early because it sets configuration variables like *document-root*.
+// Start the Koala server early because it sets configuration variables like
+// *document-root* that are used by the example code.
 begin
   let args = application-arguments();
   let port = ((size(args) > 0 & string-to-integer(args[0]))
@@ -28,42 +30,47 @@ begin
 end;
 
 
-/// Responders -- the lowest level API for responding to a URI
+//// Responders -- the lowest level API for responding to a URI
 
 // Responds to a single URI.
-define responder test1 ("/test1")
+define responder responder1 ("/responder1")
     (request :: <request>,
      response :: <response>)
   select (request-method(request))
     #"get", #"post"
-      => format(output-stream(response), "<html><body>This is a test.</body></html>");
+      => format(output-stream(response),
+                "<html><body>This is the output of a 'define responder' form."
+                "<p>Use your browser's Back button to return to the example."
+                "</body></html>");
   end;
 end;
 
 
 
-/// Page abstraction
+//// Page abstraction
 
-// Slightly higher level than responders.  Gives you the convenience of not having to figure out
-// whether it's a GET, POST, HEAD, request, and the ability to dispatch on your own page classes.
-// Just define methods for respond-to-get, respond-to-post, and/or respond-to-head that dispatch
-// on your page class.  Note that the default methods for GET and HEAD do nothing and the default
-// method for POST calls the method for GET.
+// Slightly higher level than responders.  Gives you the convenience of not
+// having to figure out whether it's a GET, POST, HEAD, request, and the ability
+// to dispatch on your own page classes.  Just define methods for
+// respond-to-get, respond-to-post, and/or respond-to-head that dispatch on your
+// page class.  Note that the default methods for GET and HEAD do nothing and
+// the default method for POST calls the method for GET.
 
-// This defines a <hello-world-page> class which is a subclass of <page>, and a variable
-// called *hello-world-page* which is an instance of <hello-world-page>.  It associates
-// the URI /hello with the *hello-world-page* instance.  The value for the uri: arg may
-// also be a sequence of URIs if you want to associate the page with multiple URIs.
+// This defines a <hello-world-page> class which is a subclass of <page>, and a
+// variable called *hello-world-page* which is an instance of
+// <hello-world-page>.  It associates the URLs /hello-world and /hello with the
+// *hello-world-page* instance.
 //
 define page hello-world-page (<page>)
     (uri: "/hello-world",
      aliases: "/hello")
 end;
 
-// Respond to a GET for the /hello URI.  Note the use of do-query-values to find all the values
-// passed in the URI (e.g., /hello?foo=1&bar=2).  You can also use get-query-value to get a 
-// specific query value, and count-query-values can be used to find out how many there are.
-// Note that respond-to-post automatically calls respond-to-get, unless you override it.
+// Respond to a GET for <hello-world-page>.  Note the use of do-query-values to
+// find all the values passed in the URI (e.g., /hello?foo=1&bar=2).  You can
+// also use get-query-value to get a specific query value, and
+// count-query-values can be used to find out how many there are.  Note that
+// respond-to-post automatically calls respond-to-get, unless you override it.
 //
 define method respond-to-get (page :: <hello-world-page>,
                               request :: <request>,
@@ -78,7 +85,7 @@ define method respond-to-get (page :: <hello-world-page>,
   do-query-values(method (key, val)
                     format(stream, "key = %s, val = %s<br>\n", key, val);
                   end);
-  format(stream, "</body></html>");
+  format(stream, "<p>Use your browser's Back button to return to the demo.</body></html>");
 end;
 
 
@@ -248,6 +255,66 @@ define tag display-iteration-number in $example-taglib
     (page :: <example-page>, response :: <response>, #key)
   format(output-stream(response), "%d", *repetition-number*);
 end;
+
+
+//// table generation
+
+define page table-page (<example-page>)
+    (uri: "/example/table.dsp",
+     source: document-location("example/table.dsp"))
+end;
+
+define thread variable *row* :: <object> = #f;
+define thread variable *row-number* :: <integer> = 0;
+
+define body tag demo-table in $example-taglib
+    (page :: <example-page>, response :: <response>, do-body :: <function>,
+     #key row-generator)
+  let generator = get-label(row-generator);
+  if (~generator)
+    log-warning("DSP: The row generator function %= was not found.", row-generator);
+  else
+    let rows = row-generator(page);
+    for (row in rows,
+         i from 1)
+      dynamic-bind (*row* = row,
+                    *row-number* = i)
+        do-body();
+      end;
+    end;
+  end if;
+end;
+
+define function table-has-rows?
+    (page :: <example-page>, request)
+ => (rows? :: <boolean>)
+  #t
+end;
+
+define function demo-row-generator
+    (page :: <example-page>)
+  #[#["dog", "perro"],
+    #["cat", "gato"],
+    #["cow", "vaca"]]
+end;
+
+begin
+  register-label("table-has-rows?", table-has-rows?);
+  register-label("demo-row-generator", demo-row-generator);
+end;
+
+define tag column1-data in $example-taglib
+    (page :: <example-page>, response :: <response>, #key)
+  let out = output-stream(response);
+  format(out, "%s", *row*[0]);
+end;
+
+define tag column2-data in $example-taglib
+    (page :: <example-page>, response :: <response>, #key)
+  let out = output-stream(response);
+  format(out, "%s", *row*[1]);
+end;
+
 
 //--------------old example code--------------------------------------------
 

@@ -23,10 +23,18 @@
     <li><a href="login.dsp">Login</a></li>
     <li><a href="logout.dsp">Logout</a></li>
     <li><a href="iterator.dsp?n=3">Iterator</a></li>
+    <li><a href="table.dsp">Table Generation</a></li>
     <li><a href="login.dsp">Login</a></li>
     <li><a href="login.dsp">Login</a></li>
     <li><a href="login.dsp">Login</a></li>
-    <li><a href="login.dsp">Login</a></li>
+  </ol>
+
+  <p>
+  <h3>Low-level Koala API</h3>
+  
+  <ol>
+    <li><a href="/responder1">A responder (the most basic way to respond to a URL)</a></li>
+    <li><a href="/hello?a=1&b=2">Hello World (a non-DSP page)</a></li>
   </ol>
 
   <%dsp:include url="body-wrapper-end.dsp"/>

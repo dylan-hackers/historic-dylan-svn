@@ -15,9 +15,9 @@ define function log-level-name (level :: <symbol>) => (name :: <byte-string>)
   select (level)
     $log-info  => "info";
     $log-warn  => "warn";
-    $log-error => "err";
-    $log-debug => "dbg";
-    otherwise  => "";
+    $log-error => "err ";
+    $log-debug => "dbg ";
+    otherwise  => "    ";
   end;
 end;
 

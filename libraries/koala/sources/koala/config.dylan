@@ -22,7 +22,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define method configure-server ()
   let exe-loc = as(<file-locator>, application-filename());
   let bin-dir = locator-directory(exe-loc);
-  let app-dir = up-directory(bin-dir, levels: 3);
+  let app-dir = parent-directory(bin-dir);
 
   // Default document root is <koala-root>/www (assuming that the example
   // project is running).

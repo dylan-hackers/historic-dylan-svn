@@ -295,7 +295,7 @@ define sideways method locator-path
   locator-path(locator-directory(locator))
 end;
 
-define method up-directory
+define method parent-directory
     (dir :: <locator>, #key levels = 1) => (dir :: <directory-locator>)
   for (i from 1 to levels)
     // is there a better way to get the containing directory?
