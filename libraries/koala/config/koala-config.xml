@@ -5,7 +5,9 @@
 <!-- Koala configuration file
 
      This file must be placed in <koala-executable>/../config/koala-config.xml
-     if you want Koala to find it.
+     if you want Koala to find it.  For example, when running the koala-example
+     project a copy of this file should be placed in the directory
+     <koala-root>/sources/example/config/
 
      Anything directly inside the <koala> element in this file affects
      Koala's global environment.  Later, if virtual hosts are added, anything
@@ -83,7 +85,7 @@
 <auto-register enabled="no" />
 
 
-<!-- XML-RPC server.
+<!-- XML-RPC server
      Set enable="yes" to enable, "no" to disable.
      Set url to the URL on which the server should listen for XML-RPC requests.
      Set internal-error-fault-code to the fault code that should be returned for

@@ -3,7 +3,7 @@ Change log for Koala HTTP server and Dylan Server Pages
 
 ***********************************************************************************
 
-Changes for version 0.3
+Changes for version 0.3 (released August 7, 2002)
   Bug Fixes:
   - Directory browsing now works correctly even if the user browses a directory
     ending without a slash.
