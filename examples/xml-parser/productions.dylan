@@ -93,6 +93,11 @@ end macro meta-builder;
 define variable *entities* = make(<table>);
 define variable *pe-refs* = make(<table>);
 
+define method entity-value(ent :: <entity-reference>)
+ => (val :: <string>)
+  *entities*[ent.name];
+end method entity-value;
+
 //-------------------------------------------------------
 // Productions
 

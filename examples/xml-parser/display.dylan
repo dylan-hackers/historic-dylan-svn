@@ -11,7 +11,7 @@ define method display-node(node :: <char-string>)
 end method display-node;
 
 define method display-node(node :: <entity-reference>)
-  format-out("Entity: [%s = %s]\n", node.name, *entities*[node.name]);
+  format-out("Entity: [%s = %s]\n", node.name, node.entity-value);
 end method display-node;
 
 define method display-node(node :: <char-reference>)

@@ -46,7 +46,7 @@ end method transform;
 define method transform(in :: <entity-reference>, tag-name :: <symbol>,
                         state :: <symbol>, str :: <string>)
  => (xform :: <string>)
-  concatenate(str, *entities*[tag-name]);
+  concatenate(str, in.entity-value);
 end method transform;
 
 define method transform(in :: <char-reference>, tag-name :: <symbol>,

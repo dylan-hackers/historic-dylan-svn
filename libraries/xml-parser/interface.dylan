@@ -31,6 +31,7 @@ define class <char-string> (<xml>)
 end class <char-string>;
 
 define class <entity-reference> (<xml>)
+  virtual slot entity-value;
 end class <entity-reference>;
 
 define class <char-reference> (<xml>)
