@@ -300,11 +300,11 @@ define class <dsp-template> (<object>)
   // When the the bug that prevents the <substring> class from working
   // is fixed, nuke these two slots.
   constant slot content-start :: <integer>, required-init-keyword: #"content-start";
-  constant slot content-end   :: <integer>, required-init-keyword: #"content-end";
+           slot content-end   :: <integer>, required-init-keyword: #"content-end";
   constant slot entries :: <stretchy-vector> = make(<stretchy-vector>);
-  constant slot parent :: false-or(<dsp-template>) = #f, init-keyword: #"parent";
+  constant slot parent  :: false-or(<dsp-template>) = #f, init-keyword: #"parent";
   constant slot source-location :: false-or(<locator>) = #f, init-keyword: #"source";
-  slot mod-date; // ---*** TODO
+           slot mod-date; // ---*** TODO
 end;
 
 define method add-entry!
@@ -458,92 +458,49 @@ define method parse-page
     // More than two taglib directives seems unlikely...
     let taglibs = make(<stretchy-vector>, capacity: 2);
     add!(taglibs, pair(default-prefix($default-taglib), $default-taglib));
-    page.page-template
-      := parse-template(page,
-                        make(<dsp-template>,
-                             parent: #f,
-                             contents: string,
-                             content-start: 0,
-                             content-end: size(string),
-                             source: source-location(page)),
-                        taglibs,
-                        list());
+    let tmplt = make(<dsp-template>,
+                     parent: #f,
+                     contents: string,
+                     content-start: 0,
+                     content-end: size(string),
+                     source: source-location(page));
+    parse-template(page, tmplt, taglibs, list());
+    tmplt
   end;
 end parse-page;
 
-define function find-tag-end (tag-start :: <integer>,
-                              contents :: <string>,
-                              bpos :: <integer>,
-                              epos :: <integer>,
-                              prefix :: <string>)
- => (tend :: false-or(<integer>), has-body? :: <boolean>)
-  // Note this assumes DSP tag elements don't contain any '/' or '>' chars.
-  let close-angle = char-position('>', contents, tag-start + 1 + size(prefix), epos);
-  when (close-angle)
-    iff (contents[close-angle - 1] == '/',
-         values(close-angle - 1, #f),
-         values(close-angle, #t))
-  end
-end;
-
-        
-define function process-dsp-tag (page :: <dylan-server-page>,
-                                 tmplt :: <dsp-template>,
-                                 taglibs :: <stretchy-vector>,
-                                 tag-stack :: <list>,
-                                 call :: <tag-call>,
-                                 prefix :: <string>,
-                                 tag-start :: <integer>, // pos of '<' char in start tag
-                                 tag-end :: <integer>,   // pos of '>' char in start tag
-                                 has-body?)
- => (scan-pos :: <integer>)
-  if (~has-body?)
-    tag-end + 2
-  else
-    // ---*** TODO: This doesn't allow for nesting two tags with the same name.
-    let close-tag-name = format-to-string("</%s:%s>", prefix, call.name);
-    let end-tag-start
-      = string-position(tmplt.contents, close-tag-name, tag-end + 1, tmplt.content-end);
-    if (end-tag-start)
-      let bpos = tag-end + 1;
-      let subtemplate = make(<dsp-template>,
-                             parent: tmplt,
-                             contents: tmplt.contents,
-                             content-start: bpos,
-                             content-end: end-tag-start);
-      parse-template(page, subtemplate, taglibs, tag-stack);
-      call.body := subtemplate;
-    else
-      error("Couldn't find closing tag %s in template %s",
-            close-tag-name, as(<string>, page.source-location));
-    end;
-    end-tag-start + size(close-tag-name);
-  end;
-end;
-
-define function what-am-i-looking-at?
-    (buffer, taglib-pairs, bpos, epos) => (prefix, taglib)
-  if (empty?(taglib-pairs))
-    iff(looking-at?("%dsp:", buffer, bpos, epos),
-        values("%dsp", #"directive"),
-        values(#f, #f))
-  else
-    let prefix = head(head(taglib-pairs));
-    let taglib = tail(head(taglib-pairs));
-    iff(looking-at?(concatenate(prefix, ":"), buffer, bpos, epos),
-        values(prefix, taglib),
-        what-am-i-looking-at?(buffer, tail(taglib-pairs), bpos, epos))
-  end
+// @param bpos points directly after a '<' char in buffer.
+// @return tag-prefix and its associated taglib.
+define function parse-tag-prefix
+    (buffer, taglib-specs, bpos, epos) => (prefix, taglib)
+  local method parse-prefix (spec-index :: <integer>)
+          if (spec-index >= size(taglib-specs))
+            iff(looking-at?("%dsp:", buffer, bpos, epos),
+                values("%dsp", #"directive"),
+                values(#f, #f))
+          else
+            let spec = taglib-specs[spec-index];
+            let prefix = head(spec);
+            let taglib = tail(spec);
+            iff(looking-at?(concatenate(prefix, ":"), buffer, bpos, epos),
+                values(prefix, taglib),
+                parse-prefix(spec-index + 1))
+          end
+        end;
+  parse-prefix(0);
 end;
 
 define function process-dsp-directive
     (page, tmplt, taglibs, tag-stack, call, tag-start, tag-end, has-body?)
  => (scan-pos :: <integer>)
   select (call.name by string-equal?)
-    "include" => process-include-directive(page, tmplt, taglibs, call, tag-start, tag-end, has-body?);
-    "taglib"  => process-taglib-directive(page, tmplt, taglibs, call, tag-start, tag-end, has-body?);
-    otherwise => error("Unrecognized DSP directive %= at position %d",
-                       call.name, tag-start);
+    "include"
+      => process-include-directive(page, tmplt, taglibs, tag-stack, call, tag-start, tag-end, has-body?);
+    "taglib"
+      => process-taglib-directive(page, tmplt, taglibs, call, tag-start, tag-end, has-body?);
+    otherwise
+      => error("Unrecognized DSP directive %= at position %d",
+               call.name, tag-start);
   end;
 end;
 
@@ -564,12 +521,37 @@ define function process-include-directive
                            contents: contents,
                            content-start: 0,
                            content-end: size(contents));
-    add-entry!(tmplt, parse-template(page, subtemplate, taglibs, tag-stack));
+    parse-template(page, subtemplate, taglibs, tag-stack);
+    add-entry!(tmplt, subtemplate);
   else
     error("In template %=, included file %= not found.",
           page.source-location, url);
   end;
   tag-end + 2
+end;
+
+/** Note that the end of comment string may have whitespace between -- and >.
+ @param bpos points directly after the opening comment string "<!--".
+ @return the position in buffer directly following of the next end of comment
+         string, or size(buffer) if the comment isn't terminated.
+*/
+define function html-comment-end
+    (buffer :: <string>, bpos :: <integer>) => (comment-end :: <integer>)
+  block (return)
+    let epos :: <integer> = size(buffer);
+    iterate loop (pos = bpos)
+      when (pos < epos - 3)       // 3 to account for "-->"
+        let potential-end = string-position(buffer, "--", pos, epos);
+        when (potential-end)
+          let non-white = skip-whitespace(buffer, potential-end + 2, epos);
+          iff(non-white < epos & buffer[non-white] = '>',
+              return(non-white + 1),
+              loop(potential-end + 1));
+        end;
+      end;
+    end;
+    return(size(buffer));  // comment not terminated
+  end block
 end;
 
 define function process-taglib-directive
@@ -596,24 +578,40 @@ define function process-taglib-directive
   tag-end + 2
 end;
 
-//---*** TODO: Handle XML/HTML comments correctly.  Should probably re-implement
-//             this with a simple state machine parser.
-// @param page is the top-level page being parsed.
-// @param tmplt is the current (sub)template being side-effected.
-// @param taglibs are pairs of the form #(prefix . taglib) created by taglib
-//        directives in the page.  The default taglib (dsp) is always present.
-//        Since taglib directives apply from where they occur to the bottom of the
-//        page, taglibs is a <stretchy-vector> so new items can be added as they're found.
+/**
+This is basically a recursive descent parser for a Dylan Server Page template.
+It searches for the next recognizable start tag or DSP directive in the given
+template (between tmplt.content-start and tmplt.content-end).  It adds plain
+content (i.e., the text between recognized tags) to the current template. Tags
+are parsed and added to the template as <tag-call>s.  If the tag has a body,
+parse-template calls itself recursively to parse the body, and returns when
+it finds the matching end tag.  (This allows for nesting tags of the same name.)
+
+---*** TODO: Handle XML/HTML comments correctly.
+
+@param page is the top-level page being parsed.
+@param tmplt is the current (sub)template being side-effected.
+@param taglibs are pairs of the form #(prefix . taglib) created by taglib
+       directives in the page.  The default taglib (dsp) is always present.
+       Since taglib directives apply from where they occur to the bottom of the
+       page, taglibs is a <stretchy-vector> so new items can be added as they're found.
+@param tag-stack is the stack of tags seen so far in the recursive descent parser.
+       i.e., we expect to see closing tags for each one, in order.  It is a list
+       of <tag-call> objects.
+*/
 define method parse-template (page :: <dylan-server-page>,
                               tmplt :: <dsp-template>,
                               taglibs :: <stretchy-vector>,
                               tag-stack :: <list>)
- => (template :: <dsp-template>)
+ => (end-of-template-index :: <integer>)
+
   let buffer :: <string> = tmplt.contents;
   let bpos :: <integer> = tmplt.content-start;
-  let epos :: <integer> = tmplt.content-end;
+  let epos :: <integer> = size(buffer);  // was tmplt.content-end;
   let scan-pos :: <integer> = bpos;
   let chunk-pos :: <integer> = bpos;          // beginning of current non-tag chunk
+  let end-tag = ~empty?(tag-stack)
+                & format-to-string("<%s:%s", head(tag-stack).prefix, head(tag-stack).name);
   block (return)
     while (scan-pos < epos)
       let tag-start :: false-or(<integer>) = char-position('<', buffer, scan-pos, epos);
@@ -621,112 +619,167 @@ define method parse-template (page :: <dylan-server-page>,
         // put the remainder of the page in the template as a string.
         iff(chunk-pos < epos,
             add-entry!(tmplt, substring(buffer, chunk-pos, epos)));
-        return();
+        return(epos);
+      elseif (looking-at?("<!--", buffer, tag-start, epos))
+        scan-pos := html-comment-end(buffer, tag-start + 4);
+      elseif (end-tag & looking-at?(end-tag, buffer, tag-start, epos))
+        // done parsing the body of a tag as a subtemplate
+        return(tag-start + size(end-tag))
       else
-        let (prefix, taglib) = what-am-i-looking-at?(buffer, taglibs, tag-start + 1, epos);
+        let (prefix, taglib) = parse-tag-prefix(buffer, taglibs, tag-start + 1, epos);
         if (~prefix)
           // tag-start points to '<' but not to a known tag prefix like "<%dsp:"
           scan-pos := tag-start + 1;
         else
+          // ok, found a valid-looking tag prefix like "<%dsp:" in a known taglib.
           let directive? = (taglib = #"directive");
           unless (chunk-pos = tag-start)
             add-entry!(tmplt, substring(buffer, chunk-pos, tag-start));
           end;
-          let (tag-end, has-body?) = find-tag-end(tag-start, buffer, epos, bpos, prefix);
-          if (tag-end)
-            let call = parse-start-tag(page, buffer, tag-start, tag-end, taglib,
-                                       prefix, directive?);
-            scan-pos := if (directive?)
-                          process-dsp-directive(page, tmplt, taglibs, tag-stack, call,
-                                                tag-start, tag-end, has-body?)
+          let (call, has-body?, body-start)
+            = parse-start-tag(page, buffer, tag-start,
+                              iff(directive?, $default-taglib, taglib),
+                              prefix, directive?);
+          // Note that if the current tag has a body, process-dsp-tag/directive will
+          // call parse-template recursively to parse the body into a <dsp-template>.
+          scan-pos := if (directive?)
+                        process-dsp-directive(page, tmplt, taglibs, tag-stack, call,
+                                              tag-start, body-start, has-body?)
+                      else
+                        add-entry!(tmplt, call);
+                        if (has-body?)
+                          call.body := make(<dsp-template>,
+                                            parent: tmplt,
+                                            contents: tmplt.contents,
+                                            content-start: body-start,
+                                            content-end: epos);
+                          call.body.content-end
+                            := parse-template(page, call.body, taglibs, pair(call, tag-stack));
                         else
-                          add-entry!(tmplt, call);
-                          process-dsp-tag(page, tmplt, taglibs, tag-stack, call,
-                                          prefix, tag-start, tag-end, has-body?)
-                        end;
-            chunk-pos := scan-pos;
-          else
-            // didn't find the end of the dsp tag.  what to do???
-            log-warning("No end tag found for tag at character position %d.",
-                        tag-start);
-            add-entry!(tmplt, substring(buffer, tag-start, epos));
-            return();
-          end;
+                          body-start
+                        end if
+                      end if;
+          chunk-pos := scan-pos;
         end if;
       end if;
     end while;
-  end block;
-  tmplt
+    epos        // didn't return from block early, so must be at end of buffer
+  end block
 end parse-template;
 
-// buffer is the string containing the dsp tag.  bpos is the index of "<dsp:" and epos
-// is the index of the closing "/>" or ">".
+// @param buffer is the string containing the dsp tag.
+// @param bpos is the index of (for example) "<prefix:" in buffer.
+// @param prefix is e.g. "%dsp".
+// @param taglib is the taglib corresponding to prefix.
+// @param directive? is true iff prefix is "%dsp".
 define function parse-start-tag (page :: <dylan-server-page>,
                                  buffer :: <string>,
                                  bpos :: <integer>,
-                                 epos :: <integer>,
                                  taglib :: <taglib>,
-                                 prefix :: <string>, directive?)
- => (tag-call :: <tag-call>, name)
+                                 prefix :: <string>,
+                                 directive?)
+ => (tag-call :: <tag-call>, has-body?, body-start)
   let name-start = bpos + size(prefix) + 2;  // 2 for the < and : characters
-  let wpos = whitespace-position(buffer, name-start, epos);
-  let name-end = wpos | epos;
+  let epos = size(buffer);
+  let name-end = end-of-word(buffer, name-start, epos);
   let name = copy-sequence(buffer, start: name-start, end: name-end);
-  let tag-args = extract-tag-args(buffer, name-end, epos);
-  if (directive?)
-    make(<tag-call>, name: name, prefix: prefix, arguments: tag-args)
-  else
-    let tag = find-tag(taglib, name);
-    if (tag)
-      make(<tag-call>, prefix: prefix, name: name, tag: tag, arguments: tag-args)
-    else
-      error("In template %=, the tag %= was not found.",
-            as(<string>, page.source-location),
-            name);
-    end
-  end
+  format-out("--->tag name = %=\n", name);
+  let (tag-args, has-body?, end-index)
+    = extract-tag-args(buffer, name-end, epos);
+  format-out("--->has-body? = %=, end-index = %=\n", has-body?, end-index);
+  format-out("--->args = ");
+  for (item in tag-args)
+    format-out("%= ", item);
+  end;
+  format-out("\n");
+  values(if (directive?)
+           make(<tag-call>, name: name, prefix: prefix, arguments: tag-args)
+         else
+           let tag = find-tag(taglib, name);
+           if (tag)
+             make(<tag-call>,
+                  name: name, prefix: prefix, tag: tag, arguments: tag-args)
+           else
+             error("In template %=, the tag %= was not found.",
+                   as(<string>, page.source-location),
+                   name);
+           end
+         end,
+         has-body?,
+         end-index)
 end parse-start-tag;
+
+define function end-of-word (buffer :: <string>, bpos :: <integer>, epos :: <integer>)
+  local method delim? (char :: <character>) => (b :: <boolean>)
+          char = '>' | whitespace?(char)
+        end;
+  min(char-position-if(delim?, buffer, bpos, epos),
+      string-position(buffer, "/>", bpos, epos))
+end;
 
 // Parse the key1="val1" key2="val2" arguments from a call to a DSP tag.
 // Values may be quoted with either single or double quotes (or nothing, but quoting is recommended).
 // There is no way to escape the quote characters.
 define method extract-tag-args
     (buffer :: <byte-string>, bpos :: <integer>, epos :: <integer>)
- => (args :: <vector>)
-  local method extract-key/val (buffer :: <byte-string>, start :: <integer>)
-          let eq-pos = char-position('=', buffer, start, epos);
-          when (eq-pos)
-            let key-end = min(whitespace-position(buffer, start, eq-pos) | eq-pos, eq-pos);
-            let key = if (key-end > start)
-                        as(<symbol>, substring(buffer, start, key-end))
-                      end;
-            let val-start = skip-whitespace(buffer, eq-pos + 1, epos);
-            when (val-start)
+ => (args :: <vector>, has-body? :: <boolean>, body-start :: <integer>)
+  local method end-of-key? (char :: <character>) => (b :: <boolean>)
+          char = '=' | char = '>' | whitespace?(char)
+        end,
+        method extract-key/val (buffer :: <byte-string>, key-start :: <integer>)
+          let key-end = min(char-position-if(end-of-key?, buffer, key-start, epos),
+                            string-position(buffer, "/>", key-start, epos));
+          if (~key-end | key-end = key-start)
+            error("invalid dsp tag.  couldn't find end of keyword argument");
+          else
+            let key = as(<symbol>, substring(buffer, key-start, key-end));
+            let eq-pos = skip-whitespace(buffer, key-end, epos);
+            let char = buffer[eq-pos];
+            if (char = '>' | looking-at?("/>", buffer, eq-pos, epos))
+              format-out("---> found key arg with no value.  key = %=\n", key);
+              // a key with no value.  e.g., <xx:foo nowrap> where nowrap has no value.
+              values(as(<symbol>, substring(buffer, key-start, key-end)),
+                     #f,
+                     skip-whitespace(buffer, key-end, epos))
+            else
+              assert(buffer[eq-pos] = '=', "expected '='");
+              let val-start = skip-whitespace(buffer, eq-pos + 1, epos);
               let quote-char = buffer[val-start];
-              let quote-char? = member?(quote-char, "'\"");
+              let quote-char? = (quote-char = '\'' | quote-char = '"');
               let val-end = iff(quote-char?,
                                 char-position(quote-char, buffer, val-start + 1, epos),
-                                whitespace-position(buffer, val-start + 1, epos))
-                            | epos;
-              values(key, substring(buffer, iff(quote-char?, val-start + 1, val-start), val-end), val-end)
-            end
-          end
-        end;
+                                end-of-word(buffer, val-start, epos))
+                          | epos;
+              values(key,
+                     substring(buffer, iff(quote-char?, val-start + 1, val-start), val-end),
+                     iff(quote-char?, val-end + 1, val-end))
+            end if
+          end if
+        end method;
   let args :: <stretchy-vector> = make(<stretchy-vector>, capacity: 3);
   // iterate once for each key/val pair
   iterate loop (start = skip-whitespace(buffer, bpos, epos))
-    when (start & (start < epos))
+    format-out("--->looping: start = %=, bpos = %=, epos = %=\n", start, bpos, epos);
+    if (start >= epos)
+      format-out("--->  start >= epos\n");
+      values(args, #f, epos)
+    elseif (looking-at?(">", buffer, start, epos))
+      format-out("--->  looking at '>'\n");
+      values(args, #t, start + 1)
+    elseif (looking-at?("/>", buffer, start, epos))
+      format-out("--->  looking at '/>'\n");
+      values(args, #f, start + 2)
+    else
+      format-out("--->  extracting another key/val pair\n");
       let (key, val, key/val-end) = extract-key/val(buffer, start);
-      when (key & val)
+      when (key)
+        //---*** TODO: parse val based on type specified in tag-definer.
         add!(args, key);
-        add!(args, val);
+        add!(args, val);  // possibly #f
       end;
-      when (key/val-end)
-        loop(skip-whitespace(buffer, key/val-end + 1, epos));
-      end;
-    end;
-  end;
-  args
+      loop(skip-whitespace(buffer, key/val-end, epos));
+    end if
+  end iterate
 end extract-tag-args;
 
 define method respond-to-head
