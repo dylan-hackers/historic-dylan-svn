@@ -1,4 +1,4 @@
-module: libpng
+module: libpng-internal
 
 define interface
   #include "png.h",
