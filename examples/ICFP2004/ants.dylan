@@ -12,7 +12,7 @@ end function make-position;
 
 define constant <direction> = limited(<integer>, min: 0, max: 5);
 
-define function adjacent-cell(p : <position>, d: <direction>)
+define function adjacent-cell(p :: <position>, d :: <direction>)
  => (d* :: <position>)
   select(p)
     0 => make-position(p.x + 1, p.y);
@@ -95,7 +95,7 @@ define class <cell> (<object>)
   slot anthill :: false-or(<color>) = #f, init-keyword: anthill:;
 end class <cell>;
 
-define variable *world* :: <array> = make(<array>);
+define variable *world* :: <array> = make(<array>, dimensions: #[8, 8]);
 
 define function cell-at(p :: <position>)
   => (<cell>)
@@ -119,15 +119,15 @@ end function ant-at-setter;
 define constant set-ant-at = ant-at-setter;
 
 define function clear-ant-at(p :: <position>) => ()
-  p.ant-at := #f;
+  cell-at(p).ant := #f;
 end function clear-ant-at;
 
 define function ant-is-alive(aid :: <integer>)
  => (yesno :: <boolean>)
-  member?(aid, ant, test: 
-            method(id* :: <integer>, a :: <ant>)
+  member?(aid, *world*, test: 
+            method(id* :: <integer>, p :: <position>)
              => (yesno :: <boolean>)
-                a.id == id*
+                p.ant-at & p.ant-at.id == id*
             end method);
 end function ant-is-alive;
 
@@ -137,13 +137,12 @@ define function find-ant(aid :: <integer>)
   block(return)
     for(xx from 0 below *world*.dimensions[0])
       for(yy from 0 below *world*.dimensions[1])
-        let p = make-position(x: xx, y: yy);
+        let p = make-position(xx, yy);
         if(some-ant-is-at(p) & ant-at(p).id == aid)
           return(p)
         end if;
       end for;
     end for;
-  finally
     #f
   end block;
 end function find-ant;
@@ -152,11 +151,11 @@ define constant kill-ant-at = clear-ant-at;
 
 define function food-at(p :: <position>)
   => (food :: <integer>)
-  ant-at(p).food;
+  cell-at(p).food;
 end function food-at;
 
 define function food-at-setter(p :: <position>, f :: <integer>) => ()
-  ant-at(p).food := f;
+  cell-at(p).food := f;
 end function food-at-setter;
 
 define constant set-food-at = food-at-setter;
@@ -195,7 +194,7 @@ define function read-map(s :: <stream>) => (result :: <array>);
           '8' => #(food:, 8);            
           '9' => #(food:, 9);
         end select;
-      *world*[xx, yy] := apply(<make>, <cell>, options);
+      *world*[xx, yy] := apply(make, <cell>, options);
     end for;
   end for;
 end function read-map;
@@ -220,7 +219,7 @@ define function clear-marker-at(p :: <position>, c :: <color>, i :: <marker>)
   else 
     cell.red-marker[i] := #f;
   end;
-end function set-marker-at;
+end function clear-marker-at;
 
 define function check-marker-at(p :: <position>, c :: <color>, i :: <marker>)
   => (present? :: <boolean>)
@@ -230,7 +229,7 @@ define function check-marker-at(p :: <position>, c :: <color>, i :: <marker>)
   else 
     cell.red-marker[i]
   end;
-end function set-marker-at;
+end function check-marker-at;
 
 define function check-any-marker-at(p :: <position>, c :: <color>)
   => (present? :: <boolean>)
@@ -240,26 +239,26 @@ define function check-any-marker-at(p :: <position>, c :: <color>)
   else 
     any?(identity, cell.red-marker[i])
   end;
-end function set-marker-at;
+end function check-any-marker-at;
 
 
-define constant <condition> = one-of(#"friend",
-                                     #"foe",
-                                     #"friendwithfood",
-                                     #"foewithfood",
-                                     #"food",
-                                     #"rock",
-                                     #"marker0",
-                                     #"marker1",
-                                     #"marker2",
-                                     #"marker3",
-                                     #"marker4",
-                                     #"marker5",
-                                     #"foemarker",
-                                     #"home",
-                                     #"foehome");
+define constant <ant-condition> = one-of(#"friend",
+                                         #"foe",
+                                         #"friendwithfood",
+                                         #"foewithfood",
+                                         #"food",
+                                         #"rock",
+                                         #"marker0",
+                                         #"marker1",
+                                         #"marker2",
+                                         #"marker3",
+                                         #"marker4",
+                                         #"marker5",
+                                         #"foemarker",
+                                         #"home",
+                                         #"foehome");
 
-define function cell-matches(p :: <position>, cond :: <condition>, 
+define function cell-matches(p :: <position>, cond :: <ant-condition>, 
                              c :: <color>) => (yesno :: <boolean>)
   if(rocky(p))
     if(cond == #"rock") #t else #f end;
@@ -306,7 +305,7 @@ define class <sense> (<instruction>)
   slot sense-direction :: <direction>, required-init-keyword: direction:;
   slot state-true :: <integer>, required-init-keyword: state-true:;
   slot state-false :: <integer>, required-init-keyword: state-false:;
-  slot cond :: <condition>, required-init-keyword: condition:;
+  slot cond :: <ant-condition>, required-init-keyword: condition:;
 end class <sense>;
 
 define class <mark> (<instruction>)
@@ -322,13 +321,13 @@ end class <unmark>;
 define class <pickup> (<instruction>)
   slot state-success :: <integer>, required-init-keyword: state-success:;
   slot state-failure :: <integer>, required-init-keyword: state-failure:;
-end class <sense>;
+end class <pickup>;
 
 define class <drop> (<instruction>)
   slot state :: <integer>, required-init-keyword: state:;
 end class <drop>;
 
-define class <turn> (<integer>)
+define class <turn> (<instruction>)
   slot left-or-right :: <left-or-right>, required-init-keyword: left-or-right:;
 end class <turn>;
 
@@ -376,7 +375,7 @@ define function parse-instruction(s :: <byte-string>)
 
   local method int(x)
           string-to-integer(<symbol>, constituents[x])
-        end method sym;
+        end method int;
 
   let opcode = sym(0);
 
@@ -538,4 +537,4 @@ define function play-game(red-brain :: <string>,
   with-open-file(world-stream = world)
     *world* := read-map(world-stream)
   end with-open-file;
-  
+end function play-game;
