@@ -87,7 +87,7 @@ function short_header ($title) {
 <TD>
    <DIV CLASS=footer>
 
-<P><SMALL>Copyright &copy; 1998-2002 Gwydion Dylan Maintainers. All rights
+<P><SMALL>Copyright &copy; 1998-2003 Gwydion Dylan Maintainers. All rights
 reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
 HREF="http://www.apache.org/">Apache</A> on a machine running <A
 HREF="http://www.debian.org/">Debian Linux</A>. Graphics by the <A
