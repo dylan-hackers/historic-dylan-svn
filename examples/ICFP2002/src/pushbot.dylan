@@ -88,9 +88,10 @@ end method;
 
 define method generate-next-move(me :: <pushbot>, s :: <state>)
   => (c :: <command>)
+  let robot = find-robot(s, me.id);
   block(return)
     
-    let adj-robots = get-adjacent-robots(s, me.robot.location);
+    let adj-robots = get-adjacent-robots(s, robot.location);
     if(~empty?(adj-robots))
 
       // TODO sort the list of robots by some metric, eg who has delivered the most
@@ -100,7 +101,7 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
       if(~empty?(killable-dir))
 	// TODO short this list like above
 	let targ-direction = first(killable-dir);
-	return(make(<move>, bid: (me.robot.money / 10) + 1, direction: targ-direction));
+	return(make(<move>, bid: (robot.money / 10) + 1, direction: targ-direction));
       end;
       
       // if enemy robot has packages, bid a bit more and push
@@ -108,27 +109,27 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
 					    a.inventory.size < b.inventory.size
 					end);
       let targ = first(reverse(rbots));
-      let d = points-to-direction(me.robot.location, targ.location);
+      let d = points-to-direction(robot.location, targ.location);
       if(d)
-	return(make(<move>, bid: (me.robot.money / 50) + 1, direction: d));
+	return(make(<move>, bid: (robot.money / 50) + 1, direction: d));
       end;
     end;
 
     // Deliver what we can:
-    let drop-these = choose(at-destination?, me.robot.inventory);
+    let drop-these = choose(at-destination?, robot.inventory);
     if (~drop-these.empty?)
       return(make(<drop>, bid: 1, package-ids: map(id, drop-these)));
     end if;
     
     // Pick ups:
-    let packages-here = packages-at(s, me.robot.location);
+    let packages-here = packages-at(s, robot.location);
     if (~packages-here.empty?)
       let take-these = make(<vector>);
-      let left = me.robot.capacity;
+      let left = robot.capacity;
       // Greedy algorithm to get as much as we can:
       for (pkg in sort(packages-here))
-	if (pkg.weight <= me.robot.capacity
-	      & find-path(me.robot.location, pkg.location, s.board))
+	if (pkg.weight <= robot.capacity
+	      & find-path(robot.location, pkg.location, s.board))
 	  left := left - pkg.weight;
 	  take-these := add!(take-these, x);
 	end if;
@@ -137,12 +138,12 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     end if;
     
     // Go to the next interesting place:
-    let targets = concatenate(map(dest, me.robot.inventory),
+    let targets = concatenate(map(dest, robot.inventory),
 			      map(location, s.free-packages)/*,
 			      map(location, choose(unvisted?,
 						   s.home-bases) )*/);
 
-    let paths = map(curry(rcurry(find-path, s.board), me.robot,location),
+    let paths = map(curry(rcurry(find-path, s.board), robot,location),
 		    targets);
 
     paths := sort!(paths, stable: #t, 
