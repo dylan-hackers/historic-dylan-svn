@@ -1929,82 +1929,6 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
               </defdescription>
             </dylanmethoddef>
 
-            <dylanmethoddef>
-              <defname>read-to-end</defname>
-              <defsummary>Reads a stream to its end.
-              </defsummary>
-              <defparameters>
-                <param>
-                  <paramname>stream</paramname>
-                  <paramtype>&lt;stream&gt;</paramtype>
-                </param>
-              </defparameters>
-              <defreturns>
-                <param>
-                  <paramname>sequence</paramname>
-                  <paramtype>&lt;sequence&gt;</paramtype>
-                </param>
-              </defreturns>
-              <defdescription>
-		<para>
-                  Reads the stream to its end as a returned sequence.
-		</para>
-		<para>
-                  Actually, the implementation trades efficiency for
-                  safety, relying on the exception mechanism to throw
-                  an <dname>&lt;end-of-stream-error&gt;</dname>.  If you
-                  know the underlying sequence structure, you can write a
-                  more efficient, and equally safe, method for your structure,
-                  e.g., if you know that your sequence contains no &false;
-                  elements, you can use &false; as a flag to the 
-                  <dlit>on-end-of-stream:</dlit> keyword to another 
-                  <dname>read</dname> function.  Or, if you know that your
-                  sequence is a multiple of a certain size (and you are using
-                  a <dname>&lt;buffered-stream&gt;</dname>, to boot), you can
-                  use <dname>read</dname> with the <parameter>n</parameter>
-                  parameter set to the size multiple.
-		</para>
-              </defdescription>
-            </dylanmethoddef>
-
-            <dylanmethoddef>
-              <defname>skip-through</defname>
-              <defsummary>Skips a group of elements from a stream up
-                to and including a marker element.
-              </defsummary>
-              <defparameters>
-                <param>
-                  <paramname>stream</paramname>
-                  <paramtype>&lt;stream&gt;</paramtype>
-                </param>
-                <param>
-                  <paramname>elemnt</paramname>
-                  <paramsummary>The element to read past.</paramsummary>
-                </param>
-                <keyparam>
-                  <paramname>test</paramname>
-                  <paramtype>&lt;function&gt;</paramtype>
-                  <paramdefault>\==</paramdefault>
-                </keyparam>
-              </defparameters>
-              <defreturns>
-                <param>
-                  <paramname>found?</paramname>
-                  <paramtype>&lt;boolean&gt;</paramtype>
-                  <paramsummary>If the marker element was encountered.
-                  </paramsummary>
-                </param>
-              </defreturns>
-              <defdescription>
-                <para>
-                  Reads and discards elements of a stream up to and including
-                  <parameter>elemnt</parameter>.  If this function encounters
-                  the end of the stream first, it returns &false;, otherwise
-                  it returns &true;.
-                </para>
-              </defdescription>
-            </dylanmethoddef>
-
 	  </sect5>
 	</sect4> 
 
@@ -2014,7 +1938,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	</sect4> 
 
 	<sect4 id="libs-streams-reg-general-fns-lines">
-	  <title>Functions over Lines</title>
+	  <title>Reading and Writing by Lines Functions</title>
 	  <para></para>
 	</sect4> 
 
@@ -5136,6 +5060,146 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
 	  </defdescription>
 	</dylanmethoddef>
 
+        <dylanfunctiondef>
+         <defname>pair-do</defname>
+         <defsummary>
+           Like do, except that it takes multiple argument lists
+         </defsummary>
+         <defparameters>
+           <param>
+             <paramname>func</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               A function that takes 1 or more instances of
+               <dname>&lt;list&gt;</dname> as arguments.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>lst</paramname>
+             <paramtype>&lt;list&gt;</paramtype>
+             <paramsummary>
+               A list of values that will be used as the first
+               argument to <dname>func</dname>.
+             </paramsummary>
+           </param>
+           <restparam>
+             <paramname>lists</paramname>
+             <paramtype>&lt;list&gt;</paramtype>
+             <paramsummary>
+               Each argument should be a <dname>&lt;list&gt;</dname>.
+             </paramsummary>
+           </restparam>
+         </defparameters>
+         <defreturns>
+           <param>
+             <paramname>false</paramname>
+             <paramtype>&lt;boolean&gt;</paramtype>
+             <paramsummary><dlit>#f</dlit></paramsummary>
+           </param>
+         </defreturns>
+         <defdescription>
+           <para>
+             This function takes a n-ary function, and n instances
+             of <dname>&lt;list&gt;</dname> as arguments. It then
+             applies <dname>func</dname> to all of the lists, and
+             then recursively applies <dname>func</dname> to all of
+             the sublists of the lists. Contrast this with the
+             <dname>do</dname> function, which is applied to each
+             set of elements of the arguments rather to sublists.
+           </para>
+         </defdescription>
+       </dylanfunctiondef>
+
+       <dylanfunctiondef>
+         <defname>pair-foldl</defname>
+         <defsummary>
+           This function is like <dname>foldl</dname>, but works on
+sublists.
+         </defsummary>
+         <defparameters>
+           <param>
+             <paramname>cons</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This argument is a function that can take two objects
+               as arguments and returns a new object.
+	     </paramsummary>
+           </param>
+           <param>
+             <paramname>nil</paramname>
+           </param>
+           <param>
+             <paramname>lst</paramname>
+             <paramtype>&lt;list&gt;</paramtype>
+           </param>
+         </defparameters>
+         <defreturns>
+           <param>
+             <paramname>obj</paramname>
+           </param>
+         </defreturns>
+         <defdescription>
+           <para>
+             This function is similar to <dname>foldl</dname>, except
+             that it operates on sublists instead of elements. That is,
+             its recursion scheme is as follows: if <dname>lst</dname>
+             is <dlit>#(e1, e2, ..., en)</dlit>, then this function
+             returns
+           </para>
+           <para>
+             <dlit>
+      cons(#(en), cons(..., cons(#(e2,...en), cons(#(e1,...,en), nil)
+...)))
+             </dlit>
+           </para>
+         </defdescription>
+       </dylanfunctiondef>
+
+       <dylanfunctiondef>
+         <defname>pair-foldr</defname>
+         <defsummary>
+           This function is like <dname>foldr</dname>, but works on
+sublists.
+         </defsummary>
+         <defparameters>
+           <param>
+             <paramname>cons</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This argument is a function that can take two objects
+               as arguments and returns a new object.
+	     </paramsummary>
+           </param>
+           <param>
+             <paramname>nil</paramname>
+           </param>
+           <param>
+             <paramname>lst</paramname>
+             <paramtype>&lt;list&gt;</paramtype>
+           </param>
+         </defparameters>
+         <defreturns>
+           <param>
+             <paramname>obj</paramname>
+           </param>
+         </defreturns>
+         <defdescription>
+           <para>
+             This function is similar to <dname>foldr</dname>, except
+             that it operates on sublists instead of elements. That is,
+             its recursion scheme is as follows: if <dname>lst</dname>
+             is <dlit>#(e1, e2, ..., en)</dlit>, then this function
+             returns
+           </para>
+           <para>
+             <dlit>
+      cons(#(e1, ..., en), cons(#(e2,...en), cons(..., cons(#(en), nil)
+...)))
+             </dlit>
+           </para>
+         </defdescription>
+       </dylanfunctiondef>
+
 	<dylanfunctiondef>
 	  <defname>partition</defname>
 	  <defsummary>
@@ -5176,6 +5240,136 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
             </para>
 	  </defdescription>
 	</dylanfunctiondef>
+
+
+       <dylanfunctiondef>
+         <defname>unfold</defname>
+         <defsummary>
+           This function is dual to <dname>fold</dname>; instead of
+           taking some functions and a list and producing a value,
+           it takes a value and some functions and produces a list.
+         </defsummary>
+         <defparameters>
+           <param>
+             <paramname>pred</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This function takes a seed value and returns <dlit>#t</dlit>
+               to terminate the sequence of recursive calls building
+               the list.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>f</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This function takes a seed value and produces a list
+               element.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>g</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This function takes a seed value and returns a new
+               seed value.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>seed</paramname>
+             <paramsummary>The initial seed value.</paramsummary>
+           </param>
+         </defparameters>
+         <defreturns>
+           <param>
+             <paramname>new-list</paramname>
+             <paramtype>&lt;list&gt;</paramtype>
+           </param>
+         </defreturns>
+         <defdescription>
+           <para>
+             This function will return <dlit>#()</dlit> if
+             <dlit>pred(seed)</dlit> is true. Otherwise it
+             builds a pair of the form
+             <dlit>
+               pair(f(seed), unfold(pred, f, g, g(seed) ))
+             </dlit>.
+           </para>
+           <para>
+             Thus, this function will always return a proper
+             list, if it terminates at all.
+           </para>
+         </defdescription>
+       </dylanfunctiondef>
+
+       <dylanfunctiondef>
+         <defname>unfold/tail</defname>
+         <defsummary>
+           This function is similar to <dname>unfold</dname>, except
+           that it can also be used to build an improper list.
+         </defsummary>
+         <defparameters>
+           <param>
+             <paramname>pred</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This function takes a seed value and returns <dlit>#t</dlit>
+               to terminate the sequence of recursive calls building
+               the list.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>f</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This function takes a seed value and produces a list
+               element.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>g</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               This function takes a seed value and returns a new
+               seed value.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>e</paramname>
+             <paramtype>&lt;function&gt;</paramtype>
+             <paramsummary>
+               When <dname>pred</dname> returns <dlit>#t</dlit>,
+               this function is called on the seed to return the
+               value of the tail of the last pair of the list.
+             </paramsummary>
+           </param>
+           <param>
+             <paramname>seed</paramname>
+             <paramsummary>The initial seed value.</paramsummary>
+           </param>
+         </defparameters>
+         <defreturns>
+           <param>
+             <paramname>new-list</paramname>
+             <paramtype>&lt;list&gt;</paramtype>
+           </param>
+         </defreturns>
+         <defdescription>
+           <para>
+             This function will return <dlit>e(seed)</dlit> if
+             <dlit>pred(seed)</dlit> is true. Otherwise it
+             builds a pair of the form
+             <dlit>
+               pair(f(seed), unfold(pred, f, g, g(seed) ))
+             </dlit>.
+           </para>
+           <para>
+             If <dname>e</dname> always returns <dlit>#()</dlit>
+             then <dname>unfold/tail</dname> has the same
+             behavior as <dname>unfold</dname>.
+           </para>
+         </defdescription>
+       </dylanfunctiondef>
 
       </sect2>
 
@@ -5396,13 +5590,8 @@ foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
 	  src/common/coll-ext/sequence-utils.dylan.
 	</para>
 	<itemizedlist>
-	  <listitem><para><dname>unfold</dname></para></listitem>
-	  <listitem><para><dname>unfold/tail</dname></para></listitem>
-	  <listitem><para><dname>pair-foldl</dname></para></listitem>
-	  <listitem><para><dname>pair-foldr</dname></para></listitem>
 	  <listitem><para><dname>reduce-l</dname></para></listitem>
 	  <listitem><para><dname>reduce-r</dname></para></listitem>
-	  <listitem><para><dname>pair-do</dname></para></listitem>
 	</itemizedlist>
       </sect2>
     </sect1>
