@@ -29,12 +29,15 @@ int gUnixSocket;
 unsigned int gID;
 unsigned int gMaxWeight;
 unsigned int gMoney;
+unsigned int gBid;
 
 void readMyConfiguration(void)
 {
     char buffer[4096];
     fgets(buffer, 4096, gSocket);
     sscanf(buffer, "%u %u %u", &gID, &gMaxWeight, &gMoney);
+
+    gBid = 1;
 }
 
 int gMoveChar;
@@ -333,12 +336,12 @@ void sendAction(void)
     
     if (gMoveChar != '\0')
     {
-        sprintf(action, "1 Move %c\n", gMoveChar);
+        sprintf(action, "%u Move %c\n", gBid, gMoveChar);
         gMoveChar = '\0';
     }
     else
     {
-        sprintf(action, "1 Pick 1\n");
+        sprintf(action, "%u Pick 1\n", gBid);
     }
 
     send(gUnixSocket, action, strlen(action), 0);
@@ -461,6 +464,23 @@ void specialKey(int key, int mouseX, int mouseY)
     }
 }
 
+void key(unsigned char key, int mouseX, int mouseY)
+{
+    switch (key)
+    {
+        case '1': gBid =   1; break;
+        case '2': gBid =   2; break;
+        case '3': gBid =   4; break;
+        case '4': gBid =   8; break;
+        case '5': gBid =  16; break;
+        case '6': gBid =  32; break;
+        case '7': gBid =  64; break;
+        case '8': gBid = 128; break;
+        case '9': gBid = 256; break;
+        case '0': gBid = 512; break;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     const char *serverHost;
@@ -529,6 +549,7 @@ My Money: %u\n", gID, gMaxWeight, gMoney);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
     glutSpecialFunc(specialKey);
+    glutKeyboardFunc(key);
 
     glutMainLoop();
 
