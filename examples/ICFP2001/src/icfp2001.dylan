@@ -134,22 +134,12 @@ define function bgh-parse(s :: <byte-string>)
 	  let run-space-state = run-state.space-context.value;
 	  let space-state = curr-state.space-context.value;
 	  let same-format = run-space-state == space-state;
-	  if (curr-state.typewriter)
-	    if (~same-format)
-	      save-run();
-	    end;
+	  if (~same-format)
+	    save-run();
+	  end;
+	  unless (last-char-was-space & same-format)
 	    add!(fragments, ch);
-	  elseif(last-char-was-space)
-	    if (~same-format)
-	      save-run();
-	      add!(fragments, ch);
-	    end;
-	  elseif (same-format)
-	    add!(fragments, ch);
-	  elseif(~same-format)
-            save-run();
-            add!(fragments, ch);
-          end if;
+	  end;
 	  last-char-was-space := #t;
 	else
 	  save-run();
@@ -246,7 +236,8 @@ define function main(name, arguments)
   end;
 
   if(is-space?(best-transformation[best-transformation.size - 1]))
-    best-transformation := copy-sequence(best-transformation, end: best-transformation.size - 1);
+    best-transformation :=
+      copy-sequence(best-transformation, end: best-transformation.size - 1);
   end if;
   write(*standard-output*, best-transformation);
   write(*standard-output*, "\n");

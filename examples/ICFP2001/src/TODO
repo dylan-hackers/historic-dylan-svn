@@ -1,5 +1,8 @@
 TODO list
 
+BGH questions:
+- what is the "remove trailing space" test for?
+
 * Convert generator into returning a new state, instead of modifying it.
 * Make generator return all possible moves, instead of one
 * Write modular search strategy.
