@@ -352,7 +352,7 @@ Sense Ahead got_food_turn: got_food_move: Marker 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 got_food_move:
-Mark 2 .
+;Mark 2 .
 Move got_food: .
 ;Flip 2 . got_food_blocked_try_right:
 ;Turn Left got_food_move:

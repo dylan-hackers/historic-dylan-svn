@@ -1,22 +1,7 @@
 module: assembler
 
 
-define brain alex
-
-  [start:]
-    Flip 90, (gatherer, attacker);
-
-
-  // Gatherers gather food.
-  [gatherer:]
-    Move gatherer => g-turn-left;
-
-  [g-turn-left:]
-    Turn Left, (gatherer);
-
-
-  // Attackers attack other ant hill.
-  [attacker:]
+define brain alex-attacker
     Sense FoeHome, (attacker-success, a-search-foe-home);
 
   [attacker-success:]
@@ -31,15 +16,15 @@ define brain alex
 
   // We are near their hill.
   [a-near-hub-ahead:]
-    Move attacker => a-near-hub-ahead-blocked;
+    Move alex-attacker => a-near-hub-ahead-blocked;
 
   [a-near-hub-left:]
     Turn Left;
-    Move attacker => a-search-foe-home;
+    Move alex-attacker => a-search-foe-home;
 
   [a-near-hub-right:]
     Turn Right;
-    Move attacker => a-search-foe-home;
+    Move alex-attacker => a-search-foe-home;
 
   [a-near-hub-ahead-blocked:]
     Turn Right;
@@ -64,18 +49,18 @@ define brain alex
 
   // We are still searching.
   [a-move-forward:]
-    Move attacker => a-move-lr;
+    Move alex-attacker => a-move-lr;
 
   [a-move-lr:]
     Flip 1, (a-move-left, a-move-right);
 
   [a-move-left:]
     Turn Left;
-    Move attacker => a-move-left;
+    Move alex-attacker => a-move-left;
 
   [a-move-right:]
     Turn Right;
-    Move attacker => a-move-right;
+    Move alex-attacker => a-move-right;
 
 end;
 

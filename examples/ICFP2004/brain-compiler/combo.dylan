@@ -1,242 +1,243 @@
 module: assembler
 
 
+// Marks 0 and 1 and 2.
 define ant-subbrain bruce-spiral
-Sense Here 5 1 Marker 0
+Sense Here 6 1 Marker 0
 ;Sense Here 4 2 Marker 1
-;Sense Here 3 15 Home
-;Sense Ahead 15 146 Home
-;Sense Ahead 14 10 Marker 1
-;Sense Here 9 6 Marker 1
-;Sense Ahead 7 8 Marker 0
-;Sense Ahead 10 14 Marker 1
-;Sense Ahead 14 10 Marker 1
-;Sense Ahead 14 10 Marker 0
-;Move 0 11
-;Sense Ahead 10 12 Foe
-;Sense Ahead 14 13 Friend
-;Sense Ahead 14 10 Rock
+;Sense Here 3 19 Home
+;Sense Ahead 19 150 Home
+;Sense Ahead 186 5 Rock
+;Sense Ahead 16 12 Marker 1
+;Sense Ahead 186 7 Rock
+;Sense Here 11 8 Marker 1
+;Sense Ahead 9 10 Marker 0
+;Sense Ahead 12 16 Marker 1
+;Sense Ahead 16 12 Marker 1
+;Sense Ahead 16 12 Marker 0
+;Move 0 13
+;Sense Ahead 12 14 Foe
+;Sense Ahead 16 15 Friend
+;Sense Ahead 16 12 Rock
+;Flip 2 17 18
 ;Turn Right 0
-;Sense LeftAhead 47 16 Marker 0
-;Sense LeftAhead 32 17 Marker 1
-;Sense Ahead 25 18 Marker 0
-;Sense Ahead 22 19 Marker 1
-;Sense RightAhead 21 20 Marker 0
-;Sense RightAhead 79 78 Marker 1
-;Sense RightAhead 81 80 Marker 1
-;Sense RightAhead 24 23 Marker 0
+;Turn Left 0
+;Sense LeftAhead 51 20 Marker 0
+;Sense LeftAhead 36 21 Marker 1
+;Sense Ahead 29 22 Marker 0
+;Sense Ahead 26 23 Marker 1
+;Sense RightAhead 25 24 Marker 0
 ;Sense RightAhead 83 82 Marker 1
 ;Sense RightAhead 85 84 Marker 1
-;Sense Ahead 29 26 Marker 1
 ;Sense RightAhead 28 27 Marker 0
 ;Sense RightAhead 87 86 Marker 1
 ;Sense RightAhead 89 88 Marker 1
-;Sense RightAhead 31 30 Marker 0
+;Sense Ahead 33 30 Marker 1
+;Sense RightAhead 32 31 Marker 0
 ;Sense RightAhead 91 90 Marker 1
 ;Sense RightAhead 93 92 Marker 1
-;Sense Ahead 40 33 Marker 0
-;Sense Ahead 37 34 Marker 1
-;Sense RightAhead 36 35 Marker 0
+;Sense RightAhead 35 34 Marker 0
 ;Sense RightAhead 95 94 Marker 1
 ;Sense RightAhead 97 96 Marker 1
-;Sense RightAhead 39 38 Marker 0
+;Sense Ahead 44 37 Marker 0
+;Sense Ahead 41 38 Marker 1
+;Sense RightAhead 40 39 Marker 0
 ;Sense RightAhead 99 98 Marker 1
 ;Sense RightAhead 101 100 Marker 1
-;Sense Ahead 44 41 Marker 1
 ;Sense RightAhead 43 42 Marker 0
 ;Sense RightAhead 103 102 Marker 1
 ;Sense RightAhead 105 104 Marker 1
-;Sense RightAhead 46 45 Marker 0
+;Sense Ahead 48 45 Marker 1
+;Sense RightAhead 47 46 Marker 0
 ;Sense RightAhead 107 106 Marker 1
 ;Sense RightAhead 109 108 Marker 1
-;Sense LeftAhead 63 48 Marker 1
-;Sense Ahead 56 49 Marker 0
-;Sense Ahead 53 50 Marker 1
-;Sense RightAhead 52 51 Marker 0
+;Sense RightAhead 50 49 Marker 0
 ;Sense RightAhead 111 110 Marker 1
 ;Sense RightAhead 113 112 Marker 1
-;Sense RightAhead 55 54 Marker 0
+;Sense LeftAhead 67 52 Marker 1
+;Sense Ahead 60 53 Marker 0
+;Sense Ahead 57 54 Marker 1
+;Sense RightAhead 56 55 Marker 0
 ;Sense RightAhead 115 114 Marker 1
 ;Sense RightAhead 117 116 Marker 1
-;Sense Ahead 60 57 Marker 1
 ;Sense RightAhead 59 58 Marker 0
 ;Sense RightAhead 119 118 Marker 1
 ;Sense RightAhead 121 120 Marker 1
-;Sense RightAhead 62 61 Marker 0
+;Sense Ahead 64 61 Marker 1
+;Sense RightAhead 63 62 Marker 0
 ;Sense RightAhead 123 122 Marker 1
 ;Sense RightAhead 125 124 Marker 1
-;Sense Ahead 71 64 Marker 0
-;Sense Ahead 68 65 Marker 1
-;Sense RightAhead 67 66 Marker 0
+;Sense RightAhead 66 65 Marker 0
 ;Sense RightAhead 127 126 Marker 1
 ;Sense RightAhead 129 128 Marker 1
-;Sense RightAhead 70 69 Marker 0
+;Sense Ahead 75 68 Marker 0
+;Sense Ahead 72 69 Marker 1
+;Sense RightAhead 71 70 Marker 0
 ;Sense RightAhead 131 130 Marker 1
 ;Sense RightAhead 133 132 Marker 1
-;Sense Ahead 75 72 Marker 1
 ;Sense RightAhead 74 73 Marker 0
 ;Sense RightAhead 135 134 Marker 1
 ;Sense RightAhead 137 136 Marker 1
-;Sense RightAhead 77 76 Marker 0
+;Sense Ahead 79 76 Marker 1
+;Sense RightAhead 78 77 Marker 0
 ;Sense RightAhead 139 138 Marker 1
 ;Sense RightAhead 141 140 Marker 1
-;Sense Here 14 14 Home
-;Sense Here 14 14 Home
-;Sense Here 14 14 Home
-;Sense Here 14 14 Home
-;Sense Here 14 14 Home
-;Sense Here 14 144 Home
-;Sense Here 14 144 Home
-;Sense Here 14 142 Home
-;Sense Here 14 14 Home
-;Sense Here 14 144 Home
-;Sense Here 14 146 Home
-;Sense Here 14 146 Home
-;Sense Here 14 14 Home
-;Sense Here 14 142 Home
-;Sense Here 14 146 Home
-;Sense Here 14 142 Home
-;Sense Here 14 181 Home
-;Sense Here 14 10 Home
-;Sense Here 14 10 Home
-;Sense Here 14 10 Home
-;Sense Here 14 144 Home
-;Sense Here 146 144 Home
-;Sense Here 144 144 Home
-;Sense Here 146 144 Home
-;Sense Here 14 144 Home
-;Sense Here 144 144 Home
-;Sense Here 142 146 Home
-;Sense Here 142 14 Home
-;Sense Here 14 142 Home
-;Sense Here 146 142 Home
-;Sense Here 142 14 Home
-;Sense Here 142 142 Home
-;Sense Here 14 181 Home
-;Sense Here 14 10 Home
-;Sense Here 14 10 Home
-;Sense Here 14 10 Home
-;Sense Here 14 144 Home
-;Sense Here 144 144 Home
-;Sense Here 142 144 Home
-;Sense Here 142 14 Home
-;Sense Here 14 146 Home
-;Sense Here 142 146 Home
-;Sense Here 142 146 Home
+;Sense RightAhead 81 80 Marker 0
+;Sense RightAhead 143 142 Marker 1
+;Sense RightAhead 145 144 Marker 1
+;Sense Here 16 16 Home
+;Sense Here 16 16 Home
+;Sense Here 16 16 Home
+;Sense Here 16 16 Home
+;Sense Here 16 16 Home
+;Sense Here 16 148 Home
+;Sense Here 16 148 Home
+;Sense Here 16 146 Home
+;Sense Here 16 16 Home
+;Sense Here 16 148 Home
+;Sense Here 16 150 Home
+;Sense Here 16 150 Home
+;Sense Here 16 16 Home
+;Sense Here 16 146 Home
+;Sense Here 16 150 Home
+;Sense Here 16 146 Home
+;Sense Here 16 182 Home
+;Sense Here 16 12 Home
+;Sense Here 16 12 Home
+;Sense Here 16 12 Home
+;Sense Here 16 148 Home
+;Sense Here 150 148 Home
+;Sense Here 148 148 Home
+;Sense Here 150 148 Home
+;Sense Here 16 148 Home
+;Sense Here 148 148 Home
+;Sense Here 146 150 Home
+;Sense Here 146 16 Home
+;Sense Here 16 146 Home
+;Sense Here 150 146 Home
+;Sense Here 146 16 Home
 ;Sense Here 146 146 Home
-;Sense Here 14 146 Home
-;Sense Here 142 14 Home
+;Sense Here 16 182 Home
+;Sense Here 16 12 Home
+;Sense Here 16 12 Home
+;Sense Here 16 12 Home
+;Sense Here 16 148 Home
+;Sense Here 148 148 Home
+;Sense Here 146 148 Home
+;Sense Here 146 16 Home
+;Sense Here 16 150 Home
+;Sense Here 146 150 Home
+;Sense Here 146 150 Home
+;Sense Here 150 150 Home
+;Sense Here 16 150 Home
+;Sense Here 146 16 Home
+;Sense Here 150 150 Home
+;Sense Here 148 146 Home
+;Sense Here 16 182 Home
+;Sense Here 16 12 Home
+;Sense Here 16 12 Home
+;Sense Here 16 12 Home
+;Sense Here 16 146 Home
+;Sense Here 150 148 Home
+;Sense Here 146 16 Home
 ;Sense Here 146 146 Home
-;Sense Here 144 142 Home
-;Sense Here 14 181 Home
-;Sense Here 14 10 Home
-;Sense Here 14 10 Home
-;Sense Here 14 10 Home
-;Sense Here 14 142 Home
-;Sense Here 146 144 Home
-;Sense Here 142 14 Home
-;Sense Here 142 142 Home
-;Sense Here 14 146 Home
-;Sense Here 142 14 Home
+;Sense Here 16 150 Home
+;Sense Here 146 16 Home
+;Sense Here 150 150 Home
+;Sense Here 148 150 Home
+;Sense Here 16 146 Home
 ;Sense Here 146 146 Home
-;Sense Here 144 146 Home
-;Sense Here 14 142 Home
-;Sense Here 142 142 Home
-;Sense Here 144 142 Home
-;Sense Here 144 142 Home
-;Turn Left 143
-;Mark 1 149
-;Turn Left 145
-;Mark 0 149
+;Sense Here 148 146 Home
+;Sense Here 148 146 Home
 ;Turn Left 147
-;Mark 0 148
-;Mark 1 149
-;Sense Here 150 154 Food
-;PickUp 151 149
-;Turn Left 152
-;Turn Left 153
-;Turn Left 195
-;Sense LeftAhead 157 155 Rock
-;Sense LeftAhead 157 156 Marker 0
-;Sense LeftAhead 157 0 Marker 1
-;Sense Ahead 160 158 Rock
-;Sense Ahead 160 159 Marker 0
-;Sense Ahead 160 0 Marker 1
-;Sense RightAhead 163 161 Rock
-;Sense RightAhead 163 162 Marker 0
-;Sense RightAhead 163 0 Marker 1
-;Turn Left 164
+;Mark 1 153
+;Turn Left 149
+;Mark 0 153
+;Turn Left 151
+;Mark 0 152
+;Mark 1 153
+;Sense Here 154 155 Food
+;PickUp 196 153
+;Sense LeftAhead 186 156 Rock
+;Sense LeftAhead 158 157 Marker 0
+;Sense LeftAhead 158 0 Marker 1
+;Sense Ahead 186 159 Rock
+;Sense Ahead 161 160 Marker 0
+;Sense Ahead 161 0 Marker 1
+;Sense RightAhead 186 162 Rock
+;Sense RightAhead 164 163 Marker 0
+;Sense RightAhead 164 0 Marker 1
 ;Turn Left 165
 ;Turn Left 166
-;Sense LeftAhead 169 167 Rock
-;Sense LeftAhead 169 168 Marker 0
-;Sense LeftAhead 169 0 Marker 1
-;Sense Ahead 172 170 Rock
-;Sense Ahead 172 171 Marker 0
-;Sense Ahead 172 0 Marker 1
-;Sense RightAhead 185 173 Rock
-;Sense RightAhead 185 174 Marker 0
-;Sense RightAhead 185 0 Marker 1
-;Sense LeftAhead 142 14 Rock
-;Sense LeftAhead 144 14 Rock
-;Sense LeftAhead 146 14 Rock
-;Sense RightAhead 142 14 Rock
-;Sense RightAhead 144 14 Rock
-;Sense RightAhead 146 14 Rock
-;Move 182 14
+;Turn Left 167
+;Sense LeftAhead 186 168 Rock
+;Sense LeftAhead 170 169 Marker 0
+;Sense LeftAhead 170 0 Marker 1
+;Sense Ahead 186 171 Rock
+;Sense Ahead 173 172 Marker 0
+;Sense Ahead 173 0 Marker 1
+;Sense RightAhead 186 174 Rock
+;Sense RightAhead 186 175 Marker 0
+;Sense RightAhead 186 0 Marker 1
+;Sense LeftAhead 146 16 Rock
+;Sense LeftAhead 148 16 Rock
+;Sense LeftAhead 150 16 Rock
+;Sense RightAhead 146 16 Rock
+;Sense RightAhead 148 16 Rock
+;Sense RightAhead 150 16 Rock
+;Move 183 16
 ;Turn Left 0
-;Move 184 14
+;Move 185 16
 ;Turn Right 0
-;Sense Here 0 186 Marker 2
-;Sense Here 188 187 Marker 0
-;Sense Here 188 0 Marker 1
-;Move 189 194
-;Sense Here 185 190 Home
-;PickUp 191 185
-;Turn Left 192
+;Sense Here 0 187 Marker 2
+;Sense Here 189 188 Marker 0
+;Sense Here 189 0 Marker 1
+;Move 190 195
+;Sense Here 186 191 Home
+;PickUp 192 186
 ;Turn Left 193
-;Turn Left 195
-;Turn Right 185
-;Sense Here 222 196 Home
-;Sense Here 202 197 Marker 0
-;Sense Here 200 198 Marker 1
-;Move 195 199
+;Turn Left 194
+;Turn Left 196
+;Turn Right 186
+;Sense Here 222 197 Home
+;Sense Here 203 198 Marker 0
+;Sense Here 201 199 Marker 1
+;Move 196 200
 ;Drop 0
-;Sense Ahead 201 219 Marker 0
-;Sense Ahead 207 219 Marker 1
-;Sense Here 205 203 Marker 1
-;Sense Ahead 219 204 Marker 0
-;Sense Ahead 207 219 Marker 1
-;Sense Ahead 206 219 Marker 0
-;Sense Ahead 219 207 Marker 1
-;Mark 2 208
-;Move 195 209
+;Sense Ahead 202 219 Marker 0
+;Sense Ahead 208 219 Marker 1
+;Sense Here 206 204 Marker 1
+;Sense Ahead 219 205 Marker 0
+;Sense Ahead 208 219 Marker 1
+;Sense Ahead 207 219 Marker 0
+;Sense Ahead 219 208 Marker 1
+;Move 196 209
 ;Sense Ahead 216 210 FriendWithFood
-;Sense Ahead 211 195 Friend
+;Sense Ahead 211 196 Friend
 ;Drop 212
 ;Turn Left 213
 ;Turn Left 214
 ;Turn Left 215
 ;Move 226 226
 ;Flip 2 217 218
-;Turn Left 207
-;Turn Right 207
+;Turn Left 208
+;Turn Right 208
 ;Flip 2 220 221
-;Turn Left 195
-;Turn Right 195
+;Turn Left 196
+;Turn Right 196
 ;Drop 223
 ;Turn Left 224
 ;Turn Left 225
-;Turn Left 185
+;Turn Left 186
 ;Sense Here 231 227 Home
-;PickUp 195 228
+;PickUp 196 228
 ;Sense LeftAhead 235 229 Food
 ;Sense Ahead 237 230 Food
 ;Sense RightAhead 236 231 Food
 ;Sense Ahead 237 232 Marker 2
 ;Sense LeftAhead 235 233 Marker 2
 ;Sense RightAhead 236 234 Marker 2
-;Unmark 2 185
+;Unmark 2 186
 ;Turn Left 237
 ;Turn Right 237
 ;Move 226 237
@@ -246,12 +247,319 @@ Sense Here 5 1 Marker 0
 end; // bruce-spiral
 
 
+// Marks 3 and 4.
+define ant-subbrain keith-defensant2
+Flip 2 1 83
+;Sense Ahead 2 4 Home
+;Move 1 3
+;Turn Right 1
+;Turn Right 5
+;Sense Ahead 7 6 Home
+;Turn Right 7
+;Sense Ahead 8 10 Home
+;Move 7 9
+;Turn Right 1
+;Turn Right 11
+;Turn Right 12
+;Move 13 1
+;Move 14 1
+;Move 15 1
+;Move 16 1
+;Move 17 1
+;Sense Here 58 18 Marker 4
+;Mark 4 19
+;Turn Right 20
+;Move 21 20
+;Mark 3 22
+;Turn Right 23
+;Turn Right 24
+;Turn Right 25
+;Move 26 25
+;Turn Left 27
+;Turn Left 28
+;Move 29 28
+;Mark 3 30
+;Turn Right 31
+;Turn Right 32
+;Turn Right 33
+;Move 34 33
+;Turn Left 35
+;Turn Left 36
+;Move 37 36
+;Mark 3 38
+;Turn Right 39
+;Turn Right 40
+;Turn Right 41
+;Move 42 41
+;Turn Left 43
+;Turn Left 44
+;Move 45 44
+;Mark 3 46
+;Turn Right 47
+;Turn Right 48
+;Turn Right 49
+;Move 50 49
+;Turn Left 51
+;Turn Left 52
+;Move 53 52
+;Mark 3 54
+;Turn Right 55
+;Turn Right 56
+;Turn Right 57
+;Move 83 57
+;Sense Ahead 69 59 Marker 3
+;Turn Right 60
+;Sense Ahead 71 61 Marker 3
+;Turn Right 62
+;Sense Ahead 73 63 Marker 3
+;Turn Right 64
+;Sense Ahead 75 65 Marker 3
+;Turn Right 66
+;Sense Ahead 77 67 Marker 3
+;Turn Right 68
+;Sense Ahead 79 69 Marker 3
+;Sense Ahead 70 80 Friend
+;Turn Right 60
+;Sense Ahead 72 80 Friend
+;Turn Right 62
+;Sense Ahead 74 80 Friend
+;Turn Right 64
+;Sense Ahead 76 80 Friend
+;Turn Right 66
+;Sense Ahead 78 80 Friend
+;Turn Right 68
+;Sense Ahead 83 80 Friend
+;Move 81 83
+;Sense Here 82 83 Marker 3
+;Drop 82
+;Move 84 88
+;Sense Here 83 85 Marker 4
+;PickUp 89 86
+;Sense Ahead 87 83 FoeHome
+;Flip 4 124 115
+;Turn Right 83
+;Turn Right 90
+;Turn Right 91
+;Turn Right 92
+;Move 93 111
+;Sense Here 94 92 Home
+;Sense Ahead 95 97 Home
+;Move 94 96
+;Turn Right 94
+;Turn Right 98
+;Sense Ahead 100 99 Home
+;Turn Right 100
+;Sense Ahead 101 103 Home
+;Move 100 102
+;Turn Right 94
+;Turn Right 104
+;Turn Right 105
+;Move 106 94
+;Move 107 94
+;Move 108 94
+;Move 109 94
+;Move 110 94
+;Drop 58
+;Turn Left 92
+;Turn Right 113
+;Turn Right 114
+;Turn Right 83
+;PickUp 89 116
+;Sense RightAhead 117 118 FoeHome
+;Turn Right 118
+;Turn Right 119
+;Move 120 119
+;Sense LeftAhead 121 122 FoeHome
+;Turn Left 115
+;Turn Left 123
+;Turn Left 115
+;PickUp 129 125
+;Sense Ahead 126 128 FoeHome
+;Flip 10 128 127
+;Move 124 128
+;Turn Right 124
+;Turn Right 130
+;Turn Right 131
+;Turn Right 132
+;Flip 6 92 133
+;Sense Here 134 136 FoeHome
+;Move 133 135
+;Turn Right 133
+;Drop 137
+;Turn Right 138
+;Turn Right 139
+;Turn Right 140
+;Move 124 140
+end; // keith-defensant2
+
+
+define ant-subbrain alex-killer2
+Flip 2 1 55
+;Flip 2 2 2
+;Sense Here 3 21 FoeHome
+;Sense Here 4 45 Food
+;PickUp 5 3
+;Sense Ahead 6 8 FoeHome
+;Move 5 7
+;Turn Left 5
+;Turn Left 9
+;Sense Ahead 8 10 FoeHome
+;Move 11 10
+;Drop 12
+;Turn Left 13
+;Turn Left 14
+;Turn Left 15
+;Move 2 16
+;Flip 4 17 43
+;Turn Right 18
+;Sense Here 19 34 Friend
+;Turn Left 20
+;Move 2 21
+;Sense Here 3 22 FoeHome
+;Sense Ahead 15 23 FoeHome
+;Sense LeftAhead 19 24 FoeHome
+;Sense RightAhead 25 27 FoeHome
+;Turn Right 26
+;Move 2 21
+;Flip 4 28 33
+;Flip 2 29 31
+;Turn Left 30
+;Move 2 29
+;Turn Right 32
+;Move 2 31
+;Move 2 28
+;Move 35 36
+;Turn Left 21
+;Turn Left 37
+;Turn Left 38
+;Move 39 40
+;Turn Right 21
+;Turn Right 41
+;Turn Right 42
+;Move 35 36
+;Turn Left 44
+;Move 39 40
+;Flip 3 46 49
+;Flip 9 47 48
+;Turn Left 3
+;Turn Right 3
+;Sense Ahead 50 54 FoeHome
+;Move 3 51
+;Sense Ahead 52 53 Friend
+;Turn Left 3
+;Flip 3 50 3
+;Turn Right 3
+;Flip 2 56 56
+;Flip 2 57 71
+;Move 58 70
+;Sense Here 57 59 Home
+;PickUp 60 57
+;Turn Right 61
+;Turn Right 62
+;Turn Right 63
+;Move 64 69
+;Sense Here 65 63 Home
+;Drop 66
+;Turn Right 67
+;Turn Right 68
+;Turn Right 57
+;Turn Left 63
+;Turn Right 57
+;Move 72 84
+;Sense Here 71 73 Home
+;PickUp 74 71
+;Turn Left 75
+;Turn Left 76
+;Turn Left 77
+;Move 78 83
+;Sense Here 79 77 Home
+;Drop 80
+;Turn Left 81
+;Turn Left 82
+;Turn Left 71
+;Turn Right 77
+;Turn Left 71
+end; // alex-killer2
+
+
+define sub brain alex-killer-fixed
+    Sense FoeHome, (attacker-success, a-search-foe-home);
+
+  [attacker-success:]
+    PickUp attacker-success => attacker-success;
+
+  [a-search-foe-home:]
+    Sense Ahead FoeHome, (a-near-hub-ahead);
+    Sense LeftAhead FoeHome, (a-near-hub-left);
+    Sense RightAhead FoeHome, (a-near-hub-right);
+    Flip 1, (a-move-forward, a-move-lr);
+
+
+  // We are near their hill.
+  [a-near-hub-ahead:]
+    Move alex-killer-fixed => a-near-hub-ahead-blocked;
+
+  [a-near-hub-left:]
+    Turn Left;
+    Move alex-killer-fixed => a-search-foe-home;
+
+  [a-near-hub-right:]
+    Turn Right;
+    Move alex-killer-fixed => a-search-foe-home;
+
+  [a-near-hub-ahead-blocked:]
+    Turn Right;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-go-around-right:]
+    Turn Left, (a-search-foe-home);
+
+  [a-near-hub-ahead-blocked-try-left-instead:]
+    Turn Left;
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-try-right-instead:]
+    Turn Right;
+    Turn Right;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-go-around-left:]
+    Turn Right, (a-search-foe-home);
+    
+
+  // We are still searching.
+  [a-move-forward:]
+    Move alex-killer-fixed => a-move-lr;
+
+  [a-move-lr:]
+    Flip 1, (a-move-left, a-move-right);
+
+  [a-move-left:]
+    Turn Left;
+    Move alex-killer-fixed => a-move-left;
+
+  [a-move-right:]
+    Turn Right;
+    Move alex-killer-fixed => a-move-right;
+
+end; // alex-killer-fixed
+
+
 // Main brain.
 define brain combo
-  Flip 2, (gatherer, gatherer);
+  Flip 7, (protector, gatherer);
 
   [gatherer:]
+    Flip 3, (attacker, gatherer);
     Sub bruce-spiral;
+
+  [protector:]
+    Sub keith-defensant2;
+
+  [attacker:]
+    Sub alex-killer2;
+
 end; // combo
 
 
