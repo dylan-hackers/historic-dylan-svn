@@ -131,7 +131,7 @@ make
 
 %install
 cd src/
-make install
+make DESTDIR=$RPM_BUILD_ROOT install
 
 
 %post
