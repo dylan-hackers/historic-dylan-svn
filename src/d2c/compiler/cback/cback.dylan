@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.13 2003/10/23 13:21:43 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.14 2003/11/12 10:48:31 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -3799,8 +3799,8 @@ define method conversion-expr
     let to-more-general = source-rep.representation-to-more-general;
     conversion-expr(target-rep,
 		    select (to-more-general)
-		      #t => source;
-		      #f => error("Can't happen.");
+                      #t => source;
+                      #f => error("Tried to convert %= from %= to %=, and can't.", source, source-rep, target-rep);
 		      otherwise => format-to-string(to-more-general, source);
 		    end,
 		    source-rep.more-general-representation,
@@ -3811,7 +3811,7 @@ define method conversion-expr
 				       source, source-rep, file);
     select (from-more-general)
       #t => more-general;
-      #f => error("Can't happen.");
+      #f => error("Tried to convert %= from %= to %=, and can't.", source, source-rep, target-rep);
       otherwise => format-to-string(from-more-general, more-general);
     end;
   end;

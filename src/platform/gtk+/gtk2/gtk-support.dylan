@@ -9,7 +9,19 @@ define constant generic-dylan-marshaller = callback-method
   format-out("");
 end;
 */
-    
+
+/*
+define functional class <GValue*> (<GValue>) end;
+
+define sealed domain make (singleton(<GValue*>));
+
+*/
+define inline method pointer-value
+    (ptr :: <GValue>, #key index = 0)
+ => (result :: <GValue>);
+  make(<GValue>, pointer: ptr.raw-value + index * c-expr(int: "sizeof(GValue)"));
+end method pointer-value;
+
 define constant generic-dylan-marshaller = 
     callback-method(stub-closure         :: <raw-pointer>,
                     stub-return-value    :: <raw-pointer>,
@@ -17,7 +29,7 @@ define constant generic-dylan-marshaller =
                     stub-param-values    :: <raw-pointer>,
                     stub-invocation-hint :: <raw-pointer>,
                     stub-marshal-data    :: <raw-pointer>) => ();
-     let gvalues = make(<GValue*>, pointer: stub-param-values);
+      let gvalues = make(<GValue>, pointer: stub-param-values);
       let values = #();
       for(i from 0 below stub-n-param-values)
         values := pair(g-value-to-dylan(pointer-value(gvalues, index: i)),
@@ -45,14 +57,6 @@ define function g-signal-connect(instance :: <GObject>,
                            if(run-after?) 1 else 0 end)
 end function g-signal-connect;
 
-/*
-define function g-signal-connect(instance, detailed-signal, c-handler, data)
-  g-signal-connect-data (instance, detailed-signal, 
-                         c-handler, data,
-                         as(<GClosureNotify>, $null-pointer), 0)
-end function g-signal-connect;
-*/
-
 define function g-signal-connect-swapped
     (instance, detailed-signal, c-handler, data)
   g-signal-connect-data (instance, detailed-signal, 
@@ -60,25 +64,6 @@ define function g-signal-connect-swapped
                          as(<GClosureNotify>, $null-pointer), 
                          $G-CONNECT-SWAPPED)
 end function g-signal-connect-swapped;
-
-define method export-value(cls == <GCallback>, value :: <function>) => (result :: <function-pointer>);
-  make(<function-pointer>, pointer: value.callback-entry); 
-end method export-value;
-
-define method import-value(cls == <function>, value :: <GCallback>) => (result :: <function>);
-  error("Is this possible?");
-end method import-value;
-
-define sealed method export-value(cls == <gpointer>, the-value :: <object>) 
- => (result :: <gpointer>);
-  make(<gpointer>, 
-       pointer: object-address(make(<value-cell>, value: the-value)));
-end method export-value;
-
-define sealed method import-value(cls == <object>, the-value :: <gpointer>) 
- => (result :: <object>);
-  value(heap-object-at(the-value.raw-value));
-end method import-value;
 
 define sealed domain make (singleton(<gpointer>));
 
@@ -88,7 +73,9 @@ define function all-subclasses(x :: <class>)
         map(all-subclasses, x.direct-subclasses))
 end;
 
-define constant $all-gtype-instances = all-subclasses(<GTypeInstance>);
+// We cheat!
+// define constant $all-gtype-instances = all-subclasses(<GTypeInstance>);
+define constant $all-gtype-instances = all-subclasses(<statically-typed-pointer>);
 
 define function find-gtype-by-name(name :: <byte-string>)
   block(return)
@@ -102,7 +89,7 @@ define function find-gtype-by-name(name :: <byte-string>)
   end block;
 end function find-gtype-by-name;
 
-define function find-gtype(g-type :: <GType>)
+define method find-gtype(g-type :: <GType>)
  => (type :: <class>);
   let dylan-type = element($gtype-table, g-type, default: #f);
   unless(dylan-type)
@@ -111,7 +98,7 @@ define function find-gtype(g-type :: <GType>)
     $gtype-table[g-type] := dylan-type;
   end unless;
   dylan-type
-end function find-gtype;
+end method find-gtype;
   
 // map GTK type IDs to Dylan classes
 define table $gtype-table = {
@@ -129,45 +116,12 @@ define table $gtype-table = {
                              $G-TYPE-POINTER => <gpointer>,
                              };
 
-define method make(type :: subclass(<GTypeInstance>), #rest args, 
-                   #key pointer, #all-keys)
- => (result :: <GTypeInstance>)
-  if(pointer)
-    let instance = next-method(<GTypeInstance>, pointer: pointer);
-    let g-type = g-type-from-instance(instance);
-    let dylan-type = find-gtype(g-type);
-    next-method(dylan-type, pointer: pointer);
-  else
-    next-method();
-  end if;
-end method make;
-
-define function g-type-from-instance(instance :: <GTypeInstance>)
- => (type :: <GType>);
-  c-decl("GType g_type_from_instance(gpointer instance) { return G_TYPE_FROM_INSTANCE(instance); }");
-  call-out("g_type_from_instance", int:, ptr: instance.raw-value);
-end function g-type-from-instance;
-
-define function g-value-type(instance :: <GValue>)
- => (type :: <GType>);
-  c-decl("GType g_value_type(gpointer instance) { return G_VALUE_TYPE(instance); }");
-  call-out("g_value_type", int:, ptr: instance.raw-value);
-end function g-value-type;
-
-define functional class <GValue*> (<GValue>, <c-vector>) end;
-
-define inline method pointer-value(ptr :: <GValue*>, #key index = 0)
- => (result :: <GValue>);
-  pointer-at(ptr, offset: index * c-expr(int:, "sizeof(GValue)"), class: <GValue>);
-end method pointer-value;
-    
-
 define function g-value-to-dylan(instance :: <GValue>)
  => (dylan-instance);
   let g-type = g-value-type(instance);
   if(g-type ~= $G-TYPE-INVALID)
     let dylan-type = find-gtype(g-type);
-    if(subtype?(dylan-type, <GObject>))
+    if(subtype?(dylan-type, <statically-typed-pointer>))
       make(dylan-type, pointer: instance.g-value-peek-pointer.raw-value)
     else
       signal("Can't handle fundamental types yet.");
@@ -175,58 +129,3 @@ define function g-value-to-dylan(instance :: <GValue>)
   end if;
 end function g-value-to-dylan;
 
-// Another stupid workaround. Sometimes we need to access mapped types
-// as pointers, and Melange doesn't provide any way to do so. Or does it?
-define sealed functional class <c-pointer-vector> (<c-vector>) end;
-
-define sealed domain make (singleton(<c-pointer-vector>));
-
-define constant $pointer-size = 4;
-
-define sealed method pointer-value
-    (ptr :: <c-pointer-vector>, #key index = 0)
- => (result :: <statically-typed-pointer>);
-  pointer-at(ptr,
-	     offset: index * $pointer-size,
-	     class: <statically-typed-pointer>);
-end method pointer-value;
-
-define sealed method pointer-value-setter
-    (value :: <statically-typed-pointer>,
-     ptr :: <c-pointer-vector>, #key index = 0)
- => (result :: <statically-typed-pointer>);
-  pointer-at(ptr,
-	     offset: index * $pointer-size,
-	     class: <statically-typed-pointer>) := value;
-  value;
-end method pointer-value-setter;
-
-define sealed method content-size (value :: subclass(<c-pointer-vector>))
- => (result :: <integer>);
-  $pointer-size;
-end method content-size;
-
-define function gtk-init(progname, arguments)
-  let (argc, argv) = c-arguments(progname, arguments);
-  %gtk-init(argc, argv);
-end function gtk-init;
-
-define method c-arguments(progname :: <string>, arguments)
- => (<int*>, <char***>)
-  let argc = 1 + arguments.size;
-  let argv :: <c-string-vector> =
-    make(<c-string-vector>, element-count: argc + 1);
-  // XXX - We'd need to delete these if we weren't using
-  // a garbage collector which handles the C heap.
-  argv[0] := progname;
-  for (i from 1 below argc,
-       arg in arguments)
-    argv[i] := arg;
-  end for;
-  as(<c-pointer-vector>, argv)[argc] := null-pointer;
-  let pargc = make(<int*>);
-  pointer-value(pargc) := argc;
-  let pargv = make(<char***>);
-  pointer-value(pargv) := argv;
-  values(pargc, pargv);
-end method c-arguments;

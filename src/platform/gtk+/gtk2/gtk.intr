@@ -15,8 +15,7 @@ define interface
              "char*" => <c-string>},
     map: {"gchar*" => <byte-string>,
           "char*" => <byte-string>,
-          "GCallback" => <function>,
-	  "gpointer" => <object> },
+          "GCallback" => <function>},
     rename: {"gtk_init" => %gtk-init },
     name-mapper: minimal-name-mapping;
 
@@ -27,8 +26,10 @@ define interface
     equate-argument: { 6 => <integer>};
   function "g_signal_connect_closure",
     equate-argument: { 1 => <GObject>};
-  function "g_value_peek_pointer",
-    equate-result: <GObject>;
+  function "g_closure_set_meta_marshal",
+    map-argument: { 2 => <object> };
+  function "g_closure_new_simple",
+    map-argument: { 2 => <object> };
   struct "struct _GObject",
     superclasses: {<GTypeInstance>};
   struct "struct _GtkAccelGroup",

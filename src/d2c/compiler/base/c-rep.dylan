@@ -1,5 +1,5 @@
 module: c-representation
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/c-rep.dylan,v 1.11.2.1 2003/10/23 13:21:42 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/c-rep.dylan,v 1.11.2.2 2003/11/12 10:48:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -378,7 +378,7 @@ define method c-rep (c-type :: <symbol>) => rep :: false-or(<representation>);
            from-more-general: 
              concatenate("(*((", c-type-string, "*)%s))"),
            to-more-general:
-             #f,
+             "(&(%s))",
            alignment: 0, size: 0,
            c-type: as(<string>, c-type));
 //      error("unknown c-rep %=", c-type);
