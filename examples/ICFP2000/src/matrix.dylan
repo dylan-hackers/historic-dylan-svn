@@ -15,7 +15,7 @@ end method;
 
 define method \* (vector :: <vector>, mat :: <matrix>)
 // => mult-vector :: <vector>;
-  (matrix(vector) * mat).components;
+  as(<simple-object-vector>, matrix(vector) * mat);
 end method;
 
 define method print-object(mat :: <matrix>, stream :: <stream>)
