@@ -2,6 +2,8 @@ module: client
 
 define class <pushbot> (<robot-agent>)
   slot visited-bases :: <list>, init-value: #();
+  slot push-count, init-value: 0;
+  slot push-count-dir, init-value: #"up";
 end class;
 
 // return a collection of robots around location
@@ -94,28 +96,38 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     debug("getting adjacent robots...");
     let adj-robots = get-adjacent-robots(s, robot.location);
 
-    if(~empty?(adj-robots))
-      debug("robot(s) present\n");
-      // if robot can be killed, bit a lot more and push
-      let killable-dir = choose(curry(\~=, #f), map(curry(robot-killable, s), adj-robots));
-      if(~empty?(killable-dir))
-	// TODOsort the list of robots by some metric, eg who has delivered the most
-	let targ-direction = first(killable-dir);
-	return(make(<move>, bid: (robot.money / 10) + 1, direction: targ-direction));
+    if(me.push-count-dir = #"up")
+      if(~empty?(adj-robots))
+	debug("robot(s) present\n");
+	// if robot can be killed, bit a lot more and push
+	let killable-dir = choose(curry(\~=, #f), map(curry(robot-killable, s), adj-robots));
+	if(~empty?(killable-dir))
+	  // TODOsort the list of robots by some metric, eg who has delivered the most
+	  let targ-direction = first(killable-dir);
+	  return(make(<move>, bid: 50 /*(robot.money / 10) + 1*/, direction: targ-direction));
+	end;
+	debug("...no-one to kill\n");
+	// if enemy robot has packages, bid a bit more and push
+	let rbots = sort(adj-robots, test: method(a, b)=>(c)
+					       a.inventory.size < b.inventory.size
+					   end);
+	let targ = first(reverse(rbots));
+	let d = points-to-direction(robot.location, targ.location);
+	if(d)
+	  me.push-count := me.push-count + 1;
+	  if(me.push-count > 4)
+	    me.push-count-dir := #"down";
+	  end;
+	  return(make(<move>, bid: 20 /*(robot.money / 50) + 1*/, direction: d));
+	end;
+	debug("...no-one to push\n");
       end;
-      debug("...no-one to kill\n");
-      // if enemy robot has packages, bid a bit more and push
-      let rbots = sort(adj-robots, test: method(a, b)=>(c)
-					    a.inventory.size < b.inventory.size
-					end);
-      let targ = first(reverse(rbots));
-      let d = points-to-direction(robot.location, targ.location);
-      if(d)
-	return(make(<move>, bid: (robot.money / 50) + 1, direction: d));
+    else
+      me.push-count := me.push-count - 1;
+      if(me.push-count <= 0)
+	me.push-count-dir := #"up";
       end;
-      debug("...no-one to push\n");
     end;
-
     
     debug("back to dumbot code\n");
     debug("DB: Considering next move (loc: %=)\n", robot.location);
@@ -165,27 +177,38 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     end if;
     
     // is there another robot nearby? if so move to attack it
-    block(exit)
-      let robo-locations = remove(map(location, s.robots), robot.location, test: \=);
-      if(empty?(robo-locations))
-	exit();
-      end;
-      let robo-paths = map(curry(rcurry(find-path, s.board), robot.location),
-			       robo-locations);
-      robo-paths := choose(curry(\~=, #f), robo-paths);
-      robo-paths := sort!(robo-paths, stable: #t, 
-			  test: method (a :: <list>, b :: <list>) 
-				  a.size < b.size;
-				end method);
-      robo-paths := choose(method(a) => (r)
+    if(me.push-count-dir = #"up")
+      block(exit)
+	let robo-locations = remove(map(location, s.robots), robot.location, test: \=);
+	if(empty?(robo-locations))
+	  exit();
+	end;
+	let robo-paths = map(curry(rcurry(find-path, s.board), robot.location),
+			     robo-locations);
+	robo-paths := choose(curry(\~=, #f), robo-paths);
+	robo-paths := sort!(robo-paths, stable: #t, 
+			    test: method (a :: <list>, b :: <list>) 
+				    a.size < b.size;
+				  end method);
+	robo-paths := choose(method(a) => (r)
 			       a.size <= 2; //atack within foo steps
-			   end method,
-			   robo-paths);
-      if(empty?(robo-paths))
-	exit();
+			     end method,
+			     robo-paths);
+	if(empty?(robo-paths))
+	  exit();
+	end;
+	debug("Moving towards another robot\n");
+	me.push-count := me.push-count + 1;
+	  if(me.push-count > 4)
+	    me.push-count-dir := #"down";
+	  end;
+	return(make-move-from-paths(robo-paths, robot));
       end;
-      debug("Moving towards another robot\n");
-      return(make-move-from-paths(robo-paths, robot));
+    else
+      me.push-count := me.push-count - 1;
+      if(me.push-count <= 0)
+	me.push-count-dir := #"up";
+      end;
     end;
 
     maybe-mark-base(me, s, robot.location);
