@@ -80,7 +80,12 @@ COLOR="GREEN"
 > Library</A
 ></H1
 ><P
-></P
+><B
+CLASS="COMMAND"
+>d2c</B
+> was written as a research project. As such, it contains
+      some very sophisticated optimization routines but occasionally omits
+      other, more common optimizations.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-OPTIMIZE-CHEESE"
@@ -92,7 +97,44 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>For some unknown reason, all of the optimization code found
+	in the compiler is contained in a single module named
+	<FONT
+COLOR="GREEN"
+><CODE
+>Cheese</CODE
+></FONT
+>. Furthermore, this module does not
+	actually provide an entrance point for optimizing a chunk of code.
+	Instead, it adds methods to the generic function
+	<FONT
+COLOR="GREEN"
+><CODE
+>optimize-component</CODE
+></FONT
+>, which is exported by the <A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-BUILDER-INTERFACE"
+>	<FONT
+COLOR="GREEN"
+><CODE
+>Builder-Interface</CODE
+></FONT
+> module</A
+>. This interface
+	is somewhat less than amusing.</P
+><P
+>To study this module, begin by reading the method
+	<FONT
+COLOR="GREEN"
+><CODE
+>optimize-component</CODE
+></FONT
+> in the file
+	<TT
+CLASS="FILENAME"
+>cheese.dylan</TT
+>. This calls each of the various
+	optimization routines, which are grouped by file.</P
 ><DIV
 CLASS="NAVFOOTER"
 ><HR

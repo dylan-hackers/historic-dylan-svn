@@ -80,7 +80,14 @@ COLOR="GREEN"
 > Library</A
 ></H1
 ><P
-></P
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-CBack</CODE
+></FONT
+> library generates C
+      code from the optimized front-end representation of a
+      component.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CBACK-STACK-ANALYSIS"
@@ -92,7 +99,9 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module analyzes the stack usage of a function. It's
+	relatively straightforward and independent of the rest of the back
+	end.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CBACK-CBACK"
@@ -104,7 +113,26 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module has two main entry points:
+	<FONT
+COLOR="GREEN"
+><CODE
+>emit-tlf-gunk</CODE
+></FONT
+> and <FONT
+COLOR="GREEN"
+><CODE
+>emit-component</CODE
+></FONT
+>. The
+	former emits arbitrary C code needed by a given top-level form. The
+	latter translates a Dylan function into actual C code.</P
+><P
+>The file <TT
+CLASS="FILENAME"
+>cback.dylan</TT
+> contains more
+	documentation about how things work.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CBACK-HEAP"
@@ -116,7 +144,12 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module emits local (per library) and global (per
+	application) heaps. Extensive documentation can be found in
+	<TT
+CLASS="FILENAME"
+>heap.dylan</TT
+>.</P
 ><DIV
 CLASS="NAVFOOTER"
 ><HR
