@@ -20,13 +20,12 @@
   <h3>Contents</h3>
 
   <ol>
-    <li><a href="login.dsp">Login</a></li>
-    <li><a href="logout.dsp">Logout</a></li>
-    <li><a href="iterator.dsp?n=3">Iterator</a></li>
+    <li><a href="hello.dsp">Hello World</a></li>
+    <li><a href="args.dsp">A tag with arguments</a></li>
+    <li><a href="login.dsp">Login (demonstrates sessions)</a></li>
+    <li><a href="logout.dsp">Logout (demonstrates sessions)</a></li>
+    <li><a href="iterator.dsp?n=3">Iterator (demonstrates query values and body tags)</a></li>
     <li><a href="table.dsp">Table Generation</a></li>
-    <li><a href="login.dsp">Login</a></li>
-    <li><a href="login.dsp">Login</a></li>
-    <li><a href="login.dsp">Login</a></li>
   </ol>
 
   <p>
