@@ -34,6 +34,7 @@ define module meta
   use meta-base, export: all;
   use meta-syntax, export: all;
   use meta-types, export: all;
+  use streams;
 
   export scan-s, scan-word, scan-int, scan-number, string-to-number;
 end module meta;
