@@ -1,4 +1,4 @@
-module: icfp2000
+module: ray-tracer
 synopsis: Ray-intersection code
 authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
