@@ -2,8 +2,6 @@ module:    sieve
 synopsis:  implementation of "Sieve of Eratosthenes" benchmark
 author:    Eric Kidd <eric.kidd@pobox.com>
 copyright: public domain
-use-libraries:  common-dylan, io, collections
-use-modules:    common-dylan, standard-io, streams, format-out, bit-vector
 
 define function sieve (limit :: <integer>) => result :: <integer>;
   let flags = make(<byte-vector>, size: limit + 1, fill: 1);
