@@ -1,3 +1,0 @@
-&compile_subdirs('utilities', 'geometry', 'dcs', 'sheets', 'graphics',
-		 'extended-geometry', 'layouts', 'commands', 'gadgets',
-		 'frames', 'core');
