@@ -3,7 +3,10 @@ module: dylan-user
 define library ants
   use common-dylan;
   use io;
-  
+  use file-system;
+  use regular-expressions;
+  use random;
+
   export ants;
 end library ants;
 
@@ -12,7 +15,9 @@ define module ants
   use streams;
   use standard-io;
   use format-out;
-  use simple-random;
+  use random;
+  use file-system;
+  use regular-expressions, exclude: {split};
 
   export <position>,
     x,

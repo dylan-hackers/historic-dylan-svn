@@ -1,13 +1,5 @@
 module: ants
 
-define class <brain> (<object>)
-  slot name :: <byte-string>, required-init-keyword: name:;
-  slot code :: <vector> = #[];
-  slot played :: <integer> = 0;
-  slot score :: <integer> = 0;
-  slot food :: <integer> = 0;
-end class <brain>;
-
 define function win-percent(brain) => (percentage)
     if (brain.played == 0)
         "n/a";
@@ -16,22 +8,6 @@ define function win-percent(brain) => (percentage)
                          as(<single-float>, brain.played)));
     end;
 end;
-
-define function load-brain(b :: <brain>)
-  with-open-file(s = b.name)
-    b.code := read-state-machine(s)
-  end with-open-file;
-end function load-brain;
-
-define function save-brain(b :: <brain>)
-  with-open-file(s = b.name)
-    write-brain(s, b);
-  end with-open-file;
-end;
-
-define function write-brain(s :: <stream>, b :: <brain>)
-  map(compose(curry(write-line, s), unparse), b.code)
-end function write-brain;
 
 define function run-single-tournament(brains, worlds)
   let brain1 = brains[random(brains.size)];
@@ -67,7 +43,7 @@ define function run-single-tournament(brains, worlds)
   end if;
 end function run-single-tournament;
 
-begin
+define function run-tournament()
   let brains =
     with-open-file(brain-stream = "contestants")
       map(method(name) make(<brain>, name: name) end, 
@@ -99,3 +75,19 @@ define function read-lines(s :: <stream>)
   end while;
   result;
 end function read-lines;
+
+run-tournament();
+
+/*
+begin
+  let b = make(<brain>, name: application-arguments()[0]);
+  load-brain(b);
+  let b* = clone-brain(b);
+  mutate-brain(b*);
+  let b** = clone-brain(b);
+  mutate-brain(b*);
+  mutate-brain(b**);
+  crossover-brain(b*, b**);
+  save-brain(b*);
+  save-brain(b**);
+end;*/

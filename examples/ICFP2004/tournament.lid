@@ -5,4 +5,5 @@ files:  ants-exports
   world
   misc
   unparse
+  brain
   tournament
