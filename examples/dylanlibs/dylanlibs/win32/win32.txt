@@ -21,6 +21,16 @@ Automatically generated COM wrapper for the Microsoft Internet
 Explorer Web Browser ActiveX objects. Used by the simple-web-browser
 example.
 
+3) send-keys
+============
+Dylan Implementations: 
+  Functional Developer
+
+Provides methods for sending keystrokes directly to the keyboard input
+queue, making it look as if those keystrokes had come from the
+keyboard. Allows sending keystrokes to the currently active DOS
+application. Also includes functions for screen scraping console
+windows. I use this library to screen scrape legacy DOS applications.
 -- 
 Chris Double.  
 01 May 2001.
