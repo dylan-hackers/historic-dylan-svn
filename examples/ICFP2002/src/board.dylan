@@ -73,6 +73,8 @@ define inline sealed method aref-setter
     (new-value :: <terrain>, board :: <board>, #rest indices)
     => new-value :: <terrain>;
   let (row :: <integer>, col :: <integer>) = apply(values, indices);
+  let (row :: <integer>, col :: <integer>) = values(row - 1, col - 1);
+
   board.data[row * board.cols + col] := new-value;
 end;
 
