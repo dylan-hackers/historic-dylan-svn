@@ -12,5 +12,8 @@ define variable *learning-rate* = 4.5d0;
 // The network momentum (0.1 to 10)
 define variable *momentum* = 0.5d0;
 
+// The maximum number of neurons
+define variable *max-neurons* = 50d0;
+
 // The RMS Error
 define variable *rms-error* = 0d0;

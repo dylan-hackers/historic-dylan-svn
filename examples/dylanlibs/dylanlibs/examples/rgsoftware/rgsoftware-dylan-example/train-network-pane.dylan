@@ -8,7 +8,8 @@ define pane <train-network-pane> ()
   pane number-neurons-pane (pane)
     make(<text-field>,
          value-type: <integer>,
-         text: "50");
+         text: integer-to-string(truncate(*max-neurons*)),
+         value-changed-callback: method(gadget) *max-neurons* := as(<double-float>, gadget.gadget-value) end);
 
   // A checkbox for choosing whether to reset the weights
   pane reset-weights-pane (pane)
@@ -101,8 +102,8 @@ define function on-train-button(pane)
       end when;
     end when;
 
-//  exception(e :: <error>)
-//    notify-user("Could not train network.");
+  exception(e :: <error>)
+    notify-user("Could not train network.");
   end block;
 end function on-train-button;
 

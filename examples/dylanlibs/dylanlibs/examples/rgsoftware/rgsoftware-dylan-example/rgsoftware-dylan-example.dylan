@@ -14,7 +14,10 @@ define frame <example-frame> (<simple-frame>)
   layout (frame)
     vertically()
       make(<open-data-file-pane>);
-      make(<train-network-pane>);
+      horizontally()
+        make(<train-network-pane>);
+        make(<input-relevance-pane>);
+      end horizontally;
       horizontally()
         vertically()
           make(<label>, label: "Status:");

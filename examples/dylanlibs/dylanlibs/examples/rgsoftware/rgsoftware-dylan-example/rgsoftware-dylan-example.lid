@@ -5,6 +5,7 @@ files:	library
 	data
 	open-data-file-pane
 	train-network-pane
+	input-relevance-pane
 	rgsoftware-dylan-example
 base-address:	0x63BE0000
 start-function:	main

@@ -111,4 +111,34 @@ define method tidy-float-to-string(value :: <float>) => (s :: <string>)
   result;    
 end method tidy-float-to-string;
 
+// Function that displays a dialog box requesting input
+// of an integer amount. Taken from the Duim test suite example
+// provided by Functional Objects.
+define method choose-integer
+    (#key title = "Select an integer",
+          port = default-port(),
+          owner)
+ => (integer :: false-or(<integer>))
+  with-frame-manager (frame-manager(owner))
+    let text-field 
+      = make(<text-field>,
+             value-type: <integer>,
+             value-changing-callback: method (gadget)
+                                        let dialog = sheet-frame(gadget);
+                                        dialog-exit-enabled?(dialog)
+                                          := gadget-value(gadget) ~= #f
+                                      end,
+	     activate-callback: exit-dialog);
+    let dialog
+      = make(<dialog-frame>, 
+	     title: title, 
+	     owner: owner,
+	     layout: text-field,
+	     input-focus: text-field);
+    dialog-exit-enabled?(dialog) := gadget-value(text-field) ~= #f;
+    start-dialog(dialog)
+      & gadget-value(text-field)
+  end
+end method choose-integer;
+
 
