@@ -3,9 +3,11 @@ module: client
 define constant <path> = <point-list>;
 
 
+// ##################
 // ## <strategy>
 define abstract class <strategy>(<object>)
   slot strategy-robot :: <robot>;
+  slot strategy-agent :: <robot-agent>;
 end;
 
 // ## valid?
@@ -14,6 +16,8 @@ define generic valid?(s :: <strategy>) => valid :: <boolean>;
 define generic safe?(strategy :: <strategy>, me :: <gabot>, s :: <state>) => safe :: <boolean>;
 // ## create-command
 define generic create-command(s :: <strategy>) => command :: <command>;
+// ## create-terminal-command
+define generic create-terminal-command(s :: <strategy>, state :: <state>) => command :: <command>;
 
 
 define method safe?(dropping :: <drop-strategy>, me :: <gabot>, s :: <state>)
@@ -30,16 +34,34 @@ define method safe?(dropping :: <drop-strategy>, me :: <gabot>, s :: <state>)
 // #t;
 end method safe?;
 
+// ##################
 // ## <gabot>
 define class <gabot> (<dumbot>)
   slot decided :: <strategy>.false-or = #f;
 end class <gabot>;
 
 
-// ## <drop-strategy>
-define concrete class <drop-strategy>(<strategy>)
+// ##################
+// ## <path-strategy>
+define abstract class <path-strategy>(<strategy>)
   slot approach :: <point>, required-init-keyword: approach:;
   slot strategy-path :: <path>, required-init-keyword: path:;
+end;
+
+// ## create-command{<path-strategy>}
+define method create-command(s :: <path-strategy>) => command :: <command>;
+  let robot = s.strategy-robot;
+  let path = s.strategy-path;
+  let path = path.head = robot.location
+             & path.tail
+             | path;
+  let path = s.strategy-path := path;
+  make(<move>, direction: turn(robot, path), bid: 1, id: robot.id);
+end;
+
+// ##################
+// ## <drop-strategy>
+define concrete class <drop-strategy>(<path-strategy>)
 end;
 
 define function drop-strategy(drop-path :: <path>)
@@ -57,8 +79,9 @@ define method valid?(dropping :: <drop-strategy>) => valid :: <boolean>;
   end;
 end;
 
+/*
 // ## create-command{<drop-strategy>}
-define method create-command(s :: <strategy>) => command :: <command>;
+###define method create-command(s :: <strategy>) => command :: <command>;
   let robot = s.strategy-robot;
   let path = s.strategy-path;
   let path = path.head = robot.location
@@ -67,25 +90,72 @@ define method create-command(s :: <strategy>) => command :: <command>;
   let path = s.strategy-path := path;
   make(<move>, direction: turn(robot, path), bid: 1, id: robot.id);
 end;
+*/
 
 // ## create-command{<drop-strategy>}
-define method create-terminal-command(s :: <strategy>) => command :: <command>;
-debug("Dropping in create-terminal-command\n");
+define method create-terminal-command(s :: <drop-strategy>, state :: <state>) => command :: <command>;
+  debug("GB: Dropping in create-terminal-command\n");
   make(<drop>, package-ids: /* map(id, choose() */ #(), bid: 1, id: s.strategy-robot.id);
 end;
 
 
 
-
+// ##################
 // ## <pick-strategy>
-define concrete class <pick-strategy>(<strategy>)
-  slot approach :: <point>, required-init-keyword: approach:;
-  slot strategy-path :: <path>, required-init-keyword: path:;
+define concrete class <pick-strategy>(<path-strategy>)
 end;
 
 define function pick-strategy(pick-path :: <path>)
-  make(<drop-strategy>, path: pick-path, approach: pick-path.last);
+  make(<pick-strategy>, path: pick-path, approach: pick-path.last);
 end;
+
+
+
+define generic load-packages (agent :: <robot-agent>,
+                              state :: <state>,
+                              #key compare :: <function>,
+                                   cutoff :: false-or(<path-cost>))
+ => ps :: <sequence>;
+
+define method load-packages (agent :: <robot-agent>,
+                              state :: <state>,
+                              #key compare :: <function>,
+                                   cutoff :: false-or(<path-cost>))
+ => ps :: <sequence>;
+
+  let pos = agent-pos(agent, state);
+    
+  let sorted-packages = sort(as(<vector>, packages-at(state, pos)), test: compare);
+  let ps = #();
+  let tot = 0;
+  block(return)
+    for (p in sorted-packages)
+      if (tot + p.weight > agent-capacity(agent, state))
+        return(ps)
+      else
+        if (find-path(pos, p.dest, state.board, cutoff: cutoff))
+          ps := add(ps, p);
+          tot := tot + p.weight;
+        end if;
+      end if;
+    finally
+      ps
+    end for;
+  end block;
+end;
+
+define function pick-compare(p1 :: <package>, p2 :: <package>)
+ => better :: <boolean>;
+  p1.weight > p2.weight // for now... TODO
+end;
+
+// ## create-command{<pick-strategy>}
+define method create-terminal-command(s :: <pick-strategy>, state :: <state>) => command :: <command>;
+  debug("GB: Picking in create-terminal-command\n");
+//  make(<pick>, package-ids: /* map(id, choose() */ #(), bid: 1, id: s.strategy-robot.id);
+  make(<pick>, package-ids: map(id, load-packages(s.strategy-agent, state, compare: pick-compare)), bid: 1, id: s.strategy-robot.id);
+end;
+
 
 
 define generic find-safest(me :: <gabot>, coll :: <sequence>, locator :: <function>, s :: <state>, #key weighting :: <function> = identity)
@@ -145,13 +215,14 @@ block (return)
   local method follow(strategy :: <strategy>)
           me.decided := strategy;
           strategy.strategy-robot := bot;
+          strategy.strategy-agent := me;
           strategy.create-command.return;
         end;
 
   local method finish(strategy :: <strategy>)
           me.decided := #f;
           strategy.strategy-robot := bot;
-          strategy.create-terminal-command.return;
+          create-terminal-command(strategy, s).return;
         end;
 
 debug("check\n");

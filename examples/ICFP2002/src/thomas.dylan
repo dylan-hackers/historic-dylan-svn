@@ -82,6 +82,7 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
   end if;
 end method choose-next-base;
 
+/* use load-packages #####
 define method choose-packages (packages :: <sequence>, tom :: <thomas>,
                                state :: <state>)
  => (ps :: <sequence>)
@@ -104,6 +105,7 @@ define method choose-packages (packages :: <sequence>, tom :: <thomas>,
     end for;
   end block;
 end method choose-packages;
+*/
 
 define method punt(id :: <integer>) => <command>;
   make(<pick>, id: id, bid: 1, package-ids: #(13575));
@@ -132,9 +134,10 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
         if (tom.moves-remaining.empty?) // we are at the base
           tom.visited-bases := add(tom.visited-bases,
                                    state.board[tom-pos.y, tom-pos.x]);
-          let ps = choose-packages(packages-at(state, tom-pos),
-                                   tom,
-                                   state);
+//          let ps = choose-packages(packages-at(state, tom-pos),
+//                                   tom,
+//                                   state);
+          let ps = load-packages(tom, state, compare: method(a, b) a.weight > b.weight end);
           if (ps.empty?) // there are no packages we can pick up.
             choose-next-base(tom, state);
             generate-next-move(tom, state);
