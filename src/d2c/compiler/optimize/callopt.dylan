@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.7 2003/09/24 17:01:48 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/callopt.dylan,v 1.10.2.8 2003/09/24 19:12:39 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -452,38 +452,25 @@ let format-out = ignore;
 	    find-relevant(from.parent, common)
 	  end;
 	end;
+
   let (common :: <region>, relevant-region1)
     = if (remnants-size = 0)
 	values(first-common, region1)
       else
 	values(first-common, remnants.head)
       end;
+
   let relevant-region2 = find-relevant(region2, first-common);
 
-unless (common == relevant-region1.parent & common == relevant-region2.parent)
-compiler-warning("-----#### firstOK: %=, 2ndOK: %=,\n parents1: %=,\n parents2: %=,\n region1: %=, region2: %=,\n relevant-region1: %=, relevant-region2: %=,\n common: %=,\n first-common: %=\n",
-		 common == relevant-region1.parent,
-		 common == relevant-region2.parent,
-		 parents1,
-		 parent-list(parent2.parent, list(parent2)),
-		 region1,
-		 region2,
-		 relevant-region1,
-		 relevant-region2,
-		 common,
-		 first-common);
-end;
-
+  // FIXME: use assert ?
   let assertion :: #t.singleton = common == relevant-region1.parent & common == relevant-region2.parent;
 
-  if (any?(method(r :: <region>) instance?(r, <if-region>) end, remnants))
+  if (any?(rcurry(instance?, <if-region>), remnants))
     compiler-warning("-----#### encountered an <if-region> in definer nesting %=\n", remnants);
     #f
   elseif (instance?(common, <compound-region>))
-	      format-out("### BOTH ARE COMPOUND\n");
     parent-dominates?(common, relevant-region1, common, relevant-region2)
   end if;
-  
 end;
 
 define method parent-dominates?
