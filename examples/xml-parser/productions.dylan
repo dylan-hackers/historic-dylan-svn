@@ -51,6 +51,11 @@ end macro parse-builder;
 
 // Doug wrote this macro for collecting strings
 define macro collector-definer
+{ define collector ?:name (?vars:*) => (?results:*) ?meta end }
+ => { parse-builder(?name, 
+       (with-collector into-vector ?=str, collect: ?=collect;
+          meta-builder(?=string, ?=start, (?vars), (?results), (?meta));
+        end with-collector)) }
 { define collector ?:name (?vars:*) ?meta end }
  => { parse-builder(?name, 
        (with-collector into-vector str, collect: ?=collect;
@@ -372,10 +377,8 @@ define parse element(name, attribs, content, etag)
  => (make(<element>, children: content, 
           tag-name: name,
           attributes: attribs))
-  {[parse-empty-elem-tag(tag-name, attributes), set!(content, "")],
-     [parse-stag(tag-name, attributes), 
-      parse-content(content), 
-      parse-etag(etag)]}, []
+  {[parse-empty-elem-tag(name, attribs), set!(content, "")],
+   [parse-stag(name, attribs), parse-content(content), parse-etag(etag)]}, []
 end parse element;
 
 // Start-tag
@@ -405,14 +408,14 @@ end parse etag;
 
 // Content of Elements
 // 
-//    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)* /* */
+//    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
 //
-define parse content(data, elemnt, cd-sect, pi, comment, ref)
-  {parse-char-data(data), []},
-  loop([{parse-element(elemnt), 
-// DOUG parse-reference(ref), 
-         parse-cd-sect(cd-sect), parse-pi(pi), parse-comment(comment)},
-        {parse-char-data(data), []}])
+define collector content(contents) => (str)
+  loop({[{parse-char-data(contents), 
+          parse-element(contents), 
+// DOUG   parse-reference(contents), 
+          parse-cd-sect(contents)}, do(collect(contents))],
+          parse-pi(contents), parse-comment(contents)})
 end parse content;
 
 // helper method for parsing opening tags
@@ -461,24 +464,43 @@ define parse cp(name, c, kids)
   { [parse-name(name), parse-opt-regexp(c)], parse-children(kids) }
 end parse cp;
 
-//    [49]    choice      ::=   '(' S? cp ( S? '|' S? cp )+ S? ')'      /* */
-//                                                                       /* */
+// the following parse functions all have the form:
+// '(' S? meta (S? a-char S? meta)(*|+) S? ')'
+define macro pattern-definer
+{ define pattern ?:name(?char:expression) ?meta end }
+ => { define parse ?name(s, ?=expr)
+        "(", parse-s?(s), ?meta,
+        loop([parse-s?(s), ?char, parse-s?(s), ?meta]),
+        parse-s?(s), ")"
+      end parse }
+{ define pattern repeated ?:name(?char:expression) ?meta end }
+ => { define parse ?name(s, ?=expr)
+        "(", parse-s?(s), ?meta, parse-s?(s), ?char, parse-s?(s), 
+        ?meta, loop([parse-s?(s), ?char, parse-s?(s), ?meta]),
+        parse-s?(s), ")"
+      end parse }
+end macro pattern-definer;
+
+//    [49]    choice      ::=   '(' S? cp ( S? '|' S? cp )+ S? ')'
 //                                                                       [VC: Proper Group/PE Nesting]
-define parse choice(s, cp)
+//
+/***** define parse choice(s, cp)
   "(", parse-s?(s), parse-cp(cp), 
         parse-s?(s), "|", parse-s?(s), parse-cp(cp),
   loop([parse-s?(s), "|", parse-s?(s), parse-cp(cp)]),
   parse-s?(s), ")"
-end parse choice;
+end parse choice; ****/
+define pattern repeated choice("|") parse-cp(expr) end;
 
-//    [50]    seq         ::=    '(' S? cp ( S? ',' S? cp )* S? ')'      /* */
+//    [50]    seq         ::=    '(' S? cp ( S? ',' S? cp )* S? ')'
 //                                                                       [VC: Proper Group/PE Nesting]
 //
-define parse seq(s, cp)
+/***** define parse seq(s, cp)
   "(", parse-s?(s), parse-cp(cp),
   loop([parse-s?(s), ",", parse-s?(s), parse-cp(cp)]),
   parse-s?(s), ")"
-end parse seq;
+end parse seq; ****/
+define pattern seq(",") parse-cp(expr) end;
 
 // Mixed-content Declaration
 // 
@@ -522,7 +544,7 @@ end parse att-type;
 
 //    [55]    StringType       ::=    'CDATA'
 //
-define parse string-type(c) "CDATA" end parse string-type;
+define parse string-type(c) "CDATA" end;
 
 //    [56]    TokenizedType    ::=    'ID'                                        [VC: ID]
 //                                                                                [VC: One ID per Element Type]
@@ -550,20 +572,22 @@ end parse enumerated-type;
 //                                                                                       [VC: One Notation Per Element Type]
 //                                                                                       [VC: No Notation on Empty Element]
 //
+define pattern notation-helper("|") parse-name(expr) end;
 define parse notation-type(s, name)
-  "NOTATION", parse-s(s), 
-  "(", parse-s?(s), parse-name(name),
+  "NOTATION", parse-s(s),  parse-notation-helper(s)
+/****  "(", parse-s?(s), parse-name(name),
   loop([parse-s?(s), "|", parse-s?(s), parse-name(name)]),
-  parse-s?(s), ")"
+  parse-s?(s), ")" ****/
 end parse notation-type;
 
 //    [59]    Enumeration       ::=    '(' S? Nmtoken (S? '|' S? Nmtoken)* S? ')'        [VC: Enumeration]
 //
-define parse enumeration(s, nmtoken)
+/**** define parse enumeration(s, nmtoken)
   "(", parse-s?(s), parse-nmtoken(nmtoken),
   loop([parse-s?(s), "|", parse-s?(s), parse-nmtoken(nmtoken)]),
   parse-s?(s), ")"
-end parse enumeration;
+end parse enumeration; ****/
+define pattern enumeration("|") parse-nmtoken(expr) end;
 
 // Attribute Defaults
 // 
@@ -588,7 +612,8 @@ end parse conditional-sect;
 
 //    [62]    includeSect           ::=    '<![' S? 'INCLUDE' S? '[' extSubsetDecl ']]>'      /* */
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
-define method parse-include-sect(string, #key start = 0, end: stop)
+//
+/**** define method parse-include-sect(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(s, subset-decl);
     ["<![", {parse-s(s), []}, 
@@ -596,11 +621,16 @@ define method parse-include-sect(string, #key start = 0, end: stop)
      "[", parse-ext-subset-decl(subset-decl), "]]>"];
     values(index, #t);
   end with-meta-syntax;
-end method parse-include-sect;
+end method parse-include-sect; ***/
+define parse include-sect(s, subset-decl)
+  "<![", parse-s?(s), "INCLUDE", parse-s?(s), "[", 
+  parse-ext-subset-decl(subset-decl), "]]>"
+end parse include-sect;
 
-//    [63]    ignoreSect            ::=    '<![' S? 'IGNORE' S? '[' ignoreSectContents* ']]>' /* */
+//    [63]    ignoreSect            ::=    '<![' S? 'IGNORE' S? '[' ignoreSectContents* ']]>' 
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
-define method parse-ignore-sect(string, #key start = 0, end: stop)
+//
+/**** define method parse-ignore-sect(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(s, ignore-sect);
     ["<![", {parse-s(s), []}, 
@@ -608,22 +638,30 @@ define method parse-ignore-sect(string, #key start = 0, end: stop)
      "[", loop(parse-ignore-sect-contents(ignore-sect)), "]]>"];
     values(index, #t);
   end with-meta-syntax;
-end method parse-ignore-sect;
+end method parse-ignore-sect; ****/
+define parse ignore-sect(s, ignore-sect)
+  "<![", parse-s?(s), "IGNORE", parse-s?(s), "[", 
+  loop(parse-ignore-sect-contents(ignore-sect)), "]]>"
+end parse ignore-sect;
 
 //    [64]    ignoreSectContents    ::=    Ignore ('<![' ignoreSectContents ']]>' Ignore)*
-//    [65]    Ignore                ::=    Char* - (Char* ('<![' | ']]>') Char*)
-//
 // They are doing it again.
-define method parse-ignore-sect-contents(string, #key start = 0, end: stop)
+//
+/**** define method parse-ignore-sect-contents(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
     variables(ignore, ignore-sect);
     [parse-ignore(ignore),
      loop(["<![", loop(parse-ignore-sect-contents(ignore-sect)), "]]>", parse-ignore(ignore)])];
     values(index, #t);
   end with-meta-syntax;
-end method parse-ignore-sect-contents;
+end method parse-ignore-sect-contents; ***/
+define parse ignore-sect-contents(ignore, ignore-sect)
+  parse-ignore(ignore),
+  loop(["<![", loop(parse-ignore-sect-contents(ignore-sect)), "]]>", parse-ignore(ignore)])
+end parse ignore-sect-contents;
 
-//    
+//    [65]    Ignore                ::=    Char* - (Char* ('<![' | ']]>') Char*)
+//
 define method parse-ignore(string, #key start = 0, end: stop)
 //  with-meta-syntax parse-string (string, start: start, pos: index)
   //  variables(ignore, ignore-sect);
@@ -636,7 +674,19 @@ end method parse-ignore;
 // 
 //    [66]    CharRef    ::=    '&#' [0-9]+ ';'
 //                              | '&#x' [0-9a-fA-F]+ ';' [WFC: Legal Character]
-//    
+//
+define collector int-char-ref(c) => (as(<character>, as(<string>, str).string-to-integer))
+  "&#", loop([type(<digit>, c), do(collect(c))]), ";"
+end collector int-char-ref;
+
+define collector hex-char-ref(c) => (as(<character>, string-to-integer(as(<string>, str), base: 16)))
+  "&#x", loop([type(<hex-digit>, c), do(collect(c))]), ";"
+end collector int-char-ref;
+
+define parse char-ref(num) => (num)
+  { parse-int-char-ref(num), parse-hex-char-ref(num) }, []
+end parse char-ref;
+
 // Entity Reference
 // 
 //    [67]    Reference      ::=    EntityRef | CharRef
@@ -723,7 +773,7 @@ end method parse-ignore;
 //    [89]    Extender    ::=    #x00B7 | #x02D0 | #x02D1 | #x0387 | #x0640 | #x0E46 | #x0EC6 | #x3005 | [#x3031-#x3035] | [#x309D-#x309E] | [#x30FC-#x30FE]
 //    
 //
-define method parse-encoding-info(string, #key start = 0, end: stop)
+/**** define method parse-encoding-info(string, #key start = 0, end: stop)
   local method is-not-single-quote?(char :: <character>)
       char ~= '\'';
   end method is-not-single-quote?;
@@ -744,20 +794,26 @@ define method parse-encoding-info(string, #key start = 0, end: stop)
        '"']}];
     values(index, #t);
   end with-meta-syntax;
-end method parse-encoding-info;
+end method parse-encoding-info; ****/
+define collect-value encoding-info(eq, c) () "'", '"' => #t end;
 
-define method parse-xml-attributes (string, #key start = 0, end: stop)
-  with-collector into-table attribute-table = make(<table>), collect: collect;
+/*** define method parse-xml-attributes (string, #key start = 0, end: stop)
+  with-collector into-vector attribute-vector, collect: collect;
     with-meta-syntax parse-string (string, start: start, pos: index)
       variables(attribute-name, eq, attribute-value, space);
       {loop([parse-name(attribute-name),
              parse-eq(eq),
              parse-xml-attribute(attribute-value),
-             loop(parse-s(space)),
-             do(collect(attribute-name, attribute-value))]),
+             parse-s?(space),
+             do(collect(make(<attribute>, name: attribute-name, value: attribute-value)))]),
        []};
-      values(index, attribute-table);
+      values(index, attribute-vector);
     end with-meta-syntax;
   end with-collector;
-end method parse-xml-attributes;
+end method parse-xml-attributes; ****/
+define collector xml-attributes(attr-name, eq, attr-val, sp) => (str)
+  loop([parse-name(attr-name), parse-eq(eq),
+        parse-xml-attribute(attr-val), parse-s?(sp),
+        do(collect(make(<attribute>, name: attr-name, value: attr-val)))])
+end collector xml-attributes;
 

@@ -22,7 +22,7 @@ define module xml-parser
          parse-stag, parse-content, parse-etag, parse-empty-elem-tag,
          parse-char-data, parse-comment, parse-system-literal,
          parse-version-num, parse-pubid-literal, parse-cd-sect,
-         parse-elementdecl;
+         parse-elementdecl, parse-char-ref;
 
 // all the above parse-foos will be replaced with:
   create parse-document;
@@ -47,7 +47,7 @@ define module interface
   use meta;
   use xml-parser;
 
-  export <letter>, <digit>, <version-number>;
+  export <letter>, <digit>, <hex-digit>, <version-number>;
 end module interface;
 
 define module %productions
