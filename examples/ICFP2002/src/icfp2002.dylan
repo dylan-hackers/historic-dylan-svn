@@ -85,13 +85,16 @@ define method test-path-finding(board :: <board>)
 
 
   debug("Trying a simple path finding.\n");
-  let path :: <point-list> = find-path(point(x: 1, y: 1),
-                                       point(x: 5, y: 5),
-                                       board);
-  debug("Outta!\n");       
-  debug("Resulting path of length: %=.\n", path.size);
+  let path = find-path(point(x: 1, y: 1),
+                       point(x: 20, y: 1),
+                       board);
+  if (path = #f)
+    debug("Sorry, no path found.\n");
+  else
+    debug("Resulting path of length: %=.\n", path.size);
 
-  for (elt in path)
-    debug("X = %=, Y = %=\n", elt.x, elt.y);
-  end for;
+    for (elt in path)
+      debug("X = %=, Y = %=\n", elt.x, elt.y);
+    end for;
+  end if;
 end method test-path-finding;
