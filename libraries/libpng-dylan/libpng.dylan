@@ -7,12 +7,3 @@ define library libpng
   use melange-support;
 end library libpng;
 
-define module libpng
-  use common-dylan;
-  use extensions, import: { <double-integer> };
-  use melange-support;
-  use streams;
-  use format-out;
-end module libpng;
-
-  
