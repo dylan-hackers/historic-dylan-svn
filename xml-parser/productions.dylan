@@ -1,7 +1,8 @@
 module: %productions
 synopsis: Implements a META parser for XML 1.0
-author: Andreas Bogk <andreas@andreas.org>, based on work by Chris Double
-synthesis: Douglas M. Auclair, doug@cotilliongroup.com
+based-on-work-by: Chris Double <chris@double.co.nz>
+fleshed-out-by: Andreas Bogk <andreas@andreas.org>
+synthesis: Douglas M. Auclair <doug@cotilliongroup.com> -- DMA
 copyright: LGPL
 
 /*
@@ -25,8 +26,7 @@ copyright: LGPL
  */
 
 //-------------------------------------------------------
-// Macros to simplify the parsing task
-// macro added by Doug to simplify writing parser fns
+// Macros to simplify the parsing task -- DMA
 define macro parse-definer
 { define parse ?:name ( ?meta-vars:* ) => (?results) ?meta end } 
  => { parse-helper(?name, (?meta-vars), (?results), (?meta)) }
@@ -70,13 +70,11 @@ define macro collect-value-definer
  => { define collector ?name(c, ?vars)
         {['"',
           loop({[test(rcurry(?test, ?double), c),
-                 do(?=collect(c))]}), 
-// DOUG          ?meta,
+                 do(?=collect(c))], ?meta}),
           '"'],
          ["'",
           loop({[test(rcurry(?test, ?single), c), 
-                 do(?=collect(c))]}), 
-// DOUG          ?meta,
+                 do(?=collect(c))], ?meta}), 
           "'"]}, []
        end collector; }
 end macro collect-value-definer;
@@ -89,6 +87,11 @@ define macro meta-builder
          values(index, ?results);
        end with-meta-syntax; }
 end macro meta-builder;
+
+//-------------------------------------------------------
+// entity tables
+define variable *entities* = make(<table>);
+define variable *pe-refs* = make(<table>);
 
 //-------------------------------------------------------
 // Productions
@@ -161,7 +164,7 @@ end parse nmtokens;
 define constant not-in-set? = complement(member?);
 
 define collect-value entity-value(ref) ()
-  "%&'", "%&\"" => parse-pe-reference(ref), parse-reference(ref)
+  "%&'", "%&\"" => { parse-pe-reference(ref), parse-reference(ref) }
 end collect-value entity-value;
 
 //    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
@@ -305,8 +308,7 @@ end parse misc;
 //                                                                                                                   /* */
 //
 define parse decl-sep(pe-ref, s)
-  { // DOUG  parse-pe-reference(pe-reference),
-     parse-s(s)}, []
+  { parse-pe-reference(pe-reference), parse-s(s)}, []
 end parse decl-sep;
 
 // Document Type Definition
@@ -327,9 +329,8 @@ end parse doctypedecl;
 //
 define parse markupdecl(decl)
   {parse-elementdecl(decl), parse-attlist-decl(decl),
-// DOUG    parse-entity-decl(decl),
-   parse-notation-decl(decl), parse-pi(decl), parse-comment(decl)},
-  []
+   parse-entity-decl(decl), parse-notation-decl(decl), 
+   parse-pi(decl), parse-comment(decl)}, []
 end parse markupdecl;
 
 // External Subset
@@ -410,9 +411,8 @@ end parse etag;
 //
 define collector content(ignor, contents) => (str)
   {[parse-char-data(contents), do(collect(contents))], []},
-  loop({[{parse-element(contents), 
-// DOUG  parse-reference(contents),
-         parse-cd-sect(contents)}, do(collect(contents))],
+  loop({[{parse-element(contents), parse-reference(contents),
+          parse-cd-sect(contents)}, do(collect(contents))],
         parse-pi(ignor), parse-comment(ignor),
         [parse-char-data(contents), do(collect(contents))]})
 end parse content;
@@ -629,11 +629,13 @@ end method parse-ignore;
 //    [66]    CharRef    ::=    '&#' [0-9]+ ';'
 //                              | '&#x' [0-9a-fA-F]+ ';' [WFC: Legal Character]
 //
-define collector int-char-ref(c) => (as(<character>, as(<string>, str).string-to-integer))
+define collector int-char-ref(c)
+ => (as(<character>, as(<string>, str).string-to-integer))
   "&#", loop([type(<digit>, c), do(collect(c))]), ";"
 end collector int-char-ref;
 
-define collector hex-char-ref(c) => (as(<character>, string-to-integer(as(<string>, str), base: 16)))
+define collector hex-char-ref(c)
+ => (as(<character>, string-to-integer(as(<string>, str), base: 16)))
   "&#x", loop([type(<hex-digit>, c), do(collect(c))]), ";"
 end collector int-char-ref;
 
@@ -644,22 +646,59 @@ end parse char-ref;
 // Entity Reference
 // 
 //    [67]    Reference      ::=    EntityRef | CharRef
+define parse reference(ref) => (ref)
+  { parse-entity-ref(ref), parse-char-ref(ref) }, []
+end parse reference;
+
 //    [68]    EntityRef      ::=    '&' Name ';'       [WFC: Entity Declared]
 //                                                     [VC: Entity Declared]
 //                                                     [WFC: Parsed Entity]
 //                                                     [WFC: No Recursion]
+define parse entity-ref(name) => (*entities*[as(<symbol>, name)])
+  "&", parse-name(name), ";"
+end parse entity-ref;
+
 //    [69]    PEReference    ::=    '%' Name ';'       [VC: Entity Declared]
 //                                                     [WFC: No Recursion]
 //                                                     [WFC: In DTD]
-//    
+//
+define parse pe-reference(name) => (*pe-refs*[as(<symbol>, name)])
+  "%", parse-name(name), ";"
+end parse pe-reference;
+
 // Entity Declaration
 // 
 //    [70]    EntityDecl    ::=    GEDecl | PEDecl
+define parse entity-decl(name) => (name)
+  { parse-GE-Decl(name), parse-PE-Decl(name) }, []
+end parse entity-decl;
+
 //    [71]    GEDecl        ::=    '<!ENTITY' S Name S EntityDef S? '>'
+define parse ge-decl(name, s, def) => (name)
+  "<!ENTITY", parse-s(s), parse-name(name), parse-s(s), 
+  parse-entity-def(def), parse-s?(s), ">", 
+  do(*entities*[as(<symbol>, name)] := def)
+end parse ge-decl;
+
 //    [72]    PEDecl        ::=    '<!ENTITY' S '%' S Name S PEDef S? '>'
+define parse pe-decl(name, s, def) => (name)
+  "<!ENTITY", parse-s(s), "%", parse-s(s), parse-name(name),
+  parse-s(s), parse-pe-def(def), parse-s?(s), ">", 
+  do(*pe-refs*[as(<symbol>, name)] := def)
+end parse pe-decl;
+
 //    [73]    EntityDef     ::=    EntityValue | (ExternalID NDataDecl?)
+define parse entity-def(def, id) => (def)
+  { parse-entity-value(def),
+  [parse-external-id(id), {parse-n-data-decl(def), []}]}, []
+end parse entity-def;
+
 //    [74]    PEDef         ::=    EntityValue | ExternalID
-//    
+//
+define parse pe-def(def) => (def)
+  { parse-entity-value(def), parse-external-id(def) }, []
+end parse pe-def;
+
 // External Entity Declaration
 // 
 //    [75]    ExternalID    ::=    'SYSTEM' S SystemLiteral
@@ -773,4 +812,10 @@ define collector xml-attributes(attr-name, eq, attr-val, sp) => (str)
         parse-xml-attribute(attr-val), parse-s?(sp),
         do(collect(make(<attribute>, name: attr-name, value: attr-val)))])
 end collector xml-attributes;
+
+//-------------------------------------------------------
+// for testing only
+define parse def|content(val) => (val)
+  {parse-entity-decl(val), parse-content(val)}, []
+end parse def|content;
 

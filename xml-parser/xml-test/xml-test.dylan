@@ -67,7 +67,8 @@ begin
   $testable-fns[#"char-ref"] := parse-char-ref;
   $testable-fns[#"content"] := parse-content;
   $testable-fns[#"pi"] := parse-pi;
-
+  $testable-fns[#"ent"] := parse-def|content;
+  
   main(application-name(), application-arguments());
 end;
 
