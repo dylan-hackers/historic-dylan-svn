@@ -3,6 +3,7 @@ FILES := library.dylan \
 	 transform.dylan \
 	 printing.dylan \
 	 collect.dylan \
+	 latin1-entities.dylan \
 	 productions.dylan
 
 libxml-parser.a: $(FILES)
