@@ -39,7 +39,7 @@ end method copy-package;
 
 define method print-object (p :: <package>, s :: <stream>) => ()
   format(s, "{<package> id: %d, weight: %=, location: %=, dest: %=, carrier: %=}",
-         p.id, p.weight, p.location, p.dest, p.carrier);
+         p.id, p.weight, p.location, p.dest, p.carrier & p.carrier.id);
 end method print-object;
 
 
