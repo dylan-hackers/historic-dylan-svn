@@ -27,16 +27,38 @@ define constant <color> = one-of(#"red", #"green", #"blue",
                                  #"cyan", #"magenta", #"yellow",
                                  #"black", #"white");
 
-define constant <space> =
-  one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
-         as(<character>, #x0a));
-
 define function debug(#rest args)
   apply(format, *standard-error*, args);
 end function debug;
 
-define method parse(input :: <byte-string>)
-  input;
+define constant <space> =
+  one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
+         as(<character>, #x0a));
+
+define function is-space?(c)
+  instance?(c, <space>);
+end function is-space?;
+
+define function is-textchar?(c)
+  c ~= '<' & c ~= '>';
+end function is-textchar?;
+
+define method parse-textstring(input)
+ => (string, bytes-consumed);
+  let bytes-consumed =
+    block(return)
+      for(i in input, index from 0)
+        if(~ is-textchar?(i))
+          format-out("%=\n", index);
+        end if;
+      end for;
+    end block;
+  values(copy-sequence(input, end: bytes-consumed), bytes-consumed);
+end method parse-textstring;
+
+define method parse(input)
+  let (string, bytes-consumed) = parse-textstring(input);
+  string;
 end method parse;
 
 define function time-is-not-up?()
@@ -73,6 +95,8 @@ define function main(name, arguments)
     let original-input      = slurp-input(input-stream);
     let best-transformation = original-input;
     let parse-tree          = parse(original-input);
+
+    write(*standard-output*, parse-tree);
 
     while(time-is-not-up?())
       optimize();
