@@ -5,6 +5,7 @@ define library ant-visualizer
     use garbage-collection;
     use transcendental;
     use melange-support;
+    use format-out;
     use opengl;
     use ants;
 end library;
@@ -14,6 +15,7 @@ define module ant-visualizer
     use transcendental;
     use garbage-collection;
     use melange-support;
+    use format-out;
 
     use opengl;
     use opengl-glu;

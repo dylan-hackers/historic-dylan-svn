@@ -137,9 +137,9 @@ define function draw-cell-food(cell, position) => ()
 end;
 
 define constant $ONE-EIGHTH = 0.125;
-define constant $ONE-COLOR = make-gl-color(0.0, 0.5, 0.5);
-define constant $TWO-COLOR = make-gl-color(0.5, 0.0, 0.5);
-define constant $THREE-COLOR = make-gl-color(0.5, 0.5, 0.0);
+define constant $ONE-COLOR = make-gl-color(0.0, 0.0, 0.5);
+define constant $TWO-COLOR = make-gl-color(0.5, 0.0, 0.0);
+define constant $THREE-COLOR = make-gl-color(0.0, 0.5, 0.0);
 
 
 define function draw-markers(cell, position) => ()
@@ -158,10 +158,10 @@ define function draw-markers(cell, position) => ()
                    2 => $TWO-COLOR;
                    3 => $THREE-COLOR;
                  end);
-    glVertex(-1,1);
-    glVertex(1,1);
-    glVertex(1,-1);
-    glVertex(-1,-1);
+    glVertex(-0.5,0.5);
+    glVertex(0.5,0.5);
+    glVertex(0.5,-0.5);
+    glVertex(-0.5,-0.5);
   end;
 
         glEnd();
