@@ -50,6 +50,7 @@ begin
   $testable-fns[#"version-num"] := parse-version-num;
   $testable-fns[#"system-literal"] := parse-system-literal;
   $testable-fns[#"pubid-literal"] := parse-pubid-literal;
+  $testable-fns[#"cd-sect"] := parse-cd-sect;
 
   main(application-name(), application-arguments());
 end;
