@@ -9,7 +9,7 @@ programming languages. We want to supplement these choices with an advanced
 tool for building complex applications.</P>
 
 <P>Ideally, it would have the following features. We won't achieve this
-vision any time soon, but it will give give us inspiration during those
+vision any time soon, but it will give us inspiration during those
 long sessions of coding.</P>
 
 <UL>
@@ -30,7 +30,7 @@ is already modularized in most of the right places.</P>
 to add a database interface builder or duplicate the features
 of <A HREF="http://www.cygnus.com/sn/">Cygnus Source Navigator</A>.</P>
 
-<LI><P><STRONG>Tools for novices and expert developers.</STRONG> A good
+<LI><P><STRONG>Tools for novice and expert developers.</STRONG> A good
 environment should be usable by both novice developers (folks who just want
 to build a simple database front end) and hardcore hackers (people who want
 to build a non-linear video editor in a mixture of C and Dylan, for
@@ -50,10 +50,22 @@ well with modern free desktops. This means supporting a popular widget set
 (Gtk+), and allowing applications written in Dylan to implement important
 Gnome and KDE protocols with as little effort as possible.</P>
 
-<LI><P><STRONG>Seemless support for C libraries.</STRONG> Most Unix
+<LI><P><STRONG>DUIM.</STRONG> The Dylan User Interface Manager (DUIM) is a
+portable GUI toolkit designed by Harlequin. We'd like to implement DUIM on
+top of Gtk+ (since the two libraries have a very similar
+design). Harlequin's <A
+HREF="http://www.harlequin.com/products/ads/dylan/doc/duim-guide/duim-guide-1.html">introduction
+to DUIM</A> gives an idea of how this would work.</P>
+
+<LI><P><STRONG>Seamless support for C libraries.</STRONG> Most Unix
 libraries are written in C, and it would be impossible (and undesirable) to
 duplicate them all in Dylan. It should be just as easy to use a C library
 from Dylan as it is from C.</P>
+
+<LI><P><STRONG>Portability to other platforms.</STRONG> Gwydion Dylan
+should remain a portable compiler, and standard libraries should not make
+assumptions which would prevent a third party from porting them to Rhapsody
+or the BeOS.</P>
 
 </UL>
 

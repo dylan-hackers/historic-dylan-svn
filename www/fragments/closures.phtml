@@ -1,0 +1,44 @@
+<?php
+require "fragments.inc";
+code_header("Closures");
+?>
+
+<P>Dylan allows you to create functions at runtime. The following example
+demonstrates <CODE>disjoin</CODE>, which can be used to combine two or more
+functions into one. Each function should take a single argument and return
+either true or false. The created function will take a single argument and
+return true if <EM>any</EM> of the original functions returned true.</P>
+
+<P>Also note the use of a standard C header in this example.</P>
+
+<BLOCKQUOTE><PRE>
+define interface
+  #include "ctype.h",
+    import: {"isalpha" => is-alphabetic?,
+	     "isdigit" => is-numeric?},
+    map: {"int" => &lt;boolean>};
+end interface;
+
+define constant is-alphanumeric? = disjoin(is-alphabetic?, is-numeric?);
+</PRE></BLOCKQUOTE>
+
+<P>It's easy to create functions at runtime. The following example uses
+<CODE>method</CODE> to create a <EM>closure</EM>, which is a combination of
+code and stored data.</P>
+
+<BLOCKQUOTE><PRE>
+define function make-linear-mapper
+    (times :: &lt;integer>, plus :: &lt;integer>)
+ => (mapper :: &lt;function>)
+  method (x)
+    times * x + plus;
+  end method;
+end function;
+
+define constant times-two-plus-one = make-linear-mapper(2, 1);
+
+times-two-plus-one(5);
+// Returns 11.
+</PRE></BLOCKQUOTE>
+
+<?php code_footer(); ?>

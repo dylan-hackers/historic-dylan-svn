@@ -1,0 +1,37 @@
+<?php
+require "fragments.inc";
+code_header("Limited Types");
+?>
+
+<P>It's possible to write efficient numerical code in Dylan by using
+<EM>limited types</EM>. These are restricted versions of regular collection
+classes that have a known size or element type.</P>
+
+<BLOCKQUOTE><PRE>
+define constant $audio-buffer-size = 2048;
+define constant &lt;audio-buffer> =
+  limited(&lt;vector>,
+	  of: &lt;single-float>,
+	  size: $audio-buffer-size);
+
+define function mix-buffers
+    (input1 :: &lt;audio-buffer>, input2 :: &lt;audio-buffer>,
+     output :: &lt;audio-buffer>)
+ => ()
+  for (i from 0 below $audio-buffer-size)
+    output[i] = 0.5 * input1[i] + 0.5 * input2[i];
+  end for;
+end function mix-buffers;
+</PRE></BLOCKQUOTE>
+
+<P>Under future releases of Harlequin Dylan, this code will perform no
+bounds checking or type checking. It will also use an efficient
+representation of the vectors of floating point numbers. Optimization tests
+show that Harlequin Dylan already generates code comparable to popular C
+compilers in similar situations.</P>
+
+<P>Gwydion Dylan still needs some more work to achieve equivalent
+performance, unfortunately. The basic primitives all exist, but they don't
+always get used in the right places.</P>
+
+<?php code_footer(); ?>

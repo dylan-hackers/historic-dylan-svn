@@ -1,0 +1,46 @@
+<?php
+require "fragments.inc";
+code_header("Multiple Values");
+?>
+
+<P>Dylan functions (and other expressions) can return more than one
+value. Essentially, every function has a list of parameters and a list of
+results. There's no need to pass pointers to empty data structures just to get values back.</P>
+
+<P>This example also includes a class definition. Classes and objects will
+be covered in more detail in later examples. Notice that Dylan comments look
+like C comments.</P>
+
+<BLOCKQUOTE><PRE>
+// Position is measured in meters (relative to the ground), time in seconds,
+// and velocity in meters per second.
+
+define class &lt;rock&gt; (&lt;object&gt;)
+  slot initial-position :: &lt;float&gt;,
+    required-init-keyword: position:;
+  slot initial-velocity :: &lt;float&gt;,
+    required-init-keyword: velocity:;
+end class;
+
+define function find-position-and-velocity
+    (rock :: &lt;rock&gt;, time :: &lt;float&gt;)
+ =&gt; (position :: &lt;float&gt;, velocity :: &lt;float&gt;)
+  values(-4.9 * time * time
+	   + rock.initial-velocity * time
+	   + rock.initial-position,
+	 -9.8 * time
+	   + rock.initial-velocity);
+end function;
+
+define function print-position-and-velocity
+    (rock :: &lt;rock&gt;, time :: &lt;float&gt;)
+ =&gt; ()
+  let (p, v) = find-position-and-velocity(rock, time);
+  format(*standard-output*, "Position: %dm, Velocity: %dm/s\n", p, v);
+end function;
+
+define variable *rock* = make(&lt;rock&gt;, position: 10.0, velocity: 0.0);
+print-position-and-velocity(*rock*, 1.0);
+</PRE></BLOCKQUOTE>
+
+<?php code_footer(); ?>

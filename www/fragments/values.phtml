@@ -1,0 +1,43 @@
+<?php
+require "fragments.inc";
+code_header("Everything's a Value");
+?>
+
+<P>Every Dylan statement or expression returns a value. Control constructs
+and functions return the value of the last expression in their
+body.</P>
+
+<BLOCKQUOTE><PRE>
+define function absolute-value(x :: &lt;integer&gt;)
+ => (result :: &lt;integer&gt;)
+  if (x >= 0)
+    x;
+  else
+    -x;
+  end;
+end;
+</PRE></BLOCKQUOTE>
+
+<P>Several other aspects of Dylan are visible in this example:</P>
+
+<UL>
+
+<LI><P>Dylan allows "<CODE>-</CODE>" characters in the middle of names. Other
+strange characters are allowed as well, which means that names must often
+by surrounded by whitespace, parentheses or punctionation. Dylan's
+designers apparently liked hitting the space bar more than they liked
+hitting the shift key.</P>
+
+<LI><P>Type names are surrounded by angle brackets
+("<CODE>&lt;integer&gt;</CODE>"). This is just a naming convention. You'll
+see more strange characters at the begining and end of other types of
+names.</P>
+
+<LI><P>Blocks of code begin with a normal header, but don't have an
+<CODE>{</CODE> bracket or a <CODE>begin</CODE> statement. This saves
+typing. Blocks do, however, have an <CODE>end</CODE> keyword at the
+bottom. You can omit semi-colons at the end of blocks.</P>
+
+</UL>
+
+<?php code_footer(); ?>

@@ -1,0 +1,57 @@
+<?php
+require "fragments.inc";
+code_header("Macros");
+?>
+
+<P>Dylan allows you to create new control constructs and other high-level
+forms. They can be used to automatically release resources, simplify class
+creation, or adapt Dylan for a specific problem domain.</P>
+
+<P>In the following example, we create a <CODE>with-lock</CODE> statement
+that automatically acquires and releases a POSIX mutex. Once again, we
+import the necessary functions from C.</P>
+
+<P>Dylan macros are part of the compiler, not a preprocessor. This means
+that they can pay attention to the grammar of the language. They're also
+<EM>hygenic</EM>, which means they can't suffer name clashes with
+surrounding code. (In the example below, <CODE>mutex</CODE> in the macro
+expansion would not be seen by the expressions in <CODE>?code</CODE>.)</P>
+
+<BLOCKQUOTE><PRE>
+define interface
+  #include "pthread.h",
+    import: {"pthread_mutex_t",
+	     "pthread_mutex_init",
+	     "pthread_mutex_destroy",
+	     "pthread_mutex_lock",
+	     "pthread_mutex_unlock"};
+end interface;
+
+define function check-error(errno :: &lt;integer>) => ()
+  if (errno &lt; 0)
+    error("POSIX error %d occured in pthreads wrapper", errno);
+  end if;
+end function;
+
+define macro with-mutex
+  { with-lock (?mutex:expression) ?code:body end }
+    => { let mutex = ?mutex;
+	 check-error(pthread-mutex-lock(mutex));
+	 block ()
+	   ?code
+	 cleanup
+	   check-error(pthread-mutex-unlock(mutex));
+	 end block; }
+end with-mutex;
+
+define variable mutex = make(&lt;pthread-mutex-t>);
+check-error(pthread-mutex-init(mutex, null-pointer));
+
+with-mutex (mutex)
+  format(*standard-output*, "The mutex is locked.\n");
+end;
+
+check-error(pthread-mutex-destroy(mutex));
+</PRE></BLOCKQUOTE>
+
+<?php code_footer(); ?>

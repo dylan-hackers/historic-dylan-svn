@@ -1,0 +1,70 @@
+<?php
+require "fragments.inc";
+code_header("Getters and Setters are Functions");
+?>
+
+<P>Many object-oriented languages encourage you to define a
+<CODE>get_foo</CODE> and <CODE>set_foo</CODE> function for each member
+variable <CODE>foo</CODE>. These allow you to control access to the
+variables and provide for future extensibility. For example,
+<CODE>set_foo</CODE> could be modified to keep a table of values of
+<CODE>foo</CODE>.</P>
+
+<P>Dylan provides for this extensibility without having to write the
+accessor functions up front. Consider a simple Dylan class:</P>
+
+<BLOCKQUOTE><PRE>
+define class &lt;vehicle> (&lt;object>)
+  slot driver,
+    required-init-keyword: driver:;
+end class;
+</PRE></BLOCKQUOTE>
+
+<P>This creates two functions, <CODE>driver</CODE> and
+<CODE>driver-setter</CODE>. Under normal circumstances, these two functions
+will be inlined and optimized into direct accesses.</P>
+
+<P>Dylan provides some handy syntatic sugar to make these functions look
+like members of a C structure:</P>
+
+<BLOCKQUOTE><PRE>
+define variable *test-car* = make(&lt;vehicle>, driver: "Frank");
+
+// These two expressions return the same value.
+*test-car*.driver;
+driver(*test-car*);
+
+// These three statements perform the same assignment.
+*test-car*.driver := "Sally";
+driver(*test-car*) := "Sally";
+driver-setter("Sally", *test-car*);
+</PRE></BLOCKQUOTE>
+
+<P>If you later discover that you can't allow direct access to the
+<CODE>driver</CODE> slot, you can rename the slot and create two explicit
+functions named <CODE>driver</CODE> and <CODE>driver-setter</CODE> to
+replace it. The following example maintains a hash table mapping drivers to
+their cars:</P>
+
+<BLOCKQUOTE><PRE>
+define constant *driver-to-car-map* = make(&lt;table>);
+
+define class &lt;vehicle> (&lt;object>)
+  slot %driver,
+    required-init-keyword: driver:;
+end class;
+
+define method initialize(vehicle :: &lt;vehicle>, #key, #all-keys)
+  *driver-to-car-map*[vehicle.%driver] := vehicle;
+end method;
+
+define constant driver = %driver;
+
+define method driver-setter(driver, vehicle :: &lt;driver>)
+ => (value :: &lt;object>)
+  *driver-to-car-map*[driver] := vehicle;
+  vehicle.%driver := driver;
+end method;
+</PRE></BLOCKQUOTE>
+
+<?php code_footer(); ?>
