@@ -117,19 +117,15 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
   //let libmod-declaration = as(<byte-vector>, format-to-string("define library %s use common-dylan; use io; end; define module %s use common-dylan; use format-out; end;\n\n", lib-name, lib-name));
 
   block ()
-    *Current-Library* := state.unit-lib;
-    *Current-Module*  := find-module(state.unit-lib, as(<symbol>, "dylan-user"));
+    let module = find-module(state.unit-lib, as(<symbol>, "dylan-user"));
     let tokenizer = make(<lexer>,
-                         module: *Current-Module*,
+                         module: module,
                          source: make(<source-buffer>, 
                                       buffer: libmod-declaration),
                          start-line: 0,
                          start-posn: 0);
     *Top-Level-Forms* := state.unit-tlfs;
     parse-source-record(tokenizer);
-  cleanup
-    *Current-Library* := #f;
-    *Current-Module* := #f;
   exception (<fatal-error-recovery-restart>)
     format(*debug-output*, "skipping rest of built-in init definition\n");
   end block;
@@ -139,18 +135,13 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 
   format(*debug-output*, "Parsing %s\n", state.unit-source-file);
   block ()
-    *Current-Library* := state.unit-lib;
-    *Current-Module*  := mod;
     let tokenizer = make(<lexer>, 
-                         module: *Current-Module*,
+                         module: mod,
                          source: source,
                          start-line: start-line,
                          start-posn: start-posn);
     *Top-Level-Forms* := state.unit-tlfs;
     parse-source-record(tokenizer);
-  cleanup
-    *Current-Library* := #f;
-    *Current-Module* := #f;
   exception (<fatal-error-recovery-restart>)
     format(*debug-output*, "skipping rest of %s\n", state.unit-source-file);
   end block;

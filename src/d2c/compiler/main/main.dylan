@@ -227,10 +227,14 @@ define method invoke-debugger
   fresh-line(*debug-output*);
   format(*debug-output*, "%s\n", condition);
   force-output(*debug-output*);
+  make(<command>, name: "Break", summary: "Break out of command processor.",
+       command: method(x) invoke-debugger(*old-debugger*, condition) end);
   run-command-processor();
   call-out("abort", void:);
 end;
   
+define variable *old-debugger* = *debugger*;
+
 *debugger* := make(<interactive-debugger>);
 
 
