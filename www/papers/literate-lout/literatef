@@ -38,7 +38,12 @@ def @LiterateSetup
 	{
 		def @Filter
 		{
-		    grep "source" "<" source "|" grep source "|" sed -e "\"s/source *{ *//\"" "|" sed -e "\"s/ *}.*//\"" "|" grep source "|" wc -l > {@FilterOut}
+		    grep "source" "<" source "|" grep source
+		    "|" sed -e "\"s/source *{ *//\""
+		    "|" sed -e "\"s/ *}.*//\""
+		    "|" grep source
+		    "|" wc -l
+		    > {@FilterOut}
 		}
 
 		@Body
@@ -52,6 +57,8 @@ def @LiterateSetup
 		else @Yield { "\"to avoid this error invoke @Literate with source on the same line as its argument\"" }
 	    }
 	}
+	
+	export @Line @File
 	
 	def @Location
 	    named @Tag {}
@@ -67,12 +74,10 @@ def @LiterateSetup
 		body @Body		      # filtered, see below
 	    {
 
-
 		def @Filter
 		{
 		    cc -E -o - source
-		    "|" sed -e "\"/@Hunk/s/^.*$/{ @Location @Line { __LINE__ } @File { __FILE__ } }/g\""
-#		    "|" sed -e "\"s/ *}.*//\""
+		    "|" sed -e "\"/@Hunk/s/^.*"marker".*@Hunk.*$/{ @Location @Tag { "marker" } @Line { @Next __LINE__ } @File { __FILE__ } }/\""
 		    "|" cc -E -o - -
 		    "|" grep "@Location"
 		    "|" tee "wummmm" ########################### !!!!!!!
@@ -84,7 +89,8 @@ def @LiterateSetup
 	    
 	    @LocateLineInLiterateSource { dummy }
 	    //
-
+	    @Location&&marker @Open {"#" @Line "\""@File"\"" }
+	    //
 	    @Body
 	@End @Hunk
 
