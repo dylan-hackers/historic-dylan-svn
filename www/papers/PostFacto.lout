@@ -2,10 +2,6 @@
 @SysInclude { eq }
 
 def @Class right name { @F {{@Sym angleleft}name{@Sym angleright}} }
-macro @Sigm {@Sym sigma}
-def @Sig right n { {@Sigm} @Sub n }
-def @Tau right n { {@Sym tau} @Sub n }
-def @Project left union right n { union{@Sym bar} @Sub n }
 
 # some convenience definitions inside @Eq
 #
@@ -356,15 +352,7 @@ multiple constraints] }
 We can formalize this notion as follows. At the condition of
 the @F if statement the typing constraints are
 @F truth @F :: @Eq { set { 1 sigp { "#t" stau, "42" stau }, 2 sigp { "#f" stau, "0" stau } } proj 1 }
-# @LP
-# "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 1}
-# @LP
 and @F value @F :: @Eq { set { 1 sigp { "#t" stau, "42" stau }, 2 sigp { "#f" stau, "0" stau } } proj 2 }.
-# @LP
-# and @F value @F :: "{" {@Sig 1}({@Tau @F "#t"}, {@Tau @F 42}), {@Sig 2}({@Tau @F "#f"}, {@Tau @F 0}) "}"{@Project 2}.
-# @LP
-# OLD In the second leg of the @F if statement the compiler can infer the type of @F truth being {@Tau @F "#f"}.
-# @LP
 In the second leg of the @F if statement the compiler can easily infer the type of @F truth being @Eq { "#f" stau }.
 We can now introduce the restriction operator @Sym circlemultiply
 (to be defined later) to combine the two constraints and derive further
@@ -416,7 +404,6 @@ concatenating definition is rather obvious. It is also compatible with (@NumberO
 @LP
 For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we are to derive @Eq { set {1 sig, 2 sig, ..., m sig} proj i cap set {1' sig, 2' sig, ..., m' sig} proj i} now.
 First we reduce our task by considering signature sets with just one element:
-# @Eq { set {1 sigp {n taus}} proj i cap set {1' sigp {n taus prim {'} preset {... ,} inset {i}}} proj i}.
 @Eq { set { sigp {n taus}} proj i cap set { sigp {n taus prim {'} preset {... ,} inset {i}}} proj i}.
 An argument at position @I i can only be passed to both signatures if it is an instance of the type intersection of @Eq {i ta} and @Eq {i' ta}.
 Now we reintroduce several signatures at the left hand side:
