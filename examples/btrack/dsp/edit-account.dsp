@@ -20,7 +20,7 @@
       <td width="95%" colspan="3">
         <span class="fieldTitle">Username:</span>
         <br><input name="name" type="text" size="30" maxlen="30"
-                   value="<bt:show-record-name/>">
+                   value="<bt:show-name/>">
       </td>
     </tr>
     <tr>

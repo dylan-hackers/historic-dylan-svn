@@ -11,7 +11,7 @@
 
 <bt:show-messages/>
 
-<a href="record.dsp?id=new&type=account&origin=list-accounts">Click here to create a new account.</a>
+<a href="edit-account.dsp?id=0&origin=list-accounts.dsp">Click here to create a new account.</a>
 <br>Click any account name to edit that account.
 
 <p>
@@ -24,7 +24,7 @@
   </dsp:hrow>
   <dsp:row>
     <dsp:cell><dsp:row-number/></dsp:cell>
-    <dsp:cell><a href="edit-account.dsp?id=<bt:show-record-id/>"><bt:show-record-name/></a></dsp:cell>
+    <dsp:cell><a href="edit-account.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
     <dsp:cell><bt:show-email-address/></dsp:cell>
   </dsp:row>
   <dsp:no-rows>

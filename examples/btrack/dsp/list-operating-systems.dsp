@@ -11,30 +11,25 @@
 
 <bt:show-messages/>
 
-<a href="record?id=new&type=OperatingSystem&origin=list-operating-systems">Click
+<a href="edit-operating-system.dsp?id=0&origin=list-operating-systems.dsp">Click
  here to create a new operating system.</a>
 <br>Click any operating system name to edit that operating system.
 
 <p>
 
-<table border="1" width="95%" align="center">
-  <bt:operating_system key="init_all" recordClass="sigue.btrack.OperatingSystem"/>
-  <tr>
-    <th nowrap>&nbsp;</th>
-    <th nowrap>Name</th>
-  </tr>
-  <bt:iterate name="all_records" type="sigue.btrack.OperatingSystem">
-    <bt:noRowsMessage>
-      <tr><td colspan="4">There are no operating systems to display.</td></tr>
-    </bt:noRowsMessage>
-    <bt:row>
-      <tr>
-        <td><bt:rowNumber/></td>
-        <td><a href="record?id=<bt:operating_system key="id"/>&type=OperatingSystem"><bt:operating_system key="name"/></a></td>
-      </tr>
-    </bt:row>
-  </bt:iterate>
-</table>
+<dsp:table border="1" width="95%" align="center" generator="operating-system-generator">
+  <dsp:hrow>
+    <dsp:hcell>&nbsp;</dsp:hcell>
+    <dsp:hcell>Name</dsp:hcell>
+  </dsp:hrow>
+  <dsp:no-rows>
+    <dsp:cell colspan="2">There are no operating systems yet.</dsp:cell>
+  </dsp:no-rows>
+  <dsp:row>
+    <dsp:cell><bt:row-number/></dsp:cell>
+    <dsp:cell><a href="edit-operating-system.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
+  </dsp:row>
+</dsp:table>
 
 <p>
 

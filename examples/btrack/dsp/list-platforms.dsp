@@ -11,29 +11,24 @@
 
 <bt:show-messages/>
 
-<a href="record?id=new&type=Platform&origin=list-platforms">Click here to create a new platform.</a>
+<a href="edit-platform.dsp?id=0&origin=list-platforms.dsp">Click here to create a new platform.</a>
 <br>Click any platform name to edit that platform.
 
 <p>
 
-<table border="1" width="95%" align="center">
-  <bt:platform key="init_all" recordClass="sigue.btrack.Platform"/>
-  <tr>
-    <th nowrap>&nbsp;</th>
-    <th nowrap>Name</th>
-  </tr>
-  <bt:iterate name="all_records" type="sigue.btrack.Platform">
-    <bt:noRowsMessage>
-      <tr><td colspan="4">There are no platforms to display.</td></tr>
-    </bt:noRowsMessage>
-    <bt:row>
-      <tr>
-        <td><bt:rowNumber/></td>
-        <td><a href="record?id=<bt:platform key="id"/>&type=Platform"><bt:platform key="name"/></a></td>
-      </tr>
-    </bt:row>
-  </bt:iterate>
-</table>
+<dsp:table border="1" width="95%" align="center" generator="platform-generator">
+  <dsp:hrow>
+    <dsp:hcell>&nbsp;</dsp:hcell>
+    <dsp:hcell>Name</dsp:hcell>
+  </dsp:hrow>
+  <dsp:no-rows>
+    <dsp:cell colspan="4">There are no platforms to display.</dsp:cell>
+  </dsp:no-rows>
+  <dsp:row>
+    <dsp:cell><dsp:row-number/></dsp:cell>
+    <dsp:cell><a href="edit-platform.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
+  </dsp:row>
+</dsp:table>
 
 <p>
 

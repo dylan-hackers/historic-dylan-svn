@@ -21,7 +21,7 @@
       <td>
         <font size="+2">
           <ol>
-            <li><a href="record?id=new&type=Bug&origin=home">Enter a new bug report</a></li>
+            <li><a href="edit-bug.dsp?id=0&origin=home.dsp">Enter a new bug report</a></li>
             <li><a href="nyi.dsp">Search bug reports</a></li>
             <li><a href="list-bugs.dsp">List recent bug reports</a></li>
             <li><a href="admin.dsp">Administration</a></li>

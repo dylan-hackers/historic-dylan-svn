@@ -1,5 +1,4 @@
 <%dsp:taglib name="btrack" prefix="bt" />
-<jsp:useBean id="record" class="sigue.btrack.Browser" scope="session"/>
 
 <html>
 <head><title>Bug Tracker - Admin - Edit Browser</title></head>
@@ -12,15 +11,18 @@
 
 <center><h1>Edit Browser</h1></center>
 
-<form name="editBrowserForm" method="post" action="record?action=save">
+<form name="editBrowserForm" method="post" action="edit-browser.dsp">
   <input type="hidden" name="type" value="Browser">
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>
       <td nowrap width="95%" colspan="3">
         <span class="fieldTitle">Browser name:</span>
-        <br><input name="name" type="text" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="name"/>">
+        <br><input name="name"
+                   type="text"
+                   size="30"
+                   maxlen="30"
+                   value="<bt:show-name/>">
       </td>
     </tr>
     <tr>

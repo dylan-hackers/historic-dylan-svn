@@ -12,7 +12,7 @@
 
 <center><h1>Edit Platform</h1></center>
 
-<form name="editPlatformForm" method="post" action="record?action=save">
+<form name="editPlatformForm" method="post" action="edit-platform.dsp">
   <input type="hidden" name="type" value="Platform">
   <table border="0">
     <tr>
@@ -20,7 +20,7 @@
       <td nowrap width="95%" colspan="3">
         <span class="fieldTitle">Platform name:</span>
         <br><input name="name" type="text" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="name"/>">
+                   value="<bt:show-name/>">
       </td>
     </tr>
     <tr>

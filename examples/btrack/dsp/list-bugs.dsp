@@ -11,40 +11,34 @@
 
 <bt:show-messages/>
 
-<a href="record?id=new&type=Bug&origin=list-bugs">Click here to create a new bug report.</a>
+<a href="edit-bug.dsp?id=0&origin=list-bugs.dsp">Click here to create a new bug report.</a>
 <br>Click any bug report to edit that bug.
 
 <p>
 
-<table border="1" width="95%" align="center">
-  <bt:bug key="init_all" recordClass="sigue.btrack.Bug"/>
-  <tr>
-    <th nowrap>Bug#</th>
-    <th nowrap>Priority</th>
-    <th nowrap>Severity</th>
-    <th nowrap>Reported By</th>
-    <th nowrap>Product</th>
-    <th nowrap>Module</th>
-    <th nowrap>Synopsis</th>
-  </tr>
-  <bt:iterate name="all_records" type="sigue.btrack.Bug">
-    <bt:noRowsMessage>
-      <tr><td colspan="6">There are no bugs to display.</td></tr>
-    </bt:noRowsMessage>
-    <bt:row>
-      <jsp:useBean id="record" class="sigue.btrack.Bug" scope="page"/>
-      <tr>
-        <td width="2%" align="right"><jsp:getProperty name="record" property="bugNumber"/></td>
-        <td width="2%" align="center"><jsp:getProperty name="record" property="priority"/></td>
-        <td width="2%" align="center"><jsp:getProperty name="record" property="severity"/></td>
-        <td width="5%" align="center"><jsp:getProperty name="record" property="reportedBy"/></td>
-        <td width="5%" align="center"><jsp:getProperty name="record" property="product"/></td>
-        <td width="5%" align="center"><jsp:getProperty name="record" property="module"/></td>
-        <td width="79%"><a href="record?id=<bt:bug key="id"/>&type=Bug"><jsp:getProperty name="record" property="synopsis"/></a></td>
-      </tr>
-    </bt:row>
-  </bt:iterate>
-</table>
+<dsp:table border="1" width="95%" align="center" generator="bug-report-generator">
+  <dsp:hrow>
+    <dsp:hcell>Bug#</dsp:hcell>
+    <dsp:hcell>Priority</dsp:hcell>
+    <dsp:hcell>Severity</dsp:hcell>
+    <dsp:hcell>Reported By</dsp:hcell>
+    <dsp:hcell>Product</dsp:hcell>
+    <dsp:hcell>Module</dsp:hcell>
+    <dsp:hcell>Synopsis</dsp:hcell>
+  </dsp:hrow>
+  <dsp:no-rows>
+    <td colspan="6">There are no bugs to display.</td>
+  </dsp:no-rows>
+  <dsp:row>
+    <dsp:cell width="2%" align="right"><bt:show-bug-number/></dsp:cell>
+    <dsp:cell width="2%" align="center"><bt:show-priority/></dsp:cell>
+    <dsp:cell width="2%" align="center"><bt:show-severity/></dsp:cell>
+    <dsp:cell width="5%" align="center"><bt:show-reported-by/></dsp:cell>
+    <dsp:cell width="5%" align="center"><bt:show-product/></dsp:cell>
+    <dsp:cell width="5%" align="center"><bt:show-module/></dsp:cell>
+    <dsp:cell width="79%"><a href="edit-bug.dsp?id=<bt:show-id/>"><bt:show-synopsis/></a></dsp:cell>
+  </dsp:row>
+</dsp:table>
 
 <p>
 

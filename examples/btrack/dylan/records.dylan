@@ -218,7 +218,7 @@ end;
 
 define method new?
     (record :: <database-record>) => (new? :: <boolean>)
-  record-id(record) = 0
+  mod-count(record) = 0
 end;
 
 define primary record <modifiable-record> (<database-record>)
@@ -416,6 +416,13 @@ define method load-records
   end;
 end;
 
+define method load-all-records
+    (record-class :: <class>) => (records :: <sequence>)
+  load-records(record-class,
+               sformat("select * from %s",
+                       record-table-name(class-prototype(record-class))))
+end;
+
 define method create-or-update-record
     (class :: <class>, row :: <sequence>)
  => (record :: <database-record>)
@@ -556,12 +563,11 @@ define method save-record
           format-to-string("%s = ?", slot-column-name(slot))
         end;
   let query
-    = if (new?(record))
-        format-to-string("insert into %s (%s) values (%s) where record_id = %d",
+    = if (mod-count(record) = 1) // not 0, because it has already been inced by <modifiable-record>.
+        format-to-string("insert into %s (%s) values (%s)",
                          record-table-name(record),
                          join(slots, ",", key: slot-column-name),
-                         join(slots, ",", key: method (x) "?" end),
-                         record-id(record))
+                         join(slots, ",", key: method (x) "?" end))
       else
         format-to-string("update %s set %s where record_id = %d",
                          record-table-name(record),
@@ -575,7 +581,7 @@ define method save-record
             //          Need to allow for non-database slots.
             map-into(slot-values, method (slot) slot-getter(slot)(record) end, slots);
           end;
-    apply(update-db, query, database-slot-values(record));
+    apply(update-db, conn, query, database-slot-values(record));
   end;
 end;
 

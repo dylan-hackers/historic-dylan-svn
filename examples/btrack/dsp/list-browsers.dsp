@@ -11,29 +11,24 @@
 
 <bt:show-messages/>
 
-<a href="record?id=new&type=Browser&origin=list-browsers">Click here to create a new browser.</a>
+<a href="edit-browser.dsp?id=0&origin=list-browsers.dsp">Click here to create a new browser.</a>
 <br>Click any browser name to edit that browser.
 
 <p>
 
-<table border="1" width="95%" align="center">
-  <bt:browser key="init_all" recordClass="sigue.btrack.Browser"/>
-  <tr>
-    <th nowrap>&nbsp;</th>
-    <th nowrap>Name</th>
-  </tr>
-  <bt:iterate name="all_records" type="sigue.btrack.Browser">
-    <bt:noRowsMessage>
-      <tr><td colspan="4">There are no browsers to display.</td></tr>
-    </bt:noRowsMessage>
-    <bt:row>
-      <tr>
-        <td><bt:rowNumber/></td>
-        <td><a href="record?id=<bt:browser key="id"/>&type=Browser"><bt:browser key="name"/></a></td>
-      </tr>
-    </bt:row>
-  </bt:iterate>
-</table>
+<dsp:table border="1" width="95%" align="center" generator="browser-generator">
+  <dsp:hrow>
+    <dsp:hcell>&nbsp;</dsp:hcell>
+    <dsp:hcell>Name</dsp:hcell>
+  </dsp:hrow>
+  <dsp:no-rows>
+    <dsp:cell colspan="2">There are no browsers to display.</dsp:cell>
+  </dsp:no-rows>
+  <dsp:row>
+    <dsp:cell><bt:row-number/></dsp:cell>
+    <dsp:cell><a href="edit-browser.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
+  </bt:row>
+</dsp:table>
 
 <p>
 

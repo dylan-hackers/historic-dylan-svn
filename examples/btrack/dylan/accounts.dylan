@@ -24,11 +24,6 @@ define method load-account-named
                                    name)))
 end;
 
-define method load-all-accounts
-    () => (accounts :: <sequence>)
-  load-records(<account>, "select * from tbl_account");
-end;
-
 
 define page list-accounts-page (<btrack-page>)
     (url: "/list-accounts.dsp",
@@ -46,9 +41,14 @@ define method respond-to-get (page :: <edit-account-page>,
                               request :: <request>,
                               response :: <response>)
   let session = get-session(request);
-  let record-id = get-query-value("id", as: <integer>);
-  let record = (record-id & load-account(record-id))
-                 | get-attribute(session, $edit-record-key);
+  let record-id = get-query-value("id", as: <integer>)
+                    | error("Link contained invalid 'id' parameter.  This is a bug.");
+  let record = iff(zero?(record-id),  // indicates new record being created.
+                   make(<account>, id: next-record-id()),
+                   load-account(record-id)
+                     | get-attribute(session, $edit-record-key));
+  // Store the record in the session in case we need to redirect to the
+  // login page before editing.
   set-attribute(session, $edit-record-key, record);
   if (logged-in?(page, request))
     dynamic-bind (*record* = record)
@@ -111,6 +111,5 @@ define tag show-email-address in btrack
     ()
   format(output-stream(response), "%s", email-address(current-row() | *record*));
 end;
-
 
 

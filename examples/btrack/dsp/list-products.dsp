@@ -11,31 +11,26 @@
 
 <bt:show-messages/>
 
-<a href="record?id=new&type=Product&origin=list-products">Click here to create a new product.</a>
+<a href="edit-product.dsp?id=0&origin=list-products.dsp">Click here to create a new product.</a>
 <br>Click any product name to edit that product.
 
 <p>
 
-<table border="1" width="95%" align="center">
-  <tr>
-    <th nowrap>Name</th>
-    <th nowrap>Owner</th>
-    <th nowrap>Modules</th>
-  </tr>
-  <bt:iterate name="all_products" type="sigue.btrack.Product" beanId="product">
-    <bt:noRowsMessage>
-      <tr><td colspan="3">There are no products.</td></tr>
-    </bt:noRowsMessage>
-    <bt:row>
-      <jsp:useBean id="product" scope="page" class="sigue.btrack.Product"/>
-      <tr>
-        <td><a href="record?id=<jsp:getProperty name="product" property="id"/>&type=Product"><jsp:getProperty name="product" property="name"/></a></td>
-        <td><bt:product key="owner"/></td>
-        <td><bt:product key="modules"/></td>
-      </tr>
-    </bt:row>
-  </bt:iterate>
-</table>
+<dsp:table border="1" width="95%" align="center" generator="product-generator">
+  <dsp:hrow>
+    <dsp:hcell>Name</dsp:hcell>
+    <dsp:hcell>Owner</dsp:hcell>
+    <dsp:hcell>Modules</dsp:hcell>
+  </dsp:hrow>
+  <dsp:no-rows>
+    <dsp:cell colspan="3">There are no products yet.</dsp:cell>
+  </dsp:no-rows>
+  <dsp:row>
+    <dsp:cell><a href="edit-product.dsp?id=<bt:show-id/>"><bt:show-name/></a></dsp:cell>
+    <dsp:cell><bt:show-owner/></dsp:cell>
+    <dsp:cell><bt:show-modules/></dsp:cell>
+  </dsp:row>
+</dsp:table>
 
 <p>
 

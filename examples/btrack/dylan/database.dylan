@@ -14,6 +14,9 @@ define macro with-database-connection
          _connection := _conn;
          let ?conn :: sql$<connection> = _conn;
          sql$with-connection (_connection)  // sets up *default-connection* only
+           // If this is the first time the system is being used, init the
+           // database with an admin user, etc.
+           maybe-initialize-database(_conn);
            ?body
          end
        cleanup
@@ -45,6 +48,15 @@ define method query-db
     let results = map-as(<simple-object-vector>, identity, result-set);
     results
   end;
+end;
+
+define method query-integer
+    (connection :: sql$<connection>, query-format-string :: <byte-string>, #rest format-args)
+  let rset = apply(query-db, connection, query-format-string, format-args);
+  assert(rset.size == 1,
+         "Result set for a 'count' query should have only one row.  Query was %=.",
+         query-format-string);
+  rset[0][0]
 end;
 
 // This may be used for updates and inserts.
@@ -90,13 +102,56 @@ end;
 define function load-next-record-id
     () => (id :: <integer>)
   with-database-connection (conn)
-    let rset = query-db(conn, "select next_record_id from tbl_config");
-    let next-id = rset[0];
+    let rows = query-db(conn, "select next_record_id from tbl_config");
+    assert(rows.size == 1,
+           "tbl_config has more than one row.");
+    let row1 = rows[0];
+    let next-id = row1[0];
     let next-batch-start = next-id + $record-id-batch-size;
     update-db(conn, "update tbl_config set next_record_id = ?", next-batch-start);
     // Don't set these until update successful.
     *record-id-next-batch-start* := next-batch-start;
     *next-record-id* := next-id;
   end;
+end;
+
+
+define variable *database-initialized?* :: <boolean> = #f;
+
+// Note that this is only called from inside with-database-connection.
+//
+define function maybe-initialize-database
+    (conn) => ()
+  if (*database-initialized?*)
+    #t
+  else
+    let accounts = query-integer(conn, "select count(1) from tbl_account");
+    if (accounts > 0)
+      *database-initialized?* := #t;
+    else
+      // initialize database
+      create-admin-account();
+      *database-initialized?* := #t;
+    end;
+  end;
+end;
+
+define function create-admin-account
+    ()
+  let now = current-date();
+  //---TODO: fix some of these init values.
+  let admin-account = make(<account>,
+                           id: next-record-id(),
+                           mod-count: -1,
+                           date-entered: now,
+                           date-modified: now,
+                           name: "admin",
+                           status: 'A',              // correct?
+                           password: "admin",
+                           email-address: "foo@bar", // fix me
+                           email-prefs: 0,
+                           permissions: 0,
+                           role: 'A');               // correct?
+  save-record(admin-account);
 end;
 

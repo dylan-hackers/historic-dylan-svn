@@ -1,5 +1,4 @@
 <%dsp:taglib name="btrack" prefix="bt" />
-<jsp:useBean id="record" class="sigue.btrack.Version" scope="session"/>
 
 <html>
 <head><title>Bug Tracker - Admin - Edit Version</title></head>
@@ -12,7 +11,7 @@
 
 <center><h1>Edit Version</h1></center>
 
-<form name="editVersionForm" method="post" action="record?action=save">
+<form name="editVersionForm" method="post" action="edit-version.dsp">
   <input type="hidden" name="type" value="Version">
   <table border="0">
     <tr>
@@ -20,7 +19,7 @@
       <td nowrap width="95%" colspan="3">
         <span class="fieldTitle">Version name:</span>
         <br><input name="name" type="text" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="name"/>">
+                   value="<bt:show-name/>">
       </td>
     </tr>
     <tr>

@@ -12,23 +12,29 @@
 
 <center><h1>Edit Module</h1></center>
 
-<form name="editModuleForm" method="post" action="record?action=save">
+<form name="editModuleForm" method="post" action="edit-module.dsp">
   <input type="hidden" name="type" value="Module">
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>
       <td nowrap width="95%" colspan="3">
         <span class="fieldTitle">Module name:</span>
-        <br><input name="name" type="text" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="name"/>">
+        <br><input name="name"
+                   type="text"
+                   size="30"
+                   maxlen="30"
+                   value="<bt:show-name/>">
       </td>
     </tr>
     <tr>
       <td width="5%">&nbsp;</td>
       <td width="95%" colspan="3">
         <span class="fieldTitle">User with primary responsibility:</span>
-        <br><input name="owner" type="text" size="30" maxlen="30"
-                   value="<jsp:getProperty name="record" property="owner"/>">
+        <br><input name="owner"
+                   type="text"
+                   size="30"
+                   maxlen="30"
+                   value="<bt:show-owner/>">
       </td>
     </tr>
     <tr>

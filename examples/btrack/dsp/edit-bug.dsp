@@ -1,5 +1,4 @@
 <%dsp:taglib name="btrack" prefix="bt" />
-<jsp:useBean id="record" class="sigue.btrack.Bug" scope="session"/>
 
 <html>
 <head>
@@ -15,22 +14,25 @@
 
 <bt:show-messages/>
 
-<form name="newBugForm" method="post" action="record?action=save">
+<form name="newBugForm" method="post" action="edit-bug.dsp">
   <input type="hidden" name="type" value="Bug">
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>
       <td width="95%" colspan="3">
         <span class="fieldTitle">Summary:</span>
-        <br><input name="synopsis" type="text" size="80" maxlen="100"
-                   value="<jsp:getProperty name="record" property="synopsis"/>">
+        <br><input name="synopsis"
+                   type="text"
+                   size="80"
+                   maxlen="100"
+                   value="<bt:show-synopsis/>">
       </td>
     </tr>
     <tr>
       <td width="5%">&nbsp;</td>
       <td width="95%" colspan="3">
         <span class="fieldTitle">Description:</span>
-        <br><textarea name="description" wrap="virtual" rows="15" cols="80"><jsp:getProperty name="record" property="description"/></textarea>
+        <br><textarea name="description" wrap="virtual" rows="15" cols="80"><bt:show-description/></textarea>
       </td>
     </tr>
     <tr>
@@ -39,47 +41,47 @@
         <table border="0">
           <tr>
             <td nowrap><span class="fieldTitle">Priority:</span></td>
-            <td nowrap><select name="priority" size="1"><bt:bug key="priority"/></select></td>
+            <td nowrap><select name="priority" size="1"><bt:show-priority-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Severity:</span></td>
-            <td nowrap><select name="severity" size="1"><bt:bug key="severity"/></select></td>
+            <td nowrap><select name="severity" size="1"><bt:show-severity-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Version:</span></td>
-            <td nowrap><select name="version" size="1"><bt:bug key="version"/></select></td>
+            <td nowrap><select name="version" size="1"><bt:show-version-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Operating System:</span></td>
-            <td nowrap><select name="operating_system" size="1"><bt:bug key="operating_system"/></select></td>
+            <td nowrap><select name="operating_system" size="1"><bt:show-operating-system-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Hardware Platform:</span></td>
-            <td nowrap><select name="platform" size="1"><bt:bug key="platform"/></select></td>
+            <td nowrap><select name="platform" size="1"><bt:show-platform-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Browser:</span></td>
-            <td nowrap><select name="browser" size="1"><bt:bug key="browser"/></select></td>
+            <td nowrap><select name="browser" size="1"><bt:show-browser-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Product:</span></td>
-            <td nowrap><select name="product" size="1"><bt:bug key="product"/></select></td>
+            <td nowrap><select name="product" size="1"><bt:show-product-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Module:</span></td>
-            <td nowrap><select name="module" size="1"><bt:bug key="module"/></select></td>
+            <td nowrap><select name="module" size="1"><bt:show-module-options/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Assigned Developer:</span></td>
-            <td nowrap><select name="dev_assigned" size="1"><bt:bug key="dev_assigned"/></select></td>
+            <td nowrap><select name="dev_assigned" size="1"><bt:show-developer-options key="assigned"/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Assigned QA:</span></td>
-            <td nowrap><select name="qa_assigned" size="1"><bt:bug key="qa_assigned"/></select></td>
+            <td nowrap><select name="qa_assigned" size="1"><bt:show-qa-options key="assigned"/></select></td>
           </tr>
           <tr>
             <td nowrap><span class="fieldTitle">Status:</span></td>
-            <td nowrap><select name="status" size="1"><bt:bug key="status"/></select></td>
+            <td nowrap><select name="status" size="1"><bt:show-status-options/></select></td>
           </tr>
         </table>
       </td>

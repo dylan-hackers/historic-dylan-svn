@@ -45,10 +45,16 @@ define page admin-page (<btrack-page>)
      source: document-location("dsp/admin.dsp"))
 end;
 
-define tag show-record-name in btrack
+define tag show-name in btrack
     (page :: <btrack-page>, response :: <response>)
     ()
   format(output-stream(response), "%s", name(current-row() | *record*));
+end;
+
+define tag show-id in btrack
+    (page :: <btrack-page>, response :: <response>)
+    ()
+  format(output-stream(response), "%s", record-id(current-row() | *record*));
 end;
 
 // This should always end in a slash.
@@ -177,8 +183,9 @@ define page login-page (<btrack-page>)
      source: document-location("dsp/login.dsp"))
 end;
 
-define method force-login
-    (target-page :: <btrack-page>, request :: <request>, response :: <response>)
+define method force-login (target-page :: <btrack-page>,
+                           request :: <request>,
+                           response :: <response>)
   // Save the target page away so the login-page knows where to go when it's done.
   set-attribute(get-session(request), $target-page-key, target-page);
   respond-to-get(*login-page*, request, response);
@@ -248,4 +255,50 @@ define tag show-password in btrack
                         size: size(password),
                         initial-element: "*"));
 end;
+
+
+////
+//// Table row generators for list-*.dsp pages
+////
+
+//---TODO: It would be easy enough to have "define record" generate a mapping
+//         from a pretty name like "account" to the record class <account>
+//         and then repetitious code like below could be made generic instead.
+
+define named-method version-generator in btrack
+    (page :: <btrack-page>) => (rows :: <sequence>)
+  load-all-records(<version>)
+end;
+
+define named-method product-generator in btrack
+    (page :: <btrack-page>) => (rows :: <sequence>)
+  load-all-records(<product>)
+end;
+
+define named-method module-generator in btrack
+    (page :: <btrack-page>) => (rows :: <sequence>)
+  load-all-records(<module>)
+end;
+
+define named-method browser-generator in btrack
+    (page :: <btrack-page>) => (rows :: <sequence>)
+  load-all-records(<browser>)
+end;
+
+define named-method platform-generator in btrack
+    (page :: <btrack-page>) => (rows :: <sequence>)
+  load-all-records(<platform>)
+end;
+
+define named-method operating-system-generator in btrack
+    (page :: <btrack-page>) => (rows :: <sequence>)
+  load-all-records(<operating-system>)
+end;
+
+define named-method bug-report-generator in btrack
+    (page :: <btrack-page>) => (rows :: <sequence>)
+  load-all-records(<bug-report>)
+end;
+
+
 
