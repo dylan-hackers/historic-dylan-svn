@@ -1,8 +1,0 @@
-GNUmakefile
-format-buf.c
-library.c
-format.c
-format-init.c
-format-heap.s
-cc-format-files.mak
-.cvsignore

@@ -1,7 +1,0 @@
-GNUmakefile
-random-init.c
-exports.c
-random.c
-random-heap.s
-cc-random-files.mak
-.cvsignore

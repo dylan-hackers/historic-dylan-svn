@@ -1,9 +1,0 @@
-cc-ver-files.mak
-GNUmakefile
-exports.c
-heap.s
-versioner.c
-ver-init.c
-ver-heap.s
-inits.c
-versioner
