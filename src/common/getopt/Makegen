@@ -8,7 +8,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../format';
 
 &emit_library_rule(
-    'getopt', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'getopt', '$(BUILDROOT)/force.timestamp', '', 'compile',
     'install'
 );
 

@@ -3,5 +3,5 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../d2c/runtime/random';
 
 do emit_library_rule(
-    'craps', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'craps', '$(BUILDROOT)/force.timestamp', '', 'compile'
 );

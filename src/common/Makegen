@@ -1,7 +1,7 @@
 ##
-##  $Header: /scm/cvs/src/common/Makegen,v 1.24.2.2 2003/08/10 23:50:08 gabor Exp $
+##  $Header: /scm/cvs/src/common/Makegen,v 1.24.2.3 2004/07/21 21:50:35 prom Exp $
 ##
-##  This is the makegen file for the libraries shared between d2c and mindy.
+##  This is the makegen file for the libraries.
 ##
 
 # the order is significant, since the d2c libraries must be compiled in

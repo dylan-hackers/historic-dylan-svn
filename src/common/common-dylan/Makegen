@@ -10,4 +10,4 @@ $D2CFLAGS         # added by update-libdirs
 $CPPFLAGS .= " -I$srcdir";
 
 do emit_library_rule ('common-dylan', '$(BUILDROOT)/force.timestamp', '',
-		      'compile', 'no-mindy', 'install');
+		      'compile', 'install');

@@ -4,5 +4,5 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../common/standard-io';
 
 do emit_library_rule(
-    'cat', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'cat', '$(BUILDROOT)/force.timestamp', '', 'compile'
 );

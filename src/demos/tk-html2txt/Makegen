@@ -7,6 +7,3 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../common/string-ext'
     . ' -L../../mindy/libraries/tk';
 
-do emit_library_rule(
-    'html2txt', '$(BUILDROOT)/force.timestamp', '', 'no-d2c', 'compile-mindy',
-);
