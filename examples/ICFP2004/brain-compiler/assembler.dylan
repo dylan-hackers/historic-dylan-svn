@@ -250,9 +250,13 @@ define functional class <instruction-label-count> (<object>)
   constant slot instruction-count, required-init-keyword: count:;
 end;
 
+define sealed domain make(singleton(<instruction-label-count>));
+define sealed domain initialize(<instruction-label-count>);
+
 define method functional-==
-    (l :: <instruction-label-count>, r :: <instruction-label-count>)
+    (c == <instruction-label-count>, l :: <instruction-label-count>, r :: <instruction-label-count>)
  => (same :: <boolean>);
+ format-out("functional-==: (%s, %d) ==? (%s, %d)\n", l.instruction-label, l.instruction-count, r.instruction-label, r.instruction-count);
   l.instruction-label == r.instruction-label
     & l.instruction-count == r.instruction-count
 end;
