@@ -4,7 +4,7 @@ authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
 define class <obj> (<object>)
-  slot transform :: <matrix> = $identity;
+  slot transform :: <matrix> = make-identity(); // this is broken
   slot model :: type-union(<primitive>, <collection>);
 end class <obj>;
 
@@ -30,7 +30,7 @@ end method translate!;
 
 // Rotation:
 define variable *x-rotation-matrix* = identity-matrix(dimensions: #[4,4]);
-define variable *last-x-rotation-theta*;
+define variable *last-x-rotation-theta* = 0.0;
 
 define method x-rotate!(o :: <obj>, theta) => (same-obj :: <obj>)
   if (theta ~= *last-x-rotation-theta*)
@@ -50,7 +50,7 @@ end method x-rotate!;
 define method translated-copy(o :: <obj>, x, y, z) 
  => (new_obj ::  <obj>)
   
-  new_obj := copy(o);
+  let new_obj = shallow-copy(o);
 
   translate!(o, x, y, z);
 end method translated-copy;

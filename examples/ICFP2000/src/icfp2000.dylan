@@ -5,8 +5,10 @@ copyright: this program may be freely used by anyone, for any purpose
 
 define function main(name, arguments)
   let mat = identity-matrix(dimensions: #[4,4]);
+  let vec = #[1.0, 2.0, 3.0, 4.0];
 
-  format-out("%=\n", mat);
+  format-out("%=\n%=\n%=\n", mat, vec, homogenize(vec));
+  format-out("%=\n", mat * vec);
   exit-application(0);
 end function main;
 

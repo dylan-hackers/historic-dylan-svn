@@ -3,7 +3,7 @@ module: dylan-user
 define library icfp2000
   use common-dylan;
   use io;
- 
+  use transcendental;
   use matrix;
 end library;
 
@@ -14,6 +14,6 @@ define module icfp2000
   use format;
   use print;
   use standard-io;
- 
+  use transcendental;
   use matrix;
 end module;
