@@ -89,6 +89,10 @@ define module ants
     randomint,
     load-world,
     step-world,
-    unparse;
+    unparse,
+    state-success, state-success-setter,
+    state-failure, state-failure-setter,
+    state-true, state-true-setter,
+    state-false, state-false-setter;
 
 end module ants;
