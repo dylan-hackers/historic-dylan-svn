@@ -15,28 +15,28 @@ def set
   right x
 { lbrace ` x ` rbrace }
 
-import @Eq
+extend @Eq
 def sig left index { sigma sub index }
 
-import @Eq
+extend @Eq
 def sigp left index right x { index sig (x) }
 
-import @Eq
+extend @Eq
 def ta left index { tau sub index }
 
-import @Eq
+extend @Eq
 def taus
   left maxindex
-  named prim {""}
-  named preset {""}
+  named prim {}
+  named preset {}
   named inset {2}
 {
   def primed left x { x prim }
-  def insetp {inset primed}
+  def insetp {inset @Case { 2 @Yield { inset primed } else @Yield { inset } } }
   {1 primed} ta, preset insetp ta, ..., {maxindex primed} ta
 }
 
-import @Eq
+extend @Eq
 def proj
   precedence 50
   left coll
@@ -283,20 +283,31 @@ typing: each argument must have been an instance of the union of the
 types at the corresponding position across the signatures in the maybe set, if the
 function call returns @I {without signalling an error}. In the dominance
 domain of this call we can assume that the above type constraint holds.
-We introduce some notation to be able to formalize this a bit. Let {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n})
+We introduce some notation to be able to formalize this a bit.
+First, we adopt the mathematical set theoretic symbols to also apply for types.
+Thus @Eq { 1 ta cup 2 ta } will denote a union type (corresponding to the Dylan function
+{@F type-union}). An object is of intersection type @Eq { 1 ta cap 2 ta }
+if it is an instance of both @Eq { 1 ta } and @Eq { 2 ta } (in Dylan this corresponds to sequentially
+calling two functions which are declared with @Eq { 1 ta } and @Eq { 2 ta }).
+Further let @Eq { sigp { n taus } }
 denote the product type of an {@I n}-ary method's argument signature. The maybe set then
-can be described as a set of distinct signatures: "{" {@Sig 1}, {@Sig 2}, ..., @Sig @I m "}".
-We denote the projection operator to extract the type of argument @Eq {1 <= i <= n} from a
-method signature: {@Sigm}({@Tau 1}, {@Tau 2}, ..., {@Tau @I n}) {@Sym bar} @Sub @I i = {@Tau @I i}.
-@PP This allows to formulate our above notion as
+can be described as a set of distinct signatures:
+@Eq { set { 1 sig, 2 sig, ..., m sig } }.
+@LP We denote the projection operator to extract the type of argument @Eq {1 <= i <= n} from a
+method signature:
+@Eq { sigp { n taus } proj i = i ta }.
+This allows to formulate our above notion as
 @CentredNumberedDisplay @Tag { pessim } {
-"{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym lessequal
-{@F type-union}({@Sig 1} {@Project @I i}, ..., {@Sig @I m} {@Project @I i}).
+@Eq { set { 1 sig, 2 sig, ..., m sig } proj i <= 1 sig proj i cup 2 sig proj i cup ... cup m sig proj i }
 }
-One might ask
-for the reason of the inequality in this formula. It simply states that
-we can only expect to get an approximation. On the other hand, it gives us
+where we have extended the projection operator to obtain the applicable type in
+the argument position @I i for a set of method signatures.
+@PP One might ask for the reason of the inequality in this formula. It simply states
+that we can only expect to get an approximation, i.e. the left hand side is a
+subtype of the right hand side. On the other hand, it gives us
 some hope that we can do even @I better than the equality suggests!
+@PP The following sections explore ways to recover some of the lost
+information, and even more.
 @End @SubSection
 
 ###########
@@ -357,13 +368,16 @@ type {@Tau @F 0}.
 @PP
 We arrived at a point where it becomes possible to actually
 do computations on the tuple union projections, such as
-intersection, union and set difference.
+intersection, union and set difference. The @F d2c compiler
+uses these connectives, along with the builtin top (@Class object)
+and bottom (@F {type-union() }) types, to establish its type algebra.
 @LP @I {[to be expanded]}
 @LP
 When deriving the type algebra of tuple union projections we only take into
 consideration the case where the tuples are of the same length and the projection
 is to the same component. Unless these requirements are met we just fall back
-to the pessimization (@NumberOf { pessim }) and treat the projection as a simple type union.
+to the pessimization (@NumberOf { pessim }) and treat the projection as a simple
+type union.
 
 For the remaining subsections we assume that the requirements are met.
 
@@ -372,8 +386,10 @@ For the remaining subsections we assume that the requirements are met.
 @SubSubSection @Title { Type Union }
 @Begin
 @LP
-For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we define "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym union "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i}
-to be "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} {@Sig 1'}, {@Sig 2'}, ..., {@Sig {@I m}'} "}"{@Project @I i}.
+For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we define
+@Eq { set { 1 sig, 2 sig, ..., m sig } proj i cup set { 1' sig, 2' sig, ..., m' sig } proj i }
+to be
+@Eq { set { 1 sig, 2 sig, ..., m sig, 1' sig, 2' sig, ..., m' sig } proj i }.
 
 Since the set of the signatures can be already viewed as a union of one-element sets of signatures, this
 concatenating definition is rather obvious. It is also compatible with (@NumberOf { pessim }).
@@ -383,19 +399,6 @@ concatenating definition is rather obvious. It is also compatible with (@NumberO
 @SubSubSection @Title { Type Intersection }
 @Begin
 @LP
-For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we are to derive "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym intersection "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i} now.
-First we reduce our task by considering signature sets with just one element:
-"{" {@Sig 1}({@Tau 1}, ..., {@Tau @I i}, ..., {@Tau @I n}) "}"{@Project @I i} @Sym intersection "{" {@Sig 1'}({@Tau 1'}, ..., {@Tau {{@I i}'}}, ..., {@Tau {{@I n}'}}) "}"{@Project @I i}.
-An argument at position @I i can only be passed to both signatures if it is an instance of the type intersection of {@Tau @I i} and {@Tau {{@I i}'}}.
-Now we reintroduce several signatures at the left hand side: clearly we have to construct the union of each {@Tau @I i} @Sup @I j @Sym intersection {@Tau {{@I i}'}}.
-Here @I j is denoting the index in the left signature set. Additionally considering several signatures on the right, we arrive at
-the union over the full cartesian product: @Eq {big union from {j=1, "j'"=1} to {m, "m'"} tau sub i sup j intersection tau sub i sup "j'"}.
-
-@LP
-@LP
-@LP
-
-
 For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we are to derive @Eq { set {1 sig, 2 sig, ..., m sig} proj i cap set {1' sig, 2' sig, ..., m' sig} proj i} now.
 First we reduce our task by considering signature sets with just one element:
 @Eq { set {1 sigp {n taus}} proj i cap set {1' sigp {n taus prim {'} preset {... ,} inset {i}}} proj i}.
