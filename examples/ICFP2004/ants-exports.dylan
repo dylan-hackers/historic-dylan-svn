@@ -86,6 +86,8 @@ define module ants
     check-for-surrounded-ants,
     step,
     *random-seed*,
-    randomint;
+    randomint,
+    load-world,
+    step-world;
 
 end module ants;

@@ -186,6 +186,7 @@ end;
 
 define variable idle :: <function> =
         callback-method() => ();
+      step-world();
     glutPostRedisplay();
 end;
 
@@ -197,10 +198,11 @@ define variable keyboard :: <function> =
         *scale* := *scale* * 2.0;
     elseif (char == '-')
         *scale* := *scale* * 0.5;
-    end;
+    end if;
 end;
 
 begin
+  load-world();
     glut-init();
     glutInitDisplayMode($GLUT-RGB + $GLUT-DEPTH + $GLUT-DOUBLE);
 

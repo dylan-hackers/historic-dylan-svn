@@ -550,9 +550,9 @@ end;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-define function play-game(red-brain :: <string>,
-                          black-brain :: <string>,
-                          world :: <string>)
+define function aux-load-world(red-brain :: <string>,
+                               black-brain :: <string>,
+                               world :: <string>)
  => ()
   with-open-file(brain = red-brain)
     *red-brain* := read-state-machine(brain)
@@ -563,11 +563,16 @@ define function play-game(red-brain :: <string>,
   with-open-file(world-stream = world)
     *world* := read-map(world-stream)
   end with-open-file;
-  for(round from 0 below 100000)
-    dump-world-state(*world*);
-    for(i from 0 below *ants*.size)
-      step(i);
-    end for;
+end function aux-load-world;
+
+define function load-world()
+  apply(aux-load-world, application-arguments());
+end function load-world;
+
+define function step-world()
+  for(i from 0 below *ants*.size)
+    step(i);
   end for;
-end function play-game;
+end function step-world;
+  
 
