@@ -1,10 +1,42 @@
 module: main
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.29 2002/07/29 17:26:51 gabor Exp $
+copyright: see below
+
+//======================================================================
+//
+// Copyright (c) 2002  Gwydion Dylan Maintainers
+// All rights reserved.
+// 
+// Use and copying of this software and preparation of derivative
+// works based on this software are permitted, including commercial
+// use, provided that the following conditions are observed:
+// 
+// 1. This copyright notice must be retained in full on any copies
+//    and on appropriate parts of any derivative works.
+// 2. Documentation (paper or online) accompanying any system that
+//    incorporates this software, or any part of it, must acknowledge
+//    the contribution of the Gwydion Project at Carnegie Mellon
+//    University, and the Gwydion Dylan Maintainers.
+// 
+// This software is made available "as is".  Neither the authors nor
+// Carnegie Mellon University make any warranty about the software,
+// its performance, or its conformity to any specification.
+// 
+// Bug reports should be sent to <gd-bugs@gwydiondylan.org>; questions,
+// comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
+// Also, see http://www.gwydiondylan.org/ for updates and documentation. 
+//
+//======================================================================
+
+// This file contains an interpreter that can give back <ct-values> for
+// certain FER constructions.
+
 
 define variable *interpreter-library* = #f;
 
 define method evaluate(expression :: <string>)
   if(~ *interpreter-library*)
-    *interpreter-library* := find-library(#"foo", create: #t);
+    *interpreter-library* := find-library(#"foo", create: #t); // ### FIXME: arbitrary name
     seed-representations();
     inherit-slots();
     inherit-overrides();
@@ -110,6 +142,11 @@ end;
 define method fer-evaluate-regions(return :: <return>, more-regions == #(), environment :: <interpreter-environment>)
   => ct-value :: <ct-value>; // multivalues???
   fer-evaluate(return, environment)
+end;
+
+define method fer-evaluate-regions(exit :: <exit>, more-regions == #(), environment :: <interpreter-environment>)
+  => ct-value :: <ct-value>; // multivalues???
+  fer-gather-bindings(exit, environment)
 end;
 
 // ########## fer-gather-bindings ##########
@@ -293,7 +330,6 @@ end;
 define method fer-evaluate-expression(expr :: <known-call>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
       let func :: <method-literal> = expr.depends-on.source-exp;
-//      let arg = fer-evaluate-expression(expr.depends-on.dependent-next.source-exp, environment);
       let args = expr.depends-on.dependent-next;
       
       fer-evaluate-call(func, args, environment);
@@ -311,11 +347,29 @@ end;
 
 define method fer-evaluate-expression(prologue :: <prologue>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
-// as(<ct-value>, 42); // ### for now...
-//  let result :: <ct-value> = environment(prologue);
   let prologue-assignment :: <abstract-assignment> = prologue.dependents.dependent;
   let vars-to-be-bound :: false-or(<definition-site-variable>) = prologue-assignment.defines;
   environment(vars-to-be-bound); // we only support one variable for now...###
+end;
+
+
+define method fer-evaluate-expression(slot-ref :: <heap-slot-ref>, environment :: <interpreter-environment>)
+ => result :: <ct-value>;
+  let slot-info = slot-ref.slot-info;
+  let obj = slot-ref.depends-on.dependent-next.source-exp;
+  
+  slot-info.slot-read-only? | error("cannot evaluate writeable <heap-slot-ref> of %=", obj);
+  
+  if (slot-info.slot-init-value
+      & slot-info.slot-init-value ~== #t)
+    slot-info.slot-init-value
+  else
+    // we need to eval the init function too??? ### side-effects?
+    
+    let obj-value = fer-evaluate-expression(obj, environment);
+    obj-value // for now...
+  end;
+  
 end;
 
 
@@ -336,6 +390,19 @@ define macro primitive-emulator-definer
       as(<ct-value>, ?name(lhs.literal-value, rhs.literal-value))
     end;
   }
+
+  {
+    define primitive-emulator (?:name) end
+  }
+  =>
+  {
+    define method fer-evaluate-primitive(name == ?#"name", depends-on :: <dependency>, environment :: <interpreter-environment>)
+     => result :: <ct-value>;
+      let lhs :: <eql-ct-value> = fer-evaluate-expression(depends-on.source-exp, environment);
+      let rhs :: <eql-ct-value> = fer-evaluate-expression(depends-on.dependent-next.source-exp, environment);
+      as(<ct-value>, ?name(lhs, rhs))
+    end;
+  }
 end;
 
 define primitive-emulator \+ end;
@@ -346,6 +413,7 @@ define primitive-emulator \= end;
 define primitive-emulator logior end;
 define primitive-emulator logxor end;
 define primitive-emulator logand end;
+define primitive-emulator (\==) end;
 
 // ########## append-environment ##########
 define function append-environment(prev-env :: <interpreter-environment>, new-binding, new-value) => new-env;
