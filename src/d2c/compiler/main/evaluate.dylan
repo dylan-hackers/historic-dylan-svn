@@ -21,6 +21,6 @@ define method evaluate(expression :: <string>)
   for(tlf in *top-level-forms*)
     convert-top-level-form(builder, tlf);
     let inits = builder-result(builder);
-    format(*standard-output*, "%=\n", inits);
+    dump-fer(inits);
   end for;
 end method evaluate;
