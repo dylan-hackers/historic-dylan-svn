@@ -50,7 +50,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/threads'
     . ' -L../../../common/io'
     . ' -L../../../common/command-processor'
-    . ' -L../../runtime/debugger'
+    . ' -L../../debugger'
     . ' -L../../../common/getopt'
     . ' -L../../../common/base-file-system'
     . ' -L../base'
