@@ -769,6 +769,10 @@ define variable foo :: run-time-expression() = #f;
 	this type. (Empty types are used extensively when computing the
 	intersections, unions and differences of types.)</para>
 
+	<para>Class types are defined in the <link
+        linkend="gdmaint-d2c-base-classes"><dmodule>Classes</dmodule>
+        module</link>.</para>
+
 	<para><dname>&lt;multi-value-ctype></dname> is a bit tricky. It
 	represents zero or more required values of known types, zero or
 	more optional values of known types, and an optional
@@ -1138,7 +1142,9 @@ define variable foo :: run-time-expression() = #f;
 	    <term><filename>front.dylan</filename></term>
 	    <listitem>
 	      <para>The data structures used in the front-end
-	      representation.</para>
+	      representation. These extend the classes defined in the <link
+              linkend="gdmaint-d2c-base-flow"><dmodule>Flow</dmodule>
+              module</link>.</para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
@@ -1407,6 +1413,37 @@ define variable foo :: run-time-expression() = #f;
 	<dname>optimize-component</dname> in the file
 	<filename>cheese.dylan</filename>. This calls each of the various
 	optimization routines, which are grouped by file.</para>
+      </sect2>
+
+      <sect2>
+	<title>Data Formats</title>
+	
+	<para>The optimizer's data structures are defined in a number of
+	modules:</para>
+
+	<itemizedlist>
+	  <listitem>
+	    <formalpara>
+	      <title>The type model</title>
+
+	      <para>Because this is a Dylan compiler, the type model is
+	      pretty hairy. See <xref linkend="gdmaint-d2c-base-ctype"> and
+	      <xref linkend="gdmaint-d2c-base-classes">.</para>
+	    </formalpara>
+	  </listitem>
+	  <listitem>
+	    <formalpara>
+	      <title>The intermediate representation</title>
+
+	      <para>The optimizer manipulates code in the format defined by
+	      the <link
+              linkend="gdmaint-d2c-base-flow"><dmodule>Flow</dmodule>
+              module</link> and the <link
+              linkend="gdmaint-d2c-front-front"><dmodule>Front</dmodule>
+              module</link>.</para>
+	    </formalpara>
+	  </listitem>
+	</itemizedlist>
       </sect2>
     </sect1>
 
