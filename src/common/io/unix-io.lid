@@ -37,3 +37,4 @@ Other-Files:   Open-Source-License.txt
 Major-Version: 2
 Minor-Version: 1
 Target-Type:   dll
+Unique-ID-Base:6000
