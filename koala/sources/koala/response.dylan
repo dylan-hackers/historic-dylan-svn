@@ -200,32 +200,33 @@ define method send-response
       send-headers(response, stream);
     end unless;
 
-    if (*logfile*)
-      // Log in Common Logfile Format
-      // (http://www.w3.org/Daemon/User/Config/Logging.html)
-      let request = concatenate(as(<string>, request-method(req)), " ",
-                                request-url(req), " ",
-                                as(<string>, request-version(req)));
-      let date = as-common-logfile-date(current-date());
-      let remoteaddr = host-address(remote-host(request-socket(req)));
-      let ext :: <string> = "";
-      // TODO: it would be nice to have a configurable logfile format string where
-      // the user can choose what to output.  e.g.,
-      //   "{ip} {hostname} [{date}] '{url}' {user-agent} {referer}"
-      if (*logfile-type* == #"extended")
-        //for now, add User-Agent and Referer
-        ext := concatenate(" \"", as(<string>, get-header(req, "user-agent") | "-"),
-                           "\" \"", as(<string>, get-header(req, "referer") | "-"),
-                           "\"");
-      end if;
-      log-logfile(*logfile*, concatenate(remoteaddr, " ",
-                                         "-", " ",
-                                         "-", " ",
-                                         "[", date, "] ",
-                                         "\"", request, "\" ",
-                                         integer-to-string(response-code), " ",
-                                         content-length, ext, "\n"));
-    end if;
+    // Log in Common Logfile Format
+    // (http://www.w3.org/Daemon/User/Config/Logging.html)
+    let request = concatenate(as(<string>, request-method(req)), " ",
+                              request-url(req), " ",
+                              as(<string>, request-version(req)));
+    let date = as-common-logfile-date(current-date());
+    let remoteaddr = host-address(remote-host(request-socket(req)));
+    let ext :: <string> = "";
+
+    // TODO: make the logfile format configurable.  e.g., the user
+    //       specifies a string like this:
+    //   "{ip} {hostname} [{date}] '{url}' {user-agent} {referer}"
+    // See bug #7200.
+
+    //for now, add User-Agent and Referer
+    ext := concatenate(" \"", as(<string>, get-header(req, "user-agent") | "-"),
+                       "\" \"", as(<string>, get-header(req, "referer") | "-"),
+                       "\"");
+    log-raw(activity-log-target(*virtual-host*),
+            concatenate(remoteaddr, " ",
+                        "-", " ",
+                        "-", " ",
+                        "[", date, "] ",
+                        "\"", request, "\" ",
+                        integer-to-string(response-code), " ",
+                        content-length,
+                        ext));
   end unless;
 
   let contents = stream-contents(output-stream(response), clear-contents?: #t);

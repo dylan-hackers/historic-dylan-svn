@@ -138,13 +138,9 @@ end method process-config-element;
 
 define method process-config-element
     (node :: xml$<element>, name == #"virtual-host")
-  log-debug("Processing element %s", name);
   let name = get-attr(node, #"name");
   if (name)
-    log-info("Processing virtual host %s", name);
     let vhost = make(<virtual-host>, name: trim(name));
-    log-debug("Document root for vhost %s is %s",
-              vhost-name(vhost), as(<string>, document-root(vhost)));
     add-virtual-host(name, vhost);
     dynamic-bind (%vhost = vhost,
                   %dir = root-directory-spec(vhost))
@@ -160,7 +156,6 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"alias")
-  log-debug("Processing element %s", name);
   let name = get-attr(node, #"name");
   if (name)
     if ($virtual-hosts[name])
@@ -179,7 +174,6 @@ end;
 // logging first in a general way.
 define method process-config-element
     (node :: xml$<element>, name == #"default-virtual-host")
-  log-debug("Processing element %s", name);
   bind (attr = get-attr(node, #"enabled"))
     when (attr)
       *fall-back-to-default-virtual-host?* := true-value?(attr)
@@ -204,20 +198,18 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"port")
-  log-debug("Processing element %s", name);
   let attr = get-attr(node, #"value");
   if (attr)
     block ()
       let port = string-to-integer(attr);
       if (port & positive?(port))
         vhost-port(active-vhost()) := port;
-        log-info("Port for virtual host '%s' is %d", vhost-name(active-vhost()), port);
+        log-info("VHost '%s': port = %d", vhost-name(active-vhost()), port);
       else
         error("jump to the exception clause :-)");
       end;
     exception (<error>)
-      warn("Invalid port specified for virtual host '%s': %=",
-           vhost-name(active-vhost()), attr);
+      warn("VHost '%s': Invalid port %=", vhost-name(active-vhost()), attr);
     end;
   else
     warn("Invalid <PORT> spec.  The 'value' attribute must be specified.");
@@ -226,7 +218,6 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"auto-register")
-  log-debug("Processing element %s", name);
   bind (attr = get-attr(node, #"enabled"))
     iff(attr,
         auto-register-pages?(active-vhost()) := true-value?(attr),
@@ -237,7 +228,6 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"server-root")
-  log-debug("Processing element %s", name);
   // Note use of %vhost directly rather than active-vhost() here.
   // Don't want to blow out while setting *server-root* just because
   // the config doesn't allow fallback to the default vhost.
@@ -245,6 +235,7 @@ define method process-config-element
     let loc = get-attr(node, #"location");
     if (loc)
       init-server-root(location: loc);
+      log-info("Server root set to %s", loc);
     else
       warn("Invalid <SERVER-ROOT> spec.  "
            "The 'location' attribute must be specified.");
@@ -259,13 +250,12 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"document-root")
-  log-debug("Processing element %s", name);
   bind (loc = get-attr(node, #"location"))
     if(loc)
       let vhost = active-vhost();
       document-root(vhost)
         := merge-locators(as(<directory-locator>, loc), *server-root*);
-      log-info("setting document root for virtual host '%s' to %s.",
+      log-info("VHost '%s': document root = %s.",
                vhost-name(vhost), document-root(vhost));
     else
       warn("Invalid <DOCUMENT-ROOT> spec.  "
@@ -276,51 +266,70 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"log")
-  log-debug("Processing element %s", name);
-  let level = get-attr(node, #"level");
-  bind (clear = get-attr(node, #"clear"))
-    // "clear" doesn't really make sense anymore since log levels
-    // are a simple linear hierarchy, but that could change...
-    //  --cgay 2005-05-29
-    when (clear & true-value?(clear))
-      clear-log-levels();
-    end;
-  end;
-  if (~level)
-    warn("Invalid <LOG> spec.  "
-           "The 'level' attribute must be specified.");
+  let type = get-attr(node, #"type");
+  if (~type)
+    warn("<LOG> element missing 'type' attribute.");
+  elseif (~member?(type, #("debug", "activity", "error"),
+                   test: string-equal?))
+    warn("Log type %= not recognized.  Should be 'debug', 'activity', "
+         "or 'error'.", type);
   else
-    let unrecognized = #f;
-    let class = select (level by string-equal?)
-                  "copious" => <log-copious>;
-                  "verbose" => <log-verbose>;
-                  "debug"   => <log-debug>;
-                  "info"    => <log-info>;
-                  "warning", "warnings" => <log-warning>;
-                  "error", "errors" => <log-error>;
-                  otherwise =>
-                    begin
-                      unrecognized := #t;
-                      <log-info>;
-                    end;
-                end;
-    add-log-level(class);
-    if (unrecognized)
-      warn("Unrecognized log level: %=", level);
+    let location = get-attr(node, #"location");
+    let max-size = get-attr(node, #"max-size");
+    block ()
+      max-size := string-to-integer(max-size);
+    exception (e :: <error>)
+      warn("<LOG> element has invalid max-size attribute (%s).  "
+           "The default (%d) will be used.", max-size);
     end;
-    log-info("Added log level %=", level);
-  end;
-end;
+    let log = iff(location,
+                  make(<rolling-file-log-target>,
+                       file: merge-locators(as(<file-locator>, location),
+                                            *server-root*),
+                       max-size: max-size | 20000000),
+                  make(<stream-log-target>,
+                       stream: iff(string-equal?(type, "error"),
+                                   *standard-error*,
+                                   *standard-output*)));
+
+    select (type by string-equal?)
+      "error", "errors"
+        => %error-log-target(active-vhost()) := log;
+      "activity"
+        => %activity-log-target(active-vhost()) := log;
+      "debug"
+        => %debug-log-target(active-vhost()) := log;
+           let level = get-attr(node, #"level") | "info";
+           let unrecognized = #f;
+           let class = select (level by string-equal?)
+                         "copious" => <log-copious>;
+                         "verbose" => <log-verbose>;
+                         "debug"   => <log-debug>;
+                         "info"    => <log-info>;
+                         "warning", "warnings" => <log-warning>;
+                         "error", "errors" => <log-error>;
+                         otherwise =>
+                           begin
+                             unrecognized := #t;
+                             <log-info>;
+                           end;
+                         end;
+           log-level(log) := make(class);
+           if (unrecognized)
+             warn("Unrecognized log level: %=", level);
+           end;
+           log-info("Added log level %=", level);
+    end select;
+  end if;
+end method process-config-element;
 
 define method process-config-element
     (node :: xml$<element>, name == #"administrator")
-  log-debug("Processing element %s", name);
   // ---TODO
 end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"xml-rpc")
-  log-debug("Processing element %s", name);
   let enable? = get-attr(node, #"enable");
   if (enable? & true-value?(enable?))
     bind (url = get-attr(node, #"url"))
@@ -353,31 +362,12 @@ end;
 
 define method process-config-element
     (node :: xml$<element>, name == #"module")
-  log-debug("Processing element %s", name);
   bind (name = get-attr(node, #"name"))
     if (name)
       load-module(name);
     end;
   end;
 end;
-
-define method process-config-element
-    (node :: xml$<element>, name == #"logfile")
-  log-debug("Processing element %s", name);
-  let name = get-attr(node, #"location");
-  let logfile-loc = as(<string>,
-                       merge-locators(as(<file-locator>,
-                                         format-to-string("%s/%s",
-                                                          $koala-config-dir,
-                                                          name)),
-                                      *server-root*));
-  *logfile* := logfile-loc;
-  let type = get-attr(node, #"type");
-  if (type & as(<string>, type) = "extended")
-    *logfile-type* := #"extended";
-  end if;
-  log-info("Set logfile to %s", logfile-loc);
-end method;
 
 define class <mime-type> (xml$<printing>)
 end class <mime-type>;
@@ -386,7 +376,6 @@ define constant $mime-type = make(<mime-type>);
 
 define method process-config-element
     (node :: xml$<element>, name == #"mime-type-map")
-  log-debug("Processing element %s", name);
   let filename = get-attr(node, #"location");
   let mime-type-loc = as(<string>,
                          merge-locators(as(<file-locator>,
@@ -398,7 +387,10 @@ define method process-config-element
     if (mime-text)
       let mime-xml :: xml$<document> = xml$parse-document(mime-text);
       log-info("Loading mime-type map from %s.", mime-type-loc);
-      xml$transform-document(mime-xml, state: $mime-type, stream: *standard-output*);
+      log-info("%s",
+               with-output-to-string (stream)
+                 xml$transform-document(mime-xml, state: $mime-type, stream: stream);
+               end);
     else
       warn("mime-type map %s not found", mime-type-loc);
     end if;
@@ -424,7 +416,6 @@ end method xml$transform;
 // />
 define method process-config-element
     (node :: xml$<element>, name == #"directory")
-  log-debug("Processing element %s", name);
   let pattern = get-attr(node, #"pattern");
   if (~pattern)
     warn("Invalid <DIRECTORY> spec.  "

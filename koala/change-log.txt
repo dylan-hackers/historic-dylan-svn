@@ -6,6 +6,9 @@
 Changes for version 0.4 (coming soon)
 
   New Features:
+  - Core: Logging is now done per-vhost, with separate log targets for
+    errors, activity, and debugging.  Logs may be directed to files and
+    the log files will be rolled when they reach a certain size. (cgay)
   - DSP: Added a persistence layer which makes it easy to map database objects to
     web pages for editing/saving. (cgay)
   - Other: Added a simple proof-of-concept DSP application (a bug tracker).

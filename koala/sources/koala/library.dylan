@@ -7,11 +7,15 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 define library koala
-  use functional-dylan, import: { dylan-extensions };
+  use functional-dylan,
+    import: { dylan-extensions };
   use common-dylan;
-  use io;
-  use network;
-  use system;
+  use io,
+    import: { format, standard-io, streams };
+  use network,
+    import: { sockets };
+  use system,
+    import: { date, file-system, locators, operating-system, threads };
   //use ssl-sockets;  // until integrated into FD?
   use xml-parser;
   use xml-rpc-common;
@@ -111,18 +115,15 @@ define module utilities
     string->integer,
 
     // Logging
-    with-log-output-to,
     <log-level>,
-    <log-error>, log-error,
-    <log-warning>, log-warning,
-    <log-info>, log-info,
-    <log-debug>, log-debug, log-debug-if,
-    <log-verbose>, log-verbose,
-    <log-copious>, log-copious,
-    log-message,
+    <log-target>, <null-log-target>, <stream-log-target>, <file-log-target>,
+    <rolling-file-log-target>,
+    <log-error>, <log-warning>, <log-info>, <log-debug>, <log-verbose>, <log-copious>,
+    log-error, log-warning, log-info, log-debug, log-debug-if, log-verbose, log-copious,
+    log, log-raw,
     log-date,
-    add-log-level, remove-log-level, clear-log-levels,
-    as-common-logfile-date, as-rfc-1123-date, log-logfile;
+    log-level, log-level-setter,
+    as-common-logfile-date, as-rfc-1123-date;
     
 end module utilities;
     
@@ -181,6 +182,11 @@ define module koala
     //remove-attribute,
     set-session-max-age;
 
+  // Logging
+  create
+    // These are wrappers for the defs by the same name in the utilities module.
+    log-copious, log-verbose, log-debug, log-info, log-warning, log-error;
+
   // XML-RPC
   create
     register-xml-rpc-method;
@@ -219,7 +225,13 @@ define module httpi                             // http internals
   use threads;               // from dylan lib
   use common-extensions, exclude: { format-to-string, split };
   use dylan-basics;
-  use utilities;
+  use utilities,
+    rename: { log-copious => %log-copious,
+              log-verbose => %log-verbose,
+              log-debug => %log-debug,
+              log-info => %log-info,
+              log-warning => %log-warning,
+              log-error => %log-error };
   use koala;
   use koala-extender;
 
@@ -237,7 +249,6 @@ define module httpi                             // http internals
               // case-insensitive-string-hash
               };
   use format;
-  use format-out;
   use standard-io;
   use streams;
   use sockets,
@@ -257,14 +268,20 @@ define module dsp
   use common-extensions, exclude: { split };
   use dylan-basics;
   use koala, export: all;
-  use utilities, export: all;
+  use utilities,
+    rename: { log-copious => %log-copious,
+              log-verbose => %log-verbose,
+              log-debug => %log-debug,
+              log-info => %log-info,
+              log-warning => %log-warning,
+              log-error => %log-error },
+    export: all;
 
   use locators, rename: {<http-server> => <http-server-url>,
                          <ftp-server> => <ftp-server-url>,
                          <file-server> => <file-server-url>};
   use format, rename: { format-to-string => sformat };
   use threads;
-  use format-out;
   use standard-io;
   use streams;
   //use sockets, rename: { start-server => start-socket-server };

@@ -523,68 +523,66 @@ define thread variable *request-query-values* :: <string-table>
 // Called (in a new thread) each time an HTTP request is received.
 define function handler-top-level
     (client :: <client>)
-  with-log-output-to (*standard-error*)
-    dynamic-bind (*request* = #f)
-      block (exit-request-handler)
-        while (#t)                      // keep alive loop
-          let request :: <basic-request>
-            = make(client.client-server.request-class, client: client);
-          *request* := request;
-          with-simple-restart("Skip this request and continue with the next")
-            block (exit-inner)
-              let handler <error>
-                = method (c :: <error>, next-handler :: <function>)
-                    if (*debugging-server*)
-                      next-handler();  // decline to handle the error
-                    else
-                      send-error-response(request, c);
-                      exit-inner();
-                    end;
-                  end;
-              let handler <stream-error>
-                = method (c :: <error>, next-handler :: <function>)
-                    if (*debugging-server*)
-                      next-handler();  // decline to handle the error
-                    else
-                      log-error("A stream error occurred. %=", c);
-                      exit-inner();
-                    end;
-                  end;
-                    
-              with-resource (query-values = <string-table>)
-                block ()
-                  block ()
-                    request.request-query-values := query-values;
-                    read-request(request);
-                    dynamic-bind (*request-query-values* = query-values,
-                                  *virtual-host* = virtual-host(request))
-                      log-debug("Virtual host for request is '%s'", 
-                                vhost-name(*virtual-host*));
-                      invoke-handler(request);
-                    end;
-                    force-output(request.request-socket);
-                  exception (c :: <http-error>)
-                    // Always handle HTTP errors, even when debugging...
+  dynamic-bind (*request* = #f)
+    block (exit-request-handler)
+      while (#t)                      // keep alive loop
+        let request :: <basic-request>
+          = make(client.client-server.request-class, client: client);
+        *request* := request;
+        with-simple-restart("Skip this request and continue with the next")
+          block (exit-inner)
+            let handler <error>
+              = method (c :: <error>, next-handler :: <function>)
+                  if (*debugging-server*)
+                    next-handler();  // decline to handle the error
+                  else
                     send-error-response(request, c);
                     exit-inner();
                   end;
-                cleanup
-                  request.request-query-values := #f;
-                  deallocate-resource(<string-table>, query-values);
-                exception (c :: <socket-condition>)
-                  // Always exit the request handler when a socket error occurs...
-                  log-debug("A socket error occurred: %s",
-                            condition-to-string(c));
-                  exit-request-handler();
                 end;
-              end with-resource;
-            end block;
-            request.request-keep-alive? | exit-request-handler();
-          end with-simple-restart;
-        end while;
-      end block;
-    end dynamic-bind;
-  end with-log-output-to;
+            let handler <stream-error>
+              = method (c :: <error>, next-handler :: <function>)
+                  if (*debugging-server*)
+                    next-handler();  // decline to handle the error
+                  else
+                    log-error("A stream error occurred. %=", c);
+                    exit-inner();
+                  end;
+                end;
+                  
+            with-resource (query-values = <string-table>)
+              block ()
+                block ()
+                  request.request-query-values := query-values;
+                  read-request(request);
+                  dynamic-bind (*request-query-values* = query-values,
+                                *virtual-host* = virtual-host(request))
+                    log-debug("Virtual host for request is '%s'", 
+                              vhost-name(*virtual-host*));
+                    invoke-handler(request);
+                  end;
+                  force-output(request.request-socket);
+                exception (c :: <http-error>)
+                  // Always handle HTTP errors, even when debugging...
+                  send-error-response(request, c);
+                  exit-inner();
+                end;
+              cleanup
+                request.request-query-values := #f;
+                deallocate-resource(<string-table>, query-values);
+              exception (c :: <socket-condition>)
+                // Always exit the request handler when a socket error occurs...
+                log-debug("A socket error occurred: %s",
+                          condition-to-string(c));
+                exit-request-handler();
+              end;
+            end with-resource;
+          end block;
+          request.request-keep-alive? | exit-request-handler();
+        end with-simple-restart;
+      end while;
+    end block;
+  end dynamic-bind;
 end handler-top-level;
 
 // This method takes care of parsing the request headers and signalling any

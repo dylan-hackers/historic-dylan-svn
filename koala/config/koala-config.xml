@@ -24,15 +24,30 @@
   -->
 
 
-<!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
-     any virtual host will fall back to the default vhost instead.  The
-     default is enabled.
+<!-- If DEBUG-SERVER is on then Koala will not try to gracefully handle errors
+     thrown during the execution of a server request.  Only turn this on when
+     running inside a development environment, or the server will crash.  This
+     should also be near the beginning of the log file if you want to debug
+     config file loading.
   -->
-<default-virtual-host enabled="yes"/>
+<debug-server value="on" />
 
 
-<!-- LOG tells Koala what kind of log messages to display.  There are six
-     possible settings, from least verbose to most verbose:
+<!-- There are three kinds of log file: debug, activity, and error.
+     Debug and error should be obvious.  The activity log is for logging
+     information useful for gathering statistics such as what URLs are
+     requested, what response code was returned, bytes sent, etc.
+
+     All three types of log accept the following attributes:
+
+       location - A filename relative to the server root directory.
+                  If not specified, stderr will be used for the error
+                  log and stdout will be used for everything else.
+       max-size - The maximum size in bytes before the log is rotated.
+       
+     The 'debug' log type additionally accepts the 'level' attribute,
+     which determines what types of log messages to display.  There are
+     six possible settings, from least verbose to most verbose:
 
        error warning info debug verbose copious
 
@@ -43,16 +58,16 @@
      so debugging statements emitted during config file parsing can be
      displayed.
   -->
-<log level="debug" />
-
-
-<!-- If DEBUG-SERVER is on then Koala will not try to gracefully handle errors
-     thrown during the execution of a server request.  Only turn this on when
-     running inside a development environment, or the server will crash.  This
-     should also be near the beginning of the log file if you want to debug
-     config file loading.
-  -->
-<debug-server value="on" />
+<log type="debug"
+     location="debug.log"
+     level="debug"
+     max-size="20000000" />
+<log type="activity"
+     location="activity.log"
+     max-size="20000000" />
+<log type="error"
+     location="error.log"
+     max-size="20000000" />
 
 
 <!-- SERVER-ROOT is the top of the directory tree under which the
@@ -74,14 +89,22 @@
 <document-root location="www" />
 
 
-<!-- DIRECTORY elements can be used to grant or deny access to specific directories.
-     For now the pattern is simply an initial-substring match against the requested
-     URL, so "/" matches all documents.  The order of DIRECTORY elements is significant.
-     If two directory patterns match the same URL, the one specified later in the
-     config file will take precedence.  For now allow-directory-listing is the only
-     recognized attribute (defaulting to "no").  -->
+<!-- DIRECTORY elements can be used to grant or deny access to specific
+     directories.  For now the pattern is simply an initial-substring
+     match against the requested URL, so "/" matches all documents.  The
+     order of DIRECTORY elements is significant.  If two directory
+     patterns match the same URL, the one specified later in the config
+     file will take precedence.  For now allow-directory-listing is the
+     only recognized attribute (defaulting to "no").  -->
 <directory pattern = "/"
            allow-directory-listing = "yes" />
+
+
+<!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
+     any virtual host will fall back to the default vhost instead.  The
+     default is enabled="yes".
+  -->
+<default-virtual-host enabled="yes"/>
 
 
 <!-- Port on which to listen for HTTP requests.  Note that at top-level,
@@ -93,10 +116,6 @@
 <!-- location of the mime-type file -->
 <mime-type-map location="mime-type-map.xml" />
 
-
-<!-- location and name of logfile -->
-<logfile location="koala.log" />
-  
 
 <!-- unused as yet -->
 <administrator

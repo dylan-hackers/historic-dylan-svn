@@ -2,6 +2,7 @@ comment:	This file is generated, please don't edit
 format-version:	2
 library:	koala
 files:	library
+	log
 	utils
 	resources
 	variables
@@ -10,7 +11,6 @@ files:	library
 	avalue
 	string-utils
 	errors
-	log
 	header-values
 	headers
 	urls
