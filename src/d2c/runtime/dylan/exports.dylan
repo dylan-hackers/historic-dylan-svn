@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10 2000/05/09 20:04:42 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10.4.4 2000/07/01 23:35:19 emk Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -260,8 +260,10 @@ define module magic
 	     catch,
 	     check-types,
 	     class-all-slot-descriptors,
+	     class-bucket,
 	     class-maker-setter,
 	     class-new-slot-descriptors,
+	     class-row,
 	     closure-var,
 	     closure-var-setter,
 	     \define-constant,
@@ -278,9 +280,12 @@ define module magic
 	     gf-call,
 	     heap-rep-getter,
 	     heap-rep-setter,
+	     <limited-object-table>,
+	     <limited-simple-vector>,
 	     make-catcher,
 	     make-closure,
 	     make-exit-function,
+	     make-limited-collection,
 	     make-rest-arg,
 	     maybe-do-defered-evaluations,
 	     missing-required-init-keyword-error,
@@ -295,6 +300,11 @@ define module magic
 	     pop-unwind-protect,
 	     push-handler,
 	     push-unwind-protect,
+             <simple-integer-vector>,
+	     <simple-schar-vector>,
+	     <simple-sshort-vector>,
+	     <simple-uchar-vector>,
+	     <simple-ushort-vector>,
 	     slot-init-function,
 	     slot-init-function-setter,
 	     slot-init-value,

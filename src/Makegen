@@ -25,7 +25,7 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/Makegen,v 1.10 2000/01/24 04:54:14 andreas Exp $
+##  $Header: /scm/cvs/src/Makegen,v 1.10.4.1 2001/03/17 01:16:03 bruce Exp $
 ##
 ##  This is the makegen file for the entire Dylan tree.
 ##
@@ -98,6 +98,10 @@ else {
 }    
 
 push(@install_dependencies, "installdirs");
+
+push(@uninstall_commands, "rm -rf ${DESTDIR}$libdir/elisp");
+push(@uninstall_commands, "rm -rf ${DESTDIR}$libdir");
+push(@uninstall_commands, "rm -rf ${DESTDIR}$sitelibdir");
     
 if ($features{'compiled_for_unix'}) {
     print <<"EOF"

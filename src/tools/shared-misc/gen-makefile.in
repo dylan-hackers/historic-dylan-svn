@@ -1,7 +1,7 @@
 #!@PERL@
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.11 2000/01/22 02:25:03 andreas Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.11.4.1 2001/03/17 01:16:03 bruce Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -359,7 +359,7 @@ sub do_Makegen_file {
     print "BUILDDIR=$builddir\n";
     print "DESTDIR=\n"; # GNU DESTDIR, not the $destdir variable.
     if ($host_platform{'make_supports_phony_targets?'}) {
-	print "\n.PHONY: default compile install clean\n\n";
+	print "\n.PHONY: default compile install uninstall clean\n\n";
     }
     print "default: compile\n\n";
 
@@ -379,6 +379,7 @@ sub do_Makegen_file {
 
     &emit_rule('compile');
     $destdir && do emit_rule ('install');
+    $destdir && do emit_rule ('uninstall');
     &emit_rule('clean');
     if ($host_platform{'makefiles_can_rebuild_themselves?'}) {
 	print $makefile, ': ', join(' ', eval('@GNUmakefile_dependencies'));
@@ -469,6 +470,9 @@ sub compile_subdir {
     push(@install_commands, 
 	 sprintf($host_platform{'recursive_make_command'}, 
 		 $subdir, "install"));
+    unshift(@uninstall_commands, 
+	 sprintf($host_platform{'recursive_make_command'}, 
+		 $subdir, "uninstall"));
     push(@clean_commands, 
 	 sprintf($host_platform{'recursive_make_command'}, 
 		 $subdir, "clean"));
@@ -1030,6 +1034,7 @@ sub install_one_file {
 	    . "to install your files.");
     }
     push(@install_dependencies, $to_file);
+    push(@uninstall_commands, "rm -f $to_file");
 }
 
 # install($dest_dir, @files) -- exported

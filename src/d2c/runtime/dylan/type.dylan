@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/type.dylan,v 1.4 2000/02/11 00:30:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/type.dylan,v 1.4.4.2 2000/06/24 16:28:54 emk Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -481,7 +481,7 @@ end method restrict-limited-ints;
 // restricted size and/or element type.
 //
 define class <limited-collection> (<limited-type>)
-  constant slot limited-element-type :: false-or(<type>) = #f,
+  constant slot limited-element-type :: <type> = #f,
     init-keyword: #"of";
   constant slot limited-size-restriction :: false-or(<integer>) = #f,
     init-keyword: #"size";
@@ -543,53 +543,58 @@ define method element-type (type :: <collection>)
 end method element-type;
 
 define sealed inline method limited
-    (class == <collection>, #key of, size) => (result :: <type>);
+    (class == <collection>, #key of = <object>, size) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <explicit-key-collection>, #key of, size) => (result :: <type>);
-  make(<limited-collection>, base-class: class, of: of, size: size);
-end method limited;
-
-define sealed inline method limited
-    (class == <mutable-collection>, #key of, size) => (result :: <type>);
-  make(<limited-collection>, base-class: class, of: of, size: size);
-end method limited;
-
-define sealed inline method limited
-    (class == <stretchy-collection>, #key of, size) => (result :: <type>);
-  make(<limited-collection>, base-class: class, of: of, size: size);
-end method limited;
-
-define sealed inline method limited
-    (class == <mutable-explicit-key-collection>, #key of, size)
+    (class == <explicit-key-collection>, #key of = <object>, size)
  => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <sequence>, #key of, size) => (result :: <type>);
+    (class == <mutable-collection>, #key of = <object>, size)
+ => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <mutable-sequence>, #key of, size) => (result :: <type>);
+    (class == <stretchy-collection>, #key of = <object>, size)
+ => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <table>, #key of) => (result :: <type>);
+    (class == <mutable-explicit-key-collection>, #key of = <object>, size)
+ => (result :: <type>);
+  make(<limited-collection>, base-class: class, of: of, size: size);
+end method limited;
+
+define sealed inline method limited
+    (class == <sequence>, #key of = <object>, size) => (result :: <type>);
+  make(<limited-collection>, base-class: class, of: of, size: size);
+end method limited;
+
+define sealed inline method limited
+    (class == <mutable-sequence>, #key of = <object>, size)
+ => (result :: <type>);
+  make(<limited-collection>, base-class: class, of: of, size: size);
+end method limited;
+
+define sealed inline method limited
+    (class == <table>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
 define sealed inline method limited
-    (class == <object-table>, #key of) => (result :: <type>);
+    (class == <object-table>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
 define sealed inline method limited
-    (class == <array>, #key of, size, dimensions) => (result :: <type>);
+    (class == <array>, #key of = <object>, size, dimensions)
+ => (result :: <type>);
   if (size & dimensions)
     error("limited(<array>, ...) can't specify both size and dimensions");
   end if;
@@ -598,22 +603,22 @@ define sealed inline method limited
 end method limited;
 
 define sealed inline method limited
-    (class == <vector>, #key of, size) => (result :: <type>);
+    (class == <vector>, #key of = <object>, size) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <simple-vector>, #key of, size) => (result :: <type>);
+    (class == <simple-vector>, #key of = <object>, size) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <stretchy-vector>, #key of) => (result :: <type>);
+    (class == <stretchy-vector>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
 define sealed inline method limited
-    (class == <deque>, #key of) => (result :: <type>);
+    (class == <deque>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
@@ -624,7 +629,7 @@ define sealed inline method limited
 end method limited;
 
 define sealed inline method limited
-    (class == <range>, #key of) => (result :: <type>);
+    (class == <range>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
@@ -751,8 +756,15 @@ end;
 //
 // An object is an instance of a class when the object's class is a subtype?
 // of the class.
+//
+// When the compiler decides to do a runtime type-check, it inserts a call
+// to %check-type. After much munging, a certain percentage of those calls
+// turn into calls to this method. So this is very a critical code path.
+//
+// But if '-o inline-instance-checks' has been turned on, the compiler will
+// try to use an inline version of this method. You have been warned.
 // 
-define method %instance? (object :: <object>, class :: <class>)
+define inline method %instance? (object :: <object>, class :: <class>)
     => res :: <boolean>;
   %subtype?(object.object-class, class);
 end;
@@ -878,8 +890,7 @@ define method %instance?
  => (res :: <boolean>);
   block (return)
     unless (instance?(object, type.limited-integer-base-class)) return(#f) end unless;
-    unless ((type.limited-element-type == #f)
-	      | object.element-type = type.limited-element-type)
+    unless (object.element-type = type.limited-element-type)
       return(#f);
     end unless;
     if (type.limited-size-restriction)
@@ -1049,31 +1060,32 @@ end method %subtype?;
 //
 // Class1 is a subtype of class2 when class2 is listed in class1's
 // all-superclasses.  For effeciency, pick off the case where the two
-// classes are == and we cache the result of the last lookup.
+// classes are ==.
+//
+// This is speed-critical code--if we're not using inline instance checks
+// for open classes, this gets executed for every dynamic type check.
+//
+// We're doing "packed encoding" type checks, as described by Vitek, et al.
+// This would be a *great* algorithm if we tweaked it a bit, followed all
+// the recommendations in the paper, and generated inline assembly code.
+// As it is, we're calling a Dylan function to do type checks, which is
+// extremely suboptimal.
+//
+// We call %element because we know that we don't need to do any bounds
+// checking on class-row. We call the fixnum-= to avoid doing a generic
+// function dispatch on \==.
+//
+// The compiler still inserts bogus typechecks for the arguments to
+// fixnum-=. These slow us down by a few instructions, but they don't cause
+// any recursion, because <integer> has no subclass, and the compiler
+// generates an inline typecheck.
 //
 define method %subtype? (class1 :: <class>, class2 :: <class>)
     => res :: <boolean>;
-/* This is the old implementation.
-  // This could be recoded simply as member(class2, class1.superclasses), but
-  // that would marginally slower, and this is in the critical path.
-  if (class1 == class2)
-    #t;
-  else
-    let superclasses = class1.all-superclasses;
-    block (return)
-      for (index :: <integer> from 1 below superclasses.size)
-	// We skip element 0 because it's the same as class1.
-	if (%element(superclasses, index) == class2)
-	  return(#t);
-	end if;
-      finally
-	#f;
-      end for;
-    end block;
-  end if; */
-  // the new code 
   class1 == class2 |
-    class1.class-row[class2.class-bucket] == class2.class-row[class2.class-bucket]; 
+    %%primitive(fixnum-=,
+		%element(class1.class-row, class2.class-bucket),
+		%element(class2.class-row, class2.class-bucket));
 end method %subtype?;
 
 // %subtype?(<direct-instance>,<type>) -- internal gf method.
