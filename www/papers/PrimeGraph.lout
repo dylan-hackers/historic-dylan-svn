@@ -1,0 +1,494 @@
+@SysInclude { report }
+#@SysInclude { fig }
+@SysInclude { diag }
+#@SysInclude { graph }
+#@SysInclude { eq }
+
+
+@Report
+@DateLine { Yes }
+@Title {
+Graphs and Number Theory
+}
+@Author { Gabor Greif }
+@AbstractDisplay { Yes }
+# @AbstractFormat { @Centre @Title @DP @Body }
+@Abstract {
+
+Our aim is to establish a novel form of encoding graphs -- as
+a sequence of integers. We represent vertices as numbers and
+extract the edges by examining the divisibility relation
+on them. We state the properties of this encoding.
+Straightforward conversion from the canonical to the new
+form are provided and we make our feet wet by showing some
+reformulations of classical graph-algorithmic functions.
+}
+//
+
+##################################
+##################################
+##################################
+@Section
+@Title { Structure of the paper }
+@Begin
+@PP
+#We shall introduce the reader to class hierarchies and to the basic mathematical
+#framework in the first section before we make an attempt to assign characteristic
+#numbers to classes. In the third section we shall derive the dispatch algorithm
+#based on the characteristic numbers and discuss its properties. The next section
+#compares our approach to well established current techniques. Section five shows
+#up possible future directions and summarizes open problems. Section six concludes.
+@End @Section
+
+##################################
+##################################
+##################################
+@Section
+@Title { Introduction }
+@Begin
+@PP
+We start out by introducing the canonical representation of directed graphs
+as a datatype in the Haskell language. Then we provide small programs that build
+graphs of increasing complexity.
+
+#################
+@BeginSubSections
+
+###########
+@SubSection
+@Title { The Vertex Datatype }
+@Begin
+@LP
+@F {
+> data Vertex a = Node (a, [Vertex a])
+}
+@PP
+A @F Vertex is a Node pairing a value of an arbitrary type @F a
+(which we call the @I (payload datatype) and a list of
+outgoing edges to connected vertices. This definition gives us the notion
+of a @I directed graph. To model undirected graphs we would need to assert that
+a directed edge vertex A --> vertex B always is paired with a corresponding
+edge vertex B --> vertex A. We restrict ourselves to to graphs where there is
+always at most one outgoing edge form a vertex to another, effectively disabling
+doubled edges between vertices. This, however is not a principal restriction:
+by introducing @I {administrative vertices} placed on the doubled edges these
+could be made tractable by the @F Vertex datatype.
+Although we did not mention it in the datatype definition, we quietly assume
+that the payload datatype of @F Vertex is comparably for identity, our following
+algorithms rely on this in order to detect already visited vertices. Also,
+we assert that no two vertices of a graph have the same payload value when
+compared for identity.
+@End @SubSection
+
+###########
+@SubSection
+@Title { The Graph Datatype }
+@Begin
+@LP
+@F {
+> type Graph a = [Vertex a]
+}
+@PP
+A @F graph is just a list of the simply connected graph components. We assert
+that there exist no edge between any two vertices coming from distinct elements
+of the graph list.
+@End @SubSection
+
+###########
+@SubSection
+@Title { Constructing Graphs }
+@Begin
+@PP
+The Haskell language allows us to specify circular data structures with ease.
+But first we build a degenerated graph -- a tree as an exercise, proceeding to
+more demanding ones later.
+
+#===================
+@BeginSubSubSections
+
+#=============
+@SubSubSection
+@Title { A Tree }
+@Begin
+@PP
+@I [fancy picture here]
+@LP
+@F {
+> ex1 = [a] where
+@LLP
+>"        "a = Node ('A', [b, c])
+@LLP
+>"        "b = Node ('B', [])
+@LLP
+>"        "c = Node ('C', [d])
+@LLP
+>"        "d = Node ('D', [])
+
+}
+@PP
+This graph is called a tree because it has no cycles.
+@End @SubSubSection
+
+#=============
+@SubSubSection
+@Title { A Cyclic Unidirectional Graph }
+@Begin
+@PP
+@I [fancy picture here]
+@LP
+@F {
+> ex2 = [a] where
+@LLP
+>"        "a = Node ('A', [b, c])
+@LLP
+>"        "b = Node ('B', [c])
+@LLP
+>"        "c = Node ('C', [d])
+@LLP
+>"        "d = Node ('D', [a])
+}
+@PP
+This graph has a cycle A --> C --> D --> A.
+@End @SubSubSection
+
+#=============
+@SubSubSection
+@Title { A Cyclic Undirected Graph }
+@Begin
+@PP
+@I [fancy picture here]
+@LP
+@F {
+> ex3 = [a] where TODO!
+@LLP
+>"        "a = Node ('A', [b, c])
+@LLP
+>"        "b = Node ('B', [a, c])
+@LLP
+>"        "c = Node ('C', [a, b, d])
+@LLP
+>"        "d = Node ('D', [a, c])
+}
+@PP
+This graph is by our convention not directed, because for every edge there
+is another in the opposite direction. In the Haskell definition of the graph
+we see this fact by observing that the egde list of each vertex mentions each
+connected neighbor.
+@End @SubSubSection
+
+#=============
+@SubSubSection
+@Title { A Graph with Short Cycles }
+@Begin
+@PP
+@I [fancy picture here]
+@LP
+@F {
+> ex4 = [a] where
+@LLP
+>"        "a = Node ('A', [b, c])
+@LLP
+>"        "b = Node ('B', [b, c])
+@LLP
+>"        "c = Node ('C', [d])
+@LLP
+>"        "d = Node ('D', [a, d])
+}
+@PP
+This graph has short cycles: B --> B and D --> D.
+@End @SubSubSection
+
+@EndSubSubSections
+
+@End @SubSection
+
+@SubSection
+@Title { Divisibility }
+@Begin
+@PP
+@End @SubSection
+
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { The New Form }
+@Begin
+@PP
+We will make our first step towards the final formulation by switching
+from @F Char to @F Integer as the payload datatype of our example graphs
+from the introduction. As we apply our transformation we will encounter
+some problems that need to be tackled in isolation.
+
+#################
+@BeginSubSections
+
+###########
+@SubSection
+@Title { The Transformation }
+@Begin
+@PP
+Our aim is to exchange the payload values of graphs with integers that have
+certain well-defined properties. We start out with prime numbers.
+@LP
+@F {
+> primes [todo]
+}
+@PP
+The @F transform is expected to receive a graph and a list of primes and to return
+the transformed graph.
+@LP
+@F {
+> transform :: Graph a -> [Integer] -> Graph Integer
+@LLP
+> @I [todo]
+}
+@PP
+Applying @F transform on @F ex1 we get
+@I [fancy picture here]
+
+For @F ex1 we can also make use of the derived @F Show class provided by Haskell
+to output both the original and the transformed graph textually:
+
+@PP
+@I [Haskell (derived datatype Show) output here]
+@PP
+
+We observe that the same prime number is assigned to two vertices, violating
+our assertion of the unique payloads. The reason for this is that the same
+list of primes is provided to both vertices B and C when the transformation
+ascends to them.
+So we modify @F transform to also return the list of unused primes as a result:
+
+@LP
+@F {
+> transform' :: Graph a -> [Integer] -> (Graph Integer, [Integer])
+@LLP
+> @I [todo]
+}
+@PP
+
+We are now satisfied with the result:
+@PP
+@I [fancy picture here]
+@PP
+But when printing the result in Haskell we have to be careful not to
+print all primes, so we only take ten of them:
+@PP
+@I [Haskell output here, take 10]
+@PP
+
+When trying @F transform on example two, we get into trouble:
+
+@LP
+@F {
+> transform' ex2
+}
+@PP
+@I [Haskell output here (take 10), infinite recursion]
+@PP
+
+The reason for nontermination is the cycle in @F ex2 leading to an inifinite
+attempt to visit and transform node {@F A}. To avoid unterminated recursion,
+we have to carry around a list of already visited vertices along with their
+transformation result:
+@LP
+@F {
+> transform'' :: Graph a -> [Integer] -> [(a, Vertex Integer)] -> (Graph Integer, [Integer])
+@LLP
+> @I [todo]
+}
+@PP
+We associate old payloads with new vertices for simplicity reasons, otherwise we
+would need to make vertices indentity comparable.
+
+@End @SubSection
+
+###########
+@SubSection
+@Title { The Complication }
+@Begin
+@PP
+We now managed to create transformed graphs with distinct prime numbers as the payloads
+of vertices. But we are still far from our goal, the elimination of if the second
+component of the @F Vertex node. We need a means of encoding the edges as {@F Integer}s,
+effectively converting the edges into the payload of the pointed-to vertices.
+@PP
+Not surprisingly we do this by resorting to multiplication. We @I carry the payload
+from the vertex at the start of the edge into the payload of the successor vertex of
+the edge.
+@PP
+@I [fancy picture here A(2) ---x2---> B(3->6)]
+@PP
+Lets make a first attempt:
+@LP
+@F {
+> carry :: Integer -> Integer -> Integer
+@LLP
+> carry from into = from * into
+@LLP
+>
+@LLP
+> transform''' :: Graph a -> [Integer] -> [(a, Vertex Integer)] -> (Graph Integer, [Integer])
+@LLP
+> @I [todo, first run transform'' then do the carrying with a == Integer  --- NONONO keep a]
+@LLP
+> @I [todo, carry, strip edge]
+}
+@PP
+We can visualize the result:
+@PP
+@I [fancy picture here]
+@PP
+Unfortunately we see an exponential increase of the payload with carrying vertex A's
+via several edges. This not only a bad sign for the magnitude of the integers, but also
+w.r.t. the reconstrubility of the number of edges a payload has been carried. As we see
+from Figure XXX vertex C's payload is divisible by 4 and vertex D's payload is divisible
+by 16. While it is possible to figure out the number of carried edges, we choose a simpler
+approach:
+@LP
+@F {
+> carry' :: Integer -> Integer -> Integer
+@LLP
+> carry from into = justaprimeeach from * into
+@LLP
+>      where justaprimeeach x = fold (*) 1 (filter containsprime primes)
+@LLP
+>            containsprime p = 0 == (x mod p)
+@LLP
+>
+@LLP
+> {-- transform'''' to use carry' --}
+}
+@PP
+The rate of increase in payload magnitude now becomes much more moderate:
+@PP
+@I [fancy picture here]
+@PP
+
+While our transform seems to work well now for trees, we fear that it won't
+work well for cyclic graphs:
+@PP
+@I [fancy picture here ex2]
+@PP
+The algorithm stops at already visited nodes! The former virtue turned into a
+flaw now, since the payload cannot be carried further. We have to allow controlled
+revisiting of already transformed nodes in order to make progress. The key here is
+@I controlled, since we still want to avoid infinite recursion. The criterion to
+revisit a vertex seems easy enough: we have to enter iff some prime factor is missing.
+So we reformulate @F visited to do this:
+@LP
+@F {
+> visited' :: a~Integer -> [(a~Integer, Vertex Integer)] -> (bool, [(a~Integer, Vertex Integer)])
+@LLP
+> remove vertex if to be revisited.
+use justaprimeeach
+@LLP
+>      where justaprimeeach x = fold (*) 1 (filter containsprime primes)
+@LLP
+>            containsprime p = 0 == (x mod p)
+@LLP
+>
+@LLP
+> {-- transform''''' modified in the obvious way to use visited' --}
+}
+@PP
+
+Now we are prepared to test our transform on Example 2:
+@PP
+...
+@PP
+
+And also on Example 3:
+
+@PP
+...
+@PP
+
+Interestingly, testing with Example 4 gives no difference to Example 2:
+
+@PP
+...
+@PP
+
+This is understandable in knowledge of the properties of {@F visited'}, short cycles
+are not considered, since the payload already contains all the necessary prime factors.
+A pleasant property of integers comes to the rescue: signedness. Negating the payload
+will be used as the marker that a short cycle is present.
+
+We reach the final form of our transform after considering signedness:
+
+@PP
+...
+@PP
+
+And the graph from Example 4 gets this shape:
+
+@PP
+...
+@PP
+
+
+
+@End @SubSection
+
+
+###########
+@SubSection
+@Title { The Resolution }
+@Begin
+@PP
+Our algorithm ensures that all vertices are visited in the course of its execution,
+so we can make use of the finally returned list component. We have to establish a
+mapping from our original payload to the new one. Actually this is just a matter
+of replacing the second components of the visited list (which is a transformed vertex)
+by its payload:
+
+@PP
+...
+@PP
+
+We are done now:
+
+@PP
+show strip . transform) ex2 etc.
+-->
+@PP
+
+
+@LP
+@F {
+> 
+}
+@PP
+
+@End @SubSection
+
+@EndSubSections
+
+@End @Section
+
+##################################
+##################################
+##################################
+@Section
+@Title { Further Work }
+@Begin
+@PP
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Conclusion }
+@Begin
+@PP
+@End @Section
+
+
