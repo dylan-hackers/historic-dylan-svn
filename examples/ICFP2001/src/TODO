@@ -1,8 +1,8 @@
 TODO list
 
-BGH questions:
-- what is the "remove trailing space" test for?
 
+* integrate validator into program, validating each output string
+  against the original input before making it the best-so-far
 * Convert generator into returning a new state, instead of modifying it.
 * Make generator return all possible moves, instead of one
 * Write modular search strategy.
