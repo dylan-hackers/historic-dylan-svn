@@ -152,68 +152,9 @@ define method compile-one(token == #"false", more-tokens :: <list>) => (closure 
          remaining)
 end;
 
-/*
-define method compile-one(token == #"addi", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
-  values(
-         method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-           let (right :: <integer>, rest :: <pair>) = values(stack.head, stack.tail);
-           let (left :: <integer>, rest :: <list>) = values(rest.head, rest.tail);
-           cont(pair(left + right, rest), env)
-         end method,
-         remaining)
-end;
-*/
-/*
-define method compile-one(token == #"lessi", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
-  values(
-         method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-           let (right :: <integer>, rest :: <pair>) = values(stack.head, stack.tail);
-           let (left :: <integer>, rest :: <list>) = values(rest.head, rest.tail);
-           cont(pair(left < right, rest), env)
-         end method,
-         remaining)
-end;
-*/
-/*
-define method compile-one(token == #"eqi", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
-  values(
-         method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-           let (right :: <integer>, rest :: <pair>) = values(stack.head, stack.tail);
-           let (left :: <integer>, rest :: <list>) = values(rest.head, rest.tail);
-           cont(pair(left == right, rest), env)
-         end method,
-         remaining)
-end;
-*/
 
 // define binary-primitive(addf:, <float>, <float>, \+);
 
-/*
-define method compile-one(token == #"subi", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
-  values(
-         method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-           let (right :: <integer>, rest :: <pair>) = values(stack.head, stack.tail);
-           let (left :: <integer>, rest :: <list>) = values(rest.head, rest.tail);
-           cont(pair(left - right, rest), env)
-         end method,
-         remaining)
-end;
-
-define method compile-one(token == #"muli", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
-  values(
-         method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-           let (right :: <integer>, rest :: <pair>) = values(stack.head, stack.tail);
-           let (left :: <integer>, rest :: <list>) = values(rest.head, rest.tail);
-           cont(pair(left * right, rest), env)
-         end method,
-         remaining)
-end;
-*/
 
 // Points
 
