@@ -2,9 +2,12 @@ module: assembler
 
 
 // Attackers attack other ant hills.
-define sub brain alex-attacker (return)
+define sub brain alex-attacker-sb (return)
 
-  Sense FoeHome, (attacker-success, a-search-foe-home);
+  Flip 2, (alex-attacker, alex-attacker);
+
+  [alex-attacker:]
+    Sense FoeHome, (attacker-success, a-search-foe-home);
 
 
   // Steal food.
@@ -17,11 +20,11 @@ define sub brain alex-attacker (return)
     Turn Right, (attacker-success);
 
   [a-steal-from-in-front:]
-    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
+//    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
     Move attacker-success => attacker-success-right;
 
   [a-steal-from-in-front-right:]
-    Sense RightAhead FoeHome, (attacker-success-right);
+//    Sense RightAhead FoeHome, (attacker-success-right);
     Move attacker-success => attacker-success-right;
 
 
@@ -46,7 +49,7 @@ define sub brain alex-attacker (return)
     Sense Ahead FoeHome, (a-near-hub-ahead);
     Sense LeftAhead FoeHome, (a-near-hub-left);
     Sense RightAhead FoeHome, (a-near-hub-right);
-    Flip 1, (a-move-forward, a-move-lr);
+    Flip 2, (a-move-forward, a-move-lr);
 
 
   // We are near their hill.
@@ -62,7 +65,7 @@ define sub brain alex-attacker (return)
     Move alex-attacker => a-search-foe-home;
 
   [a-near-hub-ahead-blocked:]
-    Flip 3, (a-near-hub-ahead-blocked-right, a-near-hub-ahead-blocked-left);
+    Flip 4, (a-near-hub-ahead-blocked-right, a-near-hub-ahead-blocked-left);
 
   [a-near-hub-ahead-blocked-right:]
     Turn Right;
@@ -95,7 +98,7 @@ define sub brain alex-attacker (return)
     Move alex-attacker => a-move-lr;
 
   [a-move-lr:]
-    Flip 1, (a-move-left, a-move-right);
+    Flip 2, (a-move-left, a-move-right);
 
   [a-move-left:]
     Turn Left;
@@ -110,9 +113,12 @@ end brain; // alex-attacker
 
 
 // Gatherers gather food. Based on the best gatherer we had (by Keith Bauer!).
-define sub brain keith-gatherer (return)
+define sub brain keith-gatherer-sb (return)
 
-  Flip 2, (rightant-search, leftant-search);
+  Flip 2, (keith-gatherer, keith-gatherer);
+
+  [keith-gatherer:]
+    Flip 2, (rightant-search, leftant-search);
 
 
   [rightant-search:]
@@ -196,11 +202,11 @@ define brain alex-keith
 
 
   [attacker:]
-    Sub alex-attacker;
+    Sub alex-attacker-sb;
 
 
   [gatherer:]
-    Sub keith-gatherer;
+    Sub keith-gatherer-sb;
 
 end brain;
 
