@@ -81,6 +81,7 @@ define method process-command(state :: <state>, command :: <move>) => (state :: 
     // push;
   end if;
   if(instance?(terrain, <water>))
+    debug("Robot %= fell into water?\n", command.robot-id);
     state := remove-robot-by-id(state, command.robot-id);
     let ps = choose(method(p) p.carrier & p.carrier.id = bot.id end,
                     state.packages);
@@ -96,13 +97,16 @@ define method process-command(state :: <state>, command :: <move>) => (state :: 
     let ps = current-inventory(state, bot);
 //    let ps = choose(method(p) p.carrier & p.carrier.id = bot.id end,
 //                    state.packages);
+    let new-inventory = make(<stretchy-vector>);
     for(p in ps)
-      state := add-package(state, copy-package(find-package(state, p.id), 
-                                               new-location: new-location));
+      let new-package = copy-package(find-package(state, p.id), 
+                                     new-location: new-location);
+      state := add-package(state, new-package);
+      add!(new-inventory, new-package);
     end for;
     let x = add-robot(state, copy-robot(bot, new-location: new-location,
                                         new-money: new-money, 
-                                        new-inventory: ps));
+                                        new-inventory: new-inventory));
     x
   end if;
 end method process-command;
