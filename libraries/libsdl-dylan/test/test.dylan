@@ -33,8 +33,10 @@ define function main(name, arguments)
 				break( got );
 			end if;
 			select( event.type-value)
-				$SDL_QUIT => loop := #f;
-				otherwise: => #f;
+				$SDL-QUIT => 
+					loop := #f;
+				otherwise => 
+					#f;
 			end select;
 		end while;
 	end block;
