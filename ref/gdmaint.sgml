@@ -824,10 +824,12 @@ define variable foo :: run-time-expression() = #f;
       <sect2 id="gdmaint-d2c-base-transformers">
 	<title>The <dmodule>Transformers</dmodule> Module</title>
 
-	<para>A mystery module. Transformers get attached to function
-	definitions and do something complicated to <quote>call
-	operations</quote>. Does this have anything to do with compile-time
-	method dispatching?</para>
+	<para>Transformers are functions that are attached to function
+	definitions. They serve as a sort of procedural macro in the
+	optimizer. For instance, the do() function is transformed into
+	an ordinary loop construct so the optimizer can bang on it
+	some more. See the <dmodule>cheese</dmodule> module for usage
+	of this.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-base-representation">
