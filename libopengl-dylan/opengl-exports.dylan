@@ -1056,6 +1056,9 @@ define module opengl-glut
     $GLUT-BITMAP-HELVETICA-12,
     $GLUT-BITMAP-HELVETICA-18;
 
+  export
+    $GLUT-STROKE-ROMAN,
+    $GLUT-STROKE-MONO-ROMAN;
 
   // GLUT constants:
   export

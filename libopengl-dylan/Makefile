@@ -2,7 +2,7 @@ INSTALLPATH=$(shell d2c --compiler-info | grep _DCI_D2C_DYLAN_USER_DIR | sed 's/
 
 ifeq ($(shell if [ -d "/System/Library/Frameworks" ]; then echo -n darwin; else echo -n not-darwin; fi), darwin)
 	LIDFILE=macosx-opengl.lid
-	MELANGE=melange --framework GLUT --d2c
+	MELANGE=melange --framework OpenGL --framework GLUT --d2c
 else
 ifeq ($(shell uname -o), Cygwin)
 	LIDFILE=cygwin-opengl.lid
