@@ -24,6 +24,14 @@ end;
 define open class <koala-api-error> (<koala-error>)
 end;
 
+define generic http-error-headers
+    (error :: <error>) => (headers :: false-or(<header-table>));
+
+define method http-error-headers
+    (error :: <error>) => (headers :: false-or(<header-table>))
+  #f
+end;
+
 define class <http-error> (<koala-error>)
   constant slot http-error-code :: <integer>, required-init-keyword: code:;
   constant slot http-error-headers :: false-or(<header-table>) = #f, init-keyword: headers:;
