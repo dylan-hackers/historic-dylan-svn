@@ -922,8 +922,8 @@ end;
 define function match(in :: <byte-string>, what :: <byte-string>) => remaining :: false-or(<byte-string>);
   let s = what.size;
   if (in.size >= s
-      & copy-sequence (in, end: s) = what)
-    copy-sequence (in, start: s)
+      & copy-sequence(in, end: s) = what)
+    copy-sequence(in, start: s)
   end if;
 end;
 
@@ -934,3 +934,40 @@ end;
 define function report(response-class :: <class>, remaining :: <byte-string>) => resp :: <error-result>;
   make(<error-result>, message: remaining)
 end;
+
+
+define function match-c-string(in :: <byte-string>)
+ => (remaining :: false-or(<byte-string>), result :: false-or(<byte-string>));
+
+  local method consume-escape(in :: <byte-string>, sofar :: <list>, pos :: <integer>)
+         => (result :: <byte-string>, final-pos :: <integer>);
+          select (in[pos])
+            '"', '\\' => consume(in, pair(in[pos], sofar), pos + 1);
+            otherwise => error("unrecognized escape character: %=", in[pos]);
+          end select
+        end method,
+        method consume(in :: <byte-string>, sofar :: <list>, pos :: <integer>)
+         => (result :: <byte-string>, final-pos :: <integer>);
+          select (in[pos])
+            '\\' => consume-escape(in, sofar, pos + 1);
+            '"' => values(as(<byte-string>, sofar.reverse!), pos + 1);
+            otherwise => consume(in, pair(in[pos], sofar), pos + 1);
+          end select
+        end method;
+
+  if (~in.empty? & in.first = '"')
+    let (result :: <byte-string>, final-pos :: <integer>)
+      = select (in.second)
+          '\\' => consume-escape(in, #(), 2);
+          '"' => values("", 2);
+          otherwise => consume(in, list(in.second), 2);
+        end select;
+    values(copy-sequence(in, start: final-pos), result);
+  end;
+end;
+
+begin
+ let (a,b) = match-c-string("\"sd\\\\s\\\"dg\"123");
+ format-out("remainer: %=\nc-string: %=\n", a, b);
+end;
+
