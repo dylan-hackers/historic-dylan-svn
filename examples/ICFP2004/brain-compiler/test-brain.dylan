@@ -17,8 +17,8 @@ Flip 6 0 0
 end;
 
 define ant-subbrain test-ant-subbrain3(out, test-brain1)
- Drop 1;
- Drop out;
+ UnMark 3 1;
+ UnMark 3 out;
  Move 1 1;
  Move out 2;
  Move out 3;

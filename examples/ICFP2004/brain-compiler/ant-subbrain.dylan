@@ -174,7 +174,16 @@ define macro ant-subbrain-definer
                      state: curry(lookup, instrs, label, ?state)))
   }
   
-  { Mark ?what:expression ?state:expression }
+  { Mark ?what:expression ?state:name } // 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <mark>,
+                     marker: ?what,
+                     state: "outsider_" ## ?state))
+  }
+  
+  { Mark ?what:expression ?state:expression } // 2
   =>
   {
     push-thunk(instrs, label, counter,
@@ -183,7 +192,16 @@ define macro ant-subbrain-definer
                      state: curry(lookup, instrs, label, ?state)))
   }
   
-  { Unmark ?what:expression ?state:expression }
+  { Unmark ?what:expression ?state:name } // 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <unmark>,
+                     marker: ?what,
+                     state: "outsider_" ## ?state))
+  }
+  
+  { Unmark ?what:expression ?state:expression } // 2
   =>
   {
     push-thunk(instrs, label, counter,
