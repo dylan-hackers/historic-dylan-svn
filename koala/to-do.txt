@@ -1,7 +1,12 @@
 koala
 -----
 
-* Search sources for "---TODO" and do them.
+* Search sources for "---*** TODO" and do them.
+
+* Documentation.  Probably write it in DSP.
+
+* A facility to generate .html files from .dsp files.  e.g., a way to
+  flatten all the .dsp doc files into .html.
 
 * Secure connections.  Have to finish implementing <ssl-tcp-server-socket>.
 

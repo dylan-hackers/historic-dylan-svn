@@ -20,7 +20,7 @@ define variable *default-documents* :: <stretchy-vector> = make(<stretchy-vector
 // encountered while servicing HTTP requests will not be handled by the server itself.
 // Normally the server will handle them and return an "internal server error" response.
 // Setting this to true is the recommended way to debug your Dylan Server Pages.
-define variable *debugging-server* :: <boolean> = #t;
+define variable *debugging-server* :: <boolean> = #f;
 
 // Whether or not to include a Server: header in all responses.  Most people won't
 // care either way, but some might want to hide the server type so as to prevent

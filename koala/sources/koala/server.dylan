@@ -533,14 +533,17 @@ end read-request;
 
 define method send-error-response (request :: <request>, err :: <error>)
   log-error(err);
-  let response :: <response> = make(<response>, request: request);
-  let error-code = http-error-code(err);
-  let one-liner = http-error-message(err);
-  format(output-stream(response),
-         "Error %s:\n\n%s", error-code, condition-to-string(err));
-  add-header(response, "Content-type", "text/plain");
-  send-response(response, response-code: error-code, response-message: one-liner);
-end send-error-response;
+  with-resource (headers = <header-table>)
+    let response :: <response>
+      = make(<response>, request: request, headers: headers);
+    let error-code = http-error-code(err);
+    let one-liner = http-error-message(err);
+    format(output-stream(response),
+           "Error %s:\n\n%s", error-code, condition-to-string(err));
+    add-header(response, "Content-type", "text/plain");
+    send-response(response, response-code: error-code, response-message: one-liner);
+  end;
+end;
 
 // API
 // Register a response function (or an alias) for a given URI.

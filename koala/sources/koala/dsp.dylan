@@ -593,7 +593,7 @@ define function parse-include-directive
     (page, tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
  => (scan-pos :: <integer>)
   when (has-body?)
-    log-warning("Invalid include tag %s in template %s:%d.  "
+    log-warning("Invalid include tag %s in template %s:%d.  ",
                 as(<string>, call), as(<string>, page.source-location), tag-start);
     log-warning("The include directive doesn't allow a body; it should end in '/>'.");
   end;
@@ -874,6 +874,7 @@ end;
 // like <%dsp:if test="my-label">...</%dsp:if>
 
 // ---*** TODO: If these things pan out, use a macro to define 'em.
+//              "define named-function ..."
 
 define variable *label-map* :: <string-table> = make(<string-table>);
 
