@@ -17,12 +17,37 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
   debug("board is %=", state.board);
 //  test-path-finding(state.board);
 
+  let current-bot = bot;
   let running = #t;
   let last-bot = find-robot(state, agent.agent-id);
   while(running)
     debug("Robot state: %=\n", last-bot);
     state := receive-server-packages(input, state, last-bot.location);
-    let move = generate-next-move(agent, state);
+    let move = #f;
+    let not-crashed = #f;
+    until(not-crashed = #t)
+      block()
+	move := generate-next-move(agent, state);
+	not-crashed := #t
+      exception(cond :: <condition>)
+	debug("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
+	debug("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
+	debug("!!!!!!!!!! BOT CRASH !!!!!!!!!!\n");
+	if(instance?(current-bot, <gabot>))
+	  current-bot := <pushbot>;
+	elseif(instance?(current-bot, <pushbot>))
+	  current-bot := <thomas>;
+	else
+	  current-bot := <gabot>;
+	end;
+	agent := make(current-bot, agent-id: my-id,
+		      //visited-bases: last-bot.visited-bases,
+		      id: last-bot.id, location: last-bot.location,
+		      money: last-bot.money, inventory: last-bot.inventory,
+		      score: last-bot.score);
+	
+      end block;
+    end;
     send-command(output, move);
     state := receive-server-command-reply(input, state);
     let bot = find-robot(state, agent.agent-id);
