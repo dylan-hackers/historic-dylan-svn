@@ -271,14 +271,13 @@ define function cache-world-display-list() => ()
     *world-display-list* := glGenLists(1);
     glNewList(*world-display-list*, $GL-COMPILE);
 
-    let world-size = dimensions(*world*);
-    let width = world-size[0];
-    let height = world-size[1];
+    let width = *world*.world-x;
+    let height = *world*.world-y;
 
     for (y-index from 0 below height)
         for (x-index from 0 below width)
             let position = make-position(x-index, y-index);
-            let cell = *world*[x-index, y-index];
+            let cell = cell-at(position);
             
             draw-cell(cell, position);
         end;
@@ -290,19 +289,18 @@ end;
 define function draw-world() => ()
     glCallList(*world-display-list*);
     
-    let world-size = dimensions(*world*);
-    let width = world-size[0];
-    let height = world-size[1];
+    let width = *world*.world-x;
+    let height = *world*.world-y;
 
     for (y-index from 0 below height)
         for (x-index from 0 below width)
             let position = make-position(x-index, y-index);
-            let cell = *world*[x-index, y-index];
+            let cell = cell-at(position);
             
             glLineWidth(3.0s0);
             draw-cell-food(cell, position);
         
-            let this-ant = *world*[x-index, y-index].ant;
+            let this-ant = ant-at(position);
             if (this-ant)
                 draw-ant(this-ant, position);
             end;
@@ -401,21 +399,21 @@ end;
 
 begin
   load-world();
-    glut-init();
-    glutInitDisplayMode($GLUT-RGB + $GLUT-DEPTH + $GLUT-DOUBLE);
-
-    glutInitWindowPosition(0, 0);
-    glutInitWindowSize(1000, 1000);
-    glutCreateWindow("Marching Dylants");
-    
-    cache-world-display-list();
-
-    glutDisplayFunc(draw);
-    glutReshapeFunc(reshape);
-    glutIdleFunc(idle);
-    glutKeyboardFunc(keyboard);
-    glutMouseFunc(mouse);
-    glutMotionFunc(motion);
-
-    glutMainLoop();
+  glut-init();
+  glutInitDisplayMode($GLUT-RGB + $GLUT-DEPTH + $GLUT-DOUBLE);
+  
+  glutInitWindowPosition(0, 0);
+  glutInitWindowSize(1000, 1000);
+  glutCreateWindow("Marching Dylants");
+  
+  cache-world-display-list();
+  
+  glutDisplayFunc(draw);
+  glutReshapeFunc(reshape);
+  glutIdleFunc(idle);
+  glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMotionFunc(motion);
+  
+  glutMainLoop();
 end;

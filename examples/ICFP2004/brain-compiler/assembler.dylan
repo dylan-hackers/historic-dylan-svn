@@ -170,5 +170,3 @@ define method functional-==
   l.instruction-label == r.instruction-label
     & l.instruction-count == r.instruction-count
 end;
-
-

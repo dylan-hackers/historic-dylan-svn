@@ -20,9 +20,7 @@ define brain test-brain1
   [problem:]
          Drop;
          Flip 1, (start, start);
- end;
+end;
  
  
- 
- 
- test-brain1().dump-brain;
+test-brain1().dump-brain;

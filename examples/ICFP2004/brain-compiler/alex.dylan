@@ -13,3 +13,6 @@ define brain alex-gatherer
     Turn Left;
   
 end;
+
+
+alex-gatherer().dump-brain;
