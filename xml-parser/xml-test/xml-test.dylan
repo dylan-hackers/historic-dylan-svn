@@ -29,7 +29,7 @@ define function main(name, arguments)
   let xml-string = arguments[1];
   format-out("Trying %s on [%s]\n", arguments[0], arguments[1]);
   while(index < xml-string.size)
-    let (index1, tag) = fn(xml-string, start: index);
+    let (index1, #rest tag) = fn(xml-string, start: index);
     format-out("index: %= value: %=\n", index1, tag);
     index := index1;
   end while;
