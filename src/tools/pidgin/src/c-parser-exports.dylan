@@ -23,7 +23,7 @@ end library;
 define module c-lexer
   // Standard Dylan
   use dylan;
-  use extensions;
+  use extensions, exclude: {value};
   use streams;
 
   // Gwydion Libraries
@@ -58,7 +58,7 @@ end module c-lexer;
 define module c-parser-engine
   // Standard Dylan
   use dylan;
-  use extensions;
+  use extensions, exclude: {value};
   use streams;
   use format;
   use standard-io;
@@ -94,7 +94,7 @@ end module c-parser-engine;
 define module c-parser
   // Standard Dylan
   use dylan;
-  use extensions;
+  use extensions, exclude: {value};
   use table-extensions;
 
   // Included with Pidgin
