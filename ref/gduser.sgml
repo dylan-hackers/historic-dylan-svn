@@ -368,7 +368,7 @@ end method main;
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.7 1998/12/14 18:46:36 andreas Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.8 1998/12/14 18:55:50 andreas Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
@@ -635,7 +635,7 @@ define method main (program, #rest args)
   for (arg in args)
     let dir = opendir(arg);
     for (entry = readdir(dir) then readdir(dir),
-         until entry = !null-pointer)
+         until entry = $null-pointer)
       write-line(entry.dt-d-name, *standard-output*);
     end for;
     closedir(dir);
