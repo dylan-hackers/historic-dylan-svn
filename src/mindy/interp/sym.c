@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/interp/sym.c,v 1.2 1998/12/17 10:21:40 igor Exp $
+* $Header: /scm/cvs/src/mindy/interp/sym.c,v 1.2.2.1 1998/12/19 18:02:08 igor Exp $
 *
 * This file implements symbols.
 *
@@ -50,8 +50,8 @@
 obj_t obj_SymbolClass = NULL;
 
 struct symbol {
-    obj_t class;
-    obj_t name;
+    obj_t /* class */ class;
+    obj_t /* ByteString */ name;
     obj_t next;
     unsigned hash;
 };

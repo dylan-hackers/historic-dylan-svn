@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/interp/class.h,v 1.1 1998/05/03 19:55:12 andreas Exp $
+* $Header: /scm/cvs/src/mindy/interp/class.h,v 1.1.1.1.6.1 1998/12/19 18:02:10 igor Exp $
 *
 \**********************************************************************/
 
@@ -39,6 +39,7 @@ enum type_Id {
 extern obj_t obj_ClassClass;
 extern obj_t obj_StaticTypeClass; /* type of static pointer classes */
 
+/* The first two elements of this must be kept in sync with 'struct type' */
 struct class {
     obj_t class;
     enum type_Id type_id;

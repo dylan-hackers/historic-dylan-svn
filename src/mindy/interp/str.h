@@ -23,7 +23,7 @@
 *
 ***********************************************************************
 *
-* $Header: /scm/cvs/src/mindy/interp/str.h,v 1.1 1998/05/03 19:55:17 andreas Exp $
+* $Header: /scm/cvs/src/mindy/interp/str.h,v 1.1.1.1.6.1 1998/12/19 18:02:09 igor Exp $
 *
 \**********************************************************************/
 
@@ -38,7 +38,7 @@ extern obj_t obj_UnicodeStringClass;
    to the number of characters, not the number of bytes.
 */
 struct string {
-    obj_t class;
+    obj_t /* class */ class;
     int len;
     unsigned char chars[4];
 };
