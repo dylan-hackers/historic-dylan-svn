@@ -111,15 +111,15 @@ define generic fer-gather-bindings(region :: <region>, environment :: <object>)
 
 define method fer-gather-bindings(compound :: <compound-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
-  format(*standard-output*, "fer-gather-bindings{<compound-region>} %=\n", compound);
-  force-output(*standard-output*);
+//  format(*standard-output*, "fer-gather-bindings{<compound-region>} %=\n", compound);
+//  force-output(*standard-output*);
   fer-gather-regions-bindings(compound.regions, environment)
 end;
 
 define method fer-gather-bindings(the-if :: <if-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
-  format(*standard-output*, "fer-gather-bindings{<if-region>} %=\n", the-if);
-  force-output(*standard-output*);
+//  format(*standard-output*, "fer-gather-bindings{<if-region>} %=\n", the-if);
+//  force-output(*standard-output*);
   let test-value
     = fer-evaluate-expression(the-if.depends-on.source-exp,
                               environment);
@@ -132,8 +132,8 @@ end method;
 
 define method fer-gather-bindings(simple :: <simple-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
-  format(*standard-output*, "fer-gather-bindings{<simple>} %=\n", simple);
-  force-output(*standard-output*);
+//  format(*standard-output*, "fer-gather-bindings{<simple>} %=\n", simple);
+//  force-output(*standard-output*);
   fer-gather-assigns-bindings(simple.first-assign, environment);
 end;
 
@@ -148,14 +148,15 @@ end;
 
 define method fer-gather-regions-bindings(regions :: <list>, environment :: <object>)
   => (same-env, potential-value :: false-or(<ct-value>));
-  format(*standard-output*, "fer-gather-regions-bindings %=\n", regions);
-  force-output(*standard-output*);
+//  format(*standard-output*, "fer-gather-regions-bindings %=\n", regions);
+//  force-output(*standard-output*);
   
   let head = regions.head;
   if (instance?(head, <compound-region>))
   
     let (env, value) = fer-gather-bindings(head, environment);
     if (value)
+      compiler-warning("Well, I thought that RETURN[110](result[122]) can only appear just at the end of <function-region>s\n");
       values(environment, value)
     else
       fer-gather-regions-bindings(regions.tail, fer-gather-bindings(head, environment))
@@ -191,7 +192,7 @@ end;
 define method fer-gather-assign-bindings(defs :: <initial-definition>, expr :: <expression>, environment :: <object>)
  => extended-env;
   let var-value = fer-evaluate-expression(expr, environment);
-  append-environment(environment, defs.definition-of, var-value)
+  append-environment(environment, defs.definition-of, var-value) // ### we should perhaps take in account that this var may already have been recorded in the env...
 end;
 
 define method fer-gather-assign-bindings(no-more-defs == #f, expr :: <expression>, environment :: <object>)
@@ -251,8 +252,8 @@ define primitive-emulator logand end;
 // ########## append-environment ##########
 define function append-environment(prev-env :: <object>, new-binding, new-value) => new-env;
 
-  format(*standard-output*, "append-environment %= %= \n", new-binding, new-value);
-  force-output(*standard-output*);
+//  format(*standard-output*, "append-environment %= %= \n", new-binding, new-value);
+//  force-output(*standard-output*);
 
 
   method(var)
