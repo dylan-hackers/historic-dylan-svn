@@ -188,6 +188,17 @@ define function packages-at(state :: <state>, p :: <point>)
   choose-by(curry(\=, p), map(location, state.packages), state.packages);
 end function packages-at;
 
+define method find-package (state :: <state>, package-id :: <integer>)
+ => <robot>;
+  iterate loop (lst = state.packages)
+    case
+      lst.empty?             => error("find-package: id does not exist");
+      lst.head.id = package-id => lst.head;
+      otherwise                => loop(lst.tail);
+    end case;
+  end iterate;
+end method find-package;
+
 define function free-packages(s :: <state>)
  => (c :: <collection>);
   choose-by(curry(\=, #f), map(carrier, s.packages), s.packages);
