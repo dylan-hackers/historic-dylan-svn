@@ -14,7 +14,7 @@ define method jam-target-build
           progress-callback :: <function> = ignore)
  => (build-successful? :: <boolean>);
   local
-    method bind(name :: <string>) => (target :: <jam-target>);
+    method bind(name :: <byte-string>) => (target :: <jam-target>);
       bind-aux(#f, jam-target(jam, name))
     end method,
     

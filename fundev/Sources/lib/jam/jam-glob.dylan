@@ -153,7 +153,7 @@ define function jam-builtin-glob
     do-directory(method (directory :: <directory-locator>, name, type)
                    if (match?(name))
                      add!(result,
-                          as(<string>,
+                          as(<byte-string>,
                              merge-locators(as(<file-locator>, name),
                                             directory)));
                    end if;

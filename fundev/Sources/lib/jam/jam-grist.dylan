@@ -6,7 +6,9 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define function extract-grist (name :: <string>) => (grist :: <string>);
+define function extract-grist
+    (name :: <byte-string>)
+ => (grist :: <byte-string>);
   if (name.size > 1 & name[0] == '<')
     let grist-end = find-key(name, curry(\==, '>'));
     if (grist-end)
@@ -19,7 +21,9 @@ define function extract-grist (name :: <string>) => (grist :: <string>);
   end if
 end function;
 
-define function strip-grist (name :: <string>) => (result :: <string>);
+define function strip-grist
+    (name :: <byte-string>)
+ => (result :: <byte-string>);
   if (name.size > 1 & name[0] == '<')
     let grist-end = find-key(name, curry(\==, '>'));
     if (grist-end)
@@ -33,8 +37,8 @@ define function strip-grist (name :: <string>) => (result :: <string>);
 end function;
 
 define function add-grist
-    (old :: <string>, new :: <string>)
- => (result :: <string>);
+    (old :: <byte-string>, new :: <byte-string>)
+ => (result :: <byte-string>);
   let old-grist = extract-grist(old);
   if (old-grist.empty?)
     new
