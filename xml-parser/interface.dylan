@@ -24,12 +24,14 @@ define abstract class <attributes> (<tag>)
   slot attributes :: <vector> = #[], init-keyword: attributes:;
 end class <attributes>;
 
-// a document has one child: the root element
+// a document contains pi's comments and the root node
 define class <document> (<xml>, <node-mixin>)
-// think about putting in pi's, dtds, entities here
-// this'll make <document> and <element> different enough in the class
-// hierarchy to justify keeping them separate
+  constant virtual slot root :: <element>;
 end class <document>;
+
+define method root(doc :: <document>) => (elt :: <element>)
+  choose(rcurry(instance?, <element>), doc.node-children)[0]
+end method root;
 
 // An element is a thing that has attributes and children.
 // Not sealed to allow XML element tags subclasses of <element>
