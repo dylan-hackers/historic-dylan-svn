@@ -70,7 +70,7 @@ end;
 
 // ## create-command{<drop-strategy>}
 define method create-terminal-command(s :: <strategy>) => command :: <command>;
-debug("Dropping in create-terminal-command");
+debug("Dropping in create-terminal-command\n");
   make(<drop>, package-ids: /* map(id, choose() */ #(), bid: 1, id: s.strategy-robot.id);
 end;
 
