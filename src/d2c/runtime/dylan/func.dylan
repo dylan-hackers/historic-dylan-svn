@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/func.dylan,v 1.13 2003/02/17 17:36:54 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/func.dylan,v 1.13.2.1 2003/05/31 17:39:02 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -243,7 +243,7 @@ define class <gf-cache> (<object>)
     init-value: #f;
   constant slot cached-classes :: <type-vector>,
     required-init-keyword: #"classes";
-  slot next :: type-union(<false>, <gf-cache>), init-value: #f;
+//  slot next :: type-union(<false>, <gf-cache>), init-value: #f;
   slot call-count :: <integer>, init-value: 1;
 end class <gf-cache>;
 
@@ -255,8 +255,19 @@ define class <generic-function> (<function>)
   slot generic-function-methods :: <list> = #(),
     init-keyword: methods:;
   //
-  slot method-cache :: type-union(<false>, <gf-cache>) = #f;
+  slot %method-cache :: type-union(<false>, <stretchy-object-vector>) = #f;
 end;
+
+define inline method method-cache(gf :: <generic-function>)
+ => (cache :: <stretchy-object-vector>)
+  gf.%method-cache | (gf.%method-cache := make(<stretchy-object-vector>))
+end method method-cache;
+
+define inline method method-cache-setter(cache :: <stretchy-object-vector>, 
+                                         gf :: <generic-function>)
+ => (cache :: <stretchy-object-vector>)
+  gf.%method-cache := cache
+end method method-cache-setter;
 
 define sealed domain make(singleton(<generic-function>));
 
@@ -563,7 +574,7 @@ define method add-method
   gf.generic-function-methods := pair(new, gf.generic-function-methods);
   //
   // Clear the cache.
-  gf.method-cache := #f;
+  gf.method-cache := make(<stretchy-object-vector>);
   //
   // Return the new and old methods.
   values(new, old);
@@ -648,7 +659,7 @@ define method remove-method
       end if;
       //
       // Clear the cache.
-      gf.method-cache := #f;
+      gf.method-cache := make(<stretchy-object-vector>);
       //
       // Return the removed method.
       return(meth);
@@ -1019,18 +1030,19 @@ define method internal-sorted-applicable-methods
     end;
   end;
 
-  let old-cache = gf.method-cache;
   // In the special case that we have a simple dispatch on one argument, we
   // can use a blazingly fast dispatch function
-  if (old-cache == #f & valid-keywords == #f & ~gf.function-rest?
+  if (gf.method-cache.size == 0 & valid-keywords == #f & ~gf.function-rest?
        & cache.simple & nargs == 1)
     gf.general-entry := %%primitive(main-entry, gf-call-one-arg);
   elseif (~cache.simple)
     gf.general-entry := %%primitive(main-entry, gf-call);
   end if;
 
-  gf.method-cache := cache;
-  cache.next := old-cache;
+  // this adds at the end, so it maintains the sortedness of the vector
+  // w.r.t call-count.
+  gf.method-cache[gf.method-cache.size] := cache;
+
   if (ordered.empty?)
     cache.cached-method := #f;
     if (ambiguous.empty?)
@@ -1071,6 +1083,12 @@ end;
 
 define variable *debug-generic-threshold* :: <integer> = -1;
 
+define macro swap!
+  { swap!(?a:expression, ?b:expression) }
+    =>
+  {  let temp = ?a; ?a := ?b; ?b := temp; }
+end;
+
 define inline method cached-sorted-applicable-methods
     (gf :: <generic-function>, nargs :: <integer>,
      arg-ptr :: <raw-pointer>)
@@ -1078,15 +1096,10 @@ define inline method cached-sorted-applicable-methods
      next-method-info :: <list>, 
      valid-keywords :: type-union(<simple-object-vector>, one-of(#f, #"all")));
   block (return)
-    for (prev :: type-union(<false>, <gf-cache>) = #f then cache,
-	 cache :: type-union(<false>, <gf-cache>) = gf.method-cache
-	   then cache.next,
-	 until: cache == #f)
+    for (cache :: <gf-cache> in gf.method-cache, i from 0)
       block (no-match)
-	let cache :: <gf-cache> = cache; // A hint to the type system.
-
-	let classes :: <type-vector> = cache.cached-classes;
-	if (cache.simple)
+        let classes :: <type-vector> = cache.cached-classes;
+        if (cache.simple)
 	  for (index :: <integer> from 0 below nargs)
 	    let type :: <type> = %element(classes, index);
 	    let arg = %%primitive(extract-arg, arg-ptr, index);
@@ -1113,13 +1126,22 @@ define inline method cached-sorted-applicable-methods
 	  end for;
 	end if;
 
-	if (prev)	// not the first entry -- make it so.
-	  prev.next := cache.next;
-	  cache.next := gf.method-cache;
-	  gf.method-cache := cache;
-	end if;
+        if(cache.call-count < $MAXIMUM-INTEGER)
+          cache.call-count := cache.call-count + 1;
+        end;
 
-	return(cache.cached-method, cache.cached-next-info,
+        // we're using a hand-rolled insertion sort here
+        // for performance reasons and to avoid g.f.
+        // dispatch.
+        if(i > 0)
+          for(j from i to 1 by -1, 
+              while: gf.method-cache[j - 1].call-count 
+                < gf.method-cache[j].call-count)
+            swap!(gf.method-cache[j - 1], gf.method-cache[j]);
+          end for;
+        end if;
+
+        return(cache.cached-method, cache.cached-next-info,
 	       cache.cached-valid-keywords);
       end block;
     end for;
@@ -1134,27 +1156,28 @@ define inline method one-arg-sorted-applicable-methods
      valid-keywords :: type-union(<simple-object-vector>, one-of(#f, #"all")));
   let arg-class = (%%primitive(extract-arg, arg-ptr, 0)).object-class;
   let cache = gf.method-cache;
-  if (~cache)
+  if (gf.method-cache.size > 0)
     internal-sorted-applicable-methods(gf, 1, arg-ptr);
-  elseif (%element(cache.cached-classes, 0) == arg-class)
-    values(cache.cached-method, cache.cached-next-info, #f);
+  elseif (%element(gf.method-cache[0].cached-classes, 0) == arg-class)
+    values(gf.method-cache[0].cached-method, gf.method-cache[0].cached-next-info, #f);
   else
     block (return)
-      for (prev :: <gf-cache> = cache then cache,
-          cache :: type-union(<false>, <gf-cache>) = cache.next
-            then cache.next,
-          until: cache == #f)
-       block (no-match)
-         let cache :: <gf-cache> = cache; // A hint to the type system.
+      for (cache :: <gf-cache> in gf.method-cache, i from 0)
+        block (no-match)
+          let class = %element(cache.cached-classes, 0);
+          unless (class == arg-class) no-match() end unless;
 
-         let class = %element(cache.cached-classes, 0);
-         unless (class == arg-class) no-match() end unless;
+          // XXX needless code duplication from cached-sorted-applicable-methods
+          if(i > 0)
+            for(j from i to 1 by -1, 
+                while: gf.method-cache[j - 1].call-count 
+                  < gf.method-cache[j].call-count)
+              swap!(gf.method-cache[j - 1], gf.method-cache[j]);
+            end for;
+          end if;
 
-         prev.next := cache.next;
-         cache.next := gf.method-cache;
-         gf.method-cache := cache;
-         return(cache.cached-method, cache.cached-next-info, #f);
-       end block;
+          return(cache.cached-method, cache.cached-next-info, #f);
+        end block;
       end for;
       internal-sorted-applicable-methods(gf, 1, arg-ptr);
     end block;

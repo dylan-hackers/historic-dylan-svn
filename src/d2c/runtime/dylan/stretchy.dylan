@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/stretchy.dylan,v 1.10 2002/11/20 04:25:01 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/stretchy.dylan,v 1.10.2.1 2003/05/31 17:39:03 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -100,15 +100,15 @@ define function calc-size(new :: <integer>)
   end for;
 end calc-size;
 
-define sealed method initialize
+define sealed inline method initialize
     (object :: <stretchy-object-vector>, #key size :: <integer> = 0, fill = #f)
  => ();
   let data-size = calc-size(size);
-
+  
   // The "fill:" keyword assures that elements above ssv-current-size
   // will be #f...
   let data = make(<simple-object-vector>, size: data-size, fill: #f);
-
+  
   // ...and then we manually fill the other elements if necessary.
   if (fill) fill!(data, fill, end: size) end if;
   object.ssv-data := data;
@@ -237,19 +237,8 @@ end method;
 
 define method add! (ssv :: <stretchy-object-vector>, new-element)
     => ssv :: <stretchy-object-vector>;
-  let data = ssv.ssv-data;
-  let current = ssv.size;
-  if (current == data.size)
-    let data-size = current * 2;
-    let new-data = replace-subsequence!(make(<simple-object-vector>,
-					     size: data-size),
-					data, end: current);
-    ssv.ssv-data := new-data;
-    new-data[current] := new-element;
-  else 
-    data[current] := new-element;
-  end if;
-  ssv.ssv-current-size := current + 1;
+  ssv.size := ssv.size + 1;
+  ssv[ssv.size - 1] := new-element;
   ssv;
 end method add!;
 
