@@ -17,9 +17,6 @@ define class <thomas> (<robot-agent>)
     init-value: $ready;
   slot goal-point :: false-or(<point>),
     init-value: #f;
-  
-//  slot moves-remaining :: false-or(<list>),
-//    init-value: #f;
 end class <thomas>;
 
 define method packages-with-dest (packages :: <sequence>, loc :: <point>)
@@ -64,15 +61,28 @@ define method choose-next-base (tom :: <thomas>, state :: <state>) => ()
   let sorted-bases = sort(good-bases, test: base-closer?);
   // 4. Decide on our 
   if (~sorted-bases.empty?)
-    tom.goal := $going-to-base;
-    tom.goal-point := sorted-bases.first;
-//    tom.moves-remaining := find-path(tom-pos,
-//                                     sorted-bases.first,
-//                                     state.board);
+    // The idea here is a psych out. Everyone probably uses the closest-base
+    // heuristic or a variation. To avoid stampeding the same base, if there
+    // are multiple viable bases, and there's another bot close to me, I will
+    // choose the second-closest base.
+    if (sorted-bases.size > 1 & bots-within-n-spaces(tom-pos, other-robots, 3))
+      tom.goal := $going-to-base;
+      tom.goal-point := sorted-bases.second;
+    else
+      tom.goal := $going-to-base;
+      tom.goal-point := sorted-bases.first;
+    end if;
   else
     tom.goal := $nowhere-to-go; // there's nowhere to go!
   end if;
 end method choose-next-base;
+
+define function bots-within-n-spaces(self :: <point>,
+                                     bots :: <sequence>,
+                                     dist :: <integer>)
+ => (<boolean>)
+  any?(method (bot) distance-cost(self, bot.location) <= dist end, bots)
+end function bots-within-n-spaces;
 
 define method generate-next-move* (tom :: <thomas>, state :: <state>)
  => (c :: <command>)
@@ -85,10 +95,9 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
           generate-next-move(tom, state)
         else
           tom.goal := $going-to-dropoff;
-          tom.goal-point := ps.first.dest;
-//          tom.moves-remaining := find-path(agent-pos(tom, state),
-//                                           ps.first.dest,
-//                                           state.board);
+          tom.goal-point := closest-point(state,
+                                          agent-pos(tom, state),
+                                          remove-duplicates(map(dest, ps)));
           generate-next-move(tom, state);
         end if;
       end;
@@ -103,15 +112,15 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
           // we are at the base.
           tom.visited-bases := add(tom.visited-bases,
                                    state.board[tom-pos.y, tom-pos.x]);
-          let ps = load-packages(tom, state, compare: method(a, b) a.weight > b.weight end);
+          let ps = load-packages(tom,
+                                 state,
+                                 compare: method(a, b) a.weight > b.weight end);
           if (ps.empty?) // there are no packages we can pick up.
             choose-next-base(tom, state);
             generate-next-move(tom, state);
           else
             tom.goal := $going-to-dropoff;
             tom.goal-point := ps.first.dest;
-//            tom.moves-remaining := find-path(tom-pos, ps.first.dest,
-//                                             state.board);
             make(<pick>, id: tom.agent-id, bid: 1, package-ids: map(id, ps));
           end if;
         else
@@ -143,7 +152,6 @@ define method generate-next-move* (tom :: <thomas>, state :: <state>)
           debug("We are at the drop point!\n");
           let ps = packages-with-dest(agent-packages(tom, state),
                                       agent-pos(tom, state));
-          // debug("all packages: %=\n", agent-packages(tom, state));
           debug("packages to drop: %=\n", ps);
           tom.goal := $ready;
           make(<drop>, id: tom.agent-id, bid: 1, package-ids: map(id, ps));
