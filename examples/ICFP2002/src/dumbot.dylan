@@ -6,8 +6,6 @@ end class <dumbot>;
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
   let robot = find-robot(s, me.agent-id);
-  let inventory = choose(method (p :: <package>) p.carrier & p.carrier.id = robot.id; end,
-			 s.packages);
   block(return)
     format-out("DB: Considering next move (loc: %=)\n", robot.location);
     force-output(*standard-output*);
@@ -18,10 +16,14 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     maybe-mark-base-visited(me, s, robot.location);
 
     // Go to the next interesting place:
-    let targets = concatenate(map(dest, inventory),
+    let targets = concatenate(map(dest, current-inventory(s, robot)),
 			       map(location, choose(curry(curry(deliverable?, robot), s),
 				    s.free-packages)),
 			      unvisited-bases(me, s));
+
+    if (member?(robot.location, targets, test: \=))
+      error("Current location should never be in targets!");
+    end if;
     
     let (target, path) = closest-point(s, robot.location, targets);
 
