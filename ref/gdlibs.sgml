@@ -325,115 +325,107 @@ end method;</PROGRAMLISTING>
 	<PARA>The Extensions module exports the following generally
 	useful functionality:</PARA>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;byte-vector&gt;</REFNAME>
-	    <REFPURPOSE>Class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
+	<dylanclassdef>
+	  <defname>&lt;byte-vector&gt;</DEFNAME>
+	  <defadjectives>sealed</defadjectives>
+	  <defsummary>
+	    A &lt;vector&gt; that holds integers between 0
+	    and 255 inclusively
+	  </defsummary> 
+	  <defsupers><defsuper>&lt;simple-vector&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	    <keyparam>
+	      <paramname>fill</paramname>
+	      <paramtype>&lt;byte&gt;</paramtype>
+	      <paramdefault>0</paramdefault>
+	      <paramsummary>The default value of each element</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>size</paramname>
+	      <paramdefault>0</paramdefault>
+	      <paramsummary>The size of the vector</paramsummary>
+	    </keyparam>
+	  </definitkeywords>
+	  <defdescription>
+	    <para>
+	      An efficient vector for byte-storage.
+	    </para>
+	  </defdescription>
+	</dylanclassdef>
 
-	    <PARA>This class is a subclass of
-	    <CLASSNAME>&lt;vector&gt;</CLASSNAME> that can only hold
-	    integers between 0 and 255 inclusively.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	<dylanconstantdef>
+	  <defname>&lt;byte-character&gt;</DEFNAME>
+	  <defsummary>
+	    An ASCII character.
+	  </defsummary>
+	  <deftype>&lt;byte-character-type&gt;</deftype>
+	  <defdescription>
+	    <para>
+	      Characters of this type represent the ASCII
+	      character set (or extensions to ASCII such as ISO
+	      8859). Note, in Gwydion compilers the
+	      <CLASSNAME>&lt;character&gt;</CLASSNAME> class is
+	      equivalent to Unicode characters.
+	    </para>
+	  </defdescription>
+	</dylanconstantdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;byte-character&gt;</REFNAME>
-	    <REFPURPOSE>Class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
+	<dylanfunctiondef>
+	  <defname>assert</defname>
+	  <defsummary>Signals an error if assumption is incorrect</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>value</paramname>
+	      <paramsummary>
+	        A boolean condition which should be &true;
+	      </paramsummary>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This function signals an error if
+	      <PARAMETER>value</PARAMETER> is &false;. Otherwise, it
+	      does nothing. In future Gwydion compilers, assert may be
+	      changed to a macro, which may or may not evaluate its
+	      argument exactly once.
+	    </para>
+	    <note>
+	      <para>
+	        So, it goes to follow that users of
+		<function>assert</function> should not have side-effects
+		in the expression that is passed to
+		<function>assert</function> because if we ever turn
+		assertions off, that would mean the program runs
+		differently in debug mode than it does in release
+		mode.
+	      </para>
+	    </note>
+	  </defdescription>
+	</dylanfunctiondef>
 
-	    <PARA><CLASSNAME>&lt;character&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
-	    <PARA>Characters of this type represent the ASCII
-	    character set (or extensions to ASCII such as ISO
-	    8859). Note, in Gwydion compilers the
-	    <CLASSNAME>&lt;character&gt;</CLASSNAME> class is
-	    equivalent to Unicode characters.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
-
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>assert</REFNAME>
-	    <REFPURPOSE>function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>assert</FUNCTION> <PARAMETER>value</PARAMETER> =></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>value</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-
-	    <PARA>None</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
-	    <PARA>This function signals an error if
-	    <PARAMETER>value</PARAMETER> is
-	    <dlit>#f</dlit>. Otherwise, it does nothing. In
-	    future Gwydion compilers, assert may be changed to a
-	    macro, which may or may not evaluate its argument exactly
-	    once.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
-
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>one-of</REFNAME>
-	    <REFPURPOSE>Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>one-of</FUNCTION> #rest <PARAMETER>objects</PARAMETER> => <PARAMETER>type</PARAMETER></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>objects</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>Instances of <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>type</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylanmethoddef>
+	  <defname>one-of</defname>
+	  <defsummary>
+	    Creates a class that is one of the supplied arguments.
+	  </defsummary>
+	  <defparameters>
+	    <restparam>
+	      <paramname>things</paramname>
+	      <paramsummary>The allowable classes</paramsummary>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>res</paramname>
+	      <paramtype>&lt;type&gt;</paramtype>
+	      <paramsummary>
+	        The resulting type from the supplied classes.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
 	    <PARA>This function takes any number of objects, and
 	    returns the type that is the type-union of the singletons
 	    of those objects. For example, the expression</PARA>
@@ -445,47 +437,33 @@ one-of(#"foo", #"bar", #"baz")</PROGRAMLISTING>
 
 	    <PROGRAMLISTING>
 type-union(singleton(#"foo"), singleton(#"bar"), singleton(#"baz"))</PROGRAMLISTING>
-	  </REFSECT1>
-	</REFENTRY>
+	  </defdescription>
+	</dylanmethoddef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>false-or</REFNAME>
-	    <REFPURPOSE>Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>false-or</FUNCTION> <PARAMETER>type</PARAMETER> => <PARAMETER>bigger-type</PARAMETER></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>Type</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>bigger-type</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of <CLASSNAME>&lt;type&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylanmethoddef>
+	  <defname>false-or</defname>
+	  <defsummary>
+	    Creates a class that is either &false; or the supplied class.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>type</paramname>
+	      <paramsummary>The alternate type</paramsummary>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>res</paramname>
+	      <paramtype>&lt;type&gt;</paramtype>
+	      <paramsummary>
+	        The resulting type-union.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
 	    <PARA>This function is useful in type expressions. It
 	    captures the common idiom of returning an instance of a
-	    particular type or the value #f. The expression</PARA>
+	    particular type or the value &false;. The expression</PARA>
 
 	    <PROGRAMLISTING>
 false-or(&lt;integer&gt;)</PROGRAMLISTING>
@@ -494,8 +472,10 @@ false-or(&lt;integer&gt;)</PROGRAMLISTING>
 
 	    <PROGRAMLISTING>
 type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
-	  </REFSECT1>
-	</REFENTRY>
+
+	  </defdescription>
+	</dylanmethoddef>
+
       </SECT2>
 
       <SECT2>
@@ -511,52 +491,38 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	messages to users; for example, this is the function that
 	implements the <dlit>%S</dlit> format-string directive
 	for conditions. The debugger also uses the
-	<FUNCTION>format</FUNCTION> function exported from the Cheap-io
+	<FUNCTION>format</FUNCTION> function exported from the
+	<dmodule>Cheap-io</dmodule> 
 	module to process format strings, and it prints directly to
 	the Unix stdout. If any library that is used itself uses the
-	Debugger-format library, then the debugger uses format from
+	<dlibrary>Debugger-format</dlibrary> library, then the
+	debugger uses format from 
 	the <dlibrary>Format</dlibrary> library, which is shipped with Gwydion
 	compilers. You can extend how the debugger prints conditions,
 	change what formatting function it uses, and direct where
 	debugger output goes with the following:</PARA>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>report-condition</REFNAME>
-	    <REFPURPOSE>Generic Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>report-condition</FUNCTION> <PARAMETER>condition</PARAMETER> <PARAMETER>stream</PARAMETER> =></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>condition</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;condition&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>stream</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;stream&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-
-	    <PARA>None</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylangenericdef>
+	  <defname>report-condition</defname>
+	  <defadjectives>open</defadjectives>
+	  <defsummary>Writes a condition to a stream.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>condition</paramname>
+	      <paramtype>&lt;condition&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>stream</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	      <paramsummary>
+	        As we don't know the underlying output
+		system, we'll accept any object.
+	      </paramsummary>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
 	    <PARA>This is the function that is used to print condition
 	    variables as error messages to users. The internal
 	    <FUNCTION>format</FUNCTION> function used by Mindy uses
@@ -567,119 +533,117 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    <FUNCTION>report-condition</FUNCTION>.</PARA>
 
 	    <PARA>If you are writing a module that does no output but
-	    still provides report-condition methods, you should use
+	    still provides <function>report-condition</function>
+	    methods, you should use 
 	    <FUNCTION>condition-format</FUNCTION> to format
 	    output. Using <FUNCTION>condition-format</FUNCTION> makes
 	    your module more flexible for users of your module. If you
-	    call Cheap-IO's format, you'll be forced to write to only
-	    one destination, <dlit>stdout</dlit>, ignoring the
+	    call <dmodule>Cheap-IO</dmodule>'s
+	    <function>format</function>, you'll be forced to write to
+	    only one destination, <dlit>stdout</dlit>, ignoring the
 	    <PARAMETER>stream</PARAMETER> argument. If you call the
-	    <dlibrary>Format</dlibrary> library's <FUNCTION>format</FUNCTION> function,
-	    then your module will require the <dlibrary>Format</dlibrary>, <dlibrary>Print</dlibrary>, and
-	    <dlibrary>Streams</dlibrary> libraries; therefore, users of your module may
-	    ultimately load these other libraries needlessly. Of
-	    course, if you want to make use of the extended
-	    functionality of the <dlibrary>Format</dlibrary> library's format control
+	    <dlibrary>Format</dlibrary> library's
+	    <FUNCTION>format</FUNCTION> function, 
+	    then your module will require the
+	    <dlibrary>Format</dlibrary>, <dlibrary>Print</dlibrary>,
+	    and <dlibrary>Streams</dlibrary> libraries; therefore,
+	    users of your module may ultimately load these other
+	    libraries needlessly. Of course, if you want to make use
+	    of the extended functionality of the
+	    <dlibrary>Format</dlibrary> library's format control 
 	    strings, then you only have one choice anyway, and there's
-	    no reason to use <FUNCTION>condition-format</FUNCTION>.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	    no reason to use
+	    <FUNCTION>condition-format</FUNCTION>.</PARA>
+	    <para>
+	      <function>Report-condition</function> has several
+	      supplied methods.  The default method (on
+	      <classname>&lt;condition&gt;</classname>) simply prints
+	      the condition (not very descriptive).  The
+	      <classname>&lt;format-string-condtion&gt;</classname>
+	      (of which the simple conditions are derived) method uses
+	      the supplied format-string to output information about
+	      the cause of the condition.  The
+	      <classname>&lt;type-error&gt;</classname> method gives
+	      the expected and actual types, and the
+	      <classname>&lt;abort&gt;</classname> method just prints
+	      the supplied description. 
+	    </para>
+	  </defdescription>
+	</dylangenericdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME></REFNAME>
-	    <REFPURPOSE></REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>condition-format</FUNCTION> <PARAMETER>stream</PARAMETER> <PARAMETER>control-string</PARAMETER>#rest <PARAMETER>arguments</PARAMETER> =></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>stream</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>control-string</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;string&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>arguments</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>Instances of
-		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-	    <PARA>None</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylangenericdef>
+	  <defname>condition-format</defname>
+	  <defadjectives>open</defadjectives>
+	  <defsummary>
+	    Serves as a firewall between the condition system and streams.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>stream</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	      <paramsummary>
+	        As we don't know the underlying output
+		system, we'll accept any object.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>control-string</paramname>
+	      <paramtype>&lt;string&gt;</paramtype>
+	      <paramsummary>
+	        The format string to print the condition.
+	      </paramsummary>
+	    </param>
+	    <restparam>
+	      <paramname>arguments</paramname>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
 	    <PARA>This function serves as a firewall between the
-	    condition system and the <dlibrary>Streams</dlibrary> and <dlibrary>Format</dlibrary>
+	    condition system and the <dlibrary>Streams</dlibrary> and
+	    <dlibrary>Format</dlibrary> 
 	    libraries. Methods on
 	    <FUNCTION>report-condition</FUNCTION> should use
 	    <FUNCTION>condition-format</FUNCTION> to do their
 	    formatting. Users will generally use
 	    <dlit>*debug-output*</dlit> or
-	    <dlit>*warning-output*</dlit> for the stream
+	    <dlit>*warning-output*</dlit> for the
+	    <parameter>stream</parameter> 
 	    argument, but this is not required.</PARA>
 
-	    <PARA>Mindy supplies a method for when stream is
-	    <dlit>#"Cheap-IO"</dlit>. The Gwydion <dlibrary>Format</dlibrary> library
-	    supplies a method for when stream is a subclass of
-	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
-	    implementing your own streams or format libraries, you
-	    will need to define a method on
+	    <PARA>Mindy supplies a method for when
+	    <parameter>stream</parameter> is 
+	    <dlit>#"Cheap-IO"</dlit>. The Gwydion
+	    <dlibrary>Format</dlibrary> library 
+	    supplies a method for when <parameter>stream</parameter>
+	    is a subclass of <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If
+	    you are implementing your own streams or format libraries,
+	    you will need to define a method on
 	    <FUNCTION>condition-format</FUNCTION> for your type of
-	    stream.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	    stream.</PARA> 
+	  </defdescription>
+	</dylangenericdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>condition-force-output</REFNAME>
-	    <REFPURPOSE>Generic Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>condition-force-output</FUNCTION> <PARAMETER>stream</PARAMETER> =></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-
-	    <PARA>None</PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylangenericdef>
+	  <defname>condition-force-output</defname>
+	  <defadjectives>open</defadjectives>
+	  <defsummary>
+	    Flushes the condition output stream.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>stream</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	      <paramsummary>
+	        As we don't know the underlying output
+		system, we'll accept any object.
+	      </paramsummary>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
 	    <PARA><FUNCTION>Condition-force-output</FUNCTION> forces
 	    any pending output from <PARAMETER>stream</PARAMETER>'s
 	    buffer to <PARAMETER>stream</PARAMETER>'s
@@ -691,35 +655,38 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    yourself.</PARA>
 
 	    <PARA>Mindy supplies a method for when stream is
-	    <dlit>#"Cheap-IO"</dlit>. The Gwydion <dlibrary>Format</dlibrary> library
-	    supplies a method for when stream is a subclass of
+	    <dlit>#"Cheap-IO"</dlit>. The Gwydion
+	    <dlibrary>Format</dlibrary> library 
+	    supplies a method for when <parameter>stream</parameter>
+	    is a subclass of 
 	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
 	    implementing your own streams or format libraries, you
 	    will need to define a method on
 	    <FUNCTION>condition-force-output</FUNCTION> for your type
 	    of stream.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	  </defdescription>
+	</dylangenericdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>*warning-output*</REFNAME>
-	    <REFPURPOSE>Variable</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylanvariabledef>
+	  <defname>*default-level*</defname>
+	  <defsummary>
+	    Gives how far down recursively to print
+	  </defsummary>
+	  <deftype>&lt;object&gt;</deftype>
+	  <defdescription>
 	    <PARA>Default-handler for
 	    <CLASSNAME>&lt;warning&gt;</CLASSNAME> uses
 	    <dlit>*warning-output*</dlit> to print warning
 	    messages. This variable must be either a
-	    <CLASSNAME>&lt;stream&gt;</CLASSNAME> from the Streams
+	    <CLASSNAME>&lt;stream&gt;</CLASSNAME> from the
+	    <dlibrary>Streams</dlibrary> 
 	    library, or <dlit>#"Cheap-IO"</dlit> (the
 	    default). When this variable is
 	    <dlit>#"Cheap-IO"</dlit>, the output goes to
 	    <dlit>stderr</dlit>.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	  </defdescription>
+        </dylanvariabledef>
+
       </SECT2>
 
       <SECT2 ID="libs-dylan-exiting-applications">
@@ -728,74 +695,44 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	<PARA>The Extensions module exports the following
 	functionality for controlling the exiting of
 	applications:</PARA>
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>exit</REFNAME>
-	    <REFPURPOSE>Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
 
-	    <SYNOPSIS><FUNCTION>exit</FUNCTION> #key <PARAMETER>exit-code</PARAMETER> =></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Keyword Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><dlit>exit-code:</dlit></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <dlit>&lt;integer&gt;</dlit>.  The default is
-		  0.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylanmethoddef>
+	  <defname>exit</defname>
+	  <defsummary>Causes the application to quit.</defsummary>
+	  <defparameters>
+	    <keyparam>
+	      <paramname>exit-code</paramname>
+	      <paramtype>&lt;integer&gt;</paramtype>
+	      <paramdefault>0</paramdefault>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>res</paramname>
+	      <paramtype>&lt;never-returns&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
 	    <PARA>Causes the process to exit with return code
 	    <PARAMETER>exit-code</PARAMETER>.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	  </defdescription>
+	</dylanmethoddef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>on-exit</REFNAME>
-	    <REFPURPOSE>Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>on-exit</FUNCTION> <PARAMETER>function</PARAMETER> => <PARAMETER>meaningless</PARAMETER></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM>function</TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;function&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM>meaningless</TERM>
-		<LISTITEM>
-		  <PARA>Always equal to <dlit>#f</dlit>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylanmethoddef>
+	  <defname>on-exit</defname>
+	  <defsummary>Adds a function to be called just before quitting.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>function</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	      <paramsummary>A function to execute before quitting.
+	      </paramsummary>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
 	    <PARA>Arranges for the <FUNCTION>exit</FUNCTION> function
 	    to call the argument function.  The argument function must
 	    take no required arguments.  Users may call
@@ -803,11 +740,13 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    more than one function for <FUNCTION>exit</FUNCTION> to
 	    call, but the order in which exit invokes the functions is
 	    undefined. Calling <FUNCTION>on-exit</FUNCTION> on the
-	    same function repeatedly, installs that function multiple
+	    same function repeatedly installs that function multiple
 	    times.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	  </defdescription>
+	</dylanmethoddef>
+
       </SECT2>
+
       <SECT2>
 	<TITLE>Collections</TITLE>
 
@@ -815,65 +754,41 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	<CLASSNAME>&lt;collection&gt;</CLASSNAME>
 	functionality:</PARA>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>key-exists?</REFNAME>
-	    <REFPURPOSE>Generic Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>key-exists?</FUNCTION> <PARAMETER>collection</PARAMETER> <PARAMETER>key</PARAMETER> => <PARAMETER>win?</PARAMETER> <PARAMETER>elt</PARAMETER></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>collection</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;collection&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>key</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>win?</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;boolean&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>elt</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;object&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
+	<dylanmethoddef>
+	  <defname>key-exists?</defname>
+	  <defsummary>
+	    Returns &true; if a key is in a collection.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>coll</paramname>
+	      <paramtype>&lt;collection&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>key</paramname>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>result</paramname>
+	      <paramtype>&lt;boolean&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>value</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	      <paramsummary>The associated datum for the key</paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
 	    <PARA>Return whether <PARAMETER>key</PARAMETER> is in
-	    <PARAMETER>collection</PARAMETER>. If the
+	    <PARAMETER>coll</PARAMETER>. If the
 	    <PARAMETER>key</PARAMETER> is in the
-	    <PARAMETER>collection</PARAMETER>, then the second value
+	    <PARAMETER>coll</PARAMETER>, then the second value
 	    is the element associated with <PARAMETER>key</PARAMETER>;
-	    otherwise, the second return value is #f.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	    otherwise, the second return value is &false;.</PARA>
+	  </defdescription>
+	</dylanmethoddef>
+
       </SECT2>
       <SECT2>
 	<TITLE>Integers</TITLE>
@@ -907,75 +822,86 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	<PARA>The Extension module exports the following integer
 	functionality:</PARA>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;general-integer&gt;</REFNAME>
-	    <REFPURPOSE>Abstract Class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Superclass</TITLE>
-	    <PARA><CLASSNAME>&lt;rational&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
+	<dylanclassdef>
+	  <defname>&lt;general-integer&gt;</dEFNAME>
+	  <defadjectives>abstract</defadjectives>
+	  <defsummary>Parent class of all integers.</defsummary>
+	  <defsupers><defsuper>&lt;rational&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	  </definitkeywords>
+	  <defdescription>
 	    <PARA>The superclass of
 	    <CLASSNAME>&lt;integer&gt;</CLASSNAME> and
 	    <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;extended-integer&gt;</REFNAME>
-	    <REFPURPOSE>Class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
-	    <PARA><CLASSNAME>&lt;general-integer&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	</REFENTRY>
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>$maximum-integer</REFNAME>
-	    <REFPURPOSE>Constant</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
+	  </defdescription>
+	</dylanclassdef>
+
+	<dylanclassdef>
+	  <defname>&lt;extended-integer&gt;</dEFNAME>
+	  <defadjectives></defadjectives>
+	  <defsummary>An integer of any size.</defsummary>
+	  <defsupers><defsuper>&lt;general-integer&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	  </definitkeywords>
+	  <defdescription>
+	    <PARA>
+	      A bignum is just a vector of digits.
+	    </PARA>
+	  </defdescription>
+	</dylanclassdef>
+
+	<dylanconstantdef>
+	  <defname>$maximum-integer</defname>
+	  <defsummary>
+	    Highest computed integer for the architecture.
+	  </defsummary>
+	  <deftype>&lt;integer&gt;</deftype>
+	  <defdescription>
 	    <PARA>Holds the largest positive
 	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>$minimum-integer</REFNAME>
-	    <REFPURPOSE>Constant</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
+          </defdescription>
+        </dylanconstantdef>
+
+	<dylanconstantdef>
+	  <defname>$minimum-integer</defname>
+	  <defsummary>
+	    Lowest computed integer for the architecture.
+	  </defsummary>
+	  <deftype>&lt;integer&gt;</deftype>
+	  <defdescription>
 	    <PARA>Holds the smallest negative
 	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+          </defdescription>
+        </dylanconstantdef>
+
       </SECT2>
 
       <SECT2>
 	<TITLE>Ratios</TITLE>
 
-	<PARA>The  Extensions module exports the following:</PARA>
+	<PARA>The <dmodule>Extensions</dmodule> module exports the
+	following:</PARA> 
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;ratio&gt;</REFNAME>
-	    <REFPURPOSE>Class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Superclasses</TITLE>
-
-	    <PARA><CLASSNAME>&lt;rational&gt;</CLASSNAME></PARA>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
-	    <PARA>A ratio is normalized so that it has a positive
+	<dylanclassdef>
+	  <defname>&lt;ratio&gt;</dEFNAME>
+	  <defadjectives>functional</defadjectives>
+	  <defsummary>An exact fractional number.</defsummary>
+	  <defsupers><defsuper>&lt;rational&gt;</defsuper></defsupers>
+	  <definitkeywords>
+	    <keyparam>
+	      <paramname>numerator</paramname>
+	      <paramtype>&lt;extended-integer&gt;</paramtype>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>denominator</paramname>
+	      <paramtype>&lt;extended-integer&gt;</paramtype>
+	      <paramsummary>Guaranteed positive.</paramsummary>
+	    </keyparam>
+	  </definitkeywords>
+	  <defdescription>
+	    <para>A ratio has two slots: <dname>numerator</dname> and
+	    <dname>denominator</dname>.  It is normalized so that it
+	    has a positive 
 	    denominator, and the greatest common divisor of the
 	    numerator and the denominator is one. Ratios are never
 	    automatically converted to integers. For example,
@@ -987,142 +913,33 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    ratio and an integer produced a normalized ratio result. A
 	    numeric operation involving a ratio and a float produces a
 	    float result.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	  </defdescription>
+	</dylanclassdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>ratio</REFNAME>
-	    <REFPURPOSE>Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>ratio</FUNCTION> <PARAMETER>numerator</PARAMETER> <PARAMETER>denominator</PARAMETER> => <PARAMETER>ratio</PARAMETER></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>numerator</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>denominator</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>ratio</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
-	    <PARA>This function makes a ratio from the two integers.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>numerator</REFNAME>
-	    <REFPURPOSE>Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>numerator</FUNCTION> <PARAMETER>ratio</PARAMETER> => <PARAMETER>the-numerator</PARAMETER></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>ratio</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>the-numerator</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
-	    <PARA>This function returns the numerator part of a ratio.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>denominator</REFNAME>
-	    <REFPURPOSE>Function</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Signature</TITLE>
-
-	    <SYNOPSIS><FUNCTION>denominator</FUNCTION> <PARAMETER>ratio</PARAMETER> => <PARAMETER>the-denominator</PARAMETER></SYNOPSIS>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Arguments</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>ratio</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;ratio&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Values</TITLE>
-
-	    <VARIABLELIST>
-	      <VARLISTENTRY>
-		<TERM><PARAMETER>the-denominator</PARAMETER></TERM>
-		<LISTITEM>
-		  <PARA>An instance of
-		  <CLASSNAME>&lt;general-integer&gt;</CLASSNAME>.</PARA>
-		</LISTITEM>
-	      </VARLISTENTRY>
-	    </VARIABLELIST>
-	  </REFSECT1>
-	  <REFSECT1>
-	    <TITLE>Description</TITLE>
-
-	    <PARA>This function returns the denominator part of a ratio.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+	<dylanmethoddef>
+	  <defname>ratio</defname>
+	  <defsummary>Makes a ratio from to integers.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>num</paramname>
+	      <paramtype>&lt;extended-integer&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>denom</paramname>
+	      <paramtype>&lt;extended-integer&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>res</paramname>
+	      <paramtype>&lt;ratio&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <PARA>This function makes a ratio from the two
+	    integers.</PARA>
+	  </defdescription>
+	</dylanmethoddef>
 
       </SECT2>
     </SECT1>
@@ -2284,7 +2101,7 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
             <paramtype>&lt;string&gt;</paramtype>
           </param>
           <restparam>
-            <paramname> args </paramname>
+            <paramname>args</paramname>
             <paramsummary>
               The objects to substitute for the format fields.
             </paramsummary>
@@ -2301,7 +2118,7 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
       </dylanmethoddef>
       
       <dylanfunctiondef>
-        <defname> format-to-string </defname>
+        <defname>format-to-string</defname>
         <defsummary>
           Process a format-string and return the result as another string.
         </defsummary>
