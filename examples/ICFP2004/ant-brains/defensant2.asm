@@ -1,5 +1,4 @@
-Flip 30 defense_find_center_of_home: .
-Flip 6 kill: search:
+Flip 30 defense_find_center_of_home: search:
 
 defense_find_center_of_home:
 Sense Ahead . defense_at_home_edge: Home
@@ -113,7 +112,8 @@ search:
 Move . search_blocked:
 Sense Here search: . Marker 1
 PickUp turn_and_return: .
-Sense Ahead patrol: search: FoeHome
+Sense Ahead . search: FoeHome
+Flip 4 kill_loop: patrol:
 
 search_blocked:
 Turn Right search:
@@ -181,23 +181,10 @@ patrol_corner:
 Turn Left .
 Turn Left patrol:
 
-kill:
-Flip 10 kill_turn: .
-Move . kill_turn:
-Sense Here kill_loop: kill: FoeHome
-
-kill_turn:
-Flip 2 kill_turn_left: kill_turn_right:
-
-kill_turn_left:
-Turn Left kill:
-
-kill_turn_right:
-Turn Right kill:
-
 kill_loop:
 PickUp kill_dump: .
 Sense Ahead . kill_turn_and_loop: FoeHome
+Flip 10 kill_turn_and_loop: .
 Move kill_loop: kill_turn_and_loop:
 
 kill_turn_and_loop:
@@ -206,7 +193,8 @@ Turn Right kill_loop:
 kill_dump:
 Turn Right .
 Turn Right .
-Turn Right kill_exit:
+Turn Right .
+Flip 6 return: kill_exit:
 
 kill_exit:
 Sense Here . kill_drop: FoeHome
