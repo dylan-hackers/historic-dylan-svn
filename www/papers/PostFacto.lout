@@ -298,7 +298,7 @@ C1:: @Box
 }
             }
             PDF @Yield {
-@I { [nice set diagram here (only .ps)] }
+@CenteredDisplay { @I { [nice set diagram here (only .ps)] } }
             }
 }
 @PP
@@ -432,6 +432,14 @@ type union.
 
 For the remaining subsections we assume that the requirements are met.
 
+@PP
+Crucial fact: since projections are only relevant when appearing on one
+side of the restriction operator we can always perform the pessimization
+first for the union, intersection and difference operators. However there
+is a question whether restricting a projection with another one is an
+interesting operation or simply corresponds to restricting with the pessimization
+twice.
+
 @BeginSubSubSections
 #-----------------
 @SubSubSection @Title { Type Union }
@@ -461,7 +469,10 @@ Here @I j is denoting the index in the left signature set.
 Additionally considering several signatures on the right hand side, we arrive at
 the union over the full cartesian product:
 @Eq {big bcup from {j=1, j'=1} to {m, m'} tau sub i sup j cap tau sub i sup j'}.
-
+@LP
+@I { [this is basically what we get if we first apply the pessimization
+on both sides and interset that. But how about an equation that gives us
+a tuple union projection as the result? ] }
 @End @SubSubSection
 
 #-----------------
@@ -593,6 +604,7 @@ conflicts) }
    @ListItem { type algebra for different projectors possible? for different tuple length? }
    @ListItem { exponential blowup on size of type terms possible? by cascaded function calls with partially new variables? }
    @ListItem { we can do a forward analysis to predicate an almost 100% probability for the postfacto refined ssa-vars (for at least the preceding basic block, infinite loops before that could be pessimized by this) }
+   @ListItem { when the restriction operator results in any implication having the empty type, then all dominated code is dead (can this arise at all, or do we always detect this before the GF call, by seeing no applicable methods? }
 @EndList
 
 @End @Section
