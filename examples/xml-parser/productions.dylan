@@ -63,20 +63,22 @@ define macro collector-definer
 end macro collector-definer;
 
 define macro collect-value-definer
-{ define collect-value ?:name (?vars:*)
-    (#key ?test:variable = not-in-set?)
+{ define collect-value ?:name (?vars:*) (?properties:*)
     ?single:expression, ?double:expression => ?meta:*
   end }
  => { define collector ?name(c, ?vars)
         {['"',
-          loop({[test(rcurry(?test, ?double), c),
+          loop({[test(rcurry(?properties, ?double), c),
                  do(?=collect(c))], ?meta}),
           '"'],
          ["'",
-          loop({[test(rcurry(?test, ?single), c), 
+          loop({[test(rcurry(?properties, ?single), c), 
                  do(?=collect(c))], ?meta}), 
           "'"]}, []
        end collector; }
+  properties:
+    { } => { not-in-set? }
+    { #key ?test:expression } => { ?test }
 end macro collect-value-definer;
 
 define macro meta-builder
