@@ -174,16 +174,7 @@ end parse nmtokens;
 //                                    |  "'" ([^%&'] | PEReference | Reference)* "'"
 //
 define constant not-in-set? = complement(member?);
-/****
-// I'm going to ignore PE refs for the moment
-define collect-value entity-value(ref) ()
-  "%&'", "%&\"" => 
-   {parse-pe-reference(ref), 
-    [parse-char-ref(ref), do(collect(ref.char))],
-    [parse-entity-ref(ref), do(do(collect, *entities*[ref.name]))]}
-end collect-value entity-value;
- ****/
-// DOUG
+
 define collector entity-value(contents) => (str)
   {["\"",
     loop([{parse-reference(contents), parse-double-char-data(contents)}, 
