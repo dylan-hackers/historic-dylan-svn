@@ -34,6 +34,11 @@ define open primary abstract class <top-level-form> (<source-location-mixin>, <d
   slot tlf-component :: false-or(<component>) = #f, init-keyword: component:;
   slot tlf-init-function :: false-or(<ct-function>) = #f,
     init-keyword: init-function:;
+  //
+  // Threaded list of the dependencies connecting this tlf to the
+  // dependent that use this expression.
+  slot tlf-dependents :: false-or(<general-dependency>),
+    init-value: #f, init-keyword: dependents:;
 end;
 
 define open primary abstract class <define-tlf> (<top-level-form>)

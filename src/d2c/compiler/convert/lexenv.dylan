@@ -195,8 +195,8 @@ define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-to
 //      	  compiler-warning("### tlf %= depends on %=", lexenv-tlf, variable-tlf);
       	  lexenv-tlf.depends-on
       	    := make(<tlf-dependency>, source: variable-tlf, dependent: lexenv.lexenv-tlf,
-      	           dependent-next: lexenv-tlf.depends-on, source-next: variable-tlf.dependents);
-      	  variable-tlf.dependents := lexenv-tlf.depends-on;
+      	           dependent-next: lexenv-tlf.depends-on, source-next: variable-tlf.tlf-dependents);
+      	  variable-tlf.tlf-dependents := lexenv-tlf.depends-on;
       	end;
       	search-my-bindings();
       end if;

@@ -265,6 +265,7 @@ define module top-level-forms
     *Top-Level-Forms*,
     <top-level-form>, tlf-component, tlf-component-setter,
     tlf-init-function, tlf-init-function-setter,
+    tlf-dependents, tlf-dependents-setter,
     finalize-top-level-form, convert-top-level-form,
 
     <define-tlf>, <simple-define-tlf>, tlf-defn, tlf-defn-setter,
