@@ -6,10 +6,12 @@
     Customised for Gwydion Dylan by Rob Myers rob@robmyers.org
 */
 
-#import <Cocoa/Cocoa.h>
+#ifdef __OBJC__ 
+    #import <Cocoa/Cocoa.h>
+
+    @interface SDLMain : NSObject
+    @end
+#endif
 
 // The Dylan main method callback
-extern void (*SDL_Dylan_main)();
-
-@interface SDLMain : NSObject
-@end
+extern void (*SDL_Dylan_main)( void );
