@@ -5,5 +5,6 @@ define library libpng
   use io;
   use streams;
   use melange-support;
+  export libpng;
 end library libpng;
 

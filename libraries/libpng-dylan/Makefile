@@ -1,4 +1,4 @@
-libpng.lib.du: libpng.dylan libpng-intr.dylan libpng.lid libpng-internal-exports.dylan libpng-exports.dylan
+libpng.lib.du: libpng.dylan libpng-intr.dylan libpng.lid libpng-internal-exports.dylan libpng-exports.dylan libpng-test.dylan
 	d2c libpng.lid
 
 libpng-intr.dylan: libpng-intr.intr
