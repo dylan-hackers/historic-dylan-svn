@@ -15,13 +15,13 @@ define macro brain-definer
   { Turn ?:name } => { push-thunk(instrs, label, counter,
                                   method()
                                     make(<turn>, left-or-right: ?#"name", state: lookup(instrs, label, counter + 1))
-                                  end;
+                                  end);
                      }
 
   { Turn ?:name (?label:name) } => { push-thunk(instrs, label, counter,
                                                 method()
                                                   make(<turn>, left-or-right: ?#"name", state: lookup(instrs, ?#"label", 0))
-                                                end;
+                                                end);
                                    }
 
 
