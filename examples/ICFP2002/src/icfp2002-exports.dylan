@@ -48,6 +48,7 @@ end module path;
 
 define module command
   use common-dylan;
+  use board, import: { <point> };
 
   export
     $north,
@@ -58,7 +59,8 @@ define module command
     <command>, bid,
     <move>, direction,
     <pick>, package-ids,
-    <drop>;
+    <drop>,
+    <transport>;
 end module command;
 
 define module messages
@@ -77,6 +79,8 @@ define module messages
     send-player,  // This sends the "Player" message to the server to
     //initialize.
     send-command,
+    receive-server-packages,
+    receive-server-command-reply,
     // receive routines
     receive-initial-setup; // Reads initial board plus self robot, with robot
   // positions. Does it all.
@@ -121,6 +125,7 @@ define module icfp2002
   use garbage-collection;
   use network;
   use messages;
+  use command;
   use board;
   use client;
 

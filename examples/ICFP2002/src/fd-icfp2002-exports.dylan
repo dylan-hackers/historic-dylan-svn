@@ -52,6 +52,7 @@ end module path;
 
 define module command
   use common-dylan;
+  use board, import: { <point> };
 
   export
     $north,
@@ -62,7 +63,8 @@ define module command
     <command>, bid,
     <move>, direction,
     <pick>, package-ids,
-    <drop>;
+    <drop>,
+    <transport>;
 end module command;
 
 define module messages
@@ -84,6 +86,8 @@ define module messages
                   //initialize.
     send-command,
     // receive routines
+    receive-server-packages,
+    receive-server-command-reply,
     receive-initial-setup; // Reads initial board plus self robot, w/ robot
                            // positions. Does it all.
     // receive-initial-setup calls:
@@ -125,5 +129,7 @@ define module icfp2002
 //  use network;
   use messages;
   use board;
+  use command;
   use client;
+
 end module;
