@@ -7,14 +7,13 @@ Write modules to solve:
 + A* pathfinding
   - Add a real priority queue
 
-- travelling salesman problem (in progress) 
-  - Construct a minimum spanning tree (in progress)
-  - Do a dfs on it for the path to follow (in progress)
++ travelling salesman problem 
+  + Construct a minimum spanning tree
+  + Do a dfs on it for the path to follow
 
 - knapsack problem
 - minimax engine
 - we could make agents more fault-tolerant if we caught all errors and just restarted our strategy
 - function to get cpu time
 - debug() as an empty function
-
 - Add a way to clear the path-cache in find-path.
