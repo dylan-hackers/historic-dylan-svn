@@ -208,6 +208,27 @@ define constant <pub-id-char-without-quotes> =
 define constant <pub-id-char> =
   type-union(<pub-id-char-without-quotes>, singleton('\''));
 
+// Character Data
+//
+//    [14]    CharData    ::=    [^<&]* - ([^<&]* ']]>' [^<&]*)
+//    
+
+// Now this is not very coherent to me. The section in the
+// specification talks about CharData being used by the CDATA section,
+// where in fact CDATA has it's own rule for matching characters
+// [20]. So I don't see why ']]>' shouldn't be allowed, and I'm taking
+// the liberty to implement this as
+//
+//    [14a]   CharData    ::=    [^<&]*
+//
+// which should be good enough (i.e., parses all compliant XML files,
+// but fails to detect some non-compliancies).
+//                                                --andreas
+//
+define collector char-data(c)
+  loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])
+end collector char-data;
+
 // Comments
 
 //    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
@@ -241,6 +262,22 @@ define method parse-pi-target(string, #key start = 0, end: stop)
     values(index, #t);
   end with-meta-syntax;  
 end method parse-pi-target;
+
+// CDATA Sections
+// 
+//    [18]    CDSect     ::=    CDStart CData CDEnd
+//    [19]    CDStart    ::=    '<![CDATA['
+//    [20]    CData      ::=    (Char* - (Char* ']]>' Char*))
+//    [21]    CDEnd      ::=    ']]>'
+//    
+// Now here we require multi-byte lookahead. Great. And we need to
+// rearrange things a little because we have no equivalent to the
+// - operator. Basically, we're construcing our own non-greedy
+// loop operator here.                        --andreas
+//
+define parse cd-sect(c)
+  "<![CDATA[", loop({["]]>", finish()], type(<char>, c)})
+end parse cd-sect;
 
 //    [23]    XMLDecl        ::=    '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
 //
@@ -652,58 +689,6 @@ define parse element(name, attribs, content, etag)
       parse-content(content), 
       parse-etag(etag)]}, []
 end parse element;
-
-
-// Character Data
-//
-//    [14]    CharData    ::=    [^<&]* - ([^<&]* ']]>' [^<&]*)
-//    
-
-// Now this is not very coherent to me. The section in the
-// specification talks about CharData being used by the CDATA section,
-// where in fact CDATA has it's own rule for matching characters
-// [20]. So I don't see why ']]>' shouldn't be allowed, and I'm taking
-// the liberty to implement this as
-//
-//    [14a]   CharData    ::=    [^<&]*
-//
-// which should be good enough (i.e., parses all compliant XML files,
-// but fails to detect some non-compliancies).
-//                                                --andreas
-//
-/*****
-define method parse-char-data(string, #key start = 0, end: stop)
-  with-collector into-vector chars, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c);
-      [loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])];
-      values(index, as(<string>, chars));
-    end with-meta-syntax;
-  end with-collector;
-end method parse-char-data; *****/
-define collector char-data(c)
-  loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])
-end collector char-data;
-
-// CDATA Sections
-// 
-//    [18]    CDSect     ::=    CDStart CData CDEnd
-//    [19]    CDStart    ::=    '<![CDATA['
-//    [20]    CData      ::=    (Char* - (Char* ']]>' Char*))
-//    [21]    CDEnd      ::=    ']]>'
-//    
-// Now here we require multi-byte lookahead. Great. And we need to
-// rearrange things a little because we have no equivalent to the
-// - operator. Basically, we're construcing our own non-greedy
-// loop operator here.                        --andreas
-//                      
-define method parse-cd-sect(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    ["<![CDATA[", loop({["]]>", finish()], type(<char>, c)})];
-    values(index, #t);
-  end with-meta-syntax;  
-end method parse-cd-sect;
 
 // External Subset
 // 
