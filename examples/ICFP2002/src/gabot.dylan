@@ -133,14 +133,17 @@ block (return)
     & me.decided.valid?
     & safe?(me.decided, me, s)
     & me.decided.follow;
-
-  let (safe-drop, drop-path) = find-safest(me, choose(method(p :: <package>) p.carrier == bot end, s.packages), location, s, weighting: weight);
+debug("check1\n");
+  let (safe-drop, drop-path) = find-safest(me, choose(method(p :: <package>) debug("examining %=\n",p); p.carrier == bot end, s.packages), location, s, weighting: weight);
+debug("check11\n");
   safe-drop & drop-path.drop-strategy.follow;
   
 //  find-robot(state, agent).inventory
 //  reduce(map(weight, packages), 0, \+)
   
+debug("check111\n");
   let (safe-pick, pick-path) = find-safest(me, s.bases, identity, s, weighting: weight /* my payload */);
+debug("check1111\n");
   safe-pick & pick-path.pick-strategy.follow;
   
 /*  ; not yet
@@ -148,6 +151,7 @@ block (return)
   safe-vulnerable & safe-vulnerable.kill-strategy.follow;
   */
   
+debug("check11111\n");
   next-method()
 end block;
 end;

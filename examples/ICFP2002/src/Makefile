@@ -1,4 +1,5 @@
 SOURCES=icfp2002.dylan icfp2002-exports.dylan \
+  utils.dylan \
   path.dylan \
   board.dylan \
   robot.dylan \
