@@ -1,7 +1,8 @@
-rcs-header: $Header: /scm/cvs/src/tools/melange/openbsd-c-decl.lid,v 1.1 1999/05/19 19:15:51 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/openbsd-c-decl.lid,v 1.1.2.1 1999/06/21 17:17:20 housel Exp $
 library: melange-c
 unit-prefix: cdecl
 unique-id-base: 10000
+shared-library: no
 
 c-exports.dylan
 source-location.dylan
