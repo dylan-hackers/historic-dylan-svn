@@ -45,11 +45,15 @@ states:
     => { let counter = counter + 1; ?state; ... }
 
  state:
-  { Set ?:name = ?:expression, (?labelFrom:name => ?labelFrom:name) }
-    => { let counter = counter - 1; let var1 :: <boolean> = ?expression }
+  { Set ?:name = ?:expression, (?labelOrig:name => ?labelRenamed:name) }
+    => {  let counter = counter - 1;
+         push-thunk(instrs, ?#"labelRenamed", 0,
+                    curry(lookup, instrs, ?#"labelOrig", 0),
+                    all-values: list(list(#f /*?expression*/)))
+       }
 
-  { Set ?:name = ?:expression }
-    => { let counter = counter - 1; let var1 :: <boolean> = ?expression }
+//  { Set ?:name = ?:expression }
+//    => { let counter = counter - 1; let var1 :: <boolean> = ?expression }
 
   { IfSet { ?then-states } { ?else-states } }
     => { if (var1) ?then-states else ?else-states end }
@@ -330,7 +334,7 @@ define function lookup (instrs, label, counter)
         instr;
     end;
   exception (<error>)
-    format-out("lookup: (%s, %d), did you fall off your block?\n  keys: %=\n\n", label, counter, instrs.key-sequence);
+    format-out("lookup: (%s, %d), did you fall off your block?\n  key: %=\n  keys: %=\n\n", label, counter, pos, instrs.key-sequence);
   end block;
 end;
 
