@@ -9,6 +9,7 @@ define library icfp2002
   use string-extensions;
   use time;
   use garbage-collection;
+  use network;
 end library;
 
 define module icfp2002
@@ -22,4 +23,5 @@ define module icfp2002
   use extensions, import: {report-condition};
   use time;
   use garbage-collection;
+  use network;
 end module;

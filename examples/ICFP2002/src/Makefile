@@ -1,7 +1,9 @@
 SOURCES=icfp2002.dylan icfp2002-exports.dylan
 
+D2C_FLAGS=-s -g -L.
+
 icfp2002: icfp2002.lid $(SOURCES) network.lib.du
-	d2c -s -g icfp2002.lid
+	d2c $(D2C_FLAGS) icfp2002.lid
 
 clean:
 	rm -f *.o *.s *.a *.c *.mak *~ icfp2002 *.du
@@ -20,5 +22,5 @@ test: icfp2002
 network-internal.dylan: network-internal.intr network-internal.h
 	melange --d2c -I`gcc --print-file-name=include` network-internal.intr network-internal.dylan
 
-network.lib.du: network.lid network-exports.dylan network-internal.dylan Makefile
-	d2c -s -g network.lid
+network.lib.du: network.lid network.dylan network-exports.dylan network-internal.dylan Makefile
+	d2c $(D2C_FLAGS) network.lid

@@ -9,7 +9,23 @@ end function debug;
 
 
 define function main(name, arguments)
-  format-out("Hello ICFP2002!\n");
+  if(arguments.size < 2)
+    format-out("Wrong number of arguments passed.\n");
+  end if;
+  let (input-stream, output-stream) 
+    = tcp-client-connection(arguments[0], string-to-integer(arguments[1]));
+  let running = #t;
+  while(running)
+    let line = read-line(input-stream, on-end-of-stream: #f);
+    if(line)
+      write-line(output-stream, line);
+      force-output(output-stream);
+    else
+      running := #f;
+    end if;
+  end while;
+  close(input-stream);
+  close(output-stream);
   exit-application(0);
 end function main;
 

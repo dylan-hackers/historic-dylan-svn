@@ -5,7 +5,7 @@ define library network
   use io;
   use melange-support;
 
-  export network-internal;
+  export network;
 end library network;
 
 define module network-internal
@@ -17,6 +17,7 @@ define module network-internal
 
   export 
     gethostbyname,
+    <hostent>,
     getprotobyname, 
     socket,
     connect,
@@ -63,4 +64,13 @@ define module network-internal
     get-h-length,
     <sockaddr-in>;
 end module network-internal;
+
+define module network
+  use common-dylan;
+  use format-out;
+  use streams;
+  use network-internal;
+
+  export tcp-client-connection;
+end module network;
 
