@@ -635,7 +635,7 @@ define method expand-inline-function
     let name = defn.defn-name;
     let component = make(<fer-component>);
     let builder = make-builder(component);
-    let lexenv = make(<lexenv>, method-name: name);
+    let lexenv = make(<lexenv>, method-name: name, inside: make(<top-level-lexenv>, tlf: name.find-variable.variable-tlf));
     let next-method-info
       = (instance?(defn, <method-definition>)
 	   & static-next-method-info(defn));
@@ -690,7 +690,7 @@ define method convert-generic-definition
     add!(args, make-literal-constant(builder, #"required"));
     add!(args,
 	 build-type-vector(builder, policy, source,
-			   map(param-type, parameters.varlist-fixed)));
+			   map(param-type, parameters.varlist-fixed), tlf));
     add!(args, make-literal-constant(builder, #"rest?"));
     add!(args,
 	 make-literal-constant
@@ -712,12 +712,12 @@ define method convert-generic-definition
     add!(args, make-literal-constant(builder, #"values"));
     add!(args,
 	 build-type-vector(builder, policy, source,
-			   map(param-type, results.varlist-fixed)));
+			   map(param-type, results.varlist-fixed), tlf));
     add!(args, make-literal-constant(builder, #"rest-value"));
     add!(args,
 	 if (results.varlist-rest)
 	   build-type(builder, policy, source,
-		      results.varlist-rest.param-type);
+		      results.varlist-rest.param-type, tlf);
 	 else
 	   make-literal-constant(builder, #f);
 	 end if);
@@ -741,7 +741,7 @@ define method convert-top-level-form
     (builder :: <fer-builder>, tlf :: <real-define-method-tlf>) => ();
   unless (tlf.method-tlf-inline-type == #"inline-only")
     let defn = tlf.tlf-defn;
-    let lexenv = make(<lexenv>, method-name: defn.defn-name);
+    let lexenv = make(<lexenv>, method-name: defn.defn-name, inside: make(<top-level-lexenv>, tlf: tlf));
     let next-method-info = static-next-method-info(defn);
     let leaf = fer-convert-method(builder, tlf.method-tlf-parse,
 				  defn.defn-name,
@@ -776,9 +776,10 @@ define method convert-top-level-form
   end unless;
 end;
 
-define method build-type
+define function build-type
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
-     expr :: false-or(<expression-parse>))
+     expr :: false-or(<expression-parse>),
+     tlf :: <top-level-form>)
     => result :: <leaf>;
   if (expr)
     let ctv = ct-eval(expr, #f);
@@ -788,22 +789,24 @@ define method build-type
       let var = make-local-var(builder, #"temp", specifier-type(#"<type>"));
       fer-convert(builder, expr, 
 		  make(<lexenv>,
-		       method-name: make(<anonymous-name>, location: source)),
+		       method-name: make(<anonymous-name>, location: source),
+		       inside: make(<top-level-lexenv>, tlf: tlf)),
 		  #"assignment", var);
       var;
     end if;
   else
     make-literal-constant(builder, object-ctype());
   end if;
-end method build-type;
+end function build-type;
 
-define method build-type-vector
+define function build-type-vector
     (builder :: <fer-builder>, policy :: <policy>, source :: <source-location>,
-     exprs :: <simple-object-vector>)
+     exprs :: <simple-object-vector>,
+     tlf :: <top-level-form>)
     => result :: <leaf>;
   let leaves = map(method (expr :: <expression-parse>)
 		       => res :: <leaf>;
-		     build-type(builder, policy, source, expr);
+		     build-type(builder, policy, source, expr, tlf);
 		   end method,
 		   exprs);
   if (every?(method (leaf :: <leaf>) => res :: <boolean>;
@@ -824,7 +827,7 @@ define method build-type-vector
 	  as(<list>, leaves)));
     temp;
   end if;
-end method build-type-vector;
+end function build-type-vector;
 
 
 // Generic function discriminator functions.

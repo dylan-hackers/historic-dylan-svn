@@ -36,7 +36,7 @@ define abstract class <general-lexenv> (<object>)
   sealed slot lexenv-bindings :: <list>, init-value: #();
 end;
 
-// <top-level-lexenv>  --  Internal
+// <top-level-lexenv>  --  Exported
 //
 // Concrete class providing access to module bindings.
 //

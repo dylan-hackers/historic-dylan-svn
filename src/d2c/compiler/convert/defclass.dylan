@@ -1934,7 +1934,7 @@ define method convert-top-level-form
     // variable will be handled by the linker.  We just need to build the
     // deferred-evaluations, key-defaulter, and maker functions.
 
-    let lexenv = make(<lexenv>, method-name: defn.defn-name);
+    let lexenv = make(<lexenv>, method-name: defn.defn-name, inside: make(<top-level-lexenv>, tlf: tlf));
     let policy = lexenv.lexenv-policy;
     let source = defn.source-location;
     
@@ -2069,7 +2069,7 @@ define method convert-top-level-form
 	  elseif (init-function == #t)
 	    let leaf = convert-init-function(evals-builder, slot-info.slot-getter,
 					     slot-defn.slot-defn-init-function,
-					     type);
+					     type, tlf);
 	    build-assignment
 	      (evals-builder, policy, source, #(),
 	       make-unknown-call
@@ -2134,7 +2134,7 @@ define method convert-top-level-form
 	      = make-literal-constant(evals-builder, #f);
 	    begin
 	      let getter
-		= build-getter(evals-builder, #f, slot-defn, slot-info);
+		= build-getter(evals-builder, #f, slot-defn, slot-info, tlf);
 	      let getter-specializers = build-call(#"list", cclass-leaf);
 	      let meth = build-call(#"%make-method", getter-specializers,
 				    results, false-leaf, getter);
@@ -2143,7 +2143,7 @@ define method convert-top-level-form
 	    end;
 	    if (slot-defn.slot-defn-setter)
 	      let setter
-		= build-setter(evals-builder, #f, slot-defn, slot-info);
+		= build-setter(evals-builder, #f, slot-defn, slot-info, tlf);
 	      let setter-specializers = build-call(#"list", type-var,
 						   cclass-leaf);
 	      let meth = build-call(#"%make-method", setter-specializers,
@@ -2158,7 +2158,7 @@ define method convert-top-level-form
 	      if (getter-standin)
 		getter.ct-accessor-standin := getter-standin;
 	      else
-		build-getter(tl-builder, getter, slot-defn, slot-info);
+		build-getter(tl-builder, getter, slot-defn, slot-info, tlf);
 	      end if;
 	    end;
 	    if (slot-defn.slot-defn-setter)
@@ -2167,7 +2167,7 @@ define method convert-top-level-form
 	      if (setter-standin)
 		setter.ct-accessor-standin := setter-standin;
 	      else
-		build-setter(tl-builder, setter, slot-defn, slot-info);
+		build-setter(tl-builder, setter, slot-defn, slot-info, tlf);
 	      end if;
 	    end if;
 	  end if;
@@ -2232,7 +2232,7 @@ define method convert-top-level-form
 	  elseif (init-function == #t)
 	    let leaf = convert-init-function(evals-builder, getter,
 					     override-defn.override-defn-init-function,
-					     type);
+					     type, tlf);
 	    build-assignment
 	      (evals-builder, policy, source, #(),
 	       make-unknown-call
@@ -3099,14 +3099,15 @@ define function convert-init-function
     (builder :: <fer-builder>,
      getter :: <variable>,
      init-function :: <expression-parse>,
-     result-type :: <ctype>)
+     result-type :: <ctype>,
+     tlf :: <top-level-form>)
     => res :: <leaf>;
   let slot-name = getter.variable-name;
   let fun-name = make(<derived-name>,
   		      base: make(<basic-name>, symbol: slot-name,
 		      		 module: getter.variable-home),
 		      how: #"init-function");
-  let lexenv = make(<lexenv>, method-name: fun-name);
+  let lexenv = make(<lexenv>, method-name: fun-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = make(<source-location>);
   let var = make-lexical-var(builder, symcat(slot-name, "-init-function"),
@@ -3198,14 +3199,21 @@ define method might-be-in-data-word?
 end method might-be-in-data-word?;
 
 
+define generic build-getter
+    (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
+     defn :: <slot-defn>, slot :: <slot-info>,
+     tlf :: <top-level-form>)
+    => res :: <method-literal>;
+
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <each-subclass-slot-info>)
+     defn :: <slot-defn>, slot :: <each-subclass-slot-info>,
+     tlf :: <top-level-form>)
     => res :: <method-literal>;
   let getter-name
       = make(<derived-name>, how: #"getter",
      	     base: defn.slot-defn-getter.defn-name);
-  let lexenv = make(<lexenv>, method-name: getter-name);
+  let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
   let cclass = slot.slot-introduced-by;
@@ -3345,12 +3353,13 @@ end;
 
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <class-slot-info>)
+     defn :: <slot-defn>, slot :: <class-slot-info>,
+     tlf :: <top-level-form>)
     => res :: <method-literal>;
   let getter-name
       = make(<derived-name>, how: #"getter",
      	     base: defn.slot-defn-getter.defn-name);
-  let lexenv = make(<lexenv>, method-name: getter-name);
+  let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
   let cclass = slot.slot-introduced-by;
@@ -3473,7 +3482,8 @@ end;
 
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <instance-slot-info>)
+     defn :: <slot-defn>, slot :: <instance-slot-info>,
+     tlf :: <top-level-form>)
     => res :: <method-literal>;
 
 defn.slot-defn-getter.defn-name == defn.slot-defn-getter-name
@@ -3484,13 +3494,11 @@ defn.slot-defn-getter.defn-name == defn.slot-defn-getter-name
 	compiler-warning("defn.slot-defn-getter.defn-name %=", defn.slot-defn-getter.defn-name);
 	compiler-warning("defn.slot-defn-getter-name %=", defn.slot-defn-getter-name);
       end;
-//  assert(defn.slot-defn-getter.defn-name == defn.slot-defn-getter-name); // FIXME! can be removed later
 
   let getter-name
       = make(<derived-name>, how: #"getter",
      	     base: defn.slot-defn-getter.defn-name);
-//     	     base: defn.slot-defn-getter-name);
-  let lexenv = make(<lexenv>, method-name: getter-name);
+  let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
   let cclass = slot.slot-introduced-by;
@@ -3599,26 +3607,35 @@ end;
 
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <slot-info>)
+     defn :: <slot-defn>, slot :: <slot-info>,
+     tlf :: <top-level-form>)
+    => res :: <method-literal>;
+  error("Unsupported slot type: %=", object-class(slot));
+end;
+
+define generic build-setter
+    (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
+     defn :: <slot-defn>, slot :: <slot-info>,
+     tlf :: <top-level-form>)
+    => res :: <method-literal>;
+
+define method build-setter
+    (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
+     defn :: <slot-defn>, slot :: <slot-info>,
+     tlf :: <top-level-form>)
     => res :: <method-literal>;
   error("Unsupported slot type: %=", object-class(slot));
 end;
 
 define method build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <slot-info>)
-    => res :: <method-literal>;
-  error("Unsupported slot type: %=", object-class(slot));
-end;
-
-define method build-setter
-    (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <each-subclass-slot-info>)
+     defn :: <slot-defn>, slot :: <each-subclass-slot-info>,
+     tlf :: <top-level-form>)
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
      	   base: defn.slot-defn-setter.defn-name);
-  let lexenv = make(<lexenv>, method-name: setter-name);
+  let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
   let type = slot.slot-type;
@@ -3692,12 +3709,13 @@ end;
 
 define method build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <class-slot-info>)
+     defn :: <slot-defn>, slot :: <class-slot-info>,
+     tlf :: <top-level-form>)
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
      	   base: defn.slot-defn-setter.defn-name);
-  let lexenv = make(<lexenv>, method-name: setter-name);
+  let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
   let type = slot.slot-type;
@@ -3766,13 +3784,14 @@ end;
 
 define method build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <instance-slot-info>)
+     defn :: <slot-defn>, slot :: <instance-slot-info>,
+     tlf :: <top-level-form>)
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
      	   base: defn.slot-defn-setter.defn-name);
   let init?-slot = slot.slot-initialized?-slot;
-  let lexenv = make(<lexenv>, method-name: setter-name);
+  let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
   let type = slot.slot-type;

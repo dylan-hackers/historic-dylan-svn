@@ -59,7 +59,7 @@ define module lexenv
   use variables, import: {variable-tlf};
 
   export
-    <lexenv>, lexenv-policy,
+    <lexenv>, lexenv-policy, <top-level-lexenv>,
     <body-lexenv>, lexenv-handlers, lexenv-handlers-setter,
     lexenv-method-name,
     <top-level-binding>,
