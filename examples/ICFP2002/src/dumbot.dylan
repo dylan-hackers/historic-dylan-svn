@@ -16,7 +16,8 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
   // make(<move>, bid: 1, direction: $north);
 
   // Find the closest base.
-  let myPosition = me.robot.location;
+  let robot = find-robot(s, me.id);
+  let myPosition = robot.location;
   
   local find-near-base(best-base :: false-or(<point>), distance :: <integer>)
          => (better-base :: false-or(<point>), distance :: <integer>);
@@ -67,14 +68,14 @@ end method generate-next-move;
 
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
-  me.robot := find-robot(s, me.robot.id);
+  let robot = find-robot(s, me.id);
   block(return)
-    format-out("DB: Considering next move\n");
+    format-out("DB: Considering next move (loc: %=)\n", robot.location);
     force-output(*standard-output*);
 
     // Deliver what we can:
-    let drop-these = choose(at-destination?, me.robot.inventory);
-    format-out("DB: drop-these = %=\n", me.robot.inventory);
+    let drop-these = choose(at-destination?, robot.inventory);
+    format-out("DB: drop-these = %=\n", robot.inventory);
     force-output(*standard-output*);
     
     if (~drop-these.empty?)
@@ -87,16 +88,19 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     // Pick ups:
     format-out("DB: All packages: %=\n", s.packages);
     force-output(*standard-output*);
-    let packages-here = packages-at(s, me.robot.location);
+    let packages-here = packages-at(s, robot.location);
     format-out("DB: Packages here: %=\n", packages-here);
     force-output(*standard-output*);
     if (packages-here ~= #f & ~packages-here.empty?)
       let take-these = make(<vector>);
-      let left = me.robot.capacity;
+      let left = robot.capacity;
       // Greedy algorithm to get as much as we can:
-      for (pkg in sort(packages-here))
-	if (pkg.weight <= me.robot.capacity
-	      & find-path(me.robot.location, pkg.location, s.board))
+      for (pkg in sort(packages-here, 
+		       test: method (a :: <package>, b :: <package>)
+			       a.weight > b.weight;
+			     end method))
+	if (pkg.weight <= robot.capacity
+	      & find-path(robot.location, pkg.location, s.board))
 	  left := left - pkg.weight;
 	  take-these := add!(take-these, x);
 	end if;
@@ -115,14 +119,14 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     end if;
     
     // Go to the next interesting place:
-    let targets = concatenate(map(dest, me.robot.inventory),
+    let targets = concatenate(map(dest, robot.inventory),
 			      map(location, s.free-packages),
 			      s.bases);
     
     format-out("DB: Targets: %=\n", targets);
     force-output(*standard-output*);
 
-    let paths = map(curry(rcurry(find-path, s.board), me.robot.location),
+    let paths = map(curry(rcurry(find-path, s.board), robot.location),
 		    targets);
 
     format-out("DB: Paths: %=\n", paths);
@@ -143,15 +147,15 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	  let new-loc = path.first;
 	  
 	  case
-	    new-loc = point(x: me.robot.location.x, y: me.robot.location.y + 1)
+	    new-loc = point(x: robot.location.x, y: robot.location.y + 1)
 	      => $north;
-	    new-loc = point(x: me.robot.location.x + 1, y: me.robot.location.y)
+	    new-loc = point(x: robot.location.x + 1, y: robot.location.y)
 	      => $east;
-	    new-loc = point(x: me.robot.location.x, y: me.robot.location.y - 1)
+	    new-loc = point(x: robot.location.x, y: robot.location.y - 1)
 	      => $south;
-	    new-loc = point(x: me.robot.location.x - 1, y: me.robot.location.y)
+	    new-loc = point(x: robot.location.x - 1, y: robot.location.y)
 	      => $west;
-	    new-loc = point(x: me.robot.location.x, y: me.robot.location.y)
+	    new-loc = point(x: robot.location.x, y: robot.location.y)
 	      => error("Can't happen");
 	  end case;
 	end if;
