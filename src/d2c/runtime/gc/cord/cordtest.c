@@ -14,6 +14,7 @@
 # include "cord.h"
 # include <string.h>
 # include <stdio.h>
+# include <stdlib.h>
 /* This is a very incomplete test of the cord package.  It knows about	*/
 /* a few internals of the package (e.g. when C strings are returned)	*/
 /* that real clients shouldn't rely on.					*/
@@ -48,7 +49,7 @@ char id_cord_fn(size_t i, void * client_data)
 
 void test_basics()
 {
-    CORD x = "ab";
+    CORD x = CORD_from_char_star("ab");
     register int i;
     char c;
     CORD y;

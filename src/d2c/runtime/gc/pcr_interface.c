@@ -10,8 +10,7 @@
  * provided the above notices are retained, and a notice that the code was
  * modified is included with the above copyright notice.
  */
-/* Boehm, April 14, 1995 3:10 pm PDT */
-# include "gc_priv.h"
+# include "private/gc_priv.h"
 
 # ifdef PCR
 /*
@@ -61,7 +60,7 @@ void * GC_DebugReallocProc(void * old_object, size_t new_size_in_bytes)
 
 typedef struct {
   PCR_ERes (*ed_proc)(void *p, size_t size, PCR_Any data);
-  bool ed_pointerfree;
+  GC_bool ed_pointerfree;
   PCR_ERes ed_fail_code;
   PCR_Any ed_client_data;
 } enumerate_data;
@@ -113,9 +112,9 @@ PCR_ERes GC_EnumerateProc(
     }
 }
 
-void GC_DummyFreeProc(void *p) {};
+void GC_DummyFreeProc(void *p) {}
 
-void GC_DummyShutdownProc(void) {};
+void GC_DummyShutdownProc(void) {}
 
 struct PCR_MM_ProcsRep GC_Rep = {
 	MY_MAGIC,
@@ -137,7 +136,7 @@ struct PCR_MM_ProcsRep GC_DebugRep = {
 	GC_DummyShutdownProc	/* mmp_shutdown */
 };
 
-bool GC_use_debug = 0;
+GC_bool GC_use_debug = 0;
 
 void GC_pcr_install()
 {
@@ -156,7 +155,7 @@ PCR_GC_Run(void)
 
     if( !PCR_Base_TestPCRArg("-nogc") ) {
         GC_quiet = ( PCR_Base_TestPCRArg("-gctrace") ? 0 : 1 );
-        GC_use_debug = (bool)PCR_Base_TestPCRArg("-debug_alloc");
+        GC_use_debug = (GC_bool)PCR_Base_TestPCRArg("-debug_alloc");
         GC_init();
         if( !PCR_Base_TestPCRArg("-nogc_incremental") ) {
             /*
@@ -168,6 +167,12 @@ PCR_GC_Run(void)
 	}
     }
     return PCR_ERes_okay;
+}
+
+void GC_push_thread_structures(void)
+{
+    /* PCR doesn't work unless static roots are pushed.  Can't get here. */
+    ABORT("In GC_push_thread_structures()");
 }
 
 # endif

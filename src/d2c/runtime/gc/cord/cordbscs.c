@@ -361,7 +361,6 @@ CORD CORD_substr_checked(CORD x, size_t i, size_t n)
             return(CORD_substr_closure(x, i, n, CORD_index_access_fn));
         } else {
             register char * result = GC_MALLOC_ATOMIC(n+1);
-            register char * p = result;
             
             if (result == 0) OUT_OF_MEMORY;
             strncpy(result, x+i, n);
@@ -518,10 +517,11 @@ int CORD_riter4(CORD x, size_t i, CORD_iter_fn f1, void * client_data)
 	register const char *p = x + i;
 	register char c;
                
-	while (p >= x) {
+	for(;;) {
 	    c = *p;
 	    if (c == '\0') ABORT("2nd arg to CORD_riter4 too big");
             if ((*f1)(c, client_data)) return(1);
+	    if (p == x) break;
             p--;
 	}
 	return(0);
@@ -575,7 +575,7 @@ int CORD_riter(CORD x, CORD_iter_fn f1, void * client_data)
 
 typedef struct {
     CORD c;
-    size_t len;		/* Actual ength of c 	*/
+    size_t len;		/* Actual length of c 	*/
 } ForestElement;
 
 static size_t min_len [ MAX_DEPTH ];
@@ -585,7 +585,7 @@ static int min_len_init = 0;
 int CORD_max_len;
 
 typedef ForestElement Forest [ MAX_DEPTH ];
-			/* forest[i].min_length = fib(i+1)	*/
+			/* forest[i].len >= fib(i+1)	        */
 			/* The string is the concatenation	*/
 			/* of the forest in order of DECREASING */
 			/* indices.				*/
@@ -644,7 +644,7 @@ void CORD_add_forest(ForestElement * forest, CORD x, size_t len)
     sum = CORD_cat(sum, x);
     sum_len += len;
     /* If x was a leaf, then sum is now balanced.  To see this		*/
-    /* consider the two cases in whichforest[i-1] either is or is 	*/
+    /* consider the two cases in which forest[i-1] either is or is 	*/
     /* not empty.							*/
     while (sum_len >= min_len[i]) {
     	if (forest[i].c != 0) {

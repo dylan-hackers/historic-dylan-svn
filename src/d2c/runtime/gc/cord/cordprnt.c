@@ -20,7 +20,7 @@
 /* We assume that void * and char * have the same size.			*/
 /* All this cruft is needed because we want to rely on the underlying	*/
 /* sprintf implementation whenever possible.				*/
-/* Boehm, October 3, 1994 5:15 pm PDT */
+/* Boehm, September 21, 1995 6:00 pm PDT */
 
 #include "cord.h"
 #include "ec.h"
@@ -231,8 +231,9 @@ int CORD_vsprintf(CORD * out, CORD format, va_list args)
             	    	goto done;
 		    case 'c':
 			if (width == NONE && prec == NONE) {
-			    register char c = va_arg(args, char);
+			    register char c;
 
+			    c = (char)va_arg(args, int);
 			    CORD_ec_append(result, c);
 			    goto done;
 			}
@@ -254,12 +255,18 @@ int CORD_vsprintf(CORD * out, CORD format, va_list args)
             	/* Use standard sprintf to perform conversion */
             	{
             	    register char * buf;
-            	    va_list vsprintf_args = args;
-            	    	/* The above does not appear to be sanctioned	*/
-            	    	/* by the ANSI C standard.			*/
+            	    va_list vsprintf_args;
             	    int max_size = 0;
             	    int res;
-            	    	
+#		    ifdef __va_copy
+                      __va_copy(vsprintf_args, args);
+#		    else
+#		      if defined(__GNUC__) /* and probably in other cases */
+                        va_copy(vsprintf_args, args);
+#		      else
+			vsprintf_args = args;
+#		      endif
+#		    endif
             	    if (width == VARIABLE) width = va_arg(args, int);
             	    if (prec == VARIABLE) prec = va_arg(args, int);
             	    if (width != NONE) max_size = width;
@@ -304,7 +311,7 @@ int CORD_vsprintf(CORD * out, CORD format, va_list args)
             	    }
             	    res = vsprintf(buf, conv_spec, vsprintf_args);
             	    len = (size_t)res;
-            	    if ((char *)res == buf) {
+            	    if ((char *)(GC_word)res == buf) {
             	    	/* old style vsprintf */
             	    	len = strlen(buf);
             	    } else if (res < 0) {
