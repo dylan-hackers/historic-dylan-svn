@@ -9,3 +9,13 @@ probably be unwise to copy them without talking to me first. We'll sort out
 the licensing soon and put everything under a suitable free license.
 
 Copyright 1998 Eric Kidd
+
+
+DocBook tools, principally db2html, are available in source and i386 form at
+ftp://ftp.cygnus.com/pub/home/rosalia/docware/
+
+The docbook rpm requires the sgml-common rpm, which is available in the same
+directory.  DocBook for other platforms was found in the usual places.
+
+For editing the docs, there is a DocBook tutorial available at
+http://nis-www.lanl.gov/~rosalia/mydocs/docbook-intro.html
