@@ -19,8 +19,9 @@ end;
 define ant-subbrain test-ant-subbrain3(out, test-brain1)
  Move 1 1;
  Move out 1;
-// Move 1 test-brain1;
- Flip 6 out 1;
+ Move out test-brain1;
+ Move 1 test-brain1;
+// Flip 6 out 1;
  Sense Ahead out test-brain1  Food;
 end;
 

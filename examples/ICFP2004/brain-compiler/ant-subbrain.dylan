@@ -55,6 +55,15 @@ define macro ant-subbrain-definer
 
   ant-state:
 
+  { Move ?success:name ?failure:name } // 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <move>,
+                     state-success: "outsider_" ## ?success,
+                     state-failure:  "outsider_" ## ?failure))
+  }
+  
   { Move ?success:name ?failure:expression } // 2
   =>
   {
