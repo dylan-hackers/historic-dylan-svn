@@ -262,8 +262,8 @@ void readPackageList(void)
 
 void sendAction(void)
 {
-    printf("sending \"1 Pick\\n\"\n");
-    send(gUnixSocket, "1 Pick\n", 7, 0);
+    printf("sending \"1 Pick 1\\n\"\n");
+    send(gUnixSocket, "1 Pick 1\n", 9, 0);
 }
 
 //------------------------------------------------------------------------
@@ -341,7 +341,6 @@ void idle(void)
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
-    glutInitWindowSize(512, 512);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 
     const char* serverHost = argv[1];
@@ -387,6 +386,8 @@ int main(int argc, char *argv[])
     }
 
     setUpGameState();
+    
+    glutInitWindowSize(gMapWidth * 16, gMapHeight * 16);
 
     printMap();
 
