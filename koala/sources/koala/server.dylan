@@ -187,6 +187,7 @@ define function start-server (#key port :: <integer> = 80,
   when (*auto-register-pages?*)
     log-info("Auto-register enabled");
   end;
+  init-xml-rpc-server();
   log-info("Ready for service on port %d", port);
   while (start-http-listener(server, port)) end;
 end start-server;

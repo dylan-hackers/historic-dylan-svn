@@ -189,6 +189,7 @@ define method process-config-element (node :: xml$<element>, name == #"log")
                   "debug"   => <log-debug>;
                   "warning" => <log-warning>;
                   "error"   => <log-error>;
+                  "header", "headers"  => <log-headers>;
                   otherwise => <log-info>;
                 end;
     add-log-level(class);

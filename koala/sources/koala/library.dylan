@@ -159,6 +159,11 @@ define module koala
     //remove-attribute,
     set-session-max-age;
 
+  // XML-RPC
+  create
+    register-xml-rpc-method,
+    set-strict-mode;
+
   // Documents
   create
     document-location;

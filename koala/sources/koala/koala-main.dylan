@@ -17,12 +17,16 @@ end;
 
 //// Initialization
 
-begin
+define function init-koala ()
   when ($debugging-koala)
     test-koala();
   end;
 
   ensure-server();
   log-info("%s HTTP Server starting up", $server-name);
+end;
+
+begin
+  init-koala();
 end;
 
