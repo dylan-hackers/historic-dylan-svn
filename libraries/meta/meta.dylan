@@ -11,7 +11,7 @@ define collector word(w)
   (str.size > 0)
 end collector word;
 
-define constant $graphic-digit = concatenate($digit, "+-");
+define constant $graphic-digit :: <byte-string> = concatenate($digit, "+-");
 
 define collector int(i) => (as(<string>, str).string-to-integer)
   loop([element-of($graphic-digit, i), do(collect(i))]),
@@ -36,44 +36,106 @@ define function digit(c :: <character>) => (ans :: <integer>)
   as(<integer>, c) - $zero;
 end function digit;
 
-define function string-to-number(s :: <string>, #key base :: <integer> = 10)
- => (n :: <number>)
-  let the-base :: <real> = base * 1.0;
-  let num :: <real> = 0.0;
-  let sign :: <integer> = if(s[0] = '-') -1 else 1 end if;
-  let exp :: <integer> = 0;
+// this is far from perfect, but it's a lot better than what was here before!
+//
+define function string-to-number (string :: <byte-string>,
+                                  #key start :: <integer> = 0,
+                                       end: finish :: <integer> = string.size)
+    => 	value :: <double-float>;
+  let posn = start;
+  let sign = 1.0d0;
+  let mantissa = 0.0d0;
+  let dot-seen = #f;
+  let scale = 0;
+  let exponent-sign = 1;
+  let exponent = 0;
 
-  let str = copy-sequence(s, start: if(s[0] = '+' | s[0] = '-') 1 else 0 end);
-
-  let non-number :: false-or(<character>) = #f;
-  let it :: false-or(<character>) = #f;
-
-  let stream = make(<string-stream>, contents: str);
-
-  let iterator = method(fn)
-                     non-number := #f;
-                     while(~ non-number & peek(stream, on-end-of-stream: #f))
-                       it := read-element(stream);
-                       if(it.digit?) fn(it.digit) else non-number := it end if;
-                     end while;
-                 end method;
-
-  iterator(method(x) num := num * the-base + x end);
-
-  if(non-number = '.')
-    let div :: <integer> = 1;
-    iterator(method(x) num := num + (x / (the-base ^ div)); div := div + 1 end)
+  // Parse the optional sign.
+  if (posn < finish)
+    let char = string[posn];
+    if (char == '-')
+      posn := posn + 1;
+      sign := -1.0d0
+    elseif (char == '+')
+      posn := posn + 1;
+    end if;
   end if;
 
-  if(non-number = 'e')
-    let sign = select(peek(stream))
-                 '+' => begin read-element(stream); 1 end;
-                 '-' => begin read-element(stream); -1 end;
-                 otherwise => 1;
-               end select;
-    iterator(method(x) exp := exp * base + x end);
-    exp := exp * sign;
-  end if;
+  block (return)
+    block (parse-exponent)
+      // Parse the mantissa.
+      while (posn < finish)
+	let char = string[posn];
+	posn := posn + 1;
+	if (char >= '0' & char <= '9')
+	  let digit = as(<integer>, char) - as(<integer>, '0');
+	  mantissa := mantissa * 10.0d0 + digit;
+	  if (dot-seen)
+	    scale := scale + 1;
+	  end if;
+	elseif (char == '.')
+	  if (dot-seen)
+	    error("bogus float.");
+	  end if;
+          dot-seen := #t;
+        elseif (char == 'e' | char == 'E' | char == 'd' | char == 'D')
+	  parse-exponent();
+	else
+	  error("bogus float.");
+	end if;
+      end while;
+      return();
+    end block;
 
-  sign * num * (the-base ^ exp)
+    // Parse the exponent.
+    if (posn < finish)
+      let char = string[posn];
+      if (char == '-')
+	exponent-sign := -1;
+	posn := posn + 1;
+      elseif (char == '+')
+	posn := posn + 1;
+      end if;
+
+      while (posn < finish)
+	let char = string[posn];
+	posn := posn + 1;
+	if (char >= '0' & char <= '9')
+	  let digit = as(<integer>, char) - as(<integer>, '0');
+	  exponent := exponent * 10 + digit;
+	else
+	  error("bogus float");
+	end if;
+      end while;
+    end if;
+  end block;
+
+  // assemble the number from the components
+  let mant = sign * mantissa;
+  let exp10 = exponent-sign * exponent - scale;
+  block (return)
+    if (exp10 == 0)
+      return(mant)
+    end;
+
+    // calculate y = 10 ^ n
+    let n = if (exp10 < 0) -exp10 else exp10 end;
+    let y = 1.0d0;
+    let z = 10.0d0;
+    for()
+      let odd = logand(n, 1);
+      n := ash(n, -1);
+      if (odd ~== 0)
+        y := y * z;
+        if (n == 0)
+          if (exp10 < 0)
+            return (mant / y)
+          else
+            return (mant * y)
+          end;
+        end;
+      end;
+      z := z * z;
+    end for;
+  end;
 end function string-to-number;
