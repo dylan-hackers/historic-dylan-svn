@@ -58,9 +58,10 @@ define module ray-tracer
   use types;
   use our-matrix;
 
-  export <obj>, <sphere>, <plane>, <cube>, <csg-union>, <color>, <star>,
-    <firefly>, <flashlight>,
-    export-with-depth, 
+  export <obj>, <sphere>, <plane>, <cube>, <cylinder>, <cone>,
+    <csg-union>,
+    <star>, <firefly>, <flashlight>,
+    <color>, export-with-depth, 
     uniform-scale, scale, x-rotate, y-rotate, z-rotate, translate,
     render-image;
 
