@@ -182,18 +182,25 @@ define function find-path(source :: <point>,
           source, target, cutoff);
     #f
   else
-//
-// Commit this after testing the refactoring.
-//
     let maybe-path = element(board.path-cache, cons(source, target),
                              default: $not-memoized);
     if (maybe-path = $not-memoized)
       let path = find-path*(source, target, board);
       board.path-cache[cons(source, target)] := path;
-      // TODO -- cache the whole path. A common case is a robot
-      // following a path, to a destination, with deviations. If
-      // we cache the whole path, then we can often save a lot of
-      // work, I think.
+      //
+      // Now cache the whole path. A common case is a robot following
+      // a path, to a destination, with deviations. If we cache the
+      // whole path, then we can often save a lot of work, I think.
+      //
+      if (path)
+        iterate loop (curr = source, to-go = path)
+          unless (to-go.empty?)
+            board.path-cache[cons(curr, to-go.head)] := to-go.tail;
+            loop(to-go.head, to-go.tail);
+          end unless;
+        end iterate;
+      end if;
+      //
       path;
     else
       maybe-path
