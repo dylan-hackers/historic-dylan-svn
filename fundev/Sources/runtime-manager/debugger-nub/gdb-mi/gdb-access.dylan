@@ -401,7 +401,7 @@ define macro mi-parser-definer
       ?tuple-fields;
       more.head(mi-tuple,
                 if (m)
-                  pair(method(cla) values(m, apply(make, cla, vector(?tuple-keyword/values))) end method, matched)
+                  pair(method() values(m, apply(make, ?name ## "-<tuple>", vector(?tuple-keyword/values))) end method, matched)
                 else
                   matched
                 end if,
@@ -477,7 +477,7 @@ begin
   block (outta-here)
     local method final(rest, matches, more)
             let igno :: singleton(1) = matches.size;
-            let (rem, tup) = matches.head(breakpoint-<tuple>);
+            let (rem, tup) = matches.head();
             format-out("parsed: %=\nremainder: %=\n\n", tup, rem);
             outta-here();
           end;
@@ -983,7 +983,7 @@ define function juxtapose(p1 :: <function>, p2 :: <function>)
     if (matched-by-p1.empty?)
       more.head(inp, matched, more.tail)
     else
-      let (rest, creator1) = matched-by-p1.head();
+      let (rest, product1) = matched-by-p1.head();
       let (ign2, matched-by-p2)
         = block (done-second)
             p1(rest, #(), list(done-second));
@@ -992,9 +992,27 @@ define function juxtapose(p1 :: <function>, p2 :: <function>)
         more.head(inp, matched, more.tail)
       else
         let match = matched-by-p2.head;
-        more.head(inp, pair(method() let (rest, creator2) = match(); values(rest, method() list(creator1(), creator2()) end) end, matched), more.tail)
+        more.head(inp, pair(method() let (rest, product2) = match(); values(rest, list(product1, product2)) end, matched), more.tail)
       end if;
     end if;
   end method
 end function;
+
+//###### can be removed
+// ###
+begin
+
+  let inp = "bkpt={number=\"1\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}bkpt={number=\"2\",addr=\"0x0001072c\",file=\"recursive2.c\",line=\"4\"}zzzzz";
+  
+  block (outta-here)
+    local method final(rest, matches, more)
+            let igno :: singleton(1) = matches.size;
+            let (rem, tup) = matches.head();
+            format-out("parsed: %=\nremainder: %=\n\n", tup, rem);
+            outta-here();
+          end;
+
+    juxtapose(parse-breakpoint, parse-breakpoint)(inp, #(), list(final))
+  end block;
+end begin;
 
