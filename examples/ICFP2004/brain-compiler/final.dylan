@@ -737,7 +737,7 @@ define brain combo
     Sub bruce-spiral;
 
   [protector:]
-    Sub keith-defensant2;
+    Sub simple-search;
 
   [attacker:]
     Flip 3, (a-original, a-killer-2);
