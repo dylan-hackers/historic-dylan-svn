@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.4 2003/09/11 23:17:49 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.5 2003/09/18 00:50:53 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -534,8 +534,41 @@ end method;
 // <known-source-location>s, this will be a #line directive.  For
 // other types of <source-location>, this will be a comment.
 
+define generic emit-source-location
+  (stream :: <stream>,
+   source-loc :: <source-location>,
+   file :: <file-state>) => ();
+
+define method emit-source-location
+  (stream :: <stream>,
+   source-loc :: <source-location>,
+   file :: <file-state>) => ();
+end;
+
+/* FIXME
+define class <symbolic-c-preprocessor-stream>(<indenting-stream>)
+
+
+end;
+
+*/
+define constant <symbolic-c-preprocessor-stream> = <indenting-stream>;
+
+
+define method emit-source-location
+  (stream :: <symbolic-c-preprocessor-stream>,
+   source-loc :: <known-source-location>,
+   file :: <file-state>) => ();
+//   write-line(stream.inner-stream);
+   format(stream.inner-stream, "\n#line %d \"%s\"\n D__L(",
+          source-loc.start-line, source-loc.source.full-file-name);
+end;
+
 define method maybe-emit-source-location(source-loc :: <known-source-location>,
 				   file :: <file-state>) => ();
+
+  emit-source-location(file.file-guts-stream, source-loc, file);
+
   if (file.file-source-location ~= source-loc)
     format(file.file-guts-stream, "\n/* #line %d \"%s\" */\n",
 	   source-loc.end-line, source-loc.source.full-file-name); // FIXME
@@ -551,6 +584,14 @@ define method maybe-emit-source-location(source-loc :: <source-location>,
   end if;
 end method;
 
+define method finish-source-location(source-loc :: <source-location>,
+				   file :: <file-state>) => ();
+  if (instance?(file.file-source-location, <known-source-location>))
+    format(file.file-guts-stream.inner-stream, ")");
+    file.file-source-location := make(<unknown-source-location>);
+  end;
+end;
+
 
 // New-{scope}
 //
@@ -562,12 +603,13 @@ end method;
 
 define function contact-bgh() => ();
   dformat
-    ("\n\n\n\n%s\n%s\n%s\n%s\n%s\n\n\n\n",
-     "Could you please contact bruce@hoult.org and provide a copy of",
-     "the program you are compiling.  There is no problem with your",
-     "program but it is doing something that I didn't think could",
-     "happen, or don't have a test case for and I'd like to use it to",
-     "help improve the compiler.  Thank you!");
+    ("\n\n\n\n"
+     "Could you please contact bruce@hoult.org and provide a copy of\n"
+     "the program you are compiling.  There is no problem with your\n"
+     "program but it is doing something that I didn't think could\n"
+     "happen, or don't have a test case for and I'd like to use it to\n"
+     "help improve the compiler.  Thank you!"
+     "\n\n\n\n");
 end;
 
 define inline function contact-bgh-if(test :: <boolean>)
@@ -1470,6 +1512,9 @@ define method emit-prologue
              rep.representation-c-type, rep.representation-alignment);
     end if;
   end for;
+
+  // FIXME only for <symbolic-c-preprocessor-stream>  
+  format(stream, "#define D__L(...) __VA_ARGS__\n");
 end;
 
 define method dylan-slot-offset (cclass :: <cclass>, slot-name :: <symbol>)
@@ -1904,6 +1949,7 @@ define method emit-function
   end;
 
   maybe-emit-source-location(function.source-location, file);
+  finish-source-location(function.source-location, file);
   emit-region(function.body, file);
 
   let stream = file.file-body-stream;
@@ -2063,6 +2109,8 @@ define method emit-region
     if (byte-string.stream-size >= 65536)
       add!(file.file-guts-overflow, byte-string.stream-contents);
     end if;
+
+    finish-source-location(assign.source-location, file);
   end for;
 end;
 
