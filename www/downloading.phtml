@@ -31,6 +31,7 @@ near you. (If you'd like to provide a mirror, write to <A
 HREF="mailto:andreas@andreas.org">Andreas Bogk</A>.)</P>
 
 <UL>
+<LI><A HREF="ftp://ftp.gwydiondylan.org/pub/gd">Gwydion Dylan FTP Server</A>
 <LI><A HREF="ftp://berlin.ccc.de/pub/gd/">Chaos Computer Club</A>, Germany
 <LI><A HREF="ftp://ftp.fu-berlin.de/pub/unix/languages/dylan/">FU Berlin</A>, Germany (no packages, just source)
 <LI><A HREF="ftp://ftp.ntua.gr/pub/lang/gwydion">National Technical University of Athens</a>, Greece
@@ -40,21 +41,26 @@ HREF="mailto:andreas@andreas.org">Andreas Bogk</A>.)</P>
 
 <H3>CVS Source Repository</H3>
 
-<P><A HREF="http://berlin.ccc.de/cgi-bin/cvsweb/gd/">Browse our CVS tree.</A>
-You can also access the cvs server directly, specify
-<tt>:pserver:anoncvs@berlin.ccc.de:/home/cvsroot</tt> as your CVS root. The
-password is <tt>anoncvs</tt>. Even though we haven't yet released a newer
-official "stable" release we think we've made <strong>great</strong> progress
-and improvements since then and generally recommend people to start from the
-most recent tagged version which is currently <?php current_version();?>.
-If that works for you (or you're the type that doesn't read manuals before
-turning on your new VCR) then you can try the HEAD version.  We actually try
-pretty hard to make sure the HEAD version always works but there are certainly
-even fewer guarantees with it than usual :-)</P>
+<P><A HREF="http://www.gwydiondylan.org/cgi-bin/cvsweb/">Browse our CVS
+tree.</A> You can also access the cvs server directly, specify
+<tt>:pserver:anoncvs@cvs.gwydiondylan.org:/var/lib/cvs</tt> as your
+CVS root. The password is <tt>anoncvs</tt>. Even though we haven't yet
+released a newer official "stable" release we think we've made
+<strong>great</strong> progress and improvements since then and
+generally recommend people to start from the most recent tagged
+version which is currently <?php current_version();?>.  If that works
+for you (or you're the type that doesn't read manuals before turning
+on your new VCR) then you can try the HEAD version.  We actually try
+pretty hard to make sure the HEAD version always works but there are
+certainly even fewer guarantees with it than usual :-)</P>
 
 <H3>Debian</H3>
 
 Gwydion Dylan is part of the standard distribution of woody and
 sid. Just type <tt>apt-get install gwydion-dylan-dev</tt>.
+
+<H3>FreeBSD</H3>
+
+Gwydion Dylan is available as the <tt>lang/dylan</tt> port in FreeBSD.
 
 <?php standard_footer(); ?>
