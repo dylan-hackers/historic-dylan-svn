@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="foo.xsl" type="test/xsl"?>
-<!DOCTYPE movies [<!ENTITY foo 'bar'><!ENTITY baz 'foo&#32;and&#x20;&foo;'>]>
-<!-- this is a comment -->
+<?xml-stylesheet href="testing.xsl" type="test/xsl"?>
+<!DOCTYPE addresses SYSTEM "testing.dtd">
+
+<!-- in file testing.xml -->
 
  <address for="Douglas M. Auclair">
   <street>Inzer</street>
