@@ -255,6 +255,10 @@ define inline method map
 	more-collections);
 end method map;
 
+// If the type specifier for the first argument is changed to
+// subclass(<mutable-collection>), it breaks this method for
+// limited collections. Need to investigate further.
+//
 define method map-as
     (type :: <type>, proc :: <function>, collection :: <collection>,
      #rest more-collections)
@@ -310,19 +314,19 @@ end method map-into;
 
 // make-collection -- internal
 //
-define method make-collection
+define inline method make-collection
     (type :: <type>, collection-size :: <integer>)
  => (res :: <mutable-collection>);
   make(type, size: collection-size);
 end method;
 
-define method make-collection
+define inline method make-collection
     (type :: subclass(<array>), collection-size :: <integer>)
  => (res :: <mutable-collection>);
   make(type, dimensions: vector(collection-size));
 end method;
 
-define method make-collection
+define inline method make-collection
     (type :: subclass(<vector>), collection-size :: <integer>)
  => (res :: <mutable-collection>);
   make(type, size: collection-size);
@@ -866,49 +870,57 @@ define method do
   else
     next-method();
   end;
-end;
+end method do;
 
+// If the type specifier for the first argument is changed to
+// subclass(<mutable-sequence>), it breaks this method for
+// limited collections. Need to investigate further.
+//
 define method map-as
-    (type :: <type>, proc :: <function>, collection :: <sequence>,
-     #next next-method, #rest more-collections)
-    => res :: <mutable-collection>;
+    (type :: <type>, proc :: <function>, sequence :: <sequence>,
+     #rest more-collections)
+    => res :: <mutable-sequence>;
   if (subtype?(type, <sequence>)
-	& every?(rcurry(instance?, <sequence>), more-collections))
-    apply(sequence-map-as, type, proc, collection, more-collections);
+      & every?(rcurry(instance?, <sequence>), more-collections))
+    sequence-map-as(type, proc, sequence, more-collections);
   else
     next-method();
   end;
-end;
+end method map-as;
 
-define method sequence-map-as
+// If the type specifier for the first argument is changed to
+// subclass(<mutable-sequence>), it breaks this method for
+// limited collections. Need to investigate further.
+//
+define inline-only function sequence-map-as
     (type :: <type>, proc :: <function>, sequence :: <sequence>,
-     #rest more-sequences)
-    => res :: <mutable-collection>;
+     more-sequences :: <rest-parameters-sequence>)
+    => res :: <mutable-sequence>;
   let len = sequence.size;
   for (other-sequence :: <sequence> in more-sequences)
     let other-len = other-sequence.size;
     if (other-len)
       if (len)
-	len := min(len, other-len);
+        len := min(len, other-len);
       else
-	len := other-len;
+        len := other-len;
       end;
     end;
   end;
   unless (len)
     error("At least one argument to map-as must be bounded");
   end;
-  apply(sequence-map-into, make-collection(type, len), proc, sequence,
-	more-sequences);
-end;
+  sequence-map-into(make-collection(type, len), proc, sequence,
+                    more-sequences);
+end function sequence-map-as;
 
 
 define method map-into
     (target :: <mutable-sequence>, proc :: <function>,
-     collection :: <sequence>, #next next-method, #rest more-collections)
+     sequence :: <sequence>, #rest more-collections)
     => res :: <mutable-sequence>;
   if (every?(rcurry(instance?, <sequence>), more-collections))
-    apply(sequence-map-into, target, proc, collection, more-collections);
+    sequence-map-into(target, proc, sequence, more-collections);
   else
     next-method();
   end;
@@ -917,7 +929,7 @@ end method map-into;
 
 define function sequence-map-into
     (target :: <mutable-sequence>, proc :: <function>,
-     sequence :: <sequence>, #next next-method, #rest more-sequences)
+     sequence :: <sequence>, more-sequences :: <rest-parameters-sequence>)
     => res :: <mutable-sequence>;
   let (target-state, target-limit, target-next-state, target-finished-state?,
        ignore1, ignore2, target-current-element-setter)
