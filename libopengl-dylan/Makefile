@@ -4,8 +4,13 @@ ifeq ($(shell if [ -d "/System/Library/Frameworks" ]; then echo -n darwin; else 
 	LIDFILE=macosx-opengl.lid
 	MELANGE=melange --framework GLUT --d2c
 else
+ifeq ($(shell uname), NetBSD)
+	LIDFILE=opengl.lid
+	MELANGE=melange -I/usr/pkg/include -I/usr/X11R6/include --d2c
+else
 	LIDFILE=opengl.lid
 	MELANGE=melange -I/usr/X11R6/include --d2c
+endif
 endif
 
 opengl.lib.du: $(LIDFILE) opengl-exports.dylan opengl-intr.dylan \
