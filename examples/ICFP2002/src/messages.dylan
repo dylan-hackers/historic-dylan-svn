@@ -141,7 +141,7 @@ end function receive-initial-setup;
 define function receive-board-layout (s :: <stream>) => <board>;
   block()
     let (max-x, max-y) = receive-board-dimensions(s);
-    let board = make(<board>, x: max-x, y: max-y);
+    let board = make(<board>, dimensions: list(max-x, max-y));
     for (y from 0 below max-y)
       receive-board-row(s, board, max-x, y)
     end for;

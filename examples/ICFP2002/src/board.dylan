@@ -28,57 +28,34 @@ define terrain <water> end;
 define terrain <base> end;
 define terrain <space> end;
 
+/*
+define function passable?(b :: <board>, p :: <point>)
+ => (passable :: <boolean>);
+  let ch = b.lines[p.y][p.x];
+  ch == '.' | ch == '@';
+end;
+*/
 
 define function passable?(b :: <board>, x :: <coordinate>, y :: <coordinate>)
  => (passable :: <boolean>);
-  let ch = b.lines[y][x];
+  let ch = b[y][x];
   ch == '.' | ch == '@';
 end;
 
+
 // Board
 
-define constant <line> = limited(<vector>, of: <terrain>);
-
-define concrete class <board> (<array>)
-  slot lines :: limited(<vector>, of: <line>);
-//  keyword rows;
-//  keyword cols;
-end;
+define constant <board> = <array>;
 
 define function width(b :: <board>) => w :: <coordinate>;
-  b.lines.first.size
+  b.first.size
 end;
 
 define function height(b :: <board>) => w :: <coordinate>;
-  b.lines.size
+  b.size
 end;
-
-define method initialize(b :: <board>, #key x, y, #all-keys)
-  b.lines :=
-  map-as(limited(<vector>, of: <line>),
-         method(ignore) make(<line>, size: x, fill: make(<space>)) end,
-         range(below: y));
-end;
-
 
 // store objects line by line
-
-define method aref(board :: <board>, #rest coords /* :: <coordinate> */)
- => object :: <object>;
-  let x :: <coordinate> = coords.first;
-  let y :: <coordinate> = coords.second;
-  
-  board.lines[y][x];
-end;
-
-define method aref-setter(obj :: <terrain>, board :: <board>, #rest coords /* :: <coordinate> */)
- => object :: <object>;
-  let x :: <coordinate> = coords.first;
-  let y :: <coordinate> = coords.second;
-  
-  board.lines[y][x] := obj;
-end;
-
 
 define method add-robot (state :: <state>, robot :: <robot>) => <state>;
   // Add a robot to the <state>'s list of robots. If a robot with the
@@ -149,10 +126,10 @@ end function terrain-from-character;
 define function send-board(s :: <stream>, board :: <board>)
  => ();
   do(curry(write-line, s),
-     map(method (line :: <line>)
+     map(method (line)
            map-as(<string>, curry(as, <character>), line)
          end,
-         board.lines));
+         board));
 end;
 
 define function receive-board(s :: <stream>, board :: <board>)
@@ -164,9 +141,9 @@ let landscape =  #("..@...."
   "...~~~~"
   ".......");
 
-  board.lines
-    := map-as(limited(<vector>, of: <line>),
-              curry(map-as, <line>, terrain-from-character),
+  board
+    := map-as(limited(<vector>, of: <array>),
+              curry(map-as, <array>, terrain-from-character),
               landscape);
 
 
