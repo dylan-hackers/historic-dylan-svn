@@ -20,20 +20,6 @@ define function main(name, arguments)
 	     atof("3.141592654123456789e27"));
   */
 
-/*
-  let red :: <color> = make(<color>, red: 1.0, blue: 0.0, green: 0.0);
-  let green :: <color> = make(<color>, red: 0.0, green: 1.0, blue: 0.0);
-  let file = make(<ppm-image>, filename: "test.ppm", width: 256,
-		  height: 256, depth: 255);
-
-  for (i from 0 below 256*256/2)
-    write-pixel(file, red);
-    write-pixel(file, green);
-  end for;
-  close-ppm(file);
-
-*/
-
   begin
     let lexed = lex-gml(*standard-input*);
     let out = lexed.run-gml;
@@ -47,19 +33,18 @@ define function main(name, arguments)
 
   let o1 = make(<sphere>);
   let o2 = make(<plane>);
-  o1.surface-interpreter-entry := red-texture;
+  o1.surface-interpreter-entry := blue-texture;
   o2.surface-interpreter-entry := red-texture;
 
   o1 := uniform-scale(o1, 0.3);
 
 
-  let l = make(<star>, direction: #[ 1.0, -1.0, 1.0, 0.0 ],
+  let l = make(<star>, direction: #[ 0.0, -1.0, 0.0, 0.0 ],
 	       color: make-white());
 
 
 //  o2 := x-rotate(o2, $double-pi / 4.0);
   o2 := translate(o2, 0.0, -0.5, 0.0);
-
 
   let o = make(<csg-union>, of: vector(o1, o2));
   
@@ -82,7 +67,7 @@ define function main(name, arguments)
   force-output(*standard-output*);
 
   render-image(o, 1, "render.ppm", 
-	       make(<color>, red: 1.0, green: 1.0, blue: 1.0), 
+	       make(<color>, red: 0.0, green: 0.0, blue: 0.0), 
 	       vector(l), 
 	       128, 128, $double-pi / 2.0);
 
