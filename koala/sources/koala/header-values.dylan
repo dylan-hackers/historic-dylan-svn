@@ -151,7 +151,7 @@ end;
 // media-type ::= type:token "/" subtype:token *( ";" parameter )
 // parameter  ::= attribute:token "=" value:token-or-quoted-string
 // No linear whitespace between type and subtype nor between attribute and value.
-// Appear in Accept: and Content-type: header fields
+// Appear in Accept: and Content-Type: header fields
 
 
 //---TODO: should have a table of known attributes and how to parse them.

@@ -125,7 +125,7 @@ define method static-file-responder
     let sym = extension & ~empty?(extension) & as(<symbol>, extension);
     let mtype = element(*mime-type-map*, sym, default: *default-static-content-type*);
     log-debug("extension = %=, sym = %=, mtype = %=", extension, sym, mtype);
-    add-header(response, "Content-type", mtype);
+    add-header(response, "Content-Type", mtype);
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
   end;
