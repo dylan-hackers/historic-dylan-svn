@@ -1,6 +1,8 @@
 Koala To-Do List
 ----------------
 
+* Ability to bind to a specific IP address.
+
 * Thread pool.  Can be expensive to allocate/deallocate a threads.
 
 * Fix security issues...
