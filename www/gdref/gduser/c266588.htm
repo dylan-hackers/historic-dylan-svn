@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Pointer Clauses</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan User's Guide"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Using the Melange Interface Generator"
+HREF="c266.htm"><LINK
+REL="PREVIOUS"
+TITLE="Struct and Union Clauses"
+HREF="c266580.htm"><LINK
+REL="NEXT"
+TITLE="Constant Clauses"
+HREF="c266594.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan User's Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c266580.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Using the Melange Interface Generator</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c266594.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="POINTER-CLAUSES"
+>Pointer Clauses</A
+></H1
+><P
+>"Pointer clauses" modify the definitions of pointer
+      declarations such as "int *" or "struct foo ***", or vector
+      declarations such as "char [256]". Like all such clauses, they
+      may be used to specify renamings for the classes. This is
+      particularly useful for pointer types since they are not
+      automatically assigned user-meaningful names. It also allows
+      specification of the "superclasses:" option described in <A
+HREF="c266453.htm#MELANGE-CLASS-INHERITANCE"
+>the section called <I
+>Specifying class inheritance</I
+></A
+>. A typical use might
+      be:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "vec.h";
+   pointer "int *" =&#62; &#60;int-vector&#62;,
+      superclasses: {&#60;c-vector&#62;};
+   pointer "struct person **" =&#62; &#60;people&#62;,
+      superclasses: {&#60;c-vector&#62;};
+   pointer "char [256]" =&#62; &#60;fixed-string&#62;;
+end interface;</PRE
+><P
+>This clause is particularly useful for declaring pointer
+      types to be subclasses of &#60;c-vector&#62; so that they can be
+      indexed via "element". (Note that this is not necessary for
+      vector declarations, since they are automatically declared to be
+      &#60;c-vectors&#62;.)</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c266580.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c266594.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Struct and Union Clauses</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c266.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Constant Clauses</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

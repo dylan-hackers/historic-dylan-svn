@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>make
+	      file-stream-class</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Library Reference Guide"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="File streams "
+HREF="c730860.htm#AEN1082"><LINK
+REL="PREVIOUS"
+TITLE="Stream classes"
+HREF="c730860.htm"><LINK
+REL="NEXT"
+TITLE="type-for-file-stream"
+HREF="r1128.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Library Reference Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c730860.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r1128.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+>make
+	      <TT
+CLASS="REPLACEABLE"
+><I
+>file-stream-class</I
+></TT
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><H2
+>Name</H2
+>make
+	      <TT
+CLASS="REPLACEABLE"
+><I
+>file-stream-class</I
+></TT
+> &#8212; General function method</DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Summary</H2
+><P
+>Creates and opens a stream over a file.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Signature</H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="FUNCTION"
+><B
+>make</B
+></TT
+> file-stream-class <TT
+CLASS="LITERAL"
+>#key</TT
+> <TT
+CLASS="PARAMETER"
+><I
+>locator</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>direction</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>if-exists</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>if-does-not-exist</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>buffer-size</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>element-type</I
+></TT
+> <TT
+CLASS="PARAMETER"
+><I
+>encoding</I
+></TT
+> 
+=&#62; <TT
+CLASS="PARAMETER"
+><I
+>file-stream-instance</I
+></TT
+> </PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><H2
+>Description</H2
+><P
+>Returns a new instance of a concrete subclass of
+	      <TT
+CLASS="CLASSNAME"
+>&#60;file-stream&#62;</TT
+> that streams
+	      over the contents of the file referenced by locator. To
+	      determine the concrete subclass to be instantiated, this
+	      method calls the generic function
+	      <TT
+CLASS="FUNCTION"
+><B
+>type-for-file-stream</B
+></TT
+> (see FIXME).</P
+><P
+>The <TT
+CLASS="REPLACEABLE"
+><I
+>file-stream-class</I
+></TT
+>
+	      argument is the class
+	      <TT
+CLASS="CLASSNAME"
+>&#60;file-stream&#62;</TT
+>.</P
+><P
+>The <TT
+CLASS="LITERAL"
+>locator:</TT
+> init-keyword
+	      should be a string naming a file. If the Locators
+	      library is in use, locator should be an instance of
+	      <TT
+CLASS="CLASSNAME"
+>&#60;locator&#62;</TT
+> or a string that
+	      can be coerced to one.</P
+><P
+>The <TT
+CLASS="LITERAL"
+>direction:</TT
+> init-keyword
+	      specifies the direction of the stream.</P
+><P
+>The <TT
+CLASS="LITERAL"
+>if-exists:</TT
+> and
+	      <TT
+CLASS="LITERAL"
+>if-does-not-exist:</TT
+> init-keywords
+	      specify actions to take if the file named by locator
+	      does or does not already exist when the stream is
+	      created. These init-keywords are discussed in more
+	      detail in FIXME.</P
+><P
+>The <TT
+CLASS="LITERAL"
+>buffer-size:</TT
+> init-keyword
+	      is explained in &#60;buffered-stream&#62; FIXME.</P
+><P
+>The <TT
+CLASS="LITERAL"
+>element-type</TT
+> init-keyword
+	      specifies the type of the elements in the file named by
+	      locator. This allows file elements to be represented
+	      abstractly; for instance, contiguous elements could be
+	      treated as a single database record. This init-keyword
+	      defaults to something useful, potentially based on the
+	      properties of the file;
+	      <TT
+CLASS="CLASSNAME"
+>&#60;byte-character&#62;</TT
+> and
+	      <TT
+CLASS="CLASSNAME"
+>&#60;unicode-character&#62;</TT
+> are
+	      likely choices. See FIXME.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c730860.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r1128.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Stream classes</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c730860.htm#AEN1082"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>type-for-file-stream</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

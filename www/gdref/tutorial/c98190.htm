@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Parallel Values</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with 
+Dylan"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Expressions & Variables"
+HREF="c98.htm"><LINK
+REL="PREVIOUS"
+TITLE="Assignment, Equality and Identity"
+HREF="c98171.htm"><LINK
+REL="NEXT"
+TITLE="Type Declarations"
+HREF="c98199.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with 
+<SPAN
+CLASS="TRADEMARK"
+><A
+HREF="http://www.cambridge.apple.com/dylan/dylan.html"
+TARGET="_top"
+>Dylan</A
+></SPAN
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c98171.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Expressions &#38; Variables</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c98199.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="PARALLEL-VALUES"
+>Parallel Values</A
+></H1
+><P
+>It's possible to bind more than one variable at a time in
+      Dylan. For example, a single <TT
+CLASS="LITERAL"
+>let</TT
+> statement could bind
+      <TT
+CLASS="LITERAL"
+>x</TT
+> to 2, <TT
+CLASS="LITERAL"
+>y</TT
+> to 3 and <TT
+CLASS="LITERAL"
+>z</TT
+> to 4.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let (x, y, z) = values (2, 3, 4);</PRE
+><P
+>In Perl, the equivalent statement would assign a vector of
+      values to a vector of variables. In Dylan, no actual vectors or lists
+      are used. All three values are assigned directly, using some
+      implementation-dependant mechanism.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c98171.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c98199.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Assignment, Equality and Identity</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c98.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Type Declarations</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

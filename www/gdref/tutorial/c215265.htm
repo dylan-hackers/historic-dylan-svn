@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Local Methods</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with 
+Dylan"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Methods & Generic Functions"
+HREF="c215.htm"><LINK
+REL="PREVIOUS"
+TITLE="Bare Methods"
+HREF="c215253.htm"><LINK
+REL="NEXT"
+TITLE="Generic Functions"
+HREF="c215273.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with 
+<SPAN
+CLASS="TRADEMARK"
+><A
+HREF="http://www.cambridge.apple.com/dylan/dylan.html"
+TARGET="_top"
+>Dylan</A
+></SPAN
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c215253.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Methods &#38; Generic Functions</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c215273.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="LOCAL-METHODS"
+>Local Methods</A
+></H1
+><P
+>Local methods resemble bare methods but have names. They are
+      declared within other methods, often as private utility
+      routines. Local methods are typically used in a fashion similar to
+      Pascal's local functions.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method sum-squares(in :: &#60;list&#62;) =&#62; sum-of-element-squares :: &#60;integer&#62;;
+	local	method square( x )
+				x * x;
+			end,
+			method sum(list :: &#60;list&#62;)
+				reduce1(\+, list);
+			end;
+	sum(map(square, in));
+end;</PRE
+><P
+>Local methods can actually outlive the invocation of the
+      function which created them. Parameters of the parent function remain
+      bound in a local method, allowing some interesting techniques:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method build-put(string :: &#60;string&#62;) =&#62; &#60;function&#62;;
+	local	method string-putter()
+				puts(string);
+			end;
+	string-putter; // return local method
+end;
+
+define method print-hello() =&#62; ();
+	let f = build-put("Hello!");
+	f();				// print "Hello1"
+end;</PRE
+><P
+>Local functions which contain bound variables in the above
+      fashion are known as <I
+CLASS="GLOSSTERM"
+>closures</I
+>.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c215253.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c215273.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Bare Methods</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c215.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Generic Functions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Modules &#38; Libraries</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with 
+Dylan"
+HREF="book1.htm"><LINK
+REL="PREVIOUS"
+TITLE="Multiple Dispatch"
+HREF="c441.htm"><LINK
+REL="NEXT"
+TITLE="Import Options"
+HREF="c471488.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with 
+<SPAN
+CLASS="TRADEMARK"
+><A
+HREF="http://www.cambridge.apple.com/dylan/dylan.html"
+TARGET="_top"
+>Dylan</A
+></SPAN
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c441.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c471488.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="MODULES-LIBRARIES"
+>Chapter 6. Modules &#38; Libraries</A
+></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="c471.htm#SIMPLE-MODULES"
+>Simple Modules</A
+></DT
+><DT
+><A
+HREF="c471488.htm"
+>Import Options</A
+></DT
+><DT
+><A
+HREF="c471494.htm"
+>Libraries</A
+></DT
+><DT
+><A
+HREF="c471512.htm"
+>A Sample Set of Libraries</A
+></DT
+><DT
+><A
+HREF="c471675.htm"
+>Sealing</A
+></DT
+></DL
+></DIV
+><P
+>Modules and libraries provide the structure of a Dylan
+    program. Modules represent namespaces and control access to objects and
+    functions. Libraries contain modules, and act as units of compilation
+    in a finished Dylan program.</P
+><H1
+><A
+NAME="SIMPLE-MODULES"
+>Simple Modules</A
+></H1
+><P
+>Modules import the symbols of other modules and export their
+      own. The dependencies between modules must form a directed, acyclic
+      graph. Two modules may not use each other, and no circular
+      dependencies may exist.</P
+><P
+>Modules only export variables. Since the names of classes and
+      generic functions are actually stored in variables, this represents
+      no hardship. A sample module containing the vehicle classes from
+      earlier chapters might resemble:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define module Vehicles
+  use Dylan;
+  export
+    &#60;vehicle&#62;,
+      serial-number,
+      owner, owner-setter,
+      tax,
+    &#60;car&#62;,
+    &#60;truck&#62;,
+      capacity;
+end module;</PRE
+><P
+>Like all normal modules, this one uses the <TT
+CLASS="LITERAL"
+>Dylan</TT
+>
+      module, which contains all of the standard built-in functions and
+      classes. In turn, the <TT
+CLASS="LITERAL"
+>Vehicles</TT
+> module exports all three of
+      the vehicle classes, the generic function <TT
+CLASS="LITERAL"
+>tax</TT
+>, several
+      getter functions and a single setter function.</P
+><P
+>To control access to a slot, export some combination of its
+      getter and setter functions. To make a slot public, export both. To
+      make it read-only, export just the getter function. To make it
+      private, export neither. In the above example, the slot
+      <TT
+CLASS="LITERAL"
+>serial-number</TT
+> is read-only, while the slot <TT
+CLASS="LITERAL"
+>owner</TT
+>
+      is public.</P
+><P
+>Note that when some module adds a method to a generic function,
+      the change affects all modules using that function. The new method
+      actually gets added <I
+CLASS="EMPHASIS"
+>into</I
+> the variable representing the
+      generic function. Since the variable has been previously exported,
+      all clients can access the new value.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c441.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c471488.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Multiple Dispatch</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Import Options</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

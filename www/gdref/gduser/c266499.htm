@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Translating Object Representations</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan User's Guide"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Using the Melange Interface Generator"
+HREF="c266.htm"><LINK
+REL="PREVIOUS"
+TITLE="Type Definitions"
+HREF="c266453.htm"><LINK
+REL="NEXT"
+TITLE="Other File Options"
+HREF="c266524.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan User's Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c266453.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Using the Melange Interface Generator</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c266524.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="MELAGE-TRANSLATING-REPRESENTATIONS"
+>Translating Object Representations</A
+></H1
+><P
+>Whenever a native C object is returned from a function or
+      a Dylan object is passed into a C function, it is necessary to
+      translate between the object representations used by the two
+      languages. From MelangeUs standpoint, native C objects consist
+      of an arbitrary bit pattern which can be translated to or from a
+      small number of "low level" Dylan types -- namely
+      &#60;integer&#62;, &#60;float&#62;, or any subclass of
+      &#60;statically-typed-pointer&#62;. This translation is handled
+      automatically, although the user may explicitly specify which of
+      the possible Dylan types should be chosen for any given C object
+      type. In some cases, a further translation may take place,
+      converting the "low level" Dylan value to or from some arbitrary
+      "high level" Dylan type. (For example, an &#60;integer&#62; might
+      be translated into a &#60;boolean&#62; or a &#60;character&#62;, and
+      a &#60;c-string&#62; might be translated into a
+      &#60;byte-string&#62;.) These "high level" translations are
+      automatically invoked at the appropriate times, but both the
+      "target" types and the methods for performing the translation
+      must be specified by the user.</P
+><H2
+><A
+NAME="MELANGE-LOW-LEVEL-TRANSFORMATIONS"
+>Specifying low level transformations</A
+></H2
+><P
+>The target Dylan type for "low level" translations is
+        typically chosen automatically by Melange. Integer and
+        enumeration types are translated into &#60;integer&#62;;
+        floating point types are translated to &#60;float&#62;; and all
+        other types are translated into newly created subclasses of
+        &#60;statically-typed-pointer&#62;. However, you may explicitly
+        declare the target Dylan type for any C type by means of an
+        "equate:" option:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "gc.h",
+      equate: {"char *" =&#62; &#60;c-string&#62;};
+end interface;</PRE
+><P
+>This declaration makes the very strong statement that
+        any values declared in C as "char *" are identical in form to
+        the predefined type "&#60;c-string&#62;" (which is described in
+        Appendix I). The system will therefore not define a distinct
+        type for "char *" and will ignore any structural information
+        provided in the header file. You migh also use an "equate:"
+        option to equate a type mentioned in one interface definition
+        with an identically named type which was defined in an earlier
+        interface definition.</P
+><P
+>You should use caution when equating two types. Since
+        Melange has no way of knowing when two types are equivalent,
+        it must trust your declarations. No type checking can or will
+        be done, so if you incorrectly equate two types, the results
+        will be unpredictable. In some cases, you may wish to go with
+        the less efficient but slightly safer technique of letting
+        Melange create a new type and then "mapping" that new type
+        into the desired type. (This is described in detail
+        below.)</P
+><P
+>Note also that two types with identical purposes will
+        not necessarily have identical representations. For example,
+        C's boolean types are simple integers and are not equivalent
+        to Dylan's &#60;boolean&#62;. Again, explicit "mapping" may be
+        used to transform between these two representations.</P
+><P
+>In the current implementation, an "equate:" option only
+        applies within a single interface definition. Other interface
+        definitions will not automatically inherit the effects of the
+        declaration. In future versions, we may add the ability to
+        "use" other interface definitions (just as you would "use"
+        another module withing a module definition) and thus pick up
+        the effects of the "equate: (and "map:") options within those
+        interfaces.</P
+><H2
+><A
+NAME="MELANGE-HIGH-LEVEL-TRANSFORMATIONS"
+>Specifying high level transformations</A
+></H2
+><P
+>Sometimes you may wish to use instances of some C type
+        as if they were instances of some existing Dylan class, even
+        though they have different representations. In this case, you
+        can specify a secondary translation phase which
+        semi-automatically translates between a "low level" and a
+        "high level" Dylan representation. In order to do this, you
+        must provide a "map:" option:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "gc.h",
+      equate: {"char *" =&#62; &#60;c-string&#62;},
+      map: {"bool" =&#62; &#60;boolean&#62;};
+end interface;</PRE
+><P
+>This clause will cause any functions defined within the
+        interface to call transformation functions wherever the
+        original C functions accept or return values of type
+        "bool". Two different functions may be called:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>import-value (high-level-class :: &#60;class&#62;, low-level-value :: &#60;object&#62;)</PRE
+><P
+>This function is called to transform result values
+        returned by C functions into a "high level" Dylan class. It
+        should always return an instance of "high-level-class".</P
+><PRE
+CLASS="PROGRAMLISTING"
+>export-value (lowlevel-class :: &#60;class&#62;, high-level-value :: &#60;object&#62;)</PRE
+><P
+>This function is called to transform "high level"
+        argument values passed to C functions into the "low level"
+        representations which will be meaningful to native C code. It
+        should always return an instance of "low-level-class".</P
+><P
+>Default methods, which simply call "as", are provided
+        for each of these functions.  This will be sufficient to
+        transform C's integral "char"s into &#60;character&#62;s,
+        &#60;c-string&#62;s into other &#60;string&#62;s, or one "pointer"
+        type into another. There is also a predefined method which
+        will transform &#60;integer&#62;s into
+        &#60;boolean&#62;s. However, if you wish to perform arbitrary
+        transformations upon the values, you may need to define
+        additional methods for either or both of these functions. For
+        example, the default methods for transforming to and from
+        &#60;boolean&#62; are:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define method export-value (cls == &#60;integer&#62;, value :: &#60;boolean&#62;)
+ =&#62; (result :: &#60;integer&#62;);
+   if (value) 1 else 0 end if;
+end method export-value;
+
+define method import-value (cls == &#60;boolean&#62;, value :: &#60;integer&#62;)
+ =&#62; (result :: &#60;boolean&#62;);
+   value ~= 0;
+end method import-value;</PRE
+><P
+>It is important to note that, unlike "equate:" options,
+        "map:" options don't prevent Melange from creating new
+        types. You may, in fact, both equate and map the same
+        type. This will cause low level values to be created as
+        instances of the "equated" type and then transformed into
+        instances of the "target" type of the mapping. For example,
+        you might take advantage of the defined transformations
+        between string types by declaring:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "/usr/include/sys/dirent.h",
+      equate: {"char *" =&#62; &#60;c-string&#62;},
+       map: {"char *" =&#62; &#60;byte-string&#62;};
+end interface;</PRE
+><P
+>This causes the system to automatically translate "char
+        *" pointers into &#60;c-string&#62;s (i.e. a particular variety
+        of statically typed pointer) and then to call "import-value"
+        ot translate the &#60;c-string&#62; into a
+        &#60;byte-string&#62;. If we did not provide the "equate:"
+        option, then we would have to explicitly provide a function to
+        transform "pointers to characters" into
+        &#60;byte-string&#62;s. The "equate:" option lets us take
+        advantage of all of the predefined functions for
+        &#60;string&#62;s, which includes transformation into other
+        string types.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c266453.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c266524.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Type Definitions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c266.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Other File Options</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

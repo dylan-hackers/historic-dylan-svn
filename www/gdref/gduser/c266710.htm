@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Proposed modifications</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan User's Guide"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Using the Melange Interface Generator"
+HREF="c266.htm"><LINK
+REL="PREVIOUS"
+TITLE="Known limitations"
+HREF="c266700.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan User's Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c266700.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Using the Melange Interface Generator</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="MELANGE-PROPOSED-MODIFICATIONS"
+>Proposed modifications</A
+></H1
+><P
+>Although Melange seems to be fairly useful in its present
+      form, we are currently considering a number of ways in which it
+      may be made more useful. This section contains a brief
+      discussion of several potential changes which may be implemented
+      in the future.</P
+><H2
+><A
+NAME="MELANGE-ENUMERATION-CLAUSES"
+>Enumeration clauses</A
+></H2
+><P
+>At present, there is no way to modify the default
+        handling of a C enumeration declaration. It is clear that you
+        might wish a mechanism to specify several different explicit
+        options: prefixes for the enumeration constants;
+        respecification of constant values; and, of course, explicit
+        "import:" and "exclude:" options.</P
+><H2
+><A
+NAME="MELANGE-MAP-EQUATE-INHERITANCE"
+>Inheritance of "map" and "equate" options</A
+></H2
+><P
+>There are some cases in which a set of types imported
+        within one interface definition might be used extensively
+        within another. In the present implementation, the two
+        interface definitions would be handled independently and
+        equivalences between types would not be recognized in the
+        abscence of explicit "equate:" options.</P
+><P
+>One proposed solution would involve the ability to
+        explicitly "use" one interface definition within another. This
+        would result in all identically named types being implicitly
+        equated and all top-level "map:" options being inherited. The
+        "use" clause could support roughly the same syntax as the
+        "use" clauses in library and module definitions.In order to
+        make this work, it would be necessary to assign arbitrary
+        names to interface definitions. This would have the added
+        benefit of making them more consistent with other standard
+        Dylan definition forms.</P
+><P
+>If this change were implemented, a typical interface
+        definition might look something like the following:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface date
+   #include "date.h";
+   use time, import: {"struct time"};
+end interface date;</PRE
+><P
+>A less ambitious version might remain compatible with
+        the current syntax by replacing the interface name with an
+        "interface-name" option, which would default to the root of
+        the file name. Thus,</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "date.h",
+      interface-name: "date";
+end interface;</PRE
+><P
+>would yield the same effect as the previous example.</P
+><H2
+><A
+NAME="MELANGE-MERGING-MAP-EQUATE"
+>Remerging of the "equate:" and "map:" options</A
+></H2
+><P
+>It has been pointed out that the current method of
+        specifying low-level and high-level mappings, while
+        sufficiently expressive, is somewhat verbose and confusing. It
+        would therefore be good to find an alternative
+        notation.</P
+><P
+>It has been suggested that definitions like:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "dirent.h",
+      equate: {"char *" =&#62; &#60;c-string&#62;},
+      map: {"char *" =&#62; &#60;byte-string&#62;};
+end interface;</PRE
+><P
+>might be replaced by something like:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "dirent.h",
+      equate-and-map: {"char *" =&#62; &#60;c-string&#62; =&#62; &#60;byte-string&#62;};
+end interface;</PRE
+><P
+>or</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "dirent.h";
+   transform "char *",
+      low-level: &#60;c-string&#62;,
+      high-level: &#60;byte-string&#62;;
+end interface;</PRE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c266700.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Known limitations</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c266.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

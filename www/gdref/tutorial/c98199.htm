@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Type Declarations</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with 
+Dylan"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Expressions & Variables"
+HREF="c98.htm"><LINK
+REL="PREVIOUS"
+TITLE="Parallel Values"
+HREF="c98190.htm"><LINK
+REL="NEXT"
+TITLE="Module Variables and Constants"
+HREF="c98205.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with 
+<SPAN
+CLASS="TRADEMARK"
+><A
+HREF="http://www.cambridge.apple.com/dylan/dylan.html"
+TARGET="_top"
+>Dylan</A
+></SPAN
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c98190.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Expressions &#38; Variables</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c98205.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="TYPE-DECLARATIONS"
+>Type Declarations</A
+></H1
+><P
+>Dylan variables may have explicit types. This allows the
+      compiler to generate better code and to catch type-mismatch errors at
+      compile time. To take advantage of this feature, use the <TT
+CLASS="LITERAL"
+>::</TT
+>
+      operator:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let x :: &#60;integer&#62; = 2;
+let vehicle :: &#60;vehicle&#62; = make(&#60;car&#62;);
+let y :: &#60;number&#62; = 3; // any numeric class
+let z :: &#60;integer&#62; = vehicle; // error!</PRE
+><P
+>As seen in the example, a variable may be bound to values of
+      its declared type or to values of subclasses of its declared
+      type. Type mismatch errors should be caught at compile time. In
+      general, the compiler may infer the types of variables at when
+      generating machine code. If a local variable never gets rebound to
+      anything other than an integer, for example, the compiler can rely on
+      this fact to optimize the resulting code.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c98190.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c98205.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Parallel Values</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c98.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Module Variables and Constants</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
