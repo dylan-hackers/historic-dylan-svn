@@ -16,8 +16,44 @@ define macro graphics-primitive-definer
            end method,
            remaining)*/
      end; }
+
+
+  { define graphics-primitive ?:name(?vars) ?:body end }
+  =>
+  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
+      let (cont, remaining) = more-tokens.compile-GML;
+      values(method(stack :: <list>, env :: <function>) => new-stack :: <list>;
+               ?vars;
+               cont(pair(?body, stack), env)
+             end method,
+             remaining)
+    end method;
+  }
+  
+  vars:
+  { ?:variable } => { let (?variable, stack :: <list>) = values(stack.head, stack.tail) }
+  { ... => ?:variable } => { let (?variable, stack :: <pair>) = values(stack.head, stack.tail); ... }
+  
+//  var:
+//  { ?:variable } => { ?variable }
+  /*
+  let (?variable, stack :: <pair>) = values(stack.head, stack.tail);
+           let (true-closure :: <function>, rest :: <pair>) = values(rest.head, rest.tail);
+           let (condition :: <boolean>, rest :: <list>) = values(rest.head, rest.tail);
+*/
+
 end macro graphics-primitive-definer;
 
+
+/*
+
+USAGE:
+
+define graphics-primitive slump(s :: <integer> => f :: <float> => v :: <vector>)
+  (f + s + 1) * v.first
+end graphics-primitive slump;
+
+*/
 
 define graphics-primitive cone() end;
 define graphics-primitive cube() end;
