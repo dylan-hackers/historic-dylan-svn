@@ -144,6 +144,42 @@ states:
                              state-failure: curry(lookup, instrs, ?#"no", 0))
                     end method) }
 
+  { Sense ?where:name (Marker ?what:expression) => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: ?#"where",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                                  state-true: curry(lookup, label, counter + 1),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+
+  { Sense (Marker ?what:expression) => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: #"Here",
+                                  condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                                  state-true: curry(lookup, instrs, label, counter + 1),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+  { Sense ?where:name ?what:name => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: ?#"where",
+                                  condition: ?#"what",
+                                  state-true: curry(lookup, instrs, label, counter + 1),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+
+  { Sense ?what:name => ?no:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<sense>,
+                                  direction: #"Here",
+                                  condition: ?#"what",
+                                  state-true: curry(lookup, instrs, label, counter + 1),
+                                  state-false: curry(lookup, instrs, ?#"no", 0))
+                    end) }
+
+
   { Sense ?where:name (Marker ?what:expression), (?yes:name, ?no:name) }
     => { push-thunk(instrs, label, counter,
                     method() make(<sense>,
