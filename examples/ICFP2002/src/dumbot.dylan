@@ -46,13 +46,13 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
     let new-loc = paths.first.first;
     let direction = $North;
 
-    if (new-loc = make(<point>, x: new-loc.x, y: new-loc.y + 1))
+    if (new-loc = point(x: new-loc.x, y: new-loc.y + 1))
       direction = #"north";
-    elseif (new-loc = make(<point>, x: new-loc.x + 1, y: new-loc.y))
+    elseif (new-loc = point(x: new-loc.x + 1, y: new-loc.y))
       direction = #"east";
-    elseif (new-loc = make(<point>, x: new-loc.x, y: new-loc.y - 1))
+    elseif (new-loc = point(x: new-loc.x, y: new-loc.y - 1))
       direction = #"south";
-    elseif (new-loc = make(<point>, x: new-loc.x - 1, y: new-loc.y))
+    elseif (new-loc = point(x: new-loc.x - 1, y: new-loc.y))
       direction = #"west";
     else
       error("Can't happen");

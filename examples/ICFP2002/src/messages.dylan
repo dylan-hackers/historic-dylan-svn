@@ -176,14 +176,14 @@ define function receive-initial-robot-positions
   let state = make(<state>, board: b);
   let (robot-id, x, y) = receive-robot-location(s);
   state := add-robot(state, make(<robot>, id: robot-id, 
-				 location: make(<point>, x: x, y: y)));
+				 location: point(x: x, y: y)));
   iterate loop (c :: <character> = s.read-element)
     select (c)
       ' ' =>
         begin
           let (robot-id, x, y) = receive-robot-location(s);
           state := add-robot(state, make(<robot>, id: robot-id, 
-					 location: make(<point>, x: x, y: y)));
+					 location: point(x: x, y: y)));
           loop(s.read-element);
         end;
       '\n' => #f;

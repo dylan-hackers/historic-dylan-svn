@@ -16,11 +16,12 @@ end library;
 define module board
   use common-dylan;
   use streams;
+  use print, import: {print-object};
   
   export
     <state>, board, robots, packages, packages-at,
     <board>,
-    <coordinate>, <point>, x, y,
+    <coordinate>, <point>, x, y, point,
     send-board, receive-board,
     width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,

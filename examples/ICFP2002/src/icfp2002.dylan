@@ -22,6 +22,8 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
   let agent = make(<dumbot>, id: my-id, 
                    capacity: my-capacity, money: my-money);
 
+  debug("board is %=", state.board);
+
 /*
   let running = #t;
   while(running)

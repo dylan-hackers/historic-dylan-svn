@@ -9,7 +9,7 @@ define constant <path-cost> = <integer>;
 // Prioritised location type.
 define sealed class <prioritized-location> (<object>)
   slot p :: <path-cost>, required-init-keyword: p:;
-  slot point :: <point>, required-init-keyword: point:;
+  slot pt :: <point>, required-init-keyword: point:;
 end;
 
 
@@ -19,7 +19,7 @@ define sealed domain initialize(<prioritized-location>);
 
 define sealed method \= (a :: <prioritized-location>, b :: <prioritized-location>)
  => (res :: <boolean>)
-  (a.p = b.p) & (a.point = b.point)
+  (a.p = b.p) & (a.pt = b.pt)
 end;
 
  
@@ -66,23 +66,23 @@ define function get-neighbors(p :: <point>,
  => (res :: <list>, visited :: <list>)
   let nodes :: <list> = #();
 
-  let north = make(<point>, x: p.x,     y: p.y + 1);
+  let north = point(x: p.x,     y: p.y + 1);
   if (p.y < board.height & ~member?(north, visited, test: \=) &
 	passable?(board, north))
     nodes := add!(nodes, north);
   end if;
 
-  let east = make(<point>,  x: p.x + 1, y: p.y);
+  let east = point( x: p.x + 1, y: p.y);
   if (p.x < board.width & ~member?(east, visited, test: \=) & passable?(board, east))
     nodes := add!(nodes, east);
   end if;
 
-  let south = make(<point>, x: p.x,     y: p.y - 1);
+  let south = point(x: p.x,     y: p.y - 1);
   if (p.y > 0 & ~member?(south, visited, test: \=) & passable?(board, south))
     nodes := add!(nodes, south);
   end if;
 
-  let west = make(<point>,  x: p.x - 1, y: p.y);
+  let west = point( x: p.x - 1, y: p.y);
   if (p.x > 0 & ~member?(west, visited, test: \=) & passable?(board, west))
     nodes := add!(nodes, west);
   end if;
@@ -107,13 +107,13 @@ define function find-path(source :: <point>, dest :: <point>,
   block (path-found)
     while (~pQ.empty?)
       let cur :: <prioritized-location> = pQ.get;
-      path = add!(path, cur.point );
+      path = add!(path, cur.pt );
       pathCost := pathCost + 1;
 
-      if (cur.point = dest)
+      if (cur.pt = dest)
         path-found(path);
       else
-        let (nodes, new-visited) = get-neighbors(cur.point, board, visited);
+        let (nodes, new-visited) = get-neighbors(cur.pt, board, visited);
         visited := new-visited;
         
         if (nodes.empty?)

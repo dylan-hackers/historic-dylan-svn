@@ -1,6 +1,13 @@
 module: board
 
-define constant <board> = <array>;
+define constant <terrain-vector> = <simple-object-vector>;
+
+define sealed class <board>(<array>)
+  slot cols :: <coordinate>, init-value: 0;
+  slot rows :: <coordinate>, init-value: 0;
+  slot data :: <terrain-vector>, // for now
+    init-value: make(<terrain-vector>);
+end;
 
 define class <state> (<object>)
   slot board :: <board>, required-init-keyword: board:;
@@ -30,12 +37,34 @@ define macro terrain-definer
   }
 end;
 
-define terrain <wall> '#' end;
+define terrain <wall> '#'  end;
 define terrain <water> '~' end;
-define terrain <base> '@' end;
+define terrain <base> '@'  end;
 define terrain <space> '.' end;
 
 // Board
+
+
+define sealed method initialize(board :: <board>, #key dimensions);
+  let (y, x) = apply(values, dimensions);
+  board.rows := y;
+  board.cols := x;
+  board.data := make(<terrain-vector>, size: y * x);
+end;
+
+define inline method aref
+    (board :: <board>, #rest indices)
+    => element :: <terrain>;
+  let (row :: <integer>, col :: <integer>) = apply(values, indices);
+  board.data[row * board.cols + col];
+end;
+
+define inline method aref-setter
+    (new-value :: <terrain>, board :: <board>, #rest indices)
+    => new-value :: <terrain>;
+  let (row :: <integer>, col :: <integer>) = apply(values, indices);
+  board.data[row * board.cols + col] := new-value;
+end;
 
 define inline function passable?(b :: <board>, p :: <point>)
  => (passable :: <boolean>);
@@ -46,14 +75,13 @@ define inline function passable?(b :: <board>, p :: <point>)
 end;
 
 define inline function width(b :: <board>) => w :: <coordinate>;
-  dimension(b, 0);
+  b.cols;
 end;
 
 define inline function height(b :: <board>) => w :: <coordinate>;
-  dimension(b, 1);
+  b.rows;
 end;
 
-/*
 define method print-object(board :: <board>, stream :: <stream>)
  => ();
   format(stream, "board {\n");
@@ -63,9 +91,8 @@ define method print-object(board :: <board>, stream :: <stream>)
     end;
     format(stream, "\n");
   end;
-  format(stream, "U=%=, size=%=, color=%}");
+  format(stream, "}\n");
 end method print-object;
-*/
 
 // store objects line by line
 

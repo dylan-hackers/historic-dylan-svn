@@ -2,13 +2,25 @@ module: board
 
 define constant <coordinate> = limited(<integer>, min: 0);
 
-define class <point> (<object>)
-  slot x :: <coordinate>, required-init-keyword: x:; 
-  slot y :: <coordinate>, required-init-keyword: y:;
+define functional sealed class <point> (<object>)
+  slot val :: <integer>,
+    required-init-keyword: value:;
 end class <point>;
 
+define inline function x(p :: <point>) => (x :: <coordinate>);
+  logand(p.val, #xffff);
+end;
 
-define method \=(a :: <point>, b :: <point>)
+define inline function y(p :: <point>) => (y :: <coordinate>);
+  logand(ash(p.val, 16), #xffff);
+end;
+
+define sealed method point(#key x :: <coordinate> = 0, y :: <coordinate> = 0)
+ => (res :: <point>);
+  make(<point>, value: ash(y, 16) | x);
+end;
+
+define inline sealed method \=(a :: <point>, b :: <point>)
  => b :: <boolean>;
-  a.x == b.x & a.y == b.y;
+  a.val == b.val;
 end method;
