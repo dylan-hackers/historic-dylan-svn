@@ -2,6 +2,7 @@ language: infix-dylan
 module: GML-compiler
 file: graphics-primitives.dylan
 author: Gabor Greif, mailto: gabor@mac.com
+copyright: this program may be freely used by anyone, for any purpose
 
 
 define macro graphics-primitive-definer

@@ -1,6 +1,7 @@
 language: infix-dylan
 module: GML-compiler
 author: Gabor Greif, mailto: gabor@mac.com
+copyright: this program may be freely used by anyone, for any purpose
 
 define method run-gml(tokens :: <list>) => new-stack :: <list>;
   let (closure, remaining) = tokens.optimize-compile-GML;

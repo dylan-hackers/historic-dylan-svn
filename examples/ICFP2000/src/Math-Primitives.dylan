@@ -2,6 +2,7 @@ language: infix-dylan
 module: GML-compiler
 file: Math-Primitives.dylan
 author: Gabor Greif, mailto: gabor@mac.com
+copyright: this program may be freely used by anyone, for any purpose
 
 define macro unary-primitive-definer
   { define unary-primitive ?:name(?type:expression) end }

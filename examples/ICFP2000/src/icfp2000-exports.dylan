@@ -1,4 +1,5 @@
 module: dylan-user
+copyright: this program may be freely used by anyone, for any purpose
 
 define library icfp2000
   use common-dylan;

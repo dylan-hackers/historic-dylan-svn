@@ -2,6 +2,7 @@ language: infix-dylan
 module: GML-compiler
 file: optimizer.dylan
 author: Gabor Greif, mailto: gabor@mac.com
+copyright: this program may be freely used by anyone, for any purpose
 
 define function optimize-compile-GML(tokens :: <list>) => (closure :: <function>, remaining :: <list>);
   let (remaining :: <list>, closure :: <function>.false-or) = tokens.optimize-all;
