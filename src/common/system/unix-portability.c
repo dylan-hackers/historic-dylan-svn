@@ -47,5 +47,8 @@ system_localtime(time_t clock, struct tm *result, long *gmtoff,
 
 int system_open(const char *path, int oflag, mode_t mode)
 {
+#ifdef O_BINARY
+  oflag |= O_BINARY;
+#endif
   return (oflag & O_CREAT) ? open(path, oflag, mode) : open(path, oflag);
 }
