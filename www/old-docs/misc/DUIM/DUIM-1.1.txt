@@ -1,0 +1,2423 @@
+Return-Path: <gwydion-group-Request@B.GP.CS.CMU.EDU>
+Received: from RI.CMU.EDU by B.GP.CS.CMU.EDU id aa05334; 5 Feb 96 20:57:58 EST
+Received: from hilly.harlequin.com by RI.CMU.EDU id aa02747;
+          5 Feb 96 20:56:00 EST
+Received: from ensoniq.seattle.harlequin.com by hilly.harlequin.com; Mon, 5 Feb 1996 20:55:27 -0500
+Received: from bright.harlequin.com (bright.seattle.harlequin.com) by ensoniq.seattle.harlequin.com; Mon, 5 Feb 1996 17:55:23 -0800
+To: gwydion-group@cs.cmu.edu
+Reply-To: chiles@harlequin.com
+Subject: [Scott McKay: DUIM spec, rev 1.1]
+Date: Mon, 05 Feb 1996 17:55:18 -0800
+Message-Id: <20201.823571718@bright.seattle.harlequin.com>
+From: Bill Chiles <chiles@harlequin.com>
+
+
+I think this should have gone to you guys too.  It is not much more than
+what there was previously, but there's a bit more.  For anyone paying much
+attention to the DUIM layer (to the extent that it includes the Silica
+layer), I thought you might care.
+
+Bill
+
+
+
+------- Forwarded Message
+
+From: Scott McKay <swm>
+Date: Mon, 5 Feb 96 19:47:13 EST
+Message-Id: <1184.9602060047@bakura.harlequin.com>
+To: dylan-libraries
+Subject: DUIM spec, rev 1.1
+
+Here's the latest version DUIM spec outline.  Andy and I believe this to
+be in a pretty final form (modulo issues listed below, including in
+particular the issue of support OLE), so if you have any comments
+(difficult, given the fact that there is no English once you get into
+the functionality!), I hope they don't propose sweeping redesign.
+
+- ----------------
+DUIM specification outline -- 5 Feb 1996
+
+Version History:
+ 1.0: original [now outline.text.jan29]
+ 1.1: new library organization
+
+This document is meant to serve as an outline for a DUIM specification.  There
+are no descriptions for any functions or classes to be found here.  There are no
+helpful descriptions, no motivational material, and no examples.  Nonetheless,
+this might still be useful to people other than the DUIM implementors.
+
+The functionality is broken into a number of libraries, and each library is
+broken into a user-level API module and an internal implementation module.
+About 2/3 of the functionality is in the user API.  Only DUIM core and back-end
+implementors need to worry about the remaining 1/3.
+
+The signatures of the functions aren't fully fleshed out.  Note that we have
+tried to use names for arguments and return values that convey useful type
+information.
+
+No mention is made of sealed vs. open, abstract vs. concrete, etc, for classes
+or generic functions.
+
+The mixin classes obviously exist to provide methods for various generic
+functions, but none of these methods are documented here.
+
+There are a still a few small things missing:
+ - Drag&drop is not modelled
+ - Cut&paste (the clipboard) is not modelled
+
+We have done some initial rationality checks, but this task is not yet fully
+completed in detail.  In particular, although we paid attention to a number of
+other toolkits when designing DUIM, we need to go back and be sure we really
+covered them.  They are:
+ - the UI components of MFC
+ - Tcl/Tk
+ - Fresco
+ - Java's UI library
+ - CAPI/GP/Color (part of LispWorks)
+
+We need to support Fresco's superior model for accumulating damage regions, and
+delaying repainting as late as possible.
+
+We need to be sure the UI component of OLE (in particular, OCX's) is fully
+modelled.  The main missing thing here is to make "command loops" be first class
+objects, so that we can model menu-bar merging.
+
+
+TERMINOLOGY
+
+A _sheet_ is the basic unit of "windowing".  All sheets have the following
+attributes:
+  - 'sheet-region', expressed in the sheet's own coordinate system
+  - 'sheet-transform', which maps the sheets coordinate system to the coordinate
+    system of its parent
+  - 'sheet-parent', which is #f if the sheet has no parent
+  - 'sheet-mapped?' flag, which tells if the sheet is visible on a display
+    (ignoring issues of occluding windows)
+
+The sheet's transform is an instance of a concrete subclass of <transform>.  The
+sheet's region can be an instance of any concrete subclass of <region>, but is
+usually represented by the particularly efficient region class <bounding-box>.
+
+Some sheets can also have single or multiple children, in which case they have:
+  - a 'sheet-children' slot
+  - methods to add, remove, and replace a child
+  - methods to map over children
+
+The functions that maintain the sheet's region and transform are part of the
+_sheet geometry_ protocol.  Functions that maintain a sheet's parent and
+children are part of the _sheet genealogy_ protocol.  Note that the sheet
+geometry and genealogy protocols are independent.  Adding a child to a sheet
+that is larger than its parent does _not_ cause the parent's region to grow.
+You must maintain the region yourself, either by explicitly setting the sheet's
+region and transform, or by using the layout facilities.
+
+_Input sheets_ are sheets that can do input, in which case they have:
+  - a 'sheet-event-queue' slot
+  - methods for 'handle-event'
+
+An _event_ is an object representing some sort of event.  The most important
+events are subclasses of <device-event> (for example, <button-press-event> and
+<key-press-event>).
+
+Some sheets can be repainted, in which case they have:
+  - methods for 'handle-repaint'
+
+_Output sheets_ can do output, in which case they have:
+  - a 'sheet-medium' slot
+
+A _medium_ is an object that wraps up both a drawing surface and some drawing
+state, including:
+  - default foreground and background
+  - a _brush_, which controls how graphical objects are filled and colored
+  - a _pen_, which controls how paths are stroked
+  - a _text style_, which controls what font to use for text
+  - a _clipping region_
+  - a user transform
+  - a set of 'draw-xxx' methods
+
+Two graphics models are supports: _figure-based graphics_ and _path-based_
+graphics.  The figure-based graphics functionality includes such functions as
+'draw-line' and 'draw-ellipse'.  The path-based graphics functionality includes
+such functions as 'move-to', 'curve-to', 'fill-path', and 'stroke-path'.
+
+Output sheets also support _pixmap_ operations, such as 'copy-area'.  Pixmaps
+are a special case of a more general class of _images_.  In general, images are
+a way to describe a representation of a set of colors in a drawing plane.
+_Patterns_ are a portable kind of image, but there are also specific kinds of
+images such as <tiff-image>, <xbm-image>, and so forth.
+
+A sheet can be attached to a _display_, which is an object that represents a
+single display (or screen) on some display server.
+
+A display (and all the sheets attached to the display) is associated with a
+_port_, which is a connection to a display server.  The port manages
+  - a primary input device, such as a keyboard
+  - a pointing device, such as a mouse
+  - an event processor, which _dispatches_ events to the appropriate sheet
+
+Some sheets participate in layouts, in which case we often refer to them as
+_panes_.  The layout protocol is two-pass; the first pass is the _space
+composition_ pass (which builds up a set of _space requirement_ objects
+describing the desired, minimum, and maximum size for each pane), and the second
+pass is the _space allocation_ pass (which allocates real estate to each pane
+after solving the constraints that represent the desired size for each pane).
+(The layout protocol, in effect, serves as glue between the genealigy and
+geometry protocols.)
+
+Some sheets act as "controls", in which case we refer to them as _gadgets_.
+Examples include push buttons, scroll bars, and sliders.
+
+A _frame_ is an object representing some state in a user application, plus the
+panes in its interface.  A frame might include such things as a menu bar, a tool
+bar, and a status bar.
+
+A frame has a top level loop that processes events received by the frame.  One
+important kind of event is a <command-event>, which is received in response to
+_commands_.  A command is an object representing an interaction with the user.
+Commands can be arranged in _command tables_, which drive the creation of menu
+bars.  Command tables allow semantic components of applications to be shared
+among different frames.
+
+The look and feel of a frame and its panes are created via a _frame manager_.
+The frame manager maps an _abstract pane_ (such as <slider>) to a _concrete
+pane_ (such as <motif-slider>).  The frame manager is also responsible for
+generating the appropriate UI for menus, dialogs, directory choosers, and so
+forth.
+
+The process of creating a native window-system object from an abstract pane is
+called _mirroring_; the abstract pane is referred to as a _mirrored sheet_ and
+the native window-system object is referred to as a _mirror_.  Mapping a
+mirrored sheet causes the mirror itself to be mapped.
+
+
+1. DUIM-Utilities library -- general utilities for the DUIM implementation
+
+1.1 DUIM-Utilities internals and implementation module
+  - uses nothing
+  - exports...
+
+Dylan language extensions
+
+$unsupplied								[Constant]
+$unfound								[Constant]
+
+<fixnum>								[Type]
+$most-positive-fixnum							[Constant]
+$most-negative-fixnum							[Constant]
+$pi									[Constant]
+$2pi									[Constant]
+$pi/2									[Constant]
+
+inc! (place)								[Macro]
+dec! (place)								[Macro]
+min! (place)								[Macro]
+max! (place)								[Macro]
+
+ignore (#rest values) => ()						[Function]
+dynamic-extent (#rest values) => ()					[Function]
+
+report (condition stream) => ()						[Generic function]
+warn (format-string #rest format-args) => ()				[Function]
+
+print-unreadable-object (value, stream, #rest options) body end		[Macro]
+do-print-unreadable-object						[Generic function]
+  (object stream continuation #rest options) => ()
+
+destructuring-let ((pattern ...) = value) body end			[Macro]
+
+fluid-bind (place = value, ...) body end				[Macro]
+define fluid-variable variable = value					[Macro]
+
+*multiprocessing?*							[Variable]
+atomic-inc! place							[Macro]
+without-preemption body end						[Macro]
+
+define protocol name (supers) slots-and-functions end			[Macro]
+
+with-stack-list (variable = element, ...) body end			[Macro]
+evacuate-list (stack-list) => (list)					[Function]
+with-stack-vector (variable = length, #rest options) body end		[Macro]
+evacuate-vector (stack-vector) => (vector)				[Function]
+
+gethash (table key) => (value found?)					[Generic function]
+gethash-setter (value table key) => (value)				[Generic function]
+remhash (table key) => ()						[Generic function]
+substitute (sequence old new) => (new-sequence)				[Generic function]
+substitute! (sequence old new) => (sequence)				[Generic function]
+insert-at! (sequence item index) => (sequence)				[Generic function]
+remove-at! (sequence index) => (sequence)				[Generic function]
+find-pair (sequence item #key test = \==) => (pair)			[Generic function]
+count (predicate sequence) => (count)					[Generic function]
+make-array-from-contents (sequence) => (array)				[Function]
+fill-array! (array sequence) => (array)					[Function]
+
+sqrt (x) => (y)								[Generic function]
+log (x) => (y)								[Generic function]
+sin (x) => (y)								[Generic function]
+cos (x) => (y)								[Generic function]
+tan (x) => (y)								[Generic function]
+asin (x) => (y)								[Generic function]
+acos (x) => (y)								[Generic function] 
+atan (x) => (y)								[Generic function]
+
+get-internal-real-time () => (msec)					[Function]
+get-universal-time () => (utime)					[Function]
+decode-universal-time							[Function]
+  (utime) => (seconds minutes hours day month year)
+internal-time-units-per-second () => (ticks)				[Function]
+
+
+2. DUIM-Geometry library -- region and transformation modelling
+
+2.1 DUIM-Geometry API module
+  - uses nothing
+  - creates...
+
+Coordinates
+
+<coordinate>								[Type]
+$largest-coordinate							[Constant]
+$smallest-coordinate							[Constant]
+coordinate (x) => (coordinate)						[Function]
+fix-coordinate (x) => (integer)						[Function]
+do-coordinates (function coordinates) => ()				[Generic function]
+do-endpoint-coordinates (function coordinates) => ()			[Generic function]
+
+Bounding Boxes
+
+<bounding-box>								[Class]
+  superclasses: <region>
+bounding-box? (object) => (boolean)					[Generic function]
+make-bounding-box (x1 y1 x2 y2) => (bounding-box)			[Function]
+bounding-box (region #key into) => (bounding-box)			[Generic function]
+with-box-edges ((left, top, right, bottom) = region) body end		[Macro]
+box-edges (point) => (left top right bottom)				[Generic function]
+set-box-edges (region left top right bottom) => (bounding-box)		[Generic function]
+box-position (region) => (x y)						[Generic function]
+set-box-position (region x y) => (bounding-box)				[Generic function]
+box-size (region) => (width height)					[Generic function]
+set-box-size (region width height) => (bounding-box)			[Generic function]
+box-left (region) => (left)						[Generic function]
+box-top (region) => (top)						[Generic function]
+box-right (region) => (right)						[Generic function]
+box-bottom (region) => (bottom)						[Generic function]
+box-width (region) => (width)						[Generic function]
+box-height (region) => (height)						[Generic function]
+
+Simple Regions
+
+<region>								[Class]
+  superclasses: <object>
+region? (object) => (boolean)						[Generic function]
+<point>									[Class]
+  superclasses: <region>
+point? (object) => (boolean)						[Generic function]
+<path>									[Class]
+  superclasses: <region>
+path? (object) => (boolean)						[Generic function]
+<area>									[Class]
+  superclasses: <region>
+area? (object) => (boolean)						[Generic function]
+<region-set>								[Class]
+  superclasses: <region>
+region-set? (object) => (boolean)					[Generic function]
+$everywhere								[Constant]
+$nowhere								[Constant]
+<standard-point>							[Class]
+  superclasses: <point>
+  init keywords: x: y:
+make-point (x y) => (point)						[Function]
+point-position (point) => (x y)						[Generic function]
+point-x (point) => (x)							[Generic function]
+point-y (point) => (y)							[Generic function]
+region-equal (region1 region2) => (boolean)				[Generic function]
+= (region1 region2) => (boolean)					[GF method]
+region-contains-position? (region x y) => (boolean)			[Generic function]
+region-contains-region? (region1 region2) => (boolean)			[Generic function]
+region-intersects-region? (region1 region2) => (boolean)		[Generic function]
+region-union (region1 region2) => (region)				[Generic function]
+region-intersection (region1 region2) => (region)			[Generic function]
+region-difference (region1 region2) => (region)				[Generic function]
+region-empty? (region) => (boolean)					[Generic function]
+do-regions (function region #key (normalize? = #f)) => ()		[Generic function]
+region-set-function (region) => (function)				[Generic function]
+region-set-regions (region #key (normalize? = #f)) => (regions)		[Generic function]
+transform-region (transform region) => (region)				[Generic function]
+untransform-region (transform region) => (region)			[Generic function]
+
+Transformations
+
+<transform>								[Class]
+  superclasses: <object>
+transform? (object) => (boolean)					[Generic function]
+$identity-transform							[Constant]
+make-transform (mxx mxy myx myy tx ty) => (transform)			[Function]
+make-translation-transform (tx ty) => (transform)			[Generic function]
+make-rotation-transform*						[Generic function]
+  (angle #key (origin-x = 0) (origin-y = 0)) => (transform)
+make-rotation-transform (angle #key origin) => (transform)		[Generic function]
+make-scaling-transform*							[Generic function]
+  (mx my #key (origin-x = 0) (origin-y = 0)) => (transform)
+make-scaling-transform (mx my #key origin) => (transform)		[Generic function]
+make-reflection-transform* (x1 y1 x2 y2) => (transform)			[Generic function]
+make-reflection-transform (point-1 point-2) => (transform)		[Generic function]
+make-3-point-transform* 						[Generic function]
+  (x1 y1 x2 y2 x3 y3
+   x1-image y1-image x2-image y2-image x3-image y3-image) => (transform)
+make-3-point-transform							[Generic function]
+  (point-1 point-2 point-3
+   point-1-image point-2-image point-3-image) => (transform)
+compose-transforms (transform1 transform2) => (transform)		[Generic function]
+compose-transform-with-translation					[Generic function]
+  (transform tx ty) => (transform)
+compose-transform-with-rotation						[Generic function]
+  (transform angle #key origin) => (transform)
+compose-transform-with-scaling						[Generic function]
+  (transform mx my #key origin) => (transform)
+compose-translation-with-transform					[Generic function]
+  (transform tx ty) => (transform)
+compose-rotation-with-transform						[Generic function]
+  (transform angle #key origin) => (transform)
+compose-scaling-with-transform						[Generic function]
+  (transform mx my #key origin) => (transform)
+invert-transform (transform) => (transform)				[Generic function]
+transform-equal (transform1 transform2) => (boolean)			[Generic function]
+= (transform1 transform2) => (boolean)					[GF method]
+identity-transform? (transform) => (boolean)				[Generic function]
+translation-transform? (transform) => (boolean)				[Generic function]
+invertible-transform? (transform) => (boolean)				[Generic function]
+rectilinear-transform? (transform) => (boolean)				[Generic function]
+reflection-transform? (transform) => (boolean)				[Generic function]
+scaling-transform? (transform) => (boolean)				[Generic function]
+even-scaling-transform? (transform) => (boolean)			[Generic function]
+rigid-transform? (transform) => (boolean)				[Generic function]
+<transform-error>							[Class]
+  superclasses: <error>
+<transform-underspecified>						[Class]
+  superclasses: <transform-error>
+  init keywords: points:
+<reflection-underspecified>						[Class]
+  superclasses: <transform-underspecified>
+<singular-transform>							[Class]
+  superclasses: <transform-error>
+  init keywords: transform:
+transform-position (transform x y) => (x y)				[Generic function]
+untransform-position (transform x y) => (x y)				[Generic function]
+transform-distance (transform dx dy) => (dx dy)				[Generic function]
+untransform-distance (transform dx dy) => (dx dy)			[Generic function]
+transform-box (transform x1 y1 x2 y2) => (x1 y1 x2 y2)			[Generic function]
+untransform-box (transform x1 y1 x2 y2) => (x1 y1 x2 y2)		[Generic function]
+transform-angles (transform start-angle end-angle) => (start end)	[Generic function]
+untransform-angles (transform start-angle end-angle) => (start end)	[Generic function]
+
+
+2.2 DUIM-Geometry-Internals internals and implementation module 
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry, re-exports all
+  - exports...
+
+Coordinates
+
+transform-coordinates! (transform, x, y, ...)				[Macro]
+transform-distances! (transform, dx, dy, ...)				[Macro]
+convert-to-device-coordinates! (transform, x, y, ...)			[Macro]
+convert-to-device-distances! (transform, dx, dy, ...)			[Macro]
+
+Bounding Boxes
+
+box-left-setter (left region) => (left)					[Generic function]
+box-top-setter (top region) => (top)					[Generic function]
+box-right-setter (right region) => (right)				[Generic function]
+box-bottom-setter (bottom region) => (bottom)				[Generic function]
+box-invalidated? (box) => (invalid?)					[Generic function]
+invalidate-box! (box) => ()						[Generic function]
+box-edges-equal (box1 box2) => (boolean)				[Generic function]
+position-difference (x1 y1 x2 y2) => (dx dy)				[Function]
+
+LTRBs
+
+ltrb-equals-ltrb? (left1 top1 right1 bottom1				[Function]
+		   left2 top2  right2 bottom2) => (boolean)
+ltrb-contains-position? (left top right bottom x y) => (boolean)	[Function]
+ltrb-contains-ltrb? (left1 top1 right1 bottom1				[Function]
+		     left2 top2 right2 bottom2) => (boolean)
+ltrb-intersects-ltrb? (left1 top1 right1 bottom1			[Function]
+		       left2 top2 right2 bottom2) => (boolean)
+ltrb-union (left1 top1 right1 bottom1					[Generic function]
+	    left2 top2 right2 bottom2
+	    #key (banding = #"x-banding")) => (boxes)
+ltrb-intersection (left1 top1 right1 bottom1				[Generic function]
+		   left2 top2 right2 bottom2) => (box)
+ltrb-difference (left1 top1 right1 bottom1 				[Generic function]
+		 left2 top2 right2 bottom2) => (boxes)
+ltrb-size-equal? (left1 top1 right1 bottom1				[Function]
+		  left2 top2  right2 bottom2) => (boolean)
+ltrb-well-formed? (left top right bottom) => (boolean)			[Function]
+
+Random Geometry Hacking
+
+radians->degrees (radians) => (degrees)					[Function]
+degrees->radians (degrees) => (radians)					[Function]
+position-close-to-line?							[Function]
+  (x y x1 y1 x2 y2 #key (thickness = 1)) => (boolean)
+position-inside-polygon?						[Function]
+  (x y position-seq #key (closed? = #t)) => (boolean)
+position-inside-ellipse?						[Function]
+  (x y radius-1-dx radius-1-dy radius-2-dx radius-2-dy) => (boolean)
+position-on-thick-ellipse?						[Function]
+  (x y radius-1-dx radius-1-dy radius-2-dx radius-2-dy #key (thickness = 1)) => (boolean)
+coordinate-sequence-box							[Function]
+  (coord-seq #key (thickness = 0)) => (left top right bottom)
+elliptical-arc-box							[Function]
+  (center-x center-y radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+   start-angle end-angle #key (thickness = 0)) => (left top right bottom)
+angle-between-angles? (angle angle-1 angle-2) => (boolean)		[Function]
+
+Simple Regions
+
+<everywhere>								[Class]
+  superclasses: <region>
+<nowhere>								[Class]
+  superclasses: <region>
+everywhere? (region) => (boolean)					[Generic function]
+
+Transformations
+
+<translation-transform>							[Class]
+  superclasses: <transform>
+<fixnum-translation-transform>						[Class]
+  superclasses: <translation-transform>
+<float-translation-transform>						[Class]
+  superclasses: <translation-transform>
+<general-transform>							[Class]
+  superclasses: <transform>
+<identity-transform>							[Class]
+  superclasses: <transform>
+transform-components (transform) => (mxx mxy myx myy tx ty)		[Generic function]
+transform-coordinate-sequence						[Generic function]
+  (transform coords #key copy?) => (coords)
+
+Mutable transformations
+
+<mutable-translation-transform>						[Class]
+  superclasses: <object>
+compose-transform-into! (transform into) => (into)			[Generic function]
+compose-translation-into! (tx ty into) => (into)			[Generic function]
+
+
+3. DUIM-Extended-Geometry library -- extended shape modelling
+
+3.1 DUIM-Extended-Geometry API module
+  - uses nothing
+  - creates...
+
+Complex Regions
+
+<polygon>								[Class]
+  superclasses: <area>
+polygon? (object) => (boolean)						[Generic function]
+<standard-polygon>							[Class]
+  superclasses: <polygon>
+  init keywords: coords: points:
+make-polygon* (coord-seq) => (polygon)					[Function]
+make-polygon (point-seq) => (polygon)					[Function]
+polygon-coordinates (polygon) => (coordinates)				[Generic function]
+polygon-points (polygon) => (points)					[Generic function]
+do-polygon-coordinates (function polygon) => ()				[Generic function]
+do-polygon-segments (function polygon) => ()				[Generic function]
+<polyline>								[Class]
+  superclasses: <path>
+polyline? (object) => (boolean)						[Generic function]
+<standard-polyline>							[Class]
+  superclasses: <polyline>
+  init keywords: coords: points: closed?:
+make-polyline* (coord-seq #key (closed? = #f)) => (polyline)		[Function]
+make-polyline (point-seq #key (closed? = #f)) => (polyline)		[Function]
+polyline-closed? (polyline) => (boolean)				[Generic function]
+<line>									[Class]
+  superclasses: <path>
+line? (object) => (boolean)						[Generic function]
+<standard-line>								[Class]
+  superclasses: <line>
+  init keywords: start-x: start-y: end-x: end-y: points:
+make-line* (start-x start-y end-x end-y) => (line)			[Function]
+make-line (start-point end-point) => (line)				[Function]
+line-start-point (line) => (point)					[Generic function]
+line-end-point (line) => (point)					[Generic function]
+line-start-position (line) => (x y)					[Generic function]
+line-end-position (line) => (point)					[Generic function]
+<rectangle>								[Class]
+  superclasses: <area>
+rectangle? (object) => (boolean)					[Generic function]
+<standard-rectangle>							[Class]
+  superclasses: <rectangle>
+  init keywords: min-x: min-y: max-x: max-y: points:
+make-rectangle* (x1 y1 x2 y2) => (rectangle)				[Function]
+make-rectangle (min-point max-point) => (rectangle)			[Function]
+rectangle-edges (rectangle) => (x1 y1 x2 y2)				[Generic function]
+rectangle-min-point (rectangle) => (point)				[Generic function]
+rectangle-max-point (rectangle) => (point)				[Generic function]
+rectangle-min-position (rectangle) => (x1 y1)				[Generic function]
+rectangle-max-position (rectangle) => (x2 y2)				[Generic function]
+rectangle-size (rectangle) => (width height)				[Generic function]
+rectangle-width (rectangle) => (width)					[Generic function]
+rectangle-height (rectangle) => (height)				[Generic function]
+<ellipse>								[Class]
+  superclasses: <area>
+ellipse? (object) => (boolean)						[Generic function]
+<standard-ellipse>							[Class]
+  superclasses: <ellipse>
+  init keywords: center-x: center-y: center-point:
+		 radius-1-dx: radius-1-dy: radius-2-dx: radius-2-dy:
+		 start-angle: end-angle:
+make-ellipse* (center-x center-y					[Function]
+	       radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+	       #key start-angle end-angle) => (ellipse)
+make-ellipse (center-point						[Function]
+	      radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+	      #key start-angle end-angle) => (ellipse)
+ellipse-center-position (ellipse) => (x y)				[Generic function]
+ellipse-center-point (ellipse) => (point)				[Generic function]
+ellipse-radii (ellipse) => (r1-dx r1-dy r2-dx d2-dy)			[Generic function]
+ellipse-start-angle (ellipse) => (angle)				[Generic function]
+ellipse-end-angle (ellipse) => (angle)					[Generic function]
+<elliptical-arc>							[Class]
+  superclasses: <path>
+elliptical-arc? (object) => (boolean)					[Generic function]
+<standard-elliptical-arc>						[Class]
+  superclasses: <elliptical-arc>
+  init keywords: center-x: center-y: center-point:
+		 radius-1-dx: radius-1-dy: radius-2-dx: radius-2-dy:
+		 start-angle: end-angle:
+make-elliptical-arc* (center-x center-y 				[Function]
+		     radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+		     #key start-angle end-angle) => (arc)
+make-elliptical-arc (center-point					[Function]
+		     radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+		     #key start-angle end-angle) => (arc)
+
+3.2 DUIM-Extended-Geometry-Internals API module
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry-Internals
+  - uses DUIM-Extended-Geometry, re-exports all
+  - exports... nothing
+
+
+4. DUIM-DCs library -- colors, palettes, pens, brushes ("drawing contexts")
+
+4.1 DUIM-DCs API module
+  - uses nothing
+  - adds methods
+
+= (color1 color2) => (boolean)						[GF method]
+= (pen1 pen2) => (boolean)						[GF method]
+= (style1 style2) => (boolean)						[GF method]
+
+  - creates...
+
+Colors
+
+<color>									[Class]
+  superclasses: <ink>
+color? (object) => (boolean)						[Generic function]
+make-rgb-color								[Function]
+  (red green blue #key (opacity = 1.0)) => (color)
+make-ihs-color								[Function]
+  (intensity hue saturation #key (opacity = 1.0)) => (color)
+color-rgb (color) => (r g b opacity)					[Generic function]
+color-ihs (color) => (i h s opacity)					[Generic function]
+<gray-color>								[Class]
+  superclasses: <color>
+make-gray-color								[Function]
+  (luminosity #key (opacity = 1.0)) => (gray-color)
+color-luminosity (color) => (luminosity)				[Generic function]
+<contrasting-color>							[Class]
+  superclasses: <ink>
+  init keywords: how-many: which-one:
+make-contrasting-colors (n #key k) => (colors)				[Generic function]
+contrasting-colors-limit (port) => (integer)				[Generic function]
+make-color-for-contrasting-color (ink) => (color)			[Generic function]
+$background								[Constant]
+$foreground								[Constant]
+$default-foreground							[Constant]
+$default-background							[Constant]
+$black									[Constant]
+$white									[Constant]
+$red									[Constant]
+$blue									[Constant]
+$green									[Constant]
+$cyan									[Constant]
+$yellow									[Constant]
+$magenta								[Constant]
+
+Palettes
+
+<palette>								[Class]
+  superclasses: <object>
+palette? (object) => (boolean)						[Generic function]
+make-palette (port #key) => (palette)					[Generic function]
+color-palette? (palette) => (boolean)					[Generic function]
+dynamic-palette? (palette) => (boolean)					[Generic function]
+find-color (name palette #key (error? = #f)) => (color)			[Generic function]
+add-colors (palette #rest colors) => ()					[Generic function]
+remove-colors (palette #rest colors) => ()				[Generic function]
+<color-not-found>							[Class]
+  superclasses: <error>
+  init keywords: color:
+<palette-full>								[Class]
+  superclasses: <error>
+  init keywords: palette:
+
+Dynamic and Layered Colors
+
+<dynamic-color>								[Class]
+  superclasses: <color>
+  init keywords: color:
+make-dynamic-color (color) => (dynamic-color)				[Function]
+dynamic-color-color (dynamic-color) => (color)				[Generic function]
+dynamic-color-color-setter (color dynamic-color) => (color)		[Generic function]
+
+Images, Patterns, and Stencils
+
+<ink>									[Class]
+  superclasses: <object>
+ink? (object) => (boolean)						[Generic function]
+<image>									[Class]
+  superclasses: <ink>
+image? (object) => (boolean)						[Generic function]
+image-width (image) => (width)						[Generic function]
+image-height (image) => (height)					[Generic function]
+image-depth (image) => (depth)						[Generic function]
+read-image (locator #key image-type) => (image)				[Generic function]
+write-image (image locator) => ()					[Generic function]
+convert-image (image image-type) => (image)				[Generic function]
+image-convertible? (image image-type) => (boolean)			[Generic function]
+<pattern>								[Class]
+  superclasses: <image>
+  init keywords: array: colors: transform:
+pattern? (object) => (boolean)						[Generic function]
+make-pattern (array colors) => (pattern)				[Function]
+<stencil>								[Class]
+  superclasses: <pattern>
+make-stencil (array) => (stencil)					[Function]
+
+Pens
+
+<pen>									[Class]
+  superclasses: <object>
+pen? (object) => (boolean)						[Generic function]
+make-pen (#rest initargs) => (pen)					[Function]
+with-pen (medium, #rest pen-initargs) body end				[Macro]
+pen-width (pen) => (width)						[Generic function]
+pen-units (pen) => one-of(#"normal", #"point", #"device")		[Generic function]
+pen-cap-shape								[Generic function]
+  (pen) => one-of(#"butt", #"square", #"round", #"no-end-point")
+pen-joint-shape								[Generic function]
+  (pen) => one-of(#"miter", #"bevel", #"round", #"none")
+pen-dashes (pen) => type-union(<boolean>, <sequence>)			[Generic function]
+make-contrasting-dash-patterns (n #key k) => (dashes)			[Generic function]
+contrasting-dash-patterns-limit (port) => (integer)			[Generic function]
+$solid-pen								[Constant]
+$dashed-pen								[Constant]
+$dotted-pen								[Constant]
+$dash-dot-pen								[Constant]
+$dash-dot-dot-pen							[Constant]
+
+Brushes
+
+<brush>									[Class]
+  superclasses: <object>
+brush? (object) => (boolean)						[Generic function]
+= (brush1 brush2) => (boolean)						[GF method]
+make-brush (#rest initargs) => (brush)					[Function]
+with-brush (medium, #rest brush-initargs) body end			[Macro]
+brush-background (brush) => (ink)					[Generic function]
+brush-foreground (brush) => (ink)					[Generic function]
+brush-mode (brush) => (integer)						[Generic function]
+brush-stipple (brush) => (stipple)					[Generic function]
+brush-tile (brush) => (image)						[Generic function]
+brush-ts-x (brush) => false-or(<integer>)				[Generic function]
+brush-ts-y (brush) => false-or(<integer>)				[Generic function]
+brush-fill-rule (brush)							[Generic function]
+brush-fill-style (brush)						[Generic function]
+brush-stretch-mode (brush)						[Generic function]
+$xor-brush								[Constant]
+$boole-clr								[Constant]
+$boole-set								[Constant]
+$boole-1								[Constant]
+$boole-2								[Constant]
+$boole-c1								[Constant]
+$boole-c2								[Constant]
+$boole-and								[Constant]
+$boole-ior								[Constant]
+$boole-xor								[Constant]
+$boole-eqv								[Constant]
+$boole-nand								[Constant]
+$boole-nor								[Constant]
+$boole-andc1								[Constant]
+$boole-andc2								[Constant]
+$boole-orc1								[Constant]
+$boole-orc2								[Constant]
+$horizontal-hatch							[Constant]
+$vertical-hatch								[Constant]
+$cross-hatch								[Constant]
+$diagonal-hatch-down							[Constant]
+$diagonal-hatch-up							[Constant]
+$bricks-stipple								[Constant]
+$tiles-stipple								[Constant]
+$parquet-stipple							[Constant]
+$hearts-stipple								[Constant]
+
+Text Styles
+
+<text-style>								[Class]
+  superclasses: <object>
+  init keywords: family: weight: slant: size:
+text-style? (object) => (boolean)					[Generic function]
+make-text-style (family weight slant size) => (text-style)		[Generic function]
+text-style-components (style) => (family weight slant size)		[Generic function]
+text-style-family (text-style) => (family)				[Generic function]
+text-style-weight (text-style) => (weight)				[Generic function]
+text-style-slant (text-style) => (slant)				[Generic function]
+text-style-size (text-style) => (size)					[Generic function]
+<device-font>								[Class]
+  superclasses: <text-style>
+  init keywords: port: font-name:
+make-device-font (port font-name) => (device-font)			[Generic function]
+merge-text-styles (style1 style2) => (text-style)			[Generic function]
+fully-merged-text-style? (style) => (boolean)				[Generic function]
+with-text-style (medium, #rest style-initargs) body end			[Macro]
+do-with-text-style (medium function text-style) => ()			[Generic function]
+
+4.2 DUIM-DCs-Internals internals and implementation module
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry-Internals
+  - uses DUIM-DCs, re-exports all
+  - exports...
+
+Palettes
+
+do-add-colors (palette #rest colors) => ()				[Generic function]
+do-remove-colors (palette #rest colors) => ()				[Generic function]
+allocate-color (color palette) => (pixel)				[Generic function]
+deallocate-color (color palette) => ()					[Generic function]
+
+Images, Patterns, and Stencils
+
+decode-pattern (pattern) => (array colors)				[Generic function]
+
+Text Styles
+
+<standard-text-style>							[Class]
+  superclasses: <text-style>
+$default-text-style							[Constant]
+$null-text-style							[Constant]
+$standard-character-set							[Constant]
+$undefined-text-style							[Constant]
+device-font-port (device-font) => (port)				[Generic function]
+device-font-name (device-font) => (name)				[Generic function]
+
+
+5. DUIM-Silica library -- window, event, and drawing surface modelling
+
+5.1 DUIM-Silica API module
+  - uses nothing
+  - adds methods to:
+
+force-output (medium) => ()						[GF method]
+synchronize-output (medium) => ()					[GF method]
+
+  - creates...
+
+Sheets
+
+<sheet>									[Class]
+  superclasses: <object>
+sheet? (object) => (boolean)						[Generic function]
+sheet-region (sheet) => (region)					[Generic function]
+sheet-region-setter (region sheet) => (region)				[Generic function]
+sheet-transform (sheet) => (transform)					[Generic function]
+sheet-transform-setter (transform sheet) => (transform)			[Generic function]
+add-child (sheet child #key index) => (sheet)				[Generic function]
+remove-child (sheet child) => (sheet)					[Generic function]
+replace-child (sheet old-child new-child) => (sheet)			[Generic function]
+sheet-parent (sheet) => false-or(<sheet>)				[Generic function]
+sheet-parent-setter (parent sheet) => false-or(<sheet>)			[Generic function]
+sheet-frame (sheet) => false-or(<frame>)				[Generic function]
+sheet-child (sheet) => false-or(<sheet>)				[Generic function]
+sheet-child-setter (child sheet) => false-or(<sheet>)			[Generic function]
+sheet-children (sheet) => (sheets)					[Generic function]
+sheet-children-setter (children sheet) => (sheets)			[Generic function]
+child-containing-position (sheet x y) => false-or(<sheet>)		[Generic function]
+do-children-containing-position (function sheet x y) => ()		[Generic function]
+children-overlapping-region (sheet region) => (sheets)			[Generic function]
+do-children-overlapping-region (function sheet region) => ()		[Generic function]
+do-sheet-tree (function sheet) => ()					[Generic function]
+sheet-ancestor? (sheet putative-ancestor) => (boolean)			[Generic function]
+raise-sheet (sheet) => ()						[Generic function]
+lower-sheet (sheet) => ()						[Generic function]
+sheet-pointer-cursor (sheet) => (keyword)				[Generic function]
+sheet-pointer-cursor-setter (keyword sheet) => (keyword)		[Generic function]
+sheet-text-cursor (sheet) => (cursor)					[Generic function]
+sheet-mapped? (sheet) => (boolean)					[Generic function]
+sheet-mapped?-setter (mapped? sheet) => (boolean)			[Generic function]
+destroy-sheet (sheet) => ()						[Generic function]
+
+Mediums and Output Sheets
+
+<medium>								[Class]
+  superclasses: <object>
+medium? (object) => (boolean)						[Generic function]
+medium-background (medium) => (ink)					[Generic function]
+medium-background-setter (background medium) => (ink)			[Generic function]
+medium-foreground (medium) => (ink)					[Generic function]
+medium-foreground-setter (foreground medium) => (ink)			[Generic function]
+medium-brush (medium) => (brush)					[Generic function]
+medium-brush-setter (brush medium) => (brush)				[Generic function]
+medium-pen (medium) => (pen)						[Generic function]
+medium-pen-setter (pen medium) => (pen)					[Generic function]
+medium-transform (medium) => (transform)				[Generic function]
+medium-transform-setter (transform medium) => (transform)		[Generic function]
+medium-clipping-region (medium) => (region)				[Generic function]
+medium-clipping-region-setter (region medium) => (region)		[Generic function]
+medium-default-text-style (medium) => (text-style)			[Generic function]
+medium-default-text-style-setter (text-style medium) => (text-style)	[Generic function]
+medium-text-style (medium) => (text-style)				[Generic function]
+medium-text-style-setter (text-style medium) => (text-style)		[Generic function]
+medium-merged-text-style (medium) => (text-style)			[Generic function]
+medium-drawable (medium) => (object)					[Generic function]
+medium-drawable-setter (drawable medium) => (object)			[Generic function]
+medium-sheet (medium) => false-or(<sheet>)				[Generic function]
+sheet-medium (sheet) => false-or(<medium>)				[Generic function]
+with-sheet-medium (medium = sheet) body end				[Macro]
+do-with-sheet-medium							[Generic function]
+  (sheet continuation) => (#rest values)
+with-temporary-medium (medium = sheet) body end				[Macro]
+beep (medium) => ()							[Generic function]
+clear-area (medium left top right bottom) => ()				[Generic function]
+with-drawing-options (medium, #rest options) body end			[Macro]
+do-with-drawing-options							[Generic function]
+  (medium function #rest options) => (#rest values)
+with-transform (medium, transform) body end				[Macro]
+with-translation (medium, dx, dy) body end				[Macro]
+with-rotation (medium, angle) body end					[Macro]
+with-scaling (medium, scale-x, scale-y) body end			[Macro]
+with-identity-transform (medium) body end				[Macro]
+with-clipping-region (medium, region) body end				[Macro]
+
+Event model
+
+<event>									[Class]
+  superclasses: <object>
+  init keywords: timestamp:
+event? (object) => (boolean)						[Generic function]
+event-sheet (event) => (sheet)						[Generic function]
+event-modifier-state (event) => (integer)				[Generic function]
+sheet-event-queue (sheet) => (deque)					[Generic function]
+queue-event (client event) => ()					[Generic function]
+handle-event (client event) => ()					[Generic function]
+repaint-sheet (sheet region #key medium) => ()				[Generic function]
+queue-repaint (sheet event) => ()					[Generic function]
+handle-repaint (sheet medium region) => ()				[Generic function]
+
+Events and input sheets
+
+<pointer-event>								[Class]
+  superclasses: <device-event>
+  init keywords: x: y: pointer:
+pointer-event-pointer (event) => (pointer)				[Generic function]
+pointer-event-x (event) => (x)						[Generic function]
+pointer-event-y (event) => (y)						[Generic function]
+<pointer-motion-event>							[Class]
+  superclasses: <pointer-event>
+<pointer-boundary-event>						[Class]
+  superclasses: <pointer-event>
+  init keywords: kind:
+pointer-boundary-event-kind (event) => (keyword)			[Generic function] 
+<pointer-enter-event>							[Class]
+  superclasses: <pointer-boundary-event>
+<pointer-exit-event>							[Class]
+  superclasses: <pointer-boundary-event>
+<pointer-button-event>							[Class]
+  superclasses: <pointer-event>
+  init keywords: button:
+pointer-event-button (event) => (integer)				[Generic function]
+<button-press-event>							[Class]
+  superclasses: <pointer-button-event>
+<double-click-event>							[Class]
+  superclasses: <button-press-event>
+<button-release-event>							[Class]
+  superclasses: <pointer-button-event>
+<keyboard-event>							[Class]
+  superclasses: <device-event>
+  init keywords: key-name: character:
+keyboard-event-character (event) => false-or(<character>)		[Generic function]
+keyboard-event-key-name (event) => (keysym)				[Generic function]
+<key-press-event>							[Class]
+  superclasses: <keyboard-event>
+<key-release-event>							[Class]
+  superclasses: <keyboard-event>
+<window-event>								[Class]
+  superclasses: <event>
+  init keywords: region: sheet:
+window-event-region (event) => (region)					[Generic function]
+<window-repaint-event>							[Class]
+  superclasses: <window-event>
+<window-manager-event>							[Class]
+  superclasses: <event>
+  init keywords: sheet:
+<window-configuration-event>						[Class]
+  superclasses: <window-event>
+<window-manager-delete-event>						[Class]
+  superclasses: <window-manager-event>
+<timer-event>								[Class]
+  superclasses: <event>
+
+Font Mapping
+
+text-style-mapping (port style #key character-set) => (font)		[Generic function]
+text-style-mapping-setter						[Generic function]
+  (font port style #key character-set) => (font)
+text-style-mapping-exists?						[Generic function]
+  (port style #key character-set (exact-size? = #f)) => (boolean)
+<undefined-text-style-mapping>						[Class]
+  superclasses: <error>
+  init keywords: port: style:
+font-ascent (text-style medium) => (ascent)				[Generic function]
+font-descent (text-style medium) => (descent)				[Generic function]
+font-width (text-style medium) => (width)				[Generic function]
+font-height (text-style medium) => (height)				[Generic function]
+font-metrics (text-style medium) => (width height ascent descent)	[Generic function]
+fixed-width-font? (text-style medium) => (boolean)			[Generic function]
+text-size (medium text #key text-style (start = 0) end)			[Generic function]
+  => (largest-x largest-y cursor-x cursor-y baseline)
+
+Ports
+
+<port>									[Class]
+  superclasses: <object>
+port? (object) => (boolean)						[Generic function]
+default-port (#key server-path) => (port)				[Generic function]
+default-port-setter (port) => (port)					[Generic function]
+find-port (#rest initargs #key server-path)				[Generic function]
+restart-port (port) => ()						[Generic function]
+destroy-port (port) => ()						[Generic function]
+do-ports (function) => ()						[Function]
+get-default-foreground (port sheet #key foreground) => (ink)		[Generic function]
+get-default-background (port sheet #key background) => (ink)		[Generic function]
+get-default-text-style (port sheet #key text-style) => (text-style)	[Generic function]
+port-modifier-state (port) => (integer)					[Generic function]
+port-pointer (port) => (pointer)					[Generic function]
+port-name (port) => (object)						[Generic function]
+port-server-path (port) => (object)					[Generic function]
+note-port-terminated (port condition) => ()				[Generic function]
+
+Displays
+
+<display>								[Class]
+  superclasses: <sheet>
+display? (object) => (boolean)						[Generic function]
+find-display (#key server-path port					[Generic function]
+		 (orientation = #"default") (units = #"device"))
+do-displays (function port) => ()					[Function]
+display-width (display #key (units = #"device")) => (number)		[Generic function]
+display-height (display #key (units = #"device")) => (number)		[Generic function]
+display-depth (display) => (integer)					[Generic function]
+display-mm-height (display) => (number)					[Generic function]
+display-mm-width (display) => (number)					[Generic function]
+display-pixel-width (display) => (integer)				[Generic function]
+display-pixel-height (display) => (integer)				[Generic function]
+display-pixels-per-point (display) => (number)				[Generic function]
+display-units (display) => one-of(#"device", #"pixels", #"mm")		[Generic function]
+display-orientation (display) => (orientation)				[Generic function]
+
+Pointers
+
+<pointer>								[Class]
+  superclasses: <object>
+pointer? (object) => (boolean)						[Generic function]
+pointer-position (pointer #key sheet) => (x y)				[Generic function]
+set-pointer-position (pointer x y #key sheet (port-did-it? = #f)) => ()	[Generic function]
+pointer-cursor (pointer) => (keyword)					[Generic function]
+pointer-cursor-setter (cursor pointer) => (keyword)			[Generic function]
+pointer-button-state (pointer) => (integer)				[Generic function]
+pointer-sheet (pointer) => false-or(<sheet>)				[Generic function]
+with-pointer-grabbed (sheet, #rest options) body end			[Macro]
+do-with-pointer-grabbed							[Generic function]
+  (port sheet continuation #key) => (#rest values)
+
+Cursors
+
+<cursor>								[Class]
+  superclasses: <object>
+cursor? (object) => (boolean)						[Generic function]
+<text-cursor>								[Class]
+  superclasses: <basic-cursor>
+cursor-position (cursor) => (x y)					[Generic function]
+set-cursor-position (cursor nx ny #key (fast? = #f)) => ()		[Generic function]
+cursor-active? (cursor) => (boolean)					[Generic function]
+cursor-active?-setter (new-active cursor) => (boolean)			[Generic function]
+cursor-focus? (cursor) => (boolean)					[Generic function]
+cursor-focus?-setter (new-focus cursor) => (boolean)			[Generic function]
+cursor-visible? (cursor) => (boolean)					[Generic function]
+cursor-visible?-setter (new-visible cursor) => (boolean)		[Generic function]
+with-cursor-visible (sheet, visible?) body end				[Macro]
+
+Gestures
+
+make-modifier-state (#rest modifiers) => (integer)			[Generic function]
+modifier-key-index (name) => (integer)					[Function]
+modifier-key-index-name (index) => (name)				[Function]
+button-index (name) => (integer)					[Function]
+button-index-name (index) => (name)					[Function]
+$shift-key								[Constant]
+$control-key								[Constant]
+$option-key								[Constant]
+$command-key								[Constant]
+$meta-key								[Constant]
+$hyper-key								[Constant]
+$super-key								[Constant]
+$modifier-keys								[Constant]
+$left-button								[Constant]
+$middle-button								[Constant]
+$right-button								[Constant]
+$pointer-buttons							[Constant]
+add-gesture-name (name type gesture-spec #key unique?) => ()		[Generic function]
+remove-gesture-name (name type) => ()					[Generic function]
+event-matches-gesture-name? (event gesture-name) => (boolean)		[Generic function]
+gesture-spec-equal (gesture1 gesture2) => (boolean)			[Generic function]
+
+Frames (forward references)
+
+<frame>									[Class]
+  superclasses: <object>
+frame? (object) => (boolean)						[Generic function]
+*frame*									[Fluid variable]
+destroy-frame (frame) => ()						[Generic function]
+layout-frame (frame #key width height) => ()				[Generic function]
+
+Frame Managers
+
+<frame-manager>								[Class]
+  superclasses: <object>
+frame-manager? (object) => (boolean)					[Generic function]
+make-frame-manager (port #key palette) => (framem)			[Generic function]
+find-frame-manager							[Generic function]
+  (#rest initargs #key port server-path palette) => (framem)
+with-frame-manager (framem) body end					[Macro]
+make-pane								[Generic function]
+  (pane-class #rest pane-options #key frame-manager) => (sheet)
+frame-manager-frames (framem) => (frames)				[Generic function]
+do-frames (function #key port frame-manager) => ()			[Generic function]
+notify-user								[Generic function]
+  (message-string
+   #key (frame = *frame*) owner title documentation exit-boxes name style
+	foreground background text-style) => (boolean)
+choose-file								[Generic function]
+  (#key (frame = *frame*) owner
+	title documentation exit-boxes name default) => (locator)
+choose-directory							[Generic function]
+  (#key (frame = *frame*) owner
+	title documentation exit-boxes name default) => (locator)
+choose-color								[Generic function]
+  (#key (frame = *frame*) owner
+	title documentation exit-boxes name default) => (color)
+choose-from-dialog							[Generic function]
+  (items #key (frame = *frame*) owner
+	      title default-item (name-key = identity) (value-key = identity)
+	      gadget-class gadget-options foreground background text-style)
+  => (object cancelled?)
+choose-from-menu							[Generic function]
+  (items #key (frame = *frame*) owner title default-item
+	      (name-key = identity) (value-key = identity)
+	      foreground background text-style) => (object cancelled?)
+frame-manager-palette (framem) => (palette)				[Generic function]
+frame-manager-palette-setter (palette framem) => (palette)		[Generic function]
+frame-manager-dialog-view (framem) => (view)				[Generic function]
+frame-manager-dialog-view-setter (view framem) => (view)		[Generic function]
+frame-manager-menu-view (framem) => (view)				[Generic function]
+frame-manager-menu-view-setter (view framem) => (view)			[Generic function]
+
+General Accessors
+
+default-foreground (object) => (ink)					[Generic function]
+default-foreground-setter (ink object) => (ink)				[Generic function]
+default-background (object) => (ink)					[Generic function]
+default-background-setter (ink object) => (ink)				[Generic function]
+default-text-style (object) => (text-style)				[Generic function]
+default-text-style-setter (text-style object) => (text-style)		[Generic function]
+top-level-sheet (sheet) => false-or(<sheet>)				[Generic function]
+frame-manager (object) => false-or(<frame-manager>)			[Generic function]
+display (object) => false-or(<display>)					[Generic function]
+port (object) => false-or(<port>)					[Generic function]
+
+
+5.2 DUIM-Silica-Internals internals and implementation module
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry-Internals
+  - uses DUIM-DCs-Internals
+  - uses DUIM-Silica, re-exports all
+  - exports...
+
+Sheets
+
+<basic-sheet>								[Class]
+  superclasses: <sheet>
+  init keywords: region: transform: pointer-cursor: x: y: width: height:
+<single-child-mixin>							[Class]
+  superclasses: <object>
+<multiple-child-mixin>							[Class]
+  superclasses: <object>
+note-region-changed (sheet #key (port-did-it? = #f)) => ()		[Generic function]
+do-note-region-changed (sheet #key (port-did-it? = #f)) => ()		[Generic function]
+note-transform-changed (sheet #key (port-did-it? = #f)) => ()		[Generic function]
+do-note-transform-changed (sheet #key (port-did-it? = #f)) => ()	[Generic function]
+do-add-child (sheet child #key index) => ()				[Generic function]
+note-child-added (sheet child) => ()					[Generic function]
+do-note-child-added (sheet child) => ()					[Generic function]
+do-remove-child (sheet child) => ()					[Generic function]
+note-child-removed (sheet child) => ()					[Generic function]
+do-note-child-removed (sheet child) => ()				[Generic function]
+do-replace-child (sheet old-child new-child) => ()			[Generic function]
+sheet-delta-transform (sheet ancestor) => (transform)			[Generic function]
+do-raise-sheet (parent sheet) => ()					[Generic function]
+do-lower-sheet (parent sheet) => ()					[Generic function]
+do-set-sheet-pointer-cursor (port sheet keyword) => ()			[Generic function]
+note-sheet-attached (sheet) => ()					[Generic function]
+do-note-sheet-attached (sheet) => ()					[Generic function]
+note-sheet-detached (sheet) => ()					[Generic function]
+do-note-sheet-detached (sheet) => ()					[Generic function]
+note-sheet-mapped (sheet) => ()						[Generic function]
+do-note-sheet-mapped (sheet) => ()					[Generic function]
+note-sheet-unmapped (sheet) => ()					[Generic function]
+do-note-sheet-unmapped (sheet) => ()					[Generic function]
+do-destroy-sheet (sheet) => ()						[Generic function]
+sheet-input-focus (sheet) => (sheet)					[Generic function]
+
+Mediums and Output Sheets
+
+<basic-medium>								[Class]
+  superclasses: <medium>
+  init keywords: foreground: background: transform: region:
+		 port: sheet: drawable:
+<drawable>								[Type]
+<sheet-style-mixin>							[Class]
+  superclasses: <object>
+  init keywords: foreground: background: text-style:
+<sheet-with-medium-mixin>						[Class]
+  superclasses: <object>
+<temporary-medium-mixin>						[Class]
+  superclasses: <sheet-with-medium-mixin>
+<permanent-medium-mixin>						[Class]
+  superclasses: <sheet-with-medium-mixin>
+attach-medium (sheet medium) => ()					[Generic function]
+do-attach-medium (sheet medium) => ()					[Generic function]
+detach-medium (sheet medium) => ()					[Generic function]
+do-detach-medium (sheet medium) => ()					[Generic function]
+make-medium (port sheet) => (medium)					[Generic function]
+destroy-medium (medium) => ()						[Generic function]
+do-destroy-medium (medium) => ()					[Generic function]
+allocate-medium (port sheet) => (medium)				[Generic function]
+deallocate-medium (port medium) => ()					[Generic function]
+sheet-medium-setter (medium sheet) => (medium)				[Generic function]
+
+Event queues
+
+<event-queue>								[Class]
+  superclasses: <object>
+make-event-queue () => (event-queue)					[Function]
+event-queue-push (event-queue event) => ()				[Generic function]
+event-queue-push-last (event-queue event) => ()				[Generic function]
+event-queue-pop (event-queue) => (event)				[Generic function]
+event-queue-top (event-queue) => (event)				[Generic function]
+event-queue-empty? (event-queue) => (boolean)				[Generic function]
+event-queue-clear (event-queue) => ()					[Generic function]
+
+Events and Input Sheets
+
+event-timestamp (event) => (integer)					[Generic function]
+<sheet-event>								[Class]
+  superclasses: <event>
+  init keywords: sheet:
+<device-event>								[Class]
+  superclasses: <sheet-event>
+  init keywords: sheet: modifier-state:
+allocate-event (event-class #rest initargs) => (event)			[Generic function]
+deallocate-event (event) => ()						[Generic function]
+<sheet-with-event-queue-mixin>						[Class]
+  superclasses: <object>
+  init keywords: event-queue:
+<standard-input-mixin>							[Class]
+  superclasses: <sheet-with-event-queue-mixin>
+<immediate-input-mixin>							[Class]
+  superclasses: <sheet-with-event-queue-mixin>
+dispatch-event (client event) => ()					[Generic function]
+do-dispatch-event (sheet event) => ()					[Generic function]
+distribute-event (port event) => ()					[Generic function]
+do-distribute-event (port event) => ()					[Generic function]
+event-read (sheet) => (event)						[Generic function]
+event-unread (sheet event) => ()					[Generic function]
+event-read-no-hang (sheet) => false-or(<event>)				[Generic function]
+event-peek (sheet #key event-type) => (event)				[Generic function]
+event-pending? (sheet) => (boolean)					[Generic function]
+<sheet-with-repainting-mixin>						[Class]
+  superclasses: <object>
+<standard-repainting-mixin>						[Class]
+  superclasses: <sheet-with-repainting-mixin>
+<immediate-repainting-mixin>						[Class]
+  superclasses: <sheet-with-repainting-mixin>
+port-handles-repaint? (sheet) => (boolean)				[Generic function]
+
+Font Mapping
+
+do-text-style-mapping (port style character-set) => (font)		[Generic function]
+compute-text-adjustment (medium text text-style align-x align-y		[Generic function]
+			 #key (start = 0) end) => (dx dy)
+glyph-for-character (medium char text-style #key font)			[Generic function]
+  => (index font escapement-x escapement-y origin-x origin-y bb-x bb-y)
+standardize-text-style							[Generic function]
+  (port style #key character-set) => (text-style)
+standardize-text-style-size						[Generic function]
+  (port style size-alist #key character-set) => (text-style)
+
+Ports
+
+<basic-port>								[Class]
+  superclasses: <port>
+  init keywords: focus-selection: text-style-size-mapping:
+		 double-click-interval:
+do-destroy-port (port) => ()						[Generic function]
+port-default-foreground (port sheet) => false-or(<ink>)			[Generic function]
+port-default-background (port sheet) => false-or(<ink>)			[Generic function]
+port-default-text-style (port sheet) => false-or(<text-style>)		[Generic function]
+port-default-palette (port) => (palette)				[Generic function]
+port-default-palette-setter (palette port) => (palette)			[Generic function] 
+port-default-frame-manager (port) => (framem)				[Generic function]
+port-frame-managers (port) => (framems)					[Generic function]
+class-for-make-port (type-name) => (class)				[Generic function]
+make-port (#rest initargs #key server-path) => (port)			[Generic function]
+port-matches-server-path? (port server-path) => (boolean)		[Generic function]
+port-mapping-cache (port) => (pair)					[Generic function]
+port-mapping-table (port) => (table)					[Generic function]
+port-undefined-text-style (port) => (text-style)			[Generic function]
+port-undefined-text-style-setter (text-style port) => (text-style)	[Generic function]
+port-canonical-gesture-specs (port) => (gesture-specs)			[Generic function]
+
+Displays
+
+<basic-display>								[Class]
+  superclasses: <display>
+<standard-display>							[Class]
+  superclasses: <mirrored-sheet-mixin> <multiple-child-mixin>
+		<basic-sheet> <display>
+  init keywords: port: orientation: units:
+attach-sheet (display sheet #rest pane-options #key) => ()		[Generic function]
+detach-sheet (display sheet) => ()					[Generic function]
+display-matches-characteristics? (display #key) => (boolean)		[Generic function]
+display-mm-height-setter (height display) => (number)			[Generic function]
+display-mm-width-setter (width display) => (number)			[Generic function]
+display-pixel-height-setter (height display) => (integer)		[Generic function]
+display-pixel-width-setter (width display) => (integer)			[Generic function]
+display-pixels-per-point-setter (pixels display) => (number)		[Generic function]
+initialize-display (port display) => ()					[Generic function]
+
+Mirrors
+
+<mirrored-sheet-mixin>							[Class]
+  superclasses: <object>
+make-mirror (port sheet) => (mirror)					[Generic function]
+do-make-mirror (port sheet) => (mirror)					[Generic function]
+destroy-mirror (port sheet) => ()					[Generic function]
+do-destroy-mirror (port sheet) => ()					[Generic function]
+map-mirror (port sheet) => ()						[Generic function]
+do-map-mirror (port sheet) => ()					[Generic function]
+unmap-mirror (port sheet) => ()						[Generic function]
+do-unmap-mirror (port sheet) => ()					[Generic function]
+raise-mirror (port sheet) => ()						[Generic function]
+do-raise-mirror (port sheet) => ()					[Generic function]
+lower-mirror (port sheet) => ()						[Generic function]
+do-lower-mirror (port sheet) => ()					[Generic function]
+mirror-region (port sheet) => (region)					[Generic function]
+mirror-edges (port sheet) => (left top right bottom)			[Generic function]
+set-mirror-edges (port sheet left top right bottom) => ()		[Generic function]
+mirror-inside-edges (port sheet) => (left top right bottom)		[Generic function]
+mirror-origin (port sheet) => (origin)					[Generic function]
+mirror-visible? (port sheet) => (boolean)				[Generic function]
+sheet-direct-mirror (sheet) => false-or(mirror)				[Generic function]
+sheet-direct-mirror-setter (mirror sheet) => false-or(mirror)		[Generic function]
+sheet-mirror (sheet) => (mirror)					[Generic function]
+mirror-sheet (mirror) => (sheet)					[Generic function]
+mirror-sheet-setter (sheet mirror) => (sheet)				[Generic function]
+sheet-mirrored-ancestor (sheet #key (error? = #f)) => (sheet)		[Generic function]
+sheet-device-edges (sheet) => (left top right bottom)			[Generic function]
+sheet-device-region (sheet) => (region)					[Generic function]
+sheet-device-transform (sheet) => (transform)				[Generic function]
+sheet-native-edges (sheet) => (left top right bottom)			[Generic function]
+sheet-native-region (sheet) => (region)					[Generic function]
+sheet-native-transform (sheet) => (transform)				[Generic function]
+sheet-native-transform-setter (transform sheet) => (transform)		[Generic function]
+update-mirror-region (port sheet) => ()					[Generic function]
+update-mirror-transform (port sheet) => ()				[Generic function]
+
+Pointers
+
+<standard-pointer>							[Class]
+  superclasses: <pointer>
+  init keywords: port:
+do-pointer-position (port pointer sheet) => (x y)			[Generic function]
+do-set-pointer-position (port pointer sheet x y) => ()			[Generic function]
+do-set-pointer-cursor (port pointer cursor) => ()			[Generic function]
+
+Cursors
+
+<basic-cursor>								[Class]
+  superclasses: <cursor>
+  init keywords: width:
+draw-cursor (port cursor sheet x y on? #rest keys) => ()		[Generic function]
+do-draw-cursor (port cursor sheet x y on? #key focus) => ()		[Generic function]
+note-cursor-changed (cursor type old new) => ()				[Generic function]
+do-note-cursor-changed (port cursor sheet type old new) => ()		[Generic function]
+
+Gestures
+
+button-and-modifier-state-matches-gesture-name?				[Function]
+  (button modifier-state gesture-name) => (boolean)
+keysym-and-modifier-state-matches-gesture-name?				[Function]
+  (keysym modifier-state gesture-name) => (boolean)
+modifier-state-matches-gesture-name?					[Function]
+  (modifier-state gesture-name) => (boolean)
+parse-gesture-spec (gesture-spec) => (keysym modifier-state)		[Generic function]
+decode-gesture-spec (gesture-spec) => (keysym modifiers)		[Generic function]
+canonicalize-gesture-spec 						[Generic function]
+  (port gesture-spec #key modifier-state) => (gesture-spec)
+do-canonicalize-gesture-spec						[Generic function]
+  (port gesture-spec #key modifier-state) => (gesture-spec)
+invalidate-gesture-specs (port) => ()					[Generic function]
+keyboard-event? (event) => (boolean)					[Generic function]
+key-press-event? (event) => (boolean)					[Generic function]
+key-release-event? (event) => (boolean)					[Generic function]
+keyboard-gesture-spec? (event) => (boolean)				[Generic function]
+
+Frame Managers
+
+<basic-frame-manager>							[Class]
+  superclasses: <frame-manager>
+  init keywords: port: palette: dialog-view: menu-view:
+<portable-frame-manager>						[Class]
+  superclasses: <basic-frame-manager>
+destroy-frame-manager (framem) => ()					[Generic function]
+do-destroy-frame-manager (framem) => ()					[Generic function]
+frame-manager-matches-options? (framem port #key palette) => (boolean)	[Generic function]
+do-make-pane (framem pane-class #rest pane-options) => (sheet)		[Generic function]
+class-for-make-pane							[Generic function]
+  (framem pane-class #rest pane-options) => (class)
+do-notify-user								[Generic function]
+  (framem message-string
+   #key (frame = *frame*) owner title documentation exit-boxes name style
+	foreground background text-style) => (boolean)
+do-choose-file	 							[Generic function]
+  (framem #key (frame = *frame*) owner
+	       title documentation exit-boxes name default) => (locator)
+do-choose-directory	 						[Generic function]
+  (framem #key (frame = *frame*) owner
+	       title documentation exit-boxes name default) => (locator)
+do-choose-color								[Generic function]
+  (framem #key (frame = *frame*) owner
+	       title documentation exit-boxes name default) => (color)
+do-choose-from-dialog							[Generic function]
+  (framem items
+   #key (frame = *frame*) owner title default-item
+	(name-key = identity) (value-key = identity)
+	gadget-class gadget-options foreground background text-style)
+  => (object cancelled?)
+do-choose-from-menu							[Generic function]
+  (framem items
+   #key frame owner title default-item
+	(name-key = identity) (value-key = identity)
+	foreground background text-style) => (object cancelled?)
+
+
+6. DUIM-Graphics library -- path and figure graphics modelling
+
+6.1 DUIM-Graphics API module
+  - uses nothing
+  - creates...
+
+Figure Graphics
+
+draw-point (drawable point)						[Function]
+draw-point* (drawable x y)						[Generic function]
+draw-points (drawable points)						[Function]
+draw-points* (drawable coord-seq)					[Generic function]
+draw-line (drawable point1 point2)					[Function]
+draw-line* (drawable x1 y1 x2 y2)					[Generic function]
+draw-lines (drawable points)						[Function]
+draw-lines* (drawable coord-seq)					[Generic function]
+draw-arrow (drawable point1 point2					[Function]
+	    #key (from-head? = #f) (to-head? = #t) 
+		 (head-length = 10) (head-width = 5))
+draw-arrow* (drawable x1 y1 x2 y2 					[Generic function]
+	     #key (from-head? = #f) (to-head? = #t) 
+		  (head-length = 10) (head-width = 5))
+draw-rectangle (drawable point1 point2 #key (filled? = #t))		[Function]
+draw-rectangle* (drawable x1 y1 x2 y2 #key (filled? = #t))		[Generic function]
+draw-rectangles (drawable points #key (filled? = #t))			[Function]
+draw-rectangles* (drawable coord-seq #key (filled? = #t))		[Generic function]
+draw-polygon (drawable points #key (closed? = #t) (filled? = #t))	[Function]
+draw-polygon* (drawable coord-seq					[Generic function]
+	       #key (closed? = #f) (filled? = #t))
+draw-regular-polygon (drawable point1 point2 nsides			[Function]
+		      #key (handedness = #"left")
+			   (closed? = #t) (filled? = #t)
+draw-regular-polygon* (drawable x1 y1 x2 y2 nsides			[Generic function]
+		       #key (handedness = #"left")
+			    (closed? = #t) (filled? = #t))
+draw-triangle (drawable p1 p2 p3 #key (filled? = #t))			[Function]
+draw-triangle* (drawable x1 y1 x2 y2 x3 y3 #key (filled? = #t))		[Generic function]
+draw-ellipse (drawable center						[Function]
+	      radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+	      #key start-angle end-angle (filled? = #t))
+draw-ellipse* (drawable center-x center-y				[Generic function]
+	       radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+	       #key start-angle end-angle (filled? = #t))
+draw-circle (drawable center radius			 		[Function]
+	     #key start-angle end-angle (filled? = #t))
+draw-circle* (drawable center-x center-y radius				[Generic function]
+	      #key start-angle end-angle (filled? = #t))
+draw-oval (drawable center x-radius y-radius				[Function]
+	   #key (filled? = #t))
+draw-oval* (drawable center-x center-y x-radius y-radius		[Generic function]
+	    #key (filled? = #t))
+draw-bezier-curve (drawable points #key (filled? = #t))			[Function]
+draw-bezier-curve* (sheet coord-seq #key (filled? = #t))		[Generic function]
+draw-image (drawable image point)					[Function]
+draw-image* (drawable image x y)					[Generic function]
+
+Text Graphics
+
+draw-text (drawable string-or-char point				[Function]
+	   #key (start = 0) end
+		(align-x = #"left") (align-y = #"baseline")
+		towards-point (transform-glyphs? = #f))
+draw-text* (drawable string-or-char x y					[Generic function]
+	    #key (start = 0) end
+		 (align-x = #"left") (align-y = #"baseline")
+		 towards-x towards-y (transform-glyphs? = #f))
+
+Path Graphics
+
+start-path (drawable)							[Generic function]
+end-path (drawable)							[Generic function]
+close-path (drawable)							[Generic function]
+abort-path (drawable)							[Generic function]
+move-to (drawable point)						[Function]
+move-to* (drawable x y)							[Generic function]
+line-to (drawable point)						[Function]
+line-to* (drawable x y)							[Generic function]
+curve-to (drawable point1 point2 point3)				[Function]
+curve-to* (drawable x1 y1 x2 y2 x3 y3)					[Generic function]
+stroke-path (drawable)							[Generic function]
+fill-path (drawable)							[Generic function]
+clip-from-path (drawable)						[Generic function]
+save-clipping-region (drawable)						[Generic function]
+restore-clipping-region (drawable)					[Generic function]
+
+Pixmaps
+
+<pixmap>								[Class]
+  superclasses: <image>
+pixmap? (object) => (boolean)						[Generic function]
+copy-area (medium from-x from-y width height to-x to-y			[Generic function]
+	   #key (function = $boole-1)) => ()
+copy-from-pixmap (pixmap pixmap-x pixmap-y width height			[Generic function]
+		  medium medium-x medium-y
+		  #key (function = $boole-1)) => ()
+copy-to-pixmap (medium medium-x medium-y width height			[Generic function]
+		pixmap pixmap-x pixmap-y
+		#key (function = $boole-1)) => ()
+make-pixmap (medium width height) => (pixmap)				[Generic function]
+destroy-pixmap (pixmap) => ()						[Generic function]
+draw-pixmap (medium pixmap point #key (function = $boole-1))		[Function]
+draw-pixmap* (sheet pixmap x y #key (function = $boole-1))		[Generic function]
+<pixmap-medium>								[Class]
+  superclasses: <medium>
+with-output-to-pixmap (medium, #rest options) body end			[Macro]
+do-with-output-to-pixmap						[Generic function]
+  (sheet continuation #key width height) => (pixmap)
+with-double-buffering (medium, #rest options) body end			[Macro]
+do-with-double-buffering						[Generic function]
+  (medium continuation #key (x = 0) (y = 0) width height pixmap) => (#rest values)
+
+
+6.2 DUIM-Graphics-Internals internals and implementation module
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry-Internals
+  - uses DUIM-DCs-Internals
+  - uses DUIM-Silica-Internals
+  - uses DUIM-Graphics, re-exports all
+  - exports...
+
+Figure Graphics
+
+do-draw-point* (drawable x y) => ()					[Generic function]
+do-draw-points* (drawable coord-seq) => ()				[Generic function]
+do-draw-line* (drawable x1 y1 x2 y2) => ()				[Generic function]
+do-draw-lines* (drawable coord-seq) => ()				[Generic function]
+do-draw-rectangle* (drawable x1 y1 x2 y2 #key (filled? = #t)) => ()	[Generic function]
+do-draw-rectangles* (drawable coord-seq #key (filled? = #t)) => ()	[Generic function]
+do-draw-polygon* (drawable coord-seq					[Generic function]
+		  #key (closed? = #f) (filled? = #t)) => ()
+do-draw-ellipse* (drawable center-x center-y				[Generic function]
+		  radius-1-dx radius-1-dy radius-2-dx radius-2-dy
+	          #key start-angle end-angle (filled? = #t)) => ()
+do-draw-bezier-curve* (drawable coord-seq #key (filled? = #t)) => ()	[Generic function]
+
+Text Graphics
+
+do-draw-text* (drawable string-or-char x y				[Generic function]
+	       #key (start = 0) end
+		    (align-x = #"left") (align-y = #"baseline")
+		    towards-x towards-y (transform-glyphs? = #f)) => ()
+
+Path Graphics
+
+do-start-path (drawable) => ()						[Generic function]
+do-end-path (drawable) => ()						[Generic function]
+do-close-path (drawable) => ()						[Generic function]
+do-abort-path (drawable) => ()						[Generic function]
+do-move-to* (drawable x y) => ()					[Generic function]
+do-line-to* (drawable x y) => ()					[Generic function]
+do-curve-to* (drawable x1 y1 x2 y2 x3 y3) => ()				[Generic function]
+do-stroke-path (drawable) => ()						[Generic function]
+do-fill-path (drawable) => ()						[Generic function]
+do-clip-from-path (drawable) => ()					[Generic function]
+do-save-clipping-region (drawable) => ()				[Generic function]
+do-restore-clipping-region (drawable) => ()				[Generic function]
+
+Pixmaps
+
+do-copy-area (from-object from-x from-y width height			[Generic function]
+	      to-object to-x to-y function) => ()
+do-make-pixmap (port medium width height) => (pixmap)			[Generic function]
+do-destroy-pixmap (port pixmap) => ()					[Generic function]
+do-draw-pixmap* (medium pixmap x y #key (function = $boole-1)) => ()	[Generic function]
+<basic-pixmap-medium>							[Class]
+  superclasses: <basic-medium> <pixmap-medium>
+  init keywords: pixmap:
+<pixmap-sheet>								[Class]
+  superclasses: <permanent-medium-mixin> <mirrored-sheet-mixin> <basic-sheet>
+make-pixmap-medium (port sheet #key width height) => (pixmap-medium)	[Generic function]
+pixmap-medium-pixmap (pixmap-medium) => (pixmap)			[Generic function]
+
+
+7. DUIM-Layouts library -- implementation of layouts
+
+7.1 DUIM-Layouts API module
+  - uses nothing
+  - creates...
+
+Space Requirements
+
+<space-requirement>							[Class]
+  superclasses: <object>
+space-requirement? (object) => (boolean)				[Generic function]
+make-space-requirement							[Function]
+  (#key (width = 0) (min-width = width) (max-width = width)
+        (height = 0) (min-height = height) (max-height = height))
+  => (space-requirement)
+space-requirement-width (space-req) => (number)				[Generic function]
+space-requirement-min-width (space-req) => (number)			[Generic function]
+space-requirement-max-width (space-req) => (number)			[Generic function]
+space-requirement-height (space-req) => (number)			[Generic function]
+space-requirement-min-height (space-req) => (number)			[Generic function]
+space-requirement-max-height (space-req) => (number)			[Generic function]
+$fill									[Constant]
+
+General Panes
+
+<leaf-pane>								[Class]
+  superclasses: <client-overridability-mixin> <space-requirement-mixin>
+		<leaf-layout-mixin> <basic-sheet>
+<basic-composite-pane>							[Class]
+  superclasses: <basic-sheet>
+<multiple-child-composite-pane>						[Class]
+  superclasses: <multiple-child-mixin> <basic-composite-pane>
+<single-child-composite-pane>						[Class]
+  superclasses: <single-child-mixin> <basic-composite-pane>
+<simple-pane>								[Class]
+  superclasses: <sheet-style-mixin> <standard-input-mixin>
+		<standard-repainting-mixin> <leaf-pane>
+<drawing-pane>								[Class]
+  superclasses: <sheet-style-mixin> <standard-input-mixin>
+		<standard-repainting-mixin> <permanent-medium-mixin>
+		<leaf-pane>
+<null-pane>								[Class]
+  superclasses: <leaf-pane>
+<top-level-sheet>							[Class]
+  superclasses: <wrapping-layout-pane>
+  init keywords: display: frame: frame-manager:
+		 user-specified-size?: user-specified-position?:
+pane-contents (table) => (sheet)					[Generic function]
+pane-contents-setter (contents table) => (sheet)			[Generic function]
+sheet-edges (sheet) => (left top right bottom)				[Generic function]
+set-sheet-edges (sheet left top right bottom) => ()			[Generic function]
+sheet-position (sheet) => (x y)						[Generic function]
+set-sheet-position (sheet x y) => ()					[Generic function]
+sheet-size (sheet) => (width height)					[Generic function]
+set-sheet-size (sheet width height) => ()				[Generic function]
+
+Layout Panes
+
+compose-space (pane #key width height) => (space-requirement)		[Generic function]
+do-compose-space (pane #key width height) => (space-requirement)	[Generic function]
+allocate-space (pane width height) => ()				[Generic function]
+do-allocate-space (pane width height) => ()				[Generic function]
+resize-sheet (sheet #key width height) => ()				[Generic function]
+<layout-pane>								[Class]
+  superclasses: <client-overridability-mixin> <cached-space-requirement-mixin>
+		<composite-layout-mixin> <sheet-style-mixin> 
+		<multiple-child-mixin> <basic-sheet>
+<row-layout>								[Class]
+  superclasses: <box-layout-pane>
+  init keywords: x-spacing: x-ratios: y-alignment: equalize-heights?:
+horizontally (#rest options) panes; ... end				[Macro]
+<column-layout>								[Class]
+  superclasses: <box-layout-pane>
+  init keywords: y-spacing: y-ratios: x-alignment: equalize-widths?:
+vertically (#rest options) panes; ... end				[Macro]
+<table-layout>								[Class]
+  superclasses: <layout-pane>
+  init keywords: x-spacing: x-ratios: x-alignment: equalize-widths?:
+		 y-spacing: y-ratios: y-alignment: equalize-heights?:
+tabling (#rest options) panes; ... end					[Macro]
+<pinboard-layout>							[Class]
+  superclasses: <layout-pane>
+  init keywords: stretchable?:
+
+
+7.2 DUIM-Layouts-Internals internals and implementation module
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry-Internals
+  - uses DUIM-DCs-Internals
+  - uses DUIM-Silica-Internals
+  - uses DUIM-Graphics-Internals
+  - uses DUIM-Layouts, re-exports all
+  - exports...
+
+Space Requirements
+
+space-requirement+ (sr1 sr2) => (space-requirement)			[Function]
+space-requirement+*							[Function]
+  (sr #key (width = 0) (max-width = width) (min-width = width)
+	   (height = 0) (max-height = height) (min-height = height))
+  => (space-requirement)
+space-requirement-combine (function sr1 sr2) => (space-requirement)	[Generic function]
+
+Layout Panes
+
+default-space-requirements						[Generic function]
+  (sheet #key width min-width max-width
+	      height min-height max-height) => (space-requirement)
+change-space-requirements						[Generic function]
+  (pane #key width min-width max-width
+	     height min-height max-height
+	     (resize-frame? = #f)) => ()
+do-change-space-requirements (pane #key) => ()				[Generic function]
+changing-space-requirements (#rest options) body end			[Macro]
+invalidate-space-requirements (sheet) => ()				[Generic function]
+invalidate-all-space-requirements (sheet) => ()				[Generic function]
+note-space-requirements-changed (parent child) => ()			[Generic function]
+reset-space-requirements (pane) => ()					[Generic function]
+constrain-size (size min max) => (new-size)				[Function]
+<layout-mixin>								[Class]
+  superclasses: <object>
+<composite-layout-mixin>						[Class]
+  superclasses: <layout-mixin>
+<leaf-layout-mixin>							[Class]
+  superclasses: <layout-mixin>
+<space-requirement-mixin>						[Class]
+  superclasses: <object>
+<cached-space-requirement-mixin>					[Class]
+  superclasses: <space-requirement-mixin>
+<client-overridability-mixin>						[Class]
+  superclasses: <object>
+<client-space-requirement-mixin>					[Class]
+  superclasses: <object>
+<wrapping-layout-mixin>							[Class]
+  superclasses: <composite-layout-mixin>
+<wrapping-layout-pane>							[Class]
+  superclasses: <client-overridability-mixin> <wrapping-layout-mixin>
+		<sheet-style-mixin> <single-child-mixin> <basic-sheet>
+<box-layout-pane>							[Class]
+  superclasses: <layout-pane>
+<row-layout-pane>							[Class]
+  superclasses: <row-layout>
+<column-layout-pane>							[Class]
+  superclasses: <column-layout>
+<table-layout-pane>							[Class]
+  superclasses: <table-layout>
+<pinboard-layout-pane>							[Class]
+  superclasses: <pinboard-layout>
+
+
+8. DUIM-Gadgets library -- native gadget modelling
+
+8.1 DUIM-Gadgets API module
+  - uses nothing
+  - creates...
+
+Gadget model
+
+<gadget>								[Class]
+  superclasses: <object>
+gadget? (object) => (boolean)						[Generic function]
+gadget-enabled? (gadget) => (boolean)					[Generic function]
+gadget-enabled?-setter (enabled? gadget) => (boolean)			[Generic function]
+gadget-id (gadget) => (object)						[Generic function]
+gadget-id-setter (id gadget) => (object)				[Generic function]
+gadget-client (gadget) => (object)					[Generic function]
+gadget-client-setter (client gadget) => (object)			[Generic function]
+gadget-label (gadget) => type-union(<string>, <image>)			[Generic function]
+gadget-label-setter (label gadget) => type-union(<string>, <image>)	[Generic function]
+gadget-armed-callback (gadget) => (function)				[Generic function]
+gadget-armed-callback-setter (function gadget) => (function)		[Generic function]
+gadget-disarmed-callback (gadget) => (function)				[Generic function]
+gadget-disarmed-callback-setter (function gadget) => (function)		[Generic function]
+gadget-accelerator (gadget) => (accelerator)				[Generic function]
+gadget-accelerator-setter (accelerator gadget) => (accelerator)		[Generic function]
+gadget-mnemonic (gadget) => (mnemonic)					[Generic function]
+gadget-mnemonic-setter (mnemonic gadget) => (mnemonic)			[Generic function]
+gadget-orientation (gadget) => one-of(#"horizontal", #"vertical")	[Generic function]
+<action-gadget>								[Class]
+  superclasses: <action-gadget-mixin> <sheet-style-mixin> <gadget>
+  init keywords: id: client: enabled?:
+gadget-activate-callback (gadget) => (function)				[Generic function]
+gadget-activate-callback-setter (function gadget) => (function)		[Generic function]
+<value-gadget>								[Class]
+  superclasses: <value-gadget-mixin> <sheet-style-mixin> <gadget>
+  init keywords: id: client: enabled?: value:
+gadget-value (gadget) => (object)					[Generic function]
+gadget-value-setter							[Generic function]
+  (value gadget #key (do-callback? = #f)) => (object)
+gadget-value-changed-callback (gadget) => (function)			[Generic function]
+gadget-value-changed-callback-setter (function gadget) => (function)	[Generic function]
+<focus-gadget>								[Class]
+  superclasses: <sheet-style-mixin> <gadget>
+  init keywords: id: client: enabled?:
+		 focus-out-callback: focus-in-callback:
+gadget-focus-in-callback (gadget) => (function)				[Generic function]
+gadget-focus-in-callback-setter (function gadget) => (function)		[Generic function]
+gadget-focus-out-callback (gadget) => (function)			[Generic function]
+gadget-focus-out-callback-setter (function gadget) => (function)	[Generic function]
+gadget-value-range (gadget) => (range)					[Generic function]
+gadget-value-range-setter (range gadget) => (range)			[Generic function]
+gadget-slug-size (gadget) => (rea)					[Generic function]
+gadget-slug-size-setter (slug-size gadget) => (slug-size)		[Generic function]
+gadget-drag-callback (gadget) => (function)				[Generic function]
+gadget-drag-callback-setter (function gadget) => (function)		[Generic function]
+gadget-editable? (gadget) => (boolean)					[Generic function]
+gadget-editable?-setter (editable? gadget) => (boolean)			[Generic function]
+gadget-rich-text? (gadget) => (boolean)					[Generic function]
+gadget-scrolling-horizontally? (gadget) => (boolean)			[Generic function]
+gadget-scrolling-vertically? (gadget) => (boolean)			[Generic function]
+
+Gadgets (excluding Collection Gadgets)
+
+<text-field>								[Class]
+  superclasses: <value-gadget-mixin> <focus-gadget>
+  init keywords: value: editable?:
+<text-editor>								[Class]
+  superclasses: <text-field>
+  init keywords: scroll-bars: editable?: ncolumns: nlines:
+<password-field>							[Class]
+  superclasses: <text-field>
+<slider>								[Class]
+  superclasses: <value-gadget>
+  init keywords: orientation: value-range: show-value?: editable?:
+		 label: min-label: max-label: align-x: drag-callback:
+		 decimal-places: number-of-tick-marks: number-of-quanta:
+<label>									[Class]
+  superclasses: <sheet-style-mixin> <gadget>
+  init keywords: label: align-x:
+
+Collection Gadgets (including Menus)
+
+<button-box>								[Class]
+  superclasses: <gadget-box> <sheet-style-mixin> <gadget>
+  init keywords: id: client: enabled?:
+<button>								[Class]
+  superclasses: <object>
+  init keywords: label: pressed-label: armed-label: disabled-label: align-x:
+<check-box>								[Class]
+  superclasses: <gadget-selection-mixin> <button-box>
+with-check-box (#rest ?options) contents; ... end			[Macro]
+<check-button>								[Class]
+  superclasses: <button> <value-gadget>
+<check-menu-button>							[Class]
+  superclasses: <menu-button> <value-gadget>
+<check-menu-component>							[Class]
+  superclasses: <gadget-selection-mixin> <menu-component>
+<list-box>								[Class]
+  superclasses: <action-gadget-mixin> <choice-gadget>
+  init keywords: scroll-bars:
+<menu-bar>								[Class]
+  superclasses: <collection-gadget-mixin> <sheet-style-mixin> <gadget>
+  init keywords: update-callback: id: client: enabled?: command-table:
+<menu-button>								[Class]
+  superclasses: <button>
+  init keywords: accelerator: mnemonic: update-callback:
+<menu-component>							[Class]
+  superclasses: <gadget-box> <sheet-style-mixin> <gadget>
+  init keywords: id: client: enabled?:
+<menu>									[Class]
+  superclasses: <collection-gadget-mixin> <sheet-style-mixin> <gadget>
+  init keywords: update-callback: id: client: enabled?: owner:
+		 label: pressed-label: armed-label: disabled-label: align-x:
+<option-box>								[Class]
+  superclasses: <collection-gadget-mixin> <gadget-selection-mixin>
+		<sheet-style-mixin> <gadget>
+  init keywords: scroll-bars: id: client: enabled?:
+		 label: pressed-label: armed-label: disabled-label: align-x:
+<push-box>								[Class]
+  superclasses: <action-gadget-mixin> <button-box>
+<push-button>								[Class]
+  superclasses: <button> <action-gadget-mixin> <value-gadget>
+  init keywords: default-button?:
+<push-menu-button>							[Class]
+  superclasses: <menu-button> <action-gadget-mixin> <value-gadget>
+<push-menu-component>							[Class]
+  superclasses: <menu-component> <action-gadget-mixin>
+<radio-box>								[Class]
+  superclasses: <gadget-selection-mixin> <button-box>
+with-radio-box (#rest ?options) contents; ... end			[Macro]
+<radio-button>								[Class]
+  superclasses: <button> <value-gadget>
+<radio-menu-button>							[Class]
+  superclasses: <menu-button> <value-gadget>
+<radio-menu-component>							[Class]
+  superclasses: <gadget-selection-mixin> <menu-component>
+<status-bar>								[Class]
+  superclasses: <collection-gadget-mixin> <sheet-style-mixin> <gadget>
+  init keywords: update-callback: id: client: enabled?:
+<simple-status-bar>							[Class]
+  superclasses: <status-bar>
+  init keywords: value:
+<spin-box>								[Class]
+  superclasses: <collection-gadget-mixin> <gadget-selection-mixin>
+		<sheet-style-mixin> <gadget>
+  init keywords: id: client: enabled?:
+		 label: pressed-label: armed-label: disabled-label: align-x:
+<tool-bar>								[Class]
+  superclasses: <collection-gadget-mixin> <sheet-style-mixin> <gadget>
+  init keywords: update-callback: id: client: enabled?:
+button-gadget-value (button) => (value)					[Generic function]
+gadget-items (gadget) => (items)					[Generic function]
+gadget-items-setter (items gadget) => (items)				[Generic function]
+gadget-name-key (gadget) => (function)					[Generic function]
+gadget-value-key (gadget) => (function)					[Generic function]
+gadget-test (gadget) => (function)					[Generic function]
+gadget-selection (gadget) => (selection)				[Generic function]
+gadget-selection-setter							[Generic function]
+  (selection gadget #key (do-callback? = #f)) => (selection)
+gadget-selection-mode							[Generic function]
+  (gadget) => one-of(#"single", #"multiple", #"none")
+make-menu-from-items (framem items					[Generic function]
+		      #key owner title 
+			   (name-key = identity) (value-key = identity)
+			   foreground background text-style)
+menu-owner (menu) => (sheet)						[Generic function]
+command-menu-item (gadget) => (command-table-menu-item)			[Generic function]
+command-menu-item-setter (menu-item gadget) => (menu-item)		[Generic function]
+default-button? (button) => (boolean)					[Generic function]
+default-button?-setter (default? button) => (boolean)			[Generic function]
+
+Scrolling
+
+scrolling (#rest options) pane end					[Macro]
+inhibit-updating-scroll-bars body end					[Macro]
+<scroller>								[Class]
+  superclasses: <wrapping-layout-pane>
+  init keywords: contents: scroll-bars:
+<viewport>								[Class]
+  superclasses: <client-overridability-mixin> <wrapping-layout-mixin>
+		<sheet-style-mixin> <single-child-mixin>
+  init keywords: scroller:
+viewport? (object) => (boolean)						[Generic function]
+sheet-viewport (sheet) => false-or(<viewport>)				[Generic function]
+sheet-viewport-region (sheet) => (region)				[Generic function]
+viewport-position (sheet) => (x y)					[Generic function]
+set-viewport-position (sheet x y) => ()					[Generic function]
+note-viewport-position-changed (frame sheet x y) => ()			[Generic function]
+note-viewport-region-changed (sheet viewport) => ()			[Generic function]
+viewport-region (viewport) => (region)					[Generic function]
+<scroll-bar>								[Class]
+  superclasses: <value-gadget>
+  init keywords: orientation: value-range: drag-callback:
+
+Borders
+
+<border>								[Class]
+  superclasses: <single-child-mixin> <layout-pane>
+  init keywords: thickness:
+with-border (#rest options) pane end					[Macro]
+<spacing>								[Class]
+  superclasses: <single-child-mixin> <layout-pane>
+  init keywords: thickness:
+with-spacing (#rest options) pane end					[Macro]
+border-thickness (border) => (number)					[Generic function]
+border-type								[Generic function]
+  (border) => one-of(#f, #"flat", #"raised", #"sunken", #"ridge", #"groove")
+<labelled-border>							[Class]
+  superclasses: <border>
+  init keywords: label-position:
+with-label (#rest options) pane end					[Macro]
+<separator>								[Class]
+  superclasses: <gadget>
+  init keywords: orientation:
+
+Splitters, etc.
+
+<adjustable-column>							[Class]
+  superclasses: <column-pane>
+<adjustable-row>							[Class]
+  superclasses: <row-pane>
+<horizontal-splitter>							[Class]
+  superclasses: <row-pane>
+<vertical-splitter>							[Class]
+  superclasses: <column-pane>
+<switchable-layout>							[Class]
+  superclasses: <layout-pane>
+  init keywords: contents: visible-child: labels: orientation:
+switchable-layout-labels (pane) => (labels)				[Generic function]
+switchable-layout-visible-child (pane) => (sheet)			[Generic function]
+switchable-layout-visible-child-setter (sheet-or-label pane) => (sheet)	[Generic function]
+
+Progress notes
+
+<progress-note>								[Class]
+  superclasses: <object>
+  init keywords: sheet: frame: label:
+progress-note-label (progress-note) => (label)				[Generic function]
+progress-note-label-setter (label progress-note) => (label)		[Generic function]
+*progress-note*								[Fluid variable]
+noting-progress (sheet label) body end					[Macro]
+do-noting-progress							[Generic function]
+  (sheet label continuation #key frame) => (#rest values)
+note-progress								[Generic function]
+  (numerator denominator #key (note = *progress-note*)) => ()
+note-progress-in-phases							[Generic function]
+  (numerator denominator #key (note = *progress-note*)
+			      (phase-number = 1)
+			      (n-phases = 1)) => ()
+clear-progress-note (framem progress-note) => ()			[Generic function]
+display-progress-note (framem progress-note) => ()			[Generic function]
+raise-progress-note-sheet (framem frame) => (sheet)			[Generic function]
+lower-progress-note-sheet (framem frame sheet) => ()			[Generic function]
+
+
+8.2 DUIM-Gadgets-Internals internals and implementation module
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry-Internals
+  - uses DUIM-DCs-Internals
+  - uses DUIM-Silica-Internals
+  - uses DUIM-Graphics-Internals
+  - uses DUIM-Layouts-Internals
+  - uses DUIM-Gadgets, re-exports all
+  - exports...
+
+Gadget model
+
+execute-callback (gadget function #rest args)				[Generic function]
+<action-gadget-mixin>							[Class]
+  superclasses: <object>
+  init keywords: activate-callback:
+<activate-gadget-event>							[Class]
+  superclasses: <event>
+  init keywords: sheet:
+execute-activate-callback (gadget client id) => ()			[Generic function]
+do-execute-activate-callback (gadget client id) => ()			[Generic function]
+execute-armed-callback (gadget client id) => ()				[Generic function]
+do-execute-armed-callback (gadget client id) => ()			[Generic function]
+execute-disarmed-callback (gadget client id) => ()			[Generic function]
+do-execute-disarmed-callback (gadget client id) => ()			[Generic function]
+note-gadget-disabled (client gadget) => ()				[Generic function]
+note-gadget-enabled (client gadget) => ()				[Generic function]
+<value-gadget-mixin>							[Class]
+  superclasses: <object>
+  init keywords: value-changed-callback:
+<value-changed-gadget-event>						[Class]
+  superclasses: <event>
+  init keywords: sheet: value:
+do-gadget-value-setter (gadget value) => ()				[Generic function]
+note-gadget-value-changed (gadget) => ()				[Generic function]
+note-gadget-value-range-changed (gadget) => ()				[Generic function]
+execute-value-changed-callback (gadget client id value) => ()		[Generic function]
+do-execute-value-changed-callback (gadget client id value) => ()	[Generic function]
+<focus-in-gadget-event>							[Class]
+  superclasses: <event>
+  init keywords: sheet:
+<focus-out-gadget-event>						[Class]
+  superclasses: <event>
+  init keywords: sheet:
+execute-focus-in-callback (gadget client id) => ()			[Generic function]
+do-execute-focus-in-callback (gadget client id) => ()			[Generic function]
+execute-focus-out-callback (gadget client id) => ()			[Generic function]
+do-execute-focus-out-callback (gadget client id) => ()			[Generic function]
+<drag-gadget-event>							[Class]
+  superclasses: <event>
+  init keywords: sheet: value:
+note-gadget-slug-size-changed (gadget) => ()				[Generic function]
+execute-drag-callback (gadget client id value) => ()			[Generic function]
+do-execute-drag-callback (gadget client id value) => ()			[Generic function]
+compute-gadget-label-size (pane) => (width height)			[Generic function]
+draw-gadget-label (gadget medium x y					[Generic function]
+		   #key (align-x = #"left") (align-y = #"top")
+			(state = #"normal")) => ()
+note-gadget-label-changed (gadget) => ()				[Generic function]
+
+Collection Gadgets (including Menus)
+
+<choice-gadget>								[Class]
+  superclasses: <collection-gadget-mixin> <gadget-selection-mixin>
+		<sheet-style-mixin> <gadget>
+  init keywords: id: client: enabled?: selection-mode:
+<collection-gadget-mixin>						[Class]
+  superclasses: <value-gadget-mixin>
+  init keywords: items: name-key: value-key: test:
+<gadget-box>								[Class]
+  superclasses: <collection-gadget-mixin> <object>
+  init keywords: orientation: update-callback:
+<gadget-selection-mixin>						[Class]
+  superclasses: <object>
+  init keywords: selection:
+<command-menu-item-mixin>						[Class]
+  superclasses: <object>
+  init keywords: command-menu-item:
+menu-owner-setter (owner menu) => (sheet)				[Generic function]
+note-gadget-items-changed (gadget items) => ()				[Generic function]
+note-gadget-selection-changed (gadget selection) => ()			[Generic function]
+collection-gadget-default-name-key (object) => (string)			[Generic function]
+collection-gadget-default-value-key (object) => (string)		[Generic function]
+
+Scrolling
+
+<scroller-pane>								[Class]
+  superclasses: <client-space-requirement-mixin> <scroller>
+scroll-up-line (scroll-bar) => ()					[Generic function]
+scroll-down-line (scroll-bar) => ()					[Generic function]
+scroll-up-page (scroll-bar) => ()					[Generic function]
+scroll-down-page (scroll-bar) => ()					[Generic function]
+scroll-to-position (scroll-bar value) => ()				[Generic function]
+scroll-viewport (viewport x y) => ()					[Generic function]
+
+Button Box Implementation Classes
+
+<button-box-pane>							[Class]
+  superclasses: <wrapping-layout-pane>
+  init keywords: frame-manager:
+<check-box-pane>							[Class]
+  superclasses: <check-box> <button-box-pane>
+<push-box-pane>								[Class]
+  superclasses: <push-box> <button-box-pane>
+<radio-box-pane>							[Class]
+  superclasses: <radio-box> <button-box-pane>
+gadget-box-buttons (button-box) => (buttons)				[Generic function]
+make-button-for-gadget-box (box item button-class) => (button)		[Generic function]
+make-buttons-for-gadget-box (box items) => (buttons)			[Generic function]
+
+Menu Component Implementation Classes
+
+<menu-component-pane>							[Class]
+  superclasses: <multiple-child-composite-pane>
+  init keywords: frame-manager:
+<push-menu-component-pane>						[Class]
+  superclasses: <push-menu-component> <menu-component-pane>
+<radio-menu-component-pane>						[Class]
+  superclasses: <radio-menu-component> <menu-component-pane>
+<check-menu-component-pane>						[Class]
+  superclasses: <check-menu-component> <menu-component-pane>
+
+Border and Label Implementation Classes
+
+<border-pane>								[Class]
+  superclasses: <temporary-medium-mixin> <border>
+<spacing-pane>								[Class]
+  superclasses: <temporary-medium-mixin> <spacing>
+<label-pane>								[Class]
+  superclasses: <label> <simple-pane>
+<labelled-border-pane>							[Class]
+  superclasses: <temporary-medium-mixin> <labelled-border>
+<separator-pane>							[Class]
+  superclasses: <separator> <simple-pane>
+
+
+9. DUIM-Frames library -- application modelling
+
+9.1 DUIM-Frames API module
+  - uses nothing
+  - creates...
+
+Frames
+
+make-frame (frame-class #rest initargs					[Generic function]
+	    #key parent frame-manager (mapped? = #f) title
+		 x y width height
+		 foreground background
+		 (user-specified-position? = #f) (user-specified-size? = #f) 
+		 (save-under? = #f) (drop-shadow? = #f) dialog-for) => (frame)
+with-frame (frame) body end						[Macro]
+frame-layout (frame) => (layout :: <sheet>)				[Generic function]
+frame-layout-setter (layout frame) => (layout :: <sheet>)		[Generic function]
+generate-panes (framem frame) => (sheet)				[Generic function]
+frame-parent (frame) => (object)					[Generic function]
+frame-calling-frame (frame) => (frame)					[Generic function]
+frame-event-queue (frame) => (deque)					[Generic function]
+frame-title (frame) => (string)						[Generic function]
+frame-title-setter (title frame) => (string)				[Generic function]
+frame-geometry (frame) => (plist)					[Generic function]
+frame-command-table (frame) => false-or(<command-table>)		[Generic function]
+frame-command-table-setter (command-table frame)			[Generic function]
+note-command-table-changed (framem frame) => ()				[Generic function]
+frame-pointer-documentation? (frame) => (boolean)			[Generic function]
+run-frame-top-level (frame #key) => (#rest values)			[Generic function]
+frame-top-level (frame) => (function)					[Generic function]
+frame-exit (frame #key (destroy? = #f)) => ()				[Generic function]
+frame-process (frame) => (thread)					[Generic function]
+frame-palette (frame) => (palette)					[Generic function]
+frame-state (frame)							[Generic function]
+  => one-of(#"detached", #"unmapped", #"mapped", #"iconified")
+frame-mapped? (frame) => (boolean)					[Generic function]
+frame-mapped?-setter (mapped? frame) => (boolean)			[Generic function]
+raise-frame (frame) => ()						[Generic function]
+lower-frame (frame) => ()						[Generic function]
+note-frame-terminated (framem frame) => ()				[Generic function]
+frame-icon (frame) => false-or(<image>)					[Generic function]
+frame-icon-setter (icon frame) => false-or(<image>)			[Generic function]
+iconify-frame (frame) => ()						[Generic function]
+deiconify-frame (frame) => ()						[Generic function]
+
+Simple Frames
+
+<simple-frame>								[Class]
+  superclasses: <frame>
+  init keywords: title: calling-frame: top-level: layout:
+		 top-level-sheet: state: event-queue:
+		 geometry: resizable?: user-specified-position?: user-specified-size?:
+		 foreground: background: text-style: icon:
+		 command-table: menu-bar: tool-bar: status-bar:
+define simple-frame name (supers) slots-and-options end			[Macro]
+frame-menu-bar (frame) => false-or(<menu-bar>)				[Generic function]
+frame-menu-bar-setter (menu-bar frame) => false-or(<menu-bar>)		[Generic function]
+frame-tool-bar (frame) => false-or(<tool-bar>)				[Generic function]
+frame-tool-bar-setter (tool-bar frame) => false-or(<tool-bar>)		[Generic function]
+frame-status-bar (frame) => false-or(<status-bar>)			[Generic function]
+frame-status-bar-setter (status-bar frame) => false-or(<status-bar>)	[Generic function]
+simple-frame-top-level (frame #key) => (#rest values)			[Generic function]
+
+Dialogs
+
+<dialog-frame>								[Class]
+  superclasses: <simple-frame>
+  init keywords: exit-function: cancel-function: help-function:
+		 exit-enabled?:
+exit-dialog (dialog) => ()						[Generic function]
+dialog-exit-function (dialog) => (function)				[Generic function]
+dialog-exit-button (dialog) => (gadget)					[Generic function]
+dialog-exit-button-setter (gadget dialog) => (gadget)			[Generic function]
+dialog-exit-enabled? (dialog) => (boolean)				[Generic function]
+dialog-exit-enabled?-setter (enabled? dialog) => (boolean)		[Generic function]
+cancel-dialog (dialog) => ()						[Generic function]
+dialog-cancel-function (dialog) => (function)				[Generic function]
+dialog-cancel-button (dialog) => (gadget)				[Generic function]
+dialog-cancel-button-setter (gadget dialog) => (gadget)			[Generic function]
+<dialog-cancel>								[Class]
+  superclasses: <condition>
+dialog-help-function (dialog) => (function)				[Generic function]
+dialog-help-button (dialog) => (gadget)					[Generic function]
+dialog-help-button-setter (gadget dialog) => (gadget)			[Generic function]
+
+Commands
+
+<command>								[Class]
+  superclasses: <object>
+command? (object) => (boolean)						[Generic function]
+= (command1 command2) => (boolean)					[GF method]
+execute-command (command frame) => (#rest values)			[Generic function]
+command-undoable? (command) => (boolean)				[Generic function]
+undo-command (command frame) => (#rest values)				[Generic function]
+redo-command (command frame) => (#rest values)				[Generic function]
+command-enabled?							[Generic function]
+  (command frame
+   #key command-table = (frame-command-table frame)) => (boolean)
+command-enabled?-setter							[Generic function]
+  (enabled? command frame) => (boolean)
+<simple-command>							[Class]
+  superclasses: <command>
+  init keywords: function: arguments:
+command-function (command) => (function)				[Generic function]
+command-arguments (command) => (sequence)				[Generic function]
+<simple-undoable-command>						[Class]
+  superclasses: <simple-command>
+  init keywords: undo-command:
+substitute-numeric-argument-marker! (command n) => (command)		[Generic function]
+$numeric-argument-marker						[Constant]
+partial-command? (command) => (boolean)					[Generic function]
+unsupplied-argument? (arg) => (boolean)					[Function]
+$unsupplied-argument-marker						[Constant]
+define command name (arguments) body end				[Macro]
+
+Command Tables
+
+<command-table>								[Class]
+  superclasses: <object>
+command-table? (object) => (boolean)					[Generic function]
+define command-table name (supers) options end				[Macro]
+make-command-table							[Generic function]
+ (name #key (inherit-from = #[]) (inherit-menu = #f)) => (command-table)
+remove-command-table (command-table) => ()				[Generic function]
+*global-command-table*							[Variable]
+*user-command-table*							[Variable]
+add-command (command-table command					[Generic function]
+	     #key name menu accelerator mnemonic (error? = #t)) => ()
+remove-command (command-table command #key (error? = #t)) => ()		[Generic function]
+do-command-table-commands						[Generic function]
+  (function command-table #key (do-inherited? = #t)) => ()
+add-command-table-menu-item						[Generic function]
+  (command-table string type value
+   #key documentation (after = #"end")
+	accelerator mnemonic text-style (error? = #t)) => (menu-item)
+remove-command-table-menu-item						[Generic function]
+  (command-table string #key (error? = #t)) => ()
+<command-table-menu-item>						[Class]
+  superclasses: <object>
+  init keywords: name: type: value: options: accelerator: mnemonic:
+menu-item-name (menu-item) => (name)					[Generic function]
+menu-item-type (menu-item) => (type)					[Generic function]
+menu-item-value (menu-item) => (value)					[Generic function]
+menu-item-accelerator (menu-item) => (accelerator)			[Generic function]
+menu-item-mnemonic (menu-item) => (mnemonic)				[Generic function]
+menu-item-options (menu-item) => (plist)				[Generic function]
+make-menus-from-command-table						[Generic function]
+  (command-table framem #key (label = "Misc")) => (menus)
+make-menu-from-command-table						[Generic function]
+  (command-table-menu-items framem #key label command-menu-item) => (menu)
+command-table-accelerators (command-table) => (sequence)		[Generic function]
+add-command-line-name (command-table command command-name) => ()	[Generic function]
+remove-command-line-name (command-table command-name) => ()		[Generic function]
+do-command-line-names							[Generic function]
+  (function command-table #key (do-inherited? = #t)) => ()
+add-presentation-translator						[Generic function]
+  (command-table translator #key (error? = #t)) => ()
+remove-presentation-translator						[Generic function]
+  (command-table translator-name #key (error? = #t)) => ()
+do-presentation-translators						[Generic function]
+  (function command-table #key (do-inherited? = #t)) => ()
+
+Convenience Functions
+
+contain (object #rest initargs) => (sheet frame)			[Generic function]
+make-container (object #rest initargs) => (object)			[Generic function]
+
+
+9.2 DUIM-Frames-Internals internals and implementation module
+  - uses DUIM-Utilities
+  - uses DUIM-Geometry-Internals
+  - uses DUIM-DCs-Internals
+  - uses DUIM-Silica-Internals
+  - uses DUIM-Graphics-Internals
+  - uses DUIM-Layouts-Internals
+  - uses DUIM-Gadgets-Internals
+  - uses DUIM-Frames, re-exports all
+  - exports...
+
+Frames
+
+attach-frame (framem frame) => ()					[Generic function]
+do-attach-frame (framem frame) => ()					[Generic function]
+do-destroy-frame (frame) => ()						[Generic function]
+frame-top-level-sheet-class (frame) => (class)				[Generic function]
+frame-top-level-sheet-size						[Generic function]
+  (framem frame width height) => (width height)
+note-title-changed (framem frame) => ()					[Generic function]
+frame-resizable? (frame) => (boolean)					[Generic function]
+frame-user-specified-position? (frame) => (boolean)			[Generic function]
+frame-user-specified-size? (frame) => (boolean)				[Generic function]
+note-frame-mapped (framem frame) => ()					[Generic function]
+note-frame-unmapped (framem frame) => ()				[Generic function]
+note-frame-iconified (framem frame) => ()				[Generic function]
+note-frame-deiconified (framem frame) => ()				[Generic function]
+frame-wrapper (framem frame sheet) => (sheet)				[Generic function]
+update-frame-wrapper (framem frame) => ()				[Generic function]
+update-frame-layout (framem frame) => ()				[Generic function]
+
+Dialogs
+
+do-exit-dialog (framem dialog) => ()					[Generic function]
+do-cancel-dialog (framem dialog) => ()					[Generic function]
+
+Commands
+
+note-command-enabled (framem frame command) => ()			[Generic function]
+do-note-command-enabled (framem frame command) => ()			[Generic function]
+note-command-disabled (framem frame command) => ()			[Generic function]
+do-note-command-disabled (framem frame command) => ()			[Generic function]
+<command-event>								[Class]
+  superclasses: <event>
+  init keywords: sheet: command:
+<function-event>							[Class]
+  superclasses: <event>
+  init keywords: sheet: function:
+
+Command Tables
+
+<standard-command-table>						[Class]
+  superclasses: <command-table>
+  init keywords: name: inherit-from:
+command-accessible? (command-table command) => (boolean)		[Generic function]
+command-present? (command-table command) => (boolean)			[Generic function]
+do-command-menu-gadgets (function frame command) => ()			[Generic function]
+do-command-table-inheritance (function command-table) => ()		[Generic function]
+lookup-keystroke-item (keystroke command-table #key test)		[Generic function]
+lookup-keystroke-command-item						[Generic function]
+  (keystroke command-table #key test (numeric-argument = 1)) => (command)
+find-command-table-menu-item						[Generic function]
+  (menu-name command-table #key (error? = #t)) => (menu-item)
+find-keystroke-item							[Generic function]
+  (keystroke command-table #key test? (error? = #t))
+find-presentation-translator						[Generic function]
+  (translator-name command-table #key (error? = #t)) => ()
+
+
+10. DUIM library
+
+10.1 DUIM API module
+  - uses DUIM-Geometry, re-exports all
+  - uses DUIM-DCs, re-exports all
+  - uses DUIM-Silica, re-exports all
+  - uses DUIM-Graphics, re-exports all
+  - uses DUIM-Layouts, re-exports all
+  - uses DUIM-Gadgets, re-exports all
+  - uses DUIM-Frames, re-exports all
+
+10.2 DUIM-Internals internals and implementation module
+  - uses DUIM-Utilities, re-exports all
+  - uses DUIM-Geometry-Internals, re-exports all
+  - uses DUIM-DCs-Internals, re-exports all
+  - uses DUIM-Silica-Internals, re-exports all
+  - uses DUIM-Graphics-Internals, re-exports all
+  - uses DUIM-Layouts-Internals, re-exports all
+  - uses DUIM-Gadgets-Internals, re-exports all
+  - uses DUIM-Frames-Internals, re-exports all
+
+10.2 DUIM-User user module
+  - uses dylan
+  - uses harlequin-extensions
+  - uses streams
+  - uses standard-io-streams
+  - uses format
+  - uses print
+  - uses duim
+
+------- End of Forwarded Message
+

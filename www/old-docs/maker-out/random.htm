@@ -1,0 +1,174 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Random Library  The Random Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="matrix.htm">
+<LINK REL="Previous" HREF="time.htm"></HEAD>
+<BODY>
+
+<H2>Random Library</H2>
+<P ALIGN=CENTER>
+<A HREF="time.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="matrix.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER>
+<P>
+
+
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E17"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The </B><A NAME="I2"></A><B>Random Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=CENTER>
+<CENTER><B>Designed by the Gwydion Project</B></CENTER>
+<P>The Random library provides random number support in several random number distributions. The <A NAME="I3"></A>Random module of the Random library exports the following names:<A NAME="I4"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>random</B> [Function]</FONT>
+<P><I>(upper-bound :: &lt;integer&gt;, #key state) =&gt; uniform-random-number :: &lt;integer&gt;;</I>
+<UL>
+<UL>Provides a random non-negative integer less than <I>upper-bound</I>. The distribution of the random numbers returned is uniform. The <I>state</I> argument is described below.<A NAME="I5"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>random-bits</B> [Function]</FONT>
+<P><I>(#key state) =&gt; uniform-random-number :: &lt;fixed-integer&gt;;</I>
+<UL>
+<UL>Returns a fixed integer that has <B>$random-bits-count</B> random bits. This function is the fastest way to get a random series of bits. The <I>state</I> argument is described below.<A NAME="I6"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1">$<B>random-bits-count</B> [Constant]</FONT>
+<UL>
+<UL>The number of random bits that the <B>random-bits</B> function returns.<A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>random-float</B> [Function]</FONT>
+<P><I>(upper-bound :: &lt;number&gt;, #key state) =&gt; uniform-random-number :: &lt;float&gt;;</I>
+<UL>
+<UL>Returns a random non-negative float less than <I>upper-bound</I>. The distribution of the random numbers returned is uniform. The <I>state</I> argument is described below.<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>random-gaussian</B> [Function]</FONT>
+<P><I>(#key mean = 0, standard-deviation = 1, state)</I>
+<UL>
+<UL>Returns a random float. The distribution of the random numbers returned is Gaussian (also known as &quot;normal&quot;), with a mean of <I>mean</I> and a standard deviation of <I>standard-deviation</I>. The <I>state</I> argument is described below.<A NAME="I9"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>random-exponential</B> [Function]</FONT>
+<P><I>(#key lambda = 1, state)</I>
+<UL>
+<UL>Returns a random non-negative float. The distribution of the random numbers returned is exponential, with a lambda of <I>lambda</I>. The <I>state</I> argument is described below.<A NAME="I10"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;random-state&gt;</B> [Sealed Class]</FONT>
+<UL>
+<UL><B>&lt;random-state&gt;</B> is the class of objects which serve as states for the random number generators. Make() of <B>&lt;random-state&gt;</B> accepts the <I>seed</I> keyword, which is an integer used as a seed value for the random-state. If <I>seed</I> is not provided, a seed based on the current time of day will be used. <B>&lt;random-state&gt;</B>s are not threadsafe; see below.
+<BR>
+</UL></UL>
+<P>All of the random functions optionally take a <B>state:</B> keyword, which specifies the <B>&lt;random-state&gt;</B> to use. If a state is not specified, a default state will be used. In a multi-threaded environment, using the default state is guaranteed to be threadsafe. Implementations may use a unique default state object per thread, or a single default state object shared by all threads but accessed in a safe way. Random-states other than the default state objects are not threadsafe.
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="time.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="matrix.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

@@ -1,0 +1,285 @@
+Return-Path: <gwydion-group-Request@B.GP.CS.CMU.EDU>
+Received: from B.GP.CS.CMU.EDU by G.GP.CS.CMU.EDU id aa29655;
+          9 Dec 96 12:22:28 EST
+Received: from CS.CMU.EDU by B.GP.CS.CMU.EDU id aa21001; 9 Dec 96 12:20:53 EST
+Received: from tera.jprc.com by CS.CMU.EDU id aa10523; 9 Dec 96 12:20:26 EST
+Received: from kwyjibo.jprc.com (kwyjibo.jprc.com [207.86.147.210]) by tera.jprc.com (NTMail 3.02.10) with ESMTP id na004979 for <gwydion-group@cs.cmu.edu>; Mon, 9 Dec 1996 12:22:42 -0500
+Message-Id: <2.2.32.19961209171722.008fa6d0@mail.jprc.com>
+X-Sender: nkramer@mail.jprc.com
+X-Mailer: Windows Eudora Pro Version 2.2 (32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 09 Dec 1996 12:17:22 -0500
+To: gwydion-group@cs.cmu.edu
+From: Nick Kramer <nkramer@jprc.com>
+Subject: Gwydion/NT
+
+Now that everyone has NT machines, I guess it's time to let other people get
+at the NT port of the Gwydion code.  Here's what you need to do to get the
+goodies:
+
+
+Step 1: Get accounts.
+
+You will need accounts on Tangerine.srv.cs.cmu.edu and Tera.jprc.com.  For
+the former, send mail to gripe@cs; for the latter, contact John Miller,
+683-3982 or johnmil@jprc.com.
+
+
+Step 2: Connect to file servers.
+
+Connect to the machines you just got accounts on:
+
+        net use n: \\tangerine.srv.cs.cmu.edu\nkramer *
+        net use s: \\tera.jprc.com\software /user:jprc\nkramer *
+        net use p: \\tera.jprc.com\project /user:jprc\nkramer *
+
+(Use your favorite drive letter, and your user name instead of mine)
+
+
+Step 3: Get freeware from Tera.
+
+Go to \\tera\software\public and grab and install Perl and the Cygnus
+gnu-win32 crap.  Perl is a zip file; use unzip.exe in the same directory.
+gnu-win32 is in the poorly named "gnu" directory, and is already unpacked.
+(This is version beta 16, by the way.  Over the weekend, beta 17 came out,
+but I haven't had a chance to look at it yet.)  To recursively copy a
+directory, try
+
+        xcopy /s wherever\* .
+
+(Note that this command will strip away one level of directories, so make
+sure you're created and are standing in the directory you want all that
+stuff to go in.  If you screw up, you might try "rd /s", which is the NT
+equivalent of "rm -r")
+
+Incidentally, the net connection between JPRC and CMU sucks, so expect
+transfer rates of about 3k/sec.  (One of these days that'll be corrected,
+but not today)
+
+
+Step 4: Get pre-build installed components.
+
+Copy the directory \\tera\project\gwydion\NT onto your machine.  I suggest
+putting it in \gwydion (so you'll have dirs like "\gwydion\bin"), but you
+can put it wherever you want.  This directory includes all installed
+components (anything "make install" normally copies) from Mindy, d2c, and
+the tools, as well as the binaries to RCS version 5.7.
+
+
+Step 5: Set up your environment variables.
+
+You will need to set the following variables:
+    GwydionDir - d2c will look for %GwydionDir%\etc\targets.descr
+    Path - Make sure this includes %GwydionDir%\bin.  Put it towards the end.
+    Include - Add %GwydionDir%/include to the include variable
+    MindyPath - %GwydionDir%/lib/mindy
+    Logname - Your AFS user name.  RCS uses this.
+    RCSinit - value should be "-V4", just like Unix.
+
+(Note: The variable names are case insensitive)
+
+Before going on, make sure you understand how environment variables work in
+NT.  You set environment variables using the System control in the Control
+Panel.  NT environment variables don't work quite the way Unix people expect
+them to.  There are two panels in that window, "System Variables" and "User
+Variables", with the former being system wide and the latter being on a
+per-user basis.  Users can provide their own definitions for system
+variables, but they don't override the system definition so much as they
+append to it.  For instance, if the system variable PATH was set to
+".;c:\winnt35\system32", and the user variable panel said PATH is
+"c:\gwydion\bin" , then the *real* value of PATH is the sum of those,
+".;c:\winnt35\system32;c:\gwydion\bin".  Finally, make sure you save your
+changes: Nothing's really committed until you press the "Ok" button.
+
+
+Step 6: Get ready to grab source code.
+
+If you've followed these instructions verbatem, your n: drive is connected
+to your AFS home directory.  In order to access /afs/cs/project/gwydion, on
+a Unix machine you need to create a sym-link in your home directory pointing
+at the Gwydion AFS dir:
+
+        cd /afs/cs/user/nkramer
+        ln -s /afs/cs/project/gwydion gwydion
+
+(You can connect to Tangerine in places other than your home directory, but
+this scheme offers the shortest path names)
+
+Now's the time to pick a directory structure for your machine.  I have the
+following arrangement, which I highly recommend:
+
+        /gwydion            (GwydionDir)
+        /compiler/src
+                 /build
+        /mindy
+        /tools   /src
+                 /build
+
+For d2c and tools, I have separated the source directory from the build
+directory.  This offers the most flexibility, in that you can build multiple
+targets from the same source tree, and you can run utilities like
+"tree-diff" which inform you of all changed, new, and deleted files in the
+source tree.  For Mindy, I suspect getting separate source and build trees
+would be painful under NT, so I've never tried it.
+
+
+Step 7: Grab Gwydion source code.
+
+Use everyone's favorite utilities, mk-rcs-links and rcsupdate, to get all
+the sources:
+
+        cd /compiler/src
+        mk-rcs-links n:\gwydion\compiler\src
+        rcsupdate
+
+
+Step 8: Recompile d2c and tools.
+
+Building d2c and tools for NT is pretty much like on the HP, except there's
+even more crap in your Defaults file:
+
+        $win32 = 1;
+        $nmake = 1;
+        $newlines_are_crlf = 1;
+
+(I put a sample Defaults file in \\tera\project\gwydion\sample-Defaults)
+
+Also, use Microsoft nmake instead of "make" or "gmake".  (gnu-win32 includes
+GNU make, but it's dangerously unreliable)
+
+For tools, make sure you throw a -L/gwydion/lib in there somewhere.  (Inside
+the definition of $D2C is as good a place as any)
+
+
+Step 9: Setting up the Mindy source tree
+
+Initially setting up the Mindy/NT source tree is a real pain in the ass.
+The first part is to get working copies of Mindy.mdp, Mindy.mak, and
+Mindy.ncb into your root Mindy directory.  There are copies of these in
+MS-Windows/, but RCS screwed them up on checkout (probably something to do
+with newline conversions on a binary file).  So, binary FTP fresh copies off
+your favorite Unix machine.
+
+Now, there's two batch files that come in real handy,
+MS-Windows/build-libs.bat and MS-Windows/install.bat.  For convenient use,
+copy them both into the root Mindy dir.
+
+Next, we can't rebuild the parser or lexer on NT, because our parser can
+only be compiled using a mutant version of Bison found only on group Unix
+machines.  So ftp copies of comp/*-tab.{c,h} and interp/*-tab.{c,h}
+
+Then, we need to make libraries/time/time.inc writable.  So try
+
+        chmod u+w libraries/time/time.inc
+
+(There's a win32 equivalent of this using the "attrib" command, but I can
+never remember which flags to use)
+
+Finally, the Visual C++ project file only does C files, so we need to create
+some .def files for Melange.  Type this:
+
+        cd interp
+        nmake extern1.def
+
+(This also builds extern2.def)
+
+
+Step 10: Recompile Mindy.
+
+Fire up Visual C++ and open the Mindy project (Mindy.mak).  Compile it.  You
+need the Release version of compiler and interpreter; the debug versions are
+optional.  Now find a command line, type "configure" (sounds like Unix, but
+is actually a wretched hack stored in $GwydionDir/bin), type "build-libs" to
+compile the libraries, and "install" to install the binaries and the
+libraries into your $GwydionDir.
+
+
+Step 11: Now that you have the basic system running, grab TCL/TK off
+\\Tera\software\public, so you can play Minesweeper and use the X-Inspector.
+
+
+Step 12: It's Miller time!
+
+----------------------------
+
+Note 1: There's a bug with Tangerine where you can't modify a file you don't
+own.  That means that while you can RCS check out all the files you want,
+you can only lock or check in files when you own the ",v" file.  What I
+usually do is telnet to a unix machine and do a "rcs -l foo.dylan,v", which
+grabs ownership as well as locks the file.  Then I can check it in normally
+from my NT machine.  (Of course, if I know I was the last person to lock or
+check in the file, I still own it so I don't need to go through this)
+
+
+Note 2: Cygnus's gnu-win32 has a large problem with drive letters.  In
+Cygnus, the path / is equivalent to c:/, and d: is equivalent to d:/.  This
+is 100% wrong, but Cygnus doesn't really seem to care.  To see what I mean,
+try out the following:
+
+        d:
+        cd \foo\bar
+        ls \
+        rem *should* be the same as "ls d:\", but is actually "ls c:\"
+
+        c:
+        ls d:
+        rem *should* be the same as "ls d:\foo\bar", but is actually "ls d:\"
+
+Cygnus utils are capable of handling both forward and backwards slashes, as
+well as drive letter specs.  (Internally, these utils seem to use another
+format for specifying drive letters, which looks like //d/foo/bar.  If you
+use the Cygnus "cwd" command, you might see this.)
+
+
+Note 3: NT has no symbolic links, and RCS wants symbolic links to run.  That
+poses something of a problem.  I've worked around it by creating wrappers
+for the common RCS commands.  These wrappers read the contents of the file
+RCS, and append that to the start of any command line argument that doesn't
+start with a dash (-).  This means your typical RCS commands work, but only
+if you don't try anything fancy.  There's one additional complication: Some
+utils want access to the raw, unwrapped co.  The best I've managed to do is
+not wrap it; copy co.exe to a directory in your PATH that comes before
+%GwydionDir%/bin.  Then use rcsupdate for all your checking out.
+
+
+Note 4: There's plenty of other good stuff in \\tera\software\public, like
+Emacs and 4DOS/NT.  Setup is pretty straightforward, but there are a few
+tips.  For Emacs, I suggest setting the Home environment variable; Emacs
+uses $Home for the value of ~.  For 4DOS/NT, you can get it to feel like
+tcsh if you put this in your 4nt.ini file:
+
+        ; This should make 4dos behave more or less like tcsh.
+
+        EditMode = Insert
+        CursorOver = 100
+        CursorIns = 10
+        UpperCase = No
+        WindowState = Standard
+
+        History = 2048      ; expand history to 2K bytes
+        HistCopy = Yes      ; tcsh history behavior, not NT behavior
+        LocalHistory = Yes  ; don't share history between concurrently running 
+                            ; shells
+        LocalDirHistory = Yes ; ditto
+        LocalAliases = No   ; Might as well try to keep them all in sync
+        
+        AppendToDir = Yes   ; Add \ after filename completing a directory
+        
+        ; Add Emacs key bindings
+        BeginLine = Ctrl-A
+        Endline = Ctrl-E
+        PrevHistory = Ctrl-P
+        NextHistory = Ctrl-N
+        DelToEnd = Ctrl-K
+        Right = Ctrl-F
+        Left = Ctrl-B
+        Del = Ctrl-D
+
+----------------------------
+
+Feedback: I don't really care that this process is long and tedious, but I
+am interested in corrections to and comments on these instructions.
+
+-Nick Kramer
+

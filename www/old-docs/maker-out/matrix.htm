@@ -1,0 +1,226 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Matrix Library  The Matrix Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Previous" HREF="random.htm"></HEAD>
+<BODY>
+
+<H2>Matrix Library</H2>
+<P ALIGN=CENTER>
+<A HREF="random.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E99" >1. Initialization</A>
+<LI>
+<A HREF="#E8E100" >2. Functions</A>
+<LI>
+<A HREF="#E8E101" >3. Future Revisions</A>
+<LI>
+<A HREF="#E8E102" >4. References</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E18"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The Matrix Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>    
+<P>This library implements some basic matrix operations.  These functions are not guarenteed to be stable or numerically sound, nor are they very optimized, but for smaller applications they should be suitable.
+<P>The <A NAME="I2"></A><B>&lt;matrix&gt;</B> class is a subclass of <B>&lt;array&gt;</B>, so all operations on <B>&lt;array&gt;</B>s and collections in general should work as expected.  One important limitation of matrices is that they are limited to two dimensions, and trying to use any other size results in an error.
+<BR>
+<A NAME="E8E99"></A>
+<H2><B>1. </B><B>Initialization</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The generic function <B>make</B> will create matrices, with two keywords:
+<UL>
+<UL>dimensions: a sequence of two elements which represent the rows and columns of the matrix respectively 
+<BR>
+</UL></UL>
+<UL>
+<UL>fill: the objects that each element of matrix should be initialized to.  This defaults to 0<A NAME="I3"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>matrix</B>(<I>#rest row-vectors</I>) =&gt; <B>&lt;matrix&gt;</B> [Function]</FONT>
+<UL>
+<UL>Matrix will return a new matrix containing the given vectors as the rows of the matrix.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E100"></A>
+<H2><B>2. </B><B>Functions</B><A NAME="I4"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>+</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>, <I>y</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Method]
+<BR><A NAME="I5"></A><B>-</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>, <I>y</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Method]
+<BR><A NAME="I6"></A><B>*</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>, <I>y</I> ::<B> &lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Method]
+<BR><B>*</B> (<I>x</I> :: <B>&lt;number&gt;</B>, <I>y</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Method]
+<BR><B>*</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>, <I>y</I> :: <B>&lt;number&gt;</B>) =&gt; &lt;matrix&gt; [Method]</FONT>
+<UL>
+<UL>Basic arithmetic operations.  The \* method on two matrices uses the algorithm from Sedgewick [1].<A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>identity-matrix </B>(<I>#key dimensions</I> :: <B>&lt;sequence&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Function]</FONT>
+<UL>
+<UL>   This returns a matrix filled with zeros, and having ones down the major diagonal. The following is an example:<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>augment-matrix</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>, <I>y</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B>           [Function]</FONT>
+<UL>
+<UL> This takes two matrices and returns a matrix that places the two  arguments side by side in a single matrix.  The following is an example:<A NAME="I9"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>gauss-jordan</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Function]</FONT>
+<UL>
+<UL>This will take a matrix of dimension N by N+1, and return an N by 1 matrix.  The result matrix is the solution to the system of equations represented by the argument matrix.  For example, if your equations were
+<BR>
+</UL></UL>
+<UL>
+<UL>   then the argument matrix would be
+<BR>
+</UL></UL>
+<UL>
+<UL>   and gauss-jordan would return 
+<BR>
+</UL></UL>
+<UL>
+<UL>   representing x = 2 and y = 1.  The algorithm for Gauss-Jordan was taken from Sedgewick [1].<A NAME="I10"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>inverse</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Function]</FONT>
+<UL>
+<UL>Returns the inverse of the given matrix.  For inverse to work, the matrix must be square, and this function signals an error if the argument matrix  is not square.  This function uses a modified Gauss-Jordon algorithm from  Sedgewick [1] with quick error checking from Strang [2].<A NAME="I11"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>det</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Function]</FONT>
+<UL>
+<UL>Returns the determinant of the given matrix.  This function uses an algorithm from Strang [2].<A NAME="I12"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>transpose</B> (<I>x</I> :: <B>&lt;matrix&gt;</B>) =&gt; <B>&lt;matrix&gt;</B> [Function]</FONT>
+<UL>
+<UL>Transposes the given matrix.  Transpose takes each element, [i,j], and effectively stores it in location [j,i].
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E101"></A>
+<H2><B>3. </B><B>Future Revisions</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Write functions for row-operations, eigen-value, and eigen-vector.
+<BR>
+<A NAME="E8E102"></A>
+<H2><B>4. </B><B>References</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>[1]: <A NAME="I13"></A>Sedgwick, Robert. <A NAME="I14"></A><U>Algorithms</U>. 1993. Addison-Wesley Publishing Co.
+<P>[2]: <A NAME="I15"></A>Strang, Gilbert. <A NAME="I16"></A><U>Introduction to Linear Algebra</U>. 1993.  Wellesley-Cambridge Press.  
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="random.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

@@ -1,0 +1,100 @@
+Instructions on building Mindy:
+
+        - on an HP, ``cd /afs/cs/project/gwydion/mindy/src''
+          and then ``/afs/cs/project/gwydion/tools/bin/rcsupdate''
+        - log in on a machine of the type you are going to be
+          compiling for (obviously...)
+        - set up your paths so that you can run gmake, gcc, etc.
+        - ``cd /afs/cs/project/gwydion/mindy/src''
+        - run autoconf (see below).  Ignore the warnings about 
+          cross-compilation.
+        - ``cd /afs/cs/project/gwydion/mindy/build/@sys''
+	  (Replace @sys with the name of the architecture you intend 
+	  to build for)
+        - type ``../configure''
+        - type ``gmake''
+        - Watch the build to make sure the regression tests work ok
+        - If successful, type ``gmake install''
+	- Check that the install succeeded by checking the dates in the 
+	  gwydion/mindy/bin directory.
+
+Autoconf is installed in ``/afs/cs/project/gwydion-1/autoconf/bin''.
+Make sure it comes early in your path, because Autoconf requires GNU
+m4 (also in that directory), and will *not* work with the standard
+Unix m4.
+
+To build Mindy out of your own private directory but using the
+standard Mindy sources, do the above steps, except instead of
+``../configure'', type
+
+	/afs/cs/project/gwydion/mindy/src/configure
+	     --srcdir=/afs/cs/project/gwydion/mindy/src \
+	     --prefix=where_to_install_it
+
+Where to install it is where it will put the executables and .dbc
+files when you type ``gmake install''.  (For example, for the Mindy
+build procedure outlined above, --prefix is
+``/afs/cs/project/gwydion/mindy'') Files will then go in prefix/bin
+and prefix/lib/mindy.
+
+To create a Mindy release for Unix, you basically just run
+"release-part-1" and from that point on follow the directions:
+	- Put /afs/cs/project/gwydion/tools/scripts in your path, or
+	  simply add that to the begining of the commands.
+	- On an HP, type
+		release-part-1 <version>
+	  This will create a directory called ``mindy-<version>'',
+	  check out a copy of all source files into this directory,
+	  copy over a few others (like gwydion/tools/elisp and the
+	  Mindy documentation), and compile it once to get all the
+	   machine generated files like parser-tab.c.
+	  For instance, to create version 1.3, you would type
+	  ``release-part-1 1.3'', which would create a directory
+	  ``mindy-1.3''.
+	- Look over ,manifest-<version>, editing it if necessary.
+	  Make sure to run autoconf if you change configure.in or
+	  distribution-options.
+	  Then invoke release-part-2 the way it tells you to.
+	  It is assumed you will are putting the files in AFS; if you
+          are not you may need to adjust the directories accordingly.
+	  This is the list of all files that will ship with the Unix
+	  version of Mindy.  You may need to edit
+          mindy-<version>/distribution-options if you remove a library
+          from the Mindy distribution.
+	  release-part-2 will tar and gzip a Unix Mindy release, and
+	  create a few files for the NT build.
+
+To do the Windows/NT build:
+	- FTP both mindy-<version>.tar.gz and
+	  nt-supplement-<version>.tar to lisp-pc1.  Put them in
+	  d:\mindy.
+	- Set up your paths by running d:\users\default\login.bat
+	- Unpack the unix release and the supplement:
+		d:
+		cd \mindy
+		gzip -d mindy-1.3.tar.gz
+		tar -xvf mindy-1.3.tar
+		cd mindy-1.3
+		tar -xvf ../nt-supplement-1.3.tar
+	  (note that the supplement assumes the current directory is the
+	  root of the distribution, and not \mindy)
+	- Make all top-level files writable: Launch the file manager,
+	  select all top level files, hit Alt-Enter, and clear the
+	  Read Only checkbox.
+	- Run prepare-for-vc.bat, which creates a few directories and
+	  converts LF to CR-LF in Mindy.mak
+	- Follow the build procedure in README.NT
+	- Copy the whole sucker into a new directory:
+		cd \temp
+		md mindy-1.3
+		cd mindy-1.3
+		xcopy /s \original .
+	- In the new directory, delete all files you don't want in the
+	  distribution.  Good candidates are the Interpretter and
+	  Compiler directories and the *.dbc files under libraries/.
+	- Start up WinZip and archive the temp\mindy-1.3 directory.
+	  (Archive the directory itself, not the files, because we
+	  want to keep the top-level directory)
+
+To build documentation:
+	Use the makefiles.

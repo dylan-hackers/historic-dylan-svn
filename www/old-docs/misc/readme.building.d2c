@@ -1,0 +1,12 @@
+Instructions on building d2c:
+
+	- ``cd /afs/cs/poject/gwydion/compiler/src'' and then run rcsupdate
+	- cd /afs/cs/project/gwydion/compiler/build/@sys
+          where @sys is the name of the architecture you intend to build for 
+	- run mk-build-tree
+	- gmake
+	- make sure everything worked correctly
+	- save a copy of the old compiler
+	    copy gwydion/compiler/bin/d2c to d2c-date where date is
+            the date the old version was compiled.
+	- gmake install

@@ -1,0 +1,1339 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Melange Interface Generator  The Melange Interface Generator</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="dylan-tk.htm">
+<LINK REL="Previous" HREF="format.htm"></HEAD>
+<BODY>
+
+<H2>Melange Interface Generator</H2>
+<P ALIGN=CENTER>
+<A HREF="format.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="dylan-tk.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E238E1" >Introduction</A>
+<LI>
+<A HREF="#E238E2" >A Concrete Example</A>
+<LI>
+<A HREF="#E238E3" >Basic Use</A>
+<UL>
+<LI>
+<A HREF="#E239E1" >3.1. Loading and Finding Objects</A></UL>
+<LI>
+<A HREF="#E238E4" >Importing Header Files</A>
+<LI>
+<A HREF="#E238E5" >Specifying Object Names</A>
+<UL>
+<LI>
+<A HREF="#E239E2" >5.1. Mapping functions</A>
+<LI>
+<A HREF="#E239E3" >5.2. Prefixes</A>
+<LI>
+<A HREF="#E239E4" >5.3. Explicit Renaming</A>
+<LI>
+<A HREF="#E239E5" >5.4. Anonymous types</A></UL>
+<LI>
+<A HREF="#E238E6" >Type Definitions</A>
+<UL>
+<LI>
+<A HREF="#E239E6" >6.1. Implicit class definitions</A>
+<LI>
+<A HREF="#E239E7" >6.2. Specifying class inheritance</A></UL>
+<LI>
+<A HREF="#E238E7" >Translating Object Representations</A>
+<UL>
+<LI>
+<A HREF="#E239E8" >7.1. Specifying low level transformations</A>
+<LI>
+<A HREF="#E239E9" >7.2. Specifying high level transformations</A></UL>
+<LI>
+<A HREF="#E238E8" >Other File Options</A>
+<LI>
+<A HREF="#E238E9" >Function Clauses</A>
+<LI>
+<A HREF="#E238E10" >Struct and Union Clauses</A>
+<LI>
+<A HREF="#E238E11" >Pointer Clauses</A>
+<LI>
+<A HREF="#E238E12" >Constant Clauses</A>
+<LI>
+<A HREF="#E238E13" >Variable Clauses</A>
+<LI>
+<A HREF="#E79E1" >Appendix I -- </A>
+<LI>
+<A HREF="#E79E1" >Low level support facilities</A>
+<UL>
+<LI>
+<A HREF="#E232E1" >I.i. Predefined types</A>
+<LI>
+<A HREF="#E232E2" >I.ii. Locating native C objects</A>
+<LI>
+<A HREF="#E232E3" >I.iii. Pointer manipulation operations</A></UL>
+<LI>
+<A HREF="#E79E2" >Appendix II -- </A>
+<LI>
+<A HREF="#E79E2" >Static linking mechanisms</A>
+<LI>
+<A HREF="#E79E3" >Appendix III -- </A>
+<LI>
+<A HREF="#E79E3" >Differences from Creole</A>
+<LI>
+<A HREF="#E79E4" >Appendix IV -- </A>
+<LI>
+<A HREF="#E79E4" >Known limitations</A>
+<LI>
+<A HREF="#E79E5" >Appendix V -- </A>
+<LI>
+<A HREF="#E79E5" >Proposed modifications</A>
+<UL>
+<LI>
+<A HREF="#E232E4" >V.i. Enumeration clauses</A>
+<LI>
+<A HREF="#E232E5" >V.ii. Inheritance of &quot;map&quot; and &quot;equate&quot; options</A>
+<LI>
+<A HREF="#E232E6" >V.iii. Remerging of the &quot;equate:&quot; and &quot;map:&quot; options</A></UL></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E9"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The Melange Interface Generator</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=CENTER>
+<CENTER>Robert Stockton</CENTER>
+<P ALIGN=CENTER>
+<CENTER>School of Computer Science
+<BR>Carnegie Mellon University
+<BR>Pittsburgh PA 15213</CENTER>
+<P ALIGN=CENTER>
+<CENTER>04 June 1997</CENTER>
+<DL>
+<UL>
+<A NAME="E7E191"></A>
+<DD><B>Abstract</B></DD>
+</UL></DL>
+<P><I>The Melange interface generator provides a mechanism for providing access to native C code. It is </I><I>modeled upon Apple Computer&#146;s Creole, and shares Creole&#146;s goals of automatically providing full sup</I><I>port for a foreign interface based upon existing interface descriptions. It also, like Creole, provides </I><I>mechanisms for explicitly adapting these interfaces to provide a greater match between C and Dylan </I><I>data models.</I>
+<P><I>Melange, however, differs from Creole in a number of significant ways. This document, therefore, pro</I><I>vides a gentle introduction to Melange without attempting to build upon any existing descriptions of </I><I>Creole. </I>
+<BR>
+<A NAME="E238E1"></A>
+<H2><B>1. </B><B>Introduction</B></H2>
+<DL>
+<UL>
+<A NAME="E7E192"></A>
+<DD>Melange is an automatic interface generator which provides transparent access to both functions and data defined or generated by existing C libraries. It allows users to import &quot;interfaces&quot; [In fact, a C header file may contain arbitrary C code which Melange is unprepared to handle. By convention, however, ".h" files con tain only "interface declarations" -- type declarations, function prototypes, global variable declarations, and "preprocessor constants". Since Melange can meaningfully process all of these, it is capable of handling the vast majority of header files which will be encoun tered in practice.]  from existing C header files, controlled by the contents of a &quot;define interface&quot; top-level form which may be included in the same file as arbitrary Dylan code. The user may use the functions and data specified by this interface as if they were native Dylan objects, and may export them to other modules.</DD>
+</UL>
+<UL>
+<A NAME="E7E193"></A>
+<DD>Melange provides reasonable interpretations for the various sorts of C declarations which may appear in a header file, as well as mechanisms for explicitly modifying the default interpretations when necessary. For example, users may:</DD>
+</UL></DL>
+<UL>
+<LI>specify rules for the translation of foreign names 
+<LI>explicitly specify new names for specific objects or routines 
+<LI>specify parameter passing conventions or mutability of foreign objects
+<LI>specify mappings or equivalences between &quot;foreign&quot; data and native equivalents
+<LI>choose to import only a subset of the declarations in the header file
+</UL>
+<DL>
+<UL>
+<A NAME="E7E194"></A>
+<DD>All of these customizations, as well as the name of the C header file, are specified by a &quot;define interface&quot; clause. See the next section for an example.</DD>
+</UL>
+<UL>
+<A NAME="E7E194"></A>
+<DD>The basic model for interface importation is based upon that used within Apple Computer&#146;s &quot;Creole&quot; interface generator. There are, however, significant differences in some of the details. (For instance, the &quot;equate&quot;, &quot;map&quot;, and &quot;object-file&quot; directives used in the above example are unique to Melange. Likewise, Creole&#146;s &quot;type&quot; directive would not be accepted by Melange) You should, therefore, not expect Creole interface declarations to work within Melange without some modification.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E2"></A>
+<H2><B>2. </B><B>A Concrete Example</B></H2>
+<DL>
+<UL>
+<A NAME="E7E195"></A>
+<DD>In order to get a feel for using Melange, it is probably best to start with a concrete example. This section contains a complete program which will use native C libraries to list the contents of some directories.For now, you should simply skim this example to get a general overview of Melange&#146;s capabilities. These will be described in more detail in later sections.</DD>
+</UL>
+<UL>
+<A NAME="E7E195"></A>
+<DD>We will first begin with an &quot;interface file&quot; which contains a mixture of basic Dylan code and &quot;define interface&quot; forms which will be processed by Melange. We will name this file &quot;dirent.intr&quot;.</DD>
+</UL></DL>
+<CODE>
+<PRE>module: Junk
+synopsis: A poor imitation of &quot;ls&quot;
+define library junk
+  use dylan;
+  use streams;
+end library junk;
+define module junk
+  use dylan;
+  use extensions;
+  use extern;
+  use streams;
+  use standard-io;
+end module junk;
+define interface
+  // This clause is more complex than it needs to be, but it does
+  // demonstrate a lot of Melange&#146;s features.
+  #include &quot;/usr/include/sys/dirent.h&quot;,
+    mindy-include-file: &quot;dirent.inc&quot;,
+    equate: {&quot;char /* Any C declaration is legal */ *&quot; =&gt; &lt;c-string&gt;},
+    map: {&quot;char *&quot; =&gt; &lt;byte-string&gt;},
+    // The two functions require callbacks, which we don&#146;t support.
+    exclude: {&quot;scandir&quot;, &quot;alphasort&quot;, &quot;struct _dirdesc&quot;},
+    seal-functions: open,
+    read-only: #t,
+    name-mapper: minimal-name-mapping;
+  function &quot;opendir&quot;, map-argument: {#x1 =&gt; &lt;string&gt;};
+  function &quot;telldir&quot; =&gt; tell, map-result: &lt;integer&gt;;
+  struct &quot;struct dirent&quot;,
+    prefix: &quot;dt-&quot;,
+    exclude: {&quot;d_namlen&quot;, &quot;d_reclen&quot;};
+end interface;
+define method main (program, #rest args)
+  for (arg in args)
+    let dir = opendir(arg);
+    for (entry = readdir(dir) then readdir(dir),
+         until entry = null-pointer)
+      write-line(entry.dt-d-name, *standard-output*);
+    end for;
+    closedir(dir);
+  end for;
+end method main;</PRE>
+<DL>
+<UL>
+<A NAME="E7E196"></A>
+<DD>We will then process this file through Melange to produce a file of pure Dylan code. If Melange is contained in the file &quot;melange.dbc&quot;, we would use the following command line:</DD>
+</UL></DL>
+<PRE>mindy -f melange.dbc dirent.intr dirent.dylan</PRE>
+<DL>
+<UL>
+<A NAME="E7E197"></A>
+<DD>This command will process &quot;melange.intr&quot; and write a file named &quot;dirent.dylan&quot;. In this case, it will also silently write a file named &quot;dirent.inc&quot;, whose use will be explained later.</DD>
+</UL>
+<UL>
+<A NAME="E7E197"></A>
+<DD>You can compile &quot;dirent.dylan&quot; normally, via mindycomp, but in order to execute it, you must make sure that the Mindy interpreter will be able to load the appropriate routines from the library containing the &quot;dirent&quot; routines. Ideally, you would simply let Mindy load the appropriate code dynamically. However, this is presently only available for a few machines. Therefore, we will follow a messier approach and build a new version of the interpreter which is aware of the desired functions.</DD>
+</UL>
+<UL>
+<A NAME="E7E197"></A>
+<DD>Move to the build directory for the Mindy interpreter, and edit the Makefile so the &quot;EXTERN-INCLUDES&quot; line mentions &quot;your_dir_path/dirent.inc&quot; and then run &quot;make mindy&quot;. In this case, this is all that is required to build a new interpreter which is aware of the dirent routines.</DD>
+</UL>
+<UL>
+<A NAME="E7E197"></A>
+<DD>You can now put it all together, invoking the new interpreter on the compiled program, with:</DD>
+</UL></DL>
+<PRE>mindy -f dirent.dbc .</PRE>
+<DL>
+<UL>
+<A NAME="E7E198"></A>
+<DD>This should print a list of all files in the current directory.</DD>
+</UL>
+<UL>
+<A NAME="E7E198"></A>
+<DD>Because of the difficulty of relinking the interpreter for each new library, it is expected that administrators will build a set of &quot;standard&quot; library interfaces which are prelinked into the interpreter and exported as general Dylan library interfaces. In the future, as Melange (and the Gwydion environment) are extended to support better linking and loading capabilities, it should become easier to incorporate C libraries on an &quot;as-needed&quot; basis.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E3"></A>
+<H2><B>3. </B><B>Basic Use</B></H2>
+<DL>
+<UL>
+<A NAME="E7E199"></A>
+<DD>Although the &quot;define interface&quot; form provides a fairly rich sublanguage for specifying interfaces, it is often sufficient to use just the &quot;minimal&quot; form. For example, if &quot;gc.h&quot; contained the following code:</DD>
+</UL></DL>
+<CODE>
+<PRE>typedef char bool;
+typedef struct obj obj_t;
+typedef char *str;
+extern obj_t alloc(obj_t class, int bytes);
+extern void scavenge(obj_t *addr);
+extern obj_t transport(obj_t obj, int bytes);
+extern void shrink(obj_t obj, int bytes);
+extern void collect_garbage(void);
+extern bool TimeToGC;
+#define ForwardingMarker ((obj_t)(0xDEADBEEF))</PRE>
+<DL>
+<UL>
+<A NAME="E7E200"></A>
+<DD>then you could import it by creating a file named &quot;class.intr&quot; which includes arbitrary Dylan code and the following: </DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E201"></A>
+<DD>You would then run &quot;melange class.intr&quot; [Or possibly " mindy -f melange.dbc class.intr ", depending upon the installation on your particular machine.] , which would produce a file of Dylan code which contains approriate definitions for the classes &quot;&lt;bool&gt;&quot;, &quot;&lt;obj&gt;&quot;, &quot;&lt;obj_t&gt;&quot;, and &quot;&lt;str&gt;&quot;; the variable &quot;TimeToGC&quot;; and the functions &quot;alloc&quot;, &quot;scavenge&quot;, &quot;transport&quot;, &quot;shrink&quot;, and &quot;collect_garbage&quot;. (The constant &quot;ForwardingMarker&quot; will be excluded because it is not a simple literal.)</DD>
+</UL>
+<UL>
+<A NAME="E7E202"></A>
+<DD>If you were running under the HPUX operating system and the named functions were already linked into Mindy, then this might be all that you would need. After compiling the resulting Dylan file, you could call the functions as if they had been written in native Dylan code, and you can access the &quot;TimeToGC&quot; variable by calling the function with that name. For example you might run:</DD>
+</UL></DL>
+<CODE>
+<PRE>if (TimeToGC() ~= 0)
+   collect_garbage();
+end if;</PRE>
+<DL>
+<UL>
+<A NAME="E7E203"></A>
+<DD>This code fragment points out some of the hazards of &quot;simple&quot; imports. Melange has no way of knowing that &quot;bool&quot; should correspond to Mindy&#146;s &lt;boolean&gt; class, so you are stuck with a simple integer. Likewise, the system wouldn&#146;t be able to guess that &quot;char *&quot; shoudl correspond to the Mindy class &quot;&lt;c-string&gt;&quot;. We will explain in later sections how &quot;map:&quot; or &quot;equate:&quot; options may be used to provide this information to Melange.</DD>
+</UL></DL>
+<A NAME="E239E1"></A>
+<H3><B>3.1. </B><A NAME="I2"></A><B>Loading and Finding Objects</B></H3>
+<DL>
+<UL>
+<A NAME="E7E204"></A>
+<DD>As mentioned above, the include directive in the previous example will only work for files which have been previously linked into Mindy. There are extra facilities available to handle other situations.</DD>
+</UL>
+<UL>
+<A NAME="E7E204"></A>
+<DD>If your machine is one for which we support dynamic loading [Currently support is primarily for HPUX machines, but some work has been done on Macintoshes and ELF systems. Contact us for more details.] , and you wish to load some declared objects from a shared library, you can add one or more &quot;object-file:&quot; options to the &quot;#include&quot; clause, as in the following:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      object-file: &quot;/usr/lib/mindy/gc.sl&quot;;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E205"></A>
+<DD>This would cause the code from &quot;gc.sl&quot; to be loaded into Mindy at run-time and make its functions and objects available just as they were in the previous example.</DD>
+</UL>
+<UL>
+<A NAME="E7E205"></A>
+<DD>If you are running on a non-HPUX machine, you will have to statically link Mindy with the appropriate library and a list of mappings from names to addresses. This can be accomplished most easily by following these steps:</DD>
+</UL></DL>
+<P>1. Add a &quot;mindy-include-file:&quot; option to your interface definition. This specifies the name of an &quot;interface description file&quot; which will be written by Melange, and which can later be linked into Mindy along with the appropriate library. 
+<P>2. Run Melange on the source file in the normal manner. You may wish to move the newly created interface description file into your Mindy build directory.
+<P>3. Change the Makefile in the Mindy build directory, by adding the imported library to LIBS and the interface description file to EXTERN-INCLUDES. 
+<P>4. Run &quot;make&quot; to rebuild Mindy with the new library information.
+<P>5. Compile and run the generated Dylan code as normal.
+<DL>
+<UL>
+<A NAME="E7E206"></A>
+<DD>A typical interface definition for this approach might be:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      mindy-include-file: &quot;/usr/local/mindy-build/gc.inc&quot;
+end interface;</PRE>
+<BR>
+<A NAME="E238E4"></A>
+<H2><B>4. </B><B>Importing Header Files</B></H2>
+<DL>
+<UL>
+<A NAME="E7E207"></A>
+<DD>You import C definitions into Dylan by specifying one or more header files in an &quot;#include&quot; clause. This may take one of two different forms:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;file1.h&quot;;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E208"></A>
+<DD>or</DD>
+</UL></DL>
+<CODE>
+<PRE>define interaface
+   #include {&quot;file1.h&quot;, &quot;file2.h&quot;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E209"></A>
+<DD>Melange will parse all of the named files in the specified order, and produce Dylan equivalents for (i.e. &quot;import&quot;) some fraction of declarations in these files. By default, Melange will import all of the declarations from the named files, and any declarations in recursively included files (i.e. those specified via &quot;#include&quot; directives in the &quot;.h&quot; file) which are referenced by imported definitions. It will not, however, import every declaration in recursively included files. This insures that you will see a complete, usable, set of declarations without having to closely control the importation process. If you wish to exert more control over the set of objects to be imported, you may do so via the &quot;import&quot;, &quot;exclude&quot;, and &quot;exclude-file&quot; options..</DD>
+</UL>
+<UL>
+<A NAME="E7E209"></A>
+<DD>If you only need a small set of definitions from a set of imported files, you can explicitly specify the complete list of declarations to be imported by using the &quot;import:&quot; option. You could, for example, say:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      import: {&quot;scavenge&quot;, &quot;transport&quot; =&gt; move};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E210"></A>
+<DD>This would result in Dylan definitions for &quot;scavenge&quot;, &quot;move&quot;, &quot;&lt;obj_t&gt;&quot;, and &quot;&lt;obj&gt;&quot;. The latter types would be dragged in because they are referenced by the two imported functions. Again, if you equated &quot;obj_t&quot; to &lt;object&gt; then neither of the types would be imported. The second import in the above example performs a renaming at the same time as it specifies the object to be imported. Other forms specify global behaviors. &quot;Import: all&quot; willcause Melange to import every &quot;top level&quot; definition which is not explicitly excluded. &quot;Import: all-recursive&quot; causes it to import definitions from recursively included files as well. &quot;Import: none&quot; restricts importation to those declarations which are explicitly imported or are used by an imported declaration.</DD>
+</UL>
+<UL>
+<A NAME="E7E210"></A>
+<DD>You may also use the &quot;import:&quot; option to specify importation behavior on a per-file basis. The options </DD>
+</UL></DL>
+<CODE>
+<PRE>import: &quot;file.h&quot; =&gt; {&quot;import1&quot;, ...}
+import: &quot;file.h&quot; =&gt; all
+import: &quot;file.h&quot; =&gt; none</PRE>
+<DL>
+<UL>
+<A NAME="E7E211"></A>
+<DD>work like the options described above, except that they only apply to the symbols in a single imported file.</DD>
+</UL>
+<UL>
+<A NAME="E7E211"></A>
+<DD>The &quot;exclude:&quot; and &quot;exclude-file:&quot; options may be used to keep one or more unwanted definitions from being imported. For example, you could use:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      exclude: {&quot;scavenge&quot;, &quot;transport&quot;},
+      exclude-file: &quot;gc1.h&quot;;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E212"></A>
+<DD>This would prevent the two named functions and everything in the named file from being imported, while still including all of the other definitions from &quot;gc.h&quot;. Note that these options should be used with care, as they can easily result in &quot;incomplete&quot; interfaces in which some declarations refer to types which are not defined. This could result in errors in the generated Dylan code. (The &quot;import: file =&gt; none&quot; option described above is a safer way of achieving an effect similar to &quot;exclude-file:&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E212"></A>
+<DD>You may also prevent some type declarations from being imported by using the &quot;equate:&quot; option (described in a later section). If, for example, you equated &quot;obj_t&quot; to &lt;object&gt;, then Melange would ignore the definition for &quot;obj_t&quot; and simply assume that the existing definition for &lt;object&gt; was sufficient.</DD>
+</UL>
+<UL>
+<A NAME="E7E212"></A>
+<DD>You may have any number of &quot;import:&quot;, &quot;exclude:&quot;, and &quot;exclude-file:&quot; options, and may name the same declarations in multiple clauses. &quot;Exclude:&quot; options take priority over &quot;import:&quot;s. If no &quot;import:&quot; options are specified, the system will import all non-excluded symbols, just as if you had said &quot;import: all&quot;.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E5"></A>
+<H2><B>5. </B><B>Specifying Object Names</B></H2>
+<DL>
+<UL>
+<A NAME="E7E213"></A>
+<DD>Because naming conventions differ between C and Dylan, Melange attempts to translate the names specified in C declarations into a form more appropriate to Dylan. This involves</DD>
+</UL></DL>
+<UL>
+<LI>Adding angle brackets around type names.
+<LI>Adding dollar signs at the beginning of constant names.
+<LI>Translating (non-initial) underlines into hyphens.
+<LI>Adding &quot;struct-name$&quot; prefixes to slot accessors.
+</UL>
+<DL>
+<UL>
+<A NAME="E7E214"></A>
+<DD>In many cases, this default behavior will be precisely what you want. However, Melange provides mechanisms for specifying different translations for some or all of the declarations.</DD>
+</UL></DL>
+<A NAME="E239E2"></A>
+<H3><B>5.1. </B><B>Mapping functions</B></H3>
+<DL>
+<UL>
+<A NAME="E7E215"></A>
+<DD>The translations described above are provided by calls to a built-in &quot;name mapping function&quot; named &quot;minimal-name-mapping-with-structure-prefix&quot;. You may specify other mapping functions via a &quot;name-mapper:&quot; option. Our example interface might then look like this:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      object-file: &quot;/usr/lib/mindy/gc.o&quot;,
+      name-mapper: c-to-dylan;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E216"></A>
+<DD>Table 1 describes the four standard mapping function</DD>
+</UL>
+<UL>
+<A NAME="E7E216"></A>
+<DD><B>Table 1: </B></DD>
+</UL>
+<TABLE BORDER=1 CELLSPACING=1 >
+<TR>
+<TD WIDTH=312 VALIGN=middle >
+<P>minimal-name-mapping-with-structure-prefix
+</TD><TD WIDTH=312 VALIGN=middle >
+<P>Provides the translations described above.</TD>
+</TR>
+<TR>
+<TD WIDTH=312 VALIGN=middle >
+<P>minimal-name-mapping
+</TD><TD WIDTH=312 VALIGN=middle >
+<P>Same as above, but excludes the &quot;struct-name$&quot; prefixes.</TD>
+</TR>
+<TR>
+<TD WIDTH=312 VALIGN=middle >
+<P>c-to-dylan
+</TD><TD WIDTH=312 VALIGN=middle >
+<P>Like miinimal-name-mapping, but:
+<P>Adds hyphens to reinforce &quot;CaseBased&quot; word separation. 
+<P>Adds &quot;get-&quot; prefixes to slot accessors.</TD>
+</TR>
+<TR>
+<TD WIDTH=312 VALIGN=middle >
+<P>identity-name-mapping
+</TD><TD WIDTH=312 VALIGN=middle >
+<P>Does no translation.</TD></TR></TABLE>
+<DL>
+<UL>
+<A NAME="E7E217"></A>
+<DD>s that are provided by Melange.</DD>
+</UL>
+<UL>
+<A NAME="E7E217"></A>
+<DD>Users may link new mapping functions into Melange. In the Mindy implementation, this is done as follows:</DD>
+</UL></DL>
+<UL>
+<LI>Create a new module which imports module &quot;name-mappers&quot; from library &quot;c-parse&quot;. 
+</UL></DL>
+<LI>Define methods on the &quot;map-name&quot; generic function which accepts the following parameters:
+<P>&#149;  <B>mapper</B> -- a &lt;symbol&gt; which is typically specialized by a singleton to select a specific name mapper method.
+<P>&#149;  <B>category</B> -- a &lt;symbol&gt; which will always be one of: #&quot;type&quot;, #&quot;constant&quot;, #&quot;variable&quot;, or #&quot;function&quot;.
+<P>&#149;  <B>prefix</B> --  a &lt;string&gt; which is typically prepended to the result string.
+<P>&#149;  <B>name</B> -- a &lt;string&gt; which supplies the original C name.
+<P>&#149;  <B>sequence-of-classes</B> -- a sequence of simple names for the classes which logically &quot;contain&quot; the given object. For example, if we were processing the declaration &quot;struct str {int size; char *chars&quot;, one of the calls to the mapping function would have with namebound to &quot;size&quot; and classes bound to #[&quot;str&quot;].
+<P>and returns a &lt;string&gt; which will be used as the Dylan name for the declaration.
+<UL>
+<LI>Compile this module and &quot;link&quot; it into Melange by concatenating it to the end of the melange.dbc.
+</UL>
+<DL>
+<UL>
+<A NAME="E7E218"></A>
+<DD>Mapping functions may call &quot;hyphenate-case-breaks&quot; which performs the same &quot;CaseBased separation&quot; as is done by &quot;c-to-dylan&quot;. The trivial &quot;identity-name-mapping&quot; described above might be implemented by:</DD>
+</UL></DL>
+<CODE>
+<PRE>define method map-name
+<BR>   (mapper == #&quot;identity-name-mapping&quot;, category, prefix, name, classes)
+=&gt; (result :: &lt;string&gt;)
+   name;
+end method map-name;</PRE>
+<DL>
+<UL>
+<A NAME="E7E219"></A>
+<DD>You may specify different name mappers to be applied to the slots of &quot;container types&quot;. This capability is described in a later section. </DD>
+</UL></DL>
+<A NAME="E239E3"></A>
+<H3><B>5.2. </B><B>Prefixes</B></H3>
+<DL>
+<UL>
+<A NAME="E7E220"></A>
+<DD>As noted above, the name mapping function is passed a &quot;prefix&quot; argument. By default, it is an empty string, but users may specify a different value by adding a &quot;prefix:&quot; option to the interface definition. For example, we might expand the previous example to:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      object-file: &quot;/usr/lib/mindy/gc.o&quot;,
+      name-mapper: c-to-dylan,
+      prefix: &quot;gc-&quot;;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E221"></A>
+<DD>This would cause Melange to tack &quot;gc-&quot; onto the beginning of every translated symbol. Because the system knows about the &quot;standard&quot; Dylan naming conventions, it can do this intelligently. You would, therefore, get names like &quot;&lt;gc-bool&gt;&quot;, &quot;gc-time-to-gc&quot;, and &quot;gc-scavenge&quot;.</DD>
+</UL>
+<UL>
+<A NAME="E7E221"></A>
+<DD>Note that the interpretation of the &quot;prefix&quot; is entirely up to the name mapping routine. Identity-name-mapping, for example, completely ignores the prefix. All of the other standard mapping functions prepend it to the name before adding brackets or dollar signs, but after performing all other transformations.</DD>
+</UL>
+<UL>
+<A NAME="E7E221"></A>
+<DD>Facilities for adding &quot;localized&quot; prefixes to slot accessors, enumeration literals, etc. will be described in later sections.</DD>
+</UL></DL>
+<A NAME="E239E4"></A>
+<H3><B>5.3. </B><B>Explicit Renaming</B></H3>
+<DL>
+<UL>
+<A NAME="E7E222"></A>
+<DD>Although the automatic name mapping described above is sufficient for most objects named within a header file, there are cases in which you might wish to explicitly control the name of one or more specific objects. You can do this through a &quot;rename:&quot; option. This options specifies a list of translations between raw C names and Dylan identifiers. For example, we might have:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      object-file: &quot;/usr/lib/mindy/gc.o&quot;,
+      name-mapper: c-to-dylan,
+      prefix: &quot;gc-&quot;
+      rename: {&quot;struct obj&quot; =&gt; &lt;C-Object&gt;, &quot;collect_garbage&quot; =&gt; GC};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E223"></A>
+<DD>Note that the &quot;target&quot; of the renaming is an ordinary Dylan variable and is therefore case-insensitive. However, the source is an &quot;alien name&quot;, which is (like all C code) case sensitive. Alien names should refer to an object, function, or type in exactly the same way you would refer to them in C. We therefore say &quot;struct obj&quot; instead of simply &quot;obj&quot;, and might also say &quot;enum foo&quot; or &quot;union bar&quot;. Alien names are actually parsed according to the standard lexical conventions of C, so you may use arbitrary spacing and even include comments if you really wish.</DD>
+</UL>
+<UL>
+<A NAME="E7E223"></A>
+<DD>Note that &quot;rename:&quot; options supply names for new objects (and types) that are being imported into Dylan. You cannot, therefore, simply rename &quot;bool&quot; to &quot;&lt;Boolean&gt;&quot; to make it equivalent to the existing type -- this would simply result in a name conflict. For these purposes, you would instead use the &quot;equate&quot; and &quot;map&quot; operations, which will be described later. (In fact, if the C declaration had defined a type name &quot;boolean&quot;, you might have to explicitly rename it to something else in order to avoid name conflicts with the existing type. Of course, in the above example, the &quot;gc-&quot; prefix would be sufficient to make the name unique.)</DD>
+</UL></DL>
+<A NAME="E239E5"></A>
+<H3><B>5.4. </B><B>Anonymous types</B></H3>
+<DL>
+<UL>
+<A NAME="E7E224"></A>
+<DD>The alien names described above can also be used to refer to C&#146;s so-called &quot;anonymous types&quot;. You can therefore refer to &quot;char *&quot;, &quot;int [23]&quot;, or even &quot;int (*) (char *foo)&quot; (i.e. a pointer to function which takes a string and returns an integer) [At present, function types are not fully supported. You should not depend upon them to work as expected.] . The ability to refer to anonymous types is useful because it allows you to use the &quot;rename&quot; option to provide explicit names for such types. Normally Melange would simply generate a an arbitrary &quot;anonymous&quot; identifier for the type. Without knowing the name of this type, you could not define new operations upon it. However, by saying, for example, &quot;rename: {&quot;char * =&gt; &lt;char-ptr&gt;&quot;}&quot;, you can provide a convenient handle to use in defining new operations.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E6"></A>
+<H2><B>6. </B><B>Type Definitions</B></H2>
+<DL>
+<UL>
+<A NAME="E7E225"></A>
+<DD>When Melange encounters a &quot;type definition&quot; [The definition may be implicit, as in "char ** int" or "struct foo *bar". Simply by being present these code fragments supply implicit definitions for "char *", "char **" and "struct foo".]  within a header file, it will typically create a new Dylan class which corresponds to that C type. Usually, this will be a subclass of &lt;statically-typed-pointer&gt;, which encapsulates the raw C pointer value (i.e an object address). Each statically typed pointer class will have exactly the same structure (i.e. a single address), but the class itself can be used to determine what operations are supported on the data. This could include slot accessors for &quot;struct&quot;s and &quot;union&quot;s, dereference operations for &quot;pointer&quot; types, or general information about the object&#146;s size, etc.</DD>
+</UL>
+<UL>
+<A NAME="E7E226"></A>
+<DD>There are times when you will find that some of the types defined in a header file are not really &quot;new&quot;. It might be that they are completely identical to some type defined in another interface definition, or they might be &quot;isomorphic&quot; to some existing type which has more complete support. Melange provides support for both of these cases. The first case is handled by &quot;equating&quot; the two types, while the second is handled by &quot;mapping&quot; (i.e. transforming) one type into the other.</DD>
+</UL>
+<UL>
+<A NAME="E7E226"></A>
+<DD>For example, many header files contain definitions use the types &quot;char *&quot; and &quot;boolean&quot;. The declarations of these types don&#146;t provide any semantic interpretations -- &quot;char *&quot; is simply the address of a character, and boolean is nothing but a one-byte integer. However, by equating &quot;char *&quot; to the predefined &lt;c-string&gt; type, we can tell Melange that it is actually a &lt;string&gt; and should inherit all of the operations defined upon &lt;string&gt;s. Likewise, we can map the integral &quot;boolean&quot; values into &quot;#t&quot; and &quot;#f&quot; to get a &lt;boolean&gt;. These integral values will be automatically translated into &lt;boolean&gt;s when they are returned by a C function, and &lt;boolean&gt;s will be translated back into integers when passed as arguments to C functions.</DD>
+</UL></DL>
+<A NAME="E239E6"></A>
+<H3><B>6.1. </B><A NAME="I3"></A><B>Implicit class definitions</B></H3>
+<DL>
+<UL>
+<A NAME="E7E227"></A>
+<DD>Unless otherwise specified, new classes will be created for each type defined in a C header file. When the header file provides meaningful names for these types, then Melange will pass those names to the mapping functions to generate names for the Dylan classes. Otherwise, an anonymous name will be generated, limiting your ability to refer to the new type. For example, &quot;struct foo&quot; would typically generate the class &quot;&lt;foo&gt;&quot;, while &quot;struct foo ***&quot; might generate the class &quot;&lt;anonymous-107&gt;&quot;. In either case, you can explicitly specify the name for the new class by using the &quot;rename:&quot; option described above.</DD>
+</UL>
+<UL>
+<A NAME="E7E227"></A>
+<DD>Different sorts of C declarations will yield different sorts of Dylan classes as well as different sets of operations defined upon them. Therefore, we will consider each variety separately:</DD>
+</UL></DL>
+<UL>
+<LI><B>Primitive types</B> -- The types &quot;int&quot;, &quot;char&quot;, &quot;long&quot;, &quot;short&quot; and their unsigned counterparts are simply translated into &lt;integer&gt;, while &quot;float&quot; and &quot;double&quot; are translated into &lt;float&gt;. However, Melange knows the sizes of each of these types so that pointers and native C &quot;vectors&quot; of them (described below) will work properly. No new types are created for these types.
+<LI><B>Pointer types</B>-- Declarations like &quot;int *&quot; or &quot;struct foo ***&quot; generate new subclasses of &quot;&lt;statically-typed-pointer&gt;&quot;. Note that &quot;struct foo *&quot; is actually treated as a synonym for &quot;struct foo&quot;, and does not get a distinct class, although any extra levels of indirection (i.e. &quot;struct foo **&quot;) will generate new pointer classes. Three operations are supported upon pointer classes:
+</UL>
+<P>pointer-value (pointer, #key index) =&gt; (value)
+<P>This function &quot;dereferences&quot; the pointer and returns the value. If index is supplied, then &quot;pointer&quot; is treated as a vector of values and the appropriate element is returned.
+<P>content-size (cls) =&gt; integer
+<P>Returns the size of the value referenced by instances of &quot;cls&quot;. If the size is not known, this is 0.
+<P>Note that these types are <I>not</I> automatically treated as vectors. You may, however, make them so by using a &quot;superclasses:&quot; option to make them &lt;c-vector&gt;s.
+<UL>
+<LI><B>Vector types </B>-- Declarations like &quot;char [256]&quot; are treated almost identically to pointer types, but they are automatically defined as subclasses of &lt;c-vector&gt;, so that all vector operations will be defined on them. However, because many systems depend upon the lack of bounds checking in C, vector types have a default size of &quot;#f&quot;. You may explicitly define &quot;size&quot; functions to provide a more accurate size.
+<LI><B>Structure types</B> -- Declarations like &quot;struct bar {int a; char *b;}&quot; also generate new subclasses of &quot;&lt;statically-typed-pointer&gt;&quot;. Melange will define all of the operations defined for pointer values (described above), as well as accessors for each of the structure slots. Structure objects are always accessed through &quot;pointers&quot; to them. Therefore, unless a non-zero index is specified, &quot;pointer-value&quot; will simply return the object passed to it. (The operation is still defined because non-zero indices can be used for vector access.)
+<LI><B>Union types</B> -- Declarations like &quot;union bar {int a, char *b;}&quot; are treated the same as struct declarations, except that the slot accessors all refer to the same areas in memory.
+<LI><B>Enumeration types</B> -- Declarations like &quot;enum foo {one, two, three};&quot; are simply aliased to &lt;integer&gt;. However, constants are defined for each of the enumeration literals.
+<LI><B>Typedefs</B> -- Declarations like &quot;typedef struct foo bar&quot; simply define new names for existing types.
+</UL>
+<A NAME="E239E7"></A>
+<H3><B>6.2. </B><A NAME="I4"></A><B>Specifying class inheritance</B></H3>
+<DL>
+<UL>
+<A NAME="E7E228"></A>
+<DD>When Melange creates new &quot;&lt;statically-typed-pointer&gt;&quot; classes, it typically creates them as simple subclasses of &quot;&lt;statically-typed-pointer&gt;&quot;, with no other superclasses. However, you might sometimes need more control over the class hierarchy. For example, you might wish to specify that a C type should be considered a subtype of the abstract class &quot;&lt;sequence&gt;&quot;. You could accomplish this via the following declarations:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;sequence.h&quot;;
+   struct &quot;struct cons_cell&quot; =&gt; &lt;c-list&gt;,
+      superclasses: {&lt;sequence&gt;};
+   function &quot;c_list_size&quot; =&gt; size;
+end interface;
+define method forward-iteration-protocol (seq :: &lt;c-list&gt;)
+....</PRE>
+<DL>
+<UL>
+<A NAME="E7E229"></A>
+<DD>Note that the type &quot;&lt;c-list&gt;&quot; will still be a subclass of &quot;&lt;statically-typed-pointer&gt;&quot; -- we have simply added &quot;&lt;sequence&gt;&quot; to the list of superclasses. If &quot;&lt;statically-typed-pointer&gt;&quot; is not explicitly included in the &quot;superclasses:&quot; option, then it will be added at the end of the superclass list.</DD>
+</UL>
+<UL>
+<A NAME="E7E229"></A>
+<DD>As demonstrated in the above example, you are still responsible for specifying whatever functions are required to satisfy the contract for the declared superclasses. &quot;&lt;C-list&gt;&quot; will be declared as a sequence, but you must specify a forward iteration protocol before any of the standard sequence operations will work properly.</DD>
+</UL>
+<UL>
+<A NAME="E7E229"></A>
+<DD>The &quot;superclasses:&quot; option may currently be used within &quot;struct&quot;, &quot;union&quot;, and &quot;pointer&quot; clauses.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E7"></A>
+<H2><B>7. </B><B>Translating Object Representations</B></H2>
+<DL>
+<UL>
+<A NAME="E7E230"></A>
+<DD>Whenever a native C object is returned from a function or a Dylan object is passed into a C function, it is necessary to translate between the object representations used by the two languages. From Melange&#146;s standpoint, native C objects consist of an arbitrary bit pattern which can be translated to or from a small number of &quot;low level&quot; Dylan types -- namely &lt;integer&gt;, &lt;float&gt;, or any subclass of &lt;statically-typed-pointer&gt;. This translation is handled automatically, although the user may explicitly specify which of the possible Dylan types should be chosen for any given C object type. In some cases, a further translation may take place, converting the &quot;low level&quot; Dylan value to or from some arbitrary &quot;high level&quot; Dylan type. (For example, an &lt;integer&gt; might be translated into a &lt;boolean&gt; or a &lt;character&gt;, and a &lt;c-string&gt; might be translated into a &lt;byte-string&gt;.) These &quot;high level&quot; translations are automatically invoked at the appropriate times, but both the &quot;target&quot; types and the methods for performing the translation must be specified by the user.</DD>
+</UL></DL>
+<A NAME="E239E8"></A>
+<H3><B>7.1. </B><B>Specifying low level transformations</B></H3>
+<DL>
+<UL>
+<A NAME="E7E231"></A>
+<DD>The target Dylan type for &quot;low level&quot; translations is typically chosen automatically by Melange. Integer and enumeration types are translated into &lt;integer&gt;; floating point types are translated to &lt;float&gt;; and all other types are translated into newly created subclasses of &lt;statically-typed-pointer&gt;. However, you may explicitly declare the target Dylan type for any C type by means of an &quot;equate:&quot; option:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+<BR>      equate: {&quot;char *&quot; =&gt; &lt;c-string&gt;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E232"></A>
+<DD>This declaration makes the very strong statement that any values declared in C as &quot;char *&quot; are identical in form to the predefined type &quot;&lt;c-string&gt;&quot; (which is described in Appendix I). The system will therefore not define a distinct type for &quot;char *&quot; and will ignore any structural information provided in the header file. You migh also use an &quot;equate:&quot; option to equate a type mentioned in one interface definition with an identically named type which was defined in an earlier interface definition.</DD>
+</UL>
+<UL>
+<A NAME="E7E232"></A>
+<DD>You should use caution when equating two types. Since Melange has no way of knowing when two types are equivalent, it must trust your declarations. No type checking can or will be done, so if you incorrectly equate two types, the results will be unpredictable. In some cases, you may wish to go with the less efficient but slightly safer technique of letting Melange create a new type and then &quot;mapping&quot; that new type into the desired type. (This is described in detail below.)</DD>
+</UL>
+<UL>
+<A NAME="E7E232"></A>
+<DD>Note also that two types with identical purposes will not necessarily have identical representations. For example, C&#146;s boolean types are simple integers and are not equivalent to Dylan&#146;s &lt;boolean&gt;. Again, explicit &quot;mapping&quot; may be used to transform between these two representations.</DD>
+</UL>
+<UL>
+<A NAME="E7E232"></A>
+<DD>In the current implementation, an &quot;equate:&quot; option only applies within a single interface definition. Other interface definitions will not automatically inherit the effects of the declaration. In future versions, we may add the ability to &quot;use&quot; other interface definitions (just as you would &quot;use&quot; another module withing a module definition) and thus pick up the effects of the &quot;equate: (and &quot;map:&quot;) options within those interfaces.</DD>
+</UL></DL>
+<A NAME="E239E9"></A>
+<H3><B>7.2. </B><B>Specifying high level transformations</B></H3>
+<DL>
+<UL>
+<A NAME="E7E233"></A>
+<DD>Sometimes you may wish to use instances of some C type as if they were instances of some existing Dylan class, even though they have different representations. In this case, you can specify a secondary translation phase which semi-automatically translates between a &quot;low level&quot; and a &quot;high level&quot; Dylan representation. In order to do this, you must provide a &quot;map:&quot; option:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      equate: {&quot;char *&quot; =&gt; &lt;c-string&gt;},
+<BR>      map: {&quot;bool&quot; =&gt; &lt;boolean&gt;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E234"></A>
+<DD>This clause will cause any functions defined within the interface to call transformation functions wherever the original C functions accept or return values of type &quot;bool&quot;. Two different functions may be called:</DD>
+</UL></DL>
+<UL>
+<LI>import-value (high-level-class :: &lt;class&gt;, low-level-value :: &lt;object&gt;)
+</UL>
+<P>This function is called to transform result values returned by C functions into a &quot;high level&quot; Dylan class. It should always return an instance of &quot;high-level-class&quot;.
+<UL>
+<LI>export-value (low-level-class :: &lt;class&gt;, high-level-value :: &lt;object&gt;)
+</UL>
+<P>This function is called to transform &quot;high level&quot; argument values passed to C functions into the &quot;low level&quot; representations which will be meaningful to native C code. It should always return an instance of &quot;low-level-class&quot;.
+<DL>
+<UL>
+<A NAME="E7E235"></A>
+<DD>Default methods, which simply call &quot;as&quot;, are provided for each of these functions. This will be sufficient to transform C&#146;s integral &quot;char&quot;s into &lt;character&gt;s, &lt;c-string&gt;s into other &lt;string&gt;s, or one &quot;pointer&quot; type into another. There is also a predefined method which will transform &lt;integer&gt;s into &lt;boolean&gt;s. However, if you wish to perform arbitrary transformations upon the values, you may need to define additional methods for either or both of these functions. For example, the default methods for transforming to and from &lt;boolean&gt; are:</DD>
+</UL></DL>
+<CODE>
+<PRE>define method export-value (cls == &lt;integer&gt;, value :: &lt;boolean&gt;)
+ =&gt; (result :: &lt;integer&gt;);
+   if (value) 1 else 0 end if;
+end method export-value;
+define method import-value (cls == &lt;boolean&gt;, value :: &lt;integer&gt;)
+ =&gt; (result :: &lt;boolean&gt;);
+   value ~= 0;
+end method import-value;</PRE>
+<DL>
+<UL>
+<A NAME="E7E236"></A>
+<DD>It is important to note that, unlike &quot;equate:&quot; options, &quot;map:&quot; options don&#146;t prevent Melange from creating new types. You may, in fact, both equate and map the same type. This will cause low level values to be created as instances of the &quot;equated&quot; type and then transformed into instances of the &quot;target&quot; type of the mapping. For example, you might take advantage of the defined transformations between string types by declaring:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;/usr/include/sys/dirent.h&quot;,
+      equate: {&quot;char *&quot; =&gt; &lt;c-string&gt;},
+       map: {&quot;char *&quot; =&gt; &lt;byte-string&gt;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E237"></A>
+<DD>This causes the system to automatically translate &quot;char *&quot; pointers into &lt;c-string&gt;s (i.e. a particular variety of statically typed pointer) and then to call &quot;import-value&quot; ot translate the &lt;c-string&gt; into a &lt;byte-string&gt;. If we did not provide the &quot;equate:&quot; option, then we would have to explicitly provide a function to transform &quot;pointers to characters&quot; into &lt;byte-string&gt;s. The &quot;equate:&quot; option lets us take advantage of all of the predefined functions for &lt;string&gt;s, which includes transformation into other string types.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E8"></A>
+<H2><B>8. </B><B>Other File Options</B></H2>
+<DL>
+<UL>
+<A NAME="E7E238"></A>
+<DD>There are a few other options that may be specified within an &quot;#include&quot; clause, but which do not fit into any of the above categories. These options are &quot;define:&quot;, &quot;undefine:&quot;, &quot;seal-functions:&quot; and &quot;read-only:&quot;.</DD>
+</UL>
+<UL>
+<A NAME="E7E238"></A>
+<DD>The &quot;define:&quot; and &quot;undefine:&quot; options control the C preprocessor definitioins which will be implicitly defined during parsing of the header files. If you specify neither of these options, Melange will use a default set of definitions which correspond to those used by a typical C compiler for the machine you are running on. [At present, the only set of definitions provided will be those appropriate for the HPUX OS. However, it is straightforward to add dif ferent sets of definitions to Melange.]  The define options takes a string containing a single C token and an optional string or integer literal, which will be used as the expansion. (If no literal is specified, the token will be expanded to &quot;1&quot;.) The &quot;undefine:&quot; removes one or more of the default definitions. You might, for example, use:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;gc.h&quot;,
+      define: {&quot;PMAX&quot;, &quot;BSD_VERSION&quot; =&gt; &quot;4.3&quot;},
+<BR>      undefine: {&quot;HPUX&quot;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E239"></A>
+<DD>The &quot;seal-functions:&quot; option controls whether the various imported functions and slot accessors will be sealed or open. By default, functions are sealed, but you may explicitly specify this by using &quot;seal-functions: sealed&quot; or reverse it by using &quot;seal-functions: open&quot;. Melange does not support the Creole&#146;s &quot;inline&quot; sealing option.</DD>
+</UL>
+<UL>
+<A NAME="E7E239"></A>
+<DD>The &quot;read-only:&quot; option specifies whether setter functions should be defined for slot and object accessors. They will be defined by default, but if you specify &quot;read-only: #t&quot;, no setters will be defined.</DD>
+</UL>
+<UL>
+<A NAME="E7E239"></A>
+<DD>The effects of the &quot;seal-functions:&quot; and &quot;read-only:&quot; options can be modified for particular container types. We will explain how to do this in a later sections.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E9"></A>
+<H2><B>9. </B><B>Function Clauses</B></H2>
+<DL>
+<UL>
+<A NAME="E7E240"></A>
+<DD>Imported functions can be easily invoked, in almost every case, without any additional declarations. However, by exerting explicit control over argument handling, the interfaces to some functions may be made cleaner. This control is exerted via function clauses. The primary purpose of these clauses is to specify additional type information for specific parameters or to specify alternative argument passing conventions. For example, if we had two alternate &quot;read-integers&quot; functions with the following declarations:</DD>
+</UL></DL>
+<CODE>
+<PRE>int ReadInts1(int **VectorPtr);          /* result is a count of integers */
+int *ReadInts2(int *Count);                /* result is a vector of integers */</PRE>
+<DL>
+<UL>
+<A NAME="E7E241"></A>
+<DD>we might use the following interface definition:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;readints.h&quot;,
+      rename: {&quot;int *&quot; =&gt; int-vector};
+   function &quot;ReadInts1&quot;
+      output-argument: 1;
+   function &quot;ReadInts2&quot; =&gt; Read-Integers-Vector,
+   output-argument: Count;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E242"></A>
+<DD>This would produce two functions, both of which take 0 arguments but return two values. The first would return an &lt;integer&gt; following by an &quot;&lt;int-vector&gt;&quot;, while the second would return the &lt;int-vector&gt; first and the &lt;integer&gt; second. </DD>
+</UL></DL>
+<CODE>
+<PRE>let (count :: &lt;integer&gt;, values :: &lt;int-vector&gt;) 
+<BR>   = Read-Ints1();
+let (values :: &lt;int-vector&gt;, count :: &lt;integer&gt;) 
+<BR>   = Read-Integers-Vector();</PRE>
+<DL>
+<UL>
+<A NAME="E7E243"></A>
+<DD>The function clause consists of a function name (which is a string), an optional renaming (as illustrated above), and an optional sequence of &quot;options&quot;. The options include the following:</DD>
+</UL></DL>
+<UL>
+<LI><B>seal:</B> -- specifies whether the resulting method should be sealed. Possible values are sealed or open, and the default is taken from the value specified in the initial file clause. (The &quot;default default&quot; is sealed.)
+<LI><B>equate-result:</B> -- overrides the default interpretation of the result type. The named type is assumed to be fully defined.
+<LI><B>map-result:</B> -- specifies that &quot;import-value&quot; should be called to map the result value to the named type.
+<LI><B>ignore-result:</B> -- specifies that the functions result value should be ignored, just as if the function had been declared &quot;void&quot;. Although you may specify any boolean literal, the only meaningful value is #t.
+<LI><B>equate-argument:</B> -- overrides the default interpretation of some argument&#146;s type. The argument may be specified by name or by position.
+<LI><B>map-argument:</B> -- specifies that &quot;export-value&quot; should be called to map the given argument into the named type. Again, the argument may be specified by position or by name.
+<LI><B>input-argument:</B> -- indicates that the specified argument should be passed by value. This is the default.
+<LI><B>output-argument:</B> -- indicates that the specified argument should be be treated as a return value rather than a &quot;parameter&quot;. The effect is to declare that the C parameter will be passed by reference and that the reference variable need not be initialized to any object. This option assumes that the C parameter will have been declared as a &quot;pointer&quot; type, and will strip one &quot;*&quot; off of the argument type. Thus, if the parameter declaration specifies &quot;int **&quot;, the actual value returned will have the Dylan type corresponding to &quot;int *&quot;. 
+<LI><B>input-output-argument: </B>-- indicates that the specified argument should be considered both an input argument and that its (potentially modified) value should be returned as an additional result value. The effect is similar to that of &quot;output-argument&quot; except that the reference variable will be initialized with the argument value.
+</UL>
+<DL>
+<UL>
+<A NAME="E7E244"></A>
+<DD>The following (nonsensical) example demonstrates all of the options, as they might be applied to the functions:</DD>
+</UL></DL>
+<CODE>
+<PRE>extern struct object *bar(int first, int *second,struct object **third);
+extern baz(char first, struct object *second);
+define interface
+   #include &quot;demo.h&quot;;
+   function &quot;bar&quot;,
+      seal: open,
+      equate-result: &lt;object&gt;,
+      map-result: &lt;bar-object&gt;,
+      input-argument: first,   // passed normally
+      output-argument: 2,      // nothing passed in, second result value
+            // will be &lt;integer&gt;
+      input-output-argument: third;   // passed in as second argument, 
+            // returned as third result
+   function &quot;baz&quot; =&gt; arbitrary-function-name,
+      seal: sealed,      // default
+      ignore-result: #t,
+<BR>      equate-argument: {second =&gt; &lt;object&gt;},
+      map-argument: {2 =&gt; &lt;baz-object&gt;};
+end interface;</PRE>
+<BR>
+<A NAME="E238E10"></A>
+<H2><B>10. </B><B>Struct and Union Clauses</B></H2>
+<DL>
+<UL>
+<A NAME="E7E245"></A>
+<DD>&quot;Struct clauses&quot; and &quot;union clauses&quot; (referred to collectively as &quot;container clauses&quot;) are used to specify naming in inclusion of class slots in exactly the same way that the options in the file clause control the handling of global definitions. Like the function clauses described above, they consist of the reserved word &quot;struct&quot; or &quot;union&quot;, a string which gives the full C name of the container declaration, an optional renaming, and a list of options. If we have a structure defined by </DD>
+</UL></DL>
+<PRE>typedef struct cons {
+<BR>   int index;
+<BR>   struct object *head;
+<BR>   struct cons *tail;
+<BR>} cons_cell;</PRE>
+<DL>
+<UL>
+<A NAME="E7E246"></A>
+<DD>we could use the following interface definition:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;cons.h&quot;;
+   struct &quot;struct cons&quot; =&gt; &lt;c-list&gt;,
+      superclasses: {&lt;sequence&gt;},
+      prefix: &quot;c-list-&quot;,
+      name-mapper: identity-name-mapping,
+      exclude: {&quot;index&quot;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E247"></A>
+<DD>Valid options for container clauses include: import:, prefix:, exclude:, rename:, seal-functions:, read-only:, equate:, and map:.These options act like the equivalent options which may be specified in a file clause, but they apply to the slots of a single &quot;class&quot; rather than to globally defined objects. Options specified within a container clause override any global defaults that might have been specified in the &quot;#include&quot; clause.</DD>
+</UL>
+<UL>
+<A NAME="E7E247"></A>
+<DD>Container clauses also permit the &quot;superclasses:&quot; option described in section <A HREF="melange.htm#I4">6.2.</A> </DD>
+</UL>
+<UL>
+<A NAME="E7E247"></A>
+<DD>Although the recommended method for specifying a container type is to use the full C name (i.e. &quot;struct foo&quot;), you may also use an alias defined by a typedef. Thus, in the above example, you could have specified either &quot;struct cons&quot; or &quot;cons_cell&quot;, with identical results.</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E11"></A>
+<H2><B>11. </B><B>Pointer Clauses</B></H2>
+<DL>
+<UL>
+<A NAME="E7E248"></A>
+<DD>&quot;Pointer clauses&quot; modify the definitions of pointer declarations such as &quot;int *&quot; or &quot;struct foo ***&quot;, or vector declarations such as &quot;char [256]&quot;. Like all such clauses, they may be used to specify renamings for the classes. This is particularly useful for pointer types since they are not automatically assigned user-meaningful names. It also allows specification of the &quot;superclasses:&quot; option described in <A HREF="melange.htm#I4">6.2.</A> A typical use might be:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;vec.h&quot;;
+<BR>   pointer &quot;int *&quot; =&gt; &lt;int-vector&gt;,
+      superclasses: {&lt;c-vector&gt;};
+   pointer &quot;struct person **&quot; =&gt; &lt;people&gt;,
+      superclasses: {&lt;c-vector&gt;};
+   pointer &quot;char [256]&quot; =&gt; &lt;fixed-string&gt;;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E249"></A>
+<DD>This clause is particularly useful for declaring pointer types to be subclasses of &lt;c-vector&gt; so that they can be indexed via &quot;element&quot;. (Note that this is not necessary for vector declarations, since they are automatically declared to be &lt;c-vectors&gt;.)</DD>
+</UL></DL>
+<BR>
+<A NAME="E238E12"></A>
+<H2><B>12. </B><B>Constant Clauses</B></H2>
+<DL>
+<UL>
+<A NAME="E7E250"></A>
+<DD>Constant clauses are used to override the values of constants specified in header files (i.e. &quot;#define MAXINT 27&quot;). The &quot;value:&quot; option, which is the only one supported, specifies a Dylan literal which will be taken as the value of the named constant. A typical use might be:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;const.h&quot;;
+<BR>   constant &quot;MAXINT&quot; =&gt; $maximum-fixed-integer,
+<BR>      value: 9999999;
+end interface;</PRE>
+<BR>
+<A NAME="E238E13"></A>
+<H2><B>13. </B><B>Variable Clauses</B></H2>
+<DL>
+<UL>
+<A NAME="E7E251"></A>
+<DD>Global variables declared within C header files are translated into &quot;getter&quot; functions which retrieve the value of the C variables and optional &quot;setter&quot; functions to modify those values. In effect, they are treated as slots of a &quot;null object&quot; --the getter function takes no arguments and returns the value of the variable, while the setter function takes a single value which will be the new value of the variable. Type mapping takes place for the arguments and results of these functions, just as it would for slot accessors.</DD>
+</UL>
+<UL>
+<A NAME="E7E251"></A>
+<DD>Variable clauses support the following options:</DD>
+</UL></DL>
+<UL>
+<LI><B>getter:</B> -- specifies a Dylan variable name which will be used to hold the getter function.
+<LI><B>setter:</B> -- specifies either a Dylan variable name which will be used to hold the setter function, or #f to indicate that there should be no setter function.
+<LI><B>read-only:</B> -- specifies whether the variable should be settable. &quot;read-only: #t&quot; is equivalent to &quot;setter: #f&quot;.
+<LI><B>seal:</B> -- specifies whether the getter and setter functions should be sealed. Possible values are &quot;sealed&quot; or &quot;open&quot;, and the default is taken from the &quot;seal-functions:&quot; option in the &quot;#include&quot; clause (or &quot;sealed&quot; if not specified there).
+<LI><B>map:</B> -- specifies the high-level type to which the variable should be mapped.
+<LI><B>equate:</B> -- specifies the low-level type to which the raw C value should be implicitly converted.
+</UL>
+<BR>
+<A NAME="E79E1"></A>
+<H2><B>Appendix I -- </B></H2>
+<BR>
+<A NAME="E79E1"></A>
+<H2><B>Low level support facilities</B></H2>
+<DL>
+<UL>
+<A NAME="E7E252"></A>
+<DD>The high level functions for calling C routines or for accessing global variables are all built upon a relatively small number of built-in primitives which perform specific low-level tasks. You should seldom have any need to deal with these primitives directly, but they are nonetheless available should you need to make use of them.</DD>
+</UL>
+<UL>
+<A NAME="E7E252"></A>
+<DD>To use these types and operations, you should &quot;use&quot; the module &quot;extern&quot; from the &quot;Dylan&quot; library.</DD>
+</UL></DL>
+<A NAME="E232E1"></A>
+<H3><B>I.i. </B><B>Predefined types</B></H3>
+<P>&lt;statically-typed-pointer&gt; [class]
+<DL>
+<UL>
+<A NAME="E7E253"></A>
+<DD>Unless otherwise specified, C pointers are implicitly &quot;equated&quot; to newly created subclasses of &lt;statically-typed-pointer&gt;. This class is contains a single implicit slot which contains the raw C pointer. Because of implementation limitations in Mindy, you may not add any extra slots to subclasses of &lt;statically-typed-pointer&gt;, nor can such a subclass inherit slots from other classes. You may, however, create classes which are subclasses of both &lt;statically-typed-pointer&gt; and other (presumably abstract) classes which have no slots.</DD>
+</UL>
+<UL>
+<A NAME="E7E253"></A>
+<DD>The &quot;make&quot; method for takes three keywords. The &quot;pointer:&quot; keyword tells it to initialize the new variable with the given value, which must be a &lt;statically-typed-pointer&gt; or an &lt;integer&gt;. If the no pointer value is specified, space will be allocated based upon the content-size of the specific type and upon the &quot;extra-bytes:&quot; and &quot;element-count:&quot; keywords. These keywords, which default to &quot;0&quot; and &quot;1&quot; respectively, tell how many objects are going to be stored in the memory and how many bytes of extra memory (beyond that specified by &quot;content-size&quot;) should be allocated for each element.</DD>
+</UL></DL>
+<P>&lt;c-vector&gt; [class]
+<DL>
+<UL>
+<A NAME="E7E254"></A>
+<DD>&lt;C-vector&gt; is a subclass of &lt;statically-typed-pointer&gt; which inherits operations from &lt;vector&gt;. Because systems often depend upon C&#146;s lack of bounds checking, the default size for &lt;c-vector&gt;s is &quot;#f&quot;. However, subclasses of &lt;c-vector&gt; may provide a concrete size if desired. Types corresponding to declarations such as &quot;char [256]&quot; are automatically declared as subclasses of &lt;c-vector&gt;, but pointer declarations such as &quot;char *&quot; are not.</DD>
+</UL></DL>
+<P>&lt;c-string&gt; [class]
+<DL>
+<UL>
+<A NAME="E7E255"></A>
+<DD>&lt;C-string&gt; is a subclass of &lt;statically-typed-pointer&gt; which also inherits operations from &lt;string&gt;. It is implemented as a C pointer to a null-terminated vector of characters, and provides a method on forward-iteration-protocol which understands this implementation. This class may, therefore, be used for manipulating C&#146;s native format for &quot;string&quot;s (i.e. &quot;char *&quot;). Note that the &quot;null&quot; string is considered to be a valid empty string. This is somewhat contrary to the semantics of many C operations, but provides a safer model for Dylan code.</DD>
+</UL>
+<UL>
+<A NAME="E7E255"></A>
+<DD>The &quot;make&quot; method for &lt;c-string&gt;s accepts the &quot;size:&quot; and &quot;fill:&quot; keywords. </DD>
+</UL>
+<UL>
+<A NAME="E7E255"></A>
+<DD>There are a few surprising properties of &lt;c-strings&gt; which may users should be aware of, both of which result from the &quot;null-terminated&quot; implementation. Firstly, the &quot;size&quot; of the string is computed by counting from the beginning of the string, and is therefore not nearly as efficient as you might expect. Secondly, you should expect odd results if you try to store &quot;as(&lt;character&gt;, 0)&quot; into such a string. Finally, the &quot;element&quot; and &quot;element-setter&quot; methods must scan the string in order to do bounds checking, and may therefore be fairly slow. If you wish to (unsafely) bypass this checking, you must use &quot;pointer-value&quot; instead.</DD>
+</UL></DL>
+<P>&lt;c-function&gt; [class]
+<DL>
+<UL>
+<A NAME="E7E256"></A>
+<DD>&lt;c-function&gt;s, like &lt;statically-typed-pointer&gt;s, encapsulate a raw &quot;C&quot; pointer. However, &lt;c-function&gt;s also encode information about the calling conventions of the function which is (presumably) located at the given address. They may, therefore, be directly invoked just like any other function.</DD>
+</UL></DL>
+<P>&lt;foreign-file&gt; [class]
+<DL>
+<UL>
+<A NAME="E7E257"></A>
+<DD>The &lt;foreign-file&gt; class is used to store information about the contents of a particular object file. It is created by &quot;load-object-file&quot;, and may be passed as an option to &quot;find-c-function&quot; and &quot;find-c-pointer&quot;. (All of these functions are described below.)</DD>
+</UL></DL>
+<A NAME="E232E2"></A>
+<H3><B>I.ii. </B><B>Locating native C objects</B></H3>
+<DL>
+<UL>
+<A NAME="E7E258"></A>
+<DD>There are several functions provided which search for C functions or variables and return Dylan objects which refer to them. Note that Mindy does not have sufficient information to determine whether any given C object is a function, and therefore it depends upon the user (or, more often, Melange) to provide it with correct information.</DD>
+</UL></DL>
+<P>load-object-file(files :: &lt;list&gt;, #key symbols) [function]
+<DL>
+<UL>
+<A NAME="E7E259"></A>
+<DD>This function (which is presently only works on HPUX machines) attempts to dynamically load a given object file (i.e. &quot;.o&quot; or &quot;.a&quot;) into the current Mindy process and load it&#146;s symbol table to allow its contents to be located by &quot;find-c-pointer&quot; or &quot;find-c-function&quot;. If it successfully loads the file, it will return a &lt;foreign-file&gt; encapsulating the symbol table information. Otherwise, it will return #f.</DD>
+</UL>
+<UL>
+<A NAME="E7E259"></A>
+<DD>If you are not running on an HPUX machine, you will have to statically link object files into Mindy, as described in Appendix II.</DD>
+</UL></DL>
+<P>find-c-pointer(name :: string, #key file :: &lt;foreign-file) [function]
+<DL>
+<UL>
+<A NAME="E7E260"></A>
+<DD>This function searches through the symbol table for the object file corresponding to the specified file (or for Mindy itself) and attempts to locate a symbol with the given name. If it finds such a symbol, it converts the corresponding address to a &lt;statically-typed-pointer&gt; and returns it. Otherwise, it returns #f.</DD>
+</UL></DL>
+<P>find-c-function (name :: &lt;string&gt;, #key file) [function]
+<P>constrain-c-function (fun :: &lt;c-function&gt;,  [function]
+<P> specializer :: &lt;list&gt;, rest? :: &lt;boolean&gt;,
+<P> results :: &lt;list&gt;)
+<DL>
+<UL>
+<A NAME="E7E261"></A>
+<DD>The function &quot;find-c-function&quot; is like &quot;find-c-pointer&quot;, except that the result is a &lt;c-function&gt; (or #f). The resulting function is specialized to &quot;fun(#rest args) :: &lt;object&gt;&quot;. However, it may be constrained to a different set of specializers via &quot;constrain-c-function&quot;. This function accepts lists of types for the arguments and for the return values, and a boolean value which states whether optional arguments are accepted. The result declarations are particularly important, since they are used to coerce the raw C result value into an appropriate low level Dylan type. The possible types are &lt;boolean&gt;, &lt;integer&gt;, or any subclass of &lt;statically-typed-pointer&gt;. Note that although a list of result types is accepted, only the first can be meaningful since C does not support multiple return values.</DD>
+</UL>
+<UL>
+<A NAME="E7E261"></A>
+<DD><B>Note</B>: The functions in this section are likely to change drastically in the near future.</DD>
+</UL></DL>
+<A NAME="E232E3"></A>
+<H3><B>I.iii. </B><B>Pointer manipulation operations</B></H3>
+<DL>
+<UL>
+<A NAME="E7E262"></A>
+<DD>Each &lt;statically-typed-pointer&gt; encapsulates a pointer to some area of memory (i.e. a raw machine address). In itself, this does little good, except as an arbitrary token. However, Mindy provides a number of primitive operations which manipulate the contents of these addresses, or do basic comparisons and arithmetic upon the addresses themselves.</DD>
+</UL></DL>
+<P>signed-byte-at (ptr :: &lt;statically-typed-pointer&gt;, #key offset) [function]
+<P>unsigned-byte-at (ptr :: &lt;statically-typed-pointer&gt;, #key offset) [function]
+<P>signed-short-at (ptr :: &lt;statically-typed-pointer&gt;, #key offset) [function]
+<P>unsigned-short-at( ptr :: &lt;statically-typed-pointer&gt;, #key offset) [function]
+<P>signed-long-at (ptr :: &lt;statically-typed-pointer&gt;, #key offset) [function]
+<P>unsigned-long-at (ptr :: &lt;statically-typed-pointer&gt;, #key offset) [function]
+<P>pointer-at (ptr :: &lt;statically-typed-pointer&gt;,  [function]
+<P> #key offset, class)
+<DL>
+<UL>
+<A NAME="E7E263"></A>
+<DD>These operations return an object which represents the value stored at the address corresponding to &quot;ptr&quot;. The first six operations all return &lt;integer&gt;s -- the different versions are required because the same number may be represented in a variety of formats (differing in length and interpretation of the high-order bit) and because Mindy has no way of determining which might be used in a given situation. The final operation, &quot;pointer-at&quot;, returns a new &lt;statically-typed-pointer&gt; encapsulating the address referenced by the origninal pointer. You may use the &quot;class:&quot; keyword to specify that the new object should be an instance of some particular subclass of &lt;statically-typed-pointer&gt;. (Thus, for example &quot;pointer-at(foo, class: &lt;bar&gt;)&quot; would be roughly equivalent to &quot;as(&lt;bar&gt;, pointer-at(foo))&quot;.)</DD>
+</UL>
+<UL>
+<A NAME="E7E263"></A>
+<DD>The offset parameter (if provided) is added to the integer corresponding to the machine address before the pointer is dereferenced. This is useful, for example, in loading an object from within a C &quot;struct&quot;.</DD>
+</UL>
+<UL>
+<A NAME="E7E263"></A>
+<DD>Setter functions are provided corresponding to each of the above functions. You can therefore, say </DD>
+</UL></DL>
+<CODE>
+<PRE>signed-short-at(ptr) := 32767;
+pointer-at(ptr1) := ptr2;</PRE>
+</CODE>
+<P>as(cls == &lt;integer&gt;, ptr :: &lt;statically-typed-pointer&gt;) [G.F. Method]
+<P>as(cls == &lt;statically-typed-pointer&gt;, ptr :: &lt;statically-typed-pointer&gt;)
+<P> [G.F. Method]
+<P>as(cls == &lt;statically-typed-pointer&gt;, int:: &lt;integer&gt;) [G.F. Method]
+<DL>
+<UL>
+<A NAME="E7E264"></A>
+<DD>Method upon &quot;as&quot; are provided for converting from &lt;integer&gt; to any statically typed pointer class and from any statically typed pointer class to &lt;integer&gt; or to another statically typed pointer class.</DD>
+</UL></DL>
+<P>\+ (ptr :: &lt;statically-typed-pointer&gt;, int :: &lt;integer&gt;) [G.F. Method]
+<P>\- (ptr1 :: &lt;statically-typed-pointer, ptr2 :: &lt;statically-typed-pointer&gt;)
+<P> [G.F. Method]
+<P>\= (ptr1 :: &lt;statically-typed-pointer, ptr2 :: &lt;statically-typed-pointer&gt;)
+<P> [G.F. Method]
+<DL>
+<UL>
+<A NAME="E7E265"></A>
+<DD>These functions do arithmetic upon the integers corresponding to the given pointers. The following code fragment</DD>
+</UL></DL>
+<CODE>
+<PRE>let new-ptr = ptr1 + 3;
+let difference = ptr2 + ptr3;
+let same? = (ptr2 = ptr3)</PRE>
+</CODE>
+<DL>
+<UL>
+<A NAME="E7E266"></A>
+<DD>is equivalent to</DD>
+</UL></DL>
+<CODE>
+<PRE>let new-ptr = as(ptr1.object-class, as(&lt;integer&gt;, ptr1) + 3);
+let difference = as(&lt;integer&gt;, ptr2) - as(&lt;integer&gt;, ptr3);
+let same = (as(&lt;integer&gt;, ptr2) = as(&lt;integer&gt;, ptr3));</PRE>
+</CODE>
+<BR>
+<A NAME="E79E2"></A>
+<H2><B>Appendix II -- </B></H2>
+<BR>
+<A NAME="E79E2"></A>
+<H2><B>Static linking mechanisms</B></H2>
+<DL>
+<UL>
+<A NAME="E7E267"></A>
+<DD>Because object file formats vary widely by architecture, Mindy does not support dynamic loading of object files or automatic symbol table look up for all architectures. In the general case, it is necessary to depend upon a less elegant technique for explicitly making certain C objects available. </DD>
+</UL>
+<UL>
+<A NAME="E7E267"></A>
+<DD>Simple instructions for using this mechanism from within Melange are given in section <A HREF="melange.htm#I2">3.1.</A> This appendix simply provides more information on the underlying mechanism.</DD>
+</UL>
+<UL>
+<A NAME="E7E267"></A>
+<DD>In order to make sure that the desired symbols can be located, it is necessary to build an explicit table which maps between the symbol&#146;s name and its address. This table is automatically created by running the &quot;make-init.pl&quot; script [This requires you to have PERL installed on your system.]  upon a list of &quot;interface definition files&quot;. This will create two files &quot;,extern1.def&quot; and &quot;,extern2.def&quot;, which should then be renamed to &quot;extern1.def&quot; and &quot;extern2.def&quot; respectively. These files are automatically included by &quot;ext-init.c&quot; so that the table will be created after Mindy is rebuilt.</DD>
+</UL>
+<UL>
+<A NAME="E7E268"></A>
+<DD>The interface definition files consist of zero or more lines of text, each of which should contain the name of one object. If the object is a function, it should be immediately followed by a set of parentheses. For example, the file which defines the memory allocation routines used by Melange&#146;s support code contains the following four lines:</DD>
+</UL></DL>
+<CODE>
+<PRE>free()
+malloc()
+strcmp()
+strlen()</PRE>
+<DL>
+<UL>
+<A NAME="E7E269"></A>
+<DD>The only other step required to make the objects available is simply to ensure that the library which contains them is linked into Mindy. The easiest way to accomplish all of this is to simply modify the Makefile in Mindy&#146;s source directory. If you add the names of the required libraries to LIBS and the names of the interface definition files to EXTERN-INCLUDES, make will do the necessary work for you. You should be sure to leave &quot;../compat/libcompat.a&quot; or &quot;-lm&quot; in LIBS and &quot;malloc.inc&quot; in EXTERN-INCLUDES.</DD>
+</UL></DL>
+<BR>
+<A NAME="E79E3"></A>
+<H2><B>Appendix III -- </B></H2>
+<BR>
+<A NAME="E79E3"></A>
+<H2><B>Differences from Creole</B></H2>
+<DL>
+<UL>
+<A NAME="E7E270"></A>
+<DD>It would be difficult to produce an exhaustive list of the differences between Creole and Melange. We can, however, include a brief examination of the most important incompatibilities between the two systems. </DD>
+</UL></DL>
+<P>1. Creole&#146;s &quot;type:&quot; options have been replaced by Melange&#146;s &quot;equate:&quot; and &quot;map:&quot; options.
+<P>2. Creole&#146;s &quot;access path&quot; options have been replaced by &quot;object-file:&quot; and &quot;mindy-include-file:&quot;.
+<P>3. The interface to &quot;import-value&quot; and &quot;export-value&quot; differ between the two systems.
+<P>4. Melange does not inherit type mappings from other &quot;define interface&quot; forms.
+<P>5. Creole does not import definitions from &quot;recursively included&quot; header files, even if they are referenced by definitions which <I>are</I> imported.
+<P>6. Creole does not support C vectors or &quot;sub-structures&quot; as first class objects.
+<P>7. Melange does not presently support callbacks, &quot;export-temporary-value&quot;, &quot;&lt;pascal-string&gt;&quot;, &quot;with-stack-structure&quot;, &quot;with-stack-block&quot;, or &quot;alien-method&quot;.
+<P>8. Creole will never consider instances of two distinct statically typed pointer classes to be &quot;=&quot;, even if they refer to the same address.
+<BR>
+<A NAME="E79E4"></A>
+<H2><B>Appendix IV -- </B></H2>
+<BR>
+<A NAME="E79E4"></A>
+<H2><B>Known limitations</B></H2>
+<DL>
+<UL>
+<A NAME="E7E271"></A>
+<DD>Although mostly complete, the current implementation of Melange is missing a few elements which might be required for some applications. The following capabilites probably <I>should</I> be present, but are not yet supported:</DD>
+</UL></DL>
+<P>1. Floating point numbers. 
+<P>2. Callbacks.
+<P>3. Function types. (It is, however, possible to import a function as a simple &lt;statically-typed-pointer&gt; and then manipulate it like any other object.)
+<BR>
+<A NAME="E79E5"></A>
+<H2><B>Appendix V -- </B></H2>
+<BR>
+<A NAME="E79E5"></A>
+<H2><B>Proposed modifications</B></H2>
+<DL>
+<UL>
+<A NAME="E7E272"></A>
+<DD>Although Melange seems to be fairly useful in its present form, we are currently considering a number of ways in which it may be made more useful. This section contains a brief discussion of several potential changes which may be implemented in the future.</DD>
+</UL></DL>
+<A NAME="E232E4"></A>
+<H3><B>V.i. </B><B>Enumeration clauses</B></H3>
+<DL>
+<UL>
+<A NAME="E7E273"></A>
+<DD>At present, there is no way to modify the default handling of a C enumeration declaration. It is clear that you might wish a mechanism to specify several different explicit options: prefixes for the enumeration constants; respecification of constant values; and, of course, explicit &quot;import:&quot; and &quot;exclude:&quot; options.</DD>
+</UL></DL>
+<A NAME="E232E5"></A>
+<H3><B>V.ii. </B><B>Inheritance of &quot;map&quot; and &quot;equate&quot; options</B></H3>
+<DL>
+<UL>
+<A NAME="E7E274"></A>
+<DD>There are some cases in which a set of types imported within one interface definition might be used extensively within another. In the present implementation, the two interface definitions would be handled independently and equivalences between types would not be recognized in the abscence of explicit &quot;equate:&quot; options.</DD>
+</UL>
+<UL>
+<A NAME="E7E274"></A>
+<DD>One proposed solution would involve the ability to explicitly &quot;use&quot; one interface definition within another. This would result in all identically named types being implicitly equated and all top-level &quot;map:&quot; options being inherited. The &quot;use&quot; clause could support roughly the same syntax as the &quot;use&quot; clauses in library and module definitions.In order to make this work, it would be necessary to assign arbitrary names to interface definitions. This would have the added benefit of making them more consistent with other standard Dylan definition forms. </DD>
+</UL>
+<UL>
+<A NAME="E7E274"></A>
+<DD>If this change were implemented, a typical interface definition might look something like the following:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface date
+   #include &quot;date.h&quot;;
+   use time, import: {&quot;struct time&quot;};
+end interface date;</PRE>
+<DL>
+<UL>
+<A NAME="E7E275"></A>
+<DD>A less ambitious version might remain compatible with the current syntax by replacing the interface name with an &quot;interface-name&quot; option, which would default to the root of the file name. Thus,</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;date.h&quot;,
+      interface-name: &quot;date&quot;;
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E276"></A>
+<DD>would yield the same effect as the previous example.</DD>
+</UL></DL>
+<A NAME="E232E6"></A>
+<H3><B>V.iii. </B><B>Remerging of the &quot;equate:&quot; and &quot;map:&quot; options</B></H3>
+<DL>
+<UL>
+<A NAME="E7E277"></A>
+<DD>It has been pointed out that the current method of specifying low-level and high-level mappings, while sufficiently expressive, is somewhat verbose and confusing. It would therefore be good to find an alternative notation. </DD>
+</UL>
+<UL>
+<A NAME="E7E277"></A>
+<DD>It has been suggested that definitions like:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;dirent.h&quot;,
+<BR>      equate: {&quot;char *&quot; =&gt; &lt;c-string&gt;},
+<BR>      map: {&quot;char *&quot; =&gt; &lt;byte-string&gt;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E278"></A>
+<DD>might be replaced by something like:</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;dirent.h&quot;,
+      equate-and-map: {&quot;char *&quot; =&gt; &lt;c-string&gt; =&gt; &lt;byte-string&gt;};
+end interface;</PRE>
+<DL>
+<UL>
+<A NAME="E7E279"></A>
+<DD>or</DD>
+</UL></DL>
+<CODE>
+<PRE>define interface
+   #include &quot;dirent.h&quot;;
+   transform &quot;char *&quot;,
+<BR>      low-level: &lt;c-string&gt;,
+      high-level: &lt;byte-string&gt;;
+end interface;</PRE>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="format.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="dylan-tk.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

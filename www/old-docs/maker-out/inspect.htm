@@ -1,0 +1,324 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan The Mindy Inspector  The Mindy Object Inspector</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="EXTENS~1.htm">
+<LINK REL="Previous" HREF="debug.htm"></HEAD>
+<BODY>
+
+<H2>The Mindy Inspector</H2>
+<P ALIGN=CENTER>
+<A HREF="debug.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="EXTENS~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E32" >1. Introduction</A>
+<LI>
+<A HREF="#E8E33" >2. Inspector-Base</A>
+<LI>
+<A HREF="#E8E34" >3. Text-Inspector</A>
+<UL>
+<LI>
+<A HREF="#E10E13" >3.1. Exported Names</A>
+<LI>
+<A HREF="#E10E14" >3.2. Text-Inspector Commands</A>
+<LI>
+<A HREF="#E10E15" >3.3. The History Command</A>
+<LI>
+<A HREF="#E10E16" >3.4. The Up Command</A>
+<LI>
+<A HREF="#E10E17" >3.5. The Print Command</A>
+<LI>
+<A HREF="#E10E18" >3.6. The Store Command</A>
+<LI>
+<A HREF="#E10E19" >3.7. The View Command</A>
+<LI>
+<A HREF="#E10E20" >3.8. The Help Command</A>
+<LI>
+<A HREF="#E10E21" >3.9. The Quit and Exit Command</A></UL>
+<LI>
+<A HREF="#E8E35" >4. X-Inspector</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E3"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B> </B><B> </B><B>The Mindy Object Inspector</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<BR>
+<A NAME="E8E32"></A>
+<H2><B>1. </B><B>Introduction</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>This document describes the use of the Inspector libraries for Mindy.  The Inspector libraries are used to supplement the current Mindy debugger, and provide programmers with a tool for interactively inspecting their data structures.  The Inspector has two separate interfaces, a text-based interface and a grpahical interface.  The text interface is similar to that of Mindy debugger.  The graphical interface offers a pleasant if uninspiring way of inspecting objects; it also offers a rudimentary class diagram viewer.
+<P>The Inspector is divided into three libraries, <A NAME="I2"></A>Inspector-Base, <A NAME="I3"></A>Text-Inspector, and <A NAME="I4"></A>X-Inspector. The first of these provides facilities that are common to the other two libraries.  The Text-Inspector library implements a text interface to the Inspector and the function <B>inspect</B>.  The X-Inspector library implements a graphical interface to the Inspector and the function <B>xinspect</B>. Use of the X-Inspector requires <A NAME="I5"></A>Dylan/TK, which may not available on all systems.
+<P>The Inspector is most often invoked via the inspect and xinspect debugger commands.  These debugger commands evaluate their arguments and invoke the function <B>inspect</B> or <B>xinspect</B> with the appropriate arguments. The debugger commands will automatically load the appropriate libraries if they have not already been loaded.
+<BR>
+<A NAME="E8E33"></A>
+<H2><B>2. </B><B>Inspector-Base</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Inspector-base library exists solely to support the Text-Inspector and X-Inspector libraries. Normal users will not find it useful.
+<BR>
+<A NAME="E8E34"></A>
+<H2><B>3. </B><B>Text-Inspector</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E10E13"></A>
+<H3><B>3.1. </B><B>Exported Names</B><A NAME="I6"></A></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>inspect</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E93"></A>
+<DD>#rest objects</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E94"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>The <B>inspect</B> function launches an interactive Inspection session, starting with the object passed in.  If no objects were supplied, the Inspector will begin by inspecting <B>$all-libraries</B> (see below).  It is an error to pass more than one object to <B>inspect</B>; the #rest args is really just a hack to get &quot;zero or one&quot; semantics. See below for a description of Inspector commands.<A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$all-libraries</B> [Constant]</FONT>
+<UL>
+<UL>This constant magically represents all the libraries currently loaded in Mindy.  Inspecting this constant will allow you to peruse libraries, modules, and even named bindings (ie, constants and variables). <B>$all-libraries</B> isn&#146;t really useful for anything other than passing to <B>inspect</B> and <B>xinspect</B>.<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>display-object-info</B>  [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E95"></A>
+<DD>the-object :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E96"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Writes a description of the object to<B> *debug-output*</B> (see mindy.txt for information on <B>*debug-output*</B>).  The output is almost the same as that of <B>inspect</B>, except that it is not interactive.
+<BR>
+</UL></UL>
+<A NAME="E10E14"></A>
+<H3><B>3.2. </B><A NAME="I9"></A><B>Text-Inspector Commands</B></H3>
+<P>When the text inspector starts, it will display the object you have passed to it, along with all of the information you requested using the keyword flags.  Each item will be numbered, and to inspect a sub-object you simply type the number corresponding to the desired choice (in this case, even a superclass is considered a sub-object, because it was inspected via the main object).  This lets you move around the object heterarchy, but it is not very convienent. There are additional commands that are designed to allow easier use of the inspector:
+<DL>
+<DT><B>1</B><B>, </B><B>2</B><B>, </B><B>3</B><B>, ...</B></DT>
+<UL>
+<UL>
+<DT>Inspect the subobject corresponding to that number in the current object.</DT>
+</UL></UL>
+<DT><B>history</B></DT>
+<UL>
+<UL>
+<DT>Shows the stack of inspected objects</DT>
+</UL></UL>
+<DT><B>up</B></DT>
+<UL>
+<UL>
+<DT>Moves up the inspected object stack (i.e. inspects the previous object)</DT>
+</UL></UL>
+<DT><B>print</B></DT>
+<UL>
+<UL>
+<DT>Prints the current object using the print function, and the length and level that were passed to inspect.</DT>
+</UL></UL>
+<DT><B>store</B></DT>
+<UL>
+<UL>
+<DT>Stores the current object in the next unused debugger variable.</DT>
+</UL></UL>
+<DT><B>view</B></DT>
+<UL>
+<UL>
+<DT>Redisplays the current object (useful if it has gone offscreen)</DT>
+</UL></UL>
+<DT><B>?</B><B>, </B><B>help</B></DT>
+<UL>
+<UL>
+<DT>Displays a help page much like this</DT>
+</UL></UL>
+<DT><B>quit</B><B>, </B><B>exit</B></DT>
+<UL>
+<UL>
+<DT>Leaves the inspector and continues program execution</DT>
+</UL></UL></DL>
+<P>With the exception of history, all commands may be abbreviated by their first letter.
+<A NAME="E10E15"></A>
+<H3><B>3.3. </B><B>The </B><A NAME="I10"></A><B>History Command</B></H3>
+<P>The history command lists all of the previously visited objects in the current session.  A sample output may look like this:
+<CODE>
+<PRE>    Instance of &lt;my-class&gt;              <I>&lt;--- Initial object, the one given in the argument</I>
+<BR>    Instance of &lt;sequence&gt;
+<BR>    Instance of &lt;fixed-integer&gt;
+<BR>    Class &lt;fixed-integer&gt;
+<BR>    Class &lt;integer&gt;              <I>&lt;--- Last object seen, the one that &quot;up&quot; goes to</I>
+<BR>    Class &lt;rational&gt;              <I>&lt;--- The current object</I></PRE>
+</CODE>
+<A NAME="E10E16"></A>
+<H3><B>3.4. </B><B>The </B><A NAME="I11"></A><B>Up Command</B></H3>
+<P>The up command moves you &quot;up&quot; the history, and lets you see the previously visited object.  In the above example, if you moved up twice, the history would look like this:
+<CODE>
+<PRE>    Instance of &lt;my-class&gt;
+<BR>    Instance of &lt;sequence&gt;
+<BR>    Instance of &lt;fixed-integer&gt;
+<BR>    Class &lt;fixed-integer&gt;</PRE>
+</CODE>
+<P>And you would be inspecting the class <B>&lt;fixed-integer&gt;</B>.
+<A NAME="E10E17"></A>
+<H3><B>3.5. </B><B>The </B><A NAME="I12"></A><B>Print Command</B></H3>
+<P>The print command pretty-prints the current object (using the Gwydion Print library), but does not number the sub-objects.  It is useful only for displaying the objects in a different, possible more informative manner.
+<A NAME="E10E18"></A>
+<H3><B>3.6. </B><B>The </B><A NAME="I13"></A><B>Store Command</B></H3>
+<P>The store command stores the current object in the next unused debugger variable.  See mindy/debug.txt for information about debugger variables.
+<A NAME="E10E19"></A>
+<H3><B>3.7. </B><B>The </B><A NAME="I14"></A><B>View Command</B></H3>
+<P>The view command will allow you to redisplay the object that you are currently inspecting.  This is mainly useful if previous commands such as history or view have moved the object off of the screen.
+<A NAME="E10E20"></A>
+<H3><B>3.8. </B><B>The </B><A NAME="I15"></A><B>Help Command</B></H3>
+<P>The help command will display a short help page listing all of the commands and a brief one line description of how they work.
+<A NAME="E10E21"></A>
+<H3><B>3.9. </B><B>The </B><A NAME="I16"></A><B>Quit and Exit Command</B></H3>
+<P>This command (both words mean the same thing) will allow you to leave the inspector and continue with the execution of your program.  The next time inspect is called, it will not have any memory of the past session.  This means that the history will initially show only the object that you called inspector with.  If <B>inspect</B> was invoked from the debugger, you will return to the debugger.
+<BR>
+<A NAME="E8E35"></A>
+<H2><B>4. </B><B>X-Inspector</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The X-Inspector&#146;s graphical interface is pretty self explanatory.  In addition to offering all the features of the text interface, it also offers a rudimentary class diagram viewer.  (The class diagrams are non-interactive--you can click all you want on them, but they won&#146;t do anything)  The Close button will close a single window; the Quit button will close all the X-Inspector windows. When there are no longer any open X-Inspector windows, you will be returned to the Mindy debugger prompt.
+<P>The name X-Inspector is something of a misnomer, since it does not require X-Windows to work.
+<P>The X-Inspector library exports the following objects:<A NAME="I17"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>xinspect</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E97"></A>
+<DD>#rest objects</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E98"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>The <B>xinspect</B> function launches an interactive Inspection session, starting with the objects passed in.  If no objects  were supplied, the Inspector will begin by inspecting <B>$all-libraries</B> (see below).  Unlike the <B>inspect</B> function, it is ok to pass multiple objects to <B>xinspect</B>; they will be displayed in separate windows.<A NAME="I18"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$all-libraries</B> [Constant]</FONT>
+<UL>
+<UL>This is the same constant as exported from the Text-inspector library.
+<BR>
+</UL></UL>
+<P><I>Caveat</I>: Both Inspectors differentiate between a <A NAME="I19"></A>binding (like a variable or a constant) and the object bound to that binding. If the binding is read-only, inspecting the binding is almost identical to inspecting the object it refers to. It is not exactly the same, because if the binding refers to a class, the X-Inspector will not offer you the option of a class hierarchy diagram.
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="debug.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="EXTENS~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

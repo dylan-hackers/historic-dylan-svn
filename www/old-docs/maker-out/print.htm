@@ -1,0 +1,575 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Print library  The Print Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="format.htm">
+<LINK REL="Previous" HREF="STANDA~1.htm"></HEAD>
+<BODY>
+
+<H2>Print library</H2>
+<P ALIGN=CENTER>
+<A HREF="STANDA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="format.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E56" >1. Print Functions</A>
+<LI>
+<A HREF="#E8E57" >2. Print Request Inspection Functions</A>
+<LI>
+<A HREF="#E8E58" >3. Pretty Printing</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E7"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The Print Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=CENTER>
+<CENTER><B>Designed by the Gwydion Project</B></CENTER>
+<P ALIGN=CENTER>
+<CENTER><B>Version 1.0 : </B><B>04 June 97 </B></CENTER>
+<P>This document describes the Print library designed by the Gwydion Project at Carnegie Mellon University. This library provides an interface that outputs an object in Dylan literal syntax if the object can be represented as a Dylan literal, and otherwise, outputs the object in an implementation-dependent manner. There are essentially two functions, <B>print</B> and <B>print</B><B>-</B><B>object</B>. The <B>print</B> function accepts keyword arguments that form a print request, controlling features such as circular printing, how deep within a data structure to print, how many elements in long sequences to print before using an ellipsis notation, whether pretty printing is desired, and so on. Users extend <B>print</B>&#146;s ability to print various objects by adding methods to the <B>print-object</B> function. The <B>print</B> function handles most of the overhead to satisfy special print requests, outputting any special notations required, and it only calls <B>print-object</B> when it is necessary to print objects. Users should always call the <B>print</B> function to output objects, especially recursively from within <B>print-object</B> methods to output an object&#146;s components. Users should never call <B>print-object</B> directly.
+<P>The Print library exports two modules, Print and Pprint. The Gwydion implementation of this library requires the Gwydion Streams library.
+<BR>
+<A NAME="E8E56"></A>
+<H2><B>1. </B><B>Print Functions</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The <A NAME="I2"></A>Print module offers two functions for users to call to print objects, <B>print</B> and <B>print-to-string</B>.<A NAME="I3"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>*default-level*</B> [Variable]<A NAME="I4"></A></FONT>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>*default-length*</B> [Variable]<A NAME="I5"></A></FONT>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>*default-circle?*</B> [Variable]<A NAME="I6"></A></FONT>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>*default-pretty?*</B> [Variable]</FONT>
+<UL>
+<UL>These variables provide default values for calls to the <B>print</B> function. Their values are implementation-dependent.<A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E151"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E151"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E151"></A>
+<DD>#key level :: false-or(&lt;fixed-integer&gt;) = *default-level*,</DD>
+</UL></DL>
+<P>length :: false-or(&lt;fixed-integer&gt;) = *default-level*,
+<P>circle? :: &lt;boolean&gt; = *default-circle?*,
+<P>pretty? :: &lt;boolean&gt; = *default-pretty?*
+<DL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E152"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Prints <I>object </I>to <I>stream</I> according to the print request formed by the keyed arguments. A <I>first</I> call to <B>print</B> creates a printing stream to represent the print request, and recursive calls to <B>print</B> on this printing stream process the keyed arguments differently (see below). There are inspection functions for querying the print request (see Section <I>Print Request Inspection Functions</I>). When <B>print</B> actually prints an object, it calls <B>print-object</B>. Though the inspection functions for querying the print request allow you to inspect any parameter of the print request, <B>print-object</B> methods should only need to call <B>print-length</B>. All other aspects of the print request are handled by <B>print</B>. There is one exception which is described in Section <I>Pretty Printing</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Level</I> controls how deep into a nested data structure to print. The value #f indicates that there is no limit. The default, <B>*default-level*</B>, has no effect on recursive calls to <B>print</B>. Recursive calls to <B>print</B> may change the value of <B>print-level</B> explicitly, but <B>print</B> always uses a value to ensure the print request formed by the first call to <B>print</B> is never exceeded. For example, if a first call to <B>print</B> set the level to 5, and while at a depth of 3, a recursive call specified a level of 4, the recursive call would only descend 2 more levels, not 4.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Length</I> controls how many elements of a sequence to print before printing ellipsis notation (...). The value #f indicates that there is no limit. The <B>print</B><B>-</B><B>length</B> control can be interpreted loosely by some <B>print-object</B> methods to control how many <I>elements</I> of any kind of object to print; for example, the default <B>&lt;object&gt;</B> method might regard <B>print-length</B> to determine how many slot-name/value pairs to print. The default, <B>*default-length*</B>, has no effect on recursive calls to <B>print</B>. Recursive calls to <B>print</B> may change the value of <B>print-length</B> explicitly, but they may only decrease the value, never increase it.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Circle?</I> indicates whether printing should check all subcomponent references to make sure the printing process does not infinitely recurse through a data structure. Circular printing also tags objects that occur more than once when they are first printed, and later occurrences are printed as a reference to the previously emitted tag. The default, <B>*default-circle?*</B>, has no effect on recursive calls to <B>print</B>. If <B>print-circle?</B> is already #t, then it remains #t throughout all recursive calls. If <B>print-circle?</B> is #f, then recursive calls to <B>print</B> can change the value to #t; however, when printing exits the dynamic scope of the call that changed the value to #t, the value reverts back to #f. If the original call to <B>print</B> specifies <I>circle?</I> as #f, and dynamically distinct recursive calls turn circular printing on and off, all output generated while circular printing was on shares the same tagging space; that is, if #1# is printed twice, once from each of two distinct recursive calls to print, then each #1# is guaranteed to signify the same <B>\==</B> object.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Pretty?</I> indicates whether printing should attempt to insert line breaks and indentation to <I>format</I> objects according to how programmers tend to find it easier to <I>read</I> data. The default, <B>*default-pretty?*</B>, has no effect on recursive calls to <B>print</B>. If <B>print-pretty?</B> is already #t, then it remains #t throughout all recursive calls. If <B>print</B><B>-</B><B>pretty?</B> is #f, then recursive calls to <B>print</B> can change the value to #t; however, when printing exits the dynamic scope of the call that changed the value to #t, the value reverts back to #f.<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-to-string</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E153"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E153"></A>
+<DD>#key level :: false-or(&lt;fixed-integer&gt;) = *default-level*,</DD>
+</UL></DL>
+<P>length :: false-or(&lt;fixed-integer&gt;) = *default-level*,
+<P>circle? :: &lt;boolean&gt; = *default-circle?*,
+<P>pretty? :: &lt;boolean&gt; = *default-pretty?*
+<DL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E154"></A>
+<DD>result :: &lt;byte-string&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Calls <B>print</B> to produce output according to the print request formed by the keyed arguments and returns the output as a string.<A NAME="I9"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-object</B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E155"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E155"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E156"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Users extend <B>print</B>&#146;s ability to print various objects by adding methods to the <B>print-object</B> function. When <B>print</B> actually prints an object, it calls <B>print-object</B>. Users should never call <B>print-object</B> directly.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E57"></A>
+<H2><B>2. </B><B>Print Request Inspection Functions</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Print module exports the following functions for querying the print request and current print state:<A NAME="I10"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-length</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E157"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E158"></A>
+<DD>length :: false-or(&lt;fixed-integer&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the current value for the print request. See the <B>print</B> function for details.<A NAME="I11"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-level</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E159"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E160"></A>
+<DD>level :: false-or(&lt;fixed-integer&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the current value for the print request. See the <B>print</B> function for details. Users should have little use for this function because <B>print</B> takes care to call <B>print-object</B> only when the print level has not been exhausted.<A NAME="I12"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-depth</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E161"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E162"></A>
+<DD>depth :: false-or(&lt;fixed-integer&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the current depth to which printing has descended into the object on which <B>print</B> was originally called. Users should have little use for this function because <B>print</B> takes care to call <B>print-object</B> only when the print level has not been exhausted.<A NAME="I13"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-circle?</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E163"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E164"></A>
+<DD>circle? :: &lt;boolean&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns whether circular printing is on. Users should have little use for this function because <B>print</B> takes care to detect circularities, tag multiply referenced objects, and emit tags rather than descending into objects to repeatedly print them.<A NAME="I14"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-pretty?</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E165"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E166"></A>
+<DD>pretty? :: &lt;boolean&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns whether pretty printing is on. Users should have little use for this function (see Section <I>Pretty Printing</I>).
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E58"></A>
+<H2><B>3. </B><A NAME="I15"></A><B>Pretty Printing</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Print library implements most of the pretty printing technology described by <A NAME="I16"></A>Richard C. Waters in <I>Common Lisp The </I><I>Language</I>, second edition. The interface is slightly different because Mindy does not have macros. This section only summarizes the pretty printing functionality to provide a quick reference for users of the Print library, and readers should refer to the Common Lisp manual for more details.
+<P>When writing <B>print-object</B> methods, users can ignore whether pretty printing is in effect. If you write your <B>print-object</B> method using pretty printing functions, then when pretty printing is in effect, the output will be pretty printed. When pretty printing is not in effect, your method will produce output as though you had not written it to use pretty printing. All <B>print</B><B>-</B><B>object</B> methods that are written to do pretty printing must call the pretty printing functions within the dynamic scope of a call to <B>pprint-logical-block</B>; otherwise, the pretty printing functions are no-ops.
+<P>The Pprint module exports the following variables:<A NAME="I17"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>*default-line-length*</B> [Variable]</FONT>
+<UL>
+<UL>This is the line length used by the pretty printer to determine how much output will fit on a single line. The value must be an <B>&lt;integer&gt;</B>, and it defaults to 80.<A NAME="I18"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>*print-miser-width*</B> [Variable]</FONT>
+<UL>
+<UL>This variable controls <I>miser mode</I>. Whenever a logical block (see <B>pprint-logical-block</B>) begins in a column of output that is greater than *default-line-length* - *print-miser-width*, then pretty printing is in miser mode. The value must be an integer or #f (the default). #f indicates that the pretty printer should never enter miser mode.<A NAME="I19"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>pprint-logical-block</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E167"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E167"></A>
+<DD>#key prefix :: false-or(&lt;byte-string&gt;)</DD>
+</UL></DL>
+<P>per-line-prefix :: false-or(&lt;byte-string&gt;)
+<P>body :: &lt;function&gt;
+<P>suffix :: false-or(&lt;byte-string&gt;)
+<P>column :: limited(&lt;fixed-integer&gt;, min: 0)
+<DL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E168"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function groups printing into a logical block. The logical block provides boundaries for new levels of indentation, affects #&quot;linear&quot; newlines, and so on. <I>Prefix</I> is a string to print at the beginning of the logical block. The blocks indentation is automatically set to be one character position greater than the column in which <I>prefix</I> ends. Alternatively, <I>per-line-prefix</I> is a string to print on every line of the logical block. This function signals an error if it is called with both <I>prefix</I> and <I>per-line-prefix</I> supplied as non-#f. <I>Suffix</I> is a string to print at the end of the logical block. <I>Column</I> advises the pretty printer as to the current column of the output stream (defaults to zero). The <I>column</I> argument may be ignored entirely by some methods, and it may be ignored in some cases by methods that can better determine the stream&#146;s current output column.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Body</I> must be a function that can take one argument, and this argument is a stream. The <I>body</I> function should use the stream argument passed to it; the <I>body</I> function should not close over the stream argument to <B>pprint</B><B>-</B><B>logical</B><B>-</B><B>block</B>. <B>Pprint-logical-block</B> wraps <I>stream</I> with a pretty printing stream when <I>stream</I> is any other kind of stream. If <I>stream</I> is already a pretty printing stream, then the <I>body</I> function is called on <I>stream</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL>All <B>print</B><B>-</B><B>object</B> methods that are written to do pretty printing must call the other pretty printing functions within the dynamic scope of a call to <B>pprint-logical-block</B>; otherwise, the pretty printing functions are no-ops.<A NAME="I20"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>pprint-newline</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E169"></A>
+<DD>kind :: one-of(#&quot;fill&quot;, #&quot;linear&quot;, #&quot;miser&quot;, #&quot;mandatory&quot;)</DD>
+</UL>
+<UL>
+<A NAME="E7E169"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E170"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function announces a conditional newline to the pretty printer. The pretty printer emits a newline depending on the <I>kind</I> and the state of the pretty printer&#146;s current line buffer. The <I>kind</I> argument has roughly the following meanings:
+<BR>
+</UL></UL>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;fill&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>Emit a newline if the current <I>section</I> of output does not fit on one line.
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;linear&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>Emit a newline if any #&quot;linear&quot; newline in the current <I>section</I> needs to be emitted. That is, if a current <I>section</I> of output cannot fit on one line, and any one of the #&quot;linear&quot; newlines in the section needs to be emitted, then emit them all.
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;miser&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>Emit a newline as if it were a #&quot;linear&quot; newline, but only when <I>miser</I> <I>mode</I> is in effect. Miser style is in effect when a logical block starts past a particular column of output.
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;mandatory&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>Emit a newline always. Establish that any containing <I>sections</I> cannot be printed on a single line so that #&quot;linear&quot; and #&quot;miser&quot; newlines will be emitted as appropriate.<A NAME="I21"></A>
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>pprint-indent</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E171"></A>
+<DD>relative-to :: one-of(#&quot;block&quot;, #&quot;current&quot;)</DD>
+</UL>
+<UL>
+<A NAME="E7E171"></A>
+<DD>n :: &lt;fixed-integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E171"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E172"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function specifies the indentation to use within the current logical block. When <I>relative-to</I> is #&quot;block&quot;, then <B>pprint-indent</B> sets the indentation to the column of the first character of the logical block plus <I>n</I>. When <I>relative-</I><I>to</I> is #&quot;current&quot;, then <B>pprint-indent</B> sets the indentation to the current column plus <I>n</I>.<A NAME="I22"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>pprint-tab</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E173"></A>
+<DD>kind :: one-of(#&quot;line&quot;, #&quot;line-relative&quot;, #&quot;section&quot;, #&quot;section-relative&quot;)</DD>
+</UL>
+<UL>
+<A NAME="E7E173"></A>
+<DD>colnum :: &lt;fixed-integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E173"></A>
+<DD>colinc :: &lt;fixed-integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E173"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E174"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function announces a tab to the pretty printer. <I>Colnum</I> and <I>colinc</I> have meaning based on the value of <I>kind</I>:
+<BR>
+</UL></UL>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;line&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>Tab to output column <I>colnum</I>. If the output is already at or beyond <I>colnum</I>, then add <I>colinc</I> to <I>colnum</I> until printing can continue at a column beyond the end of the output already on the line.
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;line-relative&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>Output <I>colnum</I> spaces. Then output enough spaces to tab to a column that is a multiple of <I>colinc</I> from the beginning of the line.
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;section&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>This is similar to #&quot;line&quot;, but column counting is relative to the beginning of the current <I>section</I> rather than the beginning of the line.
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<DL>
+<UL>
+<UL>
+<DT>#&quot;section-relative&quot;</DT>
+</UL></UL></DL>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<P>This is similar to #&quot;line-relative&quot;, but column counting is relative to the beginning of the current <I>section</I> rather than the beginning of the line.
+</BLOCKQUOTE></BLOCKQUOTE></BLOCKQUOTE>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="STANDA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="format.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

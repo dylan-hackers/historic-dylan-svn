@@ -1,0 +1,385 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Time Library  The Time Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="random.htm">
+<LINK REL="Previous" HREF="TRANSC~1.htm"></HEAD>
+<BODY>
+
+<H2>Time Library</H2>
+<P ALIGN=CENTER>
+<A HREF="TRANSC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="random.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E95" >1. Introduction</A>
+<LI>
+<A HREF="#E8E96" >2. The Time Module</A>
+<LI>
+<A HREF="#E8E97" >3. The Time-IO Module</A>
+<LI>
+<A HREF="#E8E98" >4. Parse-Time Directives</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E16"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The </B><A NAME="I2"></A><B>Time Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=CENTER>
+<CENTER><B>Designed by the Gwydion Project</B></CENTER>
+<BR>
+<A NAME="E8E95"></A>
+<H2><B>1. </B><B>Introduction</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Time is a library of routines for working with time and dates. Time exports two modules:
+<DL>
+<DT><B>Time</B></DT>
+<UL>
+<UL>
+<DT>This module contains the basic time classes, functions to convert between them, and functions to get the current time.</DT>
+</UL></UL>
+<DT><B>Time-IO</B></DT>
+<UL>
+<UL>
+<DT>This module contains functions for basic time input and output.</DT>
+</UL></UL></DL>
+<P><I>Note</I>: The Time library is not available on all platforms. At present, it will work only under HP/UX and Microsoft Windows.
+<BR>
+<A NAME="E8E96"></A>
+<H2><B>2. </B><B>The </B><A NAME="I3"></A><B>Time Module</B><A NAME="I4"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;universal-time&gt;</B> [Class]</FONT>
+<UL>
+<UL>A <B>&lt;universal-time&gt;</B> is a simple <B>&lt;general-integer&gt;</B> representation of the number of seconds since 00:00:00 1 January 1970, UTC.<A NAME="I5"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;decoded-time&gt;</B> [Sealed Immutable Class]</FONT>
+<UL>
+<UL>Decoded time is for representing absolute times in a nice human readable way. The <B>&lt;decoded-time&gt;</B> class contains the following constant slots: <A NAME="I6"></A><I>seconds,</I><A NAME="I7"></A><I> minutes, </I><A NAME="I8"></A><I>hours, </I><A NAME="I9"></A><I>day-of-week</I> (0 represents Monday, 1 represents Tuesday, etc.), <A NAME="I10"></A><I>day-of-month, </I><A NAME="I11"></A><I>month, </I><A NAME="I12"></A><I>year, </I><A NAME="I13"></A><I>daylight-savings-time?, </I>and<I> </I><A NAME="I14"></A><I>timezone</I> (in seconds west of UTC). Keywords of the same names are used to initialize these slots. A <B>&lt;decoded-time&gt;</B> may be incompletely specified; any of its slots may be #f. An additional init-keyword is default-from:. If default-from: is specified, any slot that isn&#146;t specified via an init-keyword will take its value of the <I>default-from</I> object. If default-from: is not specified, any slot not specified via an init-keyword will have a value of #f.
+<BR>
+</UL></UL>
+<UL>
+<UL>Note: If the timezone is specified in a <B>&lt;decoded-time&gt;,</B> the functions in the time library assume that it is the correct timezone and ignore the <I>daylight-savings-time?</I> flag. Therefore if you encode a <B>&lt;decoded-time&gt;</B> with the timezone representing EST and the <I>daylight-savings-time?</I> flag set to <B>#t,</B> it will convert the time assuming the local timezone is EST, <I>not</I> EDT.<A NAME="I15"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;seconds&gt;</B> [Type]
+<BR><A NAME="I16"></A><B>&lt;minutes&gt;</B> [Type]
+<BR><A NAME="I17"></A><B>&lt;hours&gt;</B> [Type]
+<BR><A NAME="I18"></A><B>&lt;day-of-week&gt;</B> [Type]
+<BR><A NAME="I19"></A><A NAME="I20"></A><B>&lt;day-of-month&gt;</B> [Type]
+<BR><A NAME="I21"></A><B>&lt;month&gt;</B> [Type]
+<BR><A NAME="I22"></A><B>&lt;year&gt;</B> [Type]
+<BR><A NAME="I23"></A><A NAME="I24"></A><B>&lt;timezone&gt;</B> [Type]</FONT>
+<UL>
+<UL>These are all limited integers that represent the acceptable ranges for the respective slots in the <B>&lt;decoded-time&gt;</B> class.<A NAME="I25"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>get-universal-time</B> ()<I> =&gt; universal-time</I> [Function]</FONT>
+<UL>
+<UL>Returns the current time as a <B>&lt;universal-time&gt;.</B><A NAME="I26"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>get-decoded-time</B> (<I>#key timezone</I>) =&gt; <I>decoded-time</I> [Function]</FONT>
+<UL>
+<UL>Returns the current time as a completely specified <B>&lt;decoded-time&gt;.</B> The time returned is relative to the timezone indicated by the <I>timezone</I> keyword parameter. The <I>timezone</I> parameter is the number of seconds west of UTC, which defaults to the local timezone.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Known Bug:</I> Mindy for MS-Windows will give an incorrect timezone. We have no idea why. (d2c under Windows gives the correct timezone)<A NAME="I27"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>decode-time</B> (<I>universal-time, #key timezone</I>) =&gt;<I> decoded-time</I> [Function]</FONT>
+<UL>
+<UL>Returns the supplied <B>&lt;universal-time&gt;</B> as a completely specified <B>&lt;decoded-time&gt;.</B> The time returned is relative to the timezone indicated by the <I>timezone</I> keyword keyword paramter (in seconds west of UTC). The timezone defaults to the local timezone.<A NAME="I28"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>as(&lt;decoded-time&gt;</B>, <I>universal-time</I>) =&gt; <I>decoded-time</I> [G.F. Method]</FONT>
+<UL>
+<UL>Equivalent to decode-time(universal-time).<A NAME="I29"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>encode-time</B>(<I>decoded-time</I>) =&gt; <I>universal-time</I> [Function]</FONT>
+<UL>
+<UL>Returns the supplied <B>&lt;decoded-time&gt;</B> as a <B>&lt;universal-time&gt;.</B> Only completely specified decoded-times can be encoded (as determined by <B>encodable-time?</B>. An error is returned if the decoded-time is not encodable.<A NAME="I30"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>encodable-time?</B>(<I>decoded-time</I>) =&gt; <I>boolean</I> [Function]</FONT>
+<UL>
+<UL>Returns <B>#t</B> if the time can be encoded. A <B>&lt;decoded-time&gt;</B> is encodable if all its slots are specified, except possibly day-of-week.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E97"></A>
+<H2><B>3. </B><B>The Time-IO Module</B><A NAME="I31"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>format-time</B> [Function]</FONT>
+<P><I>(stream, format-string, decoded-time)</I>
+<BR><I>=&gt; ()</I>
+<UL>
+<UL>This is a wrapper for the C function <A NAME="I32"></A>strftime. <I>Format-string</I> is a string describing the format for the output written to <I>stream</I>.<A NAME="I33"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>parse-time</B> [Function]</FONT>
+<P><I>(input-stream, control-string)</I>
+<BR><I>=&gt; decoded-time</I>
+<UL>
+<UL>This function is similar to the C function <A NAME="I34"></A>strptime, but contains considerably fewer directives. (See below for a complete list of directives) <B>Parse-time</B> works by trying to match things in <I>input-stream</I> up against things in the <I>control-string</I>. A whitespace character inside <I>control-string</I> will match zero or more whitespace characters in <I>input-stream</I>, a <I>control-string</I> directive will match as described below, and all other characters match themselves (case sensitive). If a directive expects a number, a leading zero is optional but not required. Two consecutive directives that expect numbers must be separated by something non-numeric (such as whitespace or characters like &#145;:&#146;, &#145;-&#146;, and &#145;/&#146;), otherwise <B>parse-time</B> can&#146;t tell where the first directive should stop parsing and the second one should begin. Similarly, two consecutive directives that expect words must be separated by something non-alphabetic.
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>input-stream</I> does not match <I>control-string</I>, a <B>&lt;time-parsing-error&gt;</B> will be signaled, and additional input will not be read from <I>input-stream</I>. An unknown <I>control-string </I>directive is an error, but is not a <B>&lt;time-parsing-error&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Caveat</I>: The C specification numbers days of the week differently from the Dylan Time library (C has Sunday as day 0, while Dylan uses Monday for day 0). The <B>parse-time</B> and <B>format-time</B> functions correctly convert between the two conventions, but this can have unexpected consequences:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            make(&lt;decoded-time&gt;, day-of-week: 0)</PRE>
+</CODE>
+<UL>
+<UL>is not the same as
+<BR>
+</UL></UL>
+<CODE>
+<PRE>           let stream = make(&lt;string-stream&gt;, string: &quot;0&quot;);
+<BR>             parse-time(stream, &quot;%w&quot;)</PRE>
+</CODE>
+<BR>
+<A NAME="E8E98"></A>
+<H2><B>4. </B><A NAME="I35"></A><B>Parse-Time </B><A NAME="I36"></A><B>Directives</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<UL>
+<UL>Control-strings consist of directives, much like format-strings from the Format library do. Unlike the Format library, <B>parse-time</B> directives are case sensitive. (This is mostly because &quot;minute&quot; and &quot;month&quot; start with the same letter) <B>Parse-time</B> supports the following directives:<A NAME="I37"></A>
+<BR>
+</UL></UL>
+<DL>
+<DT><B>%a</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Day of the week, as a name. Either the full name (ie, &quot;Monday&quot;), or the three letter abbreviation (&quot;Mon&quot;) may be used; case does not matter.<A NAME="I38"></A>
+</UL></UL>
+<DL>
+<DT><B>%b</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Month of the year, as a name. Either the full name (ie, &quot;January&quot;), or the three letter abbreviation (&quot;Jan&quot;) may be used; case does not matter.<A NAME="I39"></A>
+</UL></UL>
+<DL>
+<DT><B>%d</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Day of the month.<A NAME="I40"></A>
+</UL></UL>
+<DL>
+<DT><B>%D</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Date as either &quot;%m/%d/%y&quot; or &quot;%m-%d-%y&quot;.<A NAME="I41"></A>
+</UL></UL>
+<DL>
+<DT><B>%H</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Hour on a 24 hour clock (ie, 0-23).<A NAME="I42"></A>
+</UL></UL>
+<DL>
+<DT><B>%I</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Hour on a 12 hour clock (ie, 1-12).<A NAME="I43"></A>
+</UL></UL>
+<DL>
+<DT><B>%m</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Month number (1-12).<A NAME="I44"></A>
+</UL></UL>
+<DL>
+<DT><B>%M</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Minute (0-59).<A NAME="I45"></A>
+</UL></UL>
+<DL>
+<DT><B>%p</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Either &quot;AM&quot; or &quot;PM&quot;. Case does not matter, but the &quot;AM&quot; or &quot;PM&quot; may not contain periods (&#145;.&#146;).<A NAME="I46"></A>
+</UL></UL>
+<DL>
+<DT><B>%r</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Equivalent to &quot;%I:M:S %p&quot;. In other words, 12-hour time with AM/PM.<A NAME="I47"></A>
+</UL></UL>
+<DL>
+<DT><B>%S</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Seconds (0-59). Unlike C&#146;s strptime, leap-seconds and double-leap-seconds are not allowed.<A NAME="I48"></A>
+</UL></UL>
+<DL>
+<DT><B>%T</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Equivalent to &quot;%H:%M:%S&quot;<A NAME="I49"></A>
+</UL></UL>
+<DL>
+<DT><B>%w</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Weekday number, with 0 as Monday.<A NAME="I50"></A>
+</UL></UL>
+<DL>
+<DT><B>%y</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Year. If less than 100, assume an implicit &quot;19&quot; in front of it.<A NAME="I51"></A>
+</UL></UL>
+<DL>
+<DT><B>%Y</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Year. Do not assume any implicit &quot;19&quot;.<A NAME="I52"></A>
+</UL></UL>
+<DL>
+<DT><B>%%</B></DT>
+</DL>
+<UL>
+<UL>
+<P>A single % character.
+</UL></UL>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="TRANSC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="random.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

@@ -1,0 +1,238 @@
+<HTML>
+<HEAD>
+<TITLE>Building Gwydion Dylan on Unix</TITLE>
+</HEAD>
+<BODY>
+ 
+<H2>Building Gwydion Dylan on Unix</H2>
+<HR>
+<P>
+<DL>
+<DT><H2>Automatic Configuration</H2>
+<DD>
+To configure Gwydion Dylan for your system, simply type
+"<SAMP>./configure</SAMP>" and wait for configure to figure things out.  When
+that is done, begin the compilation by typing "<SAMP>make</SAMP> (or
+"<SAMP>gmake</SAMP>" if you have GNU make).  When the compilation is done, type
+"<SAMP>make install</SAMP>" to install the executable and libraries.  (Note:
+you will need write permission for the directories that files are being installed to; see below)
+
+<P>
+The default installation directory for executables is 
+<SAMP>/usr/local/bin</SAMP>;
+for libraries it is <SAMP>/usr/local/lib/dylan</SAMP>  You can change the prefix
+for these paths from <SAMP>/usr/local</SAMP> to <VAR>whatever</VAR> by typing
+"<SAMP>configure --prefix=</SAMP><VAR>whatever</VAR>".
+It is not a good idea to specify the path name
+using a tilde (~) because tilde has a special meaning only in csh.
+make uses sh, so tildes probably won't do what you want them to.
+
+<P>
+If you want to build in <VAR>one-place</VAR> while the sources are
+kept in <VAR>another-place</VAR>, then type:
+<PRE>
+    cd <VAR>one-place</VAR>; <VAR>another-place</VAR>/configure
+</PRE>
+and <SAMP>configure</SAMP> will construct the appropriate directories and
+Makefiles.
+
+<P>
+<DT><H2>Custom Configuration</H2>
+<DD>
+If the automatic configuration doesn't work, or if you need to specify
+different optimization options, etc., then things get more interesting, and you
+need to have some understanding of how things work.  Though an Autoconf
+generated configure script is used as the front end to configuration, only the
+C code for <SAMP>mindy</SAMP> and <SAMP>mindycomp</SAMP> really make use of
+autoconf in any nontrivial way.  All of the Dylan code is configured using the
+<A HREF="tools.html">Makegen</A> mechanism, which is a system of Perl scripts.
+
+
+<P>
+<H3>Autoconf overrides</H3>
+
+The compilation of mindy and mindycomp can be tweaked via environment
+variables:
+<PRE>
+	CC	specifies the C compiler to use
+	CCOPTS	specifies options to pass to the C compiler
+	YACC	specifies the parser generator
+	LEX	specifies the lexer generator
+	LFLAGS	specifies the flags passed to LEX
+</PRE>
+
+The default C compiler options (<SAMP>CCOPTS</SAMP>) are 
+"<SAMP>-g -O4 -finline-functions -Wall</SAMP>" if you are using gcc, 
+and "<SAMP>-g -O</SAMP>" otherwise.
+If you are not using gcc, we <EM>highly</EM> recommend you read the man page
+for your compiler and supply the flags that ask for the maximum optimization.
+(Note that on many compilers, <SAMP>-g</SAMP>, "generate debugging information",
+and <SAMP>-O</SAMP>, "optimize", are mutually exclusive.  If you have to choose
+between the two, go with optimization.)
+
+<P>
+Options can be passed to make by using environment variables: Using
+<SAMP>/bin/sh</SAMP>, say 
+"<SAMP>VARNAME=option make -e</SAMP>" (<SAMP>-e</SAMP> tells make to look at the
+environment variables).  Under gmake, options can also be passed via
+the command line: "<SAMP>gmake VARNAME=option</SAMP>".
+
+<P>
+<H3>Makegen parameters</H3>
+
+To change parameters to Makegen, change the <SAMP>Defaults</SAMP> file at the
+root of the Gwydion build tree.  The default <SAMP>Defaults</SAMP> is created
+by <SAMP>configure</SAMP> from <SAMP>configure.in</SAMP>.
+
+<P>
+You can clean up any previously made object files and executables 
+with "<SAMP>make clean</SAMP>".
+
+<P>Here's what a sample installation might look like:
+<PRE>
+        /bin/sh           # Need the Bourne shell to pass options to make
+	./configure --prefix=/usr/bob
+	CCOPTS="-g -O3" make -e
+	make install
+	exit              # exit the shell you just launched
+</PRE>
+This would install binaries to <SAMP>/usr/bob/bin</SAMP>, and library files to
+<SAMP>/usr/bob/lib/dylan</SAMP>.
+	
+
+<DT><H2>Porting Gwydion Dylan</H2>
+<DD>
+
+In theory it should be possible to get Gwydion Dylan working on most any
+machine that has an ANSI C compiler.  In practice, some assembly is required.
+<P>
+<DL>
+
+<DT><EM>Porting Mindy</EM>
+<DD>
+Mindy is pretty portable, and versions of Mindy have been successfully built on
+the following platforms:
+<PRE>
+	Hardware	OS		Compiler
+	--------	--		--------
+	HP Apollo	HPUX 9.03	gcc
+	HP 9000/800	HPUX A.09.04	cc
+	DEC pmax 	Mach 2.6	gcc
+	DEC pmax	Ultrix 4.x	gcc
+	SGI 		IRIX 4.0.5 	gcc and sgi-cc
+	SGI 		IRIX 5.2 	sgi-cc
+	Sun 		SunOS 4.11	gcc
+	Sun		Solaris	2.3	cc
+	IBM PowerPC 250	AIX 4.1		cc
+	PC clone 	Linux 1.2.0     gcc
+</PRE>
+<P>
+Mindy can <EM>not</EM> be built out of the box on the DEC Alpha.  If you
+would like to port Mindy to the Alpha or any other architecture where
+Mindy does not easily compile, send mail to
+  <A HREF="mailto:gwydion-bugs@cs.cmu.edu">gwydion-bugs@cs.cmu.edu</A>
+and we will try to provide as much help as we can.
+
+<P>
+<DT><EM>Porting d2c</EM>
+<DD>
+d2c is not as portable as Mindy:
+<UL>
+<LI> It has some knowledge of the assembler
+pseudo-ops in order to build the initial heap image (no actual instructions are
+generated this way.)
+<LI> It has to know how to run the C compiler, build libraries, run make,
+generate makefiles, etc.
+<LI> It depends on the 
+  <A HREF="../../src/d2c/runtime/gc/README">
+Boehm conservative garbage collector</A>.
+</UL>
+<P>
+The main hooks for porting d2c are the Makegen <SAMP>Defaults</SAMP> and the 
+<SAMP><A HREF="../../src/d2c/compiler/platforms.descr">platforms.descr
+</A></SAMP> files.  So far every port has also required Dylan code
+modification, but you might be lucky.  Extra work is required to port Melange
+and DIG, see the platform-specific files in those source directories.
+</DL>
+
+<P>
+If you have successfully compiled Gwydion Dylan on another architecture,
+please send mail to
+ <A HREF="mailto:gwydion-bugs@cs.cmu.edu">gwydion-bugs@cs.cmu.edu</A>
+and we will add that architecture to the list.  Please include the
+operating system version and what compiler you used.  If changes were
+required, please send diffs as well.
+<P>
+
+
+
+
+<P>
+<DT><H2>Build Trouble Shooting Tips</H2>
+<DD>
+<DL>
+<P><DT>When I went to "<SAMP>make install</SAMP>" I got permission denied errors.
+<DD>
+  You need to be the super user to install into <SAMP>/usr/local</SAMP>. Become
+  the 
+  super user, or ask you system admin to do it for you, or pick an
+  unprivileged  location, eg your home directory, and re-run configure:
+  "<SAMP>./configure --prefix=$HOME; make install</SAMP>"
+
+<P><DT>
+	
+When I tried "<SAMP>prefix=$HOME make -e install</SAMP>" the shell said
+"<SAMP>prefix=$HOME: Command not found</SAMP>".
+<DD>
+  You're running a C shell, while our instructions tell you how to pass local
+  environment bindings using the Bourne shell (<SAMP>/bin/sh</SAMP>).  You can
+  run the standard <SAMP>/bin/sh</SAMP> and repeat the procedure, or you may set
+  the environments globally with the C shell `setenv' command before running
+  make.
+
+<P><DT>When I went to "<SAMP>make install</SAMP>" I got 
+"<SAMP>cannot unlink</SAMP>" errors.
+<DD>
+  The <SAMP>install-sh</SAMP> script is trying to rename the files rather than
+  copying them.  Try "<SAMP>MVPROG=cp make install</SAMP>". 
+
+<P><DT> When I went to `make' the compiler choked making 
+<SAMP>mindy/compat/sigaction.o</SAMP>.
+<DD>
+  Your machine does not have a POSIX signal handling package, and the
+  default fallback to BSD signal handling didn't work either.  You can
+  try the System V emulation by adding -DUSG_SIGNALS to the options used
+  to compile sigaction.o.  Alternatively, there may be some magic word
+  that is needed to open up the BSD compatibility on your system.  Look
+  in <SAMP>/usr/include/signal.h</SAMP> and see if it gives any clues.
+
+<P><DT>Everything went fine until the final linking step for mindy or
+  mindycomp, then I got a message about undefined symbols.
+<DD>
+  You've found a hole in our compat library.  It could be easy or
+  difficult to fix.  Send mail to
+ <A HREF="mailto:gwydion-bugs@cs.cmu.edu">gwydion-bugs@cs.cmu.edu</A>.
+  Please include the operating system version and what compiler you
+  used.
+
+<P><DT>I'm compiling Mindy, and I get this error:
+<PRE>
+	ld: driver.o: relocation format botch (symbol type))
+	collect2: ld returned 4 exit status
+</PRE>
+<DD>
+
+  There is a bug in some versions of gcc for the Sun.  Try recompiling
+  <SAMP>driver.o</SAMP> with a different compiler or with optimizations off.
+
+</DL>
+</DL>
+
+
+<P ALIGN=CENTER><HR>[ <A
+HREF="http://legend.gwydion.cs.cmu.edu/gwydion">Gwydion home page</A> |
+<A HREF="mailto:gwydion-group@cs.cmu.edu">mail to gwydion-group</A>
+]</P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,404 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Regular Expressions  The Regular Expressions Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="TRANSC~1.htm">
+<LINK REL="Previous" HREF="STRING~1.htm"></HEAD>
+<BODY>
+
+<H2>Regular Expressions</H2>
+<P ALIGN=CENTER>
+<A HREF="STRING~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="TRANSC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E89" >1. Introduction</A>
+<LI>
+<A HREF="#E8E90" >2. Exported Names</A>
+<LI>
+<A HREF="#E8E91" >3. Known bugs</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E14"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The </B><A NAME="I2"></A><B>Regular Expressions Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=CENTER>
+<CENTER><B>Designed by the Gwydion Project</B></CENTER>
+<BR>
+<A NAME="E8E89"></A>
+<H2><B>1. </B><B>Introduction</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Regular-expressions library exports the Regular-expressions module, which contains various functions that deal with regular expressions (<A NAME="I3"></A><I>regexps</I>).  The module is based on Perl (version 4), and has the same semantics unless otherwise noted.  The syntax for Perl-style regular expressions can be found on page 103 of <I>Programming </I><A NAME="I4"></A><I>Perl</I> by Larry Wall and Randal L. Schwartz.  There are some differences in the way String-extensions handles regular expressions. The biggest difference is that regular expressions in Dylan are case insensitive by default.  Also, when given an unparsable regexp, String-extensions will produce undefined behavior while Perl would give an error message.
+<P>A regular expression that is grammatically correct may still be illegal if it contains an infinitely quantified sub-regexp that may match the empty string. That is, if R is a regexp that can match the empty string, then any regexp containing R*, R+, and R{n,} is illegal. In this case, the Regular-expressions library will signal an <B>&lt;illegal-regexp&gt;</B> error when the regexp is parsed. Note: Perl also has this restriction, although it isn&#146;t mentioned in <I>Programming Perl</I>.
+<P>In previous versions of the regular-expressions library, each basic function had a companion function that would pre-compute some information needed to use the regular expression. By using the companion function, one could avoid recomputing the same information. In the present version, the regular-expressions library caches this information, so the companion functions are no longer necessary and should be considered obsolete. However, they have been kept for backwards compatibility.
+<P>Companion functions differ in details, but they all essentially return curried versions of their corresponding basic function. For example, the following two pieces of code yield the same result:
+<CODE>
+<PRE>            regexp-position(&quot;This is a string&quot;, &quot;is&quot;);
+            let is-finder = make-regexp-positioner(&quot;is&quot;);
+<BR>            is-finder(&quot;This is a string&quot;);</PRE>
+</CODE>
+<P>Both pieces of code should have roughly the same performance, even if the code is inside a loop.
+<BR>
+<A NAME="E8E90"></A>
+<H2><B>2. </B><B>Exported Names</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The following names are exported by the Regular-Expressions module of the Regular-Expressions library:<A NAME="I5"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>regexp-position</B> [Function]</FONT>
+<P><I>(big-string, regexp, #key start, end, case-sensitive)</I>
+<BR><I>=&gt; variable-number-of-marks-or-#f</I>
+<UL>
+<UL>This function returns the index of the start of the regular expression in the <I>big-string</I>, or #f if the regular expression is not found.  As a second value, it returns the index of the end of the regular expression in the <I>big-</I><I>string </I>(assuming it was found; otherwise there is no second value). These values are called marks, and they come in pairs, a start-mark and an end-mark. If there are groups in the regular expression, <B>regexp-position</B> will return an additional pair of marks (a start and an end) for each group.  If the group is matched, these marks will be integers; if the group is not matched, the marks will be #f. So 
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            regexp-position(&quot;This is a string&quot;, &quot;is&quot;);</PRE>
+</CODE>
+<UL>
+<UL>returns values(2, 4), and 
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            regexp-position(&quot;This is a string&quot;, &quot;(is)(.*)ing&quot;);</PRE>
+</CODE>
+<UL>
+<UL>returns values(2, 16, 2, 4, 4, 13), while
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            regexp-position(&quot;This is a string&quot;, &quot;(not found)(.*)ing&quot;);</PRE>
+</CODE>
+<UL>
+<UL>returns #f. Marks are always given relative to the start of <I>big-string</I>, not relative to the <I>start:</I> keyword.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Start:</I> and <I>end:</I> specify what part of <I>big-string</I> to look at, and they default to the beginning and end of the string, respectively. <I>Case-sensitive</I> defaults to false.<A NAME="I6"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-regexp-positioner</B> [Function]</FONT>
+<P><I>(regexp, #key byte-characters-only, need-marks, maximum-compile, case-</I><I>sensitive)</I>
+<BR><I>=&gt; an anonymous positioner </I>
+<BR><I> </I><I>method (big-string, #key start, end)</I>
+<UL>
+<UL><B>Make-regexp-positioner</B> can return several different types of positioners, and it is up to the user to specify what kind of positioner the user wants. It returns a positioner that works like <B>regexp-position</B>. <I>Needs-marks</I>, <I>byte-</I><I>characters-only</I>, and <I>maximum-compile</I> are ignored, and are included only for backwards compatibility.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Note: This function is obsolete.</I><A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>regexp-replace</B> [Function]</FONT>
+<P><I>(big-string, search-for-regexp, replace-with-string, #key count, case-</I><I>sensitive, start, end)</I>
+<BR><I>=&gt; new-string</I>
+<UL>
+<UL>This replaces all occurrences of <I>regexp</I> in <I>big-string</I> with replace-string.  If <I>count:</I> is specified, it replaces only the first count occurrences of <I>regexp</I>.  (This is different from Perl, which replaces only the first occurrence unless /g is specified) <I>Replace-string</I> can contain backreferences to the regexp.  For instance,
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            regexp-replace(&quot;The rain in Spain and some other text&quot;,
+<BR>                           &quot;the (.*) in (\\w*\\b)&quot;, &quot;\\2 has its \\1&quot;)</PRE>
+</CODE>
+<UL>
+<UL>returns &quot;spain has its rain and some other text&quot;.  If the subgroup referred to by the backreference was not matched, the reference is interpreted as the null string.  For instance,
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            regexp-replace(&quot;Hi there&quot;, &quot;Hi there(, Bert)?&quot;, 
+<BR>                           &quot;What do you think\\1?&quot;)</PRE>
+</CODE>
+<UL>
+<UL>returns &quot;What do you think?&quot; because &quot;, Bert&quot; wasn&#146;t found.<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-regexp-replacer</B> [Function]</FONT>
+<P><I>(regexp, #key replace-with, case-sensitive)</I>
+<BR><I>=&gt; an anonymous replacer function that is either</I>
+<BR><I> </I><I>method (big-string, #key count, start, end)</I>
+<BR><I>or </I>
+<BR><I> </I><I>method (big-string, replace-string, #key count, start, end)</I>
+<UL>
+<UL>The first form is returned if the <I>replace-with:</I> keyword isn&#146;t supplied, otherwise the second form is returned.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Note: This function is obsolete.</I><A NAME="I9"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>translate</B> [Generic Function]</FONT>
+<P><I>(big-string, from-string, to-string, #key delete, start, end) </I>
+<BR><I>=&gt; new-string</I>
+<UL>
+<UL>This is equivalent to Perl&#146;s tr/// construct.  <I>From-string</I> is a string specification of a character set, and <I>to-string</I> is another character set.  <B>Translate</B> converts <I>big-string</I> character by character, according to the sets.  For instance,
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            translate(&quot;any string&quot;, &quot;a-z&quot;, &quot;A-Z&quot;)</PRE>
+</CODE>
+<UL>
+<UL>will convert &quot;any string&quot; to all uppercase: &quot;ANY STRING&quot;.
+<BR>
+</UL></UL>
+<UL>
+<UL>Like Perl, character ranges are not allowed to be &quot;backwards&quot;.  The following is not legal:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            translate(&quot;any string&quot;, &quot;a-z&quot;, &quot;z-a&quot;)</PRE>
+</CODE>
+<UL>
+<UL>(This restriction may be removed in future releases)  Unlike Perl&#146;s tr///, <B>translate</B> doesn&#146;t return the number of characters translated.
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>delete:</I> is true, any characters in the <I>from-string</I> that don&#146;t have matching characters in the <I>to-string</I> are deleted.  The following will remove all vowels from a string and convert periods to commas:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            translate(&quot;any string&quot;, &quot;.aeiou&quot;, &quot;,&quot;, delete: #t)</PRE>
+</CODE>
+<UL>
+<UL><I>Delete:</I> is false by default.  If delete: is false and there aren&#146;t enough characters in the <I>to-string</I>, the last character in the <I>to-string</I> is reused as many times as necessary.  The following converts several punctuation characters into spaces:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            translate(&quot;any string&quot;, &quot;,./:;[]{}()&quot;, &quot; &quot;);</PRE>
+</CODE>
+<UL>
+<UL><I>Start:</I> and <I>end:</I> indicate which part of <I>big-string</I> to translate.  They default to the entire string.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Caveats:</I>  <B>Translate</B> is always case sensitive.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>translate</B> [G.F. Method]</FONT>
+<P><I>(big-byte-string, from-byte-string, to-byte-string, #key delete, start, end) </I>
+<BR><I>=&gt; new-string</I>
+<UL>
+<UL>The only predefined method of <B>translate</B> operates only on byte strings.<A NAME="I10"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-translator</B> [Generic Function]</FONT>
+<P><I>(from-string, to-string, #key delete) </I>
+<BR><I>=&gt; an anonymous translator</I>
+<BR><I> </I><I>method (big-string, #key start, end) =&gt; new-string</I>
+<UL>
+<UL>Does what you&#146;d expect it to.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-translator</B> [G.F. Method]</FONT>
+<P><I>(from-byte-string, to-byte-string, #key delete) </I>
+<BR><I>=&gt; an anonymous translator</I>
+<BR><I> </I><I>method (big-string, #key start, end) =&gt; new-byte-string</I>
+<UL>
+<UL>Again, the existing method on make-translator only handles byte strings.<A NAME="I11"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>split</B> [Function]</FONT>
+<P><I>(regexp, big-string, #key count, remove-empty-items, case-sensitive, start, </I><I>end)</I>
+<BR><I>=&gt; a variable number of strings</I>
+<UL>
+<UL>This is like Perl&#146;s <B>split</B> function.  It searches <I>big-string</I> from occurrences of <I>regexp</I>, and returns substrings that were delimited by that regexp.  For instance,
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            split(&quot;-&quot;, &quot;long-dylan-identifier&quot;)</PRE>
+</CODE>
+<UL>
+<UL>returns values(&quot;long&quot;, &quot;dylan&quot;, &quot;identifier&quot;).  Note that what matched the regexp is left out.  <I>Remove-empty-items</I>, which defaults to true, magically skips over empty items, so that
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            split(&quot;-&quot;, &quot;long--with--multiple-dashes)</PRE>
+</CODE>
+<UL>
+<UL>returns values(&quot;long&quot;, &quot;with&quot;, &quot;multiple&quot;, &quot;dashes&quot;).  <I>Count</I> is the maximum number of strings to return.  If there are <I>n</I> strings and <I>count</I> is specified, the first <I>count</I> - 1 strings are returned as usual, and the <I>count</I>&#146;th string is the remainder, unsplit.  So
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            split(&quot;-&quot;, &quot;really-long-dylan-identifier&quot;, count: 3)</PRE>
+</CODE>
+<UL>
+<UL>returns values(&quot;really&quot;, &quot;long&quot;, &quot;dylan-identifier&quot;).  If <I>remove-empty-items</I> is true, empty items aren&#146;t counted.
+<BR>
+</UL></UL>
+<UL>
+<UL>Case sensitive determines if the regexp for the delimiter should be considered case sensitive or not; it defaults to case-insensitive. <I>Start:</I> and <I>end:</I> indicate what part of the big string should be looked at for delimiters.  They default to the entire string.  For instance,
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            split(&quot;-&quot;, &quot;really-long-dylan-identifier&quot;, start: 8)</PRE>
+</CODE>
+<UL>
+<UL>returns values(&quot;really-long&quot;, &quot;dylan&quot;, &quot;identifier&quot;).  
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Caveat</I>: Unlike Perl, empty regular expressions are never legal regular expressions, so there is no way to split a string into a bunch of single character strings. Of course, in Dylan this is not a useful thing to do, so this is not really a problem.<A NAME="I12"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-splitter</B> [Function]</FONT>
+<P><I>(pattern :: &lt;string&gt;, #key case-sensitive)</I>
+<BR><I>=&gt; an anonymous splitter </I>
+<BR><I> </I><I>method (big-string, #key count, remove-empty-items, start, end) =&gt; </I><I>buncha-strings</I>
+<UL>
+<UL>Does what you would expect.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Note: This function is obsolete.</I><A NAME="I13"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>join</B> [Function]</FONT>
+<P><I>(delimiter :: &lt;string&gt;, #rest strings) =&gt; big-string</I>
+<UL>
+<UL>Does the opposite of a <B>split</B>.
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            join(&quot;:&quot;, word1, word2, word3)</PRE>
+</CODE>
+<UL>
+<UL>is equivalent to
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            concatenate(word1, &quot;:&quot;, word2, &quot;:&quot;, word3)</PRE>
+</CODE>
+<UL>
+<UL>(and no more efficient)  Note that there is no <B>make-joiner</B>.<A NAME="I14"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;illegal-regexp&gt;</B> [Class]</FONT>
+<UL>
+<UL>When an illegal regular expression is parsed, an error of this type will be signalled.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E91"></A>
+<H2><B>3. </B><B>Known bugs</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The regular expression parser does a very poor job with syntactically invalid regular expressions. Depending on the expression, the parser may signal an error, improperly parse it, or simply crash.
+<P>A regular expression that matches a large enough substring can produce a stack overflow. This can happen much more easily under d2c than under Mindy -- as few as two dozen lines of 80 column text under d2c for Windows.
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="STRING~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="TRANSC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

@@ -1,0 +1,1984 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Dylan TK library  The TK Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="COLLEC~1.htm">
+<LINK REL="Previous" HREF="melange.htm"></HEAD>
+<BODY>
+
+<H2>Dylan TK library</H2>
+<P ALIGN=CENTER>
+<A HREF="melange.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="COLLEC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E61" >1. Introduction and Warning</A>
+<LI>
+<A HREF="#E8E62" >2. General Principles</A>
+<LI>
+<A HREF="#E8E63" >3. Parameter and Return Values</A>
+<LI>
+<A HREF="#E8E64" >4. The &quot;Standard&quot; Options</A>
+<LI>
+<A HREF="#E8E65" >5. Windows</A>
+<LI>
+<A HREF="#E8E66" >6. Packing</A>
+<LI>
+<A HREF="#E8E67" >7. Event bindings</A>
+<LI>
+<A HREF="#E8E68" >8. Active Variables</A>
+<LI>
+<A HREF="#E8E69" >9. The widget types</A>
+<UL>
+<LI>
+<A HREF="#E54E1" > &lt;button&gt;:</A>
+<LI>
+<A HREF="#E54E2" > &lt;checkbutton&gt;:</A>
+<LI>
+<A HREF="#E54E3" >&lt;menubutton&gt;</A>
+<LI>
+<A HREF="#E54E4" > &lt;radiobutton&gt;:</A>
+<LI>
+<A HREF="#E54E5" > &lt;canvas&gt;:</A>
+<LI>
+<A HREF="#E54E6" > &lt;entry&gt;:</A>
+<LI>
+<A HREF="#E54E7" > &lt;frame&gt;:</A>
+<LI>
+<A HREF="#E54E8" > &lt;label&gt;:</A>
+<LI>
+<A HREF="#E54E9" > &lt;listbox&gt;:</A>
+<LI>
+<A HREF="#E54E10" > &lt;menu&gt;:</A>
+<LI>
+<A HREF="#E54E11" >&lt;message&gt;:</A>
+<LI>
+<A HREF="#E54E12" > &lt;scale&gt;:</A>
+<LI>
+<A HREF="#E54E13" > &lt;scrollbar&gt;:</A>
+<LI>
+<A HREF="#E54E14" >&lt;text&gt;:</A>
+<LI>
+<A HREF="#E54E15" >&lt;toplevel&gt;:</A></UL>
+<LI>
+<A HREF="#E8E70" >10. Text indices</A>
+<LI>
+<A HREF="#E8E71" >11. Text marks</A>
+<LI>
+<A HREF="#E8E72" >12. Text tags</A>
+<LI>
+<A HREF="#E8E73" >13. Canvas items and tags</A>
+<LI>
+<A HREF="#E8E74" >14. Window Information commands</A>
+<LI>
+<A HREF="#E8E75" >15. Requested Enhancements</A>
+<LI>
+<A HREF="#E8E76" >16. The Extension Protocol</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E10"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The TK Library</B><A NAME="I2"></A></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<BR>
+<A NAME="E8E61"></A>
+<H2><B>1. </B><B>Introduction and Warning</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Dylan/TK is an experimental TK binding for the Mindy Dylan interpreter. Although it is definitely usable, it is not intended to be an &quot;industrial strength&quot; product.  The implementation strategy virtually guarantees that there will be some rough edges.
+<P>This binding operates by starting a <A NAME="I3"></A>wish interpreter as a slave process and passing both Tcl routines and data between the Mindy interpreter and the slave process.  However, Dylan/TK provides an abstraction layer that should vastly reduce or even eliminate the need for users to be familiar with the <A NAME="I4"></A>Tcl extension language.  For example, the following Dylan code:
+<CODE>
+<PRE>    define constant text-frame
+<BR>      = make(&lt;frame&gt;, height: 500, fill: &quot;both&quot;, side: &quot;bottom&quot;, expand: #t);
+<BR>    define constant text-window
+<BR>      = make(&lt;text&gt;, in: text-frame, relief: &quot;sunken&quot;, font: normal-font, 
+<BR>             fill: &quot;both&quot;, side: &quot;right&quot;, expand: #t);
+<BR>    define constant text-scroll
+<BR>      = scroll(text-window, in: text-frame, fill: &quot;y&quot;);</PRE>
+</CODE>
+<P>could be used to produce the effect as the following Tcl/Tk code:
+<CODE>
+<PRE>    frame .text-frame -height 500
+<BR>    pack .text-frame -fill both -side bottom -expand 1
+<BR>    text .text-frame.text -relief sunken -font normal-font
+<BR>    pack .text-frame.text -in .text-frame -fill both -side right -expand 1
+<BR>    scrollbar .text-frame.scroll -command {.text-frame.text yview }
+<BR>    .text-frame.text configure -yscrollcommand {.text-frame.scroll set }
+<BR>    pack .text-frame.scroll -in .text-frame -fill y</PRE>
+</CODE>
+<P>while being considerably clearer to the average Dylan programmer.
+<P>Note: In order for this implementation to work you must have a copy of wish available on your system.  This implementation was developed upon version 4.0 of Tcl/Tk but should work any version Tk implementation after 4.0.  Since version 4 introduces incompatible changes, you should not (at present) expect all features to work with earlier versions.
+<BR>
+<A NAME="E8E62"></A>
+<H2><B>2. </B><B>General Principles</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>In order to use Dylan/Tk, you should import module Tk from library Tk.  This defines the <B>&lt;window&gt;</B> class, a variety of subclasses representing most of the Tk widgets, and a variety of support routines.  All of these will be explained in some detail below.  However, the user will sometimes find that he can gain more information by going to the book <A NAME="I5"></A><U>Tcl and the Tk </U><U>Toolkit</U> by <A NAME="I6"></A>John Osterhout, which explains the widgets&#146; behavior in more depth than is practical for this document.
+<P>Any Dylan program which uses the Tk library will automatically create a top level window (which is accessible via the <B>*root-window*</B> variable) and a separate thread to process events upon that window.  You build an interface by making widgets and &quot;packing&quot; them into windows -- either the root window, newly created top-level windows, or into subwindows of these windows.
+<P>An simple application might be the following:
+<CODE>
+<PRE>    define method main (program-name :: &lt;string&gt;, #rest args);
+<BR>    make(&lt;message&gt;, text: &quot;Hello, world!&quot;, aspect: 500, side: &quot;top&quot;);
+<BR>    make(&lt;button&gt;, text: &quot;Okay&quot;, relief: &quot;raised&quot;,
+<BR>         command: curry(destroy-window, *root-window*), expand: #t);
+<BR>    map-window(*root-window*);
+<BR>    end method main;</PRE>
+</CODE>
+<P>This creates a text message and a pushbutton, packs them into the root window, and then exits, and makes the root window visible.  It then exits the main thread, leaving just the event processing thread active.  When the button is pressed, it will destroy the root window (and all its subwindows).  Since there are no windows left, the event thread exits, and the program terminates. We could just as easily specified &quot;command: exit&quot;, which would force the Dylan program to exit, killing off all threads, and thus destroying the windows.  Go ahead and try it, if you like.
+<P>Widgets, like any other Dylan object, are typically created via <B>make</B>.  There are three different varieties of keywords which can be specified:
+<DL>
+<DT><B> Widget Specific Options:</B></DT>
+<UL>
+<UL>
+<DT> These include the aspect: and command: keywords in the above example. Their precise effects depend upon the definition of the widget.</DT>
+</UL></UL>
+<DT><B>Standard Options:</B></DT>
+<UL>
+<UL>
+<DT>These include the relief: keyword in the above example.  They are accepted by most (if not all) widgets, and have pretty much the same effect for all of them.  (Some keywords, like text:, are not accepted by all widgets, but are common and predictable enough that users may be left to infer their effects.) </DT>
+</UL></UL>
+<DT><B>Packing Options:</B></DT>
+<UL>
+<UL>
+<DT>These include the side: and expand: keywords in the above example.  They are used to control the positioning and resizing of the new widgets within their &quot;parent&quot; windows.  They are, for the most part, passed on directly to the <B>pack</B> function.  In very rare cases, you will wish to create a window without (yet) packing it into another window.  In this case, you can specify pack: #f to defer calling <B>pack</B> until you are ready to do so.</DT>
+</UL></UL></DL>
+<BR>
+<A NAME="E8E63"></A>
+<H2><B>3. </B><B>Parameter and Return Values</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The values which are passed into <B>make</B> or into many other Tcl/Tk functions are passed into to Tcl/Tk as strings, and thus it is sometimes most convenient to write them as strings in Dylan.  Most Dylan/Tk functions therefore accept strings as parameter values.  However, you will usually find it easier to work with a richer set of types within Dylan&#146;s type system.  Parameters values can commonly include instances of the following native Dylan classes:
+<UL>
+<LI><B>&lt;boolean&gt;</B>
+<LI><B>&lt;integer&gt;</B>
+<LI><B>&lt;function&gt;</B>
+<LI><B>&lt;string&gt;</B>
+<LI><B>&lt;sequence&gt;</B>
+<LI><B>&lt;class&gt;</B>
+</UL>
+<P>and will occasionally include others on a case-by-case basis.  In addition, the following new classes are also frequently accepted as parameter values:
+<UL>
+<LI><B>&lt;window&gt;</B>
+<LI><B>&lt;tk-variable&gt;</B>
+<LI><B>&lt;text-index&gt;</B>
+<LI><B>&lt;text-mark&gt;</B>
+</UL>
+<P>Those Dylan/Tk functions which return values typically cast the results back into meaningful Dylan types before returning them.  However, there are some occasions where this proves impractical, and result values remain as <B>&lt;string&gt;</B>s which must be explicitly cast into appropriate types.  For example, the <B>configuration</B> function returns the values of all the configuration options for a widget.  Since it can&#146;t guess what the types of these values ought to be, they simply remain as <B>&lt;string&gt;</B>s.
+<P>In some cases you must specify callback functions for Dylan/Tk widgets. These are typically specified via the command: keyword to make.  On the few occasions where these functions take parameters, they will be passed in as <B>&lt;string&gt;</B>, and may include &quot;\&quot; quotation characters.  You may need to call<B> tk-unquote</B> to strip out backslashes or to call <B>tk-as</B> to convert this to another type.  For example: tk-as(&lt;boolean&gt;, &quot;1&quot;) returns #t.
+<BR>
+<A NAME="E8E64"></A>
+<H2><B>4. </B><A NAME="I7"></A><B>The &quot;Standard&quot; Options</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The following options seem to apply universally to all widgets.  They are mostly concerned with presentation details of the widget&#146;s window, as opposed to the widget&#146;s function.
+<DL>
+<DT><B> </B><A NAME="I8"></A><B>background:</B><B> </B></DT>
+<UL>
+<UL>
+<DT>This specifies the background color to be used within the widget. Typically it is a color name, like Black or LightBrown, or as hexadecimal integers, like #x3a7 or #x3000a0007000.</DT>
+</UL></UL>
+<DT><B> </B><A NAME="I9"></A><B>borderwidth: </B></DT>
+<UL>
+<UL>
+<DT>This specifies the size of the border to be placed around the window. Typically this will be an integer which specifies the number of pixels, but you may also use string values like &quot;1c&quot;, &quot;1m&quot;, &quot;1i&quot;, &quot;1p&quot;, which specify centimeters, millimeters, inches, and points respectively.  This keyword is typically combined with the relief: keyword.<A NAME="I10"></A></DT>
+</UL></UL>
+<DT><B>cursor: </B></DT>
+<UL>
+<UL>
+<DT>This specifies a bitmap which will be displayed when the user&#146;s cursor is in this widget.  The most useful forms will be name to specify a name from the standard cursor font, or @Sourcefile fgColor to load the cursor from a file. <A NAME="I11"></A></DT>
+</UL></UL>
+<DT><B>foreground:</B></DT>
+<UL>
+<UL>
+<DT>This specifies the background color to be used within the widget. Typically it is a color name, like Black or LightBrown, or as hexadecimal integers, like #x3a7 or #x3000a0007000.<A NAME="I12"></A></DT>
+</UL></UL>
+<DT><B>highlightbackground:</B></DT>
+<UL>
+<UL>
+<DT>This specifies the color of the highlight area (a thin border surronding the widget) when it is disabled.  This is normally a color name, like  Black or LightBrown, or as hexadecimal integers, like #x3a7 or #x3000a0007000.<A NAME="I13"></A></DT>
+</UL></UL>
+<DT><B>highlightforeground:</B></DT>
+<UL>
+<UL>
+<DT>This specifies the color of the highlight area (a thin border surronding the widget) when it is enabled.  This is normally a color name, like Black or LightBrown, or as a hexadecimal integer, like #x3a7 or #x3000a0007000.<A NAME="I14"></A></DT>
+</UL></UL>
+<DT><B>highlightthickness:</B></DT>
+<UL>
+<UL>
+<DT>This specifies the thickness of the highlight area. Typically this will be an integer which specifies the number of pixels, but you may also use string values like &quot;1c&quot;, &quot;1m&quot;, &quot;1i&quot;, &quot;1p&quot;, which specify centimeters, millimeters, inches, and points respectively.  A value of zero will remove the highlight ring.</DT>
+</UL></UL>
+<DT><B> </B><A NAME="I15"></A><B>relief:</B></DT>
+<UL>
+<UL>
+<DT> This specifies what sort of 3D border should be displayed around the widget.  This must be one of: &quot;flat&quot; (default), &quot;groove&quot;, &quot;raised&quot;, &quot;ridge&quot;, or &quot;sunken&quot;.</DT>
+</UL></UL></DL>
+<P>Other options are by no means universal, but tend to mean the same thing whenever they occur:<A NAME="I16"></A>
+<DL>
+<DT><B>bitmap: </B></DT>
+<UL>
+<UL>
+<DT>This specifies a bitmap which will be displayed in the given widget.  The most useful forms will be name to specify a name from the standard cursor font, or @Sourcefile fgColor to load the cursor from a file.  <A NAME="I17"></A></DT>
+</UL></UL>
+<DT><B>command: </B></DT>
+<UL>
+<UL>
+<DT>This specifies an action to be taken when a particular widget is invoked or when values associated with the widget change.  Typically this will be a Dylan function, but it may also be a bit of Tcl code which can be executed directly by the interpreter.  The number of parameters which might be passed to the function vary depending on the widget, but they will all be passed in as <B>&lt;string&gt;</B>s.  <A NAME="I18"></A></DT>
+</UL></UL>
+<DT><B>font: </B></DT>
+<UL>
+<UL>
+<DT>This is a string which specifies the font to be used for any text which is displayed within the widget.  <A NAME="I19"></A></DT>
+</UL></UL>
+<DT><B>justify:</B></DT>
+<UL>
+<UL>
+<DT>This is a string which specifies how the text within the widget is to be justified.  Possible valuse are &quot;left&quot;, &quot;center&quot;, and &quot;right&quot;.<A NAME="I20"></A></DT>
+</UL></UL>
+<DT><B>state:</B></DT>
+</DL>
+<UL>
+<UL>This specifies whether the given widget is in an active state. Typically, any widget which accepts a command: keyword will accept this keyword as well.  Acceptable values are &quot;normal&quot;, &quot;disabled&quot;, and sometimes &quot;active&quot; (for buttons only).  <A NAME="I21"></A>
+<BR>
+</UL></UL>
+<DL>
+<DT><B>text: </B></DT>
+</DL>
+<UL>
+<UL>This is a string which will be displayed in the widget in an implementation dependent way.  A few widgets also take a label: keyword which acts much the same way.  <A NAME="I22"></A>
+<BR>
+</UL></UL>
+<DL>
+<DT><B>textvariable: </B></DT>
+</DL>
+<UL>
+<UL>This specifies a &quot;variable&quot; containing a value which will be displayed in the widget.  If the variables value changes, the widget is updated.  If the widget allows editing, the variable will be updated after each change. Dylan/Tk programs will typically supply a <B>&lt;tk-variable&gt;</B> object for this keyword.  (These will be explained in a later section.)  <A NAME="I23"></A>
+<BR>
+</UL></UL>
+<DL>
+<DT><B>underline:</B></DT>
+</DL>
+<UL>
+<UL>This specifies a charater in the text string of a widget to underline.<A NAME="I24"></A>
+<BR>
+</UL></UL>
+<DL>
+<DT><B>variable:</B></DT>
+</DL>
+<UL>
+<UL> This functions much like the textvariable: keyword, but tends to be displayed somewhat differently.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E65"></A>
+<H2><B>5. </B><B>Windows</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The abstract type<B> </B><A NAME="I25"></A><B>&lt;window&gt;</B> represents any one of a wide variety of widgets, although it doesn&#146;t include pseudo-widgets like menu entries, text tags, or canvas items (which will be discussed later).  They are almost always created via <B>make</B>, which accepts all of the standard options described above, as well as the packer options name:, in:, after:, before:, side:, expand:, padx:, pady:, and pack:.  (Packing will be described briefly in the next section.)  All windows except <B>&lt;toplevel&gt;</B>s must specify their parents by some means -- either directly via in: or indirectly via after: or before:.
+<P>You also have the right to specify a debug name for the window via the name: option.  If you refuse this right, one will be created for you automatically. 
+<P>One window is automatically created as a result of importing the tk library.  This is the top level window <A NAME="I26"></A><B>*root-window*</B>.
+<P>There are a small set of methods which operate upon all windows:<A NAME="I27"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>configure</B> (<I>widget</I> :: <B>&lt;window&gt;</B>, <I>#all-keys</I>) [Function]</FONT>
+<UL>
+<UL>Configure accepts pretty much the same options as initialize, and uses them to change the state of the object.<A NAME="I28"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>configuration</B> (<I>widget</I> :: <B>&lt;window&gt;</B>) =&gt; (<I>result</I> :: <B>&lt;sequence&gt;</B>) [Function]</FONT>
+<UL>
+<UL>Returns a complete list of options for the given widget.  Each option consists of a sequence of the switch name, rdb name, rdb class, default, and value.  The &quot;value&quot; will be a string, which may be converted to a more pleasing form via either <B>tk-as</B> or <B>tk-unquote</B>.<A NAME="I29"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>map-window</B> (<I>window</I> :: <B>&lt;window&gt;</B>) =&gt; () [Function]</FONT>
+<UL>
+<UL>Make sure that a window is displayed on the screen.  <B>*root-window*</B> is unmapped initially, so nothing will appear until you call map-window(*root-window*).<A NAME="I30"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>unmap-window</B> (<I>window</I> :: <B>&lt;window&gt;</B>) =&gt; () [Function]</FONT>
+<UL>
+<UL>Remove a window from the display.  This is handy to keep from showing intermediate states of newly defined windows.<A NAME="I31"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>destroy-window</B> (<I>window</I> :: <B>&lt;window&gt;</B>) =&gt; () [Function]</FONT>
+<UL>
+<UL>Completely obliterate a window, removing it from the screen and all knowledge of mankind.<A NAME="I32"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>pack</B> (<I>window</I> :: <B>&lt;window&gt;</B>, <I>#all-keys</I>) =&gt; (<I>window</I> :: <B>&lt;window&gt;</B>) [Function]</FONT>
+<UL>
+<UL>This is explained in the next section.  You should never need to call pack unless you either specified &quot;pack: #f&quot; when making the window or you used the <B>unpack</B> function to remove it from the display.<A NAME="I33"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>unpack</B> (<I>window</I> :: <B>&lt;window&gt;</B>) =&gt; (<I>window</I> :: <B>&lt;window&gt;</B>) [Function]</FONT>
+<UL>
+<UL>This hides a window which has previously been packed into another window. The window still exists, and may be updated or repacked into its parent. You may not pack the window into a different parent -- this will result in errors. 
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>\=</B> (<I>window</I> :: <B>&lt;window&gt;</B>, <I>window</I> :: <B>&lt;window&gt;</B>) =&gt; <I>equal?</I> :: <B>&lt;boolean&gt;</B> [Method]
+<BR><B>\=</B> (<I>window</I> :: <B>&lt;window&gt;</B>, <I>path-name</I> :: <B>&lt;string&gt;</B>) =&gt; <I>equal?</I> :: <B>&lt;boolean&gt;</B> [Method]
+<BR><B>\= </B>(<I>path-name</I> :: <B>&lt;string&gt;</B>, <I>window</I> :: <B>&lt;window&gt;</B>) =&gt; <I>equal?</I> :: <B>&lt;boolean&gt;</B> [Method]</FONT>
+<UL>
+<UL>The three <B>\=</B> methods are useful for comparing two windows to see if they are, in fact, the same widget.  Most function which should return windows will return them as <B>&lt;window&gt;</B> objects, but if you are dealing with lower level Tk, it may be useful to compare a Tk window path-name to a Dylan <B>&lt;window&gt;</B> object.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E66"></A>
+<H2><B>6. </B><A NAME="I34"></A><B>Packing</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Unless they are some sort of top level window (i.e. <B>*root-window*</B> or instances of <B>&lt;toplevel&gt;</B> or <B>&lt;menu&gt;</B>), windows must be &quot;packed&quot; into some containing window before they will appear on the screen.  Normally, all Dylan/Tk windows are automatically packed when they are created, using the procedure and options described below.  The exception to this is if the pack: option is given a value of #f or is the window was <B>unpack</B>ed; in these cases, the <B>pack</B> function will need to be called explicity to display the window.  The Dylan/Tk <B>pack</B> function closely follows the Tcl/Tk function described in &quot;Tcl and the Tk Toolkit&quot;, and you should look there for more complete information.  However, we will provide a brief overview here.
+<P>Each &quot;slave&quot; (i.e. non-top-level) window must be packed into some other window.  You specify this window either directly, via &quot;in: parent&quot; or indirectly via &quot;before: sibling&quot; or &quot;after: sibling&quot;.  (The latter options specify that the window should have the same parent as the specified &quot;sibling&quot;, and that they should be placed just before or after the sibling in the parent&#146;s &quot;packing order&quot;.)  If no parent is specified explicitly, Dylan/Tk implicitly assumes &quot;in: *root-window*&quot;.
+<P>The side: option specifies where the widget should be placed relative to the ones which follow it in the &quot;packing order&quot;.  If you specify &quot;side: &quot;left&quot;&quot;, then all widgets which are packed into the parent after this one (either because they were created later or because of a before: or after: option) will be placed somewhere to the right of this widget.  Note that it will not necessarily be placed on the parent&#146;s absolute left side, because all windows which precede this one in the packing order have &quot;first dibs&quot; on prime real estate.  Possible values for this option are &quot;left&quot;, &quot;right&quot;, &quot;top&quot;, and &quot;bottom&quot; -- the default is &quot;left&quot;.
+<P>If you were to execute:
+<CODE>
+<PRE>let w1 = make(&lt;listbox&gt;, in: *root-window*, side: &quot;left&quot;);
+<BR>let w2 = make(&lt;text&gt;, before: w1, side: &quot;top&quot;);
+<BR>let w3 = make(&lt;scrollbar&gt;, after: w1); </PRE>
+</CODE>
+<P>you would end up with something like:
+<P>Window W2 comes first in the packing order (because of the before: option) and preempts the top of the root window.  W1 comes second, and grabs the left side of the remaining space, leaving a small chunk on the right for W3 (and any windows which might be packed after W3).
+<P>The other options available are anchor:, expand:, fill:, padx:, and pady:, which are explained in the book.  Expand: typically takes a boolean value, while fill: takes one of &quot;x&quot;, &quot;y&quot;, &quot;both&quot;, or &quot;none&quot;.
+<P>The <B>unpack</B> function will remove a window from the control of the &quot;packer&quot; and, as a side effect, remove it from the display.  The window will still exist and can be updated or repacked via the <B>pack</B> function.  You will, however, get errors if you try to specify a different parent when you repack it. 
+<BR>
+<A NAME="E8E67"></A>
+<H2><B>7. </B><B>Event bindings</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Each Dylan/Tk widget has a default set of &quot;bindings&quot; which determine how they react to X events like button or key presses.  These may be changed or extended via the &quot;bind&quot; function.  Windows, &quot;tag&quot; strings, and subclasses of <B>&lt;window&gt;</B> can have bindings, and more than one binding may apply to an event.  All of the applicable bindings will get called, unless explicitly avoided, and the call order can be changed.<A NAME="I35"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>bind</B> (<I>window-tag-or-class</I>, <I>event</I> :: <B>&lt;string&gt;</B>, <I>command</I>) =&gt; (<I>window</I>)</FONT>
+<UL>
+<UL>This function specifies an action to be performed when an X event matching &quot;event&quot; occurs.  Typically this is a nil-adic Dylan function, but it may also be an arbitrary line of Tcl code.  A typical binding might be the following:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>   bind(l1, &quot;&lt;Double-Button-1&gt;&quot;,  method () 
+<BR>          do(print-config, current-selection(l1)) 
+<BR>          end method);</PRE>
+</CODE>
+<UL>
+<UL>This would cause Dylan/Tk to call <B>print-config</B> on each of the current selections in the <B>&lt;listbox&gt;</B> &quot;l1&quot; whenever the leftmost mouse button is double-clicked.
+<BR>
+</UL></UL>
+<UL>
+<UL>The first argument to this function may be a <B>&lt;window&gt;</B> object, in which case it acts on only that window, a &quot;tag&quot; string, which acts on all windows with that tag, or a subclass of <B>&lt;window&gt;</B>, which acts on all objects of that type.
+<BR>
+</UL></UL>
+<P>There are five other utility functions which allow you to determine and manipulate  the bindings for windows:<A NAME="I36"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>get-binding</B> (<I>window-tag-or-class</I>, <I>event</I>) =&gt; (<I>result</I> :: <B>&lt;string&gt;</B>) [Function]</FONT>
+<UL>
+<UL>Returns the window, tag, or class&#146;s binding for a single event.  Unless you have specified an explicit binding, this will be an empty string.<A NAME="I37"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>get-bindings</B> (<I>window-tag-or-class</I>) =&gt; (<I>result</I> :: <B>&lt;sequence&gt;</B>) [Function]</FONT>
+<UL>
+<UL>Returns a complete list of explicit bindings for a window, tag string, or class.  Each element of the sequence will be a <B>&lt;pair&gt;</B> of event-name and binding.<A NAME="I38"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>binding-call-order</B> (<I>window</I> :: <B>&lt;window&gt;</B>) =&gt; (<I>result</I> :: <B>&lt;sequence&gt;</B>) [Function]</FONT>
+<UL>
+<UL>Returns a list of bindings that apply to a window, in the order that they are called.  Each element is a Tk text string which could represent a window, a tag, or a class.<A NAME="I39"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>binding-call-order-setter</B> (<I>bindings</I> :: <B>&lt;sequence&gt;</B>, <I>window</I> :: <B>&lt;window&gt;</B>) =&gt; (<I>bindings</I> :: <B>&lt;sequence&gt;</B>) [Function]</FONT>
+<UL>
+<UL>Sets the calling order for bindings.  The elements of the sequence may be <B>&lt;window&gt;</B> objects, tag strings, or subclasses of <B>&lt;window&gt;</B><A NAME="I40"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>tk-break</B> () [Function]</FONT>
+<UL>
+<UL>If you don&#146;t want to call all bindings which apply to an event, use the <B>tk-break</B> command to stop the execution of bindings.  This command must be executed on the top level of the binding, and not in any functions that the command calls.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E68"></A>
+<H2><B>8. </B><B>Active Variables</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Some widgets have the ability to take an obsessive interest in the value of some &quot;variable&quot;.  They may update their contents or appearance when the variable&#146;s value changes, or they might update the variable in response to some user action.  Because this level of monitoring is not supported by ordinary Dylan variables, Dylan/Tk users must instead use instances of <A NAME="I41"></A><B>&lt;active-variable&gt;</B>.  
+<P><B>Make</B> on <B>&lt;active-variable&gt;</B> requires a value: keyword and accepts an optional class: keyword.  If specified, the class defines the logical type of the variable&#146;s value.  The <B>value </B>slot will always contain a value of that type, although <B>value-setter </B>will accept arbitrary types (especially <B>&lt;string&gt;</B>) and attempt to convert them to the given type.
+<P>You may also specify a Dylan function to be executed when an active variable&#146;s value changes (i.e. becomes <B>\~=</B> to the old value).  This method is specified via the command: keyword to <B>make</B>.  It will be invoked with both the new and the old value at some point after the value is changed.  Note that the value is updated immediately (i.e. asynchronously), while the calls to the given command are executed sequentially along with event callbacks.
+<P>Active variables will typically be passed as values of variable: or text-variable: keywords.
+<BR>
+<A NAME="E8E69"></A>
+<H2><B>9. </B><B>The widget types</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Dylan/Tk provides types corresponding to all of the standard Tcl/Tk widgets:
+<A NAME="E54E1"></A>
+<H3><B> </B><A NAME="I42"></A><B>&lt;button&gt;:</B></H3>
+<DL>
+<DT><B> Options: </B></DT>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;activebackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;activeforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;bitmap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;command&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;disabledforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;justify&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;state&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;text&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;underline&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E280"></A>
+<DD>#&quot;wraplength&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I43"></A></DT>
+<UL>
+<A NAME="E7E281"></A>
+<DD><B>activate</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I44"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E281"></A>
+<DD><B>deactivate</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I45"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E281"></A>
+<DD><B>flash</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I46"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E281"></A>
+<DD><B>invoke</B> (<I>button</I>) =&gt; <I>button</I></DD>
+</UL></DL>
+<A NAME="E54E2"></A>
+<H3><B> </B><A NAME="I47"></A><B>&lt;checkbutton&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;activebackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;activeforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;bitmap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;command&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;disabledforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;offvalue&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;onvalue&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;selector&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;state&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;text&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;variable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E282"></A>
+<DD>#&quot;width&quot;.</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I48"></A></DT>
+<UL>
+<A NAME="E7E283"></A>
+<DD><B>select-value</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I49"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E283"></A>
+<DD><B>deselect-value</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I50"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E283"></A>
+<DD><B>toggle-value</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I51"></A></DD>
+</UL></DL>
+<A NAME="E54E3"></A>
+<H3><B>&lt;menubutton&gt;</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;activebackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;activeforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;bitmap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;disabledforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;indicatoron&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;justify&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;menu&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;state&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;text&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;underline&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E284"></A>
+<DD>#&quot;wraplength&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I52"></A></DT>
+<UL>
+<A NAME="E7E285"></A>
+<DD><B>activate</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I53"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E285"></A>
+<DD><B>deactivate</B> (<I>button</I>) =&gt; <I>button</I></DD>
+</UL></DL>
+<A NAME="E54E4"></A>
+<H3><B> </B><A NAME="I54"></A><B>&lt;radiobutton&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;activebackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;activeforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;bitmap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;command&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;disabledforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;indicatoron&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;justify&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;state&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;selectcolor&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;text&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;underline&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;value&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;variable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E286"></A>
+<DD>#&quot;wraplength&quot;.</DD>
+</UL>
+<DT><B> Functions:</B><A NAME="I55"></A></DT>
+<UL>
+<A NAME="E7E287"></A>
+<DD><B>select-value</B> (<I>button</I>) =&gt; <I>button</I><A NAME="I56"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E287"></A>
+<DD><B>deselect-value</B> (<I>button</I>) =&gt; <I>button</I></DD>
+</UL></DL>
+<A NAME="E54E5"></A>
+<H3><B> </B><A NAME="I57"></A><B>&lt;canvas&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;closeenough&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;confine&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;insertbackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;insertborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;insertofftime&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;insertontime&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;insertwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;scrollregion&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;selectbackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;selectborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;selectforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;xscrollcommand&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;xscrollincrement&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;yscrollcommand&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E288"></A>
+<DD>#&quot;yscrollincrement&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I58"></A></DT>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>xview</B> (<I>canvas</I> :: <B>&lt;canvas&gt;</B>, <I>index</I>) =&gt; <I>canvas</I><A NAME="I59"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>yview</B> (<I>canvas</I> :: <B>&lt;canvas&gt;</B>, <I>index</I>) =&gt; <I>canvas</I><A NAME="I60"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>find-items</B> (<I>canvas</I> :: <B>&lt;canvas&gt;</B>, <I>spec</I>, <I>spec-args</I>) =&gt; <I>found-items</I><A NAME="I61"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>focus</B> (<I>canvas</I> :: <B>&lt;canvas&gt;</B>) =&gt; <I>result</I> :: <B>&lt;canvas-item&gt;</B><A NAME="I62"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>focus-setter</B> (<I>value</I> :: <B>&lt;canvas-item&gt;</B>, <I>canvas</I> :: <B>&lt;canvas&gt;</B>) =&gt; ()<A NAME="I63"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>scan-mark</B> (<I>window</I> :: <B>&lt;canvas&gt;</B>, <I>#rest coords</I>) =&gt; <I>window</I><A NAME="I64"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>scan-dragto</B> (<I>window</I> :: <B>&lt;canvas&gt;</B>, <I>#rest coords</I>) =&gt; <I>window</I><A NAME="I65"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>select-item</B> (<I>window</I> :: <B>&lt;canvas&gt;</B>, <I>index</I>) =&gt; <I>window</I><A NAME="I66"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>canvas-x</B> (<I>canvas</I> :: <B>&lt;canvas&gt;</B>, <I>screen-x</I>, <I>#key grid-spacing</I> = 1) =&gt; <I>x</I><A NAME="I67"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>canvas-y</B> (<I>canvas</I> :: <B>&lt;canvas&gt;</B>, <I>screen-y</I>, <I>#key grid-spacing</I> = 1) =&gt; <I>y</I><A NAME="I68"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E289"></A>
+<DD><B>create-arc</B> (<I>canvas</I>, <I>x1</I>, <I>y1</I>, <I>x2</I>, <I>y2</I>, <I>#rest opts</I>) =&gt; <I>item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;extent&quot;, #&quot;fill&quot;, #&quot;outline&quot;, #&quot;outlinestipple:&quot;, #&quot;start&quot;, #&quot;stipple&quot;, #&quot;style&quot;, #&quot;tags&quot;,, #&quot;width&quot;<A NAME="I69"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E290"></A>
+<DD><B>create-bitmap</B> (<I>canvas</I>, <I>x1</I>, <I>y1</I>, <I>#rest opts</I>) =&gt; <I>item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;anchor&quot;, #&quot;bitmap&quot;, #&quot;background&quot;, #&quot;foreground&quot;, #&quot;tags&quot;<A NAME="I70"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E291"></A>
+<DD><B>create-line</B> (<I>canvas</I>, <I>points</I> :: <B>&lt;sequence&gt;</B>, <I>#rest opts</I>) =&gt; <I>item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;arrow&quot;, #&quot;arrowshape&quot;, #&quot;capstyle&quot;, #&quot;fill&quot;, #&quot;joinstyle&quot;, #&quot;smooth&quot;, #&quot;splinesteps&quot;, #&quot;stipple&quot;, #&quot;tags&quot;, #&quot;width&quot;<A NAME="I71"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E292"></A>
+<DD><B>create-oval</B> (<I>canvas</I>, <I>x1</I>, <I>y1</I>, <I>x2</I>, <I>y2</I>, <I>#rest opts</I>) =&gt; <I>item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT> Options include: #&quot;fill&quot;, #&quot;outline&quot;, #&quot;stipple&quot;, #&quot;tags&quot;, #&quot;width&quot;<A NAME="I72"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E293"></A>
+<DD><B>create-polygon</B> (<I>canvas</I>, <I>pnts</I> :: <B>&lt;sequence&gt;</B>, <I>#rest opts</I>) =&gt; <I>item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;fill&quot;, #&quot;outline&quot;, #&quot;smooth&quot;, #&quot;splinesteps&quot;, #&quot;stipple&quot;, #&quot;tags&quot;, #&quot;width&quot;  <A NAME="I73"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E294"></A>
+<DD><B>create-rectangle</B> (<I>canvas</I>, <I>x1</I>, <I>y1</I>, <I>x2</I>, <I>y2</I>, <I>#rest opts</I>) =&gt;<I> item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;fill&quot;, #&quot;outline&quot;, #&quot;stipple&quot;, #&quot;tags&quot;, #&quot;width&quot;<A NAME="I74"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E295"></A>
+<DD><B>create-text</B> (<I>canvas</I>, <I>x1</I>, <I>y</I>, <I>#rest opts</I>) =&gt; <I>item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;anchor&quot;, #&quot;fill&quot;, #&quot;font&quot;, #&quot;justify&quot;, #&quot;stipple&quot;, #&quot;tags&quot;, #&quot;text&quot;, #&quot;width&quot;<A NAME="I75"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E296"></A>
+<DD><B>create-window</B> (<I>canvas</I>, <I>x1</I>, <I>y1</I>, <I>#rest opts</I>) =&gt; <I>item</I></DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;anchor&quot;, #&quot;height&quot;, #&quot;tags&quot;, #&quot;width&quot;, #&quot;window&quot;<A NAME="I76"></A></DT>
+</UL></UL>
+<UL>
+<A NAME="E7E297"></A>
+<DD><B>postscript</B> (<I>canvas</I>, <I>#rest opts</I>) =&gt;<I> result</I> :: <B>&lt;string&gt;</B> </DD>
+</UL>
+<UL>
+<UL>
+<DT>Options include: #&quot;colormap&quot;, #&quot;colormode&quot;, #&quot;fontmap&quot;, #&quot;height&quot;, #&quot;pageanchor&quot;, #&quot;pageheight&quot;, #&quot;pagewidth&quot;, #&quot;pagex&quot;, #&quot;pagey&quot;, #&quot;rotate&quot;, #&quot;width&quot;, #&quot;x&quot;, #&quot;y&quot;.</DT>
+</UL></UL></DL>
+<A NAME="E54E6"></A>
+<H3><B> </B><A NAME="I77"></A><B>&lt;entry&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;exportselection&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;insertbackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;insertborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;insertofftime&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;insertontime&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;insertwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;justify&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;selectbackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;selectborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;selectforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;show&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;state&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E298"></A>
+<DD>#&quot;xscrollcommand&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I78"></A></DT>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>icursor</B> (<I>entry</I>, <I>index</I>) =&gt; <I>entry</I><A NAME="I79"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>xview</B> (<I>entry</I>, <I>index</I>) =&gt; <I>entry</I><A NAME="I80"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>delete</B> (<I>entry</I>, <I>index</I>, <I>#key end: last</I>) =&gt; <I>entry</I><A NAME="I81"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>insert</B> (<I>entry</I>, <I>index</I>, <I>#rest elements</I>) =&gt; <I>entry</I><A NAME="I82"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>get-all</B> (<I>entry</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B><A NAME="I83"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>get-elements</B> (<I>entry</I>, <I>index</I>, <I>#key end</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B><A NAME="I84"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>scan-mark</B> (<I>entry</I>, <I>#rest coords</I>) =&gt; <I>entry</I><A NAME="I85"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>scan-dragto</B> (<I>entry</I>, <I>#rest coords</I>) =&gt; <I>entry</I><A NAME="I86"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>select-adjust</B> (<I>entry</I>, <I>index</I>) =&gt; <I>entry</I><A NAME="I87"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>select-clear</B> (<I>entry</I>) =&gt; <I>entry</I><A NAME="I88"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>select-from</B> (<I>entry</I>, <I>index</I>) =&gt; <I>entry</I><A NAME="I89"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E299"></A>
+<DD><B>select-to</B> (<I>entry</I>, <I>index</I>) =&gt; <I>entry</I></DD>
+</UL></DL>
+<A NAME="E54E7"></A>
+<H3><B> </B><A NAME="I90"></A><B>&lt;frame&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E300"></A>
+<DD>#&quot;colormap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E300"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E300"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E300"></A>
+<DD>#&quot;visual&quot;</DD>
+</UL>
+<DT><B>Supports no operations.</B></DT>
+</DL>
+<A NAME="E54E8"></A>
+<H3><B> </B><A NAME="I91"></A><B>&lt;label&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;bitmap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;justify&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;text&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;underline&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E301"></A>
+<DD>#&quot;wraplength&quot;</DD>
+</UL>
+<DT><B>Supports no operations.</B></DT>
+</DL>
+<A NAME="E54E9"></A>
+<H3><B> </B><A NAME="I92"></A><B>&lt;listbox&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;exportselection&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;selectbackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;selectborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;selectforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;selectmode&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;setgrid&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;xscrollcommand&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E302"></A>
+<DD>#&quot;yscrollcommand</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I93"></A></DT>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>clear-selection</B> (<I>listbox</I>, <I>first</I> :: <B>&lt;integer&gt;</B>,<I>#rest last</I>) =&gt; ()<A NAME="I94"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>current-selection</B>(<I>listbox</I>, <I>#rest rest</I>) =&gt; <I>indices</I> :: <B>&lt;sequence&gt;</B><A NAME="I95"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>nearest</B>(<I>listbox</I>, <I>y-coord</I>) =&gt; <I>index</I> :: <B>&lt;integer&gt;</B><A NAME="I96"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>size</B>(<I>listbox</I>) =&gt; <I>result</I> :: <B>&lt;integer&gt;</B><A NAME="I97"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>xview</B>(<I>listbox</I>, <I>index</I>) =&gt; <I>listbox</I><A NAME="I98"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>yview</B>(<I>listbox</I>, <I>index</I>) =&gt; <I>listbox</I><A NAME="I99"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>delete</B> (<I>listbox</I>, <I>index</I>, <I>#key end</I>) =&gt; <I>listbox</I><A NAME="I100"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>insert</B> (<I>listbox</I>, <I>index</I>, <I>#rest elements</I>) =&gt; <I>listbox</I><A NAME="I101"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>get-all</B> (<I>listbox</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B><A NAME="I102"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>get-elements</B> (<I>listbox</I>, <I>index</I>, <I>#key end</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B><A NAME="I103"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>scan-mark</B> (<I>listbox</I>, <I>#rest coords</I>) =&gt; <I>listbox</I><A NAME="I104"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>scan-dragto</B> (<I>listbox</I>, <I>#rest coords</I>) =&gt; <I>listbox</I><A NAME="I105"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>see</B> (<I>listbox</I>, <I>index</I>) =&gt; ()<A NAME="I106"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>select-adjust</B> (<I>listbox</I>, <I>index</I>) =&gt; <I>listbox</I><A NAME="I107"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>select-clear</B> (<I>listbox</I>) =&gt; <I>listbox</I><A NAME="I108"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>select-from</B> (<I>listbox</I>, <I>index</I>) =&gt; <I>listbox</I><A NAME="I109"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>select-to</B> (<I>listbox</I>, <I>index</I>) =&gt; <I>listbox</I><A NAME="I110"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>selection-anchor-setter</B> (<I>listbox</I>, <I>index</I>) =&gt; <I>listbox</I><A NAME="I111"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>selection-includes?</B> (<I>listbox</I>, <I>index</I>) =&gt; <I>in-selection?</I> :: <B>&lt;boolean&gt;</B><A NAME="I112"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E303"></A>
+<DD><B>set-selection</B> (<I>listbox</I>, <I>first</I> :: <B>&lt;integer&gt;</B>, <I>#rest last</I>) =&gt; ()</DD>
+</UL></DL>
+<A NAME="E54E10"></A>
+<H3><B> </B><A NAME="I113"></A><B>&lt;menu&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;activebackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;activeborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;activeforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;disabledforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;postcommand&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;selectcolor&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E304"></A>
+<DD>#&quot;tearoff&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I114"></A></DT>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>activate-entry</B> (<I>menu</I>, <I>index</I>) =&gt; <I>menu</I><A NAME="I115"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>delete</B> (<I>menu</I>, <I>index</I>, <I>#key end</I>) =&gt; <I>menu</I><A NAME="I116"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>configure-entry</B> (<I>menu</I>, <I>index</I>, <I>#rest options</I>) =&gt; <I>menu</I><A NAME="I117"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>entry-configuration</B> (<I>menu</I>, <I>index</I>) =&gt; <I>result</I> :: <B>&lt;sequence&gt;</B><A NAME="I118"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>invoke-entry</B> (<I>menu</I>, <I>index</I>) =&gt; <I>result</I><A NAME="I119"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>post</B> (<I>menu</I>, <I>x</I>, <I>y</I>) =&gt; ()<A NAME="I120"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>post-cascade</B> (<I>menu</I>, <I>index</I>) =&gt; ()<A NAME="I121"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>unpost</B> (<I>menu</I>) =&gt; ()<A NAME="I122"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>yposition-entry</B> (<I>menu</I>, <I>index</I>) =&gt; <I>result</I> :: <B>&lt;integer&gt;</B><A NAME="I123"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>add-command</B> (<I>menu</I>, <I>#key state</I>, <I>command</I>, <I>label</I>) =&gt; ()<A NAME="I124"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>add-checkbutton</B> (<I>menu</I>, <I>#key variable</I>, <I>label</I>) =&gt; ()<A NAME="I125"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>add-radiobutton</B> (<I>menu</I>, <I>#key variable</I>, <I>value</I>, <I>label</I>) =&gt; ()<A NAME="I126"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>add-cascade</B> (<I>menu</I>, <I>#key menu</I>, <I>label</I>) =&gt; ()<A NAME="I127"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E305"></A>
+<DD><B>add-separator</B> (<I>menu</I>) =&gt; ()</DD>
+</UL>
+<DT><B>Note that if you wish to assocaiate a menu with a menubutton, you must  create it </B><B>in:</B><B> that button.</B><A NAME="I128"></A></DT>
+</DL>
+<A NAME="E54E11"></A>
+<H3><B>&lt;message&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E306"></A>
+<DD>#&quot;aspect&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E306"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E306"></A>
+<DD>#&quot;justify&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E306"></A>
+<DD>#&quot;text&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E306"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E306"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<DT><B> Supports no operations.</B></DT>
+</DL>
+<A NAME="E54E12"></A>
+<H3><B> </B><A NAME="I129"></A><B>&lt;scale&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;activebackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;bigincrement&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;command&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;digits&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;from&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;label&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;length&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;orient&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;repeatdelay&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;repeatinterval&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;resolution&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;showvalue&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;sliderforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;sliderlength&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;state&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;tickinterval&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;to&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;troughcolor&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;variable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E307"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I130"></A></DT>
+<UL>
+<A NAME="E7E308"></A>
+<DD><B>get-value</B> (<I>scale</I>) =&gt; <I>result</I> :: <B>&lt;integer&gt;</B><A NAME="I131"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E308"></A>
+<DD><B>set-value</B> (<I>scale</I>, <I>value</I>) =&gt; <I>scale</I>;</DD>
+</UL></DL>
+<A NAME="E54E13"></A>
+<H3><B> </B><A NAME="I132"></A><B>&lt;scrollbar&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;activebackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;activerelief&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;command&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;elementborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;jump&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;orient&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;repeatdelay&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;repeatinterval&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;troughcolor&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E309"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I133"></A></DT>
+<UL>
+<A NAME="E7E310"></A>
+<DD> <B>scroll</B> (<I>widget</I>, <I>#key</I>, <I>#all-keys</I>) =&gt; <I>scrollbar</I></DD>
+</UL>
+<UL>
+<A NAME="E7E310"></A>
+<DD> <A NAME="I134"></A><B>get-units</B> (<I>scrollbar</I>) =&gt; (<I>#rest units</I> :: <B>&lt;integer&gt;</B>)</DD>
+</UL>
+<UL>
+<A NAME="E7E310"></A>
+<DD> <A NAME="I135"></A><B>set-units</B> (<I>scrollbar</I>, <I>#rest Units</I>) =&gt; <I>scrollbar</I></DD>
+</UL>
+<DT><B>The </B><B>scroll</B><B> function exists to reduce the inefficiency inherent in  &quot;standard&quot; method of connecting widgets to scrollbars.  </B><B>This function  creates a new scrollbar with the given orientation (i.e. &quot;vertical&quot; or  &quot;horizontal&quot;) and connects it </B><B>via lower level mechanisms to the given  widget.  All of the applicable creation and packing options for scrollbars  </B><B>are accepted.</B><A NAME="I136"></A></DT>
+</DL>
+<A NAME="E54E14"></A>
+<H3><B>&lt;text&gt;:</B></H3>
+<DL>
+<DT><B>Options:</B></DT>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;exportselection&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;font&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;insertbackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;insertborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;insertofftime&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;insertontime&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;insertwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;selectbackground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;selectborderwidth&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;selectforeground&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;setgrid&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;spacing1&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;spacing2&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;spacing3&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;state&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;tabs&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;textvariable&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;wrap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E311"></A>
+<DD>#&quot;yscrollcommand&quot;.</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I137"></A></DT>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>yview</B> (<I>text</I>, <I>index</I>) =&gt; <I>text</I><A NAME="I138"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>delete</B> (<I>text</I>, <I>index</I>, <I>#key end</I>) =&gt; <I>text</I><A NAME="I139"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>insert</B> (<I>text</I>, <I>index</I>, <I>#rest elements</I>) =&gt; <I>text</I><A NAME="I140"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>get-all</B> (<I>text</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B><A NAME="I141"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>get-elements</B> (<I>text</I>, <I>index</I>, <I>#key end</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B><A NAME="I142"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>scan-mark</B> (<I>text</I>, <I>#rest coords</I>) =&gt; <I>text</I><A NAME="I143"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>scan-dragto</B> (<I>text</I>, <I>#rest coords</I>) =&gt; <I>text</I><A NAME="I144"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>select-adjust</B> (<I>text</I>, <I>index</I>) =&gt; <I>text</I><A NAME="I145"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>select-clear</B> (<I>text</I>) =&gt; <I>text</I><A NAME="I146"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>select-from</B> (<I>text</I>, <I>index</I>) =&gt; <I>text</I><A NAME="I147"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>select-to</B> (<I>text</I>, <I>index</I>) =&gt; <I>text</I><A NAME="I148"></A></DD>
+</UL>
+<UL>
+<A NAME="E7E312"></A>
+<DD><B>tags</B> (<I>text</I>) =&gt; <I>result</I> :: <B>&lt;sequence&gt;</B><A NAME="I149"></A></DD>
+</UL></DL>
+<A NAME="E54E15"></A>
+<H3><B>&lt;toplevel&gt;:</B></H3>
+<DL>
+<DT><B>Options: </B></DT>
+<UL>
+<A NAME="E7E313"></A>
+<DD>#&quot;colormap&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E313"></A>
+<DD>#&quot;height&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E313"></A>
+<DD>#&quot;screen&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E313"></A>
+<DD>#&quot;visual&quot;</DD>
+</UL>
+<UL>
+<A NAME="E7E313"></A>
+<DD>#&quot;width&quot;</DD>
+</UL>
+<DT><B>Functions:</B><A NAME="I150"></A></DT>
+<UL>
+<A NAME="E7E314"></A>
+<DD><B>tk-dialog</B> (<I>toplevel</I>, <I>title</I>, <I>text</I>, <I>bitmap</I>, <I>default</I>, <I>#rest buttons</I>) =&gt; <I>button</I> :: <B>&lt;integer&gt;</B></DD>
+</UL>
+<DT><B>Tk-dialog automatically creates a dialog box with the given title, text, bitmap and buttons.  The default argument is </B><B>an integer that corresponds to the button that should be made the default (beginning at zero for the left-most </B><B>button)</B></DT>
+</DL>
+<P>These operations will hopefully be described at greater length in future editions of this document, but for now you are encouraged to check the Tcl/Tk manual for further information.
+<BR>
+<A NAME="E8E70"></A>
+<H2><B>10. </B><B>Text indices</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The types <B>&lt;text-index&gt;</B>, <B>&lt;text-mark&gt;</B>, and <B>&lt;text-tag&gt;</B> all represent references to the contents of a <B>&lt;text&gt;</B> window.  Functions are provided to let you create and manipulate instances of these types.<A NAME="I151"></A>
+<P><B>&lt;Text-index&gt;</B>s represent an &quot;absolute&quot; index within a <B>&lt;text&gt;</B> object.  They have two slots -- <B>line</B> and <B>character</B>.  <B>Make</B> on <B>&lt;text-index&gt;</B> requires a line: keyword and accepts an optional character: keyword (which defaults to 0).  Lines numbers start at 1, while characters start at 0, so you could specify the first character of a <B>&lt;text&gt;</B> by calling make(&lt;text-index&gt;, line: 1, character: 0)
+<P>The following functions create and manipulate <B>&lt;text-index&gt;</B>s:<A NAME="I152"></A>
+<DL>
+<DT><B>text-at</B><B> (</B><B><I>line</I></B><B>, </B><B><I>character</I></B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;text-index&gt;</B><A NAME="I153"></A></DT>
+<DT><B>line-end</B><B> (</B><B><I>line</I></B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;string&gt;</B></DT>
+<DT><B>as</B><B> (</B><B><I>cls</I></B><B> == &lt;text-index&gt;, </B><B><I>value</I></B><B> :: </B><B>&lt;string&gt;</B><B>) =&gt; </B><B><I>string</I></B><B> </B></DT>
+<DT><B>as</B><B> (</B><B><I>cls</I></B><B> == &lt;string&gt;, </B><B><I>value</I></B><B> :: </B><B>&lt;text-index&gt;</B><B>) =&gt; </B><B><I>text-index</I></B></DT>
+</DL>
+<P>The <B>text-at</B> function provides a convenient shorthand for making <B>&lt;text-index&gt;</B>s.  You might, for example replace the above <B>make</B> call with text-at(1, 0);
+<P><B>Line-end</B> creates a reference to the last character of the named line.
+<BR>
+<A NAME="E8E71"></A>
+<H2><B>11. </B><B>Text marks</B><A NAME="I154"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P><B>&lt;Text-mark&gt;</B> objects represent more abstract character positions.  It will continue to refer to the same character even if other text is added or deleted.  They have two slots -- <B>value</B> and <B>name</B>, and are associated with a particular <B>&lt;text&gt;</B> widget via the required <B>make</B> keyword in:.
+<P>If you make a <B>&lt;text-mark&gt;</B> with the name of a &quot;standard&quot; Tcl/Tk mark, such as &quot;end&quot; or &quot;insert&quot;, then the new object will pick up the values already associated with the Tcl/Tk mark.
+<P>The following functions create or manipulate <B>&lt;text-mark&gt;</B>s:
+<DL>
+<DT><B>as</B><B> (</B><B><I>cls</I></B><B> == </B><B>&lt;string&gt;</B><B>, </B><B><I>object</I></B><B> :: </B><B>&lt;text-mark&gt;</B><B>) =&gt; </B><B><I>string</I></B></DT>
+<DT><B>as</B><B> (</B><B><I>cls</I></B><B> == </B><B>&lt;text-index&gt;</B><B>, </B><B><I>mark</I></B><B> :: </B><B>&lt;text-mark&gt;</B><B>) =&gt; </B><B><I>text-index</I></B><B> </B><A NAME="I155"></A></DT>
+<DT><B>marks</B><B> (</B><B><I>text</I></B><B> :: </B><B>&lt;text&gt;</B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;sequence&gt;</B></DT>
+</DL>
+<P>The <B>marks</B> function returns a sequence containing all of the marks within a given <B>&lt;text&gt;</B>.  This will include both the &quot;standard&quot; Tcl/Tk marks and any that you have created.  These will not necessarily be <B>==</B> to the original objects.
+<BR>
+<A NAME="E8E72"></A>
+<H2><B>12. </B><B>Text tags</B><A NAME="I156"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P><B>&lt;Text-tag&gt;</B>s represent attributes which may be associated with zero or more sequences of characters in a specific <B>&lt;text&gt;</B>.  You may specify different display properties or event bindings for the characters that have been associated with a particular <B>&lt;text-tag&gt;</B>.
+<P><B>&lt;Text-tag&gt;</B>s are created within a particular <B>&lt;text&gt;</B> via <B>make</B>, which requires an in: keyword.  Optional keywords include name:, bgstipple:, fgstipple:, font:, justify:, lmargin1:, lmargin2:, offset:, overstrike:, relief:, rmargin:, spacing1:, spacing2:, spacing3:, tabs:, wrap:,  and underline:.  Although tags are not widgets, they support the <B>configure</B>, <B>configuration</B>, and <B>bind</B> functions.  You may add ranges of characters to <B>&lt;text-tag&gt;</B>s via <B>add-tag</B>.  A complete list of functions upon <B>&lt;text-tag&gt;</B>s follows:<A NAME="I157"></A>
+<DL>
+<DT><B>configure</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>#rest options</I></B><B>) =&gt; </B><B><I>tag</I></B><A NAME="I158"></A></DT>
+<DT><B>configuration</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>index</I></B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;sequence&gt;</B><A NAME="I159"></A></DT>
+<DT><B>bind</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>event</I></B><B> :: </B><B>&lt;string&gt;</B><B>, </B><B><I>command</I></B><B>) =&gt; </B><B><I>tag</I></B></DT>
+<DT><B>as</B><B> (</B><B><I>cls</I></B><B> == </B><B>&lt;string&gt;</B><B>, </B><B><I>object</I></B><B> :: </B><B>&lt;text-tag&gt;</B><B>) =&gt; </B><B><I>string</I></B><A NAME="I160"></A></DT>
+<DT><B>add-tag</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>#key start</I></B><B>, </B><B><I>end</I></B><B>: </B><B><I>last</I></B><B>) =&gt; </B><B><I>tag</I></B><A NAME="I161"></A></DT>
+<DT><B>remove-tag</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>#key start</I></B><B>, </B><B><I>end: last</I></B><B>) =&gt; </B><B><I>tag</I></B><A NAME="I162"></A></DT>
+<DT><B>tags</B><B> (</B><B><I>text</I></B><B> :: </B><B>&lt;text&gt;</B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;sequence&gt;</B><A NAME="I163"></A></DT>
+<DT><B>delete-tag</B><B> (</B><B><I>tag</I></B><B>) =&gt; ()</B><A NAME="I164"></A></DT>
+<DT><B>raise-tag</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>#key past</I></B><B> :: </B><B>&lt;text-tag&gt;</B><B>) =&gt; ()</B><A NAME="I165"></A></DT>
+<DT><B>lower-tag</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>#key past</I></B><B> :: </B><B>&lt;text-tag&gt;</B><B>) =&gt; ()</B><A NAME="I166"></A></DT>
+<DT><B>next-range</B><B> (</B><B><I>tag</I></B><B>, </B><B><I>#key start</I></B><B>, </B><B><I>end</I></B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>false-or</B><B>(</B><B>&lt;pair&gt;</B><B>)</B></DT>
+</DL>
+<BR>
+<A NAME="E8E73"></A>
+<H2><B>13. </B><B>Canvas items and tags</B><A NAME="I167"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P><B>&lt;canvas-item&gt;</B>s represent different graphical entity within a <B>&lt;canvas&gt;</B>.  Each <B>create-shape</B> function returns a <B>&lt;canvas-</B><B>item&gt;</B> corresponding to the newly created shape.  These may be used to delete, resize, move, or respecify the shape.  Although canvas items are not widgets, they support the <B>configure</B>, <B>configuration</B> and <B>bind</B> functions.  The configuration options which are accepted for a given item depend upon its type.  You should consult the list of <B>create-...</B> functions for a list of options.<A NAME="I168"></A>
+<P><B>&lt;canvas-tag&gt;</B>s are a convienient way of grouping various canvas items.  If more than one item has a given tag, then any operation performed on the tag will be applied to all items with that tag.  Tags may be created using the make method with required keywords #&quot;in&quot;, the canvas that contains that tag, and #&quot;name&quot;, a string identifier.  Tags may be assigned to <B>&lt;canvas-item&gt;</B>s when they are created, by giving a single <B>&lt;canvas-tag&gt;</B> or a sequence of <B>&lt;canvas-tag&gt;</B>s in the #&quot;tags&quot; keyword.
+<P>The following functions operate upon canvas items and canvas tags:<A NAME="I169"></A>
+<DL>
+<DT><B>configure</B><B> (</B><B><I>item</I></B><B>, </B><B><I>#rest options</I></B><B>) =&gt; </B><B><I>item</I></B><A NAME="I170"></A></DT>
+<DT><B>configuration</B><B> (</B><B><I>item</I></B><B>, </B><B><I>index</I></B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;sequence&gt;</B><A NAME="I171"></A></DT>
+<DT><B>bind</B><B> (</B><B><I>item</I></B><B>, </B><B><I>event</I></B><B> :: </B><B>&lt;string&gt;</B><B>, </B><B><I>command</I></B><B>) =&gt; </B><B><I>item</I></B><A NAME="I172"></A></DT>
+<DT><B>delete-item</B><B> (</B><B><I>item</I></B><B>) =&gt; ()</B><A NAME="I173"></A></DT>
+<DT><B>raise-item</B><B> (</B><B><I>item</I></B><B>, </B><B><I>#key past</I></B><B> :: </B><B>&lt;canvas-item&gt;</B><B>) =&gt; ()</B><A NAME="I174"></A></DT>
+<DT><B>lower-item</B><B> (</B><B><I>item</I></B><B>, </B><B><I>#key past</I></B><B> :: </B><B>&lt;canvas-item&gt;</B><B>) =&gt; ()</B><A NAME="I175"></A></DT>
+<DT><B>move-item</B><B> (</B><B><I>item</I></B><B>, </B><B><I>x</I></B><B> :: </B><B>&lt;object&gt;</B><B>, </B><B><I>y</I></B><B> :: </B><B>&lt;object&gt;</B><B>) =&gt; ()</B><A NAME="I176"></A></DT>
+<DT><B>scale-item</B><B> (</B><B><I>item</I></B><B>, </B><B><I>x-origin</I></B><B>, </B><B><I>y-origin</I></B><B>, </B><B><I>x-scale</I></B><B>, </B><B><I>y-scale</I></B><B>) =&gt; ()</B><A NAME="I177"></A></DT>
+<DT><B>item-coords</B><B> (</B><B><I>item</I></B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;sequence&gt;</B><A NAME="I178"></A></DT>
+<DT><B>item-coords-setter</B><B> (</B><B><I>value</I></B><B> :: </B><B>&lt;sequence&gt;</B><B>, </B><B><I>item</I></B><B>) =&gt; ()</B><A NAME="I179"></A></DT>
+<DT><B>item-type</B><B> (</B><B><I>item</I></B><B>) =&gt; </B><B><I>result</I></B><B> :: </B><B>&lt;string&gt;</B><A NAME="I180"></A></DT>
+<DT><B>add-canvas-tag</B><B> (</B><B><I>item</I></B><B>, </B><B><I>spec</I></B><B>, </B><B><I>spec-args</I></B><B>) =&gt; ()</B><A NAME="I181"></A></DT>
+<DT><B>get-canvas-tags</B><B> (</B><B><I>item</I></B><B>) =&gt; </B><B><I>tags</I></B><B> :: </B><B>&lt;sequence&gt;</B><A NAME="I182"></A></DT>
+<DT><B>delete-canvas-tag</B><B> (</B><B><I>item</I></B><B>, </B><B><I>tag-to-delete</I></B><B>) =&gt; ()</B></DT>
+</DL>
+<BR>
+<A NAME="E8E74"></A>
+<H2><B>14. </B><B>Window Information commands</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>There are a variety of window information commands that return various data about the state of the widgets, most of these corresponding to Tcl/TK &quot;<A NAME="I183"></A>winfo&quot; commands.  There are also two new objects that are returned by some of these functions, <A NAME="I184"></A><B>&lt;point&gt;</B> and <A NAME="I185"></A><B>&lt;rgb-color&gt;</B>.  <B>&lt;point&gt;</B> has slots <B>x</B> and <B>y</B>, both integers, and <B>&lt;rgb-color&gt;</B> has slots <B>red</B>, <B>green</B>, and <B>blue</B>, all integers.  Functions that return these classes come in two forms for flexibility in programming.  One form has the class name appended to the function name , which returns the named object (e.g. <B>mouse-point</B> returns a <B>&lt;point&gt;</B>).  The second form lists the components as part of the function name, and returns each component individually, as multiple values (e.g. <B>mouse-</B><B>x-y</B> returns the values <B>x</B> and <B>y</B>).  A complete list of the window information functions follows.<A NAME="I186"></A>
+<DL>
+<DT><B>colormap-cells</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>c-m-cells</I></B><B> :: </B><B>&lt;integer&gt;</B><A NAME="I187"></A></DT>
+<DT><B>colormap-full?</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>c-m-full?</I></B><B> :: </B><B>&lt;boolean&gt;</B><A NAME="I188"></A></DT>
+<DT><B>children</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>child-seq</I></B><B> :: </B><B>&lt;sequence&gt;</B><A NAME="I189"></A></DT>
+<DT><B>window-containing-x-y</B><B> (</B><B><I>x</I></B><B>, </B><B><I>y</I></B><B>, </B><B><I>#key on-display-of</I></B><B> = #f) =&gt; </B><B><I>window</I></B><A NAME="I190"></A></DT>
+<DT><B>window-containing-point</B><B> (</B><B><I>point</I></B><B> :: </B><B>&lt;point&gt;</B><B>, </B><B><I>#key on-display-of</I></B><B> = #f) =&gt; </B><B><I>window</I></B><A NAME="I191"></A></DT>
+<DT><B>depth</B><B> (</B><B><I>window</I></B><B>)=&gt; </B><B><I>colors</I></B><B> :: </B><B>&lt;integer&gt;</B><A NAME="I192"></A></DT>
+<DT><B>exists?</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>exist?</I></B><B> :: </B><B>&lt;boolean&gt;</B><A NAME="I193"></A></DT>
+<DT><B>distance-to-float-pixels</B><B> (</B><B><I>dist</I></B><B>, </B><B><I>#rest units</I></B><B>) =&gt; </B><B><I>pixels</I></B><A NAME="I194"></A></DT>
+<DT><B>geometry</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>geom-string</I></B><A NAME="I195"></A></DT>
+<DT><B>height</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>h</I></B><A NAME="I196"></A></DT>
+<DT><B>X-id</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>id</I></B><B> :: </B><B>&lt;integer&gt;</B><A NAME="I197"></A></DT>
+<DT><B>mapped?</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>map?</I></B><B> :: </B><B>&lt;boolean&gt;</B><A NAME="I198"></A></DT>
+<DT><B>geometry-manager</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>manager</I></B><B> :: </B><B>&lt;string&gt;</B><A NAME="I199"></A></DT>
+<DT><B>window-with-X-id</B><B> (</B><B><I>id</I></B><B> :: </B><B>&lt;integer&gt;</B><B>, </B><B><I>#key on-display-of</I></B><B> = #f) =&gt; </B><B><I>window</I></B><A NAME="I200"></A></DT>
+<DT><B>distance-to-pixels</B><B> (</B><B><I>dist</I></B><B>, </B><B><I>#rest units</I></B><B>) =&gt; </B><B><I>pixels</I></B><B> :: </B><B>&lt;integer&gt;</B><A NAME="I201"></A></DT>
+<DT><B>mouse-x-y</B><B> (</B><B><I>window</I></B><B>) =&gt; (</B><B><I>x</I></B><B>, </B><B><I>y</I></B><B>)</B><A NAME="I202"></A></DT>
+<DT><B>mouse-point</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>point</I></B><B> :: </B><B>&lt;point&gt;</B><A NAME="I203"></A></DT>
+<DT><B>requested-height</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>h</I></B><A NAME="I204"></A></DT>
+<DT><B>requested-width</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>w</I></B><A NAME="I205"></A></DT>
+<DT><B>width</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>w</I></B><A NAME="I206"></A></DT>
+<DT><B>color-to-r-g-b</B><B> (</B><B><I>window</I></B><B>, </B><B><I>color</I></B><B> :: </B><B>&lt;string&gt;</B><B>) =&gt; (</B><B><I>red</I></B><B>, </B><B><I>green</I></B><B>, </B><B><I>blue</I></B><B>)</B><A NAME="I207"></A></DT>
+<DT><B>color-to-rgb-color</B><B> (</B><B><I>window</I></B><B>, </B><B><I>color</I></B><B> :: </B><B>&lt;string&gt;</B><B>) =&gt; </B><B><I>rgb-color</I></B><B> :: </B><B>&lt;rgb-color&gt;</B><A NAME="I208"></A></DT>
+<DT><B>abs-position-x-y</B><B> (</B><B><I>window</I></B><B>) =&gt; (</B><B><I>x</I></B><B>, </B><B><I>y</I></B><B>)</B><A NAME="I209"></A></DT>
+<DT><B>abs-position-point</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>point</I></B><B> :: </B><B>&lt;point&gt;</B><A NAME="I210"></A></DT>
+<DT><B>screen-name</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>name</I></B><A NAME="I211"></A></DT>
+<DT><B>screen-colormap-cells</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>num-cells</I></B><B> :: </B><B>&lt;integer&gt;</B><A NAME="I212"></A></DT>
+<DT><B>screen-depth</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>bit-depth</I></B><B> :: </B><B>&lt;integer&gt;</B><A NAME="I213"></A></DT>
+<DT><B>screen-height</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>h</I></B><A NAME="I214"></A></DT>
+<DT><B>screen-width</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>w</I></B><A NAME="I215"></A></DT>
+<DT><B>server</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>srv</I></B><B> :: </B><B>&lt;integer&gt;</B><A NAME="I216"></A></DT>
+<DT><B>toplevel</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>top</I></B><B> :: </B><B>&lt;window&gt;</B><A NAME="I217"></A></DT>
+<DT><B>viewable?</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>view?</I></B><A NAME="I218"></A></DT>
+<DT><B>visual-class</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>vis-class</I></B><B> :: </B><B>&lt;string&gt;</B><A NAME="I219"></A></DT>
+<DT><B>available-visuals</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>avail-vis</I></B><B> :: </B><B>&lt;sequence&gt;</B><A NAME="I220"></A></DT>
+<DT><B>virtual-root-height</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>h</I></B><A NAME="I221"></A></DT>
+<DT><B>virtual-root-width</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>w</I></B><A NAME="I222"></A></DT>
+<DT><B>virtual-root-position-x-y</B><B> (</B><B><I>window</I></B><B>) =&gt; (</B><B><I>x</I></B><B>, </B><B><I>y</I></B><B>)</B><A NAME="I223"></A></DT>
+<DT><B>virtual-root-position-point</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>point</I></B><B> :: </B><B>&lt;point&gt;</B><A NAME="I224"></A></DT>
+<DT><B>x-y-in-parent</B><B> (</B><B><I>window</I></B><B>) =&gt; (</B><B><I>x</I></B><B>, </B><B><I>y</I></B><B>)</B><A NAME="I225"></A></DT>
+<DT><B>point-in-parent</B><B> (</B><B><I>window</I></B><B>) =&gt; </B><B><I>point</I></B><B> :: </B><B>&lt;point&gt;</B></DT>
+</DL>
+<P>Notes on the functions:
+<P><B>Distance-to-pixels</B> and <B>distance-to-float-pixels</B> take a units paramater that could be one of #&quot;centimeters&quot;, #&quot;inches&quot;, #&quot;millimeters&quot;, or #&quot;points&quot;. 
+<P><B>X-y-in-parent</B> and <B>point-in-parent</B> return the position of the upper-left corner of the window in it&#146;s parent window.  
+<P><B>Abs-position-x-y</B> and <B>abs-position-point</B> return the position of the upper-left corner of the window relative to the root window.  
+<P><B>Mouse-x-y</B> and <B>mouse-point</B> return the position of the pointer relative to the argument window.  
+<P>Anything that returns a <B>&lt;window&gt;</B> or a sequence of <B>&lt;window&gt;</B>s will return a new object which refers to the same Tk widget.  A <B>\=</B> method is provided for comparing these to the previously existing ones.
+<BR>
+<A NAME="E8E75"></A>
+<H2><B>15. </B><B>Requested Enhancements</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Allow event bindings to access the window, mouse coords, character, and other &quot;%&quot; substitutions.
+<P>Add better support for scale and scrollbar widgets.
+<P>Provide a &quot;focus&quot; command.
+<P>Revise the interface to provide a more uniform object-oriented integration  of <B>&lt;window&gt;</B>s, <B>&lt;text-tag&gt;</B>s, and <B>&lt;canvas-</B><B>item&gt;</B>s.  (This would probably be an  incompatible change.)
+<BR>
+<A NAME="E8E76"></A>
+<H2><B>16. </B><B>The </B><A NAME="I226"></A><B>Extension Protocol</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Because early versions of Dylan/Tk don&#146;t support the entire functionality of Tcl/Tk, users may wish to interface directly with the underlying Tcl/Tk interpreter.  This capability is provided by the <A NAME="I227"></A>Tk-extension module.  (Note: if any user decides to use these capabilities to provide a firm interface to a Tcl/Tk subsystem (e.g. the &quot;wm&quot; command), we would willingly incorporate such code into future versions of this library.)
+<P>The following functions are exported:<A NAME="I228"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>tk-as</B> (<I>cls</I> :: <B>&lt;class&gt;</B>, <I>value</I>) =&gt; <I>result</I> :: <B>&lt;object&gt;</B> [Generic Function]</FONT>
+<UL>
+<UL>Performs conversions comparable to <B>as</B>, but adds some which do not  generalize outside Tk -- for example, tk-as(&lt;boolean&gt;, &quot;1&quot;) == #t.
+<BR>
+</UL></UL>
+<UL>
+<UL> You may wish to add methods to this function for any new Dylan types you  add. <A NAME="I229"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>put-tk-line</B> (<I>#rest pieces</I>) =&gt; () [Function]</FONT>
+<UL>
+<UL>Converts all of the input arguments into strings (using <B>tk-as</B>),  concatentates them into a line of tk input, and sends then to the running  tk process.  This routine expects no results and therefore does not wait  around for them.
+<BR>
+</UL></UL>
+<UL>
+<UL> You should be careful to include spaces between distinct tokens in the  input, since <B>put-tk-line</B> will cheerfully combine several strings into a  single Tk token.<A NAME="I230"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>call-tk-function</B> (<I>#rest pieces</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B> [Function]</FONT>
+<UL>
+<UL>Concatenates the input into a tk command, executes it, and returns the  result as a string.  Pauses execution of the current thread until the tk  function returns.  You may need to call <B>tk-as</B>, <B>tk-unquote</B>, or <B>parse-tk-list</B> on the  result depending upon the expected result type. <A NAME="I231"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>join-tk-args</B> (<I>#rest object</I>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B> [Function]</FONT>
+<UL>
+<UL>Creates a string containing the tk representation (via <B>tk-as</B>) of each  argument, separated by spaces.  <A NAME="I232"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-option</B> (<I>option</I>, <I>value</I>) =&gt; <I>option</I> :: <B>&lt;string&gt;</B> [Function]</FONT>
+<UL>
+<UL>Creates a tk &quot;option&quot; switch out of option name and an arbitrary value.  The value may be an <B>&lt;integer&gt;</B>, <B>&lt;string&gt;</B>, <B>&lt;symbol&gt;</B>, or <B>&lt;true&gt;</B>.  If the  option is #f, then an empty string (i.e. no option) will be returned.  <A NAME="I233"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>parse-tk-list</B> (<I>string</I>, <I>#key depth</I>, <I>unquote</I>, <I>start</I>, <I>end</I>) =&gt; <I>sequence</I> [Function]</FONT>
+<UL>
+<UL>Takes a string returned by a tk function and converts it into a sequence  of values.  Values will either be &#145;words&#146; or subsequences, depending upon  whether the string contains list grouping (i.e. &#145;{&#145; and &#145;}&#146;) characters.  If depth is not #f, all groupings below the given depth will be returned as  simple strings.  If <I>unquote</I> is true, then result strings will be  filtered through <B>tk-unquote</B>.<A NAME="I234"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>tk-quote</B> (<I>object</I> :: <B>&lt;object&gt;</B>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B> [Function]</FONT>
+<UL>
+<UL>Performs whatever quotation is necessary to get the data to WISH intact.  For most objects, this is the same as tk-as(&lt;string&gt;, ...), but it does  extra quotation on strings to make sure brackets and such like come out OK.  <A NAME="I235"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>tk-unquote</B> (<I>string</I> :: <B>&lt;string&gt;</B>) =&gt; <I>result</I> :: <B>&lt;string&gt;</B> [Function]</FONT>
+<UL>
+<UL>Strips away all quotation from a string.  This will undo the various  escapes required to imbed brackets and such like inside a tk list.  This  should be called for any user level string, just as <B>tk-as</B> might be  called for any other data type.  <A NAME="I236"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>anonymous-name</B> (<I>#key prefix</I> = &quot;w&quot;) =&gt; <I>result</I> :: <B>&lt;string&gt;</B> [Function]</FONT>
+<UL>
+<UL>Generates a unique new (but unexciting) name for a window.
+<BR>
+</UL></UL>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="melange.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="COLLEC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

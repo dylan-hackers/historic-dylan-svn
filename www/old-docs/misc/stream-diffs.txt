@@ -1,0 +1,344 @@
+---------
+General Notes:
+
+eos = end of stream.
+OW = otherwise.
+
+Most functions that used to take a signal-eof? keyword now take 
+an on-end-of-stream: keyword instead. If on-end-of-stream is supplied,
+then it's value is returned by the function if eos encountered. OW,
+an <end-of-stream-error> is raised. As a reminder in this doc, I put
+signal-eof?: -> on-end-of-stream: by all the functions this affects,
+though of course it isn't just a simple name change.
+
+The stream is now always the first argument in all stream functions.
+
+---------
+Classes:
+
+Not so consequential:
+<random-access-stream> -> <positionable-stream>
+<string-{input,output}-stream> -> <string-stream>
+There is now a <unicode-string-stream>.
+
+There is now a <buffered-stream>. Only <file-stream> is a subclass of
+<buffered-stream>. Only <buffered-stream>s support the Buffer Access
+Protocol.
+
+----
+
+make <file-stream>
+The name: name keyword is now locator:
+The default value for if-exists: now changes as a result of other arguments,
+as it used to change in CL.  This is due to Hqn adding an if-does-not-exist:
+arg roughly equivalent to CL's.
+
+----
+
+<byte-string-input-stream> and <byte-string-output-stream>
+have become <byte-string-stream>. Takes a direction: keyword,
+
+  direction :: one-of(#"input", #"output", #"input-output") = #"input"
+  
+The string: keyword is now contents: (May be supplied for input or
+output streams.)
+
+***Note that <byte-string-stream> is *not buffered*. None of the
+Buffer Access Protocol functions may be called on a <byte-string-stream>.
+
+----
+Conditions:
+<end-of-file> -> <end-of-stream-error>
+<file-not-found> -> <file-does-not-exist-error>
+<file-exists> -> <file-exists-error>
+
+New:
+<incomplete-read-error> (see read, read-into!, get-input-buffer)
+<invalid-file-permissions-error>
+<file-error> superclass of the three file errors.
+
+---------
+Functions:
+
+The general format I use is
+old-name(old-arg-order) -> new-name(new-arg-order)
+old-keyword-name-1 -> new-keyword-name-1
+old-keyword-name-2 -> new-keyword-name-2
+...
+Any special notes.
+
+If I leave out the arguments or any keywords, it's because they are the same.
+(Or I forgot ;)
+
+----
+
+read-byte
+Use read-element. Note that read-element returns one object of type
+stream.stream-element-type, not a <byte>.
+signal-eof?: -> on-end-of-stream:
+
+----
+
+peek-byte
+Use peek. Note that peek returns one object of type 
+stream.stream-element-type, not a <byte>.
+Peek does not return #f on eos (like peek-byte did), instead eos behavior
+is the same as for read-element.
+
+----
+
+read-line
+signal-eof?: -> on-end-of-stream:
+The second return value now has the opposite meaning: it is #t if a newline
+was encountered, OW #f.
+Also, read-line-into! is now available.
+
+----
+
+input-available? -> stream-input-available?
+
+----
+
+flush-input -> discard-input
+
+----
+
+read-as is gone.
+
+----
+
+read-into!(dest, stream) -> read-into!(stream, n, dest)
+signal-eof?: -> on-end-of-stream:
+to-eof?: is gone. (Behaves as if to-eof? was #t)
+end: is gone.
+No longer returns dest.
+Returns the number of elements actually copied, or on-end-of-stream
+if it was supplied. This is similar to what used to be the second
+return value, which was the _end position_ or eof. (The end position
+is the same as the number of elements copied in the usual situation
+where start = 0).
+
+----
+
+write for <object>, <byte> and <byte-character> is now write-element.
+write for <sequence>s is write.
+
+write(object, stream) -> write-element(stream, object)
+
+write(sequence, stream) -> write(stream, sequence)
+
+----
+
+write-line(sequence, stream) -> write-line(stream, sequence)
+Now takes optional start: and end: keywords to delimit sequence.
+
+----
+
+Buffer Access Protocol general notes.
+
+Now only applies to <fd-file-stream>s.
+
+The <buffer> class now has two indices, buffer-next and buffer-end.
+Instead of passing next and end to functions, assign to buffer-next
+before calling them. You should not need to assign to buffer-end.
+Functions that used to return next/end now just return a <buffer>, from
+which you get next and end with buffer-next and buffer-end.
+
+----
+
+get-input-buffer
+
+No longer returns next and end (second and third values),
+instead it updates buffer-next and buffer-end.
+
+New keywords:
+wait? :: <boolean> defaults to #t and indicates that get-input-buffer should
+block until input is available. If eos encountered when wait? is #t, 
+get-input-buffer WILL RETURN #f INSTEAD OF A BUFFER. If wait? is #f, then
+the buffer wil be returned in whatever state it is in.
+
+bytes :: false-or(<integer>) = #f. If bytes is supplied, wait? has no effect.
+Specifies a minimum number of bytes that should be available for reading/
+writing. If this many bytes are not available, you get an
+<incomplete-read-error>.
+
+Typical code that used to be
+  let (buf :: <buffer>, next :: <buffer-index>, end :: <buffer-index>)
+    = get-input-buffer(stream);
+  diddle(next, end);
+Now looks like
+  let buf :: false-or(<buffer>) = get-input-buffer(stream);
+  if (~buf) error(make(<end-of-stream-error>));
+  diddle(buf.buffer-next, buf.buffer-end);
+
+----
+
+release-input-buffer(stream, next, end) -> release-input-buffer(stream)
+Update buffer-next before calling release-input-buffer. You shouldn't
+need to update buffer-end.
+
+One odd case
+  release-input-buffer(stream, 0, 0);
+Should now be something like
+  buf.buffer-next := buf.buffer-end;
+  release-input-buffer(stream);
+
+----
+
+fill-input-buffer(stream, next) -> next-input-buffer(stream)
+Now takes bytes: and wait? keywords (Same behavior as get-input-buffer.)
+
+Usually you will set buf.buffer-next to buf.buffer-end just before calling
+this function. This is how you indicate that you have used up all
+the input.
+
+Instead of returning end, updates buffer-end.
+Now returns a buffer! The buffer returned is not necessarily the same one
+you have in hand already.
+
+What used to be
+  diddle(buf, from: start, to: stop);
+  stop := fill-input-buffer(stream, start);
+  diddle(buf, from: start, to: stop);
+Now is more like
+  diddle(buf, from: start, to: stop);
+  buf.buffer-next := stop;
+  buf := next-input-buffer(stream);
+  if (~buf) error ...;
+  start := buf.buffer-next;
+  stop := buf.buffer-end;
+  diddle(buf, from: start, to: stop);
+
+Note that if buffer-next ~== buffer-end, that is, if not all the input
+has been used up, next-input-buffer will not do anything. In it's default
+behavior it just needs to return a buffer with at least 1 byte available,
+unless you supply bytes: n, in which case it will guarantee that there are
+n bytes available. But, if buffer-next ~== buffer-end, then it will seem that
+there is still valid input between next and end. In this case next-input-buffer
+will only fill new input after buffer-end...and just signal and error if
+it can't get the requested number of bytes. SO the moral of the story is
+set buffer-next equal to buffer-end before calling next-input-buffer.
+
+(Note it was mentioned by email that one could set bytes: buf.size. This is
+a bad idea, as outlined in the spec. Especially since if buffer-next is not
+equal to buffer-end (or zero), this will just raise and error...)
+
+----
+
+get-output-buffer
+Now takes bytes: keyword, which defaults to 1. This is the minimum number
+of bytes that will be available for writing.
+
+No longer returns next and end (second and third values),
+instead it updates buffer-next and buffer-end.
+
+----
+
+release-output-buffer(stream, next) -> release-output-buffer(stream)
+
+Instead of passing next as an argument, assign to buffer-next before
+calling release-output-buffer.
+
+----
+
+empty-output-buffer(stream, end) -> next-output-buffer(stream)
+Now takes bytes: keyword, which defaults to 1. This is the minimum number
+of bytes that will be available for writing.
+Now returns a buffer.
+
+  diddle(buf, from: 0, to: stop);
+  empty-output-buffer(stream, stop);
+  diddle(buf, from: 0, to: stop);
+Goes to
+  diddle(buf, from: start, to: stop);
+  buf.buffer-next := stop;
+  buf := next-output-buffer(stream);
+  if (~buf) error ...;
+  start := buf.buffer-next;
+  stop := buf.buffer-end;
+  diddle(buf, from: start, to: stop);
+ 
+----
+
+force-secondary-buffers is gone.
+force-output-buffers now does anything this did.
+
+----
+
+stream-position-setter(position, stream)
+Nothing needs to be changed, but note
+Position may now be #"start", #"end", or and <integer>.
+
+----
+
+adjust-stream-position(offset, stream) -> 
+			adjust-stream-position(stream, offset)
+The default for from: is now #"current" instead of #"start"
+So supply from: #"start" for the same behavior.
+
+----
+
+string-output-stream-string
+Use stream-contents instead, supplying clear-contents?: #t.
+
+----
+
+copy-from-buffer!(dest, buf, start) -> copy-from-buffer!(buf, start, dest)
+
+----
+
+copy-into-buffer!(source, buf, start) -> copy-into-buffer!(buf, start, source)
+
+----
+
+These are all pretty much unchanOBged:
+
+force-output
+stream-position
+stream-size
+syncronize-output
+buffer-subsequence
+
+These are all pretty much unchanged, but don't forget they can only be
+called on <buffered-stream>s:
+
+input-available-at-source?
+synchronize
+
+---------
+
+New things one might want to look up in the spec:
+
+- There are additional options when creating <file-stream>s.
+- stream-contents (works on all <positionable-stream>s.)
+- read-line-into!
+- Reading convenience functions: read-to, read-through, read-to-end, 
+  skip-through.
+- Querying functions: stream-open?, stream-at-end?, stream-element-type.
+- Wrapper streams.
+- discard-output.
+
+---------
+
+Hint to updaters, If you don't know these already:
+
+In emacs, place the cursor on the first of two arguments,
+or in between two arguments, and hit
+ control-meta-t ("twiddle")
+to swap them. (Also can be used to swap words in text.)
+
+And of course meta-% is replace. (Type ! to replace all instances
+at once. Can be dangerous!)
+
+---------
+
+Dave wrote a perl script to switch the order of the arguments in write and
+write-line. It doesn't work if the call is spread over more than one line,
+or if it contains any keywords. Still very handy:
+
+/afs/cs/usr/bfw/public/sw.perl
+
+usage
+sw.perl < old-foo.dylan > new-foo.dylan
+
+---------

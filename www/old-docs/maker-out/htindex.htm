@@ -1,0 +1,942 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Index</TITLE></HEAD>
+<BODY>
+
+<H2>Gwydion Dylan</H2><P ALIGN=CENTER>
+<A HREF="matrix.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><li>
+<P><A HREF="mindy.htm#I27">#next</A><li>
+<P><A HREF="debug.htm#I20">$</A><li>
+<P><A HREF="debug.htm#I21">$$</A><li>
+<P><A HREF="debug.htm#I19">$-N</A><li>
+<P><A HREF="inspect.htm#I7">$all-libraries</A><li>
+<P><A HREF="inspect.htm#I18">$all-libraries</A><li>
+<P><A HREF="debug.htm#I23">$aN</A><li>
+<P><A HREF="TRANSC~1.htm#I21">$double-e</A><li>
+<P><A HREF="TRANSC~1.htm#I22">$double-e</A><li>
+<P><A HREF="TRANSC~1.htm#I7">$double-pi</A><li>
+<P><A HREF="EXTENS~1.htm#I48">$maximum-integer</A><li>
+<P><A HREF="EXTENS~1.htm#I49">$minimum-integer</A><li>
+<P><A HREF="debug.htm#I18">$N</A><li>
+<P><A HREF="random.htm#I6">$random-bits-count</A><li>
+<P><A HREF="TRANSC~1.htm#I19">$single-e</A><li>
+<P><A HREF="TRANSC~1.htm#I33">$single-e</A><li>
+<P><A HREF="TRANSC~1.htm#I5">$single-pi</A><li>
+<P><A HREF="format.htm#I15">%%</A><li>
+<P><A HREF="time.htm#I52">%%</A><li>
+<P><A HREF="format.htm#I8">%=</A><li>
+<P><A HREF="time.htm#I37">%a</A><li>
+<P><A HREF="format.htm#I11">%B</A><li>
+<P><A HREF="time.htm#I38">%b</A><li>
+<P><A HREF="format.htm#I9">%C</A><li>
+<P><A HREF="format.htm#I10">%D</A><li>
+<P><A HREF="time.htm#I39">%d</A><li>
+<P><A HREF="time.htm#I40">%D</A><li>
+<P><A HREF="time.htm#I41">%H</A><li>
+<P><A HREF="time.htm#I42">%I</A><li>
+<P><A HREF="format.htm#I14">%M</A><li>
+<P><A HREF="time.htm#I43">%m</A><li>
+<P><A HREF="time.htm#I44">%M</A><li>
+<P><A HREF="format.htm#I12">%O</A><li>
+<P><A HREF="time.htm#I45">%p</A><li>
+<P><A HREF="time.htm#I46">%r</A><li>
+<P><A HREF="format.htm#I7">%S</A><li>
+<P><A HREF="time.htm#I47">%S</A><li>
+<P><A HREF="time.htm#I48">%T</A><li>
+<P><A HREF="time.htm#I49">%w</A><li>
+<P><A HREF="format.htm#I13">%X</A><li>
+<P><A HREF="time.htm#I50">%y</A><li>
+<P><A HREF="time.htm#I51">%Y</A><li>
+<P><A HREF="matrix.htm#I6">*</A><li>
+<P><A HREF="mindy.htm#I43">*debug-output*</A><li>
+<P><A HREF="print.htm#I5">*default-circle?*</A><li>
+<P><A HREF="print.htm#I4">*default-length*</A><li>
+<P><A HREF="print.htm#I3">*default-level*</A><li>
+<P><A HREF="print.htm#I17">*default-line-length*</A><li>
+<P><A HREF="print.htm#I6">*default-pretty?*</A><li>
+<P><A HREF="mindy.htm#I47">*print-GC-messages*</A><li>
+<P><A HREF="print.htm#I18">*print-miser-width*</A><li>
+<P><A HREF="dylan-tk.htm#I26">*root-window*</A><li>
+<P><A HREF="EXTENS~1.htm#I39">*warning-output*</A><li>
+<P><A HREF="matrix.htm#I4">+;matrix arithmetic</A><li>
+<P><A HREF="matrix.htm#I5">-</A><li>
+<P><A HREF="mindy.htm#I38">\\&gt;</A><li>
+<P><A HREF="mindy.htm#I54">\\&gt;</A><li>
+<P><A HREF="mindy.htm#I112">\\&gt;</A><li>
+<P><A HREF="mindy.htm#I116">\\&gt;</A><li>
+<P><A HREF="mindy.htm#I117">\\&gt;</A><li>
+<P><A HREF="mindy.htm#I118">\\&gt;</A><li>
+<P><A HREF="mindy.htm#I119">\\&gt;</A><li>
+<P><A HREF="mindy.htm#I124">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I27">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I28">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I46">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I47">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I50">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I56">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I66">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I68">\\&gt;</A><li>
+<P><A HREF="EXTENS~1.htm#I72">\\&gt;</A><li>
+<P><A HREF="streams.htm#I3">\\&gt;</A><li>
+<P><A HREF="streams.htm#I4">\\&gt;</A><li>
+<P><A HREF="streams.htm#I5">\\&gt;</A><li>
+<P><A HREF="streams.htm#I6">\\&gt;</A><li>
+<P><A HREF="streams.htm#I7">\\&gt;</A><li>
+<P><A HREF="streams.htm#I8">\\&gt;</A><li>
+<P><A HREF="streams.htm#I9">\\&gt;</A><li>
+<P><A HREF="streams.htm#I10">\\&gt;</A><li>
+<P><A HREF="streams.htm#I47">\\&gt;</A><li>
+<P><A HREF="streams.htm#I65">\\&gt;</A><li>
+<P><A HREF="streams.htm#I66">\\&gt;</A><li>
+<P><A HREF="streams.htm#I67">\\&gt;</A><li>
+<P><A HREF="streams.htm#I68">\\&gt;</A><li>
+<P><A HREF="streams.htm#I69">\\&gt;</A><li>
+<P><A HREF="streams.htm#I70">\\&gt;</A><li>
+<P><A HREF="streams.htm#I96">\\&gt;</A><li>
+<P><A HREF="streams.htm#I97">\\&gt;</A><li>
+<P><A HREF="streams.htm#I98">\\&gt;</A><li>
+<P><A HREF="streams.htm#I99">\\&gt;</A><li>
+<P><A HREF="streams.htm#I100">\\&gt;</A><li>
+<P><A HREF="streams.htm#I101">\\&gt;</A><li>
+<P><A HREF="streams.htm#I104">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I25">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I41">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I42">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I47">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I51">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I54">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I57">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I77">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I90">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I91">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I92">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I113">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I128">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I129">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I132">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I136">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I149">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I151">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I154">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I156">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I167">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I168">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I184">\\&gt;</A><li>
+<P><A HREF="dylan-tk.htm#I185">\\&gt;</A><li>
+<P><A HREF="COLLEC~1.htm#I4">\\&gt;</A><li>
+<P><A HREF="COLLEC~1.htm#I6">\\&gt;</A><li>
+<P><A HREF="TABLE-~1.htm#I4">\\&gt;</A><li>
+<P><A HREF="TABLE-~1.htm#I5">\\&gt;</A><li>
+<P><A HREF="TABLE-~1.htm#I6">\\&gt;</A><li>
+<P><A HREF="TABLE-~1.htm#I7">\\&gt;</A><li>
+<P><A HREF="TABLE-~1.htm#I15">\\&gt;</A><li>
+<P><A HREF="TABLE-~1.htm#I16">\\&gt;</A><li>
+<P><A HREF="STRING~1.htm#I27">\\&gt;</A><li>
+<P><A HREF="STRING~1.htm#I28">\\&gt;</A><li>
+<P><A HREF="STRING~1.htm#I29">\\&gt;</A><li>
+<P><A HREF="STRING~1.htm#I30">\\&gt;</A><li>
+<P><A HREF="REGULA~1.htm#I14">\\&gt;</A><li>
+<P><A HREF="time.htm#I4">\\&gt;</A><li>
+<P><A HREF="time.htm#I5">\\&gt;</A><li>
+<P><A HREF="time.htm#I15">\\&gt;</A><li>
+<P><A HREF="time.htm#I16">\\&gt;</A><li>
+<P><A HREF="time.htm#I17">\\&gt;</A><li>
+<P><A HREF="time.htm#I18">\\&gt;</A><li>
+<P><A HREF="time.htm#I19">\\&gt;</A><li>
+<P><A HREF="time.htm#I20">\\&gt;</A><li>
+<P><A HREF="time.htm#I21">\\&gt;</A><li>
+<P><A HREF="time.htm#I22">\\&gt;</A><li>
+<P><A HREF="time.htm#I23">\\&gt;</A><li>
+<P><A HREF="time.htm#I24">\\&gt;</A><li>
+<P><A HREF="random.htm#I10">\\&gt;</A><li>
+<P><A HREF="matrix.htm#I2">\\&gt;</A><li>
+<P><A HREF="TRANSC~1.htm#I25">\^</A><li>
+<P><A HREF="TRANSC~1.htm#I28">\^</A>
+<HR ALIGN=CENTER>
+<H1>- A -</H1><li>
+<P><A HREF="debug.htm#I26">abort</A><li>
+<P><A HREF="dylan-tk.htm#I209">abs-position-point</A><li>
+<P><A HREF="dylan-tk.htm#I208">abs-position-x-y</A><li>
+<P><A HREF="mindy.htm#I52">abstract?</A><li>
+<P><A HREF="TRANSC~1.htm#I12">acos</A><li>
+<P><A HREF="TRANSC~1.htm#I31">acosh</A><li>
+<P><A HREF="dylan-tk.htm#I43">activate</A><li>
+<P><A HREF="dylan-tk.htm#I52">activate</A><li>
+<P><A HREF="dylan-tk.htm#I114">activate-entry</A><li>
+<P><A HREF="dylan-tk.htm#I180">add-canvas-tag</A><li>
+<P><A HREF="dylan-tk.htm#I126">add-cascade</A><li>
+<P><A HREF="dylan-tk.htm#I124">add-checkbutton</A><li>
+<P><A HREF="dylan-tk.htm#I123">add-command</A><li>
+<P><A HREF="STRING~1.htm#I23">add-last</A><li>
+<P><A HREF="dylan-tk.htm#I125">add-radiobutton</A><li>
+<P><A HREF="dylan-tk.htm#I127">add-separator</A><li>
+<P><A HREF="dylan-tk.htm#I160">add-tag</A><li>
+<P><A HREF="streams.htm#I51">adjust-stream-position</A><li>
+<P><A HREF="matrix.htm#I14">Algorithms</A><li>
+<P><A HREF="STRING~1.htm#I10">alpha?</A><li>
+<P><A HREF="STRING~1.htm#I11">alphabetic?</A><li>
+<P><A HREF="STRING~1.htm#I13">alphanumeric?</A><li>
+<P><A HREF="dylan-tk.htm#I236">anonymous-name</A><li>
+<P><A HREF="streams.htm#I52">as</A><li>
+<P><A HREF="time.htm#I28">as</A><li>
+<P><A HREF="TRANSC~1.htm#I11">asin</A><li>
+<P><A HREF="TRANSC~1.htm#I18">asinh</A><li>
+<P><A HREF="EXTENS~1.htm#I29">assert</A><li>
+<P><A HREF="TRANSC~1.htm#I13">atan</A><li>
+<P><A HREF="TRANSC~1.htm#I14">atan2</A><li>
+<P><A HREF="TRANSC~1.htm#I32">atanh</A><li>
+<P><A HREF="matrix.htm#I8">augment-matrix</A><li>
+<P><A HREF="dylan-tk.htm#I219">available-visuals</A>
+<HR ALIGN=CENTER>
+<H1>- B -</H1><li>
+<P><A HREF="dylan-tk.htm#I8">background</A><li>
+<P><A HREF="debug.htm#I8">backtrace</A><li>
+<P><A HREF="dylan-tk.htm#I35">bind</A><li>
+<P><A HREF="dylan-tk.htm#I159">bind</A><li>
+<P><A HREF="dylan-tk.htm#I171">bind</A><li>
+<P><A HREF="inspect.htm#I19">binding</A><li>
+<P><A HREF="dylan-tk.htm#I38">binding-call-order</A><li>
+<P><A HREF="dylan-tk.htm#I39">binding-call-order-setter</A><li>
+<P><A HREF="dylan-tk.htm#I16">bitmap</A><li>
+<P><A HREF="dylan-tk.htm#I9">borderwidth</A><li>
+<P><A HREF="STRING~1.htm#I34">Boyer-Moore</A><li>
+<P><A HREF="debug.htm#I30">breakpoint</A><li>
+<P><A HREF="mindy.htm#I127">broadcast-event</A><li>
+<P><A HREF="streams.htm#I64">Buffer access protocol</A><li>
+<P><A HREF="streams.htm#I83">buffer-end</A><li>
+<P><A HREF="streams.htm#I84">buffer-end-setter</A><li>
+<P><A HREF="streams.htm#I81">buffer-next</A><li>
+<P><A HREF="streams.htm#I82">buffer-next-setter</A><li>
+<P><A HREF="streams.htm#I85">buffer-subsequence</A><li>
+<P><A HREF="mindy.htm#I11">BYTES_CONSED_BETWEEN_GCS</A>
+<HR ALIGN=CENTER>
+<H1>- C -</H1><li>
+<P><A HREF="debug.htm#I16">call</A><li>
+<P><A HREF="dylan-tk.htm#I230">call-tk-function</A><li>
+<P><A HREF="dylan-tk.htm#I66">canvas-x</A><li>
+<P><A HREF="dylan-tk.htm#I67">canvas-y</A><li>
+<P><A HREF="TABLE-~1.htm#I13">case-insensitive-equal</A><li>
+<P><A HREF="STRING~1.htm#I26">case-insensitive-equal</A><li>
+<P><A HREF="TABLE-~1.htm#I12">case-insensitive-string-hash</A><li>
+<P><A HREF="STRING~1.htm#I8">Character-type Module</A><li>
+<P><A HREF="mindy.htm#I105">Cheap-io Module</A><li>
+<P><A HREF="EXTENS~1.htm#I75">Cheap-io Module</A><li>
+<P><A HREF="dylan-tk.htm#I188">children</A><li>
+<P><A HREF="mindy.htm#I53">class-name</A><li>
+<P><A HREF="EXTENS~1.htm#I64">class-name</A><li>
+<P><A HREF="dylan-tk.htm#I93">clear-selection</A><li>
+<P><A HREF="streams.htm#I17">close</A><li>
+<P><A HREF="streams.htm#I57">close</A><li>
+<P><A HREF="mindy.htm#I48">collect-garbage</A><li>
+<P><A HREF="COLLEC~1.htm#I2">Collection-extensions Library</A><li>
+<P><A HREF="TABLE-~1.htm#I8">collection-hash</A><li>
+<P><A HREF="TABLE-~1.htm#I19">collection-hash</A><li>
+<P><A HREF="mindy.htm#I22">collections, limited</A><li>
+<P><A HREF="debug.htm#I12">colon notation</A><li>
+<P><A HREF="dylan-tk.htm#I206">color-to-r-g-b</A><li>
+<P><A HREF="dylan-tk.htm#I207">color-to-rgb-color</A><li>
+<P><A HREF="dylan-tk.htm#I186">colormap-cells</A><li>
+<P><A HREF="dylan-tk.htm#I187">colormap-full?</A><li>
+<P><A HREF="dylan-tk.htm#I17">command</A><li>
+<P><A HREF="mindy.htm#I9">Command Line Switches</A><li>
+<P><A HREF="EXTENS~1.htm#I16">compiled-for-hppa</A><li>
+<P><A HREF="EXTENS~1.htm#I19">compiled-for-hpux</A><li>
+<P><A HREF="EXTENS~1.htm#I21">compiled-for-linux</A><li>
+<P><A HREF="EXTENS~1.htm#I22">compiled-for-solaris</A><li>
+<P><A HREF="EXTENS~1.htm#I18">compiled-for-sparc</A><li>
+<P><A HREF="EXTENS~1.htm#I23">compiled-for-unix</A><li>
+<P><A HREF="EXTENS~1.htm#I20">compiled-for-win32</A><li>
+<P><A HREF="EXTENS~1.htm#I17">compiled-for-x86</A><li>
+<P><A HREF="EXTENS~1.htm#I3">compilers</A><li>
+<P><A HREF="EXTENS~1.htm#I38">condition-force-output</A><li>
+<P><A HREF="EXTENS~1.htm#I37">condition-format</A><li>
+<P><A HREF="EXTENS~1.htm#I13">Conditional Compilation</A><li>
+<P><A HREF="dylan-tk.htm#I28">configuration</A><li>
+<P><A HREF="dylan-tk.htm#I158">configuration</A><li>
+<P><A HREF="dylan-tk.htm#I170">configuration</A><li>
+<P><A HREF="dylan-tk.htm#I27">configure</A><li>
+<P><A HREF="dylan-tk.htm#I157">configure</A><li>
+<P><A HREF="dylan-tk.htm#I169">configure</A><li>
+<P><A HREF="dylan-tk.htm#I116">configure-entry</A><li>
+<P><A HREF="TRANSC~1.htm#I3">contagion</A><li>
+<P><A HREF="debug.htm#I28">continue</A><li>
+<P><A HREF="format.htm#I6">Control Strings</A><li>
+<P><A HREF="STRING~1.htm#I21">control?</A><li>
+<P><A HREF="EXTENS~1.htm#I57">copy-bytes</A><li>
+<P><A HREF="streams.htm#I87">copy-from-buffer!</A><li>
+<P><A HREF="streams.htm#I86">copy-into-buffer!</A><li>
+<P><A HREF="TRANSC~1.htm#I9">cos</A><li>
+<P><A HREF="TRANSC~1.htm#I16">cosh</A><li>
+<P><A HREF="dylan-tk.htm#I68">create-arc</A><li>
+<P><A HREF="dylan-tk.htm#I69">create-bitmap</A><li>
+<P><A HREF="dylan-tk.htm#I70">create-line</A><li>
+<P><A HREF="dylan-tk.htm#I71">create-oval</A><li>
+<P><A HREF="dylan-tk.htm#I72">create-polygon</A><li>
+<P><A HREF="dylan-tk.htm#I73">create-rectangle</A><li>
+<P><A HREF="dylan-tk.htm#I74">create-text</A><li>
+<P><A HREF="dylan-tk.htm#I75">create-window</A><li>
+<P><A HREF="STRING~1.htm#I9">ctype.h</A><li>
+<P><A HREF="dylan-tk.htm#I94">current-selection</A><li>
+<P><A HREF="mindy.htm#I115">current-thread</A><li>
+<P><A HREF="dylan-tk.htm#I10">cursor</A>
+<HR ALIGN=CENTER>
+<H1>- D -</H1><li>
+<P><A HREF="time.htm#I10">day-of-month</A><li>
+<P><A HREF="time.htm#I9">day-of-week</A><li>
+<P><A HREF="time.htm#I13">daylight-savings-time?</A><li>
+<P><A HREF="dylan-tk.htm#I44">deactivate</A><li>
+<P><A HREF="dylan-tk.htm#I53">deactivate</A><li>
+<P><A HREF="mindy.htm#I41">Debugger Customizations</A><li>
+<P><A HREF="EXTENS~1.htm#I33">Debugger Customizations</A><li>
+<P><A HREF="debug.htm#I17">Debugger Variables</A><li>
+<P><A HREF="EXTENS~1.htm#I35">Debugger-format</A><li>
+<P><A HREF="mindy.htm#I44">Debugger-format module</A><li>
+<P><A HREF="time.htm#I27">decode-time</A><li>
+<P><A HREF="EXTENS~1.htm#I10">define function</A><li>
+<P><A HREF="debug.htm#I31">delete</A><li>
+<P><A HREF="dylan-tk.htm#I80">delete</A><li>
+<P><A HREF="dylan-tk.htm#I99">delete</A><li>
+<P><A HREF="dylan-tk.htm#I115">delete</A><li>
+<P><A HREF="dylan-tk.htm#I138">delete</A><li>
+<P><A HREF="dylan-tk.htm#I182">delete-canvas-tag</A><li>
+<P><A HREF="dylan-tk.htm#I172">delete-item</A><li>
+<P><A HREF="dylan-tk.htm#I163">delete-tag</A><li>
+<P><A HREF="EXTENS~1.htm#I53">denominator</A><li>
+<P><A HREF="dylan-tk.htm#I191">depth</A><li>
+<P><A HREF="debug.htm#I44">describe</A><li>
+<P><A HREF="dylan-tk.htm#I49">deselect-value</A><li>
+<P><A HREF="dylan-tk.htm#I56">deselect-value</A><li>
+<P><A HREF="dylan-tk.htm#I31">destroy-window</A><li>
+<P><A HREF="matrix.htm#I11">det;determinant</A><li>
+<P><A HREF="STRING~1.htm#I6">digit-to-integer</A><li>
+<P><A HREF="STRING~1.htm#I12">digit?</A><li>
+<P><A HREF="time.htm#I36">Directives</A><li>
+<P><A HREF="debug.htm#I34">disable</A><li>
+<P><A HREF="debug.htm#I32">disassemble</A><li>
+<P><A HREF="streams.htm#I26">discard-input</A><li>
+<P><A HREF="streams.htm#I38">discard-output</A><li>
+<P><A HREF="inspect.htm#I8">display-object-info</A><li>
+<P><A HREF="dylan-tk.htm#I193">distance-to-float-pixels</A><li>
+<P><A HREF="dylan-tk.htm#I200">distance-to-pixels</A><li>
+<P><A HREF="streams.htm#I89">do-get-input-buffer</A><li>
+<P><A HREF="streams.htm#I93">do-get-output-buffer</A><li>
+<P><A HREF="streams.htm#I92">do-input-available-at-source?</A><li>
+<P><A HREF="streams.htm#I91">do-next-input-buffer</A><li>
+<P><A HREF="streams.htm#I95">do-next-output-buffer</A><li>
+<P><A HREF="streams.htm#I90">do-release-input-buffer</A><li>
+<P><A HREF="streams.htm#I94">do-release-output-buffer</A><li>
+<P><A HREF="debug.htm#I6">down</A><li>
+<P><A HREF="mindy.htm#I15">Dylan vs. Mindy</A><li>
+<P><A HREF="EXTENS~1.htm#I5">Dylan vs. Mindy</A><li>
+<P><A HREF="inspect.htm#I5">Dylan/TK</A><li>
+<P><A HREF="dylan-tk.htm#I2">Dylan/TK</A><li>
+<P><A HREF="dylan-tk.htm#I226">Dylan/Tk Extension Protocol</A><li>
+<P><A HREF="dylan-tk.htm#I7">Dylan/Tk standard options</A>
+<HR ALIGN=CENTER>
+<H1>- E -</H1><li>
+<P><A HREF="TRANSC~1.htm#I20">e</A><li>
+<P><A HREF="mindy.htm#I88">EACCES</A><li>
+<P><A HREF="mindy.htm#I99">EBADF</A><li>
+<P><A HREF="mindy.htm#I90">EEXIST</A><li>
+<P><A HREF="mindy.htm#I89">EFAULT</A><li>
+<P><A HREF="mindy.htm#I102">EFBIG</A><li>
+<P><A HREF="mindy.htm#I100">EINTR</A><li>
+<P><A HREF="mindy.htm#I93">EINVAL</A><li>
+<P><A HREF="mindy.htm#I86">EIO</A><li>
+<P><A HREF="mindy.htm#I92">EISDIR</A><li>
+<P><A HREF="mindy.htm#I95">EMFILE</A><li>
+<P><A HREF="debug.htm#I35">enable</A><li>
+<P><A HREF="mindy.htm#I98">ENAMETOOLONG</A><li>
+<P><A HREF="time.htm#I30">encodable-time?</A><li>
+<P><A HREF="time.htm#I29">encode-time</A><li>
+<P><A HREF="mindy.htm#I94">ENFILE</A><li>
+<P><A HREF="mindy.htm#I85">ENOENT</A><li>
+<P><A HREF="mindy.htm#I96">ENOSPC</A><li>
+<P><A HREF="mindy.htm#I91">ENOTDIR</A><li>
+<P><A HREF="dylan-tk.htm#I117">entry-configuration</A><li>
+<P><A HREF="mindy.htm#I10">Environment Variables</A><li>
+<P><A HREF="EXTENS~1.htm#I59">environment variables</A><li>
+<P><A HREF="mindy.htm#I87">ENXIO</A><li>
+<P><A HREF="mindy.htm#I101">EPIPE</A><li>
+<P><A HREF="TABLE-~1.htm#I17">equal-hash</A><li>
+<P><A HREF="mindy.htm#I97">EROFS</A><li>
+<P><A HREF="mindy.htm#I104">errno.h</A><li>
+<P><A HREF="debug.htm#I42">error</A><li>
+<P><A HREF="debug.htm#I15">Evaluating Expressions</A><li>
+<P><A HREF="debug.htm#I9">Examining Variables</A><li>
+<P><A HREF="dylan-tk.htm#I192">exists?</A><li>
+<P><A HREF="EXTENS~1.htm#I43">exit</A><li>
+<P><A HREF="TRANSC~1.htm#I24">exp</A><li>
+<P><A HREF="TRANSC~1.htm#I26">Exponentiation</A><li>
+<P><A HREF="mindy.htm#I31">Extensions Module</A><li>
+<P><A HREF="EXTENS~1.htm#I26">Extensions Module</A>
+<HR ALIGN=CENTER>
+<H1>- F -</H1><li>
+<P><A HREF="EXTENS~1.htm#I31">false-or</A><li>
+<P><A HREF="mindy.htm#I68">fd-close</A><li>
+<P><A HREF="mindy.htm#I74">fd-error-string</A><li>
+<P><A HREF="mindy.htm#I66">fd-exec</A><li>
+<P><A HREF="mindy.htm#I71">fd-input-available?</A><li>
+<P><A HREF="mindy.htm#I67">fd-open</A><li>
+<P><A HREF="mindy.htm#I69">fd-read</A><li>
+<P><A HREF="mindy.htm#I73">fd-seek</A><li>
+<P><A HREF="mindy.htm#I72">fd-sync-output</A><li>
+<P><A HREF="mindy.htm#I70">fd-write</A><li>
+<P><A HREF="mindy.htm#I110">fflush</A><li>
+<P><A HREF="mindy.htm#I65">File-descriptor Module</A><li>
+<P><A HREF="mindy.htm#I103">file.h</A><li>
+<P><A HREF="COLLEC~1.htm#I9">find-first-key</A><li>
+<P><A HREF="dylan-tk.htm#I60">find-items</A><li>
+<P><A HREF="COLLEC~1.htm#I10">find-last-key</A><li>
+<P><A HREF="dylan-tk.htm#I45">flash</A><li>
+<P><A HREF="debug.htm#I22">flush</A><li>
+<P><A HREF="dylan-tk.htm#I61">focus</A><li>
+<P><A HREF="dylan-tk.htm#I62">focus-setter</A><li>
+<P><A HREF="dylan-tk.htm#I18">font</A><li>
+<P><A HREF="mindy.htm#I18">for loop extensions</A><li>
+<P><A HREF="streams.htm#I36">force-output</A><li>
+<P><A HREF="dylan-tk.htm#I11">foreground</A><li>
+<P><A HREF="EXTENS~1.htm#I76">format</A><li>
+<P><A HREF="format.htm#I3">format</A><li>
+<P><A HREF="format.htm#I2">Format library</A><li>
+<P><A HREF="time.htm#I31">format-time</A><li>
+<P><A HREF="format.htm#I4">format-to-string</A><li>
+<P><A HREF="debug.htm#I7">frame</A><li>
+<P><A HREF="EXTENS~1.htm#I11">function-definer</A><li>
+<P><A HREF="EXTENS~1.htm#I63">function-name</A><li>
+<P><A HREF="EXTENS~1.htm#I4">future Gwydion releases</A>
+<HR ALIGN=CENTER>
+<H1>- G -</H1><li>
+<P><A HREF="matrix.htm#I9">gauss-jordan</A><li>
+<P><A HREF="debug.htm#I43">gc</A><li>
+<P><A HREF="dylan-tk.htm#I194">geometry</A><li>
+<P><A HREF="dylan-tk.htm#I198">geometry-manager</A><li>
+<P><A HREF="dylan-tk.htm#I82">get-all</A><li>
+<P><A HREF="dylan-tk.htm#I101">get-all</A><li>
+<P><A HREF="dylan-tk.htm#I140">get-all</A><li>
+<P><A HREF="dylan-tk.htm#I36">get-binding</A><li>
+<P><A HREF="dylan-tk.htm#I37">get-bindings</A><li>
+<P><A HREF="dylan-tk.htm#I181">get-canvas-tags</A><li>
+<P><A HREF="time.htm#I26">get-decoded-time</A><li>
+<P><A HREF="dylan-tk.htm#I83">get-elements</A><li>
+<P><A HREF="dylan-tk.htm#I102">get-elements</A><li>
+<P><A HREF="dylan-tk.htm#I141">get-elements</A><li>
+<P><A HREF="streams.htm#I72">get-input-buffer</A><li>
+<P><A HREF="streams.htm#I77">get-output-buffer</A><li>
+<P><A HREF="EXTENS~1.htm#I60">get-time-of-day</A><li>
+<P><A HREF="dylan-tk.htm#I134">get-units</A><li>
+<P><A HREF="time.htm#I25">get-universal-time</A><li>
+<P><A HREF="dylan-tk.htm#I130">get-value</A><li>
+<P><A HREF="mindy.htm#I109">getc</A><li>
+<P><A HREF="mindy.htm#I50">getcwd</A><li>
+<P><A HREF="EXTENS~1.htm#I58">getenv</A><li>
+<P><A HREF="mindy.htm#I121">grab-lock</A><li>
+<P><A HREF="mindy.htm#I122">grab-lock</A><li>
+<P><A HREF="STRING~1.htm#I19">graphic?</A><li>
+<P><A HREF="EXTENS~1.htm#I2">Gwydion compilers</A>
+<HR ALIGN=CENTER>
+<H1>- H -</H1><li>
+<P><A HREF="dylan-tk.htm#I195">height</A><li>
+<P><A HREF="mindy.htm#I2">Hello, World</A><li>
+<P><A HREF="debug.htm#I38">help</A><li>
+<P><A HREF="inspect.htm#I15">help</A><li>
+<P><A HREF="STRING~1.htm#I17">hex-digit?</A><li>
+<P><A HREF="dylan-tk.htm#I12">highlightbackground</A><li>
+<P><A HREF="dylan-tk.htm#I13">highlightforeground</A><li>
+<P><A HREF="dylan-tk.htm#I14">highlightthickness</A><li>
+<P><A HREF="inspect.htm#I10">history</A><li>
+<P><A HREF="time.htm#I8">hours</A>
+<HR ALIGN=CENTER>
+<H1>- I -</H1><li>
+<P><A HREF="dylan-tk.htm#I78">icursor</A><li>
+<P><A HREF="matrix.htm#I7">identity-matrix</A><li>
+<P><A HREF="mindy.htm#I63">init-keyword</A><li>
+<P><A HREF="streams.htm#I105">inner-stream</A><li>
+<P><A HREF="streams.htm#I106">inner-stream-setter</A><li>
+<P><A HREF="streams.htm#I76">input-available-at-source?</A><li>
+<P><A HREF="dylan-tk.htm#I81">insert</A><li>
+<P><A HREF="dylan-tk.htm#I100">insert</A><li>
+<P><A HREF="dylan-tk.htm#I139">insert</A><li>
+<P><A HREF="debug.htm#I36">inspect</A><li>
+<P><A HREF="inspect.htm#I6">inspect</A><li>
+<P><A HREF="inspect.htm#I2">Inspector-Base</A><li>
+<P><A HREF="STRING~1.htm#I7">integer-to-digit</A><li>
+<P><A HREF="STRING~1.htm#I5">integer-to-string</A><li>
+<P><A HREF="EXTENS~1.htm#I45">Integers</A><li>
+<P><A HREF="debug.htm#I27">Interrupting;Stepping</A><li>
+<P><A HREF="matrix.htm#I16">Introduction to Linear Algebra</A><li>
+<P><A HREF="mindy.htm#I51">Introspection Module</A><li>
+<P><A HREF="EXTENS~1.htm#I62">Introspection Module</A><li>
+<P><A HREF="matrix.htm#I10">inverse</A><li>
+<P><A HREF="dylan-tk.htm#I46">invoke</A><li>
+<P><A HREF="debug.htm#I3">invoke-debugger</A><li>
+<P><A HREF="dylan-tk.htm#I118">invoke-entry</A><li>
+<P><A HREF="TRANSC~1.htm#I30">isqrt</A><li>
+<P><A HREF="dylan-tk.htm#I177">item-coords</A><li>
+<P><A HREF="dylan-tk.htm#I178">item-coords-setter</A><li>
+<P><A HREF="dylan-tk.htm#I179">item-type</A>
+<HR ALIGN=CENTER>
+<H1>- J -</H1><li>
+<P><A HREF="REGULA~1.htm#I13">join</A><li>
+<P><A HREF="dylan-tk.htm#I231">join-tk-args</A><li>
+<P><A HREF="dylan-tk.htm#I19">justify</A>
+<HR ALIGN=CENTER>
+<H1>- K -</H1><li>
+<P><A HREF="EXTENS~1.htm#I44">key-exists?</A><li>
+<P><A HREF="EXTENS~1.htm#I8">keyed-by</A><li>
+<P><A HREF="mindy.htm#I19">keyword default syntax</A><li>
+<P><A HREF="mindy.htm#I64">keyword-required?</A><li>
+<P><A HREF="mindy.htm#I114">kill-thread</A>
+<HR ALIGN=CENTER>
+<H1>- L -</H1><li>
+<P><A HREF="debug.htm#I13">library</A><li>
+<P><A HREF="mindy.htm#I21">limited collections</A><li>
+<P><A HREF="EXTENS~1.htm#I69">limited-integer-base-class</A><li>
+<P><A HREF="EXTENS~1.htm#I71">limited-integer-maximum</A><li>
+<P><A HREF="EXTENS~1.htm#I70">limited-integer-minimum</A><li>
+<P><A HREF="dylan-tk.htm#I153">line-end</A><li>
+<P><A HREF="mindy.htm#I34">load</A><li>
+<P><A HREF="mindy.htm#I40">load</A><li>
+<P><A HREF="EXTENS~1.htm#I32">load</A><li>
+<P><A HREF="debug.htm#I10">locals</A><li>
+<P><A HREF="streams.htm#I61">lock-stream</A><li>
+<P><A HREF="mindy.htm#I120">locked?</A><li>
+<P><A HREF="streams.htm#I59">Locking streams</A><li>
+<P><A HREF="TRANSC~1.htm#I23">log</A><li>
+<P><A HREF="dylan-tk.htm#I174">lower-item</A><li>
+<P><A HREF="dylan-tk.htm#I165">lower-tag</A><li>
+<P><A HREF="STRING~1.htm#I16">lowercase?</A>
+<HR ALIGN=CENTER>
+<H1>- M -</H1><li>
+<P><A HREF="mindy.htm#I20">macros</A><li>
+<P><A HREF="mindy.htm#I32">main</A><li>
+<P><A HREF="STRING~1.htm#I32">make-fooer</A><li>
+<P><A HREF="dylan-tk.htm#I232">make-option</A><li>
+<P><A HREF="REGULA~1.htm#I6">make-regexp-positioner</A><li>
+<P><A HREF="REGULA~1.htm#I8">make-regexp-replacer</A><li>
+<P><A HREF="REGULA~1.htm#I12">make-splitter</A><li>
+<P><A HREF="STRING~1.htm#I35">make-substring-positioner</A><li>
+<P><A HREF="STRING~1.htm#I37">make-substring-replacer</A><li>
+<P><A HREF="REGULA~1.htm#I10">make-translator</A><li>
+<P><A HREF="dylan-tk.htm#I29">map-window</A><li>
+<P><A HREF="dylan-tk.htm#I197">mapped?</A><li>
+<P><A HREF="dylan-tk.htm#I155">marks</A><li>
+<P><A HREF="matrix.htm#I3">matrix</A><li>
+<P><A HREF="EXTENS~1.htm#I15">mindy</A><li>
+<P><A HREF="debug.htm#I2">Mindy Debugger</A><li>
+<P><A HREF="mindy.htm#I16">Mindy vs. Dylan</A><li>
+<P><A HREF="EXTENS~1.htm#I6">Mindy vs. Dylan</A><li>
+<P><A HREF="mindy.htm#I29">MINDYPATH</A><li>
+<P><A HREF="time.htm#I7">minutes</A><li>
+<P><A HREF="debug.htm#I14">module</A><li>
+<P><A HREF="time.htm#I11">month</A><li>
+<P><A HREF="dylan-tk.htm#I202">mouse-point</A><li>
+<P><A HREF="dylan-tk.htm#I201">mouse-x-y</A><li>
+<P><A HREF="dylan-tk.htm#I175">move-item</A>
+<HR ALIGN=CENTER>
+<H1>- N -</H1><li>
+<P><A HREF="dylan-tk.htm#I95">nearest</A><li>
+<P><A HREF="streams.htm#I42">new-line</A><li>
+<P><A HREF="EXTENS~1.htm#I24">newlines-are-CRLF</A><li>
+<P><A HREF="streams.htm#I75">next-input-buffer</A><li>
+<P><A HREF="mindy.htm#I26">next-method</A><li>
+<P><A HREF="streams.htm#I80">next-output-buffer</A><li>
+<P><A HREF="dylan-tk.htm#I166">next-range</A><li>
+<P><A HREF="EXTENS~1.htm#I52">numerator</A>
+<HR ALIGN=CENTER>
+<H1>- O -</H1><li>
+<P><A HREF="mindy.htm#I81">O_APPEND</A><li>
+<P><A HREF="mindy.htm#I82">O_CREAT</A><li>
+<P><A HREF="mindy.htm#I84">O_EXCL</A><li>
+<P><A HREF="mindy.htm#I78">O_RDONLY</A><li>
+<P><A HREF="mindy.htm#I80">O_RDWR</A><li>
+<P><A HREF="mindy.htm#I83">O_TRUNC</A><li>
+<P><A HREF="mindy.htm#I79">O_WRONLY</A><li>
+<P><A HREF="EXTENS~1.htm#I74">object-address</A><li>
+<P><A HREF="mindy.htm#I36">on-exit</A><li>
+<P><A HREF="mindy.htm#I33">one-of</A><li>
+<P><A HREF="EXTENS~1.htm#I30">one-of</A><li>
+<P><A HREF="mindy.htm#I24">open</A><li>
+<P><A HREF="dylan-tk.htm#I6">Osterhout, John</A><li>
+<P><A HREF="streams.htm#I107">outer-stream</A><li>
+<P><A HREF="streams.htm#I108">outer-stream-setter</A>
+<HR ALIGN=CENTER>
+<H1>- P -</H1><li>
+<P><A HREF="dylan-tk.htm#I32">pack</A><li>
+<P><A HREF="dylan-tk.htm#I34">Packing</A><li>
+<P><A HREF="time.htm#I33">parse-time</A><li>
+<P><A HREF="time.htm#I35">Parse-Time Directives</A><li>
+<P><A HREF="dylan-tk.htm#I233">parse-tk-list</A><li>
+<P><A HREF="streams.htm#I21">peek</A><li>
+<P><A HREF="REGULA~1.htm#I4">Perl</A><li>
+<P><A HREF="TRANSC~1.htm#I6">pi</A><li>
+<P><A HREF="EXTENS~1.htm#I80">piped-exec</A><li>
+<P><A HREF="dylan-tk.htm#I225">point-in-parent</A><li>
+<P><A HREF="streams.htm#I46">Positionable stream protocol</A><li>
+<P><A HREF="dylan-tk.htm#I119">post</A><li>
+<P><A HREF="dylan-tk.htm#I120">post-cascade</A><li>
+<P><A HREF="dylan-tk.htm#I76">postscript</A><li>
+<P><A HREF="TRANSC~1.htm#I27">Power</A><li>
+<P><A HREF="print.htm#I21">pprint-indent</A><li>
+<P><A HREF="print.htm#I19">pprint-logical-block</A><li>
+<P><A HREF="print.htm#I20">pprint-newline</A><li>
+<P><A HREF="print.htm#I22">pprint-tab</A><li>
+<P><A HREF="STRING~1.htm#I24">predecessor</A><li>
+<P><A HREF="print.htm#I15">Pretty Printing</A><li>
+<P><A HREF="mindy.htm#I25">primary</A><li>
+<P><A HREF="mindy.htm#I106">prin1</A><li>
+<P><A HREF="EXTENS~1.htm#I78">prin1</A><li>
+<P><A HREF="debug.htm#I11">print</A><li>
+<P><A HREF="inspect.htm#I12">print</A><li>
+<P><A HREF="EXTENS~1.htm#I77">print</A><li>
+<P><A HREF="print.htm#I7">print</A><li>
+<P><A HREF="print.htm#I2">Print module</A><li>
+<P><A HREF="print.htm#I13">print-circle?</A><li>
+<P><A HREF="print.htm#I12">print-depth</A><li>
+<P><A HREF="print.htm#I10">print-length</A><li>
+<P><A HREF="print.htm#I11">print-level</A><li>
+<P><A HREF="format.htm#I5">print-message</A><li>
+<P><A HREF="print.htm#I9">print-object</A><li>
+<P><A HREF="print.htm#I14">print-pretty?</A><li>
+<P><A HREF="print.htm#I8">print-to-string</A><li>
+<P><A HREF="STRING~1.htm#I20">printable?</A><li>
+<P><A HREF="STRING~1.htm#I18">punctuation?</A><li>
+<P><A HREF="mindy.htm#I49">purify</A><li>
+<P><A HREF="dylan-tk.htm#I229">put-tk-line</A><li>
+<P><A HREF="mindy.htm#I108">putc</A><li>
+<P><A HREF="mindy.htm#I107">puts</A>
+<HR ALIGN=CENTER>
+<H1>- Q -</H1><li>
+<P><A HREF="debug.htm#I39">quit</A><li>
+<P><A HREF="inspect.htm#I16">quit;exit</A>
+<HR ALIGN=CENTER>
+<H1>- R -</H1><li>
+<P><A HREF="dylan-tk.htm#I173">raise-item</A><li>
+<P><A HREF="dylan-tk.htm#I164">raise-tag</A><li>
+<P><A HREF="random.htm#I4">random</A><li>
+<P><A HREF="random.htm#I2">Random Library</A><li>
+<P><A HREF="random.htm#I3">Random module</A><li>
+<P><A HREF="random.htm#I5">random-bits</A><li>
+<P><A HREF="random.htm#I9">random-exponential</A><li>
+<P><A HREF="random.htm#I7">random-float</A><li>
+<P><A HREF="random.htm#I8">random-gaussian</A><li>
+<P><A HREF="EXTENS~1.htm#I51">ratio</A><li>
+<P><A HREF="streams.htm#I23">read</A><li>
+<P><A HREF="streams.htm#I20">read-element</A><li>
+<P><A HREF="streams.htm#I24">read-into!</A><li>
+<P><A HREF="streams.htm#I39">read-line</A><li>
+<P><A HREF="streams.htm#I40">read-line-into!</A><li>
+<P><A HREF="streams.htm#I30">read-through</A><li>
+<P><A HREF="streams.htm#I29">read-to</A><li>
+<P><A HREF="streams.htm#I32">read-to-end</A><li>
+<P><A HREF="REGULA~1.htm#I5">regexp-position</A><li>
+<P><A HREF="REGULA~1.htm#I7">regexp-replace</A><li>
+<P><A HREF="REGULA~1.htm#I3">regexps</A><li>
+<P><A HREF="REGULA~1.htm#I2">Regular-Expressions Library</A><li>
+<P><A HREF="streams.htm#I73">release-input-buffer</A><li>
+<P><A HREF="mindy.htm#I123">release-lock</A><li>
+<P><A HREF="streams.htm#I78">release-output-buffer</A><li>
+<P><A HREF="dylan-tk.htm#I15">relief</A><li>
+<P><A HREF="TABLE-~1.htm#I14">remove-all-keys!</A><li>
+<P><A HREF="dylan-tk.htm#I161">remove-tag</A><li>
+<P><A HREF="EXTENS~1.htm#I36">report-condition</A><li>
+<P><A HREF="dylan-tk.htm#I203">requested-height</A><li>
+<P><A HREF="dylan-tk.htm#I204">requested-width</A><li>
+<P><A HREF="debug.htm#I25">restart</A><li>
+<P><A HREF="debug.htm#I24">Restarts and Returning</A><li>
+<P><A HREF="mindy.htm#I7">Return Codes</A><li>
+<P><A HREF="mindy.htm#I13">Runtime Errors</A>
+<HR ALIGN=CENTER>
+<H1>- S -</H1><li>
+<P><A HREF="dylan-tk.htm#I176">scale-item</A><li>
+<P><A HREF="dylan-tk.htm#I64">scan-dragto</A><li>
+<P><A HREF="dylan-tk.htm#I85">scan-dragto</A><li>
+<P><A HREF="dylan-tk.htm#I104">scan-dragto</A><li>
+<P><A HREF="dylan-tk.htm#I143">scan-dragto</A><li>
+<P><A HREF="dylan-tk.htm#I63">scan-mark</A><li>
+<P><A HREF="dylan-tk.htm#I84">scan-mark</A><li>
+<P><A HREF="dylan-tk.htm#I103">scan-mark</A><li>
+<P><A HREF="dylan-tk.htm#I142">scan-mark</A><li>
+<P><A HREF="dylan-tk.htm#I211">screen-colormap-cells</A><li>
+<P><A HREF="dylan-tk.htm#I212">screen-depth</A><li>
+<P><A HREF="dylan-tk.htm#I213">screen-height</A><li>
+<P><A HREF="dylan-tk.htm#I210">screen-name</A><li>
+<P><A HREF="dylan-tk.htm#I214">screen-width</A><li>
+<P><A HREF="dylan-tk.htm#I133">scroll</A><li>
+<P><A HREF="mindy.htm#I23">sealing</A><li>
+<P><A HREF="time.htm#I6">seconds</A><li>
+<P><A HREF="mindy.htm#I4">Section The Extensions Module</A><li>
+<P><A HREF="mindy.htm#I5">Section The Extensions Module</A><li>
+<P><A HREF="matrix.htm#I13">Sedgwick, Robert</A><li>
+<P><A HREF="dylan-tk.htm#I105">see</A><li>
+<P><A HREF="mindy.htm#I76">SEEK_CUR</A><li>
+<P><A HREF="mindy.htm#I77">SEEK_END</A><li>
+<P><A HREF="mindy.htm#I75">SEEK_SET</A><li>
+<P><A HREF="dylan-tk.htm#I86">select-adjust</A><li>
+<P><A HREF="dylan-tk.htm#I106">select-adjust</A><li>
+<P><A HREF="dylan-tk.htm#I144">select-adjust</A><li>
+<P><A HREF="dylan-tk.htm#I87">select-clear</A><li>
+<P><A HREF="dylan-tk.htm#I107">select-clear</A><li>
+<P><A HREF="dylan-tk.htm#I145">select-clear</A><li>
+<P><A HREF="dylan-tk.htm#I88">select-from</A><li>
+<P><A HREF="dylan-tk.htm#I108">select-from</A><li>
+<P><A HREF="dylan-tk.htm#I146">select-from</A><li>
+<P><A HREF="dylan-tk.htm#I65">select-item</A><li>
+<P><A HREF="dylan-tk.htm#I89">select-to</A><li>
+<P><A HREF="dylan-tk.htm#I109">select-to</A><li>
+<P><A HREF="dylan-tk.htm#I147">select-to</A><li>
+<P><A HREF="dylan-tk.htm#I48">select-value</A><li>
+<P><A HREF="dylan-tk.htm#I55">select-value</A><li>
+<P><A HREF="dylan-tk.htm#I110">selection-anchor-setter</A><li>
+<P><A HREF="dylan-tk.htm#I111">selection-includes?</A><li>
+<P><A HREF="COLLEC~1.htm#I3">Self-Organizing-List Module</A><li>
+<P><A HREF="TABLE-~1.htm#I9">sequence-hash</A><li>
+<P><A HREF="dylan-tk.htm#I215">server</A><li>
+<P><A HREF="dylan-tk.htm#I112">set-selection</A><li>
+<P><A HREF="dylan-tk.htm#I135">set-units</A><li>
+<P><A HREF="dylan-tk.htm#I131">set-value</A><li>
+<P><A HREF="mindy.htm#I126">signal-event</A><li>
+<P><A HREF="TRANSC~1.htm#I8">sin</A><li>
+<P><A HREF="EXTENS~1.htm#I65">singleton-object</A><li>
+<P><A HREF="TRANSC~1.htm#I15">sinh</A><li>
+<P><A HREF="dylan-tk.htm#I96">size</A><li>
+<P><A HREF="streams.htm#I33">skip-through</A><li>
+<P><A HREF="mindy.htm#I57">slot-allocation</A><li>
+<P><A HREF="mindy.htm#I55">slot-descriptors</A><li>
+<P><A HREF="mindy.htm#I59">slot-getter</A><li>
+<P><A HREF="mindy.htm#I56">slot-name</A><li>
+<P><A HREF="mindy.htm#I60">slot-setter</A><li>
+<P><A HREF="mindy.htm#I58">slot-type</A><li>
+<P><A HREF="mindy.htm#I61">slot-value</A><li>
+<P><A HREF="mindy.htm#I62">slot-value-setter</A><li>
+<P><A HREF="mindy.htm#I113">spawn-thread</A><li>
+<P><A HREF="REGULA~1.htm#I11">split</A><li>
+<P><A HREF="TRANSC~1.htm#I29">sqrt</A><li>
+<P><A HREF="debug.htm#I4">Stack Manipulation Commands</A><li>
+<P><A HREF="dylan-tk.htm#I20">state</A><li>
+<P><A HREF="debug.htm#I29">step</A><li>
+<P><A HREF="inspect.htm#I13">Store</A><li>
+<P><A HREF="matrix.htm#I15">Strang, Gilbert</A><li>
+<P><A HREF="streams.htm#I88">Stream extension protocol</A><li>
+<P><A HREF="streams.htm#I45">stream-at-end?</A><li>
+<P><A HREF="streams.htm#I54">stream-contents</A><li>
+<P><A HREF="streams.htm#I44">stream-element-type</A><li>
+<P><A HREF="streams.htm#I28">stream-input-available?</A><li>
+<P><A HREF="streams.htm#I60">stream-locked?</A><li>
+<P><A HREF="streams.htm#I43">stream-open?</A><li>
+<P><A HREF="streams.htm#I48">stream-position</A><li>
+<P><A HREF="streams.htm#I50">stream-position-setter</A><li>
+<P><A HREF="streams.htm#I53">stream-size</A><li>
+<P><A HREF="time.htm#I32">strftime</A><li>
+<P><A HREF="STRING~1.htm#I3">String-Conversions Module</A><li>
+<P><A HREF="STRING~1.htm#I2">String-extensions Library</A><li>
+<P><A HREF="STRING~1.htm#I22">String-hacking Module</A><li>
+<P><A HREF="TABLE-~1.htm#I11">string-hash</A><li>
+<P><A HREF="STRING~1.htm#I4">string-to-integer</A><li>
+<P><A HREF="time.htm#I34">strptime</A><li>
+<P><A HREF="EXTENS~1.htm#I12">subclass specializers</A><li>
+<P><A HREF="EXTENS~1.htm#I67">subclass-of</A><li>
+<P><A HREF="COLLEC~1.htm#I7">subsequence</A><li>
+<P><A HREF="STRING~1.htm#I33">substring-position</A><li>
+<P><A HREF="STRING~1.htm#I36">substring-replace</A><li>
+<P><A HREF="STRING~1.htm#I31">Substring-search Module</A><li>
+<P><A HREF="STRING~1.htm#I25">successor</A><li>
+<P><A HREF="streams.htm#I37">synchronize-output</A><li>
+<P><A HREF="mindy.htm#I12">Syntax Errors</A><li>
+<P><A HREF="EXTENS~1.htm#I61">system</A><li>
+<P><A HREF="mindy.htm#I46">System Module</A><li>
+<P><A HREF="EXTENS~1.htm#I55">System Module</A>
+<HR ALIGN=CENTER>
+<H1>- T -</H1><li>
+<P><A HREF="TABLE-~1.htm#I2">Table-Extensions Library</A><li>
+<P><A HREF="TABLE-~1.htm#I3">Table-Extensions Module</A><li>
+<P><A HREF="EXTENS~1.htm#I41">Tables</A><li>
+<P><A HREF="dylan-tk.htm#I148">tags</A><li>
+<P><A HREF="dylan-tk.htm#I162">tags</A><li>
+<P><A HREF="TRANSC~1.htm#I10">tan</A><li>
+<P><A HREF="TRANSC~1.htm#I17">tanh</A><li>
+<P><A HREF="dylan-tk.htm#I4">Tcl</A><li>
+<P><A HREF="dylan-tk.htm#I5">Tcl and the Tk Toolkit</A><li>
+<P><A HREF="dylan-tk.htm#I21">text</A><li>
+<P><A HREF="dylan-tk.htm#I152">text-at</A><li>
+<P><A HREF="inspect.htm#I3">Text-Inspector</A><li>
+<P><A HREF="inspect.htm#I9">Text-Inspector Commands</A><li>
+<P><A HREF="dylan-tk.htm#I22">textvariable</A><li>
+<P><A HREF="COLLEC~1.htm#I5">The Subsequence Module</A><li>
+<P><A HREF="debug.htm#I33">thread</A><li>
+<P><A HREF="mindy.htm#I111">Threads Module</A><li>
+<P><A HREF="time.htm#I2">Time Library</A><li>
+<P><A HREF="time.htm#I3">Time Module</A><li>
+<P><A HREF="time.htm#I14">timezone</A><li>
+<P><A HREF="dylan-tk.htm#I228">tk-as</A><li>
+<P><A HREF="dylan-tk.htm#I40">tk-break</A><li>
+<P><A HREF="dylan-tk.htm#I150">tk-dialog</A><li>
+<P><A HREF="dylan-tk.htm#I227">Tk-extension</A><li>
+<P><A HREF="dylan-tk.htm#I234">tk-quote</A><li>
+<P><A HREF="dylan-tk.htm#I235">tk-unquote</A><li>
+<P><A HREF="dylan-tk.htm#I50">toggle-value</A><li>
+<P><A HREF="dylan-tk.htm#I216">toplevel</A><li>
+<P><A HREF="TRANSC~1.htm#I2">Transcendental Library</A><li>
+<P><A HREF="TRANSC~1.htm#I4">Transcendental module</A><li>
+<P><A HREF="REGULA~1.htm#I9">translate</A><li>
+<P><A HREF="matrix.htm#I12">transpose</A><li>
+<P><A HREF="debug.htm#I41">troff</A><li>
+<P><A HREF="debug.htm#I40">tron</A><li>
+<P><A HREF="streams.htm#I12">type-for-file-stream</A><li>
+<P><A HREF="streams.htm#I15">type-for-sequence-stream</A>
+<HR ALIGN=CENTER>
+<H1>- U -</H1><li>
+<P><A HREF="dylan-tk.htm#I23">underline</A><li>
+<P><A HREF="EXTENS~1.htm#I73">union-members</A><li>
+<P><A HREF="streams.htm#I62">unlock-stream</A><li>
+<P><A HREF="dylan-tk.htm#I30">unmap-window</A><li>
+<P><A HREF="dylan-tk.htm#I33">unpack</A><li>
+<P><A HREF="dylan-tk.htm#I121">unpost</A><li>
+<P><A HREF="streams.htm#I55">unread-element</A><li>
+<P><A HREF="debug.htm#I5">up</A><li>
+<P><A HREF="inspect.htm#I11">up</A><li>
+<P><A HREF="STRING~1.htm#I15">uppercase?</A><li>
+<P><A HREF="EXTENS~1.htm#I9">using</A>
+<HR ALIGN=CENTER>
+<H1>- V -</H1><li>
+<P><A HREF="TABLE-~1.htm#I20">value-hash</A><li>
+<P><A HREF="TABLE-~1.htm#I10">values-hash</A><li>
+<P><A HREF="dylan-tk.htm#I24">variable</A><li>
+<P><A HREF="COLLEC~1.htm#I8">Vector-Search Module</A><li>
+<P><A HREF="inspect.htm#I14">view</A><li>
+<P><A HREF="dylan-tk.htm#I217">viewable?</A><li>
+<P><A HREF="dylan-tk.htm#I220">virtual-root-height</A><li>
+<P><A HREF="dylan-tk.htm#I223">virtual-root-position-point</A><li>
+<P><A HREF="dylan-tk.htm#I222">virtual-root-position-x-y</A><li>
+<P><A HREF="dylan-tk.htm#I221">virtual-root-width</A><li>
+<P><A HREF="dylan-tk.htm#I218">visual-class</A>
+<HR ALIGN=CENTER>
+<H1>- W -</H1><li>
+<P><A HREF="mindy.htm#I125">wait-for-event</A><li>
+<P><A HREF="mindy.htm#I14">Warnings</A><li>
+<P><A HREF="print.htm#I16">Waters, Richard C.</A><li>
+<P><A HREF="mindy.htm#I37">Weak Pointers</A><li>
+<P><A HREF="mindy.htm#I39">weak-pointer-object</A><li>
+<P><A HREF="STRING~1.htm#I14">whitespace?</A><li>
+<P><A HREF="dylan-tk.htm#I205">width</A><li>
+<P><A HREF="dylan-tk.htm#I190">window-containing-point</A><li>
+<P><A HREF="dylan-tk.htm#I189">window-containing-x-y</A><li>
+<P><A HREF="dylan-tk.htm#I199">window-with-X-id</A><li>
+<P><A HREF="dylan-tk.htm#I183">winfo</A><li>
+<P><A HREF="dylan-tk.htm#I3">wish</A><li>
+<P><A HREF="streams.htm#I74">with-input-buffer</A><li>
+<P><A HREF="streams.htm#I58">with-open-file</A><li>
+<P><A HREF="streams.htm#I79">with-output-buffer</A><li>
+<P><A HREF="streams.htm#I63">with-stream-locked</A><li>
+<P><A HREF="streams.htm#I103">Wrapper stream protocol</A><li>
+<P><A HREF="streams.htm#I35">write</A><li>
+<P><A HREF="streams.htm#I34">write-element</A><li>
+<P><A HREF="streams.htm#I41">write-line</A>
+<HR ALIGN=CENTER>
+<H1>- X -</H1><li>
+<P><A HREF="dylan-tk.htm#I196">X-id</A><li>
+<P><A HREF="inspect.htm#I4">X-Inspector</A><li>
+<P><A HREF="dylan-tk.htm#I224">x-y-in-parent</A><li>
+<P><A HREF="debug.htm#I37">xinspect</A><li>
+<P><A HREF="inspect.htm#I17">xinspect</A><li>
+<P><A HREF="dylan-tk.htm#I58">xview</A><li>
+<P><A HREF="dylan-tk.htm#I79">xview</A><li>
+<P><A HREF="dylan-tk.htm#I97">xview</A>
+<HR ALIGN=CENTER>
+<H1>- Y -</H1><li>
+<P><A HREF="time.htm#I12">year</A><li>
+<P><A HREF="dylan-tk.htm#I122">yposition-entry</A><li>
+<P><A HREF="dylan-tk.htm#I59">yview</A><li>
+<P><A HREF="dylan-tk.htm#I98">yview</A><li>
+<P><A HREF="dylan-tk.htm#I137">yview</A>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="matrix.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

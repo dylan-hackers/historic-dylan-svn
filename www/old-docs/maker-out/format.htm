@@ -1,0 +1,412 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Format Library  The Format Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="melange.htm">
+<LINK REL="Previous" HREF="print.htm"></HEAD>
+<BODY>
+
+<H2>Format Library</H2>
+<P ALIGN=CENTER>
+<A HREF="print.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="melange.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E59" >1. Functions</A>
+<LI>
+<A HREF="#E8E60" >2. Control Strings</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E8"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The Format Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=CENTER>
+<CENTER><B>Designed by the Gwydion Project</B></CENTER>
+<P ALIGN=CENTER>
+<CENTER><B>Version 1.0 : 0</B><B>04 June 97 </B></CENTER>
+<P>This document describes the Format library designed by the Gwydion Project at Carnegie Mellon University. This library extends the functionality of the format strings described in Dylan&#146;s condition system and provides two new functions for processing the extended format strings. The Format library is a small library, but it requires the Print library and some of the Streams library from the Gwydion Project. The Format library exports one module, Format, which exports all the idnetifiers described in this document.
+<BR>
+<A NAME="E8E59"></A>
+<H2><B>1. </B><B>Functions</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The <A NAME="I2"></A>Format library offers two functions, <B>format</B> and <B>format-to-string</B>.<A NAME="I3"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>format</B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E175"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E175"></A>
+<DD>control-string :: &lt;string&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E175"></A>
+<DD>#rest arguments</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E176"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Performs output to <I>stream</I> according to the directives in <I>control-string</I>. Each directive consumes one argument from <I>arguments</I>. The <I>control-string</I> contents that are not part of any directive are output directly to <I>stream</I>, as if by the Stream library&#146;s <B>write</B> function.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>format</B> [Method]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E177"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E177"></A>
+<DD>control-string :: &lt;byte-string&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E177"></A>
+<DD>#rest arguments</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E178"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>There is one method for <B>format</B>, and it is specialized to <B>&lt;byte-string&gt;</B>s.<A NAME="I4"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>format-to-string</B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E179"></A>
+<DD>control-string :: &lt;string&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E179"></A>
+<DD>#rest arguments</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E180"></A>
+<DD>result :: &lt;string&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Calls <B>format</B> to produce output according to <I>control-string</I> and returns the output as a string.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>format-to-string</B> [Method]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E181"></A>
+<DD>control-string :: &lt;byte-string&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E181"></A>
+<DD>#rest arguments</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E182"></A>
+<DD>result :: &lt;byte-string&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>There is one method for <B>format-to-string</B>. The <I>control-string</I> argument must be a <B>&lt;byte-string&gt;</B>. <I>Result</I> is a <B>&lt;byte</B><B>-</B><B>string&gt;</B>.<A NAME="I5"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-message</B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E183"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E183"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E184"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Prints <I>object </I>to <I>stream</I>. Methods for this function should print objects <I>as a message</I>, as opposed to printing objects in any form intending to represent Dylan data, literal syntax, and so on. For example, printing a condition object with this function presents the condition as an error message, but printing the condition object with the <B>print</B> function from the Gwydion Print library prints the condition in some form such as {Simple-error}.
+<BR>
+</UL></UL>
+<UL>
+<UL>See the individual methods for the details of how this function prints various objects.
+<BR>
+</UL></UL>
+<UL>
+<UL>This function exists to define the behavior of the %S format directive and to allow users the ability to extend the %S directive. Users should have little need to call this function directly.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-message</B> [Sealed Method]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E185"></A>
+<DD>condition :: &lt;condition&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E185"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E186"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Prints <I>condition</I> as an error message, as described for the Dylan %S format directive. In Gwydion Dylan, this method actually calls the <B>report-condition</B> function from the Dylan library&#146;s Extensions module. Users should not specialize the <B>print-message</B> protocol for subclasses of <B>&lt;condition&gt;</B>, but they should instead extend the <B>print-message</B> protocol to new condition objects by specializing methods on <B>report-condition</B>.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-message</B> [Sealed Method]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E187"></A>
+<DD>symbol :: &lt;symbol&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E187"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E188"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Prints <I>symbol</I> to <I>stream</I> by converting it to a string with the <B>as</B> function and then writing the string with the <B>write</B> function from the Streams library.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print-message</B> [Sealed Method]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E189"></A>
+<DD>object :: type-union(&lt;string&gt;, &lt;character&gt;)</DD>
+</UL>
+<UL>
+<A NAME="E7E189"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E190"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Prints <I>object</I> to <I>stream</I> by calling the <B>write</B> function from the Streams library.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E60"></A>
+<H2><B>2. </B><A NAME="I6"></A><B>Control Strings</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Format library&#146;s format strings, or control strings, offer the same directives as Dylan&#146;s format strings offer, but this library provides a few more directives and permits a single argument to all format directives. The argument is an integer that must appear contiguously between the dispatch character (%) and the format directive, and it indicates a printing field in which to justify the output of the directive. A positive integer indicates that the output should be flushright within the field, and a negative integer indicates the output should be flushleft within the field. If the output length is greater than the field&#146;s width, then output occurs as if there were no field specification. The following are examples of valid format directives:
+<CODE>
+<PRE>    %S
+    %s
+    %15D
+    %-10=</PRE>
+</CODE>
+<P>The following describes the directives:<A NAME="I7"></A>
+<DL>
+<DT><B>%S</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Prints the next format argument <I>as a message</I> by calling the function <B>print-message</B> on the format argument and the stream. This directive is the same as Dylan&#146;s %S format-string directive except for two features: This library&#146;s %S directive outputs character objects, and users can extend the %S functionality by adding methods to <B>print-message</B>.<A NAME="I8"></A>
+</UL></UL>
+<DL>
+<DT><B>%=</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Prints the next format argument by calling the <B>print</B> function from the Print library on the format argument and the stream. Users can extend the %= functionality by adding methods to the <B>print-object</B> function from the Print library.<A NAME="I9"></A>
+</UL></UL>
+<DL>
+<DT><B>%C</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Print the next format argument, which must be a character, according to Dylan&#146;s %S format-string directive. This library&#146;s %C directive is the same as this library&#146;s %S directive.<A NAME="I10"></A>
+</UL></UL>
+<DL>
+<DT><B>%D</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Prints a decimal representation of the next format argument, which must be an integer.<A NAME="I11"></A>
+</UL></UL>
+<DL>
+<DT><B>%B</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Prints a binary representation of the next format argument, which must be an integer.<A NAME="I12"></A>
+</UL></UL>
+<DL>
+<DT><B>%O</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Prints an octal representation of the next format argument, which must be an integer.<A NAME="I13"></A>
+</UL></UL>
+<DL>
+<DT><B>%X</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Prints a hexadecimal representation of the next format argument, which must be an integer.<A NAME="I14"></A>
+</UL></UL>
+<DL>
+<DT><B>%M</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Invokes the next format argument, which must be a function, on the stream passed to <B>format</B>.<A NAME="I15"></A>
+</UL></UL>
+<DL>
+<DT><B>%%</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Outputs a single % character.
+</UL></UL>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="print.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="melange.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

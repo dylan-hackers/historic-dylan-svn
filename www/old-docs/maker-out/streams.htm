@@ -1,0 +1,2273 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Streams Library  The Streams Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="STANDA~1.htm">
+<LINK REL="Previous" HREF="EXTENS~1.htm"></HEAD>
+<BODY>
+
+<H2>Streams Library</H2>
+<P ALIGN=CENTER>
+<A HREF="EXTENS~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="STANDA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E46" >0.1  About this document</A>
+<UL>
+<LI>
+<A HREF="#E10E32" >0.1.1  Acknowledgments</A>
+<LI>
+<A HREF="#E10E33" >0.1.2  Discussing error conditions</A></UL>
+<LI>
+<A HREF="#E8E47" >0.2  Goals of the library </A>
+<LI>
+<A HREF="#E8E48" >0.3  Concepts</A>
+<UL>
+<LI>
+<A HREF="#E10E34" >0.3.1  Streams, growing sequences, and object identity</A></UL>
+<LI>
+<A HREF="#E8E49" >0.4  Stream classes </A>
+<UL>
+<LI>
+<A HREF="#E10E35" >0.4.1  Creating streams</A>
+<UL>
+<LI>
+<A HREF="#E78E1" >0.4.1.1  File streams </A>
+<LI>
+<A HREF="#E78E2" >0.4.1.2  Options when creating file streams</A>
+<LI>
+<A HREF="#E78E3" >0.4.1.3  Sequence streams </A></UL>
+<LI>
+<A HREF="#E10E36" >0.4.2  Closing streams</A></UL>
+<LI>
+<A HREF="#E8E50" >0.5  Reading and writing from streams</A>
+<UL>
+<LI>
+<A HREF="#E10E37" >0.5.1  Reading from streams</A>
+<LI>
+<A HREF="#E10E38" >0.5.2  Convenience functions for reading from streams</A>
+<LI>
+<A HREF="#E10E39" >0.5.3  Writing to streams</A>
+<LI>
+<A HREF="#E10E40" >0.5.4  Reading and writing by lines</A>
+<LI>
+<A HREF="#E10E41" >0.5.5  Querying streams</A>
+<LI>
+<A HREF="#E10E42" >0.5.6  Positionable stream protocol</A>
+<LI>
+<A HREF="#E10E43" >0.5.7  Using file streams</A></UL>
+<LI>
+<A HREF="#E8E51" >0.6  Locking streams</A>
+<LI>
+<A HREF="#E8E52" >0.7  Using buffered streams</A>
+<UL>
+<LI>
+<A HREF="#E10E44" >0.7.1  Overview</A>
+<LI>
+<A HREF="#E10E45" >0.7.2  Buffer access protocol</A>
+<UL>
+<LI>
+<A HREF="#E78E4" >0.7.2.1  Useful types when using buffers</A>
+<LI>
+<A HREF="#E78E5" >0.7.2.2  Using buffers for input</A>
+<LI>
+<A HREF="#E78E6" >0.7.2.3  Using buffers for output</A></UL>
+<LI>
+<A HREF="#E10E46" >0.7.3  Copying to and from buffers</A>
+<LI>
+<A HREF="#E10E47" >0.7.4  Stream extension protocol</A>
+<UL>
+<LI>
+<A HREF="#E78E7" >0.7.4.1  Creating new input or input-output streams</A>
+<LI>
+<A HREF="#E78E8" >0.7.4.2  Creating new output or input-output streams</A></UL></UL>
+<LI>
+<A HREF="#E8E53" >0.8  Conditions</A>
+<LI>
+<A HREF="#E8E54" >0.9  Wrapper streams</A>
+<UL>
+<LI>
+<A HREF="#E10E48" >0.9.1  Wrapper streams and delegation</A></UL>
+<LI>
+<A HREF="#E8E55" >0.10  Wrapper stream protocol</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E5"></A>
+<H1 ALIGN=CENTER>
+<CENTER>The Streams Library</CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Authors: Scott McKay, Bill Chiles, Marc Ferguson, and Eliot Miranda. 
+<P><I>Note: This document was written by Harlequin, Inc., and not by the Gwydion Project.</I>
+<P>Editor: Andrew Shires. 
+<P>Date: 06 Feb 1997.
+<BR>
+<A NAME="E8E46"></A>
+<H2><B>0.1  </B><B>About this document</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E10E32"></A>
+<H3><B>0.1.1  </B><B>Acknowledgments</B></H3>
+<P>We&#146;d like to thank the other people who have been instrumental in the production of this proposal: Jonathan Bachrach, Dave Berry, John Dunning, Chris Fry, Paul Haahr, William Lott, Rob Maclachlan, Tim McNerney, Tony Mann, Keith Playford, Robert Stockton, and Tucker Withington.
+<A NAME="E10E33"></A>
+<H3><B>0.1.2  </B><B>Discussing error conditions</B></H3>
+<P>This document uses two special terms in discussions of error conditions. 
+<P>When we say that something <I>is an error</I>, we mean that the result is undefined. In particular, we do <I>not</I> mean that a Streams implementation must signal an error condition; that is the implementor&#146;s choice. So, for instance, the following text, from page <A HREF="streams.htm#I56">79</A>, means only that the result of using <B>unread-element</B> in the case described is undefined:
+<UL>
+<UL>It is an error to apply <B>unread-element</B> to an element that is not the element most recently read from the stream.
+<BR>
+</UL></UL>
+<P>Only when we specifically mention signaling do we mean that a Streams implementation must signal an error condition. Note that we may not, in such a case, say exactly which error condition must be signaled; if we do not say so, the choice is again up to the implementor. In this text from the description of <A HREF="streams.htm#I49"></A><B>stream-position-setter</B> on page <A HREF="streams.htm#I49">77</A>, for instance, we state that an implementation must signal an error, but we do not say what error must be signaled:
+<UL>
+<UL>When <I>position</I> is a <B>&lt;stream-position&gt;</B>, if it is invalid for some reason, this function signals an error.
+<BR>
+</UL></UL>
+<P>By contrast, the following text from the description of <A HREF="streams.htm#I19"></A><B>read-element</B> on page <A HREF="streams.htm#I19">67</A> says exactly which error must be signaled:
+<UL>
+<UL>If the end of the stream is encountered and no value was supplied for <I>on-</I><I>end-of-stream</I>, <B>read-element</B> signals an <B>&lt;end-of-stream-error&gt;</B> condition. 
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E47"></A>
+<H2><B>0.2  </B><B>Goals of the library </B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Dylan Streams library aims to provide: 
+<UL>
+<LI>A generic, easy-to-use interface for streaming over sequences and files. The same high-level interface for consuming or producing is available irrespective of the type of stream, or the types of the elements being streamed over.
+<LI>Efficiency, especially for the common case of file I/O.
+<LI>Access to an underlying buffer management protocol.
+<LI>An extensible framework. Other areas of functionality that require a stream interface should be easy to integrate with the library.
+</UL>
+<P>The proposal presents the design of a Streams library that meets these goals using Dylan&#146;s built-in sequences and a buffered disk file interface. 
+<P>The proposal does not address a number of related issues, including:
+<UL>
+<LI>A standard object-printing package such as Smalltalk&#146;s <B>printOn:</B> or Lisp&#146;s <B>print-object</B>, or a formatted printing facility such as Lisp&#146;s <B>format</B>. Additional libraries are expected to provide these facilities.
+<LI>General object dumping and loading.
+<LI>A comprehensive range of I/O facilities for using memory-mapped files, network connections, and so on. Such facilities should be easy to add to the Streams library because of its extensible framework.
+<LI>An interface for naming files.  
+<LI>An interface to operating system functionality, such as file renaming or deleting operations.  
+</UL>
+<BR>
+<A NAME="E8E48"></A>
+<H2><B>0.3  </B><B>Concepts</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>A <I>stream</I> provides sequential access to an aggregate of data, such as a Dylan sequence or a disk file. Streams grant this access according to a metaphor of <I>reading</I> and <I>writing</I>: elements can be read from streams or written to them.
+<P>Streams are represented as Dylan objects, and all are general instances of the class <B>&lt;stream&gt;</B>, which the Streams library defines.
+<P>We say that a stream is established <I>over</I> the data aggregate. Hence, a stream providing access to the string <B>&quot;hello world&quot;</B> is said to be a stream over the string <B>&quot;hello world&quot;</B>.
+<P>Streams permitting reading operations are called <I>input</I> streams. Input streams allow elements from the underlying data aggregate to be consumed. Conversely, streams permitting writing operations are called <I>output</I> streams. Output streams allow elements to be written to the underlying data aggregate. Streams permitting both kinds of operations are called <I>input-output</I> streams. 
+<P>The library provides a set of functions for reading elements from an input stream. These functions hide the details of indexing, buffering, and so on. For instance, the function <B>read-element</B> reads a single data element from an input stream. 
+<P>The following expression binds <B>stream</B> to an input stream over the string <B>&quot;hello world&quot;</B>: 
+<CODE>
+<PRE><B>let stream = make(&lt;string-stream&gt;, contents: &quot;hello world&quot;);</B></PRE>
+</CODE>
+<P>The first invocation of <B>read-element</B> on <B>stream</B> returns the character &#146;h&#146;, the next invocation &#146;e&#146;, and so on. Once a stream has been used to consume all the elements of the data, the stream is said to be at its end. This condition can be tested with the function <B>stream-at-end?</B>. The following code fragment applies <B>function</B> to all elements of the sequence:
+<CODE>
+<PRE><B>let stream = make(&lt;sequence-stream&gt;, contents: seq);</B>
+<B>while (~stream-at-end?(stream)) </B>
+<B>   </B><B>function(read-element(stream));</B>
+<B>end;</B></PRE>
+</CODE>
+<P>When all elements of a stream have been read, further calls to <B>read-element</B> result in the <B>&lt;end-of-stream-error&gt;</B> condition being signalled. An alternative end-of-stream behavior is to have a distinguished end-of-stream value returned. You can supply such an end-of-stream value as a keyword argument to the various read functions; the value can be any object. Supplying an end-of-stream value to a read function is more efficient than asking whether a stream is at its end on every iteration of a loop. 
+<P>The library also provides a set of functions for writing data elements to an output stream. Like the functions that operate upon input streams, these functions hide the details of indexing, growing an underlying sequence, buffering for a file, and so on. For instance, the function <B>write-element</B> writes a single data element to an output stream. 
+<P>The following forms bind <B>stream</B> to an output stream over an empty string and create the string &quot;I see!&quot;, using the function <B>stream-contents</B> to access all of the stream&#146;s elements.
+<CODE>
+<PRE><B>let stream = make(&lt;byte-string-stream&gt;, direction: #&quot;output&quot;);</B>
+<B>write-element(stream, &#146;I&#146;);</B>
+<B>write-element(stream, &#146; &#146;);</B>
+<B>write(stream, &quot;see&quot;);</B>
+<B>write-element(stream, &#146;!&#146;);</B>
+<B>stream-contents(stream);</B></PRE>
+</CODE>
+<P>Calling <B>write</B> on a sequence has the same effect as calling <B>write-element</B> on all the elements of the sequence. However, it is not required that <B>write</B> be implemented directly in terms of <B>write-element</B>; it might be implemented more efficiently, especially for buffered streams.
+<P>Some streams are <I>positionable</I>; that is, they permit random access to their elements. Postionable streams allow you to set the position at which the stream will be accessed by the next operation. The following example uses positioning to return the character &#145;w&#146; from a stream over the string <B>&quot;hello world&quot;</B>:
+<CODE>
+<PRE><B>let stream = make(&lt;string-stream&gt;, contents: &quot;hello world&quot;);</B>
+<B>stream-position(stream) := 6;</B>
+<B>read-element(stream);</B></PRE>
+</CODE>
+<P>The following example returns a string, but the contents of the first ten characters are undefined:
+<CODE>
+<PRE><B>let stream = make(&lt;string-stream&gt;, direction: #&quot;output&quot;);</B>
+<B>adjust-stream-position(stream, 10); </B>
+<B>write(stream, &quot;whoa!&quot;);</B>
+<B>stream-contents(stream);</B></PRE>
+</CODE>
+<P>You can request a sequence containing all of the elements of a positionable stream by calling <B>stream-contents</B> on it. The sequence returned never shares structure with any underlying sequence that might be used in future by the stream. For instance, the string returned by calling <B>stream-contents</B> on an output <B>&lt;string-stream&gt;</B> will not be the same string as that being used to represent the string stream.
+<P>When making an input <B>&lt;string-stream&gt;</B>, you can cause the stream to produce elements from any subsequence of the supplied string. For example:
+<CODE>
+<PRE><B>read-to-end(make(&lt;string-stream&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>contents: &quot;hello there, world&quot;,</B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>start: 6, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>end: 11));</B></PRE>
+</CODE>
+<P>This example evaluates to <B>&quot;there&quot;</B>. The interval (<I>start</I>, <I>end</I>) includes the index <I>start</I> but excludes the index <I>end</I>. This is consistent with standard Dylan functions over sequences, such as <B>copy-sequence</B>. The <B>read-to-end</B> function is one of a number of convenient utility functions for operating on streams and returns all the elements up to the end of the stream from the stream&#146;s current position.
+<A NAME="E10E34"></A>
+<H3><B>0.3.1  </B><B>Streams, </B><A NAME="I2"></A><B>growing sequences, and object identity</B></H3>
+<P>When writing to output streams over sequences, Dylan may from time to time need to grow the underlying sequence that it is using to represent the stream data. 
+<P>Consider the example of an output stream instantiated over an empty string. As soon as a write operation is performed on the stream, it is necessary to replace the string object used in the representation of the string stream. As well as incurring the cost of creating a new string, the replacement operation can affect the integrity of other references to the string within the program. 
+<P>To guarantee that alias references to a sequence used in an output <B>&lt;sequence-</B><B>stream&gt;</B> will have access to any elements written to the sequence via the stream, supply a <B>&lt;stretchy-vector&gt;</B> to <B>make</B>. A stream over a stretchy vector will use the same stretchy vector throughout the stream&#146;s existence. 
+<P>For example:
+<CODE>
+<PRE><B>let sv = make(&lt;stretchy-vector&gt;);</B>
+<B>let stream = make(&lt;sequence-stream&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>contents: sv, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>direction: #&quot;output&quot;);</B>
+<B>write(stream,#(1, 2, 3, 4, 5, 6, 7, 8, 9));</B>
+<B>write(stream,&quot;ABCDEF&quot;);</B>
+<B>values(sv, stream-contents(stream));</B></PRE>
+</CODE>
+<P>The example returns two values. Each value is the same (<B>\==</B>) stretchy vector:
+<CODE>
+<PRE><B>(1, 2, 3, 4, 5, 6, 7, 8, 9, &#146;A&#146;, &#146;B&#146;, &#146;C&#146;, &#146;D&#146;, &#146;E&#146;, &#146;F&#146;)</B></PRE>
+</CODE>
+<P>If a stretchy vector is not supplied, the result is different: 
+<CODE>
+<PRE><B>let v = make(&lt;vector&gt;, size: 5);</B>
+<B>let stream = make(&lt;sequence-stream&gt;,</B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>contents: v, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>direction: #&quot;output&quot;);</B>
+<B>write(stream,#(1, 2, 3, 4, 5, 6, 7, 8, 9));</B>
+<B>write(stream,&quot;ABCDEF&quot;);</B>
+<B>values(v, stream-contents(stream));</B></PRE>
+</CODE>
+<P>This example returns as its first value the original vector, whose contents are undefined, but the second value is a new vector:
+<CODE>
+<PRE><B>(1, 2, 3, 4, 5, 6, 7, 8, 9, &#146;A&#146;, &#146;B&#146;, &#146;C&#146;, &#146;D&#146;, &#146;E&#146;, &#146;F&#146;)</B></PRE>
+</CODE>
+<P>This difference arises because the output stream in the second example does not use a stretchy vector to hold the stream data. A vector of at least 15 elements is necessary to accommodate the elements written to the stream, but the vector supplied, <B>v</B>, can hold only 5. Since the stream cannot change <B>v</B>&#146;s size, it must allocate a new vector each time it grows. 
+<BR>
+<A NAME="E8E49"></A>
+<H2><B>0.4  </B><B>Stream classes </B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The exported streams class heterarchy is as follows:
+<DL>
+<UL>
+<A NAME="E7E150"></A>
+<DD><A NAME="I3"></A><A NAME="I4"></A><A NAME="I5"></A><B>&lt;buffered-stream&gt; </B></DD>
+</UL></DL>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open abstract class</I></FONT>
+<UL>
+<UL>A subclass of <B>&lt;stream&gt;</B> supporting the Stream Extension Protocol and the Buffer Access Protocol. It is not instantiable. 
+<BR>
+</UL></UL>
+<UL>
+<UL>Streams of this class support the <B>buffer-size:</B> init-keyword, which can be used to suggest the size of the stream&#146;s buffer. However, the instantiated stream might not use this value: it is taken purely as a suggested value. For example, a stream that uses a specific device&#146;s hardware buffer might use a fixed buffer size regardless of the value passed with the <B>buffer-size:</B> init-keyword. <A NAME="I6"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;file-stream&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open abstract class</I></FONT>
+<UL>
+<UL>The class of streams over disk files. It is a subclass of <B>&lt;positionable-</B><B>stream&gt;</B> and <B>&lt;buffered-stream&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>When you instantiate this class, an implementation-dependent, indirect instance of it is created. The file being streamed over is opened immediately upon creating the stream. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The class supports several init-keywords: <B>locator:</B>, <B>direction:</B>, <B>if-</B><B>exists:</B>, and <B>if-does-not-exist:</B>. <A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;sequence-stream&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open instantiable class</I></FONT>
+<UL>
+<UL>The class of streams over sequences. It is a subclass of <B>&lt;positionable-</B><B>stream&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>&lt;sequence-stream&gt;</B> class can be used for streaming over all sequences, but there are also subclasses <B>&lt;string-stream&gt;</B>, <B>&lt;byte-string-</B><B>stream&gt;</B>, and <B>&lt;unicode-string-stream&gt;</B>, which are specialized for streaming over strings.
+<BR>
+</UL></UL>
+<UL>
+<UL>The class supports several init-keywords: <B>contents:</B>, <B>direction:</B>, <B>start:</B>, and <B>end:</B>.<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;string-stream&gt; </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open instantiable class</I></FONT>
+<UL>
+<UL>The class of streams over strings. It is a subclass of <B>&lt;sequence-stream&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The class supports the same init-keywords as <B>&lt;sequence-stream&gt;</B>.<A NAME="I9"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;byte-string-stream&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open instantiable class</I></FONT>
+<UL>
+<UL>The class of streams over byte strings. It is a subclass of <B>&lt;string-stream&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The class supports the same init-keywords as <B>&lt;sequence-stream&gt;</B>. <A NAME="I10"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;unicode-string-stream&gt; </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open instantiable class</I></FONT>
+<UL>
+<UL>The class of streams over Unicode strings. It is a subclass of <B>&lt;string-</B><B>stream&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The class supports the same init-keywords as <B>&lt;sequence-stream&gt;</B>.
+<BR>
+</UL></UL>
+<A NAME="E10E35"></A>
+<H3><B>0.4.1  </B><B>Creating streams</B></H3>
+<P>The following functions are used to create streams.
+<A NAME="E78E1"></A>
+<H3><B>0.4.1.1  </B><B>File streams </B></H3>
+<P>File streams are intended only for accessing the contents of files. They are not intended to provide a general file handling facility of renaming, deleting, moving, parsing directory names and so on.  
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make </B><I>file-stream-class</I><B> </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>G.f method</I></FONT>
+<CODE>
+<PRE><B>make </B><I>file-stream-class</I><B> #key</B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><I>locator</I><B> </B><I>direction</I><B> </B><I>if-exists</I><B> </B><I>if-does-not-exist</I><B> </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><I>buffer-size</I><B> </B><I>element-type</I><B> </B><I>encoding</I><B> </B>
+<B>=&gt; </B><I>file-stream-instance</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Creates and opens a stream over a file.
+<BR>
+</UL></UL>
+<UL>
+<UL>Returns a new instance of a concrete subclass of <B>&lt;file-stream&gt;</B> that streams over the contents of the file referenced by <I>locator</I>. To determine the concrete subclass to be instantiated, this method calls the generic function <B>type-for-file-stream</B> (see page <A HREF="streams.htm#I11">62</A>.) 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>file-stream-class</I> argument is the class <B>&lt;file-stream&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>locator</I> init-keyword should be a string naming a file. If the Locators library is in use, <I>locator</I> should be an instance of <B>&lt;locator&gt;</B> or a string that can be coerced to one.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>direction</I> init-keyword specifies the direction of the stream.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>if-exists</I> and <I>if-does-not-exist</I> init-keywords specify actions to take if the file named by <I>locator</I> does or does not already exist when the stream is created. These init-keywords are discussed in more detail in <A HREF="streams.htm#I13">Section 0.4.1.2 on page 62</A>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>buffer-size</I> init-keyword is explained in <A HREF="streams.htm#E7E150"></A><B>&lt;buffered-stream&gt;</B>,  page 60.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>element-type</I> init-keyword specifies the type of the elements in the file named by <I>locator</I>. This allows file elements to be represented abstractly; for instance, contiguous elements could be treated as a single database record. This init-keyword defaults to something useful, potentially based on the properties of the file; <B>&lt;byte-character&gt;</B> and <B>&lt;unicode-character&gt;</B> are likely choices. See <A HREF="streams.htm#I13">Section 0.4.1.2 on page 62</A>.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I11"></A><A NAME="I12"></A><B>type-for-file-stream</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>type-for-file-stream </B><I>locator</I><B> </B><I>element-type</I><B> #rest </B><I>all-keys</I><B> =&gt; </B><I>file-stream-type</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the kind of file-stream class to instantiate for a given file. The method for <B>make</B> on <B>&lt;file-stream&gt;</B> calls this function to determine the class of which it should create an instance.
+<BR>
+</UL></UL>
+<A NAME="E78E2"></A>
+<H3><B>0.4.1.2  </B><A NAME="I13"></A><B>Options when creating file streams</B></H3>
+<P>When creating file streams, you can can supply the following init-keywords to <B>make</B> in addition to the usual direction: 
+<UL>
+<UL>
+<P><I>if-exists</I> An action to take if the file already exists.
+</UL></UL>
+<UL>
+<UL>
+<P><I>if-does-not-exist</I> An action to take if the file does not already exist.
+</UL></UL>
+<UL>
+<UL>
+<P><I>element-type</I> How the elements of the underlying file are accessed.
+</UL></UL>
+<P>The <I>if-exists</I> init-keyword allows you to specify an action to take if the file named by <I>locator</I> already exists. The options are:
+<UL>
+<UL>
+<P><B>#f</B>  No action. This is the default when the stream&#146;s direction is <B>#&quot;input&quot;</B> or <B>#&quot;input-output&quot;</B>.
+</UL></UL>
+<P><B>#&quot;new-version&quot;</B>
+<P>If the underlying file system supports file versioning, a new version of the file is created. This is the default when the stream&#146;s direction is <B>#&quot;output&quot;</B>. 
+<P>If the file system does not support file versioning, the implementation should substitute one of the other <I>if-</I><I>exists</I> behaviors; the <B>#&quot;replace&quot;</B> behavior is a good choice. 
+<UL>
+<UL>
+<P><B>#&quot;overwrite&quot;</B> Set the stream&#146;s position to the beginning of the file, but preserve the current contents of the file. This is useful when the direction is <B>#&quot;input-output&quot;</B> and you want to overwrite an existing file.
+</UL></UL>
+<UL>
+<UL>
+<P><B>#&quot;replace&quot;</B><B> </B>Delete or rename the existing file and create a new file.
+</UL></UL>
+<UL>
+<UL>
+<P><B>#&quot;append&quot;</B> Set the stream&#146;s initial position to the end of the existing file so that all new output occurs at the end of the file.
+</UL></UL>
+<UL>
+<UL>
+<P><B>#&quot;truncate&quot;</B><B> </B>If the file exists, it is truncated, setting the size of the file to 0. If the file does not exist, create a new file. 
+</UL></UL>
+<UL>
+<UL>
+<P><B>#&quot;signal&quot;</B> Signal a <B>&lt;file-exists-error&gt;</B> condition. 
+</UL></UL>
+<P>The <I>if-does-not-exist</I> init-keyword allows you to specify an action to take if the file named by <I>locator</I> does not exist. The options are:
+<UL>
+<UL>
+<P><B>#f</B> No action.
+</UL></UL>
+<UL>
+<UL>
+<P><B>#&quot;signal&quot;</B>  Signal a <B>&lt;file-does-not-exist-error&gt;</B> condition. This is the default when the stream&#146;s direction is <B>#&quot;input&quot;</B>.
+</UL></UL>
+<UL>
+<UL>
+<P><B>#&quot;create&quot;</B> Create a new zero-length file. This is the default when the stream&#146;s direction is <B>#&quot;output&quot;</B> or <B>#&quot;input-output&quot;</B>.
+</UL></UL>
+<P>Because creating a file stream <I>always</I> involves an attempt to open the underlying file, the aforementioned error conditions will occur during file stream instance initialization.
+<P>If an implementation checks file permissions when creating and opening file streams, and it detects an attempt to read a file for which the user has no read permission, or to write a file for which the user has no write permission, then an <B>&lt;invalid-file-permissions-error&gt;</B> condition is signalled at the time the file stream is created.
+<P>The <I>element-type</I> init-keyword controls how the elements of the underlying file are accessed. 
+<P><B>Implementation Note:</B> Ideally, <I>element-type</I> could be any valid Dylan type such as<B> </B><B>limited(&lt;integer&gt;, min: 0, max: 255)</B> or <B>&lt;unicode-character&gt;</B>. This approach may make it possible to implement a potentially inefficient but general set of file streams. Unfortunately the current language definition does not include adequate support for this approach, so we specify instead an interim minimum set of three element types. The element types are for the time being exported from the <B>streams</B> module of the Streams library.
+<P>The three possible element types are: 
+<P><B>&lt;byte-character&gt;</B> 
+<P>The file is accessed as a sequence of 8-bit characters.
+<P><B>&lt;unicode-character&gt;</B> 
+<P>The file is accessed as a sequence of 16-bit Unicode characters.
+<UL>
+<UL>
+<P><B>&lt;byte&gt;</B> The file is accessed as a sequence of unsigned 8-bit integers.
+</UL></UL>
+<UL>
+<UL><B>Portability Note:</B> Portable code can count on the existence of these three element types, but implementations are free to provide more. 
+<BR>
+</UL></UL>
+<A NAME="E78E3"></A>
+<H3><B>0.4.1.3  </B><B>Sequence streams </B></H3>
+<P>There are <B>make</B> methods on <B>&lt;sequence-stream&gt;</B>, <B>&lt;string-stream&gt;</B>, <B>&lt;byte-</B><B>string-stream&gt;</B> and <B>&lt;unicode-string-stream&gt;</B>. The <B>make</B> methods on <B>&lt;sequence-stream&gt;</B> and <B>&lt;string-stream&gt;</B> might not create direct instances of those classes, but instead an instance of a subclass determined by <B>type-for-</B><B>sequence-stream</B>.
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make </B><I>sequence-stream-class</I><B> </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>G.f. method</I></FONT>
+<CODE>
+<PRE><B>make </B><I>sequence-stream-class</I><B> #key </B><I>contents</I><B> </B><I>direction</I><B> </B><I>start</I><B> </B><I>end</I><B> </B>
+<B>=&gt; </B><I>sequence-stream-instance</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Creates and opens a stream over a sequence.
+<BR>
+</UL></UL>
+<UL>
+<UL>This method returns a general instance of <B>&lt;sequence-stream&gt;</B>. To determine the concrete subclass to be instantiated, this method calls the generic function <B>type-for-sequence-stream</B> (see page <A HREF="streams.htm#I14">65</A>). 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>sequence-stream-class</I> argument is the class <B>&lt;sequence-stream&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>contents</I> init-keyword is a general instance of <B>&lt;sequence&gt;</B> which is used as the input for input streams, and as the initial storage for an output stream. If <I>contents</I> is a stretchy vector, then it is the only storage used by the stream. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>direction</I> init-keyword specifies the direction of the stream. It must be one of <B>#&quot;input&quot;</B>, <B>#&quot;output&quot;</B>, or <B>#&quot;input-output&quot;</B>; the default is <B>#&quot;input&quot;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>start</I> and <I>end</I> init-keywords are only valid when <I>direction</I> is <B>#&quot;input&quot;</B>. They specify the portion of the sequence to create the stream over: <I>start</I> is inclusive and <I>end</I> is exclusive. The default is to stream over the entire sequence: <I>start</I> is by default 0, and <I>end</I> is <I>contents</I><B>.size</B>. 
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I14"></A><A NAME="I15"></A><B>type-for-sequence-stream</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>type-for-sequence-stream </B><I>sequence</I><B> =&gt; </B><I>sequence-stream-type</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the sequence-stream class to instantiate over a given sequence object. The method for <B>make</B> on <B>&lt;sequence-stream&gt;</B> calls this function to determine the concrete subclass of <B>&lt;sequence-stream&gt;</B> that it should instantiate. 
+<BR>
+</UL></UL>
+<UL>
+<UL>There are <B>type-for-sequence-stream</B> methods for each of the string object classes. These methods return a stream class object that the particular Streams implementation considers appropriate.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make </B><I>string-stream-class</I><B> </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>G.f. method</I></FONT>
+<CODE>
+<PRE><B>make </B><I>string-stream-class</I><B> #key </B><I>contents</I><B> </B><I>direction</I><B> </B><I>start</I><B> </B><I>end</I><B> </B>
+<B>=&gt; </B><I>string-stream-instance</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Creates and opens a stream over a string.
+<BR>
+</UL></UL>
+<UL>
+<UL>This method returns an instance of <B>&lt;string-stream&gt;</B>. If supplied, <I>contents</I> must be an instance of <B>&lt;string&gt;</B>. The <I>string-stream-class</I> argument is the class <B>&lt;string-stream&gt;</B>. The <I>direction</I>, <I>start</I>, and <I>end</I> init-keywords are as for <B>make</B> on <B>&lt;sequence-stream&gt;</B>.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make </B><I>byte-string-stream-class</I><B> </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>G.f. method</I></FONT>
+<CODE>
+<PRE><B>make </B><I>byte-string-stream-class</I><B> #key </B><I>contents</I><B> </B><I>direction</I><B> </B><I>start</I><B> </B><I>end</I><B> </B>
+<B>=&gt; </B><I>byte-string-stream-instance</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Creates and opens a stream over a byte string.
+<BR>
+</UL></UL>
+<UL>
+<UL>This method returns a new instance of <B>&lt;byte-string-stream&gt;</B>. If supplied, <I>contents</I> must be an instance of <B>&lt;byte-string&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>byte-string-stream-class</I> argument is the class <B>&lt;byte-string-stream&gt;</B>. The <I>direction</I>, <I>start</I>, and <I>end</I> init-keywords are as for <B>make</B> on <B>&lt;sequence-</B><B>stream&gt;</B>.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make </B><I>unicode-string-stream-class</I><B> </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>G.f. method</I></FONT>
+<CODE>
+<PRE><B>make </B><I>unicode-string-stream-class</I><B> #key </B><I>contents</I><B> </B><I>direction</I><B> </B><I>start</I><B> </B><I>end</I><B> </B>
+<B>=&gt; </B><I>unicode-string-stream-instance</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Creates and opens a stream over a Unicode string.
+<BR>
+</UL></UL>
+<UL>
+<UL>This method returns a new instance of <B>&lt;unicode-string-stream&gt;</B>. If supplied, <I>contents</I> must be an instance of <B>&lt;unicode-string&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>unicode-string-stream-class</I> argument is the class <B>&lt;unicode-string-</B><B>stream&gt;</B>. The <I>direction</I>, <I>start</I>, and <I>end</I> init-keywords are as for <B>make</B> on <B>&lt;sequence-stream&gt;</B>.
+<BR>
+</UL></UL>
+<A NAME="E10E36"></A>
+<H3><B>0.4.2  </B><B>Closing streams</B></H3>
+<P>When creating new stream classes it may be necessary to add a method to the <B>close</B> function, even though it is not part of the Stream Extension Protocol.
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I16"></A><A NAME="I17"></A><B>close</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>close </B><I>stream</I><B> #key #all-keys =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Closes <I>stream</I>, an instance of <B>&lt;stream&gt;</B>. 
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E50"></A>
+<H2><B>0.5  </B><B>Reading and writing from streams</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>It is an error to call any of these functions on a buffered stream while its buffer is held.
+<A NAME="E10E37"></A>
+<H3><B>0.5.1  </B><A NAME="I18"></A><B>Reading from streams</B></H3>
+<P>The following are the basic functions for reading from streams. To implement a new input stream that is not a <B>&lt;buffered-stream&gt;</B>, you must provide methods for <B>read-element</B>, <B>stream-input-available?</B>, <B>peek</B>, <B>read</B>, <B>read-into!</B>, and <B>discard-input</B>. If you implement a new stream that is a <B>&lt;positionable-</B><B>stream&gt;</B>, you might need to supply a new method for <B>unread-element</B>.
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I19"></A><A NAME="I20"></A><B>read-element </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>read-element </B><I>input-stream</I><B> #key </B><I>on-end-of-stream</I><B> =&gt; </B><I>element-or-eof</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the next element in the stream. If the stream is not at its end, the stream is advanced so that the next call to <B>read-element</B> returns the next element along in <I>input-stream</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>on-end-of-stream</I> keyword allows you to specify a value to be returned if the stream is at its end. If the stream is at its end and no value was supplied for <I>on-end-of-stream</I>, <B>read-element</B> signals an <B>&lt;end-of-stream-</B><B>error&gt;</B> condition. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If no input is available and the stream is not at its end, <B>read-element</B> blocks until input becomes available.
+<BR>
+</UL></UL>
+<UL>
+<UL>See also <A HREF="streams.htm#I56"></A><B>unread-element</B>,  page 79.<A NAME="I21"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>peek</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>peek </B><I>input-stream</I><B> #key </B><I>on-end-of-stream</I><B> =&gt; </B><I>element-or-eof</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Behaves as <B>read-element</B> does, but the stream position is not advanced.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I22"></A><A NAME="I23"></A><B>read</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>read </B><I>input-stream</I><B> </B><I>n</I><B> #key </B><I>on-end-of-stream</I><B> =&gt; </B><I>sequence-or-eof</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns a sequence of the next <I>n</I> elements from <I>input-stream</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The type of the sequence returned depends on the type of the stream&#146;s underlying aggregate. For instances of <B>&lt;sequence-stream&gt;</B>, the type of the result is given by <B>type-for-copy</B> of the underlying aggregate. For instances of <B>&lt;file-stream&gt;</B>, the result is a vector that can contain elements of the type returned by calling <B>stream-element-type</B> on the stream.
+<BR>
+</UL></UL>
+<UL>
+<UL>The stream position is advanced so that subsequent reads start after the <I>n</I> elements.
+<BR>
+</UL></UL>
+<UL>
+<UL>If the end of the stream is reached before all <I>n</I> elements have been read, the behavior is as follows. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If the <I>on-end-of-stream</I> argument is supplied, it is returned as the value of <B>read</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If the <I>on-end-of-stream</I> argument was not supplied, and at least one element was read from the stream, then an <B>&lt;incomplete-read-error&gt;</B> condition is signalled. When signalling this condition, <B>read</B> supplies two values: a sequence of the elements that were read successfully, and <I>n</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If the <I>on-end-of-stream</I> argument was not supplied, and no elements were read from the stream, an <B>&lt;end-of-stream-error&gt;</B> condition is signalled.
+<BR>
+</UL></UL>
+<UL>
+<UL>If the stream is not at its end, <B>read</B> blocks until input becomes available.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Implementation Note:</B> Buffered streams are intended to provide a very efficient implementation of <B>read</B>, particularly when the result is an instance of <B>&lt;byte-string&gt;</B>, <B>&lt;unicode-string&gt;</B>, or <B>&lt;byte-vector&gt;</B>.<A NAME="I24"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>read-into!</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>read-into! </B><I>input-stream</I><B> </B><I>n</I><B> </B><I>sequence</I><B> #key </B><I>start</I><B> </B><I>on-end-of-stream</I><B> =&gt; </B><I>count-or-eof</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Reads the next <I>n</I> elements from <I>input-stream</I>, and inserts them into a mutable sequence starting at the position <I>start</I>. Returns the number of elements actually inserted into <I>sequence</I> unless the end of the stream is reached, in which case the <I>on-end-of-stream</I> behavior is as for <B>read</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If the sum of <I>start</I> and <I>n</I> is greater than the size of <I>sequence</I>, <B>read-into!</B> reads only enough elements to fill sequence up to the end. If <I>sequence</I> is a stretchy vector, no attempt is made to grow it. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If the stream is not at its end, <B>read-into!</B> blocks until input becomes available.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Implementation Note:</B> Buffered streams are intended to provide a very efficient implementation of <B>read</B>, particularly when the result is an instance of <B>&lt;byte-string&gt;</B>, <B>&lt;unicode-string&gt;</B>, or <B>&lt;byte-vector&gt;</B>.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I25"></A><A NAME="I26"></A><B>discard-input</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>discard-input </B><I>input-stream</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Discards any pending input from <I>input-stream</I>, both buffered input and, if possible, any input that might be at the stream&#146;s source.
+<BR>
+</UL></UL>
+<UL>
+<UL>This operation is principally useful for &quot;interactive&quot; streams, such as TTY streams, to discard unwanted input after an error condition arises. There is a default method on <B>&lt;stream&gt;</B> so that applications can call this function on any kind of stream. The default method does nothing.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I27"></A><A NAME="I28"></A><B>stream-input-available?</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-input-available? </B><I>input-stream</I><B> =&gt; </B><I>available?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns <B>#t</B> if <I>input-stream</I> would not block on <B>read-element</B>, otherwise it returns <B>#f</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>This function differs from <B>stream-at-end?</B>. When <B>stream-input-</B>
+<BR><B>available?</B> returns <B>#t</B>, <B>read-element</B> will not block, but it may detect that it is at the end of the stream&#146;s source, and consequently inspect the <B>on-</B><B>end-of-stream</B> argument to determine how to handle the end of stream.
+<BR>
+</UL></UL>
+<A NAME="E10E38"></A>
+<H3><B>0.5.2  </B><B>Convenience functions for reading from streams</B></H3>
+<P>The following is a small set of convenient reading functions that search for particular elements in a stream. These functions behave as though they were implemented in terms of the more primitive functions described in <A HREF="streams.htm#I18">Section 0.5.1</A>. <A NAME="I29"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>read-to </B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>read-to </B><I>input-stream</I><B> </B><I>element</I><B> #key </B><I>on-end-of-stream</I><B> </B><I>test</I><B> =&gt; </B><I>sequence-or-eof</I><B> </B><I>found?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns a new sequence containing the elements of <I>input-stream</I> from the stream&#146;s current position to the first occurrence of <I>element</I>. The result does not contain <I>element</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The second return value is <B>#t</B> if the read terminated with <I>element</I>, or <B>#f</B> if the read terminated by reaching the end of the stream&#146;s source. The &quot;boundary&quot; element is consumed, that is, the stream is left positioned after <I>element</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>read-to</B> function determines whether the element occurred by calling the test function <I>test</I>, which defaults to <B>\==</B>. The test function must accept two arguments. The order of the arguments is the element retrieved from the stream first and <I>element</I> second. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The type of the sequence returned is the same that returned by <B>read</B>. The end-of-stream behavior is the same as that of <B>read-line</B>.<A NAME="I30"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>read-through</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>read-through </B><I>input-stream</I><B> </B><I>element</I><B> #key </B><I>on-end-of-stream</I><B> </B><I>test</I><B> </B>
+<B>=&gt; </B><I>sequence-or-eof</I><B> </B><I>found?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>This function is the same as <B>read-to</B>, except that <I>element</I> is included in the resulting sequence. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If the <I>element</I> is not found, the result does not contain it. The stream is left positioned after <I>element</I>.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I31"></A><A NAME="I32"></A><B>read-to-end</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>read-to-end </B><I>input-stream</I><B> =&gt; </B><I>sequence</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns a sequence of all the elements up to, and including, the last element of <I>input-stream</I>, starting from the stream&#146;s current position.
+<BR>
+</UL></UL>
+<UL>
+<UL>The type of the result sequence is as described for <B>read</B>. There is no special end-of-stream behavior; if the stream is already at its end, an empty collection is returned.<A NAME="I33"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>skip-through</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>skip-through </B><I>input-stream</I><B> </B><I>element</I><B> #key </B><I>test </I><B>=&gt; </B><I>found?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Positions <I>input-stream</I> after the first occurrence of <I>element</I>,<I> </I>starting from the stream&#146;s current position. Returns <B>#t</B> if the element was found, or <B>#f</B> if the end of the stream was encountered. When <B>skip-through</B> does not find the <I>element</I>, it leaves <I>input-stream</I> positioned at the end.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>skip-through</B> function determines whether the element occurred by calling the test function <I>test</I>, which defaults to <B>\==</B>. The test function must accept two arguments. The order of the arguments is the element retrieved from the stream first and element second. 
+<BR>
+</UL></UL>
+<A NAME="E10E39"></A>
+<H3><B>0.5.3  </B><B>Writing to streams</B></H3>
+<P>The following are the basic functions for writing to streams. 
+<P>To implement a new output stream that is not a <B>&lt;buffered-stream&gt;</B>, you must provide methods for <B>write-element</B>, <B>write</B>, <B>force-output</B>, and <B>discard-out</B><B>put</B>.<A NAME="I34"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>write-element</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>write-element </B><I>output-stream</I><B> </B><I>element</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Writes <I>element</I> to <I>output-stream</I> at the stream&#146;s current position. It is an error if the type of <I>element</I> is inappropriate for the strream&#146;s underlying aggregate.
+<BR>
+</UL></UL>
+<UL>
+<UL>If the stream is positionable, and it is not positioned at its end, 
+<BR><B>write-element</B> overwrites the element at the current position and then advance the stream position.<A NAME="I35"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>write</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>write </B><I>output-stream</I><B> </B><I>sequence</I><B> #key </B><I>start</I><B> </B><I>end</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Writes the elements of <I>sequence</I> to <I>output-stream</I>, starting at the stream&#146;s current position. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The elements in <I>sequence</I> are accessed in the order defined by the forward iteration protocol on <B>&lt;sequence&gt;</B>. This is effectively the same as the following:
+<BR>
+</UL></UL>
+<CODE>
+<PRE><B>   </B><B>do (method (elt) write-element(stream, elt) end, sequence); </B>
+<B>   </B><B>sequence;</B></PRE>
+</CODE>
+<UL>
+<UL>If supplied, <I>start</I> and <I>end</I> delimit the portion of <I>sequence</I> to write to the stream. The value of <I>start</I> is inclusive and that of <I>end</I> is exclusive. They default to 0 and <B>sequence.size</B>, respectively.
+<BR>
+</UL></UL>
+<UL>
+<UL>If the stream is positionable, and it is not positioned at its end, <B>write</B> overwrites elements in the stream and then advance the stream&#146;s position to be beyond the last element written.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Implementation Note:</B> Buffered streams are intended to provide a very efficient implementation of <B>write</B>, particularly when <I>sequence</I> is an instance of <B>&lt;byte-string&gt;</B>, <B>&lt;unicode-string&gt;</B>, <B>&lt;byte-vector&gt;</B>, or <B>&lt;buffer&gt;</B>, and the stream&#146;s element type is the same as the element type of <I>sequence</I>.<A NAME="I36"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>force-output</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>force-output </B><I>output-stream</I><B> =&gt; ()</B></PRE>
+</CODE>
+<UL>
+<UL>Forces any pending output from <I>output-stream</I>&#146;s buffers to its destination.
+<BR>
+</UL></UL>
+<UL>
+<UL>When creating new stream classes it may be necessary to add a method to the <B>force-output</B> function, even though it is not part of the Stream Extension Protocol.<A NAME="I37"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>synchronize-output</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>synchronize-output </B><I>output-stream</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Forces any pending output from <I>output-stream</I>&#146;s buffers to its destination. Before returning to its caller, <B>synchronize-output</B> also attempts to ensure that the output reaches the stream&#146;s destination before, thereby synchronizing the output destination with the application state.
+<BR>
+</UL></UL>
+<UL>
+<UL>When creating new stream classes it may be necessary to add a method to the <B>synchronize-output</B> function, even though it is not part of the Stream Extension Protocol.<A NAME="I38"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>discard-output</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>discard-output </B><I>output-stream</I><B> =&gt; ()</B></PRE>
+</CODE>
+<UL>
+<UL>Attempts to abort any pending output for <I>output-stream</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL>A default method on <B>&lt;stream&gt;</B> is defined, so that applications can call this function on any sort of stream. The default method does nothing.
+<BR>
+</UL></UL>
+<A NAME="E10E40"></A>
+<H3><B>0.5.4  </B><B>Reading and writing by lines</B></H3>
+<P>The following functions facilitate line-based input and output operations.
+<P>The newline sequence for string streams is a sequence comprising the single newline character <B>\n</B>. For character file streams, the newline sequence is whatever sequence of characters the underlying platform uses to represent a newline. For example, on MSDOS platforms, the sequence might comprise two characters: a carriage return followed by a linefeed.
+<P><B>Implementation Note:</B> The functions described in this section are potentially an interim solution to one aspect of the more general problem of encoding and data translation. At some point, these functions may be moved into, or subsumed by, another higher level library that deals with the encoding problems in a better way. Note that no other functions in the Streams library do anything to manage the encoding of newlines; calling <B>write-element</B> on the character <B>\n</B> does not cause the <B>\n</B> character to be written as the native newline sequence, except by coincidence.<A NAME="I39"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>read-line</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>read-line </B><I>input-stream</I><B> #key </B><I>on-end-of-stream</I><B> =&gt; </B><I>string-or-eof</I><B> </B><I>newline?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns a new string containing all the input in <I>input-stream</I> up to the next newline sequence. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The resulting string does not contain the newline sequence. The second value returned is <B>#t</B> if the read terminated with a newline or <B>#f</B> if the read terminated because it came to the end of the stream.
+<BR>
+</UL></UL>
+<UL>
+<UL>The type of the result string is chosen so that the string can contain characters of <I>input-stream</I>&#146;s element type. For example, if the element type is <B>&lt;byte-character&gt;</B>, the string will be a <B>&lt;byte-string&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>input-stream</I> is at its end immediately upon calling <B>read-line</B> (that is, the end of stream appears to be at the end of an empty line), then the end-of-stream behavior and the interpretation of <I>on-end-of-stream</I> is as for <B>read-element</B>.<A NAME="I40"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>read-line-into!</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>read-line-into! </B><I>input-stream</I><B> </B><I>string</I><B> #key </B><I>start</I><B> </B><I>on-end-of-stream</I><B> </B><I>grow?</I><B> =&gt; </B><I>string-or-eof</I><B> </B><I>newline?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Fills <I>string</I> with all the input from <I>input-stream</I> up to the next newline sequence. The <I>string</I> must be a general instance of <B>&lt;string&gt;</B> that can hold elements of the stream&#146;s element type. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The input is written into <I>string</I> starting at the position <I>start</I>, which is an integer defaulting to 0. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The second return value is <B>#t</B> if the read terminated with a newline, or <B>#f</B> if the read completed by getting to the end of the input stream.
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>grow?</I> is <B>#t</B>, and <I>string </I>is not large enough to hold all of the input, this function takes one of the two following actions. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>string</I> is stretchy, <B>read-line-into!</B> grows it enough to hold the input. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>string</I> is not stretchy, <B>read-line-into!</B> creates a new string which it writes to and returns instread. The resulting string holds all the original elements of <I>string</I>, except where read-line-into! overwrites them with input from <I>input-stream</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>In a manner consistent with the intended semantics of <I>grow?</I>, when <I>grow?</I> is true and <I>start </I>is greater than or equal to <I>string</I><B>.size</B>, <B>read-line-into!</B> grows <I>string</I> to accomodate the <I>start</I> index and the new input. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>grow?</I> is <B>#f </B>(the default) and <I>string</I> is not large enough to hold the input, the function signals an error.
+<BR>
+</UL></UL>
+<UL>
+<UL>The end-of-stream behavior and the interpretation of <I>on-end-of-stream</I> is the same as that of <B>read-line</B>.<A NAME="I41"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>write-line</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>write-line </B><I>output-stream</I><B> </B><I>string</I><B> #key </B><I>start</I><B> </B><I>end</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Writes <I>string</I> followed by a newline sequence to <I>output-stream</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The default method behaves as though it calls <B>write</B> on <I>string</I> and then calls <B>new-line</B>, with <I>output-stream</I> locked across both calls.
+<BR>
+</UL></UL>
+<UL>
+<UL>If supplied, <I>start</I> and <I>end</I> delimit the portion of <I>string</I> to write to the stream. They default to 0 and <I>string</I><B>.size</B> respectively.<A NAME="I42"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>new-line</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>new-line </B><I>output-stream</I><B> =&gt; ()</B></PRE>
+</CODE>
+<UL>
+<UL>Writes a newline sequence to <I>output-stream</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>A method for <B>new-line</B> is defined on <B>&lt;string-stream&gt;</B> that writes the character <B>\n</B> to the string stream.
+<BR>
+</UL></UL>
+<A NAME="E10E41"></A>
+<H3><B>0.5.5  </B><B>Querying streams</B></H3>
+<P>The following functions can be used to determine various properties of a stream.
+<P>To implement a new stream you must provide methods for <B>stream-open?</B>, <B>stream-at-end?</B>, and <B>stream-element-type</B>.<A NAME="I43"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>stream-open?</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-open? </B><I>stream</I><B> =&gt; </B><I>open?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns <B>#t</B> if <I>stream</I> is open and <B>#f</B> if it is not.<A NAME="I44"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>stream-element-type</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-element-type </B><I>stream</I><B> =&gt; </B><I>element-type</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the element type of <I>stream</I> as a Dylan <B>&lt;type&gt;</B>.<A NAME="I45"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>stream-at-end?</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-at-end? </B><I>stream</I><B> =&gt; </B><I>boolean</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns <B>#t</B> if the stream is at its end and <B>#f</B> if it is not. For input streams, it returns <B>#t</B> if a call to <B>read-element</B> with no supplied keyword arguments would signal an <B>&lt;end-of-stream-error&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>This function differs from <B>stream-input-available?</B>. See the description of that function on page <A HREF="streams.htm#I27">69</A>.
+<BR>
+</UL></UL>
+<UL>
+<UL>For output-only streams, this function always returns <B>#f</B>.
+<BR>
+</UL></UL>
+<A NAME="E10E42"></A>
+<H3><B>0.5.6  </B><A NAME="I46"></A><B>Positionable stream protocol</B></H3>
+<P>The following comprises the protocol for positionable streams.
+<P>To implement a new positionable stream you must provide methods for <B>stream-position</B>, <B>stream-position-setter</B>, <B>adjust-stream-position</B>, <B>stream-size</B>, <B>stream-contents</B>, and <B>unread-element</B>.
+<P>A stream position can be thought of as a natural number that indicates how many elements into the stream the stream&#146;s current location is. However, it is not always the case that a single integer contains enough information to reposition a stream. Consider the case of an &quot;uncompressing&quot; file stream that requires additional state beyond simply the file position to be able to get the next input character from the compressed file.
+<P>The Streams library addresses this problem by introducing the class <B>&lt;stream-</B><B>position&gt;</B>, which is subclassed by various kinds of stream implementations that need to maintain additional state. A stream can be repositioned as efficiently as possible when <B>stream-position-setter</B> is given a value previously returned by <B>stream-position</B> on that stream.
+<P>It is also legal to set the position of a stream to an integer position. However, for some types of streams, to do so might be slow, perhaps requiring the entire contents of the stream up to that point to be read.<A NAME="I47"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;stream-position&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Abstract class</I></FONT>
+<UL>
+<UL>A direct subclass of <B>&lt;object&gt;</B>. It is used to represent positions within streams of a certain kind: those for which a natural number is not sufficient to fully describe the position in the stream. For example, a stream that supports compression will have some state associated with each position in the stream that a single integer is not sufficient to represent.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>&lt;stream-position&gt;</B> class is disjoint from the class <B>&lt;integer&gt;</B>. <A NAME="I48"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>stream-position</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-position </B><I>positionable-stream</I><B> =&gt; </B><I>position</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the current position of <I>positionable-stream</I> for reading or writing.
+<BR>
+</UL></UL>
+<UL>
+<UL>The value returned can be either an instance of <B>&lt;stream-position&gt;</B> or an integer. When the value is an integer, it is an offset from position zero, and is in terms of the stream&#146;s element type. For instance, in a Unicode stream, a position of 4 means that 4 Unicode characters have been read.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I49"></A><A NAME="I50"></A><B>stream-position-setter</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-position-setter </B><I>position</I><B> </B><I>positionable-stream</I><B> =&gt; </B><I>new-position</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Changes the stream&#146;s position for reading or writing to <I>position</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The position can be either an integer or a <B>&lt;stream-position&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>When it is an integer, if it is less than zero or greater than <I>positionable-</I><I>stream</I><B>.stream-size</B> this function signals an error.
+<BR>
+</UL></UL>
+<UL>
+<UL>When <I>position</I> is a <B>&lt;stream-position&gt;</B>, if it is invalid for some reason, this function signals an error. Streams are permitted to restrict the <I>position</I> to being a member of the set of values previously returned by calls to <B>stream-position</B> on the same stream.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>position</I> may also be <B>#&quot;start&quot;</B>, meaning that the stream should be positioned at its start, or <B>#&quot;end&quot;</B>, meaning that the stream should be positioned at its end.<A NAME="I51"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>adjust-stream-position</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>adjust-stream-position </B><I>positionable-stream</I><B> </B><I>delta</I><B> #key </B><I>from</I><B> =&gt; </B><I>new-position</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Moves the position of <I>positionable-stream</I> to be offset <I>delta</I> elements from the position indicated by <I>from</I>. The new position is returned. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The value of <I>from</I> can be one of the symbols <B>#&quot;current&quot;</B>, <B>#&quot;start&quot;</B>, and <B>#&quot;end&quot;</B>. The default value is <B>#&quot;current&quot;</B>. When <I>from</I> is <B>#&quot;start&quot;</B>, the stream is positioned relative to the beginning of the stream. When <I>from</I> is <B>#&quot;end&quot;</B>, the stream is positioned relative to its end.
+<BR>
+</UL></UL>
+<UL>
+<UL>Using <B>adjust-stream-position</B> to set the position of a stream to be beyond its current last element causes the underlying aggregate to be grown to a new size. When extending the underlying aggregate for a stream, it is undefined what the unwritten elements of the aggregate will contain. <A NAME="I52"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>as</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>G.f. method</I></FONT>
+<CODE>
+<PRE><B>as </B><I>integer-class</I><B> </B><I>stream-position</I><B> =&gt; </B><I>integer</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Coerces a <B>&lt;stream-position&gt;</B> to an integer. The <I>integer-class</I> argument is the class <B>&lt;integer&gt;</B>.<A NAME="I53"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>stream-size</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-size </B><I>positionable-stream</I><B> =&gt; </B><I>size</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the number of elements in <I>positionable-stream</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>For input streams, this number is the number of elements that were available when the stream was created. It is unaffected by any read operations that might have been performed on the stream. 
+<BR>
+</UL></UL>
+<UL>
+<UL>For output and input-output streams, this number is the number of elements that were available when the stream was created (just as with input streams), added to the number of elements written past the end of the stream (regardless of any repositioning operations). 
+<BR>
+</UL></UL>
+<UL>
+<UL>It is assumed that there is no more than one stream open on the same source or destination at a time; that there are no shared references to files by other processes; that there are no alias references to underlying sequences, or any other such situations. In such situations, the behavior of <B>stream-size</B> is undefined.<A NAME="I54"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>stream-contents</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>stream-contents </B><I>positionable-stream</I><B> #key </B><I>clear-contents?</I><B> =&gt; </B><I>sequence</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns a sequence that contains all of <I>positionable-stream</I>&#146;s elements from its start to its end, regardless of its current position. The type of the returned sequence is as for <B>read</B>. See page <A HREF="streams.htm#I22">68</A>.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Note:</B> For streams whose direction is <B>#&quot;input&quot;</B>, <B>stream-contents</B> signals an error. Use <B>read-to-end</B> instead on such streams. See page <A HREF="streams.htm#I31">70</A>.
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>clear-contents?</I> is <B>#t</B> (the default), this function sets the size of the stream to zero, and the position to the stream&#146;s start. Thus the next call to <B>stream-</B><B>contents</B> will return only the elements written after the previous call to <B>stream-contents</B>.<A NAME="I55"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I56"></A><B>unread-element</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>unread-element </B><I>positionable-stream</I><B> </B><I>element</I><B> =&gt; </B><I>element</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>&quot;Unreads&quot; the last element from <I>positionable-stream</I>. That is, it returns <I>ele</I><I>ment</I> to the stream so that the next call to <B>read-element</B> will return <I>element</I>. The stream must be a <B>&lt;positionable-stream&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>It is an error (<B>i</B>) to apply <B>unread-element</B> to an element that is not the element most recently read from the stream; (<B>ii</B>) to call <B>unread-element</B> twice in succession; (<B>iii</B>) to unread an element if the stream is at its initial positionl; and (<B>iv</B>) to unread an element after explicitly setting the stream&#146;s position.
+<BR>
+</UL></UL>
+<A NAME="E10E43"></A>
+<H3><B>0.5.7  </B><B>Using file streams</B></H3>
+<P>The following are operations that pertain to file streams. <A NAME="I57"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>close</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>G.f. method</I></FONT>
+<CODE>
+<PRE><B>close </B><I>file-stream</I><B> #key </B><I>abort</I><B> </B><I>wait?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Closes a file stream. This method frees whatever it can of any underlying system resources held on behalf of the stream.
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>abort</I> is false (the default), any pending data is forced out and synchronized with the file&#146;s destination. If <I>abort</I> is true, then any errors caused by closing the file are ignored. Furthermore, if <I>abort</I> is true, the file should be restored to its initial state if possible (for example, on a versioned file system, the previous version of the file should be restored as the latest version).<A NAME="I58"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>with-open-file</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Macro</I></FONT>
+<CODE>
+<PRE><B>with-open-file (</B><I>stream-var</I><B> = </B><I>locator</I><B>, #rest </B><I>keys</I><B>) </B><I>body</I><B> end </B></PRE>
+</CODE>
+<UL>
+<UL>Provides a safe mechanism for working with file streams. The macro creates a file stream and binds it to <I>stream-var</I>, evaluates a <I>body</I> of code within the context of this binding, and then closes the stream. The macro calls <B>close</B> upon exiting <I>body</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>locator </I>argument should evaluate to a valid argument to 
+<BR>
+</UL></UL>
+<CODE>
+<PRE><B>as(&lt;locator&gt;, </B><I>locator</I><B>)</B></PRE>
+</CODE>
+<UL>
+<UL>The values of the last expression in <I>body</I> are returned. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>keys</I> are passed to the <B>make</B> method on <B>&lt;file-stream&gt;.</B>
+<BR>
+</UL></UL>
+<UL>
+<UL>For example, the following expression yields the contents of file <B>foo.text</B> as a <B>&lt;byte-vector&gt;</B>:
+<BR>
+</UL></UL>
+<CODE>
+<PRE><B>with-open-file (fs = (&quot;foo.text&quot;, element-type: &lt;byte&gt;))</B>
+<B>   </B><B>read-to-end(fs)</B>
+<B>end;</B></PRE>
+</CODE>
+<UL>
+<UL>It is roughly equivalent to:
+<BR>
+</UL></UL>
+<CODE>
+<PRE><B>begin</B>
+<B>   </B><B>let hidden-fs = #f;     // In case the user bashes fs variable</B>
+<B>   </B><B>block ()</B>
+<B>   </B><B>   </B><B>hidden-fs := make(&lt;file-stream&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>locator: &quot;foo.text&quot;, element-type: &lt;byte&gt;);</B>
+<B>   </B><B>   </B><B>let fs = hidden-fs;</B>
+<B>   </B><B>   </B><B>read-to-end(fs);</B>
+<B>   </B><B>cleanup</B>
+<B>   </B><B>   </B><B>if (hidden-fs) close(hidden-fs) end;</B>
+<B>   </B><B>end block;</B>
+<B>end;</B></PRE>
+</CODE>
+<BR>
+<A NAME="E8E51"></A>
+<H2><B>0.6  </B><A NAME="I59"></A><B>Locking streams</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Stream locks have multilocking semantics. That is, a single thread can lock a stream more than once, but the thread must unlock the stream for each time it locked the stream. Furthermore, threads waiting for a stream lock are expected to do so by blocking, not by &quot;spinning&quot;.
+<P>This allows a high-level printing routine to lock a stream across several calls to output functions, ensuring all the output is contiguous at the stream&#146;s destination. For example, the <B>write-line</B> function locks its stream argument and then calls the <B>write</B> and <B>new-line</B> functions. The <B>write</B> function locks its stream argument by calling <B>get-output-buffer</B>, but because of the multilocking semantics, the call to <B>write</B> within <B>write-line</B> does not block waiting for a lock.  The same thing happens with <B>new-line</B>. Before returning, <B>write-line</B> unlocks the stream so that other routines may call output functions on the stream or get the stream&#146;s buffer for direct manipulation.
+<P>The Locking Protocol isolates access to a stream so that only one thread may use the stream at any time. In a single-threaded Dylan implementation, these functions do nothing. 
+<P>The Buffer Access Protocol functions that get a buffer first lock the stream, and those functions that release the buffer unlock the stream. Thus, getting a buffer both isolates access to the stream for a single thread and ensures that the single thread does not try to get the stream&#146;s buffer multiple times while already holding the buffer.
+<P>The Buffer Access Protocol isolates access to a buffer within a single thread to prevent reentrancy problems and programming mistakes. Essentially, the lightweight buffer locking ensures that applications do not call output functions that directly manipulate a stream&#146;s buffer from within routines that are already directly manipulating the stream&#146;s buffer. This situation must be forbidden because the inner call to get the buffer cannot reliably return the state of the stream&#146;s buffer while the application already holds the buffer.<A NAME="I60"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>stream-locked?</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>stream-locked? </B><I>stream</I><B> =&gt; </B><I>boolean</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns <B>#t</B> if <I>stream</I> is locked and <B>#f</B> if it is not.<A NAME="I61"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>lock-stream</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>lock-stream </B><I>stream</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Locks <I>stream</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>stream</I> is already locked by another thread, this function waits until it gets the lock.
+<BR>
+</UL></UL>
+<UL>
+<UL>In a single-threaded Dylan implementation, this function does nothing.  <A NAME="I62"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>unlock-stream</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>unlock-stream </B><I>stream</I><B> =&gt; ()</B></PRE>
+</CODE>
+<UL>
+<UL>Releases <I>stream</I>&#146;s lock. 
+<BR>
+</UL></UL>
+<UL>
+<UL>In a multi-threaded Dylan implementation, stream locks can be taken more than once by a thread, so they must be unlocked for each time they are locked. This function signals an error if it is invoked in order to release a stream&#146;s lock and the current thread does not actually hold that lock. 
+<BR>
+</UL></UL>
+<UL>
+<UL>In a single-threaded Dylan implementation, this function does nothing.<A NAME="I63"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>with-stream-locked</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Macro</I></FONT>
+<CODE>
+<PRE><B>with-stream-locked (</B><I>stream</I><B>) </B><I>body</I><B> end</B></PRE>
+</CODE>
+<UL>
+<UL>Evalutes <I>body</I> in a context in which <I>stream</I> is locked. 
+<BR>
+</UL></UL>
+<UL>
+<UL>Upon exiting the body, the code resulting from the macro unlocks the stream once, as a <B>block</B> cleanup.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E52"></A>
+<H2><B>0.7  </B><B>Using buffered streams</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>A goal of the streams library is to provide efficient support for general use of buffered I/O. At the same time, programmers using the library should not need to be concerned with buffering in most cases. For most uses of buffered streams, the buffering is transparent, but programs requiring more control can access buffering functionality when appropriate. This section describes the available buffering functionality.
+<A NAME="E10E44"></A>
+<H3><B>0.7.1  </B><B>Overview</B></H3>
+<P>A buffered stream maintains some sort of buffer. All buffered streams use the sealed class <B>&lt;buffer&gt;</B> for their buffers. You can suggest a buffer size when creating buffered streams, but normally you do not need to do so. Streams implementations should choose buffer sizes that are appropriate for the stream&#146;s source or destination. 
+<P>Instances of the class <B>&lt;buffer&gt;</B> also contain some state information. This state information includes an index where reading or writing should begin, and an index that is the end of input to be read, or the end of space available for writing. 
+<P>Buffered streams also maintain a <I>held</I> state, indicating whether the application has taken the buffer for a stream and has not released it yet. When a thread already holds the buffer for a stream, it is an error to get the buffer again (or any other buffer for the same stream); this property holds for the one thread of a single-threaded Dylan implementation as well as for multi-threaded implementations. 
+<A NAME="E10E45"></A>
+<H3><B>0.7.2  </B><A NAME="I64"></A><B>Buffer access protocol</B></H3>
+<P>This section describes the functions that users of buffered streams invoke to manipulate stream buffers directly. These functions use corresponding functions from the Stream Extension Protocol to do their work. For example, <B>get-</B><B>input-buffer</B> calls <B>do-get-input-buffer</B>. All Stream Extension Protocol functions are named with a <B>do-</B> prefix on the corresponding Buffer Access Protocol function. Users should never call the Stream Extension Protocol directly.
+<P>Threaded Dylan implementations should place system-dependent mutual exclusion calls in the Buffer Access Protocol functions. All streams implementations are encouraged to check the buffer-held state in the Buffer Access Protocol functions, and these functions should signal an error if the buffer is already held. The separation of the Buffer Access Protocol and the Stream Extension Protocol allows users to more portably extend the buffered stream protocol to new stream types. Programmers avoid the following design and maintenance hassles:
+<UL>
+<LI>Deciding whether to write for a threaded or non-threaded Dylan implementation.
+<LI>Rewriting mutual exclusion code for each Dylan implementation.
+<LI>Having to duplicate mutual exclusion code wherever the application uses stream buffers directly.
+</UL>
+<P>Programs that manipulate buffers are entirely responsible for tracking the buffer&#146;s state and informing the stream of any changes to the buffer&#146;s state. The technique for using a buffer is to get the input or output buffer and its bounds, consume or produce data, update the buffer&#146;s state, and then release the buffer. The new bounds are indicated by calling <B>buffer-next-setter</B> and <B>buffer-</B><B>end-setter</B>. Using buffers directly interoperates with using higher-level functions such as <B>read-element</B>, <B>read</B>, <B>write-element</B>, <B>write</B>, and so on. This is because higher-level stream operations are implemented in terms of the Buffer Access Protocol for instances of <B>&lt;buffered-stream&gt;</B>. 
+<A NAME="E78E4"></A>
+<H3><B>0.7.2.1  </B><B>Useful types when using buffers</B><A NAME="I65"></A></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;byte&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Type</I></FONT>
+<UL>
+<UL>A type representing limited integers in the range 0 to 255 inclusive.  <A NAME="I66"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;byte-character&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Type</I></FONT>
+<UL>
+<UL>A type representing 8-bit characters that instances of <B>&lt;byte-string&gt;</B> can contain.  <A NAME="I67"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;unicode-character&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Type</I></FONT>
+<UL>
+<UL>A type representing Unicode characters that instances of <B>&lt;unicode-</B><B>string&gt;</B> can contain.  <A NAME="I68"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;byte-vector&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Type</I></FONT>
+<UL>
+<UL>A subtype of <B>&lt;vector&gt;</B> whose element-type is <B>&lt;byte&gt;</B>.  <A NAME="I69"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;buffer&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Sealed instantiable class</I></FONT>
+<UL>
+<UL>A subclass of <B>&lt;vector&gt;</B> whose <B>element-type</B> is <B>&lt;byte&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>Instances of <B>&lt;buffer&gt;</B> contain a data vector and two indices: the inclusive start and the exclusive end of valid data in the buffer. The accessors for these indexes are called <B>buffer-next</B> and <B>buffer-end</B>. This class supports three init-keywords: <B>size:</B>, <B>next:</B> (defaults to zero), and <B>end:</B> (defaults to zero). 
+<BR>
+</UL></UL>
+<UL>
+<UL>Note that <B>size:</B> is not taken as a suggestion of the size the user would like, as with the value passed with <B>buffer-size:</B> to <B>make</B> on <B>&lt;buffered-</B><B>stream&gt;</B>; if you supply a value with the <B>size:</B> init-keyword, that size is allocated, or, if that is not possible, an error is signalled, as with making any vector.<A NAME="I70"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;buffer-index&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Type</I></FONT>
+<UL>
+<UL>A subtype of <B>&lt;integer&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>All buffer-index return values and parameters are of this type. See also Harlequin and CMU&#146;s proposal for <B>&lt;integer&gt;</B>.
+<BR>
+</UL></UL>
+<A NAME="E78E5"></A>
+<H3><B>0.7.2.2  </B><B>Using buffers for input</B></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I71"></A><A NAME="I72"></A><B>get-input-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>get-input-buffer </B><I>buffered-stream</I><B>, #key </B><I>wait?</I><B>, </B><I>bytes</I><B> =&gt; </B><I>buffer-or-false</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Calls <B>do-get-input-buffer</B> to return a buffer for the stream. You should never call <B>do-get-input-buffer</B> directly.
+<BR>
+</UL></UL>
+<UL>
+<UL>The stream extension function signals an error if <I>buffered-stream</I> is an output-only stream, or if it cannot return a buffer for any reason. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>wait?</I> keyword is a <B>&lt;boolean&gt;</B> and defaults to <B>#t</B>. It indicates whether <B>get-input-buffer</B> should ensure that there is valid data in the input buffer, and block for input if necessary. 
+<BR>
+</UL></UL>
+<UL>
+<UL>When <I>wait?</I> is <B>#f</B>, this function returns the stream&#146;s current buffer in whatever state it is in. 
+<BR>
+</UL></UL>
+<UL>
+<UL>When <I>wait?</I> is <B>#t</B>, <B>do-get-input-buffer</B> waits until there is some valid data in the buffer. If <B>do-get-input-buffer</B> needs to wait for valid data, and it encounters the end of the stream before any valid data arrives, then <B>do-get-input-buffer</B> returns <B>#f</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>When <I>bytes</I> is supplied, <I>wait?</I> has no effect. The <I>bytes</I> keyword is an 
+<BR><B>&lt;integer&gt;</B> or <B>#f</B>, and is the minimum number of bytes that must be present in the buffer when it is returned. If <B>do-get-input-buffer</B> cannot return a buffer with the specified minimum number of bytes, it signals an <B>&lt;incomplete-read-error&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>Values supplied for <I>bytes</I> should be small relative to a buffer&#146;s size. If you need to read large numbers of bytes at once, specify a large buffer size when making the stream and do not specify any values for the <I>bytes</I> keyword parameter. When <I>bytes</I> is not <B>#f</B>, <B>get-input-buffer</B> may block for input if necessary.
+<BR>
+</UL></UL>
+<UL>
+<UL>If an application thread calls <B>get-input-buffer</B>, and another thread already holds any buffer the stream owns, then this function might block. Multi-threaded implementations should eventually return. In multi-threaded implementations this function calls lock-stream before calling do-get-input-buffer, and it does not release the lock.
+<BR>
+</UL></UL>
+<UL>
+<UL>If an application&#146;s thread calls this function, and that same thread already holds the buffer, this situation is a re-entrancy programmer error. The stream cannot return the buffer and guarantee that its state is up to date with input consumption that occurred between the first call to this function and the current call. Implementations should detect and signal this error. <A NAME="I73"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>release-input-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>release-input-buffer </B><I>buffered-stream</I><B> =&gt; ()</B></PRE>
+</CODE>
+<UL>
+<UL>Call this function to announce that you have finished using the stream&#146;s current buffer. There may still be valid input in the buffer even though you have finished with it. 
+<BR>
+</UL></UL>
+<UL>
+<UL>This function calls <B>do-release-input-buffer</B> so that the stream can perform any record-keeping or management tasks it has. You should never call <B>do-release-input-buffer</B> directly.
+<BR>
+</UL></UL>
+<UL>
+<UL>After consuming input from the buffer, you must update the buffer&#146;s state by assigning to <B>buffer-next</B> before releasing the buffer. When a user of the Buffer Access Protocol sets <B>buffer-end</B>, the results are undefined.
+<BR>
+</UL></UL>
+<UL>
+<UL>If the calling application does not hold the buffer, this function signals an error.
+<BR>
+</UL></UL>
+<UL>
+<UL>In multi-threaded implementations, <B>release-input-buffer</B> releases the lock obtained in <B>get-input-buffer</B>.<A NAME="I74"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>with-input-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Macro</I></FONT>
+<CODE>
+<PRE><B>with-input-buffer (</B><I>buffer-var</I><B> = </B><I>exp</I><B>, #key </B><I>wait?</I><B>, </B><I>bytes</I><B>) </B><I>body</I><B> end;</B></PRE>
+</CODE>
+<UL>
+<UL>Calls <B>get-input-buffer</B> on <I>exp</I>, <I>wait?</I>, and <I>bytes</I>, binding <I>buffer-var</I> to the result, then executes <I>body</I> within the scope of the buffer binding. 
+<BR>
+</UL></UL>
+<UL>
+<UL>After the <I>body</I> has executed, <B>with-input-buffer</B> calls <B>release-input-</B><B>buffer</B> and returns any values returned by <I>body</I>.<A NAME="I75"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>next-input-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>next-input-buffer </B><I>buffered-stream</I><B> #key </B><I>wait?</I><B>, </B><I>bytes</I><B> =&gt; </B><I>buffer-or-false</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Call this function to get more input when you are already holding <I>buffered-</I><I>stream</I>&#146;s buffer. If the application does not hold the stream&#146;s buffer, this function signals an error. 
+<BR>
+</UL></UL>
+<UL>
+<UL>This function calls <B>do-next-input-buffer</B> to get more input. You should never call <B>do-next-input-buffer</B> directly. 
+<BR>
+</UL></UL>
+<UL>
+<UL>You must update the buffer&#146;s state by assigning to <B>buffer-next</B> before getting the next buffer; otherwise, it might seem that the current buffer still has valid input in it. When <B>buffer-next</B> = <B>buffer-end</B> there is no valid input remaining in the current buffer. 
+<BR>
+</UL></UL>
+<UL>
+<UL>If a user of the Buffer Access Protocol sets <B>buffer-end</B> while holding the stream&#146;s buffer, the results are undefined.
+<BR>
+</UL></UL>
+<UL>
+<UL>The stream extension function may return a new <B>&lt;buffer&gt;</B> object or the current one with <B>buffer-next</B> and <B>buffer-end</B> updated to reflect the location of the new input data. You should not make any assumptions about which option a stream&#146;s implementation uses. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>do-next-input-buffer</B> function signals an error when the current buffer is not held for input.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>wait?</I> and <I>bytes</I> arguments are the same as for <B>get-input-buffer</B>.<A NAME="I76"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>input-available-at-source?</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>input-available-at-source? </B><I>buffered-stream</I><B> =&gt; </B><I>available?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns <B>#t</B> when <I>buffered-stream</I>&#146;s source has any available input or when the stream is at the end of its source. If this function returns <B>#t</B>, the next call to <B>next-input-buffer</B> will not block.
+<BR>
+</UL></UL>
+<UL>
+<UL>This function calls <B>do-input-available-at-source?</B> to get more input. You should never call <B>do-input-available-at-source?</B> directly. 
+<BR>
+</UL></UL>
+<UL>
+<UL>Call this function while you are holding a stream&#146;s buffer. If the application does not hold the stream&#146;s buffer, this function signals an error.
+<BR>
+</UL></UL>
+<UL>
+<UL>The stream extension function signals an error when the current buffer is not held for input.
+<BR>
+</UL></UL>
+<A NAME="E78E6"></A>
+<H3><B>0.7.2.3  </B><B>Using buffers for output</B><A NAME="I77"></A></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>get-output-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>get-output-buffer </B><I>buffered-stream</I><B>, #key </B><I>bytes</I><B> =&gt; </B><I>buffer</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Calls <B>do-get-output-buffer</B> to return a buffer for <I>buffered-stream</I>. You should never call <B>do-get-output-buffer</B> directly. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The stream extension function signals an error if the stream is an input only stream, or if it cannot return a buffer for any reason. The resulting buffer is never completely full of pending output.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>bytes</I> keyword is an <B>&lt;integer&gt;</B>, and is the minimum number of bytes that must be available for writing in the buffer when it is returned. It defaults to 1. If <B>do-get-output-buffer</B> cannot return a buffer with the specified minimum number of bytes, it signals an error. 
+<BR>
+</UL></UL>
+<UL>
+<UL>Values supplied for <I>bytes</I> should be small relative to a buffer&#146;s size. If you need to write large numbers of bytes at once, specify a large buffer size when making the stream and do not specify any values for the <I>bytes</I> keyword parameter.
+<BR>
+</UL></UL>
+<UL>
+<UL>If an application&#146;s thread calls <B>get-output-buffer</B> and another thread already holds any buffer for the stream, the function might block. Multi-threaded implementations should eventually return. In multi-threaded implementations this function calls <B>lock-stream</B> before calling <B>do-get-</B><B>input-buffer</B>, and it does not release the lock.
+<BR>
+</UL></UL>
+<UL>
+<UL>If an application&#146;s thread calls this function, and that same thread already holds the buffer, this situation is a re-entrancy programmer error. The stream cannot return the buffer and guarantee that its state is up to date with output written between the first call to this function and the current call. Implementations should detect and signal this error.<A NAME="I78"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>release-output-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>release-output-buffer </B><I>buffered-stream</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Call this function to announce that you have finished using the stream&#146;s current buffer. When you have written output to the buffer, you must update the buffer&#146;s state by assigning to <B>buffer-next</B> before releasing the buffer. When a user of the Buffer Access Protocol sets <B>buffer-end</B>, the results are undefined.
+<BR>
+</UL></UL>
+<UL>
+<UL>If the application does not hold the buffer, this function signals an error.
+<BR>
+</UL></UL>
+<UL>
+<UL>This function calls <B>do-release-output-buffer</B> so that the stream can perform any record-keeping or management tasks it has. You should never call <B>do-release-output-buffer</B> directly.
+<BR>
+</UL></UL>
+<UL>
+<UL>In multi-threaded implementations, <B>release-output-buffer</B> releases the lock obtained in <B>get-output-buffer</B>.<A NAME="I79"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>with-output-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Macro</I></FONT>
+<CODE>
+<PRE><B>with-output-buffer (</B><I>buffer-var</I><B> = </B><I>exp</I><B>, #key </B><I>bytes</I><B>) </B><I>body</I><B> end;</B></PRE>
+</CODE>
+<UL>
+<UL>Calls <B>get-output-buffer</B> on <I>exp</I> and <I>bytes</I>, binding <I>buffer-var</I> to the result, then executes <I>body</I> within the scope of the buffer binding. 
+<BR>
+</UL></UL>
+<UL>
+<UL>After the <I>body</I> has executed, <B>with-output-buffer</B> calls <B>release-output-</B><B>buffer</B> and returns any values returned by <I>body</I>.<A NAME="I80"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>next-output-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Macro</I></FONT>
+<CODE>
+<PRE><B>next-output-buffer </B><I>buffered-stream</I><B> #key </B><I>bytes</I><B> =&gt; </B><I>buffer</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Call this function to get the next buffer for writing output when you are already holding a stream&#146;s buffer. If the application does not hold the stream&#146;s buffer, this function signals an error. 
+<BR>
+</UL></UL>
+<UL>
+<UL>This function calls <B>do-next-output-buffer</B> to get the next output buffer. You should never call <B>do-next-output-buffer</B> directly.
+<BR>
+</UL></UL>
+<UL>
+<UL>You must update the buffer&#146;s state by assigning to <B>buffer-next</B> before getting the next buffer; otherwise, it might seem that the current buffer is empty (or does not contain the output you just stored in it). When <B>buffer-</B><B>next</B> = <B>buffer-end</B> there is no pending output in the current buffer. 
+<BR>
+</UL></UL>
+<UL>
+<UL>When a user of the Buffer Access Protocol sets <B>buffer-end</B>, the results are undefined.
+<BR>
+</UL></UL>
+<UL>
+<UL>The stream extension function may return a new <B>&lt;buffer&gt;</B> object or the current one with <B>buffer-next</B> updated to indicate the next available element to be written for output. You should not make any assumptions about which option a stream&#146;s implementation uses. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>do-next-output-buffer</B> function signals an error when the current buffer is not held for output.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>do-next-output-buffer</B> function may force output to a stream&#146;s destination, but it is not required to do so. It might empty the current buffer into secondary buffers or get a new buffer from a queue, while not forcing any output.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>bytes</I> argument is the same as for <B>get-output-buffer</B>, but <B>do-next-</B><B>output-buffer</B> signals any error associated with this parameter.
+<BR>
+</UL></UL>
+<A NAME="E10E46"></A>
+<H3><B>0.7.3  </B><B>Copying to and from buffers</B></H3>
+<P>All generic sequence operations work on buffers. The Streams library provides some additional functions to compensate for lacking functionality in Dylan&#146;s sequence operations. There are also a few functions for updating a buffer&#146;s state.<A NAME="I81"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>buffer-next</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>buffer-next </B><I>buffer</I><B> =&gt; </B><I>buffer-index</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>For buffers held for input, this function returns the location of the next valid byte of input to be read. When the location equals <B>buffer-end</B>, there is no more valid input data in the buffer.
+<BR>
+</UL></UL>
+<UL>
+<UL>For buffers held for output, this function returns the location of the next free byte that should be written in the buffer, and when the location equals <B>buffer-end</B>, the buffer is full of pending output.<A NAME="I82"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>buffer-next-setter</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>buffer-next-setter </B><I>new-value buffer</I><B> =&gt; </B><I>new-value</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Sets <I>buffer</I>&#146;s next index. <A NAME="I83"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>buffer-end</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>buffer-end </B><I>buffer</I><B> =&gt; </B><I>buffer-index</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>For buffers held for input, this function returns the index of the exclusive end of data to be read. For buffers held for output, this function returns the size of the buffer. 
+<BR>
+</UL></UL>
+<UL>
+<UL>See also <B>buffer-end-setter</B>, below.<A NAME="I84"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>buffer-end-setter</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Function</I></FONT>
+<CODE>
+<PRE><B>buffer-end-setter </B><I>new-value</I><B> </B><I>buffer</I><B> =&gt; </B><I>new-value</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Sets <I>buffer</I>&#146;s end index. 
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Note:</B> Users of the Buffer Access Protocol functions should not set this accessor because the results are undefined; however, stream implementors may need to set this accessor inside Stream Extension Protocol methods, which execute while users are holding a stream buffer.<A NAME="I85"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>buffer-subsequence</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>buffer-subsequence </B><I>buffer</I><B> </B><I>result-class</I><B> </B><I>start</I><B> </B><I>end</I><B> =&gt; </B><I>sequence</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns an instance of the class <I>result-class</I>, filled with the elements from the buffer from the index <I>start</I> to the index <I>end</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>start</I> and <I>end</I> arguments are both instances of <B>&lt;buffer-index&gt;</B>. 
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Implementation Note:</B> This function should be implemented as efficiently as possible. There should be sealed methods for when <I>result-class</I> is an instance of <B>&lt;byte-string&gt;</B>, <B>&lt;byte-vector&gt;</B>, and <B>&lt;buffer&gt;</B>.<A NAME="I86"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>copy-into-buffer!</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>copy-into-buffer! </B><I>buffer</I><B> </B><I>buffer-start</I><B> </B><I>sequence</I><B> #key </B><I>start</I><B> </B><I>end</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>Copies the portion of <I>sequence</I> given by the indices <I>start</I> and <I>end</I> into <I>buffer</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The buffer is filled starting at <I>buffer-start</I>. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The <I>start</I> index defaults to 0, while <I>end</I> defaults to <I>sequence</I><B>.size</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>If <I>buffer</I> is too small to hold the data, an error is signalled.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Implementation Note:</B> This function should be implemented as efficiently as possible. There should be sealed methods for when <I>sequence </I>is an instance of <B>&lt;byte-string&gt;</B>, <B>&lt;byte-vector&gt;</B>, or <B>&lt;buffer&gt;</B>.<A NAME="I87"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>copy-from-buffer!</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>copy-from-buffer! </B><I>buffer</I><B> </B><I>buffer-start</I><B> </B><I>sequence</I><B> #key </B><I>start</I><B> </B><I>end</I><B> =&gt; ()</B></PRE>
+</CODE>
+<UL>
+<UL>Copies a portion of <I>buffer</I> starting at <I>buffer-start</I> into <I>sequence</I>. The number of elements copied is determined by <I>start</I> and <I>end</I>, which are indices into <I>sequence</I>. The sequence is filled starting at <I>start</I>, which defaults to 0, and ending at <I>end</I>, which defaults to <I>sequence</I><B>.size</B>.<I> </I>If <I>sequence</I> is too small to hold the data, an error is signalled.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Implementation Note:</B> This function should be implemented as efficiently as possible. There should be sealed methods for when <I>sequence </I>is an instance of <B>&lt;byte-string&gt;</B>, <B>&lt;byte-vector&gt;</B>, or <B>&lt;buffer&gt;</B>.
+<BR>
+</UL></UL>
+<A NAME="E10E47"></A>
+<H3><B>0.7.4  </B><A NAME="I88"></A><B>Stream extension protocol</B></H3>
+<P>These are the generic functions to which implementors of streams add methods when extending the stream protocol to new subclasses of <B>&lt;buffered-stream&gt;</B>. Although the <B>close</B> function is not described here, you might need to add a method to it when implementing a new stream. See <A HREF="streams.htm#I16"></A><B>close</B>,  page 67.
+<A NAME="E78E7"></A>
+<H3><B>0.7.4.1  </B><B>Creating new input or input-output streams</B><A NAME="I89"></A></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>do-get-input-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>do-get-input-buffer </B><I>buffered-stream</I><B> #key </B><I>wait?</I><B> </B><I>bytes</I><B> =&gt; buffer-or-f </B></PRE>
+</CODE>
+<UL>
+<UL>The methods of this generic function implement <B>get-input-buffer</B> for new streams. These methods can assume that the stream is locked, so no other thread can access it. Methods must signal an error if the stream is an output-only stream, or if they cannot return a buffer for any reason. If this function&#146;s methods cannot return a buffer with the specified minimum number of bytes, they signal an <B>&lt;incomplete-read-error&gt;</B>.<A NAME="I90"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>do-release-input-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>do-release-input-buffer </B><I>buffered-stream</I><B> =&gt; () </B></PRE>
+</CODE>
+<UL>
+<UL>The methods of this generic function implement <B>release-input-buffer</B> for new streams. These methods can assume that the stream is locked, so no other thread can access it.<A NAME="I91"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>do-next-input-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>do-next-input-buffer </B><I>buffered-stream</I><B> #key </B><I>wait?</I><B>, </B><I>bytes</I><B> =&gt; </B><I>buffer-or-false</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>The methods of this generic function implement <B>next-input-buffer</B> for new streams. These methods can assume that the stream is locked, so no other thread can access it. Methods must signal an error if the current buffer is not held for input, or they for any reason cannot return a buffer, or a buffer with the minimum number of bytes specified by <I>bytes</I> (an <B>&lt;incomplete-read-error&gt;</B>). <A NAME="I92"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>do-input-available-at-source?</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>do-input-available-at-source? </B><I>buffered-stream</I><B> =&gt; </B><I>available?</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>The methods of this generic function implement <B>input-available-at-</B><B>source?</B> for new streams. These methods can assume that the stream is locked, so no other thread can access it. Methods must signal an error when the current buffer is not held for input.
+<BR>
+</UL></UL>
+<A NAME="E78E8"></A>
+<H3><B>0.7.4.2  </B><B>Creating new output or input-output streams</B><A NAME="I93"></A></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>do-get-output-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>do-get-output-buffer </B><I>buffered-stream</I><B> #key </B><I>bytes</I><B> =&gt; </B><I>buffer</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>The methods of this generic function implement <B>get-output-buffer</B> for new streams. These methods can assume that the stream is locked, so no other thread can access it. Methods must signal an error if the stream is an input only stream, or if they cannot return a buffer for any reason. 
+<BR>
+</UL></UL>
+<UL>
+<UL>The resulting <I>buffer</I> is never completely full of pending output. If this function&#146;s methods cannot return a buffer with the minimum number of bytes specified by <I>bytes</I>, they must signal an error.<A NAME="I94"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>do-release-output-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>do-release-output-buffer </B><I>buffered-stream</I><B> =&gt; ()</B></PRE>
+</CODE>
+<UL>
+<UL>The methods of this generic function implement <B>release-output-buffer</B> for new streams. These methods can assume that the stream is locked, so no other thread can access it.<A NAME="I95"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>do-next-output-buffer</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>do-next-output-buffer </B><I>buffered-stream</I><B> #key </B><I>bytes</I><B> =&gt; </B><I>buffer</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>The methods of this generic function implement <B>next-output-buffer</B> for new streams. These methods must signal an error when they cannot return a buffer for any reason, or the current buffer is not held for output. If this function&#146;s methods cannot return a buffer with the minimum number of bytes specified by <I>bytes</I>, they must signal an error.
+<BR>
+</UL></UL>
+<UL>
+<UL>Methods may force output to <I>buffered-stream</I>&#146;s destination, but they are not required to do so. They might empty the current buffer into secondary buffers or get a new buffer from a queue, while not forcing any output.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E53"></A>
+<H2><B>0.8  </B><B>Conditions</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The class definitions for the error conditions are as follows. There is no recovery protocol defined for any of these errors. Every condition described in this section that takes an init-keyword has a slot accessor for the value supplied, and the name of the accessor function is the name of the condition class (without the angle brackets) to which a hyphen and the name of the init-keyword is appended.<A NAME="I96"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;end-of-stream-error&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Error</I></FONT>
+<UL>
+<UL>Signalled when one of the read functions reaches the end of an input stream. It is a subclass of <B>&lt;error&gt;</B>. It takes one init-keyword, <B>stream:</B>.<A NAME="I97"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;incomplete-read-error&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Error</I></FONT>
+<UL>
+<UL>Signalled when input functions are reading a required number of elements but they read the end of the stream before completing the required read. It is a subclass of <B>&lt;end-of-stream-error&gt;</B>. It takes two additional init-keywords, <B>sequence:</B> and <B>count:</B>. The sequence is whatever input was read before reaching the end of the stream. The count is the number of elements that were requested to be read.<A NAME="I98"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;file-error&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Error</I></FONT>
+<UL>
+<UL>The base class for all errors related to file I/O. It is a subclass of <B>&lt;error&gt;</B>. It takes one init keyword, <B>locator:</B>.<A NAME="I99"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;file-exists-error&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Error</I></FONT>
+<UL>
+<UL>Signalled when an output file stream creation function tries to create a file that already exists. It is a subclass of <B>&lt;file-error&gt;</B>.<A NAME="I100"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;file-does-not-exist-error&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Error</I></FONT>
+<UL>
+<UL>Signalled when an input file stream creation function tries to read a file that does not exist. It is a subclass of <B>&lt;file-error&gt;</B>.<A NAME="I101"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;invalid-file-permissions-error&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Error</I></FONT>
+<UL>
+<UL>Signalled when one of the file stream creation functions tries to access a file in a manner for which the user does not have permission. It is a subclass of <B>&lt;file-error&gt;</B>.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E54"></A>
+<H2><B>0.9  </B><A NAME="I102"></A><B>Wrapper streams</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Sometimes stream data requires conversion before an application can use it: you might have a stream over a file of EBCDIC characters which you would prefer to handle as their ASCII equivalents, or you might need to encrypt or decrypt file data. 
+<P><I>Wrapper</I> streams provide a mechanism for working with streams which require such conversion. Wrapper streams hold on to an underlying stream, delegating to it most of the operations that implement streaming. The wrapper stream carries out appropriate processing in its own implementations of the streaming protocol.
+<P>The Dylan Streams Library includes a base class called <B>&lt;wrapper-stream&gt;</B> upon which other wrapping streams can be implemented.
+<CODE>
+<PRE><B>define class &lt;wrapper-stream&gt; (&lt;stream&gt;)</B>
+<B>   </B><B>slot inner-stream :: &lt;stream&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>required-init-keyword: inner-stream:;</B>
+<B>end class;</B></PRE>
+</CODE>
+<P>A subclass of <B>&lt;wrapper-stream&gt;</B> can &quot;pass on&quot; functions such as <B>read-element</B> and <B>write-element</B> by simply delegating these operations to the inner stream:
+<CODE>
+<PRE><B>define method read-element (ws :: &lt;io-wrapper-stream&gt;);</B>
+<B>   </B><B>read-element(ws.inner-stream)</B>
+<B>end method;</B>
+<B>define method write-element (ws :: &lt;io-wrapper-stream&gt;, element);</B>
+<B>   </B><B>write-element(ws.inner-stream,element)</B>
+<B>end method;</B></PRE>
+</CODE>
+<P>Assuming that <B>&lt;io-wrapper-stream&gt;</B> delegates all other operations to its inner stream, the following would suffice to implement a 16-bit Unicode character stream wrapping an 8-bit character stream.
+<CODE>
+<PRE><B>define class &lt;unicode-stream&gt; (&lt;io-wrapper-stream&gt;) end class;</B>
+<B>define method read-element (s :: &lt;unicode-stream&gt;) </B>
+<B>   </B><B>=&gt; ch :: &lt;unicode-character&gt;;</B>
+<B>   </B><B>with-stream-locked (s)</B>
+<B>   </B><B>   </B><B>let first-char = read-element(s.inner-stream);</B>
+<B>   </B><B>   </B><B>let second-char = read-element(s.inner-stream)</B>
+<B>   </B><B>end;</B>
+<B>   </B><B>convert-byte-pair-to-unicode(first-char, second-char)</B>
+<B>end method;</B>
+<B>define method write-element</B><B>   </B><B>(s :: &lt;unicode-stream&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>c :: &lt;character&gt;);</B>
+<B>   </B><B>let (first-char, second-char) = convert-unicode-to-byte-pair(c);</B>
+<B>   </B><B>with-stream-locked (s)</B>
+<B>   </B><B>   </B><B>write-element(s.inner-stream, first-char);</B>
+<B>   </B><B>   </B><B>write-element(s.inner-stream, second-char)</B>
+<B>   </B><B>end;</B>
+<B>   </B><B>c</B>
+<B>end method;</B>
+<B>define method stream-position (s :: &lt;unicode-stream&gt;) </B>
+<B>   </B><B>=&gt;  p :: &lt;integer&gt;;</B>
+<B>   </B><B>truncate/(stream-position(s.inner-stream), 2)</B>
+<B>end method;</B>
+<B>define method stream-position-setter</B><B>   </B><B>(p :: &lt;integer&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>s :: &lt;unicode-stream&gt;);</B>
+<B>   </B><B>stream-position(s.inner-stream) := p * 2</B>
+<B>end method;</B></PRE>
+</CODE>
+<A NAME="E10E48"></A>
+<H3><B>0.9.1  </B><B>Wrapper streams and delegation</B></H3>
+<P>One problem with wrapper streams is the need for a wrapper stream to intercept methods invoked by its inner stream. For example, consider two hypothetical streams, <B>&lt;interactive-stream&gt;</B> and <B>&lt;dialog-stream&gt;</B>, the latter a subclass of <B>&lt;wrapper-stream&gt;</B>. Both of these classes have a method called <B>prompt</B>. The <B>&lt;interactive-stream&gt;</B> class specializes <B>read</B> thus:
+<CODE>
+<PRE><B>define method read (</B><B>   </B><B>s :: &lt;interactive-stream&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>n :: &lt;integer&gt;,</B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>#key on-end-of-stream);</B>
+<B>   </B><B>prompt(s);</B>
+<B>   </B><B>next-method()</B>
+<B>end method; </B></PRE>
+</CODE>
+<P>If a <B>&lt;dialog-stream&gt;</B> is used to wrap an <B>&lt;interactive-stream&gt;</B> then an invocation of <B>read </B>on the <B>&lt;dialog-stream&gt;</B> will call <B>prompt</B> on the inner 
+<BR><B>&lt;interactive-stream&gt;</B>, not on the <B>&lt;dialog-stream&gt;</B>, as desired. The problem is that the <B>&lt;dialog-stream&gt;</B> wants to delegate some tasks to its inner stream, but handle some other tasks itself.
+<P>Some languages, notably Self, support such delegation in the language. Dylan, in keeping with other generic-function-based languages, does not, but experience with streams packages in a number of other generic-function-based languages has shown that it is <I>very</I> useful to provide delegation for wrapper streams. So we provide an explicit implementation of delegation in the streams system.
+<P>Delegation is implemented by the use of the <B>outer-stream</B> slot, which is defined in the base class <B>&lt;stream&gt;</B>:
+<CODE>
+<PRE><B>define abstract class &lt;stream&gt; (&lt;object&gt;)</B>
+<B>   </B><B>slot outer-stream :: &lt;stream&gt;, init-keyword: outer-stream:;</B>
+<B>end class;</B></PRE>
+</CODE>
+<P><B>outer-stream</B> is used instead of the stream itself whenever a stream invokes one of its other protocol methods. 
+<P><B>Note:</B> A stream must not use <B>inner-stream</B> if performing recursion, since this would cause an infinite regress. 
+<P>A correct implementation of the <B>read</B> method in the example above would be as follows:
+<CODE>
+<PRE><B>define method read (</B><B>   </B><B>stream :: &lt;interactive-stream&gt;, </B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>n :: &lt;integer&gt;</B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>#key on-end-of-stream)</B>
+<B>   </B><B>prompt(s.outer-stream);</B>
+<B>   </B><B>next-method()</B>
+<B>end method;</B></PRE>
+</CODE>
+<P>The <B>initialize</B> method on <B>&lt;stream&gt;</B> is defined to set the <B>outer-stream</B> slot to be the stream itself. The <B>initialize</B> method on <B>&lt;wrapper-stream&gt;</B> is specialized to set the <B>outer-stream</B> slot to be the &quot;parent&quot; stream:
+<CODE>
+<PRE><B>define method initialize (stream :: &lt;wrapper-stream&gt;,</B>
+<B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B>   </B><B> #key on, #rest all-keys);</B>
+<B>   </B><B>an-inner-stream.outer-stream := stream;</B>
+<B>   </B><B>next-method()</B>
+<B>end method;</B></PRE>
+</CODE>
+<P><B>Implementation Note:</B> One disadvantage of this scheme is that it may prevent useful optimizations, such as inlining. If this is an important performance issue in circumstances where wrapper streams are not necessary, then it is relatively simple to provide an implementation of the <B>streams</B> module that omits the delegation mechanism.
+<BR>
+<A NAME="E8E55"></A>
+<H2><B>0.10  </B><A NAME="I103"></A><B>Wrapper stream protocol</B><A NAME="I104"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;wrapper-stream&gt;</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open instantiable class</I></FONT>
+<UL>
+<UL>The class that implements the basic wrapper-stream functionality.
+<BR>
+</UL></UL>
+<UL>
+<UL>It takes a required init-keyword <B>inner-stream:</B>, which is used to specify the wrapped stream.
+<BR>
+</UL></UL>
+<UL>
+<UL>The <B>&lt;wrapper-stream&gt;</B> class implements default methods for all of the stream protocol functions described in this document. Each default method on <B>&lt;wrapper-stream&gt;</B> simply &quot;trampolines&quot; to its inner stream.<A NAME="I105"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>inner-stream</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>inner-stream </B><I>wrapper-stream</I><B> =&gt; </B><I>wrapped-stream</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the stream wrapped by <I>wrapper-stream</I>.<A NAME="I106"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>inner-stream-setter</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>inner-stream-setter </B><I>stream</I><B> </B><I>wrapper-stream</I><B> =&gt; </B><I>stream</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Wraps <I>stream</I> with <I>wrapper-stream</I>. It does so by setting the <B>inner-stream</B> slot of <I>wrapper-stream</I> to <I>stream</I>, and the <B>outer-stream</B> slot of <I>stream</I> to <I>wrapper-stream</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Note:</B> Applications should not set <B>inner-stream</B> and <B>outer-stream</B> slots directly. The <B>inner-stream-setter</B> function is for use only when implementing stream classes.<A NAME="I107"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>outer-stream</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>outer-stream </B><I>stream</I><B> =&gt; </B><I>wrapping-stream</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Returns the stream that is wrapping <I>stream</I>. <A NAME="I108"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>outer-stream-setter</B></FONT>
+<P>
+<FONT SIZE="+1"><I> </I><I>Open generic function</I></FONT>
+<CODE>
+<PRE><B>outer-stream-setter </B><I>wrapper-stream</I><B> </B><I>stream</I><B> =&gt; </B><I>wrapper-stream</I><B> </B></PRE>
+</CODE>
+<UL>
+<UL>Sets the <B>outer-stream</B> slot of <I>stream</I> to <I>wrapper-stream</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL><B>Note:</B> Applications should not set <B>inner-stream</B> and <B>outer-stream</B> slots directly. The <B>inner-stream-setter</B> function is for use only when implementing stream classes.
+<BR>
+</UL></UL>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="EXTENS~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="STANDA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

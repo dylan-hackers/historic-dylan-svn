@@ -1,0 +1,119 @@
+<HTML>
+<HEAD>
+<TITLE>Building Gwydion Dylan on Windows</TITLE>
+</HEAD>
+<BODY>
+
+<H2>Building Gwydion Dylan on Windows/Win32</H2>
+<DL> 
+<DT><H2>Install your distributions</H2>
+
+Install <A HREF="http://www.ActiveWare.com">Perl for Win32</A>
+and <A HREF="http://www.cygnus.com/misc/gnu-win32/">GnuWin32</A>.
+Install the Gwydion Dylan source and binary distributions.  In subsequent
+discussion, it is assumed that both the source and binary distributions are
+installed at the same root (normally <SAMP>c:\dylan</SAMP>, and this root is
+implied when a relative pathname is given.
+
+<DT>
+<H2><A NAME=ENVIRONMENT>Set up your environment variables</A></H2>
+
+You will need to set the following variables:
+<DL>
+<DT>DylanDir<DD> d2c will look for <SAMP>%DylanDir%\etc\platforms.descr</SAMP>.
+<DT>Path<DD> Make sure this includes <SAMP>%DylanDir%\bin</SAMP>.  
+Put it towards the end.
+Also make sure that the Visual C++ <SAMP>cl</SAMP> and <SAMP>nmake</SAMP>
+commands are found on Path (e.g. <SAMP>c:\msdev\bin</SAMP>.)  Perl and the Gnu
+utilities must also be on Path.
+<DT>Include<DD> Add <SAMP>%DylanDir%/include</SAMP> to the include variable.
+Make sure that this variable also has the standard VC++ include directories
+(e.g. <SAMP>c:\msdev\include</SAMP>.)
+<DT>Lib<DD> Add <SAMP>%DylanDir%/lib/dylan</SAMP> to the <SAMP>Lib</SAMP>
+environment variable so that the linker can find the objects corresponding to
+Dylan libraries.  Make sure that Lib also includes the standard VC++ libraries
+(e.g. <SAMP>c:\msdev\lib</SAMP>.)
+</DL>
+
+<P>
+(Note: The variable names are case insensitive)
+<P>
+Before going on, make sure you understand how environment variables work in NT.
+You set environment variables using the System control in the Control Panel.
+NT environment variables don't work quite the way Unix people expect them to.
+There are two panels in that window, "System Variables" and "User Variables",
+with the former being system wide and the latter being on a per-user basis.
+Users can provide their own definitions for system variables, but they don't
+override the system definition so much as they append to it.  For instance, if
+the system variable PATH was set to "<SAMP>.;c:\winnt35\system32</SAMP>", and
+the user variable panel said PATH is "<SAMP>c:\gwydion\bin</SAMP>" , then the
+<EM>real</EM> value of PATH is the sum of those,
+"<SAMP>.;c:\winnt35\system32;c:\gwydion\bin</SAMP>".
+
+<P>
+Finally, make sure you
+save your changes: Nothing's really committed until you press the "Ok" button.
+Also note that control panel environment variable setting only affect command
+prompt windows started after the new setting took effect.
+
+<P>
+<H2>Building Mindy</H2>
+
+On windows, we don't use the Unix Autoconf mechanism for building Mindy.
+Instead, there is a Microsoft Visual C++ project file <SAMP>Mindy.mdp</SAMP> 
+in <A HREF="../../src/mindy/MS-Windows">src/mindy/MS-Windows</A>.
+
+Mindy must be compiled before the rest of the build process is done via
+Makegen/nmake.  To recompile Mindy, follow these steps:
+<UL>
+	<LI>Copy <SAMP>MS-Windows\Mindy.*</SAMP> to <SAMP>src\mindy\</SAMP>
+	<LI>Fire up Visual C++ by double-clicking on Mindy.mak under the
+	  file manager.
+	<LI>Optionally, you can edit interp/mindy.h and change the value
+	  of LIBDIR to indicate where Mindy should look for library
+	  files.  If you edit this, you will not have to set the
+	  DYLANDIR environment variable.  BINDIR does nothing useful
+	  in the Windows version of Mindy, so leave it alone.
+	<LI>Select Batch Build under Project.  Check "Compiler Release"
+	  "Interpretter Release", (<EM>note deliberate misspelling</EM>)
+           and "Shitpile Release".  Select Build.  This will build
+           the executables 
+<SAMP>src\mindy\Interpretter\Release\Interpretter.exe</SAMP>
+	and <SAMP>src\mindy\Compiler\Release\Mindycomp.exe</SAMP>.
+These executables will later be installed in the appropriate places with the
+appropriate names by "<SAMP>nmake install</SAMP>", but for now they will be run
+as is.
+</UL>
+
+<H2>Configuring with Makegen</H2>
+
+<A HREF="tools.html">Makegen</A> generates <SAMP>nmake</SAMP> makefiles which
+do most of the work of building Gwydion Dylan.
+Create a directory to be the root of the build tree, hereafter referred to as
+<SAMP>build\</SAMP>, normally <SAMP>c:\dylan\build</SAMP>.  cd to
+<SAMP>build\</SAMP> and
+<PRE>
+	copy ..\src\Defaults.win32 Defaults
+</PRE>
+Edit the Defaults file as you please to configure the build.  Note in
+particular the setting of <CODE>$prefix</CODE> to <SAMP>c:\dylan</SAMP>.
+
+
+Now, if you have the binary distribution installed and
+have set PATH correctly, then you should be able to say:
+<PRE>
+	mk-build-tree
+	nmake
+	nmake install
+</PRE>
+And the build and install will complete automagically. 
+
+</DL>
+
+<P ALIGN=CENTER><HR>[ <A
+HREF="http://legend.gwydion.cs.cmu.edu/gwydion">Gwydion home page</A> |
+<A HREF="mailto:gwydion-group@cs.cmu.edu">mail to gwydion-group</A>
+]</P>
+
+</BODY>
+</HTML>

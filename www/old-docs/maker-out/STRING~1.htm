@@ -1,0 +1,410 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan String Extensions  The String extensions Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="REGULA~1.htm">
+<LINK REL="Previous" HREF="TABLE-~1.htm"></HEAD>
+<BODY>
+
+<H2>String Extensions</H2>
+<P ALIGN=CENTER>
+<A HREF="TABLE-~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="REGULA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E84" >1. Introduction</A>
+<LI>
+<A HREF="#E8E85" >2. The String-Conversions Module</A>
+<LI>
+<A HREF="#E8E86" >3. The Character-type Module</A>
+<LI>
+<A HREF="#E8E87" >4. The String-hacking Module</A>
+<LI>
+<A HREF="#E8E88" >5. The Substring-search Module</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E13"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The </B><A NAME="I2"></A><B>String extensions Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=CENTER>
+<CENTER><B>Designed by the Gwydion Project</B></CENTER>
+<BR>
+<A NAME="E8E84"></A>
+<H2><B>1. </B><B>Introduction</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>String-extensions is a library of routines for working with characters and strings.  String-extensions exports these modules:
+<DL>
+<DT><B>String-Conversions</B></DT>
+<UL>
+<UL>
+<DT>This module consists of various useful conversions involving strings.</DT>
+</UL></UL>
+<DT><B>Character-type</B></DT>
+<UL>
+<UL>
+<DT>This module is a Dylanized version of the C library ctype.h</DT>
+</UL></UL>
+<DT><B>String-hacking</B></DT>
+<UL>
+<UL>
+<DT>This module exports miscellanous functions and data structures that are useful when working with strings and characters.</DT>
+</UL></UL>
+<DT><B>Substring-search</B></DT>
+<UL>
+<UL>
+<DT>This module contains methods for searching for fixed substrings rather than general regular expressions.</DT>
+</UL></UL></DL>
+<BR>
+<A NAME="E8E85"></A>
+<H2><B>2. </B><B>The </B><A NAME="I3"></A><B>String-Conversions Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The String-Conversions module consists of various useful conversions involving strings.  They are:<A NAME="I4"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>string-to-integer</B>(<I>string</I>, #key <I>base</I>)<I> =&gt; integer</I>  [Function]
+<BR><A NAME="I5"></A><B>integer-to-string</B>(<I>integer</I>, #key <I>base</I>) =&gt; <I>string </I> [Function]
+<BR><A NAME="I6"></A><B>digit-to-integer</B>(<I>character</I>) =&gt; <I>integer</I> [Function]
+<BR><A NAME="I7"></A><B>integer-to-digit</B>(<I>integer</I>) =&gt; <I>character</I> [Function]</FONT>
+<UL>
+<UL><I>Base</I> defaults to 10, and is the radix for the number system to convert from/to.  Bases below 2 are errors, as are bases above 36.  When converting from a string, the string must exactly describe a number, with no excess characters.  <B>Digit-to-integer</B> will signal an error if the digit is non-alphanumeric.  Errors will be signalled for all invalid input.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>as</B>(&lt;string&gt;, <I>character</I>) [G.F. Method]</FONT>
+<UL>
+<UL>Turns a character into the appropriate string of length one.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E86"></A>
+<H2><B>3. </B><B>The </B><A NAME="I8"></A><B>Character-type Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Character-type is a Dylanized version of the C library <A NAME="I9"></A>ctype.h  It contains the following functions:
+
+<CENTER><TABLE BORDER=1 CELLSPACING=1 >
+<TR>
+<TD WIDTH=194 VALIGN=middle >
+<P>Function and Argument Type
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>Returns #t for these characters</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I10"></A>
+<DL>
+<UL>
+<A NAME="E7E337"></A>
+<DD><B>alpha?</B>(<I>character</I>)</DD>
+</UL></TD>
+<TD WIDTH=323 VALIGN=middle ></DL>
+<P>a-zA-Z</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I11"></A>
+<P><B>alphabetic?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>a-zA-Z <I>(same as </I><B>alpha?</B><I>)</I></TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I12"></A>
+<P><B>digit?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>0-9</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I13"></A>
+<P><B>alphanumeric?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>a-zA-Z0-9</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I14"></A>
+<P><B>whitespace?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P><I>Space, tab, newline, formfeed, carriage return</I></TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I15"></A>
+<P><B>uppercase?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>A-Z</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I16"></A>
+<P><B>lowercase?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>a-z</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I17"></A>
+<P><B>hex-digit?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>0-9a-f</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I18"></A>
+<P><B>punctuation?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P>,./&lt;&gt;?;\:&quot;|&#146;[]{}!@#$%^&amp;*()-=_+`~</TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I19"></A>
+<P><B>graphic?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P><I>alphanumeric or punctuation</I></TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I20"></A>
+<P><B>printable?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P><I>graphic or whitespace</I></TD>
+</TR>
+<TR>
+<TD WIDTH=194 VALIGN=middle ><A NAME="I21"></A>
+<P><B>control?</B>(<I>character</I>)
+</TD><TD WIDTH=323 VALIGN=middle >
+<P><I>not printable</I></TD></TR></TABLE></CENTER><BR>
+<A NAME="E8E87"></A>
+<H2><B>4. </B><B>The </B><A NAME="I22"></A><B>String-hacking Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The String-hacking module exports miscellanous functions and data structures that are useful when working with strings and characters.<A NAME="I23"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>add-last</B>(<I>stretchy-sequence</I>, <I>object</I>) =&gt; <I>stretchy-sequence</I> [Generic Function]
+<BR><B>add-last</B>(<I>string</I>, <I>character</I>) =&gt; <I>string</I> [G.F. Method]</FONT>
+<UL>
+<UL>Like <B>add</B> except it&#146;s guarenteed to add the character to the end of the string.<A NAME="I24"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>predecessor</B>(<I>character</I>) =&gt; <I>character</I> [Function]</FONT>
+<UL>
+<UL>Get the character before this character.  Equivalent to
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            as(&lt;character&gt;, -1 + as(&lt;integer&gt;, character))<A NAME="I25"></A></PRE>
+</CODE>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>successor</B>(<I>character</I>) =&gt; <I>character</I> [Function]</FONT>
+<UL>
+<UL>Get the character after this character.  Equivalent to
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            as(&lt;character&gt;, 1 + as(&lt;integer&gt;, character))<A NAME="I26"></A></PRE>
+</CODE>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>case-insensitive-equal</B>(<I>object1</I>, <I>object2</I>) [Generic Function]
+<BR><B>case-insensitive-equal</B>(<I>string1</I>, <I>string2</I>) [G.F. Method]
+<BR><B>case-insensitive-equal</B>(<I>character1</I>, <I>character2</I>) [G.F. Method]</FONT>
+<UL>
+<UL>Does a case insensitive equality test.  Methods are provided only for strings and characters, not general collections.<A NAME="I27"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;character-set&gt;</B> [Sealed Abstract Class]
+<BR><A NAME="I28"></A><B>&lt;case-sensitive-character-set&gt;</B> [Class]
+<BR><A NAME="I29"></A><B>&lt;case-insensitive-character-set&gt;</B> [Class]</FONT>
+<UL>
+<UL>A <B>&lt;character-set&gt;</B> is a non-mutable subclass of <B>&lt;collection&gt;</B>, and is conceptually an unordered set of characters.  Dylan collection elements always have keys, so to fit sets into Dylan, the key of an element of a character set is the element itself.  There are two instantiable subclasses of <B>&lt;character-set&gt;</B>, <B>&lt;case-sensitive-character-set&gt;</B> and <B>&lt;case-insensitive-character-set&gt;</B>.  <B>&lt;character-set&gt;</B> is not instantiable; one must always specify one of the instantiable subclasses when creating a character set.
+<BR>
+</UL></UL>
+<UL>
+<UL>There are two ways of making a character set.  The first is a method for make using the <I>description:</I> keyword.  The value that follows the <I>description:</I> keyword is a string that describes the set using a notation like a regular expression character set, except without the &#145;[&#145; and &#145;]&#146; delimiters.  For example,
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            make(&lt;case-sensitive-character-set&gt;, description: &quot;a-z&quot;)</PRE>
+</CODE>
+<UL>
+<UL>would be the set of all lowercase alphabetic characters.
+<BR>
+</UL></UL>
+<UL>
+<UL>A second way to create character sets is to use an <B>as</B> method. The <B>as</B> method basically takes a collection of characters and discards the keys of these characters.  Example:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            as(&lt;case-insensitive-character-set&gt;,
+<BR>               &quot;abcdefghijklmnopqrstuvwxyz&quot;)</PRE>
+</CODE>
+<UL>
+<UL>is again the set of all lowercase alphabetic characters.  It is important to realize that the <B>as</B> method does <I>not</I> take a description:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            as(&lt;case-sensitive-character-set&gt;, &quot;a-z&quot;)</PRE>
+</CODE>
+<UL>
+<UL>returns the set of &#145;a&#146;, &#145;-&#146;, and &#145;z&#146;, not the set of all lowercase alphabetic characters.
+<BR>
+</UL></UL>
+<UL>
+<UL>The most useful operation on character sets is <B>member?</B>, which does what one would expect.  Another useful operation is the <B>forward-iteration-protocol</B>.  This basically calls <B>member?</B> on every possible character until it finds a character that is a member of the set.  This means that in a <B>&lt;case-insensitive-character-set&gt;</B>, both &#145;a&#146; and &#145;A&#146; will come up.<A NAME="I30"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;byte-character-table&gt;</B>  [Class]</FONT>
+<UL>
+<UL>A byte-character-table is a vector that uses byte characters as indices instead of integers.  The following are equivalent:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            regular-vector[as(&lt;integer&gt;, character)]
+            byte-character-table[character]</PRE>
+</CODE>
+<UL>
+<UL><B>&lt;byte-character-table&gt;</B> has absolutely no relation to <B>&lt;table&gt;</B>.  It is simply a <B>&lt;mutable-explicit-key-collection&gt;</B>.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E88"></A>
+<H2><B>5. </B><B>The </B><A NAME="I31"></A><B>Substring-search Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Substring-search contains methods for searching for fixed substrings.  It is as similar to the regular-expression module as we could make it. (See <A HREF="#">the document </A><I>The Regular Expressions Library</I> for details about regular expressions, and about the &quot;<A NAME="I32"></A>make-fooer&quot; convention. However, note that while the &quot;make-fooer&quot; convention is obsolete for regular expression functions, it is not obsolete for substring searching.) Substring functions work only on byte strings, and are always case sensitive.<A NAME="I33"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>substring-position</B> [Generic Function]</FONT>
+<P><I>(big-string, search-for-string, #key start, end) </I>
+<BR><I>=&gt; position-or-false;</I>
+<UL>
+<UL>Returns the position of the <I>search-for-string</I> in the <I>big-string</I> (or that portion of the <I>big-string</I> specified by <I>start:</I> and <I>end:</I>).  This search is always case sensitive.
+<BR>
+</UL></UL>
+<UL>
+<UL>This function uses the <A NAME="I34"></A>Boyer-Moore algorithm for long strings, and a simple dumb search for short strings.  It should yield good performance under all circumstances.<A NAME="I35"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-substring-positioner</B> [Generic Function]</FONT>
+<P><I>(search-for-string) =&gt; an anonymous positioner </I>
+<BR><I> </I><I>method (big-string, #key start, end) =&gt; position-or-false</I>
+<UL>
+<UL>Does the obvious.<A NAME="I36"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>substring-replace</B> [Generic Function]</FONT>
+<P><I>(big-string, search-for-string, replace-with-string, #key count, start, end)</I>
+<BR><I>=&gt; replaced-string</I>
+<UL>
+<UL>Replaces the substring, or the first <I>count</I> instances of it if <I>count:</I> is specified.  Note this function does not support <I>start:</I> or <I>end:</I>.<A NAME="I37"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>make-substring-replacer</B>  [Generic Function]</FONT>
+<P><I>(search-for :: &lt;byte-string&gt;, #key replace-with)</I>
+<BR><I>=&gt; an anonymous function replacer that is either</I>
+<BR><I> </I><I>method (big-string, #key count, start, end) =&gt; new-string</I>
+<BR><I>or</I>
+<BR><I> </I><I>method (big-string, replace-with-string, #key count, start, end)</I>
+<UL>
+<UL>Does the obvious.
+<BR>
+</UL></UL>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="TABLE-~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="REGULA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

@@ -1,0 +1,53 @@
+Announcing Gwydion Dylan 2.0
+
+     Gwydion Dylan is freely available implementation of a dynamic language
+     resembling the language defined in the Dylan Reference Manual. Gwydion
+     Dylan differs in a number of ways from the official Dylan language
+     definition.  See our documentation for details.  See the copyright
+     notice for the conditions under which Gwydion Dylan is made available.
+
+     Dylan(TM) is a trademark of Apple Computer Corp.
+
+     Gwydion Dylan provides two different execution engines:
+     d2c
+          (new in version 2.0)
+          An optimizing Dylan to C compiler which offers reasonably good
+          runtime speed.  Compilations are relatively slow and debugging
+          facilities are less convenient that in Mindy.
+     Mindy
+          A byte-code compiler which offers extremely fast compilation,
+          reasonably good debuggability, and slow runtime speed. Mindy is
+          also somewhat more portable than d2c, and is available on more
+          platforms.  This is an update of our earlier Mindy releases.
+
+Release URL:
+     All source and binary distributions and the documentation are available
+     at: 
+        http://legend.gwydion.cs.cmu.edu/gwydion/dylan
+
+     Currently Gwydion Dylan is believed to work on these platforms [actual
+     build platform in brackets]:
+        HPPA HP/Ux [9.03], x86 Microsoft Windows 32 [NT 4.0], 
+	x86 Linux [Red Hat 4.0/2.0.18], Sparc Solaris [Sparc 4 Sunos 5.5]
+	
+     Yes, it does seem to run on Windows 95, but has not been extensively used
+     there. 
+
+     Note that Mindy can be built from sources on many other Unix platforms,
+     notably AIX and Irix.  Past versions of Mindy have also been built on Mac.
+
+Support and Disclaimer
+     This software is made available "as is". Neither the authors nor
+     Carnegie Mellon University make any warranty whatsoever concerning the
+     software, its performance, or its conformity to any specification.
+
+     Gwydion is a small research project, and most of our effort in the
+     near future will be devoted to developing a "hypercode" programming
+     environment.  The amount of time and effort we can put into supporting
+     this release is extremely limited.  We will try to answer mail to
+     "gwydion-bugs@cs.cmu.edu", but we can't guarantee that our replies
+     will be timely or that we will fix every bug reported.  We are
+     releasing the Gwydion Dylan source so that users can fix things for
+     themselves if they choose to do so.  We encourage users to send
+     improvements and bug-fixes to us so that we can add them to future
+     releases.

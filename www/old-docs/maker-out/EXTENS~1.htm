@@ -1,0 +1,1099 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Gwydion Extensions to Dylan  Gwydion Extensions</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="streams.htm">
+<LINK REL="Previous" HREF="inspect.htm"></HEAD>
+<BODY>
+
+<H2>Gwydion Extensions to Dylan</H2>
+<P ALIGN=CENTER>
+<A HREF="inspect.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="streams.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E36" >1. Introduction</A>
+<LI>
+<A HREF="#E8E37" >2. Dylan Language Issues</A>
+<LI>
+<A HREF="#E8E38" >3. Conditional Compilation</A>
+<LI>
+<A HREF="#E8E39" >4. Modules of the Dylan Library</A>
+<LI>
+<A HREF="#E8E40" >5. The Extensions Module</A>
+<UL>
+<LI>
+<A HREF="#E10E22" >5.1. Generally Useful Definitions</A>
+<LI>
+<A HREF="#E10E23" >5.2. Debugger Customizations</A>
+<LI>
+<A HREF="#E10E24" >5.3. Exiting Applications</A>
+<LI>
+<A HREF="#E10E25" >5.4. Collections</A>
+<LI>
+<A HREF="#E10E26" >5.5. Integers</A>
+<LI>
+<A HREF="#E10E27" >5.6. Ratios</A></UL>
+<LI>
+<A HREF="#E8E41" >6. The System Module</A>
+<LI>
+<A HREF="#E8E42" >7. The Introspection Module</A>
+<UL>
+<LI>
+<A HREF="#E10E28" >7.1. Functions</A>
+<LI>
+<A HREF="#E10E29" >7.2. Classes</A>
+<LI>
+<A HREF="#E10E30" >7.3. Types</A>
+<LI>
+<A HREF="#E10E31" >7.4. Miscellaneous</A></UL>
+<LI>
+<A HREF="#E8E43" >8. The Cheap-io Module</A>
+<LI>
+<A HREF="#E8E44" >9. Extensions to the Streams Library</A>
+<LI>
+<A HREF="#E8E45" >10. Copyright and Terms of Use</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E4"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>Gwydion Extensions</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P><I>Copyright (c) 1994, 1995, 1996, 1997 Carnegie Mellon University All rights reserved.</I>
+<BR>
+<A NAME="E8E36"></A>
+<H2><B>1. </B><B>Introduction</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>In the process of working with Dylan, the Gwydion Project has come up with numerous extensions to the Dylan language. Some of them form entire libraries, like the Collection-Extensions and String-Extensions libraries. Others have been added to the Dylan library, in such modules as Extensions and System.
+<P>We continue to make no claims about future support for our extensions. However, some extensions are more likely than others to make it into our future compilers. This file documents those extensions which we think will be included in our compiler&#146;s Dylan library. Extensions which go in separate libraries are documented in their own files; extensions which are part of the Mindy Dylan library but which have a less certain future are documented in the Mindy documentation.
+<P>For the remainder of this document, we shall refer to &quot;<A NAME="I2"></A>Gwydion <A NAME="I3"></A>compilers&quot; as a shorthand for &quot;Mindy and other Dylan compilers that the Gwydion Project may write.&quot; It is not meant as a guarentee that all <A NAME="I4"></A>future Gwydion releases will support these extensions.
+<P>Specific Gwydion compilers may support extensions not listed here; see their documentation for details.
+<BR>
+<A NAME="E8E37"></A>
+<H2><B>2. </B><A NAME="I5"></A><A NAME="I6"></A><A NAME="I7"></A><B>Dylan Language Issues</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Whenever possible, we have tried to keep the Dylan module pristine and unextended, prefering to add our extensions to separate modules or libraries. However, this is not always possible, particularly when it involves extending the behavior of a function or macro that is exported from the Dylan module. Currently, Gwydion compilers support these extensions to the Dylan module as described below:
+<UL>
+<LI><A NAME="I8"></A>Gwydion compilers support <I>keyed-by</I> clauses in for statements.  The format of such a clause is
+</UL>
+<CODE>
+<PRE>          <I>var</I> KEYED-BY <I>key</I> IN <I>collection</I></PRE>
+</CODE>
+<P><I>Var</I> is bound to each element in <I>collection</I>, and <I>key</I> is bound to the element's key value.
+<UL>
+<LI><A NAME="I9"></A>Gwydion compilers supports <I>using</I> clauses in for statements.  The format of such a clause is
+</UL>
+<CODE>
+<PRE>          <I>var</I> IN <I>collection</I> USING <I>protocol</I></PRE>
+</CODE>
+<P><I>protocol</I> will be used instead of forward-iteration-protocol. <I>protocol</I> must be a variable name, not an expression. Using clauses may be used together with keyed-by:
+<CODE>
+<PRE>          <I>var</I> KEYED-BY <I>key</I> IN <I>collection</I> USING <I>protocol</I></PRE>
+</CODE>
+<UL>
+<LI><A NAME="I10"></A><A NAME="I11"></A>Gwydion compilers have an additional type of top level definition, define function, which creates a constant binding in the current module and initializes it to a new function. Define function&#146;s usage is similar to define method. The following is an example:
+</UL>
+<CODE>
+<PRE>          define function cube (x)
+<BR>            x * x * x;
+<BR>          end function cube;</PRE>
+</CODE>
+<P>A similar result might be had by writing
+<CODE>
+<PRE>          define constant cube = method (x)
+<BR>                                  x * x * x;
+<BR>                                end method;</PRE>
+</CODE>
+<P>or
+<CODE>
+<PRE>          define method cube (x)
+<BR>            x * x * x;
+<BR>          end method cube;</PRE>
+</CODE>
+<UL>
+<LI><A NAME="I12"></A>Gwydion compilers supports subclass specializers via the <B>limited</B> function.  A subclass specializer causes a method to be invoked whenever the generic function was called on a value that is the specified class or any subclass of the specified class.  The method is never invoked on a value that is an instance (direct or indirect) of the specified class, only when the value is a subclass of the specified class.  The following is an example:
+</UL>
+<CODE>
+<PRE>          define method make
+<BR>              (result-class :: limited(&lt;class&gt;, subclass-of: &lt;my-class&gt;));
+<BR>            let x = next-method();
+<BR>            do-special-logging-or-something(x);
+<BR>            x;
+<BR>          end method;</PRE>
+</CODE>
+<BR>
+<A NAME="E8E38"></A>
+<H2><B>3. </B><A NAME="I13"></A><A NAME="I14"></A><B>Conditional Compilation</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Gwydion compilers supports conditional compilation. The syntax is
+<CODE>
+<PRE>          #if (<I>feature-expression</I>)
+<BR>            <I>dylan-code</I>
+<BR>          #elseif (<I>feature-expression</I>)
+<BR>            <I>dylan-code</I>
+<BR>          #else
+<BR>            <I>dylan-code</I>
+<BR>           #endif</PRE>
+</CODE>
+<P>(The #elseif and #else clauses are optional) A <I>feature-expression</I> is composed of features and the ~, &amp;, and | operators, and may be parenthesiszed as usual. Features are not case sensitive. Mindy and d2c use the -D and -U command line switches to define new features. Some features currently supported include:<A NAME="I15"></A>
+<DL>
+<DT><B>mindy</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling with mindycomp.<A NAME="I16"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-hppa</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for the HP PA-RISC architecture.<A NAME="I17"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-x86</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for the Intel 80x86 architecture.<A NAME="I18"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-sparc</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for the SPARC architecture.<A NAME="I19"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-hpux</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for an HP/UX system.<A NAME="I20"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-win32</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for a Microsoft Win32 operating system (ie, Windows '95 or Windows/NT).<A NAME="I21"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-linux</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for the Linux operating system.<A NAME="I22"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-solaris</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for the Solaris operating system.<A NAME="I23"></A>
+</UL></UL>
+<DL>
+<DT><B>compiled-for-unix</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for a Unix-based OS.<A NAME="I24"></A>
+</UL></UL>
+<DL>
+<DT><B>newlines-are-CRLF</B></DT>
+</DL>
+<UL>
+<UL>
+<P>Defined when compiling for a system whose newline representation is two bytes, a carriage return ('\r') followed by a linefeed ('\f').  Examples of such systems include MS-DOS, Windows '95, Windows/NT, and OS/2.  It should be kept in mind that not every file on a newlines-are-CRLF system will adhere to this convention; some will adhere to the Unix convention of using a single linefeed as the newline character.  For this reason, programs should consider the carriage return an optional part of the newline sequence.
+</UL></UL>
+<BR>
+<A NAME="E8E39"></A>
+<H2><B>4. </B><B>Modules of the Dylan Library</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>In addition to containing the Dylan module, the Dylan library contains a variety of modules which provide extensions. Gwydion compilers export the following modules from the Dylan library:
+<DL>
+<DT><B>Extensions</B></DT>
+</DL>
+<UL>
+<UL>
+<P>This module exports useful extensions to the Dylan language (see <A HREF="EXTENS~1.htm#I25">section </A><I>The Extensions Module</I>).  
+<BR>Ultimately, there will be several, more logically separate libraries that extend Dylan or provide an 
+<BR>application framework for users.  For now, we put any commonly used utilities in the Extensions 
+<BR>module.
+</UL></UL>
+<DL>
+<DT><B>System</B></DT>
+</DL>
+<UL>
+<UL>
+<P>This module exports an interface to operating system calls and special, low-level functionality (see <A HREF="EXTENS~1.htm#I54">section </A><I>The System Module</I>).
+</UL></UL>
+<DL>
+<DT><B>Introspection</B></DT>
+</DL>
+<UL>
+<UL>
+<P>This module exports reflective operations for examining classes, functions, and so on.
+</UL></UL>
+<DL>
+<DT><B>Cheap-io</B></DT>
+</DL>
+<UL>
+<UL>
+<P>This module exports some basic, unextendable input and output functionality.
+</UL></UL>
+<BR>
+<A NAME="E8E40"></A>
+<H2><B>5. </B><A NAME="I25"></A><B>The </B><A NAME="I26"></A><B>Extensions Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Ultimately, there will be several, more logically separate libraries that extend Dylan or provide an application framework for users.  For now, we put any commonly used utilities in the Extensions module.
+<A NAME="E10E22"></A>
+<H3><B>5.1. </B><B>Generally Useful Definitions</B></H3>
+<P>The Extensions module exports the following generally useful functionality:<A NAME="I27"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;byte-vector&gt;</B> [Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;vector&gt;</B> that can only hold integers between 0 and 255 inclusively.<A NAME="I28"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;byte-character&gt;</B> [Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;character&gt;</B>. Characters of this type represent the ASCII character set (or extensions to ASCII). Note, in Gwydion compilers the <B>&lt;character&gt;</B> class is equivalent to Unicode characters.<A NAME="I29"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>assert</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E99"></A>
+<DD>value :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E100"></A>
+<DD>none</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function signals an error if <I>value</I> is #f. Otherwise, it does nothing. In future Gwydion compilers, <B>assert</B> may be changed to a macro, which may or may not evaluate its argument exactly once.<A NAME="I30"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>one-of</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E101"></A>
+<DD>#rest objects :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E102"></A>
+<DD>type :: &lt;type&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function takes any number of objects, and returns the type that is the type-union of the singletons of those objects. For example, the expression
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            one-of(#&quot;foo&quot;, #&quot;bar&quot;, #&quot;baz&quot;)</PRE>
+</CODE>
+<UL>
+<UL>is equivalent to
+<BR>
+</UL></UL>
+<CODE>
+<PRE>             type-union(singleton(#&quot;foo&quot;), singleton(#&quot;bar&quot;), singleton(#&quot;baz&quot;))<A NAME="I31"></A></PRE>
+</CODE>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>false-or</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E103"></A>
+<DD>type:: &lt;type&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E104"></A>
+<DD>bigger-type :: &lt;type&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function is useful in type expressions. It captures the common idiom of returning an instance of a particular type or the value #f. The expression
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            false-or(&lt;integer&gt;)</PRE>
+</CODE>
+<UL>
+<UL>is equivalent to the expression
+<BR>
+</UL></UL>
+<CODE>
+<PRE>            type-union(&lt;integer&gt;, singleton(#f))</PRE>
+</CODE>
+<A NAME="E10E23"></A>
+<H3><B>5.2. </B><A NAME="I32"></A><A NAME="I33"></A><A NAME="I34"></A><B>Debugger Customizations</B></H3>
+<P>(A note on terminology: We use the term &quot;debugger&quot; here in the loose, Dylan sense of anything that handles an uncaught error. In Mindy, this debugger is indeed a full fledged debugger, but in other Gwydion compilers it may not be)
+<P>The debugger uses the function <B>report-condition</B> to print conditions as error messages to users; for example, this is the function that implements the %S format-string directive for conditions. The debugger also uses the <B>format</B> function exported from the Cheap-io module to process format strings, and it prints directly to the Unix stdout. If any library that is used itself uses the <A NAME="I35"></A>Debugger-format library, then the debugger uses <B>format</B> from the Format library, which is shipped with Gwydion compilers. You can extend how the debugger prints conditions, change what formatting function it uses, and direct where debugger output goes with the following:<A NAME="I36"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>report-condition</B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E105"></A>
+<DD>condition :: &lt;condition&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E105"></A>
+<DD>stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E106"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This is the function that is used to print condition variables as error messages to users. The internal <B>format</B> function used by Mindy uses <B>report-condition</B> for condition arguments to the %S format directive. The Format library&#146;s <B>print-message</B> method for conditions calls <B>report-condition</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL>If you are writing a module that does no output but still provides <B>report-condition</B> methods, you should use <B>condition-format</B> to format output. Using <B>condition-format </B>makes your module more flexible for users of your module. If you call Cheap-IO&#146;s <B>format</B>, you&#146;ll be forced to write to only one destination, stdout, ignoring the <I>stream</I> argument. If you call the Format library&#146;s <B>format</B> function, then your module will require the Format, Print, and Streams libraries; therefore, users of your module may ultimately load these other libraries needlessly. Of course, if you want to make use of the extended functionality of the Format library&#146;s format control strings, then you only have one choice anyway, and there&#146;s no reason to use <B>condition-format</B>.<A NAME="I37"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>condition-format</B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E107"></A>
+<DD>stream :: &lt;object&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E107"></A>
+<DD>control-string :: &lt;string&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E107"></A>
+<DD>#rest arguments</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E108"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function serves as a firewall between the condition system and the Streams and Format libraries. Methods on <B>report-condition</B> should use <B>condition-format</B> to do their formatting. Users will generally use <B>*debug-output*</B> or <B>*warning-output*</B> for the <I>stream</I> argument, but this is not required.
+<BR>
+</UL></UL>
+<UL>
+<UL>Mindy supplies a method for when <I>stream</I> is #&quot;Cheap-IO&quot;. The Gwydion Format library supplies a method for when <I>stream</I> is a subclass of <B>&lt;stream&gt;</B>. If you are implementing your own streams or format libraries, you will need to define a method on <B>condition-format</B> for your type of stream.<A NAME="I38"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>condition-force-output</B><B> </B>[Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E109"></A>
+<DD>stream :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E110"></A>
+<DD><I>none</I></DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL><B>Condition-force-output</B> forces any pending output from <I>stream</I>&#146;s buffer to <I>stream</I>&#146;s destination. This function is invoked by the debugger after a condition has been reported and before it pauses for user input. Unless you are writing a debugger, you do not need to call <B>condition-force-output</B> yourself.
+<BR>
+</UL></UL>
+<UL>
+<UL>Mindy supplies a method for when <I>stream</I> is #&quot;Cheap-IO&quot;. The Gwydion Format library supplies a method for when <I>stream</I> is a subclass of <B>&lt;stream&gt;</B>. If you are implementing your own streams or format libraries, you will need to define a method on <B>condition-force-output</B> for your type of stream.<A NAME="I39"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I40"></A><B>*warning-output*</B> [Variable]</FONT>
+<UL>
+<UL><B>Default-handler</B> for <B>&lt;warning&gt;</B> uses <B>*warning-output*</B> to print warning messages. This variable must be either a <B>&lt;stream&gt;</B> from the Streams library, or #&quot;Cheap-IO&quot; (the default). When this variable is#&quot;Cheap-IO&quot;, the output goes to stderr.
+<BR>
+</UL></UL>
+<A NAME="E10E24"></A>
+<H3><B>5.3. </B><A NAME="I41"></A><A NAME="I42"></A><B>Exiting Applications</B></H3>
+<P> The Extensions module exports the following functionality for controlling the exiting of applications:<A NAME="I43"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>exit</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E111"></A>
+<DD>#key exit-code :: &lt;integer&gt; = 0</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Causes the process to exit with return code <I>exit-code</I>.
+<BR>
+</UL></UL>
+<A NAME="E10E25"></A>
+<H3><B>5.4. </B><B>Collections</B></H3>
+<P> The Extensions module exports the following <B>&lt;collection&gt;</B> functionality:<A NAME="I44"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>key-exists?</B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E112"></A>
+<DD>collection :: &lt;collection&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E112"></A>
+<DD>key :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E113"></A>
+<DD>win? :: &lt;boolean&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E113"></A>
+<DD>elt :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Return whether <I>key</I> is in <I>collection</I>. If the key is in the collection, then the second value is the element associated with <I>key</I>; otherwise, the second return value is #f.
+<BR>
+</UL></UL>
+<A NAME="E10E26"></A>
+<H3><B>5.5. </B><A NAME="I45"></A><B>Integers</B></H3>
+<P>Gwydion compilers have an abstract class <B>&lt;general-integer&gt;</B> which has two concrete subclasses, <B>&lt;integer&gt;</B> and <B>&lt;extended-</B><B>integer&gt;</B>. <B>&lt;integer&gt;</B>s have a limited range of values, and <B>&lt;integer&gt;</B> arithmetic uses the computer&#146;s underlying integer facilities. <B>&lt;extended-integer&gt;</B>s can take on any value, and are similar to Common Lisp &quot;big-nums.&quot; Expressions involving <B>&lt;extended-integer&gt;</B>s produce <B>&lt;extended</B><B>-</B><B>integer&gt;</B> results because <B>&lt;extended-integer&gt;</B>s are contagious. If an expression involving only <B>&lt;integer&gt;</B> values would produce a result that does not fit in an <B>&lt;integer&gt;</B>, then the Gwydion compiler will signal an overflow error. You can use the <B>as</B> function to convert back and forth between <B>&lt;integer&gt;</B>s and <B>&lt;extended-</B><B>integer&gt;</B>s. <B>As</B> signals an error when converting an <B>&lt;extended-integer&gt;</B> to a <B>&lt;integer&gt;</B>, and the value does not fit in a <B>&lt;integer&gt;</B>.
+<P>The Extension module exports the following integer functionality:<A NAME="I46"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;general-integer&gt;</B> [Abstract Class]
+<BR><A NAME="I47"></A><B>&lt;extended-integer&gt;</B> [Class]</FONT>
+<UL>
+<UL><B>&lt;general-integer&gt;</B> is a subclass of <B>&lt;rational&gt;</B>, and is the superclass of <B>&lt;integer&gt;</B> and <B>&lt;extended-integer&gt;</B>.<A NAME="I48"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$maximum-integer</B> [Constant]<A NAME="I49"></A></FONT>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$minimum-integer</B> [Constant]</FONT>
+<UL>
+<UL>These constants hold the largest positive <B>&lt;integer&gt;</B> and the largest negative <B>&lt;integer&gt;</B>.
+<BR>
+</UL></UL>
+<A NAME="E10E27"></A>
+<H3><B>5.6. </B><B>Ratios</B></H3>
+<P>The  Extensions module exports the following:<A NAME="I50"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;ratio&gt;</B><B> </B>[Class]</FONT>
+<UL>
+<UL>This class is a subclass of &lt;rational&gt;. The ratio is normalized so that it has a positive denominator, and the greatest common divisor of the numerator and the denominator is one. Ratios are never automatically converted to integers. For example, ratio(4,2) would return 2/1.
+<BR>
+</UL></UL>
+<UL>
+<UL>A numeric operation involving two ratios produces a normalized ratio result. A numeric operation involving a ratio and an integer produced a normalized ratio result. A numeric operation involving a ratio and a float produces a float result.<A NAME="I51"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>ratio</B><B> </B>[Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E114"></A>
+<DD>numerator :: &lt;general-integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E114"></A>
+<DD>denominator :: &lt;general-integer&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E115"></A>
+<DD>ratio :: &lt;ratio&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function makes a ratio from the two integers.<A NAME="I52"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>numerator</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E116"></A>
+<DD>ratio :: &lt;ratio&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E117"></A>
+<DD>the-numerator :: &lt;general-integer&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function returns the numerator part of <I>ratio</I>.<A NAME="I53"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>denominator</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E118"></A>
+<DD>ratio :: &lt;ratio&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E119"></A>
+<DD>the-numerator :: &lt;general-integer&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function returns the denominator part of <I>ratio</I>.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E41"></A>
+<H2><B>6. </B><A NAME="I54"></A><B>The </B><A NAME="I55"></A><B>System Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The System module exports the following:<A NAME="I56"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;buffer&gt;</B> [Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;vector&gt;</B>.  It is the built-in class that the Streams module uses.<A NAME="I57"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>copy-bytes</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E120"></A>
+<DD>dst :: type-union(&lt;buffer&gt;, &lt;byte-vector&gt;, &lt;byte-string&gt;)</DD>
+</UL>
+<UL>
+<A NAME="E7E120"></A>
+<DD>dst-offset :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E120"></A>
+<DD>src :: type-union(&lt;buffer&gt;, &lt;byte-vector&gt;, &lt;byte-string&gt;)</DD>
+</UL>
+<UL>
+<A NAME="E7E120"></A>
+<DD>src-offset :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E120"></A>
+<DD>count :: &lt;integer&gt;)</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E121"></A>
+<DD>dst :: type-union(&lt;buffer, &lt;byte-vector&gt;, &lt;byte-string&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Copies <I>count</I> bytes from <I>src</I> to <I>dst</I>, starting at <I>src-offset</I> and <I>dst-offset</I>, respectively. This function returns <I>dst</I>.  This function does no bounds checking.  <I>Dst</I> and <I>src</I> may be the same (<B>\==</B>) object; this function ensures that it copies bytes from to the destination portion correctly, regardless of overlap.<A NAME="I58"></A><A NAME="I59"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>getenv</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E122"></A>
+<DD>environment-variable-name :: &lt;string&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E123"></A>
+<DD>environment-variable-value :: false-or(&lt;string&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the value of the environment variable <I>environment-variable-name</I>. If <I>environment-variable-name</I> is undefined, <B>getenv</B> returns #f.<A NAME="I60"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>get-time-of-day</B><B> </B>[Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E124"></A>
+<DD>none</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E125"></A>
+<DD>time-in-seconds :: &lt;general-integer&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the number of seconds since midnight, January 1, 1970.<A NAME="I61"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>system</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E126"></A>
+<DD>command-line :: &lt;string&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E127"></A>
+<DD>return-code :: &lt;integer&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL><B>System</B> causes <I>command-line</I> to be given to your shell as input as if the string had been typed as a command.  If environment variable  SHELL  is  found,  its value will be used as the command interpreter (shell); otherwise sh(1) is used.
+<BR>
+</UL></UL>
+<UL>
+<UL>The parent process will wait until the command terminates.  Upon termination of the sub-process, <B>system</B> will return a negative value if the command couldn&#146;t be executed, or the command&#146;s return code if it was executed.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E42"></A>
+<H2><B>7. </B><B>The </B><A NAME="I62"></A><B>Introspection Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Introspection module exports reflective operations for examining classes, functions, and types.
+<A NAME="E10E28"></A>
+<H3><B>7.1. </B><B>Functions</B></H3>
+<P>Dylan provides some reflective operations for functions, such as <B>function-specializers</B> and <B>instance?</B>. With the latter, you can determine if a function is a <B>&lt;generic-function&gt;</B> or <B>&lt;method&gt;</B>, but neither Dylan nor Gwydion compilers provide exported class identifiers for other types of functions (such as <B>block</B> exit functions). The Subsection <I>Types</I> describes definitions that are also useful when inspecting methods because you can get detailed information about method specializer types.
+<P>The Introspection module exports the following functions:<A NAME="I63"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>function-name</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E128"></A>
+<DD>function :: &lt;function&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E129"></A>
+<DD>result :: false-or(&lt;symbol&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the name of <I>function</I> as a <B>&lt;symbol&gt;</B> if <I>function</I> has a name; otherwise <B>function-name</B> returns #f. All functions defined with define generic or define method have names, and some other functions have names.
+<BR>
+</UL></UL>
+<A NAME="E10E29"></A>
+<H3><B>7.2. </B><B>Classes</B></H3>
+<P>The Introspection module exports the following for class objects:<A NAME="I64"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>class-name</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E130"></A>
+<DD>class :: &lt;class&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E131"></A>
+<DD>result :: false-or(&lt;symbol&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the name of <I>class</I> as a <B>&lt;symbol&gt;</B> if class has a name; otherwise, this function returns #f. Mindy can always determine the name of classes defined with define class.
+<BR>
+</UL></UL>
+<A NAME="E10E30"></A>
+<H3><B>7.3. </B><B>Types</B></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1">The Introspection module exports the following for inspecting types (and therefore, method specializers):<A NAME="I65"></A></FONT>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>singleton-object</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E132"></A>
+<DD>specializer :: &lt;singleton&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E133"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function returns the object of the singleton value type.<A NAME="I66"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;subclass&gt;</B> [Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;type&gt;</B>. Instances of this class represent subclass specializers. A subclass specializer causes a method to be invoked whenever the generic function was called on a value that is the specified class or any subclass of the specified class (see <A HREF="EXTENS~1.htm#I7">section </A><I>Dylan Language Issues</I> for more information). The function <B>subclass-of</B> returns the class specified for the subclass specializer.<A NAME="I67"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>subclass-of</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E134"></A>
+<DD>specializer :: &lt;subclass&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E135"></A>
+<DD>class :: &lt;class&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the class specified for the subclass specializer.<A NAME="I68"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;limited-integer&gt;</B> [Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;type&gt;</B>. Instances of this class represent limited integer types. See the functions <B>limited-integer-base-class</B>, <B>limited-integer-minimum</B>, and <B>limited-integer-maximum</B>.<A NAME="I69"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>limited-integer-base-class</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E136"></A>
+<DD>specializer :: &lt;limited-integer&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E137"></A>
+<DD>class :: one-of(&lt;integer&gt;, &lt;extended-integer&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the class specified for the limited-integer specializer, either <B>&lt;integer&gt;</B> or <B>&lt;extended-integer&gt;</B>.<A NAME="I70"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>limited-integer-minimum</B> [Function]<A NAME="I71"></A></FONT>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>limited-integer-maximum</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E138"></A>
+<DD>specializer :: &lt;limited-integer&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E139"></A>
+<DD>class :: false-or(&lt;integer&gt;)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Return the inclusive bounds of the limited-integer specializer. If the minimum or maximum is unbounded, then the appropriate function returns #f.<A NAME="I72"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;union&gt;</B> [Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;type&gt;</B>. Instances of this class represent union types (ie, what <B>type-union</B> returns). The function <B>union-members</B> returns a list of the member types in the union.<A NAME="I73"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>union-members</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E140"></A>
+<DD>specializer :: &lt;union&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E141"></A>
+<DD>types :: &lt;list&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns the member types of the union type. The result may contain more than two elements. This function collapses nested union types to a flat list.
+<BR>
+</UL></UL>
+<A NAME="E10E31"></A>
+<H3><B>7.4. </B><B>Miscellaneous</B></H3>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1">The Introspection module exports the following miscellaneous functionality:<A NAME="I74"></A></FONT>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>object-address</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E142"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E143"></A>
+<DD>address :: &lt;integer&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Returns an integer for <I>object</I>. If the object is represented internally represented as immediate data, then the integer returned is only unique to the value of the object. If the object is represented on the dynamic heap, then the integer uniquely identifies the object from all other objects.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E43"></A>
+<H2><B>8. </B><B>The </B><A NAME="I75"></A><B>Cheap-io Module</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Cheap-io module exports some basic, unextendable I/O functionality. Gwydion compilers use the Cheap-io functions internally. The Gwydion Project also provides the Streams, Print, and Format libraries (see the $INSTALL/doc/libraries/ directory for documentation). It is an error to use both Cheap-IO functions and Streams/Print/Format functions on a single stream. (For example, if you are using the Streams library <B>*standard-input*</B>, do not also use the Cheap-io input functions) For this reason, if any library that you load into Mindy uses the Debugger-format library, the debugger will use <B>format</B> from the Format library.<A NAME="I76"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>format</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E144"></A>
+<DD>control-string :: &lt;byte-string&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E144"></A>
+<DD>#rest arguments</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E145"></A>
+<DD>meaningless :: singleton(#f)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This <B>format</B> adheres to the format strings described in the <I>Dylan Interim Reference Manual</I> with one exception. Some Gwydion compilers incorrectly prints instances of <B>&lt;condition&gt;</B> supplied to the %S directive. The Format library provides a correct <B>format</B> function that supports an upward-compatible extension to the format control strings described in the DRM.<A NAME="I77"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>print</B> [Function]<A NAME="I78"></A></FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E146"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E147"></A>
+<DD>meaningless :: singleton(#f)</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Prints thing to stdout.  <B>Print</B> follows thing with a newline.  You cannot extend or specialize how objects are printed.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E44"></A>
+<H2><B>9. </B><A NAME="I79"></A><B>Extensions to the Streams Library</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Piped-exec module is a Gwydion extension to the Streams library. It exports the following function:<A NAME="I80"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I81"></A><B>piped-exec</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E148"></A>
+<DD>command :: &lt;string&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E149"></A>
+<DD>writeable-stream :: &lt;stream&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E149"></A>
+<DD>readable-stream :: &lt;stream&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL><B>piped-exec</B> spawns a child process whose standard input and standard output are obtained from the parent process. Specifically, the parent&#146;s <I>writeable-stream</I> is attached to the child&#146;s standard input, and the parent&#146;s <I>readable-stream</I> is attached to the child&#146;s standard output. The <I>readable-stream</I> will be closed when the child closes its standard output, or when the child process terminates. The child process will be spawned by executing the command line <I>command</I>. Unlike the <B>system</B> command, the command line is not passed to a shell, so no wildcard expansion will be done. Like <B>system</B>, however, if the command name is not a fully qualified path, the executable file will be searched for.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Caveat</I>: On Microsoft Windows machines, the command may not be a batch file.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E45"></A>
+<H2><B>10. </B><A NAME="I82"></A><B>Copyright and Terms of Use</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>Copyright (c) 1994, 1995, 1996, 1997 Carnegie Mellon University All rights reserved.  
+<P>Use and copying of this software and preparation of derivative works based on this software are permitted, including commercial use, provided that the following conditions are observed:
+<UL>
+<LI>This copyright notice must be retained in full on any copies and on appropriate parts of any derivative works.
+<LI>Documentation (paper or online) accompanying any system that incorporates this software, or any part of it, must acknowledge the contribution of the Gwydion Project at Carnegie Mellon University.
+</UL>
+<P>This software is made available <I>as is</I>.  Neither the authors nor Carnegie Mellon University make any warranty about the software, its performance, or its conformity to any specification.
+<P><A NAME="I83"></A>Bug reports, questions, comments, and suggestions should be sent by E-mail to the Internet address gwydion-bugs@cs.cmu.edu. 
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="inspect.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="streams.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

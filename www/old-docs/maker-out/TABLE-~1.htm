@@ -1,0 +1,459 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Table Extensions  The Table Extensions Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="STRING~1.htm">
+<LINK REL="Previous" HREF="COLLEC~1.htm"></HEAD>
+<BODY>
+
+<H2>Table Extensions</H2>
+<P ALIGN=CENTER>
+<A HREF="COLLEC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="STRING~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E81" >1. Introduction</A>
+<LI>
+<A HREF="#E8E82" >2. The Table-Extensions Module</A>
+<LI>
+<A HREF="#E8E83" >3. Extensions</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E12"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The </B><A NAME="I2"></A><B>Table Extensions Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<BR>
+<A NAME="E8E81"></A>
+<H2><B>1. </B><B>Introduction</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Table-Extensions library contains extensions to Dylan <B>&lt;table&gt;</B>s. It exports one module named Table-Extensions.
+<BR>
+<A NAME="E8E82"></A>
+<H2><B>2. </B><B>The </B><A NAME="I3"></A><B>Table-Extensions Module</B><A NAME="I4"></A><A NAME="I5"></A></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;string-table&gt;</B> [Instantiable Sealed Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;table&gt;</B>. It is a table that has <B>&lt;string&gt;</B>s for keys (compared with<B> \=</B>) and <B>&lt;object&gt;</B>s for elements. It is an error to use a key that is not a <B>&lt;string&gt;</B>. It is an error to modify a key once it has been used to add an element to a <B>&lt;string-table&gt;</B>.<A NAME="I6"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;case-insensitive-string-table&gt;</B> [Instantiable Sealed Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;table&gt;</B>. It is a table that has <B>&lt;string&gt;</B>s for keys (compared with <B>case-insensitive-</B><B>equal</B>) and <B>&lt;object&gt;</B>s for elements. It is an error to use a key that is not a <B>&lt;string&gt;</B>. It is an error to modify a key once it has been used to add an element to a <B>&lt;case-insensitive-string-table&gt;</B>.<A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;hash-state&gt;</B> [Type]</FONT>
+<UL>
+<UL>Anything the DRM describes as a hash state is an instance of this type.  This includes the second return value of <B>merge-hash-codes</B> and of all hash functions, and the second and fourth parameters to <B>merge-hash-codes</B>.<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>collection-hash</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E315"></A>
+<DD>key-hash-function :: &lt;function&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E315"></A>
+<DD>elt-hash-function :: &lt;function&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E316"></A>
+<DD>hash-id :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E316"></A>
+<DD>hash-state :: &lt;hash-state&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function hashes every element of collection using <I>key-hash-function</I> on the keys and <I>elt-hash-function</I> on the elements.  This function is equivalent to the following reference implementation:<A NAME="I9"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>sequence-hash</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E317"></A>
+<DD>elt-hash-function :: &lt;function&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E317"></A>
+<DD>sequence :: &lt;sequence&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E318"></A>
+<DD>hash-id :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E318"></A>
+<DD>hash-state :: &lt;hash-state&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function hashes every element of sequence using <I>elt-hash-function</I>, merging the resulting hash codes in order.<A NAME="I10"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>values-hash</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E319"></A>
+<DD>elt-hash-function :: &lt;function&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E319"></A>
+<DD><I>#rest</I> values</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E320"></A>
+<DD>hash-id :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E320"></A>
+<DD>hash-state :: &lt;hash-state&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function hashes each object in the <I>#rest</I> arguments using <I>elt-hash-function</I>, merging the resulting hash codes in order.<A NAME="I11"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>string-hash</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E321"></A>
+<DD>string :: &lt;string&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E322"></A>
+<DD>hash-id :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E322"></A>
+<DD>hash-state :: &lt;hash-state&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function produces hash codes for strings using the equality test \=.<A NAME="I12"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>case-insensitive-string-hash</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E323"></A>
+<DD>string :: &lt;string&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E324"></A>
+<DD>hash-id :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E324"></A>
+<DD>hash-state :: &lt;hash-state&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function produces hash codes for strings using the equality test <B>case-insensitive-equal</B>.<A NAME="I13"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>case-insensitive-equal</B> [Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E325"></A>
+<DD>string1 :: &lt;string&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E325"></A>
+<DD>string2 :: &lt;string&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E326"></A>
+<DD>answer :: &lt;boolean&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Performes a case insensitive comparison of the strings.<A NAME="I14"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>remove-all-keys!</B> [Open Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E327"></A>
+<DD>coll :: &lt;mutable-explicit-key-collection&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E328"></A>
+<DD>coll :: &lt;mutable-explicit-key-collection&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>Modifies collection so that the collection no longer contains any keys or elements (i.e., is empty).
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>remove-all-keys!</B> [G. F. Method]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E329"></A>
+<DD>coll :: &lt;mutable-explicit-key-collection&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E330"></A>
+<DD>coll :: &lt;mutable-explicit-key-collection&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This method implements <B>remove-all-keys!</B> by repeated calls to <B>remove-key!</B>.
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>remove-all-keys!</B> [Sealed G. F. Method]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E331"></A>
+<DD>table :: &lt;table&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E332"></A>
+<DD>table :: &lt;table&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>There is a predefined method on <B>&lt;table&gt;</B> which does not necessarily use <B>remove-key</B>.
+<BR>
+</UL></UL>
+<P>Different hash functions are not required to return the same hash code for equal or even identical objects. For instance,
+<UL>
+<UL>
+<P>collection-hash(#(), object-hash, object-hash)
+</UL></UL>
+<P>is not guaranteed to return the same values as
+<UL>
+<UL>
+<P>sequence-hash(#(), object-hash)
+</UL></UL>
+<P>Furthermore, <B>collection-hash</B> with ordered: #t is not guaranteed to return the same hash code as <B>collection-hash</B> with ordered: #f. (Such a requirement would render the ordered: keyword useless).
+<BR>
+<A NAME="E8E83"></A>
+<H2><B>3. </B><B>Extensions</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Gwydion Project hopes that other Dylan implementations will also implement our Table-Extensions library. However, there are certain things that we realize other implementors are not so likely to implement; we call these things &quot;extensions&quot; to the Table-Extensions proposal.
+<P>The following definitions are part of the Gwydion Table-Extensions library, but are not part of the current Table-Extensions proposal.<A NAME="I15"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;equal-table&gt;</B> [Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;table&gt;</B> that uses the <B>\=</B> function to compare keys and the <B>equal-hash</B> function to generate hash codes.  If you define your own classes and <B>\=</B> methods specialized on those classes, then you should define a method for the <B>equal-hash</B> function specialized to your classes (see <A HREF="TABLE-~1.htm#I18">function </A><I>equal-hash </I><I> [Generic </I><I>Function]</I>).<A NAME="I16"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>&lt;value-table&gt;</B> [Abstract Class]</FONT>
+<UL>
+<UL>This class is a subclass of <B>&lt;table&gt;</B>.  Users can define subclasses of this class and provide a method for <B>table</B><B>-</B><B>protocol</B> that is specialized to their new subclass.  Any subclass of <B>&lt;value-table&gt;</B> must use a hash function that never uses an object's identity (that is, its location in the heap) as a means of computing a hash ID. In practice, this means hash IDs must be constructed using only <B>value-hash</B> and <B>merge-hash-codes</B>.  These tables are specifically designed to save overhead in testing hash states and whether the table needs to be rehashed after garbage collections.  The second value of the hash function should always be <B>$permanent</B><B>-</B><B>hash</B><B>-</B><B>state</B>.  For example:
+<BR>
+</UL></UL>
+<CODE>
+<PRE>           define class &lt;my-table&gt; (&lt;value-table&gt;)
+<BR>           end class;
+<BR>
+<BR>           define method table-protocol (table :: &lt;my-table&gt;)
+<BR>             values(\=, string-hash);
+<BR>           end method;</PRE>
+</CODE>
+<P>The Extensions module exports the following functions to make it easier for users to use <B>&lt;equal-table&gt;</B>s and <B>&lt;value</B><B>-</B><B>table&gt;</B>s:<A NAME="I17"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><A NAME="I18"></A><B>equal-hash </B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E333"></A>
+<DD>key :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E334"></A>
+<DD>hash-id :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E334"></A>
+<DD>hash-state :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function returns a hash ID and hash state for use with <B>&lt;equal-table&gt;</B>s.  If you define your own classes and <B>\=</B> methods specialized on those classes, then you should define a method for the <B>equal-hash</B> function specialized to your classes.  Specialized methods exist for <B>&lt;number&gt;</B>, <B>&lt;character&gt;</B>, <B>&lt;function&gt;</B>, <B>&lt;symbol&gt;</B>, and <B>&lt;collection&gt;</B>. The method for <B>&lt;object&gt;</B> returns the integer 42 and <B>$permanent-hash-state</B>.  This function may use an object's identity (that is, its location in the heap) to produce a hash ID.<A NAME="I19"></A><A NAME="I20"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>value-hash </B> [Generic Function]</FONT>
+<DL>
+<DT><B>Arguments</B></DT>
+<UL>
+<A NAME="E7E335"></A>
+<DD>object :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Values</B></DT>
+<UL>
+<A NAME="E7E336"></A>
+<DD>hash-id :: &lt;integer&gt;</DD>
+</UL>
+<UL>
+<A NAME="E7E336"></A>
+<DD>hash-state :: &lt;object&gt;</DD>
+</UL>
+<DT><B>Description</B></DT>
+</DL>
+<UL>
+<UL>This function produces hash codes for objects without using the objects' identities.  This function is suitable for use with <B>&lt;value-table&gt;</B>s. Table-Extensions provides methods specialized for the following types: <B>&lt;string&gt;</B>, <B>&lt;integer&gt;</B>, <B>&lt;float&gt;</B>, <B>&lt;character&gt;</B>, <B>&lt;symbol&gt;</B>, and <B>&lt;boolean&gt;</B>.
+<BR>
+</UL></UL>
+<UL>
+<UL><I>Caveat</I>: This generic function is not related to the similarly named <B>values-hash</B>.
+<BR>
+</UL></UL>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="COLLEC~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="STRING~1.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>

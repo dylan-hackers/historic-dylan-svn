@@ -1,0 +1,300 @@
+<HTML>
+<HEAD>
+<TITLE>Gwydion Dylan Transcendental Library  The Transcendental Library</TITLE>
+<LINK REL="ToC" HREF="httoc.htm">
+<LINK REL="Index" HREF="htindex.htm">
+<LINK REL="Next" HREF="time.htm">
+<LINK REL="Previous" HREF="REGULA~1.htm"></HEAD>
+<BODY>
+
+<H2>Transcendental Library</H2>
+<P ALIGN=CENTER>
+<A HREF="REGULA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="time.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><HR ALIGN=CENTER>
+<P>
+<UL>
+<LI>
+<A HREF="#E8E92" >4. Introduction</A>
+<LI>
+<A HREF="#E8E93" >5. Exported Names</A>
+<LI>
+<A HREF="#E8E94" >6. Unimplemented Functions</A></UL>
+<HR ALIGN=CENTER>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<A NAME="E28E15"></A>
+<H1 ALIGN=CENTER>
+<CENTER><B>The </B><A NAME="I2"></A><B>Transcendental Library</B></CENTER></H1>
+<P ALIGN=CENTER><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<BR>
+<A NAME="E8E92"></A>
+<H2><B>4. </B><B>Introduction</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The Transcendental library implements some common mathematical functions and constants, such as sine and cosine. All functions in the Transcendental library signal errors when given invalid arguments, and Dylan floating point precision <A NAME="I3"></A>contagion rules are obeyed. Precise contagion rules are given for each function below.
+<P><I>Note</I>: The Transcendental library is not available on all platforms. At present, it will work only under HP/UX and Microsoft Windows.
+<BR>
+<A NAME="E8E93"></A>
+<H2><B>5. </B><B>Exported Names</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>The following names are exported from the <A NAME="I4"></A>Transcendental module of the Transcendental library:<A NAME="I5"></A>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$single-pi</B> [Constant]</FONT>
+<UL>
+<UL> The value of <A NAME="I6"></A>pi as a <B>&lt;single-float&gt;</B>.<A NAME="I7"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$double-p</B>i [Constant]</FONT>
+<UL>
+<UL> The value of pi as a <B>&lt;double-float&gt;</B>.<A NAME="I8"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>sin</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [Function]
+<BR><A NAME="I9"></A><B>cos</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [Function]
+<BR><A NAME="I10"></A><B>tan</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [Function]</FONT>
+<UL>
+<UL> Returns the sine, cosine, or tangent of <I>x</I>, respectively. <I>x</I> is given in radians.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>x</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>x</I> is an integer.<A NAME="I11"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>asin</B> (<I>y</I> :: &lt;real&gt;) =&gt; (<I>x</I> :: &lt;float&gt;), -1 &lt;= <I>y</I> &lt;= +1 [Function]
+<BR><A NAME="I12"></A><B>acos</B> (<I>y</I> :: &lt;real&gt;) =&gt; (<I>x</I> :: &lt;float&gt;), -1 &lt;= <I>y</I> &lt;= +1 [Function]</FONT>
+<UL>
+<UL> Returns the arc sine or arc cosine of <I>y</I>, in radians.  If <I>y</I> is not in the range [-1, +1], an error is signalled.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>y</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>y</I> is an integer.<A NAME="I13"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>atan</B> (<I>y</I> :: &lt;real&gt;) =&gt; (<I>x</I> :: &lt;float&gt;) [Function]</FONT>
+<UL>
+<UL> Returns the arc tangent of <I>y</I>, in radians.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>y</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>y</I> is an integer.<A NAME="I14"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>atan2</B> (<I>y</I> :: &lt;real&gt;, <I>x</I> :: &lt;real&gt;) =&gt; (<I>z</I> :: &lt;float&gt;) [Function]</FONT>
+<UL>
+<UL> Returns the arc tangent of <I>y</I>/<I>x</I>, in radians.  <I>x</I> may be zero if <I>y</I> is not zero.  The signs of <I>x</I> and <I>y</I> are used to derived what quadrant the angle falls in.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>y</I>/<I>x</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>y</I>/<I>x</I> is an integer.<A NAME="I15"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>sinh</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [Function]
+<BR><A NAME="I16"></A><B>cosh</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [Function]
+<BR><A NAME="I17"></A><B>tanh</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [Function]</FONT>
+<UL>
+<UL> Returns the hyperbolic sine, hyperbolic cosine, or hyperbolic tangent of <I>x</I>, respectively.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>x</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>x</I> is an integer.<A NAME="I18"></A><A NAME="I19"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$single-e</B> [Constant]</FONT>
+<UL>
+<UL> The value of <A NAME="I20"></A><I>e</I> as a <B>&lt;single-float&gt;</B>.<A NAME="I21"></A><A NAME="I22"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>$double-e</B> [Constant]</FONT>
+<UL>
+<UL> The value of <I>e</I> as a <B>&lt;double-float&gt;</B>.<A NAME="I23"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>log</B> (<I>x</I> :: &lt;real&gt;, #key base) =&gt; (<I>y</I> :: &lt;float&gt;), <I>x</I> &gt; 0, base &gt; 1 [Function]</FONT>
+<UL>
+<UL> Returns the natural logarithm of <I>x</I> in base <I>base</I>. <I>base</I> defaults to the mathematical value of <I>e</I>.  If <I>x</I> &lt;= 0 or <I>base</I> &lt;= 1, an error is signalled.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>x</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>x</I> is an integer.<A NAME="I24"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>exp</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [Function]</FONT>
+<UL>
+<UL> Returns <I>e</I> raised to the power <I>x</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>x</I>.<A NAME="I25"></A><A NAME="I26"></A><A NAME="I27"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>\^</B> (<I>b</I> :: &lt;real&gt;, <I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;) [G.F. method]</FONT>
+<UL>
+<UL> Returns <I>b</I> raised to the power <I>x</I>.  If <I>b</I> is 0 and <I>x</I> is not positive, an error is signalled.  If <I>b</I> is negative and <I>x</I> is not an integer, an error is signalled.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>b</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>b</I> is an integer.<A NAME="I28"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>\^</B> (<I>b</I> :: &lt;integer&gt;, <I>x</I> :: &lt;integer&gt;) =&gt; (<I>y</I> :: &lt;integer&gt;) [G.F. method]</FONT>
+<UL>
+<UL> Returns an integer result giving <I>b</I> raised to the power <I>x</I>.  If <I>b</I> is 0 and x is not positive, an error is signalled.  If <I>x</I> is negative, an error is signalled.<A NAME="I29"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>sqrt</B> (<I>x</I> :: &lt;real&gt;) =&gt; (<I>y</I> :: &lt;float&gt;), <I>x</I> &gt;= 0 [Function]</FONT>
+<UL>
+<UL> Returns the square root of <I>x</I>.  If <I>x</I> &lt; 0, an error is signalled.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>x</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>x</I> is an integer.<A NAME="I30"></A>
+<BR>
+</UL></UL>
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>isqrt</B> (<I>x</I> :: &lt;integer&gt;) =&gt; (<I>y</I> :: &lt;integer&gt;), <I>x</I> &gt;= 0 [Function]</FONT>
+<UL>
+<UL> Returns the integer square root of <I>x</I>, that is, the greatest integer less than or equal to the exact positive square root of <I>x</I>.
+<BR>
+</UL></UL>
+<UL>
+<UL> If <I>x</I> &lt; 0, an error is signalled.
+<BR>
+</UL></UL>
+<BR>
+<A NAME="E8E94"></A>
+<H2><B>6. </B><B>Unimplemented Functions</B></H2>
+<P ALIGN=LEFT><IMG SRC="gmindy/navyl.gif" WIDTH = 750 HEIGHT = 9>
+<P>We intend to someday implement the following functions, but haven&#146;t done so yet:
+<P ALIGN=LEFT><IMG SRC="gmindy/navys.gif" WIDTH = 360 HEIGHT = 9>
+<P>
+<FONT SIZE="+1"><B>asinh</B> (<I>y</I> :: &lt;real&gt;) =&gt; (<I>x</I> :: &lt;float&gt;) [Function]
+<BR><A NAME="I31"></A><B>acosh</B> (<I>y</I> :: &lt;real&gt;) =&gt; (<I>x</I> :: &lt;float&gt;) [Function]
+<BR><A NAME="I32"></A><B>atanh</B> (<I>y</I> :: &lt;real&gt;) =&gt; (<I>x</I> :: &lt;float&gt;) [Function]</FONT>
+<UL>
+<UL> Returns the hyperbolic arc sine, hyperbolic arc cosine, or hyperbolic arc tangent of <I>y</I>, respectively.
+<BR>
+</UL></UL>
+<UL>
+<UL> The floating point precision of the result is given by the precision of <I>y</I>.  The result will be a <B>&lt;single-float&gt;</B> if <I>y</I> is an integer.<A NAME="I33"></A>
+<BR>
+</UL></UL>
+<P>
+<CENTER><TABLE BORDER=1 CELLSPACING=1 ><TR>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="mindy.htm#E28E1">Mindy Compiler</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="debug.htm#E28E2">Mindy Debugger</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="inspect.htm#E28E3">Mindy Object</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="EXTENS~1.htm#E28E4">Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="streams.htm#E28E5">Streams Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STANDA~1.htm#E28E6">Standard IO</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="print.htm#E28E7">Print Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="format.htm#E28E8">Format Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="melange.htm#E28E9">Melange Interface</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="dylan-tk.htm#E28E10">TK Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="COLLEC~1.htm#E28E11">Collection extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TABLE-~1.htm#E28E12">Table Extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="STRING~1.htm#E28E13">String extensions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="REGULA~1.htm#E28E14">Regular Expressions</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="TRANSC~1.htm#E28E15">Transcendental Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="time.htm#E28E16">Time Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="random.htm#E28E17">Random Library</A></TD>
+</FONT>
+<TD VALIGN=top ><FONT SIZE="-1" ><A HREF="matrix.htm#E28E18">Matrix Library</A>
+</TD></FONT>
+</TR></TABLE>
+</CENTER><P ALIGN=CENTER>
+<A HREF="REGULA~1.htm" TARGET="_self"><IMG SRC="gmindy/blrprev.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Previous Page"></A>
+<A HREF="httoc.htm" TARGET="_self"><IMG SRC="gmindy/blrtoc.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="TOC"></A>
+<A HREF="htindex.htm" TARGET="_self"><IMG SRC="gmindy/blrindex.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Index"></A>
+<A HREF="time.htm" TARGET="_self"><IMG SRC="gmindy/blrnext.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="Next Page"></A>
+<A HREF="http://legend.gwydion.cs.cmu.edu/gwydion" TARGET="_self"><IMG SRC="gmindy/blrhome.gif" WIDTH = 32 HEIGHT = 32 BORDER = 0 ALT="See Page"></A>
+
+<P>
+<ADDRESS>Copyright 1994, 1995, 1996, 1997 Carnegie Mellon University. All rights reserved.</ADDRESS>
+<P><A HREF="MAILTO:gwydion-bugs@cs.cmu.edu">Send comments and bug reports to gwydion-bugs@cs.cmu.edu</A>
+</BODY></HTML>
