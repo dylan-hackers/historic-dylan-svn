@@ -56,7 +56,7 @@ define method parse-integer-literal(token :: <byte-string>, emit) => ();
 	    if (as(<integer>, '0') <= digit & digit <= as(<integer>, '9'))
 	      repeat(posn + 1, result * 10 + digit - as(<integer>, '0'));
 	    else
-	      error("Bogus digit in integer: %=", as(<character>, digit));
+	      error("Bogus digit %= in integer: %=", as(<character>, digit), token);
 	    end if;
 	  else
 	    emit(if (first == '-') -result else result end);
@@ -66,8 +66,8 @@ define method parse-integer-literal(token :: <byte-string>, emit) => ();
   if (first == '-')
     repeat(start + 1, 0);
   elseif (first == '+')
-    error("Bogus integer: can't start with a '+'");
-    repeat(start + 1, 0);
+    error("Bogus integer %=: can't start with a '+'", token);
+    repeat(start + 1, 0); // as if
   else
     repeat(start, 0);
   end if;
@@ -92,23 +92,9 @@ end method make-string-literal;
 // A particular state in the state machine.
 // 
 define class <state> (<object>)
-  //
-  // The name of this state, a symbol.  Not really used once the state
-  // machine is built, but we keep it around for debugging purposes.
   slot name :: <symbol>, required-init-keyword: name:;
-  //
-  // The acceptance result if this state is an accepting state, or #f
-  // if it is not.  Symbols are used for magic interal stuff that never
-  // makes it out of the lexer (e.g. whitespace), classes for simple
-  // tokens that don't need any extra parsing, and functions for more
-  // complex tokens.
   slot result :: type-union(<false>, <symbol>, <character>, <function>),
     required-init-keyword: result:;
-  //
-  // Either #f or a vector of next-states indexed by character code.
-  // During construction, vector elements are either state names or #f.
-  // After construction, the state names are replaced by the actual
-  // state objects.
   slot transitions :: false-or(<simple-object-vector>),
     required-init-keyword: transitions:;
 end class <state>;
@@ -127,16 +113,6 @@ define method add-transition
      on :: type-union(<integer>, <character>, <byte-string>),
      new-state :: <symbol>)
     => ();
-  //
-  // Make as many entries are necessary to represent the transitions
-  // from on to new-state.  On can be either an integer, a character,
-  // or a byte-string.  If a byte-string, then it supports ranges
-  // as in a-z.
-  //
-  // We also check to see if this entry classes with any earlier
-  // entries.  If so, it means someone messed up editing the
-  // state machine.
-  // 
   select (on by instance?)
     <integer> =>
       if (table[on])
@@ -178,10 +154,7 @@ define method state
     (name :: <symbol>,
      result :: type-union(<false>, <symbol>, <character>, <function>),
      #rest transitions)
-  //
-  // Utility function for making states.  We expand the sequence
-  // of transitions into a transition table and make the state object.
-  //
+
   let table = size(transitions) > 0
     & make(<vector>, size: 128, fill: #f);
   for (transition in transitions)
@@ -310,8 +283,6 @@ define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
 	// It is an accepting state, so record the result and where
 	// it ended.
 	// 
-	//format-out("recording end state, kind %=, token = %=\n",
-	//	   state.result, token);
 	result-kind := state.result;
       end if;
       //
@@ -323,7 +294,6 @@ define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
 	let table = state.transitions;
 	let char :: <integer> = as(<integer>, c);
 	let new-state = table & char < 128 & table[char];
-	//format-out("char %=, new-state %=\n", c, new-state);
 
 	if (new-state)
 	  add!(token, c);
@@ -361,7 +331,7 @@ define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
 	    lexer.current-line := lexer.current-line + 1;
 
 	  #"end-of-line-comment" =>
-	    while (lexer.char ~= '\n')
+	    while (lexer.char ~= '\n' & lexer.char ~= '\r')
 	      getChar(lexer);
 	    end;
 	    getChar(lexer);
@@ -369,6 +339,13 @@ define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
 	  #"string-literal" =>
 	    lexer.buf.size := 0;
 	    while (lexer.char ~= '"')
+	      let c = lexer.char;
+	      if (c = '\n' | c = '\r')
+		error("String not terminated before end of line: %=", as(<string>, lexer.buf));
+	      end;
+	      if (c < ' ' | c > '~')
+		error("Illegal character %= in string constant %=", c, as(<string>, lexer.buf));
+	      end;
 	      add!(lexer.buf, lexer.char);
 	      getChar(lexer);
 	    end;
@@ -396,7 +373,7 @@ define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
     if (~lexer.char)
       //EOF
     else
-      //error
+      error("GML syntax error: character %= may not start a token.", lexer.char);
     end if;
     #f;
 
@@ -408,13 +385,8 @@ define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
     let tok = as(<byte-string>, lexer.buf);
     lexer.current-token := tok;
     select(result-kind by instance?)
-      <function> =>
-	result-kind(tok, emit);
-      otherwise =>
-	emit(result-kind);
-	//error("oops");
-	//      format-out("unexpected result-kind = %=\n", result-kind);
-	//      #"oops - bad result kind";
+      <function> => result-kind(tok, emit);
+      otherwise  => emit(result-kind);
     end select;
 
     #t;
@@ -433,9 +405,8 @@ end;
 
 
 define method atof (string :: <byte-string>,
-		    #key start :: <integer> = 0,
-		         end: finish :: <integer> = string.size)
-    => (value :: <double-float>);
+		    #key start :: <integer> = 0, end: finish :: <integer> = string.size)
+ => (value :: <double-float>);
 
   let posn = start;
   let sign = 1;
@@ -451,7 +422,7 @@ define method atof (string :: <byte-string>,
       posn := posn + 1;
       sign := -1;
     elseif (char == '+')
-      error("bogus float: explicit + not allowed");
+      error("bogus float %=: explicit + not allowed according to grammar", string);
       posn := posn + 1;
     end if;
   end if;
@@ -470,13 +441,13 @@ define method atof (string :: <byte-string>,
 	  end if;
 	elseif (char == '.')
 	  if (scale)
-	    error("bogus float.");
+	    error("bogus float %=: we already saw a decimal", string);
 	  end if;
 	  scale := 0;
 	elseif (char == 'e' | char == 'E')
 	  parse-exponent();
 	else
-	  error("bogus float.");
+	  error("bogus float %=", string);
 	end if;
       end while;
       return();
@@ -489,7 +460,7 @@ define method atof (string :: <byte-string>,
 	exponent-sign := -1;
 	posn := posn + 1;
       elseif (char == '+')
-	error("bogus float: explicit + not allowed");
+	error("bogus float %=: explicit + not allowed according to grammar", string);
 	posn := posn + 1;
       end if;
 
@@ -500,7 +471,7 @@ define method atof (string :: <byte-string>,
 	  let digit = as(<integer>, char) - as(<integer>, '0');
 	  exponent := exponent * 10 + digit;
 	else
-	  error("bogus float");
+	  error("bogus float %=", string);
 	end if;
       end while;
     end if;
