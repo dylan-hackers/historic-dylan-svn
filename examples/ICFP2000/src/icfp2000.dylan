@@ -46,28 +46,25 @@ define function main(name, arguments)
   */
 
   let o = make(<obj>);
-  o.model := make(<sphere>);
+  o.model := make(<plane>);
 
-  uniform-scale!(o, 0.5);
-  translate!(o, 0.0, 0.25, 0.0);
+  translate!(o, 0.0, -0.25, 0.0);
 
+//  z-rotate!(o, $double-pi / 16.0);
 /*
-  let ray = make(<ray>, direction: vector(0.0, 0.0, 1.0, 0.0), position: vector(0.0, 0.0, -1.0, 1.0));
+  format-out("Ray towards origin: %=\n",
+	     intersection-before(o, make(<ray>, 
+				  position: #[ 0.0, 0.0, -1.0, 1.0],
+				 direction: #[ 0.0, 0.0,  1.0, 0.0]),
+				 1.0/0.0));
 
-  if(intersection-before(o, ray, 1.0/0.0))
-    format-out("Intersection correct\n");
-  else
-    format-out("Intersection incorrect\n");
-  end if;
-
-  let ray = make(<ray>, direction: vector(1.0, 0.0, 1.0, 0.0), position: vector(0.0, 0.0, -1.0, 1.0));
-
-  if(intersection-before(o, ray, 1.0/0.0))
-    format-out("Non-Intersection incorrect\n");
-  else
-    format-out("Non-Intersection correct\n");
-  end if;
+  format-out("Ray towards upper-left: %=\n",
+	     intersection-before(o, make(<ray>, 
+				  position: #[ 0.0, 0.0, -1.0, 1.0],
+				 direction: #[ -1.0, 1.0,  1.0, 0.0]),
+				 1.0/0.0));
 */
+  force-output(*standard-output*);
 
   render-image(o, 1, "render.ppm", 
 	       make(<color>, red: 1.0, green: 1.0, blue:1.0),
