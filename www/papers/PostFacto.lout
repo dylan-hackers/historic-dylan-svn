@@ -130,7 +130,7 @@ hold a set of methods internally, each having a @I signature
 which tells the GF for which dynamic types of the arguments
 each method becomes @I applicable.
 The exact workings of this are rather arcane, but well
-described in the @DRM. For our purposes we simply recognize
+described in the @Ref DRM. For our purposes we simply recognize
 that the applicable methods get determined by the GF and
 sorted by @I { specificity }. In this process the @I ambiguous
 methods (i.e. those that are neither less nor more
@@ -311,13 +311,51 @@ type {@Tau @F 0}.
 @End @SubSection
 
 ###########
-@SubSection @Title { Type Algebra of Tuple Unions }
+@SubSection @Title { Type Algebra of Tuple Union Projections }
 @Begin
 @PP
 We arrived at a point where it becomes possible to actually
 do computations on the tuple union projections, such as
 intersection, union and set difference.
 @LP @I {[to be expanded]}
+@LP
+When deriving the type algebra of tuple union projections we only take into
+consideration the case where the tuples are of the same length and the projection
+is to the same component. Unless these requirements are met we just fall back
+to the pessimization {@Ref *} and treat the projection as a simple type union.
+
+For the remaining subsections we assume that the requirements are met.
+
+@BeginSubSubSections
+#-----------------
+@SubSubSection @Title { Type Union }
+@Begin
+@LP
+For a fixed @I m and @I i (@Eq {1 <= i <= m}) we define "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym union "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i}
+to be "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} {@Sig 1'}, {@Sig 2'}, ..., {@Sig {@I m}'} "}"{@Project @I i}.
+
+Since the set of the signatures can be already viewed as a union of one-element sets of signatures, this
+concatenating definition is rather obvious. It is also compatible with {@Ref (*)}.
+@End @SubSubSection
+
+#-----------------
+@SubSubSection @Title { Type Intersection }
+@Begin
+@LP
+We are to derive "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym intersection "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}}"}"{@Project @I i} now.
+
+Since the set of the signatures 
+@End @SubSubSection
+
+#-----------------
+@SubSubSection @Title { Type Difference }
+@Begin
+@LP
+We are to derive "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Char backslash "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i} now.
+
+Since the set of the signatures 
+@End @SubSubSection
+@EndSubSubSections
 
 @End @SubSection
 
@@ -408,6 +446,8 @@ recognize (constrain) several argument types at the same time }
 (every 2nd is @Class symbol and @F {oneof(}@I keywords{@F )}, the following ones are of specific type) }
    @ListItem { using @F primary to ensure type disjointness (similarly getter return value
 conflicts) }
+   @ListItem { type algebra for different projectors possible? for different tuple length? }
+   @ListItem { exponential blowup on size of type terms possible? by cascaded function calls with partially new variables? }
 @EndList
 
 @End @Section
