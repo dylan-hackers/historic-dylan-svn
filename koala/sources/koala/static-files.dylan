@@ -216,15 +216,15 @@ define method directory-responder
                    end if;
         write(stream, "\t\t\t\t<tr>\n");
         format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n", link, link);
-        let mime-type = if (type = #"file")
-                          get-mime-type(locator);
-                        else
-                          "";
-                        end;
+        let mime-type = iff(type = #"file",
+                            get-mime-type(locator),
+                            "");
         format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
-        for (key in #[#"size", #"modification-date", #"author"])
+        for (key in #[#"size", #"modification-date", #"author"],
+             alignment in #["right", "left", "left"])
           let prop = element(props, key, default: #f);
-          format(stream, "\t\t\t\t<td class=\"%s\">", as(<string>, key) );
+          format(stream, "\t\t\t\t<td align=\"%s\" class=\"%s\">",
+                 alignment, as(<string>, key));
           if (prop)
             display-file-property(stream, key, prop, type);
           else
@@ -245,8 +245,8 @@ define method directory-responder
          "\t\t<title>Index of %s</title>\n"
          "\t</head>\n", url);
   format(stream, "\t<body>\n");
-  format(stream, "\t\t<table>\n");
-  format(stream, "\t\t\t<caption>Index of %s</caption>\n", url);
+  format(stream, "\t\t<table cellspacing=\"4\">\n");
+  format(stream, "\t\t\t<caption>Directory listing for %s</caption>\n", url);
   write(stream,  "\t\t\t<col id=\"name\" />\n"
                  "\t\t\t<col id=\"mime-type\" />\n"
                  "\t\t\t<col id=\"size\" />\n"
@@ -254,11 +254,11 @@ define method directory-responder
                  "\t\t\t<col id=\"author\" />\n");
   write(stream,  "\t\t\t<thead>\n"
                  "\t\t\t\t<tr>\n"
-                 "\t\t\t\t\t<th>Name</td>\n"
-                 "\t\t\t\t\t<th>MIME Type</td>\n"
-                 "\t\t\t\t\t<th>Size</td>\n"
-                 "\t\t\t\t\t<th>Modification Date</td>\n"
-                 "\t\t\t\t\t<th>Author</td>\n"
+                 "\t\t\t\t\t<th align=\"left\">Name</th>\n"
+                 "\t\t\t\t\t<th align=\"left\">MIME Type</th>\n"
+                 "\t\t\t\t\t<th align=\"right\">Size</th>\n"
+                 "\t\t\t\t\t<th align=\"left\">Date</th>\n"
+                 "\t\t\t\t\t<th align=\"left\">Author</th>\n"
                  "\t\t\t\t</tr>\n"
                  "\t\t\t</thead>\n");
   write(stream,  "\t\t\t<tbody>\n");
