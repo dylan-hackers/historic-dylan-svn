@@ -61,10 +61,7 @@ function standard_footer () {
 <LI><A HREF="ports.phtml">Supported Platforms</A>
 <LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
 <LI><A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">Gwydion at CMU</A>
-<LI><A HREF="http://www.harlequin.com/devtools/dylan">Harlequin Dylan</a>, the
-other implementation
-<LI><A HREF="http://www.harlequin.com/support/dylan/bkshelf/bkshelf.htm">Other
-Dylan Websites</A>
+<LI><A HREF="http://www.fun-o.com">Functional Developer</a>, the commercial Dylan implementation
 </UL>
 
 <P><STRONG>User Resources</STRONG></P>
