@@ -167,3 +167,24 @@ define method search(in-sequence :: <string>,
   found & found + the-start;
 end method search;
 
+// Convert a string to all uppercase
+define method string-upcase(s :: <string>) => (s :: <string>)
+  local method lower-case?(ch :: <character>) => (r :: <boolean>)
+    ch >= 'a' & ch <= 'z';
+  end method;
+
+  let result = make(<string>, size: s.size);
+  for(ch keyed-by index in s)
+    result[index] :=
+      if(lower-case?(ch))
+        as(<character>, 
+          as(<integer>, ch) + 
+          as(<integer>, 'A') -
+          as(<integer>, 'a'))
+      else
+        ch;
+      end if;
+  end for;
+  result;
+end method string-upcase;
+

@@ -15,5 +15,6 @@ define module sequence-utilities
     count-if,
     count-if-not,
     find-between,
-    search;    
+    search,
+    string-upcase;
 end module sequence-utilities;
