@@ -5583,7 +5583,7 @@ Same as the above <function>\*</function>, with the opposite order of the parame
         </defreturns>
         <defdescription>
           <para>
-Multiplication of two matrices.  There are certain restrictions on what matrices can be multiplied.  To multiply two matrices, the dimensions must be MxN for the first matrix, and NxP for the second.  The result of the multiplication will be an MxP matrix.  (Note, this implies A * B is not necessarily equal to B * A)  The element i,j in A * B is the dot (inner) product of the ith row of A with the jth column of B.  The dot product of a vector is the sum of the products of corresponding elements. That is,  if vector V=[a,b,c,d] and vector W=[w,x,y,z] then V*W= aw + bx + cy + dz (Note that this is a scalar quantity).</para>
+Multiplies two matrices.  There are certain restrictions on what matrices can be multiplied.  To multiply two matrices, the dimensions must be MxN for the first matrix, and NxP for the second.  The result of the multiplication will be an MxP matrix.  (Note, this implies A * B is not necessarily equal to B * A)  The element i,j in A * B is the dot (inner) product of the ith row of A with the jth column of B.  The dot product of a vector is the sum of the products of corresponding elements. That is,  if vector V=[a,b,c,d] and vector W=[w,x,y,z] then V*W= aw + bx + cy + dz (Note that this is a scalar quantity).</para>
 	    <para>
 The actual algorithm used was reproduced from Sedgewick's Algorithms, Ch. 36. Basically, the algorithm goes through the temporary matrix, filling out each element in the following way: For the i,jth element of the matrix, calculate the dot product an element at a time, by having a number k  range from 0 to the dimension N of the matrix.  Take A[i,k] and multiply it by B[k,j] to get one of the terms in the dot product.  Continue this for each element in the MxP matrix to get the result.
 	    </para>
@@ -5655,6 +5655,71 @@ equations, and the last column is a solution vector.   The matrix that is return
 |  2 |
 	    </programlisting>
 	    <para>where x is -1, y is 2, and z is 2</para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>inverse</defname>
+        <defsummary>Finds the inverse of a matrix.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;number&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>inverted-matrix</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+Finds the inverse of a matrix, by using a modified gauss-jordan elimination.  Given any matrix, if there is an inverse, the inverse will be returned, otherwise, an error will be signalled. To determine the existance of an inverse, the algorithm finds the upper triangular matrix, and then multiplies all of the elements along the main diagonal.  If the result of this multiplication is zero, there is no inverse, otherwise, there is gaurenteed to be an inverse.
+	    </para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>det</defname>
+        <defsummary>Returns the determinant of a matrix.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;number&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>determinant</paramname>
+		<paramtype>&lt;number&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+This just does what the first half of inverse does. It reduces the matrix to the upper triangular form, and then returns the product of all of the elements along the diagonal.  This is the determinant of the matrix.
+	    </para>
+        </defdescription>
+      </dylanmethoddef>
+      <dylanmethoddef>
+        <defname>inverse</defname>
+        <defsummary>Returns the matrix transposed.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;number&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>transposed-matrix</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+This function transposes a matrix.  It takes a M by N matrix and turns it into an N by M matrix.  All it does is take the i,jth element in the M by N matrix, and turns it into the j,ith element in the N by M matrix.
+	    </para>
         </defdescription>
       </dylanmethoddef>
 
