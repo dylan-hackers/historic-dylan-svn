@@ -115,3 +115,7 @@ define method log-debug-if (test, format-string, #rest format-args)
   end;
 end;
 
+begin
+  add-log-level(<log-info>);
+end;
+

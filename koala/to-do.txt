@@ -1,20 +1,30 @@
 Koala To-Do List
 ----------------
 
-Version 0.2
+Version 0.3
+-----------
 
-- 404 errors are reporting something bogus ("Resource not found: %s" is
-  not a <function>) when *debugging-server* is false.  Something with
-  the let handler in handler-top-level?
-- Add a bit more to the date/timezone tags.
+* Ability to specify a URL to be displayed when 404 errors occur.
+
+* Sessions - They should be able to work without cookies enabled, either
+  by URL rewriting or ...?
+
+* URL cleanups
+  - Make sure that decode-url is used in all the right places to convert
+    from %xx to appropriate characters.
+  - Use 'url' everywhere instead of randomly using 'uri' and 'url'.
+  - Should use 'path' in local variables to distinguish between the a URL
+    (which contains a scheme etc) and just the path.
 
 
 
-General
+
+Kitchen Sink
+------------
 
 * Search sources for "---*** TODO" and do them.
 
-* Documentation.  Probably write it in DSP.
+* Documentation.
 
 * mod_dylan for Apache?
 
@@ -23,15 +33,7 @@ General
 
 * Secure connections.  Have to finish implementing <ssl-tcp-server-socket>.
 
-* Sessions - They should be able to work without cookies enabled, either
-  by URL rewriting or ...?
-
 * URL cleanups:
-  - Make sure that decode-url is used in all the right places to convert
-    from %xx to appropriate characters.
-  - Use 'url' everywhere instead of randomly using 'uri' and 'url'.
-  - Should use 'path' in local variables to distinguish between the a URL
-    (which contains a scheme etc) and just the path.
   - Use web locators instead of strings?  Not sure it would buy much.
     Look at parse-uri and parse-request-uri, which are presently unused.
   - Have a standard API for writing a URL to the output stream so that

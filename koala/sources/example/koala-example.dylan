@@ -20,6 +20,7 @@ the document root directory.  i.e., the dynamic URI takes precedence.
 
 */
 
+
 // Start the Koala server early because it sets configuration variables like
 // *document-root* that are used by the example code.
 begin
@@ -28,6 +29,7 @@ begin
               | 7020);
   start-server(port: port);
 end;
+
 
 
 //// Responders -- the lowest level API for responding to a URI
@@ -297,49 +299,45 @@ define page table-page (<demo-page>)
      source: document-location("demo/table.dsp"))
 end;
 
-// This method is used as the test function for a %dsp:if call.
-// In a real web app it would probably do some database test
-// of the form "select count(1) from ..." to see if there are any
-// rows to display.
-define named-method table-has-rows1? in demo
-    (page :: <table-page>, request)
- => (rows? :: <boolean>)
-  #t
-end;
-
 // This method is used as the row-generator function for a dsp:table call.
 // It must return a <sequence>.
 define named-method animal-generator in demo
     (page :: <table-page>)
-  #[#["dog", "perro"],
-    #["cat", "gato"],
-    #["cow", "vaca"]]
+  #[#["dog", "perro", "gou3"],
+    #["cat", "gato", "mao1"],
+    #["cow", "vaca", "niu2"]]
 end;
 
-define named-method table-has-rows2? in demo
-    (page :: <table-page>, request)
-  #f
-end;
-
-// The row-generator for the table with no rows.  This definition isn't actually
-// ever called, because the table-has-rows2? method returns #f.
+// The row-generator for the table with no rows.
 define named-method no-rows-generator in demo
     (page :: <table-page>)
   #[]
 end;
 
-define tag column1-data in demo
+define named-method animal-table-has-rows? in demo
+    (page :: <table-page>, request)
+  #t
+end;
+
+define tag english-word in demo
     (page :: <demo-page>, response :: <response>)
     ()
   let row = current-row();
   format(output-stream(response), "%s", row[0]);
 end;
 
-define tag column2-data in demo
+define tag spanish-word in demo
     (page :: <demo-page>, response :: <response>)
     ()
   let row = current-row();
   format(output-stream(response), "%s", row[1]);
+end;
+
+define tag pinyin-word in demo
+    (page :: <demo-page>, response :: <response>)
+    ()
+  let row = current-row();
+  format(output-stream(response), "%s", row[2]);
 end;
 
 define tag row-bgcolor in demo
@@ -354,7 +352,7 @@ end;
 /// Main
 
 // Starts up the web server with the specified port.  Loop sleeping forever so the application
-// doesn't exit.  (Need to figure out how to make this unnecessary.)
+// doesn't exit.  (---TODO: Need to figure out how to make this unnecessary.)
 define function main () => ()
   while (#t)
     sleep(1);

@@ -9,7 +9,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
-define constant $server-version = "0.2";
+define constant $server-version = "0.3";
 
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
@@ -654,7 +654,7 @@ define method invoke-handler
       let (responder, canonical-uri) = find-responder(uri);
       dynamic-bind (*response* = response)
         if (responder)
-          log-info("%s handler found", uri);
+          log-debug("%s handler found", uri);
           responder(request, response);
         else
           let found? = maybe-serve-static-file(request, response);
@@ -761,4 +761,5 @@ define method extract-query-values
   end;
   queries
 end extract-query-values;
+
 

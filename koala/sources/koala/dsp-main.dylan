@@ -19,8 +19,9 @@ end;
 begin
   *auto-register-map*["dsp"] := auto-register-dylan-server-page;
 
-  when ($debugging-dsp)
+  when (*debugging-dsp*)
     test-dsp();
   end;
 end;
+
 
