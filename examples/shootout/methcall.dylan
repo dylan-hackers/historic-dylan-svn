@@ -4,6 +4,10 @@ author:     Peter Hinely
 copyright:  public domain
 
 
+define sealed domain make (subclass(<toggle>));
+define sealed domain initialize (<toggle>);
+
+
 define class <toggle> (<object>)
   slot value :: <boolean>, required-init-keyword: start-state:;
 end class;
@@ -13,10 +17,6 @@ define class <nth-toggle> (<toggle>)
   slot counter :: <integer> = 0;
   slot counter-maxiumum :: <integer>, required-init-keyword: counter-maxiumum:;
 end class;
-
-
-define sealed domain make(subclass(<toggle>));
-define sealed domain initialize (<toggle>);
 
 
 define inline method activate (t :: <toggle>) => value :: <boolean>;

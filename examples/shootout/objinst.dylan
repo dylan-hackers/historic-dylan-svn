@@ -4,7 +4,7 @@ author:     Peter Hinely
 copyright:  public domain
 
 
-define sealed domain make (singleton(<toggle>));
+define sealed domain make (subclass(<toggle>));
 define sealed domain initialize (<toggle>);
 
 
@@ -45,7 +45,7 @@ define function main ()
   end;
 
   for (i from 1 to arg)
-    let toggle2 = make(<toggle>, start-state: #t);
+    toggle := make(<toggle>, start-state: #t);
   end;
 
   format-out("\n");
@@ -58,7 +58,7 @@ define function main ()
   end;
 
   for (i from 1 to arg)
-    let nth-toggle2 = make(<nth-toggle>, start-state: #t, counter-maxiumum: 3);
+    nth-toggle := make(<nth-toggle>, start-state: #t, counter-maxiumum: 3);
   end;
 end function main;
 
