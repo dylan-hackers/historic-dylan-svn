@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!-- ?xml-stylesheet href="testing.xsl" type="test/xsl"? -->
 <!DOCTYPE addresses SYSTEM "testing.dtd">
 
 <!-- in file testing.xml -->
