@@ -1,5 +1,7 @@
 module: board
 
+define constant <board> = <array>;
+
 define class <state> (<object>)
   slot board :: <board>, required-init-keyword: board:;
   slot robots :: <collection> = #(), init-keyword: robots:;
@@ -12,26 +14,28 @@ define abstract functional class <terrain>(<object>)
 end;
 
 define macro terrain-definer
-  { define terrain ?:name end }
+  { define terrain ?:name ?ch:expression end }
   =>
   {
-    define concrete functional class ?name(<terrain>)
-    end;
+   define concrete functional class ?name(<terrain>)
+   end;
     
-    define sealed domain make(?name.singleton);
-    define sealed domain initialize(?name);
-    
+   define sealed domain make(?name.singleton);
+   define sealed domain initialize(?name);
+
+   define method print-object(obj :: ?name, stream :: <stream>) => ();
+      format(stream, "%c", ?ch);
+   end;
+
   }
 end;
 
-define terrain <wall> end;
-define terrain <water> end;
-define terrain <base> end;
-define terrain <space> end;
+define terrain <wall> '#' end;
+define terrain <water> '~' end;
+define terrain <base> '@' end;
+define terrain <space> '.' end;
 
 // Board
-
-define constant <board> = <array>;
 
 define inline function passable?(b :: <board>, p :: <point>)
  => (passable :: <boolean>);
@@ -46,6 +50,20 @@ end;
 define inline function height(b :: <board>) => w :: <coordinate>;
   dimension(b, 1);
 end;
+
+/*
+define method print-object(board :: <board>, stream :: <stream>)
+ => ();
+  format(stream, "board {\n");
+  for (y from 0 below board.width)
+    for (x from 0 below board.width)
+      print-object(board[y,x], stream);
+    end;
+    format(stream, "\n");
+  end;
+  format(stream, "U=%=, size=%=, color=%}");
+end method print-object;
+*/
 
 // store objects line by line
 
