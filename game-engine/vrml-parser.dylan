@@ -52,7 +52,7 @@ define method parse-vrml(file-name :: <string>)
   => (model :: <node>);
   let save-debug = *debug-meta-functions?*;
   block ()
-    *debug-meta-functions?* := #f;
+    *debug-meta-functions?* := #t;
 
     let input-stream = make(<file-stream>, direction: #"input", locator: file-name);
     let input = slurp-input(input-stream);
@@ -626,7 +626,7 @@ end MFInt32;
 
 define meta MFNode (c, node, nodes) => (as(<simple-object-vector>, nodes) | vector(node))
   ws?(c),
-  {["[", ws?(c), {"]",
+  {["[", ws?(c), {["]", do(nodes := #[])],
                   [scan-nodeStatements(nodes), ws?(c), "]"]}],
    scan-nodeStatement(node)}   
 end MFNode;
