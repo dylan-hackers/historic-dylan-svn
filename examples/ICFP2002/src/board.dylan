@@ -102,6 +102,7 @@ define method add-robot (state :: <state>, robot :: <robot>) => <state>;
   make(<state>, board: state.board, robots: robots*, packages: state.packages);
 end method add-robot;
 
+/* Package functions: */
 define method add-package (state :: <state>, package :: <package>) => <state>;
   // Add a package to the <state>'s list of robots. If a package with the
   // same id is present, replace it. If not, add it.
@@ -123,6 +124,13 @@ define method add-package (state :: <state>, package :: <package>) => <state>;
   make(<state>, board: state.board, robots: state.robots, packages: packages*);
 end method add-package;
 
+define function packages-at(state :: <state>, loc-x, loc-y)
+ => (v :: <vector>);
+  let result = 
+    choose-by(curry(\=, loc-x), map(x, state.packages), state.packages);
+
+  choose-by(curry(\=, loc-y), map(y, result), result);
+end function packages-at;
 
 define method as(class == <character>, obj :: <character>)
  => obj :: <byte-character>;
@@ -164,6 +172,5 @@ let landscape =  #("..@...."
 
 
 end;
-
 
 
