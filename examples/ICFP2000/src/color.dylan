@@ -20,6 +20,6 @@ end method make-white;
 define method export-with-depth(c :: <color>, depth :: <integer>) 
  => (r :: <integer>, g :: <integer>, b :: <integer>)
   let d :: <float> = as(<float>, depth);
-  values(floor(c.red * depth), floor(c.green * depth),
-	 floor(c.blue * depth));
+  values(floor(c.red * d), floor(c.green * d),
+	 floor(c.blue * d));
 end method export-with-depth;
