@@ -4,16 +4,9 @@ Koala To-Do List
 Version 0.4
 -----------
 
-* Gwydion Dylan compatibility.  This is hard because they don't have a 
-  network library or threading yet.  But this would probably be the
-  most important improvement to make since no one wants to run an HTTP
-  server on Windows.  (Right?  ;-)
-
 * URL cleanups
   - Make sure that decode-url is used in all the right places to convert
     from %xx to appropriate characters.
-  - Should use 'path' in local variables to distinguish between the a URL
-    (which contains a scheme etc) and just the path.
 
 
 Version 0.5

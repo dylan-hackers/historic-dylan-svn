@@ -12,7 +12,7 @@ Changes for version 0.4 (coming soon)
     This helped uncover a lot of bugs and deficiencies in Koala/DSP, some of which
     have been addressed in this release. (cgay)
   - Core: Added variable *request*, bound to the current request in each thread. (cgay)
-  - dylan-basics: remove-keys, join-as, 
+  - dylan-basics: remove-keys, join-as (cgay)
   - Core: Better standards compliance
      - Imlemented error codes 301 (Moved Permanently) and 403 (Forbidden) (hannes)
      - MIME types more complete and now read from separate file. (hannes)

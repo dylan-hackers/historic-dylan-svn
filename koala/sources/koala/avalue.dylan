@@ -21,6 +21,8 @@ define function rev-as-alist (pairs :: <list>)
 end;
 
 // <tagged-element>?
+//    Getting this runtime error in 2.1a4...
+//    "Cannot add-method {<getter-method>: ??? (<avalue>)} in {<library>} to sealed generic {<sealed-generic-function>: avalue-value}."
 define class <avalue> (<explicit-key-collection>, <sealed-constructor>)
   slot avalue-value :: <object>,
     required-init-keyword: value:;
