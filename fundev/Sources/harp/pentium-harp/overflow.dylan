@@ -184,10 +184,7 @@ define pentium-template (asl-trap)
     // and comparing the results with hi
     emit(be, cdq); // 64bit sign-extend EAX into EDX again
     call-local(cmp2, be, edx, hi);
-    // jump over the trap instruction if there's no overflow
-    emit(be, beq-x);
-    emit(be, 2); // 2 byte instruction
-    trap-always(be);
+    trap-if-not-equal(be);
 end pentium-template;
 
 
@@ -211,14 +208,27 @@ with-ops-in pentium-instructions (asl-trap)
               end pentium-method;
 end with-ops-in;
 
+define constant dylan-integer-overflow-handler =
+  make(<constant-reference>, 
+       refers-to: "dylan_integer_overflow_handler",
+       address-mode: #"address");
 
+define method trap-if-not-equal (be :: <pentium-back-end>) => ()
+// jump over the trap instruction if there's no overflow
+  emit(be, beq-x);  // branch if no overflow
+  emit(be, 5); // 5 byte instruction
+  trap-always(be);
+end method;
 
 define method trap-on-overflow (be :: <pentium-back-end>) => ()
-  emit(be, #xce);
+// jump over the trap instruction if there's no overflow
+  emit(be, #x71);  // branch if no overflow
+  emit(be, 5); // 5 byte instruction
+  trap-always(be);
 end method;
-
 
 define method trap-always (be :: <pentium-back-end>) => ()
-  emit(be, #xcd);
-  emit(be, 4);
-end method;
+  emit(be, #xe8); // CALL
+  emit-constant-ref-relative
+    (be, dylan-integer-overflow-handler);
+end method trap-always;
