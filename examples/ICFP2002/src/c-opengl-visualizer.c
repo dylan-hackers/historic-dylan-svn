@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
 
     setUpGameState();
     
-    glutInitWindowSize(gMapWidth * 16, gMapHeight * 16);
+    glutInitWindowSize(gMapWidth * 8, gMapHeight * 8);
 
     printMap();
 

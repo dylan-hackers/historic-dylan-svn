@@ -307,7 +307,7 @@ end function receive-newline;
 define function receive-sharp (stream :: <stream>) => ()
   let c = stream.read-element;
   unless (c == '#')
-    message-error("receive-sharp: got '%c' instead of newline\n", c)
+    message-error("receive-sharp: got '%c' instead of #\n", c)
   end unless;
 end function receive-sharp;
 
@@ -345,6 +345,7 @@ end function receive-integer;
 // Read package information from the server
 define function receive-package-information(s :: <stream>) 
   => (id :: <integer>, x :: <integer>, y :: <integer>, weight :: <integer>)
+  if(s.peek ~= 'R')
     let package-id = receive-integer(s);
     receive-space(s);
     let package-x = receive-integer(s);
@@ -353,6 +354,13 @@ define function receive-package-information(s :: <stream>)
     receive-space(s);
     let package-weight = receive-integer(s);
     values(package-id, package-x, package-y, package-weight);
+  else
+    debug("%s\n", read-line(s));
+    debug("%s\n", read-line(s));
+    debug("%s\n", read-line(s));
+    debug("%s\n", read-line(s));
+    message-error("He's dead, Jim!\n");
+  end if;
 end function receive-package-information;
 
 // Return #t if more package information is available on the line
