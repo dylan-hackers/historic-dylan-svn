@@ -1,9 +1,0 @@
-#! /bin/sh
-# postrm script for gwydion dylan
-#
-# see: dh_installdeb(1)
-
-#DEBHELPER#
-
-
-
