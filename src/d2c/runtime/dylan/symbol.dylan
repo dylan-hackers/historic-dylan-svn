@@ -34,7 +34,7 @@ module: dylan-viscera
 //
 // ### Note: currently, there is no support for unicode symbols.  We'll
 // have to fix that someday.  Also, we should probably consider storing
-// the symbol-string directly in a vector slot instead of a seperate
+// the symbol-string directly in a vector slot instead of a separate
 // string object.  Or at least copying the string before returning it in
 // as(<string>, symbol).
 //
@@ -117,7 +117,8 @@ end function rehash-symbols;
 define class <symbol> (<object>)
   //
   // The ``name'' of this symbol.  DO NOT MODIFY.
-  slot symbol-string :: <string>, setter: #f, required-init-keyword: string:;
+  // Note: currently, only byte-string symbols are supported.
+  constant slot symbol-string :: <byte-string>, required-init-keyword: string:;
   //
   // A case-independent hashing of the name.  We pre-compute it for effeciency.
   slot symbol-hashing :: <integer>, init-value: 0;
@@ -132,9 +133,8 @@ end;
 // we do anyway.  We need to somehow define how symbols are made.
 // 
 define sealed method make
-    (class == <symbol>, #key string :: <string>, table :: <symbol-table>)
+    (class == <symbol>, #key string :: <byte-string>, table :: <symbol-table>)
  => (res :: <symbol>);
-//  let string :: <byte-string> = as(<byte-string>, string);
   let hash :: <integer> = symbol-hash(string);
   let cell-index :: <integer> = modulo(hash, table.cell-count);
 
@@ -238,8 +238,15 @@ define constant $symbol-table :: <symbol-table>
 // as{singleton(<symbol>),<string>} -- exported GF method.
 //
 // Return the symbol corresponding to the given string.
-// 
+// Note: Only byte-string symbols are supported currently.
+//
 define sealed method as (class == <symbol>, string :: <string>)
+    => res :: <never-returns>;
+  error("%= is not a <byte-string>. Currently only strings of the class "
+        "<byte-string> may be coerced to a <symbol>.", string);
+end;
+
+define sealed inline method as (class == <symbol>, string :: <byte-string>)
     => res :: <symbol>;
   make(<symbol>, string: string, table: $symbol-table);
 end;
@@ -247,11 +254,13 @@ end;
 // as{one-of(<string>,<byte-string>),<symbol>} -- exported GF method.
 //
 // Return the symbol's name.
-// 
+// Perhaps we should we return a copy of the symbol-string otherwise the
+// user could potentially modify the symbol itself.
+//
 define sealed inline method as
     (class == <string>, symbol :: <symbol>)
-    => res :: <string>;
-  symbol.symbol-string;
+    => res :: <byte-string>;
+  as(<byte-string>, symbol);
 end;
 
 define sealed inline method as
