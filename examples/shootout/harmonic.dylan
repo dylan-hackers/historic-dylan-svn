@@ -1,4 +1,4 @@
-odule: harmonic
+module: harmonic
 
 begin
   let n = application-arguments()[0].string-to-integer;
@@ -8,5 +8,5 @@ begin
     partial-sum := partial-sum + 1.0d0 / i;
     i := i + 1.0d0;
   end while;
-  format-out("%d\n",partial-sum);
+  format-out("%.9f\n",partial-sum);
 end;

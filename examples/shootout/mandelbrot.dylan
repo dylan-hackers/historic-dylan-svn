@@ -1,4 +1,4 @@
-odule: mandelbrot
+module: mandelbrot
 use-libraries: common-dylan, io
 use-modules: common-dylan, standard-io, streams, format-out
 
