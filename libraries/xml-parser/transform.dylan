@@ -57,6 +57,8 @@ define method transform(in :: <reference>, tag-name :: <symbol>,
   do-reference-xform(in, state, str);
 end method transform;
 
+// added this method to clear up ambiguities between <reference> specialization
+// and <xform-state> specialization.
 define method do-reference-xform(in :: <entity-reference>,
                                  state :: <xform-state>, str :: <stream>)
   for(x in in.entity-value) transform(x, x.name, state, str) end;
