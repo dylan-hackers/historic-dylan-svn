@@ -439,9 +439,13 @@ define method read-request (request :: <request>) => ()
       let qpos = char-position('?', buffer, bpos, epos);
       // Should his trim trailing whitespace???
       request.request-uri := substring(buffer, bpos, qpos | epos);
-      request.request-query-values := iff(qpos,
-                                          extract-query-values(buffer, qpos + 1, epos),
-                                          allocate-resource(<string-table>));
+      log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
+      let query = decode-url(buffer, qpos + 1, epos);
+      log-debug("Decoded query string = %s", query);
+      request.request-query-values
+        := iff(qpos,
+               extract-query-values(query, 0, size(query)),
+               allocate-resource(<string-table>));
       let bpos = skip-whitespace(buffer, epos, len);
       let vpos = whitespace-position(buffer, bpos, len) | len;
       request.request-version := extract-request-version(buffer, bpos, vpos);
@@ -502,13 +506,18 @@ define method read-request (request :: <request>) => ()
                 sz
               end;
       assert(n == sz, "Unexpected incomplete read");
-      let query = substring(buffer, len, len + sz);
+      log-debug("Form query string = %=", copy-sequence(buffer, start: len, end: len + sz));
+      // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
+      // Must do this before calling decode-url.
+      for (i from len below len + sz)
+        iff(buffer[i] == '+', buffer[i] := ' ');
+      end;
+      let query = decode-url(buffer, len, len + sz);
       request.request-post-query := query;
       // By the time we get here request-query-values has already been bound to a <string-table>
       // containing the URI query values.  Now we augment it with any form values.
       request.request-query-values
         := extract-query-values(query, 0, size(query), table: request.request-query-values);
-      log-debug("Form query string = %=", query);
     else
       unsupported-media-type-error();
     end;
@@ -577,8 +586,8 @@ define method invoke-handler
   response
 end;
 
-define function read-request-line (stream :: <stream>)
-  => (buffer :: <byte-string>, len :: <integer>)
+define function read-request-line
+    (stream :: <stream>) => (buffer :: <byte-string>, len :: <integer>)
   let buffer = grow-header-buffer("", 0);
   iterate loop (buffer :: <byte-string> = buffer,
                 len :: <integer> = buffer.size,
