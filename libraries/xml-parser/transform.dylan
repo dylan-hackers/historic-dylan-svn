@@ -25,7 +25,7 @@ define method transform(nodes :: <node>, tag-name :: <symbol>,
 end method transform;
 
 define method transform(in :: <document>, tag-name :: <symbol>, 
-    state == #"none", str :: <string>) => (xform :: <string>)
+    state :: <symbol>, str :: <string>) => (xform :: <string>)
   next-method();
 end method transform;
 

@@ -21,7 +21,7 @@ end method do-the-rest;
 define method do-the-rest(sym == #"file", str :: <string>)
   with-open-file(in = str)
     let (index, doc) = parse-document(in.stream-contents);
-    format-out("Doug's doc:\n%s\n", transform-document(doc));
+    format-out("%s", transform-document(doc, state: #"html"));
    // display-node(doc);
   end;
 end method do-the-rest;
@@ -53,4 +53,36 @@ begin
   
   main(application-name(), application-arguments());
 end;
+
+//-------------------------------------------------------
+// Here's an example of tranforming XML to XML readable 
+// as HTML
+define method transform(in :: <document>, tag-name :: <symbol>,
+    state == #"html", str :: <string>) => (xform :: <string>)
+  format-to-string("<HTML>\n <TITLE>XML as HTML</TITLE>\n"
+    " <BODY>\n%s\n </BODY>\n</HTML>", next-method());
+end method transform;
+
+define method transform(in :: <element>, tag-name :: <symbol>,
+    state == #"html", str :: <string>) => (xform :: <string>)
+  let string = format-to-string("&lt;%s", as(<string>, tag-name));
+  for(x in in.element-attributes)
+    string := transform(x, x.name, #"html", string);
+  end for;
+  format-to-string("%s&gt;\n<br>%s\n<br>&lt;/%s&gt;\n<br>",
+    string, next-method(), as(<string>, tag-name));
+end method transform;
+
+define method transform(in :: <attribute>, tag-name :: <symbol>,
+    state == #"html", str :: <string>) => (xform :: <string>)
+  format-to-string("%s %s=%s", str, as(<string>, tag-name),
+                   in.attribute-value);
+end method transform;
+
+define method transform(in :: <entity-reference>, tag-name :: <symbol>,
+                        state == #"html", str :: <string>)
+ => (xform :: <string>)
+  format-to-string("%s<font color='green'>&amp;%s;</font>",
+    str, as(<string>, tag-name));
+end method transform;
 
