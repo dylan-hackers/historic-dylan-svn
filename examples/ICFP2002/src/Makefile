@@ -29,6 +29,12 @@ install: icfp2002
 test: icfp2002
 	./icfp2002 cantor.gwydiondylan.org 6969
 
+single: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22001
+
+multi:  icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22101
+
 network-internal.dylan: network-internal.intr network-internal.h
 	melange --d2c -I`gcc --print-file-name=include` network-internal.intr network-internal.dylan
 
