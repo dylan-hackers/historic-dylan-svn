@@ -4,6 +4,30 @@
 #@SysInclude { graph }
 #@SysInclude { eq }
 
+macro @FF { 0.9vx @Break -1p @Font @F }
+
+extend @DiagSetup @Diag
+def @RunningTree
+	named a { A }
+	named b { B }
+	named c { C }
+	named d { D }
+{
+@Tree
+	{
+		@Circle a
+		@LeftSub
+		{
+			@Circle b
+		}
+		@RightSub
+		{
+			@Circle c
+			@RightSub @Circle d
+		}
+	}
+}
+
 
 @Report
 @DateLine { Yes }
@@ -111,7 +135,7 @@ more demanding ones later.
 @Title { A Tree }
 @Begin
 @IndentedDisplay {
-@F @Diag
+@I @Diag
 arrow { yes }
 {
 	@Tree
@@ -129,8 +153,6 @@ arrow { yes }
 	}
 }
 }
-
-@LP
 @F {
 > ex1 = [a] where
 @LLP
@@ -143,7 +165,7 @@ arrow { yes }
 >"        "d = Node ('D', [])
 
 }
-@PP
+@DP
 This graph is called a tree because it has no cycles.
 @End @SubSubSection
 
@@ -151,9 +173,27 @@ This graph is called a tree because it has no cycles.
 @SubSubSection
 @Title { A Cyclic Unidirectional Graph }
 @Begin
-@PP
-@I [fancy picture here]
-@LP
+@IndentedDisplay {
+@I @Diag
+arrow { yes }
+{
+	@Tree
+	{
+		@Circle A
+		@LeftSub
+		{
+			@Circle B
+		}
+		@RightSub
+		{
+			@Circle C
+			@RightSub @Circle D
+		}
+	}
+//
+@Link path { acurve } from { R@R@T } to  { T }
+}
+}
 @F {
 > ex2 = [a] where
 @LLP
@@ -165,7 +205,7 @@ This graph is called a tree because it has no cycles.
 @LLP
 >"        "d = Node ('D', [a])
 }
-@PP
+@DP
 This graph has a cycle A @Sym arrowright C @Sym arrowright D @Sym arrowright A.
 @End @SubSubSection
 
@@ -173,21 +213,39 @@ This graph has a cycle A @Sym arrowright C @Sym arrowright D @Sym arrowright A.
 @SubSubSection
 @Title { A Cyclic Undirected Graph }
 @Begin
-@PP
-@I [fancy picture here]
-@LP
-@F {
-> ex3 = [a] where TODO!
-@LLP
->"        "a = Node ('A', [b, c])
-@LLP
->"        "b = Node ('B', [a, c])
-@LLP
->"        "c = Node ('C', [a, b, d])
-@LLP
->"        "d = Node ('D', [a, c])
+@IndentedDisplay {
+@I @Diag
+arrow { no }
+{
+	@Tree
+	{
+		@Circle A
+		@LeftSub
+		{
+			@Circle B
+		}
+		@RightSub
+		{
+			@Circle C
+			@RightSub @Circle D
+		}
+	}
+//
+@Link path { acurve } from { R@R@T } to  { T }
 }
-@PP
+}
+@F {
+> ex3 = [a] where
+@LLP
+>"        "a = Node ('A', [b, c, d])
+@LLP
+>"        "b = Node ('B', [a])
+@LLP
+>"        "c = Node ('C', [a, d])
+@LLP
+>"        "d = Node ('D', [c, a])
+}
+@DP
 This graph is by our convention not directed, because for every edge there
 is another in the opposite direction. In the Haskell definition of the graph
 we see this fact by observing that the egde list of each vertex mentions each
@@ -198,22 +256,42 @@ connected neighbor.
 @SubSubSection
 @Title { A Graph with Short Cycles }
 @Begin
-@PP
-@I [fancy picture here]
-@LP
+@IndentedDisplay {
+@I @Diag
+arrow { yes }
+{
+	@Tree
+	{
+		@Circle A
+		@LeftSub
+		{
+			@Circle B
+		}
+		@RightSub
+		{
+			@Circle C
+			@RightSub @Circle D
+		}
+	}
+//
+@Link path { acurve } from { R@R@T } to  { T }
+@Link bias { 1f } path { ccurve } from { R@R@T@SW } to  { R@R@T@W }
+@Link bias { 1f } path { ccurve } from { L@T@SW } to  { L@T@W }
+}
+}
 @F {
 > ex4 = [a] where
 @LLP
 >"        "a = Node ('A', [b, c])
 @LLP
->"        "b = Node ('B', [b, c])
+>"        "b = Node ('B', [b])
 @LLP
 >"        "c = Node ('C', [d])
 @LLP
 >"        "d = Node ('D', [a, d])
 }
-@PP
-This graph has short cycles: B --> B and D --> D.
+@DP
+This graph has short cycles: B @Sym arrowright B and D @Sym arrowright D.
 @End @SubSubSection
 
 @EndSubSubSections
@@ -253,7 +331,7 @@ some problems that need to be tackled in isolation.
 Our aim is to exchange the payload values of graphs with integers that have
 certain well-defined properties. We start out with prime numbers.
 @LP
-@F @Verbatim {
+@FF @Verbatim {
 > primes = 2:primes' where
 >       primes' = [x|x <- [3..], prime x];
 >       prime x = and (map (\p->x `mod` p /= 0)
@@ -263,7 +341,7 @@ certain well-defined properties. We start out with prime numbers.
 Because this is the classical sieve of Erasthothenes we simply trust it produces
 the right results:
 @LP
-@F @Verbatim {
+@FF @Verbatim {
 > take 10 primes
 -> [2,3,5,7,11,13,17,19,23,29]
 }
@@ -272,26 +350,31 @@ The @F transform is expected to receive a graph and a list of primes and to retu
 the transformed graph with the minor change in the payload that it pairs the old
 payload with the newly determined prime:
 @LP
-@F @Verbatim {
+@FF @Verbatim {
 > transform :: Graph a -> [Integer] -> Graph (a, Integer)
 > transform [] _ = []
 > transform (Node(t, es):vs) (p:ps) = Node((t, p), transform es ps):transform vs ps}
 @DP
 Applying @F transform on @F ex1 we get
-@DP
-@I [fancy picture here]
+@IndentedDisplay {
+@Diag
+arrow { yes }
+{
+	@RunningTree a { (@I A, 2) } b { (@I B, 3) } c { (@I C, 5) } d { (@I D, 7) }
+}
+}
 @DP
 For @F ex1 we can also make use of the derived @F Show class provided by Haskell
 to output both the original and the transformed graph textually:
 @DP
-@F @Verbatim {
+@FF @Verbatim {
 > data Vertex a = Node (a, [Vertex a]) deriving Show
 -> [Node (('A',2),[Node (('B',3),[]),Node (('C',5),[Node (('D',7),[])])])]
 }
 @DP
 Let's change our example a bit:
 @LP
-@F @Verbatim {
+@FF @Verbatim {
 > ex1' = [a] where
 >       a = Node ('A', [b, c])
 >       b = Node ('B', [d])
@@ -309,7 +392,7 @@ ascends to them.
 So we modify @F transform to also return the list of unused primes as a result
 that can be used for transforming the rest of the graph:
 @LP
-@F @Verbatim {
+@FF @Verbatim {
 > transform' :: Graph a -> [Integer] -> (Graph (a, Integer), [Integer])
 > transform' [] ps = ([], ps)
 > transform' (Node(t, es):vs) (p:ps) = (Node((t, p), tes):tvs, ps'')
@@ -413,7 +496,7 @@ Lets make a first attempt:
 @F {
 > carry :: Integer -> Integer -> Integer
 @LLP
-> carry from into = from * into
+> carry from into = from * from * into
 @LLP
 >
 @LLP
