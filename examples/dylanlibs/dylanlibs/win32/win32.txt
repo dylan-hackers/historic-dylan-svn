@@ -57,7 +57,12 @@ the HTML tidy componenet availble from the following web site:
 Notification of interesting win32 events. For example, the system time
 changing.
 
+7) win32-wininet
+================
+
+Wrappers around the Windows WinInet functionality.
+
 -- 
 Chris Double.  
-24 September 2001.
+31 October 2001.
 
