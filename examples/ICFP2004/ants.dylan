@@ -1,5 +1,6 @@
 module: ants
 
+/*
 define /* functional */ class <position> (<object>)
   constant slot x :: <integer> = 0, init-keyword: x:;
   constant slot y :: <integer> = 0, init-keyword: y:;
@@ -8,6 +9,22 @@ end class <position>;
 define function make-position(x :: <integer>, y :: <integer>)
  => (p :: <position>)
   make(<position>, x: x, y: y);
+end function make-position;
+*/
+
+define constant <position> = <integer>;
+
+define inline-only function x (p :: <position>) => (x :: <integer>);
+  logand(p, #xFFFF)
+end function;
+
+define inline-only function y (p :: <position>) => (y :: <integer>);
+  ash(p, -16)
+end function;
+
+define inline-only function make-position(x :: <integer>, y :: <integer>)
+ => (p :: <position>)
+  logior(x, ash(y, 16))
 end function make-position;
 
 define constant <direction> = limited(<integer>, min: 0, max: 5);
