@@ -78,6 +78,7 @@ function short_header ($title) {
     <div class="sideMenuBox lighterBG">
       <div>User Resources</div>
       <A HREF="downloading.phtml">&rsaquo; Downloading Software</A>
+      <A HREF="tools.phtml">&rsaquo; Working with Other Tools</a>
       <A HREF="gdref.phtml">&rsaquo; Documentation</A>
       <A HREF="lists.phtml">&rsaquo; Mailing Lists</A>
       <A HREF="/cgi-bin/bugzilla/index.cgi">&rsaquo; Bug Tracker</A>
