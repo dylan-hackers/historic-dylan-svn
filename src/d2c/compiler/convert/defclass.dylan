@@ -1,5 +1,5 @@
 module: define-classes
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defclass.dylan,v 1.8 2000/01/24 04:56:10 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defclass.dylan,v 1.8.4.1 2000/06/12 03:41:08 emk Exp $
 copyright: see below
 
 
@@ -1437,7 +1437,7 @@ define method maker-inline-expansion
   let region = build-maker-function-body(builder, class-defn);
   let leaf = make-function-literal(builder, #f, #"function", #"local",
 				   maker-defn.function-defn-signature, region);
-  optimize-component(component, simplify-only: #t);
+  optimize-component(*current-optimizer*, component, simplify-only?: #t);
   leaf;
 end method maker-inline-expansion;
 

@@ -1,5 +1,5 @@
 Module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.3 2000/01/24 04:56:19 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.3.4.1 2000/06/12 03:41:09 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -606,15 +606,6 @@ end;
 
 
 
-// Functions defined in support libraries.
-
-define open generic optimize-component
-    (component :: <component>, #key simplify-only) => ();
-
-define open generic build-xep-component
-    (function :: <ct-function>, generic-entry? :: <boolean>)
- => (entry :: <fer-function-region>, component :: <component>);
-
 // Seals for file front.dylan
 
 // <let-assignment> -- subclass of <fer-assignment>

@@ -1,5 +1,5 @@
 module: null-optimizer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/null-optimizer.dylan,v 1.1 2000/06/11 21:20:36 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/null-optimizer.dylan,v 1.1.2.1 2000/06/12 03:41:09 emk Exp $
 copyright: see below
 
 
@@ -42,17 +42,43 @@ define method optimize-component
      #key simplify-only? :: <boolean>)
  => ()
   unless (simplify-only?)
-    maybe-dump-fer(optimizer, component);
+    debug-message(optimizer, "Optimizing new component");
+    debug-dump(optimizer, component);
+
     // XXX - We'll generate incorrect code until this function is fully
     // implemented. 
-
     // - SSA Convert
     // - Add Type Checks
     // - Replace Placeholders
     // - Environmental Analysis
 
-    dformat("\n******** Building external entry points for local funs");
+    debug-message(optimizer, "Building external entry points for local funs");
     build-local-xeps(component);
-    maybe-dump-fer(optimizer, component);    
+    debug-dump(optimizer, component);    
   end unless;
 end method optimize-component;
+
+// If we're debugging the optimizer, dump out the current representation of
+// the code.
+//
+define function debug-dump
+    (optimizer :: <abstract-optimizer>,
+     component :: <component>)
+ => ()
+  if (debug-optimizer?(optimizer))
+    dump-fer(component);
+  end;
+end;
+
+// If we're debugging the optimizer, dump out the current representation of
+// the code.
+//
+define function debug-message
+    (optimizer :: <abstract-optimizer>,
+     message :: <string>)
+ => ()
+  if (debug-optimizer?(optimizer))
+    dformat("\n******** %s\n\n", message);
+  end;
+end;
+

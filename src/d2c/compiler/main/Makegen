@@ -2,8 +2,8 @@
 &makegen_include("../common-Makegen");
 @potential_targets
     = &d2c_library('Main', 
-		   '-L../base -L../front -L../optimize -L../parser '
-		   . '-L../convert -L../cback');
+		   '-L../base -L../front -L../fer-transform -L../optimize '
+		   . '-L../parser -L../convert -L../cback');
 
 &emit_dbc_link_rule
     ('d2c.dbc', 

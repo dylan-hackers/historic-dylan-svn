@@ -1,5 +1,5 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5 2000/01/24 04:56:25 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/cheese.dylan,v 1.5.4.1 2000/06/12 03:41:10 emk Exp $
 copyright: see below
 
 
@@ -30,20 +30,29 @@ copyright: see below
 //
 //======================================================================
 
+define class <cmu-optimizer> (<abstract-optimizer>)
+end;
+
 define variable *do-sanity-checks* :: <boolean> = #f;
 define method enable-sanity-checks () => (); *do-sanity-checks* := #t; end;
 define method disable-sanity-checks () => (); *do-sanity-checks* := #f; end;
 
+// XXX - This global needs to go away, but we're refactoring one step at
+// a time.
 define variable *print-shit* :: <boolean> = #f;
-define method print-debugging-output () => (); *print-shit* := #t; end;
-define method dont-print-debugging-output () => (); *print-shit* := #f; end;
 
 define variable *optimize-ncalls* :: <integer> = 0;
 
 // Note: the simplify-only: keyword is used only during inline
 // expansions.  It is not useful in any other situation.
 define method optimize-component
-    (component :: <component>, #key simplify-only) => ();
+    (optimizer :: <cmu-optimizer>,
+     component :: <component>,
+     #key simplify-only? :: <boolean>) => ();
+
+  // XXX - This is a gross thing to do.
+  *print-shit* := debug-optimizer?(optimizer);
+
   reverse-queue(component, #f);
   let done = #f;
   until (done)
@@ -92,7 +101,7 @@ define method optimize-component
 	      "eliminating common sub-expressions")
 	| try(propagate-constraints, "propagating constraints")
 	| try(optimistic-type-inference, "optimistic type inference")
-	| (simplify-only & (done := #t))
+	| (simplify-only? & (done := #t))
 	| try(add-type-checks, "adding type checks")
 	| try(replace-placeholders, "replacing placeholders")
 	| try(environment-analysis, "running environment analysis")

@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.36 2000/04/01 12:08:26 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.36.4.1 2000/06/12 03:41:09 emk Exp $
 copyright: see below
 
 //======================================================================
@@ -200,12 +200,10 @@ end method set-library;
 // Used in searching for files
 
 define constant $this-dir = #if (macos)
-								"";
-							#else
-								".";
-							#endif
-
-
+			       "";
+			    #else
+			       ".";
+			    #endif
 
 define method test-parse
     (parser :: <function>, file :: <byte-string>,
@@ -726,7 +724,7 @@ define method compile-1-tlf
 			  sig, init-function);
     add!(state.unit-init-functions, ctv);
   end;
-  optimize-component(component);
+  optimize-component(*current-optimizer*, component);
   emit-tlf-gunk(tlf, file);
   emit-component(component, file);
 end method compile-1-tlf;
@@ -1314,7 +1312,7 @@ define method build-command-line-entry
 		 returns: result-type);
   let ctv = make(<ct-function>, name: name-obj, signature: sig);
   make-function-literal(builder, ctv, #"function", #"global", sig, func);
-  optimize-component(component);
+  optimize-component(*current-optimizer*, component);
   emit-component(component, file);
   ctv;
 end method build-command-line-entry;
@@ -1407,7 +1405,7 @@ define method show-copyright(stream :: <stream>) => ()
   format(stream, "d2c (Gwydion Dylan) %s\n", $version);
   format(stream, "Compiles Dylan source into C, then compiles that.\n");
   format(stream, "Copyright 1994-1997 Carnegie Mellon University\n");
-  format(stream, "Copyright 1998,1999 Gwydion Dylan Maintainers\n");
+  format(stream, "Copyright 1998-2000 Gwydion Dylan Maintainers\n");
 end method show-copyright;
 
 define method show-usage(stream :: <stream>) => ()
@@ -1435,7 +1433,7 @@ define method show-help(stream :: <stream>) => ()
 "       -g, --debug:       Generate debugging code.\n"
 "       -s, --static:      Force static linking.\n"
 "       -d, --break:       Debug d2c by breaking on errors.\n"
-"       --dump-transforms: Display detailed optimizer information.\n"
+"       --debug-optimizer: Display detailed optimizer information.\n"
 "       -F, --cc-overide-command:\n"
 "                          Alternate method of invoking the C compiler.\n"
 "                          Used on files speficied with -f.\n"
@@ -1604,7 +1602,12 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 			    long-options: #("rpath"));
   add-option-parser-by-type(argp,
 			    <simple-option-parser>,
-			    long-options: #("dump-transforms"));
+			    long-options: #("debug-optimizer",
+					    "dump-transforms"));
+  add-option-parser-by-type(argp,
+			    <optional-parameter-option-parser>,
+			    long-options: #("optimization-level"),
+			    short-options: #("O"));
 			    
   // Parse our command-line arguments.
   unless(parse-arguments(argp, args))
@@ -1628,7 +1631,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     show-dylan-user-location(*standard-output*);
     exit(exit-code: 0);
   end if;
-
+  
   // Get our simple options.
   let library-dirs = option-value-by-long-name(argp, "libdir");
   let features = option-value-by-long-name(argp, "define");
@@ -1646,6 +1649,9 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   let debug? = option-value-by-long-name(argp, "debug");
   *emit-all-function-objects?* = debug?;
 
+  // For folks who have *way* too much time (or a d2c bug) on their hands.
+  let debug-optimizer = option-value-by-long-name(argp, "debug-optimizer");
+
   // Determine our compilation target.
   let target-machine-name = option-value-by-long-name(argp, "target");
   let target-machine =
@@ -1657,10 +1663,22 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   let targets-file = option-value-by-long-name(argp, "platforms") |
     $default-targets-dot-descr;
 
-  // For folks who have *way* too much time (or a d2c bug) on their hands.
-  if (option-value-by-long-name(argp, "dump-transforms"))
-    print-debugging-output();
-  end if;
+  // Figure out which optimizer to use.
+  // XXX - Recognize all integer values before next release.
+  let optimizer-class =
+    select (option-value-by-long-name(argp, "optimization-level") by \=)
+      #f => <cmu-optimizer>;
+      #t => <cmu-optimizer>;
+      "0" =>
+	format(*standard-error*,
+	       "d2c: warning: -O0 produces incorrect code\n");
+	<null-optimizer>;
+      "1" => <cmu-optimizer>;
+      otherwise =>
+	error("Unknown optimization level");
+    end select;
+  *current-optimizer* := make(optimizer-class,
+			      debug-optimizer?: debug-optimizer);
 
   // Process our regular arguments, too.
   let args = regular-arguments(argp);

@@ -1,5 +1,5 @@
 module: define-functions
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/deffunc.dylan,v 1.5 2000/01/27 22:55:34 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/deffunc.dylan,v 1.5.4.1 2000/06/12 03:41:08 emk Exp $
 copyright: see below
 
 
@@ -632,7 +632,7 @@ define method expand-inline-function
     let leaf = fer-convert-method(builder, meth, name, #f, #"local",
 				  lexenv, lexenv,
 				  next-method-info: next-method-info);
-    optimize-component(component, simplify-only: #t);
+    optimize-component(*current-optimizer*, component, simplify-only?: #t);
     leaf;
   end unless;
 end method expand-inline-function;
