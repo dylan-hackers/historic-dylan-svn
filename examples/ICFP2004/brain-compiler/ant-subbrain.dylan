@@ -108,15 +108,3 @@ define macro ant-subbrain-definer
   }
 end macro ant-subbrain-definer;
 
-define ant-subbrain test-ant-subbrain
-   Move 3 5
-;   PickUp 3 5
-;   Flip 2 3 5
-;   Mark 3 5
-;   Unmark 3 5
-;   Turn Right 5
-;   Turn Left 5
-;   Move 3 5
-;   Sense Ahead 1 3 Food
-;Sense RightAhead 21 15 Marker 1
-end;
