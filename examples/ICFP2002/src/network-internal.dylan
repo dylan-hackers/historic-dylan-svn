@@ -542,11 +542,16 @@ define method listen
 end method listen;
 
 define method accept
-    (arg1 :: <integer>, arg2 :: <sockaddr>, arg3 :: <anonymous-121>)
- => (result :: <integer>);
+    (arg1 :: <integer>)
+ => (result :: <integer>, arg2 :: <sockaddr>, arg3 :: <socklen-t>);
+  let arg2-ptr = make(<sockaddr>);
+  let arg3-ptr = make(<anonymous-121>);
   let result-value
-    = call-out("accept", int:, int: arg1, ptr: (arg2).raw-value, ptr: (arg3).raw-value);
-  values(result-value);
+    = call-out("accept", int:, int: arg1, ptr: arg2-ptr.raw-value, ptr: arg3-ptr.raw-value);
+  let arg2-value = pointer-value(arg2-ptr);
+  let arg3-value = pointer-value(arg3-ptr);
+destroy(arg3-ptr);
+  values(result-value, arg2-value, arg3-value);
 end method accept;
 
 define method shutdown

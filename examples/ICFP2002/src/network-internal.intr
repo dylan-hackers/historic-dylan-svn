@@ -28,6 +28,9 @@ define interface
   function "getprotobyname",
     equate-argument: {1 => <c-string>},
     map-argument: {1 => <byte-string>};
+  function "accept",
+    output-argument: 2,
+    output-argument: 3;
   pointer "char *" => <c-char-vector>,
     superclasses: {<c-vector>};
   pointer "char **" => <c-char-pointer-vector>,

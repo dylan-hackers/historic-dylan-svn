@@ -17,24 +17,68 @@ define method tcp-client-connection (hostname :: <byte-string>,
   end for;
   server-address.get-sin-port := htons(port);
 
-  let foo = socket($PF-INET, $SOCK-STREAM, $IPPROTO-TCP);
-  if(foo == -1)
+  let fd-socket = socket($PF-INET, $SOCK-STREAM, $IPPROTO-TCP);
+  if(fd-socket == -1)
     error("socket() failed");
   end if;
 
-  let rc = connect(foo, server-address, <sockaddr-in>.content-size);
-  if(foo == -1)
+  let rc = connect(fd-socket, server-address, <sockaddr-in>.content-size);
+  if(rc == -1)
     error("connect() failed");
   end if;
 
-  let input-stream = make(<fd-stream>, fd: foo, direction: #"input");
-  let output-stream = make(<fd-stream>, fd: foo, direction: #"output");
+  let input-stream = make(<fd-stream>, fd: fd-socket, direction: #"input");
+  let output-stream = make(<fd-stream>, fd: fd-socket, direction: #"output");
   values(input-stream, output-stream);
 end method tcp-client-connection;
 
-/*
+define class <server-socket> (<object>)
+  slot fd, init-keyword: fd:;
+end class <server-socket>;
+
+define method tcp-server-socket (port :: <integer>) 
+ => (sock :: <server-socket>);
+  let server-address = make(<sockaddr-in>);
+  server-address.get-sin-family := $AF-INET;
+  server-address.get-sin-addr.get-s-addr := $INADDR-ANY;
+  server-address.get-sin-port := htons(port);
+
+  let fd-socket = socket($PF-INET, $SOCK-STREAM, $IPPROTO-TCP);
+  if(fd-socket == -1)
+    error("socket() failed");
+  end if;
+
+  let rc = bind(fd-socket, server-address, <sockaddr-in>.content-size);
+  if(rc == -1)
+    error("bind() failed");
+  end if;
+
+  rc := listen(fd-socket, 5);
+  if(rc == -1)
+    error("bind() failed");
+  end if;
+
+  make(<server-socket>, fd: fd-socket);
+end method tcp-server-socket;
+
+define method tcp-server-accept(sock :: <server-socket>)
+ => (socket-input :: <fd-stream>, socket-output :: <fd-stream>);
+  
+  let client-address = make(<sockaddr-in>);
+  let client-fd 
+    = accept(sock.fd);
+  if(client-fd == -1)
+    error("bind() failed");
+  end if;
+  let input-stream = make(<fd-stream>, fd: client-fd, direction: #"input");
+  let output-stream = make(<fd-stream>, fd: client-fd, direction: #"output");
+  values(input-stream, output-stream);
+end method tcp-server-accept;
+
+/* example code for poll, in case you need to find out which
+   sockets are readable or writable. See 'man poll'.
   let poll-list = make(<pollfd>, element-count: 4);
-  map(get-fd-setter, list(foo, foo,
+  map(get-fd-setter, list(fd-socket, fd-socket,
                        *standard-input*.file-descriptor,
                        *standard-output*.file-descriptor),
       poll-list);

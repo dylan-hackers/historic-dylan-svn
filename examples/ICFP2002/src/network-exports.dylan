@@ -21,6 +21,9 @@ define module network-internal
     getprotobyname, 
     socket,
     connect,
+    bind,
+    listen,
+    accept,
     htons,
     sendto,
     $PF-INET, 
@@ -54,15 +57,21 @@ define module network-internal
     get-ai-next,
 
     get-p-proto,
+    get-s-addr,
+    get-s-addr-setter,
     get-sa-data,
     get-sin-family,
     get-sin-family-setter,
     get-sin-port,
     get-sin-port-setter,
+    get-sin-addr,
     get-h-addr-list,
     get-h-addrtype,
     get-h-length,
-    <sockaddr-in>;
+    <sockaddr-in>,
+
+    $AF-INET,
+    $INADDR-ANY;
 end module network-internal;
 
 define module network
@@ -71,6 +80,9 @@ define module network
   use streams;
   use network-internal;
 
-  export tcp-client-connection;
+  export 
+    tcp-client-connection,
+    tcp-server-socket,
+    tcp-server-accept;
 end module network;
 
