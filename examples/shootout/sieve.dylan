@@ -1,5 +1,5 @@
 module:    sieve
-synopsis:  implemenation of "Sieve of Eratosthenes" benchmark
+synopsis:  implementation of "Sieve of Eratosthenes" benchmark
 author:    Eric Kidd <eric.kidd@pobox.com>
 copyright: public domain
 
