@@ -101,7 +101,7 @@ end function;
 define macro glColor
   { glColor(?r:expression, ?g:expression, ?b:expression) }
     => { glColor3(?r, ?g, ?b) }
-  { glColor(?x:expression, ?g:expression, ?b:expression, ?a:expression) }
+  { glColor(?r:expression, ?g:expression, ?b:expression, ?a:expression) }
     => { glColor4(?r, ?g, ?b, ?a) }
 end macro;
 
@@ -1096,6 +1096,7 @@ define interface
   pointer "GLdouble*" =>  <c-double-vector>, superclasses: {<c-vector>};
   pointer "GLfloat*"  =>   <c-float-vector>, superclasses: {<c-vector>};
   pointer "GLint*"    => <c-integer-vector>, superclasses: {<c-vector>};
+  pointer "GLubyte*"  => <c-byte-vector>,    superclasses: {<c-vector>};
 
   function "glAccum"       => glAccum-internal;
   function "glAlphaFunc"   => glAlphaFunc-internal;
@@ -1108,4 +1109,5 @@ define interface
   function "glCopyTexImage2D"   => glCopyTexImage2D-internal;
   function "glCopyTexSubImage1D"   => glCopyTexSubImage1D-internal;
   function "glCopyTexSubImage2D"   => glCopyTexSubImage2D-internal;
+  function "glGenTextures", output-argument: 2;
 end interface;
