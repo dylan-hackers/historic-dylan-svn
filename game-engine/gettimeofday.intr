@@ -10,7 +10,7 @@ define method current-time() => (now :: <double-float>);
   let tv = make(<timeval>);
   let rc = gettimeofday(tv, as(<timezone>, 0));
   while(rc == -1) // Fscking Unix!!1!
-    format-out("Error %= occurred!\n", errno());
+    format-out("Error %= occurred!\n", 23 /* errno() */);
     force-output(*standard-output*);
     rc := gettimeofday(tv, as(<timezone>, 0));
   end;

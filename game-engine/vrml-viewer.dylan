@@ -74,8 +74,8 @@ end;
 define variable special-func :: <function> = callback-method(key :: <integer>, x :: <integer>, y :: <integer>) => ();
 //  post-event(make(<mouse-event>, button: button, state: state, location: make(<point>, x: x, y: y)));
   select(key)
-  //    $GLUT-KEY-UP => glutFullScreen();
-  //    $GLUT-KEY-DOWN => glutReshapeWindow(500, 500);
+    $GLUT-KEY-PAGE-UP => glutFullScreen();
+    $GLUT-KEY-PAGE-DOWN => glutReshapeWindow(500, 500);
     $GLUT-KEY-UP => *speed* := 5.0;
     $GLUT-KEY-DOWN => *speed* := -5.0;
     $GLUT-KEY-LEFT => *rotation-speed* := -1.0;
@@ -107,7 +107,9 @@ define variable passive-motion-func :: <function>
     post-event(make(<motion-event>, 
                     location: make(<point>, x: x, y: y), passive?: #t));
     glutWarpPointer(250, 250);
-    $camera.looking-at := rotate-y(as(<double-float>, x - 250) / 200.0) * $camera.looking-at;
+    $camera.looking-at := rotate-y(as(<double-float>, x - 250) / 200.0) 
+      * rotate-x(as(<double-float>, 250 - y) / 200.0) 
+      * $camera.looking-at;
   end unless;
 end;
 
@@ -121,7 +123,13 @@ define variable *last-stamp* = 0.0;
 define variable *speed* = 0.0;
 define variable *rotation-speed* = 0.0s0;  
 define constant $camera = make(<camera>,
-                               position:  3d-point ( 0.0, 1.7, 10.0 ));
+                               position:  3d-point ( 0.0, 1.7, -10.0 ));
+define constant $light = make(<spotlight>,
+                         position:  3d-point ( 3.0s0, 3.0s0,-2.0s0, 1.0s0),
+                         direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
+                         ambient:   vector   ( 0.3,   0.3,   0.3, 1.0),
+                         diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
+                         specular:  vector   ( 0.3,   0.3,   0.3, 1.0));
 define constant $fps-text = make(<text>);
 
 define variable *frame-count* = 0;
@@ -139,6 +147,8 @@ define variable display-func :: <function> = callback-method() => ();
 //    $camera.angle := $camera.angle + delta-phi;
     $camera.looking-at := rotate-y(delta-phi) * $camera.looking-at;
     $camera.eye-position := $camera.eye-position + $camera.looking-at * delta-s;
+    $light.light-position := $camera.eye-position;
+    $light.spot-direction := $camera.looking-at;
   else
     *fps-stamp* := timestamp;
   end if;
@@ -169,13 +179,8 @@ define method main(progname, #rest arguments)
     *scene-graph* := 
       make(<container-node>, children: 
              vector($camera,
-                    make(<spotlight>,
-                         position:  3d-point ( 3.0s0, 3.0s0,-2.0s0, 1.0s0),
-                         direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
-                         ambient:   vector   ( 0.3,   0.3,   0.3, 1.0),
-                         diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
-                         specular:  vector   ( 0.3,   0.3,   0.3, 1.0)),
-                    make(<line-grid>),
+                    $light,
+//                    make(<line-grid>),
 //                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
 //                         translation: 3d-vector(3.0, 3.0, -2.0), 
 //                         children: vector(make(<sphere>))),
@@ -248,7 +253,7 @@ define method main(progname, #rest arguments)
   glutSpecialFunc(special-func);
   glutSpecialUpFunc(special-up-func);
 
-//  glutFullScreen();
+  glutFullScreen();
 
   glutMainLoop();
   glutDestroyWindow(win);

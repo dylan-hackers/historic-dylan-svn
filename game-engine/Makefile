@@ -2,7 +2,7 @@ go: vrml-viewer
 #	./vrml-viewer test-zentrale.wrl
 
 vrml-viewer: vrml-viewer.lid ../examples/gdgl/opengl.lib.du ../examples/meta/meta.lib.du ../libraries/libpng-dylan/libpng.lib.du
-	d2c -g -L../examples/gdgl -L../examples/meta -L../libraries/libpng-dylan $<
+	d2c --static -g -L../examples/gdgl -L../examples/meta -L../libraries/libpng-dylan $<
 
 vrml-viewer.lid: \
   vrml-viewer-exports.dylan \

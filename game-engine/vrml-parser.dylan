@@ -242,7 +242,10 @@ define meta node (c, node) => (node)
    ["Shape",            ws(c), "{", scan-ShapeNode(node),          ws?(c), "}"],
    ["Transform",        ws(c), "{", scan-TransformNode(node),      ws?(c), "}"],
    ["Viewpoint",        ws(c), "{", scan-ViewpointNode(node),      ws?(c), "}"],
-   ["WorldInfo",        ws(c), "{", scan-WorldInfoNode(node),      ws?(c), "}"]
+   ["WorldInfo",        ws(c), "{", scan-WorldInfoNode(node),      ws?(c), "}"],
+   ["SpotLight",        ws(c), "{", scan-SpotLightNode(node),      ws?(c), "}"],
+   ["PointLight",       ws(c), "{", scan-PointLightNode(node),     ws?(c), "}"],
+   ["DirectionalLight", ws(c), "{", scan-DirectionalLightNode(node),     ws?(c), "}"]
   }
 
 end node;
@@ -408,8 +411,45 @@ define meta ImageTextureNode (c, url, repeat-s, repeat-t)
          ["repeatT", ws(c), scan-SFBool(repeat-t)]}])
 end ImageTextureNode;
 
-  
-  
+define meta SpotLightNode (c, ambientIntensity, attenuation,
+                            beamWidth, color, CutOffAngle, direction, 
+                            intensity, location, on, radius)
+  loop([ws?(c),
+        {["ambientIntensity",  ws(c), scan-SFFloat(ambientIntensity)],
+         ["attenuation",       ws(c), scan-SFVec3f(attenuation)],
+         ["beamWidth",         ws(c), scan-SFFloat(beamWidth)],
+         ["color",             ws(c), scan-SFColor(color)],
+         ["cutOffAngle",       ws(c), scan-SFFloat(cutOffAngle)],
+         ["direction",         ws(c), scan-SFVec3f(direction)],
+         ["intensity",         ws(c), scan-SFFloat(intensity)],
+         ["location",          ws(c), scan-SFVec3f(location)],
+         ["on",                ws(c), scan-SFBool(on)],
+         ["radius",            ws(c), scan-SFFloat(radius)]}])
+end SpotLightNode;
+
+define meta PointLightNode (c, ambientIntensity, attenuation,
+                            color, intensity, location, on, radius)
+  loop([ws?(c),
+        {["ambientIntensity",  ws(c), scan-SFFloat(ambientIntensity)],
+         ["attenuation",       ws(c), scan-SFVec3f(attenuation)],
+         ["color",             ws(c), scan-SFColor(color)],
+         ["intensity",         ws(c), scan-SFFloat(intensity)],
+         ["location",          ws(c), scan-SFVec3f(location)],
+         ["on",                ws(c), scan-SFBool(on)],
+         ["radius",            ws(c), scan-SFFloat(radius)]}])
+end PointLightNode;
+
+define meta DirectionalLightNode (c, ambientIntensity, 
+                                  color, intensity, direction, on)
+  loop([ws?(c),
+        {["ambientIntensity",  ws(c), scan-SFFloat(ambientIntensity)],
+         ["color",             ws(c), scan-SFColor(color)],
+         ["intensity",         ws(c), scan-SFFloat(intensity)],
+         ["direction",         ws(c), scan-SFVec3f(direction)],
+         ["on",                ws(c), scan-SFBool(on)]}])
+end DirectionalLightNode;
+
+
 // scriptBody ::=
 //     scriptBodyElement |
 //     scriptBodyElement scriptBody |

@@ -51,6 +51,7 @@ define module vrml-model
     <camera>, eye-position, looking-at, looking-at-setter, up, eye-position-setter,
               viewport, viewport-setter,
     <spotlight>, light-position, ambient, diffuse, specular, spot-direction, light-id,
+    light-position-setter, spot-direction-setter,
     <appearance>, material, texture, texture-transform,
     <material>, ambient-intensity, diffuse-color, emissive-color, 
     shininess, specular-color, transparency,
