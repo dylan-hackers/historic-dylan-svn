@@ -370,4 +370,70 @@ define function parse-instruction(s :: <byte-string>)
   => (i :: <instruction>)
   let constituents = split-at-whitespace(s);
 
-  
+  local method sym(x)
+          as(<symbol>, constituents[x])
+        end method sym;
+
+  local method int(x)
+          string-to-integer(<symbol>, constituents[x])
+        end method sym;
+
+  let opcode = sym(0);
+
+  select(opcode)
+    #"sense" => make(<sense>, 
+                     sense-direction: int(1),
+                     state-true: int(2),
+                     state-false: int(3),
+                     condition: sym(4));
+    #"mark" => make(<mark>, 
+                     marker: int(1),
+                     state: int(2));
+    #"unmark" => make(<unmark>, 
+                      marker: int(1),
+                      state: int(2));
+    #"pickup" => make(<pickup>, 
+                      state-success: int(1),
+                      state-failure: int(2));
+    #"drop" => make(<drop>,
+                    state: int(1));
+    #"turn" => make(<turn>,
+                    left-or-right: sym(1));
+    #"move" => make(<move>,
+                    state-success: int(1));
+    #"flip" => make(<flip>,
+                    probability: int(1),
+                    state-success: int(2),
+                    state-failure: int(3));
+  end select;
+end function parse-instruction;
+
+define function adjacent-ants(p :: <position>, c :: <color>)
+  => (count :: <integer>)
+  let n = 0;
+  for(d from 0 below 6)
+    let cel = adjacent_cell(p, d);
+    if(some-ant-is-at(cel) & color(ant-at(cel)) == c)
+      n := n + 1;
+    end if;
+  end for;
+  n
+end function adjacent-ants;
+
+define function check_for_surrounded_ant_at(p :: <position>)
+  if(some-ant-is-at(p))
+    let a = ant-at(p);
+    if(adjacent-ants(p, other-color(color(a))) >= 5)
+      kill-ant-at(p);
+      set-food-at(p, food-at(p) + 3 + if(has-food(a)) 1 else 0 end);
+    end if;
+  end if;
+end function check_for_surrounded_ant_at;
+
+define function check-for-surrounded-ants(p :: <position>)
+  check-for-surrounded-ant-at(p);
+  for(d from 0 below 6)
+    check-for-surrounded-ant-at(adjacent-cell(p, d));
+  end for;
+end function check-for-surrounded-ants;
+
