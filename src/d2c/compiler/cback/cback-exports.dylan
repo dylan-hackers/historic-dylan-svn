@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.4 1998/11/06 17:48:10 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.4.8.1 1999/06/11 03:35:44 housel Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -93,11 +93,14 @@ define module cback
   export
     <unit-state>, unit-prefix, unit-init-roots, unit-eagerly-reference,
     <root>, root-name, root-init-value, root-comment,
-    <file-state>, 
-    emit-prologue, emit-tlf-gunk, emit-component,
+    <file-state>, file-body-stream, file-guts-stream,
+    file-prototypes-exist-for, get-string, $indentation-step,
+    emit-prologue, emit-tlf-gunk, emit-component, maybe-emit-include,
+    maybe-emit-prototype,
     get-info-for, const-info-heap-labels, const-info-heap-labels-setter,
     const-info-dumped?, const-info-dumped?-setter,
-    entry-point-c-name, *emit-all-function-objects?*, string-to-c-name;
+    entry-point-c-name, *emit-all-function-objects?*,
+    c-name, string-to-c-name, clean-for-comment;
 end;
 
 
@@ -121,8 +124,10 @@ define module heap
   use cback;
   use od-format;
   use platform;
+  use indenting-streams;
 
   export
+    <global-heap-file-state>, <local-heap-file-state>,
     build-global-heap, build-local-heap;
 end;
 
