@@ -1,1 +1,2 @@
-heap.c icfp2000-exports.c icfp2000-heap.c icfp2000-init.c icfp2000.c inits.c cc-icfp2000-files.mak .libs icfp2000
+*.c *.mak .libs icfp2000 *.mak-temp
+
