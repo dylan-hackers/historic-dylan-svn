@@ -94,19 +94,6 @@ define method print-object
   format(stream, "%s", page-uri(page));
 end;
 
-define method initialize
-    (page :: <page>, #key uri :: <string>, aliases,  #all-keys)
-  next-method();
-  register-page(uri, page);
-  when (aliases)
-    for (alias in iff(instance?(aliases, <string>),
-                      list(aliases),
-                      aliases))
-      register-alias-uri(alias, uri);
-    end;
-  end;
-end;
-
 // The protocol every page needs to support.
 define open generic respond-to-get  (page :: <page>, request :: <request>, response :: <response>);
 define open generic respond-to-post (page :: <page>, request :: <request>, response :: <response>);
@@ -136,14 +123,39 @@ define method process-page (page :: <page>,
 end process-page;
 
 // Applications should call this to register a page for a particular URI.
-define function register-page (uri :: <string>,
-                               page :: <page>,
-                               #key replace?)
-  register-uri(uri, curry(process-page, page), replace?: replace?);
+define function register-page
+    (uri :: <string>, page :: <page>, #key replace?)
+ => (responder :: <function>)
+  let responder = curry(process-page, page);
+  register-uri(uri, responder, replace?: replace?);
   *page-to-uri-map*[page] := uri;
-end register-page;
+  responder
+end;
 
-
+// Register URLs for all files matching the given pathname spec as instances
+// of the given page class.
+define method register-pages-as
+    (path :: <pathname>, page-class :: subclass(<file-page-mixin>),
+     #key descend? = #t, file-type)
+  // uri-dir always ends in '/'
+  local method doer (uri-dir, directory, name, type)
+          format-out("name = %=\n", name);
+          select (type)
+            #"file" =>
+              let file = merge-locators(as(<file-system-locator>, name), directory);
+              register-page(name, make(page-class,
+                                       source: file,
+                                       uri: concatenate(uri-dir, name)));
+            #"directory" =>
+              let dir = subdirectory-locator(directory, name);
+              format-out("dir = %=\n", as(<string>, dir));
+              when (descend?)
+                do-directory(curry(doer, concatenate(uri-dir, name, "/")), dir);
+              end;
+          end;
+        end;
+  do-directory(curry(doer, "/"), path);
+end;
 
 //
 // Page mixin classes and related methods
@@ -394,7 +406,7 @@ define method parse-tag-arg
 end;
 
 define method parse-tag-arg
-    (arg :: <string>, type :: <integer>) => (value :: <integer>)
+    (arg :: <string>, type :: subclass(<integer>)) => (value :: <integer>)
   string-to-integer(arg)
 end;
         
@@ -526,9 +538,24 @@ define macro page-definer
       end }
  => { define class "<" ## ?name ## ">" (?superclasses) ?slot-specs end;
       define variable "*" ## ?name ## "*" = make("<" ## ?name ## ">", ?make-args);
-      ignorable("*" ## ?name ## "*");
+      register-page-urls("*" ## ?name ## "*", ?make-args);
     }
 end;
+
+define function register-page-urls
+    (page :: <page>, #key uri :: <string>, alias, #all-keys)
+ => (responder :: <function>)
+  let responder = register-page(uri, page);
+  when (alias)
+    for (alias in iff(instance?(alias, <string>),
+                      list(alias),
+                      alias))
+      register-alias-uri(alias, uri);
+    end;
+  end;
+  responder
+end;
+
 
 // define tag foo in tlib (page, response) () do-stuff end
 // define body tag foo in tlib (page, response, do-body) (foo, bar :: <integer>) do-stuff end
@@ -864,7 +891,7 @@ define function parse-taglib-directive
         error("Invalid taglib directive in template %=.  "
               "The tag library named %= was not found.",
               tlib-name),
-        add!(taglibs, pair(tlib-prefix, tlib)));
+        add!(taglibs, pair(tlib-prefix | tlib-name, tlib)));
   end;
   body-start
 end;
@@ -1163,4 +1190,18 @@ define tag table-row-number in dsp
     format(output-stream(response), "%d", *table-row-number* + 1);
   end;
 end;
+
+
+//// Configuration
+
+define function auto-register-dylan-server-page
+    (uri :: <string>) => (responder :: <function>)
+  register-page(uri, make(<dylan-server-page>,
+                          source: safe-locator-from-uri(uri)))
+end;
+
+begin
+  *auto-register-map*["dsp"] := auto-register-dylan-server-page;
+end;
+
 
