@@ -2671,12 +2671,13 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<author>&person.auclair;</author>
     </docinfo>
     <TITLE>The Collection-Extensions Library</TITLE>
-    <sect1 id="libs-collection-extensions-introduction>
+    <sect1 id="libs-collection-extensions-introduction">
 	<title>Introduction</title>
     <PARA>
 The various modules in this library contain a few new types and operations which are compatible with the collection types specified in the Dylan Reference Manual, but which are not part of that specification. 
 </para><para>
 It is to be expected that more collection types will appear in time, and they will likely be added to this library. This may also result in reorganizations which could force incompatible changes to the existing modules. We hope to minimize such imcompatibilities and, when forced to them, will include sufficient information to facilitate conversion of existing code. </para>
+<para>
 Collection-extensions exports these modules: </para>
 <itemizedlist>
 <listitem>
@@ -2713,7 +2714,7 @@ Provides a small assortment of specialized operations for searching and modifyin
     <sect1 id="libs-collection-extensions-self-organizing-list">
 	<title>Module self-organizing-list</title>
 	<para>
-The "Self Organizing List" is a poor man’s hash table. More precisely, <classname>&lt;self-organizing-list&gt;</classname> is a subclass of <classname>&lt;mutable-explicit-key-collection&gt;</classname>> and <classname>&lt;stretchy-collection&gt;</classname> for which addition and retrieval are both linear in the worst case, but which use a probabilistic strategy which yields nearly constant time in the best case. 
+The "Self Organizing List" is a poor man’s hash table. More precisely, <classname>&lt;self-organizing-list&gt;</classname> is a subclass of <classname>&lt;mutable-explicit-key-collection&gt;</classname> and <classname>&lt;stretchy-collection&gt;</classname> for which addition and retrieval are both linear in the worst case, but which use a probabilistic strategy which yields nearly constant time in the best case. 
 </para>
 <para>
 Because they have a very low overhead, self-organizing lists may provide better peformance than hash tables in cases where references have a high degree of temporal locality. They may also be useful in situations where it is difficult to create a proper hash function. 
@@ -2727,6 +2728,69 @@ make(<self-organizing-list>, test: test)
 <para>
 <dlit>Test</dlit> is expected to be an equality function. In particular, it is expected to satisfy the identity and transitivity requirements as described in the &drm;. If not specified, <dlit>test</dlit> defaults to <function>\==</function>. 
 </para>
+    </sect1>
+    <sect1 id="libs-collection-extensions-subseq">
+	<title>Module subseq</title>
+	<para>
+<classname>&lt;Subsequence&gt;</classname> is a new subclass of <classname>&lt;sequence&gt;</classname>. A subsequence represents an aliased reference to some part of an existing sequence. Although they may be created by <function>make</function> (with required keywords <dlit>source:</dlit>, <dlit>start:</dlit> and <dlit>end:</dlit>) on one of the instantiable subclasses, they are more often created by calls of the form </para>
+<programlisting>
+subsequence(sequence, start: 0, end: 3)
+</programlisting>
+<para>
+where <dlit>start:</dlit> and <dlit>end:</dlit> are optional keywords which default to the beginning and end, respectively, of the source sequence. No other new operations are defined for subsequences, since all necessary operations are inherited from <classname>&lt;sequence&gt;</classname>. 
+</para>
+<para>
+Because subsequences are aliased references into other sequences, several properties must be remembered: 
+</para>
+<itemizedlist>
+<listitem><para>
+The contents of a subsequence are undefined after any destructive operation upon the source sequence. 
+</para>
+</listitem>
+<listitem>
+<para>
+Destructive operations upon subsequences may be reflected in the source. The results of <function>reverse!</function> and <function>sort!</function> should be expected to affect the source sequence for vector subsequences. 
+</para>
+</listitem>
+</itemizedlist>
+
+<para>
+If the source sequences are instances of <classname>&lt;vector&gt;</classname> or <classname>&lt;string</classname>, then the implementation will use subclasses of <classname>&lt;subsequence&gt;</classname> which are also subclasses of <classname>&lt;vector&gt;</classname> or <classname>&lt;string&gt;</classname>. 
+</para>
+<para>
+Efficiency notes: 
+</para>
+<itemizedlist>
+<listitem>
+<para>
+The implementation tries to insure that subsequences of subsequences can be accessed as efficiently as the original subsequence. (For example, the result of 
+</para>
+<programlisting>
+subsequence(subsequence(source, start: 1), start: 2)
+</programlisting>
+<para>
+would produce a subsequence identical to the one produced by 
+</para>
+<programlisting>
+subsequence(source, start: 3)
+</programlisting>
+</listitem>
+<listitem>
+<para>
+Vector subsequences, like all other vectors, implement constant time element access. 
+</para>
+</listitem>
+<listitem>
+<para>
+Non-vector subsequences may take non-constant time to create, but will provide constant-time access to the first element. This should produce the best performance provided some element of the subsequence is accessed at least once. 
+</para>
+</listitem>
+</itemizedlist>
+    </sect1>
+    <sect1 id="libs-collection-extensions-vector-search">
+	<title>Module vector-search</title>
+	<para>
+	</para>
     </sect1>
   </CHAPTER>
 
