@@ -1,11 +1,11 @@
 Module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.9 2001/10/06 15:30:42 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front.dylan,v 1.9.2.1 2002/08/11 09:46:29 gabor Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -277,7 +277,7 @@ define class <instance?> (<operation>)
   constant slot type :: <ctype>, required-init-keyword: type:;
 end;
 
-define class <nlx-operation> (<operation>)
+define abstract class <nlx-operation> (<operation>)
   constant slot nlx-info :: <nlx-info>, required-init-keyword: nlx-info:;
 end;
 
