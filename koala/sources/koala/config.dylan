@@ -77,6 +77,7 @@ define function warn
               apply(format-to-string, format-string, format-args));
 end;
 
+// Exported
 // The xml-parser library doesn't seem to define anything like this.
 define method get-attr
     (node :: xml$<element>, attrib :: <symbol>)
@@ -105,6 +106,13 @@ end;
 define method process-config-node (node :: xml$<element>) => ()
   process-config-element(node, xml$name(node));
 end;
+
+// Exported.
+// Libraries may specialize this.
+// Note that the previous comment about the XML parser's class hierarchy
+// applies here as well.  Otherwise this would specialize node more tightly.
+//
+define open generic process-config-element (node :: <object>, name :: <object>);
 
 define method process-config-element
     (node :: xml$<element>, name :: <object>)
@@ -447,3 +455,4 @@ end;
 // TODO:
 // <default-document>index.html</default-document>
 // <response>301</response>???
+

@@ -184,5 +184,11 @@
 
 </virtual-host>
 
+<!-- For the wiki example project.  Set the content-directory
+     to wherever you want the content of the wiki pages to be
+     stored. -->
+<!--
+<wiki content-directory = "www/wiki/content" />
+-->
 
 </koala>

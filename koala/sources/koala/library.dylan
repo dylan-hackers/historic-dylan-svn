@@ -203,7 +203,18 @@ define module koala
   // Logging
   create
     // These are wrappers for the defs by the same name in the utilities module.
-    log-copious, log-verbose, log-debug, log-info, log-warning, log-error;
+    log-copious,
+    log-verbose,
+    log-debug,
+    log-info,
+    log-warning,
+    log-error;
+
+  // Configuration
+  create
+    process-config-element,
+    get-attr;
+  use xml-parser, rename: { <element> => <xml-element> }, export: { <xml-element> };
 
   // XML-RPC
   create
