@@ -29,7 +29,10 @@ define module dylan-basics
     join,
     split,
     remove-keys,        // For removing keywords from #rest arglists.
-    raise;
+    raise,
+    ignore-errors,
+    table-keys,
+    table-values;
 end;
 
 

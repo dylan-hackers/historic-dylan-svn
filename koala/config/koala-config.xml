@@ -33,10 +33,12 @@
 <debug-server value="on" />
 
 
-<!-- There are three kinds of log file: debug, activity, and error.
-     Debug and error should be obvious.  The activity log is for logging
-     information useful for gathering statistics such as what URLs are
-     requested, what response code was returned, bytes sent, etc.
+<!-- There are three kinds of log file: debug, activity, and error.  The
+     error log contains only actual error conditions encountered by the
+     server.  The activity log is for logging information useful for
+     gathering statistics such as what URLs are requested, what response
+     code was returned, bytes sent, etc.  The debug log is for all other
+     log messages.
 
      All three types of log accept the following attributes:
 

@@ -2,7 +2,7 @@
 <%dsp:taglib name="wiki"/>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title><wiki:show-page-title/></title>
+  <title>Dylan Wiki: <wiki:show-title/></title>
 </head>
 
 <body>
@@ -15,9 +15,9 @@
 
   <form action="/wiki/edit.dsp" method="post">
   <div id="edit">
-    Title: <input type="text" name="title" value="<wiki:show-page-title/>"/>
+    Title: <input type="text" name="title" value="<wiki:show-title/>"/>
     <br/>
-    <textarea name="page-content" cols="80" rows="20"><wiki:show-page-content format="raw"/></textarea>
+    <textarea name="page-content" cols="80" rows="20"><wiki:show-content format="raw"/></textarea>
     <br/>
     <input type="submit" value="Save"/>
   </div>
