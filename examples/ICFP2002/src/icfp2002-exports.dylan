@@ -12,23 +12,10 @@ define library icfp2002
   use network;
 end library;
 
-define module icfp2002
-  use common-dylan, exclude: {string-to-integer}, export: all;
-  use format-out;
-  use format;
-  use subseq;
-  use streams, export: all;
-  use standard-io;
-  use string-conversions, import: {string-to-integer};
-  use extensions, import: {report-condition};
-//  use time;
-  use garbage-collection;
-  use network;
-end module;
-
 
 define module board
-  use icfp2002;
+  use common-dylan;
+  use streams;
   
   export
     <state>, board, robots, packages, packages-at,
@@ -51,7 +38,7 @@ define module path
 end module path;
 
 define module command
-  use icfp2002;
+  use common-dylan;
 
   export
     $north,
@@ -66,23 +53,23 @@ define module command
 end module command;
 
 define module messages
-  use icfp2002, exclude: {string-to-integer};
-  use string-conversions, import: {string-to-integer};
+  use common-dylan;
   use standard-io;
+  use streams;
   use character-type, import: {digit?};
   use board;
   use command;
 
-//  export
+  export
 //    <message-error>,
 //    message-error,
 //    add-error,
     // send routines
-//    send-player,  // This sends the "Player" message to the server to
+    send-player,  // This sends the "Player" message to the server to
                   //initialize.
-//    send-command,
+    send-command,
     // receive routines
-//    receive-initial-setup, // Reads initial board plus self robot, w/ robot
+    receive-initial-setup; // Reads initial board plus self robot, w/ robot
                            // positions. Does it all.
     // receive-initial-setup calls:
 //    receive-integer,
@@ -107,3 +94,19 @@ define module server
   use board;
   
 end module server;
+
+define module icfp2002
+  use common-dylan, exclude: {string-to-integer}, export: all;
+  use format-out;
+  use format;
+  use subseq;
+  use streams, export: all;
+  use standard-io;
+  use string-conversions, import: {string-to-integer};
+  use extensions, import: {report-condition};
+//  use time;
+  use garbage-collection;
+  use network;
+  use messages;
+  use board;
+end module;

@@ -12,18 +12,16 @@ define function read-configuration(stream :: <stream>)
   values(map(string-to-integer, split(" ", read-line(stream))))
 end function read-configuration;
 
-/*
 define function play-the-game(input :: <stream>, output :: <stream>) => ();
-  write-line(output, "Player");
-  force-output(*standard-error*);
-  let board :: <board> = read-board(input);
+  send-player(output);
+  force-output(output);
   let (my-id :: <integer>, 
        my-capacity :: <integer>, 
-       my-money :: <integer>) = read-configuration(input);
+       my-money :: <integer>, 
+       state :: <state>) = receive-initial-setup(input);
+/*
   let agent = make(<robot-agent>, id: my-id, 
                    capacity: my-capacity, money: my-money);
-  robots := read-robots(input);
-  let state = make(<state>, board: board, robots: robots);
 
   let running = #t;
   while(running)
@@ -32,10 +30,8 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
     send-move(output, move);
     state := read-movements(input, state);
   end while;
+  */
 end function play-the-game;
-  
-generate-next-move(agent :: <robot-agent>, state :: <board>) => (action :: <command>)
-*/
 
 define function main(name, arguments)
   if(arguments.size < 2)
@@ -43,7 +39,10 @@ define function main(name, arguments)
   end if;
   let (input-stream, output-stream) 
     = tcp-client-connection(arguments[0], string-to-integer(arguments[1]));
-  let running = #t;
+
+  play-the-game(input-stream, output-stream);
+
+/*  let running = #t;
   while(running)
     let line = read-line(input-stream, on-end-of-stream: #f);
     if(line)
@@ -53,6 +52,7 @@ define function main(name, arguments)
       running := #f;
     end if;
   end while;
+*/
   close(input-stream);
   close(output-stream);
   exit-application(0);
