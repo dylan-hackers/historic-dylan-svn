@@ -43,7 +43,7 @@ define method render-image(o, depth :: <integer>, filename, ambient :: <color>,
   let trace = get-tracer(o, ambient, lights);
 
   
-  for (y from 0 below height)
+  for (y from height above 0 by -1)
     for (x from 0 below width)
       let world-x :: <float> = as(<float>, x - truncate/(width, 2)) 
 				  / as(<float>, width) * world-width;
