@@ -102,7 +102,7 @@ define method generate-next-move(me :: <dumbot>, s :: <state>)
 	    new-loc = point(x: robot.location.x - 1, y: robot.location.y)
 	      => $west;
 	    new-loc = point(x: robot.location.x, y: robot.location.y)
-	      => error("Can't happen");
+	      => error("Can't happen, robot: %=, path: %=\n", robot, path);
 	  end case;*/
 	end if;
     return(make(<move>, bid: 1, direction: direction));
