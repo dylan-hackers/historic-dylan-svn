@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/designator-class.dylan,v 1.1.2.1 2000/05/18 22:01:14 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/designator-class.dylan,v 1.1.2.2 2000/07/06 20:30:36 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -81,6 +81,7 @@ define macro designator-class-definer
     { free ... } => { primary: #f, ... }
     { sealed ... } => { sealed: #t, ... }
     { open ... } => { sealed: #f, ... }
+    { functional ... } => { functional: #t, ... }
 
   type-options:
     { #rest ?all:*, 
@@ -88,11 +89,11 @@ define macro designator-class-definer
            ?referenced-type:expression = #f,
            ?pack:expression = #f,
            ?c-rep:expression = #f,
-           ?pointer-type-superclass:expression = #f,
            ?import-type:expression = #f,
            ?export-type:expression = #f,
            ?import-function:expression = #f,
            ?export-function:expression = #f,
+           ?pointer-type-superclass:expression = #f,
            ?indirect-getter:expression = #f,
            ?indirect-setter:expression = #f,
            ?pointer-value-getter-function:expression = #f,
