@@ -175,7 +175,6 @@ define sealed domain initialize(<attributed-string>);
 define function bgh-parse(s :: <byte-string>)
   let runs = make(<stretchy-vector>);
   let fragments = make(<stretchy-vector>);
-  let first-char = 0;
 
   let state-stack = make(<stretchy-vector>);
   let tag-stack = make(<stretchy-vector>);
@@ -183,27 +182,27 @@ define function bgh-parse(s :: <byte-string>)
   let curr-state = make(<attribute>);
   let run-state = make(<attribute>);
   let last-char-was-space = #f;
+  let non-space-char-in-run = #f;
 
   let p = 0;
 
-  add!(fragments, ""); // stop concatenate puking with no args. ick
+//  add!(fragments, ""); // stop concatenate puking with no args. ick
 
   local
-    method save-fragment()
-      if (first-char < p)
-	add!(fragments, copy-sequence(s, start: first-char, end: p));
-      end;
-    end method save-fragment,
-    
     method save-run()
       if (run-state.value ~== curr-state.value)
-	let s :: <byte-string> = apply(concatenate, fragments);
-	if (s.size > 0)
-	  add!(runs,
-	       make(<attributed-string>, attributes: run-state, string: s));
+	if (non-space-char-in-run)
+	  let s :: <byte-string> = as(<byte-string>, fragments);
+	  if (s.size > 0)
+	    add!(runs,
+		 make(<attributed-string>, attributes: run-state, string: s));
+	  end;
+	  fragments.size := 0;
+	  non-space-char-in-run := #f;
+	  run-state := curr-state;
+	else
+	  run-state := curr-state;
 	end;
-	fragments.size := 1; // keep the empty string
-	run-state := curr-state;
       end;
     end method save-run;
   
@@ -222,45 +221,43 @@ define function bgh-parse(s :: <byte-string>)
 	    let same-format = run-space-state == space-state;
 	    if (curr-state.typewriter)
 	      if (same-format)
+		add!(fragments, s[p]);
 		p := p + 1;
 	      else
-		save-fragment();
-		first-char := p;
 		save-run();
+		add!(fragments, s[p]);
+		p := p + 1;
 	      end;
 	    elseif(last-char-was-space)
 	      if (same-format)
-		save-fragment();
-		first-char := p;
 		p := p + 1;
 	      else
-		save-fragment();
 		save-run();
-		first-char := p;
+		add!(fragments, s[p]);
 		p := p + 1;
 	      end;
 	    elseif (same-format)
+	      add!(fragments, s[p]);
 	      p := p + 1;
 	    end;
 	  end;
 	  last-char-was-space := #t;
 	else
 	  save-run();
-	  last-char-was-space := #f;
+	  add!(fragments, s[p]);
 	  p := p + 1;
+	  last-char-was-space := #f;
+	  non-space-char-in-run := #t;
 	end;
 
       s[p + 1] ~= '/' =>
-	save-fragment();
 	let (tag, new-p, new-state) = parse-tag(s, p + 1, curr-state);
 	add!(tag-stack, tag);
 	add!(state-stack, curr-state);
 	curr-state := new-state;
 	p := new-p;
-	first-char := p;
 
       otherwise =>
-	save-fragment();
 	let (tag, new-p) = parse-tag(s, p + 2, curr-state);
 
 	if (tag-stack.last ~== tag)
@@ -271,11 +268,9 @@ define function bgh-parse(s :: <byte-string>)
 	state-stack.size := state-stack.size - 1;
 	curr-state := new-state;
 	p := new-p;
-	first-char := p;
 
     end case;
   end;
-  save-fragment();
   curr-state := make(<attribute>, value: -1);
   save-run();
 
@@ -331,6 +326,7 @@ define function main(name, arguments)
     end while;
 
     write(*standard-output*, best-transformation);
+    write(*standard-output*, "\n");
     force-output(*standard-output*);
 
     debug("Run successful. Original size: %=. Size after optimization: %=.\n", original-input.size, best-transformation.size);
