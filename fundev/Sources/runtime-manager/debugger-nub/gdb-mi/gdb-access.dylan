@@ -385,8 +385,8 @@ end;
 
 define method parse-as(inp :: <byte-string>, type == <mi-address>)
  => (remaining :: false-or(<byte-string>), value);
-  let m = match(inp, "\"0x0001072c\"");
-  m & values(m, #"\"0x0001072c\"") // #### hack
+  let (m, val) = match-c-string(inp);
+  m & values(m, as(<symbol>, val))
 end;
 
 define macro mi-parser-definer
@@ -957,11 +957,7 @@ define function match-c-string(in :: <byte-string>)
 
   if (~in.empty? & in.first = '"')
     let (result :: <byte-string>, final-pos :: <integer>)
-      = select (in.second)
-          '\\' => consume-escape(in, #(), 2);
-          '"' => values("", 2);
-          otherwise => consume(in, list(in.second), 2);
-        end select;
+      = consume(in, #(), 1);
     values(copy-sequence(in, start: final-pos), result);
   end;
 end;
