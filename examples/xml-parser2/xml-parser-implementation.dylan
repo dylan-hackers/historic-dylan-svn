@@ -1,6 +1,7 @@
-module: xml-parser
+module: xml-parser-implementation
 synopsis: Implements a META parser for XML 1.0
 author: Andreas Bogk <andreas@andreas.org>, based on work by Chris Double
+translated-into-a-library-by: Douglas M. Auclair, doug@cotilliongroup.com
 copyright: LGPL
 
 
@@ -386,7 +387,7 @@ end method parse-doctypedecl;
 //
 define method parse-prolog(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, decl, doctype);
+    variables(c, decl, misc, doctype);
     [{parse-xml-decl(decl), []}, 
      loop(parse-misc(misc)),
      {[parse-doctypedecl(doctype),
@@ -474,7 +475,7 @@ end method parse-stag;
 //    
 define method parse-etag(string, #key start = 0, end: stop)
   with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, name, eq, attribute-value);
+    variables(c, s, name, eq, attribute-value);
     ["</", parse-name(name), {parse-s(s), []}, ">"];
     values(index, #t);
   end with-meta-syntax;
@@ -1058,7 +1059,8 @@ define method parse-xml-attributes (string, #key start = 0, end: stop)
   end with-collector;
 end method parse-xml-attributes;
 
-define method parse-xml-element-start(builder, string, #key start = 0, end: stop)
+define method parse-xml-element-start(builder :: <xml-builder>, 
+    string, #key start = 0, end: stop)
   let attributes = make(<table>);
   with-meta-syntax parse-string (string, start: start, pos: index)
  // DOUG   variables(c, element-name, attributes, space, embedded-end-tag);
@@ -1069,7 +1071,8 @@ define method parse-xml-element-start(builder, string, #key start = 0, end: stop
  // DOUG   parse-xml-attributes(attributes),
      {["/", yes!(embedded-end-tag)], []},
      ">"];
-    let tag = make(<xml-element>, name: element-name, attributes: attributes);
+    let tag :: <xml-element> = make(<xml-element>, 
+       name: element-name, attributes: attributes);
     start-element(builder, tag);
     if(embedded-end-tag)
       end-element(builder, tag);
@@ -1078,33 +1081,3 @@ define method parse-xml-element-start(builder, string, #key start = 0, end: stop
   end with-meta-syntax;
 end method parse-xml-element-start;
 
-define class <my-xml-builder> (<xml-builder>)
-end class <my-xml-builder>;
-
-define variable *my-builder* = make(<my-xml-builder>);
-
-define method start-element (builder :: <my-xml-builder>, element :: <xml-element>)
-  format-out("<%s", element.name);
-  for(value keyed-by key in element.attributes)
-    format-out(" %s='%s'", key, value);
-  end for;
-  format-out(">\n");
-end method start-element;
-
-define method end-element (builder :: <my-xml-builder>, element :: <xml-element>)
-  format-out("</%s>\n", element.name);
-end method end-element;
-
-define function main(name, arguments)
-  let index = 0;
-  let xml-string = arguments[0];
-  while(index < xml-string.size)
-    let (index1, tag) = parse-xml-element-start(*my-builder*, xml-string, start: index);
-    format-out("index: %= value: %=\n", index1, tag);
-    index := index1;
-  end while;
-  exit-application(0);
-end function main;
-
-// Invoke our main() function.
-main(application-name(), application-arguments());
