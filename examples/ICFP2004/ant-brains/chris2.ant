@@ -3,30 +3,30 @@ Turn Right 2
 Flip 5 3 37
 Turn Right 4
 Move 5 0
-Sense Here 6 7 Marker 0
+Sense Here 6 7 Marker 5
 Turn Right 6
-Sense Ahead 8 9 Marker 0
+Sense Ahead 8 9 Marker 5
 Move 6 0
-Sense LeftAhead 10 11 Marker 0
+Sense LeftAhead 10 11 Marker 5
 Turn Left 4
-Sense RightAhead 12 13 Marker 0
+Sense RightAhead 12 13 Marker 5
 Turn Right 4
 Sense Here 14 4 Home
 Flip 50 15 4
-Mark 0 16
+Mark 5 16
 Turn Right 17
 Turn Right 18
 Move 19 35
-Mark 0 20
+Mark 5 20
 Turn Right 21
 Move 22 33
-Mark 0 23
+Mark 5 23
 Turn Right 24
 Move 25 31
-Mark 0 26
+Mark 5 26
 Turn Right 27
 Move 28 29
-Mark 0 6
+Mark 5 6
 Sense Ahead 0 30 Rock
 Move 28 0
 Sense Ahead 0 32 Rock
