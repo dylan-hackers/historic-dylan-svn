@@ -46,7 +46,7 @@ int gMoveChar;
 
 void setOpenGLParametersForPackage(void)
 {
-    glColor3d(1.0, 1.0, 0.0);
+    glColor3d(0.0, 0.0, 0.0);
 }
 
 //------------------------------------------------------------------------
