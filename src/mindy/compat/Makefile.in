@@ -41,6 +41,7 @@ srcdir	=		@srcdir@
 SRCDIR	=		${srcdir}
 BINDIR	=		@bindir@
 LIBDIR	=		@libdir@/dylan
+DESTDIR =
 
 AR      =               ar
 CC	=		@CC@
@@ -84,7 +85,7 @@ clean:
 
 realclean:
 	rm -f ${OBJS} libcompat.a Makefile *~ \#* core
-	
+
 install: libcompat.a
 
 # It's easiest to generate this part by machine.

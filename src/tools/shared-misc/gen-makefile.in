@@ -1,7 +1,7 @@
 #!@PERL@
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.3 1998/12/02 12:36:25 andreas Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.3.6.1 1999/01/09 13:40:35 emk Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -334,7 +334,7 @@ sub do_Makegen_file {
     print 'VPATH=$(SRCDIR)' . "\n";
     print "BUILDROOT=$buildroot\n";
     print "BUILDDIR=$builddir\n";
-#    $destdir && print "DESTDIR=$destdir\n";
+    print "DESTDIR=\n"; # GNU DESTDIR, not the $destdir variable.
     if ($host_platform{'make_supports_phony_targets?'}) {
 	print "\n.PHONY: default compile install clean\n\n";
     }
@@ -886,6 +886,9 @@ sub emit_parsergen_rule {
 #
 sub install_one_file {
     local ($from_file, $to_file, $executable_permissions) = @_;
+
+    # GNU DESTDIR, not the $destdir variable.
+    $to_file = "\${DESTDIR}$to_file";
 
     print "\n$to_file: $from_file\n";
     if ($host_platform{'default_features'} =~ /compiled-for-win32/i) {
