@@ -11,3 +11,7 @@ define class <package> (<object>)
 
   slot carrier :: false-or(<robot>);
 end class <package>;
+
+define method at-destination?(p :: <package>) 
+  p.x = p.dest-x & p.y = p.dest-y;
+end method at-destination?;
