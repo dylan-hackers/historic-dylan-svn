@@ -204,7 +204,7 @@ define method find-package (state :: <state>, package-id :: <integer>, #key crea
     case
       lst.empty?
          => create | error("find-package: id %d does not exist", package-id);
-            debug("find-package: creating new package with id %d", package-id);
+            debug("find-package: creating new package with id %d\n", package-id);
             let pack = make(<package>,
                                      id: package-id,
                                      location: #f,
