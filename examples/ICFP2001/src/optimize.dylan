@@ -60,13 +60,13 @@ define function optimize-output(input :: <stretchy-object-vector>)
 		       state.tag-stack, state.attr-stack,
 		       state.transitions, state.output-size,
 		       0, next-states);
-      let pct = truncate/(i * 100, num-steps);
-      if (pct ~== last-pct)
-	debug("\n%%%% %d%% done %%%%\n", pct);
-	last-pct := pct;
-      end;
     end;
     states := next-states;
+    //let pct = truncate/(i * 100, num-steps);
+    //if (pct ~== last-pct)
+    debug("\n%%%% done %d of %d %%%%\n", i, num-steps);
+    //last-pct := pct;
+    //end;
   end;
 
   debug("\n\nFinal states\n------------------------------\n");
