@@ -334,7 +334,11 @@ define module dsp
 
     // Utils associated with DSP tag definitions
     current-row,                 // dsp:table
-    current-row-number;          // dsp:table
+    current-row-number,          // dsp:table
+
+    note-form-error,             // for any error encountered while processing a web form
+    note-form-message,           // for informative messages in response to processing a web form
+    note-field-error;            // for errors related to processing a specific form field
 
   // Persistence layer maps database records <-> web pages.
   export
@@ -359,9 +363,6 @@ define module dsp
     respond-to-get-edit-record,
     respond-to-post-edit-record,
     *record*,
-    note-form-error,             // for any error encountered while processing a web form
-    note-form-message,           // for informative messages in response to processing a web form
-    note-field-error,            // for errors related to processing a specific form field
     validate-record-field,       // define methods on this to validate record page form fields
     display-hidden-field,
     *default-origin-page*,       // Return to this page when a record is submitted, if no origin page
