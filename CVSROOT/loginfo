@@ -25,7 +25,7 @@
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 #DEFAULT (echo $USER; echo %s; date; cat) |mail -s "CVS: $USER" gd-chatter@gwydiondylan.org
-#ALL /usr/share/cvssupport/logmsg.archive ${USER} %{sVv}
+ALL /usr/local/share/cvssupport/logmsg.archive ${USER} %{sVv}
 ALL $CVSROOT/CVSROOT/syncmail -u %{sVv} gd-chatter@gwydiondylan.org
 ALL $CVSROOT/CVSROOT/ciabot %{sVv}
 #^ref touch /var/documentation-build/needs-rebuild
