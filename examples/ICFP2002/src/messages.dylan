@@ -340,8 +340,6 @@ end function receive-integer;
 
 // Functions for receiving information from the server
 
-/* Commented out until I get the merge working
-
 // Read package information from the server
 define function receive-package-information(s :: <stream>) 
   => (id :: <integer>, x :: <integer>, y :: <integer>, weight :: <integer>)
@@ -466,4 +464,3 @@ define function receive-server-command-reply(s :: <stream>, state :: <state>) =>
   end;
 end function receive-server-command-reply;
 
-*/
