@@ -71,19 +71,10 @@ define method create-command(s :: <path-strategy>) => command :: <command>;
        bid: 1, id: robot.id);
 end;
 
-// ## safe?{<path-strategy>}
-define method safe?(dropping :: <path-strategy>, me :: <gabot>, s :: <state>)
+// ## safe?{<path-path>}
+define method safe?(strategy :: <path-strategy>, me :: <gabot>, s :: <state>)
  => safe :: <boolean>;
-// TODO: any other robots around?
-  let position = agent-pos(me, s);
-      
-      let nearest-bot = s.robots.first; /// HACK
-
-  distance-cost(position, dropping.approach) < distance-cost(position, nearest-bot.location)
-  & distance-cost(position, dropping.approach) < distance-cost(dropping.approach, nearest-bot.location)
- //;/// TODO: all?(s.robots x path piints out-of-reach?)
-
-// #t;
+  #t;
 end method safe?;
 
 
@@ -105,6 +96,30 @@ define method valid?(dropping :: <drop-strategy>, s :: <state>) => valid :: <boo
     ~empty?(agent-packages(dropping.strategy-agent, s));
   end;
 end;
+
+// ## safe?{<drop-strategy>}
+define method safe?(dropping :: <drop-strategy>, me :: <gabot>, s :: <state>)
+ => safe :: <boolean>;
+// TODO: any other robots around?
+  let position = agent-pos(me, s);
+  
+  local around(other :: <robot>)
+          distance-cost(position, other.location) < 10;
+        end;
+      
+  let bots = choose(around, as(<vector>, s.robots));
+
+  local method nearer(a  :: <robot>, b :: <robot>) => nearer :: <boolean>;
+          distance-cost(position, a.location) < distance-cost(position, b.location);
+        end;
+
+  let sorted-other-bots = as(<list>, sort(bots, test: nearer)).tail; // sort, and let me out
+  let nearest-bot = sorted-other-bots.first;
+
+  distance-cost(position, dropping.approach) < distance-cost(position, nearest-bot.location)
+  & distance-cost(position, dropping.approach) < distance-cost(dropping.approach, nearest-bot.location)
+ //;/// TODO: all?(s.robots x path piints out-of-reach?)
+end method safe?;
 
 // ## create-command{<drop-strategy>}
 define method create-terminal-command(dropping :: <drop-strategy>, state :: <state>) => command :: <command>;
