@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -41,6 +41,7 @@ end;
 // Concrete class providing access to module bindings.
 //
 define class <top-level-lexenv> (<general-lexenv>)
+  sealed constant slot lexenv-tlf :: <top-level-form>, required-init-keyword: tlf:;
 end;
 
 // <lexenv>  --  Exported
@@ -48,7 +49,7 @@ end;
 // Concrete class providing access to enclosing local and module bindings.
 //
 define class <lexenv> (<general-lexenv>)
-  constant slot lexenv-parent :: <general-lexenv> = make(<top-level-lexenv>), init-keyword: inside:;
+  constant slot lexenv-parent :: <general-lexenv>, required-init-keyword: inside:;
   slot lexenv-policy :: <policy>, init-value: $Default-Policy, init-keyword: policy:;
   slot lexenv-method-name :: <name>, init-keyword: method-name:;
 end;
@@ -70,7 +71,8 @@ end;
 //
 define function lexenv-for-tlf (tlf :: <top-level-form>) => res :: <lexenv>;
   make(<lexenv>,
-       method-name: make(<anonymous-name>, location: tlf.source-location));
+       method-name: make(<anonymous-name>, location: tlf.source-location),
+       inside: make(<top-level-lexenv>, tlf: tlf) /* GGR: d2c bug: commenting this keyword-value pair out should give us an error!!! */);
 end function;
 
 
@@ -172,6 +174,14 @@ define method find-binding (lexenv :: <general-lexenv>, name :: <identifier-toke
   end;
 end;
 
+
+define sealed class <tlf-dependency>(<general-dependency>)
+  slot source-tlf :: <top-level-form>, required-init-keyword: source:;
+end;
+
+
+
+
 define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-token>, #next search-my-bindings)
  => res :: false-or(<top-level-binding>);
   search-my-bindings()
@@ -179,6 +189,15 @@ define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-to
       let var = find-variable(name.id-name);
       if (var)
       	add-binding(lexenv, name, var);
+      	let variable-tlf = var.variable-tlf;
+      	let lexenv-tlf = lexenv.lexenv-tlf;
+      	if (variable-tlf)
+//      	  compiler-warning("### tlf %= depends on %=", lexenv-tlf, variable-tlf);
+      	  lexenv-tlf.depends-on
+      	    := make(<tlf-dependency>, source: variable-tlf, dependent: lexenv.lexenv-tlf,
+      	           dependent-next: lexenv-tlf.depends-on, source-next: variable-tlf.dependents);
+      	  variable-tlf.dependents := lexenv-tlf.depends-on;
+      	end;
       	search-my-bindings();
       end if;
     end;
@@ -206,3 +225,7 @@ define sealed domain initialize(<binding>);
 // <top-level-binding> -- subclass of <general-binding>
 define sealed domain make(singleton(<top-level-binding>));
 define sealed domain initialize(<top-level-binding>);
+
+// <tlf-dependency> -- subclass of <general-dependency>
+define sealed domain make(singleton(<tlf-dependency>));
+define sealed domain initialize(<tlf-dependency>);
