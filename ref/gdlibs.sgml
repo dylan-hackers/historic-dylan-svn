@@ -4075,6 +4075,43 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       various forms and <function>exp</function>) use e as their foundation.
     </para>
 
+      <dylangenericdef>
+	<defname>log</defname>
+	<defsummary>Returns the exponent of a number</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>x</paramname>
+	    <paramtype>&lt;real&gt;</paramtype>
+	  </param>
+	  <keyparam>
+	    <paramname>base</paramname>
+	    <paramtype>&lt;real&gt;</paramtype>
+	    <paramsummary>
+		The number to which the exponent is applied to get x.  The
+		default is <dlit>$double-e</dlit>
+	    </paramsummary>
+	  </keyparam>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>y</paramname>
+	    <paramtype>&lt;float&gt;</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    The <function>log</function> function scales large numbers, so
+	    that (e.g.) data points with a very large spread can be viewed
+            together.  <function>log</function> assumes <dlit>$double-e</dlit>
+	    as the base, but you may change that by supplying a different
+	    value.  For example,
+	  </para>
+	  <PROGRAMLISTING>
+log(100000, base: 10) => 5.0
+	  </PROGRAMLISTING>
+	</defdescription>
+      </dylangenericdef>
+
     </sect1>
 
   </CHAPTER>
