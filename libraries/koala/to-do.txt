@@ -15,7 +15,6 @@ koala
   - Make sure that decode-url is used in all the right places to convert
     from %xx to appropriate characters.
   - Use 'url' everywhere instead of randomly using 'uri' and 'url'.
-    Figure out exactly what the difference is.
   - Should use 'path' in local variables to distinguish between the a URL
     (which contains a scheme etc) and just the path.
   - Use web locators instead of strings?  Not sure it would buy much.
