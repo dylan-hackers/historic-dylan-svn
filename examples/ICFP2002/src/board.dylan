@@ -1,5 +1,10 @@
 module: board
 
+define class <state> (<object>)
+  slot board :: <board>, required-init-keyword: board:;
+  slot robots :: <collection> = #(), init-keyword: robots:;
+  slot packages :: <collection> = #(), init-keyword: robots:;
+end class <state>;
 
 // Terrain types
 define abstract functional class <terrain>(<object>)
@@ -29,7 +34,7 @@ define terrain <space> end;
 define constant <line> = limited(<vector>, of: <terrain>);
 define constant <coordinate> = limited(<integer>, min: 0);
 
-define concrete class <board>(<array>)
+define concrete class <board> (<array>)
   slot lines :: limited(<vector>, of: <line>);
   slot bots;
   slot packages;

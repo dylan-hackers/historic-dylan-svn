@@ -17,14 +17,15 @@ define function play-the-game(input :: <stream>, output :: <stream>) => ();
        my-money :: <integer>) = read-configuration(input);
   let agent = make(<robot-agent>, id: my-id, 
                    capacity: my-capacity, money: my-money);
-  board := read-robots(input, board);
+  robots := read-robots(input);
+  let state = make(<state>, board: board, robots: robots);
 
   let running = #t;
   while(running)
-    board := read-packages(input, board);
-    let move = generate-next-move(agent, board);
+    state := read-packages(input, state);
+    let move = generate-next-move(agent, state);
     send-move(output, move);
-    board := read-movements(input, board);
+    state := read-movements(input, state);
   end while;
 end function play-the-game;
   
