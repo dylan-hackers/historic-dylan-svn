@@ -292,7 +292,7 @@ define function main(name, arguments)
         if (new < old)
           debug("  - using new");
         end if;
-        best-transformation := new-output; //FIXME
+        best-transformation := new-output; //FIXME -- when finished testing
         debug("\n");
       end if;
     end method see-if-best,
