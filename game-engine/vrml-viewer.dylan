@@ -76,12 +76,12 @@ define variable special-func :: <function> = callback-method(key :: <integer>, x
   select(key)
   //    $GLUT-KEY-UP => glutFullScreen();
   //    $GLUT-KEY-DOWN => glutReshapeWindow(500, 500);
-    $GLUT-KEY-UP => *speed* := vector(0.0s0, 0.0s0, -5.0s0);
-    $GLUT-KEY-DOWN => *speed* := vector(0.0s0, 0.0s0, 5.0s0);
-    $GLUT-KEY-LEFT => *rotation-speed* := -180.0s0;
-    $GLUT-KEY-RIGHT => *rotation-speed* := 180.0s0;
-    $GLUT-KEY-PAGE-UP => *speed* := vector(0.0s0, 5.0s0, 0.0s0);
-    $GLUT-KEY-PAGE-DOWN => *speed* := vector(0.0s0, -5.0s0, 0.0s0);
+    $GLUT-KEY-UP => *speed* := 5.0;
+    $GLUT-KEY-DOWN => *speed* := -5.0;
+    $GLUT-KEY-LEFT => *rotation-speed* := -1.0;
+    $GLUT-KEY-RIGHT => *rotation-speed* := 1.0;
+//    $GLUT-KEY-PAGE-UP => *speed* := vector(0.0s0, 5.0s0, 0.0s0);
+//    $GLUT-KEY-PAGE-DOWN => *speed* := vector(0.0s0, -5.0s0, 0.0s0);
   end select;
   glutPostRedisplay();
 end;
@@ -89,9 +89,9 @@ end;
 define variable special-up-func :: <function> = callback-method(key :: <integer>, x :: <integer>, y :: <integer>) => ();
 //  post-event(make(<mouse-event>, button: button, state: state, location: make(<point>, x: x, y: y)));
   select(key)
-    $GLUT-KEY-UP, $GLUT-KEY-DOWN => *speed* := vector(0.0s0, 0.0s0, 0.0s0);
-    $GLUT-KEY-PAGE-UP, $GLUT-KEY-PAGE-DOWN => *speed* := vector(0.0s0, 0.0s0, 0.0s0);
-    $GLUT-KEY-LEFT, $GLUT-KEY-RIGHT => *rotation-speed* := 0.0s0;
+    $GLUT-KEY-UP, $GLUT-KEY-DOWN => *speed* := 0.0;
+    $GLUT-KEY-PAGE-UP, $GLUT-KEY-PAGE-DOWN => *speed* := 0.0;
+    $GLUT-KEY-LEFT, $GLUT-KEY-RIGHT => *rotation-speed* := 0.0;
   end select;
   glutPostRedisplay();
 end;
@@ -107,7 +107,7 @@ define variable passive-motion-func :: <function>
     post-event(make(<motion-event>, 
                     location: make(<point>, x: x, y: y), passive?: #t));
     glutWarpPointer(250, 250);
-    $camera.angle := $camera.angle + as(<double-float>, x - 250) / 5.0;
+    $camera.looking-at := rotate-y(as(<double-float>, x - 250) / 200.0) * $camera.looking-at;
   end unless;
 end;
 
@@ -118,7 +118,7 @@ end;
 define variable *scene-graph* = #[];
                                  
 define variable *last-stamp* = 0.0;
-define variable *speed* = vector(0.0, 0.0, 0.0);
+define variable *speed* = 0.0;
 define variable *rotation-speed* = 0.0s0;  
 define constant $camera = make(<camera>,
                                position:  3d-point ( 0.0, 1.7, 10.0 ));
@@ -136,8 +136,9 @@ define variable display-func :: <function> = callback-method() => ();
   if(*last-stamp* ~= 0.0)
     let delta-s = delta-t * *speed*;
     let delta-phi = delta-t * *rotation-speed*;
-    $camera.angle := $camera.angle + delta-phi;
-    $camera.eye-position := $camera.eye-position + delta-s;
+//    $camera.angle := $camera.angle + delta-phi;
+    $camera.looking-at := rotate-y(delta-phi) * $camera.looking-at;
+    $camera.eye-position := $camera.eye-position + $camera.looking-at * delta-s;
   else
     *fps-stamp* := timestamp;
   end if;
@@ -174,11 +175,10 @@ define method main(progname, #rest arguments)
                          ambient:   vector   ( 0.3,   0.3,   0.3, 1.0),
                          diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
                          specular:  vector   ( 0.3,   0.3,   0.3, 1.0)),
-//                    make(<line-grid>),
-                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
-                         translation: 3d-vector(3.0, 3.0, -2.0), 
-                         children: vector(make(<sphere>))),
-//                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
+                    make(<line-grid>),
+//                    make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
+//                         translation: 3d-vector(3.0, 3.0, -2.0), 
+//                         children: vector(make(<sphere>))),
                     make(<transform>, scale: 3d-vector(scaling, scaling, scaling), 
                          children: parse-vrml(arguments[0])),
                     make(<on-screen-display>, children:
@@ -220,7 +220,7 @@ define method main(progname, #rest arguments)
 
   glEnable($GL-LIGHTING);
   glEnable($GL-TEXTURE-2D);
-  glColor(0.7, 0.7, 0.7, 1.0);
+//  glColor(0.7, 0.7, 0.7, 1.0);
 
 //  glEnable($GL-FOG);
   glFog($GL-FOG-MODE, $GL-EXP);
@@ -232,7 +232,8 @@ define method main(progname, #rest arguments)
   glEnable($GL-BLEND);
   glBlendFunc($GL-SRC-ALPHA, $GL-ONE-MINUS-SRC-ALPHA);
 
-  glClearColor(s(0.5), s(0.5), s(0.5), s(1.0));
+//  glClearColor(s(0.5), s(0.5), s(0.5), s(1.0));
+  glClearColor(s(0.0), s(0.0), s(0.0), s(1.0));
   glClearDepth(1.0d0);
 
   glutIgnoreKeyRepeat(1); // ignore auto-repeat
@@ -241,7 +242,7 @@ define method main(progname, #rest arguments)
 //  glutTimerFunc(20, timer-func, 0);
 //  glutMouseFunc(mouse-func);
 //  glutMotionFunc(motion-func);
-//  glutPassiveMotionFunc(passive-motion-func);
+  glutPassiveMotionFunc(passive-motion-func);
   glutReshapeFunc(reshape-func);
   glutKeyboardFunc(keyboard-func);
   glutSpecialFunc(special-func);

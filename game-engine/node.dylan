@@ -204,20 +204,29 @@ end class <sphere>;
 
 define class <camera> (<node>)
   slot eye-position :: <3d-point> = 3d-point(0.0, 1.7, 3.0), init-keyword: position:;
-  slot looking-at :: <3d-point> = 3d-point(0.0, 1.7, 0.0), init-keyword: looking-at:;
+  slot looking-at :: <3d-point> = 3d-point(0.0, 0.0, 1.0), init-keyword: looking-at:;
   slot up :: <3d-vector> = 3d-vector(0.0, 1.0, 0.0), init-keyword: up:;
-  slot angle :: <float> = 0.0;
+//  slot angle :: <float> = 0.0;
   slot viewport :: <vector> = #[500, 500], init-keyword: viewport:;
 end class <camera>;
 
-define class <spotlight> (<node>)
-  slot light-position :: <3d-point> = 3d-point(0.0, 0.0, 0.0, 1.0), init-keyword: position:;
-  slot spot-direction :: <3d-vector> = 3d-vector(0.0, 0.0, -1.0), init-keyword: direction:;
+define class <light> (<node>)
+  slot light-id;
+  class slot next-free-id = 0;
   slot ambient :: false-or(<vector>) = #f, init-keyword: ambient:;
   slot diffuse :: false-or(<vector>) = #f, init-keyword: diffuse:;
   slot specular :: false-or(<vector>) = #f, init-keyword: specular:;
-  slot light-id;
-  class slot next-free-id = 0;
+end class <light>;
+
+define class <directional-light> (<light>)
+  slot spot-direction :: <3d-vector> = 3d-vector(0.0, 0.0, -1.0), init-keyword: direction:;
+end class <directional-light>;
+
+define class <pointlight> (<light>)
+  slot light-position :: <3d-point> = 3d-point(0.0, 0.0, 0.0, 1.0), init-keyword: position:;
+end class <pointlight>;
+
+define class <spotlight> (<directional-light>, <pointlight>)
 end class <spotlight>;
 
 define method initialize(light :: <spotlight>, #key, #all-keys)

@@ -177,8 +177,9 @@ define method render-to-opengl(node :: <camera>)
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
   glFrustum(-0.25 * aspect-ratio, 0.25 * aspect-ratio, -0.25, 0.25, 0.5, 100.0);
-  apply(gluLookAt, concatenate(node.eye-position, node.looking-at, node.up));
-  apply(glRotate, node.angle, node.up);
+  apply(gluLookAt, concatenate(node.eye-position, 
+                               node.eye-position + node.looking-at, 
+                               node.up));
   glMatrixMode($GL-MODELVIEW);
 end method render-to-opengl;
 
@@ -233,7 +234,7 @@ define method render-to-opengl(node :: <on-screen-display>)
 //  glDisable($GL-TEXTURE-2D);
   glDisable($GL-LIGHTING);
   glDisable($GL-DEPTH-TEST);
-  glColor(0.0, 1.0, 0.0, 0.75);
+  glColor(1.0, 0.0, 0.0, 0.75);
   next-method();
   glEnable($GL-LIGHTING);
   glEnable($GL-DEPTH-TEST);

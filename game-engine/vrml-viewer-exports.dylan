@@ -19,6 +19,7 @@ end library;
 
 define module vector-math
   use dylan;
+  use extensions;
   use transcendentals;
   use subseq;
   use matrix, export: all;
@@ -27,6 +28,7 @@ define module vector-math
     <color>, color;
 
   export cross-product, normalize, magnitude;
+  export rotate-x, rotate-y, rotate-z;
 end module vector-math;
 
 define module vrml-model
@@ -46,7 +48,7 @@ define module vrml-model
     <shape>, appearance, geometry,
     <line-grid>,
     <sphere>,
-    <camera>, eye-position, looking-at, up, eye-position-setter, angle, angle-setter,
+    <camera>, eye-position, looking-at, looking-at-setter, up, eye-position-setter,
               viewport, viewport-setter,
     <spotlight>, light-position, ambient, diffuse, specular, spot-direction, light-id,
     <appearance>, material, texture, texture-transform,
