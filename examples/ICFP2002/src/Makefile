@@ -54,11 +54,45 @@ multi:  icfp2002
 	./icfp2002 icfp1.cse.ogi.edu 22101
 
 
-test-all-bots: icfp2002
+test-all-22101: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22101 dumbot > dumbot-22101.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22101 thomas > thomas-22101.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22101 pushbot > pushbot-22101.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22101 gabot > gabot-22101.log 2>&1 &
+
+test-all-22102: icfp2002
 	./icfp2002 icfp1.cse.ogi.edu 22102 dumbot > dumbot-22102.log 2>&1 &
 	./icfp2002 icfp1.cse.ogi.edu 22102 thomas > thomas-22102.log 2>&1 &
 	./icfp2002 icfp1.cse.ogi.edu 22102 pushbot > pushbot-22102.log 2>&1 &
 	./icfp2002 icfp1.cse.ogi.edu 22102 gabot > gabot-22102.log 2>&1 &
+
+test-all-22103: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22103 dumbot > dumbot-22103.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22103 thomas > thomas-22103.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22103 pushbot > pushbot-22103.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22103 gabot > gabot-22103.log 2>&1 &
+
+test-all-22104: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22104 dumbot > dumbot-22104.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22104 thomas > thomas-22104.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22104 pushbot > pushbot-22104.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22104 gabot > gabot-22104.log 2>&1 &
+
+test-all-22105: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22105 dumbot > dumbot-22105.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22105 thomas > thomas-22105.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22105 pushbot > pushbot-22105.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22105 gabot > gabot-22105.log 2>&1 &
+
+test-all-22106: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22106 dumbot > dumbot-22106.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22106 thomas > thomas-22106.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22106 pushbot > pushbot-22106.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22106 gabot > gabot-22106.log 2>&1 &
+
+# This doesn't work. Probably I don't understand shell quoting rules.
+#kill-all-bots:
+#	ps -C icfp2002 | grep '[i]cfp' | awk '{print $1}' | xargs kill
 
 network-internal.dylan: network-internal.intr network-internal.h
 	melange --d2c -I`gcc --print-file-name=include` network-internal.intr network-internal.dylan
