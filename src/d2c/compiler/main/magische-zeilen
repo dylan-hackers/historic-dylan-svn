@@ -1,0 +1,2 @@
+let a = #f; a := 42; if (a) return() else 3 + 4 end end
+block(return) for(i from 0 below 10) if(i > 6) return(17) end end 23 end
