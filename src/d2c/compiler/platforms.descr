@@ -300,13 +300,11 @@ link-executable-flags:          -lm -lkernel32
 supports-debugging?:            #t
 path-separator:        		/
 
-
-// Generic Unix on a 32 bit processor, using gcc and gas.  This target
-// is not intended to be used directly, merely inherited from.
+// Generic Unix, using gcc and gas.  This target is not intended to be
+// used directly, merely inherited from.
 //
-platform-name:                    generic-unix
+platform-name:                  generic-unix
 default-features:               compiled-for-unix C-compiler-is-GCC
-integer-length:			32
 heap-preamble:                  \t.data\n\t.align 8\t
 align-directive:                .align
 export-directive:               \t.global\t%s\n
@@ -341,6 +339,21 @@ uses-drive-letters?:                    #f
 environment-variables-can-be-exported?: #t
 use-dbclink?:                           #f
 big-endian?:				#t
+
+
+// Generic Unix on a 32 bit processor, using gcc and gas.  This target
+// is not intended to be used directly, merely inherited from.
+//
+platform-name:			generic-unix-32
+inherit-from:			generic-unix
+integer-length:			32
+
+// Generic Unix on a 64 bit processor, using gcc and gas.  This target
+// is not intended to be used directly, merely inherited from.
+//
+platform-name:                  generic-unix-64
+inherit-from:			generic-unix
+integer-length:			64
 
 
 // HP/UX on HP PA-RISC processors.  gcc/gdb/dig
@@ -438,6 +451,20 @@ link-executable-command:        gcc -g -o %s %s %s
 randomize-library-command:	ranlib %s
 supports-debugging?:		#t
 big-endian?:			#f
+descriptor-type-string:         .stabs "<unknown>",100,0,0,.Ltext0\n.text\n.Ltext0:\n.stabs "heapptr_t:t34=*35=xsheapobj:",128,0,6,0\n.stabs "descriptor:T36=s8heapptr:34,0,32;dataword:37=u4l:3,0,32;\\\",128,0,0,0\n.stabs "f:12,0,32;ptr:27,0,32;;,32,32;;",128,0,0,0\n.stabs "descriptor_t:t36",128,0,14,0\n
+descriptor-reference-string:	\t.stabs\t"%s%s:G36",32,0,1,0\n
+object-size-string:		\t.size\t%s%s, %d\n
+
+// Linux on Digital Alpha
+//
+platform-name:			alpha-linux
+inherit-from:			generic-unix-64
+default-features:		compiled-for-unix compiled-for-alpha
+				compiled-for-linux C-compiler-is-GCC
+make-command:			make
+supports-debugging?:		#t
+big-endian?:			#t
+default-c-compiler-flags:	-I. -I%s -g -O -fno-inline -Wall -pedantic -Werror
 descriptor-type-string:         .stabs "<unknown>",100,0,0,.Ltext0\n.text\n.Ltext0:\n.stabs "heapptr_t:t34=*35=xsheapobj:",128,0,6,0\n.stabs "descriptor:T36=s8heapptr:34,0,32;dataword:37=u4l:3,0,32;\\\",128,0,0,0\n.stabs "f:12,0,32;ptr:27,0,32;;,32,32;;",128,0,0,0\n.stabs "descriptor_t:t36",128,0,14,0\n
 descriptor-reference-string:	\t.stabs\t"%s%s:G36",32,0,1,0\n
 object-size-string:		\t.size\t%s%s, %d\n
