@@ -13,11 +13,21 @@ define macro graphics-primitive-definer
       "GML: graphics primitive '" ?"name" "' not supported".error;
     end; }
 
-  { define graphics-primitive ?:name(?vars) ?:body end }
+  { define graphics-primitive ?:name() ?:body end }
   =>
   { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
       let (cont, remaining) = more-tokens.compile-GML;
       values(method(stack :: <list>, env :: <function>) => new-stack :: <list>;
+               cont(pair(?body, stack), env)
+             end method,
+             remaining)
+    end method; }
+
+  { define graphics-primitive ?:name(?vars) ?:body end }
+  =>
+  { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
+      let (cont, remaining) = more-tokens.compile-GML;
+      values(method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
                ?vars;
                cont(pair(?body, stack), env)
              end method,
@@ -38,6 +48,10 @@ USAGE:  the parameters should be written in the order as defined in the task.pdf
 define graphics-primitive slump(s :: <integer> => f :: <float> => v :: <vector>)
   (f + s + 1) * v.first
 end graphics-primitive slump;
+
+define graphics-primitive nullary()
+  make(<vector>)
+end graphics-primitive nullary;
 
 */
 
