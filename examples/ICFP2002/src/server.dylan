@@ -122,19 +122,46 @@ define function process-turn(num-clients) => ();
     force-output(client.out-stream);
   end;
 
-  // get each clients command
+  // get each clients command and store (bid, id) in a list
+  let bid-col = #();
   for(cli from 0 below num-clients)
     let line = read-line(*clients*[cli].in-stream);
     *clients*[cli].command := split(" ", line);
+    bid-col := add!(bid-col, pair(string-to-integer(*clients*[col].command[0]), cli));
   end;
 
-  // work out bids order
   
+  // work out bids order
+  bid-col := sort!(bid-col, test: method(a, b) => (c)
+				      head(a) < head(b);
+				  end method);
+  bid-col := reverse!(bid-col);
 
-  // execute commands
+  // execute commands and record them as we go
+  let history = make(<string>);
+  for(cur in bid-col)
+    let client-id = tail(cur);
+    select(*clients*[client-id].command[1])
+      "Move" =>
+	//TODO but we also have to take pushes into account below :(
+	select(*clients*[client-id].command[2])
+	  "N" => move-bot-north(*board*, client-id); 
+	  "S" => move-bot-south(*board*, client-id);
+	  "W" => move-bot-west(*board*, client-id);
+	  "E" => move-bot-east(*board*, client-id);
+	end;
+      "Drop" =>
+	let id-list = copy-subsequence(*clients*[client-id].command, start: 3);	// may be empty
+      "Pick" =>
+	let id-list = copy-subsequence(*clients*[client-id].command, start: 3);	// may be empty
+      otherwise => error("Unknown client command");
+    end;
 
+  end;
+
+  // tell each client what happended
   for(cli from 0 below num-clients)
-  //  tell it what happended
+    write-line(*clients*[cli].out-stream, history);
   end;
 end function;
 
