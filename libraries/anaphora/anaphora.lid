@@ -1,4 +1,3 @@
 library: anaphora
-files:
-  library
-  anaphora
+files: library
+       anaphora
