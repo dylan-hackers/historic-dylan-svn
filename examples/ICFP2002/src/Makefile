@@ -27,7 +27,7 @@ install: icfp2002
 	   md5sum ../dylan-hackers.tgz
 
 test: icfp2002
-	(time ./icfp2002) && echo **Success**
+	./icfp2002 cantor.gwydiondylan.org 6969
 
 network-internal.dylan: network-internal.intr network-internal.h
 	melange --d2c -I`gcc --print-file-name=include` network-internal.intr network-internal.dylan
