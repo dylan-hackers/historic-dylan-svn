@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.29 2002/07/29 17:26:51 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.30 2002/07/29 18:25:30 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -45,7 +45,7 @@ define method evaluate(expression :: <string>)
   *Current-Library* := *interpreter-library*;
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
   *top-level-forms* := make(<stretchy-vector>);
-  format(*standard-output*, "evaluating %=\n", expression);
+  format(*debug-output*, "evaluating %=\n", expression);
   let tokenizer = make(<lexer>, 
                        source: make(<source-buffer>, 
                                     buffer: as(<byte-vector>, expression)),
@@ -57,8 +57,8 @@ define method evaluate(expression :: <string>)
       <expression-tlf> =>
         let expression = tlf.tlf-expression;
         
-        format(*standard-output*, "got tlf %=, an expression %=\n", tlf, expression);
-        force-output(*standard-output*);
+        format(*debug-output*, "got tlf %=, an expression %=\n", tlf, expression);
+        force-output(*debug-output*);
         
         let component = make(<fer-component>);
         let builder = make-builder(component);
@@ -80,17 +80,17 @@ define method evaluate(expression :: <string>)
         
         end-body(builder);
 
-        format(*standard-output*, "Before optimization:\n");
+        format(*debug-output*, "\n\nBefore optimization:\n");
         dump-fer(component);
         optimize-component(*current-optimizer*, component);
-        format(*standard-output*, "After optimization:\n");
+        format(*debug-output*, "\n\nAfter optimization:\n");
         dump-fer(component);
-        force-output(*standard-output*);
+        force-output(*debug-output*);
 
-        format(*standard-output*, "evaluated expression: %=\n",
+        format(*debug-output*, "\n\nevaluated expression: %=\n",
                fer-evaluate(init-function-region.body,
                             curry(error, "trying to access %= in an empty environment")));
-        force-output(*standard-output*);
+        force-output(*debug-output*);
 
       otherwise =>
         compiler-error-location(tlf, "only expressions are supported");
@@ -100,6 +100,23 @@ end method evaluate;
 
 
 define constant <interpreter-environment> :: <type> = <object>;
+
+
+
+
+// ##############################################################################
+// ##############################################################################
+// ###################### fer-evaluate-the-new-generation #######################
+// ##############################################################################
+// ##############################################################################
+
+
+
+// ##############################################################################
+// ##############################################################################
+// ##############################################################################
+// ##############################################################################
+
 
 // ########## fer-evaluate ##########
 define generic fer-evaluate(region :: <region>, environment :: <interpreter-environment>)
@@ -155,15 +172,15 @@ define generic fer-gather-bindings(region :: <region>, environment :: <interpret
 
 define method fer-gather-bindings(compound :: <compound-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
-//  format(*standard-output*, "fer-gather-bindings{<compound-region>} %=\n", compound);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "fer-gather-bindings{<compound-region>} %=\n", compound);
+//  force-output(*debug-output*);
   fer-gather-regions-bindings(compound.regions, environment)
 end;
 
 define method fer-gather-bindings(the-if :: <if-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
-//  format(*standard-output*, "fer-gather-bindings{<if-region>} %=\n", the-if);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "fer-gather-bindings{<if-region>} %=\n", the-if);
+//  force-output(*debug-output*);
   let test-value
     = fer-evaluate-expression(the-if.depends-on.source-exp,
                               environment);
@@ -181,8 +198,8 @@ end class <exit-condition>;
 
 define method fer-gather-bindings(block-region :: <block-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
-//  format(*standard-output*, "fer-gather-bindings{<block-region>} %=\n", block-region);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "fer-gather-bindings{<block-region>} %=\n", block-region);
+//  force-output(*debug-output*);
   block ()
     fer-gather-bindings(block-region.body, environment)
   exception (exit :: <exit-condition>, test: method(exit :: <exit-condition>)
@@ -194,8 +211,8 @@ end;
 
 define method fer-gather-bindings(loop :: <loop-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
-//  format(*standard-output*, "fer-gather-bindings{<loop-region>} %=\n", loop);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "fer-gather-bindings{<loop-region>} %=\n", loop);
+//  force-output(*debug-output*);
   local method repeat(environment :: <interpreter-environment>)
       repeat(fer-gather-bindings(loop.body, environment))
     end method;
@@ -204,8 +221,8 @@ end;
 
 define method fer-gather-bindings(exit :: <exit>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
-//  format(*standard-output*, "fer-gather-bindings{<exit>} %=\n", exit);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "fer-gather-bindings{<exit>} %=\n", exit);
+//  force-output(*debug-output*);
   signal(make(<exit-condition>, block: exit.block-of, environment: environment));
 end;
 
@@ -213,8 +230,8 @@ end;
 
 define method fer-gather-bindings(simple :: <simple-region>, environment :: <interpreter-environment>)
   => (extended-env, no-value :: #f.singleton);
-//  format(*standard-output*, "fer-gather-bindings{<simple>} %=\n", simple);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "fer-gather-bindings{<simple>} %=\n", simple);
+//  force-output(*debug-output*);
   fer-gather-assigns-bindings(simple.first-assign, environment);
 end;
 
@@ -229,8 +246,8 @@ end;
 
 define method fer-gather-regions-bindings(regions :: <list>, environment :: <interpreter-environment>)
   => (same-env, potential-value :: false-or(<ct-value>));
-//  format(*standard-output*, "fer-gather-regions-bindings %=\n", regions);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "fer-gather-regions-bindings %=\n", regions);
+//  force-output(*debug-output*);
   
   let head = regions.head;
   if (instance?(head, <compound-region>))
@@ -418,8 +435,8 @@ define primitive-emulator (\==) end;
 // ########## append-environment ##########
 define function append-environment(prev-env :: <interpreter-environment>, new-binding, new-value) => new-env;
 
-//  format(*standard-output*, "append-environment %= %= \n", new-binding, new-value);
-//  force-output(*standard-output*);
+//  format(*debug-output*, "append-environment %= %= \n", new-binding, new-value);
+//  force-output(*debug-output*);
 
 
   method(var)
