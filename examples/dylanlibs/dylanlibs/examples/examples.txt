@@ -54,7 +54,14 @@ Dylan Implementations:
 Demonstrates using the send-keys library by starting a DOS application
 and send keystrokes to control it.
 
+7) xml-rpc-example
+==================
+Dylan Implementations:
+  Functional Developer
+
+Demonstrates using the xml-rpc library by calling various servers.
+
 -- 
 Chris Double.  
-01 May 2001.
+04 May 2001.
 
