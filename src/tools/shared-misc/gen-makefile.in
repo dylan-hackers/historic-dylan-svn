@@ -3,7 +3,7 @@
 use Cwd;
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.4 2003/10/18 22:13:46 andreas Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.5 2004/03/12 10:58:56 gabor Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -835,10 +835,14 @@ sub emit_library_rule {
              "$unit_prefix-init.c", "$unit_prefix-init$dot_obj");
         push(@files_to_clean,
              "$unit_prefix-heap.c", "$unit_prefix-heap$dot_obj");
+        push(@files_to_clean,
+             "$unit_prefix-guts.c", "$unit_prefix-guts$dot_obj");
+
 
         if($shared && $static) {
             push(@files_to_clean, "$unit_prefix-init$dot_static");
             push(@files_to_clean, "$unit_prefix-heap$dot_static");
+            push(@files_to_clean, "$unit_prefix-guts$dot_static"); 
         }
 
         if ($executable) {
