@@ -14,7 +14,7 @@ copyright: LGPL
  * 
  *   http://www.w3.org/TR/2000/REC-xml-20001006
  * 
- * The parse-foo clauses contain a numeric reference to the associated
+ * The scan-foo clauses contain a numeric reference to the associated
  * production in the specification.
  *
  * prerequisit:  the meta library (currently at gd/examples/meta/)
@@ -24,43 +24,6 @@ copyright: LGPL
  *   http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html
  *
  */
-
-//-------------------------------------------------------
-// Macros to simplify the parsing task -- DMA
-define macro parse-definer
-{ define parse ?:name ( ?meta-vars:* ) => (?results:*) ?meta:* end } 
- => { parse-helper(?name, (?meta-vars), (?results), (?meta)) }
-{ define parse ?:name (?meta-vars:*) ?meta:* end }
- => { parse-helper(?name, (?meta-vars), (#t), (?meta)) }
-end macro parse-definer;
-
-define macro parse-helper
-{ parse-helper(?:name, (?meta-vars:*), (?results:*), (?meta:*)) }
- => { parse-builder(?name, ( meta-builder(?=string, ?=start, 
-                                         (?meta-vars), 
-                                         (?results), (?meta)))) }
-end macro parse-helper;
-
-define macro parse-builder
-{ parse-builder(?:name, (?built-meta:*)) }
- => { define method "parse-" ## ?name (?=string, #key ?=start = 0, end: stop)
-        ?built-meta
-      end; }
-end macro parse-builder;
-
-// Doug wrote this macro for collecting strings
-define macro collector-definer
-{ define collector ?:name (?vars:*) => (?results:*) ?meta:* end }
- => { parse-builder(?name, 
-       (with-collector into-vector ?=str, collect: ?=collect;
-          meta-builder(?=string, ?=start, (?vars), (?results), (?meta));
-        end with-collector)) }
-{ define collector ?:name (?vars:*) ?meta:* end }
- => { parse-builder(?name, 
-       (with-collector into-vector str, collect: ?=collect;
-          meta-builder(?=string, ?=start, (?vars), (as(<string>, str)), (?meta));
-        end with-collector)) }
-end macro collector-definer;
 
 define macro collect-value-definer
 { define collect-value ?:name (?vars:*) (?properties:*)
@@ -81,21 +44,14 @@ define macro collect-value-definer
     { #key ?test:expression } => { ?test }
 end macro collect-value-definer;
 
-define macro meta-builder
-{ meta-builder(?str:expression, ?start:expression, (?vars:*), (?results:*), (?meta:*)) }
- => {  with-meta-syntax parse-string (?str, start: ?start, pos: index)
-         variables(?vars);
-         [ ?meta ];
-         values(index, ?results);
-       end with-meta-syntax; }
-end macro meta-builder;
-
 //-------------------------------------------------------
 // entity tables
 define variable *entities* = make(<table>);
 define variable *pe-refs* = make(<table>);
 define variable *substitute-entities?* :: <boolean> = #t;
 define variable *defining-entities?* :: <boolean> = #f;
+
+define variable *last-tag-name* :: false-or(<symbol>) = #f;
 
 define method entity-value(ent :: <entity-reference>)
  => (val :: <sequence>)
@@ -141,7 +97,7 @@ end method before-transform;
 define method transform(elt :: <element>, tag-name :: <symbol>,
                         state :: <add-parents>, str :: <stream>)
   elt.element-parent := *parent*;
-  *parent* := elt;
+  *parent* := elt;  // is this rebind superfluous
   next-method();
 end method transform;
 
@@ -159,41 +115,39 @@ define function parse-document(doc :: <string>,
   *entities* := make(<table>);
   *defining-entities?* := #f;
   *substitute-entities?* := substitute-entities?;
-  let (index, document) = parse-document-helper(doc, start: start, end: stop);
+  let (index, document) = scan-document-helper(doc, start: start, end: stop);
   transform-document(document, state: $add-parents);
   document;
 end function parse-document;
 
-define parse document-helper(prolog, elemnt, misc) =>
+define meta document-helper(prolog, elemnt, misc) =>
  (make(<document>, name: elemnt.name, children: vector(elemnt)))
-   parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))
-end parse document-helper;
+   scan-prolog(prolog), scan-element(elemnt), loop(scan-misc(misc))
+end meta document-helper;
 
 // Character Range
 //
-//    [2]    Char    ::=    #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] /* any Unicode character, excluding the surrogate blocks,
+//    [2]    Char   ::= #x9 | #xA | #xD | [#x20-#xD7FF] 
+//                          | [#xE000-#xFFFD] | [#x10000-#x10FFFF] 
+// /* any Unicode character, excluding the surrogate blocks,
 //    FFFE, and FFFF. */
 //    
-// FIXME: we're cheating here, by using UFT8 and just allowing anything.
+// FIXME: we're cheating here, by using UFT8 and just allowing 
+//        anything.
 //
 define constant <char> = <character>;
 
-// White Space
-//
-//    [3]    S    ::=    (#x20 | #x9 | #xD | #xA)+
-//    
-define constant <space> =
-  one-of(as(<character>, #x20), as(<character>, #x9), as(<character>, #xd),
-         as(<character>, #x0a));
-
-define parse s(c) type(<space>, c), loop(type(<space>, c)) end;
-define parse s?(c) loop(parse-s(c)) end;
+// an entirely redundant definition if we had a BNF parser
+define meta s?(c) loop(scan-s(c)) end;
 
 // Names and Tokens
 // 
-//    [4]    NameChar    ::=    Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender
+//    [4]    NameChar    ::=    Letter | Digit 
+//                              | '.' | '-' | '_' | ':' 
+//                              | CombiningChar | Extender
 //
-define constant <name-char> = type-union(<version-number>, singleton('-'));
+define constant <name-char> = type-union(<version-number>, 
+                                         singleton('-'));
 
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
@@ -204,21 +158,21 @@ end collector name;
 
 //    [6]    Names       ::=    Name (S Name)*
 //
-define parse names(name, s)
-  parse-name(name), loop([parse-s(s), parse-name(name)])
-end parse names;
+define meta names(name, s)
+  scan-name(name), loop([scan-s(s), scan-name(name)])
+end meta names;
 
 //    [7]    Nmtoken     ::=    (NameChar)+
 //
-define parse nmtoken(c)
+define meta nmtoken(c)
   type(<name-char>, c), loop(type(<name-char>, c))
-end parse nmtoken;
+end meta nmtoken;
 
 //    [8]    Nmtokens    ::=    Nmtoken (S Nmtoken)*
 //    
-define parse nmtokens(token, s)
-  parse-nmtoken(token), loop([parse-s(s), parse-nmtoken(token)])
-end parse nmtokens;
+define meta nmtokens(token, s)
+  scan-nmtoken(token), loop([scan-s(s), scan-nmtoken(token)])
+end meta nmtokens;
 
 // Literals
 //
@@ -229,14 +183,14 @@ define constant not-in-set? = complement(member?);
 
 define collector entity-value(contents, s) => (str)
   {["\"",
-    loop({[parse-reference(contents), do(do(collect, contents))],
-          [{[parse-s?(s), parse-element(contents)], 
-            parse-double-char-data(contents)}, 
+    loop({[scan-reference(contents), do(do(collect, contents))],
+          [{[scan-s?(s), scan-element(contents)], 
+            scan-double-char-data(contents)}, 
            do(collect(contents))]}), "\""],
    ["'",
-    loop({[parse-reference(contents), do(do(collect, contents))],
-          [{[parse-s?(s), parse-element(contents)],
-            parse-single-char-data(contents)}, 
+    loop({[scan-reference(contents), do(do(collect, contents))],
+          [{[scan-s?(s), scan-element(contents)],
+            scan-single-char-data(contents)}, 
            do(collect(contents))]}), "'"]}, 
   []
 end collector entity-value;
@@ -246,7 +200,7 @@ end collector entity-value;
 //                                    |  "'" ([^<&'] | Reference)* "'"
 //
 define collect-value att-value(ref) ()
-  "<&'", "<&\"" => parse-reference(ref)
+  "<&'", "<&\"" => scan-reference(ref)
 end collect-value att-value;
 
 //    [11]    SystemLiteral    ::=    ('"' [^"]* '"') | ("'" [^']* "'")
@@ -307,7 +261,7 @@ define collect-data double-char("\"&") end;
 
 //    [15]    Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 //
-define parse comment(c)
+define meta comment(c)
   "<!--", loop({["-->", finish()], type(<char>, c)})
 end;
 
@@ -315,17 +269,17 @@ end;
 
 //    [16]    PI          ::=    '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
 //
-define parse pi(c, target, space)
-  "<?", parse-pi-target(target), parse-s(space), 
+define meta pi(c, target, space)
+  "<?", scan-pi-target(target), scan-s(space), 
   loop({["?>", finish()], type(<char>, c)})
-end parse pi;
+end meta pi;
 
 //    [17]    PITarget    ::=    Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
 //
 // Doesn't currently check whether the name is not xml. Shouldn't
 // matter (fingers crossed).
 //
-define constant parse-pi-target = parse-name;
+define constant scan-pi-target = scan-name;
 
 // CDATA Sections
 // 
@@ -349,31 +303,31 @@ end collector cd-sect;
 // 
 //    [22]    prolog         ::=    XMLDecl? Misc* (doctypedecl Misc*)?
 //
-define parse prolog(decl, misc, doctype)
-  {parse-xml-decl(decl), []}, loop(parse-misc(misc)),
-  {[parse-doctypedecl(doctype), loop(parse-misc(misc))], []}
-end parse prolog;
+define meta prolog(decl, misc, doctype)
+  {scan-xml-decl(decl), []}, loop(scan-misc(misc)),
+  {[scan-doctypedecl(doctype), loop(scan-misc(misc))], []}
+end meta prolog;
 
 //    [23]    XMLDecl        ::=    '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
 //
-define parse xml-decl(version-info, encoding-decl, sd-decl, c)
-  "<?xml", parse-version-info(version-info),     
-  {parse-encoding-decl(encoding-decl), []},
-  {parse-sd-decl(sd-decl), []},
-  parse-s?(c), "?>"
-end parse xml-decl;
+define meta xml-decl(version-info, encoding-decl, sd-decl, c)
+  "<?xml", scan-version-info(version-info),     
+  {scan-encoding-decl(encoding-decl), []},
+  {scan-sd-decl(sd-decl), []},
+  scan-s?(c), "?>"
+end meta xml-decl;
 
 //    [24]    VersionInfo    ::=    S 'version' Eq ("'" VersionNum "'" | '"' VersionNum '"')/* */
 //
-define parse version-info(space, eq, version-num)
-  parse-s(space), "version", parse-eq(eq),
-  {['\'', parse-version-num(version-num), '\''],
-   ['"', parse-version-num(version-num), '"']}
-end parse version-info;
+define meta version-info(space, eq, version-num)
+  scan-s(space), "version", scan-eq(eq),
+  {['\'', scan-version-num(version-num), '\''],
+   ['"', scan-version-num(version-num), '"']}
+end meta version-info;
 
 //    [25]    Eq             ::=    S? '=' S?
 //
-define parse eq(sp) parse-s?(sp), '=', parse-s?(sp) end;
+define meta eq(sp) scan-s?(sp), '=', scan-s?(sp) end;
 
 //    [26]    VersionNum     ::=    ([a-zA-Z0-9_.:] | '-')+
 //
@@ -383,78 +337,78 @@ end collector version-num;
 
 //    [27]    Misc           ::=    Comment | PI | S
 //
-define parse misc(comment, pi, s)
-  {parse-comment(comment), parse-pi(pi), parse-s(s)}, []
-end parse misc;
+define meta misc(comment, pi, s)
+  {scan-comment(comment), scan-pi(pi), scan-s(s)}, []
+end meta misc;
 
 //    [28a]    DeclSep        ::=    PEReference | S                                                                 [WFC: PE Between Declarations]
 //                                                                                                                   /* */
 //
-define parse decl-sep(pe-ref, s)
-  { parse-pe-reference(pe-ref), parse-s(s)}, []
-end parse decl-sep;
+define meta decl-sep(pe-ref, s)
+  { scan-pe-reference(pe-ref), scan-s(s)}, []
+end meta decl-sep;
 
 // Document Type Definition
 // 
 //    [28]     doctypedecl    ::=    '<!DOCTYPE' S Name (S ExternalID)? S? ('[' (markupdecl | DeclSep)* ']' S?)? '>' [VC: Root Element Type]
 //                                                                                                                   [WFC: External Subset]
 //
-define parse doctypedecl(s, name, id, markup, decl-sep)
+define meta doctypedecl(s, name, id, markup, decl-sep)
   yes!(*defining-entities?*),
-  "<!DOCTYPE", parse-s(s), parse-name(name), 
-  {[parse-s(s), parse-external-id(id),
+  "<!DOCTYPE", scan-s(s), scan-name(name), 
+  {[scan-s(s), scan-external-id(id),
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its (I hope only) entities
-   do(with-open-file(in = id) parse-dtd-stuff(in.stream-contents) end)], 
+   do(with-open-file(in = id) scan-dtd-stuff(in.stream-contents) end)], 
    []},
-  parse-s?(s), 
-  {['[', parse-dtd-stuff(markup) , ']', parse-s?(s)], []}, ">",
+  scan-s?(s), 
+  {['[', scan-dtd-stuff(markup) , ']', scan-s?(s)], []}, ">",
   no!(*defining-entities?*)
-end parse doctypedecl;
+end meta doctypedecl;
 
-define parse dtd-stuff(markup, decls, misc)
-  loop({parse-markupdecl(markup), parse-decl-sep(decls), parse-misc(misc)})
-end parse dtd-stuff;
+define meta dtd-stuff(markup, decls, misc)
+  loop({scan-markupdecl(markup), scan-decl-sep(decls), scan-misc(misc)})
+end meta dtd-stuff;
 
 //    [29]     markupdecl     ::=    elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment            [VC: Proper Declaration/PE Nesting]
 //                                                                                                                   [WFC: PEs in Internal Subset]
 //
-define parse markupdecl(decl)
-  {parse-elementdecl(decl), parse-attlist-decl(decl),
-   parse-entity-decl(decl), parse-notation-decl(decl), 
-   parse-pi(decl), parse-comment(decl)}, []
-end parse markupdecl;
+define meta markupdecl(decl)
+  {scan-elementdecl(decl), scan-attlist-decl(decl),
+   scan-entity-decl(decl), scan-notation-decl(decl), 
+   scan-pi(decl), scan-comment(decl)}, []
+end meta markupdecl;
 
 // External Subset
 // 
 //    [30]    extSubset        ::=    TextDecl? extSubsetDecl
 //
-define parse ext-subset(text-decl, subset-decl)
- {parse-text-decl(text-decl), []}, parse-ext-subset-decl(subset-decl)
-end parse ext-subset;
+define meta ext-subset(text-decl, subset-decl)
+ {scan-text-decl(text-decl), []}, scan-ext-subset-decl(subset-decl)
+end meta ext-subset;
 
 //    [31]    extSubsetDecl    ::=    ( markupdecl | conditionalSect | DeclSep)* /* */
 //
-define parse ext-subset-decl(markup-decl, sect, decl-sep)
-  loop({parse-markupdecl(markup-decl), 
-        parse-conditional-sect(sect),
-        parse-decl-sep(decl-sep)})
-end parse ext-subset-decl;
+define meta ext-subset-decl(markup-decl, sect, decl-sep)
+  loop({scan-markupdecl(markup-decl), 
+        scan-conditional-sect(sect),
+        scan-decl-sep(decl-sep)})
+end meta ext-subset-decl;
 
 // Standalone Document Declaration
 // 
 //    [32]    SDDecl    ::=    S 'standalone' Eq (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no') '"')) [VC: Standalone Document Declaration]
 //
-define parse sd-decl(sp, eq)
-  parse-s(sp), "standalone", parse-eq(eq),
+define meta sd-decl(sp, eq)
+  scan-s(sp), "standalone", scan-eq(eq),
 // DOUG: another '/" example
   {['\'', {"yes", "no"}, '\''], ['"', {"yes", "no"}, '"']}
-end parse sd-decl;
+end meta sd-decl;
 
 //    (Productions 33 through 38 have been removed.)
 
-// This function here parses the attribute value part of the
-// attribute -- so this function will parse "bar" for 
+// This function here scans the attribute value part of the
+// attribute -- so this function will return "bar" for 
 // <foo name="bar"/> (quotes are included)
 define collect-value xml-attribute(c) () "'", "\"" => { } end;
 
@@ -467,37 +421,51 @@ define collect-value xml-attribute(c) () "'", "\"" => { } end;
 // here, for a bit more efficiency for most XML docs, we'll
 // assume that tags usually have content, and, therefore, look
 // for non-empty-element tags first when parsing.
-define parse element(name, attribs, content, etag)
+define meta element(name, attribs, content, etag)
  => (make(<element>, children: content, name: name, 
      attributes: attribs))
-  {[parse-stag(name, attribs), parse-content(content), parse-etag(etag)],
-   [parse-empty-elem-tag(name, attribs), set!(content, "")]}, []
-end parse element;
+  {[scan-stag(name, attribs), scan-content(content), scan-etag(etag)],
+   [scan-empty-elem-tag(name, attribs), set!(content, "")]}, []
+end meta element;
 
 // Start-tag
 // 
 //    [40]    STag         ::=    '<' Name (S Attribute)* S? '>' [WFC: Unique Att Spec]
 //
-define parse stag(elt, attribs) => (elt, attribs)
-  parse-beginning-of-tag(elt, attribs), ">"
-end parse stag;
+define meta stag(elt, attribs) => (elt, attribs)
+  scan-beginning-of-tag(elt, attribs), 
+  do(if(*last-tag-name* == elt)
+       maybe-tag-mismatch(format-to-string("Opening same tag (<%s>)", 
+                                           *last-tag-name*),
+                          "Perhaps you meant to close the tag?",
+                          index, string);
+     end if;
+     *last-tag-name* := elt), ">"
+end meta stag;
 
 //    [41]    Attribute    ::=    Name Eq AttValue               [VC: Attribute Value Type]
 //                                                               [WFC: No External Entity References]
 //                                                               [WFC: No < in Attribute Values]
 //
-define parse attribute(name, eq, value)
+define meta attribute(name, eq, value)
  => (make(<attribute>, name: name, value: value))
-  parse-name(name), parse-eq(eq), parse-xml-attribute(value)
-end parse attribute;
+  scan-name(name), scan-eq(eq), scan-xml-attribute(value)
+end meta attribute;
 
 // End-tag
 // 
 //    [42]    ETag    ::=    '</' Name S? '>'
 //    
-define parse etag(name, s) => (name)
-  "</", parse-name(name), parse-s?(s), ">"
-end parse etag;
+define meta etag(name, s) => (name)
+  "</", scan-name(name),
+  do(if(*last-tag-name* & *last-tag-name* ~== name)
+       maybe-tag-mismatch("Close tag does not match open tag",
+                          format-to-string("Change </%s> to </%s>",
+                                           name, *last-tag-name*),
+                          index, string);
+     end if;
+     *last-tag-name* := #f), scan-s?(s), ">"
+end meta etag;
 
 // Content of Elements
 // 
@@ -554,87 +522,97 @@ end method collapse-strings;
 
 define collector content(ignor, contents) 
  => (collapse-strings(str, *substitute-entities?*))
-  {[parse-char-data(contents), do(contents.text.has-content? & collect(contents))], []},
-  loop({[{parse-element(contents), parse-cd-sect(contents)}, 
+  {[scan-char-data(contents), do(contents.text.has-content? & collect(contents))], []},
+  loop({[{scan-element(contents), scan-cd-sect(contents)}, 
          do(collect(contents))],
-        [parse-reference(contents), do(do(collect, contents))],
-        parse-pi(ignor), parse-comment(ignor),
-        [parse-char-data(contents), 
+        [scan-reference(contents), do(do(collect, contents))],
+        scan-pi(ignor), scan-comment(ignor),
+        [scan-char-data(contents), 
          do(contents.text.has-content? & collect(contents))]})
 end collector content;
 
+define function maybe-tag-mismatch(msg :: <string>, 
+                                   hint :: <string>,
+                                   idx :: <integer>,
+                                   file :: <string>) => ()
+  format(*standard-error*, 
+         "\nWARNING!  %s at file location %d.\n%s\n\n%s\n", msg, idx,
+         hint, copy-sequence(file, start: max(idx - 80, 0),
+                             end: min(idx + 80, file.size)));
+end function maybe-tag-mismatch;
+
 // helper method for parsing opening tags
-define parse beginning-of-tag(elt, attribs, s) => (elt, attribs)
-  "<", parse-name(elt), parse-s?(s), parse-xml-attributes(attribs)
-end parse beginning-of-tag;
+define meta beginning-of-tag(elt, attribs, s) => (elt, attribs)
+  "<", scan-name(elt), scan-s?(s), scan-xml-attributes(attribs)
+end meta beginning-of-tag;
 
 // Tags for Empty Elements
 // 
 //    [44]    EmptyElemTag    ::=    '<' Name (S Attribute)* S? '/>' [WFC: Unique Att Spec]
 //
-// This is not optimal because we parse the whole tag data twice if it
+// This is not optimal because we scan the whole tag data twice if it
 // is not an empty-elem-tag. Need to unify this with [39].
-define parse empty-elem-tag(elt, attribs) => (elt, attribs)
-  parse-beginning-of-tag(elt, attribs), "/>"
-end parse empty-elem-tag;
+define meta empty-elem-tag(elt, attribs) => (elt, attribs)
+  scan-beginning-of-tag(elt, attribs), "/>", set!(*last-tag-name*, #f)
+end meta empty-elem-tag;
 
 // Element Type Declaration
 // 
 //    [45]    elementdecl    ::=    '<!ELEMENT' S Name S contentspec S? '>' [VC: Unique Element Type Declaration]
 //
-define parse elementdecl(s, name, spec)
-  "<!ELEMENT", parse-s(s), parse-name(name), parse-s(s),
-  parse-contentspec(spec), parse-s?(s), ">"
-end parse elementdecl;
+define meta elementdecl(s, name, spec)
+  "<!ELEMENT", scan-s(s), scan-name(name), scan-s(s),
+  scan-contentspec(spec), scan-s?(s), ">"
+end meta elementdecl;
 
 //    [46]    contentspec    ::=    'EMPTY' | 'ANY' | Mixed | children
 //
-define parse contentspec(mixed, children)
-  {"EMPTY", "ANY", parse-mixed(mixed), parse-children(children)}, []
-end parse contentspec;
+define meta contentspec(mixed, children)
+  {"EMPTY", "ANY", scan-mixed(mixed), scan-children(children)}, []
+end meta contentspec;
 
-define parse opt-regexp(c) {{"?", "*", "+"}, []} end;
+define meta opt-regexp(c) {{"?", "*", "+"}, []} end;
 
 // Element-content Models
 // 
 //    [47]    children    ::=    (choice | seq) ('?' | '*' | '+')?
 //
-define parse children(choice, seq, c)
-  {parse-choice(choice), parse-seq(seq)}, parse-opt-regexp(c)
-end parse children;
+define meta children(choice, seq, c)
+  {scan-choice(choice), scan-seq(seq)}, scan-opt-regexp(c)
+end meta children;
 
 //    [48]    cp          ::=    (Name | choice | seq) ('?' | '*' | '+')?
 //
-define parse cp(name, c, kids)
-  { [parse-name(name), parse-opt-regexp(c)], parse-children(kids) }
-end parse cp;
+define meta cp(name, c, kids)
+  { [scan-name(name), scan-opt-regexp(c)], scan-children(kids) }
+end meta cp;
 
-// the following parse functions all have the form:
+// the following meta functions all have the form:
 // '(' S? meta (S? a-char S? meta)(*|+) S? ')'
 define macro pattern-definer
 { define pattern ?:name(?char:expression) ?meta:* end }
- => { define parse ?name(s, ?=expr)
-        "(", parse-s?(s), ?meta,
-        loop([parse-s?(s), ?char, parse-s?(s), ?meta]),
-        parse-s?(s), ")"
-      end parse }
+ => { define meta ?name(s, ?=expr)
+        "(", scan-s?(s), ?meta,
+        loop([scan-s?(s), ?char, scan-s?(s), ?meta]),
+        scan-s?(s), ")"
+      end meta }
 { define pattern repeated ?:name(?char:expression) ?meta:* end }
- => { define parse ?name(s, ?=expr)
-        "(", parse-s?(s), ?meta, parse-s?(s), ?char, parse-s?(s), 
-        ?meta, loop([parse-s?(s), ?char, parse-s?(s), ?meta]),
-        parse-s?(s), ")"
-      end parse }
+ => { define meta ?name(s, ?=expr)
+        "(", scan-s?(s), ?meta, scan-s?(s), ?char, scan-s?(s), 
+        ?meta, loop([scan-s?(s), ?char, scan-s?(s), ?meta]),
+        scan-s?(s), ")"
+      end meta }
 end macro pattern-definer;
 
 //    [49]    choice      ::=   '(' S? cp ( S? '|' S? cp )+ S? ')'
 //                                                                       [VC: Proper Group/PE Nesting]
 //
-define pattern repeated choice("|") parse-cp(expr) end;
+define pattern repeated choice("|") scan-cp(expr) end;
 
 //    [50]    seq         ::=    '(' S? cp ( S? ',' S? cp )* S? ')'
 //                                                                       [VC: Proper Group/PE Nesting]
 //
-define pattern seq(",") parse-cp(expr) end;
+define pattern seq(",") scan-cp(expr) end;
 
 // Mixed-content Declaration
 // 
@@ -642,41 +620,41 @@ define pattern seq(",") parse-cp(expr) end;
 //                            | '(' S? '#PCDATA' S? ')'                  [VC: Proper Group/PE Nesting]
 //                                                                       [VC: No Duplicate Types]
 //
-define parse mixed(s, name)
-  "(", parse-s?(s), "#PCDATA",
-  {[parse-s?(s), ")"], 
-   [loop([parse-s?(s), "|", parse-s?(s), parse-name(name)]), 
-    parse-s?(s), ")*"]}
-end parse mixed;
+define meta mixed(s, name)
+  "(", scan-s?(s), "#PCDATA",
+  {[scan-s?(s), ")"], 
+   [loop([scan-s?(s), "|", scan-s?(s), scan-name(name)]), 
+    scan-s?(s), ")*"]}
+end meta mixed;
 
 // Attribute-list Declaration
 // 
 //    [52]    AttlistDecl    ::=    '<!ATTLIST' S Name AttDef* S? '>'
 //
-define parse attlist-decl(s, name, att-def)
-  "<!ATTLIST", parse-s(s), parse-name(name),
-    loop(parse-att-def(att-def)), parse-s?(s), ">"
-end parse attlist-decl;
+define meta attlist-decl(s, name, att-def)
+  "<!ATTLIST", scan-s(s), scan-name(name),
+    loop(scan-att-def(att-def)), scan-s?(s), ">"
+end meta attlist-decl;
 
 //    [53]    AttDef         ::=    S Name S AttType S DefaultDecl
 //
-define parse att-def(s, name, att-type, def)
-  parse-s(s), parse-name(name), parse-s(s), parse-att-type(att-type),
-  parse-s(s), parse-default-decl(def)
-end parse;
+define meta att-def(s, name, att-type, def)
+  scan-s(s), scan-name(name), scan-s(s), scan-att-type(att-type),
+  scan-s(s), scan-default-decl(def)
+end meta att-def;
 
 // Attribute Types
 // 
 //    [54]    AttType          ::=    StringType | TokenizedType | EnumeratedType
 //
-define parse att-type(str) 
- {parse-string-type(str), parse-tokenized-type(str), 
-  parse-enumerated-type(str)}, []
-end parse att-type;
+define meta att-type(str) 
+ {scan-string-type(str), scan-tokenized-type(str), 
+  scan-enumerated-type(str)}, []
+end meta att-type;
 
 //    [55]    StringType       ::=    'CDATA'
 //
-define parse string-type(c) "CDATA" end;
+define meta string-type(c) "CDATA" end;
 
 //    [56]    TokenizedType    ::=    'ID'                                        [VC: ID]
 //                                                                                [VC: One ID per Element Type]
@@ -688,31 +666,31 @@ define parse string-type(c) "CDATA" end;
 //                                    | 'NMTOKEN'                                 [VC: Name Token]
 //                                    | 'NMTOKENS'                                [VC: Name Token]
 //
-define parse tokenized-type(c)
+define meta tokenized-type(c)
   {"ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", 
    "NMTOKENS"}, []
-end parse tokenized-type;
+end meta tokenized-type;
 
 // Enumerated Attribute Types
 // 
 //    [57]    EnumeratedType    ::=    NotationType | Enumeration
 //
-define parse enumerated-type(note, enum)
-  { parse-notation-type(note), parse-enumeration(enum) }, []
-end parse enumerated-type;
+define meta enumerated-type(note, enum)
+  { scan-notation-type(note), scan-enumeration(enum) }, []
+end meta enumerated-type;
 
 //    [58]    NotationType      ::=    'NOTATION' S '(' S? Name (S? '|' S? Name)* S? ')' [VC: Notation Attributes]
 //                                                                                       [VC: One Notation Per Element Type]
 //                                                                                       [VC: No Notation on Empty Element]
 //
-define pattern notation-helper("|") parse-name(expr) end;
-define parse notation-type(s, name)
-  "NOTATION", parse-s(s),  parse-notation-helper(s)
-end parse notation-type;
+define pattern notation-helper("|") scan-name(expr) end;
+define meta notation-type(s, name)
+  "NOTATION", scan-s(s),  scan-notation-helper(s)
+end meta notation-type;
 
 //    [59]    Enumeration       ::=    '(' S? Nmtoken (S? '|' S? Nmtoken)* S? ')'        [VC: Enumeration]
 //
-define pattern enumeration("|") parse-nmtoken(expr) end;
+define pattern enumeration("|") scan-nmtoken(expr) end;
 
 // Attribute Defaults
 // 
@@ -722,48 +700,48 @@ define pattern enumeration("|") parse-nmtoken(expr) end;
 //                                                             [WFC: No < in Attribute Values]
 //                                                             [VC: Fixed Attribute Default]
 //
-define parse default-decl(s, att-value)
+define meta default-decl(s, att-value)
   {"#REQUIRED", "#IMPLIED", 
-   [{["#FIXED", parse-s(s)], []}, parse-att-value(att-value)]}, []
-end parse default-decl;
+   [{["#FIXED", scan-s(s)], []}, scan-att-value(att-value)]}, []
+end meta default-decl;
 
 // Conditional Section
 // 
 //    [61]    conditionalSect       ::=    includeSect | ignoreSect
 //
-define parse conditional-sect(include, ignore)
-  {parse-include-sect(include), parse-ignore-sect(ignore)}, []
-end parse conditional-sect;
+define meta conditional-sect(include, ignore)
+  {scan-include-sect(include), scan-ignore-sect(ignore)}, []
+end meta conditional-sect;
 
 //    [62]    includeSect           ::=    '<![' S? 'INCLUDE' S? '[' extSubsetDecl ']]>'      /* */
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
 //
-define parse include-sect(s, subset-decl)
-  "<![", parse-s?(s), "INCLUDE", parse-s?(s), "[", 
-  parse-ext-subset-decl(subset-decl), "]]>"
-end parse include-sect;
+define meta include-sect(s, subset-decl)
+  "<![", scan-s?(s), "INCLUDE", scan-s?(s), "[", 
+  scan-ext-subset-decl(subset-decl), "]]>"
+end meta include-sect;
 
 //    [63]    ignoreSect            ::=    '<![' S? 'IGNORE' S? '[' ignoreSectContents* ']]>' 
 //                                                                                            [VC: Proper Conditional Section/PE Nesting]
 //
-define parse ignore-sect(s, ignore-sect)
-  "<![", parse-s?(s), "IGNORE", parse-s?(s), "[", 
-  loop(parse-ignore-sect-contents(ignore-sect)), "]]>"
-end parse ignore-sect;
+define meta ignore-sect(s, ignore-sect)
+  "<![", scan-s?(s), "IGNORE", scan-s?(s), "[", 
+  loop(scan-ignore-sect-contents(ignore-sect)), "]]>"
+end meta ignore-sect;
 
 //    [64]    ignoreSectContents    ::=    Ignore ('<![' ignoreSectContents ']]>' Ignore)*
 // They are doing it again.
 //
-define parse ignore-sect-contents(ignore, ignore-sect)
-  parse-ignore(ignore),
-  loop(["<![", loop(parse-ignore-sect-contents(ignore-sect)), "]]>", parse-ignore(ignore)])
-end parse ignore-sect-contents;
+define meta ignore-sect-contents(ignore, ignore-sect)
+  scan-ignore(ignore),
+  loop(["<![", loop(scan-ignore-sect-contents(ignore-sect)), "]]>", scan-ignore(ignore)])
+end meta ignore-sect-contents;
 
 //    [65]    Ignore                ::=    Char* - (Char* ('<![' | ']]>') Char*)
 //  like, wow, what a def ... FIXME!
-define method parse-ignore(string, #key start = 0, end: stop)
+define method scan-ignore(string, #key start = 0, end: stop)
   values(start, #t);  // DOUG changed index to start
-end method parse-ignore;
+end method scan-ignore;
 
 // Character Reference
 // 
@@ -782,138 +760,138 @@ define collector hex-char-ref(c)
   "&#x", loop([type(<hex-digit>, c), do(collect(c))]), ";"
 end collector hex-char-ref;
 
-define parse char-ref(char, name)
+define meta char-ref(char, name)
  => (list(if(*substitute-entities?*)
             make(<char-string>, text: make(<string>, size: 1, fill: char));
           else
             make(<char-reference>, name: as(<symbol>, name), char: char)
           end if))
-  { parse-int-char-ref(char, name), parse-hex-char-ref(char, name) }, []
-end parse char-ref;
+  { scan-int-char-ref(char, name), scan-hex-char-ref(char, name) }, []
+end meta char-ref;
 
 // Entity Reference
 // 
 //    [67]    Reference      ::=    EntityRef | CharRef
-define parse reference(ref) => (ref)
-  { parse-entity-ref(ref), parse-char-ref(ref) }, []
-end parse reference;
+define meta reference(ref) => (ref)
+  { scan-entity-ref(ref), scan-char-ref(ref) }, []
+end meta reference;
 
 //    [68]    EntityRef      ::=    '&' Name ';'       [WFC: Entity Declared]
 //                                                     [VC: Entity Declared]
 //                                                     [WFC: Parsed Entity]
 //                                                     [WFC: No Recursion]
-define parse entity-ref(name)
+define meta entity-ref(name)
  => (if(*substitute-entities?* & ~ *defining-entities?*)
       *entities*[name].expand-entity;
      else
       list(make(<entity-reference>, name: name));
      end if)
-  "&", parse-name(name), ";"
-end parse entity-ref;
+  "&", scan-name(name), ";"
+end meta entity-ref;
 
 //    [69]    PEReference    ::=    '%' Name ';'       [VC: Entity Declared]
 //                                                     [WFC: No Recursion]
 //                                                     [WFC: In DTD]
 //
-define parse pe-reference(name) => (*pe-refs*[name])
-  "%", parse-name(name), ";"
-end parse pe-reference;
+define meta pe-reference(name) => (*pe-refs*[name])
+  "%", scan-name(name), ";"
+end meta pe-reference;
 
 // Entity Declaration
 // 
 //    [70]    EntityDecl    ::=    GEDecl | PEDecl
-define parse entity-decl(name) => (name)
-  { parse-GE-Decl(name), parse-PE-Decl(name) }, []
-end parse entity-decl;
+define meta entity-decl(name) => (name)
+  { scan-GE-Decl(name), scan-PE-Decl(name) }, []
+end meta entity-decl;
 
 //    [71]    GEDecl        ::=    '<!ENTITY' S Name S EntityDef S? '>'
-define parse ge-decl(name, s, def) => (name)
-  "<!ENTITY", parse-s(s), parse-name(name), parse-s(s), 
-  parse-entity-def(def), parse-s?(s), ">", 
+define meta ge-decl(name, s, def) => (name)
+  "<!ENTITY", scan-s(s), scan-name(name), scan-s(s), 
+  scan-entity-def(def), scan-s?(s), ">", 
   do(*entities*[name] := def)
-end parse ge-decl;
+end meta ge-decl;
 
 //    [72]    PEDecl        ::=    '<!ENTITY' S '%' S Name S PEDef S? '>'
-define parse pe-decl(name, s, def) => (name)
-  "<!ENTITY", parse-s(s), "%", parse-s(s), parse-name(name),
-  parse-s(s), parse-pe-def(def), parse-s?(s), ">", 
+define meta pe-decl(name, s, def) => (name)
+  "<!ENTITY", scan-s(s), "%", scan-s(s), scan-name(name),
+  scan-s(s), scan-pe-def(def), scan-s?(s), ">", 
   do(*pe-refs*[name] := def)
-end parse pe-decl;
+end meta pe-decl;
 
 //    [73]    EntityDef     ::=    EntityValue | (ExternalID NDataDecl?)
-define parse entity-def(def, id) => (def)
-  {parse-entity-value(def),
-   [parse-external-id(id), {parse-n-data-decl(def), []}]}, []
-end parse entity-def;
+define meta entity-def(def, id) => (def)
+  {scan-entity-value(def),
+   [scan-external-id(id), {scan-n-data-decl(def), []}]}, []
+end meta entity-def;
 
 //    [74]    PEDef         ::=    EntityValue | ExternalID
 //
-define parse pe-def(def) => (def)
-  { parse-entity-value(def), parse-external-id(def) }, []
-end parse pe-def;
+define meta pe-def(def) => (def)
+  { scan-entity-value(def), scan-external-id(def) }, []
+end meta pe-def;
 
 // External Entity Declaration
 // 
 //    [75]    ExternalID    ::=    'SYSTEM' S SystemLiteral
 //                                 | 'PUBLIC' S PubidLiteral S SystemLiteral
 //
-define parse external-id(s, sys, pub) => (sys)
-  { "SYSTEM", parse-public-id(pub) }, parse-s(s),
-  parse-system-literal(sys)
-end parse external-id;
+define meta external-id(s, sys, pub) => (sys)
+  { "SYSTEM", scan-public-id(pub) }, scan-s(s),
+  scan-system-literal(sys)
+end meta external-id;
 
 //    [76]    NDataDecl     ::=    S 'NDATA' S Name                          [VC: Notation Declared]
 //
-define parse n-data-decl(s, name) => (name)
-  parse-s(s), "NDATA", parse-s(s), parse-name(name)
-end parse n-data-decl;
+define meta n-data-decl(s, name) => (name)
+  scan-s(s), "NDATA", scan-s(s), scan-name(name)
+end meta n-data-decl;
 
 // Text Declaration
 // 
 //    [77]    TextDecl    ::=    '<?xml' VersionInfo? EncodingDecl S? '?>'
 //    
-define parse text-decl(vers, s, decl)
-  "<?xml", {parse-version-info(vers), []}, parse-encoding-decl(decl), 
-  parse-s?(s), "?>"
-end parse text-decl;
+define meta text-decl(vers, s, decl)
+  "<?xml", {scan-version-info(vers), []}, scan-encoding-decl(decl), 
+  scan-s?(s), "?>"
+end meta text-decl;
 
 // Well-Formed External Parsed Entity
 // 
 //    [78]    extParsedEnt    ::=    TextDecl? content
 //
-define parse ext-parsed-ent(decl, content) => (content)
-  {parse-text-decl(decl), []}, parse-content(content)
-end parse ext-parsed-ent;
+define meta ext-parsed-ent(decl, content) => (content)
+  {scan-text-decl(decl), []}, scan-content(content)
+end meta ext-parsed-ent;
 
 // Encoding Declaration
 // 
 //    [80]    EncodingDecl    ::=    S 'encoding' Eq ('"' EncName '"' | "'" EncName "'" )
 //    [81]    EncName         ::=    [A-Za-z] ([A-Za-z0-9._] | '-')*                      /* Encoding name contains only Latin characters */
 //
-define parse encoding-decl(s, eq, name) => (name)
-  parse-s(s), "encoding", parse-eq(eq),
-  {['\'', parse-encoding-name(name), '\''],
-   ['"', parse-encoding-name(name), '"']}
-end parse encoding-decl;
+define meta encoding-decl(s, eq, name) => (name)
+  scan-s(s), "encoding", scan-eq(eq),
+  {['\'', scan-encoding-name(name), '\''],
+   ['"', scan-encoding-name(name), '"']}
+end meta encoding-decl;
 
 // fudging it here -- I say that encname can start with graphics, but
 // that's wrong (esp since enc-name is a subset of version-num
-define constant parse-encoding-name = parse-version-num;
+define constant scan-encoding-name = scan-version-num;
 
 // Notation Declarations
 // 
 //    [82]    NotationDecl    ::=    '<!NOTATION' S Name S (ExternalID | PublicID) S? '>' [VC: Unique Notation Name]
 //
-define parse notation-decl(s, name, ex, pub)
-  "<!NOTATION", parse-s(s), parse-name(name), parse-s(s),
-  { parse-external-id(ex), parse-public-id(pub) }, parse-s?(s), ">"
-end parse notation-decl;
+define meta notation-decl(s, name, ex, pub)
+  "<!NOTATION", scan-s(s), scan-name(name), scan-s(s),
+  { scan-external-id(ex), scan-public-id(pub) }, scan-s?(s), ">"
+end meta notation-decl;
 
 //    [83]    PublicID        ::=    'PUBLIC' S PubidLiteral
 //
-define parse public-id(s, pub) => (pub)
-  "PUBLIC", parse-s(s), parse-pubid-literal(pub)
-end parse public-id;
+define meta public-id(s, pub) => (pub)
+  "PUBLIC", scan-s(s), scan-pubid-literal(pub)
+end meta public-id;
 
 // Characters
 // 
@@ -961,8 +939,8 @@ end parse public-id;
 define collect-value encoding-info(eq, c) () "'", "\"" => { } end;
 
 define collector xml-attributes(attr-name, eq, attr-val, sp) => (str)
-  loop([parse-name(attr-name), parse-eq(eq),
-        parse-xml-attribute(attr-val), parse-s?(sp),
+  loop([scan-name(attr-name), scan-eq(eq),
+        scan-xml-attribute(attr-val), scan-s?(sp),
         do(collect(make(<attribute>, name: attr-name, value: attr-val)))])
 end collector xml-attributes;
 
