@@ -137,8 +137,8 @@ end class <exit-condition>;
 
 define method fer-gather-bindings(block-region :: <block-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
-  format(*standard-output*, "fer-gather-bindings{<block-region>} %=\n", block-region);
-  force-output(*standard-output*);
+//  format(*standard-output*, "fer-gather-bindings{<block-region>} %=\n", block-region);
+//  force-output(*standard-output*);
   block ()
     fer-gather-bindings(block-region.body, environment)
   exception (exit :: <exit-condition>, test: method(exit :: <exit-condition>)
@@ -150,21 +150,18 @@ end;
 
 define method fer-gather-bindings(loop :: <loop-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
-  format(*standard-output*, "fer-gather-bindings{<loop-region>} %=\n", loop);
-  force-output(*standard-output*);
+//  format(*standard-output*, "fer-gather-bindings{<loop-region>} %=\n", loop);
+//  force-output(*standard-output*);
   local method repeat(environment :: <object>)
       repeat(fer-gather-bindings(loop.body, environment))
     end method;
-//  block
   repeat(environment);
-// exception()
-// end block
 end;
 
 define method fer-gather-bindings(exit :: <exit>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
-  format(*standard-output*, "fer-gather-bindings{<exit>} %=\n", exit);
-  force-output(*standard-output*);
+//  format(*standard-output*, "fer-gather-bindings{<exit>} %=\n", exit);
+//  force-output(*standard-output*);
   signal(make(<exit-condition>, block: exit.block-of, environment: environment));
 end;
 
