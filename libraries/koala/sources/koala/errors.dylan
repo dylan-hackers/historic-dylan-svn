@@ -83,6 +83,11 @@ define method http-error-message-no-code
   apply(format-to-string, condition-format-string(e), condition-format-arguments(e))
 end;
 
+define method http-error-message-no-code
+    (e :: <error>) => (msg :: <string>)
+  "An unhandled application error was encountered."
+end method http-error-message-no-code;
+
 // This is for logging.
 define method condition-to-string
     (e :: <http-error>) => (s :: <string>)
