@@ -18,4 +18,4 @@ install: ../runme
            src/Makefile src/icfp2000.lid src/*.dylan
 
 test: icfp2000
-	./icfp2000 <../examples/spheres.gml && display render.ppm
+	./icfp2000 <../examples/factorial.gml && display render.ppm

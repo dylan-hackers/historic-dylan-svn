@@ -21,49 +21,33 @@ end class <lexer>;
 define sealed domain make (singleton(<lexer>));
 define sealed domain initialize (<lexer>);
 
+
 define method getChar(lex :: <lexer>)
   let c = read-element(lex.source, on-end-of-stream: #f);
-  //format-out("char = %=\n", c);
   lex.current-posn := lex.current-posn + 1;
   lex.char := c;
 end;
 
 
-define constant $error-token = -1;
-define constant $EOF-token = 0;
-define constant $left-bracket-token = 1;
-define constant $right-bracket-token = 2;
-define constant $left-brace-token = 3;
-define constant $right-brace-token = 4;
-define constant $operator-token = 5;
-define constant $identifier-token = 6;
-define constant $binder-token = 7;
-define constant $boolean-token = 8;
-define constant $integer-token = 9;
-define constant $float-token = 10;
-define constant $string-token = 11;
+define method make-identifier-or-binder(token :: <byte-string>, emit) => ();
+  if (token[0] == '/')
+    emit('/');
+    token := replace-subsequence!(token, "", end: 1);
+  end;
 
+  // Dylan tokens are case-insensitive, so mangle the name: "nIcE" => "n^Ic^E"
+  for (i from token.size - 1 to 0 by -1)
+    let c = token[i];
+    if (c >= 'A' & c <= 'Z')
+      token := replace-subsequence!(token, "^", start: i, end: i);
+    end;
+  end;
 
-// make-identifier-or-binder -- internal.
-//
-// Extract the name from the source location, figure out what kind of word it
-// is, and make it.
-// 
-define method make-identifier-or-binder(token :: <byte-string>)
-//    => res :: <identifier-token>;
-
-  format-out("==> in make-identifier-or-binder %=\n", token);
-
+  emit(as(<symbol>, token));
 end method make-identifier-or-binder;
 
-// parse-integer -- internal.
-//
-// Parse and return an integer in the supplied radix.
-// 
-define method parse-integer-literal(token :: <byte-string>)
- => res :: <integer>;
-  format-out("==> in parse-integer-literal %=\n", token);
 
+define method parse-integer-literal(token :: <byte-string>, emit) => ();
   let start = 0;
   let finish = token.size;
   local method repeat (posn, result)
@@ -75,7 +59,7 @@ define method parse-integer-literal(token :: <byte-string>)
 	      error("Bogus digit in integer: %=", as(<character>, digit));
 	    end if;
 	  else
-	    result;
+	    emit(result);
 	  end if;
 	end method repeat;
   let first = token[start];
@@ -87,29 +71,16 @@ define method parse-integer-literal(token :: <byte-string>)
   else
     repeat(start, 0);
   end if;
-
 end method parse-integer-literal;
 
 
-// parse-fp-literal -- internal.
-// 
-define method parse-fp-literal(token :: <byte-string>)
-//    => res :: <literal-token>;
-  let value = atof(token);
-  format-out("==> in parse-fp-literal %= => %=\n", token, #f); //value);
-
-  value;
+define method parse-fp-literal(token :: <byte-string>, emit) => ();
+  emit(atof(token));
 end method parse-fp-literal;
 
 
-// make-string-literal -- internal.
-//
-// Should be obvious by now.
-//
-define method make-string-literal(token :: <byte-string>)
-//    => res :: <literal-token>;
-  format-out("==> in make-string-literal %=\n", token);
-
+define method make-string-literal(token :: <byte-string>, emit) => ();
+  emit(token);
 end method make-string-literal;
 
 
@@ -131,7 +102,7 @@ define class <state> (<object>)
   // makes it out of the lexer (e.g. whitespace), classes for simple
   // tokens that don't need any extra parsing, and functions for more
   // complex tokens.
-  slot result :: type-union(<false>, <symbol>, <integer>, <function>),
+  slot result :: type-union(<false>, <symbol>, <character>, <function>),
     required-init-keyword: result:;
   //
   // Either #f or a vector of next-states indexed by character code.
@@ -144,6 +115,7 @@ end class <state>;
 
 define sealed domain make (singleton(<state>));
 define sealed domain initialize (<state>);
+
 
 define method print-object (state :: <state>, stream :: <stream>) => ();
   format(stream, "%=", state.name);
@@ -201,9 +173,10 @@ define method add-transition
   end select;
 end method add-transition;
 
+
 define method state
     (name :: <symbol>,
-     result :: type-union(<false>, <symbol>, <integer>, <function>),
+     result :: type-union(<false>, <symbol>, <character>, <function>),
      #rest transitions)
   //
   // Utility function for making states.  We expand the sequence
@@ -279,10 +252,10 @@ define constant $Initial-State
        state(#"whitespace", #"whitespace",
 	     pair(" \t\f\r\n\<b>", #"whitespace")),
        state(#"comment", #"end-of-line-comment"),
-       state(#"lbracket", $left-bracket-token),
-       state(#"rbracket", $right-bracket-token),
-       state(#"lbrace", $left-brace-token),
-       state(#"rbrace", $right-brace-token),
+       state(#"lbracket", '['),
+       state(#"rbracket", ']'),
+       state(#"lbrace", '{'),
+       state(#"rbrace", '}'),
        state(#"minus", #f,
 	     pair("0-9", #"signed-decimal")),
        state(#"plus", #f,
@@ -324,20 +297,7 @@ define constant $Initial-State
 	     pair("0-9", #"decimal-exp")));
 
 
-// internal-get-token -- internal.
-//
-// Tokenize the next token and return it.
-//
-define method internal-get-token (lexer :: <lexer>); // => res :: <token>;
-  //
-  // Basically, just record where we are starting, and keep
-  // advancing the state machine until there are no more possible
-  // advances.  We don't stop at the first accepting state we find,
-  // because the longest token is supposed to take precedence.  We
-  // just note where the last accepting state we came across was,
-  // and then when the state machine jams, we just use that latest
-  // accepting state's result.
-  // 
+define method get-token (lexer :: <lexer>, emit) => (more :: <boolean>);
   let source :: <stream> = lexer.source;
   let result-kind = #f;
   let token :: <stretchy-vector> = lexer.buf;
@@ -414,7 +374,7 @@ define method internal-get-token (lexer :: <lexer>); // => res :: <token>;
 	    end;
 	    getChar(lexer);
 	    let str = as(<byte-string>, lexer.buf);
-	    make-string-literal(str);
+	    make-string-literal(str, emit);
 
 	end select;
 	result-kind := #f;
@@ -434,32 +394,42 @@ define method internal-get-token (lexer :: <lexer>); // => res :: <token>;
     // 
 
     if (~lexer.char)
-      result-kind := $EOF-token;
+      //EOF
     else
-      result-kind := $error-token;
+      //error
     end if;
+    #f;
 
-  end if;
+  else
+    //
+    // And finally, make and return the actual token.
+    // 
+    
+    let tok = as(<byte-string>, lexer.buf);
+    lexer.current-token := tok;
+    select(result-kind by instance?)
+      <function> =>
+	result-kind(tok, emit);
+      otherwise =>
+	emit(result-kind);
+	//error("oops");
+	//      format-out("unexpected result-kind = %=\n", result-kind);
+	//      #"oops - bad result kind";
+    end select;
+
+    #t;
+  end;
+end method get-token;
 
 
-  //
-  // And finally, make and return the actual token.
-  // 
-
-  let tok = as(<byte-string>, lexer.buf);
-  lexer.current-token := tok;
-  select(result-kind by instance?)
-    <integer> =>
-      result-kind;
-    <function> =>
-      result-kind(tok);
-    otherwise =>
-      //error("oops");
-      format-out("unexpected result-kind = %=\n", result-kind);
-      #"oops - bad result kind";
-  end select;
-
-end method internal-get-token;
+define method lex-gml(src :: <stream>) => (tokens :: <list>);
+  let lexer = make(<lexer>, source: *standard-input*);
+  getChar(lexer);
+  let lexed = #();
+  while(get-token(lexer, method(tok) lexed := pair(tok, lexed) end))
+  end;
+  reverse!(lexed);
+end;
 
 
 define method atof (string :: <byte-string>,
@@ -540,4 +510,3 @@ define method atof (string :: <byte-string>,
      sign * mantissa * ratio(10,1)
        ^ (exponent-sign * exponent - (scale | 0)));
 end method atof;
-

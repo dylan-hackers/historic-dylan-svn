@@ -18,20 +18,9 @@ define function main(name, arguments)
   
   format-out("parsing 3.141592654123456789e27 gives %=\n",
 	     atof("3.141592654123456789e27"));
+  */
 
-  let lexer = make(<lexer>, source: *standard-input*);
-  getChar(lexer);
-  block (eof)
-    while(1)
-      let tok = internal-get-token(lexer);
-      format-out("token = %=\n\n", tok);
-      if (tok == $EOF-token)
-	eof();
-      end;
-    end;
-  end;
-
-
+/*
   let red :: <color> = make(<color>, red: 1.0, blue: 0.0, green: 0.0);
   let green :: <color> = make(<color>, red: 0.0, green: 1.0, blue: 0.0);
   let file = make(<ppm-image>, filename: "test.ppm", width: 256,
@@ -42,21 +31,15 @@ define function main(name, arguments)
     write-pixel(file, green);
   end for;
   close-ppm(file);
-
-  */
+*/
 
   begin
-    let test-phrase-4
-      = #('{', '/',  self: , '/',  n:, n:, 2, lessi:, '{', 1, '}',
-	  '{', n:, 1, subi:, self:, self:, apply:, n:, muli:, '}',
-	  if:, '}', '/',  fact:,
-	  12, fact:, fact:, apply:);
+    let lexed = lex-gml(*standard-input*);
+    let out = lexed.run-gml;
     
-    let in = test-phrase-4;
-    let out = in.run-gml;
-    
-    format-out("input : %=\n", in);
-    format-out("output: %=\n", out);
+    //format-out("input : %=\n\n", in);
+    format-out("lexed : %=\n\n", lexed);
+    format-out("output: %=\n\n", out);
     force-output(*standard-output*);
   end;
 
