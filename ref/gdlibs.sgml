@@ -1773,6 +1773,109 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </dylangenericdef>
 
           <dylangenericdef>
+            <defname>read-line</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Reads a line of elements from a stream.</defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	      <keyparam>
+	        <paramname>on-end-of-stream</paramname>
+		<paramdefault>$not-supplied</paramdefault>
+		<paramsummary>Value returned if reading past the stream.
+		</paramsummary>
+              </keyparam>
+            </defparameters>
+            <defreturns>
+              <param>
+                <paramname>sequence-or-eof</paramname>
+              </param>
+              <param>
+                <paramname>newline?</paramname>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Reads in one line of elements from the
+                stream starting from the
+                the stream's current position.  The type of the
+                collection returned depends on the collection
+                underlying the stream.  Handles end-of-stream
+                conditions just as <dname>read-element</dname> does.</para>
+              <para>
+		The second return value will be false when the end of
+		the stream is discovered before a newline.</para>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>read-line-into!</defname>
+	    <defadjectives>open</defadjectives>
+	    <defsummary>Reads a line of elements from a stream into a
+	      collection.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>stream</paramname>
+		<paramtype>&lt;stream&gt;</paramtype>
+              </param>
+	      <param>
+	        <paramname>string</paramname>
+		<paramtype>&lt;string&gt;</paramtype>
+		<paramsummary>Note: this sequence must allow for
+		  changes in its size when grow? is true.
+		</paramsummary>
+              </param>
+	      <keyparam>
+	        <paramname>start</paramname>
+		<paramdefault>0</paramdefault>
+		<paramsummary>What index to start writing into the sequence.
+		</paramsummary>
+              </keyparam>
+	      <keyparam>
+	        <paramname>on-end-of-stream</paramname>
+		<paramdefault>$not-supplied</paramdefault>
+		<paramsummary>Value returned if reading past the stream.
+		</paramsummary>
+              </keyparam>
+	      <keyparam>
+	        <paramname>grow?</paramname>
+		<paramdefault>#f</paramdefault>
+		<paramsummary>Whether to grow the supplied sequence. 
+		</paramsummary>
+              </keyparam>
+            </defparameters>
+            <defreturns>
+              <param>
+                <paramname>string-or-eof</paramname>
+		<paramsummary>The string containing the line, or 
+                on-end-of-stream.</paramsummary>
+              </param>
+              <param>
+                <paramname>newline?</paramname>
+		<paramsummary>False when end of stream was reached before 
+                a newline.</paramsummary>
+              </param>
+            </defreturns>
+            <defdescription>
+              <para>
+                Reads in a line of elements from the
+                stream starting from the
+                the stream's current position and places those
+                elements into
+                <parameter>sequence</parameter>.
+                <parameter>Sequence</parameter> must be mutable to
+                allow it to expand should the
+                streamed in elements be larger than its original size when 
+                grow? is true.
+                Handles end-of-stream 
+                conditions just as <dname>read-element</dname> does.</para>
+            </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
             <defname>discard-input</defname>
 	    <defadjectives>open</defadjectives>
 	    <defsummary>Discards the elements from the stream.
@@ -3956,7 +4059,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<listitem>
 	  <para>
 	    <dmodule>Sequence-Utilities</dmodule> provides useful
-	    methods on collections, written by Matthias Hölzl.
+	    methods on collections, written by Matthias HÃ¶lzl.
 	  </para> 
 	</listitem>
       </itemizedlist>
@@ -4196,7 +4299,7 @@ subsequence(source, start: 3)
       <title>Module Sequence-Utilities</title>
       <para>
         <dmodule>Sequence-Utilities</dmodule>, written by Matthias
-        Hölzl,  provides common or oft-used operations performed on
+        HÃ¶lzl,  provides common or oft-used operations performed on
         <dclass>sequence</dclass>s.  The whole module is
         rather Lispy in flavor, and has the feel of an elegant hack by
         the way functions use predicate functions to manipulate lists.
