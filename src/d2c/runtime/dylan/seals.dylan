@@ -47,9 +47,12 @@ define sealed domain as-uppercase (<builtin-string>);
 define sealed domain as-uppercase! (<builtin-string>);
 define sealed domain as (singleton(<symbol>), <builtin-string>);
 
+// Should <byte-string>, <unicode-string>, <entry-vector> inherit from
+// <simple-vector> as <byte-vector>, <buffer> already do?  Should the
+// DRM be changed to reflect this?  Probably.
+//
 define constant <builtin-vector>
-  = type-union(<simple-vector>, <stretchy-object-vector>, <byte-vector>, <buffer>, 
-               <builtin-string>, <entry-vector>);
+  = type-union(<simple-vector>, <stretchy-object-vector>, <builtin-string>, <entry-vector>);
 
 define constant <builtin-array>
   = type-union(<builtin-vector>, <simple-object-array>);
