@@ -30,7 +30,7 @@ end module;
 define module board
   use icfp2002, export: all;
   
-  export <board>, send-board;
+  export <board>, send-board, <package>, <robot>;
 end module board;
 
 define module messages
@@ -57,13 +57,16 @@ end module messages;
 
 define module client
   use board;
-  
+
+  export <robot-agent>
 end module client;
 
 define module server
   use board;
   
 end module server;
+
+
 
 
 
