@@ -116,6 +116,12 @@
                               DefParameters, DefReturns, DefDescription,
 		              DefSection*) >
 
+<!-- For now this only processes Statement Macros (of the "with-" variety).
+     If someone else wants to add definer and function macros, be my guest. -->
+<!ELEMENT DylanMacroDef - - (DefName, DefAdjectives?, DefSummary, 
+                             DefParameters, DefDescription,
+                             DefSection*) >
+
 <!ELEMENT DylanClassDef - - (DefName, DefAdjectives?, DefSummary, DefSupers,
                              DefInitKeywords, DefDescription, DefSection*) >
 
@@ -124,6 +130,7 @@
 <!ATTLIST DylanFunctionDef DylanDefName CDATA #FIXED "Function">
 <!ATTLIST DylanGenericDef  DylanDefName CDATA #FIXED "Generic">
 <!ATTLIST DylanMethodDef   DylanDefName CDATA #FIXED "Method">
+<!ATTLIST DylanMacroDef    DylanDefName CDATA #FIXED "Macro">
 <!ATTLIST DylanClassDef    DylanDefName CDATA #FIXED "Class">
 
 
@@ -154,11 +161,14 @@
   character. This will be added as appropriate by the style sheets.
 -->
 
+<!ELEMENT VarParam - - (VariableName, BindsTo) >
 <!ELEMENT Param - - (ParamName, (ParamType|ParamSingleton)?, ParamSummary?) >
 <!ELEMENT RestParam - - (ParamName, ParamType?, ParamSummary?)? >
 <!ELEMENT KeyParam - - (ParamName, ParamType?, ParamDefault?, ParamSummary?) >
 <!ELEMENT AllKeys - O EMPTY >
 <!ELEMENT ParamName - - (#PCDATA) >
+<!ELEMENT VariableName - - (#PCDATA) >
+<!ELEMENT BindsTo - - (#PCDATA) >
 <!ELEMENT ParamType - - (#PCDATA) >
 <!ELEMENT ParamDefault - - (#PCDATA) >
 <!ELEMENT ParamSingleton - - (#PCDATA) >
@@ -179,5 +189,6 @@
   and generic functions.
 -->
 
-<!ELEMENT DefParameters - - (Param*, RestParam?, (KeyParam*, AllKeys?)?) >
+<!ELEMENT DefParameters - - (VarParam?, Param*, RestParam?, 
+                             (KeyParam*, AllKeys?)?) >
 <!ELEMENT DefReturns - - (Param*, RestParam?) -(ParamSingleton)>

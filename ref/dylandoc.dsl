@@ -324,6 +324,29 @@
 		(literal "."))
 	      (empty-sosofo)))))))
 
+(define (process-var #!optional (variable-label "Variable.  "))
+  (make sequence
+    (make element
+      gi: "TR"
+      (make sequence
+        (make element
+          gi: "TD"
+          attributes: '(("VALIGN" "TOP"))
+          (process-first-descendant "VariableName"))
+        (make element
+          gi: "TD"
+            (literal variable-label))))
+    (make element gi: "TR"
+      (make sequence
+        (make element gi: "TD" attributes: '(("VALIGN" "TOP"))
+          (process-first-descendant "BindsTo"))
+        (make element gi: "TD"
+          (literal "Expression."))))))
+
+(element VarParam
+  (with-mode var-param
+    (process-var)))
+
 (element Param
   (process-param))
 
@@ -353,6 +376,10 @@
 		       (process-children)
 		       (literal ":")))))
 
+(mode var-param
+  (element VariableName
+    (make element gi: "EM" (process-children)))
+  (element BindsTo (make element gi: "EM" (process-children))))
 
 ;;;========================================================================
 ;;; Define Class
@@ -412,6 +439,31 @@
 (element DylanMethodDef
   (process-function-def))
 
+;; right now a DylanMacroDef is a Statement macro only; ...
+;; I'll re-write this later to include function macros
+;; and definer macros, but if someone else does this first,
+;; I won't complain.  Doug Auclair, Dec 3, 2000, dauclair@hotmail.com
+
+(define (process-macro-def)
+  (make sequence
+    (process-defhead)
+    (process-macro-synopsis)
+    (process-children)))
+
+(element DylanMacroDef
+  (process-macro-def))
+
+(define (process-macro-synopsis #!optional (node (current-node)))
+  (with-mode function-synopsis
+    (process-section "Synopsis"
+                     (make sequence
+                       (process-first-descendant "DefName")
+                       (process-first-descendant "DefParameters")
+                       (make element gi: "EM" (literal " body"))
+		       (literal " end")))))
+
+;; now back to our regularly scheduled programming ...
+
 (element DefParameters
   (process-parameter-section "Parameters"))
 
@@ -440,6 +492,14 @@
     (make element
       gi: "EM"))
 
+  (element VariableName
+    (make element
+      gi: "EM"))
+
+  (element BindsTo
+    (make element
+      gi: "EM"))
+
   (element DefParameters
     (make sequence
       (literal " (")
@@ -451,6 +511,13 @@
       (literal " => (")
       (process-children)
       (literal ")")))
+
+  (element VarParam
+    (make sequence
+      (maybe-insert-spacer)
+      (process-first-descendant "VariableName")
+      (literal " = ")
+      (process-first-descendant "BindsTo")))
 
   (element Param
     (make sequence
