@@ -4,6 +4,24 @@ Author:    Chris Double
 Copyright: (C) 2000, Chris Double.  All rights reserved.
 License:   See License.txt
 
+// A class that represents base64 encoded data. This class is the result
+// of base64 encoding data and can be decoded to various types such as
+// <string>, <vector>, etc.
+define class <base64> (<object>)
+  // The string containing the base64 encoded representation of the data.
+  constant slot base64-string :: <string>, required-init-keyword: string:;
+end class <base64>;
+
+// The allowed types that a <base64> object can be converted to.
+define constant <base64-byte> = limited(<integer>, min: 0, max: 255);
+define constant <base64-vector> = limited(<vector>, of: <base64-byte>);
+
+// Encodes the given sequence as a <base64 > object.
+define generic base64-encode( o :: <sequence> ) => (r :: <base64>);
+
+// Decodes the <base64> object, returning it as a object of the specified type.
+define generic base64-decode-as ( type :: <class>, b :: <base64> ) => (t :: <object>);
+
 // Base64 Encoding/Decoding methods belows translated 
 // from Common Lisp versions in the AllegroServe
 // Open Source project.
@@ -67,7 +85,8 @@ define variable *base64-encode* =
       values(array);
     end;
 
-define function base64-decode( string ) => (result)
+define method base64-decode-as( type :: <class>, b64 :: <base64>) => (result :: <object>)
+  let string = b64.base64-string;
   let result = make(<stretchy-vector>);
   let array = *base64-decode*;
   for(i from 0 by 4,
@@ -86,10 +105,14 @@ define function base64-decode( string ) => (result)
       result := add!(result, as(<character>, logand(#xff, val)));
     end if;
   end for;
-  values(as(<byte-string>, result));
-end function base64-decode;
+  select(type)
+    <base64-vector> => map-as(<base64-vector>, curry(as, <integer>), result);
+    <string> => as(<byte-string>, result);
+    otherwise => error("Cannot base64-decode to the given type.");
+  end select;
+end method base64-decode-as;
 
-define function base64-encode( string ) => (result)
+define method base64-encode( string :: <sequence> ) => (result :: <base64>)
   let result = make(<stretchy-vector>);
   let v1 = 0;
   let v2 = 0;
@@ -139,6 +162,6 @@ define function base64-encode( string ) => (result)
       result := add!(result, *base64-encode*[logand(#x3f, v3)]);
     end while;
   end block;
-  values(as(<byte-string>, result)); 
-end function base64-encode;
+  make(<base64>, string: as(<byte-string>, result)); 
+end method base64-encode;
 

@@ -6,8 +6,14 @@ License:   See License.txt
 
 
 define module base64
-  use dylan;
+  use common-dylan;
 
   // Add binding exports here.
-  export base64-encode, base64-decode;
+  export 
+    <base64>, 
+    base64-string,
+    base64-encode,
+    base64-decode-as,
+    <base64-byte>,
+    <base64-vector>;
 end module base64;

@@ -5,7 +5,7 @@ Copyright: (C) 2000, Chris Double.  All rights reserved.
 License:   See License.txt
 
 define library double-base64
-  use dylan;
+  use common-dylan;
 
   // Add any more module exports here.
   export base64;
