@@ -426,10 +426,6 @@ define class <tag-call> (<object>)
   constant slot taglibs :: <sequence>, required-init-keyword: #"taglibs";
 end;
 
-define class <if-tag-call> (<tag-call>)
-  slot else-body :: false-or(<dsp-template>) = #f;
-end;
-
 define method get-arg
     (call :: <tag-call>, arg-name :: <symbol>) => (val :: <object>)
   block (return)
@@ -455,21 +451,6 @@ define method execute
           method () end);
   dynamic-bind (*active-taglibs* = call.taglibs)
     apply(tag.tag-function, page, response, do-body, call.arguments);
-  end;
-end;
-
-define method execute
-    (call :: <if-tag-call>, page, request, response);
-  let test = get-arg(call, #"test");
-  let predicate = test & get-named-method(call.taglibs, test);
-  iff(~predicate,
-      log-warning("No named-method called %= was found for tag call %=.",
-                  test, as(<string>, call)));
-  let body = iff(predicate & predicate(page, request),
-                 call.body,
-                 call.else-body);
-  when (body)
-    display-template(body, page, request, response);
   end;
 end;
 
@@ -617,7 +598,7 @@ define macro tag-aux-definer
   // This part doesn't work for renamed keyword args.  e.g., "foo: bar :: <string>"
   tag-param:
     { ?var:name }
-      => { ?var :: <string> }
+      => { ?var :: false-or(<string>) }
     { ?var:variable }
       => { ?var }
     { ?var:name = ?type:expression }  // shouldn't this be handled by ?var:variable ?
@@ -750,56 +731,11 @@ define function parse-dsp-directive
     "taglib"
       => parse-taglib-directive(page, tmplt, taglibs, call, tag-start,
                                 body-start, has-body?);
-    "if"
-      => parse-if-directive(page, tmplt, taglibs, tag-stack, call,
-                            tag-start, body-start, has-body?);
     otherwise
       => error("Unrecognized DSP directive %= at position %d",
                call.name, tag-start);
   end;
 end;
-
-// Parse a directive of the form
-//   <%dsp:if test="foo">...body...<%dsp:else>...body...</%dsp:if>
-//
-define function parse-if-directive
-    (page, parent-tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
- => (scan-pos :: <integer>)
-  let test = get-arg(call, #"test");
-  if (~test)
-    log-warning("Invalid %dsp:if directive in template %s:%d.",
-                as(<string>, page.source-location), tag-start);
-    log-warning("'test=something' was not specified, so the result will always be false.");
-  elseif (~has-body?)
-    log-warning("Invalid %dsp:if directive IGNORED in template %=.  A body should be specified.",
-                page.source-location);
-    body-start
-  else
-    let buffer = parent-tmplt.contents;
-    local method parse-body (start-pos)
-            let sub = make(<dsp-template>,
-                           parent: parent-tmplt,
-                           contents: buffer,
-                           content-start: start-pos,
-                           content-end: size(buffer));
-            let scan-pos = parse-template(page, sub, taglibs, pair(call, tag-stack));
-            sub.content-end := scan-pos;
-            values(sub, scan-pos)
-          end;
-    pt-debug("about to parse IF body");
-    let (true-body, pos) = parse-body(body-start);
-    call.body := true-body;
-    let else-tag :: <byte-string> = "<%dsp:else>";
-    if (pos > size(else-tag)
-        & looking-at?(else-tag, buffer, pos - size(else-tag), pos))
-      let (false-body, new-pos) = parse-body(pos);
-      call.else-body := false-body;
-      pos := new-pos
-    end;
-    add-entry!(parent-tmplt, call);
-    pos
-  end
-end parse-if-directive;
 
 define function parse-include-directive
     (page, tmplt, taglibs, tag-stack, call, tag-start, body-start, has-body?)
@@ -1023,26 +959,17 @@ define function parse-start-tag (page :: <dylan-server-page>,
   let (tag-args, has-body?, end-index)
     = extract-tag-args(buffer, name-end, epos, tag);
   local method make-tag-call ()
-          if (directive?)
-            make(iff(string-equal?(name, "if"), <if-tag-call>, <tag-call>),
-                 name: name,
-                 prefix: prefix,
-                 taglib: taglib,
-                 taglibs: copy-sequence(taglibs),
-                 arguments: tag-args)
-          else
-            iff(tag,
-                make(<tag-call>,
-                     name: name,
-                     prefix: prefix,
-                     tag: tag,
-                     taglib: taglib,
-                     taglibs: copy-sequence(taglibs),
-                     arguments: tag-args),
-                error("In template %=, the tag %= was not found.",
-                      as(<string>, page.source-location),
-                      name));
-          end
+          iff(directive? | tag,
+              make(<tag-call>,
+                   name: name,
+                   prefix: prefix,
+                   tag: tag,
+                   taglib: taglib,
+                   taglibs: copy-sequence(taglibs),
+                   arguments: tag-args),
+              error("In template %=, the tag %= was not found.",
+                    as(<string>, page.source-location),
+                    name));
         end method;
   values (make-tag-call(), has-body?, end-index)
 end parse-start-tag;
@@ -1052,7 +979,7 @@ define function end-of-word (buffer :: <string>, bpos :: <integer>, epos :: <int
           char = '>' | whitespace?(char)
         end;
   min(char-position-if(delim?, buffer, bpos, epos),
-      string-position(buffer, "/>", bpos, epos))
+      string-position(buffer, "/>", bpos, epos) | epos)
 end;
 
 // Parse the key1="val1" key2="val2" arguments from a call to a DSP tag.  Values may be
@@ -1149,15 +1076,40 @@ end quote-html;
 
 //// Tags
 
-// This tag is handled specially by the template parser mechanism.  It is only
-// called on either the true or false part of the %dsp:if directive.
-define body tag \if in %dsp
-    (page :: <dylan-server-page>,
-     response :: <response>,
-     do-body :: <function>)
-    ()
-  do-body();
+define thread variable *if-tag-test-result* = #f;
+
+// <dsp:if test="foo">
+//   <dsp:then>foo then</dsp:then>
+//   <dsp:else>foo else</dsp:else>
+// </dsp:if>
+
+define body tag \if in dsp
+    (page :: <dylan-server-page>, response :: <response>, do-body :: <function>)
+    (test :: <string>)
+  let predicate = get-named-method(*active-taglibs*, test);
+  dynamic-bind (*if-tag-test-result* = predicate(page, get-request(response)))
+    // always process the body since there may be HTML outside the dsp:then
+    // or dsp:else tags.
+    do-body();
+  end;
 end;
+
+define body tag \then in dsp
+    (page :: <dylan-server-page>, response :: <response>, do-body :: <function>)
+    ()
+  when (*if-tag-test-result*)
+    do-body();
+  end;
+end;
+
+define body tag \else in dsp
+    (page :: <dylan-server-page>, response :: <response>, do-body :: <function>)
+    ()
+  unless (*if-tag-test-result*)
+    do-body();
+  end;
+end;
+
 
 define thread variable *table-row-data* :: <object> = #f;
 define thread variable *table-row-number* :: <integer> = -1;
