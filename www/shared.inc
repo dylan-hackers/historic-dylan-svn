@@ -22,7 +22,7 @@ function short_header ($title) {
 <BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#000099" ALINK="#FF0000"
       VLINK="#990000">
 <H1 ALIGN=CENTER>
-<?php echo "<IMG SRC=\"images/gwydion.png\" " .
+<?php echo "<IMG SRC=\"gwydion.png\" " .
            "ALT=\"Gwydion Dylan\">" ?>
 </H1>
 
