@@ -10,14 +10,14 @@ define function main(name, arguments)
   end if;
 
   block ()
-    let lexed = lex-gml(input-stream);
-    let out = lexed.run-gml;
+    let lexed-program = lex-gml(input-stream);
+    let result-stack = lexed-program.run-gml;
     
     format-out("Run sucessful, final stack: ");
-    if (out = #())
+    if (result-stack = #())
       format-out("<empty>");
     else
-      do(method(val) format-out("%= ", val) end, out);
+      do(curry(format-out, "%= "), reverse!(result-stack));
     end;
     format-out("\n");
 
