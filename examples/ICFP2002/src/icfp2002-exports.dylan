@@ -39,6 +39,7 @@ define module board
     <package>, id, weight, location, dest, at-destination?, free-packages,
     <robot>, id, capacity, inventory, location, capacity-left, money,
     add-robot,
+    copy-robot,
     find-robot,
     add-package;
 end module board;

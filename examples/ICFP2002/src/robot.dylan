@@ -24,3 +24,13 @@ define method capacity-left(r :: <robot>)
     #f
   end if;
 end method capacity-left;
+
+define method copy-robot( robot :: <robot>, #key id, location, capacity, money, inventory ) 
+  => ( r :: <robot> )
+  make(<robot>,
+	   id: id | robot.id,
+	   location: location | robot.location,
+	   capacity: capacity | robot.capacity,
+       money: money | robot.money,
+       inventory: inventory | robot.inventory);
+end method copy-robot;
