@@ -39,7 +39,15 @@ end class <command>;
 
 define method make( cmd == <command>, #key, #all-keys) => (res :: <command>)
   let result = next-method();
-  add!(*command-table*, result);
+  block (done)
+    for (cmd keyed-by i in *command-table*)
+      if (cmd.name = result.name)
+        *command-table*[i] := result;
+        done();
+      end;
+    end;
+    add!(*command-table*, result);
+  end block;
   result;
 end method make;
 
@@ -183,9 +191,12 @@ define function longest-common-prefix(strings :: <collection>)
         end method all-equal?;
 
   let first-mismatch = 0;
-  while(all-equal?(map(rcurry(element, first-mismatch), strings)))
-    first-mismatch := first-mismatch + 1;
-  end while;
+  block ()
+    while(all-equal?(map(rcurry(element, first-mismatch), strings)))
+      first-mismatch := first-mismatch + 1;
+    end while;
+  exception (<object>)
+  end;
   copy-sequence(strings[0], end: first-mismatch);
 end function longest-common-prefix;
   
