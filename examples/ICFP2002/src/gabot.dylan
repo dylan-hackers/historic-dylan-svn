@@ -86,11 +86,12 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, locator :: <functio
 
           block (found)
             for (thing in coll)
-              let path = find-path(position, thing, s.board, cutoff: best-thing & distance);
+              let thing-location = thing.locator;
+              let path = find-path(position, thing-location, s.board, cutoff: best-thing & distance);
               debug("find-near-safe-place: thing: %=, path: %=\n", thing, path);
               if (path)
                 if (~best-thing
-                    | distance-cost(position, thing.locator) < distance) // # FISHY TODO we should compare paths
+                    | distance-cost(position, thing-location) < distance) // # FISHY TODO we should compare paths
                   let (better-thing, nearer-path)
                     = find-near-safe-place(thing, path);
                   found(better-thing, nearer-path)
@@ -119,11 +120,12 @@ end method find-safest;
 define method generate-next-move(me :: <gabot>, s :: <state>)
   => c :: <command>;
 
+  let bot = find-robot(s, me.agent-id);
 
 block (return)
   local method follow(strategy :: <strategy>)
           me.decided := strategy;
-          strategy.strategy-robot := find-robot(s, me.agent-id);
+          strategy.strategy-robot := bot;
           strategy.create-command.return;
         end;
 
@@ -132,7 +134,7 @@ block (return)
     & safe?(me.decided, me, s)
     & me.decided.follow;
 
-  let (safe-drop, drop-path) = find-safest(me, s.packages, location, s, weighting: weight);
+  let (safe-drop, drop-path) = find-safest(me, choose(method(p :: <package>) p.carrier == bot end, s.packages), location, s, weighting: weight);
   safe-drop & drop-path.drop-strategy.follow;
   
 //  find-robot(state, agent).inventory
