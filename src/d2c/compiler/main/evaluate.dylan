@@ -147,10 +147,10 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
         end-body(builder);
         
         d("\n\nBefore optimization:\n");
-        debug-interpreter? & dump-fer(component);
+        debug-interpreter? & dump-fer(component, #t);
         optimize-component(*current-optimizer*, component);
         d("\n\nAfter optimization:\n");
-        debug-interpreter? & dump-fer(component);
+        debug-interpreter? & dump-fer(component, #t);
         
         let value
           = block (return)
@@ -196,10 +196,10 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
           make-function-literal(builder, ctv, #"function", #"global",
                                 sig, init-function);
           d("\n\nBefore optimization:\n");
-          debug-interpreter? & dump-fer(component);
+          debug-interpreter? & dump-fer(component, #t);
           optimize-component(*current-optimizer*, component);
           d("\n\nAfter optimization:\n");
-          debug-interpreter? & dump-fer(component);
+          debug-interpreter? & dump-fer(component, #t);
           
           format(*debug-output*, "\n\nevaluated expression: %=\n",
                  evaluate(init-function.body,

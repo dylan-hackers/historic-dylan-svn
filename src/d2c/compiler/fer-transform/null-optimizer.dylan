@@ -74,8 +74,8 @@ define function debug-dump
     (optimizer :: <abstract-optimizer>,
      component :: <component>)
  => ()
-  if (debug-optimizer(optimizer) > 1)
-    dump-fer(component);
+  if (optimizer.debug-optimizer > 1)
+    dump-fer(component, optimizer.debug-optimizer > 10);
   end;
 end;
 

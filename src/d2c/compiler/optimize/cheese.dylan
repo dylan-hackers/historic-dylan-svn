@@ -75,9 +75,15 @@ define method optimize-component-internal
     (optimizer :: <cmu-optimizer>, component :: <component>) => ()
   reverse-queue(component, #f);
   let done = #f;
-  if (optimizer.debug-optimizer > 0)
+  let debug-level :: <integer> = optimizer.debug-optimizer;
+  let dump-table? = debug-level >= 10;
+  if (dump-table?)
+    debug-level := debug-level - 10;
+  end;
+
+  if (debug-level > 0)
     dformat("\n******** Preparing to optimize new component %=\n\n", component.name);
-    if (optimizer.debug-optimizer > 1) dump-fer(component) end;
+    if (debug-level > 1) dump-fer(component, dump-table?) end;
   end;
   until (done)
     if (*do-sanity-checks*)
@@ -88,22 +94,26 @@ define method optimize-component-internal
       let queueable = component.reoptimize-queue;
       component.reoptimize-queue := queueable.queue-next;
       queueable.queue-next := #"absent";
-      if (optimizer.debug-optimizer > 2)
+      if (debug-level > 2)
 	dformat("\n******** about to optimize %=\n\n", queueable);
       end;
       optimize(component, queueable);
-      if (optimizer.debug-optimizer > 4) dump-fer(component) end;
+      if (debug-level > 4)
+        dump-fer(component, dump-table?)
+      end;
       *optimize-ncalls* := *optimize-ncalls* + 1;
     else
       local method try (function, what)
-	      if (what & optimizer.debug-optimizer > 1)
+	      if (what & debug-level > 1)
 		dformat("\n******** %s\n\n", what);
 	      end;
 	      function(component);
-	      if (optimizer.debug-optimizer > 3) dump-fer(component) end;
+	      if (debug-level > 3)
+                dump-fer(component, dump-table?)
+              end;
 	      let start-over?
 		= component.initial-variables | component.reoptimize-queue;
-	      if (start-over? & optimizer.debug-optimizer > 1)
+	      if (start-over? & debug-level > 1)
 		dformat("\nstarting over...\n");
 	      end;
 	      start-over?;
@@ -123,9 +133,9 @@ define method optimize-component-internal
 	| (done := #t);
     end if;
   end until;
-  if (optimizer.debug-optimizer > 1)
+  if (debug-level > 1)
     dformat("\n******** Done optimizing component %=\n\n", component.name);
-    dump-fer(component);
+    dump-fer(component, dump-table?);
   end;
 end method optimize-component-internal;
 
