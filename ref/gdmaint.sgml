@@ -1456,6 +1456,16 @@ define variable foo :: run-time-expression() = #f;
 	      <acronym>FER</acronym>, which is short for <quote>Front End
 	      Representation.</quote></para>
 	    </formalpara>
+
+	    <para>The optimizer normally uses the <link
+	    linkend="gdmaint-d2c-front-builder-interface">
+	    <dmodule>Builder-Interface</dmodule> module</link> to create
+	    new <acronym>FER</acronym> structures. If you're familiar with
+	    the underlying <acronym>FER</acronym> classes, you can pick up
+	    the builder interface as you read through the optimizer. Look
+	    for calls to <dname>build-assignment</dname>,
+	    <dname>make-unknown-call</dname> and related functions. They're
+	    everywhere.</para>
 	  </listitem>
 	</itemizedlist>
 
@@ -1481,7 +1491,7 @@ define variable foo :: run-time-expression() = #f;
 	<dlit>component.reoptimize-queue</dlit>.</para>
 
 	<para>The <dname>initial-variables</dname> queue is filled by the
-	FER builder (and by certain routines in optimize). Initially, the
+	FER builder (and by certain routines in optimize). At first, the
 	queue contains all the variables in the component. The optimizer
 	drains the queue by passing each variable to the function
 	<dname>maybe-convert-to-ssa</dname>.</para>
@@ -1490,8 +1500,8 @@ define variable foo :: run-time-expression() = #f;
 	convert each variable to <acronym>SSA</acronym> form.
 	<acronym>SSA</acronym> variables are <quote>static, single
 	assignments</quote>. Each SSA variable is defined by a single
-	assignment, and never changes in value. Because the value of these
-	variables never changes, the optimizer can make lots of useful
+	assignment, and never changes in value. Because the values of these
+	variables never change, the optimizer can make lots of useful
 	assumptions about them.</para>
 
 	<para>Unfortunaely, <dname>maybe-convert-to-ssa</dname> isn't very
@@ -1500,7 +1510,7 @@ define variable foo :: run-time-expression() = #f;
 	<dname>&lt;initial-definition></dname> into
 	<dname>&lt;ssa-variable></dname>s. (There are good algorithms for
 	SSA conversion which can convert <emphasis>every</emphasis>
-	variable.)</para>
+	variable. If we need these, check the literature.)</para>
 
 	<para>Once the <dname>initial-variables</dname> queue has been
 	drained, the optimizer starts work on the
@@ -1551,9 +1561,8 @@ define variable foo :: run-time-expression() = #f;
 	CSE-elimination, and things like that. Any of these simplifications
 	might add something to one of our two queues. If this happens, we
 	need to drain our queues again and reapply our simplifications from
-	the beginning. Fortunately, this <quote>backtracking</quote>
-	happens very rarely, and doesn't trigger any kind of global
-	reoptimization.</para>
+	the beginning. Fortunately, this backtracking happens very rarely,
+	and it doesn't trigger any kind of global reoptimization.</para>
 	
 	<para>The next step depends on our <dname>simplify-only?</dname>
 	argument. If this argument is true, we're doing
@@ -1567,9 +1576,67 @@ define variable foo :: run-time-expression() = #f;
 	environment analysis to find closure variables, and build the
 	external entry points for local functions.</para>
 
-	<para>Each of these stages works like a simplification&mdash;it may
+	<para>Each of these stages works like a simplification. It may
 	add items to our two queues. If it does, we have to go drain those
 	queues, reapply all our simplifications, and so forth.</para>
+      </sect2>
+
+      <sect2 id="gdmaint-d2c-optimize-callopt-trans">
+	<title>Call Optimization & Transformers</title>
+
+	<para>Dylan, like LISP, uses function calls to represent most
+	language operations. Arithmetic oprators are functions. Slot
+	getters and setters are functions. Even array access is done using
+	functions. Given this, it's clear that the optimizer needs to
+	spend a lot of time improving function calls.</para>
+
+	<para>Function calls are represented in <acronym>FER</acronym>
+        using subclasses of <dname>&lt;abstract-call></dname>. You can find
+        these classes in the file
+        <filename>front/front.dylan</filename>. (Go ahead and read the
+        comments, they're actually informative.)</para>
+
+	<para>The are three subclasses of
+        <dname>&lt;abstract-call></dname>. Each represents a different kind
+        of function call. Calls to specific, known methods are represented by
+        <dname>&lt;known-call></dname>. Calls to a generic function are
+        represented by subclasses of <dname>&lt;general-call></dname>.
+        (The most common of these is <dname>&lt;unknown-call></dname>.)
+        Calls which are known to be erroneous are represented by
+        <dname>&lt;error-call></dname>.</para>
+
+	<para>Most function calls start life as an instance of
+	<dname>&lt;unknown-call></dname>. These are processed by the
+	<dname>optimize</dname> method for
+	<dname>&lt;unknown-call></dname>. (Look in
+	<filename>callopt.dylan</filename>.) This method does some
+	complicated dispatching. But in several of the most common cases,
+	we wind up calling <dname>optimize-generic</dname>.</para>
+
+	<para>The function <dname>optimize-generic</dname> tries two
+	different optimization strategies. First, it looks for an
+	appropriate <glossterm>transformer</glossterm>. Transformers know
+	how to optimize specific generic functions. If no transformer can
+	be found, or the transformer declines,
+	<dname>optimize-generic</dname> tries to do compile-time dispatch
+	instead.  This is done by looking for applicable methods. If
+	there's a single applicable method, then we can replace the
+	<dname>&lt;general-call></dname> with a
+	<dname>&lt;known-call></dname>.</para>
+
+	<para>Simpler optimizations are applied to
+	<dname>&lt;known-call></dname>s. But again, it's possible to
+	register a transformer. This transformer will be applied to known
+	calls with exactly matching function signatures.</para>
+
+	<para>Most of the transformers live in
+	<filename>trans.dylan</filename>. There's also some black magic in
+	here to handle calls to <dname>instance?</dname> by converting them
+	into <dname>&lt;instance?></dname> placeholders, and changing them
+	back into real code later, when replacing placeholders. This was
+	probably done to hide these calls during simplification
+	passes.</para>
+
       </sect2>
     </sect1>
 
