@@ -204,7 +204,7 @@ states:
                                   direction: #"Here",
                                   condition: as(<symbol>, format-to-string("marker%d", ?what)),
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
-                                  state-false: curry(lookup, label, counter + 1))
+                                  state-false: curry(lookup, instrs, label, counter + 1))
                     end) }
   { Sense ?where:name ?what:name, (?yes:name) }
     => { push-thunk(instrs, label, counter,
@@ -212,7 +212,7 @@ states:
                                   direction: ?#"where",
                                   condition: ?#"what",
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
-                                  state-false: curry(lookup, label, counter + 1))
+                                  state-false: curry(lookup, instrs, label, counter + 1))
                     end) }
 
   { Sense ?what:name, (?yes:name) }
@@ -221,7 +221,7 @@ states:
                                   direction: #"Here",
                                   condition: ?#"what",
                                   state-true: curry(lookup, instrs, ?#"yes", 0),
-                                  state-false: curry(lookup, label, counter + 1))
+                                  state-false: curry(lookup, instrs, label, counter + 1))
                     end) }
 
   { Sense ?where:name (Marker ?what:expression), (?yes:name, ?no:name) }
