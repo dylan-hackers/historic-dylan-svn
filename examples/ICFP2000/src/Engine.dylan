@@ -1,8 +1,9 @@
 language: infix-dylan
 module: GML-compiler
+author: Gabor Greif, mailto: gabor@mac.com
 
 define method run-gml(tokens :: <list>) => new-stack :: <list>;
-  let (closure, remaining) = tokens.compile-GML;
+  let (closure, remaining) = tokens.optimize-compile-GML;
   if (remaining.empty?)
     closure(#(), top-level-environment)
   else
@@ -62,10 +63,12 @@ define constant test-phrase-6
       3, 4, cons:, apply:, '{', 0, '}', '{', addi:, '}', match:, apply:
     );
 
+define constant test-phrase-7 = #(1, '/', a:, '[', 42, negi:, 2, addi:, 2, 2, addi:, addi:, a:, 1.9, 2.4, 5.6, point:, ']');
+
 define generic compile-one(token, tokens :: <list>) => (closure :: <function>, remaining :: <list>);
 
 define method compile-one(token, more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = compile-GML(more-tokens);
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(method(stack :: <list>, env :: <function>) => new-stack :: <list>;
            cont(pair(token, stack), env)
          end,
@@ -77,9 +80,9 @@ define method compile-one(token == '}', more-tokens :: <list>) => (closure :: <f
 end;
 
 define method compile-one(token == '{', more-tokens :: <pair>) => (closure :: <function>, remaining :: <list>);
-  let (closure, remaining) = more-tokens.compile-GML;
+  let (closure, remaining) = more-tokens.optimize-compile-GML;
   let (closing :: '}'.singleton, remaining :: <list>) = values(remaining.head, remaining.tail);
-  let (cont, remaining) = remaining.compile-GML;
+  let (cont, remaining) = remaining.optimize-compile-GML;
   values(method(stack :: <list>, env :: <function>) => new-stack :: <list>;
            cont(pair(rcurry(closure, env), stack), env)
          end,
@@ -87,7 +90,7 @@ define method compile-one(token == '{', more-tokens :: <pair>) => (closure :: <f
 end;
 
 define method compile-one(token :: <symbol>, more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(method(stack :: <list>, env :: <function>) => new-stack :: <list>;
            cont(pair(env(token), stack), env)
          end,
@@ -105,7 +108,7 @@ define method compile-one(token == '/', more-tokens :: <pair>) => (closure :: <f
   	error("cannot rebind reserved word '%s'", as(<byte-string>, binding));
   end if;
 
-  let (cont, remaining) = compile-GML(more-tokens.tail);
+  let (cont, remaining) = optimize-compile-GML(more-tokens.tail);
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let value = stack.head;
@@ -122,7 +125,7 @@ define method compile-one(token == '/', more-tokens :: <pair>) => (closure :: <f
 end;
 
 define method compile-one(token == #"apply", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let closure :: <function> = stack.head;
@@ -132,7 +135,7 @@ define method compile-one(token == #"apply", more-tokens :: <list>) => (closure 
 end;
 
 define method compile-one(token == #"if", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (false-closure :: <function>, rest :: <pair>) = values(stack.head, stack.tail);
@@ -144,7 +147,7 @@ define method compile-one(token == #"if", more-tokens :: <list>) => (closure :: 
 end;
 
 define method compile-one(token == #"true", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <list>, env :: <function>) => new-stack :: <list>;
            cont(pair(#t, stack), env)
@@ -153,7 +156,7 @@ define method compile-one(token == #"true", more-tokens :: <list>) => (closure :
 end;
 
 define method compile-one(token == #"false", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <list>, env :: <function>) => new-stack :: <list>;
            cont(pair(#f, stack), env)
@@ -165,7 +168,7 @@ end;
 // Points
 
 define method compile-one(token == #"point", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (z :: <fp>, rest :: <pair>) = values(stack.head, stack.tail);
@@ -177,7 +180,7 @@ define method compile-one(token == #"point", more-tokens :: <list>) => (closure 
 end;
 
 define method compile-one(token == #"getx", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (p :: <point>, rest :: <list>) = values(stack.head, stack.tail);
@@ -187,7 +190,7 @@ define method compile-one(token == #"getx", more-tokens :: <list>) => (closure :
 end;
 
 define method compile-one(token == #"gety", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (p :: <point>, rest :: <list>) = values(stack.head, stack.tail);
@@ -197,7 +200,7 @@ define method compile-one(token == #"gety", more-tokens :: <list>) => (closure :
 end;
 
 define method compile-one(token == #"getz", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (p :: <point>, rest :: <list>) = values(stack.head, stack.tail);
@@ -209,9 +212,9 @@ end;
 // Arrays
 
 define method compile-one(token == '[', more-tokens :: <pair>) => (closure :: <function>, remaining :: <list>);
-  let (array-builder, remaining :: <pair>) = more-tokens.compile-GML;
+  let (array-builder, remaining :: <pair>) = more-tokens.optimize-compile-GML;
   let (closing :: ']'.singleton, remaining :: <list>) = values(remaining.head, remaining.tail);
-  let (cont, remaining) = remaining.compile-GML;
+  let (cont, remaining) = remaining.optimize-compile-GML;
   values(
          method(stack :: <list>, env :: <function>) => new-stack :: <list>;
            cont(pair(as(<simple-object-vector>, array-builder(#(), env)).reverse!, stack), env)
@@ -224,7 +227,7 @@ define method compile-one(token == ']', more-tokens :: <list>) => (closure :: <f
 end;
 
 define method compile-one(token == #"get", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (i :: <integer>, rest :: <pair>) = values(stack.head, stack.tail);
@@ -235,7 +238,7 @@ define method compile-one(token == #"get", more-tokens :: <list>) => (closure ::
 end;
 
 define method compile-one(token == #"length", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-  let (cont, remaining) = more-tokens.compile-GML;
+  let (cont, remaining) = more-tokens.optimize-compile-GML;
   values(
          method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
            let (a :: <vector>, rest :: <list>) = values(stack.head, stack.tail);
