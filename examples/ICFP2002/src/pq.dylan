@@ -1,4 +1,5 @@
 module: pq
+copyright: this program may be freely used by anyone, for any purpose
 
 // A first shot at a priority queue
 

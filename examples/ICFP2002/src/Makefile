@@ -24,3 +24,6 @@ network-internal.dylan: network-internal.intr network-internal.h
 
 network.lib.du: network.lid network.dylan network-exports.dylan network-internal.dylan Makefile
 	d2c $(D2C_FLAGS) network.lid
+
+test-server: test-server.lid test-server.dylan test-server-exports.dylan Makefile
+	d2c $(D2C_FLAGS) test-server.lid
