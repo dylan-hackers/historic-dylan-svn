@@ -62,16 +62,14 @@ define interface
 
               //"struct in_addr" => <in-addr>,
               "struct in_addr *" => <in-addr*>,
-              "struct in_addr **" => <in-addr**>,
              
               //"struct sockaddr_in" => <sockaddr-in>,
               "struct sockaddr_in *" => <sockaddr-in*>,
-              "ntohl",
+              "ntohl" => %ntohl,
               "ntohs",
-              "htonl",
+              "htonl" => %htonl,
               "htons",
 
-              "char **" => <char**>,
               // "struct hostent" => <hostent>,
               "struct hostent *" => <hostent*>,
               // "struct netent" => <netent>,
@@ -80,7 +78,7 @@ define interface
               "struct servent *" => <servent*>,
               // "struct protoent" => <protoent>,
               "struct protoent *" => <protoent*>,
-             
+
               "accept",
               "bind",
               "close",
@@ -128,9 +126,12 @@ define interface
               // "inet_network",
               "inet_ntoa",
 
-             "gethostname"
+              "gethostname"
              },
-    equate: {"char *" => <c-string>},
+    equate: { "char *" => <c-string>,
+              "int *" => <C-int*>,
+              "char **" => <C-char**>,
+              "struct in_addr **" => <in-addr**> },
     name-mapper: minimal-name-mapping;
 
   struct "struct hostent",
@@ -161,7 +162,7 @@ define interface
   struct "struct sockaddr_in",
     rename: { "sin_family" => sin-family-value,
               "sin_port" => sin-port-value,
-              "sin_addr" => sin-addr-value };
+              "sin_addr" => %sin-addr-value };
   
   struct "struct linger",
     rename: { "l_onoff" => l-onoff-value, "l_linger" => l-linger-value };
@@ -176,43 +177,109 @@ define interface
               "msg_control" => msg-control-value,
               "msg_controllen" => msg-controllen-value,
               "msg_flags" => msg-flags-value };
-
 end interface;
+
+
+
+define constant <sockaddr-in> = referenced-type(<sockaddr-in*>);
+define constant <linger> = referenced-type(<linger*>);
 
 define constant <in-addr> = <in-addr-t>;
 // define constant <in-addr*> = <in-addr-t*>;
 // define constant <in-addr**> = <in-addr-t**>;
 
-define constant <C-char**> = <char**>;
-
 define constant $INADDR-ANY = as(<machine-word>, 0);
 define constant $INADDR-BROADCAST = as(<machine-word>, #xffffffff);
 define constant $INADDR-NONE = as(<machine-word>, #xffffffff);
 
+define inline method sin-addr-value
+    (sin :: <sockaddr-in*>)
+ => (addr-value :: <machine-word>);
+  as(<machine-word>, unsigned-long-at(sin.%sin-addr-value))
+end method;
+
+define inline method sin-addr-value-setter
+    (addr-value :: <machine-word>, sin :: <sockaddr-in*>)
+ => (addr-value :: <machine-word>);
+  unsigned-long-at(sin.%sin-addr-value) := as(<integer>, addr-value);
+  addr-value;
+end method;
+
+
+
 define method unix-recv-buffer
-    (arg1 :: <integer>, arg2 :: <machine-pointer>, arg3 :: <size-t>,
+    (arg1 :: <integer>, arg2 :: <machine-word>, arg3 :: <size-t>,
      arg4 :: <integer>)
  => (result :: <ssize-t>);
-  recv(arg1, arg2, arg3, arg4)
+  recv(arg1, as(<machine-pointer>, arg2), arg3, arg4)
 end method;
 
 define method unix-send-buffer
-    (arg1 :: <integer>, arg2 :: <machine-pointer>, arg3 :: <size-t>,
+    (arg1 :: <integer>, arg2 :: <machine-word>, arg3 :: <size-t>,
      arg4 :: <integer>)
  => (result :: <ssize-t>);
-  send(arg1, arg2, arg3, arg4)
+  send(arg1, as(<machine-pointer>, arg2), arg3, arg4)
 end method;
 
 define method unix-recv-buffer-from
-    (arg1 :: <integer>, arg2 :: <machine-pointer>, arg3 :: <size-t>,
+    (arg1 :: <integer>, arg2 :: <machine-word>, arg3 :: <size-t>,
      arg4 :: <integer>, arg5 :: <sockaddr*>, arg6 :: <socklen-t*>)
  => (result :: <ssize-t>);
-  recvfrom(arg1, arg2, arg3, arg4, arg5, arg6);
+  recvfrom(arg1, as(<machine-pointer>, arg2), arg3, arg4, arg5, arg6);
 end method;
 
 define method unix-send-buffer-to
-    (arg1 :: <integer>, arg2 :: <machine-pointer>, arg3 :: <size-t>,
+    (arg1 :: <integer>, arg2 :: <machine-word>, arg3 :: <size-t>,
      arg4 :: <integer>, arg5 :: <sockaddr*>, arg6 :: <socklen-t>)
  => (result :: <ssize-t>);
-  sendto(arg1, arg2, arg3, arg4, arg5, arg6)
+  sendto(arg1, as(<machine-pointer>, arg2), arg3, arg4, arg5, arg6)
 end method;
+
+define inline method htonl
+    (arg1 :: <machine-word>)
+ => (result :: <machine-word>);
+  as(<machine-word>, %htonl(as(<integer>, arg1)))
+end method;
+
+define inline method ntohl
+    (arg1 :: <machine-word>)
+ => (result :: <machine-word>);
+  as(<machine-word>, %ntohl(as(<integer>, arg1)))
+end method;
+
+
+
+define open primary functional class <indexable-statically-typed-pointer>
+    (<statically-typed-pointer>, <mutable-collection>)
+end class;
+
+define sealed method element
+    (pointer :: <indexable-statically-typed-pointer>, index :: <integer>,
+     #key default)
+ => (object :: <object>);
+  pointer-value(pointer, index: index);
+end method;
+
+define sealed method element-setter
+    (object :: <object>, pointer :: <indexable-statically-typed-pointer>,
+     index :: <integer>)
+ => (object :: <object>);
+  pointer-value(pointer, index: index) := object;
+end method;
+
+define functional class <C-char**> (<indexable-statically-typed-pointer>) end;
+define sealed domain make (singleton(<C-char**>));
+
+define method content-size
+    (value :: subclass(<C-char**>)) => (result :: <integer>);
+  c-expr(int:, "sizeof(char*)");
+end method content-size;
+
+define functional class <in-addr**> (<indexable-statically-typed-pointer>) end;
+define sealed domain make (singleton(<in-addr**>));
+
+define method content-size
+    (value :: subclass(<in-addr**>))
+ => (result :: <integer>);
+  c-expr(int:, "sizeof(struct in_addr *)");
+end method content-size;

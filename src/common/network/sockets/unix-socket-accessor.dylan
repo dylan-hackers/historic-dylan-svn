@@ -9,28 +9,6 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 // Utilities:
 
-define macro with-c-string
-  { with-c-string ( ?:name = ?:expression ) ?:body end }
-    => { let ?name = as(<c-string>, ?expression);
-         ?body; }
-end macro;
-
-define macro with-stack-structure
-  { with-stack-structure (?:name :: ?type:name,
-			  #key ?element-count:expression = 1,
-                               ?extra-bytes:expression = 0)
-      ?:body
-    end }
-    => { let ?name = make(?type,
-			  element-count: ?element-count,
-			  extra-bytes: ?extra-bytes);
-	 block ()
-	   ?body
-	 cleanup
-	   destroy(?name);
-	 end }
-end macro;
-
 define macro with-cleared-stack-structure
   { with-cleared-stack-structure
         (?:name :: ?:expression, ?options:*)
@@ -110,7 +88,7 @@ define function unix-socket-error
       unix-condition-object;
   else
     // TODO: Decode documented unix errors
-    select (error-code by ==)
+    select (error-code by \==)
       otherwise =>
 	high-level-error := unix-condition-object;
     end select;

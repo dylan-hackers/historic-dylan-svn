@@ -7,6 +7,7 @@ Dual License: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library network
+  use dylan;
   use common-dylan;
   use melange-support;
   use IO;
@@ -14,12 +15,33 @@ define library network
          sockets;
 end;
 
+define module C-FFI
+  use common-dylan;
+  use machine-words;
+  use melange-support, exclude: { null-pointer };
+
+  export
+    <C-char*>,
+    <C-int*>,
+    <C-raw-unsigned-long>,
+    <C-raw-unsigned-long*>,
+    null-pointer,
+    null-pointer?,
+    pointer-address,
+    pointer-cast,
+    referenced-type,
+    size-of,
+    \with-c-string,
+    \with-stack-structure,
+    clear-memory!;
+end module;
 
 define module unix-sockets
   use common-dylan,
     exclude: { close };
+  use C-FFI;
   use machine-words;
-  use melange-support;
+  use melange-support, exclude: { null-pointer };
 
   // Misc
   export
@@ -46,7 +68,7 @@ define module unix-sockets
       sa-family-value, sa-family-value-setter,
       sa-data-value, sa-data-array, sa-data-array-setter;
   export
-    /* <linger>, */ <linger*>,
+    <linger>, <linger*>,
       l-onoff-value, l-onoff-value-setter,
       l-linger-value, l-linger-value-setter;
   export
@@ -84,7 +106,7 @@ define module unix-sockets
     <in-addr>, <in-addr*>, <in-addr**>,
       s-addr-value, s-addr-value-setter;
   export
-    /* <sockaddr-in>, */ <sockaddr-in*>,
+      <sockaddr-in>, <sockaddr-in*>,
       sin-family-value, sin-family-value-setter,
       sin-port-value, sin-port-value-setter,
       sin-addr-value, sin-addr-value-setter;
@@ -178,8 +200,10 @@ end module sockets;
 
 define module sockets-internals
   use common-dylan, exclude: { format-to-string };
-  use melange-support;
+  use melange-support, exclude: { null-pointer };
+  use system, import: { vector-elements-address };
   use machine-words;
+  use C-FFI;
   use threads;
   use streams-internals;
   use format;

@@ -234,10 +234,7 @@ end method;
 define function buffer-offset
     (the-buffer :: <buffer>, data-offset :: <integer>)
  => (result-offset :: <machine-word>)
-  u%+(data-offset,
-      primitive-wrap-machine-word
-	(primitive-repeated-slot-as-raw
-	   (the-buffer, primitive-repeated-slot-offset(the-buffer))))
+  as(<machine-word>, vector-elements-address(the-buffer) + data-offset);
 end function;
 
 // There is an interesting non-blocking version of recv in  the
