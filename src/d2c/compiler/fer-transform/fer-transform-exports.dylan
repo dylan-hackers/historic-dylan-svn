@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/fer-transform-exports.dylan,v 1.2.2.1 2000/06/12 03:41:09 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/fer-transform-exports.dylan,v 1.2.2.2 2000/06/13 06:07:01 igor Exp $
 copyright: see below
 
 
@@ -62,6 +62,11 @@ define module fer-transform
   use transformers;
   use compile-time-functions;
   use function-definitions;
+  
+  export 
+    add-type-checks, 
+    convert-component-to-ssa,
+    traverse-component;
 end module fer-transform;
 
 define module null-optimizer
