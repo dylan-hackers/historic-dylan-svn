@@ -1,11 +1,11 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.3 2003/07/05 03:56:02 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.4 2003/09/11 23:17:49 gabor Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -35,14 +35,14 @@ copyright: see below
 // emit-tlf-gunk and emit-prologue.  A few classes and accessors are also
 // exported, mostly for the benefit of the heap builder.
 //
-//   emit-tlf-gunk (tlf :: <top-level-form>, file :: <file-state>) => ();
+//   emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>) => ();
 //      Basically, this converts Dylan "declarations" (definitions) into C
 //      declarations.  Actually, it writes arbitrary information about a given
 //      top-level-form.  This may be just a comment, or it may be a set of
 //      concrete declarations.  "Emit-tlf-gunk" also sometimes produces
 //      side-effects upon the current <file-state> -- i.e. adding a new "root".
 //
-//   emit-component (component :: <fer-component>, file :: <file-state>) => ();
+//   emit-component (backend == c:, component :: <fer-component>, file :: <file-state>) => ();
 //      Deal with translating executable Dylan into C procedures.  Many of the
 //      functions compiled are compiler generated functions such as "entry
 //      points", "makers", etc.
@@ -1497,15 +1497,15 @@ end;
 //   side-effects upon the current <file-state> -- i.e. adding a new
 //   "root".
 //
-define generic emit-tlf-gunk (tlf :: <top-level-form>, file :: <file-state>)
+define generic emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>)
     => ();
 
-define method emit-tlf-gunk (tlf :: <top-level-form>, file :: <file-state>)
+define method emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
 end;
 
-define method emit-tlf-gunk (tlf :: <magic-interal-primitives-placeholder>,
+define method emit-tlf-gunk (backend == c:, tlf :: <magic-interal-primitives-placeholder>,
 			     file :: <file-state>)
     => ();
   let bstream = file.file-body-stream;
@@ -1613,7 +1613,7 @@ end;
 // This method does useful stuff to insure that heap dumping does the
 // right thing for generic functions.
 //
-define method emit-tlf-gunk (tlf :: <define-generic-tlf>, file :: <file-state>)
+define method emit-tlf-gunk (backend == c:, tlf :: <define-generic-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   let defn = tlf.tlf-defn;
@@ -1672,13 +1672,13 @@ define method check-generic-method-xep
 end method check-generic-method-xep;
 
 define method emit-tlf-gunk
-    (tlf :: <define-method-tlf>, file :: <file-state>)
+    (backend == c:, tlf :: <define-method-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   check-generic-method-xep(tlf.tlf-defn, file);
 end method emit-tlf-gunk;
       
-define method emit-tlf-gunk (tlf :: <define-class-tlf>, file :: <file-state>)
+define method emit-tlf-gunk (backend == c:, tlf :: <define-class-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   // This class was obviously defined in this lib, so it is a local class.
@@ -1739,7 +1739,7 @@ define method emit-tlf-gunk (tlf :: <define-class-tlf>, file :: <file-state>)
 end method emit-tlf-gunk;
 
 define method emit-tlf-gunk
-    (tlf :: <define-bindings-tlf>, file :: <file-state>)
+    (backend == c:, tlf :: <define-bindings-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   for (defn in tlf.tlf-required-defns)
@@ -1814,9 +1814,13 @@ end;
 
 
 // emit-component  --  exported interface
+//
+define generic emit-component
+    (backend == c:, component :: <fer-component>, file :: <file-state>) => ();
+
 
 define method emit-component
-    (component :: <fer-component>, file :: <file-state>) => ();
+    (backend == c:, component :: <fer-component>, file :: <file-state>) => ();
 
   // Do pre-pass over all function literals, allocating c-names for the entry
   // points that have already been created.  Later similar stuff is done on the
@@ -1868,7 +1872,7 @@ define method emit-component
   // between things, this is an excellent time to spew them.
   // Eventually, we'll run out and stop iterating.
   if (~file.file-deferred-xeps.empty?)
-    emit-component(pop(file.file-deferred-xeps), file);
+    emit-component(c: pop(file.file-deferred-xeps), file);
   end if;
 end;
 

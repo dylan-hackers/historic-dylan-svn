@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5.2.1 2003/08/10 23:50:18 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5.2.2 2003/09/11 23:17:51 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -190,8 +190,8 @@ define method compile-1-tlf
     add!(state.unit-init-functions, ctv);
   end;
   optimize-component(*current-optimizer*, component);
-  emit-tlf-gunk(tlf, file);
-  emit-component(component, file);
+  emit-tlf-gunk(c: tlf, file);
+  emit-component(c: component, file);
 end method compile-1-tlf;
 
 define constant $max-inits-per-function = 25;
@@ -297,7 +297,7 @@ define method build-command-line-entry
   let ctv = make(<ct-function>, name: name-obj, signature: sig);
   make-function-literal(builder, ctv, #"function", #"global", sig, func);
   optimize-component(*current-optimizer*, component);
-  emit-component(component, file);
+  emit-component(c: component, file);
   ctv;
 end method build-command-line-entry;
 
