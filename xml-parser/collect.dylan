@@ -3,6 +3,52 @@ Author:    Douglas M. Auclair
 Copyright: (C) 2001, LGPL
 synopsis:  gathers all elements of shape S (a sequence of symbols)
 
+define class <collect-state> (<xform-state>)
+  constant slot pattern :: <sequence>, required-init-keyword: pattern:;
+  class slot elements :: <list> = #();
+  slot candidate :: false-or(<element>) = #f;
+//  slot locked-in? :: <boolean> = #f;
+  slot depth :: <integer> = 0;
+end class <collect-state>;
+
+define variable *original-state* = #f;
+
+define function copy-down(c :: <collect-state>, elt :: <element>)
+ => (d :: <collect-state>)
+  let col = make(<collect-state>, pattern: c.pattern.tail);
+  unless(c.candidate)
+    col.candidate := elt;
+    //  col.locked-in? := #t;
+    col.depth := *xml-depth*;
+  end unless;
+  col;
+end function copy-down;
+
+define method transform(elt :: <element>, tag-name :: <symbol>,
+                        state :: <collect-state>, str :: <stream>)
+  let new-state = if(tag-name == state.pattern[0])
+             if(state.pattern.size == 1)
+               state.elements := concatenate(state.elements, list(state.candidate | elt));
+               *original-state*;
+             else
+               copy-down(state, elt);
+             end if;
+           else
+             if(*xml-depth* > state.depth) state else *original-state*; end if;
+           end if;
+  next-method(elt, tag-name, new-state, str);
+end method transform;
+      
+define function collect-elements(in :: <document>, tree :: <sequence>)
+ => (ans :: <sequence>)
+  *original-state* := make(<collect-state>, 
+                           pattern: as(<list>, 
+                                       map(curry(as, <symbol>), tree)));
+  transform-document(in, state: *original-state*);
+  *original-state*.elements;
+end function collect-elements;
+
+/***
 define function choose-elements(elt :: <element>) => (seq :: <sequence>)
   choose(rcurry(instance?, <element>), elt.node-children);
 end function choose-elements;
@@ -33,32 +79,4 @@ define method element(elt :: <element>,
     element-children(elt, as(<symbol>, key));
   end if;
 end method element;
-
-// for now, let's only concern ourselves with an element hierarchy
-// (currently, we only care about attibute values, not placement)
-
-define function collect-elements(in :: <document>, tree :: <list>)
- => (ans :: <sequence>)
-  local method scanner(stor :: <list>, elmt :: <element>,
-                       target :: <symbol>) => (ans :: <list>)
-    if(elmt.name == target) 
-      stor := concatenate(stor, list(elmt))
-    end if;
-    if(elmt.node-children.empty?) 
-      stor
-    else 
-      reduce(rcurry(scanner, target), stor, elmt.choose-elements);
-    end if;
-  end method;
-
-  let candidates = scanner(#(), in.node-children[0], tree.head);
-
-  local method match?(elt :: <element>, branch :: <list>)
-   => (ans :: <boolean>)
-    elt.name == branch.head 
-    & (branch.tail.empty? 
-       | any?(rcurry(match?, branch.tail), elt.choose-elements));
-  end method;
-
-  choose(rcurry(match?, tree), candidates);
-end function collect-elements;
+**/
