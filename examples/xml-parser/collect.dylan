@@ -29,21 +29,6 @@ define class <collect-state> (<xform-state>)
   slot depth :: <integer> = 0;
 end class <collect-state>;
 
-/*
-// elements is a class slot, but the GwydionDylan compiler currently
-// pukes on class slots, so I'm using the virtual slot work-around
-// that Gabor gave me:
-define variable *elements* :: <sequence> = #();
-define method elements(c :: <collect-state>) => (seq :: <sequence>)
-  *elements*;
-end method elements;
-
-define method elements-setter(seq :: <sequence>, c :: <collect-state>)
- => (seq1 :: <sequence>)
-  *elements* := seq;
-end method elements-setter;
-*/
-
 define variable *original-state* :: false-or(<collect-state>) = #f;
 
 define function copy-down(c :: <collect-state>, elt :: <element>)
@@ -75,7 +60,7 @@ end method transform;
 // takes an element or a document and a sequence (currently
 // of the XSL form "//elt/elt1/elt2/...eltN") and returns
 // the list of elements that satisfy that sequence shape
-define generic collect-elements(in :: <node>, tree :: <sequence>)
+define generic collect-elements(in :: <node-mixin>, tree :: <sequence>)
  => (ans :: <sequence>);
       
 define method collect-elements(in :: <document>, tree :: <sequence>)
@@ -112,15 +97,17 @@ define function element-children(elt :: <element>, kid-name :: <symbol>)
 end function element-children;
 
 // however, each attribute name must be unique
-define function attribute-value(elt :: <element>, 
-                                attrib-name :: <symbol>)
- => (ans :: false-or(<string>))
-  any?(method(x) x.name == attrib-name & x.value end, 
-       elt.element-attributes);
-end function attribute-value;
+define function attribute(elt :: <element>, attrib-name :: <string>)
+ => (ans :: false-or(<attribute>))
+  let attrib-sym = as(<symbol>, copy-sequence(attrib-name, start: 1));
+  any?(method(x) x.name == attrib-sym & x end, elt.attributes);
+end function attribute;
+
+define class <not-initialized> (<object>) end;
+define constant $not-initialized = make(<not-initialized>);
 
 // this method allows us to index into <element>s as if they were
-// <table>s ... it returns the appropriate element OR attribute value
+// <table>s ... it returns the appropriate element(s) OR attribute value
 // depending on the request, e.g. <person name="Doug"/> allows
 // elt["@name"] => "Doug" when elt is at {<element>, name=#"person"}
 //
@@ -139,16 +126,78 @@ end function attribute-value;
 // and elt is {<element>, name: #"article"} then
 // elt["title"] returns one element and elt["text"] returns
 // a sequence of three elements
+// (and elt["text"][1] returns "The standard view [...]")
 define method element(elt :: <element>, 
                       key :: type-union(<string>, <symbol>),
-                      #key default, always-sequence?)
+                      #key default = $not-initialized, always-sequence? = #f)
  => (ans)
   let string = as(<string>, key);
+  let ans = #f;
   if(string[0] == '@')
-    attribute-value(elt, as(<symbol>, copy-sequence(string, start: 1)));
+    ans := attribute(elt, string).value;
   else
     let kids = element-children(elt, as(<symbol>, key));
 // let's simplify indexing for unique tags
-    if(kids.size == 1 & ~ always-sequence?) kids[0] else kids end if;
+    ans := if(kids.size == 1 & ~ always-sequence?) kids[0] else kids end if;
+  end if;
+  if(ans)
+    ans
+  else if(default == $not-initialized)
+         error("%s element not found in %s", key, elt.name);
+       else
+         default
+       end if;
   end if;
 end method element;
+
+// a twist on element-setter:
+// <foo name='mumble'><bar>baz</bar></foo> (where elt is <foo>)
+// elt["bar"] := "quux" yields <foo name='mumble'><bar>quux</bar></foo>
+// and elt["@name"] := "yo" yield <foo name='yo'><bar>quux</bar></foo>
+define method element-setter(txt :: <string>, elt :: <element>,
+                             key :: type-union(<string>, <symbol>))
+ => (txt-back)
+  let string = as(<string>, key);
+  let setter-fn = #f;
+  let ans = #f;
+  if(string[0] == '@')
+    ans := attribute(elt, string);
+    setter-fn := value-setter;
+  else
+    ans := elt[key];
+    setter-fn := text-setter;
+  end if;
+  if(ans & setter-fn) 
+    setter-fn(txt, ans)
+  else
+    error("%s element not in %s", key, elt.name);
+  end if;
+  txt
+end method element-setter;
+
+// and the more usual:
+// elt["bar"] := make(<element>, name: #"baz", children: #[], 
+//                    parent: elt, attributes: #[]) 
+// yields <foo name='yo'><baz/></foo>, and
+// elt["@name"] := make(<attribute>, name: #"color", value: "blue")
+// yields <foo color='blue'><baz/></foo>
+define method element-setter(new-elt :: <xml>, elt :: <element>,
+                             key :: type-union(<string>, <symbol>))
+ => (newer)
+  let string = as(<string>, key);
+  if(string[0] == '@')
+    let sym = as(<symbol>, copy-sequence(string, start: 1));
+    let index = find-key(elt, method(x) x.name == sym end, failure: #f);
+    if(index) elt.attributes[index] := new-elt
+    else error("No attribute %s in element %s", sym, elt.name);
+    end if;
+  else
+    // force error if we cannot find a key:
+    elt[key];
+    let sym = as(<symbol>, key);
+    // replace the first occurence
+    let index = find-key(elt, method(x) x.name == sym end);
+    elt.node-children[index] := new-elt;
+  end if;
+  new-elt;
+end method element-setter;
