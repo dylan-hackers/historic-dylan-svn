@@ -61,15 +61,30 @@ define graphics-primitive slump(s :: <integer> => f :: <float> => v :: <vector>)
   (f + s + 1) * v.first
 end graphics-primitive slump;
 
-define graphics-primitive nullary()
-  make(<vector>)
-end graphics-primitive nullary;
-
-define graphics-primitive consumer(i :: <integer>) => ();
-  i // gets ignored
-end graphics-primitive consumer;
-
 */
+
+define graphics-primitive render(     amb :: <point> 
+				   => lights :: <vector>
+				   => obj :: <obj>
+				   => depth :: <integer>
+				   => fov :: <fp>
+				   => wid :: <integer>
+				   => ht :: <integer>
+				   => file :: <string>) 
+ => ();
+  let amb-color = make(<color>, red: amb.x, green: amb.y, blue: amb.z);
+
+  let fov-radians = fov * $double-pi / 180.0;
+
+  render-image(obj, depth, file, amb-color, lights, wid,
+	       ht, fov);
+end graphics-primitive render;
+
+define graphics-primitive sphere()
+  let new = make(<sphere>);
+  new.surface-interpreter-entry := red-texture;
+  new;
+end graphics-primitive sphere;
 
 define graphics-primitive cone() end;
 define graphics-primitive cube() end;
@@ -79,13 +94,13 @@ define graphics-primitive intersect() end;
 define graphics-primitive light() end;
 define graphics-primitive plane() end;
 define graphics-primitive pointlight() end;
-define graphics-primitive render() end;
 define graphics-primitive rotatex() end;
 define graphics-primitive rotatey() end;
 define graphics-primitive rotatez() end;
 define graphics-primitive scale() end;
-define graphics-primitive sphere() end;
+//define graphics-primitive sphere() end;
 define graphics-primitive spotlight() end;
 define graphics-primitive translate() end;
 define graphics-primitive union() end;
 define graphics-primitive uscale() end;
+// define graphics-primitive render() end;
