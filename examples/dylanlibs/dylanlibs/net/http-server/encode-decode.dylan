@@ -163,48 +163,36 @@ define method form-url-decode( s :: <string> )
   un-hex-escape(s, space?: #t);
 end method form-url-decode;
 
-// A <form-query-item> represents the name=data part
-// of a query.
-define class <form-query-item> (<object>)
-  slot form-query-item-key :: <string>, init-keyword: key:;
-  slot form-query-item-value :: <string>, init-keyword: value:;
-end class <form-query-item>;
-
-// A form query, containing a sequence of <form-query-item>'s.
-define class <form-query> (<object>)
-  slot form-query-items :: <vector>;
-end class <form-query>;
+// Forms queries are key/value pairs. Fits nicely with
+// a <string-table>. Maybe the keys could be symbols and make
+// it a normal table but that would prevent case sensitive keys.
+define constant <form-query> = <table>;
 
 // Given a sequence of (key, value, key, value, ...)
 // return a form query.
-define method initialize(query :: <form-query>, #key items)
-  next-method();
-
-  if(items)
-    query.form-query-items := make(<vector>, size: truncate/(items.size, 2));
-    for(index from 0 below query.form-query-items.size)
-      query.form-query-items[index] := make(<form-query-item>,
-                                            key: items[index * 2],
-                                            value: items[index * 2 + 1]);
-    end for;  
-  else
-    query.form-query-items := make(<stretchy-vector>);
-  end if;
-end method initialize;
+define method make-form-query(items :: <sequence>)
+ => (query :: <form-query>)
+   let query = make(<string-table>);
+   let items-size = truncate/(items.size, 2);
+   for(index from 0 below items-size)
+     query[items[index * 2]] := items[index * 2 + 1];
+   end for;  
+   query;
+end method make-form-query;
 
 
 define method form-query-encode( query :: <form-query> )
  => (r :: <string>)
   let result = "";
-  for(item in query.form-query-items)
+  for(value keyed-by key in query)
     unless(empty?(result))
       result := concatenate(result, "&");
     end unless;
 
     result := concatenate(result, 
-                          form-url-encode(item.form-query-item-key),
+                          form-url-encode(key),
                           "=",
-                          form-url-encode(item.form-query-item-value));
+                          form-url-encode(value));
   end for;
   result;
 end method form-query-encode;
@@ -254,6 +242,6 @@ define method form-query-decode( s :: <string> )
                                                        start: start-index)));
   end for;
  
-  make(<form-query>, items: items);
+  make-form-query(items);
 end method form-query-decode;
 

@@ -3,6 +3,21 @@ Synopsis:  Simple HTTP Server
 Author:    Chris Double
 Copyright: (C) 2001, Chris Double.  All rights reserved.
 
+// A <request> holds the details contained within an http request
+// so that handlers can act upon them.
+define class <request> (<object>)
+  //  #"get", #"post", etc.
+  constant slot request-type :: <symbol>, required-init-keyword: request-type:;
+  constant slot request-path :: <string>, required-init-keyword: path:;
+  constant slot request-headers :: <string-table>, required-init-keyword: headers:;
+  constant slot request-query :: false-or(<form-query>) = #f, init-keyword: query:;  
+  constant slot request-host :: false-or(<string>) = #f, init-keyword: host:;
+
+  // Contains the contents of the body from POST requests.
+  constant slot request-body :: false-or(<string>) = #f, init-keyword: body:;
+end class <request>;
+
+// A <handler> handles an incoming request in some manner.
 define open class <handler> (<object>)
   // The path that the request must match to cause this
   // handler to activate.
@@ -32,66 +47,61 @@ end method \=;
 
 define open generic process-handler(handler :: <handler>,
                                     server :: <simple-http-server>,
-                                    request-type :: <symbol>,
-                                    requested-path :: <string>,
-                                    headers :: <string-table>,
+                                    request :: <request>,
                                     stream :: <stream>)
  => ();
 
 define method process-handler(handler :: <handler>, 
                               server :: <simple-http-server>,
-                              request-type :: <symbol>,
-                              requested-path :: <string>,
-                              headers :: <string-table>,
+                              request :: <request>,
                               stream :: <stream>)
  => ()
 end method process-handler;
 
 define method can-handle-request?(handler :: <handler>,
-                                  request-type :: <symbol>,
-                                  path :: <string>,
-                                  host :: false-or(<string>))
+                                  request :: <request>)
  => (r :: <boolean>)
   local method path-matches?() => (r :: <boolean>)
     (handler.handler-exact-match? 
-       & handler.handler-path = path) 
+       & handler.handler-path = request.request-path) 
               |
     (~handler.handler-exact-match? &
-        path.size > handler.handler-path.size &
-        handler.handler-path = copy-sequence(path, end: handler.handler-path.size));
+        request.request-path.size > handler.handler-path.size &
+        handler.handler-path = copy-sequence(request.request-path, end: handler.handler-path.size));
   end;
  
   local method request-type-matches?() => (r :: <boolean>)
     (handler.handler-request-type &
-      handler.handler-request-type == request-type)
+      handler.handler-request-type == request.request-type)
                    |
     ~handler.handler-request-type;
   end;
 
   local method host-matches?() => (r :: <boolean>)
-    ~host 
+    ~request.request-host 
               |
     (handler.handler-host &
-      handler.handler-host = host)
+      handler.handler-host = request.request-host)
                    |
     ~handler.handler-host;                   
   end;
 
-  path-matches?() & request-type-matches?() & host-matches?();
+  request-type-matches?() & host-matches?() & path-matches?();
 end method can-handle-request?;
                                   
 define open class <dynamic-handler> (<handler>)
+  // Function has the signature:
+  //   function(server :: <simple-http-server>, request :: <request>, stream :: <stream>) => ();
+  //
   slot handler-function :: <function>, required-init-keyword: function:;
 end class;
 
 define method process-handler(handler :: <dynamic-handler>, 
                               server :: <simple-http-server>,
-                              request-type :: <symbol>,
-                              requested-path :: <string>,
-                              headers :: <string-table>,
+                              request :: <request>,
                               stream :: <stream>)
  => ()
-  handler.handler-function(server, request-type, requested-path, headers, stream);
+  handler.handler-function(server, request, stream);
 end method process-handler;
 
 define method publish-dynamic-handler(server :: <simple-http-server>, 
@@ -181,18 +191,29 @@ define method process-client-connection(server :: <threaded-http-server>, remote
 	end);
 end method process-client-connection;
 
+define method parse-path-and-query(path-and-query :: <string>)
+ => (path :: <string>, query :: false-or(<form-query>))
+  let split = split-string(path-and-query, "?");
+  values(uri-decode(split.first), 
+         when(split.size > 1) 
+           form-query-decode(split.second) 
+         end);  
+end method parse-path-and-query;
 
 define method decode-request(request-line :: <string>)
- => (request :: <symbol>, path :: <string>, protocol :: <symbol>)
+ => (request :: <symbol>, path :: <string>, query :: false-or(<form-query>), protocol :: <symbol>)
   let split = split-string(request-line, " ");
+  let (path, query) = parse-path-and-query(split.second);
   values(as(<symbol>, split.first),
-         split.second, 
+         path,
+         query,
          as(<symbol>, split.third));
 end method decode-request;
 
-define method extract-headers(stream :: <stream>)
- => (r :: false-or(<string-table>))
+define method extract-headers-and-body(stream :: <stream>)
+ => (r :: false-or(<string-table>), body :: false-or(<string>))
   let result = make(<string-table>);
+  let body = #f;
   for(line = read-line(stream, on-end-of-stream: #f)
       then read-line(stream, on-end-of-stream: #f),
       until: ~line | empty?(line) )
@@ -200,21 +221,41 @@ define method extract-headers(stream :: <stream>)
 	let key = copy-sequence(line, end: p);
 	let value = copy-sequence(line, start: p + 2);
 	result[key] := value;
+  finally   
+    when(empty?(line))
+      let content-length = element(result, "Content-Length", default: #f);
+      when(content-length)
+        // read(...) and read-into!(...) are returning strange errors when
+        // used on sockets. As a result, I'm using read-element content-length times.
+        // Email sent to Functional Objects requesting advice on the issue.
+        let content-length = string-to-integer(content-length);
+        let temp-body = make(<byte-string>, size: content-length);
+        body := 
+          block(return)
+            for(n from 0 below content-length)
+              let ch = read-element(stream, on-end-of-stream: #f);
+              if(ch)
+                temp-body[n] := ch;
+              else
+                return(temp-body)
+              end if;
+            end for;
+            temp-body;
+          end block;
+      end when;
+    end when;
   end for;
-  result;
-end method extract-headers;
+  values(result, body);
+end method extract-headers-and-body;
 
 define method find-matching-handler(server :: <simple-http-server>, 
-                                    request-type :: <symbol>,
-                                    path :: <string>,
-                                    host :: false-or(<string>))
+                                    request :: <request>)
  => (r :: false-or(<handler>))
   // Look for exact matches first.
   let found = 
     block(return)
       for(handler in server.http-server-handlers)
-        when(handler.handler-exact-match? & 
-             can-handle-request?(handler, request-type, path, host))
+        when(handler.handler-exact-match? & can-handle-request?(handler, request))
           return(handler);
         end when;
       end for;
@@ -224,7 +265,7 @@ define method find-matching-handler(server :: <simple-http-server>,
     // Now look for in-exact matches
     for(handler in server.http-server-handlers)
       unless(handler.handler-exact-match?)
-        when(can-handle-request?(handler, request-type, path, host))
+        when(can-handle-request?(handler, request))
           if(found)
             when(handler.handler-path.size > found.handler-path.size)
               found := handler;
@@ -241,9 +282,7 @@ define method find-matching-handler(server :: <simple-http-server>,
 end method find-matching-handler;
 
 define method handler-not-found(server :: <simple-http-server>,
-                                request-type :: <symbol>,
-                                requested-path :: <string>,
-                                headers :: <string-table>,
+                                request :: <request>,
                                 stream :: <stream>)
  => ()
   let dom = 
@@ -252,29 +291,36 @@ define method handler-not-found(server :: <simple-http-server>,
         (head (title ["File not found"])),
         (body 
           (p ["I could not find the file "],
-             [requested-path],
+             [request.request-path],
              [" on this server."])))          
     end with-dom-builder;
   print-html(dom, stream);
 end method handler-not-found;
 
 define method handle-request(server :: <simple-http-server>, remote-socket :: <stream>)
-  let request :: <string> = read-line(remote-socket);
-  let (request-type, path, protocol) = decode-request(request);
-  let headers :: <string-table> = extract-headers(remote-socket);
+  let (request-type, path, query, protocol) = decode-request(read-line(remote-socket));
+  let (headers :: <string-table>, body) = extract-headers-and-body(remote-socket);
 
   // Look for 'Host' header.
   let host = element(headers, "host", default: #f);
-  let handler = find-matching-handler(server, request-type, path, host);
+  let request = make(<request>,
+                     request-type: request-type,
+                     path: path,
+                     headers: headers,
+                     query: query,
+                     host: host,
+                     body: body);
+                     
+  let handler = find-matching-handler(server, request);
 
   if(handler)
-    process-handler(handler, server, request-type, path, headers, remote-socket);
-    format-out("Handling: %=\n", path);
+    process-handler(handler, server, request, remote-socket);
+    format-out("Handling: %=\n", request.request-path);
   else
     write(remote-socket, "HTTP/1.0 404 Not Found\r\n");
     write(remote-socket, "Content-type: text/html\r\n");
     write(remote-socket, "\r\n");
-    handler-not-found(server, request-type, path, headers, remote-socket);
+    handler-not-found(server, request, remote-socket);
     write(remote-socket, "\r\n\r\n");
     force-output(remote-socket);
     format-out("Not Found...\n");
@@ -324,9 +370,7 @@ define macro with-standard-http-result
 end macro with-standard-http-result;
 
 define method quit-handler(server :: <simple-http-server>,
-                           request-type :: <symbol>,
-                           requested-path :: <string>,
-                           headers :: <string-table>,
+                           request :: <request>,
                            stream :: <stream>)
  => ()
   with-standard-http-result(stream)
@@ -347,10 +391,8 @@ define method quit-handler(server :: <simple-http-server>,
 end method quit-handler;
 
 define method display-header-handler(server :: <simple-http-server>,
-                           request-type :: <symbol>,
-                           requested-path :: <string>,
-                           headers :: <string-table>,
-                           stream :: <stream>)
+                                     request :: <request>,
+                                     stream :: <stream>)
  => ()
   with-standard-http-result(stream)
     print-html(with-dom-builder()
@@ -359,7 +401,7 @@ define method display-header-handler(server :: <simple-http-server>,
                     (body
                       ((table border: 1)
                         (tr (td ["Header"]), (td ["Value"])),
-                        [for(v keyed-by k in headers)
+                        [for(v keyed-by k in request.request-headers)
                            with-dom-builder(*current-dom-element*)
                              (tr (td [k]), (td [v]))
                            end with-dom-builder;

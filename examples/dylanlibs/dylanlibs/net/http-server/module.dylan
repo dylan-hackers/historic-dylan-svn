@@ -3,6 +3,18 @@ Synopsis:  Simple HTTP Server
 Author:    Chris Double
 Copyright: (C) 2000, Chris Double.  All rights reserved.
 
+// Routines for handling URI encoding and decoding
+define module encode-decode
+  use functional-dylan;
+
+  export 
+    uri-encode,
+    uri-decode,
+    <form-query>,
+    form-query-encode,
+    form-query-decode;    
+end module encode-decode;
+
 define module http-server
   use functional-dylan;
   use format-out;
@@ -13,9 +25,17 @@ define module http-server
   use sequence-utilities;
   use dom-builder;
   use html-generator;
+  use encode-decode;
 
   // Add binding exports here.
   export 
+    <request>,
+    request-type,
+    request-path,
+    request-headers,
+    request-query,
+    request-host,
+    request-body,
     <handler>,
     handler-path,
     handler-host,
@@ -45,21 +65,4 @@ define module http-server
     initialize-http-server;
 end module http-server;
 
-// Routines for handling URI encoding and decoding
-define module encode-decode
-  use functional-dylan;
-
-  export 
-    uri-encode,
-    uri-decode,
-    <form-query-item>,
-    form-query-item-key,
-    form-query-item-key-setter,
-    form-query-item-value,
-    form-query-item-value-setter,
-    <form-query>,
-    form-query-items,
-    form-query-encode,
-    form-query-decode;    
-end module encode-decode;
 
