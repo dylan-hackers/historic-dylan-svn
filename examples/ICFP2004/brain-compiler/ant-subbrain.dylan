@@ -210,6 +210,17 @@ define macro ant-subbrain-definer
                      state: curry(lookup, instrs, label, ?state)))
   }
   
+  { Sense ?where:name ?success:name ?failure:name Marker ?what:expression } ///// 1
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                     state-true: "outsider_" ## ?success,
+                     state-false: "outsider_" ## ?failure))
+  }
+
   { Sense ?where:name ?success:name ?failure:expression Marker ?what:expression } ///// 2
   =>
   {
@@ -219,6 +230,17 @@ define macro ant-subbrain-definer
                      condition: as(<symbol>, format-to-string("marker%d", ?what)),
                      state-true: "outsider_" ## ?success,
                      state-false: curry(lookup, instrs, label, ?failure)))
+  }
+
+  { Sense ?where:name ?success:expression ?failure:name Marker ?what:expression } ///// 3
+  =>
+  {
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                     state-true: curry(lookup, instrs, label, ?success),
+                     state-false: "outsider_" ## ?failure))
   }
 
   { Sense ?where:name ?success:expression ?failure:expression Marker ?what:expression } ///// 4
