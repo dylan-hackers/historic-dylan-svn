@@ -207,29 +207,6 @@ define macro mi-operation-definer
   =>
   {}
 
-  // arguments
-  { define mi-operation ?:name(?argument, ?arguments) ?parses:* end }
-  =>
-  {
-  //////  define class-for-regular mi-operation ?name(?argument ?arguments) end;
-    define class-for-regular mi-operation ?name([a b :: <object>;(required-init-keyword: #"name")]) end;
-//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define result-for-sequential mi-operation ?name(?parses) end;
-//    define parser-for-sequential mi-operation ?name(?parses) end
-  }
-
-  // options in front of something
-  { define mi-operation ?:name(?options) ?parses:* end }
-  =>
-  {
-    define class-for-regular mi-operation ?name(?options) end;
-//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
-//    define result-for-sequential mi-operation ?name(?parses) end;
-//    define parser-for-sequential mi-operation ?name(?parses) end
-  }
-
   // sequences of something
   { define mi-operation ?:name((?sequence:*)) ?parses:* end }
   =>
@@ -239,6 +216,28 @@ define macro mi-operation-definer
     define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
     define result-for-sequential mi-operation ?name(?parses) end;
     define parser-for-sequential mi-operation ?name(?parses) end
+  }
+
+  // options in front of something
+  { define mi-operation ?:name([ ?option ] ?options) ?parses:* end }
+  =>
+  {
+    define class-for-regular mi-operation ?name( [ ?option ] ?options) end;
+//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define result-for-sequential mi-operation ?name(?parses) end;
+//    define parser-for-sequential mi-operation ?name(?parses) end
+  }
+
+  // arguments
+  { define mi-operation ?:name(?argument, ?arguments) ?parses:* end }
+  =>
+  {
+    define class-for-regular mi-operation ?name(?argument ?arguments) end;
+//    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+//    define result-for-sequential mi-operation ?name(?parses) end;
+//    define parser-for-sequential mi-operation ?name(?parses) end
   }
 
   // ignore all other stuff for now!!!! #####
@@ -268,12 +267,12 @@ define macro mi-operation-definer
 
   options:
     {} => {}
-    { ?option ... } => { ?option ... }
+    { [ ?option ] ... } => { [ ?option ] ... }
 
   option:
-    { [ ?:name ] } => { [ ?name ?name :: <boolean>;(init-keyword: #"?name", init-value: #f) ] }
-    { [ ?flag:name ?:name ] } => { [ ?flag ?name :: <boolean>;(init-keyword: #"?flag", init-value: #f) ] }
-    { [ ?flag:name ?:name :: ?:expression ] } => { [ ?flag ?name :: ?expression;(required-init-keyword: #"?flag") ] }
+    { ?:name } => { ?name ?name :: <boolean>;(init-keyword: #"?name", init-value: #f) }
+    { ?flag:name ?:name } => { ?flag ?name :: <boolean>;(init-keyword: #"?flag", init-value: #f) }
+    { ?flag:name ?:name :: ?:expression } => { ?flag ?name :: ?expression;(required-init-keyword: #"?flag") }
 
   arguments:
     {} => {}
@@ -324,13 +323,14 @@ end;
 
 
 define mi-operation break-insert(
-    [ -t ])
-//    [ -h ]
-//    [ -r ]
-//    [ -c condition :: <mi-expression> ]
-//    [ -i ignore-count :: <positive> ]
-//    [ -p thread :: <positive> ]
-//    { line :: <positive>; addr :: <mi-address> })
+    [ t ]
+    [ h ]
+    [ r ]
+    [ c condition :: <mi-expression> ]
+    [ i ignore-count :: <positive> ]
+    [ p thread :: <positive> ]
+//    { line :: <positive>; addr :: <mi-address> }
+)
   resulting done => parse-breakpoint;// bkpt={number="1",addr="0x0001072c",file="recursive2.c",line="4"}
 end;
 
