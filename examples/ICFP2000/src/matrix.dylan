@@ -45,7 +45,7 @@ end method;
 
 define method \+ (v1 :: <vector>, v2 :: <vector>)
  => (sum :: <vector>);
-  map(\+, homogenize(v1), homogenize(v2));
+  map(\+, v1, v2);
 end method;
 
 define method \- (v1 :: <vector>, v2 :: <vector>)
