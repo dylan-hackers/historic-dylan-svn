@@ -25,8 +25,7 @@ define sideways method generate-makefile(project :: <lid-project>)
   for(p in used-projects)
     let location = p.project-build-location;
     let name = p.project-library-name;
-    let merged-name = merged-project-name(name);
-    info := pair(name, pair(merged-name,
+    info := pair(name, pair("dummy",
 			 pair(if(~location) 
 				#"system" 
 			      else 
