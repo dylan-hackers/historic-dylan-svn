@@ -4,11 +4,13 @@ module: vector-math
 //define constant <3D-point>  = limited(<vector>, of: <float>, size: 4);
 
 define constant <3D-rotation> = <vector>;  // 4 elements, first 3 are axis, 4th is rotation amount
+define constant <color> = <vector>; // r,g,b
 define constant <3D-vector> = <vector>;
 define constant <3D-point>  = <vector>;
 define constant 3d-vector   = vector;
 define constant 3d-point    = vector;
 define constant 3d-rotation = vector;
+define constant color = vector;
 
 // General vector math
 

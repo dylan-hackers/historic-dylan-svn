@@ -20,7 +20,8 @@ define module vector-math
   use transcendentals;
   use subseq;
 
-  export <3D-vector>, 3D-vector, <3D-point>, 3D-point, <3D-rotation>, 3D-rotation;
+  export <3D-vector>, 3D-vector, <3D-point>, 3D-point, <3D-rotation>, 3D-rotation,
+    <color>, color;
 
   export cross-product, normalize, magnitude;
 end module vector-math;
