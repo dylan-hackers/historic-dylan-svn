@@ -7,17 +7,20 @@ copyright: (c) 2001, LGPL
 // punctuation, or the single- or double- quotation-mark.
 
 define collector word(w)
-  loop([element-of($any-char, w), do(collect(w))])
+  loop([element-of($any-char, w), do(collect(w))]),
+  (str.size > 0)
 end collector word;
 
 define constant $graphic-digit = concatenate($digit, "+-");
 
 define collector int(i) => (as(<string>, str).string-to-integer)
-  loop([element-of($graphic-digit, i), do(collect(i))])
+  loop([element-of($graphic-digit, i), do(collect(i))]),
+  (str.size > 0)
 end collector int;
 
 define collector number(n) => (as(<string>, str).string-to-number)
-  loop([element-of($num-char, n), do(collect(n))])
+  loop([element-of($num-char, n), do(collect(n))]),
+  (str.size > 0)
 end collector number;
 
 define meta s(c)
