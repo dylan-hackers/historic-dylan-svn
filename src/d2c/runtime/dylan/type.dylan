@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/type.dylan,v 1.4.4.1 2000/06/22 04:03:53 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/type.dylan,v 1.4.4.2 2000/06/24 16:28:54 emk Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -481,7 +481,7 @@ end method restrict-limited-ints;
 // restricted size and/or element type.
 //
 define class <limited-collection> (<limited-type>)
-  constant slot limited-element-type :: false-or(<type>) = #f,
+  constant slot limited-element-type :: <type> = #f,
     init-keyword: #"of";
   constant slot limited-size-restriction :: false-or(<integer>) = #f,
     init-keyword: #"size";
@@ -543,53 +543,58 @@ define method element-type (type :: <collection>)
 end method element-type;
 
 define sealed inline method limited
-    (class == <collection>, #key of, size) => (result :: <type>);
+    (class == <collection>, #key of = <object>, size) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <explicit-key-collection>, #key of, size) => (result :: <type>);
-  make(<limited-collection>, base-class: class, of: of, size: size);
-end method limited;
-
-define sealed inline method limited
-    (class == <mutable-collection>, #key of, size) => (result :: <type>);
-  make(<limited-collection>, base-class: class, of: of, size: size);
-end method limited;
-
-define sealed inline method limited
-    (class == <stretchy-collection>, #key of, size) => (result :: <type>);
-  make(<limited-collection>, base-class: class, of: of, size: size);
-end method limited;
-
-define sealed inline method limited
-    (class == <mutable-explicit-key-collection>, #key of, size)
+    (class == <explicit-key-collection>, #key of = <object>, size)
  => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <sequence>, #key of, size) => (result :: <type>);
+    (class == <mutable-collection>, #key of = <object>, size)
+ => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <mutable-sequence>, #key of, size) => (result :: <type>);
+    (class == <stretchy-collection>, #key of = <object>, size)
+ => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <table>, #key of) => (result :: <type>);
+    (class == <mutable-explicit-key-collection>, #key of = <object>, size)
+ => (result :: <type>);
+  make(<limited-collection>, base-class: class, of: of, size: size);
+end method limited;
+
+define sealed inline method limited
+    (class == <sequence>, #key of = <object>, size) => (result :: <type>);
+  make(<limited-collection>, base-class: class, of: of, size: size);
+end method limited;
+
+define sealed inline method limited
+    (class == <mutable-sequence>, #key of = <object>, size)
+ => (result :: <type>);
+  make(<limited-collection>, base-class: class, of: of, size: size);
+end method limited;
+
+define sealed inline method limited
+    (class == <table>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
 define sealed inline method limited
-    (class == <object-table>, #key of) => (result :: <type>);
+    (class == <object-table>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
 define sealed inline method limited
-    (class == <array>, #key of, size, dimensions) => (result :: <type>);
+    (class == <array>, #key of = <object>, size, dimensions)
+ => (result :: <type>);
   if (size & dimensions)
     error("limited(<array>, ...) can't specify both size and dimensions");
   end if;
@@ -598,22 +603,22 @@ define sealed inline method limited
 end method limited;
 
 define sealed inline method limited
-    (class == <vector>, #key of, size) => (result :: <type>);
+    (class == <vector>, #key of = <object>, size) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <simple-vector>, #key of, size) => (result :: <type>);
+    (class == <simple-vector>, #key of = <object>, size) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of, size: size);
 end method limited;
 
 define sealed inline method limited
-    (class == <stretchy-vector>, #key of) => (result :: <type>);
+    (class == <stretchy-vector>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
 define sealed inline method limited
-    (class == <deque>, #key of) => (result :: <type>);
+    (class == <deque>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
@@ -624,7 +629,7 @@ define sealed inline method limited
 end method limited;
 
 define sealed inline method limited
-    (class == <range>, #key of) => (result :: <type>);
+    (class == <range>, #key of = <object>) => (result :: <type>);
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
@@ -885,8 +890,7 @@ define method %instance?
  => (res :: <boolean>);
   block (return)
     unless (instance?(object, type.limited-integer-base-class)) return(#f) end unless;
-    unless ((type.limited-element-type == #f)
-	      | object.element-type = type.limited-element-type)
+    unless (object.element-type = type.limited-element-type)
       return(#f);
     end unless;
     if (type.limited-size-restriction)
