@@ -109,7 +109,7 @@ define method integer-to-string
  => (string :: <byte-string>);
   local
     method collect
-        (value :: <integer>, digits :: <list>, count :: <integer>)
+        (value :: <general-integer>, digits :: <list>, count :: <integer>)
      => (digits :: <list>, count :: <integer>);
       let (quotient, remainder) = floor/(value, base);
       let digits = pair($digits[as(<integer>, remainder)], digits);
@@ -339,7 +339,7 @@ end method;
 define open generic number-to-string
     (number :: <number>) => (string :: <string>);
 
-define method number-to-string (integer :: <integer>) => (string :: <string>);
+define method number-to-string (integer :: <general-integer>) => (string :: <string>);
   integer-to-string(integer, base: 10);
 end method number-to-string;
 
