@@ -66,59 +66,9 @@ define method xml-name(ch :: <char-reference>, state :: <html>)
   name-color(next-method(), "red");
 end method xml-name;
 
-/*
-define method transform(in :: <element>, tag-name :: <symbol>,
-                        state :: <html>, str :: <stream>)
-  let namei = as(<string>, tag-name);
-  format(str, "&lt;<FONT COLOR='green'>%s</FONT>", namei); 
-  for(x in in.element-attributes)
-    transform(x, x.name, state, str);
-  end for;
-  format(str, "&gt;");
-  next-method();
-  before-transform(in, state, *xml-depth*, str);
-  format(str, "&lt;<FONT COLOR='green'>/%s</FONT>&gt;", namei);
-end method transform;
-
-define method transform(in :: <attribute>, tag-name :: <symbol>,
-                        state :: <html>, str :: <stream>)
-  format(str, " <FONT COLOR='blue'>%s</FONT>=\"%s\"", 
-         as(<string>, tag-name), in.attribute-value);
-end method transform;
- */
-
 define method transform(in :: <entity-reference>, tag-name :: <symbol>,
                         state :: <html>, str :: <stream>)
-/*  let name = as(<string>, tag-name);
-  format(str, "<A HREF='%s-entities.html#%s'>&amp;%s;</A>", 
-         state.document-name, name, name); */
   format(str, "<A HREF='%s-entities.html#%s'>", state.document-name, tag-name);
   next-method();
   format(str, "</A>");
 end method transform;
-
-/*
-define method transform(in :: <char-reference>, tag-name :: <symbol>,
-                        state :: <html>, str :: <stream>)
-//  format(str, "<font color='red'>&amp;%s;</font>", as(<string>, tag-name));
-  format(str, "<FONT COLOR='red'>%=</FONT>", in);
-end method transform;
-
-define method transform(in :: <char-string>, tag-name :: <symbol>,
-                        state :: <html>, str :: <stream>)
-  format(str, "%=", in);
-  for(ch in in.text)
-    format(str, check-char(ch));
-  end for;
-end method transform;
-
-// turn all < to &lt;, > to &gt; and & to &amp;
-define function check-char(ch :: <character>) => (checked :: <string>)
-  select(ch)
-    '<' => "&lt;";
-    '>' => "&gt;";
-    '&' => "&amp;";
-    otherwise => make(<string>, size: 1, fill: ch);
-  end select;
-end function check-char;
-*/
