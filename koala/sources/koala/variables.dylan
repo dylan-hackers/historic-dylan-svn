@@ -1,6 +1,6 @@
 Module:    http-server-internals
 Synopsis:  Some globals that don't belong anywhere else in particular.
-           Most are configurable in the config.xml file.
+           Most are configurable in the koala-config.xml file.
 Author:    Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
@@ -23,9 +23,15 @@ define variable *debugging-server* :: <boolean> = #t;
 // technologies.  Wimps.  ;-)
 define variable *generate-server-header* :: <boolean> = #t;
 
-// The root of the web document hierarchy.  By default, if the server is running in
-// .../foo/bin/server.exe this will be set to .../foo/www/ and any files in that
-// directory will be publically accessible.
+// The top of the directory tree under which the server's
+// configuration, error, and log files are kept.  Other pathnames
+// are merged against this one, so if they're relative they will
+// be relative to this.  The server-root pathname is relative to
+// the koala executable.
+define variable *server-root* :: false-or(<directory-locator>) = #f;
+
+// The root of the web document hierarchy.  By default, this will be
+// *server-root*/www.
 define variable *document-root* :: false-or(<directory-locator>) = #f;
 
 // The set of file names that are searched for when a directory URI is requested.

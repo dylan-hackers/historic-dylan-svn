@@ -12,6 +12,8 @@ define library koala
   use network;
   use system;
   //use ssl-sockets;  // until integrated into FD?
+  use xml;
+  use dom;
 
   export http-server;
   export http-server-extender;
@@ -37,7 +39,7 @@ define module utilities
   use standard-io;
   use file-system;
   use format;
-  use threads, import: { dynamic-bind, <lock>, with-lock };
+  use threads;
 
   export
     // General one-off utilities
@@ -219,6 +221,8 @@ define module http-server-internals
   use file-system;
   use operating-system;
   //use ssl-sockets;
+  use xml;
+  use dom;
 end module http-server-internals;
 
 define module dsp

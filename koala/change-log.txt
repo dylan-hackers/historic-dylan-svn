@@ -9,6 +9,8 @@ Changes for version 0.2
   - DSP: Moved DSP to its own module.
 
   New Features:
+  - Koala: Use koala-config.xml to specify configuration parameters.  No longer
+    requires recompilation to change certain settings.
   - DSP: Lots of documentation added.
   - DSP: Template parser gives more warnings for malformed tags.
   - DSP: Improved tags for generating dynamic HTML tables.  <dsp:table> tag et al.

@@ -24,19 +24,19 @@ define open abstract primary class <log-level> (<singleton-object>)
 end;
 
 define open class <log-debug> (<log-level>)
-  inherited slot name = "DBG";
+  inherited slot name = "DBG ";
 end;
 
 define open class <log-info> (<log-debug>)
-  inherited slot name = "INF";
+  inherited slot name = "INFO";
 end;
 
 define open class <log-warning> (<log-info>)
-  inherited slot name = "WRN"
+  inherited slot name = "WARN"
 end;
 
 define open class <log-error> (<log-warning>)
-  inherited slot name = "ERR";
+  inherited slot name = "ERR ";
 end;
 
 define constant $log-info :: <log-info> = make(<log-info>);
@@ -96,8 +96,8 @@ define method log-warning (format-string, #rest format-args)
   apply(log-message, $log-warn, format-string, format-args);
 end;
 
-define method log-error (err :: <error>)
-  log-message($log-error, "%s", condition-to-string(err));
+define method log-error (format-string, #rest format-args)
+  apply(log-message, $log-error, format-string, format-args);
 end;
 
 define method log-debug (format-string, #rest format-args)

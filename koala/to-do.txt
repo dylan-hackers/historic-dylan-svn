@@ -1,11 +1,11 @@
-koala
------
+Koala To-Do List
+----------------
 
 * Search sources for "---*** TODO" and do them.
 
 * Documentation.  Probably write it in DSP.
 
-* mod_dylan for Apache
+* mod_dylan for Apache?
 
 * A facility to generate .html files from .dsp files.  e.g., a way to
   flatten all the .dsp doc files into .html.
@@ -32,15 +32,10 @@ koala
 * DSP
   - More error checking at template parse time.
       - Warn when required tag call arguments are not supplied.
-  - Move DSP into its own library (or just module?).
   - Check that tag arguments with no value (e.g., <dsp:cell nowrap>) work.
     See extract-tag-args.
   - Provide an API for clearing the output stream contents.  JSP has this
     and it could be useful for error recovery.
-  - Provide an analog to JSP's PageContext for a page-level namespace?
-    This is basically just adding a few methods to the <page> class
-    that allow you to set attributes and such.  And clearing the attrs
-    after the request is completed?
   - Check what exactly are the rules for using prefix= in the taglib
     directive.  What happens when two directives use the same prefix?
     When the same taglib is included twice with different prefixes?
@@ -51,11 +46,13 @@ koala
 * Miscellaneous
   - Replace some uses of copy-sequence with substring.  They are probably
     hold-overs from when <substring> was causing problems.
-  - Fix resource allocation.  It's never been debugged, as you can see from
-    the log output.
-  - Look carefully at which classes and methods should be opened before
-    initial release.  Best way to do this might be to try and define a
-    subclass of <dylan-server-page> outside the Koala library.
-  - Actually, DSP should probably be defined to use the Koala library
-    rather than being part of it.  It only needs public interfaces.
+  - Use the /*exported*/ convention and the make-exports library from
+    Gwydion so it's easier to keep exports up-to-date.  So far only the
+    response.dylan file uses it as an experiment to see how it looked.
 
+Gwydion notes:
+  Where do they keep false-or?  In FD it's dylan:dylan-extensions:false-or
+  FD doesn't handle the broken .lid file for the anaphora library.  It should
+    have a file spec on the files: line.
+  FD seals element on <object-table>, so <multimap> doesn't work.
+  Gwydion has bogus #if #endif directives in some files, for mindy.
