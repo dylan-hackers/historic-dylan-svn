@@ -112,6 +112,22 @@ define method import-value(cls == <function>, value :: <function-pointer>) => (r
   error("Is this possible?");
 end method import-value;
 
+
+define constant $GLUT-BITMAP-9-BY-15 = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_9_BY_15"));
+define constant $GLUT-BITMAP-8-BY-13 = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_8_BY_13"));
+define constant $GLUT-BITMAP-TIMES-ROMAN-10 = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_TIMES_ROMAN_10"));
+define constant $GLUT-BITMAP-TIMES-ROMAN-24 = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_TIMES_ROMAN_24"));
+define constant $GLUT-BITMAP-HELVETICA-10 = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_HELVETICA_10"));
+define constant $GLUT-BITMAP-HELVETICA-12 = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_HELVETICA_12"));
+define constant $GLUT-BITMAP-HELVETICA-18 = 
+  as(<machine-pointer>, c-expr(ptr: "GLUT_BITMAP_HELVETICA_18"));
+
 /*
 define method glutDisplayFunc(f :: <function>)
   glutDisplayFunc-internal(export-value(<function-pointer>, f));
