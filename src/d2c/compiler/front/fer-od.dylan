@@ -61,7 +61,7 @@ define function depends-list (x :: <dependent-mixin>)
   if (~dep-on)
     #();
   elseif (~dep-on.dependent-next)
-    
+    dep-on.source-exp
   else
     for (cur = dep-on then cur.dependent-next,
 	 res = #() then pair(cur.source-exp, res),
