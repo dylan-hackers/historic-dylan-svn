@@ -195,7 +195,7 @@ define function find-path(source :: <point>,
       if (path)
         iterate loop (curr = source, to-go = path)
           unless (to-go.empty?)
-            board.path-cache[cons(curr, to-go.head)] := to-go.tail;
+            board.path-cache[cons(curr, target)] := to-go;
             loop(to-go.head, to-go.tail);
           end unless;
         end iterate;
