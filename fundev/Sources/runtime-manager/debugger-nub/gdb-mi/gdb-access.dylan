@@ -358,7 +358,9 @@ end;
 
 define mi-operation break-info(breakpoint :: <positive>)
 end;
-
+define constant <mi-expression> = <integer>; // #####
+define constant <mi-address> = <integer>; // #####
+define constant <mi-location> = <integer>; // #####
 
 define mi-operation break-insert
     [ t ]
