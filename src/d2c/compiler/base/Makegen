@@ -1,3 +1,0 @@
-
-&makegen_include('../common-Makegen');
-&d2c_library('Base', '');

@@ -1,3 +1,0 @@
-daylight
-timezone
-strftime()
