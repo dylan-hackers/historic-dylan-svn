@@ -111,19 +111,29 @@ define function calc-stretchy-vector-size (needed-size :: <integer>)
   end for;
 end calc-stretchy-vector-size;
 
+// The data keyword is for internal use only. It allows the actual data vector
+// to be specified. The size is set to the actual size of the vector.  The data
+// keyword should not be used in conjunction with the size or fill keywords.
+//
 define sealed method initialize
-    (object :: <stretchy-object-vector>, #key size :: <integer> = 0, fill = #f)
+    (ssv :: <stretchy-object-vector>, #key size: specified-size :: <integer> = 0, fill = #f,
+     data :: false-or(<simple-object-vector>))
  => ();
-  let data-size = calc-stretchy-vector-size(size);
-  let data = make(<simple-object-vector>, size: data-size);
+  if (data)
+    ssv.ssv-data := data;
+    ssv.ssv-current-size := data.size;
+  else
+    let data-size = calc-stretchy-vector-size(specified-size);
+    let data = make(<simple-object-vector>, size: data-size);
 
-  // Set the elements below size to the fill value.
-  if (fill)
-    fill!(data, fill, end: size)
-  end;
+    // Set the elements below size to the fill value.
+    if (fill)
+      fill!(data, fill, end: specified-size)
+    end;
 
-  object.ssv-data := data;
-  object.ssv-current-size := size;
+    ssv.ssv-data := data;
+    ssv.ssv-current-size := specified-size;
+  end if;
 end method initialize;
 
 // If new-size is less than zero, it will be caught by fill!.
@@ -336,22 +346,20 @@ define sealed method concatenate!
  => (ssv :: <stretchy-object-vector>)
   let current-size = ssv.size;
 
-  let needed-size
-    = for (sequence in more-sequences,
-          needed-size = current-size then needed-size + sequence.size)
-      finally
-        needed-size;
-      end;
-    
-  if (needed-size >= ssv.ssv-data.size)
-    let data = ssv.ssv-data;
+  let needed-size = current-size;
+  for (sequence in more-sequences)
+    needed-size := needed-size + check-type(sequence.size, <integer>);
+  end;
+
+  let data = ssv.ssv-data;
+  if (needed-size >= data.size)
     let new-data-size = calc-stretchy-vector-size(needed-size);
     let new-data = make(<simple-object-vector>, size: new-data-size);
     // Only copy the used region of the old data vector to the new data vector
     for (index :: <integer> from 0 below current-size)
       %element(new-data, index) := %element(data, index);
     end for;
-    ssv.ssv-data := new-data;
+    data := ssv.ssv-data := new-data;
   end if;
 
   // We won't blindly trust that size(collection) returns a 
@@ -359,16 +367,15 @@ define sealed method concatenate!
   // the collections so let's be sure not to iterate past needed-size.
   // (It's possible that a user-implemented collection class 
   // could be incorrect.)
-  let data = ssv.ssv-data;
   for (sequence in more-sequences,
-      outer-index = current-size
+       outer-index = current-size
         then for (index from outer-index below needed-size, elt in sequence)
                %element(data, index) := elt;
              finally
                index;
-             end)
-  end;
-  
+             end for)
+  end for;
+
   ssv.ssv-current-size := needed-size;
   ssv;
 end method concatenate!;
@@ -469,6 +476,90 @@ define inline method type-for-copy (object :: <stretchy-object-vector>)
  => (class :: <class>)
   <stretchy-object-vector>;
 end;
+
+// author: PDH
+// Should this resize the stretchy vector if end is greater than the
+// current size? It's not clear from the DRM.
+//
+define method fill!
+    (ssv :: <stretchy-object-vector>, value :: <object>,
+     #key start :: <integer> = 0, end: last :: false-or(<integer>))
+ => vec :: <stretchy-object-vector>;
+  let last = check-start-end-bounds(fill!, ssv, start, last);
+  let data = ssv.ssv-data;
+  for (index from start below last)
+    %element(data, index) := value;
+  end;
+  ssv;
+end method;
+
+// author: PDH
+// This is essentially a specialized clone of the general method for sequences
+// The resulting stretchy object vector purposely omits the unused data region
+// of the original.
+//
+define method remove
+    (ssv :: <stretchy-object-vector>, value,
+     #key test :: <function> = \==, count :: false-or(<integer>))
+    => result :: <stretchy-object-vector>;
+  for (elem in ssv,
+       result = #() then if ((count & (count <= 0))
+                             | ~compare-using-default-==(test, elem, value))
+                            pair(elem, result);
+                         else
+                           if (count) count := count - 1 end;
+                           result;
+                         end if)
+  finally
+    make(<stretchy-object-vector>, data: as(<simple-object-vector>, reverse!(result)));
+  end for;
+end method remove;
+
+// author: PDH
+// The resulting stretchy object vector purposely omits the unused data region
+// of the original.
+//
+define sealed method reverse (ssv :: <stretchy-object-vector>)
+    => result :: <stretchy-object-vector>;
+  let sz = ssv.size;
+  let new-data = make(<simple-object-vector>, size: sz);
+  for (elt in ssv.ssv-data, reverse-index from (sz - 1) to 0 by -1)
+    %element(new-data, reverse-index) := elt;
+  end;
+  make(<stretchy-object-vector>, data: new-data);
+end method;
+
+// author: PDH
+define sealed method reverse! (ssv :: <stretchy-object-vector>)
+    => result :: <stretchy-object-vector>;
+  let sz = ssv.size;
+  let data = ssv.ssv-data;
+  let mid = ash(sz, -1);
+  for (left from 0 below mid, right from (sz - 1) by -1)
+    %swap-elements!(data, left, right);
+  end;
+  ssv;
+end method;
+
+// author: PDH
+// The resulting stretchy object vector purposely omits the unused data region
+// of the original.
+//
+define method copy-sequence
+    (ssv :: <stretchy-object-vector>, #key start :: <integer> = 0, end: last :: false-or(<integer>))
+    => result :: <stretchy-object-vector>;
+  let last = check-start-end-bounds(copy-sequence, ssv, start, last);
+  make(<stretchy-object-vector>, data: copy-sequence(ssv.ssv-data, start: start, end: last));
+end method;
+
+// author: PDH
+// The resulting stretchy object vector purposely omits the unused data region
+// of the original.
+//
+define sealed method shallow-copy (ssv :: <stretchy-object-vector>)
+ => result :: <stretchy-object-vector>;
+  make(<stretchy-object-vector>, data: copy-sequence(ssv.ssv-data, end: ssv.size));
+end method;
 
 define method map-into (destination :: <stretchy-object-vector>,
 			proc :: <function>, sequence :: <sequence>, #rest more-sequences)
