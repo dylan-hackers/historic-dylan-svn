@@ -4,7 +4,8 @@ module: assembler
 define brain alex-gatherer
 
   [start:]
-    Drop;
+    Drop, (get-out-of-home);
+
 
   // The following set of macros makes the ant get out of home.
   // After that it moves on to search-food.
@@ -22,6 +23,7 @@ define brain alex-gatherer
 
   [turn-right-in-home:]
     Turn Right, (move-forward-in-home);
+
 
   // The following set of macros makes the ant search for food,
   // while avoiding home cells.

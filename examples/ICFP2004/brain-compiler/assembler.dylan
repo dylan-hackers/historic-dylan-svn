@@ -120,7 +120,7 @@ end macro;
 
 
 define function push-thunk (instrs, label, counter, thunk) => ();
-  format-out("push-thunk: (%s, %d)\n", label, counter);
+  // format-out("push-thunk: (%s, %d)\n", label, counter);
   // flush-stream(*standard-output*);
   ///////  let pos = make(<instruction-label-count>, label: label, count: counter);
   let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
@@ -136,15 +136,15 @@ define function lookup (instrs, label, counter)
  
  
  
- format-out("lookup: (%s, %d)\n", label, counter);
+ // format-out("lookup: (%s, %d)\n", label, counter);
  
  
-////////  let pos = make(<instruction-label-count>, label: label, count: counter);
+  ////////  let pos = make(<instruction-label-count>, label: label, count: counter);
 
   let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
   let instr = instrs[pos];
 
- format-out("found: (%s, %d)\n", label, counter);
+  // format-out("found: (%s, %d)\n", label, counter);
   select (instr by instance?)
     <function> =>
       instrs[pos] := #f; // in progress
@@ -159,11 +159,11 @@ define function compile-states (instrs :: <table>)
   let brain :: <stretchy-vector> = make(<stretchy-vector>);
 
 
- format-out("compile-states: size: %d\n", instrs.size);
+ // format-out("compile-states: size: %d\n", instrs.size);
 
 
   let start-instr = lookup(instrs, start:, 0);
-///  let start-instr = instrs[as(<symbol>, format-to-string("(%s, %d)", start:, 0))];
+  ///  let start-instr = instrs[as(<symbol>, format-to-string("(%s, %d)", start:, 0))];
   let pos-table :: <table> = make(<table>);
   put-instruction(start-instr, brain, pos-table);
   brain;
@@ -270,7 +270,7 @@ define sealed domain initialize(<instruction-label-count>);
 define method functional-==
     (c == <instruction-label-count>, l :: <instruction-label-count>, r :: <instruction-label-count>)
  => (same :: <boolean>);
- format-out("functional-==: (%s, %d) ==? (%s, %d)\n", l.instruction-label, l.instruction-count, r.instruction-label, r.instruction-count);
+  // format-out("functional-==: (%s, %d) ==? (%s, %d)\n", l.instruction-label, l.instruction-count, r.instruction-label, r.instruction-count);
   l.instruction-label == r.instruction-label
     & l.instruction-count == r.instruction-count
 end;
@@ -377,7 +377,7 @@ end;
 
 define method unparse(s :: <sense>)
  => text :: <byte-string>;
-  format-to-string("Sense %s %d %d %s",
+  format-to-string("Sense %s %d %d %s\n",
                    s.sense-direction.sense-direction-as-string,
                    s.state-true,
                    s.state-false,
@@ -387,37 +387,37 @@ end;
 
 define method unparse(m :: <mark>)
  => text :: <byte-string>;
-  format-to-string("Mark %d %d", m.marker, m.state);
+  format-to-string("Mark %d %d\n", m.marker, m.state);
 end;
 
 define method unparse(u :: <unmark>)
  => text :: <byte-string>;
-  format-to-string("Unmark %d %d", u.marker, u.state);
+  format-to-string("Unmark %d %d\n", u.marker, u.state);
 end;
 
 define method unparse(p :: <pickup>)
  => text :: <byte-string>;
-  format-to-string("PickUp %d %d", p.state-success, p.state-failure);
+  format-to-string("PickUp %d %d\n", p.state-success, p.state-failure);
 end;
 
 define method unparse(d :: <drop>)
  => text :: <byte-string>;
-  format-to-string("Drop %d", d.state);
+  format-to-string("Drop %d\n", d.state);
 end;
 
 define method unparse(t :: <turn>)
  => text :: <byte-string>;
-  format-to-string("Turn %s %d", if (t.left-or-right == #"left") "Left" else "Right" end, t.state);
+  format-to-string("Turn %s %d\n", if (t.left-or-right == #"left") "Left" else "Right" end, t.state);
 end;
 
 define method unparse(m :: <move>)
  => text :: <byte-string>;
-  format-to-string("Move %d %d", m.state-success, m.state-failure);
+  format-to-string("Move %d %d\n", m.state-success, m.state-failure);
 end;
 
 define method unparse(f :: <flip>)
  => text :: <byte-string>;
-  format-to-string("Flip %d %d %d", f.probability, f.state-success, f.state-failure);
+  format-to-string("Flip %d %d %d\n", f.probability, f.state-success, f.state-failure);
 end;
 
 

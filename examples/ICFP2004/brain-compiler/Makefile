@@ -4,8 +4,11 @@ bin:
 run:	bin
 	./brain-compiler
 
-alex:
-	d2c -s -g --debug -L.. alex.lid
+bin-alex:
+	rm -rf alex; d2c -s -g --debug -L.. alex.lid
+
+run-alex:
+	rm -rf ../ant-brains/alex-generated.ant; ./alex > ../ant-brains/alex-generated.ant
 
 clean:
 	-rm -f *.o *.lo *.s *.a *.c *.mak *~ brain-compiler alex

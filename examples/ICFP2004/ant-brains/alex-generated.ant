@@ -1,0 +1,130 @@
+Drop 128
+Drop 128
+Sense Here 16 127 Home
+Sense Here 16 127 Home
+Move 3 15
+Move 3 15
+Move 3 15
+Flip 2 10 14
+Flip 2 10 14
+Turn Left 6
+Turn Left 6
+Flip 2 10 14
+Flip 2 10 14
+Turn Right 6
+Turn Right 6
+Flip 2 10 14
+Move 3 15
+Sense Here 16 127 Home
+Sense Here 16 127 Home
+Sense Here 18 126 Home
+Sense Here 18 126 Home
+Sense Here 18 126 Home
+Sense Here 124 123 Food
+Sense Here 124 123 Food
+PickUp 27 123
+PickUp 27 123
+Turn Right 27
+Turn Right 27
+PickUp 27 123
+PickUp 27 123
+Sense Ahead 109 122 Food
+Sense Ahead 109 122 Food
+Move 21 108
+Move 21 108
+Move 21 108
+Flip 6 48 107
+Flip 6 48 107
+Turn Left 47
+Turn Left 47
+Turn Left 46
+Turn Left 46
+Turn Left 45
+Turn Left 45
+Move 21 36
+Move 21 36
+Move 21 36
+Turn Left 45
+Turn Left 46
+Turn Left 47
+Flip 6 48 107
+Flip 6 48 107
+Flip 5 105 104
+Flip 5 105 104
+Move 21 104
+Move 21 104
+Move 21 104
+Flip 2 80 103
+Flip 2 80 103
+Flip 2 68 79
+Flip 2 68 79
+Turn Left 67
+Turn Left 67
+Turn Left 66
+Turn Left 66
+Move 21 50
+Move 21 50
+Move 21 50
+Turn Left 66
+Turn Left 67
+Flip 2 68 79
+Flip 2 68 79
+Turn Right 78
+Turn Right 78
+Turn Right 77
+Turn Right 77
+Move 21 50
+Move 21 50
+Move 21 50
+Turn Right 77
+Turn Right 78
+Flip 2 68 79
+Flip 2 80 103
+Flip 2 80 103
+Flip 3 34 102
+Flip 3 34 102
+Flip 3 34 102
+Flip 2 93 101
+Flip 2 93 101
+Turn Left 92
+Turn Left 92
+Move 21 50
+Move 21 50
+Move 21 50
+Turn Left 92
+Flip 2 93 101
+Flip 2 93 101
+Turn Right 100
+Turn Right 100
+Move 21 50
+Move 21 50
+Move 21 50
+Turn Right 100
+Flip 2 93 101
+Flip 3 34 102
+Flip 2 80 103
+Move 21 104
+Flip 5 105 104
+Flip 5 105 104
+Flip 6 48 107
+Move 21 108
+Sense Ahead 109 122 Food
+Sense Ahead 109 122 Food
+Flip 2 116 121
+Flip 2 116 121
+Sense LeftAhead 93 105 Food
+Sense LeftAhead 93 105 Food
+Sense LeftAhead 93 105 Food
+Flip 2 116 121
+Flip 2 116 121
+Sense RightAhead 101 105 Food
+Sense RightAhead 101 105 Food
+Sense RightAhead 101 105 Food
+Flip 2 116 121
+Sense Ahead 109 122 Food
+PickUp 27 123
+Sense Here 124 123 Food
+Sense Here 124 123 Food
+Sense Here 18 126 Home
+Sense Here 16 127 Home
+Drop 128
