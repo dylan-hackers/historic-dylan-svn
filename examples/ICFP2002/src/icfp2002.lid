@@ -14,6 +14,7 @@ files:
   messages
   point
   dumbot
+  dumber-bot
   pushbot
   thomas
   gabot
