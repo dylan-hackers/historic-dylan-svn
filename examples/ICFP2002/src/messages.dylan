@@ -142,7 +142,7 @@ define function receive-board-layout (s :: <stream>) => <board>;
   block()
     let (max-x, max-y) = receive-board-dimensions(s);
     let board = make(<board>, dimensions: list(max-x, max-y));
-    for (y from 0 below max-y)
+    for (y from 1 to max-y)
       receive-board-row(s, board, max-x, y)
     end for;
     debug("receive-board\n");
@@ -202,7 +202,7 @@ define function receive-board-row (s :: <stream>,
                                    b :: <board>,
                                    max-x :: <integer>,
                                    y :: <integer>) => ()
-  for (x from 0 below max-x)
+  for (x from 1 to max-x)
     let c = s.read-element;
     select (c)
       $empty-char => b[x, y] := make(<space>);
