@@ -1,0 +1,195 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of MELANGE</TITLE>
+</HEAD><BODY>
+<H1>MELANGE</H1>
+Section: Gwydion Dylan (1)<BR>Updated: 29 December 1998<BR><A HREF="#index">Index</A>
+<A HREF="http://localhost/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+melange - Translates C headers into Dylan
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>d2c</B>
+
+[<B>-v</B>] [<B>--mindy</B>|<B>--d2c</B>] [<B>-I</B><I>includedir</I>]... <I>infile</I> [<I>outfile</I>]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>WARNING</H2>
+
+This man page is intended to supplement the main Gwydion Dylan
+documentation at
+<I><A HREF="http://www.gwydiondylan.org/">http://www.gwydiondylan.org/</A></I>.
+
+It provides an incomplete reference of the available options. For a full
+reference or a tutorial, please see the web site.
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>melange</B>
+
+parses C headers and emits equivalent Dylan interfaces. The current version
+can handle some fairly ugly headers, but not everything found on the
+average Unix system. Melange actually contains a full-fledged C
+preprocessor and a C parser. Unlike many similar tools, it's not just doing
+simple pattern matching--it's actually trying to emulate the front end of a
+C compiler.
+<P>
+
+Eventually, we want Melange to handle any header which GCC can parse. For
+the time being, generating interfaces is more of an art, and any large set
+of headers is virtually gauranteed to find a new bug. Please report every
+bug you encounter to
+<I><A HREF="mailto:gd-bugs@randomhacks.com">gd-bugs@randomhacks.com</A></I>,
+
+preferably with a short example. We're trying to locate and fix all the
+problems, and should respond fairly quickly.
+<A NAME="lbAF">&nbsp;</A>
+<H2>IMPORTING HEADERS</H2>
+
+To import a header named foo.h, you'll probably want to add a new module to
+your exports.dylan file. Call it foo-interface. Make sure your library
+uses melange-support, and that foo-interface uses the module of the same
+name:
+
+
+<P>
+
+
+<PRE>
+library: my-application
+
+define library my-application
+  use dylan;
+  use melange-support;
+end library;
+
+define module my-application
+  use dylan;
+  use melange-support;
+  use foo-interface;
+end module;
+
+define module foo-interface
+  use dylan;
+  use melange-support;
+  export
+    /* All the things you want from foo.h. */;
+end module;
+
+</PRE>
+
+
+
+<P>
+
+Next, create a file called foo-intr.intr which appears as follows:
+
+
+<P>
+
+
+<PRE>
+module: foo-interface
+
+define interface
+  #include &quot;foo.h&quot;;
+end interface;
+
+</PRE>
+
+
+
+<P>
+
+Type
+<B>melange -v foo-intr.intr foo-intr.dylan</B>
+
+to process the header file. Then add foo-intr.dylan to your lid file and
+recompile your program.
+<P>
+
+There are many other things which can be added to an interface definition
+to control imports, rename symbols, express relationships between types and
+define preprocessor macros. These are described in detail by the Melange
+manual (which is available through the website).
+<A NAME="lbAG">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>--help</B>
+
+<DD>
+Print out a message describing the available options.
+<DT><B>--version</B>
+
+<DD>
+Print out the version and copyright.
+<DT><B>-v</B>, <B>--verbose</B>
+
+<DD>
+Print out the name of each C declaration as Melange processes it. This
+should help find where Melange crashed, choked or got confused.
+<DT><B>--d2c</B>, <B>--mindy</B>
+
+<DD>
+Only generate code for one environment or the other. The default is to
+generate code for both.
+<DT><B>-I, --include-dir</B> dir
+
+<DD>
+Search
+<I>dir</I>
+
+for C headers.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+Lots of them. Everywhere. We're fixing them as quickly as we can. (See the
+bug tracker on the website for an up-to-date list.)
+<P>
+
+In particular, it would be desirable for melange to search include
+directories in exactly the fashion as a given platform's C compiler.
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="http://localhost/cgi-bin/man/man2html?7+gwydion">gwydion</A>(7), <A HREF="http://localhost/cgi-bin/man/man2html?1+d2c">d2c</A>(1), <A HREF="http://localhost/cgi-bin/man/man2html?1+mindy">mindy</A>(1).
+<P>
+
+Much more extensive documentation in various formats is available through
+the Gwydion Dylan web site at
+<I><A HREF="http://www.gwydiondylan.org/">http://www.gwydiondylan.org/</A></I>.
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+The Gwydion Group at CMU and the current Gwydion Dylan maintainers. See the
+CREDITS file in the Gwydion Dylan distribution for more information.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">WARNING</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">IMPORTING HEADERS</A><DD>
+<DT><A HREF="#lbAG">OPTIONS</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 23:11:40 GMT, December 31, 1998
+</BODY>
+</HTML>

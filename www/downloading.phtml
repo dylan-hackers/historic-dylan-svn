@@ -6,12 +6,33 @@ standard_header("Downloading Software");
 <P>Our FTP server with binaries and current snapshots is <A
 HREF="ftp://berlin.ccc.de/pub/gd/">here</a>. 
 
-Mirrors are available at the following locations:
+Mirrors are available at the following locations:</P>
 <ul>
 <li><A HREF="ftp://ftp.fu-berlin.de/pub/unix/languages/dylan/">FU Berlin</a>, Germany
 (no packages, just the source)
 <li><A HREF="ftp://ftp.infodrom.north.de/pub/unix/language/dylan/gwydion/">Infodrom</a>, Germany
 </ul>
+
+<P>Please use a mirror if at all possible.</P>
+
+<P><STRONG>What to download:</STRONG> Binaries are provided for a number of
+popular systems in various formats. If you just want to use the Mindy Dylan
+interpreter, you can downloaded either a source distribution or a binary.
+If want to use the d2c Dylan compiler, you'll be much happier if
+you download a binary distribution (every though they're very large).</P>
+
+<P>The RPMS break Gwydion Dylan up into three separate packages:</P>
+
+<UL>
+<LI><STRONG>gwydion-dylan:</STRONG> Binaries for the d2c compiler and the
+Melange interface generator. Most of the documentation is in this package.
+<LI><STRONG>gwydion-dylan-extras:</STRONG> Various utilities which
+generally aren't required to use Gwydion Dylan. Skip these unless you need
+something specific.
+<LI><STRONG>mindy:</STRONG> The Mindy Dylan interpreter. A very small
+download, but it doesn't contain much documentation. You can find
+everything that's missing on this web site.
+</UL>
 
 <H3>CVS Source Repository</H3>
 

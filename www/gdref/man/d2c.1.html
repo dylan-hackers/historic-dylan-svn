@@ -1,0 +1,230 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of D2C</TITLE>
+</HEAD><BODY>
+<H1>D2C</H1>
+Section: Gwydion Dylan (1)<BR>Updated: 29 December 1998<BR><A HREF="#index">Index</A>
+<A HREF="http://localhost/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+d2c - A Dylan-to-C compiler
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>d2c</B>
+
+[ <I>option</I> ]... <I>lidfile</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>WARNING</H2>
+
+This man page is intended to supplement the main Gwydion Dylan
+documentation at
+<I><A HREF="http://www.gwydiondylan.org/">http://www.gwydiondylan.org/</A></I>.
+
+It provides an incomplete reference of the available options. For a full
+reference or a tutorial, please see the web site.
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>d2c</B>
+
+is an aggressively optimizing Dylan compiler which generates C code. Under
+normal cicumstances, it will then automatically invoke your C compiler to
+generate native executables.
+<P>
+
+<B>d2c</B>
+
+supports nearly all of the Dylan language, including the macro system. It
+can interface with C using
+<I><A HREF="http://localhost/cgi-bin/man/man2html?1+melange">melange</A></I>(1), and can compile code developed under the
+<I><A HREF="http://localhost/cgi-bin/man/man2html?1+mindy">mindy</A></I>(1)
+
+Dylan interpreter.
+<A NAME="lbAF">&nbsp;</A>
+<H2>PROGRAM STRUCTURE</H2>
+
+A Dylan program is made up out of one or more libraries. Each library
+contains one or more modules, each of which can be defined in one or more
+source files.
+<B>d2c</B>
+
+compiles an entire library at once and performs aggressive
+inter-file optimizations.
+<P>
+
+You describe a library by creating a
+<B>lid</B>
+
+(library interchange definition) file which lists the files to be compiled and any relevant options. You
+then feed this file through
+<B>d2c</B>
+
+to produce a static library or an executable (shared library support is
+being debugged at the moment).
+<P>
+
+You can use the
+<I><A HREF="http://localhost/cgi-bin/man/man2html?1+make-dylan-app">make-dylan-app</A></I>(1)
+
+script to create a sample Dylan program composed of a
+<B>lid</B>
+
+file and an empty main function.
+<A NAME="lbAG">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>--help</B>
+
+<DD>
+Print out a message describing the available options.
+<DT><B>--version</B>
+
+<DD>
+Print out the version and copyright.
+<DT><B>-L, --libdir</B><I> libdir</I>
+
+<DD>
+Specify an extra directory to search for compiled Dylan libraries.
+<DT><B>-D, --define</B><I> feature</I>
+
+<DD>
+Define a conditional-compilation feature which can be tested with #if.
+<DT><B>-U, --undefine</B><I> feature</I>
+
+<DD>
+Undefine a conditional-compilation feature which can be tested with #if.
+<DT><B>-M, --log-deps</B>
+
+<DD>
+Write
+<I><A HREF="http://localhost/cgi-bin/man/man2html?1+make">make</A></I>(1)-style dependency information to a file when compiling. You can then
+include this file into your Makefiles.
+<DT><B>-T, --target</B> target
+
+<DD>
+Generate code for the platform named
+<B>target</B>
+
+instead of the native platform.
+<DT><B>-p, --platforms</B><I> descriptions</I>
+
+<DD>
+Get platform descriptions from the file
+<B>descriptions</B>
+
+instead of the standard
+<I><A HREF="http://localhost/cgi-bin/man/man2html?4+platforms.descr">platforms.descr</A></I>(4)
+
+file.
+<DT><B>--no-binaries</B>
+
+<DD>
+Do not compile generated C files. Often used in conjunction with
+<B>-T</B>.
+
+<DT><B>-d, --break</B>
+
+<DD>
+Halt the compiler upon encountering an error. This is generally used when
+debugging
+<B>d2c</B>
+
+itself.
+<DT><B>-F, --cc-override-command</B><I> command</I>
+
+<DD>
+Use
+<I>command</I>
+
+to invoke the C compiler on certain source files (see below). This can be
+used to work around bugs in the native C compiler by passing non-standard
+options.
+<DT><B>-f, --cc-override-file</B><I> file</I>
+
+<DD>
+Mark
+<I>file</I>
+
+as using a non-standard command to invoke the C compiler (see above).
+<DT><B>-g, --debug</B>
+
+<DD>
+Try to generate binaries suitable for debugging. At the moment, that means
+including all declared functions in the generated code.
+<DT><B>-s, --static</B>
+
+<DD>
+Force programs to link against static libraries. This will become more
+useful once shared libraries are supported, of course.
+<DT><B>--dump-transforms</B>
+
+<DD>
+Display way, way too much information about what
+<B>d2c</B>
+
+is doing. If you suspect you've found an optimizer bug, this is the place
+to start looking.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>BUGS</H2>
+
+<B>d2c</B>
+
+runs very slowly. We need to profile it and speed things up by about an
+order of magnitude. Harlequin Dylan shows this is possible.
+<P>
+
+It would be nice to support compilation of single-file Dylan programs,
+source-level debugging and incremental compilation. Shared library support
+needs to be fixed, and an efficient solution for the fragile base class
+problem should be found.
+<P>
+
+Certain obscure Dylan features are missing, most notably support for
+creating classes at runtime.
+<P>
+
+Other bugs can be found on the website.
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="http://localhost/cgi-bin/man/man2html?7+dylan">dylan</A>(7), <A HREF="http://localhost/cgi-bin/man/man2html?7+gwydion">gwydion</A>(7), <A HREF="http://localhost/cgi-bin/man/man2html?1+melange">melange</A>(1), <A HREF="http://localhost/cgi-bin/man/man2html?1+make-dylan-app">make-dylan-app</A>(1), <A HREF="http://localhost/cgi-bin/man/man2html?4+platforms.descr">platforms.descr</A>(4), <A HREF="http://localhost/cgi-bin/man/man2html?1+mindy">mindy</A>(1).
+<P>
+
+Much more extensive documentation in various formats is available through
+the Gwydion Dylan web site at
+<I><A HREF="http://www.gwydiondylan.org/">http://www.gwydiondylan.org/</A></I>.
+
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHORS</H2>
+
+The Gwydion Group at CMU and the current Gwydion Dylan maintainers. See the
+CREDITS file in the Gwydion Dylan distribution for more information.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">WARNING</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">PROGRAM STRUCTURE</A><DD>
+<DT><A HREF="#lbAG">OPTIONS</A><DD>
+<DT><A HREF="#lbAH">BUGS</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHORS</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 23:11:13 GMT, December 31, 1998
+</BODY>
+</HTML>

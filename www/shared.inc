@@ -52,39 +52,34 @@ function standard_footer () {
 <TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
 <TR><TD WIDTH="100%">
 
-<P><STRONG>About Gwydion</STRONG></P>
+<P><STRONG>About Dylan & Gwydion</STRONG></P>
 <UL>
 <LI><A HREF="./">Overview</A>
 <LI><A HREF="about-dylan.phtml">What is Dylan?</A>
 <LI><A HREF="news.phtml">What's New?</A>
-<LI><A HREF="http://www.randomhacks.com/cgi-bin/fom">FAQ-O-Matic</A>
 <LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
 <LI><A HREF="http://legend.gwydion.cs.cmu.edu/dylan-release/">Gwydion at
 CMU</A>
-
 <LI><A HREF="http://www.harlequin.com/devtools/dylan">Harlequin Dylan</a>, the
 other implementation
 <LI><A HREF="http://www.harlequin.com/support/dylan/bkshelf/bkshelf.htm">Other
 Dylan Websites</A>
 </UL>
 
-<P><STRONG>Developer Resources</STRONG></P>
+<P><STRONG>User Resources</STRONG></P>
 <UL>
-<LI><A HREF="lists.phtml">Mailing Lists</A>
 <LI><A HREF="downloading.phtml">Downloading Software</A>
 <LI><A HREF="gdref.phtml">Documentation</A>
+<LI><A HREF="lists.phtml">Mailing Lists</A>
+<LI><A HREF="http://www.randomhacks.com/cgi-bin/fom">FAQ-O-Matic</A>
+</UL>
+
+<P><STRONG>Developer Resources</STRONG></P>
+<UL>
 <LI><A HREF="http://www.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>
 <LI><A HREF="http://www.randomhacks.com/dylan/bugs">Bug Tracker</A>
 <LI><A HREF="http://www.randomhacks.com/dylan/bugs.private">Private Bug Tracker</A>
-</UL>
-
-<P><STRONG>Current Projects</STRONG></P>
-<UL>
-<LI><A HREF="ports.phtml">Ports</A>
-<LI><A HREF="melange.phtml">C Interface</A>
-<LI><A HREF="gui.phtml">GTK+ Interface</A>
-<LI><A HREF="packaging.phtml">Packaging</A>
-<LI><A HREF="documentation.phtml">Documentation</A>
+<LI><A HREF="projects.phtml">Current Projects</A>
 </UL>
 
 <P><STRONG>Wishlist</STRONG></P>

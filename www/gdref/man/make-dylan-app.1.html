@@ -1,0 +1,90 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of MAKE-DYLAN-APP</TITLE>
+</HEAD><BODY>
+<H1>MAKE-DYLAN-APP</H1>
+Section: Gwydion Dylan (1)<BR>Updated: 29 December 1998<BR><A HREF="#index">Index</A>
+<A HREF="http://localhost/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+make-dylan-app - Create a new Dylan program
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>make-dylan-app</B>
+
+appname
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>WARNING</H2>
+
+This man page is intended to supplement the main Gwydion Dylan
+documentation at
+<I><A HREF="http://www.gwydiondylan.org/">http://www.gwydiondylan.org/</A></I>.
+
+It provides an incomplete reference of the available options. For a full
+reference or a tutorial, please see the web site.
+<A NAME="lbAE">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>make-dylan-app</B>
+
+creates a directory
+<I>appname</I>
+
+containing a minimal Dylan application that can be compiled with
+<I><A HREF="http://localhost/cgi-bin/man/man2html?1+d2c">d2c</A></I>(1)
+
+or interpreted with
+<I><A HREF="http://localhost/cgi-bin/man/man2html?1+mindy">mindy</A></I>(1).
+
+This makes it unnecessary to understand the Dylan ``library interchange
+definition'' just to compile a simple program.
+<P>
+
+The generated program includes three files:
+<I>appname</I>.lid,
+
+<I>appname</I>-exports.dylan
+
+and
+<I>appname</I>.dylan.
+
+The first file describes the program in fashion allegedly understood by
+different Dylan environments, the second contains library import and export
+declarations, and the third contains actual source code.
+<P>
+
+An effort has been made to include libraries suitable for writing small,
+command-line applications.
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="http://localhost/cgi-bin/man/man2html?7+gwydion">gwydion</A>(7), <A HREF="http://localhost/cgi-bin/man/man2html?1+d2c">d2c</A>(1), <A HREF="http://localhost/cgi-bin/man/man2html?1+mindy">mindy</A>(1).
+<P>
+
+Much more extensive documentation in various formats is available through
+the Gwydion Dylan web site at
+<I><A HREF="http://www.gwydiondylan.org/">http://www.gwydiondylan.org/</A></I>.
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">WARNING</A><DD>
+<DT><A HREF="#lbAE">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 23:11:55 GMT, December 31, 1998
+</BODY>
+</HTML>
