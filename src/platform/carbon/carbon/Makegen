@@ -7,6 +7,6 @@ $D2CFLAGS = $D2CFLAGS . ' -L../../../d2c/runtime/melange -L.';
 
 &emit_library_rule(
     'carbon', '$(BUILDROOT)/force.timestamp', '', 'compile',
-    'no-mindy', 'install'
+    'install'
 );
 

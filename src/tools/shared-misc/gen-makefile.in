@@ -3,7 +3,7 @@
 use Cwd;
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.5 2004/03/12 10:58:56 gabor Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.6 2004/07/21 22:02:20 prom Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -30,9 +30,6 @@ use Cwd;
 #    install($dest_subdir, @files)
 #    install_from_src($dest_subdir, @files)
 #    install_executable_from_src($dest_subdir, @files)
-#    emit_mindycomp_rule($dylan_source)
-#    emit_dbc_link_rule($libname, $dbc_files)
-#    emit_mindycomp_library_rule($libname, $source_files)
 #    makegen_include($include_file)
 #    unknown_platform_error()
 #    convert_path_separator($path)
@@ -106,8 +103,6 @@ use Cwd;
 # In addition, the d2c Makegens use the following variables:
 #
 #     $enable_d2c
-#     $enable_mindy
-#     $enable_mindy_bootstrap
 
 
 # Top level code
@@ -194,9 +189,6 @@ sub set_default_defaults {
     $CPPFLAGS = '-I$(DYLANDIR)/include';
     $MELANGE = 'melange' . $dot_exe;
     $PARSERGEN = 'parsergen' . $dot_exe;
-    $MC = 'mindycomp' . $dot_exe;
-    # There is no MINDYFLAGS, because that depends on the library name.
-    $MINDY = 'mindy' . $dot_exe;
     $gen_makefile = 'gen-makefile';
     $install_data = "cp";
     $install_program = "install";
@@ -334,8 +326,6 @@ sub read_Defaults_file {
     $includedir = &convert_path_separator($includedir);
     $sysconfdir = &convert_path_separator($sysconfdir);
 
-    $MC = &convert_path_separator($MC);
-    $MINDY = &convert_path_separator($MINDY);
     $D2C = &convert_path_separator($D2C);
     $MELANGE = &convert_path_separator($MELANGE);
     $PARSERGEN = &convert_path_separator($PARSERGEN);
@@ -400,9 +390,6 @@ sub do_Makegen_file {
     }
 
     &emit_rule('cc_files');
-    if ($enable_mindy) {
-        &emit_rule('dbc_only');
-    }
     close(MAKEFILE);
     rename(",$makefile", $makefile);
 }
@@ -519,8 +506,6 @@ CPPFLAGS = $CPPFLAGS $debug_platform_name
 COPTS = $COPTS
 MELANGE = $MELANGE
 PARSERGEN = $PARSERGEN
-MC = $MC
-MINDY = $MINDY
 
 EOF
         if ($host_platform{'environment_variables_can_be_exported?'}) {
@@ -533,11 +518,7 @@ EOF
                 print "$EXPORT LIBTOOL = $LIBTOOL\n\n";
             }
             if ($DYLANPATH) {
-		if ($enable_mindy_bootstrap) {
-		    print "$EXPORT DYLANPATH = $DYLANPATH\n\n";
-		} else {
 		    print "$EXPORT DYLANPATH =\n\n";
-		}
             };
             if ($DYLANDIR) {
                 print "$EXPORT DYLANDIR = $DYLANDIR\n\n";
@@ -770,19 +751,8 @@ sub compile_subdirs {
 #    'install' 
 #         Adds this library/executable to the list of files installed
 #         by the 'install' makefile target.
-#    'no-mindy'
-#         By default, a target is created for dbc_only; this target 
-#         is not added to any makefile targets, but it can be manually
-#         created by running "make dbc_only".  This makes for easy debugging.
-#         'no-mindy' suppresses the creation of this target, which is useful
-#         when the Mindy version of the library does not use the same source
-#         files as the d2c version.
-#    'compile-mindy'
-#         Add libname.dbc to the 'compile' makefile target (possibly in
-#         addition to the d2c version of the library.)  This flag does not make 
-#         much sense with 'no-mindy'.
 #    'no-d2c'
-#         Like no-mindy, only suppress emission of d2c rules.
+#         Suppress emission of d2c rules. Not very useful.
 #
 # The return value is a two element array.  The first element is the
 # target which would have been used if the 'compile' flag were
@@ -802,7 +772,6 @@ sub emit_library_rule {
     $library =~ tr/A-Z/a-z/;
     local($unit_prefix);
     if($enable_bootstrap
-       && $bootstrap_compiler eq "d2c"
        && $lid_format_version < 2) {
         $unit_prefix = $lidfile{'unit_prefix'} || "$library";
     } else {
@@ -924,21 +893,8 @@ sub emit_library_rule {
         }
     }
 
-    if (! grep(/^no-mindy$/, @keywords) && $enable_mindy) {
-        &emit_mindycomp_library_rule($library, $lidfile{'files'}, %lidfile);
-    }
-    if (grep(/^compile-mindy$/, @keywords) && $enable_mindy) {
-        push(@compile_dependencies, "$library-lib.dbc");
-        grep(/^install$/, @keywords)
-            && do install($libdir, "$library-lib.dbc");
-    }
     local(@return_val);
-    if ($enable_d2c) {
-        push(@return_val, $d2c_target);
-    }
-    if ($enable_mindy) {
-        push(@return_val, "$library-lib.dbc");
-    }
+    push(@return_val, $d2c_target);
     return @return_val;
 }
 
@@ -1238,89 +1194,6 @@ sub install_library {
     print "\n$gnu_dest_dir/$library: $library\n";
     print "\t$install_library $library $gnu_dest_dir/$library\n\n";
     push(@install_dependencies, "$gnu_dest_dir/$library");
-}
-
-
-# emit_mindycomp_rule($dylan_source) -- exported
-#
-# Emits a rule to run mindycomp on the file.  $dylan_source shouldn't
-# have an extension.  If the file doesn't exist in the source, hopefully
-# someone will create it in the build area.
-#
-# emit_mindycomp_library_rule is the primary, perhaps even the only,
-# user of this function.
-#
-sub emit_mindycomp_rule {
-    local($source, $flags) = @_;
-    if (-e "$srcdir/$source.dylan") {
-      $da_source = "\$(SRCDIR)/$source.dylan";
-    } else {
-      $da_source = "$source.dylan";
-    }
-    print "$source.dbc: $da_source\n";
-    print "\t\$(MC) $flags ";
-    print "-o $source.dbc $da_source\n";
-}
-
-# emit_dbc_link_rule($libname, $dbc_files) -- exported
-#
-# Links a bunch of .dbc files into a single .dbc file.
-#
-sub emit_dbc_link_rule {
-    local($libname, $objects) = @_;
-    print "\n$libname: $objects\n";
-    if ($host_platform{'use_dbclink?'}) {
-        print "\tdbclink $libname $objects\n\n";
-    } else {
-        print "\tcat $objects > $libname\n\n";
-    }
-}
-
-# emit_mindycomp_library_rule($libname, $source_files) -- exported
-#
-# Generates a rule for compiling the library with Mindy.  Usually this
-# function is invoked via emit_library_rule, but you can call it on
-# your own if you want.  The resulting file will be called
-# foo-lib.dbc, and will *not* be added to the list of compile
-# dependencies.  Also, this command only builds libraries, not
-# executables.  To build an executable, we need to know all the other
-# libraries that go into it, which is beyond the scope of this
-# function.
-#
-sub emit_mindycomp_library_rule {
-    local($libname, $lid_sources, %lidfile) = @_;
-    $libname =~ tr/A-Z/a-z/;
-    local($uppercase_libname) = $libname;
-    $uppercase_libname =~ tr/-a-z/_A-Z/;
-    local($file, @sources, @objects);
-    foreach $file (split(/\s+/, $lid_sources)) {
-        $file =~ s/\.dylan$//;  # chop off ".dylan"
-        push(@sources, $file); # emit_mindycomp_rule doesn't want ".dylan"
-        push(@objects, "$file.dbc");
-        push(@files_to_clean, "$file.dbc");
-    }
-    print "$uppercase_libname", "_OBJS = ", join(" ", @objects), "\n\n";
-    push(@dbc_only_dependencies, "$libname-lib.dbc");
-    push(@files_to_clean, "$libname-lib.dbc");
-
-    local $flags = "-l$libname";
-    local $feature;
-    foreach $feature (split /\s+/, $target_platform{'default_features'}) {
-	$flags = "$flags -D$feature";
-    }
-    foreach $feature (split /\s+/, $lidfile{'features'}) {
-	if($feature =~ /~(.*)/) {
-	    $flags = "$flags -U$1";
-	} else {
-	    $flags = "$flags -D$feature";
-	}
-    }
-
-    local($source);
-    foreach $source (@sources) {
-        &emit_mindycomp_rule($source, $flags);
-    }
-    &emit_dbc_link_rule("$libname-lib.dbc", "\$(${uppercase_libname}_OBJS)");
 }
 
 # makegen_include($include_file) -- exported

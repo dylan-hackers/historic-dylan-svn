@@ -10,10 +10,5 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../common/string-ext'
     . ' -L../../common/regular-expressions';
 
-if ($build_tools_with_d2c) {
-  &emit_library_rule('Parsergen', '$(BUILDROOT)/force.timestamp', '', 
-		     'compile', 'install');
-} else {
-  &emit_library_rule('Parsergen', '$(BUILDROOT)/force.timestamp', '', 
-		     'no-d2c', 'compile-mindy');
-};
+&emit_library_rule('Parsergen', '$(BUILDROOT)/force.timestamp', '', 
+		   'compile', 'install');

@@ -16,7 +16,7 @@ $D2CFLAGS         # added by update-libdirs
 
 do emit_library_rule(
     'carbon-event-handling', '$(BUILDROOT)/force.timestamp', '', 'compile',
-    'no-mindy', 'install'
+    'install'
 );
 
 print <<'EOF';

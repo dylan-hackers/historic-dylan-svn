@@ -19,7 +19,7 @@ $D2CFLAGS         # added by update-libdirs
 #
 #&emit_library_rule(
 #    'carbon', '$(BUILDROOT)/force.timestamp', '', 'compile',
-#    'no-mindy', 'install'
+#    'install'
 #);
 
 print <<EOF;

@@ -32,7 +32,7 @@ EOF
 
 &emit_library_rule(
     'cocoa', '$(BUILDROOT)/force.timestamp flat-cocoa.h cocoa-wrappers.dylan cocoa-wrappers-continued.dylan cocoa-exports.dylan', '', 'compile',
-    'no-mindy', 'install'
+    'install'
 );
 
 push(@files_to_clean, "flat-cocoa.h");

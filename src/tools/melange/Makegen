@@ -39,35 +39,16 @@ if ($features{'compiled_for_win32'}) {
 
 &emit_parsergen_rule('c-parse');
 
-if ($build_tools_with_d2c) {
-  &emit_library_rule
-      ($c_decl_lid,
-       '$(BUILDROOT)/force.timestamp', '',
-       'compile'
-       );
-} else {
-  &emit_library_rule
-      ($c_decl_lid,
-       '$(BUILDROOT)/force.timestamp', '',
-       'no-d2c'
-       );
-};
+&emit_library_rule
+    ($c_decl_lid,
+     '$(BUILDROOT)/force.timestamp', '',
+     'compile'
+     );
 
 &emit_parsergen_rule('int-parse');
 
-if ($build_tools_with_d2c) {
-  &emit_library_rule
-      ('melange',
-       '$(BUILDROOT)/force.timestamp melange-c.lib.du', '',
-       'compile', 'install'
-       );
-} else {
-  &emit_library_rule
-      ('melange',
-       '$(BUILDROOT)/force.timestamp', '',
-       'no-d2c'
-       );
-  push(@compile_dependencies, 'melange.dbc');
-};
-
-&emit_dbc_link_rule('melange.dbc', 'melange-c-lib.dbc melange-lib.dbc');
+&emit_library_rule
+    ('melange',
+     '$(BUILDROOT)/force.timestamp melange-c.lib.du', '',
+     'compile', 'install'
+    );
