@@ -3,6 +3,7 @@ module: dylan-user
 define module gtk-support
   use dylan;
   use extensions;
+  use format-out;
   use melange-support;
   use gtk-internal;
 
