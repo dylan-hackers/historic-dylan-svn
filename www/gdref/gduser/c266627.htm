@@ -1,0 +1,403 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Low level support facilities</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan User's Guide"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Using the Melange Interface Generator"
+HREF="c266.htm"><LINK
+REL="PREVIOUS"
+TITLE="Variable Clauses"
+HREF="c266598.htm"><LINK
+REL="NEXT"
+TITLE="Static linking mechanisms"
+HREF="c266671.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan User's Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c266598.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Using the Melange Interface Generator</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c266671.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="MELANGE-LOW-LEVEL-SUPPORT"
+>Low level support facilities</A
+></H1
+><P
+>The high level functions for calling C routines or for
+      accessing global variables are all built upon a relatively small
+      number of built-in primitives which perform specific low-level
+      tasks. You should seldom have any need to deal with these
+      primitives directly, but they are nonetheless available should
+      you need to make use of them.  To use these types and
+      operations, you should "use" the module "system" from the
+      "Dylan" library.</P
+><H2
+><A
+NAME="MELANGE-PREDEFINED-TYPES"
+>Predefined types</A
+></H2
+><PRE
+CLASS="PROGRAMLISTING"
+>&#60;statically-typed-pointer&#62; [class] </PRE
+><P
+>Unless otherwise specified, C pointers are implicitly
+        "equated" to newly created subclasses of
+        &#60;statically-typed-pointer&#62;. This class is contains a
+        single implicit slot which contains the raw C pointer. Because
+        of implementation limitations in Mindy, you may not add any
+        extra slots to subclasses of &#60;statically-typed-pointer&#62;,
+        nor can such a subclass inherit slots from other classes. You
+        may, however, create classes which are subclasses of both
+        &#60;statically-typed-pointer&#62; and other (presumably
+        abstract) classes which have no slots.</P
+><P
+>The "make" method for takes three keywords. The
+        "pointer:" keyword tells it to initialize the new variable
+        with the given value, which must be a
+        &#60;statically-typed-pointer&#62; or an &#60;integer&#62;. If the
+        no pointer value is specified, space will be allocated based
+        upon the content-size of the specific type and upon the
+        "extra-bytes:" and "element-count:" keywords. These keywords,
+        which default to "0" and "1" respectively, tell how many
+        objects are going to be stored in the memory and how many
+        bytes of extra memory (beyond that specified by
+        "content-size") should be allocated for each element.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>&#60;c-vector&#62; [class]</PRE
+><P
+>&#60;C-vector&#62; is a subclass of
+        &#60;statically-typed-pointer&#62; which inherits operations
+        from &#60;vector&#62;. Because systems often depend upon C's
+        lack of bounds checking, the default size for
+        &#60;c-vector&#62;s is "#f". However, subclasses of
+        &#60;c-vector&#62; may provide a concrete size if desired. Types
+        corresponding to declarations such as "char [256]" are
+        automatically declared as subclasses of &#60;c-vector&#62;, but
+        pointer declarations such as "char *" are not.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>&#60;c-string&#62; [class] </PRE
+><P
+>&#60;C-string&#62; is a subclass of
+        &#60;statically-typed-pointer&#62; which also inherits
+        operations from &#60;string&#62;. It is implemented as a C
+        pointer to a null-terminated vector of characters, and
+        provides a method on forward-iteration-protocol which
+        understands this implementation. This class may, therefore, be
+        used for manipulating C's native format for "string"s
+        (i.e. "char *"). Note that the "null" string is considered to
+        be a valid empty string. This is somewhat contrary to the
+        semantics of many C operations, but provides a safer model for
+        Dylan code.</P
+><P
+>The "make" method for &#60;c-string&#62;s accepts the
+        "size:" and "fill:" keywords.</P
+><P
+>There are a few surprising properties of
+        &#60;c-strings&#62; which may users should be aware of, both of
+        which result from the "null-terminated"
+        implementation. Firstly, the "size" of the string is computed
+        by counting from the beginning of the string, and is therefore
+        not nearly as efficient as you might expect. Secondly, you
+        should expect odd results if you try to store
+        "as(&#60;character&#62;, 0)" into such a string. Finally, the
+        "element" and "element-setter" methods must scan the string in
+        order to do bounds checking, and may therefore be fairly
+        slow. If you wish to (unsafely) bypass this checking, you must
+        use "pointer-value" instead.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>&#60;c-function&#62; [class] </PRE
+><P
+>&#60;c-function&#62;s, like
+        &#60;statically-typed-pointer&#62;s, encapsulate a raw "C"
+        pointer. However, &#60;c-function&#62;s also encode information
+        about the calling conventions of the function which is
+        (presumably) located at the given address. They may,
+        therefore, be directly invoked just like any other
+        function.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>&#60;foreign-file&#62; [class] </PRE
+><P
+>The &#60;foreign-file&#62; class is used to store
+        information about the contents of a particular object file. It
+        is created by "load-object-file", and may be passed as an
+        option to "find-c-function" and "find-c-pointer". (All of
+        these functions are described below.)</P
+><H2
+><A
+NAME="MELANGE-LOCATING-C-OBJECTS"
+>Locating native C objects</A
+></H2
+><P
+>There are several functions provided which search for C
+        functions or variables and return Dylan objects which refer to
+        them. Note that Mindy does not have sufficient information to
+        determine whether any given C object is a function, and
+        therefore it depends upon the user (or, more often, Melange)
+        to provide it with correct information.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>load-object-file(files :: &#60;list&#62;, #key symbols) [function]</PRE
+><P
+>This function (which is presently only works on HPUX
+        machines) attempts to dynamically load a given object file
+        (i.e. ".o" or ".a") into the current Mindy process and load
+        itUs symbol table to allow its contents to be located by
+        "find-c-pointer" or "find-c-function". If it successfully
+        loads the file, it will return a &#60;foreign-file&#62;
+        encapsulating the symbol table information. Otherwise, it will
+        return #f.</P
+><P
+>If you are not running on an HPUX machine, you will have
+        to statically link object files into Mindy, as described in
+        Chapter II.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>find-c-pointer(name :: string, #key file :: &#60;foreign-file) [function] </PRE
+><P
+>This function searches through the symbol table for the
+        object file corresponding to the specified file (or for Mindy
+        itself) and attempts to locate a symbol with the given
+        name. If it finds such a symbol, it converts the corresponding
+        address to a &#60;statically-typed-pointer&#62; and returns
+        it. Otherwise, it returns #f.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>find-c-function (name :: &#60;string&#62;, #key file) [function] 
+
+constrain-c-function (fun :: &#60;c-function&#62;, [function] 
+
+specializer :: &#60;list&#62;, rest? :: &#60;boolean&#62;, 
+
+results :: &#60;list&#62;) </PRE
+><P
+>The function "find-c-function" is like "find-c-pointer",
+        except that the result is a &#60;c-function&#62; (or #f). The
+        resulting function is specialized to "fun(#rest args) ::
+        &#60;object&#62;". However, it may be constrained to a different
+        set of specializers via "constrain-c-function".  This function
+        accepts lists of types for the arguments and for the return
+        values, and a boolean value which states whether optional
+        arguments are accepted. The result declarations are
+        particularly important, since they are used to coerce the raw
+        C result value into an appropriate low level Dylan type. The
+        possible types are &#60;boolean&#62;, &#60;integer&#62;, or any
+        subclass of &#60;statically-typed-pointer&#62;. Note that
+        although a list of result types is accepted, only the first
+        can be meaningful since C does not support multiple return
+        values.</P
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>NOTE: </B
+>The functions in this section are likely to change
+	  drastically in the near future.</P
+></BLOCKQUOTE
+><H2
+><A
+NAME="MELANGE-POINTER-MANIPULATION"
+>Pointer manipulation operations</A
+></H2
+><P
+>Each &#60;statically-typed-pointer&#62; encapsulates a
+        pointer to some area of memory (i.e. a raw machine
+        address). In itself, this does little good, except as an
+        arbitrary token. However, Mindy provides a number of primitive
+        operations which manipulate the contents of these addresses,
+        or do basic comparisons and arithmetic upon the addresses
+        themselves.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>signed-byte-at (ptr :: &#60;statically-typed-pointer&#62;, #key offset) [function] 
+
+unsigned-byte-at (ptr :: &#60;statically-typed-pointer&#62;, #key offset)
+[function] 
+
+signed-short-at (ptr :: &#60;statically-typed-pointer&#62;, #key offset) [function] 
+
+unsigned-short-at( ptr :: &#60;statically-typed-pointer&#62;, #key offset)
+[function] 
+
+signed-long-at (ptr :: &#60;statically-typed-pointer&#62;, #key offset) [function] 
+
+unsigned-long-at (ptr :: &#60;statically-typed-pointer&#62;, #key offset)
+[function] 
+
+pointer-at (ptr :: &#60;statically-typed-pointer&#62;, [function] 
+
+#key offset, class) </PRE
+><P
+>These operations return an object which represents the
+        value stored at the address corresponding to "ptr". The first
+        six operations all return &#60;integer&#62;s -- the different
+        versions are required because the same number may be
+        represented in a variety of formats (differing in length and
+        interpretation of the high-order bit) and because Mindy has no
+        way of determining which might be used in a given situation.
+        The final operation, "pointer-at", returns a new
+        &#60;statically-typed-pointer&#62; encapsulating the address
+        referenced by the origninal pointer.  You may use the "class:"
+        keyword to specify that the new object should be an instance
+        of some particular subclass of
+        &#60;statically-typed-pointer&#62;. (Thus, for example
+        "pointer-at(foo, class: &#60;bar&#62;)" would be roughly
+        equivalent to "as(&#60;bar&#62;, pointer-at(foo))".)</P
+><P
+>The offset parameter (if provided) is added to the
+        integer corresponding to the machine address before the
+        pointer is dereferenced.  This is useful, for example, in
+        loading an object from within a C "struct".</P
+><P
+>Setter functions are provided corresponding to each of
+        the above functions. You can therefore, say</P
+><PRE
+CLASS="PROGRAMLISTING"
+>signed-short-at(ptr) := 32767;
+pointer-at(ptr1) := ptr2;
+
+as(cls == &#60;integer&#62;, ptr :: &#60;statically-typed-pointer&#62;) [G.F. Method] 
+
+as(cls == &#60;statically-typed-pointer&#62;, ptr :: &#60;statically-typed-pointer&#62;) 
+
+[G.F. Method] 
+
+as(cls == &#60;statically-typed-pointer&#62;, int:: &#60;integer&#62;) [G.F. Method] </PRE
+><P
+>Method upon "as" are provided for converting from
+        &#60;integer&#62; to any statically typed pointer class and from
+        any statically typed pointer class to &#60;integer&#62; or to
+        another statically typed pointer class.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>\+ (ptr :: &#60;statically-typed-pointer&#62;, int :: &#60;integer&#62;) [G.F. Method] 
+
+\- (ptr1 :: &#60;statically-typed-pointer, ptr2 :: &#60;statically-typed-pointer&#62;) 
+
+[G.F. Method] 
+
+\= (ptr1 :: &#60;statically-typed-pointer, ptr2 :: &#60;statically-typed-pointer&#62;) 
+
+[G.F. Method] </PRE
+><P
+>These functions do arithmetic upon the integers corresponding
+        to the given pointers. The following code fragment</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let new-ptr = ptr1 + 3;
+let difference = ptr2 + ptr3;
+let same? = (ptr2 = ptr3)</PRE
+><P
+>is equivalent to</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let new-ptr = as(ptr1.object-class, as(&#60;integer&#62;, ptr1) + 3);
+let difference = as(&#60;integer&#62;, ptr2) - as(&#60;integer&#62;, ptr3);
+let same = (as(&#60;integer&#62;, ptr2) = as(&#60;integer&#62;, ptr3));</PRE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c266598.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c266671.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Variable Clauses</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c266.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Static linking mechanisms</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

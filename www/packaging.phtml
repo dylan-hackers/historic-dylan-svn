@@ -1,0 +1,31 @@
+<?php
+require "shared.inc";
+standard_header("Packages");
+?>
+
+<P>We're trying to build easy-to-install packages for as many operating
+systems and architectures as we can. We want people to get up to speed with
+Gwydion Dylan as quickly as possible.</P>
+
+<?php
+begin_progress_table();
+progress("libc5 x86 tgz", 10);
+progress("libc6 x86 tgz", 10);
+progress("libc5 x86 RPM", 10);
+progress("libc6 x86 RPM", 10);
+progress("LinuxPPC RPM", 10);
+progress("libc6 x86 deb", 7);
+progress("FreeBSD x86", 7);
+progress("Solaris SPARC tgz", 10);
+end_progress_table();
+?>
+
+<P>The libc6 packages are used by RedHat 5.1 and Debian 2.0. Older RedHat
+and Debian versions and all other distributions use the libc5 pakcages. We
+currently need a volunteer who can make Debian packages on a semi-regular
+basis.</P>
+
+<P>We'd like to add Linux PPC and IRIX to this list, but we <A
+HREF="ports.phtml">need ports</A> to those platforms first.</P>
+
+<?php standard_footer(); ?>

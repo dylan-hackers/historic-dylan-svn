@@ -1,0 +1,34 @@
+<?php
+require "shared.inc";
+standard_header("Overview");
+?>
+
+<P>Gwydion Dylan is an implementation of the Dylan programming language for
+Unix systems. Originally written as a research project by the Gwydion group at CMU, it is now maintained by a group of volunteers.</P>
+
+<P>The current version of Gwydion is development code, and <STRONG>intended
+only for use by Dylan fanatics</STRONG>. The compiler is slow, lacks shared
+library support and still needs lots of bug fixes. To make life more
+exciting, the documentation is incomplete, and you'll need to read the
+source and ask questions on the mailing list. If this sounds like fun,
+you'll enjoy Gwydion.</P>
+
+<P>To make Gwydion a truly useful compiler, we'll need to solve three or
+four <STRONG>hard problems</STRONG>:</P>
+
+<UL>
+<LI>Figure out how to maintain binary compatibility between two versions of
+a shared library.
+<LI>Reduce the code size of Dylan-to-C glue.
+<LI>Speed up the compiler (and/or implement incremental compilation)
+<LI>Add Dylan support to GDB.
+</UL>
+
+<P>Thanks to the skilled programmers at CMU, Gwydion can already generate
+<STRONG>exceptionally efficient</STRONG> code (half the speed of C in most
+cases) and implements about 98% of the Dylan standard with many extra
+libraries.</P>
+
+<P>Someday we'd like Gwydion Dylan to look like <A HREF="ftp://berlin.ccc.de/pub/gd/misc/browsers1.png">this</A> or <A HREF="ftp://berlin.ccc.de/pub/gd/misc/browsers2.png">this</A>. (Screenshots of Apple Dylan.) Of course, it will still run as a "normal" command-line compiler, too.</P>
+
+<?php standard_footer(); ?>

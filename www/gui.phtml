@@ -1,0 +1,28 @@
+<?php
+require "shared.inc";
+standard_header("A GUI for Gwydion");
+?>
+
+<P>We're currently adding <A HREF="http://www.gtk.org/">Gtk+</A> and <A HREF="http://www.gnome.org/">Gnome</A> support to Gwydion Dylan. If you
+want to help, join the mailing list. If you want to wait, things should be
+in an experimental but usable state in a few months.</P>
+
+<P>We'd eventually like to support DUIM (Harlequin's standard libraries for
+Dylan user interfaces), perhaps as a wrapper around Gtk+ and Gnome. This
+probably involves a huge amount of work.</P>
+
+<P><STRONG>[<A HREF="images/dylan-gtk-hello.gif">Screenshot</A>]</STRONG></P>
+
+<?php
+begin_progress_table();
+progress("Improve <A HREF=\"melange.phtml\">Melange</A>", 6);
+progress("Wrap GLIB", 8);
+progress("Wrap GDK", 1);
+progress("Wrap GTK+", 1);
+progress("Wrap Gnome", 0);
+progress("Dylan-like interfaces", 0);
+progress("Implement DUIM", 0);
+end_progress_table();
+?>
+
+<?php standard_footer(); ?>

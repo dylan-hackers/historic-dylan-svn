@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Basic Use</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan User's Guide"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Using the Melange Interface Generator"
+HREF="c266.htm"><LINK
+REL="PREVIOUS"
+TITLE="A Concrete Example"
+HREF="c266303.htm"><LINK
+REL="NEXT"
+TITLE="Importing Header Files"
+HREF="c266348.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan User's Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c266303.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Using the Melange Interface Generator</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c266348.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="MELANGE-BASIC-USE"
+>Basic Use</A
+></H1
+><P
+>Although the "define interface" form provides a fairly
+      rich sublanguage for specifying interfaces, it is often
+      sufficient to use just the "minimal" form. For example, if
+      "gc.h" contained the following code:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef char bool;
+typedef struct obj obj_t;
+typedef char *str;
+extern obj_t alloc(obj_t class, int bytes);
+extern void scavenge(obj_t *addr);
+extern obj_t transport(obj_t obj, int bytes);
+extern void shrink(obj_t obj, int bytes);
+extern void collect_garbage(void);
+extern bool TimeToGC;
+#define ForwardingMarker ((obj_t)(0xDEADBEEF))</PRE
+><P
+>then you could import it by creating a file named
+      "class.intr" which includes arbitrary Dylan code and the
+      following:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "gc.h";
+end interface;</PRE
+><P
+>You would then run "melange class.intr" [Or possibly "
+      mindy -f melange.dbc class.intr ", depending upon the
+      installation on your particular machine.] , which would produce
+      a file of Dylan code which contains approriate definitions for
+      the classes &#60;bool&#62;", "&#60;obj&#62;", "&#60;obj_t&#62;", and
+      "&#60;str&#62;"; the variable "TimeToGC"; and the functions
+      "alloc", "scavenge", "transport", "shrink", and
+      "collect_garbage". (The constant "ForwardingMarker" will be
+      excluded because it is not a simple literal.)</P
+><PRE
+CLASS="PROGRAMLISTING"
+>if (TimeToGC() ~= 0)
+   collect_garbage();
+end if;</PRE
+><P
+>This code fragment points out some of the hazards of
+      "simple" imports. Melange has no way of knowing that "bool"
+      should correspond to Mindy's &#60;boolean&#62; class, so you are
+      stuck with a simple integer. Likewise, the system wouldn't be
+      able to guess that "char *" shoudl correspond to the Mindy class
+      "&#60;c-string&#62;". We will explain in later sections how "map:"
+      or "equate:" options may be used to provide this information to
+      Melange.</P
+><H2
+><A
+NAME="MELANGE-LOADING-AND-FINDING"
+>Loading and Finding Objects</A
+></H2
+><P
+>As mentioned above, the include directive in the
+        previous example will only work for files which have been
+        previously linked into Mindy. There are extra facilities
+        available to handle other situations.</P
+><P
+>If your machine is one for which we support dynamic
+        loading [Currently support is primarily for HPUX machines, but
+        some work has been done on Macintoshes and ELF systems.
+        Contact us for more details.] , and you wish to load some
+        declared objects from a shared library, you can add one or
+        more "object-file:" options to the "#include" clause, as in
+        the following:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "gc.h",
+      object-file: "/usr/lib/mindy/gc.sl";
+end interface;</PRE
+><P
+>This would cause the code from "gc.sl" to be loaded into
+        Mindy at run-time and make its functions and objects available
+        just as they were in the previous example.  If you are running
+        on a non-HPUX machine, you will have to statically link Mindy
+        with the appropriate library and a list of mappings from names
+        to addresses. This can be accomplished most easily by
+        following these steps: </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>Add a "mindy-include-file:" option to your interface
+            definition. This specifies the name of an "interface
+            description file" which will be written by Melange, and
+            which can later be linked into Mindy along with the
+            appropriate library.</P
+></LI
+><LI
+><P
+>Run Melange on the source file in the normal
+            manner. You may wish to move the newly created interface
+            description file into your Mindy build directory.</P
+></LI
+><LI
+><P
+>Change the Makefile in the Mindy build directory, by
+            adding the imported library to LIBS and the interface
+            description file to EXTERN-INCLUDES.</P
+></LI
+><LI
+><P
+>Run "make" to rebuild Mindy with the new library
+	    information.</P
+></LI
+><LI
+><P
+>Compile and run the generated Dylan code as normal.</P
+></LI
+></OL
+><P
+>A typical interface definition for this approach might
+        be:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define interface
+   #include "gc.h",
+      mindy-include-file: "/usr/local/mindy-build/gc.inc"
+end interface;</PRE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c266303.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c266348.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>A Concrete Example</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c266.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Importing Header Files</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

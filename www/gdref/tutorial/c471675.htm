@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Sealing</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Getting Started with 
+Dylan"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="Modules & Libraries"
+HREF="c471.htm"><LINK
+REL="PREVIOUS"
+TITLE="A Sample Set of Libraries"
+HREF="c471512.htm"><LINK
+REL="NEXT"
+TITLE="Conditions"
+HREF="c690.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started with 
+<SPAN
+CLASS="TRADEMARK"
+><A
+HREF="http://www.cambridge.apple.com/dylan/dylan.html"
+TARGET="_top"
+>Dylan</A
+></SPAN
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c471512.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 6. Modules &#38; Libraries</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c690.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SEALING"
+>Sealing</A
+></H1
+><P
+>Classes and generic functions may be <I
+CLASS="GLOSSTERM"
+>sealed</I
+> using a
+      number of Dylan forms. This prevents code in other libraries from
+      subclassing objects or adding methods to generic functions, and lets
+      the compiler optimize more effectively. Both classes and generic
+      functions are sealed by default.</P
+><P
+>To allow code in other libraries to subclass a given class,
+      declare it as <TT
+CLASS="LITERAL"
+>open</TT
+>:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define open class &#60;sample&#62; (&#60;object&#62;) end;</PRE
+><P
+>To allow other libraries to add methods to a generic function,
+      use a similar syntax:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>define open generic sample-function( o :: &#60;object&#62; ) =&#62; ();</PRE
+><P
+>A third form, <TT
+CLASS="LITERAL"
+>define inert domain</TT
+>, partially seals a
+      generic function, disallowing only some additions from outside a
+      library.</P
+><P
+>For more information on sealing, see the chapter
+      &#8220;Controlling Dynamism&#8221; in the 
+<A
+HREF="http://www.cambridge.apple.com/dylan/drm/drm-1.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>Dylan Reference Manual</I
+></A
+>
+.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c471512.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c690.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>A Sample Set of Libraries</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c471.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Conditions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

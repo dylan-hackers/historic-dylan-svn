@@ -1,0 +1,28 @@
+<?php
+require "shared.inc";
+standard_header("Interfacing with C");
+?>
+
+<P>For Gwydion to be useful, it must interface seamlessly with C. Most
+interesting libraries are written in C, including all of the significant
+APIs for Unix systems. Ideally, it should be as easy to call a C function
+from a Dylan program as it is to call one from a C program.</P>
+
+<P>The original Gwydion developers at CMU wrote a nifty tool called
+Melange. It parses C header files and automatically generates interfaces in
+Dylan. We've been slowly enhancing this to handle more complicated header
+files, and stomping all the bugs which we find along the way.</P>
+
+<P>Our next goal is to make callbacks from C to Dylan work correctly. This
+will require modifications to the compiler, the runtime, and Melange.
+Peter Housel already went a long way, there's just some cleaning up
+before we are where we want to go to.</P>
+
+<?php
+begin_progress_table();
+progress("Improve parser", 7);
+progress("Implement callbacks", 8);
+end_progress_table();
+?>
+
+<?php standard_footer(); ?>

@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Concepts</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet version 1.13"><LINK
+REL="HOME"
+TITLE="Gwydion Dylan Library Reference Guide"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE="The Streams Library"
+HREF="c730.htm"><LINK
+REL="PREVIOUS"
+TITLE="Goals of the Library"
+HREF="c730770.htm"><LINK
+REL="NEXT"
+TITLE="Streams, growing sequences, and object identity"
+HREF="c730841.htm"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Gwydion Dylan Library Reference Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c730770.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. The Streams Library</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c730841.htm"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN798"
+>Concepts</A
+></H1
+><P
+>A stream provides sequential access to an aggregate of
+      data, such as a Dylan sequence or a disk file. Streams grant
+      this access according to a metaphor of reading and writing:
+      elements can be read from streams or written to them.</P
+><P
+>Streams are represented as Dylan objects, and all are
+      general instances of the class
+      <TT
+CLASS="CLASSNAME"
+>&#60;stream&#62;</TT
+>, which the Streams library
+      defines.</P
+><P
+>We say that a stream is established over the data
+      aggregate. Hence, a stream providing access to the string
+      <TT
+CLASS="LITERAL"
+>"hello world"</TT
+> is said to be a stream over the
+      string <TT
+CLASS="LITERAL"
+>"hello world"</TT
+>.</P
+><P
+>Streams permitting reading operations are called input
+      streams. Input streams allow elements from the underlying data
+      aggregate to be consumed. Conversely, streams permitting writing
+      operations are called output streams. Output streams allow
+      elements to be written to the underlying data aggregate. Streams
+      permitting both kinds of operations are called input-output
+      streams. </P
+><P
+>The library provides a set of functions for reading
+      elements from an input stream. These functions hide the details
+      of indexing, buffering, and so on. For instance, the function
+      read-element reads a single data element from an input
+      stream. </P
+><P
+>The following expression binds stream to an input stream
+      over the string <TT
+CLASS="LITERAL"
+>"hello world"</TT
+>: </P
+><PRE
+CLASS="PROGRAMLISTING"
+>let stream = make(&#60;string-stream&#62;, contents: "hello world");</PRE
+><P
+>The first invocation of read-element on stream returns the
+      character 'h', the next invocation 'e', and so on. Once a stream
+      has been used to consume all the elements of the data, the
+      stream is said to be at its end. This condition can be tested
+      with the function <TT
+CLASS="FUNCTION"
+><B
+>stream-at-end?</B
+></TT
+>. The
+      following code fragment applies function to all elements of the
+      sequence:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let stream = make(&#60;sequence-stream&#62;, contents: seq);
+while (~stream-at-end?(stream)) 
+	function(read-element(stream));
+end;</PRE
+><P
+>When all elements of a stream have been read, further
+      calls to <TT
+CLASS="FUNCTION"
+><B
+>read-element</B
+></TT
+> result in the
+      <TT
+CLASS="CLASSNAME"
+>&#60;end-of-stream-error&#62;</TT
+> condition
+      being signalled. An alternative end-of-stream behavior is to
+      have a distinguished end-of-stream value returned. You can
+      supply such an end-of-stream value as a keyword argument to the
+      various read functions; the value can be any object. Supplying
+      an end-of-stream value to a read function is more efficient than
+      asking whether a stream is at its end on every iteration of a
+      loop. </P
+><P
+>The library also provides a set of functions for writing
+      data elements to an output stream. Like the functions that
+      operate upon input streams, these functions hide the details of
+      indexing, growing an underlying sequence, buffering for a file,
+      and so on. For instance, the function
+      <TT
+CLASS="FUNCTION"
+><B
+>write-element</B
+></TT
+> writes a single data element
+      to an output stream. </P
+><P
+>The following forms bind stream to an output stream over
+      an empty string and create the string <TT
+CLASS="LITERAL"
+>"I
+      see!"</TT
+>, using the function
+      <TT
+CLASS="FUNCTION"
+><B
+>stream-contents</B
+></TT
+> to access all of the
+      stream's elements.</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let stream = make(&#60;byte-string-stream&#62;, direction: #"output");
+write-element(stream, 'I');
+write-element(stream, ' ');
+write(stream, "see");
+write-element(stream, '!');
+stream-contents(stream);</PRE
+><P
+>Calling <TT
+CLASS="FUNCTION"
+><B
+>write</B
+></TT
+> on a sequence has the
+      same effect as calling <TT
+CLASS="FUNCTION"
+><B
+>write-element</B
+></TT
+> on all
+      the elements of the sequence. However, it is not required that
+      <TT
+CLASS="FUNCTION"
+><B
+>write</B
+></TT
+> be implemented directly in terms of
+      <TT
+CLASS="FUNCTION"
+><B
+>write-element</B
+></TT
+>; it might be implemented more
+      efficiently, especially for buffered streams.</P
+><P
+>Some streams are positionable; that is, they permit random
+      access to their elements. Postionable streams allow you to set
+      the position at which the stream will be accessed by the next
+      operation. The following example uses positioning to return the
+      character <TT
+CLASS="LITERAL"
+>'w'</TT
+> from a stream over the string
+      <TT
+CLASS="LITERAL"
+>"hello world"</TT
+>:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let stream = make(&#60;string-stream&#62;, contents: "hello world");
+stream-position(stream) := 6;
+read-element(stream);</PRE
+><P
+>The following example returns a string, but the contents
+      of the first ten characters are undefined:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>let stream = make(&#60;string-stream&#62;, direction: #"output");
+adjust-stream-position(stream, 10); 
+write(stream, "whoa!");
+stream-contents(stream);</PRE
+><P
+>You can request a sequence containing all of the elements
+      of a positionable stream by calling
+      <TT
+CLASS="FUNCTION"
+><B
+>stream-contents</B
+></TT
+> on it. The sequence
+      returned never shares structure with any underlying sequence
+      that might be used in future by the stream. For instance, the
+      string returned by calling <TT
+CLASS="FUNCTION"
+><B
+>stream-contents</B
+></TT
+>
+      on an output <TT
+CLASS="CLASSNAME"
+>&#60;string-stream&#62;</TT
+> will
+      not be the same string as that being used to represent the
+      string stream.</P
+><P
+>When making an input &#60;string-stream&#62;, you can cause
+      the stream to produce elements from any subsequence of the
+      supplied string. For example:</P
+><PRE
+CLASS="PROGRAMLISTING"
+>read-to-end(make(&#60;string-stream&#62;, 
+                 contents: "hello there, world",
+                 start: 6, 
+                 end: 11));</PRE
+><P
+>This example evaluates to "there". The interval (start,
+      end) includes the index start but excludes the index end. This
+      is consistent with standard Dylan functions over sequences, such
+      as copy-sequence. The read-to-end function is one of a number of
+      convenient utility functions for operating on streams and
+      returns all the elements up to the end of the stream from the
+      stream's current position.</P
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c730770.htm"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c730841.htm"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Goals of the Library</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c730.htm"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Streams, growing sequences, and object identity</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
