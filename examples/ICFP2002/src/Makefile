@@ -47,5 +47,5 @@ test-server: test-server.lid test-server.dylan test-server-exports.dylan Makefil
 c-opengl-visualizer:	c-opengl-visualizer.c
 	g++ c-opengl-visualizer.c -lGL -lGLU -lglut -lX11 -lXmu -lXext -lXi -L/usr/X11R6/lib -o c-opengl-visualizer
 
-c-opengl-visualizer-run:
+c-opengl-visualizer-run:	c-opengl-visualizer
 	./c-opengl-visualizer cantor.gwydiondylan.org 6969
