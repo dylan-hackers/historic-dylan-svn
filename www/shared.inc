@@ -91,7 +91,6 @@ function short_header ($title) {
     <div class="sideMenuBox">
       <div>Developer Resources</div>
       <A HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse CVS</A>
-      <A HREF="/cgi-bin/gd.private">&rsaquo; Private Bug Tracker</A>
       <A HREF="projects.phtml">&rsaquo; Current Projects</A>
       <A HREF="submit-news.phtml">&rsaquo; Submit News</A>
     </div>
