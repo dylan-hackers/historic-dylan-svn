@@ -88,6 +88,7 @@ end;
 define functional class <llvm-function-type>(<llvm-type>)
 end;
 
+/*
 define method make (f == <llvm-function-type>, #rest rest,
 		    #key return-type :: <llvm-type>,
 		         argument-types :: <simple-object-vector>,
@@ -97,9 +98,9 @@ define method make (f == <llvm-function-type>, #rest rest,
   next-method(f, pointer: call-out("make_llvm_FunctionType", ptr:,
 				   ptr: return-type.raw-value,
 				   ptr: object-address(argument-types),
-				   int: variadic & 1 | 0 /* %%primitive("as-boolean", variadic)*/));
+				   int: variadic & 1 | 0 / * %%primitive("as-boolean", variadic)* /));
 end;
-
+*/
 
 define macro llvm-glue-definer
   { define llvm-glue ?class-name:name () ?rest:* end }
@@ -133,19 +134,46 @@ define macro llvm-glue-definer
    { <llvm-module> } => { "Module" }
    { <llvm-value> } => { "Value" }
    { <llvm-type> } => { "Type" }
+   { <llvm-function-type> } => { "FunctionType" }
+   { <llvm-pointer-type> } => { "PointerType" }
    { <llvm-return-instruction> } => { "ReturnInst" }
    { <llvm-basic-block> } => { "BasicBlock" }
    { <llvm-module> } => { "Module" }
    { <llvm-function> } => { "Function" }
    { <llvm-argument> } => { "Argument" }
    { <llvm-add-instruction> } => { "BinaryAdd" }
+   { <llvm-gep-instruction> } => { "GetElementPtrInst" }
+   { <llvm-store-instruction> } => { "StoreInst" }
+   { <llvm-load-instruction> } => { "LoadInst" }
 end;
+
+
+define llvm-glue <llvm-function-type> ()
+  make, (return-type :: <llvm-type>,
+	 argument-types :: <simple-object-vector>,
+	 variadic :: <boolean>), ptr: return-type.raw-value,
+				 ptr: object-address(argument-types),
+				 int: variadic & 1 | 0;
+end;
+
 
 
 define llvm-glue <llvm-type> ()
   dump, () => ();
 //  dump2, (i :: <integer>) => ();
 end;
+
+
+
+define functional class <llvm-pointer-type>(<llvm-type>)
+end;
+
+
+define llvm-glue <llvm-pointer-type> ()
+  make, (base :: <llvm-type>), ptr: base.raw-value;
+end;
+
+
 
 // ##########
 // ### Values
@@ -206,7 +234,6 @@ end;
 
 
 define functional class <llvm-binary-instruction>(<llvm-instruction>)
-
 end;
 
 define functional class <llvm-add-instruction>(<llvm-binary-instruction>)
@@ -219,6 +246,50 @@ define llvm-glue <llvm-add-instruction> ()
 	 before :: false-or(<llvm-instruction>),
 	 atEnd :: false-or(<llvm-basic-block>)), ptr: left.raw-value,
 						 ptr: right.raw-value,
+						 ptr: name.object-address,
+						 ptr: (atEnd | $null-pointer).raw-value,
+						 ptr: (before | $null-pointer).raw-value;
+end;
+
+define functional class <llvm-gep-instruction>(<llvm-instruction>)
+end;
+
+define llvm-glue <llvm-gep-instruction> ()
+  make, (ptr :: <llvm-value>, indices :: <simple-object-vector> = #[],
+	 name :: <byte-string> = "",
+	 before :: false-or(<llvm-instruction>),
+	 atEnd :: false-or(<llvm-basic-block>)), ptr: ptr.raw-value,
+						 ptr: indices.object-address,
+						 ptr: name.object-address,
+						 ptr: (atEnd | $null-pointer).raw-value,
+						 ptr: (before | $null-pointer).raw-value;
+end;
+
+define functional class <llvm-store-instruction>(<llvm-instruction>)
+end;
+
+define llvm-glue <llvm-store-instruction> ()
+  make, (value :: <llvm-value>, ptr :: <llvm-value>,
+	 before :: false-or(<llvm-instruction>),
+	 atEnd :: false-or(<llvm-basic-block>)), ptr: value.raw-value,
+						 ptr: value.raw-value,
+						 ptr: (atEnd | $null-pointer).raw-value,
+						 ptr: (before | $null-pointer).raw-value;
+end;
+
+
+
+define functional class <llvm-unary-instruction>(<llvm-instruction>)
+end;
+
+define functional class <llvm-load-instruction>(<llvm-unary-instruction>)
+end;
+
+define llvm-glue <llvm-load-instruction> ()
+  make, (ptr :: <llvm-value>,
+	 name :: <byte-string> = "",
+	 before :: false-or(<llvm-instruction>),
+	 atEnd :: false-or(<llvm-basic-block>)), ptr: ptr.raw-value,
 						 ptr: name.object-address,
 						 ptr: (atEnd | $null-pointer).raw-value,
 						 ptr: (before | $null-pointer).raw-value;
@@ -304,7 +375,7 @@ end;
 define method emit-tlf-gunk
     (backend == llvm:, tlf :: <define-method-tlf>, file :: <file-state>)
     => ();
-
+/*
   let m = make(<llvm-module>, name: "test");
   
   m.dump;
@@ -329,9 +400,218 @@ define method emit-tlf-gunk
   
   m.dump;
   m.delete;
+*/
 end method emit-tlf-gunk;
 
 
+define generic emit-function
+    (function :: <fer-function-region>, backend :: <symbol>, file :: <file-state>)
+    => ();
+
+define generic emit-region
+    (backend :: <symbol>, region :: <region>, file :: <file-state>)
+    => ();
+
+define method emit-region
+    (backend == llvm:, region :: <region>, file :: <file-state>)
+    => ();
+
+end;
+
+
+define generic emit-llvm-assignment
+    (results :: false-or(<definition-site-variable>),
+     op :: <operation>, 
+     source-location :: <source-location>,
+     bb :: <llvm-basic-block>)
+    => ();
+
+/* define method emit-llvm-assignment
+    (results :: false-or(<definition-site-variable>),
+     op :: <operation>, 
+     source-location :: <source-location>,
+     bb :: <llvm-basic-block>)
+    => ();
+*/
+define method emit-llvm-assignment
+    (results :: false-or(<definition-site-variable>),
+     op :: <prologue>, 
+     source-location :: <source-location>,
+     bb :: <llvm-basic-block>)
+    => ();
+
+end;
+
+
+define variable llvm-function = #f;
+
+define method emit-region
+    (backend == llvm:, region :: <simple-region>, file :: <file-state>)
+    => ();
+  for (assign = region.first-assign then assign.next-op,
+       while: assign)
+///    maybe-emit-source-location(assign.source-location, file);
+
+  let bb = make(<llvm-basic-block>, name: "body", into: llvm-function);
+
+    emit-llvm-assignment(assign.defines, assign.depends-on.source-exp, 
+			 assign.source-location, bb);
+///    if (byte-string.stream-size >= 65536)
+///      add!(file.file-guts-overflow, byte-string.stream-contents);
+///    end if;
+  end for;
+end;
+
+
+define function representation-llvm-type(rep)
+//  make(<llvm-primitive-type>, id: VoidTyID:); // ### IMPLEMENT!
+
+// very inefficient! ###
+  select(rep.representation-c-type by \=)
+  "long" => make(<llvm-primitive-type>, id: LongTyID:);
+  "heapptr_t" => make(<llvm-pointer-type>, base: make(<llvm-primitive-type>, id: VoidTyID:));
+  end;
+end;
+
+
+define function compute-llvm-prototype
+    (function :: false-or(<fer-function-region>),
+     function-info :: <function-info>)
+    => res :: <llvm-function-type>;
+  let result-rep = function-info.function-info-result-representation;
+
+  let result-type =
+  case
+    result-rep == #"doesn't-return"
+      => make(<llvm-primitive-type>, id: VoidTyID:);
+    result-rep == #"cluster"
+      => make(<llvm-primitive-type>, id: VoidTyID:); // ### POINTER!
+    instance?(result-rep, <sequence>)
+      =>
+      if (result-rep.empty?)
+	make(<llvm-primitive-type>, id: VoidTyID:);
+      else
+	make(<llvm-primitive-type>, id: VoidTyID:); // ### STRUCT! MULTIRETURN
+      end if;
+    otherwise => result-rep.representation-llvm-type;
+  end;
+
+  let sp-arg? = if (function)
+		  function.calling-convention == #"standard";
+		else
+		  ~instance?(function-info, <constant-callback-function-info>);
+		end if;
+
+  let reversed-types = #();
+
+  for (rep in function-info.function-info-argument-representations
+  //,
+//       index from 0,
+//       first-arg = ~sp-arg? then #f,
+//       var = function & function.prologue.dependents.dependent.defines
+//	 then var & var.definer-next
+)
+reversed-types := pair(rep.representation-llvm-type, reversed-types);
+/*    if (~first-arg)
+      write(stream, ", ");
+    end if;
+    format(stream, "%s ", rep.representation-c-type);
+    let preferred-names = function & function.prologue.preferred-names;
+    let preferred-name = preferred-names
+			 & element(preferred-names, index, default: #f);
+    if (preferred-name)
+      format(stream, "%s", preferred-name);
+    else
+      format(stream, "A%d", index);
+    end;
+*/
+/*
+    if (var)
+      let varinfo = var.var-info;
+      if (instance?(varinfo, <debug-named-info>))
+	format(stream, " /* %s */", varinfo.debug-name.clean-for-comment);
+      end;
+    end;
+*/
+  end;
+  
+  let argument-types = as(<simple-object-vector>, reversed-types.reverse);
+  
+  make(<llvm-function-type>, return-type: result-type, argument-types: argument-types, variadic: #f);
+end;
+
+
+define method emit-function
+    (function :: <fer-function-region>, backend == llvm:, file :: <file-state>)
+    => ();
+
+
+
+  let m = make(<llvm-module>, name: "test");
+  let inttype = make(<llvm-primitive-type>, id: IntTyID:);
+  let argument-types = vector(inttype);
+  
+//  let func = make(<llvm-function-type>, return-type: void, argument-types: argument-types, variadic: #t);
+
+
+  let function-info = get-info-for(function, file);
+  let func = compute-llvm-prototype(function, function-info);
+  let f = make(<llvm-function>, name: function.name.clean-for-comment, type: func, module: m);
+  llvm-function := f;
+///  let arg = make(<llvm-argument>, type: inttype, name: "foo", func: f);
+
+
+/*  file.file-next-block := 0;
+  file.file-local-table := make(<string-table>);
+  file.file-local-vars := make(<string-table>);
+  file.file-freed-locals := #f;
+  assert(file.file-pending-defines == #f);
+
+  let function-info = get-info-for(function, file);
+  let c-name = main-entry-c-name(function-info, file);
+  file.file-prototypes-exist-for[c-name] := #t;
+*/
+  let max-depth = analyze-stack-usage(function);
+/*  for (i from 0 below max-depth)
+    format(file.file-vars-stream,
+	   "descriptor_t *cluster_%d_top;\n",
+	   i);
+  end;
+
+  maybe-emit-source-location(function.source-location, file, line-getter: start-line);
+  finish-source-location(file);
+*/
+  emit-region(backend, function.body, file);
+/*  finish-source-location(file);
+
+  let stream = file.file-body-stream;
+  format(stream, "/* %s */\n", function.name.clean-for-comment);
+
+  format(stream, "%s\n{\n",
+	 compute-function-prototype(function, function-info, file));
+  if(function.calling-convention == #"callback")
+    format(file.file-vars-stream,
+	   "descriptor_t *orig_sp = allocate_stack();\n");
+  end if;
+  write(stream, get-string(file.file-vars-stream));
+  new-line(stream);
+
+  // Actually write out the (already generated) code:
+  let overflow = file.file-guts-overflow;
+  unless (overflow.empty?)
+    for (string in overflow)
+      write(stream, string);
+    end;
+    overflow.size := 0;
+  end unless;
+  write(stream, get-string(file.file-guts-stream));
+  format(stream, "}\n\n");
+*/
+
+
+  m.dump;
+  m.delete;
+end;
 
 
 // ###################################################
@@ -2260,7 +2540,7 @@ define method emit-component
     end;
   end;
 
-  do(rcurry(emit-function, file), component.all-function-regions);
+  do(rcurry(emit-function, backend, file), component.all-function-regions);
 
   // Either emit-tlf-gunk or emit-component may have ended up
   // creating new components to hold required xeps.  Since we're
@@ -2279,8 +2559,12 @@ end;
 // function definition and prototype.
 
 define method emit-function
-    (function :: <fer-function-region>, file :: <file-state>)
+    (function :: <fer-function-region>, backend == c:, file :: <file-state>)
     => ();
+
+  /// GGR: llvm-branch
+  emit-function(function, llvm: file);
+
   file.file-next-block := 0;
   file.file-local-table := make(<string-table>);
   file.file-local-vars := make(<string-table>);
@@ -2300,7 +2584,7 @@ define method emit-function
 
   maybe-emit-source-location(function.source-location, file, line-getter: start-line);
   finish-source-location(file);
-  emit-region(function.body, file);
+  emit-region(backend, function.body, file);
   finish-source-location(file);
 
   let stream = file.file-body-stream;
@@ -2327,7 +2611,7 @@ define method emit-function
   format(stream, "}\n\n");
 end;
 
-define method compute-function-prototype
+define function compute-function-prototype
     (function :: false-or(<fer-function-region>),
      function-info :: <function-info>,
      file :: <file-state>)
@@ -2446,7 +2730,7 @@ end;
 
 // 
 define method emit-region
-    (region :: <simple-region>, file :: <file-state>)
+    (backend == c:, region :: <simple-region>, file :: <file-state>)
     => ();
   let byte-string :: <byte-string-stream>
     = file.file-guts-stream.inner-stream;
@@ -2462,11 +2746,12 @@ define method emit-region
   end for;
 end;
 
-define method emit-region (region :: <compound-region>,
+define method emit-region (backend == c:,
+			   region :: <compound-region>,
 			   file :: <file-state>)
     => ();
   for (subregion in region.regions)
-    emit-region(subregion, file);
+    emit-region(backend, subregion, file);
   end;
 end;
  
@@ -2494,7 +2779,7 @@ define method elseif-able? (region :: <region>) => answer :: <boolean>;
 end method elseif-able?;
 
 
-define method emit-region (if-region :: <if-region>, file :: <file-state>)
+define method emit-region (backend == c:, if-region :: <if-region>, file :: <file-state>)
  => ();
   let stream = file.file-guts-stream;
   let (cond, temp?) = ref-leaf(*boolean-rep*, if-region.depends-on.source-exp, file);
@@ -2502,7 +2787,7 @@ define method emit-region (if-region :: <if-region>, file :: <file-state>)
   spew-pending-defines(file);
   format(stream, "if (%s) {\n", cond);
   indent(stream, $indentation-step);
-  emit-region(if-region.then-region, file);
+  emit-region(backend, if-region.then-region, file);
   /* ### emit-joins(if-region.join-region, file); */
   spew-pending-defines(file);
   indent(stream, -$indentation-step);
@@ -2521,7 +2806,7 @@ define method emit-region (if-region :: <if-region>, file :: <file-state>)
       indent(stream, $indentation-step);
     end if;
     
-    emit-region(if-region.else-region, file);
+    emit-region(backend, if-region.else-region, file);
     /* ### emit-joins(if-region.join-region, file); */
     
     spew-pending-defines(file);
@@ -2533,7 +2818,8 @@ define method emit-region (if-region :: <if-region>, file :: <file-state>)
 end method emit-region;
 
 
-define method emit-region (region :: <loop-region>,
+define method emit-region (backend == c:,
+			   region :: <loop-region>,
 			   file :: <file-state>)
     => ();
   /* ### emit-joins(region.join-region, file); */
@@ -2541,7 +2827,7 @@ define method emit-region (region :: <loop-region>,
   let stream = file.file-guts-stream;
   format(stream, "while (1) {\n");
   indent(stream, $indentation-step);
-  emit-region(region.body, file);
+  emit-region(backend, region.body, file);
   /* ### emit-joins(region.join-region, file); */
   spew-pending-defines(file);
   indent(stream, -$indentation-step);
@@ -2556,12 +2842,12 @@ define method make-info-for
 end;
 
 define method emit-region
-    (region :: <block-region>, file :: <file-state>) => ();
+    (backend == c:, region :: <block-region>, file :: <file-state>) => ();
   unless (region.exits)
     error("A block with no exits still exists?");
   end;
   let stream = file.file-guts-stream;
-  emit-region(region.body, file);
+  emit-region(backend, region.body, file);
   /* ### emit-joins(region.join-region, file); */
   spew-pending-defines(file);
   let half-step = ash($indentation-step, -1);
@@ -2570,13 +2856,14 @@ define method emit-region
   indent(stream, half-step);
 end;
 
-define method emit-region (region :: <unwind-protect-region>,
+define method emit-region (backend == c:,
+			   region :: <unwind-protect-region>,
 			   file :: <file-state>)
     => ();
-  emit-region(region.body, file);
+  emit-region(backend, region.body, file);
 end;
 
-define method emit-region (region :: <exit>, file :: <file-state>)
+define method emit-region (backend == c:, region :: <exit>, file :: <file-state>)
     => ();
   /* ### emit-joins(region.join-region, file); */
   spew-pending-defines(file);
@@ -2596,7 +2883,7 @@ define method emit-region (region :: <exit>, file :: <file-state>)
   end;
 end;
 
-define method emit-region (return :: <return>, file :: <file-state>)
+define method emit-region (backend == c:, return :: <return>, file :: <file-state>)
     => ();
   /* ### emit-joins(region.join-region, file); */
   let function :: <fer-function-region> = return.block-of;
