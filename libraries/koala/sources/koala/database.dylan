@@ -4,7 +4,7 @@ Author: Carl Gay
 
 // ---TODO: Connection pools.
 
-define constant $database-name :: false-or(<string>) = #f;
+define variable $database-name :: false-or(<string>) = #f;
 
 define macro with-database-connection
   { with-database-connection (?conn:name) ?:body end }

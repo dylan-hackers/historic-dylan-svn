@@ -158,8 +158,9 @@
      The following loads koala-basics.dll.
      Dynamic module loading is not supported on FunDev/Linux yet.
   -->
+<!--  Commented out for now.  Run the koala-basics example project instead.
 <module name="koala-basics" />
-
+  -->
 
 <!-- VIRTUAL-HOST defines a new named virtual host with its own settings.
      Top-level settings apply to the default virtual host.  Here we define

@@ -4,22 +4,25 @@ Author:   Carl Gay
 
 define library koala-basics
   use dylan;
-  use common-dylan;
-  use io;
-  use network;
-  use system;
-  use koala;
+  use common-dylan,
+    import: { common-extensions };
+  use io,
+    import: { format, streams };
+  use system,
+    import: { locators, threads };
+  use koala,
+    import: { dsp };
 end;
 
 
 define module koala-basics
   use dylan;
-  use threads;      // from dylan lib
-  use common-extensions, exclude: { format-to-string };
-  use locators;     // from locators lib
-  use format;       // from IO lib
-  use streams;      // from IO lib
-  use sockets, import: { <tcp-socket> };  // from network lib
-  use dsp;          // from koala lib
+  use threads;
+  use common-extensions,
+    exclude: { format-to-string, split };
+  use locators;
+  use format;
+  use streams;
+  use dsp;
 end;
 

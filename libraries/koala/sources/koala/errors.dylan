@@ -7,6 +7,9 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+// TODO: I cannot stand the http-error-definer macro.  Ditch it or fix it.
+//       Also, most of the error classes should be exported.
+
 // See RFC 2616, 6.1.1
 
 // I make everything a simple error so the stupid debugger can understand it.

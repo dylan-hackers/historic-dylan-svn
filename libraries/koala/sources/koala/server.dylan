@@ -229,8 +229,15 @@ end init-server;
 // This is what client libraries call to start the server.
 //
 define function start-server
-    (#key config-file)
+    (#key config-file :: false-or(<string>))
  => (started? :: <boolean>)
+  if (~config-file)
+    let args = application-arguments();
+    let pos = find-key(args, method (x) as-lowercase(x) = "--config" end);
+    if (pos & (args.size > pos + 1))
+      config-file := args[pos + 1];
+    end;
+  end if;
   init-server(config-file: config-file);
   if (*abort-startup?*)
     log-error("Server startup aborted due to the previous errors");
@@ -252,12 +259,13 @@ define function start-server
       // temporary code...
       let port = ports[0];
       while (start-http-listener(*server*, port))
-        // do nothing
+        *server-running?* := #t;
       end;
       // Apparently when the main thread dies in a FunDev Dylan application
       // the application exits without waiting for spawned threads to die,
       // so join-listeners keeps the main thread alive until all listeners die.
       join-listeners(*server*);
+      *server-running?* := #f;
       #t
     end if
   end if
@@ -798,7 +806,18 @@ end;
 // See find-responder and register-alias-url.
 define method register-url
     (url :: <string>, target :: <object>, #rest args, #key replace?)
-  log-info("URL %s registered", url);
+ => ()
+  if (*server-running?*)
+    apply(register-url-now, url, target, args);
+  else
+    register-init-function(method ()
+                             apply(register-url-now, url, target, args)
+                           end);
+  end;
+end;
+
+define method register-url-now
+    (url :: <string>, target :: <object>, #rest args, #key replace?)
   let server :: <server> = *server*;
   let (bpos, epos) = trim-whitespace(url, 0, size(url));
   if (bpos = epos)
@@ -815,7 +834,8 @@ define method register-url
                  format-arguments: list(url)));
     end;
   end;
-end register-url;
+  log-info("URL %s registered", url);
+end method register-url-now;
 
 // API
 // Just a clearer name for aliasing.
