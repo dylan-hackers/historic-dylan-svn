@@ -6,7 +6,13 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define constant <alist> = limited(<simple-object-vector>, of: <pair>);
+// Changed this from limited(...) to <simple-object-vector> to work around
+// a bug in FD 2.1a4 relating to runtime class definition.
+//    "Cannot add-method {<getter-method>: ??? (<avalue>)} in {<library>}
+//     to sealed generic {<sealed-generic-function>: avalue-value}."
+// I believe the bug only shows up in tight mode. -cgay 2004.11.13
+//
+define constant <alist> = <simple-object-vector>; //limited(<simple-object-vector>, of: <pair>);
 
 define constant $empty-alist = make(<alist>, size: 0);
 
@@ -21,10 +27,8 @@ define function rev-as-alist (pairs :: <list>)
 end;
 
 // <tagged-element>?
-//    Getting this runtime error in 2.1a4...
-//    "Cannot add-method {<getter-method>: ??? (<avalue>)} in {<library>} to sealed generic {<sealed-generic-function>: avalue-value}."
 define class <avalue> (<explicit-key-collection>, <sealed-constructor>)
-  slot avalue-value :: <object>,
+  constant slot avalue-value :: <object>,
     required-init-keyword: value:;
   constant slot avalue-alist :: <alist>,
     required-init-keyword: alist:;
