@@ -22,7 +22,7 @@ define function read-png(filename :: <string>) => (image, width, height, channel
                         $PNG-TRANSFORM-PACKING,
                         $PNG-TRANSFORM-SHIFT), 
                  as(<png-voidp>, 0));
-    call-out("fclose", int:, ptr: file*.raw-value);
+//    call-out("fclose", int:, ptr: file*.raw-value);
   end with-open-file;
 
   let width  = png-get-image-width(png-ptr, info-ptr);
