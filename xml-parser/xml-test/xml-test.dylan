@@ -22,6 +22,7 @@ define method do-the-rest(sym == #"file", str :: <string>)
   with-open-file(in = str)
     let doc = parse-document(in.stream-contents);
     transform-document(doc, state: #"html");
+   // display-node(doc);
   end;
 end method do-the-rest;
 
@@ -31,8 +32,8 @@ define function main(name, arguments)
   exit-application(0);
 end function main;
 
+// Invoke our main() function.
 begin
-// we can start getting rid of these test fns and exports
   $testable-fns[#"attribute"] := parse-attribute;
   $testable-fns[#"char-data"] := parse-char-data;
   $testable-fns[#"stag"] := parse-stag;
@@ -48,7 +49,7 @@ begin
   $testable-fns[#"char-ref"] := parse-char-ref;
   $testable-fns[#"content"] := parse-content;
   $testable-fns[#"pi"] := parse-pi;
-  $testable-fns[#"ent"] := parse-def|content;
+//  $testable-fns[#"ent"] := parse-def|content;
   
   main(application-name(), application-arguments());
 end;
@@ -69,9 +70,11 @@ end method before-transform;
 define method transform(in :: <document>, tag-name :: <symbol>,
     state == #"html", str :: <stream>)
   *ent* := make(<table>);
+
   write(str, "<HTML>\n <TITLE>XML as HTML</TITLE>\n <BODY>\n");
   next-method();
   write(str, "<HR>Referenced entities:<P>\n");
+//  force-output(*standard-output*);
   referenced-entities(str);
   write(str, "\n </BODY>\n</HTML>");
 end method transform;
@@ -103,7 +106,7 @@ define method transform(in :: <entity-reference>, tag-name :: <symbol>,
   write(str, 
     format-to-string("<A HREF='#%s'>&amp;%s;</A>",
                      as(<string>, tag-name), as(<string>, tag-name)));
-  *ent*[tag-name] := in.entity-value;
+  *ent*[tag-name] := in;
 end method transform;
 
 // turn all < to &lt;, > to &gt; and & to &amp;
@@ -129,10 +132,13 @@ define function check-char(ch :: <character>) => (checked :: <string>)
 end function check-char;
 
 define function referenced-entities(str :: <stream>)
-  let entities = sort(map(curry(as, <string>), *ent*.key-sequence));
-  for(x in entities)
+  let ent = sort(map(curry(as, <string>), *ent*.key-sequence));
+  for(x in ent)
     write(str, format-to-string("<LI><STRONG><A NAME='%s'>%s</A></STRONG>: ", x, x));
-    transform(make(<char-string>, text: *ent*[as(<symbol>, x)]), #"text", #"html", str);
+    for(y in *ent*[as(<symbol>, x)].entity-value)
+      transform(y, y.name, #"html", str); 
+    end;
+  //  transform(*ent*[as(<symbol>, x)], *ent*[as(<symbol>, x)].name, #"html", str);
   end for;
 end function referenced-entities;
 

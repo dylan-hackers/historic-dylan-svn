@@ -1,5 +1,5 @@
 <!-- testing.dtd -->
 
-<!ENTITY foo 'bar'>
 <!ENTITY baz 'foo&#32;and&#x20;&foo;'>
+<!ENTITY foo 'bar'>
 
