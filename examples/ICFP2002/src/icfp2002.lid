@@ -6,4 +6,5 @@ files:
   icfp2002
   board
   robot
-
+  robot-agent
+  package
