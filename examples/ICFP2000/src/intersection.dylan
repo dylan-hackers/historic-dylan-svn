@@ -113,7 +113,11 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
       let u = clamp(point.x);
       let v = clamp(point.z);
       values(point, 
-	     vector3D(0.0, 1.0, 0.0),
+	     vector3D(0.0, if (ray.ray-position.y < 0.0) 
+			     -1.0 
+			   else
+			     1.0 
+			   end if, 0.0),
 	     make-surface-closure(0, u, v, m.surface-interpreter-entry), t);
     end if;
   end if;
