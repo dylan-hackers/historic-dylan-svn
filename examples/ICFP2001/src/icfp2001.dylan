@@ -213,42 +213,32 @@ define function bgh-parse(s :: <byte-string>)
 
 	if (is-space?(ch))
 	  if (~curr-state.typewriter)
-	    s[p] := ' ';
+	    ch := ' ';
 	  end;
-	  block (exit)
-	    let run-space-state = run-state.space-context.value;
-	    let space-state = curr-state.space-context.value;
-	    let same-format = run-space-state == space-state;
-	    if (curr-state.typewriter)
-	      if (same-format)
-		add!(fragments, s[p]);
-		p := p + 1;
-	      else
-		save-run();
-		add!(fragments, s[p]);
-		p := p + 1;
-	      end;
-	    elseif(last-char-was-space)
-	      if (same-format)
-		p := p + 1;
-	      else
-		save-run();
-		add!(fragments, s[p]);
-		p := p + 1;
-	      end;
-	    elseif (same-format)
-	      add!(fragments, s[p]);
-	      p := p + 1;
+	  let run-space-state = run-state.space-context.value;
+	  let space-state = curr-state.space-context.value;
+	  let same-format = run-space-state == space-state;
+	  if (curr-state.typewriter)
+	    if (~same-format)
+	      save-run();
 	    end;
+	    add!(fragments, ch);
+	  elseif(last-char-was-space)
+	    if (~same-format)
+	      save-run();
+	      add!(fragments, ch);
+	    end;
+	  elseif (same-format)
+	    add!(fragments, ch);
 	  end;
 	  last-char-was-space := #t;
 	else
 	  save-run();
-	  add!(fragments, s[p]);
-	  p := p + 1;
+	  add!(fragments, ch);
 	  last-char-was-space := #f;
 	  non-space-char-in-run := #t;
 	end;
+	p := p + 1;
 
       s[p + 1] ~= '/' =>
 	let (tag, new-p, new-state) = parse-tag(s, p + 1, curr-state);
