@@ -22,6 +22,7 @@ function end_progress_table () {
 
 function short_header ($title) {
 ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
 <TITLE>Gwydion Dylan: <?php echo $title?></TITLE>
