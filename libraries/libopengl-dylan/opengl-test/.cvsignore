@@ -1,5 +1,0 @@
-*.c
-*.mak
-*.lo
-opengl-test
-.libs
