@@ -98,6 +98,15 @@ COLOR="GREEN"
 >Compiler-Front</CODE
 ></FONT
 >.</P
+><P
+>As a rule of thumb, <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+>
+      implements those parts of the front end which know about the
+      output of the parser.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-LEXENV"
@@ -109,7 +118,13 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module implements <I
+CLASS="GLOSSTERM"
+>lexical
+	environments</I
+> (a formal term for &#8220;local
+	namespaces&#8221;). This is the code that associates variable
+	names with the correct bindings.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-COMPILE-TIME-EVAL"
@@ -121,7 +136,9 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module performs compile-time evaluation of constant
+	expressions. It operates on the parsed representation of a Dylan
+	program, not the front-end representation.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-EXPANDERS"
@@ -133,7 +150,17 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module contains <A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-MACROS"
+>procedural macro
+	expanders</A
+> for basic, built-in macros such as
+	<FONT
+COLOR="GREEN"
+><CODE
+>make-if</CODE
+></FONT
+>.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-FER-CONVERT"
@@ -145,7 +172,155 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
+>This module processes chunks of the parse tree and uses the
+	<A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-BUILDER-INTERFACE"
+>        <FONT
+COLOR="GREEN"
+><CODE
+>&#60;fer-builder&#62;</CODE
+></FONT
+></A
+> to produce the front-end
+        representation.</P
+><H2
+><A
+NAME="GDMAINT-D2C-CONVERT-ABOUT-TOP-LEVEL"
+>Processing of Top-Level Definitions</A
+></H2
+><P
+>The code to process top-level definitions is spread across
+	several libraries. Most of the machinery actually lives here in the
+	<FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+> library.</P
+><P
+>Each top-level form must define methods on three generic
+	functions:</P
+><P
 ></P
+><DL
+><DT
+><FONT
+COLOR="GREEN"
+><CODE
+>process-top-level-form</CODE
+></FONT
+></DT
+><DD
+><P
+>When the parser finishes with a top-level form, it
+	      passes the form to this function, which produces the final
+	      parse tree and creates an object representing the top-level
+              form. (See <A
+HREF="gdmaint-d2c-parser.html#GDMAINT-D2C-PARSER-PARSER"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Parser</CODE
+></FONT
+> Module</I
+></A
+>.)</P
+></DD
+><DT
+><FONT
+COLOR="GREEN"
+><CODE
+>finalize-top-level-form</CODE
+></FONT
+></DT
+><DD
+><P
+>This function is called by the compilation driver when
+	      all the top-level forms have been parsed. It's used to
+	      implement various kinds of foward references within a
+	      module.
+              (See <A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-TOP-LEVEL-FORMS"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Top-Level-Forms</CODE
+></FONT
+> Module</I
+></A
+>.)</P
+></DD
+><DT
+><FONT
+COLOR="GREEN"
+><CODE
+>convert-top-level-form</CODE
+></FONT
+></DT
+><DD
+><P
+>Once a top-level form has been processed and finalized,
+              it can be converted to the appropriate front-end
+              representation. Methods on this function use the
+              <FONT
+COLOR="GREEN"
+><CODE
+>&#60;fer-builder&#62;</CODE
+></FONT
+> interface. (See <A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-TOP-LEVEL-FORMS"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Top-Level-Forms</CODE
+></FONT
+> Module</I
+></A
+> and <A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-BUILDER-INTERFACE"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Builder-Interface</CODE
+></FONT
+> Module</I
+></A
+>.)</P
+></DD
+></DL
+><P
+>Generally speaking, the parsed representation of a built-in
+	<FONT
+COLOR="GREEN"
+><CODE
+>define foo</CODE
+></FONT
+> form would be named
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;define-foo-parse&#62;</CODE
+></FONT
+>. The object representing the
+	top-level form itself would be named
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;define-foo-tlf&#62;</CODE
+></FONT
+>. There's also a
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;foo-definition&#62;</CODE
+></FONT
+> floating around in most cases.
+	The relationships between these three representations need to be
+	documented.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-DEFINE-MACROS"
@@ -157,7 +332,17 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module handles <FONT
+COLOR="GREEN"
+><CODE
+>define macro</CODE
+></FONT
+> forms and
+	<I
+CLASS="GLOSSTERM"
+>macro calls</I
+> which appear at the top
+	level.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-DEFINE-LIBRARIES-AND-MODULES"
@@ -170,7 +355,18 @@ COLOR="GREEN"
 	Module</A
 ></H2
 ><P
-></P
+>This module handles <FONT
+COLOR="GREEN"
+><CODE
+>define library</CODE
+></FONT
+> and
+	<FONT
+COLOR="GREEN"
+><CODE
+>define module</CODE
+></FONT
+> forms.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-DEFINE-FUNCTIONS"
@@ -182,7 +378,29 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module handles <FONT
+COLOR="GREEN"
+><CODE
+>define generic</CODE
+></FONT
+> and
+	<FONT
+COLOR="GREEN"
+><CODE
+>define method</CODE
+></FONT
+> forms. (<FONT
+COLOR="GREEN"
+><CODE
+>define function</CODE
+></FONT
+>
+	forms are expanded by a macro defined in the runtime library.) Most
+	of the logic for <I
+CLASS="GLOSSTERM"
+>implicit generic functions</I
+>
+	lives here.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-DEFINE-CONSTANTS-AND-VARIABLES"
@@ -195,7 +413,28 @@ COLOR="GREEN"
 	Module</A
 ></H2
 ><P
-></P
+>This module handles <FONT
+COLOR="GREEN"
+><CODE
+>define generic</CODE
+></FONT
+> and
+	<FONT
+COLOR="GREEN"
+><CODE
+>define method</CODE
+></FONT
+> forms. It also includes code for
+	<I
+CLASS="GLOSSTERM"
+>constant methods</I
+>, which may get used in a
+	few strange places. More research is needed here.</P
+><P
+>This module contains an alarming number of &#8220;shouldn't
+	happen&#8221; errors. Is this left-over code, safety checks for a
+	fragile area of the compiler, or evidence of some fundamental
+	confusion about what's going on?</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-DEFINE-CLASSES"
@@ -207,7 +446,31 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This library handles <FONT
+COLOR="GREEN"
+><CODE
+>define class</CODE
+></FONT
+> forms. There's
+	a lot in here, including <A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-CTYPE"
+><I
+CLASS="GLOSSTERM"
+>ctype</I
+>
+	calculation</A
+> for classes and creation of getter and setter
+	methods. It's not immediately clear how this relates to the code in
+	<A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-CLASSES"
+>the module
+	<FONT
+COLOR="GREEN"
+><CODE
+>Classes</CODE
+></FONT
+></A
+>.</P
 ><H2
 ><A
 NAME="GDMAINT-D2C-CONVERT-TOP-LEVEL-EXPRESSIONS"
@@ -219,7 +482,17 @@ COLOR="GREEN"
 > Module</A
 ></H2
 ><P
-></P
+>This module handles actual code appearing at the top
+	level. There's also something going on with
+	<FONT
+COLOR="GREEN"
+><CODE
+>&#60;magic-interal-primitives-placeholder&#62;</CODE
+></FONT
+>, which is
+	(of course) excessively magic. If you're the sort of person who
+	likes to figure out how magicians do their tricks, feel free to
+	figure this out for the rest of us.</P
 ><DIV
 CLASS="NAVFOOTER"
 ><HR
