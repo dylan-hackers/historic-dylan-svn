@@ -188,3 +188,25 @@ define method string-upcase(s :: <string>) => (s :: <string>)
   result;
 end method string-upcase;
 
+// Convert a string to all lowercase
+define method string-downcase(s :: <string>) => (s :: <string>)
+  local method upper-case?(ch :: <character>) => (r :: <boolean>)
+    ch >= 'A' & ch <= 'Z';
+  end method;
+
+  let result = make(<string>, size: s.size);
+  for(ch keyed-by index in s)
+    result[index] :=
+      if(upper-case?(ch))
+        as(<character>, 
+          as(<integer>, ch) + 
+          as(<integer>, 'a') -
+          as(<integer>, 'A'))
+      else
+        ch;
+      end if;
+  end for;
+  result;
+end method string-downcase;
+
+
