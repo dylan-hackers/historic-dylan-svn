@@ -10,6 +10,7 @@ TODO -
 / Assign class IDs using reversed post-order traversal
 / Assign pole numbers in sequence
   Calculate minimal pole sets
+  Fix pole counts
 
 */
 
@@ -24,6 +25,8 @@ TODO -
 define limited-collection <int-vector> (<vector>) of <integer> = 0;
 define limited-collection <int-vector-vector> (<vector>) of <int-vector> =
   make(<int-vector>, size: 0);
+define limited-collection <stretchy-int-vector> (<stretchy-vector>)
+  of <integer> = 0;
 define limited-collection <cclass-vector> (<vector>) of <cclass>;
 
 
@@ -97,6 +100,9 @@ define class <argument-info> (<object>)
   // (Not defined for hairy arguments.)
   slot argument-array :: <int-vector>;
 
+  // The type of each pole in the array.
+  slot argument-pole-type-array :: <vector>;
+
   // Some summary statistics about our argument array.
   // (Not defined for hairy arguments.)
   slot argument-total-i-poles :: <integer>;
@@ -131,60 +137,77 @@ define method initialize
 
     // Prepare to build our dispatch table.
     let pole-table = make(<int-vector>, size: cclass-count(), fill: 0);
+    let pole-type-table = make(<vector>, size: cclass-count(), fill: " ");
 
-    // Assign a new i-pole to each specializer. 
+    // Mark each specializer, so we can give it a primary i-pole.
     for (specializer in specializer-cclasses)
       pole-table[specializer.cclass-id] := -1;
     end for;
 
+    // Support code for creating new poles.
+    let next-pole-id = 0;
+    let pole-cclass-ids = make(<stretchy-int-vector>);
+    local method create-pole (cclass-id :: <integer>, ptype :: <string>) => ()
+	    pole-table[cclass-id] := next-pole-id;
+	    pole-type-table[cclass-id] := ptype;
+	    add!(pole-cclass-ids, cclass-id);
+	    next-pole-id := next-pole-id + 1;
+	  end method;
+
+    // Assign an i-pole to <object>.
+    if (pole-table[0] == -1)
+      // We have an ordinary primary pole for <object>.
+      create-pole(0, "P");
+    else
+      // No methods specialize on <object>, so insert an error pole.
+      create-pole(0, "E");
+    end if;
+
     // Assign i-poles to the rest of the classes (skipping <object>).
-    let next-pole-id = 1;
-    for (i from 0 below cclass-count())
+    for (i from 1 below cclass-count())
       if (pole-table[i] == -1)
 	// This is a primary i-pole.
-	pole-table[i] := next-pole-id;
-	next-pole-id := next-pole-id + 1;
+	create-pole(i, "P");
       else
 	let supers = superclass-ids(i);
-	pole-table[i] :=
-	  if (supers.size == 0)
-	    // We have no i-pole on <object>, so insert an empty one.
-	    0;
-	  else
-	    let closest = single-closet-pole(pole-table, supers);
-	    if (closest)
-	      // Copy down i-pole from parent.
-	      closest;
-	    else
-	      // Our superclasses have different i-poles, so assign a new one.
-	      let this-pole-id = next-pole-id;
-	      next-pole-id := next-pole-id + 1;
-	      this-pole-id;
-	    end if;
-	  end if;
+	let closest = single-closet-pole(pole-table, pole-cclass-ids, supers);
+
+	// Verify our closest pole computation.
+	//let check = single-closet-pole-check(pole-table, pole-cclass-ids, i);
+	//unless (closest == check)
+	//  error("single-closest-pole failed check");
+	//end unless;
+
+	if (closest)
+	  // Copy down closest i-pole.
+	  pole-table[i] := closest;
+	else
+	  // Our superclasses have different i-poles, so assign a new one.
+	  create-pole(i, "S");
+	end if;
       end if;
     end for;
     
     // Record our argument array & relevant statistics.
     arginfo.argument-array := pole-table;
+    arginfo.argument-pole-type-array := pole-type-table;
     arginfo.argument-total-i-poles := next-pole-id;
     arginfo.argument-artificial-i-poles :=
       next-pole-id - specializer-cclasses.size;
 
   end if;
-
 end method;
 
 
 //=========================================================================
 //  single-closet-pole
 //=========================================================================
-//  Determine whether or not we have one i-poll which is closer than all
+//  Determine whether or not we have one i-pole which is closer than all
 //  the others. This will only be true if all of our superclasses have the
 //  the same i-pole, or if one of our i-poles is a subclass of all the
 //  others.
 //
-//  This code is based on the pseudo-closest-polls algorithm from Dujardin,
+//  This code is based on the pseudo-closest-poles algorithm from Dujardin,
 //  et al. It's fairly clever, and relies heavily on the fact that our
 //  i-pole numbers are assigned in ascending order over a sorted class
 //  list.
@@ -199,7 +222,9 @@ end method;
 //  checks.
 
 define function single-closet-pole
-    (pole-table :: <int-vector>, supers :: <int-vector>)
+    (pole-table :: <int-vector>,
+     pole-cclass-ids :: <stretchy-int-vector>,
+     supers :: <int-vector>)
  => (closest :: false-or(<integer>))
   if (supers.size == 1)
     pole-table[supers.first];
@@ -227,10 +252,10 @@ define function single-closet-pole
       end if;
 
       // Return #f if our largest i-pole doesn't hide all the rest.
-      // XXX - Should we write faster subclass testing code?
-      let candidate = current-largest.id-cclass;
+      let candidate = pole-cclass-ids[current-largest].id-cclass;
       for (super in supers)
-	unless (csubtype?(candidate, pole-table[super].id-cclass))
+	let pole-cclass-id = pole-cclass-ids[pole-table[super]];
+	unless (fast-subclass?(candidate, pole-cclass-id.id-cclass))
 	  return(#f);
 	end unless;
       end for;
@@ -241,7 +266,55 @@ define function single-closet-pole
   end if;
 end function single-closet-pole;
 
+// Use the fast subclass check algorithm from Vitek, et al.
+// The type inclusion matrix has already been computed by the compiler.
+//
+define inline function fast-subclass? (c1 :: <cclass>, c2 :: <cclass>)
+ => (subclass? :: <boolean>)
+  let buck = c2.bucket;
+  c1.row[buck] == c2.row[buck];
+end function fast-subclass?;
 
+// Compute the closet poles, but in a different fashion, so
+// we can check correctness.
+//
+define function single-closet-pole-check
+    (pole-table :: <int-vector>,
+     pole-cclass-ids :: <stretchy-int-vector>,
+     id :: <integer>)
+ => (closest :: false-or(<integer>))
+  let super-ids = id.superclass-ids;
+  let pole-ids = reverse(remove-duplicates(map(method (id) pole-table[id] end,
+					       super-ids)));
+  if (pole-ids.size == 1)
+    pole-ids.first;
+  else
+    let pole-cclasses = map-as(<vector>,
+			       method (pole)
+				 pole-cclass-ids[pole].id-cclass;
+			       end,
+			       pole-ids);
+    block (return)
+      for (candidate in pole-cclasses)
+	block (fail)
+	  for (cclass in pole-cclasses)
+	    let (sub?, precise?) = csubtype?(candidate, cclass);
+	    unless (precise?)
+	      error("Can't compute csubtype???");
+	    end unless;
+	    unless (sub?)
+	      fail();
+	    end unless;
+	  end for;
+	  return(candidate.cclass-id);
+	end block;
+      end for;
+      #f;
+    end block;
+  end if;
+end function single-closet-pole-check;
+
+				     
 //=========================================================================
 //  describe-argument-array
 //=========================================================================
@@ -260,11 +333,11 @@ define function describe-argument-array
   else
 
     // Print some summary statistics.
-    format(out, "    Specializers:      %3d\n",
+    format(out, "    Specializers:  %3d\n",
 	   arginfo.argument-specializer-cclasses.size);
-    format(out, "    Secondary i-poles: %3d\n",
+    format(out, "    Other i-poles: %3d\n",
 	   arginfo.argument-artificial-i-poles);
-    format(out, "    Total i-poles:     %3d\n\n",
+    format(out, "    Total i-poles: %3d\n\n",
 	   arginfo.argument-total-i-poles);
 
     // Print our specializers.
@@ -274,13 +347,15 @@ define function describe-argument-array
     format(out, "\n");
 
     // Dump the argument array itself.
-    dump-argument-array(out, arginfo.argument-array);
+    dump-argument-array(out, arginfo);
   end if;
 end function describe-argument-array;
 
 define function dump-argument-array
-    (out :: <stream>, array :: <int-vector>)
+    (out :: <stream>, arginfo :: <argument-info>)
  => ()
+  let array = arginfo.argument-array;
+  let pole-types = arginfo.argument-pole-type-array;
 
   // Most classes are associated with the same pole as <object>.
   // As we print out the argument array, we compress runs of these
@@ -289,14 +364,14 @@ define function dump-argument-array
   let skipped-classes :: <integer> = 0;
   local method flush-skipped-classes () => ()
 	  if (skipped-classes > 0)
-	    format(out, "        ((( %d classes under default pole )))\n",
+	    format(out, "          ((( %d classes under default pole )))\n",
 		   skipped-classes);
 	    skipped-classes := 0;
 	  end if;
 	end method;
 
   // Print an entry for <object>.
-  format(out, "    %3d <object>\n", array[0]);
+  format(out, "    %s %3d <object>\n", pole-types[0], array[0]);
 
   // Print an entry for each of the other classes.
   for (id from 1 below cclass-count())
@@ -305,7 +380,8 @@ define function dump-argument-array
       skipped-classes := skipped-classes + 1;
     else
       flush-skipped-classes();
-      format(out, "    %3d %s :", pole, id.id-cclass.cclass-name);
+      format(out, "    %s %3d %s :",
+	     pole-types[id], pole, id.id-cclass.cclass-name);
       for (super-id in id.superclass-ids)
 	let super-pole = array[super-id];
 	format(out, " %s(%d%s)",
@@ -494,6 +570,21 @@ end function;
 define function analyze-generics () => ()
   format(*debug-output*, "Analyzing <cclass> hierarchy.\n");
   compute-cclass-information();
+
+  let collection-cclass = dylan-value(#"<collection>");
+  let sequence-cclass = dylan-value(#"<sequence>");
+  format(*debug-output*, "<sequence> %s a subclass of <collection>\n",
+	 if (fast-subclass?(sequence-cclass, collection-cclass))
+	   "is"
+	 else
+	   "is not"
+	 end if);
+  format(*debug-output*, "<collection> %s a subclass of <sequence>\n",
+	 if (fast-subclass?(collection-cclass, sequence-cclass))
+	   "is"
+	 else
+	   "is not"
+	 end if);
 
   format(*debug-output*, "Analyzing generic functions and classes.\n");
 
