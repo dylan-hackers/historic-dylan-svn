@@ -17,7 +17,15 @@ define macro unary-primitive-definer
 		      cont(pair(?operator(arg), rest), env)
 		  end method,
 		  remaining)
-	 end;};
+	 end;
+	 
+  define method optimizable-two(arg :: ?type, token2 == ?#"name", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+    pair(?operator(arg), more)
+  end;
+
+  define method optimizable-two(arg :: ?type, token2 == ?#"name", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+    pair(?operator(arg), more)
+  end; };
     
 end macro unary-primitive-definer;
 
@@ -33,8 +41,9 @@ define macro binary-primitive-definer
     => { define binary-primitive ?name(?types, ?types, ?operator) end; };
     
   { define binary-primitive ?:name(?front:expression, ?back:expression, ?operator:expression) end }
-    => { define method compile-one(token == ?#"name", more-tokens :: <list>)
-	  => (closure :: <function>, remaining :: <list>);
+    =>
+  { define method compile-one(token == ?#"name", more-tokens :: <list>)
+                              => (closure :: <function>, remaining :: <list>);
 	   let (cont, remaining) = more-tokens.compile-GML;
 	   values(
 		  method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
@@ -43,7 +52,38 @@ define macro binary-primitive-definer
 		      cont(pair(?operator(left, right), rest), env)
 		  end method,
 		  remaining)
-	 end;}
+    end;
+
+    define method optimizable-three(token1 :: ?front, token2 :: ?back, token3 == ?#"name", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+      pair(?operator(token1, token2), more)
+    end;
+    
+    define method optimizable-three(token1 :: ?front, token2 :: ?back, token3 == ?#"name", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+      pair(?operator(token1, token2), more)
+    end;
+    
+//    define method optimizable-three(token1 :: <integer>, token2 :: <integer>, token3 == #"addi", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+//      pair(token1 + token2, more)
+//    end;
+
+    define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <pair>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+      let (cont, remaining) = more-tokens.optimize-compile-GML;
+      values( remaining,
+              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
+              cont(pair(?operator(left, right), rest), env)
+              end method)
+    end method;
+    
+    define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <list>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+      let (cont, remaining) = more-tokens.optimize-compile-GML;
+      values( remaining,
+              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
+              cont(pair(?operator(left, right), rest), env)
+              end method)
+    end method; }
+
 end macro binary-primitive-definer;
 
 define macro numeric-binary-primitive-definer
