@@ -580,6 +580,17 @@
 	represents a value known at compile time. It also supplies
 	<dname>&lt;literal></dname> and a number of subclasses to represent
 	literal strings, integers, lists and other primitive types.</para>
+
+	<para>Other compile time values can be found elsewhere. Literal
+	<dname>&lt;type></dname> objects are handled by classes in the
+	<link linkend="gdmaint-d2c-base-ctype"><dmodule>CType</dmodule>
+	module</link>. Literal <dname>&lt;class></dname> objects are
+	handled by classes in the <link
+	linkend="gdmaint-d2c-base-classes"><dmodule>Classes</dmodule>
+	module</link>. Literal <dname>&lt;function></dname> objects are
+	handled by classes in the <link
+	linkend="gdmaint-d2c-base-compile-time-functions"><dmodule>Compile
+	Time Functions</dmodule> module</link>.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-base-source">
@@ -731,16 +742,85 @@ define variable foo :: run-time-expression() = #f;
 	type</quote>, <quote>compile-time type</quote>, or something else
 	entirely?</comment>
 
-	<para>This module contains lots of compile-time type functions,
-	including type intesections, type unions and even type
-	differences. Their exact role in the bigger scheme of things is
-	still unclear.</para>
+	<para>This module defines the compiler's type model. This is used
+	by the <link
+	linkend="gdmaint-d2c-base-flow"><dmodule>Flow</dmodule>
+	module</link> to represent the types of expressions, and by the
+	&optimize-lib; during several phases of optimization.</para>
+
+	<para>Most of these types can be represented as Dylan objects.
+	Such types also inherit from <dname>&lt;ct-value></dname>, so they
+	can be represented as compile-time values (see <xref
+	linkend="gdmaint-d2c-base-compile-time-values">).</para>
+
+	<para>All ctypes inherit from
+	<dname>&lt;values-ctype></dname>. Single-value types (e.g., the
+	types of variables) are represented by subclasses of
+	<dname>&lt;ctype></dname>.  Multiple-value types (e.g., the return
+	values of functions) are represented as instances of
+	<dname>&lt;multi-value-ctype></dname>.</para>
+
+	<para>Various subclasses of <dname>&lt;ctype></dname>
+	represent class types, union types and all the standard (and
+	non-standard) limited types supported by &d2c;. The class
+	<dname>&lt;unknown-ctype></dname> represents a type we won't know
+	until runtime. The function <dname>empty-type</dname> returns a
+	type union with no members. No object can ever be an instance of
+	this type. (Empty types are used extensively when computing the
+	intersections, unions and differences of types.)</para>
+
+	<para><dname>&lt;multi-value-ctype></dname> is a bit tricky. It
+	represents zero or more required values of known types, zero or
+	more optional values of known types, and an optional
+	<dlit>#rest</dlit> list&mdash;which may also be typed. (See the
+	source for more information.) The function
+	<dname>wild-ctype</dname> returns a multi-value type representing
+	zero or more values of any type.</para>
+
+	<para>This module supports type intersections, type unions and type
+	differences, primarily for use by the optimizer. All of the
+	operations may be imprecise; if so, the second return value will
+	typically be false.</para>
+
+	<para>The intersection of two types is described as:</para>
+
+	<blockquote>
+	  <para>Return as restrictive a type as we can discover that is no
+          more restrictive than the intersection of Type1 and Type2.  The
+          second value is true if the result is exact.  At worst, we
+          arbitrarily return one of the arguments as the first value
+          (trying not to return an unknown type).</para>
+	</blockquote>
+
+	<para>The union of two types is described as:</para>
+
+	<blockquote>
+	  <para>Find a type which includes both types.  The result is an
+          unknown type if either of the arguments are unknown; otherwise
+          the result is precise.</para>
+	</blockquote>
+	
+	<para>The difference of two types is described as:</para>
+
+	<blockquote>
+	  <para>Return our best guess at the type that describes all
+          objects that are in Type1 but not in Type2.  If we can't
+          precisely determine this type, then return something more
+          inclusive than it, but never more inclusive than Type1.</para>
+	</blockquote>
+	
+	<para>Other things in this module include subtype tests, type
+	extent computation and type specifiers. The various
+	<quote><dlit>-dispatch</dlit></quote> functions have nothing to do
+	with the compiler's support for generic functions&mdash;they're
+	just hooks for extending various generic functions defined in this
+	module.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-base-transformers">
 	<title>The <dmodule>Transformers</dmodule> Module</title>
 
-	<para>Another mystery module. Transformers get attached to function
+	<para>A mystery module. Transformers get attached to function
 	definitions and do something complicated to <quote>call
 	operations</quote>. Does this have anything to do with compile-time
 	method dispatching?</para>
