@@ -13,11 +13,26 @@ define frame <example-frame> (<simple-frame>)
 
   layout (frame)
     vertically()
-      make(<open-data-file-pane>);
-      horizontally()
-        make(<train-network-pane>);
-        make(<input-relevance-pane>);
-      end horizontally;
+      make(<tab-control>,
+           pages: vector(
+                    make(<tab-control-page>, 
+                         label: "Open Data File",
+                         child: make(<open-data-file-pane>)),
+                    make(<tab-control-page>, 
+                         label: "(Optional) Load Trained Network",
+                         child: make(<load-network-pane>)),
+                    make(<tab-control-page>, 
+                         label: "Train Network",
+                         child: make(<train-network-pane>)),
+                    make(<tab-control-page>, 
+                         label: "Predict",
+                         child: make(<predict-pane>)),
+                    make(<tab-control-page>, 
+                         label: "Input Relevance",
+                         child: make(<input-relevance-pane>)),
+                    make(<tab-control-page>, 
+                         label: "About",
+                         child: make(<about-pane>))));
       horizontally()
         vertically()
           make(<label>, label: "Status:");
@@ -29,6 +44,9 @@ define frame <example-frame> (<simple-frame>)
         end vertically;
       end horizontally;
     end vertically;
+
+  keyword title: = "Neural Network Example";
+  keyword width: = 580;
 end frame <example-frame>;
 
 // A method that adds a single line to the status display
@@ -41,13 +59,8 @@ define method clear-status-display (frame :: <example-frame>) => ()
   frame.status-pane.gadget-value := "";
 end method clear-status-display;
 
-define frame <go-frame> (<simple-frame>)
-  layout (frame)
-    make(<push-button>, label: "Go", activate-callback: method(x) start-frame(make(<example-frame>)) end); 
-end frame;
-
 define method main () => ()
-  start-frame(make(<go-frame>));
+  start-frame(make(<example-frame>));
 end method main;
 
 begin

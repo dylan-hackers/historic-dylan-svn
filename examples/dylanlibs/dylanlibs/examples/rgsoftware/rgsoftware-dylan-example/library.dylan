@@ -13,6 +13,9 @@ define library rgsoftware-dylan-example
   // Use the Dylan User Interface Manager
   use duim;
 
+  // For various file handling functions
+  use system;
+
   // and the neural net library
   use rgsoftware-neural-net;
 end library rgsoftware-dylan-example;

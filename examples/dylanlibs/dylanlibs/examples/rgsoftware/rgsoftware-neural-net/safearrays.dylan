@@ -28,7 +28,9 @@ define function array-to-safe-array(array :: <array>) => (result :: <lpsafearray
         pointer-value(indexes, index: 0) := j + 1;
         pointer-value(indexes, index: 1) := i + 1;
         store.pointer-value := e;
-        SafeArrayPutElement(safe-array, indexes, store);
+        when(negative?(SafeArrayPutElement(safe-array, indexes, store)))
+          error("SafeArrayPutElement returned an error code.");
+        end when;
       end for;
     end for;
   cleanup
@@ -52,7 +54,9 @@ define function vector-to-safe-array(array :: <vector>) => (result :: <lpsafearr
     for(i from 0 below array.size)
       indexes.pointer-value := i + 1;
       store.pointer-value := array[i];
-      SafeArrayPutElement(safe-array, indexes, store);
+      when(negative?(SafeArrayPutElement(safe-array, indexes, store)))
+        error("SafeArrayPutElement returned an error code.");
+      end when;
     end for;
   cleanup
     when(indexes) destroy(indexes) end when;
@@ -84,7 +88,9 @@ define function safe-array-to-array(safe-array :: <LPSAFEARRAY>) => (array :: <a
       for(j from 0 below array-count[1])
         pointer-value(indexes, index: 0) := j + array-lbound[0];
         pointer-value(indexes, index: 1) := i + array-lbound[1];
-        SafeArrayGetElement(safe-array, indexes, store);
+        when(negative?(SafeArrayGetElement(safe-array, indexes, store)))
+          error("SafeArrayGetElement returned an error code.");
+        end when;
         array[i,j] := store.pointer-value;
       end for;
     end for;
@@ -108,7 +114,9 @@ define function safe-array-to-vector(safe-array :: <LPSAFEARRAY>) => (array :: <
     store := make(<c-double*>);
     for(i from 0 below count)
       indexes.pointer-value := i + lbound;
-      SafeArrayGetElement(safe-array, indexes, store);
+        when(negative?(SafeArrayGetElement(safe-array, indexes, store)))
+          error("SafeArrayGetElement returned an error code.");
+        end when;
       array[i] := store.pointer-value;
     end for;
   cleanup

@@ -98,7 +98,9 @@ define function on-train-button(pane)
       let file = choose-file(direction: #"output");
       when(file)
         add-status-line(pane.sheet-frame, format-to-string("Saving %s...", file));
-        save-network(*nn*, file);
+        with-busy-cursor(pane.sheet-frame)
+          save-network(*nn*, file);
+        end with-busy-cursor;
       end when;
     end when;
 

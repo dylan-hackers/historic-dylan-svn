@@ -16,25 +16,23 @@ define pane <input-relevance-pane> ()
   pane help-pane (pane)
     make(<text-editor>, 
          min-width: 200,
-         min-height: 150,
+         min-height: 50,
          scroll-bars: #"dynamic",
          read-only?: #t, 
          text:
-           "This step will tell you how\n"
-           "important each input is, or how\n"
-           "well it's correlated to the output.\n"
-           "The values are expressed in\n"
-           "percentages and displayed in\n"
-           "the lower left 'Status' text box."); 
+           "This step will tell you how important each\n"
+           "input is, or how well it's correlated to the\n"
+           "output. The values are expressed in percentages\n"
+           "and displayed in the lower left 'Status' text box."); 
 
   // Layout the sub-panes within this pane.
   layout (pane)
     make(<group-box>, 
          label: "Step 5: Input Relevance",
-         child: vertically()
+         child: horizontally()
                   pane.help-pane;
                   pane.input-relevance-button;
-                end vertically);
+                end horizontally);
 end pane <input-relevance-pane>;
 
 // Perform the Input Relevance and display to user.
