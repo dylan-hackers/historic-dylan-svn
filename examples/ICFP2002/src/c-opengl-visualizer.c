@@ -64,7 +64,14 @@ Robot gPlayers[MAX_ROBOTS];
 
 void setOpenGLParametersForPlayer(unsigned int playerID)
 {
-    glColor3d(1.0, 0.0, 1.0);
+    if (playerID == gID)
+    {
+        glColor3d(0.0, 1.0, 1.0);
+    }
+    else
+    {
+        glColor3d(1.0, 0.0, 1.0);
+    }
 }
 
 //------------------------------------------------------------------------
