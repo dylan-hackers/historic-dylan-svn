@@ -16,17 +16,17 @@ define variable *ampersand* :: <string> = "&";
 define open class <printing> (<xform-state>) end;
 define variable *printer-state* :: <printing> = make(<printing>);
 
-// xml-name turns out to be a pretty powerful way of printing
+// xml-as-string turns out to be a pretty powerful way of printing
 // information about the xml thing being printed
-define open generic xml-name(xml :: <xml>, state :: <printing>)
+define open generic xml-as-string(xml :: <xml>, state :: <printing>)
  => (s :: <string>);
-define method xml-name(xml :: <xml>, state :: <printing>) => (s :: <string>)
+define method xml-as-string(xml :: <xml>, state :: <printing>) => (s :: <string>)
   xml.name-with-proper-capitalization;
-end method xml-name;
-define method xml-name(ref :: <reference>, state :: <printing>)
+end method xml-as-string;
+define method xml-as-string(ref :: <reference>, state :: <printing>)
  => (s :: <string>)
   concatenate(*ampersand*, next-method(), ";");
-end method xml-name;
+end method xml-as-string;
 
 // This method follows a common pattern in this module:  print-object
 // calls transform to do its work.  The transform methods, therefore, 
@@ -45,7 +45,7 @@ end method transform;
 
 define function print-opening(t :: <tag>, state :: <printing>, 
                               stream :: <stream>)
-  format(stream, "%s%s%s", *open-the-tag*, t.after-open, xml-name(t, state));
+  format(stream, "%s%s%s", *open-the-tag*, t.after-open, xml-as-string(t, state));
 end function print-opening;
 
 define function print-closing(back :: <string>, stream :: <stream>)
@@ -158,7 +158,7 @@ define method transform(e :: <element>, tag-name :: <symbol>,
     // the text is one or several of the children
     node-iterator(e, state, stream);
     before-transform(e, state, *xml-depth*, stream);
-    format(stream, "%s/%s%s", *open-the-tag*, xml-name(e, state), 
+    format(stream, "%s/%s%s", *open-the-tag*, xml-as-string(e, state), 
            *close-the-tag*);
   end if;
 end method transform;
@@ -169,7 +169,7 @@ end method print-object;
 
 define method transform(a :: <attribute>, tag-name :: <symbol>,
                         state :: <printing>, s :: <stream>)
-  format(s, " %s=\"%m\"", xml-name(a, state), 
+  format(s, " %s=\"%m\"", xml-as-string(a, state), 
          curry(print-safe-string, a.attribute-value));
 end method transform;
 
@@ -200,7 +200,7 @@ end function check-char;
 
 define method transform(ref :: <reference>, tag-name :: <symbol>,
                         state :: <printing>, s :: <stream>)
-  format(s, "%s", xml-name(ref, state));
+  format(s, "%s", xml-as-string(ref, state));
 end method transform;
 
 define method print-object(ref :: <reference>, s :: <stream>) => ()

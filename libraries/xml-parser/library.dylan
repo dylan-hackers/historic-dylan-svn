@@ -7,8 +7,11 @@ define library xml-parser
   use meta;
   use io;
   use system, import: { file-system };
+//  use collection-extensions;
+//  use string-extensions;
 
   export xml-parser;
+  export namespaces;
 end library;
 
 define module xml-parser
@@ -18,6 +21,7 @@ define module xml-parser
     <entity-reference>, <add-parents>, <char-reference>, <comment>, <tag>,
     <char-string>, <dtd>, <internal-entity>, <external-entity>,
     text, text-setter, name, name-setter, name-with-proper-capitalization,
+    xml-name, xml-name-setter,
     root, char;
 
   create entity-value, attributes, attributes-setter, *dtd-paths*,
@@ -29,13 +33,61 @@ define module xml-parser
     expansion, expansion-setter, comment, comment-setter;
 
   // for printing
-  create <printing>, xml-name,
+  create <printing>, xml-as-string,
     *xml-depth*, *open-the-tag*, *close-the-tag*, *ampersand*, *printer-state*;
 
     // for iteration
   create node-iterator, prepare-document;
   create transform, transform-document, before-transform, <xform-state>;
+
+  // Namespaces
+  create <xml-namespace-error>,
+    <namespace-not-found>, <namespace-has-no-short-name>;
+
+  create <xml-name>,
+    name-namespace, name-namespace-setter,
+    name-local-name, name-local-name-setter,
+    xml-name-as-string, string-as-xml-name;
+
+  create <xml-namespace>,
+    namespace-names,
+    namespace-url, namespace-url-setter,
+    namespace-short-name, namespace-short-name-setter;
+
+  create $xml-namespace;
+
+  create \with-default-namespace,
+    \with-local-namespace, \with-local-namespaces,
+    \with-local-xml-namespaces,
+    find-local-namespace;
+
+  create find-namespace, find-namespace-setter,
+    register-namespace;
 end module xml-parser;
+
+
+define module namespaces
+  use common-dylan,
+    exclude: { format-to-string };
+  use common-extensions,
+    exclude: { format-to-string };
+  use locators-protocol;
+  use print;
+  use format;
+  use threads;
+  use xml-parser;
+  use format-out;
+//  use subseq;
+//  use character-type;
+
+  export <namespace-binding>,
+    local-short-name, local-namespace;
+
+  export default-namespace, default-namespace-setter;
+
+  export xml-namespace-attribute?,
+    xml-namespace-prefix, local-xml-namespaces;
+end module namespaces;
 
 define module interface
   use common-dylan, exclude: { format-to-string };
@@ -104,5 +156,6 @@ define module %productions
   use meta;
   use interface;
   use xml-parser;
+  use namespaces;
 end module %productions;
 

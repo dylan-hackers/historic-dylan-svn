@@ -7,6 +7,8 @@ define abstract class <xml> (<object>)
   virtual slot name;
   slot name-with-proper-capitalization :: <string>,
     required-init-keyword: name:;
+  slot xml-name :: false-or(<xml-name>) = #f,
+    init-keyword: xml-name:;
 end class <xml>;
 
 define method name(xml :: <xml>) => (symbol)

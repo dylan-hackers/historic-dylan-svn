@@ -64,6 +64,7 @@ define function parse-document (doc :: <string>,
   if(dtd-paths) *dtd-paths* := dtd-paths; end if;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
   transform-document(document, state: make(<add-parents>));
+  transform-document(document, state: make(<convert-namespaces>));
   document;
 end function parse-document;
 
@@ -1148,3 +1149,34 @@ define method transform(elt :: <element>, tag-name :: <symbol>,
   *parent* := elt;  // is this rebind superfluous?  Seems to work okay
   next-method();
 end method transform;
+
+// Assigning namespaces
+
+define class <convert-namespaces> (<xform-state>)
+end;
+
+define method transform (elt :: <xml>, tag-name :: <symbol>,
+                         state :: <convert-namespaces>, str :: <stream>)
+  // format-out("running transform for xml: %=\n", elt);
+  let name = elt.name-with-proper-capitalization;
+  xml-name(elt) := string-as-xml-name(name);
+  next-method();
+end method transform;
+
+define method transform (elt :: <element>, tag-name :: <symbol>,
+                         state :: <convert-namespaces>, str :: <stream>)
+  // format-out("running transform for element %=\n", elt);
+  let (local-namespaces, default-namespace) = local-xml-namespaces(elt);
+  with-default-namespace (default-namespace)
+    with-local-xml-namespaces(local-namespaces)
+      // FIXME
+      // A call to next-method() does not work here!  I think it should
+      // call transform{xml}, but it doesn't. Why? Does the left->right
+      // resolution override this and dispatch to the default method?
+      let name = elt.name-with-proper-capitalization;
+      xml-name(elt) := string-as-xml-name(name);
+      next-method();
+    end with-local-xml-namespaces;
+  end with-default-namespace;
+end method transform;
+
