@@ -42,11 +42,6 @@ define function optimize-output(input :: <stretchy-object-vector>)
 
   force-output(*standard-error*);
 
-  // so it automagically closes the tags
-  // may be better to do it explicitly at the end, but do that later...
-  add!(input,
-       make(<attributed-string>, string: "", attributes: make(<attribute>)));
-
   let states = make(<stretchy-vector>);
   add!(states, make(<opt-state>));
 
@@ -72,13 +67,17 @@ define function optimize-output(input :: <stretchy-object-vector>)
   format(*standard-error*, "\n\nFinal states\n------------------------------\n");
   let best-state :: false-or(<opt-state>) = #f;
   for (state :: <opt-state> in states)
-    force-output(*standard-error*);
+    for (e :: <tag> in state.tag-stack)
+      let s = e.close-tag;
+      state.transitions := pair(s, state.transitions);
+      state.output-size := state.output-size + s.size;
+    end;
     dump-state(state, *standard-error*);
-    if (state.tag-stack == #())
-      if (~best-state | state.output-size < best-state.output-size)
-	format(*standard-error*, "  ^-- new best\n");
-	best-state := state;
-      end;
+    force-output(*standard-error*);
+
+    if (~best-state | state.output-size < best-state.output-size)
+      format(*standard-error*, "  ^-- new best\n");
+      best-state := state;
     end;
   end for;
 
@@ -104,7 +103,6 @@ define function emit-transitions
      next-states :: <stretchy-object-vector>)
  => ();
 
-  timeout();
   force-output(*standard-error*);
 
   local
