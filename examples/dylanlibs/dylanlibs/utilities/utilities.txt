@@ -20,7 +20,12 @@ A series of functions for manipulating sequences, mostly inspired from
 various Common Lisp libraries. Includes split-string, split-sequence,
 sequence-position-if, etc.
 
+3) money
+========
+A very simple implementation of a money type. Not great performance
+wise but does the job for the areas that I've needed.
+
 -- 
 Chris Double.  
-30 May 2001.
+02 June 2001.
 
