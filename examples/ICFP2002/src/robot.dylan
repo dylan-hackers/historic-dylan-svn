@@ -1,6 +1,7 @@
 module: board
 
 define abstract class <robot>(<object>)
+  slot id;
   slot capacity :: <integer>;
 
   slot x :: <integer>;
