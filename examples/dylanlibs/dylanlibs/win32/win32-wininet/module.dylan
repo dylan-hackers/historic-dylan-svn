@@ -9,6 +9,7 @@ define module win32-wininet
   use win32-common;
 
   export
+    <lpcstr*>,
     <hinternet>,
     $internet-open-type-preconfig,
     $internet-open-type-direct,
