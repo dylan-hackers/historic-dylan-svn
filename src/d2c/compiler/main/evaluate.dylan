@@ -29,7 +29,7 @@ define method evaluate(expression :: <string>)
         let result-type = object-ctype();
         let result-var = make-ssa-var(builder, #"result", result-type);
         fer-convert(builder, expression,
-                    lexenv-for-tlf(tlf), #"let", result-var);
+                    lexenv-for-tlf(tlf), #"assignment", result-var);
         let inits = builder-result(builder);
 
         let name-obj = make(<anonymous-name>, location: tlf.source-location);
@@ -75,6 +75,18 @@ define method fer-evaluate(compound :: <compound-region>, environment :: <object
   => ct-value :: <ct-value>; // multivalues???
   let regions = compound.regions;
   fer-evaluate-regions(regions.head, regions.tail, environment)
+end;
+
+define method fer-evaluate(the-if :: <if-region>, environment :: <object>)
+  => ct-value :: <ct-value>; // multivalues???
+  let test-value
+    = fer-evaluate-expression(the-if.depends-on.source-exp,
+                              environment);
+  if(test-value == as(<ct-value>, #f))
+    fer-evaluate(the-if.else-region, environment);
+  else
+    fer-evaluate(the-if.then-region, environment);
+  end if;
 end;
 
 // ########## fer-evaluate-regions ##########
