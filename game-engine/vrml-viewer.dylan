@@ -246,7 +246,7 @@ define method main(progname, #rest arguments)
   format(*standard-output*, "GL_EXTENSIONS: %s\n", 
 	                     glGetString($GL-EXTENSIONS));
   force-output(*standard-output*);
-//  glutFullScreen();
+  glutFullScreen();
 
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();

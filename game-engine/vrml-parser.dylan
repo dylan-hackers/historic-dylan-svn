@@ -1,5 +1,46 @@
 module: vrml-parser
 
+define inline method concatenate-strings(v :: <stretchy-vector>)
+ => result :: <byte-string>;
+  let length = for (total = 0 then total + str.size,
+                    str :: <byte-string> in v)
+               finally total;
+               end for;
+  
+  let result :: <byte-string> = make(<byte-string>, size: length);
+  let (init-state, limit, next-state, done?, current-key, current-element,
+       current-element-setter) = forward-iteration-protocol(result);
+  
+  for (result-state = init-state
+         then for (char in str,
+                   state = result-state then next-state(result, state))
+                current-element(result, state) := char;
+              finally state;
+              end for,
+       str :: <byte-string> in v)
+  end for;
+  result;
+end method concatenate-strings;
+
+define method slurp-input(stream :: <buffered-stream>)
+ => contents :: <byte-string>;
+  let v = make(<stretchy-vector>);
+  block ()
+    for (buf :: false-or(<buffer>) = get-input-buffer(stream)
+	   then next-input-buffer(stream),
+	 while: buf)
+      let s = buffer-subsequence(buf, <byte-string>,
+				 buf.buffer-next,
+				 buf.buffer-end);
+      add!(v, s);
+      buf.buffer-next := buf.buffer-end;
+    end for;
+  cleanup
+    release-input-buffer(stream);
+  end block;
+  v.concatenate-strings;
+end method slurp-input;
+
 define method parse-vrml(file-name :: <string>)
   => (model :: <node>);
   let save-debug = *debug-meta-functions?*;
@@ -7,7 +48,7 @@ define method parse-vrml(file-name :: <string>)
     *debug-meta-functions?* := #t;
 
     let input-stream = make(<file-stream>, direction: #"input", locator: file-name);
-    let input = read-to-end(input-stream);
+    let input = slurp-input(input-stream);
 
     let (pos, scene) = scan-vrmlScene(input);
     scene;
