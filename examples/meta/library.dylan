@@ -9,6 +9,7 @@ define library meta
   // use collection-extensions;
 
   export meta;
+  export meta-base;
 end library;
 
 define module meta-base
