@@ -159,7 +159,7 @@ define method directory-responder
         write(stream, "   <tr>\n    <td>");
         display-image-link(stream, type, locator);
         format(stream, "</td>\n    <td><a href=\"%s\">%s</a></td>\n",
-               link-to, name);
+               name, name);
         for (key in #[#"size", #"modification-date", #"author"])
           let prop = element(props, key, default: "&nbsp;");
           write(stream, "   <td>");
