@@ -22,7 +22,10 @@ copyright: see below
 // ;;; The next four ought to be in SRFI 33 (bitwise).
 
 define constant bitwise-not = lognot;
+define constant bitwise-ior = logior;
+define constant bitwise-and = logand;
 define constant arithmetic-shift = ash;
+define constant cons = pair;
 
 define macro scheme-bindings-definer
 
@@ -30,15 +33,9 @@ define macro scheme-bindings-definer
   =>
   { ?bindings }
 
-  binding:
-    { (define-scm (?:name ?args) ?sexpr) }
-    =>
-    { define function ?name(?args) ?sexpr end }
-
   bindings:
     { } => { }
-    { (define-scm (?:name ?args) ?sexpr) ... } => { define function ?name(?args) ?sexpr end; ... }
-///    { ?binding ... } => { ?binding; ... }
+    { (scm-define (?:name ?args) ?sexpr) ... } => { define function ?name(?args) ?sexpr end; ... }
 
   args:
     { } => { }
@@ -46,16 +43,14 @@ define macro scheme-bindings-definer
 
   sexpr:
     { (?:expression ?sexprs) } => { ?expression(?sexprs) }
-///    { (?sexpr ?sexprs) } => { ?sexpr(?sexprs) }
     { ?:expression } => { ?expression }
 
   sexprs:
     { } => { }
-    { (?:expression ?sexprs2) ... } => { ?expression(?sexprs2), ... }
+    { (?:expression ?sexprs-2) ... } => { ?expression(?sexprs-2), ... }
     { ?:expression ... } => { ?expression, ... }
-///    { ?sexpr ... } => { ?sexpr, ... }
 
-  sexprs2:
+  sexprs-2:
     { } => { }
     { (?:expression ?sexprs) ... } => { ?expression(?sexprs), ... }
     { ?:expression ... } => { ?expression, ... }
@@ -64,38 +59,38 @@ end macro;
 
 define scheme-bindings
 
-(define-scm (bit-mask size) (bitwise-not (arithmetic-shift -1 size)))
+(scm-define (bit-mask size) (bitwise-not (arithmetic-shift -1 size)))
 
 
-/*
-(define-scm (adjoin-bits high low width)
+(scm-define (adjoin-bits high low width)
   (bitwise-ior (arithmetic-shift high width) low))
-(define-scm (high-bits  n k)
-  (arithmetic-shift n (- k)))
-(define-scm (low-bits   n k)
+(scm-define (high-bits  n k)
+  (arithmetic-shift n (negative k)))
+(scm-define (low-bits   n k)
   (bitwise-and n (bit-mask k)))
 
+/*
 // ;;; I'm not sure what these two are for.
-(define-scm (integer->byte-string integer)
+(scm-define (integer->byte-string integer)
   (do ((integer integer (arithmetic-shift integer -8))
        (count 0 (+ count 1))
-       (bytes '() (cons (bitwise-and integer #xFF) bytes)))
+       (bytes #() (cons (bitwise-and integer #xFF) bytes)))
       ((zero? integer)
        (reverse-list->byte-string bytes count))))
-(define-scm (byte-string->integer s)
+(scm-define (byte-string->integer s)
   (do ((len (byte-string-length s))
        (width 0 (+ width 8))
        (i 0 (+ i 1))
        (integer 0 (adjoin-bits (byte-string-ref s i) integer width)))
       ((= i len) integer)))
 
-(define-scm (number->hex n)
+(scm-define (number->hex n)
   (let ((s (number->string n 16)))
     (if (= (string-length s) 1)
         (string-append "0" s)
         s)))
 
-(define-scm (hex-byte-string bs)
+(scm-define (hex-byte-string bs)
   (let* ((len (string-length bs))
          (s (make-string (* len 2))))
     (do ((i 0 (+ i 1))
@@ -105,14 +100,14 @@ define scheme-bindings
         (string-set! s j       (string-ref h 0))
         (string-set! s (+ j 1) (string-ref h 1))))))
 
-(define-scm (subvector vec start end)
+(scm-define (subvector vec start end)
   (let ((new (make-vector (- end start))))
     (do ((i 0     (+ i 1))
          (j start (+ j 1)))
         ((= j end) new)
       (vector-set! new i (vector-ref vec j)))))
 
-(define-scm (reverse-list->vector l s)
+(scm-define (reverse-list->vector l s)
   (do ((new (make-vector s))
        (i (- s 1) (- i 1))
        (l l (cdr l)))
@@ -122,7 +117,7 @@ define scheme-bindings
 
 
 /*
-(define-scm-syntax receive
+(scm-define-syntax receive
   (syntax-rules ()
     ((receive ?formals ?producer ?body1 ?body2 ...)
      (call-with-values (lambda () ?producer)
