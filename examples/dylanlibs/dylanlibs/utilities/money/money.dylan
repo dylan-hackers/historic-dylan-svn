@@ -3,7 +3,7 @@ Synopsis:  Money arithmetic type
 Author:    Chris Double
 Copyright: (C) 2000, Chris Double.  All rights reserved.
 
-define constant <dollar-type> = limited(<integer>, min: 0);
+define constant <dollar-type> = <integer>;
 define constant <cent-type> = limited(<integer>, min: 0, max: 99);
 define constant <money-sign> = one-of(#"positive", #"negative");
 
@@ -46,9 +46,9 @@ end method print-message;
 
 define sealed method make-money(dollars :: <dollar-type>, cents :: <cent-type>, #key sign :: <money-sign> = #"positive") => (m :: <money>)
   make(<money>, 
-       dollars: dollars, 
+       dollars: abs(dollars), 
        cents: cents,
-       sign: sign);
+       sign: if(dollars < 0) #"negative" else sign end);
 end method make-money;
 
 define method as(t == <double-float>, m :: <money>) => (f :: <double-float>)
