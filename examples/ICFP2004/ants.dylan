@@ -437,3 +437,67 @@ define function check-for-surrounded-ants(p :: <position>)
   end for;
 end function check-for-surrounded-ants;
 
+define function step(aid :: <integer>)
+  if(ant-is-alive(aid))
+    let p = find-ant(aid);
+    let a = ant-at(p);
+    if(resting(a) > 0)
+      set-resting(a, resting(a) - 1);
+    else
+      let ins = get-instruction(color(a), state(a)); 
+      select(ins by instance?)
+        <sense> =>
+          let p* = sensed-cell(p, direction(a), ins.sense-direction);
+          let st = if(cell-matches(p*, ins.cond, color(a)))
+                     ins.state-true
+                   else
+                     ins.state-false
+                   end if;
+          set-state(a, st);
+        <mark> =>
+          set-marker-at(p, color(a), ins.marker);
+          set-state(a, ins.state);
+        <unmark> =>
+          clear-marker-at(p, color(a), ins.marker);
+          set-state(a, ins.state);
+        <pickup> =>
+          if(has-food(a) | food-at(p) = 0)
+            set-state(a, ins.state-failure);
+          else
+            set-food-at(p, food-at(p) - 1);
+            set-has-food(a, #t);
+            set-state(a, ins.state-success);
+          end if;
+        <drop> =>
+          if(has-food(a))
+            set-food-at(p, food-at(p) + 1);
+            set-has-food(a, #f);
+          end if;
+          set-state(a, ins.state);
+        <turn> =>
+          set-direction(a, turn(ins.left-right, direction(a)));
+          set-state(a, ins.state);
+        <move> =>
+          let newp = adjacent-cell(p, direction(a));
+          if(rocky(newp) || some-ant-is-at(newp))
+            set-state(a, ins.state-failure);
+          else
+            clear-ant-at(p);
+            set-ant-at(newp, a);
+            set-state(a, ins.state-success);
+            a.resting := 14;
+            check_for_surrounded-ants(newp);
+          end if;
+        <flip> =>
+          let st = if(randomintins.probability == 0)
+                     ins.state-success
+                   else
+                     ins.state-failure
+                   end if;
+          set-state(a, st);
+      end select;
+    end if;
+  end if;
+end function step;
+
+      
