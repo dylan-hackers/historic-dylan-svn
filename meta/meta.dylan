@@ -23,6 +23,16 @@ define collector number(n) => (as(<string>, str).string-to-number)
   (str.size > 0)
 end collector number;
 
+define collector single-float(n) => (as(<string>, str).string-to-single-float)
+  loop([element-of($num-char, n), do(collect(n))]),
+  (str.size > 0)
+end collector single-float;
+
+define collector double-float(n) => (as(<string>, str).string-to-double-float)
+  loop([element-of($num-char, n), do(collect(n))]),
+  (str.size > 0)
+end collector double-float;
+
 define meta s(c)
   element-of($space, c), loop(element-of($space, c))
 end meta s;
@@ -35,6 +45,21 @@ define constant $zero :: <integer> = as(<integer>, '0');
 define function digit(c :: <character>) => (ans :: <integer>)
   as(<integer>, c) - $zero;
 end function digit;
+
+
+define function string-to-double-float (string :: <byte-string>,
+                                        #key start :: <integer> = 0,
+                                             end: finish :: <integer> = string.size)
+    => 	value :: <double-float>;
+  as(<double-float>, string-to-number(string, start: start, end: finish));
+end string-to-double-float;
+
+define function string-to-single-float (string :: <byte-string>,
+                                        #key start :: <integer> = 0,
+                                             end: finish :: <integer> = string.size)
+    => 	value :: <single-float>;
+  as(<single-float>, string-to-number(string, start: start, end: finish));
+end string-to-single-float;
 
 // this is far from perfect, but it's a lot better than what was here before!
 //
