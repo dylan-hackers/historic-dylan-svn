@@ -223,7 +223,10 @@ char *parsePlayerAction(unsigned int playerID, char *string)
             printf("Player %u dropped package id %u\n",
                    playerID,
                    packageID);
-            --gPlayers[playerID].packageCount;
+            if (gPlayers[playerID].packageCount > 0)
+            {
+                --gPlayers[playerID].packageCount;
+            }
             ++gMap[gPlayers[playerID].y][gPlayers[playerID].x].possiblePackageCount;
         }
         break;
