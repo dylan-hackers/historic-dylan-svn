@@ -5,7 +5,7 @@ copyright: (C) Jefferson Dubrule.  See COPYING.LIB for license details.
 
 define interface
   #include "GL/glut.h",
-    equate: {"GLenum" => <GLenum>},
+    name-mapper: minimal-name-mapping,
     exclude: {"GLenum", "exit"},
   
 // Generally useful mappings:  
