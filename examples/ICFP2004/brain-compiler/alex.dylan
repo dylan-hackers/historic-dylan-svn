@@ -750,11 +750,8 @@ define sub brain keith-defender-bad (leave)
 end; // keith-defender-bad
 
 
-/*
-define ant-subbrain keith-defender
-  Flip 2, (here, here);
 
-[here:]
+define ant-subbrain keith-defender
 Flip 6 73 1
 ;Sense Here 2 9 Home
 ;Move 1 3
@@ -849,7 +846,7 @@ Flip 6 73 1
 ;Turn Right 92
 ;Move 79 92
 end ant-subbrain; // keith-defender
-*/
+
 
 define sub brain chris-defender (leave)
 
@@ -980,7 +977,7 @@ define brain alex-keith
     Sub chris-defender;
 
   [k-defender:]
-    Sub keith-defender-bad;
+    Sub keith-defender;
 
 end brain;
 

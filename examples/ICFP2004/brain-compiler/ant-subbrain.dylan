@@ -8,7 +8,6 @@ define macro ant-subbrain-definer
     define function ?name(outer-instrs, label, current-counter) => ();
       let instrs = make(<table>);
       instrs[#"VARIABLES"] := outer-instrs[#"VARIABLES"]; // for now ###///shallow-copy(outer-instrs[#"VARIABLES"]);
-//      push-thunk(instrs, ?#"return-name", 0, curry(lookup, outer-instrs, label, current-counter + 1));
       push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, ?#"name", 1));
       let (label, counter) = values(?#"name", 0);
       ?ant-states;
@@ -25,86 +24,95 @@ define macro ant-subbrain-definer
   { Move ?success:expression ?failure:expression }
   =>
   {
-    curry(make, <move>,
-          state-success: curry(lookup, instrs, label, ?success),
-          state-failure: curry(lookup, instrs, label, ?failure))
-  
+    push-thunk(instrs, label, counter,
+               curry(make, <move>,
+                     state-success: curry(lookup, instrs, label, ?success),
+                     state-failure: curry(lookup, instrs, label, ?failure)))
   }
   
   { PickUp ?success:expression ?failure:expression }
   =>
   {
-    curry(make, <pickup>,
-          state-success: curry(lookup, instrs, label, ?success),
-          state-failure: curry(lookup, instrs, label, ?failure))
+    push-thunk(instrs, label, counter,
+               curry(make, <pickup>,
+                     state-success: curry(lookup, instrs, label, ?success),
+                     state-failure: curry(lookup, instrs, label, ?failure)))
   }
   
   { Flip ?prob:expression ?success:expression ?failure:expression }
   =>
   {
-    curry(make, <flip>,
-          probability: ?prob,
-          state-success: curry(lookup, instrs, label, ?success),
-          state-failure: curry(lookup, instrs, label, ?failure))
+    push-thunk(instrs, label, counter,
+               curry(make, <flip>,
+                     probability: ?prob,
+                     state-success: curry(lookup, instrs, label, ?success),
+                     state-failure: curry(lookup, instrs, label, ?failure)))
   }
   
   { Drop ?state:expression }
   =>
   {
-    curry(make, <drop>,
-          state: curry(lookup, instrs, label, ?state))
+    push-thunk(instrs, label, counter,
+               curry(make, <drop>,
+                     state: curry(lookup, instrs, label, ?state)))
   }
   
-  { Turn Left ?state:expression }
+  { Turn ?:name ?state:expression }
   =>
   {
-    curry(make, <turn>,
-          left-or-right: left:,
-          state: curry(lookup, instrs, label, ?state))
+    push-thunk(instrs, label, counter,
+               curry(make, <turn>,
+                     left-or-right: ?#"name",
+                     state: curry(lookup, instrs, label, ?state)))
   }
   
-  { Turn Right ?state:expression }
+/*  { Turn Right ?state:expression }
   =>
   {
+    push-thunk(instrs, label, counter,
     curry(make, <turn>,
           left-or-right: right:,
-          state: curry(lookup, instrs, label, ?state))
-  }
+          state: curry(lookup, instrs, label, ?state)))
+  }*/
   
   { Mark ?what:expression ?state:expression }
   =>
   {
-    curry(make, <mark>,
-          marker: ?what,
-          state: curry(lookup, instrs, label, ?state))
+    push-thunk(instrs, label, counter,
+               curry(make, <mark>,
+                     marker: ?what,
+                     state: curry(lookup, instrs, label, ?state)))
   }
   
   { Unmark ?what:expression ?state:expression }
   =>
   {
-    curry(make, <unmark>,
-          marker: ?what,
-          state: curry(lookup, instrs, label, ?state))
+    push-thunk(instrs, label, counter,
+               curry(make, <unmark>,
+                     marker: ?what,
+                     state: curry(lookup, instrs, label, ?state)))
   }
   
   { Sense ?where:name ?success:expression ?failure:expression Marker ?what:expression }
   =>
   {
-    curry(make, <sense>,
-          direction: ?#"where",
-          condition: as(<symbol>, format-to-string("marker%d", ?what)),
-          state-true: curry(lookup, instrs, label, ?success),
-          state-false: curry(lookup, instrs, label, ?failure))
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: as(<symbol>, format-to-string("marker%d", ?what)),
+                     state-true: curry(lookup, instrs, label, ?success),
+                     state-false: curry(lookup, instrs, label, ?failure)))
   }
 
   { Sense ?where:name ?success:expression ?failure:expression ?what:name }
   =>
   {
-    curry(make, <sense>,
-          direction: ?#"where",
-          condition: ?#"what",
-          state-true: curry(lookup, instrs, label, ?success),
-          state-false: curry(lookup, instrs, label, ?failure))
+    push-thunk(instrs, label, counter,
+               curry(make, <sense>,
+                     direction: ?#"where",
+                     condition: ?#"what",
+                     state-true: curry(lookup, instrs, label, ?success),
+                     state-false: curry(lookup, instrs, label, ?failure)))
   }
 end macro ant-subbrain-definer;
 
