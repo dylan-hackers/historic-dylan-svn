@@ -7,18 +7,6 @@ define interface
   #include "GL/glu.h",
     name-mapper: minimal-name-mapping,
 
-    exclude:
-    {"GLenum",
-     "gluCheckExtension",
-     "gluTessBeginContour",
-     "gluTessEndContour",
-     "gluTessBeginPolygon",
-     "gluTessEndPolygon",
-     "gluTessNormal",
-     "gluTessProperty",
-     "gluGetTessProperty"
-       },
-  
 // Generally useful mappings:  
     map: {"char*" => <byte-string>},
     equate: {"char*" => <c-string>};

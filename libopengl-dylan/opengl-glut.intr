@@ -5,10 +5,9 @@ copyright: (C) Jefferson Dubrule.  See COPYING.LIB for license details.
 
 define interface
   #include "GL/glut.h",
-    
-  name-mapper: minimal-name-mapping,
-    
-  exclude: {"GLenum"},
+  name-mapper: minimal-name-mapping,    
+  exclude-file: {"GL/gl.h", "GL/glu.h"},
+  import: all-recursive,
     
   // Generally useful mappings:  
   map: {"char*" => <byte-string>,
