@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.6 2004/02/02 00:55:30 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.7 2004/02/03 05:06:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -414,6 +414,9 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
     else  // assumed a Dylan file, with or without a ".dylan" extension
       block ()
 	format(*debug-output*, "Processing %s\n", file);
+        state.progress-indicator := make(<n-of-k-progress-indicator>,
+                                         total: tlfs.size,
+                                         stream: *debug-output*);
 	let base-name = file.base-filename;
 	let c-name = concatenate(base-name, ".c");
         #if (macos)
@@ -440,7 +443,7 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
 	  end for;
 	cleanup
 	  close(body-stream);
-	  fresh-line(*debug-output*);
+//	  fresh-line(*debug-output*);
 	  *Current-Module* := #f;
 	end block;
 

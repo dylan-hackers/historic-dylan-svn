@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5.2.3 2004/02/02 00:55:31 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5.2.4 2004/02/03 05:06:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -63,6 +63,8 @@ define class <main-unit-state> (<object>)
   // how many threads do we want d2c to try to make use of
   constant slot unit-thread-count :: false-or(<integer>),
     init-keyword: thread-count:, init-value: #f;
+
+  slot progress-indicator :: false-or(<progress-indicator>) = #f;
 end class <main-unit-state>;
 
 // Find the library object file (archive) using the data-unit search path.
@@ -149,22 +151,7 @@ define method compile-1-tlf
     (tlf :: <top-level-form>, file :: <file-state>, state :: <main-unit-state>) 
  => ();
   let name = format-to-string("%s", tlf);
-  begin
-    let column = *debug-output*.current-column;
-    if (column & column > 75)
-      format(*debug-output*, "\n");
-    end if;
-  end;
-  format(*debug-output*, ".");
-#if (mindy)
-  force-output(*debug-output*);
-#else
-  let now :: <integer> = get-time-of-day();
-  if (now ~= *last-time-flushed*)
-    force-output(*debug-output*);
-    *last-time-flushed* := now;
-  end;
-#endif
+  increment-and-report-progress(state.progress-indicator);
   note-context(name);
   let component = make(<fer-component>);
   tlf.tlf-component := component;

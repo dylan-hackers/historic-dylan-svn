@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.8 2003/10/18 22:13:42 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.9 2004/02/03 05:06:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -44,6 +44,18 @@ define library compiler-main
   use compiler-cback;
   use compiler-convert;
 end;
+
+define module progress-indicator
+  use dylan;
+  use streams;
+  use format;
+  use utils;
+  
+  export <progress-indicator>, increment-progress, report-progress,
+    increment-and-report-progress, 
+    <draw-dots-progress-indicator>, <n-of-k-progress-indicator>;
+  
+end module progress-indicator;
 
 define module main
   use common;
@@ -115,4 +127,5 @@ define module main
   use extensions, import: {key-exists?};
   use command-processor;
   use debugger;
+  use progress-indicator;
 end;
