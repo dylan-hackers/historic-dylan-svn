@@ -49,4 +49,19 @@ define function turn(lr :: <left-or-right>, d :: <direction>)
   else
     modulo(d + 1, 6);
   end if;
+end function turn;
+
+define constant <sense-direction> = one-of(#"Here", #"Ahead", 
+                                           #"LeftAhead", #"RightAhead");
+
+define function sensed-cell(p :: <position>, d :: <direction>, 
+                            sd :: <sense-direction>)
+ => (p* :: <position>)
+  select(sd)
+    #"Here"       => p;
+    #"Ahead"      => adjacent-cell(p, d);
+    #"LeftAhead"  => adjacent-cell(p, turn(#"left", d));
+    #"RightAhead" => adjacent-cell(p, turn(#"right", d));
+  end select;
+end function sensed-cell;
 
