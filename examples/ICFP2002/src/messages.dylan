@@ -309,7 +309,7 @@ end function receive-sharp;
 // string if it is.
 
 define function receive-string (stream :: <stream>, str :: <string>) => ();
-  let str* = fd-read(stream, str.size);
+  let str* = read(stream, str.size);
   unless (str = str*)
     message-error("receive-string: expected '%s', got '%s'\n", str, str*);
   end unless;
