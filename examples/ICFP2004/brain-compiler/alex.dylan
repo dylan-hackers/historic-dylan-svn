@@ -585,6 +585,9 @@ end brain; // keith-patroller
 
 
 define ant-subbrain keith-defender
+  Flip 2, (here, here);
+
+[here:]
 Flip 6 73 1
 ;Sense Here 2 9 Home
 ;Move 1 3
@@ -780,7 +783,6 @@ end; // sub brain chris-defender
 define brain alex-keith
 
   Flip 5, (attacker, gatherer);
-//  Flip 90, (attacker, gatherer);
 
 
   [attacker:]
@@ -799,7 +801,7 @@ define brain alex-keith
 
   [patroller:]
     Sub keith-patroller;
-    Sub keith-patroller-hack;
+//    Sub keith-patroller-hack;
 
 
   [defender:]
