@@ -421,7 +421,11 @@ define collect-value xml-attribute(c) () "'", "\"" => { } end;
 // assume that tags usually have content, and, therefore, look
 // for non-empty-element tags first when parsing.
 define meta element(name, attribs, content, etag)
- => (make-element(content, name, attribs, *modify?*))
+ => (make-element(apply(if(*substitute-entities?*)
+                          expand-entity
+                        else
+                          identity
+                        end if, vector(content)), name, attribs, *modify?*))
   {[scan-stag(name, attribs), scan-content(content), scan-etag(etag)],
    [scan-empty-elem-tag(name, attribs), set!(content, "")]}, []
 end meta element;
