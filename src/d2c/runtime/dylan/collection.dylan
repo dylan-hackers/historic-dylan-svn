@@ -939,7 +939,7 @@ define inline-only function sequence-map-as
     => result :: <mutable-sequence>;
   let sz = min-size(sequence, more-sequences);
   unless (sz)
-    unbounded-collection-error(map-as);
+    more-sequences-unbounded-collection-error(map-as);
   end;
 
   // Some sequences such as arrays can't be instantiated with size: alone.
@@ -1442,9 +1442,19 @@ define not-inline function element-error (collection :: <collection>, index :: <
   error("No element with index %d in %=", index, collection);
 end function;
 
-define not-inline function unbounded-collection-error (function :: <function>)
+define not-inline function empty-collection-error (function :: <function>, collection :: <collection>)
  => res :: <never-returns>;
-  error("%= was expecting at least one bounded collection in its parameter list.", function);
+  error("%= was expecting a non-empty collection as a parameter. %= is empty.", function, collection);
+end function;
+
+define not-inline function unbounded-collection-error (function :: <function>, collection :: <collection>)
+ => res :: <never-returns>;
+  error("%= was not expecting an unbounded collection (%=) as a parameter.", function, collection);
+end function;
+
+define not-inline function more-sequences-unbounded-collection-error (function :: <function>)
+ => res :: <never-returns>;
+  error("%= was expecting at least one bounded sequence in its parameter list.", function);
 end function;
 
 // author: PDH
@@ -1488,9 +1498,9 @@ define inline-only function compare-using-default-==
   end;
 end;
 
-// Return a method the same as that passed in, but with the first
-// two parameters reversed. However, if the test method is the
-// identity function, just return it.
+// Return a function the same as that passed in, but with the first
+// two parameters reversed. However, if the test function is \==,
+// just return it as is, because \== is commutative.
 //
 define inline-only function commutate (test :: <function>)
  => (reversed-test :: <function>)
@@ -1503,8 +1513,8 @@ end;
 
 // %swap-elements! -- internal
 //
-// Swaps two elements in a vector without doing a bounds
-// check of the indices.
+// Swaps two elements in a vector without doing bounds
+// checking of the indices.
 //
 define inline function %swap-elements!
     (vec :: <vector>, key1 :: <integer>, key2 :: <integer>)

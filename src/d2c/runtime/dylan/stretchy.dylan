@@ -70,10 +70,11 @@ end method size;
 
 // Invariants:
 //   1. ssv-current-size <= ssv-data.size
-//   2. elements [ssv-current-size..ssv-data.size] are always set to #f.  
+//   2. Elements [0 .. ssv-current-size] contain user supplied data.
+//   3. Elements [ssv-current-size..ssv-data.size] should always be set
+//      to #f (so any objects formerly there can be GC'd).  
 //      Any method reducing ssv-current-size must set the elements of
 //      the unused data area to #f.
-//   3. Elements [0..ssv-current-size] contain user supplied data.
 //
 define sealed class <stretchy-object-vector> (<builtin-stretchy-vector>)
   //
@@ -82,12 +83,13 @@ define sealed class <stretchy-object-vector> (<builtin-stretchy-vector>)
   sealed slot ssv-data :: <simple-object-vector> = #[];
 end class <stretchy-object-vector>;
 
-define sealed domain make(singleton(<stretchy-object-vector>));
+define sealed domain make (singleton(<stretchy-object-vector>));
 
 define constant $default-initial-ssv-capacity = 4;
 
 // Returns an appropriate size for the new ssv data vector
-define function calc-size (needed-size :: <integer>)
+//
+define function calc-stretchy-vector-size (needed-size :: <integer>)
  => new-data-size :: <integer>;
   if (needed-size < 0)
     error("size: can't be negative.");
@@ -102,29 +104,30 @@ define function calc-size (needed-size :: <integer>)
     //
     let three-quarters = new-data-size - ash(new-data-size, -2);
     if (needed-size < three-quarters)
-      three-quarters
+      three-quarters;
     else
-      new-data-size
+      new-data-size;
     end;
   end for;
-end calc-size;
+end calc-stretchy-vector-size;
 
 define sealed method initialize
     (object :: <stretchy-object-vector>, #key size :: <integer> = 0, fill = #f)
  => ();
-  let data-size = calc-size(size);
+  let data-size = calc-stretchy-vector-size(size);
+  let data = make(<simple-object-vector>, size: data-size);
 
-  // The "fill:" keyword assures that elements above ssv-current-size
-  // will be #f...
-  let data = make(<simple-object-vector>, size: data-size, fill: #f);
+  // Set the elements below size to the fill value.
+  if (fill)
+    fill!(data, fill, end: size)
+  end;
 
-  // ...and then we manually fill the other elements if necessary.
-  if (fill) fill!(data, fill, end: size) end if;
   object.ssv-data := data;
   object.ssv-current-size := size;
 end method initialize;
 
 // If new-size is less than zero, it will be caught by fill!.
+//
 define method size-setter
     (new-size :: <integer>, ssv :: <stretchy-object-vector>)
     => new-size :: <integer>;
@@ -133,7 +136,7 @@ define method size-setter
   if (new-size > current-size)
     let current-data-size = data.size;
     if (new-size > current-data-size)
-      let new-data-size = calc-size(new-size);
+      let new-data-size = calc-stretchy-vector-size(new-size);
       let new-data = make(<simple-object-vector>, size: new-data-size);
       // Only copy the used region of the old data vector to the new data vector
       for (index :: <integer> from 0 below current-size)
@@ -342,7 +345,7 @@ define sealed method concatenate!
     
   if (needed-size >= ssv.ssv-data.size)
     let data = ssv.ssv-data;
-    let new-data-size = calc-size(needed-size);
+    let new-data-size = calc-stretchy-vector-size(needed-size);
     let new-data = make(<simple-object-vector>, size: new-data-size);
     // Only copy the used region of the old data vector to the new data vector
     for (index :: <integer> from 0 below current-size)
@@ -370,29 +373,95 @@ define sealed method concatenate!
   ssv;
 end method concatenate!;
 
+// as type coercion methods
+// Note: <stretchy-object-vector> is not exported, therefore we don't need
+// coercion methods specialized on <stretchy-object-vector>. It probably
+// would be better if the DRM treated all collections consistently
+// in this regard, instead of only exporting simple-vector.
+//
+
 define sealed method as
     (class == <stretchy-vector>, collection :: <collection>)
- => (res :: <stretchy-object-vector>);
-  // We won't blindly trust that size(collection) returns a 
-  // value consistent with the forward-iteration-protocol for 
+    => res :: <stretchy-object-vector>;
+  // We won't blindly trust that size(collection) returns a
+  // value consistent with the forward-iteration-protocol for
   // the collection so let's be sure not to iterate past sz.
-  // (It's possible that a user-implemented collection class 
+  // (It's possible that a user-implemented collection class
   // could be incorrect.)
-  // Also don't used the key-by clause here because it may be
+  // Also don't use the keyed-by clause here because it may be
   // slow for collection.
-  let sz = collection.size;
-  let res = make(<stretchy-object-vector>, size: sz);
-  for (index :: <integer> from 0 below sz, elt in collection)
-    %element(res, index) := elt;
+  let sz :: false-or(<integer>) = collection.size;
+  if (~sz)
+    unbounded-collection-error(as, collection);
+  else
+    let res = make(<stretchy-object-vector>, size: sz);
+    let res-data = res.ssv-data;
+    for (index from 0 below sz, elt in collection)
+      %element(res-data, index) := elt;
+    end;
+    res;
+  end if;
+end method as;
+
+// author: PDH
+define sealed method as
+    (class == <stretchy-vector>, list :: <list>)
+    => res :: <stretchy-object-vector>;
+  let sz :: false-or(<integer>) = list.size;
+  if (~sz)
+    unbounded-collection-error(as, list);
+  else
+    let res = make(<stretchy-object-vector>, size: sz);
+    let res-data = res.ssv-data;
+    for (index from 0, elt in list)
+      %element(res-data, index) := elt;
+    end;
+    res;
+  end if;
+end method as;
+
+// author: PDH
+define sealed method as
+    (class == <stretchy-vector>, vec :: <simple-object-vector>)
+    => res :: <stretchy-object-vector>;
+  let res = make(<stretchy-object-vector>, size: vec.size);
+  let res-data = res.ssv-data;
+  for (elt keyed-by index in vec)
+    %element(res-data, index) := elt;
   end;
   res;
-end;
+end method as;
 
-define inline method as
-    (class == <stretchy-vector>, vector :: <stretchy-vector>)
+// author: PDH
+define sealed method as
+    (class == <stretchy-vector>, vec :: <byte-string>)
+    => res :: <stretchy-object-vector>;
+  let res = make(<stretchy-object-vector>, size: vec.size);
+  let res-data = res.ssv-data;
+  for (elt keyed-by index in vec)
+    %element(res-data, index) := elt;
+  end;
+  res;
+end method as;
+
+define sealed inline method as
+    (class == <stretchy-vector>, ssv :: <stretchy-vector>)
  => (res :: <stretchy-vector>);
-  vector;
-end;
+  ssv;
+end method as;
+
+// author: PDH
+define sealed method as
+    (class == <stretchy-vector>, deq :: <object-deque>)
+    => res :: <stretchy-object-vector>;
+  let res = make(<stretchy-object-vector>, size: deq.size);
+  let res-data = res.ssv-data;
+  for (elt keyed-by index in deq)
+    %element(res-data, index) := elt;
+  end;
+  res;
+end method as;
+
 
 // Not strictly necessary, but produces slightly more optimal code
 //
@@ -416,7 +485,7 @@ define method map-into (destination :: <stretchy-object-vector>,
     // the collection so let's be sure not to iterate past sz.
     // (It's possible that a user-implemented collection class 
     // could be incorrect.)
-    // Also don't used the keyed-by clause here because it may be
+    // Also don't use the keyed-by clause here because it may be
     // slow for collection.
     let data = ssv-data(destination);
     for (key :: <integer> from 0 below sz, elt in sequence)
@@ -586,7 +655,7 @@ define sealed method size-setter
   if (new-size > current-size)
     let current-data-size = data.size;
     if (new-size > current-data-size)
-      let new-data-size = calc-size(new-size);
+      let new-data-size = calc-stretchy-vector-size(new-size);
       let new-data = make(ssv.lsv-data-type, size: new-data-size);
       let (init, limit, next, done?, key, elem, elem-setter, copy)
 	= forward-iteration-protocol(new-data);

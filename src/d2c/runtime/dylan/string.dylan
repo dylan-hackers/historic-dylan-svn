@@ -307,10 +307,8 @@ define inline method forward-iteration-protocol (array :: <byte-string>)
 	 end);
 end;
 
-define sealed inline method as (class == <byte-string>, string :: <byte-string>)
-    => res :: <byte-string>;
-  string;
-end;
+// as type coercion methods
+//
 
 define sealed method as
     (class == <byte-string>, collection :: <collection>)
@@ -320,14 +318,33 @@ define sealed method as
   // the collection so let's be sure not to iterate past sz.
   // (It's possible that a user-implemented collection class 
   // could be incorrect.)
-  // Also don't used the keyed-by clause here because it may be
+  // Also don't use the keyed-by clause here because it may be
   // slow for the collection.
-  let sz :: <integer> = collection.size;
-  let res = make(<byte-string>, size: sz);
-  for (index :: <integer> from 0 below sz, elt :: <byte-character> in collection)
-    %element(res, index) := elt;
-  end;
-  res;
+  let sz :: false-or(<integer>) = collection.size;
+  if (~sz)
+    unbounded-collection-error(as, collection);
+  else
+    let res = make(<byte-string>, size: sz);
+    for (index from 0 below sz, elt :: <byte-character> in collection)
+      %element(res, index) := elt;
+    end;
+    res;
+  end if;
+end method as;
+
+define sealed method as
+    (class == <byte-string>, list :: <list>)
+    => res :: <byte-string>;
+  let sz :: false-or(<integer>) = list.size;
+  if (~sz)
+    unbounded-collection-error(as, list);
+  else
+    let res = make(<byte-string>, size: sz);
+    for (index from 0, elt :: <byte-character> in list)
+      %element(res, index) := elt;
+    end;
+    res;
+  end if;
 end method as;
 
 define sealed method as
@@ -340,28 +357,35 @@ define sealed method as
   res;
 end method as;
 
-define sealed method as
-    (class == <byte-string>, list :: <list>)
+define sealed inline method as
+    (class == <byte-string>, string :: <byte-string>)
     => res :: <byte-string>;
-  let sz :: <integer> = list.size;
+  string;
+end method as;
+
+define sealed method as
+    (class == <byte-string>, ssv :: <stretchy-object-vector>)
+    => res :: <byte-string>;
+  let sz = ssv.size;
   let res = make(<byte-string>, size: sz);
-  for (index :: <integer> from 0, elt :: <byte-character> in list)
+  let data = ssv.ssv-data;
+  for (index from 0 below sz)
+    %element(res, index) := check-type(%element(data, index), <byte-character>);
+  end;
+  res;
+end method as;
+
+// author: PDH
+define sealed method as
+    (class == <byte-string>, deq :: <object-deque>)
+    => res :: <byte-string>;
+  let res = make(<byte-string>, size: deq.size);
+  for (elt :: <byte-character> keyed-by index in deq)
     %element(res, index) := elt;
   end;
   res;
 end method as;
 
-define sealed method as
-    (class == <byte-string>, ssv :: <stretchy-object-vector>)
- => (res :: <byte-string>);
-  let sz = ssv.size;
-  let res = make(<byte-string>, size: sz);
-  let data = ssv.ssv-data;
-  for (index :: <integer> from 0 below sz)
-    %element(res, index) := check-type(%element(data, index), <byte-character>);
-  end;
-  res;
-end;
 
 // Not strictly necessary, but produces slightly more optimal code
 //

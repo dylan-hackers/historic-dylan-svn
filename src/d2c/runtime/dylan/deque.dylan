@@ -84,9 +84,9 @@ end method size;
 
 // Invariants:
 //   1. deq-current-size <= deq-data.size
-//   2. elements [deq-current-offset .. deq-current-offset + deq-current-size-1]
-//      modulo deq-data.size contain user-supplied data
-//   3. all other elements contain #f (forced so deleted elements can be GC'd)
+//   2. Elements [deq-current-offset .. ((deq-current-offset + deq-current-size - 1)
+//      modulo deq-data.size)] contain user-supplied data.
+//   3. All other elements contain #f (forced so deleted elements can be GC'd).
 //      Any method reducing deq-current-size must set the elements of
 //      the unused data area to #f.
 //
@@ -97,7 +97,7 @@ define sealed class <object-deque> (<builtin-deque>)
   sealed slot deq-data :: <simple-object-vector> = #[];
 end class <object-deque>;
 
-define sealed domain make(singleton(<object-deque>));
+define sealed domain make (singleton(<object-deque>));
 
 define constant $default-initial-deque-capacity = 4;
 
@@ -115,28 +115,17 @@ define function calc-deque-size (new :: <integer>)
 end calc-deque-size;
 
 
-define sealed inline method initialize
+define sealed method initialize
     (object :: <object-deque>,
-     #key size :: <integer> = 0, capacity = #f, fill = #f)
+     #key size :: <integer> = 0, capacity :: false-or(<integer>), fill = #f)
  => ();
   let data-size = calc-deque-size
     ((capacity & capacity > size & capacity) | size);
-
-  // The "fill:" keyword assures that elements above deq-current-size
-  // will be #f...
   let data = make(<simple-object-vector>, size: data-size);
 
+  // Set the elements below size to the fill value.
   if (fill)
-    for (i from 0 below size)
-      %element(data, i) := fill;
-    end;
-    for (i from size below data-size)
-      %element(data, i) := #f;
-    end;
-  else
-    for (i from 0 below data-size)
-      %element(data, i) := #f;
-    end;
+    fill!(data, fill, end: size)
   end;
 
   object.deq-data := data;
@@ -222,12 +211,12 @@ end;
 
 
 define inline method %element-setter
-    (newVal,
+    (new-value,
      v :: <object-deque>,
      i :: <integer>)
  => (obj :: <object>);
   %element(v.deq-data, logand(i + v.deq-current-offset, v.deq-data-mask))
-    := newVal;
+    := new-value;
 end;
 
 
@@ -288,7 +277,7 @@ end method;
 
 //; Deque Functions
 
-define sealed method grow-deque(deque :: <object-deque>)
+define sealed method grow-deque (deque :: <object-deque>)
  => (new-data :: <simple-object-vector>);
   let data = deque.deq-data;
   let current = deque.size;
@@ -359,7 +348,7 @@ define sealed inline method pop (deque :: <object-deque>)
  => (result :: <object>);
   let current = deque.size;
   if (current = 0)
-    error("POP:  deque empty.");
+    empty-collection-error(pop, deque);
   end;
   let data = deque.deq-data;
   let offset = deque.deq-current-offset;
@@ -379,7 +368,7 @@ define sealed inline method pop-last (deque :: <object-deque>)
  => (result :: <object>);
   let current = deque.size;
   if (current = 0)
-    error("POP-LAST:  deque empty.");
+    empty-collection-error(pop-last, deque);
   end;
   let data = deque.deq-data;
   let offset = logand(deque.deq-current-offset + current - 1,
@@ -479,7 +468,7 @@ define sealed method concatenate!
   let current = deq.size;
 
   let new-size = current;
-  for(sequence in more-sequences)
+  for (sequence in more-sequences)
     let seq-size :: <integer> = sequence.size;
     new-size := new-size + seq-size;
   end;
@@ -501,14 +490,14 @@ define sealed method concatenate!
   let data = deq.deq-data;
   let offset = deq.deq-current-offset;
   let mask = deq.deq-data-mask;
-  for(sequence in more-sequences,
+  for (sequence in more-sequences,
       outer-index = current
-        then for(item in sequence, index from outer-index)
+        then for (item in sequence, index from outer-index)
                %element(data, logand(index + offset, mask)) := item;
              finally
                index;
-             end)
-  end;
+             end for)
+  end for;
   
   deq.deq-current-size := new-size;
   deq;
@@ -543,36 +532,104 @@ define sealed method reverse! (deq :: <object-deque>)
   let offset = deq.deq-current-offset;
   let mask = deq.deq-data-mask;
   for (left from offset,
-       right from current + offset - 1 by -1,
+       right from (current + offset - 1) by -1,
        while: left < right)
     let l = logand(left, mask);
     let r = logand(right, mask);
-    let ltmp = %element(data, l);
-    let rtmp = %element(data, r);
-    %element(data, l) := rtmp;
-    %element(data, r) := ltmp;
-  end;
+    %swap-elements!(data, l, r);
+  end for;
   deq;
 end method reverse!;
 
 
-define inline sealed method as
+// as type coercion methods
+// Note: <object-deque> is not exported, therefore we don't need
+// coercion methods specialized on <object-deque>. It probably
+// would be better if the DRM treated all collections consistently
+// in this regard, instead of only exporting simple-vector.
+//
+
+define sealed method as
     (class == <deque>, collection :: <collection>)
- => (res :: <object-deque>);
-  let res = make(<object-deque>, size: collection.size);
-  let data = res.deq-data;
-  for (index from 0, elt in collection)
-    %element(data, index) := elt;
+    => res :: <object-deque>;
+  // We won't blindly trust that size(collection) returns a
+  // value consistent with the forward-iteration-protocol for
+  // the collection so let's be sure not to iterate past sz.
+  // (It's possible that a user-implemented collection class
+  // could be incorrect.)
+  // Also don't use the keyed-by clause here because it may be
+  // slow for collection.
+  let sz :: false-or(<integer>) = collection.size;
+  if (~sz)
+    unbounded-collection-error(as, collection);
+  else
+    let res = make(<object-deque>, size: sz);
+    let res-data = res.deq-data;
+    for (index from 0 below sz, elt in collection)
+      %element(res-data, index) := elt;
+    end;
+    res;
+  end if;
+end method as;
+
+// author: PDH
+define sealed method as
+    (class == <deque>, list :: <list>)
+    => res :: <object-deque>;
+  let sz :: false-or(<integer>) = list.size;
+  if (~sz)
+    unbounded-collection-error(as, list);
+  else
+    let res = make(<object-deque>, size: sz);
+    let res-data = res.deq-data;
+    for (index from 0, elt in list)
+      %element(res-data, index) := elt;
+    end;
+    res;
+  end if;
+end method as;
+
+// author: PDH
+define sealed method as
+    (class == <deque>, vec :: <simple-object-vector>)
+    => res :: <object-deque>;
+  let res = make(<object-deque>, size: vec.size);
+  let res-data = res.deq-data;
+  for (elt keyed-by index in vec)
+    %element(res-data, index) := elt;
   end;
   res;
-end;
+end method as;
 
+// author: PDH
+define sealed method as
+    (class == <deque>, vec :: <byte-string>)
+    => res :: <object-deque>;
+  let res = make(<object-deque>, size: vec.size);
+  let res-data = res.deq-data;
+  for (elt keyed-by index in vec)
+    %element(res-data, index) := elt;
+  end;
+  res;
+end method as;
 
-define inline method as
+define sealed method as
+    (class == <deque>, ssv :: <stretchy-object-vector>)
+    => res :: <object-deque>;
+  let res = make(<object-deque>, size: ssv.size);
+  let res-data = res.deq-data;
+  for (elt keyed-by index in ssv)
+    %element(res-data, index) := elt;
+  end;
+  res;
+end method as;
+
+// author: PDH
+define sealed inline method as
     (class == <deque>, deq :: <deque>)
- => (res :: <deque>);
+    => res :: <deque>;
   deq;
-end;
+end method as;
 
 
 // Not strictly necessary, but produces slightly more optimal code

@@ -247,11 +247,9 @@ define sealed inline method forward-iteration-protocol
 	 end);
 end;
 
-define sealed inline method as
-    (class == <simple-object-vector>, vec :: <simple-object-vector>)
-    => res :: <simple-object-vector>;
-  vec;
-end;
+
+// as type coercion methods
+//
 
 // Perhaps this should be inlined eventually, but at present it
 // tickles a bug in stack analysis
@@ -259,19 +257,47 @@ end;
 define sealed method as
     (class == <simple-object-vector>, collection :: <collection>)
     => res :: <simple-object-vector>;
-  let sz :: <integer> = collection.size;
-  let res = make(<simple-object-vector>, size: sz);
-  // We won't blindly trust that size(collection) returns a 
-  // value consistent with the forward-iteration-protocol for 
+  // We won't blindly trust that size(collection) returns a
+  // value consistent with the forward-iteration-protocol for
   // the collection so let's be sure not to iterate past sz.
-  // (It's possible that a user-implemented collection class 
+  // (It's possible that a user-implemented collection class
   // could be incorrect.)
-  // Also don't used the key-by clause here because it may be
+  // Also don't use the keyed-by clause here because it may be
   // slow for collection.
-  for (index :: <integer> from 0 below sz, elt in collection)
-    %element(res, index) := elt;
-  end;
-  res;
+  let sz :: false-or(<integer>) = collection.size;
+  if (~sz)
+    unbounded-collection-error(as, collection);
+  else
+    let res = make(<simple-object-vector>, size: sz);
+    for (index from 0 below sz, elt in collection)
+      %element(res, index) := elt;
+    end;
+    res;
+  end if;
+end method as;
+
+// This method looks to be unduly specific, but the compiler will
+// generate this case whenever you "apply" a function to a list
+//
+define sealed inline method as
+    (class == <simple-object-vector>, list :: <list>)
+    => res :: <simple-object-vector>;
+  let sz :: false-or(<integer>) = list.size;
+  if (~sz)
+    unbounded-collection-error(as, list);
+  else
+    let res = make(<simple-object-vector>, size: list.size);
+    for (index from 0, elt in list)
+      %element(res, index) := elt;
+    end;
+    res;
+  end if;
+end method as;
+
+define sealed inline method as
+    (class == <simple-object-vector>, vec :: <simple-object-vector>)
+    => res :: <simple-object-vector>;
+  vec;
 end method as;
 
 // author: PDH
@@ -286,34 +312,33 @@ define sealed method as
 end method as;
 
 // This method looks to be unduly specific, but the compiler will
-// generate this case whenever you "apply" a function to a list
-//
-define sealed inline method as
-    (class == <simple-object-vector>, list :: <list>)
-    => res :: <simple-object-vector>;
-  let res = make(<simple-object-vector>, size: list.size);
-  for (index :: <integer> from 0, elt in list)
-    %element(res, index) := elt;
-  end;
-  res;
-end method as;
-
-// This method looks to be unduly specific, but the compiler will
 // generate this case whenever you "apply" a function to a strechy vector
 // Perhaps this should be inlined eventually, but at present it
 // tickles a bug in stack analysis
 //
 define sealed method as
     (class == <simple-object-vector>, ssv :: <stretchy-object-vector>)
- => (res :: <simple-object-vector>);
+    => res :: <simple-object-vector>;
   let sz = ssv.size;
   let res = make(<simple-object-vector>, size: sz);
   let data = ssv.ssv-data;
-  for (index :: <integer> from 0 below sz)
+  for (index from 0 below sz)
     %element(res, index) := %element(data, index);
   end;
   res;
-end;
+end method as;
+
+// author: PDH
+define sealed method as
+    (class == <simple-object-vector>, deq :: <object-deque>)
+    => res :: <simple-object-vector>;
+  let res = make(<simple-object-vector>, size: deq.size);
+  for (elt keyed-by index in deq)
+    %element(res, index) := elt;
+  end;
+  res;
+end method as;
+
 
 // Not strictly necessary, but produces slightly more optimal code
 //

@@ -328,6 +328,10 @@ define method shallow-copy (list :: <list>) => res :: <list>;
   dup-if-pair(list);
 end method shallow-copy;
 
+
+// as type coercion methods
+//
+
 define flushable sealed method as
     (class == <list>, collection :: <collection>)
     => res :: <list>;
@@ -336,43 +340,55 @@ define flushable sealed method as
   finally
     reverse!(results);
   end;
-end;
+end method as;
 
 define inline method as (class == <list>, list :: <list>)
     => res :: <list>;
   list;
-end;
+end method as;
 
 define flushable method as
     (class == <list>, vec :: <simple-object-vector>)
     => res :: <list>;
-  for (index :: <integer> from (vec.size - 1) to 0 by -1,
+  for (index from (vec.size - 1) to 0 by -1,
        res = #() then pair(%element(vec, index), res))
   finally
     res;
   end;
-end;
+end method as;
 
 define flushable method as
     (class == <list>, vec :: <byte-string>)
     => res :: <list>;
-  for (index :: <integer> from (vec.size - 1) to 0 by -1,
+  for (index from (vec.size - 1) to 0 by -1,
        res = #() then pair(%element(vec, index), res))
   finally
     res;
   end;
-end;
+end method as;
 
 define flushable method as
     (class == <list>, ssv :: <stretchy-object-vector>)
     => res :: <list>;
   let data = ssv.ssv-data;
-  for (index :: <integer> from (ssv.size - 1) to 0 by -1,
+  for (index from (ssv.size - 1) to 0 by -1,
        res = #() then pair(%element(data, index), res))
   finally
     res;
   end;
-end;
+end method as;
+
+// author: PDH
+define flushable method as
+    (class == <list>, deq :: <object-deque>)
+    => res :: <list>;
+  for (index from (deq.size - 1) to 0 by -1,
+       res = #() then pair(%element(deq, index), res))
+  finally
+    res;
+  end;
+end method as;
+
 
 // It is important to define this method because the type-for-copy
 // of an <empty-list> is <list>, not <empty-list>.
