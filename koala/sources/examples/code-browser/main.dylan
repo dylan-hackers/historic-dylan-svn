@@ -103,7 +103,11 @@ end function callback-handler;
 // Starts up the web server.
 define function main () => ()
   *check-source-record-date?* := #f;
-  start-server();
+  let config-file =
+    if(application-arguments().size > 0)
+      application-arguments()[0]
+    end;
+  start-server(config-file: config-file);
 end;
 
 begin
