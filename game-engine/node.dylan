@@ -190,6 +190,17 @@ define method initialize(light :: <spotlight>, #key, #all-keys)
   light.next-free-id := light.next-free-id + 1;
 end method initialize;
 
+define class <on-screen-display> (<container-node>)
+end class <on-screen-display>;
+
+define class <2d-translation> (<node>)
+  slot translation :: <vector> = #[0, 0], init-keyword: translation:;
+end class <2d-translation>;
+
+define class <text> (<node>)
+  slot text :: <string> = "", init-keyword: text:;
+end class <text>;
+
 define generic preorder-traversal(node :: <node>, function :: <function>);
 
 define method preorder-traversal(node :: <node>, function :: <function>)

@@ -47,6 +47,9 @@ define module vrml-model
     <appearance>, material, texture, texture-transform,
     <material>, ambient-intensity, diffuse-color, emissive-color, 
     shininess, specular-color, transparency,
+    <on-screen-display>,
+    <2d-translation>,
+    <text>, text, text-setter,
     preorder-traversal;
 end;
 

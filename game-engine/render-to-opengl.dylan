@@ -212,3 +212,31 @@ end method render-to-opengl;
 define method render-to-opengl(node :: <true>)
   format-out("huh?\n");
 end method render-to-opengl;
+
+define method render-to-opengl(node :: <on-screen-display>)
+  glMatrixMode($GL-PROJECTION);
+  glPushMatrix();
+  glPushAttrib($GL-ALL-ATTRIB-BITS);
+  glLoadIdentity();
+  glOrtho(0.0, 500.0, 0.0, 500.0, -1.0, 100.0);
+//  glDisable($GL-TEXTURE-2D);
+  glDisable($GL-LIGHTING);
+  glDisable($GL-DEPTH-TEST);
+  glColor(0.0, 1.0, 0.0, 0.75);
+  next-method();
+  glEnable($GL-LIGHTING);
+  glEnable($GL-DEPTH-TEST);
+  glPopAttrib();
+  glPopMatrix();
+  glMatrixMode($GL-MODELVIEW);
+end method render-to-opengl;
+
+define method render-to-opengl(node :: <2d-translation>)
+  glRasterPos(node.translation[0], node.translation[1]);
+end method render-to-opengl;
+
+define method render-to-opengl(node :: <text>)
+  for(i in node.text)
+    glutBitmapCharacter($GLUT-BITMAP-8-BY-13, as(<integer>, i));
+  end for;
+end method render-to-opengl;

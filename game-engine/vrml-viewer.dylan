@@ -119,7 +119,12 @@ define variable *speed* = vector(0.0, 0.0, 0.0);
 define variable *rotation-speed* = 0.0s0;  
 define constant $camera = make(<camera>,
                                position:  3d-point ( 0.0, 1.7, 10.0 ));
-              
+define constant $fps-text = make(<text>);
+
+define variable *frame-count* = 0;
+define variable *fps-stamp* = 0.0; 
+define variable *fps* = 0.0;    
+          
 define variable display-func :: <function> = callback-method() => ();
   let timestamp = current-time();
   let delta-t = timestamp - *last-stamp*;
@@ -130,6 +135,14 @@ define variable display-func :: <function> = callback-method() => ();
     let delta-phi = delta-t * *rotation-speed*;
     $camera.angle := $camera.angle + delta-phi;
     $camera.eye-position := $camera.eye-position + delta-s;
+  else
+    *fps-stamp* := timestamp;
+  end if;
+  *frame-count* := *frame-count* + 1;
+  if(modulo(*frame-count*, 50) = 0)
+    *fps* := 50.0 / (timestamp - *fps-stamp*);
+    *fps-stamp* := timestamp;
+    $fps-text.text := format-to-string("FPS: %=", *fps*);
   end if;
 
   *last-stamp* := timestamp;
@@ -147,21 +160,24 @@ define method main(progname, #rest arguments)
       make(<container-node>, children: 
              vector($camera,
                     make(<spotlight>,
-                         position:  3d-point ( 6.0s0, 6.0s0,-4.0s0, 1.0s0),
+                         position:  3d-point ( 3.0s0, 3.0s0,-2.0s0, 1.0s0),
                          direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
                          ambient:   vector   ( 0.3,   0.3,   0.3, 1.0),
                          diffuse:   vector   ( 0.7,   0.7,   0.7, 1.0),
                          specular:  vector   ( 0.3,   0.3,   0.3, 1.0)),
-                    make(<line-grid>),
+//                    make(<line-grid>),
                     make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
                          translation: 3d-vector(3.0, 3.0, -2.0), 
                          children: vector(make(<sphere>))),
 //                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
                     make(<transform>, scale: 3d-vector(0.001, 0.001, 0.001), 
-                         children: parse-vrml(arguments[0]))));
+                         children: parse-vrml(arguments[0])),
+                    make(<on-screen-display>, children:
+                           vector(make(<2d-translation>, translation: #[2, 2]),
+                                  $fps-text))
+                      ));
   end if;
-//  exit(exit-code: 0);
-
+  
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
   glutInitWindowSize(500, 500);
 //  glutWarpPointer(250, 250);
@@ -194,7 +210,7 @@ define method main(progname, #rest arguments)
 //  glEnable($GL-CULL-FACE);
 
   glEnable($GL-LIGHTING);
-//  glColor(0.5, 0.5, 0.5);
+  glColor(0.3, 0.3, 0.3, 1.0);
 
 //  glEnable($GL-FOG);
   glFog($GL-FOG-MODE, $GL-EXP);
@@ -204,6 +220,7 @@ define method main(progname, #rest arguments)
   glFog($GL-FOG-END, s(4.0));
 
   glEnable($GL-BLEND);
+  glBlendFunc($GL-SRC-ALPHA, $GL-ONE-MINUS-SRC-ALPHA);
 
   glClearColor(s(0.5), s(0.5), s(0.5), s(1.0));
   glClearDepth(1.0d0);
