@@ -80,7 +80,7 @@ function short_header ($title) {
       <A HREF="downloading.phtml">&rsaquo; Downloading Software</A>
       <A HREF="gdref.phtml">&rsaquo; Documentation</A>
       <A HREF="lists.phtml">&rsaquo; Mailing Lists</A>
-      <A HREF="gd-bugs">&rsaquo; Bug Tracker</A>
+      <A HREF="/cgi-bin/bugzilla/index.cgi">&rsaquo; Bug Tracker</A>
       <A HREF="http://monday.sourceforge.net/wiki/">&raquo; Wiki</A>
       <A HREF="learning.phtml">&rsaquo; Learning Dylan</A>
       <A HREF="users.phtml">&rsaquo; Projects Using Dylan</A>
