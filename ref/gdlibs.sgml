@@ -1002,7 +1002,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       </FORMALPARA>
     </AUTHORBLURB>
 
-    <SECT1 id="streams-error-conventions">
+    <SECT1 id="libs-streams-error-conventions">
       <TITLE>Discussing error conditions</TITLE>
 
       <PARA>This document uses two special terms in discussions of
@@ -1042,7 +1042,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       condition. </PARA>
     </SECT1>
 
-    <SECT1 id="streams-goals">
+    <SECT1 id="libs-streams-goals">
       <TITLE>Goals of the Library</TITLE>
 
       <PARA>The Dylan Streams library aims to provide:</PARA>
@@ -1111,7 +1111,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       </ITEMIZEDLIST>
     </SECT1>
 
-    <SECT1 id="streams-concepts">
+    <SECT1 id="libs-streams-concepts">
       <TITLE>Concepts</TITLE>
 
       <PARA>A stream provides sequential access to an aggregate of
@@ -1253,7 +1253,7 @@ read-to-end(make(&lt;string-stream&gt;,
       stream's current position.</PARA>
     </SECT1>
 
-    <SECT1 id="streams-growing-sequences">
+    <SECT1 id="libs-streams-growing-sequences">
       <TITLE>Streams, growing sequences, and object identity</TITLE>
 
       <PARA>When writing to output streams over sequences, Dylan may
@@ -1320,7 +1320,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       allocate a new vector each time it grows. </PARA>
     </SECT1>
 
-    <SECT1 id="streams-stream-classes">
+    <SECT1 id="libs-streams-classes">
       <TITLE>Stream classes</TITLE>
 
       <PARA>The exported streams class heterarchy is as follows:</PARA>
@@ -1336,8 +1336,11 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
       <CLASSNAME>&lt;positionable-stream&gt;</CLASSNAME>, these are
       instantiable classes.</PARA>
 
-      <SECT2>
+      <SECT2 id="libs-stream-class-ref">
 	<TITLE>Class Reference</TITLE>
+        <PARA> <!-- having a problem printing below without PARA tags? -->
+	</PARA>
+
         <dylanclassdef>
           <dEFNAME>&lt;stream&gt;</dEFNAME>
           <defadjectives>open abstract</defadjectives>
@@ -1355,19 +1358,17 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
           </defdescription>
         </dylanclassdef>
 
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;positionable-stream&gt;</REFNAME>
-	    <REFPURPOSE>Open abstract class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
-
-	    <PARA>A subclass of &lt;stream&gt; supporting the
-	    Positionable Stream Protocol. It is not
-	    instantiable.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+        <dylanclassdef>
+	  <dEFNAME>&lt;positionable-stream&gt;</dEFNAME>
+          <defadjectives>open abstract</defadjectives>
+	  <defsupers><defsuper>&lt;stream&gt;</defsuper></defsupers>
+	  <defsummary>It supports the Positionable Stream Protocol</defsummary>
+          <definitkeywords>
+          </definitkeywords>
+          <defdescription>
+            <para>All other streams inherit from this class</para>
+          </defdescription>
+        </dylanclassdef>
 
 	<REFENTRY>
 	  <REFNAMEDIV>
