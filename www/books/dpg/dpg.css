@@ -128,7 +128,7 @@ table p {
 }
 
 code, pre {
-	color: green;
+	font-weight: bold;
 	font-family: monospace;
 }
 
