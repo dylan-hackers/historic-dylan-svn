@@ -331,7 +331,7 @@ For the remaining subsections we assume that the requirements are met.
 @SubSubSection @Title { Type Union }
 @Begin
 @LP
-For a fixed @I m and @I i (@Eq {1 <= i <= m}) we define "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym union "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i}
+For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we define "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym union "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i}
 to be "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} {@Sig 1'}, {@Sig 2'}, ..., {@Sig {@I m}'} "}"{@Project @I i}.
 
 Since the set of the signatures can be already viewed as a union of one-element sets of signatures, this
@@ -342,9 +342,13 @@ concatenating definition is rather obvious. It is also compatible with {@Ref (*)
 @SubSubSection @Title { Type Intersection }
 @Begin
 @LP
-We are to derive "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym intersection "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}}"}"{@Project @I i} now.
-
-Since the set of the signatures 
+For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we are to derive "{" {@Sig 1}, {@Sig 2}, ..., {@Sig @I m} "}"{@Project @I i} @Sym intersection "{" {@Sig 1'}, {@Sig 2'}, ..., {@Sig {{@I m}'}} "}"{@Project @I i} now.
+First we reduce our task by considering signature sets with just one element:
+"{" {@Sig 1}({@Tau 1}, ..., {@Tau @I i}, ..., {@Tau @I n}) "}"{@Project @I i} @Sym intersection "{" {@Sig 1'}({@Tau 1'}, ..., {@Tau {{@I i}'}}, ..., {@Tau {{@I n}'}}) "}"{@Project @I i}.
+An argument at position @I i can only be passed to both signatures if it is an instance of the type intersection of {@Tau @I i} and {@Tau {{@I i}'}}.
+Now we reintroduce several signatures at the left hand side: clearly we have to construct the union of each {@Tau @I i} @Sup @I j @Sym intersection {@Tau {{@I i}'}}.
+Here @I j is denoting the index in the left signature set. Additionally considering several signatures on the right, we arrive at
+the union over the full cartesian product: @Eq {big union from {j=1, "j'"=1} to {m, "m'"} tau sub i sup j intersection tau sub i sup "j'"}.
 @End @SubSubSection
 
 #-----------------
