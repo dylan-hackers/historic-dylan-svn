@@ -7,7 +7,7 @@ end function fd-to-file-ptr;
 
 with-open-file(file = application-arguments()[0])
   let png-ptr 
-    = png-create-read-struct("1.0.12",
+    = png-create-read-struct($PNG-LIBPNG-VER-STRING,
                              as(<png-voidp>, 0),
                              as(<png-error-ptr>, 0),
                              as(<png-error-ptr>, 0));
