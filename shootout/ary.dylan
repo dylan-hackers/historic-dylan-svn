@@ -1,10 +1,12 @@
 module: ary
 
+define constant <int-vector> = limited(<vector>, of: <integer>);
+
 define function main(name, arguments)
 	let n :: <integer> = string-to-integer(arguments[0]);
 
-	let x :: <stretchy-vector> = make(<stretchy-vector>, size: n, fill: 0);
-	let y :: <stretchy-vector> = make(<stretchy-vector>, size: n, fill: 0);
+	let x = make(<int-vector>, size: n, fill: 0);
+	let y = make(<int-vector>, size: n, fill: 0);
 
 	for ( i from 0 below x.size)
 		x[i] := i;
@@ -14,7 +16,7 @@ define function main(name, arguments)
 		y[i] := y[i] + x[i];
 	end for;
 
-	format-out("%d", y[y.size - 1]);
+	format-out("%d\n", y[y.size - 1]);
 
 end function main;
 
