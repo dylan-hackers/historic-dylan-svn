@@ -9,10 +9,10 @@ end class <document>;
 
 define class <character> (<object>)
   slot character;
-  slot attribute; // make that a flyweight pattern one day
+  slot attribute;
 end class <character>;
 
-define class <attribute> (<object>)
+define class <attribute> (<object>)  // make that a flyweight pattern one day
   slot bold       :: <boolean>;
   slot emphasis   :: <boolean>;
   slot italic     :: <boolean>;
@@ -20,7 +20,8 @@ define class <attribute> (<object>)
   slot typewriter :: <boolean>;
   slot underline  :: limited(<integer>, min:0, max: 3);
   slot size       :: limited(<integer>, min:0, max: 9);
-  slot color      :: 
+  slot color      :: <color>;
+end class <attribute>;
 
 define constant <color> = one-of(#"red", #"green", #"blue", 
                                  #"cyan", #"magenta", #"yellow",
