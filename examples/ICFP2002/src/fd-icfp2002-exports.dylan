@@ -17,20 +17,22 @@ define module fd-compat
   use common-dylan;
   use sequence-utilities;
   use sockets;
+  use streams;
   
 
-  export split, tcp-client-connection, digit?;
+  export split, tcp-client-connection, digit?, fd-read;
 end module fd-compat;
 
 define module board
   use common-dylan;
   use streams;
   use format;
-
+  use print, import: {print-object};
+  
   export
     <state>, board, robots, packages, packages-at,
     <board>,
-    <coordinate>, <point>, x, y,
+    <coordinate>, <point>, x, y, point,
     send-board, receive-board,
     width, height, passable?,
     <terrain>, <wall>, <water>, <base>, <space>,

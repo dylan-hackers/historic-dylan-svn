@@ -2,6 +2,7 @@ comment:	This file is generated, please don't edit
 format-version:	2
 library:	icfp2002
 files:	fd-icfp2002-exports
+	fd-compat
 	point
 	board
 	path
@@ -11,7 +12,6 @@ files:	fd-icfp2002-exports
 	package
 	command
 	messages
-	fd-compat
 	icfp2002
 base-address:	0x63DC0000
 start-function:	start

@@ -1,5 +1,22 @@
 module: fd-compat
 
+// Functional developer has a bug whereby read(...) does not work
+// on sockets. Workaround here.
+define function fd-read(stream :: <stream>, size :: <integer>)
+  let temp = make(<byte-string>, size: size);
+  block(return)
+    for(n from 0 below size)
+      let ch = read-element(stream, on-end-of-stream: #f);
+      if(ch)
+        temp[n] := ch;
+      else
+        return(temp)
+      end if;
+    end for;
+    temp;
+  end block;
+end function fd-read;
+
 define method split(delim, str)
   split-string(str, delim);
 end;
