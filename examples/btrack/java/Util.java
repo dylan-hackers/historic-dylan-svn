@@ -22,7 +22,7 @@ public class Util
     private static       Class  DB_DRIVER      = null;
     private static final String DB_URL         = "jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=btrack";
     private static final String DB_USERNAME    = "sa";
-    private static final String DB_PASSWORD    = "ddtww4";
+    private static final String DB_PASSWORD    = "your password here";
 
 
     //
