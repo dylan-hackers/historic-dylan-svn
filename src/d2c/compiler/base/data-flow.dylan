@@ -1,5 +1,5 @@
 Module: flow
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/data-flow.dylan,v 1.4 2002/04/28 20:42:12 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/data-flow.dylan,v 1.4.2.1 2002/07/28 12:11:29 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -74,7 +74,7 @@ abstract-assignment [source-location-mixin, dependent-mixin] {abstract}
 //
 define open abstract primary class <expression> (<identity-preserving-mixin>)
   //
-  // Threaded list of the dependencies connecting this expression to the
+  // Threaded chain of the dependencies connecting this expression to the
   // dependent that use this expression.
   slot dependents :: false-or(<dependency>),
     init-value: #f, init-keyword: dependents:;
@@ -108,7 +108,7 @@ end;
 //
 define open abstract class <dependent-mixin> (<queueable-mixin>)
   //
-  // Head of list of dependencies for the expressions that we depend on,
+  // Head of chain of dependencies for the expressions that we depend on,
   // threaded by dependent-next.
   slot depends-on :: false-or(<dependency>), init-value: #f,
     init-keyword: depends-on:;
@@ -148,7 +148,7 @@ define class <dependency> (<object>)
   slot dependent :: <dependent-mixin>, required-init-keyword: dependent:;
   //
   // Thread running through all incoming edges at a given Dependent object.
-  // This list is ordered according to the needs of the dependent (e.g. the
+  // This chain is ordered according to the needs of the dependent (e.g. the
   // argument ordering in an <operation>.)
   slot dependent-next :: false-or(<dependency>), init-value: #f,
     init-keyword: dependent-next:;
@@ -265,7 +265,7 @@ define open abstract primary class <operation>
     (<expression>, <dependent-mixin>, <annotatable>)
   inherited slot derived-type, init-function: wild-ctype;
   //
-  // Head of operand list, threaded by Dependent-Next.
+  // Head of operand chain, threaded by Dependent-Next.
   inherited slot depends-on;
 end class;
 
@@ -288,7 +288,7 @@ define open abstract primary class <abstract-assignment>
   // Dependency for the expression generating the assigned value(s).
   inherited slot depends-on;
 
-  // Linked list of variables defined by this operation (results), threaded by
+  // Chain of variables defined by this operation (results), threaded by
   // DEFINER-NEXT.  If #F, then there are no results, hence any computed result
   // is unused.
   slot defines :: false-or(<definition-site-variable>), init-value: #f;
@@ -298,7 +298,7 @@ define open abstract primary class <abstract-assignment>
   slot region :: false-or(<simple-region>), init-keyword: region:,
     init-value: #f;
 
-  // Pointers in the doubly linked list of operations in the Region.
+  // Pointers in the doubly linked chain of operations in the Region.
   slot next-op :: false-or(<abstract-assignment>), init-value: #f;
   slot prev-op :: false-or(<abstract-assignment>), init-value: #f;
 end;
