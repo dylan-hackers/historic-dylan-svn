@@ -113,7 +113,7 @@ define method find-safest(me :: <gabot>, coll :: <sequence>, location :: <functi
                 if (~best-thing
                     | distance-cost(position, thing.location) < distance) // # FISHY TODO we should compare paths
                   let (better-thing, nearer-path)
-                    = values(thing, path); //find-near-safe-place(thing, path); ICE#### HACK!
+                    = find-near-safe-place(thing, path);
                   found(better-thing, nearer-path)
                 end if;
               end if;
