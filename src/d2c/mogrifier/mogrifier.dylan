@@ -101,18 +101,11 @@ end;
 
 
 
-define not-inline function is-subtype?(a, b)
-subtype?(a, b)
-end;
-
-
 define method make(class == <powerpc-instruction>, #rest args, #key instruction-word :: <integer>)
  => instruction :: <powerpc-instruction>;
   let primary = ash(instruction-word, -26);
   let primary = primary >= 0 & primary | primary + #x40;
   let subcode = instruction-word.instruction-mask-subcode;
-  
-  format-out("subtype? %=\n", is-subtype?(singleton(16), limited(<integer>, min: 0, max: 63)));
   
     format-out("%d, %s\n", primary, class-for-instruction-subcode(primary, subcode)); // ####
   apply(next-method, class-for-instruction-subcode(primary, subcode), args);
@@ -151,13 +144,6 @@ define constant <subcode-field> = <integer>;
 //
 // Disassembler generics
 //
-/*
-define generic powerpc-disassemble-primary
-  (simplify :: <boolean>,
-   primary :: <primary-field>,
-   secondary :: <integer>)
- => mnemo :: <string>;
-*/
 
 define generic powerpc-disassemble-subcode
   (simplify :: <boolean>,
@@ -177,16 +163,6 @@ define method powerpc-disassemble-subcode
   format-out("unknown primary: %d, key: %d\n", primary, subcode);
   "???"
 end;
-
-/*
-define method powerpc-disassemble-primary
-  (simplify :: <boolean>,
-   primary :: one-of(19, 31, 63 / * or separate? * /),
-   secondary :: <integer>)
- => mnemonics :: <string>;
-  powerpc-disassemble-subcode(simplify, primary, instruction-mask-subcode(secondary), secondary)
-end;
-*/
 
 define macro instruction-definer
   
@@ -229,18 +205,11 @@ define macro instruction-definer
       end;
   }
 
-  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) simplify ?simplifications; ?more:* end }
+  { define instruction ?:name(?primary:expression; ?key:expression; ?rest:*) simplify ?simplification-stuff:*; ?more:* end }
   =>
   {
     define instruction ?name(?primary; ?key; ?rest) ?more end;
-    define method powerpc-disassemble-subcode(simplify == #t, primary == ?primary, subcode == ?key, secondary :: <integer>, #next next-method)
-     => mnemonics :: <string>;
-      case
-        ?simplifications;
-        otherwise
-          => next-method();
-      end case
-    end;
+    define simplifiable instruction (?primary, singleton(?key); ?simplification-stuff) end;
   }
 
   { define instruction ?:name(?primary:expression; ?rest:*) ?simp:* end }
@@ -255,7 +224,7 @@ define macro instruction-definer
     end;
   }
   
-  { define branch instruction ?:expression(?primary:expression, ?key-type:expression; ?branches) end }
+  { define branch instruction (?primary:expression, ?key-type:expression; ?branches) end }
   =>
   {
     define method class-for-instruction-subcode(primary == ?primary, subcode :: ?key-type)
@@ -274,14 +243,13 @@ define macro instruction-definer
   =>
   {
     define instruction ?expression(?primary; ?rest) ?more end;
-    define branch instruction ?expression(?primary, <subcode-field>; ?branch-stuff) end;
+    define branch instruction (?primary, <subcode-field>; ?branch-stuff) end;
   }
   
-  { define instruction ?:expression(?primary:expression; ?rest:*) simplify ?simplifications; ?more:* end }
+  { define simplifiable instruction (?primary:expression, ?key-type:expression; ?simplifications) end }
   =>
   {
-    define instruction ?expression(?primary; ?rest) ?more end;
-    define method powerpc-disassemble-subcode(simplify == #t, primary == ?primary, subcode :: <subcode-field>, secondary :: <integer>, #next next-method)
+    define method powerpc-disassemble-subcode(simplify == #t, primary == ?primary, subcode :: ?key-type, secondary :: <integer>, #next next-method)
      => mnemonics :: <string>;
       case
         ?simplifications;
@@ -291,9 +259,16 @@ define macro instruction-definer
     end;
   }
   
+  { define instruction ?:expression(?primary:expression; ?rest:*) simplify ?simplification-stuff:*; ?more:* end }
+  =>
+  {
+    define instruction ?expression(?primary; ?rest) ?more end;
+    define simplifiable instruction (?primary, <subcode-field>; ?simplification-stuff) end;
+  }
+  
   form:
     { BO, BI, LK } => { secondary.instruction-field-LK, " ", secondary.instruction-field-BO, ",", secondary.instruction-field-BI }
-    { BO, BI, BD, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-field-BO, ",", secondary.instruction-field-BI, ",", secondary.instruction-BD-suffix }
+    { BO, BI, BD, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-field-BO, ",", secondary.instruction-field-BI, ",", secondary.instruction-field-BD }
     { LI, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-field-LI }
     { S, A, d } => { " ", secondary.instruction-field-S, ",", secondary.instruction-field-SIMM, "(", secondary.instruction-field-A, ")" }
     { crfD, L, A, SIMM } => { " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-L, ",", secondary.instruction-field-A, ",", secondary.instruction-field-SIMM }
@@ -320,8 +295,9 @@ define macro instruction-definer
     { crfD, A, UIMM } => { " ", secondary.instruction-field-crfD, ",", secondary.instruction-field-A, ",", secondary.instruction-field-UIMM }
     { A, SIMM } => { " ", secondary.instruction-field-A, ",", secondary.instruction-field-SIMM }
     { A, UIMM } => { " ", secondary.instruction-field-A, ",", secondary.instruction-field-UIMM }
-    { AA, LK } => { secondary.instruction-field-LK, secondary.instruction-field-AA }
+    { BD, ?absolute-type-branch } => { ?absolute-type-branch, ",", secondary.instruction-field-BD }
     { LK } => { secondary.instruction-field-LK }
+    { cr, BD, ?absolute-type-branch } => { ?absolute-type-branch, " ", secondary.instruction-field-cr, secondary.instruction-field-BD }
 
   absolute-type-branch:
     { AA, LK } => { secondary.instruction-field-LK, secondary.instruction-field-AA }
@@ -398,6 +374,9 @@ define macro instruction-definer
     { TRUE } => { (secondary.instruction-mask-TRUE == 1) }
     { KEEP } => { (secondary.instruction-mask-KEEP == 1) }
     { STOP } => { (secondary.instruction-mask-STOP == 1) }
+    { lt } => { (secondary.instruction-mask-lt == 1) }
+    { gt } => { (secondary.instruction-mask-gt == 1) }
+    { eq } => { (secondary.instruction-mask-eq == 1) }
 
 end macro instruction-definer;
 
@@ -491,7 +470,33 @@ define mask-only instruction-field KEEP(8) end;
 define mask-only instruction-field STOP(9) end;
 define mask-only instruction-field TAKE(10) end;
 
+// BI flags:
+/*
+define mask-only instruction-field lt(14, 15) end;
+define mask-only instruction-field gt(14, 15) end;
+define mask-only instruction-field eq(14, 15) end;
+*/
 
+define inline function instruction-mask-lt(secondary :: <integer>)
+ => lt :: <integer>;
+  instruction-mask(secondary, 14, 15) == 0
+  & 1
+  | 0
+end;
+
+define inline function instruction-mask-gt(secondary :: <integer>)
+ => gt :: <integer>;
+  instruction-mask(secondary, 14, 15) == 1
+  & 1
+  | 0
+end;
+
+define inline function instruction-mask-eq(secondary :: <integer>)
+ => eq :: <integer>;
+  instruction-mask(secondary, 14, 15) == 2
+  & 1
+  | 0
+end;
 
 
 define inline function instruction-field-spr(secondary :: <integer>)
@@ -508,7 +513,7 @@ define inline function instruction-field-SIMM(secondary :: <integer>)
   format-to-string("%d", d)
 end;
 
-define inline function instruction-BD-suffix(secondary :: <integer>)
+define inline function instruction-field-BD(secondary :: <integer>)
  => bd :: <string>;
   let aa = instruction-mask(secondary, 30, 30);
   let sign = instruction-mask(secondary, 16, 16);
@@ -560,6 +565,13 @@ define instruction-field OE(21)
   & "O"
   | ""
 end;
+
+define instruction-field cr(11, 13)
+  cr == 0
+  & ""
+  | format-to-string("cr%d,", cr)
+end;
+
 
 
 define constant instruction-position = limited(<integer>, min: 0, max: 31);
@@ -623,19 +635,34 @@ define instruction adde(31; 138; OE; D, A, B, Rc) end;
 define instruction mfcr(31; 19; D) end;
 
 define instruction bc(16; BO, BI, BD, AA, LK)
-  simplify [(field BI = 0) & [(field BO = #b01100) | (field BO = #b01101)]]
-    => bt(AA, LK);
+  simplify
+   [(field BI = 0) & [(field BO = #b01100) | (field BO = #b01101)]]
+    => bt(BD, AA, LK), // ### use below method too
+   [(flagged lt) & (flagged KEEP) & (flagged TRUE)]
+    => blt(cr, BD, AA, LK),
+   [(flagged lt) & (flagged KEEP) & (unflagged TRUE)]
+    => bnl(cr, BD, AA, LK),
+   [(flagged gt) & (flagged KEEP) & (flagged TRUE)]
+    => bgt(cr, BD, AA, LK),
+   [(flagged gt) & (flagged KEEP) & (unflagged TRUE)]
+    => bng(cr, BD, AA, LK),
+   [(flagged eq) & (flagged KEEP) & (flagged TRUE)]
+    => beq(cr, BD, AA, LK),
+   [(flagged eq) & (flagged KEEP) & (unflagged TRUE)]
+    => bne(cr, BD, AA, LK);
   branch flagged AA
     => BD,
    unflagged AA
     => PC + BD
+//  return flagged LK => LR
 end;
 
 define instruction b(18; LI, AA, LK)
   branch flagged AA
     => LI,
    unflagged AA
-    => PC + LI
+    => PC + LI;
+//  return flagged LK => LR
 end;
 
 define instruction bclr(19; 16; BO, BI, LK)
@@ -720,3 +747,24 @@ end function main;
 
 // Invoke our main() function.
 main(application-name(), application-arguments());
+
+
+//------------------------------------------------
+// Further thoughts
+//------------------------------------------------
+/*
+
+define instruction cmpl(31; 32; crfD, L, A, B)
+  simplify [(field crfD = 0) & (unflagged L)]
+    => cmplw(A, B),
+   unflagged L
+    => cmplw(crfD, A, B);
+   implement primitive #"fixnum-="(A, B) => crfD(eq),
+     primitive #"fixnum-<"(A, B) => crfD(lt),
+     primitive #"fixnum-<"(B, A) => crfD(gt);
+   affect crfD
+end;
+
+
+*/
+
