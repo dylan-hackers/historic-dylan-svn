@@ -3589,28 +3589,142 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 
   <CHAPTER ID="libs-transcendental">
     <TITLE>The Transcendental Library</TITLE>
+    <para>
+      The Transcendental library contains functions on numbers.  It
+      includes commonly used numbers, such as pi and e, and the
+      transcendental functions, including sine, cosine, and tangent,
+      and their arc, h, and arc-h counterparts.  Also included are the
+      logarithmic family of functions (the various log functions and
+      exp), and the square-root and power (^) functions.
+    </para>
 
     <sect1 id="libs-transcendental-transcendental">
     <title>The Transcendental Module</title>
     <para>
-      The Transcendental library contains functions on numbers.  It
-    includes commonly used numbers, such as pi and e, and the
-    transcendental functions, including sine, cosine, and tangent,
-    and their arc, h, and arc-h counterparts.  Also included are the
-    logarithmic family of functions (the various log functions and
-    exp), and the square-root and power (^) functions.
+      To understand the transcendental functions (particularly, sine,
+      cosine, and tangent, and their friends), one must know about the
+      relationships for a right triangle.  The discussion will use the
+      below reference figure:
+    </para>
+    <triangle>
+    <para>
+      Sine, cosine, and tangent are used when you know an angle and a
+      length of one of the sides of a right triangle, and you want to
+      know the length of another side.  For these functions, the angle
+      (theta) is in radians, not degrees.  Using the reference diagram
+      above, for sine, you work with the hypotenuse (AC) and the height
+      (AB), for cosine, you work with the hypotenuse (AC) and the base
+      length (BC), and for tangent, you work with the base and the height.
+    </para>
+
+    <dylangenericdef>
+      <defname>sin</defname>
+      <defsummary>Returns the sine of a real number.</defsummary>
+      <defparameters>
+        <param>
+	  <paramname>x</paramname>
+	  <paramtype> &lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+        <param>
+	  <paramname>y</paramname>
+	  <paramtype> &lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+  	<para>
+	  Returns the sine of a real number.  Using the above right
+	  triangle, the sine of theta is AB / AC.  For example, say AC
+	  is 12 meters and theta is $double-pi / 6 (30 degrees).  You solve
+	  for AB by multiplying AC and sine theta.  AB = 12 * sin($double-pi /
+	  6.0) => 6 meters.
+  	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <dylangenericdef>
+      <defname>cos</defname>
+      <defsummary>Returns the cosine of a real number.</defsummary>
+      <defparameters>
+        <param>
+	  <paramname>x</paramname>
+	  <paramtype> &lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+        <param>
+	  <paramname>y</paramname>
+	  <paramtype> &lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+  	<para>
+	  Returns the cosine of a real number.  The cosine of theta is
+	  BC / AC.  Problem:  Given theta is $double-pi / 4 and BC is
+	  7 meters, what length is AC?  What is theta in degrees?
+	  (see the entry for $double-pi for help)
+  	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <dylangenericdef>
+      <defname>tan</defname>
+      <defsummary>Returns the tangent of a real number.</defsummary>
+      <defparameters>
+        <param>
+	  <paramname>x</paramname>
+	  <paramtype> &lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+        <param>
+	  <paramname>y</paramname>
+	  <paramtype> &lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+  	<para>
+	  Returns the tangent of a real number.  The tangent of theta
+	  is AB / BC.
+  	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <para>
+      So, perhaps you are used to thinking in degrees, not radians.
+      How do you convert between the two when you use the above
+      functions?  That's as easy as pi!  If you have the angle in
+      degrees and one of side lengths, first multiple that angle by
+      pi / 180.0 (either $double-pi or $single-pi) to get radians, and
+      then use that resulting theta in the appropriate 
+      function. 
+    </para>
+    <para>
+      There are several engrossing exercises for computing pi, and
+      several novel approaches.  The most widely-known approach is to
+      compute the value of the series 4 - 4/3 + 4/5 - 4/7 ... (which
+      takes a very large number of terms to get close to Chuck Moore's
+      find (see below)).  Another is to use the Fibonacci sequence
+      (see
+      http://www.ee.surrey.ac.uk/Personal/R.Knott/Fibonacci/fibpi.html)
+      which become usable in about ten terms.
     </para>
 
     <dylanconstantdef>
       <defname>$double-pi</defname>
       <defsummary>
-        The approximation of pi for double-precision
-        (&lt;double-float&gt;) arithmetic.
+        The approximation of pi for double-precision floating-point
+        arithmetic.
       </defsummary>
       <deftype>&lt;double-float&gt;</deftype>
       <defdescription>
         <para>
-	  The value here is 3.14159265358979323846.
+	  The value here is 3.14159265358979323846.  Chuck Moore, the
+	  inventor of the programming language Forth, chose instead to
+	  use 355 / 113 as pi (which is accurate to 3e-7), as
+	  computers at the time processed floating point operations
+	  too slowly for use in real-time applications.
 	</para>
       </defdescription>
     </dylanconstantdef>
@@ -3618,7 +3732,8 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     <dylanconstantdef>
       <defname>$single-pi</defname>
       <defsummary>
-        The approximation of pi for single-precision arithmetic.
+        The approximation of pi for single-precision floating-point
+        arithmetic.
       </defsummary>
       <deftype>&lt;single-float&gt;</deftype>
       <defdescription>
@@ -3627,6 +3742,17 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	</para>
       </defdescription>
     </dylanconstantdef>
+
+    <para>
+      The next question that comes up is if you have two sides of the
+      right triangle, and you need to know the angle.  The arc
+      functions of sine, cosine and tangent resolve this issue.  The
+      arc sine function (asin, also known as the inverse sine) gives
+      the angle (in radians, again) from the height (AB) over the
+      hypotenuse (AC).  The other arc functions, acos, and atan,
+      behave as their more-familiar counterparts.  Again, to convert
+      from radians to degrees, multiple the result by 180 / pi.
+    </para>
 
     <dylanconstantdef>
       <defname>$double-e</defname>
@@ -3653,78 +3779,6 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	</para>
       </defdescription>
     </dylanconstantdef>
-
-    <dylangenericdef>
-      <defname>sin</defname>
-      <defsummary>Returns the sine of a real number.</defsummary>
-      <defparameters>
-        <param>
-	  <paramname>x</paramname>
-	  <paramtype> &lt;real&gt;</paramtype>
-	</param>
-      </defparameters>
-      <defreturns>
-        <param>
-	  <paramname>y</paramname>
-	  <paramtype> &lt;float&gt;</paramtype>
-	</param>
-      </defreturns>
-      <defdescription>
-  	<para>
-	  Returns the sine of a real number ... the only method on
-	  this generic function specializes on &lt;double-float&gt;s
-	  for the parameter and return value.
-  	</para>
-      </defdescription>
-    </dylangenericdef>
-
-    <dylangenericdef>
-      <defname>cos</defname>
-      <defsummary>Returns the cosine of a real number.</defsummary>
-      <defparameters>
-        <param>
-	  <paramname>x</paramname>
-	  <paramtype> &lt;real&gt;</paramtype>
-	</param>
-      </defparameters>
-      <defreturns>
-        <param>
-	  <paramname>y</paramname>
-	  <paramtype> &lt;float&gt;</paramtype>
-	</param>
-      </defreturns>
-      <defdescription>
-  	<para>
-	  Returns the cosine of a real number ... the only method on
-	  this generic function specializes on &lt;double-float&gt;s
-	  for the parameter and return value.
-  	</para>
-      </defdescription>
-    </dylangenericdef>
-
-    <dylangenericdef>
-      <defname>tan</defname>
-      <defsummary>Returns the tangent of a real number.</defsummary>
-      <defparameters>
-        <param>
-	  <paramname>x</paramname>
-	  <paramtype> &lt;real&gt;</paramtype>
-	</param>
-      </defparameters>
-      <defreturns>
-        <param>
-	  <paramname>y</paramname>
-	  <paramtype> &lt;float&gt;</paramtype>
-	</param>
-      </defreturns>
-      <defdescription>
-  	<para>
-	  Returns the tangent of a real number ... the only method on
-	  this generic function specializes on &lt;double-float&gt;s
-	  for the parameter and return value.
-  	</para>
-      </defdescription>
-    </dylangenericdef>
 
     </sect1>
 

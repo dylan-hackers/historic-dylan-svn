@@ -623,6 +623,14 @@
     (make element
       gi: "I")))
 
+(element triangle
+  (make sequence
+    (make element gi: "P"
+	  (make element gi: "CENTER"
+		(make element gi: "IMG" attributes: '(("SRC" "tri.png")))
+		(make element gi: "BR")
+		(make element gi: "EM" (literal "A right triangle"))))))
+
 ;;; Defining Constatants
 
 </style-specification-body>

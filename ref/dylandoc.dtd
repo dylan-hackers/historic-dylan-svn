@@ -30,7 +30,7 @@
 <!ENTITY % dylan.def.class
            "DylanConstantDef|DylanVariableDef|
             DylanGenericDef|DylanMethodDef|DylanFunctionDef|
-            DylanClassDef|DylanMacroDef
+            DylanClassDef|DylanMacroDef|triangle
             %local.dylan.def.class;" >
 
 <!ENTITY % local.dylan.tech.char.class "">
@@ -98,6 +98,8 @@
   Reference Manual.
 -->
 
+<!ELEMENT triangle - O EMPTY>
+
 <!ELEMENT DylanConstantDef - - (DefName, DefSummary, DefType?, DefValue?,
                                 DefDescription, DefSection*) >
 
@@ -163,7 +165,6 @@
 <!ELEMENT ParamDefault - - (#PCDATA) >
 <!ELEMENT ParamSingleton - - (#PCDATA) >
 <!ELEMENT ParamSummary - - ((%para.char.mix; | %para.mix;)+) >
-
 
 <!-- =============== Class Definitions ================================
   The following elements are used to define different kinds of
