@@ -160,12 +160,25 @@ define class <texture> (<node>)
   slot texture-id :: false-or(<integer>) = #f;
 end class <texture>;
 
+define constant $texture-cache = make(<string-table>);
+
+define function lookup-texture(url :: <string>)
+  let cached-texture = element($texture-cache, url, default: #f);
+  if(cached-texture)
+    apply(values, cached-texture)
+  else
+    let (#rest data) = read-png(url);
+    $texture-cache[url] := data;
+    apply(values, data);
+  end if;
+end function lookup-texture;
+
 define method initialize(t :: <texture>, 
                          #key file-name :: false-or(<string>), 
                          #all-keys) => (<texture>);
   next-method();
   if(file-name)
-    let (pixel-data, width, height, depth) = read-png(file-name);
+    let (pixel-data, width, height, depth) = lookup-texture(file-name);
     t.pixel-data := pixel-data;
     t.width := width; 
     t.height := height;
