@@ -94,7 +94,7 @@ end;
 // optimize #"point"
 
 define method optimizable-three(token1 :: <fp>, token2 :: <fp>, token3 :: <fp>, more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-    debug-print("####2###");
+    //debug-print("####2###");
 
   if (more.head == #"point")
     pair(make(<point>, x: token1, y: token2, z: token3), more.tail)
@@ -108,7 +108,7 @@ define method optimize-all(tokens == #(), #key suppress-closure) => (tokens :: <
 end;
 
 define method optimize-all(orig-tokens :: <pair>, #key suppress-closure) => (tokens :: <list>, closure);
-  debug-print("entering optimize-all: %= suppress: %=\n", orig-tokens, suppress-closure);
+  //debug-print("entering optimize-all: %= suppress: %=\n", orig-tokens, suppress-closure);
   let tokens-tail = orig-tokens.tail;
   let optimized-tail :: <list> = optimize-all(tokens-tail, suppress-closure: #t);
 ///    debug-print("tokens-tail.optimize-all: %=\n", optimized-tail);
@@ -117,12 +117,12 @@ define method optimize-all(orig-tokens :: <pair>, #key suppress-closure) => (tok
   let orig-tokens = tokens-tail == optimized-tail & orig-tokens | pair(orig-tokens.head, optimized-tail);
 ///  debug-print("optimizable-one gets passed: %= %=\n", orig-tokens.head, orig-tokens.tail, suppress-closure);
   let (tokens :: <list>, closure) = optimizable-one(orig-tokens.head, orig-tokens.tail, suppress-closure, orig: orig-tokens);
-  debug-print("optimizable-one returned: %= %=\n", tokens, closure);
+  //debug-print("optimizable-one returned: %= %=\n", tokens, closure);
   if (closure | tokens == orig-tokens)
-    debug-print("returning them\n");
+    //debug-print("returning them\n");
     values(tokens, closure)
   else
-    debug-print("optimizing more\n");
+    //debug-print("optimizing more\n");
     optimize-all(tokens, suppress-closure: suppress-closure)
   end if
 end;
