@@ -55,6 +55,30 @@ define method generate-output(input :: <stretchy-object-vector>)
   reverse!(state.output-tokens);
 end method generate-output;
 
+
+define method concatenate-lists(v :: <list>)
+ => result :: <list>;
+  let length = for (total = 0 then total + l.size,
+		    l :: <list> in v)
+	       finally total;
+	       end for;
+  
+  let result :: <list> = make(<list>, size: length);
+  let (init-state, limit, next-state, done?, current-key, current-element,
+       current-element-setter) = forward-iteration-protocol(result);
+  
+  for (result-state = init-state
+	 then for (item in lst,
+		   state = result-state then next-state(result, state))
+		current-element(result, state) := item;
+	      finally state;
+	      end for,
+       lst :: <list> in v)
+  end for;
+  result;
+end method concatenate-lists;
+
+
 define method generate-optimized-output(input :: <stretchy-object-vector>, #key run = 0)
  => (strings :: <list>, exhausted :: <boolean>);
   let state = make(<generator-state>, text-runs: input);
@@ -65,11 +89,7 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
   local
     method successor-states (x) => states;
       let lists = map(generate-next-run, x);
-      let res = #();
-      for (e in lists)
-	res := concatenate(e, res);
-      end;
-      res;
+      concatenate-lists(lists);
     end method successor-states;
   local 
     method cost-order (x :: <generator-state>, y :: <generator-state>) // XXX Tweak here
