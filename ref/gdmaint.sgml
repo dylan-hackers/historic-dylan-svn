@@ -1414,10 +1414,6 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	  <defdescription>
 	   <para>Load a one-slot object.  The value is returned, and
 	   we check that there was in fact only one subobject.</para>  
-
-	   <para>This method seems not to be useful; there appears to
-	   be no users of it in neither this library nor in the
-	   &front-lib;.</para>
 	  </defdescription>
 	 </dylanmethoddef>
 
