@@ -19,13 +19,15 @@ endif
 endif
 endif
 
-opengl.lib.du: $(LIDFILE) opengl-exports.dylan opengl-intr.dylan \
-               opengl-glut-intr.dylan opengl-glu-intr.dylan \
-	       opengl-macros.dylan 
-#              opengl-osmesa-intr.dylan
+opengl.lib.du: $(LIDFILE) \
+		opengl-exports.dylan \
+		opengl-intr.dylan \
+		opengl-glut-intr.dylan \
+		opengl-glu-intr.dylan \
+		opengl-macros.dylan 
 	d2c $(LIDFILE)
 
-opengl.lid: opengl-exports.dylan opengl-intr.dylan opengl-glut-intr.dylan
+opengl.lid: opengl-exports.dylan opengl-intr.dylan opengl-glut-intr.dylan opengl-glu-intr.dylan opengl-macros.dylan
 	touch $@
 
 opengl-intr.dylan: opengl.intr
@@ -36,9 +38,6 @@ opengl-glu-intr.dylan: opengl-glu.intr
 	$(MELANGE) $< ,$@ && mv ,$@ $@
 
 opengl-glut-intr.dylan: opengl-glut.intr
-	$(MELANGE) $< ,$@ && mv ,$@ $@
-
-opengl-osmesa-intr.dylan: opengl-osmesa.intr
 	$(MELANGE) $< ,$@ && mv ,$@ $@
 
 clean:
