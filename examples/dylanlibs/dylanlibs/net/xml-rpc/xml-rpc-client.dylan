@@ -4,6 +4,7 @@ Author:    Chris Double
 Copyright: (C) 2000, Chris Double.  All rights reserved.
 License:   See License.txt
 
+
 define class <xml-rpc-value> (<object>)
   slot xml-rpc-encoded-value :: <string>, init-keyword: value:;
 end class <xml-rpc-value>;
@@ -35,13 +36,17 @@ define method as-xml-rpc-type(value :: <string>) => (s :: <string>)
   format-to-string("<string>%s</string>", encode-string(value));                     
 end method as-xml-rpc-type;
 
+define method as-xml-rpc-type(value :: <base64>) => (s :: <string>)
+  format-to-string("<base64>%s</base64>", value.base64-string);                     
+end method as-xml-rpc-type;
+
 define method xml-float-to-string(value :: <float>) => (s :: <string>)
   let s = format-to-string("%d", value);
   let dp = subsequence-position(s, ".");
-  let tp = subsequence-position(s, "d") | subsequence-position(s, "s");
+  let tp = subsequence-position(s, "d") | subsequence-position(s, "s") | s.size;
   let lhs = copy-sequence(s, end: dp);
   let rhs = copy-sequence(s, start: dp + 1, end: tp);
-  let shift = string-to-integer(s, start: tp + 1);
+  let shift = if(tp = s.size) 0  else string-to-integer(s, start: tp + 1) end;
   let result = "";
   if(shift <= 0)
     result := concatenate(result, lhs, ".");
@@ -158,12 +163,12 @@ end method send-method-call;
 define method xml-rpc-send(host, port, url, rpc-method :: <string>, #rest args)
   let method-call = build-method-call(rpc-method, args);
   let method-response = send-method-call(host, port, url, method-call);
-  let (index, parsed-response) = parse-response(method-response);
-  parsed-response;
+  parse-response(method-response);
 end method xml-rpc-send;
 
 // Must be called by client libraries to initialize sockets.
 define method start-xml-rpc()
   start-sockets();
+  msxml3-initialize();
 end method start-xml-rpc;
 

@@ -7,11 +7,11 @@ License:   See License.txt
 define library xml-rpc
   use functional-dylan;
   use date;
-  use meta;
   use io;
   use x-sockets;
   use proxy-sockets;
   use double-base64;
+  use msxml3;
 
   export xml-rpc-internals, 
     xml-rpc-client;
