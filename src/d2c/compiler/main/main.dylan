@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.1 2002/07/27 12:57:08 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.2 2002/07/27 13:16:28 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -401,6 +401,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
       format(*standard-output*, "gwydion> ");
       force-output(*standard-output*);
       let line = read-line(*standard-input*);
+      evaluate(line);
     end while;
     exit();
   end if;
