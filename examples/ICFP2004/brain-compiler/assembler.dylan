@@ -319,23 +319,31 @@ define function push-thunk (instrs, label, counter, thunk, #key all-vars = instr
   end for
 end;
 
+
+define constant $cross-reference = make(<table>);
+
 define function lookup (instrs, label, counter)
  => instr :: <instruction>;
 ////////  let pos = make(<instruction-label-count>, label: label, count: counter);
 
   let pos = create-label(label, counter, instrs[#"VARIABLES"], #(#f)); /// ### for now
   
-  block ()
-    let instr = instrs[pos];
-    select (instr by instance?)
-      <function> =>
-        instrs[pos] := instr();
-      otherwise =>
-        instr;
-    end;
-  exception (<error>)
-    format-out("lookup: (%s, %d), did you fall off your block?\n  key: %=\n  keys: %=\n\n", label, counter, pos, instrs.key-sequence);
-  end block;
+  let instr
+  = block ()
+      let instr = instrs[pos];
+      select (instr by instance?)
+        <function> =>
+          instrs[pos] := instr();
+        otherwise =>
+          instr;
+      end;
+    exception (<error>)
+      format-out("lookup: (%s, %d), did you fall off your block?\n  key: %=\n  keys: %=\n\n", label, counter, pos, instrs.key-sequence);
+    end block;
+  
+  $cross-reference[instr] := pair(label, counter);
+
+  instr
 end;
 
 define function compile-states (instrs :: <table>, start-label :: <symbol>)
@@ -455,13 +463,5 @@ define method functional-==
     & l.instruction-count == r.instruction-count
 end;
 
-
-// direct builders
-// intended for use with "Verbatim"
-
-define function Drop(next-state :: <instruction>)
- => instruction :: <drop>;
-  make(<drop>, state: next-state)
-end;
 
 

@@ -63,4 +63,15 @@ define brain test-brain1
 end;
  
  
-test-brain1().dump-brain;
+define constant $test-brain = test-brain1();
+
+$test-brain.dump-brain;
+
+define function dump-cross-reference(brain)
+  for (i in brain, n from 1)
+    format-out("%d -----> %=\n", n, block () $cross-reference[i] exception (<error>) "Ooops" end);
+  end;
+end;
+
+
+$test-brain.dump-cross-reference;

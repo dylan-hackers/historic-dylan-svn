@@ -66,15 +66,6 @@ define macro ant-subbrain-definer
                      state: curry(lookup, instrs, label, ?state)))
   }
   
-/*  { Turn Right ?state:expression }
-  =>
-  {
-    push-thunk(instrs, label, counter,
-    curry(make, <turn>,
-          left-or-right: right:,
-          state: curry(lookup, instrs, label, ?state)))
-  }*/
-  
   { Mark ?what:expression ?state:expression }
   =>
   {
