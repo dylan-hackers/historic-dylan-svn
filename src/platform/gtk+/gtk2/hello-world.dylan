@@ -1,36 +1,6 @@
 module: hello-world
-use-libraries: dylan, common-dylan, io, gtk-2, melange-support, command-processor, debugger
-use-modules: common-dylan, system, streams, standard-io, format-out, gtk, melange-support, command-processor, debugger, introspection, extensions
-
-define constant generic-dylan-marshaller = 
-    callback-method(stub-closure         :: <raw-pointer>,
-                    stub-return-value    :: <raw-pointer>,
-                    stub-n-param-values  :: <integer>,
-                    stub-param-values    :: <raw-pointer>,
-                    stub-invocation-hint :: <raw-pointer>,
-                    stub-marshal-data    :: <raw-pointer>) => ();
-      format-out("Callback called with %= parameters. Marshal data:%=\n", stub-n-param-values, stub-marshal-data);
-      force-output(*standard-output*);
-      import-value(<object>, make(<gpointer>, pointer: stub-marshal-data))();
-//      run-command-processor();
-    end;
-
-define function my-signal-connect(instance :: <GObject>, 
-                                  signal :: <byte-string>,
-                                  function :: <function>,
-                                  #key run-after? :: <boolean>)
-//  c-include("gtk/gth.h");
-  let closure = g-closure-new-simple(100, //c-expr(int:, "sizeof(struct GClosure)"),
-                                     #f);
-  g-closure-set-meta-marshal
-    (closure, function, 
-     make(<GClosureMarshal>, 
-          pointer: generic-dylan-marshaller.callback-entry));
-  g-signal-connect-closure(instance, 
-                           signal, 
-                           closure, 
-                           if(run-after?) 1 else 0 end)
-end function my-signal-connect;
+use-libraries: dylan, common-dylan, io, gtk-2
+use-modules: common-dylan, streams, standard-io, format-out, gtk
 
 define method hello(#rest args)
   format-out("Hello, World!\n");

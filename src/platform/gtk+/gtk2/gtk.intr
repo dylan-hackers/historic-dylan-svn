@@ -27,6 +27,8 @@ define interface
     equate-argument: { 6 => <integer>};
   function "g_signal_connect_closure",
     equate-argument: { 1 => <GObject>};
+  function "g_value_peek_pointer",
+    equate-result: <GObject>;
   struct "struct _GObject",
     superclasses: {<GTypeInstance>};
   struct "struct _GtkAccelGroup",

@@ -24,8 +24,8 @@ define function g-signal-connect(instance :: <GObject>,
                                   signal :: <byte-string>,
                                   function :: <function>,
                                   #key run-after? :: <boolean>)
-//  c-include("gtk/gth.h");
-  let closure = g-closure-new-simple(100, //c-expr(int:, "sizeof(struct GClosure)"),
+  c-include("gtk/gtk.h");
+  let closure = g-closure-new-simple(c-expr(int:, "sizeof(GClosure)"),
                                      #f);
   g-closure-set-meta-marshal
     (closure, function, 
@@ -134,12 +134,30 @@ define method make(type :: subclass(<GTypeInstance>), #rest args,
   end if;
 end method make;
   
-define method g-type-from-instance(instance :: <GTypeInstance>)
+define function g-type-from-instance(instance :: <GTypeInstance>)
  => (type :: <GType>);
   c-include("gtk/gtk.h");
   c-decl("GType g_type_from_instance(gpointer instance) { return G_TYPE_FROM_INSTANCE(instance); }");
   call-out("g_type_from_instance", int:, ptr: instance.raw-value);
-end method g-type-from-instance;
+end function g-type-from-instance;
+
+define function g-value-type(instance :: <GValue>)
+ => (type :: <GType>);
+  c-include("gtk/gtk.h");
+  c-decl("GType g_value_type(gpointer instance) { return G_VALUE_TYPE(instance); }");
+  call-out("g_value_type", int:, ptr: instance.raw-value);
+end function g-value-type;
+
+define function g-value-to-dylan(instance :: <GValue>)
+ => (dylan-instance);
+  let g-type = g-value-type(instance);
+  let dylan-type = find-gtype(g-type);
+  if(subtype?(dylan-type, <GObject>))
+    make(dylan-type, pointer: instance.g-value-peek-pointer.raw-value)
+  else
+    signal("Can't handle fundamental types yet.");
+  end if;
+end function g-value-to-dylan;
 
 // Another stupid workaround. Sometimes we need to access mapped types
 // as pointers, and Melange doesn't provide any way to do so. Or does it?
