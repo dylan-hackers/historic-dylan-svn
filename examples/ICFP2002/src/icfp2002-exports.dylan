@@ -46,6 +46,7 @@ define module board
     add-robot,
     copy-robot,
     find-robot,
+    robot-exists?,
     find-package,
     add-package;
 end module board;

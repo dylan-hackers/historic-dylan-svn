@@ -534,14 +534,31 @@ end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <transport>)
  => (state :: <state>)
-  let bot = find-robot(state, command.robot-id);
-
-  // For this bot, work through all the packages it carries and
-  // update it's location.
-  let ps = choose(method(p) p.carrier.id = bot.id end, state.packages);
-  for(p in ps)
-	state := add-package(state, copy-package(find-package(state, p.id), 
-                                                 new-location: command.transport-location));
-  end for;
-  add-robot(state, copy-robot(bot, new-location: command.transport-location));
+  if (robot-exists?(state, command.robot-id))
+    //  
+    // This bot is on our list, so we need to move it, and all of the
+    // packages it's carrying.
+    //
+    let bot :: <robot> = find-robot(state, command.robot-id);
+    let ps = choose(method(p) p.carrier.id = bot.id end, state.packages);
+    for(p in ps)
+      let moved-package :: <package> =
+        copy-package(find-package(state, p.id),
+                     new-location: command.transport-location);
+      state := add-package(state, moved-package);
+    end for;
+    add-robot(state, copy-robot(bot, new-location: command.transport-location));
+  else
+    // The robot isn't on our list, so it's a new robot that's just
+    // joined the game. We need to add it to the list, and update the
+    // world state. There's no need to frob with packages as above, because
+    // robots enter the world with no packages.
+    //
+    let new-bot :: <robot> = make(<robot>,
+                                  id: command.robot-id,
+                                  location: command.transport-location);
+    state := add-robot(state, new-bot);
+    //
+    state;
+  end if;
 end method process-server-command;

@@ -162,6 +162,12 @@ define method find-robot (state :: <state>, robot-id :: <integer>)
   end iterate;
 end method find-robot;
 
+define method robot-exists? (state :: <state>, bot-id :: <integer>)
+ => (<boolean>)
+  member?(bot-id, state.robots,
+          test: method(bot-id, robot) bot-id = robot.id end)
+end method robot-exists?;
+
 
 /* Package functions: */
 define method add-package (state :: <state>, package :: <package>) => state :: <state>;
