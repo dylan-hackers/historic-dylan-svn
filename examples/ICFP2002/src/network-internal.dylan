@@ -3460,7 +3460,7 @@ define method rcmd
     = call-out("rcmd", int:, ptr: (arg1).raw-value, unsigned-short: arg2, ptr: (arg3).raw-value, ptr: (arg4).raw-value, ptr: (arg5).raw-value, ptr: (arg6).raw-value);
   values(result-value);
 end method rcmd;
-
+/*
 define method rcmd-af
     (arg1 :: <c-char-pointer-vector>, arg2 :: <integer>, arg3 :: <c-char-vector>, arg4 :: <c-char-vector>, arg5 :: <c-char-vector>, arg6 :: <anonymous-7>, arg7 :: <sa-family-t>)
  => (result :: <integer>);
@@ -3468,7 +3468,7 @@ define method rcmd-af
     = call-out("rcmd_af", int:, ptr: (arg1).raw-value, unsigned-short: arg2, ptr: (arg3).raw-value, ptr: (arg4).raw-value, ptr: (arg5).raw-value, ptr: (arg6).raw-value, unsigned-short: arg7);
   values(result-value);
 end method rcmd-af;
-
+*/
 define method rexec
     (arg1 :: <c-char-pointer-vector>, arg2 :: <integer>, arg3 :: <c-char-vector>, arg4 :: <c-char-vector>, arg5 :: <c-char-vector>, arg6 :: <anonymous-7>)
  => (result :: <integer>);
@@ -3476,7 +3476,7 @@ define method rexec
     = call-out("rexec", int:, ptr: (arg1).raw-value, int: arg2, ptr: (arg3).raw-value, ptr: (arg4).raw-value, ptr: (arg5).raw-value, ptr: (arg6).raw-value);
   values(result-value);
 end method rexec;
-
+/*
 define method rexec-af
     (arg1 :: <c-char-pointer-vector>, arg2 :: <integer>, arg3 :: <c-char-vector>, arg4 :: <c-char-vector>, arg5 :: <c-char-vector>, arg6 :: <anonymous-7>, arg7 :: <sa-family-t>)
  => (result :: <integer>);
@@ -3484,7 +3484,7 @@ define method rexec-af
     = call-out("rexec_af", int:, ptr: (arg1).raw-value, int: arg2, ptr: (arg3).raw-value, ptr: (arg4).raw-value, ptr: (arg5).raw-value, ptr: (arg6).raw-value, unsigned-short: arg7);
   values(result-value);
 end method rexec-af;
-
+*/
 define method ruserok
     (arg1 :: <c-char-vector>, arg2 :: <integer>, arg3 :: <c-char-vector>, arg4 :: <c-char-vector>)
  => (result :: <integer>);
@@ -3492,7 +3492,7 @@ define method ruserok
     = call-out("ruserok", int:, ptr: (arg1).raw-value, int: arg2, ptr: (arg3).raw-value, ptr: (arg4).raw-value);
   values(result-value);
 end method ruserok;
-
+/*
 define method ruserok-af
     (arg1 :: <c-char-vector>, arg2 :: <integer>, arg3 :: <c-char-vector>, arg4 :: <c-char-vector>, arg5 :: <sa-family-t>)
  => (result :: <integer>);
@@ -3500,7 +3500,7 @@ define method ruserok-af
     = call-out("ruserok_af", int:, ptr: (arg1).raw-value, int: arg2, ptr: (arg3).raw-value, ptr: (arg4).raw-value, unsigned-short: arg5);
   values(result-value);
 end method ruserok-af;
-
+*/
 define method rresvport
     (arg1 :: <anonymous-7>)
  => (result :: <integer>);
@@ -3508,7 +3508,7 @@ define method rresvport
     = call-out("rresvport", int:, ptr: (arg1).raw-value);
   values(result-value);
 end method rresvport;
-
+/*
 define method rresvport-af
     (arg1 :: <anonymous-7>, arg2 :: <sa-family-t>)
  => (result :: <integer>);
@@ -3516,7 +3516,7 @@ define method rresvport-af
     = call-out("rresvport_af", int:, ptr: (arg1).raw-value, unsigned-short: arg2);
   values(result-value);
 end method rresvport-af;
-
+*/
 define functional class <addrinfo> (<statically-typed-pointer>) end;
 
 define sealed domain make (singleton(<addrinfo>));
