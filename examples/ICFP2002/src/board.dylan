@@ -56,6 +56,7 @@ define inline sealed method aref
     (board :: <board>, #rest indices)
     => element :: <terrain>;
   let (row :: <integer>, col :: <integer>) = apply(values, indices);
+  let (row :: <integer>, col :: <integer>) = values(row - 1, col - 1);
   
   case
   row >= board.rows
