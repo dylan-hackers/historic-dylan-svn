@@ -4,7 +4,7 @@ vrml-viewer-heap.c
 vrml-viewer-exports.c
 vrml-viewer
 inits.c
-indexed-face-set.c
+render-to-opengl.c
 heap.c
 cc-vrml-viewer-files.mak
 .libs

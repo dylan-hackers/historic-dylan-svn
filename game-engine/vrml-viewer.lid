@@ -6,7 +6,7 @@ copyright: (C) Andreas Bogk, under LGPL
 vrml-viewer-exports.dylan
 vrml-parser.dylan
 node.dylan
-indexed-face-set.dylan
+render-to-opengl.dylan
 vrml-viewer.dylan
 gettimeofday.dylan
 errno.dylan

@@ -4,7 +4,7 @@ go: vrml-viewer
 vrml-viewer: vrml-viewer.lid ../examples/gdgl/opengl.lib.du
 	d2c -L../examples/gdgl $<
 
-vrml-viewer.lid: vrml-viewer-exports.dylan vrml-viewer.dylan indexed-face-set.dylan node.dylan gettimeofday.dylan errno.dylan
+vrml-viewer.lid: vrml-viewer-exports.dylan vrml-viewer.dylan render-to-opengl.dylan node.dylan gettimeofday.dylan errno.dylan
 	touch $@
 
 gettimeofday.dylan: gettimeofday.intr
