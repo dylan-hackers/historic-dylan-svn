@@ -95,6 +95,11 @@ define method try-to-deliver(robot :: <robot>, #key return-function)
 end method;
 
 // Pickup all packages as will fit.
+define method deliverable?(robot :: <robot>, s :: <state>, p :: <package>, 
+			   #key capacity = robot.capacity-left)
+  p.weight <= capacity & find-path(robot.location, p.location, s.board);
+end method deliverable?;
+
 define method try-pickup-many(me :: <robot-agent>, robot :: <robot>, 
 			      s :: <state>, #key return-function)
  => (c :: false-or(<command>))
@@ -111,7 +116,7 @@ define method try-pickup-many(me :: <robot-agent>, robot :: <robot>,
 		       test: method (a :: <package>, b :: <package>)
 			       a.weight < b.weight;
 			     end method))
-	if (deliverable?(me, s, pkg, capacity: left)
+	if (deliverable?(robot, s, pkg, capacity: left)
 	      & find-path-repeatedly(robot.location, pkg.location, s.board,
 				     cutoffs: #[50, #f]))
 	  left := left - pkg.weight;
