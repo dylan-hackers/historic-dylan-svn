@@ -36,36 +36,6 @@ define method optimizable-one(token :: <fp>, more :: <pair>, suppress-closure ::
   optimizable-two(token, more.head, more.tail, suppress-closure, orig: orig)
 end;
 
-/*
-define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-  pair(token1.negative, more)
-end;
-
-define method optimizable-two(token1 :: <integer>, token2 == #"negi", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-  pair(token1.negative, more)
-end;
-*/
-
-/*
-define method optimizable-two(right :: <integer>, token2 == #"addi", more-tokens :: <list>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
-	   let (cont, remaining) = more-tokens.optimize-compile-GML;
-	   values(remaining,
-		  method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-      		      let (left :: / *?front* / <integer>, rest :: <list>) = values(stack.head, stack.tail);
-		      cont(pair(/ *?operator* / \+(left, right), rest), env)
-		  end method)
-end;
-
-define method optimizable-two(right :: <integer>, token2 == #"addi", more-tokens :: <pair>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
-	   let (cont, remaining) = more-tokens.optimize-compile-GML;
-	   values(remaining,
-		  method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
-      		      let (left :: / *?front* / <integer>, rest :: <list>) = values(stack.head, stack.tail);
-		      cont(pair(/ *?operator* / \+(left, right), rest), env)
-		  end method)
-end;
-*/
-
 define method optimizable-two(token1, token2, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   orig
 end;
@@ -79,15 +49,6 @@ end;
 define method optimizable-three(token1, token2, token3, more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
   orig
 end;
-/*
-define method optimizable-three(token1 :: <integer>, token2 :: <integer>, token3 == #"addi", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-  pair(token1 + token2, more)
-end;
-
-define method optimizable-three(token1 :: <integer>, token2 :: <integer>, token3 == #"addi", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-  pair(token1 + token2, more)
-end;
-*/
 
 // optimize #"point"
 
