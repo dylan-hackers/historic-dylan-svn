@@ -11,9 +11,9 @@ Write modules to solve:
   + Construct a minimum spanning tree
   + Do a dfs on it for the path to follow
 
-- knapsack problem
++ knapsack problem
 - minimax engine
-- we could make agents more fault-tolerant if we caught all errors and just restarted our strategy
++ we could make agents more fault-tolerant if we caught all errors and just restarted our strategy
 - function to get cpu time
 - debug() as an empty function
 - Add a way to clear the path-cache in find-path.
