@@ -1,5 +1,5 @@
 module: heap
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.9.2.2 1999/06/13 01:54:30 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.9.2.3 1999/06/20 00:29:08 housel Exp $
 copyright: Copyright (c) 1995, 1996  Carnegie Mellon University
 	   All rights reserved.
 
@@ -337,11 +337,27 @@ define method spew-reference
 end;
 
 define method spew-reference
-    (object :: <literal-float>, rep :: <immediate-representation>,
+    (object :: <literal-single-float>, rep :: <immediate-representation>,
      tag :: <byte-string>, state :: <heap-file-state>)
     => ();
-  format(state.file-guts-stream, "%= /* %s */", object.literal-value,
-	 tag.clean-for-comment)
+  format(state.file-guts-stream, "%s /* %s */",
+	 float-to-string(object.literal-value, 8), tag.clean-for-comment)
+end;
+
+define method spew-reference
+    (object :: <literal-double-float>, rep :: <immediate-representation>,
+     tag :: <byte-string>, state :: <heap-file-state>)
+    => ();
+  format(state.file-guts-stream, "%s /* %s */",
+	 float-to-string(object.literal-value, 16), tag.clean-for-comment)
+end;
+
+define method spew-reference
+    (object :: <literal-extended-float>, rep :: <immediate-representation>,
+     tag :: <byte-string>, state :: <heap-file-state>)
+    => ();
+  format(state.file-guts-stream, "%s /* %s */",
+	 float-to-string(object.literal-value, 35), tag.clean-for-comment)
 end;
 
 define method spew-reference
@@ -369,13 +385,22 @@ define method spew-reference
 	values(object, 0);
       end;
   spew-heap-prototype(object-name(heapptr, state), heapptr, state);
-  if(instance?(object, <literal-integer>))
-    format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */", 
-	   object-name(heapptr, state), dataword, tag.clean-for-comment);
-  else
-    format(state.file-guts-stream, "{ (heapptr_t) &%s, { %= } } /* %s */", 
-	   object-name(heapptr, state), dataword, tag.clean-for-comment);
-  end if;
+  select (object by instance?)
+    <literal-integer> =>
+      format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */", 
+	     object-name(heapptr, state), dataword, tag.clean-for-comment);
+    <literal-single-float> =>
+      format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */",
+	     object-name(heapptr, state), single-float-bits(dataword),
+	     tag.clean-for-comment);
+    <literal-character> =>
+      format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */", 
+	     object-name(heapptr, state), as(<integer>, dataword),
+	     tag.clean-for-comment);
+    otherwise =>
+      format(state.file-guts-stream, "{ (heapptr_t) &%s, { %= } } /* %s */", 
+	     object-name(heapptr, state), dataword, tag.clean-for-comment);
+  end select;
 end;
 
 // spew-reference{<proxy>,<general-representation>}
@@ -580,6 +605,75 @@ define function extract-base-name (name :: <byte-string>)
   end block;
 end function extract-base-name;
 
+
+// single-float-bits -- internal
+//
+// Turns a single-precision floating-point number into an integer,
+// since we can only initialize the first element of the descriptor_t's
+// dataword union.
+//
+define constant $single-float-precision = 24;
+define constant $single-float-exponent-bits = 8;
+define constant $single-float-bias = 127;
+
+define method single-float-bits (num :: <ratio>)
+ => res :: <general-integer>;
+  if (zero?(num))
+    0;
+  else
+    let (num, neg?)
+      = if (negative?(num))
+	  values(-num, #t);
+	else
+	  values(num, #f);
+	end;
+    let (exponent, fraction)
+      = if (num >= 1)
+	  for (exponent from 0,
+	       fraction = num / 2 then fraction / 2,
+	       while: fraction >= 1)
+	  finally
+	    values(exponent, fraction);
+	  end;
+	else
+	  for (exponent from -1 by -1,
+	       fraction = num then fraction * 2,
+	       while: fraction < ratio(1,2))
+	  finally
+	    values(exponent, fraction);
+	  end;
+	end;
+    let biased-exponent = exponent + $single-float-bias;
+    if (biased-exponent >= ash(1, $single-float-exponent-bits))
+      // Overflow.
+      error("<single-float> constant too large");
+    end;
+    if (biased-exponent <= 0)
+      if (-biased-exponent >= $single-float-precision - 1)
+	// Underflow.
+	error("<single-float> constant too small");
+      end;
+      fraction := fraction / ash(1, -biased-exponent);
+      biased-exponent := 0;
+    end;
+    let shifted-fraction
+      = round/(ash(numerator(fraction), $single-float-precision),
+	       denominator(fraction));
+    let bits = logior(ash(as(<extended-integer>, biased-exponent),
+			  $single-float-precision - 1),
+		      logand(shifted-fraction,
+			     ash(as(<extended-integer>, 1),
+				 $single-float-precision - 1)
+			       - 1));
+    if (neg?)
+      logior(bits,
+	     ash(as(<extended-integer>, 1),
+		 $single-float-precision + $single-float-exponent-bits - 1));
+    else
+      bits;
+    end;
+  end;
+end;
 
 
 // defer-for-global-heap? -- internal.

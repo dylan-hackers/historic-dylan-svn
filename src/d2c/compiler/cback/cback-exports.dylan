@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.4.8.2 1999/06/13 01:54:30 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback-exports.dylan,v 1.4.8.3 1999/06/20 00:29:08 housel Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -100,7 +100,8 @@ define module cback
     get-info-for, const-info-heap-labels, const-info-heap-labels-setter,
     const-info-dumped?, const-info-dumped?-setter,
     entry-point-c-name, *emit-all-function-objects?*,
-    c-name, c-name-global, string-to-c-name, clean-for-comment;
+    c-name, c-name-global, string-to-c-name, clean-for-comment,
+    float-to-string;
 end;
 
 
