@@ -456,6 +456,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serverAddress;
     struct hostent *server;
     int connectionResult;
+    char windowName[4096];
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
@@ -508,8 +509,10 @@ int main(int argc, char *argv[])
     printf("My ID: %u\n\
 My Max Weight: %u\n\
 My Money: %u\n", gID, gMaxWeight, gMoney);
+
+    sprintf(windowName, "Bot ID %u on %s:%u", gID, serverHost, serverPort);
     
-    (void)glutCreateWindow("ICFP Contest 2002 Visual Client");
+    (void)glutCreateWindow(windowName);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
