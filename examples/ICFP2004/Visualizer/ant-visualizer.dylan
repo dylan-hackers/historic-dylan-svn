@@ -37,6 +37,7 @@ define constant $RED-ANT-COLOR = make-gl-color(1.0, 0.0, 0.0);
 define constant $BLACK-ANT-COLOR = make-gl-color(0.0, 0.0, 0.0);
 
 define constant $WHITE = make-gl-color(1.0, 1.0, 1.0);
+define constant $BLUE = make-gl-color(0.0, 0.0, 1.0);
 
 define constant $EVEN-ROW-START-X = 1.0;
 define constant $ODD-ROW-START-X = $EVEN-ROW-START-X + $ROOT-3-OVER-2;
@@ -121,6 +122,112 @@ define function draw-cell-food(cell, position) => ()
     end;
 end;
 
+define constant $ONE-EIGHTH = 0.125;
+
+define function draw-markers(cell, position) => ()
+    let (x, y) = cell-position(position);
+    
+    glPushMatrix();
+        glTranslate(x, y, 0.0);
+        glBegin($GL-QUADS);
+            set-gl-color($BLUE);
+            
+            glVertex(-3 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+            glVertex( 3 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+            glVertex( 3 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+            glVertex(-3 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+        
+            set-gl-color($RED-ANT-COLOR);
+        
+            if (cell.red-marker[0])
+                glVertex(-3 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex(-2 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex(-2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex(-3 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+            end;
+            
+            if (cell.red-marker[1])
+                glVertex(-2 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex(-1 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex(-1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex(-2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+            end;
+
+            if (cell.red-marker[2])     
+                glVertex(-1 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 0 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 0 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex(-1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+            end;
+
+            if (cell.red-marker[3])     
+                glVertex( 0 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 1 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 0 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+            end;
+
+            if (cell.red-marker[4])     
+                glVertex( 1 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 2 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+            end;
+
+            if (cell.red-marker[5])    
+                glVertex( 2 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 3 * $ONE-EIGHTH, -1 * $ONE-EIGHTH);
+                glVertex( 3 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+            end;
+
+            set-gl-color($BLACK-ANT-COLOR);
+
+            if (cell.black-marker[0])
+                glVertex(-3 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex(-2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex(-2 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+                glVertex(-3 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+            end;
+            
+            if (cell.black-marker[1])
+                glVertex(-2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex(-1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex(-1 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+                glVertex(-2 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+            end;
+
+            if (cell.black-marker[2])     
+                glVertex(-1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 0 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 0 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+                glVertex(-1 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+            end;
+
+            if (cell.black-marker[3])     
+                glVertex( 0 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 1 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+                glVertex( 0 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+            end;
+
+            if (cell.black-marker[4])     
+                glVertex( 1 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 2 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+                glVertex( 1 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+            end;
+
+            if (cell.black-marker[5])    
+                glVertex( 2 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 3 * $ONE-EIGHTH,  0 * $ONE-EIGHTH);
+                glVertex( 3 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+                glVertex( 2 * $ONE-EIGHTH,  1 * $ONE-EIGHTH);
+            end;
+        glEnd();
+    glPopMatrix();
+end;
+
 define function ant-color(ant) => (color)
     if (ant.color == #"red")
         $RED-ANT-COLOR
@@ -192,12 +299,16 @@ define function draw-world() => ()
             let position = make-position(x-index, y-index);
             let cell = *world*[x-index, y-index];
             
+            glLineWidth(3.0s0);
             draw-cell-food(cell, position);
         
             let this-ant = *world*[x-index, y-index].ant;
             if (this-ant)
                 draw-ant(this-ant, position);
             end;
+            
+            glLineWidth(1.0s0);
+            draw-markers(cell, position);
         end;
     end;
 end;
@@ -298,7 +409,6 @@ begin
     glutCreateWindow("Marching Dylants");
     
     cache-world-display-list();
-    glLineWidth(3.0s0);
 
     glutDisplayFunc(draw);
     glutReshapeFunc(reshape);
