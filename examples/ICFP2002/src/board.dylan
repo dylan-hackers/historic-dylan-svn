@@ -59,7 +59,7 @@ end;
 define inline sealed method terrain-at-point
     (board :: <board>, location :: <point>)
  => element :: <terrain>;
-  board[location.x, location.y];
+  board[location.y, location.x];
 end method terrain-at-point;
 
 define inline sealed method aref
