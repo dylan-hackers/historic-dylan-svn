@@ -67,7 +67,8 @@ define method jam-target-build
           if (target.target-leaf-only?)
             last := leaf;
           else
-            if (depend.target-modification-date)
+            if (depend.target-check-timestamps?
+                  & depend.target-modification-date)
               last := max(last, depend.target-modification-date);
             end if;
             status := max(status, depend.target-build-status)
@@ -84,7 +85,7 @@ define method jam-target-build
 
         // NoUpdate targets
         if (~target.target-check-timestamps?)
-          last := target.target-modification-date := $zero-date;
+          last := $zero-date;
           status := $build-status-stable;
         end if;
 
@@ -111,8 +112,10 @@ define method jam-target-build
               | (force? & target.target-check-timestamps?) =>
               $build-status-touched;
 
-            target.target-modification-date
+            target.target-check-timestamps?
+              & target.target-modification-date
               & parent-target
+              & parent-target.target-check-timestamps?
               & parent-target.target-modification-date
               & target.target-modification-date >
                   parent-target.target-modification-date =>
@@ -147,7 +150,6 @@ define method jam-target-build
                $zero-date
              end;
         target.target-build-status := status;
-
       elseif (target.target-build-status = $build-status-making
                 & ~target.target-internal?)
         signal("target %s depends on itself", target.target-name);
@@ -235,7 +237,7 @@ define method jam-target-build
                   jam-variable(jam, variable) := outer-value;
                 end for;
 
-                // Progress message callback
+                // progress message callback
                 unless (action.action-quietly?)
                   let message = action.action-name;
                   for (bound-target in bound-targets)
@@ -250,8 +252,17 @@ define method jam-target-build
                   progress-callback(message);
                 end unless;
 
-                let status = run-application(command);
+                // run the action
+                let status
+                  = run-application(command,
+                                    under-shell?: #t,
+                                    inherit-console?: #f,
+                                    outputter: outputter,
+                                    minimize?: #t,
+                                    activate?: #f);
 
+                //---*** need to verify targets were really built
+                //       and (possibly) reset the modification date
                 for (target in targets)
                   target.target-build-progress := #"done";
                   if (status ~= 0 & ~action.action-ignore?)
@@ -263,7 +274,7 @@ define method jam-target-build
                   cerror("build remaining targets",
                          "Building target %s: \"%s\" failed "
                            "with return status %d",
-                         command, target.target-name, status);
+                         target.target-name, command, status);
                   return(#f);
                 end if;
               end unless;
@@ -275,6 +286,10 @@ define method jam-target-build
 
         #t;
       end block;
+    end method,
+
+    method outputter (msg :: <byte-string>, #key end: _end)
+      progress-callback(copy-sequence(msg, end: _end));
     end method;
 
   // first pass
@@ -336,17 +351,29 @@ define method substitute-command
       c == ' ' | c == '\t' | c == '\r' | c == '\n'
     end method;
 
-  iterate loop(i :: <integer> = 0,
-               start :: <integer> = 0,
-               wordstart :: false-or(<integer>) = #f)
-    if (i == command-size)
+  // trim leading and trailing whitespace
+  let command-start
+    = for(i from 0 below command-size, while: whitespace?(command[i]))
+      finally i;
+      end for;
+
+  let command-end
+    = for(i from command-size above command-start by -1,
+          while: whitespace?(command[i - 1]))
+      finally i;
+      end for;
+
+  iterate loop(i :: <integer> = command-start,
+               start :: <integer> = command-start,
+               wordstart :: false-or(<integer>) = command-start)
+    if (i == command-end)
       accumulate(command, start, i);
     elseif (whitespace?(command[i]))
       loop(i + 1, start, #f);
     elseif (command[i] == '$')
       let wordstart = wordstart | i;
       let wordend
-        = for(j from i + 1 below command-size, until: whitespace?(command[j]))
+        = for(j from i + 1 below command-end, until: whitespace?(command[j]))
           finally j;
           end for;
       accumulate(command, start, wordstart);
@@ -363,6 +390,6 @@ define method substitute-command
     end if;
       
   end iterate;
-  
+
   copy-sequence(result, end: result-size)
 end method;
