@@ -15,9 +15,9 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// There's no set overflow flag either ... Not sure I can believe this as the
 /// book contradicts itself.
 
-define constant bvs-x = #x70;
-
-define constant bov-x = #x72;
+define constant bvs-x = #x70; // JO, Jump if no overflow
+define constant bno-x = #x71; // JNO, Jump if no overflow
+define constant bov-x = #x72; // JB, Jump if below (carry flag set)
 
 
 with-ops-in pentium-instructions (addv, subv)
@@ -222,13 +222,13 @@ end method;
 
 define method trap-on-overflow (be :: <pentium-back-end>) => ()
 // jump over the trap instruction if there's no overflow
-  emit(be, #x71);  // branch if no overflow
+  emit(be, bno-x);  // branch if no overflow
   emit(be, 5); // 5 byte instruction
   trap-always(be);
 end method;
 
 define method trap-always (be :: <pentium-back-end>) => ()
-  emit(be, #xe8); // CALL
+  emit(be, call); // CALL
   emit-constant-ref-relative
     (be, dylan-integer-overflow-handler);
 end method trap-always;
