@@ -32,6 +32,7 @@ define module board
   use print, import: {print-object};
   use table-extensions;
   use utils;
+  use extensions, import: {functional-==}; // from runtime
   
   export
     <state>, board, robots, packages, bases, bases-setter, packages-at, robot-at,
@@ -69,9 +70,35 @@ define module tour
   use common-dylan;
   use utils;
   use board;
+  use print;
   use table-extensions;
+  use subseq;
   use path;
 
+  // While debugging, export basically everything....
+  export
+    <cons>,
+    car,
+    cdr,
+    cons,
+    $cache,
+    $not-memoized,
+    path-length,
+    <no-path-error>,
+    no-path-error,
+    path-start,
+    path-finish,
+    <disjoint-set>,
+    value,
+    set-rank,
+    parent,
+    make-set,
+    find-set,
+    link-set,
+    set-union!,
+    all-edges,
+    min-span-tree,
+    find-tour;
 end module tour;
 
 define module command
@@ -164,6 +191,8 @@ define module icfp2002
   use streams, export: all;
   use utils;
   use string-conversions, import: {string-to-integer};
+  use subseq, import: {subsequence}; // for test-tour-finding
+  use table-extensions; // likewise
   // use time;
   use garbage-collection;
   use network;
@@ -174,4 +203,5 @@ define module icfp2002
 
   // For testing only. Sorry.
   use path;
+  use tour;
 end module;

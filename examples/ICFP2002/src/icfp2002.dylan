@@ -61,6 +61,59 @@ define method test-path-finding(board :: <board>)
   end if;
 end method test-path-finding;
 
+// Test tour finding
+
+define function test-the-tour(input :: <stream>, output :: <stream>) => ();
+  send-player(output);
+  force-output(output);
+  let (my-id :: <integer>, 
+       my-capacity :: <integer>, 
+       my-money :: <integer>, 
+       state :: <state>) = receive-initial-setup(input);
+  
+  test-tour-finding(state.board);
+end function test-the-tour;
+
+define method test-tour-finding (board :: <board>)
+  debug("The board is:\n%=", board);
+  let to-visit = list(point(x: 1, y:1),
+                      point(x: 2, y:9),
+                      point(x: 3, y:7),
+                      point(x: 11, y: 11));
+  block()
+    let seq = find-tour(to-visit.head, to-visit, board);
+    debug("seq = %=\n", seq);
+    let t = make(<table>);
+    let first-step? = #t;
+    let start = seq.first;
+    //
+    // Initialize t so that we know about every point on the tour.
+    // 
+    t[start] := #"visit-point";
+    for (dest in subsequence(seq, start: 1))
+      for (pt in find-path(start, dest, board))
+        t[pt] := #t;
+      finally 
+        start := dest;
+        t[start] := #"visit-point";        
+      end for;
+    end for;
+    //
+    for (r from board.height to 1 by -1)
+      for (c from 1 to board.width)
+        select (element(t, point(x: c, y: r), default: #f))
+          #t             => debug("*");
+          #"visit-point" => debug("O");
+          #f             => debug("%=", board[r, c]);
+        end select;
+      end for;
+      debug("\n");
+    end for;
+  exception (e :: <no-path-error>)
+    debug("There is no path between %= and %=.\n", e.path-start, e.path-finish);
+  end block;
+end method test-tour-finding;
+
 
 define function figure-out-which-bot(bot-type :: <string>)
  => bot-class :: <class>;
@@ -93,9 +146,13 @@ define function main(name, arguments)
                  | "dumber-bot";
 
   block ()
-    play-the-game(figure-out-which-bot(bot-type),
-                  input-stream,
-                  output-stream);
+    if (bot-type = "tour-test")
+      test-the-tour(input-stream, output-stream)
+    else 
+        play-the-game(figure-out-which-bot(bot-type),
+                      input-stream,
+                      output-stream);
+    end if;
   cleanup
     close(output-stream);
   exception (err :: <error>)
