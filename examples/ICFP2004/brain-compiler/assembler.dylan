@@ -282,7 +282,7 @@ end;
   
 
 define function dump-brain(brain :: <vector>)
-  map(compose(curry(format-out, "%s\n"), unparse), brain)
+  map(compose(curry(format-out, "%s"), unparse), brain)
 end;
 
 define functional class <instruction-label-count> (<object>)
