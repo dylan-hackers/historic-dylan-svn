@@ -11,6 +11,7 @@ define constant $num-char      :: <byte-string> = concatenate($digit, ".-+eE");
 define constant $space         :: <byte-string> = " \t\n\r";
 define constant $punctuation   :: <byte-string> = "!?.,";
 define constant $graphic-char  :: <byte-string> = "_@#$%^&*+=~/";
+define constant $graphic-digit :: <byte-string> = concatenate($digit, "+-");
 
 // except spaces and <punctuation>
 define constant $any-char      :: <byte-string> =
