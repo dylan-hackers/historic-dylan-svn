@@ -172,6 +172,11 @@ define inline method space-context(a :: <attribute>)
   make(<attribute>, value: new-val);
 end method space-context;
 
+define inline method functional-== 
+    (class == <attribute>, o1 :: <attribute>, o2 :: <attribute>)
+ => res :: <boolean>;
+  o1.value == o2.value;
+end;
 
 define method print-object(a :: <attribute>, stream :: <stream>)
  => ();

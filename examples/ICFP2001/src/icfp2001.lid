@@ -5,3 +5,4 @@ files:
   icfp2001-exports
   icfp2001
   attributes
+  generate

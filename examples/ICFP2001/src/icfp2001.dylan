@@ -310,6 +310,8 @@ define function main(name, arguments)
       format-out("      '%s'\n", s);
     end;
 
+  format-out("%=\n", generate-output(parse-tree));
+
     while(time-is-not-up?())
       optimize();
     end while;
@@ -332,6 +334,7 @@ define function main(name, arguments)
 <bruce> all could be done in parallel, keeping track of the comparitive resulting sizes
 <bruce> (this is the "big risk, big win" approach...)
 <andreas> Some sort of pruning will be required.
+<bruce> if logand(old-state, lognot(new-state)) ~== 0, then emit close tags for the difference
                                  */
                                  
 /*
