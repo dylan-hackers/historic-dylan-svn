@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.4 2003/08/10 23:50:10 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.5 2003/08/15 16:33:52 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -239,6 +239,7 @@ define module compile-time-values
     <ct-value>,
     <eql-ct-value>, ct-value-singleton, ct-value-singleton-setter,
     <literal>, literal-value, <eql-literal>,
+    ct-value-slot,
     <ct-not-supplied-marker>,
     <literal-number>, <literal-real>, <literal-rational>,
     <literal-general-integer>, <literal-integer>, <literal-extended-integer>,
