@@ -29,12 +29,15 @@ define function test-lists (number-of-elements :: <integer>) => result :: <integ
 
   // check that first item of L1 is now == SIZE.
   unless (L1[0] == number-of-elements)
+    for (e in L1, n from 0) format-out("%d: %=\n", n, e) end;
     error("Error: bad first element in L1. Exiting...\n");
   end;
 
   // and compare L1 and L2 for equality
-  unless (L1 = L2)
-    error("Error: the elements of L1 and L2 not equal. Exiting...\n");
+  for (elt1 :: <integer> in L1, elt2 :: <integer> in L2)
+    unless (elt1 = elt2)
+      error("Error: the elements of L1 and L2 not equal. Exiting...\n");
+    end;
   end;
 
   // and return length of L1 (which should be equal to SIZE).
@@ -47,6 +50,7 @@ define function main () => ()
   let result = #f;
   for (i from 1 to arg)
     result := test-lists(10000)
+    //result := test-lists(10)
   end;
   format-out("%d\n", result);
 end function main;
