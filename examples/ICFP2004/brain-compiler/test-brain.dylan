@@ -4,12 +4,18 @@ define sub brain test-sub(back)
          Move back => sub-problem;
 
   [sub-problem:]
-         Drop, (test-sub);
+         Drop, (back);
 end brain;
 
 
 define brain test-brain1
-//  [start:]
+         Drop, (start);
+  [start:]
+         Set #t;
+//         IfSet // var1
+//          { Drop, (fonz); }
+//          { Drop, (sub-problem); };
+
          Sub test-sub;
          Move fonz  => start;
   [fonz:]

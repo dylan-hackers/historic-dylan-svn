@@ -12,9 +12,9 @@ define macro brain-definer
     => { define function ?name() => brain :: <vector>;
            let instrs = make(<table>);
            instrs[#"VARIABLES"] := list(pair(#"V1", access-<boolean>));
-           let (label, counter) = values(start:, -1);
+           let (label, counter) = values(?#"name", -1);
            ?states;
-           compile-states(instrs)
+           compile-states(instrs, ?#"name")
          end function }
 
   { define sub brain ?:name(?return-name:name) ?states end }
@@ -26,6 +26,16 @@ define macro brain-definer
            let (label, counter) = values(?#"name", -1);
            ?states;
          end function }
+
+then-states:
+  { } => { }
+  { ?state; ... }
+    => { let counter = counter + 1; ?state; ... }
+
+else-states:
+  { } => { }
+  { ?state; ... }
+    => { let counter = counter + 1; ?state; ... }
 
 states:
   { } => { }
@@ -314,10 +324,10 @@ define function lookup (instrs, label, counter)
   end block;
 end;
 
-define function compile-states (instrs :: <table>)
+define function compile-states (instrs :: <table>, start-label :: <symbol>)
  => brain :: <vector>;
   let brain :: <stretchy-vector> = make(<stretchy-vector>);
-  let start-instr = lookup(instrs, start:, 0);
+  let start-instr = lookup(instrs, start-label, 0);
   let pos-table :: <table> = make(<table>);
   put-instruction(start-instr, brain, pos-table);
   brain;
