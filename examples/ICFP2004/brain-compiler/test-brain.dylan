@@ -8,8 +8,7 @@ define brain test-brain1
 
 
   turn-right:
-         Turn Right;
-         Move start  => problem;
+         Turn Right (start);
   turn-left:
          Turn Left;
          Move start  => problem;

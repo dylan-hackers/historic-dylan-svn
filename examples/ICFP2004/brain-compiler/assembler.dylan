@@ -30,3 +30,4 @@ define method functional-== (l :: <instruction-label-count>, r :: <instruction-l
   l.instruction-label == r.instruction-label
   & l.instruction-count == r.instruction-count
 end;
+
