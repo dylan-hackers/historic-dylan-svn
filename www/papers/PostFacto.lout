@@ -1,0 +1,192 @@
+@SysInclude { report }
+@Report
+@DateLine { Yes }
+@Title {
+Post-Facto Type Inference
+}
+@Author { Gabor Greif }
+@AbstractDisplay { Yes }
+# @AbstractFormat { @Centre @Title @DP @Body }
+@Abstract {
+
+We explore a novel kind of type inference in
+object-oriented, dynamically dispatched setting.
+The inference is based on the observation that
+the absence of certain semantics-dictated errors
+can be exploited to draw conclusions about the
+dynamic type of function call arguments. We
+sketch the implementation of post-facto type
+inference in the Gwydion Dylan compiler and
+provide empirical data about the effects of the
+resulting optimization and its applicability.
+}
+//
+
+##################################
+##################################
+##################################
+@Section
+@Title { Structure of the Paper }
+@Begin
+@PP
+In this report we first introduce the needed
+concepts and vocabulary, and then describe the
+type inference algorithm. A section is devoted
+to the description of the implementation in the
+Gwydion Dylan @F d2c compiler along with measurements
+on the effectivity of the applicable optimizations.
+The last three sections compare our method to
+other work, explore future lines of thought
+and conclude.
+@End @Section
+
+##################################
+##################################
+##################################
+@Section
+@Title { Introduction }
+@Begin
+@PP
+We start out by providing a short informal tour
+of dynamic typing in object-oriented languages.
+Folowing that we describe a distinguishing feature of
+the Dylan programming language, namely @I { multiple
+dispatch } with its associated concept of @I { generic
+functions }.
+
+#################
+@BeginSubSections
+
+###########
+@SubSection @Title { Dynamic Typing }
+@Begin
+@PP
+Type Safeness
+statically known types
+dynamic type
+@End @SubSection
+
+###########
+@SubSection @Title { Multiple Dispatch }
+@Begin
+@PP
+@End @SubSection
+
+###########
+@SubSection @Title { Generic Functions and Sealing }
+@Begin
+@PP
+Specialization
+@End @SubSection
+
+@EndSubSections
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { The Post-Facto Analysis }
+@Begin
+@PP
+
+#################
+@BeginSubSections
+
+###########
+@SubSection @Title { Using the Function Signature }
+@Begin
+@PP
+function call return is evidence that the contract
+by types was fulfilled.
+
+error boundaries
+@End @SubSection
+
+###########
+@SubSection @Title { Determining Call Candidates }
+@Begin
+@PP
+maybe sets
+definitive sets
+@End @SubSection
+
+###########
+@SubSection @Title { Extracting Typing Constraints }
+@Begin
+@PP
+signature unions, indexed by argument. gives rise to
+multiple constraints
+@End @SubSection
+
+@EndSubSections
+
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Other Inference Methods }
+@Begin
+@PP
+propagating inferred information in
+form of types.
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Further Work }
+@Begin
+@PP
+@StarList
+   @ListItem { using the fact that an error happened? }
+   @ListItem { using the definitive set to add information? }
+   @ListItem { using the type of returned objects to
+recognize (constrain) several argument
+types at the same time }
+   @ListItem { connection to CPS? }
+@EndList
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Conclusion }
+@Begin
+@PP
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Thanks }
+@Begin
+@PP
+Peter Housel, Kim Barrett
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Bibliography }
+@Begin
+@PP
+
+@End @Section
+
+
