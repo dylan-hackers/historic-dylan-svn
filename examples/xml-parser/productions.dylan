@@ -407,16 +407,6 @@ end parse etag;
 // 
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)* /* */
 //
-/**** define method parse-content(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c, data, elemnt, reference, cd-sect, pi, comment);
-      [{parse-char-data(data), []},
-       loop([{parse-element(elemnt), // DOUG parse-reference(reference), 
-              parse-cd-sect(cd-sect), parse-pi(pi), parse-comment(comment)},
-             {parse-char-data(data), []}])];
-      values(index, #t);
-  end with-meta-syntax;
-end method parse-content; ****/
 define parse content(data, elemnt, cd-sect, pi, comment, ref)
   {parse-char-data(data), []},
   loop([{parse-element(elemnt), 
@@ -583,14 +573,6 @@ end parse enumeration;
 //                                                             [WFC: No < in Attribute Values]
 //                                                             [VC: Fixed Attribute Default]
 //
-/**** define method parse-default-decl(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(s, att-value);
-    { "#REQUIRED", "#IMPLIED", 
-     [{["#FIXED", parse-s(s)], []}, parse-att-value(att-value)]};
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-default-decl; ****/
 define parse default-decl(s, att-value)
   {"#REQUIRED", "#IMPLIED", 
    [{["#FIXED", parse-s(s)], []}, parse-att-value(att-value)]}, []
@@ -600,13 +582,6 @@ end parse default-decl;
 // 
 //    [61]    conditionalSect       ::=    includeSect | ignoreSect
 //
-/**** define method parse-conditional-sect(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(include-sect, ignore-sect);
-    {parse-include-sect(include-sect), parse-ignore-sect(ignore-sect)};
-    values(index, #t);
-  end with-meta-syntax;
-end method parse-conditional-sect; ***/
 define parse conditional-sect(include, ignore)
   {parse-include-sect(include-sect), parse-ignore-sect(ignore-sect)}, []
 end parse conditional-sect;
