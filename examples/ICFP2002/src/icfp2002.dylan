@@ -18,13 +18,20 @@ define function play-the-game(bot :: <class>, input :: <stream>, output :: <stre
 //  test-path-finding(state.board);
 
   let running = #t;
+  let last-bot = find-robot(state, agent.agent-id);
   while(running)
-    let bot = find-robot(state, agent.agent-id);
-    debug("Robot state: %=\n", bot);
-    state := receive-server-packages(input, state, bot.location);
+    debug("Robot state: %=\n", last-bot);
+    state := receive-server-packages(input, state, last-bot.location);
     let move = generate-next-move(agent, state);
     send-command(output, move);
     state := receive-server-command-reply(input, state);
+    let bot = find-robot(state, agent.agent-id);
+    if(~bot)
+      debug("Game Over. Last bot: %=\n", last-bot);
+      running := #f;
+    else
+      last-bot := bot;
+    end if;
   end while;  
 end function play-the-game;
 

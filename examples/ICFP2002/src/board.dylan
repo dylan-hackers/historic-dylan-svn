@@ -177,13 +177,13 @@ define method robot-at(state :: <state>, p :: <point>)
 end method robot-at;
 
 define method find-robot (state :: <state>, robot-id :: <integer>)
- => <robot>;
+ => (bot :: false-or(<robot>));
   // When icfp-utils exists:
   // debug("find-robot: {id: %d, robots: %=}\n",
   //       robot-id, map(id, state.robots));
   iterate loop (lst = state.robots)
     case
-      lst.empty? => error("find-robot: id %d does not exist", robot-id);
+      lst.empty? => #f; //error("find-robot: id %d does not exist", robot-id);
       lst.head.id = robot-id => lst.head;
       otherwise
         => loop(lst.tail);
