@@ -5,7 +5,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -997,25 +997,34 @@ end;
 
 define function insert-phi-nodes (component :: <component>) => ();
 
-//  for (function in component.all-function-regions)
-///    nnn(component, function, reoptimize);
-          compiler-warning("###---######--> component: %=", component);
-
-local method join-multidef-arms(component :: <component>, region :: <simple-region>)
-          compiler-warning("###---#--> region: %=", region);
-        if (instance?(region.parent, <if-region>)
-            & region.last-assign
-            & instance?(region.last-assign, <set-assignment>))
-          compiler-warning("###-----> possible candidate: %=", region.last-assign);
-        end;
-      end;
-
-////// NOT YET traverse-component(component, <simple-region>, join-multidef-arms);
+  local method users-of-var(var)
+	  if (var) /// only show the first from the chain
+	    for (res = #() then pair(dep.dependent, res),
+		 dep = var.dependents then dep.source-next,
+		 while: dep)
+	    finally
+	      reverse!(res);
+	    end;
+	  end;
+	end;
 
 
+  local method join-multidef-arms(component :: <component>, region :: <simple-region>)
+	  // compiler-warning("###---#--> region: %=", region);
+	  if (instance?(region.parent, <if-region>)
+		& region.last-assign
+		& instance?(region.last-assign, <set-assignment>))
 
+	    let assign = region.last-assign;
 
-//  end;
+	    compiler-warning("###-----> possible candidate: %=, dependencies: %=,\n uses: %=",
+			     assign,
+			     assign.depends-on.listify-dependencies,
+			     assign.defines.users-of-var);
+	  end;
+	end;
+  
+  traverse-component(component, <simple-region>, join-multidef-arms);
 end;
 
 
