@@ -232,11 +232,56 @@ method signature: sigma(tau1, tau2, ..., taun) "|i" = taui.
 @PP This allows to formulate our above notion as known-type(i, "{" sigma1, sigma2, ..., sigmam "}") <=
 type-union(sigma1 "|i", ..., sigmam "|i"). One might ask for the reason of the inequality in
 this formula. It simply states that we can do even @I better than the formula suggests!
+@End @SubSection
+
+###########
+@SubSection @Title { Polynomial Constraints }
+@Begin
+@PP
+Consider the following Dylan snippet:
+
+@Verbatim {
+
+define method theory-of-everything(t == #t, v == 42) ...
+define method theory-of-everything(t == #f, v == 0) ...
+
+...
+    theory-of-everything(truth, value);
+    if (truth)
+        format-out("there is hope: %d", value);
+    else
+        format-out("ask again: %d", value);
+    end if;
+}
+
+Here the first argument to @F foo selects one of the
+methods @F "foo{#t, 42}" or @F "foo{#f, 0}". In the two
+arms of the @F if statement a similar selection is performed:
+since @F truth can only be @F #t or @F #f the first arm is
+entered in the former and the second in the latter case.
+Surprisingly knowing the value (or type) of @F truth, we
+can deduce the @F value since @F #t for the first argument
+automatically implies @F 42 for the second and @F #f for
+@F truth implies @F 0 for value.
+
 
 
 signature unions, indexed by argument. gives rise to
 multiple constraints
+
 @End @SubSection
+
+###########
+@SubSection @Title { Type Algebra of Tuple Unions }
+@Begin
+@PP
+Consider the following 
+
+signature unions, indexed by argument. gives rise to
+multiple constraints
+
+@End @SubSection
+
 
 @EndSubSections
 
@@ -253,6 +298,30 @@ multiple constraints
 @PP
 propagating inferred information in
 form of types.
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Implementing Polynomial Constraints }
+@Begin
+@PP
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
+@Title { Measurements of Inference Effectivity }
+@Begin
+@PP
+
+It is expected that our method is most effective on sparsely
+type-annotated programs.
 @End @Section
 
 
