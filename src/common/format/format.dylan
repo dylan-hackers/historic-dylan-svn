@@ -2,7 +2,7 @@ module: format
 author: Gwydion Project
 synopsis: This file implements a simple mechanism for formatting output.
 copyright: See below.
-rcs-header: $Header: /scm/cvs/src/common/format/format.dylan,v 1.5.2.1 2003/06/01 16:53:04 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/common/format/format.dylan,v 1.5.2.2 2003/06/10 10:04:40 andreas Exp $
 
 ///======================================================================
 ///
@@ -77,6 +77,17 @@ define method print-message (object :: <object>, stream :: <stream>)
     format(stream, "{an instance of %s}", name);
   else
     print-message("{an instance of something}", stream);
+  end if;
+end method print-message;
+
+define method print-message (class :: <class>, stream :: <stream>,
+                             #next next-method)
+ => ();
+  let name = class.class-name;
+  if (name)
+    write(stream, name);
+  else
+    next-method();
   end if;
 end method print-message;
 

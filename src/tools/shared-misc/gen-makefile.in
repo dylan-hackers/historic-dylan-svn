@@ -3,7 +3,7 @@
 use Cwd;
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45 2003/04/24 18:39:00 housel Exp $
+# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.45.2.1 2003/06/10 10:04:43 andreas Exp $
 
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
@@ -600,7 +600,7 @@ sub parse_dylan_header {
         # remember, in Perl "." is any character other than newline.
         # Also, Perl handles all newline hassles by turning win32
         # style CRLFs into LFs (\n's) before it shows us the string.
-	
+
         if ( ($target_name eq 'x86-cygnus-gcc') || ($target_name eq 'x86-win32-vc')) {
             $_ =~ s/\r//g;      # Get rid of bogus carriage returns
         }
@@ -894,7 +894,7 @@ sub emit_library_rule {
         print "$d2c_target: $srcdir/$lidfilename.lid $extradeps\n";
         my $profile_flag = $enable_profiling ? "--profile" : "";
         if ($shared_library) {
-            print "\t\$(D2C) -M $profile_flag \$(D2CFLAGS) --rpath=$libdir $extraflags ",
+            print "\t\$(D2C) -T $target_name -M $profile_flag \$(D2CFLAGS) --rpath=$libdir $extraflags ",
                 "$srcdir/$lidfilename.lid\n";
             if ($static && !$executable) {
                 local ($dot_lib)
@@ -906,7 +906,7 @@ sub emit_library_rule {
                 push(@files_to_clean, " $lib_prefix$unit_prefix-dylan$dot_lib");
             }
         } else {
-            print "\t\$(D2C) -M $profile_flag \$(D2CFLAGS) --static $extraflags ",
+            print "\t\$(D2C) -T $target_name -M $profile_flag \$(D2CFLAGS) --static $extraflags ",
                 "$srcdir/$lidfilename.lid\n";
         }
         local ($make_name) = $host_platform{'make_command'};

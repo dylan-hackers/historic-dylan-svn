@@ -1,4 +1,4 @@
-dnl	$Header: /scm/cvs/src/configure.in,v 1.126.2.2 2003/06/01 16:53:03 andreas Exp $
+dnl	$Header: /scm/cvs/src/configure.in,v 1.126.2.3 2003/06/10 10:04:39 andreas Exp $
 dnl
 dnl	The new and improved configure file for Gwydion Dylan!
 dnl	This is based on the old configure file, but rewritten to
@@ -88,13 +88,15 @@ fi
 # whether there's any cross-compiling going on.
 #--------------------------------------------------------------------
 
-AC_CANONICAL_SYSTEM		# Find the system type
+AC_CANONICAL_BUILD		# Find the system type
+AC_CANONICAL_HOST
 AC_ARG_PROGRAM			# Provide support for name prefixes
+AC_PROG_CC			# Specify when cross-compiling.
 
 AC_DEFUN(GD_D2C_SYSTEM,[
 case $1 in
     i*86-pc-linux-gnu*)
-        case `gcc -dumpversion` in
+        case `$CC -dumpversion` in
 	     3.2*) $2=x86-linux-gcc32 ;;
 	     *)    $2=x86-linux-gcc ;;
         esac ;;
@@ -107,12 +109,13 @@ case $1 in
     sparc*-solaris*) $2=sparc-solaris-gcc ;;
     sparc*-openbsd*) $2=sparc-openbsd-gcc ;;
     i*86-*-solaris*) $2=x86-solaris-gcc ;;
+    i*86-*-l4*) $2=x86-l4-gcc ;;
     i*86-*-freebsd2.*) $2=x86-freebsd-aout-gcc ;;
     i*86-*-freebsd*) $2=x86-freebsd-elf-gcc ;;
     i*86-pc-cygwin*)
-        case `gcc -dumpversion` in
-	     3.2*) $2=x86-linux-gcc32 ;;
-	     *)    $2=x86-linux-gcc ;;
+        case `$CC -dumpversion` in
+	     3.2*) $2=x86-cygnus-gcc32 ;;
+	     *)    $2=x86-cygnus-gcc ;;
         esac ;;
     i*86-pc-mingw32*) $2=x86-mingw-gcc32 ;;
     i*86-pc-none) $2=x86-win32-vc ;;
@@ -137,6 +140,15 @@ GD_D2C_SYSTEM($host,d2c_host)
 AC_MSG_RESULT($d2c_host)
 AC_SUBST(d2c_host)
 
+AC_MSG_CHECKING(d2c target system type)
+if test "x$target_alias" != "x"; then
+  d2c_target=$target_alias
+else
+  GD_D2C_SYSTEM($target,d2c_target)
+fi
+AC_MSG_RESULT($d2c_target)
+AC_SUBST(d2c_target)
+
 #----------------------------------------------------------
 # Now that I know the build version, and particularly, if it's cygnus
 # I can add executable endings to those filenames
@@ -157,11 +169,6 @@ fi
 AC_MSG_RESULT($exe_ext)
 AC_SUBST(exe_ext)
 AC_SUBST(cygnus_line_hack)
-
-AC_MSG_CHECKING(d2c target system type)
-GD_D2C_SYSTEM($target,d2c_target)
-AC_MSG_RESULT($d2c_target)
-AC_SUBST(d2c_target)
 
 AC_SUBST(host_cpu)
 
@@ -204,7 +211,6 @@ if test "$PERL" = no; then
 fi
 
 AC_PROG_INSTALL
-AC_PROG_CC			# Specify when cross-compiling.
 AC_PROG_LEX
 AC_PROG_YACC
 
@@ -391,7 +397,7 @@ your system is supported, or specify fewer --disable-FOO flags.])
 fi
 
 if test "$SCENARIO" != CROSS_COMPILING -a "$d2c_cross_compiling" = yes; then
-    AC_MSG_ERROR([\
+    AC_MSG_WARN([\
 Cannot cross-compile. In particular, cross-compilation is
 incompatible with bootstrapping and Mindy-only builds. You need an up-to-date
 d2c binary installed somewhere in your path. Even then, cross-compilation
@@ -597,7 +603,7 @@ if test $enable_debug = yes; then
     AC_DEFINE(GD_DEBUG)
 fi
 
-if test $CC = gcc; then 
+if test `echo $CC|sed -e 's/gcc.*/gcc/'` = gcc; then 
     if test $enable_debug = yes; then
         CCOPTS="-g -O -fno-inline -Wall -pedantic"
     elif test $enable_debug = minimum; then
@@ -605,7 +611,7 @@ if test $CC = gcc; then
     else
  	CCOPTS="-O4"
     fi
-    EXTRA_INCLUDE_DIR="`gcc --print-file-name=include`"
+    EXTRA_INCLUDE_DIR="`$CC --print-file-name=include`"
     if test "X$EXTRA_INCLUDE_DIR" = Xinclude; then
 	EXTRA_INCLUDE_DIR=
     fi
@@ -925,6 +931,7 @@ AC_CHECK_LIB(m, sin, LIBS="$LIBS -lm")
 AC_REPLACE_FUNCS(rint)
 AC_CHECK_FUNCS(frexpf frexpl ldexpf ldexpl)
 AC_CHECK_FUNCS(fabsf sinf cosf tanf asinf acosf atanf atan2f expf sqrtf)
+AC_CHECK_FUNCS(logf log10f powf sinhf coshf tanhf)
 
 #--------------------------------------------------------------------
 #	Check for GNU Readline library

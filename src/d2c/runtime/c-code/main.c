@@ -1,4 +1,4 @@
-/* $Header: /scm/cvs/src/d2c/runtime/c-code/main.c,v 1.21.2.1 2003/06/01 16:53:09 andreas Exp $ */
+/* $Header: /scm/cvs/src/d2c/runtime/c-code/main.c,v 1.21.2.2 2003/06/10 10:04:42 andreas Exp $ */
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -2,7 +2,7 @@ module: format
 author: Robert Stockton (rgs@cs.cmu.edu).
 synopsis: This file implements a simple mechanism for formatting output.
 copyright: See below.
-rcs-header: $Header: /scm/cvs/src/common/format/format-buf.dylan,v 1.3.4.1 2003/06/01 16:53:04 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/common/format/format-buf.dylan,v 1.3.4.2 2003/06/10 10:04:40 andreas Exp $
 
 ///======================================================================
 ///

@@ -1,7 +1,7 @@
 module: Transcendental
 author: Ben Folk-Williams
 synopsis: Transcendentals.
-RCS-header: $Header: /scm/cvs/src/common/transcendental/transcendental.dylan,v 1.5.2.1 2003/06/01 16:53:05 andreas Exp $
+RCS-header: $Header: /scm/cvs/src/common/transcendental/transcendental.dylan,v 1.5.2.2 2003/06/10 10:04:40 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -396,12 +396,12 @@ end method atan2;
 
 define sealed inline method sinh (x :: <integer>) => y :: <single-float>;
   c-include("math.h");
-  call-out("sinf", float:, float: as(<single-float>, x));
+  call-out("sinhf", float:, float: as(<single-float>, x));
 end method sinh;
 
 define sealed inline method sinh (x :: <single-float>) => y :: <single-float>;
   c-include("math.h");
-  call-out("sinf", float:, float: x);
+  call-out("sinhf", float:, float: x);
 end method sinh;
 
 define sealed inline method sinh (x :: <double-float>) => y :: <double-float>;
@@ -411,12 +411,12 @@ end method sinh;
 
 define sealed inline method cosh (x :: <integer>) => y :: <single-float>;
   c-include("math.h");
-  call-out("cosf", float:, float: as(<single-float>, x));
+  call-out("coshf", float:, float: as(<single-float>, x));
 end method cosh;
 
 define sealed inline method cosh (x :: <single-float>) => y :: <single-float>;
   c-include("math.h");
-  call-out("cosf", float:, float: x);
+  call-out("coshf", float:, float: x);
 end method cosh;
 
 define sealed inline method cosh (x :: <double-float>) => y :: <double-float>;
@@ -431,7 +431,7 @@ end method tanh;
 
 define sealed inline method tanh (x :: <single-float>) => y :: <single-float>;
   c-include("math.h");
-  call-out("tanf", float:, float: x);
+  call-out("tanhf", float:, float: x);
 end method tanh;
 
 define sealed inline method tanh (x :: <double-float>) => y :: <double-float>;

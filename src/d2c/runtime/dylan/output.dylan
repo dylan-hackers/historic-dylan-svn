@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/output.dylan,v 1.7 2002/10/31 16:05:51 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/output.dylan,v 1.7.2.1 2003/06/10 10:04:42 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -218,7 +218,7 @@ define method cheap-print (list :: <list>, fake-stream :: <symbol>) => ();
 	  fputs("...", fake-stream);
 	  return();
 	end;
-	print(list.head);
+	cheap-print(list.head, fake-stream);
       else
 	fputs(" . ", fake-stream);
 	cheap-print(list, fake-stream);

@@ -1,6 +1,6 @@
 // A description of all target platforms we support. We use this in d2c as well as in the build scripts.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.2 2003/06/01 16:53:05 andreas Exp $
+// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.3 2003/06/10 10:04:40 andreas Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -271,6 +271,24 @@ long-double-mantissa-digits:		53
 minimum-long-double-float-exponent:	-1021
 maximum-long-double-float-exponent:	1024
 
+// L4 micro-kernel
+platform-name:				l4
+default-features:			compiled-for-l4
+object-filename-suffix:         	.o
+library-filename-prefix:        	lib
+library-filename-suffix:        	.a
+executable-filename-suffix:     
+delete-file-command:            	rm -f
+compare-file-command:           	cmp -s %s %s
+move-file-command:              	mv -f %s %s
+uses-drive-letters?:            	#f
+environment-variables-can-be-exported?: #t
+use-dbclink?:                           #f
+makefile-name:				GNUmakefile
+make-supports-phony-targets?:   	#t
+makefiles-can-rebuild-themselves?:      #t
+recursive-make-command:         	$(MAKE) -C %s %s
+
 // Linux:
 platform-name:				linux
 inherit-from:				generic-unix
@@ -496,6 +514,17 @@ link-executable-flags:		  $(GC_LIBS) -lm
 link-profile-flags:		  -pg
 path-separator:			  /
 
+platform-name:			  standalone-gcc
+default-features:		  C-compiler-is-GCC
+compile-c-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:	  -I. -I%s -I/usr/lib/gcc-lib/i386-linux/3.2.2/include -nostdinc -O2  -fno-strict-aliasing
+default-c-compiler-debug-flags:  -I. -I%s -I/usr/lib/gcc-lib/i386-linux/3.2.2/include -nostdinc -O2 -g -fno-strict-aliasing
+assembler-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
+link-library-command:		  ar qc %s %s
+link-executable-command:	  gcc-3.2 -o %s %s %s -e_start -N -L/usr/lib/gcc-lib/i386-linux/3.2.2 -nostdlib -Ttext=00300000
+link-executable-flags:		  $(GC_LIBS) -lm -lgcc
+path-separator:			  /
+
 platform-name:			beos-gcc
 default-features:		C-compiler-is-GCC
 compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
@@ -542,11 +571,10 @@ path-separator:        		/
 // Combinations:
 
 // -fomit-frame-pointer seems buggy in gcc 32 on x86
-// gcc 3.2 is the default compiler, so inherit from gcc, not gcc32
 platform-name:			x86-gcc32
-inherit-from:			x86 gcc
+inherit-from:			x86 gcc32
 default-c-compiler-flags:	-I. -I%s -O2
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc-3.2 -o %s %s -rpath %s
 long-long-size:			8
 long-long-alignment:		4
 
@@ -555,6 +583,11 @@ long-long-alignment:		4
 platform-name:			x86-linux-gcc
 inherit-from:			gcc linux x86
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+long-long-size:			8
+long-long-alignment:		4
+
+platform-name:			x86-l4-gcc
+inherit-from:			standalone-gcc l4 x86
 long-long-size:			8
 long-long-alignment:		4
 

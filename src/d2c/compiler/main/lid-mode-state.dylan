@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.2 2003/06/01 16:53:06 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.3 2003/06/10 10:04:41 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -262,17 +262,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
 	    end;
 	let prefixed-filename
 	  = find-file(object-file, vector($this-dir, state.unit-lid-file.filename-prefix));
-	if (prefixed-filename)
-	  log-dependency(prefixed-filename);
-	else
-	  #if (macos)
-	     #t;// Do nothing
-	  #else
-	     compiler-fatal-error("Can't find object file %=, and thus can't"
-				    " record dependency info.",
-				  file);
-	  #endif
-	end if;
+        log-dependency(prefixed-filename);
       end unless;
     else  // assumed a Dylan file, with or without a ".dylan" extension
       block ()
