@@ -87,6 +87,8 @@ define module messages
     //initialize.
     send-command,
     // receive routines
+    receive-server-packages,
+    receive-server-command-reply,
     receive-initial-setup; // Reads initial board plus self robot, with robot
   // positions. Does it all.
   // receive-initial-setup calls:
