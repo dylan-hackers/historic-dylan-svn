@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.3 2002/07/27 23:21:02 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.4 2002/07/28 15:14:29 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -400,17 +400,20 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     while(~ finished?)
       format(*standard-output*, "gwydion> ");
       force-output(*standard-output*);
-      let line = read-line(*standard-input*);
-      block()
-        evaluate(line);
-      exception(condition :: <condition>)
-        report-condition(condition, *standard-output*);
-        format(*standard-output*, "\n");
-      end block;
+      let line = read-line(*standard-input*, on-end-of-stream: #f);
+      if(line)
+        block()
+          evaluate(line);
+        exception(condition :: <condition>)
+          report-condition(condition, *standard-output*);
+          format(*standard-output*, "\n");
+        end block;
+      else
+        finished? := #t;
+      end if;
     end while;
     exit();
   end if;
-
     
   let lid-file = args[0];
   let state
