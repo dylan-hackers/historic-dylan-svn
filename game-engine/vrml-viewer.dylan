@@ -210,3 +210,4 @@ define method main(progname, #rest arguments)
   exit(exit-code: 0);
 end method main;
 
+apply(main, application-name(), application-arguments());

@@ -1,4 +1,4 @@
-module: opengl-test
+module: vrml-viewer
 
 define class <indexed-face-set> (<object>)
   slot points, init-keyword: points:;

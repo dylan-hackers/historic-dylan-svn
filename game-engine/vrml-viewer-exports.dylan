@@ -4,10 +4,8 @@ copyright: (C) Andreas Bogk, under LGPL
 
 define library vrml-viewer
   use dylan;
-  use streams;
-  use format;
-  use print;
-  use standard-io;
+  use common-dylan;
+  use io;
   use garbage-collection;
   use opengl;
 
@@ -15,13 +13,12 @@ define library vrml-viewer
 end library;
 
 define module vrml-viewer
-  use dylan;
-  use extensions;
+  use common-dylan;
+  use extensions, exclude: { assert };
+  use standard-io;
   use system;
   use streams;
   use format;
-  use print;
-  use standard-io;
   use garbage-collection;
 
   use opengl;
