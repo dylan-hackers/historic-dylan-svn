@@ -1,0 +1,10 @@
+##
+##  This is the makegen file for the platform-specific libraries.
+##
+
+if ($features{'compiled_for_darwin'}) {
+    &compile_subdirs('carbon');
+}
+if ($have_gtk eq 'yes') {
+    &compile_subdirs('gtk+');
+}
