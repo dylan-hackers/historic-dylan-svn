@@ -34,10 +34,10 @@ define class <schedule> (<object>)
   // is available when setting.
   virtual slot schedule-abort? :: <boolean>;
 
-  // A <notification> that is released when the schedule has been
-  // changed.
-  constant slot schedule-changed-notification :: <notification> = 
-    make(<notification>, lock: make(<lock>));
+  // A <semaphore> that keeps track of changes made to the
+  // schedule. When a change is made the semaphore is incremented.
+  // When all changes have been processed it is zero.
+  constant slot schedule-changed-semaphore :: <semaphore> = make(<semaphore>);
 
   // The function execution queue. Items that are to be actioned
   // have their function pushed on this queue to be eventually run
@@ -59,20 +59,16 @@ define method schedule-abort?-setter(value :: <boolean>, s :: <schedule>)
   end with-lock;
 end method schedule-abort?-setter;
 
-// Release the schedule changed notification so threads waiting
-// on it can start running.
+// Increment the semaphore count so the scheduler loop can react
+// to changes made to the schedule.
 define method notify-schedule-changed(s :: <schedule>)
  => ()
-  with-lock(s.schedule-changed-notification.associated-lock)
-    release-all(s.schedule-changed-notification); 
-  end with-lock;
+  release(s.schedule-changed-semaphore);
 end method notify-schedule-changed;
 
 // Wait for the schedule to change
 define method wait-for-schedule-changed(s :: <schedule>, #key timeout)
-  with-lock(s.schedule-changed-notification.associated-lock)
-    wait-for(s.schedule-changed-notification, timeout: timeout); 
-  end with-lock;
+  wait-for(s.schedule-changed-semaphore, timeout: timeout); 
 end method wait-for-schedule-changed;
 
 define class <schedule-item> (<object>)
@@ -107,6 +103,13 @@ define method remove-schedule-item!(s :: <schedule>, item :: <schedule-item>)
     notify-schedule-changed(s);
   end with-lock;
 end method remove-schedule-item!;
+
+define method remove-schedule-item-no-notify!(s :: <schedule>, item :: <schedule-item>)
+ => ()
+  with-lock(s.schedule-lock)
+    s.%schedule-items := remove!(s.%schedule-items, item);
+  end with-lock;
+end method remove-schedule-item-no-notify!;
 
 // Return a copy of a sorted list of the scheduled items.
 define method schedule-items(s :: <schedule>)
@@ -163,7 +166,7 @@ define method scheduler(s :: <schedule>, #key execution-threads = 1)
             let duration = item.duration-until-action;
             when(duration <= $zero-duration)
               push-on-queue(s.schedule-execution-queue, item.schedule-item-function);
-              remove-schedule-item!(s, item);
+              remove-schedule-item-no-notify!(s, item);
             end when;
           end for;
         end unless;
