@@ -1,5 +1,0 @@
-&makegen_include("../common-Makegen");
-
-do emit_library_rule(
-    'stream-demo', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
-);
