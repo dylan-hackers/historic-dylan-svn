@@ -79,7 +79,7 @@ function standard_footer () {
 
 <P><STRONG>Developer Resources</STRONG></P>
 <UL>
-<LI><A HREF="http://www.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>
+<LI><A HREF="http://berlin.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>
 <LI><A HREF="http://www.gwydiondylan.org/cgi-bin/gd">Bug Tracker</A>
 <LI><A HREF="http://www.gwydiondylan.org/cgi-bin/gd.private">Private Bug Tracker</A>
 <LI><A HREF="projects.phtml">Current Projects</A>
