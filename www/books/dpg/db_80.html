@@ -75,22 +75,18 @@ define method say (time :: &lt;time-offset&gt;) =&gt; ()
              minutes);
 end method say-time-offset;
 </pre>
-<p></p>
 <p><a href="#marker-9-197">Figure 5.5</a> shows that the generic function <code>say</code> has two methods defined for it.</p>
-<p></p>
-<table border="1"><caption>Figure 5.5   <a name="marker-9-197"></a>Methods for the <code>say</code> generic function.</caption><tr valign="top"><td><p><img alt="db80im12" src="db80im12.gif" /></p>
+<table><caption>Figure 5.5   <a name="marker-9-197"></a>Methods for the <code>say</code> generic function.</caption><tr><td><p><img alt="db80im12" src="db80im12.gif" /></p>
 </td></tr></table><p>We can call <code>say</code>:</p>
 <pre>
 <em>? </em>say(*my-time-of-day*);
 <em>0:02</em>
 </pre>
-<p></p>
 <p>In the preceding call, the argument is of the type <code>&lt;time-of-day&gt;</code>, so the method on <code>&lt;time-of-day&gt;</code> is the only applicable method. That method is invoked.</p>
 <pre>
 <em>? </em>say(*my-time-offset*);
 <em>plus 15:20</em>
 </pre>
-<p></p>
 <p>In the preceding call, the argument is of the type <code>&lt;time-offset&gt;</code>, so the method on <code>&lt;time-offset&gt;</code> is the only applicable method. That method is invoked.</p>
 
 </div>
@@ -103,9 +99,12 @@ end method say-time-offset;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_81.html"><img src="next.gif" alt="next" /></a> <a href="db_79.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_81.html"><img src="next.gif" alt="next" /></a> <a href="db_79.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

@@ -18,9 +18,8 @@
 
 <div class="content" id="heading213-0">
 <h1>13.8.1   The <em>sixty-unit-library</em> file</h1>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>sixty-unit</code> library file: <code>sixty-unit-library.dylan</code>.  </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>sixty-unit</code> library file: <code>sixty-unit-library.dylan</code>.  </p>
+</th></tr><tr><td><pre>
 Module: dylan-user
 <em>// Library definition
 </em>define library sixty-unit
@@ -29,13 +28,13 @@ Module: dylan-user
 <em>  // Substrate library
 </em>  use dylan;
 end library sixty-unit;
-</pre></td></tr><tr valign="top"><td><pre><em>// Interface module
+</pre></td></tr><tr><td><pre><em>// Interface module
 </em>define module sixty-unit
 <em>  // External interface
 </em>  create &lt;sixty-unit&gt;;
   create total-seconds, encode-total-seconds, decode-total-seconds;
 end module sixty-unit;
-</pre></td></tr><tr valign="top"><td><pre><em>// Implementation module
+</pre></td></tr><tr><td><pre><em>// Implementation module
 </em>define module sixty-unit-implementation
 <em>  // External interface
 </em>  use sixty-unit;
@@ -43,7 +42,6 @@ end module sixty-unit;
 </em>  use dylan;
 end module sixty-unit-implementation;
 </pre></td></tr></table>
-<p></p>
 <p>Notice that we have taken this opportunity to reorganize the <code>sixty-unit</code> module into a separate interface and implementation. We also have to create <code>encode-total-seconds</code> in the <code>sixty-unit</code> module, rather than to create it in the <code>time</code> interface and to define it in <code>sixty-unit</code>. Recall that all created names must be defined in the library in which they are created; we cannot use the create-define structure across libraries. We still want <code>encode-total-seconds</code> to be part of the interface of the <code>time</code> library, so we will have to change the <code>time</code> interface module to import it and to re-export it from the time library, as shown in <a href="db_214.html#marker-9-654">Section 13.8.2</a>.</p>
 <p>If we had followed our own recommendations in <a href="db_205.html#marker-9-644">Section 13.4.3, page 198</a>, we would probably have discovered that <code>encode-total-seconds</code> belonged in the <code>sixty-unit</code> interface, and we would have avoided most of this <br />reorganization.</p>
 
@@ -57,9 +55,12 @@ end module sixty-unit-implementation;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_214.html"><img src="next.gif" alt="next" /></a> <a href="db_212.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_214.html"><img src="next.gif" alt="next" /></a> <a href="db_212.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

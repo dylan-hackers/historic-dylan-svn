@@ -19,27 +19,26 @@
 <div class="content" id="heading271-0">
 <h1>17.5   <a name="marker-9-712"></a>The <code>airport-test.dylan</code> file</h1>
 <p>The <code>airport-test.dylan</code> file contains test data, and the code that constructs a model of the simple airport described in <a href="db_244.html#marker-9-681">Section 15.1, page 237</a>. The final method is a top-level testing function that builds the airport model and executes the main aircraft scheduling function. After defining the test, we show the results of running it. </p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>airport-test.dylan</code> file.  </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>airport-test.dylan</code> file.  </p>
+</th></tr><tr><td><pre>
 module: airport-test
 <em>// To keep the example relatively simple, we will use variables to hold
 // test data for the flights and aircraft 
 // Ordinarily, this information would be read from a file or database </em>
 define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44]; 
-</pre></td></tr><tr valign="top"><td>define variable *aircraft-distances* 
+</pre></td></tr><tr><td>define variable *aircraft-distances* 
   = #[3.0, 10.0, 175.0, 450.0, 475.0, 477.0];       <em>// Miles</em>
-</td></tr><tr valign="top"><td>define variable *aircraft-headings* 
+</td></tr><tr><td>define variable *aircraft-headings* 
   = #[82, 191, 49, 112, 27, 269];       <em>// Degrees </em>
-</td></tr><tr valign="top"><td>define variable *aircraft-altitudes*
+</td></tr><tr><td>define variable *aircraft-altitudes*
   = #[7000, 15000, 22000, 22500, 22000, 21000];    <em>// Feet </em>
-</td></tr><tr valign="top"><td>define variable *aircraft-ids*
+</td></tr><tr><td>define variable *aircraft-ids*
   = #[&quot;72914&quot;, &quot;82290&quot;, &quot;18317&quot;, &quot;26630&quot;, &quot;43651&quot;, &quot;40819&quot;]; 
-</td></tr><tr valign="top"><td>define constant $default-runway-size
+</td></tr><tr><td>define constant $default-runway-size
   = make(&lt;size&gt;, length: 10000, width: 200, height: 100);    <em>// Feet </em>
-</td></tr><tr valign="top"><td>define constant $default-taxiway-size
+</td></tr><tr><td>define constant $default-taxiway-size
   = make(&lt;size&gt;, length: 900, width: 200, height: 100);    <em>// Feet </em>
-</td></tr><tr valign="top"><td><em><a name="marker-9-703"></a>// Assumes that there is only one runway, and one taxiway 
+</td></tr><tr><td><em><a name="marker-9-703"></a>// Assumes that there is only one runway, and one taxiway 
 // The taxiway-count variable will determine how many aircraft can wait 
 // in line for each direction of the taxiway
 </em>define method build-simple-airport
@@ -52,7 +51,7 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
        = make(&lt;time-of-day&gt;, 
            total-seconds: encode-total-seconds(6, 0, 0)))
  =&gt; (airport :: &lt;airport&gt;) 
-</td></tr><tr valign="top"><td>  let gates = generate-gates(gates-per-terminal, capacity);
+</td></tr><tr><td>  let gates = generate-gates(gates-per-terminal, capacity);
   let taxiway
     = make(&lt;taxiway&gt;, id: &quot;Echo&quot;, directions: #[#&quot;inbound&quot;, #&quot;outbound&quot;],
            maxima: vector(taxiway-count, taxiway-count),
@@ -64,7 +63,7 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
     = map(method (fn) 
           make(&lt;flight&gt;, airline: keystone-air, number: fn) end,
           *flight-numbers*); 
-</td></tr><tr valign="top"><td>  let aircraft
+</td></tr><tr><td>  let aircraft
     = map(method (aircraft-flight, aircraft-distance, aircraft-heading,
                   aircraft-altitude, aircraft-id)
             make(&lt;b707&gt;, 
@@ -82,9 +81,9 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
                  transition: make(&lt;aircraft-transition&gt;,
                                   arrival: position-report-time));
           end,
-</td></tr><tr valign="top"><td>          flights, *aircraft-distances*, *aircraft-headings*,
+</td></tr><tr><td>          flights, *aircraft-distances*, *aircraft-headings*,
           *aircraft-altitudes*, *aircraft-ids*); 
-</td></tr><tr valign="top"><td>  let airport
+</td></tr><tr><td>  let airport
     = make(&lt;airport&gt;,
            name: &quot;Belefonte Airport&quot;,
            code: &quot;BLA&quot;,
@@ -98,7 +97,7 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
                     make(&lt;longitude&gt;,
                          total-seconds: encode-total-seconds(77, 40, 24),
                          direction: #&quot;west&quot;))); 
-</td></tr><tr valign="top"><td>  let sky = make(&lt;sky&gt;, inbound-aircraft: aircraft, airport: airport,
+</td></tr><tr><td>  let sky = make(&lt;sky&gt;, inbound-aircraft: aircraft, airport: airport,
                  id: concatenate(&quot;over &quot;, airport.code));
   airport.sky-above := sky;
   runway.connected-to := vector(taxiway, sky);
@@ -111,7 +110,7 @@ define variable *flight-numbers* = #[62, 7, 29, 12, 18, 44];
   sky.connected-to := runway-vector;
   airport;
 end method build-simple-airport; 
-</td></tr><tr valign="top"><td>define method test-airport () =&gt; (last-transition :: &lt;time-of-day&gt;)
+</td></tr><tr><td>define method test-airport () =&gt; (last-transition :: &lt;time-of-day&gt;)
   process-aircraft(build-simple-airport());
 end method test-airport; 
 </td></tr></table>
@@ -168,9 +167,12 @@ end method test-airport;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_272.html"><img src="next.gif" alt="next" /></a> <a href="db_270.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_272.html"><img src="next.gif" alt="next" /></a> <a href="db_270.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

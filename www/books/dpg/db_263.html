@@ -19,9 +19,8 @@
 <div class="content" id="heading263-0">
 <h1>17.2.1   Physical objects</h1>
 <p>The classes that follow describe fundamental attributes of tangible objects.</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>airport-classes.dylan</code> file. </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>airport-classes.dylan</code> file. </p>
+</th></tr><tr><td><pre>
 module: airport
 <em>// PHYSICAL OBJECTS AND SIZE</em>
 <em>// Used to keep track of object dimensions and object capacities
@@ -31,11 +30,11 @@ module: airport
   slot width :: &lt;positive-integer&gt;, init-keyword: width:;
   slot height :: &lt;positive-integer&gt;, init-keyword: height:;
 end class &lt;size&gt;; 
-</pre></td></tr><tr valign="top"><td><pre>define abstract class &lt;physical-object&gt; (&lt;object&gt;)
+</pre></td></tr><tr><td><pre>define abstract class &lt;physical-object&gt; (&lt;object&gt;)
   slot current-position :: &lt;position&gt;, init-keyword: current-position:;
   slot physical-size :: &lt;size&gt;, init-keyword: physical-size:;
 end class &lt;physical-object&gt;; 
-</pre></td></tr><tr valign="top"><td><pre>define method say (physical-object :: &lt;physical-object&gt;) =&gt; ()
+</pre></td></tr><tr><td><pre>define method say (physical-object :: &lt;physical-object&gt;) =&gt; ()
   format-out(&quot;object at &quot;);
   say(physical-object.current-position);
 end method say; 
@@ -53,9 +52,12 @@ end method say;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_264.html"><img src="next.gif" alt="next" /></a> <a href="db_262.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_264.html"><img src="next.gif" alt="next" /></a> <a href="db_262.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

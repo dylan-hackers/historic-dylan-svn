@@ -19,14 +19,12 @@
 <div class="content" id="heading40-0">
 <h1>3.2.2   <a name="marker-2-128"></a>Relationship between classes and methods</h1>
 <p>The relationship between classes and methods in Dylan is different from that in C++ and Smalltalk, among other languages.</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Compari<a name="marker-2-102"></a>son to C++ and Sm<a name="marker-2-103"></a>alltalk:</strong> In C++ and Smalltalk, a class contains the equivalent of methods. In Dylan, a class does not contain methods; instead, a method belongs to a generic function. This design decision enables these powerful features of Dylan: </p>
+<table><tr><td><p><strong>Compari<a name="marker-2-102"></a>son to C++ and Sm<a name="marker-2-103"></a>alltalk:</strong> In C++ and Smalltalk, a class contains the equivalent of methods. In Dylan, a class does not contain methods; instead, a method belongs to a generic function. This design decision enables these powerful features of Dylan: </p>
 <ul>
 <li><p>Yo<strong><a name="marker-2-104"></a></strong>u can define methods on built-in classes (because you do not have to modify the class definition to define a method intended for use on the class). For an example, see <a href="db_85.html#marker-9-243">Section 6.1, page 75</a>. More generally, you can define a method for a class that you did not define. </p></li>
 <li><p>You can write multimethods. In a <strong>multimethod</strong>, the method dispatch is based on the classes of more than one argument to a generic function. For an introduction to method dispatch, see <a href="db_75.html#marker-9-224">Section 5.5, page 63</a>. For information about multimethods, see <a href="db_84.html#marker-9-241">Chapter 6,  <em>Multimethods</em></a>.</p></li>
 <li><p>You can restrict generic functions to operate on specific classes of objects.</p></li>
 </ul></td></tr></table>
-<p></p>
 <p>In Dylan, a method belongs to a generic function, as shown in <a href="db_37.html#marker-9-99">Figure 3.1, page 30</a>. Although methods are independent of classes, methods operate on instances of classes. A method states the types of objects for which it is applicable by the type constraint of each of its required parameters. Consider the <code>say-greeting</code> method defined earlier:</p>
 <pre>
 define method say-greeting (greeting :: &lt;integer&gt;);
@@ -45,9 +43,12 @@ end;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_41.html"><img src="next.gif" alt="next" /></a> <a href="db_39.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_41.html"><img src="next.gif" alt="next" /></a> <a href="db_39.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

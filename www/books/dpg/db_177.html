@@ -22,7 +22,6 @@
 <p>1.  <strong>Required parameters<a name="marker-2-516"></a></strong> specify required arguments, or arguments that must be supplied when the function is called. All required parameters appear before other kinds of parameters in the parameter list.</p>
 <p>2.  A function can have at most one <strong>rest parameter<a name="marker-2-517"></a></strong>, which allows the function to accept a variable number of arguments. The rest parameter is identified in the parameter list by <code>#r<a name="marker-2-518"></a>est</code> followed by the name of the parameter. When the function is called, all arguments that follow the required arguments are put into a sequence. This sequence is the initial value of the rest parameter in the function body.</p>
 <p>3.  <strong>Keyword parameters<a name="marker-2-519"></a></strong> specify optional keyword arguments. In the parameter list, keyword parameters are identified by <code>#k<a name="marker-2-520"></a>ey</code> followed by the names of the parameters (and possibly by other information). Keyword parameters must follow all required parameters and the rest parameter (if any). When the function is called, the caller can supply any or none of the specified keyword arguments, in any order, after supplying all required arguments. The caller supplies each keyword argument as a symbol (usually in the form of the parameter name followed by a colon), followed by the argument value. This argument is the initial value of the corresponding keyword parameter in the function body.</p>
-<p></p>
 <p>The specification for each parameter in the parameter list includes the name of the parameter. In addition, a required parameter (or, for a method, a keyword parameter) can be <strong>specialized<a name="marker-2-521"></a></strong> to correspond to an argument of a given type. The type specializer follows the parameter name and is identified by <code>::</code> followed by a type. When the function is called, the argument that corresponds to the parameter must be of the specified type, or Dylan signals an error. The default argument type is <code>&lt;object&gt;</code>.</p>
 <p>The specification for a keyword parameter can have two additional pieces of information:</p>
 <p>1.  It may include a keyword for the caller to use in its argument list, if this keyword must be different from the parameter name. The keyword precedes the parameter name in the parameter list.</p>
@@ -75,9 +74,12 @@ end method convert-to-seconds;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_178.html"><img src="next.gif" alt="next" /></a> <a href="db_176.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_178.html"><img src="next.gif" alt="next" /></a> <a href="db_176.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

@@ -22,8 +22,7 @@
 <p>Many computer languages support a macro facility for creating shorthand notations for commonly used, longer phrases. They range from simple, text-based abbreviations to full languages, permitting computed replacements. Macros are processed before the program is compiled by <strong>expanding</strong> each macro into its replacement phrase as that macro is encountered until there are no more macros. You can use macros to extend the base language by defining more sophisticated phrases in terms of simpler, built-in phrases.</p>
 <p>The primary use of macros in programming languages is to extend or adapt the language to allow a more concise or readable solution for a particular problem domain. A simple program rarely needs macros. More complicated programs, including the implementation of a Dylan compiler and run-time system, will use macros often. Macros have no visible run-time cost or effect -- they are transformations that take place during the compilation of a program (hence, they <em>can</em> increase compilation time). Although macros may take the form of function calls, they are not functions -- they cannot be passed as functional arguments, and they cannot be invoked in a run-time image as a function can. Although macros may have parameters, they do not take arguments the way functions do. The arguments to a macro are not evaluated; they are simply program phrases that can be substituted in the replacement phrase.</p>
 <p>Dylan provides a macro facility that is based on pattern matching and template substitution. This facility is more powerful than is a simple textual substitution facility, but is simpler than a <em>procedural-macro</em> facility, which allows arbitrary computations to construct replacement phrases. Dylan's macro facility is closely integrated with the Dylan language syntax, and permits most macro needs to be satisfied. Dylan designers have also planned for a full procedural macro capability, so that it can be added compatibly at a later time if there is sufficient demand.</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparison <a name="marker-2-859"></a>with C and C++:</strong> C and C++ macros are text substitutions, performed by a preprocessor. The preprocessor has no understanding of the language; it simply splices together text fragments to create replacement phrases.</p>
+<table><tr><td><p><strong>Comparison <a name="marker-2-859"></a>with C and C++:</strong> C and C++ macros are text substitutions, performed by a preprocessor. The preprocessor has no understanding of the language; it simply splices together text fragments to create replacement phrases.</p>
 <p>Dylan macros are written in terms of Dylan language elements; the macros choose their transformation by pattern matching, and they substitute program fragments.</p>
 <p>Language-based macros are more powerful than -- and avoid a number of common pitfalls of -- text-substitution macros. These pitfalls are described in later comparisons in this chapter.</p>
 </td></tr></table>
@@ -48,9 +47,12 @@
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_330.html"><img src="next.gif" alt="next" /></a> <a href="db_328.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_330.html"><img src="next.gif" alt="next" /></a> <a href="db_328.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

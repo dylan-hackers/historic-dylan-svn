@@ -35,8 +35,7 @@ value :=</code></em> x<em>;
 <code>x := value</code></em>
 </pre>
 <p>With simple textual substitutions, <code>swap!</code> would have no effect in this case. Dylan's hygienic macros solve this problem by differentiating between the <em>value<em> </em></em>introduced by the macro and any other <code>value</code> that might appear in the original code.</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparison with<a name="marker-2-854"></a> C:</strong> Because C (and C++) macros are simply text substitutions performed by a preprocessor that has no understanding of the C language, they are inherently unhygienic. C macro writers reduce this problem by choosing unusual or unlikely names for local variables in their macros (such as <code>_swap_temp_value</code>), but even this workaround can be insufficient in complex macros. Dylan macros in effect automatically rename macro variables on each expansion to guarantee unique names.</p>
+<table><tr><td><p><strong>Comparison with<a name="marker-2-854"></a> C:</strong> Because C (and C++) macros are simply text substitutions performed by a preprocessor that has no understanding of the C language, they are inherently unhygienic. C macro writers reduce this problem by choosing unusual or unlikely names for local variables in their macros (such as <code>_swap_temp_value</code>), but even this workaround can be insufficient in complex macros. Dylan macros in effect automatically rename macro variables on each expansion to guarantee unique names.</p>
 </td></tr></table>
 </div>
 
@@ -48,9 +47,12 @@ value :=</code></em> x<em>;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_332.html"><img src="next.gif" alt="next" /></a> <a href="db_330.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_332.html"><img src="next.gif" alt="next" /></a> <a href="db_330.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

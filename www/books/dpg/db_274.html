@@ -19,13 +19,13 @@
 <div class="content" id="heading274-0">
 <h1>17.8   The <code>airport-library.dylan</code> file</h1>
 <p>The airport library implements the main scheduling system for the airport example. This library assumes that your Dylan implementation provides a <code>format-out</code> library, which supplies the <code>format-out</code> and <code>format-to-string</code> functions. This library also assumes that there is a <code>transcendentals</code> library, which supplies the <code>sqrt</code> (square root) function.</p>
-<table border="1"><tr valign="top"><th><p>The <code>airport-library.dylan</code> file.  </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>airport-library.dylan</code> file.  </p>
+</th></tr><tr><td><pre>
 module: dylan-user
 define library airport
   export airport;
   use dylan;
-</pre></td></tr><tr valign="top"><td><pre>  use transcendentals; 
+</pre></td></tr><tr><td><pre>  use transcendentals; 
   use say;
   use format-out;
   use definitions;
@@ -33,7 +33,7 @@ define library airport
   use angle;
   use time;
 end library airport; 
-</pre></td></tr><tr valign="top"><td><pre>define module airport
+</pre></td></tr><tr><td><pre>define module airport
   export &lt;size&gt;, length, height, width, current-position, 
     current-position-setter;
   export physical-size, physical-size-setter, $default-capacity;
@@ -69,9 +69,12 @@ end module airport;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_275.html"><img src="next.gif" alt="next" /></a> <a href="db_273.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_275.html"><img src="next.gif" alt="next" /></a> <a href="db_273.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

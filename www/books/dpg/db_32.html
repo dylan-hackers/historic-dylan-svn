@@ -23,18 +23,15 @@
 format-out(&quot;Hello, world\n&quot;); 
 </pre>
 <p>All Dylan expressions must be in a module. Therefore, we use a text editor to create a file that contains the expression within a module:</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The program file: <code>hello.dylan</code>.</p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The program file: <code>hello.dylan</code>.</p>
+</th></tr><tr><td><pre>
 module: hello
 format-out(&quot;Hello, world\n&quot;); 
 </pre></td></tr></table>
-<p></p>
 <p>The <code>hello.dylan</code> file is the top-level file; you can think of it as the program itself. When you run this program, Dylan executes all the expressions in the file in the order that they appear in the file. There is only one expression in this program -- the call to <code>format-out</code>.</p>
 <p>The first line of this file declares that the expressions and definitions in this file are in the <code>hello</code> module. Before we can run (or even compile) this program, we need to define the <code>hello</code> module. All modules must be in a library, so we must also define a library for our <code>hello</code> module. We create a second file, called the library file, and define the <code>hello</code> module and <code>hello</code> library in the library file:</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The library file: <code>library.dylan</code>.</p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The library file: <code>library.dylan</code>.</p>
+</th></tr><tr><td><pre>
 module: dylan-user						
 define library hello
   use dylan; 
@@ -45,14 +42,12 @@ define module hello
   use format-out;
 end module hello; 
 </pre></td></tr></table>
-<p></p>
 <p>The first line of <code>library.dylan</code> states that the expressions in this file are in the <a name="marker-2-92"></a><code>dylan-user</code> module. Every Dylan expression and definition must be in a module, including the definitions of libraries and modules. The <code>dylan-user</code> module is the starting point -- the predefined module that enables you to define the libraries and modules that your program uses. </p>
 <p>In the file <code>library.dylan</code>, we define a library named <code>hello</code>, and a module named <code>hello</code>. We define the <code>hello</code> library to use the <a name="marker-2-93"></a><code>dylan</code> library and the <code>format-out</code> library, and we define the <code>hello</code> module to use the <a name="marker-2-94"></a><code>dylan</code> module and the <code>format-out</code> module. </p>
 <p>One library <strong>uses</strong> another library to allow its modules to use the other library's exported modules. Most libraries need to use the <code>dylan</code> library, because it contains the <code>dylan</code> module. One module <strong>uses</strong> another module to allow its definitions to use the other module's exported definitions. Most modules need to use the <code>dylan</code> module in the <code>dylan</code> library, because that module contains the definitions of the core Dylan language. We also need to use the <code>format-out</code> module in the <code>format-out</code> library, because that module defines the <code>format-out</code> function, which we use in our program.</p>
 <p>Finally, we create a LID file that enumerates the files that make up the library. This file does not contain Dylan expressions, but rather is simply a textual description of the library's files:</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The LID file: <code>hello.lid</code>.</p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The LID file: <code>hello.lid</code>.</p>
+</th></tr><tr><td><pre>
 library: hello
 files:   library 
          hello 
@@ -71,9 +66,12 @@ files:   library
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_33.html"><img src="next.gif" alt="next" /></a> <a href="db_31.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_33.html"><img src="next.gif" alt="next" /></a> <a href="db_31.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

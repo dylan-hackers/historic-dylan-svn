@@ -55,8 +55,7 @@ begin
 end;
 </pre>
 <p>Note that we have shown the local variable <code>stop!</code> introduced by the macro <code>block</code> in <code>code font</code> rather than in <em>underline italic</em>, because it is visible to the body and is exactly the <code>stop!</code> called in the <code>if</code> to stop the repetition. The local variable <em>again</em>, on the other hand, is not visible to the body code. We could use <code>again</code> instead of <code>i</code> as our repetition count without a problem.</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparis<a name="marker-2-860"></a>on with C:</strong> All C macros have the syntax of function calls, making it impossible to write language extensions such as <code>repeat</code>. By using language-based constraints, such as the <code>body</code> constraint used here, Dylan macros can match language forms, and thus can create extensions that are consistent with the base language.</p>
+<table><tr><td><p><strong>Comparis<a name="marker-2-860"></a>on with C:</strong> All C macros have the syntax of function calls, making it impossible to write language extensions such as <code>repeat</code>. By using language-based constraints, such as the <code>body</code> constraint used here, Dylan macros can match language forms, and thus can create extensions that are consistent with the base language.</p>
 </td></tr></table><p>Note that we would have to document how <code>repeat</code> works for other users, or they might be surprised if they tried to use <code>stop!</code> instead of <code>i</code> in the example.</p>
 
 </div>
@@ -69,9 +68,12 @@ end;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_336.html"><img src="next.gif" alt="next" /></a> <a href="db_334.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_336.html"><img src="next.gif" alt="next" /></a> <a href="db_334.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

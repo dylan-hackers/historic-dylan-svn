@@ -27,39 +27,39 @@
 <li><p>We illustrated the complexity of component and protocol design.</p></li>
 <li><p>We discussed how to create a protocol that can be extended by multiple client libraries.</p></li>
 <li><p>We discussed namespaces in Dylan, and their <a name="marker-2-660"></a>applicable scope; see <a href="#marker-9-594">Table 13.1</a>. </p>
-</li></ul><table border="1"><caption>
-Table 13.1   <a name="marker-9-594"></a>Namespace scopes.</caption><tr valign="top"><th><p>Namespace</p>
+</li></ul><table><caption>
+Table 13.1   <a name="marker-9-594"></a>Namespace scopes.</caption><tr><th><p>Namespace</p>
 </th><th><p>Scope</p>
-</th></tr><tr valign="top"><td><p>library</p>
+</th></tr><tr><td><p>library</p>
 </td><td><p>global</p>
-</td></tr><tr valign="top"><td><p>module</p>
+</td></tr><tr><td><p>module</p>
 </td><td><p>per library</p>
-</td></tr><tr valign="top"><td><p>constant or variable</p>
+</td></tr><tr><td><p>constant or variable</p>
 </td><td><p>per module</p>
-</td></tr><tr valign="top"><td><p>symbol or keyword</p>
+</td></tr><tr><td><p>symbol or keyword</p>
 </td><td><p>global</p>
 </td></tr></table><ul>
 <li><p>We described the roles of modules and the definition clauses that modules use; see <a href="#marker-9-593">Table 13.2</a>. </p></li>
-</ul><table border="1"><caption>
-Table 13.2   <a name="marker-9-593"></a>Module roles.</caption><tr valign="top"><th><p>Role</p>
+</ul><table><caption>
+Table 13.2   <a name="marker-9-593"></a>Module roles.</caption><tr><th><p>Role</p>
 </th><th><p>Example clause</p>
-</th></tr><tr valign="top"><td><p>interface</p>
+</th></tr><tr><td><p>interface</p>
 </td><td><pre>
 <em>// Interface class
 </em>create &lt;time&gt;;
 <em>// Re-exported interface
 </em>use say, export: all;
-</pre></td></tr><tr valign="top"><td>
+</pre></td></tr><tr><td>
 <p>client</p>
 </td><td><pre>
 <em>// Substrate module
 </em>use dylan;
-</pre></td></tr><tr valign="top"><td>
+</pre></td></tr><tr><td>
 <p>implementation</p>
 </td><td><pre>
 <em>// Interface module
 </em>use time;
-</pre></td></tr><tr valign="top"><td>
+</pre></td></tr><tr><td>
 <p>implementation and interface</p>
 </td><td><pre>
 <em>// Interface protocol
@@ -77,9 +77,12 @@ Table 13.2   <a name="marker-9-593"></a>Module roles.</caption><tr valign="top">
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_223.html"><img src="next.gif" alt="next" /></a> <a href="db_221.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_223.html"><img src="next.gif" alt="next" /></a> <a href="db_221.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

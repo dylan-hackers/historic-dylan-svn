@@ -43,37 +43,36 @@ end class &lt;aircraft&gt;;
 <p>2.  Merge the local precedence order with the class precedence list of the only direct superclass, <code>&lt;commercial-aircraft&gt;</code>.</p>
 <p>Dylan must now use these rules, recursively, to compute the class precedence list of <code>&lt;commercial-aircraft&gt;</code>. In doing so, Dylan must compute recursively the class precedence list of the only direct superclass of <code>&lt;commercial-aircraft&gt;</code>: <code>&lt;aircraft&gt;</code>. This process continues until Dylan has recursively computed the class precedence lists for all superclasses of <code>&lt;B707&gt;</code>. Finally, Dylan finishes constructing the class precedence list for <code>&lt;B707&gt;</code> itself. <a href="#marker-9-718">Table 18.1</a> shows the results.</p>
 <p>One implication of this procedure is that, if a class inherits a superclass via two different paths, the superclass in common must have precedence lower than that of any of its subclasses. For example, the <code>&lt;object&gt;</code> class is a superclass of</p>
-<table border="1"><caption>Table 18.1   <a name="marker-9-718"></a>Class precedence lists for <code>&lt;B707&gt;</code> and its superclasses.</caption><tr valign="top"><th><p>Class</p>
+<table><caption>Table 18.1   <a name="marker-9-718"></a>Class precedence lists for <code>&lt;B707&gt;</code> and its superclasses.</caption><tr><th><p>Class</p>
 </th><th><p>Local precedence order</p>
 </th><th><p>Class precedence list</p>
-</th></tr><tr valign="top"><td>
+</th></tr><tr><td>
 &lt;object&gt;
 </td><td>&lt;object&gt;
 </td><td>&lt;object&gt;
-</td></tr><tr valign="top"><td>&lt;physical-object&gt;
+</td></tr><tr><td>&lt;physical-object&gt;
 </td><td>&lt;physical-object&gt;, &lt;object&gt;
 </td><td>&lt;physical-object&gt;, &lt;object&gt;
-</td></tr><tr valign="top"><td>&lt;vehicle&gt;
+</td></tr><tr><td>&lt;vehicle&gt;
 </td><td>&lt;vehicle&gt;, &lt;physical-object&gt;
 </td><td>&lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
-</td></tr><tr valign="top"><td>&lt;ground-vehicle&gt;
+</td></tr><tr><td>&lt;ground-vehicle&gt;
 </td><td>&lt;ground-vehicle&gt;, &lt;vehicle&gt;
 </td><td>&lt;ground-vehicle&gt;, &lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
-</td></tr><tr valign="top"><td>&lt;flying-vehicle&gt;
+</td></tr><tr><td>&lt;flying-vehicle&gt;
 </td><td>&lt;flying-vehicle&gt;, &lt;vehicle&gt;
 </td><td>&lt;flying-vehicle&gt;, &lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
-</td></tr><tr valign="top"><td>&lt;aircraft&gt;
+</td></tr><tr><td>&lt;aircraft&gt;
 </td><td>&lt;aircraft&gt;, &lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;
 </td><td>&lt;aircraft&gt;, &lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
-</td></tr><tr valign="top"><td>&lt;commercial-aircraft&gt;
+</td></tr><tr><td>&lt;commercial-aircraft&gt;
 </td><td>&lt;commercial-aircraft&gt;, &lt;aircraft&gt;
 </td><td>&lt;commercial-aircraft&gt;, &lt;aircraft&gt;, &lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
-</td></tr><tr valign="top"><td>&lt;B707&gt;
+</td></tr><tr><td>&lt;B707&gt;
 </td><td>&lt;B707&gt;, &lt;commercial-aircraft&gt;
 </td><td>&lt;B707&gt;, &lt;commercial-aircraft&gt;, &lt;aircraft&gt;, &lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
 </td></tr></table>
 <p>every class (except itself). This class must have lower precedence than any of its subclasses, so it appears last in every class precedence list. The class precedence list is consistent with the rule that a subclass is more specific than are any of its superclasses.</p>
-<p></p>
 
 </div>
 
@@ -85,9 +84,12 @@ end class &lt;aircraft&gt;;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_287.html"><img src="next.gif" alt="next" /></a> <a href="db_285.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_287.html"><img src="next.gif" alt="next" /></a> <a href="db_285.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

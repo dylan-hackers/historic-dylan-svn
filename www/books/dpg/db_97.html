@@ -38,11 +38,10 @@ end class &lt;relative-angle&gt;;
 define abstract class &lt;directed-angle&gt; (&lt;angle&gt;)
   slot direction :: &lt;string&gt;, init-keyword: direction:;
 end class &lt;directed-angle&gt;;
-</pre><table border="1"><tr valign="top"><td>
+</pre><table><tr><td>
 <p><strong>Modularity note:</strong> Why provide both the classes <code>&lt;angle&gt;</code> and <code>&lt;relative-angle&gt;</code>, when the <code>&lt;relative-angle&gt;</code> class has no additional slots? We need a class that has only the <code>total-seconds</code> slot, and no others. We need to use such a class as the type of the <code>angle</code> slot of <code>&lt;relative-angle&gt;</code>. We might consider making the <code>&lt;angle&gt;</code> class concrete, and using that class, which has only the <code>total-seconds</code> slot. However, that approach would not prevent someone from storing a <code>&lt;directed-angle&gt;</code> instance in the <code>angle</code> slot of <code>&lt;relative-angle&gt;</code>, because <code>&lt;directed-angle&gt;</code> instances are also instances of <code>&lt;angle&gt;</code>. </p>
 <p>In Dylan, by defining classes as specifically as possible, you enhance the reliability of your program, because the compiler (or run-time system) can verify that only correct values are used. In contrast, you could write a program in Dylan or C in which you represented everything as an integer -- in that style of program, someone could far too easily introduce a programming error in which a time was stored where a latitude was needed. </p>
-</td></tr></table><p></p>
-<p>The <code>&lt;angle&gt;</code> class looks remarkably similar to the <code>&lt;time&gt;</code> class defined earlier:</p>
+</td></tr></table><p>The <code>&lt;angle&gt;</code> class looks remarkably similar to the <code>&lt;time&gt;</code> class defined earlier:</p>
 <pre>
 <em>// Superclass of all angle classes
 </em>define abstract class &lt;angle&gt; (&lt;object&gt;)
@@ -65,9 +64,12 @@ end class &lt;time&gt;;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_98.html"><img src="next.gif" alt="next" /></a> <a href="db_96.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_98.html"><img src="next.gif" alt="next" /></a> <a href="db_96.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

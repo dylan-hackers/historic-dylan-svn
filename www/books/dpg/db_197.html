@@ -19,9 +19,8 @@
 <div class="content" id="heading197-0">
 <h1>13.2.5   Simple example of libraries and modules</h1>
 <p>To illustrate these concepts, we repeat the definition of the <code>library.dylan</code> file, first shown in <a href="db_18.html#marker-9-53">Chapter 2,  <em>Quick Start</em></a>. Here, we have used a more verbose, but also more precise, format.</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The library file: <code>library.dylan</code>.</p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The library file: <code>library.dylan</code>.</p>
+</th></tr><tr><td><pre>
 module: dylan-user
 define library hello
   use dylan, import: { dylan }; 
@@ -32,14 +31,12 @@ define module hello
   use format-out, import: all;
 end module hello; 
 </pre></td></tr></table>
-<p></p>
 <p>The first line of <code>library.dylan</code> states that the expressions and definitions in this file are in the <a name="marker-2-624"></a><code>dylan-user</code> module. In this predefined module, you define the modules and library that make up your component or program. Every library has a unique <code>dylan-user</code> module. In the file <code>library.dylan</code>, we define a library named <code>hello</code> and a module named <code>hello</code>.</p>
 <p>The module definition names the other modules whose names the <code>hello</code> module will use. In this case, the <code>hello</code> module uses the <code>dylan</code> and <code>format-out</code> modules. Here, we have explicitly stated that we are importing all the names from the modules that we use -- using the <code>import: all</code> clause is not strictly necessary, because it is the default that is used if we do not specify what to import. By using another module, we import the names exported from that module, making them available in our namespace. For example, <code>format-out</code> is exported from the <code>format-out</code> module, so the <code>use format-out</code> clause enables our program to call the <code>format-out</code> function. The <code>use dylan</code> clause in the module definition makes available all the built-in Dylan language elements exported from the <code>dylan</code> module. When we define a module, it must <code>use</code> all the modules that export the definitions used by the definitions in our module.</p>
 <p>The library definition tells the compiler which other libraries our program uses. Here, we have explicitly stated that we are interested in only the <code>dylan</code> and <code>format-out</code> modules from these other libraries. This clause is not strictly necessary, since the module definition tells the compiler which modules it uses; but it is good practice to document our intent. For example, the <code>format-out</code> module is in the <code>format-out</code> library. Therefore, our <code>hello</code> library must use the <code>format-out</code> library, and must import the <code>format-out</code> module for the <code>hello</code> module to use the <code>format-out</code> module. Similarly, the <code>dylan</code> module is in the <code>dylan</code> library, and therefore our <code>hello</code> library must use the <code>dylan</code> library and import the <code>dylan</code> module in order for the <code>hello</code> module to use the <code>dylan</code> module. When we define a library, it must <code>use</code> all the libraries that export the modules used by the modules in our library.</p>
 <p>The module definition also specifies which variables and constants are exported from the module for use by other modules. The library definition specifies which modules are exported from the library for use by other libraries. In our simple example, the <code>hello</code> module exports no variables or constants, and the <code>hello</code> library exports no modules.</p>
 <p><a href="#marker-9-580">Figure 13.1</a> illustrates the relationships between libraries and modules in our example program. In <a href="#marker-9-580">Figure 13.1</a>, and in the other figures in this chapter, we draw libraries as heavy bold boxes and modules as light boxes. We have tried to illustrate how libraries and modules build on one another through their "use" relationships. A library that uses another library is shown above the library that it uses, so we show the <code>hello</code> library above the <code>format-out</code> and <code>dylan</code> libraries. An exported module is illustrated as being on top of (overlapping) the library that </p>
-<p></p>
-<table border="1"><caption>Figure 13.1   <a name="marker-9-580"></a>Libraries (heavy boxes) and modules (light boxes) in "Hello, world".</caption><tr valign="top"><td><p><a name="marker-10-581"></a><img alt="db19im21" src="db19im21.gif" /></p>
+<table><caption>Figure 13.1   <a name="marker-9-580"></a>Libraries (heavy boxes) and modules (light boxes) in "Hello, world".</caption><tr><td><p><a name="marker-10-581"></a><img alt="db19im21" src="db19im21.gif" /></p>
 </td></tr></table><p>exports it (we have also shaded them, to illustrate this overlap). And a module that uses another module is illustrated as being on top of (overlapping) the used module. Try to envision the modules as semitransparent overlays, layered up from the surface of the paper. Thus, the <code>hello</code> module overlays the <code>format-out</code> and <code>dylan</code> modules that it uses.</p>
 <p>Note that we intentionally do not show all the modules in the <code>format-out</code> and <code>dylan</code> libraries in <a href="#marker-9-580">Figure 13.1</a>. The <code>format-out</code> and <code>dylan</code> libraries might well have other modules, but either those modules are not exported or our program does not use them. </p>
 
@@ -53,9 +50,12 @@ end module hello;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_198.html"><img src="next.gif" alt="next" /></a> <a href="db_196.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_198.html"><img src="next.gif" alt="next" /></a> <a href="db_196.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

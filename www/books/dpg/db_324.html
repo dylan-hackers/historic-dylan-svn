@@ -18,9 +18,7 @@
 
 <div class="content" id="heading324-0">
 <h1>20.2.4   <a name="marker-9-841"></a>Continuation from errors</h1>
-<p></p>
 <p>The restart mechanism just described is exceedingly general, and may provide several different ways to recover from exceptional situations. Sometimes, however, there is just one main way to recover. Under certain circumstances, Dylan provides a way for handlers simply to return to their callers, allowing execution to continue after the signaler. Here, we present a simpler (but less flexible) implementation for recovering from the time-of-day overflow exception:</p>
-<p></p>
 <pre>
 define method return-24-hour-modulus 
     (condition :: &lt;time-error&gt;, next-handler :: &lt;function&gt;) 
@@ -30,19 +28,16 @@ define method return-24-hour-modulus
                              $seconds-per-day));
 end method return-24-hour-modulus;
 </pre>
-<p></p>
 <pre>
 define method return-allowed? (condition :: &lt;time-error&gt;)
   #t;
 end method return-allowed?;
 </pre>
-<p></p>
 <pre>
 define method return-description (condition :: &lt;time-error&gt;)
   &quot;Returns the invalid time modulo 24 hours.&quot;;
 end;
 </pre>
-<p></p>
 <pre>
 define method say-corrected-time
     (arrival-time :: &lt;time-of-day&gt;, 
@@ -83,9 +78,12 @@ end method \+;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_325.html"><img src="next.gif" alt="next" /></a> <a href="db_323.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_325.html"><img src="next.gif" alt="next" /></a> <a href="db_323.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

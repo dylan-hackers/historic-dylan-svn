@@ -21,7 +21,7 @@
 <p>When each class has only one direct superclass, the relations among superclasses and subclasses form a <strong>tree</strong><a name="marker-2-735"></a>. For every subclass in the tree, there is a well-defined ordering in terms of <strong>specificity</strong> for that class and all its superclasses. A subclass is always more specific than are any of its superclasses. When each class has only one superclass, we can order unambiguously any given class and all its superclasses, from <a name="marker-2-736"></a><strong>most specific</strong> to <strong>least specific</strong>. <a href="db_282.html#marker-9-722">Figure 18.1</a> illustrates part of such an ordering for our original, single-inheritance definitions of <code>&lt;vehicle&gt;</code> and <code>&lt;vehicle&gt;</code>'s subclasses.</p>
 <p>With multiple inheritance, the relations among superclasses and subclasses can form a <strong>graph</strong><a name="marker-2-737"></a>, which may not be a tree. We cannot always order a class and all its superclasses in terms of specificity. It is still true that a subclass is more specific than are any of its superclasses. But we cannot always order its superclasses in terms of specificity.</p>
 <p><a href="#marker-9-723">Figure 18.2</a> illustrates our current definitions of <code>&lt;vehicle&gt;</code> and of <code>&lt;vehicle&gt;</code>'s subclasses.</p>
-<table border="1"><caption>Figure 18.2   <a name="marker-9-723"></a>Graph of vehicle classes that use multiple inheritance.</caption><tr valign="top"><td>
+<table><caption>Figure 18.2   <a name="marker-9-723"></a>Graph of vehicle classes that use multiple inheritance.</caption><tr><td>
 <img alt="db28im30" src="db28im30.gif" />
 </td></tr></table>
 <p>Consider <code>&lt;B707&gt;</code> and its superclasses. We can order <code>&lt;B707&gt;</code>, <code>&lt;commercial-aircraft&gt;</code>, and <code>&lt;aircraft&gt;</code> from more specific to less specific. But we cannot say that either <code>&lt;ground-vehicle&gt;</code> or <code>&lt;flying-vehicle&gt;</code> is more specific than the other, because neither class is a subclass of the other. We could order <code>&lt;B707&gt;</code> and its superclasses in two ways, from more specific to less specific:</p>
@@ -48,9 +48,12 @@
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_286.html"><img src="next.gif" alt="next" /></a> <a href="db_284.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_286.html"><img src="next.gif" alt="next" /></a> <a href="db_284.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

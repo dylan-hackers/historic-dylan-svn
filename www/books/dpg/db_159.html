@@ -48,13 +48,11 @@ define method interpret-votes
 end method interpret-votes;
 </pre>
 <p>We defined the <code>&lt;nonnegative-integer&gt;</code> type in <a href="db_112.html#marker-9-295">Section 9.2, page 110</a>, using <code>limited</code>. Only positive integers and the integer 0 are instances of <code>&lt;nonnegative-integer&gt;</code>. We use this type in the <code>interpret-votes</code> method parameter list to ensure that no negative vote counts are accepted.</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Quick summary of </strong><a name="marker-2-364"></a><code>&amp;</code> <strong>infix operator</strong>: <em>arg1</em> <code>&amp;</code> <em>arg2</em></p>
+<table><tr><td><p><strong>Quick summary of </strong><a name="marker-2-364"></a><code>&amp;</code> <strong>infix operator</strong>: <em>arg1</em> <code>&amp;</code> <em>arg2</em></p>
 <p>The infix operator <code>&amp;</code> does the <em>and</em> <a name="marker-2-365"></a>logical operation. If either or both of the arguments to the <code>&amp;</code> operator are false, then <code>&amp;</code> returns false. </p>
 <p>Note that the <code>&amp;</code> operator is actually a control-flow operator. If the first argument to the <code>&amp;</code> operator is false, then the value of the second argument is never computed, and false is returned. If the value of the first argument is true, then the value of the second argument is computed and returned. </p>
 <p>The <code>|</code> <a name="marker-2-366"></a>operator (logical <em>or</em>) behaves in a similar manner, except that its second argument is computed and returned only if the first argument is false.</p>
-</td></tr></table><p></p>
-<p>The syntax for the <code>if</code> control structure allows <code>elseif</code> clauses, which makes this style of conditionalization slightly more compact:</p>
+</td></tr></table><p>The syntax for the <code>if</code> control structure allows <code>elseif</code> clauses, which makes this style of conditionalization slightly more compact:</p>
 <pre>
 define method interpret-votes 
     (#key yes :: &lt;nonnegative-integer&gt; = 0, no :: &lt;nonnegative-integer&gt; = 0)
@@ -81,9 +79,12 @@ end method interpret-votes;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_160.html"><img src="next.gif" alt="next" /></a> <a href="db_158.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_160.html"><img src="next.gif" alt="next" /></a> <a href="db_158.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

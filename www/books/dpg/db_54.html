@@ -43,15 +43,13 @@
 <em>?</em> make(&lt;time-of-day&gt;, seconds: 120);
 <em>ERROR: seconds: is not a valid keyword argument to make for {class &lt;time-of-day&gt;}</em>
 </pre>
-<p></p>
-<table border="1"><tr valign="top"><td><p><a name="marker-2-136"></a><strong>Automatic storage-management note:</strong> Dylan provides automatic storage management (also called garbage collection). Thus, you do not need to deallocate memory explicitly. When an object becomes inaccessible, Dylan's automatic storage management will recycle the storage used by that object. In this section, there are two examples of objects that become inaccessible:</p>
+<table><tr><td><p><a name="marker-2-136"></a><strong>Automatic storage-management note:</strong> Dylan provides automatic storage management (also called garbage collection). Thus, you do not need to deallocate memory explicitly. When an object becomes inaccessible, Dylan's automatic storage management will recycle the storage used by that object. In this section, there are two examples of objects that become inaccessible:</p>
 <ul>
 <li><p>We redefined the <code>&lt;time-of-day&gt;</code> class. The storage used by the old class definition can be recycled.</p></li>
 <li><p>We stored a new instance in <code>*my-time-of-day*</code>. The storage used by the instance previously stored in that variable can be recycled.</p></li>
 </ul>
 <p>Although redefinition is not part of the Dylan language, most Dylan development environments support redefinition. </p>
-</td></tr></table><p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-153"></a>Java:</strong> Java recognizes that manual memory management can be the source of program errors and often can be exploited to breach security measures. Like Dylan, Java has an automatic garbage collector that correctly and efficiently recovers unused objects in a program -- freeing the programmer of that mundane but difficult chore. </p>
+</td></tr></table><table><tr><td><p><strong>Comparison with <a name="marker-2-153"></a>Java:</strong> Java recognizes that manual memory management can be the source of program errors and often can be exploited to breach security measures. Like Dylan, Java has an automatic garbage collector that correctly and efficiently recovers unused objects in a program -- freeing the programmer of that mundane but difficult chore. </p>
 </td></tr></table>
 </div>
 
@@ -63,9 +61,12 @@
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_55.html"><img src="next.gif" alt="next" /></a> <a href="db_53.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_55.html"><img src="next.gif" alt="next" /></a> <a href="db_53.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

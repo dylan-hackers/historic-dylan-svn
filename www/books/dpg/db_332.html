@@ -46,8 +46,7 @@ end macro or-int;
 </pre>
 <p>Another potential pitfall arises if the pattern variables appear in an order in the template different from the one in which they appear in the pattern. In this case, unexpected results can occur if a side effect in one fragment affects the meaning of other fragments. In this case, you would again want to use local variables to ensure that the fragments were evaluated in their natural order. </p>
 <p>These rules are not hard and fast: The power of macros is due in a large part to the ability of macros to manipulate code fragments without evaluating those fragments, but that power must be used judiciously. If you are designing macros for use by other people, those people may expect functionlike behavior, and may be surprised if there are multiple or out-of-order evaluations of macro parameters.</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-853"></a>C:</strong> Because it is more difficult to introduce local variables in C macros than it is in Dylan macros, most C programmers simply adopt the discipline of never using an expression with side effects as an argument to a macro. The problem of multiple or out-of-order evaluations of macro parameters is inherent in all macro systems, although some macro systems make it easier to handle.</p>
+<table><tr><td><p><strong>Comparison with <a name="marker-2-853"></a>C:</strong> Because it is more difficult to introduce local variables in C macros than it is in Dylan macros, most C programmers simply adopt the discipline of never using an expression with side effects as an argument to a macro. The problem of multiple or out-of-order evaluations of macro parameters is inherent in all macro systems, although some macro systems make it easier to handle.</p>
 </td></tr></table>
 </div>
 
@@ -59,9 +58,12 @@ end macro or-int;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_333.html"><img src="next.gif" alt="next" /></a> <a href="db_331.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_333.html"><img src="next.gif" alt="next" /></a> <a href="db_331.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

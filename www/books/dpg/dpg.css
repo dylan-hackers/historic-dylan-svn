@@ -7,31 +7,65 @@
 
 
 body {
+
 	margin-left: 20px;
 	margin-right: 20px;
 	margin-top: 20px;
 	margin-bottom: 20px;
 
-	background-color: white;
+	background-color: #dddddd;
 	color: black;
 }
 
-img { border-width: 0px; }
-ul { list-style-type: square }
-li > ul { list-style-type: disc; }
-
-
-body > div > div {
-	margin: 0px;
-	text-align: left;
+img {
+	border-width: 0px;
 }
 
-body > div {
+ul {
+	list-style-type: square;
+}
+
+li > ul {
+	list-style-type: disc;
+}
+
+div {
+	margin: 0px;
 	margin-left: 20px;
 	margin-right: 20px;
-	padding: 10px;
+
+	padding: 0px;
+	padding-left: 10px;
+	padding-right: 10px;
+	
+	background-color: white;
+
+	border-style: solid;
+	border-color: white;
+	border-width: 1px;
 }
 
+div.footer {
+	padding-top: 2em;
+	padding-bottom: 1em;
+	margin-bottom: 0px;
+	display: none;
+}
+
+div.copyright
+{
+	margin-top: 0px;
+	font-size: 75%;
+	font-style: italic;
+}
+
+div.navigation p {
+	margin: 10px;
+	padding: 0;
+}
+
+div.toc {
+}
 
 /*
  * Tables
@@ -40,6 +74,13 @@ body > div {
  */
 
 table {
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 1em;
+
+	caption-side: bottom;
+
 	border-width: 1px;
 	border-style: solid;
 	border-color: black;
@@ -47,7 +88,7 @@ table {
 	border-spacing: 0 2em;
 }
 
-table th {
+th {
 	border-style: none;
 
 	border-bottom-width: 1px;
@@ -59,7 +100,7 @@ table th {
 }
 
 
-table td {
+td {
 	border-width: 0;
 	border-style: none;
 
@@ -68,14 +109,25 @@ table td {
 	padding-right: 1em;
 }
 
-table td pre {
-	font-weight: bold;
+td pre {
+	font-family: monospace;
 	padding: 0;
 	margin: 0.5em;
 }
 
 
-table td pre em {
+td pre em {
 	font-weight: normal;
 	font-style: italic;
 }
+
+table p {
+	margin: 0px;
+	padding: 0px;
+}
+
+code, pre {
+	color: green;
+	font-family: monospace;
+}
+

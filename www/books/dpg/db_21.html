@@ -28,11 +28,9 @@
 <em>#f</em>
 </pre>
 <p>The functions <code>=</code>, <code>&lt;,</code> and <code>&gt;</code> are <strong><a name="marker-2-62"></a>predicates</strong>. A predicate returns true if the condition it is testing is true; otherwise, it returns false. As you might guess, <a name="marker-2-63"></a><code>#t</code> means true and <a name="marker-2-64"></a><code>#f</code> means false. False is represented by the unique value <code>#f</code> only, but any object that is not <code>#f</code> is true (thus, 0 is a true value). </p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-47"></a>C and C++: Caution!</strong> C and C++ use integers to represent Boolean values -- 0 represents false, and any nonzero value is considered true. Dylan has an explicit <code>&lt;boolean&gt;</code> type with two instances: <code>#f</code> represents false, and <code>#t</code> represents the <em>canonical</em> true value. However, any value other than <code>#f</code> is also considered true in a Boolean test. Thus, in Dylan, 0 is considered true.</p>
-</td></tr></table><table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-49"></a>Java</strong>: Java has a separate type for Boolean values. Unlike Dylan, C, or C++, the Java <code>Boolean</code> class has only two values, <code>true</code> and <code>false</code>. This design allows the compiler to issue warnings for the common C error <code>if (a=b) ...</code>, because an assignment does not typically yield a Boolean result. An explicit conversion is required to test nonzero in Java: <code>if (a!=0) ...</code>.</p>
-</td></tr></table><p></p>
-
+<table><tr><td><p><strong>Comparison with <a name="marker-2-47"></a>C and C++: Caution!</strong> C and C++ use integers to represent Boolean values -- 0 represents false, and any nonzero value is considered true. Dylan has an explicit <code>&lt;boolean&gt;</code> type with two instances: <code>#f</code> represents false, and <code>#t</code> represents the <em>canonical</em> true value. However, any value other than <code>#f</code> is also considered true in a Boolean test. Thus, in Dylan, 0 is considered true.</p>
+</td></tr></table><table><tr><td><p><strong>Comparison with <a name="marker-2-49"></a>Java</strong>: Java has a separate type for Boolean values. Unlike Dylan, C, or C++, the Java <code>Boolean</code> class has only two values, <code>true</code> and <code>false</code>. This design allows the compiler to issue warnings for the common C error <code>if (a=b) ...</code>, because an assignment does not typically yield a Boolean result. An explicit conversion is required to test nonzero in Java: <code>if (a!=0) ...</code>.</p>
+</td></tr></table>
 </div>
 
 <div class="toc">
@@ -43,9 +41,12 @@
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_22.html"><img src="next.gif" alt="next" /></a> <a href="db_20.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_22.html"><img src="next.gif" alt="next" /></a> <a href="db_20.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

@@ -31,10 +31,8 @@ end;
 </pre>
 <p>We use <code>define method</code> to define a method named <code>say-hello</code>. Just after the <br />name <code>say-hello</code>, we specify the method's <strong>parameter list</strong>, <code>()</code>. The parameter list of this method is empty, meaning that this method takes no arguments. The call <br />to <code>say-hello</code> provides an empty argument list, meaning that there are no arguments in the call. </p>
 <p>The body of the <code>say-hello</code> method has one expression -- a call to <br /><code>format-out</code>. A method returns whatever is returned by the expression executed last in its body. In general, a method can return a single value, multiple values, <br />or no value at all. The <code>say-hello</code> method returns what <code>format-out</code> returns -- no value at all. In the call to <code>say-hello</code>, we see the output of <code>format-out</code> in the <br />listener; we see output and not a returned value (because no value is returned).</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Usage note: </strong>In this chapter, we define methods that call the <code>format-out</code> function. Because <code>format-out</code> is in the <code>format-out</code> module, we need to make that module available. There are two ways to do so. The first way is to work in files, as described in <a href="db_30.html#marker-9-88">Section 2.5</a>. The second way is to use a gesture or command in your Dylan environment to make the <code>format-out</code> module accessible. Then, you can simply enter the method definitions into the <br />listener.</p>
-</td></tr></table><p></p>
-
+<table><tr><td><p><strong>Usage note: </strong>In this chapter, we define methods that call the <code>format-out</code> function. Because <code>format-out</code> is in the <code>format-out</code> module, we need to make that module available. There are two ways to do so. The first way is to work in files, as described in <a href="db_30.html#marker-9-88">Section 2.5</a>. The second way is to use a gesture or command in your Dylan environment to make the <code>format-out</code> module accessible. Then, you can simply enter the method definitions into the <br />listener.</p>
+</td></tr></table>
 </div>
 
 <div class="toc">
@@ -50,9 +48,12 @@ end;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_36.html"><img src="next.gif" alt="next" /></a> <a href="db_34.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_36.html"><img src="next.gif" alt="next" /></a> <a href="db_34.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

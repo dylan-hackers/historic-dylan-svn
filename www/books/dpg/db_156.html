@@ -38,10 +38,8 @@
 <em>#[&quot;on&quot;, &quot;switch&quot;]</em>
 </pre>
 <p>Note that <code>reverse!</code> cannot change the object to which <code>*switch*</code> refers; however, <code>reverse!</code> is allowed to alter the contents of that object. Also note that <code>reverse!</code> may not return the same object as that you provide as its argument. Consider the case of using <code>reverse!</code> on a list to see how this behavior can be useful. </p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Conventio<a name="marker-2-363"></a>n:</strong> Dylan has a convention of putting an exclamation point at the ends of the names of functions that can destructively modify their arguments. For example, <code>reverse!</code> takes a sequence, and returns a sequence that has the same elements but in reverse order. The <code>reverse!</code> generic function may change the sequence that is its argument. In contrast, the <code>reverse</code> generic function performs a similar operation, but does not destructively modify its argument. Setters are an exception to this convention: They modify their argument, but do not typically end with <code>!</code>.</p>
-</td></tr></table><p></p>
-<p>How can we write our own version of <code>reverse</code> using the iteration techniques presented so far?</p>
+<table><tr><td><p><strong>Conventio<a name="marker-2-363"></a>n:</strong> Dylan has a convention of putting an exclamation point at the ends of the names of functions that can destructively modify their arguments. For example, <code>reverse!</code> takes a sequence, and returns a sequence that has the same elements but in reverse order. The <code>reverse!</code> generic function may change the sequence that is its argument. In contrast, the <code>reverse</code> generic function performs a similar operation, but does not destructively modify its argument. Setters are an exception to this convention: They modify their argument, but do not typically end with <code>!</code>.</p>
+</td></tr></table><p>How can we write our own version of <code>reverse</code> using the iteration techniques presented so far?</p>
 <pre>
 define method my-reverse (seq :: &lt;sequence&gt;) =&gt; (reversed-seq :: &lt;sequence&gt;)
   let reversed-seq = make(type-for-copy(seq), size: seq.size);
@@ -75,9 +73,12 @@ end method my-reverse;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_157.html"><img src="next.gif" alt="next" /></a> <a href="db_155.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_157.html"><img src="next.gif" alt="next" /></a> <a href="db_155.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

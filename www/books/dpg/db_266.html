@@ -19,9 +19,8 @@
 <div class="content" id="heading266-0">
 <h1>17.2.4   Airports</h1>
 <p>Finally, we present the class that represents the entire airport and provide the method that briefly describes the airport.</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>airport-classes.dylan</code> file. <em>(continued)</em></p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>airport-classes.dylan</code> file. <em>(continued)</em></p>
+</th></tr><tr><td><pre>
 <em>// AIRPORTS</em>
 <em>// The class that represents all places where people and aircraft meet
 </em>define class &lt;airport&gt; (&lt;physical-object&gt;)
@@ -32,7 +31,7 @@
 <em>  // The airspace above the airport
 </em>  slot sky-above :: &lt;sky&gt;;
 end class &lt;airport&gt;; 
-</pre></td></tr><tr valign="top"><td><pre>define method say (airport :: &lt;airport&gt;) =&gt; ()
+</pre></td></tr><tr><td><pre>define method say (airport :: &lt;airport&gt;) =&gt; ()
   format-out(&quot;Airport %s&quot;, airport.code);
 end method say; 
 </pre></td></tr></table>
@@ -47,9 +46,12 @@ end method say;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_267.html"><img src="next.gif" alt="next" /></a> <a href="db_265.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_267.html"><img src="next.gif" alt="next" /></a> <a href="db_265.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

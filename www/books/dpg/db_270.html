@@ -19,9 +19,8 @@
 <div class="content" id="heading270-0">
 <h1>17.4.2   The scheduling algorithm</h1>
 <p>The next methods form the core of the airport application.</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>schedule.dylan</code> file.<em> (continued)</em></p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>schedule.dylan</code> file.<em> (continued)</em></p>
+</th></tr><tr><td><pre>
 <em>// Searches all of the vehicle storage of class class-of-next, which is
 // connected to container and has room for aircraft
 </em>define method find-available-connection
@@ -37,7 +36,7 @@
     end for;
   end block;
 end method find-available-connection; 
-</pre></td></tr><tr valign="top"><td><em>// Generate new transitions to be considered for the next move
+</pre></td></tr><tr><td><em>// Generate new transitions to be considered for the next move
 // The transitions will be placed in the sorted sequence, which will order
 // them by earliest arrival time
 </em>define method generate-new-transitions
@@ -50,7 +49,7 @@ end method find-available-connection;
     // transitions
     // We avoid looping forever by checking each container just once
 </em>    containers-visited[container] := #t; 
-</td></tr><tr valign="top"><td>    local method consider-transition (direction)
+</td></tr><tr><td>    local method consider-transition (direction)
 <em>      // See whether any vehicle is ready to transition out of a container
 </em>      let (vehicle, next-container, time) 
         = next-out(container, direction);
@@ -61,7 +60,7 @@ end method find-available-connection;
 </em>        let transition = vehicle.next-transition;
         transition.from-container := container;
         transition.to-container := next-container;
-</td></tr><tr valign="top"><td><em>        // The vehicle may have been waiting
+</td></tr><tr><td><em>        // The vehicle may have been waiting
         // Take this situation into account when computing the earliest
         // arrival into the next container
 </em>        transition.earliest-arrival := transition.earliest-arrival + time;
@@ -72,7 +71,7 @@ end method find-available-connection;
 </em>        add!(active-transitions, transition);
       end unless;
     end method consider-transition; 
-</td></tr><tr valign="top"><td><em>    // Consider both inbound and outbound traffic 
+</td></tr><tr><td><em>    // Consider both inbound and outbound traffic 
 </em>    consider-transition(#&quot;outbound&quot;);
     consider-transition(#&quot;inbound&quot;);
 <em>    // Make sure that every container connected to this one is checked
@@ -81,7 +80,7 @@ end method find-available-connection;
     end for;
   end unless;
 end method generate-new-transitions; 
-</td></tr><tr valign="top"><td><em>// Main loop of the program
+</td></tr><tr><td><em>// Main loop of the program
 // See what possible transitions exist, then execute the earliest
 // transitions that can be completed
 // Returns the time of the last transition
@@ -95,7 +94,7 @@ end method generate-new-transitions;
   let containers-visited = make(&lt;object-table&gt;);
   let active-transitions = make(&lt;sorted-sequence&gt;, 
                                value-function: earliest-arrival); 
-</td></tr><tr valign="top"><td><em>  // We do not have to use return as the name of the exit procedure
+</td></tr><tr><td><em>  // We do not have to use return as the name of the exit procedure
 </em>  block (done)
     while (#t)
 <em>      // Each time through, start by considering every container
@@ -105,7 +104,7 @@ end method generate-new-transitions;
       // sorted sequence
 </em>      generate-new-transitions(sky, active-transitions, 
                                containers-visited);
-</td></tr><tr valign="top"><td><em>      // If there are no more transitions, we have completed our task
+</td></tr><tr><td><em>      // If there are no more transitions, we have completed our task
 </em>      if (empty?(active-transitions)) done(); end;
 <em>      // Find the earliest transition that can complete, because there is 
       // still room available in the destination container
@@ -116,13 +115,13 @@ end method generate-new-transitions;
                                 transition.to-container,
                                 transition.transition-aircraft.direction);
                    end); 
-</td></tr><tr valign="top"><td><em>      // If none can complete, there is a problem with the simulation
+</td></tr><tr><td><em>      // If none can complete, there is a problem with the simulation
       // This situation should never occur, but is useful for debugging
       // incorrect container configurations
 </em>      if (transition-index == #f)
         error(&quot;Pending transitions but none can complete.&quot;);
       end if; 
-</td></tr><tr valign="top"><td><pre><em>      // Otherwise, the earliest transition that can complete has been
+</td></tr><tr><td><pre><em>      // Otherwise, the earliest transition that can complete has been
       // found: Execute the transition
 </em>      let transition = active-transitions[transition-index];
       let vehicle = transition.transition-aircraft;
@@ -130,7 +129,7 @@ end method generate-new-transitions;
       move-out-vehicle(vehicle, transition.from-container, 
                        vehicle-direction);
       move-in-vehicle(vehicle, transition.to-container, vehicle-direction); 
-</pre></td></tr><tr valign="top"><td><pre><em>      // This transition is complete; remove it from consideration 
+</pre></td></tr><tr><td><pre><em>      // This transition is complete; remove it from consideration 
 </em>      transition.pending? := #f;
       remove!(active-transitions, transition);
 <em>      // Compute the actual time of arrival at the next container, and       // display the message 
@@ -155,9 +154,12 @@ end method process-aircraft;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_271.html"><img src="next.gif" alt="next" /></a> <a href="db_269.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_271.html"><img src="next.gif" alt="next" /></a> <a href="db_269.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

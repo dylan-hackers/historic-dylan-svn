@@ -19,22 +19,21 @@
 <div class="content" id="heading261-0">
 <h1>17.1   <a name="marker-9-708"></a>The <code>definitions.dylan</code> file</h1>
 <p>This file contains common definitions that are used throughout several libraries in the airport example.</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>definitions.dylan</code> file.  </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>definitions.dylan</code> file.  </p>
+</th></tr><tr><td><pre>
 module: definitions
 <em>// This file contains constants and other definitions used in common with
 // the other parts of the airport example</em>
-</pre></td></tr><tr valign="top"><td><pre><em>// The capital letters of the alphabet
+</pre></td></tr><tr><td><pre><em>// The capital letters of the alphabet
 </em>define constant $letters = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;;
-</pre></td></tr><tr valign="top"><td><pre><em>// This type represents positive integers
+</pre></td></tr><tr><td><pre><em>// This type represents positive integers
 </em>define constant &lt;positive-integer&gt; = limited(&lt;integer&gt;, min: 1);
-</pre></td></tr><tr valign="top"><td><pre>define constant $hours-per-day = 24; 
-</pre></td></tr><tr valign="top"><td><pre>define constant $minutes-per-hour = 60;
-</pre></td></tr><tr valign="top"><td><pre>define constant $seconds-per-minute = 60; 
-</pre></td></tr><tr valign="top"><td><pre>define constant $seconds-per-hour 
+</pre></td></tr><tr><td><pre>define constant $hours-per-day = 24; 
+</pre></td></tr><tr><td><pre>define constant $minutes-per-hour = 60;
+</pre></td></tr><tr><td><pre>define constant $seconds-per-minute = 60; 
+</pre></td></tr><tr><td><pre>define constant $seconds-per-hour 
   = $minutes-per-hour * $seconds-per-minute; 
-</pre></td></tr><tr valign="top"><td><pre><em>// This method returns the union of the false type and a type you specify,
+</pre></td></tr><tr><td><pre><em>// This method returns the union of the false type and a type you specify,
 // as a simple shorthand
 // This method may already be provided by your Dylan implementation
 </em>define method false-or (other-type :: &lt;type&gt;) =&gt; (combined-type :: &lt;type&gt;)
@@ -52,9 +51,12 @@ end method false-or;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_262.html"><img src="next.gif" alt="next" /></a> <a href="db_260.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_262.html"><img src="next.gif" alt="next" /></a> <a href="db_260.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

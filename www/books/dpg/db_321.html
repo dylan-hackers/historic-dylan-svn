@@ -23,7 +23,6 @@
 <p>1.  Define a condition class, which must be a subclass of <code>&lt;condition&gt;</code>. The condition class should have slots that are appropriate for the application. In this example, we define a condition class named <code>&lt;time-error&gt;</code> to be a direct subclass of <code>&lt;error&gt;</code>. Note that <a name="marker-2-828"></a><code>&lt;error&gt;</code> is a subclass of <code>&lt;condition&gt;</code>. We defined <code>&lt;time-error&gt;</code> to inherit from <code>&lt;error&gt;</code>, because in case our application does not handle the exception, we want Dylan always to take some action, such as entering a debugger. If <code>&lt;time-error&gt;</code> inherited from <code>&lt;condition&gt;</code> and the application failed to handle the exception, then the exception might simply be ignored.</p>
 <p>2.  Modify the functions that might detect the exception. These functions must make an instance of the condition class, and must use an appropriate Dylan function to initiate the signaling process. In this example, we redefine the <code>+ </code>method to signal the condition with the <code>error</code> function.</p>
 <p>In the following code, we define a condition named <code>&lt;time-error&gt;</code> to represent any kind of time error, and we define a condition named <code>&lt;time-boundary-error&gt;</code> to represent violations of time-of-day bounds. </p>
-<p></p>
 <pre>
 define abstract class &lt;time-error&gt; (&lt;error&gt;)
   constant slot invalid-time :: &lt;time&gt;, required-init-keyword: invalid-time:;
@@ -82,9 +81,12 @@ end method \+;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_322.html"><img src="next.gif" alt="next" /></a> <a href="db_320.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_322.html"><img src="next.gif" alt="next" /></a> <a href="db_320.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

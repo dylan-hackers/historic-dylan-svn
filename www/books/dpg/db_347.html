@@ -20,14 +20,13 @@
 <h1>B.2   <a name="marker-9-930"></a>The concept of <a name="marker-2-931"></a>classes</h1>
 <p>If you are familiar with the class concepts of C++, you may be confused by Dylan's class model. In Dylan, all base classes are effectively virtual base classes, with "virtual" data members. When a class inherits another class more than once (because of multiple inheritance), only a single copy of that base class is included. Each of the multiple-inheritance paths can contribute to the implementation of the derived class. The Dylan class model favors this mix-in style of programming.</p>
 <p>Here is an example of such a program, followed by the equivalent C++:</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>Mix-in example in Dylan. </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>Mix-in example in Dylan. </p>
+</th></tr><tr><td><pre>
 define class &lt;window&gt; (&lt;object&gt;)
   slot width :: &lt;integer&gt;;
   slot height :: &lt;integer&gt;;
 end class &lt;window&gt;;
-</pre></td></tr><tr valign="top"><td><pre>define class &lt;border-window&gt; (&lt;window&gt;)
+</pre></td></tr><tr><td><pre>define class &lt;border-window&gt; (&lt;window&gt;)
   slot border-width :: &lt;integer&gt;;
 end class &lt;border-window&gt;;
 define method width(window :: &lt;border-window&gt;)
@@ -36,22 +35,22 @@ end method width;
 define method height(window :: &lt;border-window&gt;)
   next-method() - 2 * window.border-width;
 end method height;
-</pre></td></tr><tr valign="top"><td><pre>define class &lt;label-window&gt; (&lt;window&gt;)
+</pre></td></tr><tr><td><pre>define class &lt;label-window&gt; (&lt;window&gt;)
   slot label-height :: &lt;integer&gt;;
   slot label-text :: &lt;string&gt;;
 end class &lt;label-window&gt;;
 define method height(window :: &lt;label-window&gt;)
   next-method() - window.label-height;
 end method height;
-</pre></td></tr><tr valign="top"><td><pre>define class &lt;border-label-window&gt;
+</pre></td></tr><tr><td><pre>define class &lt;border-label-window&gt;
     (&lt;border-window&gt;, &lt;label-window&gt;, &lt;window&gt;)
 end class &lt;border-label-window&gt;;
 </pre></td></tr></table>
 <p>The example is a greatly simplified sketch of a computer-display windowing system, where a window may have a border (outline decoration), or a title (such as the title bar of a window), or both. (We omit any further detail, such as scroll bars.) One chore in such a system is to compute the available display area of a window from that window's overall size and from the sizes of the window's <br />components.</p>
 <p>Note that calling <code>height</code> on an instance of <code>&lt;border-label-window&gt;</code> will automatically perform the actions appropriate for a window with a border and a label. First, the method for <code>&lt;border-window&gt;</code> will be called, subtracting out the border width; when it calls <code>next-method</code>, to get the underlying window width, the method for <code>&lt;label-window&gt;</code> will be called, subtracting out the label height; finally, when it calls <code>next-method</code>, the method for getting the value of the <code>height</code> slot in the underlying window will be called.</p>
 <p>This example is a classic one of the mix-in style -- the full functionality of the <code>&lt;border-label-window&gt;</code> class is the result of the combination of the individual pieces of <code>&lt;border-window&gt;</code> and <code>&lt;label-window&gt;</code> functionality.</p>
-<table border="1"><tr valign="top"><th><p>C++ equivalent of the mix-in example.<em> </em></p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>C++ equivalent of the mix-in example.<em> </em></p>
+</th></tr><tr><td><pre>
 class Window {
 private:
   int _width;
@@ -60,7 +59,7 @@ public:
   virtual int width() { return _width; }
   virtual int height() { return _height; }
 };
-</pre></td></tr><tr valign="top"><td><pre>class BorderWindow : public virtual Window {
+</pre></td></tr><tr><td><pre>class BorderWindow : public virtual Window {
 private:
   int _border_width;
 public:
@@ -74,7 +73,7 @@ int BorderWindow::width() {
 int BorderWindow::height() {
   return Window::height() - 2 * border_width();
 }
-</pre></td></tr><tr valign="top"><td><pre>class LabelWindow : public virtual Window {
+</pre></td></tr><tr><td><pre>class LabelWindow : public virtual Window {
 private:
   int _label_height;
   char *_label_text;
@@ -83,10 +82,10 @@ public:
   virtual char* label_text() { return _label_text; }
   virtual int height();
 };
-</pre></td></tr><tr valign="top"><td><pre>int LabelWindow::height() {
+</pre></td></tr><tr><td><pre>int LabelWindow::height() {
   return Window::height() - label_height();
 }
-</pre></td></tr><tr valign="top"><td><pre>class BorderLabelWindow : 
+</pre></td></tr><tr><td><pre>class BorderLabelWindow : 
   public virtual BorderWindow, 
   public virtual LabelWindow,
   public virtual Window {
@@ -116,9 +115,12 @@ public:
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_348.html"><img src="next.gif" alt="next" /></a> <a href="db_346.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_348.html"><img src="next.gif" alt="next" /></a> <a href="db_346.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

@@ -19,12 +19,10 @@
 <div class="content" id="heading284-0">
 <h1>18.2   <a name="marker-9-730"></a>Multiple inheritance and <a name="marker-2-731"></a>slots</h1>
 <p>For the most part, using multiple inheritance does not present special problems in using slots. Recall that a class inherits all the slots of its superclasses. A subclass can also add slots of its own, but it cannot remove or replace any slots defined by its superclasses. A slot can appear only once in a class and in all that class's superclasses. Thus, a class's slots are the union of its slots and those of all its superclasses, and duplicate slot definitions are not permitted. This rule holds, regardless of whether a class has one direct superclass or more than one.</p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-719"></a>C++</strong>: In C++, a data member of the same name can appear in both a base class and a derived class. The name in the scope of the derived class hides the same name in the base class, but the base class slot can be accessed by qualifying its name.</p>
+<table><tr><td><p><strong>Comparison with <a name="marker-2-719"></a>C++</strong>: In C++, a data member of the same name can appear in both a base class and a derived class. The name in the scope of the derived class hides the same name in the base class, but the base class slot can be accessed by qualifying its name.</p>
 <p>All access to Dylan class slots is through getter and setter methods, which are similar to C++ virtual functions. In Dylan, you can override access to an inherited slot by defining a getter or setter method specialized on the subclass (derived class).</p>
 <p>For more information on inheritance in C++, see <a href="db_347.html#marker-9-930">Section B.2, page 390</a>.</p>
-</td></tr></table><p></p>
-<p>There are ways, however, in which subclasses and superclasses can have distinct effects on the same slot. One way is by providing default values for the slot. Even though duplicate slots are not permitted, a class can provide its own default value for a slot that it inherits from a superclass. The subclass can provide this default by supplying in its class definition an <a name="marker-2-732"></a><code>inherited slot</code> option that includes an <code>init-value:</code> or <code>init-function:</code> specification, or an init expression.</p>
+</td></tr></table><p>There are ways, however, in which subclasses and superclasses can have distinct effects on the same slot. One way is by providing default values for the slot. Even though duplicate slots are not permitted, a class can provide its own default value for a slot that it inherits from a superclass. The subclass can provide this default by supplying in its class definition an <a name="marker-2-732"></a><code>inherited slot</code> option that includes an <code>init-value:</code> or <code>init-function:</code> specification, or an init expression.</p>
 <p>Suppose that more than one class defines a default value for the same slot. Which default takes precedence? When each class has only one direct superclass, the answer is easy: the default value provided by the <strong>most specific</strong> class takes precedence. A default value for a subclass overrides a default value for a superclass.</p>
 <p>But what if a class has more than one direct superclass, and each superclass provides a different default value for the same slot? Imagine, for example, that our <code>&lt;vehicle&gt;</code> class had a slot named <code>fuel-remaining</code>, and our <code>&lt;ground-vehicle&gt;</code> and <code>&lt;flying-vehicle&gt;</code> classes each had a different default value for the <code>fuel-remaining</code> slot, which they inherit from the common superclass <code>&lt;vehicle&gt;</code>:</p>
 <pre>
@@ -58,9 +56,12 @@ end class &lt;aircraft&gt;;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_285.html"><img src="next.gif" alt="next" /></a> <a href="db_283.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_285.html"><img src="next.gif" alt="next" /></a> <a href="db_283.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

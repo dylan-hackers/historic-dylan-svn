@@ -19,32 +19,30 @@
 <div class="content" id="heading239-0">
 <h1>14.4.3   The <em>position</em> implementation file</h1>
 <p>The <code>position</code> implementation file is simply a collection of the source records that we developed earlier for creating and saying absolute and relative positions.</p>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>position</code> implementation file: <code>position.dylan</code>.  </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>position</code> implementation file: <code>position.dylan</code>.  </p>
+</th></tr><tr><td><pre>
 Module: position-implementation
 define abstract class &lt;position&gt; (&lt;object&gt;)
 end class &lt;position&gt;; 
-</pre></td></tr><tr valign="top"><td><pre>define class &lt;absolute-position&gt; (&lt;position&gt;)
+</pre></td></tr><tr><td><pre>define class &lt;absolute-position&gt; (&lt;position&gt;)
   slot latitude :: &lt;latitude&gt;, required-init-keyword: latitude:;
   slot longitude :: &lt;longitude&gt;, required-init-keyword: longitude:;
 end class &lt;absolute-position&gt;; 
-</pre></td></tr><tr valign="top"><td><pre>define method say (position :: &lt;absolute-position&gt;) =&gt; ()
+</pre></td></tr><tr><td><pre>define method say (position :: &lt;absolute-position&gt;) =&gt; ()
   say(position.latitude);
   say(position.longitude);
 end method say; 
-</pre></td></tr><tr valign="top"><td><pre>define class &lt;relative-position&gt; (&lt;position&gt;)
+</pre></td></tr><tr><td><pre>define class &lt;relative-position&gt; (&lt;position&gt;)
 <em>  // Distance is in miles
 </em>  slot distance :: &lt;single-float&gt;, required-init-keyword: distance:;
 <em>  // Angle is in degrees
 </em>  slot angle :: &lt;angle&gt;, required-init-keyword: angle:;
 end class &lt;relative-position&gt;; 
-</pre></td></tr><tr valign="top"><td><pre>define method say (position :: &lt;relative-position&gt;) =&gt; ()
+</pre></td></tr><tr><td><pre>define method say (position :: &lt;relative-position&gt;) =&gt; ()
   format-out(&quot;%s miles away at heading &quot;, position.distance);
   say(position.angle);
 end method say; 
 </pre></td></tr></table>
-<p></p>
 
 </div>
 
@@ -56,9 +54,12 @@ end method say;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_240.html"><img src="next.gif" alt="next" /></a> <a href="db_238.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_240.html"><img src="next.gif" alt="next" /></a> <a href="db_238.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

@@ -29,12 +29,9 @@ define method say-time-of-day (time :: &lt;time-of-day&gt;) =&gt; ()	<em>// 1
 <p>On line 1, we provide an empty value declaration, which means that this method returns no values. </p>
 <p>On line 2, we use <code>let</code> to initialize two local variables to the first and second values returned by <code>decode-total-seconds</code>. Remember that <code>decode-total-seconds</code> returns three values (the third value is the seconds). For the application that we are planning, the <code>say-time-of-day</code> method does not need to show the seconds, so we do not use the third value. It is not necessary to receive the third value of <code>decode-total-seconds</code>; here we do not provide a local variable to receive the third value, so that value is simply ignored.</p>
 <p>On line 4, we use <code>if</code> to print a leading 0 for the minutes when there are fewer than 10 minutes, such as <code>2:05</code>. </p>
-<p></p>
-<table border="1"><tr valign="top"><td><p><strong>Comparison<a name="marker-2-137"></a> to C:</strong> In C, <code>if</code> does not return a value. In Dylan, <code>if</code> returns the value of the body that is selected, if any is.</p>
-</td></tr></table><table border="1"><tr valign="top"><td><p><strong>Note on <code>format-out:</code></strong> We have purposely used a limited subset of the <code>format-out</code> function's features to allow our examples to run on as many Dylan implementations as possible. The printing of times could be done much more elegantly if we used the full power of the <code>format-out</code> function. </p>
-</td></tr></table><p></p>
-<p></p>
-<p>We can call <code>say-time-of-day</code>:</p>
+<table><tr><td><p><strong>Comparison<a name="marker-2-137"></a> to C:</strong> In C, <code>if</code> does not return a value. In Dylan, <code>if</code> returns the value of the body that is selected, if any is.</p>
+</td></tr></table><table><tr><td><p><strong>Note on <code>format-out:</code></strong> We have purposely used a limited subset of the <code>format-out</code> function's features to allow our examples to run on as many Dylan implementations as possible. The printing of times could be done much more elegantly if we used the full power of the <code>format-out</code> function. </p>
+</td></tr></table><p>We can call <code>say-time-of-day</code>:</p>
 <pre>
 <em>? </em>say-time-of-day(*your-time-of-day*);
 <em>8:30</em>
@@ -53,9 +50,12 @@ define method say-time-of-day (time :: &lt;time-of-day&gt;) =&gt; ()	<em>// 1
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_62.html"><img src="next.gif" alt="next" /></a> <a href="db_60.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_62.html"><img src="next.gif" alt="next" /></a> <a href="db_60.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>

@@ -18,9 +18,8 @@
 
 <div class="content" id="heading208-0">
 <h1>13.7   The <code>time-library</code> file</h1>
-<p></p>
-<table border="1"><tr valign="top"><th><p>The <code>time-library</code> file: <code>time-library.dylan</code>. </p>
-</th></tr><tr valign="top"><td><pre>
+<table><tr><th><p>The <code>time-library</code> file: <code>time-library.dylan</code>. </p>
+</th></tr><tr><td><pre>
 Module: dylan-user
 <em>// Library definition
 </em>define library time
@@ -30,14 +29,14 @@ Module: dylan-user
 </em>  use format-out;
   use dylan;
 end library time;
-</pre></td></tr><tr valign="top"><td><em>// Interface module
+</pre></td></tr><tr><td><em>// Interface module
 </em>define module time
 <em>  // Classes
 </em>  create &lt;time&gt;, &lt;time-of-day&gt;, &lt;time-offset&gt;;
 <em>  // Generics
 </em>  create say, encode-total-seconds;
 end module time; 
-</td></tr><tr valign="top"><td><em>// Internal substrate module
+</td></tr><tr><td><em>// Internal substrate module
 </em>define module sixty-unit
 <em>  // External interface
 </em>  use time;
@@ -46,7 +45,7 @@ end module time;
 <em>  // Substrate module
 </em>  use dylan;
 end module sixty-unit; 
-</td></tr><tr valign="top"><td><pre><em>// Implementation module
+</td></tr><tr><td><pre><em>// Implementation module
 </em>define module time-implementation
 <em>  // External interface
 </em>  use time;
@@ -56,7 +55,6 @@ end module sixty-unit;
   use dylan;
 end module time-implementation;
 </pre></td></tr></table>
-<p></p>
 <p>Because every file has to name the module to which its source records belong, you might wonder where to start. Every library implicitly defines a <code>dylan-user</code> module for this purpose. The <code>dylan-user</code> module imports all of the <code>dylan</code> module, so any Dylan definition can be used. You can think of <a name="marker-2-650"></a><code>dylan-user</code> as being a scratch version of <a name="marker-2-651"></a><code>dylan</code>. Each library has a private copy of <code>dylan-user</code>, so there is no concern that definitions in one library's <code>dylan-user</code> could be confused with those of another.</p>
 <p>The purposes of the library file are to communicate to the Dylan compiler the structure of the module namespaces, to state which other libraries to search for the modules that are used in the implementation of this library, and to determine which modules implemented by this library are visible to other libraries (and programs) that use this library. The details of how these tasks are done depend on the implementation, but each environment will provide a mechanism for reading library and module definitions, either directly from an interchange file, or after conversion of the interchange file to an implementation-dependent format.</p>
 
@@ -76,9 +74,12 @@ end module time-implementation;
 
 <div class="footer">
 <address>Dylan Programming - 9 Apr 1999</address>
-<p><a href="db_209.html"><img src="next.gif" alt="next" /></a> <a href="db_207.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
-<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
-
+</div>
+<div class="navigation">
+	<p><a href="db_209.html"><img src="next.gif" alt="next" /></a> <a href="db_207.html"><img src="prev.gif" alt="previous" /></a> <a href="db_1.html"><img src="top.gif" alt="top" /></a> <a href="db_2.html"><img src="content.gif" alt="contents" /></a> <a href="db_349.html"><img src="index.gif" alt="index" /></a></p>
+</div>
+<div class="copyright">
+	<p>N Feinberg/S E Keene/R Mathews/P Tucker Withington, DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. Reproduced by permission of Addison-Wesley Longman Publishing Company, Inc.  All rights reserved. No further copying, downloading or transmitting of this material is allowed without the prior written permission of the publisher.</p>
 </div>
 </body>
 </html>
