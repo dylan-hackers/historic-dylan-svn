@@ -46,6 +46,26 @@ states:
                              state: lookup(instrs, label, counter + 1))
                     end) }
 
+
+  { PickUp ?success:name => ?fail:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<pickup>,
+                                  state-success:
+                                    lookup(instrs, ?#"success", 0),
+                                  state-failure:
+                                    lookup(instrs, ?#"fail", 0))
+                    end) }
+
+  { PickUp => ?:name }
+    => { push-thunk(instrs, label, counter,
+                    method() make(<pickup>,
+                                  state-success:
+                                    lookup(instrs, label, counter + 1),
+                                  state-failure:
+                                    lookup(instrs, ?#"name", 0))
+                    end) }
+
+
   { Move ?success:name => ?fail:name }
     => { push-thunk(instrs, label, counter,
                     method() make(<move>,
