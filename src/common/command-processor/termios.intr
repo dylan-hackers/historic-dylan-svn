@@ -2,5 +2,5 @@ module: command-processor
 
 define interface
   #include { "termios.h" },
-  import: all-recursive;
+  import: {"termios", "tcgetattr", "tcsetattr", "TCSANOW"};
 end interface;
