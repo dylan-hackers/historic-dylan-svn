@@ -2427,6 +2427,71 @@ end;
 
       <para>Parse-Arguments supports the most popular types of POSIX and
       GNU command-line options.</para>
+
+      <dylanclassdef>
+	<defname>&lt;option-parser></defname>
+	<defadjectives>Abstract Open Primary</defadjectives>
+	<defsummary>Parses a single command-line option and any
+	parameters.</defsummary>
+	<defsupers>
+	  <defsuper>&lt;object></defsuper>
+	</defsupers>
+	<definitkeywords>
+	  <defparam>
+	    <paramname>long-options</paramname>
+	    <paramtype>&lt;list></paramtype>
+	    <paramsummary>Long options handled by this parser, represented
+	    as strings.</paramsummary>
+	  </defparam>
+	  <defparam>
+	    <paramname>short-options</paramname>
+	    <paramtype>&lt;list></paramtype>
+	    <paramsummary>Short options handled by this parser, represented
+	    as strings.</paramsummary>
+	  </defparam>
+	</definitkeywords>
+	<defbody>
+	  <para>Different types of command-line options are parsed
+	  according to different rules. An
+	  <literal>&lt;option-parser></literal> knows how to handle one
+	  type of option. The <literal>long-options:</literal> and
+	  <literal>short-options:</literal> keywords are used to specify
+	  which option names should be handled by a given parser.</para>
+	</defbody>
+      </dylanclassdef>
+
+      <dylanclassdef>
+	<defname>&lt;negative-option-parser></defname>
+	<defadjectives>Abstract Open</defadjectives>
+	<defsummary>Handles command-line options which may appear in
+	positive and negative forms.</defsummary>
+	<defsupers>
+	  <defsuper>&lt;option-parser></defsuper>
+	</defsupers>
+	<definitkeywords>
+	  <defparam>
+	    <paramname>negative-long-options</paramname>
+	    <paramtype>&lt;list></paramtype>
+	    <paramsummary>Negative long options handled by this parser,
+	    represented as strings.</paramsummary>
+	  </defparam>
+	  <defparam>
+	    <paramname>negative-short-options</paramname>
+	    <paramtype>&lt;list></paramtype>
+	    <paramsummary>Negative short options handled by this parser,
+	    represented as strings.</paramsummary>
+	  </defparam>
+	</definitkeywords>
+	<defbody>
+	  <para>Certain command-line options appear in a positive and
+	  negative form. For example, many programs accept
+	  <literal>--verbose</literal> and <literal>--quiet</literal>
+	  options.</para>
+
+	  <para>This class provides internal support for creating parsers
+	  to handle such options. It can not be instantiated.</para>
+	</defbody>
+      </dylanclassdef>
     </sect1>
   </chapter>
 

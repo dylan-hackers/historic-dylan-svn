@@ -48,6 +48,7 @@
 <!-- =============== Element Definitions ========================== -->
 
 <!ELEMENT DefName - - (#PCDATA) >
+<!ELEMENT DefSummary - - (%para.char.mix;)+ >
 <!ELEMENT DefBody - - (%component.mix;)+ -(synop.class) >
 <!ELEMENT DefType - - (#PCDATA) >
 <!ELEMENT DefValue - - (#PCDATA) >
@@ -55,33 +56,39 @@
 <!ELEMENT DefParameters - - (DefParam*, Rest?, 
                             (Key, AllKeys?)?) >
 <!ELEMENT DefReturns - - (DefParam*, Rest?) -(ParamSingleton)>
-<!ELEMENT DefParam - - (ParamName, (ParamType|ParamSingleton),
-                        ParamSynopsis?) >
-<!ELEMENT Rest - - (ParamName, RestType, ParamSynopsis?)? >
+<!ELEMENT DefParam - - (ParamName, (ParamType|ParamSingleton)?,
+                        ParamSummary?) >
+<!ELEMENT Rest - - (ParamName, RestType?, ParamSummary?)? >
 <!ELEMENT RestType - - (#PCDATA) >
 <!ELEMENT Key - - (DefParam*) >
 <!ELEMENT AllKeys - O EMPTY >
 <!ELEMENT ParamName - - (#PCDATA) >
 <!ELEMENT ParamType - - (#PCDATA) >
 <!ELEMENT ParamSingleton - - (#PCDATA) >
-<!ELEMENT ParamSynopsis - - ((%para.char.mix; | %para.mix;)+) >
+<!ELEMENT ParamSummary - - ((%para.char.mix; | %para.mix;)+) >
+<!ELEMENT DefSupers - - (DefSuper+) >
+<!ELEMENT DefSuper - - (#PCDATA) >
+<!ELEMENT DefInitKeywords - - (DefParam*) >
 
-<!ELEMENT DylanConstantDef - - (DefName, DefType?, DefValue?, DefBody) >
-<!ATTLIST DylanConstantDef
-        DylanDefName CDATA #FIXED "Constant">
+<!ELEMENT DylanConstantDef - - (DefName, DefSummary, DefType?, DefValue?,
+                                DefBody) >
 
-<!ELEMENT DylanVariableDef - - (DefName, DefType?, DefValue?, DefBody) >
-<!ATTLIST DylanVariableDef
-        DylanDefName CDATA #FIXED "Variable">
+<!ELEMENT DylanVariableDef - - (DefName, DefSummary, DefType?, DefValue?,
+                                DefBody) >
 
-<!ELEMENT DylanFunctionDef - - (DefName, DefAdjectives?, DefParameters,
-                                DefReturns, DefBody) >
-<!ATTLIST DylanFunctionDef
-        DylanDefName CDATA #FIXED "Function">
+<!ELEMENT DylanFunctionDef - - (DefName, DefAdjectives?, DefSummary,
+                                DefParameters, DefReturns, DefBody) >
+
+<!ELEMENT DylanClassDef - - (DefName, DefAdjectives?, DefSummary, DefSupers,
+                             DefInitKeywords, DefBody) >
+
+<!ATTLIST DylanConstantDef DylanDefName CDATA #FIXED "Constant">
+<!ATTLIST DylanVariableDef DylanDefName CDATA #FIXED "Variable">
+<!ATTLIST DylanFunctionDef DylanDefName CDATA #FIXED "Function">
+<!ATTLIST DylanClassDef    DylanDefName CDATA #FIXED "Class">
+
 
 <!-- Scratch ,,, 
-
-<!ELEMENT Defsynopsis - - (%para.mix;)+ >
 
 <!ATTLIST DylanName
           library  CDATA #IMPLIED

@@ -55,7 +55,11 @@
 <style-specification id="html" use="docbook">
 <style-specification-body> 
 
+;;;;=======================================================================
 ;;;; HTML Stylesheet
+;;;;=======================================================================
+;;;; This stylesheet uses James Clark's extensions for creating HTML from
+;;;; a DSSSL stylesheet.
 
 (define %html-ext%
   ;; We hate 8.3. Sorry.
@@ -68,53 +72,176 @@
 (define (have-children? #!optional (node (current-node)))
   (not (node-list-empty? (children node))))
 
-;;; Generic DylanFooDef support
 
-(mode select-defhead
-  (element DefAdjectives (empty-sosofo))
-  (element DefBody (empty-sosofo)))
-
-(define (process-defhead)
-  (make element
-    gi: "TABLE"
-    attributes: '(("WIDTH" "100%")
-		  ("CELLPADDING" "0")
-		  ("BORDER" "0"))
-    (make element
-      gi: "TR"
-      (make sequence
-	(make element
-	  gi: "TD"
-	  (with-mode select-defhead
-	    (process-children)))
-	(make element
-	  gi: "TD"
-	  attributes: '(("ALIGN" "RIGHT"))
-	  (make element
-	    gi: "STRONG"
-	    (make sequence
-	      (literal "[")
-	      (process-first-descendant "DefAdjectives")
-	      (literal (attribute-string "DylanDefName"))
-	      (literal "]"))))))))
-
-(define (process-defbody)
-  (process-first-descendant "DefBody"))
+;;;========================================================================
+;;; Generic Definition Support
+;;;========================================================================
+;;; This code implements the "look" shared by all defintions.
 
 (define (process-def)
   (make sequence
     (process-defhead)
-    (process-defbody)))
+    (process-children)))
+
+(define (process-defhead)
+  (with-mode defhead
+    (make sequence
+      (make element
+	gi: "TABLE"
+	attributes: '(("WIDTH" "100%")
+		      ("CELLPADDING" "0")
+		      ("BORDER" "0"))
+	(make element
+	  gi: "TR"
+	  (make sequence
+	    (make element
+	      gi: "TD"
+	      (process-first-descendant "DefName"))
+	    (make element
+	      gi: "TD"
+	      attributes: '(("ALIGN" "RIGHT"))
+	      (make element
+		gi: "STRONG"
+		(make sequence
+		  (literal "[")
+		  (process-first-descendant "DefAdjectives")
+		  (literal (attribute-string "DylanDefName"))
+		  (literal "]")))))))
+      (make element
+	gi: "HR"
+	(empty-sosofo))
+      (process-first-descendant "DefSummary"))))
+
+(mode defhead
+  (element DefName
+    (make element
+      gi: "CODE"
+      (make element
+	gi: "B")))
+  (element DefAdjectives
+    (make sequence
+      (process-children)
+      (literal " ")))
+  (element DefSummary
+    (make element
+      gi: "BLOCKQUOTE")))
 
 (element DefName
+  (empty-sosofo))
+(element DefAdjectives
+  (empty-sosofo))
+(element DefSummary
+  (empty-sosofo))
+
+(define (have-child? type #!optional (node (current-node)))
+  (not (node-list-empty? (select-elements (children node) (normalize type)))))
+
+(define (section-heading name)
   (make element
-    gi: "CODE"
+    gi: "P"
     (make element
-      gi: "B")))
+      gi: "STRONG"
+      (literal name))))
+
+(define (process-children-or-none)
+  (if (have-children?)
+      (process-children)
+      (literal "None.")))
+
+(define (process-section name #!optional (sect (process-children-or-none)))
+  (make sequence
+    (section-heading name)
+    (make element
+      gi: "BLOCKQUOTE"
+      sect)))
 
 (element DefBody
+  (process-section "Description"))
+  
+
+;;;========================================================================
+;;; Parameter lists
+;;;========================================================================
+;;; Parameter list processing shared between a number of different defining
+;;; forms. Parts of this are often overridden.
+
+(define (process-parameter-section name)
+  (process-section name
+		   (if (have-children?)
+		       (make element
+			 gi: "TABLE"
+			 attributes: '(("BORDER" "0")
+				       ("COLUMNSPACING" "0")))
+		       (literal "None."))))
+
+(element DefParam
   (make element
-    gi: "BLOCKQUOTE"))
+    gi: "TR"
+    (make sequence
+      (make element
+	gi: "TD"
+	attributes: '(("VALIGN" "TOP"))
+	(process-first-descendant "ParamName"))
+      (make element
+	gi: "TD"
+	(make sequence
+	  (literal "An instance of ")
+	  (if (have-child? "ParamType")
+	      (process-first-descendant "ParamType")
+	      (make element
+		gi: "CODE"
+		(literal "object")))
+	  (literal ". ")
+	  (if (have-child? "ParamSummary")
+	      (process-first-descendant "ParamSummary")
+	      (empty-sosofo)))))))
+
+(element ParamName
+  (make element
+    gi: "EM"))
+
+(element ParamType
+  (make element
+    gi: "CODE"))
+
+(element ParamSummary
+  (process-children))
+
+
+;;;========================================================================
+;;; Define Class
+;;;========================================================================
+;;; Everything needed to define a class in the standard DRM style.
+
+(element DylanClassDef
+  (process-def))
+
+(element DefSupers
+  (process-section "Superclasses"))
+
+(element DefSuper
+  (make sequence
+    (make element
+      gi: "CODE")
+    (literal " ")))
+
+(element DefInitKeywords
+  (with-mode init-keywords
+    (process-parameter-section "Initialization Keywords")))
+
+(mode init-keywords
+  (element ParamName
+    (make element
+      gi: "CODE"
+      (make sequence
+	(process-children)
+	(literal ":")))))
+
+
+;;;========================================================================
+;;; Cruft
+;;;========================================================================
+;;; To be organized and rewritten...
 
 (element DefType
   (make element
@@ -130,11 +257,6 @@
       (literal " = ")
       (process-children))))
 
-(element DefAdjectives
-  (make sequence
-    (process-children)
-    (literal " ")))
-
 (define (process-param-list)
   (if (have-children?)
        (process-children)
@@ -147,61 +269,62 @@
 ;; XXX - last-sibling? ignores siblings of other types. For now, hack:
   (literal " "))
 
-(element DefParameters
-  (make sequence
-    (make element
-      gi: "CODE"
-      (literal " "))
-    (process-param-list)))
-
-(element DefReturns
-  (make sequence
-    (make element
-      gi: "CODE"
-      (literal " => "))
-    (process-param-list)))
-
-(element DefParam
-  (process-children))
-
-(element ParamName
-  (make sequence
-    (make element
-      gi: "I")
-    (insert-spacer-unless-last (parent (current-node)))))
-
-(element ParamType
-  (empty-sosofo))
-
-(element ParamSynopsis
-  (empty-sosofo))
-
-(element RestType
-  (empty-sosofo))
-
 (define (parameter-keyword name)
   (make element
     gi: "B"
     (literal name)))
 
-(element Rest
-  (make sequence
-    (parameter-keyword "#rest")
-    (literal " ")
-    (process-children)))
+(mode unused
+  (element DefParameters
+    (make sequence
+      (make element
+	gi: "CODE"
+	(literal " "))
+      (process-param-list)))
+  
+  (element DefReturns
+    (make sequence
+    (make element
+      gi: "CODE"
+      (literal " => "))
+    (process-param-list)))
+  
+  (element DefParam
+    (process-children))
+  
+  (element ParamName
+    (make sequence
+      (make element
+	gi: "I")
+      (insert-spacer-unless-last (parent (current-node)))))
+  
+  (element ParamType
+    (empty-sosofo))
 
-(element Key
-  (make sequence
-    (parameter-keyword "#key")
-    (if (have-children?)
-	(literal " ")
-	(empty-sosofo))
-    (process-children)
-    (insert-spacer-unless-last)))
-
-(element AllKeys
-  (parameter-keyword "#all-keys"))
-
+  (element ParamSummary
+    (empty-sosofo))
+  
+  (element RestType
+    (empty-sosofo))
+  
+  (element Rest
+    (make sequence
+      (parameter-keyword "#rest")
+      (literal " ")
+      (process-children)))
+  
+  (element Key
+    (make sequence
+      (parameter-keyword "#key")
+      (if (have-children?)
+	  (literal " ")
+	  (empty-sosofo))
+      (process-children)
+      (insert-spacer-unless-last)))
+  
+  (element AllKeys
+    (parameter-keyword "#all-keys")))
+  
 (define (parameters-longform label)
   (if (have-children?)
       (make element
@@ -240,7 +363,7 @@
       (make element
 	gi: "CODE")
       (literal ". ")))
-  (element ParamSynopsis
+  (element ParamSummary
     (process-children)))
 
 (define (describe-param)
@@ -255,7 +378,7 @@
 	(with-mode paramdesc
 	  (process-children))))))
 
-(mode parameter-synopses
+(mode parameter-summary
   (element DefParameters
     (parameters-longform "Parameters"))
   (element DefReturns
@@ -285,11 +408,12 @@
 (element DylanFunctionDef
   (make sequence
     (process-defhead)
-    (with-mode parameter-synopses
+    (with-mode parameter-summary
       (make sequence
 	(process-first-descendant "DefParameters")
 	(process-first-descendant "DefReturns")))
-    (process-defbody)))
+    (process-first-descendant "DefBody")))
+
 
 </style-specification-body>
 </style-specification>
