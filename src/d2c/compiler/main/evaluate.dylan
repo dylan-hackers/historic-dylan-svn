@@ -27,7 +27,7 @@ define method evaluate(expression :: <string>)
         let component = make(<fer-component>);
         let builder = make-builder(component);
         let result-type = object-ctype();
-        let result-var = make-ssa-var(builder, #"result", result-type);
+        let result-var = make-local-var(builder, #"result", result-type);
         fer-convert(builder, expression,
                     lexenv-for-tlf(tlf), #"assignment", result-var);
         let inits = builder-result(builder);
@@ -114,6 +114,17 @@ define method fer-gather-bindings(compound :: <compound-region>, environment :: 
   fer-gather-regions-bindings(compound.regions, environment)
 end;
 
+define method fer-gather-bindings(the-if :: <if-region>, environment :: <object>)
+  => (extended-env, no-value :: #f.singleton);
+  let test-value
+    = fer-evaluate-expression(the-if.depends-on.source-exp,
+                              environment);
+  if(test-value == as(<ct-value>, #f))
+    fer-gather-bindings(the-if.else-region, environment);
+  else
+    fer-gather-bindings(the-if.then-region, environment);
+  end if;
+end method;
 
 define method fer-gather-bindings(simple :: <simple-region>, environment :: <object>)
   => (extended-env, no-value :: #f.singleton);
