@@ -33,6 +33,29 @@ end;
 define generic object-from-character(c :: <character>)
  => obj;
 
+define method object-from-character(c == $empty-char)
+ => wall :: <false>;
+  #f
+end;
+
+define constant <wall> = $wall-char.singleton;
+
+define method object-from-character(c == $wall-char)
+ => wall :: <wall>;
+  c
+end;
+
+define constant <water> = $water-char.singleton;
+
+define method object-from-character(c == $water-char)
+ => water :: <water>;
+  water
+end;
+
+define method object-from-character(c == $base-char)
+ => base :: <base>;
+  <base>.make
+end;
 
 define function send-board(s :: <stream>, board :: <board>)
  => ();
