@@ -138,7 +138,9 @@ define method element(elt :: <element>,
   else
     let kids = element-children(elt, as(<symbol>, key));
 // let's simplify indexing for unique tags
-    ans := if(kids.size == 1 & ~ always-sequence?) kids[0] else kids end if;
+    unless(kids.size == 0)
+      ans := if(kids.size == 1 & ~ always-sequence?) kids[0] else kids end if;
+    end unless;
   end if;
   if(ans)
     ans
