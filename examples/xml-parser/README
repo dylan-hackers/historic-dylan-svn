@@ -2,7 +2,8 @@ Native Dylan XML-parser library
 
 We present a native Dylan XML parser library.  This library needs
 the META library (available from www.gwydiondylan.org) and works on both
-Functional Developer and d2c (the Gwydion Dylan compiler).
+Functional Developer and d2c (the Gwydion Dylan compiler) that supports
+each-subclass slots (2.3.9pre1 dated after 20020415).
 
 This parser comes with additional features.  You may transform the internal 
 representation to any form desired (XML, HTML, text, what-have-you).  You may
