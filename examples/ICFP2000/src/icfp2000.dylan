@@ -31,13 +31,14 @@ define function main(name, arguments)
     write-pixel(file, green);
   end for;
   close-ppm(file);
+
 */
 
   begin
     let lexed = lex-gml(*standard-input*);
     let out = lexed.run-gml;
     
-    //format-out("input : %=\n\n", in);
+   //format-out("input : %=\n\n", in);
     format-out("lexed : %=\n\n", lexed);
     format-out("output: %=\n\n", out);
     force-output(*standard-output*);
@@ -48,32 +49,40 @@ define function main(name, arguments)
   let o2 = make(<plane>);
 
   o1 := uniform-scale(o1, 0.2);
+  o1.surface-interpreter-entry := red-texture;
 
+  let l = make(<star>, direction: #[ 0.0, -1.0, 0.0, 0.0 ],
+	       color: make-white());
+
+/*
   o2 := x-rotate(o2, ($double-pi / 2.0) * 3);
   o2 := translate(o2, -0.5, -0.5, 0.0);
   o2 := uniform-scale(o2, 2.0);
 
   let o = make(<csg-union>, of: vector(o2, o1));
-
+*/
 //  z-rotate!(o, $double-pi / 16.0);
-/*
-  format-out("Ray towards origin: %=\n",
-	     intersection-before(o, make(<ray>, 
+
+  let (p, n) = intersection-before(o1, make(<ray>, 
 				  position: #[ 0.0, 0.0, -1.0, 1.0],
 				 direction: #[ 0.0, 0.0,  1.0, 0.0]),
-				 1.0/0.0));
+				 1.0/0.0);
+
+  format-out("Ray towards origin --  point: %= normal: %=\n", p, n);
+	     
 
   format-out("Ray towards upper-left: %=\n",
-	     intersection-before(o, make(<ray>, 
+	     intersection-before(o1, make(<ray>, 
 				  position: #[ 0.0, 0.0, -1.0, 1.0],
 				 direction: #[ -1.0, 1.0,  1.0, 0.0]),
 				 1.0/0.0));
-*/
+
   force-output(*standard-output*);
 
-  render-image(o, 1, "render.ppm", 
-	       make(<color>, red: 1.0, green: 1.0, blue:1.0),
-	       make(<stretchy-vector>), 128, 128, $double-pi / 2.0);
+  render-image(o1, 1, "render.ppm", 
+	       make(<color>, red: 0.2, green: 0.2, blue: 0.2), 
+	       vector(l), 
+	       128, 128, $double-pi / 2.0);
 
   exit-application(0);
 end function main;
