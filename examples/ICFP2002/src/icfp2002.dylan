@@ -7,6 +7,27 @@ define function debug(#rest args)
   force-output(*standard-error*);
 end function debug;
 
+/*
+define function play-the-game(input :: <stream>, output :: <stream>) => ();
+  write-line(output, "Player");
+  force-output(*standard-error*);
+  let board = read-board(input);
+  let (my-id, my-capacity, my-money) = read-configuration(input);
+  let agent = make(<robot-agent>, id: my-id, 
+                   capacity: my-capacity, money: my-money);
+  board := read-robots(input, board);
+
+  let running = #t;
+  while(running)
+    board := read-packages(input, board);
+    let move = generate-next-move(agent, board);
+    send-move(output, move);
+    board := read-movements(input, board);
+  end while;
+end function play-the-game;
+  
+generate-next-move(agent :: <robot-agent>, state :: <board>) => (action :: <command>)
+*/
 
 define function main(name, arguments)
   if(arguments.size < 2)
