@@ -1,5 +1,5 @@
 bin:
-	d2c -M brain-compiler.lid
+	d2c -M -L.. brain-compiler.lid
 
 run:	bin
 	./brain-compiler

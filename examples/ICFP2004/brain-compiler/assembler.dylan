@@ -51,16 +51,18 @@ define function push-thunk (instrs, label, counter, thunk)
   instrs[pos] := thunk;
 end;
 
-define function lookup (instrs, label, counter)
- => instr :: <instruction>;
+define function lookup
+    (instrs, label, counter)
+ => (instr :: <instruction>);
   let pos = make(<instruction-label-count>, label: label, count: counter);
   let instr = instrs[pos];
   select (instr by instance?)
-    <function> => instrs[pos] := instr();
-    otherwise: instr;
+    <function> =>
+      instrs[pos] := instr();
+    otherwise =>
+      instr;
   end;
 end;
-
 
 define functional class <instruction-label-count> (<object>)
   constant slot instruction-label, required-init-keyword: label:;
