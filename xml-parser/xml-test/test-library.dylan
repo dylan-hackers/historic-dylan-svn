@@ -9,6 +9,8 @@ define library xml-test
   use io;
   use xml-parser;
   use system;
+  use parse-arguments;
+  use collection-extensions;
 end library xml-test;
 
 define module entity-pass
@@ -17,7 +19,7 @@ define module entity-pass
   use streams;
   use format;
 
-  export collect-entity-defs, referenced-entities;
+  export collect-entity-defs, referenced-entities, print-in, header-comment;
 end module entity-pass;
 
 define module html-xform
@@ -34,10 +36,12 @@ end module html-xform;
 define module xml-test
   use common-dylan;
   use format-out;
+  use standard-io;
   use format;
   use xml-parser;
   use html-xform;
   use streams;
-  use date;
+//  use date;
+  use parse-arguments;
+  use sequence-utilities;
 end module xml-test;
-

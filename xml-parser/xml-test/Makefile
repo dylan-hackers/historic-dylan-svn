@@ -6,7 +6,7 @@ FILES := test-library.dylan \
 	 ../../meta/meta.lib.du
 
 xml-test: $(FILES)
-	d2c -L .. -L ../../meta xml-test.lid
+	d2c -L .. -L ../../anaphora -L ../../meta xml-test.lid
 
 clean:
 	rm *.o *.c *~ cc-*.mak *.a xml-test

@@ -14,11 +14,23 @@ define function collect-entity-defs(in :: <document>)
                      stream: ignored-stream);
 end function collect-entity-defs;
 
-define function referenced-entities(namei :: <string>, 
-                                    str :: <stream>,
-                                    state)
+define function print-in(color :: <string>, xml :: <xml>, stream :: <stream>)
+  format(stream, "<p><FONT COLOR='%s'>%=</FONT></p>\n", color, xml);
+end function print-in;
+
+define function header-comment(file-name :: <string>) => (c :: <comment>)
+  make(<comment>, 
+       comment: concatenate(file-name, ".xml parsed by the xml-"
+                              "parser library written by Douglas M. Auclair,"
+                              " Chris Double, and Andreas Bogk and available"
+                              " from http://www.gwydiondylan.org."));
+end function header-comment;
+
+define function referenced-entities(namei :: <string>, str :: <stream>, state)
   unless(*ent*.empty?)
-  format(str, "<HTML>\n<BODY BGCOLOR='white'>\n<P>\n<FONT COLOR='"
+    format(str, "<HTML>\n<BODY BGCOLOR='white'>\n");
+    print-in("brown", namei.header-comment, str);
+/* <FONT COLOR='"
               "orange'>&lt;!-- %s.dtd parsed by xml-parser, "
               "written by <A HREF='mailto://doug@cotilliongroup.com'>"
               "Douglas M. Auclair</A>, <A HREF='mailto://chris@double.co.nz'>"
@@ -26,18 +38,18 @@ define function referenced-entities(namei :: <string>,
               "Andreas Bogk</A>.\n<BR>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
               "An LGPL example application available from the <A HREF='"
               "http://www.gwydiondylan.org'>GwydionDylan</A> web site"
-              " --&gt;</FONT>\n<P>\n", namei);
-  let ent = sort(map(curry(as, <string>), *ent*.key-sequence));
-  for(x in ent)
-    format(str, "\n<BR>&nbsp;&lt;!<FONT COLOR='purple'>"
+              " --&gt;</FONT>\n<P>\n", namei); */
+    let ent = sort(map(curry(as, <string>), *ent*.key-sequence));
+    for(x in ent) print-in("purple", *ent*[as(<symbol>, x)], str) end for;
+  /*  format(str, "\n<BR>&nbsp;&lt;!<FONT COLOR='purple'>"
            "ENTITY</FONT> <FONT COLOR='red'><A NAME='%s'>%s</A>"
            "</FONT> '", x, x);
     for(y in *ent*[as(<symbol>, x)].entity-value)
       transform(y, y.name, state, str); 
     end;
     format(str, "'&gt;");
-  end for;
-  format(str, "\n</BODY>\n</HTML>");
+  end for; */
+    format(str, "\n</BODY>\n</HTML>");
   end unless;
 end function referenced-entities;
 
@@ -47,8 +59,8 @@ define method transform(in :: <entity-reference>,
                         tag-name :: <symbol>,
                         state :: <1st-pass>, 
                         str :: <stream>)
-  *ent*[tag-name] := in; // got this one, 
-// now let's see if it refers to any
+  *ent*[tag-name] := make(<internal-entity>, name: tag-name, 
+                          expands-to: in.entity-value); // got this one, 
+  // now let's see if it refers to any
   do(method(x) transform(x, x.name, state, str) end, in.entity-value);
 end method transform;
-

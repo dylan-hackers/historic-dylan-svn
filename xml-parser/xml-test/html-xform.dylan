@@ -14,23 +14,35 @@ end class <html>;
 define constant $html = make(<html>);
 define variable *substitute?* :: <boolean> = #t;
 
-define method before-transform(node :: <node>, state :: <html>,
+define method before-transform(node :: <element>, state :: <html>,
                                times :: <integer>, str :: <stream>)
   format(str, "\n<BR>");
   for(x from 1 to times) format(str, "&nbsp;"); end for;
 end method before-transform;
 
+define method before-transform(doc :: <document>, state :: <html>,
+                               depth :: <integer>, stream :: <stream>)
+  format(stream, "<HTML>\n <TITLE>XML as HTML</TITLE>\n"
+           " <BODY BGCOLOR='white'>\n");
+  next-method();
+  let dname = as(<string>, doc.name);
+  state.document-name := dname;
+  collect-entity-defs(doc);
+  let dtd = make(<dtd>, name: doc.name, 
+                 ref: concatenate(dname, "-entities.html"));
+  print-in("purple", dtd, stream);
+  print-in("brown", header-comment(dname), stream);
+end method before-transform;  
+
 define method transform(in :: <document>, tag-name :: <symbol>,
-                        state :: <html>, str :: <stream>)
-  state.document-name := as(<string>, in.name);
-  collect-entity-defs(in);
-  let dtd = concatenate(state.document-name, "-entities.html");
-  format(str, "<HTML>\n <TITLE>XML as HTML</TITLE>\n <BODY BGCOLOR='white'>\n"
-              "&lt;?<FONT COLOR='green'>xml</FONT> <FONT COLOR='blue'>"
-              "version</FONT>=\"1.0\"?&gt;\n<BR>\n&lt;!<FONT COLOR="
-              "'purple'>DOCTYPE </FONT><FONT COLOR='green'>%s</FONT> "
-              "<FONT COLOR='purple'>SYSTEM </FONT>\"<A HREF='%s'>%s.dtd"
-              "</A>\"&gt;\n<P>\n<FONT COLOR='orange'>\n&lt;!-- %s.xml "
+                        state :: <html>, stream :: <stream>)
+  next-method();
+
+/*                      
+  format(stream, "&lt;!<FONT COLOR='purple'>DOCTYPE </FONT>"
+           "<FONT COLOR='green'>%s</FONT> <FONT COLOR='purple'>SYSTEM </FONT>"
+           "\"<A HREF='%s'>%s.dtd</A>\"&gt;\n<P>\n<FONT COLOR='orange'>\n"
+           "&lt;!-- %s.xml "
               "parsed by xml-parser, "
               "written by <A HREF='mailto://doug@cotilliongroup.com'>"
               "Douglas M. Auclair</A>, <A HREF='mailto://chris@double.co.nz'>"
@@ -39,13 +51,16 @@ define method transform(in :: <document>, tag-name :: <symbol>,
               "An LGPL example application available from the <A HREF='"
               "http://www.gwydiondylan.org'>GwydionDylan</A> web site"
               " --&gt;</FONT>\n<P>\n", state.document-name, dtd, 
-              state.document-name, state.document-name);
-  with-open-file(file = dtd, direction: #"output")
-    referenced-entities(state.document-name, file, state);
+              state.document-name, state.document-name); */
+
+//  node-iterator(in, state, stream);
+  let name = state.document-name;
+  let dtd-file = concatenate(name, "-entities.html");
+  with-open-file(file = dtd-file, direction: #"output")
+    referenced-entities(name, file, state);
   end with-open-file;
-  format-out("Wrote out %s\n", dtd);
-  next-method();
-  format(str, "\n </BODY>\n</HTML>");
+  format-out("Wrote out %s\n", dtd-file);
+  format(stream, "\n </BODY>\n</HTML>");
 end method transform;
 
 define function name-color(name :: <string>, color :: <string>)
@@ -53,7 +68,7 @@ define function name-color(name :: <string>, color :: <string>)
   format-to-string("<FONT COLOR='%s'>%s</FONT>", color, name);
 end function name-color;
 
-define method xml-name(e :: <element>, state :: <html>) => (s :: <string>)
+define method xml-name(e :: <tag>, state :: <html>) => (s :: <string>)
   name-color(as(<string>, e.name), "green");
 end method xml-name;
 
