@@ -1,5 +1,5 @@
 library: brain-compiler
-executable: brain-compiler
+executable: alex
 files:  brain-compiler-exports
 	assembler
 	alex
