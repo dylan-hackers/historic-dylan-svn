@@ -4,6 +4,14 @@ define constant <line> = limited(<vector>, of: <object>);
 
 define class <board>(<array>)
   slot lines :: limited(<vector>, of: <line>);
+  keyword rows;
+  keyword cols;
+end;
+
+define method initialize(<board>, #key rows, cols, #all-keys)
+  map-as(limited(<vector>, of: <line>),
+         method(ignore) make(<line>, size: cols, fill: $empty-space) end,
+         range(below: rows));
 end;
 
 
