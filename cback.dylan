@@ -48,6 +48,12 @@ copyright: see below
 define /*abstract*/ functional class <llvm-object>(<statically-typed-pointer>)
 end;
 
+// delete: give up ownership and destroy
+define generic delete(o :: <llvm-object>) => ();
+
+// dump: output some textual representation for debugging purposes
+define generic dump(o :: <llvm-object>) => ();
+
 // #########
 // ### Types
 
@@ -122,7 +128,6 @@ end;
 
 
 define llvm-accessors <llvm-type> ("Type")
-//  delete, () => ();
   dump, () => ();
 //  dump2, (i :: <integer>) => ();
 end;
@@ -147,25 +152,6 @@ end;
 define /*abstract*/ functional class <llvm-global-value>(<llvm-constant>)
 end;
 
-
-// delete: give up ownership and destroy
-define generic delete(o :: <llvm-object>) => ();
-
-/*
-define method delete(v :: <llvm-value>) => ();
-  call-out("delete_llvm_Value", void:, ptr: v.raw-value)
-end;
-*/
-
-
-// dump: output some textual representation for debugging purposes
-define generic dump(o :: <llvm-object>) => ();
-
-/*
-define method dump(v :: <llvm-value>) => ();
-  call-out("dump_llvm_Value", void:, ptr: v.raw-value)
-end;
-*/
 
 define llvm-accessors <llvm-value> ("Value")
   delete, () => ();
@@ -249,17 +235,6 @@ define method make (m == <llvm-module>, #rest rest, #key name :: false-or(<byte-
  => (result :: <llvm-module>);
   next-method(m, pointer: call-out("make_llvm_Module", ptr:, ptr: object-address(name | "")));
 end;
-
-
-/*
-define method delete(m :: <llvm-module>) => ();
-  call-out("delete_llvm_Module", void:, ptr: m.raw-value)
-end;
-
-define method dump(m :: <llvm-module>) => ();
-  call-out("dump_llvm_Module", void:, ptr: m.raw-value)
-end;
-*/
 
 define llvm-accessors <llvm-module> ("Module")
   delete, () => ();
