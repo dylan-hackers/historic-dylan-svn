@@ -1011,8 +1011,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       <PARA>When we say that something is an error, we mean that the
       result is undefined. In particular, we do not mean that a
       Streams implementation must signal an error condition; that is
-      the implementor's choice. So, for instance, the following text,
-      from page FIXME, means only that the result of using unread-element
+      the implementor's choice. So, for instance, the following text
+      means only that the result of using unread-element
       in the case described is undefined:</PARA>
 
       <PARA>It is an error to apply
@@ -1023,8 +1023,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       that a Streams implementation must signal an error
       condition. Note that we may not, in such a case, say exactly
       which error condition must be signaled; if we do not say so, the
-      choice is again up to the implementor. In this text from the
-      description of stream-position-setter on page FIXME, for instance,
+      choice is again up to the implementor. In the following text,
+      for instance,
       we state that an implementation must signal an error, but we do
       not say what error must be signaled:</PARA>
 
@@ -1032,8 +1032,8 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
       <CLASSNAME>&lt;stream-position&gt;</CLASSNAME>, if it is invalid
       for some reason, this function signals an error.</PARA>
 
-      <PARA>By contrast, the following text from the description of
-      <FUNCTION>read-element</FUNCTION> on page FIXME says exactly
+      <PARA>By contrast, the following text 
+      says exactly
       which error must be signaled:</PARA>
 
       <PARA>If the end of the stream is encountered and no value was
@@ -1338,19 +1338,22 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 
       <SECT2>
 	<TITLE>Class Reference</TITLE>
-	<REFENTRY>
-	  <REFNAMEDIV>
-	    <REFNAME>&lt;stream&gt;</REFNAME>
-	    <REFPURPOSE>Open abstract class</REFPURPOSE>
-	  </REFNAMEDIV>
-	  <REFSECT1>
-	    <TITLE>Summary</TITLE>
-
-	    <PARA>The superclass of all stream classes and a direct
-	  subclass of <CLASSNAME>&lt;object&gt;</CLASSNAME>. It is not
-	  instantiable.</PARA>
-	  </REFSECT1>
-	</REFENTRY>
+        <dylanclassdef>
+          <dEFNAME>&lt;stream&gt;</dEFNAME>
+          <defadjectives>open abstract</defadjectives>
+	  <defsupers><defsuper>&lt;object&gt;</defsuper></defsupers>
+	  <defsummary>
+	    The superclass of all stream classes.
+          </defsummary>
+          <definitkeywords>
+            <keyparam>
+              <paramname>outer-stream</paramname>
+            </keyparam>
+          </definitkeywords>
+          <defdescription>
+            <para>All other streams inherit from this class</para>
+          </defdescription>
+        </dylanclassdef>
 
 	<REFENTRY>
 	  <REFNAMEDIV>
