@@ -302,14 +302,14 @@ define function main(name, arguments)
     let parse-tree          = bgh-parse(original-input);
 
     //format-out("%=\n", parse-tree);
-
+/*
     for (e in parse-tree)
       let a :: <attribute> = e.attributes;
       let s :: <byte-string> = e.string;
       describe-attributes(a, *standard-output*);
       format-out("      '%s'\n", s);
     end;
-
+*/
   let optimized-output = apply(concatenate, generate-output(parse-tree));
 //  format-out("%=\n", optimized-output);
 
@@ -317,15 +317,15 @@ define function main(name, arguments)
     best-transformation := optimized-output;
   end if;
 
-    while(time-is-not-up?())
-      optimize();
-    end while;
+  while(time-is-not-up?())
+    optimize();
+  end while;
+  
+  write(*standard-output*, best-transformation);
+  write(*standard-output*, "\n");
+  force-output(*standard-output*);
 
-    write(*standard-output*, best-transformation);
-    write(*standard-output*, "\n");
-    force-output(*standard-output*);
-
-    debug("Run successful. Original size: %=. Size after optimization: %=.\n", original-input.size, best-transformation.size);
+//    debug("Run successful. Original size: %=. Size after optimization: %=.\n", original-input.size, best-transformation.size);
 
   /*
 <bruce> - readin the original text and save it in case we can't do any better
