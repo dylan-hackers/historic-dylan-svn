@@ -67,6 +67,27 @@ define function draw-hex(position) => ()
     glEnd();
 end;
 
+define function cell-color(cell) => (color)
+    if (cell.rocky)
+        $ROCK-COLOR
+    elseif (cell.food > 0)
+        $FOOD-COLOR
+    elseif (cell.anthill)
+        if (cell.anthill == #"red")
+            $RED-ANTHILL-COLOR
+        else
+            $BLACK-ANTHILL-COLOR
+        end
+    else
+        $GROUND-COLOR
+    end;
+end;
+
+define function draw-cell(cell, position) => ()
+    set-gl-color(cell-color(cell));
+    draw-hex(position);
+end;
+
 define function draw-ant(position, direction) => ()
     let angle = $PI-OVER-3 * direction;
     let angle-degrees = $180-OVER-PI * angle;
@@ -84,20 +105,29 @@ define function draw-ant(position, direction) => ()
     glPopMatrix();
 end;
 
-define function draw-world(width, height) => ()
+define variable *world-display-list* = 0;
+
+define function cache-world-display-list() => ()
+    *world-display-list* := glGenLists(1);
+    glNewList(*world-display-list*, $GL-COMPILE);
+
+    let world-size = dimensions(*world*);
+    let width = world-size[0];
+    let height = world-size[1];
+
     for (y-index from 0 below height)
         for (x-index from 0 below width)
             let position = make-position(x-index, y-index);
             
-            if (modulo(y-index, 2) == 0)
-                set-gl-color($GROUND-COLOR);
-                draw-hex(position);
-            else
-                set-gl-color($RED-ANTHILL-COLOR);
-                draw-hex(position);
-            end;
+            draw-cell(*world*[x-index, y-index], position);
         end;
     end;
+    
+    glEndList();
+end;
+
+define function draw-world() => ()
+    glCallList(*world-display-list*);
     
     set-gl-color($RED-ANT-COLOR);
     draw-ant(make-position(0, 0), 0);
@@ -108,16 +138,19 @@ define function draw-world(width, height) => ()
     set-gl-color($WHITE);
 end;
 
+define variable *scale* = 5.0;
+
 define variable draw :: <function> =
         callback-method() => ();
     glClear($GL-COLOR-BUFFER-BIT + $GL-DEPTH-BUFFER-BIT);
 
     glPushMatrix();
-    glScale(50.0, 50.0, 1.0);
-    draw-world(10, 10);
+    glScale(*scale*, *scale*, 1.0);
+    draw-world();
     glPopMatrix();
     
     glutSwapBuffers();
+    glutReportErrors();
 end;
 
 define variable reshape :: <function> =
@@ -139,17 +172,31 @@ define variable idle :: <function> =
     glutPostRedisplay();
 end;
 
+define variable keyboard :: <function> =
+        callback-method(key :: <integer>, x :: <integer>, y :: <integer>) => ();
+    let char = as(<character>, key);
+    
+    if (char == '+' | char == '=')
+        *scale* := *scale* * 2.0;
+    elseif (char == '-')
+        *scale* := *scale* * 0.5;
+    end;
+end;
+
 begin
     glut-init();
     glutInitDisplayMode($GLUT-RGB + $GLUT-DEPTH + $GLUT-DOUBLE);
 
     glutInitWindowPosition(0, 0);
-    glutInitWindowSize(300, 300);
-    glutCreateWindow("GLU Quadric Test");
+    glutInitWindowSize(1000, 1000);
+    glutCreateWindow("Marching Dylants");
+    
+    cache-world-display-list();
 
     glutDisplayFunc(draw);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
+    glutKeyboardFunc(keyboard);
 
     glutMainLoop();
 end;
