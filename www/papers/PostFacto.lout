@@ -135,7 +135,7 @@ define sealed domain render (<document>, <laser-printer>) => ();
 the GF @F render is prohibited from accepting methods specialized
 on subtypes of the given signature that originate outside the
 library being the provider of the seal. Sealed domains also arise
-implicitly by not declaring GFs as @F { open }.
+implicitly by not declaring GFs as being @F { open }.
 @End @SubSection
 
 @EndSubSections
@@ -149,6 +149,12 @@ implicitly by not declaring GFs as @F { open }.
 @Section
 @Title { The Post-Facto Analysis }
 @Begin
+Our analysis centers around the observation that a successful function
+call automatically implies that all semantics dictated constraints w.r.t.
+the functions call and return preconditions are fulfilled. To stay with
+our running example from the introduction, if a call @F { render(a, b) }
+returns, we can safely assume that the constraints @F { instance?(a, <document>) }
+and @F { instance?(b, <device>) } hold true.
 @PP
 
 #################
@@ -158,18 +164,43 @@ implicitly by not declaring GFs as @F { open }.
 @SubSection @Title { Using the Function Signature }
 @Begin
 @PP
-function call return is evidence that the contract
-by types was fulfilled.
-
-error boundaries
+In Dylan (among other dynamically typed safe languages) a
+functions signature conveys two contracts:
+@BulletList
+   @ListItem { the caller promises to only invoke the function
+with the number and types of arguments as laid down in the @I { argument
+declaration } of the signature, and }
+   @ListItem { the function promises to return the number and types of
+   values as laid down in the @I { return declaration } of the signature. }
+@EndList
+In the case that any of these contracts are violated, the function does
+not return, but @I { signals an error }.
+In summary the function call return is an evidence that the contract
+by types has been fulfilled. Naturally, if the language provides means of
+intercepting runtime errors (Dylan provides @F {block}s and @F {let handler}s
+for this purpose) the inference domain ends at these @I { error boundaries }.
+This analysis is certainly widely known and exploited, e.g. by @I { type
+checking } arguments before the call to the function and propagating the type-refined
+expressions furtheron. Also the declared types of the returned values can be
+used in the obvious way. Our contribution is the exploration of the described
+principle in a multiply dispatched setting.
 @End @SubSection
 
 ###########
 @SubSection @Title { Determining Call Candidates }
 @Begin
 @PP
-maybe sets
-definitive sets
+For sealed generic functions (more precisely sealed GF domains) the closed-world
+assumption holds, and the compiler is in the posession of every method that belongs
+to the GF domain, along with their signatures. This allows the compiler to rule out
+any method as being not applicable where the static types of the arguments are
+provably disjoint to the respective argument type of the method. What remains is the
+set of possibly applicable methods. In addition the compiler is able to determine
+the @I { definitive set } of methods that are provably applicable by checking that
+the static types of arguments are subtypes of the respective argument types in the
+signature. Leaving away the definitive set from the applicable set the @I { maybe set }
+remains.
+
 @End @SubSection
 
 ###########
@@ -208,10 +239,18 @@ form of types.
 @StarList
    @ListItem { using the fact that an error happened? }
    @ListItem { using the definitive set to add information? }
+   @ListItem { using the known ambiguities to add information?
+Certain type combinations would lead to ambibuities, thus
+calls could succeed where a specific method failed (e.g. type error on a keyword arg) }
    @ListItem { using the type of returned objects to
 recognize (constrain) several argument
 types at the same time }
    @ListItem { connection to CPS? }
+   @ListItem { new entrypoint that checks types (only), no checks at call site? }
+   @ListItem { @F apply and argument sequence size, keywords and keyword parameters
+(every 2nd is <symbol> and oneof(keywords), the following ones are of specific type) }
+   @ListItem { using @F primary to ensure type disjointness (similarly getter return value
+conflicts) }
 @EndList
 
 @End @Section
