@@ -28,22 +28,22 @@ define terrain <water> end;
 define terrain <base> end;
 define terrain <space> end;
 
-define function passable?(b :: <board>, p :: <point>)
- => (passable :: <boolean>);
-  let ch = b[p.y][p.x];
-  ch == '.' | ch == '@';
-end;
-
 // Board
 
 define constant <board> = <array>;
 
-define function width(b :: <board>) => w :: <coordinate>;
-  b.first.size
+define inline function passable?(b :: <board>, p :: <point>)
+ => (passable :: <boolean>);
+  let ch :: <character> = b[p.y][p.x];
+  ch == '.' | ch == '@';
 end;
 
-define function height(b :: <board>) => w :: <coordinate>;
-  b.size
+define inline function width(b :: <board>) => w :: <coordinate>;
+  dimension(b, 0);
+end;
+
+define inline function height(b :: <board>) => w :: <coordinate>;
+  dimension(b, 1);
 end;
 
 // store objects line by line
