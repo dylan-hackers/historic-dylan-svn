@@ -38,9 +38,12 @@ define module messages
   use standard-io;
   use string-conversions;
   use board;
-//  use robot;
 
   export
+    $empty-char,
+    $water-char,
+    $wall-char,
+    $base-char,
     <message-error>,
     message-error,
     add-error,

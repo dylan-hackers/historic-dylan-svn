@@ -8,3 +8,4 @@ files:
   robot
   robot-agent
   package
+  messages

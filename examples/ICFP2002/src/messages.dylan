@@ -329,7 +329,7 @@ end function receive-string;
 // Read an integer from a string. The integer *CANNOT* be prefixed with
 // spaces. It may start with 1 '-'. 
 
-define function receive-integer (stream :: <stream) => <integer>;
+define function receive-integer (stream :: <stream) => int :: <integer>;
   let v = make(<stretchy-vector>);
   when (stream.peek = '-')
     v := add!(v, stream.read-element);

@@ -27,20 +27,7 @@ end;
 define terrain <wall> end;
 define terrain <water> end;
 define terrain <base> end;
-define terrain <empty> end;
-
-
-/*
-define concrete functional class <wall>(<terrain>)
-end;
-
-define concrete functional class <water>(<terrain>)
-end;
-
-define concrete functional class <base>(<terrain>)
-end;
-*/
-
+define terrain <space> end;
 
 
 // Board
@@ -98,8 +85,8 @@ define generic terrain-from-character(c :: <character>)
  => terra :: <terrain>;
 
 define method terrain-from-character(c == $empty-char)
- => empty :: <empty>;
-  <empty>.make
+ => empty :: <space>;
+  <space>.make
 end;
 
 //define constant <wall> = $wall-char.singleton;
