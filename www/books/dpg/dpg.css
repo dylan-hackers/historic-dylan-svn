@@ -1,6 +1,16 @@
+/*
+ * simple stylesheet for "Dylan Programming Guide"
+ *
+ * this stylesheet isn't really fancy but it does the job
+ * to produce a more or less readable page.
+ */
+
+
 body {
 	margin-left: 20px;
 	margin-right: 20px;
+	margin-top: 20px;
+	margin-bottom: 20px;
 
 	background-color: white;
 	color: black;
@@ -11,9 +21,62 @@ ul { list-style-type: square }
 li > ul { list-style-type: disc; }
 
 
-div {
-	margin: 20px;
+body > div > div {
+	margin: 0px;
+	text-align: left;
+}
+
+body > div {
+	margin-left: 20px;
+	margin-right: 20px;
 	padding: 10px;
 	background-color: #dddddd;
 }
 
+
+/*
+ * Tables
+ *
+ * Make tables look as they do in the book
+ */
+
+table {
+	border-width: 1px;
+	border-style: solid;
+	border-color: black;
+	
+	border-spacing: 0 2em;
+}
+
+table th {
+	border-style: none;
+
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: black;
+
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+
+table td {
+	border-width: 0;
+	border-style: none;
+
+	margin: 0;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+table td pre {
+	font-weight: bold;
+	padding: 0;
+	margin: 0.5em;
+}
+
+
+table td pre em {
+	font-weight: normal;
+	font-style: italic;
+}
