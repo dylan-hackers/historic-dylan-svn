@@ -8,7 +8,7 @@ define function main(name, arguments)
   let vec = #[1.0, 2.0, 3.0, 4.0];
 
   format-out("%=\n%=\n%=\n", mat, vec, homogenize(vec));
-  format-out("%=\n", mat * vec);
+  format-out("%=\n%=\n%=\n", mat * vec, vec * mat, vec * vec);
   exit-application(0);
 end function main;
 

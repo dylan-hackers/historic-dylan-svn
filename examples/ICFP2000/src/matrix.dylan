@@ -9,13 +9,38 @@ define constant make-identity = curry(identity-matrix, dimensions: #[4,4]);
 
 
 define method \* (mat :: <matrix>, vector :: <vector>)
-// => mult-vector :: <vector>;
+ => mult-vector :: <vector>;
   as(<simple-object-vector>, transpose(mat * transpose(matrix(vector))));
 end method;
 
 define method \* (vector :: <vector>, mat :: <matrix>)
-// => mult-vector :: <vector>;
+ => mult-vector :: <vector>;
   as(<simple-object-vector>, matrix(vector) * mat);
+end method;
+
+define method \* (v1 :: <vector>, v2 :: <vector>)
+ => (scalar-product :: <number>);
+  reduce1(\+, map(\*, v1, v2));
+end method;
+
+define method \* (v :: <vector>, n :: <number>)
+ => (scalar-product :: <number>);
+  map(rcurry(\*, n), v);
+end method;
+
+define method \* (n :: <number>, v :: <vector>)
+ => (scalar-product :: <number>);
+  map(curry(\*, n), v);
+end method;
+
+define method \+ (v1 :: <vector>, v2 :: <vector>)
+ => (scalar-product :: <number>);
+  map(\+, v1, v2);
+end method;
+
+define method \- (v1 :: <vector>, v2 :: <vector>)
+ => (scalar-product :: <number>);
+  map(\-, v1, v2);
 end method;
 
 define method print-object(mat :: <matrix>, stream :: <stream>)
