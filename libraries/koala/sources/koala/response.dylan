@@ -39,7 +39,7 @@ end;
 define method add-header
     (response :: <response>, header :: <string>, value :: <object>, #key if-exists? = #"append")
   if (headers-sent?(response))
-    throw(<koala-api-error>,
+    raise(<koala-api-error>,
           "Attempt to add a %s header after headers have already been sent.",
           header);
   elseif (string-equal?(header, "content-type"))
@@ -78,7 +78,7 @@ define method set-content-type
     (response :: <response>, content-type :: <object>, #key if-exists? = #"replace")
   let out = response.%output-stream;
   if (out & stream-size(out) ~= 0)
-    throw(<koala-api-error>,
+    raise(<koala-api-error>,
           "Attempt to set the Content-Type header after reply has begun to be sent.");
   else
     add-header(response.response-headers, "Content-Type", content-type, if-exists?: if-exists?);

@@ -3,23 +3,34 @@
 
 ***********************************************************************************
 
-Changes for version 0.4 (released xx xx, 2002)
+Changes for version 0.4 (coming soon)
 
   New Features:
   - DSP: Added a persistence layer which makes it easy to map database objects to
-    web pages for editing/saving.
+    web pages for editing/saving. (cgay)
   - Other: Added a simple proof-of-concept DSP application (a bug tracker).
     This helped uncover a lot of bugs and deficiencies in Koala/DSP, some of which
-    have been addressed in this release.
-  - Koala: Added variable *request*, bound to the current request in each thread.
-  - dylan-basics: remove-keys, not
+    have been addressed in this release. (cgay)
+  - Core: Added variable *request*, bound to the current request in each thread. (cgay)
+  - dylan-basics: remove-keys, join-as, 
+  - Core: Better standards compliance
+     - Imlemented error codes 301 (Moved Permanently) and 403 (Forbidden) (hannes)
+     - MIME types more complete and now read from separate file. (hannes)
+     - 'Connection: Keep-Alive' header is now generated in responses. (andreas)
+     - Last-Modified header (hannes)
+     - Support for ETag header (hannes)
+     - Support for HEAD request method. (hannes)
+     - Support for HTTP/0.9 (hannes)
+  - Core: New build files for linux that exclude SQL-ODBC code. (hannes)
+  - Core: Support for custom header-lines in <http-error> (hannes)
+  - Core: Improved logging (hannes)
+  - Core: Improved directory listings (hannes, tim)
 
   Bug Fixes:
-  - DSP: Tags that pass through their HTML attributes (e.g., dsp:cell) now work
-    correctly for attributes without values (e.g., <dsp:cell nowrap>).
-  - DSP: Better error messages for the %dsp:include and %dsp:taglib directives.
-  - Koala: read mime-type-table from xml-file instead of define them in
-    variables.dylan (hannes)
+  - DSP: Tags that pass through their HTML attributes (e.g., dsp:cell) now work (cgay)
+    correctly for attributes without values (e.g., <dsp:cell nowrap>). (cgay)
+  - DSP: Better error messages for the %dsp:include and %dsp:taglib directives. (cgay)
+  - Core: Handle stream errors more gracefully.  (andreas)
 
 ***********************************************************************************
 
@@ -30,7 +41,7 @@ Changes for version 0.3.1 (released August 15, 2002)
     through XML-RPC.
 
   New Features:
-  - Koala: Added ability to turn debugging on and off via config file.
+  - Core: Added ability to turn debugging on and off via config file.
       e.g., <xml-rpc ... debug="yes">.  Default is "no".
   - dylan-basics: Added "bind" macro, like let* in Common Lisp.
 
@@ -46,30 +57,30 @@ Changes for version 0.3 (released August 7, 2002)
     would result in a hung server.
 
   New Features:
-  - Koala: The "Connection: Keep-alive" header is now respected.
-  - Koala: XML-RPC server added.  See config/koala-config.xml for settings.
+  - Core: The "Connection: Keep-alive" header is now respected.
+  - Core: XML-RPC server added.  See config/koala-config.xml for settings.
            Start the example and use the "ping" and "echo" methods to test.
   - Other: XML-RPC client added as a separate library.
-  - Koala: New config variable 'auto-register'.  See config/koala-config.xml
-  - Koala: It is now possible to get the body content of a POST for content-types
+  - Core: New config variable 'auto-register'.  See config/koala-config.xml
+  - Core: It is now possible to get the body content of a POST for content-types
            other than application/x-www-form-url-encoded.  See request-content(<request>).
-  - Koala: Added the "headers" log level, to show incoming/outgoing headers if desired.
+  - Core: Added the "headers" log level, to show incoming/outgoing headers if desired.
            See config/koala-config.xml
-  - Koala: New config file setting: <port value="n" />
-  - Koala: Some statistics/utilities are now available via built-in URIs:
+  - Core: New config file setting: <port value="n" />
+  - Core: Some statistics/utilities are now available via built-in URIs:
            /koala/stats, /koala/user-agents, /koala/http-error?code=xxx
 
 ***********************************************************************************
 
 Changes for version 0.2 (released May 7, 2002)
   Bug Fixes:
-  - Koala: Several resource pool bugs fixed.
-  - Koala: 404 errors reported correctly again.
+  - Core: Several resource pool bugs fixed.
+  - Core: 404 errors reported correctly again.
   - DSP: Tag parameter specs (in the "define tag" macro) now accept default values.
   - DSP: Unrecognized tags handled a bit better during parsing and rendering.
 
   New Features:
-  - Koala: Use koala-config.xml to specify configuration parameters.  No longer
+  - Core: Use koala-config.xml to specify configuration parameters.  No longer
     requires recompilation to change certain settings.
   - DSP: Lots of documentation added.
   - DSP: Template parser gives more warnings for malformed tags.

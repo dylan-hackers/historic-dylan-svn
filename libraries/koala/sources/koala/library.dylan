@@ -345,7 +345,7 @@ define module dsp
     slot-init-keyword,
     slot-required?,
     db-type-to-slot-type,
-    record-table-name,
+    record-table-name;
 
 end module dsp;
 
