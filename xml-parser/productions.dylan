@@ -28,21 +28,21 @@ copyright: LGPL
 //-------------------------------------------------------
 // Macros to simplify the parsing task -- DMA
 define macro parse-definer
-{ define parse ?:name ( ?meta-vars:* ) => (?results) ?meta end } 
+{ define parse ?:name ( ?meta-vars:* ) => (?results:*) ?meta:* end } 
  => { parse-helper(?name, (?meta-vars), (?results), (?meta)) }
-{ define parse ?:name (?meta-vars:*) ?meta end }
+{ define parse ?:name (?meta-vars:*) ?meta:* end }
  => { parse-helper(?name, (?meta-vars), (#t), (?meta)) }
 end macro parse-definer;
 
 define macro parse-helper
-{ parse-helper(?:name, (?meta-vars:*), (?results), (?meta)) }
+{ parse-helper(?:name, (?meta-vars:*), (?results:*), (?meta:*)) }
  => { parse-builder(?name, ( meta-builder(?=string, ?=start, 
                                          (?meta-vars), 
                                          (?results), (?meta)))) }
 end macro parse-helper;
 
 define macro parse-builder
-{ parse-builder(?:name, (?built-meta)) }
+{ parse-builder(?:name, (?built-meta:*)) }
  => { define method "parse-" ## ?name (?=string, #key ?=start = 0, end: stop)
         ?built-meta
       end; }
@@ -50,12 +50,12 @@ end macro parse-builder;
 
 // Doug wrote this macro for collecting strings
 define macro collector-definer
-{ define collector ?:name (?vars:*) => (?results:*) ?meta end }
+{ define collector ?:name (?vars:*) => (?results:*) ?meta:* end }
  => { parse-builder(?name, 
        (with-collector into-vector ?=str, collect: ?=collect;
           meta-builder(?=string, ?=start, (?vars), (?results), (?meta));
         end with-collector)) }
-{ define collector ?:name (?vars:*) ?meta end }
+{ define collector ?:name (?vars:*) ?meta:* end }
  => { parse-builder(?name, 
        (with-collector into-vector str, collect: ?=collect;
           meta-builder(?=string, ?=start, (?vars), (as(<string>, str)), (?meta));
@@ -65,7 +65,7 @@ end macro collector-definer;
 define macro collect-value-definer
 { define collect-value ?:name (?vars:*)
     (#key ?test:variable = not-in-set?)
-    ?single:expression, ?double:expression => ?meta
+    ?single:expression, ?double:expression => ?meta:*
   end }
  => { define collector ?name(c, ?vars)
         {['"',
@@ -80,7 +80,7 @@ define macro collect-value-definer
 end macro collect-value-definer;
 
 define macro meta-builder
-{ meta-builder(?str:expression, ?start:expression, (?vars:*), (?results), (?meta)) }
+{ meta-builder(?str:expression, ?start:expression, (?vars:*), (?results:*), (?meta:*)) }
  => {  with-meta-syntax parse-string (?str, start: ?start, pos: index)
          variables(?vars);
          [ ?meta ];
@@ -101,7 +101,7 @@ define variable *pe-refs* = make(<table>);
 //    [1]    document    ::=    prolog element Misc*
 //
 define parse document(prolog, elemnt, misc) =>
- (make(<document>, children: vector(elemnt)))
+ (make(<document>, name: elemnt.name, children: vector(elemnt)))
    parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))
 end parse document;
 
@@ -129,11 +129,12 @@ define parse s?(c) loop(parse-s(c)) end;
 // 
 //    [4]    NameChar    ::=    Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender
 //
-define constant <name-char> = type-union(<letter>, <digit>, one-of('.', '-', '_', ':')); // , <combining-char>, <extender>));
+define constant <name-char> = type-union(<version-number>, singleton('-'));
+// one-of('.', '-', '_', ':')); // , <combining-char>, <extender>));
 
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
-define collector name(c)
+define collector name(c) => (as(<symbol>, as(<string>, str)))
   [{type(<letter>, c), '_', ':'}, do(collect(c))],
   loop([type(<name-char>, c), do(collect(c))])
 end collector name;
@@ -165,7 +166,10 @@ define constant not-in-set? = complement(member?);
 
 define collect-value entity-value(ref) ()
   "%&'", "%&\"" => 
-   [{parse-pe-reference(ref), parse-reference(ref)}, do(do(collect, ref))]
+   {parse-pe-reference(ref), 
+    [parse-char-ref(ref), do(collect(ref.char))],
+    [parse-entity-ref(ref), do(do(collect, *entities*[ref.name]))]}
+  // parse-reference(ref)}, do(do(collect, ref))]
 end collect-value entity-value;
 
 //    [10]    AttValue         ::=    '"' ([^<&"] | Reference)* '"'
@@ -217,6 +221,7 @@ define constant <pub-id-char> =
 //                                                --andreas
 //
 define collector char-data(c)
+ => (make(<char-string>, text: as(<string>, str)))
   [test(rcurry(not-in-set?, "<&"), c), do(collect(c))],
   loop([test(rcurry(not-in-set?, "<&"), c), do(collect(c))])
 end collector char-data;
@@ -258,7 +263,9 @@ define constant parse-pi-target = parse-name;
 // loop operator here.                        --andreas
 //
 define collector cd-sect(c)
-  "<![CDATA[", loop({["]]>", finish()], [type(<char>, c), do(collect(c))]})
+ => (make(<char-string>, text: as(<string>, str)))
+  "<![CDATA[",
+  loop({["]]>", finish()], [type(<char>, c), do(collect(c))]})
 end collector cd-sect;
 
 // Prolog
@@ -274,7 +281,7 @@ end parse prolog;
 //
 define parse xml-decl(version-info, encoding-decl, sd-decl, c)
   "<?xml", parse-version-info(version-info),     
-  {parse-encoding-decl(encoding-info), []},
+  {parse-encoding-decl(encoding-decl), []},
   {parse-sd-decl(sd-decl), []},
   parse-s?(c), "?>"
 end parse xml-decl;
@@ -307,7 +314,7 @@ end parse misc;
 //                                                                                                                   /* */
 //
 define parse decl-sep(pe-ref, s)
-  { parse-pe-reference(pe-reference), parse-s(s)}, []
+  { parse-pe-reference(pe-ref), parse-s(s)}, []
 end parse decl-sep;
 
 // Document Type Definition
@@ -353,7 +360,7 @@ end parse ext-subset-decl;
 //    [32]    SDDecl    ::=    S 'standalone' Eq (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no') '"')) [VC: Standalone Document Declaration]
 //
 define parse sd-decl(sp, eq)
-  parse-s(space), "standalone", parse-eq(eq),
+  parse-s(sp), "standalone", parse-eq(eq),
 // DOUG: another '/" example
   {['\'', {"yes", "no"}, '\''], ['"', {"yes", "no"}, '"']}
 end parse sd-decl;
@@ -372,9 +379,7 @@ define collect-value xml-attribute(c) () "'", "\"" => { } end;
 //                                                  [VC: Element Valid]
 //
 define parse element(name, attribs, content, etag)
- => (make(<element>, children: content, 
-          tag-name: name,
-          attributes: attribs))
+ => (make(<element>, children: content, name: name, attributes: attribs))
   {[parse-empty-elem-tag(name, attribs), set!(content, "")],
    [parse-stag(name, attribs), parse-content(content), parse-etag(etag)]}, []
 end parse element;
@@ -408,14 +413,15 @@ end parse etag;
 // 
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
 //
-define collector content-collector(ignor, contents) => (str)
+define collector content(ignor, contents) => (str)
   {[parse-char-data(contents), do(collect(contents))], []},
   loop({[{parse-element(contents), parse-reference(contents),
           parse-cd-sect(contents)}, do(collect(contents))],
         parse-pi(ignor), parse-comment(ignor),
         [parse-char-data(contents), do(collect(contents))]})
-end parse content-collect;
+end collector content;
 
+/*** actually this is more of the transformer's fn
 // here we compose all adjacent strings into one string
 define function parse-content(string, #key start = 0, end: stop)
   let (index, vect) = parse-content-collector(string, start: start);
@@ -439,7 +445,8 @@ define function parse-content(string, #key start = 0, end: stop)
   str-collector(0, "");
   values(index, as(<vector>, res));
 end function parse-content;
-          
+****/
+
 // helper method for parsing opening tags
 define parse beginning-of-tag(elt, attribs, s) => (elt, attribs)
   "<", parse-name(elt), parse-s?(s), parse-xml-attributes(attribs)
@@ -489,13 +496,13 @@ end parse cp;
 // the following parse functions all have the form:
 // '(' S? meta (S? a-char S? meta)(*|+) S? ')'
 define macro pattern-definer
-{ define pattern ?:name(?char:expression) ?meta end }
+{ define pattern ?:name(?char:expression) ?meta:* end }
  => { define parse ?name(s, ?=expr)
         "(", parse-s?(s), ?meta,
         loop([parse-s?(s), ?char, parse-s?(s), ?meta]),
         parse-s?(s), ")"
       end parse }
-{ define pattern repeated ?:name(?char:expression) ?meta end }
+{ define pattern repeated ?:name(?char:expression) ?meta:* end }
  => { define parse ?name(s, ?=expr)
         "(", parse-s?(s), ?meta, parse-s?(s), ?char, parse-s?(s), 
         ?meta, loop([parse-s?(s), ?char, parse-s?(s), ?meta]),
@@ -610,7 +617,7 @@ end parse default-decl;
 //    [61]    conditionalSect       ::=    includeSect | ignoreSect
 //
 define parse conditional-sect(include, ignore)
-  {parse-include-sect(include-sect), parse-ignore-sect(ignore-sect)}, []
+  {parse-include-sect(include), parse-ignore-sect(ignore)}, []
 end parse conditional-sect;
 
 //    [62]    includeSect           ::=    '<![' S? 'INCLUDE' S? '[' extSubsetDecl ']]>'      /* */
@@ -653,17 +660,19 @@ end method parse-ignore;
 //                              | '&#x' [0-9a-fA-F]+ ';' [WFC: Legal Character]
 //
 define collector int-char-ref(c)
- => (as(<character>, as(<string>, str).string-to-integer))
+ => (as(<character>, as(<string>, str).string-to-integer), concatenate("#", as(<string>, str)))
   "&#", loop([type(<digit>, c), do(collect(c))]), ";"
 end collector int-char-ref;
 
 define collector hex-char-ref(c)
- => (as(<character>, string-to-integer(as(<string>, str), base: 16)))
+ => (as(<character>, string-to-integer(as(<string>, str), base: 16)),
+     concatenate("#x", as(<string>, str)))
   "&#x", loop([type(<hex-digit>, c), do(collect(c))]), ";"
-end collector int-char-ref;
+end collector hex-char-ref;
 
-define parse char-ref(char) => (make(<string>, size: 1, fill: char))
-  { parse-int-char-ref(char), parse-hex-char-ref(char) }, []
+define parse char-ref(char, name)
+ => (make(<char-reference>, name: as(<symbol>, name), char: char))
+  { parse-int-char-ref(char, name), parse-hex-char-ref(char, name) }, []
 end parse char-ref;
 
 // Entity Reference
@@ -677,7 +686,8 @@ end parse reference;
 //                                                     [VC: Entity Declared]
 //                                                     [WFC: Parsed Entity]
 //                                                     [WFC: No Recursion]
-define parse entity-ref(name) => (*entities*[as(<symbol>, name)])
+define parse entity-ref(name)
+ => (make(<entity-reference>, name: name))
   "&", parse-name(name), ";"
 end parse entity-ref;
 
@@ -685,7 +695,7 @@ end parse entity-ref;
 //                                                     [WFC: No Recursion]
 //                                                     [WFC: In DTD]
 //
-define parse pe-reference(name) => (*pe-refs*[as(<symbol>, name)])
+define parse pe-reference(name) => (*pe-refs*[name])
   "%", parse-name(name), ";"
 end parse pe-reference;
 
@@ -700,14 +710,14 @@ end parse entity-decl;
 define parse ge-decl(name, s, def) => (name)
   "<!ENTITY", parse-s(s), parse-name(name), parse-s(s), 
   parse-entity-def(def), parse-s?(s), ">", 
-  do(*entities*[as(<symbol>, name)] := def)
+  do(*entities*[name] := def)
 end parse ge-decl;
 
 //    [72]    PEDecl        ::=    '<!ENTITY' S '%' S Name S PEDef S? '>'
 define parse pe-decl(name, s, def) => (name)
   "<!ENTITY", parse-s(s), "%", parse-s(s), parse-name(name),
   parse-s(s), parse-pe-def(def), parse-s?(s), ">", 
-  do(*pe-refs*[as(<symbol>, name)] := def)
+  do(*pe-refs*[name] := def)
 end parse pe-decl;
 
 //    [73]    EntityDef     ::=    EntityValue | (ExternalID NDataDecl?)

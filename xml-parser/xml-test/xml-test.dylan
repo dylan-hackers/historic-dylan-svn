@@ -6,6 +6,7 @@ Version:   1.0
 
 define constant $testable-fns = make(<table>);
 
+/*****
 define class <my-xml-builder> (<xml-builder>)
 end class <my-xml-builder>;
 
@@ -22,6 +23,7 @@ end method start-element;
 define method end-element (builder :: <my-xml-builder>, element :: <xml-element>)
   format-out("</%s>\n", element.name);
 end method end-element;
+****/
 
 define method do-the-rest(sym :: <symbol>, str :: <string>)
   let fn = $testable-fns[sym];
@@ -37,8 +39,9 @@ end method do-the-rest;
 
 define method do-the-rest(sym == #"file", str :: <string>)
   with-open-file(in = str)
-    let (index, document) = parse-document(in.stream-contents);
-    display-node(document);
+    let (index, doc) = parse-document(in.stream-contents);
+    format-out("Doug's doc:\n%s\n", transform-document(doc));
+   // display-node(doc);
   end;
 end method do-the-rest;
 
@@ -51,8 +54,8 @@ end function main;
 // Invoke our main() function.
 begin
   $testable-fns[#"attribute"] := parse-attribute;
-  $testable-fns[#"xml-element-start"] 
-    := curry(parse-xml-element-start, *my-builder*);
+/***  $testable-fns[#"xml-element-start"] 
+    := curry(parse-xml-element-start, *my-builder*); ***/
   $testable-fns[#"char-data"] := parse-char-data;
   $testable-fns[#"stag"] := parse-stag;
   $testable-fns[#"empty-elem-tag"] := parse-empty-elem-tag;

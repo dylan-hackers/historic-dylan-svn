@@ -1,16 +1,13 @@
 Native Dylan XML-parser library
 
-This used to be the home of the Dylan XML parser that used libxml (please see
-the old README notes below).  Now, due to the pioneering efforts of Chris 
-Double, refinements by Andreas Bogk, and integration and testing by Doug 
-Auclair, we present a native Dylan XML parser library.  This library needs
+We present a native Dylan XML parser library.  This library needs
 the META library (available from www.gwydiondylan.org) and works on both
 Functional Developer and d2c (the Gwydion Dylan compiler).
 
 Of course, this XML parser is very much a work in progress (with Doug Auclair
-hacking away at it currently) -- entities aren't yet working, and this library
-neither checks for validity nor for well-formedness; perhaps those checks won't
-be added for a long time to come.
+hacking away at it currently) -- this library neither checks for validity nor 
+for well-formedness; perhaps those checks won't be added for a long time to 
+come.
 
 xml-test/ has some examples for use and for points of development.
 
@@ -23,37 +20,10 @@ Andreas Bogk developed the META parse tree into (mostly full) compliance with
 the XML spec (BNF?).
 
 Doug Auclair offered suggestions for improvements to META, integrated Andreas'
-work with Chris', created some macros to ease the parsing effort, and fixed 
-bugs.
+work with Chris', created some macros to ease the parsing effort, implemented
+the transform functionality and entities (both parsing and substituting), and
+fixed bugs. 
 
 Doug Auclair
 <doug@cotilliongroup.com>
 
--------------------------------------------------------
-Old README
-
-This is a proof-of-concept XML parser for Dylan.
-
-It is based on the gnome-xml DTD-validating parser written in C.
-You need to install this library before you can use this one. You
-can get gnome-xml, also known as libxml, from
-
-ftp://ftp.gnome.org/pub/GNOME/stable/sources/libxml/
-
-Chances are it's already on your system if you're using GNOME, but
-the version could be outdated. In case of doubt, install the latest
-version from CVS.
-
-To compile the sample application, just type 'make'. Invoke the test
-program as './xml-test sample.xml'. The program should output the
-names of all nodes in the DOM tree in preorder.
-
-If you are interested to flesh this example out into a real world
-library, you'd probably use the SAX interface (callback-based), and
-build your own DOM tree, using a more Dylan-like object structure,
-instead of messing around with the C DOM tree.
-
-Happy hacking!
-
-Andreas Bogk
-<andreas@andreas.org>
