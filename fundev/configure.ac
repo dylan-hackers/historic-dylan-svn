@@ -1,6 +1,12 @@
 AC_INIT([Functional Developer], [2.1 alpha 4])
 AC_PREREQ(2.50)
 
+#---------------------
+# Make srcdir absolute
+#---------------------
+
+srcdir=`(cd $srcdir; pwd)`
+
 AC_DEFUN(FD_PLATFORM,[
 case $1 in
 i*86-pc-linux-gnu*) $2=x86-linux ;;
