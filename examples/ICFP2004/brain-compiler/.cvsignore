@@ -6,3 +6,5 @@
 .*
 brain-compiler
 brain-compiler.dep
+*.dylan.*
+alex
