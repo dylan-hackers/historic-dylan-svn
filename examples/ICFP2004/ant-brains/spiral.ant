@@ -1,0 +1,148 @@
+Sense Here 5 1 Marker 0
+Sense Here 4 2 Marker 1
+Sense Here 3 15 Home
+Sense Ahead 15 146 Home
+Sense Ahead 14 10 Marker 1
+Sense Here 9 6 Marker 0
+Sense Ahead 7 8 Marker 0
+Sense Ahead 10 14 Marker 1
+Sense Ahead 14 10 Marker 1
+Sense Ahead 14 10 Marker 0
+Move 0 11
+Sense Ahead 10 12 Foe
+Sense Ahead 14 13 Friend
+Sense Ahead 14 10 Rock
+Turn Right 0
+Sense LeftAhead 47 16 Marker 0
+Sense LeftAhead 32 17 Marker 1
+Sense Ahead 25 18 Marker 0
+Sense Ahead 22 19 Marker 1
+Sense RightAhead 21 20 Marker 0
+Sense RightAhead 79 78 Marker 1
+Sense RightAhead 81 80 Marker 1
+Sense RightAhead 24 23 Marker 0
+Sense RightAhead 83 82 Marker 1
+Sense RightAhead 85 84 Marker 1
+Sense Ahead 29 26 Marker 1
+Sense RightAhead 28 27 Marker 0
+Sense RightAhead 87 86 Marker 1
+Sense RightAhead 89 88 Marker 1
+Sense RightAhead 31 30 Marker 0
+Sense RightAhead 91 90 Marker 1
+Sense RightAhead 93 92 Marker 1
+Sense Ahead 40 33 Marker 0
+Sense Ahead 37 34 Marker 1
+Sense RightAhead 36 35 Marker 0
+Sense RightAhead 95 94 Marker 1
+Sense RightAhead 97 96 Marker 1
+Sense RightAhead 39 38 Marker 0
+Sense RightAhead 99 98 Marker 1
+Sense RightAhead 101 100 Marker 1
+Sense Ahead 44 41 Marker 1
+Sense RightAhead 43 42 Marker 0
+Sense RightAhead 103 102 Marker 1
+Sense RightAhead 105 104 Marker 1
+Sense RightAhead 46 45 Marker 0
+Sense RightAhead 107 106 Marker 1
+Sense RightAhead 109 108 Marker 1
+Sense LeftAhead 63 48 Marker 1
+Sense Ahead 56 49 Marker 0
+Sense Ahead 53 50 Marker 1
+Sense RightAhead 52 51 Marker 0
+Sense RightAhead 111 110 Marker 1
+Sense RightAhead 113 112 Marker 1
+Sense RightAhead 55 54 Marker 0
+Sense RightAhead 115 114 Marker 1
+Sense RightAhead 117 116 Marker 1
+Sense Ahead 60 57 Marker 1
+Sense RightAhead 59 58 Marker 0
+Sense RightAhead 119 118 Marker 1
+Sense RightAhead 121 120 Marker 1
+Sense RightAhead 62 61 Marker 0
+Sense RightAhead 123 122 Marker 1
+Sense RightAhead 125 124 Marker 1
+Sense Ahead 71 64 Marker 0
+Sense Ahead 68 65 Marker 1
+Sense RightAhead 67 66 Marker 0
+Sense RightAhead 127 126 Marker 1
+Sense RightAhead 129 128 Marker 1
+Sense RightAhead 70 69 Marker 0
+Sense RightAhead 131 130 Marker 1
+Sense RightAhead 133 132 Marker 1
+Sense Ahead 75 72 Marker 1
+Sense RightAhead 74 73 Marker 0
+Sense RightAhead 135 134 Marker 1
+Sense RightAhead 137 136 Marker 1
+Sense RightAhead 77 76 Marker 0
+Sense RightAhead 139 138 Marker 1
+Sense RightAhead 141 140 Marker 1
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 142 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 144 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 14 Home
+Sense Here 14 146 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 142 Home
+Sense Here 146 14 Home
+Sense Here 144 142 Home
+Sense Here 146 142 Home
+Sense Here 14 14 Home
+Sense Here 144 142 Home
+Sense Here 142 144 Home
+Sense Here 142 14 Home
+Sense Here 14 14 Home
+Sense Here 146 142 Home
+Sense Here 142 14 Home
+Sense Here 142 146 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 14 Home
+Sense Here 144 142 Home
+Sense Here 142 144 Home
+Sense Here 142 14 Home
+Sense Here 14 144 Home
+Sense Here 142 144 Home
+Sense Here 142 14 Home
+Sense Here 146 144 Home
+Sense Here 14 14 Home
+Sense Here 142 14 Home
+Sense Here 146 144 Home
+Sense Here 144 146 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 10 Home
+Sense Here 14 14 Home
+Sense Here 146 142 Home
+Sense Here 142 14 Home
+Sense Here 142 146 Home
+Sense Here 14 14 Home
+Sense Here 142 14 Home
+Sense Here 146 144 Home
+Sense Here 144 146 Home
+Sense Here 14 146 Home
+Sense Here 142 146 Home
+Sense Here 144 146 Home
+Sense Here 144 14 Home
+Unmark 0 143
+Mark 1 0
+Mark 0 145
+Unmark 1 0
+Mark 0 147
+Mark 1 0
