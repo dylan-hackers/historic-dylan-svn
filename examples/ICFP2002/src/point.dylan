@@ -10,5 +10,5 @@ end class <point>;
 
 define method \=(a :: <point>, b :: <point>)
  => b :: <boolean>;
-  a.x = b.x & a.y = b.y;
+  a.x == b.x & a.y == b.y;
 end method;
