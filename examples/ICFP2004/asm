@@ -7,12 +7,15 @@ my %labels;
 my @inst;
 
 while (<>){
-    /^[\w]*$/ and next;
-    /^;/ and next;
-    if (/^([a-zA-Z0-9_-]+:)$/){
+    chomp;
+    s/[ \t]+/ /g;
+    s/^([^;]*);.*$/$1/;
+    s/^ (.*)$/$1/;
+    s/^(.+) $/$1/;
+    if (s/^([a-zA-Z0-9_-]+:)[ ]*(.*)$/$2/){
 	$labels{$1} = $pc;
-	next;
     }
+    /^[\w]*$/ and next;
     print "error: pc $pc when inst size ", scalar(@inst), "\n" if $pc != scalar(@inst);
     ++$pc;
     s/\./$pc/g;
