@@ -7,10 +7,10 @@ DYLANDOC_TOOLS = CATALOG dylandoc.dtd dylandoc.dsl
 STANDARD_DEPS = entities.sgml $(DYLANDOC_TOOLS)
 JADE = SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c CATALOG
 
-SGML_MANUALS = gduser.sgml gdlibs.sgml gdmaint.sgml tutorial.sgml
-HTML_CHUNKED_MANUALS = gduser gdlibs gdmaint tutorial
-HTML_UNCHUNKED_MANUALS = gduser.html gdlibs.html gdmaint.html tutorial.html
-RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf
+SGML_MANUALS = gduser.sgml gdlibs.sgml gdmaint.sgml tutorial.sgml gdapi.sgml
+HTML_CHUNKED_MANUALS = gduser gdlibs gdmaint tutorial gdapi
+HTML_UNCHUNKED_MANUALS = gduser.html gdlibs.html gdmaint.html tutorial.html gdapi.html
+RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf gdapi.rtf
 
 ######################################################################
 #
@@ -19,10 +19,12 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf
 
 # Make an HTML directory.
 %: %.sgml $(STANDARD_DEPS)
-	rm -rf $@
-	mkdir $@
+	-rm -rf $@
+	-rm -rf ,$@
+	mkdir ,$@
 	(cd $@; \
 	 SGML_CATALOG_FILES=$(SGML_CATALOG_FILES) jade -E 5 -c ../CATALOG -d ../dylandoc.dsl#html -t sgml -ihtml ../$<)
+	mv ,$@ $@
 
 # Make a single HTML file.
 %.html: %.sgml $(STANDARD_DEPS)
