@@ -34,6 +34,7 @@ end;
 // An error of this type will be thrown if a valid <fault> response
 // is returned.
 //
+
 define class <xml-rpc-fault> (<xml-rpc-error>)
   constant slot fault-code :: <integer>, required-init-keyword: #"fault-code";
 end;
