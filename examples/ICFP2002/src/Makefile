@@ -57,6 +57,7 @@ multi:  icfp2002
 test-all-bots: icfp2002
 	./icfp2002 icfp1.cse.ogi.edu 22102 dumbot > dumbot-22102.log 2>&1 &
 	./icfp2002 icfp1.cse.ogi.edu 22102 thomas > thomas-22102.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22102 pushbot > pushbot-22102.log 2>&1 &
 	./icfp2002 icfp1.cse.ogi.edu 22102 gabot > gabot-22102.log 2>&1 &
 
 network-internal.dylan: network-internal.intr network-internal.h
