@@ -142,12 +142,13 @@ define method register-pages-as
           format-out("name = %=\n", name);
           select (type)
             #"file" =>
-              let file = merge-locators(as(<file-system-locator>, name), directory);
+              let file = merge-locators(as(<physical-locator>, name),
+                                        as(<directory-locator>, directory));
               register-page(name, make(page-class,
                                        source: file,
                                        uri: concatenate(uri-dir, name)));
             #"directory" =>
-              let dir = subdirectory-locator(directory, name);
+              let dir = subdirectory-locator(as(<directory-locator>, directory), name);
               format-out("dir = %=\n", as(<string>, dir));
               when (descend?)
                 do-directory(curry(doer, concatenate(uri-dir, name, "/")), dir);

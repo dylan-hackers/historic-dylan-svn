@@ -10,7 +10,7 @@ define method maybe-serve-static-file
     (request :: <request>, response :: <response>)
  => (found? :: <boolean>)
   let uri :: <string> = request-uri(request);
-  let document :: false-or(<file-system-locator>) = static-file-locator-from-uri(uri);
+  let document :: false-or(<physical-locator>) = static-file-locator-from-uri(uri);
   when (document)
     log-debug("%s static file found", uri);
     select (file-type(document))
@@ -27,7 +27,7 @@ end;
 // such as index.html and returns a locator for that, if found.
 //
 define function static-file-locator-from-uri
-    (uri :: <string>) => (locator :: false-or(<file-system-locator>))
+    (uri :: <string>) => (locator :: false-or(<physical-locator>))
   let locator = safe-locator-from-uri(uri);
   when (locator)
     file-exists?(locator)
@@ -38,7 +38,7 @@ define function static-file-locator-from-uri
 end;
 
 define function safe-locator-from-uri
-    (uri :: <string>) => (locator :: false-or(<file-system-locator>))
+    (uri :: <string>) => (locator :: false-or(<physical-locator>))
   when (*document-root*)
     block ()
       let len :: <integer> = size(uri);
@@ -50,7 +50,7 @@ define function safe-locator-from-uri
         if (empty?(relative-uri))
           *document-root*
         else
-          let loc = simplify-locator(merge-locators(as(<file-system-locator>, relative-uri),
+          let loc = simplify-locator(merge-locators(as(<physical-locator>, relative-uri),
                                                     *document-root*));
           if (instance?(loc, <file-locator>) & locator-name(loc) = "..")
             loc := locator-directory(locator-directory(loc));
@@ -65,12 +65,13 @@ define function safe-locator-from-uri
 end safe-locator-from-uri;
 
 define method find-default-document
-    (locator :: <directory-locator>) => (locator :: <file-system-locator>)
+    (locator :: <directory-locator>) => (locator :: <physical-locator>)
   block (return)
     local method is-default? (directory, name, type)
             // ---TODO: portability - string-equal? is incorrect on Unix systems.
             when (type = #"file" & member?(name, *default-document-names*, test: string-equal?))
-              return(merge-locators(as(<file-locator>, name), directory));
+              return(merge-locators(as(<file-locator>, name),
+                                    as(<directory-locator>, directory)));
             end;
           end;
     do-directory(is-default?, locator);
@@ -79,7 +80,7 @@ define method find-default-document
 end;
 
 define method locator-below-document-root?
-    (locator :: <file-system-locator>) => (below? :: <boolean>)
+    (locator :: <physical-locator>) => (below? :: <boolean>)
   let relative = relative-locator(locator, *document-root*);
   locator-relative?(relative)  // do they at least share a common ancestor?
     & begin
@@ -123,8 +124,9 @@ define method directory-responder
   local method show-file-link (directory, name, type)
           when (name ~= ".." & name ~= ".")
             let locator = iff(type = #"directory",
-                              subdirectory-locator(directory, name),
-                              merge-locators(as(<file-locator>, name), directory));
+                              subdirectory-locator(as(<directory-locator>, directory), name),
+                              merge-locators(as(<file-locator>, name),
+                                             as(<directory-locator>, directory)));
             let props = file-properties(locator);
             write(stream, "<tr>\n<td nowrap>");
             display-image-link(stream, type, locator);
