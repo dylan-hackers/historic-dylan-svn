@@ -28,17 +28,18 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
                     | distance-cost(myPosition, base) < distance)
                   let (better-base, nearer-distance)
                     = find-near-base(base, distance-cost(myPosition, base));
-                  values(better-base, nearer-distance)
+                  found(better-base, nearer-distance)
                 end if;
               end if;
             end for;
+            values(best-base, distance)
           end block;
-          values(best-base, distance)
         end method;
-  
-  
+    
   let (nextBase, baseDistance)
     = find-near-base(#f, 0);
+
+  debug("nextBase = %=, baseDistance %=\n", nextBase, baseDistance);
 
   let direction
     = if (nextBase = #f)
@@ -63,54 +64,6 @@ define method generate-next-move(me :: <dumber-bot>, s :: <state>)
   make(<move>, bid: 1, direction: direction);
 end method generate-next-move;
 
-/*
-// Bot by Alex and Bruce. We use Keith's visualiser (on CVS) to track our robot's
-// progress on the server with OpenGL visualiser. :-P
-define method generate-next-move(me :: <dumber-bot>, s :: <state>)
- => <command>;
-
-  // make(<move>, bid: 1, direction: $north);
-
-  // Find the closest base.
-  let myPosition = me.robot.location;
-  let nextBase :: false-or(<point>) = #f;
-  let baseDistance = 0;
-  for (base in s.bases)
-    let path = find-path(myPosition, base, s.board);
-
-    if (path ~= #f)
-      if (nextBase = #f)
-        nextBase := base;
-        baseDistance := distance-cost(myPosition, base);
-      elseif (distance-cost(myPosition, base) < baseDistance)
-        nextBase := base;
-        baseDistance := distance-cost(myPosition, base);
-      end if;
-    end if;
-  end for;
-
-  let direction = $north;
-
-  if (nextBase = #f)
-    debug("Sorry, can't find any accessible bases!\n");
-  else
-    let path = find-path(myPosition, nextBase, s.board);
-    let new-loc = path.head;
-
-    if (new-loc = point(x: myPosition.x, y: myPosition.y + 1))
-      direction := $north;
-    elseif (new-loc = point(x: myPosition.x + 1, y: myPosition.y))
-      direction := $east;
-    elseif (new-loc = point(x: myPosition.x, y: myPosition.y - 1))
-      direction := $south;
-    elseif (new-loc = point(x: myPosition.x - 1, y: myPosition.y))
-      direction := $west;
-    end if;
-  end if;
-
-  make(<move>, bid: 1, direction: direction);
-end method generate-next-move;
-*/    
 
 define method generate-next-move(me :: <dumbot>, s :: <state>)
  => (c :: <command>)
