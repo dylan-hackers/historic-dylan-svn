@@ -87,7 +87,7 @@ define function dump-world-summary(*world* :: <world>,
     end for;
   end for;
 
-  format-out("Summary for your ants on world %s:", world);
+  format-out("Summary for your ants on world %s:\n", world);
   format-out("Reds (%s) scored: %d.\n", red-brain, reds);
   format-out("Blacks (%s) scored: %d.\n", black-brain, blacks);
 end function dump-world-summary;
