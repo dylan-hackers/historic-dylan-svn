@@ -5,18 +5,13 @@ author: Gabor Greif, mailto: gabor@mac.com
 
 
 define macro graphics-primitive-definer
+
   { define graphics-primitive ?:name() end }
   =>
   { define method compile-one(token == ?#"name", more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
-    let (cont, remaining) = more-tokens.compile-GML;
-    "GML: graphics primitive '" ?"name" "' not supported".error;
-/*    values(
-           method(stack :: <list>, env :: <function>) => new-stack :: <list>;
-             cont(, env)
-           end method,
-           remaining)*/
-     end; }
-
+      let (cont, remaining) = more-tokens.compile-GML;
+      "GML: graphics primitive '" ?"name" "' not supported".error;
+    end; }
 
   { define graphics-primitive ?:name(?vars) ?:body end }
   =>
@@ -27,27 +22,18 @@ define macro graphics-primitive-definer
                cont(pair(?body, stack), env)
              end method,
              remaining)
-    end method;
-  }
-  
+    end method; }
+
   vars:
   { ?:variable } => { let (?variable, stack :: <list>) = values(stack.head, stack.tail) }
   { ... => ?:variable } => { let (?variable, stack :: <pair>) = values(stack.head, stack.tail); ... }
-  
-//  var:
-//  { ?:variable } => { ?variable }
-  /*
-  let (?variable, stack :: <pair>) = values(stack.head, stack.tail);
-           let (true-closure :: <function>, rest :: <pair>) = values(rest.head, rest.tail);
-           let (condition :: <boolean>, rest :: <list>) = values(rest.head, rest.tail);
-*/
 
 end macro graphics-primitive-definer;
 
 
 /*
 
-USAGE:
+USAGE:  the parameters should be written in the order as defined in the task.pdf
 
 define graphics-primitive slump(s :: <integer> => f :: <float> => v :: <vector>)
   (f + s + 1) * v.first
