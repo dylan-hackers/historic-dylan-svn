@@ -39,3 +39,9 @@ define method copy-robot( robot :: <robot>,
        money: money,
        inventory: inventory);
 end method copy-robot;
+
+define method print-object(robot :: <robot>, stream :: <stream>)
+ => ();
+  format(stream, "{robot id: %d, capacity: %d, location: %=, money: %=, inventory: %=}",
+         robot.id, robot.capacity, robot.location, robot.money, robot.inventory);
+end;
