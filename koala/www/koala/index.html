@@ -33,10 +33,11 @@ XML-RPC server/client.
 
 <br>There is currently no official &quot;stable&quot; version of Koala,
 but we attempt to keep the sources in good working condition.  It is
-quite usable under Windows.  There has been a lot of recent activity and
-Koala now runs on Linux, modulo problems with the GC in FunDev/Linux.
-There is also no real database support in FunDev/Linux yet, so the
-database support in Koala only works on Windows.
+quite stable in both Linux and Windows.  There no real database support
+in FunDev/Linux yet but some success was reported with linux-odbc.
+There is no support for secure sockets on either platform.
+
+Check bugzilla for a list of <a href="https://gauss.gwydiondylan.org/bugs/buglist.cgi?query_format=advanced&product=Koala&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED">known Koala bugs</a>.
 
 <p>
 <b>How?</b>
@@ -47,18 +48,18 @@ href="koala.html">documentation</a> included.  See <b>Contact?</b>,
 below, if you have questions!  Any and all feedback appreciated.
 
 <p>A heavily commented Koala configuration file can be found <a
-href="http://www.gwydiondylan.org/cgi-bin/viewcvs.cgi/libraries/koala/config/koala-config.xml?view=markup">here</a>.
+href="http://www.gwydiondylan.org/cgi-bin/viewcvs.cgi/trunk/libraries/koala/config/koala-config.xml?view=markup">here</a>.
 
 <p>
 <b>Who?</b>
 
-<br>The actual HTTP server portion of Koala was written mostly by gz.
-She moved on to other things before it was in a functioning state, so
-cgay got it to basic working order and added <a href="dsp.html">Dylan
-Server Pages</a> and <a href="http://www.xmlrpc.org">XML-RPC</a>.  The
-sources were re-hosted at the <a
-href="http://www.gwydiondylan.org">Gwydion Dylan</a> site in early 2004
-and many others have been contributing.
+<br>The HTTP server portion of Koala was written mostly by Gail
+Zacharias.  She moved on to other things before it was in a functioning
+state, so Carl Gay got it to basic working order and added <a
+href="dsp.html">Dylan Server Pages</a> and <a
+href="http://www.xmlrpc.org">XML-RPC</a>.  The sources were re-hosted at
+the <a href="http://www.gwydiondylan.org">Gwydion Dylan</a> site in
+early 2004 and many others have been contributing.
 
 <p>
 <b>Contact?</b>
