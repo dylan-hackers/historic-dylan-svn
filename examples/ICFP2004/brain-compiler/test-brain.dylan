@@ -22,7 +22,7 @@ define brain test-brain1
 
   [problem:]
          Drop;
-         Flip 1, start => start;
+         Flip 1, (start, start);
 end;
  
  
