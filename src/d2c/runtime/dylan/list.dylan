@@ -240,7 +240,7 @@ define inline method add! (list :: <list>, element)
   pair(element, list);
 end;
 
-define method remove! (list :: <list>, element, #key test = \==, count)
+define method remove! (list :: <list>, element, #key test :: <function> = \==, count :: false-or(<integer>))
     => res :: <list>;
   let prev = #f;
   let removed = 0;

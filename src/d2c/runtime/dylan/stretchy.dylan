@@ -268,7 +268,7 @@ end method add!;
 // This method has not been optimized yet by changing element to 
 // %element.
 define method remove! (ssv :: <stretchy-object-vector>, elem,
-		       #key test :: false-or(<function>) = \==,
+                       #key test :: <function> = \==,
 		            count :: false-or(<integer>))
     => ssv :: <stretchy-object-vector>;
   unless (count & (count <= 0))
@@ -604,7 +604,7 @@ define sealed method size-setter
 end method size-setter;
 
 define sealed method remove! (ssv :: <limited-stretchy-vector>, elem,
-			       #key test :: false-or(<function>) = \==,
+                              #key test :: <function> = \==,
 			            count :: false-or(<integer>))
  => ssv :: <limited-stretchy-vector>;
   unless (count & (count <= 0))

@@ -850,7 +850,7 @@ end method;
 // method for ranges.
 //
 define sealed inline method intersection (range1 :: <builtin-range>, range2 :: <builtin-range>,
-			    #next next-method, #key test = \==)
+                                          #next next-method, #key test :: <function> = \==)
       => sequence :: <sequence>;
    if (test == \== | test == \=)
       range-intersection (range1, range2, test: test);

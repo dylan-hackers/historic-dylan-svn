@@ -68,7 +68,7 @@ define sealed inline method remove-all-keys!
 end;
 
 define sealed inline method remove!
-    (set :: <object-set>, object :: <object>, #key test, count)
+    (set :: <object-set>, object :: <object>, #key test :: <function>, count :: false-or(<integer>))
  => (set :: <object-set>);
   ignore(test);
   ignore(count);

@@ -416,7 +416,7 @@ define inline method choose-by
 end method choose-by;
 
 define inline method member?
-    (value :: <object>, collection :: <collection>, #key test = \==)
+    (value :: <object>, collection :: <collection>, #key test :: <function> = \==)
     => res :: <boolean>;
   block (return)
     for (el in collection)
@@ -1281,10 +1281,14 @@ end function;
 // which defaults to \==. It eliminates a general entry for the case 
 // where the comparison function is \== and does not hurt speed 
 // measurably for cases where another comparison function is specified.
+// Note: The return type must be <object>, not <boolean> because test
+// may not return a <boolean>. (Of course if we omitted the return
+// parameters, it wouldn't hurt anything because this function is 
+// inline-only.)
 //
 define inline-only function compare-using-default-==
     (test :: <function>, a, b)
- => (res :: <boolean>)
+ => (object :: <object>)
   if (test == \==)
     a == b;
   else

@@ -406,7 +406,7 @@ end method add!;
 
 
 define method remove! (deq :: <object-deque>, elem,
-                       #key test :: false-or(<function>) = \==,
+                       #key test :: <function> = \==,
                        count :: false-or(<integer>))
  => deq :: <object-deque>;
   unless (count & (count <= 0))
