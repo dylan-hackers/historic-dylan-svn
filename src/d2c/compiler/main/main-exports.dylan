@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.5 2003/08/10 23:50:18 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.6 2003/08/16 10:14:30 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -33,7 +33,7 @@ define library compiler-main
   use Dylan;
   use String-extensions;
   use Random;
-  use debugger;
+//  use debugger;
   use command-processor;
   use parse-arguments;
   use compiler-base;
@@ -114,5 +114,5 @@ define module main
   use file-system;
   use extensions, import: {key-exists?};
   use command-processor;
-  use debugger;
+//  use debugger;
 end;
