@@ -128,12 +128,8 @@ define method parse(input, #key start = 0)
                               else
                                 parse-textstring(input, start: start);
                               end;
-    if (end-index == input.size)
-      values(elem, end-index);
-    else
-      let (return-elem, return-consumed) = parse(input, start: end-index);
-      values(pair(elem, return-elem), return-consumed);
-    end;
+    let (return-elem, return-consumed) = parse(input, start: end-index);
+    values(pair(elem, return-elem), return-consumed);
   end;
 end method parse;
 
