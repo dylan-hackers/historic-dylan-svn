@@ -243,3 +243,61 @@ define function check-any-marker-at(p :: <position>, c :: <color>)
 end function set-marker-at;
 
 
+define constant <condition> = one-of(#"friend",
+                                     #"foe",
+                                     #"friendwithfood",
+                                     #"foewithfood",
+                                     #"food",
+                                     #"rock",
+                                     #"marker0",
+                                     #"marker1",
+                                     #"marker2",
+                                     #"marker3",
+                                     #"marker4",
+                                     #"marker5",
+                                     #"foemarker",
+                                     #"home",
+                                     #"foehome");
+
+define function cell-matches(p :: <position>, cond :: <condition>, 
+                             c :: <color>) => (yesno :: <boolean>)
+  if(rocky(p))
+    if(cond == #"rock") #t else #f end;
+  else
+    select(cond)
+      #"friend" => 
+        some-ant-is-at(p) & color(ant-at(p)) == c;
+      #"foe" => 
+        some-ant-is-at(p) & color(ant-at(p)) ~== c;
+      #"friendwithfood" =>
+        some-ant-is-at(p) & color(ant-at(p)) == c & has-food(ant-at(p));
+      #"foewithfood" =>
+        some-ant-is-at(p) & color(ant-at(p)) ~== c & has-food(ant-at(p));
+      #"food" =>
+        food-at(p) > 0;
+      #"rock" =>
+        #f;
+      #"marker0" =>
+        check-marker-at(p, c, 0);
+      #"marker1" =>
+        check-marker-at(p, c, 0);
+      #"marker2" =>
+        check-marker-at(p, c, 0);
+      #"marker3" =>
+        check-marker-at(p, c, 0);
+      #"marker4" =>
+        check-marker-at(p, c, 0);
+      #"marker5" =>
+        check-marker-at(p, c, 0);
+      #"foemarker" =>
+        check-marker-at(p, other-color(c));
+      #"home" =>
+        anthill-at(p, c);
+      #"foehome" =>
+        anthill-at(p, other-color(c));
+    end select;
+  end if;
+end function cell-matches;
+
+
+        
