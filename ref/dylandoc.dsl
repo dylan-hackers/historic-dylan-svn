@@ -37,11 +37,11 @@
 <!ENTITY % html "IGNORE">
 <![%html;[
 <!ENTITY % print "IGNORE">
-<!ENTITY docbook.dsl SYSTEM "docbook_stylesheets/html/docbook.dsl" CDATA dsssl>
+<!ENTITY docbook.dsl SYSTEM "docbook/stylesheet/dsssl/modular/html/docbook.dsl" CDATA dsssl>
 ]]>
 <!ENTITY % print "INCLUDE">
 <![%print;[
-<!ENTITY docbook.dsl SYSTEM "docbook_stylesheets/print/docbook.dsl" CDATA dsssl>
+<!ENTITY docbook.dsl SYSTEM "docbook/stylesheets/dsssl/modular/print/docbook.dsl" CDATA dsssl>
 ]]>
 ]>
 <style-sheet>

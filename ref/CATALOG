@@ -25,17 +25,19 @@
 
 --
 
-
-SYSTEM "docbook_stylesheets/html/docbook.dsl" "/usr/local/share/sgml/docbook_stylesheets/html/docbook.dsl"
-SYSTEM "docbook_stylesheets/print/docbook.dsl" "/usr/local/share/sgml/docbook_stylesheets/print/docbook.dsl"
-
-
 -- Generic Template --
 -- CATALOG /usr/lib/sgml/CATALOG --
 -- SYSTEM "nwalsh-modular/html/docbook.dsl" "/usr/lib/sgml/stylesheets/nwalsh-modular/html/docbook.dsl" --
 -- SYSTEM "nwalsh-modular/print/docbook.dsl" "/usr/lib/sgml/stylesheets/nwalsh-modular/print/docbook.dsl" --
 
+-- Modified for Debian GNU/Linux --
 
--- ALL SYSTEMS --
+CATALOG /usr/lib/sgml/catalog
+-- 
+SYSTEM "docbook/stylesheet/dsssl/modular/html/docbook.dsl"
+SYSTEM "docbook/stylesheet/dsssl/modular/print/docbook.dsl"
+--
+
+DOCTYPE dylandoc		dylandoc.dtd
 PUBLIC "UNREGISTERED::Eric Kidd//DTD DylanDoc V3.1//EN" "dylandoc.dtd"
-PUBLIC "UNREGISTERED::Eric Kidd//DylanDoc Style Sheet//EN" "dylandoc.dsl"
+PUBLIC "UNREGISTERED::Eric Kidd//DOCUMENT DylanDoc Style Sheet//EN" "dylandoc.dsl"

@@ -313,7 +313,7 @@ end method;</PROGRAMLISTING>
       </ITEMIZEDLIST>
     </SECT1>
 
-    <SECT1 ID=libs-dylan-extensions>
+    <SECT1 ID="libs-dylan-extensions">
       <TITLE>The Extensions Module</TITLE>
 
       <PARA>Ultimately, there will be several, more logically separate
@@ -8293,7 +8293,7 @@ log(100000, base: 10) => 5.0
 	  <param>
 	    <paramname>universal-time</paramname>
 	    <paramtype>&lt;universal-time&gt;</paramtype>
-	    <paramsummary>the instance to decode</paramsummary
+	    <paramsummary>the instance to decode</paramsummary>
 	  </param>
 	</defparameters>
   	<defreturns>

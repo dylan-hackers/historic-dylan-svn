@@ -2082,13 +2082,12 @@ define variable foo :: run-time-expression() = #f;
         <sect3 id="gdmaint-d2c-parser-macros-procedural">
          <title>Gwydion &dylan; Procedural Macros</title>
 	 <para>In this section, I shall use "procedural macro" to mean 
-	   "procedural
-	   macro as implemented by &gdmp; on &d2c;".  This special definition
-	   contains an implicit caveat:  procedural macros are not defined in
-	   the &drm; and are not standardized across &dylan; implementations --
-	   use at your own risk.  Also, discussion on the &gdmp; mailing list
-	   has noted that macros defined by the &drm; (hereinafter referred to 
-	   as "plain macros") are "Turing-complete"
+	   "procedural macro as implemented by &gdmp; on &d2c;".  This 
+	   special definition contains an implicit caveat:  procedural macros
+	   are not defined in the &drm; and are not standardized across &dylan;
+	   implementations -- use at your own risk.  Also, discussion on the
+	   &gdmp; mailing list has noted that macros defined by the &drm; 
+	   (hereinafter referred to as "plain macros") are "Turing-complete"
 	   (yes, just as machine language and C are Turing-complete), 
 	   which means that &drm; macros can do whatever procedural macros can
 	   do; it just may require more effort and creativity on the user of

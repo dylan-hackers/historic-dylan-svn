@@ -2,7 +2,9 @@
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
 ]>
+
 <BOOK ID="gduser">
+
   <title>Gwydion Dylan User's Guide</title>
   <titleabbrev>User's Guide</titleabbrev>
 
@@ -411,7 +413,7 @@ main(application-name(), application-arguments());
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.12 2002/07/13 17:56:17 gabor Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.13 2002/09/15 08:01:02 brent Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
