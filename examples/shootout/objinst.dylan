@@ -19,18 +19,19 @@ define class <nth-toggle> (<toggle>)
 end class;
 
 
-define method activate (t :: <toggle>) => value :: <boolean>;
+define method activate (t :: <toggle>) => t :: <toggle>;
   t.value := ~t.value;
+  t;
 end method;
 
 
-define method activate (t :: <nth-toggle>) => value :: <boolean>;
+define method activate (t :: <nth-toggle>) => t :: <toggle>;
   t.counter := t.counter + 1;
   if (t.counter >= t.counter-maxiumum)
     t.value := ~t.value;
     t.counter := 0;
   end;
-  t.value;
+  t;
 end method;
 
     
@@ -40,8 +41,7 @@ define function main ()
   let toggle = make(<toggle>, start-state: #t);
 
   for (i from 1 to 5)
-    activate(toggle);
-    format-out("%s\n", if (toggle.value) "true" else "false" end);
+    format-out("%s\n", if (activate(toggle).value) "true" else "false" end);
   end;
 
   for (i from 1 to arg)
@@ -53,8 +53,7 @@ define function main ()
   let nth-toggle = make(<nth-toggle>, start-state: #t, counter-maxiumum: 3);
 
   for (i from 1 to 8)
-    activate(nth-toggle);
-    format-out("%s\n", if (nth-toggle.value) "true" else "false" end);
+    format-out("%s\n", if (activate(nth-toggle).value) "true" else "false" end);
   end;
 
   for (i from 1 to arg)
