@@ -1,0 +1,8 @@
+opengl-test: opengl-test.lid
+	d2c $<
+
+opengl-test.lid: opengl-test-exports.dylan opengl-test.dylan indexed-face-set.dylan
+	touch $@
+
+clean:
+	-rm -f *.mak *.lib.du *.o *.a *.s *.c ,* opengl-test *~
