@@ -14,7 +14,7 @@ define constant <direction> = limited(<integer>, min: 0, max: 5);
 
 define function adjacent-cell(p :: <position>, d :: <direction>)
  => (d* :: <position>)
-  select(p)
+  select(d)
     0 => make-position(p.x + 1, p.y);
     1 => if(even?(p.y)) 
            make-position(p.x, p.y + 1);
@@ -92,8 +92,8 @@ define class <cell> (<object>)
   constant slot rocky :: <boolean> = #f, init-keyword: rocky:;
   slot ant :: false-or(<ant>) = #f;
   slot food :: <integer> = 0, init-keyword: food:;
-  constant slot red-marker :: <vector> = make(<vector>, size: 5);
-  constant slot black-marker :: <vector> = make(<vector>, size: 5);
+  constant slot red-marker :: <vector> = make(<vector>, size: 6);
+  constant slot black-marker :: <vector> = make(<vector>, size: 6);
   constant slot anthill :: false-or(<color>) = #f, init-keyword: anthill:;
 end class <cell>;
 
@@ -128,9 +128,9 @@ end function clear-ant-at;
 define function ant-is-alive(aid :: <integer>)
  => (yesno :: <boolean>)
   member?(aid, *world*, test: 
-            method(id* :: <integer>, p :: <position>)
+            method(id* :: <integer>, p :: <cell>)
              => (yesno :: <boolean>)
-                p.ant-at & p.ant-at.id == id*
+                p.ant & p.ant.id == id*
             end method);
 end function ant-is-alive;
 
@@ -564,27 +564,10 @@ define function play-game(red-brain :: <string>,
     *world* := read-map(world-stream)
   end with-open-file;
   for(round from 0 below 100000)
+    dump-world-state(*world*);
     for(i from 0 below *ants*.size)
       step(i);
     end for;
   end for;
 end function play-game;
 
-
-begin
-  /*
-    let test-machine = read-state-machine(*standard-input*);
-    do(method(x) format-out("%s\n", unparse(x)) end, test-machine);
-  force-output(*standard-output*);
-  let testmap = read-map(*standard-input*);
-
-  apply(play-game, application-arguments());
-
-*/
-  with-open-file(world-stream = application-arguments()[0])
-    *world* := read-map(world-stream)
-  end with-open-file;
-
-  // Test world output.
-  dump-world-state(*world*);
-end;
