@@ -89,8 +89,11 @@ define graphics-primitive plane(surf :: <function>)
    make(<plane>, surface-function: surf);
 end graphics-primitive plane;
 
+define graphics-primitive cube(surf :: <function>) 
+  make(<cube>, surface-function: surf);
+end;
+
 define graphics-primitive cone() error("No cones yet!") end;
-define graphics-primitive cube() error("No cubes yet!") end;
 define graphics-primitive cylinder() error("No cylinders yet!") end;
 
 // Transformations: 

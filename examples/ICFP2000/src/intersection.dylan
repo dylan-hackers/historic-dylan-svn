@@ -123,6 +123,58 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
   end if;
 end method real-intersection-before;
 
+define method plane-intersection(norm :: <3D-vector>, d :: <fp>, ray :: <ray>)
+ => hit :: false-or(<3D-point>);
+  let t = -(norm * (ray.ray-position - $origin) + d) / (norm * ray.ray-direction);
+  
+  if (t <= 0.0)
+    #f;
+  else
+    homogenize(ray.ray-position + ray.ray-direction * t);
+  end if;
+end method plane-intersection;
+
+define constant $cube-planes =  vector(vector(vector3D( 0.0,  0.0, -1.0), 0.0), // Front
+				       vector(vector3D( 0.0,  0.0,  1.0), -1.0), // Back
+				       vector(vector3D(-1.0,  0.0,  0.0), 0.0), // Left
+				       vector(vector3D( 1.0,  0.0,  0.0), -1.0), // Right
+				       vector(vector3D( 0.0,  1.0,  0.0), -1.0), // Top
+				       vector(vector3D( 0.0, -1.0,  0.0), 0.0)); // Bottom
+
+define constant $u-methods = vector(x, x, z, z, y, y);
+define constant $v-methods = vector(y, y, y, y, z, z);
+
+define method real-intersection-before(m :: <cube>, ray, distance, #key shadow-test: shadow-test?)
+ => (point, normal, surface-method, new-distance)
+  block (outta-here)
+    for (p in $cube-planes, which-one from 0)
+      let hit = plane-intersection(p[0], p[1], ray);
+      if (hit & hit.x <= 1.0 & hit.y <= 1.0 & hit.z <= 1.0
+	    & hit.x >= 0.0 & hit.y >= 0.0 & hit.z >= 0.0)
+	outta-here(hit, p[0], make-surface-closure(which-one, 
+						   $u-methods[which-one](hit), 
+						   $v-methods[which-one](hit), 
+						   m.surface-interpreter-entry));
+      end if;
+    end for;
+  end block;
+end method real-intersection-before;
+
+
+define method real-intersection-before(m :: <cone>, ray, distance, #key shadow-test: shadow-test?)
+ => (point, normal, surface-method, new-distance)
+
+  
+end method real-intersection-before;
+
+define method real-intersection-before(m :: <cylinder>, ray, distance, #key shadow-test: shadow-test?)
+ => (point, normal, surface-method, new-distance)
+
+  
+  
+end method real-intersection-before;
+
+// CSG:
 define method real-intersection-before(m :: <csg-union>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
 

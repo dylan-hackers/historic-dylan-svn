@@ -46,6 +46,7 @@ end module gml-lexer;
 define module ray-tracer
   use dylan;
   use transcendental;
+  use extensions;
 
   // Debug:
   use streams;
@@ -57,7 +58,7 @@ define module ray-tracer
   use types;
   use our-matrix;
 
-  export <obj>, <sphere>, <plane>, <csg-union>, <color>, <star>,
+  export <obj>, <sphere>, <plane>, <cube>, <csg-union>, <color>, <star>,
     <firefly>, <flashlight>,
     export-with-depth, 
     uniform-scale, scale, x-rotate, y-rotate, z-rotate, translate,
