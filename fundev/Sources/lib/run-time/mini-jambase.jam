@@ -240,37 +240,37 @@ rule FIncludes { return -I$(<) ; }
 
 actions Cc
 {
-	$(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+	$(CC) -c -o "$(<)" $(CCFLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
 }
 
 actions Chmod1
 {
-	$(CHMOD) $(MODE) $(<)
+	$(CHMOD) $(MODE) "$(<)"
 }
 
 actions piecemeal together existing Clean
 {
-	$(RM) $(>)
+	$(RM) "$(>)"
 }
 
 actions File
 {
-	$(CP) $(>) $(<)
+	$(CP) "$(>)" "$(<)"
 }
 
 actions MkDir1
 {
-	$(MKDIR) $(<)
+	$(MKDIR) "$(<)"
 }
 
 actions together Ranlib
 {
-	$(RANLIB) $(<)
+	$(RANLIB) "$(<)"
 }
 
 actions quietly updated piecemeal together RmTemps
 {
-	$(RM) $(>)
+	$(RM) "$(>)"
 }
 
 #
@@ -281,7 +281,7 @@ if $(NOARUPDATE)
 {
 	actions Archive
 	{
-	$(AR) $(<) $(>)
+	$(AR) "$(<)" "$(>)"
 	}
 }
 
