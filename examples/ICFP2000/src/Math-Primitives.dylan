@@ -3,8 +3,6 @@ module: GML-compiler
 file: Math-Primitives.dylan
 author: Gabor Greif, mailto: gabor@mac.com
 
-define constant <fp> :: <class> = <double-float>;	// change them when settled
-
 define macro unary-primitive-definer
   { define unary-primitive ?:name(?type:expression) end }
     => { define unary-primitive ?name(?type, ?name) end; };
