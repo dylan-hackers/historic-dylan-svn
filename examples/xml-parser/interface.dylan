@@ -29,7 +29,6 @@ end class <xml-parse-error>;
 
 define open generic start-element(bldr :: <xml-builder>, elt :: <xml-element>);
 define open generic end-element(bldr :: <xml-builder>, elt :: <xml-element>);
-// define open generic text (bldr :: <xml-builder>, txt :: <string>);
 
 // --- CHRIS'S DEF'S --
 // now modified to conform a bit to Andreas' XML-syntax fns
