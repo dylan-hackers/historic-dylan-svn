@@ -1,4 +1,7 @@
 module: icfp2001
+synopsis: Dylan Hackers entry in the Fourth Annual (2001) ICFP Programming Contest
+authors: Andreas Bogk, Chris Double, Bruce Hoult
+copyright: this program may be freely used by anyone, for any purpose
 
 define class <generator-state> (<object>)
   slot open-tags;
