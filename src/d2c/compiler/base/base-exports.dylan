@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.5 2003/08/15 16:33:52 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.6 2003/09/01 13:32:15 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -566,6 +566,8 @@ define module variables
 
     module-home, variable-home,
     name-inherited-or-exported?,
+
+    assure-loaded, broken?,
 
     dylan-var, dylan-defn, dylan-value;
 end;

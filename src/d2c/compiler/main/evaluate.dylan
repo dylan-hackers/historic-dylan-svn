@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.4 2003/08/31 22:00:17 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5.2.5 2003/09/01 13:32:16 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -31,8 +31,14 @@ copyright: see below
 // This file contains an interpreter that can give back <ct-values> for
 // certain FER constructions.
 
+define variable debug-interpreter? = #f;
 
-define variable *interpreter-library* = #f;
+define inline function d(#rest args)
+  if(debug-interpreter?)
+    apply(format, *debug-output*, args);
+    force-output(*debug-output*);
+  end if;
+end function d;
 
 #if (~mindy)
 
@@ -50,8 +56,35 @@ make(<command>, name: "Evaluate",
      command: evaluate-safely, 
      summary: "Evaluate as Dylan expression.");
 
-
-
+make(<command>, name: "Set Library",
+     command: method(parameter)
+                  block()
+                    *current-library* := find-library(as(<symbol>, parameter), create: #t);
+                    assure-loaded(*current-library*);
+                    if (*current-library*.broken?)
+                      format(*standard-output*, "Using broken library %s\r\n", parameter);
+                    end if;
+                  exception (condition :: <condition>)
+                    condition-format(*standard-output*, "%s\r\n", condition);
+                    force-output(*standard-output*);
+                    #f
+                  end block
+              end method,
+     summary: "Set current library.");
+                               
+make(<command>, name: "Set Module",
+     command: method(parameter)
+                  block()
+                    *current-module*
+                      := find-module(*Current-Library* | $Dylan-library, 
+                                     as(<symbol>, parameter));
+                  exception (condition :: <condition>)
+                    condition-format(*standard-output*, "%s\r\n", condition);
+                    force-output(*standard-output*);
+                    #f
+                  end block
+              end method,
+     summary: "Set current module.");
 
 define generic evaluate(expression, environment :: <interpreter-environment>)
  => val :: <object>;
@@ -67,6 +100,7 @@ end;
 
 define method evaluate(expression :: <string>, env :: <interpreter-environment> )
  => (val :: <ct-value>)
+/*
   if(~ *interpreter-library*)
     *interpreter-library* := find-library(#"foo", create: #t); // ### FIXME: arbitrary name
     seed-representations();
@@ -76,6 +110,7 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
   end if;
   *Current-Library* := *interpreter-library*;
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
+*/
   *top-level-forms* := make(<stretchy-vector>);
   let tokenizer = make(<lexer>, 
                        source: make(<source-buffer>, 
@@ -84,14 +119,12 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
                        start-posn: 0);
   parse-source-record(tokenizer);
   for(tlf in *top-level-forms*)
-    format(*debug-output*, "got tlf %=", tlf);
-    force-output(*debug-output*);
+    d("got tlf %=", tlf);
     
     select(tlf by instance?)
       <expression-tlf> =>
         let expression = tlf.tlf-expression;
-        format(*debug-output*, ", an expression \n%=\n", expression);
-        force-output(*debug-output*);
+        d(", an expression \n%=\n", expression);
         let component = make(<fer-component>);
         let builder = make-builder(component);
         let result-type = object-ctype();
@@ -113,12 +146,11 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
         
         end-body(builder);
         
-        format(*debug-output*, "\n\nBefore optimization:\n");
-        dump-fer(component);
+        d("\n\nBefore optimization:\n");
+        debug-interpreter? & dump-fer(component);
         optimize-component(*current-optimizer*, component);
-        format(*debug-output*, "\n\nAfter optimization:\n");
-        dump-fer(component);
-        force-output(*debug-output*);
+        d("\n\nAfter optimization:\n");
+        debug-interpreter? & dump-fer(component);
         
         let value
           = block (return)
@@ -138,8 +170,8 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
               ret.exit-result
             end;
     
-        format(*debug-output*, "\n\nevaluated expression: %=\n", value);
-        format(*debug-output*, "\n\nBinding of return variable: %=\n", result-var);
+        format(*debug-output*, "evaluated expression: %=\n", value);
+//        format(*debug-output*, "\n\nBinding of return variable: %=\n", result-var);
         force-output(*debug-output*);
       otherwise =>
         let component = make(<fer-component>);
@@ -163,12 +195,11 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
           let ctv = make(<ct-function>, name: name-obj, signature: sig);
           make-function-literal(builder, ctv, #"function", #"global",
                                 sig, init-function);
-          format(*debug-output*, "\n\nBefore optimization:\n");
-          dump-fer(component);
+          d("\n\nBefore optimization:\n");
+          debug-interpreter? & dump-fer(component);
           optimize-component(*current-optimizer*, component);
-          format(*debug-output*, "\n\nAfter optimization:\n");
-          dump-fer(component);
-          force-output(*debug-output*);
+          d("\n\nAfter optimization:\n");
+          debug-interpreter? & dump-fer(component);
           
           format(*debug-output*, "\n\nevaluated expression: %=\n",
                  evaluate(init-function.body,

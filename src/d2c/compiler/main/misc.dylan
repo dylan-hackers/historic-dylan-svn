@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/misc.dylan,v 1.1 2001/09/08 23:34:54 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/misc.dylan,v 1.1.4.1 2003/09/01 13:32:16 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -65,6 +65,29 @@ define method test-lexer (file :: <byte-string>) => ();
 end method test-lexer;
 
 
+define method test-parse
+    (parser :: <function>, file :: <byte-string>,
+     #key debug: debug? :: <boolean>)
+    => result :: <object>;
+  block ()
+    let (tokenizer, module) = file-tokenizer($dylan-library, file);
+    let orig-library = *current-library*;
+    let orig-module = *current-module*;
+    block ()
+      *current-library* := $dylan-library;
+      *current-module* := module;
+      parser(tokenizer, debug: debug?);
+    cleanup
+      *current-library* := orig-library;
+      *current-module* := orig-module;
+    end block;
+  exception (<fatal-error-recovery-restart>)
+    #f;
+  end block;
+end method test-parse;
+
+*/
+
 define method set-module (module :: type-union(<false>, <module>)) => ();
   *current-module* := module;
 end method set-module;
@@ -90,28 +113,6 @@ define method set-library (library :: <symbol>) => ();
   end block;
 end method set-library;
 
-define method test-parse
-    (parser :: <function>, file :: <byte-string>,
-     #key debug: debug? :: <boolean>)
-    => result :: <object>;
-  block ()
-    let (tokenizer, module) = file-tokenizer($dylan-library, file);
-    let orig-library = *current-library*;
-    let orig-module = *current-module*;
-    block ()
-      *current-library* := $dylan-library;
-      *current-module* := module;
-      parser(tokenizer, debug: debug?);
-    cleanup
-      *current-library* := orig-library;
-      *current-module* := orig-module;
-    end block;
-  exception (<fatal-error-recovery-restart>)
-    #f;
-  end block;
-end method test-parse;
-
-*/
 
 // The identifier for the current directory
 // Used in searching for files
