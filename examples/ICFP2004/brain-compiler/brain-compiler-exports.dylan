@@ -4,11 +4,11 @@ define library brain-compiler
   use Common-Dylan;
   use IO;
   use System;
-  use ants;
+//  use ants;
 end library;
 
 define module assembler
   use Common-Dylan;
   use format-out;
-  use ants;
+//  use ants;
 end module;
