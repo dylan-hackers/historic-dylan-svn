@@ -19,10 +19,11 @@ define class <attribute> (<xml>)
 end class <attribute>;
 
 // not sealed for making XML element tags subclasses of <element>
-define open class <element> (<node>)
+define open class <element> (<node>, <sequence>)
   slot element-parent :: <node>, init-keyword: parent:;
   constant slot element-attributes :: <vector> = #[], 
     init-keyword: attributes:;
+  constant virtual slot text;
 end class <element>;
 
 define class <document> (<node>)
@@ -40,6 +41,11 @@ end class <entity-reference>;
 define class <char-reference> (<xml>)
   constant slot char :: <character>, required-init-keyword: char:;
 end class <char-reference>;
+
+define method text(elt :: <element>) => (s :: <string>)
+  apply(concatenate, map(text, choose(rcurry(instance?, <char-string>), 
+                                      elt.node-children)));
+end method text;
 
 // and constants as classes
 define constant <letter> = 

@@ -18,6 +18,10 @@ end;
 and do the transformation on the match list to map "*" => <wildcard>
 **/
 
+// here's an example of a state more complex than a <symbol> (which
+// the other state uses in xml-test/ wind up to be).  The class slot
+// elements grows incrementally as the XML tree is traversed.  The
+// slot pattern tracks the match during the tree descent.
 define class <collect-state> (<xform-state>)
   constant slot pattern :: <sequence>, required-init-keyword: pattern:;
   class slot elements :: <list> = #();
@@ -51,13 +55,85 @@ define method transform(elt :: <element>, tag-name :: <symbol>,
            end if;
   next-method(elt, tag-name, new-state, str);
 end method transform;
+
+// takes an element or a document and a sequence (currently
+// of the XSL form "//elt/elt1/elt2/...eltN") and returns
+// the list of elements that satisfy that sequence shape
+define generic collect-elements(in :: <node>, tree :: <sequence>)
+ => (ans :: <sequence>);
       
-define function collect-elements(in :: <document>, tree :: <sequence>)
+define method collect-elements(in :: <document>, tree :: <sequence>)
  => (ans :: <sequence>)
   *original-state* := make(<collect-state>, 
                            pattern: as(<list>, 
                                        map(curry(as, <symbol>), tree)));
+  *original-state*.elements := #();
   transform-document(in, state: *original-state*);
   *original-state*.elements;
-end function collect-elements;
+end method collect-elements;
+
+// this method allows us to specify the search start from a specific
+// element, e.g.: "/company-xyz/employees/managers/joe/assistant/daniel"
+// instead of looking for any J. Random "//daniel"
+define method collect-elements(elt :: <element>, tree :: <sequence>)
+ => (ans :: <sequence>)
+  collect-elements(make(<document>, 
+                        name: elt.name, 
+                        children: vector(elt)),
+                   tree);
+end method collect-elements;
+
+//-------------------------------------------------------
+// indexing
+// an element may have 0, 1, or more elements of kid-name
+define function element-children(elt :: <element>, kid-name :: <symbol>)
+ => (ans :: <sequence>)
+  let choose-elements
+  = method(elt :: <element>) => (seq :: <sequence>)
+      choose(rcurry(instance?, <element>), elt.node-children);
+    end method;
+  choose(compose(curry(\==, kid-name), name), elt.choose-elements);
+end function element-children;
+
+// however, each attribute name must be unique
+define function attribute-value(elt :: <element>, 
+                                attrib-name :: <symbol>)
+ => (ans :: <string>)
+  any?(method(x) x.name == attrib-name & x.value end, 
+       elt.element-attributes);
+end function attribute-value;
+
+// this method allows us to index into <element>s as if they were
+// <table>s ... it returns the appropriate element OR attribute value
+// depending on the request, e.g. <person name="Doug"/> allows
+// elt["@name"] => "Doug" when elt is at {<element>, name=#"person"}
+//
+// For the following XML:
+// <article>
+//  <title>Dynamic Namespace</title>
+//  <text>Synopsis:  Using libraries as units of compilation and
+// modules as namespaces affords ...</text>
+//  <text>The standard view of namespaces is that they are a static
+// thing, their names do not change, nor do the bindings within 
+// them.</text>
+//  <text>Avoiding name clashes under these assumptions can lead
+// to contorted code...</text>
+// </article>
+//
+// and elt is {<element>, name: #"article"} then
+// elt["title"] returns one element and elt["text"] returns
+// a sequence of three elements
+define method element(elt :: <element>, 
+                      key :: type-union(<string>, <symbol>),
+                      #key default, always-sequence?)
+ => (ans)
+  let string = as(<string>, key);
+  if(string[0] == '@')
+    attribute-value(elt, as(<symbol>, copy-sequence(string, start: 1)));
+  else
+    let kids = element-children(elt, as(<symbol>, key));
+// let's simplify indexing for unique tags
+    if(kids.size == 1 & ~ always-sequence?) kids[0] else kids end if;
+  end if;
+end method element;
 

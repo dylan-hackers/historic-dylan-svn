@@ -32,6 +32,7 @@ end module html-xform;
 define module xml-test
   use common-dylan;
   use format-out;
+  use format;
   use xml-parser;
   use html-xform;
   use streams;
