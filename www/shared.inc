@@ -1,4 +1,7 @@
 <?php
+
+require "db_connect.inc";
+
 function begin_progress_table () {
     echo "<TABLE BORDER=0 CELLSPACING=10 WIDTH=\"100%\">\n";
 }

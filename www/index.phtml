@@ -33,7 +33,7 @@ following resources:</P>
 
 <?php
 
-$db = mysql_connect("localhost","gwydion","");
+$db = db_connect();
 mysql_select_db("gwydion");
 
 $query = "select * from news order by time desc";
