@@ -4,7 +4,7 @@ copyright: Copyright (c) 1999 David Lichteblau
 
 define library meta
   use common-dylan;
-  use streams;
+  use io;
   export meta;
 end library;
 
@@ -18,7 +18,11 @@ end module meta-base;
 define module meta-syntax
   use common-dylan;
   use meta-base;
-  export \meta-definer, \collector-definer;
+  use streams;
+  use standard-io;
+  use format-out;
+
+  export *debug-meta-functions?*, \meta-definer, \collector-definer;
 
 // internal-macro exports for gwydion d2c
   export \scan-helper, \scanner-builder, \meta-builder;

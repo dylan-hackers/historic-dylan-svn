@@ -3,7 +3,8 @@ synopsis: allows adding syntax constructs (belongs in meta lib)
 author: Douglas M. Auclair
 copyright: (c) 2001, Cotillion Group, Inc.
 
-// all this needs to go into the META library
+define variable *debug-meta-functions?* :: <boolean> = #f;
+
 define macro meta-definer
 { define meta ?:name ( ?vars:* ) => (?results:*) ?meta:* end } 
  => { scan-helper(?name, (?vars), (?results), (?meta)) }
@@ -21,7 +22,14 @@ end macro scan-helper;
 define macro scanner-builder
 { scanner-builder(?:name, (?built-meta:*)) }
  => { define function "scan-" ## ?name (?=string, #key ?=start = 0, end: stop)
-        ?built-meta
+        let (#rest results) = ?built-meta;
+        if(*debug-meta-functions?*)
+          unless(results[0]) // is a number
+           format-out("Meta stopped parsing in %s\n", ?"name");
+           force-output(*standard-output*);
+          end unless;
+        end if;
+        apply(values, results);
       end; }
 end macro scanner-builder;
 
@@ -46,4 +54,3 @@ define macro collector-definer
           meta-builder(?=string, ?=start, (?vars), (as(<string>, str)), (?meta));
         end with-collector)) }
 end macro collector-definer;
-
