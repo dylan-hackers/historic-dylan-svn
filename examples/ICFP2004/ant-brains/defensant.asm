@@ -1,11 +1,17 @@
-Flip 5 defense_get_out_of_home: .
-Flip 4 defense_get_out_of_home: .
-Flip 4 kill: search:
+Flip 6 kill: defense_get_out_of_home:
 
 defense_get_out_of_home:
 Sense Here . defense_out_of_home: Home
 Move defense_get_out_of_home: .
+Sense Ahead . defense_get_out_of_home_panic: Marker 0
+Mark 1 defense_wait_for_opening:
+
+defense_get_out_of_home_panic:
 Turn Right defense_get_out_of_home:
+
+defense_wait_for_opening:
+Sense Ahead defense_wait_for_opening: . Friend
+Unmark 1 defense_get_out_of_home:
 
 defense_out_of_home:
 Mark 0 .
@@ -14,60 +20,56 @@ Turn Right .
 Turn Right defense:
 
 defense:
-Sense RightAhead defense_turn_right1: defense_move_right: Home
-
-defense_turn_right1:
-Turn Right defense_move_right:
-
-defense_move_right:
-Turn Right defense_move1:
-
-defense_move1:
-Move . defense_move1:
-Sense RightAhead defense_take_food: . Food
-Sense LeftAhead defense_step_out: defense_move_right_part_2: Friend
-
-defense_take_food:
+Sense Ahead leave_defense: . Marker 1
+Sense RightAhead leave_defense: . Marker 1
+Sense LeftAhead leave_defense: . Marker 1
 Turn Right .
-take_food_move1: Move . defense_move_right_part_2:
+Turn Right .
+Turn Right .
+Sense Here defense_food_here: . Food
+Sense Ahead defense_fetch_food: defense: Food
+
+leave_defense:
+Turn Right .
+Turn Right .
+Turn Right search:
+
+defense_food_here:
+PickUp . .
+Turn Right . .
+Turn Right . .
+Turn Right . .
+Move . .
+Sense Here . return: Home
+Drop defense_get_out_of_home:
+
+defense_fetch_food:
+Move . .
 PickUp . .
 Turn Right .
 Turn Right .
 Turn Right .
-return_food_move1: Move . return_food_move1:
-return_food_move2: Move . return_food_move2:
+Move . .
+Move . .
+Sense Here . return: Home
 Drop defense_get_out_of_home:
-
-defense_step_out:
-Turn Right .
-step_out_move1: Move . defense_move_right_part_2:
-step_out_move2: Move . step_out_move2:
-Turn Right .
-Turn Right .
-Turn Right .
-step_in_move1: Move . step_in_move1:
-step_in_move2: Move . step_in_move2:
-Turn Right .
-Turn Right defense_move_right_part_2:
-
-defense_move_right_part_2:
-Sense LeftAhead . defense_corner: Home
-Turn Left defense:
-
-defense_corner:
-Turn Left .
-Turn Left defense:
 
 Flip 6 kill: search:
 
 search:
 Move . search_blocked:
-Sense Here search: . Home
+Sense Here defense_get_out_of_home: . Home
+Sense Here search_too_close: . Marker 0
 PickUp turn_and_return: .
 Sense Ahead patrol: search: FoeHome
 
 search_blocked:
 Turn Right search:
+
+search_too_close:
+Turn Right .
+Turn Right .
+Move search: search:
 
 turn_and_return:
 Turn Right .
@@ -77,10 +79,16 @@ Turn Right return:
 return:
 Move . return_blocked:
 Sense Ahead . return: Marker 0
+Sense Ahead . return_direct: Friend
 Drop turn_and_search:
 
 return_blocked:
 Turn Left return:
+
+return_direct:
+Move . .
+Move . .
+Drop defense_get_out_of_home:
 
 turn_and_search:
 Turn Right .
