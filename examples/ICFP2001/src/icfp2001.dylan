@@ -16,7 +16,7 @@ end class <char>;
 define macro attribute-slot-definer
   {define attribute-slot ?bit:expression ?:name end} =>
     {define inline method ?name(a :: <attribute>) => res :: <boolean>;
-       logand(a.value, ?bit) == 1;
+       logand(a.value, ?bit) ~= 0;
      end method ?name;
 
      define inline method "set-" ## ?name(a :: <attribute>)
