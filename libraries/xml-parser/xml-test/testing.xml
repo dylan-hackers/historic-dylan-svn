@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="foo.xsl" type="test/xsl"?>
+<!DOCTYPE movies [<!ENTITY foo 'bar'><!ENTITY baz 'foo&#32;and&#x20;&foo;'>]>
+<!-- this is a comment -->
+
+ <address for="Douglas M. Auclair">
+  <street>Inzer</street>
+  <third-line city='Springfield' state="VA"><zip>22151</zip></third-line>
+  <hi-mom best="1"/>
+  <txt>This is interesting; I like &foo;&#x20;and&#32;&baz;.</txt>
+  <txt>because foo is &foo; and baz is &baz;.</txt>
+<program>
+  <![CDATA[
+ define method foo(b :: <bar>) => (q :: <quux>)
+   make(<quux>);
+ end method foo;
+]]>
+</program>
+ </address >
