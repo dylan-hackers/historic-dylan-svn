@@ -112,18 +112,6 @@ begin
   register-label("logged-in?", logged-in?);
 end;
 
-// ---*** TODO: Make this real and move into dsp.dylan
-define body tag iff in $example-taglib
-    (page :: <example-page>,
-     response :: <response>,
-     do-body :: <function>,
-     #key test, request)
-  let fun = test & get-label(test);
-  when (fun & fun(page, request))
-    do-body();
-  end;
-end;
-
 
 // A simple error reporting mechanism.  Store errors in the page context
 // so they can be displayed when the next page is generated.  The idea is
