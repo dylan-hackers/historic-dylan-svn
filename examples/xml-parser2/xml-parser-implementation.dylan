@@ -453,7 +453,7 @@ define method parse-attribute(string, #key start = 0, end: stop)
      parse-eq(eq),
      parse-xml-attribute(attribute-value)
     ];
-    values(index, #t);
+    values(index, pair(name, attribute-value));
   end with-meta-syntax;
 end method parse-attribute;
 
@@ -578,12 +578,29 @@ define constant <name-char> = type-union(<letter>, <digit>, one-of('.', '-', '_'
 
 //    [5]    Name        ::=    (Letter | '_' | ':') (NameChar)*
 //
+
+/***** TO_BE_REFACTORED
+// eliminate parse-xml-name? (redundant?)
+define method parse-xml-name(string, #key start = 0, end: stop)
+  with-collector into-vector name, collect: collect;
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c);
+      [loop([type(<letter>, c), do(collect(c))])];
+      values(index, as(<string>, name));
+    end with-meta-syntax;
+  end with-collector;
+end method parse-xml-name;
+****/
+
 define method parse-name(string, #key start = 0, end: stop)
-  with-meta-syntax parse-string (string, start: start, pos: index)
-    variables(c);
-    [{type(<letter>, c), '_', ':'}, loop(type(<name-char>, c))];
-    values(index, #t);
-  end with-meta-syntax;  
+  with-collector into-vector name, collect: collect;
+    with-meta-syntax parse-string (string, start: start, pos: index)
+      variables(c);
+      [[{type(<letter>, c), '_', ':'}, do(collect(c))],
+       loop([type(<name-char>, c), do(collect(c))])];
+      values(index, as(<string>, name));
+    end with-meta-syntax;
+  end with-collector;
 end method parse-name;
 
 //    [6]    Names       ::=    Name (S Name)*
@@ -1034,21 +1051,12 @@ define method parse-encoding-info(string, #key start = 0, end: stop)
   end with-meta-syntax;
 end method parse-encoding-info;
 
-define method parse-xml-name(string, #key start = 0, end: stop)
-  with-collector into-vector name, collect: collect;
-    with-meta-syntax parse-string (string, start: start, pos: index)
-      variables(c);
-      [loop([type(<letter>, c), do(collect(c))])];
-      values(index, as(<string>, name));
-    end with-meta-syntax;
-  end with-collector;
-end method parse-xml-name;
 
 define method parse-xml-attributes (string, #key start = 0, end: stop)
   with-collector into-table attribute-table = make(<table>), collect: collect;
     with-meta-syntax parse-string (string, start: start, pos: index)
       variables(attribute-name, eq, attribute-value, space);
-      {loop([parse-xml-name(attribute-name),
+      {loop([parse-name(attribute-name),
              parse-eq(eq),
              parse-xml-attribute(attribute-value),
              loop(parse-s(space)),
@@ -1066,7 +1074,7 @@ define method parse-xml-element-start(builder :: <xml-builder>,
  // DOUG   variables(c, element-name, attributes, space, embedded-end-tag);
     variables(c, element-name, space, embedded-end-tag);
     ["<",
-     parse-xml-name(element-name),
+     parse-name(element-name),
  // DOUG   loop(parse-s(space)),
  // DOUG   parse-xml-attributes(attributes),
      {["/", yes!(embedded-end-tag)], []},
