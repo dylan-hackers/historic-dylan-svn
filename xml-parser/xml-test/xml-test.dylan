@@ -22,7 +22,8 @@ Version:   1.0
 
 define function main(name, arguments)
   with-open-file(in = arguments[0])
-    transform-document(parse-document(in.stream-contents), state: $html);
+    transform-document(parse-document(in.stream-contents), // substitute-entities?: #f),
+                       state: $html);
   end;
   exit-application(0);
 end function main;
