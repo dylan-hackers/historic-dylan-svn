@@ -19,25 +19,31 @@ define macro scan-helper
                                          (?results), (?meta)))) }
 end macro scan-helper;
 
+define function report-scanner-success(name :: <byte-string>, string, start, success)
+  if(*debug-meta-functions?*)
+    format-out("In meta fn %s, parse ", name);
+    if(success)
+      format-out("succeeded\n");
+    else
+      format-out("failed around \"%s\"\n",
+                 choose(method(x) 
+                            let y = as(<integer>, x);
+                            y > 31 & y < 128
+                        end, copy-sequence(string, start: start,
+                                           end: min(string.size, start + 10))));
+    end if;
+    force-output(*standard-output*);
+  end if;
+end report-scanner-success;
+
 define macro scanner-builder
 { scanner-builder(?:name, (?built-meta:*)) }
- => { define function "scan-" ## ?name (?=string, #key ?=start = 0, end: stop)
-        let (#rest results) = ?built-meta;
-        if(*debug-meta-functions?*)
-          format-out("In meta fn %s, parse ", ?"name");
-          if(results[0]) // is a number
-	    format-out("succeeded\n");
-	  else
-            format-out("failed around \"%s\"\n",
-	 	       choose(method(x) 
-				let y = as(<integer>, x);
-				y > 31 & y < 128
-			      end, copy-sequence(?=string, start: ?=start,
-                                     end: min(?=string.size, ?=start + 10))));
-          end if;
-          force-output(*standard-output*);
-        end if;
-        apply(values, results);
+ => { define function "scan-" ## ?name
+          (?=string :: <byte-string>,
+           #key ?=start :: <integer> = 0, end: stop :: <integer> = ?=string.size)
+        let (result0, #rest results) = ?built-meta;
+        report-scanner-success(?"name", ?=string, ?=start, result0);
+        apply(values, result0, results);
       end; }
 end macro scanner-builder;
 
