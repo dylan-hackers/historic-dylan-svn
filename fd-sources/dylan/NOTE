@@ -1,3 +1,0 @@
-These sources have all been ported to Gwydion Dylan, and now live
-in the 'd2c/runtime/dylan/tests' directory under gd/src.  They
-remain here for historical/comparison purposes.
