@@ -98,10 +98,12 @@ define method branch-target
 end;
 
 //define method class-for-instruction-primary(primary :: <primary-field>)
+/*
 define method class-for-instruction-primary(primary :: <integer>)
  => class :: singleton(<powerpc-instruction>);
   <powerpc-instruction>
 end;
+*/
 
 define method class-for-instruction-subcode(primary :: <primary-field>, key :: <subcode-field>)
  => class :: singleton(<powerpc-instruction>);
@@ -112,10 +114,11 @@ end;
 define method make(class == <powerpc-instruction>, #rest args, #key instruction-word :: <integer>)
  => instruction :: <powerpc-instruction>;
   let primary = ash(instruction-word, -26);
-  let primary1 = primary >= 0 & primary | primary + #x40;
+  let primary = primary >= 0 & primary | primary + #x40;
+  let subcode = instruction-word.instruction-mask-subcode;
   
-    format-out("%d, %s\n", primary1, class-for-instruction-primary(primary1));
-  apply(next-method, class-for-instruction-primary(primary1), args);
+    format-out("%d, %s\n", primary, class-for-instruction-subcode(primary, subcode)); // ####
+  apply(next-method, class-for-instruction-subcode(primary, subcode), args);
 end;
 
 //
@@ -124,11 +127,11 @@ end;
 
 define functional class <powerpc-branch-instruction>(<powerpc-instruction>)
 end;
-
+/*
 define generic branch-target-primary
   (instruction-counter :: <integer>, primary :: <primary-field>, secondary :: <integer>)
 => location :: <object>;
-
+*/
 define generic branch-target-subcode
   (instruction-counter :: <integer>, primary :: <primary-field>, subcode :: <subcode-field>, secondary :: <integer>)
 => location :: <object>;
@@ -136,15 +139,21 @@ define generic branch-target-subcode
 define method branch-target
   (instruction-counter :: <integer>, instruction :: <powerpc-branch-instruction>)
 => location :: <object>;
-  branch-target-primary(instruction-counter, primary-from-instruction-word(instruction.instruction-word), instruction.instruction-word)
+  let instruction-word = instruction.instruction-word;
+  branch-target-subcode(instruction-counter,
+                        primary-from-instruction-word(instruction-word),
+                        instruction-mask-subcode(instruction-word),
+                        instruction-word)
 end;
 
 //
 // Limited types
 //
 
-define constant <primary-field> = limited(<integer>, min: 0, max: 64);
-define constant <subcode-field> = limited(<integer>, min: 0, max: 1023);
+// BUG!! define constant <primary-field> = limited(<integer>, min: 0, max: 64);
+define constant <primary-field> = <integer>;
+// BUG!! define constant <subcode-field> = limited(<integer>, min: 0, max: 1023);
+define constant <subcode-field> = <integer>;
 
 //
 // Disassembler generics
@@ -179,7 +188,8 @@ define method powerpc-disassemble-primary
    primary :: one-of(19, 31, 63 /* or separate? */),
    secondary :: <integer>)
  => mnemonics :: <string>;
-  powerpc-disassemble-subcode(simplify, primary, instruction-mask(secondary, 21, 30), secondary)
+//  powerpc-disassemble-subcode(simplify, primary, instruction-mask(secondary, 21, 30), secondary)
+  powerpc-disassemble-subcode(simplify, primary, instruction-mask-subcode(secondary), secondary)
 end;
 
 define macro instruction-definer
@@ -249,11 +259,29 @@ define macro instruction-definer
     end;
   }
   
-  { define instruction ?:expression(?primary:expression; ?rest:*) branch ?branches; ?more:* end }
+  { define branch instruction ?:expression(?primary:expression, ?key-type:expression; ?branches) end }
+  =>
+  {
+    define method class-for-instruction-subcode(primary == ?primary, subcode :: ?key-type)
+     => class :: singleton(<powerpc-branch-instruction>);
+      <powerpc-branch-instruction>
+    end;
+    define method branch-target-subcode(instruction-counter :: <integer>, primary == ?primary, subcode :: ?key-type, secondary :: <integer>)
+     => location :: <object>;
+     format-out("branch-target-primary called\n"); // #####
+      case
+        ?branches;
+      end case
+    end;
+  }
+  
+  { define instruction ?:expression(?primary:expression; ?rest:*) branch ?branch-stuff:*; ?more:* end }
   =>
   {
     define instruction ?expression(?primary; ?rest) ?more end;
-    define method class-for-instruction-primary(primary == ?primary)
+    define branch instruction ?expression(?primary, <subcode-field>; ?branch-stuff) end;
+    
+/*    define method class-for-instruction-primary(primary == ?primary)
      => class :: singleton(<powerpc-branch-instruction>);
       <powerpc-branch-instruction>
     end;
@@ -263,7 +291,7 @@ define macro instruction-definer
       case
         ?branches;
       end case
-    end;
+    end;*/
   }
   
   { define instruction ?:expression(?primary:expression; ?rest:*) simplify ?simplifications; ?more:* end }
@@ -450,6 +478,7 @@ define macro instruction-field-definer
 end macro;
 
 
+define mask-only instruction-field subcode(21, 30) end;
 define instruction-field BO(6, 10) end;
 define instruction-field BI(11, 15) end;
 define instruction-field L(10) end;
