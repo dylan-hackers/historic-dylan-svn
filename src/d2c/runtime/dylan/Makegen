@@ -1,4 +1,0 @@
-
-do emit_library_rule(
-    'Dylan', '$(BUILDROOT)/force.timestamp', '', 'compile', 'install'
-);

@@ -1,21 +1,7 @@
 module: icfp2001
 synopsis: Dylan Hackers entry in the Fourth Annual (2001) ICFP Programming Contest
-authors: Andreas Bogk, Jeff Dubrule, Bruce Hoult
+authors: Andreas Bogk, Chris Double, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
-
-define class <document> (<object>)
-  slot characters;
-end class <document>;
-
-define class <char> (<object>)
-  slot character;
-  slot attribute;
-end class <char>;
-
-
-
-
-
 
 define function debug(#rest args)
   apply(format, *standard-error*, args);
@@ -28,56 +14,6 @@ define constant <space> =
 define inline function is-space?(c)
   instance?(c, <space>);
 end function is-space?;
-
-define function is-textchar?(c)
-  c ~= '<' & c ~= '>';
-end function is-textchar?;
-
-define method parse-textstring(input, #key start = 0)
- => (string, end-index);
-  let end-index =
-    block(return)
-      for(index from start below input.size)
-        if(~ is-textchar?(input[index]))
-          return(index);
-        end if;
-      end for;
-      input.size;
-    end block;
-  values(copy-sequence(input, start: start, end: end-index), end-index);
-end method parse-textstring;
-
-define method parse-elem(input, #key start = 0)
- => (string, end-index);
-  while(input[start] ~= '>')
-    start := start + 1;
-  end while;
-  let (elem, end-index) = parse(input, start: start + 1);
-  while(input[end-index] ~= '>')
-    end-index := end-index + 1;
-  end while;
-  values(elem, end-index + 1);
-end method parse-elem;
-
-define method parse(input, #key start = 0)
-  block(return)
-    if(start >= input.size)
-      return(#(), start);
-    end;
-    let (elem, end-index) =   if(input[start] = '<')
-                                if(input[start + 1] ~= '/')
-                                  parse-elem(input, start: start);
-                                else
-                                  return(#(), start);
-                                end;
-                              else
-                                parse-textstring(input, start: start);
-                              end;
-    let (return-elem, return-consumed) = parse(input, start: end-index);
-    values(pair(elem, return-elem), return-consumed);
-  end;
-end method parse;
-
 
 define class <tag> (<object>)
   slot name :: <byte-string>,
@@ -189,18 +125,14 @@ define function bgh-parse(s :: <byte-string>)
   local
     method save-run()
       if (run-state.value ~== curr-state.value)
-//	if (non-space-char-in-run)
-	  let s :: <byte-string> = as(<byte-string>, fragments);
-	  if (s.size > 0)
-	    add!(runs,
-		 make(<attributed-string>, attributes: run-state, string: s));
-	  end;
-	  fragments.size := 0;
-	  non-space-char-in-run := #f;
-	  run-state := curr-state;
-//	else
-//	  run-state := curr-state;
-//	end;
+        let s :: <byte-string> = as(<byte-string>, fragments);
+        if (s.size > 0)
+          add!(runs,
+               make(<attributed-string>, attributes: run-state, string: s));
+        end;
+        fragments.size := 0;
+        non-space-char-in-run := #f;
+        run-state := curr-state;
       end;
     end method save-run;
   
@@ -292,27 +224,18 @@ define method slurp-input(stream :: <buffered-stream>)
   cleanup
     release-input-buffer(stream);
   end block;
-  apply(concatenate, v);
+//  apply(concatenate, v);
+  reduce1(concatenate, v);
 end method slurp-input;
 
 define function main(name, arguments)
   let input-stream = *standard-input*;
 
-//  block ()
+  let original-input      = slurp-input(input-stream);
+  let best-transformation = original-input;
+  let parse-tree          = bgh-parse(original-input);
 
-    let original-input      = slurp-input(input-stream);
-    let best-transformation = original-input;
-    let parse-tree          = bgh-parse(original-input);
-
-    //format-out("%=\n", parse-tree);
-//    for (e in parse-tree)
-//      let a :: <attribute> = e.attributes;
-//      let s :: <byte-string> = e.string;
-//      describe-attributes(a, *standard-output*);
-//      format-out("      '%s'\n", s);
-//    end;
   let optimized-output = apply(concatenate, generate-output(parse-tree));
-//  format-out("%=\n", optimized-output);
 
   if (optimized-output.size < original-input.size)
     best-transformation := optimized-output;
@@ -329,35 +252,6 @@ define function main(name, arguments)
   write(*standard-output*, "\n");
   force-output(*standard-output*);
 
-//    debug("Run successful. Original size: %=. Size after optimization: %=.\n", original-input.size, best-transformation.size);
-
-  /*
-<bruce> - readin the original text and save it in case we can't do any better
-<bruce> - convert to fully-annotated runs of characters
-<bruce> - do a one-pass simple-minded markup and keep it if it's better than the original in 
-                                                        case we can't do any better
-<andreas> - generate permutations of the markup until time runs out.
-<bruce> - step through the text.  At each change you have to consider whether to open a new tag
-           or close the most recent old one.  If multiple attributes change then you have 
-           multiuple choices for which to open first
-<bruce> all could be done in parallel, keeping track of the comparitive resulting sizes
-<bruce> (this is the "big risk, big win" approach...)
-<andreas> Some sort of pruning will be required.
-<bruce> if logand(old-state, lognot(new-state)) ~== 0, then emit close tags for the difference
-                                 */
-                                 
-/*
-  exception (e :: <condition>)
-
-    format-out("Sorry, Dylan Hacker has detected an error\n");
-    format-out("\n=========================================\n");
-    report-condition(e, *standard-output*);
-    format-out("\n=========================================\n");
-    format-out("\nProgram terminating with error status\n");
-
-    exit-application(1);
-  end;
-*/
   exit-application(0);
 end function main;
 
