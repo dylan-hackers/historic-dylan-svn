@@ -136,6 +136,12 @@ define abstract class <mi-command>(<command>)
 end;
 
 
+define abstract class <mi-result>(<object>)
+end;
+
+define generic parse-result(result-class :: <class>, mi-reply :: <byte-string>) => result :: <mi-result>;
+
+
 define macro mi-operation-definer
   // low-level definers
 
@@ -155,14 +161,32 @@ define macro mi-operation-definer
     end;
   }
 
-  {define result-for-sequential mi-operation ?:name(?parse-sequence:*) end}
+  {define emitter-for-sequential mi-operation ?:name(?rest-sequence, ?sequence-arg) end}
   =>
   {
   }
 
-  {define parser-for-sequential mi-operation ?:name(?parse-sequence:*) end}
+  {define result-for-sequential mi-operation ?:name(?parse-sequence:*) end}
   =>
   {
+    define class ?name ## "-<result>"(<mi-result>)
+    end;
+  }
+
+  {define parser-for-sequential mi-operation ?:name(?parse-sequence) end}
+  =>
+  {
+    define method parse-result(result-class == ?name ## "-<result>", mi-reply :: <byte-string>) => result :: <mi-result>;
+      block (return)
+        local method finish(inp, matched, more)
+                let got :: singleton(1) = matched.size;
+                return(matched.head(?name ## "-<result>"));
+              end;
+         
+         let parsers = list(?parse-sequence, finish);
+         parsers.head(mi-reply, #(), parsers.tail);
+      end block;
+    end method;
   }
 
 
@@ -178,15 +202,18 @@ define macro mi-operation-definer
   =>
   {
     define class-for-sequential mi-operation ?name(?sequence) end;
-    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end
-    define result-for-sequential mi-operation ?name(?parses:*) end;
-    define parser-for-sequential mi-operation ?name(?parses:*) end
+    define creator-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+    define emitter-for-sequential mi-operation ?name(?sequence, ?sequence) end;
+    define result-for-sequential mi-operation ?name(?parses) end;
+    define parser-for-sequential mi-operation ?name(?parses) end
   }
 
   {define mi-operation ?:name(?:*) ?parses:* end}
   =>
   {}
   
+  // auxiliary patterns
+  //
   sequence-slot:
     { ?:name :: ?:expression }
     => { slot ?name :: limited(<vector>, of: ?expression), required-init-keyword: #"?name" }
@@ -196,6 +223,14 @@ define macro mi-operation-definer
 
   sequence-arg:
     { ?:name :: ?:expression } => { ?name }
+
+  parse-sequence:
+    {} => {}
+    { ?parse-directive; ... } => { ?parse-directive, ... }
+  
+  parse-directive:
+    { resulting ?:name } => { method(inp, matched, more) => resps; let m = match(inp, "^" "?name"); if (m & m.empty?) make.curry else #f.always end if end method }
+    { resulting ?:name => ?parser:expression } => { method(inp, matched, more) => resps; let m = match(inp, "^" "?name"); if (m) rcurry(?parser, m) else #f.always end if end method }
 end;
 
 define macro mi-parser-definer
@@ -212,13 +247,19 @@ end;
 define mi-operation break-condition(number :: <positive>, expr :: <mi-expression>)
 end;
 
-define mi-operation break-delete((breakpoint :: <positive>)) // sequence !! map to #rest
+define mi-operation break-delete((breakpoint :: <positive>))
+  resulting error => report;
+  resulting done;
 end;
 
-define mi-operation break-disable((breakpoint :: <positive>)) // sequence !! map to #rest
+define mi-operation break-disable((breakpoint :: <positive>))
+  resulting error => report;
+  resulting done;
 end;
 
-define mi-operation break-enable((breakpoint :: <positive>)) // sequence !! map to #rest
+define mi-operation break-enable((breakpoint :: <positive>))
+  resulting error => report;
+  resulting done;
 end;
 
 define mi-operation break-info(breakpoint :: <positive>)
@@ -466,3 +507,21 @@ define method print-object(s :: <stream>, cli :: <cli-command>)
 
 end;
 
+// ####################################
+// Support functions
+
+define function match(in :: <byte-string>, what :: <byte-string>) => remaining :: false-or(<byte-string>);
+  let s = what.size;
+  if (in.size >= s
+      & copy-sequence (in, end: s) = what)
+    copy-sequence (in, start: s)
+  end if;
+end;
+
+define class <error-result>(<mi-result>)
+  slot result-message :: <byte-string>, required-init-keyword: message:;
+end;
+
+define function report(response-class :: <class>, remaining :: <byte-string>) => resp :: <error-result>;
+  make(<error-result>, message: remaining)
+end;
