@@ -6,5 +6,6 @@ define abstract class <robot>(<object>)
 
   slot x :: <integer>;
   slot y :: <integer>;
+  slot money :: <integer>;
   slot inventory :: limited(<vector>, of: <package>);
 end;
