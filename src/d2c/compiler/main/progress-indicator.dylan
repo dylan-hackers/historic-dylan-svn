@@ -4,7 +4,8 @@ define abstract class <progress-indicator> (<object>)
   constant slot total :: <integer>, required-init-keyword: total:;
   slot done :: <integer> = 0;
 #if (~mindy)
-  slot last-time-flushed :: <integer> = 0;
+  slot last-time-flushed :: <integer>,
+    init-function: method() get-time-of-day() + 1 end;
 #endif
 end class <progress-indicator>;
 
@@ -21,7 +22,7 @@ define method increment-and-report-progress
   report-progress(indicator);
 #else
   let now :: <integer> = get-time-of-day();
-  if (now ~= indicator.last-time-flushed)
+  if (now > indicator.last-time-flushed)
     report-progress(indicator);
     indicator.last-time-flushed := now;
   end;
