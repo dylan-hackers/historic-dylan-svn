@@ -52,14 +52,14 @@ define sealed method initialize(board :: <board>, #key dimensions);
   board.data := make(<terrain-vector>, size: y * x);
 end;
 
-define inline method aref
+define inline sealed method aref
     (board :: <board>, #rest indices)
     => element :: <terrain>;
   let (row :: <integer>, col :: <integer>) = apply(values, indices);
   board.data[row * board.cols + col];
 end;
 
-define inline method aref-setter
+define inline sealed method aref-setter
     (new-value :: <terrain>, board :: <board>, #rest indices)
     => new-value :: <terrain>;
   let (row :: <integer>, col :: <integer>) = apply(values, indices);
