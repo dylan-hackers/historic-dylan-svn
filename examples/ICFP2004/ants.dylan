@@ -79,11 +79,11 @@ define constant <state> = limited(<integer>, min: 0, max: 9999);
 
 define class <ant> (<object>)
   constant slot id :: <integer>, init-keyword: id:;
-  slot state :: <state>;
-  slot color :: <color>;
-  slot resting :: <integer>;
-  slot direction :: <direction>;
-  slot has-food :: <boolean>;
+  slot state :: <state> = 0;
+  slot color :: <color>, init-keyword: color:;
+  slot resting :: <integer> = 0;
+  slot direction :: <direction> = 0;
+  slot has-food :: <boolean> = #f;
 end class <ant>;
 
 define class <cell> (<object>)
@@ -166,11 +166,11 @@ define function anthill-at(p :: <position>, c :: <color>)
   cell-at(p).anthill == c;
 end function anthill-at;
 
-define function read-map(s :: <stream>) => ();
+define function read-map(s :: <stream>) => (result :: <array>);
   let x-size :: <integer> = string-to-integer(read-line(s));
   let y-size :: <integer> = string-to-integer(read-line(s));
   
-  *world* := make(<array>, dimensions: vector(x-size, y-size));
+  let result = make(<array>, dimensions: vector(x-size, y-size));
 
   for(xx from 0 below x-size)
     let line = read-line(s);
@@ -500,4 +500,17 @@ define function step(aid :: <integer>)
   end if;
 end function step;
 
-      
+define function play-game(red-brain :: <string>,
+                          black-brain :: <string>,
+                          world :: <string>)
+  => ()
+  with-open-file(brain = red-brain)
+    *red-brain* := read-state-machine(brain)
+  end with-open-file;
+  with-open-file(brain = black-brain)
+    *black-brain* := read-state-machine(brain)
+  end with-open-file;
+  with-open-file(world-stream = world)
+    *world* := read-map(world-stream)
+  end with-open-file;
+  
