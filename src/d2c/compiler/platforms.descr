@@ -55,29 +55,46 @@
 // for little.  WARNING: there might be places in the compiler where this
 // flag is ignored.
 //
+// pointer-size: Specifies the size, in bytes, of a 'void *' pointer.
+// integer-size: Same for 'int's
+// long-size: Same for 'long's
+// single-size: Same for 'float's
+// double-size: Same for 'double's
+// long-double-size: Same for 'long double's
+
+// 32-bit
+platform-name:			32-bit
+integer-length:			32
+pointer-size:			4
+short-size:			2
+long-size:			4
+integer-size:			4
+single-size:			4
+double-size:			8
+long-double-size:		16
 
 // Intel 80386 or higher:
 platform-name:			x86
+inherit-from:			32-bit
 default-features:		compiled-for-x86
-integer-length:			32
 big-endian?:			#f
 
 // SPARC:
 platform-name:			sparc
+inherit-from:			32-bit
 default-features:		compiled-for-sparc
-integer-length:			32
 big-endian?:			#t
 
 // PowerPC:
 platform-name:			ppc
+inherit-from:			32-bit
 default-features:		compiled-for-ppc
-integer-length:			32
 big-endian?:			#t
 
 // HP-PA RISC processor:
 platform-name:			hppa
+inherit-from:			32-bit
 default-features:		compiled-for-hppa
-integer-length:			32
 big-endian?:			#t
 
 // Alpha:
@@ -85,6 +102,13 @@ platform-name:			alpha
 default-features:		compiled-for-alpha
 integer-length:			64
 big-endian?:			#t
+pointer-size:			8
+short-size:			2
+integer-size:			4
+long-size:			8
+single-size:			4
+double-size:			8
+long-double-size:		8
 
 // Operating system entries:
 // 
@@ -226,9 +250,9 @@ make-command:                   	gmake
 // align-arg-is-power-of-two?: True if the argument to the align-directive
 // is a power-of-two rather than a byte count.  The default is #f.
 //
-// word-directive: Assembler directive for outputting a 32-bit word.
+// word-directive: Assembler directive for outputting a machine word.
 //
-// half-word-directive: Assembler directive for outputting a 16-bit integer.
+// half-word-directive: Assembler directive for outputting a machine nybble.
 //
 // byte-directive: Assembler directive for outputting an 8-bit quantity.
 //
@@ -377,7 +401,7 @@ link-shared-library-command:    gcc -shared -o %s %s
 link-executable-command:        gcc  -o %s %s %s
 link-executable-flags:          -lm
 path-separator:        		/
-support-debugging?:		#t
+supports-debugging?:		#t
 
 // Combinations:
 
@@ -404,6 +428,12 @@ align-arg-is-power-of-two?:     #t
 
 platform-name:			alpha-linux-gcc
 inherit-from:			gcc linux alpha
+descriptor-type-string:         .stabs "<unknown>",100,0,0,.Ltext0\n.text\n.Ltext0:\n.stabs "heapptr_t:t34=*35=xsheapobj:",128,0,6,0\n.stabs "descriptor:T36=s8heapptr:34,0,32;dataword:37=u4l:3,0,32;\\\",128,0,0,0\n.stabs "f:12,0,32;ptr:27,0,32;;,32,32;;",128,0,0,0\n.stabs "descriptor_t:t36",128,0,14,0\n
+descriptor-reference-string:    \t.stabs\t"%s%s:G36",32,0,1,0\n
+object-size-string:             \t.size\t%s%s, %d\n
+word-directive:			.quad
+half-word-directive:		.word
+
 
 // Other platforms:
 //   These all worked at one point, but since none of the development team 
