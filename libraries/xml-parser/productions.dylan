@@ -6,6 +6,8 @@ synthesis: Douglas M. Auclair <doug@cotilliongroup.com> -- DMA
 comments-by: DMA unless otherwise indicated
 copyright: LGPL
 
+// *debug-meta-functions?* := #t; // uncomment this line for spewage
+
 /*
  * 
  * This library implements a parser for XML 1.0, using the META parser
@@ -52,7 +54,7 @@ define function parse-document(doc :: <string>,
 			       print-warnings? = #f,
  			       ignore-instructions? = #f)
  => (stripped-tree :: <document>)
-  *entities* := make(<table>);
+  initialize-latin1-entities();
   *show-warnings?* := print-warnings?;
   *defining-entities?* := #f;
   *ignore-instructions?* := ignore-instructions?;
@@ -158,6 +160,7 @@ end macro collect-value-definer;
 // continuation" (ouch!).  Or, how do a construct a predicate from other 
 // predicates?  Meta-conjoin?
 define collector entity-value(contents, s) => (str)
+  { ["CDATA", scan-s(s)], [] },
   {["\"",
     loop({[scan-reference(contents), do(do(collect, contents))],
           [{[scan-s?(s), scan-element(contents)], 
@@ -168,6 +171,7 @@ define collector entity-value(contents, s) => (str)
           [{[scan-s?(s), scan-element(contents)],
             scan-single-char-data(contents)}, 
            do(collect(contents))]}), "'"]}, 
+  {[scan-s(s), scan-comment-guts(s)], [] },
   []
 end collector entity-value;
 
@@ -229,9 +233,13 @@ define collect-data double-char("\"&") end;
 // Comments
 // [15] Comment    ::=    '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 //
-define collector comment(c) => (make(<comment>, comment: as(<string>, str)))
-  "<!--", loop({["-->", finish()], [accept(c), do(collect(c))]})
-end collector comment;
+define meta comment(c) => (make(<comment>, comment: c))
+  "<!", scan-comment-guts(c), ">"
+end meta comment;
+
+define collector comment-guts(c)
+  "--", loop({["--", finish()], [accept(c), do(collect(c))]})
+end collector comment-guts;
 
 // Processing Instructions
 // [16] PI ::= '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
@@ -674,8 +682,9 @@ define constant $attrib-defaults = make(<multimap>);
 // [52] AttlistDecl ::= '<!ATTLIST' S Name AttDef* S? '>'
 //
 define meta attlist-decl(s, elt-name, att-def)
-  "<!ATTLIST", scan-s(s), scan-name(elt-name), set!(*last-tag-name*, elt-name),
-    loop(scan-att-def(att-def)), scan-s?(s), ">", no!(*last-tag-name*)
+  "<!ATTLIST", scan-s(s), scan-name(elt-name),
+  set!(*last-tag-name*, as(<symbol>, elt-name)),
+  loop(scan-att-def(att-def)), scan-s?(s), ">", no!(*last-tag-name*)
 end meta attlist-decl;
 
 define variable *last-attrib* = #f;
@@ -812,12 +821,14 @@ define collector hex-char-ref(c)
   "&#x", loop([element-of($hex-digit, c), do(collect(c))]), ";"
 end collector hex-char-ref;
 
+// I had had in the return value this:
+// if(*substitute-entities?*)
+            // make(<char-string>, text: make(<string>, size: 1, fill: char));
+          // else
+          // end if))
+// but since I now handle char-refs in the expansion phase, I no longer need it
 define meta char-ref(char, name)
- => (list(if(*substitute-entities?*)
-            make(<char-string>, text: make(<string>, size: 1, fill: char));
-          else
-            make(<char-reference>, name: name, char: char)
-          end if))
+ => (list(make(<char-reference>, name: name, char: char)))
   { scan-int-char-ref(char, name), scan-hex-char-ref(char, name) }, []
 end meta char-ref;
 
@@ -830,15 +841,9 @@ end meta reference;
 
 //-------------------------------------------------------
 // entity tables
-define variable *entities* = make(<table>);
 define variable *pe-refs* = make(<table>);
 define variable *substitute-entities?* :: <boolean> = #t;
 define variable *defining-entities?* :: <boolean> = #f;
-
-define method entity-value(ent :: <entity-reference>)
- => (val :: <sequence>)
-  *entities*[ent.name];
-end method entity-value;
 
 define generic do-expand(obj :: <xml>) => (ans :: <list>);
 define method do-expand(obj :: <xml>) => (ans :: <list>) list(obj); end;
@@ -852,6 +857,10 @@ end method do-expand;
 
 define method do-expand(ent :: <entity-reference>) => (ans :: <list>)
   expand-entity(ent.entity-value)
+end method do-expand;
+
+define method do-expand(ref :: <char-reference>) => (ans :: <list>)
+  list(make(<char-string>, text: make(<string>, size: 1, fill: ref.char)));
 end method do-expand;
 
 define function expand-entity(val :: <sequence>) => (ans :: <list>)
@@ -872,7 +881,7 @@ end function expand-entity;
 //                                                     [WFC: No Recursion]
 define meta entity-ref(name)
  => (if(*substitute-entities?* & ~ *defining-entities?*)
-      *entities*[name].expand-entity;
+      *entities*[as(<symbol>, name)].expand-entity;
      else
       list(make(<entity-reference>, name: name));
      end if)
@@ -898,7 +907,7 @@ end meta entity-decl;
 //    [71]    GEDecl        ::=    '<!ENTITY' S Name S EntityDef S? '>'
 define meta ge-decl(name, s, def) => (name)
   scan-name(name), scan-s(s), scan-entity-def(def), scan-s?(s),
-  set!(*entities*[name], def)
+  set!(*entities*[as(<symbol>, name)], def)
 end meta ge-decl;
 
 //    [72]    PEDecl        ::=    '<!ENTITY' S '%' S Name S PEDef S? '>'

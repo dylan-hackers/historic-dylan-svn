@@ -45,9 +45,16 @@ define module interface
   use xml-parser;
 
   export
-    <reference>, <attributes>, <node-mixin>, <external-mixin>,
+    <reference>, <attributes>, <node-mixin>, <external-mixin>, *entities*,
     after-open, before-close, $hex-digit, $version-number, trim-string;
 end module interface;
+
+define module latin1-entities
+  use common-dylan;
+  use xml-parser;
+  use interface;
+  export initialize-latin1-entities;
+end module latin1-entities;
 
 define module transform
   use common-dylan, exclude: {format-to-string };
@@ -82,7 +89,8 @@ define module collect
 end module collect;
 
 define module %productions
-  use common-dylan, exclude: { format-to-string };
+  use common-dylan;
+  use latin1-entities;
   use standard-io;
   use format-out;
   use streams;
@@ -94,3 +102,4 @@ define module %productions
   use interface;
   use xml-parser;
 end module %productions;
+

@@ -17,18 +17,6 @@ define method name-setter(sym, xml :: <xml>) => (ans)
   xml.name-with-proper-capitalization := as(<string>, sym);
 end method name-setter;
 
-/*  Well, this worked like a charm -- NOT!
-define method make(cls :: subclass(<xml>), #next next, #rest args, #key name)
- => (elt :: <xml>)
-  let namei = if(instance?(name, type-union(<symbol>, <string>)))
-                as(<string>, name)
-              else
-               "no-name"
-              end if;
-  apply(next, cls, name: namei, args);
-end method make;
- */
-
 define method initialize(xml :: <xml>, #key name) => (elt :: <xml>)
   unless(slot-initialized?(xml, name-with-proper-capitalization)
          & ~ xml.name-with-proper-capitalization.empty?)
@@ -107,6 +95,12 @@ define abstract class <reference> (<xml>) end;
 define class <entity-reference> (<reference>)
   constant virtual slot entity-value;
 end class <entity-reference>;
+
+define variable *entities* :: <table> = make(<table>);
+
+define method entity-value(ent :: <entity-reference>) => (val :: <sequence>)
+  *entities*[ent.name];
+end method entity-value;
 
 define class <char-reference> (<reference>)
   constant slot char :: <character>, required-init-keyword: char:;
