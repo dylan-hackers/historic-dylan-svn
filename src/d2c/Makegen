@@ -1,5 +1,0 @@
-if (!$enable_bootstrap) {
-    do compile_subdirs('runtime', 'debugger', 'compiler'); # 'dig'
-} else {
-    do compile_subdirs('runtime', 'debugger', 'compiler');
-}
