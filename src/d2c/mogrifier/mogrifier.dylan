@@ -52,7 +52,7 @@ define function powerpc-disassemble(instruction :: <integer>, #key simplify :: <
  => mnemonics :: <string>;
   let primary = ash(instruction, -26);
   let primary = primary >= 0 & primary | primary + #x40;
-  powerpc-disassemble-primary(simplify, primary, logand(instruction, #x3FFFFFF));
+  powerpc-disassemble-subcode(simplify, primary, instruction.instruction-mask-subcode, logand(instruction, #x3FFFFFF));
 end;
 
 
@@ -100,11 +100,19 @@ define method class-for-instruction-subcode(primary :: <primary-field>, key :: <
 end;
 
 
+
+define not-inline function is-subtype?(a, b)
+subtype?(a, b)
+end;
+
+
 define method make(class == <powerpc-instruction>, #rest args, #key instruction-word :: <integer>)
  => instruction :: <powerpc-instruction>;
   let primary = ash(instruction-word, -26);
   let primary = primary >= 0 & primary | primary + #x40;
   let subcode = instruction-word.instruction-mask-subcode;
+  
+  format-out("subtype? %=\n", is-subtype?(singleton(16), limited(<integer>, min: 0, max: 63)));
   
     format-out("%d, %s\n", primary, class-for-instruction-subcode(primary, subcode)); // ####
   apply(next-method, class-for-instruction-subcode(primary, subcode), args);
@@ -135,7 +143,7 @@ end;
 // Limited types
 //
 
-// BUG!! define constant <primary-field> = limited(<integer>, min: 0, max: 64);
+// BUG (PR#1414) !! define constant <primary-field> = limited(<integer>, min: 0, max: 63);
 define constant <primary-field> = <integer>;
 // BUG!! define constant <subcode-field> = limited(<integer>, min: 0, max: 1023);
 define constant <subcode-field> = <integer>;
@@ -143,11 +151,13 @@ define constant <subcode-field> = <integer>;
 //
 // Disassembler generics
 //
+/*
 define generic powerpc-disassemble-primary
   (simplify :: <boolean>,
    primary :: <primary-field>,
    secondary :: <integer>)
  => mnemo :: <string>;
+*/
 
 define generic powerpc-disassemble-subcode
   (simplify :: <boolean>,
@@ -158,23 +168,25 @@ define generic powerpc-disassemble-subcode
 
 
 
-define method powerpc-disassemble-primary
+define method powerpc-disassemble-subcode
   (simplify :: <boolean>,
    primary :: <primary-field>,
+   subcode :: <subcode-field>,
    secondary :: <integer>)
  => mnemonics :: <string>;
-  format-out("unknown primary: %d, key: %d\n", primary, instruction-mask(secondary, 21, 30));
+  format-out("unknown primary: %d, key: %d\n", primary, subcode);
   "???"
 end;
 
-
+/*
 define method powerpc-disassemble-primary
   (simplify :: <boolean>,
-   primary :: one-of(19, 31, 63 /* or separate? */),
+   primary :: one-of(19, 31, 63 / * or separate? * /),
    secondary :: <integer>)
  => mnemonics :: <string>;
   powerpc-disassemble-subcode(simplify, primary, instruction-mask-subcode(secondary), secondary)
 end;
+*/
 
 define macro instruction-definer
   
@@ -205,7 +217,7 @@ define macro instruction-definer
   =>
   {
     define instruction ?name(?primary; ?key; ?rest) ?more end;
-      define method class-for-instruction-subcode(primary == ?primary, subcode == ?key, secondary :: <integer>)
+      define method class-for-instruction-subcode(primary == ?primary, subcode == ?key)
        => class :: singleton(<powerpc-branch-instruction>);
         <powerpc-branch-instruction>
       end;
@@ -237,7 +249,7 @@ define macro instruction-definer
 
   { define instruction ?:expression(?primary:expression; ?form) end }
   =>
-  { define method powerpc-disassemble-primary(simplify :: <boolean>, primary == ?primary, secondary :: <integer>)
+  { define method powerpc-disassemble-subcode(simplify :: <boolean>, primary == ?primary, subcode :: <subcode-field>, secondary :: <integer>)
      => mnemonics :: <string>;
       concatenate(?expression, ?form)
     end;
@@ -269,7 +281,7 @@ define macro instruction-definer
   =>
   {
     define instruction ?expression(?primary; ?rest) ?more end;
-    define method powerpc-disassemble-primary(simplify == #t, primary == ?primary, secondary :: <integer>, #next next-method)
+    define method powerpc-disassemble-subcode(simplify == #t, primary == ?primary, subcode :: <subcode-field>, secondary :: <integer>, #next next-method)
      => mnemonics :: <string>;
       case
         ?simplifications;
@@ -324,6 +336,8 @@ define macro instruction-definer
     { flagged ?flag => ?:expression } => { (?flag) => ?expression }
     { unflagged ?flag => ?target } => { (~?flag) => ?target }
     { unflagged ?flag => ?:expression } => { (~?flag) => ?expression }
+    { LR } => { #t => #"LR" }
+    { CTR } => { #t => #"CTR" }
 
   target:
     { PC ?plus:token ?field } => { (instruction-counter ?plus ?field) }
@@ -626,12 +640,14 @@ end;
 
 define instruction bclr(19; 16; BO, BI, LK)
   simplify [(flagged ALWAYS) & (flagged KEEP) & (field BI = 0)]
-    => blr(LK)
+    => blr(LK);
+  branch LR
 end;
 
 define instruction bcctr(19; 528; BO, BI, LK)
   simplify [(flagged ALWAYS) & (flagged KEEP) & (field BI = 0)]
-    => bctr(LK)
+    => bctr(LK);
+  branch CTR
 end;
 
 define instruction stmw(47; S, A, d) end;
