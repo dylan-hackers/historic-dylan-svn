@@ -1,6 +1,6 @@
 Module: front
 Description: implementation of Front-End-Representation builder
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-builder.dylan,v 1.8 2002/03/10 16:15:31 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-builder.dylan,v 1.8.2.1 2002/08/10 21:24:27 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -664,7 +664,7 @@ define method make-function-literal
      kind :: one-of(#"function", #"method", #"callback"),
      visibility :: <function-visibility>,
      signature :: <signature>, main-entry :: <fer-function-region>)
- => res :: <leaf>;
+ => res :: <function-literal>;
   let leaf = make(select(kind)
 		    #"function" => <function-literal>;
 		    #"method" => <method-literal>;
