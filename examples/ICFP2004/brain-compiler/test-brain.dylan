@@ -6,6 +6,7 @@ define brain test-brain1
 //         Verbatim { Drop(lookup(start:, 0)) };
          Move => problem;
          Sense LeftAhead Home, (turn-left, choose);
+         Sense LeftAhead (Marker 1), (turn-left, choose);
 
   [choose:]
          Flip 9, (turn-left, turn-right);
