@@ -572,168 +572,99 @@ end brain; // keith-patroller
 
 
 define sub brain keith-defence (leave)
-
-  Flip 5, (defense_get_out_of_home);
-  Flip 4, (defense_get_out_of_home);
-  Flip 4, (kill, search);
-
-  [defense_get_out_of_home:]
-    Sense Home => defense_out_of_home;
-    Move defense_get_out_of_home;
-    Turn Right, (defense_get_out_of_home);
-
-  [defense_out_of_home:]
-    Mark 0;
-    Turn Right;
-    Turn Right;
-    Turn Right, (defense);
-  
-  [defense:]
-    Sense RightAhead Home, (defense_turn_right1, defense_move_right);
-  
-  [defense_turn_right1:]
-    Turn Right, (defense_move_right);
-  
-  [defense_move_right:]
-    Turn Right, (defense_move1);
-  
-  [defense_move1:]
-    Move => defense_move1;
-    Sense RightAhead Food, (defense_take_food);
-    Sense LeftAhead Friend, (defense_step_out, defense_move_right_part_2);
-  
-  [defense_take_food:]
-    Turn Right;
-    Move => defense_move_right_part_2;
-    PickUp next => next;
-
-  [next:]
-    Turn Right;
-    Turn Right;
-    Turn Right, (return_food_move1);
-
-  [return_food_move1:]
-    Move return_food_move2 => return_food_move1;
-
-  [return_food_move2:]
-    Move => return_food_move2;
-    Drop, (defense_get_out_of_home);
-  
-  [defense_step_out:]
-    Turn Right;
-    Move step_out_move2 => defense_move_right_part_2;
-
-  [step_out_move2:]
-    Move => step_out_move2;
-    Turn Right;
-    Turn Right;
-    Turn Right, (step_in_move1);
-
-  [step_in_move1:]
-    Move step_in_move2 => step_in_move1;
-
-  [step_in_move2:]
-    Move => step_in_move2;
-    Turn Right;
-    Turn Right, (defense_move_right_part_2);
-  
-  [defense_move_right_part_2:]
-    Sense LeftAhead Home => defense_corner;
-    Turn Left, (defense);
-    
-  [defense_corner:]
-    Turn Left;
-    Turn Left, (defense);
-    Flip 6, (kill, search);
-  
-  [search:]
-    Move => search_blocked;
-    Sense Home, (search);
-    PickUp, (turn_and_return);
-    Sense Ahead FoeHome, (patrol, search);
-
-  [search_blocked:]
-    Turn Right, (search);
-  
-  [turn_and_return:]
-    Turn Right;
-    Turn Right;
-    Turn Right, (return);
-  
-  [return:]
-    Move => return_blocked;
-    Sense Ahead (Marker 0) => return;
-    Drop, (turn_and_search);
-
-  [return_blocked:]
-    Turn Left, (return);
-  
-  [turn_and_search:]
-    Turn Right;
-    Turn Right;
-    Turn Right, (search);
-  
-  [patrol:]
-    PickUp, (turn_and_return);
-    Sense RightAhead FoeHome, (patrol_turn_right1, patrol_move_right);
-  
-  [patrol_turn_right1:]
-    Turn Right, (patrol_move_right);
-  
-  [patrol_move_right:]
-    Turn Right, (patrol_move1);
-  
-  [patrol_move1:]
-    Move patrol_move_right_part_2 => patrol_move1;
-  
-  [patrol_move_right_part_2:]
-    Sense LeftAhead FoeHome => patrol_corner;
-    Turn Left, (patrol);
-  
-  [patrol_corner:]
-    Turn Left;
-    Turn Left, (patrol);
-  
-  [kill:]
-    Flip 10, (kill_turn);
-    Move => kill_turn;
-    Sense FoeHome, (kill_loop, kill);
-  
-  [kill_turn:]
-    Flip 2, (kill_turn_left, kill_turn_right);
-  
-  [kill_turn_left:]
-    Turn Left, (kill);
-  
-  [kill_turn_right:]
-    Turn Right, (kill);
-  
-  [kill_loop:]
-    PickUp, (kill_dump);
-    Sense Ahead FoeHome => kill_turn_and_loop;
-    Move kill_loop => kill_turn_and_loop;
-  
-  [kill_turn_and_loop:]
-    Turn Right, (kill_loop);
-  
-  [kill_dump:]
-    Turn Right;
-    Turn Right;
-    Turn Right, (kill_exit);
-  
-  [kill_exit:]
-    Sense FoeHome => kill_drop;
-    Move kill_exit => kill_exit;
-  
-  [kill_drop:]
-    Drop;
-    Turn Right;
-    Turn Right;
-    Turn Right, (kill_move1);
-  
-  [kill_move1:]
-    Move kill_loop => kill_move1;
-
+Flip 6 73 1
+;Sense Here 2 9 Home
+;Move 1 3
+;Sense Ahead 4 5 Marker 0
+;Mark 1 6
+;Turn Right 1
+;Sense Ahead 6 7 Friend
+;Unmark 1 8
+;Move 1 5
+;Mark 0 10
+;Turn Right 11
+;Turn Right 12
+;Turn Right 13
+;Sense Ahead 21 14 Marker 1
+;Sense RightAhead 21 15 Marker 1
+;Sense LeftAhead 21 16 Marker 1
+;Turn Right 17
+;Turn Right 18
+;Turn Right 19
+;Sense Here 24 20 Food
+;Sense Ahead 31 13 Food
+;Turn Right 22
+;Turn Right 23
+;Turn Right 41
+;PickUp 25 25
+;Turn Right 26 26
+;Turn Right 27 27
+;Turn Right 28 28
+;Move 29 29
+;Sense Here 30 53 Home
+;Drop 1
+;Move 32 32
+;PickUp 33 33
+;Turn Right 34
+;Turn Right 35
+;Turn Right 36
+;Move 37 37
+;Move 38 38
+;Sense Here 39 53 Home
+;Drop 1
+;Flip 6 73 41
+;Move 42 46
+;Sense Here 1 43 Home
+;Sense Here 47 44 Marker 0
+;PickUp 50 45
+;Sense Ahead 64 41 FoeHome
+;Turn Right 41
+;Turn Right 48
+;Turn Right 49
+;Move 41 41
+;Turn Right 51
+;Turn Right 52
+;Turn Right 53
+;Move 54 57
+;Sense Ahead 55 53 Marker 0
+;Sense Ahead 56 58 Friend
+;Drop 61
+;Turn Left 53
+;Move 59 59
+;Move 60 60
+;Drop 1
+;Turn Right 62
+;Turn Right 63
+;Turn Right 41
+;PickUp 50 65 Food
+;Sense RightAhead 66 67 FoeHome
+;Turn Right 67
+;Turn Right 68
+;Move 69 68
+;Sense LeftAhead 70 71 FoeHome
+;Turn Left 64
+;Turn Left 72
+;Turn Left 64
+;Flip 10 76 74
+;Move 75 76
+;Sense Here 79 73 FoeHome
+;Flip 2 77 78
+;Turn Left 73
+;Turn Right 73
+;PickUp 83 80
+;Sense Ahead 81 82 FoeHome
+;Move 79 82
+;Turn Right 79
+;Turn Right 84
+;Turn Right 85
+;Turn Right 86
+;Sense Here 87 88 FoeHome
+;Move 86 86
+;Drop 89
+;Turn Right 90
+;Turn Right 91
+;Turn Right 92
+;Move 79 92
 end brain; // keith-defence
 
   

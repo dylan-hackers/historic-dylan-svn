@@ -1,278 +1,770 @@
 module: assembler
 
 
-define brain alex-gatherer
+// Attackers attack other ant hills.
+define sub brain alex-attacker (leave)
 
-  [start:]
-    Mark 0;
-    Mark 3;
-    Flip 5, (kill-other-hill, start-2);
+  Sense FoeHome, (attacker-success, a-search-foe-home);
 
-  [start-2:]
-    Flip 15, (mark-around, get-out-of-home);
 
-  [drop-and-get-out-of-home:]
+  // Steal food.
+  [attacker-success:]
+    Sense Food, (a-steal-from-under-entry);
+    Flip 4, (attacker-success-right);
+    Sense Ahead FoeHome, (a-steal-from-in-front);
+    Turn Right, (attacker-success);
+
+  [attacker-success-right:]
+    Flip 10, (attacker-success-left);
+    Turn Right, (attacker-success);
+
+  [attacker-success-left:]
+    Turn Left, (attacker-success);
+
+
+  [a-steal-from-in-front:]
+    Move attacker-success;
+    Sense Ahead Friend, (a-steal-from-in-front-left-avoid);
+    Flip 3, (attacker-success-right, attacker-success-left);
+
+  [a-steal-from-in-front-left-avoid:]
+    Turn Left, (attacker-success);
+
+
+/*
+  [a-steal-from-in-front:]
+    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
+    Move attacker-success => attacker-success-right;
+
+  [a-steal-from-in-front-right:]
+    Sense RightAhead FoeHome, (attacker-success-right);
+    Move attacker-success => attacker-success-right;
+*/
+
+
+  // From under is easy on the edge.
+  [a-steal-from-under-entry:]
+    PickUp a-steal-from-under => attacker-success;
+
+  [a-steal-from-under:]
+    Sense Ahead FoeHome => a-steal-do-from-under;
+    Move a-steal-from-under => a-steal-from-under-turn;
+
+  [a-steal-from-under-turn:]
+    Turn Left, (a-steal-from-under);
+
+  [a-steal-do-from-under:]
+    Turn Left;
+    Sense Ahead FoeHome, (a-steal-do-from-under, a-steal-food-out);
+
+  [a-steal-food-out:]
+    Move => a-steal-food-out;
+    Drop;
+    Turn Left;
+    Turn Left;
+    Turn Left, (a-near-hub-ahead);
+
+
+  [a-search-foe-home:]
+    Sense FoeHome, (attacker-success);
+    Sense Ahead FoeHome, (a-near-hub-ahead);
+    Sense LeftAhead FoeHome, (a-near-hub-left);
+    Sense RightAhead FoeHome, (a-near-hub-right);
+//    Sense LeftAhead Rock, (a-move-right);
+//    Sense RightAhead Rock, (a-move-left);
+//    Sense Ahead Rock, (a-move-lr);
+    Flip 2, (a-move-forward, a-move-lr);
+
+
+  // We are near their hill.
+  [a-near-hub-ahead:]
+    Move alex-attacker => a-near-hub-ahead-blocked;
+
+  [a-near-hub-left:]
+    Turn Left;
+    Move alex-attacker => a-search-foe-home;
+
+  [a-near-hub-right:]
+    Turn Right;
+    Move alex-attacker => a-search-foe-home;
+
+  [a-near-hub-ahead-blocked:]
+    Flip 4, (a-near-hub-ahead-blocked-right, a-near-hub-ahead-blocked-left);
+
+  [a-near-hub-ahead-blocked-right:]
+    Turn Right;
+    Sense Friend, (a-near-hub-left);
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-left:]
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-go-around-right:]
+    Turn Left, (a-search-foe-home);
+
+  [a-near-hub-ahead-blocked-try-left-instead:]
+    Turn Left;
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-try-right-instead:]
     Turn Right;
     Turn Right;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-go-around-left:]
+    Turn Right, (a-search-foe-home);
+    
+
+  // We are still searching.
+  [a-move-forward:]
+    Move alex-attacker => a-move-lr;
+
+  [a-move-lr:]
+    Flip 2, (a-move-left, a-move-right);
+
+  [a-move-left:]
+    Turn Left;
+    Move alex-attacker => a-move-left;
+
+  [a-move-right:]
     Turn Right;
-    Drop, (get-out-of-home);
+    Move alex-attacker => a-move-right;
 
-  // The following set of macros makes the ant get out of home.
-  // After that it moves on to search-food.
-  [get-out-of-home:]
-    Sense Home, (move-forward-in-home, search-food);
-
-  [move-forward-in-home:]
-    Move get-out-of-home => turn-right-in-home;
-
-//  [turn-left-or-right-in-home:]
-//    Flip 1, (turn-left-in-home, turn-right-in-home);
-
-//  [turn-left-in-home:]
-//    Turn Left, (move-forward-in-home);
-
-  [turn-right-in-home:]
-    Turn Right, (move-forward-in-home);
+end brain; // alex-attacker
 
 
-  // The following set of macros makes the ant search for food,
-  // while avoiding home cells.
-  [search-food:]
-    Sense Home, (get-out-of-home, search-food-out-of-home);
+// Attackers attack other ant hills.
+define sub brain alex-attacker-border (leave)
 
-  [search-food-out-of-home:]
-    Sense Food, (pick-up-food, search-food-in-empty);
+  Sense FoeHome, (attacker-success, a-search-foe-home);
 
-  [pick-up-food:]
+
+  // Steal food.
+  [attacker-success:]
+    Sense Food, (a-steal-from-under);
+    Sense Ahead FoeHome, (a-steal-from-in-front);
+    Turn Right, (attacker-success);
+
+  [attacker-success-right:]
+    Turn Right, (attacker-success);
+
+/*
+  [a-steal-from-in-front:]
+    Move attacker-success;
+    Sense Ahead Friend, (a-steal-from-in-front-left-avoid);
+    Flip 3, (attacker-success-right, attacker-success-left);
+
+  [a-steal-from-in-front-left-avoid:]
+    Turn Left, (attacker-success);
+*/
+
+  [a-steal-from-in-front:]
+    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
+    Move attacker-success => attacker-success-right;
+
+  [a-steal-from-in-front-right:]
+    Sense RightAhead FoeHome, (attacker-success-right);
+    Move attacker-success => attacker-success-right;
+
+
+  // From under is easy on the edge.
+  [a-steal-from-under:]
+    PickUp => a-steal-food-out;
+    Sense Ahead FoeHome, (a-steal-do-from-under, a-steal-do-from-under);
+
+  [a-steal-do-from-under:]
+    Turn Left;
+    Sense Ahead FoeHome, (a-steal-do-from-under, a-steal-food-out);
+
+  [a-steal-food-out:]
+    Move => a-steal-food-out;
+    Drop;
     Turn Left;
     Turn Left;
+    Turn Left, (a-near-hub-ahead);
+
+
+  [a-search-foe-home:]
+    Sense FoeHome, (attacker-success);
+    Sense Ahead FoeHome, (a-near-hub-ahead);
+    Sense LeftAhead FoeHome, (a-near-hub-left);
+    Sense RightAhead FoeHome, (a-near-hub-right);
+//    Sense LeftAhead Rock, (a-move-right);
+//    Sense RightAhead Rock, (a-move-left);
+//    Sense Ahead Rock, (a-move-lr);
+    Flip 2, (a-move-forward, a-move-lr);
+
+
+  // We are near their hill.
+  [a-near-hub-ahead:]
+    Move alex-attacker-border => a-near-hub-ahead-blocked;
+
+  [a-near-hub-left:]
     Turn Left;
-    PickUp deliver-food => search-food-in-empty;
+    Move alex-attacker-border => a-search-foe-home;
 
-  [pick-up-food-no-turn:]
-    PickUp deliver-food => search-food-in-empty;
+  [a-near-hub-right:]
+    Turn Right;
+    Move alex-attacker-border => a-search-foe-home;
 
-  [search-food-in-empty:]
-    Sense Ahead Food, (move-forward-in-empty, try-left-or-right-or-f);
+  [a-near-hub-ahead-blocked:]
+    Flip 4, (a-near-hub-ahead-blocked-right, a-near-hub-ahead-blocked-left);
 
-  [try-left-or-right-or-f:]
-    Flip 1, (try-forward, try-left-or-right);
+  [a-near-hub-ahead-blocked-right:]
+    Turn Right;
+    Sense Friend, (a-near-hub-left);
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
 
-  [try-left-or-right:]
-    Flip 1, (try-left, try-right);
+  [a-near-hub-ahead-blocked-left:]
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
 
-  [try-left:]
-    Sense LeftAhead Food, (move-left-in-empty, try-forward);
+  [a-near-hub-ahead-blocked-go-around-right:]
+    Turn Left, (a-search-foe-home);
 
-  [try-right:]
-    Sense RightAhead Food, (move-right-in-empty, try-forward);
-
-  [try-forward:]
-    Mark 0;
-    Move search-food => try-else;
-
-  [try-else:]
-    Flip 1, (move-left-or-right-twice-in-empty, move-left-or-right-or-forward-in-empty);
-
-  [move-left-or-right-twice-in-empty:]
-    Flip 1, (move-left-twice-in-empty, move-right-twice-in-empty);
-
-  [move-left-twice-in-empty:]
+  [a-near-hub-ahead-blocked-try-left-instead:]
     Turn Left;
     Turn Left;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
 
-  [move-right-twice-in-empty:]
+  [a-near-hub-ahead-blocked-try-right-instead:]
     Turn Right;
     Turn Right;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
 
-  [move-left-or-right-or-forward-in-empty:]
-    Flip 2, (move-forward-in-empty, move-left-or-right-in-empty);
+  [a-near-hub-ahead-blocked-go-around-left:]
+    Turn Right, (a-search-foe-home);
+    
 
-  [move-forward-in-empty:]
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
+  // We are still searching.
+  [a-move-forward:]
+    Move alex-attacker-border => a-move-lr;
 
-  [move-left-or-right-in-empty:]
-    Flip 1, (move-left-in-empty, move-right-in-empty);
+  [a-move-lr:]
+    Flip 2, (a-move-left, a-move-right);
 
-  [move-left-in-empty:]
+  [a-move-left:]
     Turn Left;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
+    Move alex-attacker-border => a-move-left;
 
-  [move-right-in-empty:]
+  [a-move-right:]
     Turn Right;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
+    Move alex-attacker-border => a-move-right;
 
-  [move-at-random-in-empty:]
-    Flip 15, (move-back, move-other-five);
-
-  [move-back:]
-    Turn Left;
-    Turn Left;
-    Turn Left;
-    Mark 0;
-    Move search-food => move-at-random-in-empty;
-
-  [move-other-five:]
-    Flip 2, (try-forward, try-else);
+end brain; // alex-attacker-border
 
 
-  // The following set of macros makes it possible to deliver food,
-  // using the trail of marks left using marker 0.
-  [deliver-food:]
-    Sense Home, (drop-and-get-out-of-home, deliver-forward);
 
-  [deliver-forward:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-1);
+// Gatherers gather food. Based on the gatherer 3 we had (by Keith Bauer!).
+define sub brain keith-gatherer (leave)
 
-  [deliver-move-forward:]
-    // Unmark 0;
-    Move deliver-food => deliver-try-other-four;
+  Flip 2, (rightant-search, leftant-search);
 
-  [deliver-try-left-1:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-2);
 
-  [deliver-try-left-2:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-3);
+  [rightant-search:]
+    Move => rightant-search-blocked;
+    Sense Home, (rightant-search);
+    PickUp, (rightant-turn-and-return);
+    Sense FoeHome, (rightant-patrol, rightant-search);
 
-  [deliver-try-left-3:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-4);
+  [rightant-search-blocked:]
+    Turn Right, (rightant-search);
 
-  [deliver-try-left-4:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-try-left-5);
-
-  [deliver-try-left-5:]
-    Sense Ahead (Marker 0), (deliver-move-forward, deliver-at-random);
-
-  // We lost our trail. Try randomly or use mark-up of ant hill kind. :-)
-  [deliver-at-random:]
-    Flip 5, (deliver-move-forward, deliver-try-other-five);
-
-  [deliver-try-other-five:]
-    Flip 4, (deliver-move-backward, deliver-try-other-four);
-
-  [deliver-move-backward:]
-    Turn Left;
-    Turn Left;
-    Turn Left, (deliver-move-forward);
-
-  [deliver-try-other-four:]
-    Flip 1, (deliver-move-left-or-right, deliver-move-left-or-right-twice);
-
-  [deliver-move-left-or-right:]
-    Flip 1, (deliver-move-left, deliver-move-right);
-
-  [deliver-move-left:]
-    Turn Left, (deliver-move-forward);
-
-  [deliver-move-right:]
-    Turn Right, (deliver-move-forward);   
-
-  [deliver-move-left-or-right-twice:]
-    Flip 1, (deliver-move-left-twice, deliver-move-right-twice);
-
-  [deliver-move-left-twice:]
-    Turn Left;
-    Turn Left, (deliver-move-forward);
-
-  [deliver-move-right-twice:]
+  [rightant-turn-and-return:]
     Turn Right;
-    Turn Right, (deliver-move-forward);
+    Turn Right;
+    Turn Right, (rightant-return);
+
+  [rightant-return:]
+    Move => rightant-return-blocked;
+    Sense Home => rightant-return;
+    Drop, (rightant-turn-and-search);
+
+  [rightant-return-blocked:]
+    Turn Left, (rightant-return);
+
+  [rightant-turn-and-search:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (rightant-search);
+
+  [rightant-patrol:]
+    PickUp, (rightant-return);
+    Sense Ahead FoeHome => rightant-turn-and-patrol;
+    Move rightant-patrol => rightant-turn-and-patrol;
+
+  [rightant-turn-and-patrol:]
+    Turn Right, (rightant-patrol);
 
 
-  // Perform marking algorithm.
-  [mark-around:]
-    Sense Home, (mark-out-of-home, kill-other-hill);
+  [leftant-search:]
+    Move => leftant-search-blocked;
+    Sense Home, (leftant-search);
+    PickUp, (leftant-turn-and-return);
+    Sense FoeHome, (leftant-patrol, leftant-search);
 
-  [mark-out-of-home:]
-    Sense Home, (mark-move-forward-in-home, do-mark-l-1-home);
+  [leftant-search-blocked:]
+    Turn Left, (leftant-search);
 
-  [mark-move-forward-in-home:]
-    Move mark-out-of-home => mark-turn-right-in-home;
+  [leftant-turn-and-return:]
+    Turn Left;
+    Turn Left;
+    Turn Left, (leftant-return);
 
-  [mark-turn-right-in-home:]
-    Turn Right, (mark-move-forward-in-home);
+  [leftant-return:]
+    Move => leftant-return-blocked;
+    Sense Home => leftant-return;
+    Drop, (leftant-turn-and-search);
 
-  [do-mark-l-1-home:]
-    Mark 4;
-    Move do-mark-l-2-home => kill-other-hill;
+  [leftant-return-blocked:]
+    Turn Right, (leftant-return);
 
-  [do-mark-l-2-home:]
-    Mark 5;
-    Move do-mark-l-3-home => kill-other-hill;
+  [leftant-turn-and-search:]
+    Turn Left;
+    Turn Left;
+    Turn Left, (leftant-search);
 
-  [do-mark-l-3-home:]
-    Mark 3;
-    Move do-mark-l-1-home => kill-other-hill;
+  [leftant-patrol:]
+    PickUp, (leftant-return);
+    Sense Ahead FoeHome => leftant-turn-and-patrol;
+    Move leftant-patrol => leftant-turn-and-patrol;
+
+  [leftant-turn-and-patrol:]
+    Turn Left, (leftant-patrol);
+
+end brain; // keith-gatherer
+
+
+// This one has patrol support.
+define sub brain keith-patroller-hack (leave)
+
+  Flip 2, (rightant-search, leftant-search);
+
+
+  [rightant-search:]
+    Move => rightant-search-blocked;
+    Sense Home, (rightant-search);
+    PickUp, (rightant-turn-and-return);
+    Sense Ahead FoeHome, (rightant-patrol);
+    Sense LeftAhead FoeHome, (rightant-patrol);
+    Sense RightAhead FoeHome, (rightant-patrol, rightant-search);
+
+  [rightant-search-blocked:]
+    Turn Right, (rightant-search);
+
+  [rightant-turn-and-return:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (rightant-return);
+
+  [rightant-return:]
+    Move => rightant-return-blocked;
+    Sense Home => rightant-return;
+    Drop, (rightant-turn-and-search);
+
+  [rightant-return-blocked:]
+    Turn Left, (rightant-return);
+
+  [rightant-turn-and-search:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (rightant-search);
+
+
+  [rightant-patrol:]
+    Sense Food, (rightant-patrol-pickup);
+    Sense Ahead FoeHome, (rightant-turn-and-patrol);
+    Sense LeftAhead FoeHome, (rightant-patrol-forward-left);
+    Sense RightAhead FoeHome, (rightant-patrol-forward-right, rightant-turn-and-patrol);
+
+  [rightant-patrol-forward-left:]
+    Move => rightant-patrol-forward-try-left-left;
+    Turn Left, (rightant-patrol);
+
+  [rightant-patrol-forward-right:]
+    Move => rightant-patrol-forward-try-right-right;
+    Turn Right, (rightant-patrol);
+
+  [rightant-patrol-forward-try-left-left:]
+    Turn Left;
+    Turn Left, (rightant-patrol-forward-right);
+
+  [rightant-patrol-forward-try-right-right:]
+    Turn Right;
+    Turn Right, (rightant-patrol-forward-left);
+
+
+  [rightant-patrol-pickup:]
+    PickUp rightant-return => rightant-patrol;
+
+  [rightant-turn-and-patrol:]
+    Turn Right, (rightant-patrol);
+
+
+  [leftant-search:]
+    Move => leftant-search-blocked;
+    Sense Home, (leftant-search);
+    PickUp, (leftant-turn-and-return);
+    Sense Ahead FoeHome, (leftant-patrol);
+    Sense RightAhead FoeHome, (leftant-patrol);
+    Sense LeftAhead FoeHome, (leftant-patrol, leftant-search);
+
+  [leftant-search-blocked:]
+    Turn Left, (leftant-search);
+
+  [leftant-turn-and-return:]
+    Turn Left;
+    Turn Left;
+    Turn Left, (leftant-return);
+
+  [leftant-return:]
+    Move => leftant-return-blocked;
+    Sense Home => leftant-return;
+    Drop, (leftant-turn-and-search);
+
+  [leftant-return-blocked:]
+    Turn Right, (leftant-return);
+
+  [leftant-turn-and-search:]
+    Turn Left;
+    Turn Left;
+    Turn Left, (leftant-search);
+
+
+  [leftant-patrol:]
+    Sense Food, (leftant-patrol-pickup);
+    Sense Ahead FoeHome, (leftant-turn-and-patrol);
+    Sense LeftAhead FoeHome, (leftant-patrol-forward-left);
+    Sense RightAhead FoeHome, (leftant-patrol-forward-right, leftant-turn-and-patrol);
+
+  [leftant-patrol-forward-left:]
+    Move => leftant-patrol-forward-try-left-left;
+    Turn Left, (leftant-patrol);
+
+  [leftant-patrol-forward-right:]
+    Move => leftant-patrol-forward-try-right-right;
+    Turn Right, (leftant-patrol);
+
+  [leftant-patrol-forward-try-left-left:]
+    Turn Left;
+    Turn Left, (leftant-patrol-forward-right);
+
+  [leftant-patrol-forward-try-right-right:]
+    Turn Right;
+    Turn Right, (leftant-patrol-forward-left);
+
+
+  [leftant-patrol-pickup:]
+    PickUp leftant-return => leftant-patrol;
+
+  [leftant-turn-and-patrol:]
+    Turn Left, (leftant-patrol);
+
+
+/*
+  [leftant-patrol:]
+    PickUp, (leftant-return);
+    Sense Ahead FoeHome => leftant-turn-and-patrol;
+    Move leftant-patrol => leftant-turn-and-patrol;
+
+  [leftant-turn-and-patrol:]
+    Turn Left, (leftant-patrol);
+*/
+
+end brain; // keith-patroller-hack
+
+
+define sub brain keith-patroller (leave)
+
+  Move => search_blocked;
+  Sense Home, (keith-patroller);
+  PickUp, (turn_and_return);
+  Sense Ahead FoeHome, (patrol, keith-patroller);
+
+  [search_blocked:]
+    Turn Right, (keith-patroller);
   
-
-  // Perform agression of another hill.
-  [kill-other-hill:]
-    Sense FoeHome, (kill-other-hill-check-food, kill-try-forward);
-
-  [kill-other-hill-check-food:]
+  [turn_and_return:]
     Turn Right;
-    Sense Ahead Food, (kill-try-to-eat, kill-other-hill-check-food);
-
-  [kill-try-to-eat:]
-    Move pick-up-food-no-turn => kill-other-hill-check-food;
-
-  [kill-try-forward:]
-    Sense Ahead FoeHome, (kill-move-forward, kill-try-unmarked);
-
-  [kill-move-forward:]
-    Mark 1;
-    Move kill-other-hill => kill-try-unmarked;
-
-  [kill-try-unmarked:]
-    Sense Ahead (Marker 1), (kill-try-other-four, kill-move-forward);
-
-  [kill-try-other-four:]
-    Flip 1, (kill-l-or-r, kill-2l-or-2r);
-
-  [kill-l-or-r:]
-    Flip 1, (kill-try-left, kill-try-right);
-
-  [kill-try-left:]
-    Sense LeftAhead FoeHome, (kill-move-left, kill-try-left-M);
-
-  [kill-try-left-M:]
-    Sense LeftAhead (Marker 1), (kill-try-random, kill-move-left);
-
-  [kill-move-left:]
-    Turn Left, (kill-move-forward);
-
-  [kill-try-right:]
-    Sense RightAhead FoeHome, (kill-move-right, kill-try-right-M);
-
-  [kill-try-right-M:]
-    Sense RightAhead (Marker 1), (kill-try-random, kill-move-right);
-
-  [kill-move-right:]
-    Turn Right, (kill-move-forward);
-
-  [kill-2l-or-2r:]
-    Flip 1, (kill-try-2-left, kill-try-2-right);
-
-  [kill-try-2-left:]
-    Turn Left;
-    Turn Left, (kill-move-forward);
-
-  [kill-try-2-right:]
     Turn Right;
-    Turn Right, (kill-move-forward);
-
-  [kill-try-random:]
+    Turn Right, (return);
+  
+  [return:]
+    Move => return_blocked;
+    Sense Home => return;
+    Move;
+    Move;
+    Move;
+    Drop, (turn_and_search);
+  
+  [return_blocked:]
+    Turn Left, (return);
+  
+  [turn_and_search:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (keith-patroller);
+  
+  [patrol:]
+    PickUp, (turn_and_return);
+    Sense RightAhead FoeHome, (patrol_turn_right1, patrol_move_right);
+  
+  [patrol_turn_right1:]
+    Turn Right, (patrol_move_right);
+  
+  [patrol_move_right:]
+    Turn Right, (patrol_move1);
+  
+  [patrol_move1:]
+    Move patrol_move_right_part_2 => patrol_move1;
+  
+  [patrol_move_right_part_2:]
+    Sense LeftAhead FoeHome => patrol_corner;
+    Turn Left, (patrol);
+  
+  [patrol_corner:]
     Turn Left;
-    Flip 4, (kill-move-forward, kill-try-random);
+    Turn Left, (patrol);
+  
+  [kill:]
+    Flip 10, (kill_turn);
+    Move => kill_turn;
+    Sense FoeHome, (kill_loop, kill);
+  
+  [kill_turn:]
+    Flip 2, (kill_turn_left, kill_turn_right);
+  
+  [kill_turn_left:]
+    Turn Left, (kill);
+  
+  [kill_turn_right:]
+    Turn Right, (kill);
+  
+  [kill_loop:]
+    PickUp, (kill_dump);
+    Sense Ahead FoeHome, (kill_turn_and_loop);
+    Move kill_loop => kill_turn_and_loop;
+  
+  [kill_turn_and_loop:]
+    Turn Right, (kill_loop);
+  
+  [kill_dump:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (kill_exit);
+  
+  [kill_exit:]
+    Sense FoeHome, (kill_drop);
+    Move kill_exit => kill_exit;
+  
+  [kill_drop:]
+    Drop;
+    Turn Right;
+    Turn Right;
+    Turn Right, (kill_move1);
+  
+  [kill_move1:]
+    Move kill_loop => kill_move1;
 
-end;
+end brain; // keith-patroller
 
 
-alex-gatherer().dump-brain;
+define sub brain keith-defence (leave)
+
+  Flip 5, (defense_get_out_of_home);
+  Flip 4, (defense_get_out_of_home);
+  Flip 4, (kill, search);
+
+  [defense_get_out_of_home:]
+    Sense Home => defense_out_of_home;
+    Move defense_get_out_of_home;
+    Turn Right, (defense_get_out_of_home);
+
+  [defense_out_of_home:]
+    Mark 0;
+    Turn Right;
+    Turn Right;
+    Turn Right, (defense);
+  
+  [defense:]
+    Sense RightAhead Home, (defense_turn_right1, defense_move_right);
+  
+  [defense_turn_right1:]
+    Turn Right, (defense_move_right);
+  
+  [defense_move_right:]
+    Turn Right, (defense_move1);
+  
+  [defense_move1:]
+    Move => defense_move1;
+    Sense RightAhead Food, (defense_take_food);
+    Sense LeftAhead Friend, (defense_step_out, defense_move_right_part_2);
+  
+  [defense_take_food:]
+    Turn Right;
+    Move => defense_move_right_part_2;
+    PickUp next => next;
+
+  [next:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (return_food_move1);
+
+  [return_food_move1:]
+    Move return_food_move2 => return_food_move1;
+
+  [return_food_move2:]
+    Move => return_food_move2;
+    Drop, (defense_get_out_of_home);
+  
+  [defense_step_out:]
+    Turn Right;
+    Move step_out_move2 => defense_move_right_part_2;
+
+  [step_out_move2:]
+    Move => step_out_move2;
+    Turn Right;
+    Turn Right;
+    Turn Right, (step_in_move1);
+
+  [step_in_move1:]
+    Move step_in_move2 => step_in_move1;
+
+  [step_in_move2:]
+    Move => step_in_move2;
+    Turn Right;
+    Turn Right, (defense_move_right_part_2);
+  
+  [defense_move_right_part_2:]
+    Sense LeftAhead Home => defense_corner;
+    Turn Left, (defense);
+    
+  [defense_corner:]
+    Turn Left;
+    Turn Left, (defense);
+    Flip 6, (kill, search);
+  
+  [search:]
+    Move => search_blocked;
+    Sense Home, (search);
+    PickUp, (turn_and_return);
+    Sense Ahead FoeHome, (patrol, search);
+
+  [search_blocked:]
+    Turn Right, (search);
+  
+  [turn_and_return:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (return);
+  
+  [return:]
+    Move => return_blocked;
+    Sense Ahead (Marker 0) => return;
+    Drop, (turn_and_search);
+
+  [return_blocked:]
+    Turn Left, (return);
+  
+  [turn_and_search:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (search);
+  
+  [patrol:]
+    PickUp, (turn_and_return);
+    Sense RightAhead FoeHome, (patrol_turn_right1, patrol_move_right);
+  
+  [patrol_turn_right1:]
+    Turn Right, (patrol_move_right);
+  
+  [patrol_move_right:]
+    Turn Right, (patrol_move1);
+  
+  [patrol_move1:]
+    Move patrol_move_right_part_2 => patrol_move1;
+  
+  [patrol_move_right_part_2:]
+    Sense LeftAhead FoeHome => patrol_corner;
+    Turn Left, (patrol);
+  
+  [patrol_corner:]
+    Turn Left;
+    Turn Left, (patrol);
+  
+  [kill:]
+    Flip 10, (kill_turn);
+    Move => kill_turn;
+    Sense FoeHome, (kill_loop, kill);
+  
+  [kill_turn:]
+    Flip 2, (kill_turn_left, kill_turn_right);
+  
+  [kill_turn_left:]
+    Turn Left, (kill);
+  
+  [kill_turn_right:]
+    Turn Right, (kill);
+  
+  [kill_loop:]
+    PickUp, (kill_dump);
+    Sense Ahead FoeHome => kill_turn_and_loop;
+    Move kill_loop => kill_turn_and_loop;
+  
+  [kill_turn_and_loop:]
+    Turn Right, (kill_loop);
+  
+  [kill_dump:]
+    Turn Right;
+    Turn Right;
+    Turn Right, (kill_exit);
+  
+  [kill_exit:]
+    Sense FoeHome => kill_drop;
+    Move kill_exit => kill_exit;
+  
+  [kill_drop:]
+    Drop;
+    Turn Right;
+    Turn Right;
+    Turn Right, (kill_move1);
+  
+  [kill_move1:]
+    Move kill_loop => kill_move1;
+
+end brain; // keith-defence
+
+  
+// Main brain.
+define brain alex-keith
+
+  Flip 5, (attacker, gatherer);
+//  Flip 90, (attacker, gatherer);
+
+
+  [attacker:]
+    Flip 4, (attacker-border);
+    Sub alex-attacker;
+
+  [attacker-border:]
+    Sub alex-attacker-border;
+
+
+  [gatherer:]
+    Flip 5, (patroller);
+    Flip 5, (defender);
+    Sub keith-gatherer;
+
+  [patroller:]
+    Sub keith-patroller;
+//    Sub keith-patroller-hack;
+
+  [defender:]
+    Sub keith-defence;
+
+end brain;
+
+
+alex-keith().dump-brain;
