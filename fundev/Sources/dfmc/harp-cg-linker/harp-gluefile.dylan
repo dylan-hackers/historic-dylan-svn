@@ -401,11 +401,7 @@ end method;
 // other objects are fixed up at startup time by doing a number of
 // indirections off that
 // 
-// Gluefile generator emits Binary "dyimp" section for dynamic linking
-// in interactive compilation mode only; in batch compilation this has
-// to be delayed until link-time in the build-system in order to support
-// DLL Unification of Dylan libraries
-// 
+// The gluefile generator emits a binary "dyimp" section for dynamic linking.
 // 
 
 
@@ -549,20 +545,6 @@ end;
 
 // Emitters of the imported data fixups
 
-define macro with-harp-imports-emitter
-  { with-harp-imports-emitter (?description:expression) ?:body end }
-    => {
-	if (*interactive-mode?*)
-	  ?body
-	else
-          with-build-area-output (?=stream = ?description,
-                                  name: "_imports.import")
-	    ?body
-	  end;
-	end;
-	}
-end macro;
-
 define open generic emit-library-imported-data
     (back-end :: <harp-back-end>, stream, description :: <library-description>,
      #key compilation-layer)
@@ -571,63 +553,60 @@ define open generic emit-library-imported-data
 define method emit-library-imported-data
     (back-end :: <harp-back-end>, stream, description :: <library-description>,
      #key compilation-layer)
- => ()
+ => ();
   unless (*compiling-dylan?*)
-    with-harp-imports-emitter(description)
-      let seen :: <table> = make(<table>);
-      let first-cr = #f;
-      let crs =
-        if (*interactive-mode?*)
-          compilation-context-records(compilation-layer)
-        else
-          let combined-cr =
-            library-description-combined-record(description);
-          (combined-cr & list(combined-cr))
-            | compilation-context-records(description);
-        end;
+    let seen :: <table> = make(<table>);
+    let first-cr = #f;
+    let crs =
+      if (*interactive-mode?*)
+        compilation-context-records(compilation-layer)
+      else
+        let combined-cr =
+          library-description-combined-record(description);
+        (combined-cr & list(combined-cr))
+          | compilation-context-records(description);
+      end;
+    
+    for (cr :: <compilation-record> in crs,
+         first? = #t then #f)
+      with-dependent ($compilation of cr)
+        if (first?) first-cr := cr end;
+        let heap = cr.compilation-record-model-heap;
+        let objects
+          = if (heap) 
+              heap.heap-referenced-objects
+            else 
+              compilation-record-heap-referenced-objects(cr);
+            end if;
+      
+        // dynamic-bind (*current-heap*          = heap)
+        for (object in objects)
+          emit-imported-data(back-end, stream, object, seen, first?);
+        end for;
+        // end dynamic-bind;
+      end with-dependent;
+    end for;
 
-      for (cr :: <compilation-record> in crs,
-           first? = #t then #f)
-        with-dependent ($compilation of cr)
-          if (first?) first-cr := cr end;
-          let heap = cr.compilation-record-model-heap;
-          let objects
-            = if (heap) 
-                heap.heap-referenced-objects
-              else 
-                compilation-record-heap-referenced-objects(cr);
-              end if;
-          
-          // dynamic-bind (*current-heap*          = heap)
-          for (object in objects)
-            emit-imported-data(back-end, stream, object, seen, first?);
-          end for;
-          // end dynamic-bind;
-        end with-dependent;
-      end for;
-
-      unless (*interactive-mode?*)
-        if (first-cr)
-          with-dependent ($compilation of first-cr)
-            // Registration of dylan constants that may be
-            // referenced out-of-heap
-            emit-imported-data (back-end, stream,
-                                ^iep(dylan-value($symbol-fixup-name)),
-                                seen, #f,
-                                import?: #t);
-            emit-imported-data(back-end, stream,
-                               ^iep(dylan-value(#"unbound-instance-slot")),
-                               seen, #f,
-                               import?: #t);
-            emit-imported-data(back-end, stream,
-                               ^iep(dylan-value(#"type-check-error")),
-                               seen, #f,
-                               import?: #t);
-            format(stream, "\n");
+    unless (*interactive-mode?*)
+      if (first-cr)
+        with-dependent ($compilation of first-cr)
+          // Registration of dylan constants that may be
+          // referenced out-of-heap
+          emit-imported-data (back-end, stream,
+                              ^iep(dylan-value($symbol-fixup-name)),
+                              seen, #f,
+                              import?: #t);
+          emit-imported-data(back-end, stream,
+                             ^iep(dylan-value(#"unbound-instance-slot")),
+                             seen, #f,
+                             import?: #t);
+          emit-imported-data(back-end, stream,
+                             ^iep(dylan-value(#"type-check-error")),
+                             seen, #f,
+                             import?: #t);
           end;
         end;
-      end unless;
-    end with-harp-imports-emitter;
+    end unless;
   end unless;
 end method;
 
@@ -843,24 +822,19 @@ end emit-import-method;
 
 define method output-imported-data
     (back-end :: <harp-back-end>, stream,
-     name :: <byte-string>, import :: <byte-string>, offset :: <integer>) => ()
-  if (*interactive-mode?*)
-    output-external(back-end, stream, import, import?: #t);
+     name :: <byte-string>, import :: <byte-string>, offset :: <integer>)
+ => ();
+  output-external(back-end, stream, import, import?: #t);
 
-    output-public(back-end, stream, name);
-
-    output-definition(back-end, stream, name,
-		      section: #"variables");
-
-    output-data-item(back-end, stream, import,
-		     import?: #t, offset: offset);
-
-    emit-data-footer(back-end, stream, name);
-  else
-    format(stream, "%s\n", name);
-    format(stream, "%s\n", import);
-    format(stream, "%d\n", offset);
-  end if;
+  output-public(back-end, stream, name);
+  
+  output-definition(back-end, stream, name,
+                    section: #"variables");
+  
+  output-data-item(back-end, stream, import,
+                   import?: #t, offset: offset);
+  
+  emit-data-footer(back-end, stream, name);
 end method;
 
 
