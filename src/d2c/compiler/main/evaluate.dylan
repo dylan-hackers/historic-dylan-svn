@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.41 2002/08/11 00:33:11 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.42 2002/08/11 00:50:42 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -113,7 +113,7 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
                       end for;
                     end block;
                   end method;
-              fer-evaluate(init-function-region.body, env)
+              fer-evaluate(init-function-region.body, env);
               "no <return> encountered in driver function".error;
             exception (ret :: <return-condition>)
               ret.exit-result
@@ -235,10 +235,6 @@ end;
 
 define fer-evaluator compound-region(environment)
   let regions = compound-region.regions;
-  
-  format(*debug-output*, "\n\n\n####### compound-region %= \n", regions);
-  force-output(*debug-output*);
-  
   fer-evaluate-regions(regions.head, regions.tail, environment)
 end;
 
@@ -256,19 +252,16 @@ end;
 
 
 // ########## fer-evaluate-regions ##########
+// sweep over the list of regions that are contained in
+// a compound region.
+//
+define generic fer-evaluate-regions(region :: <region>, more-regions :: <list>, environment :: <interpreter-environment>)
+ => environment :: <interpreter-environment>;
+
 define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   fer-evaluate(region, environment);
-//  error("Did not encounter a <return> in control flow... \nregion: %=", region);
 end;
-
-/*
-define method fer-evaluate-regions(the-if :: <if-region>, more-regions == #(), environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  fer-evaluate(the-if, environment);
-//  error("Did not encounter a <return> in control flow of any of the <if-region>s legs"); ### legal
-end;
-*/
 
 define method fer-evaluate-regions(region :: <region>, more-regions :: <list>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
