@@ -30,10 +30,3 @@ define method end-element(bldr :: <xml-builder>, elt :: <xml-element>)
   error("You must subclass <xml-builder> and add to end-element");
 end method end-element;
 
-/**** REMOVED
-define method text(bldr :: <xml-builder>, txt :: <string>)
-  error("You must subclass <xml-builder> and add to text");
-end method text;
-*****/
-
-

@@ -31,18 +31,6 @@ copyright: LGPL
 //    
 // I really wonder if this isn't abuse of the Dylan type system...
 //
-/**** REMOVED (added to interface.dylan)
-define constant <ascii-letter> = 
-    one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-           'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-
-define constant <digit> = 
-    one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-define constant <letter> = <ascii-letter>;
-****/
-
 define constant <pub-id-char-without-quotes> =
   type-union(<letter>, <digit>, 
              one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
@@ -51,11 +39,6 @@ define constant <pub-id-char-without-quotes> =
 
 define constant <pub-id-char> =
   type-union(<pub-id-char-without-quotes>, singleton('\''));
-
-/**** REMOVED
-define constant <version-number> =
-  type-union(<letter>, <digit>, one-of('_', '.', ':', '-'));
-*****/
 
 // macro added by Doug to simplify writing parser fns
 define macro parse-definer
