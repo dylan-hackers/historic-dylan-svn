@@ -65,6 +65,11 @@ define constant test-phrase-6
 
 define constant test-phrase-7 = #(1, '/', a:, '[', 42, negi:, 2, addi:, 2, 2, addi:, addi:, a:, 1.9, 2.4, 5.6, point:, ']');
 
+define constant test-phrase-8 = #(1, '/', a:, '[', a:, 2, addi:, ']');
+
+define constant test-phrase-9 = #(1, '/', a:, '[', 42, negi:, 2, addi:, 2, 2, addi:, addi:, ']');
+
+
 define generic compile-one(token, tokens :: <list>) => (closure :: <function>, remaining :: <list>);
 
 define method compile-one(token, more-tokens :: <list>) => (closure :: <function>, remaining :: <list>);
