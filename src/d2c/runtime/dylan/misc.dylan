@@ -73,6 +73,11 @@ define constant $not-supplied :: <not-supplied-marker>
     = make(<not-supplied-marker>);
 
 
+// The type of the sequence used for rest parameters in function
+// parameter lists.
+//
+define constant <rest-parameters-sequence> = <simple-object-vector>;
+
 // <never-returns> -- exported from Extensions.
 //
 // The empty type.  When used as a function result type, it means the function

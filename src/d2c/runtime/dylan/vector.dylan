@@ -74,25 +74,44 @@ end function;
 
 
 
+// In the DRM, the array methods dimension, dimensions, row-major-index, 
+// are not specified as sealed for vectors, but they probably should be
+// since it seems rather impossible that user could provide a different 
+// implementation that is more efficient or produces different results.
+//
 
-define inline method dimensions (vec :: <vector>) => res :: <simple-object-vector>;
-  vector(vec.size);
-end;
-
-define inline method rank (vec :: <vector>) => res :: <integer>;
+define sealed inline method rank (vec :: <vector>) => res :: <integer>;
   1;
 end;
 
-define inline method row-major-index (vec :: <vector>, #rest indices)
+define sealed inline method dimension (vec :: <vector>, axis :: <integer>)
+    => dimension :: <integer>;
+  if (axis ~== 0)
+    axis-error(vec, axis);
+  else
+    vec.size;
+  end if;
+end;
+
+define sealed inline method dimensions (vec :: <vector>) => res :: <simple-object-vector>;
+  vector(vec.size);
+end;
+
+define inline method row-major-index-internal (vec :: <vector>, indices :: <rest-parameters-sequence>)
     => index :: <integer>;
   if (indices.size ~== 1)
     vector-rank-error(indices);
   end if;
-  let index :: <integer> = indices[0];
+  let index :: <integer> = %element(indices, 0);
   if (index < 0 | index >= vec.size)
     row-major-index-error(index);
   end;
   index;
+end;
+
+define sealed inline method row-major-index (vec :: <vector>, #rest indices)
+    => index :: <integer>;
+  row-major-index-internal(vec, indices);
 end;
 
 

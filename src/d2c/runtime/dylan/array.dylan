@@ -97,20 +97,21 @@ define open generic dimension (array :: <array>, axis :: <integer>)
     => dimension :: <integer>;
 
 
-define function rank-error (indices, n :: <integer>)
+define not-inline function rank-error (indices, n :: <integer>)
     => res :: <never-returns>;
   error("Number of indices not equal to rank. Got %=, wanted %d indices",
 	indices, n);
 end;
 
-define function index-error (index :: <integer>, indices)
+define not-inline function index-error (index :: <integer>, indices)
     => res :: <never-returns>;
   error("Array index out of bounds: %= in %=", index, indices);
 end;
 
-define function axis-error (array :: <simple-object-array>, axis :: <integer>)
+define not-inline function axis-error (array :: <array>, axis :: <integer>)
     => res :: <never-returns>;
-  error("Invalid axis in %=: %=", array, axis);
+  error("Invalid axis for %=: %=. The axis passed to dimension must be a non-negative integer less than the rank of array.",
+       array, axis);
 end;
 
 
@@ -209,7 +210,8 @@ define inline method rank (array :: <array>) => rank :: <integer>;
   array.dimensions.size;
 end;
 
-define method row-major-index (array :: <array>, #rest indices)
+define inline method row-major-index-internal
+    (array :: <array>, indices :: <rest-parameters-sequence>)
     => index :: <integer>;
   let dims = dimensions(array);
   if (size(indices) ~== size(dims))
@@ -227,15 +229,20 @@ define method row-major-index (array :: <array>, #rest indices)
   end if;
 end;
 
+define method row-major-index (array :: <array>, #rest indices)
+    => index :: <integer>;
+  row-major-index-internal(array, indices);
+end;
+
 define inline method aref (array :: <array>, #rest indices)
     => element :: <object>;
-  element(array, apply(row-major-index, array, indices));
+  element(array, row-major-index-internal(array, indices));
 end;
 
 define inline method aref-setter
     (new-value :: <object>, array :: <array>, #rest indices)
     => new-value :: <object>;
-  element(array, apply(row-major-index, array, indices)) := new-value;
+  element(array, row-major-index-internal(array, indices)) := new-value;
 end;
 
 define inline method dimension (array :: <array>, axis :: <integer>)
@@ -278,13 +285,8 @@ define method dimensions (array :: <simple-object-array>)
   dims;
 end;
 
-// row-major-index(<simple-object-array>) -- exported gf method.
-//
-// Similar to the default <array> method, but we don't both computing a
-// dimensions sequence because we can just access each dimension directly.
-//
-define method row-major-index
-    (array :: <simple-object-array>, #rest indices)
+define inline method row-major-index-internal
+    (array :: <simple-object-array>, indices :: <rest-parameters-sequence>)
     => index :: <integer>;
   if (indices.size ~== array.rank)
     rank-error(indices, array.rank);
@@ -302,6 +304,17 @@ define method row-major-index
   end if;
 end;
 
+// row-major-index(<simple-object-array>) -- exported gf method.
+//
+// Similar to the default <array> method, but we don't both computing a
+// dimensions sequence because we can just access each dimension directly.
+//
+define method row-major-index
+    (array :: <simple-object-array>, #rest indices)
+    => index :: <integer>;
+  row-major-index-internal(array, indices)
+end;
+
 // aref(<simple-object-array>) -- exported gf method.
 //
 // Identical to the inherited method, but repeated here so that the body
@@ -310,7 +323,7 @@ end;
 define inline method aref
     (array :: <simple-object-array>, #rest indices)
     => element :: <object>;
-  element(array, apply(row-major-index, array, indices));
+  element(array, row-major-index-internal(array, indices));
 end;
 
 // aref-setter(<simple-object-array>) -- exported gf method.
@@ -321,7 +334,7 @@ end;
 define inline method aref-setter
     (new-value :: <object>, array :: <simple-object-array>, #rest indices)
     => new-value :: <object>;
-  element(array, apply(row-major-index, array, indices)) := new-value;
+  element(array, row-major-index-internal(array, indices)) := new-value;
 end;
 
 // dimension(<simple-object-array>) -- exported gf method.
