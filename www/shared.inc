@@ -47,7 +47,7 @@ function short_header ($title) {
 <form METHOD=GET ACTION="/cgi-bin/search.cgi">
 <TABLE BORDER=0>
 <TR><TD>
-   <input TYPE="text" NAME="q" SIZE=50>
+   <input TYPE="text" NAME="q" SIZE=30>
    </TD><TD>
 <input TYPE="submit" VALUE="Search">
 </TD></TR></TABLE>
