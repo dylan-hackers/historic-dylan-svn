@@ -56,7 +56,8 @@ function standard_footer () {
 <UL>
 <LI><A HREF="./">Overview</A>
 <LI><A HREF="about-dylan.phtml">What is Dylan?</A>
-<LI><A HREF="news.phtml">What's New</A>
+<LI><A HREF="news.phtml">What's New?</A>
+<LI><A HREF="http://www.randomhacks.com/cgi-bin/fom">FAQ-O-Matic</A>
 <LI><A HREF="maintainers.phtml">Gwydion Maintainers</A>
 <LI><A HREF="http://legend.gwydion.cs.cmu.edu/dylan-release/">Gwydion at
 CMU</A>
