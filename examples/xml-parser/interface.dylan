@@ -1,7 +1,7 @@
 module: interface
 author: Andreas Bogk, Chris Double
 copyright: (c) 2001, LGPL
-translated-into-its-own-module-by: Douglas M. Auclair
+class-hierarchy-rearrangement: Douglas M. Auclair
 
 // --- CHRIS'S DEF'S --  with additions by Doug
 // now modified to conform a bit to Andreas' XML-syntax fns
@@ -18,7 +18,8 @@ define class <attribute> (<xml>)
   constant slot attribute-value :: <string> = "", init-keyword: value:;
 end class <attribute>;
 
-define class <element> (<node>)
+// not sealed for making XML element tags subclasses of <element>
+define open class <element> (<node>)
   constant slot element-attributes :: <vector> = #[], init-keyword: attributes:;
 end class <element>;
 
