@@ -2,6 +2,10 @@
 
 require "db_connect.inc";
 
+function current_version(){
+    echo "2.3.5";
+}
+
 function begin_progress_table () {
     echo "<TABLE BORDER=0 CELLSPACING=10 WIDTH=\"100%\">\n";
 }
