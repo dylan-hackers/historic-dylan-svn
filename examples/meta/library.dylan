@@ -36,9 +36,11 @@ end module meta-types;
 define module meta
   use common-dylan;
   use streams;
+  use format-out;
   use meta-base, export: all;
   use meta-syntax, export: all;
   use meta-types, export: all;
 
-  export scan-s, scan-word, scan-int, scan-number, string-to-number;
+  export scan-s, scan-word, scan-int, scan-number, scan-single-float, scan-double-float,
+    string-to-number, string-to-single-float, string-to-double-float;
 end module meta;
