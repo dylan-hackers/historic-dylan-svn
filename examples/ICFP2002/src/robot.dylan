@@ -9,13 +9,21 @@ define class <robot> (<object>)
   slot money :: false-or(<integer>),
     init-keyword: money:,
     init-value: #f;
-  slot inventory :: /*limited( */ <vector> /*, of: <package>)*/ ,
+  slot inventory :: /*limited( */ <collection> /*, of: <package>)*/ ,
     init-keyword: inventory:,
     init-value: make(/*limited(*/ <vector> /*, of: <package>)*/ , size: 0);
   slot score :: <integer>,
     init-keyword: score:,
     init-value: 0;
 end;
+
+define sealed method current-inventory(state :: <state>, bot :: <robot>)
+ => (p :: <collection>);
+choose(method (p :: <package>) 
+         p.carrier & p.carrier.id = bot.id; 
+       end,
+       state.packages);
+end method current-inventory;
 
 define method capacity-left(r :: <robot>)
  => (w :: <integer>)
@@ -49,6 +57,6 @@ end method copy-robot;
 define method print-object(robot :: <robot>, stream :: <stream>)
  => ();
   format(stream, "{robot id: %d, capacity: %d, location: %=, money: %=, inventory: %=, score: %d}",
-         robot.id, robot.capacity, robot.location, robot.money, robot.inventory.size, robot.score);
+         robot.id, robot.capacity, robot.location, robot.money, robot.inventory, robot.score);
 end;
 
