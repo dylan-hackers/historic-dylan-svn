@@ -38,7 +38,7 @@ end method;
 
 define method print-state(state :: <generator-state>)
  => ();
-  debug("%= %=\n", state.output-tokens, state.output-state);
+  debug("%= %=\n", state.output-tokens, state.maximum-cost);
 //  debug("%=\n", state.remaining-text-runs);
 //  debug("%=\n", state.attribute-stack);
 //  debug("%=\n", state.open-tag-stack);
