@@ -9,6 +9,18 @@ define function main(name, arguments)
 
   format-out("%=\n%=\n%=\n", mat, vec, homogenize(vec));
   format-out("%=\n%=\n%=\n", mat * vec, vec * mat, vec * vec);
+
+  let red :: <color> = make(<color>, red: 1.0, blue: 0.0, green: 0.0);
+  let green :: <color> = make(<color>, red: 0.0, green: 1.0, blue: 0.0);
+  let file = make(<ppm-image>, filename: "test.ppm", width: 256,
+		  height: 256, depth: 255);
+
+  for (i from 0 below 256*256/2)
+    write-pixel(file, red);
+    write-pixel(file, green);
+  end for;
+  close-ppm(file);
+
   exit-application(0);
 end function main;
 
