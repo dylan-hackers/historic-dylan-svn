@@ -183,6 +183,433 @@ CLASS="COMMAND"
 >d2c</B
 > and gives a brief
     overview of how the various components interact.</P
+><P
+><B
+CLASS="COMMAND"
+>d2c</B
+> compiles one library at a time. Each library contains one
+    or more modules. A module may be implemented by one or more files. Each
+    file contains one or more <I
+CLASS="GLOSSTERM"
+>source records</I
+>, the
+    logical unit of Dylan compilation.</P
+><P
+>By compiling many source records at once, <B
+CLASS="COMMAND"
+>d2c</B
+> produces more
+    efficient code at the cost of using more memory. In addition to
+    processing an entire library's worth of source records, <B
+CLASS="COMMAND"
+>d2c</B
+> also
+    performs interlibrary optimizations by looking at certain information
+    from previously compiled libraries.</P
+><P
+>In its current configuration, <B
+CLASS="COMMAND"
+>d2c</B
+> is not well-suited to
+    developing new Dylan code. It is, however, well-suited to building
+    production versions of libraries. Obvious future projects include
+    reducing the granularity of compilation and implementing a
+    selectively-incremental compiler that can modify the object code of a
+    running program. The basic architecture was designed with these
+    projects in mind.</P
+><P
+>The actual compilation process procedes roughly as
+    follows:</P
+><P
+></P
+><UL
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Load any libraries used by the current library. </B
+>The compiler begins by reading in the
+	  <TT
+CLASS="FILENAME"
+>*.lib.du</TT
+> file for the
+	  <FONT
+COLOR="GREEN"
+><CODE
+>Dylan</CODE
+></FONT
+> library. As other libraries are
+	  <FONT
+COLOR="GREEN"
+><CODE
+>use</CODE
+></FONT
+>d, it loads the appropriate
+	  <TT
+CLASS="FILENAME"
+>*.lib.du</TT
+> files. These contain most of the
+	  compiler data structures from the original versions of those
+	  libraries.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Parse and macro-expand each of the input files. </B
+>The parser is implemented by the <A
+HREF="gdmaint-d2c-parser.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Parser</CODE
+></FONT
+>
+    library</A
+>. As each
+          top-level form gets parsed, it is passed to
+          <FONT
+COLOR="GREEN"
+><CODE
+>process-top-level-form</CODE
+></FONT
+>, which is implemented by
+          the <A
+HREF="gdmaint-d2c-convert.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+>
+    library</A
+>. At the end of this stage, the input files have
+          been completely parsed and macro-expanded.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Finalize the top-level forms. </B
+>Top-level forms may contain forward dependencies within a
+	  module. In most cases, these dependencies aren't necessitated by
+	  the design of the Dylan language, but they are needed for for
+	  efficient compilation. We need to study these dependencies if we
+	  want to make incremental compilation work. The implementation of
+	  <FONT
+COLOR="GREEN"
+><CODE
+>finalize-top-level-form</CODE
+></FONT
+> lives in
+	  <A
+HREF="gdmaint-d2c-convert.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+>
+    library</A
+>.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Process the class hierarchy. </B
+>Optimizing Dylan code requires careful attention to the
+	  object model. Unfortunately, <B
+CLASS="COMMAND"
+>d2c</B
+> uses algorithms which require
+	  the entire class hiearchy to be computed before link time. (The
+	  biggest problem here appear to be assigning unique IDs to
+	  individual classes.) The code to analyze the class hierachy lives
+	  in the <A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-CLASSES"
+><FONT
+COLOR="GREEN"
+><CODE
+>Classes</CODE
+></FONT
+>
+	  module</A
+> of the <A
+HREF="gdmaint-d2c-base.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Base</CODE
+></FONT
+>
+    library</A
+>.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Begin processing top-level definitions
+	  individually. </B
+>Up until this point, <B
+CLASS="COMMAND"
+>d2c</B
+> performed each step on the
+	  entire library before continuing. The next several steps,
+	  however, are completed for each top-level form before moving on
+	  to the next top-level form. This process is controlled by
+	  <FONT
+COLOR="GREEN"
+><CODE
+>compile-1-tlf</CODE
+></FONT
+> in the <A
+HREF="gdmaint-d2c-main.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Main</CODE
+></FONT
+>
+    library</A
+></P
+></DIV
+><P
+></P
+><UL
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Convert the parse tree into the front-end
+              representation. </B
+>For various unfortunate reasons, <B
+CLASS="COMMAND"
+>d2c</B
+> uses the term
+	      <I
+CLASS="GLOSSTERM"
+>front-end representation</I
+>
+	      (<SPAN
+CLASS="ACRONYM"
+>FER</SPAN
+>) for what other compilers call the
+	      <I
+CLASS="GLOSSTERM"
+>intermediate representation</I
+>. The
+	      conversion process is controlled by methods on
+	      <FONT
+COLOR="GREEN"
+><CODE
+>convert-top-level-form</CODE
+></FONT
+> provided by the
+	      <A
+HREF="gdmaint-d2c-convert.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Convert</CODE
+></FONT
+>
+    library</A
+>. These take the parsed representation of a
+	      top-level form and convert it to the <SPAN
+CLASS="ACRONYM"
+>FER</SPAN
+>
+	      using the the <A
+HREF="gdmaint-d2c-front.html#GDMAINT-D2C-FRONT-BUILDER-INTERFACE"
+>	      <FONT
+COLOR="GREEN"
+><CODE
+>Builder-Interface</CODE
+></FONT
+> module</A
+>.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Optimize the FER of each top-level form. </B
+>The compiler performs two kinds of optimizations:
+	      <I
+CLASS="GLOSSTERM"
+>simplications</I
+> and required
+	      optimizations. The simplications should produce output
+	      equivalent to their input. The required optimizations,
+	      however, clean up certain artifacts in the code and insert
+	      type checks. It is an error to pass a top-level form to the
+	      back end before performing the required optimizations. See
+	      <A
+HREF="gdmaint-d2c-optimize.html"
+>the section called <I
+>The <FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Optimize</CODE
+></FONT
+> Library</I
+></A
+> for more
+	      details.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Emit C code for the FER of each top-level form. </B
+>The <A
+HREF="gdmaint-d2c-cback.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-CBack</CODE
+></FONT
+>
+    library</A
+> emits the actual C code required to
+	      implement each top-level form.</P
+></DIV
+></LI
+></UL
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Dump the local and global heaps. </B
+>Each library has a local heap which gets linked into the
+	  library itself. This contains as much static data as
+	  possible. However, not all data can safely live here; some must
+	  live in the executable application. The per-library heap is
+	  called the <I
+CLASS="GLOSSTERM"
+>local heap</I
+> and the
+	  per-application heap is called the <I
+CLASS="GLOSSTERM"
+>global
+	  heap</I
+>. The latter is only dumped if the current
+	  library will become an executable application. Both dumpers are
+	  implemented by the <A
+HREF="gdmaint-d2c-cback.html#GDMAINT-D2C-CBACK-HEAP"
+>          <FONT
+COLOR="GREEN"
+><CODE
+>Heap</CODE
+></FONT
+> module</A
+>.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Save a <TT
+CLASS="FILENAME"
+>*.lib.du</TT
+> file for the current
+	  library if necessary. </B
+>If <B
+CLASS="COMMAND"
+>d2c</B
+> is not compiling an executable application, it
+	  dumps the data structures used by this library into a
+	  <TT
+CLASS="FILENAME"
+>*.lib.du</TT
+> file. If another Dylan library
+	  includes this library, the dumped data structures will be used to
+	  perform inter-library optimizations. The dumped data is stored as
+	  persistent objects in <I
+CLASS="GLOSSTERM"
+>Object Description
+	  Format</I
+> (<SPAN
+CLASS="ACRONYM"
+>ODF</SPAN
+>). The dumping process
+	  is controlled by the <A
+HREF="gdmaint-d2c-main.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Main</CODE
+></FONT
+>
+    library</A
+>. <SPAN
+CLASS="ACRONYM"
+>ODF</SPAN
+> is
+	  implemented by the <A
+HREF="gdmaint-d2c-base.html#GDMAINT-D2C-BASE-OD-FORMAT"
+><FONT
+COLOR="GREEN"
+><CODE
+>OD-Format</CODE
+></FONT
+>
+	  module</A
+>.</P
+></DIV
+></LI
+><LI
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Generate a Makefile and run the C compiler. </B
+>The compilation driver in the <A
+HREF="gdmaint-d2c-main.html"
+><FONT
+COLOR="GREEN"
+><CODE
+>Compiler-Main</CODE
+></FONT
+>
+    library</A
+> creates a Makefile
+	  and C source files as needed during the compilation process. Once
+	  all the necessary code has been generated and the heaps are
+	  built, <B
+CLASS="COMMAND"
+>d2c</B
+> invokes <SPAN
+CLASS="ACRONYM"
+>GNU</SPAN
+>
+	  <B
+CLASS="COMMAND"
+>make</B
+> on the Makefile.</P
+></DIV
+></LI
+></UL
 ><DIV
 CLASS="NAVFOOTER"
 ><HR
