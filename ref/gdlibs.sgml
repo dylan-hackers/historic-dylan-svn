@@ -2428,46 +2428,399 @@ end;
       variable <dlit>file-names</dlit>.</para>
     </sect1>
 
+    <sect1 id="libs-parsing-arguments">
+      <title>Parsing Arguments</title>
+      
+      <para>To parse a command-line, you create a new
+      <dname>&lt;argument-list-parser></dname>, connect a number of
+      individual <dname>&lt;option-parser></dname>s, call
+      <dname>parse-arguments</dname>, and use the resulting
+      information.</para>
+
+      <sect2>
+	<title>Argument List Parsers</title>
+
+	<dylanclassdef>
+	  <defname>&lt;argument-list-parser></defname>
+	  <defadjectives>Sealed</defadjectives>
+	  <defsummary>Describes how to parse an argument list, and contains
+	  the data found when parsing one.</defsummary>
+	  <defsupers>
+	    <defsuper>&lt;object></defsuper>
+	  </defsupers>
+	  <definitkeywords>
+	  </definitkeywords>
+	  <defdescription>
+	    <para>An <dname>&lt;argument-list-parser></dname> represents
+	    both a description of the data to be found in an argument list,
+	    and the results of parsing a particular argument list for that
+	    data.</para>
+
+	    <para>Prior to calling <dname>parse-arguments</dname> for the
+	    first time, no useful information can be extracted from an
+	    argument list parser. Subsequent calls to
+	    <dname>parse-arguments</dname> will update the data contained
+	    within the parser.</para>
+	  </defdescription>
+	</dylanclassdef>
+
+	<dylanfunctiondef>
+	  <defname>regular-arguments</defname>
+	  <defsummary>Returns the regular arguments found by parsing an
+	  argument list.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>parser</paramname>
+	      <paramtype>&lt;argument-list-parser></paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>arguments</paramname>
+	      <paramtype>&lt;sequence></paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>After calling <dname>parse-arguments</dname>, this
+	    function can be used to find all of the <glossterm>regular
+	    arguments</glossterm> that weren't consumed by any option
+	    parser.</para>
+	  </defdescription>
+	</dylanfunctiondef>
+      </sect2>
+
+      <sect2>
+	<title>Option Parsers</title>
+
+	<dylanclassdef>
+	  <defname>&lt;option-parser></defname>
+	  <defadjectives>Abstract Open Primary</defadjectives>
+	  <defsummary>Parses a single command-line option and any
+	  parameters.</defsummary>
+	  <defsupers>
+	    <defsuper>&lt;object></defsuper>
+	  </defsupers>
+	  <definitkeywords>
+	    <keyparam>
+	      <paramname>long-options</paramname>
+	      <paramtype>&lt;list></paramtype>
+	      <paramdefault>#()</paramdefault>
+	      <paramsummary>Specifies the long options handled by this
+	      parser, represented as strings.</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>short-options</paramname>
+	      <paramtype>&lt;list></paramtype>
+	      <paramdefault>#()</paramdefault>
+	      <paramsummary>Specifies the short options handled by this
+	      parser, represented as strings.</paramsummary>
+	    </keyparam>
+	  </definitkeywords>
+	  <defdescription>
+	    <para>Different types of command-line options are parsed
+	    according to different rules. An
+	    <dname>&lt;option-parser></dname> knows how to handle one type of
+	    option. The <dlit>long-options:</dlit> and
+	    <dlit>short-options:</dlit> keywords are used to specify which
+	    option names should be handled by a given parser.</para>
+
+	    <para>An option parser can be connected to an
+	    <dname>&lt;argument-list-parser</dname> for and the values to
+	    be found. </para>
+	  </defdescription>
+	</dylanclassdef>
+	
+	<dylanfunctiondef>
+	  <defname>option-present?</defname>
+	  <defsummary>Tests whether an option was present on the
+	  command-line.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>parser</paramname>
+	      <paramtype>&lt;option-parser></paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>present?</paramname>
+	      <paramtype>&lt;boolean></paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>Returns &true; if and only if
+	    <dname>parse-arguments</dname> found at least one corresponding
+	    option on the command line. Returns &false; if
+	    <dname>parse-arguments</dname> has not been called.</para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>option-value</defname>
+	  <defsummary>Returns the value found by an option parser after
+	  processing the command line.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>parser</paramname>
+	      <paramtype>&lt;option-parser></paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>value</paramname>
+	    </param>	  
+	  </defreturns>
+	  <defdescription>
+	    <para>Returns the value calculated by
+            <parameter>parser</parameter> after running
+            <dname>parse-arguments</dname>. Returns &false; if
+            <dname>parse-arguments</dname> has not been called.</para>
+
+	    <para>The exact type of <parameter>value</parameter> will vary
+	    depending on the class of the option parser.</para>
+	  </defdescription>
+	</dylanfunctiondef>
+      </sect2>
+
+      <sect2>
+	<title>Parsing an Argument List</title>
+
+	<dylanfunctiondef>
+	  <defname>add-option-parser</defname>
+	  <defsummary>Attaches an <dname>&lt;option-parser></dname> to an
+	  <dname>&lt;argument-list-parser></dname>.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>args-parser</paramname>
+	      <paramtype>&lt;argument-list-parser></paramtype>
+	    </param>
+	    <param>
+	      <paramname>option-parser</paramname>
+	      <paramtype>&lt;option-parser></paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>Attaches an <dname>&lt;option-parser></dname> to an
+	    <dname>&lt;argument-list-parser></dname>. It is an error
+	    to attach an <dname>&lt;option-parser></dname> more than once,
+	    and no mechanism is provided to detach one.</para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>add-option-parser-by-type</defname>
+	  <defsummary>Create an <dname>&lt;option-parser></dname> and add
+	  it to an <dname>&lt;argument-list-parser></dname>.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>args-parser</paramname>
+	      <paramtype>&lt;argument-list-parser></paramtype>
+	    </param>
+	    <param>
+	      <paramname>option-parser-type</paramname>
+	      <paramtype>subclass(&lt;option-parser>)</paramtype>
+	      <paramsummary>The class for the new option
+	      parser.</paramsummary>
+	    </param>
+	    <restparam>
+	      <paramname>init-keys</paramname>
+	      <paramsummary>Inititialization keywords for for the new
+	      option parser.</paramsummary>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	  </defreturns>
+	  <defdescription>
+	    <para>This function is equivalent to calling:</para>
+
+	    <programlisting>
+let opt-parser =
+  apply(make, option-parser-type, init-keys);
+add-option-parser(args-parser, opt-parser);
+</programlisting>
+
+	    <para>Most programs will use this function instead of
+	    <dname>add-option-parser</dname>.</para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>parse-arguments</defname>
+	  <defsummary>Parses a list of command-line arguments.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>parser</paramname>
+	      <paramtype>&lt;argument-list-parser></paramtype>	      
+	    </param>
+	    <param>
+	      <paramname>argument-list</paramname>
+	      <paramtype>&lt;sequence></paramtype>
+	      <paramsummary>The strings to be parsed.</paramsummary>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>success?</paramname>
+	      <paramtype>&lt;boolean></paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>This routine does most of the work in the
+	    <dlibrary>Parse-Arguments</dlibrary> library. It performs a
+	    number of different steps:</para>
+
+	    <orderedlist>
+	      <listitem>
+		<formalpara>
+		  <title>Split the argument list</title> <para>If the
+		  string <dlit>"--"</dlit> appears in the argument list,
+		  discard it, and set aside everything to right for later
+		  processing.</para>
+		</formalpara>
+	      </listitem>
+	      <listitem>
+		<formalpara>
+		  <title>Chop individual arguments around any equals
+		  sign</title> <para>If any argument contains the character
+		  <dlit>'='</dlit>, break the argument into three strings:
+		  everything before the first occurance of the equals sign,
+		  the sign itself, and the remainder of the original
+		  string.</para>
+		</formalpara>
+	      </listitem>
+	      <listitem>
+		<formalpara>
+		  <title>Tokenize the argument list</title> <para>Convert
+		  the argument list into a series of tokens. For more
+		  details on this process, see <xref
+		  linkend="libs-parse-arguments-extending">.</para>
+		</formalpara>
+	      </listitem>
+	      <listitem>
+		<formalpara>
+		  <title>Process the argument list from left to right</title>
+		  <para>For each option token, invoke the appropriate
+		  option parser (which may consume additional
+		  tokens). Record all regular argument tokens for later
+		  use. If any other kinds of tokens appear in the argument
+		  list, they must be consumed by an option parser or the
+		  entire process will fail.</para>
+		</formalpara>
+	      </listitem>
+	      <listitem>
+		<formalpara>
+		  <title>Collect the regular arguments</title>
+		  <para>Take the regular arguments found while parsing,
+		  and append any arguments set aside in the first step.</para>
+		</formalpara>
+	      </listitem>
+	    </orderedlist>
+
+	    <para>If an error occurs during this process, parsing will stop
+	    immediately and <dname>parse-arguments</dname> will return
+	    &false;. Otherwise, it will return &true;.</para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>option-parser-by-long-name</defname>
+          <defsummary>Find an option parser, given a corresponding option
+	  name.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>parser</paramname>
+	      <paramtype>&lt;argument-list-parser></paramtype>
+	    </param>
+	    <param>
+	      <paramname>long-name</paramname>
+	      <paramtype>&lt;string></paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>option-parser</paramname>
+	      <paramtype>&lt;option-parser></paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>This function can be used to recover an option parser
+	    previously attached to an
+	    <dname>&lt;argument-list-parser></dname>.</para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>option-present?-by-long-name</defname>
+          <defsummary>Determine whether an option was present, given a
+          corresponding option name.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>parser</paramname>
+	      <paramtype>&lt;argument-list-parser></paramtype>
+	    </param>
+	    <param>
+	      <paramname>long-name</paramname>
+	      <paramtype>&lt;string></paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>present?</paramname>
+	      <paramtype>&lt;boolean></paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>This function provides an easy way to determine whether a
+	    given option parser found anything in an argument list.</para>
+
+	    <note>
+	      <para>If an option has multiple names, any one of
+	      them can be used as the argument to this function without
+	      changing the result.</para>
+	    </note>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>option-value-by-long-name</defname>
+          <defsummary>Find the value of an option, given a corresponding
+          option name.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>parser</paramname>
+	      <paramtype>&lt;argument-list-parser></paramtype>
+	    </param>
+	    <param>
+	      <paramname>long-name</paramname>
+	      <paramtype>&lt;string></paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>value</paramname>
+	    </param>	  
+	  </defreturns>
+	  <defdescription>
+	    <para>This function provides an easy way to find the value of a
+	    particular option parser.</para>
+
+	    <note>
+	      <para>If an option has multiple names, any one of
+	      them can be used as the argument to this function without
+	      changing the result.</para>
+	    </note>
+	  </defdescription>
+	</dylanfunctiondef>
+      </sect2>
+    </sect1>
+
     <sect1 id="libs-parse-arguments-option-parsers">
-      <title>Standard Option Types</title>
+      <title>Standard Option Parser Classes</title>
 
       <para><dlibrary>Parse-Arguments</dlibrary> supports the most popular
       types of <acronym>POSIX</acronym> and <acronym>GNU</acronym>
       command-line options.</para>
-
-      <dylanclassdef>
-	<defname>&lt;option-parser></defname>
-	<defadjectives>Abstract Open Primary</defadjectives>
-	<defsummary>Parses a single command-line option and any
-	parameters.</defsummary>
-	<defsupers>
-	  <defsuper>&lt;object></defsuper>
-	</defsupers>
-	<definitkeywords>
-	  <keyparam>
-	    <paramname>long-options</paramname>
-	    <paramtype>&lt;list></paramtype>
-	    <paramdefault>#()</paramdefault>
-	    <paramsummary>Specifies the long options handled by this
-	    parser, represented as strings.</paramsummary>
-	  </keyparam>
-	  <keyparam>
-	    <paramname>short-options</paramname>
-	    <paramtype>&lt;list></paramtype>
-	    <paramdefault>#()</paramdefault>
-	    <paramsummary>Specifies the short options handled by this
-	    parser, represented as strings.</paramsummary>
-	  </keyparam>
-	</definitkeywords>
-	<defdescription>
-	  <para>Different types of command-line options are parsed
-	  according to different rules. An
-	  <dname>&lt;option-parser></dname> knows how to handle one type of
-	  option. The <dlit>long-options:</dlit> and
-	  <dlit>short-options:</dlit> keywords are used to specify which
-	  option names should be handled by a given parser.</para>
-	</defdescription>
-      </dylanclassdef>
 
       <dylanclassdef>
 	<defname>&lt;negative-option-parser></defname>
@@ -2494,6 +2847,11 @@ end;
 	  </keyparam>
 	</definitkeywords>
 	<defdescription>
+	  <para>This class is exported from the module
+	  <dmodule>option-parser-protocol</dmodule>. We document it here
+	  because it is the superclass of
+	  <dname>&lt;simple-option-parser></dname>.</para>
+
 	  <para>Certain command-line options appear in a positive and
 	  negative form. For example, many programs accept
 	  <literal>--verbose</literal> and <literal>--quiet</literal>
@@ -2524,10 +2882,10 @@ end;
 	<defdescription>
 	  <para>Simple options have no parameters, and may appear in both
 	  positive and negative forms. When parsing a list of arguments,
-	  the value of the option is first set to the default. As the
+	  <dname>option-value</dname> is first set to the default. As the
 	  command line is then scanned from left to right, each positive
-	  option sets the value to <dlit>#t</dlit> and each negative
-	  option sets it to <dlit>#f</dlit>.</para>
+	  option sets the value to <dlit>#t</dlit> and each negative option
+	  sets it to <dlit>#f</dlit>.</para>
 
 	  <para>This behavior is consistent with that of the utility
 	  <literal>rm</literal>, which allows the user to set default
@@ -2536,22 +2894,70 @@ end;
 	  passing a flag when calling <literal>rm</literal> because the
 	  rightmost value takes precedence.</para>
 	</defdescription>
+	<defsection>
+	  <title>Option Forms</title>
+	  
+	  <para><literal>-q</literal>, <literal>--quiet</literal>,
+	  <literal>-v</literal>, <literal>--verbose</literal></para>
+	</defsection>
       </dylanclassdef>
 
       <dylanclassdef>
 	<defname>&lt;parameter-option-parser></defname>
 	<defadjectives>Sealed</defadjectives>
-	<defsummary>Parses options which have a parameter and may appear
-        only once.</defsummary>
+	<defsummary>Parses options which have a parameter and which may
+        appear only once.</defsummary>
 	<defsupers>
 	  <defsuper>&lt;option-parser></defsuper>
 	</defsupers>
 	<definitkeywords>
 	</definitkeywords>
 	<defdescription>
-	  <para>Foo.</para>
+	  <para>A <dname>&lt;parameter-option-parser></dname> sets
+	  <dname>option-value</dname> to either <dlit>#f</dlit> or a
+	  <dname>&lt;string></dname>. If the option appears more than
+	  once on the command line, the rightmost value is used.</para>
 	</defdescription>
+	<defsection>
+	  <title>Option Forms</title>
+	  
+	  <para><literal>-fname</literal>, <literal>-f name</literal>,
+	  <literal>-f=name</literal>, <literal>-f = name</literal>,
+	  <literal>--file name</literal>, <literal>--file=name</literal>,
+	  <literal>--file = name</literal></para>
+	</defsection>
       </dylanclassdef>
+
+      <dylanclassdef>
+	<defname>&lt;repeated-parameter-option-parser></defname>
+	<defadjectives>Sealed</defadjectives>
+	<defsummary>Parses options which have a parameter and which may
+	appear more than once.</defsummary>
+	<defsupers>
+	  <defsuper>&lt;option-parser></defsuper>
+	</defsupers>
+	<definitkeywords>
+	</definitkeywords>
+	<defdescription>
+	  <para>A <dname>&lt;repeated-parameter-option-parser></dname> sets
+	  <dname>option-value</dname> to a <dname>&lt;sequence></dname> of
+	  strings. </para>
+	</defdescription>
+	<defsection>
+	  <title>Option Forms</title>
+	  
+	  <para><literal>-fname</literal>, <literal>-f name</literal>,
+	  <literal>-f=name</literal>, <literal>-f = name</literal>,
+	  <literal>--file name</literal>, <literal>--file=name</literal>,
+	  <literal>--file = name</literal></para>
+	</defsection>
+      </dylanclassdef>
+    </sect1>
+
+    <sect1 id="libs-parse-arguments-extending">
+      <title>Writing New Option Parser Classes</title>
+
+      <para></para>
     </sect1>
   </chapter>
 

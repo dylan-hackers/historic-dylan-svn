@@ -28,6 +28,11 @@
 </affiliation>
 ">
 
+<!-- ===== Dylan Snippets ===== -->
+
+<!ENTITY true '<dlit>#t</dlit>'>
+<!ENTITY false '<dlit>#f</dlit>'>
+
 <!-- ===== Unsorted ===== -->
 
 <!ENTITY dylan '

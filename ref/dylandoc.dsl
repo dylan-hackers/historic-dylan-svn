@@ -91,7 +91,7 @@
 	(normalize "legalnotice")
 	(normalize "abstract")))
 
-(define (process-person label)
+(define ($person-info$ label)
   (make sequence
     (if (first-sibling? (current-node))
 	(make element
@@ -113,16 +113,16 @@
 	    (empty-sosofo))))))
 
 (element (docinfo editor)
-  (process-person "Edited by:"))
+  ($person-info$ "Edited by:"))
 
 (element (docinfo author)
-  (process-person "Written by:"))
+  ($person-info$ "Written by:"))
 
 (element (docinfo authorgroup)
   (process-children))
 
 (element (docinfo authorgroup author)
-  (process-person "Written by:"))
+  ($person-info$ "Written by:"))
 
 (element (docinfo firstname)
   (process-children))
@@ -149,6 +149,7 @@
   ($linespecific-content$))
 
 (element holder
+  ;; Copyright holders should be separated by commas.
   (make sequence
     ($charseq$)
     (if (not (last-sibling? (current-node)))
@@ -161,7 +162,7 @@
 ;;;========================================================================
 ;;; Provide formatting for our various inline elements.
 
-(define (process-dylan-literal #!optional (children (process-children)))
+(define ($dylan-literal$ #!optional (children (process-children)))
   (make element
     gi: "FONT"
     attributes: '(("COLOR" "GREEN"))
@@ -169,17 +170,10 @@
       gi: "CODE"
       children)))
 
-(element DLibrary
-  (process-dylan-literal))
-
-(element DModule
-  (process-dylan-literal))
-
-(element DName
-  (process-dylan-literal))
-
-(element DLit
-  (process-dylan-literal))
+(element DLibrary ($dylan-literal$))
+(element DModule ($dylan-literal$))
+(element DName ($dylan-literal$))
+(element DLit ($dylan-literal$))
 
 
 ;;;========================================================================
@@ -223,7 +217,7 @@
   (element DefName
     (make element
       gi: "B"
-      (process-dylan-literal)))
+      ($dylan-literal$)))
   (element DefAdjectives
     (make sequence
       (process-children)
@@ -245,12 +239,16 @@
 (define (have-child? type #!optional (node (current-node)))
   (not (node-list-empty? (select-elements (children node) (normalize type)))))
 
-(define (section-heading name)
-  (make element
-    gi: "P"
+(define ($raw-definition-section$ title contents)
+  (make sequence
     (make element
-      gi: "STRONG"
-      (literal name))))
+      gi: "P"
+      (make element
+	gi: "STRONG"
+	title))
+    (make element
+      gi: "BLOCKQUOTE"
+      contents)))
 
 (define (process-children-or-none)
   (if (have-children?)
@@ -258,20 +256,28 @@
       (literal "None.")))
 
 (define (process-section name #!optional (sect (process-children-or-none)))
-  (make sequence
-    (section-heading name)
-    (make element
-      gi: "BLOCKQUOTE"
-      sect)))
+  ($raw-definition-section$ (literal name) sect))
 
 (element DefDescription
   (process-section "Description"))
 
+(element DefSection
+  ($raw-definition-section$ (with-mode defsection-title
+			      (process-first-descendant "TITLE"))
+			    (process-children)))
+
+(element (DefSection Title)
+  (empty-sosofo))
+
+(mode defsection-title
+  (element (DefSection Title)
+    (process-children)))
+
 (define (dylan-object-type)
-  (process-dylan-literal (make sequence
-			   (make entity-ref
-			     name: "lt")
-			   (literal "object>"))))
+  ($dylan-literal$ (make sequence
+		     (make entity-ref
+		       name: "lt")
+		     (literal "object>"))))
 
 
 ;;;========================================================================
@@ -330,19 +336,19 @@
     gi: "EM"))
 
 (element ParamType
-  (process-dylan-literal))
+  ($dylan-literal$))
 
 (element ParamDefault
-  (process-dylan-literal))
+  ($dylan-literal$))
 
 (element ParamSummary
   (process-children))
 
 (mode keyword-param
   (element ParamName
-    (process-dylan-literal (make sequence
-			     (process-children)
-			     (literal ":")))))
+    ($dylan-literal$ (make sequence
+		       (process-children)
+		       (literal ":")))))
 
 
 ;;;========================================================================
@@ -358,7 +364,7 @@
 
 (element DefSuper
   (make sequence
-    (process-dylan-literal)
+    ($dylan-literal$)
     (literal " ")))
 
 (element DefInitKeywords
@@ -377,10 +383,10 @@
   (process-def))
 
 (element DefType
-  (process-section "Type" (process-dylan-literal)))
+  (process-section "Type" ($dylan-literal$)))
 
 (element DefValue
-  (process-section "Value" (process-dylan-literal)))
+  (process-section "Value" ($dylan-literal$)))
 
 
 ;;;========================================================================
