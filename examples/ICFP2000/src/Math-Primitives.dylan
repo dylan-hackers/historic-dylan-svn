@@ -62,10 +62,6 @@ define macro binary-primitive-definer
       pair(?operator(token1, token2), more)
     end;
     
-//    define method optimizable-three(token1 :: <integer>, token2 :: <integer>, token3 == #"addi", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
-//      pair(token1 + token2, more)
-//    end;
-
     define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <pair>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
       let (cont, remaining) = more-tokens.optimize-compile-GML;
       values( remaining,
@@ -115,5 +111,36 @@ define numeric-binary-primitive mul(\*) end;
 define numeric-binary-primitive sub(\-) end;
 
 define binary-primitive divi(<integer>, truncate/) end;
+
+define method optimizable-three(token1 :: <integer>, token2 == 0, token3 == #"divi", more :: <pair>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+  orig
+end;
+
+define method optimizable-three(token1 :: <integer>, token2 == 0, token3 == #"divi", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+  orig
+end;
+
+//    define method optimizable-three(token1 :: ?front, token2 :: ?back, token3 == ?#"name", more :: <list>, suppress-closure :: <boolean>, #key orig :: <pair>) => (tokens :: <list>, closure);
+//      pair(?operator(token1, token2), more)
+//    end;
+    
+/*    define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <pair>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+      let (cont, remaining) = more-tokens.optimize-compile-GML;
+      values( remaining,
+              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
+              cont(pair(?operator(left, right), rest), env)
+              end method)
+    end method;
+    
+    define method optimizable-two(right :: ?back, token2 == ?#"name", more-tokens :: <list>, suppress-closure == #f, #key orig :: <pair>) => (remaining :: <list>, closure);
+      let (cont, remaining) = more-tokens.optimize-compile-GML;
+      values( remaining,
+              method(stack :: <pair>, env :: <function>) => new-stack :: <list>;
+              let (left :: ?front, rest :: <list>) = values(stack.head, stack.tail);
+              cont(pair(?operator(left, right), rest), env)
+              end method)
+    end method; }
+*/
 define binary-primitive divf(<fp>, \/) end;
 define binary-primitive modi(<integer>, modulo) end;
