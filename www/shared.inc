@@ -19,8 +19,8 @@ function short_header ($title) {
 <HEAD>
 <TITLE>Gwydion Dylan: <?php echo $title?></TITLE>
 </HEAD>
-<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#x000099" ALINK="#xFF0000"
-      VLINK="#x990000">
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#000099" ALINK="#FF0000"
+      VLINK="#990000">
 <H1 ALIGN=CENTER>
 <?php echo "<IMG SRC=\"images/gwydion-logo.gif\" " .
            "ALT=\"Gwydion Dylan\">" ?>
