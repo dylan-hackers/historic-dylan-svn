@@ -35,7 +35,7 @@ define function test-lists (number-of-elements :: <integer>) => result :: <integ
 
   // and compare L1 and L2 for equality
   for (elt1 :: <integer> in L1, elt2 :: <integer> in L2)
-    unless (elt1 = elt2)
+    unless (elt1 == elt2)
       error("Error: the elements of L1 and L2 not equal. Exiting...\n");
     end;
   end;
