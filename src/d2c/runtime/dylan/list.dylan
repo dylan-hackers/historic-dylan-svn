@@ -400,6 +400,51 @@ define method remove!
   list;
 end method remove!;
 
+// author: PDH
+define method remove-duplicates
+    (list :: <list>, #key test :: <function> = \==)
+ => (result :: <list>);
+  let true-test = commutate(test);
+  for (element in list,
+       result = #() then if (member?(element, result, test: true-test))
+                           result;
+                         else
+                           pair(element, result);
+                         end if)
+  finally
+    reverse!(result);
+  end for;
+end method remove-duplicates;
+
+// author: PDH
+define method remove-duplicates!
+    (list :: <list>, #key test :: <function> = \==)
+ => (result :: <list>);
+  let previous :: <list> = list;
+  let next :: <list> = list;
+  // We can start checking from the second element because the first element
+  // can't be a duplicate. This code assumes that the tail of the empty list
+  // is the empty list.
+  for (current :: <list> = list.tail then next,
+       until: empty?(current))
+    next := current.tail;
+    let elt = current.head;
+    let found? = block (return)
+                   for (li :: <list> = list then li.tail, until: li == current)
+                     if (compare-using-default-==(test, li.head, elt))
+                       return(#t);
+                     end;
+                   end;
+                 end;
+    if (found?)
+      previous.tail := next;
+    else
+      previous := current;
+    end if;
+  end for;
+  list;
+end method remove-duplicates!;
+
 define sealed method concatenate!
     (pair :: <pair>, #next next-method, #rest more-sequences)
  => (pair :: <pair>)
