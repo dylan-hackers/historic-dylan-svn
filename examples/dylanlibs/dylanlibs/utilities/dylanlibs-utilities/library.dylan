@@ -5,7 +5,10 @@ Copyright: Copyright (c) 2001, Chris Double.  All rights reserved.
 
 define library dylanlibs-utilities
   use functional-dylan;
+  use io;
+  use date;
 
   export 
-    dylanlibs-utilities;
+    dylanlibs-utilities,
+    logging;
 end library dylanlibs-utilities;

@@ -16,4 +16,28 @@ define module dylanlibs-utilities
     \dec!;
 end module dylanlibs-utilities;
 
+// A module to handle logging of information to a file.
+// Simple, but useful and to be expanded in the future
+// to cater for levels of logging, etc.
+define module logging
+  use functional-dylan;
+  use streams;
+  use format;
+  use standard-io;
+  use date;
+  use threads;
+
+  export
+    *log-directory*,
+    *log-system-name*,
+    *logging-enabled*,
+    \with-logging-system,
+    \without-logging,
+    \with-logging,
+    \log-block,
+    \log-block-out,
+    bind-logging-vars,
+    log-message,
+    log-message-out;
+end module logging;
 
