@@ -91,11 +91,11 @@
 
       <PARA>The current version of Gwydion is development code, and
       intended only for use by Dylan fanatics. The compiler is slow,
-      lacks shared library support and still needs lots of bug
-      fixes. To make life more exciting, the documentation is
-      incomplete, and you'll need to read the source and ask questions
-      on the mailing list. If this sounds like fun, you'll enjoy
-      Gwydion.</PARA>
+      shared libraries are somewhat fragile, and overall still needs
+      lots of bug fixes. To make life more exciting, the documentation
+      is incomplete, and you'll need to read the source and ask
+      questions on the mailing list. If this sounds like fun, you'll
+      enjoy Gwydion.</PARA>
 
       <PARA>Thanks to the skilled programmers at CMU, Gwydion can
       already generate exceptionally efficient code (about the speed
@@ -191,7 +191,12 @@
       <PARA>Gwydion Dylan installation on FreeBSD systems can be done using
       the FreeBSD ports system, described in the
       <ULINK URL="http://www.freebsd.org/handbook/">FreeBSD Handbook</ULINK>.
-      </PARA>
+      To install, type:</para>
+
+      <screen>
+      <prompt>#</prompt> <userinput>cd /usr/ports/lang/dylan</userinput>
+      <prompt>#</prompt> <userinput>make install</userinput>
+      </screen>
     </SECT1>
 
   </CHAPTER>
@@ -489,15 +494,42 @@ main(application-name(), application-arguments());
 	    <type>&lt;extended-float&gt;</type>).  Without a
 	    <literal>float-precision:</literal> keyword, unsuffixed
 	    floating-point constants default to
-	    <type>&gt;double-float&gt;</type>.</para>
+	    <type>&lt;double-float&gt;</type>.</para>
 
 	    <para>A fourth alternative, <literal>auto</literal>,
 	    indicates that an unsuffixed floating-point constant
 	    should be a <type>&lt;double-float&gt;</type> if it has
 	    eight or more digits after the decimal point, or a
 	    <type>&lt;single-float&gt;</type> otherwise.  This
-	    behavior corresponds to Functional Developer's default
-	    behavior.</para>
+	    behavior corresponds to <application>Functional
+	    Developer</application>'s default behavior, and is
+	    intended for code ported from <application>Functional
+	    Developer</application>.</para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><literal>Implicitly-define-next-method:</literal></term>
+	  <listitem>
+	    <para><literal>Yes</literal> (the default) if define
+	    method should implicitly define the
+	    <varname>next-method</varname> variable within the body,
+	    or <literal>no</literal> if it should not.  This keyword
+	    is available for compatibility with &mindy; (which does
+	    not implicitly define <varname>next-method</varname>, or
+	    for those who don't want to pay the cost of implicitly
+	    defined next methods in every method definition.</para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><literal>Dynamic:</literal></term>
+	  <listitem>
+	    <para><literal>Yes</literal> if definitions in the library
+	    should be dynamic (modifyable at runtime, for example with
+	    <function>add-method</function>), or <literal>no</literal>
+	    if they should not.  The default is
+	    <literal>no</literal>.</para>
 	  </listitem>
 	</varlistentry>
       </VARIABLELIST>
@@ -561,7 +593,7 @@ myprog.dylan</PROGRAMLISTING>
 	    <COMMAND>gcc</COMMAND>, and <COMMAND>ld</COMMAND>. Other
 	    compilers can work, but at a minimum this requires a new
 	    platform description in
-	    <FILENAME>$DYLANDIR/etc/platforms.descr</FILENAME>. You
+	    <FILENAME>$DYLANDIR/share/dylan/platforms.descr</FILENAME>. You
 	    must also have some of the GNU-win32 tools to run &d2c; on
 	    Windows, though <COMMAND>make</COMMAND> and Visual C++ are
 	    normally used for compilation. To build &d2c;, you also
@@ -584,11 +616,10 @@ myprog.dylan</PROGRAMLISTING>
 	    includes <LITERAL>-I$DYLANDIR/include</LITERAL>. If you do
 	    set this variable, you must also specify the Dylan system
 	    include directory. The default optimization flags for gcc
-	    are <LITERAL> -g -O4 -finline-functions</LITERAL>. You can
-	    roughly halve the size of the executable by omitting the
-	    <OPTION>-g</OPTION>, but at the cost of
-	    debuggability. Leaving out the other optimize flags will
-	    speed compilation at the cost of runtime speed. </PARA>
+	    are <LITERAL>-O2 -fomit-frame-pointer
+	    -fno-strict-aliasing</LITERAL>. Leaving out the
+	    optimize flags will speed compilation at the cost of
+	    runtime speed. </PARA>
 	  </LISTITEM>
 	</VARLISTENTRY>
       </VARIABLELIST>
