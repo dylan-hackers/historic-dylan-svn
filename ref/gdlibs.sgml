@@ -515,7 +515,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	module to process format strings, and it prints directly to
 	the Unix stdout. If any library that is used itself uses the
 	Debugger-format library, then the debugger uses format from
-	the Format library, which is shipped with Gwydion
+	the <dlibrary>Format</dlibrary> library, which is shipped with Gwydion
 	compilers. You can extend how the debugger prints conditions,
 	change what formatting function it uses, and direct where
 	debugger output goes with the following:</PARA>
@@ -561,7 +561,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    variables as error messages to users. The internal
 	    <FUNCTION>format</FUNCTION> function used by Mindy uses
 	    report-condition for condition arguments to the
-	    <dlit>%S</dlit> format directive. The Format
+	    <dlit>%S</dlit> format directive. The <dlibrary>Format</dlibrary>
 	    library's <FUNCTION>print-message</FUNCTION> method for
 	    conditions calls
 	    <FUNCTION>report-condition</FUNCTION>.</PARA>
@@ -574,12 +574,12 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    call Cheap-IO's format, you'll be forced to write to only
 	    one destination, <dlit>stdout</dlit>, ignoring the
 	    <PARAMETER>stream</PARAMETER> argument. If you call the
-	    Format library's <FUNCTION>format</FUNCTION> function,
-	    then your module will require the Format, Print, and
-	    Streams libraries; therefore, users of your module may
+	    <dlibrary>Format</dlibrary> library's <FUNCTION>format</FUNCTION> function,
+	    then your module will require the <dlibrary>Format</dlibrary>, <dlibrary>Print</dlibrary>, and
+	    <dlibrary>Streams</dlibrary> libraries; therefore, users of your module may
 	    ultimately load these other libraries needlessly. Of
 	    course, if you want to make use of the extended
-	    functionality of the Format library's format control
+	    functionality of the <dlibrary>Format</dlibrary> library's format control
 	    strings, then you only have one choice anyway, and there's
 	    no reason to use <FUNCTION>condition-format</FUNCTION>.</PARA>
 	  </REFSECT1>
@@ -630,7 +630,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    <TITLE>Description</TITLE>
 
 	    <PARA>This function serves as a firewall between the
-	    condition system and the Streams and Format
+	    condition system and the <dlibrary>Streams</dlibrary> and <dlibrary>Format</dlibrary>
 	    libraries. Methods on
 	    <FUNCTION>report-condition</FUNCTION> should use
 	    <FUNCTION>condition-format</FUNCTION> to do their
@@ -640,7 +640,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    argument, but this is not required.</PARA>
 
 	    <PARA>Mindy supplies a method for when stream is
-	    <dlit>#"Cheap-IO"</dlit>. The Gwydion Format library
+	    <dlit>#"Cheap-IO"</dlit>. The Gwydion <dlibrary>Format</dlibrary> library
 	    supplies a method for when stream is a subclass of
 	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
 	    implementing your own streams or format libraries, you
@@ -691,7 +691,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	    yourself.</PARA>
 
 	    <PARA>Mindy supplies a method for when stream is
-	    <dlit>#"Cheap-IO"</dlit>. The Gwydion Format library
+	    <dlit>#"Cheap-IO"</dlit>. The Gwydion <dlibrary>Format</dlibrary> library
 	    supplies a method for when stream is a subclass of
 	    <CLASSNAME>&lt;stream&gt;</CLASSNAME>. If you are
 	    implementing your own streams or format libraries, you
@@ -2224,7 +2224,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
   </chapter>
 
   <chapter id="libs-format">
-    <title> The Format Library </title>
+    <title>The Format Library</title>
     <para>
       The Format library provides a way to control output to a stream.
     </para>
@@ -2343,12 +2343,12 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
         </defsummary>
         <defparameters>
           <param>
-            <paramname> object </paramname>
-            <paramtype> &lt;object&gt; </paramtype>
+            <paramname>object</paramname>
+            <paramtype>&lt;object&gt;</paramtype>
           </param>
           <param>
-            <paramname> stream </paramname>
-            <paramtype> &lt;stream&gt; </paramtype>
+            <paramname>stream</paramname>
+            <paramtype>&lt;stream&gt;</paramtype>
           </param>
         </defparameters>
         <defreturns>
@@ -2379,7 +2379,7 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
     <sect1 id="libs-format-directives">
     <title>Format Directives</title>
     <para>
-      The below directives are described below:
+      The format directives are described below:
     </para>
 
     <para>
@@ -2452,7 +2452,7 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
       GwydionDylan.  See the below examples for
       using some of the format directives.
     </para>
-    <sect2 id="lib-format-simple-example">
+    <sect2 id="libs-format-simple-example">
       <title>Simple Example</title>
       <para>
         Here we use three format directives to print the
@@ -2469,9 +2469,9 @@ format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%c",
        "Doug Auclair", 33, '\n');
       </programlisting>
       <para>
-        Note: sending the new-line character ('\n') works as expected
-        on supported platforms, but some systems that require a "\r\n"
-        or a "\n\r" pair for a new-line command may have problems.
+        Note: sending the new-line character (<dlit>'\n'</dlit>) works as expected
+        on supported platforms, but some systems that require a <dlit>"\r\n"</dlit>
+        or a <dlit>"\n\r"</dlit> pair for a <function>new-line</function> command may have problems.
         The preferred way to write the above code is:
       </para>
       <programlisting>
@@ -2480,14 +2480,14 @@ format(*standard-output*, "Hello, my name is %s, and I'm %d years old.\n",
       </programlisting>
     </sect2>
     
-    <sect2 id="lib-format-example-using-m">
+    <sect2 id="libs-format-example-using-m">
       <title>Examples Using the %m Directive</title>
       <para>
         Below are two examples that use the %m directive (and others)
         to format messages for display.
       </para>
       
-      <sect3 id="lib-format-example-using-m-simple">
+      <sect3 id="libs-format-example-using-m-simple">
         <title>Simple Example Using the %m Directive</title>
 	<para>
 	  Instead of feeding the (in some cases, troublesome) '\n'
@@ -2506,19 +2506,19 @@ format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%m",
 	</para>
 	<para>
 	  Interestingly, Dylan automatically
-	  converts '\n' characters in the control string to calls to
-	  <function>new-line</function>.   (So, neither %m => new-line
-	  nor %c => '\n' mappings are necessary ... Dylan takes care
+	  converts <dlit>'\n'</dlit> characters in the control string to calls to
+	  <function>new-line</function>.   (So, neither <dlit>"%m"</dlit> => <function>new-line</function>
+	  nor <dlit>"%c"</dlit> => <dlit>'\n'</dlit> mappings are necessary ... Dylan takes care
 	  of that).
 	</para>
       </sect3>
       
-      <sect3 id="lib-format-example-using-m-complex">
+      <sect3 id="libs-format-example-using-m-complex">
         <title>Complex Example Using the %m Directive</title>
         <para>
           Here we generate almost the same message, this time with a
 	  little more information (the current time in Washington D.C.)
-	  using the %m format directive.  The new message is:
+	  using the <dlit>"%m"</dlit> format directive.  The new message is:
 	</para>
 	<programlisting>
 Hello, my name is Doug Auclair, and as of
@@ -2526,9 +2526,9 @@ now, November 17, 2000 09:28 PM, I'm 33 years old.
         </programlisting>
         <para>
           To get the above message, we must first create a function that
-	  manipulates a <classname>&lt;decoded-time&gt;</classname> (See
-	  the <dmodule>Time</dmodule> and <dmodule>Time-IO</dmodule>
-	  modules in the <dlibrary>Time</dlibrary> library) as we desire
+	  manipulates a <classname>&lt;decoded-time&gt;</classname>
+	  (See <xref linkend="libs-time-time"> and <xref
+	  linkend="libs-time-timeio">) as we desire
 	  for the output:
 	</para>
 	<programlisting>
@@ -2557,7 +2557,7 @@ format(*standard-output*, "Hello, my name is %s, and as of\n"
 	    <para>
 	      First, a short-hand for <function>format(*standard-output*,
 	      ...</function> is the <function>format-out</function> function
-	      found in the <dlibrary>Format-Out</dlibrary> library.
+	      found in <xref linkend="libs-format-out-fn">.
 	    </para>
 	  </listitem>
 	  <listitem>
@@ -2594,7 +2594,7 @@ format(*standard-output*, "%s was here.\n", "Doug");
 	  </listitem>
 	  <listitem>
 	    <para>
-	      Fourth, note that in the control string I use '\n'
+	      Fourth, note that in the control string I use <dlit>'\n'</dlit>
 	      characters.  This is the preferred, and simplest, way to
 	      request a new-line.
 	    </para>
@@ -2614,11 +2614,16 @@ format(*standard-output*, "%s was here.\n", "Doug");
   <CHAPTER ID="libs-format-out">
     <TITLE>The Format-Out Library</TITLE>
 
-    <PARA>The Format-Out library is designed to provide a simple
-    interface to the Format library. It exports the module Format-Out
-    and re-exports the Format and Standard-IO modules from the Format
-    and Standard-IO libraries respectively.</PARA>
-    
+    <PARA>
+      The <dlibrary>Format-Out</dlibrary> library is designed to
+      provide a simple interface to the <dlibrary>Format</dlibrary>
+      library. It exports the module <dmodule>Format-Out</dmodule> and
+      re-exports the <dmodule>Format</dmodule> and
+      <dmodule>Standard-IO</dmodule> modules from the
+      <dlibrary>Format</dlibrary> and <dlibrary>Standard-IO</dlibrary>
+      libraries respectively.
+    </PARA>
+
     <sect1 id="libs-format-out-fn">
       <title>The Format-Out Module</title>
       <para>
@@ -2662,7 +2667,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     </docinfo>
     <TITLE>The Print Library</TITLE>
     <PARA>
-      This document describes the Print library designed by the
+      The <dlibrary>Print</dlibrary> library was designed by the
       Gwydion Project at Carnegie Mellon University. This library
       provides an interface that outputs an object in Dylan literal
       syntax if the object can be represented as a Dylan literal, and
@@ -2686,7 +2691,848 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <function>print-object</function> methods to output an object's
       components. Users should never call
       <function>print-object</function> directly.
-    </PARA> 
+    </PARA>
+
+    <sect1 id="libs-print-print">
+      <title>Print Module</title>
+      <para>
+        The <dmodule>Print</dmodule> module provides ways to print
+        objects.  It also provides printing properties (depth,
+        circular, etc), and inspection of those properties.
+      </para>
+      <dylanmethoddef>
+        <defname>print</defname>
+	<defsummary>Prints an object on a stream</defsummary>
+	<defparameters>
+          <param>
+            <paramname>object</paramname>
+          </param>
+          <param>
+            <paramname>stream</paramname>
+            <paramtype>&lt;stream&gt;</paramtype>
+          </param>
+	  <keyparam>
+	    <paramname>level</paramname>
+	    <paramtype>&lt;integer-or-false-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Holds the maximum depth to which
+	      the user wants recursive printing to go.
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>length</paramname>
+	    <paramtype>&lt;integer-or-false-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Holds the maximum number of elements the user wants a
+	      sequence to be printed.  This does not apply to some
+	      sequences, such as strings. 
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>circle?</paramname>
+	    <paramtype>&lt;boolean-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Defines print behavior when printing a circular list
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>pretty?</paramname>
+	    <paramtype>&lt;boolean-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Whether the user wants pretty printing.
+	    </paramsummary>
+	  </keyparam>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+          <para>
+	    Prints <dlit>object</dlit> to <dlit>stream</dlit>
+	    according to the print request 
+	    formed by the keyed arguments. A first call to
+	    <function>print</function> creates a printing stream to
+	    represent the print request, and recursive calls to
+	    <function>print</function> on this printing stream process the
+	    keyed arguments differently (see below). There are inspection
+	    functions for querying the print request (see their
+	    descriptions below). When <function>print</function> actually
+	    prints an object, it calls
+	    <function>print-object</function>. Though the inspection
+	    functions for querying the print request allow you to inspect
+	    any parameter of the print request,
+	    <function>print-object</function> methods should only need to
+	    call <function>print-length</function>. All other aspects of
+	    the print request are handled by
+	    <function>print</function>. There is one exception which is
+	    described in the <dmodule>PPrint</dmodule> module
+	    (pretty-printing).
+	  </para>
+	  <para>
+	    <dlit>Level</dlit> controls how deep into a nested data
+	    structure to print. The value &false; indicates that there
+	    is no limit. The default, <dname>*default-level*</dname>,
+	    has no effect on recursive calls to
+	    <function>print</function>. Recursive calls to
+	    <function>print</function> may change the value of
+	    <dname>print-level</dname> explicitly, but
+	    <function>print</function> always uses a value to ensure
+	    the print request formed by the first call to
+	    <function>print</function> is never exceeded. For example,
+	    if a first call to <function>print</function> set the
+	    <dlit>level</dlit> to 5, and while at a depth of 3, a
+	    recursive call specified a <dlit>level</dlit> of 4, the
+	    recursive call would only descend 2 more levels, not 4.
+	  </para>
+	  <para>
+	    <dlit>Length</dlit> controls how many elements of a
+	    sequence to print before printing ellipsis notation
+	    (<dlit>...</dlit>). The 
+	    value &false; indicates that there is no limit. The
+	    <dname>print-length</dname> control can be interpreted
+	    loosely by some <function>print-object</function> methods
+	    to control how many elements of any kind of object to
+	    print; for example, the default
+	    <classname>&lt;object&gt;</classname> method might regard
+	    <dname>print-length</dname> to determine how many
+	    slot-name/value pairs to print. The default,
+	    <dname>*default-length*</dname>, has no effect on
+	    recursive calls to <function>print</function>. Recursive
+	    calls to <function>print</function> may change the value
+	    of <dname>print-length</dname> explicitly, but they may only
+	    decrease the value, never increase it.
+	  </para>
+	  <para>
+	    <dlit>Circle?</dlit> indicates whether printing should
+	    check all subcomponent references to make sure the printing
+	    process does not infinitely recurse through a data
+	    structure. Circular printing also tags objects that occur more
+	    than once when they are first printed, and later occurrences
+	    are printed as a reference to the previously emitted tag. The
+	    default, <dname>*default-circle?*</dname>, has no effect on
+	    recursive calls to <function>print</function>. If
+	    <dname>print-circle?</dname> is already &true;, then it remains
+	    &true; throughout all recursive calls. If
+	    <dname>print-circle?</dname> is &false;, then recursive calls to
+	    <function>print</function> can change the value to &true;;
+	    however, when printing exits the dynamic scope of the call
+	    that changed the value to &true;, the value reverts to
+	    &false;. If the original call to
+	    <function>print</function> specifies <dlit>circle?</dlit>
+	    as &false;, and dynamically distinct recursive calls turn
+	    circular printing on and off, all output generated while
+	    circular printing was on shares the same tagging space;
+	    that is, if <dlit>#1#</dlit> is printed twice, once from
+	    each of two distinct recursive calls to
+	    <function>print</function>, then each <dlit>#1#</dlit> is
+	    guaranteed to signify the same <function>\==</function>
+	    object.  
+	  </para>
+	  <para>
+	    <dlit>Pretty?</dlit> indicates whether printing should
+	    attempt to insert line breaks and indentation to format
+	    objects according to how programmers tend to find it easier to
+	    read data. The default, <dname>*default-pretty?*</dname>,
+	    has no effect on recursive calls to
+	    <function>print</function>. If
+	    <dname>print-pretty?</dname> is already &true;, then it
+	    remains &true; throughout all recursive calls. If
+	    <dname>print-pretty?</dname> is &false;, then recursive
+	    calls to <function>print</function> can change the value
+	    to &true;; however, when printing exits the dynamic scope
+	    of the call that changed the value to &true;, the value
+	    reverts to &false;.
+          </para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>print-object</defname>
+	<defsummary>The default way to print objects</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>object</paramname>
+	  </param>
+	  <param>
+            <paramname>stream</paramname>
+            <paramtype>&lt;stream&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+        </defreturns>
+        <defdescription>
+	  <para>
+	    Users extend <function>print</function>'s ability to print
+	    various objects by adding methods to the
+	    <function>print-object</function> function.  When
+	    <function>print</function> actually prints an object, it calls
+	    <function>print-object</function>. Users should never call
+	    <function>print-object</function>
+	    directly. 
+	  </para>
+          <para>
+	    Provides the printed object representation for
+	    <function>print</function> and for the "%=" format
+	    directive (see <xref linkend="libs-format-directives">).
+	    Default <function>print-object</function> methods exist
+	    for instances of <classname>&lt;object&gt;</classname>,
+	    <classname>&lt;character&gt;</classname>,
+	    <classname>&lt;string&gt;</classname>,
+	    <classname>&lt;list&gt;</classname>,
+	    <classname>&lt;vector&gt;</classname>,
+	    <classname>&lt;sequence&gt;</classname>,
+	    <classname>&lt;array&gt;</classname>,
+	    <classname>&lt;table&gt;</classname>,
+	    <classname>&lt;range&gt;</classname>,
+	    <classname>&lt;function&gt;</classname>,
+	    <classname>&lt;singleton&gt;</classname>,
+	    <classname>&lt;limited-integer&gt;</classname>,
+	    <classname>&lt;union&gt;</classname>,
+	    <classname>&lt;symbol&gt;</classname>,
+	    <classname>&lt;general-integer&gt;</classname>, 
+	    <classname>&lt;integer&gt;</classname>, 
+	    <classname>&lt;ratio&gt;</classname>,
+	    <classname>&lt;single-float&gt;</classname>,
+	    <classname>&lt;double-float&gt;</classname>,
+	    <classname>&lt;extended-float&gt;</classname>, 
+	    <classname>&lt;class&gt;</classname>, and for &true; and
+	    &false;.
+	  </para>
+	  <para>
+	    Users may choose to modify the printed representation in
+	    two ways:  override the <function>print-object</function>
+	    method for that instance's type, or provide a printing
+	    function to the <dlit>"%m"</dlit> directive for
+	    <function>format</function> or
+	    <function>format-out</function>.
+	  </para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>print-to-string</defname>
+	<defsummary>
+	  Creates a string that contains a printed object representation 
+	</defsummary>
+	<defparameters>
+          <param>
+            <paramname>object</paramname>
+          </param>
+	  <keyparam>
+	    <paramname>level</paramname>
+	    <paramtype>&lt;integer-or-false-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Holds the maximum depth to which
+	      the user wants recursive printing to go.
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>length</paramname>
+	    <paramtype>&lt;integer-or-false-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Holds the maximum number of elements the user wants a
+	      sequence to be printed.  This does not apply to some
+	      sequences, such as strings. 
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>circle?</paramname>
+	    <paramtype>&lt;boolean-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Defines print behavior when printing a circular list
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>pretty?</paramname>
+	    <paramtype>&lt;boolean-or-not-supplied&gt;</paramtype>
+	    <paramdefault>$not-supplied</paramdefault>
+	    <paramsummary>
+	      Whether the user wants pretty printing.
+	    </paramsummary>
+	  </keyparam>
+        </defparameters>
+        <defreturns>
+	  <param>
+	    <paramname>result</paramname>
+	    <paramtype>&lt;byte-string&gt;</paramtype>
+	  </param>
+        </defreturns>
+        <defdescription>
+          <para>
+	    Calls <function>print</function> to produce output
+	    according to the print request formed by the keyed arguments
+	    and returns the output as a string. 
+	  </para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <para>
+        The above <function>print</function> functions use or set the
+        below exported variables to accomplish their work (&false;
+        (the default value of all these variables) indicates there is
+        no bounds for the variable):
+      </para>
+
+      <dylanvariabledef>
+        <defname>*default-level*</defname>
+	<defsummary>
+	  Gives how far down recursively to print
+	</defsummary>
+	<deftype>false-or(&lt;integer&gt;)</deftype>
+	<defdescription>
+	  <para>
+	    If a number is given, <function>print</function> prints a
+	    <dlit>#</dlit> when it reached the level.
+	  </para>
+	</defdescription>
+      </dylanvariabledef>
+
+      <dylanvariabledef>
+        <defname>*default-length*</defname>
+	<defsummary>
+	  How many elements to print of a sequence
+	</defsummary>
+	<deftype>false-or(&lt;integer&gt;)</deftype>
+	<defdescription>
+	  <para>
+	    If a number is given, <function>print</function> prints a
+	    <dlit>...</dlit> to indicate that it reached the maximum
+	    number of printable elements.
+	  </para>
+	</defdescription>
+      </dylanvariabledef>
+
+      <dylanvariabledef>
+        <defname>*default-circle?*</defname>
+	<defsummary>
+	  What to do for circular lists
+	</defsummary>
+	<deftype>&lt;boolean&gt;</deftype>
+	<defdescription>
+	  <para>
+	    If on, prints identical objects as, e.g.: <dlit>#1#</dlit>	    
+	  </para>
+	</defdescription>
+      </dylanvariabledef>
+
+      <dylanvariabledef>
+        <defname>*default-pretty?*</defname>
+	<defsummary>
+	  Formats outputted object
+	</defsummary>
+	<deftype>&lt;boolean&gt;</deftype>
+	<defdescription>
+	  <para>
+	    If on, prints object indented with proper line breaks,
+	    according to the formatting specifications given to
+	    <function>pprint-logical-block</function>. 
+	  </para>
+	</defdescription>
+      </dylanvariabledef>    
+
+      <para>
+        The below functions give printing information on
+        <classname>&lt;stream&gt;</classname>s. It seems, however,
+        that these functions are neither used nor implemented, as they
+        all give &false; or <dlit>0</dlit> as their response, no matter the
+        <classname>&lt;stream&gt;</classname>.
+      </para>
+      
+      <dylanmethoddef>
+        <defname>print-length</defname>
+	<defsummary>Always returns &false;</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>length</paramname>
+	    <paramtype>false-or(&lt;integer&gt;)</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Returns the current value for the print request. See the
+	    <function>print</function> function for details.
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>print-level</defname>
+	<defsummary>Always returns &false;</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>level</paramname>
+	    <paramtype>false-or(&lt;integer&gt;)</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Returns the current value for the print request. See the
+	    <function>print</function> function for details. Users
+	    should have little use for this function because
+	    <function>print</function> takes care to call
+	    <function>print-object</function> only when the print
+	    level has not been exhausted. 
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>print-depth</defname>
+	<defsummary>Always returns <dlit>0</dlit></defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>depth</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Returns the current depth to which printing has descended
+	    into the object on which print was originally called. 
+	    <function>Print</function> takes care to call
+	    <function>print-object</function> only when the print
+	    depth has not been exhausted. 
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>print-pretty?</defname>
+	<defsummary>Always returns &false;</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>pretty?</paramname>
+	    <paramtype>#f</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Returns whether pretty printing is on. Users should have
+	    little use for this function (see <xref
+	    linkend="libs-print-pprint">).
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>print-circle?</defname>
+	<defsummary>Always returns &false;</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>circle?</paramname>
+	    <paramtype>#f</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Returns whether circular printing is on. Users should have
+	    little use for this function because
+	    <function>print</function> takes care to detect
+	    circularities, tag multiply referenced objects, and emit
+	    tags rather than descending into objects to repeatedly
+	    print them.
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+    </sect1>
+    
+    <sect1 id="libs-print-pprint">
+      <title>PPrint Module</title>
+      <para>
+        The <dlibrary>Print</dlibrary> library implements most of the
+	pretty printing technology described by Richard C. Waters in
+	Common Lisp The Language, second edition. The interface is
+	slightly different because Mindy does not have macros. This
+	section only summarizes the pretty printing functionality to
+	provide a quick reference for users of the
+	<dlibrary>Print</dlibrary> library, and readers should refer
+	to the Common Lisp manual for more details.  
+      </para>
+      <para>
+        When writing <function>print-object</function> methods, users
+	can ignore whether pretty printing is in effect. If you write
+	your <function>print-object</function> method using pretty
+	printing functions, then when pretty printing is in effect,
+	the output will be pretty printed. When pretty printing is not
+	in effect, your method will produce output as though you had
+	not written it to use pretty printing. All
+	<function>print-object</function> methods that are written to
+	do pretty printing must call the pretty printing functions
+	within the dynamic scope of a call to
+	<function>pprint-logical-block</function>; otherwise, the
+	pretty printing functions are no-ops.
+      </para>
+
+      <dylanvariabledef>
+        <defname>*default-line-length*</defname>
+	<defsummary>The length of a single line</defsummary>
+	<deftype>&lt;integer&gt;</deftype>
+	<defdescription>
+	  <para>
+	    This is the line length used by the pretty printer to
+	    determine how much output will fit on a single line. 
+	    It defaults to 80. 
+	  </para>
+	</defdescription>
+      </dylanvariabledef>
+
+      <dylanvariabledef>
+        <defname>*print-miser-width*</defname>
+	<defsummary>Controls miser mode for pretty printing</defsummary>
+	<deftype>false-or(&lt;integer&gt;)</deftype>
+	<defdescription>
+	  <para>
+	    Whenever a logical block (see
+	    <function>pprint-logical-block</function>) begins in a
+	    column of output that is greater than
+	    <dname>*default-line-length*</dname> -
+	    <dname>*print-miser-width*</dname>, then pretty printing
+	    is in miser mode. The value must be an integer or &false;
+	    (the default). &false; indicates that the pretty printer
+	    should never enter miser mode.
+	  </para>
+	</defdescription>
+      </dylanvariabledef>
+
+      <dylanclassdef>
+        <defname>&lt;pretty-stream&gt;</defname>
+	<defadjectives>sealed</defadjectives>
+	<defsummary>Stream used for pretty printing.</defsummary>
+	<defsupers>
+	  <defsuper>&lt;buffered-stream&gt;</defsuper>
+	</defsupers>
+	<definitkeywords>
+	  <keyparam>
+	    <paramname>target</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	    <paramsummary>
+	      The stream where the output is finally going
+	      to go.
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>line-length</paramname>
+	    <paramtype>&lt;column&gt;</paramtype>
+	    <paramdefault>*default-line-length*</paramdefault>
+	    <paramsummary> 
+	      The line length for this stream (0 minimum).
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>column</paramname>
+	    <paramtype>&lt;column&gt;</paramtype>
+	    <paramdefault>0</paramdefault>
+	    <paramsummary> 
+	      The column the first character in the buffer will appear
+	      in.  Normally zero, but if we end up with a very long
+	      line with no breaks in it we might have to output part of
+	      it.  Then this will no longer be zero. 
+	    </paramsummary>
+	  </keyparam>
+	</definitkeywords>
+	<defdescription>
+	  <para>
+	    This is a working class for pretty-printing objects.  Use
+	    an instance of this class when doing a great deal of
+	    pretty printing.
+	  </para>
+	</defdescription>
+      </dylanclassdef>
+
+      <dylangenericdef>
+        <defname>pprint-logical-block</defname>
+	<defsummary>
+	  Start a logical block, creating a pretty-stream if
+	  necessary.
+	</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	  <keyparam>
+	    <paramname>column</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>prefix</paramname>
+	    <paramtype>&lt;byte-string&gt;</paramtype>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>per-line-prefix</paramname>
+	    <paramtype>&lt;byte-string&gt;</paramtype>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>body</paramname>
+	    <paramtype>&lt;function&gt;</paramtype>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>suffix</paramname>
+	    <paramtype>&lt;byte-string&gt;</paramtype>
+	  </keyparam>
+	</defparameters>
+	<defreturns>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    This function groups printing into a logical block. The
+	    logical block provides boundaries for new levels of
+	    indentation, affects <dlit>#"linear"</dlit> newlines, and
+	    so on. <dlit>Prefix</dlit> is a string to print at the
+	    beginning of the logical block. The blocks indentation is
+	    automatically set to be one character position greater
+	    than the column in which <dlit>prefix</dlit>
+	    ends. Alternatively, <dlit>per-line-prefix</dlit> is a
+	    string to print on every line of the logical block. This
+	    function signals an error if it is called with both
+	    <dlit>prefix</dlit> and <dlit>per-line-prefix</dlit>
+	    supplied as non-&false;. <dlit>Suffix</dlit> is a string
+	    to print at the end of the logical
+	    block. <dlit>Column</dlit> advises the pretty printer as
+	    to the current column of the output stream (defaults to
+	    zero). The <dlit>column</dlit> argument may be ignored
+	    entirely by some methods, and it may be ignored in some
+	    cases by methods that can better determine the stream's
+	    current output column. 
+	  </para>
+	  <para>
+	    <dlit>Body</dlit> must be a
+	    <classname>&lt;function&gt;</classname> that can take one
+	    argument, and this argument is a
+	    <classname>&lt;stream&gt;</classname>. The
+	    <dlit>body</dlit> function should use the
+	    <dlit>stream</dlit> argument passed to it; the
+	    <dlit>body</dlit> function should not close over the
+	    <dlit>stream</dlit> argument to
+	    <function>pprint-logical-block</function>.
+	    <function>Pprint-logical-block</function> wraps
+	    <dlit>stream</dlit> with a pretty printing stream when
+	    <dlit>stream</dlit> is any other kind of stream. If
+	    <dlit>stream</dlit> is already a pretty printing stream,
+	    then the <dlit>body</dlit> function is called on
+	    <dlit>stream</dlit>.
+	  </para>
+	  <para>
+	    All <function>print-object</function> methods that are
+	    written to do pretty printing must call the other pretty
+	    printing functions within the dynamic scope of a call to
+	    <function>pprint-logical-block</function>; otherwise, the
+	    pretty printing functions are no-ops.
+	  </para>
+	</defdescription>
+      </dylangenericdef>
+
+      <dylanmethoddef>
+        <defname>pprint-newline</defname>
+	<defsummary>
+	  Output a conditional newline of some kind.  If
+	  called on a regular stream, ignore it.
+	</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>kind</paramname>
+	    <paramtype>&lt;pretty-newline-kind&gt;</paramtype>
+	  </param>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    This function announces a conditional newline to the
+	    pretty printer. The pretty printer emits a newline
+	    depending on the <dlit>kind</dlit> and the state of the
+	    pretty printer's current line buffer. The kind argument
+	    has roughly the following meanings:
+	  </para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+	        <dlit>#"fill"</dlit>: Emit a newline if the current
+	        <dlit>section</dlit> of output does not fit on one
+	        line.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>#"linear"</dlit>: Emit a newline if any
+	        <dlit>#"linear"</dlit> newline in the current section
+	        needs to be emitted.  That is, if a current section of
+	        output cannot fit on one line, and any one of the
+	        <dlit>#"linear"</dlit> newlines in the section needs
+	        to be emitted, then emit them all.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>#"miser"</dlit>: Emit a newline as if it were a
+	        <dlit>#"linear"</dlit> newline, but only when <dlit>miser
+	        mode</dlit> is in effect. Miser style is in effect when a
+	        logical block starts past a particular column of
+	        output.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>#"mandatory"</dlit>: Emit a newline
+	        always. Establish that any containing sections cannot
+	        be printed on a single line so that
+	        <dlit>#"linear"</dlit> and <dlit>#"miser"</dlit>
+	        newlines will be emitted as appropriate.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	</defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>pprint-indent</defname>
+	<defsummary>
+	  Change the indentation.  If called on a regular stream, just
+	  ignore it.
+	</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>relative-to</paramname>
+	    <paramtype>&lt;indentation-kind&gt;</paramtype>
+	  </param>
+	  <param>
+	    <paramname>n</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	  </param>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    This function specifies the indentation to use within the
+	    current logical block. When <dlit>relative-to</dlit> is
+	    <dlit>#"block"</dlit>, then
+	    <function>pprint-indent</function> sets the indentation to
+	    the column of the first character of the logical block
+	    plus <dlit>n</dlit>. When <dlit>relative-to</dlit> is
+	    <dlit>#"current"</dlit>, then
+	    <function>pprint-indent</function> sets the indentation to
+	    the current column plus <dlit>n</dlit>.
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
+
+
+      <dylanmethoddef>
+        <defname>pprint-tab</defname>
+	<defsummary>
+	  Output a tab.  If called on a regular stream, ignore it.
+	</defsummary>
+	<defparameters>
+	  <param>
+	    <paramname>kind</paramname>
+	    <paramtype>&lt;tab-kind&gt;</paramtype>
+	  </param>
+	  <param>
+	    <paramname>colnum</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	  </param>
+	  <param>
+	    <paramname>colinc</paramname>
+	    <paramtype>&lt;integer&gt;</paramtype>
+	  </param>
+	  <param>
+	    <paramname>stream</paramname>
+	    <paramtype>&lt;stream&gt;</paramtype>
+	  </param>
+	</defparameters>
+	<defreturns>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    This function announces a tab to the pretty
+	    printer. <dlit>Colnum</dlit> and <dlit>colinc</dlit> have
+	    meaning based on the value of <dlit>kind</dlit>: 
+	  </para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+	        <dlit>#"line"</dlit>: Tab to output column
+	        <dlit>colnum</dlit>. If the output is already at or
+	        beyond <dlit>colnum</dlit>, then add
+	        <dlit>colinc</dlit> to <dlit>colnum</dlit> until
+	        printing can continue at a column beyond the end of
+	        the output already on the line. 
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>#"line-relative"</dlit>: Output
+	        <dlit>colnum</dlit> spaces. Then output enough spaces
+	        to tab to a column that is a multiple of
+	        <dlit>colinc</dlit> from the beginning of the line.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>#"section"</dlit>: This is similar to
+	        <dlit>#"line"</dlit>, but column counting is relative
+	        to the beginning of the current section rather than
+	        the beginning of the line.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+	        <dlit>#"section-relative"</dlit>: This is similar to
+	        <dlit>#"line-relative"</dlit>, but column counting is
+	        relative to the beginning of the current section
+	        rather than the beginning of the line.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	</defdescription>
+      </dylanmethoddef>
+
+    </sect1>
   </CHAPTER>
 
   <CHAPTER ID="libs-collection-extensions">
@@ -4288,7 +5134,7 @@ subsequence(source, start: 3)
     </dylangenericdef>
   </sect1>
 
-  <sect1 id="lib-transcendental-pi">
+  <sect1 id="libs-transcendental-pi">
     <title>The pi Constants</title>
     <para>
       So, perhaps you are used to thinking in degrees, not radians.
@@ -4345,7 +5191,7 @@ subsequence(source, start: 3)
     </dylanconstantdef>
   </sect1>
 
-  <sect1 id="lib-transcendental-arc">
+  <sect1 id="libs-transcendental-arc">
     <title>The Inverse (Arc) Functions</title>
 
     <para>
@@ -4466,7 +5312,7 @@ subsequence(source, start: 3)
 
     </sect1>
 
-    <sect1 id="lib-transcendental-h">
+    <sect1 id="libs-transcendental-h">
     <title>The Hyperbolic Functions</title>
     
     <dylangenericdef>
@@ -4603,7 +5449,7 @@ subsequence(source, start: 3)
 
     </sect1>
 
-    <sect1 id="lib-transcendental-e">
+    <sect1 id="libs-transcendental-e">
     <title>The e Constants</title>
     <para>
       I will leave aside the temptation to find mathematical similarities
@@ -4644,7 +5490,7 @@ subsequence(source, start: 3)
 
     </sect1>
 
-    <sect1 id="lib-transcendental-log">
+    <sect1 id="libs-transcendental-log">
     <title>The Logarithmic Functions</title>
     <para>
       The logarithmic family of functions (<function>log</function> in its
@@ -4737,7 +5583,7 @@ log(100000, base: 10) => 5.0
       Time is a library of routines for working with time and dates.
     </PARA>
 
-    <sect1 id="libs-time-timemodule">
+    <sect1 id="libs-time-time">
       <title>The Time Module</title>
       <para>
         This module contains the basic time classes, encoding and
@@ -4987,7 +5833,7 @@ log(100000, base: 10) => 5.0
   	</definitkeywords>
   	<defdescription>
   	  <para>
-	    Note that there's no point in not defining a print-object
+	    Note that there's no point in not defining a <function>print-object</function>
 	    method, since the parse-time stuff already uses streams.
 	    Might as well use print and format, too. 
 	  </para>
