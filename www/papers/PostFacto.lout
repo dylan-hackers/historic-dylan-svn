@@ -28,15 +28,17 @@ import @Eq
 def taus
   left maxindex
   named prime {}
-{ {1 prime} ta, {2 prime} ta, ..., {maxindex prime} ta }
-
+  named preset {}
+  named inset {2 prime}
+{ {1 prime} ta, preset inset ta, ..., {maxindex prime} ta }
+# { {1 prime} ta, {2 prime} ta, ..., {maxindex prime} ta }
 
 import @Eq
 def proj
   precedence 50
   left coll
   right index
-{ coll non mid sub index }
+{ coll big non mid sub index }
 
 
 @Database @Reference { refs }
@@ -385,6 +387,16 @@ An argument at position @I i can only be passed to both signatures if it is an i
 Now we reintroduce several signatures at the left hand side: clearly we have to construct the union of each {@Tau @I i} @Sup @I j @Sym intersection {@Tau {{@I i}'}}.
 Here @I j is denoting the index in the left signature set. Additionally considering several signatures on the right, we arrive at
 the union over the full cartesian product: @Eq {big union from {j=1, "j'"=1} to {m, "m'"} tau sub i sup j intersection tau sub i sup "j'"}.
+
+@LP
+@LP
+@LP
+
+
+For a fixed {@I m}, {@I m}' and @I i (@Eq {1 <= i <= n}) we are to derive @Eq { set {1 sig, 2 sig, ..., m sig} proj i cap set {1' sig, 2' sig, ..., m' sig} proj i} now.
+First we reduce our task by considering signature sets with just one element:
+@Eq { set {1 sigp {n taus}} proj i cap set {1' sigp {n taus prime {'} preset {... ,} inset {i}}} proj i}.
+
 @End @SubSubSection
 
 #-----------------
