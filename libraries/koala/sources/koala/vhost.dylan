@@ -6,6 +6,28 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+// Some methods to make logging slightly more convenient by not having
+// to always pass log-target(*virtual-host*).
+define method log-copious (format-string, #rest format-args)
+  apply(%log-copious, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+end;
+define method log-verbose (format-string, #rest format-args)
+  apply(%log-verbose, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+end;
+define method log-debug (format-string, #rest format-args)
+  apply(%log-debug, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+end;
+define method log-info (format-string, #rest format-args)
+  apply(%log-info, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+end;
+define method log-warning (format-string, #rest format-args)
+  apply(%log-warning, *temp-log-target* | error-log-target(*virtual-host*), format-string, format-args);
+end;
+define method log-error (format-string, #rest format-args)
+  apply(%log-error, *temp-log-target* | error-log-target(*virtual-host*), format-string, format-args);
+end;
+
+
 define class <directory-spec> (<object>)
   constant slot dirspec-pattern :: <string>,
     required-init-keyword: pattern:;
@@ -128,7 +150,16 @@ define class <virtual-host> (<object>)
   //       unix variants and insensitive for Windows.
   constant slot auto-register-map :: <table> = make(<string-table>);
 
-end;
+  // Log targets.  If these are #f then the default virtual host's
+  // log target is used.  They are never #f in $default-virtual-host.
+  slot %activity-log-target :: false-or(<log-target>) = #f,
+    init-keyword: #"activity-log";
+  slot %error-log-target :: false-or(<log-target>) = #f,
+    init-keyword: #"error-log";
+  slot %debug-log-target :: false-or(<log-target>) = #f,
+    init-keyword: #"debug-log";
+
+end class <virtual-host>;
 
 
 define method initialize
@@ -140,6 +171,21 @@ define method initialize
   document-root(vhost) := subdirectory-locator(*server-root*, name);
   // Add a spec that matches all urls.
   add-directory-spec(vhost, root-directory-spec(vhost));
+end;
+
+define method activity-log-target
+    (vhost :: <virtual-host>) => (target :: <log-target>)
+  vhost.%activity-log-target | $default-virtual-host.%activity-log-target
+end;
+
+define method debug-log-target
+    (vhost :: <virtual-host>) => (target :: <log-target>)
+  vhost.%debug-log-target | $default-virtual-host.%debug-log-target
+end;
+
+define method error-log-target
+    (vhost :: <virtual-host>) => (target :: <log-target>)
+  vhost.%error-log-target | $default-virtual-host.%error-log-target
 end;
 
 define method add-directory-spec
@@ -156,7 +202,14 @@ end;
 // processed, so don't use it except during request processing.
 //
 define constant $default-virtual-host :: <virtual-host>
-  = make(<virtual-host>, name: "default");
+  = begin
+      let stdout-log = make(<null-log-target>, stream: *standard-output*);
+      make(<virtual-host>,
+           name: "default",
+           activity-log: stdout-log,
+           debug-log: stdout-log,
+           error-log: make(<null-log-target>, stream: *standard-error*))
+    end;
 
 // If this is true, then requests directed at hosts that don't match any
 // explicitly named virtual host (i.e., something created with <virtual-host>
@@ -171,6 +224,10 @@ define variable *fall-back-to-default-virtual-host?* :: <boolean> = #t;
 define constant $virtual-hosts :: <string-table> = make(<string-table>);
 
 define thread variable *virtual-host* :: <virtual-host> = $default-virtual-host;
+
+begin
+  *temp-log-target* := #f;
+end;
 
 define method add-virtual-host
     (name :: <string>, vhost :: <virtual-host>)
@@ -201,8 +258,6 @@ define method virtual-host
                  end;
     let vhost = virtual-host(host) | (*fall-back-to-default-virtual-host?*
                                         & $default-virtual-host);
-    log-debug("host = %=, port = %=, vhost = %=, vport = %=",
-              host, port, vhost, vhost & vhost-port(vhost));
     // TODO: If this is an HTTPS request and no port is specified, make sure
     //       vhost-port(vhost) == 443
     if (vhost & ((~port & vhost-port(vhost) == 80)
@@ -245,3 +300,4 @@ define method directory-spec-matching
     end;
   end;
 end;
+

@@ -40,10 +40,6 @@ end;
 
 define variable *mime-type-map* :: <table> = make(<table>);
 
-define variable *logfile* :: false-or(<string>) = #f;
-
-define variable *logfile-type* :: one-of(#"common", #"extended") = #"common";
-
 // This is the "master switch" for auto-registration of URLs.  If #f then URLs will
 // never be automatically registered based on their file types.  It defaults to #f
 // to be safe.
@@ -59,3 +55,10 @@ define variable *auto-register-pages?* :: <boolean> = #f;
 // page in a DSP application.
 define variable *auto-register-map* :: <string-table>
   = make(<string-table>);
+
+// Since logging is done on a per-vhost basis, this hack is needed
+// to make logging work before vhosts are initialized.
+define variable *temp-log-target*
+  = make(<stream-log-target>, stream: *standard-output*);
+
+

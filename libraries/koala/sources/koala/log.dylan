@@ -1,20 +1,24 @@
 Module:    utilities
 Author:    Carl Gay
 Synopsis:  Simple logging mechanism
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// Use this around your top-level loop (for example) to redirect log
-// output somewhere other than *standard-output*.
-//
-define macro with-log-output-to
-  { with-log-output-to (?stream:expression) ?:body end }
-  => { dynamic-bind (*log-stream* = ?stream) ?body end }
-end;
+/*
+How koala logging works:
 
-define thread variable *log-stream* = *standard-error*;
+Each virtual host has (potentially) three different log targets:
+errors, activity, debug output.  (These target could all be the
+same.)  Each virtual host has its own applicable log level.  The
+most basic method for doing logging is log-message, which is
+passed a <log-target> and a <log-level>.  If the log-level passed
+to log-message is an instance of the active log level for the
+current virtual host the the message will be logged. Otherwise
+it'll be dropped on the floor.  <log-target>s allow for arbitrary
+backing store for logs, like files, databases, the net, etc.
+*/
 
 // Root of the log level hierarchy.  Logging uses a simple class
 // hierarchy to determine what messages should be logged.
@@ -54,36 +58,87 @@ define constant $log-info :: <log-info> = make(<log-info>);
 define constant $log-warning :: <log-warning> = make(<log-warning>);
 define constant $log-error :: <log-error> = make(<log-error>);
 
-// Messages will be logged if the specified log level is a subclass of any
-// of the classes in *log-levels*.  Configuration code should add to this.
+
+// Absract target for logging.  Subclasses represent different
+// backend targets such as streams, files, databases, etc.
 //
-define variable *log-levels* :: <sequence> = make(<stretchy-vector>);
-
-define method add-log-level
-    (level :: <class>) => ()
-  *log-levels* := add-new!(*log-levels*, level);
+define abstract class <log-target> (<closable-object>)
+  slot log-level :: <log-level> = $log-info,
+    init-keyword: #"log-level";
 end;
 
-define method remove-log-level
-    (level :: <class>) => ()
-  *log-levels* := remove!(*log-levels*, level);
+// Log a message with date and log level prepended.
+define generic log
+    (level :: <log-level>, target :: <log-target>, format-string :: <string>,
+     #rest format-args);
+
+// Raw logging, with no date prepended, and no formatting performed.
+// The 'line' arg normally shouldn't have a \n at the end.
+define generic log-raw
+    (target :: <log-target>, line :: <string>);
+
+define method close
+    (target :: <log-target>, #key)
+ => ()
+  // do nothing
 end;
 
-define method clear-log-levels
-    () => ()
-  remove-all-keys!(*log-levels*);
+define method log-level-applicable?
+    (level :: <log-level>, target :: <log-target>)
+ => (applicable? :: <boolean>)
+  instance?(level, target.log-level.object-class)
 end;
 
-// All log messages should pass through here.
-define method log-message
-    (level :: <log-level>, format-string :: <string>, #rest format-args)
-  when (any?(curry(instance?, level), *log-levels*))
-    log-date();
-    format(*log-stream*, " [%s] ", name(level));
-    apply(format, *log-stream*, format-string, format-args);
-    format(*log-stream*, "\n");
-    force-output(*log-stream*);
+// Standard logging, with date and log-level prepended.
+define method log
+    (level :: <log-level>, target :: <log-target>, format-string :: <string>,
+     #rest format-args)
+  if (log-level-applicable?(level, target))
+    // TODO: Using concatenate would be more efficient that with-output-to-string.
+    let line :: <string>
+      = with-output-to-string (stream)
+          date-to-stream(stream, current-date());
+          format(stream, " [%s] ", name(level));
+          apply(format, stream, format-string, format-args);
+        end;
+    log-raw(target, line);
   end;
+end;
+
+define constant log-copious = curry(log, $log-copious);
+define constant log-verbose = curry(log, $log-verbose);
+define constant log-debug = curry(log, $log-debug);
+define constant log-info = curry(log, $log-info);
+define constant log-warning = curry(log, $log-warning);
+define constant log-error = curry(log, $log-error);
+
+
+// A log target that simply discards its output.
+define class <null-log-target> (<log-target>)
+end;
+
+define method log-raw
+    (target :: <null-log-target>, line :: <string>)
+ => ()
+  // do nothing
+end;
+
+
+// A log target that outputs directly to a stream.
+// e.g., make(<stream-log-target>, stream: *standard-output*)
+//
+define class <stream-log-target> (<log-target>)
+  constant slot target-stream :: <stream>,
+    required-init-keyword: #"stream";
+end;
+
+define method log-raw
+    (target :: <stream-log-target>, line :: <string>)
+ => ()
+  let stream :: <stream> = target.target-stream;
+  write(stream, line);
+  write(stream, "\n");
+  force-output(stream);
 end;
 
 define method date-to-stream
@@ -110,24 +165,9 @@ define method date-to-stream
          modulo(time-zone-offset, 60));
 end;
 
-define function log-date (#key date :: <date> = current-date())
-  date-to-stream(*log-stream*, date);
-end;
-
-define method debug-format (format-string, #rest format-args)
-  apply(log-message, $log-debug, format-string, format-args);
-end;
-
-define constant log-copious = curry(log-message, $log-copious);
-define constant log-verbose = curry(log-message, $log-verbose);
-define constant log-debug = curry(log-message, $log-debug);
-define constant log-info = curry(log-message, $log-info);
-define constant log-warning = curry(log-message, $log-warning);
-define constant log-error = curry(log-message, $log-error);
-
 define method log-debug-if (test, format-string, #rest format-args)
   if (test)
-    apply(log-message, $log-debug, format-string, format-args);
+    apply(log-debug, format-string, format-args);
   end;
 end;
 
@@ -163,7 +203,8 @@ define method as-common-logfile-date (date :: <date>) => (common-logfile-date ::
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   //Common Logfile Format Date: "28/Mar/2004:04:47:19 +0200"
   //http://www.w3.org/Daemon/User/Config/Logging.html
-  let (iyear, imonth, iday, ihours, iminutes, iseconds, day-of-week, time-zone-offset) = decode-date(date);
+  let (iyear, imonth, iday, ihours, iminutes, iseconds, day-of-week, time-zone-offset)
+    = decode-date(date);
   local method wrap0 (int :: <integer>) => (string :: <string>)
     if (int < 10)
       concatenate("0", integer-to-string(int));
@@ -178,27 +219,124 @@ define method as-common-logfile-date (date :: <date>) => (common-logfile-date ::
   let hours = wrap0(ihours);
   let minutes = wrap0(iminutes);
   let seconds = wrap0(iseconds);
-  let prefix = if (positive?(time-zone-offset))
-                 "+";
-               else
-                 "-";
-               end if;
-  let timezone = concatenate(prefix,
-                   wrap0( floor/(time-zone-offset, 60) ),
-                   wrap0( modulo(time-zone-offset, 60) )
-                  );
+  let tzprefix = iff(negative?(time-zone-offset), "-", "+");
+  let tzoff :: <integer> = abs(time-zone-offset);
   concatenate(day, "/", month, "/", year, ":", hours, ":", minutes,
-              ":", seconds, " ", timezone); 
+              ":", seconds, " ",
+              tzprefix,
+              wrap0(floor/(tzoff, 60)),
+              wrap0(modulo(tzoff, 60)))
 end method as-common-logfile-date;
 
-define method log-logfile(file :: <string>, entry :: <string>)
-  with-open-file(logfile = file, direction: #"output", if-exists: #"append",
-                 if-does-not-exist: #"create", element-type: <byte>)
-    write(logfile, entry);
-  end;
-end method;
 
-begin
-  add-log-level(<log-info>);
+// A log target that is backed by a single monolithic file.
+//
+define class <file-log-target> (<log-target>)
+  constant slot target-file :: <locator>,
+    required-init-keyword: #"file";
+  slot target-stream :: false-or(<file-stream>) = #f;
+end;
+
+define method initialize
+    (target :: <file-log-target>, #key)
+  next-method();
+  target.target-stream := open-target-stream(target);
+end;
+
+define method open-target-stream
+    (target :: <file-log-target>)
+ => (stream :: <file-stream>)
+  make(<file-stream>,
+       locator: target.target-file,
+       element-type: <character>,
+       direction: #"output",
+       if-exists: #"append",
+       if-does-not-exist: #"create")
+end;
+
+define method log-raw
+    (target :: <file-log-target>, line :: <string>)
+  let stream :: <stream> = target.target-stream;
+  write(stream, line);
+  write(stream, "\n");
+  force-output(stream);
+end;
+
+define method close
+    (target :: <file-log-target>, #key abort?)
+ => ()
+  if (target.target-stream)
+    close(target.target-stream, abort?: abort?);
+  end;
+end;
+
+// A log target that is backed by a file and ensures that the file
+// only grows to a certain size, after which it is renamed to
+// filename.<date-when-file-was-opened>.  (TODO: optionally compress
+// the old log files as well.)
+//
+// I investigated making this a subclass of <wrapper-stream> but it
+// didn't work well due to the need to create the inner-stream
+// first and pass it as an init arg.  That doesn't work too well
+// given that I want to roll the log if the file exists when I
+// first attempt to open it.  It leads to various special cases.
+//
+define class <rolling-file-log-target> (<file-log-target>)
+
+  constant slot max-file-size :: <integer>,
+    required-init-keyword: #"max-size";
+
+  // TODO: not yet implemented
+  // If this is #f then all versions are kept.
+  constant slot keep-versions :: false-or(<integer>) = #f,
+    init-keyword: #"keep-versions";
+
+  // TODO: not yet implemented
+  constant slot compress-on-close? :: <boolean> = #t,
+    init-keyword: #"compress?";
+
+  // Date when the underlying file was created.  When it gets closed
+  // it will be renamed with this date in the name.
+  slot file-creation-date :: <date> = current-date();
+
+  // Number of bytes written since the current inner-stream was opened.
+  slot bytes-written :: <integer> = 0;
+
+end class <rolling-file-log-target>;
+
+define method initialize
+    (target :: <rolling-file-log-target>, #key)
+  next-method();
+  // Need this in case we're appending to an old log.
+  target.bytes-written := stream-size(target.target-stream);
+end;
+
+define constant $log-roller-lock :: <lock> = make(<lock>);
+
+define method log-raw
+    (target :: <rolling-file-log-target>, line :: <string>)
+  next-method();
+  inc!(target.bytes-written, line.size);
+  if (target.bytes-written >= target.max-file-size)
+    roll-log-file(target);
+  end;
+end;
+
+define method roll-log-file
+    (target :: <rolling-file-log-target>)
+  with-lock ($log-roller-lock)
+    if (target.target-stream)  // may be #f first time
+      close(target.target-stream);
+    end;
+    let date = as-iso8601-string(target.file-creation-date);
+    let oldloc = target.target-file;
+    let newloc = merge-locators(as(<file-locator>,
+                                   concatenate(locator-name(oldloc), ".", date)),
+                                oldloc);
+    rename-file(oldloc, newloc);
+    target.bytes-written := 0;
+    target.file-creation-date := current-date();
+    target.target-stream := open-target-stream(target);
+  end with-lock;
 end;
 

@@ -276,10 +276,10 @@ end;
 
 define method describe-pool
     (pool :: <resource-pool>)
-  debug-format("active: %d,%d, inactive: %d,%d - %s",
-         pool.active-resources.size, pool.active-count,
-         pool.inactive-resources.size, pool.inactive-count,
-         pool.resource-class);
+  log-debug("active: %d,%d, inactive: %d,%d - %s",
+            pool.active-resources.size, pool.active-count,
+            pool.inactive-resources.size, pool.inactive-count,
+            pool.resource-class);
 end;
 
 define method test-resource
@@ -297,7 +297,7 @@ define method test-resource
   end;
   log-debug("*** Testing resource pools");
   for (i from 1 to 6)
-    debug-format("");  // blank line
+    log-debug("");  // blank line
     doit(class);
   end;
 end;
