@@ -1,21 +1,7 @@
 module: gtk-support
 
 c-include("gtk/gtk.h");
-/*
-define constant generic-dylan-marshaller = callback-method
-    (closure :: <GClosure>, return-value :: <GValue>,
-     n_param_values :: <guint>, param_values :: <GValue>,
-     invocation_hint :: <gpointer>, marshal_data :: <gpointer>) => ();
-  format-out("");
-end;
-*/
 
-/*
-define functional class <GValue*> (<GValue>) end;
-
-define sealed domain make (singleton(<GValue*>));
-
-*/
 define inline method pointer-value
     (ptr :: <GValue>, #key index = 0)
  => (result :: <GValue>);
@@ -36,9 +22,18 @@ define constant generic-dylan-marshaller =
                        values);
       end for;
       values := reverse!(values);
-      apply(import-value(<object>, 
-                         make(<gpointer>, pointer: stub-marshal-data)),
-            values);
+      let res = apply(import-value(<object>, 
+                                   make(<gpointer>, 
+                                        pointer: stub-marshal-data)),
+                      values);
+      if(stub-return-value ~= as(<raw-pointer>, 0))
+        let return-value = make(<GValue>, pointer: stub-return-value);
+        select(g-value-type(return-value))
+          $G-TYPE-BOOLEAN => g-value-set-boolean(return-value, 
+                                                 if(res) 1 else 0 end);
+          otherwise error("Unsupported GType in return from signal handler.");
+        end select;
+      end if;
     end;
 
 define function g-signal-connect(instance :: <GObject>, 
