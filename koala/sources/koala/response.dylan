@@ -87,9 +87,9 @@ define method set-content-type
   let out = response.%output-stream;
   if (out & stream-size(out) ~= 0)
     throw(<koala-api-error>,
-          "Attempt to set the content-type header after reply has begun to be sent.");
+          "Attempt to set the Content-Type header after reply has begun to be sent.");
   else
-    add-header(response.response-headers, "Content-type", content-type, if-exists?: if-exists?);
+    add-header(response.response-headers, "Content-Type", content-type, if-exists?: if-exists?);
   end;
 end;
 
@@ -190,7 +190,7 @@ define method send-response
     write(stream, response-line);
 
     // Add required headers
-    add-header(response, "Content-length", integer-to-string(stream-size(output-stream(response))));
+    add-header(response, "Content-Length", integer-to-string(stream-size(output-stream(response))));
     send-headers(response, stream);
   end unless;
 
