@@ -3752,15 +3752,15 @@ subsequence(source, start: 3)
 	</itemizedlist>
     </sect1>
     <sect1 id="libs-collection-extensions-vector-search">
-	<title>Module vector-search</title>
-	<para>
-	  The vector-search module provides basic search and replace
-	  capabilities upon restricted subsets of
-	  <classname>&lt;sequence&gt;</classname> -- primarily
-	  <classname>&lt;vector&gt;</classname>. Exploiting the known
-	  properties of these types yields substantially better
-	  performance than can be achieved for sequences in general.  
-	</para>
+      <title>Module vector-search</title>
+      <para>
+	The vector-search module provides basic search and replace
+	capabilities upon restricted subsets of
+	<classname>&lt;sequence&gt;</classname> -- primarily
+	<classname>&lt;vector&gt;</classname>. Exploiting the known
+	properties of these types yields substantially better
+	performance than can be achieved for sequences in general.  
+      </para>
 
 	<dylanmethoddef>
 	  <defname>find-first-key</defname>
@@ -3858,6 +3858,1130 @@ subsequence(source, start: 3)
       </dylanmethoddef>
 
     </sect1>
+
+    <sect1 id="libs-collection-extensions-utils">
+      <title>Module Sequence-Utilities</title>
+      <para>
+        <dmodule>Sequence-Utilities</dmodule>, written by Matthias
+        Hölzl,  provides common or oft-used operations performed on
+        <classname>&lt;sequence&gt;</classname>s.  The whole module is
+        rather Lispy in flavor, and has the feel of an elegant hack by
+        the way functions use predicate functions to manipulate lists.
+      </para>
+
+      <sect2 id="libs-collection-extensions-utils-predicates">
+        <title>Predicate Functions</title>
+	<para>
+          We start off with a group of generic functions that give
+	  boolean responses to type information requests (e.g. "Are you
+	  a <classname>&lt;list&gt;</classname>?").
+	</para>
+      
+        <dylangenericdef>
+          <defname>pair?</defname>
+	  <defsummary>
+	    Check whether this sequence is a pair.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>arg</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>ans</paramname>
+	      <paramtype>&lt;boolean&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This generic function has two specializers, one that takes
+	      instances of <classname>&lt;pair&gt;</classname> (and
+	      subclasses of it) which returns &true; and one that takes
+	      anything else which returns &false;.
+	    </para>
+	  </defdescription>
+        </dylangenericdef>
+
+        <dylangenericdef>
+          <defname>null?</defname>
+	  <defsummary>
+	    Check whether this sequence is the empty list.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>arg</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>ans</paramname>
+	      <paramtype>&lt;boolean&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      To my mind, this generic function's name is a bit
+	      misleading:  this returns &true; if the instance is an
+	      <classname>&lt;empty-list&gt;</classname>. 
+	    </para>
+	  </defdescription>
+        </dylangenericdef>
+
+        <dylangenericdef>
+          <defname>list?</defname>
+	  <defsummary>
+	    Check whether this sequence is a list.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>arg</paramname>
+	      <paramtype>&lt;object&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>ans</paramname>
+	      <paramtype>&lt;boolean&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Returns &true; if the instance is a
+	      <classname>&lt;list&gt;</classname>; &false; otherwise.
+	    </para>
+	  </defdescription>
+        </dylangenericdef>
+      </sect2>
+
+      <sect2 id="libs-collection-extensions-utils-create">
+        <title>Creational Functions</title>
+
+	<para>
+	  This section and its subsections describe the functions that
+	  create sequences.
+	</para>
+
+	<sect3 id="libs-collection-extensions-utils-create-seq">
+	  <title>Sequence Creational Functions using Sequences</title>
+	  <para>
+            This set of functions provides ways to create sequences
+	    from other sequences.
+	  </para>
+
+          <dylanfunctiondef>
+            <defname>xpair</defname>
+	    <defsummary>
+	      Occasionally useful as a value to be passed to a fold or
+	      other higher-order procedure.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>list</paramname>
+	        <paramtype>&lt;list&gt;</paramtype>
+	      </param>
+	      <param>
+	        <paramname>elt</paramname>
+	        <paramsummary>
+	          The element to add to the list
+	        </paramsummary>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>new-list</paramname>
+	        <paramtype>&lt;list&gt;</paramtype>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        <function>Xpair</function> puts <dlit>elt</dlit> at the
+	        head of <dlit>list</dlit>.
+	      </para>
+	    </defdescription>
+          </dylanfunctiondef>
+
+          <dylanfunctiondef>
+            <defname>list*</defname>
+	    <defsummary>
+	      Like <function>list</function>, but cons the first
+	      elements onto the last element of <dlit>rest</dlit>.
+	    </defsummary>
+	    <defparameters>
+	      <restparam>
+	        <paramname>rest</paramname>
+	      </restparam>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>new-list</paramname>
+	        <paramtype>&lt;list&gt;</paramtype>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        I find description by example best here:
+	      </para>
+	      <programlisting>
+list*(1, 2, 3, 4, 5)    => #(1, 2, 3, 4 . 5)
+list*(1, 2, #(3, 4), 5) => #(1, 2, #(3, 4) . 5)
+list*(1, 2, 3, #(4, 5)) => #(1, 2, 3, 4, 5)
+              </programlisting>	 
+	    </defdescription>
+          </dylanfunctiondef>
+
+        <dylangenericdef>
+          <defname>reverse-append</defname>
+	  <defsummary>
+	    Prepend a reversed sequence to another sequence.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>reversed-head</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	      <paramsummary>
+	        A reversed sequence to be prepended before
+		<dlit>tail</dlit>. 
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>tail</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>new-sequence</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <programlisting>
+reverse-append(#[5, 4, 3, 2, 1], #[6, 7, 8]) => #[1, 2, 3, 4, 5, 6, 7, 8]
+	    </programlisting>
+	  </defdescription>
+        </dylangenericdef>
+
+	</sect3>
+
+
+	<sect3 id="libs-collection-extensions-utils-create-fn">
+	  <title>Higher-Order Sequence Creational Functions</title>
+	  <para>
+	    The next set of functions creates
+	    <classname>&lt;sequence&gt;</classname>s from functions.
+          </para>
+
+          <dylanfunctiondef>
+            <defname>tabulate</defname>
+	    <defsummary>
+    	      Make a sequence by performing a function on the index.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>length</paramname>
+	        <paramtype>&lt;integer&gt;</paramtype>
+	      </param>
+	      <param>
+	        <paramname>func</paramname>
+	        <paramtype>&lt;function&gt;</paramtype>
+	        <paramsummary>
+	          <dlit>Func</dlit> takes one argument: the index (an
+	          <classname>&lt;integer&gt;</classname>).
+	        </paramsummary>
+	      </param>
+	      <keyparam>
+	        <paramname>type</paramname>
+	        <paramdefault>&lt;list&gt;</paramdefault>
+	      </keyparam>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>list</paramname>
+	        <paramtype>&lt;mutable-sequence&gt;</paramtype>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        Make a sequence of type <dlit>type</dlit> whose i-th
+	        element is <dlit>func</dlit>(i) for 0 &lt;= i &lt;
+	        <dlit>length</dlit>.  <dlit>Type</dlit> must be a subtype
+	        of <classname>&lt;mutable-sequence&gt;</classname>.
+	      </para>
+	      <para>
+	        For example, I want a vector of the annual worth of an
+	        account of 10000 USD earning 10 percent annually.
+	        The below code creates that vector:
+	      </para>
+	      <programlisting>
+tabulate(10, method(x) 10000 * exp(x * .1) end, type: &lt;vector&gt;)
+              </programlisting>
+	      <para>
+	        Or, to create a list of factorials, one could write this:
+	      </para>
+	      <programlisting>
+define function factorial(x :: limited(&lt;integer&gt;, min: 0)) => (y :: &lt;integer&gt;)
+  if(x == 0)
+    1;
+  else
+    reduce1(\*, tabulate(x, curry(\+, 1)));
+  end if;
+end function factorial;
+
+tabulate(6, factorial);
+              </programlisting>
+	    </defdescription>
+          </dylanfunctiondef>
+	</sect3>
+      </sect2>
+
+      <sect2 id="libs-collection-extensions-utils-slice">
+        <title>Sequence Slicing</title>
+	<para>
+	  This section describes functions that return parts of
+	  sequences.
+	</para>
+
+          <dylangenericdef>
+            <defname>take</defname>
+	    <defsummary>
+	      Returns part of a sequence
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>collection</paramname>
+	      </param>
+	      <param>
+	        <paramname>k</paramname>
+		<paramtype>&lt;integer&gt;</paramtype>
+	        <paramsummary>
+		  Determines which part of the sequence to return.
+	        </paramsummary>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>seq</paramname>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        if <dlit>k</dlit> &gt; 0 return a new sequence
+		consisting of the first <dlit>k</dlit> elements of
+		<dlit>collection</dlit>, otherwise return a new
+		sequence consisting of the last <dlit>k</dlit>
+		elements of <dlit>collection</dlit>. 
+	      </para>
+	      <para>For example:</para>
+	      <programlisting>
+take(#(0, 5, 10, 15, 20, 25, 30), 5)  => #(0, 5, 10, 15, 20, 25)
+take(#(0, 3,  6,  9, 12, 15, 18), -3) => #(12, 15, 18)
+              </programlisting>
+	    </defdescription>
+          </dylangenericdef>
+
+          <dylangenericdef>
+            <defname>drop</defname>
+	    <defsummary>
+	      Returns part of a sequence
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>collection</paramname>
+	      </param>
+	      <param>
+	        <paramname>k</paramname>
+		<paramtype>&lt;integer&gt;</paramtype>
+	        <paramsummary>
+		  Determines which part of the sequence to return.
+	        </paramsummary>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>seq</paramname>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        if <dlit>k</dlit> &gt; 0 return a new sequence
+		consisting of all but the first <dlit>k</dlit> elements of
+		<dlit>collection</dlit>, otherwise return a new
+		sequence consisting of all but the last <dlit>k</dlit>
+		elements of <dlit>collection</dlit>. 
+	      </para>
+	      <para>For example:</para>
+	      <programlisting>
+drop(#(0, 5, 10, 15, 20, 25, 30), 5)  => #(25, 30)
+drop(#(0, 3,  6,  9, 12, 15, 18), -3) => #(0, 3, 6, 9)
+              </programlisting>
+	    </defdescription>
+          </dylangenericdef>
+
+          <dylanfunctiondef>
+            <defname>last-pair</defname>
+	    <defsummary>
+	       Return the last pair in a non-empty list.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>lst</paramname>
+		<paramtype>&lt;pair&gt;</paramtype>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>last-pair</paramname>
+	        <paramtype>&lt;pair&gt;</paramtype>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        I find description by example best here, as well:
+	      </para>
+	      <programlisting>
+last-pair(1, 2, 3, 4, 5)    => #(5)
+last-pair(1, 2, 3, #(4, 5)) => #(#(4, 5))
+last-pair(1, 2, 3, 4 . 5) => fails
+              </programlisting>
+	      <para>
+	        The last example fails because last-pair expects the
+	        elements of the list to be pairable ... in this case 5
+	        is not.
+	      </para>
+	    </defdescription>
+          </dylanfunctiondef>
+	  
+	  <dylanfunctiondef>
+	    <defname>heads</defname>
+	    <defsummary>
+	      A list of all the heads of members of a list.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>lists</paramname>
+		<paramtype>&lt;list&gt;</paramtype>
+		<paramsummary>A list of lists</paramsummary>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>new-list</paramname>
+		<paramtype>&lt;list&gt;</paramtype>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        In a list of lists, this function returns a list of
+	        the first elements of each of the lists
+	      </para>
+	      <programlisting>
+heads(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) => #(1, 2, 3)
+	      </programlisting>
+	    </defdescription>
+	  </dylanfunctiondef>
+
+	  <dylanfunctiondef>
+	    <defname>tails</defname>
+	    <defsummary>
+	      A list of all the tails of members of a list.
+	    </defsummary>
+	    <defparameters>
+	      <param>
+	        <paramname>lists</paramname>
+		<paramtype>&lt;list&gt;</paramtype>
+		<paramsummary>A list of lists</paramsummary>
+	      </param>
+	    </defparameters>
+	    <defreturns>
+	      <param>
+	        <paramname>new-list</paramname>
+		<paramtype>&lt;list&gt;</paramtype>
+	      </param>
+	    </defreturns>
+	    <defdescription>
+	      <para>
+	        In a list of lists, this function returns a list of
+	        the all but first elements of each of the lists
+	      </para>
+	      <programlisting>
+tails(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) => #(#(5, 10), #(4, 6), #(6, 9))
+	      </programlisting>
+	    </defdescription>
+	  </dylanfunctiondef>
+      </sect2>
+
+      <sect2 id="libs-collection-extensions-utils-find">
+        <title>Finding Sequence Elements</title>
+	<para>
+	  These functions inspect elements of a sequence and return
+	  information on them.
+	</para>
+	
+	<dylanmethoddef>
+	  <defname>satisfies</defname>
+	  <defsummary>Find an element, return its index</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>pred</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	      <paramsummary>The test function to find the
+	      element.</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>failure</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        The value returned if a matching element is not found.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>index</paramname>
+	      <paramsummary>
+	        The index of the found element.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Locates an element in <dlit>seq</dlit> that returns
+	      a value (i.e. not &false;) from <dlit>pred</dlit>, and
+	      returns the index. 
+	      Note, the index is not necessarily an integer
+	      ... <classname>&lt;table&gt;</classname> can use
+	      non-integer indices.
+	    </para>
+	  </defdescription>
+	</dylanmethoddef>
+
+	
+	<dylanmethoddef>
+	  <defname>index</defname>
+	  <defsummary>Find an element, return its index</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>elt</paramname>
+	      <paramsummary>The sought element.</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>test</paramname>
+	      <paramdefault>\=</paramdefault>
+	      <paramsummary>The test function to find the
+	      element.</paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>failure</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        The value returned if a matching element is not found.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>index</paramname>
+	      <paramsummary>
+	        The index of the found element.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Very much like the <function>satisfies</function>
+	      function.  This allows the user to specify the element
+	      sought, and assumes the <dlit>test</dlit> is
+	      <function>\=</function> by default.
+	    </para>
+	  </defdescription>
+	</dylanmethoddef>
+
+	<dylanmethoddef>
+	  <defname>find</defname>
+	  <defsummary>Find an element</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>pred</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>failure</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        The value returned if a matching element is not found.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>obj</paramname>
+	      <paramsummary>
+	        The found element.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      The <function>find</function> function locates and
+	      returns an object in a sequence when that object matches
+	      the predicate function passed in as <dlit>pred</dlit>.
+	    </para>
+	  </defdescription>
+	</dylanmethoddef>
+
+	<dylanmethoddef>
+	  <defname>find-tail</defname>
+	  <defsummary>
+	    Gives the rest of a list from a found element.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>pred</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>failure</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        The value returned if a matching element is not found.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>result</paramname>
+	      <paramsummary>
+	        The found list.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      The <function>find-tail</function> function locates an
+	      object in a sequence when that object matches 
+	      the predicate function passed in as <dlit>pred</dlit>.
+	      When that element is found, it, and the rest of the
+	      sequence, is returned as the <dlit>result</dlit>.
+	    </para>
+	  </defdescription>
+	</dylanmethoddef>
+
+	<dylanmethoddef>
+	  <defname>precedes?</defname>
+	  <defsummary>
+	    Verifies that one element comes before another
+	    in a sequence.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>elt-1</paramname>
+	      <paramsummary>The preceding element.</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>elt-2</paramname>
+	      <paramsummary>The following element.</paramsummary>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>test</paramname>
+	      <paramdefault>\=</paramdefault>
+	      <paramsummary>
+	        The test function to find the elements.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>not-found</paramname>
+	      <paramdefault>#f</paramdefault>
+	      <paramsummary>
+	        The value returned if either element not found.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>precedes?</paramname>
+	      <paramtype>&lt;boolean&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Ensures <dlit>elt-2</dlit> follows <dlit>elt-1</dlit>,
+	      in <dlit>seq</dlit>, if so, returns &true;.
+	    </para>
+	  </defdescription>
+	</dylanmethoddef>
+      </sect2>
+
+      <sect2 id="libs-collection-extensions-utils-map">
+        <title>Mapping and Reducing Functions</title>
+	<para>
+	  These higher-order functions require an understanding of the
+	  mapping and reducing functions found in the &drm; described
+	  on pages 327 and on.  What they do is to perform an
+	  operation on a sequence to obtain a result.
+	</para>
+
+	<dylanfunctiondef>
+	  <defname>foldr</defname>
+	  <defsummary>
+	    Rebuilds a list by applying a function over it.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>cons</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	      <paramsummary>
+	        A function that takes two arguments and returns a
+	        <classname>&lt;pair&gt;</classname>.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>nil</paramname>
+	      <paramsummary>
+	        Value returned if the list is empty (in
+		most cases, this should be <dlit>#()</dlit>).
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>lst</paramname>
+	      <paramtype>&lt;list&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>result</paramname>
+	      <paramtype>&lt;list&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This function
+	      rebuilds a list by recursively applying a function over
+	      the list.  For example, to copy a list, one would write:
+	    </para>
+	    <programlisting>
+foldr(pair, #(), #(1, 2, 3, 4, 5)) => #(1, 2, 3, 4, 5)
+	    </programlisting>
+	    <para>
+	      Exercise: what is the result when you replace
+	      <function>pair</function> with
+	      <function>list</function>?
+	    </para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>foldl</defname>
+	  <defsummary>
+	    Rebuilds a list by applying a function over it.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>cons</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	      <paramsummary>
+	        A function that takes two arguments and returns a
+	        <classname>&lt;pair&gt;</classname>.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>nil</paramname>
+	      <paramsummary>
+	        Value returned if the list is empty (in
+		most cases, this should be <dlit>#()</dlit>).
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>lst</paramname>
+	      <paramtype>&lt;list&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>result</paramname>
+	      <paramtype>&lt;list&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      <function>Foldr</function> in reverse.  This function
+	      rebuilds a list by recursively applying a function over
+	      the list.  For example:
+	    </para>
+	    <programlisting>
+foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
+ => #(120, 24, 6, 2, 1 . #f)
+	    </programlisting>
+	    <para>
+	      Note: the ugly dotted pair at the end is what occurs when
+	      <dlit>nil</dlit> is not <dlit>#()</dlit>.
+	    </para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanmethoddef>
+	  <defname>concatenate-map</defname>
+	  <defsummary>
+	    Concatenates sequences then maps a function over them.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>func</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <restparam>
+	      <paramname>seqs</paramname>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>new-sequence</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Concatenates <dlit>seq</dlit> and all members of
+	      <dlit>seqs</dlit> together and maps <dlit>func</dlit>
+	      over the resulting list.  The order of function
+	      applications is unspecified. 
+            </para>
+	  </defdescription>
+	</dylanmethoddef>
+
+	<dylanmethoddef>
+	  <defname>choose-map</defname>
+	  <defsummary>
+	    Maps a function over a sequence, then chooses selected elements.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>pred</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>func</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <restparam>
+	      <paramname>seqs</paramname>
+	    </restparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>new-sequence</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Map <dlit>func</dlit> across <dlit>lst</dlit> and save
+	      up all the results that satisfy <dlit>pred</dlit>.
+            </para>
+	  </defdescription>
+	</dylanmethoddef>
+
+	<dylanfunctiondef>
+	  <defname>partition</defname>
+	  <defsummary>
+	    Returns two lists: one that satisfies a predicate, and one
+	    that doesn't.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>pred</paramname>
+	      <paramtype>&lt;function&gt;</paramtype>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>winners</paramname>
+	      <paramtype>&lt;list&gt;</paramtype>
+	      <paramsummary>
+	        The list of elements that satisfy the predicate.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>losers</paramname>
+	      <paramtype>&lt;list&gt;</paramtype>
+	      <paramsummary>
+	        The list of elements that do not.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      This is very much like <function>choose</function> found
+	      in the &drm; (page 333), except this function also returns the
+	      elements that did not match the predicate.
+            </para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+      </sect2>
+
+      <sect2 id="libs-collection-extensions-utils-assoc">
+        <title>Associative Lists</title>
+	<para>
+	  Those familiar with Lisp will feel at home here.
+	  Associative lists are <classname>&lt;list&gt;</classname>s
+	  that contain <classname>&lt;pair&gt;</classname>s of entries
+	  (in a <dlit>#(key, value)</dlit> format).  Much like
+	  <classname>&lt;table&gt;</classname>s, one make look up the
+	  key to obtain the value information.
+	</para>
+	
+	<dylanfunctiondef>
+	  <defname>assoc</defname>
+	  <defsummary>Looks up a value given a key</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>elt</paramname>
+	      <paramsummary>
+	        The key element to find the value element
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>seq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>key</paramname>
+	      <paramdefault>head</paramdefault>
+	      <paramsummary>
+	        The function used to obtain the key element in the
+	        associative list.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>test</paramname>
+	      <paramdefault>\=</paramdefault>
+	      <paramsummary>
+	        The function used to compare.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>found</paramname>
+	      <paramsummary>
+	        The value element from the found key.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Find the tuple associated with <dlit>key</dlit> in the
+	      association sequence <dlit>seq</dlit>.
+	    </para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>apair</defname>
+	  <defsummary>Adds an association to a sequence.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>key</paramname>
+	      <paramsummary>
+	        The key element of the association.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>datum</paramname>
+	      <paramsummary>
+	        The value element of the association.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>aseq</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>cons</paramname>
+	      <paramdefault>pair</paramdefault>
+	      <paramsummary>
+	        The function used to create the association from the
+	        key and datum parameters.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>add</paramname>
+	      <paramdefault>xpair</paramdefault>
+	      <paramsummary>
+	        The function used to add the association onto the sequence.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>new-aseq</paramname>
+	      <paramsummary>
+	        The new associative list.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Cons a new pair <dlit>#(key, datum)</dlit> on the head
+	      of <dlit>aseq</dlit>.
+	    </para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>alist-copy</defname>
+	  <defsummary>Copies an associative list.</defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>alist</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>key</paramname>
+	      <paramdefault>head</paramdefault>
+	      <paramsummary>
+	        The function used to obtain the key element from the
+	        association. 
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>datum</paramname>
+	      <paramdefault>tail</paramdefault>
+	      <paramsummary>
+	        The function used to obtain the value element.
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>cons</paramname>
+	      <paramdefault>pair</paramdefault>
+	      <paramsummary>
+	        The function used to create the association from the
+	        key and datum parameters.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>new-aseq</paramname>
+	      <paramsummary>
+	        The new associative list.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Copy an "associative list", actually any sequence that
+	      can act like an associative list.
+	    </para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+	<dylanfunctiondef>
+	  <defname>alist-delete</defname>
+	  <defsummary>
+	    Deletes associations from the associative list.
+	  </defsummary>
+	  <defparameters>
+	    <param>
+	      <paramname>elt</paramname>
+	      <paramsummary>
+	        The key element of the association to be removed.
+	      </paramsummary>
+	    </param>
+	    <param>
+	      <paramname>alist</paramname>
+	      <paramtype>&lt;sequence&gt;</paramtype>
+	    </param>
+	    <keyparam>
+	      <paramname>key</paramname>
+	      <paramdefault>head</paramdefault>
+	      <paramsummary>
+	        The function used to obtain the key element from the
+	        association. 
+	      </paramsummary>
+	    </keyparam>
+	    <keyparam>
+	      <paramname>test</paramname>
+	      <paramdefault>\=</paramdefault>
+	      <paramsummary>
+	        The function used to compare keys.
+	      </paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+	      <paramname>new-alist</paramname>
+	      <paramsummary>
+	        The new associative list.
+	      </paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>
+	      Delete all members keyed by <dlit>elt</dlit> from
+	      <dlit>alist</dlit>.
+	    </para>
+	  </defdescription>
+	</dylanfunctiondef>
+
+      </sect2>
+
+      <sect2 id="libs-collection-extensions-utils-todo">
+        <title>Functions Not Yet Described</title>
+	<para>
+	  The following bindings (all of which are functions) have not
+	  yet been described.  I will add these descriptions as time
+	  and understanding permit.  For now, you must rely on the
+	  best documentation available ... the source code in
+	  src/common/coll-ext/sequence-utils.dylan.
+	</para>
+	<itemizedlist>
+	  <listitem><para><dname>unfold</dname></para></listitem>
+	  <listitem><para><dname>unfold/tail</dname></para></listitem>
+	  <listitem><para><dname>pair-foldl</dname></para></listitem>
+	  <listitem><para><dname>pair-foldr</dname></para></listitem>
+	  <listitem><para><dname>reduce-l</dname></para></listitem>
+	  <listitem><para><dname>reduce-r</dname></para></listitem>
+	  <listitem><para><dname>pair-do</dname></para></listitem>
+	</itemizedlist>
+      </sect2>
+    </sect1>
+      
   </CHAPTER>
 
   <chapter id="libs-table-extensions">
