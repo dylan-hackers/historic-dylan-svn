@@ -350,7 +350,7 @@ define function cell-matches(p :: <position>, cond :: <ant-condition>,
   end if;
 end function cell-matches;
 
-define constant <continuation> = type-union(<integer>, <instruction>);
+define constant <continuation> = type-union(<integer>, <instruction>, <function>);
 
 define class <instruction> (<object>)
 end class <instruction>;
