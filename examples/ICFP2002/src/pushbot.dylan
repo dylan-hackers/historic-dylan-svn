@@ -140,13 +140,14 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     if (packages-here ~= #f & ~packages-here.empty?)
       let take-these = make(<vector>);
       let left = robot.capacity-left;
-      // Greedy algorithm to get as much as we can:
+      // Greedy algorithm to get as many as we can:
       for (pkg in sort(packages-here, 
 		       test: method (a :: <package>, b :: <package>)
-			       a.weight > b.weight;
+			       a.weight < b.weight;
 			     end method))
-	if (pkg.weight <= left /* robot.capacity */
-	      & find-path(robot.location, pkg.location, s.board, cutoff: 50))
+	if (pkg.weight <= left
+	      & find-path-repeatedly(robot.location, pkg.location, s.board,
+				     cutoffs: #[50, #f]))
 	  left := left - pkg.weight;
 	  take-these := add!(take-these, pkg);
 	end if;
@@ -166,7 +167,7 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
     // is there another robot nearby? if so move to attack it
     if(me.push-count-dir = #"up")
       block(exit)
-	debug("looing for another robot nearby...\n");
+	debug("looking for another robot nearby...\n");
 	let attack-threshold = 2;
 	let robo-locations = remove(map(location, s.robots), robot.location, test: \=);
 	if(empty?(robo-locations))
@@ -200,25 +201,35 @@ define method generate-next-move(me :: <pushbot>, s :: <state>)
 	debug("...moving towards it\n");
 	return(make-move-from-paths(robo-paths, robot));
       end;
-// commenting this out may fix a double count down problem
-//    else
-//      me.push-count := me.push-count - 1;
-//      if(me.push-count <= 0)
-//	me.push-count-dir := #"up";
-//      end;
     end;
 
+    debug("maybe marking bases\n");
     maybe-mark-base-visited(me, s, robot.location);
 
     // Go to the next interesting place:
-    let targets = concatenate(map(dest, robot.inventory),
-			      map(location, s.free-packages),
-			      unvisited-bases(me, s));
+    debug("looking for next interesting place\n");
+    let targets = #[];
+    let package-weight-list = sort(map(weight, s.free-packages));
+    if(~empty?(package-weight-list))
+      let lightest-package = first(package-weight-list);
+      if(robot.capacity-left >= lightest-package)
+	targets := concatenate(map(dest, robot.inventory),
+			       packages-i-can-carry(robot, s),//map(location,s.free-packages),
+			       unvisited-bases(me, s));
+      else
+	targets := concatenate(map(dest, robot.inventory));
+      end;
+    else
+      debug("package-weight-list is empty\n");
+      targets := concatenate(packages-i-can-carry(robot, s), // any package at this point
+			     unvisited-bases(me, s));
+    end;
     
     format-out("DB: Targets: %=\n", targets);
     force-output(*standard-output*);
 
-    let paths = map(curry(rcurry(find-path, s.board, cutoff: 50), robot.location),
+    let paths = map(curry(rcurry(find-path-repeatedly, s.board, cutoffs: #[50, #f]),
+			  robot.location),
 		    targets);
 
     format-out("DB: Paths: %=\n", paths);
@@ -258,4 +269,30 @@ define method make-move-from-paths(paths, robot) => (command)
       end case;
     end if;
   make(<move>, bid: 1, direction: direction, id: robot.id);
+end method;
+
+define method packages-i-can-carry(me :: <robot>, s :: <state>)
+  => (packs)
+  choose-by(method(p)
+		p.weight <= me.capacity-left;
+	    end method,
+	    s.free-packages, map(location, s.free-packages));
+end method;
+
+// eg find-path-repeatedly(s, t, b, #[20, 50, #f])
+define method find-path-repeatedly(source :: <point>,
+				   target :: <point>,
+				   board :: <board>,
+				   #key cutoffs :: <sequence>)
+  => (res :: false-or(<point-list>))
+  block(return)
+    for(co in cutoffs)
+      debug("f-p-r: looking for path with cutoff %=\n", co);
+      let r = find-path(source, target, board, cutoff: co);
+      if(r ~= #f | co = #f)
+	return(r);
+      end;
+    end;
+    #f;
+  end;
 end method;
