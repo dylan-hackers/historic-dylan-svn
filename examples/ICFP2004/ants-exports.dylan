@@ -14,6 +14,8 @@ define module ants
   use format-out;
 
   export <position>,
+    x,
+    y,
     make-position,
     <direction>,
     adjacent-cell,

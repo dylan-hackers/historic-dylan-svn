@@ -35,7 +35,26 @@ define constant $BLACk-ANT-COLOR = make-gl-color(0.0, 0.0, 0.0);
 
 define constant $WHITE = make-gl-color(1.0, 1.0, 1.0);
 
-define function draw-hex(x, y) => ()
+define constant $EVEN-ROW-START-X = 1.0;
+define constant $ODD-ROW-START-X = $EVEN-ROW-START-X + $ROOT-3-OVER-2;
+define constant $START-Y = 1.0;
+define constant $X-OFFSET = 2 * $ROOT-3-OVER-2;
+define constant $Y-OFFSET = 1.5;
+
+define function cell-position(position) => (x-result, y-result)
+    let gl-x = position.x * $X-OFFSET;
+    let gl-y = position.y * $Y-OFFSET;
+    
+    if (modulo(position.y, 2) == 0)
+        values($EVEN-ROW-START-X + gl-x, $START-Y + gl-y);
+    else
+        values($ODD-ROW-START-X + gl-x, $START-Y + gl-y);
+    end;
+end;
+
+define function draw-hex(position) => ()
+    let (x, y) = cell-position(position);
+
     glBegin($GL-TRIANGLE-FAN);
         glVertex(x                  , y                  );
         glVertex(x                  , y + 1              );
@@ -48,27 +67,10 @@ define function draw-hex(x, y) => ()
     glEnd();
 end;
 
-define constant $EVEN-ROW-START-X = 1.0;
-define constant $ODD-ROW-START-X = $EVEN-ROW-START-X + $ROOT-3-OVER-2;
-define constant $START-Y = 1.0;
-define constant $X-OFFSET = 2 * $ROOT-3-OVER-2;
-define constant $Y-OFFSET = 1.5;
-
-define function cell-position(x-index, y-index) => (x-result, y-result)
-    let x = x-index * $X-OFFSET;
-    let y = y-index * $Y-OFFSET;
-    
-    if (modulo(y-index, 2) == 0)
-        values($EVEN-ROW-START-X + x, $START-Y + y);
-    else
-        values($ODD-ROW-START-X + x, $START-Y + y);
-    end;
-end;
-
-define function draw-ant(x-index, y-index, direction) => ()
+define function draw-ant(position, direction) => ()
     let angle = $PI-OVER-3 * direction;
     let angle-degrees = $180-OVER-PI * angle;
-    let (x, y) = cell-position(x-index, y-index);
+    let (x, y) = cell-position(position);
     
     glPushMatrix();
         glTranslate(x, y, 0.0);
@@ -85,23 +87,23 @@ end;
 define function draw-world(width, height) => ()
     for (y-index from 0 below height)
         for (x-index from 0 below width)
-            let (x, y) = cell-position(x-index, y-index);
+            let position = make-position(x-index, y-index);
             
             if (modulo(y-index, 2) == 0)
                 set-gl-color($GROUND-COLOR);
-                draw-hex(x, y);
+                draw-hex(position);
             else
                 set-gl-color($RED-ANTHILL-COLOR);
-                draw-hex(x, y);
+                draw-hex(position);
             end;
         end;
     end;
     
     set-gl-color($RED-ANT-COLOR);
-    draw-ant(0, 0, 0);
+    draw-ant(make-position(0, 0), 0);
     
     set-gl-color($BLACK-ANT-COLOR);
-    draw-ant(1, 1, 2);
+    draw-ant(make-position(1, 1), 2);
     
     set-gl-color($WHITE);
 end;
