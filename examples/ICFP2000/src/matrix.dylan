@@ -19,27 +19,27 @@ define method \* (vector :: <vector>, mat :: <matrix>)
 end method;
 
 define method \* (v1 :: <vector>, v2 :: <vector>)
- => (scalar-product :: <number>);
+ => (dot-product :: <number>);
   reduce1(\+, map(\*, v1, v2));
 end method;
 
 define method \* (v :: <vector>, n :: <number>)
- => (scalar-product :: <number>);
+ => (scalar-product :: <vector>);
   map(rcurry(\*, n), v);
 end method;
 
 define method \* (n :: <number>, v :: <vector>)
- => (scalar-product :: <number>);
+ => (scalar-product :: <vector>);
   map(curry(\*, n), v);
 end method;
 
 define method \+ (v1 :: <vector>, v2 :: <vector>)
- => (scalar-product :: <number>);
+ => (sum :: <vector>);
   map(\+, v1, v2);
 end method;
 
 define method \- (v1 :: <vector>, v2 :: <vector>)
- => (scalar-product :: <number>);
+ => (difference :: <vector>);
   map(\-, v1, v2);
 end method;
 
