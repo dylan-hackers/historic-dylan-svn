@@ -1,0 +1,10 @@
+vrml-viewer.c
+vrml-viewer-init.c
+vrml-viewer-heap.c
+vrml-viewer-exports.c
+vrml-viewer
+inits.c
+indexed-face-set.c
+heap.c
+cc-vrml-viewer-files.mak
+.libs
