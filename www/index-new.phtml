@@ -1,0 +1,209 @@
+<?php
+require "shared.inc";
+standard_header("Overview");
+?>
+
+<P>We're a group of volunteers working to create new development tools,
+with a focus on Unix-like systems. We have updated <A
+HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">CMU's
+Gwydion Dylan</A>, fixing many bugs and making it work well under modern
+versions of Linux and FreeBSD. Our <A HREF="downloading.phtml">current
+release</A> is a technology preview, suitable for learning Dylan and
+building modest command-line applications. In the future, we want to create
+one of the most advanced development tools available and donate it to the
+<A HREF="http://www.gnu.org/">GNU project</A>.</P>
+
+<P>Please feel free to join us! You can look at <A HREF="goals.phtml">our
+goals</A>, some <A HREF="fragments.phtml">code examples</A>, or one of the
+following resources:</P>
+
+<P>[
+<A HREF="about-dylan.phtml">What is Dylan?</A> |
+<A HREF="learning.phtml">Learning Dylan</A> |
+<A HREF="http://www.harlequin.com/devtools/dylan">Dylan for Windows</A>
+]<BR>[
+<A HREF="limitations.phtml">Limitations</A> |
+<A HREF="downloading.phtml">Downloading</A> |
+<A HREF="gdref.phtml">Documentation</A> |
+<A HREF="lists.phtml">Mailing Lists</A> ]</P>
+
+<H3>Recent News</H3>
+<DL>
+
+
+<?php
+
+$db = mysql_connect("localhost","gwydion","");
+mysql_select_db("gwydion");
+
+$query = "select * from news order by time desc";
+$res = mysql_query($query, $db);
+$err = mysql_error();
+if($err) {
+    echo "MySQL error occurred. Please notify <a href=andreas@andreas.org>Andreas</a>.";
+} else {
+    while($row = mysql_fetch_row($res)) {
+        echo "<DT><STRONG>".$row[1]." (".$row[0].")</STRONG></dt>\n";
+        echo "<DT><P>".$row[2]."</P>\n\n";
+   }
+}
+?>
+
+<DT><STRONG>Posting on Dylan's new approach to OO (13 Jan 2000)</strong></dt> 
+
+<dd><p>Michael T. Richter sent a <a href="mtr-on-dylan.txt">posting</a> to the <a
+href="news:comp.lang.dylan">comp.lang.dylan</a> newsgroup explaining
+that he likes Dylan because of his new approach to OO, splitting up
+classes into several orthogonal aspects. Interesting read for all who
+are still trying to figure out what's so special about Dylan.
+
+</p>
+
+
+<DT><STRONG>David Lichteblau releases new dfingerd and assorted libraries (20 Oct 1999)</strong></dt> 
+
+<dd><p><a href="mailto:lichtebl@math.fu-berlin.de">David
+Lichteblau</a> released version 1.0 of <a
+href="ftp://berlin.ccc.de/pub/gd/contributions/dfingerd-1.0.tar.gz">dfingerd</a>,
+his fingerd implementation written in Dylan. You can find out more
+about it <a
+href="ftp://berlin.ccc.de/pub/gd/contributions/dfingerd-1.0.txt">here</a>. This
+release is coupled to the release of new versions of his libraries <a
+href="ftp://berlin.ccc.de/pub/gd/contributions/unix-interface-0.1.tar.gz">unix-interface</a>,
+<a
+href="ftp://berlin.ccc.de/pub/gd/contributions/network-0.1pre1.tar.gz">network</a>,
+<a
+href="ftp://berlin.ccc.de/pub/gd/contributions/meta-0.5.tar.gz">meta</a>
+and <a
+href="ftp://berlin.ccc.de/pub/gd/contributions/xformat-0.3.tar.gz">xformat</a>.
+Please see the *.txt files in the contributions directory on one of
+the <a href="downloading.phtml">FTP servers</a> for
+details. </p><p>Passive FTP on our main FTP site, berlin.ccc.de, has
+been fixed btw. Sorry for the inconvenience.</p>
+
+
+<DT><STRONG>First working version of d2c for MacOS reported (20 Oct 1999)</strong></dt> 
+
+<dd><p><a href="mailto:robm@lostwax.com">Rob Myers</a> announced on
+the gd-hackers mailing list that he has built a first version of d2c,
+the Dylan compiler that's part of Gwydion, for MacOS. He expects to be
+able to release patches next week. This means that Gwydion Dylan now
+works on all major platforms (although nobody maintains the Win32 port
+at the moment).</p>
+
+
+<DT><STRONG>Functional Objects Inc. acquires Harlequin Dylan (10 Oct 1999)</strong></dt> 
+
+<dd><p> Harlequin has sold all the rights to Harlequin Dylan, the
+commercial implementation of Dylan, to the freshly founded Functional
+Objects, Inc. Basically, these are the guys that worked on Dylan at
+Harlequin, so this is definitely no bad news, and could turn out to be
+actually quite good for Dylan, since their <a
+href="http://www.functionalobjects.com/news/press-release-1.html">press
+release</a> actually talks about ports of Harlequin Dylan to other
+platforms than the already existing Win32.</p><p>Good luck, guys!</p>
+
+
+<DT><STRONG>Mailing lists back up (07 Oct 1999)</strong></dt> <dd><p>
+You might have noticed it, the Gwydion Dylan mailing lists were down
+during the last weeks. We haven't recovered the subscriber information
+yet, so you'll have to resubscribe, but the mailing lists are
+functional again. Addresses have changed, see <a
+href="lists.phtml">here</a> for details.</p>
+
+<DT><STRONG>BeOS port of Gwydion Dylan (09 Sep 1999)</strong></dt>
+<dd><p> Chris Double has ported Gwydion Dylan to the Be Operating
+System. You can find installation instructions on his <a
+href="http://www.double.co.nz/beos">page</a> and download the binary
+either from there, from <a
+href="http://www.bebits.com/app/348">BeBits</a> or from the
+contributions directory of one of our mirrors.
+</p>
+
+
+
+<DT><STRONG>Build Problems with 2.3.2 (24 Aug 1999)</strong></dt>
+<dd><p> As various people have reported, version 2.3.2 cannot be
+compiled with older versions of itself. This is of course a bug, and
+that's why we have a new version, 2.3.2a, on the <a
+href="downloading.phtml">FTP</a> servers. Just apply the patch in your
+source tree, or download the newest version.
+</p>
+
+
+<DT><STRONG>Development Release 2.3.2 (22 Aug 1999)</strong></dt>
+<dd><p>Today the latest development version of Gwydion Dylan, 2.3.2,
+has been released. You can get it from the <a
+href="downloading.phtml">usual</a> places. The long version of the
+announcement is <a href="release-2.3.2.phtml">here</a>, the main new
+feature being shared library support on some platforms. Please note
+that our list server is down, so please send bug reports directly to
+<a href="mailto:gd@andreas.org">Andreas Bogk</a>.</p>
+
+<DT><STRONG>PowerMacMindy 2.3.1r2 released (28 Jul 1999)</strong></dt>
+<dd><p>Rob Myers, the maintainer of the MacOS port of mindy (the
+interpreter part of Gwydion Dylan), released a new version of mindy
+for PowerMacs. New amongst others are shared library support and
+nearly-working streams. You can get the package in the MacOS directory
+of one of our <a href="downloading.phtml">mirror sites</a>.
+</p>
+
+<DT><STRONG>Development Release 2.3.1 (8 Jun 1999)</strong></dt>
+<dd><p>Today the latest development version of Gwydion Dylan, 2.3.1,
+has been released. You can get it from the <a href="downloading.phtml">usual</a>
+places. The long version of the announcement is <a href="release-2.3.1.phtml">here</a>.</p>
+
+<DT><STRONG>OpenBSD/Sparc Port, xformat library (29 Apr
+1999)</STRONG></DT> <DD><P>Brad Dominy has ported Gwydion Dylan to
+OpenBSD. Version 2.2.0 can be found on the usual <A
+HREF="downloading.phtml">mirror</A> sites in the contributions
+directory. Future versions such as the upcoming 2.3.1 development
+version will of course include the patches.<P> Also in the
+contributions directory is David Lichteblaus port of the Common Lisp
+format library to Dylan, which is way more powerful than the native
+format library.<p>
+
+<DT><STRONG>PCRE interface library 0.1 released (6 Apr 1999)</STRONG></DT>
+<DD><P>The initial version of the PCRE (Perl Compatible Regular Expressions)
+interface is available from the contributions directory of any of our
+<A HREF="downloading.phtml">mirror</A> sites. This version provides a
+one-to-one mapping from the native PCRE C API into Dylan. The next release
+will extend this greatly.</P>
+
+<DT><STRONG>Mac version of mindy available (1 Apr 1999)</STRONG></DT>
+
+<DD><P>Due to the efforts of Rob Myers, mindy, the Dylan interpreter
+from the Gwydion Dylan package, is available for the Macintosh. You
+can get it from usual location, the contributions directory of any of
+our <A HREF="downloading.phtml">mirror</A> sites.</P>
+
+<DT><STRONG>MySQL interface library 0.1 released (11 Mar 1999)</STRONG></DT>
+
+<DD><P>The MySQL interface is still work in progress, but all the
+low-level stuff is there, and it has been used successfully together
+with the cgi-lib. You can download it from the contrib directory of any
+<A HREF="downloading.phtml">mirror</A> site.</P>
+
+<DT><STRONG>Peter Hinely's CGI Library Updated (12 Feb 1999)</STRONG></DT>
+
+<DD><P>Peter Hinely has released a new version of his CGI library. You can
+download it from the contrib directory of any <A
+HREF="downloading.phtml">mirror</A> site.</P>
+
+<DT><STRONG>Gwydion Dylan 2.2.0 Released (7 Feb 1999)</STRONG></DT>
+
+<DD><P>We've been busy talking with Harlequin about language
+standardization, but 2.2.0 is finally ready! You can download it from any
+of our <A HREF="downloading.phtml">mirrors</A>. See the <A
+HREF="release-2.2.phtml">official announcement</A> for more
+information.</P>
+
+<P>This represents over nine months of work and the labors of many
+volunteers. Thank you to everyone who helped out!</P>
+
+</DL>
+
+<P>[ <A HREF="news.phtml">Older News</A> |
+<A HREF="lists.phtml">Mailing List Archives</A> ]</P>
+
+<?php standard_footer(); ?>
