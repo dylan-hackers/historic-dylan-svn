@@ -1,11 +1,10 @@
 viewcvs patches:
 
-gdheader1.ezt - gd style part #1
-gdheader2.ezt - gd style part #2
-lib-vclib-svn-__init__.py.diff - patch to find svn-python
 lib-viewcvs.py.diff - recognize dylan syntax highlighting and correct
-                      commandline for enscript-1.6.4
-templates-include-header.ezt.diff - patch to include gdheader[12].ezt
+                      commandline for enscript-1.6.4,
+                      support for bugzilla/cvszilla links (bug/job:)
+templates-include-header.ezt.diff - patch to include customheader/menu.ezt
+templates-include-footer.ezt.diff - patch to include customfooter.ezt
 
 
-patches are against viewcvs cvs 20040830
+patches are against viewcvs cvs 20041119
