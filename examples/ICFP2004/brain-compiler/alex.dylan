@@ -1,28 +1,187 @@
 module: assembler
 
 
-define sub brain move-avoid-gaps (leave)
-  Sense LeftAhead Foe, (avoid);
-  Move leave;
-  Sense Ahead Friend, (left-avoid, leave);
+define sub brain detect-two-enemies-and-plug (leave)
+  Sense Ahead (Marker 4), (plug-extra);
+  Sense LeftAhead Foe => leave;
+  Sense RightAhead Foe, (plug, leave);
 
-  [avoid:]
-    Sense RightAhead Foe, (avoid-really);
-    Move leave;
-    Sense Ahead Friend, (left-avoid, leave);
+  [plug:]
+    Mark 4;
+    PickUp next => next;
 
-  [avoid-really:]
-    Flip 3, (plug-hole);
+  [next:]
+    Sense LeftAhead Foe => leave;
+    Sense RightAhead Foe, (plug);
+    Unmark 4, (leave);
+
+  [plug-extra:]
+    Sense LeftAhead Friend => try-closer-left;
+    Sense RightAhead Friend => try-closer-right;
+    PickUp next-extra => next-extra;
+
+  [next-extra:]
+    Sense Ahead Friend => replace;
+    Sense Ahead (Marker 4), (plug-extra, leave);
+
+  [try-closer-left:]
+    Sense RightAhead Foe => next-extra;
+    Turn Left;
+    Move => try-closer-left-fail;
     Turn Right;
-    Turn Right, (leave);
+    Turn Right, (plug-extra);
 
-  [left-avoid:]
-    Turn Left, (leave);
+  [try-closer-left-fail:]
+    Turn Right, (plug-extra);
 
-  [plug-hole:]
-    Sense RightAhead Foe => avoid;
-    Sense LeftAhead Foe, (plug-hole, avoid);
-end; // move-avoid-gaps
+  [try-closer-right:]
+    Sense LeftAhead Foe => next-extra;
+    Turn Right;
+    Move => try-closer-right-fail;
+    Turn Left;
+    Turn Left, (plug-extra);
+
+  [try-closer-right-fail:]
+    Turn Left, (plug-extra);
+
+  [replace:]
+    Move plug => leave;
+end; // detect-two-enemies-and-plug
+
+
+// Attackers attack other ant hills.
+define sub brain alex-attacker-stop-border (leave)
+
+  Sense FoeHome, (attacker-success, a-search-foe-home);
+
+
+  // Steal food.
+  [attacker-success:]
+   PickUp attacker-success => attacker-success;
+/*
+    Sense Food, (a-steal-from-under-entry);
+    Flip 4, (attacker-success-right);
+    Sense Ahead FoeHome, (a-steal-from-in-front);
+    Turn Right, (attacker-success);
+*/
+
+  [attacker-success-right:]
+    Flip 10, (attacker-success-left);
+    Turn Right, (attacker-success);
+
+  [attacker-success-left:]
+    Turn Left, (attacker-success);
+
+  [a-steal-from-in-front:]
+    Sub detect-two-enemies-and-plug;
+    Move attacker-success => attacker-success-right;
+
+/*
+  [a-steal-from-in-front:]
+    Sense LeftAhead FoeHome, (a-steal-from-in-front-right);
+    Move attacker-success => attacker-success-right;
+
+  [a-steal-from-in-front-right:]
+    Sense RightAhead FoeHome, (attacker-success-right);
+    Move attacker-success => attacker-success-right;
+*/
+
+
+  // From under is easy on the edge.
+  [a-steal-from-under-entry:]
+    PickUp a-steal-from-under => attacker-success;
+
+  [a-steal-from-under:]
+    Sense Ahead FoeHome => a-steal-do-from-under;
+    Sub detect-two-enemies-and-plug;
+    Move a-steal-from-under => a-steal-from-under-turn;
+
+  [a-steal-from-under-turn:]
+    Turn Left, (a-steal-from-under);
+
+  [a-steal-do-from-under:]
+    Turn Left;
+    Sense Ahead FoeHome, (a-steal-do-from-under, a-steal-food-out);
+
+  [a-steal-food-out:]
+    Move => a-steal-food-out;
+    Drop;
+    Turn Left;
+    Turn Left;
+    Turn Left, (a-near-hub-ahead);
+
+
+  [a-search-foe-home:]
+    Sense FoeHome, (attacker-success);
+    Sense Ahead FoeHome, (a-near-hub-ahead);
+    Sense LeftAhead FoeHome, (a-near-hub-left);
+    Sense RightAhead FoeHome, (a-near-hub-right);
+//    Sense LeftAhead Rock, (a-move-right);
+//    Sense RightAhead Rock, (a-move-left);
+//    Sense Ahead Rock, (a-move-lr);
+    Flip 2, (a-move-forward, a-move-lr);
+
+
+  // We are near their hill.
+  [a-near-hub-ahead:]
+    Move alex-attacker-stop-border => a-near-hub-ahead-blocked;
+
+  [a-near-hub-left:]
+    Turn Left;
+    Move alex-attacker-stop-border => a-search-foe-home;
+
+  [a-near-hub-right:]
+    Turn Right;
+    Move alex-attacker-stop-border => a-search-foe-home;
+
+  [a-near-hub-ahead-blocked:]
+    Flip 4, (a-near-hub-ahead-blocked-right, a-near-hub-ahead-blocked-left);
+
+  [a-near-hub-ahead-blocked-right:]
+    Turn Right;
+    Sense Friend, (a-near-hub-left);
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-left:]
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-go-around-right:]
+    Turn Left, (a-search-foe-home);
+
+  [a-near-hub-ahead-blocked-try-left-instead:]
+    Turn Left;
+    Turn Left;
+    Move a-near-hub-ahead-blocked-go-around-left => a-near-hub-ahead-blocked-try-right-instead;
+
+  [a-near-hub-ahead-blocked-try-right-instead:]
+    Turn Right;
+    Turn Right;
+    Move a-near-hub-ahead-blocked-go-around-right => a-near-hub-ahead-blocked-try-left-instead;
+
+  [a-near-hub-ahead-blocked-go-around-left:]
+    Turn Right, (a-search-foe-home);
+    
+
+  // We are still searching.
+  [a-move-forward:]
+    Sub detect-two-enemies-and-plug;
+    Move alex-attacker-stop-border => a-move-lr;
+
+  [a-move-lr:]
+    Flip 2, (a-move-left, a-move-right);
+
+  [a-move-left:]
+    Turn Left;
+    Sub detect-two-enemies-and-plug;
+    Move alex-attacker-stop-border => a-move-left;
+
+  [a-move-right:]
+    Turn Right;
+    Sub detect-two-enemies-and-plug;
+    Move alex-attacker-stop-border => a-move-right;
+
+end brain; // alex-attacker-stop-border
 
 
 // Attackers attack other ant hills.
@@ -46,8 +205,8 @@ define sub brain alex-attacker (leave)
     Turn Left, (attacker-success);
 
   [a-steal-from-in-front:]
-    Sub move-avoid-gaps;
-    Flip 3, (attacker-success-right, attacker-success-left);
+    Sub detect-two-enemies-and-plug;
+    Move attacker-success => attacker-success-right;
 
 /*
   [a-steal-from-in-front:]
@@ -66,6 +225,7 @@ define sub brain alex-attacker (leave)
 
   [a-steal-from-under:]
     Sense Ahead FoeHome => a-steal-do-from-under;
+    Sub detect-two-enemies-and-plug;
     Move a-steal-from-under => a-steal-from-under-turn;
 
   [a-steal-from-under-turn:]
@@ -137,6 +297,7 @@ define sub brain alex-attacker (leave)
 
   // We are still searching.
   [a-move-forward:]
+    Sub detect-two-enemies-and-plug;
     Move alex-attacker => a-move-lr;
 
   [a-move-lr:]
@@ -144,13 +305,15 @@ define sub brain alex-attacker (leave)
 
   [a-move-left:]
     Turn Left;
+    Sub detect-two-enemies-and-plug;
     Move alex-attacker => a-move-left;
 
   [a-move-right:]
     Turn Right;
+    Sub detect-two-enemies-and-plug;
     Move alex-attacker => a-move-right;
 
-end brain; // alex-attacker
+end brain; // alex-attacker-stop-border
 
 
 // Attackers attack other ant hills.
@@ -282,6 +445,7 @@ define sub brain keith-gatherer (leave)
 
 
   [rightant-search:]
+    Sub detect-two-enemies-and-plug;
     Move => rightant-search-blocked;
     Sense Home, (rightant-search);
     PickUp, (rightant-turn-and-return);
@@ -297,6 +461,7 @@ define sub brain keith-gatherer (leave)
     Turn Right, (rightant-return);
 
   [rightant-return:]
+    Sub detect-two-enemies-and-plug;
     Move => rightant-return-blocked;
     Sense Home => rightant-return;
     Drop, (rightant-turn-and-search);
@@ -312,15 +477,15 @@ define sub brain keith-gatherer (leave)
   [rightant-patrol:]
     PickUp, (rightant-return);
     Sense Ahead FoeHome => rightant-turn-and-patrol;
-    Sub move-avoid-gaps;
-    Flip 4, (rightant-turn-and-patrol, rightant-patrol);
-//    Move rightant-patrol => rightant-turn-and-patrol;
+    Sub detect-two-enemies-and-plug;
+    Move rightant-patrol => rightant-turn-and-patrol;
 
   [rightant-turn-and-patrol:]
     Turn Right, (rightant-patrol);
 
 
   [leftant-search:]
+    Sub detect-two-enemies-and-plug;
     Move => leftant-search-blocked;
     Sense Home, (leftant-search);
     PickUp, (leftant-turn-and-return);
@@ -336,6 +501,7 @@ define sub brain keith-gatherer (leave)
     Turn Left, (leftant-return);
 
   [leftant-return:]
+    Sub detect-two-enemies-and-plug;
     Move => leftant-return-blocked;
     Sense Home => leftant-return;
     Drop, (leftant-turn-and-search);
@@ -351,9 +517,8 @@ define sub brain keith-gatherer (leave)
   [leftant-patrol:]
     PickUp, (leftant-return);
     Sense Ahead FoeHome => leftant-turn-and-patrol;
-    Sub move-avoid-gaps;
-    Flip 4, (leftant-turn-and-patrol, leftant-patrol);
-//    Move leftant-patrol => leftant-turn-and-patrol;
+    Sub detect-two-enemies-and-plug;
+    Move leftant-patrol => leftant-turn-and-patrol;
 
   [leftant-turn-and-patrol:]
     Turn Left, (leftant-patrol);
@@ -502,6 +667,7 @@ end brain; // keith-patroller-hack
 
 define sub brain keith-patroller (leave)
 
+  Sub detect-two-enemies-and-plug;
   Move => search_blocked;
   Sense Home, (keith-patroller);
   PickUp, (turn_and_return);
@@ -516,6 +682,7 @@ define sub brain keith-patroller (leave)
     Turn Right, (return);
   
   [return:]
+    Sub detect-two-enemies-and-plug;
     Move => return_blocked;
     Sense Home => return;
     Move;
@@ -603,6 +770,7 @@ define sub brain keith-defender-bad (leave)
 
   [defense_get_out_of_home:]
     Sense Home => defense_out_of_home;
+    Sub detect-two-enemies-and-plug;
     Move defense_get_out_of_home;
     Turn Right, (defense_get_out_of_home);
 
@@ -859,6 +1027,155 @@ Flip 6 73 1
 end ant-subbrain; // keith-defender
 
 
+define ant-subbrain keith-defender-2
+Flip 30 2 1
+;Flip 6 124 84
+;Sense Ahead 3 5 Home
+;Move 2 4
+;Turn Right 2
+;Turn Right 6
+;Sense Ahead 8 7 Home
+;Turn Right 8
+;Sense Ahead 9 11 Home
+;Move 8 10
+;Turn Right 2
+;Turn Right 12
+;Turn Right 13
+;Move 14 2
+;Move 15 2
+;Move 16 2
+;Move 17 2
+;Move 18 2
+;Sense Here 59 19 Marker 1
+;Mark 1 20
+;Turn Right 21
+;Move 22 21
+;Mark 0 23
+;Turn Right 24
+;Turn Right 25
+;Turn Right 26
+;Move 27 26
+;Turn Left 28
+;Turn Left 29
+;Move 30 29
+;Mark 0 31
+;Turn Right 32
+;Turn Right 33
+;Turn Right 34
+;Move 35 34
+;Turn Left 36
+;Turn Left 37
+;Move 38 37
+;Mark 0 39
+;Turn Right 40
+;Turn Right 41
+;Turn Right 42
+;Move 43 42
+;Turn Left 44
+;Turn Left 45
+;Move 46 45
+;Mark 0 47
+;Turn Right 48
+;Turn Right 49
+;Turn Right 50
+;Move 51 50
+;Turn Left 52
+;Turn Left 53
+;Move 54 53
+;Mark 0 55
+;Turn Right 56
+;Turn Right 57
+;Turn Right 58
+;Move 84 58
+;Sense Ahead 70 60 Marker 0
+;Turn Right 61
+;Sense Ahead 72 62 Marker 0
+;Turn Right 63
+;Sense Ahead 74 64 Marker 0
+;Turn Right 65
+;Sense Ahead 76 66 Marker 0
+;Turn Right 67
+;Sense Ahead 78 68 Marker 0
+;Turn Right 69
+;Sense Ahead 80 70 Marker 0
+;Sense Ahead 71 81 Friend
+;Turn Right 61
+;Sense Ahead 73 81 Friend
+;Turn Right 63
+;Sense Ahead 75 81 Friend
+;Turn Right 65
+;Sense Ahead 77 81 Friend
+;Turn Right 67
+;Sense Ahead 79 81 Friend
+;Turn Right 69
+;Sense Ahead 84 81 Friend
+;Move 82 84
+;Sense Here 83 84 Marker 0
+;Drop 83
+;Move 85 88
+;Sense Here 84 86 Marker 1
+;PickUp 89 87
+;Sense Ahead 115 84 FoeHome
+;Turn Right 84
+;Turn Right 90
+;Turn Right 91
+;Turn Right 92
+;Move 93 111
+;Sense Here 94 92 Home
+;Sense Ahead 95 97 Home
+;Move 94 96
+;Turn Right 94
+;Turn Right 98
+;Sense Ahead 100 99 Home
+;Turn Right 100
+;Sense Ahead 101 103 Home
+;Move 100 102
+;Turn Right 94
+;Turn Right 104
+;Turn Right 105
+;Move 106 94
+;Move 107 94
+;Move 108 94
+;Move 109 94
+;Move 110 94
+;Drop 59
+;Turn Left 92
+;Turn Right 113
+;Turn Right 114
+;Turn Right 84
+;PickUp 89 116
+;Sense RightAhead 117 118 FoeHome
+;Turn Right 118
+;Turn Right 119
+;Move 120 119
+;Sense LeftAhead 121 122 FoeHome
+;Turn Left 115
+;Turn Left 123
+;Turn Left 115
+;Flip 10 127 125
+;Move 126 127
+;Sense Here 130 124 FoeHome
+;Flip 2 128 129
+;Turn Left 124
+;Turn Right 124
+;PickUp 134 131
+;Sense Ahead 132 133 FoeHome
+;Move 130 133
+;Turn Right 130
+;Turn Right 135
+;Turn Right 136
+;Turn Right 137
+;Sense Here 138 140 FoeHome
+;Move 137 139
+;Turn Right 137
+;Drop 141
+;Turn Right 142
+;Turn Right 143
+;Turn Right 144
+;Move 130 144
+end ant-subbrain; // keith-defender-2
+
+
 define sub brain chris-defender (leave)
 
   Turn Left;
@@ -954,6 +1271,106 @@ define sub brain chris-defender (leave)
 end; // sub brain chris-defender
 
 
+define sub brain chris-surround-foe (leave)
+
+  Turn Left;
+  Turn Right, (random_turn);
+
+  [move:]
+	Move => chris-surround-foe;
+	Sense Here (Marker 3), (spin);
+	Sense Ahead (Marker 3), (marker_0_ahead);
+	Sense LeftAhead (Marker 3), (marker_0_left_ahead);
+	Sense RightAhead (Marker 3), (marker_0_right_ahead);
+//	Flip 300, (stake_place, move);
+	Sense Here Food => move;
+	Flip 50, (stake_place, move);
+	
+  [marker_0_ahead:]
+	Move spin => chris-surround-foe;
+
+  [marker_0_left_ahead:]
+	Turn Left, (move);
+
+  [marker_0_right_ahead:]
+	Turn Right, (move);
+	
+  [stake_place:]
+	Mark 3;
+	Turn Right;
+	Turn Right;
+	Move stake_place_2 => sp1_try1;
+
+  [stake_place_2:]
+	Mark 3;
+	Turn Right;
+	Move stake_place_3 => sp2_try1;
+
+  [stake_place_3:]
+	Mark 3;
+	Turn Right;
+	Move stake_place_4 => sp3_try1;
+
+  [stake_place_4:]
+	Mark 3;
+	Turn Right;
+	Move stake_place_5 => sp4_try1;
+
+  [stake_place_5:]
+	Mark 3, (spin);
+
+  [sp1_try1:]
+	Sense Ahead Rock, (chris-surround-foe);	
+	Move stake_place_2 => chris-surround-foe;
+
+  [sp2_try1:]
+	Sense Ahead Rock, (chris-surround-foe);	
+	Move stake_place_3 => chris-surround-foe;
+
+  [sp3_try1:]
+	Sense Ahead Rock, (chris-surround-foe);	
+	Move stake_place_4 => chris-surround-foe;
+
+  [sp4_try1:]
+	Sense Ahead Rock, (chris-surround-foe);	
+	Move stake_place_5 => chris-surround-foe;
+
+  [spin:]
+	Turn Right, (spin);
+
+  [random_turn:]
+	Flip 5, (turn_to_0);
+	Flip 5, (turn_to_1);
+	Flip 5, (turn_to_2);
+	Flip 5, (turn_to_3, turn_to_4);
+
+  [turn_to_0:]
+	Turn Right, (move);
+	
+  [turn_to_1:]
+	Turn Right;
+	Turn Right, (move);
+
+  [turn_to_2:]
+	Turn Right;
+	Turn Right;
+	Turn Right, (move);
+
+  [turn_to_3:]
+	Turn Right;
+	Turn Right;
+	Turn Right;
+	Turn Right, (move);
+
+  [turn_to_4:]
+	Turn Right;
+	Turn Right;
+	Turn Right;
+	Turn Right;
+	Turn Right, (move);
+end; // sub brain chris-surround-foe
+
+
 // Main brain.
 define brain alex-keith
 
@@ -964,16 +1381,25 @@ define brain alex-keith
 
   [attacker:]
     Flip 3, (attacker-border);
+    Flip 3, (attacker-stop-border);
+    Flip 2, (attacker-food);
     Sub alex-attacker;
 
   [attacker-border:]
     Sub alex-attacker-border;
 
+  [attacker-food:]
+    Sub chris-surround-foe;
+
+  [attacker-stop-border:]
+    Sub alex-attacker-stop-border;
+
 
   [gatherer:]
     Flip 5, (patroller);
     Flip 5, (defender);
-    Sub keith-gatherer;
+//    Sub keith-gatherer;
+    Sub keith-defender-2;
 
 
   [patroller:]
@@ -982,13 +1408,13 @@ define brain alex-keith
 
 
   [defender:]
-    Flip 5, (k-defender, c-defender);
+    Flip 3, (c-defender, k-defender);
 
   [c-defender:]
     Sub chris-defender;
 
   [k-defender:]
-    Sub keith-defender;
+    Sub keith-defender-2;
 
 end brain;
 
