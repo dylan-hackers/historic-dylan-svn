@@ -5428,6 +5428,168 @@ let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
 	    <para>Note: The row-vectors must all be of the same size.</para>
 	  </defdescription>
 	</dylanmethoddef>
+
+	<dylanmethoddef>
+	  <defname>identity-matrix</defname>
+	  <defsummary>Creates the identity matrix</defsummary>
+	  <defparameters>
+	    <keyparam>	
+		<paramname>dimensions</paramname>
+	      <paramdefault>#[1, 1]</paramdefault>
+	      <paramsummary>Note: enter 2 dimensions for the matrix, an error may occur if both dimensions are not equal.</paramsummary>
+	    </keyparam>
+	  </defparameters>
+	  <defreturns>
+	    <param>
+		<paramname>mat</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+	      <paramsummary>The identity matrix, sized to dimensions</paramsummary>
+	    </param>
+	  </defreturns>
+	  <defdescription>
+	    <para>This function simply returns the identity matrix of the specified dimension.  It is a very simple algorithm, it merely fills a matrix with zeros, and then puts ones down the diagonal.
+</para>
+	  </defdescription>
+	</dylanmethoddef>
+
+    </sect1>
+    <sect1 id="libs-matrix-operations">
+	<title>Matrix Operations</title>
+	<para>These are operations on matrices.  The include the "simple" arithmetic operations (\+, \-, \*), as well as other standard matrix operations, such as inverse, transpose, augment, and gauss-jordan elimations.</para>
+
+      <dylanmethoddef>
+        <defname>\+</defname>
+        <defsummary>Adds two matrices.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+          <param>
+            <paramname>matrix2</paramname>
+            <paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>summation-matrix</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+Adds two matrices.  This is a binary operator that performs matrix addition on the matrices "matrix1" and "matrix2", storing the result in a new matrix "temp-mat", "temp-mat" is then returned on exit.  Matrix addition is very simple, all it is is adding terms in corresponding positions
+          </para>
+        </defdescription>
+      </dylanmethoddef>
+	
+      <dylanmethoddef>
+        <defname>\-</defname>
+        <defsummary>Subtracts two matrices.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+          <param>
+            <paramname>matrix2</paramname>
+            <paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>difference-matrix</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+Matrix subtraction is (surprise) just like matrix addition, where the
+element i,j in (A - B) is (A[i,j] - B[i,j])
+          </para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>\*</defname>
+        <defsummary>Multiplies a matrix by a scalar.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>a</paramname>
+            <paramtype>&lt;number&gt;</paramtype>
+          </param>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>product-matrix</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+Multiplication of a matrix and a scalar quantity.  This simply multiplies each element of the matrix by the scalar quantity.
+          </para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>\*</defname>
+        <defsummary>Multiplies a matrix by a scalar.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>a</paramname>
+            <paramtype>&lt;number&gt;</paramtype>
+          </param>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>product-matrix</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+Same as the above <function>\*</function>, with the opposite order of the parameters.
+          </para>
+        </defdescription>
+      </dylanmethoddef>
+
+      <dylanmethoddef>
+        <defname>\*</defname>
+        <defsummary>Multiplies two matrices.</defsummary>
+        <defparameters>
+          <param>
+            <paramname>matrix1</paramname>
+            <paramtype>&lt;number&gt;</paramtype>
+          </param>
+          <param>
+            <paramname>matrix2</paramname>
+            <paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defparameters>
+        <defreturns>
+	    <param>
+		<paramname>mult-matrix</paramname>
+		<paramtype>&lt;matrix&gt;</paramtype>
+          </param>
+        </defreturns>
+        <defdescription>
+          <para>
+Multiplication of two matrices.  There are certain restrictions on what matrices can be multiplied.  To multiply two matrices, the dimensions must be MxN for the first matrix, and NxP for the second.  The result of the multiplication will be an MxP matrix.  (Note, this implies A * B is not necessarily equal to B * A)  The element i,j in A * B is the dot (inner) product of the ith row of A with the jth column of B.  The dot product of a vector is the sum of the products of corresponding elements. That is,  if vector V=[a,b,c,d] and vector W=[w,x,y,z] then V*W= aw + bx + cy + dz (Note that this is a scalar quantity).</para>
+	    <para>
+The actual algorithm used was reproduced from Sedgewick's Algorithms, Ch. 36. Basically, the algorithm goes through the temporary matrix, filling out each element in the following way: For the i,jth element of the matrix, calculate the dot product an element at a time, by having a number k  range from 0 to the dimension N of the matrix.  Take A[i,k] and multiply it by B[k,j] to get one of the terms in the dot product.  Continue this for each element in the MxP matrix to get the result.
+	    </para>
+        </defdescription>
+      </dylanmethoddef>
+
     </sect1>
   </CHAPTER>
 
