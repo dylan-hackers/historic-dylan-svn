@@ -15,7 +15,7 @@ define function make-locator (netloc :: false-or(<http-server-url>),
                               name :: false-or(<string>),
                               type :: false-or(<string>),
                               query :: false-or(<string>),
-                              // note request uri's don't have tags, it's a browser thang.
+                              // note request url's don't have tags, it's a browser thang.
                               tag :: false-or(<string>))
   let dir = make(<directory-url>, server: netloc, relative?: #f, path: dir);
   if (type | name | tag | query)
@@ -65,37 +65,37 @@ define function decode-url
   end iterate;
 end decode-url;
 
-define function parse-request-uri (str, bpos, epos)
-  => (uri :: <url>) // <http-url>, but that's bogus.
-  parse-uri(str, bpos, epos)
-    | invalid-uri-error(uri: substring(str, bpos, epos));
+define function parse-request-url (str, bpos, epos)
+  => (url :: <url>) // <http-url>, but that's bogus.
+  parse-url(str, bpos, epos)
+    | invalid-url-error(url: substring(str, bpos, epos));
 end;
 
-define function parse-uri (str, str-beg, str-end)
-    => (uri :: false-or(<url>))
-  // Assumed to be either absolute URI (i.e. "scheme:...") or
+define function parse-url (str, str-beg, str-end)
+    => (url :: false-or(<url>))
+  // Assumed to be either absolute URL (i.e. "scheme:...") or
   // absolute path (i.e. "/...").  Doesn't accept relative path.
   // For now, only accepts http: as scheme.
   if (str-beg == str-end)
     #f  // This should probably treat "" the same as "/" (according to RFC 2616) --sigue
   elseif (str[str-beg] == '/')
-    let (dir, name, type, query, tag) = parse-uri-path(str, str-beg, str-end);
+    let (dir, name, type, query, tag) = parse-url-path(str, str-beg, str-end);
     dir & make-locator(#f, dir, name, type, query, tag);
   elseif (looking-at?("http://", str, str-beg, str-end))
     let net-beg = str-beg + 7;
     let net-end = char-position('/', str, net-beg, str-end) | str-end;
     let netloc = parse-http-server(str, net-beg, net-end);
     let (dir, name, type, query, tag) = if (net-end == str-end)
-                                          parse-uri-path("/", 0, 1)
+                                          parse-url-path("/", 0, 1)
                                         else
-                                          parse-uri-path(str, net-end, str-end)
+                                          parse-url-path(str, net-end, str-end)
                                         end;
     dir & netloc & make-locator(netloc, dir, name, type, query, tag);
   else
     //---TODO: here should distinguish between an unknown scheme and a relative path.
     #f
   end;
-end parse-uri;
+end parse-url;
 
 
 define function parse-http-server (str :: <byte-string>,
@@ -116,7 +116,7 @@ end parse-http-server;
 //---TODO: should intern these, i.e. map the whole thing to its parsed version...
 
 // dir is #f if parse failed.
-define function parse-uri-path
+define function parse-url-path
     (str, str-beg, str-end)
  => (dir :: false-or(<simple-object-vector>),
      name :: false-or(<string>),
@@ -145,6 +145,6 @@ define function parse-uri-path
       values(segs, name, type, query)
     end;
   end iterate;
-end parse-uri-path;
+end parse-url-path;
 
 

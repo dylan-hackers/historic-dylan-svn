@@ -132,8 +132,8 @@ define module koala
     ensure-server,      // Get (or create) the active HTTP server object.
     start-server,
     stop-server,
-    register-uri,
-    register-alias-uri,
+    register-url,
+    register-alias-url,
     <request>,
     request-query-values,        // get the keys/vals from the current GET or POST request
     request-method,              // Returns #"get", #"post", etc
@@ -178,7 +178,7 @@ define module koala
     resource-not-found-error,
     unimplemented-error,
     internal-server-error,
-    request-uri,
+    request-url,
     *auto-register-map*;
 
   // Debugging
@@ -250,15 +250,15 @@ define module dsp
   export
     <page>,                      // Subclass this using the "define page" macro
     <static-page>,
-    register-page,               // Register a page for a given URI
+    register-page,               // Register a page for a given URL
     respond-to-get,              // Implement this for your page to handle GET requests
     respond-to-post,             // Implement this for your page to handle POST requests
     respond-to-head,             // Implement this for your page to handle HEAD requests
 
     // Form/query values.  (Is there a good name that covers both of these?)
-    get-query-value,             // Get a query value that was passed in a URI or a form
+    get-query-value,             // Get a query value that was passed in a URL or a form
     get-form-value,              // A synonym for get-query-value
-    do-query-values,             // Call f(key, val) for each query in the URI or form
+    do-query-values,             // Call f(key, val) for each query in the URL or form
     do-form-values,              // A synonym for do-query-values
     count-query-values,
     count-form-values,

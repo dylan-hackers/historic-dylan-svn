@@ -8,12 +8,12 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // Return a locator for the given URL under the *document-root*.
 /*
 define method document-location
-    (uri :: <string>, #key context :: false-or(<directory-locator>))
+    (url :: <string>, #key context :: false-or(<directory-locator>))
  => (source :: <file-locator>)
-  let uri = iff(~empty?(uri) & uri[0] = '/',
-                copy-sequence(uri, start: 1),  // get rid of leading slash
-                uri);
-  merge-locators(as(<file-locator>, uri), context | *document-root*)
+  let url = iff(~empty?(url) & url[0] = '/',
+                copy-sequence(url, start: 1),  // get rid of leading slash
+                url);
+  merge-locators(as(<file-locator>, url), context | *document-root*)
 end;
 */
 
@@ -21,20 +21,20 @@ end;
 // resulting locator refers to a document below *document-root*.
 //
 define method document-location
-    (uri :: <string>, #key context :: <directory-locator> = *document-root*)
+    (url :: <string>, #key context :: <directory-locator> = *document-root*)
  => (locator :: false-or(<physical-locator>))
   when (*document-root*)
     block ()
-      let len :: <integer> = size(uri);
-      let (bpos, epos) = trim-whitespace(uri, 0, len);
+      let len :: <integer> = size(url);
+      let (bpos, epos) = trim-whitespace(url, 0, len);
       if (bpos == epos)
         *document-root*
       else
-        let relative-uri = iff(uri[bpos] = '/', substring(uri, 1, len), uri);
-        if (empty?(relative-uri))
+        let relative-url = iff(url[bpos] = '/', substring(url, 1, len), url);
+        if (empty?(relative-url))
           *document-root*
         else
-          let loc = simplify-locator(merge-locators(as(<physical-locator>, relative-uri),
+          let loc = simplify-locator(merge-locators(as(<physical-locator>, relative-url),
                                                     context));
           if (instance?(loc, <file-locator>) & locator-name(loc) = "..")
             loc := locator-directory(locator-directory(loc));
@@ -51,10 +51,10 @@ end document-location;
 define method maybe-serve-static-file
     (request :: <request>, response :: <response>)
  => (found? :: <boolean>)
-  let uri :: <string> = request-uri(request);
-  let document :: false-or(<physical-locator>) = static-file-locator-from-uri(uri);
+  let url :: <string> = request-url(request);
+  let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   when (document)
-    log-debug("%s static file found", uri);
+    log-debug("%s static file found", url);
     select (file-type(document))
       #"directory" => directory-responder(request, response, document);
       otherwise  => static-file-responder(request, response, document);
@@ -63,14 +63,14 @@ define method maybe-serve-static-file
   end;
 end;
 
-// @returns the appropriate locator for the given URI, or #f if the URI is 
+// @returns the appropriate locator for the given URL, or #f if the URL is 
 // invalid (for example it doesn't name an existing file below the *document-root*).
-// If the URI names a directory this checks for an appropriate default document
+// If the URL names a directory this checks for an appropriate default document
 // such as index.html and returns a locator for that, if found.
 //
-define function static-file-locator-from-uri
-    (uri :: <string>) => (locator :: false-or(<physical-locator>))
-  let locator = document-location(uri);
+define function static-file-locator-from-url
+    (url :: <string>) => (locator :: false-or(<physical-locator>))
+  let locator = document-location(url);
   when (locator)
     file-exists?(locator)
     & iff(instance?(locator, <directory-locator>),
@@ -135,7 +135,7 @@ define method directory-responder
           locator,
           subdirectory-locator(locator-directory(locator), locator-name(locator)));
   let stream = output-stream(response);
-  let uri = request-uri(request);
+  let url = request-url(request);
   local method show-file-link (directory, name, type)
           when (name ~= ".." & name ~= ".")
             let locator = iff(type = #"directory",
@@ -158,7 +158,7 @@ define method directory-responder
         end;
   format(stream,
          "<html>\n<head>\n<title>Directory listing of %s</title>\n</head>\n<body>\n"
-         "<h2>Directory listing of %s</h2>\n", uri, uri);
+         "<h2>Directory listing of %s</h2>\n", url, url);
   // In FunDev 2.0 SP1 this will never display the "Up to parent directory" because
   // of a bug in the = method for directory locators.
   unless (loc = *document-root*

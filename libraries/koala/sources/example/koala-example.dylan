@@ -13,10 +13,10 @@ You write your web application as an executable that uses the koala HTTP server 
 (This will eventually change.  Koala should eventually load your DLL at run-time.)
 Look for the call to "start-server" in this file for an example of how to start up the
 server.  Following are examples of various ways to define static and dynamic handlers
-for web URIs.
+for web URLs.
 
-Note that any URIs registered for dynamic pages hide URIs corresponding to files in
-the document root directory.  i.e., the dynamic URI takes precedence.
+Note that any URLs registered for dynamic pages hide URLs corresponding to files in
+the document root directory.  i.e., the dynamic URL takes precedence.
 
 */
 
@@ -24,17 +24,14 @@ the document root directory.  i.e., the dynamic URI takes precedence.
 // Start the Koala server early because it sets configuration variables like
 // *document-root* that are used by the example code.
 begin
-  let args = application-arguments();
-  let port = ((size(args) > 0 & string-to-integer(args[0]))
-              | 7020);
-  start-server(port: port);
+  start-server();
 end;
 
 
 
-//// Responders -- the lowest level API for responding to a URI
+//// Responders -- the lowest level API for responding to a URL
 
-// Responds to a single URI.
+// Responds to a single URL.
 define responder responder1 ("/responder1")
     (request :: <request>,
      response :: <response>)
@@ -64,12 +61,12 @@ end;
 // *hello-world-page* instance.
 //
 define page hello-world-page (<page>)
-    (uri: "/hello-world",
+    (url: "/hello-world",
      alias: "/hello")
 end;
 
 // Respond to a GET for <hello-world-page>.  Note the use of do-query-values to
-// find all the values passed in the URI (e.g., /hello?foo=1&bar=2).  You can
+// find all the values passed in the URL (e.g., /hello?foo=1&bar=2).  You can
 // also use get-query-value to get a specific query value, and
 // count-query-values can be used to find out how many there are.  Note that
 // respond-to-post automatically calls respond-to-get, unless you override it.
@@ -114,12 +111,12 @@ define taglib demo ()
 end;
 
 define page home-page (<demo-page>)
-    (uri: "/demo/home.dsp",
+    (url: "/demo/home.dsp",
      source: document-location("demo/home.dsp"))
 end;
 
 define page hello-page (<demo-page>)
-    (uri: "/demo/hello.dsp",
+    (url: "/demo/hello.dsp",
      source: document-location("demo/hello.dsp"))
 end;
 
@@ -132,7 +129,7 @@ define tag hello in demo
 end;
 
 define page args-page (<demo-page>)
-    (uri: "/demo/args.dsp",
+    (url: "/demo/args.dsp",
      source: document-location("demo/args.dsp"))
 end;
 
@@ -196,12 +193,12 @@ end;
 // home.dsp -- note that there is no need to register a page for
 
 define page example-login-page (<demo-page>)
-    (uri: "/demo/login.dsp",
+    (url: "/demo/login.dsp",
      source: document-location("demo/login.dsp"))
 end;
 
 define page example-logout-page (<demo-page>)
-    (uri: "/demo/logout.dsp",
+    (url: "/demo/logout.dsp",
      source: document-location("demo/logout.dsp"))
 end;
 
@@ -216,7 +213,7 @@ end;
 
 // The login page POSTs to the welcome page...
 define page example-welcome-page (<demo-page>)
-    (uri: "/demo/welcome.dsp",
+    (url: "/demo/welcome.dsp",
      source: document-location("demo/welcome.dsp"))
 end;
 
@@ -258,7 +255,7 @@ end;
 //// iterator
 
 define page iterator-page (<demo-page>)
-    (uri: "/demo/iterator.dsp",
+    (url: "/demo/iterator.dsp",
      source: document-location("demo/iterator.dsp"))
 end;
 
@@ -295,7 +292,7 @@ end;
 //// table generation
 
 define page table-page (<demo-page>)
-    (uri: "/demo/table.dsp",
+    (url: "/demo/table.dsp",
      source: document-location("demo/table.dsp"))
 end;
 

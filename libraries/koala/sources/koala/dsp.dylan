@@ -6,11 +6,11 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 // Users of this library may respond to HTTP requests in two ways:
-// (1) Use "define responder" to register a response function for a given URI.  The function
+// (1) Use "define responder" to register a response function for a given URL.  The function
 //     will be passed a <request> and a <response>.
 // (2) Define a subclass of <page> and implement the methods respond-to-post, respond-to-get,
 //     and respond-to-head.  Use "define page", specifying <page> as a superclass to register
-//     a page to be used for a particular URI.
+//     a page to be used for a particular URL.
 // (3) Use "define page", specifying <dylan-server-page> as a superclass and define any "tags"
 //     you need with "define tag".  Create a .dsp file that calls the tags with <dsp:my-tag .../>
 //
@@ -54,7 +54,7 @@ end;
 //// Generic pages
 
 
-// Holds the map of query keys/vals in the "?x=1&y=2" part of the URI (for GET method)
+// Holds the map of query keys/vals in the "?x=1&y=2" part of the URL (for GET method)
 // or form keys/vals for the POST method.
 define thread variable *page-values* :: false-or(<string-table>) = #f;
 
@@ -102,12 +102,12 @@ end;
 
 //// URL mapping
 
-// Maps page objects to their canonical URIs.
-define variable *page-to-uri-map* :: <table> = make(<table>);
+// Maps page objects to their canonical URLs.
+define variable *page-to-url-map* :: <table> = make(<table>);
 
-define method page-uri
-    (page :: <page>) => (uri :: false-or(<string>))
-  element(*page-to-uri-map*, page, default: #f)
+define method page-url
+    (page :: <page>) => (url :: false-or(<string>))
+  element(*page-to-url-map*, page, default: #f)
 end;
 
 
@@ -118,7 +118,7 @@ end;
 
 define method print-object
     (page :: <page>, stream)
-  format(stream, "%s", page-uri(page));
+  format(stream, "%s", page-url(page));
 end;
 
 // The protocol every page needs to support.
@@ -151,13 +151,13 @@ define method process-page (page :: <page>,
   end;
 end process-page;
 
-// Applications should call this to register a page for a particular URI.
+// Applications should call this to register a page for a particular URL.
 define function register-page
-    (uri :: <string>, page :: <page>, #key replace?)
+    (url :: <string>, page :: <page>, #key replace?)
  => (responder :: <function>)
   let responder = curry(process-page, page);
-  register-uri(uri, responder, replace?: replace?);
-  *page-to-uri-map*[page] := uri;
+  register-url(url, responder, replace?: replace?);
+  *page-to-url-map*[page] := url;
   responder
 end;
 
@@ -166,8 +166,8 @@ end;
 define method register-pages-as
     (path :: <pathname>, page-class :: subclass(<file-page-mixin>),
      #key descend? = #t, file-type)
-  // uri-dir always ends in '/'
-  local method doer (uri-dir, directory, name, type)
+  // url-dir always ends in '/'
+  local method doer (url-dir, directory, name, type)
           format-out("name = %=\n", name);
           select (type)
             #"file" =>
@@ -175,12 +175,12 @@ define method register-pages-as
                                         as(<directory-locator>, directory));
               register-page(name, make(page-class,
                                        source: file,
-                                       uri: concatenate(uri-dir, name)));
+                                       url: concatenate(url-dir, name)));
             #"directory" =>
               let dir = subdirectory-locator(as(<directory-locator>, directory), name);
               format-out("dir = %=\n", as(<string>, dir));
               when (descend?)
-                do-directory(curry(doer, concatenate(uri-dir, name, "/")), dir);
+                do-directory(curry(doer, concatenate(url-dir, name, "/")), dir);
               end;
           end;
         end;
@@ -200,7 +200,7 @@ define method initialize
     (page :: <file-page-mixin>, #key, #all-keys)
   next-method();
   when (~slot-initialized?(page, source-location))
-    page.source-location := document-location(page-uri(page));
+    page.source-location := document-location(page-url(page));
   end;
 end;
 
@@ -233,7 +233,7 @@ define method respond-to-get
     write(stream, page.contents);
     force-output(stream);
   else
-    resource-not-found-error(uri: request-uri(request));
+    resource-not-found-error(url: request-url(request));
   end;
 end;
 
@@ -607,7 +607,7 @@ define open primary class <dylan-server-page> (<expiring-mixin>, <file-page-mixi
   slot page-template :: <dsp-template>;
 end;
 
-// define page my-dsp (<dylan-server-page>) (uri: "/hello", source: make-locator(...), ...)
+// define page my-dsp (<dylan-server-page>) (url: "/hello", source: make-locator(...), ...)
 //   slot foo :: <integer> = bar;
 //   ...
 // end;
@@ -622,14 +622,14 @@ define macro page-definer
 end;
 
 define function register-page-urls
-    (page :: <page>, #key uri :: <string>, alias, #all-keys)
+    (page :: <page>, #key url :: <string>, alias, #all-keys)
  => (responder :: <function>)
-  let responder = register-page(uri, page);
+  let responder = register-page(url, page);
   when (alias)
     for (alias in iff(instance?(alias, <string>),
                       list(alias),
                       alias))
-      register-alias-uri(alias, uri);
+      register-alias-url(alias, url);
     end;
   end;
   responder
@@ -795,7 +795,7 @@ define method parse-page
     (page :: <dylan-server-page>)
   let string = file-contents(source-location(page));
   if (~string)
-    resource-not-found-error(uri: page-uri(page));
+    resource-not-found-error(url: page-url(page));
   else
     pt-debug("Parsing page %s", as(<string>, source-location(page)));
     page.contents := string;
@@ -1196,9 +1196,9 @@ end quote-html;
 //// Configuration
 
 define function auto-register-dylan-server-page
-    (uri :: <string>) => (responder :: <function>)
-  register-page(uri, make(<dylan-server-page>,
-                          source: document-location(uri)))
+    (url :: <string>) => (responder :: <function>)
+  register-page(url, make(<dylan-server-page>,
+                          source: document-location(url)))
 end;
 
 

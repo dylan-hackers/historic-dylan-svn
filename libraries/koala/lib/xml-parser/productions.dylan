@@ -90,7 +90,7 @@ end meta document-helper;
 // Andreas: FIXME: we're cheating here, by using UFT8 and just allowing 
 //                 anything.
 //
-define constant <char> = <character>;
+//define constant <char> = <character>;
 
 // an entirely redundant definition if we had a BNF parser
 define meta s?(c) loop(scan-s(c)) end;

@@ -4,23 +4,38 @@ Koala To-Do List
 Version 0.3
 -----------
 
-* Ability to specify a URL to be displayed when 404 errors occur.
-
-* Sessions - They should be able to work without cookies enabled, either
-  by URL rewriting or ...?
+* Gwydion Dylan compatibility.
 
 * URL cleanups
   - Make sure that decode-url is used in all the right places to convert
     from %xx to appropriate characters.
-  - Use 'url' everywhere instead of randomly using 'uri' and 'url'.
   - Should use 'path' in local variables to distinguish between the a URL
     (which contains a scheme etc) and just the path.
 
+* New config file setting: <port value="7020" />
 
 
+Version 0.4
+-----------
+
+* Sessions - They should be able to work without cookies enabled, either
+  by URL rewriting or ...?
+
+* New config file setting: <directory>
+  <directory
+     name="demo/foo"                    // required
+     follow-symlinks="false"            // opt
+     allow-directory-listing="false"    // opt
+     default-documents="index.html,default.html"
+
+* New config file setting: <server-administrator> (per vhost)
+
+     
 
 Kitchen Sink
 ------------
+
+* Ability to specify a URL to be displayed when 404 errors occur.
 
 * Search sources for "---*** TODO" and do them.
 
@@ -66,3 +81,8 @@ Gwydion notes:
     have a file spec on the files: line.
   FD seals element on <object-table>, so <multimap> doesn't work.
   Gwydion has bogus #if #endif directives in some files, for mindy.
+  
+  http://www.gwydiondylan.org/gdref/gduser.html#GDUSER-WORKING-WITH-LID
+  says that the Files: keyword isn't supported, but make-dylan-app
+  generates this keyword and it works.
+

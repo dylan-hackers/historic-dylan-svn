@@ -430,7 +430,7 @@ define sealed method parse-header-value (key == #"content-length", data :: <fiel
 end;
 
 define sealed method parse-header-value (key == #"content-location", data :: <field-type>)
-  => (uri :: <string>)
+  => (url :: <string>)
   parse-single-header(data, parse-string-value)
 end;
 

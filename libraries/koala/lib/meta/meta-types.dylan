@@ -9,7 +9,7 @@ define constant $letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 define constant $digit = "0123456789";
 define constant $num-char = concatenate($digit, ".-+eE");
 define constant $space = " \t\n\r";
-define constant $punctuation = "!?.,";
+//define constant $punctuation = "!?.,";
 define constant $graphic-char = "_@#$%^&*+=~/";
 
 // except spaces and <punctuation>
