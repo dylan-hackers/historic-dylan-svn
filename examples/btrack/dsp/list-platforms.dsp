@@ -9,7 +9,7 @@
 
 <center><h1>Manage Platforms</h1></center>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <a href="edit-platform.dsp?id=new&type=platform&origin=/list-platforms.dsp">Click here to create a new platform.</a>
 <br>Click any platform name to edit that platform.
@@ -26,7 +26,7 @@
   </dsp:no-rows>
   <dsp:row>
     <dsp:cell><dsp:row-number/></dsp:cell>
-    <dsp:cell><a href="edit-platform.dsp?id=<bt:show-id/>&type=platform"><bt:show-name/></a></dsp:cell>
+    <dsp:cell><a href="edit-platform.dsp?id=<dsp:show-id/>&type=platform"><bt:show-name/></a></dsp:cell>
   </dsp:row>
 </dsp:table>
 

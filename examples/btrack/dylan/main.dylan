@@ -7,6 +7,7 @@ Synopsis: But Tracker
 
 define method main
     () => ()
+  *default-origin-page* := *home-page*;
 end;
 
 begin

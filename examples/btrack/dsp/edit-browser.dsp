@@ -7,7 +7,7 @@
 
 <%dsp:include url="header.dsp"/>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <center><h1>Edit Browser</h1></center>
 

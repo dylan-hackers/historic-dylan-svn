@@ -9,127 +9,16 @@ begin
 end;
 
 
-// When displaying a page that corresponds to a specific record, such as
-// edit-account.dsp, this is bound to the record.
-//
-define thread variable *record* :: false-or(<database-record>) = #f;
-
-// Key used to store the record that is currently being edited in the session.
-//
-define constant $edit-record-key = #"bt.edit-record";
-
-define function get-edit-record
-    (request :: <request>) => (record :: false-or(<database-record>))
-  get-attribute(get-session(request), $edit-record-key)
+define taglib btrack ()
 end;
-
-// Key used to store the target page into the session when temporarily redirecting
-// to another page (e.g., to the login page).
-//
-define constant $target-page-key = #"bt.target-page";
-
 
 define class <btrack-page> (<dylan-server-page>)
 end;
 
-define class <edit-record-page> (<btrack-page>)
+define class <require-login-mixin> (<object>)
 end;
 
-// This method is called under two different circumstances:
-// (1) As the result of the user clicking a link of the form
-//     <a href="edit-account.dsp&id=n">, in which case there is an 'id'
-//     query parameter, or
-// (2) As the result of a successful login.
-// Therefore, if there is an 'id' query parameter it is used to find the
-// record to edit.  If the user isn't logged in then that record is stored
-// in the session and is redirected to the login page.  If there is no 'id'
-// query parameter, the record to edit is already in the session.
-//
-// ---TODO: abstract this out to a mixin class, <require-login-mixin>
-//
-define method respond-to-get (page :: <edit-record-page>,
-                              request :: <request>,
-                              response :: <response>)
-  let session = get-session(request);
-  let record-id = get-query-value("id");
-  let record-type = get-query-value("type");
-  let record = select (record-id by \=)
-                 "new" =>     // new record being created
-                   let record-class = record-class-from-type-name(record-type);
-                   initialize-record(make(record-class, id: next-record-id()));
-                 #f =>        // no record id means record is in session.
-                   get-attribute(session, $edit-record-key);
-                 otherwise =>
-                   let record-class = record-class-from-type-name(record-type);
-                   load-record(record-class, as(<integer>, record-id));
-               end;
-  record
-    | error("No record was found for editing.  Please report this bug.");
-  set-attribute(session, $edit-record-key, record);
-  if (logged-in?(page, request))
-    dynamic-bind (*record* = record)
-      next-method();
-    end;
-  else
-    force-login(page, request, response)
-  end;
-end;
-
-define function return-to-origin
-    (request :: <request>, response :: <response>,
-     #key default :: <page> = *home-page*)
-  bind (origin = get-query-value("origin"),
-        // It may be common to forget to use a leading / since it's not required...
-        page = origin & (url-to-page(origin) | url-to-page(concatenate("/", origin))))
-    respond-to-get(page | default, request, response);
-  end;
-end;
-
-define method respond-to-post (page :: <edit-record-page>,
-                               request :: <request>,
-                               response :: <response>)
-  let record :: <database-record> = get-edit-record(request);
-  let slots = slot-descriptors(object-class(record));
-  let bindings = make(<string-table>); // maps form input name to parsed value
-  let field-name = #f;
-  let field-value = #f;
-  block ()
-    // Update the record with values from the page.
-    for (slot in slots)
-      field-name := slot-column-name(slot);
-      field-value := get-form-value(field-name, as: slot-type(slot));
-      if (field-value)
-        validate-record-field(page, record, slot, field-value);
-        let f = slot-setter(slot);
-        // ---TODO: determine whether any slots changed.  If not, no need to save the record.
-        if (f)
-          log-debug("record posted: Setting %= to %=", field-name, field-value);
-          f(field-value, record);
-        else
-          log-debug("record posted: No setter found for %=.  Value was %=.", field-name, field-value);
-        end;
-      else
-        /* ---TODO
-        if (slot-required?(slot))
-          throw(<missing-required-field>, name: field-name)
-        end;
-        */
-      end;
-    end;
-    save-record(record);
-    // ---TODO: capitalize the pretty name.  add methods for capitalizing
-    //          strings to the strings library.
-    note-form-message("%s updated.", record-pretty-name(record));
-    remove-attribute(get-session(request), $edit-record-key);     // clean up session
-    return-to-origin(request, response);
-  exception (err :: <invalid-form-field-exception>)
-    note-form-error("Error while processing the %= field.  %=",
-                    field-name, err);
-    next-method();
-  end;
-end;
-
-define taglib btrack ()
+define class <btrack-record-page> (<require-login-mixin>, <edit-record-page>, <btrack-page>)
 end;
 
 define page home-page (<btrack-page>)
@@ -147,7 +36,7 @@ define page list-browsers-page (<btrack-page>)
      source: document-location("dsp/list-browsers.dsp"))
 end;
 
-define page edit-browser-page (<edit-record-page>)
+define page edit-browser-page (<btrack-record-page>)
     (url: "/edit-browser.dsp",
      source: document-location("dsp/edit-browser.dsp"))
 end;
@@ -157,17 +46,17 @@ define page list-products-page (<btrack-page>)
      source: document-location("dsp/list-products.dsp"))
 end;
 
-define page edit-product-page (<edit-record-page>)
+define page edit-product-page (<btrack-record-page>)
     (url: "/edit-product.dsp",
      source: document-location("dsp/edit-product.dsp"))
 end;
 
-define page edit-module-page (<edit-record-page>)
+define page edit-module-page (<btrack-record-page>)
     (url: "/edit-module.dsp",
      source: document-location("dsp/edit-module.dsp"))
 end;
 
-define page edit-version-page (<edit-record-page>)
+define page edit-version-page (<btrack-record-page>)
     (url: "/edit-version.dsp",
      source: document-location("dsp/edit-version.dsp"))
 end;
@@ -182,7 +71,7 @@ define page list-operating-systems-page (<btrack-page>)
      source: document-location("dsp/list-operating-systems.dsp"))
 end;
 
-define page edit-operating-system-page (<edit-record-page>)
+define page edit-operating-system-page (<btrack-record-page>)
     (url: "/edit-operating-system.dsp",
      source: document-location("dsp/edit-operating-system.dsp"))
 end;
@@ -192,7 +81,7 @@ define page list-platforms-page (<btrack-page>)
      source: document-location("dsp/list-platforms.dsp"))
 end;
 
-define page edit-platform-page (<edit-record-page>)
+define page edit-platform-page (<btrack-record-page>)
     (url: "/edit-platform.dsp",
      source: document-location("dsp/edit-platform.dsp"))
 end;
@@ -202,7 +91,7 @@ define page list-bugs-page (<btrack-page>)
      source: document-location("dsp/list-bugs.dsp"))
 end;
 
-define page edit-bug-page (<edit-record-page>)
+define page edit-bug-page (<btrack-record-page>)
     (url: "/edit-bug.dsp",
      source: document-location("dsp/edit-bug.dsp"))
 end;
@@ -216,40 +105,6 @@ define tag show-name in btrack
                  otherwise => current-row() | *record*;
                end;
   format(output-stream(response), "%s", name(record));
-end;
-
-define tag show-id in btrack
-    (page :: <btrack-page>, response :: <response>)
-    (key)
-  let record = select (key by \=)
-                 "row"     => current-row();
-                 "record"  => *record*;
-                 otherwise => current-row() | *record*;
-               end;
-  format(output-stream(response), "%s", record-id(record));
-end;
-
-define tag show-hidden-fields in btrack
-    (page :: <btrack-page>, response :: <response>)
-    ()
-  display-hidden-fields(page, output-stream(response));
-end;
-
-// Methods on display-hidden-fields can call this.
-//
-define function display-hidden-field
-    (stream :: <stream>, name :: <string>, value :: <object>)
-  format(stream, "<input type='hidden' name='%s' value='%s'>", name, value);
-end;
-
-// Pass along the 'origin' query value.
-//
-define method display-hidden-fields
-    (page :: <btrack-page>, stream :: <stream>)
-  bind (origin = get-query-value("origin"))
-    iff(origin,
-        display-hidden-field(stream, "origin", origin));
-  end;
 end;
 
 // This should always end in a slash.
@@ -268,97 +123,11 @@ define tag show-image in btrack
          "<img src='%s%s'>", *image-directory*, name | *missing-image-name*)
 end;
 
-define tag show-record-id in btrack
-    (page :: <btrack-page>, response :: <response>)
-    ()
-  format(output-stream(response), "%d", record-id(current-row()));
-end;  
-
-
 define tag show-owner in btrack
     (page :: <btrack-page>, response :: <response>)
     ()
   format(output-stream(response), "%s", name(owner(current-row() | *record*)));
 end;  
-
-// A simple error reporting mechanism.  Store errors in the page context
-// so they can be displayed when the next page is generated.  The idea is
-// that pages should use the <dsp:show-errors/> tag if they can be
-// the target of a POST that might generate errors.
-
-// ---TODO: Separate messages from errors and display them distinctly.
-
-define method note-form-error
-    (message :: <string>, #rest args)
-  note-form-error(list(message, copy-sequence(args)));
-end;
-
-define method note-form-message
-    (message :: <string>, #rest args)
-  apply(note-form-error, message, args)
-end;
-
-// This shows the use of <page-context> to store the form errors since they
-// only need to be accessible during the processing of one page.
-//
-define method note-form-error
-    (error :: <sequence>, #rest args)
-  let context :: <page-context> = page-context();
-  let errors = get-attribute(context, #"errors") | make(<stretchy-vector>);
-  add!(errors, error);
-  set-attribute(context, #"errors", errors);
-end;
-
-define tag show-messages in btrack
-    (page :: <btrack-page>, response :: <response>)
-    ()
-  let errors = get-attribute(page-context(), #"errors");
-  when (errors)
-    let out = output-stream(response);
-    format(out, "<FONT color='red'>Please fix the following errors:<P>\n<UL>\n");
-    for (err in errors)
-      // this is pretty consy
-      format(out, "<LI>%s\n",
-             apply(format-to-string, first(err), second(err)));
-    end;
-    format(out, "</UL></FONT>\n");
-  end;
-end;
-
-
-
-// Called to validate each input field in an <edit-record-page> HTML form.
-// Methods should throw <invalid-form-field-exception> if the input is invalid.
-//
-define generic validate-record-field (page :: <edit-record-page>,
-                                      record :: <database-record>,
-                                      slot :: <slot-descriptor>,
-                                      value :: <object>);
-
-define method validate-record-field (page :: <edit-record-page>,
-                                     record :: <database-record>,
-                                     slot :: <slot-descriptor>,
-                                     input)
-  // do nothing
-end;
-
-
-
-
-// ---TODO:
-// Eventually these should be distinguished from other form errors so that
-// they can be displayed differently.  e.g., by highlighting the cell containing
-// the input field that got an error.
-//
-define method note-field-error
-    (field-name :: <string>, msg :: <string>, #rest args)
-  apply(note-form-error, concatenate(field-name, ": ", msg), args);
-
-  // ---TODO: This shouldn't really signal an error since eventually it should
-  //          validate all form fields and report all problems at once.
-  signal(make(<invalid-form-field-exception>,
-              format-string: "Invalid form field."));
-end;
 
 
 ////
@@ -399,6 +168,12 @@ define page login-page (<btrack-page>)
      source: document-location("dsp/login.dsp"))
 end;
 
+// Key used to store the target page into the session when temporarily redirecting
+// to another page (e.g., to the login page).
+//
+define constant $target-page-key = #"bt.target-page";
+
+
 define method force-login (target-page :: <btrack-page>,
                            request :: <request>,
                            response :: <response>)
@@ -413,20 +188,25 @@ end;
 define method respond-to-post (page :: <login-page>,
                                request :: <request>,
                                response :: <response>)
+  debug-message("respond-to-post <login-page>");
   let username = get-form-value("username");
   let password = get-form-value("password");
   let username-supplied? = username & username ~= "";
   let password-supplied? = password & password ~= "";
   if (username-supplied? & password-supplied?)
+    debug-message("respond-to-post: got uname and pwd");
     let account = load-account-named(username, password: password);
     if (account)
       let session = get-session(request);
       set-attribute(session, $current-account-key, account);
+      debug-message("calling respond-to-get on %=",
+                    get-attribute(session, $target-page-key) | *home-page*);
       respond-to-get(get-attribute(session, $target-page-key) | *home-page*,
                      request,
                      response);
     else
       note-form-error("Login incorrect.  Please try again.");
+      debug-message("calling respond-to-get <login-page>");
       respond-to-get(*login-page*, request, response);
     end;
   else
@@ -435,6 +215,7 @@ define method respond-to-post (page :: <login-page>,
     // If we're redirecting to another page should the query/form values
     // be cleared first?  Probably want to call process-page instead,
     // but with the existing request?
+    debug-message("calling respond-to-get <login-page>");
     respond-to-get(*login-page*, request, response);
   end;
 end;
@@ -449,8 +230,25 @@ define method respond-to-get (page :: <logout-page>,
                               response :: <response>)
   let session = get-session(request);
   remove-attribute(session, $current-account-key);
-  note-form-error("You are logged out.");
+  note-form-message("You have been logged out.");
   respond-to-get(*home-page*, request, response);
+end;
+
+define method respond-to-get-edit-record (page :: <require-login-mixin>,
+                                          request :: <request>,
+                                          response :: <response>,
+                                          record :: <database-record>)
+  iff(logged-in?(page, request),
+      next-method(),
+      force-login(page, request, response));
+end;
+
+define tag show-login-or-logout in btrack
+    (page, response) ()
+  let out = output-stream(response);
+  format(out, iff(logged-in?(page, get-request(response)),
+                  "<a href='logout.dsp'>Logout</a>",
+                  "<a href='login.dsp'>Login</a>"));
 end;
 
 // Show the password for the current edit record only.
@@ -461,17 +259,6 @@ define tag show-password in btrack
   let account = get-edit-record(get-request(response));
   let password = instance?(account, <account>) & password(account);
   password & write(output-stream(response), password);
-end;
-
-// ---TODO: Define a tag to replace the HTML <input> tag, that will automatically take
-//          care of defaulting the value correctly if the form is redisplayed due to
-//          error, and will display the input tag in a different background color.
-//
-define tag show-query-value in btrack
-    (page :: <btrack-page>, response :: <response>)
-    (name :: <string>)
-  let qv = get-query-value(name);
-  qv & write(output-stream(response), qv);
 end;
 
 ////
@@ -578,6 +365,8 @@ define tag show-reported-by in btrack
 end;
 
 
+// ---TODO: Move option menus into DSP?
+
 define macro option-menu-definer
   { define option-menu ?:name ?menu:expression; ?accessor:expression; end }
   => {  define tag ?name in btrack
@@ -643,6 +432,73 @@ define option-menu show-status-options
     make(<option-menu>,
          generator: method () range(from: 0, to: 5) end);
     status;
+end;
+
+
+define method load-account
+    (id :: <integer>) => (account :: false-or(<account>))
+  load-record(<account>, id)
+end;
+
+define method load-account
+    (query :: <string>) => (account :: false-or(<account>))
+  load-record(<account>, query)
+end;
+
+define method load-account-named
+    (name :: <string>, #key password) => (account :: false-or(<account>))
+  assert(size(name) > 0,
+         "Attempt to load an account by name using the empty string as the name.");
+  let query
+    = iff(password,
+          format-to-string("select * from tbl_account where name = '%s' and password = '%s'",
+                           name, password),
+          format-to-string("select * from tbl_account where name = '%s'",
+                           name));
+  load-record(<account>, query)
+end;
+
+
+define page list-accounts-page (<btrack-page>)
+    (url: "/list-accounts.dsp",
+     source: document-location("dsp/list-accounts.dsp"))
+end;
+
+define page edit-account-page (<btrack-record-page>)
+    (url: "/edit-account.dsp",
+     source: document-location("dsp/edit-account.dsp"))
+end;
+
+define method validate-record-field
+    (page :: <edit-account-page>, account :: <account>, slot :: <slot-descriptor>, input)
+  let column-name = slot-column-name(slot);
+  select (column-name by \=)
+    "password", "username" =>
+      input.size < 4
+        & note-field-error(column-name, "Must be at least 4 characters long.");
+    otherwise => ;
+  end;
+end;
+
+define named-method list-accounts in btrack
+    (page)
+  load-records(<account>, "select * from tbl_account")
+end;
+
+define tag show-email-address in btrack
+    (page :: <btrack-page>, response :: <response>)
+    ()
+  format(output-stream(response), "%s", email-address(current-row() | *record*));
+end;
+
+define tag show-current-username in btrack
+    (page :: <btrack-page>, response :: <response>)
+    ()
+  let account = current-account(response);
+  let out = output-stream(response);
+  iff(account,
+      format(out, "Logged in as %s", name(account)),
+      format(out, "(not logged in)"));
 end;
 
 

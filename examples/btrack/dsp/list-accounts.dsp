@@ -9,7 +9,7 @@
 
 <center><h1>Manage Accounts</h1></center>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <a href="edit-account.dsp?id=new&type=account&origin=/list-accounts.dsp">Click here to create a new account.</a>
 <br>Click any account name to edit that account.
@@ -24,7 +24,7 @@
   </dsp:hrow>
   <dsp:row>
     <dsp:cell><dsp:row-number/></dsp:cell>
-    <dsp:cell><a href="edit-account.dsp?id=<bt:show-id/>&type=account&origin=/list-accounts.dsp"><bt:show-name/></a></dsp:cell>
+    <dsp:cell><a href="edit-account.dsp?id=<dsp:show-id/>&type=account&origin=/list-accounts.dsp"><bt:show-name/></a></dsp:cell>
     <dsp:cell><bt:show-email-address/></dsp:cell>
   </dsp:row>
   <dsp:no-rows>

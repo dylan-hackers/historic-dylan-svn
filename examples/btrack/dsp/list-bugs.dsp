@@ -9,7 +9,7 @@
 
 <center><h1>Bug Report List</h1></center>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <a href="edit-bug.dsp?id=new&type=bug-report&origin=/list-bugs.dsp">Click here to create a new bug report.</a>
 <br>Click any bug report to edit that bug.
@@ -21,7 +21,7 @@
     <dsp:hcell>Bug#</dsp:hcell>
     <dsp:hcell>Priority</dsp:hcell>
     <dsp:hcell>Severity</dsp:hcell>
-    <dsp:hcell>Reported By</dsp:hcell>
+    <dsp:hcell nowrap>Reported By</dsp:hcell>
     <dsp:hcell>Product</dsp:hcell>
     <dsp:hcell>Module</dsp:hcell>
     <dsp:hcell>Synopsis</dsp:hcell>
@@ -36,7 +36,7 @@
     <dsp:cell width="5%" align="center"><bt:show-reported-by/></dsp:cell>
     <dsp:cell width="5%" align="center"><bt:show-product/></dsp:cell>
     <dsp:cell width="5%" align="center"><bt:show-module/></dsp:cell>
-    <dsp:cell width="79%"><a href="edit-bug.dsp?id=<bt:show-id/>&type=bug-report"><bt:show-synopsis/></a></dsp:cell>
+    <dsp:cell width="79%"><a href="edit-bug.dsp?id=<dsp:show-id/>&type=bug-report"><bt:show-synopsis/></a></dsp:cell>
   </dsp:row>
 </dsp:table>
 

@@ -11,10 +11,10 @@
 
 <center><h1>Edit Bug Report</h1></center>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <form name="newBugForm" method="post" action="edit-bug.dsp">
-  <bt:show-hidden-fields/>
+  <dsp:show-hidden-fields/>
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>

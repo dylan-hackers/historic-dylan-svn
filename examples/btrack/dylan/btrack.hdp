@@ -3,11 +3,8 @@ format-version:	2
 library:	btrack
 files:	library
 	utils
-	database
-	records
+	recs
 	pages
-	accounts
-	bugs
 	main
 subprojects:	..\..\..\koala\sources\koala\koala.hdp
 	..\..\..\koala\sources\dylan-basics\dylan-basics.hdp

@@ -7,20 +7,20 @@
 
 <%dsp:include url="header.dsp"/>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <h1>Please Login:</h1>
 
 <form name="loginForm" method="post" action="login.dsp">
-  <bt:show-hidden-fields/>
+  <dsp:show-hidden-fields/>
   <table border="0">
     <tr>
       <td align="right">Username:</td>
-      <td><input type="text" name="username" value="" size="20"><bt:show-query-value name="username"/></td>
+      <td><input type="text" name="username" value="<dsp:show-query-value name='username'/>" size="20"></td>
     </tr>
     <tr>
       <td align="right">Password:</td>
-      <td><input type="password" name="password" value="" size="20"></td>
+      <td><input type="password" name="password" value="<dsp:show-query-value name='password'/>" size="20"></td>
     </tr>
     <tr>
       <td colspan="2" align="right">

@@ -9,7 +9,7 @@
 
 <center><h1>Manage Operating Systems</h1></center>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <a href="edit-operating-system.dsp?id=new&type=operating-system&origin=/list-operating-systems.dsp">Click
  here to create a new operating system.</a>
@@ -27,7 +27,7 @@
   </dsp:no-rows>
   <dsp:row>
     <dsp:cell><dsp:row-number/></dsp:cell>
-    <dsp:cell><a href="edit-operating-system.dsp?id=<bt:show-id/>&type=operating-system"><bt:show-name/></a></dsp:cell>
+    <dsp:cell><a href="edit-operating-system.dsp?id=<dsp:show-id/>&type=operating-system"><bt:show-name/></a></dsp:cell>
   </dsp:row>
 </dsp:table>
 

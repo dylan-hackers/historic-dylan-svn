@@ -13,7 +13,7 @@ end;
 define module btrack
   use common-dylan;
   use date;
-  use format;
+  use format, rename: { format-to-string => sformat };
   use streams;
   use threads;
   use sql-odbc,

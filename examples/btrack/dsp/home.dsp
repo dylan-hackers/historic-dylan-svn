@@ -9,7 +9,7 @@
 
 <center> <h1>Welcome to Bug Tracker</h1> </center>
 
-<p> <bt:show-messages/>
+<p> <dsp:show-form-notes/>
 
 <center>
   <bt:show-image name="bug.gif" />

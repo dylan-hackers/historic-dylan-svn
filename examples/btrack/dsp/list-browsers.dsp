@@ -9,7 +9,7 @@
 
 <center><h1>Manage Browsers</h1></center>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <a href="edit-browser.dsp?id=new&type=browser&origin=/list-browsers.dsp">Click here to create a new browser.</a>
 <br>Click any browser name to edit that browser.
@@ -26,7 +26,7 @@
   </dsp:no-rows>
   <dsp:row>
     <dsp:cell><dsp:row-number/></dsp:cell>
-    <dsp:cell><a href="edit-browser.dsp?id=<bt:show-id/>&type=browser"><bt:show-name/></a></dsp:cell>
+    <dsp:cell><a href="edit-browser.dsp?id=<dsp:show-id/>&type=browser"><bt:show-name/></a></dsp:cell>
   </dsp:row>
 </dsp:table>
 

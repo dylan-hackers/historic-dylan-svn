@@ -7,12 +7,12 @@
 
 <%dsp:include url="header.dsp"/>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <center><h1>Edit Account</h1></center>
 
 <form name="editAccountForm" method="post" action="edit-account.dsp">
-  <bt:show-hidden-fields/>
+  <dsp:show-hidden-fields/>
   <table border="0">
     <tr>
       <td width="5%">&nbsp;</td>

@@ -7,7 +7,7 @@
 
 <%dsp:include url="header.dsp"/>
 
-<bt:show-messages/>
+<dsp:show-form-notes/>
 
 <center><h1>Edit Operating System</h1></center>
 
