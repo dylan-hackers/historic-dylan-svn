@@ -2,25 +2,32 @@
 # Configuration variables
 #
 
-CC ?= gcc ;
+CC	?= gcc ;
 
-MKF ?= dylanmakefile.mkf ;
+MKF	?= dylanmakefile.mkf ;
 
-SUFOBJ ?= .o ;			# object files suffix
-SUFASM ?= .s ;			# assembly source files suffix
-SUFLIB ?= .a ;			# static library suffix
-SUFDLL ?= .so ;			# shared library suffix
+SUFOBJ	?= .o ;			# object files suffix
+SUFASM	?= .s ;			# assembly source files suffix
+SUFLIB	?= .a ;			# static library suffix
+SUFDLL	?= .so ;		# shared library suffix
+SUFMKF	?= .mkf ;               # build-system files
 
-# SYSTEM_ROOT is set by the build-system
-SYSTEM_LIBDIR ?= $(SYSTEM_ROOT)/lib ;
-SYSTEM_BINDIR ?= $(SYSTEM_ROOT)/bin ;
+{
+  local _lib = lib ;
+  local _bin = bin ;
 
-# PERSONAL_ROOT is set by the build-system
-PERSONAL_LIBDIR ?= $(PERSONAL_ROOT)/lib ;
-PERSONAL_BINDIR ?= $(PERSONAL_ROOT)/bin ;
+  # SYSTEM_ROOT is set by the build-system
+  SYSTEM_LIBDIR ?= $(_lib:P=$(SYSTEM_ROOT)) ;
+  SYSTEM_BINDIR ?= $(_bin:P=$(SYSTEM_ROOT)) ;
 
-LINKFLAGS ?= -L$(PERSONAL_LIBDIR) -L$(SYSTEM_LIBDIR) ;
-RPATH ?= $(PERSONAL_LIBDIR):$(SYSTEM_LIBDIR) ;
+  # PERSONAL_ROOT is set by the build-system
+  PERSONAL_LIBDIR ?= $(_lib:P=$(PERSONAL_ROOT)) ;
+  PERSONAL_BINDIR ?= $(_bin:P=$(PERSONAL_ROOT)) ;
+
+  # . is set by the build system
+  LIBDIR ?= $(_lib:P=$(PERSONAL_ROOT:E=$(.:P))) ;
+  BINDIR ?= $(_bin:P=$(PERSONAL_ROOT:E=$(.:P))) ;
+}
 
 LINKSCRIPTDLL ?= $(SYSTEM_LIBDIR)/dylan-elf-dll.script ;
 LINKSCRIPTEXE ?= $(SYSTEM_LIBDIR)/dylan-elf-exe.script ;
@@ -35,8 +42,7 @@ RTOBJS ?= runtime.o
 	  linux-spy-interfaces.o
 	  linux-support.o ;
 
-rtlibs ?= $(PERSONAL_LIBDIR)/runtime/$(RTOBJS)
-	  -lmmdw -lmpsplan -lpthread -ldl ;
+rtlibs ?= $(LIBDIR)/runtime/$(RTOBJS) -lmmdw -lmpsplan -lpthread -ldl ;
 
 guilflags ?= ;
 
@@ -66,22 +72,40 @@ rule DylanLibrary image : version {
 
   # Link a Dylan library as a shared library or executable image.
 
+  local _dll = [ FDLLName $(image) ] ;
+  local _exe = [ FEXEName $(image) ] ;
+
+  # Here we save the name and search directory of the DLL for this library.
+  
+  _dll_$(image[1]:L) = $(_dll) ;
+  if ! $(SYSTEM) && ! $(PERSONAL_ROOT) {
+    _dir_$(image[1]:L) = $(LIBDIR) ;
+  }
+
+  # Shared libraries and executable images
+
+  MakeLocate $(_dll) : $(LIBDIR) ;
+  MakeLocate $(_exe) : $(BINDIR) ;
+
+  # Initial library search path
+  
+  LIBPATH on $(_dll) = $(PERSONAL_LIBDIR) $(SYSTEM_LIBDIR) ;
+  LIBPATH on $(_exe) = $(PERSONAL_LIBDIR:E=$(LIBDIR)) $(SYSTEM_LIBDIR) ;
+
   # We'll use the library name as the grist to identify referenced
   # source and object files.
   
   SOURCE_GRIST = $(image[1]:L) ;
 
-  local _dll = [ FDLLName $(image) ] ;
-  local _exe = [ FEXEName $(image) ] ;
+  # Save the current dylanmakefile.mkf for reference by other libraries
+  # in the event that it later becomes a system library.
 
-  # Here we save the name of the DLL for this library.
-  
-  _dll_$(image[1]:L) = $(_dll) ;
-
-  # Shared libraries and executable images
-
-  MakeLocate $(_dll) : $(PERSONAL_LIBDIR) ;
-  MakeLocate $(_exe) : $(PERSONAL_BINDIR) ;
+  local _mkf = $(image[1]:LS=$(SUFMKF)) ;
+  MakeLocate $(_mkf) : $(LIBDIR) ;
+  if ! $(SYSTEM) {
+    File $(_mkf) : [ FGristFiles $(MKF) ] ;
+    Depends $(_dll) : $(_mkf) ;
+  }
 
   # The executable depends only on _main.o and the DLL.
 
@@ -100,9 +124,9 @@ rule DylanLibrary image : version {
     Depends dll : $(_dll) ;
     Depends exe : $(_exe) ;
 
-    Clean clean : $(_dll) $(_exe) $(_obj) $(_asm) ;
+    Clean clean : $(_dll) $(_exe) $(_mkf) $(_obj) $(_asm) ;
   }
-  Clean clean-all : $(_dll) $(_exe) $(_obj) $(_asm) ;
+  Clean clean-all : $(_dll) $(_exe) $(_mkf) $(_obj) $(_asm) ;
 
   # Mark the library version
 
@@ -115,20 +139,21 @@ rule DylanLibraryFiles image : files {
   #Echo DylanLibraryFiles $(image) ":" $(files) ;
 
   # Link Dylan-derived object files into the resulting shared library.
-  
-  local _dll = [ FDLLName $(image) ] ;
+  if ! $(SYSTEM) {
+    local _dll = [ FDLLName $(image) ] ;
+    
+    local _obj = [ FGristFiles _glue$(SUFOBJ) $(files:S=$(SUFOBJ)) ] ;
+    local _asm = [ FGristFiles _glue$(SUFASM) $(files:S=$(SUFASM)) ] ;
+    local _el  = [ FGristFiles $(files:S=.el) ] ;
+    SEARCH on $(_obj) $(_asm) $(_el) = $(SEARCH_SOURCE) ;
 
-  local _obj = [ FGristFiles _glue$(SUFOBJ) $(files:S=$(SUFOBJ)) ] ;
-  local _asm = [ FGristFiles _glue$(SUFASM) $(files:S=$(SUFASM)) ] ;
-  local _el  = [ FGristFiles $(files:S=.el) ] ;
-  SEARCH on $(_obj) $(_asm) $(_el) = $(SEARCH_SOURCE) ;
+    if ! $(PARENT) {
+      Clean clean : $(_obj) $(_asm) $(_el) ;
+    }
+    Clean clean-all : $(_obj) $(_asm) $(_el) ;
 
-  if ! $(PARENT) {
-    Clean clean : $(_obj) $(_asm) $(_el) ;
+    LinkDLL $(_dll) : $(_obj) ;
   }
-  Clean clean-all : $(_obj) $(_asm) $(_el) ;
-
-  LinkDLL $(_dll) : $(_obj) ;
 }
 
 rule DylanLibraryLinkerOptions image : options {
@@ -181,10 +206,11 @@ rule DylanLibraryCObjects image : objects {
   #Echo DylanLibraryCObjects $(image) ":" $(objects) ;
 
   # Link C (or other externally-derived) object files into the shared library.
-  
-  local _dll = [ FDLLName $(image) ] ;
-  SEARCH on $(objects) = $(SEARCH_SOURCE) ;
-  LinkDLL $(_dll) : $(objects) ;
+    if ! $(SYSTEM) {
+      local _dll = [ FDLLName $(image) ] ;
+      SEARCH on $(objects) = $(SEARCH_SOURCE) ;
+      LinkDLL $(_dll) : $(objects) ;
+    }
 }
 
 rule DylanLibraryCSources image : sources {
@@ -202,8 +228,6 @@ rule DylanLibraryCHeaders image : headers {
 
   # Mark the shared library as depending on the given header files.
   # TODO: The original build-system didn't do anything with this either.
-
-  Echo Ignoring DylanLibraryCHeaders $(image) ":" $(headers) ;
 }
 
 rule DylanLibraryRCFiles image : rcfiles {
@@ -226,37 +250,63 @@ rule DylanLibraryUses image : library : dir {
   #Echo DylanLibraryUses $(image) ":" $(library) ":" $(dir) ;
 
   # Link other Dylan libraries into the shared library.
-  
-  local _dll = [ FDLLName $(image) ] ;
 
-  LINKLIBS on $(_dll) += -l$(library:L) ;
-
-  if $(_dll_$(library)) {
-    # We already know the DLL name; add the dependency.
-    
-    Depends $(_dll) : $(_dll_$(library:L)) ;
-  } else if $(dir) = system {
-    # This is a system library; guess at the DLL name.
-    # TODO: read $(SYSTEM_LIBDIR)/$(library).mkf
-    
-    local _system_dll = [ FDLLName $(library) ] ;
-    MakeLocate $(_system_dll) : $(SYSTEM_LIBDIR) ;
-    Depends $(_dll) : $(_system_dll) ;
-  } else {
-    # Another personal library; read its mkf.
-    
+  if ! $(_dll_$(library:L)) {
     local PARENT = $(image[1]:L) ;
 
-    local SEARCH_SOURCE LOCATE_SOURCE LOCATE_TARGET = $(dir) ;
-    local SOURCE_GRIST ;
+    if $(dir) = system || $(SYSTEM) {
+      # This is a system library; read $(SYSTEM_LIBDIR)/$(library:L).mkf
 
-    local _mkf = $(MKF:G=$(library:L)) ;
-    SEARCH on $(_mkf) ?= $(SEARCH_SOURCE) ;
-    IncludeMKF $(_mkf) ;
+      local SYSTEM = true ;
+      local LIBDIR = $(SYSTEM_LIBDIR) ;
+      local BINDIR = $(SYSTEM_BINDIR) ;
+      
+      local SEARCH_SOURCE LOCATE_SOURCE LOCATE_TARGET = $(SYSTEM_LIBDIR) ;
+      local SOURCE_GRIST ;
+      
+      local _mkf = $(library:LS=$(SUFMKF)) ;
+      SEARCH on $(_mkf) ?= $(SYSTEM_LIBDIR) ;
+      IncludeMKF $(_mkf) ;
+    } else {
+      # Another personal library; read its mkf from its build directory.
+	
+      local SEARCH_SOURCE LOCATE_SOURCE LOCATE_TARGET
+        = $(dir:R=$(LOCATE_TARGET:E=$(DOT))) ;
+      local SOURCE_GRIST ;
 
-    # Now that we know the DLL name of $(library), add the dependency.
+      local LIBDIR BINDIR ;
+      {
+	local _lib = lib ;
+	local _bin = bin ;
 
-    Depends $(_dll) : $(_dll_$(library:L)) ;
+	LIBDIR = $(_lib:P=$(PERSONAL_ROOT:E=$(LOCATE_TARGET:P))) ;
+	BINDIR = $(_bin:P=$(PERSONAL_ROOT:E=$(LOCATE_TARGET:P))) ;
+      }
+
+      local _mkf = $(MKF:G=$(library:L)) ;
+      SEARCH on $(_mkf) ?= $(SEARCH_SOURCE) ;
+      IncludeMKF $(_mkf) ;
+    }
+  }
+
+  DylanLibraryClosure $(image) : $(library:L) ;
+}
+
+rule DylanLibraryClosure image : libraries {
+  local _dll = [ FDLLName $(image) ] ;
+  local _exe = [ FEXEName $(image) ] ;
+
+  local _i ;
+  for _i in $(libraries) {
+    if ! $(_i) in $(_use_$(image[1]:L)) {
+      _use_$(image[1]:L) += $(_i) ;
+      Depends $(_dll) $(_exe) : $(_dll_$(_i)) ;
+      LINKLIBS on $(_dll) $(_exe) += -l$(_i) ;
+
+      LIBPATH on $(_dll) $(_exe) += $(_dir_$(_i)) ;
+
+      DylanLibraryClosure $(image) : $(_use_$(_i)) ;
+    }
   }
 }
 
@@ -269,7 +319,7 @@ rule LinkDLL {
 }
 
 actions together LinkDLL bind NEEDLIBS {
-  $(CC) -shared -o $(<) -T $(LINKSCRIPTDLL) $(LINKFLAGS) $(>) $(NEEDLIBS) $(LINKLIBS)
+  $(CC) -shared -o $(<) -T $(LINKSCRIPTDLL) $(LINKFLAGS) $(>) -L"$(LIBPATH)" $(NEEDLIBS) $(LINKLIBS)
 }
 
 rule LinkEXE {
@@ -277,7 +327,7 @@ rule LinkEXE {
 }
 
 actions LinkEXE bind NEEDLIBS {
-  $(CC) -o $(<) -T $(LINKSCRIPTEXE) -Wl,-rpath,$(RPATH) $(LINKFLAGS) $(>) $(NEEDLIBS) $(LINKLIBS)
+  $(CC) -o $(<) -T $(LINKSCRIPTEXE) -Wl,-rpath,"$(LIBPATH:J=:)" $(LINKFLAGS) $(>) -L"$(LIBPATH)" $(NEEDLIBS) $(LINKLIBS)
 }
 
 #

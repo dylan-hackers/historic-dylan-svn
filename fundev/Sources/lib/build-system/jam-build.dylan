@@ -83,10 +83,6 @@ define function make-jam-state
      #key progress-callback :: <function> = ignore,
           build-directory :: <directory-locator>)
  => (jam :: <jam-state>);
-  let personal-root
-    = $personal-install
-    | build-directory.locator-directory;
-  
   // Ensure that the build-script hasn't been modified, and that the
   // working directory hasn't changed, and that SYSTEM_ROOT and
   // PERSONAL_ROOT are still valid
@@ -94,12 +90,17 @@ define function make-jam-state
         & file-property(build-script, #"modification-date")
             = *cached-build-script-date*
         & *cached-jam-state*
+        & as(<directory-locator>, jam-variable(*cached-jam-state*, ".")[0])
+            = build-directory
         & as(<directory-locator>,
              jam-variable(*cached-jam-state*, "SYSTEM_ROOT")[0])
             = $system-install
-        & as(<directory-locator>,
-             jam-variable(*cached-jam-state*, "PERSONAL_ROOT")[0])
-            = personal-root)
+        & begin
+            let root = jam-variable(*cached-jam-state*, "PERSONAL_ROOT");
+            let root-locator = ~root.empty? & as(<directory-locator>, root[0]);
+            root-locator = $personal-install
+          end)
+    
     jam-state-copy(*cached-jam-state*)
   else
     let state = make(<jam-state>);
@@ -164,10 +165,14 @@ define function make-jam-state
     jam-rule(state, "DFMCMangle")
       := jam-mangle;
 
+    jam-variable(state, ".")
+      := vector(as(<string>, build-directory));
     jam-variable(state, "SYSTEM_ROOT")
       := vector(as(<string>, $system-install));
-    jam-variable(state, "PERSONAL_ROOT")
-      := vector(as(<string>, personal-root));
+    if ($personal-install)
+      jam-variable(state, "PERSONAL_ROOT")
+        := vector(as(<string>, $personal-install));
+    end if;
 
     jam-read-file(state, build-script);
 
