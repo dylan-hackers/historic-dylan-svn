@@ -21,8 +21,8 @@
 </div>
 <a name="heading208-0"></a>
 <h1>13.7   The <code>time-library</code> file</h1>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>time-library</code> file: <code>time-library.dylan</code>. </p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>time-library</code> file: <code>time-library.dylan</code>. </p>
 </th></tr><tr valign="top"><td><pre>
 Module: dylan-user
 <em>// Library definition
@@ -59,8 +59,8 @@ end module sixty-unit;
   use dylan;
 end module time-implementation;
 </pre></td></tr></table>
-<p> </p>
-<p> Because every file has to name the module to which its source records belong, you might wonder where to start. Every library implicitly defines a <code>dylan-user</code> module for this purpose. The <code>dylan-user</code> module imports all of the <code>dylan</code> module, so any Dylan definition can be used. You can think of <a name="marker-2-650"></a><code>dylan-user</code> as being a scratch version of <a name="marker-2-651"></a><code>dylan</code>. Each library has a private copy of <code>dylan-user</code>, so there is no concern that definitions in one library's <code>dylan-user</code> could be confused with those of another.</p>
+<p></p>
+<p>Because every file has to name the module to which its source records belong, you might wonder where to start. Every library implicitly defines a <code>dylan-user</code> module for this purpose. The <code>dylan-user</code> module imports all of the <code>dylan</code> module, so any Dylan definition can be used. You can think of <a name="marker-2-650"></a><code>dylan-user</code> as being a scratch version of <a name="marker-2-651"></a><code>dylan</code>. Each library has a private copy of <code>dylan-user</code>, so there is no concern that definitions in one library's <code>dylan-user</code> could be confused with those of another.</p>
 <p>The purposes of the library file are to communicate to the Dylan compiler the structure of the module namespaces, to state which other libraries to search for the modules that are used in the implementation of this library, and to determine which modules implemented by this library are visible to other libraries (and programs) that use this library. The details of how these tasks are done depend on the implementation, but each environment will provide a mechanism for reading library and module definitions, either directly from an interchange file, or after conversion of the interchange file to an implementation-dependent format.</p>
 
 </div>

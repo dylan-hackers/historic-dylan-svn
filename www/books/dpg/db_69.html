@@ -21,13 +21,13 @@
 </div>
 <a name="heading69-0"></a>
 <h1>5.2.1   New definitions of the time classes</h1>
-<p> We define the new class <code>&lt;time&gt;</code>: </p>
+<p>We define the new class <code>&lt;time&gt;</code>: </p>
 <pre>
 define class &lt;time&gt; (&lt;object&gt;)
   slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
 end class &lt;time&gt;; 
 </pre>
-<p> We redefine <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code> to inherit from <code>&lt;time&gt;</code>:</p>
+<p>We redefine <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code> to inherit from <code>&lt;time&gt;</code>:</p>
 <pre>
 <em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)
 </em>define class &lt;time-of-day&gt; (&lt;time&gt;)
@@ -36,9 +36,9 @@ end class &lt;time-of-day&gt;;
 </em>define class &lt;time-offset&gt; (&lt;time&gt;)
 end class &lt;time-offset&gt;;
 </pre>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong><a name="marker-2-189"></a>Dynamic feature -- no need to recompile:</strong> In C++, a complete recompile of the program would be necessary to change the superclass of a class. Most Dylan development environments support a mode that requires only that you compile the new class definitions. The difference between compiling only a few class definitions and compiling the whole program can be a time saver for complex applications.</p>
-</td></tr></table><p> </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong><a name="marker-2-189"></a>Dynamic feature -- no need to recompile:</strong> In C++, a complete recompile of the program would be necessary to change the superclass of a class. Most Dylan development environments support a mode that requires only that you compile the new class definitions. The difference between compiling only a few class definitions and compiling the whole program can be a time saver for complex applications.</p>
+</td></tr></table><p></p>
 
 </div>
 

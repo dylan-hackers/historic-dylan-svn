@@ -21,8 +21,8 @@
 </div>
 <a name="heading81-0"></a>
 <h1>5.7   Use of <a name="marker-2-233"></a><code>next-method</code> to call another method</h1>
-<p> Notice that there is duplication of code in the two methods for <code>say</code>, as shown in <a href="db_80.html#marker-9-197">Figure 5.5</a>. Both methods call <code>decode-total-seconds</code> to get the hours and minutes, and call <code>format-out</code> to print the hours and minutes. Both methods print a leading zero for the minutes, if appropriate. These two tasks are all that the method on <code>&lt;time-of-day&gt;</code> does. The method on <code>&lt;time-offset&gt;</code> does a bit more; it prints either <code>minus</code> or <code>plus</code>, depending on the value of the <code>past?</code> slot.</p>
-<p> We can eliminate this duplication by defining another method that does the shared work. This method will be on the <code>&lt;time&gt;</code> class, so it will be applicable to instances of <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code>. The method for <code>&lt;time-of-day&gt;</code> is no longer needed, because the new method does the same work. However, a revised method for <code>&lt;time-offset&gt;</code> is needed, to do the extra work of printing <code>minus</code> or <code>plus</code>, and to call the method on <code>&lt;time&gt;</code>, which is the next most specific method. </p>
+<p>Notice that there is duplication of code in the two methods for <code>say</code>, as shown in <a href="db_80.html#marker-9-197">Figure 5.5</a>. Both methods call <code>decode-total-seconds</code> to get the hours and minutes, and call <code>format-out</code> to print the hours and minutes. Both methods print a leading zero for the minutes, if appropriate. These two tasks are all that the method on <code>&lt;time-of-day&gt;</code> does. The method on <code>&lt;time-offset&gt;</code> does a bit more; it prints either <code>minus</code> or <code>plus</code>, depending on the value of the <code>past?</code> slot.</p>
+<p>We can eliminate this duplication by defining another method that does the shared work. This method will be on the <code>&lt;time&gt;</code> class, so it will be applicable to instances of <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code>. The method for <code>&lt;time-of-day&gt;</code> is no longer needed, because the new method does the same work. However, a revised method for <code>&lt;time-offset&gt;</code> is needed, to do the extra work of printing <code>minus</code> or <code>plus</code>, and to call the method on <code>&lt;time&gt;</code>, which is the next most specific method. </p>
 <p>You can use the <code>next-method</code> function to call the next most specific method. Recall that the result of Dylan's method dispatch procedure is a list of applicable methods, sorted by specificity. When one method calls the <code>next-method</code> function, Dylan consults the list of sorted methods and invokes the next most specific method on the list. (It is an error to call <code>next-method</code> from the least specific method.) </p>
 <p>We remove the definitions of the existing <code>say</code> methods, and define these new methods:</p>
 <pre>
@@ -36,17 +36,17 @@ define method say (time :: &lt;time-offset&gt;)
   next-method();
 end method say;
 </pre>
-<p> We can call <code>say</code>:</p>
+<p>We can call <code>say</code>:</p>
 <pre>
 <em>? </em>say(*my-time-of-day*);
 <em>0:02</em>
 </pre>
-<p> In the preceding call, the argument is of the type <code>&lt;time-of-day&gt;</code>, so the method on <code>&lt;time&gt;</code> is the only applicable method. That method is invoked. </p>
+<p>In the preceding call, the argument is of the type <code>&lt;time-of-day&gt;</code>, so the method on <code>&lt;time&gt;</code> is the only applicable method. That method is invoked. </p>
 <pre>
 <em>? </em>say(*my-time-offset*);
 <em>plus 15:20</em>
 </pre>
-<p> In the preceding call, the argument is of the type <code>&lt;time-offset&gt;</code>, so two methods are applicable. The method on <code>&lt;time-offset&gt;</code> is more specific than is the method on <code>&lt;time&gt;</code>, so the method on <code>&lt;time-offset&gt;</code> is called. That method on <code>&lt;time-offset&gt;</code> prints <code>minus</code> or <code>plus</code>, and calls <code>next-method</code>. The <code>next-method</code> function calls the method on <code>&lt;time&gt;</code>, which prints the hours and minutes. </p>
+<p>In the preceding call, the argument is of the type <code>&lt;time-offset&gt;</code>, so two methods are applicable. The method on <code>&lt;time-offset&gt;</code> is more specific than is the method on <code>&lt;time&gt;</code>, so the method on <code>&lt;time-offset&gt;</code> is called. That method on <code>&lt;time-offset&gt;</code> prints <code>minus</code> or <code>plus</code>, and calls <code>next-method</code>. The <code>next-method</code> function calls the method on <code>&lt;time&gt;</code>, which prints the hours and minutes. </p>
 <p>Using <code>next-method</code> is convenient in cases such as this, where a method on a superclass can do most of the work, but a method on a subclass needs to do additional work.</p>
 <p>When <code>next-method</code> is called with no arguments, as it is in the method on <code>&lt;time-offset&gt;</code>, Dylan calls the next most specific method with the same arguments provided to the method that calls <code>next-method</code>. </p>
 <p>You can provide arguments to <code>next-method</code>. For example, you could provide a keyword argument with a value that each method can manipulate (such as adding a value to a number, or appending an element to a list). If you provide arguments to <code>next-method</code>, the arguments must be compatible with the generic function, as described in <a href="db_179.html#marker-9-529">Section 12.2.5, page 176</a>. In addition, you cannot supply required arguments that have classes different from those of the original required arguments to the generic function, if doing so would have changed the method dispatch in any way. Providing arguments to <code>next-method</code> is an advanced technique; see <a href="db_177.html#marker-9-514">Section 12.2.3, page 172</a>, and <a href="db_264.html#marker-9-710">Section 17.2.2</a>, page <a href="db_264.html#marker-9-702">260</a>.</p>

@@ -21,8 +21,8 @@
 </div>
 <a name="heading220-0"></a>
 <h1>13.9.3   The updated <em>time-library</em> file</h1>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>time-library</code> file: <code>time-library.dylan</code>.  </p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>time-library</code> file: <code>time-library.dylan</code>.  </p>
 </th></tr><tr valign="top"><td><pre>
 Module: dylan-user
 <em>// Library definition
@@ -52,8 +52,8 @@ end module time;
   use dylan;
 end module time-implementation;
 </pre></td></tr></table>
-<p> </p>
-<p> The <code>time</code> module is modified to use <code>say</code>, which it exports to its clients. The <br />implementation module is modified to use <code>say-implementor</code>, which includes <code>format-out</code>, so it would be superfluous to continue to include <code>format-out</code> in <code>time-implementation</code>. Similarly, the <code>time </code>library definition replaces its use of the <code>format-out</code> library with the <code>say</code> library. </p>
+<p></p>
+<p>The <code>time</code> module is modified to use <code>say</code>, which it exports to its clients. The <br />implementation module is modified to use <code>say-implementor</code>, which includes <code>format-out</code>, so it would be superfluous to continue to include <code>format-out</code> in <code>time-implementation</code>. Similarly, the <code>time </code>library definition replaces its use of the <code>format-out</code> library with the <code>say</code> library. </p>
 <p>Note that the compiler recursively finds all the libraries necessary for compilation. In this case, the <code>format-out</code> library will be included in the compilation of the <code>time</code> library, even though it is not directly named.</p>
 
 </div>

@@ -21,9 +21,9 @@
 </div>
 <a name="heading318-0"></a>
 <h1>20.1.1   <a name="marker-9-822"></a>The <code>+</code> method using informal exceptions</h1>
-<p> </p>
-<p> First, we redefine the method for adding <code>&lt;time-offset&gt;</code> and <code>&lt;time-of-day&gt;</code> (this method was last defined in <a href="db_234.html#marker-9-668">Section 14.3.2</a>, <a href="db_234.html#marker-9-663">page 228</a>). The method now returns an error string in the event that the computed sum is beyond the permitted 24-hour range: </p>
-<p> </p>
+<p></p>
+<p>First, we redefine the method for adding <code>&lt;time-offset&gt;</code> and <code>&lt;time-of-day&gt;</code> (this method was last defined in <a href="db_234.html#marker-9-668">Section 14.3.2</a>, <a href="db_234.html#marker-9-663">page 228</a>). The method now returns an error string in the event that the computed sum is beyond the permitted 24-hour range: </p>
+<p></p>
 <pre>
 define method \+ (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&gt;)
  =&gt; (sum :: type-union(&lt;time-of-day&gt;, &lt;string&gt;))
@@ -37,10 +37,10 @@ define method \+ (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&
   end if;
 end method \+;
 </pre>
-<p> </p>
-<p> We have altered the <code>+</code> method in two important ways. First, we have modified the original values declaration, <code>(sum :: &lt;time-of-day&gt;)</code>, to allow the return of either a <code>&lt;time-of-day&gt;</code> instance or a string describing a problem. Second, we have added code that checks the computed time of day, and returns an error string if the sum is out of bounds.</p>
+<p></p>
+<p>We have altered the <code>+</code> method in two important ways. First, we have modified the original values declaration, <code>(sum :: &lt;time-of-day&gt;)</code>, to allow the return of either a <code>&lt;time-of-day&gt;</code> instance or a string describing a problem. Second, we have added code that checks the computed time of day, and returns an error string if the sum is out of bounds.</p>
 <p>To illustrate further how the informal exceptions work, we define a method that calls the <code>+</code> method defined in this section. We define a method, <code>correct-arrival-time</code>, that adds predicted weather and traffic delays to an arrival time; and we define <code>say-corrected-time</code>, which calls <code>correct-arrival-time</code> and displays the results:</p>
-<p> </p>
+<p></p>
 <pre>
 define method correct-arrival-time 
     (arrival-time :: &lt;time-of-day&gt;, weather-delay :: &lt;time-offset&gt;,

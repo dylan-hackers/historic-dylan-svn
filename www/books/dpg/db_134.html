@@ -21,21 +21,21 @@
 </div>
 <a name="heading134-0"></a>
 <h1>10.6   <a name="marker-9-352"></a>Virt<a name="marker-2-353"></a>ual slots</h1>
-<p> Virtual slots are useful when there is information conceptually associated with an object that is better computed than stored in an ordinary slot. By using a virtual slot instead of writing a method, you make the information appear like a slot to the callers of the getter. The information appears like a slot because the caller cannot distinguish the getter of a virtual slot from a getter of an ordinary slot. In both cases, the getter takes a single required argument -- the instance -- and returns a single value. </p>
+<p>Virtual slots are useful when there is information conceptually associated with an object that is better computed than stored in an ordinary slot. By using a virtual slot instead of writing a method, you make the information appear like a slot to the callers of the getter. The information appears like a slot because the caller cannot distinguish the getter of a virtual slot from a getter of an ordinary slot. In both cases, the getter takes a single required argument -- the instance -- and returns a single value. </p>
 <p>A virtual slot does not occupy storage; instead, its value is computed. When you define a virtual slot, Dylan defines a generic function for the getter and setter. You must define a getter method to return the value of the virtual slot. Unlike those of other slots, the value of a virtual slot can change without a setter being called, because that value is computed, rather than stored. You can optionally define a setter method. If you want to initialize a virtual slot when you create an instance, you can define an <code>initialize</code> method. </p>
 <p>We can use virtual slots to control the access to a slot. For example, we want to ensure that the value of the <code>direction</code> slot is north or south for <code>&lt;latitude&gt;</code>, and is east or west for <code>&lt;longitude&gt;</code>. (An alternative technique is to use enumeration types, as shown in <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.) To enforce this restriction, we must</p>
 <ul>
 <li><p>Check the value when the setter method is invoked. In this section, we show how to do this check using a virtual slot. We also show how to use symbols, instead of strings, to represent north, south, east, and west.</p></li>
 <li><p>Check the value of the <code>direction</code> slot when an instance is created and initialized. We do that checking in <a href="db_137.html#marker-9-357">Section 10.6.3</a>. </p></li>
 </ul>
-<p> We redefine the <code>&lt;directed-angle&gt;</code> class to include a virtual slot and an ordinary slot: </p>
+<p>We redefine the <code>&lt;directed-angle&gt;</code> class to include a virtual slot and an ordinary slot: </p>
 <pre>
 define abstract class &lt;directed-angle&gt; (&lt;angle&gt;)
   virtual slot direction :: &lt;symbol&gt;;
   slot internal-direction :: &lt;symbol&gt;;
 end class &lt;directed-angle&gt;;
 </pre>
-<p> We define the slot <code>direction</code> with the <code>virtual</code> <strong>slot allocation</strong>. Notice that the slot's allocation appears before the name of the slot (as contrasted with slot options, which appear after the name of the slot). </p>
+<p>We define the slot <code>direction</code> with the <code>virtual</code> <strong>slot allocation</strong>. Notice that the slot's allocation appears before the name of the slot (as contrasted with slot options, which appear after the name of the slot). </p>
 <p>In the <code>&lt;directed-angle&gt;</code> class, we use the slot <code>internal-direction</code> <br />to store the direction. We shall provide a setter method for the virtual slot <br /><code>direction</code> that checks the validity of the value of the direction before storing <br />the value in the <code>internal-direction</code> slot.</p>
 
 </div>

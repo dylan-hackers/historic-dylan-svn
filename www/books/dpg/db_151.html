@@ -21,7 +21,7 @@
 </div>
 <a name="heading151-0"></a>
 <h1>11.3.6   <a name="marker-9-408"></a>A recursive list copier</h1>
-<p> In many situations, the most concise way to manipulate lists (and other treelike structures) is to use <a name="marker-2-409"></a>recursion. In <strong>recursion</strong>, a function calls itself, directly or indirectly. In the following example, we redefine the <code>my-copy-sequence</code> method for lists to use recursion instead of iteration.</p>
+<p>In many situations, the most concise way to manipulate lists (and other treelike structures) is to use <a name="marker-2-409"></a>recursion. In <strong>recursion</strong>, a function calls itself, directly or indirectly. In the following example, we redefine the <code>my-copy-sequence</code> method for lists to use recursion instead of iteration.</p>
 <pre>
 define method my-copy-sequence (old-list :: &lt;list&gt;) =&gt; (new-list :: &lt;list&gt;)
   if (empty?(old-list))
@@ -31,7 +31,7 @@ define method my-copy-sequence (old-list :: &lt;list&gt;) =&gt; (new-list :: &lt
   end if;
 end method my-copy-sequence;
 </pre>
-<p> Note that recursion can be just as efficient as iteration. For example, consider the function <code>my-reverse</code>, which creates a new list with elements in the reverse order from the list you supply.</p>
+<p>Note that recursion can be just as efficient as iteration. For example, consider the function <code>my-reverse</code>, which creates a new list with elements in the reverse order from the list you supply.</p>
 <pre>
 define method my-reverse (old-list :: &lt;list&gt;) =&gt; (reversed-list :: &lt;list&gt;)
   local method rev (old :: &lt;list&gt;, results :: &lt;list&gt;)
@@ -40,7 +40,7 @@ define method my-reverse (old-list :: &lt;list&gt;) =&gt; (reversed-list :: &lt;
   rev(old-list, #());
 end method my-reverse;
 </pre>
-<p> The <code>local</code> <code>method</code> declaration inside the <code>my-reverse</code> method defines a function that is bound to the name <code>rev</code> only within a scope of the body of <code>my-reverse</code>. This declaration is different from <code>define</code> <code>method</code>, which creates module bindings that can be accessed outside the lexical scope of where they are defined. </p>
+<p>The <code>local</code> <code>method</code> declaration inside the <code>my-reverse</code> method defines a function that is bound to the name <code>rev</code> only within a scope of the body of <code>my-reverse</code>. This declaration is different from <code>define</code> <code>method</code>, which creates module bindings that can be accessed outside the lexical scope of where they are defined. </p>
 <p>The local method <code>rev</code> calls itself as the last expression in its body. Thus, the <code>rev</code> method can be optimized by the Dylan compiler into code that is exactly as efficient as if it was written with iteration.</p>
 <p>Alternative ways of defining the <code>my-reverse</code> function are discussed in <a href="db_156.html#marker-9-419">Section 11.4.1</a>.</p>
 

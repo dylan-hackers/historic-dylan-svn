@@ -21,17 +21,17 @@
 </div>
 <a name="heading115-0"></a>
 <h1>9.3.2   <a name="marker-9-302"></a>Method <a name="marker-2-303"></a>dispatch and singletons</h1>
-<p> When a type is a singleton, Dylan uses the following rules:</p>
+<p>When a type is a singleton, Dylan uses the following rules:</p>
 <p>1.  An object is an instance of a singleton only if the object is identical to the object used as the argument in the call to <code>singleton</code> that created the <br />singleton.</p>
 <p>2.  A singleton is a proper subtype of any other type that the object belongs to. Thus, a singleton is more specific than any other type of which an object is an instance. In particular, a singleton is more specific than the object's class.</p>
-<p> For example, suppose that we have these definitions:</p>
+<p>For example, suppose that we have these definitions:</p>
 <pre>
 <em>// Method 1
 </em>define method say (x :: &lt;integer&gt;) ... end method say;
 <em>// Method 2
 </em>define method say (x == 0) ... end method say;
 </pre>
-<p> Note that method 2 illustrates a convenient syntax for defining a method on a singleton without calling <code>singleton</code> explicitly.</p>
+<p>Note that method 2 illustrates a convenient syntax for defining a method on a singleton without calling <code>singleton</code> explicitly.</p>
 <p>Now, if <code>say</code> is called with an argument of <code>0</code>, both methods are applicable, and method 2 is more specific than method 1. If <code>say</code> is called with an argument that is any other integer, only method 1 is applicable.</p>
 
 </div>

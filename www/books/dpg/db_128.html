@@ -21,14 +21,14 @@
 </div>
 <a name="heading128-0"></a>
 <h1>10.4.1   <a name="marker-9-336"></a>The <em><a name="marker-2-337"></a>init-value:</em> slot option</h1>
-<p> We can use the <code>init-value:</code> slot option to give a default initial value to a slot:</p>
+<p>We can use the <code>init-value:</code> slot option to give a default initial value to a slot:</p>
 <pre>
 define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
   slot total-seconds :: &lt;integer&gt;, 
     init-keyword: total-seconds:, init-value: 0;
 end class &lt;sixty-unit&gt;;
 </pre>
-<p> When we use <code>make</code> to create any subclass of <code>&lt;sixty-unit&gt;</code> (such as <code>&lt;time-of-day&gt;</code>), and we do not supply the <code>total-seconds:</code> keyword to <code>make</code>, the <code>total-seconds</code> slot is initialized to 0.</p>
+<p>When we use <code>make</code> to create any subclass of <code>&lt;sixty-unit&gt;</code> (such as <code>&lt;time-of-day&gt;</code>), and we do not supply the <code>total-seconds:</code> keyword to <code>make</code>, the <code>total-seconds</code> slot is initialized to 0.</p>
 <p>The <code>init-value:</code> slot option specifies an expression that is evaluated once, before the first instance of the class is made, to yield a value. Every time that an instance is made and the slot needs a default value, this same value is used as the default. </p>
 <p>In general, a slot receives its default initial value when no init keyword is defined or when the caller does not supply the init-keyword argument to <code>make</code>. </p>
 

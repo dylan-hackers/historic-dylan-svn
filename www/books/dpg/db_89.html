@@ -21,42 +21,42 @@
 </div>
 <a name="heading89-0"></a>
 <h1>6.2   <a name="marker-9-250"></a>Method dispatch for multimethods</h1>
-<p> A method is <strong>specialized</strong> on the required parameters that have explicit types. The type of the required parameter is called that parameter's <a name="marker-2-251"></a><strong>specializer</strong>. A <strong>multimethod </strong>is a method that specializes more than one of its parameters. The methods that we defined in <a href="db_85.html#marker-9-243">Section 6.1</a> specialize two required parameters, and therefore are multimethods. </p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-236"></a>C++ and J<a name="marker-2-237"></a>ava:</strong> Neither C++ nor Java supports multimethods. In both languages, method dispatch is based on the first argument of virtual functions.</p>
-</td></tr></table><p> </p>
-<p> The <a name="marker-2-252"></a>method dispatch considers all the required parameters, and sorts the applicable methods by specificity as follows: For each required parameter, construct a separate list of the applicable methods, sorted from most specific to least specific for that parameter. Then, combine the separate sorted lists into an overall list of methods, sorted by specificity. In the overall method ordering, a method is more specific than another if it satisfies two constraints:</p>
+<p>A method is <strong>specialized</strong> on the required parameters that have explicit types. The type of the required parameter is called that parameter's <a name="marker-2-251"></a><strong>specializer</strong>. A <strong>multimethod </strong>is a method that specializes more than one of its parameters. The methods that we defined in <a href="db_85.html#marker-9-243">Section 6.1</a> specialize two required parameters, and therefore are multimethods. </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-236"></a>C++ and J<a name="marker-2-237"></a>ava:</strong> Neither C++ nor Java supports multimethods. In both languages, method dispatch is based on the first argument of virtual functions.</p>
+</td></tr></table><p></p>
+<p>The <a name="marker-2-252"></a>method dispatch considers all the required parameters, and sorts the applicable methods by specificity as follows: For each required parameter, construct a separate list of the applicable methods, sorted from most specific to least specific for that parameter. Then, combine the separate sorted lists into an overall list of methods, sorted by specificity. In the overall method ordering, a method is more specific than another if it satisfies two constraints:</p>
 <p><strong> 1.</strong> The method is <em>no less specific</em> than the other method for <em>all</em> required parameters. (The two methods might have the same types for some parameters.)</p>
 <p><strong> 2.</strong> The method is <em>more specific</em> than the other method for <em>some</em> required parameter.</p>
 <p>One method might be more specific than another for one parameter, but less specific for another parameter. These two methods are <a name="marker-2-253"></a><strong>ambiguous</strong> in specificity and cannot be ordered. If the method-dispatch procedure cannot find any method that is more specific than all other methods, Dylan signals an error.</p>
-<p>  </p>
+<p></p>
 <table border="1"><caption>Table 6.1   <a name="marker-9-238"></a>Applicable methods for different arguments to <code>+</code>, ordered by specificity.</caption><tr valign="top"><th><p>Type of first</p>
 <p>argument</p>
 </th><th><p>Type of second argument</p>
 </th><th><p>Applicable methods, ordered by specificity</p>
-</th></tr><tr valign="top"><td><p> <code>&lt;time-offset&gt;</code></p>
-</td><td><p> <code>&lt;time-offset&gt;</code></p>
-</td><td><p> 1. method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-offset&gt;</code> <br />2. method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
-</td></tr><tr valign="top"><td><p> <code>&lt;time-of-day&gt;</code></p>
-</td><td><p> <code>&lt;time-offset&gt;</code></p>
-</td><td><p> 1. method on <code>&lt;time-of-day&gt;</code>, <code>&lt;time-offset&gt;<br /></code>2. method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
-</td></tr><tr valign="top"><td><p> <code>&lt;time-offset&gt;</code></p>
-</td><td><p> <code>&lt;time-of-day&gt;</code></p>
-</td><td><p> 1. method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-of-day&gt;<br /></code>2. method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
-</td></tr><tr valign="top"><td><p> <code>&lt;time-of-day&gt;</code></p>
-</td><td><p> <code>&lt;time-of-day&gt;</code></p>
-</td><td><p> method on<code> &lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
-</td></tr><tr valign="top"><td><p> <code>&lt;integer&gt;</code></p>
-</td><td><p> <code>&lt;time-offset&gt;</code></p>
-</td><td><p> none</p>
-</td></tr></table><p> <a href="#marker-9-238">Table 6.1</a> shows the applicable methods for various arguments to +. If two methods are applicable, we number the more specific method 1, and the less specific method 2.</p>
+</th></tr><tr valign="top"><td><p><code>&lt;time-offset&gt;</code></p>
+</td><td><p><code>&lt;time-offset&gt;</code></p>
+</td><td><p>1. method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-offset&gt;</code> <br />2. method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
+</td></tr><tr valign="top"><td><p><code>&lt;time-of-day&gt;</code></p>
+</td><td><p><code>&lt;time-offset&gt;</code></p>
+</td><td><p>1. method on <code>&lt;time-of-day&gt;</code>, <code>&lt;time-offset&gt;<br /></code>2. method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
+</td></tr><tr valign="top"><td><p><code>&lt;time-offset&gt;</code></p>
+</td><td><p><code>&lt;time-of-day&gt;</code></p>
+</td><td><p>1. method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-of-day&gt;<br /></code>2. method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
+</td></tr><tr valign="top"><td><p><code>&lt;time-of-day&gt;</code></p>
+</td><td><p><code>&lt;time-of-day&gt;</code></p>
+</td><td><p>method on<code> &lt;time&gt;</code>, <code>&lt;time&gt;</code></p>
+</td></tr><tr valign="top"><td><p><code>&lt;integer&gt;</code></p>
+</td><td><p><code>&lt;time-offset&gt;</code></p>
+</td><td><p>none</p>
+</td></tr></table><p><a href="#marker-9-238">Table 6.1</a> shows the applicable methods for various arguments to +. If two methods are applicable, we number the more specific method 1, and the less specific method 2.</p>
 <p>We call <code>+</code> on two instances of <code>&lt;time-offset&gt;</code>:</p>
 <pre>
 <em>?</em> *minus-2-hours* + *plus-15-20-45*;
 <em>{instance of &lt;time-offset&gt;}</em>
 </pre>
-<p> </p>
-<p> When both arguments are instances of <code>&lt;time-offset&gt;</code>, the first row of the table applies. Two methods are applicable. The method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-offset&gt;</code> is more specific than the method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code>. The parameter specializers of the method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-offset&gt;</code> are subtypes of the parameter specializers of the method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code>. That is, for the first parameter, <code>&lt;time-offset&gt;</code> is a subtype of <code>&lt;time&gt;</code>; for the second parameter, <code>&lt;time-offset&gt;</code> is a subtyp<a name="marker-2-254"></a>e of <code>&lt;time&gt;</code>.</p>
+<p></p>
+<p>When both arguments are instances of <code>&lt;time-offset&gt;</code>, the first row of the table applies. Two methods are applicable. The method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-offset&gt;</code> is more specific than the method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code>. The parameter specializers of the method on <code>&lt;time-offset&gt;</code>, <code>&lt;time-offset&gt;</code> are subtypes of the parameter specializers of the method on <code>&lt;time&gt;</code>, <code>&lt;time&gt;</code>. That is, for the first parameter, <code>&lt;time-offset&gt;</code> is a subtype of <code>&lt;time&gt;</code>; for the second parameter, <code>&lt;time-offset&gt;</code> is a subtyp<a name="marker-2-254"></a>e of <code>&lt;time&gt;</code>.</p>
 
 </div>
 

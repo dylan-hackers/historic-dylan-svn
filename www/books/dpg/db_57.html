@@ -21,7 +21,7 @@
 </div>
 <a name="heading57-0"></a>
 <h1>4.6.2   <a name="marker-9-178"></a>Method for <em>decode-total-seconds</em></h1>
-<p> We define <code>decode-total-seconds</code> to convert in the other direction -- from total seconds to hours, minutes, and seconds: </p>
+<p>We define <code>decode-total-seconds</code> to convert in the other direction -- from total seconds to hours, minutes, and seconds: </p>
 <pre>
 define method decode-total-seconds 	<em>// 1
 </em>    (total-seconds :: &lt;integer&gt;)	<em>// 2
@@ -31,14 +31,14 @@ define method decode-total-seconds 	<em>// 1
 </em>  values(hours, minutes, seconds);	<em>// 6
 </em>end method decode-total-seconds;	<em>// 7</em>
 </pre>
-<p> We can use <code>decode-total-seconds</code> to see the value of the <code>total-seconds</code> slot:</p>
+<p>We can use <code>decode-total-seconds</code> to see the value of the <code>total-seconds</code> slot:</p>
 <pre>
 <em>? </em>decode-total-seconds(*your-time-of-day*.total-seconds);
 <em>8
 30
 59</em>
 </pre>
-<p> The value declaration on line 3 specifies that <code>decode-total-seconds</code> returns three separate values: the hours, minutes, and seconds. This method illustrates how to return multiple values, and how to use <code>let</code> to initialize multiple local variables. We describe these techniques in Sections <a href="db_58.html#marker-9-179">4.6.3</a> and <a href="db_59.html#marker-9-183">4.6.4</a>.</p>
+<p>The value declaration on line 3 specifies that <code>decode-total-seconds</code> returns three separate values: the hours, minutes, and seconds. This method illustrates how to return multiple values, and how to use <code>let</code> to initialize multiple local variables. We describe these techniques in Sections <a href="db_58.html#marker-9-179">4.6.3</a> and <a href="db_59.html#marker-9-183">4.6.4</a>.</p>
 
 </div>
 

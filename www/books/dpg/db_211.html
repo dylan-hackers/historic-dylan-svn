@@ -21,16 +21,16 @@
 </div>
 <a name="heading211-0"></a>
 <h1>13.7.3   The library-int<a name="marker-2-652"></a>erchange definition (LID)</h1>
-<p> As described in <a href="db_31.html#marker-9-90">Section 2.5.1, page 21</a>, most Dylan implementations also accept a LID file that enumerates the files of a library and the order in which those files will be initialized, if there are any top-level forms. The LID file for our <code>time</code> library would be as follows.</p>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The LID file: <code>time.lid</code>.  </p>
+<p>As described in <a href="db_31.html#marker-9-90">Section 2.5.1, page 21</a>, most Dylan implementations also accept a LID file that enumerates the files of a library and the order in which those files will be initialized, if there are any top-level forms. The LID file for our <code>time</code> library would be as follows.</p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The LID file: <code>time.lid</code>.  </p>
 </th></tr><tr valign="top"><td><pre>
 library: time
 files:   library
          sixty-unit
          time
 </pre></td></tr></table>
-<p> In a LID file, only the base file name is given. Information about the folder or directory where the files are stored, and about the file extension (<code>.dylan</code> in our examples), is implementation dependent and must be supplied by the individual implementation.</p>
+<p>In a LID file, only the base file name is given. Information about the folder or directory where the files are stored, and about the file extension (<code>.dylan</code> in our examples), is implementation dependent and must be supplied by the individual implementation.</p>
 
 </div>
 

@@ -21,7 +21,7 @@
 </div>
 <a name="heading157-0"></a>
 <h1>11.4.2   <a name="marker-9-422"></a>Destructive operations and shared structure</h1>
-<p> Consider the following example, and Figures <a href="#marker-9-370">11.4</a> and <a href="#marker-9-371">11.5</a>.</p>
+<p>Consider the following example, and Figures <a href="#marker-9-370">11.4</a> and <a href="#marker-9-371">11.5</a>.</p>
 <pre>
 <em>// Firste we construct a vector of two vectors
 ?</em> define variable *switch-states* 
@@ -31,7 +31,7 @@
 <em>// Now, we reverse the vector, holding on to the result
 ?</em> define variable *rev-switch-states* = my-reverse(*switch-states*);
 </pre>
-<p> At this point, the states of the variables and vectors correspond to <a href="#marker-9-370">Figure 11.4</a>.</p>
+<p>At this point, the states of the variables and vectors correspond to <a href="#marker-9-370">Figure 11.4</a>.</p>
 <p>We examine the two sequences:</p>
 <pre>
 <em>?</em> *rev-switch-states*;
@@ -41,9 +41,9 @@
 ?</em> *switch-states* == *rev-switch-states*;
 <em>#f</em>
 </pre>
-<p> </p>
-<table border="1"><caption>Figure 11.4   State <a name="marker-9-370"></a>before the element is changed.</caption><tr valign="top"><td><p> <img alt="db15im19" src="db15im19.gif" /></p>
-</td></tr></table><p> Now, we change an element:</p>
+<p></p>
+<table border="1"><caption>Figure 11.4   State <a name="marker-9-370"></a>before the element is changed.</caption><tr valign="top"><td><p><img alt="db15im19" src="db15im19.gif" /></p>
+</td></tr></table><p>Now, we change an element:</p>
 <pre>
 <em>?</em> *switch-states*[0] == *rev-switch-states*[1];
 <em>#t</em>
@@ -51,16 +51,16 @@
 ?</em> (*switch-states*[0])[0] := &quot;master switch&quot;;
 <em>&quot;master switch&quot;</em>
 </pre>
-<p> At this point, the states of the variables and vectors correspond to <a href="#marker-9-371">Figure 11.5</a>. </p>
-<table border="1"><caption>Figure 11.5   <a name="marker-9-371"></a>State after the element is changed.</caption><tr valign="top"><td><p> <img alt="db15im20" src="db15im20.gif" /></p>
-</td></tr></table><p> We can look at the values of the variables:</p>
+<p>At this point, the states of the variables and vectors correspond to <a href="#marker-9-371">Figure 11.5</a>. </p>
+<table border="1"><caption>Figure 11.5   <a name="marker-9-371"></a>State after the element is changed.</caption><tr valign="top"><td><p><img alt="db15im20" src="db15im20.gif" /></p>
+</td></tr></table><p>We can look at the values of the variables:</p>
 <pre>
 <em>?</em> *switch-states*;
 <em>#[#[&quot;master switch&quot;, &quot;on&quot;], #[&quot;switch&quot;, &quot;off&quot;]]</em>
 <em>?</em> *rev-switch-states*;
 <em>#[#[&quot;switch&quot;, &quot;off&quot;], #[&quot;master switch&quot;, &quot;on&quot;]]</em>
 </pre>
-<p> Each object pictured in Figures <a href="#marker-9-370">11.4</a> and <a href="#marker-9-371">11.5</a> is a vector. The strings in the figures are vectors, although we did not draw them as such, to keep the diagrams relatively simple. Variables are not objects in Dylan, but they are shown referring to objects. In <a href="#marker-9-371">Figure 11.5</a>, the string <code>&quot;switch&quot;</code> is not referenced by any other object and is therefore garbage; eventually, it will be reclaimed by a garbage collector.</p>
+<p>Each object pictured in Figures <a href="#marker-9-370">11.4</a> and <a href="#marker-9-371">11.5</a> is a vector. The strings in the figures are vectors, although we did not draw them as such, to keep the diagrams relatively simple. Variables are not objects in Dylan, but they are shown referring to objects. In <a href="#marker-9-371">Figure 11.5</a>, the string <code>&quot;switch&quot;</code> is not referenced by any other object and is therefore garbage; eventually, it will be reclaimed by a garbage collector.</p>
 <p>Changing an element of one collection can affect another collection if the two collections share elements. Two collections share an element if there is a value in one collection that is <code>==</code> (that is, identical) to a value in the other collection. Functions such as <code>copy-sequence</code> and <code>reverse</code> do only a <strong>shallow copy</strong> of their arguments: only the top level of the copy is new. Every other part is shared with the old sequence. Thus, it is important to take care when you modify objects that might be shared with other parts of your application. Using well-defined module boundaries that specify whether data structures can be modified by clients of the module can help you to keep application data consistent. </p>
 
 </div>

@@ -21,12 +21,12 @@
 </div>
 <a name="heading321-0"></a>
 <h1>20.2.1   <a name="marker-9-824"></a>Signaling <a name="marker-2-825"></a>conditions</h1>
-<p> Dylan provides a structured mechanism for indicating that an unusual event or exceptional situation has occurred during the execution of a program. Using this mechanism is called <strong>signaling a condition</strong>. A <a name="marker-2-826"></a><strong>condition</strong> is an instance of the <a name="marker-2-827"></a><code>&lt;condition&gt;</code> class, which represents a problem or unusual situation encountered during program execution. </p>
+<p>Dylan provides a structured mechanism for indicating that an unusual event or exceptional situation has occurred during the execution of a program. Using this mechanism is called <strong>signaling a condition</strong>. A <a name="marker-2-826"></a><strong>condition</strong> is an instance of the <a name="marker-2-827"></a><code>&lt;condition&gt;</code> class, which represents a problem or unusual situation encountered during program execution. </p>
 <p>To signal a condition, we need to take these steps:</p>
 <p>1.  Define a condition class, which must be a subclass of <code>&lt;condition&gt;</code>. The condition class should have slots that are appropriate for the application. In this example, we define a condition class named <code>&lt;time-error&gt;</code> to be a direct subclass of <code>&lt;error&gt;</code>. Note that <a name="marker-2-828"></a><code>&lt;error&gt;</code> is a subclass of <code>&lt;condition&gt;</code>. We defined <code>&lt;time-error&gt;</code> to inherit from <code>&lt;error&gt;</code>, because in case our application does not handle the exception, we want Dylan always to take some action, such as entering a debugger. If <code>&lt;time-error&gt;</code> inherited from <code>&lt;condition&gt;</code> and the application failed to handle the exception, then the exception might simply be ignored.</p>
 <p>2.  Modify the functions that might detect the exception. These functions must make an instance of the condition class, and must use an appropriate Dylan function to initiate the signaling process. In this example, we redefine the <code>+ </code>method to signal the condition with the <code>error</code> function.</p>
-<p> In the following code, we define a condition named <code>&lt;time-error&gt;</code> to represent any kind of time error, and we define a condition named <code>&lt;time-boundary-error&gt;</code> to represent violations of time-of-day bounds. </p>
-<p> </p>
+<p>In the following code, we define a condition named <code>&lt;time-error&gt;</code> to represent any kind of time error, and we define a condition named <code>&lt;time-boundary-error&gt;</code> to represent violations of time-of-day bounds. </p>
+<p></p>
 <pre>
 define abstract class &lt;time-error&gt; (&lt;error&gt;)
   constant slot invalid-time :: &lt;time&gt;, required-init-keyword: invalid-time:;
@@ -53,7 +53,7 @@ define method say (condition :: &lt;time-boundary-error&gt;) =&gt; ()
   format-out(&quot;.&quot;);
 end method say;
 </pre>
-<p> We redefine the <code>+</code> method to signal the <code>&lt;time-boundary-error&gt;</code> condition (instead of returning an error string) to indicate that this problem has occurred:</p>
+<p>We redefine the <code>+</code> method to signal the <code>&lt;time-boundary-error&gt;</code> condition (instead of returning an error string) to indicate that this problem has occurred:</p>
 <pre>
 define method \+ (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&gt;)
   =&gt; (sum :: &lt;time-of-day&gt;)
@@ -69,7 +69,7 @@ define method \+ (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&
   end if;
 end method \+;
 </pre>
-<p> We create the condition with <code>make</code>, just as we create instances of other classes. We call the <a name="marker-2-829"></a><code>error</code> function to signal the condition. The <code>error</code> function is guaranteed never to return to its caller. </p>
+<p>We create the condition with <code>make</code>, just as we create instances of other classes. We call the <a name="marker-2-829"></a><code>error</code> function to signal the condition. The <code>error</code> function is guaranteed never to return to its caller. </p>
 <p>Now we can specify an exact return value for the <code>+</code> method, because we are no longer returning an error string to indicate a problem with the addition.</p>
 <p>In previous chapters (for example, in <a href="db_88.html#marker-9-248">Section 6.1.3, page 78</a>), we called the <code>error</code> function with a string. Given a string as its first argument, the <code>error</code> function creates a general-purpose condition named <a name="marker-2-830"></a><code>&lt;simple-error&gt;</code> and stores its arguments in the condition instance. In the preceding example, however, we created an instance of a condition that is customized for our program (<code>&lt;time-boundary-error&gt;</code>), and then supplied that condition to the <code>error</code> function. This approach provides information that is more readily accessible to the code that will handle the condition. Conditions, like any other Dylan class, can use inheritance, and can participate in generic function dispatch. For example, we define <code>say</code> methods for our errors, so that our handlers can provide a reasonable error message to the user. (Unfortunately, Dylan debuggers do not yet have a standard way to know about our <code>say</code> generic function. We expect that Dylan will eventually support such a mechanism.)</p>
 <p>Supplying a specific condition to the <code>error</code> function brings the full power of Dylan's object-oriented programming capabilities to the task of signaling and handling exceptional situations.</p>

@@ -21,8 +21,8 @@
 </div>
 <a name="heading264-0"></a>
 <h1>17.2.2   <a name="marker-9-710"></a>Vehicle containers</h1>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>airport-classes.dylan</code> file. <em>(continued)</em></p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>airport-classes.dylan</code> file. <em>(continued)</em></p>
 </th></tr><tr valign="top"><td><pre>
 <em>// VEHICLE STORAGE</em>
 <em>// The default size for a vehicle container
@@ -147,8 +147,8 @@ end class &lt;runway&gt;;
   inherited slot name-prefix, init-value: &quot;Taxiway&quot;;
 end class &lt;taxiway&gt;; 
 </pre></td></tr></table>
-<p> </p>
-<p> In the preceding portion of the <code>airport-classes.dylan</code> file, we define the tangible objects that represent the various normal locations for aircraft in and around an airport. These locations are known as containers or vehicle storage. We can connect vehicle-storage instances to one another to form an airport. Instances of <code>&lt;single-storage&gt;</code> can hold only one aircraft at a time, whereas instances of <code>&lt;multiple-storage&gt;</code> can hold more than one aircraft at a time. Also, instances of <code>&lt;multiple-storage&gt;</code> treat inbound aircraft separately from outbound aircraft. We define the <code>object-fits?</code> method, which determines whether a physical object can fit into a container. We also define methods for creating, initializing, and describing various containers. Note the use of the <code>each-subclass</code> slot <code>name-prefix</code>, which permits one <code>say</code> method on the <code>&lt;vehicle-storage&gt;</code> class to cover all the vehicle-container classes. Each subclass of vehicle storage can override the inherited value of this slot, to ensure that the proper name of the vehicle storage is used in the description of instances of that subclass.</p>
+<p></p>
+<p>In the preceding portion of the <code>airport-classes.dylan</code> file, we define the tangible objects that represent the various normal locations for aircraft in and around an airport. These locations are known as containers or vehicle storage. We can connect vehicle-storage instances to one another to form an airport. Instances of <code>&lt;single-storage&gt;</code> can hold only one aircraft at a time, whereas instances of <code>&lt;multiple-storage&gt;</code> can hold more than one aircraft at a time. Also, instances of <code>&lt;multiple-storage&gt;</code> treat inbound aircraft separately from outbound aircraft. We define the <code>object-fits?</code> method, which determines whether a physical object can fit into a container. We also define methods for creating, initializing, and describing various containers. Note the use of the <code>each-subclass</code> slot <code>name-prefix</code>, which permits one <code>say</code> method on the <code>&lt;vehicle-storage&gt;</code> class to cover all the vehicle-container classes. Each subclass of vehicle storage can override the inherited value of this slot, to ensure that the proper name of the vehicle storage is used in the description of instances of that subclass.</p>
 <p>The <code>&lt;vehicle-storage&gt;</code>, <code>&lt;multiple-storage&gt;</code>, and <code>&lt;single-storage&gt;</code> classes are all abstract, because it is not sensible to instantiate them. They contain partial implementations that they contribute to their subclasses.</p>
 <p>In the <code>generate-gates</code> method, the <code>gates-per-terminal</code> parameter is a vector that contains the count of gates for each terminal. By adding up all the elements of that vector with <code>reduce1</code>, we can compute the total number of gates at the airport, and thus the size of the vector that can hold all the gates.</p>
 <p>Next, we examine the classes, initialization methods, and <code>say</code> methods for the vehicles in the application.</p>

@@ -21,7 +21,7 @@
 </div>
 <a name="heading21-0"></a>
 <h1>2.2.1   True and false</h1>
-<p> We can compare the magnitude of two numbers:</p>
+<p>We can compare the magnitude of two numbers:</p>
 <pre>
 <em>?</em> 1 = 1;
 <em>#t</em>
@@ -30,11 +30,11 @@
 <em>?</em> 15 &gt; 16;
 <em>#f</em>
 </pre>
-<p> The functions <code>=</code>, <code>&lt;,</code> and <code>&gt;</code> are <strong><a name="marker-2-62"></a>predicates</strong>. A predicate returns true if the condition it is testing is true; otherwise, it returns false. As you might guess, <a name="marker-2-63"></a><code>#t</code> means true and <a name="marker-2-64"></a><code>#f</code> means false. False is represented by the unique value <code>#f</code> only, but any object that is not <code>#f</code> is true (thus, 0 is a true value). </p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-47"></a>C and C++: Caution!</strong> C and C++ use integers to represent Boolean values -- 0 represents false, and any nonzero value is considered true. Dylan has an explicit <code>&lt;boolean&gt;</code> type with two instances: <code>#f</code> represents false, and <code>#t</code> represents the <em>canonical</em> true value. However, any value other than <code>#f</code> is also considered true in a Boolean test. Thus, in Dylan, 0 is considered true.</p>
-</td></tr></table><table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-49"></a>Java</strong>: Java has a separate type for Boolean values. Unlike Dylan, C, or C++, the Java <code>Boolean</code> class has only two values, <code>true</code> and <code>false</code>. This design allows the compiler to issue warnings for the common C error <code>if (a=b) ...</code>, because an assignment does not typically yield a Boolean result. An explicit conversion is required to test nonzero in Java: <code>if (a!=0) ...</code>.</p>
-</td></tr></table><p> </p>
+<p>The functions <code>=</code>, <code>&lt;,</code> and <code>&gt;</code> are <strong><a name="marker-2-62"></a>predicates</strong>. A predicate returns true if the condition it is testing is true; otherwise, it returns false. As you might guess, <a name="marker-2-63"></a><code>#t</code> means true and <a name="marker-2-64"></a><code>#f</code> means false. False is represented by the unique value <code>#f</code> only, but any object that is not <code>#f</code> is true (thus, 0 is a true value). </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-47"></a>C and C++: Caution!</strong> C and C++ use integers to represent Boolean values -- 0 represents false, and any nonzero value is considered true. Dylan has an explicit <code>&lt;boolean&gt;</code> type with two instances: <code>#f</code> represents false, and <code>#t</code> represents the <em>canonical</em> true value. However, any value other than <code>#f</code> is also considered true in a Boolean test. Thus, in Dylan, 0 is considered true.</p>
+</td></tr></table><table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-49"></a>Java</strong>: Java has a separate type for Boolean values. Unlike Dylan, C, or C++, the Java <code>Boolean</code> class has only two values, <code>true</code> and <code>false</code>. This design allows the compiler to issue warnings for the common C error <code>if (a=b) ...</code>, because an assignment does not typically yield a Boolean result. An explicit conversion is required to test nonzero in Java: <code>if (a!=0) ...</code>.</p>
+</td></tr></table><p></p>
 
 </div>
 

@@ -21,16 +21,16 @@
 </div>
 <a name="heading177-0"></a>
 <h1>12.2.3   <a name="marker-9-514"></a>Parameter lists</h1>
-<p> A function's parameter list<a name="marker-2-515"></a> is specified in the function definition. (If Dylan implicitly defines a function, such as the getter and setter functions for a slot, Dylan also defines the parameter list for that function.) In a function definition, the parameter list follows the function name and consists of zero or more parameter specifications, separated by commas and enclosed in parentheses. A parameter list can have three kinds of parameters:</p>
+<p>A function's parameter list<a name="marker-2-515"></a> is specified in the function definition. (If Dylan implicitly defines a function, such as the getter and setter functions for a slot, Dylan also defines the parameter list for that function.) In a function definition, the parameter list follows the function name and consists of zero or more parameter specifications, separated by commas and enclosed in parentheses. A parameter list can have three kinds of parameters:</p>
 <p>1.  <strong>Required parameters<a name="marker-2-516"></a></strong> specify required arguments, or arguments that must be supplied when the function is called. All required parameters appear before other kinds of parameters in the parameter list.</p>
 <p>2.  A function can have at most one <strong>rest parameter<a name="marker-2-517"></a></strong>, which allows the function to accept a variable number of arguments. The rest parameter is identified in the parameter list by <code>#r<a name="marker-2-518"></a>est</code> followed by the name of the parameter. When the function is called, all arguments that follow the required arguments are put into a sequence. This sequence is the initial value of the rest parameter in the function body.</p>
 <p>3.  <strong>Keyword parameters<a name="marker-2-519"></a></strong> specify optional keyword arguments. In the parameter list, keyword parameters are identified by <code>#k<a name="marker-2-520"></a>ey</code> followed by the names of the parameters (and possibly by other information). Keyword parameters must follow all required parameters and the rest parameter (if any). When the function is called, the caller can supply any or none of the specified keyword arguments, in any order, after supplying all required arguments. The caller supplies each keyword argument as a symbol (usually in the form of the parameter name followed by a colon), followed by the argument value. This argument is the initial value of the corresponding keyword parameter in the function body.</p>
-<p> </p>
-<p> The specification for each parameter in the parameter list includes the name of the parameter. In addition, a required parameter (or, for a method, a keyword parameter) can be <strong>specialized<a name="marker-2-521"></a></strong> to correspond to an argument of a given type. The type specializer follows the parameter name and is identified by <code>::</code> followed by a type. When the function is called, the argument that corresponds to the parameter must be of the specified type, or Dylan signals an error. The default argument type is <code>&lt;object&gt;</code>.</p>
+<p></p>
+<p>The specification for each parameter in the parameter list includes the name of the parameter. In addition, a required parameter (or, for a method, a keyword parameter) can be <strong>specialized<a name="marker-2-521"></a></strong> to correspond to an argument of a given type. The type specializer follows the parameter name and is identified by <code>::</code> followed by a type. When the function is called, the argument that corresponds to the parameter must be of the specified type, or Dylan signals an error. The default argument type is <code>&lt;object&gt;</code>.</p>
 <p>The specification for a keyword parameter can have two additional pieces of information:</p>
 <p>1.  It may include a keyword for the caller to use in its argument list, if this keyword must be different from the parameter name. The keyword precedes the parameter name in the parameter list.</p>
 <p>2.  It may include a default value for the keyword argument, which is used if the caller does not supply that argument. The default expression appears <br />at the end of the parameter specification, followed by <code>=</code>. If no default <br />expression is supplied and the caller does not supply the keyword argument, the argument's value is <code>#f</code>.</p>
-<p> The following example shows how we could use a rest parameter to implement a function to sum an arbitrary number of values:</p>
+<p>The following example shows how we could use a rest parameter to implement a function to sum an arbitrary number of values:</p>
 <pre>
 <em>// Sum one or more values
 </em>define method sum (value, #rest more-values)
@@ -44,7 +44,7 @@ end method sum;
 <em>? </em>sum(1, 2, 3, 4, 5);
 <em>15</em>
 </pre>
-<p> In the preceding example, the <code>for</code> iteration statement performs the addition once for every element of <code>more-values</code>.</p>
+<p>In the preceding example, the <code>for</code> iteration statement performs the addition once for every element of <code>more-values</code>.</p>
 <p>The following example shows how we could use keyword parameters in defining a method similar to <code>encode-total-seconds</code>:</p>
 <pre>
 <em>// Convert days, hours, minutes, and seconds to seconds.
@@ -59,14 +59,14 @@ end method convert-to-seconds;
 <em>? </em>convert-to-seconds(minutes: 1, hours: 2);
 <em>7260</em>
 </pre>
-<p> Note from the preceding example that we can supply keyword arguments in any order. Note also that all keyword arguments are optional; however, if we try to call a function with a keyword argument that the function does not accept -- such as <code>days:</code>, in this example -- Dylan signals an error. For more information on function calls and keyword arguments, see <a href="db_181.html#marker-9-536">Section 12.2.7, page 178</a>.</p>
+<p>Note from the preceding example that we can supply keyword arguments in any order. Note also that all keyword arguments are optional; however, if we try to call a function with a keyword argument that the function does not accept -- such as <code>days:</code>, in this example -- Dylan signals an error. For more information on function calls and keyword arguments, see <a href="db_181.html#marker-9-536">Section 12.2.7, page 178</a>.</p>
 <p>Following are additional features and restrictions of keyword arguments<a name="marker-2-522"></a>:</p>
 <ul>
 <li><p>If a parameter list ends with <code>#all-keys<a name="marker-2-523"></a></code> following <code>#key</code>, the function accepts (but ignores) any keyword argument. A parameter list can have specific keyword parameters and also end with <code>#all-keys</code>. In this case, the function accepts any keyword argument, and also has local variables whose values are the keyword-argument values (or their defaults) that correspond to the keyword parameters.</p></li>
 <li><p>If the parameter list of a method contains both <code>#rest<a name="marker-2-524"></a></code> and <code>#key<a name="marker-2-525"></a></code>, the sequence that is the value of the rest parameter contains alternating symbols and argument values representing the keyword arguments passed to the function. In this case, <em>all</em> optional arguments must be keyword arguments. A generic function's parameter list can have either <code>#rest</code> or <code>#key</code>, but cannot have both.</p></li>
 <li><p>Keyword parameters for a generic function cannot be specialized.</p></li>
 </ul>
-<p> The restrictions on a generic function's parameter list have to do with parameter-list congruency and keyword-argument checking in generic function calls. For more information, see Sections <a href="db_179.html#marker-9-529">12.2.5</a> and <a href="db_181.html#marker-9-536">12.2.7</a>.</p>
+<p>The restrictions on a generic function's parameter list have to do with parameter-list congruency and keyword-argument checking in generic function calls. For more information, see Sections <a href="db_179.html#marker-9-529">12.2.5</a> and <a href="db_181.html#marker-9-536">12.2.7</a>.</p>
 
 </div>
 

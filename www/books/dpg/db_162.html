@@ -21,7 +21,7 @@
 </div>
 <a name="heading162-0"></a>
 <h1>11.5.4   Ta<a name="marker-2-428"></a>bles: Dynamic associations</h1>
-<p> In <a href="db_161.html#marker-9-426">Section 11.5.3</a>, we saw how the <code>color-action</code> method associated traffic-light colors with actions by using <code>select</code>. These associations are <em>static</em>. They are determined at compile time, and you cannot change them without recompiling the <code>color-action</code> method. Sometimes, it is useful to associate one object with another <em>dynamically</em>, while the program is running. Collections are good data structures for this purpose. How could we rewrite <code>color-action</code> so that it uses a collection to associate colors with actions?</p>
+<p>In <a href="db_161.html#marker-9-426">Section 11.5.3</a>, we saw how the <code>color-action</code> method associated traffic-light colors with actions by using <code>select</code>. These associations are <em>static</em>. They are determined at compile time, and you cannot change them without recompiling the <code>color-action</code> method. Sometimes, it is useful to associate one object with another <em>dynamically</em>, while the program is running. Collections are good data structures for this purpose. How could we rewrite <code>color-action</code> so that it uses a collection to associate colors with actions?</p>
 <pre>
 define variable *color-action-table* = make(&lt;table&gt;, size: 3);
 *color-action-table*[#&quot;red&quot;]    := #&quot;stop&quot;;
@@ -31,7 +31,7 @@ define method color-action (color :: &lt;symbol&gt;) =&gt; (action :: &lt;symbol
   *color-action-table*[color];
 end method color-action;
 </pre>
-<p> The tables provided by Dylan use <code>==</code> to compare keys. </p>
+<p>The tables provided by Dylan use <code>==</code> to compare keys. </p>
 <p>During the execution of the program, we could add new associations to <code>*color-action-table*</code>, or could change or remove existing associations. Tables grow as necessary to accommodate new associations that are added.</p>
 
 </div>

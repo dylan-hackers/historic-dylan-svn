@@ -21,10 +21,10 @@
 </div>
 <a name="heading73-0"></a>
 <h1>5.3   <a name="marker-9-222"></a>Methods for classes that use inheritance</h1>
-<p> <a href="#marker-9-195">Figure 5.2</a> shows the methods that we now have defined for the <code>decode-total-seconds</code> generic function; <a href="#marker-9-198">Figure 5.3</a> shows the methods that we want to have.</p>
-<table border="1"><caption>Figure 5.2   <a name="marker-9-195"></a>Existing methods for <code>decode-total-seconds</code>.</caption><tr valign="top"><td><p> <img alt="db73ima9" src="db73ima9.gif" /></p>
-</td></tr></table><table border="1"><caption>Figure 5.3   <a name="marker-9-198"></a>Desired methods for <code>decode-total-seconds</code>.</caption><tr valign="top"><td><p> <img alt="db73im10" src="db73im10.gif" /></p>
-</td></tr></table><p> To take advantage of the redefined classes, we want to remove the method on <code>&lt;time-of-day&gt;</code>, and to add a method on <code>&lt;time&gt;</code>. The method on <code>&lt;time&gt;</code> is appropriate for instances of both <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code>. </p>
+<p><a href="#marker-9-195">Figure 5.2</a> shows the methods that we now have defined for the <code>decode-total-seconds</code> generic function; <a href="#marker-9-198">Figure 5.3</a> shows the methods that we want to have.</p>
+<table border="1"><caption>Figure 5.2   <a name="marker-9-195"></a>Existing methods for <code>decode-total-seconds</code>.</caption><tr valign="top"><td><p><img alt="db73ima9" src="db73ima9.gif" /></p>
+</td></tr></table><table border="1"><caption>Figure 5.3   <a name="marker-9-198"></a>Desired methods for <code>decode-total-seconds</code>.</caption><tr valign="top"><td><p><img alt="db73im10" src="db73im10.gif" /></p>
+</td></tr></table><p>To take advantage of the redefined classes, we want to remove the method on <code>&lt;time-of-day&gt;</code>, and to add a method on <code>&lt;time&gt;</code>. The method on <code>&lt;time&gt;</code> is appropriate for instances of both <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code>. </p>
 <p>There are two important points to cover. We first discuss how to remove the method on <code>&lt;time-of-day&gt;</code> and how to add the method on <code>&lt;time&gt;</code> in <a href="db_74.html#marker-9-223">Section 5.4</a>. We then describe how the <code>decode-total-seconds</code> generic function works in <br /><a href="db_75.html#marker-9-224">Section 5.5</a>.</p>
 
 </div>

@@ -21,7 +21,7 @@
 </div>
 <a name="heading184-0"></a>
 <h1>12.3.2   Creation of generic functions</h1>
-<p> You can create a generic function<a name="marker-2-547"></a> in the following ways:</p>
+<p>You can create a generic function<a name="marker-2-547"></a> in the following ways:</p>
 <ul>
 <li><p>You can create one explicitly by <code>define generic<a name="marker-2-548"></a></code>.</p></li>
 <li><p>You can create one explicitly by calling <code>make<a name="marker-2-549"></a></code> on the <code>&lt;generic-function&gt;</code> class. You rarely need to create a generic function this way.</p></li>
@@ -29,7 +29,7 @@
 <li><p>You can create one implicitly by defining a slot in <code>define class<a name="marker-2-551"></a></code>. If a getter generic function for the slot does not yet exist, Dylan creates it.</p></li>
 <li><p>You can create one implicitly by defining a slot (other than a constant slot) in <code>define class<a name="marker-2-552"></a></code>. If a setter generic function for the slot does not yet exist, Dylan creates it.</p></li>
 </ul>
-<p> Each of these procedures, except a call to <code>make</code>, defines a module constant whose value is the generic function created.</p>
+<p>Each of these procedures, except a call to <code>make</code>, defines a module constant whose value is the generic function created.</p>
 <p>When Dylan creates a generic function implicitly<a name="marker-2-553"></a>, it creates a parameter list and a value declaration for the generic function that are designed to restrict the addition of subsequent methods to the generic function as little as possible. All required arguments to the generic function have type specializers of <code>&lt;object&gt;</code>, and the generic function can return any number of values of any type. The generic function's parameter list is congruent with that of the method being defined. If the generic function accepts keyword arguments, the parameter list ends with <code>#key</code>.</p>
 
 </div>

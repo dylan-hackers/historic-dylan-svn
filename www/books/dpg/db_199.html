@@ -21,13 +21,13 @@
 </div>
 <a name="heading199-0"></a>
 <h1>13.3.1   Source records and <a name="marker-2-626"></a>modules</h1>
-<p> All the Dylan source code for a program is organized into units called <a name="marker-2-627"></a><strong>source records</strong>. How source records are stored is dependent on the implementation. Some implementations may store source records in a database, others may simply use <strong><a name="marker-2-628"></a><a name="marker-2-629"></a>interchange format</strong> files (see <a href="db_207.html#marker-9-648">Section 13.6, page 203</a>). No matter how they are stored, each source record is in a module; therefore, </p>
+<p>All the Dylan source code for a program is organized into units called <a name="marker-2-627"></a><strong>source records</strong>. How source records are stored is dependent on the implementation. Some implementations may store source records in a database, others may simply use <strong><a name="marker-2-628"></a><a name="marker-2-629"></a>interchange format</strong> files (see <a href="db_207.html#marker-9-648">Section 13.6, page 203</a>). No matter how they are stored, each source record is in a module; therefore, </p>
 <ul>
 <li><p>All the module's variables and constants, including those imported by using other modules, are visible to, and can be used by, the code in the source record.</p></li>
 <li><p>The module controls which definitions in the source record are exported, and therefore are visible, to other modules.</p></li>
 <li><p>Variables and constants in other modules that are not exported, or ones that are exported but are not imported by the source record's module, are not visible to the source record.</p></li>
 </ul>
-<p> Dylan implementations can associate a source record with a module in different ways. The <a name="marker-2-630"></a>interchange format has a <strong>header</strong> at the front that specifies the module for its source records.</p>
+<p>Dylan implementations can associate a source record with a module in different ways. The <a name="marker-2-630"></a>interchange format has a <strong>header</strong> at the front that specifies the module for its source records.</p>
 
 </div>
 

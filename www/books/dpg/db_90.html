@@ -21,7 +21,7 @@
 </div>
 <a name="heading90-0"></a>
 <h1>6.3   Methods for com<a name="marker-2-255"></a>pari<a name="marker-2-256"></a>son of times</h1>
-<p> We need to compare times to see whether they are the same, and to see whether one is greater (later) than another. These methods do the comparisons we need:</p>
+<p>We need to compare times to see whether they are the same, and to see whether one is greater (later) than another. These methods do the comparisons we need:</p>
 <pre>
 define method \&lt; (time1 :: &lt;time-of-day&gt;, time2 :: &lt;time-of-day&gt;)
   time1.total-seconds &lt; time2.total-seconds;
@@ -36,12 +36,12 @@ define method \= (time1 :: &lt;time-offset&gt;, time2 :: &lt;time-offset&gt;)
   time1.total-seconds = time2.total-seconds;
 end method \=; 
 </pre>
-<p> We can call these methods:</p>
+<p>We can call these methods:</p>
 <pre>
 <em>? </em>*plus-15-20-45* = *minus-2-hours*;
 <em>#f</em>
 </pre>
-<p> To compare times, we need only to define methods for &lt; and =. All other numerical comparisons in Dylan are based on these two methods. So, we can call <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, and <code>~=</code> (the not-equal-to function). Here are examples:</p>
+<p>To compare times, we need only to define methods for &lt; and =. All other numerical comparisons in Dylan are based on these two methods. So, we can call <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, and <code>~=</code> (the not-equal-to function). Here are examples:</p>
 <pre>
 <em>? </em>*plus-15-20-45* ~= *minus-2-hours*;
 <em>#t</em>

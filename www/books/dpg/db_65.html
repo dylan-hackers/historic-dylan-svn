@@ -21,7 +21,7 @@
 </div>
 <a name="heading65-0"></a>
 <h1>5.1.1   Reasons for defining two similar classes</h1>
-<p> The <code>&lt;time-offset&gt;</code> class is similar to the <code>&lt;time-of-day&gt;</code> class. They both define a <code>total-seconds</code> slot. Why do we need to have two classes that are so similar?</p>
+<p>The <code>&lt;time-offset&gt;</code> class is similar to the <code>&lt;time-of-day&gt;</code> class. They both define a <code>total-seconds</code> slot. Why do we need to have two classes that are so similar?</p>
 <ul>
 <li><p>A <code>&lt;time-of-day&gt;</code> is conceptually different from a <code>&lt;time-offset&gt;</code>. If the <code>total-seconds</code> slot of a <code>&lt;time-of-day&gt;</code> is <code>180</code>, that means the time of day at 0:03 (that is, 3 minutes past midnight). If the <code>total-seconds</code> slot of a <code>&lt;time-offset&gt;</code> is <code>180</code>, that means 3 minutes in the future. If you ask what time it is, the answer is a <code>&lt;time-of-day&gt;</code>. If you ask how long it takes to wash the dog, the answer is a <code>&lt;time-offset&gt;</code>. </p></li>
 <li><p>A <code>&lt;time-offset&gt;</code> can represent time in the past by having a negative value of <code>total-seconds</code>. A <code>&lt;time-of-day&gt;</code>, in contrast, should not have a negative value of <code>total-seconds</code>. Later in this book, we provide methods that guarantee that the <code>total-seconds</code> slot of <code>&lt;time-of-day&gt;</code> instances is not negative; see <a href="db_124.html#marker-9-327">Section 10.2.2, page 120</a>, and <a href="db_126.html#marker-9-331">Section 10.3, page 123</a>.</p></li>

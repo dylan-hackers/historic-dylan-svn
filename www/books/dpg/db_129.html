@@ -21,13 +21,13 @@
 </div>
 <a name="heading129-0"></a>
 <h1>10.4.2   <a name="marker-9-338"></a>The <a name="marker-2-339"></a><em>required-init-keyword:</em> slot option</h1>
-<p> Instead of giving the slot a default initial value, we can require the caller of <code>make</code> to supply an init keyword for the slot. The <code>required-init-keyword:</code> slot option defines a required init keyword. If the caller of <code>make</code> does not supply the required init keyword, then an error is signaled. </p>
+<p>Instead of giving the slot a default initial value, we can require the caller of <code>make</code> to supply an init keyword for the slot. The <code>required-init-keyword:</code> slot option defines a required init keyword. If the caller of <code>make</code> does not supply the required init keyword, then an error is signaled. </p>
 <pre>
 define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
   slot total-seconds :: &lt;integer&gt;, required-init-keyword: total-seconds:;
 end class &lt;sixty-unit&gt;;
 </pre>
-<p> The <code>total-seconds</code> slot is defined in the <code>&lt;sixty-unit&gt;</code> class. By making <code>total-seconds:</code> a required init keyword in this class, we make it required for every class that inherits from it, including <code>&lt;time&gt;</code>, <code>&lt;angle&gt;</code>, and all their subclasses. </p>
+<p>The <code>total-seconds</code> slot is defined in the <code>&lt;sixty-unit&gt;</code> class. By making <code>total-seconds:</code> a required init keyword in this class, we make it required for every class that inherits from it, including <code>&lt;time&gt;</code>, <code>&lt;angle&gt;</code>, and all their subclasses. </p>
 
 </div>
 

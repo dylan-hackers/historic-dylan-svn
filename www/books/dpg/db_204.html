@@ -21,7 +21,7 @@
 </div>
 <a name="heading204-0"></a>
 <h1>13.4.2   <a name="marker-9-640"></a>The int<a name="marker-2-641"></a>erface module</h1>
-<p> We can now write a first draft of the interface module for our library:</p>
+<p>We can now write a first draft of the interface module for our library:</p>
 <pre>
 <a name="marker-2-642"></a>define module time
 <em>  // Classes
@@ -30,10 +30,10 @@
 </em>  create say, encode-total-seconds;
 end module time;
 </pre>
-<p> In the preceding definition, the <code>time</code> interface module creates and exports (makes visible) three classes and two functions. We use the <a name="marker-2-643"></a><code>create</code> clause, because we do not intend to define any implementations in the time-library interface module itself -- that will be done in an implementation module, which will use the time-library module as its interface. The <code>create</code> clause causes the names to be reserved in the <code>time</code> interface module, with the requisite that definitions be provided by some other module in the same library.</p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-9-583"></a>C:</strong> The Dylan <code>create</code> clause is roughly analogous to the C <code>extern</code> declaration.</p>
-</td></tr></table><p> </p>
+<p>In the preceding definition, the <code>time</code> interface module creates and exports (makes visible) three classes and two functions. We use the <a name="marker-2-643"></a><code>create</code> clause, because we do not intend to define any implementations in the time-library interface module itself -- that will be done in an implementation module, which will use the time-library module as its interface. The <code>create</code> clause causes the names to be reserved in the <code>time</code> interface module, with the requisite that definitions be provided by some other module in the same library.</p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-9-583"></a>C:</strong> The Dylan <code>create</code> clause is roughly analogous to the C <code>extern</code> declaration.</p>
+</td></tr></table><p></p>
 
 </div>
 

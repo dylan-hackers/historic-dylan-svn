@@ -21,7 +21,7 @@
 </div>
 <a name="heading281-0"></a>
 <h1>18.1   Example of multiple inheritance</h1>
-<p> In our airport example, we defined a <code>&lt;vehicle&gt;</code> class, and used it as a superclass for classes of aircraft. <a href="db_282.html#marker-9-722">Figure 18.1</a> shows the hierarchy of vehicle classes that we defined.</p>
+<p>In our airport example, we defined a <code>&lt;vehicle&gt;</code> class, and used it as a superclass for classes of aircraft. <a href="db_282.html#marker-9-722">Figure 18.1</a> shows the hierarchy of vehicle classes that we defined.</p>
 <p>So far, the only type of vehicle that we have defined is aircraft. Of course, there are many other kinds of vehicle: automobiles, ships, and spacecraft, to name a few. We have not needed these kinds of vehicles in the airport example so far, but we can easily see how we would need more vehicle classes if we made the example more realistic.</p>
 <p>For example, aircraft need fuel before they can take off. An aircraft is typically fueled by a truck at the gate. If fuel is unavailable or fueling is delayed, the aircraft's departure from the gate is delayed as well. If we want to model the takeoff process more accurately, we should take account of the need for fuel, and specifically the need to get fuel trucks to aircraft preparing for takeoff.</p>
 <p>We are not going to handle the fuel-supply problem in this book. However, in this section, we are going to modify the vehicle class hierarchy as a first step toward handling fuel trucks and other kinds of ground vehicles. In the process, we will develop an opportunity for using multiple inheritance in aircraft classes.</p>

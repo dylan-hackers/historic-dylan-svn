@@ -21,14 +21,14 @@
 </div>
 <a name="heading137-0"></a>
 <h1>10.6.3   <a name="marker-9-357"></a>Initia<a name="marker-2-358"></a>lize method for a virtual slot</h1>
-<p> We define the <code>initialize</code> method:</p>
+<p>We define the <code>initialize</code> method:</p>
 <pre>
 define method initialize (angle :: &lt;directed-angle&gt;, #key direction: dir)	<em>//1
 </em>  next-method();	<em>//2
 </em>  angle.direction := dir;	<em>//3
 </em>end method initialize;	<em>//4</em>
 </pre>
-<p> For keyword parameters, the name of the keyword that you supply to <code>make</code> is normally the same name as the parameter that is initialized within the body. In this case, we want to avoid confusion between the getter <code>direction</code> and the keyword parameter <code>direction:</code>, so we use <code>dir</code> as the name of the keyword parameter for the <code>initialize</code> method. When you call <code>make</code>, you use the <br /><code>direction:</code> keyword. However, within this method, the parameter is named <code>dir</code>. </p>
+<p>For keyword parameters, the name of the keyword that you supply to <code>make</code> is normally the same name as the parameter that is initialized within the body. In this case, we want to avoid confusion between the getter <code>direction</code> and the keyword parameter <code>direction:</code>, so we use <code>dir</code> as the name of the keyword parameter for the <code>initialize</code> method. When you call <code>make</code>, you use the <br /><code>direction:</code> keyword. However, within this method, the parameter is named <code>dir</code>. </p>
 <p>Line 3 calls the setter for the <code>direction</code> slot. We defined the methods for <code>direction-setter</code> in <a href="db_136.html#marker-9-356">Section 10.6.2</a>. If the argument is a latitude, then method 3 is invoked to check the value. If the argument is a longitude, then method 4 is invoked to check the value.</p>
 <p>We can create a new instance of <code>&lt;absolute-position&gt;</code>. </p>
 <pre>
@@ -43,12 +43,12 @@ define method initialize (angle :: &lt;directed-angle&gt;, #key direction: dir)	
                 total-seconds: encode-total-seconds(70, 56, 26),
                 direction: #&quot;west&quot;)); 
 </pre>
-<p> The preceding example works, because the values for direction are appropriate for latitude and longitude. The following example shows what happens when the direction is not valid when an instance is created:</p>
+<p>The preceding example works, because the values for direction are appropriate for latitude and longitude. The following example shows what happens when the direction is not valid when an instance is created:</p>
 <pre>
 <em>? </em>make(&lt;latitude&gt;, direction: #&quot;nooth&quot;);
 <em>ERROR: nooth is not north or south </em>
 </pre>
-<p> The following example shows what happens when the direction is not valid when the <code>direction</code> setter is used:</p>
+<p>The following example shows what happens when the direction is not valid when the <code>direction</code> setter is used:</p>
 <pre>
 <em>? </em>begin
     let my-longitude = make(&lt;longitude&gt;, direction: #&quot;east&quot;);

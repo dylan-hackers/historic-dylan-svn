@@ -21,28 +21,28 @@
 </div>
 <a name="heading245-0"></a>
 <h1>15.2   Objects that model an airport</h1>
-<p> We need to define classes that represent the objects in Figures <a href="db_244.html#marker-9-673">15.1</a> and <a href="db_244.html#marker-9-674">15.2</a>. Note that the application displays information about the path of an aircraft from gate to sky and sky to gate; the aircraft stops at the gate and does not enter the terminal itself. Therefore, we do not need to define a terminal class. Our design includes these airport classes: </p>
+<p>We need to define classes that represent the objects in Figures <a href="db_244.html#marker-9-673">15.1</a> and <a href="db_244.html#marker-9-674">15.2</a>. Note that the application displays information about the path of an aircraft from gate to sky and sky to gate; the aircraft stops at the gate and does not enter the terminal itself. Therefore, we do not need to define a terminal class. Our design includes these airport classes: </p>
 <pre>
 &lt;airport&gt;<em>,</em> &lt;gate&gt;<em>,</em> &lt;taxiway&gt;<em>,</em> &lt;runway&gt;<em>,</em> &lt;sky&gt;<em>,</em> &lt;vehicle&gt;<em>,</em> &lt;aircraft&gt;
 </pre>
-<p> A vehicle is any object that is self-propelled. Aircraft are vehicles that are capable of flying. In our design, the sky around the airport, the gates, the taxiways, and the runways each keep track of each aircraft as the latter moves from the sky to the gate and back to the sky again. One common attribute of the sky, gates, taxiways, and runways is that each of them can hold an aircraft, or more than one aircraft. Because these objects can hold vehicles, we can think of them as containers. Our design uses this class to represent all types of containers: </p>
+<p>A vehicle is any object that is self-propelled. Aircraft are vehicles that are capable of flying. In our design, the sky around the airport, the gates, the taxiways, and the runways each keep track of each aircraft as the latter moves from the sky to the gate and back to the sky again. One common attribute of the sky, gates, taxiways, and runways is that each of them can hold an aircraft, or more than one aircraft. Because these objects can hold vehicles, we can think of them as containers. Our design uses this class to represent all types of containers: </p>
 <pre>
 &lt;vehicle-storage&gt;
 </pre>
-<p> In our design, containers are connected to other containers. In the airport diagram in <a href="db_244.html#marker-9-673">Figure 15.1</a>, gate A1 is connected to taxiway Echo, which is connected to runway 11R-29L. We can use a slot in the <code>&lt;vehicle-storage&gt;</code> class to model these connections. </p>
+<p>In our design, containers are connected to other containers. In the airport diagram in <a href="db_244.html#marker-9-673">Figure 15.1</a>, gate A1 is connected to taxiway Echo, which is connected to runway 11R-29L. We can use a slot in the <code>&lt;vehicle-storage&gt;</code> class to model these connections. </p>
 <p>Since some containers can hold only one aircraft, whereas other containers have more complex behavior, our design includes two subclasses of <code>&lt;vehicle-storage&gt;</code>:</p>
 <pre>
 &lt;single-storage&gt;<em>,</em> &lt;multiple-storage&gt;
 </pre>
-<p> Instances of <code>&lt;single-storage&gt;</code> may hold a single aircraft regardless of the direction of travel. Instances of <code>&lt;multiple-storage&gt;</code> may hold more than one aircraft, and each direction is treated separately. For example, <code>&lt;gate&gt;</code> is a subclass of <code>&lt;single-storage&gt;</code>, and <code>&lt;sky&gt;</code> is a subclass of <code>&lt;multiple-storage&gt;</code>.</p>
+<p>Instances of <code>&lt;single-storage&gt;</code> may hold a single aircraft regardless of the direction of travel. Instances of <code>&lt;multiple-storage&gt;</code> may hold more than one aircraft, and each direction is treated separately. For example, <code>&lt;gate&gt;</code> is a subclass of <code>&lt;single-storage&gt;</code>, and <code>&lt;sky&gt;</code> is a subclass of <code>&lt;multiple-storage&gt;</code>.</p>
 <p>All subclasses of <code>&lt;vehicle-storage&gt;</code> must comply with the vehicle-storage protocol. In particular, designers of <code>&lt;vehicle-storage&gt;</code> subclasses must ensure that the subclasses either inherit or define methods for all the key vehicle-storage generic functions.</p>
 <p>Certain classes -- such as the time and position classes -- represent intangible concepts. Other classes -- such as airports, gates, runways, and aircraft -- represent physical objects. It may be useful to make that distinction in our classes, so we define a class from which all physical objects inherit:</p>
 <pre>
 &lt;physical-object&gt;
 </pre>
-<p> </p>
-<table border="1"><caption>Figure 15.3   <a name="marker-9-675"></a>Inheritance relationships among classes that represent physical objects.</caption><tr valign="top"><td><p> <img alt="db24im28" src="db24im28.gif" /></p>
-</td></tr></table><p> Figure <a href="#marker-9-675">15.3</a> shows the inheritance relationships among the classes that represent physical objects. </p>
+<p></p>
+<table border="1"><caption>Figure 15.3   <a name="marker-9-675"></a>Inheritance relationships among classes that represent physical objects.</caption><tr valign="top"><td><p><img alt="db24im28" src="db24im28.gif" /></p>
+</td></tr></table><p>Figure <a href="#marker-9-675">15.3</a> shows the inheritance relationships among the classes that represent physical objects. </p>
 
 </div>
 

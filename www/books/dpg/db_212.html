@@ -21,14 +21,14 @@
 </div>
 <a name="heading212-0"></a>
 <h1>13.8   <a name="marker-9-653"></a>Component library</h1>
-<p> In previous examples, we have shown how the <code>&lt;angle&gt;</code> class can use the <code>&lt;sixty-unit&gt;</code> class as a base class. We could have simply included the <code>&lt;angle&gt;</code> class in our time library (presumably calling it a time-and-angle library), but it seems plausible that clients might not want both classes all the time. Another organization would be to make an angle library that uses the time library, which would be burdensome only to clients who want angles without time. Clearly, the right solution is to make a separate <code>sixty-unit</code> library that is shared by the time and angle libraries.</p>
+<p>In previous examples, we have shown how the <code>&lt;angle&gt;</code> class can use the <code>&lt;sixty-unit&gt;</code> class as a base class. We could have simply included the <code>&lt;angle&gt;</code> class in our time library (presumably calling it a time-and-angle library), but it seems plausible that clients might not want both classes all the time. Another organization would be to make an angle library that uses the time library, which would be burdensome only to clients who want angles without time. Clearly, the right solution is to make a separate <code>sixty-unit</code> library that is shared by the time and angle libraries.</p>
 <p>Because we had already broken out <code>sixty-unit</code> into a separate module and file, we can create this new organization by</p>
 <ul>
 <li><p>Moving the <code>sixty-unit</code> module to its own library file</p></li>
 <li><p>Updating the <code>time</code> library file</p></li>
 <li><p>Opening the <code>&lt;sixty-unit&gt;</code> class</p></li>
 </ul>
-<p> Note that no changes are required to the <code>time</code> implementation file, so we do not present it again.</p>
+<p>Note that no changes are required to the <code>time</code> implementation file, so we do not present it again.</p>
 
 </div>
 

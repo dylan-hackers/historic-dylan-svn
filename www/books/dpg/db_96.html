@@ -21,33 +21,33 @@
 </div>
 <a name="heading96-0"></a>
 <h1>7.4   <a name="marker-9-266"></a>Absolute position</h1>
-<p> </p>
-<p> The <code>&lt;absolute-position&gt;</code> class represents latitude and longitude. One way to represent latitude and longitude is with degrees, minutes, seconds, and a direction. We can use the approach of combining degrees, minutes, and seconds into a total-seconds slot as we did for <code>&lt;time&gt;</code>. We can also define a class that represents total seconds and a direction, and call it <code>&lt;directed-angle&gt;</code>: </p>
-<p> </p>
+<p></p>
+<p>The <code>&lt;absolute-position&gt;</code> class represents latitude and longitude. One way to represent latitude and longitude is with degrees, minutes, seconds, and a direction. We can use the approach of combining degrees, minutes, and seconds into a total-seconds slot as we did for <code>&lt;time&gt;</code>. We can also define a class that represents total seconds and a direction, and call it <code>&lt;directed-angle&gt;</code>: </p>
+<p></p>
 <pre>
 <a name="marker-9-267"></a>define abstract class &lt;directed-angle&gt; (&lt;object&gt;)
   slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
   slot direction :: &lt;string&gt;, init-keyword: direction:;
 end class &lt;directed-angle&gt;;
 </pre>
-<p> </p>
-<p> We use the <code>&lt;directed-angle&gt;</code> class in the definition of <code>&lt;absolute-position&gt;</code>:</p>
-<p> </p>
+<p></p>
+<p>We use the <code>&lt;directed-angle&gt;</code> class in the definition of <code>&lt;absolute-position&gt;</code>:</p>
+<p></p>
 <pre>
 define class &lt;absolute-position&gt; (&lt;position&gt;)
   slot latitude :: &lt;directed-angle&gt;, init-keyword: latitude:;
   slot longitude :: &lt;directed-angle&gt;, init-keyword: longitude:;
 end class &lt;absolute-position&gt;;
 </pre>
-<p>  </p>
-<table border="1"><tr valign="top"><td><p> <strong>Modularity note:</strong> The <code>&lt;directed-angle&gt;</code> class represents the characteristics that latitude and longitude have in common.</p>
-</td></tr></table><p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparison to <a name="marker-2-257"></a>C:</strong> If you are familiar with a language that uses explicit pointers, such as C, you may be confused by Dylan's object model. Although there is no pointer-to operation in Dylan, there are pointers in the implementation. If you are trying to imagine how Dylan objects are implemented, think in terms of always manipulating a pointer to the object -- a Dylan variable (or slot) stores a pointer to an object, rather than a copy of the object's slots. Similarly, assignment, argument passing, and identity comparison are in terms of pointers to objects. See <a href="db_345.html#marker-9-926">Appendix B,  <em>Dylan Object Model for C and C++ Programmers</em></a>. </p>
-</td></tr></table><table border="1"><tr valign="top"><td><p> <strong>Comparison to <a name="marker-2-258"></a>Java:</strong> Java recognizes that pointers make it extremely difficult to enforce safety and for a compiler to reason about a program for optimization. Java supports an object model similar to that of Dylan, where pointers are used in the implementation of objects, but are not visible to Java programs.</p>
-</td></tr></table><p> </p>
-<p> </p>
-<p> We could define the <code>say</code> method as follows: </p>
-<p> </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Modularity note:</strong> The <code>&lt;directed-angle&gt;</code> class represents the characteristics that latitude and longitude have in common.</p>
+</td></tr></table><p></p>
+<table border="1"><tr valign="top"><td><p><strong>Comparison to <a name="marker-2-257"></a>C:</strong> If you are familiar with a language that uses explicit pointers, such as C, you may be confused by Dylan's object model. Although there is no pointer-to operation in Dylan, there are pointers in the implementation. If you are trying to imagine how Dylan objects are implemented, think in terms of always manipulating a pointer to the object -- a Dylan variable (or slot) stores a pointer to an object, rather than a copy of the object's slots. Similarly, assignment, argument passing, and identity comparison are in terms of pointers to objects. See <a href="db_345.html#marker-9-926">Appendix B,  <em>Dylan Object Model for C and C++ Programmers</em></a>. </p>
+</td></tr></table><table border="1"><tr valign="top"><td><p><strong>Comparison to <a name="marker-2-258"></a>Java:</strong> Java recognizes that pointers make it extremely difficult to enforce safety and for a compiler to reason about a program for optimization. Java supports an object model similar to that of Dylan, where pointers are used in the implementation of objects, but are not visible to Java programs.</p>
+</td></tr></table><p></p>
+<p></p>
+<p>We could define the <code>say</code> method as follows: </p>
+<p></p>
 <pre>
 define method say (position :: &lt;absolute-position&gt;) =&gt; ()
   format-out(&quot;%d degrees %d minutes %d seconds %s latitude\n&quot;,
@@ -56,13 +56,13 @@ define method say (position :: &lt;absolute-position&gt;) =&gt; ()
              decode-total-seconds(position.longitude));
 end method say;
 </pre>
-<p> </p>
-<p> The preceding method depends on <code>decode-total-seconds</code> having a method that is applicable to <code>&lt;directed-angle&gt;</code> (the type of the objects returned by <br /><code>position.latitude</code> and <code>position.longtude</code>). We define such a method in <br /><a href="db_98.html#marker-9-269">Section 7.6</a>.</p>
-<table border="1"><tr valign="top"><td><p> <strong>Modularity note:</strong> The preceding <code>say</code> method does not take advantage of the similarity between latitude and longitude. One clue that there is a modularity problem is that the two calls to <code>format-out</code> are nearly identical. </p>
-</td></tr></table><p> </p>
-<p> </p>
-<p> The <code>say</code> method on <code>&lt;absolute-position&gt;</code> should not call <code>format-out</code> directly on the two instances of <code>&lt;directed-angle&gt;</code> stored in the latitude and longitude slots. Instead, we can define a <code>say</code> method on <code>&lt;directed-angle&gt;</code>, and can call it in the method on <code>&lt;absolute-position&gt;</code>:</p>
-<p> </p>
+<p></p>
+<p>The preceding method depends on <code>decode-total-seconds</code> having a method that is applicable to <code>&lt;directed-angle&gt;</code> (the type of the objects returned by <br /><code>position.latitude</code> and <code>position.longtude</code>). We define such a method in <br /><a href="db_98.html#marker-9-269">Section 7.6</a>.</p>
+<table border="1"><tr valign="top"><td><p><strong>Modularity note:</strong> The preceding <code>say</code> method does not take advantage of the similarity between latitude and longitude. One clue that there is a modularity problem is that the two calls to <code>format-out</code> are nearly identical. </p>
+</td></tr></table><p></p>
+<p></p>
+<p>The <code>say</code> method on <code>&lt;absolute-position&gt;</code> should not call <code>format-out</code> directly on the two instances of <code>&lt;directed-angle&gt;</code> stored in the latitude and longitude slots. Instead, we can define a <code>say</code> method on <code>&lt;directed-angle&gt;</code>, and can call it in the method on <code>&lt;absolute-position&gt;</code>:</p>
+<p></p>
 <pre>
 <a name="marker-9-268"></a>define method say (angle :: &lt;directed-angle&gt;) =&gt; ()
   let(degrees, minutes, seconds) = decode-total-seconds(angle);
@@ -76,31 +76,31 @@ define method say (position :: &lt;absolute-position&gt;) =&gt; ()
   format-out(&quot; longitude\n&quot;);
 end method say;
 </pre>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Modularity note:</strong> Our modularity is improved, now that the <code>&lt;directed-angle&gt;</code> class is responsible for describing its instances. This division of labor reduces duplication of code. </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Modularity note:</strong> Our modularity is improved, now that the <code>&lt;directed-angle&gt;</code> class is responsible for describing its instances. This division of labor reduces duplication of code. </p>
 <p>There is still a problem with this approach, because the <code>say</code> method on <code>&lt;absolute-position&gt;</code> must print "latitude" and "longitude" after calling <code>say</code> on the directed angles stored in its two slots. The modularity is still flawed, because the method on <code>&lt;absolute-position&gt;</code> acts on the knowledge that the method on <code>&lt;directed-angle&gt;</code> does not print "latitude" or "longitude." </p>
-</td></tr></table><p> </p>
-<p> </p>
-<p> </p>
-<p> We defined the <code>&lt;directed-angle&gt;</code> class to represent what latitude and longitude have in common. It is useful to recognize that latitude and longitude have differences as well as similarities. We represented latitude and longitude by the names of slots in <code>&lt;absolute-position&gt;</code>, and their implementations as instances of <code>&lt;directed-angle&gt;</code>. We can elevate the visibility of latitude and longitude by providing classes that represent each of them:</p>
+</td></tr></table><p></p>
+<p></p>
+<p></p>
+<p>We defined the <code>&lt;directed-angle&gt;</code> class to represent what latitude and longitude have in common. It is useful to recognize that latitude and longitude have differences as well as similarities. We represented latitude and longitude by the names of slots in <code>&lt;absolute-position&gt;</code>, and their implementations as instances of <code>&lt;directed-angle&gt;</code>. We can elevate the visibility of latitude and longitude by providing classes that represent each of them:</p>
 <pre>
 define class &lt;latitude&gt; (&lt;directed-angle&gt;)
 end class &lt;latitude&gt;;
 define class &lt;longitude&gt; (&lt;directed-angle&gt;)
 end class &lt;longitude&gt;;
 </pre>
-<p> We redefine <code>&lt;absolute-position&gt;</code> to use <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code>:</p>
+<p>We redefine <code>&lt;absolute-position&gt;</code> to use <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code>:</p>
 <pre>
 define class &lt;absolute-position&gt; (&lt;position&gt;)
   slot latitude :: &lt;latitude&gt;, init-keyword: latitude:;
   slot longitude :: &lt;longitude&gt;, init-keyword: longitude:;
 end class &lt;absolute-position&gt;;
 </pre>
-<p> </p>
-<table border="1"><caption>Figure 7.1   Inheritance <a name="marker-9-261"></a>relationships among the position and angle classes. Abstract classes are shown in <em>oblique</em> <em>typewriter</em> <em>font.</em></caption><tr valign="top"><td><p> <img alt="db96im13" src="db96im13.gif" /></p>
-</td></tr></table><p> </p>
-<p> </p>
-<p> <a href="#marker-9-261">Figure 7.1</a> shows the inheritance relationships among the position and angle classes.</p>
+<p></p>
+<table border="1"><caption>Figure 7.1   Inheritance <a name="marker-9-261"></a>relationships among the position and angle classes. Abstract classes are shown in <em>oblique</em> <em>typewriter</em> <em>font.</em></caption><tr valign="top"><td><p><img alt="db96im13" src="db96im13.gif" /></p>
+</td></tr></table><p></p>
+<p></p>
+<p><a href="#marker-9-261">Figure 7.1</a> shows the inheritance relationships among the position and angle classes.</p>
 <p>We define these new <code>say</code> methods:</p>
 <pre>
 define method say (latitude :: &lt;latitude&gt;) =&gt; ()
@@ -112,18 +112,18 @@ define method say (longitude :: &lt;longitude&gt;) =&gt; ()
   format-out(&quot; longitude\n&quot;);
 end method say;
 </pre>
-<p> </p>
-<p> The calls to <code>next-method</code> in the methods on <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> will call the method on <code>&lt;directed-angle&gt;</code>, shown on page <a href="#marker-9-267"></a><a href="#marker-9-268">87</a><a href="#marker-9-268"></a>.</p>
+<p></p>
+<p>The calls to <code>next-method</code> in the methods on <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> will call the method on <code>&lt;directed-angle&gt;</code>, shown on page <a href="#marker-9-267"></a><a href="#marker-9-268">87</a><a href="#marker-9-268"></a>.</p>
 <p>We redefine the <code>say</code> method on <code>&lt;absolute-position&gt;</code>:</p>
-<p> </p>
+<p></p>
 <pre>
 define method say (position :: &lt;absolute-position&gt;) =&gt; ()
   say(position.latitude);
   say(position.longitude);
 end method say;
 </pre>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Modularity note:</strong> The approach of defining the classes <br /><code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> provides the following benefits:</p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Modularity note:</strong> The approach of defining the classes <br /><code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> provides the following benefits:</p>
 <ul>
 <li><p>Each class is responsible for describing its instances. Each method depends on <code>say</code> working for all the classes. No method on one class must understand the details of a method on another class. </p></li>
 <li><p>We guard against any attempt to store a latitude in a slot designated for a longitude, and vice versa. This type checking will be useful when we introduce more differences between the classes. For example, the direction of a latitude is north or south, and the direction of a longitude is west or east. We can provide methods that ensure that the directions stored in a <code>&lt;latitude&gt;</code> instance are appropriate for latitude -- and we can do the same for longitude. We show two techniques for implementing that type checking: See <a href="db_134.html#marker-9-352">Section 10.6, page 128</a>, and <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.</p></li>

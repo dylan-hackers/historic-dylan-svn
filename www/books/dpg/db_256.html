@@ -21,9 +21,9 @@
 </div>
 <a name="heading256-0"></a>
 <h1>16.1.4   The f<a name="marker-2-695"></a>orward-iteration protocol</h1>
-<p> Dylan's forward-iteration protocol allows us to connect the usual collection iteration functions to our new collection class. Connecting to the forward-iteration protocol is as simple as defining an appropriate method for the <code>forward-<br />iteration-protocol</code> generic function. This method must return two objects and six functions.</p>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>sorted-sequence.dylan</code> file. <em>(continued)</em></p>
+<p>Dylan's forward-iteration protocol allows us to connect the usual collection iteration functions to our new collection class. Connecting to the forward-iteration protocol is as simple as defining an appropriate method for the <code>forward-<br />iteration-protocol</code> generic function. This method must return two objects and six functions.</p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>sorted-sequence.dylan</code> file. <em>(continued)</em></p>
 </th></tr><tr valign="top"><td><pre>
 <em>// This method enables many standard and user-defined collection operations
 </em>define method forward-iteration-protocol 
@@ -62,9 +62,9 @@
 </em>         identity);
 end method forward-iteration-protocol; 
 </pre></td></tr></table>
-<p> </p>
-<p> </p>
-<p> If we are to iterate over any collection, we must maintain some state to help the iterator remember the current point of iteration. For the forward-iteration protocol, we maintain this state using any object suitable for a given collection. In this case, an integer is sufficient to maintain where we are in the iteration process. The first object returned by <code>forward-iteration-protocol</code> is a state object that is suitable for the start of an iteration. The second object returned is a state object that represents the ending state of the iteration. Since, in this case, the state object is just the current key of the sorted sequence, the integer 0 is the correct initial state, and the integer that represents the size of the collection is the correct ending state. </p>
+<p></p>
+<p></p>
+<p>If we are to iterate over any collection, we must maintain some state to help the iterator remember the current point of iteration. For the forward-iteration protocol, we maintain this state using any object suitable for a given collection. In this case, an integer is sufficient to maintain where we are in the iteration process. The first object returned by <code>forward-iteration-protocol</code> is a state object that is suitable for the start of an iteration. The second object returned is a state object that represents the ending state of the iteration. Since, in this case, the state object is just the current key of the sorted sequence, the integer 0 is the correct initial state, and the integer that represents the size of the collection is the correct ending state. </p>
 <p>The third value returned is a function that takes the collection and the current iteration state, and returns a state that is the next step in the iteration. In this case, we can determine the next state simply by adding 1 to the current state. </p>
 <p>The fourth value returned is a function that receives the collection, the current state, and the ending state, and that determines whether the iteration is complete. In this case, we need only to check whether the current state is equal to the ending state. </p>
 <p>The fifth value returned is a function that generates the current key into the collection, given a collection and a state. In this case, the key is the state object.</p>

@@ -21,24 +21,24 @@
 </div>
 <a name="heading337-0"></a>
 <h1>21.8   Summary</h1>
-<p> In this chapter, we introduced macros by explaining their purpose as a language-extension tool, and by showing a range of Dylan macros. Macros can be useful when you want to tailor the language to express a particular problem domain more concisely. </p>
+<p>In this chapter, we introduced macros by explaining their purpose as a language-extension tool, and by showing a range of Dylan macros. Macros can be useful when you want to tailor the language to express a particular problem domain more concisely. </p>
 <p><a href="#marker-9-856">Table 21.1</a> summarizes how constraints control pattern-variable matches. </p>
 <table border="1"><caption>Table 21.1   <a name="marker-9-856"></a>Pattern <a name="marker-2-857"></a>const<a name="marker-2-858"></a>raints.</caption><tr valign="top"><th><p>Constraint</p>
 </th><th><p>Matches</p>
-</th></tr><tr valign="top"><td><p> <code>token</code></p>
-</td><td><p> a lexeme (a Dylan word), including literal strings, symbols, and numbers and punctuation</p>
-</td></tr><tr valign="top"><td><p> <code>name</code></p>
-</td><td><p> a Dylan identifier, including reserved identifiers, such as <code>define</code>, <code>end</code>, and operators such as <code>+</code>, or <code>*</code></p>
-</td></tr><tr valign="top"><td><p> <code>variable</code></p>
-</td><td><p> either <code>variable</code> or <code>variable :: &lt;type&gt;</code>, useful for macros that mimic variable binding (automatically drops the <code>:: &lt;type&gt;</code>, as appropriate on substitution)</p>
-</td></tr><tr valign="top"><td><p> <code>expression</code></p>
-</td><td><p> a well-formed Dylan expression -- a constant, such as <code>37</code>; a variable, such as <code>*my-position*</code>; a function call, such as <code>get-current-time()</code>; a statement, such as <code>if (test) 12 else try() end</code>; or a binary operand series, such as <code>x + y * z</code></p>
-</td></tr><tr valign="top"><td><p> <code>body</code></p>
-</td><td><p> a well-formed Dylan body -- a sequence of semicolon-separated constituents, each constituent being either a definition, local declaration, or expression</p>
-</td></tr><tr valign="top"><td><p> <code>case-body</code></p>
-</td><td><p> a Dylan <code>case</code> statement body</p>
-</td></tr><tr valign="top"><td><p> <code>*</code></p>
-</td><td><p> any sequence of Dylan tokens and parsed forms</p>
+</th></tr><tr valign="top"><td><p><code>token</code></p>
+</td><td><p>a lexeme (a Dylan word), including literal strings, symbols, and numbers and punctuation</p>
+</td></tr><tr valign="top"><td><p><code>name</code></p>
+</td><td><p>a Dylan identifier, including reserved identifiers, such as <code>define</code>, <code>end</code>, and operators such as <code>+</code>, or <code>*</code></p>
+</td></tr><tr valign="top"><td><p><code>variable</code></p>
+</td><td><p>either <code>variable</code> or <code>variable :: &lt;type&gt;</code>, useful for macros that mimic variable binding (automatically drops the <code>:: &lt;type&gt;</code>, as appropriate on substitution)</p>
+</td></tr><tr valign="top"><td><p><code>expression</code></p>
+</td><td><p>a well-formed Dylan expression -- a constant, such as <code>37</code>; a variable, such as <code>*my-position*</code>; a function call, such as <code>get-current-time()</code>; a statement, such as <code>if (test) 12 else try() end</code>; or a binary operand series, such as <code>x + y * z</code></p>
+</td></tr><tr valign="top"><td><p><code>body</code></p>
+</td><td><p>a well-formed Dylan body -- a sequence of semicolon-separated constituents, each constituent being either a definition, local declaration, or expression</p>
+</td></tr><tr valign="top"><td><p><code>case-body</code></p>
+</td><td><p>a Dylan <code>case</code> statement body</p>
+</td></tr><tr valign="top"><td><p><code>*</code></p>
+</td><td><p>any sequence of Dylan tokens and parsed forms</p>
 </td></tr></table><a name="link-macros-lastpage"></a>
 </div>
 

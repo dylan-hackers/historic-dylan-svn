@@ -21,11 +21,11 @@
 </div>
 <a name="heading37-0"></a>
 <h1>3.1.2   Two methods with the same name</h1>
-<p> For fun, we can change <code>say-greeting</code> to take a different action for integers, such as to print a message:</p>
+<p>For fun, we can change <code>say-greeting</code> to take a different action for integers, such as to print a message:</p>
 <pre>
 <em>Your lucky number is 7.</em>
 </pre>
-<p> To make this change, we define another method, also called <code>say-greeting</code>. This method has one required parameter named <code>greeting</code>, which has the type constraint <code>&lt;integer&gt;</code>. </p>
+<p>To make this change, we define another method, also called <code>say-greeting</code>. This method has one required parameter named <code>greeting</code>, which has the type constraint <code>&lt;integer&gt;</code>. </p>
 <pre>
 define method say-greeting (greeting :: &lt;integer&gt;)
   format-out(&quot;Your lucky number is %s.\n&quot;, greeting);
@@ -33,19 +33,19 @@ end;
 <em>? </em>say-greeting(*my-number*);
 <em>Your lucky number is 7.</em>
 </pre>
-<p> A Dylan method is similar to a procedure or subroutine in other languages, but there is an important difference. You can define more than one method with the same name. Each one is a method for the same <a name="marker-2-117"></a><strong>generic function</strong>. <a href="#marker-9-99">Figure 3.1</a> shows how you can picture a generic function.</p>
+<p>A Dylan method is similar to a procedure or subroutine in other languages, but there is an important difference. You can define more than one method with the same name. Each one is a method for the same <a name="marker-2-117"></a><strong>generic function</strong>. <a href="#marker-9-99">Figure 3.1</a> shows how you can picture a generic function.</p>
 <p>When a generic function is called, it chooses the most appropriate method to call for the arguments. For example, when we call the <code>say-greeting</code> generic function with an integer, the method whose parameter is of the type <code>&lt;integer&gt;</code> is called: </p>
 <pre>
 <em>? </em>say-greeting(1000);
 <em>Your lucky number is 1000.</em>
 </pre>
-<p> When we call the <code>say-greeting</code> generic function with an argument that is not an integer, the method whose parameter is of the type <code>&lt;object&gt;</code> is called: </p>
+<p>When we call the <code>say-greeting</code> generic function with an argument that is not an integer, the method whose parameter is of the type <code>&lt;object&gt;</code> is called: </p>
 <pre>
 <em>? </em>say-greeting(&quot;Buenos Dias&quot;);
 <em>Buenos Dias</em>
 </pre><table border="1"><caption>
 Figure 3.1   <a name="marker-9-99"></a>The <code>say-greeting</code> generic function and its methods.
-</caption><tr valign="top"><td><p> <img alt="db37ima4" src="db37ima4.gif" /></p>
+</caption><tr valign="top"><td><p><img alt="db37ima4" src="db37ima4.gif" /></p>
 </td></tr></table>
 </div>
 

@@ -21,7 +21,7 @@
 </div>
 <a name="heading289-0"></a>
 <h1>18.4.1   Class precedence and method dispatch</h1>
-<p> To see how this problem for method dispatch can arise, we return to our airport example. Recall that we now have two slots representing vehicle cruising speed: <code>ground-cruising-speed</code> for <code>&lt;ground-vehicle&gt;</code> and <code>flying-cruising-speed</code> for <code>&lt;flying-vehicle&gt;</code>. Let's define a generic function, <code>say-cruising-speed</code>, to report the applicable cruising speed for each class:</p>
+<p>To see how this problem for method dispatch can arise, we return to our airport example. Recall that we now have two slots representing vehicle cruising speed: <code>ground-cruising-speed</code> for <code>&lt;ground-vehicle&gt;</code> and <code>flying-cruising-speed</code> for <code>&lt;flying-vehicle&gt;</code>. Let's define a generic function, <code>say-cruising-speed</code>, to report the applicable cruising speed for each class:</p>
 <pre>
 define generic say-cruising-speed (vehicle :: &lt;vehicle&gt;);
 <em>// Method 1
@@ -37,16 +37,16 @@ end method say-cruising-speed;
   format-out(&quot;No cruising speed defined for type &lt;vehicle&gt;\n&quot;);
 end method say-cruising-speed;
 </pre>
-<p> Now, suppose that we call <code>say-cruising-speed</code> on an instance of <code>&lt;B707&gt;</code>. Which method does Dylan call? All three methods are applicable. Both method 1 and method 2 are more specific than is method 3. But Dylan cannot order methods 1 and 2 by specificity.</p>
+<p>Now, suppose that we call <code>say-cruising-speed</code> on an instance of <code>&lt;B707&gt;</code>. Which method does Dylan call? All three methods are applicable. Both method 1 and method 2 are more specific than is method 3. But Dylan cannot order methods 1 and 2 by specificity.</p>
 <p>In this case, Dylan consults the class precedence list for the class of the argument. In our example, the class of the argument is <code>&lt;B707&gt;</code>. The <code>&lt;flying-vehicle&gt;</code> class takes precedence over the <code>&lt;ground-vehicle&gt;</code> class, because <code>&lt;flying-vehicle&gt;</code> precedes <code>&lt;ground-vehicle&gt;</code> in the list of direct superclasses for <code>&lt;aircraft&gt;</code>. Dylan calls method 1, which produces the following output:</p>
 <pre>
 <em>Flying cruising speed: 368</em>
 </pre>
-<p> Note that, if we had happened to list <code>&lt;ground-vehicle&gt;</code> before <code>&lt;flying-vehicle&gt;</code> in the list of direct superclasses for <code>&lt;aircraft&gt;</code>, Dylan would have called method 2, and we would have seen the following output:</p>
+<p>Note that, if we had happened to list <code>&lt;ground-vehicle&gt;</code> before <code>&lt;flying-vehicle&gt;</code> in the list of direct superclasses for <code>&lt;aircraft&gt;</code>, Dylan would have called method 2, and we would have seen the following output:</p>
 <pre>
 <em>Ground cruising speed: 45</em>
 </pre>
-<p> In defining classes of aircraft, we did not intend for <code>&lt;flying-vehicle&gt;</code> characteristics to override <code>&lt;ground-vehicle&gt;</code> characteristics. But for method dispatch to work in the presence of multiple inheritance, Dylan must order subclasses and superclasses whenever it can.</p>
+<p>In defining classes of aircraft, we did not intend for <code>&lt;flying-vehicle&gt;</code> characteristics to override <code>&lt;ground-vehicle&gt;</code> characteristics. But for method dispatch to work in the presence of multiple inheritance, Dylan must order subclasses and superclasses whenever it can.</p>
 <p>How can we change our example to make <code>&lt;flying-vehicle&gt;</code> behavior add to, rather than override, <code>&lt;ground-vehicle&gt;</code> behavior? By using <code>next-method</code> in our <code>say-cruising-speed</code> methods for <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>, we can report all applicable kinds of cruising speed for any combination of either or both of those classes<code>.</code> To make this behavior work, we also change the <code>say-cruising-speed</code> method for <code>&lt;vehicle&gt;</code>, which will always be called last, to have no effect:</p>
 <pre>
 <em>// Method 1
@@ -63,12 +63,12 @@ end method say-cruising-speed;
 </em>define method say-cruising-speed (vehicle :: &lt;vehicle&gt;)
 end method say-cruising-speed;
 </pre>
-<p> Recall that, when Dylan decides which method to call, the result is a list of methods, sorted by specificity. When <code>say-cruising-speed</code> is called on an instance of <code>&lt;B707&gt;</code>, the list of methods is sorted in the following order: method 1, method 2, method 3. Dylan calls method 1. Then, as a result of the call to <code>next-method</code> in method 1, Dylan calls method 2. Finally, as a result of the call to <code>next-method</code> in method 1, Dylan calls method 3. The output we see is as follows:</p>
+<p>Recall that, when Dylan decides which method to call, the result is a list of methods, sorted by specificity. When <code>say-cruising-speed</code> is called on an instance of <code>&lt;B707&gt;</code>, the list of methods is sorted in the following order: method 1, method 2, method 3. Dylan calls method 1. Then, as a result of the call to <code>next-method</code> in method 1, Dylan calls method 2. Finally, as a result of the call to <code>next-method</code> in method 1, Dylan calls method 3. The output we see is as follows:</p>
 <pre>
 <em>Flying cruising speed: 368
 Ground cruising speed: 45</em>
 </pre>
-<p> Note that, if we called <code>say-cruising-speed</code> on an instance of <code>&lt;fuel-truck&gt;</code>, we would see the following output:</p>
+<p>Note that, if we called <code>say-cruising-speed</code> on an instance of <code>&lt;fuel-truck&gt;</code>, we would see the following output:</p>
 <pre>
 <em>Ground cruising speed: 25</em>
 </pre>

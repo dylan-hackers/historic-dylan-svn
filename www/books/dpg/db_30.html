@@ -21,15 +21,15 @@
 </div>
 <a name="heading30-0"></a>
 <h1>2.5   <a name="marker-9-88"></a>A complete Dylan <a name="marker-2-89"></a>program</h1>
-<p> In this section, we show how to create a complete Dylan program. The Dylan program will print the following:</p>
+<p>In this section, we show how to create a complete Dylan program. The Dylan program will print the following:</p>
 <pre>
 Hello, world
 </pre>
-<p> The Dylan expression that prints that output is</p>
+<p>The Dylan expression that prints that output is</p>
 <pre>
 format-out(&quot;Hello, world\n&quot;);
 </pre>
-<p> A Dylan <strong>library</strong> defines a software component -- a separately compilable unit that can be either a stand-alone program or a component of a larger program. Thus, when we talk about creating a Dylan program, we are really talking about creating a library. </p>
+<p>A Dylan <strong>library</strong> defines a software component -- a separately compilable unit that can be either a stand-alone program or a component of a larger program. Thus, when we talk about creating a Dylan program, we are really talking about creating a library. </p>
 <p>A library contains <strong>modules</strong>. Each module contains definitions and expressions. The module is a <strong>namespace</strong> for the definitions and expressions. For example, if you define a module variable in one particular module, it is available to all the code in that module. If you choose to export that module variable, you can make it accessible to other modules that import it. In this chapter, we give the bare minimum of information about libraries and modules -- just enough for you to get started quickly. For a complete description of libraries and modules, see <a href="db_190.html#marker-9-610">Chapter 13,  <em>Libraries and Modules</em></a>.</p>
 <p>To create a complete Dylan program, we need </p>
 <ul>

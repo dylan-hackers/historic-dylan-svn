@@ -21,25 +21,25 @@
 </div>
 <a name="heading169-0"></a>
 <h1>12.1.2   <a name="marker-9-452"></a>Slot references</h1>
-<p> A slot reference<a name="marker-2-453"></a> is a reference to the value of a slot of an instance. The syntax for a slot reference has two parts, separated by a period:</p>
+<p>A slot reference<a name="marker-2-453"></a> is a reference to the value of a slot of an instance. The syntax for a slot reference has two parts, separated by a period:</p>
 <ul>
 <li><p>An operand whose value is the instance</p></li>
 <li><p>The name of the slot's getter<a name="marker-2-454"></a> generic function</p></li>
 </ul>
-<p> In the following slot reference, the function <code>get-employee-named</code> returns an instance, which has a slot whose getter is named <code>employee-number</code>:</p>
+<p>In the following slot reference, the function <code>get-employee-named</code> returns an instance, which has a slot whose getter is named <code>employee-number</code>:</p>
 <pre>
 get-employee-named(&quot;Jane&quot;).employee-number;
 </pre>
-<p> Note that the operand that yields the instance can itself be a slot reference, so slot references can be chained:</p>
+<p>Note that the operand that yields the instance can itself be a slot reference, so slot references can be chained:</p>
 <pre>
 plant.manager.employee-number;
 </pre>
-<p> Every slot value in Dylan is obtained by a call to the slot's getter generic function (although the compiler can often optimize this generic function call to a direct slot access). A slot reference is just an abbreviation for a function call. With one exception, the following examples are equivalent:</p>
+<p>Every slot value in Dylan is obtained by a call to the slot's getter generic function (although the compiler can often optimize this generic function call to a direct slot access). A slot reference is just an abbreviation for a function call. With one exception, the following examples are equivalent:</p>
 <pre>
 plant.manager;
 manager(plant);
 </pre>
-<p> The one difference between these examples is that, in the first, <code>plant</code> is evaluated first, whereas in the second, <code>manager</code> is evaluated first.</p>
+<p>The one difference between these examples is that, in the first, <code>plant</code> is evaluated first, whereas in the second, <code>manager</code> is evaluated first.</p>
 <p>In fact, you can use the slot-reference syntax for more than slot references. The object that is the value of the left side can be any object, and the function named by the right side can be any function that can take the object as an <br />argument. The function named by the right side is always called with the <br />object that is the value of the left side as its only argument. Thus, using the <br /><code>plant.manager</code> syntax is just another way of calling the function named by <br /><code>manager</code> with the object that is the value of <code>plant</code> as the only argument. The <code>plant</code> object does not have to have a <code>manager</code> slot.</p>
 <p>In this book, we use slot-reference syntax for</p>
 <ul>

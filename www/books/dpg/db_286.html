@@ -21,30 +21,30 @@
 </div>
 <a name="heading286-0"></a>
 <h1>18.3.1   Construction of the class precedence list</h1>
-<p> To understand how Dylan determines the class precedence list, recall that the <code>define class</code> form for a class includes a list of superclasses. Remember that we defined <code>&lt;aircraft&gt;</code> as follows:</p>
+<p>To understand how Dylan determines the class precedence list, recall that the <code>define class</code> form for a class includes a list of superclasses. Remember that we defined <code>&lt;aircraft&gt;</code> as follows:</p>
 <pre>
 define abstract class &lt;aircraft&gt; (&lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;)
   ...
 end class &lt;aircraft&gt;;
 </pre>
-<p> Here, we have listed the superclasses as <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>, in that order.</p>
+<p>Here, we have listed the superclasses as <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>, in that order.</p>
 <p>In creating the class precedence list for a class, Dylan uses the ordering of the list of direct superclasses in the <code>define class</code> form for that class. Dylan relies on the following rules:</p>
 <p>1.  The class being defined takes precedence over all its direct superclasses.</p>
 <p>2.  Each direct superclass in the list takes precedence over all direct superclasses that appear later in the list.</p>
-<p> These rules establish an ordering of a class and its direct superclasses, called the <strong>local precedence order</strong>.</p>
+<p>These rules establish an ordering of a class and its direct superclasses, called the <strong>local precedence order</strong>.</p>
 <p>We listed <code>&lt;flying-vehicle&gt;</code> before <code>&lt;ground-vehicle&gt;</code> in the list of superclasses of <code>&lt;aircraft&gt;</code>, so, when we apply these rules, we see that, for the <code>&lt;aircraft&gt;</code> class, <code>&lt;flying-vehicle&gt;</code> must have precedence higher than that of <code>&lt;ground-vehicle&gt;</code>. The local precedence order for <code>&lt;aircraft&gt;</code> is as follows:</p>
 <pre>
 &lt;aircraft&gt;, &lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;
 </pre>
-<p> The local precedence order for a class establishes an ordering of a class and its <em>direct</em> superclasses. But our goal is to produce an overall class precedence list, which establishes an ordering of the class and <em>all</em> its superclasses, direct and indirect. In constructing the class precedence list for a class, Dylan follows two steps:</p>
+<p>The local precedence order for a class establishes an ordering of a class and its <em>direct</em> superclasses. But our goal is to produce an overall class precedence list, which establishes an ordering of the class and <em>all</em> its superclasses, direct and indirect. In constructing the class precedence list for a class, Dylan follows two steps:</p>
 <p>1.  Construct the local precedence order for the class and its direct superclasses, based on the order in which the direct superclasses appear in the <code>define class</code> form for the class.</p>
 <p>2.  Construct the overall class precedence list for the class by merging the class's local precedence order with the class precedence lists of the class's direct superclasses.</p>
-<p> Notice that this procedure is recursive! But it is guaranteed to terminate, because no class can be its own superclass.</p>
+<p>Notice that this procedure is recursive! But it is guaranteed to terminate, because no class can be its own superclass.</p>
 <p>The resulting class precedence list must be consistent with the local precedence order of the class, and with the class precedence list of each direct superclass. If class <code>&lt;a&gt;</code> precedes class <code>&lt;b&gt;</code> in the class precedence list, then <code>&lt;b&gt;</code> cannot precede <code>&lt;a&gt;</code> in either the local precedence order or the class precedence list for any direct superclass. Because of the recursive procedure for constructing it, the class precedence list must be consistent with the local precedence orders and class precedence lists of <em>all</em> the class's superclasses, rather than just with those of the direct superclasses.</p>
 <p>We can now see how Dylan computes the class precedence list for the <code>&lt;B707&gt;</code> class:</p>
 <p>1.  Construct the local precedence order for <code>&lt;B707&gt;</code> and its only direct superclass, <code>&lt;commercial-aircraft&gt;</code>. The result is as follows: <code>&lt;B707&gt;</code>, <code>&lt;commercial-aircraft&gt;</code>.</p>
 <p>2.  Merge the local precedence order with the class precedence list of the only direct superclass, <code>&lt;commercial-aircraft&gt;</code>.</p>
-<p> Dylan must now use these rules, recursively, to compute the class precedence list of <code>&lt;commercial-aircraft&gt;</code>. In doing so, Dylan must compute recursively the class precedence list of the only direct superclass of <code>&lt;commercial-aircraft&gt;</code>: <code>&lt;aircraft&gt;</code>. This process continues until Dylan has recursively computed the class precedence lists for all superclasses of <code>&lt;B707&gt;</code>. Finally, Dylan finishes constructing the class precedence list for <code>&lt;B707&gt;</code> itself. <a href="#marker-9-718">Table 18.1</a> shows the results.</p>
+<p>Dylan must now use these rules, recursively, to compute the class precedence list of <code>&lt;commercial-aircraft&gt;</code>. In doing so, Dylan must compute recursively the class precedence list of the only direct superclass of <code>&lt;commercial-aircraft&gt;</code>: <code>&lt;aircraft&gt;</code>. This process continues until Dylan has recursively computed the class precedence lists for all superclasses of <code>&lt;B707&gt;</code>. Finally, Dylan finishes constructing the class precedence list for <code>&lt;B707&gt;</code> itself. <a href="#marker-9-718">Table 18.1</a> shows the results.</p>
 <p>One implication of this procedure is that, if a class inherits a superclass via two different paths, the superclass in common must have precedence lower than that of any of its subclasses. For example, the <code>&lt;object&gt;</code> class is a superclass of</p>
 <table border="1"><caption>Table 18.1   <a name="marker-9-718"></a>Class precedence lists for <code>&lt;B707&gt;</code> and its superclasses.</caption><tr valign="top"><th><p>Class</p>
 </th><th><p>Local precedence order</p>
@@ -75,8 +75,8 @@ end class &lt;aircraft&gt;;
 </td><td>&lt;B707&gt;, &lt;commercial-aircraft&gt;
 </td><td>&lt;B707&gt;, &lt;commercial-aircraft&gt;, &lt;aircraft&gt;, &lt;flying-vehicle&gt;, &lt;ground-vehicle&gt;, &lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
 </td></tr></table>
-<p> every class (except itself). This class must have lower precedence than any of its subclasses, so it appears last in every class precedence list. The class precedence list is consistent with the rule that a subclass is more specific than are any of its superclasses.</p>
-<p> </p>
+<p>every class (except itself). This class must have lower precedence than any of its subclasses, so it appears last in every class precedence list. The class precedence list is consistent with the rule that a subclass is more specific than are any of its superclasses.</p>
+<p></p>
 
 </div>
 

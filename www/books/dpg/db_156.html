@@ -21,7 +21,7 @@
 </div>
 <a name="heading156-0"></a>
 <h1>11.4.1   <a name="marker-9-419"></a>Reversal of sequences</h1>
-<p> Dylan provides two generic functions for reversing sequences: <a name="marker-2-420"></a><code>reverse</code>, and <a name="marker-2-421"></a><code>reverse!</code>. They both achieve the same objective, but <code>reverse!</code> is allowed to modify its argument, whereas <code>reverse</code> never modifies its argument. </p>
+<p>Dylan provides two generic functions for reversing sequences: <a name="marker-2-420"></a><code>reverse</code>, and <a name="marker-2-421"></a><code>reverse!</code>. They both achieve the same objective, but <code>reverse!</code> is allowed to modify its argument, whereas <code>reverse</code> never modifies its argument. </p>
 <pre>
 <em>?</em> reverse(&quot;lever&quot;);
 <em>&quot;revel&quot;</em>
@@ -33,18 +33,18 @@
 <em>? </em>reverse!(*switch*);
 <em>#[&quot;on&quot;, &quot;switch&quot;]</em>
 </pre>
-<p> After the call to <code>reverse!</code>, the value of <code>*switch*</code> is not defined. Only the return value from <code>reverse!</code> will be meaningful. If we want <code>*switch*</code> to contain the reversed sequence, we must instead write</p>
+<p>After the call to <code>reverse!</code>, the value of <code>*switch*</code> is not defined. Only the return value from <code>reverse!</code> will be meaningful. If we want <code>*switch*</code> to contain the reversed sequence, we must instead write</p>
 <pre>
 <em>?</em> *switch* := reverse!(*switch*);
 <em>#[&quot;on&quot;, &quot;switch&quot;]</em>
 <em>?</em> *switch*;
 <em>#[&quot;on&quot;, &quot;switch&quot;]</em>
 </pre>
-<p> Note that <code>reverse!</code> cannot change the object to which <code>*switch*</code> refers; however, <code>reverse!</code> is allowed to alter the contents of that object. Also note that <code>reverse!</code> may not return the same object as that you provide as its argument. Consider the case of using <code>reverse!</code> on a list to see how this behavior can be useful. </p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Conventio<a name="marker-2-363"></a>n:</strong> Dylan has a convention of putting an exclamation point at the ends of the names of functions that can destructively modify their arguments. For example, <code>reverse!</code> takes a sequence, and returns a sequence that has the same elements but in reverse order. The <code>reverse!</code> generic function may change the sequence that is its argument. In contrast, the <code>reverse</code> generic function performs a similar operation, but does not destructively modify its argument. Setters are an exception to this convention: They modify their argument, but do not typically end with <code>!</code>.</p>
-</td></tr></table><p> </p>
-<p> How can we write our own version of <code>reverse</code> using the iteration techniques presented so far?</p>
+<p>Note that <code>reverse!</code> cannot change the object to which <code>*switch*</code> refers; however, <code>reverse!</code> is allowed to alter the contents of that object. Also note that <code>reverse!</code> may not return the same object as that you provide as its argument. Consider the case of using <code>reverse!</code> on a list to see how this behavior can be useful. </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Conventio<a name="marker-2-363"></a>n:</strong> Dylan has a convention of putting an exclamation point at the ends of the names of functions that can destructively modify their arguments. For example, <code>reverse!</code> takes a sequence, and returns a sequence that has the same elements but in reverse order. The <code>reverse!</code> generic function may change the sequence that is its argument. In contrast, the <code>reverse</code> generic function performs a similar operation, but does not destructively modify its argument. Setters are an exception to this convention: They modify their argument, but do not typically end with <code>!</code>.</p>
+</td></tr></table><p></p>
+<p>How can we write our own version of <code>reverse</code> using the iteration techniques presented so far?</p>
 <pre>
 define method my-reverse (seq :: &lt;sequence&gt;) =&gt; (reversed-seq :: &lt;sequence&gt;)
   let reversed-seq = make(type-for-copy(seq), size: seq.size);
@@ -55,7 +55,7 @@ define method my-reverse (seq :: &lt;sequence&gt;) =&gt; (reversed-seq :: &lt;se
   reversed-seq;
 end method my-reverse;
 </pre>
-<p> Once again, this algorithm is fine for vectors and strings, but has poor performance for lists. Here is a special <code>my-reverse</code> method for lists:</p>
+<p>Once again, this algorithm is fine for vectors and strings, but has poor performance for lists. Here is a special <code>my-reverse</code> method for lists:</p>
 <pre>
 define method my-reverse (old-list :: &lt;list&gt;) =&gt; (reversed-list :: &lt;list&gt;)
   let reversed-list = #();
@@ -65,7 +65,7 @@ define method my-reverse (old-list :: &lt;list&gt;) =&gt; (reversed-list :: &lt;
   reversed-list;
 end method my-reverse;
 </pre>
-<p> It is easy to build up a list from its end to its start, and that is exactly what we do in the preceding method. We start with the empty list, and add pairs to the reversed list whose heads are the elements of the argument. We follow the old list from its start to its end, while we build the new list from its end to its start, thus reversing the list. </p>
+<p>It is easy to build up a list from its end to its start, and that is exactly what we do in the preceding method. We start with the empty list, and add pairs to the reversed list whose heads are the elements of the argument. We follow the old list from its start to its end, while we build the new list from its end to its start, thus reversing the list. </p>
 <p>It is important to remember that, even though we created a new sequence to contain the elements of the old sequence, we still share those old elements with the new sequence. If two elements of a collection refer to the same object, then modifying the element of one of the collections affects the value of the element of the other collection. We illustrate this behavior in <a href="db_157.html#marker-9-422">Section 11.4.2</a>.</p>
 
 </div>

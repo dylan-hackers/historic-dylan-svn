@@ -21,29 +21,29 @@
 </div>
 <a name="heading121-0"></a>
 <h1>10.1   Dot-synt<a name="marker-2-323"></a>ax abbreviation for simple function calls</h1>
-<p> The dot syntax that we have shown for getters in <a href="db_51.html#marker-9-167">Section 4.4, page 42</a>, is an abbreviation for a function call. The first expression is an abbreviation for the second expression:</p>
+<p>The dot syntax that we have shown for getters in <a href="db_51.html#marker-9-167">Section 4.4, page 42</a>, is an abbreviation for a function call. The first expression is an abbreviation for the second expression:</p>
 <pre>
 <em>object.function-name</em> 
 <em>function-name<code>(object)</code></em>
 </pre>
-<p> The dot syntax used with the assignment operator also is an abbreviation for a function call. The first two expressions are abbreviations for the third expression:</p>
+<p>The dot syntax used with the assignment operator also is an abbreviation for a function call. The first two expressions are abbreviations for the third expression:</p>
 <pre>
 <em>object.name</em> := <em>new-value</em>;
 <em>name(object)</em> := <em>new-value</em>;
 <em>name</em>-setter(<em>new-value</em>, <em>object</em>);
 </pre>
-<p> You can use the dot syntax as an abbreviation for any function call that takes a single argument and returns a single value. For example, in <a href="db_67.html#marker-9-206">Section 5.1.3, page 54</a>, we defined the following method:</p>
+<p>You can use the dot syntax as an abbreviation for any function call that takes a single argument and returns a single value. For example, in <a href="db_67.html#marker-9-206">Section 5.1.3, page 54</a>, we defined the following method:</p>
 <pre>
 define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
   time.total-seconds &lt; 0;
 end method past?;
 </pre>
-<p> The following two calls are equivalent:</p>
+<p>The following two calls are equivalent:</p>
 <pre>
 past?(*my-time-offset*);
 *my-time-offset*.past?;
 </pre>
-<p> In the remainder of this book, we use the dot syntax for function calls that return a property of an object (such as the <code>past?</code> property of a <code>&lt;time-offset&gt;</code> instance), and that take a single argument and return a single value. </p>
+<p>In the remainder of this book, we use the dot syntax for function calls that return a property of an object (such as the <code>past?</code> property of a <code>&lt;time-offset&gt;</code> instance), and that take a single argument and return a single value. </p>
 
 </div>
 

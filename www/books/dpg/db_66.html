@@ -21,12 +21,12 @@
 </div>
 <a name="heading66-0"></a>
 <h1>5.1.2   Creation of instances of <em>&lt;time-offset&gt;</em></h1>
-<p> We can create an instance of <code>&lt;time-offset&gt;</code> representing 15:20:10 in the future:</p>
+<p>We can create an instance of <code>&lt;time-offset&gt;</code> representing 15:20:10 in the future:</p>
 <pre>
 <em>?</em> define variable *my-time-offset* :: &lt;time-offset&gt; 
     = make(&lt;time-offset&gt;, total-seconds: encode-total-seconds(15, 20, 10));
 </pre>
-<p> We can create an instance of <code>&lt;time-offset&gt;</code> representing 6:45:30 in the past, by using the unary minus function, <a name="marker-2-205"></a><code>-</code>, which returns the negative of the value that follows it:</p>
+<p>We can create an instance of <code>&lt;time-offset&gt;</code> representing 6:45:30 in the past, by using the unary minus function, <a name="marker-2-205"></a><code>-</code>, which returns the negative of the value that follows it:</p>
 <pre>
 <em>?</em> define variable *your-time-offset* :: &lt;time-offset&gt; 
     = make(&lt;time-offset&gt;, total-seconds: - encode-total-seconds(6, 45, 30));

@@ -21,12 +21,12 @@
 </div>
 <a name="heading244-0"></a>
 <h1>15.1   <a name="marker-9-681"></a>Goals of the <a name="marker-2-682"></a>airport application</h1>
-<p> Throughout this book, we have been developing components for an airport application. This application deals with airports, aircraft, gates, and related objects. <a href="#marker-9-673">Figure 15.1</a> shows a diagram of a simple airport.</p>
-<table border="1"><caption>Figure 15.1   <a name="marker-9-673"></a>Objects in a simple airport.</caption><tr valign="top"><td><p> <img alt="db24im26" src="db24im26.gif" /></p>
-</td></tr></table><p> </p>
-<table border="1"><caption>Figure 15.2   <a name="marker-9-674"></a>Transitions between sky and gate for outbound and inbound aircraft.</caption><tr valign="top"><td><p> <img alt="db24im27" src="db24im27.gif" /></p>
-</td></tr></table><p> </p>
-<p> In <a href="#marker-9-673">Figure 15.1</a>, we see a single <strong>terminal</strong>, A. It has two <strong>gates</strong>, A1 and A2, a <strong>taxiway</strong>, Echo, a <strong>runway</strong>, 11R-29L, and an <strong>aircraft</strong> approaching the runway. </p>
+<p>Throughout this book, we have been developing components for an airport application. This application deals with airports, aircraft, gates, and related objects. <a href="#marker-9-673">Figure 15.1</a> shows a diagram of a simple airport.</p>
+<table border="1"><caption>Figure 15.1   <a name="marker-9-673"></a>Objects in a simple airport.</caption><tr valign="top"><td><p><img alt="db24im26" src="db24im26.gif" /></p>
+</td></tr></table><p></p>
+<table border="1"><caption>Figure 15.2   <a name="marker-9-674"></a>Transitions between sky and gate for outbound and inbound aircraft.</caption><tr valign="top"><td><p><img alt="db24im27" src="db24im27.gif" /></p>
+</td></tr></table><p></p>
+<p>In <a href="#marker-9-673">Figure 15.1</a>, we see a single <strong>terminal</strong>, A. It has two <strong>gates</strong>, A1 and A2, a <strong>taxiway</strong>, Echo, a <strong>runway</strong>, 11R-29L, and an <strong>aircraft</strong> approaching the runway. </p>
 <p>When landing, an aircraft goes from the sky to a runway to a taxiway to a gate. <a href="#marker-9-674">Figure 15.2</a> is a state diagram showing these transitions for both inbound and outbound aircraft.</p>
 <p>Our first goal for this application is as follows: given a set of incoming aircraft at various positions in the sky, we want to predict which gate each aircraft will use when it arrives, and to estimate the arrival time of the aircraft at the gate. This information is displayed on the Arrivals monitors in an airport. </p>
 <p>Our second goal for the application is to provide additional information for the ground crew. We must state the entire path that an incoming aircraft will take, including the runway, the taxiway, and the gate. We must also state the time that an aircraft is expected to be at each point. For example, for an inbound aircraft, we want to display information like the following: </p>
@@ -35,7 +35,7 @@
 12:43: Aircraft Cardinal at Taxiway Echo
 12:47: Aircraft Cardinal at Gate A2</em>
 </pre>
-<p> The application considers departing aircraft as well as arriving aircraft. </p>
+<p>The application considers departing aircraft as well as arriving aircraft. </p>
 
 </div>
 

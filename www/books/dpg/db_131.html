@@ -21,13 +21,13 @@
 </div>
 <a name="heading131-0"></a>
 <h1>10.4.4   <a name="marker-9-342"></a>The <a name="marker-2-343"></a><em>init-function:</em> slot option</h1>
-<p> We can use the <code>init-function:</code> slot option to provide a function of no arguments to be called to return a default initial value for the slot. These functions are called <strong>init functions</strong>. They allow the initial value of a slot to be an arbitrary <br />computation. </p>
+<p>We can use the <code>init-function:</code> slot option to provide a function of no arguments to be called to return a default initial value for the slot. These functions are called <strong>init functions</strong>. They allow the initial value of a slot to be an arbitrary <br />computation. </p>
 <pre>
 define class &lt;time-of-day&gt; (&lt;time&gt;)
   inherited slot total-seconds, init-function: get-current-time;
 end class &lt;time-of-day&gt;;
 </pre>
-<p> Every time that we make an instance of the <code>&lt;time-of-day&gt;</code> class and we need a default value for the <code>total-seconds</code> slot, the <code>get-current-time</code> function is called to provide an initial value. Here, we assume that <code>get-current-time</code> is available as a library function; it is not part of the core Dylan language.</p>
+<p>Every time that we make an instance of the <code>&lt;time-of-day&gt;</code> class and we need a default value for the <code>total-seconds</code> slot, the <code>get-current-time</code> function is called to provide an initial value. Here, we assume that <code>get-current-time</code> is available as a library function; it is not part of the core Dylan language.</p>
 <p>The <code>init-function:</code> slot option specifies an expression that is evaluated once, before the first instance of the class is made, to yield a function. The function must have no required arguments and must return at least one value. Every time that an instance is made and the slot needs a default value, this function is called with no arguments, and the value that it returns is used as the default. An init function is called during instance creation when no keyword argument is defined or when an optional keyword argument is not passed to <code>make</code>. </p>
 
 </div>

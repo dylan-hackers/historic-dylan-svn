@@ -21,8 +21,8 @@
 </div>
 <a name="heading214-0"></a>
 <h1>13.8.2   The <a name="marker-9-654"></a>updated <em>time-library</em> file</h1>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>time-library</code> file: <code>time-library.dylan</code>.  </p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>time-library</code> file: <code>time-library.dylan</code>.  </p>
 </th></tr><tr valign="top"><td><pre>
 Module: dylan-user
 <em>// Library definition
@@ -53,8 +53,8 @@ end module time;
   use dylan;
 end module time-implementation;
 </pre></td></tr></table>
-<p> </p>
-<p> Note that the <code>time</code> interface module imports only <code>encode-total-seconds</code> from <code>sixty-unit</code>. It then <a name="marker-2-655"></a>re-exports all the names that it has imported -- in this case, just <code>encode-total-seconds</code>. In this way, the <code>time</code> interface is acting as a filter and is passing on only a subset of the <code>sixty-unit</code> interface to its clients.</p>
+<p></p>
+<p>Note that the <code>time</code> interface module imports only <code>encode-total-seconds</code> from <code>sixty-unit</code>. It then <a name="marker-2-655"></a>re-exports all the names that it has imported -- in this case, just <code>encode-total-seconds</code>. In this way, the <code>time</code> interface is acting as a filter and is passing on only a subset of the <code>sixty-unit</code> interface to its clients.</p>
 <p>At this point, we need to <strong>open</strong> the <code>&lt;sixty-unit&gt;</code> class. Because it is now in a separate library, it must be defined to be open to allow other libraries, such as <code>time</code> or <code>angle,</code> to subclass it. Opening a class simply amounts to changing the <code>define class</code> to <code>define open class</code>. The exact implications of this declaration are discussed in <a href="db_295.html#marker-9-761">Chapter 19,  <em>Performance and Flexibility</em></a>.</p>
 
 </div>

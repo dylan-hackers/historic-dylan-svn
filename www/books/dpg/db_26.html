@@ -21,37 +21,37 @@
 </div>
 <a name="heading26-0"></a>
 <h1>2.3.2   Variables that have type constraints</h1>
-<p> We defined the variables <code>*my-number*</code> and <code>*your-number*</code> without giving a <a name="marker-2-76"></a><strong>type constraint</strong> on the variables. Thus, we can store any type of value in these variables. For example, here we use the <a name="marker-2-77"></a>assignment operator, <a name="marker-2-78"></a><code>:=</code> , to store strings in these variables:</p>
+<p>We defined the variables <code>*my-number*</code> and <code>*your-number*</code> without giving a <a name="marker-2-76"></a><strong>type constraint</strong> on the variables. Thus, we can store any type of value in these variables. For example, here we use the <a name="marker-2-77"></a>assignment operator, <a name="marker-2-78"></a><code>:=</code> , to store strings in these variables:</p>
 <pre>
 <em>? </em>*my-number* := &quot;seven&quot;;
 <em>&quot;seven&quot;</em>
 <em>? </em>*your-number* := &quot;twelve&quot;;
 <em>&quot;twelve&quot;</em>
 </pre>
-<p> What happens if we try to add the string values stored in these variables?</p>
+<p>What happens if we try to add the string values stored in these variables?</p>
 <pre>
 <em>? </em>*my-number* + *your-number*;
 <em>ERROR: No applicable method for + with arguments (&quot;seven&quot;, &quot;twelve&quot;)</em>
 </pre>
-<p> Dylan signals an error because the <code>+</code> function does not know how to operate on string arguments. </p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Environment note: </strong>The Dylan implementation defines the exact wording of error messages, and what happens when an error is signaled. If your implementation opens a Dylan debugger when an error is signaled, you now have an opportunity to experiment with the debugger!</p>
-</td></tr></table><p> </p>
-<p> We can redefine the variables to include a type constraint, which ensures that the variables can hold only numbers. We specify that <code>*my-number*</code> can hold any integer, and that <code>*your-number*</code> can hold a single-precision floating-point number: </p>
+<p>Dylan signals an error because the <code>+</code> function does not know how to operate on string arguments. </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Environment note: </strong>The Dylan implementation defines the exact wording of error messages, and what happens when an error is signaled. If your implementation opens a Dylan debugger when an error is signaled, you now have an opportunity to experiment with the debugger!</p>
+</td></tr></table><p></p>
+<p>We can redefine the variables to include a type constraint, which ensures that the variables can hold only numbers. We specify that <code>*my-number*</code> can hold any integer, and that <code>*your-number*</code> can hold a single-precision floating-point number: </p>
 <pre>
 <em>?</em> define variable *my-number* :: &lt;integer&gt; = 7;
 <em>?</em> define variable *your-number* :: &lt;single-float&gt; = 12.01;
 </pre>
-<p> What happens if we try to store a string in one of the variables?</p>
+<p>What happens if we try to store a string in one of the variables?</p>
 <pre>
 <em>? </em>*my-number* := &quot;seven&quot;;
 <em>ERROR: The value assigned to *my-number* must be of type &lt;integer&gt;</em>
 </pre>
-<p> Both <code>&lt;integer&gt;</code> and <code>&lt;single-float&gt;</code> are <strong>classes. </strong>For now, you can think of a class as being like a datatype in another language. Dylan provides a set of built-in classes, and you can also define new classes.</p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong><a name="marker-2-36"></a>Convention: </strong>Class names start with an open angle bracket and end with a close angle bracket -- for example, <code>&lt;integer&gt;</code>. The angle brackets are part of the name, and do not have any special behavior.</p>
-</td></tr></table><p> </p>
-<p> The <code>+</code> function can operate on numbers of different types:</p>
+<p>Both <code>&lt;integer&gt;</code> and <code>&lt;single-float&gt;</code> are <strong>classes. </strong>For now, you can think of a class as being like a datatype in another language. Dylan provides a set of built-in classes, and you can also define new classes.</p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong><a name="marker-2-36"></a>Convention: </strong>Class names start with an open angle bracket and end with a close angle bracket -- for example, <code>&lt;integer&gt;</code>. The angle brackets are part of the name, and do not have any special behavior.</p>
+</td></tr></table><p></p>
+<p>The <code>+</code> function can operate on numbers of different types:</p>
 <pre>
 <em>? </em>*my-number* + *your-number*;
 <em>19.01</em>

@@ -21,7 +21,7 @@
 </div>
 <a name="heading150-0"></a>
 <h1>11.3.5   <a name="marker-9-405"></a>Map<a name="marker-9-406"></a>ping functions</h1>
-<p> Iterating over all the elements of a collection is a common idiom, and Dylan provides several different mapping functions that accomplish these kinds of iterations in different ways. In the following example, we redefine the <code>my-copy-sequence</code> method originally defined in <a href="db_148.html#marker-9-402">Section 11.3.3</a>. Here, we use the <a name="marker-2-407"></a><code>do</code> iteration construct, instead of a <code>for</code> loop. </p>
+<p>Iterating over all the elements of a collection is a common idiom, and Dylan provides several different mapping functions that accomplish these kinds of iterations in different ways. In the following example, we redefine the <code>my-copy-sequence</code> method originally defined in <a href="db_148.html#marker-9-402">Section 11.3.3</a>. Here, we use the <a name="marker-2-407"></a><code>do</code> iteration construct, instead of a <code>for</code> loop. </p>
 <pre>
 <em>// Assumes that old-list is a proper list (that is, it ends with #()) 
 // and is not circular
@@ -39,7 +39,7 @@
   new-list;
 end method my-copy-sequence;
 </pre>
-<p> The <code>do</code> mapping function takes a function and one or more collections, and calls the function on each element of each collection. The function should take one argument if you provide <code>do</code> with one collection, two arguments if you provide two collections, and so on. The result of calling the function is ignored, and <code>do</code> itself returns no meaningful value. The <code>do</code> function is useful only if the method that you provide accomplishes a valuable side effect. In the preceding example, the supplied method stores an element of the old list into the head of the current pair of the new list, and moves to the next pair of the new list. Note that this method is actually a closure, which closes over the <code>current-pair</code> local variable. See <a href="db_188.html#marker-9-568">Section 12.3.6, page 183</a>, for more information about closures.</p>
+<p>The <code>do</code> mapping function takes a function and one or more collections, and calls the function on each element of each collection. The function should take one argument if you provide <code>do</code> with one collection, two arguments if you provide two collections, and so on. The result of calling the function is ignored, and <code>do</code> itself returns no meaningful value. The <code>do</code> function is useful only if the method that you provide accomplishes a valuable side effect. In the preceding example, the supplied method stores an element of the old list into the head of the current pair of the new list, and moves to the next pair of the new list. Note that this method is actually a closure, which closes over the <code>current-pair</code> local variable. See <a href="db_188.html#marker-9-568">Section 12.3.6, page 183</a>, for more information about closures.</p>
 
 </div>
 

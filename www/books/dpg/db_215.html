@@ -21,8 +21,8 @@
 </div>
 <a name="heading215-0"></a>
 <h1>13.8.3   The <a name="marker-9-656"></a>updated <em>sixty-unit</em> implementation file</h1>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>sixty-unit</code> implementation file: <code>sixty-unit.dylan</code>.  </p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>sixty-unit</code> implementation file: <code>sixty-unit.dylan</code>.  </p>
 </th></tr><tr valign="top"><td><pre>
 Module: sixty-unit-implementation
 define open abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
@@ -46,9 +46,9 @@ end method decode-total-seconds;
   values(hours, minutes, seconds);
 end method decode-total-seconds; 
 </pre></td></tr></table>
-<p> </p>
-<p> <a href="#marker-9-598">Figure 13.5</a> shows the relationships among our libraries and modules at this point. Note that <code>sixty-unit</code> is now a separate library. It uses the <code>dylan</code> library and is used by the <code>time</code> library. We illustrate the <code>time</code> module importing and re-exporting part of the <code>sixty-unit</code> interface module (the method <code>encode-total-seconds</code>) by the darker grey area.</p>
-<table border="1"><caption>Figure 13.5   <a name="marker-9-598"></a><code>sixty-unit</code> as a separate library.</caption><tr valign="top"><td><p> <a name="marker-10-599"></a><img alt="db21im25" src="db21im25.gif" /></p>
+<p></p>
+<p><a href="#marker-9-598">Figure 13.5</a> shows the relationships among our libraries and modules at this point. Note that <code>sixty-unit</code> is now a separate library. It uses the <code>dylan</code> library and is used by the <code>time</code> library. We illustrate the <code>time</code> module importing and re-exporting part of the <code>sixty-unit</code> interface module (the method <code>encode-total-seconds</code>) by the darker grey area.</p>
+<table border="1"><caption>Figure 13.5   <a name="marker-9-598"></a><code>sixty-unit</code> as a separate library.</caption><tr valign="top"><td><p><a name="marker-10-599"></a><img alt="db21im25" src="db21im25.gif" /></p>
 </td></tr></table>
 </div>
 

@@ -21,19 +21,19 @@
 </div>
 <a name="heading36-0"></a>
 <h1>3.1.1   <a name="marker-9-116"></a>A method that takes an argument</h1>
-<p> We can define a method similar to <code>say-hello</code>, called <code>say-greeting</code>, that takes an argument:</p>
+<p>We can define a method similar to <code>say-hello</code>, called <code>say-greeting</code>, that takes an argument:</p>
 <pre>
 define method say-greeting (greeting :: &lt;object&gt;);
   format-out(&quot;%s\n&quot;, greeting);
 end;
 </pre>
-<p> The <code>say-greeting</code> method has one required parameter, named <code>greeting</code>. The type constraint of the required parameter indicates the type that the argument must be. The <code>greeting</code> parameter has the type constraint <code>&lt;object&gt;</code>, which is the most general class. All objects are of the type <code>&lt;object&gt;</code>, so using this class as the type constraint allows the argument to be any object. You can omit the type constraint of a required parameter; that omission has the same effect as specifying <code>&lt;object&gt;</code> as the type constraint. </p>
+<p>The <code>say-greeting</code> method has one required parameter, named <code>greeting</code>. The type constraint of the required parameter indicates the type that the argument must be. The <code>greeting</code> parameter has the type constraint <code>&lt;object&gt;</code>, which is the most general class. All objects are of the type <code>&lt;object&gt;</code>, so using this class as the type constraint allows the argument to be any object. You can omit the type constraint of a required parameter; that omission has the same effect as specifying <code>&lt;object&gt;</code> as the type constraint. </p>
 <p>We can call <code>say-greeting</code> on a string:</p>
 <pre>
 <em>? </em>say-greeting(&quot;hi, there&quot;);
 <em>hi, there</em>
 </pre>
-<p> We can call <code>say-greeting</code> on an integer, although the integer does not give a particularly friendly greeting:</p>
+<p>We can call <code>say-greeting</code> on an integer, although the integer does not give a particularly friendly greeting:</p>
 <pre>
 <em>?</em> define variable *my-number* :: &lt;integer&gt; = 7;
 <em>? </em>say-greeting(*my-number*);

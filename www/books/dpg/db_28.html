@@ -21,7 +21,7 @@
 </div>
 <a name="heading28-0"></a>
 <h1>2.3.4   Local variables</h1>
-<p> You can define a <a name="marker-2-82"></a>local variable by using a <a name="marker-2-83"></a><code>let</code> declaration. Unlike module variables, local variables are established dynamically, and they have <a name="marker-2-84"></a><strong>lexical scope</strong>. During its lifetime, a local variable shadows any module variable, module constant, or existing local variable with the same name.</p>
+<p>You can define a <a name="marker-2-82"></a>local variable by using a <a name="marker-2-83"></a><code>let</code> declaration. Unlike module variables, local variables are established dynamically, and they have <a name="marker-2-84"></a><strong>lexical scope</strong>. During its lifetime, a local variable shadows any module variable, module constant, or existing local variable with the same name.</p>
 <p>Local variables are scoped within the smallest body that surrounds them. You can use <code>let</code> anywhere within a body, rather than just at the beginning; the local variable is declared starting at its definition, and continuing to the end of the smallest body that surrounds the definition. </p>
 <p>A <a name="marker-2-85"></a><strong>body</strong> is a region of program code that delimits the scope of all local variables declared inside the body. When you are defining functions, usually there is an implicit body available. For example, <code>define method</code> creates an implicit body. (For information about method definitions, see <a href="db_35.html#marker-9-113">Section 3.1, page 27</a>.) Other control structures, such as <code>if</code>, create implicit bodies. Bodies can be nested. If there is no body handy, or if you want to create a body smaller than the implicit one, you can create a <a name="marker-2-86"></a>body by using <code>begin</code> to start it and <code>end</code> to finish it: </p>
 <pre>
@@ -32,7 +32,7 @@
   end;
 <em>31.4159</em>
 </pre>
-<p> The local variables <code>radius</code> and <code>circumference</code> are declared, initialized, and used within the body. The value returned by the body is the value of the expression executed last in the body, which is <code>circumference</code>. Outside the lexical scope of the body, the local variables are no longer declared, and trying to access them is an error:</p>
+<p>The local variables <code>radius</code> and <code>circumference</code> are declared, initialized, and used within the body. The value returned by the body is the value of the expression executed last in the body, which is <code>circumference</code>. Outside the lexical scope of the body, the local variables are no longer declared, and trying to access them is an error:</p>
 <pre>
 <em>? </em>radius
 <em>ERROR: The variable radius is undefined.</em>

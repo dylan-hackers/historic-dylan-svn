@@ -21,14 +21,14 @@
 </div>
 <a name="heading153-0"></a>
 <h1>11.3.8   <a name="marker-9-415"></a>A sequence copier that can copy a portion of a sequence</h1>
-<p> The <a name="marker-2-416"></a><code>copy-sequence</code> generic function provided by Dylan actually takes keyword arguments that allow only a portion of the sequence to be copied. Here is an example:</p>
+<p>The <a name="marker-2-416"></a><code>copy-sequence</code> generic function provided by Dylan actually takes keyword arguments that allow only a portion of the sequence to be copied. Here is an example:</p>
 <pre>
 <em>?</em> copy-sequence(&quot;airport&quot;, start: 3);
 <em>&quot;port&quot;</em>
 <em>?</em> copy-sequence(&quot;snow&quot;, start: 1, end: 3);
 <em>&quot;no&quot;</em>
 </pre>
-<p> In the following, we use a <code>for</code> loop with two iteration clauses to implement the more flexible version of the general purpose <code>my-copy-sequence</code>:</p>
+<p>In the following, we use a <code>for</code> loop with two iteration clauses to implement the more flexible version of the general purpose <code>my-copy-sequence</code>:</p>
 <pre>
 define method my-copy-sequence 
     (old-sequence :: &lt;sequence&gt;, 
@@ -42,7 +42,7 @@ define method my-copy-sequence
   new-sequence;
 end method my-copy-sequence;
 </pre>
-<p> In the preceding example, we force the keyword parameter <code>end:</code> to bind the variable <code>limit</code>, rather than binding <code>end</code>. It is illegal to use <code>end</code> as a variable name, because <code>end</code> is one of a few reserved words in Dylan. In the body of the <code>for</code> loop, <code>source-index</code> will range from <code>start</code> to 1 less than <code>limit</code>, and <code>destination-index</code> will range from 0 to 1 less then <code>limit</code> minus <code>start</code>, which is the length of the new sequence being created.</p>
+<p>In the preceding example, we force the keyword parameter <code>end:</code> to bind the variable <code>limit</code>, rather than binding <code>end</code>. It is illegal to use <code>end</code> as a variable name, because <code>end</code> is one of a few reserved words in Dylan. In the body of the <code>for</code> loop, <code>source-index</code> will range from <code>start</code> to 1 less than <code>limit</code>, and <code>destination-index</code> will range from 0 to 1 less then <code>limit</code> minus <code>start</code>, which is the length of the new sequence being created.</p>
 
 </div>
 

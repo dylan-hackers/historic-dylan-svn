@@ -21,7 +21,7 @@
 </div>
 <a name="heading130-0"></a>
 <h1>10.4.3   <a name="marker-9-340"></a>Slot <a name="marker-2-341"></a>options for an inherited slot</h1>
-<p> You can define a slot in only one particular class in a set of classes related by inheritance. You can use the <code>inherited slot</code> specification to override the default initial value of an inherited slot, or the <strong>init function</strong> of an inherited slot. See <a href="db_131.html#marker-9-342">Section 10.4.4</a>.</p>
+<p>You can define a slot in only one particular class in a set of classes related by inheritance. You can use the <code>inherited slot</code> specification to override the default initial value of an inherited slot, or the <strong>init function</strong> of an inherited slot. See <a href="db_131.html#marker-9-342">Section 10.4.4</a>.</p>
 <p>In this example, assume that the <code>&lt;sixty-unit&gt;</code> class defines the <code>total-seconds</code> slot and the init keyword <code>total-seconds:</code>, and provides the default initial value of 0 for that slot, as shown:</p>
 <pre>
 define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
@@ -31,13 +31,13 @@ end class &lt;sixty-unit&gt;;
 define abstract class &lt;time&gt; (&lt;sixty-unit&gt;)
 end class &lt;time&gt;;
 </pre>
-<p> The <code>&lt;time-offset&gt;</code> class provides a different default initial value for the inherited slot <code>total-seconds</code>:</p>
+<p>The <code>&lt;time-offset&gt;</code> class provides a different default initial value for the inherited slot <code>total-seconds</code>:</p>
 <pre>
 define class &lt;time-offset&gt; (&lt;time&gt;)
   inherited slot total-seconds, init-value: encode-total-seconds(1, 0, 0);
 end class &lt;time-offset&gt;;
 </pre>
-<p> By using the <code>inherited slot</code> specification, we are not defining the slot, but rather are stating that this slot is defined by a superclass. We can then provide either a default initial value or an init function for the inherited slot.</p>
+<p>By using the <code>inherited slot</code> specification, we are not defining the slot, but rather are stating that this slot is defined by a superclass. We can then provide either a default initial value or an init function for the inherited slot.</p>
 
 </div>
 

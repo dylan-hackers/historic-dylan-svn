@@ -21,7 +21,7 @@
 </div>
 <a name="heading315-0"></a>
 <h1>19.15   <a name="marker-10-808"></a>Summary</h1>
-<p> The most important point about performance is that it is important to pay attention to efficiency during the entire design and development cycle of a project. During the design phase, try to ensure that the algorithms chosen have the right asymptotic behavior and constant factors, and that it is possible to implement the needed operations efficiently. During the implementation phase, use the language constructs that most clearly express what the program is doing. Once the program is working correctly, it is then time to add type and sealing declarations, and to use metering and profiling tools to find and rewrite heavily used, slow parts of the program, in order to improve the performance.</p>
+<p>The most important point about performance is that it is important to pay attention to efficiency during the entire design and development cycle of a project. During the design phase, try to ensure that the algorithms chosen have the right asymptotic behavior and constant factors, and that it is possible to implement the needed operations efficiently. During the implementation phase, use the language constructs that most clearly express what the program is doing. Once the program is working correctly, it is then time to add type and sealing declarations, and to use metering and profiling tools to find and rewrite heavily used, slow parts of the program, in order to improve the performance.</p>
 <p>One of the most important considerations when programming is not to worry about performance too soon. It is always more important that your design and implementation be clear and correct, first. There is no value in arriving at an answer with lightning speed, if it turns out to be the wrong answer.</p>
 <p>In this chapter, we covered the following:</p>
 <ul>
@@ -35,39 +35,39 @@
 <li><p>We presented both an execution and efficiency model that provides a conceptual model of how a program in Dylan runs, and what the relative cost of different program elements are.</p></li>
 <li><p>We examined the method constructs for flexibility and performance available in Dylan; see <a href="#marker-9-752">Table 19.1</a>.</p></li>
 </ul>
-<p> </p>
+<p></p>
 <table border="1"><caption>Table 19.1   <a name="marker-9-752"></a>Methods: flexibility versus performance.</caption><tr valign="top"><th><p>Construct</p>
 </th><th><p>Effects</p>
-</th></tr><tr valign="top"><td><p> direct method</p>
-</td><td><p> highly optimizable<br />no method dispatch</p>
-</td></tr><tr valign="top"><td><p> sealed generic function on a sealed class</p>
-</td><td><p> highly optimizable<br />not extensible by other libraries</p>
-</td></tr><tr valign="top"><td><p> sealed generic function on an open class</p>
-</td><td><p> optimizable<br />other libraries can subclass</p>
-</td></tr><tr valign="top"><td><p> open generic function on an open class<br />in a sealed domain</p>
-</td><td><p> highly optimizable<br />other libraries can add methods<br />other libraries can subclass</p>
-</td></tr><tr valign="top"><td><p> open generic function on an open class</p>
-</td><td><p> not optimizable<br />methods can be added at run time<br />subclasses can be created at run time</p>
+</th></tr><tr valign="top"><td><p>direct method</p>
+</td><td><p>highly optimizable<br />no method dispatch</p>
+</td></tr><tr valign="top"><td><p>sealed generic function on a sealed class</p>
+</td><td><p>highly optimizable<br />not extensible by other libraries</p>
+</td></tr><tr valign="top"><td><p>sealed generic function on an open class</p>
+</td><td><p>optimizable<br />other libraries can subclass</p>
+</td></tr><tr valign="top"><td><p>open generic function on an open class<br />in a sealed domain</p>
+</td><td><p>highly optimizable<br />other libraries can add methods<br />other libraries can subclass</p>
+</td></tr><tr valign="top"><td><p>open generic function on an open class</p>
+</td><td><p>not optimizable<br />methods can be added at run time<br />subclasses can be created at run time</p>
 </td></tr></table><ul>
 <li><p>We discussed the constructs that can <a name="marker-2-809"></a>have type constraints, and the influence on performance or flexibility of using such a declaration; see <a href="#marker-9-754">Table 19.2</a>.</p></li>
 </ul><table border="1"><caption>
 Table 19.2   <a name="marker-9-754"></a>Type constraint: flexibility versus performance.
 </caption><tr valign="top"><th><p>Construct</p>
 </th><th><p>Effects</p>
-</th></tr><tr valign="top"><td><p> module constants</p>
-</td><td><p> enforce program correctness</p>
-</td></tr><tr valign="top"><td><p> module variables</p>
-</td><td><p> permit type inferencing</p>
-</td></tr><tr valign="top"><td><p> required parameters</p>
-</td><td><p> required for method dispatch<br />permit type inferencing</p>
-</td></tr><tr valign="top"><td><p> optional parameters</p>
-</td><td><p> permit type inferencing</p>
-</td></tr><tr valign="top"><td><p> return values</p>
-</td><td><p> enforce program correctness<br />permit type inferencing</p>
-</td></tr><tr valign="top"><td><p> limited types</p>
-</td><td><p> permit type inferencing<br />permit compact data representation</p>
-</td></tr><tr valign="top"><td><p>  slots</p>
-</td><td><p> permit type inferencing</p>
+</th></tr><tr valign="top"><td><p>module constants</p>
+</td><td><p>enforce program correctness</p>
+</td></tr><tr valign="top"><td><p>module variables</p>
+</td><td><p>permit type inferencing</p>
+</td></tr><tr valign="top"><td><p>required parameters</p>
+</td><td><p>required for method dispatch<br />permit type inferencing</p>
+</td></tr><tr valign="top"><td><p>optional parameters</p>
+</td><td><p>permit type inferencing</p>
+</td></tr><tr valign="top"><td><p>return values</p>
+</td><td><p>enforce program correctness<br />permit type inferencing</p>
+</td></tr><tr valign="top"><td><p>limited types</p>
+</td><td><p>permit type inferencing<br />permit compact data representation</p>
+</td></tr><tr valign="top"><td><p>slots</p>
+</td><td><p>permit type inferencing</p>
 </td></tr></table><a name="link-perform-lastpage"></a><a name="link-nexcept-firstpage"></a><!-- FM pgf ignored -->
 
 </div>

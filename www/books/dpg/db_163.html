@@ -21,7 +21,7 @@
 </div>
 <a name="heading163-0"></a>
 <h1>11.5.5   Search of arrays with <em><a name="marker-2-429"></a><a name="marker-2-430"></a>for</em> and <em><a name="marker-2-431"></a>block</em></h1>
-<p> Suppose that you wanted to search a two-dimensional array, and to return the first number greater than a given value. </p>
+<p>Suppose that you wanted to search a two-dimensional array, and to return the first number greater than a given value. </p>
 <pre>
 define method find-larger-than 
     (2d-array :: &lt;array&gt;, value :: &lt;integer&gt;)
@@ -40,7 +40,7 @@ define method find-larger-than
   end block;
 end method find-larger-than;
 </pre>
-<p> In the preceding example, the <code>block</code> statement binds the variable <code>return</code> to a <strong>nonlocal exit procedure</strong>. If this exit procedure is called while the <code>block</code> is in effect, it will return immediately from the <code>block</code> statement, using any provided arguments as return values. Thus, if an element of <code>2d-array</code> is greater than <code>value</code>, then this element will be returned immediately from the <code>block</code>, and thus from the method. Array elements can be accessed with the square-bracket syntax, or with the function <a name="marker-2-432"></a><code>aref</code>. (For more information about referencing elements of an array, see <a href="db_170.html#marker-9-455">Section 12.1.3, page 164</a>.) If the entire array is searched, and no element is found that is greater than <code>value</code>, then the <code>for</code> loops exit normally and the <code>block</code> statement returns the last value in the <code>block</code> body, which in this case is false. We use the <a name="marker-2-433"></a><code>type-union</code> type-generating function to create a type that permits either false or an integer to be returned from this method.</p>
+<p>In the preceding example, the <code>block</code> statement binds the variable <code>return</code> to a <strong>nonlocal exit procedure</strong>. If this exit procedure is called while the <code>block</code> is in effect, it will return immediately from the <code>block</code> statement, using any provided arguments as return values. Thus, if an element of <code>2d-array</code> is greater than <code>value</code>, then this element will be returned immediately from the <code>block</code>, and thus from the method. Array elements can be accessed with the square-bracket syntax, or with the function <a name="marker-2-432"></a><code>aref</code>. (For more information about referencing elements of an array, see <a href="db_170.html#marker-9-455">Section 12.1.3, page 164</a>.) If the entire array is searched, and no element is found that is greater than <code>value</code>, then the <code>for</code> loops exit normally and the <code>block</code> statement returns the last value in the <code>block</code> body, which in this case is false. We use the <a name="marker-2-433"></a><code>type-union</code> type-generating function to create a type that permits either false or an integer to be returned from this method.</p>
 
 </div>
 

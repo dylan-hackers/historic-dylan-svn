@@ -21,13 +21,13 @@
 </div>
 <a name="heading113-0"></a>
 <h1>9.3   <a name="marker-9-297"></a>Method <a name="marker-2-298"></a>dispatch and nonclass types</h1>
-<p> In this section, we describe the implications for method dispatch of using nonclass types as parameter specializers. This advanced topic is included as reference material; you can skip it safely if you prefer. The description that we give here is meant to provide a general understanding, and does not cover all cases. For exact details, you should consult <em>The Dylan Reference Manual</em>.</p>
+<p>In this section, we describe the implications for method dispatch of using nonclass types as parameter specializers. This advanced topic is included as reference material; you can skip it safely if you prefer. The description that we give here is meant to provide a general understanding, and does not cover all cases. For exact details, you should consult <em>The Dylan Reference Manual</em>.</p>
 <p>Recall that, when a generic function is called, Dylan determines which method to invoke by comparing the required <strong>arguments</strong> passed to the generic function with the types of the corresponding <strong>parameters</strong> of the generic function's methods. Dylan uses the following procedure, assuming that there is only one required argument:</p>
 <p>1.  Find all the applicable methods. A method is applicable if the required argument is an instance of the type of the specialized parameter.</p>
 <p>2.  Sort the applicable methods in order of specificity. One method is more specific than another if the type of its specialized parameter is a <a name="marker-2-299"></a><strong>proper subtype</strong> of the type of the other method's specialized parameter. For definitions of "proper subtype" in various situations, see Sections <a href="db_114.html#marker-9-300">9.3.1</a> through <a href="db_118.html#marker-9-309">9.3.5</a>.</p>
 <p>(In the presence of multiple inheritance, the specificity rule is more complex. For more information, see <a href="db_288.html#marker-9-739">Section 18.4, page 300</a>.)</p>
 <p>3.  Call the most specific method.</p>
-<p> (If there is more than one required argument, Dylan constructs the sorted list of methods by combining separate sorted lists for all required arguments.)</p>
+<p>(If there is more than one required argument, Dylan constructs the sorted list of methods by combining separate sorted lists for all required arguments.)</p>
 <p>For any given argument and any given set of parameter types, Dylan has to answer two questions:</p>
 <p>1.  Is the argument an instance of a given type? The answer determines method applicability.</p>
 <p>2.  Is one type a proper subtype of another type? The answer determines method specificity.</p>

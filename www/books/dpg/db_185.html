@@ -21,7 +21,7 @@
 </div>
 <a name="heading185-0"></a>
 <h1>12.3.3   <a name="marker-9-554"></a>Creation of methods</h1>
-<p> You can create a method<a name="marker-2-555"></a> in the following ways:</p>
+<p>You can create a method<a name="marker-2-555"></a> in the following ways:</p>
 <ul>
 <li><p>You can create one explicitly by <code>define method<a name="marker-2-556"></a></code>. This definition also adds the method to a generic function, creating the generic function if the latter does not already exist.</p></li>
 <li><p>You can create one explicitly by a <code>method<a name="marker-2-557"></a></code> statement. This statement does not add the method to a generic function.</p></li>
@@ -29,7 +29,7 @@
 <li><p>You can create one implicitly by defining a slot (other than a virtual slot) in <code>define class<a name="marker-2-559"></a></code>. Dylan defines a getter method for the slot, and adds it to a generic function, creating the generic function if that function does not already exist.</p></li>
 <li><p>You can create one implicitly by defining a slot (other than a virtual or a constant slot) in <code>define class<a name="marker-2-560"></a></code>. Dylan defines a setter method for the slot, and adds it to a generic function, creating the generic function if that function does not already exist.</p></li>
 </ul>
-<p> Creating a method by using <code>method<a name="marker-2-561"></a></code> is useful when the method does not need to be part of a generic function. For instance, various Dylan functions take as arguments other functions that act as predicates, or test functions. One of these is <code>choose</code>, which selects members of a sequence that satisfy a test function, and returns those members as a new sequence. We might pick all the strings out of a mixed sequence as follows:</p>
+<p>Creating a method by using <code>method<a name="marker-2-561"></a></code> is useful when the method does not need to be part of a generic function. For instance, various Dylan functions take as arguments other functions that act as predicates, or test functions. One of these is <code>choose</code>, which selects members of a sequence that satisfy a test function, and returns those members as a new sequence. We might pick all the strings out of a mixed sequence as follows:</p>
 <pre>
 define method choose-strings
     (sequence :: &lt;sequence&gt;) =&gt; (new-seq :: &lt;sequence&gt;)
@@ -37,7 +37,7 @@ define method choose-strings
 </em>  choose(method (object) instance?(object, &lt;string&gt;) end method, sequence);
   end method choose-strings;
 </pre>
-<p> Creating a method by using <code>local method<a name="marker-2-562"></a></code> is useful for a method that does not need to be part of a generic function, but does need to be given a name so that it can call itself recursively, or so that other code in the enclosing body can refer to it. For an example, see <a href="db_151.html#marker-9-408">Section 11.3.6, page 147</a>.</p>
+<p>Creating a method by using <code>local method<a name="marker-2-562"></a></code> is useful for a method that does not need to be part of a generic function, but does need to be given a name so that it can call itself recursively, or so that other code in the enclosing body can refer to it. For an example, see <a href="db_151.html#marker-9-408">Section 11.3.6, page 147</a>.</p>
 
 </div>
 

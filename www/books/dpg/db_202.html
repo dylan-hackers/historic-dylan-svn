@@ -21,7 +21,7 @@
 </div>
 <a name="heading202-0"></a>
 <h1>13.4   <a name="marker-9-634"></a>Module definition</h1>
-<p> Enough theory. Let's see how modules and libraries can be used in practice by considering the classes and methods for representing and manipulating times that we defined in <a href="db_103.html#marker-9-278">Chapter 8,  <em>A Simple Library</em></a>, and showing how they might be packaged into a reusable software component.</p>
+<p>Enough theory. Let's see how modules and libraries can be used in practice by considering the classes and methods for representing and manipulating times that we defined in <a href="db_103.html#marker-9-278">Chapter 8,  <em>A Simple Library</em></a>, and showing how they might be packaged into a reusable software component.</p>
 <p>First, let's examine what the external protocol of our time library might be. We have defined two kinds of time that can be created: <code>&lt;time-of-day&gt;</code> and <code>&lt;time-offset&gt;</code>. We have a generic function for printing times, <code>say</code>, and one, perhaps not so obvious, utility function for creating new times, <code>encode-total-<br />seconds</code>.</p>
 <p>We define a method, <code>\+</code>, for adding times, but a method is not a protocol. The protocol for the generic function <code>\+</code> is defined by the Dylan library, which already exports it, for any Dylan program. When we define our method for adding times, we are extending that protocol; we are not creating a new one.</p>
 <p>The <code>decode-total-seconds</code> function, the <code>&lt;sixty-unit&gt;</code> class, and several other functions are used internally only, so they are not part of the external <br />protocol. </p>

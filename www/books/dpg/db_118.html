@@ -21,11 +21,11 @@
 </div>
 <a name="heading118-0"></a>
 <h1>9.3.5   <a name="marker-9-309"></a>Method <a name="marker-2-310"></a>dispatch and limited collections</h1>
-<p> When a type is a <a name="marker-2-311"></a>limited-collection type, Dylan uses the following rules:</p>
+<p>When a type is a <a name="marker-2-311"></a>limited-collection type, Dylan uses the following rules:</p>
 <p>1.  An object is an instance of a limited-collection type if all the following are true: the class of the object is a subclass of the base type; the two element types are equivalent; and, if the limited-collection type restricts the size or dimensions, the size or dimensions of the object are the same as those specified for the type. If the object is an instance of <code>&lt;strectchy-collection&gt;</code>, the limited-collection type cannot restrict the size or dimensions.</p>
 <p>2.  A limited-collection type is a proper subtype of its base type, as long as it is not equivalent to the base type.</p>
 <p>Generally, one limited-collection type is a proper subtype of another limited-collection type if all the following are true: the base type of the first is a subclass of the base type of the second; the two element types are equivalent; the size or dimensions of the first limited type are no less restricted than those of the second type; and the first limited type is not equivalent to the second.</p>
-<p> For example, suppose that we have these definitions:</p>
+<p>For example, suppose that we have these definitions:</p>
 <pre>
 define constant &lt;limited-vector-of-3-integers&gt;
   = limited(&lt;vector&gt;, of: &lt;integer&gt;, size: 3);
@@ -40,7 +40,7 @@ define constant $v2 = vector(1, 1, 1);
 <em>// Method 3
 </em>define method say (x :: &lt;limited-vector-of-3-numbers&gt;) ... end method say;
 </pre>
-<p> Now, if <code>say</code> is called with an argument of <code>$v1</code>, both method 1 and method 2 are applicable, and method 2 is more specific than method 1. Note that <code>$v1</code> is an instance of <code>&lt;limited-vector-of-3-integers&gt;</code> but is not an instance of <code>&lt;limited-vector-of-3-numbers&gt;</code>, because the element type of <code>$v1</code> is not equivalent to the element type of <code>&lt;limited-vector-of-3-numbers&gt;.</code></p>
+<p>Now, if <code>say</code> is called with an argument of <code>$v1</code>, both method 1 and method 2 are applicable, and method 2 is more specific than method 1. Note that <code>$v1</code> is an instance of <code>&lt;limited-vector-of-3-integers&gt;</code> but is not an instance of <code>&lt;limited-vector-of-3-numbers&gt;</code>, because the element type of <code>$v1</code> is not equivalent to the element type of <code>&lt;limited-vector-of-3-numbers&gt;.</code></p>
 <p>If <code>say</code> is called with an argument of <code>$v2</code>, only method 1 is applicable. Note that <code>$v2 </code>is not an instance of either of the limited-collection types we defined, even though <code>$v2</code> is a vector that contains three integers. (For example, we could store objects other than integers in <code>$v2</code>.)</p>
 
 </div>

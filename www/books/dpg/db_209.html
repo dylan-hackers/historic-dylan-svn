@@ -21,8 +21,8 @@
 </div>
 <a name="heading209-0"></a>
 <h1>13.7.1   The <em>sixty-unit</em> implementation file</h1>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>sixty-unit</code> implementation file: <code>sixty-unit.dylan</code>.  </p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>sixty-unit</code> implementation file: <code>sixty-unit.dylan</code>.  </p>
 </th></tr><tr valign="top"><td><pre>
 Module: sixty-unit
 define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
@@ -46,8 +46,8 @@ end method decode-total-seconds;
   values(hours, minutes, seconds);
 end method decode-total-seconds; 
 </pre></td></tr></table>
-<p> </p>
-<p> The preceding implementation file is the first file in which we use one of our own modules. The header statement <code>Module: sixty-unit</code> tells the Dylan compiler where to look to resolve the names that we are using -- it tells Dylan that, when we say <code>define class</code> or <code>&lt;integer&gt;</code> or <code>*</code>, we mean the Dylan definitions of <code>define class</code>, <code>&lt;integer&gt;</code>, and <code>*</code>, because <code>sixty-unit</code> uses the <code>dylan</code> module. When we define <code>encode-total-seconds</code>, we mean the <code>encode-total-seconds</code> created by the <code>time</code> module, because <code>sixty-unit</code> uses that module.</p>
+<p></p>
+<p>The preceding implementation file is the first file in which we use one of our own modules. The header statement <code>Module: sixty-unit</code> tells the Dylan compiler where to look to resolve the names that we are using -- it tells Dylan that, when we say <code>define class</code> or <code>&lt;integer&gt;</code> or <code>*</code>, we mean the Dylan definitions of <code>define class</code>, <code>&lt;integer&gt;</code>, and <code>*</code>, because <code>sixty-unit</code> uses the <code>dylan</code> module. When we define <code>encode-total-seconds</code>, we mean the <code>encode-total-seconds</code> created by the <code>time</code> module, because <code>sixty-unit</code> uses that module.</p>
 
 </div>
 

@@ -21,7 +21,7 @@
 </div>
 <a name="heading330-0"></a>
 <h1>21.1   Patterns <a name="marker-2-865"></a>and templates</h1>
-<p> A Dylan macro consists of a set of <strong>rules<a name="marker-2-866"></a></strong>. Each rule has two basic parts: a <strong>pattern</strong> that is matched against a fragment of code, and a <strong>template</strong> that is substituted for the matched fragment, perhaps including pieces of the original fragment. When a macro is invoked, each rule is tried in order until a matching pattern is found. When a match is found, the macro is replaced by the matching template. If no match can be found, an error occurs.</p>
+<p>A Dylan macro consists of a set of <strong>rules<a name="marker-2-866"></a></strong>. Each rule has two basic parts: a <strong>pattern</strong> that is matched against a fragment of code, and a <strong>template</strong> that is substituted for the matched fragment, perhaps including pieces of the original fragment. When a macro is invoked, each rule is tried in order until a matching pattern is found. When a match is found, the macro is replaced by the matching template. If no match can be found, an error occurs.</p>
 <p>Dylan macros are recognized by the compiler because they fit one of three possible formats: the function macro, the statement macro, and the defining macro. The macro format determines the overall fragment that is matched against the macro's rules at each macro invocation.</p>
 <p>The simplest macro format that the compiler can match is that of a function call. A <a name="marker-2-867"></a><strong>function macro</strong> is invoked in exactly the same way that a function is invoked. The name of the macro is a module variable that can be used anywhere a function call can occur. Typically, it is simply the name followed by a parenthesized list of arguments, but recall that slot-style abbreviations and unary and binary operators are also function calls.</p>
 <p>The most important use of function macros is to rearrange or <a name="marker-2-868"></a>delay evaluation of arguments. The fragment that is matched against the function macro's rules is the phrase that represents a function's arguments. The function macro can then rearrange the function arguments, perhaps adding code. When a macro rearranges its arguments, its action has the effect of delaying the evaluation of the arguments (as opposed to a function call, where the argument expressions are evaluated and then passed to the function).</p>
@@ -32,7 +32,7 @@ define macro if-else
  =&gt; { if (?test) ?true else ?false end }
 end macro if-else;
 </pre>
-<p> We could not write <code>if-else</code> as a function, because both the true and false expressions would be evaluated before the function was even called:</p>
+<p>We could not write <code>if-else</code> as a function, because both the true and false expressions would be evaluated before the function was even called:</p>
 <pre>
 <em>? </em>define variable *x* = 0;
 <em>? </em>define variable *y* = 0;
@@ -43,18 +43,18 @@ end macro if-else;
 <em>? </em>*x*;
 <em>1</em>
 </pre>
-<p> If we had defined <code>if-else</code> as a function, *x* would have been <code>-1</code>, rather than <code>1</code>, because both assignments to *x* would have been evaluated, before <code>if-else</code> was called. When a macro is used, the assignments are just substituted into the template <code>if</code>, which evaluates the first clause only when the condition is true.</p>
+<p>If we had defined <code>if-else</code> as a function, *x* would have been <code>-1</code>, rather than <code>1</code>, because both assignments to *x* would have been evaluated, before <code>if-else</code> was called. When a macro is used, the assignments are just substituted into the template <code>if</code>, which evaluates the first clause only when the condition is true.</p>
 <p>Looking at the macro definition of <code>if-else</code>, we can infer basic ideas about macros. A macro is introduced by <a name="marker-2-869"></a><code>define macro</code>, followed by the <strong>macro name</strong> --<strong> </strong>in this case, <code>if-else</code>. The definition of the macro is a <strong>rule</strong> that has two parts: a <strong>pattern</strong> enclosed in braces, <code>{}</code>, that mimics the fragment that it is to match, and a <strong>replacement</strong>. Macro parameters, called <a name="marker-2-870"></a><strong>pattern variables</strong>, are introduced in the pattern by <code>?</code>. They match fragments with particular <strong>constraints</strong> -- in this case, <code>:expression</code>. They are delimited by punctuation -- in this case, the open and close parentheses, <code>()</code>, and the comma, <code>,</code>.</p>
 <p>The replacement part of the rule, the <strong>expansion</strong>, is indicated by <code>=&gt;</code> and is defined by a <strong>template</strong>, also enclosed in braces. The template is in the form of a code fragment, where pattern variables are used to substitute in the fragments they matched in the pattern. Note that matching and replacement are language based, so required and optional whitespace is treated exactly as in Dylan. We have used optional whitespace to improve the legibility of the macro definitions presented here.</p>
 <p>Most Dylan development environments provide a way to view code after all macros have been expanded. This view can be helpful in debugging macros that you write. For example, showing the expanded view of an expression like</p>
 <pre>
 *y* := if-else(*y* == 0, *x* := 1, *x* := -1);;
 </pre>
-<p> might yield</p>
+<p>might yield</p>
 <pre>
 *y*<code> := <em>if (</em></code>*y* == 0<em>)<code> </code></em>*x*<code> := 1 <em>else </em></code>*x*<code> := -1 <em>end;</em></code>
 </pre>
-<p> The exact format of the expanded view of the macro depends on the particular development environment. Here, we show the code that comes from the macro template in <em>underlined italic</em>, whereas the fragments matched by the pattern variables and substituted into the template are presented in our conventional <code>code font</code>. Note that the <code>if-else</code> macro we have defined is just syntactic sugar -- Dylan's built-in <code>if</code> statement is perfectly sufficient for the job.</p>
+<p>The exact format of the expanded view of the macro depends on the particular development environment. Here, we show the code that comes from the macro template in <em>underlined italic</em>, whereas the fragments matched by the pattern variables and substituted into the template are presented in our conventional <code>code font</code>. Note that the <code>if-else</code> macro we have defined is just syntactic sugar -- Dylan's built-in <code>if</code> statement is perfectly sufficient for the job.</p>
 <p>Another reason to <a name="marker-2-871"></a>delay evaluation is to change the value of an argument -- for example, to implement an operator similar in spirit to C's <code>++</code> and <code>+=</code> operators:</p>
 <pre>
 define macro inc!
@@ -64,7 +64,7 @@ define macro inc!
  =&gt; { ?place := ?place + 1; }
 end macro inc!;
 </pre>
-<p> This macro might be used as follows:</p>
+<p>This macro might be used as follows:</p>
 <pre>
 <em>?</em> define variable *x* = 0;
 <em>?</em> inc!(*x*, 3);
@@ -76,7 +76,7 @@ end macro inc!;
 <em>?</em> *x*;
 <em>4</em>
 </pre>
-<p> In this macro, it is important to delay the evaluation of the first argument because we want to be able to assign to the variable or slot it is stored in, rather than simply to manipulate the value of the variable or slot.</p>
+<p>In this macro, it is important to delay the evaluation of the first argument because we want to be able to assign to the variable or slot it is stored in, rather than simply to manipulate the value of the variable or slot.</p>
 <p>The <code>inc!</code> macro demonstrates the use of multiple rules in a macro. They are tried in order until an appropriate match is found. This allows the <code>inc!</code> macro to have two forms. The one-argument form increments the argument by 1. The two-argument form allows the increment amount to be specified.</p>
 
 </div>

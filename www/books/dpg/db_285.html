@@ -21,7 +21,7 @@
 </div>
 <a name="heading285-0"></a>
 <h1>18.3   <a name="marker-9-733"></a>The <a name="marker-2-734"></a>class precedence list</h1>
-<p> When each class has only one direct superclass, the relations among superclasses and subclasses form a <strong>tree</strong><a name="marker-2-735"></a>. For every subclass in the tree, there is a well-defined ordering in terms of <strong>specificity</strong> for that class and all its superclasses. A subclass is always more specific than are any of its superclasses. When each class has only one superclass, we can order unambiguously any given class and all its superclasses, from <a name="marker-2-736"></a><strong>most specific</strong> to <strong>least specific</strong>. <a href="db_282.html#marker-9-722">Figure 18.1</a> illustrates part of such an ordering for our original, single-inheritance definitions of <code>&lt;vehicle&gt;</code> and <code>&lt;vehicle&gt;</code>'s subclasses.</p>
+<p>When each class has only one direct superclass, the relations among superclasses and subclasses form a <strong>tree</strong><a name="marker-2-735"></a>. For every subclass in the tree, there is a well-defined ordering in terms of <strong>specificity</strong> for that class and all its superclasses. A subclass is always more specific than are any of its superclasses. When each class has only one superclass, we can order unambiguously any given class and all its superclasses, from <a name="marker-2-736"></a><strong>most specific</strong> to <strong>least specific</strong>. <a href="db_282.html#marker-9-722">Figure 18.1</a> illustrates part of such an ordering for our original, single-inheritance definitions of <code>&lt;vehicle&gt;</code> and <code>&lt;vehicle&gt;</code>'s subclasses.</p>
 <p>With multiple inheritance, the relations among superclasses and subclasses can form a <strong>graph</strong><a name="marker-2-737"></a>, which may not be a tree. We cannot always order a class and all its superclasses in terms of specificity. It is still true that a subclass is more specific than are any of its superclasses. But we cannot always order its superclasses in terms of specificity.</p>
 <p><a href="#marker-9-723">Figure 18.2</a> illustrates our current definitions of <code>&lt;vehicle&gt;</code> and of <code>&lt;vehicle&gt;</code>'s subclasses.</p>
 <table border="1"><caption>Figure 18.2   <a name="marker-9-723"></a>Graph of vehicle classes that use multiple inheritance.</caption><tr valign="top"><td>
@@ -34,7 +34,7 @@
 &lt;B707&gt;, &lt;commercial-aircraft&gt;, &lt;aircraft&gt;,
   &lt;ground-vehicle&gt;, &lt;flying-vehicle&gt;, &lt;vehicle&gt;, &lt;physical-object&gt;, &lt;object&gt;
 </pre>
-<p> Dylan needs a way to determine which of these orderings to use. It solves the problem by constructing a <strong>class precedence list</strong> for <code>&lt;B707&gt;</code> and its superclasses.</p>
+<p>Dylan needs a way to determine which of these orderings to use. It solves the problem by constructing a <strong>class precedence list</strong> for <code>&lt;B707&gt;</code> and its superclasses.</p>
 
 </div>
 

@@ -21,8 +21,8 @@
 </div>
 <a name="heading213-0"></a>
 <h1>13.8.1   The <em>sixty-unit-library</em> file</h1>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The <code>sixty-unit</code> library file: <code>sixty-unit-library.dylan</code>.  </p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The <code>sixty-unit</code> library file: <code>sixty-unit-library.dylan</code>.  </p>
 </th></tr><tr valign="top"><td><pre>
 Module: dylan-user
 <em>// Library definition
@@ -46,8 +46,8 @@ end module sixty-unit;
 </em>  use dylan;
 end module sixty-unit-implementation;
 </pre></td></tr></table>
-<p> </p>
-<p> Notice that we have taken this opportunity to reorganize the <code>sixty-unit</code> module into a separate interface and implementation. We also have to create <code>encode-total-seconds</code> in the <code>sixty-unit</code> module, rather than to create it in the <code>time</code> interface and to define it in <code>sixty-unit</code>. Recall that all created names must be defined in the library in which they are created; we cannot use the create-define structure across libraries. We still want <code>encode-total-seconds</code> to be part of the interface of the <code>time</code> library, so we will have to change the <code>time</code> interface module to import it and to re-export it from the time library, as shown in <a href="db_214.html#marker-9-654">Section 13.8.2</a>.</p>
+<p></p>
+<p>Notice that we have taken this opportunity to reorganize the <code>sixty-unit</code> module into a separate interface and implementation. We also have to create <code>encode-total-seconds</code> in the <code>sixty-unit</code> module, rather than to create it in the <code>time</code> interface and to define it in <code>sixty-unit</code>. Recall that all created names must be defined in the library in which they are created; we cannot use the create-define structure across libraries. We still want <code>encode-total-seconds</code> to be part of the interface of the <code>time</code> library, so we will have to change the <code>time</code> interface module to import it and to re-export it from the time library, as shown in <a href="db_214.html#marker-9-654">Section 13.8.2</a>.</p>
 <p>If we had followed our own recommendations in <a href="db_205.html#marker-9-644">Section 13.4.3, page 198</a>, we would probably have discovered that <code>encode-total-seconds</code> belonged in the <code>sixty-unit</code> interface, and we would have avoided most of this <br />reorganization.</p>
 
 </div>

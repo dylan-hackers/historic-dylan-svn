@@ -21,7 +21,7 @@
 </div>
 <a name="heading179-0"></a>
 <h1>12.2.5   <a name="marker-9-529"></a>Parameter-list congruence</h1>
-<p> A generic function and its methods must all have parameter lists that are compatible, or <strong>congruent<a name="marker-2-530"></a></strong>. Following are the basic rules:</p>
+<p>A generic function and its methods must all have parameter lists that are compatible, or <strong>congruent<a name="marker-2-530"></a></strong>. Following are the basic rules:</p>
 <ul>
 <li><p>A generic function and its methods must all have the same number of required arguments.</p></li>
 <li><p>The type of any given parameter in each method must be a subtype of the corresponding parameter in the generic function.</p></li>
@@ -30,21 +30,21 @@
 <li><p>If a generic function or any of its methods accepts keyword arguments -- that is, it has <code>#key</code> in its parameter list -- then the generic function and all its methods must accept keyword arguments. For this rule, a generic function or method "accepts keyword arguments" even if its parameter list ends with just <code>#key</code>.</p></li>
 <li><p>If a generic function has any specific keyword parameters, then all its methods must have (at least) those specific keyword parameters. The appearance of <code>#al<a name="marker-2-533"></a>l-keys</code> in a method's parameter list does not satisfy this requirement.</p></li>
 </ul>
-<p> The following parameter lists are congruent, because both functions have only required arguments, they have the same number of required arguments, and the type of each method parameter is a subtype of the same parameter in the generic function:</p>
+<p>The following parameter lists are congruent, because both functions have only required arguments, they have the same number of required arguments, and the type of each method parameter is a subtype of the same parameter in the generic function:</p>
 <pre>
 define generic g (arg1 :: &lt;complex&gt;, arg2 :: &lt;integer&gt;);
 define method g (arg1 :: &lt;real&gt;, arg2 :: &lt;integer&gt;)
   ...
 end method g;
 </pre>
-<p> The following parameter lists are congruent, because both functions meet the tests for required arguments, both accept keyword arguments, and the generic function has no specific keyword parameters:</p>
+<p>The following parameter lists are congruent, because both functions meet the tests for required arguments, both accept keyword arguments, and the generic function has no specific keyword parameters:</p>
 <pre>
 define generic g (arg1 :: &lt;real&gt;, #key);
 define method g (arg1 :: &lt;integer&gt;, #key base :: &lt;integer&gt; = 10)
   ...
 end method g;
 </pre>
-<p> The following parameter lists are not congruent, because the method's parameter list does not include the specific keyword <code>base</code> of the generic function, even though it does include <code>#all-keys</code>:</p>
+<p>The following parameter lists are not congruent, because the method's parameter list does not include the specific keyword <code>base</code> of the generic function, even though it does include <code>#all-keys</code>:</p>
 <pre>
 define generic g (arg1 :: &lt;integer&gt;, #key base);
 define method g (arg1 :: &lt;integer&gt;, #key #all-keys)

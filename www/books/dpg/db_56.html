@@ -21,7 +21,7 @@
 </div>
 <a name="heading56-0"></a>
 <h1>4.6.1   Method for <a name="marker-2-176"></a><em>encode-total-seconds</em></h1>
-<p> We can provide a method that converts from hours, minutes, and seconds to total seconds:</p>
+<p>We can provide a method that converts from hours, minutes, and seconds to total seconds:</p>
 <pre>
 define method encode-total-seconds 	<em>// 1
 </em>    (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)	<em>// 2
@@ -29,7 +29,7 @@ define method encode-total-seconds 	<em>// 1
 </em>  ((hours * 60) + minutes) * 60 + seconds;	<em>// 4
 </em>end method encode-total-seconds;	<em>// 5</em>
 </pre>
-<p> Line 2 contains the parameter list of the method <code>encode-total-seconds</code>. The method has three required parameters, named <code>hours</code>, <code>minutes</code>, and <code>seconds</code>, each of type <code>&lt;integer&gt;</code>. This method is invoked when <code>encode-total-seconds</code> is called with three integer arguments.</p>
+<p>Line 2 contains the parameter list of the method <code>encode-total-seconds</code>. The method has three required parameters, named <code>hours</code>, <code>minutes</code>, and <code>seconds</code>, each of type <code>&lt;integer&gt;</code>. This method is invoked when <code>encode-total-seconds</code> is called with three integer arguments.</p>
 <p>Line 3 contains the <a name="marker-2-177"></a><strong>value declaration</strong>, which starts with the characters <code>=&gt;</code>. It is a list declaring the values returned by the method. Each element of the list contains a descriptive name of the return value and the type of the value (if the type is omitted, it is <code>&lt;object&gt;</code>). In this case, there is one value returned, named <code>total-seconds</code>, which is of the type <code>&lt;integer&gt;</code>. The name of a return value is used purely for documentation purposes. Although methods are not required to have value declarations, there are advantages to supplying those declarations. When you provide a value declaration for a method, the compiler signals an error if the method tries to return a value of the wrong type, can check receivers of the results of the method for correct type, and can usually produce more efficient code. These advantages are significant, so we use value declarations throughout the rest of this book. For more information about value declarations, see <a href="db_178.html#marker-9-526">Section 12.2.4, page 175</a>.</p>
 <p>Line 4 is the only expression in the body. It uses arithmetic functions to convert the hours, minutes, and seconds into total seconds. All methods return the value of the expression executed last in the body. This method returns the result of the arithmetic expression in line 4.</p>
 <p>In line 5, we could have simply used <code>end;</code>. We provided <code>end method decode-total-seconds;</code> for documentation purposes. Throughout the rest of this book, we provide the extra words after the <code>end</code> of a definition.</p>
@@ -38,17 +38,17 @@ define method encode-total-seconds 	<em>// 1
 <em>? </em>encode-total-seconds(8, 30, 59);
 <em>30659</em>
 </pre>
-<p> We find it convenient to call <code>encode-total-seconds</code> to initialize the <code>total-<br />seconds</code> slot when we create an instance of <code>&lt;time-of-day&gt;</code>, or when we store <br />a new value in that slot. Here, for example, we create a new instance:</p>
+<p>We find it convenient to call <code>encode-total-seconds</code> to initialize the <code>total-<br />seconds</code> slot when we create an instance of <code>&lt;time-of-day&gt;</code>, or when we store <br />a new value in that slot. Here, for example, we create a new instance:</p>
 <pre>
 <em>?</em> define variable *your-time-of-day* 
     = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds(8, 30, 59));
 </pre>
-<p> We examine the value of the <code>total-seconds</code> slot:</p>
+<p>We examine the value of the <code>total-seconds</code> slot:</p>
 <pre>
 <em>? </em>*your-time-of-day*.total-seconds;
 <em>30659</em>
 </pre>
-<p> The result reminds us that it would be useful to convert in the other direction as well -- from total seconds to hours, minutes, and seconds. </p>
+<p>The result reminds us that it would be useful to convert in the other direction as well -- from total seconds to hours, minutes, and seconds. </p>
 
 </div>
 

@@ -21,15 +21,15 @@
 </div>
 <a name="heading122-0"></a>
 <h1>10.2   <a name="marker-9-324"></a>Gett<a name="marker-2-325"></a>ers and setters for slots</h1>
-<p> As shown in <a href="db_51.html#marker-9-167">Section 4.4, page 42</a>, when you define a class, Dylan automatically defines a getter method to return the value of a slot, and defines a setter method to change the value of a slot.</p>
-<table border="1"><tr valign="top"><td><p> <strong>Performance note:</strong> <a name="marker-2-316"></a>For slot accesses, given accurate type declarations, the compiler can typically optimize away not only the method dispatch, but also the function call, making the executed code just as efficient as it would be in a language such as C, where structure or record slots are accessed directly. See <a href="db_295.html#marker-9-761">Chapter 19,  <em>Performance and Flexibility</em></a>.</p>
-</td></tr></table><p> </p>
-<p> The name of the getter is always the name of the slot. Thus, the getter for the <code>total-seconds</code> slot is <code>total-seconds</code>. Let's look at an example of calling a getter. The first expression is an abbreviation for the second expression:</p>
+<p>As shown in <a href="db_51.html#marker-9-167">Section 4.4, page 42</a>, when you define a class, Dylan automatically defines a getter method to return the value of a slot, and defines a setter method to change the value of a slot.</p>
+<table border="1"><tr valign="top"><td><p><strong>Performance note:</strong> <a name="marker-2-316"></a>For slot accesses, given accurate type declarations, the compiler can typically optimize away not only the method dispatch, but also the function call, making the executed code just as efficient as it would be in a language such as C, where structure or record slots are accessed directly. See <a href="db_295.html#marker-9-761">Chapter 19,  <em>Performance and Flexibility</em></a>.</p>
+</td></tr></table><p></p>
+<p>The name of the getter is always the name of the slot. Thus, the getter for the <code>total-seconds</code> slot is <code>total-seconds</code>. Let's look at an example of calling a getter. The first expression is an abbreviation for the second expression:</p>
 <pre>
 *my-time-of-day*.total-seconds;
 total-seconds(*my-time-of-day*);
 </pre>
-<p> The preceding expressions are calls to the getter function named <code>total-seconds</code>. The choice of which syntax to use is purely a matter of personal style. The first syntax is provided for those people who prefer the slightly more concise dot syntax. The second syntax is provided for those people who prefer slot accesses to look like function calls. In this book, we use the dot syntax.</p>
+<p>The preceding expressions are calls to the getter function named <code>total-seconds</code>. The choice of which syntax to use is purely a matter of personal style. The first syntax is provided for those people who prefer the slightly more concise dot syntax. The second syntax is provided for those people who prefer slot accesses to look like function calls. In this book, we use the dot syntax.</p>
 <p>By default, the name of the setter is the slot's name followed by <code>-setter</code>. Thus, the setter for the <code>total-seconds</code> slot is <code>total-seconds-setter</code>. You can use the <code>:setter</code> slot option to specify a different name for the setter. </p>
 <p>The dot-syntax abbreviation for assignment enables you to invoke the setter by using assignment with the name of the getter. For example, the first two expressions are abbreviations for the third expression:</p>
 <pre>
@@ -37,7 +37,7 @@ total-seconds(*my-time-of-day*);
 total-seconds(*my-time-of-day*) := 180;
 total-seconds-setter(180, *my-time-of-day*);
 </pre>
-<p> Each of these expressions stores the value <code>180</code> in the slot named <code>total-seconds</code> of the object that is the value of the <code>*my-time-of-day*</code> variable. </p>
+<p>Each of these expressions stores the value <code>180</code> in the slot named <code>total-seconds</code> of the object that is the value of the <code>*my-time-of-day*</code> variable. </p>
 <p>Most Dylan programmers do not use the syntax of the third expression to call a setter, because it is more verbose than the first and second expressions. However, it is important to know the name of the setter, so that you can define setter methods. For example, to define a method on the setter for the <code>total-<br />seconds</code> slot, you define it on <code>total-seconds-setter</code>. For an example of a setter method, see <a href="db_124.html#marker-9-327">Section 10.2.2</a>.</p>
 <p>If you do not want Dylan to define a setter method for a slot, you can define the slot to be constant, using the <code>constant</code> slot adjective, or you can give the <code>:setter #f</code> slot option. </p>
 <p>For more information about accessing slots, see <a href="db_169.html#marker-9-452">Section 12.1.2, page 163</a>, and <a href="db_173.html#marker-9-492">Section 12.1.6, page 166</a>.</p>

@@ -21,17 +21,17 @@
 </div>
 <a name="heading51-0"></a>
 <h1>4.4   <a name="marker-9-167"></a>Getters and <a name="marker-2-168"></a>setters of slot values</h1>
-<p> We can store a value in the <code>total-seconds</code> slot of the <code>&lt;time-of-day&gt;</code> instance by using the assignment operator, <code>:=</code>, as follows: </p>
+<p>We can store a value in the <code>total-seconds</code> slot of the <code>&lt;time-of-day&gt;</code> instance by using the assignment operator, <code>:=</code>, as follows: </p>
 <pre>
 <em>? </em>*my-time-of-day*.total-seconds := 180;
 <em>180</em>
 </pre>
-<p> We can examine the value of the slot in the instance: </p>
+<p>We can examine the value of the slot in the instance: </p>
 <pre>
 <em>? </em>*my-time-of-day*.total-seconds;
 <em>180</em>
 </pre>
-<p> Although these expressions may look like they are accessing the slots directly, they are not. They are abbreviations for function calls to a getter and a setter. A <strong>getter</strong> is a method that retrieves the current value of a slot in an object. A <strong>setter</strong> is a method that stores a value in a slot. Each slot in a class automatically has a getter and a setter defined for it. You can see the function-call syntax, and other information about getters and setters, in <a href="db_120.html#marker-9-321">Chapter 10,  <em>Slots</em></a>. </p>
+<p>Although these expressions may look like they are accessing the slots directly, they are not. They are abbreviations for function calls to a getter and a setter. A <strong>getter</strong> is a method that retrieves the current value of a slot in an object. A <strong>setter</strong> is a method that stores a value in a slot. Each slot in a class automatically has a getter and a setter defined for it. You can see the function-call syntax, and other information about getters and setters, in <a href="db_120.html#marker-9-321">Chapter 10,  <em>Slots</em></a>. </p>
 
 </div>
 

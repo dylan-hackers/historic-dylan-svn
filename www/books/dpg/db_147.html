@@ -21,7 +21,7 @@
 </div>
 <a name="heading147-0"></a>
 <h1>11.3.2   <a name="marker-9-400"></a>Iteration with <a name="marker-2-401"></a><em>for</em></h1>
-<p> We can use the <code>for</code> to express concisely ia loop that increments a variable until a limit is reached.</p>
+<p>We can use the <code>for</code> to express concisely ia loop that increments a variable until a limit is reached.</p>
 <pre>
 define method my-copy-sequence 
     (old-sequence :: &lt;sequence&gt;) =&gt; (new-sequence :: &lt;sequence&gt;)
@@ -33,10 +33,10 @@ define method my-copy-sequence
 </em>  new-sequence;
 end method my-copy-sequence;
 </pre>
-<p> In the preceding example, the body is executed <code>old-sequence.size</code> times, with <code>index</code> bound to zero first, then rebound to one more than the previous value of <code>index</code> each time through the loop. The variable <code>index</code> is defined only within the body of the <code>for</code> iteration construct. The body of the <code>for</code> iteration construct begins after the iteration clause(s), and finishes with the matching <code>end</code>. For the <code>while</code> iteration construct shown in <a href="db_146.html#marker-9-395">Section 11.3.1</a>, the body starts after the predicate and finishes with the matching <code>end</code>.</p>
+<p>In the preceding example, the body is executed <code>old-sequence.size</code> times, with <code>index</code> bound to zero first, then rebound to one more than the previous value of <code>index</code> each time through the loop. The variable <code>index</code> is defined only within the body of the <code>for</code> iteration construct. The body of the <code>for</code> iteration construct begins after the iteration clause(s), and finishes with the matching <code>end</code>. For the <code>while</code> iteration construct shown in <a href="db_146.html#marker-9-395">Section 11.3.1</a>, the body starts after the predicate and finishes with the matching <code>end</code>.</p>
 <p>The <code>for</code> loop can have many different kinds of iteration clauses. In this section, we have shown a simple iteration over a series of numbers. In <a href="db_148.html#marker-9-402">Section 11.3.3</a>, we use clauses that bind variables to initial values for the first time through a loop, and use expressions to rebind the variables for the second and subsequent times through the loop. We also demonstrate a clause that permits iteration to continue until an expression is true, both in <a href="db_148.html#marker-9-402">Section 11.3.3</a> and <a href="db_255.html#marker-9-694">Section 16.1.3, page 248</a>.</p>
 <p>The <code>for</code> loop has a simple type of iteration clause that we can use to iterate over any Dylan collection. The airport example in <a href="db_264.html#marker-9-710">Section 17.2.2, page 257</a>, demonstrates iteration over vectors using this kind of iteration clause.</p>
-<p> </p>
+<p></p>
 
 </div>
 

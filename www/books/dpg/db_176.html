@@ -21,16 +21,16 @@
 </div>
 <a name="heading176-0"></a>
 <h1>12.2.2   Return and reception of multiple values</h1>
-<p> A Dylan function call -- and, in general, a Dylan expression -- can return any number of values, including none. The <code>values<a name="marker-2-509"></a></code> function is the means of returning multiple values<a name="marker-2-510"></a>. This function takes zero or more arguments, and returns them as separate values.</p>
+<p>A Dylan function call -- and, in general, a Dylan expression -- can return any number of values, including none. The <code>values<a name="marker-2-509"></a></code> function is the means of returning multiple values<a name="marker-2-510"></a>. This function takes zero or more arguments, and returns them as separate values.</p>
 <p>Multiple values can be received as the initial values of local variables in a <code>let<a name="marker-2-511"></a></code> declaration. If a <code>let</code> declaration contains multiple variables, they are matched with the values returned by the initialization expression, and each variable is bound to the corresponding value. The following example initializes <code>a</code> to <code>1</code> and <code>b</code> to <code>2:</code></p>
 <pre>
 let (a, b) = values(1, 2);
 </pre>
-<p> The following example initializes <code>ans</code> to <code>2</code> and <code>rem</code> to <code>1</code> -- the two values returned by this call to <code>truncate/</code>:</p>
+<p>The following example initializes <code>ans</code> to <code>2</code> and <code>rem</code> to <code>1</code> -- the two values returned by this call to <code>truncate/</code>:</p>
 <pre>
 let (ans, rem) = truncate/(5, 2);
 </pre>
-<p> The variable list can also end with <code>#rest</code> followed by the name of a variable. In this case, the variable is initialized to a sequence. This sequence contains all the remaining values returned by the initialization expression. If there is no <code>#rest</code>, any excess values are discarded. If the number of variables in the <code>let</code> declaration is greater than the number of values returned, the remaining variables are initialized to <code>#f</code>. (But if the <code>let</code> declaration specifies a type for any of these variables, and if <code>#f</code> is not an instance of that type, then Dylan signals an error.)</p>
+<p>The variable list can also end with <code>#rest</code> followed by the name of a variable. In this case, the variable is initialized to a sequence. This sequence contains all the remaining values returned by the initialization expression. If there is no <code>#rest</code>, any excess values are discarded. If the number of variables in the <code>let</code> declaration is greater than the number of values returned, the remaining variables are initialized to <code>#f</code>. (But if the <code>let</code> declaration specifies a type for any of these variables, and if <code>#f</code> is not an instance of that type, then Dylan signals an error.)</p>
 <p>Module variables and constants can also be initialized to multiple values. The variable list of a <code>define variable<a name="marker-2-512"></a></code> or <code>define constan<a name="marker-2-513"></a>t</code> definition can contain multiple variables, and can receive multiple values from its initialization expression in the same way as a <code>let</code> declaration.</p>
 
 </div>

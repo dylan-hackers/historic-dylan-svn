@@ -21,26 +21,26 @@
 </div>
 <a name="heading29-0"></a>
 <h1>2.4   Formatted output</h1>
-<p> Throughout this book, we use the <a name="marker-2-87"></a><code>format-out</code> function to print output. The syntax of <code>format-out</code> is </p>
+<p>Throughout this book, we use the <a name="marker-2-87"></a><code>format-out</code> function to print output. The syntax of <code>format-out</code> is </p>
 <pre>
 <code>format-out</code> <em>string arg1 ... argn</em>
 </pre>
-<p> The <code>format-out</code> function sends output to the standard output destination, which could be the window where the program was invoked, or a new window associated with the program. The standard output destination depends on the platform.</p>
+<p>The <code>format-out</code> function sends output to the standard output destination, which could be the window where the program was invoked, or a new window associated with the program. The standard output destination depends on the platform.</p>
 <p>The <em>string</em> argument can contain ordinary text, formatting instructions beginning with <code>%</code>, and characters beginning with a backslash, <code>\</code>. Ordinary text in the format string is sent to the destination verbatim. You can use the backslash character in the <em>string</em> argument to insert unusual characters, such as <code>\n</code>, which prints the newline character. </p>
 <pre>
 <em>? </em>format-out(&quot;Your future is filled with wondrous surprises.\n&quot;)
 <em>Your future is filled with wondrous surprises.</em>
 </pre>
-<p> Formatting instructions begin with a percent sign, <code>%</code>. For each <code>%</code>, there is normally a corresponding argument giving an object to output. The character after the <code>%</code> controls how the object is formatted. A wide range of formatting characters is available, but we use only the following formatting characters in this book: </p>
+<p>Formatting instructions begin with a percent sign, <code>%</code>. For each <code>%</code>, there is normally a corresponding argument giving an object to output. The character after the <code>%</code> controls how the object is formatted. A wide range of formatting characters is available, but we use only the following formatting characters in this book: </p>
 <dl>
 <dt><code>%d</code></dt>
-<dd><p> Prints an integer represented as a decimal number </p></dd>
+<dd><p>Prints an integer represented as a decimal number </p></dd>
 <dt><code>%s</code></dt>
-<dd><p> Prints the contents of its string argument unquoted</p></dd>
+<dd><p>Prints the contents of its string argument unquoted</p></dd>
 <dt><code>%=</code></dt>
-<dd><p> Prints an implementation-specific representation of the object; you can use <code>%=</code> for any class of object</p></dd>
+<dd><p>Prints an implementation-specific representation of the object; you can use <code>%=</code> for any class of object</p></dd>
 </dl>
-<p> Here are examples:</p>
+<p>Here are examples:</p>
 <pre>
 <em>? </em>format-out
     (&quot;Your number is %= and mine is %d\n&quot;, *your-number*, *my-number*);
@@ -48,14 +48,14 @@
 <em>? </em>format-out(&quot;The %s meeting will be held at %d:%d%d.\n&quot;, &quot;Staff&quot;, 2, 3, 0);
 <em>The Staff meeting will be held at 2:30.</em>
 </pre>
-<p> In Dylan, functions do not need to return any values. The <code>format-out</code> function returns no values. Thus, it is called only for its side effect (printing output). </p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Compari<a name="marker-2-46"></a>son with C:<code> format-out</code></strong> is similar to <code>printf</code>. </p>
-</td></tr></table><p> </p>
-<p> The <code>format-out</code> function is available from the <code>format-out</code> library, and is not part of the core Dylan language. We now describe how to make the <code>format-out</code> function accessible to our program, and how to set up the files that constitute the program. Many of the details depend on the implementation of Dylan, so you will need to consult the documentation of your Dylan implementation.</p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Usage note: </strong>The Apple <a name="marker-2-48"></a>Technology Release does not currently provide the <code>format-out</code> function. For information about how to run these examples in the Apple Technology Release, see Harlequin's or Addison-Wesley's Web page for our book. See <a href="db_340.html#marker-9-894">Section A.1</a>. in <a href="db_339.html#marker-9-892">Appendix A,  <em>Resources on Dylan</em></a>.</p>
-</td></tr></table><p> </p>
+<p>In Dylan, functions do not need to return any values. The <code>format-out</code> function returns no values. Thus, it is called only for its side effect (printing output). </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Compari<a name="marker-2-46"></a>son with C:<code> format-out</code></strong> is similar to <code>printf</code>. </p>
+</td></tr></table><p></p>
+<p>The <code>format-out</code> function is available from the <code>format-out</code> library, and is not part of the core Dylan language. We now describe how to make the <code>format-out</code> function accessible to our program, and how to set up the files that constitute the program. Many of the details depend on the implementation of Dylan, so you will need to consult the documentation of your Dylan implementation.</p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Usage note: </strong>The Apple <a name="marker-2-48"></a>Technology Release does not currently provide the <code>format-out</code> function. For information about how to run these examples in the Apple Technology Release, see Harlequin's or Addison-Wesley's Web page for our book. See <a href="db_340.html#marker-9-894">Section A.1</a>. in <a href="db_339.html#marker-9-892">Appendix A,  <em>Resources on Dylan</em></a>.</p>
+</td></tr></table><p></p>
 
 </div>
 

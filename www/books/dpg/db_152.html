@@ -21,19 +21,19 @@
 </div>
 <a name="heading152-0"></a>
 <h1>11.3.7   <a name="marker-9-410"></a>Using <em><a name="marker-2-411"></a>map</em> and <em>curry</em></h1>
-<p> Perhaps the easiest way to implement our simple sequence copier is to use the <code>map</code> function. The <code>map</code> function takes the same arguments as does <code>do</code>. However, instead of ignoring the return value of the function that you provide, <code>map</code> gathers into a new collection all the results of calling the provided function. The new <br />collection will be an instance of the <code>type-for-copy</code> of the first collection argument to <code>map</code>.</p>
+<p>Perhaps the easiest way to implement our simple sequence copier is to use the <code>map</code> function. The <code>map</code> function takes the same arguments as does <code>do</code>. However, instead of ignoring the return value of the function that you provide, <code>map</code> gathers into a new collection all the results of calling the provided function. The new <br />collection will be an instance of the <code>type-for-copy</code> of the first collection argument to <code>map</code>.</p>
 <pre>
 define method my-copy-sequence 
     (old-sequence :: &lt;sequence&gt;) =&gt; (new-sequence :: &lt;sequence&gt;)
   map(identity, old-sequence);
 end method my-copy-sequence;
 </pre>
-<p> The <a name="marker-2-412"></a><code>identity</code> function simply returns its argument without making any changes. A more interesting example is to define a method that multiplies a number by each element of a vector, yielding a new vector with the products. Here is a sample call to <code>scalar-multiply</code>, which we define next:</p>
+<p>The <a name="marker-2-412"></a><code>identity</code> function simply returns its argument without making any changes. A more interesting example is to define a method that multiplies a number by each element of a vector, yielding a new vector with the products. Here is a sample call to <code>scalar-multiply</code>, which we define next:</p>
 <pre>
 <em>?</em> scalar-multiply(3, #[4, 5, 6]);
 <em>#[12, 15, 18]</em>
 </pre>
-<p> Here is our definition of <code>scalar-multiply</code>, using <code>map</code>:</p>
+<p>Here is our definition of <code>scalar-multiply</code>, using <code>map</code>:</p>
 <pre>
 define method scalar-multiply 
     (scalar :: &lt;number&gt;, old-vector :: &lt;vector&gt;) =&gt; (result :: &lt;vector&gt;)
@@ -41,7 +41,7 @@ define method scalar-multiply
       old-vector);
 end method scalar-multiply;
 </pre>
-<p> We use the <a name="marker-2-413"></a><code>method</code> statement to create a kind of function (a closure) that multiplies <code>scalar</code> by an element of the vector provided by <code>map</code>. The <code>map</code> iterator then calls that function on each element of <code>old-vector</code>, collecting the results in a new sequence. A variant of <code>map</code>, called <code>map-into</code>, replaces elements in an existing collection, rather than creating a new collection for the results. See <a href="db_254.html#marker-9-693">Section 16.1.2, page 247</a>, for an example of the use of <code>map-into</code>.</p>
+<p>We use the <a name="marker-2-413"></a><code>method</code> statement to create a kind of function (a closure) that multiplies <code>scalar</code> by an element of the vector provided by <code>map</code>. The <code>map</code> iterator then calls that function on each element of <code>old-vector</code>, collecting the results in a new sequence. A variant of <code>map</code>, called <code>map-into</code>, replaces elements in an existing collection, rather than creating a new collection for the results. See <a href="db_254.html#marker-9-693">Section 16.1.2, page 247</a>, for an example of the use of <code>map-into</code>.</p>
 <p>We can define this method more succinctly using <a name="marker-2-414"></a><code>curry</code>, which is a function that generates a function:</p>
 <pre>
 define method scalar-multiply 
@@ -49,7 +49,7 @@ define method scalar-multiply
   map(curry(\*, scalar), old-vector);
 end method scalar-multiply;
 </pre>
-<p> The <code>curry</code> function in this example creates exactly the same method as the one that we created in the previous definition of <code>scalar-multiply</code>. That is, <code>curry(\*, scalar)</code> builds a function that multiplies its argument by <code>scalar</code>. This generated function is then used by <code>map</code> to compute the value of each element of the new sequence. </p>
+<p>The <code>curry</code> function in this example creates exactly the same method as the one that we created in the previous definition of <code>scalar-multiply</code>. That is, <code>curry(\*, scalar)</code> builds a function that multiplies its argument by <code>scalar</code>. This generated function is then used by <code>map</code> to compute the value of each element of the new sequence. </p>
 <p>Mapping functions such as <code>do</code> and <code>map</code> work well when you want to operate over the entire collection. The <code>map</code> function works well only if there is a one-to-one correspondence between input-collection sizes and output-collection size. However, the other techniques that we have presented, such as using <code>for</code> and <code>while</code>, can work better when you want to operate on only part of a sequence. In <a href="db_153.html#marker-9-415">Section 11.3.8</a>, we take another look at how a <code>for</code> loop can help us to solve the problem of iterating over only part of a collection.</p>
 
 </div>

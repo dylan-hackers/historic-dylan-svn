@@ -21,17 +21,17 @@
 </div>
 <a name="heading114-0"></a>
 <h1>9.3.1   <a name="marker-9-300"></a>Method <a name="marker-2-301"></a>dispatch and classes</h1>
-<p> We have already seen that, when all types are classes, Dylan uses the following rules:</p>
+<p>We have already seen that, when all types are classes, Dylan uses the following rules:</p>
 <p>1.  An object is an instance of a class if it is a general instance of that class (a direct instance of the class or of one of that class's subclasses).</p>
 <p>2.  One class is a proper subtype of another if the first class is a subclass of the second.</p>
-<p> For example, suppose that we have these definitions:</p>
+<p>For example, suppose that we have these definitions:</p>
 <pre>
 <em>// Method 1
 </em>define method say (x :: &lt;number&gt;) ... end method say;
 <em>// Method 2
 </em>define method say (x :: &lt;integer&gt;) ... end method say;
 </pre>
-<p> Now, if <code>say</code> is called with an argument of <code>100</code>, both methods are applicable, and method 2 is more specific than method 1.</p>
+<p>Now, if <code>say</code> is called with an argument of <code>100</code>, both methods are applicable, and method 2 is more specific than method 1.</p>
 
 </div>
 

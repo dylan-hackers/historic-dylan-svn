@@ -21,20 +21,20 @@
 </div>
 <a name="heading142-0"></a>
 <h1>11.2.1   <a name="marker-9-376"></a>Creation of <a name="marker-2-377"></a>strings and access to elements</h1>
-<p> First, we define a variable, initializing it with a string: </p>
+<p>First, we define a variable, initializing it with a string: </p>
 <pre>
 <em>? </em>define variable *greeting* = &quot;Hello, world.&quot;;
 <em>? </em>*greeting*;
 <em>&quot;Hello, world.&quot;</em>
 </pre>
-<p> We can access elements of the string:</p>
+<p>We can access elements of the string:</p>
 <pre>
 <em>? </em>*greeting*[0];
 <em>'H'</em>
 <em>? </em>*greeting*[1];
 <em>'e'</em>
 </pre>
-<p> The syntax <code>*greeting*[<em>n]</em></code> refers to the <em>n</em>th element of the string in <code>*greeting*</code>.<code> </code>You can use this syntax to access any element of any collection.<code> </code>In Dylan, double quotes are used to enclose literal strings, and single quotes are used to enclose characters.</p>
+<p>The syntax <code>*greeting*[<em>n]</em></code> refers to the <em>n</em>th element of the string in <code>*greeting*</code>.<code> </code>You can use this syntax to access any element of any collection.<code> </code>In Dylan, double quotes are used to enclose literal strings, and single quotes are used to enclose characters.</p>
 <p>We can use the assignment operator to change an element of a string:</p>
 <pre>
 <em>? </em>*greeting* := copy-sequence(*greeting*);
@@ -44,7 +44,7 @@
 <em>? </em>*greeting*;
 <em>&quot;jello, world.&quot;</em>
 </pre>
-<p> We copied the greeting before modifying it, because modifying a literal constant is an error. A<strong> <a name="marker-2-378"></a>literal constant</strong> is an object whose contents are known completely at compile time. Dylan has a special syntax for each class of literal constant, so that they can be identified easily. The literal constant <code>&quot;Hello, world.&quot;</code>, which is used to initialize the <code>*greeting*</code> variable, is part of the program executable, and is allocated when you compile the program. </p>
+<p>We copied the greeting before modifying it, because modifying a literal constant is an error. A<strong> <a name="marker-2-378"></a>literal constant</strong> is an object whose contents are known completely at compile time. Dylan has a special syntax for each class of literal constant, so that they can be identified easily. The literal constant <code>&quot;Hello, world.&quot;</code>, which is used to initialize the <code>*greeting*</code> variable, is part of the program executable, and is allocated when you compile the program. </p>
 <p>The <a name="marker-2-379"></a><code>copy-sequence</code> generic function returns a new collection with the same elements as its argument. The <code>copy-sequence</code> function creates the copy at run time, so modification of its results is permitted, because such changes do not alter the program itself. Note that, although the listener presents all objects in literal-constant syntax, not everything displayed by the listener is a literal constant.</p>
 <p>The square-bracket syntax is an abbreviation for calling the generic function <a name="marker-2-380"></a><code>element</code>. The following examples are equivalent:</p>
 <pre>
@@ -53,7 +53,7 @@
 <em>? </em>element(*greeting*, 0);
 <em>'j'</em>
 </pre>
-<p> You can use either the square-bracket syntax or the <code>element</code> generic function on any collection. You must be careful if you use <code>element</code> as a local variable, however, because doing so will interfere with its use as a generic function, including the use of the square-bracket abbreviation.</p>
+<p>You can use either the square-bracket syntax or the <code>element</code> generic function on any collection. You must be careful if you use <code>element</code> as a local variable, however, because doing so will interfere with its use as a generic function, including the use of the square-bracket abbreviation.</p>
 
 </div>
 

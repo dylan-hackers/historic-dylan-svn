@@ -21,7 +21,7 @@
 </div>
 <a name="heading302-0"></a>
 <h1>19.7   Tail<a name="marker-2-779"></a> calls</h1>
-<p> The most important construct in the Dylan execution model is the function call, because function calls are the most common operation in the language. Remember that all slot accesses and assignments, arithmetic operations, and collection accesses obey the execution model of function calls, even if the syntax for them does not look like that of function calls.</p>
+<p>The most important construct in the Dylan execution model is the function call, because function calls are the most common operation in the language. Remember that all slot accesses and assignments, arithmetic operations, and collection accesses obey the execution model of function calls, even if the syntax for them does not look like that of function calls.</p>
 <p>We have already discussed how Dylan compilers can optimize away run-time checking of argument types and the overhead of method dispatch, and that good compilers will generate equally efficient code for calls to single-method generic functions or direct methods.</p>
 <p>There is one additional optimization that good Dylan compilers will make, which is enabled by a particular style of programming. If the final operation in a method is a call to another function (called a <strong>tail call</strong>) then the calling function can jump directly to the called function, rather than using a call-and-return sequence. Thus, the return from the called function returns to its caller's caller.</p>
 <p>As an example, consider this <code>decode-total-seconds</code> method:</p>
@@ -32,7 +32,7 @@ define method decode-total-seconds
   decode-total-seconds(sixty-unit.total-seconds);
 end method decode-total-seconds;
 </pre>
-<p> The inner call to <code>decode-total-seconds</code> can be a direct jump rather than a function call, because the compiler can infer which method should be called and that the return values already have the correct constraints.</p>
+<p>The inner call to <code>decode-total-seconds</code> can be a direct jump rather than a function call, because the compiler can infer which method should be called and that the return values already have the correct constraints.</p>
 
 </div>
 

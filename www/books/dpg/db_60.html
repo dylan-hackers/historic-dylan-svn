@@ -21,16 +21,16 @@
 </div>
 <a name="heading60-0"></a>
 <h1>4.6.5   <a name="marker-9-187"></a>Second method for <em>decode-total-seconds</em></h1>
-<p> The <code>decode-total-seconds</code> method is called as follows:</p>
+<p>The <code>decode-total-seconds</code> method is called as follows:</p>
 <pre>
 <em>? </em>decode-total-seconds(*your-time-of-day*.total-seconds);
 </pre>
-<p> If we envision calling <code>decode-total-seconds</code> frequently to see the hours, minutes, and seconds stored in a <code>&lt;time-of-day&gt;</code> instance, we can make it possible to decode <code>&lt;time-of-day&gt;</code> instances, as well as integers. For example, we can make it possible to make this call:</p>
+<p>If we envision calling <code>decode-total-seconds</code> frequently to see the hours, minutes, and seconds stored in a <code>&lt;time-of-day&gt;</code> instance, we can make it possible to decode <code>&lt;time-of-day&gt;</code> instances, as well as integers. For example, we can make it possible to make this call:</p>
 <pre>
 <em>? </em>decode-total-seconds(*your-time-of-day*);
 </pre>
-<p> </p>
-<p> We can implement this behavior easily, by defining another method for <code>decode-total-seconds</code>, which takes a <code>&lt;time-of-day&gt;</code> instance as its argument:</p>
+<p></p>
+<p>We can implement this behavior easily, by defining another method for <code>decode-total-seconds</code>, which takes a <code>&lt;time-of-day&gt;</code> instance as its argument:</p>
 <pre>
 define method decode-total-seconds 
     (time :: &lt;time-of-day&gt;)
@@ -38,19 +38,19 @@ define method decode-total-seconds
   decode-total-seconds(time.total-seconds);
 end method decode-total-seconds;)
 </pre>
-<p> </p>
-<p> <a href="#marker-9-138">Figure 4.1</a> shows the two methods for the <code>decode-total-seconds</code> generic <br />function.</p>
-<p> </p>
+<p></p>
+<p><a href="#marker-9-138">Figure 4.1</a> shows the two methods for the <code>decode-total-seconds</code> generic <br />function.</p>
+<p></p>
 <table border="1"><caption>Figure 4.1   <a name="marker-9-138"></a>The <code>decode-total-seconds</code> generic function and its methods.
-</caption><tr valign="top"><td><p> <img alt="db60ima7" src="db60ima7.gif" /></p>
-</td></tr></table><p> Looking at <a href="#marker-9-138">Figure 4.1</a>, we analyze what happens in this call:</p>
+</caption><tr valign="top"><td><p><img alt="db60ima7" src="db60ima7.gif" /></p>
+</td></tr></table><p>Looking at <a href="#marker-9-138">Figure 4.1</a>, we analyze what happens in this call:</p>
 <pre>
 <em>? </em>decode-total-seconds(*your-time-of-day*);
 </pre>
 <p>1.  The argument is an instance of <code>&lt;time-of-day&gt;</code>, so the method on <code>&lt;time-of-day&gt;</code> is called. </p>
 <p>2.  The body of the method on <code>&lt;time-of-day&gt;</code> calls <code>decode-total-seconds</code> on an instance of <code>&lt;integer&gt;</code>, the value of the <code>total-seconds</code> slot of the <code>&lt;time-of-day&gt;</code> instance. In this call, the argument is an integer, so the method on <code>&lt;integer&gt;</code> is called. </p>
 <p>3.  The method on <code>&lt;integer&gt;</code> returns three values to its caller -- the method on <code>&lt;time-of-day&gt;</code>. The method on <code>&lt;time-of-day&gt;</code> returns those three <br />values. </p>
-<p> The purpose of the method on <code>&lt;time-of-day&gt;</code> is simply to allow a different kind of argument to be used. The method extracts the integer from the <code>&lt;time-of-day&gt;</code> instance, and calls <code>decode-total-seconds</code> with that integer. </p>
+<p>The purpose of the method on <code>&lt;time-of-day&gt;</code> is simply to allow a different kind of argument to be used. The method extracts the integer from the <code>&lt;time-of-day&gt;</code> instance, and calls <code>decode-total-seconds</code> with that integer. </p>
 
 </div>
 

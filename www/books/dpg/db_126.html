@@ -21,7 +21,7 @@
 </div>
 <a name="heading126-0"></a>
 <h1>10.3   <a name="marker-9-331"></a>Initia<a name="marker-2-332"></a>lize methods</h1>
-<p> Every time you call <code>make</code> to create an instance of a class, <code>make</code> calls the <br /><code>initialize</code> generic function. The purpose of the <code>initialize</code> generic function <br />is to initialize the instance before it is returned by <code>make</code>. You can customize the <br />initialization by defining a method on <code>initialize</code>. Methods for <code>initialize</code> receive the instance as the first argument, and receive all keyword arguments given in the call to <code>make</code>. </p>
+<p>Every time you call <code>make</code> to create an instance of a class, <code>make</code> calls the <br /><code>initialize</code> generic function. The purpose of the <code>initialize</code> generic function <br />is to initialize the instance before it is returned by <code>make</code>. You can customize the <br />initialization by defining a method on <code>initialize</code>. Methods for <code>initialize</code> receive the instance as the first argument, and receive all keyword arguments given in the call to <code>make</code>. </p>
 <p>We define an <code>initialize</code> method:</p>
 <pre>
 define method initialize (time :: &lt;time-of-day&gt; #key)	<em>// 1
@@ -32,7 +32,7 @@ define method initialize (time :: &lt;time-of-day&gt; #key)	<em>// 1
 </em>  end if;	<em>// 6
 </em>end method initialize;	<em>// 7</em>
 </pre>
-<p> On line 2, we call <code>next-method</code>. All methods for <code>initialize</code> should call <br /><code>next-method</code> as their first action, to allow any less specific initializations (that is, <br /><code>initialize</code> methods defined on superclasses) to execute first. If you call <code>next-method</code> as the first action, then, in the rest of the method, you can operate on an instance that has been properly initialized by any <code>initialize</code> methods of <br />superclasses. If you forget to include the call to <code>next-method</code>, your <code>initialize</code> method will be operating on an improperly initialized instance.</p>
+<p>On line 2, we call <code>next-method</code>. All methods for <code>initialize</code> should call <br /><code>next-method</code> as their first action, to allow any less specific initializations (that is, <br /><code>initialize</code> methods defined on superclasses) to execute first. If you call <code>next-method</code> as the first action, then, in the rest of the method, you can operate on an instance that has been properly initialized by any <code>initialize</code> methods of <br />superclasses. If you forget to include the call to <code>next-method</code>, your <code>initialize</code> method will be operating on an improperly initialized instance.</p>
 <p>Lines 3 through 6 contain the real action of this method. We check that the value is valid. If it is invalid, we signal an error.</p>
 <p>The following example shows what happens when <code>total-seconds</code> is not valid when we are creating an instance:</p>
 <pre>

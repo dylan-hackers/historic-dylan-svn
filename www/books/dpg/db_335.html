@@ -21,7 +21,7 @@
 </div>
 <a name="heading335-0"></a>
 <h1>21.6   More <a name="marker-2-879"></a>hygiene</h1>
-<p> We shall make one more note about hygiene: In a textual substitution macro, there is a chance that the global variables that the macro uses (in this case, the helper function <code>define-aircraft</code>) could be confused with a surrounding local variable of the same name where the macro is called. This confusion does not happen in a Dylan macro. The global variables used in a Dylan macro always denote what they denoted at the time that the macro was defined, rather than at the time that the macro is called. It is as though the variables were automatically renamed so that conflicts will be avoided.</p>
+<p>We shall make one more note about hygiene: In a textual substitution macro, there is a chance that the global variables that the macro uses (in this case, the helper function <code>define-aircraft</code>) could be confused with a surrounding local variable of the same name where the macro is called. This confusion does not happen in a Dylan macro. The global variables used in a Dylan macro always denote what they denoted at the time that the macro was defined, rather than at the time that the macro is called. It is as though the variables were automatically renamed so that conflicts will be avoided.</p>
 <p>You will also notice this feature if you export a macro from a module. Only the macro needs to be exported. Its global references still refer to the proper (module-private) values that they had at the time the macro was defined, just as occurs when a function exported from a module calls module-private subroutines.</p>
 <p>Occasionally, you will want to circumvent macro hygiene. You may want to define a macro that creates a variable that <em>is </em>visible at the macro call. Here is a simple statement macro that repeats its body until you ask it to <code>stop!</code>:</p>
 <pre>
@@ -33,7 +33,7 @@ define macro repeat
       end }
 end macro repeat;
 </pre>
-<p> The term <code>?=stop!</code> says that the local variable <code>stop!</code>, which is the block exit variable, will be visible when the macro is called exactly as <code>stop!</code>; there will be no hygienic renaming. Here is an example that uses the macro to count to 100:</p>
+<p>The term <code>?=stop!</code> says that the local variable <code>stop!</code>, which is the block exit variable, will be visible when the macro is called exactly as <code>stop!</code>; there will be no hygienic renaming. Here is an example that uses the macro to count to 100:</p>
 <pre>
 begin
   let i = 0;
@@ -43,7 +43,7 @@ begin
   end;
 end;
 </pre>
-<p> Note that the <code>body</code> constraint invokes the Dylan parser to match the code properly between the <code>repeat</code> and the corresponding <code>end</code>. It is not confused by the <code>end</code> of the <code>if</code> statement, as a text-based macro might be. The expanded view of the preceding code might look like this:</p>
+<p>Note that the <code>body</code> constraint invokes the Dylan parser to match the code properly between the <code>repeat</code> and the corresponding <code>end</code>. It is not confused by the <code>end</code> of the <code>if</code> statement, as a text-based macro might be. The expanded view of the preceding code might look like this:</p>
 <pre>
 begin
   let i = 0;
@@ -57,10 +57,10 @@ begin
 </em>  <em>end</em>;
 end;
 </pre>
-<p> Note that we have shown the local variable <code>stop!</code> introduced by the macro <code>block</code> in <code>code font</code> rather than in <em>underline italic</em>, because it is visible to the body and is exactly the <code>stop!</code> called in the <code>if</code> to stop the repetition. The local variable <em>again</em>, on the other hand, is not visible to the body code. We could use <code>again</code> instead of <code>i</code> as our repetition count without a problem.</p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparis<a name="marker-2-860"></a>on with C:</strong> All C macros have the syntax of function calls, making it impossible to write language extensions such as <code>repeat</code>. By using language-based constraints, such as the <code>body</code> constraint used here, Dylan macros can match language forms, and thus can create extensions that are consistent with the base language.</p>
-</td></tr></table><p> Note that we would have to document how <code>repeat</code> works for other users, or they might be surprised if they tried to use <code>stop!</code> instead of <code>i</code> in the example.</p>
+<p>Note that we have shown the local variable <code>stop!</code> introduced by the macro <code>block</code> in <code>code font</code> rather than in <em>underline italic</em>, because it is visible to the body and is exactly the <code>stop!</code> called in the <code>if</code> to stop the repetition. The local variable <em>again</em>, on the other hand, is not visible to the body code. We could use <code>again</code> instead of <code>i</code> as our repetition count without a problem.</p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Comparis<a name="marker-2-860"></a>on with C:</strong> All C macros have the syntax of function calls, making it impossible to write language extensions such as <code>repeat</code>. By using language-based constraints, such as the <code>body</code> constraint used here, Dylan macros can match language forms, and thus can create extensions that are consistent with the base language.</p>
+</td></tr></table><p>Note that we would have to document how <code>repeat</code> works for other users, or they might be surprised if they tried to use <code>stop!</code> instead of <code>i</code> in the example.</p>
 
 </div>
 

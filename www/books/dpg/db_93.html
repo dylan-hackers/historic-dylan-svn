@@ -21,7 +21,7 @@
 </div>
 <a name="heading93-0"></a>
 <h1>7.1   Requirements of the position classes</h1>
-<p> To predict when an aircraft will arrive at the airport, we need to know the speed of the aircraft relative to the ground, and the distance the aircraft is from the <br />airport. Thus, we need to represent the positions of objects, such as airports and aircraft, to compute distances.</p>
+<p>To predict when an aircraft will arrive at the airport, we need to know the speed of the aircraft relative to the ground, and the distance the aircraft is from the <br />airport. Thus, we need to represent the positions of objects, such as airports and aircraft, to compute distances.</p>
 <p>We shall use two ways to express the position of an object. First, we use latitude and longitude to indicate the <strong>absolute position</strong> of the object. Second, we describe the position of the object relative to a second object. For example, a particular aircraft might be 200 miles west of a given airport. This kind of description is a <strong>relative position</strong>. </p>
 <p>We shall define the classes <code>&lt;absolute-position&gt;</code> and <code>&lt;relative-<br />position&gt;</code>. The slots of <code>&lt;absolute-position&gt;</code> will store information about the latitude or longitude of that position. The slots of <code>&lt;relative-position&gt;</code> will include a distance (such as 200 miles), and a direction (such as south).</p>
 <p>We need to provide <code>say</code> methods for absolute and relative positions. The following sample calls show the output that we want to achieve:</p>

@@ -21,7 +21,7 @@
 </div>
 <a name="heading71-0"></a>
 <h1>5.2.3   Existing instances of the classes</h1>
-<p> The variables <code>*my-time-of-day*</code>, <code>*your-time-of-day*</code>, <code>*my-time-offset*</code>, and <code>*your-time-offset*</code> all contain instances of classes that have now been redefined. Some environments might be able to update instances of the old class definitions to conform to the new class definitions, but we will be conservative and assume that our environment does not update instances. Therefore, we create the instances again:</p>
+<p>The variables <code>*my-time-of-day*</code>, <code>*your-time-of-day*</code>, <code>*my-time-offset*</code>, and <code>*your-time-offset*</code> all contain instances of classes that have now been redefined. Some environments might be able to update instances of the old class definitions to conform to the new class definitions, but we will be conservative and assume that our environment does not update instances. Therefore, we create the instances again:</p>
 <pre>
 <em>?</em> *my-time-offset* 
     := make(&lt;time-offset&gt;, total-seconds: encode-total-seconds(15, 20, 10));

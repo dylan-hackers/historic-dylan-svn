@@ -21,10 +21,10 @@
 </div>
 <a name="heading282-0"></a>
 <h1>18.1.1   Modeling of ground vehicles</h1>
-<p> An obvious early step in modeling the behavior of fuel trucks would be to define a <code>&lt;fuel-truck&gt;</code> class. Presumably, we would want that class to inherit from </p>
+<p>An obvious early step in modeling the behavior of fuel trucks would be to define a <code>&lt;fuel-truck&gt;</code> class. Presumably, we would want that class to inherit from </p>
 <p></p>
-<table border="1"><caption>Figure 18.1   <a name="marker-9-722"></a>Hierarchy of vehicle classes.</caption><tr valign="top"><td><p> <img alt="db28im29" src="db28im29.gif" /></p>
-</td></tr></table><p> <code>&lt;vehicle&gt;</code>. Let's look at our current definitions of both the <code>&lt;vehicle&gt;</code> class and its only direct subclass, <code>&lt;aircraft&gt;</code>:</p>
+<table border="1"><caption>Figure 18.1   <a name="marker-9-722"></a>Hierarchy of vehicle classes.</caption><tr valign="top"><td><p><img alt="db28im29" src="db28im29.gif" /></p>
+</td></tr></table><p><code>&lt;vehicle&gt;</code>. Let's look at our current definitions of both the <code>&lt;vehicle&gt;</code> class and its only direct subclass, <code>&lt;aircraft&gt;</code>:</p>
 <pre>
 <em>// The class that represents all self-propelled devices
 </em>define abstract class &lt;vehicle&gt; (&lt;physical-object&gt;)
@@ -47,7 +47,7 @@ end class &lt;vehicle&gt;;
     required-init-keyword: transition:, setter: #f;
 end class &lt;aircraft&gt;; 
 </pre>
-<p> As a start, we can define a <code>&lt;fuel-truck&gt;</code> class as a subclass of <code>&lt;vehicle&gt;</code>. To operate on instances of this class, we will no doubt need to know how much aircraft fuel they contain. We define one initial slot, <code>aircraft-fuel-remaining</code>. We also need to provide initial values for the inherited slots <code>cruising-speed</code> and <code>standard-size</code>.</p>
+<p>As a start, we can define a <code>&lt;fuel-truck&gt;</code> class as a subclass of <code>&lt;vehicle&gt;</code>. To operate on instances of this class, we will no doubt need to know how much aircraft fuel they contain. We define one initial slot, <code>aircraft-fuel-remaining</code>. We also need to provide initial values for the inherited slots <code>cruising-speed</code> and <code>standard-size</code>.</p>
 <pre>
 define class &lt;fuel-truck&gt; (&lt;vehicle&gt;)
 <em>  // Amount of aircraft fuel remaining in the tank
@@ -58,7 +58,7 @@ define class &lt;fuel-truck&gt; (&lt;vehicle&gt;)
     init-value: make(&lt;size&gt;, length: 30, width: 10, height: 10);
 end class &lt;fuel-truck&gt;;
 </pre>
-<p> This definition serves our immediate purpose, but the class hierarchy is not as modular as it might be. Suppose that we want to take account of other vehicles on the ground, such as baggage carriers or fire trucks? We can anticipate that all ground vehicles might have common features, and we do not want each new class to be a direct subclass of <code>&lt;vehicle&gt;</code>. As a refinement, we define two intermediary classes, <code>&lt;ground-vehicle&gt;</code> and <code>&lt;flying-vehicle&gt;</code>:</p>
+<p>This definition serves our immediate purpose, but the class hierarchy is not as modular as it might be. Suppose that we want to take account of other vehicles on the ground, such as baggage carriers or fire trucks? We can anticipate that all ground vehicles might have common features, and we do not want each new class to be a direct subclass of <code>&lt;vehicle&gt;</code>. As a refinement, we define two intermediary classes, <code>&lt;ground-vehicle&gt;</code> and <code>&lt;flying-vehicle&gt;</code>:</p>
 <pre>
 define abstract class &lt;ground-vehicle&gt; (&lt;vehicle&gt;)
 end class &lt;ground-vehicle&gt;;
@@ -79,7 +79,7 @@ define abstract class &lt;aircraft&gt; (&lt;flying-vehicle&gt;)
     required-init-keyword: transition:, setter: #f;
 end class &lt;aircraft&gt;;
 </pre>
-<p> At this point, we are going to leave the fuel-truck simulation. We do not model the fuel-supply problem further in this book. We do want to explore opportunities that our new class hierarchy presents for restructuring the aircraft classes.</p>
+<p>At this point, we are going to leave the fuel-truck simulation. We do not model the fuel-supply problem further in this book. We do want to explore opportunities that our new class hierarchy presents for restructuring the aircraft classes.</p>
 
 </div>
 

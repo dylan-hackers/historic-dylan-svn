@@ -21,7 +21,7 @@
 </div>
 <a name="heading146-0"></a>
 <h1>11.3.1   <a name="marker-9-395"></a>Building our own <em>copy-sequence</em></h1>
-<p> How would we write our own <a name="marker-2-396"></a><code>copy-sequence</code> function, if Dylan did not already provide one? There are many possible approaches. One way would be to use a <a name="marker-2-397"></a><code>while</code> loop. A <code>while</code> loop has a <strong>test expression</strong> (surrounded by parentheses) and a <strong>body</strong>. As long as the value of the test expression is true, the body will be executed repeatedly.</p>
+<p>How would we write our own <a name="marker-2-396"></a><code>copy-sequence</code> function, if Dylan did not already provide one? There are many possible approaches. One way would be to use a <a name="marker-2-397"></a><code>while</code> loop. A <code>while</code> loop has a <strong>test expression</strong> (surrounded by parentheses) and a <strong>body</strong>. As long as the value of the test expression is true, the body will be executed repeatedly.</p>
 <pre>
 define method my-copy-sequence 
     (old-sequence :: &lt;sequence&gt;) =&gt; (new-sequence :: &lt;sequence&gt;)
@@ -35,7 +35,7 @@ define method my-copy-sequence
   new-sequence;
 end method my-copy-sequence;
 </pre>
-<p> The method <code>my-copy-sequence</code> makes a new sequence of the same size as its argument, then iterates over all the elements of the argument, storing each element of the sequence into the appropriate element of the new sequence. The <a name="marker-2-398"></a><code>size</code> generic function returns the number of elements in a collection. In this example, the <code>while</code> loop terminates when <code>index</code> reaches the size of the sequence. </p>
+<p>The method <code>my-copy-sequence</code> makes a new sequence of the same size as its argument, then iterates over all the elements of the argument, storing each element of the sequence into the appropriate element of the new sequence. The <a name="marker-2-398"></a><code>size</code> generic function returns the number of elements in a collection. In this example, the <code>while</code> loop terminates when <code>index</code> reaches the size of the sequence. </p>
 <p>The <a name="marker-2-399"></a><code>type-for-copy</code> generic function returns an appropriate class for <code>make</code>, given an object that you wish to copy. For most collections, <code>type-for-copy</code> just returns the class of the collection provided.</p>
 
 </div>

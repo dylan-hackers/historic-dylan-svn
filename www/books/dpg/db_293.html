@@ -21,7 +21,7 @@
 </div>
 <a name="heading293-0"></a>
 <h1>18.5.2   Pros and cons of <a name="marker-2-745"></a>multiple inheritance</h1>
-<p> There is debate about the value of using multiple inheritance in object-oriented programs. Some people think that multiple inheritance in appropriate applications can improve modularity and can make it easier to reuse code. Other people think that the complications and pitfalls of multiple inheritance make program maintenance difficult, and thus outweigh the possible advantages.</p>
+<p>There is debate about the value of using multiple inheritance in object-oriented programs. Some people think that multiple inheritance in appropriate applications can improve modularity and can make it easier to reuse code. Other people think that the complications and pitfalls of multiple inheritance make program maintenance difficult, and thus outweigh the possible advantages.</p>
 <p>We have presented examples of multiple inheritance that show that it can have advantages when you can separate object characteristics into nonoverlapping sets. Multiple inheritance then lets you create complex classes using only the characteristics that you need, without a proliferation of base classes.</p>
 <p>Multiple inheritance does complicate method dispatch and impose additional requirements on an application. It is essential to be aware of dependencies on subclass-superclass ordering, particularly in method selection and slot initialization. In general, classes that are intended to be multiple direct superclasses of the same subclass should depend on one another as little as possible. Protocols involving multiple inheritance may need more documentation than do those involving single inheritance.</p>
 

@@ -21,25 +21,25 @@
 </div>
 <a name="heading132-0"></a>
 <h1>10.4.5   I<a name="marker-2-344"></a>nit expressions</h1>
-<p> An <strong>init expression</strong> is another way of providing a default slot value. Here is an example:</p>
+<p>An <strong>init expression</strong> is another way of providing a default slot value. Here is an example:</p>
 <pre>
 define class &lt;time-of-day&gt; (&lt;time&gt;)
   inherited slot total-seconds = get-current-time();
 end class &lt;time-of-day&gt;;
 </pre>
-<p> Every time that we make an instance of the <code>&lt;time-of-day&gt;</code> class and we need a default value for the <code>total-seconds</code> slot, the expression <code>get-current-time();</code> is evaluated to provide an initial value. </p>
+<p>Every time that we make an instance of the <code>&lt;time-of-day&gt;</code> class and we need a default value for the <code>total-seconds</code> slot, the expression <code>get-current-time();</code> is evaluated to provide an initial value. </p>
 <p>An init expression specifies an expression. Every time that an instance is made and the slot needs a default value, this expression is evaluated and its value is used as the default.</p>
 <p>Notice the similarity between the <code>init-function:</code> slot option and an init expression. In fact, the following slot specifications are equivalent:</p>
 <pre>
   inherited slot total-seconds, init-function: get-current-time;
   inherited slot total-seconds = get-current-time();
 </pre>
-<p> That substitution works for functions that have no required arguments. More generally, the following slot specifications are equivalent:</p>
+<p>That substitution works for functions that have no required arguments. More generally, the following slot specifications are equivalent:</p>
 <pre>
   slot <em>slot</em> = <em>expression</em>;
   slot <em>slot</em>, init-function: method () <em>expression</em> end method;
 </pre>
-<p> The expression can be a call to a function that requires arguments. Here, we use <a name="marker-2-345"></a><code>method</code> to define a method with no name.</p>
+<p>The expression can be a call to a function that requires arguments. Here, we use <a name="marker-2-345"></a><code>method</code> to define a method with no name.</p>
 <p>The <code>init-value:</code> slot option, <code>init-function:</code> slot option, and init expression are mutually exclusive. A given slot specification can have only one of these.</p>
 
 </div>

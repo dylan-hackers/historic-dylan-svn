@@ -21,17 +21,17 @@
 </div>
 <a name="heading82-0"></a>
 <h1>5.8   The time library (so far)</h1>
-<p> In the course of introducing methods, classes, and generic functions, we have created elements of a library dealing with two kinds of time. Now, we construct a simple library containing those elements (we will continue to develop the time library throughout this book). We represent the time library in four files: a LID file, a library file, a library implementation file, and a test file. We could have expressed this library in three files, by combining into a single file the library implementation file and the test file, but we decided that it would be clearer to separate the underlying implementation (the definitions of classes, methods, and generic functions) from the test (where we create instances and call <code>say</code> on them).</p>
-<table border="1"><tr valign="top"><th><p> The LID file: <code>time.lid</code>.</p>
+<p>In the course of introducing methods, classes, and generic functions, we have created elements of a library dealing with two kinds of time. Now, we construct a simple library containing those elements (we will continue to develop the time library throughout this book). We represent the time library in four files: a LID file, a library file, a library implementation file, and a test file. We could have expressed this library in three files, by combining into a single file the library implementation file and the test file, but we decided that it would be clearer to separate the underlying implementation (the definitions of classes, methods, and generic functions) from the test (where we create instances and call <code>say</code> on them).</p>
+<table border="1"><tr valign="top"><th><p>The LID file: <code>time.lid</code>.</p>
 </th></tr><tr valign="top"><td><pre>
 library: time
 files:   library
          library-implementation
          test
 </pre></td></tr></table>
-<p> </p>
-<p> The library file defines the <code>time</code> library and the <code>time</code> module.</p>
-<table border="1"><tr valign="top"><th><p> The library file: <code>library.dylan</code>. </p>
+<p></p>
+<p>The library file defines the <code>time</code> library and the <code>time</code> module.</p>
+<table border="1"><tr valign="top"><th><p>The library file: <code>library.dylan</code>. </p>
 </th></tr><tr valign="top"><td><pre>
 module: dylan-user
 define library time
@@ -43,10 +43,10 @@ define module time
   use format-out;
 end module time;
 </pre></td></tr></table>
-<p> </p>
-<p> The library implementation file defines the classes, methods, and generic <br />functions.</p>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The implementation file: <code>library-implementation.dylan</code>. </p>
+<p></p>
+<p>The library implementation file defines the classes, methods, and generic <br />functions.</p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The implementation file: <code>library-implementation.dylan</code>. </p>
 </th></tr><tr valign="top"><td><pre>
 module: time
 <em>// Class definitions</em>
@@ -93,10 +93,10 @@ define method say (time :: &lt;time-offset&gt;)
   next-method();
 end method say; 
 </td></tr></table>
-<p> </p>
-<p> The test file creates instances and calls <code>say</code> on the instances. The test file can access variables defined in the implementation file, because both files are in the <code>time</code> module. </p>
-<p> </p>
-<table border="1"><tr valign="top"><th><p> The test file: <code>test.dylan</code>.</p>
+<p></p>
+<p>The test file creates instances and calls <code>say</code> on the instances. The test file can access variables defined in the implementation file, because both files are in the <code>time</code> module. </p>
+<p></p>
+<table border="1"><tr valign="top"><th><p>The test file: <code>test.dylan</code>.</p>
 </th></tr><tr valign="top"><td><pre>
 module: time
 define variable *my-time-offset* :: &lt;time-offset&gt; 
@@ -112,7 +112,7 @@ say(*your-time-offset*);
 say(*my-time-of-day*);
 say(*your-time-of-day*);
 </pre></td></tr></table>
-<p> When we run the <code>test.dylan</code> file, Dylan creates two instances of <code>&lt;time-offset&gt;</code> and two instances of <code>&lt;time-of-day&gt;</code>. It calls <code>say</code> on all four instances. The output of the test is</p>
+<p>When we run the <code>test.dylan</code> file, Dylan creates two instances of <code>&lt;time-offset&gt;</code> and two instances of <code>&lt;time-of-day&gt;</code>. It calls <code>say</code> on all four instances. The output of the test is</p>
 <pre>
 <em>plus 15:20
 minus 6:45

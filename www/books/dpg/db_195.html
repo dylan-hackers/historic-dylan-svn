@@ -21,15 +21,15 @@
 </div>
 <a name="heading195-0"></a>
 <h1>13.2.3   E<a name="marker-2-622"></a>xport and import of names by modules</h1>
-<p> Within each module, every name refers either to a definition owned by that module, or possibly to a definition owned by another module. Modules make the names of their definitions available to other modules by <strong>exporting</strong> those names. A module can refer to the names of another module by <strong>using</strong> the other module. Note that no module can access a definition in another module that is not exported; hence, modules provide a form of access control.</p>
+<p>Within each module, every name refers either to a definition owned by that module, or possibly to a definition owned by another module. Modules make the names of their definitions available to other modules by <strong>exporting</strong> those names. A module can refer to the names of another module by <strong>using</strong> the other module. Note that no module can access a definition in another module that is not exported; hence, modules provide a form of access control.</p>
 <p>When a module exports its names and a second module uses the first module, importing the names of the first module, then the definitions of the second module can use the names of the first module, just as they can use any other name in their own module.</p>
 <p>When one module uses a second module, it can use all the names exported from the second module, or it can specify a subset of those exports to <strong>import</strong>. In addition, imported names can be <strong>renamed</strong> -- they can be given different names when imported. You can use renaming to document which definitions are from another module, by giving them all a uniform prefix; you can use renaming to resolve name conflicts; or you can use renaming to give nicknames or shorthand names for imported names.</p>
-<p>  </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-9-595"></a>C:</strong> Exported variables in Dylan are like external variables and functions in C. (By <em>external</em>, we do not mean the <code>extern</code> storage declaration, but rather the concept of an external variable -- one that is available for linking to.) </p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-9-595"></a>C:</strong> Exported variables in Dylan are like external variables and functions in C. (By <em>external</em>, we do not mean the <code>extern</code> storage declaration, but rather the concept of an external variable -- one that is available for linking to.) </p>
 <p>Unexported variables in Dylan are like <code>static</code> variables and functions in C. </p>
-</td></tr></table><p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-9-582"></a>C++:</strong> Dylan modules are similar to C++ namespaces in that they eliminate the problem of global namespace pollution or clashes between names used in individual libraries. Unlike C++ namespaces, Dylan modules also define a level of access control: Each module decides what names are externally visible, and no module can create or access names in another module, unless that other module explicitly exports those names. In contrast, the C++ <code>using</code> declaration allows the client of a namespace to access any name in that namespace.</p>
-</td></tr></table><p> </p>
+</td></tr></table><p></p>
+<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-9-582"></a>C++:</strong> Dylan modules are similar to C++ namespaces in that they eliminate the problem of global namespace pollution or clashes between names used in individual libraries. Unlike C++ namespaces, Dylan modules also define a level of access control: Each module decides what names are externally visible, and no module can create or access names in another module, unless that other module explicitly exports those names. In contrast, the C++ <code>using</code> declaration allows the client of a namespace to access any name in that namespace.</p>
+</td></tr></table><p></p>
 
 </div>
 

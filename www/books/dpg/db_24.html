@@ -21,33 +21,33 @@
 </div>
 <a name="heading24-0"></a>
 <h1>2.3   <a name="marker-9-72"></a>Variables and constants</h1>
-<p> We can define variables for storing values:</p>
+<p>We can define variables for storing values:</p>
 <pre>
 <em>? <a name="marker-2-73"></a></em>define variable *my-number* = 7;
 <em>? </em>define variable *your-number* = 12;
 </pre>
-<p> In Dylan, these variables are called <a name="marker-2-74"></a><strong>module variables</strong>. A module variable has a name and a value. For now, you can consider module variables to be like global variables in other languages. (See <a href="db_192.html#marker-9-618">Section 13.2, page 189</a>, for information about modules.) Module variables can have different values assigned to them during the execution of a program. When you define a module variable, you must <strong>initialize</strong> it; that is, you must provide an initial value for it. For example, the initial value of <code>*my-number*</code> is <code>7</code>.</p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong><a name="marker-2-35"></a>Convention:</strong> Module variables have names that start and end with an asterisk -- for example, <code>*my-number*</code>. The asterisks are part of the name, and do not have any special behavior.</p>
-</td></tr></table><p> </p>
-<p> We can ask the listener for the values of module variables:</p>
+<p>In Dylan, these variables are called <a name="marker-2-74"></a><strong>module variables</strong>. A module variable has a name and a value. For now, you can consider module variables to be like global variables in other languages. (See <a href="db_192.html#marker-9-618">Section 13.2, page 189</a>, for information about modules.) Module variables can have different values assigned to them during the execution of a program. When you define a module variable, you must <strong>initialize</strong> it; that is, you must provide an initial value for it. For example, the initial value of <code>*my-number*</code> is <code>7</code>.</p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong><a name="marker-2-35"></a>Convention:</strong> Module variables have names that start and end with an asterisk -- for example, <code>*my-number*</code>. The asterisks are part of the name, and do not have any special behavior.</p>
+</td></tr></table><p></p>
+<p>We can ask the listener for the values of module variables:</p>
 <pre>
 <em>? </em>*my-number*;
 <em>7</em>
 <em>? </em>*your-number*;
 <em>12</em>
 </pre>
-<p> We can add the values stored in these variables:</p>
+<p>We can add the values stored in these variables:</p>
 <pre>
 <em>? </em>*my-number* + *your-number*;
 <em>19</em>
 </pre>
-<p> We can multiply the values stored in these variables:</p>
+<p>We can multiply the values stored in these variables:</p>
 <pre>
 <em>? </em>*my-number* * *your-number*;
 <em>84</em>
 </pre>
-<p> We can use the <strong>assignment operator</strong>, <code>:=</code>, to change the values stored in a variable:</p>
+<p>We can use the <strong>assignment operator</strong>, <code>:=</code>, to change the values stored in a variable:</p>
 <pre>
 <em>? </em>*my-number* := 100;
 <em>100</em>

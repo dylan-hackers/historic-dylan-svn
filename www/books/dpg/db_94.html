@@ -21,7 +21,7 @@
 </div>
 <a name="heading94-0"></a>
 <h1>7.2   Initial class definitions</h1>
-<p> We start with these simple, initial class definitions: </p>
+<p>We start with these simple, initial class definitions: </p>
 <pre>
 <em>// Superclass of all position classes
 </em>define class &lt;position&gt; (&lt;object&gt;)
@@ -35,10 +35,10 @@ define class &lt;relative-position&gt; (&lt;position&gt;)
   slot angle;
 end class &lt;relative-position&gt;; 
 </pre>
-<p> These initial definitions show the inheritance relationships among the classes, <br />and the names of the slots show the information that the classes must provide. At this point, we omit the type declarations of the slots, which is equivalent to <br />specifying the type <code>&lt;object&gt;</code>. We will fill in the implementation later, by deciding on the types of the slots, and providing the <code>say</code> methods.</p>
+<p>These initial definitions show the inheritance relationships among the classes, <br />and the names of the slots show the information that the classes must provide. At this point, we omit the type declarations of the slots, which is equivalent to <br />specifying the type <code>&lt;object&gt;</code>. We will fill in the implementation later, by deciding on the types of the slots, and providing the <code>say</code> methods.</p>
 <p>Our requirements mention only <code>&lt;absolute-position&gt;</code> and <code>&lt;relative-position&gt;</code>, but we choose to define a superclass of both of them, named <br /><code>&lt;position&gt;</code>. </p>
-<p> </p>
-<table border="1"><tr valign="top"><td><p> <strong>Modularity note:</strong> The benefits of defining the <code>&lt;position&gt;</code> class are these:</p>
+<p></p>
+<table border="1"><tr valign="top"><td><p><strong>Modularity note:</strong> The benefits of defining the <code>&lt;position&gt;</code> class are these:</p>
 <ul>
 <li><p>The <code>&lt;position&gt;</code> class creates an explicit relationship between the other position classes, which are related <br />conceptually. </p></li>
 <li><p>We can use the <code>&lt;position&gt;</code> class as the type of a slot or other object, in cases where either an absolute or relative position is appropriate.</p></li>

@@ -21,9 +21,9 @@
 </div>
 <a name="heading324-0"></a>
 <h1>20.2.4   <a name="marker-9-841"></a>Continuation from errors</h1>
-<p> </p>
-<p> The restart mechanism just described is exceedingly general, and may provide several different ways to recover from exceptional situations. Sometimes, however, there is just one main way to recover. Under certain circumstances, Dylan provides a way for handlers simply to return to their callers, allowing execution to continue after the signaler. Here, we present a simpler (but less flexible) implementation for recovering from the time-of-day overflow exception:</p>
-<p> </p>
+<p></p>
+<p>The restart mechanism just described is exceedingly general, and may provide several different ways to recover from exceptional situations. Sometimes, however, there is just one main way to recover. Under certain circumstances, Dylan provides a way for handlers simply to return to their callers, allowing execution to continue after the signaler. Here, we present a simpler (but less flexible) implementation for recovering from the time-of-day overflow exception:</p>
+<p></p>
 <pre>
 define method return-24-hour-modulus 
     (condition :: &lt;time-error&gt;, next-handler :: &lt;function&gt;) 
@@ -33,19 +33,19 @@ define method return-24-hour-modulus
                              $seconds-per-day));
 end method return-24-hour-modulus;
 </pre>
-<p> </p>
+<p></p>
 <pre>
 define method return-allowed? (condition :: &lt;time-error&gt;)
   #t;
 end method return-allowed?;
 </pre>
-<p> </p>
+<p></p>
 <pre>
 define method return-description (condition :: &lt;time-error&gt;)
   &quot;Returns the invalid time modulo 24 hours.&quot;;
 end;
 </pre>
-<p> </p>
+<p></p>
 <pre>
 define method say-corrected-time
     (arrival-time :: &lt;time-of-day&gt;, 
@@ -71,7 +71,7 @@ define method \+ (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&
   end block;
 end method \+;
 </pre>
-<p> The <code>return-allowed?</code> and <code>return-description</code> generic functions are provided by Dylan. When the generic function <code>return-allowed?</code> returns true for a given condition, introspective handlers know that they can return successfully back to the signaler. When returning is allowed, such introspective handlers may call the <code>return-description</code> generic function to find out what values to return, if there are any. This description can be especially useful for interactive handlers, such as debuggers.</p>
+<p>The <code>return-allowed?</code> and <code>return-description</code> generic functions are provided by Dylan. When the generic function <code>return-allowed?</code> returns true for a given condition, introspective handlers know that they can return successfully back to the signaler. When returning is allowed, such introspective handlers may call the <code>return-description</code> generic function to find out what values to return, if there are any. This description can be especially useful for interactive handlers, such as debuggers.</p>
 <p>The <code>return-24-hour-modulus</code> method has been generalized compared to the exception-specific restart defined in <a href="db_323.html#marker-9-835">Section 20.2.3</a>. This method may return either an instance of <code>&lt;time-of-day&gt;</code> or <code>&lt;time-offset&gt;</code>, depending on the class of time that overflowed. Thus, it could be reused for exception handling in other parts of the application.</p>
 <p>In this implementation approach, there is an implicit contract between the signaler in the <code>\+</code> method and any handler that matches and accepts <code>&lt;time-boundary-errors&gt;</code>. The contract is that the handler will always return a valid <code>&lt;time&gt;</code> value, or will never return at all. If any handler violates this implicit contract, then the reliability of the program will be placed at risk. It is important to document these error-handling contracts.</p>
 <p>Note that, in the <code>\+</code> method, we must use the <code>signal</code> function to signal the exception, because it is illegal for a handler to return from exceptions signaled with the <code>error</code> function. </p>

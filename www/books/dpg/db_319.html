@@ -21,7 +21,7 @@
 </div>
 <a name="heading319-0"></a>
 <h1>20.1.2   Problems with the informal exception protocol</h1>
-<p> There are several significant problems with the approach used in <a href="db_318.html#marker-9-822">Section 20.1.1</a>:</p>
+<p>There are several significant problems with the approach used in <a href="db_318.html#marker-9-822">Section 20.1.1</a>:</p>
 <ul>
 <li><p>As we saw in the <code>correct-arrival-time</code> method, most callers of the <code>+</code> function must check the type of the value returned. This type checking breaks up the normal flow of control, and gives as much weight to the unusual case (the exception) as it does to the usual case. If a caller fails to check the return value to see whether that value is a string, then a different error will occur later in the program (such as adding a string and time together), when it might be hard to trace back the problem to the original point of failure. Note that both direct callers of <code>+</code> (<code>correct-arrival-time</code>) and indirect callers of <code>+</code> (<code>say-corrected-time</code>) must understand and use this error protocol correctly. </p></li>
 <li><p>For other methods that might return any object (including strings, for example), an additional return value would have to be used to indicate that an exception occurred. It would be easy to forget to check the extra return value and such failure could easily go undetected, causing unpredictable program behavior. If the method is being added to a generic function in another library, it might be impossible to add a second return value indicating failure, because the generic function might limit the number of return values.</p></li>

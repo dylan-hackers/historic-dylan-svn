@@ -21,12 +21,12 @@
 </div>
 <a name="heading112-0"></a>
 <h1>9.2   <a name="marker-9-295"></a>Examples of types that are not classes</h1>
-<p> Later in our development of the time library, we shall find it useful to define a new type that represents nonnegative integers:</p>
+<p>Later in our development of the time library, we shall find it useful to define a new type that represents nonnegative integers:</p>
 <pre>
 <em>// Define nonnegative integers as integers that are &gt;= zero
 </em>define constant &lt;nonnegative-integer&gt; = limited(&lt;integer&gt;, min: 0);
 </pre>
-<p> We can use a nonclass type as a parameter specializer of a method, or as the type of a return value: </p>
+<p>We can use a nonclass type as a parameter specializer of a method, or as the type of a return value: </p>
 <pre>
 define method encode-total-seconds 
     (max-unit :: &lt;nonnegative-integer&gt;, 
@@ -36,28 +36,28 @@ define method encode-total-seconds
   ((max-unit * 60) + minutes) * 60 + seconds;
 end method encode-total-seconds; 
 </pre>
-<p> To see how we use <code>&lt;nonnegative-integer&gt;</code> in the time library, see <a href="db_124.html#marker-9-327">Section 10.2.2, page 120</a>.</p>
+<p>To see how we use <code>&lt;nonnegative-integer&gt;</code> in the time library, see <a href="db_124.html#marker-9-327">Section 10.2.2, page 120</a>.</p>
 <p>We can define a type whose only member is the false value, <code>#f</code>:</p>
 <pre>
 singleton(#f);
 </pre>
-<p> We can define a type that is the union of the false value and <code>&lt;integer&gt;</code>:</p>
+<p>We can define a type that is the union of the false value and <code>&lt;integer&gt;</code>:</p>
 <pre>
 type-union(singleton(#f), &lt;integer&gt;);
 </pre>
-<p> We can make it convenient for people to create new types like the one defined in the preceding code. The new type is the union of the false value and the argument to the method:</p>
+<p>We can make it convenient for people to create new types like the one defined in the preceding code. The new type is the union of the false value and the argument to the method:</p>
 <pre>
 define method false-or (other-type :: &lt;type&gt;) =&gt; (combined-type :: &lt;type&gt;)
   type-union(singleton(#f), other-type);
 end method false-or;
 </pre>
-<p> <strong>False-or</strong> types are useful as the type of slots. Note that a <a name="marker-2-296"></a>slot can be uninitialized. Once a slot receives a value, however, it will always have a value: There is no way to return a slot to the uninitialized state. Sometimes it is useful to store in a slot a value that means none. Later on in our development of the airport example, we use a false-or type as the type of a slot that stores "the next vehicle, if there is one." If there is no next vehicle, the slot contains <code>#f</code>. We create the type by calling <code>false-or(&lt;vehicle&gt;)</code>, and use the result as the type of the slot. Note that, if the type of the slot were just <code>&lt;vehicle&gt;</code>, we could not store <code>#f</code> in the slot, and there would be no way to represent none.</p>
+<p><strong>False-or</strong> types are useful as the type of slots. Note that a <a name="marker-2-296"></a>slot can be uninitialized. Once a slot receives a value, however, it will always have a value: There is no way to return a slot to the uninitialized state. Sometimes it is useful to store in a slot a value that means none. Later on in our development of the airport example, we use a false-or type as the type of a slot that stores "the next vehicle, if there is one." If there is no next vehicle, the slot contains <code>#f</code>. We create the type by calling <code>false-or(&lt;vehicle&gt;)</code>, and use the result as the type of the slot. Note that, if the type of the slot were just <code>&lt;vehicle&gt;</code>, we could not store <code>#f</code> in the slot, and there would be no way to represent none.</p>
 <p>You can use <code>type-union</code> and <code>singleton</code> together to define a type that is an enumeration of multiple-choice objects. For example, </p>
 <pre>
 define constant &lt;latitude-direction&gt; 
   = type-union(singleton(#&quot;north&quot;), singleton(#&quot;south&quot;));
 </pre>
-<p> The <code>&lt;latitude-direction&gt;</code> type has two valid values: the keywords <code>#&quot;north&quot;</code> and <code>#&quot;south&quot;</code>. For an explanation of how we could use that type to enforce the correct values of a latitude slot, and for information about the performance of enumerations, see <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.</p>
+<p>The <code>&lt;latitude-direction&gt;</code> type has two valid values: the keywords <code>#&quot;north&quot;</code> and <code>#&quot;south&quot;</code>. For an explanation of how we could use that type to enforce the correct values of a latitude slot, and for information about the performance of enumerations, see <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.</p>
 
 </div>
 

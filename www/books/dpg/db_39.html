@@ -21,28 +21,28 @@
 </div>
 <a name="heading39-0"></a>
 <h1>3.2.1   <a name="marker-2-121"></a>Class inheritance</h1>
-<p> One important aspect of classes is that they are related to one another by <br /><strong>inheritance</strong>. Inheritance enables classes that are logically related to one another to share the behaviors and attributes that they have in common. Each class inherits from one or more classes, called its <a name="marker-2-122"></a><strong>superclasses</strong>. If no other class is appropriate, then the class inherits from the class <a name="marker-2-123"></a><code>&lt;object&gt;</code>. This class is the <a name="marker-2-124"></a><strong>root</strong> of all classes: All classes inherit from it, either directly or indirectly, and it does not have any direct superclasses.  </p>
-<table border="1"><tr valign="top"><td><p> <strong>Comparison with <a name="marker-2-106"></a>C++: </strong>If you are familiar with the class concepts of C++, you might initially be confused by Dylan's class model. In Dylan, all base classes are effectively virtual base classes with "virtual" data members. When a class inherits another class more than once (because of multiple inheritance), only a single copy of that base class is included. Each of the multiple-inheritance paths can contribute to the implementation of the derived class. The Dylan class model favors this mix-in style of programming. For more information, see <a href="db_347.html#marker-9-930">Section B.2</a> in <a href="db_345.html#marker-9-926">Appendix B,  <em>Dylan Object Model for C and C++ Programmers</em></a>.</p>
-</td></tr></table><p> </p>
-<p> In Dylan, we distinguish between two terms: <em>direct instance</em> and <em>general instance</em>. An object is a <strong>direct instance</strong> of exactly one class: the class that <code>object-class</code> returns for that object. An object is a <strong>general instance</strong> of its direct class, and of all classes from which its direct class inherits. The term <em>instance</em> is equivalent to <br /><em>general instance</em>. You can use the <code>instance?</code> predicate to ask whether an object is an instance of a given class: </p>
+<p>One important aspect of classes is that they are related to one another by <br /><strong>inheritance</strong>. Inheritance enables classes that are logically related to one another to share the behaviors and attributes that they have in common. Each class inherits from one or more classes, called its <a name="marker-2-122"></a><strong>superclasses</strong>. If no other class is appropriate, then the class inherits from the class <a name="marker-2-123"></a><code>&lt;object&gt;</code>. This class is the <a name="marker-2-124"></a><strong>root</strong> of all classes: All classes inherit from it, either directly or indirectly, and it does not have any direct superclasses.  </p>
+<table border="1"><tr valign="top"><td><p><strong>Comparison with <a name="marker-2-106"></a>C++: </strong>If you are familiar with the class concepts of C++, you might initially be confused by Dylan's class model. In Dylan, all base classes are effectively virtual base classes with "virtual" data members. When a class inherits another class more than once (because of multiple inheritance), only a single copy of that base class is included. Each of the multiple-inheritance paths can contribute to the implementation of the derived class. The Dylan class model favors this mix-in style of programming. For more information, see <a href="db_347.html#marker-9-930">Section B.2</a> in <a href="db_345.html#marker-9-926">Appendix B,  <em>Dylan Object Model for C and C++ Programmers</em></a>.</p>
+</td></tr></table><p></p>
+<p>In Dylan, we distinguish between two terms: <em>direct instance</em> and <em>general instance</em>. An object is a <strong>direct instance</strong> of exactly one class: the class that <code>object-class</code> returns for that object. An object is a <strong>general instance</strong> of its direct class, and of all classes from which its direct class inherits. The term <em>instance</em> is equivalent to <br /><em>general instance</em>. You can use the <code>instance?</code> predicate to ask whether an object is an instance of a given class: </p>
 <pre>
 <em>?</em> <a name="marker-2-125"></a>instance?(1000, &lt;integer&gt;);
 <em>#t</em>
 <em>?</em> instance?(&quot;hello, world&quot;, &lt;integer&gt;); 
 <em>#f</em>
 </pre>
-<p> All objects are instances of the class <code>&lt;object&gt;</code>: </p>
+<p>All objects are instances of the class <code>&lt;object&gt;</code>: </p>
 <pre>
 <em>?</em> instance?(1000, &lt;object&gt;);
 <em>#t</em>
 <em>?</em> instance?(&quot;hello, world&quot;, &lt;object&gt;);
 <em>#t</em>
 </pre>
-<p> <a href="#marker-9-100">Figure 3.2</a> shows the inheritance relationships among several of the built-in classes. If class A is a superclass of class B, then class B is a <strong>subclass</strong> of class A. For example, <code>&lt;object&gt;</code> is a superclass of <code>&lt;string&gt;</code>, and <code>&lt;string&gt;</code> is a subclass of <code>&lt;object&gt;</code>. For simplicity, <a href="#marker-9-100">Figure 3.2</a> omits certain classes that intervene between the classes shown.</p>
+<p><a href="#marker-9-100">Figure 3.2</a> shows the inheritance relationships among several of the built-in classes. If class A is a superclass of class B, then class B is a <strong>subclass</strong> of class A. For example, <code>&lt;object&gt;</code> is a superclass of <code>&lt;string&gt;</code>, and <code>&lt;string&gt;</code> is a subclass of <code>&lt;object&gt;</code>. For simplicity, <a href="#marker-9-100">Figure 3.2</a> omits certain classes that intervene between the classes shown.</p>
 <table border="1"><caption>Figure 3.2   Classes and subclasses. Each arrow points from a class to a subclass.<a name="marker-9-100"></a>
-</caption><tr valign="top"><td><p> <img alt="db39ima5" src="db39ima5.gif" /></p>
-<p> </p>
-</td></tr></table><p> A typical Dylan environment provides a browser to explore inheritance relationships among classes; certain environments show the relationships graphically. </p>
+</caption><tr valign="top"><td><p><img alt="db39ima5" src="db39ima5.gif" /></p>
+<p></p>
+</td></tr></table><p>A typical Dylan environment provides a browser to explore inheritance relationships among classes; certain environments show the relationships graphically. </p>
 <p>The Dylan language includes functions that provide information about the inheritance relationships among classes. We can use <code>subtype?</code> to ask whether one class inherits from another class:</p>
 <pre>
 <em>?</em> <a name="marker-2-126"></a>subtype?(&lt;integer&gt;, &lt;number&gt;);
@@ -54,7 +54,7 @@
 <em>?</em> subtype?(&lt;string&gt;, &lt;integer&gt;);
 <em>#f</em>
 </pre>
-<p> It may be confusing that we use a function called <code>subtype?</code> here, but Dylan does not provide a function called <code>subclass?</code>. Every class is a <strong>type</strong>, but certain types are not classes (see <a href="db_111.html#marker-9-290">Section 9.1, page 109</a>). The <code>subtype?</code> function works for both classes and other types. </p>
+<p>It may be confusing that we use a function called <code>subtype?</code> here, but Dylan does not provide a function called <code>subclass?</code>. Every class is a <strong>type</strong>, but certain types are not classes (see <a href="db_111.html#marker-9-290">Section 9.1, page 109</a>). The <code>subtype?</code> function works for both classes and other types. </p>
 <p>We can ask for all the superclasses of a given class:</p>
 <pre>
 <em>?</em> <a name="marker-2-127"></a>all-superclasses(&lt;string&gt;);
@@ -65,7 +65,7 @@
 <em>?</em> all-superclasses(&lt;single-float&gt;);
 <em>#[{class &lt;single-float&gt;}, {class &lt;float&gt;}, {class &lt;real&gt;}, {class &lt;number&gt;}, {class &lt;object&gt;}]</em>
 </pre>
-<p> The <code>all-superclasses</code> function returns a vector containing the class itself and all that class's superclasses. The <code>#[<em>...]</em></code> syntax represents a <strong>vector</strong>, which is a one-dimensional array. (For information about vectors, see <a href="db_139.html#marker-9-374">Chapter 11,  <em>Collections and Control Flow</em></a>.) </p>
+<p>The <code>all-superclasses</code> function returns a vector containing the class itself and all that class's superclasses. The <code>#[<em>...]</em></code> syntax represents a <strong>vector</strong>, which is a one-dimensional array. (For information about vectors, see <a href="db_139.html#marker-9-374">Chapter 11,  <em>Collections and Control Flow</em></a>.) </p>
 
 </div>
 

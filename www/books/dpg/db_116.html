@@ -21,7 +21,7 @@
 </div>
 <a name="heading116-0"></a>
 <h1>9.3.3   <a name="marker-9-304"></a>Method <a name="marker-2-305"></a>dispatch and unions</h1>
-<p> When a type is a union, Dylan uses the following rules:</p>
+<p>When a type is a union, Dylan uses the following rules:</p>
 <p>1.  An object is an instance of a union if it is an instance of any of the types that make up that union.</p>
 <p>2.  If none of the types that make up a union is a subtype of any other, then </p>
 <ul>
@@ -29,7 +29,7 @@
 <li><p>A union is a proper subtype of a nonunion type if all types that make up the union are subtypes of the nonunion type, and if all the types that make up the union, taken together, are not equivalent to the nonunion type.</p></li>
 <li><p>A union is a proper subtype of another union if <em>each</em> of the types that make up the first union is a subtype of <em>one</em> of the types that make up the other union, and if the two unions are not equivalent.</p></li>
 </ul>
-<p> For example, suppose that we have these definitions:</p>
+<p>For example, suppose that we have these definitions:</p>
 <pre>
 define constant &lt;false-or-integer&gt; = type-union(&lt;integer&gt;, singleton(#f));
 <em>// Method 1
@@ -37,7 +37,7 @@ define constant &lt;false-or-integer&gt; = type-union(&lt;integer&gt;, singleton
 <em>// Method 2
 </em>define method say (x :: &lt;integer&gt;) ... end method say;
 </pre>
-<p> Now, if <code>say</code> is called with an argument that is an integer, both methods are applicable, and method 2 is more specific than method 1. If <code>say</code> is called with an argument of <code>#f</code>, only method 1 is applicable.</p>
+<p>Now, if <code>say</code> is called with an argument that is an integer, both methods are applicable, and method 2 is more specific than method 1. If <code>say</code> is called with an argument of <code>#f</code>, only method 1 is applicable.</p>
 
 </div>
 

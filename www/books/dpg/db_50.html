@@ -21,11 +21,11 @@
 </div>
 <a name="heading50-0"></a>
 <h1>4.3   <a name="marker-9-164"></a>Use of <a name="marker-2-165"></a><code>make</code> to create an <a name="marker-2-166"></a>instance</h1>
-<p> We want to make an instance of <code>&lt;time-of-day&gt;</code>, but first we need a place to store it. We define a module variable called <code>*my-time-of-day*</code>, and initialize it to contain a new instance of <code>&lt;time-of-day&gt;</code>:</p>
+<p>We want to make an instance of <code>&lt;time-of-day&gt;</code>, but first we need a place to store it. We define a module variable called <code>*my-time-of-day*</code>, and initialize it to contain a new instance of <code>&lt;time-of-day&gt;</code>:</p>
 <pre>
 <em>?</em> define variable *my-time-of-day* = make(&lt;time-of-day&gt;);
 </pre>
-<p> The <code>make</code> function creates an instance of <code>&lt;time-of-day&gt;</code>. The argument to <code>make</code> is the class to create. The <code>make</code> function returns the new instance.</p>
+<p>The <code>make</code> function creates an instance of <code>&lt;time-of-day&gt;</code>. The argument to <code>make</code> is the class to create. The <code>make</code> function returns the new instance.</p>
 <p>The instance stored in <code>*my-time-of-day*</code> has a <code>total-seconds</code> slot with no value. The next logical step is to store a value in that slot.</p>
 
 </div>

@@ -21,7 +21,7 @@
 </div>
 <a name="heading86-0"></a>
 <h1>6.1.1   <a name="marker-9-246"></a>Method for adding two time offsets</h1>
-<p> We now define a method for <code>+</code>. The method adds two time offsets and returns the sum, which is also a time offset:</p>
+<p>We now define a method for <code>+</code>. The method adds two time offsets and returns the sum, which is also a time offset:</p>
 <pre>
 <em>// Method on &lt;time-offset&gt;, &lt;time-offset&gt;
 </em>define method \+ 	<em>// 1
@@ -31,7 +31,7 @@
 </em>  make(&lt;time-offset&gt;, total-seconds: sum);	<em>// 5
 </em>end method \+;	<em>// 6</em>
 </pre>
-<p> On line 1, notice that the method is defined on <code>\+</code>, rather than simply on <code>+</code>. When we define a method on <code>+</code> or on another <a name="marker-2-247"></a>infix function, we need to use a backslash before the function name. The backslash clarifies that we mean the value of the variable + (which is a generic function), and that we are not trying to call the <br />function.</p>
+<p>On line 1, notice that the method is defined on <code>\+</code>, rather than simply on <code>+</code>. When we define a method on <code>+</code> or on another <a name="marker-2-247"></a>infix function, we need to use a backslash before the function name. The backslash clarifies that we mean the value of the variable + (which is a generic function), and that we are not trying to call the <br />function.</p>
 <p>On line 4, we add the values stored in the <code>total-seconds</code> slots of the two instances. On line 5, we make and return a new instance of <code>&lt;time-offset&gt;</code>. We initialize the <code>total-seconds</code> slot to contain the sum calculated in line 4.</p>
 <p>To test the method, we need to create two instances of <code>&lt;time-offset&gt;</code>:</p>
 <pre>
@@ -40,12 +40,12 @@ define variable *minus-2-hours* =
 define variable *plus-15-20-45* =
   make(&lt;time-offset&gt;, total-seconds: encode-total-seconds (15, 20, 45)); 
 </pre>
-<p> We can add the time offsets:</p>
+<p>We can add the time offsets:</p>
 <pre>
 <em>?</em> *minus-2-hours* + *plus-15-20-45*;
 <em>{instance &lt;time-offset&gt;}</em>
 </pre>
-<p> The result is a new instance of <code>&lt;time-offset&gt;</code>. We did not save the value returned. (Many environments offer a way to access values returned by the listener.) We can add the time offsets again, and view the <code>total-seconds</code> slot of the result:</p>
+<p>The result is a new instance of <code>&lt;time-offset&gt;</code>. We did not save the value returned. (Many environments offer a way to access values returned by the listener.) We can add the time offsets again, and view the <code>total-seconds</code> slot of the result:</p>
 <pre>
 <em>?</em> decode-total-seconds(*minus-2-hours* + *plus-15-20-45*);
 <em>13

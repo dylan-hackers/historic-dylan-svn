@@ -21,7 +21,7 @@
 </div>
 <a name="heading283-0"></a>
 <h1>18.1.2   Aircraft classes and multiple inheritance</h1>
-<p> It is obvious that an aircraft is a flying vehicle. In our airport model, however, we have to take account of an aircraft's behavior on taxiways and runways and at gates. In these situations, the aircraft is acting as a ground vehicle. Perhaps it makes sense to define our aircraft classes as subclasses of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>.</p>
+<p>It is obvious that an aircraft is a flying vehicle. In our airport model, however, we have to take account of an aircraft's behavior on taxiways and runways and at gates. In these situations, the aircraft is acting as a ground vehicle. Perhaps it makes sense to define our aircraft classes as subclasses of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>.</p>
 <p>What could we gain by doing so? Consider cruising speed. When an aircraft is in the air, we need to take into account its flying cruising speed when estimating its time of arrival at its destination. When the aircraft is on the ground, we need to take into account the ground cruising speed when estimating how much time the aircraft will spend on a taxiway or runway. It makes sense to have both flying and ground cruising speeds. It also makes sense for flying cruising speed to be a property of flying vehicles -- more specifically, aircraft -- and for ground cruising speed to be a property of ground vehicles. After all, the notion of cruising speed can be useful in estimating how long a fuel truck will take to arrive at a given gate.</p>
 <p>We now restructure our vehicle classes again, this time to make the aircraft classes be subclasses of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>. We need to remove the <code>cruising-speed</code> slot from the <code>&lt;vehicle&gt;</code> class, and to replace it by two slots: <code>ground-cruising-speed</code> for the <code>&lt;ground-vehicle&gt;</code> class and <code>flying-cruising-speed</code> for the <code>&lt;flying-vehicle&gt;</code> class. We can also take this opportunity to move the <code>altitude</code> slot from the <code>&lt;aircraft&gt;</code> class to the <code>&lt;flying-vehicle&gt;</code> class, because any flying vehicle is likely to need to keep track of its altitude. Finally, we introduce multiple inheritance by redefining the <code>&lt;aircraft&gt;</code> class to be a direct subclass of both <code>&lt;flying-vehicle&gt;</code> and <code>&lt;ground-vehicle&gt;</code>.</p>
 <pre>
@@ -46,7 +46,7 @@ define abstract class &lt;aircraft&gt; (&lt;flying-vehicle&gt;, &lt;ground-vehic
     required-init-keyword: transition:, setter: #f;
 end class &lt;aircraft&gt;;
 </pre>
-<p> Now, all aircraft classes have two slots for cruising speed: <code>ground-cruising-speed</code>, inherited from the <code>&lt;ground-vehicle&gt;</code> class, and <code>flying-cruising-speed</code>, inherited from the <code>&lt;flying-vehicle&gt;</code> class. We have to modify our <code>&lt;B707&gt;</code> class to provide default initial values for these slots.</p>
+<p>Now, all aircraft classes have two slots for cruising speed: <code>ground-cruising-speed</code>, inherited from the <code>&lt;ground-vehicle&gt;</code> class, and <code>flying-cruising-speed</code>, inherited from the <code>&lt;flying-vehicle&gt;</code> class. We have to modify our <code>&lt;B707&gt;</code> class to provide default initial values for these slots.</p>
 <pre>
 define class &lt;B707&gt; (&lt;commercial-aircraft&gt;)
   inherited slot flying-cruising-speed, init-value: 368;
@@ -55,7 +55,7 @@ define class &lt;B707&gt; (&lt;commercial-aircraft&gt;)
     init-value: make(&lt;size&gt;, length: 153, width: 146, height: 42);
 end class &lt;B707&gt;;
 </pre>
-<p> Finally, to complete the example, we would change our <code>&lt;fuel-truck&gt;</code> class definition to provide a default initial value for <code>ground-cruising-speed</code>, instead of <code>cruising-speed</code>.</p>
+<p>Finally, to complete the example, we would change our <code>&lt;fuel-truck&gt;</code> class definition to provide a default initial value for <code>ground-cruising-speed</code>, instead of <code>cruising-speed</code>.</p>
 
 </div>
 

@@ -21,7 +21,7 @@
 </div>
 <a name="heading300-0"></a>
 <h1>19.5   <a name="marker-9-773"></a>Enu<a name="marker-2-774"></a>merations</h1>
-<p> Many languages provide enumeration types both to enforce program correctness and to provide more compact representation of multiple-choice values. Dylan does not have a built-in enumeration type, but you can easily construct enumerations using the <a name="marker-2-775"></a><code>type-union</code> and <a name="marker-2-776"></a><code>singleton</code> type constructors.</p>
+<p>Many languages provide enumeration types both to enforce program correctness and to provide more compact representation of multiple-choice values. Dylan does not have a built-in enumeration type, but you can easily construct enumerations using the <a name="marker-2-775"></a><code>type-union</code> and <a name="marker-2-776"></a><code>singleton</code> type constructors.</p>
 <p>For example, consider the <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> classes, where there are only two valid values for the <code>direction</code> slot in each class. Rather than enforcing the restrictions programmatically, as we did in <a href="db_134.html#marker-9-352">Section 10.6, page 128</a>, we can create types that do the job for us:</p>
 <pre>
 define abstract class &lt;directed-angle&gt; (&lt;sixty-unit&gt;)
@@ -38,7 +38,7 @@ define class &lt;longitude&gt; (&lt;directed-angle&gt;)
   keyword direction:, type: &lt;longitude-direction&gt;;
 end class &lt;longitude&gt;;
 </pre>
-<p> Here, the abstract superclass specifies that the read-only slot <code>direction</code> must be a <code>&lt;symbol&gt;</code>, and that it must be initialized when an instance is created with the keyword <code>direction:</code>. The constant <code>&lt;latitude-direction&gt;</code> is a type specification that permits only the symbol <code>#&quot;north&quot;</code> or the symbol <code>#&quot;south&quot;</code>. The class <code>&lt;latitude&gt;</code> specifies that, when an instance of <code>&lt;latitude&gt;</code> is made, the initial value must be of the <code>&lt;latitude-direction&gt;</code> type. We handled the longitude case similarly.</p>
+<p>Here, the abstract superclass specifies that the read-only slot <code>direction</code> must be a <code>&lt;symbol&gt;</code>, and that it must be initialized when an instance is created with the keyword <code>direction:</code>. The constant <code>&lt;latitude-direction&gt;</code> is a type specification that permits only the symbol <code>#&quot;north&quot;</code> or the symbol <code>#&quot;south&quot;</code>. The class <code>&lt;latitude&gt;</code> specifies that, when an instance of <code>&lt;latitude&gt;</code> is made, the initial value must be of the <code>&lt;latitude-direction&gt;</code> type. We handled the longitude case similarly.</p>
 <p>The use of <code>type-union</code> and <code>singleton</code> to create enumeration types in this fashion is common enough that the function <a name="marker-2-777"></a><code>one-of</code> is usually available in a utility library as a shorthand:</p>
 <pre>
 define constant one-of 
@@ -46,12 +46,12 @@ define constant one-of
      apply(type-union, map(singleton, objects))
     end method;
 </pre>
-<p> With this abbreviation, the direction types can be written more compactly:</p>
+<p>With this abbreviation, the direction types can be written more compactly:</p>
 <pre>
 define constant &lt;latitude-direction&gt; = one-of(#&quot;north&quot;, #&quot;south&quot;);
 define constant &lt;longitude-direction&gt; = one-of(#&quot;east&quot;, #&quot;west&quot;);
 </pre>
-<p> Some Dylan compilers will recognize the idiomatic use of <code>type-union</code> and <br /><code>singleton</code> to represent such enumerations more compactly. For instance, a compiler could represent the direction slot of a latitude or longitude as a single bit, using the getter and setter functions to translate back and forth to the appropriate symbol.</p>
+<p>Some Dylan compilers will recognize the idiomatic use of <code>type-union</code> and <br /><code>singleton</code> to represent such enumerations more compactly. For instance, a compiler could represent the direction slot of a latitude or longitude as a single bit, using the getter and setter functions to translate back and forth to the appropriate symbol.</p>
 
 </div>
 

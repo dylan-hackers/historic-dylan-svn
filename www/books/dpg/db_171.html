@@ -21,20 +21,20 @@
 </div>
 <a name="heading171-0"></a>
 <h1>12.1.4   <a name="marker-9-461"></a>Unary operator calls</h1>
-<p> Dylan has two built-in unary operators,<a name="marker-2-462"></a> <code>-<a name="marker-2-463"></a></code> and <code>~</code><a name="marker-2-464"></a>. The syntax for a unary operator call has two parts: </p>
+<p>Dylan has two built-in unary operators,<a name="marker-2-462"></a> <code>-<a name="marker-2-463"></a></code> and <code>~</code><a name="marker-2-464"></a>. The syntax for a unary operator call has two parts: </p>
 <p>1.  The operator</p>
 <p>2.  An operand</p>
-<p> The <code>-</code> operator performs the arithmetic negation of its operand, and the <code>~</code> operator performs the logical negation<a name="marker-2-465"></a>. Both operator calls are abbreviations for function calls. The following examples are equivalent:</p>
+<p>The <code>-</code> operator performs the arithmetic negation of its operand, and the <code>~</code> operator performs the logical negation<a name="marker-2-465"></a>. Both operator calls are abbreviations for function calls. The following examples are equivalent:</p>
 <pre>
 - time-offset;
 negative<a name="marker-2-466"></a>(time-offset);
 </pre>
-<p> The following examples also are equivalent:</p>
+<p>The following examples also are equivalent:</p>
 <pre>
 ~ test-condition(cond);
 \~(test-condition(cond));
 </pre>
-<p> In the preceding example, we must escape <code>~</code> with <code>\<a name="marker-2-467"></a></code> so that Dylan interprets <code>~</code> as a variable name, instead of as an operator. This syntax indicates an explicit call to the function that is the value of the variable named <code>~</code>.</p>
+<p>In the preceding example, we must escape <code>~</code> with <code>\<a name="marker-2-467"></a></code> so that Dylan interprets <code>~</code> as a variable name, instead of as an operator. This syntax indicates an explicit call to the function that is the value of the variable named <code>~</code>.</p>
 
 </div>
 

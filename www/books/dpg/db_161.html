@@ -21,7 +21,7 @@
 </div>
 <a name="heading161-0"></a>
 <h1>11.5.3   <a name="marker-9-426"></a>Branching with <em><a name="marker-2-427"></a>select</em></h1>
-<p> In certain situations, you are working with a particular two-argument predicate (such as <code>==</code> or <code>&lt;</code>). The value of the first argument to the predicate will always be the same, and you would like to perform different actions based on the second value. You can use both <code>if</code> and <code>case</code> to handle this situation, but the <code>select</code> control structure is more concise. The following example interprets traffic-light colors:</p>
+<p>In certain situations, you are working with a particular two-argument predicate (such as <code>==</code> or <code>&lt;</code>). The value of the first argument to the predicate will always be the same, and you would like to perform different actions based on the second value. You can use both <code>if</code> and <code>case</code> to handle this situation, but the <code>select</code> control structure is more concise. The following example interprets traffic-light colors:</p>
 <pre>
 define method color-action 
     (color :: &lt;symbol&gt;) =&gt; (action :: &lt;symbol&gt;)
@@ -32,7 +32,7 @@ define method color-action
   end select;
 end method color-action;
 </pre>
-<p> The <code>select</code> control structure uses <code>==</code> for the default predicate. For example, in the preceding <code>select</code> statement, the symbol <code>#&quot;stop&quot;</code> will be returned if <code>color == #&quot;red&quot;</code>. If you require a different predicate, use the <code>by</code> clause, as shown in the following example, which interprets age from a number representing years:</p>
+<p>The <code>select</code> control structure uses <code>==</code> for the default predicate. For example, in the preceding <code>select</code> statement, the symbol <code>#&quot;stop&quot;</code> will be returned if <code>color == #&quot;red&quot;</code>. If you require a different predicate, use the <code>by</code> clause, as shown in the following example, which interprets age from a number representing years:</p>
 <pre>
 define method interpret-age 
     (age :: &lt;nonnegative-integer&gt;) =&gt; (description :: &lt;string&gt;)
@@ -44,7 +44,7 @@ define method interpret-age
   end select;
 end method interpret-age;
 </pre>
-<p> The preceding method returns the string <code>&quot;youngster&quot;</code> when provided an age less then 13; returns <code>&quot;teenager&quot;</code> when the age is between 13 and 20; and returns <code>&quot;adult&quot;</code> when the age is between 20 and 60. In all other cases, it returns <code>&quot;senior&quot;</code>.</p>
+<p>The preceding method returns the string <code>&quot;youngster&quot;</code> when provided an age less then 13; returns <code>&quot;teenager&quot;</code> when the age is between 13 and 20; and returns <code>&quot;adult&quot;</code> when the age is between 20 and 60. In all other cases, it returns <code>&quot;senior&quot;</code>.</p>
 
 </div>
 

@@ -21,7 +21,7 @@
 </div>
 <a name="heading246-0"></a>
 <h1>15.3   Behaviors of the objects</h1>
-<p> The top-level function of our application is called <code>process-aircraft</code>. Given an airport that has been properly initialized, <code>process-aircraft</code> will simulate and document the movement of all inbound aircraft through all the containers of the airport, from landing through takeoff.</p>
+<p>The top-level function of our application is called <code>process-aircraft</code>. Given an airport that has been properly initialized, <code>process-aircraft</code> will simulate and document the movement of all inbound aircraft through all the containers of the airport, from landing through takeoff.</p>
 <p>To predict how long it will take for an aircraft to arrive at the airport, we need to compute the distance between the position of the aircraft and the position of the airport. Then, we must divide the distance by the speed to determine how long it will take the aircraft to get from one position to the other. The <code>flying-time</code> method will implement that computation in our design. </p>
 <p>Once an aircraft approaches the airport, it enters a series of containers. The generic functions that constitute the vehicle-storage protocol help us to generate and simulate the transitions of the aircraft from container to container.</p>
 <p>We summarize some of the operations in our design here; we summarize the vehicle-storage protocol in <a href="db_247.html#marker-9-683">Section 15.4</a>.</p>
