@@ -896,7 +896,7 @@ end;
 
 // Note that the end of comment string may have whitespace between -- and >.
 // @param bpos points directly after the opening comment string "<!--".
-// @return the position in buffer directly following of the next end of comment
+// @return the position in buffer directly following the next end of comment
 //         string, or size(buffer) if the comment isn't terminated.
 define function html-comment-end
     (buffer :: <string>, bpos :: <integer>) => (comment-end :: <integer>)
