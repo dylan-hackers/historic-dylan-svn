@@ -18,7 +18,7 @@
     </COPYRIGHT>
     &cmu.terms;
     <bookbiblio>
-      <date>21 March 2000</date>
+      <date>12 November 2000</date>
       <editor>&person.housel;</editor>
       <editor>&person.bogk;</editor>
       <editor>&person.neel;</editor>
@@ -3588,6 +3588,11 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   </CHAPTER>
 
   <CHAPTER ID="libs-transcendental">
+    <DOCINFO>
+      <TITLE>Transcendental Library</TITLE>
+      <DATE>November 11, 2000</DATE>
+      <EDITOR>&person.dauclair;</EDITOR>
+    </DOCINFO>
     <TITLE>The Transcendental Library</TITLE>
     <para>
       The Transcendental library contains functions on numbers.  It
@@ -3638,7 +3643,8 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	  triangle, the sine of theta is AB / AC.  For example, say AC
 	  is 12 meters and theta is <dlit>$double-pi</dlit> / 6 (30 degrees).  
 	  You solve
-	  for AB by multiplying AC and sine theta.  AB = 12 * sin(
+	  for AB by multiplying AC and sine theta.  AB = 12 * 
+	  <function>sin</function>(
 	  <dlit>$double-pi</dlit> /
 	  6.0) => 6 meters.
   	</para>
@@ -3689,7 +3695,11 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       <defdescription>
   	<para>
 	  Returns the tangent of a real number.  The tangent of theta
-	  is AB / BC.
+	  is AB / BC.  The canonical exercise for tangent is to compute
+          the height of a building.  Let's say you want to know how high
+          your chimney is.  You are standing 25 meters from the building,
+          and the chimney is 4 hands above the ground (where a hand is
+          equivalent to 12 degrees).  How tall is your chimney?
   	</para>
       </defdescription>
     </dylangenericdef>
@@ -3712,9 +3722,10 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       several novel approaches.  The most widely-known approach is to
       compute the value of the series 4 - 4/3 + 4/5 - 4/7 ... (which
       takes a very large number of terms to get close to Chuck Moore's
-      find (see below)).  Another is to use the Fibonacci sequence
-      (see
-      http://www.ee.surrey.ac.uk/Personal/R.Knott/Fibonacci/fibpi.html)
+      find (see below)).  Another is to use the Fibonacci numbers
+      (see <ulink url=
+      "http://www.ee.surrey.ac.uk/Personal/R.Knott/Fibonacci/fibpi.html">
+      this article on computing pi using arc-tangents</ulink>)
       which become usable in about ten terms.
     </para>
 
@@ -3765,12 +3776,38 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       The
       arc sine function (<function>asin</function>, also known as the 
       inverse sine) gives
-      the angle (in radians, again) from the height (AB) over the
+      theta (the angle in radians) from the height (AB) over the
       hypotenuse (AC).  The other arc functions, <function>acos</function>, 
       and <function>atan</function>,
-      behave as their more-familiar counterparts.  Again, to convert
+      behave as their more-familiar counterparts.  So, the arc-cosine gives
+      theta from the base (BC) and the hypotenuse (AC); the arc-tangent,
+      from the height(AB) and the base (BC).  Again, to convert
       from radians to degrees, multiple the result by 180 / pi.
     </para>
+
+    <dylangenericdef>
+      <defname>asin</defname>
+      <defsummary>Returns the arc-sine of a real number</defsummary>
+      <defparameters>
+	<param>
+	  <paramname>x</paramname>
+	  <paramtype>&lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+	<param>
+	  <paramname>y</paramname>
+	  <paramtype>&lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+	<para>
+	  Given the hypotenuse (AC) and the height (AB), the arc-sine
+	  gives theta:  the angle in radians.
+	</para>
+      </defdescription>
+    </dylangenericdef>
+
     </sect1>
 
     <sect1 id="lib-transcendental-e">
