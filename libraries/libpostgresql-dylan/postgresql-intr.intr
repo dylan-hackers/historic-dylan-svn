@@ -54,10 +54,28 @@ define interface
               "PGconn" => <postgresql-connection>,
               "PGresult" => <postgresql-result>,
               "FILE" => <fd-stream>,
-              "PQnotifies" => PQnotifies-internal},
+              "PQnotifies" => PQnotifies-internal,
+              "CONNECTION_AUTH_OK"           => $ConnStatusType$CONNECTION-AUTH-OK,
+              "CONNECTION-AWAITING-RESPONSE" => $ConnStatusType$CONNECTION-AWAITING-RESPONSE,
+              "CONNECTION-BAD"               => $ConnStatusType$CONNECTION-BAD,
+              "CONNECTION-MADE"              => $ConnStatusType$CONNECTION-MADE,
+              "CONNECTION-OK"                => $ConnStatusType$CONNECTION-OK,
+              "CONNECTION-SETENV"            => $ConnStatusType$CONNECTION-SETENV,
+              "CONNECTION-STARTED"           => $ConnStatusType$CONNECTION-STARTED,
+              "PGRES-BAD-RESPONSE"           => $ExecStatusType$PGRES-BAD-RESPONSE,
+              "PGRES-COMMAND-OK"             => $ExecStatusType$PGRES-COMMAND-OK,
+              "PGRES-COPY-IN"                => $ExecStatusType$PGRES-COPY-IN,
+              "PGRES-COPY-OUT"               => $ExecStatusType$PGRES-COPY-OUT,
+              "PGRES-EMPTY-QUERY"            => $ExecStatusType$PGRES-EMPTY-QUERY,
+              "PGRES-FATAL-ERROR"            => $ExecStatusType$PGRES-FATAL-ERROR,
+              "PGRES-NONFATAL-ERROR"         => $ExecStatusType$PGRES-NONFATAL-ERROR,
+              "PGRES-TUPLES-OK"              => $ExecStatusType$PGRES-TUPLES-OK,
+              "PGRES-POLLING-ACTIVE"         => $PostgresPollingStatusType$PGRES-POLLING-ACTIVE,
+              "PGRES-POLLING-FAILED"         => $PostgresPollingStatusType$PGRES-POLLING-FAILED,
+              "PGRES-POLLING-OK"             => $PostgresPollingStatusType$PGRES-POLLING-OK,
+              "PGRES-POLLING-READING"        => $PostgresPollingStatusType$PGRES-POLLING-READING,
+              "PGRES-POLLING-WRITING"        => $PostgresPollingStatusType$PGRES-POLLING-WRITING },
     exclude: { "PGnotify" };
   pointer "byte **" => <char-pointer-vector>,
     superclasses: {<c-vector>};
 end interface;
-
-
