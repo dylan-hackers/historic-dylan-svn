@@ -50,7 +50,9 @@ define method post-event(event :: <glut-event>)
 end method post-event;
 
 define variable timer-func :: <function> = callback-method(value :: <integer>) => ();
-  glRotate(s(5.0), s(1.0), s(1.0), s(1.0));
+  glMatrixMode($GL-PROJECTION);
+  glRotate(s(5.0), s(0.0), s(1.0), s(0.0));
+  glMatrixMode($GL-MODELVIEW);
   glutPostRedisplay();
   glutTimerFunc(20, timer-func, 0);
 end;
@@ -80,6 +82,7 @@ end;
   
 define variable reshape-func :: <function> = callback-method(x :: <integer>, y :: <integer>) => ();
   glViewport(0, 0, x, y);
+/*
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
   if(y = 0)
@@ -87,6 +90,7 @@ define variable reshape-func :: <function> = callback-method(x :: <integer>, y :
   else
     gluPerspective(80.0d0, as(<double-float>, x) / as(<double-float>, y), 1.0, 5000.0)
   end if;
+*/
 //  glMatrixMode($GL-MODELVIEW);
 //  glLoadIdentity();
   post-event(make(<reshape-event>, location: make(<point>, x: x, y: y)));
@@ -108,6 +112,7 @@ define constant *scene-graph* = make(<indexed-face-set>,
                                                 #[2,3,8,7],
                                                 #[3,4,9,8],
                                                 #[4,0,5,9]]);
+
 /*
 define constant *scene-graph* = make(<indexed-face-set>,
                                      points: #[#[-0.5, -0.5, -0.5],
@@ -125,31 +130,26 @@ define constant *scene-graph* = make(<indexed-face-set>,
                                                 #[0,3,7,6],
                                                 #[1,2,4,5]]);
 */
-
                                                  
 define variable display-func :: <function> = callback-method() => ();
   glClear($GL-COLOR-BUFFER-BIT | $GL-DEPTH-BUFFER-BIT);
-//  glLoadIdentity();
-//  glTranslate(0s0, 0.0s0, -6.0s0);
+  glLoadIdentity();
+  glScale(0.01, 0.01, 0.01);
   render-to-opengl(*scene-graph*);
   glutSwapBuffers();
 end;
 
 define method main(progname, #rest arguments)
-//  let (argc, argv) = c-arguments(progname, arguments);
-//  glutInit(argc, argv);
+  glutInitDisplayMode($GLUT-RGBA + $GLUT-DEPTH + $GLUT-DOUBLE);
+  glutInitWindowSize(500, 500);
 
   glShadeModel($GL-SMOOTH);
-  glClearColor(0.0s0, 0.0s0, 0.0s0, 0.5s0);
-  glClearDepth(1.0d0);
   glEnable($GL-DEPTH-TEST);
-  glDepthFunc($GL-LEQUAL);
+  glDepthFunc($GL-NEVER);
   glEnable($GL-COLOR-MATERIAL);
   glHint($GL-PERSPECTIVE-CORRECTION-HINT, $GL-NICEST);
 
   GC-enable-incremental();
-  glutInitDisplayMode($GLUT-RGBA + $GLUT-DEPTH + $GLUT-DOUBLE);
-  glutInitWindowSize(500, 500);
 
   let win :: <integer> = glutCreateWindow("Foo");
   format(*standard-output*, "GL_VENDOR: %s\n", 
@@ -163,19 +163,17 @@ define method main(progname, #rest arguments)
   force-output(*standard-output*);
 //  glutFullScreen();
 
-/*
-  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.5, 1.5);
   glMatrixMode($GL-PROJECTION);
   glLoadIdentity();
-  glFrustum(-1.0, 1.0, -1.0, 1.0, 8.0, 12.0);
-  gluLookAt(0.0, 4.0, 10.0,
-	    0.0,  0.0, 0.0,
-	    0.0,  1.0, 0.0);
-*/
+  glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
+  gluLookAt(0.0,  1.8, -1.0, // eye position
+	    0.0,  0.0, 0.0,  // looking at
+	    0.0,  1.0, 0.0); // up direction
+
   glMatrixMode($GL-MODELVIEW);
 
-  glCullFace($GL-BACK);
-  glEnable($GL-CULL-FACE);
+//  glCullFace($GL-BACK);
+//  glEnable($GL-CULL-FACE)
   glEnable($GL-LIGHTING);
   glEnable($GL-LIGHT0);
   glLight($GL-LIGHT0, $GL-POSITION, 3, 3, -2, 1);
@@ -183,9 +181,6 @@ define method main(progname, #rest arguments)
   glLight($GL-LIGHT0, $GL-DIFFUSE, 0.5, 0.5, 0.9, 1.0);
   glLight($GL-LIGHT0, $GL-SPECULAR, 0.5, 0.5, 1.0, 1.0);
   glLight($GL-LIGHT0, $GL-SPOT-DIRECTION, -3, -3, 2);
-
-  glEnable($GL-COLOR-MATERIAL);
-
 
   glEnable($GL-FOG);
   glEnable($GL-BLEND);
@@ -196,7 +191,7 @@ define method main(progname, #rest arguments)
   glFog($GL-FOG-END, s(4.0));
 
   glClearColor(s(0.5), s(0.5), s(0.5), s(1.0));
-  glTranslate(0s0, 0.0s0, -6.0s0);
+  glClearDepth(1.0d0);
 
   glutDisplayFunc(display-func);
   glutTimerFunc(20, timer-func, 0);

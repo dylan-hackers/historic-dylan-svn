@@ -10,7 +10,7 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
     with-glBegin($GL-POLYGON)
       glColor(0.0, 1.0, 0.0);
       for(i in p)
-        glVertex(ifs.points[i][0]/100.0, ifs.points[i][1]/100.0, ifs.points[i][2]/100.0);
+        glVertex(ifs.points[i][0], ifs.points[i][1], ifs.points[i][2]);
       end for;
     end with-glBegin;
   end for;
