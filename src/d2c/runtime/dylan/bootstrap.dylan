@@ -175,7 +175,7 @@ define module dylan-viscera
     // Definitions
     variable-definer, constant-definer, domain-definer, function-definer,
     generic-definer, method-definer, class-definer, designator-class-definer,
-    library-definer,
+    library-definer, copy-down-method-definer,
 
     // Statements
     \if, \unless, \case, \select, \while, \until, \for, \begin,

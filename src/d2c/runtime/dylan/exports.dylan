@@ -131,7 +131,7 @@ define module Dylan
 	     // Definitions
 	     variable-definer, constant-definer, domain-definer,
 	     function-definer, generic-definer, method-definer, class-definer,
-	     module-definer, library-definer,
+	     module-definer, library-definer, copy-down-method-definer,
 
 	     // Statements
 	     \if, \unless, \case, \select, \while, \until, \for, \begin,
