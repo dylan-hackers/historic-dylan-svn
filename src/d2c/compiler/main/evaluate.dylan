@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.35 2002/08/10 14:22:49 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.36 2002/08/10 17:16:22 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -164,7 +164,7 @@ end class <exit-condition>;
 define method fer-evaluate(block-region :: <block-region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   block ()
-    fer-gather-bindings(block-region.body, environment)
+    fer-evaluate(block-region.body, environment)
   exception (exit :: <exit-condition>, test: method(exit :: <exit-condition>)
                                                exit.exit-block == block-region
                                              end method)
@@ -175,7 +175,7 @@ end;
 define method fer-evaluate(loop :: <loop-region>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
   local method repeat(environment :: <interpreter-environment>)
-      repeat(fer-gather-bindings(loop.body, environment))
+      repeat(fer-evaluate(loop.body, environment))
     end method;
   repeat(environment);
 end;
@@ -236,15 +236,18 @@ end;
 // ########## fer-evaluate-regions ##########
 define method fer-evaluate-regions(region :: <region>, more-regions == #(), environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
-  error("Did not encounter a <return> in control flow...");
+  error("Did not encounter a <return> in control flow... \nregion: %=", region);
 end;
 
-
-define constant fer-gather-bindings = fer-evaluate; // this is a HACK #### for now...
+define method fer-evaluate-regions(the-if :: <if-region>, more-regions == #(), environment :: <interpreter-environment>)
+ => environment :: <interpreter-environment>;
+  fer-evaluate(the-if, environment);
+  error("Did not encounter a <return> in control flow of any of the <if-region>s legs");
+end;
 
 define method fer-evaluate-regions(region :: <region>, more-regions :: <list>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
-  fer-evaluate-regions(more-regions.head, more-regions.tail, fer-gather-bindings(region, environment))
+  fer-evaluate-regions(more-regions.head, more-regions.tail, fer-evaluate(region, environment))
 end;
 
 define method fer-evaluate-regions(return :: <return>, more-regions == #(), environment :: <interpreter-environment>)
@@ -254,30 +257,11 @@ end;
 
 define method fer-evaluate-regions(exit :: <exit>, more-regions == #(), environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
-  fer-gather-bindings(exit, environment)
+  fer-evaluate(exit, environment)
 end;
 
-/*
-define method fer-evaluate(compound :: <compound-region>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  fer-gather-regions-bindings(compound.regions, environment)
-end;
-*/
 
 /*
-define method fer-evaluate(the-if :: <if-region>, environment :: <interpreter-environment>)
- => environment :: <interpreter-environment>;
-  let test-value
-    = evaluate(the-if.depends-on.source-exp,
-                              environment);
-  if(test-value == as(<ct-value>, #f))
-    fer-gather-bindings(the-if.else-region, environment);
-  else
-    fer-gather-bindings(the-if.then-region, environment);
-  end if;
-end method;
-*/
-
 // ########## fer-gather-regions-bindings ##########
 define generic fer-gather-regions-bindings(regions :: <list>, environment :: <interpreter-environment>)
  => environment :: <interpreter-environment>;
@@ -293,18 +277,18 @@ define method fer-gather-regions-bindings(regions :: <list>, environment :: <int
   let head = regions.head;
   if (instance?(head, <compound-region>))
   
-    let (env, value) = fer-gather-bindings(head, environment); /// ####### no two bindings!!!!
+    let (env, value) = fer-evaluate(head, environment); /// ####### no two bindings!!!!
     if (value)
       compiler-warning("Well, I thought that RETURN[110](result[122]) can only appear just at the end of <function-region>s\n");
       values(environment, value)
     else
-      fer-gather-regions-bindings(regions.tail, fer-gather-bindings(head, environment))
+      fer-gather-regions-bindings(regions.tail, fer-evaluate(head, environment))
     end
   else
-    fer-gather-regions-bindings(regions.tail, fer-gather-bindings(head, environment))
+    fer-gather-regions-bindings(regions.tail, fer-evaluate(head, environment))
   end
 end;
-
+*/
 
 // ########## fer-gather-assigns-bindings ##########
 define method fer-gather-assigns-bindings(no-assign == #f, environment :: <interpreter-environment>)
@@ -351,8 +335,8 @@ define generic evaluate-call(func :: <abstract-function-literal>,
 define method evaluate-call(func :: <method-literal>, operands :: false-or(<dependency>), callee-environment :: <interpreter-environment>)
  => result :: <ct-value>;
 
-  format(*debug-output*, "\n\n\n####### evaluate-call %= %= \n", func, operands);
-  force-output(*debug-output*);
+//  format(*debug-output*, "\n\n\n####### evaluate-call %= %= \n", func, operands);
+//  force-output(*debug-output*);
   block ()
     let prologue = func.main-entry.prologue;
   
@@ -389,6 +373,56 @@ end;
 define method evaluate(expr :: <method-literal>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
   expr.ct-function
+end;
+
+define method evaluate(expr :: <truly-the>, environment :: <interpreter-environment>)
+ => result :: <ct-value>;
+  evaluate(expr.depends-on.source-exp, environment)
+end;
+
+// ######### extract-leaf #########
+// is there a way to arrive from <ct-method> to its literal?
+// OPEN QUESTION
+define method extract-leaf(the :: <truly-the>)
+ => leaf :: <leaf>;
+  the.depends-on.source-exp.extract-leaf
+end;
+
+define method extract-leaf(leaf :: <abstract-function-literal>)
+ => leaf :: <leaf>;
+  leaf
+end;
+
+define method extract-leaf(var :: <definition-site-variable>)
+ => leaf :: <leaf>;
+  var.definer.depends-on.source-exp.extract-leaf
+end;
+
+define method extract-leaf(var :: <multi-definition-variable>)
+ => leaf :: <leaf>;
+  var.definitions.first.extract-leaf
+end;
+
+
+define method evaluate(expr :: <unknown-call>, environment :: <interpreter-environment>)
+ => result :: <ct-value>;
+  let args = expr.depends-on.dependent-next;
+  let leaf :: <abstract-function-literal> = expr.depends-on.source-exp.extract-leaf;
+  evaluate-call(leaf, args, environment);
+//  main-entry
+
+
+
+/**
+      let func :: <ct-function> = evaluate(expr.depends-on.source-exp, environment);
+      select (func by instance?) // ## really need to select???? TODO
+        <ct-method> =>
+          main-entry!!!!!
+          let defn :: <abstract-method-definition> = func.ct-function-definition;
+          let literal :: <function-literal> = defn.method-defn-inline-function;
+          evaluate-call(literal, args, environment);
+      end select;
+      */
 end;
 
 define method evaluate(expr :: <known-call>, environment :: <interpreter-environment>)
