@@ -10,7 +10,7 @@ clean:
 	rm -rf .libs
 
 
-install: ../runme
+install: icfp2001
 	strip icfp2001
 	cd ..; tar czf dylan-hackers.tgz README buildme runme \
            src/Makefile src/icfp2001.lid src/*.dylan src/icfp2001
