@@ -3,4 +3,6 @@
 *.du
 *.mak
 *.c-temp
-
+.*
+brain-compiler
+brain-compiler.dep
