@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.38.2.1 2004/02/22 06:52:00 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.38.2.2 2004/02/22 17:20:07 housel Exp $
 copyright: see below
 module: bootstrap
 
@@ -214,7 +214,7 @@ define module dylan-viscera
     <simple-object-table>, element-error,
 
     // Cheap IO
-    format, print-message, print, write-integer, puts,
+    print-message, print, write-integer, puts,
 
     // System stuff
     call-out, c-include, c-system-include, c-decl, c-local-decl,
