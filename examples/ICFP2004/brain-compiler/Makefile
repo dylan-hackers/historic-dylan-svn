@@ -5,7 +5,7 @@ run:	bin
 	./brain-compiler
 
 bin-alex:
-	rm -rf alex; d2c -s -g --debug -L.. alex.lid
+	rm -rf alex; d2c -s -L.. alex.lid
 
 run-alex:
 	rm -rf ../ant-brains/alex-generated.ant; ./alex > ../ant-brains/alex-generated.ant
