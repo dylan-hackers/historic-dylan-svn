@@ -35,25 +35,6 @@ function short_header ($title) {
 
 <P ALIGN=CENTER><STRONG>Advanced Free Software Development Tools</STRONG></P>
 
-<TABLE BORDER=0 WIDTH="100%" CELLPADDING=0 CELLSPACING=10>
-<TR><TD WIDTH="70%" VALIGN=TOP>
-
-<TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
-<TR><TD WIDTH="100%">
-<?php
-}
-
-function standard_header ($title) {
-    short_header($title);
-    echo "<H2>" . $title . "</H2>\n";
-}
-
-function standard_footer () {
-?>
-</TD></TR>
-</TABLE>
-</TD>
-
 <TD WIDTH="30%" VALIGN=TOP>
 
 <TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
@@ -97,6 +78,26 @@ function standard_footer () {
 </UL>
 
 </TD></TR>
+
+<TABLE BORDER=0 WIDTH="100%" CELLPADDING=0 CELLSPACING=10>
+<TR><TD WIDTH="70%" VALIGN=TOP>
+
+<TABLE BORDER=0 WIDTH="100%" CELLPADDING=10 CELLSPACING=0 BGCOLOR="#CCCCCC">
+<TR><TD WIDTH="100%">
+<?php
+}
+
+function standard_header ($title) {
+    short_header($title);
+    echo "<H2>" . $title . "</H2>\n";
+}
+
+function standard_footer () {
+?>
+</TD></TR>
+</TABLE>
+</TD>
+
 </TABLE>
 
 <DIV CLASS=footer>
