@@ -18,48 +18,6 @@ define method transform-with-matrix(ray :: <ray>, matrix :: <matrix>)
   make(<ray>, position: matrix * ray.ray-position, direction: matrix * ray.ray-direction);
 end method transform-with-matrix;
 
-define class <surface> (<object>)
-  slot color, init-keyword: color:, init-value: make(<color>, red: 1.0, green: 1.0, blue: 1.0);
-  slot diffusion-coefficient, init-keyword: diffusion:, init-value: 1.0;
-  slot specular-coefficient, init-keyword: specular:, init-value: 0.0;
-  slot phong-coefficient, init-keyword: phong:, init-value: 0.0;
-end class <surface>;
-
-define method make-surface-closure(surface-id, u, v, interpreter-entry)
-  let surface = #f;
-
-  local method return-color()
-    if(surface)
-      surface;
-    else
-      let (color, diffusion, specular, phong) = interpreter-entry(surface-id, u, v);
-      surface := make(<surface>, color: color, diffusion: diffusion, specular: specular, phong: phong);
-      surface;
-    end if;
-  end method return-color;
-  return-color;
-end method make-surface-closure;
-
-define method clamp(x)
-  if(x < 0.0)
-    0.0;
-  else 
-    if(x > 1.0)
-      1.0;
-    else
-      x;
-    end if;
-  end if;
-end method clamp;
-
-define method silly-texture(surface-id, u, v)
-  if(u > 0.1 & u < 0.9 & v > 0.1 & v < 0.9)
-    values(make(<color>, red: clamp(u), green: clamp(v), blue: 0.0), 1.0, 0.2, 0.2);
-  else
-    values(make(<color>, red: 0.0, green: 0.0, blue: 0.0), 1.0, 0.2, 0.2);
-  end if;
-end method silly-texture;
-
 define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: shadow-test?)
  => (point, normal, surface-function)
 
