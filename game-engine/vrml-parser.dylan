@@ -49,7 +49,7 @@ define method slurp-input(stream :: <buffered-stream>)
 end method slurp-input;
 
 define method parse-vrml(file-name :: <string>)
-  => (model :: <node>);
+  => (model :: <simple-object-vector>);
   let save-debug = *debug-meta-functions?*;
   block ()
     *debug-meta-functions?* := #t;
@@ -115,20 +115,28 @@ end ws;
 // vrmlScene ::=
 //     statements ;
 
-define meta vrmlScene (c, node) => (node)
+define meta vrmlScene (c, nodes) => (nodes)
   "#VRML V2.0 utf8",
 
   // optional comment
   {[element-of(" \t", c), loop({[element-of("\r\n",c), finish()], accept(c)})],
    element-of("\r\n",c)},
 
-  scan-nodeStatement(node) //TODO BGH multiple statements
+  scan-statements(nodes) 
 end vrmlScene;
 
 // statements ::=
 //     statement |
 //     statement statements |
 //     empty ;
+
+define meta statements(c, statement, statements) 
+  => (as(<simple-object-vector>, statements))
+  do(statements := make(<stretchy-vector>)),
+  ws?(c),
+  loop({[scan-nodeStatement(statement), do(add!(statements, statement))],[finish()]})
+end statements;
+
 // 
 // statement ::=
 //     nodeStatement |
