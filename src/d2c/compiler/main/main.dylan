@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.4 2003/07/05 03:56:03 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.76.2.5 2003/08/10 23:50:18 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -100,6 +100,7 @@ define method show-help(stream :: <stream>) => ()
 "       -g, --debug:       Generate debugging code.\n"
 "       --profile:         Generate profiling code.\n"
 "       -s, --static:      Force static linking.\n"
+"       -j, --thread-count Max threads to use (default 1)\n"
 "       -d, --break:       Debug d2c by breaking on errors.\n"
 "       -o, --optimizer-option:\n"
 "                          Turn on an optimizer option. Prefix option with\n"
@@ -314,6 +315,16 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 			    <simple-option-parser>,
 			    long-options: #("profile"));
   add-option-parser-by-type(argp,
+			    <parameter-option-parser>,
+			    short-options: #("j"),
+			    long-options: #("thread-count"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("testworks-spec"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("optimizer-sanity-check"));
+  add-option-parser-by-type(argp,
 			    <simple-option-parser>,
 			    long-options: #("optimizer-sanity-check"));
   add-option-parser-by-type(argp,
@@ -379,6 +390,8 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     debug-optimizer := 0;
   end if;
 
+  let dump-testworks-spec? = option-value-by-long-name(argp, "testworks-spec");
+
   // Determine our compilation target.
   let targets-file = option-value-by-long-name(argp, "platforms") |
     $default-targets-dot-descr;
@@ -395,6 +408,14 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
       end;
     optimizer-option-table[as(<symbol>, key)] := value;
   end for;
+
+  // How many threads are we using
+  let thread-count = option-value-by-long-name(argp, "thread-count");
+  if(thread-count)
+    thread-count := string-to-integer(thread-count);
+  else
+    thread-count := #f;
+  end if;
 
   // Figure out which optimizer to use.
   let optimizer-class =
@@ -493,8 +514,10 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
                link-rpath: link-rpath,
                debug?: debug?,
                profile?: profile?,
+               dump-testworks-spec?: dump-testworks-spec?,
                cc-override: cc-override,
-               override-files: as(<list>, override-files));
+               override-files: as(<list>, override-files),
+	       thread-count: thread-count);
         end if;
   let worked? = compile-library(state);
   exit(exit-code: if (worked?) 0 else 1 end);

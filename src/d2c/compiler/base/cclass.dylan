@@ -1,5 +1,5 @@
 module: classes
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/cclass.dylan,v 1.23 2003/03/27 17:36:20 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/cclass.dylan,v 1.23.2.1 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -360,6 +360,16 @@ end;
 
 define sealed domain make (singleton(<slot-info>));
 define sealed domain initialize (<slot-info>);
+
+define method ct-value-slot(ctv :: <slot-info>, slot == #"slot-init-value")
+ => res :: false-or(<ct-value>);
+  instance?(ctv.slot-init-value, <ct-value>) & ctv.slot-init-value;
+end method;
+
+define method ct-value-slot(ctv :: <slot-info>, slot == #"slot-init-function")
+ => res :: false-or(<ct-value>);
+  instance?(ctv.slot-init-function, <ct-value>) & ctv.slot-init-function;
+end method;
 
 define method print-message
     (lit :: <slot-info>, stream :: <stream>) => ();
@@ -1035,7 +1045,7 @@ define method inherit-overrides ()
 	  end;
 	end;
 	compiler-fatal-error
-	  ("Class %s can't override slot %s, because is doesn't "
+	  ("Class %s can't override slot %s, because it doesn't "
 	     "have that slot.",
 	   cclass, override.override-getter.variable-name);
       end;
@@ -1722,7 +1732,11 @@ define method layout-slot (slot :: <instance-slot-info>, class :: <cclass>)
       ("variable-length slot %s is not the last slot in class %s "
          "after adding %s",
        class.vector-slot.slot-getter.variable-name, class,
-       slot.slot-getter.variable-name);
+       if (slot.slot-getter)
+         slot.slot-getter.variable-name
+       else
+         "(unnamed slot)"
+       end);
   end;
   let rep = slot.slot-representation;
   let offset

@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.3 2003/07/05 03:56:02 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.41.2.4 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -444,6 +444,7 @@ define module platform
     delete-file-command,
     compare-file-command,
     move-file-command,
+    make-jobs-flag,
     path-separator,
 
     link-doesnt-search-for-libs?,
@@ -552,9 +553,9 @@ define module variables
 
     $Bootstrap-Module, add-bootstrap-export, define-bootstrap-module,
 
-    find-library, library-name, note-library-definition,
+    find-library, library-name, note-library-definition, do-exported-modules,
     find-module, module-name, module-syntax-table,
-    note-module-definition, deferred-importers,
+    note-module-definition, deferred-importers, do-exported-variables,
     <variable>, find-variable, variable-name, variable-definition,
     variable-transformers, variable-transformers-setter,
     variable-ct-evaluator, variable-ct-evaluator-setter,

@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.4 2003/06/10 10:04:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.14.2.5 2003/08/10 23:50:18 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -65,13 +65,17 @@ define module main
   use option-parser-protocol;
    
   use utils;
-// use define-classes;
-  use define-functions;
-  use definitions, import: {*defn-dynamic-default*};
-  use function-definitions;
   use variables;
+  use definitions;
+  use variable-definitions;
+  use function-definitions;
+  use define-classes;
+  use define-libraries-and-modules;
+  use define-constants-and-variables;
+  use define-functions;
+  use define-macros;
   use parser;
-  use format;
+  use macros;
   use tokenize;
   use lexer;
   use header;

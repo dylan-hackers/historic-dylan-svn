@@ -1,5 +1,5 @@
 module: variables
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/variables.dylan,v 1.6.4.3 2003/07/05 03:56:02 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/variables.dylan,v 1.6.4.4 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -650,7 +650,15 @@ define method note-library-definition
   end if;
 end method note-library-definition;
 
-
+// do-exported-modules -- exported.
+//
+define method do-exported-modules
+    (library :: <library>, function :: <function>)
+ => ();
+  for (name in library.exported-names)
+    function(name, library.entries[name].entry-constituent);
+  end for;
+end method;
 
 
 // Module access stuff.
@@ -789,6 +797,16 @@ define method note-module-definition
   end if;
 end method note-module-definition;
 
+// do-exported-variables -- exported.
+//
+define method do-exported-variables
+    (module :: <module>, function :: <function>)
+ => ();
+  for (name in module.exported-names)
+    function(name, module.entries[name].entry-constituent);
+  end for;
+end method;
+
 
 // Variable stuff.
 
@@ -906,7 +924,6 @@ define method name-inherited-or-exported? (name :: <basic-name>)
     if (var.variable-referencing-macro-names
           & any?(name-inherited-or-exported?,
                  var.variable-referencing-macro-names))
-      format(*debug-output*, "variable %s exported due to macro\n", name);
       return(#t);
     end if;
 

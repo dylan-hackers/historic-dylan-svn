@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.31.2.5 2003/07/05 03:56:13 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.31.2.6 2003/08/10 23:50:20 gabor Exp $
 copyright: see below
 module: bootstrap
 
@@ -224,7 +224,7 @@ define module dylan-viscera
     object-address, heap-object-at, general-object-at,
     <buffer>, <buffer-index>, $maximum-buffer-size,
     buffer-next, buffer-next-setter, buffer-end, buffer-end-setter,
-    copy-bytes, buffer-address,
+    copy-bytes, buffer-address, vector-elements-address,
 
     system, import-string, export-string, getenv, 
     exit, on-exit, no-core-dumps, get-time-of-day,

@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5 2003/03/05 17:14:14 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.5.2.1 2003/08/10 23:50:18 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -53,9 +53,16 @@ define class <main-unit-state> (<object>)
   slot unit-debug? :: <boolean>, init-keyword: debug?:, init-value: #f;
   slot unit-profile? :: <boolean>, init-keyword: profile?:, init-value: #f;
 
+  slot dump-testworks-spec? :: <boolean>,
+    init-value: #f, init-keyword: dump-testworks-spec?:;
+
   slot unit-header :: <header>;
   constant slot unit-init-functions :: <stretchy-vector>
 	= make(<stretchy-vector>);
+
+  // how many threads do we want d2c to try to make use of
+  constant slot unit-thread-count :: false-or(<integer>),
+    init-keyword: thread-count:, init-value: #f;
 end class <main-unit-state>;
 
 // Find the library object file (archive) using the data-unit search path.

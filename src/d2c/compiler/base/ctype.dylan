@@ -1,6 +1,6 @@
 Module: ctype
 Description: compile-time type system
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.8 2002/04/28 20:46:09 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/ctype.dylan,v 1.8.4.1 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -1523,6 +1523,11 @@ end;
 // is returned.
 // 
 define generic ct-value-cclass (ct-value :: <ct-value>) => res :: <cclass>;
+
+define method ct-value-slot(ct-value :: <ct-value>, slot == #"%object-class")
+ => res :: <cclass>;
+  ct-value-cclass(ct-value);
+end method;
 
 define method ct-value-cclass (object :: <ct-not-supplied-marker>)
     => res :: <cclass>;

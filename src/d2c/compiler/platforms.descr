@@ -1,6 +1,6 @@
 // A description of all target platforms we support. We use this in d2c as well as in the build scripts.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.5 2003/07/05 03:56:02 prom Exp $
+// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.68.2.6 2003/08/10 23:50:10 gabor Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -12,7 +12,7 @@
 //
 // Each description looks like a Dylan header, with keywords and
 // values.  In a value, the character sequences \, \\, \n, and \t are
-// interpretted as if they were inside Dylan string literals.
+// interpreted as if they were inside Dylan string literals.
 // Multi-line values might or might not do what you expect (this of
 // course depends on what you expect); they work fine for feature
 // lists..
@@ -180,6 +180,9 @@ big-endian?:			#t
 // mk-build-tree will create makefiles that rebuild themselves
 // whenever the Makegen or Defaults files change.
 //
+// make-jobs-flag: The flag the make-command takes to run multiple
+// jobs in parallel.  If no such support is available, set to #f.
+//
 // uses-drive-letters?: Whether or not the platform uses drive letters
 // in its paths (like MS-Windows does).
 //
@@ -220,6 +223,7 @@ makefile-name:                  	Makefile
 make-supports-phony-targets?:   	#f
 makefiles-can-rebuild-themselves?:      #f
 make-command:                   	make 
+make-jobs-flag:                         #f
 
 // Generic Unix (parent class to linux, freebsd, solaris & hpux):
 platform-name:				generic-unix
@@ -239,6 +243,7 @@ use-dbclink?:                           #f
 makefile-name:				GNUmakefile
 make-supports-phony-targets?:   	#t
 makefiles-can-rebuild-themselves?:      #t
+make-jobs-flag:				-j
 recursive-make-command:         	$(MAKE) -C %s %s
 libtool-command:			libtool
 
@@ -252,7 +257,7 @@ make-command:				make
 use-dbclink?:				#t
 executable-filename-suffix:		.exe
 double-alignment:			8
-long-double-alignment:			8
+long-double-alignment:			4
 long-double-mantissa-digits:		53
 minimum-long-double-float-exponent:	-1021
 maximum-long-double-float-exponent:	1024
@@ -267,7 +272,7 @@ make-command:				make
 use-dbclink?:				#t
 executable-filename-suffix:		.exe
 double-alignment:			8
-long-double-alignment:			8
+long-double-alignment:			4
 long-double-mantissa-digits:		53
 minimum-long-double-float-exponent:	-1021
 maximum-long-double-float-exponent:	1024
@@ -467,64 +472,16 @@ default-features:		C-compiler-is-GCC
 compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
 compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
 default-c-compiler-flags:	-I. -I%s -O2
-default-c-compiler-debug-flags:	-I. -I%s -gstabs1 -O2
 default-c-compiler-profile-flags:	-I. -I%s -pg -gstabs1 -O -fno-inline-functions
 assembler-command:		gcc $(CCFLAGS) -c %s -o %s
 link-library-command:           ar qc %s %s
-link-executable-command:        $(LIBTOOL) --mode=link gcc -o %s %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
 link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
 link-executable-flags:          $(GC_LIBS) -lm
 link-debug-flags:               -gstabs1
 link-profile-flags:		-pg -gstabs1
 path-separator:        		/
 supports-asm-stabs-hack?:	#t
-
-// FIXME:  Temporary measure until gcc-3.0 is the default
-//
-// Beware: some versions of gcc 3 have an optimizer bug,
-// which requires -fno-strict-aliasing be active. Might be
-// fixed as of 3.2.3, or not.
-//
-platform-name:                 gcc30
-default-features:              C-compiler-is-GCC
-compile-c-command:              gcc-3.0 $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc-3.0 $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:      -I. -I%s -O2 -fomit-frame-pointer -fno-strict-aliasing
-default-c-compiler-debug-flags:        -I. -I%s -g -O2 -fno-strict-aliasing
-default-c-compiler-profile-flags:      -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:             gcc-3.0 $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command:        $(LIBTOOL) --mode=link gcc-3.0 -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link gcc-3.0 -o %s %s %s
-link-executable-flags:          $(GC_LIBS) -lm
-link-profile-flags:            -pg
-path-separator:                        /
-
-platform-name:			  gcc32
-default-features:		  C-compiler-is-GCC
-compile-c-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:	  $(LIBTOOL) --mode=compile gcc-3.2 $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	  -I. -I%s -O2 -fomit-frame-pointer  -fno-strict-aliasing
-default-c-compiler-debug-flags:	  -I. -I%s -g  -O2 -fno-strict-aliasing
-default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
-link-library-command:		  ar qc %s %s
-link-executable-command:	  $(LIBTOOL) --mode=link gcc-3.2 -o %s %s %s
-link-shared-executable-command:	  $(LIBTOOL) --mode=link gcc-3.2 -o %s %s %s
-link-executable-flags:		  $(GC_LIBS) -lm
-link-profile-flags:		  -pg
-path-separator:			  /
-
-platform-name:			  standalone-gcc
-default-features:		  C-compiler-is-GCC
-compile-c-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	  -I. -I%s -I/usr/lib/gcc-lib/i386-linux/3.2.2/include -nostdinc -O2  -fno-strict-aliasing
-default-c-compiler-debug-flags:  -I. -I%s -I/usr/lib/gcc-lib/i386-linux/3.2.2/include -nostdinc -O2 -g -fno-strict-aliasing
-assembler-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
-link-library-command:		  ar qc %s %s
-link-executable-command:	  gcc-3.2 -o %s %s %s -e_start -N -L/usr/lib/gcc-lib/i386-linux/3.2.2 -nostdlib -Ttext=00300000
-link-executable-flags:		  $(GC_LIBS) -lm -lgcc
-path-separator:			  /
 
 platform-name:			beos-gcc
 default-features:		C-compiler-is-GCC
@@ -535,7 +492,7 @@ default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
 default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
 assembler-command:		gcc $(CCFLAGS) -c %s -o %s
 link-library-command:           ar qc %s %s
-link-executable-command:        $(LIBTOOL) --mode=link gcc -o %s %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
 link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
 link-executable-flags:          
 path-separator:        		/
@@ -549,7 +506,7 @@ default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
 default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
 assembler-command:		gcc $(CCFLAGS) -c %s -o %s
 link-library-command:           ar qc %s %s
-link-executable-command:        $(LIBTOOL) --mode=link gcc -o %s %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
 link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
 link-executable-flags:          $(GC_LIBS) -lm
 path-separator:        		:
@@ -563,27 +520,83 @@ default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
 default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
 assembler-command:		cc $(CCFLAGS) -c %s -o %s
 link-library-command:           ar qc %s %s
-link-executable-command:        $(LIBTOOL) --mode=link cc -o %s %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link cc -o %s %s %s
 link-shared-executable-command: $(LIBTOOL) --mode=link cc -o %s %s %s
 link-executable-flags:          $(GC_LIBS) -multiply_defined suppress         
 path-separator:        		/
 
 
+// FIXME:  Temporary measure until gcc-3.0 is the default
+//
+// Beware: some versions of gcc 3 have an optimizer bug,
+// which requires -fno-strict-aliasing be active. Might be
+// fixed as of 3.2.3, or not.
+//
+
+
 // Combinations:
 
-// -fomit-frame-pointer seems buggy in gcc 32 on x86
+platform-name:                 ppc-gcc30
+default-features:              C-compiler-is-GCC
+compile-c-command:              gcc-3.0 $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc-3.0 $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:      -I. -I%s -O2 -fomit-frame-pointer -fno-strict-aliasing
+default-c-compiler-debug-flags:        -I. -I%s -g -O -fno-inline-functions
+default-c-compiler-profile-flags:      -I. -I%s -pg -g -O -fno-inline-functions
+assembler-command:             gcc-3.0 $(CCFLAGS) -c %s -o %s
+link-library-command:           ar qc %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link gcc-3.0 -o %s %s %s
+link-shared-executable-command: $(LIBTOOL) --mode=link gcc-3.0 -o %s %s %s
+link-executable-flags:          $(GC_LIBS) -lm
+link-profile-flags:            -pg
+path-separator:                        /
+
+platform-name:			  ppc-gcc32
+default-features:		  C-compiler-is-GCC
+compile-c-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:	  $(LIBTOOL) --mode=compile gcc-3.2 $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:	  -I. -I%s -O2 -fomit-frame-pointer  -fno-strict-aliasing
+default-c-compiler-debug-flags:	  -I. -I%s -g -O -fno-inline-functions
+default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
+assembler-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
+link-library-command:		  ar qc %s %s
+link-executable-command:	  $(LIBTOOL) --mode=link gcc-3.2 -o %s %s %s
+link-shared-executable-command:	  $(LIBTOOL) --mode=link gcc-3.2 -o %s %s %s
+link-executable-flags:		  $(GC_LIBS) -lm
+link-profile-flags:		  -pg
+path-separator:			  /
+
+/// x86
 platform-name:			x86-gcc32
-inherit-from:			x86 gcc32
-default-c-compiler-flags:	-I. -I%s -O2
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc-3.2 -o %s %s -rpath %s
+inherit-from:			x86 gcc
+default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer -fno-strict-aliasing
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 long-long-size:			8
 long-long-alignment:		4
+
+platform-name:			x86-gcc33
+inherit-from:			x86 gcc
+default-c-compiler-flags:	-I. -I%s -O
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+link-executable-command:        gcc -static -o %s %s %s
+long-long-size:			8
+long-long-alignment:		4
+
+/// sparc
+platform-name:			sparc-gcc30
+inherit-from:			sparc gcc
+default-c-compiler-flags:	-I. -I%s -O1
+default-c-compiler-debug-flags: -I. -I%s -g -O0 -fno-inline-functions
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+long-long-size:			8
+long-long-alignment:	8
 
 
 // Fully supported platforms (i.e., we use these):
 platform-name:			x86-linux-gcc
 inherit-from:			gcc linux x86
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+link-executable-command:        gcc -static -o %s %s %s
 long-long-size:			8
 long-long-alignment:		4
 
@@ -594,6 +607,9 @@ long-long-alignment:		4
 
 platform-name:			x86-linux-gcc32
 inherit-from:			linux x86-gcc32
+
+platform-name:			x86-linux-gcc33
+inherit-from:			linux x86-gcc33
 
 platform-name:			x86-bsdi-gcc
 inherit-from:			gcc bsdi x86
@@ -626,11 +642,11 @@ inherit-from:			gcc ppc-linux
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 
 platform-name:                 ppc-linux-gcc30
-inherit-from:                  gcc30 ppc-linux
+inherit-from:                  ppc-gcc30 ppc-linux
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc-3.0 -o %s %s -rpath %s
 
 platform-name:			ppc-linux-gcc32
-inherit-from:			gcc32 ppc-linux
+inherit-from:			ppc-gcc32 ppc-linux
 link-shared-library-command:	$(LIBTOOL) --mode=link gcc-3.2 -o %s %s -rpath %s
 
 // FreeBSD 2.x
@@ -670,7 +686,7 @@ long-double-alignment:	4
 
 platform-name:			ppc-darwin-egcs
 inherit-from:			egcs darwin ppc
-default-c-compiler-flags:	-I. -I%s -O -fomit-frame-pointer -no-cpp-precomp -Wno-long-double
+default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer -no-cpp-precomp -Wno-long-double
 default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
 default-c-compiler-profile-flags:	-I. -I%s -pg -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
 long-long-size:			8
@@ -683,19 +699,35 @@ platform-name:			x86-cygnus-gcc
 inherit-from:			gcc x86 cygnus
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 
+platform-name:			x86-cygnus-gcc32
+inherit-from:			x86-gcc32 cygnus
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+platform-name:			x86-cygnus-gcc33
+inherit-from:			x86-gcc33 cygnus
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+double-alignment:		8
+long-long-alignment:		8
+long-double-alignment:		4
+
 // Mingwin Port
 platform-name:			x86-mingw32-gcc32
 inherit-from:			gcc x86 mingw32
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			x86-cygnus-gcc32
-inherit-from:			x86-gcc32 cygnus
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 
 // Solaris support maintained by Tom Emerson, tree@tiac.net
 // Need to define default-features: below since all three of our
 // inherited 'platforms' also define a default-features. But later on
 // code relies on features that otherwise get stomped.
+
+platform-name:			sparc-solaris-gcc30
+inherit-from:			solaris sparc-gcc30
+default-features:               compiled-for-solaris compiled-for-sparc C-compiler-is-GCC
+long-double-size:               16
+long-double-alignment:          8
+long-double-mantissa-digits:	113
+minimum-long-double-float-exponent: -16381
+maximum-long-double-float-exponent: 16384
 
 platform-name:			sparc-solaris-gcc
 inherit-from:			gcc solaris sparc
@@ -741,11 +773,12 @@ maximum-long-double-float-exponent: 1024
 // HP/UX 11 not tried yet
 platform-name:				hppa-hpux-gcc
 inherit-from:				gcc hpux hppa
+default-features:               	compiled-for-hpux compiled-for-hppa C-compiler-is-GCC
 library-filename-suffix:        	.a .sl
 link-library-command:           	/bin/ar qc %s %s
-link-executable-command:        	gcc -z -o %s %s %s
-link-executable-flags:          	$(GC_LIBS) -L/lib/pa1.1 -lm
+link-executable-command:        	gcc -static -o %s %s %s
 link-shared-library-command:    	$(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+link-executable-flags:          	$(GC_LIBS) -L/lib/pa1.1 -lm
 double-alignment:                       8
 long-long-size:                         8
 long-long-alignment:                    8

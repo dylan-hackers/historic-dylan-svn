@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/primemit.dylan,v 1.16.2.3 2003/06/10 10:04:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/primemit.dylan,v 1.16.2.4 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 
@@ -2281,8 +2281,7 @@ define-primitive-emitter
 
      spew-pending-defines(file);
      deliver-result(results,
-		    stringify("(*(", rep.representation-c-type, " *)((char *)",
-			      ptr, " + ", offset, " ))"),
+		    stringify("DEREF(", rep.representation-c-type, ", ", ptr, ", ", offset, ")"),
 		    rep, #f, file);
    end);
 
@@ -2303,7 +2302,7 @@ define-primitive-emitter
      contact-bgh-if(new-temp? | ptr-temp? | offset-temp?);
 
      spew-pending-defines(file);
-     format(file.file-guts-stream, "*(%s *)((char *)%s + %s) = %s;\n",
+     format(file.file-guts-stream, "DEREF(%s, %s, %s) = %s;\n",
 	    rep.representation-c-type, ptr, offset, new);
      
      deliver-results(results, #[], #f, file);
@@ -2320,10 +2319,18 @@ define-primitive-emitter
      contact-bgh-unless-empty(temps);
      let classes = vec.derived-type.find-direct-classes;
      assert(classes ~== #f & classes ~== #());
-     let offset = dylan-slot-offset(classes.first, #"%element");
-     for (class in classes.tail)
-       assert(offset == dylan-slot-offset(class, #"%element"));
-     end for;
+     local
+       method vector-slot-offset
+           (cclass :: <cclass>) => (res :: false-or(<integer>));
+         find-slot-offset(cclass.vector-slot, cclass);
+       end;
+     let offset = vector-slot-offset(classes.first);
+     unless (offset
+               & every?(method(class) offset = vector-slot-offset(class) end,
+                        classes))
+       error("vector slot not at a constant offset for argument"
+               " of %%primitive vector-elements");
+     end;
      deliver-result
        (results,
 	stringify("((void *)((char *)", vec-expr, " + ", offset, "))"),

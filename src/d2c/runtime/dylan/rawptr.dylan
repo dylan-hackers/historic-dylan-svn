@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/rawptr.dylan,v 1.2 2000/01/24 04:56:49 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/rawptr.dylan,v 1.2.10.1 2003/08/10 23:50:20 gabor Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -35,7 +35,7 @@ end;
 
 define sealed method make (class == <raw-pointer>, #key)
     => res :: <never-returns>;
-  error("Can't make instances of <raw-poniter>, they just are.");
+  error("Can't make instances of <raw-pointer>, they just are.");
 end;
 
 define sealed inline method as
@@ -96,3 +96,9 @@ define macro pointer-deref-setter
 			    ?ptr:expression, ?offset:expression) }
       => { %%primitive(\pointer-deref-setter, ?new-val, ?kind, ?ptr, ?offset) }
 end;
+
+define sealed inline-only method vector-elements-address
+    (vec :: <vector>)
+ => (res :: <raw-pointer>);
+  %%primitive(vector-elements, vec);
+end method;

@@ -1,6 +1,6 @@
 module: platform
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.11.2.2 2003/06/10 10:04:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform.dylan,v 1.11.2.3 2003/08/10 23:50:10 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -161,6 +161,8 @@ define sealed /* exported */ class <platform> (<object>)
     required-init-keyword: #"compare-file-command";
   constant /* exported */ slot move-file-command :: <byte-string>,
     required-init-keyword: #"move-file-command";
+  constant /* exported */ slot make-jobs-flag :: <byte-string>,
+    required-init-keyword: #"make-jobs-flag";
 
   constant /* exported */ slot path-separator :: <character>,
     required-init-keyword: #"path-separator";
@@ -281,6 +283,7 @@ define variable *valid-properties* = make(<table>);
 *valid-properties*[#"delete-file-command"] := #t;
 *valid-properties*[#"compare-file-command"] := #t;
 *valid-properties*[#"move-file-command"] := #t;
+*valid-properties*[#"make-jobs-flag"] := #t;
 *valid-properties*[#"path-separator"] := #t;
 *valid-properties*[#"big-endian?"] := #t;
 *valid-properties*[#"makefile-name"] := #t;

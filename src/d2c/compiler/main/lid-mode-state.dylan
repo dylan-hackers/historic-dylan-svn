@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.3 2003/06/10 10:04:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.4 2003/08/10 23:50:15 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -770,7 +770,11 @@ define method build-executable (state :: <lid-mode-state>) => ();
   format(state.unit-makefile, "\n%s : %s\n", 
          state.unit-executable, state.unit-objects);
   let link-string
-    = format-to-string(state.unit-target.link-executable-command,
+    = format-to-string(if(state.unit-link-static)
+                         state.unit-target.link-executable-command
+                       else
+                         state.unit-target.link-shared-executable-command
+                       end,
 		       state.unit-executable,
                        objects,
 		       link-arguments(state));
@@ -839,8 +843,14 @@ define method do-make (state :: <lid-mode-state>) => ();
   end if;
 
   if (~state.unit-no-binaries)
-    let make-string = format-to-string("%s -f %s", target.make-command, 
-				       state.unit-makefile-name);
+    let jobs-string = if((target.make-jobs-flag ~= "#f") & state.unit-thread-count)
+			format-to-string(" %s %d", target.make-jobs-flag,
+					 state.unit-thread-count);
+		      else
+			"";
+		      end;
+    let make-string = format-to-string("%s%s -f %s", target.make-command, 
+				       jobs-string, state.unit-makefile-name);
     format(*debug-output*, "%s\n", make-string);
     unless (zero?(system(make-string)))
       cerror("so what", "gmake failed?");
@@ -887,6 +897,10 @@ define method compile-library (state :: <lid-mode-state>)
     unless (state.unit-no-makefile)
       do-make(state);
     end;
+
+    if (state.dump-testworks-spec?)
+      do-dump-testworks-spec(state);
+    end if;
 
   exception (<fatal-error-recovery-restart>)
     format(*debug-output*, "giving up.\n");

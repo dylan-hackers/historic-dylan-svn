@@ -63,6 +63,11 @@ if ($cross_compiling) {
   $D2C = "@D2C@";
 }
 
+# Should this really go in D2CFLAGS?
+if("@with_thread_count@" ne "no") {
+    $D2C = $D2C . " -j @with_thread_count@";
+}
+
 $MC = '@MC@';
 $MINDY = '@MINDY@';
 $DYLANPATH = @DYLANPATH@;
@@ -99,6 +104,7 @@ if ($enable_bootstrap && $bootstrap_compiler eq "d2c") {
     foreach (@runtime_directories) {
 	$d2c_runtime .= "-L$buildroot/d2c/runtime/$_ ";
     }
+    $d2c_runtime .= "-L$buildroot/common/transcendental";
 }
 
 $GC_CFLAGS = '@GC_CFLAGS@';

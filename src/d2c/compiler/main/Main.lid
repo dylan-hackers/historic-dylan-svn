@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/Main.lid,v 1.7 2003/02/15 19:33:01 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/Main.lid,v 1.7.2.1 2003/08/10 23:50:13 gabor Exp $
 library: compiler-main
 unit-prefix: main
 unique-id-base: 12000
@@ -12,6 +12,7 @@ unit-info.dylan
 main-unit-state.dylan
 single-file-mode-state.dylan
 lid-mode-state.dylan
+testworks-spec.dylan
 misc.dylan
 evaluate.dylan
 main.dylan
