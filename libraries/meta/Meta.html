@@ -413,7 +413,8 @@ define constant &lt;digit&gt; = one-of('0','1','2','3','4','5','6','7','8','9');
 define function parse-integer (source :: &lt;stream&gt;);
   let s = +1; // sign
   let n = 0;  // number
-  with-meta-syntax parse-stream (source) (d)
+  with-meta-syntax parse-stream (source)
+    variables(d);
     [{'+', ['-', (s := -1)], []},
      type(&lt;digit&gt;, d), (n := digit-to-integer(d)),
      loop([type(&lt;digit&gt;, d), (n := digit-to-integer(d) + 10 * n)])];
@@ -427,7 +428,7 @@ end function parse-integer;
     <pre>
 // this will actually return a fn named 'scan-int', not 'parse-int'
 define collector int(i) => (as(&lt;string>, str).string-to-integer)
-  loop([element-of("+-0123456789", i), do(collect(i))])}
+  loop([element-of("+-0123456789", i), do(collect(i))])
 end collector int;
     </pre>
 
