@@ -1,5 +1,5 @@
 @SysInclude { report }
-#@SysInclude { fig }
+@SysInclude { fig }
 @SysInclude { diag }
 #@SysInclude { graph }
 #@SysInclude { eq }
@@ -110,8 +110,26 @@ more demanding ones later.
 @SubSubSection
 @Title { A Tree }
 @Begin
-@PP
-@I [fancy picture here]
+@IndentedDisplay {
+@F @Diag
+arrow { yes }
+{
+	@Tree
+	{
+		@Circle A
+		@LeftSub
+		{
+			@Circle B
+		}
+		@RightSub
+		{
+			@Circle C
+			@RightSub @Circle D
+		}
+	}
+}
+}
+
 @LP
 @F {
 > ex1 = [a] where
@@ -148,7 +166,7 @@ This graph is called a tree because it has no cycles.
 >"        "d = Node ('D', [a])
 }
 @PP
-This graph has a cycle A --> C --> D --> A.
+This graph has a cycle A @Sym arrowright C @Sym arrowright D @Sym arrowright A.
 @End @SubSubSection
 
 #=============
@@ -329,8 +347,8 @@ The reason for nontermination is the cycle in @F ex2 leading to an inifinite
 attempt to visit and transform node {@F A}. To avoid unterminated recursion,
 we have to carry around a list of already visited vertices along with their
 transformation result. Since we are eventually not interested in the structure
-of the original graph any more, we relax the result to contain the list of
-transformed nodes @I @B {(wir begnŸgen uns mit)}:
+of the original graph any more, we content ourselves with a result to contain
+the list of transformed nodes:
 @LP
 @F @Verbatim {
 > type NodeList a = [Vertex (a, Integer)]
@@ -542,9 +560,41 @@ show strip . transform) ex2 etc.
 ##################################
 ##################################
 @Section
+@Title { Applying Graph Algorithms }
+@Begin
+@PP
+
+@SubSection @Title { Reachability }
+@Begin
+@LP 
+
+@End @SubSection
+
+@SubSection @Title { Alternative Paths }
+@Begin
+@LP 
+
+@End @SubSection
+
+@SubSection @Title { Path Length }
+@Begin
+@LP 
+
+@End @SubSection
+
+
+@End @Section
+
+
+##################################
+##################################
+##################################
+@Section
 @Title { Further Work }
 @Begin
 @PP
+Generalized integers, infinite graphs
+justOnePrimeEach = gcd(PROD primes, seed)
 @End @Section
 
 
