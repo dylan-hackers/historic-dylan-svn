@@ -38,7 +38,7 @@ define constant *null* :: <machine-pointer> = as(<machine-pointer>, 0);
 
 define method gtk-hello-world(argc, argv) => ()
   let (new-argc, new-argv) = gtk-init(argc, argv);
-  let window = gtk-window-new($GtkWindowType$GTK-WINDOW-TOPLEVEL);
+  let window = gtk-window-new($GTK-WINDOW-TOPLEVEL);
   gtk-container-border-width(window, 10);
   let label = gtk-label-new("Hello, world!");
   gtk-container-add(window, label);

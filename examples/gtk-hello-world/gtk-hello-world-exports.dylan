@@ -24,7 +24,7 @@ define module simple-gtk
     gtk-main,
     gtk-signal-connect,
     gtk-main-quit,
-    $GtkWindowType$GTK-WINDOW-TOPLEVEL,
+    $GTK-WINDOW-TOPLEVEL,
     <gpointer>,
     <c-pointer-vector>,
     <c-string-vector>;

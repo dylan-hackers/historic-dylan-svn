@@ -7,4 +7,4 @@ gtk-hello-world.lid: gtk-hello-world-exports.dylan gtk-intr.dylan gtk-hello-worl
 	touch $@
 
 gtk-intr.dylan: gtk-intr.intr
-	melange -d2c `gtk-config --cflags` -Iinclude $< > $@
+	melange -d2c `gtk-config --cflags` -I/usr/lib/gcc-lib/i486-linux/2.7.2.1/include/ -Iinclude $< $@
