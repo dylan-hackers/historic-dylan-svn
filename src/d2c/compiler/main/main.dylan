@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65 2002/03/06 23:01:30 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main.dylan,v 1.65.2.1 2002/07/27 12:57:08 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -88,6 +88,7 @@ define method show-help(stream :: <stream>) => ()
   format(stream, "\n");
   show-usage(stream);
   format(stream,
+"       -i, --interactive  Enter interactive command mode.\n"
 "       -L, --libdir:      Extra directories to search for libraries.\n"
 "       -D, --define:      Define conditional compilation features.\n"
 "       -U, --undefine:    Undefine conditional compilation features.\n"
@@ -261,6 +262,10 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 			    short-options: #("g"));
   add-option-parser-by-type(argp,
 			    <simple-option-parser>,
+			    long-options: #("interactive"),
+			    short-options: #("i"));
+  add-option-parser-by-type(argp,
+			    <simple-option-parser>,
 			    long-options: #("profile"));
   add-option-parser-by-type(argp,
 			    <simple-option-parser>,
@@ -346,10 +351,9 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 
   // Process our regular arguments, too.
   let args = regular-arguments(argp);
-  unless (args.size = 1)
+  unless (args.size = 1 | option-value-by-long-name(argp, "interactive"))
     show-usage-and-exit();
   end unless;
-  let lid-file = args[0];
 
   // Figure out which optimizer to use.
   let optimizer-class =
@@ -391,6 +395,18 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   		       
   *Data-Unit-Search-Path* := as(<simple-object-vector>, library-dirs);
 
+  if (option-value-by-long-name(argp, "interactive"))
+    let finished? = #f;
+    while(~ finished?)
+      format(*standard-output*, "gwydion> ");
+      force-output(*standard-output*);
+      let line = read-line(*standard-input*);
+    end while;
+    exit();
+  end if;
+
+    
+  let lid-file = args[0];
   let state
       = if(lid-file.filename-extension = ".dylan")
           format(*standard-output*, "Entering single file mode.\n");
