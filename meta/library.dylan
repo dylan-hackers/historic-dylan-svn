@@ -41,6 +41,5 @@ define module meta
   use meta-syntax, export: all;
   use meta-types, export: all;
 
-  export scan-s, scan-word, scan-int, scan-number, scan-single-float, scan-double-float,
-    string-to-number, string-to-single-float, string-to-double-float;
+  export scan-s, scan-word, scan-int, scan-number, scan-single-float, scan-double-float;
 end module meta;
