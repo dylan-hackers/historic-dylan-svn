@@ -140,8 +140,7 @@ rule DylanLibrary image : version {
 
   # Mark the library version
 
-  VERSION on $(_dll) ?= $(version:J=.) ;
-  VERSION on $(_exe) ?= $(version:J=.) ;
+  VERSION on $(_dll) $(_exe) ?= $(version:J=.) ;
 
   # Determine the entry points
   local _mangled = [ DFMCMangle $(image[1]:L) ] ;
@@ -157,6 +156,7 @@ rule DylanLibraryFiles image : files {
   if ! $(SYSTEM) {
     local _dll = [ FDLLName $(image) ] ;
     local _lib = [ FLIBName $(image) ] ;
+    local _exe = [ FEXEName $(image) ] ;
     
     local _obj = [ FGristFiles _glue$(SUFOBJ) $(files:S=$(SUFOBJ)) ] ;
     local _el  = [ FGristFiles $(files:S=.el) ] ;
@@ -168,6 +168,7 @@ rule DylanLibraryFiles image : files {
     Clean clean-all : $(_obj) $(_el) ;
     
     LinkDLL $(_dll) $(_lib) : $(_obj) ;
+    LinkEXE $(_exe) : $(_obj) ;
   }
 }
 
@@ -204,7 +205,7 @@ rule DylanLibraryCLibraries image : libraries {
 
   for lib in $(libraries) {
     switch $(lib) {
-      case * :      LINKLIBS on $(_dll) += $(lib) ;
+      case * :      LINKLIBS on $(_dll) $(_exe) += $(lib) ;
 	            if ! $(lib) in $(_clib_$(image[1]:L)) {
 		      _clib_$(image[1]:L) += $(lib) ;
 		    }
@@ -219,9 +220,13 @@ rule DylanLibraryCObjects image : objects {
   # Link C (or other externally-derived) object files into the shared library.
   if ! $(SYSTEM) {
     local _dll = [ FDLLName $(image) ] ;
+    local _lib = [ FLIBName $(image) ] ;
+    local _exe = [ FEXEName $(image) ] ;
+
     local _obj = [ FGristFiles $(objects) ] ;
     SEARCH on $(_obj) = $(SEARCH_SOURCE) ;
     LinkDLL $(_dll) $(_lib) : $(_obj) ;
+    LinkEXE $(_exe) : $(_obj) ;
   }
 }
 
@@ -251,12 +256,13 @@ rule DylanLibraryRCFiles image : rcfiles {
   # Link Win32 resource files into the shared library and executable.
   if ! $(SYSTEM) {
     local _dll = [ FDLLName $(image) ] ;
+    local _lib = [ FLIBName $(image) ] ;
     local _exe = [ FEXEName $(image) ] ;
     
     for _rc in [ FGristFiles $(rcfiles) ] {
       SEARCH on $(_rc) = $(SEARCH_SOURCE) ;
       
-      local _res = $(_rc:S=$(SUFRES)) ;
+      local _res = [ FGristFiles $(_rc:S=$(SUFRES)) ] ;
       MakeLocate $(_res) : $(LOCATE_SOURCE) ;
       
       LinkDLL $(_dll) $(_lib) : $(_res) ;
@@ -280,6 +286,7 @@ rule DylanLibraryUses image : library : dir {
   # Link other Dylan libraries into the shared library.
   
   local _dll = [ FDLLName $(image) ] ;
+  local _exe = [ FEXEName $(image) ] ;
 
   if ! $(_lib_$(library:L)) {
     local PARENT = $(image[1]:L) ;
@@ -309,18 +316,18 @@ rule DylanLibraryUses image : library : dir {
     }
   }
 
-  Depends $(_dll) : $(_dll_$(library:L)) ;
+  Depends $(_dll) $(_exe) : $(_dll_$(library:L)) ;
   for _i in $(_lib_$(library:L)) {
     if ! $(_i) in $(_lib_$(image[1]:L)) {
       Depends $(_dll) : $(_i) ;
-      NEEDLIBS on $(_dll) += $(_i) ;
+      NEEDLIBS on $(_dll) $(_exe) += $(_i) ;
       _lib_$(image[1]:L) += $(_i) ;
     }
   }
   for _i in $(_clib_$(library:L)) {
     if ! $(_i) in $(_clib_$(image[1]:L)) {
       _clib_$(image[1]:L) += $(_i) ;
-      LINKLIBS on $(_dll) += $(_i) ;
+      LINKLIBS on $(_dll) $(_exe) += $(_i) ;
     }
   }
 }
@@ -341,8 +348,8 @@ rule LinkEXE {
   Depends $(<) : $(>) ;
 }
 
-actions LinkEXE bind NEEDLIBS {
-  $(LINK) /RELEASE /OUT:"$(<[1])" /SUBSYSTEM:CONSOLE,4.0 $(LINKFLAGS) /VERSION:$(VERSION) /ENTRY:$(ENTRY) "$(>)" "$(NEEDLIBS)" "$(LINKLIBS)"
+actions together LinkEXE bind NEEDLIBS {
+  $(LINK) /RELEASE /OUT:"$(<)" /SUBSYSTEM:CONSOLE,4.0 $(LINKFLAGS) /VERSION:$(VERSION) /ENTRY:$(ENTRY) "$(>)" /LIBPATH:"$(LIBPATH)" "$(NEEDLIBS)" "$(LINKLIBS)"
 }
 
 rule RC {
