@@ -1,5 +1,12 @@
 module: gtk-support
 
+define constant generic-dylan-marshaller = callback-method
+    (closure :: <GClosure>, return-value :: <GValue*>,
+     n_param_values :: <guint>, param_values :: <GValue*>,
+     invocation_hint :: <gpointer>, marshal_data :: <gpointer>) => ();
+  format-out("");
+end;
+    
 define function g-signal-connect(instance, detailed-signal, c-handler, data)
   g-signal-connect-data (instance, detailed-signal, 
                          c-handler, as(<gpointer>, data | $null-pointer),
@@ -21,6 +28,17 @@ end method export-value;
 define method import-value(cls == <function>, value :: <GCallback>) => (result :: <function>);
   error("Is this possible?");
 end method import-value;
+
+define method export-value(cls == <gpointer>, the-value :: <object>) 
+ => (result :: <gpointer>);
+  object-address(make(<value-cell>, value: the-value));
+end method export-value;
+
+define method import-value(cls == <object>, the-value :: <gpointer>) 
+ => (result :: <gpointer>);
+  object-at(the-value).value;
+end method export-value;
+
 
 // Another stupid workaround. Sometimes we need to access mapped types
 // as pointers, and Melange doesn't provide any way to do so. Or does it?

@@ -172,16 +172,31 @@ define method delete-char-backwards(c)
   end if;
 end method delete-char-backwards;
 
-define method complete-command-aux()
-  for(i in *command-table*)
-    if(case-insensitive-equal(*command-line*, 
-                              subsequence(i.name, end: *command-line*.size)))
-      *command-line* := copy-sequence(i.name);
-      *buffer-pointer* := i.name.size;
-    end if;
-  end for;
-end method complete-command-aux;
+define function longest-common-prefix(strings :: <collection>)
+ => (<string>)
+  local method all-equal? (characters :: <collection>) => (result :: <boolean>)
+          every?(curry(\=, characters[0]), characters)
+        end method all-equal?;
 
+  let first-mismatch = 0;
+  while(all-equal?(map(rcurry(element, first-mismatch), strings)))
+    first-mismatch := first-mismatch + 1;
+  end while;
+  copy-sequence(strings[0], end: first-mismatch);
+end function longest-common-prefix;
+  
+  
+define method complete-command-aux()
+  let commands = find-command-by-prefix(*command-line*);
+  if(commands.size = 1)
+    *command-line* := copy-sequence(commands[0].name);
+    *buffer-pointer* := *command-line*.size;
+  elseif(commands.size > 1)
+    *command-line* := longest-common-prefix(map(name, commands));
+    *buffer-pointer* := *command-line*.size;
+  end if;
+end method complete-command-aux;
+    
 define method complete-command(c)
   complete-command-aux();
   repaint-line();
@@ -189,7 +204,9 @@ end method complete-command;
 
 define method complete-command-and-insert-space(c)
   complete-command-aux();
-  self-insert-command(' ');
+  unless(*buffer-pointer* > 0 & *command-line*[*buffer-pointer* - 1] = ' ')
+    self-insert-command(' ');
+  end unless;
   repaint-line();
 end method complete-command-and-insert-space;
 

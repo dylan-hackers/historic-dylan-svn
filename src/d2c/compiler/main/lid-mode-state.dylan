@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20 2003/04/24 05:46:02 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.20.2.1 2003/04/25 02:59:09 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -349,7 +349,7 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
 			   end if,
 			   $runtime-include-dir);
 
-  cc-flags := concatenate(cc-flags, getenv("CCOPTS")|"");
+  cc-flags := concatenate(cc-flags, " ", getenv("CCOPTS")|"");
 
   state.unit-cback-unit := make(<unit-state>, prefix: state.unit-mprefix);
   state.unit-other-cback-units := map-as(<simple-object-vector>, unit-name, 

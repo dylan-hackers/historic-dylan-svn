@@ -11,7 +11,8 @@ if (!$enable_bootstrap || $enable_mindy_bootstrap) {
 		       'garbage-collection',
 		       '../../common/transcendental',
 		       'random',
-		       '../../common');
+		       '../../common',
+		       'debugger');
 
     do install_from_src($includedir, "runtime.h");
 } else {

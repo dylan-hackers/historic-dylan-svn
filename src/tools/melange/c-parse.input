@@ -4,7 +4,7 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/melange/c-parse.input,v 1.18 2003/04/12 23:36:41 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/tools/melange/c-parse.input,v 1.18.2.1 2003/04/25 02:59:11 andreas Exp $
 
 //======================================================================
 //
@@ -1646,7 +1646,7 @@ define method parse-type
   unget-token(tokenizer, make(<alien-name-token>,
 			      generator: tokenizer, string: ""));
   let parse-state
-    = make(<parse-type-state>, tokenizer: tokenizer, parent: old-state);
+    = make(<parse-value-state>, tokenizer: tokenizer, parent: old-state);
   parse-loop(parse-state);
 end;
 

@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/primemit.dylan,v 1.16 2003/04/10 20:26:44 prom Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/primemit.dylan,v 1.16.2.1 2003/04/25 02:59:07 andreas Exp $
 copyright: see below
 
 
@@ -2249,7 +2249,7 @@ define-primitive-emitter
    end);
 
 define-primitive-emitter
-  (#"object-at",
+  (#"heap-object-at",
    method (results :: false-or(<definition-site-variable>),
            operation :: <primitive>,
            file :: <file-state>)
@@ -2259,6 +2259,19 @@ define-primitive-emitter
      deliver-result(results,
                     stringify("((heapptr_t)", ptr, ')'),
                     *heap-rep*, #f, file);
+   end);
+
+define-primitive-emitter
+  (#"general-object-at",
+   method (results :: false-or(<definition-site-variable>),
+           operation :: <primitive>,
+           file :: <file-state>)
+    => ();
+     let (temps, ptr) = extract-operands(operation, file, *ptr-rep*);
+     contact-bgh-unless-empty(temps);
+     deliver-result(results,
+                    stringify("(*((descriptor_t*)", ptr, "))"),
+                    *general-rep*, #f, file);
    end);
 
 // Code moveability
@@ -2353,7 +2366,8 @@ define constant $sequence-of-moveable-primitives
       #"pointer-deref",
       #"vector-elements",
       #"object-address",
-      #"object-at"];
+      #"heap-object-at",
+      #"general-object-at"];
 
 define constant *moveable-primitives-table* 
   = begin
