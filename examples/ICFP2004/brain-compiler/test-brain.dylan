@@ -3,7 +3,7 @@ module: assembler
 
 define brain test-brain1
   start: Move => problem;
-         Sense LeftAhead Home, (turn-left, choose)
+         Sense LeftAhead Home, (turn-left, choose);
 
   choose:
          Flip 9, (turn-left, turn-right);
