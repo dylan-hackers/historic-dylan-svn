@@ -25,6 +25,7 @@ define function main(name, arguments)
   o.model := make(<sphere>);
 
   uniform-scale!(o, 0.5);
+  translate!(o, 0.0, 0.25, 0.0);
 
   render-image(o, 1, "render.ppm", 
 	       make(<color>, red: 1.0, green: 1.0, blue:1.0),
