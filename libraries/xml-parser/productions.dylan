@@ -105,10 +105,16 @@ end method entity-value;
 // 
 //    [1]    document    ::=    prolog element Misc*
 //
-define parse document(prolog, elemnt, misc) =>
+define function parse-document(doc :: <string>, #key start = 0, end: stop)
+ => (stripped-tree :: <document>)
+  let (index, document) = parse-document-helper(doc, start: start, end: stop);
+  document;
+end function parse-document;
+
+define parse document-helper(prolog, elemnt, misc) =>
  (make(<document>, name: elemnt.name, children: vector(elemnt)))
    parse-prolog(prolog), parse-element(elemnt), loop(parse-misc(misc))
-end parse document;
+end parse document-helper;
 
 // Character Range
 //
@@ -327,11 +333,17 @@ end parse decl-sep;
 //
 define parse doctypedecl(s, name, id, markup, decl-sep)
   "<!DOCTYPE", parse-s(s), parse-name(name),
-  {[parse-s(s), parse-external-id(id)], []},
-  parse-s?(s),
-  {['[', loop({parse-markupdecl(markup), parse-decl-sep(decl-sep)}), ']',
-   parse-s?(s)], []}, ">"
+  {[parse-s(s), parse-external-id(id),
+// hokay, we've got an external-ID, now let's parse that document
+// and bring in its (I hope only) entities
+   do(with-open-file(in = id) parse-dtd-stuff(in.stream-contents) end)], 
+   []},
+  parse-s?(s), {['[', parse-dtd-stuff(markup) , ']', parse-s?(s)], []}, ">"
 end parse doctypedecl;
+
+define parse dtd-stuff(markup, decls)
+  loop({parse-markupdecl(markup), parse-decl-sep(decls)})
+end parse dtd-stuff;
 
 //    [29]     markupdecl     ::=    elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment            [VC: Proper Declaration/PE Nesting]
 //                                                                                                                   [WFC: PEs in Internal Subset]
@@ -416,12 +428,19 @@ end parse etag;
 // 
 //    [43]    content    ::=    CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
 //
+define function empty-string?(str :: <string>) => (b :: <boolean>)
+  (str.size = 0) 
+  | (every?(method(x) subtype?(singleton(x), <space>) end, str));
+end function empty-string?;
+
+define constant has-content? = complement(empty-string?);
+
 define collector content(ignor, contents) => (str)
-  {[parse-char-data(contents), do(collect(contents))], []},
+  {[parse-char-data(contents), do(contents.text.has-content? & collect(contents))], []},
   loop({[{parse-element(contents), parse-reference(contents),
           parse-cd-sect(contents)}, do(collect(contents))],
         parse-pi(ignor), parse-comment(ignor),
-        [parse-char-data(contents), do(collect(contents))]})
+        [parse-char-data(contents), do(contents.text.has-content? & collect(contents))]})
 end collector content;
 
 // helper method for parsing opening tags
@@ -710,7 +729,7 @@ end parse pe-def;
 //    [75]    ExternalID    ::=    'SYSTEM' S SystemLiteral
 //                                 | 'PUBLIC' S PubidLiteral S SystemLiteral
 //
-define parse external-id(s, sys, pub)
+define parse external-id(s, sys, pub) => (sys)
   { "SYSTEM", parse-public-id(pub) }, parse-s(s),
   parse-system-literal(sys)
 end parse external-id;
