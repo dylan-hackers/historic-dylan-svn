@@ -477,10 +477,10 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
   let old-location = bot.location;
   let new-location =
     select (command.direction)
-      $north => point(x: old-location.x + 1, y: old-location.y);
-      $south => point(x: old-location.x - 1, y: old-location.y);
-      $east  => point(x: old-location.x, y: old-location.y + 1);
-      $west  => point(x: old-location.x, y: old-location.y - 1);
+      $north => point(x: old-location.x,     y: old-location.y + 1);
+      $east  => point(x: old-location.x + 1, y: old-location.y);
+      $south => point(x: old-location.x,     y: old-location.y - 1);
+      $west  => point(x: old-location.x - 1, y: old-location.y);
     otherwise => error("process-server-command: Can't happen!")
   end select;
 
