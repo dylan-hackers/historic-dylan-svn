@@ -55,6 +55,19 @@ define method create-command(s :: <strategy>) => command :: <command>;
   make(<move>, bid: 1, direction: $north); // HACK ### FIXME
 end;
 
+
+
+// ## <pick-strategy>
+define concrete class <pick-strategy>(<strategy>)
+  slot approach :: <point>, required-init-keyword: approach:;
+  slot strategy-path :: <path>, required-init-keyword: path:;
+end;
+
+define function pick-strategy(pick-path :: <path>)
+  make(<drop-strategy>, path: pick-path, approach: pick-path.last);
+end;
+
+
 /*
 // ---> Error   : Internal compiler error: Trying to get some values back from a function that doesn't return?
 
@@ -152,17 +165,17 @@ block (return)
     & safe?(me.decided, me, s)
     & me.decided.follow;
 
-  let safe-drop = find-safest(me, s.packages, location, s, weighting: weight);
-  safe-drop & safe-drop.drop-strategy.follow;
+  let (safe-drop, drop-path) = find-safest(me, s.packages, location, s, weighting: weight);
+  safe-drop & drop-path.drop-strategy.follow;
   
 //  find-robot(state, agent).inventory
 //  reduce(map(weight, packages), 0, \+)
   
-/*  ; not yet
-  let safe-pick = find-safest(me, s.bases, identity, weighting: weight /* my payload */);
-  safe-pick & safe-pick.pick-strategy.follow;
+  let (safe-pick, pick-path) = find-safest(me, s.bases, identity, s, weighting: weight /* my payload */);
+  safe-pick & pick-path.pick-strategy.follow;
   
-  let safe-vulnerable = find-safest(me, s.robots, location, weighting: identity);
+/*  ; not yet
+  let safe-vulnerable = find-safest(me, s.robots, location, s, weighting: identity);
   safe-vulnerable & safe-vulnerable.kill-strategy.follow;
   */
   
