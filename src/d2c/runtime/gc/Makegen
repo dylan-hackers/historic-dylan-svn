@@ -20,11 +20,11 @@ $CFLAGS = "-g -O -DATOMIC_UNCOLLECTABLE -DNO_SIGNALS -DALL_INTERIOR_POINTERS "
 
 # FIXME
 if ($target_name =~ /^sparc.*-solaris/) {
-    &emit_asm_file_rule('sparc_mach_dep');
+    &emit_asm_file_rule('mach_dep', 'sparc_mach_dep');
 } elsif ($target_name =~ /^sparc.*-openbsd/) {
-    &emit_asm_file_rule('sparc_openbsd_mach_dep');
+    &emit_asm_file_rule('mach_dep', 'sparc_openbsd_mach_dep');
 } elsif ($target_name =~ /^alpha/) {
-    &emit_cppasm_file_rule('alpha_mach_dep');
+    &emit_cppasm_file_rule('mach_dep', 'alpha_mach_dep');
 } else {
     local $CFLAGS = "-g";
     &emit_c_file_rule('mach_dep', 'gc.h', 'gc_priv.h', 'gcconfig.h',
