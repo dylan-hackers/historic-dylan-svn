@@ -143,9 +143,11 @@ define function pick-compare(p1 :: <package>, p2 :: <package>)
 end;
 
 // ## create-command{<pick-strategy>}
-define method create-terminal-command(s :: <pick-strategy>, state :: <state>) => command :: <command>;
+define method create-terminal-command(picking :: <pick-strategy>, state :: <state>) => command :: <command>;
   debug("GB: Picking in create-terminal-command\n");
-  make(<pick>, package-ids: map(id, load-packages(s.strategy-agent, state, compare: pick-compare)), bid: 1, id: s.strategy-robot.id);
+  let packs = load-packages(picking.strategy-agent, state, compare: pick-compare);
+  packs.empty? & maybe-mark-base-visited(picking.strategy-agent, state, picking.approach);
+  make(<pick>, package-ids: map(id, packs), bid: 1, id: picking.strategy-robot.id);
 end;
 
 define method valid?(picking :: <pick-strategy>, state :: <state>) => valid :: <boolean>;
