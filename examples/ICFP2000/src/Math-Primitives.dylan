@@ -54,8 +54,8 @@ define macro numeric-binary-primitive-definer
          define binary-primitive ?name ## "f"(<fp>, ?operator) end;}
 end;
 
-define constant deg2rad = $double-pi / 180.0;
-define constant rad2deg = 180.0 / $double-pi;
+define constant deg2rad :: <fp> = $double-pi / 180.0;
+define constant rad2deg :: <fp> = 180.0 / $double-pi;
 
 define unary-primitive acos(<fp>, method(f :: <fp>) rad2deg * acos(f) end) end;
 define unary-primitive asin(<fp>, method(f :: <fp>) rad2deg * asin(f) end) end;
