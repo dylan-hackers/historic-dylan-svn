@@ -752,37 +752,129 @@ define variable foo :: run-time-expression() = #f;
 
       <sect2 id="gdmaint-d2c-front-builder-interface">
 	<title>The <dmodule>Builder-Interface</dmodule> Module</title>
-	<para></para>
-      </sect2>      
+	
+	<para>This module defines an interface which can be used to build
+        the <glossterm>front-end representation</glossterm>
+        (<acronym>FER</acronym>) of a parsed Dylan program.</para>
+	
+	<para>Note that this module actually defines two interfaces:
+	<dname>&lt;flow-builder></dname>, an abstract interface for
+	constructing basic blocks (see <xref
+	linkend="gdmaint-d2c-base-flow">); and
+	<dname>&lt;fer-builder></dname>, a more specific version of that
+	interface which is used to construct the front-end
+	representation. It's not apparent that the former, more general
+	interface is actually used anywhere else.</para>
+	
+	<para>This interface is implemented by the <link
+	linkend="gdmaint-d2c-front-front"><dmodule>Front</dmodule>
+	module</link>.</para>
+
+	<para>The <dname>optimize-component</dname> generic function gets
+	implemented by the <link linkend="gdmaint-d2c-optimize">
+	<dlibrary>Compiler-Optimize</dlibrary> library</link>. We need to
+	figure out why it's defined here instead of there.</para>
+      </sect2>
 
       <sect2 id="gdmaint-d2c-front-primitives">
 	<title>The <dmodule>Primitives</dmodule> Module</title>
-	<para></para>
+
+	<para>This module defines the primitive operations which may appear
+        in Dylan code.</para>
       </sect2>      
 
       <sect2 id="gdmaint-d2c-front-front">
 	<title>The <dmodule>Front</dmodule> Module</title>
-	<para></para>
-      </sect2>      
+
+	<para>This module does all the heavy lifting for the front-end of
+        the compiler. It's split across a number of source files:</para>
+
+	<variablelist>
+	  <varlistentry>
+	    <term><filename>front.dylan</filename></term>
+	    <listitem>
+	      <para>The data structures used in the front-end
+	      representation.</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><filename>builder.dylan</filename></term>
+	    <listitem>
+	      <para>Abstract classes and generic functions for the
+	      <dname>&lt;flow-builder></dname> and
+	      <dname>&lt;fer-builder></dname> classes.</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><filename>fer-builder.dylan</filename></term>
+	    <listitem>
+	      <para>The actual implementation of the various builders. This
+	      seems to be where the actual front-end code lives.</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><filename>fer-dump.dylan</filename></term>
+	    <listitem>
+	      <para>Code for dumping the front-end representation as
+	      text.</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><filename>clone.dylan</filename></term>
+	    <listitem>
+	      <para>Code to clone the data structures representing a
+	      top-level function. I'm not sure who uses this or why.</para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </sect2>
 
       <sect2 id="gdmaint-d2c-front-fer-od">
 	<title>The <dmodule>FER-OD</dmodule> Module</title>
-	<para></para>
-      </sect2>      
+
+	<para>This module contains code for dumping the front-end
+        representation as ODF (see <xref
+        linkend="gdmaint-d2c-base-od-format">). Special case is taken to
+        make sure that all dumps start with a
+        <dname>&lt;function-literal></dname> object; smaller
+        components of the front-end representation can not be dumped
+        individually.</para>
+      </sect2>
 
       <sect2 id="gdmaint-d2c-front-function-definitions">
 	<title>The <dmodule>Function-Definitions</dmodule> Module</title>
-	<para></para>
-      </sect2>      
+
+	<para>This module implements various subclasses of
+	<dname>&lt;definition></dname> representing functions (see <xref
+	linkend="gdmaint-d2c-base-definitions">). Most of the machinery for
+	adding methods to a generic function at compile-time lives here, as
+	does a good chunk of code related to sealing.</para>
+      </sect2>
 
       <sect2 id="gdmaint-d2c-front-variable-definitions">
 	<title>The <dmodule>Variable-Definitions</dmodule> Module</title>
-	<para></para>
-      </sect2>      
+
+	<para>This module implements <dname>&lt;variable-definition></dname>.
+        It also contains some of the code for handling load-time type
+        expressions.</para>
+      </sect2>
 
       <sect2 id="gdmaint-d2c-front-top-level-forms">
 	<title>The <dmodule>Top-Level-Forms</dmodule> Module</title>
-	<para></para>
+
+	<para>This is not a very meaty module. It doesn't make much sense
+	in the absence of the <link
+	linkend="gdmaint-d2c-convert"><dlibrary>Compiler-Convert</dlibrary>
+	library</link>. It does, however, contain a few classes for
+	describing the things found at the top level of a Dylan file and
+	provides the generic function
+	<dname>finalize-top-level-form</dname>, which is called by the
+	compilation driver once everything has been parsed.</para>
+
+	<para>This should not be confused with the <link
+	linkend="gdmaint-d2c-convert-top-level-expressions">
+	<dmodule>Top-Level-Expressions</dmodule> module</link>, which
+	instantiates the data structures defined in this module.</para>
       </sect2>
     </sect1>
 
@@ -793,58 +885,160 @@ define variable foo :: run-time-expression() = #f;
       adaptor between the <dlibrary>Compiler-Parser</dlibrary> and the
       <dlibrary>Compiler-Front</dlibrary>.</para>
 
+      <para>As a rule of thumb, <dlibrary>Compiler-Convert</dlibrary>
+      implements those parts of the front end which know about the
+      output of the parser.</para>
+
       <sect2 id="gdmaint-d2c-convert-lexenv">
 	<title>The <dmodule>LexEnv</dmodule> Module</title>
-	<para></para>
+
+	<para>This module implements <glossterm>lexical
+	environments</glossterm> (a formal term for <quote>local
+	namespaces</quote>). This is the code that associates variable
+	names with the correct bindings.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-compile-time-eval">
 	<title>The <dmodule>Compile-Time-Eval</dmodule> Module</title>
-	<para></para>
+
+	<para>This module performs compile-time evaluation of constant
+	expressions. It operates on the parsed representation of a Dylan
+	program, not the front-end representation.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-expanders">
 	<title>The <dmodule>Expanders</dmodule> Module</title>
-	<para></para>
+
+	<para>This module contains <link
+	linkend="gdmaint-d2c-parser-macros">procedural macro
+	expanders</link> for basic, built-in macros such as
+	<dname>make-if</dname>.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-fer-convert">
 	<title>The <dmodule>FER-Convert</dmodule> Module</title>
-	<para></para>
+
+	<para>This module processes chunks of the parse tree and uses the
+	<link linkend="gdmaint-d2c-front-builder-interface">
+        <dname>&lt;fer-builder></dname></link> to produce the front-end
+        representation.</para>
+      </sect2>
+
+      <sect2 id="gdmaint-d2c-convert-about-top-level">
+	<title>Processing of Top-Level Definitions</title>
+
+	<para>The code to process top-level definitions is spread across
+	several libraries. Most of the machinery actually lives here in the
+	<dname>Compiler-Convert</dname> library.</para>
+
+	<para>Each top-level form must define methods on three generic
+	functions:</para>
+
+	<variablelist>
+	  <varlistentry>
+	    <term><dname>process-top-level-form</dname></term>
+	    <listitem>
+	      <para>When the parser finishes with a top-level form, it
+	      passes the form to this function, which produces the final
+	      parse tree and creates an object representing the top-level
+              form. (See <xref linkend="gdmaint-d2c-parser-parser">.)</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><dname>finalize-top-level-form</dname></term>
+	    <listitem>
+	      <para>This function is called by the compilation driver when
+	      all the top-level forms have been parsed. It's used to
+	      implement various kinds of foward references within a
+	      module.
+              (See <xref linkend="gdmaint-d2c-front-top-level-forms">.)</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><dname>convert-top-level-form</dname></term>
+	    <listitem>
+	      <para>Once a top-level form has been processed and finalized,
+              it can be converted to the appropriate front-end
+              representation. Methods on this function use the
+              <dname>&lt;fer-builder></dname> interface. (See <xref
+	      linkend="gdmaint-d2c-front-top-level-forms"> and <xref
+              linkend="gdmaint-d2c-front-builder-interface">.)</para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+
+	<para>Generally speaking, the parsed representation of a built-in
+	<dlit>define foo</dlit> form would be named
+	<dname>&lt;define-foo-parse></dname>. The object representing the
+	top-level form itself would be named
+	<dname>&lt;define-foo-tlf></dname>. There's also a
+	<dname>&lt;foo-definition></dname> floating around in most cases.
+	The relationships between these three representations need to be
+	documented.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-define-macros">
 	<title>The <dmodule>Define-Macros</dmodule> Module</title>
-	<para></para>
+
+	<para>This module handles <dlit>define macro</dlit> forms and
+	<glossterm>macro calls</glossterm> which appear at the top
+	level.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-define-libraries-and-modules">
 	<title>The <dmodule>Define-Libraries-and-Modules</dmodule>
 	Module</title>
 
-	<para></para>
+	<para>This module handles <dlit>define library</dlit> and
+	<dlit>define module</dlit> forms.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-define-functions">
 	<title>The <dmodule>Define-Functions</dmodule> Module</title>
-	<para></para>
+
+	<para>This module handles <dlit>define generic</dlit> and
+	<dlit>define method</dlit> forms. (<dlit>define function</dlit>
+	forms are expanded by a macro defined in the runtime library.) Most
+	of the logic for <glossterm>implicit generic functions</glossterm>
+	lives here.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-define-constants-and-variables">
 	<title>The <dmodule>Define-Constants-and-Variables</dmodule>
 	Module</title>
 
-	<para></para>
+	<para>This module handles <dlit>define generic</dlit> and
+	<dlit>define method</dlit> forms. It also includes code for
+	<glossterm>constant methods</glossterm>, which may get used in a
+	few strange places. More research is needed here.</para>
+
+	<para>This module contains an alarming number of <quote>shouldn't
+	happen</quote> errors. Is this left-over code, safety checks for a
+	fragile area of the compiler, or evidence of some fundamental
+	confusion about what's going on?</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-define-classes">
 	<title>The <dmodule>Define-Classes</dmodule> Module</title>
-	<para></para>
+
+	<para>This library handles <dlit>define class</dlit> forms. There's
+	a lot in here, including <link
+	linkend="gdmaint-d2c-base-ctype"><glossterm>ctype</glossterm>
+	calculation</link> for classes and creation of getter and setter
+	methods. It's not immediately clear how this relates to the code in
+	<link linkend="gdmaint-d2c-base-classes">the module
+	<dmodule>Classes</dmodule></link>.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-convert-top-level-expressions">
 	<title>The <dmodule>Top-Level-Expressions</dmodule> Module</title>
-	<para></para>
+
+	<para>This module handles actual code appearing at the top
+	level. There's also something going on with
+	<dname>&lt;magic-interal-primitives-placeholder></dname>, which is
+	(of course) excessively magic. If you're the sort of person who
+	likes to figure out how magicians do their tricks, feel free to
+	figure this out for the rest of us.</para>
       </sect2>
     </sect1>
 
