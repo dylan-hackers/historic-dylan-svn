@@ -4176,7 +4176,7 @@ end method build-runtime-slot-posn-dispatch;
 //
 define method dump-od (tlf :: <define-class-tlf>, state :: <dump-state>) => ();
   let defn = tlf.tlf-defn;
-  dump-simple-object(#"define-binding-tlf", state, defn);
+  dump-simple-object(#"define-binding-tlf", state, defn, #f);
   for (slot in defn.class-defn-slots)
     unless (slot.slot-defn-allocation == #"virtual")
       let sealed? = slot.slot-defn-sealed?;

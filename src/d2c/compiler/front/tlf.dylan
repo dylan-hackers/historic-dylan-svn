@@ -37,6 +37,7 @@ end;
 
 define function add-tlf-dependency (from :: <top-level-form>, to :: <top-level-form>) => ()
   block (return)
+    return(); // XXX
     for (dep = to.depends-on then dep.dependent-next, while: dep)
       dep.source-tlf == from
       	& return();
@@ -225,7 +226,7 @@ define method dump-od
 end;
 
 add-od-loader(*compiler-dispatcher*, #"define-binding-tlf",
-              method (state :: <load-state>) => res :: <definition>;
+              method (state :: <load-state>) => res :: <loaded-define-tlf>;
                 let defn = load-object-dispatch(state);
                 let deps = load-object-dispatch(state);
                 assert-end-object(state);

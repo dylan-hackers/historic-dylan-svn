@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
+// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -618,6 +618,7 @@ define method assure-loaded (lib :: <library>) => ();
       find-data-unit(lib.library-name, $library-summary-unit-type,
 		     dispatcher: *compiler-dispatcher*);
     exception (<fatal-error-recovery-restart>)
+      break();
       #f;
     end block;
   end unless;
@@ -869,7 +870,8 @@ define generic variable-definition (var :: <variable>)
 // already exist, either create it (if create is true) or return #f
 // (if create is false).
 //
-define method find-variable (name :: <basic-name>, #key create: create?, tlf: tlf)
+define method find-variable (name :: <basic-name>, 
+                             #key create: create?, tlf: tlf)
     => result :: false-or(<variable>);
   let mod = name.name-module;
   let sym = name.name-symbol;
@@ -1264,9 +1266,14 @@ add-od-loader(*compiler-dispatcher*, #"module",
 );
 
 
+/*
 add-make-dumper(#"module-variable", *compiler-dispatcher*, <variable>,
-		list(method(v) make(<basic-name>, symbol: v.variable-name, module: v.variable-home) end, #f, #f,
-		     variable-tlf, #f, #f),
+                list(method(v) 
+                         make(<basic-name>, 
+                              symbol: v.variable-name, 
+                              module: v.variable-home) 
+                     end, #f, #f,
+                    variable-tlf, #f, #f),
 		dumper-only: #t);
 
 add-od-loader(*compiler-dispatcher*, #"module-variable", 
@@ -1275,6 +1282,18 @@ add-od-loader(*compiler-dispatcher*, #"module-variable",
     let tlf = load-object-dispatch(state);
     assert-end-object(state);
     find-variable(name, create: #t, tlf: tlf);
+  end method
+);
+*/
+
+add-make-dumper(#"module-variable", *compiler-dispatcher*, <variable>,
+                list(variable-home, #f, #f,
+                     variable-name, #f, #f),
+                dumper-only: #t);
+
+add-od-loader(*compiler-dispatcher*, #"module-variable", 
+  method (state :: <load-state>) => res :: <variable>;
+    find-variable(load-basic-name(state), create: #t);
   end method
 );
 
