@@ -2,14 +2,28 @@ module: assembler
 
 
 define macro ant-subbrain-definer
+  { define returning ant-subbrain ?:name ?ant-states end }
+  =>
+  {
+    define function ?name(outer-instrs, orig-label, current-counter) => ();
+      let instrs = make(<table>);
+      instrs[#"VARIABLES"] := outer-instrs[#"VARIABLES"]; // for now ###///shallow-copy(outer-instrs[#"VARIABLES"]);
+      push-thunk(outer-instrs, orig-label, current-counter, curry(lookup, instrs, ?#"name", 0));
+
+      let (label, counter) = values(?#"name", -1);
+      ?ant-states;
+      push-thunk(instrs, ?#"name", counter + 1, curry(lookup, outer-instrs, orig-label, current-counter + 1));
+    end function
+  }
+
   { define ant-subbrain ?:name ?ant-states end }
   =>
   {
     define function ?name(outer-instrs, label, current-counter) => ();
       let instrs = make(<table>);
       instrs[#"VARIABLES"] := outer-instrs[#"VARIABLES"]; // for now ###///shallow-copy(outer-instrs[#"VARIABLES"]);
-      push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, ?#"name", 1));
-      let (label, counter) = values(?#"name", 0);
+      push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, ?#"name", 0));
+      let (label, counter) = values(?#"name", -1);
       ?ant-states;
     end function
   }

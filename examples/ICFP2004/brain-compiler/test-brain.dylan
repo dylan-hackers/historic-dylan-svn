@@ -7,15 +7,32 @@ define sub brain test-sub(back)
          Drop, (back);
 end brain;
 
+define returning ant-subbrain test-ant-subbrain
+Flip 6 1 1
+end;
+
+define ant-subbrain test-ant-subbrain2
+Flip 6 0 0
+end;
+
+/*
+define sub brain test-ant-subbrain(back)
+  Flip 6, (back, back);
+end;
+*/
 
 define brain test-brain1
+         Sub test-ant-subbrain;
+         Sub test-ant-subbrain2;
          Move;
-         Drop, (start);
+         // Drop, (start);
+         Drop, (test-brain1);
+/*         
   [start:]
          Set V1 = #t, (fonz => fonzT);
          Drop, (fonzT);
-//         Set V1 = #t;
-//         IfSet // var1
+///         Set V1 = #t;
+//         IfSet (V1)
 //          { Drop, (fonzT); }
 //          { Drop, (sub-problem); };
 
@@ -27,7 +44,7 @@ define brain test-brain1
          Move sub-problem  => start;
   [sub-problem:]
          Move fonz  => start;
-         
+ */
  /*        Move => problem;
          Sense LeftAhead (Marker 1) => choose; // no-branching
          Sense (Marker 1) => choose;
@@ -68,7 +85,7 @@ define constant $test-brain = test-brain1();
 $test-brain.dump-brain;
 
 define function dump-cross-reference(brain)
-  for (i in brain, n from 1)
+  for (i in brain, n from 0)
     format-out("%d -----> %=\n", n, block () $cross-reference[i] exception (<error>) "Ooops" end);
   end;
 end;
