@@ -2,7 +2,7 @@
  <!ENTITY % entities SYSTEM "entities.sgml">
  %entities;
 ]>
-<BOOK>
+<BOOK ID="gduser">
   <TITLE>Gwydion Dylan User's Guide</TITLE>
 
   <bookinfo>
@@ -49,10 +49,10 @@
     </bookbiblio>
   </bookinfo>
 
-  <CHAPTER>
+  <CHAPTER ID="gduser-intro">
     <TITLE>Introduction</TITLE>
 
-    <SECT1>
+    <SECT1 ID="gduser-what-is-dylan">
       <TITLE>What is Dylan?</TITLE>
 
       <PARA>&dylan; is a fully buzzword-compliant programming
@@ -107,7 +107,7 @@
       libraries.</PARA>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="gduser-about-gwydion">
       <TITLE>About Gwydion Dylan</TITLE>
 
       <PARA>Gwydion Dylan is an implementation of the Dylan
@@ -129,7 +129,7 @@
       with many extra libraries.</PARA>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="gduser-gwydion-resources">
       <TITLE>Gwydion Dylan Resources</TITLE>
 
       <PARA></PARA>
@@ -138,21 +138,22 @@
 
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="gduser-installing-gwydion">
     <TITLE>Installing Gwydion Dylan</TITLE>
 
     <PARA>This chapter gives instructions for installing Gwydion Dylan.</PARA>
 
-    <SECT1>
+    <SECT1 ID="gduser-supported-systems">
       <TITLE>Supported Systems</TITLE>
 
       <PARA></PARA>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="gduser-rpm-installation">
       <TITLE>RPM Installation</TITLE>
 
-      <Para>To install Gwydion Dylan on a Linux system using RPM, type:</para>
+      <Para>To install Gwydion Dylan on a Linux system using RPM, type:
+      (FIXME: FTP commands are now different.)</para>
     
       <screen>
       <prompt>$</prompt> <userinput>ncftp &ftpdir;</userinput>
@@ -165,13 +166,13 @@
       </screen>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="gduser-debian-installation">
       <TITLE>Debian Package Installation</TITLE>
 
       <PARA></PARA>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="gduser-freebsd-installation">
       <TITLE>FreeBSD Installation</TITLE>
       
       <PARA>Gwydion Dylan installation on FreeBSD systems can be done using
@@ -182,13 +183,13 @@
 
   </CHAPTER>
   
-  <CHAPTER>
+  <CHAPTER ID="gduser-using-d2c">
     <TITLE>Using &d2c;</TITLE>
 
     <PARA>This chapter describes the Gwydion Dylan-to-C compiler,
     &d2c;.</PARA>
 
-    <SECT1>
+    <SECT1 ID="gduser-working-with-lid">
       <TITLE>Working with LID (Library Interchange Definition) Files</TITLE>
 
       <PARA>As described in the DRM, in the Dylan language the basic
@@ -307,7 +308,7 @@
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.1 1998/09/13 07:37:35 housel Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.2 1998/09/16 06:46:52 emk Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000
@@ -318,14 +319,14 @@ myprog-exports.dylan
 myprog.dylan</PROGRAMLISTING>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="gduser-invoking-d2c">
       <TITLE>Invoking &d2c;</TITLE>
 
       <PARA></PARA>
     </SECT1>
 
 
-    <SECT1>
+    <SECT1 ID="gduser-environment-variables">
       <TITLE>Environment Variables</TITLE>
 
       <PARA>These environment variables are used by &d2c;:</PARA>
@@ -420,7 +421,7 @@ Compile Time Constants
     -->
   </CHAPTER>
 
-  <CHAPTER>
+  <CHAPTER ID="gduser-using-mindy">
     <TITLE>Using &mindy;</TITLE>
 
     <PARA></PARA>
@@ -884,7 +885,7 @@ end interface;</programlisting>
       specifying different translations for some or all of the
       declarations.</para>
 
-      <SECT2>
+      <SECT2 ID="melange-mapping-functions">
 	<title>Mapping functions</title>
 
 	<para>The translations described above are provided by calls
@@ -1017,7 +1018,7 @@ end method map-name;</programlisting>
         in a later section.</para>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-prefixes">
 	<title>Prefixes</title>
 
 	<para>As noted above, the name mapping function is passed a
@@ -1052,7 +1053,7 @@ end interface;</programlisting>
         later sections.</para>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-explicit-renaming">
 	<title>Explicit Renaming</title>
       
 	<para>Although the automatic name mapping described above is
@@ -1096,7 +1097,7 @@ end interface;</programlisting>
         sufficient to make the name unique.)</para>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-anonymous-types">
 	<title>Anonymous Types</title>
 
 	<para>The alien names described above can also be used to
@@ -1158,7 +1159,7 @@ end interface;</programlisting>
       function, and &lt;boolean&gt;s will be translated back into
       integers when passed as arguments to C functions.</para>
 
-      <SECT2>
+      <SECT2 ID="melange-implicit-class-definitions">
 	<title>Implicit class definitions</title>
 
 	<para>Unless otherwise specified, new classes will be created
@@ -1342,7 +1343,7 @@ define method forward-iteration-protocol (seq :: &lt;c-list&gt;)
       "target" types and the methods for performing the translation
       must be specified by the user.</para>
 
-      <SECT2>
+      <SECT2 ID="melange-low-level-transformations">
 	<title>Specifying low level transformations</title>
 
 	<para>The target Dylan type for "low level" translations is
@@ -1396,7 +1397,7 @@ end interface;</programlisting>
         interfaces.</para>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-high-level-transformations">
 	<title>Specifying high level transformations</title>
 
 	<para>Sometimes you may wish to use instances of some C type
@@ -1699,7 +1700,7 @@ end interface;</programlisting>
 
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="mleange-struct-and-union-clauses">
       <title>Struct and Union Clauses</title>
 
       <para>"Struct clauses" and "union clauses" (referred to
@@ -1748,7 +1749,7 @@ end interface;</programlisting>
       results.</para>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="pointer-clauses">
       <title>Pointer Clauses</title>
 
       <para>"Pointer clauses" modify the definitions of pointer
@@ -1778,7 +1779,7 @@ end interface;</programlisting>
       &lt;c-vectors&gt;.)</para>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="melange-constant-clauses">
       <title>Constant Clauses</title>
 
       <para>Constant clauses are used to override the values of
@@ -1796,7 +1797,7 @@ end interface;</programlisting>
 
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="melange-variable-clauses">
       <title>Variable Clauses</title>
 
       <para>Global variables declared within C header files are
@@ -1868,7 +1869,7 @@ end interface;</programlisting>
       </variablelist>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="melange-low-level-support">
       <title>Low level support facilities</title>
     
       <para>The high level functions for calling C routines or for
@@ -1880,7 +1881,7 @@ end interface;</programlisting>
       operations, you should "use" the module "system" from the
       "Dylan" library.</para>
 
-      <SECT2>
+      <SECT2 ID="melange-predefined-types">
 	<title>Predefined types</title>
 
 	<programlisting>
@@ -1974,7 +1975,7 @@ end interface;</programlisting>
         these functions are described below.)</para>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-locating-c-objects">
 	<title>Locating native C objects</title>
 
 	<para>There are several functions provided which search for C
@@ -2041,7 +2042,7 @@ results :: &lt;list&gt;) </programlisting>
 	</note>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-pointer-manipulation">
 	<title>Pointer manipulation operations</title>
 
 	<para>Each &lt;statically-typed-pointer&gt; encapsulates a
@@ -2142,7 +2143,7 @@ let same = (as(&lt;integer&gt;, ptr2) = as(&lt;integer&gt;, ptr3));</programlist
       </SECT2>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="melange-static-linking">
       <title>Static linking mechanisms</title>
     
       <para>Because object file formats vary widely by architecture,
@@ -2193,7 +2194,7 @@ strlen()
       EXTERN-INCLUDES.</para>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="melange-differences-from-creole">
       <title>Differences from Creole</title>
     
       <para>It would be difficult to produce an exhaustive list of the
@@ -2241,7 +2242,7 @@ strlen()
       </itemizedlist>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="melange-known-limitations">
       <title>Known limitations</title>
     
       <para>Although mostly complete, the current implementation of
@@ -2264,7 +2265,7 @@ strlen()
       </itemizedlist>
     </SECT1>
 
-    <SECT1>
+    <SECT1 ID="melange-proposed-modifications">
       <title>Proposed modifications</title>
     
       <para>Although Melange seems to be fairly useful in its present
@@ -2273,7 +2274,7 @@ strlen()
       discussion of several potential changes which may be implemented
       in the future.</para>
 
-      <SECT2>
+      <SECT2 ID="melange-enumeration-clauses">
 	<title>Enumeration clauses</title>
 
 	<para>At present, there is no way to modify the default
@@ -2284,7 +2285,7 @@ strlen()
         "import:" and "exclude:" options.</para>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-map-equate-inheritance">
 	<title>Inheritance of "map" and "equate" options</title>
 
 	<para>There are some cases in which a set of types imported
@@ -2328,7 +2329,7 @@ end interface;</programlisting>
 	<para>would yield the same effect as the previous example.</para>
       </SECT2>
 
-      <SECT2>
+      <SECT2 ID="melange-merging-map-equate">
 	<title>Remerging of the "equate:" and "map:" options</title>
 
 	<para>It has been pointed out that the current method of

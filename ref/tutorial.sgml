@@ -88,7 +88,7 @@
 
 <ProgramListing>
 define method shoe-size(person :: &lt;string&gt;)
-  if ( person = "Larry" )
+  if (person = "Larry")
     14;
   else
     11;
@@ -110,7 +110,7 @@ end method;
 <ProgramListing>
 define method shoe-size(person :: &lt;string&gt;)
   let the-size = 11;
-    if ( person = "Joe" )
+    if (person = "Joe")
       the-size := 14;
     end if;
   the-size;
@@ -409,7 +409,7 @@ x == y;			// #t (only one 2!)
       <Literal/x/ to 2, <Literal/y/ to 3 and <Literal/z/ to 4.</>
 
 <ProgramListing>
-let (x,y,z) = values (2,3,4);
+let (x, y, z) = values (2, 3, 4);
 </>
 
       <Para>In Perl, the equivalent statement would assign a vector of
@@ -476,8 +476,8 @@ define constant $hi = "Hi!";
     might look like the following:</>
 
 <ProgramListing>
-define method hello-world( )
-  puts( "Hello, world!" );
+define method hello-world()
+  puts("Hello, world!");
 end;
 </>
 
@@ -486,8 +486,8 @@ end;
     above code more clear, the function could be rewritten as follows:</>
 
 <ProgramListing>
-define method hello-world( ) =&gt; ( );
-	puts( "Hello, world!" );
+define method hello-world() =&gt; ();
+  puts("Hello, world!");
 end method;
 </>
 
@@ -505,8 +505,8 @@ end method;
       optionally be untyped. Both of the following methods are legal:</>
 
 <ProgramListing>
-define method foo( x :: &lt;integer&gt;, y ) end;
-define method bar( m, s :: &lt;string&gt; ) end;
+define method foo(x :: &lt;integer&gt;, y) end;
+define method bar(m, s :: &lt;string&gt;) end;
 </>
 
       <Para>Both <Function/foo/ and <Function/bar/ have one typed and one
@@ -521,7 +521,7 @@ define method bar( m, s :: &lt;string&gt; ) end;
       something like the following in Dylan:</>
 
 <ProgramListing>
-define method printf( format-string :: &lt;string&gt;, #rest arguments ) =&gt; ( );
+define method printf(format-string :: &lt;string&gt;, #rest arguments) =&gt; ();
   // Print the format string, extracting
   // one at a time from &quot;arguments&quot;. Note
   // that Dylan actually allows us to
@@ -546,11 +546,11 @@ end method printf;
       object:</>
 
 <ProgramListing>
-define method sell( car :: &lt;car&gt;, new-owner :: &lt;string&gt; ) =&gt; ();
-  if ( credit-check( new-owner ) )
+define method sell(car :: &lt;car&gt;, new-owner :: &lt;string&gt;) =&gt; ();
+  if (credit-check(new-owner))
     car.owner = new-owner;
   else
-    error( &quot;Bad credit!&quot; );
+    error(&quot;Bad credit!&quot;);
   end;
 end;
 </>
@@ -574,15 +574,15 @@ end;
       body.</>
 
 <ProgramListing>
-define method foo( ) =&gt; sample :: &lt;string&gt;;
+define method foo() =&gt; sample :: &lt;string&gt;;
   &quot;Sample string.&quot;;		// return string
 end;
 
-define method bar( ) =&gt; my-untyped-value;
-  if ( weekend-day?( today() ) )
+define method bar() =&gt; my-untyped-value;
+  if (weekend-day?(today()))
     &quot;Let's party!&quot;;	// return string
   else
-    make( &lt;excuse&gt; );	// return object
+    make(&lt;excuse&gt;);	// return object
   end if;
 end method;
 
@@ -607,9 +607,9 @@ end;
       using the built in <Function/map/ function and a bare method:</>
 
 <ProgramListing>
-define method square-list( in :: &lt;list&gt; )
+define method square-list(in :: &lt;list&gt;)
 	=&gt; out :: &lt;list&gt;
-	map( method(x) x * x end, in );
+	map(method(x) x * x end, in);
 end;
 </>
 
@@ -636,14 +636,14 @@ square-list( #(1,2,3,4) );
       Pascal's local functions.</>
 
 <ProgramListing>
-define method sum-squares( in :: &lt;list&gt; ) =&gt; sum-of-element-squares :: &lt;integer&gt;;
+define method sum-squares(in :: &lt;list&gt;) =&gt; sum-of-element-squares :: &lt;integer&gt;;
 	local	method square( x )
 				x * x;
 			end,
-			method sum( list :: &lt;list&gt; )
-				reduce1( \+, list );
+			method sum(list :: &lt;list&gt;)
+				reduce1(\+, list);
 			end;
-	sum( map( square, in ) );
+	sum(map(square, in));
 end;
 </>
 
@@ -653,15 +653,15 @@ end;
 
 <ProgramListing>
 define method build-put(string :: &lt;string&gt;) =&gt; &lt;function&gt;;
-	local	method string-putter( )
-				puts( string );
+	local	method string-putter()
+				puts(string);
 			end;
 	string-putter; // return local method
 end;
 
-define method print-hello( ) =&gt; ( );
-	let f = build-put( &quot;Hello!&quot; );
-	f( );				// print &quot;Hello1&quot;
+define method print-hello() =&gt; ();
+	let f = build-put(&quot;Hello!&quot;);
+	f();				// print &quot;Hello1&quot;
 end;
 </>
 
@@ -681,16 +681,16 @@ end;
       type:</>
 
 <ProgramListing>
-define method display( i :: &lt;integer&gt; )
-	do-display-integer( i );
+define method display(i :: &lt;integer&gt;)
+	do-display-integer(i);
 end;
 
-define method display( s :: &lt;string&gt; )
-	do-display-string( s );
+define method display(s :: &lt;string&gt;)
+	do-display-string(s);
 end;
 
-define method display( f :: &lt;float&gt; )
-	do-display-float( f );
+define method display(f :: &lt;float&gt;)
+	do-display-float(f);
 end;
 </>
 
@@ -705,10 +705,10 @@ end;
       actually executing. This makes it possible to define methods like:</>
 
 <ProgramListing>
-define method display( c :: &lt;collection&gt; )
-	for ( item in c )
-		display( item ); // runtime dispatch
-	end;
+define method display(c :: &lt;collection&gt;)
+  for (item in c)
+    display(item); // runtime dispatch
+  end;
 end;
 </>
 
@@ -727,7 +727,7 @@ end;
       value:</>
 
 <ProgramListing>
-define generic display( thing :: &lt;object&gt; ) =&gt; ( );
+define generic display(thing :: &lt;object&gt;) =&gt; ()
 </>
 
       <Para>Generic functions are explained in greater detail in the
@@ -745,10 +745,10 @@ define generic display( thing :: &lt;object&gt; ) =&gt; ( );
       output device:</>
 
 <ProgramListing>
-define method print-records( records :: &lt;collection&gt;,
-	#key init-codes (&quot;&quot;), lines-per-page (66) ) =&gt; ( );
+define method print-records(records :: &lt;collection&gt;,
+	#key init-codes = &quot;&quot;, lines-per-page = 66) =&gt; ();
 
-	send-init-codes( init-codes );
+	send-init-codes(init-codes);
 	// ...print the records
 end method;
 </>
@@ -759,9 +759,9 @@ end method;
       matter.</>
 
 <ProgramListing>
-print-records( recs );
-print-records( recs, lines-per-page: 65 );
-print-records( recs, lines-per-page: 120, init-codes: &quot;***42\n&quot; );
+print-records(recs);
+print-records(recs, lines-per-page: 65);
+print-records(recs, lines-per-page: 120, init-codes: &quot;***42\n&quot;);
 </>
 
       <Para>Programmers have quite a bit of flexibility in specifying
@@ -905,8 +905,8 @@ make(&lt;vehicle&gt;, sn: 2000000, owner: &quot;Sal&quot;)
       follows:</>
 
 <ProgramListing>
-owner( sample-vehicle );	// returns owner
-owner-setter( sample-vehicle, &quot;Faisal&quot; );
+owner(sample-vehicle);	// returns owner
+owner-setter(sample-vehicle, &quot;Faisal&quot;);
 </>
 
       <Para>Dylan also provides some convenient <Quote/syntactic sugar/ for
@@ -929,10 +929,10 @@ sample-vehicle.owner := &quot;Faisal&quot;;
       which dispatches on the first parameter.</>
 
 <ProgramListing>
-define generic tax( v :: &lt;vehicle&gt; )
+define generic tax(v :: &lt;vehicle&gt;)
 	=&gt; tax-in-dollars :: &lt;float&gt;;
 
-define method tax( v :: &lt;vehicle&gt; )
+define method tax(v :: &lt;vehicle&gt;)
 	=&gt; tax-in-dollars :: &lt;float&gt;;
 	100.00;
 end;
@@ -979,10 +979,10 @@ end method;
       &gwydprj;, currently requires the use of <Literal/#next/.</>
 
 <ProgramListing>
-define method tax( t :: &lt;truck&gt;, #next next-method )
+define method tax(t :: &lt;truck&gt;, #next next-method)
 	=&gt; tax-in-dollars :: &lt;float&gt;;
 	// standard vehicle tax plus $10/ton
-	next-method( ) + t.capacity * 10.00;
+	next-method() + t.capacity * 10.00;
 end method;
 </>
 
@@ -1018,10 +1018,10 @@ end method;
       if vehicle serial numbers must be at least seven digits:</>
 
 <ProgramListing>
-define method initialize( v :: &lt;vehicle&gt;, 	#all-keys ) // accepts all keywords
+define method initialize(v :: &lt;vehicle&gt;, #all-keys) // accepts all keywords
 	next-method( );
-	if ( v.serial-number &lt; 1000000 )
-		error( &quot;Bad serial number!&quot; );
+	if (v.serial-number &lt; 1000000)
+		error(&quot;Bad serial number!&quot;);
 	end if;
 end method;
 </>
@@ -1062,8 +1062,8 @@ end;
       class/:</>
 
 <ProgramListing>
-define method make( class == &lt;vehicle&gt;,
-	#rest keys, #key big? (#f), #all-keys )
+define method make(class == &lt;vehicle&gt;,
+	#rest keys, #key big? (#f), #all-keys)
 	=&gt; &lt;vehicle&gt;;
 	
 	if ( big? )
@@ -1087,9 +1087,9 @@ end;
 
 <ProgramListing>
 let x = 1000000;
-make( &lt;vehicle&gt;, sn: x, big?: #f );	=&gt;car
-make( &lt;vehicle&gt;, sn: x, big?: #t );	=&gt;truck
-make( &lt;vehicle&gt;, sn: x );				=&gt;car
+make(&lt;vehicle&gt;, sn: x, big?: #f); =&gt;car
+make(&lt;vehicle&gt;, sn: x, big?: #t); =&gt;truck
+make(&lt;vehicle&gt;, sn: x);           =&gt;car
 </>
 
       <Para>Methods added to <Function/make/ don't actually need to create
@@ -1117,20 +1117,20 @@ make( &lt;vehicle&gt;, sn: x );				=&gt;car
     function:</>
 
 <ProgramListing>
-define generic inspect-vehicle( v :: &lt;vehicle&gt;, i :: &lt;inspector&gt; ) =&gt; ();
+define generic inspect-vehicle(v :: &lt;vehicle&gt;, i :: &lt;inspector&gt;) =&gt; ();
 
-define method inspect-vehicle( v :: &lt;vehicle&gt;, i :: &lt;inspector&gt; ) =&gt; ();
-	look-for-rust( car );
+define method inspect-vehicle(v :: &lt;vehicle&gt;, i :: &lt;inspector&gt;) =&gt; ();
+	look-for-rust(car);
 end;
 
-define method inspect-vehicle( car :: &lt;car&gt;, i :: &lt;inspector&gt; ) =&gt; ();
-	next-method( ); // perform vehicle inspection
-	check-seat-belts( car );
+define method inspect-vehicle(car :: &lt;car&gt;, i :: &lt;inspector&gt;) =&gt; ();
+	next-method(); // perform vehicle inspection
+	check-seat-belts(car);
 end;
 
-define method inspect-vehicle( truck :: &lt;truck&gt;, i :: &lt;inspector&gt; ) =&gt; ();
-	next-method( ); // perform vehicle inspection
-	check-cargo-attachments( truck );
+define method inspect-vehicle(truck :: &lt;truck&gt;, i :: &lt;inspector&gt;) =&gt; ();
+	next-method(); // perform vehicle inspection
+	check-cargo-attachments(truck);
 end;
 </>
 
@@ -1141,14 +1141,14 @@ end;
     <Function/inspect­vehicle/:</>
 
 <ProgramListing>
-define method inspect-vehicle( car :: &lt;car&gt;, i :: &lt;state-inspector&gt; ) =&gt; ();
-	next-method( ); // perform car inspection
-	check-insurance( car );
+define method inspect-vehicle(car :: &lt;car&gt;, i :: &lt;state-inspector&gt;) =&gt; ();
+	next-method(); // perform car inspection
+	check-insurance(car);
 end;
 
-let inspector = make( &lt;state-inspector&gt; );
-let car = make( &lt;car&gt; );
-inspect-vehicle( car, inspector );
+let inspector = make(&lt;state-inspector&gt;);
+let car = make(&lt;car&gt;);
+inspect-vehicle(car, inspector);
 </>
 
     <Para>Calling the generic function <Function/inspect-vehicle/ with
@@ -1173,11 +1173,11 @@ inspect-vehicle( car, inspector );
       in a class of their own. For example:</>
 
 <ProgramListing>
-define constant $governors-car = make( &lt;car&gt; );
+define constant $governors-car = make(&lt;car&gt;);
 
-define method inspect-vehicle( car == $governors-car,
-	i :: &lt;state-inspector&gt; ) =&gt; ();
-	wave-through( car );
+define method inspect-vehicle(car == $governors-car,
+	i :: &lt;state-inspector&gt;) =&gt; ();
+	wave-through(car);
 end;
 </>
 
@@ -1213,15 +1213,15 @@ end;
 
 <ProgramListing>
 define module Vehicles
-	use Dylan;
-	export
-		&lt;vehicle&gt;,
-			serial-number,
-			owner, owner-setter,
-			tax,
-		&lt;car&gt;,
-		&lt;truck&gt;,
-			capacity;
+  use Dylan;
+  export
+    &lt;vehicle&gt;,
+      serial-number,
+      owner, owner-setter,
+      tax,
+    &lt;car&gt;,
+    &lt;truck&gt;,
+      capacity;
 end module;
 </>
 
@@ -1286,12 +1286,12 @@ end module;
 
 <ProgramListing>
 define library Vehicles
-	use Dylan;	// This is the library!
-	export		// These are modules.
-		Vehicles,  	// (Defined above.)
-		Traffic-Simulation,
-		Crash-Testing,
-		Inspection;	// (Hypothetical.)
+  use Dylan;            // This is the library!
+  export                // These are modules.
+    Vehicles,           // (Defined above.)
+    Traffic-Simulation,
+    Crash-Testing,
+    Inspection;         // (Hypothetical.)
 end library Vehicles;
 </>
 
@@ -1299,9 +1299,9 @@ end library Vehicles;
 
 <ProgramListing>
 define library Vehicle-Application
-	use Dylan;
-	use My-GUI-Classes;
-	use Vehicles;
+  use Dylan;
+  use My-GUI-Classes;
+  use Vehicles;
 end;
 </>
 
@@ -1314,12 +1314,12 @@ end;
 
 <ProgramListing>
 define module Sample-Module
-	//	module name        source library
-	use Dylan;          // Dylan
-	use Extensions;     // Dylan
-	use Menus;          // My-GUI-Classes
-	use Vehicles;       // Vehicles
-	use Inspection;	    // Vehicles
+  // module name         source library
+  use Dylan;          // Dylan
+  use Extensions;     // Dylan
+  use Menus;          // My-GUI-Classes
+  use Vehicles;       // Vehicles
+  use Inspection;     // Vehicles
 end module;
 </>
 
@@ -1553,8 +1553,8 @@ define open generic sample-function( o :: &lt;object&gt; ) =&gt; ();
       appear as follows:</>
 
 <ProgramListing>
-block ( )
-	1 + 1;
+block ()
+  1 + 1;
 end; // returns 2
 </>
 
@@ -1569,9 +1569,9 @@ end; // returns 2
       depending on the color of the sky.</>
 
 <ProgramListing>
-block ( finished )
-	if ( sky-is-green( ) )
-		finished( "Weird!" );
+block (finished)
+	if (sky-is-green())
+		finished("Weird!");
 	end;
 	"All's well."
 end block;
@@ -1583,15 +1583,15 @@ end block;
       value of the block and will always be executed.</>
 
 <ProgramListing>
-let fd = open-input-file( );
-block ( return )
-	let (errorcode, data) = read-data( fd );
-	if ( errorcode )
-		return( errorcode );
+let fd = open-input-file();
+block (return)
+	let (errorcode, data) = read-data(fd);
+	if (errorcode)
+		return(errorcode);
 	end if;
-	process-data( data );
+	process-data(data);
 cleanup
-	close( fd );
+	close(fd);
 end;
 </>
 
