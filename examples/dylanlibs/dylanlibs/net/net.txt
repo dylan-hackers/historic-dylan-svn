@@ -63,7 +63,13 @@ HTTP. Uses lib-curl to do the retrieval allowing both HTTP and
 HTTPS. See the http-client-example application for an example of how
 to use it.
 
+7) http-server
+==============
+
+A simple http-server. Not a full fledged web server unfortunately but
+maybe one day...
+
 -- 
 Chris Double.  
-9 June 2001.
+13 June 2001.
 

@@ -36,7 +36,17 @@ An example of using <atl-activex-gadget> to provide a gadget that
 hosts the Microsoft Internet Explorer control. Used by the example
 program simple-web-browser.
 
+4) chart-gadget
+===============
+
+A simple gadget for displaying line charts.
+
+5) duim-misc
+=================
+
+Various miscellaneous functions for helping with DUIM.
+
 -- 
 Chris Double.  
-10 May 2001.
+10 June 2001.
 
