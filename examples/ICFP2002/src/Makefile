@@ -53,6 +53,12 @@ single: icfp2002
 multi:  icfp2002
 	./icfp2002 icfp1.cse.ogi.edu 22101
 
+
+test-all-bots: icfp2002
+	./icfp2002 icfp1.cse.ogi.edu 22102 dumbot > dumbot-22102.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22102 thomas > thomas-22102.log 2>&1 &
+	./icfp2002 icfp1.cse.ogi.edu 22102 gabot > gabot-22102.log 2>&1 &
+
 network-internal.dylan: network-internal.intr network-internal.h
 	melange --d2c -I`gcc --print-file-name=include` network-internal.intr network-internal.dylan
 
