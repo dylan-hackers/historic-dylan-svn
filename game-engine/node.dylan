@@ -170,6 +170,7 @@ define class <camera> (<node>)
   slot eye-position :: <3d-point> = 3d-point(0.0, 1.7, 3.0), init-keyword: position:;
   slot looking-at :: <3d-point> = 3d-point(0.0, 1.7, 0.0), init-keyword: looking-at:;
   slot up :: <3d-vector> = 3d-vector(0.0, 1.0, 0.0), init-keyword: up:;
+  slot angle :: <float> = 0.0;
 end class <camera>;
 
 define class <spotlight> (<node>)

@@ -151,6 +151,7 @@ define method render-to-opengl(node :: <camera>)
   glLoadIdentity();
   glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
   apply(gluLookAt, concatenate(node.eye-position, node.looking-at, node.up));
+  apply(glRotate, node.angle, node.up);
   glMatrixMode($GL-MODELVIEW);
 end method render-to-opengl;
 

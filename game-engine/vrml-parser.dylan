@@ -52,7 +52,7 @@ define method parse-vrml(file-name :: <string>)
   => (model :: <simple-object-vector>);
   let save-debug = *debug-meta-functions?*;
   block ()
-    *debug-meta-functions?* := #t;
+    *debug-meta-functions?* := #f;
 
     let input-stream = make(<file-stream>, direction: #"input", locator: file-name);
     let input = slurp-input(input-stream);

@@ -104,9 +104,7 @@ define variable passive-motion-func :: <function>
     post-event(make(<motion-event>, 
                     location: make(<point>, x: x, y: y), passive?: #t));
     glutWarpPointer(250, 250);
-    glMatrixMode($GL-PROJECTION);
-    glRotate(as(<single-float>, x - 250) / 5.0s0, 0.0s0, 1.0s0, 0.0s0);
-    glMatrixMode($GL-MODELVIEW);
+    $camera.angle := $camera.angle + as(<double-float>, x - 250) / 5.0;
   end unless;
 end;
 
@@ -185,6 +183,8 @@ define constant *scene-graph* = make(<indexed-face-set>,
 define variable *last-stamp* = 0.0;
 define variable *speed* = vector(0.0, 0.0, 0.0);
 define variable *rotation-speed* = 0.0s0;  
+define constant $camera = make(<camera>,
+                               position:  3d-point ( 0.0, 1.7, 10.0 ));
               
 define variable display-func :: <function> = callback-method() => ();
   let timestamp = current-time();
@@ -192,13 +192,10 @@ define variable display-func :: <function> = callback-method() => ();
 //  format-out("Current simulation interval: %=, time is %=\n", delta-t, timestamp);
   force-output(*standard-output*);
   if(*last-stamp* ~= 0.0)
-
-    glMatrixMode($GL-PROJECTION);
     let delta-s = delta-t * *speed*;
     let delta-phi = delta-t * *rotation-speed*;
-    glTranslate(delta-s[0], delta-s[1], delta-s[2]);
-    glRotate(s(delta-phi), 0.0s0, 1.0s0, 0.0s0);
-    glMatrixMode($GL-MODELVIEW);
+    $camera.angle := $camera.angle + delta-phi;
+    $camera.eye-position := $camera.eye-position + delta-s;
   end if;
 
   *last-stamp* := timestamp;
@@ -210,11 +207,11 @@ define variable display-func :: <function> = callback-method() => ();
 end;
 
 define method main(progname, #rest arguments)
+
   if(arguments.size > 0)
     *scene-graph* := 
       make(<container-node>, children: 
-             vector(/* make(<camera>,
-                         position:  3d-point ( 0.0, 1.7, 10.0 )), */
+             vector($camera,
                     make(<spotlight>,
                          position:  3d-point ( 6.0s0, 6.0s0,-4.0s0, 1.0s0),
                          direction: 3d-vector(-3.0s0,-3.0s0, 2.0s0),
@@ -226,7 +223,7 @@ define method main(progname, #rest arguments)
                          translation: 3d-vector(3.0, 3.0, -2.0), 
                          children: vector(make(<sphere>))),
 //                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
-                    make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), 
+                    make(<transform>, scale: 3d-vector(0.001, 0.001, 0.001), 
                          children: parse-vrml(arguments[0]))));
   end if;
 //  exit(exit-code: 0);
@@ -254,15 +251,6 @@ define method main(progname, #rest arguments)
 	                     glGetString($GL-EXTENSIONS));
   force-output(*standard-output*);
 //  glutFullScreen();
-
-  glMatrixMode($GL-PROJECTION);
-  glLoadIdentity();
-  glFrustum(-0.25, 0.25, -0.25, 0.25, 0.5, 100.0);
-  gluLookAt(0.0,  1.6, -3.0, // eye position
-	    0.0,  1.6, 0.0,  // looking at
-	    0.0,  1.0, 0.0); // up direction
-
-  glMatrixMode($GL-MODELVIEW);
 
   glEnable($GL-AUTO-NORMAL);
   glEnable($GL-NORMALIZE);
