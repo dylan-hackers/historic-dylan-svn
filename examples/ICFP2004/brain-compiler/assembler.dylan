@@ -1,10 +1,17 @@
 module: assembler
 
+// variable accessors
+
+define function access-<boolean>()
+
+end;
+
 
 define macro brain-definer
   { define brain ?:name ?states end }
     => { define function ?name() => brain :: <vector>;
            let instrs = make(<table>);
+           instrs[#"VARIABLES"] := list(pair(#"V1", access-<boolean>));
            let (label, counter) = values(start:, -1);
            ?states;
            compile-states(instrs)
@@ -13,9 +20,10 @@ define macro brain-definer
   { define sub brain ?:name(?return-name:name) ?states end }
     => { define function ?name(outer-instrs, label, current-counter) => ();
            let instrs = make(<table>);
+           instrs[#"VARIABLES"] := outer-instrs[#"VARIABLES"]; // for now ###///shallow-copy(outer-instrs[#"VARIABLES"]);
            push-thunk(instrs, ?#"return-name", 0, curry(lookup, outer-instrs, label, current-counter + 1));
-           push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, ?#"name", 0));
-           let (label, counter) = values(?#"name", -1);
+           push-thunk(outer-instrs, label, current-counter, curry(lookup, instrs, sub-start:, 0));
+           let (label, counter) = values(sub-start:, -1);
            ?states;
          end function }
 
@@ -27,6 +35,12 @@ states:
     => { let counter = counter + 1; ?state; ... }
 
  state:
+  { Set ?:expression }
+    => { let counter = counter - 1; let var1 :: <boolean> = ?expression }
+
+  { IfSet { ?then-states } { ?else-states } }
+    => { if (var1) ?then-states else ?else-states end }
+
   { Sub ?:expression }
     => { ?expression(instrs, label, counter) }
 
@@ -259,22 +273,33 @@ states:
                     end) }
 end macro;
 
+define function create-label(label, counter, vars, values)
+ => label :: <symbol>;
+  as(<symbol>, format-to-string("(%s, %d) %s", label, counter, values));
+end;
 
-define function push-thunk (instrs, label, counter, thunk) => ();
+define function power-set(all-vars)
+ #(#(#f), #(#t)) // for now
+end;
+
+define function push-thunk (instrs, label, counter, thunk, #key all-vars = instrs[#"VARIABLES"], all-values = power-set(all-vars)) => ();
 ///////  let pos = make(<instruction-label-count>, label: label, count: counter);
-  let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
-  if (element(instrs, pos, default: #f))
-    error("label %s already defined?", label);
-  end;
+
+  for (vals in all-values)
+    let pos = create-label(label, counter, all-vars, vals);
+    if (element(instrs, pos, default: #f))
+      error("label %s already defined?", label);
+    end;
   
-  instrs[pos] := thunk;
+    instrs[pos] := thunk;
+  end for
 end;
 
 define function lookup (instrs, label, counter)
  => instr :: <instruction>;
 ////////  let pos = make(<instruction-label-count>, label: label, count: counter);
 
-  let pos = as(<symbol>, format-to-string("(%s, %d)", label, counter));
+  let pos = create-label(label, counter, instrs[#"VARIABLES"], #(#f)); /// ### for now
   
   block ()
     let instr = instrs[pos];
