@@ -52,6 +52,7 @@ define module vrml-parser
   use vrml-model;
   use vector-math, import: {color, 3d-rotation, 3d-vector};
   use meta;
+  use standard-io;
   use format-out;
   
   export parse-vrml;

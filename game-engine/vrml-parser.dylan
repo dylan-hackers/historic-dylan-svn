@@ -1,5 +1,12 @@
 module: vrml-parser
 
+
+define function dd(#rest args) => (succ :: <boolean>)
+  apply(format-out, args);
+  force-output(*standard-output*);
+  #t;
+end dd;
+
 define inline method concatenate-strings(v :: <stretchy-vector>)
  => result :: <byte-string>;
   let length = for (total = 0 then total + str.size,
@@ -45,7 +52,7 @@ define method parse-vrml(file-name :: <string>)
   => (model :: <node>);
   let save-debug = *debug-meta-functions?*;
   block ()
-    *debug-meta-functions?* := #t;
+    *debug-meta-functions?* := #f;
 
     let input-stream = make(<file-stream>, direction: #"input", locator: file-name);
     let input = slurp-input(input-stream);
@@ -73,7 +80,7 @@ define function ws?(str :: <byte-string>, #key start: start :: <integer>, end: s
       else
         if (ch == '#')
           in-comment? := #t;
-        elseif (ch ~== ' ' & ch ~== '\t' & ch ~== '\r' & ch ~== '\n')
+        elseif (ch ~== ' ' & ch ~== '\t' & ch ~== '\r' & ch ~== '\n' & ch ~== ',')
           return();
         end;
       end;
@@ -83,17 +90,26 @@ define function ws?(str :: <byte-string>, #key start: start :: <integer>, end: s
   pos;
 end ws?;
 
-// should peek() to see if there is a {}[] etc if there is no space
+// used for mandatory whitespace after an indentifier.  Symbols such as []{}.\# are also allowed
 define function ws(str :: <byte-string>, #key start: start :: <integer>, end: stop :: <integer>)
- => (pos :: <integer>);
+ => (pos :: false-or(<integer>));
   let pos = start;
   let newpos = ws?(str, start: start, end: stop);
   if (newpos ~== pos)
     newpos
   else
-    #f
+    let ch = str[pos];
+    if (ch < ' ' | ch == '\<7f>'
+          | ch == '[' | ch == '{' | ch == ']' | ch == ']'
+          | ch == '"' | ch == '\''
+          | ch == '#' | ch == '.' | ch == '\\')
+      newpos
+    else
+      #f
+    end
   end;
 end ws;
+
 
 
 // vrmlScene ::=
@@ -201,12 +217,15 @@ define meta node (c, node) => (node)
 
   ws?(c),
   {
-   ["Appearance",       ws?(c), "{", scan-AppearanceNode(node), ws?(c), "}"],
-   ["Coordinate",       ws?(c), "{", scan-CoordinateNode(node), ws?(c), "}"],
-   ["IndexedFaceSet",   ws?(c), "{", scan-IndexedFaceSetNode(node), ws?(c), "}"],
-   ["Material",         ws?(c), "{", scan-MaterialNode(node), ws?(c), "}"],
-   ["Shape",            ws?(c), "{", scan-ShapeNode(node), ws?(c), "}"],
-   ["Transform",        ws?(c), "{", scan-TransformNode(node), ws?(c), "}"]
+   ["Appearance",       ws(c), "{", scan-AppearanceNode(node),     ws?(c), "}"],
+   ["Coordinate",       ws(c), "{", scan-CoordinateNode(node),     ws?(c), "}"],
+   ["IndexedFaceSet",   ws(c), "{", scan-IndexedFaceSetNode(node), ws?(c), "}"],
+   ["Material",         ws(c), "{", scan-MaterialNode(node),       ws?(c), "}"],
+   ["Normal",           ws(c), "{", scan-NormalNode(node),         ws?(c), "}"],
+   ["Shape",            ws(c), "{", scan-ShapeNode(node),          ws?(c), "}"],
+   ["Transform",        ws(c), "{", scan-TransformNode(node),      ws?(c), "}"],
+   ["Viewpoint",        ws(c), "{", scan-ViewpointNode(node),      ws?(c), "}"],
+   ["WorldInfo",        ws(c), "{", scan-WorldInfoNode(node),      ws?(c), "}"]
   }
 
 end node;
@@ -221,62 +240,101 @@ define meta AppearanceNode (c, material, texture, textureTransform)
            texture-transform: textureTransform))
   loop([ws?(c),
         {["material",         ws(c), scan-SFNode(material)],
-         ["texture",          ws(c), scan-SFNode(texture)],
-         ["textureTransform", ws(c), scan-SFNode(textureTransform)]}])
+         ["textureTransform", ws(c), scan-SFNode(textureTransform)],
+         ["texture",          ws(c), scan-SFNode(texture)]}])
 end AppearanceNode;
 
 
 define meta CoordinateNode (c, point) => (point)
   ws?(c),
-  "point", ws?(c), scan-MFVec3f(point)
+  "point", ws(c), scan-MFVec3f(point)
 end CoordinateNode;
 
 //aaaaaaaaarrrrrrrrrggggghhhh ... we absolutely need to get backtracking working!!
 define meta IndexedFaceSetNode
-  (c, coord, ccw, coordIndex, creaseAngle)
+  (c, color, coordIndex, coord, normalIndex, normalPerVertex, normal, texCoord, ccw,
+   colorIndex, colorPerVertex, convex, creaseAngle, solid, texCoordIndex)
   => (begin
         // need to translate polygons from -1 delimited list of points to
         // list of lists of points
-        format-out("polygons = %=\n", coordIndex);
-        let polys = make(<stretchy-vector>);
-        let start = 0;
-        for(e in coordIndex, i from 0)
-          if (e == -1)
-            let poly = as(<simple-object-vector>, copy-sequence(coordIndex, start: start, end: i));
-            add!(polys, poly);
-            start := i + 1;
+        let polys =
+          begin
+            if (coordIndex)
+              dd("reshaping polygons\n");
+              let coordIndex :: <stretchy-object-vector> = coordIndex;
+              let polys = make(<stretchy-vector>);
+              let start = 0;
+              local
+                method addpoly(from :: <integer>, to :: <integer>)
+                  let poly = make(<vector>, size: to - from);
+                  for (i from from below to)
+                    poly[i - from] := coordIndex[i];
+                  end;
+                  add!(polys, poly);
+                  start := to + 1;
+                end method;                  
+              for(e :: <integer> in coordIndex, i from 0)
+                if (e == -1)
+                  addpoly(start, i);
+                end;
+              end;
+              if (coordIndex.last ~== -1)
+                addpoly(start, coordIndex.size);
+              end;
+              polys;
+            end;
           end;
-        end;
-        format-out("polys = %=\n", polys);
         make(<indexed-face-set>,
              ccw: ccw,
-             crease-angle: creaseAngle | 0.0,
-             points: as(<simple-object-vector>, coord),
-             indices: as(<simple-object-vector>, polys))
+             crease-angle:   creaseAngle | 0.0,
+             points:         coord       & as(<simple-object-vector>, coord),
+             indices:        polys       & as(<simple-object-vector>, polys),
+             vertex-normals: normal      & as(<simple-object-vector>, normal))
       end)
   
   loop([ws?(c),
-        {//["color",         ws(c), scan-SFNode(material)],
-         ["coordIndex",     ws?(c), scan-MFInt32(coordIndex)],
-         ["coord",          ws(c), scan-SFNode(coord)],
-         //["normal",          ws(c), scan-SFNode()],
-         //["texCoord",          ws(c), scan-SFNode()],
-         ["ccw",          ws(c), scan-SFBool(ccw)],
-         //["colorIndex",          ws(c), scan-SFNode()],
-         //["colorPerVertex",          ws(c), scan-SFNode()],
-         //["convex",          ws(c), scan-SFNode()],
-         ["creaseAngle",          ws(c), scan-SFFloat(creaseAngle)] // ,
-         //["normalIndex",          ws(c), scan-SFNode()],
-         //["normalPerVertex",          ws(c), scan-SFNode()],
-         //["solid",          ws(c), scan-SFNode()],
-         //["texCoordIndex", ws(c), scan-SFNode()]
+        {["coordIndex",      ws(c), scan-MFInt32(coordIndex)],
+         ["coord",           ws(c), scan-SFNode(coord)],
+         ["normalIndex",     ws(c), scan-MFInt32(normalIndex)],
+         ["normalPerVertex", ws(c), scan-SFBool(normalPerVertex)],
+         ["normal",          ws(c), scan-SFNode(normal)],
+         ["texCoord",        ws(c), scan-SFNode(texCoord)],
+         ["ccw",             ws(c), scan-SFBool(ccw)],
+         ["colorIndex",      ws(c), scan-MFInt32(colorIndex)],
+         ["colorPerVertex",  ws(c), scan-SFBool(colorPerVertex)],
+         ["color",           ws(c), scan-SFNode(color)],
+         ["convex",          ws(c), scan-SFBool(convex)],
+         ["creaseAngle",     ws(c), scan-SFFloat(creaseAngle)],
+         ["solid",           ws(c), scan-SFBool(solid)],
+         ["texCoordIndex",   ws(c), scan-MFInt32(texCoordIndex)]
          }]),
-  do(format-out("leaving IndexedFaceSet\n"))
+  do(dd("leaving IndexedFaceSet\n"))
 end IndexedFaceSetNode;
 
 
-define meta MaterialNode (c)
+define meta MaterialNode
+  (c, ambientIntensity, diffuseColor, emissiveColor,
+   shininess, specularColor, transparency)
+  do(ambientIntensity := 0.2;
+     diffuseColor := vector(0.8, 0.8, 0.8);
+     emissiveColor := vector(0.0, 0.0, 0.0);
+     shininess := 0.2;
+     specularColor := vector(0.0, 0.0, 0.0);
+     transparency := 0.0),
+  loop([ws?(c),
+        {["ambientIntensity", ws(c), scan-SFFloat(ambientIntensity)],
+         ["diffuseColor",     ws(c), scan-SFColor(diffuseColor)],
+         ["emissiveColor",    ws(c), scan-SFColor(emissiveColor)],
+         ["shininess",        ws(c), scan-SFFloat(shininess)],
+         ["specularColor",    ws(c), scan-SFColor(specularColor)],
+         ["transparency",     ws(c), scan-SFFloat(transparency)]}])
 end MaterialNode;
+  
+
+define meta NormalNode (c, vector) => (vector)
+  ws?(c),
+  "vector", ws(c), scan-MFVec3f(vector)
+end NormalNode;
   
 
 define meta ShapeNode (c, appearance, geometry)
@@ -304,6 +362,28 @@ define meta TransformNode
          ["scaleOrientation", ws(c), scan-SFRotation(scaleOrientation)],
          ["translation",      ws(c), scan-SFVec3f(translation)]}])
 end TransformNode;
+
+
+define meta ViewpointNode (c, fieldOfView, jump, orientation, position, description)
+  do(fieldOfView := 0.785398;
+     jump := #t;
+     orientation := vector(0.0, 0.0, 1.0, 0.0);
+     position := vector(0.0, 0.0, 10.0);
+     description := ""),
+  loop([ws?(c),
+        {["fieldOfView", ws(c), scan-SFFloat(fieldOfView)],
+         ["jump",        ws(c), scan-SFBool(jump)],
+         ["orientation", ws(c), scan-SFRotation(orientation)],
+         ["position",    ws(c), scan-SFVec3F(position)],
+         ["description", ws(c), scan-SFString(description)]}])
+end ViewpointNode;
+
+
+define meta WorldInfoNode (c, info, title)
+  loop([ws?(c),
+        {["info",  ws(c), scan-MFString(info)],
+         ["title", ws(c), scan-SFString(title)]}])
+end WorldInfoNode;
 
   
   
@@ -478,6 +558,15 @@ end SFRotation;
 // 
 // string ::=
 //     ".*" ... double-quotes must be \", backslashes must be \\...
+
+define meta SFString (c, str) => (as(<byte-string>, str))
+  do(str := make(<stretchy-vector>)),
+  ws?(c), '"',
+  loop({['"', finish()],
+        ['\\', {'\\', '"'}],
+        [peeking(c, #t), do(add!(str, c))]})
+end SFString;
+
 // 
 // sftimeValue ::=
 //     double ;
@@ -540,8 +629,7 @@ define meta MFInt32 (c, val, vals) => (vals)
    ["[", ws?(c),
     {"]",
      [scan-int(val), do(add!(vals, val)),
-      loop([ws?(c), ",", ws?(c),
-            scan-int(val), do(add!(vals, val))]),
+      loop([ws(c), scan-int(val), do(add!(vals, val))]),
       ws?(c), "]"]}]}
 end MFInt32;
 
@@ -587,6 +675,20 @@ end nodeStatements;
 // sfstringValues ::=
 //     sfstringValue |
 //     sfstringValue sfstringValues ;
+
+define meta MFString (c, val, vals) => (vals)
+  do(vals := make(<stretchy-vector>)),
+  ws?(c),
+  {["[", ws?(c),
+    {"]",
+     [scan-SFString(val), do(add!(vals, val)),
+      loop([ws(c),
+            scan-SFString(val), do(add!(vals, val))]),
+      ws?(c), "]"]}],
+   [scan-SFString(val), do(add(vals, val))]}
+end MFString;
+
+
 // 
 // mfvec2fValue ::=
 //     sfvec2fValue |
@@ -613,8 +715,8 @@ define meta MFVec3f (c, val, vals) => (vals)
    
    ["[", ws?(c),
     {"]",
-     [scan-SFVec3f(val), do(add!(vals, val)), ws?(c),
-      loop([",", ws?(c), scan-SFVec3f(val), do(add!(vals, val)), ws?(c)]),
-      "]"]}]},
+     [scan-SFVec3f(val), do(add!(vals, val)),
+      loop([ws(c), scan-SFVec3f(val), do(add!(vals, val))]),
+      ws?(c), "]"]}]},
   ws?(c)
 end MFVec3f;
