@@ -102,8 +102,8 @@ define method send-xml-rpc-result
   let xml = with-output-to-string(s)
               to-xml(result, s);
             end;
-  log-debug("Sending XML:");
-  log-debug(xml);
+  *debugging-xml-rpc*
+    & log-debug("Sending XML: %=", xml);
   write(stream, xml);
   //to-xml(result, stream);
   write(stream, "</value></param></params></methodResponse>\r\n");

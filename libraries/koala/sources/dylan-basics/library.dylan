@@ -11,12 +11,13 @@ define module dylan-basics
   use common-dylan;
 
   export
-    \iff,
+    \bind,              // like LET* in Common Lisp
+    \iff,               // more concise IF
     \with-restart,
     \with-simple-restart,
     <singleton-object>,
-    \inc!,
-    \dec!,
+    \inc!,              // like ++foo
+    \dec!,              // like --foo
     string-to-float,
     // Wasn't sure whether to include this, since FunDev already has
     // float-to-string, but decided to keep it with a different name.

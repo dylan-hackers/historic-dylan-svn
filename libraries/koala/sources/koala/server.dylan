@@ -261,8 +261,8 @@ end abort-clients;
 define function join-clients (server :: <server>, #key timeout)
   => (clients-left :: <integer>)
   with-lock (server.server-lock)
-    empty?(server.clients) |
-      wait-for(server.clients-notification, timeout: timeout);
+    empty?(server.clients)
+      | wait-for(server.clients-notification, timeout: timeout);
     let n = server.clients.size;
     server.clients.size := 0;
     n

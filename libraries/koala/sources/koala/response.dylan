@@ -1,13 +1,13 @@
 Module:    httpi
 Author:    Carl Gay
-Synopsis:  A response allows users to manipulate certain aspects of the response to the
-           client, for example adding headers.
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Synopsis:  An API for generating responses to HTTP requests.
+Copyright: Copyright (c) 2001-2002 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 // Exported
+//
 // If you add a slot to this class you may need to reset that slot to
 // its initial value in the reinitialize-resource method below.
 //
@@ -15,15 +15,22 @@ define open primary class <response> (<object>)
   slot get-request :: <request>, required-init-keyword: #"request";
 
   // The output stream is created lazily so that the user has the opportunity to
-  // set the output stream type (e.g., binary or text).  See output-stream.
+  // set properties such as stream type (e.g., binary or text) and buffering
+  // characteristics.
+  // @see output-stream
   slot %output-stream :: false-or(<stream>) = #f;
 
+  // Headers to send with the response.
+  // @see add-header
   slot response-headers :: <header-table>, required-init-keyword: #"headers";
 
   // Whether or not the headers were allocated with allocate-resource, in which
   // case they need to be deallocated with deallocate-resource.
   slot headers-resourced? :: <boolean> = #f, init-keyword: #"headers-resourced?";
   slot headers-sent? :: <boolean> = #f;
+
+  // Whether or not this is a buffered response.
+  // @see output-stream
   slot buffered? :: <boolean> = #t;
 end;
 
@@ -53,7 +60,8 @@ define method output-stream
     (response :: <response>) => (stream :: <stream>)
   response.%output-stream
   | begin
-      response.%output-stream := allocate-resource(<string-stream>);
+      response.%output-stream
+        := allocate-resource(<string-stream>);
     end
 end;
 

@@ -4,14 +4,13 @@ Author:    Carl Gay
 Copyright: (C) 2002, Carl L Gay.  All rights reserved.
 
 
-// ---TODO: The XML parser doesn't seem to handle &lt; etc correctly.
-//          Returning a string like "a <b> c" from a RPC method stripts
-//          the < and > chars.
-
+//---TODO: Verify that <value>foo</value> parses the same as
+//         <value><string>foo</string></value> since string is
+//         the default type.
 
 // If true, output useless debugging statements.
 //
-define variable *debugging-xml-rpc* :: <boolean> = #t;
+define variable *debugging-xml-rpc* :: <boolean> = #f;
 
 // ---TODO: Parameterize this in the Koala config file.
 // If this is true, err when we receive data that we can't parse,
@@ -65,7 +64,9 @@ end;
 // for explicitly converting TO base64 via base64-encode-string.  Conversion
 // FROM base64 is done automatically.
 //
-define generic to-xml (arg :: <object>, stream :: <stream>) => ();
+define generic to-xml
+    (arg :: <object>, stream :: <stream>)
+ => ();
 
 // Default method
 define method to-xml (arg :: <object>, stream :: <stream>) => ()
@@ -136,11 +137,21 @@ define function find-child (node :: xml$<node-mixin>, name :: <symbol>)
   end;
 end;
 
-define method from-xml (node :: xml$<element>, name :: <symbol>)
+
+
+define generic from-xml
+    (node :: <object>, name :: <object>)
+ => (object :: <object>);
+
+define method from-xml
+    (node :: xml$<element>, name :: <symbol>)
+ => (object :: <object>);
   xml-rpc-parse-error("Unrecognized node type.");
 end;
 
-define method from-xml (node :: xml$<element>, name == #"boolean")
+define method from-xml
+    (node :: xml$<element>, name == #"boolean")
+ => (object :: <boolean>)
   let it = xml$text(node);
   if (it = "1")
     #t
@@ -148,50 +159,65 @@ define method from-xml (node :: xml$<element>, name == #"boolean")
     #f
   else
     *strict?*
-    & xml-rpc-parse-error("Malformed <boolean> element.");
+      & xml-rpc-parse-error("Malformed <boolean> element.");
   end if
 end;
 
-define method from-xml (node :: xml$<element>, name == #"string")
+define method from-xml
+    (node :: xml$<element>, name == #"string")
+ => (object :: <string>)
   xml$text(node)
 end;
 
-define method from-xml (node :: xml$<element>, name == #"int")
-  let str = xml$text(node);
-  string-to-integer(str)
+define method from-xml
+    (node :: xml$<element>, name == #"int")
+ => (object :: <integer>)
+  string-to-integer(xml$text(node))
 end;
 
-define method from-xml (node :: xml$<element>, name == #"i4")
+define method from-xml
+    (node :: xml$<element>, name == #"i4")
+ => (object :: <integer>)
   from-xml(node, #"int")
 end;
 
-define method from-xml (node :: xml$<element>, name == #"double")
+define method from-xml
+    (node :: xml$<element>, name == #"double")
+ => (object :: <double-float>)
   string-to-float(xml$text(node));
 end;
 
-define method from-xml (node :: xml$<element>, name == #"datetime.iso8601")
+define method from-xml
+    (node :: xml$<element>, name == #"datetime.iso8601")
+ => (object :: <date>)
   // Note the colons and dashes are removed because <date> doesn't handle them.
   // It looks to me like the ISO8601 standard allows both characters so this
   // is a bug, but I haven't been able to download the spec so not 100% sure.
-  let str = xml$text(node);
-  make(<date>, iso8601-string: remove(remove(str, ':'), '-'));
+  let str = remove(remove(xml$text(node), ':'), '-');
+  make(<date>, iso8601-string: str);
 end;
 
-define method from-xml (node :: xml$<element>, name == #"base64")
+define method from-xml
+    (node :: xml$<element>, name == #"base64")
+ => (object :: <string>)
   base64-decode(xml$text(node))
 end;
 
 
 // <array><data><value>...</value><value>...</value></data></array>
 //
-define method from-xml (node :: xml$<element>, name == #"array")
-  // I wonder why the redundant "data" node is used in XML-RPC...
+define method from-xml
+    (node :: xml$<element>, name == #"array")
+ => (object :: <sequence>)
+  // I wonder why the redundant "<data>" node is used in XML-RPC...
   let data-node = find-child(node, #"data")
     | xml-rpc-parse-error("Bad array element, data element not found.");
   from-xml(data-node, xml$name(data-node))
 end;
 
-define method from-xml (node :: xml$<element>, name == #"data")
+define method from-xml
+    (node :: xml$<element>, name == #"data")
+ => (object :: <sequence>)
   let children = xml$node-children(node);
   let v = make(<vector>, size: children.size);
   map-into(v,
@@ -201,22 +227,30 @@ define method from-xml (node :: xml$<element>, name == #"data")
            children)
 end;
 
-define method from-xml (node :: xml$<element>, name == #"value")
+define method from-xml
+    (node :: xml$<element>, name == #"value")
+ => (object :: <object>)
   let children = xml$node-children(node);
   select (children.size)
     0 => xml-rpc-parse-error("Value element contains no data.");
     1 => from-xml(children[0], xml$name(children[0]));
+    // ---TODO: Don't err here if ~*strict?*.
+    //          Collect values into a vector instead?
     otherwise => xml-rpc-parse-error("Value element contains multiple subelements.");
   end
 end;
 
-define method from-xml (node :: xml$<char-string>, name /* == "chars" */)
+define method from-xml
+    (node :: xml$<char-string>, name /* == "chars" */)
+ => (object :: <string>)
   xml$text(node)
 end;
 
 // <struct><member><name>foo</name><value>...</value></member></struct>
 //
-define method from-xml (node :: xml$<element>, name == #"struct")
+define method from-xml
+    (node :: xml$<element>, name == #"struct")
+ => (object :: <table>)
   let children = xml$node-children(node);
   let tbl = make(<string-table>, size: children.size);
   for (child in children)
@@ -256,6 +290,5 @@ define function quote-html
     end;
   end;
 end quote-html;
-
 
 

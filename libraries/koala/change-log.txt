@@ -3,6 +3,18 @@ Change log for Koala HTTP server and Dylan Server Pages
 
 ***********************************************************************************
 
+Changes for version 0.3.1 (released August 15, 2002)
+  Bug Fixes:
+  - XML-PARSER: Douglas Auclair fixed a bug in the xml-parser library that caused
+    strings with character entities (&lt; etc) to be transmitted incorrectly 
+    through XML-RPC.
+
+  New Features:
+  - Koala: Added ability to turn debugging on and off via config file.
+      e.g., <xml-rpc ... debug="yes">.  Default is "no".
+  - dylan-basics: Added "bind" macro, like let* in Common Lisp.
+
+
 Changes for version 0.3 (released August 7, 2002)
   Bug Fixes:
   - Directory browsing now works correctly even if the user browses a directory
