@@ -1044,47 +1044,90 @@ define variable foo :: run-time-expression() = #f;
 
     <sect1 id="gdmaint-d2c-optimize">
       <title>The <dlibrary>Compiler-Optimize</dlibrary> Library</title>
-      <para></para>
+
+      <para>&d2c; was written as a research project. As such, it contains
+      some very sophisticated optimization routines but occasionally omits
+      other, more common optimizations.</para>
 
       <sect2 id="gdmaint-d2c-optimize-cheese">
 	<title>The <dmodule>Cheese</dmodule> Module</title>
-	<para></para>
+
+	<para>For some unknown reason, all of the optimization code found
+	in the compiler is contained in a single module named
+	<dmodule>Cheese</dmodule>. Furthermore, this module does not
+	actually provide an entrance point for optimizing a chunk of code.
+	Instead, it adds methods to the generic function
+	<dname>optimize-component</dname>, which is exported by the <link
+	linkend="gdmaint-d2c-front-builder-interface">
+	<dmodule>Builder-Interface</dmodule> module</link>. This interface
+	is somewhat less than amusing.</para>
+
+	<para>To study this module, begin by reading the method
+	<dname>optimize-component</dname> in the file
+	<filename>cheese.dylan</filename>. This calls each of the various
+	optimization routines, which are grouped by file.</para>
       </sect2>
     </sect1>
 
     <sect1 id="gdmaint-d2c-cback">
       <title>The <dlibrary>Compiler-CBack</dlibrary> Library</title>
-      <para></para>
+
+      <para>The <dlibrary>Compiler-CBack</dlibrary> library generates C
+      code from the optimized front-end representation of a
+      component.</para>
 
       <sect2 id="gdmaint-d2c-cback-stack-analysis">
 	<title>The <dmodule>Stack-Analysis</dmodule> Module</title>
-	<para></para>
+
+	<para>This module analyzes the stack usage of a function. It's
+	relatively straightforward and independent of the rest of the back
+	end.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-cback-cback">
 	<title>The <dmodule>CBack</dmodule> Module</title>
-	<para></para>
+
+	<para>This module has two main entry points:
+	<dname>emit-tlf-gunk</dname> and <dname>emit-component</dname>. The
+	former emits arbitrary C code needed by a given top-level form. The
+	latter translates a Dylan function into actual C code.</para>
+
+	<para>The file <filename>cback.dylan</filename> contains more
+	documentation about how things work.</para>
       </sect2>
 
       <sect2 id="gdmaint-d2c-cback-heap">
 	<title>The <dmodule>Heap</dmodule> Module</title>
-	<para></para>
+
+	<para>This module emits local (per library) and global (per
+	application) heaps. Extensive documentation can be found in
+	<filename>heap.dylan</filename>.</para>
       </sect2>
     </sect1>
 
     <sect1 id="gdmaint-d2c-main">
       <title>The <dlibrary>Compiler-Main</dlibrary> Library</title>
-      <para></para>
+
+      <para>The <dlibrary>Compiler-Main</dlibrary> library contains the
+      actual compilation driver.</para>
 
       <sect2 id="gdmaint-d2c-main-main">
 	<title>The <dmodule>Main</dmodule> Module</title>
-	<para></para>
+
+	<para>This module provides the command-line interface and
+	compilation driver for &d2c;. It's relatively safe to make changes
+	here, because they generally don't affect the rest of the
+	compiler.</para>
       </sect2>
     </sect1>
 
     <sect1 id="gdmaint-d2c-dylan">
       <title>The <dlibrary>Dylan</dlibrary> Runtime Library</title>
-      <para></para>
+
+      <para>The runtime library is strongly dependent on the internal
+      workings of &d2c;. A moderate amount of code duplication occurs:
+      &d2c; will contain a compile-time version of a function and the
+      runtime will contain a fully dynamic version.</para>
     </sect1>
   </chapter>
 
@@ -1093,7 +1136,7 @@ define variable foo :: run-time-expression() = #f;
 
     <PARA>Melange is scheduled to be replaced by Pidgin in a future version
     of Gwydion Dylan. Therefore, this section of the guide will eventually
-    contain a description of Pidgin and it's public APIs.</PARA>
+    contain a description of Pidgin and its public APIs.</PARA>
   </CHAPTER>
 
   <APPENDIX id="gdmaint-style">
@@ -1119,7 +1162,7 @@ define variable foo :: run-time-expression() = #f;
     <SECT1 id="gdmaint-style-recommended">
       <TITLE>Recommended</TITLE>
 
-      <SECT2>
+      <SECT2 id="gdmaint-style-indent-level">
 	<TITLE>Indent level</TITLE>
 
 	<PARA> You should use a two-space indentation.  Each time code
@@ -1127,7 +1170,7 @@ define variable foo :: run-time-expression() = #f;
 	which is two spaces.</PARA>
       </SECT2>
 
-      <SECT2>
+      <SECT2 id="gdmaint-style-wrapping-slot-descriptions">
 	<TITLE>Indent wrapping slot descriptions</TITLE>
 
 	<PARA>When a slot description wraps to a new line in a "define
@@ -1135,7 +1178,7 @@ define variable foo :: run-time-expression() = #f;
         indent level.</PARA>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-triple-slash-comments">
 	<TITLE>Using <LITERAL>///</LITERAL> comments</TITLE>
 
 	<PARA>If you use <LITERAL>///</LITERAL> comments, they should
@@ -1168,7 +1211,7 @@ end method;</PROGRAMLISTING>
         environment should be able to display such comments however
         any particular user wants to see them.</PARA>
       </SECT2>
-      <SECT2>
+      <SECT2 id="gdmaint-style-c-comments">
 	<TITLE>Using <LITERAL>/* ... */</LITERAL></TITLE>
 	
 	<PARA>If you use <LITERAL>/* ... */</LITERAL> comments, they
@@ -1182,7 +1225,7 @@ end method;</PROGRAMLISTING>
         to do with using <LITERAL>/*...*/</LITERAL> to temporarily
         exclude code fragments.</PARA>
       </SECT2>
-      <SECT2>
+      <SECT2 id="gdmaint-style-wrapping-function-headers">
 	<TITLE>Wrapping function definition headers</TITLE>
 
 	<PARA>When a function header wraps (that is, a <LITERAL>define
@@ -1213,7 +1256,7 @@ define method some-longer-name-for-effect
   ...;
 end method;</PROGRAMLISTING>
       </SECT2>
-      <SECT2>
+      <SECT2 id="gdmaint-style-indent-keyword-parameters">
 	<TITLE>Indent keyword parameters beyond
 	<LITERAL>#key</LITERAL> token</TITLE>
 
@@ -1234,7 +1277,7 @@ define method foo (foo :: &lt;simple-object-vector&gt;,
         token.</PARA>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-indent-varconst">
 	<TITLE>Wrapping variable and constant definitions</TITLE>
 	
 	<PARA>When a variable or constant definition wraps, you should
@@ -1245,7 +1288,7 @@ define constant western-culture :: &lt;integer&gt;
   = north-america-mask | south-america-mask | europe-mask;</PROGRAMLISTING>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-end-foo">
 	<TITLE>Using <LITERAL>end <PARAMETER>mumble</PARAMETER></LITERAL>
         to terminate statements</TITLE>
 	
@@ -1268,7 +1311,7 @@ define constant western-culture :: &lt;integer&gt;
 	readability.</PARA>
       </SECT2>
 
-      <SECT2>
+      <SECT2 id="gdmaint-style-horizonal">
 	<TITLE>Horizontal space for columnization or other visual
 	effects</TITLE>
 
@@ -1279,7 +1322,7 @@ define constant western-culture :: &lt;integer&gt;
 	parameters beyond #key token" recommendation.</PARA>
       </SECT2>
 
-      <SECT2>
+      <SECT2 id="gdmaint-style-keyword-syntax">
 	<TITLE>Keyword syntax</TITLE>
 	
 	<PARA> You should only use keyword notation for symbols in
@@ -1318,7 +1361,7 @@ define class &lt;frob&gt;
 end;</PROGRAMLISTING>
       </SECT2>
 
-      <SECT2>
+      <SECT2 id="gdmaint-style-blank-lines-before-decls">
 	<TITLE>Blank comment line between introductory comments and
 	definitions</TITLE>
 	
@@ -1334,7 +1377,7 @@ end;</PROGRAMLISTING>
 define ...</PROGRAMLISTING>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-wrapping-case">
 	<TITLE>Wrapping <LITERAL>case</LITERAL> statements (applies to
 	<LITERAL>select</LITERAL> too)</TITLE>
 	
@@ -1365,7 +1408,7 @@ case
 end;</PROGRAMLISTING>
       </SECT2>
 
-      <SECT2>
+      <SECT2 id="gdmaint-style-otherwise">
 	<TITLE>Using <LITERAL>#t</LITERAL> for
 	<LITERAL>otherwise</LITERAL> in <LITERAL>case</LITERAL>
 	statements</TITLE>
@@ -1375,7 +1418,7 @@ end;</PROGRAMLISTING>
 	statements.</PARA>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-for-clauses">
 	<TITLE>Wrapping <LITERAL>for</LITERAL> clauses</TITLE>
 	
 	<PARA>When an <LITERAL>=</LITERAL>/<LITERAL>then</LITERAL>
@@ -1406,7 +1449,7 @@ end;</PROGRAMLISTING>
     <SECT1 id="gdmaint-style-mandated">
       <TITLE>Mandated</TITLE>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-open-paren-after-func-def">
 	<TITLE>Function name and open paren</TITLE>
 	
 	<PARA> The <LITERAL>define generic</LITERAL> or
@@ -1416,7 +1459,7 @@ end;</PROGRAMLISTING>
         paren must be adjacent, with no intervening characters.</PARA>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-wrappping-let">
 	<TITLE>Wrapping <LITERAL>let</LITERAL> statements</TITLE>
 
 	<PARA>If a <LITERAL>let</LITERAL> statement wraps, you must
@@ -1424,7 +1467,7 @@ end;</PROGRAMLISTING>
 	indent level.</PARA>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-semicolons">
 	<TITLE>Terminate statements with semicolons</TITLE>
 
 	<PARA>Semicolons are terminators and must appear wherever they
@@ -1432,7 +1475,7 @@ end;</PROGRAMLISTING>
 	statements" mandate.</PARA>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-single-line-statements">
 	<TITLE>Single-line statements</TITLE>
 	
 	<PARA> Single-line statement, such as if-else, must not have
@@ -1465,7 +1508,7 @@ let f = method (a, b)
         line, made code much more readable.</PARA>
       </SECT2>
       
-      <SECT2>
+      <SECT2 id="gdmaint-style-wrappping-expr">
 	<TITLE>Wrapping arithmetic/boolean expressions</TITLE>
 	
 	<PARA> You must wrap long expressions before operators and
