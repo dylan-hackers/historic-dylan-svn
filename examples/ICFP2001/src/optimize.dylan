@@ -85,7 +85,7 @@ define function optimize-output(input :: <stretchy-object-vector>)
   force-output(*standard-error*);
 
   if (best-state)
-    best-state.transitions
+    best-state.transitions.reverse!
   else
     #()
   end;
@@ -118,6 +118,9 @@ define function emit-transitions
     end report,
 
     method pop-tag() => ();
+      let f = *standard-error*;
+      //format(f, "entering pop-tag\n");
+      //force-output(f);
       let tag :: <tag> = tag-stack.head;
       let tag-text = tag.close-tag;
       report(tag-text);
@@ -135,11 +138,18 @@ define function emit-transitions
       report(tag-text);
       emit-transitions
 	(new-attr, to, text,
-	 pair(tag, tag-stack), pair(new-attr, attr-stack),
+	 pair(tag, tag-stack), pair(from, attr-stack),
 	 pair(tag-text, token-list),
 	 len + tag-text.size,
 	 next-states);
     end method push-tag;
+
+//  let f = *standard-error*;
+//  format(f, "In emit transition with ");
+//  describe-attributes(from, f);
+//  format(f, " and  ");
+//  describe-attributes(to, f);
+//  format(f, "\n");
 
   block (exit)
     if (from.value = to.value)
@@ -156,15 +166,15 @@ define function emit-transitions
     end;
 
     let either-pop-or-plain =
-      from.bold & ~to.bold |
-      from.italic & ~to.italic |
-      from.strong & ~to.strong |
-      from.typewriter & ~to.typewriter |
-      from.underline > to.underline;
+      (from.bold & ~to.bold) |
+      (from.italic & ~to.italic) |
+      (from.strong & ~to.strong) |
+      (from.typewriter & ~to.typewriter) |
+      (from.underline > to.underline);
 
     let pop-only =
-      from.font-size & ~to.font-size |
-      from.color & ~to.color;
+      (from.font-size & ~to.font-size) |
+      (from.color & ~to.color);
 
     local
       method can-pop-to-attr(name)
@@ -183,20 +193,25 @@ define function emit-transitions
 	if (can-pop-to-attr(color)) could-pop(#t) end;
       end;
 
+//    format(*standard-error*, "either-pop-or-plain=%=\n", either-pop-or-plain);
+//    format(*standard-error*, "pop-only=%=\n", pop-only);
+//    format(*standard-error*, "could-pop=%=\n", could-pop);
+//    force-output(*standard-error*);
+
     if (either-pop-or-plain | pop-only | could-pop)
       pop-tag();
     end;
 
     if (pop-only)
-      exit();
+//      exit();
     end;
 
     if (either-pop-or-plain)
       push-tag(tag-PL);
-      exit();
+//      exit();
     end;
 
-    if (from.emphasis ~== to.emphasis)
+    if (from.emphasis ~== to.emphasis & ~to.strong)
       push-tag(tag-EM);
     end;
     
@@ -220,7 +235,7 @@ define function emit-transitions
       push-tag(tag-U);
     end;
 
-    if (from.font-size ~== to.font-size)
+    if (to.font-size & from.font-size ~== to.font-size)
       let tag = 
 	select(to.font-size)
 	  0 => tag-0;
@@ -237,7 +252,7 @@ define function emit-transitions
       push-tag(tag);
     end;
 
-    if (from.color ~== to.color)
+    if (to.color & from.color ~== to.color)
       let tag = 
 	select(to.color)
 	  #"red"     => tag-r;
