@@ -12,8 +12,7 @@ define library koala
   use network;
   use system;
   //use ssl-sockets;  // until integrated into FD?
-  use xml;
-  use dom;
+  use xml-parser;
 
   export koala;
   export koala-extender;
@@ -24,14 +23,14 @@ end library koala;
 define module utilities
   use functional-dylan;
   use dylan-extensions,
-    import: {element-no-bounds-check,
-             element-no-bounds-check-setter,
-             element-range-check,
-             element-range-error,
-             // make-symbol,
-             // case-insensitive-equal,
-             // case-insensitive-string-hash
-             };
+    import: { element-no-bounds-check,
+              element-no-bounds-check-setter,
+              element-range-check,
+              element-range-error,
+              // make-symbol,
+              // case-insensitive-equal,
+              // case-insensitive-string-hash
+              };
   use file-system, import: { with-open-file, <file-does-not-exist-error> };
   use date;
   use streams;
@@ -193,7 +192,7 @@ define module koala-extender
   create parse-header-value;
 end;
 
-define module httpi
+define module httpi                             // http internals
   use utilities;
   use koala;
   use koala-extender;
@@ -221,8 +220,12 @@ define module httpi
   use file-system;
   use operating-system;
   //use ssl-sockets;
-  use xml;
-  use dom;
+  use xml-parser,
+    prefix: "xml$",
+    rename: { <element> => <xml-element>,
+              <document> => <xml-document>,
+              <tag> => <xml-tag>,
+              <attribute>  => <xml-attribute> };
 end module httpi;
 
 define module dsp

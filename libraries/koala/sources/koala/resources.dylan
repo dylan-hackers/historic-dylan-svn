@@ -191,7 +191,7 @@ define method allocate-resource
         if (resource)
           return (resource);
         elseif (~pool-full?)
-          log-debug ("No %= resource found.  Allocating a new one.", resource-class);
+          //log-debug ("No %= resource found.  Allocating a new one.", resource-class);
           let resource = apply (new-resource, resource-class, init-args);
           add! (pool.active-resources, resource);
           inc! (pool.active-count);
@@ -231,13 +231,12 @@ define inline method find-inactive-resource
   end for;
   when (min-index >= 0)
     let resource = inactives[min-index];
-    log-debug("Found an existing resource: %s (size = %d)", resource, resource-size(resource));
+    //log-debug("Found an existing resource: %s (size = %d)", resource, resource-size(resource));
     remove!(inactives, resource);
     add!(pool.active-resources, resource);
     dec!(pool.inactive-count);
     inc!(pool.active-count);
     reinitialize-resource(resource);
-    describe-pool(pool);
     resource
   end
 end find-inactive-resource;
@@ -251,11 +250,10 @@ define method deallocate-resource
     if ((pool.active-count + pool.inactive-count) < pool.maximum-size)
       add!(pool.inactive-resources, resource);
       inc!(pool.inactive-count);
-      log-debug("Returning resource %= to pool.  (%d resources)", resource, pool.inactive-count);
+      //log-debug("Returning resource %= to pool.  (%d resources)", resource, pool.inactive-count);
     else
       log-warning("Can't return resource %= to pool.  Hopefully it will be GCed.", resource);
     end;
-    describe-pool(pool);
   end with-lock;
 end;
 

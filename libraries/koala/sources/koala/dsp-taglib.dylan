@@ -182,5 +182,3 @@ end;
 //// Internationalization tags
 
 //// XML tags
-
-

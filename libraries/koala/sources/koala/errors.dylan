@@ -42,7 +42,7 @@ end;
 // This is for sending to the client
 define method http-error-message-no-code
     (e :: <http-error>) => (msg :: false-or(<string>))
-  apply(condition-format-string(e), condition-format-arguments(e))
+  apply(format-to-string, condition-format-string(e), condition-format-arguments(e))
 end;
 
 // This is for logging.
