@@ -8,7 +8,7 @@
 <body>
   <div id="content">
     <div id="name">
-	<h1>Browsing project <emph><code-browser:project-name/></emph>.</h1>
+	<h1>Browsing project <strong><code-browser:project-name/></strong>.</h1>
     </div>
     <div id="used-libraries">
 	<h2>Used libraries</h2>
