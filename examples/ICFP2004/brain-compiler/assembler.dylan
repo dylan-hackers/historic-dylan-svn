@@ -23,26 +23,26 @@ define macro brain-definer
   { Drop, (?label:name) } => { push-thunk(instrs, label, counter,
                                           method()
                                             make(<drop>, state: lookup(instrs, ?#"label", 0))
-                                          end);
+                                          end)
                      }
 
   { Drop } => { push-thunk(instrs, label, counter,
                            method()
                              make(<drop>, state: lookup(instrs, label, counter + 1))
-                           end);
+                           end)
                      }
 
   { Turn ?:name, (?label:name) } => { push-thunk(instrs, label, counter,
                                                 method()
                                                   make(<turn>, left-or-right: ?#"name", state: lookup(instrs, ?#"label", 0))
-                                                end);
+                                                end)
                                    }
 
 
   { Turn ?:name } => { push-thunk(instrs, label, counter,
                                   method()
                                     make(<turn>, left-or-right: ?#"name", state: lookup(instrs, label, counter + 1))
-                                  end);
+                                  end)
                      }
 
   { Move ?success:name => ?fail:name } => { push-thunk(instrs, label, counter,
@@ -120,6 +120,7 @@ define function compile-states (instrs :: <table>)
 end;
 
 define function put-instruction(start-instr, brain, pos-table)
+ // ### TODO
 end;
 
 define functional class <instruction-label-count> (<object>)
