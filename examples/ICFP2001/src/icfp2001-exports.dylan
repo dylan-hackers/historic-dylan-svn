@@ -7,7 +7,6 @@ define library icfp2001
   use common-dylan;
   use io;
   use collection-extensions;
-  use table-extensions;
 end library;
 
 define module icfp2001
@@ -15,7 +14,6 @@ define module icfp2001
   use format-out;
   use format;
   use subseq;
-  use table-extensions;
   use streams;
   use standard-io;
   use extensions, import: {report-condition};

@@ -32,6 +32,12 @@ define method generate-output(input)
           pop(state.open-tags);
           pop(state.attribute-stack);
         end;
+  local method push-tag(tag)
+          add!(state.current-output, tag.open-tag);
+          push(state.open-tags, tag);
+          push(state.attribute-stack, apply-op(state.attribute-stack.first, tag));
+        end;
+
 
   while(state.remaining-output.size > 0)
 //    debug("%=\n", state.current-output);
@@ -69,29 +75,17 @@ define method generate-output(input)
              member?(to, state.attribute-stack, test: method(x, y) x.color = y.color end))
       pop-tag();
     elseif(~from.bold & to.bold)
-      add!(state.current-output, tag-BB.open-tag);
-      push(state.open-tags, tag-BB);
-      push(state.attribute-stack, from.set-bold);
+      push-tag(tag-BB);
     elseif(~from.emphasis & to.emphasis)
-      add!(state.current-output, tag-EM.open-tag);
-      push(state.open-tags, tag-EM);
-      push(state.attribute-stack, from.set-emphasis);
+      push-tag(tag-EM);
     elseif(~from.italic & to.italic)
-      add!(state.current-output, tag-I.open-tag);
-      push(state.open-tags, tag-I);
-      push(state.attribute-stack, from.set-italic);
+      push-tag(tag-I);
     elseif(~from.strong & to.strong)
-      add!(state.current-output, tag-S.open-tag);
-      push(state.open-tags, tag-S);
-      push(state.attribute-stack, from.set-strong);
+      push-tag(tag-S);
     elseif(~from.typewriter & to.typewriter)
-      add!(state.current-output, tag-TT.open-tag);
-      push(state.open-tags, tag-TT);
-      push(state.attribute-stack, from.set-typewriter);
+      push-tag(tag-TT);
     elseif(from.underline < to.underline)
-      add!(state.current-output, tag-U.open-tag);
-      push(state.open-tags, tag-U);
-      push(state.attribute-stack, from.set-underline);
+      push-tag(tag-U);
     elseif(from.font-size ~= to.font-size)
       let tag = 
         select(to.font-size)
@@ -106,9 +100,7 @@ define method generate-output(input)
           8 => tag-8;
           9 => tag-9;
         end;
-      add!(state.current-output, tag.open-tag);
-      push(state.open-tags, tag);
-      push(state.attribute-stack, set-font-size(from, to.font-size));
+      push-tag(tag);
     elseif(from.color ~= to.color)
       let tag = 
         select(to.color)
@@ -121,9 +113,7 @@ define method generate-output(input)
           #"black"   => tag-k;
           #"white"   => tag-w;
         end;
-      add!(state.current-output, tag.open-tag);
-      push(state.open-tags, tag);
-      push(state.attribute-stack, set-color(from, to.color));
+      push-tag(tag);
     end if;
   end while;
   while(state.attribute-stack.size > 1)
