@@ -35,9 +35,40 @@ define method decode-total-seconds
 end method decode-total-seconds;)
 </pre>
 <p><a href="#marker-9-138">Figure 4.1</a> shows the two methods for the <code>decode-total-seconds</code> generic <br />function.</p>
-<table><caption>Figure 4.1   <a name="marker-9-138"></a>The <code>decode-total-seconds</code> generic function and its methods.
-</caption><tr><td><p><img alt="db60ima7" src="db60ima7.gif" /></p>
-</td></tr></table><p>Looking at <a href="#marker-9-138">Figure 4.1</a>, we analyze what happens in this call:</p>
+
+<table class="generic-function">
+	<caption><a name="marker-9-99"></a>Figure 4.1 The <code>decode-total-seconds</code> generic function and its methods.</caption>
+	<tr>
+		<th>
+			Generic function <code>decode-total-seconds</code>
+		</th>
+	</tr>
+	<tr>
+		<td>
+<pre><code>// Method on &lt;integer&gt;
+define method deceode-total-seconds
+    (total-seconds :: &lt;integer&gt;)
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  let(total-minutes, seconds) = truncate/(total-minutes, 60);
+  values(hours, minutes, seconds);
+end method decode-total-seconds;
+</code></pre>
+		</td>
+	</tr>
+	<tr>
+		<td>
+<pre><code>// Method on &lt;time-of-day&gt;
+define method deceode-total-seconds
+    (time :: &lt;time-of-day&gt;)
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  decode-total-seconds(time.total-seconds);
+end method decode-total-seconds;
+</code></pre>
+		</td>
+	</tr>
+</table>
+
+<p>Looking at <a href="#marker-9-138">Figure 4.1</a>, we analyze what happens in this call:</p>
 <pre>
 <em>? </em>decode-total-seconds(*your-time-of-day*);
 </pre>
