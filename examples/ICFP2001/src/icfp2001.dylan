@@ -126,18 +126,18 @@ define function bgh-parse(s :: <byte-string>)
     let ch = s[p];
     case
       ch ~= '<' =>
-
+	// normal text
 	if (is-space?(ch))
 	  if (~curr-state.typewriter)
 	    ch := ' ';
 	  end;
 	  let run-space-state = run-state.space-context.value;
 	  let space-state = curr-state.space-context.value;
-	  let same-format = run-space-state == space-state;
-	  if (~same-format)
+	  let same-space-context = run-space-state == space-state;
+	  if (~same-space-context)
 	    save-run();
 	  end;
-	  unless (last-char-was-space & same-format)
+	  unless (last-char-was-space & same-space-context)
 	    add!(fragments, ch);
 	  end;
 	  last-char-was-space := #t;
@@ -150,6 +150,7 @@ define function bgh-parse(s :: <byte-string>)
 	p := p + 1;
 
       s[p + 1] ~= '/' =>
+	// opening tag
 	let (tag, new-p, new-state) = parse-tag(s, p + 1, curr-state);
 	add!(tag-stack, tag);
 	add!(state-stack, curr-state);
@@ -157,6 +158,7 @@ define function bgh-parse(s :: <byte-string>)
 	p := new-p;
 
       otherwise =>
+	// closing tag
 	let (tag, new-p) = parse-tag(s, p + 2, curr-state);
 
 	if (tag-stack.last ~== tag)
