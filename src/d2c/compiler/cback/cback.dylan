@@ -1,5 +1,5 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.10 2003/10/05 12:40:39 gabor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.47.2.11 2003/10/05 13:09:24 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -535,21 +535,6 @@ end method;
 // other types of <source-location>, this will be a comment.
 
 
-/*
-define generic emit-source-location
-  (stream :: <stream>,
-   source-loc :: <source-location>,
-   line-getter :: <function>,
-   file :: <file-state>) => ();
-
-define method emit-source-location
-  (stream :: <stream>,
-   source-loc :: <source-location>,
-   line-getter :: <function>,
-   file :: <file-state>) => ();
-end;
-*/
-
 /* FIXME
 define class <symbolic-c-preprocessor-stream>(<indenting-stream>)
 
@@ -560,13 +545,22 @@ end;
 define constant <symbolic-c-preprocessor-stream> = <indenting-stream>;
 
 
+// FIXME should be slot
+define variable emitting-file-name :: <byte-string> = "";
+
 define function write-source-location
   (stream :: <symbolic-c-preprocessor-stream>,
    source-loc :: <known-source-location>,
    line-getter :: <function>,
    file :: <file-state>) => ();
-   format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
-          source-loc.line-getter, source-loc.source.full-file-name);
+  if (emitting-file-name = source-loc.source.full-file-name)
+    format(stream.inner-stream, "\n#line %d\nD__L(",
+           source-loc.line-getter);
+  else
+    emitting-file-name := source-loc.source.full-file-name;
+    format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
+           source-loc.line-getter, emitting-file-name);
+  end;
 end;
 
 
