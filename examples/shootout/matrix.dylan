@@ -7,16 +7,15 @@ copyright:  public domain
 define constant <vector-of-integers> = limited(<simple-vector>, of: <integer>);
 
 define class <matrix> (<object>)
-  slot elements :: <vector-of-integers>;
   slot rows :: <integer>, required-init-keyword: rows:;
   slot columns :: <integer>, required-init-keyword: columns:;
+  slot elements :: <vector-of-integers>;
 end class;
 
 define sealed domain make (singleton(<matrix>));
 
-define sealed method initialize (matrix :: <matrix>, #key rows :: <integer>, columns :: <integer>) => matrix :: <matrix>;
+define sealed method initialize (matrix :: <matrix>, #key rows :: <integer>, columns :: <integer>) => ()
   matrix.elements := make(<vector-of-integers>, size: (rows * columns), fill: 0);
-  matrix;
 end method;
 
 define inline function ele (matrix :: <matrix>, row :: <integer>, column :: <integer>) => value :: <integer>;
