@@ -34,7 +34,10 @@ define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: s
     our-point;
   elseif (our-point)
     let point = o.transform * our-point;
-    let normal = normalize(o.transform * our-normal);
+    let normal = normalize(o.transform * our-normal); 
+    // XXX: can we transform new-distance?  We probably already
+    // computed it...
+    new-distance := magnitude(ray.ray-position - point);
 
     values(point, normal, surface-method, new-distance);
   else
@@ -45,7 +48,6 @@ end method intersection-before;
 define method real-intersection-before(m :: <sphere>, ray, distance, #key
 				    shadow-test: shadow-test?)
  => (point, normal, surface-method, new-distance)
-
 
   block (easy-out)
     if (magnitude(ray.ray-position - $origin) < 1.0)
@@ -81,7 +83,10 @@ define method real-intersection-before(m :: <sphere>, ray, distance, #key
 	force-output(*standard-output*); */
 	let u = clamp(atan2(point[2], point[0]));
 	let v = clamp((point[1] + 1.0) / 2.0);
-	values(point, point - $origin, make-surface-closure(0, u, v, m.surface-interpreter-entry));
+	values(point, 
+	       point - $origin, 
+	       make-surface-closure(0, u, v, m.surface-interpreter-entry), 
+	       t_ca - sqrt(1.0 - d_2));
       end if;
     end if;
   end block;
@@ -94,8 +99,6 @@ define method real-intersection-before(m :: <plane>, ray, distance, #key shadow-
     #f;
   elseif (ray.ray-position[1] > 0.0 & ray.ray-direction[1] > 0.0)
     #f;
-  elseif (abs(ray.ray-position[1]) > distance)
-    #f; // Out of range, even going straight towards the plane...
   elseif (shadow-test?)
     #t;
   else
@@ -117,30 +120,23 @@ define method real-intersection-before(m :: <csg-union>, ray, distance, #key sha
  => (point, normal, surface-method, new-distance)
 
   block(easy-out)
-    let (point1, normal1, surface1, distance1) = intersection-before(m.objects[0], ray, distance, shadow-test: shadow-test?);
-    if(point1 & shadow-test?)
-      easy-out(values(#t, #f, #f, #f));
-    end if;
-    let (point2, normal2, surface2, distance2) = intersection-before(m.objects[0], ray, distance, shadow-test: shadow-test?);
-    if(point2 & shadow-test?)
-      easy-out(values(#t, #f, #f, #f));
-    end if;
-    if(point1 & point2)
-      if(distance1 < distance2)
-	values(point1, normal1, surface1, distance1);
-      else
-	values(point2, normal2, surface2, distance2);
-      end if;
-    else 
-      if(point1)
-	values(point1, normal1, surface1, distance1);
-      else
-	if(point2)
-	  values(point2, normal2, surface2, distance2);
+    let closest = distance;
+    let (best-point, best-normal, best-surface) = #f;
+    for (o in m.objects)
+      let (p, n, surf, dist) = intersection-before(o, ray, closest, 
+						   shadow-test:
+						     shadow-test?);
+      if (p)
+	if (shadow-test?)
+	  easy-out(#t, #f, #f, #f);
 	else
-	  #f;
+	  best-point := p;
+	  best-normal := n;
+	  best-surface := surf;
+	  closest := dist;
 	end if;
       end if;
-    end if;
+    end for;
+    values(best-point, best-normal, best-surface, closest);
   end block;
 end method real-intersection-before;
