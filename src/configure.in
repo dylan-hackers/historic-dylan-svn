@@ -1,4 +1,4 @@
-dnl	$Header: /scm/cvs/src/configure.in,v 1.38.2.1 1999/06/19 18:38:32 housel Exp $
+dnl	$Header: /scm/cvs/src/configure.in,v 1.38.2.2 1999/06/22 13:15:59 andreas Exp $
 dnl
 dnl	The new and improved configure file for Gwydion Dylan!
 dnl	This is based on the old configure file, but rewritten to
@@ -292,6 +292,7 @@ elif test "$D2C" != no; then
         build_tools_with_d2c=yes
         enable_bootstrap=yes
         bootstrap_compiler=d2c
+        shared=no
     elif test "$d2c_cross_compiling" = yes; then
 	SCENARIO=CROSS_COMPILING
         build_tools_with_d2c=yes # XXX - this won't work at all
