@@ -88,6 +88,7 @@ define module icfp2000
   use streams;
   use print;
   use standard-io;
+  use extensions, import: {report-condition};
 
   use gml-lexer;
   use gml-compiler;
