@@ -3,6 +3,7 @@ format-version:	2
 library:	xml-rpc-client
 files:	library
 	xml-rpc-client
+subprojects:	..\dylan-basics\dylan-basics.hdp
 base-address:	0x63AC0000
 linker-options:	$(guilflags)
 major-version:	1

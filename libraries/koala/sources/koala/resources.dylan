@@ -10,6 +10,22 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Simple resource pools
 
+// ---TODO: Look at DUIM's protocols and maybe implement the resource
+//          protocol that way.  Currently there's nothing in the source
+//          to make it explicit that something is following the resource
+//          protocol.
+
+// A resource class must implement the following methods:
+// - new-resource(resource-class, #rest init-args) => resource
+//   A default method is provided that simply calls apply(make, resource-class, init-args)
+// - reinitialize-resource(resource, #rest init-args)
+//   No default method is provided.
+// - resource-deallocated(resource)
+//   A default method is provided that does nothing.  You could use this to deallocate
+//   sub-resources, for example.
+// - resource-size(resource) => (size :: <integer>)
+//   A default method is provided that calls size(resource).
+
 /**
  * The most common way to safely use a resource.
  * Example: with-resource(table = <string-table>, case-sensitive?: #t) ... end;
@@ -34,52 +50,52 @@ end;
  * reinitialize-resource is NOT called on newly created resources.
  */
 define open generic new-resource
-    (resource-class :: <class>, #rest init-args)
+    (resource-class :: <class>, #rest init-args, #key)
  => (resource :: <object>);
 
 /**
  * Called to reset a resource to it's initial, unused state.
  */
 define open generic reinitialize-resource
+    (resource :: <object>, #rest init-args, #key);
+
+/**
+ * Called when a resource becomes unused.
+ */
+define open generic resource-deallocated
     (resource :: <object>);
-
-/**
- * Called to allocate a resource.
- */
-define open generic allocate-resource
-    (resource-class :: <class>, #rest init-args, #key size);
-
-/**
- * Called to deallocate a resource.
- */
-define open generic deallocate-resource
-    (resource-class :: <class>, resource :: <object>);
 
 /**
  * Implement this if your resource class doesn't support the size generic function.
  */
 define open generic resource-size
-    (resource :: <object>);
+    (resource :: <object>)
+ => (size :: <integer>);
 
 
 //// Default methods for <object>
 
 define method resource-size
-    (resource :: <object>)
+    (resource :: <object>) => (size :: <integer>)
   size(resource)
 end;
 
 define method new-resource
-    (resource-class :: <class>, #rest args)
+    (resource-class :: <class>, #rest args, #key)
  => (resource :: <object>)
   apply(make, resource-class, args)
+end;
+
+define open method resource-deallocated
+    (resource :: <object>)
+  // do nothing
 end;
 
 
 //// <table> resources
 
 define method reinitialize-resource
-    (resource :: <table>)
+    (resource :: <table>, #rest init-args, #key)
   remove-all-keys!(resource);
 end;
 
@@ -87,7 +103,7 @@ end;
 //// <sequence> resources
 
 define method reinitialize-resource
-    (resource :: <sequence>)
+    (resource :: <sequence>, #rest init-args, #key)
   for (i from 0 below size(resource))
     resource[i] := #f;
   end;
@@ -97,7 +113,7 @@ end;
 //// <sequence-stream> resources
 
 define method reinitialize-resource
-    (resource :: <sequence-stream>)
+    (resource :: <sequence-stream>, #rest init-args, #key)
   //---TODO: I've sent mail to common-dylan suggesting the addition of a copy?: keyword
   //         argument to stream-contents so that this doesn't have to make an unneeded
   //         copy.  Hopefully there will be a solution in the next release.
@@ -106,12 +122,13 @@ define method reinitialize-resource
 end;
 
 define method new-resource
-    (resource-class :: subclass(<sequence-stream>), #rest args) => (resource :: <sequence-stream>)
+    (resource-class :: subclass(<sequence-stream>), #rest args, #key)
+ => (resource :: <sequence-stream>)
   apply(make, resource-class, direction:, #"output", args)
 end;
 
 define method resource-size
-    (resource :: <stream>)
+    (resource :: <stream>) => (size :: <integer>)
   stream-size(resource)
 end;
 
@@ -128,7 +145,7 @@ define class <resource-pool> (<object>)
   constant slot inactive-resources :: <stretchy-vector> = make(<stretchy-vector>);
   slot active-count   :: <integer> = 0;
   slot inactive-count :: <integer> = 0;
-  slot resource-lock :: <lock> = make(<lock>);
+  constant slot resource-lock :: <lock> = make(<lock>);
   slot %resource-notification :: <notification>;
   // for debugging
   constant slot resource-class :: <class>, required-init-keyword: #"class";
@@ -171,36 +188,37 @@ Resource allocation algorithm:
         store it in active set
         return it
       else
-        release resource lock and wait for notification of new resources available
+        allocate the resource unpooled and let the GC deal with it
       end if
     end loop
   release resource lock
 */
 
-define method allocate-resource
-    (resource-class :: <class>, #rest init-args, #key size: sz :: <integer> = 20)
+define function allocate-resource
+    (resource-class :: <class>,
+     #rest init-args,
+     #key size: sz :: <integer> = 20,
+     #all-keys)
  => (resource :: <object>)
   let pool :: <resource-pool> = get-resource-pool(resource-class);
   block (return)
     with-lock (pool.resource-lock)
-      while (#t)
-        let pool-full? = (pool.inactive-count + pool.active-count) >= pool.maximum-size;
-        let resource = when (pool.inactive-count > 0)
-                         find-inactive-resource (pool, sz, pool-full?)
-                       end;
-        if (resource)
-          return (resource);
-        elseif (~pool-full?)
-          //log-debug ("No %= resource found.  Allocating a new one.", resource-class);
-          let resource = apply (new-resource, resource-class, init-args);
-          add! (pool.active-resources, resource);
-          inc! (pool.active-count);
-          return (resource);
-        else
-          // The pool is at its maximum size, so wait for a resource to be deallocated.
-          wait-for (pool.resource-notification);
-        end if
-      end while
+      let pool-full? = (pool.inactive-count + pool.active-count) >= pool.maximum-size;
+      let resource = when (pool.inactive-count > 0)
+                       find-inactive-resource(pool, sz, pool-full?, init-args)
+                     end;
+      if (resource)
+        return(resource);
+      elseif (~pool-full?)
+        let resource = apply(new-resource, resource-class, init-args);
+        add!(pool.active-resources, resource);
+        inc!(pool.active-count);
+        return (resource);
+      else
+        log-debug("Resource full.  Allocating non-pooled instance. %=",
+                  resource-class);
+        apply(new-resource, resource-class, init-args)
+      end if
     end with-lock
   end block
 end allocate-resource;
@@ -209,7 +227,7 @@ end allocate-resource;
 // This is called with the lock for the associated resource pool held.
 //
 define inline method find-inactive-resource
-    (pool :: <resource-pool>, sz :: <integer>, pool-full? :: <boolean>)
+    (pool :: <resource-pool>, sz :: <integer>, pool-full? :: <boolean>, init-args)
  => (resource :: <object>)                      // may return #f
   let inactives :: <stretchy-vector> = pool.inactive-resources;
   let min-diff  :: <integer> = $maximum-integer;
@@ -231,17 +249,16 @@ define inline method find-inactive-resource
   end for;
   when (min-index >= 0)
     let resource = inactives[min-index];
-    //log-debug("Found an existing resource: %s (size = %d)", resource, resource-size(resource));
     remove!(inactives, resource);
     add!(pool.active-resources, resource);
     dec!(pool.inactive-count);
     inc!(pool.active-count);
-    reinitialize-resource(resource);
+    apply(reinitialize-resource, resource, init-args);
     resource
   end
 end find-inactive-resource;
 
-define method deallocate-resource
+define function deallocate-resource
     (resource-class :: <class>, resource :: <object>)
   let pool :: <resource-pool> = get-resource-pool(resource-class);
   with-lock (pool.resource-lock)
@@ -250,35 +267,38 @@ define method deallocate-resource
     if ((pool.active-count + pool.inactive-count) < pool.maximum-size)
       add!(pool.inactive-resources, resource);
       inc!(pool.inactive-count);
-      //log-debug("Returning resource %= to pool.  (%d resources)", resource, pool.inactive-count);
     else
       log-warning("Can't return resource %= to pool.  Hopefully it will be GCed.", resource);
     end;
+    resource-deallocated(resource);
   end with-lock;
 end;
 
 define method describe-pool
     (pool :: <resource-pool>)
-  format(*standard-output*, "active: %d/%d, inactive: %d/%d - %s\n",
+  debug-format("active: %d,%d, inactive: %d,%d - %s",
          pool.active-resources.size, pool.active-count,
          pool.inactive-resources.size, pool.inactive-count,
          pool.resource-class);
 end;
 
-define method test-resource-pools
-    () => ()
+define method test-resource
+    (class) => ()
   local method doit (class)
     let pool :: <resource-pool> = get-resource-pool(class);
     describe-pool(pool);
     with-resource (res = class)
       describe-pool(pool);
+      with-resource(res = class)
+        describe-pool(pool)
+      end;
     end;
     describe-pool(pool);
   end;
   log-debug("*** Testing resource pools");
   for (i from 1 to 6)
-    doit(<string-table>);
-    //doit(<string-stream>);
+    debug-format("");  // blank line
+    doit(class);
   end;
 end;
 

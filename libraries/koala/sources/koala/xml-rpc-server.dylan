@@ -39,7 +39,7 @@ define function respond-to-xml-rpc-request
     block ()
       let xml = request-content(request);
       when (*debugging-xml-rpc*)
-        format-out("\nReceived XML-RPC call:\n%s\n", xml);
+        log-debug("Received XML-RPC call:\n   %s", xml);
       end;
       let doc = xml$parse-document(xml);
       let (method-name, args) = parse-xml-rpc-call(doc);

@@ -54,33 +54,6 @@ end;
 //// Generic pages
 
 
-// Holds the map of query keys/vals in the "?x=1&y=2" part of the URL (for GET method)
-// or form keys/vals for the POST method.
-define thread variable *page-values* :: false-or(<string-table>) = #f;
-
-define method get-query-value
-    (key :: <string>) => (val :: false-or(<string>))
-  *page-values* & element(*page-values*, key, default: #f)
-end;
-
-define method count-query-values
-    () => (n :: <integer>)
-  size(*page-values*)
-end;
-
-define method do-query-values
-    (f :: <function>)
-  for (val keyed-by key in *page-values* | #[])
-    f(key, val);
-  end;
-end;
-
-// Is there any need to maintain POSTed values separately from GET query values?
-define constant get-form-value :: <function> = get-query-value;
-define constant do-form-values :: <function> = do-query-values;
-define constant count-form-values :: <function> = count-query-values;
-
-
 //// <page-context>
 
 // Gives the user a place to store values that will have a lifetime
@@ -98,6 +71,7 @@ define method page-context
     () => (context :: false-or(<page-context>))
   *page-context*
 end;
+
 
 
 //// URL mapping
@@ -139,8 +113,7 @@ define method process-page (page :: <page>,
                             request :: <request>,
                             response :: <response>)
   with-resource (pc = <page-context>)
-    dynamic-bind (*page-values* = request-query-values(request),
-                  *page-context* = pc)
+    dynamic-bind (*page-context* = pc)
       select (request.request-method)
         #"POST"   => respond-to-post(page, request, response);
         #"GET"    => respond-to-get (page, request, response);
@@ -161,6 +134,7 @@ define function register-page
   responder
 end;
 
+// ---TODO: Test this and export it.
 // Register URLs for all files matching the given pathname spec as instances
 // of the given page class.
 define method register-pages-as

@@ -4,6 +4,8 @@ library:	koala-example
 files:	library
 	koala-example
 subprojects:	..\koala\koala.hdp
+	..\dylan-basics\dylan-basics.hdp
+	..\xml-rpc-common\xml-rpc-common.hdp
 base-address:	0x63B40000
 start-function:	main
 major-version:	1

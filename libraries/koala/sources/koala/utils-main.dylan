@@ -12,7 +12,8 @@ define constant $debugging-utils :: <boolean> = #f;
 
 define function test-utilities
     () => ()
-  test-resource-pools();
+  test-resource(<table>);
+  test-resource(<string-table>);
 end;
 
 

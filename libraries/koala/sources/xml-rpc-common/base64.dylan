@@ -312,37 +312,3 @@ define function base64-decode-string
 end base64-decode-string;
 */
 
-/*
-
-/// Testing.  Unfortunately the specifications don't provide us with any
-/// data to test against.
-
-/// From "The Internet Message", M. Rose:
-///   #x1f9d90 ==> "H52Q"
-
-(defparameter +base64-test-vectors+ '(("H52Q" '(#x1f #x9d #x90))))
-
-(defun make-test-vector (n)
-  (let ((v (make-array n :element-type '(unsigned-byte 8))))
-    (dotimes (i n)
-      (setf (aref v i)
-            (ldb (byte 8 0) i)))
-    v))
-
-(defun verify-test-vector (v)
-  (dotimes (i (length v) (values t v))
-    (unless (= (aref v i) (ldb (byte 8 0) i))
-      (return (values nil v i)))))
-
-
-(verify-test-vector (base64-decode-vector
-                      (base64-encode-vector (make-test-vector 300))))
-
-(with-encoding-vector (#\_ #\- #\.)
-  (verify-test-vector (base64-decode-vector
-                        (base64-encode-vector (make-test-vector 300)))))
-
-
-*/
-
-

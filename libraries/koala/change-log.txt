@@ -4,16 +4,27 @@ Change log for Koala HTTP server and Dylan Server Pages
 ***********************************************************************************
 
 Changes for version 0.3
+  Bug Fixes:
+  - Directory browsing now works correctly even if the user browses a directory
+    ending without a slash.
+  - <header-table> resources are now reclaimed correctly.  (The resource protocol
+    was made more flexible in general.)
+  - Fixed a hideous bug wherein more than 5 HTTP error responses (3xx, 4xx, 5xx)
+    would result in a hung server.
+
   New Features:
+  - Koala: The "Connection: Keep-alive" header is now respected.
   - Koala: XML-RPC server added.  See config/koala-config.xml for settings.
            Start the example and use the "ping" and "echo" methods to test.
-  - Other: XML-RPC client added.
+  - Other: XML-RPC client added as a separate library.
   - Koala: New config variable 'auto-register'.  See config/koala-config.xml
   - Koala: It is now possible to get the body content of a POST for content-types
            other than application/x-www-form-url-encoded.  See request-content(<request>).
   - Koala: Added the "headers" log level, to show incoming/outgoing headers if desired.
            See config/koala-config.xml
-  - Koala: New config file setting: <port value="80" />
+  - Koala: New config file setting: <port value="n" />
+  - Koala: Some statistics are now available via built-in URIs:
+           /koala/stats, /koala/user-agents, 
 
 
 ***********************************************************************************

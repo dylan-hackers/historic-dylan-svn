@@ -135,27 +135,34 @@ define method directory-responder
           locator,
           subdirectory-locator(locator-directory(locator), locator-name(locator)));
   let stream = output-stream(response);
-  let url = request-url(request);
-  local method show-file-link (directory, name, type)
-          when (name ~= ".." & name ~= ".")
-            let locator = iff(type = #"directory",
-                              subdirectory-locator(as(<directory-locator>, directory), name),
-                              merge-locators(as(<file-locator>, name),
-                                             as(<directory-locator>, directory)));
-            let props = file-properties(locator);
-            write(stream, "<tr>\n<td nowrap>");
-            display-image-link(stream, type, locator);
-            format(stream, "</td>\n<td nowrap><a href=\"%s%s\">%s</a></td>\n",
-                   name, iff(type = #"directory", "/", ""), name);
-            for (key in #[#"size", #"modification-date", #"author"])
-              let prop = element(props, key, default: "&nbsp");
-              write(stream, "<td nowrap>");
-              display-file-property(stream, key, prop, type);
-              write(stream, "</td>\n");
-            end;
-            write(stream, "</tr>\n");
-          end;
+  local
+    method show-file-link (directory, name, type)
+      unless (name = ".." | name = ".")
+        let locator = iff(type = #"directory",
+                          subdirectory-locator(as(<directory-locator>, directory), name),
+                          merge-locators(as(<file-locator>, name),
+                                         as(<directory-locator>, directory)));
+        let relative-uri = as(<string>, relative-locator(locator, *document-root*));
+        let link-to
+          = concatenate("/",
+                        replace-elements!(relative-uri,
+                                          curry(\=, '\\'),
+                                          method (x) '/' end));
+        let props = file-properties(locator);
+        write(stream, "<tr>\n<td nowrap>");
+        display-image-link(stream, type, locator);
+        format(stream, "</td>\n<td nowrap><a href=\"%s\">%s</a></td>\n",
+               link-to, name);
+        for (key in #[#"size", #"modification-date", #"author"])
+          let prop = element(props, key, default: "&nbsp;");
+          write(stream, "<td nowrap>");
+          display-file-property(stream, key, prop, type);
+          write(stream, "</td>\n");
         end;
+        write(stream, "</tr>\n");
+      end;
+    end;
+  let url = request-url(request);
   format(stream,
          "<html>\n<head>\n<title>Directory listing of %s</title>\n</head>\n<body>\n"
          "<h2>Directory listing of %s</h2>\n", url, url);

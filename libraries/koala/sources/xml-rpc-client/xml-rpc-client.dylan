@@ -40,6 +40,34 @@ define function xml-rpc-call-2
   read-response(stream)
 end;
 
+
+
+define table $html-quote-map
+  = { '<' => "&lt;",
+      '>' => "&gt;",
+      '&' => "&amp;",
+      '"' => "&quot;"
+      };
+
+// This is copied from Koala's utils.dylan.  If you fix it here, fix
+// it there.
+// I'm sure this could use a lot of optimization.
+define function quote-html
+    (text :: <string>, #key stream)
+  if (~stream)
+    with-output-to-string (s)
+      quote-html(text, stream: s)
+    end
+  else
+    for (char in text)
+      let translation = element($html-quote-map, char, default: char);
+      iff(instance?(translation, <sequence>),
+          write(stream, translation),
+          write-element(stream, translation));
+    end;
+  end;
+end quote-html;
+
 define function create-method-call-xml
     (method-name :: <string>, #rest args)
  => (xml :: <string>)

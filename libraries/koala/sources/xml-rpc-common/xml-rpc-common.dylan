@@ -26,35 +26,6 @@ define function set-strict-mode
   *strict?* := strict?
 end;
 
-//// quote-html copied from koala/utils.dylan
-//// Should create a common utilities library for things like this and the iff macro.
-
-define table $html-quote-map
-  = { '<' => "&lt;",
-      '>' => "&gt;",
-      '&' => "&amp;",
-      '"' => "&quot;"
-      };
-
-// I'm sure this could use a lot of optimization.
-define function quote-html
-    (text :: <string>, #key stream)
-  if (~stream)
-    with-output-to-string (s)
-      quote-html(text, stream: s)
-    end
-  else
-    for (char in text)
-      let translation = element($html-quote-map, char, default: char);
-      if (instance?(translation, <sequence>))
-        write(stream, translation)
-      else
-        write-element(stream, translation);
-      end;
-    end;
-  end;
-end quote-html;
-
 
 // All XML-RPC errors inherit from this class.
 //
@@ -131,7 +102,12 @@ define method to-xml (arg :: <table>, stream :: <stream>) => ()
   write(stream, "<struct>");
   for (key in key-sequence(arg))
     write(stream, "<member><name>");
-    quote-html(key, stream: stream);
+    // ---TODO: The XML-RPC spec seems to assume keys are strings, since
+    // the example doesn't show any type specified.  Should verify that.
+    quote-html(iff(instance?(key, <string>),
+                   key,
+                   format-to-string("%=", key)),
+               stream: stream);
     write(stream, "</name><value>");
     to-xml(arg[key], stream);
     write(stream, "</value></member>");
@@ -255,5 +231,31 @@ define method from-xml (node :: xml$<element>, name == #"struct")
   end;
   tbl
 end;
+
+define table $html-quote-map
+  = { '<' => "&lt;",
+      '>' => "&gt;",
+      '&' => "&amp;",
+      '"' => "&quot;"
+      };
+
+// Copied from Koala's utils.dylan.  Fix it there if you fix it here!
+// I'm sure this could use a lot of optimization.
+define function quote-html
+    (text :: <string>, #key stream)
+  if (~stream)
+    with-output-to-string (s)
+      quote-html(text, stream: s)
+    end
+  else
+    for (char in text)
+      let translation = element($html-quote-map, char, default: char);
+      iff(instance?(translation, <sequence>),
+          write(stream, translation),
+          write-element(stream, translation));
+    end;
+  end;
+end quote-html;
+
 
 

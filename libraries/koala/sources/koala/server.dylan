@@ -17,7 +17,9 @@ define constant $server-header-value = concatenate($server-name, "/", $server-ve
 define variable *exiting-application* = #f;
 
 begin
-  register-application-exit-function(method () *exiting-application* := #t end);
+  register-application-exit-function(method ()
+                                       *exiting-application* := #t
+                                     end);
 end;
 
 define class <server> (<sealed-constructor>)
@@ -50,8 +52,12 @@ define class <server> (<sealed-constructor>)
 
   // pathname translations
   //slot pathname-translations :: <sequence> = #();
-  // Statistics
+
+  //// Statistics
+
   slot connections-accepted :: <integer> = 0; // Connections accepted
+  constant slot user-agent-stats :: <string-table> = make(<string-table>);
+  constant class slot startup-date :: <date> = current-date();
 end;
 
 define sealed method make
@@ -65,6 +71,15 @@ define sealed method make
         clients-notification: clients-notification,
         keys)
 end make;
+
+// Keep some stats on user-agents
+define method note-user-agent
+    (server :: <server>, user-agent :: <string>)
+  with-lock (server.server-lock)
+    let agents = user-agent-stats(server);
+    agents[user-agent] := element(agents, user-agent, default: 0) + 1;
+  end;
+end;
 
 define function release-listener (listener :: <listener>)
   let server = listener.listener-server;
@@ -172,14 +187,12 @@ end;
 
 define variable *next-listener-id* :: <integer> = 0;
 
-define function start-server (#key port :: <integer> = 80,
-                                   listeners :: <integer> = 1,
+define function start-server (#key listeners :: <integer> = 1,
                                    request-class :: subclass(<basic-request>)
                                      = *default-request-class*)
   let server :: <server> = ensure-server();
   server.max-listeners := listeners;
   server.request-class := request-class;
-  *server-port* := port;
   configure-server();
   ensure-sockets-started();
   log-info("Server root directory is %s", *server-root*);
@@ -188,8 +201,8 @@ define function start-server (#key port :: <integer> = 80,
     log-info("Auto-register enabled");
   end;
   init-xml-rpc-server();
-  log-info("Ready for service on port %d", port);
-  while (start-http-listener(server, port)) end;
+  log-info("Ready for service on port %d", *server-port*);
+  while (start-http-listener(server, *server-port*)) end;
 end start-server;
 
 define function stop-server (#key abort)
@@ -355,7 +368,8 @@ define function do-http-listen (listener :: <listener>)
                   handler-top-level(client);
                 end;
               cleanup
-                close(client.client-socket, abort: #t);
+                ignore-errors(<socket-condition>,
+                              close(client.client-socket, abort: #t));
                 release-client(client);
               end;
             end method;
@@ -388,7 +402,7 @@ define class <request> (<basic-request>)
 
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
-  slot request-query-values :: <string-table>;
+  slot request-query-values :: false-or(<string-table>) = #f;
 
   slot request-session :: false-or(<session>) = #f;
 
@@ -406,6 +420,10 @@ define variable *default-request-class* :: subclass(<basic-request>) = <request>
 define thread variable *request* :: false-or(<request>) = #f;
 define thread variable *response* :: false-or(<response>) = #f;
 
+// Holds the map of query keys/vals in the "?x=1&y=2" part of the URL (for GET method)
+// or form keys/vals for the POST method.
+define thread variable *request-query-values* :: false-or(<string-table>) = #f;
+
 // Is there ever any need for clients to use these?
 //define inline function current-request  () => (request :: <request>) *request* end;
 //define inline function current-response () => (response :: <response>) *response* end;
@@ -416,39 +434,46 @@ define function handler-top-level
     (client :: <client>)
   with-log-output-to (*standard-output*)
     dynamic-bind (*request* = #f)
-      iterate loop ()
-        let request :: <basic-request>
-          = make(client.client-server.request-class, client: client);
-        *request* := request;
-        with-simple-restart("Skip this request and continue with the next")
-          block (return)
-            let handler <error> = method (c :: <error>, next-handler :: <function>)
-                                    iff (*debugging-server*,
-                                         next-handler(),  // decline to handle the error
-                                         return(send-error-response(request, c)));
-                                  end;
-            block ()
-              read-request(request);
-            cleanup
-              // ---TODO: This crap should be replaced somehow.  Allocating inside of
-              // read-request and deallocating here is bogus.  Need to work on a better
-              // overall resource strategy, like treating the requests themselves as
-              // resources and doing all the allocation for sub-resources in the
-              // reinitialize-resource(<request>) method?
-              let qv = request-query-values(request);
-              when (qv)
-                deallocate-resource(<string-table>, qv);
-              end;
+      block (exit-request-handler)
+        while (#t)                      // keep alive loop
+          let request :: <basic-request>
+            = make(client.client-server.request-class, client: client);
+          *request* := request;
+          with-simple-restart("Skip this request and continue with the next")
+            block (exit-inner)
+              let handler <condition>
+                = method (c :: <condition>, next-handler :: <function>)
+                    if (*debugging-server*)
+                      next-handler();  // decline to handle the error
+                    else
+                      // Bind *debugging-server* to true to prevent infinite
+                      // recursion if there's an error in send-error-response.
+                      dynamic-bind (*debugging-server* = #t)
+                        send-error-response(request, c);
+                      end;
+                      exit-inner();
+                    end;
+                  end;
+              with-resource (query-values = <string-table>)
+                block ()
+                  request.request-query-values := query-values;
+                  read-request(request);
+                  dynamic-bind (*request-query-values* = query-values)
+                    invoke-handler(request);
+                  end;
+                cleanup
+                  request.request-query-values := #f;
+                  deallocate-resource(<string-table>, query-values);
+                end;
+              end with-resource;
             end block;
-            invoke-handler(request);
-          end block;
-          when (request.request-keep-alive?)
-            loop()
-          end;
-        end with-simple-restart;
-      end;
-    end;
-  end;
+            iff(request.request-keep-alive?,
+                exit-request-handler());
+          end with-simple-restart;
+        end while;
+      end block;
+    end dynamic-bind;
+  end with-log-output-to;
 end handler-top-level;
 
 // This method takes care of parsing the request headers and signalling any
@@ -473,6 +498,7 @@ define method read-request (request :: <request>) => ()
                               start: len,
                               headers: request.request-headers);
   end;
+  process-incoming-headers(request);
   if (request.request-method == #"post")
     read-request-content(request);
   end;
@@ -499,15 +525,12 @@ define function read-request-first-line
       let qpos = char-position('?', buffer, bpos, epos);
       // Should this trim trailing whitespace???
       request.request-url := substring(buffer, bpos, qpos | epos);
-      request.request-query-values
-        := if (qpos)
-             log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
-             let query = decode-url(buffer, qpos + 1, epos);
-             log-debug("Decoded query string = %s", query);
-             extract-query-values(query, 0, size(query))
-           else
-             allocate-resource(<string-table>, size: 0)
-           end;
+      if (qpos)
+        log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
+        let query = decode-url(buffer, qpos + 1, epos);
+        log-debug("Decoded query string = %s", query);
+        extract-query-values(query, 0, size(query), request.request-query-values)
+      end;
       let bpos = skip-whitespace(buffer, epos, eol);
       let vpos = whitespace-position(buffer, bpos, eol) | eol;
       request.request-version := extract-request-version(buffer, bpos, vpos);
@@ -582,8 +605,7 @@ define function process-request-content
     let content = decode-url(buffer, 0, content-length);
     // By the time we get here request-query-values has already been bound to a <string-table>
     // containing the URL query values.  Now we augment it with any form values.
-    request.request-query-values
-      := extract-query-values(content, 0, content.size, queries: request.request-query-values);
+    extract-query-values(content, 0, content.size, request.request-query-values);
     request-content(request) := content
   // ---TODO: Deal with content types intelligently.  For now this'll have to do.
   elseif (member?(content-type, #["text/xml", "text/html", "text/plain"],
@@ -594,18 +616,44 @@ define function process-request-content
   end if;
 end;
 
-define method send-error-response (request :: <request>, err :: <error>)
-  log-error("%=", err);
+define method send-error-response (request :: <request>, c :: <condition>)
+  apply(log-error,
+        condition-format-string(c),
+        condition-format-arguments(c));
+  send-error-response(request,
+                      make(<internal-server-error>,
+                           code: 500,
+                           format-string: "Internal Server Error"));
+end;
+
+define method send-error-response (request :: <request>, err :: <http-error>)
   with-resource (headers = <header-table>)
-    let response :: <response>
-      = make(<response>, request: request, headers: headers);
-    let error-code = http-error-code(err);
-    let one-liner = http-error-message(err);
-    format(output-stream(response),
-           "Error %s:\n\n%s", error-code, condition-to-string(err));
-    add-header(response, "Content-type", "text/plain");
-    send-response(response, response-code: error-code, response-message: one-liner);
+    with-resource (response = <response>,
+                   request: request,
+                   headers: headers)
+      let error-code = http-error-code(err);
+      let one-liner = http-error-message(err);
+      format(output-stream(response),
+             "Error %s:\n\n%s", error-code, condition-to-string(err));
+      add-header(response, "Content-type", "text/plain");
+      send-response(response, response-code: error-code, response-message: one-liner);
+    end;
   end;
+end;
+
+// Do whatever we need to do depending on the incoming headers for
+// this request.  e.g., handle "Connection: Keep-alive", store
+// "User-agent" statistics, etc.
+//
+define method process-incoming-headers (request :: <request>)
+  let conn-values :: <sequence> = request-header-value(request, #"connection") | #();
+  if (member?("close", conn-values, test: string-equal?))
+    request-keep-alive?(request) := #f
+  elseif (member?("keep-alive", conn-values, test: string-equal?))
+    request-keep-alive?(request) := #t
+  end;
+  note-user-agent(request-server(request),
+                  request-header-value(request, #"user-agent"));
 end;
 
 // API
@@ -675,7 +723,7 @@ define method find-responder
     | values(maybe-auto-register(url), url)
 end find-responder;
 
-// define responder test ("/test", secure?: #t)
+// define responder test ("/test" /* , secure?: #t */ )
 //     (request, response)
 //   format(output-stream(response), "<html><body>test</body></html>");
 // end;
@@ -697,8 +745,9 @@ define method invoke-handler
     (request :: <request>) => ()
   let url :: <string> = request-url(request);
   with-resource (headers = <header-table>)
-    let response = make(<response>, request: request, headers: headers);
-    block ()
+    with-resource (response = <response>,
+                   request: request,
+                   headers: headers)
       let (responder, canonical-url) = find-responder(url);
       dynamic-bind (*response* = response)
         if (responder)
@@ -713,9 +762,7 @@ define method invoke-handler
         end;
       end;
       send-response(response);
-    cleanup
-      deallocate-resources(response);
-    end block;
+    end with-resource;
   end with-resource;
 end invoke-handler;
 
@@ -788,8 +835,7 @@ end extract-request-version;
 //---TODO: Find out if the query keys are case-sensitive in the HTTP spec and make sure this
 //         does the right thing.
 define method extract-query-values
-    (buffer :: <string>, bpos :: <integer>, epos :: <integer>,
-     #key queries :: <string-table> = allocate-resource(<string-table>, size: 10))
+    (buffer :: <string>, bpos :: <integer>, epos :: <integer>, queries :: <string-table>)
  => (queries :: <string-table>)
   local method extract-key/val (beg :: <integer>, fin :: <integer>)
           let eq-pos = char-position('=', buffer, beg, fin);
@@ -811,5 +857,29 @@ define method extract-query-values
   end;
   queries
 end extract-query-values;
+
+define method get-query-value
+    (key :: <string>) => (val :: false-or(<string>))
+  *request-query-values*
+    & element(*request-query-values*, key, default: #f)
+end;
+
+define method count-query-values
+    () => (n :: <integer>)
+  size(*request-query-values*)
+end;
+
+define method do-query-values
+    (f :: <function>)
+  for (val keyed-by key in *request-query-values* | #[])
+    f(key, val);
+  end;
+end;
+
+// Is there any need to maintain POSTed values separately from GET query values?
+// Don't think so, so this should be ok.
+define constant get-form-value :: <function> = get-query-value;
+define constant do-form-values :: <function> = do-query-values;
+define constant count-form-values :: <function> = count-query-values;
 
 

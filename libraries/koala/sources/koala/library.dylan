@@ -14,6 +14,7 @@ define library koala
   //use ssl-sockets;  // until integrated into FD?
   use xml-parser;
   use xml-rpc-common;
+  use dylan-basics;                             // basic dylan utils
 
   export koala;
   export koala-extender;
@@ -40,14 +41,11 @@ define module utilities
   use file-system;
   use format;
   use threads;
+  use dylan-basics, export: all;
 
   export
     // General one-off utilities
-    iff,
-    with-restart,
-    with-simple-restart,
     <sealed-constructor>,
-    inc!, dec!,
     wrapping-inc!,
     file-contents,
     pset,                // multiple-value-setq
@@ -68,8 +66,10 @@ define module utilities
     deallocate-resource,
     new-resource,
     reinitialize-resource,
+    resource-deallocated,
     resource-size,
     with-resource,
+    test-resource,
 
     // Attributes
     <attributes-mixin>,
@@ -140,7 +140,15 @@ define module koala
     <request>,
     request-query-values,        // get the keys/vals from the current GET or POST request
     request-method,              // Returns #"get", #"post", etc
-    responder-definer;
+    responder-definer,
+
+    // Form/query values.  (Is there a good name that covers both of these?)
+    get-query-value,             // Get a query value that was passed in a URL or a form
+    get-form-value,              // A synonym for get-query-value
+    do-query-values,             // Call f(key, val) for each query in the URL or form
+    do-form-values,              // A synonym for do-query-values
+    count-query-values,
+    count-form-values;
 
   // Responses
   create
@@ -161,8 +169,7 @@ define module koala
 
   // XML-RPC
   create
-    register-xml-rpc-method,
-    set-strict-mode;
+    register-xml-rpc-method;
 
   // Documents
   create
@@ -259,14 +266,6 @@ define module dsp
     respond-to-get,              // Implement this for your page to handle GET requests
     respond-to-post,             // Implement this for your page to handle POST requests
     respond-to-head,             // Implement this for your page to handle HEAD requests
-
-    // Form/query values.  (Is there a good name that covers both of these?)
-    get-query-value,             // Get a query value that was passed in a URL or a form
-    get-form-value,              // A synonym for get-query-value
-    do-query-values,             // Call f(key, val) for each query in the URL or form
-    do-form-values,              // A synonym for do-query-values
-    count-query-values,
-    count-form-values,
 
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class
