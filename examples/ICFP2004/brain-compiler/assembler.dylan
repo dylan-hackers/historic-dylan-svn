@@ -124,8 +124,16 @@ end;
 
 define function lookup (instrs, label, counter)
  => instr :: <instruction>;
+ 
+ 
+ 
+ format-out("lookup: (%s, %d)\n", label, counter);
+ 
+ 
   let pos = make(<instruction-label-count>, label: label, count: counter);
   let instr = instrs[pos];
+
+ format-out("found: (%s, %d)\n", label, counter);
   select (instr by instance?)
     <function> =>
       instrs[pos] := instr();
