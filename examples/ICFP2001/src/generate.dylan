@@ -4,64 +4,65 @@ authors: Andreas Bogk, Chris Double, Bruce Hoult
 copyright: this program may be freely used by anyone, for any purpose
 
 define class <generator-state> (<object>)
-  slot open-tags :: <list> = #();
-  slot attribute-stack :: <list> = #();
-  slot current-output :: <list> = #();
-  slot remaining-output :: <subsequence>;
+  slot open-tag-stack      :: <list> = #();
+  slot attribute-stack     :: <list> = #();
+  slot output-tokens       :: <list> = #();
+  slot remaining-text-runs :: <subsequence>;
 end class <generator-state>;
 
 define sealed method initialize
-    (obj :: <generator-state>, #key clone, output, #all-keys)
+    (obj :: <generator-state>, #key clone, text-runs, #all-keys)
  => ();
   if(clone)
-    obj.open-tags        := clone.open-tags;
-    obj.attribute-stack  := clone.attribute-stack;
-    obj.current-output   := clone.current-output;
-    obj.remaining-output := clone.remaining-output;
+    obj.open-tag-stack      := clone.open-tag-stack;
+    obj.attribute-stack     := clone.attribute-stack;
+    obj.output-tokens       := clone.output-tokens;
+    obj.remaining-text-runs := clone.remaining-text-runs;
   else
-    obj.attribute-stack  := list(make(<attribute>));
-    obj.remaining-output := subsequence(output);
+    obj.attribute-stack     := list(make(<attribute>));
+    obj.remaining-text-runs := subsequence(text-runs);
   end;
 end method;
     
 define method generate-output(input :: <stretchy-object-vector>)
  => strings :: <list>;
-  let state = make(<generator-state>, output: input);
+  let state = make(<generator-state>, text-runs: input);
   force-output(*standard-error*);
   local
     method pop-tag()
-      state.current-output :=
-	pair(state.open-tags.head.close-tag, state.current-output);
-      state.open-tags := state.open-tags.tail;
+      state.output-tokens :=
+	pair(state.open-tag-stack.head.close-tag, state.output-tokens);
+      state.open-tag-stack := state.open-tag-stack.tail;
       state.attribute-stack := state.attribute-stack.tail;
     end,
   
     method push-tag(tag)
-      state.current-output := pair(tag.open-tag, state.current-output);
-      state.open-tags := pair(tag, state.open-tags);
+      state.output-tokens := pair(tag.open-tag, state.output-tokens);
+      state.open-tag-stack := pair(tag, state.open-tag-stack);
       state.attribute-stack :=
 	pair(apply-op(state.attribute-stack.head, tag), state.attribute-stack);
     end;
 
 
-  while(state.remaining-output.size > 0)
+  while(state.remaining-text-runs.size > 0)
     check-timeout();
-//    debug("%=\n", state.current-output);
-//    debug("%=\n", state.remaining-output);
+//    debug("%=\n", state.output-tokens);
+//    debug("%=\n", state.remaining-text-runs);
 //    debug("%=\n", state.attribute-stack);
-//    debug("%=\n", state.open-tags);
+//    debug("%=\n", state.open-tag-stack);
 //    force-output(*standard-error*);
     let from = state.attribute-stack.first;
-    let to   = state.remaining-output[0].attributes;
+    let to   = state.remaining-text-runs[0].attributes;
 //    describe-attributes(from, *standard-error*);
 //    describe-attributes(to, *standard-error*);
 //    debug("\n");
 //    force-output(*standard-error*);
 
     if(from.value = to.value)
-      state.current-output :=
-	pair(state.remaining-output[0].string, state.current-output);
-      state.remaining-output := subsequence(state.remaining-output, start: 1);
+      state.output-tokens :=
+	pair(state.remaining-text-runs[0].string, state.output-tokens);
+      state.remaining-text-runs :=
+	subsequence(state.remaining-text-runs, start: 1);
     elseif(state.attribute-stack ~= #() 
              & state.attribute-stack.tail ~= #() 
              & to.value = state.attribute-stack.second.value)
@@ -132,9 +133,8 @@ define method generate-output(input :: <stretchy-object-vector>)
       push-tag(tag);
     end if;
   end while;
-  while(state.open-tags.head ~= #())
+  while(state.open-tag-stack.head ~= #())
     pop-tag();
   end while;
-  reverse(state.current-output);
+  reverse!(state.output-tokens);
 end method generate-output;
-
