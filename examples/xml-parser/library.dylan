@@ -11,7 +11,7 @@ end library;
 
 define module xml-parser
   create <xml-builder>, <xml-element>, <xml-parse-error>;
-  create start-element, end-element, text;
+  create start-element, end-element; // , text;
   create name, attributes; // slots for <xml-element>
 
 // I really don't want the below defs -- parse-document should
@@ -39,6 +39,8 @@ define module interface
 
   use meta;
   use xml-parser;
+
+  export <letter>, <digit>, <version-number>;
 end module interface;
 
 define module value-impl
@@ -49,6 +51,7 @@ define module value-impl
   use print;
 
   use meta;
+  use interface;
   use xml-parser;
 
   export parse-beginning-of-tag;

@@ -31,6 +31,7 @@ copyright: LGPL
 //    
 // I really wonder if this isn't abuse of the Dylan type system...
 //
+/**** REMOVED (added to interface.dylan)
 define constant <ascii-letter> = 
     one-of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -40,9 +41,10 @@ define constant <ascii-letter> =
 define constant <digit> = 
     one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 define constant <letter> = <ascii-letter>;
+****/
 
 define constant <pub-id-char-without-quotes> =
-  type-union(<ascii-letter>, <digit>, 
+  type-union(<letter>, <digit>, 
              one-of(as(<character>, #x20), as(<character>, #xa), as(<character>, #xd),
                     '-', '(', ')', '+', ',', '.', '/', ':', '=',
                     '?', ';', '!', '*', '#', '@', '$', '_', '%'));
@@ -50,9 +52,10 @@ define constant <pub-id-char-without-quotes> =
 define constant <pub-id-char> =
   type-union(<pub-id-char-without-quotes>, singleton('\''));
 
+/**** REMOVED
 define constant <version-number> =
-  type-union(<ascii-letter>, <digit>, one-of('_', '.', ':', '-'));
-
+  type-union(<letter>, <digit>, one-of('_', '.', ':', '-'));
+*****/
 
 // macro added by Doug to simplify writing parser fns
 define macro parse-definer
