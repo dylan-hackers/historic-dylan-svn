@@ -342,6 +342,7 @@ define variable draw :: <function> =
     
     glutSwapBuffers();
     glutReportErrors();
+    glutPostRedisplay();
 end;
 
 define variable *window-x* = 1000; 
@@ -368,7 +369,6 @@ define variable idle :: <function> =
     for(i from 1 to 10)
       step-world();
     end;
-    glutPostRedisplay();
 end;
 
 define variable keyboard :: <function> =

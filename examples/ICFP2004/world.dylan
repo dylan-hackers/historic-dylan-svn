@@ -69,7 +69,7 @@ end function dump-world-state;
 define function dump-world-summary(*world* :: <world>,
                                    red-brain :: <string>,
                                    black-brain :: <string>,
-                                   world :: <string>) => ()
+                                   world :: <string>)
   let reds = 0;
   let blacks = 0;
   for(yy from 0 below *world*.world-y)
@@ -90,4 +90,9 @@ define function dump-world-summary(*world* :: <world>,
   format-out("Summary for your ants on world %s:\n", world);
   format-out("Reds (%s) scored: %d.\n", red-brain, reds);
   format-out("Blacks (%s) scored: %d.\n", black-brain, blacks);
+  if(reds > blacks)
+    #"red"
+  else
+    #"black"
+  end if;
 end function dump-world-summary;

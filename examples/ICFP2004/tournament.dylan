@@ -3,6 +3,7 @@ module: ants
 define class <brain> (<object>)
   slot name :: <byte-string>, required-init-keyword: name:;
   slot code :: <vector> = #[];
+  slot score :: <integer> = 0;
 end class <brain>;
 
 define function load-brain(b :: <brain>)
@@ -24,13 +25,14 @@ end function write-brain;
 define function run-single-tournament(brains, worlds)
   let brain1 = brains[random(brains.size)];
   let brain2 = brains[random(brains.size)];
+  while(brain1 == brain2)
+    brain2 := brains[random(brains.size)];
+  end while;
   let world = worlds[random(worlds.size)];
 
-  format-out("Ready to battle %= (red) against %= (black) on %=\n",
-             brain1.name, brain2.name, world);
-  
   *red-brain* := brain1.code;
   *black-brain* := brain2.code;
+  *ants* := make(<stretchy-vector>);
   with-open-file(world-stream = world)
     *world* := read-map(world-stream);
   end with-open-file;
@@ -42,25 +44,36 @@ define function run-single-tournament(brains, worlds)
   end for;
 
   // Produce summary of "the match".
-  dump-world-summary(*world*, brain1.name, brain2.name, world);
+  let winner = dump-world-summary(*world*, brain1.name, brain2.name, world);
 
+  if(winner == #"red")
+    brain1.score := brain1.score + 1;
+  else
+    brain2.score := brain2.score + 1;
+  end if;
 end function run-single-tournament;
 
 begin
-  let args = application-arguments();
   let brains =
-    with-open-file(brain-stream = args[0])
+    with-open-file(brain-stream = "contestants")
       map(method(name) make(<brain>, name: name) end, 
           read-lines(brain-stream));
     end with-open-file;
   do(load-brain, brains);
 
   let worlds = 
-    with-open-file(worlds-stream = args[1])
+    with-open-file(worlds-stream = "world-list")
       read-lines(worlds-stream)
     end with-open-file;
 
-  run-single-tournament(brains, worlds);
+  for(i from 0 below 100)
+    run-single-tournament(brains, worlds);
+    do(method(x) 
+           format-out("%= total score: %=\n", 
+                      x.name, x.score)
+       end method, brains);
+    force-output(*standard-output*);
+  end for;
 end;
 
 define function read-lines(s :: <stream>)
