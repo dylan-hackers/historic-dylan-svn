@@ -194,7 +194,7 @@ states:
                     method() make(<sense>,
                                   direction: ?#"where",
                                   condition: as(<symbol>, format-to-string("marker%d", ?what)),
-                                  state-true: curry(lookup, label, counter + 1),
+                                  state-true: curry(lookup, instrs, label, counter + 1),
                                   state-false: curry(lookup, instrs, ?#"no", 0))
                     end) }
 
