@@ -356,7 +356,7 @@ define sealed generic glLight(light :: limited(<integer>,
 			      arg1 :: <number>, #rest rest);
 
 define method glLight(light :: limited(<integer>, 
-			       min: 0, 
+			       min: $GLenum$GL-LIGHT0, 
 			       max: $GLenum$GL-LIGHT0 + $GLenum$GL-MAX-LIGHTS),
 		      pname :: <GLenum>,
 		      arg1 :: <integer>, #rest rest) => ()
