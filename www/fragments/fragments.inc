@@ -1,5 +1,4 @@
 <?php
-ini_set("include_path", ini_get("include_path") . ":..");
 require "shared.inc";
 
 function code_header ($title) {
