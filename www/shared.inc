@@ -73,8 +73,8 @@ Dylan Websites</A>
 <LI><A HREF="downloading.phtml">Downloading Software</A>
 <LI><A HREF="gdref.phtml">Documentation</A>
 <LI><A HREF="http://www.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>
-<LI><A HREF="bugs">Bug Tracker</A>
-<LI><A HREF="bugs.private">Private Bug Tracker</A>
+<LI><A HREF="http://www.randomhacks.com/dylan/bugs">Bug Tracker</A>
+<LI><A HREF="http://www.randomhacks.com/dylan/bugs.private">Private Bug Tracker</A>
 </UL>
 
 <P><STRONG>Current Projects</STRONG></P>
