@@ -191,11 +191,12 @@ define function emit-transitions
 
       if (pop)
 	pop-tag();
-      else
 	push-tag(tag-PL);
+//	exit();
       end;
-      exit();
     end;
+
+
 
     if (from.emphasis ~== to.emphasis & ~to.strong)
       push-tag(tag-EM);
