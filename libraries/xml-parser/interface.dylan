@@ -42,10 +42,10 @@ define class <char-reference> (<xml>)
   constant slot char :: <character>, required-init-keyword: char:;
 end class <char-reference>;
 
-define method text(elt :: <element>) => (s :: <string>)
+define method unfiltered-text(elt :: <element>) => (s :: <string>)
   apply(concatenate, map(text, choose(rcurry(instance?, <char-string>), 
                                       elt.node-children)));
-end method text;
+end method unfiltered-text;
 
 define constant <hex-digit> = 
     one-of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A',
@@ -54,3 +54,13 @@ define constant <hex-digit> =
 define constant <version-number> =
   type-union(<letter>, <digit>, one-of('_', '.', ':'));
 
+// removes leading and trailing blanks
+define method text(elt :: <element>) => (s :: <string>)
+  let is-space? = rcurry(instance?, <space>);
+  let ans = elt.unfiltered-text;
+  let start = 0;
+  let stop = ans.size;
+  while(ans[stop - 1].is-space?) stop := stop - 1; end while;
+  while(ans[start].is-space?) start := start + 1; end while;
+  copy-sequence(ans, start: start, end: stop);
+end method text;

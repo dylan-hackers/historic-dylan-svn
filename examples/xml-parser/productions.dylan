@@ -87,7 +87,6 @@ end function expand-entity;
 // assigning parents
 define variable *parent* = #f;
 define class <add-parents> (<xform-state>) end;
-define constant $add-parents = make(<add-parents>);
 
 define method before-transform(node :: <node>, state :: <add-parents>,
                                rep :: <integer>, str :: <stream>)
@@ -116,7 +115,7 @@ define function parse-document(doc :: <string>,
   *defining-entities?* := #f;
   *substitute-entities?* := substitute-entities?;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
-  transform-document(document, state: $add-parents);
+  transform-document(document, state: make(<add-parents>));
   document;
 end function parse-document;
 
@@ -359,7 +358,9 @@ define meta doctypedecl(s, name, id, markup, decl-sep)
   {[scan-s(s), scan-external-id(id),
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its (I hope only) entities
-   do(with-open-file(in = id) scan-dtd-stuff(in.stream-contents) end)], 
+   do(with-open-file(in = id, direction: #"input-output")
+        scan-dtd-stuff(stream-contents(in, clear-contents?: #f))
+      end)], 
    []},
   scan-s?(s), 
   {['[', scan-dtd-stuff(markup) , ']', scan-s?(s)], []}, ">",
@@ -488,7 +489,8 @@ define method collapse-strings(str :: <sequence>, b == #t)
   let ans = make(<deque>);
   let quit :: <integer> = str.size;
 
-  local method find-last-adjacent-char-string(start :: <integer>) => stop :: <integer>;
+  local method find-last-adjacent-char-string(start :: <integer>)
+         => stop :: <integer>;
     let stop = start;
     while(stop < quit & instance?(str[stop], <char-string>))
       stop := stop + 1; 
