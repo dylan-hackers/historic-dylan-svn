@@ -2661,7 +2661,32 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	<author>&person.auclair;</author>
     </docinfo>
     <TITLE>The Print Library</TITLE>
-    <PARA>This document describes the Print library designed by the Gwydion Project at Carnegie Mellon University. This library provides an interface that outputs an object in Dylan literal syntax if the object can be represented as a Dylan literal, and otherwise, outputs the object in an implementation-dependent manner. There are essentially two functions, <function>print</function> and <function>print-object</function>. The <function>print</function> function accepts keyword arguments that form a print request, controlling features such as circular printing, how deep within a data structure to print, how many elements in long sequences to print before using an ellipsis notation, whether pretty printing is desired, and so on. Users extend <function>print</function>’s ability to print various objects by adding methods to the <function>print-object</function> function. The <function>print</function> function handles most of the overhead to satisfy special print requests, outputting any special notations required, and it only calls <function>print-object</function> when it is necessary to print objects. Users should always call the <function>print</function> function to output objects, especially recursively from within <function>print-object</function> methods to output an object’s components. Users should never call <function>print-object</function> directly.</PARA>
+    <PARA>
+      This document describes the Print library designed by the
+      Gwydion Project at Carnegie Mellon University. This library
+      provides an interface that outputs an object in Dylan literal
+      syntax if the object can be represented as a Dylan literal, and
+      otherwise, outputs the object in an implementation-dependent
+      manner. There are essentially two functions,
+      <function>print</function> and
+      <function>print-object</function>. The <function>print</function>
+      function accepts keyword arguments that form a print request,
+      controlling features such as circular printing, how deep within a
+      data structure to print, how many elements in long sequences to
+      print before using an ellipsis notation, whether pretty printing
+      is desired, and so on. Users extend
+      <function>print</function>'s ability to print various objects
+      by adding methods to the <function>print-object</function>
+      function. The <function>print</function> function handles most of
+      the overhead to satisfy special print requests, outputting any
+      special notations required, and it only calls
+      <function>print-object</function> when it is necessary to print
+      objects. Users should always call the <function>print</function>
+      function to output objects, especially recursively from within
+      <function>print-object</function> methods to output an object's
+      components. Users should never call
+      <function>print-object</function> directly.
+    </PARA> 
   </CHAPTER>
 
   <CHAPTER ID="libs-collection-extensions">
@@ -2673,123 +2698,222 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
     <TITLE>The Collection-Extensions Library</TITLE>
     <sect1 id="libs-collection-extensions-introduction">
 	<title>Introduction</title>
-    <PARA>
-The various modules in this library contain a few new types and operations which are compatible with the collection types specified in the Dylan Reference Manual, but which are not part of that specification. 
-</para><para>
-It is to be expected that more collection types will appear in time, and they will likely be added to this library. This may also result in reorganizations which could force incompatible changes to the existing modules. We hope to minimize such imcompatibilities and, when forced to them, will include sufficient information to facilitate conversion of existing code. </para>
-<para>
-Collection-extensions exports these modules: </para>
-<itemizedlist>
-<listitem>
-<para>
-<dmodule>self-organizing-list</dmodule>
-Provides "self-organizing lists". These explicit key collections provide roughly the semantics of hash tables, but use a probabilistic implementation which provides O(n) worst case performance but can provide very fast constant time access in the best case. </para>
-
-</listitem>
-<listitem>
-<para><dmodule>subseq</dmodule>
-Provides "subsequences", which represent an aliased reference to some part of an existing sequence. These are analogous to slices (in Ada or Perl) or displaced arrays (in Common Lisp). Subsequences are themselves subclasses of <classname>&lt;sequence&gt;</classname>, and can therefore be passed any <classname>&lt;collection&gt;</classname> or <classname>&lt;sequence&gt;</classname> operation. </para>
-</listitem>
-<listitem>
-<para><dmodule>vector-search</dmodule>
-Provides a small assortment of specialized operations for searching and modifying <classname>&lt;vector&gt;</classname>s. These operations are analogous to existing collection operations but provide keywords and efficiency improvements which are meaningful only within the more limited domain. 
-</PARA>
-</listitem>
-</itemizedlist>
-<para>The Collections-Extensions Library also has some additional modules added by the GwydionDylan Maintainers.  These modules are:
-</para>
-<itemizedlist>
-<listitem>
-<para><dmodule>heap</dmodule> was supposed to implement a priority queue, but because of conflicts with <classname>&lt;deque&gt;</classname> methods, <dmodule>heap</dmodule> is currently empty.
-</para>
-</listitem>
-<listitem>
-<para><dmodule>sequence-diff</dmodule> implements the Unix diff utility algorithm</para>
-</listitem>
-<listitem>
-<para><dmodule>Sequence-Utilities</dmodule> provides useful methods on collections, written by Matthias Hölzl.</para>
-</listitem>
-</itemizedlist>
+	<PARA>
+	  The various modules in this library contain a few new types
+	  and operations which are compatible with the collection
+	  types specified in the &drm;, but which are not part of that
+	  specification.  
+	</para>
+	<para>
+	  It is to be expected that more collection types will appear
+	  in time, and they will likely be added to this library. This
+	  may also result in reorganizations which could force
+	  incompatible changes to the existing modules. We hope to
+	  minimize such imcompatibilities and, when forced to them,
+	  will include sufficient information to facilitate conversion
+	  of existing code. 
+	</para> 
+	<para>
+	  Collection-extensions exports these modules: 
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      <dmodule>self-organizing-list</dmodule>
+	      Provides "self-organizing lists". These explicit key
+	      collections provide roughly the semantics of hash
+	      tables, but use a probabilistic implementation which
+	      provides O(n) worst case performance but can provide
+	      very fast constant time access in the best case. 
+	    </para> 
+	  </listitem>
+	  <listitem>
+	    <para><dmodule>subseq</dmodule>
+	    Provides "subsequences", which represent an aliased
+	    reference to some part of an existing sequence. These are
+	    analogous to slices (in Ada or Perl) or displaced arrays
+	    (in Common Lisp). Subsequences are themselves subclasses
+	    of <classname>&lt;sequence&gt;</classname>, and can
+	    therefore be passed any
+	    <classname>&lt;collection&gt;</classname> or
+	    <classname>&lt;sequence&gt;</classname> operation. 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <dmodule>vector-search</dmodule>
+	    Provides a small assortment of specialized operations for
+	    searching and modifying
+	    <classname>&lt;vector&gt;</classname>s. These operations are
+	    analogous to existing collection operations but provide
+	    keywords and efficiency improvements which are meaningful
+	    only within the more limited domain.  
+	  </PARA>
+	</listitem>
+      </itemizedlist>
+      <para>
+        The Collections-Extensions Library also has some additional
+        modules added by the GwydionDylan Maintainers.  These modules
+        are: 
+      </para>
+      <itemizedlist>
+        <listitem>
+	  <para>
+	    <dmodule>heap</dmodule> was supposed to implement a
+	    priority queue, but because of conflicts with
+	    <classname>&lt;deque&gt;</classname> methods,
+	    <dmodule>heap</dmodule> is currently empty. 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <dmodule>sequence-diff</dmodule> implements the Unix diff
+	    utility algorithm
+	  </para> 
+	</listitem>
+	<listitem>
+	  <para>
+	    <dmodule>Sequence-Utilities</dmodule> provides useful
+	    methods on collections, written by Matthias Hölzl.
+	  </para> 
+	</listitem>
+      </itemizedlist>
     </sect1>
-    <sect1 id="libs-collection-extensions-self-organizing-list">
+    <sect1 id="libs-collection-extensions-organized-list">
 	<title>Module self-organizing-list</title>
 	<para>
-The "Self Organizing List" is a poor man’s hash table. More precisely, <classname>&lt;self-organizing-list&gt;</classname> is a subclass of <classname>&lt;mutable-explicit-key-collection&gt;</classname> and <classname>&lt;stretchy-collection&gt;</classname> for which addition and retrieval are both linear in the worst case, but which use a probabilistic strategy which yields nearly constant time in the best case. 
-</para>
-<para>
-Because they have a very low overhead, self-organizing lists may provide better peformance than hash tables in cases where references have a high degree of temporal locality. They may also be useful in situations where it is difficult to create a proper hash function. 
-</para>
-<para>
-Instantiate <classname>&lt;self-organizing-list&gt;</classname>s with 
-</para>
+	  The "Self Organizing List" is a poor man's hash
+	  table. More precisely,
+	  <classname>&lt;self-organizing-list&gt;</classname> is a
+	  subclass of
+	  <classname>&lt;mutable-explicit-key-collection&gt;</classname>
+	  and <classname>&lt;stretchy-collection&gt;</classname> for
+	  which addition and retrieval are both linear in the worst
+	  case, but which use a probabilistic strategy which yields
+	  nearly constant time in the best case.  
+	</para>
+	<para>
+	  Because they have a very low overhead, self-organizing lists
+	  may provide better peformance than hash tables in cases
+	  where references have a high degree of temporal
+	  locality. They may also be useful in situations where it is
+	  difficult to create a proper hash function.  
+	</para>
+	<para>
+	  Instantiate
+	  <classname>&lt;self-organizing-list&gt;</classname>s with  
+	</para>
 <programlisting>
 make(&lt;self-organizing-list&gt;, test: test)
 </programlisting>
-<para>
-<dlit>Test</dlit> is expected to be an equality function. In particular, it is expected to satisfy the identity and transitivity requirements as described in the &drm;. If not specified, <dlit>test</dlit> defaults to <function>\==</function>. 
-</para>
+        <para>
+	  <dlit>Test</dlit> is expected to be an equality function. In
+	  particular, it is expected to satisfy the identity and
+	  transitivity requirements as described in the &drm;. If not
+	  specified, <dlit>test</dlit> defaults to
+	  <function>\==</function>.  
+	</para>
     </sect1>
     <sect1 id="libs-collection-extensions-subseq">
 	<title>Module subseq</title>
 	<para>
-<classname>&lt;Subsequence&gt;</classname> is a new subclass of <classname>&lt;sequence&gt;</classname>. A subsequence represents an aliased reference to some part of an existing sequence. Although they may be created by <function>make</function> (with required keywords <dlit>source:</dlit>, <dlit>start:</dlit> and <dlit>end:</dlit>) on one of the instantiable subclasses, they are more often created by calls of the form </para>
+	  <classname>&lt;Subsequence&gt;</classname> is a new subclass
+	  of <classname>&lt;sequence&gt;</classname>. A subsequence
+	  represents an aliased reference to some part of an existing
+	  sequence. Although they may be created by
+	  <function>make</function> (with required keywords
+	  <dlit>source:</dlit>, <dlit>start:</dlit> and
+	  <dlit>end:</dlit>) on one of the instantiable subclasses,
+	  they are more often created by calls of the form 
+	</para> 
 <programlisting>
 subsequence(sequence, start: 0, end: 3)
 </programlisting>
-<para>
-where <dlit>start:</dlit> and <dlit>end:</dlit> are optional keywords which default to the beginning and end, respectively, of the source sequence. No other new operations are defined for subsequences, since all necessary operations are inherited from <classname>&lt;sequence&gt;</classname>. 
-</para>
-<para>
-Because subsequences are aliased references into other sequences, several properties must be remembered: 
-</para>
-<itemizedlist>
-<listitem><para>
-The contents of a subsequence are undefined after any destructive operation upon the source sequence. 
-</para>
-</listitem>
-<listitem>
-<para>
-Destructive operations upon subsequences may be reflected in the source. The results of <function>reverse!</function> and <function>sort!</function> should be expected to affect the source sequence for vector subsequences. 
-</para>
-</listitem>
-</itemizedlist>
+        <para>
+	  where <dlit>start:</dlit> and <dlit>end:</dlit> are optional
+	  keywords which default to the beginning and end,
+	  respectively, of the source sequence. No other new
+	  operations are defined for subsequences, since all necessary
+	  operations are inherited from
+	  <classname>&lt;sequence&gt;</classname>.  
+	</para>
+	<para>
+	  Because subsequences are aliased references into other
+	  sequences, several properties must be remembered:  
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      The contents of a subsequence are undefined after any
+	      destructive operation upon the source sequence.  
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Destructive operations upon subsequences may be
+	      reflected in the source. The results of
+	      <function>reverse!</function> and
+	      <function>sort!</function> should be expected to affect
+	      the source sequence for vector subsequences.  
+	    </para>
+	  </listitem>
+	</itemizedlist>
 
-<para>
-If the source sequences are instances of <classname>&lt;vector&gt;</classname> or <classname>&lt;string</classname>, then the implementation will use subclasses of <classname>&lt;subsequence&gt;</classname> which are also subclasses of <classname>&lt;vector&gt;</classname> or <classname>&lt;string&gt;</classname>. 
-</para>
-<para>
-Efficiency notes: 
-</para>
-<itemizedlist>
-<listitem>
-<para>
-The implementation tries to insure that subsequences of subsequences can be accessed as efficiently as the original subsequence. (For example, the result of 
-</para>
+	<para>
+	  If the source sequences are instances of
+	  <classname>&lt;vector&gt;</classname> or
+	  <classname>&lt;string</classname>, then the implementation
+	  will use subclasses of
+	  <classname>&lt;subsequence&gt;</classname> which are also
+	  subclasses of <classname>&lt;vector&gt;</classname> or
+	  <classname>&lt;string&gt;</classname>.  
+	</para>
+	<para>
+	  Efficiency notes: 
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      The implementation tries to insure that subsequences of
+	      subsequences can be accessed as efficiently as the
+	      original subsequence. (For example, the result of  
+	    </para>
 <programlisting>
 subsequence(subsequence(source, start: 1), start: 2)
 </programlisting>
-<para>
-would produce a subsequence identical to the one produced by 
-</para>
+            <para>
+	      would produce a subsequence identical to the one produced by 
+	    </para>
 <programlisting>
 subsequence(source, start: 3)
 </programlisting>
-</listitem>
-<listitem>
-<para>
-Vector subsequences, like all other vectors, implement constant time element access. 
-</para>
-</listitem>
-<listitem>
-<para>
-Non-vector subsequences may take non-constant time to create, but will provide constant-time access to the first element. This should produce the best performance provided some element of the subsequence is accessed at least once. 
-</para>
-</listitem>
-</itemizedlist>
+          </listitem>
+	  <listitem>
+	    <para>
+	      Vector subsequences, like all other vectors, implement
+	      constant time element access.  
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Non-vector subsequences may take non-constant time to
+	      create, but will provide constant-time access to the
+	      first element. This should produce the best performance
+	      provided some element of the subsequence is accessed at
+	      least once.  
+	    </para>
+	  </listitem>
+	</itemizedlist>
     </sect1>
     <sect1 id="libs-collection-extensions-vector-search">
 	<title>Module vector-search</title>
-	<para>The vector-search module provides basic search and replace capabilities upon restricted subsets of <classname>&lt;sequence&gt;</classname> -- primarily <classname>&lt;vector&gt;</classname>. Exploiting the known properties of these types yields substantially better performance than can be achieved for sequences in general. 
+	<para>
+	  The vector-search module provides basic search and replace
+	  capabilities upon restricted subsets of
+	  <classname>&lt;sequence&gt;</classname> -- primarily
+	  <classname>&lt;vector&gt;</classname>. Exploiting the known
+	  properties of these types yields substantially better
+	  performance than can be achieved for sequences in general.  
 	</para>
 
 	<dylanmethoddef>
@@ -2803,7 +2927,10 @@ Non-vector subsequences may take non-constant time to create, but will provide c
           </param>
           <param>
             <paramname>pred?</paramname>
-	 	<paramsummary>A &lt;function&gt; that returns true for a matching condition</paramsummary>
+	    <paramsummary>
+	      A &lt;function&gt; that returns true for a matching
+	      condition
+	    </paramsummary> 
           </param>
           <keyparam>
             <paramname>start</paramname>
@@ -2825,8 +2952,18 @@ Non-vector subsequences may take non-constant time to create, but will provide c
         <defreturns>
         </defreturns>
         <defdescription>
-          <para>Find the index of first element (after <dlit>start</dlit> but before <dlit>end</dlit>) of a vector which satisfies the given predicate.  If no matching element is found, return <dlit>failure</dlit>.  The defaults for <dlit>start</dlit>, <dlit>end</dlit> and <dlit>failure</dlit> are, respectively,  0, size(vector), and &false;.  This function is like <function>find-key</function>, but accepts <dlit>start:</dlit> and <dlit>end:</dlit> rather than <dlit>skip:</dlit>.
-</para>
+          <para>
+	    Find the index of first element (after <dlit>start</dlit>
+	    but before <dlit>end</dlit>) of a vector which satisfies
+	    the given predicate.  If no matching element is found,
+	    return <dlit>failure</dlit>.  The defaults for
+	    <dlit>start</dlit>, <dlit>end</dlit> and
+	    <dlit>failure</dlit> are, respectively,  0, size(vector),
+	    and &false;.  This function is like
+	    <function>find-key</function>, but accepts
+	    <dlit>start:</dlit> and <dlit>end:</dlit> rather than
+	    <dlit>skip:</dlit>. 
+	  </para>
         </defdescription>
       </dylanmethoddef>
 
@@ -2842,7 +2979,10 @@ Non-vector subsequences may take non-constant time to create, but will provide c
           </param>
           <param>
             <paramname>pred?</paramname>
-	 	<paramsummary>A &lt;function&gt; that returns true for a matching condition</paramsummary>
+	    <paramsummary>
+	      A &lt;function&gt; that returns true for a matching
+	      condition
+	    </paramsummary> 
           </param>
           <keyparam>
             <paramname>start</paramname>
@@ -2864,7 +3004,10 @@ Non-vector subsequences may take non-constant time to create, but will provide c
         <defreturns>
         </defreturns>
         <defdescription>
-          <para>See the description for <function>find-first-key</function></para>
+          <para>
+	    See the description for
+	    <function>find-first-key</function>
+	  </para> 
         </defdescription>
       </dylanmethoddef>
 
@@ -5566,100 +5709,152 @@ log(100000, base: 10) => 5.0
       <author>&person.auclair;</author>
     </docinfo>
     <TITLE>The Matrix Library</TITLE>
-    <PARA>This library implements some basic matrix operations. These functions are not guarenteed to be stable or numerically sound, nor are they very optimized, but for smaller applications they should be suitable. 
-The <classname>&lt;matrix&gt;</classname> class is a subclass of <classname>&lt;array&gt;</classname>, so all operations on <classname>&lt;array&gt;</classname>s and collections in general should work as expected. One important limitation of matrices is that they are limited to two dimensions, and trying to use any other size results in an error. The <classname>&lt;matrix&gt;</classname> class has two ways to get instances and several operations for those instances.
-</PARA>
+    <PARA>
+      This library implements some basic matrix operations. These
+      functions are not guarenteed to be stable or numerically sound,
+      nor are they very optimized, but for smaller applications they
+      should be suitable.  
+    </para>
+    <para>
+      The <classname>&lt;matrix&gt;</classname> class is a subclass of
+      <classname>&lt;array&gt;</classname>, so all operations on
+      <classname>&lt;array&gt;</classname>s and collections in general
+      should work as expected. One important limitation of matrices is
+      that they are limited to two dimensions, and trying to use any
+      other size results in an error. The
+      <classname>&lt;matrix&gt;</classname> class has two ways to get
+      instances and several operations for those instances. 
+    </PARA>
     <sect1 id="libs-matrix-initialization">
-	<title>Initialization</title>
+      <title>Initialization</title>
+      <dylanclassdef>
+	<defname>&lt;matrix&gt;</defname>
+	<defadjectives>sealed</defadjectives>
+	<defsummary>Meta-information container</defsummary>
+	<defsupers><defsuper>&lt;array&gt;</defsuper></defsupers>
+	<definitkeywords></definitkeywords>
+	<defdescription>
+	  <para>
+	    This class contains two slots:  dimensions, a
+	    <classname>&lt;sequence&gt;</classname>, which contains
+	    the two values of the size of the matrix, and components,
+	    a <classname>&lt;simple-object-vector&gt;</classname>,
+	    that contain the matrix elements.
+	  </para>
+	</defdescription>
+      </dylanclassdef>
 
-	<dylanclassdef>
-	  <defname>&lt;matrix&gt;</defname>
-	  <defadjectives>sealed</defadjectives>
-	  <defsummary>Meta-information container</defsummary>
-	  <defsupers><defsuper>&lt;array&gt;</defsuper></defsupers>
-	  <definitkeywords></definitkeywords>
-	  <defdescription>
-	    <para>This class contains two slots:  dimensions, a <classname>&lt;sequence&gt;</classname>, which contains the two values of the size of the matrix, and components, a <classname>&lt;simple-object-vector&gt;</classname>, that contain the matrix elements.</para>
-	  </defdescription>
-	</dylanclassdef>
+      <dylanmethoddef>
+	<defname>initialize</defname>
+	<defsummary>
+	  Used by <function>make</function> to create instances of a
+	  <classname>&lt;matrix&gt;</classname>
+	</defsummary>
+	<defparameters>
+	  <keyparam>	
+	    <paramname>dimensions</paramname>
+	    <paramdefault>#[1, 1]</paramdefault>
+	    <paramsummary>
+	      A sequence of two elements which represent the rows and
+	      column of the matrix respectively 
+	    </paramsummary>
+	  </keyparam>
+	  <keyparam>
+	    <paramname>fill</paramname>
+	    <paramdefault>0</paramdefault>
+	    <paramsummary>
+	      The objects that each element of matrix should be
+	      initialized to
+	    </paramsummary>
+	  </keyparam>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>mat</paramname>
+	    <paramtype>&lt;matrix&gt;</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    Use <function>make</function> with the above keywords to
+	    obtain a <classname>&lt;matrix&gt;</classname> instance
+	  </para>
+	</defdescription>
+      </dylanmethoddef>
 
-	<dylanmethoddef>
-	  <defname>initialize</defname>
-	  <defsummary>Used by <function>make</function> to create instances of a <classname>&lt;matrix&gt;</classname></defsummary>
-	  <defparameters>
-	    <keyparam>	
-		<paramname>dimensions</paramname>
-		<paramdefault>#[1, 1]</paramdefault>
-		<paramsummary>A sequence of two elements which represent the rows and column of the matrix respectively </paramsummary>
-	    </keyparam>
-	    <keyparam>
-		<paramname>fill</paramname>
-		<paramdefault>0</paramdefault>
-		<paramsummary>The objects that each element of matrix should be initialized to</paramsummary>
-	    </keyparam>
-	  </defparameters>
-	  <defreturns>
-	    <param>
-		<paramname>mat</paramname>
-		<paramtype>&lt;matrix&gt;</paramtype>
-	    </param>
-	  </defreturns>
-	  <defdescription>
-	    <para>Use <function>make</function> with the above keywords to  obtain a <classname>&lt;matrix&gt;</classname> instance</para>
-	  </defdescription>
-	</dylanmethoddef>
-
-	<dylanmethoddef>
-	  <defname>matrix</defname>
-	  <defsummary>Create instances of a <classname>&lt;matrix&gt;</classname> from a list of <classname>&lt;vector&gt;</classname>s</defsummary>
-	  <defparameters>
-	    <restparam>	
-		<paramname>row-vectors</paramname>
-	    </restparam>
-	  </defparameters>
-	  <defreturns>
-	    <param>
-		<paramname>mat</paramname>
-		<paramtype>&lt;matrix&gt;</paramtype>
-	    </param>
-	  </defreturns>
-	  <defdescription>
-	    <para>This method takes a list of <classname>&lt;vectors&gt;</classname> and creates a <classname>&lt;matrix&gt;</classname> instance from them, for example:</para>
-	    <programlisting>
+      <dylanmethoddef>
+	<defname>matrix</defname>
+	<defsummary>
+	  Create instances of a <classname>&lt;matrix&gt;</classname>
+	  from a list of <classname>&lt;vector&gt;</classname>s
+	</defsummary>
+	<defparameters>
+	  <restparam>	
+	    <paramname>row-vectors</paramname>
+	  </restparam>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>mat</paramname>
+	    <paramtype>&lt;matrix&gt;</paramtype>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    This method takes a list of
+	    <classname>&lt;vectors&gt;</classname> and creates a
+	    <classname>&lt;matrix&gt;</classname> instance from them,
+	    for example:
+	  </para>
+	  <programlisting>
 let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
-	    </programlisting>
-	    <para>creates a 3x3 matrix.</para>
-	    <para>Note: The row-vectors must all be of the same size.</para>
-	  </defdescription>
-	</dylanmethoddef>
+	  </programlisting>
+	  <para>creates a 3x3 matrix.</para>
+	  <para>Note: The row-vectors must all be of the same size.</para>
+	</defdescription>
+      </dylanmethoddef>
 
-	<dylanmethoddef>
-	  <defname>identity-matrix</defname>
-	  <defsummary>Creates the identity matrix</defsummary>
-	  <defparameters>
-	    <keyparam>	
-		<paramname>dimensions</paramname>
-	      <paramdefault>#[1, 1]</paramdefault>
-	      <paramsummary>Note: enter 2 dimensions for the matrix, an error may occur if both dimensions are not equal.</paramsummary>
-	    </keyparam>
-	  </defparameters>
-	  <defreturns>
-	    <param>
-		<paramname>mat</paramname>
-		<paramtype>&lt;matrix&gt;</paramtype>
-	      <paramsummary>The identity matrix, sized to dimensions</paramsummary>
-	    </param>
-	  </defreturns>
-	  <defdescription>
-	    <para>This function simply returns the identity matrix of the specified dimension.  It is a very simple algorithm, it merely fills a matrix with zeros, and then puts ones down the diagonal.
-</para>
+      <dylanmethoddef>
+	<defname>identity-matrix</defname>
+	<defsummary>Creates the identity matrix</defsummary>
+	<defparameters>
+	  <keyparam>	
+	    <paramname>dimensions</paramname>
+	    <paramdefault>#[1, 1]</paramdefault>
+	    <paramsummary>
+	      Note: enter 2 dimensions for the matrix, an error may
+	      occur if both dimensions are not equal.
+	    </paramsummary>
+	  </keyparam>
+	</defparameters>
+	<defreturns>
+	  <param>
+	    <paramname>mat</paramname>
+	    <paramtype>&lt;matrix&gt;</paramtype>
+	    <paramsummary>
+	      The identity matrix, sized to dimensions
+	    </paramsummary>
+	  </param>
+	</defreturns>
+	<defdescription>
+	  <para>
+	    This function simply returns the identity matrix of the
+	    specified dimension.  It is a very simple algorithm, it
+	    merely fills a matrix with zeros, and then puts ones down
+	    the diagonal. 
+	    </para>
 	  </defdescription>
 	</dylanmethoddef>
 
     </sect1>
     <sect1 id="libs-matrix-operations">
-	<title>Matrix Operations</title>
-	<para>These are operations on matrices.  The include the "simple" arithmetic operations (\+, \-, \*), as well as other standard matrix operations, such as inverse, transpose, augment, and gauss-jordan elimations.</para>
+      <title>Matrix Operations</title>
+      <para>
+        These are operations on matrices.  The include the "simple"
+        arithmetic operations (\+, \-, \*), as well as other standard
+        matrix operations, such as inverse, transpose, augment, and
+        gauss-jordan elimations.
+      </para> 
 
       <dylanmethoddef>
         <defname>\+</defname>
@@ -5682,7 +5877,12 @@ let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
         </defreturns>
         <defdescription>
           <para>
-Adds two matrices.  This is a binary operator that performs matrix addition on the matrices "matrix1" and "matrix2", storing the result in a new matrix "temp-mat", "temp-mat" is then returned on exit.  Matrix addition is very simple, all it is is adding terms in corresponding positions
+	    Adds two matrices.  This is a binary operator that
+	    performs matrix addition on the matrices "matrix1" and
+	    "matrix2", storing the result in a new matrix "temp-mat",
+	    "temp-mat" is then returned on exit.  Matrix addition is
+	    very simple, all it is is adding terms in corresponding
+	    positions 
           </para>
         </defdescription>
       </dylanmethoddef>
@@ -5708,8 +5908,9 @@ Adds two matrices.  This is a binary operator that performs matrix addition on t
         </defreturns>
         <defdescription>
           <para>
-Matrix subtraction is (surprise) just like matrix addition, where the
-element i,j in (A - B) is (A[i,j] - B[i,j])
+	    Matrix subtraction is (surprise) just like matrix
+	    addition, where the element i,j in (A - B) is (A[i,j] -
+	    B[i,j]) 
           </para>
         </defdescription>
       </dylanmethoddef>
@@ -5735,7 +5936,9 @@ element i,j in (A - B) is (A[i,j] - B[i,j])
         </defreturns>
         <defdescription>
           <para>
-Multiplication of a matrix and a scalar quantity.  This simply multiplies each element of the matrix by the scalar quantity.
+	    Multiplication of a matrix and a scalar quantity.  This
+	    simply multiplies each element of the matrix by the scalar
+	    quantity. 
           </para>
         </defdescription>
       </dylanmethoddef>
@@ -5761,7 +5964,8 @@ Multiplication of a matrix and a scalar quantity.  This simply multiplies each e
         </defreturns>
         <defdescription>
           <para>
-Same as the above <function>\*</function>, with the opposite order of the parameters.
+	    Same as the above <function>\*</function>, with the
+	    opposite order of the parameters. 
           </para>
         </defdescription>
       </dylanmethoddef>
@@ -5787,10 +5991,29 @@ Same as the above <function>\*</function>, with the opposite order of the parame
         </defreturns>
         <defdescription>
           <para>
-Multiplies two matrices.  There are certain restrictions on what matrices can be multiplied.  To multiply two matrices, the dimensions must be MxN for the first matrix, and NxP for the second.  The result of the multiplication will be an MxP matrix.  (Note, this implies A * B is not necessarily equal to B * A)  The element i,j in A * B is the dot (inner) product of the ith row of A with the jth column of B.  The dot product of a vector is the sum of the products of corresponding elements. That is,  if vector V=[a,b,c,d] and vector W=[w,x,y,z] then V*W= aw + bx + cy + dz (Note that this is a scalar quantity).</para>
-	    <para>
-The actual algorithm used was reproduced from Sedgewick's Algorithms, Ch. 36. Basically, the algorithm goes through the temporary matrix, filling out each element in the following way: For the i,jth element of the matrix, calculate the dot product an element at a time, by having a number k  range from 0 to the dimension N of the matrix.  Take A[i,k] and multiply it by B[k,j] to get one of the terms in the dot product.  Continue this for each element in the MxP matrix to get the result.
-	    </para>
+	    Multiplies two matrices.  There are certain restrictions
+	    on what matrices can be multiplied.  To multiply two
+	    matrices, the dimensions must be MxN for the first matrix,
+	    and NxP for the second.  The result of the multiplication
+	    will be an MxP matrix.  (Note, this implies A * B is not
+	    necessarily equal to B * A)  The element i,j in A * B is
+	    the dot (inner) product of the ith row of A with the jth
+	    column of B.  The dot product of a vector is the sum of
+	    the products of corresponding elements. That is,  if
+	    vector V=[a,b,c,d] and vector W=[w,x,y,z] then V*W= aw +
+	    bx + cy + dz (Note that this is a scalar quantity).
+	  </para> 
+	  <para>
+	    The actual algorithm used was reproduced from Sedgewick's
+	    Algorithms, Ch. 36. Basically, the algorithm goes through
+	    the temporary matrix, filling out each element in the
+	    following way: For the i,jth element of the matrix,
+	    calculate the dot product an element at a time, by having
+	    a number k  range from 0 to the dimension N of the matrix.
+	    Take A[i,k] and multiply it by B[k,j] to get one of the
+	    terms in the dot product.  Continue this for each element
+	    in the MxP matrix to get the result. 
+	  </para>
         </defdescription>
       </dylanmethoddef>
 
@@ -5815,8 +6038,9 @@ The actual algorithm used was reproduced from Sedgewick's Algorithms, Ch. 36. Ba
         </defreturns>
         <defdescription>
           <para>
-The augment-matrix procedure will take matrices A and B and return a matrix | A B |.
-  	    </para>
+	    The augment-matrix procedure will take matrices A and B
+	    and return a matrix | A B |. 
+  	  </para>
         </defdescription>
       </dylanmethoddef>
 
@@ -5837,29 +6061,33 @@ The augment-matrix procedure will take matrices A and B and return a matrix | A 
         </defreturns>
         <defdescription>
           <para>
-This procedure does gauss-jordan elimation on a matrix of dimension N by
-N + 1.  The first N columns are the coefficents in a set of simultaneous
-equations, and the last column is a solution vector.   The matrix that is returned is an N by 1 matrix contaning the solution for each variable.   For example, if you have a system of equations like this:
-  	    </para>
-	    <programlisting>
+	    This procedure does gauss-jordan elimation on a matrix of
+	    dimension N by N + 1.  The first N columns are the
+	    coefficents in a set of simultaneous equations, and the
+	    last column is a solution vector.   The matrix that is
+	    returned is an N by 1 matrix contaning the solution for
+	    each variable.   For example, if you have a system of
+	    equations like this: 
+  	  </para>
+	  <programlisting>
  2x + 4y - 2z = 2
  4x + 9y - 3z = 8
 -2x - 3y + 7z = 10 
-	    </programlisting>
-	    <para>The matrix representing this would be </para>
-	    <programlisting>
+	  </programlisting>
+	  <para>The matrix representing this would be </para>
+	  <programlisting>
 |  2  4 -2  2 |
 |  4  9 -3  8 |
 | -2 -3  7 10 |
-	    </programlisting>
-	    <para>The solution matrix returned would be:</para>
-	    <programlisting>
+	  </programlisting>
+	  <para>The solution matrix returned would be:</para>
+	  <programlisting>
 | -1 |
 |  2 |
 |  2 |
-	    </programlisting>
-	    <para>where x is -1, y is 2, and z is 2</para>
-        </defdescription>
+	  </programlisting>
+	  <para>where x is -1, y is 2, and z is 2</para>
+	</defdescription>
       </dylanmethoddef>
 
       <dylanmethoddef>
@@ -5879,8 +6107,16 @@ equations, and the last column is a solution vector.   The matrix that is return
         </defreturns>
         <defdescription>
           <para>
-Finds the inverse of a matrix, by using a modified gauss-jordan elimination.  Given any matrix, if there is an inverse, the inverse will be returned, otherwise, an error will be signalled. To determine the existance of an inverse, the algorithm finds the upper triangular matrix, and then multiplies all of the elements along the main diagonal.  If the result of this multiplication is zero, there is no inverse, otherwise, there is gaurenteed to be an inverse.
-	    </para>
+	    Finds the inverse of a matrix, by using a modified
+	    gauss-jordan elimination.  Given any matrix, if there is
+	    an inverse, the inverse will be returned, otherwise, an
+	    error will be signalled. To determine the existance of an
+	    inverse, the algorithm finds the upper triangular matrix,
+	    and then multiplies all of the elements along the main
+	    diagonal.  If the result of this multiplication is zero,
+	    there is no inverse, otherwise, there is gaurenteed to be
+	    an inverse. 
+	  </para>
         </defdescription>
       </dylanmethoddef>
 
@@ -5901,8 +6137,11 @@ Finds the inverse of a matrix, by using a modified gauss-jordan elimination.  Gi
         </defreturns>
         <defdescription>
           <para>
-This just does what the first half of inverse does. It reduces the matrix to the upper triangular form, and then returns the product of all of the elements along the diagonal.  This is the determinant of the matrix.
-	    </para>
+	    This just does what the first half of inverse does. It
+	    reduces the matrix to the upper triangular form, and then
+	    returns the product of all of the elements along the
+	    diagonal.  This is the determinant of the matrix. 
+	  </para>
         </defdescription>
       </dylanmethoddef>
       <dylanmethoddef>
@@ -5922,8 +6161,11 @@ This just does what the first half of inverse does. It reduces the matrix to the
         </defreturns>
         <defdescription>
           <para>
-This function transposes a matrix.  It takes a M by N matrix and turns it into an N by M matrix.  All it does is take the i,jth element in the M by N matrix, and turns it into the j,ith element in the N by M matrix.
-	    </para>
+	    This function transposes a matrix.  It takes a M by N
+	    matrix and turns it into an N by M matrix.  All it does is
+	    take the i,jth element in the M by N matrix, and turns it
+	    into the j,ith element in the N by M matrix. 
+	  </para>
         </defdescription>
       </dylanmethoddef>
 
