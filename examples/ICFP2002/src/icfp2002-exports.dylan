@@ -52,9 +52,9 @@ define module command
     $east,
     $west,
     <direction>,
-    <command>,
-    <move>,
-    <pick>,
+    <command>, bid,
+    <move>, direction,
+    <pick>, package-ids,
     <drop>;
 end module command;
 
@@ -75,9 +75,12 @@ define module messages
     // receive routines
     receive-initial-setup, // Reads initial board plus self robot, w/ robot
                            // positions. Does it all.
-    // receive-initial-setup calls: 
+    // receive-initial-setup calls:
+    receive-integer,
+    receive-string,
     receive-board-layout,  // Reads initial board layout, w/o robot positions.
     receive-client-configuration, // Reads our initial status.
+    receive-robot-positions,
     receive-initial-robot-positions; // Updates board with robot positions.
 end module messages;
 
