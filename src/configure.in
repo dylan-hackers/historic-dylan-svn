@@ -1,4 +1,4 @@
-dnl	$Header: /scm/cvs/src/configure.in,v 1.147 2003/10/22 20:41:13 housel Exp $
+dnl	$Header: /scm/cvs/src/configure.in,v 1.147.2.1 2003/10/23 14:29:02 housel Exp $
 dnl
 dnl	The new and improved configure file for Gwydion Dylan!
 dnl	This is based on the old configure file, but rewritten to
@@ -705,6 +705,14 @@ AC_TRY_LINK([#include <time.h>], [int a = daylight; long b = timezone;],
      AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
        [AC_MSG_RESULT(yes)
         AC_DEFINE(HAVE_CYGNUS_DAYLIGHT)])])])
+
+#--------------------------------------------------------------------
+#	Checks for the io and system libraries
+#--------------------------------------------------------------------
+
+AC_CHECK_FUNCS(localtime_r)
+AC_STRUCT_TIMEZONE
+AC_CHECK_MEMBERS([struct stat.st_blksize])
 
 #--------------------------------------------------------------------
 #	Find out if sigaction is available.
