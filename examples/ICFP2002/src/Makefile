@@ -1,10 +1,10 @@
 SOURCES=icfp2002.dylan icfp2002-exports.dylan
 
-icfp2002: icfp2002.lid $(SOURCES)
-	d2c -s icfp2002.lid
+icfp2002: icfp2002.lid $(SOURCES) network.lib.du
+	d2c -s -g icfp2002.lid
 
 clean:
-	rm -f *.o *.s *.a *.c *.mak *~ icfp2002
+	rm -f *.o *.s *.a *.c *.mak *~ icfp2002 *.du
 	rm -rf .libs
 
 
@@ -16,3 +16,9 @@ install: icfp2002
 
 test: icfp2002
 	(time ./icfp2002) && echo **Success**
+
+network-internal.dylan: network-internal.intr network-internal.h
+	melange --d2c -I`gcc --print-file-name=include` network-internal.intr network-internal.dylan
+
+network.lib.du: network.lid network-exports.dylan network-internal.dylan Makefile
+	d2c -s -g network.lid
