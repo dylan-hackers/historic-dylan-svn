@@ -1,5 +1,5 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.31 2002/07/29 22:37:28 andreas Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.1.2.32 2002/07/29 23:30:10 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -61,19 +61,21 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
                        start-posn: 0);
   parse-source-record(tokenizer);
   for(tlf in *top-level-forms*)
-    let expression = tlf.tlf-expression;
-        
-    format(*debug-output*, "got tlf %=, an expression %=\n", tlf, expression);
+    format(*debug-output*, "got tlf %=", tlf);
     force-output(*debug-output*);
     
     select(tlf by instance?)
       <expression-tlf> =>
+        let expression = tlf.tlf-expression;
+        format(*debug-output*, ", an expression \n%=\n", expression);
+        force-output(*debug-output*);
         let component = make(<fer-component>);
         let builder = make-builder(component);
         let result-type = object-ctype();
         let result-var = make-local-var(builder, #"result", result-type);
         fer-convert(builder, expression,
                     lexenv-for-tlf(tlf), #"assignment", result-var);
+        convert-top-level-form(builder, tlf);
         let inits = builder-result(builder);
         
         let name-obj = make(<anonymous-name>, location: tlf.source-location);
@@ -101,7 +103,39 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
         format(*debug-output*, "\n\nBinding of return variable: %=\n", result-var);
         force-output(*debug-output*);
       otherwise =>
-        compiler-error-location(tlf, "only expressions are supported");
+        let component = make(<fer-component>);
+        let builder = make-builder(component);
+        convert-top-level-form(builder, tlf);
+        let inits = builder-result(builder);
+        let name-obj = make(<anonymous-name>, location: tlf.source-location);
+        unless (instance?(inits, <empty-region>))
+          let result-type = make-values-ctype(#(), #f);
+          let source = make(<source-location>);
+          let init-function
+            = build-function-body
+            (builder, $Default-Policy, source, #f,
+             name-obj,
+             #(), result-type, #t);
+          build-region(builder, inits);
+          build-return
+            (builder, $Default-Policy, source, init-function, #());
+          end-body(builder);
+          let sig = make(<signature>, specializers: #(), returns: result-type);
+          let ctv = make(<ct-function>, name: name-obj, signature: sig);
+          make-function-literal(builder, ctv, #"function", #"global",
+                                sig, init-function);
+          format(*debug-output*, "\n\nBefore optimization:\n");
+          dump-fer(component);
+          optimize-component(*current-optimizer*, component);
+          format(*debug-output*, "\n\nAfter optimization:\n");
+          dump-fer(component);
+          force-output(*debug-output*);
+          
+          format(*debug-output*, "\n\nevaluated expression: %=\n",
+                 evaluate(init-function.body,
+                          env));
+          force-output(*debug-output*);
+        end;
     end select;
   end for;
   as(<ct-value>, #f);
