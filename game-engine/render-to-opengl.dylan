@@ -18,13 +18,20 @@ define method render-to-opengl(ifs :: <indexed-face-set>)
 end method render-to-opengl;
 
 define method render-to-opengl(transform :: <transform>)
+  local 
+    method gl-rotate*(v :: <vector>)
+      glRotate(s(v[3]), s(v[0]), s(v[1]), s(v[2]));
+    end method gl-rotate*;
   glPushMatrix();
-  if(transform.translation)
-    apply(glTranslate, transform.translation);
-  end if;
-  if(transform.scale)
-    apply(glScale, transform.scale);
-  end if;
+  transform.translation & apply(glTranslate, transform.translation);
+  transform.center      & apply(glTranslate, transform.center);
+  transform.rotation    & gl-rotate*        (transform.rotation);
+  transform.scale-orientation 
+                        & gl-rotate*        (transform.scale-orientation);
+  transform.scale       & apply(glScale,     transform.scale);
+  transform.scale-orientation 
+                        & gl-rotate*        (transform.scale-orientation * - 1);
+  transform.center      & apply(glTranslate, transform.center * -1);
   next-method();
   glPopMatrix();
 end method render-to-opengl;

@@ -72,7 +72,7 @@ define class <transform> (<container-node>)
   slot rotation :: false-or(<3d-rotation>) = #f, init-keyword: rotation:;
   slot scale :: false-or(<3d-vector>) = #f, init-keyword: scale:;
   slot scale-orientation :: false-or(<3d-rotation>) = #f, init-keyword: scale-orientation:;
-  slot translation :: false-or(<3d-vector>) = #f, init-keyword: translate:;
+  slot translation :: false-or(<3d-vector>) = #f, init-keyword: translation:;
 end class <transform>;
 
 define constant <geometry-node> = <node>;

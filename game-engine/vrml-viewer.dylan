@@ -137,7 +137,7 @@ define variable *scene-graph* =
                      specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
                 make(<line-grid>),
                 make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
-                     translate: 3d-vector(3.0, 3.0, -2.0), 
+                     translation: 3d-vector(3.0, 3.0, -2.0), 
                      children: vector(make(<shape>, geometry: make(<sphere>)))),
                 make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), children: 
                        vector(make(<shape>, geometry:
@@ -218,7 +218,7 @@ define method main(progname, #rest arguments)
                          specular:  vector   ( 0.1,   0.9,   0.1, 1.0)),
                     make(<line-grid>),
                     make(<transform>, scale: 3d-vector(0.1, 0.1, 0.1), 
-                         translate: 3d-vector(3.0, 3.0, -2.0), 
+                         translation: 3d-vector(3.0, 3.0, -2.0), 
                          children: vector(make(<shape>, geometry: make(<sphere>)))),
                     make(<transform>, scale: 3d-vector(0.01, 0.01, 0.01), children: 
                            vector(parse-vrml(arguments[0])))));
@@ -227,7 +227,7 @@ define method main(progname, #rest arguments)
   glutInitDisplayMode(logior($GLUT-RGBA, $GLUT-DEPTH, $GLUT-DOUBLE));
   glutInitWindowSize(500, 500);
 //  glutWarpPointer(250, 250);
-  let win :: <integer> = glutCreateWindow("Foo");
+  let win :: <integer> = glutCreateWindow("Dylan Hackers VRML viewer");
 
   glShadeModel($GL-SMOOTH);
   glEnable($GL-DEPTH-TEST);

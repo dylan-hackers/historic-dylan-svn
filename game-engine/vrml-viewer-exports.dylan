@@ -35,7 +35,7 @@ define module vrml-model
     <node>,
     <container-node>, children,
     <indexed-face-set>, ccw, points, polygon-indices, vertex-normals, face-normals,
-    <transform>, scale, translation,
+    <transform>, scale, translation, center, rotation, scale-orientation,
     <shape>, appearance, geometry,
     <line-grid>,
     <sphere>,
