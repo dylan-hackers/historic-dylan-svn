@@ -977,33 +977,33 @@ end;
 define function juxtapose(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
  => juxtaposition :: <function>;
   method(inp :: <byte-string>, matched :: <list>, more) // => no-result :: <never-returns>;
-    let (ign1, matched-by-p1)
+      let (ign1, matched-by-p1)
       = block (done-first)
-          p1(inp, #(), list(done-first));
-        end block;
-    if (matched-by-p1.empty?)
-      more.head(inp, matched, more.tail)
-    else
-      let (rest, product1) = matched-by-p1.head();
-      let (ign2, matched-by-p2)
-        = block (done-second)
-            p1(rest, #(), list(done-second));
-          end block;
-      if (matched-by-p2.empty?)
-        more.head(inp, matched, more.tail)
+	  p1(inp, #(), list(done-first));
+	end block;
+      if (matched-by-p1.empty?)
+	more.head(inp, matched, more.tail)
       else
-        let match = matched-by-p2.head;
-        more.head(inp,
-                  pair(method()
-                         let (rest, product2) = match();
-                         values(rest, connective(product1, product2))
-                       end,
-                       matched),
-                  more.tail)
+	let (rest, product1) = matched-by-p1.head();
+	let (ign2, matched-by-p2)
+	  = block (done-second)
+	      p1(rest, #(), list(done-second));
+	    end block;
+	if (matched-by-p2.empty?)
+	  more.head(inp, matched, more.tail)
+	else
+	  let match = matched-by-p2.head;
+	  more.head(inp,
+		    pair(method()
+			     let (rest, product2) = match();
+			     values(rest, connective(product1, product2))
+			 end,
+			 matched),
+		    more.tail)
+	end if;
       end if;
-    end if;
   end method
-end function;
+end function juxtapose;
 
 //###### can be removed
 // ###
@@ -1023,4 +1023,28 @@ begin
     juxtapose(parse-breakpoint, parse-breakpoint)(inp, #(), list(final))
   end block;
 end begin;
+
+define function parallel(p1 :: <function>, p2 :: <function>, #key connective :: <function> = list)
+ => parallel :: <function>;
+
+  method(inp :: <byte-string>, matched :: <list>, more) // => no-result :: <never-returns>;
+      let (ign1, matched)
+      = block (done-first)
+	  p1(inp, #(), list(p2, done-first));
+	end block;
+
+      if (matched.empty?)
+	more.head(inp, matched, more.tail)
+      else
+	let (rest1, product1) = matched.head();
+	let (rest2, product2) = ~matched.tail.empty? & matched.tail.head();
+	more.head(inp,
+		  pair(method()
+			   values(rest1 | rest2, connective(product1, product2))
+		       end,
+		       matched),
+		  more.tail)
+      end if;
+  end method
+end function parallel;
 
