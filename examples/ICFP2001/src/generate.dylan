@@ -14,12 +14,12 @@ define method initialize(obj :: <generator-state>, #key clone, output, #all-keys
   if(clone)
     obj.open-tags        := clone.open-tags;
     obj.attribute-stack  := clone.attribute-stack;
-    obj.current-output   := copy-sequence(clone.current-output);
+    obj.current-output   := clone.current-output;
     obj.remaining-output := clone.remaining-output;
   else
     obj.open-tags        := #();
     obj.attribute-stack  := list(make(<attribute>));
-    obj.current-output   := make(<stretchy-vector>);
+    obj.current-output   := #();
     obj.remaining-output := output;
   end;
 end method;
@@ -28,12 +28,12 @@ define method generate-output(input)
   let state = make(<generator-state>, output: input);
   force-output(*standard-error*);
   local method pop-tag()
-          add!(state.current-output, state.open-tags.head.close-tag);
+          state.current-output := pair(state.open-tags.head.close-tag, state.current-output);
           state.open-tags := state.open-tags.tail;
           state.attribute-stack := state.attribute-stack.tail;
         end;
   local method push-tag(tag)
-          add!(state.current-output, tag.open-tag);
+          state.current-output := pair(tag.open-tag, state.current-output);
           state.open-tags := pair(tag, state.open-tags);
           state.attribute-stack := pair(apply-op(state.attribute-stack.head, tag), 
                                         state.attribute-stack);
@@ -41,6 +41,7 @@ define method generate-output(input)
 
 
   while(state.remaining-output.size > 0)
+    check-timeout();
 //    debug("%=\n", state.current-output);
 //    debug("%=\n", state.remaining-output);
 //    debug("%=\n", state.attribute-stack);
@@ -54,7 +55,7 @@ define method generate-output(input)
 //    force-output(*standard-error*);
 
     if(from.value = to.value)
-      add!(state.current-output, state.remaining-output[0].string);
+      state.current-output := pair(state.remaining-output[0].string, state.current-output);
       state.remaining-output := subsequence(state.remaining-output, start: 1);
     elseif(state.attribute-stack ~= #() 
              & state.attribute-stack.tail ~= #() 
@@ -127,6 +128,6 @@ define method generate-output(input)
   while(state.open-tags.head ~= #())
     pop-tag();
   end while;
-  state.current-output;
+  reverse(state.current-output);
 end method generate-output;
 

@@ -12,3 +12,6 @@ Fix read-to-end.
 Fix subsequence for strings.
 Implement <stretchy-byte-string>.
 ct-eval of logior.
+common-dylan string-to-integer is broken.
+Syntax error reporting is bad.
+Debuggability is non-existent.

@@ -18,4 +18,4 @@ install: ../runme
 	   md5sum ../dylan-hackers.tgz
 
 test: icfp2001
-	(time ./icfp2001 <tests/test5) && echo **Success**
+	(time ./icfp2001  30 <tests/test5) && echo **Success**

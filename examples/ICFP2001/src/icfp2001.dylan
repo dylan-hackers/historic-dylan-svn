@@ -5,6 +5,7 @@ copyright: this program may be freely used by anyone, for any purpose
 
 define function debug(#rest args)
   apply(format, *standard-error*, args);
+  force-output(*standard-error*);
 end function debug;
 
 define constant <space> =
@@ -117,6 +118,7 @@ define function bgh-parse(s :: <byte-string>)
         fragments.size := 0;
         non-space-char-in-run := #f;
         run-state := curr-state;
+        check-timeout();
       end;
     end method save-run;
   
@@ -212,22 +214,36 @@ define method slurp-input(stream :: <buffered-stream>)
   reduce1(concatenate, v);
 end method slurp-input;
 
+define variable check-timeout = identity;
+
+define class <timeout> (<condition>)
+end;
+
 define function main(name, arguments)
+  let start-time = get-universal-time();
+  let end-time   = start-time + string-to-integer(arguments[0]);
+
+  check-timeout := method()
+                       if(end-time - get-universal-time() < 10)
+                         signal(make(<timeout>));
+                       end if;
+                   end method;
+
   let input-stream = *standard-input*;
 
   let original-input      = slurp-input(input-stream);
   let best-transformation = original-input;
-  let parse-tree          = bgh-parse(original-input);
 
-  let optimized-output = apply(concatenate, generate-output(parse-tree));
+  block()
+    let parse-tree          = bgh-parse(original-input);
 
-  if (optimized-output.size < original-input.size)
-    best-transformation := optimized-output;
-  end if;
+    let optimized-output = reduce1(concatenate, generate-output(parse-tree));
 
-  while(time-is-not-up?())
-    optimize();
-  end while;
+    if (optimized-output.size < original-input.size)
+      best-transformation := optimized-output;
+    end if;
+  exception (<timeout>)
+  end;
 
   if(is-space?(best-transformation[best-transformation.size - 1]))
     best-transformation := copy-sequence(best-transformation, end: best-transformation.size - 1);
