@@ -83,9 +83,9 @@ function standard_footer () {
 
 <P><STRONG>Developer Resources</STRONG></P>
 <UL>
-<LI><A HREF="http://berlin.ccc.de/cgi-bin/cvsweb/gd/">Browse CVS</A>
-<LI><A HREF="http://www.gwydiondylan.org/cgi-bin/gd">Bug Tracker</A>
-<LI><A HREF="http://www.gwydiondylan.org/cgi-bin/gd.private">Private Bug Tracker</A>
+<LI><A HREF="/cgi-bin/cvsweb/">Browse CVS</A>
+<LI><A HREF="/cgi-bin/gd">Bug Tracker</A>
+<LI><A HREF="/cgi-bin/gd.private">Private Bug Tracker</A>
 <LI><A HREF="projects.phtml">Current Projects</A>
 </UL>
 
@@ -99,10 +99,10 @@ function standard_footer () {
 
 <DIV CLASS=footer>
 
-<P><SMALL>Copyright &copy; 1998-2001 Gwydion Dylan Maintainers. All rights
+<P><SMALL>Copyright &copy; 1998-2002 Gwydion Dylan Maintainers. All rights
 reserved.  Created using <A HREF="http://www.php.net/">PHP</A>, <A
 HREF="http://www.apache.org/">Apache</A> on a machine running <A
-HREF="http://www.jurix.org/">Jurix Linux</A>. Graphics by the <A
+HREF="http://www.debian.org/">Debian Linux</A>. Graphics by the <A
 HREF="http://www.gimp.org/">GIMP</A>. [<A
 HREF="mailto:gd-hackers@gwydiondylan.org">Feedback</A>]</SMALL></P>
 
