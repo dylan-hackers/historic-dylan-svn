@@ -189,7 +189,7 @@ define function packages-at(state :: <state>, p :: <point>)
 end function packages-at;
 
 define method find-package (state :: <state>, package-id :: <integer>)
- => <robot>;
+ => <package>;
   iterate loop (lst = state.packages)
     case
       lst.empty?             => error("find-package: id does not exist");
