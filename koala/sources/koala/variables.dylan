@@ -69,3 +69,5 @@ define variable *mime-type-map* :: <table> = make(<table>);
 
 define variable *logfile* :: false-or(<string>) = #f;
 
+define variable *logfile-type* :: one-of(#"common", #"extended") = #"common";
+

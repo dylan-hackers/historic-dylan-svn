@@ -203,13 +203,20 @@ define method send-response
                                 as(<string>, request-version(req)));
       let date = as-common-logfile-date(current-date());
       let remoteaddr = host-address(remote-host(request-socket(req)));
+      let ext :: <string> = "";
+      if (*logfile-type* == #"extended")
+        //for now, add User-Agent and Referer
+        ext := concatenate(" \"", as(<string>, get-header(req, "user-agent") | "-"),
+                           "\" \"", as(<string>, get-header(req, "referer") | "-"),
+                           "\"");
+      end if;
       log-logfile(*logfile*, concatenate(remoteaddr, " ",
                                          "-", " ",
                                          "-", " ",
                                          "[", date, "] ",
                                          "\"", request, "\" ",
                                          integer-to-string(response-code), " ",
-                                         content-length, "\n"));
+                                         content-length, ext, "\n"));
     end if;
   end unless;
 
