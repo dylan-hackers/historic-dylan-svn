@@ -30,7 +30,12 @@ end module;
 define module board
   use icfp2002, export: all;
   
-  export <board>, send-board, width, height, <package>, <robot>;
+  export
+    <board>, <coordinate>,
+    send-board, receive-board,
+    width, height,
+    <terrain>, <wall>, <water>, <base>, <space>,
+    <package>, <robot>;
 end module board;
 
 define module command
@@ -49,7 +54,6 @@ define module command
 end module command;
 
 define module messages
-  use icfp2002;
   use standard-io;
   use string-conversions;
   use board;

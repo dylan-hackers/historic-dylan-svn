@@ -12,12 +12,6 @@ define macro terrain-definer
     define concrete functional class ?name(<terrain>)
     end;
     
-/*    define constant "*" ## ?name ## "*" = 
-
-    define method make(t :: ?name)
-      "*" ## ?name ## "*"
-    end; */
-    
     define sealed domain make(?name.singleton);
     define sealed domain initialize(?name);
     
@@ -61,18 +55,18 @@ end;
 
 // store objects line by line
 
-define method aref(board :: <board>, #rest coords /* :: limited(<integer>, min: 0) */)
+define method aref(board :: <board>, #rest coords /* :: <coordinate> */)
  => object :: <object>;
-  let x :: limited(<integer>, min: 0) = coords.first;
-  let y :: limited(<integer>, min: 0) = coords.second;
+  let x :: <coordinate> = coords.first;
+  let y :: <coordinate> = coords.second;
   
   board.lines[y][x];
 end;
 
-define method aref-setter(obj :: <object>, board :: <board>, #rest coords /* :: limited(<integer>, min: 0) */)
+define method aref-setter(obj :: <object>, board :: <board>, #rest coords /* :: <coordinate> */)
  => object :: <object>;
-  let x :: limited(<integer>, min: 0) = coords.first;
-  let y :: limited(<integer>, min: 0) = coords.second;
+  let x :: <coordinate> = coords.first;
+  let y :: <coordinate> = coords.second;
   
   board.lines[y][x] := obj;
 end;
@@ -99,7 +93,7 @@ end;
 
 //define constant <water> = $water-char.singleton;
 
-define method object-from-character(c == $water-char)
+define method terrain-from-character(c == $water-char)
  => water :: <water>;
   <water>.make
 end;
@@ -129,7 +123,7 @@ let landscape =  #("..@...."
 
   board.lines
     := map-as(limited(<vector>, of: <line>),
-              curry(map-as, <line>, object-from-character),
+              curry(map-as, <line>, terrain-from-character),
               landscape);
 
 

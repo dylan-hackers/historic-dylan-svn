@@ -90,7 +90,7 @@ define method send-command (s :: <stream>, command :: <move>) => ();
   format(s, "%d Move %s", command.bid, direction-string);
   debug("send-command(<move>): bid %d and dir %s\n",
         command.bid, direction-string);
-end function send;
+end method send-command;
 
 // This sends a message to pick up some objects. 
 
