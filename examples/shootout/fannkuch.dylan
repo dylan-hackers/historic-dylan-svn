@@ -1,8 +1,8 @@
-module: funnkuch
+module: fannkuch
 
 define constant <int-vector> = limited(<vector>, of: <integer>);
 
-define function funnkuch (n :: <integer>)
+define function fannkuch (n :: <integer>)
  => result :: <integer>;
   let perm :: <int-vector> = make(<int-vector>,size: n,fill: 0);
   let perm1 = make(<int-vector>,size: n,fill: 0);
@@ -70,9 +70,9 @@ define function funnkuch (n :: <integer>)
 
     end while;
   end block;
-end function funnkuch;
+end function fannkuch;
 
 begin
   let arg = application-arguments()[0].string-to-integer;
-  format-out("%d\n",funnkuch(arg));
+  format-out("%d\n",fannkuch(arg));
 end;
