@@ -1,7 +1,7 @@
 SOURCES=icfp2001.dylan icfp2001-exports.dylan
 
 icfp2001: icfp2001.lid $(SOURCES)
-	d2c -s icfp2001.lid
+	d2c -s -L ../../meta icfp2001.lid
 
 clean:
 	rm -f *.o *.s *.a *.c *.mak *~ icfp2001
