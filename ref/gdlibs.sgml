@@ -2228,11 +2228,586 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 
   </CHAPTER>
 
-  <CHAPTER ID="libs-table-extensions">
-    <TITLE>The Table-Extensions Library</TITLE>
-
-    <PARA></PARA>
-  </CHAPTER>
+  <chapter id="libs-table-extensions">
+    <title> The table-extensions Library </title>
+    <sect1 id="libs-table-extensions-table-extensions">
+      <title> The table-extensions Module </title>
+  
+      <para>
+  	This library contains a number of useful additional table classes,
+  	and a number of functions that could be useful in constructing
+  	your own table classes.
+      </para>
+  
+      <dylanclassdef>
+  	<defname> &lt;case-insensitive-string-table&gt; </defname>
+  	<defadjectives>
+  	  sealed
+  	  instantiable
+  	</defadjectives>
+  	<defsummary>
+  	  Implements a <classname> &lt;table&gt; </classname> class, keyed by
+  	  strings keyed without regard for case.
+  	</defsummary>
+  	<defsupers>
+  	  <defsuper>
+  	    &lt;value-table&gt;
+  	  </defsuper>
+  	</defsupers>
+  	<definitkeywords>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+  	    <classname> &lt;case-insensitive-string-table&gt; </classname>
+  	    implements a <classname> &lt;table&gt; </classname> class whose
+  	    keys are instances of <classname> &lt;string&gt; </classname>.
+  	    However, instead of using <function> \= </function> for the
+  	    equivalence relation, strings which are the same modulo case are
+  	    considered equivalent.
+  	  </para>
+  	  <para>
+  	    Note that the case-insensitivity is true in general only for 
+  	    English strings -- non-English characters have their case 
+  	    "normalized" by subtracting the difference in integer code
+  	    for the character 'a' and 'A'. This works only for ASCII
+  	    and Unicode, and only for English. 
+  	  </para>
+  	</defdescription>
+      </dylanclassdef>
+      
+      <dylanclassdef>
+  	<defname> &lt;equal-table&gt; </defname>
+  	<defadjectives>
+  	  sealed
+  	  instantiable
+  	</defadjectives>
+  	<defsummary>
+  	  Implements a class which compares keys using <function> \= </function>.
+  	</defsummary>
+  	<defsupers>
+  	  <defsuper>
+  	    &lt;table&gt;
+  	  </defsuper>
+  	</defsupers>
+  	<definitkeywords>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+  	    <classname> &lt;equal-table&gt; </classname> implements a
+  	    <classname> &lt;table&gt; </classname> class whose keys are
+  	    compared with <function> \= </function> rather than <function>
+  	    \== </function>. So for example, two instances of <classname>
+  	    list </classname> that don't have object identity, but did
+  	    contain references to the same object, would be considered
+  	    equivalent keys by <classname> &lt;equal-table&gt; </classname>.
+  	  </para>
+  	</defdescription>
+      </dylanclassdef>
+      
+      <dylanclassdef>
+  	<defname> &lt;hash-state&gt; </defname>
+  	<defsummary>
+  	  The type of hash states. 
+  	</defsummary>
+  	<defsupers>
+  	</defsupers>
+  	<definitkeywords>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+  	    <classname> &lt;hash-state&gt; </classname> is the type of the
+  	    hash state returned as the second value of hash functions.
+  	    For example, <dlit>$permanent-hash-state</dlit> is of type
+  	    <classname> &lt;hash-state&gt; </classname>.
+  	  </para>
+  	</defdescription>
+      </dylanclassdef>
+      
+      <dylanclassdef>
+  	<defname> &lt;string-table&gt; </defname>
+  	<defadjectives>
+  	  sealed
+  	  instantiable
+  	</defadjectives>
+  	<defsummary>
+  	  A <classname> &lt;table&gt; </classname> class keyed by strings.
+  	</defsummary>
+  	<defsupers>
+  	  <defsuper>
+  	    &lt;value-table&gt;
+  	  </defsuper>
+  	</defsupers>
+  	<definitkeywords>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+  	    This class implements a <classname> &lt;table&gt; </classname>
+  	    class that is keyed by <function> \= </function> equal 
+  	     <classname> &lt;string&gt; </classname> instances.
+  	  </para>
+  	</defdescription>
+      </dylanclassdef>
+      
+      <dylanclassdef>
+  	<defname> &lt;value-table&gt; </defname>
+  	<defadjectives>
+  	  open
+  	  abstract
+  	</defadjectives>
+  	<defsummary>
+  	  Intended as the abstract superclass of user-defined tables.
+  	</defsummary>
+  	<defsupers>
+  	  <defsuper>
+  	    &lt;table&gt;
+  	  </defsuper>
+  	</defsupers>
+  	<definitkeywords>
+  	</definitkeywords>
+  	<defdescription>
+  	  <para>
+  	    This class is intended to be an abstract superclass of
+  	    <classname> &lt;table&gt; </classname> classes that have
+  	    user-defined key comparison and hash functions. (NB: The hash
+  	    functions cannot involve physical addresses.)
+  	  </para>
+  	</defdescription>
+      </dylanclassdef>
+      
+      <dylangenericdef>
+  	<defname> case-insensitive-equal </defname>
+  	<defsummary>
+  	  Tests whether two objects (usually strings) are the same modulo
+  	  case.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> object-1 </paramname>
+  	    <paramtype> &lt;object&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> object-2 </paramname>
+  	    <paramtype> &lt;object&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Tests whether two objects have the same string value modulo case.
+  	    Comparisons to non- <classname> &lt;string&gt; </classname> or 
+  	    <classname> &lt;character&gt; </classname> instances return
+  	    <dlit>#f</dlit>.
+  	  </para>
+  	</defdescription>
+      </dylangenericdef>
+      
+      <dylanmethoddef>
+  	<defname> case-insensitive-equal </defname>
+  	<defsummary>
+  	  Least-specific method testing whether two objects are the same
+  	  modulo case.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> object-1 </paramname>
+  	    <paramtype> &lt;object&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> object-2 </paramname>
+  	    <paramtype> &lt;object&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Since at least one of the arguments is not a <classname>
+  	    &lt;character&gt; </classname> or <classname> &lt;string&gt;
+  	    </classname>, this method always returns <dlit>#f</dlit>.
+  	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+      
+      <dylanmethoddef>
+  	<defname> case-insensitive-equal </defname>
+  	<defsummary>
+  	  Method testing whether two characters are the same modulo case.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> object-1 </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> object-2 </paramname>
+  	    <paramtype> &lt;character&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    This method returns true if either the two arguments are the
+  	    same character, or if they are alphabetic characters that are
+  	    the same character modulo case. (This only works for English
+  	    characters in general.)
+  	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+      
+      <dylanmethoddef>
+  	<defname> case-insensitive-equal </defname>
+  	<defsummary>
+  	  Method testing whether two strings are the same modulo case.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> object-1 </paramname>
+  	    <paramtype> &lt;string&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> object-2 </paramname>
+  	    <paramtype> &lt;string&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> answer </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    This method returns true if the two arguments are the same
+  	    size, and each component character returns true with a 
+  	    <function> case-insensitive-equal </function>. 
+  	  </para>
+  	</defdescription>
+      </dylanmethoddef>
+      
+      <dylanfunctiondef>
+  	<defname> case-insensitive-string-hash </defname>
+  	<defsummary>
+  	  The default hash function for case-insensitive strings.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> s </paramname>
+  	    <paramtype> &lt;string&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> initial-state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> id </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> hash-state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    This is a convenient hash function for case-insensitive
+  	    strings. It is returned as the <function>table-protocol</function>
+  	    method's second value for
+  	    <classname> &lt;case-insensitive-string-table&gt; </classname>.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+      
+      <dylanfunctiondef>
+  	<defname> collection-hash </defname>
+  	<defsummary>
+  	  A function for building hash functions that test collection
+  	  equivalence.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> key-hash </paramname>
+  	    <paramtype> &lt;function&gt; </paramtype>
+  	    <paramsummary>
+  	      Computes hash ids for the keys. It takes an object and a
+  	      <classname>&lt;hash-state&gt;</classname> as an argument, and
+  	      returns a hash id and a hash state.
+  	    </paramsummary>
+  	  </param>
+  	  <param>
+  	    <paramname> element-hash </paramname>
+  	    <paramtype> &lt;function&gt; </paramtype>
+  	    <paramsummary>
+  	      Computes hash ids for the elements. It takes an object and a
+  	      <classname>&lt;hash-state&gt;</classname> as an argument, and
+  	      returns a hash id and a hash state.
+  	    </paramsummary>
+  	  </param>
+  	  <param>
+  	    <paramname> col </paramname>
+  	    <paramtype> &lt;collection&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> initial-state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	  <keyparam>
+  	    <paramname> ordered </paramname>
+  	    <paramtype> &lt;boolean&gt; </paramtype>
+  	    <paramsummary>
+  	      Whether or not to do an ordered merge of the key/element hash
+  	      codes. The default is <dlit>#f</dlit>.
+  	    </paramsummary>
+  	  </keyparam>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> id </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	    <paramsummary> The hash id. </paramsummary>
+  	  </param>
+  	  <param>
+  	    <paramname> state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Two collections will yield the same hash id, if each of their
+  	    keys/element pairs hash to the same value. It's safe to set
+  	    the <dlit>ordered:</dlit> keyword argument to <dlit>#t</dlit>
+  	    only if the collection has a natural iteration order.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+  	  
+      <dylangenericdef>
+  	<defname> equal-hash </defname>
+  	<defsummary>
+  	  Computes hash ids for objects such that two objects that are
+  	  <function> \= </function> equal have the same hash id.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> thing </paramname>
+  	    <paramtype> &lt;object&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> id </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Methods on <function> equal-hash </function> should return hash
+  	    ids such that the	id for two <function> \= </function> equal 
+  	    objects are the same.
+  	  </para>
+  	  <para>
+  	    There is a default method is defined on all instances of 
+  	    &lt;object&gt;, and it returns a valid hash id in all cases. 
+  	    However, performance *will* suck horribly (algorithmically, even) 
+  	    if you don't define better methods for your own objects that will 
+  	    live in <classname> &lt;equal-table&gt; </classname> instances.
+  	  </para>
+  	  <para>
+  	    Good methods for <function>equal-hash</function> are defined for
+  	    &lt;integer&gt;, &lt;float&gt;, &lt;symbol&gt;, &lt;type&gt;,
+  	    &lt;function&gt;, &lt;boolean&gt;, &lt;condition&gt;, and
+  	    &lt;collection&gt;. (Note that &lt;collection&gt; is a supertype
+  	    of &lt;string&gt;.)
+  	  </para>
+  	</defdescription>
+      </dylangenericdef>
+      
+      <dylanfunctiondef>
+  	<defname> remove-all-keys! </defname>
+  	<defsummary>
+  	  Remove all keys from a table.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> coll </paramname>
+  	    <paramtype> &lt;mutable-explicit-key-collection&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> coll </paramname>
+  	    <paramtype> &lt;mutable-explicit-key-collection&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    This function iterates through all the keys and calls
+  	    <function> remove-key! </function> on each one.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+      
+      <dylanfunctiondef>
+  	<defname> sequence-hash </defname>
+  	<defsummary>
+  	  Like <function> collection-hash </function>, only a more
+  	  efficient version just for sequences.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> element-hash </paramname>
+  	    <paramtype> &lt;function&gt; </paramtype>
+  	    <paramsummary>
+  	      Computes hash ids for the elements. It takes an object and a
+  	      <classname>&lt;hash-state&gt;</classname> as an argument, and
+  	      returns a hash id and a hash state.
+  	    </paramsummary>
+  	  </param>
+  	  <param>
+  	    <paramname> seq </paramname>
+  	    <paramtype> &lt;sequence&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> initial-state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> id </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    This is similar to an <function> equal-hash </function>, except
+  	    that it hashes things with <dlit> ordered: #t </dlit> and
+  	    ignores the sequence keys. USE WITH CAUTION: This isn't a proper
+  	    equal-hash because two collections of different types but
+  	    identical key/element pairs won't generate the same hash id,
+  	    even though the two collections are <function> \= </function>.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+      
+      
+      <dylanfunctiondef>
+  	<defname> string-hash </defname>
+  	<defsummary>
+  	  A convenient function for hashing strings
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> s </paramname>
+  	    <paramtype> &lt;string&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> initial-state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> id </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    A convenient method for hashing strings. Used by
+  	    <classname> &lt;string-table&gt; </classname>.
+  	  </para>
+  	</defdescription>
+      </dylanfunctiondef>
+      
+  	  
+      <dylangenericdef>
+  	<defname> value-hash </defname>
+  	<defsummary>
+  	  Computes hash ids for objects such that two objects that are
+  	  <function> \= </function> equal have the same hash id.
+  	</defsummary>
+  	<defparameters>
+  	  <param>
+  	    <paramname> thing </paramname>
+  	    <paramtype> &lt;object&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+  	  </param>
+  	</defparameters>
+  	<defreturns>
+  	  <param>
+  	    <paramname> id </paramname>
+  	    <paramtype> &lt;integer&gt; </paramtype>
+  	  </param>
+  	  <param>
+  	    <paramname> state </paramname>
+  	    <paramtype> &lt;hash-state&gt; </paramtype>
+	  </param>
+  	</defreturns>
+  	<defdescription>
+  	  <para>
+  	    Methods on <function> equal-hash </function> should return hash
+  	    ids such that the	id for two <function> \= </function> equal 
+  	    objects are the same.
+  	  </para>
+  	  <para>
+  	    There is a default method is defined on all instances of 
+  	    &lt;object&gt;, and it returns a valid hash id in all cases. 
+  	    However, performance *will* suck horribly (algorithmically, even) 
+  	    if you don't define better methods for your own objects that will 
+  	    live in <classname> &lt;equal-table&gt; </classname> instances.
+  	  </para>
+  	  <para>
+  	    Good methods for <function>equal-hash</function> are defined for
+  	    &lt;integer&gt;, &lt;float&gt;, &lt;symbol&gt;, &lt;type&gt;,
+  	    &lt;function&gt;, &lt;boolean&gt;, &lt;condition&gt;, and
+  	    &lt;collection&gt;. (Note that &lt;collection&gt; is a supertype
+  	    of &lt;string&gt;.)
+  	  </para>
+  	</defdescription>
+      </dylangenericdef>
+  
+  <!-- 
+       We need to add documentation for value-hash and values-hash, but
+       I don't understand it well enough to describe yet. 
+   -->
+  
+    </sect1>
+  </chapter>          
 
   <chapter id="libs-string-extensions">
     <title> The string-extensions Library </title>
