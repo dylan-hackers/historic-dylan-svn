@@ -1,0 +1,51 @@
+Synopsis: brain-compiler allows to write ant brains
+          with a domain specific language that
+          is embedded into a Dylan program.
+
+Author: Gabor Greif (with ant contributors)
+
+Description:
+
+Two macros are provided:
+- brain-definer
+- ant-subbrain-definer
+
+The latter is just a simple ruleset that
+understands raw ANT statements. It creates
+a "subbrain", i.e. a set of states that
+can be referenced by a Sub directive from
+a regular (sub)brain. The statements need
+to be semicolon separated (but this may
+be relaxed later).
+
+brain-definer is a full fledged assembler
+that performs dead code removal and also
+flattens out the brain states in depth-first
+fashion. A cross-referencer is available.
+The DSL has some simplified cases for commands
+that only sidetrack for failures (or successes).
+Full label facility is included. There is
+no implicit fall-thru to the next label.
+
+The "Sub" directive is available for common
+tasks. These are called subbrains and can
+also be defined with the "define sub brain"
+form of the macro.
+
+Adding of global variables is work in progress.
+The theory behind this is state duplication.
+A necessary drawback is that the state-space
+explodes, but it appears very convenient for
+remembering stuff.
+Local state variables were also discussed,
+but they seem less interesting. (Locality
+is for the current label). Also subbrain-
+global variables are conceivable.
+
+The syntax of both DSLs can be looked up in the
+macro definitions or in the macro usage.
+
+These macros define a function, that can be called
+to obtain the brain (vector of state objects).
+The cross-referencer can also be invoked on such
+a brain.
