@@ -165,7 +165,7 @@ define open generic accessor-size-setter
 
 define open generic accessor-positionable?
     (accessor :: <external-stream-accessor>)
- => (open? :: <boolean>);
+ => (positionable? :: <boolean>);
 
 define open generic accessor-position
     (accessor :: <external-stream-accessor>)
