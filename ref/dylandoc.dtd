@@ -23,5 +23,73 @@
 
 -->
 
+
+<!-- =============== Local Modular Entities ======================= -->
+
+<!ENTITY % local.dylan.def.class "">
+<!ENTITY % dylan.def.class
+           "DylanConstantDef|DylanVariableDef|
+            DylanGenericDef|DylanMethodDef|DylanFunctionDef|
+            DylanClassDef|DylanMacroDef
+            %local.dylan.def.class;" >
+
+
+<!-- =============== DocBook Entity Overrides ===================== -->
+
+<!ENTITY % local.synop.class "|%dylan.def.class;">
+
+
+<!-- =============== The Real Thing =============================== -->
+
 <!ENTITY % docbook.definition PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
 %docbook.definition;
+
+
+<!-- =============== Element Definitions ========================== -->
+
+<!ELEMENT DefName - - (#PCDATA) >
+<!ELEMENT DefBody - - (%component.mix;)+ -(synop.class) >
+<!ELEMENT DefType - - (#PCDATA) >
+<!ELEMENT DefValue - - (#PCDATA) >
+<!ELEMENT DefAdjectives - - (#PCDATA) >
+<!ELEMENT DefParameters - - (DefParam*, Rest?, 
+                            (Key, AllKeys?)?) >
+<!ELEMENT DefReturns - - (DefParam*, Rest?) -(ParamSingleton)>
+<!ELEMENT DefParam - - (ParamName, (ParamType|ParamSingleton),
+                        ParamSynopsis?) >
+<!ELEMENT Rest - - (ParamName, RestType, ParamSynopsis?)? >
+<!ELEMENT RestType - - (#PCDATA) >
+<!ELEMENT Key - - (DefParam*) >
+<!ELEMENT AllKeys - O EMPTY >
+<!ELEMENT ParamName - - (#PCDATA) >
+<!ELEMENT ParamType - - (#PCDATA) >
+<!ELEMENT ParamSingleton - - (#PCDATA) >
+<!ELEMENT ParamSynopsis - - ((%para.char.mix; | %para.mix;)+) >
+
+<!ELEMENT DylanConstantDef - - (DefName, DefType?, DefValue?, DefBody) >
+<!ATTLIST DylanConstantDef
+        DylanDefName CDATA #FIXED "Constant">
+
+<!ELEMENT DylanVariableDef - - (DefName, DefType?, DefValue?, DefBody) >
+<!ATTLIST DylanVariableDef
+        DylanDefName CDATA #FIXED "Variable">
+
+<!ELEMENT DylanFunctionDef - - (DefName, DefAdjectives?, DefParameters,
+                                DefReturns, DefBody) >
+<!ATTLIST DylanFunctionDef
+        DylanDefName CDATA #FIXED "Function">
+
+<!-- Scratch ,,, 
+
+<!ELEMENT Defsynopsis - - (%para.mix;)+ >
+
+<!ATTLIST DylanName
+          library  CDATA #IMPLIED
+          module   CDATA #IMPLIED >
+<!ELEMENT DylanType - - (#PCDATA) >
+
+<!ELEMENT DylanVar - - (DylanName, DylanType?) >
+
+<!ELEMENT DylanSynopsis - - ((%dylan.def.class;), (%component.mix;)+) >
+
+-->

@@ -3,7 +3,8 @@
  %entities;
 ]>
 <BOOK>
-  <TITLE>Gwydion Dylan Library Reference Guide</TITLE>
+  <title>Gwydion Dylan Library Reference Guide</title>
+  <titleabbrev>Library Reference Guide</titleabbrev>
 
   <bookinfo>
     <COPYRIGHT>
@@ -15,8 +16,6 @@
     </COPYRIGHT>
     &cmu.terms;
     <bookbiblio>
-      <title>Gwydion Dylan Library Reference Guide</title>
-      <titleabbrev>Library Reference Guide</titleabbrev>
       <date>09 September 1998</date>
       <editor>&person.housel;</editor>
     </bookbiblio>
@@ -904,18 +903,15 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  </REFNAMEDIV>
 	  <REFSECT1>
 	    <TITLE>Superclass</TITLE>
-
 	    <PARA><CLASSNAME>&lt;rational&gt;</CLASSNAME></PARA>
 	  </REFSECT1>
 	  <REFSECT1>
 	    <TITLE>Description</TITLE>
-
 	    <PARA>The superclass of
 	    <CLASSNAME>&lt;integer&gt;</CLASSNAME> and
 	    <CLASSNAME>&lt;extended-integer&gt;</CLASSNAME>.</PARA>
 	  </REFSECT1>
 	</REFENTRY>
-
 	<REFENTRY>
 	  <REFNAMEDIV>
 	    <REFNAME>&lt;extended-integer&gt;</REFNAME>
@@ -923,11 +919,9 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  </REFNAMEDIV>
 	  <REFSECT1>
 	    <TITLE>Superclasses</TITLE>
-
 	    <PARA><CLASSNAME>&lt;general-integer&gt;</CLASSNAME></PARA>
 	  </REFSECT1>
 	</REFENTRY>
-
 	<REFENTRY>
 	  <REFNAMEDIV>
 	    <REFNAME>$maximum-integer</REFNAME>
@@ -935,7 +929,6 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  </REFNAMEDIV>
 	  <REFSECT1>
 	    <TITLE>Description</TITLE>
-
 	    <PARA>Holds the largest positive
 	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
 	  </REFSECT1>
@@ -947,7 +940,6 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	  </REFNAMEDIV>
 	  <REFSECT1>
 	    <TITLE>Description</TITLE>
-
 	    <PARA>Holds the smallest negative
 	    <CLASSNAME>&lt;integer&gt</CLASSNAME>.</PARA>
 	  </REFSECT1>

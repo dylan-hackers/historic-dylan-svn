@@ -2,7 +2,7 @@
 
 DYLANDOC_TOOLS = CATALOG dylandoc.dtd dylandoc.dsl
 STANDARD_DEPS = entities.sgml $(DYLANDOC_TOOLS)
-JADE = jade -d dylandoc.dsl -c CATALOG
+JADE = jade -E 5 -c CATALOG
 
 SGML_MANUALS = gduser.sgml gdlibs.sgml gdmaint.sgml tutorial.sgml
 HTML_CHUNKED_MANUALS = gduser gdlibs gdmaint tutorial
@@ -19,20 +19,20 @@ RTF_MANUALS = gduser.rtf gdlibs.rtf gdmaint.rtf tutorial.rtf
 	rm -rf $@
 	mkdir $@
 	(cd $@; \
-	  jade -c ../CATALOG -d ../dylandoc.dsl -t sgml -i html ../$<)
+	  jade -E 5 -c ../CATALOG -d ../dylandoc.dsl#html -t sgml -ihtml ../$<)
 
 # Make a single HTML file.
 %.html: %.sgml $(STANDARD_DEPS)
-	$(JADE) -t sgml -i html -V nochunks $< > $@
+	$(JADE) -d dylandoc.dsl#html -t sgml -ihtml -V nochunks $< > $@
 	rm -f HTML.manifest
 
 # Make an RTF file.
 %.rtf: %.sgml $(STANDARD_DEPS)
-	$(JADE) -t rtf $<
+	$(JADE) -d dylandoc.dsl#print -t rtf $<
 
 # Make a flow object tree, just for kicks.
 %.fot: %.sgml $(STANDARD_DEPS)
-	$(JADE) $<
+	$(JADE) -d dylandoc.dsl#print $<
 
 ######################################################################
 #
@@ -56,4 +56,3 @@ distclean: clean
 	rm -f *~
 
 reallyclean: distclean
-

@@ -3,7 +3,8 @@
  %entities;
 ]>
 <BOOK ID="gduser">
-  <TITLE>Gwydion Dylan User's Guide</TITLE>
+  <title>Gwydion Dylan User's Guide</title>
+  <titleabbrev>User's Guide</titleabbrev>
 
   <bookinfo>
     <COPYRIGHT>
@@ -13,8 +14,6 @@
     </COPYRIGHT>
     &cmu.terms;
     <bookbiblio>
-      <title>Gwydion Dylan User's Guide</title>
-      <titleabbrev>User's Guide</titleabbrev>
       <date>09 September 1998</date>
       <editor>&person.housel;</editor>
     </bookbiblio>
@@ -372,7 +371,7 @@ end method main;
       <PARA>Here is a sample LID file:</PARA>
 
       <PROGRAMLISTING>
-rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.4 1998/09/17 18:02:50 emk Exp $
+rcs-header: $Header: /scm/cvs/ref/Attic/gduser.sgml,v 1.5 1998/09/20 15:33:54 emk Exp $
 library: my-program
 unit-prefix: myprog
 unique-id-base: 30000

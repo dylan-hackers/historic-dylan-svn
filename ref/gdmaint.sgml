@@ -3,7 +3,8 @@
  %entities;
 ]>
 <BOOK>
-  <TITLE>Gwydion Dylan Porting and Maintenance Guide</TITLE>
+  <title>Gwydion Dylan Porting and Maintenance Guide</title>
+  <titleabbrev>Maintenance Guide</titleabbrev>
 
   <bookinfo>
     <COPYRIGHT>
@@ -13,8 +14,6 @@
     </COPYRIGHT>
     &cmu.terms;
     <bookbiblio>
-      <title>Gwydion Dylan Porting and Maintenance Guide</title>
-      <titleabbrev>Maintenance Guide</titleabbrev>
       <date>09 September 1998</date>
       <editor>&person.housel;</editor>
     </bookbiblio>
@@ -467,4 +466,3 @@ my-local := big-computation(arg1, arg2)
     </SECT1>
   </APPENDIX>
 </BOOK>
-

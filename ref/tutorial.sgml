@@ -9,8 +9,6 @@
 
   <BookInfo>
     <BookBiblio id="about">
-      <Title>Getting Started with &dylan;</Title>
-      <TitleAbbrev>Dylan Tutorial</TitleAbbrev>
       <AuthorGroup>
 	<Author>&person.emk;</Author>
       </AuthorGroup>
