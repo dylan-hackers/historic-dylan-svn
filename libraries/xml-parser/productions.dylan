@@ -20,7 +20,7 @@ copyright: LGPL
  * The scan-foo clauses contain a numeric reference to the associated
  * production in the specification.
  *
- * prerequisit:  the meta library (currently at gd/examples/meta/)
+ * prerequisite:  the meta library (currently at gd/libraries/meta/)
  * 
  * Useful for the understanding of this parser:
  *   http://linux.rice.edu/~rahul/hbaker/Prag-Parse.html (a paper on META)
@@ -93,7 +93,7 @@ end meta document-helper;
 // Andreas: FIXME: we're cheating here, by using UFT8 and just allowing 
 //                 anything.
 //
-define constant <char> = <character>;
+//define constant <char> = <character>;
 
 // an entirely redundant definition if we had a BNF parser
 define meta s?(c) loop(scan-s(c)) end;
