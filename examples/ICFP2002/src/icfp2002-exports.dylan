@@ -122,7 +122,7 @@ define module client
 
   export
     <robot-agent>,
-    robot,
+	id,
     <dumbot>, <dumber-bot>,
     <dumber-bot>,
     <pushbot>,
