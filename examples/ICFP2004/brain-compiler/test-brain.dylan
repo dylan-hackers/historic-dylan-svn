@@ -8,7 +8,8 @@ define sub brain test-sub(back)
 end brain;
 
 define returning ant-subbrain test-ant-subbrain
-Flip 6 1 1
+Move 1 1;
+Flip 6 2 1
 end;
 
 define ant-subbrain test-ant-subbrain2
