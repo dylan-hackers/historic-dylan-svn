@@ -116,7 +116,7 @@ end;
 
 define function compile-states (instrs :: <table>)
  => brain :: <vector>;
-  let brain :: <stretchy-vector> = make(<vector>);
+  let brain :: <stretchy-vector> = make(<stretchy-vector>);
   let start-instr = instrs[start:];
   let pos-table :: <table> = make(<table>);
   put-instruction(start-instr, brain, pos-table);
@@ -145,6 +145,40 @@ define method put-instruction(instr :: <drop>, brain :: <stretchy-vector>, pos-t
       let pos = element(pos-table, next-state, default: #f);
       if (pos)
         instr.state := pos;
+      else
+        put-instruction(next-state, brain, pos-table);
+        put-instruction(instr, brain, pos-table);
+      end;
+    <integer> =>
+      #t // we are done
+  end select;
+end;
+
+define method put-instruction(instr :: <move>, brain :: <stretchy-vector>, pos-table :: <table>)
+ => ();
+  next-method();
+  
+  let next-state = instr.state-success;
+  select (next-state by instance?)
+    <instruction> =>
+      let pos = element(pos-table, next-state, default: #f);
+      if (pos)
+        instr.state-success := pos;
+      else
+        put-instruction(next-state, brain, pos-table);
+        put-instruction(instr, brain, pos-table);
+      end;
+    <integer> =>
+      #t // we are done
+  end select;
+
+
+  let next-state = instr.state-failure;
+  select (next-state by instance?)
+    <instruction> =>
+      let pos = element(pos-table, next-state, default: #f);
+      if (pos)
+        instr.state-failure := pos;
       else
         put-instruction(next-state, brain, pos-table);
         put-instruction(instr, brain, pos-table);
