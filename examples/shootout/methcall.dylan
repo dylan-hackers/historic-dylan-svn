@@ -15,12 +15,16 @@ define class <nth-toggle> (<toggle>)
 end class;
 
 
-define method activate (t :: <toggle>) => value :: <boolean>;
+define sealed domain make(subclass(<toggle>));
+define sealed domain initialize (<toggle>);
+
+
+define inline method activate (t :: <toggle>) => value :: <boolean>;
   t.value := ~t.value;
 end method;
 
 
-define method activate (t :: <nth-toggle>) => value :: <boolean>;
+define inline method activate (t :: <nth-toggle>) => value :: <boolean>;
   t.counter := t.counter + 1;
   if (t.counter >= t.counter-maxiumum)
     t.value := ~t.value;
