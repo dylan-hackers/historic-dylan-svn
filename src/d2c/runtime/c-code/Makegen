@@ -12,6 +12,7 @@ if ($shared) {
 	printf($target_platform{'link_shared_library_command'}, $lib_name,
 	       "allocate$dot_obj main$dot_obj nlx$dot_obj trampoline$dot_obj",
 	       $libdir);
+	print "\n";
 	if ($static) {
 	    local ($dot_lib)
 		= split(/\s+/, $target_platform{'library_filename_suffix'});
@@ -22,8 +23,8 @@ if ($shared) {
 } else {
 	printf($target_platform{'link_library_command'}, $lib_name,
 	       "allocate$dot_obj main$dot_obj nlx$dot_obj trampoline$dot_obj");
+	print "\n";
 }
-print "\n";
 
 push(@compile_dependencies, $lib_name);
 do install_library($libdir, $lib_name, $shared);

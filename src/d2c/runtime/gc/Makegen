@@ -93,6 +93,7 @@ print "\trm -f $lib_name\n\t";
 if ($shared) {
     printf($target_platform{'link_shared_library_command'}, $lib_name,
 	   $objs, $libdir);
+    print "\n";
     if ($static) {
 	local ($dot_lib)
 	    = split(/\s+/, $target_platform{'library_filename_suffix'});
@@ -102,8 +103,8 @@ if ($shared) {
     }
 } else {
     printf($target_platform{'link_library_command'}, $lib_name, $objs);
+    print "\n";
 }
-print "\n";
 
 push(@compile_dependencies, $lib_name);
 do install_library($libdir, $lib_name, $shared);
