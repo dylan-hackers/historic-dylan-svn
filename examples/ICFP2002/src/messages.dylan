@@ -297,7 +297,7 @@ end function more-packages?;
 // Receive server package information
 define function receive-server-packages(s :: <stream>, state :: <state>) => (state :: <state>)
   while(more-packages?(s))
-    receive-spaces();
+    receive-spaces(s);
     let (id, x, y, weight) = receive-package-information(s);
     state := add-package(state, make(<package>,
                                      id: id,
