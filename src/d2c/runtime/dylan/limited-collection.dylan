@@ -1,4 +1,4 @@
-RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.6 2000/06/25 21:11:33 emk Exp $
+RCS-Header: $Header: /scm/cvs/src/d2c/runtime/dylan/limited-collection.dylan,v 1.1.2.7 2000/07/01 23:35:19 emk Exp $
 Module: dylan-viscera
 Copyright: See below.
 Synopsis: Runtime support for limited collections.
@@ -62,6 +62,13 @@ define sealed  method make
 	type, supplied-keys);
 end method make;
 
+// Note that we should specify tight return types on the individual methods,
+// preferably in terms of 'limited(<foo>, of: <known-type>)' when possible.
+// This will cause a typecheck to happen in make-limited-collection, but
+// will allow better type inference in user code.
+// XXX - Actually, the above statements may be wrong. Investigate this.
+// Eventually, we'll need to add a special-purpose transformer to clean
+// up the type of this generic in the compiler itself.
 define generic make-limited-collection
     (base-class :: <class>,
      element-type :: <type>,
@@ -98,16 +105,73 @@ end method element-type;
 
 
 //=========================================================================
-//  <limited-object-table>
+//  Packable Element Types
 //=========================================================================
-//  We just override element-setter.
+//  For sufficiently important limited collection types, we should have
+//  packed storage representations for each of the types below. This
+//  list should vaguely match the types in the C-Representation module.
+//
+//  We don't support unsigned 32-bit integers because they don't work
+//  correctly in the current version of d2c. Oh, well.
+//
+//  XXX - Do we want to get this from configure, hypothetically speaking?
+//  XXX - This code is partially duplicated in optimizer/limopt.dylan.
 
-define class <limited-object-table>
-    (<object-table>, <limited-collection-mixin>)
-end class <limited-object-table>;
+// These types are declared elsewhere.
+// <integer> - This gives us 32-bit signed values with our current compiler.
+// <single-float>
+// <double-float>
+// <extended-float>
+// <boolean>
 
-define sealed domain make (singleton(<limited-object-table>));
+// From /usr/include/limits.h.
+define constant $CHAR_MIN  = -128;
+define constant $CHAR_MAX  = 127;
+define constant $UCHAR_MAX = 255;
+define constant $SHRT_MIN  = -32768;
+define constant $SHRT_MAX  = 32767;
+define constant $USHRT_MAX = 65535;
 
+// Limited integer types.
+// (These don't *need* to be exported anywhere; the user can just use the
+// limited integer types instead, and the optimizer will automagically do
+// the Right Thing<tm>.)
+define constant <%u-char>  = limited(<integer>,min: 0, max: $UCHAR_MAX);
+define constant <%s-char>  = limited(<integer>,min: $CHAR_MIN, max: $CHAR_MAX);
+define constant <%u-short> = limited(<integer>,min: 0, max: $USHRT_MAX);
+define constant <%s-short> = limited(<integer>,min: $SHRT_MIN, max: $SHRT_MAX);
+
+// A little help for selecting one of several classes based on a limited
+// integer type. The 'five-classes' vector should contain an element for
+// each of <%u-char>, <%s-char>, <%u-short>, <%s-short> and a default value,
+// in that order.
+define function look-up-class-by-limited-integer-type
+    (type :: <limited-integer>, five-classes :: <simple-object-vector>)
+ => (class :: <class>)
+  let min = type.limited-integer-minimum;
+  let max = type.limited-integer-maximum;
+  let choice =
+    case
+      (min == 0) =>
+	select (max by \==)
+	  $UCHAR_MAX => 0;
+	  $USHRT_MAX => 2;
+	  otherwise  => 4;
+	end select;
+      (min == $CHAR_MIN & max == $CHAR_MAX) => 1;
+      (min == $SHRT_MIN & max == $SHRT_MAX) => 3;
+      otherwise => 4;
+    end case;
+  five-classes[choice];
+end function look-up-class-by-limited-integer-type;
+
+
+//=========================================================================
+//  Limited <object-table> Types
+//=========================================================================
+//  We declare one subclass of <object-table> and override element-setter.
+
+// limited(<object-table>, of: <object>)
 define method make-limited-collection
     (base-class :: type-union(singleton(<table>), singleton(<object-table>)),
      element-type == <object>,
@@ -120,6 +184,13 @@ define method make-limited-collection
   apply(make, <simple-object-table>, supplied-keys);
 end method make-limited-collection;
 
+define class <limited-object-table>
+    (<object-table>, <limited-collection-mixin>)
+end class <limited-object-table>;
+
+define sealed domain make (singleton(<limited-object-table>));
+
+// limited(<object-table>, of: ...)
 define method make-limited-collection
     (base-class :: type-union(singleton(<table>), singleton(<object-table>)),
      element-type :: <type>,
@@ -131,26 +202,64 @@ define method make-limited-collection
 	supplied-keys);
 end method make-limited-collection;
 
+// This isn't especially efficient--we need to inline it and implement
+// a constant folder to get the element-type.
 define method element-setter
     (new-value :: <object>, collection :: <limited-object-table>,
      key :: <object>)
  => (element :: <object>)
-  check-type(new-value, collection.%limited-collection-type.element-type);
+  check-type(new-value,
+	     collection.%limited-collection-type.limited-element-type);
   next-method();
 end method element-setter;
 
 
 //=========================================================================
-//  %limited-simple-vector-class
+//  Limited <simple-vector> Support Code
 //=========================================================================
+//  Some macros and support functions so we can declare all our subclasses
+//  of <simple-vector> easily.
+
+// Implement the DRM rules (plus an extension) for handling keyword
+// arguments to 'make'.
+define function process-simple-vector-keys
+    (collection-type :: <limited-collection>,
+     size :: type-union(<integer>, singleton($not-supplied)),
+     fill :: <object>)
+ => (requested-size :: <integer>)
+  // Bruce wants us to default 'size:' in the useful fashion.
+  let restricted-size = collection-type.limited-size-restriction;
+  let requested-size :: <integer> =
+    case
+      instance?(size, <integer>) =>
+	size;
+      restricted-size =>
+	restricted-size;
+      otherwise =>
+	0;
+    end case;
+  
+  // XXX - These may not be the right errors to signal. Oh, well.
+  if (restricted-size & requested-size ~= restricted-size)
+    error("Requested vector size %= does not match size of %=",
+	  size, collection-type);
+  end if;
+  if (requested-size > 0 & ~instance?(fill, collection-type.element-type))
+    error("Cannot fill %= with %=", collection-type, fill);
+  end if;
+  requested-size;
+end function process-simple-vector-keys;
+
 //  This is a slightly more intelligent version of limited-vector-class.
 //  It defines types which are properly hooked into the runtime type model.
-//  XXX - Not complete yet.
-
+//  We define methods on 'element-setter' and 'make-limited-collection' in
+//  another macro below.
+//  I nuked 'element-type' from this list, since we implement a general
+//  version for <limited-collection-mixin>.
 define macro %limited-simple-vector-class
-  { internal-limited-simple-vector-class(?:name,
-					 ?element-type:expression,
-					 ?fill:expression) }
+  { %limited-simple-vector-class(?:name,
+				 ?element-type:expression,
+				 ?fill:expression) }
     => { begin
 	   define sealed class ?name (<simple-vector>,
 				      <limited-collection-mixin>)
@@ -159,11 +268,6 @@ define macro %limited-simple-vector-class
 	       size-init-value: 0, size-init-keyword: size:;
 	   end class;
            define sealed domain make (singleton(?name));
-	   define sealed inline method element-type
-	       (class :: subclass(?name))
-	    => (type :: <type>, indefinite? :: <false>);
-	     values(?element-type, #f);
-	   end method element-type;
            define sealed inline method element
 	       (vec :: ?name, index :: <integer>,
 		#key default = $not-supplied)
@@ -174,16 +278,6 @@ define macro %limited-simple-vector-class
 	       element-error(vec, index);
 	     else
 	       default;
-	     end;
-	   end;
-           define sealed inline method element-setter
-	       (new-value :: ?element-type, vec :: ?name,
-		index :: <integer>)
-	    => new-value :: ?element-type;
-	     if (index >= 0 & index < vec.size)
-	       %elem(vec, index) := new-value;
-	     else
-	       element-error(vec, index);
 	     end;
 	   end;
            // This method is identical to the one in "array.dylan", except
@@ -234,45 +328,136 @@ define macro %limited-simple-vector-class
          end; }
 end macro;
 
+define macro %limited-simple-vector-setter
+  { %limited-simple-vector-setter(?:name,
+				  ?element-type:expression,
+				  ?fill:expression) }
+    => { begin
+           define sealed inline method element-setter
+	       (new-value :: ?element-type, vec :: ?name,
+		index :: <integer>)
+	    => new-value :: ?element-type;
+	     if (index >= 0 & index < vec.size)
+	       %elem(vec, index) := new-value;
+	     else
+	       element-error(vec, index);
+	     end;
+	   end;
+         end; }
+end macro;
 
+define macro %limited-simple-vector-maker
+  { %limited-simple-vector-maker(?:name,
+				 ?element-type:expression,
+				 ?fill:expression) }
+    => { begin
+           define method make-limited-collection
+               (base-class :: type-union(singleton(<vector>),
+					 singleton(<simple-vector>)),
+		element-type == ?element-type,
+		collection-type :: <limited-collection>,
+		#rest supplied-keys,
+		#key fill = ?fill, size = $not-supplied, #all-keys)
+	    => (instance :: limited(<simple-vector>, of: ?element-type))
+	     let requested-size =
+	       process-simple-vector-keys(collection-type, size, fill);
+	     apply(make, ?name,
+		   collection-type: collection-type,
+		   size: requested-size, fill: fill,
+		   supplied-keys);
+	   end method make-limited-collection;
+         end; }
+end macro;
+
+    
 //=========================================================================
-//  <simple-integer-vector>
+//  Limited <simple-vector> Types
 //=========================================================================
-//  We use a handy macro to declare our limited vector class. It, in turn,
-//  uses funky compiler magic. ;-)
+//  We use a handy macro to declare our limited vector classes. It, in
+//  turn, uses funky compiler magic. ;-)
 
-%limited-simple-vector-class(<simple-integer-vector>, <integer>, 0);
+// limited(<simple-vector>, of: <object>)
+define method make-limited-collection
+    (base-class :: type-union(singleton(<vector>),
+			      singleton(<simple-vector>)),
+     element-type == <object>,
+     collection-type :: <limited-collection>,
+     #rest supplied-keys,
+     #key size = $not-supplied, fill, #all-keys)
+ => (instance :: <simple-object-vector>)
+  let requested-size = process-simple-vector-keys(collection-type, size, fill);
+  // The DRM discussion of '<simple-object-vector>' and
+  // 'limited(<simple-vector>, of: <object>)' on page 223
+  // requires us to this exactly so.
+  apply(make, <simple-object-vector>,
+	size: requested-size, fill: fill,
+	supplied-keys);
+end method make-limited-collection;
 
+// Simple integer types with compact representations.
+%limited-simple-vector-class(<simple-uchar-vector>, <%u-char>, 0);
+%limited-simple-vector-setter(<simple-uchar-vector>, <%u-char>, 0);
+%limited-simple-vector-class(<simple-schar-vector>, <%s-char>, 0);
+%limited-simple-vector-setter(<simple-schar-vector>, <%s-char>, 0);
+%limited-simple-vector-class(<simple-ushort-vector>, <%u-short>, 0);
+%limited-simple-vector-setter(<simple-ushort-vector>, <%u-short>, 0);
+%limited-simple-vector-class(<simple-sshort-vector>, <%s-short>, 0);
+%limited-simple-vector-setter(<simple-sshort-vector>, <%s-short>, 0);
+
+// Classes to use with look-up-class-by-limited-integer-type.
+define constant $lsvli-classes =
+  vector(<simple-uchar-vector>, <simple-schar-vector>,
+	 <simple-ushort-vector>, <simple-sshort-vector>,
+	 <limited-simple-vector>);
+
+// limited(<simple-vector>, of: limited(<integer>, ...))
+// This is pretty slow, unfortunately.
 define method make-limited-collection
     (base-class :: type-union(singleton(<vector>), singleton(<simple-vector>)),
-     element-type == <integer>,
+     element-type :: <limited-integer>,
      collection-type :: <limited-collection>,
      #rest supplied-keys,
      #key fill, size = $not-supplied, #all-keys)
- => (instance :: <simple-integer-vector>)
+ => (instance :: <simple-vector>)
+  let requested-size = process-simple-vector-keys(collection-type, size, fill);
+  let class =
+    look-up-class-by-limited-integer-type(element-type, $lsvli-classes);
+  apply(make, class,
+	collection-type: collection-type,
+	size: requested-size, fill: fill,
+	supplied-keys);
+end method make-limited-collection;
 
-  // Bruce wants us to default 'size:' in the useful fashion.
-  let restricted-size = collection-type.limited-size-restriction;
-  let requested-size :: <integer> =
-    case
-      size ~= $not-supplied =>
-	size;
-      restricted-size =>
-	restricted-size;
-      otherwise =>
-	0;
-    end case;
+// Standard optimized types with compact representations.
+%limited-simple-vector-class(<simple-integer-vector>, <integer>, 0);
+%limited-simple-vector-setter(<simple-integer-vector>, <integer>, 0);
+%limited-simple-vector-maker(<simple-integer-vector>, <integer>, 0);
 
-  // XXX - These may not be the right errors to signal. Oh, well.
-  if (restricted-size & requested-size ~= restricted-size)
-    error("Requested vector size %= does not match size of %=",
-	  size, collection-type);
-  end if;
-  if (requested-size > 0 & ~instance?(fill, <integer>))
-    error("Cannot fill %= with %=", collection-type, fill);
-  end if;
+// limited(<simple-vector>, of: ...)
+%limited-simple-vector-class(<limited-simple-vector>, <object>, 0);
 
-  apply(make, <simple-integer-vector>,
+// This isn't especially efficient--we need to inline it and implement
+// a constant folder to get the element-type.
+define sealed method element-setter
+    (new-value :: <object>, vec :: <limited-simple-vector>, index :: <integer>)
+ => new-value :: <object>;
+  check-type(new-value, vec.%limited-collection-type.limited-element-type);
+  if (index >= 0 & index < vec.size)
+    %elem(vec, index) := new-value;
+  else
+    element-error(vec, index);
+  end;
+end;
+
+define method make-limited-collection
+    (base-class :: type-union(singleton(<vector>), singleton(<simple-vector>)),
+     element-type :: <type>,
+     collection-type :: <limited-collection>,
+     #rest supplied-keys,
+     #key fill, size = $not-supplied, #all-keys)
+ => (instance :: <limited-simple-vector>)
+  let requested-size = process-simple-vector-keys(collection-type, size, fill);
+  apply(make, <limited-simple-vector>,
 	collection-type: collection-type,
 	size: requested-size, fill: fill,
 	supplied-keys);

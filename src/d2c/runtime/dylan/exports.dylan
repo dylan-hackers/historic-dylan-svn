@@ -1,4 +1,4 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10.4.3 2000/06/25 21:11:33 emk Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.10.4.4 2000/07/01 23:35:19 emk Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -280,6 +280,8 @@ define module magic
 	     gf-call,
 	     heap-rep-getter,
 	     heap-rep-setter,
+	     <limited-object-table>,
+	     <limited-simple-vector>,
 	     make-catcher,
 	     make-closure,
 	     make-exit-function,
@@ -299,6 +301,10 @@ define module magic
 	     push-handler,
 	     push-unwind-protect,
              <simple-integer-vector>,
+	     <simple-schar-vector>,
+	     <simple-sshort-vector>,
+	     <simple-uchar-vector>,
+	     <simple-ushort-vector>,
 	     slot-init-function,
 	     slot-init-function-setter,
 	     slot-init-value,
