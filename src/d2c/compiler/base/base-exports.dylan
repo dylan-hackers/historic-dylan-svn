@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.46.2.2 2004/02/22 18:36:06 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.46.2.3 2004/02/25 20:07:37 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -81,10 +81,10 @@ define module common
              <ratio>, numerator, denominator, key-exists?, \assert,
              <byte>, <byte-vector>,
 #if (mindy)
-             *debug-output*, main,
+             *debug-output*, main
 #else
              *warning-output*,
-             <debugger>, *debugger*, invoke-debugger,
+             <debugger>, *debugger*, invoke-debugger
 #endif
      },
     export: all;
