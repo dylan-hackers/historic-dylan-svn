@@ -53,7 +53,11 @@ define method clamp(x)
 end method clamp;
 
 define method silly-texture(surface-id, u, v)
-  values(make(<color>, red: clamp(u), green: clamp(v), blue: 0.0), 1.0, 0.2, 0.2);
+  if(u > 0.1 & u < 0.9 & v > 0.1 & v < 0.9)
+    values(make(<color>, red: clamp(u), green: clamp(v), blue: 0.0), 1.0, 0.2, 0.2);
+  else
+    values(make(<color>, red: 0.0, green: 0.0, blue: 0.0), 1.0, 0.2, 0.2);
+  end if;
 end method silly-texture;
 
 define method intersection-before(o :: <obj>, ray, distance, #key shadow-test: shadow-test?)
