@@ -1,5 +1,5 @@
 module: errors
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/errors.dylan,v 1.4 2003/03/15 06:23:03 housel Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/errors.dylan,v 1.4.6.1 2004/02/22 18:12:46 housel Exp $
 copyright: see below
 
 
@@ -83,17 +83,17 @@ define sealed domain initialize (<compiler-condition>);
 //
 // Print out the source location and the message.
 // 
-define method report-condition
+define method print-message
     (condition :: <compiler-condition>, stream :: <stream>)
     => ();
   pprint-logical-block
     (stream,
      body: method (stream :: <stream>)
 	     describe-source-location(condition.condition-at, stream);
-	     apply(condition-format, stream, condition.condition-format-string,
+	     apply(format, stream, condition.condition-format-string,
 		   condition.condition-format-arguments);
 	   end method);
-end method report-condition;
+end method print-message;
 
 // default-handler{<compiler-condition>} -- method on imported GF.
 //
