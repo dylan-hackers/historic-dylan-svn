@@ -17,6 +17,9 @@ Turn Right rightant_return:
 rightant_return:
 Move . rightant_return_blocked:
 Sense Here . rightant_return: Home
+Move . .
+Move . .
+Move . .
 Drop rightant_turn_and_search:
 
 rightant_return_blocked:
@@ -54,6 +57,9 @@ Turn Left leftant_return:
 leftant_return:
 Move . leftant_return_blocked:
 Sense Here . leftant_return: Home
+Move . .
+Move . .
+Move . .
 Drop leftant_turn_and_search:
 
 leftant_return_blocked:
