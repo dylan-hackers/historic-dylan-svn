@@ -3590,7 +3590,144 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
   <CHAPTER ID="libs-transcendental">
     <TITLE>The Transcendental Library</TITLE>
 
-    <PARA></PARA>
+    <sect1 id="libs-transcendental-transcendental">
+    <title>The Transcendental Module</title>
+    <para>
+      The Transcendental library contains functions on numbers.  It
+    includes commonly used numbers, such as pi and e, and the
+    transcendental functions, including sine, cosine, and tangent,
+    and their arc, h, and arc-h counterparts.  Also included are the
+    logarithmic family of functions (the various log functions and
+    exp), and the square-root and power (^) functions.
+    </para>
+
+    <dylanconstantdef>
+      <defname>$double-pi</defname>
+      <defsummary>
+        The approximation of pi for double-precision
+        (&lt;double-float&gt;) arithmetic.
+      </defsummary>
+      <deftype>&lt;double-float&gt;</deftype>
+      <defdescription>
+        <para>
+	  The value here is 3.14159265358979323846.
+	</para>
+      </defdescription>
+    </dylanconstantdef>
+
+    <dylanconstantdef>
+      <defname>$single-pi</defname>
+      <defsummary>
+        The approximation of pi for single-precision arithmetic.
+      </defsummary>
+      <deftype>&lt;single-float&gt;</deftype>
+      <defdescription>
+        <para>
+	  This pi is a truncated value of $double-pi.
+	</para>
+      </defdescription>
+    </dylanconstantdef>
+
+    <dylanconstantdef>
+      <defname>$double-e</defname>
+      <defsummary>
+        The approximation of e for double-precision arithmetic.
+      </defsummary>
+      <deftype>&lt;double-float&gt;</deftype>
+      <defdescription>
+        <para>
+	  The value here is 2.7182818284590452354.
+	</para>
+      </defdescription>
+    </dylanconstantdef>
+
+    <dylanconstantdef>
+      <defname>$single-e</defname>
+      <defsummary>
+        The approximation of e for single-precision arithmetic.
+      </defsummary>
+      <deftype>&lt;single-float&gt;</deftype>
+      <defdescription>
+        <para>
+	  This e is a truncated value of $double-e.
+	</para>
+      </defdescription>
+    </dylanconstantdef>
+
+    <dylangenericdef>
+      <defname>sin</defname>
+      <defsummary>Returns the sine of a real number.</defsummary>
+      <defparameters>
+        <param>
+	  <paramname>x</paramname>
+	  <paramtype> &lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+        <param>
+	  <paramname>y</paramname>
+	  <paramtype> &lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+  	<para>
+	  Returns the sine of a real number ... the only method on
+	  this generic function specializes on &lt;double-float&gt;s
+	  for the parameter and return value.
+  	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <dylangenericdef>
+      <defname>cos</defname>
+      <defsummary>Returns the cosine of a real number.</defsummary>
+      <defparameters>
+        <param>
+	  <paramname>x</paramname>
+	  <paramtype> &lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+        <param>
+	  <paramname>y</paramname>
+	  <paramtype> &lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+  	<para>
+	  Returns the cosine of a real number ... the only method on
+	  this generic function specializes on &lt;double-float&gt;s
+	  for the parameter and return value.
+  	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    <dylangenericdef>
+      <defname>tan</defname>
+      <defsummary>Returns the tangent of a real number.</defsummary>
+      <defparameters>
+        <param>
+	  <paramname>x</paramname>
+	  <paramtype> &lt;real&gt;</paramtype>
+	</param>
+      </defparameters>
+      <defreturns>
+        <param>
+	  <paramname>y</paramname>
+	  <paramtype> &lt;float&gt;</paramtype>
+	</param>
+      </defreturns>
+      <defdescription>
+  	<para>
+	  Returns the tangent of a real number ... the only method on
+	  this generic function specializes on &lt;double-float&gt;s
+	  for the parameter and return value.
+  	</para>
+      </defdescription>
+    </dylangenericdef>
+
+    </sect1>
+
   </CHAPTER>
 
   <CHAPTER ID="libs-time">
