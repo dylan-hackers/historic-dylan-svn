@@ -1,5 +1,5 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.7 1998/10/15 13:51:23 igor Exp $
+rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.7.2.1 1998/12/21 11:54:17 igor Exp $
 copyright: Copyright (c) 1994  Carnegie Mellon University
 	   All rights reserved.
 
@@ -425,7 +425,7 @@ define module platform
   use string-conversions, import: { string-to-integer };
 
   export
-    get-platforms, <platform>, *current-target*,
+    parse-platforms-file, <platform>, *current-target*, get-platform-named,
     default-features,
 
     platform-integer-length,
