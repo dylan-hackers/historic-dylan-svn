@@ -75,7 +75,7 @@ define method generate-optimized-output(input :: <stretchy-object-vector>, #key 
       end if;
     end method cost-order;
               
-  let beam-width = 10 * 2 ^ run; // XXX Tweak here
+  let beam-width = 10 * (run + 1); // XXX Tweak here
     debug("Beam width: %=\n", beam-width);
   let (result-states, exhausted) = beam-search(state, successor-states, cost-order, finished?, beam-width: beam-width);
   debug("Search done, exhaustive: %=\n", exhausted);
