@@ -1,13 +1,16 @@
 INSTALLPATH=$(shell d2c --compiler-info | grep _DCI_D2C_DYLAN_USER_DIR | sed 's/_DCI_D2C_DYLAN_USER_DIR=//' | sed 's/\/dylan-user//' | sed s'/ //g')
 
+LIBTOOL=libtool
+
 ifeq ($(shell if [ -d "/System/Library/Frameworks" ]; then echo -n darwin; else echo -n not-darwin; fi), darwin)
 	LIDFILE=macosx-opengl.lid
 	MELANGE=melange --framework OpenGL --framework GLUT --d2c
 else
 ifeq ($(shell uname -o), Cygwin)
 	LIDFILE=cygwin-opengl.lid
-	MELANGE=melange -I/usr/X11R6/include -I`$(CC) -print-file-name=include` --d2c
+	MELANGE=melange -v --headers -I/usr/X11R6/include -I`$(CC) -print-file-name=include` --d2c
 # -DUSE_OPENGL32
+	LIBTOOL=touch configure.in && libtool
 else
 ifeq ($(shell uname), NetBSD)
 	LIDFILE=opengl.lid
@@ -47,6 +50,6 @@ clean:
 	-rm -rf .libs
 
 install: opengl.lib.du 
-	libtool --mode=install /usr/bin/install -c libopengl-dylan.la $(INSTALLPATH)/libopengl-dylan.la
-	libtool --finish $(INSTALLPATH)
+	$(LIBTOOL) --mode=install /usr/bin/install -c libopengl-dylan.la $(INSTALLPATH)/libopengl-dylan.la
+	$(LIBTOOL) --finish $(INSTALLPATH)
 	/usr/bin/install -c opengl.lib.du $(INSTALLPATH)/opengl.lib.du
