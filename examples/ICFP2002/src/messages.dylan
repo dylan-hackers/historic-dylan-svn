@@ -494,8 +494,6 @@ define method process-server-command(state :: <state>, command :: <move>) => (st
 end method process-server-command;
 
 define method process-server-command(state :: <state>, command :: <pick>) => (state :: <state>)
-  format(*standard-output*, "a: %d\n", command.robot-id);
-  force-output(*standard-output*);
   let bot = find-robot(state, command.robot-id);
   let loc = bot.location;
   for(pid in command.package-ids)
