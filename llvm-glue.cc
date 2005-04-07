@@ -255,23 +255,23 @@ LLVM_TYPEID2TYPE(LabelTyID)
 
 // iterator stuff
 
-extern "C" void* get_llvm_Iterator_Function_arg_begin(Function* f)
+extern "C" Function::arg_iterator::pointer get_llvm_Iterator_Function_arg_begin(Function* f)
 {
   return f->arg_begin().getNodePtrUnchecked();
 }
 
-extern "C" void* get_llvm_Iterator_Function_arg_end(Function* f)
+extern "C" Function::arg_iterator::pointer get_llvm_Iterator_Function_arg_end(Function* f)
 {
   return f->arg_end().getNodePtrUnchecked();
 }
 
-extern "C" Argument* get_llvm_Iterator_Function_arg_next(Argument* a)
+extern "C" Function::arg_iterator::pointer get_llvm_Iterator_Function_arg_next(Function::arg_iterator::pointer a)
 {
   Function::arg_iterator it(a);
   return ++it;
 }
 
-extern "C" Argument* get_llvm_Iterator_Function_arg_deref(Argument* a)
+extern "C" Function::arg_iterator::pointer get_llvm_Iterator_Function_arg_deref(Function::arg_iterator::pointer a)
 {
   Function::arg_iterator it(a);
   return &*it;
