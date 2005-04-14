@@ -424,6 +424,7 @@ define generic emit-region
 define method emit-region
     (backend == llvm:, region :: <region>, file :: <file-state>)
     => ();
+  compiler-warning("region: #########----> %=", region);
 
 end;
 
@@ -449,22 +450,51 @@ define method emit-llvm-assignment
      bb :: <llvm-basic-block>)
     => ();
 
+
+make(<llvm-return-instruction>, atEnd: bb)
+
+
 end;
 
 
 define variable llvm-function = #f;
 
+
 define method emit-region
     (backend == llvm:, region :: <simple-region>, file :: <file-state>)
     => ();
+  let bb = make(<llvm-basic-block>, name: "body", into: llvm-function);
+
   for (assign = region.first-assign then assign.next-op,
        while: assign)
-
-    let bb = make(<llvm-basic-block>, name: "body", into: llvm-function);
-    emit-llvm-assignment(assign.defines, assign.depends-on.source-exp, 
+    emit-llvm-assignment(assign.defines,
+			 assign.depends-on.source-exp, 
 			 assign.source-location, bb);
   end for;
 end;
+
+
+define method emit-region (backend == llvm:,
+			   region :: <compound-region>,
+			   file :: <file-state>)
+    => ();
+  for (subregion in region.regions)
+    emit-region(backend, subregion, file);
+    // ## use reduce?
+  end;
+end;
+
+
+define method emit-region (backend == llvm:, return :: <return>, file :: <file-state>)
+    => ();
+  /* ### emit-joins(region.join-region, file); */
+  let function :: <fer-function-region> = return.block-of;
+  let function-info = get-info-for(function, file);
+  let result-rep = function-info.function-info-result-representation;
+  let bb = make(<llvm-basic-block>, name: "body", into: llvm-function);
+  emit-llvm-return(return, result-rep, bb);
+end;
+
 
 
 define function representation-llvm-type(rep)
@@ -549,8 +579,6 @@ define method emit-function
   
 
   llvm-function := f;
-///  let arg = make(<llvm-argument>, type: inttype, name: "foo", func: f);
-
 
   let max-depth = analyze-stack-usage(function);
   emit-region(backend, function.body, file);
