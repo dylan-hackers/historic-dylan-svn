@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//IBM//DTD DITA Concept//EN" "../dtd/concept.dtd" []>
+<concept id="concept-dylan-file-naming-conventions">
+  <title>File naming conventions</title>
+  <prolog>
+    <copyright>
+      <copyryear year="1995-2004"/>
+      <copyrholder>Functional Objects, Inc.</copyrholder>
+    </copyright>
+  </prolog>
+  <conbody>
+    <section>
+      <p>In practice, importing a source distribution into a Dylan
+      program involves unpacking the source distribution into its own
+      subtree and then informing the environment of the location of
+      the tree root. The environment then walks the entire subtree
+      locating LID files, which describe the libraries in the
+      distribution by giving a name to, and designating the source
+      files associated with, each library. </p>
+
+      <p>Importing a Dylan program into the environment in this way
+      requires two things:</p>
+
+      <ul>
+	<li>That the LID files in the distribution can be identified.</li>
+
+	<li>That the file designators supplied to the
+        <codeph>Files:</codeph> keyword in LID files can be mapped to
+        the corresponding source filenames on disk.</li>
+      </ul>
+
+      <p>If you are importing files from a platform that does not
+      insist on, or conventionally use, standard filename suffixes to
+      identify the filetype (such as MacOS), then you must rename your
+      source files as follows:</p>
+
+      <ul>
+	<li>LID files must be given filenames with the suffix
+	<filepath>.lid</filepath>.</li>
+
+        <li>Dylan source files must be given filenames with the suffix
+        <filepath>.dylan</filepath> or <filepath>.dyl</filepath>.</li>
+      </ul>
+
+      <p>The file designators that appear in LID files may be a string
+      of characters of any length, constructed from the set of hyphen,
+      underscore, and the mixed-case alphanumeric characters. Note
+      that you do not have to specify the source filename suffix as
+      part of the filename designator. This ensures that the LID files
+      themselves do not need to be edited when importing source code
+      from a platform such as MacOS that does not insist on particular
+      filename suffixes to specify the file type.</p>
+
+      <p>The name of a LID file is not significant, and in particular
+      need not be the same as the library name. Hierarchical directory
+      structure can be used to organize multi-library systems as long
+      as the files directly associated with each library are in a
+      single directory.</p>
+    </section>
+  </conbody>
+</concept>

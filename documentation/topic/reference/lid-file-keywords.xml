@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE reference PUBLIC "-//IBM//DTD DITA Reference//EN" "../dtd/reference.dtd" []>
+<reference id="lid-file-keywords">
+  <title>LID File Keywords</title>
+
+  <shortdesc>A LID file consists of a series of keyword/value
+  pairs.</shortdesc>
+
+  <refbody>
+    <section>A LID file consists of a series of keyword/value pairs,
+    just like the Dylan source file interchange format described in
+    the <cite>Dylan Reference Manual</cite>. (FIXME: mail headers
+    RFC)</section>
+  </refbody>
+
+  <reference id="lid-file-keywords-library">
+    <title>Library:</title>
+    <refbody>
+      <refsyn><synph><kwd>Library:</kwd> <var>library-name</var></synph></refsyn>
+      <section>Names the Dylan library being described. The
+      <varname>library-name</varname> must be the name of the Dylan
+      library that the LID file describes. This keyword is required in
+      every LID file, and it may appear only once per LID
+      file.</section>
+    </refbody>
+  </reference>
+  
+  <reference id="lid-file-keywords-files">
+    <title>Files:</title>
+    <refbody>
+      <refsyn><synph><kwd>Files:</kwd> <var>file-designators</var></synph></refsyn>
+
+      <section>
+        <p>Associates a set of files with the library named by the
+        <codeph>Library:</codeph> keyword. This keyword can appear one
+        or more times per LID file. Every file specified is considered
+        to be associated with the library.</p>
+
+        <p>The order in which the designated source files are
+        specified with the <codeph>Files:</codeph> keyword in the LID
+        file determines the initialization order across the files
+        within the defined library.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-start">
+    <title>Start-Module:, Start-Function:</title>
+    <refbody>
+      <refsyn><synph><kwd>Start-Module:</kwd> <var>module-name</var></synph></refsyn>
+      <refsyn><synph><kwd>Start-Function:</kwd> <var>function-name</var></synph></refsyn>
+
+      <section>
+        <p>Taken together, these keywords specify a function that acts
+        as an entry point to the library. They are used only when the
+        library provides the glue for a standalone application. The
+        <varname>module-name</varname> must be defined in this
+        library, though <varname>function-name</varname> need not be
+        exported. These keywords are optional and both must appear to
+        specify the entry point.</p>
+
+        <p>The start function is called after the top level
+        initializations of the library have completed. The function is
+        passed no arguments; any startup parameters that are required
+        should be made available through additional query
+        functions. </p>
+
+        <p>Note that <codeph>Start-Module:</codeph> and
+        <codeph>Start-Function:</codeph> are not strictly necessary to
+        start an application, since the application could instead
+        begin with the execution of a top-level function call during
+        library initialization. However, distinguishing the start
+        function using these keywords makes it easy to distinguish the
+        loading phase from the running phase of an application.</p>
+
+        <p>COMMENT: <codeph>Start-Module:</codeph> and
+        <codeph>Start-Function:</codeph> aren't currently implemented,
+        but are going to be. 7/3/97 NEALD</p>
+      </section>
+    </refbody>
+  </reference>
+
+<!--
+In addition, the following optional keywords are provided for use where appropriate. These keywords allow a brief description of a library to be included in the LID, along with a set of relevant keywords, to enable you to browse the libraries available in the environment easily. </Body>
+-->
+
+  <reference id="lid-file-keywords-synopsis">
+    <title>Synopsis:</title>
+    <refbody>
+      <refsyn><synph><kwd>Synopsis:</kwd> <var>text</var></synph></refsyn>
+
+      <section>
+        <p>A concise description of the library.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-keywords">
+    <title>Keywords:</title>
+    <refbody>
+      <refsyn><synph><kwd>Keywords:</kwd> <var>comma-separated phrases</var></synph></refsyn>
+
+      <section>
+        <p>Any number of phrases, separated by commas, that are
+        relevant to the description or use of the library.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-author">
+    <title>Author:</title>
+    <refbody>
+      <refsyn><synph><kwd>Author:</kwd> <var>text</var></synph></refsyn>
+      <section>
+        <p>The name of the library's author.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-version">
+    <title>Version:</title>
+    <refbody>
+      <refsyn><synph><kwd>Version:</kwd> <var>text</var></synph></refsyn>
+
+      <section>
+        <p>The current version number of the library.</p>
+
+        <p>COMMENT This needs more.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-description">
+    <title>Description:</title>
+    <refbody>
+      <refsyn><synph><kwd>Description:</kwd> <var>text</var></synph></refsyn>
+
+      <section>
+        <p>A description of the library. The intention of this keyword
+        is to provide a fuller, less concise description than that
+        given by the <codeph>Synopsis:</codeph> keyword.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-comment">
+    <title>Comment:</title>
+    <refbody>
+      <refsyn><synph><kwd>Comment:</kwd> <var>text</var></synph></refsyn>
+
+      <section>
+        <p>Any additional comments about the library.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-c-source-files">
+    <title>C-Source-Files:</title>
+    <refbody>
+      <refsyn><synph><kwd>C-Source-Files:</kwd> <var>files</var></synph></refsyn>
+
+      <section>
+        <p>Identifies one or more C source files which are to be
+        included as part of the library. Dylan environments copy these
+        files to their build area and ensure that they are compiled by
+        the appropriate batch file. The filenames specified must
+        include the <filepath>.c</filepath> suffix.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-c-header-files">
+    <title>C-Header-Files:</title>
+    <refbody>
+      <refsyn><synph><kwd>C-Header-Files:</kwd> <var>files</var></synph></refsyn>
+
+      <section>
+        <p>Identifies one or more C header files included as part of
+        the library. Dylan environments copy these files to their
+        build area and ensure that they are compiled by the
+        appropriate batch file. Any files specified using the
+        <codeph>C-Source-Files:</codeph> or <codeph>RC-Files:</codeph>
+        keywords depend on these header files in order to decide when
+        they need to be recompiled. The file names given here must
+        include the <filepath>.h</filepath> suffix.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-c-object-files">
+    <title>C-Object-Files:</title>
+    <refbody>
+      <refsyn><synph><kwd>C-Object-Files:</kwd> <var>files</var></synph></refsyn>
+
+      <section>
+        <p>Identifies one or more C object files included as part of
+        the library. Dylan environments copy these files to their
+        build area and ensure that they are compiled by the
+        appropriate batch file and linked into the final shared
+        library or executable output files. The file names given here
+        must include the <filepath>.o</filepath> or
+        <filepath>.obj</filepath> suffix.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-rc-files">
+    <title>RC-Files:</title>
+    <refbody>
+      <refsyn><synph><kwd>RC-Files:</kwd> <var>RC-Files:</var></synph></refsyn>
+
+      <section>
+        <p>Identifies one or more resource files to be included as
+        part of the library. Dylan environments copy these files to
+        their build area and ensure that they are compiled by the
+        appropriate batch file. The resulting resource object files
+        are included in the linked shared library or executable output
+        files built for the library. The file names given here must
+        include the <filepath>.rc</filepath> suffix.</p>
+
+        <note>This keyword only applies to the Win32 platform.</note>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-c-libraries">
+    <title>C-Libraries:</title>
+    <refbody>
+      <refsyn><synph><kwd>C-Libraries:</kwd> <var>files-or-options</var></synph></refsyn>
+
+      <section>
+        <p>Identifies one or more C libraries to be included in the
+        link phase when building the <filepath>.DLL</filepath> or
+        <filepath>.EXE</filepath> for the library. You can use this
+        keyword to specify arbitrary linker options as well as
+        libraries. </p>
+
+        <p>Unlike the other keywords described in this section, the
+        <codeph>C-Libraries:</codeph> keyword propagates to dependent
+        libraries.</p>
+      </section>
+
+      <example>
+        <p>For example, suppose library A uses library B, and the LID
+        file or library B specifies </p>
+
+<pre>
+C-Libraries: foo.lib
+</pre>
+
+        <p>In this case, both library A and library B are linked
+        against <filepath>foo.lib</filepath>.</p>
+      </example>
+    </refbody>
+  </reference>
+
+<!--  
+<FM2Heading>
+Specifying compilation details </FM2Heading>
+<Body>
+The following keywords control aspects of compilation for the library.</Body>
+-->
+
+  <reference id="lid-file-keywords-executable">
+    <title>Executable:</title>
+    <refbody>
+      <refsyn><synph><kwd>Executable:</kwd> <var>name</var></synph></refsyn>
+
+      <section>
+        <p>Specifies the name of the executable (that is,
+        <filepath>.DLL</filepath> or <filepath>.EXE</filepath>) file to be
+        generated for this library. </p>
+
+        <p>The suffix (<filepath>.DLL</filepath>,
+        <filepath>.EXE</filepath>) should not be included in the
+        <varname>name</varname> as the appropriate suffix will be
+        added automatically.</p>
+
+        <p>If this keyword is not specified, the compiler generates a
+        default name for the executable from the name of the
+        library. With some library names, particularly when you are
+        building a DLL, you may need to specify this keyword to
+        override the default name and avoid conflicts with other DLLs
+        from a third party.</p>
+      </section>
+    </refbody>
+  </reference>
+
+    <reference id="lid-file-keywords-base-address">
+    <title>Base-Address:</title>
+    <refbody>
+      <refsyn><synph><kwd>Base-Address:</kwd> <var>address</var></synph></refsyn>
+
+      <section>
+        <p>Specifies the base address of the DLL built from this Dylan
+        library. The <varname>address</varname> must be a hexadecimal
+        value. For convenience, you can use either Dylan
+        (<synph>#x<var>NNNNNNNN</var></synph>) or C
+        (<synph>0x<var>NNNNNNNN</var></synph>) notations when
+        specifying the address.</p>
+
+        <p>This base address is ignored when building a
+        <filepath>.EXE</filepath> file.</p>
+
+        <p>If this keyword is not specified, the compiler will compute
+        a default base address for the library. However, it is
+        possible for more than one library to end up with the same
+        default base address. If an application uses any of these
+        libraries, all but one of them will have to be relocated when
+        the application starts. This process is automatic, but cuts
+        down on the amount of sharing, increases your application's
+        memory footprint, and slows down load time. In such
+        circumstances, you may want to give one or more libraries an
+        explicit base address using this keyword.</p>
+
+        <note>This keyword only applies to the Win32 platform.</note>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="lid-file-keywords-linker-options">
+    <title>Linker-Options:</title>
+    <refbody>
+      <refsyn><synph><kwd>Linker-Options:</kwd> <var>options</var></synph></refsyn>
+
+      <section>
+        <p>Specifies additional options and libraries to be passed to
+        the linker when building this DLL or EXE. Unlike the
+        <codeph>C-Libraries:</codeph> keyword, the options and
+        libraries specified here apply only to this Dylan library;
+        they are not propagated to any libraries which use this
+        library.</p>
+      </section>
+    </refbody>
+  </reference>
+</reference>
