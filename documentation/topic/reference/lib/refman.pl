@@ -162,6 +162,14 @@ EOF
   <apiName>$module</apiName>
   <shortdesc></shortdesc>
 
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
   <dylanModuleDetail>
     <apiDesc>
       <p></p>
@@ -279,20 +287,30 @@ sub do_char_modifiers {
 }
 
 sub do_end_modifiers {
-    if($modifiers =~ /Open/) {
-    print ENTRY << "EOF"
+    if($stack[-1] eq 'classdef') {
+	if($modifiers =~ /Open/) {
+	    print ENTRY << "EOF"
       <dylanOpenClass/>
 EOF
-    }
-    if($modifiers =~ /Primary/) {
-    print ENTRY << "EOF"
+	}
+	if($modifiers =~ /Primary/) {
+	    print ENTRY << "EOF"
       <dylanPrimaryClass/>
 EOF
-    }
-    if($modifiers =~ /Abstract/) {
-    print ENTRY << "EOF"
+	}
+	if($modifiers =~ /Abstract/) {
+	    print ENTRY << "EOF"
       <dylanAbstractClass value="abstract-uninstantiable"/>
 EOF
+	}
+    } elsif($stack[-1] eq 'genericdef') {
+	if($modifiers =~ /Open/) {
+	    print ENTRY << "EOF"
+      <dylanGenericFunctionSealing value='open'/>
+EOF
+	}
+    } else {
+	die;
     }
 }
 
@@ -364,6 +382,14 @@ sub do_start_functiondef {
   <apiName>$escaped</apiName>
   <shortdesc>Returns .</shortdesc>
 
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
   <dylanFunctionDetail>
     <dylanFunctionDef>
 EOF
@@ -378,6 +404,42 @@ sub do_end_functiondef {
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>
+EOF
+}
+
+sub do_start_genericdef {
+    my $mangled = &mangle($entry);
+    my $escaped = &escape($entry);
+    
+    print ENTRY << "EOF"
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-$module-$mangled">
+  <apiName>$escaped</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+EOF
+}
+
+sub do_end_genericdef {
+    print ENTRY << "EOF"
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>
 EOF
 }
 

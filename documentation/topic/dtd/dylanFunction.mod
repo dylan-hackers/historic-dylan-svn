@@ -1,4 +1,4 @@
-<!-- Specialization of the DITA reference topic for Dylan-language libraries -->
+<!-- Specialization of the DITA reference topic for Dylan-language functions -->
 
 <!-- Default element entities -->
 
@@ -37,7 +37,8 @@
                           xml:lang NMTOKEN #IMPLIED
                           outputclass CDATA #IMPLIED>
 
-<!ELEMENT dylanFunctionDef ((%dylanFunctionParam;)*,
+<!ELEMENT dylanFunctionDef ((%apiQualifier;)*,
+                            (%dylanFunctionParam;)*,
                             (%dylanFunctionRestParam;)?,
                             (%dylanFunctionKeywordParam;)*,
                             (%dylanFunctionAllKeywords;)?,
@@ -46,7 +47,6 @@
 <!ATTLIST dylanFunctionDef spectitle CDATA #IMPLIED
                           %univ-atts;
                           outputclass CDATA #IMPLIED>
-
 
 <!ELEMENT dylanFunctionParam ((%apiItemName;), (%apiType;|%apiOperationClassifier;)?, (%apiDefNote;)?)>
 <!ATTLIST dylanFunctionParam keyref NMTOKEN #IMPLIED
@@ -84,7 +84,6 @@
 <!ATTLIST dylanFunction %global-atts; class CDATA "- topic/topic reference/reference apiRef/apiRef apiOperation/apiOperation dylanFunction/dylanFunction ">
 <!ATTLIST dylanFunctionDetail %global-atts; class CDATA "- topic/body reference/refbody apiRef/apiDetail apiOperation/apiOperationDetail dylanFunction/dylanFunctionDetail ">
 <!ATTLIST dylanFunctionDef %global-atts; class CDATA "- topic/section reference/section apiRef/apiDef apiOperation/apiOperationDef dylanFunction/dylanFunctionDef ">
-
 <!ATTLIST dylanFunctionParam %global-atts; class CDATA "- topic/ph reference/ph apiRef/apiDefItem apiOperation/apiParam dylanFunction/dylanFunctionParam ">
 <!ATTLIST dylanFunctionRestParam %global-atts; class CDATA "- topic/ph reference/ph apiRef/apiDefItem apiOperation/apiParam dylanFunction/dylanFunctionRestParam ">
 <!ATTLIST dylanFunctionAllKeywords %global-atts; class  CDATA "- topic/state reference/state apiRef/apiQualifier apiOperation/apiQualifier dylanFunction/dylanFunctionAllKeywords ">
