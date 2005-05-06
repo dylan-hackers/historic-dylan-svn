@@ -360,15 +360,25 @@ sub do_char_type {
     my $escaped = &escape($name);
 
     my $tag;
+    my $s = '  ';
     if($stack[-2] eq 'keyword') {
 	$tag = 'apiOtherClassifier';
+    } elsif($stack[-2] eq 'constantdef' || $stack[-2] eq 'variabledef') {
+	$tag = 'apiValueClassifier';
+	$s = '';
     } else {
 	$tag = 'apiOperationClassifier';
     }
 
-    print ENTRY << "EOF";
-	<$tag href="$href">$escaped</$tag>
+    if($string eq '{complex type}') {
+	print ENTRY << "EOF";
+$s      <apiType value="$string"/>
 EOF
+    } else {
+	print ENTRY << "EOF";
+$s      <$tag href="$href">$escaped</$tag>
+EOF
+    }
 }
 
 sub do_start_functiondef {
@@ -378,7 +388,7 @@ sub do_start_functiondef {
     print ENTRY << "EOF"
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
-<dylanFunction id="lib-common-dylan-common-extensions-split">
+<dylanFunction id="lib-$library-$module-$mangled">
   <apiName>$escaped</apiName>
   <shortdesc>Returns .</shortdesc>
 
@@ -414,7 +424,7 @@ sub do_start_genericdef {
     print ENTRY << "EOF"
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
-<dylanGenericFunction id="lib-$module-$mangled">
+<dylanGenericFunction id="lib-$library-$module-$mangled">
   <apiName>$escaped</apiName>
   <shortdesc>Returns .</shortdesc>
 
@@ -539,6 +549,109 @@ sub do_end_rest_out {
 EOF
 }
 
+sub do_start_macrodef {
+    my $mangled = &mangle($entry);
+    my $escaped = &escape($entry);
+    
+    print ENTRY << "EOF"
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanMacro.dtd" []>
+<dylanMacro id="lib-$library-$module-$mangled">
+  <apiName>$escaped</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanMacroDetail>
+    <apiSyntax>
+      <apiSyntaxText></apiSyntaxText>
+    </apiSyntax>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanMacroDetail>
+</dylanMacro>
+EOF
+}
+
+sub do_start_variabledef {
+    my $mangled = &mangle($entry);
+    my $escaped = &escape($entry);
+    
+    print ENTRY << "EOF"
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanVariable PUBLIC "-//Gwydion//DTD DITA Dylan API Variable//EN" "../../../../dtd/dylanVariable.dtd" []>
+<dylanVariable id="lib-$library-$module-$mangled">
+  <apiName>$escaped</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="$year"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanVariableDetail>
+    <dylanVariableDef>
+EOF
+}
+
+sub do_end_variabledef {
+    print ENTRY << "EOF"
+    </dylanVariableDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanVariableDetail>
+</dylanVariable>
+EOF
+}
+
+sub do_start_constantdef {
+    my $mangled = &mangle($entry);
+    my $escaped = &escape($entry);
+    
+    print ENTRY << "EOF"
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
+<dylanConstant id="lib-$library-$module-$mangled">
+  <apiName>$escaped</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="$year"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanConstantDetail>
+    <dylanConstantDef>
+EOF
+}
+
+sub do_end_constantdef {
+    print ENTRY << "EOF"
+    </dylanConstantDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanConstantDetail>
+</dylanConstant>
+EOF
+}
 
 ########################################################################
 

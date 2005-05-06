@@ -1,0 +1,61 @@
+<!-- Domain entity inclusions -->
+
+<!ENTITY % ui-d-dec PUBLIC "-//IBM//ENTITIES DITA User Interface Domain//EN" "ui-domain.ent">
+  %ui-d-dec;
+<!ENTITY % hi-d-dec PUBLIC "-//IBM//ENTITIES DITA Highlight Domain//EN" "highlight-domain.ent">
+  %hi-d-dec;
+<!ENTITY % pr-d-dec PUBLIC "-//IBM//ENTITIES DITA Programming Domain//EN" "programming-domain.ent">
+  %pr-d-dec;
+<!ENTITY % sw-d-dec PUBLIC "-//IBM//ENTITIES DITA Software Domain//EN" "software-domain.ent">
+  %sw-d-dec;
+<!ENTITY % ut-d-dec PUBLIC "-//IBM//ENTITIES DITA Utilities Domain//EN" "utilities-domain.ent">
+  %ut-d-dec;
+<!ENTITY % api-d-dec PUBLIC "-//IBM//ENTITIES DITA API Domain//EN" "api-domain.ent">
+  %api-d-dec;
+
+<!-- Element extension redefinitions -->
+
+<!ENTITY % pre     "pre     | %pr-d-pre;     | %sw-d-pre;     | %ui-d-pre;">
+<!ENTITY % keyword "keyword | %pr-d-keyword; | %sw-d-keyword; | %ui-d-keyword;">
+<!ENTITY % ph      "ph      | %pr-d-ph;      | %sw-d-ph;      | %hi-d-ph; | %ui-d-ph;">
+<!ENTITY % fig     "fig     | %pr-d-fig;     | %ut-d-fig;">
+<!ENTITY % dl      "dl      | %pr-d-dl;">
+
+<!-- Topic nesting redefinitions -->
+
+<!-- Domain declaration redefinition -->
+
+<!ENTITY included-domains "&ui-d-att; &hi-d-att; &pr-d-att; &sw-d-att; &ut-d-att; &api-d-att;">
+
+<!-- Structural definition inclusions -->
+
+<!ENTITY % topic-type PUBLIC "-//IBM//ELEMENTS DITA Topic//EN" "topic.mod">
+  %topic-type;
+
+<!ENTITY % reference-typemod PUBLIC "-//IBM//ELEMENTS DITA Reference//EN" "reference.mod">
+  %reference-typemod;
+
+<!ENTITY % apiRef-typemod PUBLIC "-//IBM//ELEMENTS DITA API Reference//EN" "apiRef.mod">
+  %apiRef-typemod;
+
+<!ENTITY % apivalue-typemod PUBLIC "-//IBM//ELEMENTS DITA API Value//EN"
+  "apiValue.mod">
+  %apivalue-typemod;
+
+<!ENTITY % dylanVariable-typemod SYSTEM "dylanVariable.mod">
+  %dylanVariable-typemod;
+
+<!-- Domain definition inclusions -->
+
+<!ENTITY % ui-d-def PUBLIC "-//IBM//ELEMENTS DITA User Interface Domain//EN" "ui-domain.mod">
+  %ui-d-def;
+<!ENTITY % hi-d-def PUBLIC "-//IBM//ELEMENTS DITA Highlight Domain//EN" "highlight-domain.mod">
+  %hi-d-def;
+<!ENTITY % pr-d-def PUBLIC "-//IBM//ELEMENTS DITA Programming Domain//EN" "programming-domain.mod">
+  %pr-d-def;
+<!ENTITY % sw-d-def PUBLIC "-//IBM//ELEMENTS DITA Software Domain//EN" "software-domain.mod">
+  %sw-d-def;
+<!ENTITY % ut-d-def PUBLIC "-//IBM//ELEMENTS DITA Utilities Domain//EN" "utilities-domain.mod">
+  %ut-d-def;
+<!ENTITY % api-d-def PUBLIC "-//IBM//ELEMENTS DITA API Domain//EN" "api-domain.mod">
+  %api-d-def;
