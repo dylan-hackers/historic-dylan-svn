@@ -70,12 +70,12 @@
                           outputclass CDATA #IMPLIED>
 
 <!ELEMENT dylanFunctionReturn ((%apiItemName;), (%apiType;|%apiOperationClassifier;)?, (%apiDefNote;)?)>
-<!ATTLIST dylanFunctionParam keyref NMTOKEN #IMPLIED
+<!ATTLIST dylanFunctionReturn keyref NMTOKEN #IMPLIED
                           %univ-atts;
                           outputclass CDATA #IMPLIED>
 
 <!ELEMENT dylanFunctionRestReturn ((%apiItemName;), (%apiType;|%apiOperationClassifier;)?, (%apiDefNote;)?)>
-<!ATTLIST dylanFunctionRestParam  keyref NMTOKEN #IMPLIED
+<!ATTLIST dylanFunctionRestReturn  keyref NMTOKEN #IMPLIED
                           %univ-atts;
                           outputclass CDATA #IMPLIED>
 
