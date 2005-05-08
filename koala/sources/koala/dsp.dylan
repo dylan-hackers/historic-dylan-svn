@@ -215,7 +215,7 @@ end;
 define method page-source-modified?
     (page :: <file-page-mixin>) => (modified? :: <boolean>)
   block ()
-    ~page.mod-time
+    ~ page.mod-time
       | file-property(source-location(page), #"modification-date") > page.mod-time
   exception (e :: <error>)
     #t  // i figure we want an error to occur if, say, the file was deleted.
@@ -237,8 +237,9 @@ end;
 define method respond-to-get
     (page :: <static-page>, request :: <request>, response :: <response>)
   if (page-source-modified?(page))
+    page.mod-time := file-property(source-location(page),
+                                   #"modification-date");
     page.contents := file-contents(source-location(page));
-    page.mod-time := current-date();
   end if;
   if (page.contents)
     let stream = output-stream(response);
@@ -798,7 +799,9 @@ end;
 //
 define open method process-template
     (page :: <dylan-server-page>, request :: <request>, response :: <response>)
-  when (expired?(page) & page-source-modified?(page))
+  when (page-source-modified?(page))
+    page.mod-time := file-property(source-location(page),
+                                   #"modification-date");
     page.page-template := parse-page(page);
   end;
   display-template(page.page-template, page, request, response);
@@ -844,7 +847,8 @@ define method parse-page
     resource-not-found-error(url: page-url(page));
   else
     page.contents := string;
-    page.mod-time := current-date();
+    page.mod-time := file-property(source-location(page),
+                                   #"modification-date");
     let tmplt = make(<dsp-template>,
                      contents: string,
                      content-start: 0,
