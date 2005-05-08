@@ -175,6 +175,11 @@ define function get-resource-pool
   end
 end;
 
+// XXX We're in module utilities here, and have no way of figuring out
+// the log target. Maybe we need to model log events as conditions.
+define variable *temp-log-target*
+  = make(<stream-log-target>, stream: *standard-output*);
+
 /*
 Resource allocation algorithm:
   acquire resource lock
@@ -217,7 +222,8 @@ define function allocate-resource
         inc!(pool.active-count);
         return (resource);
       else
-        log-debug("Resource full.  Allocating non-pooled instance. %=",
+        log-debug(*temp-log-target*,
+                  "Resource full.  Allocating non-pooled instance. %=",
                   resource-class);
         apply(new-resource, resource-class, init-args)
       end if
@@ -270,7 +276,9 @@ define function deallocate-resource
       add!(pool.inactive-resources, resource);
       inc!(pool.inactive-count);
     else
-      log-warning("Can't return resource %= to pool.  Hopefully it will be GCed.", resource);
+      log-warning(*temp-log-target*,
+                  "Can't return resource %= to pool.  Hopefully it will be GCed.", 
+                  resource);
     end;
     resource-deallocated(resource);
   end with-lock;
@@ -278,7 +286,8 @@ end;
 
 define method describe-pool
     (pool :: <resource-pool>)
-  log-debug("active: %d,%d, inactive: %d,%d - %s",
+  log-debug(*temp-log-target*,
+            "active: %d,%d, inactive: %d,%d - %s",
             pool.active-resources.size, pool.active-count,
             pool.inactive-resources.size, pool.inactive-count,
             pool.resource-class);
@@ -297,9 +306,9 @@ define method test-resource
     end;
     describe-pool(pool);
   end;
-  log-debug("*** Testing resource pools");
+  log-debug(*temp-log-target*, "*** Testing resource pools");
   for (i from 1 to 6)
-    log-debug("");  // blank line
+    log-debug(*temp-log-target*, "");  // blank line
     doit(class);
   end;
 end;
