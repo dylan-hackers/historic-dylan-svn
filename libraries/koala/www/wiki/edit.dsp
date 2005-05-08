@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title>Dylan Wiki: <wiki:show-title/></title>
+  <link  rel="stylesheet" href="/wiki/wiki.css"/>
 </head>
 
 <body>
@@ -13,15 +14,22 @@
   <dsp:show-form-notes/>
   </div>
 
-  <form action="/wiki/edit.dsp" method="post">
-  <div id="edit">
-    Title: <input type="text" name="title" value="<wiki:show-title/>"/>
-    <br/>
-    <textarea name="page-content" cols="80" rows="20"><wiki:show-content format="raw"/></textarea>
-    <br/>
-    <input type="submit" value="Save"/>
-  </div>
-  </form>
+  <dsp:if test="logged-in?">
+    <dsp:then>
+      <form action="/wiki/edit.dsp" method="post">
+        <div id="edit">
+          Title: <input type="text" name="title" value="<wiki:show-title/>"/>
+          <br/>
+          <textarea name="page-content" cols="80" rows="20"><wiki:show-content format="raw"/></textarea>
+          <br/>
+          <input type="submit" value="Save"/>
+        </div>
+      </form>
+    </dsp:then>
+    <dsp:else>
+      Error: you're not allowed to edit <wiki:show-title/>.
+    </dsp:else>
+  </dsp:if>
 
   <%dsp:include url="footer.dsp"/>
 
