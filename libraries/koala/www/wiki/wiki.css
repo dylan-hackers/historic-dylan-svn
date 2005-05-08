@@ -73,6 +73,12 @@ pre
 }
 .search input { border: 1px solid black }
 
+.login
+{
+  padding:  1em 0 0;
+}
+.login input { border: 1px solid black }
+
 #navbar { margin: 1em 0 -0.5em 0 }
 #navbar a 
 {

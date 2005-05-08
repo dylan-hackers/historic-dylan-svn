@@ -223,6 +223,7 @@ define module koala
 
   // Documents
   create
+    maybe-serve-static-file,
     document-location;
 
   // Errors
