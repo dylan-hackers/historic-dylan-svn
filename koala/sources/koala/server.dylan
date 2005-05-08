@@ -466,7 +466,8 @@ define function do-http-listen (listener :: <listener>)
       with-lock (server-lock)
         wrapping-inc!(listener.connections-accepted);
         wrapping-inc!(server.connections-accepted);
-        let thread = make(<thread>, name: "HTTP Responder", function:  do-respond);
+        let thread = make(<thread>, name: "HTTP Responder",
+                          function:  do-respond);
         client := make(<client>,
                        server: server,
                        listener: listener,
@@ -927,11 +928,8 @@ define method invoke-handler
           log-debug("%s handler found", url);
           responder(request, response);
         else
-          let found? = maybe-serve-static-file(request, response);
-          when (~found?)
-            log-info("%s not found", url);
-            resource-not-found-error(url: request-url(request));  // 404
-          end;
+          // generates 404 if not found
+          maybe-serve-static-file(request, response);
         end;
       end;
       send-response(response);

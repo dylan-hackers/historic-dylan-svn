@@ -1157,8 +1157,10 @@ define method extract-tag-args
   local method end-of-key? (char :: <character>) => (b :: <boolean>)
           char = '=' | char = '>' | whitespace?(char)
         end,
-        method extract-key/val (buffer :: <byte-string>, key-start :: <integer>)
-          let key-end = min(char-position-if(end-of-key?, buffer, key-start, epos),
+        method extract-key/val (buffer :: <byte-string>,
+                                key-start :: <integer>)
+          let key-end = min(char-position-if(end-of-key?,
+                                             buffer, key-start, epos),
                             string-position(buffer, "/>", key-start, epos));
           if (~key-end | key-end = key-start)
             error("invalid dsp tag.  couldn't find end of keyword argument");

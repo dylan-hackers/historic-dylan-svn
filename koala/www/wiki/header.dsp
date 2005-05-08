@@ -14,8 +14,21 @@
     <a href="/wiki/view.dsp?title=Home">Home</a>&nbsp;&nbsp;
     <a href="/wiki/new.dsp">New Page</a>&nbsp;&nbsp;
     <a href="/wiki/view.dsp?title=Markup">Wiki Markup</a>&nbsp;&nbsp;
-    <dsp:if test="editable?">
+    <dsp:when test="editable?">
       <a href="/wiki/edit.dsp?title=<wiki:show-title v="true" for-url="true"/>">Edit This Page</a>&nbsp;&nbsp;
+    </dsp:when>
+    <dsp:if test="logged-in?">
+      <dsp:then>
+        Logged in as <wiki:username/>.
+      </dsp:then>
+      <dsp:else>
+        <form action="/wiki/view.dsp" method="post">
+          <div class="login">
+            <input type="text" name="username" size="20"/>
+            <input type="submit" value="login"/>
+          </div>
+        </form>
+      </dsp:else>        
     </dsp:if>
   </div>
 </div>

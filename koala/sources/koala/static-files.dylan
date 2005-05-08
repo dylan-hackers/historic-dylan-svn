@@ -28,7 +28,8 @@ define method document-location
         let loctype = iff(relative-url[size(relative-url) - 1] == '/',
                           <directory-locator>,
                           <file-locator>);
-        let loc = simplify-locator(merge-locators(as(loctype, relative-url), context));
+        let loc = simplify-locator(merge-locators(as(loctype, relative-url),
+                                                  context));
         if (locator-name(loc) = "..")
           loc := locator-directory(locator-directory(loc));
         end;
@@ -43,59 +44,63 @@ end document-location;
 
 define method maybe-serve-static-file
     (request :: <request>, response :: <response>)
- => (found? :: <boolean>)
+ => ()
   let url :: <string> = request-url(request);
-  let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+  let document :: false-or(<physical-locator>) 
+    = static-file-locator-from-url(url);
   log-debug("Requested document is %s", document);
-  when (document)
-    let (etag, weak?) = etag(document);
-    if (weak?)
-      add-header(response, "W/ETag", etag);
-    else
-      add-header(response, "ETag", etag);
-    end if;
-    let client-etag = get-header(request, "If-None-Match");
-    if (etag = client-etag)
-      request.request-method := #"head";
-      not-modified(headers: response.response-headers);
-    else
-      let spec :: <directory-spec> = directory-spec-matching(*virtual-host*, url);
-      select (file-type(document))
-        #"directory" =>
-          if (allow-directory-listing?(spec))
-            if (url[size(url) - 1] = '/')
-              directory-responder(request, response, document);
-            else
-              let new-location = concatenate(url, "/");
-              moved-permanently-redirect(location: new-location, // 301
-                                         header-name: "Location",
-                                         header-value: new-location);
-            end if;
+  if (~document)
+    log-info("%s not found", url);
+    resource-not-found-error(url: request-url(request));  // 404
+  end;
+
+  let (etag, weak?) = etag(document);
+  if (weak?)
+    add-header(response, "W/ETag", etag);
+  else
+    add-header(response, "ETag", etag);
+  end if;
+  let client-etag = get-header(request, "If-None-Match");
+  if (etag = client-etag)
+    request.request-method := #"head";
+    not-modified(headers: response.response-headers);
+  else
+    let spec :: <directory-spec>
+      = directory-spec-matching(*virtual-host*, url);
+    select (file-type(document))
+      #"directory" =>
+        if (allow-directory-listing?(spec))
+          if (url[size(url) - 1] = '/')
+            directory-responder(request, response, document);
           else
-            access-forbidden-error();  // 403
+            let new-location = concatenate(url, "/");
+            moved-permanently-redirect(location: new-location, // 301
+                                       header-name: "Location",
+                                       header-value: new-location);
           end if;
-        #"link" =>
-          let target = link-target(document);
-          block (exit-loop)
-            while (#t)
-              if (~file-exists?(target)
-                    | (~locator-below-document-root?(target)
-                         & ~follow-symlinks?(spec)))
-                resource-not-found-error(url: url);
-              elseif (file-type(target) == #"link")
-                target := link-target(target);
-              else
-                exit-loop();
-              end;
+        else
+          access-forbidden-error();  // 403
+        end if;
+      #"link" =>
+        let target = link-target(document);
+        block (exit-loop)
+          while (#t)
+            if (~file-exists?(target)
+                  | (~locator-below-document-root?(target)
+                       & ~follow-symlinks?(spec)))
+              resource-not-found-error(url: url);
+            elseif (file-type(target) == #"link")
+              target := link-target(target);
+            else
+              exit-loop();
             end;
           end;
-          static-file-responder(request, response, target);
-        otherwise =>
-          static-file-responder(request, response, document);
-      end select;
-    end if;
-    #t
-  end when;
+        end;
+        static-file-responder(request, response, target);
+      otherwise =>
+        static-file-responder(request, response, document);
+    end select;
+  end if;
 end method maybe-serve-static-file;
 
 // @returns the appropriate locator for the given URL, or #f if the URL is 
