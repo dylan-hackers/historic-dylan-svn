@@ -199,6 +199,8 @@ define module koala
   create
     <session>,
     get-session,
+    ensure-session,
+    clear-session,
     //get-attribute,
     //set-attribute,
     //remove-attribute,

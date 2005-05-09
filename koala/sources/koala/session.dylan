@@ -49,9 +49,34 @@ end;
 // API
 // This is the only way for user code to get the session object.
 define method get-session
-    (request :: <request>) => (session :: <session>)
+    (request :: <request>) => (session :: false-or(<session>))
   request.request-session
-  | (request.request-session := (current-session(request) | new-session(request)))
+  | (request.request-session := current-session(request))
+end;
+
+define method ensure-session
+    (request :: <request>) => (session :: <session>)
+  let session = get-session(request);
+  unless (session)
+    session := new-session(request);
+  end unless;
+  session;
+end;
+
+define method clear-session
+    (request :: <request>) => ();
+  let session = get-session(request);
+  if (session)
+    remove-key!(*sessions*, session.session-id);
+    request.request-session := #f;
+    add-cookie(*response*, "koala_session_id", -1,
+               max-age: *session-max-age*,
+               path: "/",
+               // domain: ??? ---TODO
+               comment: "This cookie assigns a unique number to your browser "
+                 "so that we can remember who you are as you move from page "
+                 "to page within our site.");
+  end if;
 end;
 
 define method current-session
@@ -76,8 +101,9 @@ define method new-session
              max-age: *session-max-age*,
              path: "/",
              // domain: ??? ---TODO
-             comment: "This cookie assigns a unique number to your browser so that we can "
-                      "remember who you are as you move from page to page within our site.");
+             comment: "This cookie assigns a unique number to your browser so "
+               "that we can remember who you are as you move from page "
+               "to page within our site.");
   let session = make(<session>, id: id);
   request.request-session := session
 end;
