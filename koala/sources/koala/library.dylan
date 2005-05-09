@@ -61,6 +61,7 @@ define module utilities
     wrapping-inc!,
     file-contents,
     pset,                // multiple-value-setq
+    ignore-errors,
     path-element-equal?,
     parent-directory,
     date-to-stream,
@@ -173,13 +174,17 @@ define module koala
   // Responses
   create
     <response>,
-    response-headers,
     output-stream,
     clear-output,
     set-content-type,
     add-header,
     add-cookie,
-    get-request;
+    get-request,
+    response-code,
+    response-code-setter,
+    response-message,
+    response-message-setter,
+    response-headers;
 
   // Cookies
   create
@@ -233,6 +238,10 @@ define module koala
   create
     access-forbidden-error,
     <koala-api-error>;
+
+  create
+    moved-permanently-redirectr,
+    see-other-redirect;
 
   // Not sure if these should really be exported.
   create
