@@ -179,6 +179,15 @@ define tag show-date in dsp
   date-to-stream(output-stream(response), date);
 end;
 
+//// HTTP Header Tags
+
+define tag show-referer in dsp
+   (page :: <dylan-server-page>, response :: <response>)
+   ()
+  format(output-stream(response), "%s",
+         header-value(#"Referer"));
+end;
+
 //// Internationalization tags
 
 //// XML tags

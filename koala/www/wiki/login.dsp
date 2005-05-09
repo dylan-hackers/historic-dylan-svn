@@ -20,6 +20,7 @@
           <div class="login">
             Username: <input type="text" name="username" size="20"/> <br/>
             Password: <input type="password" name="password" size="20"/> <br/>
+            <input type="hidden" name="referer" value="<dsp:show-referer/>">
             <input type="submit" value="login"/>
           </div>
         </form>
