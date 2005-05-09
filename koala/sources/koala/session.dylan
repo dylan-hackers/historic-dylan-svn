@@ -37,13 +37,16 @@ define method initialize
   end;
 end;
 
-// ---TODO: Should probably vary the session id in a less predictable way.
+// ---TODO: Should probably vary the session id in a true random way.
 //          And make it persistent across server reboots.
-define variable *next-session-id* :: <integer> = 0;
 
 define function next-session-id
     () => (id :: <integer>)
-  inc!(*next-session-id*)
+  let id = random($maximum-integer);
+  if (element(*sessions*, id, default: #f))
+    next-session-id();
+  end if;
+  id;
 end;
 
 // API
