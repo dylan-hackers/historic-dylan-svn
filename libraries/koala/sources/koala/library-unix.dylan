@@ -183,7 +183,8 @@ define module koala
     response-code,
     response-code-setter,
     response-message,
-    response-message-setter;
+    response-message-setter,
+    response-headers;
 
   // Cookies
   create
@@ -239,7 +240,8 @@ define module koala
     <koala-api-error>;
 
   create
-    moved-permanently-redirect;
+    moved-permanently-redirectr,
+    see-other-redirect;
 
   // Not sure if these should really be exported.
   create
