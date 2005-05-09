@@ -138,6 +138,9 @@ define http-error moved-permanently-redirect (<http-redirect-error>)
     "The requested document has moved permanently to %s",
     location;
 
+define http-error see-other-redirect (<http-redirect-error>)
+    303 "See Other";
+
 define http-error not-modified (<http-redirect-error>)
     304 "Not Modified";
 
@@ -167,8 +170,8 @@ define http-error invalid-request-line-error (<http-parse-error>)
     400 "Malformed syntax in request line";
 
 // Response MUST include WWW-Authenticate header
-//define http-error unauthorized-request-error (<http-client-error>)
-//  401 "Authentication required";
+define http-error unauthorized-error (<http-client-error>)
+    401 "Unauthorized";
 
 define http-error access-forbidden-error (<http-client-error>)
     403 "Forbidden";

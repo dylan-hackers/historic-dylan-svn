@@ -173,6 +173,7 @@ define module koala
   // Responses
   create
     <response>,
+    response-headers,
     output-stream,
     clear-output,
     set-content-type,
