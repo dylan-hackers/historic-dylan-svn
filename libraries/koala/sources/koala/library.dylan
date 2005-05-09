@@ -10,7 +10,7 @@ define library koala
   use functional-dylan,
     import: { dylan-extensions };
   use common-dylan,
-    import: { dylan, common-extensions, threads };
+    import: { dylan, common-extensions, threads, simple-random };
   use io,
     import: { format, standard-io, streams };
   use network,
@@ -259,6 +259,7 @@ define module httpi                             // http internals
   use threads;               // from dylan lib
   use common-extensions, exclude: { format-to-string, split };
   use dylan-basics;
+  use simple-random;
   use utilities,
     rename: { log-copious => %log-copious,
               log-verbose => %log-verbose,
