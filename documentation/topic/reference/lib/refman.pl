@@ -213,7 +213,7 @@ sub do_char_entry_name {
     $escaped =~ s/>/&gt;/g;
     
     print MODULE << "EOF";
-    <link href="$library/$module/$mangled.xml">
+    <link href="$module/$mangled.xml">
       <linktext><apiname>$escaped</apiname></linktext>
     </link>
 EOF
