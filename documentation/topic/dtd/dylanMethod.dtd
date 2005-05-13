@@ -46,8 +46,8 @@
 <!ENTITY % dylanFunction-typemod SYSTEM "dylanFunction.mod">
   %dylanFunction-typemod;
 
-<!ENTITY % dylanGenericFunction-typemod SYSTEM "dylanGenericFunction.mod">
-  %dylanGenericFunction-typemod;
+<!ENTITY % dylanMethod-typemod SYSTEM "dylanMethod.mod">
+  %dylanMethod-typemod;
 
 <!-- Domain definition inclusions -->
 

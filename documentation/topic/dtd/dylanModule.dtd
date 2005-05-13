@@ -20,6 +20,7 @@
 <!ENTITY % ph      "ph      | %pr-d-ph;      | %sw-d-ph;      | %hi-d-ph; | %ui-d-ph;">
 <!ENTITY % fig     "fig     | %pr-d-fig;     | %ut-d-fig;">
 <!ENTITY % dl      "dl      | %pr-d-dl;">
+<!ENTITY % xref    "xref    | %api-d-xref;">
 
 <!-- Topic nesting redefinitions -->
 
