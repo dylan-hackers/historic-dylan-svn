@@ -23,31 +23,31 @@
   <p class="signature">
     <!-- function name -->
     <samp><xsl:apply-templates select="ancestor::*[contains(@class,' apiRef/apiRef ')]/*[contains(@class, ' apiRef/apiName ')]" mode='text-only'/></samp>
-    <xsl:text>&#xA0;</xsl:text>
+    <xsl:text> </xsl:text>
     <!-- function required parameters -->
     <xsl:apply-templates select="*[contains(@class, ' dylanFunction/dylanFunctionParam ')]" mode="signature"/>
     <!-- function #rest parameters -->
     <xsl:if test="*[contains(@class, ' dylanFunction/dylanFunctionRestParam ')]">
       <samp>#rest</samp>
-      <xsl:text>&#xA0;</xsl:text>
+      <xsl:text> </xsl:text>
       <xsl:apply-templates select="*[contains(@class, ' dylanFunction/dylanFunctionRestParam ')]" mode="signature"/>
     </xsl:if>
     <!-- function #key parameters -->
     <xsl:if test="*[contains(@class, ' dylanFunction/dylanFunctionKeywordParam ') or contains(@class, ' dylanFunction/dylanFunctionAllKeywords ')]">
       <samp>#key</samp>
-      <xsl:text>&#xA0;</xsl:text>
+      <xsl:text> </xsl:text>
       <xsl:apply-templates select="*[contains(@class, ' dylanFunction/dylanFunctionKeywordParam ')]" mode="signature"/>
       <xsl:apply-templates select="*[contains(@class, ' dylanFunction/dylanFunctionAllKeywords ')]" mode="signature"/>
     </xsl:if>
     <!-- Arrow -->
     <xsl:call-template name="signature-arrow"/>
-    <xsl:text>&#xA0;</xsl:text>
+    <xsl:text> </xsl:text>
     <!-- Return values -->
     <xsl:apply-templates select="*[contains(@class, ' dylanFunction/dylanFunctionReturn ')]" mode="signature"/>
     <!-- #rest return values -->
     <xsl:if test="*[contains(@class, ' dylanFunction/dylanFunctionRestReturn ')]">
       <samp>#rest</samp>
-      <xsl:text>&#xA0;</xsl:text>
+      <xsl:text> </xsl:text>
       <xsl:apply-templates select="*[contains(@class, ' dylanFunction/dylanFunctionRestReturn ')]" mode="signature"/>
     </xsl:if>
   </p>
@@ -61,19 +61,19 @@
 <span class="var">
   <xsl:apply-templates select="*[contains(@class,' apiRef/apiItemName ')]" mode='text-only'/>
 </span>
-  <xsl:text>&#xA0;</xsl:text>
+  <xsl:text> </xsl:text>
 </xsl:template>
 
 <xsl:template match="*[contains(@class,' dylanFunction/dylanFunctionAllKeywords ')]" mode="signature">
   <samp>#all-keys</samp>
-  <xsl:text>&#xA0;</xsl:text>
+  <xsl:text> </xsl:text>
 </xsl:template>
 
 <xsl:template match="*[contains(@class,' apiOperation/apiReturn ')]" mode="signature">
 <span class="var">
   <xsl:apply-templates select="*[contains(@class,' apiRef/apiItemName ')]" mode='text-only'/>
 </span>
-  <xsl:text>&#xA0;</xsl:text>
+  <xsl:text> </xsl:text>
 </xsl:template>
 
 <xsl:template name="function-arguments">
